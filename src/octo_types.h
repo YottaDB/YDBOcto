@@ -369,10 +369,12 @@ typedef struct {
 typedef struct SqlDataTypeStruct {
 	enum SqlDataType data_type;
 	/* Below field is usable only in case "data_type" is the following types.
-	 *	INTEGER_TYPE : stores the precision specified (e.g. INT(4))
+	 *	INTEGER_TYPE : stores the precision specified (e.g. 8 in INT(8))
 	 *	NUMERIC_TYPE : stores the precision specified (e.g. 4 in NUMERIC(4,5))
 	 *	STRING_TYPE  : stores the size specified      (e.g. 30 in VARCHAR(30))
 	 * Is initialized to SIZE_OR_PRECISION_UNSPECIFIED otherwise.
+	 * Note: For INTEGER_TYPE, even though we store the specified precision, it is actually not used.
+	 * See comment under "integer_type_tail" rule in "src/parser.y" for more context.
 	 */
 	int size_or_precision;
 	/* Below field is usable only in case "data_type" is the following type(s).
@@ -380,6 +382,16 @@ typedef struct SqlDataTypeStruct {
 	 * Is initialized to SCALE_UNSPECIFIED otherwise.
 	 */
 	int scale;
+	/* In some cases (e.g. type cast operator usages like "SELECT 1.50::NUMERIC(3,2);"), we would have created a
+	 *	  parameter (using the INVOKE_PARSE_LITERAL_TO_PARAMETER macro) for the "size_or_precision" and "scale" fields.
+	 *	  For example, using the "int_literal_value" rule in "src/parser.y". In that case, we need access to the
+	 *	  parameter index for later use in "tmpl_print_expression()". Hence the below fields.
+	 * In other cases (e.g. data_type specifications of columns in CREATE TABLE commands), we would not have created
+	 *	a parameter as changes in the actual value of size/precision/scale needs to generate different plans.
+	 *	In those cases the below parameter index fields are initialized to 0.
+	 */
+	int size_or_precision_parameter_index;
+	int scale_parameter_index;
 } SqlDataTypeStruct;
 
 /**
@@ -619,9 +631,9 @@ typedef struct SqlParameterTypeList {
 
 typedef struct SqlValue {
 	enum SqlValueType type;
-	enum SqlValueType coerced_type;	    /* initialized/usable only if `type` is COERCE_TYPE */
+	SqlDataTypeStruct coerced_type;	    /* initialized/usable only if `type` is COERCE_TYPE */
 	enum SqlValueType pre_coerced_type; /* initialized/usable only if `type` is COERCE_TYPE */
-	char *		  parameter_index;
+	int		  parameter_index;
 	union {
 		char *string_literal;
 		char *reference;

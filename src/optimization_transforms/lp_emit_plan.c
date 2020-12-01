@@ -351,10 +351,38 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 				EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "ORDER BY %s: ", str);
 			}
 			if (LP_COERCE_TYPE == plan->type) {
+				SqlValueType	   value_type;
+				char *		   precision_and_scale;
+				SqlDataTypeStruct *data_type_ptr;
+				int		   size_or_precision, scale;
+				/* The array size below takes into account space needed to store
+				 * "(PRECISION,SCALE)" where PRECISION and SCALE are 4-byte integers.
+				 * 3 bytes for "(", ")" and "," and 1 byte for NULL terminator.
+				 */
+				char buff[INT32_TO_STRING_MAX + INT32_TO_STRING_MAX + 4];
+
+				data_type_ptr = &plan->extra_detail.lp_coerce_type.coerce_type;
+				value_type = get_sqlvaluetype_from_sqldatatype(data_type_ptr->data_type, FALSE);
+				size_or_precision = data_type_ptr->size_or_precision;
+				scale = data_type_ptr->scale;
+				if (SIZE_OR_PRECISION_UNSPECIFIED != size_or_precision) {
+					int len;
+
+					if (SCALE_UNSPECIFIED == scale) {
+						len = snprintf(buff, sizeof(buff), "(%d)", size_or_precision);
+					} else {
+						len = snprintf(buff, sizeof(buff), "(%d,%d)", size_or_precision, scale);
+					}
+					assert(len < (int)sizeof(buff));
+					UNUSED(len); /* needed to avoid [-Wunused-but-set-variable] warning from compiler */
+					precision_and_scale = buff;
+				} else {
+					precision_and_scale = "";
+				}
 				EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len,
-					      "[pre_coerce_type = %s] [post_coerce_type = %s]:",
+					      "[pre_coerce_type = %s] [post_coerce_type = %s%s]:",
 					      get_user_visible_type_string(plan->extra_detail.lp_coerce_type.pre_coerce_type),
-					      get_user_visible_type_string(plan->extra_detail.lp_coerce_type.coerce_type));
+					      get_user_visible_type_string(value_type), precision_and_scale);
 			}
 			EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");
 		}

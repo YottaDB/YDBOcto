@@ -19,7 +19,7 @@ TEMPLATE(tmpl_limit_check, SqlOptionalKeyword *limit_keyword, char *prefix, char
 
 	UNPACK_SQL_STATEMENT(limit, limit_keyword->v, value);
 	%{}{{ prefix }}{}%
-	%{}($GET({{ config->global_names.cursor }}(cursorId,{{ PP_PARAMETERS }},{{ limit->parameter_index }})){}%
+	%{}($GET({{ config->global_names.cursor }}(cursorId,{{ PP_PARAMETERS }},{{ limit->parameter_index|%d }})){}%
 	%{}{{ suffix }}){}%
 	return;
 }

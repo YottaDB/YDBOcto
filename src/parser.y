@@ -817,10 +817,10 @@ value_expression_primary
   ;
 
 cast_expression
-  : CAST LEFT_PAREN search_condition AS literal_type RIGHT_PAREN {
+  : CAST LEFT_PAREN search_condition AS data_type RIGHT_PAREN {
       SqlStatement	*ret;
 
-      ret = cast_specification($literal_type, $search_condition);
+      ret = cast_specification($data_type, $search_condition);
       if (NULL == ret) {
         YYERROR;
       }
@@ -837,22 +837,15 @@ conditional_expression
   ;
 
 cast_specification
-  : COLON COLON literal_type {
-      $$ = (SqlStatement *)$literal_type;
+  : COLON COLON data_type {
+      $$ = (SqlStatement *)$data_type;
     }
   | COLON COLON identifier {
       SqlValue	*value;
 
       UNPACK_SQL_STATEMENT(value, $identifier, value);
       ERROR(ERR_INVALID_TYPE, value->v.string_literal);
-      $$ = (SqlStatement *)INVALID_SqlValueType;
-    }
-  ;
-
-literal_type
-  : data_type {
-	/* Get just the data type (no size information needed). Hence the logic below. */
-	$$ = (SqlStatement *)get_sqlvaluetype_from_sqldatatype($data_type->v.data_type_struct.data_type, FALSE);
+      $$ = NULL;
     }
   ;
 
@@ -1791,7 +1784,11 @@ time_type_tail
 exact_numeric_type_tail
   : /* Empty */ { $$ = data_type(NUMERIC_TYPE, NULL, NULL); }
   | LEFT_PAREN precision exact_numeric_type_tail_tail RIGHT_PAREN {
-      $$ = data_type(NUMERIC_TYPE, $precision, $exact_numeric_type_tail_tail);
+	$$ = data_type(NUMERIC_TYPE, $precision, $exact_numeric_type_tail_tail);
+	if (NULL == $$) {	/* Possible if ERR_NUMERIC_SCALE error is raised */
+		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+		YYERROR;
+	}
     }
   ;
 
@@ -1803,15 +1800,21 @@ exact_numeric_type_tail_tail
 integer_type_tail
   : /* Empty */ { $$ = NULL; }
   | LEFT_PAREN precision RIGHT_PAREN {
-      $$ = $precision;
+	/* Note: We accept precision for even INTEGER (even though Postgres does not accept this syntax).
+	 * We also note it down here so a CREATE TABLE command is stored with the specified size in the text
+	 * table definition. But we actually ignore the specified precision eventually. This is done per a
+	 * user request (YDBOcto#411).
+	 */
+	$$ = $precision;
     }
+  ;
 
 precision
-  : ddl_int_literal_value { $$ = $ddl_int_literal_value; }
+  : int_literal_value { $$ = $int_literal_value; }
   ;
 
 scale
-  : ddl_int_literal_value { $$ = $ddl_int_literal_value; }
+  : int_literal_value { $$ = $int_literal_value; }
   ;
 
 literal_value
@@ -1878,7 +1881,7 @@ ddl_int_literal_value
 	$$ = ret;
     }
 
-/* A "ddl_str_literal_value" rule is similar to "ddl_int_literal_value" except that we expect a STRING_LITERAL type */
+/* A "ddl_str_literal_value" rule is similar to "ddl_int_literal_value" except that we expect a STRING_LITERAL type. */
 ddl_str_literal_value
   : LITERAL {
 	SqlStatement *ret = $LITERAL;
@@ -1894,6 +1897,23 @@ ddl_str_literal_value
 		ret->v.value->type = STRING_LITERAL;
 	} else if (STRING_LITERAL != ret->v.value->type) {
 		ERROR(ERR_DDL_LITERAL, "string");
+		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+		YYERROR;
+	}
+	$$ = ret;
+    }
+
+/* A "int_literal_value" rule is different from the "ddl_int_literal_value" rule in that we do want to do the
+ * INVOKE_PARSE_LITERAL_TO_PARAMETER call (i.e. we do not want multiple plans to be generated for different values
+ * of the literal (e.g. "SELECT 1.50:NUMERIC(2,1)" and "SELECT 1.50:NUMERIC(2,0)" should not generate 2 different plans).
+ * Hence the use of "literal_value" rule below (instead of the "LITERAL" rule used inside the "ddl_int_literal_value" rule).
+ */
+int_literal_value
+  : literal_value {
+	SqlStatement *ret = $literal_value;
+	ret->loc = yyloc;
+	if ((value_STATEMENT != ret->type) || (INTEGER_LITERAL != ret->v.value->type)) {
+		ERROR(ERR_INVALID_INTEGER_SYNTAX, ret->v.value->v.string_literal);
 		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
 		YYERROR;
 	}

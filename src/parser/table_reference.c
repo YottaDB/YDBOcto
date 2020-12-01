@@ -84,6 +84,8 @@ SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlati
 			assert(UNKNOWN_SqlDataType == column->data_type_struct.data_type);
 			column->data_type_struct.size_or_precision = SIZE_OR_PRECISION_UNSPECIFIED;
 			column->data_type_struct.scale = SCALE_UNSPECIFIED;
+			column->data_type_struct.size_or_precision_parameter_index = 0;
+			column->data_type_struct.scale_parameter_index = 0;
 			SQL_STATEMENT(column_name_stmt, value_STATEMENT);
 			column->columnName = column_name_stmt;
 			MALLOC_STATEMENT(column_name_stmt, value, SqlValue);

@@ -213,13 +213,13 @@ CREATE TABLE names (id INTEGER(-1.5) PRIMARY KEY, firstName VARCHAR(30), lastNam
 syntax error, unexpected MINUS, expecting LITERAL
 
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id INTEGER(-1.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
-[ERROR] PATH:LINENUM DATE TIME : ERR_DDL_LITERAL : Invalid literal in DDL specification: only integer literals accepted for this keyword.
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INTEGER_SYNTAX : Invalid input syntax for type integer: '15.5'
 Error with syntax near (line 1, column 32):
 
 CREATE TABLE names (id INTEGER(15.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
                                ^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id INTEGER(15.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
-[ERROR] PATH:LINENUM DATE TIME : ERR_DDL_LITERAL : Invalid literal in DDL specification: only integer literals accepted for this keyword.
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INTEGER_SYNTAX : Invalid input syntax for type integer: 'abcd'
 Error with syntax near (line 1, column 37):
 
 CREATE TABLE names (id INTEGER('abcd') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
@@ -246,13 +246,13 @@ CREATE TABLE names (id NUMERIC(-1.5) PRIMARY KEY, firstName VARCHAR(30), lastNam
 syntax error, unexpected MINUS, expecting LITERAL
 
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(-1.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
-[ERROR] PATH:LINENUM DATE TIME : ERR_DDL_LITERAL : Invalid literal in DDL specification: only integer literals accepted for this keyword.
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INTEGER_SYNTAX : Invalid input syntax for type integer: '15.5'
 Error with syntax near (line 1, column 32):
 
 CREATE TABLE names (id NUMERIC(15.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
                                ^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(15.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
-[ERROR] PATH:LINENUM DATE TIME : ERR_DDL_LITERAL : Invalid literal in DDL specification: only integer literals accepted for this keyword.
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INTEGER_SYNTAX : Invalid input syntax for type integer: 'abcd'
 Error with syntax near (line 1, column 37):
 
 CREATE TABLE names (id NUMERIC('abcd') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
@@ -265,13 +265,25 @@ CREATE TABLE names (id NUMERIC(abcd) PRIMARY KEY, firstName VARCHAR(30), lastNam
 syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
 
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(abcd) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
-[ERROR] PATH:LINENUM DATE TIME : ERR_DDL_LITERAL : Invalid literal in DDL specification: only integer literals accepted for this keyword.
+[ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_SCALE : Numeric scale 18 must be between 0 and precision 16
+Error with syntax near (line 1, column 31):
+
+CREATE TABLE names (id NUMERIC(16,18) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+                              ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(16,18) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+[ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_SCALE : Numeric scale 2047 must be between 0 and precision 64
+Error with syntax near (line 1, column 31):
+
+CREATE TABLE names (id NUMERIC(64,2047) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+                              ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(64,2047) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INTEGER_SYNTAX : Invalid input syntax for type integer: '85.5'
 Error with syntax near (line 1, column 36):
 
 CREATE TABLE names (id NUMERIC(127,85.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
                                    ^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(127,85.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
-[ERROR] PATH:LINENUM DATE TIME : ERR_DDL_LITERAL : Invalid literal in DDL specification: only integer literals accepted for this keyword.
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INTEGER_SYNTAX : Invalid input syntax for type integer: '100.87'
 Error with syntax near (line 1, column 34):
 
 CREATE TABLE names (id NUMERIC(0,100.87) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
@@ -291,19 +303,19 @@ CREATE TABLE names (id NUMERIC(-1.5,-2.5) PRIMARY KEY, firstName VARCHAR(30), la
 syntax error, unexpected MINUS, expecting LITERAL
 
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(-1.5,-2.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
-[ERROR] PATH:LINENUM DATE TIME : ERR_DDL_LITERAL : Invalid literal in DDL specification: only integer literals accepted for this keyword.
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INTEGER_SYNTAX : Invalid input syntax for type integer: '15.5'
 Error with syntax near (line 1, column 32):
 
 CREATE TABLE names (id NUMERIC(15.5,20.835) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
                                ^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(15.5,20.835) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
-[ERROR] PATH:LINENUM DATE TIME : ERR_DDL_LITERAL : Invalid literal in DDL specification: only integer literals accepted for this keyword.
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INTEGER_SYNTAX : Invalid input syntax for type integer: 'abcd'
 Error with syntax near (line 1, column 37):
 
 CREATE TABLE names (id NUMERIC('abcd',20.835) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
                                     ^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC('abcd',20.835) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
-[ERROR] PATH:LINENUM DATE TIME : ERR_DDL_LITERAL : Invalid literal in DDL specification: only integer literals accepted for this keyword.
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INTEGER_SYNTAX : Invalid input syntax for type integer: 'abcd'
 Error with syntax near (line 1, column 37):
 
 CREATE TABLE names (id NUMERIC('abcd','efgh') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";

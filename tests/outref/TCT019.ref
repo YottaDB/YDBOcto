@@ -1,0 +1,30 @@
+
+-- TCT019 : OCTO636 : SIZE/PRECISION and/or SCALE differences in typecast operator should not result in different plans
+
+SELECT 1.49::NUMERIC;
+SELECT 1.49::NUMERIC(2);
+SELECT 1.49::NUMERIC(1);
+SELECT 1.49::NUMERIC(2,1);
+SELECT 1.465::NUMERIC(3,2);
+
+SELECT 2.49::NUMERIC;
+SELECT 2.49::NUMERIC(2);
+SELECT 2.49::NUMERIC(1);
+SELECT 2.49::NUMERIC(2,1);
+SELECT 2.465::NUMERIC(3,2);
+
+1.49
+1
+1
+1.5
+1.47
+2.49
+2
+2
+2.5
+2.47
+; Queries that have generated plans (expect 3 plans)
+; --------------------------------------------------
+  SELECT 1.49::NUMERIC
+  SELECT 1.49::NUMERIC(2)
+  SELECT 1.49::NUMERIC(2,1)

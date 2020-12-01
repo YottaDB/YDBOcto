@@ -28,15 +28,15 @@
 #define HASH_LITERAL_VALUES -1
 #define ABNORMAL_STATUS	    1
 
-#define ADD_DATA_TYPE_HASH(STATE, COLUMN)                                                          \
-	{                                                                                          \
-		ADD_INT_HASH(STATE, COLUMN->data_type_struct.data_type);                           \
-		if (SIZE_OR_PRECISION_UNSPECIFIED != COLUMN->data_type_struct.size_or_precision) { \
-			ADD_INT_HASH(STATE, COLUMN->data_type_struct.size_or_precision);           \
-		}                                                                                  \
-		if (SCALE_UNSPECIFIED != COLUMN->data_type_struct.scale) {                         \
-			ADD_INT_HASH(STATE, COLUMN->data_type_struct.scale);                       \
-		}                                                                                  \
+#define ADD_DATA_TYPE_HASH(STATE, DATA_TYPE_STRUCT)                                        \
+	{                                                                                  \
+		ADD_INT_HASH(STATE, DATA_TYPE_STRUCT.data_type);                           \
+		if (SIZE_OR_PRECISION_UNSPECIFIED != DATA_TYPE_STRUCT.size_or_precision) { \
+			ADD_INT_HASH(STATE, DATA_TYPE_STRUCT.size_or_precision);           \
+		}                                                                          \
+		if (SCALE_UNSPECIFIED != DATA_TYPE_STRUCT.scale) {                         \
+			ADD_INT_HASH(STATE, DATA_TYPE_STRUCT.scale);                       \
+		}                                                                          \
 	}
 
 // Helper function that is invoked when we have to traverse a "column_list_alias_STATEMENT".
@@ -333,8 +333,25 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 			ydb_mmrhash_128_ingest(state, (void *)value->v.reference, strlen(value->v.reference));
 			break;
 		case COERCE_TYPE:
-			assert(IS_LITERAL_PARAMETER(value->coerced_type) || (NUL_VALUE == value->coerced_type));
-			ADD_INT_HASH(state, value->coerced_type);
+			/* Note that we do NOT want to use the ADD_DATA_TYPE_HASH macro here as we want two queries that
+			 * use type coercion (say "SELECT 1::NUMERIC(1);" vs "SELECT 1::NUMERIC(2);") to hash to the
+			 * same plan if the only difference is in the use of the SIZE/PRECISION and/or SCALE parameters.
+			 * The ADD_DATA_TYPE_HASH macro hashes the size/precision and/or scale values too which we do not
+			 * want in this case. Hence the simple hash of just the data type ("NUMERIC" in the example case).
+			 */
+			ADD_INT_HASH(state, value->coerced_type.data_type);
+			/* We want to generate different plans for two queries where one specifies a SIZE/PRECISION and/or
+			 * SCALE and one does not. For example, "SELECT 1::NUMERIC(1);" vs "SELECT 1::NUMERIC(1,0);".
+			 * Hence the additional hash below in the unspecified case. In the unspecified case, we skip this
+			 * hash and that will ensure a different plan gets created.
+			 */
+			if (SIZE_OR_PRECISION_UNSPECIFIED != value->coerced_type.size_or_precision) {
+				ADD_INT_HASH(state, SIZE_OR_PRECISION_UNSPECIFIED);
+			}
+			if (SCALE_UNSPECIFIED != value->coerced_type.scale) {
+				assert(SIZE_OR_PRECISION_UNSPECIFIED != value->coerced_type.size_or_precision);
+				ADD_INT_HASH(state, SCALE_UNSPECIFIED);
+			}
 			assert(IS_LITERAL_PARAMETER(value->pre_coerced_type) || (NUL_VALUE == value->pre_coerced_type));
 			ADD_INT_HASH(state, value->pre_coerced_type);
 			hash_canonical_query(state, value->v.coerce_target, status);
@@ -367,7 +384,11 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		cur_column = start_column;
 		do {
 			hash_canonical_query(state, cur_column->columnName, status);
-			ADD_DATA_TYPE_HASH(state, cur_column);
+			/* We want to hash two queries using table columns defined as NUMERIC(3) vs NUMERIC(4) into two
+			 * different plans. Hence we invoke ADD_DATA_TYPE_HASH macro which takes not just the type but
+			 * also any optional size/precision and/or scale if specified.
+			 */
+			ADD_DATA_TYPE_HASH(state, cur_column->data_type_struct);
 			assert(stmt == cur_column->table);
 			hash_canonical_query(state, cur_column->delim, status);
 			hash_canonical_query(state, cur_column->keywords, status);
@@ -384,7 +405,11 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		cur_column = start_column;
 		do {
 			hash_canonical_query(state, cur_column->columnName, status);
-			ADD_DATA_TYPE_HASH(state, cur_column);
+			/* We want to hash two queries using table columns defined as NUMERIC(3) vs NUMERIC(4) into two
+			 * different plans. Hence we invoke ADD_DATA_TYPE_HASH macro which takes not just the type but
+			 * also any optional size/precision and/or scale if specified.
+			 */
+			ADD_DATA_TYPE_HASH(state, cur_column->data_type_struct);
 			assert(NULL == cur_column->delim);
 			assert(NULL == cur_column->keywords);
 			cur_column = cur_column->next;

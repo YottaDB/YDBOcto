@@ -99,6 +99,7 @@ void ydb_error_check(int status, char *file, int line) {
 			/* Now that we have got the value, delete the M node */
 			ydb_delete_s(&varname, 2, subs, YDB_DEL_NODE);
 		}
+		/* Check if %ydboctoerror("INVALIDESCAPEPATTERN")	*/
 		ydboctoerrcode++;
 		if (positive_status == ydboctoerrcode) {
 			ydb_buffer_t subs[2];
@@ -112,6 +113,47 @@ void ydb_error_check(int status, char *file, int line) {
 			octo_log(line, file, ERROR, ERROR_Severity, ERR_INVALID_ESCAPE_PATTERN, ret_value.buf_addr);
 			/* Now that we have got the value, delete the M node */
 			ydb_delete_s(&varname, 2, subs, YDB_DEL_NODE);
+		}
+		/* Check if %ydboctoerror("NUMERICOVERFLOW")	*/
+		ydboctoerrcode++;
+		if (positive_status == ydboctoerrcode) {
+			ydb_buffer_t subs[2], ret_buff;
+			char precision_buff[INT64_TO_STRING_MAX], scale_buff[INT64_TO_STRING_MAX], value_buff[INT64_TO_STRING_MAX];
+
+			/* M code would have passed the parameters for the error message in M nodes.
+			 * Get that before printing error.
+			 */
+			YDB_LITERAL_TO_BUFFER("%ydboctoerror", &varname);
+			YDB_LITERAL_TO_BUFFER("NUMERICOVERFLOW", &subs[0]);
+			/* Get precision */
+			YDB_LITERAL_TO_BUFFER("1", &subs[1]);
+			ret_buff.len_alloc = sizeof(precision_buff) - 1; /* Leave 1 byte for null terminator */
+			ret_buff.buf_addr = precision_buff;
+			status = ydb_get_s(&varname, 2, subs, &ret_buff);
+			assert(YDB_OK == status);
+			UNUSED(status); /* needed to avoid a [clang-analyzer-deadcode.DeadStores] warning */
+			ret_buff.buf_addr[ret_buff.len_used] = '\0';
+			ydb_delete_s(&varname, 2, subs, YDB_DEL_NODE); /* Now that we have got the value, delete the M node */
+			/* Get scale */
+			YDB_LITERAL_TO_BUFFER("2", &subs[1]);
+			ret_buff.len_alloc = sizeof(scale_buff) - 1; /* Leave 1 byte for null terminator */
+			ret_buff.buf_addr = scale_buff;
+			status = ydb_get_s(&varname, 2, subs, &ret_buff);
+			assert(YDB_OK == status);
+			UNUSED(status); /* needed to avoid a [clang-analyzer-deadcode.DeadStores] warning */
+			ret_buff.buf_addr[ret_buff.len_used] = '\0';
+			ydb_delete_s(&varname, 2, subs, YDB_DEL_NODE); /* Now that we have got the value, delete the M node */
+			/* Get value */
+			YDB_LITERAL_TO_BUFFER("3", &subs[1]);
+			ret_buff.len_alloc = sizeof(value_buff) - 1; /* Leave 1 byte for null terminator */
+			ret_buff.buf_addr = value_buff;
+			status = ydb_get_s(&varname, 2, subs, &ret_buff);
+			assert(YDB_OK == status);
+			UNUSED(status); /* needed to avoid a [clang-analyzer-deadcode.DeadStores] warning */
+			ret_buff.buf_addr[ret_buff.len_used] = '\0';
+			ydb_delete_s(&varname, 2, subs, YDB_DEL_NODE); /* Now that we have got the value, delete the M node */
+			/* Issue error */
+			octo_log(line, file, ERROR, ERROR_Severity, ERR_NUMERIC_OVERFLOW, precision_buff, scale_buff, value_buff);
 		}
 		ydboctoerrcode++;
 		assert(ydboctoerrcode == ydboctoerrcodemax);

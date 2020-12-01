@@ -385,6 +385,14 @@ Text: Invalid input syntax for type boolean: 'xxx' is not a valid boolean value
 
 Description/Action: This error is generated when the user attempts to assign a non-boolean value to a boolean variable. PSQL Error Code: 22P02
 
++++++++++++++++++++++++++++++
+ERR_INVALID_INTEGER_SYNTAX
++++++++++++++++++++++++++++++
+
+Text: Invalid input syntax for type integer: 'xxx'
+
+Description/Action: This error indicates that an integer was expected in this context, but a non-integer value was specified. PSQL Error Code: 22P02
+
 +++++++++++++++++++++++++
 ERR_INVALID_KEYWORD_CHAR
 +++++++++++++++++++++++++
@@ -568,6 +576,22 @@ ERR_NULL_SUBS_DISABLED
 Text: Null subscripts must be enabled for proper operation. Please set '-null_subscripts=always' for all regions containing Octo global variables.
 
 Description/Action: This error indicates that Null Subscripts have been turned off. However, they must be enabled for proper operation. Set '-null_subscripts=always' for all regions containing Octo global variables. PSQL Error Code: F0000
+
++++++++++++++++++++++++++++++
+ERR_NUMERIC_SCALE
++++++++++++++++++++++++++++++
+
+Text: Numeric scale xxx must be between 0 and precision xxx
+
+Description/Action: This error indicates that the SCALE value in a NUMERIC(PRECISION,SCALE) specification cannot be greater than the PRECISION value. PSQL Error Code: 22023
+
++++++++++++++++++++++++++++++
+ERR_NUMERIC_OVERFLOW
++++++++++++++++++++++++++++++
+
+Text: Numeric field overflow; A field with precision xxx, scale xxx must round to an absolute value less than 10^xxx
+
+Description/Action: This error indicates that the integer portion of a value that is being type cast to NUMERIC(PRECISION,SCALE) cannot be longer than PRECISION-SCALE (i.e. PRECISION minus SCALE) decimal digits. PSQL Error Code: 22003
 
 ++++++++++++++++++++++++++++++
 ERR_ORDER_BY_POSITION_INVALID

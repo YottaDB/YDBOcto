@@ -32,6 +32,7 @@
 	SET %ydboctoerror("SUBQUERYMULTIPLEROWS")=$incr(%ydboctoerrcode) ; signaled by `GetScalar` in `_ydboctoplanhelpers.m`
 	SET %ydboctoerror("INVALIDINPUTSYNTAXBOOL")=$incr(%ydboctoerrcode) ; signaled by `String2Boolean` in `_ydboctoplanhelpers.m`
 	SET %ydboctoerror("INVALIDESCAPEPATTERN")=$incr(%ydboctoerrcode) ; signaled by `regexmatch` in `_ydboctoplanhelpers.m`
+	SET %ydboctoerror("NUMERICOVERFLOW")=$incr(%ydboctoerrcode) ; signaled by `Cast2NUMERIC` in `_ydboctoplanhelpers.m`
 	; Any additions of error codes needs to happen before the following line (%ydboctoerrcodemax)
 	; Changes need to also happen in `ydb_error_check.c` and likely in `_ydboctoplanhelpers.m`
 	SET %ydboctoerrcodemax=$incr(%ydboctoerrcode)

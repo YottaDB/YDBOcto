@@ -17,11 +17,9 @@
 
 // Function invoked by the rule named "table_reference" in src/parser/select.y
 SqlStatement *cast_specification(SqlStatement *cast_specification, SqlStatement *source) {
-	SqlValueType  type;
 	SqlStatement *ret;
 
-	type = (SqlValueType)cast_specification;
-	if (INVALID_SqlValueType == type) {
+	if (NULL == cast_specification) {
 		ret = NULL;
 	} else {
 		SqlValue *value;
@@ -30,7 +28,8 @@ SqlStatement *cast_specification(SqlStatement *cast_specification, SqlStatement 
 		MALLOC_STATEMENT(ret, value, SqlValue);
 		UNPACK_SQL_STATEMENT(value, ret, value);
 		value->type = COERCE_TYPE;
-		value->coerced_type = type;
+		assert(data_type_struct_STATEMENT == cast_specification->type);
+		value->coerced_type = cast_specification->v.data_type_struct;
 		/* value->pre_coerced_type will be initialized in populate_data_type */
 		value->v.coerce_target = source;
 	}

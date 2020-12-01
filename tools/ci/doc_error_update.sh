@@ -52,7 +52,10 @@ while read line; do
 	# mnemonic being significant and not merely an identifying prefix, or else due to the inclusion of regex characters like '*'
 	# in the error message text that interfere with the above sed calls. These omissions are acceptable since these particular
 	# messages are known to be complete in the documentation.
-done < <(grep ERROR_DEF src/errors.hd | grep -v -f tools/ci/omitted_errors.ref)
+	# Also ignore comment lines (that start with a '//' pattern). This way if an error message gets added
+	# but is inside a commented line, the pre-commit hook does not fail due to that commented error message
+	# not being currently documented in "doc/errors.rst". Hence the grep for '^//' below.
+done < <(grep ERROR_DEF src/errors.hd | grep -v '^//' | grep -v -f tools/ci/omitted_errors.ref)
 status=0
 if [[ "" != $missing_mnemonics ]]; then
 	echo "-> The following error message mnemonics are missing from errors.rst. Please add each mnemonic error name along with its message text, error code, and a description to doc/errors.rst:"

@@ -577,6 +577,18 @@ else
 				continue
 			fi
 			subtest=`sed 's/.*subtest \[//;s/].*//;' bats_test.out`
+			if [[ $subtest == "TC011" ]]; then
+				# The TC011 subtest used to have invalid queries which issue errors in later commits
+				# For example, "CREATE TABLE names (id NUMERIC(16,18) PRIMARY KEY ..." used to work fine before
+				# But would issue a "ERR_NUMERIC_SCALE" error due to the YDBOcto#636 fixes.
+				# Therefore, the output of octo against these queries using an older commit and the current commit
+				# could be different (depending on the randomly chosen older commit). And that in turn would
+				# cause the "test-auto-upgrade" pipeline job to signal a false failure. Therefore skip this subtest.
+				echo "SKIPPED : $tstdir : TC011 subtest could cause false failures due to YDBOcto#636" >> ../bats_test.txt
+				cd ..
+				rm -rf $tstdir
+				continue
+			fi
 			echo "# Running *.sql files in $tstdir : [subtest : $subtest]" | tee -a ../errors.log
 			echo "INCLUDE : $tstdir" >> ../include_bats_test.txt
 			# Check if subtest ran in M or UTF-8 mode and switch ydb_chset and ydb_routines accordingly

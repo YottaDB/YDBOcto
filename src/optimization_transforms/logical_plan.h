@@ -166,8 +166,8 @@ typedef struct LpExtraAggregateFunction {
 } LpExtraAggregateFunction;
 
 typedef struct LpExtraCoerceType {
-	SqlValueType coerce_type;     /* The resulting type of the typecast/coercion operator */
-	SqlValueType pre_coerce_type; /* The type of the operand before the typecast/coercion operator */
+	SqlDataTypeStruct coerce_type;	   /* The resulting type of the typecast/coercion operator */
+	SqlValueType	  pre_coerce_type; /* The type of the operand before the typecast/coercion operator */
 } LpExtraCoerceType;
 
 /* When adding a LP_FUNCTION_CALL we need to know if a LP_FUNCTION_CALL plan is already part of the linked list.

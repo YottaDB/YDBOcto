@@ -52,7 +52,7 @@ boolean_t lp_is_operand_type_string(LogicalPlan *plan) {
 			loop_done = TRUE;
 			break;
 		case LP_COERCE_TYPE:
-			if (STRING_LITERAL == cur_plan->extra_detail.lp_coerce_type.coerce_type) {
+			if (STRING_TYPE == cur_plan->extra_detail.lp_coerce_type.coerce_type.data_type) {
 				ret = TRUE;
 			}
 			loop_done = TRUE;

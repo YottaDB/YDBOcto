@@ -121,7 +121,7 @@ boolean_t match_sql_statement(SqlStatement *stmt, SqlStatement *match_stmt) {
 			ret = (value->pre_coerced_type == match_value->pre_coerced_type);
 			if (!ret)
 				break;
-			ret = (value->coerced_type == match_value->coerced_type);
+			ret = !memcmp(&value->coerced_type, &match_value->coerced_type, sizeof(match_value->coerced_type));
 			if (!ret)
 				break;
 		}

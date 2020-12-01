@@ -25,16 +25,19 @@ SqlStatement *data_type(SqlDataType data_type, SqlStatement *size_or_precision, 
 	if (NULL == size_or_precision) {
 		/* Column SIZE or PRECISION not specified. Set field accordingly. */
 		ret->v.data_type_struct.size_or_precision = SIZE_OR_PRECISION_UNSPECIFIED;
+		ret->v.data_type_struct.size_or_precision_parameter_index = 0;
 	} else {
 		/* Even though "atoi()" does not do error checking like "strtol()", it is fine here as most error
 		 * checking is already done by the "ddl_int_literal_value" rule in "src/parser.y" (asserted below).
 		 */
 		assert((value_STATEMENT == size_or_precision->type) && (INTEGER_LITERAL == size_or_precision->v.value->type));
 		ret->v.data_type_struct.size_or_precision = atoi(size_or_precision->v.value->v.string_literal);
+		ret->v.data_type_struct.size_or_precision_parameter_index = size_or_precision->v.value->parameter_index;
 	}
 	if (NULL == scale) {
 		/* Column SCALE not specified. Set field accordingly. */
 		ret->v.data_type_struct.scale = SCALE_UNSPECIFIED;
+		ret->v.data_type_struct.scale_parameter_index = 0;
 	} else {
 		assert(NULL != size_or_precision);
 		/* Even though "atoi()" does not do error checking like "strtol()", it is fine here as most error
@@ -42,6 +45,12 @@ SqlStatement *data_type(SqlDataType data_type, SqlStatement *size_or_precision, 
 		 */
 		assert((value_STATEMENT == scale->type) && (INTEGER_LITERAL == scale->v.value->type));
 		ret->v.data_type_struct.scale = atoi(scale->v.value->v.string_literal);
+		if ((0 > ret->v.data_type_struct.scale)
+		    || (ret->v.data_type_struct.size_or_precision < ret->v.data_type_struct.scale)) {
+			ERROR(ERR_NUMERIC_SCALE, ret->v.data_type_struct.scale, ret->v.data_type_struct.size_or_precision);
+			return NULL;
+		}
+		ret->v.data_type_struct.scale_parameter_index = scale->v.value->parameter_index;
 	}
 	return ret;
 }

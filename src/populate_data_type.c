@@ -560,7 +560,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			 * different from Postgres (where `'Zero'::integer` will cause an error). We will deal with
 			 * this if users complain about this incompatibility with Postgres.
 			 */
-			*type = value->coerced_type;
+			*type = get_sqlvaluetype_from_sqldatatype(value->coerced_type.data_type, FALSE);
 			break;
 		default:
 			assert(FALSE);
@@ -639,6 +639,8 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			column->data_type_struct.data_type = get_sqldatatype_from_sqlvaluetype(type_array[colno]);
 			column->data_type_struct.size_or_precision = SIZE_OR_PRECISION_UNSPECIFIED;
 			column->data_type_struct.scale = SCALE_UNSPECIFIED;
+			column->data_type_struct.size_or_precision_parameter_index = 0;
+			column->data_type_struct.scale_parameter_index = 0;
 			column = column->next;
 			colno++;
 		} while (column != start_column);
@@ -738,7 +740,11 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 					MALLOC_STATEMENT(sql_stmt, value, SqlValue);
 					UNPACK_SQL_STATEMENT(value, sql_stmt, value);
 					value->type = COERCE_TYPE;
-					value->coerced_type = STRING_LITERAL;
+					value->coerced_type.data_type = STRING_TYPE;
+					value->coerced_type.size_or_precision = SIZE_OR_PRECISION_UNSPECIFIED;
+					value->coerced_type.scale = SCALE_UNSPECIFIED;
+					value->coerced_type.size_or_precision_parameter_index = 0;
+					value->coerced_type.scale_parameter_index = 0;
 					value->pre_coerced_type = child_type;
 					value->v.coerce_target = *target;
 					*target = sql_stmt;

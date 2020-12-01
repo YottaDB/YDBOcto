@@ -883,3 +883,36 @@ regexmatch(str,regexstr,regextype,regexflags)
 	IF (0=$DATA(regexflags)) SET ret=$$regmatch^%ydbposix(str,result)
 	ELSE  SET ret=$$regmatch^%ydbposix(str,result,regexflags)
 	QUIT ret
+
+Cast2VARCHAR(string,size)
+	; This function helps implement the typecast operator where the target type is VARCHAR
+	; "string" is the input string that needs to be type cast.
+	; "size" is the maximum character length (not byte length) of the target string.
+	; e.g. 'abcd'::VARCHAR(2) should return 'ab'
+	QUIT $EXTRACT(string,1,size)
+
+Cast2NUMERIC(number,precision,scale)
+	; This function helps implement the typecast operator where the target type is NUMERIC
+	; "number" is the input number that needs to be type cast.
+	; "precision" is the maximum precision (i.e. total count of significant digits on either side of the decimal point)
+	;	of the target number.
+	; "scale" is the maximum scale (i.e. count of decimal digits to the right sight of the decimal point) of the target number.
+	; e.g. 15.54::NUMERIC(3,1) should return '15.5'
+	; e.g. 15.54::NUMERIC(3,0) should return '16'
+	; e.g. 15.54::NUMERIC(4,1) should return '15.5'
+	NEW tmpnumber,tmpprecision
+	SET tmpprecision=precision
+	SET:'$DATA(scale) scale=0
+	SET number=$FNUMBER(number,"",scale)	; If number has more digits after the decimal point than scale, truncate/round it
+	SET tmpprecision=tmpprecision-scale
+	SET tmpnumber=number\1		; Remove fractional part
+	SET:(0>tmpnumber) tmpnumber=-tmpnumber ; Get absolute value (if negative)
+	SET:(0>tmpprecision) tmpprecision=0	; If precision is negative, set it to 0
+	IF tmpnumber>=(10**tmpprecision) DO
+	.	SET %ydboctoerror("NUMERICOVERFLOW",1)=precision	; pass parameter to `src/ydb_error_check.c`
+	.	SET:'$DATA(scale) scale=0
+	.	SET %ydboctoerror("NUMERICOVERFLOW",2)=scale		; pass parameter to `src/ydb_error_check.c`
+	.	SET %ydboctoerror("NUMERICOVERFLOW",3)=tmpprecision	; pass parameter to `src/ydb_error_check.c`
+	.	ZMESSAGE %ydboctoerror("NUMERICOVERFLOW")
+	QUIT number
+

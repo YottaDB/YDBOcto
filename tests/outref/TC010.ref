@@ -121,13 +121,13 @@ CREATE TABLE DATETIME (id INTEGER PRIMARY KEY, date1 DATE, time1 TIME(-1.5));
 syntax error, unexpected MINUS, expecting LITERAL
 
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE DATETIME (id INTEGER PRIMARY KEY, date1 DATE, time1 TIME(-1.5));
-[ERROR] PATH:LINENUM DATE TIME : ERR_DDL_LITERAL : Invalid literal in DDL specification: only integer literals accepted for this keyword.
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INTEGER_SYNTAX : Invalid input syntax for type integer: '15.8'
 Error with syntax near (line 1, column 71):
 
 CREATE TABLE DATETIME (id INTEGER PRIMARY KEY, date1 DATE, time1 TIME(15.8));
                                                                       ^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE DATETIME (id INTEGER PRIMARY KEY, date1 DATE, time1 TIME(15.8));
-[ERROR] PATH:LINENUM DATE TIME : ERR_DDL_LITERAL : Invalid literal in DDL specification: only integer literals accepted for this keyword.
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INTEGER_SYNTAX : Invalid input syntax for type integer: 'abcd'
 Error with syntax near (line 1, column 76):
 
 CREATE TABLE DATETIME (id INTEGER PRIMARY KEY, date1 DATE, time1 TIME('abcd'));

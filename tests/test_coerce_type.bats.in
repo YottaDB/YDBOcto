@@ -118,3 +118,41 @@ teardown() {
 @test "TCT016 : OCTO568 : Accept non-standard integer types" {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCT016.sql useocto
 }
+
+@test "TCT017 : OCTO636 : SIZE specified in the VARCHAR type of the typecast operator (::) should be honored" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCT017_no_utf8.sql
+  if [[ $ydb_chset == "UTF-8" ]]; then
+	# On RHEL7 (older version of Postgres) Postgres output is incorrect with UTF-8 characters.
+	# So we use a reference file instead for this portion of the test.
+	# First run queries that do not have UTF8
+	load_fixture TCT017_utf8.sql subtest novv
+	verify_output TCT017_utf8 output.txt
+  fi
+}
+
+@test "TCT018 : OCTO636 : SIZE specified in the NUMERIC type of the typecast operator (::) should be honored" {
+  echo "# Run queries from TCT018.sql (expected to run without any errors). Cross check output of Octo against Postgres" > output.txt
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCT018.sql	# appends to output.txt
+  echo "# Run queries that are expected to error out. Cross check against reference file" >> output.txt
+  mv output.txt output1.txt
+  load_fixture TCT018_errors.sql subtest novv
+  mv output.txt output2.txt
+  cat output1.txt output2.txt > output.txt
+  verify_output TCT018 output.txt
+}
+
+@test "TCT019 : OCTO636 : SIZE/PRECISION and/or SCALE differences in typecast operator should not result in different plans" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCT019.sql	# appends to output.txt
+  load_fixture TCT019.sql subtest novv
+  # Also verify that only a subset of of the above queries generates a unique plan and the rest of the queries map to one another
+  # The easiest way to do this is to find out the query (in a commented section) from the _ydboctoP*.m file and add it to the
+  # output so it can be compared against the reference file.
+  # We expect one plan for just NUMERIC type.
+  # We expect one plan when PRECISION is specified with NUMERIC.
+  # We expect one plan for when SCALE and PRECISION are specified with NUMERIC.
+  # For a total of 3 plans.
+  echo "; Queries that have generated plans (expect 3 plans)" >> output.txt 2>&1
+  echo "; --------------------------------------------------" >> output.txt 2>&1
+  grep SELECT _ydboctoP*.m | cut -d";" -f 2 | sort >> output.txt 2>&1
+  verify_output TCT019 output.txt
+}

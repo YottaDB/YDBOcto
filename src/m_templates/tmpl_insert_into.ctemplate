@@ -194,7 +194,7 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 		cur_column = cur_column->next;
 	} while (cur_column != start_column);
 	if (first_nonkey_column) {
-		/* There was no non-key column found i.e. all columns are key columns. So generate an empty string value
+		/* There was no non-key column found, i.e. all columns are key columns. So generate an empty string value
 		 * for the value portion of the M node.
 		 */
 		%{}""{}%

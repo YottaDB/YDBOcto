@@ -1,0 +1,24 @@
+
+-- TCT017 : OCTO636 : SIZE specified in the VARCHAR type of the typecast operator (::) should be honored
+
+SELECT '|' || 'abcd' || '|';
+SELECT '|' || 'abcd'::varchar(2) || '|';
+SELECT '|' || 'abcd'::varchar(3) || '|';
+SELECT '|' || 'abcd'::varchar(4) || '|';
+SELECT '|' || 'abcd'::varchar(5) || '|';
+SELECT '|' || 'ＡＢＣＤ' || '|';
+SELECT '|' || 'ＡＢＣＤ'::varchar(2) || '|';
+SELECT '|' || 'ＡＢＣＤ'::varchar(3) || '|';
+SELECT '|' || 'ＡＢＣＤ'::varchar(4) || '|';
+SELECT '|' || 'ＡＢＣＤ'::varchar(5) || '|';
+
+|abcd|
+|ab|
+|abc|
+|abcd|
+|abcd|
+|ＡＢＣＤ|
+|ＡＢ|
+|ＡＢＣ|
+|ＡＢＣＤ|
+|ＡＢＣＤ|

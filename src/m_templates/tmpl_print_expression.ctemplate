@@ -35,7 +35,8 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	LogicalPlan	*cur_branch, *default_value;
 	LogicalPlan	*first_operand, *second_operand, *t_operand;
 	LogicalPlan	*cur_lp_key, *derived_column;
-	SqlValueType	coerce_type, pre_coerce_type, return_type;
+	SqlValueType	pre_coerce_type, return_type;
+	SqlDataType	coerce_data_type;
 	LPActionType	plan_type;
 	boolean_t	is_avg;
 	int		aggregate_cnt;
@@ -66,7 +67,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		case INTEGER_LITERAL:
 		case NUMERIC_LITERAL:
 		case STRING_LITERAL:
-			%{}$GET({{ config->global_names.cursor }}(cursorId,{{ PP_PARAMETERS }},{{ value->parameter_index }})){}%
+			%{}$GET({{ config->global_names.cursor }}(cursorId,{{ PP_PARAMETERS }},{{ value->parameter_index|%d }})){}%
 			break;
 		case FUNCTION_NAME:
 			%{}{{ value->v.string_literal }}{}%
@@ -91,10 +92,10 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
 		}
-		coerce_type = plan->extra_detail.lp_coerce_type.coerce_type;
+		coerce_data_type = plan->extra_detail.lp_coerce_type.coerce_type.data_type;
 		pre_coerce_type = plan->extra_detail.lp_coerce_type.pre_coerce_type;
-		switch(coerce_type) {
-		case BOOLEAN_VALUE:
+		switch(coerce_data_type) {
+		case BOOLEAN_TYPE:
 			switch(pre_coerce_type) {
 			case BOOLEAN_VALUE:
 				break;
@@ -113,15 +114,28 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				break;
 			}
 			break;
-		case INTEGER_LITERAL:
+		case INTEGER_TYPE:
+			/* Note: We ignore "precision" (if specified).
+			 * See comment under "integer_type_tail" rule in "src/parser.y" for more context.
+			 */
 			%{}({}%
 			break;
-		case NUMERIC_LITERAL:
+		case NUMERIC_TYPE:
+			if (SIZE_OR_PRECISION_UNSPECIFIED != plan->extra_detail.lp_coerce_type.coerce_type.size_or_precision) {
+				%{}$$Cast2NUMERIC^%%ydboctoplanhelpers({}%
+			}
+			/* NARSTODO: YDBOcto#502 : Need to add code to handle precision/scale (below fields) if specified.
+			 * plan->extra_detail.lp_coerce_type.coerce_type.size_or_precision
+			 * plan->extra_detail.lp_coerce_type.coerce_type.scale
+			 */
 			%{}(+{}%
 			break;
-		case NUL_VALUE:
+		case NUL_TYPE:
 			break;
-		case STRING_LITERAL:
+		case STRING_TYPE:
+			if (SIZE_OR_PRECISION_UNSPECIFIED != plan->extra_detail.lp_coerce_type.coerce_type.size_or_precision) {
+				%{}$$Cast2VARCHAR^%%ydboctoplanhelpers({}%
+			}
 			if (BOOLEAN_VALUE == pre_coerce_type) {
 				%{}$$Boolean2String^%%ydboctoplanhelpers({}%
 			}
@@ -137,8 +151,8 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			%{}{{ PP_YDB_OCTO_EXPR }}{}%
 		}
 		%{}){}%
-		switch(plan->extra_detail.lp_coerce_type.coerce_type) {
-		case BOOLEAN_VALUE:
+		switch(coerce_data_type) {
+		case BOOLEAN_TYPE:
 			switch(pre_coerce_type) {
 			case INTEGER_LITERAL:
 			case NUMERIC_LITERAL:
@@ -148,17 +162,33 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				break;
 			}
 			break;
-		case INTEGER_LITERAL:
+		case INTEGER_TYPE:
+			/* Note: We ignore "precision" (if specified).
+			 * See comment under "integer_type_tail" rule in "src/parser.y" for more context.
+			 */
 			%{}\1){}%
 			break;
-		case NUMERIC_LITERAL:
+		case NUMERIC_TYPE:
 			%{}){}%
+			if (SIZE_OR_PRECISION_UNSPECIFIED != plan->extra_detail.lp_coerce_type.coerce_type.size_or_precision) {
+				%{},$GET({{ config->global_names.cursor }}(cursorId,{{ PP_PARAMETERS }},{}%
+				%{}{{ plan->extra_detail.lp_coerce_type.coerce_type.size_or_precision_parameter_index|%d }})){}%
+				if (SCALE_UNSPECIFIED != plan->extra_detail.lp_coerce_type.coerce_type.scale) {
+					%{},$GET({{ config->global_names.cursor }}(cursorId,{{ PP_PARAMETERS }},{}%
+					%{}{{ plan->extra_detail.lp_coerce_type.coerce_type.scale_parameter_index|%d }})){}%
+				}
+				%{}){}%
+			}
 			break;
-		case NUL_VALUE:
+		case NUL_TYPE:
 			break;
-		case STRING_LITERAL:
+		case STRING_TYPE:
 			if (BOOLEAN_VALUE == pre_coerce_type) {
 				%{}){}%
+			}
+			if (SIZE_OR_PRECISION_UNSPECIFIED != plan->extra_detail.lp_coerce_type.coerce_type.size_or_precision) {
+				%{},$GET({{ config->global_names.cursor }}(cursorId,{{ PP_PARAMETERS }},{}%
+				%{}{{ plan->extra_detail.lp_coerce_type.coerce_type.size_or_precision_parameter_index|%d }}))){}%
 			}
 			break;
 		default:

@@ -96,6 +96,7 @@ ERROR_DEF(ERR_INVALID_AS_SYNTAX, "Invalid AS value type: %s", PSQL_Code_Syntax_E
 ERROR_DEF(ERR_M_CALL, "Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_PERCENT_IN_EXTRINSIC_FUNCTION_NAME, "'%%' is only allowed at the beginning of an M label or routine name.", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_DDL_LITERAL, "Invalid literal in DDL specification: only %s literals accepted for this keyword.", PSQL_Code_Syntax_Error)
+ERROR_DEF(ERR_INVALID_INTEGER_SYNTAX, "Invalid input syntax for type integer: '%s'", PSQL_Invalid_Text_Representation)
 ERROR_DEF(ERR_VALUES_LENGTH, "VALUES lists must all be the same length", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_INSERT_TOO_MANY_COLUMNS, "INSERT has more target columns than expressions", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_INSERT_TOO_MANY_EXPRESSIONS, "INSERT has more expressions than target columns", PSQL_Code_Syntax_Error)
@@ -202,6 +203,8 @@ ERROR_DEF(ERR_INVALID_WRITE_SIZE, "Write size %d out of range", PSQL_Code_Numeri
 ERROR_DEF(ERR_MIDENT_LENGTH, "Length %d too large for M identifier (max length %d)", PSQL_Code_Numeric_Value_Out_Of_Range)
 ERROR_DEF(ERR_INVALID_NUMBER, "%s: invalid number of %s: %d is out of range (min: %d, max: %d)", PSQL_Code_Numeric_Value_Out_Of_Range)
 ERROR_DEF(ERR_TOO_MANY_FUNCTION_ARGUMENTS, "Too many arguments passed for function %s (max: %d)", PSQL_Code_Numeric_Value_Out_Of_Range)
+ERROR_DEF(ERR_NUMERIC_OVERFLOW, "Numeric field overflow; A field with precision %s, scale %s must round to an absolute value less than 10^%s", PSQL_Code_Numeric_Value_Out_Of_Range)
+ERROR_DEF(ERR_NUMERIC_SCALE, "Numeric scale %d must be between 0 and precision %d", PSQL_Code_Invalid_Parameter_Value)
 // ROCTO //
 ERROR_DEF(ERR_ROCTO_INVALID_ITEM_VALUE, "%s: invalid item value %c: must be %s", PSQL_Code_Data_Exception)
 ERROR_DEF(ERR_ROCTO_INVALID_INT_VALUE, "%s: invalid %s value %d: must be %d", PSQL_Code_Numeric_Value_Out_Of_Range)

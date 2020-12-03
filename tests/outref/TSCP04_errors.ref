@@ -8,6 +8,16 @@ SELECT ROUND(155, -1.5);
 -- Numeric overflow
 SELECT ROUND(155, -47);
 1.01234567890123456000
-155.00
-200
-[ERROR] PATH:LINENUM DATE TIME : ERR_YOTTADB : YottaDB error: 150373506,ROUND+7^%ydboctosqlfunctions,%YDB-E-NUMOFLOW, Numeric overflow
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'ROUND' defined with given parameter types (INTEGER, NUMERIC)
+Error with syntax near (line 1, column 8):
+
+SELECT ROUND(155, 1.5);
+       ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT ROUND(155, 1.5);
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'ROUND' defined with given parameter types (INTEGER, NUMERIC)
+Error with syntax near (line 1, column 8):
+
+SELECT ROUND(155, -1.5);
+       ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT ROUND(155, -1.5);
+[ERROR] PATH:LINENUM DATE TIME : ERR_YOTTADB : YottaDB error: 150373506,ROUND+6^%ydboctosqlfunctions,%YDB-E-NUMOFLOW, Numeric overflow

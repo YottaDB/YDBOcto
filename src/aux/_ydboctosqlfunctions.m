@@ -26,9 +26,8 @@ ROUND(num,precision)
 	; To round to the nearest integer, use a precision of 0.
 	; If `precision < 0`, then any fraction will be removed and `num` will be rounded to `10**(-precision)`.
 	; If `precision` is a fraction, it will be rounded to the nearest integer.
-	; TODO: rounding precision will no longer be necessary when https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/565 is fixed
 	quit:$ZYISSQLNULL(num) $ZYSQLNULL
-	new pow  set precision=$fnumber(precision,"",0),pow=10**(-precision)
+	new pow  set pow=10**(-precision)
 	quit $select(precision<0:$fnumber(num/pow,"",0)*pow,1:$fnumber(num,"",precision))
 
 TRUNC(num,precision)

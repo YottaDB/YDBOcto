@@ -225,8 +225,6 @@ CREATE FUNCTION ABS(NUMERIC) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;
 CREATE FUNCTION ABS(INTEGER) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;
 /* This only implements the 2-argument version of ROUND, since Octo doesn't support function overloading. */
 CREATE FUNCTION ROUND(NUMERIC, INTEGER) RETURNS NUMERIC AS $$ROUND^%ydboctosqlfunctions;
-CREATE FUNCTION ROUND(INTEGER, NUMERIC) RETURNS NUMERIC AS $$ROUND^%ydboctosqlfunctions;
-CREATE FUNCTION ROUND(NUMERIC, NUMERIC) RETURNS NUMERIC AS $$ROUND^%ydboctosqlfunctions;
 CREATE FUNCTION ROUND(INTEGER, INTEGER) RETURNS NUMERIC AS $$ROUND^%ydboctosqlfunctions;
 /* This only implements the 2-argument version of TRUNC, since Octo doesn't support function overloading. */
 CREATE FUNCTION TRUNC(NUMERIC, INTEGER) RETURNS NUMERIC AS $$TRUNC^%ydboctosqlfunctions;

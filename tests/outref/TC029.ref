@@ -1,8 +1,6 @@
 ABS|1|1700|1700|null|null|null
 ABS|1|1700|23|null|null|null
 ROUND|2|1700|1700 23|null|null|null
-ROUND|2|1700|23 1700|null|null|null
-ROUND|2|1700|1700 1700|null|null|null
 ROUND|2|1700|23 23|null|null|null
 TRUNC|2|1700|1700 23|null|null|null
 TRUNC|2|1700|23 1700|null|null|null

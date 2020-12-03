@@ -6,8 +6,6 @@ ABS|numeric
 ABS|numeric
 ROUND|numeric
 ROUND|numeric
-ROUND|numeric
-ROUND|numeric
 TRUNC|numeric
 TRUNC|numeric
 TRUNC|numeric

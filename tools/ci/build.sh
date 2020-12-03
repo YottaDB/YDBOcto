@@ -106,7 +106,7 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 fi
 
 # Confirm all error message mnemonics and text are included in the documentation
-../tools/ci/doc_error_check.sh
+../tools/ci/doc_error_update.sh "check"
 if [[ $? -ne 0 ]]; then
 	exit 1
 fi

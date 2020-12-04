@@ -577,7 +577,7 @@ else
 				continue
 			fi
 			subtest=`sed 's/.*subtest \[//;s/].*//;' bats_test.out`
-			if [[ $subtest == "TC011" ]]; then
+			if [[ $subtest =~ "TC011 : " ]]; then
 				# The TC011 subtest used to have invalid queries which issue errors in later commits
 				# For example, "CREATE TABLE names (id NUMERIC(16,18) PRIMARY KEY ..." used to work fine before
 				# But would issue a "ERR_NUMERIC_SCALE" error due to the YDBOcto#636 fixes.

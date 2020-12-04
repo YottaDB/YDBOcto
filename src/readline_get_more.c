@@ -42,6 +42,11 @@ int readline_get_more() {
 	char *line;
 	if (config->is_tty) {
 		line = readline("OCTO> ");
+		/* It is possible the user pressed a Ctrl-C while inside the "readline()" call above.
+		 * In that case, we need to handle the signal in a timely fashion. Take this opportunity to do that.
+		 * If a Ctrl-C was indeed pressed, we will halt right away just like the user wants.
+		 */
+		ydb_eintr_handler();
 		if (NULL == line) {
 			// Detecting the EOF is handled by the lexer and this should never be true at this stage
 			assert(EOF_NONE == eof_hit);

@@ -19,29 +19,25 @@ Verbosity set to TRACE:
 [TRACE] PATH:LINENUM DATE TIME : INFO_OCTO_STARTED : Octo started
 Starting parse
 Entering state sss
-Reading a token: OCTO> exit
+OCTO> exit
 Next token is token EXIT (: )
 Shifting token EXIT (: )
 Entering state sss
 Reducing stack by rule rrr (line lll):
    $1 = token EXIT (: )
 -> $$ = nterm exit_command (: )
-Stack now sss ...
 Entering state sss
 Reducing stack by rule rrr (line lll):
    $1 = nterm exit_command (: )
-Stack now sss ...
 Starting parse
 Entering state sss
-Reading a token: Next token is token EXIT (: )
+Next token is token EXIT (: )
 Shifting token EXIT (: )
 Entering state sss
 Reducing stack by rule rrr (line lll):
    $1 = token EXIT (: )
 -> $$ = nterm exit_command (: )
-Stack now sss ...
 Entering state sss
 Reducing stack by rule rrr (line lll):
    $1 = nterm exit_command (: )
-Stack now sss ...
 [ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command [exit;]

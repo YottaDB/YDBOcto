@@ -456,7 +456,12 @@ verify_output() {
 	sed -i 's/\/.*\/.*\.[yc]:[0-9]*/PATH:LINENUM/' clean_output.txt
 	# Filter rule #s and line #s printed by flex in TRACE verbosity level output
 	sed -i 's/Entering state [0-9]*/Entering state sss/' clean_output.txt
-	sed -i 's/Stack now [0-9 ]*/Stack now sss .../' clean_output.txt
+	# The below line output format changed between bison 3.5.1 (Ubuntu 20.04) and bison 3.7 (Ubuntu 20.10)
+	# Therefore filter it out of the reference file to avoid complications there.
+	sed -i '/Stack now [0-9 ]*/d' clean_output.txt
+	# Filter out "Reading a token" as it shows up differently in different bison versions
+	sed -i 's/Reading a token: //g' clean_output.txt	# bison 3.5.1 format
+	sed -i '/^Reading a token$/d' clean_output.txt		# bison 3.7.1 format
 	sed -i 's/\(Reducing stack by rule\) \([0-9]*\) \((line\) [0-9]*)/\1 rrr \3 lll)/' clean_output.txt
 	# Filter octo.conf from $ydb_dist and $HOME, i.e. not in the local directory
 	# Cannot specify $ydb_dist directly as it varies depending on UTF-8 mode selection,

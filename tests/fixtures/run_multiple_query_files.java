@@ -11,6 +11,7 @@
  ****************************************************************/
 
 import java.sql.*;
+import java.util.Arrays;
 import java.util.Properties;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -68,6 +69,14 @@ public class run_multiple_query_files {
 					// Search present directory for query files
 					File dir = new File(".");
 					File files[] = dir.listFiles(new RegxFileFilter(args[1]));
+					// The listFiles method does not guarantee any order.
+					// But we want to run the query files in alphabetical order
+					// (e.g. the TCT019 subtest will fail if queries are run in a different order
+					// as it expects the first few queries to generate plans and later queries
+					// to reuse the generated plans). Hence sort the array returned by "listFiles()".
+					// This works because File is a comparable class, which by default sorts
+					// pathnames lexicographically. See https://stackoverflow.com/a/7199929 for details.
+					Arrays.sort(files);
 					for (File file : files) {
 						// Read query from file
 						reader = new Scanner (file);

@@ -68,7 +68,7 @@ setup() {
   # Run octo -vv on queries to figure out which plans each query goes to
   octo -vv -f input.sql > output.txt 2>&1
   # Print list of generated M plans and which queries map to each generated plan.
-  grep -E "INFO_PARSING_DONE|INFO_M_PLAN|INFO_REUSE_M_PLAN" output.txt | sed 's/.* \[//;s/;]$//;s/] (to execute SQL query)//;' | awk 'NR % 2 == 1 { line = $0;} NR % 2 == 0 { printf "%s : %s;\n", $0, line; }' | sed 's,'`pwd`',$PWD,;' | sort > clean_output.txt
+  grep -E "INFO_PARSING_DONE|INFO_M_PLAN|INFO_REUSE_M_PLAN" output.txt | sed 's/.* \[//;s/;]$//;s/] (to execute SQL query)//;' | awk 'NR % 2 == 1 { line = $0;} NR % 2 == 0 { printf "%s : %s;\n", $0, line; }' | sed 's,'`pwd`',$PWD,;' | sort_LC_ALL_C > clean_output.txt
   # Not using "verify_output" as that replaces _ydboctoPxxx with _ydboctoP*.m which is not desired as we want to see
   # exactly which queries map to which plans.
   cp ../../tests/outref/TRTE07.ref .

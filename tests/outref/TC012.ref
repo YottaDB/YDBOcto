@@ -131,6 +131,6 @@ SELECT * from SIMPLE2;
 1||First
 1||Last
 1||
-_ydboctoP*.m:;  -- SIMPLE0 QUERY01
 _ydboctoP*.m:;  -- SIMPLE1 QUERY05
 _ydboctoP*.m:;  -- SIMPLE2 QUERY30
+_ydboctoP*.m:;  -- SIMPLE0 QUERY01

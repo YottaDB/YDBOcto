@@ -55,7 +55,7 @@ teardown() {
   # Run using psql and Octo against each of the generated queries
   run_java run_query $test_port $testname useextended &> output.txt
   echo "" >> output.txt
-  grep -r elect _ydboctoP*.m | sort >> output.txt
+  grep -r elect _ydboctoP*.m | sort_LC_ALL_C >> output.txt
   verify_output $testname output.txt
 }
 

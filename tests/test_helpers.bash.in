@@ -553,7 +553,7 @@ verify_output() {
 		# The sort argument should be passed last to allow sorting of final output file
 		if [[ $i == "sort" ]]; then
 			mv clean_output.txt clean_output.txt.nosort
-			cat clean_output.txt.nosort | sort -o clean_output.txt
+			cat clean_output.txt.nosort | sort_LC_ALL_C >& clean_output.txt
 		fi
 	done
 	escape_sequence_sanitize
@@ -749,6 +749,18 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 	return
 }
 
+sort_LC_ALL_C() {
+	# We have noticed that setting LC_ALL to en_US.UTF8 (done by the test framework at start of each subtest in "init_test()")
+	# results in different sort output (in rare cases in TQG04 subtest, and in all cases in the TRTE07 subtest). This is
+	# suspected to be a bug in older versions of sort (sort 8.22 and older which is the version of sort in Ubuntu 18.04
+	# and RHEL 7). sort 8.30 (version of sort in Ubuntu 20.04, CentOS 8 etc.) works fine in this case.
+	# Therefore, we work around this issue by setting the locale to C just for the duration of the sort.
+	# just for the "sort" command.
+	export LC_ALL=C
+	sort
+	export LC_ALL=en_US.UTF8
+}
+
 run_query_verify() {
 	local query_file="$1"
 	local fname="$2"
@@ -786,13 +798,8 @@ run_query_verify() {
 		# ORDER BY does not exist in the query. So sort the outputs.
 		mv $fname.ref3 $fname.unsorted.ref3
 		mv $fname.log5 $fname.unsorted.log5
-		# We have noticed that setting LC_ALL to en_US.UTF8 results in different sort output in rare cases in TQG04 subtest.
-		# in the "run_query_in_octo_and_postgres_and_crosscheck()" function. "C" works fine in that case. So we choose "C"
-		# just for the "sort" command.
-		export LC_ALL=C
-		sort $fname.unsorted.ref3 > $fname.ref3
-		sort $fname.unsorted.log5 > $fname.log5
-		export LC_ALL=en_US.UTF8
+		cat $fname.unsorted.ref3 | sort_LC_ALL_C > $fname.ref3
+		cat $fname.unsorted.log5 | sort_LC_ALL_C > $fname.log5
 	fi
 	# Below two seds set numerical values to only have 10 digits after the decimal point as both Octo
 	# and PSQL can return varying levels of precision (12 is the least amount of decimals seen so far)

@@ -174,7 +174,7 @@ OCTO
   # Ensure correct # of plans were generated (for 32 queries, we expect only 19 plans to be generated
   # because lots of CREATE TABLE statements are equivalent due to the explicit PIECE # being same as the implicit PIECE#
   # in another CREATE TABLE statement).
-  grep QUERY _ydboctoP*.m | sort -k4,4 >> output.txt 2>&1
+  grep QUERY _ydboctoP*.m | sort_LC_ALL_C -k4,4 >> output.txt 2>&1
   verify_output TC012 output.txt
 }
 

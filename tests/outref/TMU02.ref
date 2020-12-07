@@ -19,9 +19,9 @@
 %ydboctoexpr=101
 %ydboctoexpr=3
 %ydboctoexpr=3
-%ydboctosession=1
-%ydboctosession=1
-%ydboctosession=1
+%ydboctosession(1,"bound","")="SELECT * FROM OrderDetails WHERE OrderDetailID = 101"
+%ydboctosession(1,"bound","")="SELECT * FROM OrderDetails WHERE OrderDetailID = 3"
+%ydboctosession(1,"bound","")="SELECT * FROM Shippers WHERE ShipperID = 3"
 %ydboctosession(1,"bound","","col_formats")=0
 %ydboctosession(1,"bound","","col_formats")=0
 %ydboctosession(1,"bound","","col_formats")=0
@@ -40,12 +40,12 @@
 %ydboctosession(1,"bound","","routine")="%ydboctoP7Z8EUyVLzWwiPzHp4s4lFD"
 %ydboctosession(1,"bound","","routine")="%ydboctoPYtFlFlFPGonNuzQD1LVr2L"
 %ydboctosession(1,"bound","","routine")="%ydboctoPYtFlFlFPGonNuzQD1LVr2L"
-%ydboctosession(1,"bound","")="SELECT * FROM OrderDetails WHERE OrderDetailID = 101"
-%ydboctosession(1,"bound","")="SELECT * FROM OrderDetails WHERE OrderDetailID = 3"
-%ydboctosession(1,"bound","")="SELECT * FROM Shippers WHERE ShipperID = 3"
 %ydboctosession(1,"bound","","tag")=2
 %ydboctosession(1,"bound","","tag")=2
 %ydboctosession(1,"bound","","tag")=2
+%ydboctosession(1,"prepared","")="SELECT * FROM OrderDetails WHERE OrderDetailID = 101"
+%ydboctosession(1,"prepared","")="SELECT * FROM OrderDetails WHERE OrderDetailID = 3"
+%ydboctosession(1,"prepared","")="SELECT * FROM Shippers WHERE ShipperID = 3"
 %ydboctosession(1,"prepared","","parameters")=0
 %ydboctosession(1,"prepared","","parameters")=0
 %ydboctosession(1,"prepared","","parameters")=0
@@ -58,39 +58,36 @@
 %ydboctosession(1,"prepared","","routine")="%ydboctoP7Z8EUyVLzWwiPzHp4s4lFD"
 %ydboctosession(1,"prepared","","routine")="%ydboctoPYtFlFlFPGonNuzQD1LVr2L"
 %ydboctosession(1,"prepared","","routine")="%ydboctoPYtFlFlFPGonNuzQD1LVr2L"
-%ydboctosession(1,"prepared","")="SELECT * FROM OrderDetails WHERE OrderDetailID = 101"
-%ydboctosession(1,"prepared","")="SELECT * FROM OrderDetails WHERE OrderDetailID = 3"
-%ydboctosession(1,"prepared","")="SELECT * FROM Shippers WHERE ShipperID = 3"
 %ydboctosession(1,"prepared","","tag")=2
 %ydboctosession(1,"prepared","","tag")=2
 %ydboctosession(1,"prepared","","tag")=2
-%ydboctosession(1,"variables","application_name")=""
-%ydboctosession(1,"variables","application_name")=""
-%ydboctosession(1,"variables","application_name")=""
 %ydboctosession(1,"variables","APPLICATION_NAME")="PostgreSQL JDBC Driver"
 %ydboctosession(1,"variables","APPLICATION_NAME")="PostgreSQL JDBC Driver"
 %ydboctosession(1,"variables","APPLICATION_NAME")="PostgreSQL JDBC Driver"
+%ydboctosession(1,"variables","DateStyle")="ISO"
+%ydboctosession(1,"variables","DateStyle")="ISO"
+%ydboctosession(1,"variables","DateStyle")="ISO"
+%ydboctosession(1,"variables","EXTRA_FLOAT_DIGITS")=3
+%ydboctosession(1,"variables","EXTRA_FLOAT_DIGITS")=3
+%ydboctosession(1,"variables","EXTRA_FLOAT_DIGITS")=3
+%ydboctosession(1,"variables","IntervalStyle")="postgres"
+%ydboctosession(1,"variables","IntervalStyle")="postgres"
+%ydboctosession(1,"variables","IntervalStyle")="postgres"
+%ydboctosession(1,"variables","application_name")=""
+%ydboctosession(1,"variables","application_name")=""
+%ydboctosession(1,"variables","application_name")=""
 %ydboctosession(1,"variables","client_encoding")="UTF8"
 %ydboctosession(1,"variables","client_encoding")="UTF8"
 %ydboctosession(1,"variables","client_encoding")="UTF8"
 %ydboctosession(1,"variables","database")=""
 %ydboctosession(1,"variables","database")=""
 %ydboctosession(1,"variables","database")=""
-%ydboctosession(1,"variables","DateStyle")="ISO"
-%ydboctosession(1,"variables","DateStyle")="ISO"
-%ydboctosession(1,"variables","DateStyle")="ISO"
 %ydboctosession(1,"variables","extra_float_digits")=2
 %ydboctosession(1,"variables","extra_float_digits")=2
 %ydboctosession(1,"variables","extra_float_digits")=2
-%ydboctosession(1,"variables","EXTRA_FLOAT_DIGITS")=3
-%ydboctosession(1,"variables","EXTRA_FLOAT_DIGITS")=3
-%ydboctosession(1,"variables","EXTRA_FLOAT_DIGITS")=3
 %ydboctosession(1,"variables","integer_datetimes")="on"
 %ydboctosession(1,"variables","integer_datetimes")="on"
 %ydboctosession(1,"variables","integer_datetimes")="on"
-%ydboctosession(1,"variables","IntervalStyle")="postgres"
-%ydboctosession(1,"variables","IntervalStyle")="postgres"
-%ydboctosession(1,"variables","IntervalStyle")="postgres"
 %ydboctosession(1,"variables","is_superuser")="on"
 %ydboctosession(1,"variables","is_superuser")="on"
 %ydboctosession(1,"variables","is_superuser")="on"
@@ -109,3 +106,6 @@
 %ydboctosession(1,"variables","user")="USER"
 %ydboctosession(1,"variables","user")="USER"
 %ydboctosession(1,"variables","user")="USER"
+%ydboctosession=1
+%ydboctosession=1
+%ydboctosession=1

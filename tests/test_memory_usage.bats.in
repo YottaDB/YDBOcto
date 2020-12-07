@@ -38,7 +38,7 @@ setup() {
   # Ensure memory usage doesn't increase for subsequent execution of same queries
   [[ $first_query_mem == $second_query_mem ]]
   # Ensure plans were properly generated for all queries in expect script
-  grep select _ydboctoP*.m | cut -d";" -f 2 | sort > output.txt 2>&1
+  grep select _ydboctoP*.m | cut -d";" -f 2 | sort_LC_ALL_C > output.txt 2>&1
   verify_output TMU01 output.txt
 }
 
@@ -84,7 +84,7 @@ setup() {
   #	2. Secret key information used for CancelRequests
   #	3. TimeZone information
   #	4. rocto.log itself
-  grep "\%ydbocto" rocto.log | grep -Ev "loadedschemas|SecretKeyList|TimeZone|Binary file rocto.log" | sort &> node_usage.log
+  grep "\%ydbocto" rocto.log | grep -Ev "loadedschemas|SecretKeyList|TimeZone|Binary file rocto.log" | sort_LC_ALL_C &> node_usage.log
   sed -i 's/%ydboctosession(1,"variables","user")=".*"/%ydboctosession(1,"variables","user")="USER"/' node_usage.log
   verify_output TMU02 node_usage.log
 }

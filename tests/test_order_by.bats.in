@@ -136,7 +136,7 @@ OCTO
   # output so it can be compared against the reference file.
   echo "; Queries that have generated plans" >> output.txt 2>&1
   echo "; ---------------------------------" >> output.txt 2>&1
-  grep select _ydboctoP*.m | cut -d";" -f 2 | sort >> output.txt 2>&1
+  grep select _ydboctoP*.m | cut -d";" -f 2 | sort_LC_ALL_C >> output.txt 2>&1
   verify_output TOB06 output.txt
 }
 

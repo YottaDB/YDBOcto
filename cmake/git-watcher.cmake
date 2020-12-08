@@ -173,10 +173,9 @@ endfunction()
 #              check the state of git before every build. If the state has
 #              changed, then a file is configured.
 function(SetupGitMonitoring)
-    add_custom_target(check_git_repository
-        ALL
-        DEPENDS ${PRE_CONFIGURE_FILE}
-        BYPRODUCTS ${POST_CONFIGURE_FILE}
+    add_custom_command(
+        OUTPUT ${POST_CONFIGURE_FILE}
+        DEPENDS ${PRE_CONFIGURE_FILE} ${PROJECT_SOURCE_DIR}/.git/index
         COMMENT "Checking the git repository for changes..."
         COMMAND
             ${CMAKE_COMMAND}

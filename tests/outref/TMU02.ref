@@ -1,6 +1,6 @@
-%ydboctoerrcodemax=1073741829
-%ydboctoerrcodemax=1073741829
-%ydboctoerrcodemax=1073741829
+%ydboctoerrcodemax=1073741830
+%ydboctoerrcodemax=1073741830
+%ydboctoerrcodemax=1073741830
 %ydboctoerrcodemin=1073741824
 %ydboctoerrcodemin=1073741824
 %ydboctoerrcodemin=1073741824
@@ -16,6 +16,9 @@
 %ydboctoerror("SUBQUERYMULTIPLEROWS")=1073741825
 %ydboctoerror("SUBQUERYMULTIPLEROWS")=1073741825
 %ydboctoerror("SUBQUERYMULTIPLEROWS")=1073741825
+%ydboctoerror("VARCHARTOOLONG")=1073741829
+%ydboctoerror("VARCHARTOOLONG")=1073741829
+%ydboctoerror("VARCHARTOOLONG")=1073741829
 %ydboctoexpr=101
 %ydboctoexpr=3
 %ydboctoexpr=3

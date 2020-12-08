@@ -52,6 +52,16 @@ teardown() {
 	load_fixture compositekey.zwr
 	load_fixture TII04.sql subtest novv
 	verify_output TII04 output.txt
+	if [[ $ydb_chset == "UTF-8" ]]; then
+		mv output.txt output_noutf8.txt
+		# Since YDB is in UTF-8 mode, we can safely run queries which have UTF-8 code points
+		# Some of them when run in M mode can end up with errors as the character length of
+		# UTF-8 strings is different in M (byte length) vs UTF-8 (character length) mode and
+		# in M mode they can exceed the column size (i.e. VARCHAR(SIZE) in CREATE TABLE).
+		load_fixture TII04_utf8.sql subtest novv
+		verify_output TII04_utf8 output.txt
+		mv output.txt output_utf8.txt
+	fi
 }
 
 @test "TII05 : OCTO502 : Test various errors in INSERT INTO" {

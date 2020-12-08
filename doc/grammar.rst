@@ -34,7 +34,13 @@ Character Data Types
 * CHAR VARYING
 * VARCHAR
 
-Octo does not differentiate between these data types. They can be used to represent character values, and can optionally be followed by a precision value in parentheses. Example: char(20).
+Octo does not yet differentiate between these data types. All these types are currently treated as :code:`VARCHAR`. They can be used to store strings and can be followed by an optional size which specifies the maximum character length (not the byte length which could be different in case of non-ascii characters) of a string that can be stored in this column. Example: :code:`VARCHAR(20)` allows strings up to `20` characters to be stored.
+
+As required by the SQL standard, an attempt to store a longer string into a column of these types will result in a :code:`VARCHAR_TOO_LONG` error, unless the excess characters are all spaces, in which case the string will be truncated to the maximum length.
+
+If the string to be stored is shorter than the maximum column size, the shorter string will be stored as is.
+
+As required by the SQL standard, if one explicitly casts a value to :code:`VARCHAR(n)`, then an over-length value will be truncated to :code:`n` characters without raising an error.
 
 ++++++++++++++++++++
 Numeric Data Types
@@ -343,21 +349,21 @@ This clause specifies the table(s) from which the columns are selected.
 **from_item** can be any of the following:
 
     - **table_name** : The name of an existing table.
-      
+
         .. code-block:: SQL
-			
+
 	   /* Selects all rows from the table names */
 	   SELECT *
 	   FROM names;
-	   
+
     - **alias** : A temporary name given to a table or a column for the purposes of a query. Please refer the :ref:`sql-alias` section below for more information.
-      
+
         .. code-block:: SQL
-			
+
 	   /* Selects all rows from the table names aliased as n */
 	   SELECT *
 	   FROM names AS n;
-	   
+
     - **select** : A SELECT subquery, which must be surrounded by parentheses. Examples showcasing the usage of the SELECT subquery can be found in the :ref:`sql-table-alias` section below.
 
 
@@ -374,7 +380,7 @@ Joins can be made by appending a join type and table name to a SELECT statement:
 .. code-block:: SQL
 
    [CROSS | [NATURAL | INNER | [LEFT][RIGHT][FULL] OUTER]] JOIN ON joined_table;
-   
+
 A **CROSS JOIN** between two tables provides the number of rows in the first table multiplied by the number of rows in the second table.
 
 A **NATURAL JOIN** is a join operation that combines tables based on columns with the same name and type. The resultant table does not contain repeated columns.
@@ -393,7 +399,7 @@ For two tables, Table A and Table B,
 Example:
 
 .. code-block:: SQL
-		
+
    /* Selects the first name, last name and address of an employee that have an address. The employee and address table are joined on the employee ID values. */
    SELECT FirstName, LastName, Address
    FROM Employee INNER JOIN Addresses
@@ -402,7 +408,7 @@ Example:
 .. note::
 
    Currently only the INNER and OUTER JOINs support the ON clause.
-   
+
 ++++++++
 WHERE
 ++++++++
@@ -426,7 +432,7 @@ See :ref:`Technical Notes <technical-notes>` for details on value expressions.
 Example:
 
 .. code-block:: SQL
-		
+
    /* Selects the Employee ID, first name and last name from the employee table for employees with ID greater than 100. The results are grouped by the last name of the employees. */
    SELECT ID, FirstName, LastName FROM Employee WHERE ID > 100 GROUP BY LastName;
 
@@ -456,7 +462,7 @@ The ordering specification lets you further choose whether to order the returned
 Example:
 
 .. code-block:: SQL
-		
+
    /* Selects the Employee ID, first name and last name from the employee table for employees with ID greater than 100. The results are ordered in descending order of ID. */
    SELECT ID, FirstName, LastName FROM Employee WHERE ID > 100 ORDER BY ID DESC;
 
@@ -469,7 +475,7 @@ This clause allows the user to specify the number of rows they want to retrieve 
 Example:
 
 .. code-block:: SQL
-		
+
    /* Selects the first five rows from the employee table */
    SELECT * FROM Employee LIMIT 5;
 
@@ -618,7 +624,7 @@ VALUES
 The syntax is:
 
 .. code-block:: SQL
-		
+
    VALUES ( expression [, ...] ) [, ...]
 
 Each parenthesized list of expressions generates one row in the table. Each specified row must have the same number of comma-separated entries (could be constants, expressions, subqueries etc.). This becomes the number of columns in the generated table. Corresponding entries in each row must have compatible data types. The data type assigned to each column of the generated table is determined based on the data type of the entries in the row lists.
@@ -805,7 +811,7 @@ Column Alias
 A column alias can be used in two different ways:
 
   #. **As part of SELECT**
-     
+
      .. code-block:: SQL
 
         SELECT column [AS] column_alias
@@ -854,7 +860,7 @@ A column alias can be used in two different ways:
      Examples:
 
      .. code-block:: SQL
-	
+
 	OCTO> SELECT * FROM names AS tblalias(colalias1, colalias2, colalias3) WHERE tblalias.colalias1 = 1;
         1|Acid|Burn
 
@@ -891,7 +897,7 @@ Examples:
    /* The select subquery uses aliases for the table as well as columns. This query selects one row from the names table aliased as tblalias, where the value of the colalias1 is 1. */
    OCTO> SELECT * FROM (SELECT * FROM names) as tblalias(colalias1, colalias2, colalias3) WHERE tblalias.colalias1 = 1;
    1|Acid|Burn
-   
+
 Table aliases are supported in short form i.e without AS
 
 .. code-block:: SQL

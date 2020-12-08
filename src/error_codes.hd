@@ -23,6 +23,7 @@ ERROR_DEF(PSQL_Code_Feature_Not_Supported, "0A000")
 ERROR_DEF(PSQL_Code_Cardinality_Violation, "21000")
 // Class 22 - Data Exception
 ERROR_DEF(PSQL_Code_Data_Exception, "22000")
+ERROR_DEF(PSQL_String_Data_Right_Truncation, "22001")
 ERROR_DEF(PSQL_Code_String_Data_Length_Mismatch, "22026")
 ERROR_DEF(PSQL_Code_Numeric_Value_Out_Of_Range, "22003")
 ERROR_DEF(PSQL_Code_Invalid_Parameter_Value, "22023")

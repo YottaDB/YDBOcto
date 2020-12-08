@@ -10,7 +10,7 @@
 #								#
 #################################################################
 
--- TIIT03 : INSERT INTO a 3-key table
+-- TII03 : INSERT INTO a 3-key table
 
 CREATE TABLE namesXfer (
   id INTEGER PRIMARY KEY

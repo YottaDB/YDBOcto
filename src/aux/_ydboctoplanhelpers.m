@@ -916,3 +916,23 @@ Cast2NUMERIC(number,precision,scale)
 	.	ZMESSAGE %ydboctoerror("NUMERICOVERFLOW")
 	QUIT number
 
+SizeCheckVARCHAR(string,size)
+	; This function is different from "Cast2VARCHAR" in that it issues an error if the "string" parameter does not fit
+	; in the "size" parameter. This is invoked in the case of an INSERT INTO and an error is expected by the SQL standard
+	; (the only exception is if the portion of the string greater than "size" characters is all spaces in which case the
+	; excess spaces have to be removed and expected by the SQL standard).
+	; Whereas the Cast2VARCHAR function is invoked by a type cast operator and truncation to fit the "size" (and not an error)
+	; is expected by the SQL standard for the case where the "string" parameter does not fit in the "size" parameter.
+	NEW charlen
+	SET charlen=$LENGTH(string)
+	QUIT:charlen<=size string
+	; Check if excess portion is all spaces. If so, trim that out and return the trimmed string (no error).
+	NEW excess,expected
+	SET excess=$EXTRACT(string,size+1,charlen)
+	SET expected=$JUSTIFY(" ",charlen-size)
+	QUIT:excess=expected $EXTRACT(string,1,size)
+	; Excess portion is not all spaces. This is an error scenario. Issue error.
+	SET %ydboctoerror("VARCHARTOOLONG",1)=size	; pass parameter to `src/ydb_error_check.c`
+	ZMESSAGE %ydboctoerror("VARCHARTOOLONG")
+	QUIT
+

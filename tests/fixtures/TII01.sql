@@ -10,7 +10,7 @@
 #								#
 #################################################################
 
--- TIIT01 : INSERT INTO with firstName='Zero'
+-- TII01 : INSERT INTO with firstName='Zero'
 
 CREATE TABLE names2 (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30));
 INSERT INTO names2 (SELECT * FROM names WHERE firstName='Zero');

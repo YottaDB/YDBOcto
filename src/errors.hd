@@ -199,6 +199,7 @@ ERROR_DEF(ERR_SUBQUERY_MULTIPLE_ROWS, "More than one row returned by a subquery 
 // OCTO //
 ERROR_DEF(ERR_LINE_TOO_LONG, "Input line too long", PSQL_Code_String_Data_Length_Mismatch)
 ERROR_DEF(ERR_BUFFER_TOO_SMALL, "%s buffer too small", PSQL_Code_Data_Exception)
+ERROR_DEF(ERR_VARCHAR_TOO_LONG, "Value too long for type VARCHAR(%s)", PSQL_String_Data_Right_Truncation)
 ERROR_DEF(ERR_INVALID_READ_SIZE, "Read size %d out of range", PSQL_Code_Numeric_Value_Out_Of_Range)
 ERROR_DEF(ERR_INVALID_WRITE_SIZE, "Write size %d out of range", PSQL_Code_Numeric_Value_Out_Of_Range)
 ERROR_DEF(ERR_MIDENT_LENGTH, "Length %d too large for M identifier (max length %d)", PSQL_Code_Numeric_Value_Out_Of_Range)

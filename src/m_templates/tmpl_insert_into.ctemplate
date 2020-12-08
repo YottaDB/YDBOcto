@@ -113,6 +113,40 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 		if (col_is_specified) {
 			%{}$$mval2str^%%ydboctoplanhelpers($$mvalPiece^%%ydboctoplanhelpers({{ PP_VAL }},{}%
 			%{}{{ src_colnum|%d }})){}%
+			/* Check if the column has size/precision/scale specified. If so, do checks/conversions as appropriate.
+			 * Currently the only 2 types that honor the size/precision/scale are STRING_TYPE and NUMERIC_TYPE.
+			 * So check for those below.
+			 */
+			switch(cur_column->data_type_struct.data_type) {
+			case NUMERIC_TYPE:
+			case STRING_TYPE:
+				if (SIZE_OR_PRECISION_UNSPECIFIED != cur_column->data_type_struct.size_or_precision) {
+					%{}`n{{ PLAN_LINE_START }}{}%
+					TMPL(tmpl_print_dots, dot_count);
+					%{}SET {{ PP_COL }}({{ cur_column->column_number|%d }})={}%
+					if (NUMERIC_TYPE == cur_column->data_type_struct.data_type) {
+						%{}$$Cast2NUMERIC^%%ydboctoplanhelpers{}%
+					} else {
+						%{}$$SizeCheckVARCHAR^%%ydboctoplanhelpers{}%
+					}
+					%{}({{ PP_COL }}({{ cur_column->column_number|%d }}){}%
+					%{},{{ cur_column->data_type_struct.size_or_precision|%d }}{}%
+					if (SCALE_UNSPECIFIED != cur_column->data_type_struct.scale) {
+						assert(NUMERIC_TYPE == cur_column->data_type_struct.data_type);
+						%{},{{ cur_column->data_type_struct.scale|%d }}{}%
+					}
+					%{}){}%
+				}
+				break;
+			case INTEGER_TYPE:
+			case NUL_TYPE:
+			case BOOLEAN_TYPE:
+				/* No checks are currently done/deemed-necessary for these types. Will add them as the need arises. */
+				break;
+			default:
+				assert(FALSE);
+				break;
+			}
 		} else {
 			/* This needed target table column is not available in the source query select column list.
 			 * For now, treat it as NULL. Later when support for DEFAULT is added, we should set

@@ -10,7 +10,7 @@
 #								#
 #################################################################
 
--- TIIT02 : INSERT INTO a xfer table
+-- TII02 : INSERT INTO a xfer table
 
 CREATE TABLE namesLastNameXref (
   lastName VARCHAR(30) PRIMARY KEY,

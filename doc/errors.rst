@@ -929,6 +929,14 @@ Text: VALUES lists must all be the same length
 
 Description/Action: This error is generated when a VALUES keyword specifies a list of rows where at least one row does not have the same number of columns as the other rows. PSQL Error Code: 42601
 
++++++++++++++++++++++
+ERR_VARCHAR_TOO_LONG
++++++++++++++++++++++
+
+Text: Value too long for type VARCHAR(xxx)
+
+Description/Action: This error indicates that the specified value is more than xxx characters long and hence cannot fit in the VARCHAR(xxx) type. Specify a value which is less than or equal to xxx characters long. PSQL Error Code: 22001
+
 +++++++++++++++++++++++
 ERR_YOTTADB
 +++++++++++++++++++++++

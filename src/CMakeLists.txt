@@ -124,7 +124,7 @@ add_library(libhelpers OBJECT
 
 # Load the default config from src/aux/octo.conf
 ADD_CUSTOM_COMMAND(
-  OUTPUT default_octo_conf.h
+  OUTPUT "${PROJECT_BINARY_DIR}/default_octo_conf.h"
   DEPENDS "${PROJECT_SOURCE_DIR}/src/aux/octo.conf.default"
   COMMAND xxd -i "octo.conf.default" "${PROJECT_BINARY_DIR}/default_octo_conf.h"
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/src/aux/"
@@ -148,7 +148,7 @@ add_library(libocto OBJECT
   create_cursor.c
   create_table_defaults.c
   decompress_statement.c
-  default_octo_conf.h
+  ${PROJECT_BINARY_DIR}/default_octo_conf.h
   delete_table_from_pg_class.c
   delete_function_from_pg_proc.c
   drill_to_table_alias.c
@@ -298,7 +298,7 @@ if(${YDB_TLS_AVAILABLE})
 endif()
 
 add_library(librocto OBJECT
-  default_octo_conf.h
+  ${PROJECT_BINARY_DIR}/default_octo_conf.h
   rocto/copy_bind_parameter.c
   rocto/deserialize.c
   rocto/get_pid_start_time.c
@@ -375,7 +375,7 @@ add_executable(rocto
 )
 
 add_executable(pparser
-  default_octo_conf.h
+  ${PROJECT_BINARY_DIR}/default_octo_conf.h
   physical/pparser.c
   errors.c
   #octo_init.c

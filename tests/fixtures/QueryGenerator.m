@@ -336,6 +336,9 @@ selectList(queryDepth,curDepth)
 	. set chosenColumn=$$chooseColumn(table)
 	. ; #FUTURE_TODO: Add more than one column in SELECT column list that uses aggregate functions
 	. set agg=$$returnAggregateFunction(queryDepth,table,chosenColumn)
+	. ; Fix rare query failure where having `AVG()` results in numeric precision differences between Octo and Postgres
+	. ; Refer description of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/829
+	. set:(enableOrderByClause&(agg["AVG")) agg="ROUND("_agg_",10)"
 	. set selectListLVN(queryDepth,agg)="aggregate_function"
 	.
 	. new i
@@ -1236,8 +1239,20 @@ havingChooseColumn(queryDepth,table,isAggrFuncColumn,count)
 	. . quit:"subquery"=selectListLVN(j,holder) 	; skip columns that are subqueries
 	. . if i=0 set done=1  quit
 	. . set i=i-1
-	; Remove any aggregate function usage (i.e. COUNT(x.y) should yield x.y; COUNT(ALL x.y) should yield x.y)
-	if $find(holder,"(") do
+	; Remove any aggregate function usage
+	; (i.e. COUNT(x.y) should yield x.y; COUNT(ALL x.y) should yield x.y; ROUND(AVG(x.y)) should yield x.y;)
+	if $find(holder,"ROUND(AVG(") do
+	. new tmpHolder
+	. ; returnAggregateFunction would have generated only AVG(table.column) or AVG(ALL table.column) or AVG(DISTINCT table.column)
+	. ; So fetch the 3rd piece this should give us the complete value within AVG()
+	. set holderMinusAggrFunc=$piece($piece(holder,"(",3),")")
+	. ; Remove ALL or DISTINCT and if they are not present retain just table.column value
+	. set tmpHolder=$piece(holderMinusAggrFunc," ",2)
+	. ; if tmpHolder is not empty - ALL or DISTICT was used and tmpHolder now has table.column. Copy it to holderMinusAggrFunc.
+	. set:(tmpHolder'="") holderMinusAggrFunc=tmpHolder
+	. ; else holderMinusAggrFunc has table.column nothing else to be done
+	. set isAggrFuncColumn="AVG"
+	else  if $find(holder,"(") do
 	. if $find(holder,">") do
 	. . ; Account for BOOLEAN type coercion on result of COUNT done in returnAggregateFunction for BOOLEAN column types
 	. . set holder=$piece(holder," >",1)

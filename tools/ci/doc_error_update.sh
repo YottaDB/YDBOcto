@@ -11,6 +11,15 @@
 #								#
 #################################################################
 
+set -e
+
+topleveldir=$(git rev-parse --show-toplevel)
+cwd=$(pwd)
+if [[ $topleveldir != $cwd ]]; then
+	echo "ERROR: doc_error_update.sh run from $cwd (expected: $topleveldir)"
+	exit 1
+fi
+
 missing_mnemonics=""
 missing_messages=""
 missing_text=""
@@ -56,21 +65,21 @@ while read line; do
 	# but is inside a commented line, the pre-commit hook does not fail due to that commented error message
 	# not being currently documented in "doc/errors.rst". Hence the grep for '^//' below.
 done < <(grep ERROR_DEF src/errors.hd | grep -v '^//' | grep -v -f tools/ci/omitted_errors.ref)
-status=0
+result=0
 if [[ "" != $missing_mnemonics ]]; then
 	echo "-> The following error message mnemonics are missing from errors.rst. Please add each mnemonic error name along with its message text, error code, and a description to doc/errors.rst:"
 	echo -e $missing_mnemonics
-	status=1
+	result=1
 fi
 if [[ $1 == "check" ]]; then
 	if [[ "" != $missing_messages ]]; then
 		echo "-> Error message text for the following mnemonics is missing from errors.rst. Please add the error message text for each to doc/errors.rst:"
 		echo -e $missing_messages
-		status=1
+		result=1
 	fi
-	exit $status
+	exit $result
 else
-	if [[ $status -eq 1 ]]; then
+	if [[ $result -eq 1 ]]; then
 		# Error already message issued for this case, so just exit
 		exit 1
 	elif [[ "" != $missing_text ]]; then

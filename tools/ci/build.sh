@@ -106,10 +106,12 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 fi
 
 # Confirm all error message mnemonics and text are included in the documentation
-../tools/ci/doc_error_update.sh "check"
+pushd ..
+./tools/ci/doc_error_update.sh "check"
 if [[ $? -ne 0 ]]; then
 	exit 1
 fi
+popd
 
 echo "# Randomly choose to test Debug or Release build"
 if [[ $(( $RANDOM % 2)) -eq 0 ]]; then

@@ -489,6 +489,14 @@ Text: Input line too long
 
 Description/Action: This error is generated if the input line is too long. PSQL Error Code: 22026
 
++++++++++++++++++++
+ERR_LITERAL_MAX_LEN
++++++++++++++++++++
+
+Text: Literal value exceeds max length (xxx bytes)
+
+Description/Action: This error indicates that a query was issued containing a literal value that exceeds the maximum length in bytes allowed for any literal value. PSQL Error Code: 22003
+
 ++++++++++++++++++
 INFO_LOADED_CONFIG
 ++++++++++++++++++

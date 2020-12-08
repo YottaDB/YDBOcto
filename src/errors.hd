@@ -207,7 +207,7 @@ ERROR_DEF(ERR_TOO_MANY_FUNCTION_ARGUMENTS, "Too many arguments passed for functi
 ERROR_DEF(ERR_NUMERIC_OVERFLOW, "Numeric field overflow; A field with precision %s, scale %s must round to an absolute value less than 10^%s", PSQL_Code_Numeric_Value_Out_Of_Range)
 ERROR_DEF(ERR_NUMERIC_SCALE, "Numeric scale %d must be between 0 and precision %d", PSQL_Code_Invalid_Parameter_Value)
 ERROR_DEF(ERR_TOO_MANY_DELIM_CHARS, "Too many characters specified for DELIM specification (got: %d, max: %d)", PSQL_Code_Numeric_Value_Out_Of_Range)
-ERROR_DEF(ERR_LITERAL_MAX_LEN, "Literal value exceeds max length (%d bytes) ", PSQL_Code_Numeric_Value_Out_Of_Range)
+ERROR_DEF(ERR_LITERAL_MAX_LEN, "Literal value exceeds max length (%d bytes)", PSQL_Code_Numeric_Value_Out_Of_Range)
 // ROCTO //
 ERROR_DEF(ERR_ROCTO_INVALID_ITEM_VALUE, "%s: invalid item value %c: must be %s", PSQL_Code_Data_Exception)
 ERROR_DEF(ERR_ROCTO_INVALID_INT_VALUE, "%s: invalid %s value %d: must be %d", PSQL_Code_Numeric_Value_Out_Of_Range)

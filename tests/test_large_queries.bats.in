@@ -19,29 +19,7 @@ setup() {
   load_fixture largecolnames.zwr
 }
 
-@test "TLQ01 : octo on query larger than 10MiB" {
-  # This test fails on CentOS due to line limit
-  if [[ -v CI_PIPELINE_ID ]]; then
-    skip "Skipping test as it randomly fails in pipelines"
-  fi
-  yottadb -run gt10mb^genlargequery
-  octo < in.sql 2>&1 | tee output.txt
-  if (( 10485760 >= $(stat --printf="%s\n" _ydboctoP*.m) )); then
-    echo "FAIL: generated m routine is too small"
-    ls -l _ydbocto*.m
-  else
-     echo "PASS: generated M routine is correctly over 10MiB"
-  fi
-  yottadb -r gt10mbOutA^genlargequery
-  sed '/\[ INFO\]\|^INFO:/d' output.txt > clean_output.txt
-  # check that the full query is printed in the header of the generated M code
-  awk 'BEGIN {p = 0} /^;; -*$/ {p = 0} NR == 3 {p = 1} p {print substr($0, 4)}' _ydboctoP* > query.cmp
-  diff in.sql query.cmp
-  escape_sequence_sanitize
-  diff output.ref clean_output.txt
-}
-
-@test "TLQ02 : octo -f on query larger than 10MiB" {
+@test "TLQ01 : octo -f on query larger than 10MiB" {
   yottadb -run gt10mb^genlargequery
   octo -f in.sql 2>&1 | tee output.txt
   if (( 10485760 >= $(stat --printf="%s\n" _ydboctoP*.m) )); then

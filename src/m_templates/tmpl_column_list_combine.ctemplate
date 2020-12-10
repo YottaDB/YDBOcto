@@ -55,8 +55,18 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 			assert(LP_COLUMN_LIST_ALIAS == tmpPlan->type);
 			order_by_expr_type = tmpPlan->v.lp_column_list_alias.column_list_alias->type;
 			assert(IS_LITERAL_PARAMETER(order_by_expr_type) || (NUL_VALUE == order_by_expr_type));
-			if (STRING_LITERAL == order_by_expr_type) {
+			switch(order_by_expr_type) {
+			case STRING_LITERAL:
 				%{}"Z"_{}%
+				break;
+			case BOOLEAN_VALUE:
+			case NUMERIC_LITERAL:
+			case INTEGER_LITERAL:
+				/* In case of an integer, force it to be a numeric. Fixes issues like YDBOcto#643. */
+				%{}+{}%
+				break;
+			default:
+				break;
 			}
 			/* Note: In case of ORDER BY, we do NOT want to convert str to mval as the ordering will then not happen.
 			 *       Caller should have set `str2mval` appropriately. Assert that.

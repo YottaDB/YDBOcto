@@ -44,13 +44,13 @@ octoPlan1(cursorId)
     . . . SET %ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID")=""
     . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID")=$ORDER(^%ydboctoxref("PG_CATALOG.PG_CLASS","RELNAMESPACE",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","RELNAMESPACE"),%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID")="")  DO
     . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . SET %ydboctoexpr(2)=%ydboctoexpr
     . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",6))
     . . . . SET %ydboctoexpr=$$regexmatch^%ydboctoplanhelpers(%ydboctoexpr(2),%ydboctoexpr,1,0)
     . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . SET %ydboctoexpr(2)=0
-    . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",16))
+    . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",16),0,-1,"VARCHAR")
     . . . . SET %ydboctoexpr(2,0)=%ydboctoexpr
     . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",7))
     . . . . SET %ydboctoexpr(2,1)=%ydboctoexpr
@@ -75,16 +75,16 @@ octoPlan1(cursorId)
     . . . . . . SET %ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID")=""
     . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID")=$ORDER(^%ydboctoxref("PG_CATALOG.PG_ATTRIBUTE","ATTRELID",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","ATTRELID"),%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID")="")  DO
     . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",6))
+    . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",6),0,-1,"INTEGER")
     . . . . . . . SET %ydboctoexpr(2)=%ydboctoexpr
     . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",14))
     . . . . . . . SET %ydboctoexpr=%ydboctoexpr(2)>%ydboctoexpr
     . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
-    . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"BOOLEAN",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",17))
+    . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",17),0,-1,"BOOLEAN")
     . . . . . . . SET %ydboctoexpr='%ydboctoexpr
     . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)&%ydboctoexpr
     . . . . . . . IF %ydboctoexpr DO
-    . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",3))
+    . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",3),0,-1,"INTEGER")
     . . . . . . . . SET %ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","OID")) IF $DATA(^%ydboctoxref("PG_CATALOG.PG_TYPE","OID",%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","OID"))) DO
     . . . . . . . . . SET %ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME")=""
     . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME")=$ORDER(^%ydboctoxref("PG_CATALOG.PG_TYPE","OID",%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","OID"),%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME"))) QUIT:(%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME")="")  DO
@@ -94,36 +94,36 @@ octoPlan1(cursorId)
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","NSPNAME")
     . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",3))
+    . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",3),0,-1,"INTEGER")
     . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"BOOLEAN",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",13))
+    . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",13),0,-1,"BOOLEAN")
     . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
-    . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_type",%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME"))),"|",5))
+    . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_type",%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME"))),"|",5),0,-1,"VARCHAR")
     . . . . . . . . . . . SET %ydboctoexpr(3)=%ydboctoexpr
     . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(3)=%ydboctoexpr
     . . . . . . . . . . . SET %ydboctoexpr(2)=%ydboctoexpr
-    . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"BOOLEAN",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_type",%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME"))),"|",22))
+    . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_type",%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME"))),"|",22),0,-1,"BOOLEAN")
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(2)&%ydboctoexpr
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)!%ydboctoexpr
     . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",9))
+    . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",9),0,-1,"INTEGER")
     . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",5))
+    . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",5),0,-1,"INTEGER")
     . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
@@ -131,11 +131,11 @@ octoPlan1(cursorId)
     . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_type",%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME"))),"|",23))
+    . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_type",%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME"))),"|",23),0,-1,"INTEGER")
     . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_type",%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME"))),"|",5))
+    . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_type",%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME"))),"|",5),0,-1,"VARCHAR")
     . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",8,"","",%ydboctocursor(cursorId,"keys",8,"",""))=%ydboctoexpr
@@ -227,7 +227,7 @@ octoPlan1(cursorId)
     . . SET %ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID")=""
     . . FOR  SET %ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID")=$ORDER(^%ydboctoxref("PG_CATALOG.PG_CLASS","RELNAMESPACE",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","RELNAMESPACE"),%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID")="")  DO
     . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",11))
     . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
@@ -236,7 +236,7 @@ octoPlan1(cursorId)
     . . . . SET %ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","ATTRELID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","ATTRELID")) IF $DATA(^%ydboctoxref("PG_CATALOG.PG_ATTRIBUTE","ATTRELID",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","ATTRELID"))) DO
     . . . . . SET %ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID")=""
     . . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID")=$ORDER(^%ydboctoxref("PG_CATALOG.PG_ATTRIBUTE","ATTRELID",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","ATTRELID"),%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID")="")  DO
-    . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",3))
+    . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",3),0,-1,"INTEGER")
     . . . . . . SET %ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","OID")) IF $DATA(^%ydboctoxref("PG_CATALOG.PG_TYPE","OID",%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","OID"))) DO
     . . . . . . . SET %ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME")=""
     . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME")=$ORDER(^%ydboctoxref("PG_CATALOG.PG_TYPE","OID",%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","OID"),%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME"))) QUIT:(%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME")="")  DO
@@ -246,9 +246,9 @@ octoPlan1(cursorId)
     . . . . . . . . . SET %ydboctocursor(cursorId,"keys",5,"PG_CATALOG.PG_ATTRDEF","OID")=""
     . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",5,"PG_CATALOG.PG_ATTRDEF","OID")=$ORDER(^%ydboctoxref("PG_CATALOG.PG_ATTRDEF","ADRELID",%ydboctocursor(cursorId,"keys",5,"PG_CATALOG.PG_ATTRDEF","ADRELID"),%ydboctocursor(cursorId,"keys",5,"PG_CATALOG.PG_ATTRDEF","OID"))) QUIT:(%ydboctocursor(cursorId,"keys",5,"PG_CATALOG.PG_ATTRDEF","OID")="")  DO
     . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",6))
+    . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",6),0,-1,"INTEGER")
     . . . . . . . . . . SET %ydboctoexpr(1)=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
-    . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attrdef",%ydboctocursor(cursorId,"keys",5,"PG_CATALOG.PG_ATTRDEF","OID"))),"|",2))
+    . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attrdef",%ydboctocursor(cursorId,"keys",5,"PG_CATALOG.PG_ATTRDEF","OID"))),"|",2),0,-1,"INTEGER")
     . . . . . . . . . . SET %ydboctoexpr=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . IF %ydboctoexpr DO
@@ -259,67 +259,67 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID")=""
     . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID")=$ORDER(^%ydboctoxref("PG_CATALOG.PG_DESCRIPTION","OBJOID",%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OBJOID"),%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID"))) QUIT:(%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID")="")  DO
     . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",6))
+    . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",6),0,-1,"INTEGER")
     . . . . . . . . . . . . . SET %ydboctoexpr(1)=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
-    . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_description",%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID"))),"|",3))
+    . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_description",%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID"))),"|",3),0,-1,"INTEGER")
     . . . . . . . . . . . . . SET %ydboctoexpr=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . SET %ydboctoz(9)=1
     . . . . . . . . . . . . . . SET %ydboctoz(11)=0
-    . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_description",%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID"))),"|",2))
+    . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_description",%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID"))),"|",2),0,-1,"INTEGER")
     . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")) IF $DATA(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))) DO
     . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",8))
     . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . . SET %ydboctoz(11)=1
     . . . . . . . . . . . . . . . . SET %ydboctoz(12)=0
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",2))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",2),0,-1,"INTEGER")
     . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")) IF $DATA(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))) DO
     . . . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",10))
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . . . . SET %ydboctoz(12)=1
     . . . . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",11))
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
     . . . . . . . . . . . . . . . . IF %ydboctoz(12)=0 DO
     . . . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",11))
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
@@ -328,46 +328,46 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$ZYSQLNULL
     . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")) IF $DATA(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))) DO
     . . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",10))
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . . . SET %ydboctoz(12)=1
     . . . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",11))
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
     . . . . . . . . . . . . . . . IF %ydboctoz(12)=0 DO
     . . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",11))
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
@@ -376,56 +376,56 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . SET %ydboctoexpr=$ZYSQLNULL
     . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")) IF $DATA(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))) DO
     . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",8))
     . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . SET %ydboctoz(11)=1
     . . . . . . . . . . . . . . SET %ydboctoz(12)=0
-    . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",2))
+    . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",2),0,-1,"INTEGER")
     . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")) IF $DATA(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))) DO
     . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",10))
     . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . . SET %ydboctoz(12)=1
     . . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",11))
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
     . . . . . . . . . . . . . . IF %ydboctoz(12)=0 DO
     . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",11))
     . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
@@ -434,46 +434,46 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . SET %ydboctoexpr=$ZYSQLNULL
     . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")) IF $DATA(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))) DO
     . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",10))
     . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . SET %ydboctoz(12)=1
     . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",11))
     . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
     . . . . . . . . . . . . . IF %ydboctoz(12)=0 DO
     . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",11))
     . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
@@ -484,67 +484,67 @@ octoPlan1(cursorId)
     . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID")=""
     . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID")=$ORDER(^%ydboctoxref("PG_CATALOG.PG_DESCRIPTION","OBJOID",%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OBJOID"),%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID"))) QUIT:(%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID")="")  DO
     . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",6))
+    . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",6),0,-1,"INTEGER")
     . . . . . . . . . . . SET %ydboctoexpr(1)=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
-    . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_description",%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID"))),"|",3))
+    . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_description",%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID"))),"|",3),0,-1,"INTEGER")
     . . . . . . . . . . . SET %ydboctoexpr=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . SET %ydboctoz(9)=1
     . . . . . . . . . . . . SET %ydboctoz(11)=0
-    . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_description",%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID"))),"|",2))
+    . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_description",%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID"))),"|",2),0,-1,"INTEGER")
     . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")) IF $DATA(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))) DO
     . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",8))
     . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . SET %ydboctoz(11)=1
     . . . . . . . . . . . . . . SET %ydboctoz(12)=0
-    . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",2))
+    . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",2),0,-1,"INTEGER")
     . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")) IF $DATA(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))) DO
     . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",10))
     . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . . SET %ydboctoz(12)=1
     . . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",11))
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
     . . . . . . . . . . . . . . IF %ydboctoz(12)=0 DO
     . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",11))
     . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
@@ -553,46 +553,46 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . SET %ydboctoexpr=$ZYSQLNULL
     . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")) IF $DATA(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))) DO
     . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",10))
     . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . SET %ydboctoz(12)=1
     . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",11))
     . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
     . . . . . . . . . . . . . IF %ydboctoz(12)=0 DO
     . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",11))
     . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
@@ -601,56 +601,56 @@ octoPlan1(cursorId)
     . . . . . . . . . . SET %ydboctoexpr=$ZYSQLNULL
     . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")) IF $DATA(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))) DO
     . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",8))
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . SET %ydboctoz(11)=1
     . . . . . . . . . . . . SET %ydboctoz(12)=0
-    . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",2))
+    . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",2),0,-1,"INTEGER")
     . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")) IF $DATA(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))) DO
     . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",10))
     . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . SET %ydboctoz(12)=1
     . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",11))
     . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
     . . . . . . . . . . . . IF %ydboctoz(12)=0 DO
     . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",11))
     . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
@@ -659,46 +659,46 @@ octoPlan1(cursorId)
     . . . . . . . . . . . SET %ydboctoexpr=$ZYSQLNULL
     . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")) IF $DATA(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))) DO
     . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",10))
     . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . SET %ydboctoz(12)=1
     . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",11))
     . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
     . . . . . . . . . . . IF %ydboctoz(12)=0 DO
     . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",11))
     . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
@@ -730,7 +730,7 @@ octoPlan1(cursorId)
     . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID")=$ORDER(^%ydboctoxref("PG_CATALOG.PG_CLASS","RELNAMESPACE",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","RELNAMESPACE"),%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID")="")  DO
     . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
     . . . . SET %ydboctoexpr(2)=0
-    . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",16))
+    . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",16),0,-1,"VARCHAR")
     . . . . SET %ydboctoexpr(2,0)=%ydboctoexpr
     . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",8))
     . . . . SET %ydboctoexpr(2,1)=%ydboctoexpr
@@ -749,7 +749,7 @@ octoPlan1(cursorId)
     . . . . SET %ydboctoexpr(2)=%ydboctoexpr(2)!(%ydboctoexpr(2,0)=%ydboctoexpr(2,1))
     . . . . SET %ydboctoexpr=%ydboctoexpr(2)
     . . . . SET %ydboctoexpr(1)=%ydboctoexpr
-    . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . SET %ydboctoexpr(2)=%ydboctoexpr
     . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",15))
     . . . . SET %ydboctoexpr=$$regexmatch^%ydboctoplanhelpers(%ydboctoexpr(2),%ydboctoexpr,1,0)
@@ -760,16 +760,16 @@ octoPlan1(cursorId)
     . . . . . . SET %ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID")=""
     . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID")=$ORDER(^%ydboctoxref("PG_CATALOG.PG_ATTRIBUTE","ATTRELID",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","ATTRELID"),%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID")="")  DO
     . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",6))
+    . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",6),0,-1,"INTEGER")
     . . . . . . . SET %ydboctoexpr(2)=%ydboctoexpr
     . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",13))
     . . . . . . . SET %ydboctoexpr=%ydboctoexpr(2)>%ydboctoexpr
     . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
-    . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"BOOLEAN",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",17))
+    . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",17),0,-1,"BOOLEAN")
     . . . . . . . SET %ydboctoexpr='%ydboctoexpr
     . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)&%ydboctoexpr
     . . . . . . . IF %ydboctoexpr DO
-    . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",3))
+    . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",3),0,-1,"INTEGER")
     . . . . . . . . SET %ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","OID")) IF $DATA(^%ydboctoxref("PG_CATALOG.PG_TYPE","OID",%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","OID"))) DO
     . . . . . . . . . SET %ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME")=""
     . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME")=$ORDER(^%ydboctoxref("PG_CATALOG.PG_TYPE","OID",%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","OID"),%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME"))) QUIT:(%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME")="")  DO
@@ -779,36 +779,36 @@ octoPlan1(cursorId)
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","NSPNAME")
     . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",3))
+    . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",3),0,-1,"INTEGER")
     . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"BOOLEAN",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",13))
+    . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",13),0,-1,"BOOLEAN")
     . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
-    . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_type",%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME"))),"|",5))
+    . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_type",%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME"))),"|",5),0,-1,"VARCHAR")
     . . . . . . . . . . . SET %ydboctoexpr(3)=%ydboctoexpr
     . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(3)=%ydboctoexpr
     . . . . . . . . . . . SET %ydboctoexpr(2)=%ydboctoexpr
-    . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"BOOLEAN",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_type",%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME"))),"|",22))
+    . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_type",%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME"))),"|",22),0,-1,"BOOLEAN")
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(2)&%ydboctoexpr
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)!%ydboctoexpr
     . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",9))
+    . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",9),0,-1,"INTEGER")
     . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",5))
+    . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",5),0,-1,"INTEGER")
     . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
@@ -816,11 +816,11 @@ octoPlan1(cursorId)
     . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_type",%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME"))),"|",23))
+    . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_type",%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME"))),"|",23),0,-1,"INTEGER")
     . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_type",%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME"))),"|",5))
+    . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_type",%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME"))),"|",5),0,-1,"VARCHAR")
     . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",8,"","",%ydboctocursor(cursorId,"keys",8,"",""))=%ydboctoexpr
@@ -912,7 +912,7 @@ octoPlan1(cursorId)
     . . SET %ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID")=""
     . . FOR  SET %ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID")=$ORDER(^%ydboctoxref("PG_CATALOG.PG_CLASS","RELNAMESPACE",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","RELNAMESPACE"),%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID")="")  DO
     . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",3))
     . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
@@ -921,7 +921,7 @@ octoPlan1(cursorId)
     . . . . SET %ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","ATTRELID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","ATTRELID")) IF $DATA(^%ydboctoxref("PG_CATALOG.PG_ATTRIBUTE","ATTRELID",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","ATTRELID"))) DO
     . . . . . SET %ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID")=""
     . . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID")=$ORDER(^%ydboctoxref("PG_CATALOG.PG_ATTRIBUTE","ATTRELID",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","ATTRELID"),%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID")="")  DO
-    . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",3))
+    . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",3),0,-1,"INTEGER")
     . . . . . . SET %ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","OID")) IF $DATA(^%ydboctoxref("PG_CATALOG.PG_TYPE","OID",%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","OID"))) DO
     . . . . . . . SET %ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME")=""
     . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME")=$ORDER(^%ydboctoxref("PG_CATALOG.PG_TYPE","OID",%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","OID"),%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME"))) QUIT:(%ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME")="")  DO
@@ -931,9 +931,9 @@ octoPlan1(cursorId)
     . . . . . . . . . SET %ydboctocursor(cursorId,"keys",5,"PG_CATALOG.PG_ATTRDEF","OID")=""
     . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",5,"PG_CATALOG.PG_ATTRDEF","OID")=$ORDER(^%ydboctoxref("PG_CATALOG.PG_ATTRDEF","ADRELID",%ydboctocursor(cursorId,"keys",5,"PG_CATALOG.PG_ATTRDEF","ADRELID"),%ydboctocursor(cursorId,"keys",5,"PG_CATALOG.PG_ATTRDEF","OID"))) QUIT:(%ydboctocursor(cursorId,"keys",5,"PG_CATALOG.PG_ATTRDEF","OID")="")  DO
     . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",6))
+    . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",6),0,-1,"INTEGER")
     . . . . . . . . . . SET %ydboctoexpr(1)=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
-    . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attrdef",%ydboctocursor(cursorId,"keys",5,"PG_CATALOG.PG_ATTRDEF","OID"))),"|",2))
+    . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attrdef",%ydboctocursor(cursorId,"keys",5,"PG_CATALOG.PG_ATTRDEF","OID"))),"|",2),0,-1,"INTEGER")
     . . . . . . . . . . SET %ydboctoexpr=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . IF %ydboctoexpr DO
@@ -944,28 +944,28 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID")=""
     . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID")=$ORDER(^%ydboctoxref("PG_CATALOG.PG_DESCRIPTION","OBJOID",%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OBJOID"),%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID"))) QUIT:(%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID")="")  DO
     . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",6))
+    . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",6),0,-1,"INTEGER")
     . . . . . . . . . . . . . SET %ydboctoexpr(1)=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
-    . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_description",%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID"))),"|",3))
+    . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_description",%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID"))),"|",3),0,-1,"INTEGER")
     . . . . . . . . . . . . . SET %ydboctoexpr=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . SET %ydboctoz(9)=1
     . . . . . . . . . . . . . . SET %ydboctoz(11)=0
-    . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_description",%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID"))),"|",2))
+    . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_description",%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID"))),"|",2),0,-1,"INTEGER")
     . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")) IF $DATA(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))) DO
     . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",9))
     . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . . SET %ydboctoz(11)=1
     . . . . . . . . . . . . . . . . SET %ydboctoz(12)=0
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",2))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",2),0,-1,"INTEGER")
     . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")) IF $DATA(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))) DO
     . . . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",11))
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
@@ -974,14 +974,14 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
     . . . . . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
@@ -989,14 +989,14 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
     . . . . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
@@ -1005,7 +1005,7 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$ZYSQLNULL
     . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")) IF $DATA(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))) DO
     . . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",11))
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
@@ -1014,14 +1014,14 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
     . . . . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
@@ -1029,14 +1029,14 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
     . . . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
@@ -1045,17 +1045,17 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . SET %ydboctoexpr=$ZYSQLNULL
     . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")) IF $DATA(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))) DO
     . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",9))
     . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . SET %ydboctoz(11)=1
     . . . . . . . . . . . . . . SET %ydboctoz(12)=0
-    . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",2))
+    . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",2),0,-1,"INTEGER")
     . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")) IF $DATA(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))) DO
     . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",11))
     . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
@@ -1064,14 +1064,14 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
     . . . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
@@ -1079,14 +1079,14 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
     . . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
@@ -1095,7 +1095,7 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . SET %ydboctoexpr=$ZYSQLNULL
     . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")) IF $DATA(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))) DO
     . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",11))
     . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
@@ -1104,14 +1104,14 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
     . . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
@@ -1119,14 +1119,14 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
     . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
@@ -1137,28 +1137,28 @@ octoPlan1(cursorId)
     . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID")=""
     . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID")=$ORDER(^%ydboctoxref("PG_CATALOG.PG_DESCRIPTION","OBJOID",%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OBJOID"),%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID"))) QUIT:(%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID")="")  DO
     . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",6))
+    . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",6),0,-1,"INTEGER")
     . . . . . . . . . . . SET %ydboctoexpr(1)=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
-    . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_description",%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID"))),"|",3))
+    . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_description",%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID"))),"|",3),0,-1,"INTEGER")
     . . . . . . . . . . . SET %ydboctoexpr=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . SET %ydboctoz(9)=1
     . . . . . . . . . . . . SET %ydboctoz(11)=0
-    . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_description",%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID"))),"|",2))
+    . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_description",%ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID"))),"|",2),0,-1,"INTEGER")
     . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")) IF $DATA(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))) DO
     . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",9))
     . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . SET %ydboctoz(11)=1
     . . . . . . . . . . . . . . SET %ydboctoz(12)=0
-    . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",2))
+    . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",2),0,-1,"INTEGER")
     . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")) IF $DATA(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))) DO
     . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",11))
     . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
@@ -1167,14 +1167,14 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
     . . . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
@@ -1182,14 +1182,14 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
     . . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
@@ -1198,7 +1198,7 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . SET %ydboctoexpr=$ZYSQLNULL
     . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")) IF $DATA(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))) DO
     . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",11))
     . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
@@ -1207,14 +1207,14 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
     . . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
@@ -1222,14 +1222,14 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
     . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
@@ -1238,17 +1238,17 @@ octoPlan1(cursorId)
     . . . . . . . . . . SET %ydboctoexpr=$ZYSQLNULL
     . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")) IF $DATA(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))) DO
     . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",9))
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . SET %ydboctoz(11)=1
     . . . . . . . . . . . . SET %ydboctoz(12)=0
-    . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"INTEGER",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",2))
+    . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID"))),"|",2),0,-1,"INTEGER")
     . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")) IF $DATA(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))) DO
     . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",11))
     . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
@@ -1257,14 +1257,14 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
     . . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
@@ -1272,14 +1272,14 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
     . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
@@ -1288,7 +1288,7 @@ octoPlan1(cursorId)
     . . . . . . . . . . . SET %ydboctoexpr=$ZYSQLNULL
     . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")) IF $DATA(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))) DO
     . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",11))
     . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
@@ -1297,14 +1297,14 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
     . . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
@@ -1312,14 +1312,14 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
     . . . . . . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1))
+    . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1))
+    . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_class",%ydboctocursor(cursorId,"keys",2,"PG_CATALOG.PG_CLASS","OID"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . . . . . . . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2))
+    . . . . . . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^%ydboctoocto("tables","pg_catalog","pg_attribute",%ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID"))),"|",2),0,-1,"VARCHAR")
     . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr

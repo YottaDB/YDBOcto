@@ -10,7 +10,7 @@
 #								#
 #################################################################
 
--- TC034 : OCTO527/OCTO320 : DDLs using NULLCHAR and EXTRACT wrap \$E[XTRACT] calls with empty2null
+-- TC034 : OCTO527/OCTO320 : DDLs using NULLCHAR and EXTRACT wrap \$E[XTRACT] calls with colvalue2null
 
 CREATE TABLE `INDEX_DESCRIPTION`(
 	`INDEX_ID` NUMERIC PRIMARY KEY START 0 END "'(keys(""INDEX_ID""))!(keys(""INDEX_ID"")="""")",

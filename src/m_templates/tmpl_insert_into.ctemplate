@@ -220,7 +220,7 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 			assert(NULL == get_keyword(cur_column, OPTIONAL_DELIM)); /* INSERT INTO to tables with column-level
 										  * delimiters are not allowed.
 										  */
-			%{}$$null2empty^%%ydboctoplanhelpers({{ PP_COL }}({{ cur_column->column_number|%d }}){}%
+			%{}$$null2colvalue^%%ydboctoplanhelpers({{ PP_COL }}({{ cur_column->column_number|%d }}){}%
 			col_is_not_null = IS_COLUMN_NOT_NULL(cur_column);
 			%{},{{ col_is_not_null|%d }}{}%
 			%{},{{ ((NULL != nullchar) ? nullchar : not_nullchar) }}{}%

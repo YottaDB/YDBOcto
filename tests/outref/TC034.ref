@@ -12,7 +12,7 @@ description1
 null
 description4
 
-# Confirm empty2null call included in generated plan:
+# Confirm colvalue2null call included in generated plan:
 
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
@@ -76,7 +76,7 @@ octoPlan1(cursorId)
     . . NEW %ydboctoexpr SET %ydboctoexpr=1
     . . IF %ydboctoexpr DO
     . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,127,"VARCHAR",$E($G(^DD("IX",%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_ID"),.1,%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_DESCRIPTION_ID"),0)),1,245))
+    . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($E($G(^DD("IX",%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_ID"),.1,%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_DESCRIPTION_ID"),0)),1,245),0,127,"VARCHAR")
     . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     QUIT

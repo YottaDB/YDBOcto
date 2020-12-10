@@ -399,7 +399,7 @@ octoPlan1(cursorId)
     . NEW %ydboctoexpr SET %ydboctoexpr=1
     . IF %ydboctoexpr DO
     . . NEW %ydboctog,%ydboctop
-    . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))),"|",1))
+    . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))),"|",1),0,-1,"VARCHAR")
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctog=%ydboctoexpr
     . . SET %ydboctocursor(cursorId,"keys",5,"","","GroupBy",%ydboctog)=""
@@ -433,7 +433,7 @@ octoPlan2(cursorId)
     . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr(1)):$ZYSQLNULL,$DATA(%ydboctocursor(cursorId,"keys",5,"","",%ydboctoexpr(1))):1,$DATA(%ydboctocursor(cursorId,"keys",5,"","",$ZYSQLNULL)):$ZYSQLNULL,1:0)
     . IF %ydboctoexpr DO
     . . NEW %ydboctog,%ydboctop
-    . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1))
+    . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1),0,-1,"VARCHAR")
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctog=%ydboctoexpr
     . . SET %ydboctocursor(cursorId,"keys",6,"","","GroupBy",%ydboctog)=""
@@ -489,7 +489,7 @@ octoPlan1(cursorId)
     . NEW %ydboctoexpr SET %ydboctoexpr=1
     . IF %ydboctoexpr DO
     . . NEW %ydboctog,%ydboctop
-    . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1))
+    . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1),0,-1,"VARCHAR")
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctog=%ydboctoexpr
     . . SET %ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog)=""

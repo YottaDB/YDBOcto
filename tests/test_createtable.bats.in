@@ -348,7 +348,7 @@ OCTO
 	verify_output TC031 output.txt
 }
 
-@test "TC032 : OCTO527/OCTO320 : DDLs using EXTRACT wrap \$E[XTRACT] calls with empty2null" {
+@test "TC032 : OCTO527/OCTO320 : DDLs using EXTRACT wrap \$E[XTRACT] calls with colvalue2null" {
 	testname="TC032"
 	load_fixture $testname.zwr
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/$testname.sql .
@@ -356,7 +356,7 @@ OCTO
 	for queryfile in $(ls TC032-*.sql); do
 		run_java run_query $test_port $queryfile useextended >> output.txt 2>&1
 	done
-	echo -e "\n# Confirm empty2null call included in generated plan:\n" >> output.txt
+	echo -e "\n# Confirm colvalue2null call included in generated plan:\n" >> output.txt
 	cat _ydboctoP*.m >> output.txt
 	verify_output $testname output.txt
 }
@@ -374,7 +374,7 @@ OCTO
 	verify_output TC033 output.txt
 }
 
-@test "TC034 : OCTO527/OCTO320 : DDLs using NULLCHAR and EXTRACT wrap \$E[XTRACT] calls with empty2null" {
+@test "TC034 : OCTO527/OCTO320 : DDLs using NULLCHAR and EXTRACT wrap \$E[XTRACT] calls with colvalue2null" {
 	testname="TC034"
 	load_fixture $testname.zwr
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/$testname.sql .
@@ -382,7 +382,7 @@ OCTO
 	for queryfile in $(ls $testname-*.sql); do
 		run_java run_query $test_port $queryfile useextended >> output.txt 2>&1
 	done
-	echo -e "\n# Confirm empty2null call included in generated plan:\n" >> output.txt
+	echo -e "\n# Confirm colvalue2null call included in generated plan:\n" >> output.txt
 	cat _ydboctoP*.m >> output.txt
 	verify_output $testname output.txt
 }
@@ -478,7 +478,7 @@ OCTO
 	echo '# Test DELIM "" without and with PIECE specified' > output.txt
 	cat $testname.log >> output.txt
 	echo '# Verify generated plans do not have $PIECE for FIRSTNAME column' >> output.txt
-	grep empty2null _ydboctoP*.m >> output.txt
+	grep colvalue2null _ydboctoP*.m >> output.txt
 	echo '# Verify text table definition does not have PIECE specified for FIRSTNAME column' >> output.txt
 	$ydb_dist/mupip extract $testname.ext
 	grep -w "text" $testname.ext | grep -wE "NAMES1|NAMES2" >> output.txt

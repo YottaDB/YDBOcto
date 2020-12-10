@@ -56,11 +56,12 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 			nullchar = NULL;
 		}
 		// This function is also called in tmpl_column_reference.ctemplate: any changes there must also be reflected here
-		%{}$$empty2null^%%ydboctoplanhelpers({{ not_null|%d }},{}%
-		not_nullchar = NOT_NULLCHAR;
-		%{}{{ ((NULL != nullchar) ? nullchar : not_nullchar) }},{}%
-		%{}"{{ get_user_visible_type_string(column_type) }}",{}%
+		%{}$$colvalue2null^%%ydboctoplanhelpers({}%
 		TMPL(tmpl_column_list_combine, col1, plan, ",", FALSE, 0);
+		%{},{{ not_null|%d }}{}%
+		not_nullchar = NOT_NULLCHAR;
+		%{},{{ ((NULL != nullchar) ? nullchar : not_nullchar) }}{}%
+		%{},"{{ get_user_visible_type_string(column_type) }}"{}%
 		%{}){}%
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);

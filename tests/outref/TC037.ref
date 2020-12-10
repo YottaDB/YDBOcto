@@ -33,10 +33,10 @@ SELECT * FROM names2;
 4|Joey||Joey
 5|Zero|Cool|Zero
 # Verify generated plans do not have $PIECE for FIRSTNAME column
-_ydboctoP*.m:    . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",^names(%ydboctocursor(cursorId,"keys",1,"NAMES2","ID")))
-_ydboctoP*.m:    . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES2","ID"))),"|",1))
-_ydboctoP*.m:    . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",^names(%ydboctocursor(cursorId,"keys",1,"NAMES1","ID")))
-_ydboctoP*.m:    . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES1","ID"))),"|",1))
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers(^names(%ydboctocursor(cursorId,"keys",1,"NAMES2","ID")),0,-1,"VARCHAR")
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES2","ID"))),"|",1),0,-1,"VARCHAR")
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers(^names(%ydboctocursor(cursorId,"keys",1,"NAMES1","ID")),0,-1,"VARCHAR")
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES1","ID"))),"|",1),0,-1,"VARCHAR")
 # Verify text table definition does not have PIECE specified for FIRSTNAME column
 ^%ydboctoschema("NAMES1","text",0)="CREATE TABLE `NAMES1` (`ID` INTEGER PRIMARY KEY, `FIRSTNAME` VARCHAR(30) DELIM """", `LASTNAME` VARCHAR(30) PIECE 1) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"";"
 ^%ydboctoschema("NAMES2","text",0)="CREATE TABLE `NAMES2` (`ID` INTEGER PRIMARY KEY, `FIRSTNAME` VARCHAR(30) DELIM """", `LASTNAME` VARCHAR(30) PIECE 1) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"";"

@@ -30,12 +30,12 @@ octoPlan1(cursorId)
     . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
     . SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")) IF $DATA(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) DO
     . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1))
+    . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1),0,-1,"VARCHAR")
     . . SET %ydboctoexpr(2)=%ydboctoexpr
     . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",3))
     . . SET %ydboctoexpr=%ydboctoexpr(2)'=%ydboctoexpr
     . . SET %ydboctoexpr(1)=%ydboctoexpr
-    . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))),"|",1))
+    . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))),"|",1),0,-1,"VARCHAR")
     . . SET %ydboctoexpr(2)=%ydboctoexpr
     . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",4))
     . . SET %ydboctoexpr=%ydboctoexpr(2)'=%ydboctoexpr
@@ -45,11 +45,11 @@ octoPlan1(cursorId)
     . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
     . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1))
+    . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1),0,-1,"VARCHAR")
     . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",2))
+    . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",2),0,-1,"VARCHAR")
     . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . SET %ydboctoexpr(0)=%ydboctoexpr
@@ -57,11 +57,11 @@ octoPlan1(cursorId)
     . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))),"|",1))
+    . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))),"|",1),0,-1,"VARCHAR")
     . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . SET %ydboctoexpr=$$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))),"|",2))
+    . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))),"|",2),0,-1,"VARCHAR")
     . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . SET %ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))=%ydboctoexpr

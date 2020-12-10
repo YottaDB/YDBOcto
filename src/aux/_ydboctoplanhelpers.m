@@ -679,20 +679,20 @@ get3bytedatalen(byte1,mval,offset)
 	; `offset` indicates how many bytes to go past before extracting the 2nd/3rd byte
 	QUIT (byte1-192)*65536+($ZASCII($ZEXTRACT(mval,offset+2))*256)+$ZASCII($ZEXTRACT(mval,offset+3))-3
 
-empty2null(isnotnull,charnum,type,piece)
+colvalue2null(piecevalue,colisnotnull,nullcharnum,coltype)
 	; Conditionally converts an empty string or NULLCHAR value returned by $PIECE to $ZYSQLNULL if NOT NULL is not specified
 	; First handle case where custom NULLCHAR is specified
-	QUIT:(-1'=charnum) $SELECT(($CHAR(charnum)=piece):$ZYSQLNULL,1:piece)	; Note: -1 is actually NOT_NULLCHAR macro in C code
+	QUIT:(-1'=nullcharnum) $SELECT(($CHAR(nullcharnum)=piecevalue):$ZYSQLNULL,1:piecevalue)	; Note: -1 is NOT_NULLCHAR macro in C code
 	; Now that we know no custom NULLCHAR is specified, check if piece value is not empty. If so, return that right away.
-	QUIT:(""'=piece) piece
-	; Now that we know no custom NULLCHAR is specified and "piece" is "", if NOT NULL is not specified, return NULL
-	QUIT:'isnotnull $ZYSQLNULL
+	QUIT:(""'=piecevalue) piecevalue
+	; Now that we know no custom NULLCHAR is specified and "piecevalue" is "", if NOT NULL is not specified, return NULL
+	QUIT:'colisnotnull $ZYSQLNULL
 	; Now that we know NOT NULL is specified for this column, return default value based on the column type
 	; For VARCHAR it is "". For other types it is 0.
-	QUIT $SELECT((("NUMERIC"=type)!("INTEGER"=type)!("BOOLEAN"=type)):0,1:"")
+	QUIT $SELECT((("NUMERIC"=coltype)!("INTEGER"=coltype)!("BOOLEAN"=coltype)):0,1:"")
 
-null2empty(colvalue,colisnotnull,nullcharnum)
-	; Inverse of "empty2null()"
+null2colvalue(colvalue,colisnotnull,nullcharnum)
+	; Inverse of "colvalue2null()"
 	;
 	; Conditionally converts a $ZYSQLNULL "colvalue" (column value) to an empty string or the table-level NULLCHAR value
 	; (specified by "nullcharnum"). "colisnotnull" is 1 if column has "NOT NULL" specified in table definition and 0 otherwise.

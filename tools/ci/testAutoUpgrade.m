@@ -33,6 +33,10 @@ batsTestsChooseRandom
 	.	IF (line(i)["ADD_BATS_TEST(") DO  QUIT:skip
 	.	.	SET batsTestName=$PIECE($PIECE(line(i),"ADD_BATS_TEST(",2),")",1)
 	.	.	QUIT:$DATA(include(batsTestName))  ; check if test cannot be excluded
-	.	.	SET skip=$RANDOM(4) ; Include 25% of the tests, Skip 75% of the tests
+	.	.	; We pick only 10% of the bats tests. This is because we have seen that picking 25% resulted in
+	.	.	; the `test-auto-upgrade` pipeline job sometime running for as high as 45 minutes which is more
+	.	.	; than the main jobs (`make-ubuntu` etc.). Hence reduced it to 10% since with enough number of
+	.	.	; pipeline runs, we will see good coverage eventually and keeping each pipeline run reasonably short.
+	.	.	SET skip=$RANDOM(10) ; Include 10% of the tests, Skip 90% of the tests
 	.	WRITE line(i),!
 	QUIT

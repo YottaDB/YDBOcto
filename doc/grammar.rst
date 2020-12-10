@@ -148,7 +148,7 @@ The keywords denoted above are M expressions and literals. They are explained in
 | KEY NUM                        | Integer Literal               | Column                 | Specifies that the column maps to keys(<number>)                               | Not applicable               | Not applicable                                |
 +--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------+
 | NULLCHAR                       | Literal                       | Table, Column          | Specifies a custom character to be interpreted as a SQL NULL value. Characters | default interpretation of    | See discussion under                          |
-|                                |                               |                        | are specified as an integer ASCII value from 0-127 to be used in a call to     | empty strings as NULL values | `SQL NULL Values <./pitfalls.html#sqlnull>`_  |
+|                                |                               |                        | are specified as an integer ASCII value from 0-127 to be used in a call to     | empty strings as NULL values | :ref:`sqlnull`                                |
 |                                |                               |                        | `$CHAR() <https://docs.yottadb.com/ProgrammersGuide/functions.html#char>`_     |                              |                                               |
 +--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------+
 | PIECE                          | Integer Literal               | Column                 | Represents the                                                                 | default (column number,      | Not applicable                                |
@@ -427,7 +427,7 @@ HAVING
 
 The HAVING clause works to filter the rows that result from the GROUP BY clause. The rows are filtered based on the boolean value returned by the **search_condition**.
 
-See :ref:`Technical Notes <technical-notes>` for details on value expressions.
+See :ref:`technical-notes` for details on value expressions.
 
 Example:
 
@@ -1313,6 +1313,8 @@ A query expression can be a joined table or a non joined query expression.
 
 The non_join_query_expression includes simple tables and column lists.
 
+.. _northwind-ddl-ex:
+
 ---------------------
 Northwind DDL Example
 ---------------------
@@ -1384,7 +1386,55 @@ The following is another example from a VistA environment, automatically generat
 
 :code:`DELIM "^"` specifies to Octo that :code:`"^"` is the piece separator to use when mapping values of global variable nodes into columns.
 
-As with the :code:`PostalCode` column from the `Northwind DDL Example`_ above, the NOT NULL for the :code:`NAME` column means that an empty string for the first piece of :code:`^%ZIS(3.23,…)` global variable nodes will be treated as an empty string rather than a NULL. In contrast, had the INTEGER :code:`DEVICE` column been declared NOT NULL, an empty string for the third piece of global variable nodes would have been reported as a zero rather than a NULL.
+As with the :code:`PostalCode` column from the :ref:`northwind-ddl-ex` above, the NOT NULL for the :code:`NAME` column means that an empty string for the first piece of :code:`^%ZIS(3.23,…)` global variable nodes will be treated as an empty string rather than a NULL. In contrast, had the INTEGER :code:`DEVICE` column been declared NOT NULL, an empty string for the third piece of global variable nodes would have been reported as a zero rather than a NULL.
+
+.. _sqlnull:
+
+---------------------
+SQL NULL Values
+---------------------
+
+SQL allows columns other than key columns to be NULL by default. Consider a YottaDB global node :code:`^USAddress("White House")="1600 Pennsylvania Ave NW||Washingtion|DC|20500-0005"` mapped to a table defined as follows:
+
+.. code-block:: SQL
+
+   CREATE TABLE USFamousAddresses(
+     CommonName VARCHAR PRIMARY KEY,
+     AddressLine1 VARCHAR,
+     AddressLine2 VARCHAR,
+     City VARCHAR,
+     Territory VARCHAR(2),
+     Zip VARCHAR(10)
+   )
+   GLOBAL "^USAddresses(keys(""CommonName""))";
+
+The second piece of the node is an empty string (:code:`""`). There is no way to store a NULL as the piece of a YottaDB global variable node. Octo can either report that empty string as an empty string, or a NULL. The default is to treat it as a NULL. To treat it as a value, the column would be described in the DDL as NOT NULL:
+
+.. code-block:: SQL
+
+   CREATE TABLE USFamousAddresses(
+     CommonName VARCHAR PRIMARY KEY,
+     AddressLine1 VARCHAR,
+     AddressLine2 VARCHAR NOT NULL,
+     City VARCHAR,
+     Territory VARCHAR(2),
+     Zip VARCHAR(10)
+   )
+   GLOBAL "^USAddresses(keys(""CommonName""))";
+
+When Octo encounters an empty string as the piece of a node (or the entire node) mapped to a column, the column is considered to have a value determined by the column type in the DDL, as follows:
+
++-----------------+-----------------------------------+-------------------------------+
+| Column Type     | NOT NULL specified in DDL         | NOT NULL not specified in DDL |
++=================+===================================+===============================+
+| INTEGER/NUMERIC | Treat empty value as 0            | Treat empty value as NULL     |
++-----------------+-----------------------------------+-------------------------------+
+| VARCHAR/TEXT    | Treat empty value as empty string | Treat empty value as NULL     |
++-----------------+-----------------------------------+-------------------------------+
+| BOOLEAN         | Treat empty value as FALSE        | Treat empty value as NULL     |
++-----------------+-----------------------------------+-------------------------------+
+
+As described in the :ref:`mapexisting` Octo allows a 7-bit ASCII character to be designated as mapping to a SQL NULL. For such tables, an empty string as a piece is always treated as a value, as described in the table above.
 
 ---------------------
 Explicit NULL Example

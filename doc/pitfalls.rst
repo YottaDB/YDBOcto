@@ -1,55 +1,21 @@
 
-==============================
-Programming Notes
-==============================
+==========
+Pitfalls
+==========
 
 .. contents::
    :depth: 2
 
-.. _sqlnull:
++++++++++++++++++++++++++++++++++++
+Fixing out of sync cross reference
++++++++++++++++++++++++++++++++++++
 
-+++++++++++++++++++++
-SQL NULL Values
-+++++++++++++++++++++
+To speed up query execution, Octo automatically builds cross references for every *<table_name, column_name>* pair as needed. It has been observed that in rare cases (see `YottaDB/DB/YDB/#659 <https://gitlab.com/YottaDB/DB/YDB/-/issues/659>`_ for details) the cross references can get out of sync. If you encounter such a situation, run the following command to rebuild the cross reference for a particular *<table_name, column_name>* pair.
 
-SQL allows columns other than key columns to be NULL by default. Consider a YottaDB global node :code:`^USAddress("White House")="1600 Pennsylvania Ave NW||Washingtion|DC|20500-0005"` mapped to a table defined as follows:
+.. code-block:: bash
 
-.. code-block:: SQL
+   $ $ydb_dist/yottadb -run %XCMD 'KILL ^%ydboctoocto("xref_status","*<table_name>*","*<column_name>*")'
 
-   CREATE TABLE USFamousAddresses(
-     CommonName VARCHAR PRIMARY KEY,
-     AddressLine1 VARCHAR,
-     AddressLine2 VARCHAR,
-     City VARCHAR,
-     Territory VARCHAR(2),
-     Zip VARCHAR(10)
-   )
-   GLOBAL "^USAddresses(keys(""CommonName""))";
+The above command invalidates the current cross reference.
 
-The second piece of the node is an empty string (:code:`""`). There is no way to store a NULL as the piece of a YottaDB global variable node. Octo can either report that empty string as an empty string, or a NULL. The default is to treat it as a NULL. To treat it as a value, the column would be described in the DDL as NOT NULL:
-
-.. code-block:: SQL
-
-   CREATE TABLE USFamousAddresses(
-     CommonName VARCHAR PRIMARY KEY,
-     AddressLine1 VARCHAR,
-     AddressLine2 VARCHAR NOT NULL,
-     City VARCHAR,
-     Territory VARCHAR(2),
-     Zip VARCHAR(10)
-   )
-   GLOBAL "^USAddresses(keys(""CommonName""))";
-
-When Octo encounters an empty string as the piece of a node (or the entire node) mapped to a column, the column is considered to have a value determined by the column type in the DDL, as follows:
-
-+-----------------+-----------------------------------+-------------------------------+
-| Column Type     | NOT NULL specified in DDL         | NOT NULL not specified in DDL |
-+=================+===================================+===============================+
-| INTEGER/NUMERIC | Treat empty value as 0            | Treat empty value as NULL     |
-+-----------------+-----------------------------------+-------------------------------+
-| VARCHAR/TEXT    | Treat empty value as empty string | Treat empty value as NULL     |
-+-----------------+-----------------------------------+-------------------------------+
-| BOOLEAN         | Treat empty value as FALSE        | Treat empty value as NULL     |
-+-----------------+-----------------------------------+-------------------------------+
-
-As described in the `Mapping to existing YottaDB global variables <./grammar.html#mapexisting>`_ Octo allows a 7-bit ASCII character to be designated as mapping to a SQL NULL. For such tables, an empty string as a piece is always treated as a value, as described in the table above.
+Run your original query, in Octo, to rebuild/fix the cross reference.

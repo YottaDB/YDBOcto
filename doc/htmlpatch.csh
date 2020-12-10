@@ -74,5 +74,3 @@ perl -p -i -e "s/$from2/$to2/g" $filelist
 echo ""
 echo "--> Step 3 complete"
 echo ""
-
-

@@ -76,6 +76,7 @@ The Octo plugin can be installed by using the `--octo` option when installing Yo
    sudo apt-get install --no-install-recommends build-essential cmake bison flex xxd libreadline-dev libconfig-dev libssl-dev
 
    # CentOS Linux OR RedHat Linux
+   # Note: codeready-builder-for-rhel-8-x86_64-eus-rpms repository is needed in order to get the libconfig-devel package on RHEL 8
    # Note: epel-release has to be installed before cmake3 is installed
    sudo yum install epel-release
    sudo yum install vim-common cmake3 bison flex readline-devel libconfig-devel openssl-devel

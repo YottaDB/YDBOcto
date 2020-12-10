@@ -177,8 +177,8 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 	HEAD_COMMIT_ID=`git rev-list HEAD~1..HEAD`
 	if [[ "$stopcommit" == "$HEAD_COMMIT_ID" ]]; then
 		echo "INFO : HEAD commit and stopcommit is the same. No in between commits to choose from."
-		echo "INFO : Cannot run the test-auto-upgrade test in this case. Exiting with success."
-		exit 0
+		echo "INFO : Back off stopcommit by 1 commit"
+		stopcommit=`git rev-list HEAD~2..HEAD~1`
 	fi
 	# Find common ancestor of $hardstopcommit and $stopcommit. Verify it is $hardstopcommit. If not, we cannot test.
 	startcommit=`git merge-base $hardstopcommit $stopcommit`

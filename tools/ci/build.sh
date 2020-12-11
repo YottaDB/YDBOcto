@@ -199,7 +199,7 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 	echo $commitsha > commit_picked.txt
 	echo "# Random older commit picked = $commitsha"
 	echo "# Checkout the older commit"
-	git checkout -B tmp $commitsha
+	git checkout $commitsha
 	# Run only a random fraction of the bats tests as we will be running an auto upgrade test on the same queries
 	# once more a little later.
 	cp ../cmake/bats-tests.cmake bats-tests.cmake.orig

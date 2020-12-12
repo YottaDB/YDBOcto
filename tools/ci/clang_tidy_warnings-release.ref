@@ -10,3 +10,4 @@ make_error_response.c:warning: va_arg() is called on an uninitialized va_list [c
 make_error_response.c:warning: va_arg() is called on an uninitialized va_list [clang-analyzer-valist.Uninitialized]
 octo_init.c:warning: Attempt to free released memory [clang-analyzer-unix.Malloc]
 parse_startup_flags.c:warning: Null pointer passed as an argument to a 'nonnull' parameter [clang-analyzer-core.NonNullParamChecker]
+qualify_query.c:warning: Access to field 'value' results in a dereference of a null pointer (loaded from variable 'cur_join') [clang-analyzer-core.NullDereference]

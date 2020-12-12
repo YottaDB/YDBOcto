@@ -333,10 +333,6 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 				ISSUE_TYPE_COMPATIBILITY_ERROR(child_type1, "boolean operations", &select->where_expression,
 							       result);
 			}
-			/* While we are descending down the query and subqueries (if any), take this opportunity to do
-			 * some parse tree optimization if possible.
-			 */
-			parse_tree_optimize(select);
 		}
 		// SqlColumnListAlias that is a linked list
 		result |= populate_data_type_column_list_alias(select->group_by_expression, &child_type1, TRUE, parse_context);
@@ -350,6 +346,11 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		}
 		// SqlColumnListAlias that is a linked list
 		result |= populate_data_type_column_list_alias(select->order_by_expression, &child_type1, TRUE, parse_context);
+		/* While we are anyways descending down the query and subqueries (if any), take this opportunity to do some
+		 * parse tree optimization if possible. Optimize subqueries first before doing the parent query. Hence the
+		 * placement of this at the very end of the "case" block.
+		 */
+		parse_tree_optimize(select);
 		break;
 	case function_call_STATEMENT:
 		UNPACK_SQL_STATEMENT(function_call, v, function_call);

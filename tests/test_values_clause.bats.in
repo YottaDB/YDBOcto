@@ -23,3 +23,9 @@ setup() {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TVC01.sql
 }
 
+@test "TVC02 : OCTO502 : Verify VALUES clause used in FROM list of SELECT results in no unnecessary physical plans" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TVC02.sql
+	echo "# Verify no unnecessary generated physical plans by looking at generated M code" >> output.txt
+	grep -E "SELECT|octoPlan|--------" _ydboctoP*.m >> output.txt
+	verify_output TVC02 output.txt
+}

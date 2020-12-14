@@ -20,13 +20,9 @@ fi
 pushd /root
 git clone https://gitlab.com/YottaDB/Util/YDBPosix.git
 cd YDBPosix
-mkdir build && mkdir build_utf8
+mkdir build
 cd build
 ${1} ..
-make
-make install
-cd ../build_utf8
-${1} -DM_UTF8_MODE=1 ..
 make
 make install
 popd

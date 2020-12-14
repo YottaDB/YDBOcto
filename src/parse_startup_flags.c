@@ -26,6 +26,7 @@
 #include "physical_plan.h"
 #include "parser.h"
 #include "lexer.h"
+#include "git_hashes.h"
 
 void handle_invalid_option(char *executable_name, char short_option) {
 	printf("%s: invalid option -- '%c'\n", executable_name, short_option);

@@ -420,3 +420,9 @@ OCTO
 	verify_output $testname output.txt noinfo nodebug
 }
 
+@test "TPC020 : OCTO509 : \d works with rocto" {
+  # Only verify result as generated query differs between platforms
+  run_psql $test_port TPC020.sql | tee output.txt
+  verify_output TPC020 output.txt noinfo nodebug
+}
+

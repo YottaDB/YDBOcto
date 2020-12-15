@@ -26,76 +26,6 @@ ORDER  BY 1,
           2;
 
 [ INFO] PATH:LINENUM DATE TIME : INFO_RECORDING_ENV_VARS : # Recording pertinent ydb_* env var values at process startup
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'PG_CATALOG.PG_GET_USERBYID' defined with given parameter types (INTEGER)
-Error with syntax near (line 14, column 8):
-
-SELECT n.nspname                              AS "Schema",
-       c.relname                              AS "Name",
-       CASE c.relkind
-         WHEN 'r' THEN 'table'
-         WHEN 'v' THEN 'view'
-         WHEN 'm' THEN 'materialized view'
-         WHEN 'i' THEN 'index'
-         WHEN 'S' THEN 'sequence'
-         WHEN 's' THEN 'special'
-         WHEN 'f' THEN 'foreign table'
-         WHEN 'p' THEN 'table'
-         WHEN 'I' THEN 'index'
-       end                                    AS "Type",
-       pg_catalog.Pg_get_userbyid(c.relowner) AS "Owner"
-       ^^^^^^^^^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'PG_CATALOG.PG_TABLE_IS_VISIBLE' defined with given parameter types (INTEGER)
-Error with syntax near (line 23, column 12):
-
-SELECT n.nspname                              AS "Schema",
-       c.relname                              AS "Name",
-       CASE c.relkind
-         WHEN 'r' THEN 'table'
-         WHEN 'v' THEN 'view'
-         WHEN 'm' THEN 'materialized view'
-         WHEN 'i' THEN 'index'
-         WHEN 'S' THEN 'sequence'
-         WHEN 's' THEN 'special'
-         WHEN 'f' THEN 'foreign table'
-         WHEN 'p' THEN 'table'
-         WHEN 'I' THEN 'index'
-       end                                    AS "Type",
-       pg_catalog.Pg_get_userbyid(c.relowner) AS "Owner"
-FROM   pg_catalog.pg_class c
-       LEFT JOIN pg_catalog.pg_namespace n
-              ON n.oid = c.relnamespace
-WHERE  c.relkind IN ( 'r', 'p', 'v', 'm',
-                      'S', 'f', '' )
-       AND n.nspname <> 'pg_catalog'
-       AND n.nspname <> 'information_schema'
-       AND n.nspname !~ '^pg_toast'
-       AND pg_catalog.Pg_table_is_visible(c.oid)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT n.nspname                              AS "Schema",
-       c.relname                              AS "Name",
-       CASE c.relkind
-         WHEN 'r' THEN 'table'
-         WHEN 'v' THEN 'view'
-         WHEN 'm' THEN 'materialized view'
-         WHEN 'i' THEN 'index'
-         WHEN 'S' THEN 'sequence'
-         WHEN 's' THEN 'special'
-         WHEN 'f' THEN 'foreign table'
-         WHEN 'p' THEN 'table'
-         WHEN 'I' THEN 'index'
-       end                                    AS "Type",
-       pg_catalog.Pg_get_userbyid(c.relowner) AS "Owner"
-FROM   pg_catalog.pg_class c
-       LEFT JOIN pg_catalog.pg_namespace n
-              ON n.oid = c.relnamespace
-WHERE  c.relkind IN ( 'r', 'p', 'v', 'm',
-                      'S', 'f', '' )
-       AND n.nspname <> 'pg_catalog'
-       AND n.nspname <> 'information_schema'
-       AND n.nspname !~ '^pg_toast'
-       AND pg_catalog.Pg_table_is_visible(c.oid)
-ORDER  BY 1,
-          2;
 [ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command [SELECT n.nspname                              AS "Schema",
        c.relname                              AS "Name",
        CASE c.relkind
@@ -121,5 +51,389 @@ WHERE  c.relkind IN ( 'r', 'p', 'v', 'm',
        AND pg_catalog.Pg_table_is_visible(c.oid)
 ORDER  BY 1,
           2;]
-[ INFO] PATH:LINENUM DATE TIME : INFO_RETURNING_FAILURE : Returning failure from run_query
+[ INFO] PATH:LINENUM DATE TIME : INFO_CURSOR : Generating SQL for CURSOR_NUM
+[ INFO] PATH:LINENUM DATE TIME : INFO_M_PLAN : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
+LP_SELECT_QUERY: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: N(2).NSPNAME
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: SCHEMA
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: C(1).RELNAME
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: NAME
+      LP_WHERE: 
+        LP_CASE: 
+          LP_CASE_STATEMENT: 
+            LP_COLUMN_ALIAS: C(1).RELKIND
+          LP_CASE_BRANCH: 
+            LP_CASE_BRANCH_STATEMENT: 
+              LP_VALUE: 'r'
+              LP_VALUE: 'table'
+            LP_CASE_BRANCH: 
+              LP_CASE_BRANCH_STATEMENT: 
+                LP_VALUE: 'v'
+                LP_VALUE: 'view'
+              LP_CASE_BRANCH: 
+                LP_CASE_BRANCH_STATEMENT: 
+                  LP_VALUE: 'm'
+                  LP_VALUE: 'materialized view'
+                LP_CASE_BRANCH: 
+                  LP_CASE_BRANCH_STATEMENT: 
+                    LP_VALUE: 'i'
+                    LP_VALUE: 'index'
+                  LP_CASE_BRANCH: 
+                    LP_CASE_BRANCH_STATEMENT: 
+                      LP_VALUE: 'S'
+                      LP_VALUE: 'sequence'
+                    LP_CASE_BRANCH: 
+                      LP_CASE_BRANCH_STATEMENT: 
+                        LP_VALUE: 's'
+                        LP_VALUE: 'special'
+                      LP_CASE_BRANCH: 
+                        LP_CASE_BRANCH_STATEMENT: 
+                          LP_VALUE: 'f'
+                          LP_VALUE: 'foreign table'
+                        LP_CASE_BRANCH: 
+                          LP_CASE_BRANCH_STATEMENT: 
+                            LP_VALUE: 'p'
+                            LP_VALUE: 'table'
+                          LP_CASE_BRANCH: 
+                            LP_CASE_BRANCH_STATEMENT: 
+                              LP_VALUE: 'I'
+                              LP_VALUE: 'index'
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: TYPE
+      LP_WHERE: 
+        LP_FUNCTION_CALL: 
+          LP_VALUE: 'PG_CATALOG.PG_GET_USERBYID'
+          LP_COLUMN_LIST: 
+            LP_VALUE: '%ydboctoFwYGPSTRCKG67stgdEjL8D7'
+            LP_VALUE: '$$^%ydboctopgGetUserbyid'
+            LP_VALUE: 'VARCHAR'
+            LP_COLUMN_ALIAS: C(1).RELOWNER
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: OWNER
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_WHERE: 
+          LP_BOOLEAN_AND: 
+            LP_BOOLEAN_IN: 
+              LP_COLUMN_ALIAS: C(1).RELKIND
+              LP_COLUMN_LIST: 
+                LP_VALUE: 'r'
+                LP_VALUE: 'p'
+                LP_VALUE: 'v'
+                LP_VALUE: 'm'
+                LP_VALUE: 'S'
+                LP_VALUE: 'f'
+                LP_VALUE: ''
+            LP_FUNCTION_CALL: 
+              LP_VALUE: 'PG_CATALOG.PG_TABLE_IS_VISIBLE'
+              LP_COLUMN_LIST: 
+                LP_VALUE: '%ydboctoFZPxVOipyvcmjbTa20TTWJD'
+                LP_VALUE: '$$^%ydboctopgTableIsVisible'
+                LP_VALUE: 'BOOLEAN'
+                LP_COLUMN_ALIAS: C(1).OID
+        LP_TABLE: C
+        LP_TABLE_JOIN: LEFT_JOIN: 
+          LP_WHERE: 
+            LP_BOOLEAN_EQUALS: 
+              LP_COLUMN_ALIAS: N(2).OID
+              LP_COLUMN_ALIAS: C(1).RELNAMESPACE
+          LP_TABLE: N
+      LP_CRITERIA: 
+        LP_KEYS: 
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+            LP_BOOLEAN_AND: 
+              LP_BOOLEAN_AND: 
+                LP_BOOLEAN_AND: 
+                  LP_BOOLEAN_AND: 
+                    LP_BOOLEAN_IN: 
+                      LP_COLUMN_ALIAS: C(1).RELKIND
+                      LP_COLUMN_LIST: 
+                        LP_VALUE: 'r'
+                        LP_VALUE: 'p'
+                        LP_VALUE: 'v'
+                        LP_VALUE: 'm'
+                        LP_VALUE: 'S'
+                        LP_VALUE: 'f'
+                        LP_VALUE: ''
+                    LP_BOOLEAN_NOT_EQUALS: 
+                      LP_COLUMN_ALIAS: N(2).NSPNAME
+                      LP_VALUE: 'pg_catalog'
+                  LP_BOOLEAN_NOT_EQUALS: 
+                    LP_COLUMN_ALIAS: N(2).NSPNAME
+                    LP_VALUE: 'information_schema'
+                LP_BOOLEAN_NOT: 
+                  LP_BOOLEAN_REGEX_SENSITIVE: 
+                    LP_COLUMN_ALIAS: N(2).NSPNAME
+                    LP_VALUE: '^pg_toast'
+              LP_FUNCTION_CALL: 
+                LP_VALUE: 'PG_CATALOG.PG_TABLE_IS_VISIBLE'
+                LP_COLUMN_LIST: 
+                  LP_VALUE: '%ydboctoFZPxVOipyvcmjbTa20TTWJD'
+                  LP_VALUE: '$$^%ydboctopgTableIsVisible'
+                  LP_VALUE: 'BOOLEAN'
+                  LP_COLUMN_ALIAS: C(1).OID
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name: 
+    - column_name: 
+    - unique_id: 4
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+    LP_ORDER_BY: ORDER BY ASC: 
+      LP_COLUMN_LIST: 
+        LP_WHERE: 
+          LP_COLUMN_ALIAS: N(2).NSPNAME
+          LP_COLUMN_LIST_ALIAS: 
+          - type: STRING_LITERAL
+          - alias: SCHEMA
+      LP_ORDER_BY: ORDER BY ASC: 
+        LP_COLUMN_LIST: 
+          LP_WHERE: 
+            LP_COLUMN_ALIAS: C(1).RELNAME
+            LP_COLUMN_LIST_ALIAS: 
+            - type: STRING_LITERAL
+            - alias: NAME
+
+[DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN AFTER optimize_logical_plan() follows 
+LP_SELECT_QUERY: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: N(2).NSPNAME
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: SCHEMA
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: C(1).RELNAME
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: NAME
+      LP_WHERE: 
+        LP_CASE: 
+          LP_CASE_STATEMENT: 
+            LP_COLUMN_ALIAS: C(1).RELKIND
+          LP_CASE_BRANCH: 
+            LP_CASE_BRANCH_STATEMENT: 
+              LP_VALUE: 'r'
+              LP_VALUE: 'table'
+            LP_CASE_BRANCH: 
+              LP_CASE_BRANCH_STATEMENT: 
+                LP_VALUE: 'v'
+                LP_VALUE: 'view'
+              LP_CASE_BRANCH: 
+                LP_CASE_BRANCH_STATEMENT: 
+                  LP_VALUE: 'm'
+                  LP_VALUE: 'materialized view'
+                LP_CASE_BRANCH: 
+                  LP_CASE_BRANCH_STATEMENT: 
+                    LP_VALUE: 'i'
+                    LP_VALUE: 'index'
+                  LP_CASE_BRANCH: 
+                    LP_CASE_BRANCH_STATEMENT: 
+                      LP_VALUE: 'S'
+                      LP_VALUE: 'sequence'
+                    LP_CASE_BRANCH: 
+                      LP_CASE_BRANCH_STATEMENT: 
+                        LP_VALUE: 's'
+                        LP_VALUE: 'special'
+                      LP_CASE_BRANCH: 
+                        LP_CASE_BRANCH_STATEMENT: 
+                          LP_VALUE: 'f'
+                          LP_VALUE: 'foreign table'
+                        LP_CASE_BRANCH: 
+                          LP_CASE_BRANCH_STATEMENT: 
+                            LP_VALUE: 'p'
+                            LP_VALUE: 'table'
+                          LP_CASE_BRANCH: 
+                            LP_CASE_BRANCH_STATEMENT: 
+                              LP_VALUE: 'I'
+                              LP_VALUE: 'index'
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: TYPE
+      LP_WHERE: 
+        LP_FUNCTION_CALL: 
+          LP_VALUE: 'PG_CATALOG.PG_GET_USERBYID'
+          LP_COLUMN_LIST: 
+            LP_VALUE: '%ydboctoFwYGPSTRCKG67stgdEjL8D7'
+            LP_VALUE: '$$^%ydboctopgGetUserbyid'
+            LP_VALUE: 'VARCHAR'
+            LP_COLUMN_ALIAS: C(1).RELOWNER
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: OWNER
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_WHERE: 
+          LP_FUNCTION_CALL: 
+            LP_VALUE: 'PG_CATALOG.PG_TABLE_IS_VISIBLE'
+            LP_COLUMN_LIST: 
+              LP_VALUE: '%ydboctoFZPxVOipyvcmjbTa20TTWJD'
+              LP_VALUE: '$$^%ydboctopgTableIsVisible'
+              LP_VALUE: 'BOOLEAN'
+              LP_COLUMN_ALIAS: C(1).OID
+        LP_SELECT_QUERY: 
+          LP_PROJECT: 
+            LP_COLUMN_LIST: 
+              LP_WHERE: 
+                LP_COLUMN_ALIAS: PG_CATALOG.PG_CLASS(5).RELKIND
+              LP_WHERE: 
+                LP_COLUMN_ALIAS: PG_CATALOG.PG_CLASS(5).OID
+            LP_SELECT: 
+              LP_TABLE_JOIN: 
+                LP_TABLE: PG_CATALOG.PG_CLASS
+              LP_CRITERIA: 
+                LP_KEYS: 
+                  LP_KEY: 
+                  - table_name: PG_CATALOG.PG_CLASS
+                  - column_name: OID
+                  - unique_id: 5
+                  - method: LP_KEY_ADVANCE
+                  - xref_key: false
+                  - uses_xref_key: false
+                LP_SELECT_OPTIONS: 
+                  LP_WHERE: 
+                  LP_SELECT_MORE_OPTIONS: 
+                    LP_KEYWORDS:  XREF_INDEX;
+          LP_OUTPUT: 
+            LP_KEY: 
+            - table_name: PG_CATALOG.PG_CLASS
+            - column_name: RELKIND
+            - unique_id: 1
+            - method: LP_INVALID_ACTION
+            - xref_key: true
+            - uses_xref_key: false
+        LP_TABLE_JOIN: LEFT_JOIN: 
+          LP_WHERE: 
+          LP_TABLE: N
+      LP_CRITERIA: 
+        LP_KEYS: 
+          LP_KEY: 
+          - table_name: PG_CATALOG.PG_CLASS
+          - column_name: RELKIND
+          - unique_id: 1
+          - method: LP_KEY_FIX
+          - xref_key: true
+          - uses_xref_key: false
+          - value:
+              LP_COLUMN_LIST: 
+                LP_VALUE: 'r'
+                LP_VALUE: 'p'
+                LP_VALUE: 'v'
+                LP_VALUE: 'm'
+                LP_VALUE: 'S'
+                LP_VALUE: 'f'
+                LP_VALUE: ''
+          LP_KEYS: 
+            LP_KEY: 
+            - table_name: PG_CATALOG.PG_CLASS
+            - column_name: OID
+            - unique_id: 1
+            - method: LP_KEY_ADVANCE
+            - xref_key: false
+            - uses_xref_key: true
+            LP_KEYS: 
+              LP_KEY: 
+              - table_name: PG_CATALOG.PG_NAMESPACE
+              - column_name: OID
+              - unique_id: 2
+              - method: LP_KEY_FIX
+              - xref_key: false
+              - uses_xref_key: false
+              - value:
+                  LP_COLUMN_ALIAS: C(1).RELNAMESPACE
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+            LP_BOOLEAN_AND: 
+              LP_BOOLEAN_AND: 
+                LP_BOOLEAN_AND: 
+                  LP_BOOLEAN_AND: 
+                    LP_BOOLEAN_IN: 
+                      LP_COLUMN_ALIAS: C(1).RELKIND
+                      LP_COLUMN_LIST: 
+                        LP_VALUE: 'r'
+                        LP_VALUE: 'p'
+                        LP_VALUE: 'v'
+                        LP_VALUE: 'm'
+                        LP_VALUE: 'S'
+                        LP_VALUE: 'f'
+                        LP_VALUE: ''
+                    LP_BOOLEAN_NOT_EQUALS: 
+                      LP_COLUMN_ALIAS: N(2).NSPNAME
+                      LP_VALUE: 'pg_catalog'
+                  LP_BOOLEAN_NOT_EQUALS: 
+                    LP_COLUMN_ALIAS: N(2).NSPNAME
+                    LP_VALUE: 'information_schema'
+                LP_BOOLEAN_NOT: 
+                  LP_BOOLEAN_REGEX_SENSITIVE: 
+                    LP_COLUMN_ALIAS: N(2).NSPNAME
+                    LP_VALUE: '^pg_toast'
+              LP_FUNCTION_CALL: 
+                LP_VALUE: 'PG_CATALOG.PG_TABLE_IS_VISIBLE'
+                LP_COLUMN_LIST: 
+                  LP_VALUE: '%ydboctoFZPxVOipyvcmjbTa20TTWJD'
+                  LP_VALUE: '$$^%ydboctopgTableIsVisible'
+                  LP_VALUE: 'BOOLEAN'
+                  LP_COLUMN_ALIAS: C(1).OID
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name: 
+    - column_name: 
+    - unique_id: 4
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+    LP_ORDER_BY: ORDER BY ASC: 
+      LP_COLUMN_LIST: 
+        LP_WHERE: 
+          LP_COLUMN_ALIAS: N(2).NSPNAME
+          LP_COLUMN_LIST_ALIAS: 
+          - type: STRING_LITERAL
+          - alias: SCHEMA
+      LP_ORDER_BY: ORDER BY ASC: 
+        LP_COLUMN_LIST: 
+          LP_WHERE: 
+            LP_COLUMN_ALIAS: C(1).RELNAME
+            LP_COLUMN_LIST_ALIAS: 
+            - type: STRING_LITERAL
+            - alias: NAME
+
+[ INFO] PATH:LINENUM DATE TIME : INFO_GENERATING_XREF : Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_CATALOG.PG_CLASS] and column [RELKIND]
+[ INFO] PATH:LINENUM DATE TIME : INFO_ENTERING_FUNCTION : Entering print_temporary_table
+public|INFORMATION_SCHEMA.TABLES|table|octo
+public|NAMES|table|octo
+public|NAMESWITHAGES|table|octo
+public|OCTOONEROWTABLE|table|octo
+public|PG_ATTRDEF|table|octo
+public|PG_ATTRIBUTE|table|octo
+public|PG_CATALOG.PG_ATTRDEF|table|octo
+public|PG_CATALOG.PG_ATTRIBUTE|table|octo
+public|PG_CATALOG.PG_CLASS|table|octo
+public|PG_CATALOG.PG_DESCRIPTION|table|octo
+public|PG_CATALOG.PG_NAMESPACE|table|octo
+public|PG_CATALOG.PG_PROC|table|octo
+public|PG_CATALOG.PG_TYPE|table|octo
+public|PG_CLASS|table|octo
+public|PG_DESCRIPTION|table|octo
+public|PG_NAMESPACE|table|octo
+public|PG_PROC|table|octo
+public|PG_TYPE|table|octo
+public|USERS|table|octo
 [ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command []

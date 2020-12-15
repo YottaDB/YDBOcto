@@ -440,6 +440,8 @@ set(aux_files
   aux/_ydboctoselect.m
   aux/_ydboctosqlfunctions.m
   aux/_ydboctoversion.m
+  aux/_ydboctopgTableIsVisible.m
+  aux/_ydboctopgGetUserbyid.m
 )
 add_library(_ydbocto SHARED ${aux_files})
 set_target_properties(_ydbocto PROPERTIES PREFIX "")

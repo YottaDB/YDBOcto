@@ -1,0 +1,26 @@
+                 List of relations
+ SCHEMA |           NAME            | TYPE  | OWNER 
+--------+---------------------------+-------+-------
+ public | INFORMATION_SCHEMA.TABLES | table | octo
+ public | NAMES                     | table | octo
+ public | NAMES4                    | table | octo
+ public | NAMESWITHAGES             | table | octo
+ public | OCTOONEROWTABLE           | table | octo
+ public | PASTAS                    | table | octo
+ public | PG_ATTRDEF                | table | octo
+ public | PG_ATTRIBUTE              | table | octo
+ public | PG_CATALOG.PG_ATTRDEF     | table | octo
+ public | PG_CATALOG.PG_ATTRIBUTE   | table | octo
+ public | PG_CATALOG.PG_CLASS       | table | octo
+ public | PG_CATALOG.PG_DESCRIPTION | table | octo
+ public | PG_CATALOG.PG_NAMESPACE   | table | octo
+ public | PG_CATALOG.PG_PROC        | table | octo
+ public | PG_CATALOG.PG_TYPE        | table | octo
+ public | PG_CLASS                  | table | octo
+ public | PG_DESCRIPTION            | table | octo
+ public | PG_NAMESPACE              | table | octo
+ public | PG_PROC                   | table | octo
+ public | PG_TYPE                   | table | octo
+ public | USERS                     | table | octo
+(21 rows)
+

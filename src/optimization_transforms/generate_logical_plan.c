@@ -269,17 +269,6 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 			UNPACK_SQL_STATEMENT(table_alias, sql_stmt, table_alias);
 			cur_lp_key = lp_get_output_key(new_plan);
 			lp_replace_derived_table_references(select_query, table_alias, cur_lp_key->v.lp_key.key);
-			/* Check if any VALUES clause specification optimization happened. If so, do derived table check/replace
-			 * for the pre-optimized "value" too (which is now stored in the "alternate_value" field).
-			 * See comment in "octo_types.h" before "alternate_value" member in the "SqlJoin" structure for details.
-			 */
-			if (NULL != cur_join->alternate_value) {
-				assert(LP_TABLE_VALUE == new_plan->type);
-				sql_stmt = cur_join->alternate_value;
-				sql_stmt = drill_to_table_alias(sql_stmt);
-				UNPACK_SQL_STATEMENT(table_alias, sql_stmt, table_alias);
-				lp_replace_derived_table_references(select_query, table_alias, cur_lp_key->v.lp_key.key);
-			}
 		}
 		left = left->v.lp_default.operand[1];
 		cur_join = cur_join->next;

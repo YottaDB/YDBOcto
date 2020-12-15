@@ -391,8 +391,8 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	}
 	case LP_BOOLEAN_IN:
 	case LP_BOOLEAN_NOT_IN:
-		assert(LP_TABLE_VALUE != second_operand->type);
-		if ((LP_SELECT_QUERY == second_operand->type) || (LP_SET_OPERATION == second_operand->type)) {
+		if ((LP_SELECT_QUERY == second_operand->type) || (LP_SET_OPERATION == second_operand->type)
+				|| (LP_TABLE_VALUE == second_operand->type)) {
 			/* This is IN or NOT IN used with a sub-query on the right hand side.
 			 *
 			 * Note that there is a NULL related subtlety that needs to be handled here.
@@ -575,7 +575,6 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
 		}
-		assert((LP_SELECT_QUERY == second_operand->type) || (LP_SET_OPERATION == second_operand->type));
 		// Fetch the second value from the output key of this query/table
 		key = lp_get_output_key(second_operand);
 		switch(plan_type) {
@@ -680,8 +679,6 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
 		}
-		assert(LP_TABLE_VALUE != first_operand->type);
-		assert((LP_SELECT_QUERY == first_operand->type) || (LP_SET_OPERATION == first_operand->type));
 		// Fetch the first value from the output key of this query/table
 		key = lp_get_output_key(first_operand);
 		if (LP_BOOLEAN_NOT_EXISTS == plan_type) {
@@ -1006,6 +1003,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		break;
 	case LP_SELECT_QUERY:
 	case LP_SET_OPERATION:
+	case LP_TABLE_VALUE:
 		if (dot_count) {
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%

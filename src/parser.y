@@ -1094,21 +1094,7 @@ non_join_query_primary
   ;
 
 simple_table
-  : table_value_constructor {
-	SqlStatement	*join_stmt, *select_stmt, *table_alias_stmt, *select_column_list_stmt;
-	SqlJoin		*join;
-
-	SQL_STATEMENT(join_stmt, join_STATEMENT);
-	MALLOC_STATEMENT(join_stmt, join, SqlJoin);
-	join = join_stmt->v.join;
-	join->value = $table_value_constructor;
-	dqinit(join);
-	join->max_unique_id = *plan_id;
-	select_stmt = table_expression(join_stmt, NULL, NULL, NULL);
-	SQL_COLUMN_LIST_ALIAS_STATEMENT(select_column_list_stmt);
-	table_alias_stmt = query_specification(NO_KEYWORD, select_column_list_stmt, select_stmt, NULL, plan_id);
-	$$ = table_alias_stmt;
-    }
+  : table_value_constructor { $$ = $table_value_constructor; }
   | explicit_table { ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "explicit_table"); YYABORT; }
   | sql_select_statement { $$ = $sql_select_statement; }
   ;

@@ -16,7 +16,7 @@ LP_INSERT_INTO:
           LP_KEY: 
           - table_name: 
           - column_name: 
-          - unique_id: 8
+          - unique_id: 6
           - method: LP_KEY_ADVANCE
           - xref_key: false
           - uses_xref_key: false
@@ -56,80 +56,35 @@ LP_INSERT_INTO:
             LP_KEY: 
             - table_name: 
             - column_name: 
-            - unique_id: 6
+            - unique_id: 5
             - method: LP_KEY_ADVANCE
             - xref_key: false
             - uses_xref_key: false
-        LP_SELECT_QUERY: 
-          LP_PROJECT: 
+        LP_TABLE_VALUE: 
+          LP_TABLE_DATA: 
             LP_COLUMN_LIST: 
               LP_WHERE: 
-                LP_DERIVED_COLUMN: 
-                  LP_KEY: 
-                  - table_name: 
-                  - column_name: 
-                  - unique_id: 3
-                  - method: LP_KEY_ADVANCE
-                  - xref_key: false
-                  - uses_xref_key: false
-                  LP_PIECE_NUMBER: 1
+                LP_COLUMN_ALIAS: (3).COLUMN1
                 LP_COLUMN_LIST_ALIAS: 
                 - type: STRING_LITERAL
                 - alias: COLUMN1
               LP_WHERE: 
-                LP_DERIVED_COLUMN: 
-                  LP_KEY: 
-                  - table_name: 
-                  - column_name: 
-                  - unique_id: 3
-                  - method: LP_KEY_ADVANCE
-                  - xref_key: false
-                  - uses_xref_key: false
-                  LP_PIECE_NUMBER: 2
+                LP_COLUMN_ALIAS: (3).COLUMN2
                 LP_COLUMN_LIST_ALIAS: 
                 - type: INTEGER_LITERAL
                 - alias: COLUMN2
-            LP_SELECT: 
-              LP_TABLE_JOIN: 
-                LP_TABLE_VALUE: 
-                  LP_TABLE_DATA: 
-                    LP_COLUMN_LIST: 
-                      LP_WHERE: 
-                        LP_COLUMN_ALIAS: (3).COLUMN1
-                        LP_COLUMN_LIST_ALIAS: 
-                        - type: STRING_LITERAL
-                        - alias: COLUMN1
-                      LP_WHERE: 
-                        LP_COLUMN_ALIAS: (3).COLUMN2
-                        LP_COLUMN_LIST_ALIAS: 
-                        - type: INTEGER_LITERAL
-                        - alias: COLUMN2
-                    LP_ROW_VALUE: 
-                      LP_COLUMN_LIST: 
-                        LP_VALUE: 'Lastname100'
-                        LP_VALUE: '100'
-                      LP_COLUMN_LIST: 
-                        LP_VALUE: ''
-                        LP_VALUE: '200'
-                  LP_OUTPUT: 
-                    LP_KEY: 
-                    - table_name: 
-                    - column_name: 
-                    - unique_id: 3
-                    - method: LP_KEY_ADVANCE
-                    - xref_key: false
-                    - uses_xref_key: false
-              LP_CRITERIA: 
-                LP_KEYS: 
-                LP_SELECT_OPTIONS: 
-                  LP_WHERE: 
-                  LP_SELECT_MORE_OPTIONS: 
-                    LP_KEYWORDS: 
+            LP_ROW_VALUE: 
+              LP_COLUMN_LIST: 
+                LP_VALUE: 'Lastname100'
+                LP_VALUE: '100'
+              LP_COLUMN_LIST: 
+                LP_VALUE: ''
+                LP_VALUE: '200'
           LP_OUTPUT: 
             LP_KEY: 
             - table_name: 
             - column_name: 
-            - unique_id: 7
+            - unique_id: 3
             - method: LP_KEY_ADVANCE
             - xref_key: false
             - uses_xref_key: false
@@ -148,7 +103,7 @@ LP_INSERT_INTO:
           LP_KEY: 
           - table_name: 
           - column_name: 
-          - unique_id: 8
+          - unique_id: 6
           - method: LP_KEY_ADVANCE
           - xref_key: false
           - uses_xref_key: false
@@ -194,7 +149,7 @@ LP_INSERT_INTO:
                 LP_KEY: 
                 - table_name: 
                 - column_name: 
-                - unique_id: 6
+                - unique_id: 5
                 - method: LP_KEY_ADVANCE
                 - xref_key: false
                 - uses_xref_key: false
@@ -235,87 +190,35 @@ LP_INSERT_INTO:
                 LP_KEY: 
                 - table_name: 
                 - column_name: 
-                - unique_id: 6
+                - unique_id: 5
                 - method: LP_KEY_ADVANCE
                 - xref_key: false
                 - uses_xref_key: false
-        LP_SELECT_QUERY: 
-          LP_PROJECT: 
+        LP_TABLE_VALUE: 
+          LP_TABLE_DATA: 
             LP_COLUMN_LIST: 
               LP_WHERE: 
-                LP_DERIVED_COLUMN: 
-                  LP_KEY: 
-                  - table_name: 
-                  - column_name: 
-                  - unique_id: 3
-                  - method: LP_KEY_ADVANCE
-                  - xref_key: false
-                  - uses_xref_key: false
-                  LP_PIECE_NUMBER: 1
+                LP_COLUMN_ALIAS: (3).COLUMN1
                 LP_COLUMN_LIST_ALIAS: 
                 - type: STRING_LITERAL
                 - alias: COLUMN1
               LP_WHERE: 
-                LP_DERIVED_COLUMN: 
-                  LP_KEY: 
-                  - table_name: 
-                  - column_name: 
-                  - unique_id: 3
-                  - method: LP_KEY_ADVANCE
-                  - xref_key: false
-                  - uses_xref_key: false
-                  LP_PIECE_NUMBER: 2
+                LP_COLUMN_ALIAS: (3).COLUMN2
                 LP_COLUMN_LIST_ALIAS: 
                 - type: INTEGER_LITERAL
                 - alias: COLUMN2
-            LP_SELECT: 
-              LP_TABLE_JOIN: 
-                LP_TABLE_VALUE: 
-                  LP_TABLE_DATA: 
-                    LP_COLUMN_LIST: 
-                      LP_WHERE: 
-                        LP_COLUMN_ALIAS: (3).COLUMN1
-                        LP_COLUMN_LIST_ALIAS: 
-                        - type: STRING_LITERAL
-                        - alias: COLUMN1
-                      LP_WHERE: 
-                        LP_COLUMN_ALIAS: (3).COLUMN2
-                        LP_COLUMN_LIST_ALIAS: 
-                        - type: INTEGER_LITERAL
-                        - alias: COLUMN2
-                    LP_ROW_VALUE: 
-                      LP_COLUMN_LIST: 
-                        LP_VALUE: 'Lastname100'
-                        LP_VALUE: '100'
-                      LP_COLUMN_LIST: 
-                        LP_VALUE: ''
-                        LP_VALUE: '200'
-                  LP_OUTPUT: 
-                    LP_KEY: 
-                    - table_name: 
-                    - column_name: 
-                    - unique_id: 3
-                    - method: LP_KEY_ADVANCE
-                    - xref_key: false
-                    - uses_xref_key: false
-              LP_CRITERIA: 
-                LP_KEYS: 
-                  LP_KEY: 
-                  - table_name: 
-                  - column_name: 
-                  - unique_id: 3
-                  - method: LP_KEY_ADVANCE
-                  - xref_key: false
-                  - uses_xref_key: false
-                LP_SELECT_OPTIONS: 
-                  LP_WHERE: 
-                  LP_SELECT_MORE_OPTIONS: 
-                    LP_KEYWORDS: 
+            LP_ROW_VALUE: 
+              LP_COLUMN_LIST: 
+                LP_VALUE: 'Lastname100'
+                LP_VALUE: '100'
+              LP_COLUMN_LIST: 
+                LP_VALUE: ''
+                LP_VALUE: '200'
           LP_OUTPUT: 
             LP_KEY: 
             - table_name: 
             - column_name: 
-            - unique_id: 7
+            - unique_id: 3
             - method: LP_KEY_ADVANCE
             - xref_key: false
             - uses_xref_key: false

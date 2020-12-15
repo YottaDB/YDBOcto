@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -21,7 +21,12 @@
 LogicalPlan *lp_get_projection_columns(LogicalPlan *plan) {
 	LogicalPlan *select = plan;
 
-	GET_LP(select, select, 0, LP_PROJECT);
+	assert((LP_SELECT_QUERY == plan->type) || (LP_TABLE_VALUE == plan->type));
+	if (LP_SELECT_QUERY == plan->type) {
+		GET_LP(select, select, 0, LP_PROJECT);
+	} else {
+		GET_LP(select, select, 0, LP_TABLE_DATA);
+	}
 	GET_LP(select, select, 0, LP_COLUMN_LIST);
 	return select;
 }

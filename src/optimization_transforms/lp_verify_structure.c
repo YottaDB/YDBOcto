@@ -66,7 +66,8 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 	case LP_INSERT_INTO_OPTIONS:
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COLUMN_LIST);
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_SELECT_QUERY)
-		       | lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_SET_OPERATION);
+		       | lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_SET_OPERATION)
+		       | lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_TABLE_VALUE);
 		break;
 	case LP_OUTPUT:
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_KEY);
@@ -92,8 +93,10 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 		break;
 	case LP_PLANS:
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_SELECT_QUERY)
+		       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_TABLE_VALUE)
 		       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_SET_OPERATION);
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_SELECT_QUERY)
+		       | lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_TABLE_VALUE)
 		       | lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_SET_OPERATION);
 		break;
 	case LP_TABLE:
@@ -348,10 +351,12 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_BOOLEAN_IS_NOT_NULL)
 			       /* LP_BOOLEAN_IN and LP_BOOLEAN_NOT_IN can have a LP_COLUMN_LIST as operand 1 */
 			       | (is_bool_in && lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_COLUMN_LIST))
-			       // LP_SELECT_QUERY/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean
-			       // expression. But they can show up wherever a scalar is expected (e.g. arithmetic operations etc.)
-			       // and hence have to be allowed in a lot more cases.
+			       /* LP_SELECT_QUERY/LP_TABLE_VALUE/LP_SET_OPERATIONs usually show up as operand[1] only for the IN
+				* boolean expression. But they can show up wherever a scalar is expected (e.g. arithmetic
+				* operations etc.) and hence have to be allowed in a lot more cases.
+				*/
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_SELECT_QUERY)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_TABLE_VALUE)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_SET_OPERATION)
 			       // LP_COLUMN_LIST_ALIAS is possible as operand[1] only for LP_WHERE. Check that.
 			       | (is_where
@@ -524,9 +529,11 @@ boolean_t lp_verify_value(LogicalPlan *plan, PhysicalPlanOptions *options) {
 	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_NOT_EXISTS)
 	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_IS_NULL)
 	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_IS_NOT_NULL)
-	       // LP_SELECT_QUERY/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean expression.
-	       // But they can show up wherever a scalar is expected (e.g. select column list etc.)
-	       // and hence have to be allowed in a lot more cases.
+	       /* LP_SELECT_QUERY/LP_TABLE_VALUE/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean
+		* expression. But they can show up wherever a scalar is expected (e.g. select column list etc.)
+		* and hence have to be allowed in a lot more cases.
+		*/
 	       | lp_verify_structure_helper(plan, options, LP_SELECT_QUERY)
+	       | lp_verify_structure_helper(plan, options, LP_TABLE_VALUE)
 	       | lp_verify_structure_helper(plan, options, LP_SET_OPERATION);
 }

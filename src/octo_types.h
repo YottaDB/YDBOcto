@@ -516,20 +516,6 @@ typedef struct SqlJoin {
 	 * this column reference is not valid).
 	 */
 	int max_unique_id;
-	/* A VALUES clause is currently implemented as 2 physical plans. One plan to populate a first output key using the
-	 * specified values. And another plan to populate the second/final output key by traversing the first output key,
-	 * reading the values from there and copying them exactly as is onto the second output key. The second plan is a waste
-	 * in case the VALUES clause is used in the FROM/JOIN clause of a query. Each physical plan corresponds to a separate
-	 * "SqlJoin" structure in the parse tree, one inner and another outer. We avoid an unnecessary extra physical plan
-	 * in that case (see TVC02 bats subtest for details) by noting down the "table_alias" corresponding to the inner "SqlJoin"
-	 * in the "alternate_value" field of the outer "SqlJoin" structure at "qualify_query.c" time. A little later in
-	 * "parse_tree_optimize.c", we swap the "value" and "alternate_value" fields of the outer "SqlJoin".
-	 * This way, the original "value" field of the outer "SqlJoin" is completely hidden from the later logical and physical
-	 * plan stages. This helps avoid the unnecessary physical plan. The swapped "alternate_value" field (which now holds the
-	 * original "value") is later checked in "generate_logical_plan.c" to do additional "LP_DERIVED_COLUMN" processing and
-	 * that completes the optimization.
-	 */
-	struct SqlStatement *alternate_value;
 	dqcreate(SqlJoin);
 } SqlJoin;
 

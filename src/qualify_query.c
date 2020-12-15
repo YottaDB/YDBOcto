@@ -27,7 +27,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	SqlColumnListAlias *ret_cla;
 	SqlJoin *	    join;
 	SqlJoin *	    prev_start, *prev_end;
-	SqlJoin *	    start_join, *cur_join, *next_join;
+	SqlJoin *	    start_join, *cur_join;
 	SqlSelectStatement *select;
 	SqlTableAlias *	    table_alias;
 	SqlStatement *	    group_by_expression;
@@ -94,50 +94,10 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	 * name in a valid existing table) by using NULL as the last parameter in various `qualify_statement()` calls below.
 	 */
 	table_alias->do_group_by_checks = FALSE; /* need to set this before invoking "qualify_statement()" */
-	start_join = join;
-	/* Check if any VALUES clause specifications in a subquery can be optimized. See comment in "octo_types.h"
-	 * before "alternate_value" member in the "SqlJoin" structure for details.
-	 */
-	next_join = NULL;
-	for (cur_join = start_join; next_join != start_join; cur_join = next_join) {
-		SqlTableAlias *	    table_alias1, *table_alias2;
-		SqlSelectStatement *select2;
-		SqlJoin *	    start_join2;
-
-		next_join = cur_join->next;
-		if (table_alias_STATEMENT != cur_join->value->type) {
-			continue;
-		}
-		UNPACK_SQL_STATEMENT(table_alias1, cur_join->value, table_alias);
-		if (select_STATEMENT != table_alias1->table->type) {
-			continue;
-		}
-		UNPACK_SQL_STATEMENT(select2, table_alias1->table, select);
-		UNPACK_SQL_STATEMENT(start_join2, select2->table_list, join);
-		if (start_join2->next != start_join2) {
-			/* There is more than one table in the JOIN list. It cannot be the parent query of a
-			 * VALUES clause in that case so no need to worry about any optimizations.
-			 */
-			assert((table_alias_STATEMENT != start_join2->value->type)
-			       || (table_value_STATEMENT != start_join2->value->v.table_alias->table->type));
-			continue;
-		}
-		if (table_alias_STATEMENT != start_join2->value->type) {
-			continue;
-		}
-		UNPACK_SQL_STATEMENT(table_alias2, start_join2->value, table_alias);
-		if (table_value_STATEMENT != table_alias2->table->type) {
-			continue;
-		}
-		/* This is a case where we can optimize. The outer query join can be replaced with the inner query join.
-		 * Note this down to help with actual optimization done later.
-		 */
-		cur_join->alternate_value = start_join2->value;
-	}
+	start_join = cur_join = join;
 	/* Qualify FROM clause first. For this qualification, only use tables from the parent query FROM list.
 	 * Do not use any tables from the current query level FROM list for this qualification.
 	 */
-	assert(cur_join == start_join);
 	do {
 		/* Qualify sub-queries involved in the join. Note that it is possible a `table` is involved in the join instead
 		 * of a `sub-query` in which case the below `qualify_query` call will return right away.

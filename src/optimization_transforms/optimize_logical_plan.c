@@ -146,6 +146,12 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 		}
 		lp_insert_into_options->v.lp_default.operand[1] = lp_ret;
 		return plan;
+	} else if (LP_TABLE_VALUE == plan->type) {
+		/* VALUES clause. Nothing to optimize here. Note that it is possible one or more sub-queries are specified
+		 * in the data across multiple rows/columns. "optimize_logical_plan()" would be invoked for those sub-queries
+		 * separately as part of "lp_generate_where()" processing.
+		 */
+		return plan;
 	}
 	assert(LP_SELECT_QUERY == plan->type);
 	/* First focus on the WHERE clause. Before any key fixing can be done, expand the WHERE clause into disjunctive normal form

@@ -182,6 +182,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		GET_LP(out->order_by, output, 1, LP_ORDER_BY);
 	}
 
+	out->projection = lp_get_projection_columns(plan);
 	/* Some things are applicable only for a LP_SELECT_QUERY (not for a LP_TABLE_VALUE) hence the if check below */
 	if (!is_lp_table_value) {
 		// See if there are any tables we rely on in the SELECT tablejoin list. If so, add them as prev records in physical
@@ -265,7 +266,6 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		GET_LP(select_column_list, project, 0, LP_COLUMN_LIST);
 		sub_query_check_and_generate_physical_plan(&plan_options, select_column_list, NULL);
 		out->keywords = lp_get_select_keywords(plan)->v.lp_keywords.keywords;
-		out->projection = lp_get_projection_columns(plan);
 		/* See if there are any sub-queries in the HAVING clause. If so, generate separate physical plans
 		 * (deferred and/or non-deferred) for them and add them as prev records in physical plan.
 		 */

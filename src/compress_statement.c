@@ -20,7 +20,7 @@
 		if (NULL != (out)) {                                              \
 			(new_value) = (temp);                                     \
 			if (NULL != new_value) {                                  \
-				A2R((new_value), temp);                           \
+				A2R((new_value));                                 \
 			}                                                         \
 		}                                                                 \
 	}
@@ -72,7 +72,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 			return ret;
 		}
 		new_stmt->v.value = ((void *)&out[*out_length]);
-		A2R(new_stmt->v.value, new_stmt->v.value);
+		A2R(new_stmt->v.value);
 	}
 	switch (stmt->type) {
 	case create_table_STATEMENT:
@@ -123,7 +123,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 			cur_parameter_type_list = cur_parameter_type_list->next;
 			if ((NULL != out) && (cur_parameter_type_list != start_parameter_type_list)) {
 				new_parameter_type_list->next = ((void *)&out[*out_length]);
-				A2R(new_parameter_type_list->next, new_parameter_type_list->next);
+				A2R(new_parameter_type_list->next);
 			}
 		} while (cur_parameter_type_list != start_parameter_type_list);
 		break;
@@ -144,7 +144,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 		if (NULL != out) {
 			memcpy(&out[*out_length], value->v.string_literal, len);
 			new_value->v.string_literal = &out[*out_length];
-			A2R(new_value->v.string_literal, new_value->v.string_literal);
+			A2R(new_value->v.string_literal);
 		}
 		*out_length += len;
 		if (NULL != out) {
@@ -171,7 +171,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 			cur_column = cur_column->next;
 			if ((NULL != out) && (cur_column != start_column)) {
 				new_column->next = ((void *)&out[*out_length]);
-				A2R(new_column->next, new_column->next);
+				A2R(new_column->next);
 			}
 		} while (cur_column != start_column);
 		break;
@@ -189,7 +189,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 			cur_keyword = cur_keyword->next;
 			if ((NULL != out) && (cur_keyword != start_keyword)) {
 				new_keyword->next = ((void *)&out[*out_length]);
-				A2R(new_keyword->next, new_keyword->next);
+				A2R(new_keyword->next);
 			}
 		} while (cur_keyword != start_keyword);
 		break;

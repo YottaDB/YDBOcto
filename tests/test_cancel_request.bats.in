@@ -15,6 +15,7 @@ load test_helpers
 setup() {
   init_test
   createdb
+  mupip set -global_buffers=4096 -reg OCTOREG # needed by the TCR03 subtest (default of 1024 causes TRANS2BIG errors)
   load_fixture names.sql
   load_fixture names.zwr
   load_fixture pastas.sql

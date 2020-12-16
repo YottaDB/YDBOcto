@@ -48,9 +48,10 @@
 	;	which was implemented in `r1.30` (production release) and `r1.29` (development release) hence the
 	;	`"r1.29"']` check below.
 	; ------------------------------------------------------------------------------------------------
-	NEW verified,octogbl,reglist,regnum,regname,numregs,quit,starwarningissued,starregname
+	NEW verified,octogbl,reglist,regnum,regname,numregs,quit,starwarningissued,starregname,ydbrel
 	SET quit=0,starwarningissued=0,starregname=""
-	SET:("r1.29"']($PIECE($ZYRELEASE," ",2))) starregname=$VIEW("REGION","^*")
+	SET ydbrel=$PIECE($ZYRELEASE," ",2)
+	SET:("r1.29"']ydbrel) starregname=$VIEW("REGION","^*")
 	FOR octogbl="^%ydboctoxref","^%ydboctoocto","^%ydboctoschema" DO
 	. SET reglist=$VIEW("REGION",octogbl),numregs=$LENGTH(reglist,",")
 	. FOR regnum=1:1:numregs DO
@@ -66,4 +67,10 @@
 	. . . USE $PRINCIPAL	; In case principal device is terminal, above WRITE is flushed
 	. . . SET quit=1
 	. . SET verified(regname)=""
+	; $ZTRIGGER invocation in Octo (happens in dollarZTRIGGER^%ydboctoplanhelpers) can cause output like the following.
+	;	Added SET and/or Non-SET trigger on ^names named %ydboctoTOMMMsQ8ks3NI1C42wS8
+	; But we do not want this output to confuse the Octo user who is expecting some query results.
+	; Disable $ZTRIGGER related output using the below VIEW command. But this command only got implemented in YottaDB `r1.32`
+	; (and the development release `r1.31`). Hence the check for r1.31 below.
+	VIEW:("r1.31"']ydbrel) "ZTRIGGER_OUTPUT":0
 	QUIT quit

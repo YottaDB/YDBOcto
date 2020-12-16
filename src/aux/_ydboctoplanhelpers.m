@@ -31,18 +31,7 @@ min(isString,a,b)
 
 dollarZTRIGGER(arg1,arg2);
 	; Helper M function invoked by generated M code whenever it needs to do a $ZTRIGGER call.
-	; $ZTRIGGER invocation can cause output like the following.
-	;	Added SET and/or Non-SET trigger on ^names named %ydboctoTOMMMsQ8ks3NI1C42wS8
-	; But we do not want this output to confuse the Octo user who is expecting some query results.
-	; Therefore redirect this output to a file by opening a file and switching to it as the current device
-	; before the $ZTRIGGER. Currently, we don't know what to do with this output so we redirect to "/dev/null".
-	; This might need to be changed at a later point.
-	NEW file,status
-	SET file="/dev/null"
-	OPEN file:(newversion)
-	USE file
 	SET status=$ZTRIGGER(arg1,arg2)
-	CLOSE file
 	QUIT status
 
 UNIONALL(inputId1,inputId2,outputId)

@@ -124,10 +124,6 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			if (SIZE_OR_PRECISION_UNSPECIFIED != plan->extra_detail.lp_coerce_type.coerce_type.size_or_precision) {
 				%{}$$Cast2NUMERIC^%%ydboctoplanhelpers({}%
 			}
-			/* NARSTODO: YDBOcto#502 : Need to add code to handle precision/scale (below fields) if specified.
-			 * plan->extra_detail.lp_coerce_type.coerce_type.size_or_precision
-			 * plan->extra_detail.lp_coerce_type.coerce_type.scale
-			 */
 			%{}(+{}%
 			break;
 		case NUL_TYPE:

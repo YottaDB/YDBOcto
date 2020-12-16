@@ -24,6 +24,8 @@ run
   KILL %ydboctoCancel
   ; Set to let run_query know the query was canceled
   SET %ydboctoCancel=1
+  ; Rollback TP transaction if active (note: we don't know of a case why it won't be active).
+  TROLLBACK:$TLEVEL
   ; Release any existing locks as they are no longer needed for the canceled query
   LOCK
   QUIT

@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -10,11 +10,13 @@
 ;								;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-run(cursorId,filename,routine)
-  ;filename includes fullpath, only want last element
-  ;ZLINK filename
+run(cursorId,routine)
+  ; Note: "routine" variable is of the form "%ydboctoPOyAkV0dwqVINYJD702SbAA"
+  ; where the generated M file name is "_ydboctoPOyAkV0dwqVINYJD702SbAA.m".
+  ; We need to prefix a "^" to it before invoking the M program using "DO" with entryref indirection.
   NEW rtn
   SET rtn="^"_routine
+  TSTART ():(serial)
   DO @rtn@(cursorId)
-  USE $PRINCIPAL
+  TCOMMIT
   QUIT

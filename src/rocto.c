@@ -114,7 +114,7 @@ int main(int argc, char **argv) {
 	// FATAL(ERR_SYSCALL, "sigaction", errno, strerror(errno));
 
 	// Initialize SIGUSR1 handler in YDB
-	status = ydb_init(); // YDB init needed for signal handler setup and gtm_tls_init call below */
+	status = ydb_init(); /* YDB init needed for signal handler setup and gtm_tls_init call below */
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
 		CLEANUP_CONFIG(config->config_file);

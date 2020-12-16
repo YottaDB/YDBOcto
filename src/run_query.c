@@ -321,12 +321,10 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			return (YDB_OK != status);
 		}
 		cursorId = atol(cursor_ydb_buff.buf_addr);
-		ci_param1.address = filename;
-		ci_param1.length = strlen(filename);
-		ci_param2.address = routine_name;
-		ci_param2.length = routine_len;
+		ci_param1.address = routine_name;
+		ci_param1.length = routine_len;
 		// Call the select routine
-		status = ydb_ci("_ydboctoselect", cursorId, &ci_param1, &ci_param2);
+		status = ydb_ci("_ydboctoselect", cursorId, &ci_param1);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
 			status = ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]);

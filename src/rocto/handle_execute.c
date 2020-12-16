@@ -32,7 +32,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 	ydb_buffer_t	    portal_subs[8], cursor_subs[5];
 	ydb_buffer_t	    routine_buffer, tag_buf, num_parms_buf, parm_buf;
 	ydb_buffer_t	    schema_global, cursor_buffer;
-	ydb_string_t	    ci_filename, ci_routine;
+	ydb_string_t	    ci_routine;
 	ydb_long_t	    result;
 	boolean_t	    canceled = FALSE;
 	long int	    temp_long;
@@ -162,13 +162,11 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 		// Prepare call-in interface to execute query
 		stmt.type
 		    = select_STATEMENT; // Only need this for the type to let the callee know we are running a SELECT statement
-		ci_filename.address = filename;
-		ci_filename.length = strlen(filename);
 		ci_routine.address = routine_buffer.buf_addr;
 		ci_routine.length = routine_buffer.len_used;
 		// Run the target routine
 		// cursorId is typecast here since the YottaDB call-in interface does not yet support 64-bit parameters
-		status = ydb_ci("_ydboctoselect", *cursorId, &ci_filename, &ci_routine);
+		status = ydb_ci("_ydboctoselect", *cursorId, &ci_routine);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
 			// Cleanup cursor parameters

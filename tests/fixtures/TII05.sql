@@ -83,3 +83,12 @@ INSERT INTO test1 VALUES (9.99);
 INSERT INTO test1 VALUES (-9.99);
 DROP TABLE test1;
 
+SELECT '-- Test of VARCHAR_TOO_LONG midway in the INSERT INTO';
+CREATE TABLE test1 (id INTEGER PRIMARY KEY, column1 VARCHAR(3));
+INSERT INTO test1 VALUES (1, 'abc'), (2, 'abcd'), (3, 'ab');
+SELECT '-- Verify that no rows are inserted at the end (expecting no rows to be output below)';
+SELECT * FROM test1;
+DROP TABLE test1;
+SELECT '-- Test that valid queries work fine after an INSERT INTO query that had an error midway';
+SELECT * FROM names WHERE id = 4;
+

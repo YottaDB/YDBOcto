@@ -202,9 +202,12 @@ endfunction()
 #              check the state of git before every build. If the state has
 #              changed, then a file is configured.
 function(SetupGitMonitoring)
+    execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --git-dir OUTPUT_VARIABLE GIT_DIR)
+    # strip trailing newline
+    string(STRIP ${GIT_DIR} GIT_DIR)
     add_custom_command(
         OUTPUT ${POST_CONFIGURE_FILE}
-        DEPENDS ${PRE_CONFIGURE_FILE} ${PROJECT_SOURCE_DIR}/.git/index
+        DEPENDS ${PRE_CONFIGURE_FILE} ${GIT_DIR}/index
         COMMENT "Checking the git repository for changes..."
         COMMAND
             ${CMAKE_COMMAND}

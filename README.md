@@ -467,6 +467,28 @@ bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
 sudo yum install clang-tools-extra
 ```
 
+### clang-tidy
+
+The CI pipeline will run the [`clang-tidy`] tool to catch common errors. You can replicate its behavior locally as follows:
+
+```
+# Ubuntu 20.04
+sudo apt install --no-install-recommends clang-tidy
+# Any Debian-like distro
+bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
+# CentOS 8
+sudo yum install clang-tools-extra
+
+mkdir build
+cd build
+cmake -D CMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+clang-tidy ../src/octo_init.c  # replace octo_init.c with the file you want to check
+```
+
+`clang-tidy-8` and later are supported.
+
+[`clang-tidy`]: https://clang.llvm.org/extra/clang-tidy/
+
 ### YDBCMake
 
 Octo uses the upstream [YDBCMake] repository to build using YottaDB as the M compiler. Any changes to `ydbcmake/` should first be upstreamed to that repository.

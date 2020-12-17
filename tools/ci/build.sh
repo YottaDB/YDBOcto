@@ -92,7 +92,7 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 	popd
 
 	# If we found a recent enough version, run clang-format
-	if CLANG_FORMAT="$(../tools/ci/find-clang-format.sh)"; then
+	if CLANG_FORMAT="$(../tools/ci/find-llvm-tool.sh clang-format 9)"; then
 		echo "# Check code style using clang-format"
 		# This modifies the files in place so no need to record the output.
 		../tools/ci/clang-format-all.sh $CLANG_FORMAT

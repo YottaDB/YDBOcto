@@ -10,37 +10,41 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
-# Find clang-format in the environment
+# Find an LLVM tool in the environment
 #
-# Takes no arguments and outputs the name of the clang-format executable.
-# If a recent enough clang-format was not found, outputs nothing.
-set -e
+# Takes no arguments and outputs the name of the executable.
+# If a recent enough version was not found, outputs nothing.
+set -eu
 
-# Ubuntu likes to name the tools after the version
+tool="$1"
+version="$2"
+FOUND=
+
 exists() {
 	[ -x "$(which $1)" ]
 }
-# We require at least clang-format-9 (for `AlignConsecutiveMacros`)
+
+# Ubuntu likes to name the tools after the version
 # NOTE: should be updated when later versions of LLVM are released
-for version in 11 10 9; do
-	if exists clang-format-$version; then
-		CLANG_FORMAT=clang-format-$version
+for version in $(seq 11 -1 $version); do
+	if exists $tool-$version; then
+		FOUND=$tool-$version
 		break
 	fi
 done
 
 # No version suffix, we get what we get.
-if [ "" = "$CLANG_FORMAT" ]; then
+if [ "" = "$FOUND" ]; then
 	# We didn't find it at all.
-	if ! exists clang-format; then
+	if ! exists $tool; then
 		exit 1
 	fi
-	CLANG_FORMAT=clang-format
+	FOUND=$tool
 fi
 
 # Make sure we have a recent enough version.
-if [ "$($CLANG_FORMAT --version | cut -d ' ' -f 3 | cut -d '.' -f 1)" -ge 9 ]; then
-	echo "$CLANG_FORMAT"
+if [ "$($FOUND --version | grep version | awk '{print $3}' | cut -d '.' -f 1)" -ge $version ]; then
+	echo "$FOUND"
 else
 	exit 1
 fi

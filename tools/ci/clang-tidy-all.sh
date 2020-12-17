@@ -17,5 +17,10 @@ ignored_warnings="\
 -clang-diagnostic-gnu-zero-variadic-macro-arguments,\
 -clang-analyzer-security.insecureAPI.strcpy"
 
+if ! clang_tidy=$($(git rev-parse --show-toplevel)/tools/ci/find-llvm-tool.sh clang-tidy 8); then
+	echo "error: clang-tidy-8 or greater is required"
+	exit 1
+fi
+
 find ../src -name '*.c' | grep -v '/test_.*\.c' \
-	| xargs clang-tidy --checks="$ignored_warnings" "$@"
+	| xargs $clang_tidy --checks="$ignored_warnings" "$@"

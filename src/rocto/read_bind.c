@@ -175,7 +175,7 @@ Bind *read_bind(BaseMessage *message) {
 		for (i = 0; i < ret->num_result_col_format_codes; i++) {
 			ret->result_col_format_codes[i] = ntohs(ret->result_col_format_codes[i]);
 			if (0 != ret->result_col_format_codes[i] && 1 != ret->result_col_format_codes[i]) {
-				ERROR(ERR_ROCTO_INVALID_FORMAT_CODE, "result column", ret->parm_format_codes[i]);
+				ERROR(ERR_ROCTO_INVALID_FORMAT_CODE, "result column", ret->result_col_format_codes[i]);
 				free(ret->parms);
 				free(ret);
 				return NULL;

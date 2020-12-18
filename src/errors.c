@@ -109,7 +109,9 @@ void populate_and_print_full_err_str(enum ERROR error, char **full_err_str, int 
 		} else {
 #ifndef IS_ROCTO
 			if (0 < copied) {
+				__va_copy(args, orig_args);
 				vfprintf(stderr, *full_err_str, args);
+				va_end(args);
 			}
 #endif
 			break;
@@ -258,8 +260,8 @@ void octo_log(int line, char *file, enum VERBOSITY_LEVEL level, enum SEVERITY_LE
 	}
 	UNUSED(copied); // UNUSED macro needed to avoid 'never read' warning from clang-analyzer in RelWithDebInfo builds
 	populate_and_print_full_err_str(error, &full_err_str, &full_err_len, err_prefix, args);
-	va_end(args);
 #endif
+	va_end(args);
 	if (FATAL_Severity == severity) {
 #ifdef IS_ROCTO
 		shutdown(rocto_session.connection_fd, SHUT_RDWR);

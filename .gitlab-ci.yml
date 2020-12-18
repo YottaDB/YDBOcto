@@ -43,7 +43,10 @@ before_script:
     - ln -fs /usr/share/zoneinfo/US/Eastern /etc/localtime
     - apt-get update -qq && apt-get install -y tzdata
     - dpkg-reconfigure --frontend noninteractive tzdata
-    - apt-get install -y -qq --no-install-recommends build-essential clang clang-tidy clang-format-9 cmake bison flex libcmocka-dev python3-pip python3-setuptools python3-wheel libreadline-dev git libconfig-dev libssl-dev postgresql-client postgresql xxd wget libgcrypt20-dev libgpgme-dev expect default-jdk
+    # The Ubuntu 20.04 yottadb-base dockage image does not have "/usr/bin/python" executable and that causes pipeline job
+    # failures/hangs in YDBOcto (test-auto-upgrade job times out, test-force-upgrade job fails) as python is needed by the bats
+    # tests (e.g. to split a query file). python-is-python3 package is needed below so "/usr/bin/python" is symlinked to python3.
+    - apt-get install -y -qq --no-install-recommends build-essential clang clang-tidy clang-format-9 cmake bison flex libcmocka-dev python3-pip python3-setuptools python3-wheel python-is-python3 libreadline-dev git libconfig-dev libssl-dev postgresql-client postgresql xxd wget libgcrypt20-dev libgpgme-dev expect default-jdk
     - pip3 install sphinxcontrib-fulltoc sphinx sphinx_rtd_theme
     - export PATH=/usr/local/go/bin:$PATH
     - wget -O go.tgz -q https://golang.org/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz
@@ -158,7 +161,7 @@ vista:
     - master@YottaDB/DBMS/YDBOcto
 
 pages:
-  image: yottadb/yottadb-base
+  image: yottadb/yottadb-base:latest-master
   stage: docs
   extends: .ubuntu
   dependencies:

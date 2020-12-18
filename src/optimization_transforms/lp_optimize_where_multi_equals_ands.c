@@ -28,7 +28,7 @@ void lp_optimize_where_multi_equals_ands(LogicalPlan *plan, LogicalPlan *where, 
 	SqlKey *     key;
 
 	max_unique_id = config->plan_id; /* similar logic exists in "lp_optimize_cross_join()" */
-	key_unique_id_array = octo_cmalloc(memory_chunks, sizeof(int) * max_unique_id); // guarantees 0-initialized memory */
+	key_unique_id_array = octo_cmalloc(memory_chunks, sizeof(int) * max_unique_id); /* guarantees 0-initialized memory */
 	// Look at the sorting of the keys in the plan ordering.
 	// When selecting which to fix, always pick the key with the higher unique_id.
 	// This should ensure that we will always have the right sequence.
@@ -60,7 +60,7 @@ void lp_optimize_where_multi_equals_ands(LogicalPlan *plan, LogicalPlan *where, 
  */
 LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, LogicalPlan *where, int *key_unique_id_array, void *ptr,
 							boolean_t num_outer_joins) {
-	LogicalPlan *	    cur, *left, *right, *t, *keys;
+	LogicalPlan *	    cur, *left, *right, *t;
 	LogicalPlan *	    first_key, *before_first_key, *last_key, *before_last_key, *xref_keys;
 	LogicalPlan *	    generated_xref_keys, *lp_key;
 	SqlColumnList *	    column_list;
@@ -310,7 +310,7 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		}
 		// Remove all keys for the table alias
 		before_first_key = lp_get_criteria(plan);
-		first_key = keys = lp_get_keys(plan);
+		first_key = lp_get_keys(plan);
 		do {
 			GET_LP(t, first_key, 0, LP_KEY);
 			if (t->v.lp_key.key->unique_id == table_alias->unique_id) {

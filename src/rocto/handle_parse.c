@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -201,19 +201,35 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 		free(parse_context_array);
 		return 1;
 	}
-	// SET, SHOW, and CREATE statements don't have plans to execute, so just return
-	if (select_STATEMENT != parse_context.command_tag) {
+	switch (parse_context.command_tag) {
+	case select_STATEMENT:
+	case insert_STATEMENT:
+		/* Queries containing SELECT and INSERT have plans to execute so continue processing */
+		break;
+	case set_STATEMENT:
+	case show_STATEMENT:
+	case create_table_STATEMENT:
+	case drop_table_STATEMENT:
+	case create_function_STATEMENT:
+	case drop_function_STATEMENT:
+	case begin_STATEMENT:
+	case commit_STATEMENT:
+	case discard_all_STATEMENT:
+		/* Queries are of type SET, SHOW, CREATE TABLE, DISCARD ALL etc. They don't have any plans. Just return. */
 		response = make_parse_complete();
 		send_message(session, (BaseMessage *)(&response->type));
 		free(response);
 		// The cursor is no longer needed as there are no parameters to extract for later binding
 		status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
-
 		free(parse_context.is_bind_parm);
 		free(parse_context.types);
 		free(parse_context_array);
 		return 0;
+	case index_STATEMENT: /* This is currently unimplemented and is hence placed alongside the "default:" case */
+	default:
+		assert(FALSE);
+		break;
 	}
 
 	// Initialize buffers using stack-allocated char*s to avoid needless malloc/frees

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -419,7 +419,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 				}
 			} while (cur_column_list != start_column_list);
 		} else {
-			snprintf(c, MAX_FUNC_TYPES_LEN, "none");
+			snprintf(c, MAX_FUNC_TYPES_LEN, OCTOLIT_NONE);
 		}
 		status = generate_routine_name(&state, function_hash, function_hash_len, FunctionHash);
 		if (1 == status) {

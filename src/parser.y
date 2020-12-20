@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -236,7 +236,7 @@ sql_statement
   | query_expression semicolon_or_eof {
       SqlStatement	*ret;
 
-      ret = validate_query_expression($query_expression, parse_context);
+      ret = validate_query_expression($query_expression, parse_context, select_STATEMENT);
       if (NULL == ret) {
            YYABORT;
       }
@@ -1180,8 +1180,8 @@ sql_schema_manipulation_statement
 
 sql_schema_definition_statement
   : table_definition { $$ = $table_definition; parse_context->command_tag = create_table_STATEMENT; }
-  | index_definition { $$ = $index_definition; }
-  | function_definition { $$ = $function_definition; }
+  | index_definition { $$ = $index_definition; parse_context->command_tag = index_STATEMENT; }
+  | function_definition { $$ = $function_definition; parse_context->command_tag = create_function_STATEMENT; }
   ;
 
 /// TODO: not complete

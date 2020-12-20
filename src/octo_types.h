@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -24,10 +24,6 @@ typedef void *yyscan_t;
 
 // Set maximum M routine length - must be in sync with MAX_MIDENT_LEN in YDB/sr_port/mdef.h
 #define MAX_ROUTINE_LEN YDB_MAX_IDENT
-
-// Set maximum command tag length for use in extended query protocol, including null terminator
-// This value should be large enough to hold the longest possible first keyword of a SQL query, i.e. "DEALLOCATE"
-#define MAX_TAG_LEN 11
 
 // Per https://www.postgresql.org/docs/11/catalog-pg-type.html, for type length values of -1 and -2:
 //	"-1 indicates a 'varlena' type (one that has a length word), -2 indicates a null-terminated C string."

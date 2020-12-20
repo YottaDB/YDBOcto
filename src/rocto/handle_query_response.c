@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -127,25 +127,28 @@ int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, c
 			YDB_FREE_BUFFER(&value_buffer);
 			return 0;
 		}
-
-		// Go through and make rows for each row in the output plan
-		parms->data_sent = TRUE;
-
-		// Responses to Execute messages should not send RowDescriptions
-		if (send_row_description) {
-			// Send RowDescription
-			plan_name_buffer.buf_addr = plan_name;
-			plan_name_buffer.len_alloc = plan_name_buffer.len_used = strnlen(plan_name, OCTO_PATH_MAX);
-			row_description = get_plan_row_description(&plan_name_buffer);
-			if (NULL == row_description) {
-				return 1;
+		parms->data_sent = TRUE; /* Note: In case of INSERT INTO etc. we do not send data rows but set this
+					  * variable to TRUE even in that case as one caller function "handle_execute"
+					  * relies on this.
+					  */
+		if (select_STATEMENT == stmt->type) {
+			// Go through and make rows for each row in the output plan
+			// Responses to Execute messages should not send RowDescriptions
+			if (send_row_description) {
+				// Send RowDescription
+				plan_name_buffer.buf_addr = plan_name;
+				plan_name_buffer.len_alloc = plan_name_buffer.len_used = strnlen(plan_name, OCTO_PATH_MAX);
+				row_description = get_plan_row_description(&plan_name_buffer);
+				if (NULL == row_description) {
+					return 1;
+				}
+				send_message(parms->session, (BaseMessage *)(&row_description->type));
+				free(row_description);
 			}
-			send_message(parms->session, (BaseMessage *)(&row_description->type));
-			free(row_description);
+			// Send back row data
+			result = send_result_rows(cursor_id, parms, plan_name);
 		}
-
-		// Send back row data
-		result = send_result_rows(cursor_id, parms, plan_name);
+		/* else: It is of type INSERT INTO, DELETE FROM, etc. In that case, there are no rows to send back. */
 	} else {
 		// Issue ErrorResponse expected by clients indicating a CancelRequest was processed
 		ERROR(ERR_ROCTO_QUERY_CANCELED, "");

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -21,13 +21,15 @@
  * Returns: NULL in case of error
  *	non-NULL in case of success
  */
-SqlStatement *validate_query_expression(SqlStatement *query_expression, ParseContext *parse_context) {
+SqlStatement *validate_query_expression(SqlStatement *query_expression, ParseContext *parse_context, SqlStatementType cmd_type) {
 	SqlValueType	      type;
 	SqlStatement *	      ret;
 	QualifyStatementParms ret_parms;
 	int		      max_unique_id;
 
-	parse_context->command_tag = select_STATEMENT;
+	/* cmd_type distinguishes various command types. Currently it only stores 2 values. SELECT or INSERT. */
+	assert((select_STATEMENT == cmd_type) || (insert_STATEMENT == cmd_type));
+	parse_context->command_tag = cmd_type;
 	if (parse_context->abort) {
 		return NULL;
 	}

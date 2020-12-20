@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -26,19 +26,23 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	ParameterDescription *parm_description;
 	RowDescription *      description;
 	NoData *	      no_data;
-	ydb_buffer_t	      routine_buf, filename_buf;
+	ydb_buffer_t	      routine_buf, filename_buf, tag_buf;
 	ydb_buffer_t	      describe_subs[5];
 	uint32_t	      found = 0;
 	int32_t		      status;
 	char		      filename[OCTO_PATH_MAX];
 	char		      routine_str[MAX_ROUTINE_LEN + 1]; // Null terminator
+	char		      tag_str[INT32_TO_STRING_MAX];
+	SqlStatementType      command_tag;
+	long int	      temp_long;
 
-	// Fetch the named SQL query from the session, either OCTOLIT_PREPARED or OCTOLIT_BOUND depending on Describe message type:
-	// ^session(id, OCTOLIT_PREPARED, <name>) or ^session(id, OCTOLIT_BOUND, <name>)
+	/* Fetch the named SQL query from the session, either OCTOLIT_PREPARED or OCTOLIT_BOUND depending on Describe message type:
+	 * ^session(id, OCTOLIT_PREPARED, <name>)	--> If describe message is Prepared Statement variant
+	 * ^session(id, OCTOLIT_BOUND, <name>)		--> If describe message is Portal variant
+	 */
 	YDB_STRING_TO_BUFFER(config->global_names.session, &describe_subs[0])
 	YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &describe_subs[1])
 	YDB_STRING_TO_BUFFER(describe->name, &describe_subs[3])
-	YDB_STRING_TO_BUFFER(OCTOLIT_ROUTINE, &describe_subs[4])
 	if ('S' == describe->item) {
 		// Client is seeking a ParameterDescription, make and send one
 		LOG_LOCAL_ONLY(TRACE, INFO_ROCTO_PARAMETER_DESCRIPTION_SENT, describe->name);
@@ -59,41 +63,69 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 		return 1;
 	}
 
-	// Retrieve routine name
-	OCTO_SET_BUFFER(routine_buf, routine_str);
-	status = ydb_get_s(&describe_subs[0], 4, &describe_subs[1], &routine_buf);
+	/* Retrieve command tag to find out which type of operation SELECT, INSERT etc.
+	 * If it is for example an INSERT operation, then there is no corresponding row description even though
+	 * there is a corresponding routine (i.e. M plan) to execute. So send a NoData message in that case.
+	 */
+	YDB_STRING_TO_BUFFER(OCTOLIT_TAG, &describe_subs[4]);
+	OCTO_SET_NULL_TERMINATED_BUFFER(tag_buf, tag_str);
+	status = ydb_get_s(&describe_subs[0], 4, &describe_subs[1], &tag_buf);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
 		return 1;
 	}
-	routine_buf.buf_addr[routine_buf.len_used] = '\0';
-
-	status = strncmp("none", routine_buf.buf_addr, MAX_ROUTINE_LEN);
-	if (0 == status) {
+	tag_buf.buf_addr[tag_buf.len_used] = '\0';
+	temp_long = strtol(tag_buf.buf_addr, NULL, 10);
+	if ((ERANGE != errno) && (0 <= temp_long) && (INT32_MAX >= temp_long) && (invalid_STATEMENT >= temp_long)) {
+		command_tag = (int32_t)temp_long;
+	} else {
+		return 1;
+	}
+	switch (command_tag) {
+	case insert_STATEMENT:
+		/* No row descriptions for INSERT. Send a NoData message in that case. */
 		no_data = make_no_data();
 		send_message(session, (BaseMessage *)(&no_data->type));
 		free(no_data);
-	} else {
-		/* The below call updates "filename" to be the full path including "routine_name" at the end */
-		status = get_full_path_of_generated_m_file(filename, sizeof(filename), &routine_buf.buf_addr[1]);
-		if (status) {
-			/* Error message would have already been issued in above function call. Just return non-zero status. */
+		break;
+	default:
+		// Retrieve routine name
+		YDB_STRING_TO_BUFFER(OCTOLIT_ROUTINE, &describe_subs[4])
+		OCTO_SET_NULL_TERMINATED_BUFFER(routine_buf, routine_str);
+		status = ydb_get_s(&describe_subs[0], 4, &describe_subs[1], &routine_buf);
+		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status) {
 			return 1;
 		}
-		YDB_STRING_TO_BUFFER(filename, &filename_buf);
-		description = get_plan_row_description(&filename_buf);
-		if (NULL != description) {
-			send_message(session, (BaseMessage *)(&description->type));
-			if ('S' == describe->item) {
-				TRACE(INFO_ROCTO_ROW_DESCRIPTION_SENT, "prepared statement", describe->name);
-			} else {
-				TRACE(INFO_ROCTO_ROW_DESCRIPTION_SENT, "portal", describe->name);
-			}
-			free(description);
+		routine_buf.buf_addr[routine_buf.len_used] = '\0';
+		status = strncmp(OCTOLIT_NONE, routine_buf.buf_addr, MAX_ROUTINE_LEN);
+		if (0 == status) {
+			no_data = make_no_data();
+			send_message(session, (BaseMessage *)(&no_data->type));
+			free(no_data);
 		} else {
-			return 1;
+			/* The below call updates "filename" to be the full path including "routine_name" at the end */
+			status = get_full_path_of_generated_m_file(filename, sizeof(filename), &routine_buf.buf_addr[1]);
+			if (status) {
+				/* Error message would have already been issued in above function call. Just return non-zero status.
+				 */
+				return 1;
+			}
+			YDB_STRING_TO_BUFFER(filename, &filename_buf);
+			description = get_plan_row_description(&filename_buf);
+			if (NULL != description) {
+				send_message(session, (BaseMessage *)(&description->type));
+				if ('S' == describe->item) {
+					TRACE(INFO_ROCTO_ROW_DESCRIPTION_SENT, "prepared statement", describe->name);
+				} else {
+					TRACE(INFO_ROCTO_ROW_DESCRIPTION_SENT, "portal", describe->name);
+				}
+				free(description);
+			} else {
+				return 1;
+			}
 		}
+		break;
 	}
-
 	return 0;
 }

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -318,7 +318,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	//	1. This is a SELECT query with no parameters
 	//	2. This is a SET, SHOW, or CREATE statement (and therefore has no physical plan or parameters)
 	// Just copy the query as-is and use the routine from above
-	if ((0 == num_parms) || (0 == strncmp(routine_buf.buf_addr, "none", MAX_ROUTINE_LEN))) {
+	if ((0 == num_parms) || (0 == strncmp(routine_buf.buf_addr, OCTOLIT_NONE, MAX_ROUTINE_LEN))) {
 		// Store the query for command tag generation in handle_execute
 		status = ydb_set_s(&portal_subs[0], 3, &portal_subs[1], &sql_expression);
 		YDB_FREE_BUFFER(&sql_expression);

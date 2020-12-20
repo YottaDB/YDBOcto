@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -108,7 +108,7 @@ SqlStatement *insert_statement(SqlStatement *table_name, SqlStatement *column_na
 	insert->dst_table_alias = table_alias;
 	insert->columns = column_name_list;
 	insert->src_table_alias_stmt = query_expression;
-	validated_query_expression = validate_query_expression(ret, parse_context);
+	validated_query_expression = validate_query_expression(ret, parse_context, insert_STATEMENT);
 	/* INSERT INTO currently works for simplistic queries but there is still a lot of functionality to be
 	 * implemented before it can be officially called supported. But to avoid one huge MR at the end, we are going
 	 * to merge incremental sets of changes but keep the functionality disabled by returning NULL from this function.

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -128,6 +128,7 @@
 #define OCTOLIT_LENGTH		     "length"
 #define OCTOLIT_TEXT_LENGTH	     "text_length"
 #define OCTOLIT_NAME		     "name"
+#define OCTOLIT_NONE		     "none"
 #define OCTOLIT_OID		     "oid"
 #define OCTOLIT_OUTPUT_COLUMNS	     "output_columns"
 #define OCTOLIT_OUTPUT_KEY	     "output_key"
@@ -349,11 +350,23 @@ typedef enum RegexType {
 	((NUMERIC_LITERAL == VALUE_TYPE) || (INTEGER_LITERAL == VALUE_TYPE) || (BOOLEAN_VALUE == VALUE_TYPE) \
 	 || (STRING_LITERAL == VALUE_TYPE))
 
-// Initialize a stack-allocated ydb_buffer_t from a stack-allocated string (char *)
+// Initialize a stack-allocated ydb_buffer_t to point to a stack-allocated buffer (char [])
 #define OCTO_SET_BUFFER(BUFFER, STRING)                                                                                     \
 	{                                                                                                                   \
 		BUFFER.buf_addr = STRING;                                                                                   \
 		BUFFER.len_alloc = sizeof(STRING);                                                                          \
+		BUFFER.len_used = 0; /* 0-initialize to indicate the buffer is empty in case an empty string is assigned */ \
+	}
+
+/* Initialize a stack-allocated ydb_buffer_t to point to a stack-allocated buffer (char []) with space for a null terminator
+ * This is very similar to OCTO_SET_BUFFER except that it leaves space for 1 null terminator byte at the end.
+ * To be used by callers which do a "ydb_get_s()" with "BUFFER" holding the result and then add a '\0' byte at the end
+ * before doing further processing with functions like `strcmp()`, `strtol()` which require null terminated strings.
+ */
+#define OCTO_SET_NULL_TERMINATED_BUFFER(BUFFER, STRING)                                                                     \
+	{                                                                                                                   \
+		BUFFER.buf_addr = STRING;                                                                                   \
+		BUFFER.len_alloc = sizeof(STRING) - 1;                                                                      \
 		BUFFER.len_used = 0; /* 0-initialize to indicate the buffer is empty in case an empty string is assigned */ \
 	}
 
@@ -562,7 +575,7 @@ int	      natural_join_condition(SqlJoin *start, SqlJoin *r_join);
 int	      parse_literal_to_parameter(ParseContext *parse_context, SqlValue *value, boolean_t update_existing);
 SqlStatement *query_specification(OptionalKeyword set_quantifier, SqlStatement *select_list, SqlStatement *table_expression,
 				  SqlStatement *sort_specification_list, int *plan_id);
-SqlStatement *validate_query_expression(SqlStatement *query_expression, ParseContext *parse_context);
+SqlStatement *validate_query_expression(SqlStatement *query_expression, ParseContext *parse_context, SqlStatementType cmd_type);
 int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, enum RegexType regex_type, int is_sensitive,
 			int is_not, ParseContext *parse_context);
 SqlStatement *set_operation(enum SqlSetOperationType setoper_type, SqlStatement *left_operand, SqlStatement *right_operand);

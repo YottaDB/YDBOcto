@@ -223,4 +223,5 @@ LP_INSERT_INTO:
             - xref_key: false
             - uses_xref_key: false
 
+[ INFO] PATH:LINENUM DATE TIME : INFO_ENTERING_FUNCTION : Entering print_temporary_table
 [ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command [-- Also used in TV015 subtest]

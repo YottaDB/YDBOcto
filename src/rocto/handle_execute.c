@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -28,7 +28,6 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 	PortalSuspended *   portal_suspended;
 	QueryResponseParms  parms;
 	EmptyQueryResponse *empty;
-	SqlStatement	    stmt;
 	ydb_buffer_t	    portal_subs[8], cursor_subs[5];
 	ydb_buffer_t	    routine_buffer, tag_buf, num_parms_buf, parm_buf;
 	ydb_buffer_t	    schema_global, cursor_buffer;
@@ -73,7 +72,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 	}
 	// Retrieve command tag from portal
 	YDB_LITERAL_TO_BUFFER(OCTOLIT_TAG, &portal_subs[4]);
-	OCTO_SET_BUFFER(tag_buf, tag_str);
+	OCTO_SET_NULL_TERMINATED_BUFFER(tag_buf, tag_str);
 	status = ydb_get_s(&portal_subs[0], 4, &portal_subs[1], &tag_buf);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
@@ -87,9 +86,15 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 		return 1;
 	}
 
-	// Skip plan execution for SET, SHOW, and CREATE statements,
-	// OR when the portal is suspended (rows remain to return on an existing cursor)
-	if ((0 != strncmp(routine_buffer.buf_addr, "none", MAX_ROUTINE_LEN)) && (0 > *cursorId)) {
+	/* Skip plan execution
+	 * a) for query types that don't have any plans (e.g. SET, SHOW, CREATE) OR
+	 * b) when the portal is suspended (rows remain to return on an existing cursor).
+	 */
+	if ((0 != strncmp(routine_buffer.buf_addr, OCTOLIT_NONE, MAX_ROUTINE_LEN)) && (0 > *cursorId)) {
+		boolean_t    send_row_description;
+		SqlStatement stmt;
+
+		assert((command_tag == select_STATEMENT) || (command_tag == insert_STATEMENT));
 		// Fetch number of parameters
 		YDB_STRING_TO_BUFFER(OCTOLIT_PARAMETERS, &portal_subs[4]);
 		YDB_STRING_TO_BUFFER(OCTOLIT_ALL, &portal_subs[5]);
@@ -160,8 +165,6 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 		YDB_FREE_BUFFER(&parm_buf);
 
 		// Prepare call-in interface to execute query
-		stmt.type
-		    = select_STATEMENT; // Only need this for the type to let the callee know we are running a SELECT statement
 		ci_routine.address = routine_buffer.buf_addr;
 		ci_routine.length = routine_buffer.len_used;
 		// Run the target routine
@@ -174,9 +177,11 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 			YDB_ERROR_CHECK(status);
 			return 1;
 		}
+		send_row_description = (select_STATEMENT == command_tag);
 		// Check for cancel requests
 		if (config->is_rocto) {
-			canceled = is_query_canceled(&handle_query_response, *cursorId, (void *)&parms, filename, TRUE);
+			canceled
+			    = is_query_canceled(&handle_query_response, *cursorId, (void *)&parms, filename, send_row_description);
 			if (canceled) {
 				// Cleanup cursor parameters
 				status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
@@ -184,12 +189,14 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 				return -1;
 			}
 		}
-		// Send back data rows, but pass FALSE to omit row descriptions as they are not expected in response to Execute
-		// messages
+		/* Send back data rows, but pass FALSE to omit row descriptions as they are not expected in response to Execute
+		 * messages for SELECT queries (they are anyways not needed for INSERT type of queries). Hence the FALSE below.
+		 */
+		stmt.type = command_tag;
 		status = handle_query_response(&stmt, *cursorId, (void *)&parms, filename, FALSE);
 		tmp_status = status; // Store status so it doesn't get overwritten by result of ydb_delete_s
-		if (PORTAL_SUSPENDED
-		    != status) { // Don't need to retain the cursor for later Execute messages (PortalSuspended case)
+		/* Don't need to retain the cursor for later Execute messages if it is not the PortalSuspended case */
+		if (PORTAL_SUSPENDED != status) {
 			// Cleanup cursor parameters
 			status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
 			YDB_ERROR_CHECK(status);

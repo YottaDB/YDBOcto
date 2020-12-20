@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -49,6 +49,15 @@
 #define MD5_PREFIX "md5"
 // Length of the string 'md5', which is prefixed to password hashes per https://www.postgresql.org/docs/11/protocol-flow.html
 #define MD5_PREFIX_LEN sizeof(MD5_PREFIX) - 1
+
+/* Set maximum command tag length for use in extended query protocol, including null terminator
+ * This value should be large enough to hold the longest possible first keyword of a SQL query, i.e. "DEALLOCATE" i.e. 10 bytes
+ * In addition, in case of a "SELECT", the tag would be followed by a space and a 4-byte integer count (number of rows returned).
+ * And in case of a "INSERT", the tag would be followed by 2 spaces and 2 4-byte integers so account for those.
+ */
+#define MAX_FIRST_KEYWORD_OF_SQL_QUERY_LEN 10 /* size of "DEALLOCATE" */
+
+#define MAX_TAG_LEN MAX_FIRST_KEYWORD_OF_SQL_QUERY_LEN + (1 + INT32_TO_STRING_MAX) + (1 + INT32_TO_STRING_MAX) + 1
 
 typedef struct {
 	int32_t	      connection_fd;
@@ -111,7 +120,7 @@ ReadyForQuery * make_ready_for_query(PSQL_TransactionStatus status);
 EmptyQueryResponse *	   make_empty_query_response();
 RowDescription *	   make_row_description(RowDescriptionParm *parms, int16_t num_parms);
 DataRow *		   make_data_row(DataRowParm *parms, int16_t num_parms, int32_t *col_data_types);
-CommandComplete *	   make_command_complete(SqlStatementType type, int32_t rows_sent);
+CommandComplete *	   make_command_complete(SqlStatementType type, int32_t num_rows);
 AuthenticationMD5Password *make_authentication_md5_password(RoctoSession *session, char *salt);
 AuthenticationOk *	   make_authentication_ok();
 ParseComplete *		   make_parse_complete();

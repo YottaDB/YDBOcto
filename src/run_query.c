@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -142,6 +142,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 	char		cursor_buffer[INT64_TO_STRING_MAX];
 	char		pid_buffer[INT64_TO_STRING_MAX]; /* assume max pid is 64 bits even though it is a 4-byte quantity */
 	boolean_t	release_query_lock;
+	SqlStatement	stmt;
 
 	// Assign cursor prior to parsing to allow tracking and storage of literal parameters under the cursor local variable
 	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
@@ -153,7 +154,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 	}
 	parse_context->cursorId = cursorId;
 	parse_context->cursorIdString = cursor_ydb_buff.buf_addr;
-	STRCPY_LIT(parse_context->routine, "none", MAX_ROUTINE_LEN);
+	STRCPY_LIT(parse_context->routine, OCTOLIT_NONE, MAX_ROUTINE_LEN);
 
 	/* Hold a shared lock before parsing ANY query.
 	 *
@@ -339,24 +340,19 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			}
 		}
 		assert(!config->is_rocto || (NULL != parms));
-		/* If this is an INSERT INTO statement type, then there are no result rows to send. So skip
-		 * invoking the callback function (to print/send the result rows in case of octo/rocto).
-		 * TODO : YDBOcto#502 : We might still need to print something (e.g. 1 row inserted etc.)
-		 *	and so some changes might be needed here hence the todo reference.
-		 */
-		if (insert_STATEMENT != result->type) {
-			status = (*callback)(result, cursorId, parms, filename, send_row_description);
-			if (0 != status) {
-				status = ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]);
-				YDB_ERROR_CHECK(status);
-				// May be freed in the callback function, must check before freeing
-				if (NULL != memory_chunks) {
-					OCTO_CFREE(memory_chunks);
-				}
-				return 1;
+		/* Note: The "callback" function only relies on "stmt.type" so it is okay for other fields to be uninitialized */
+		stmt.type = parse_context->command_tag;
+		status = (*callback)(&stmt, cursorId, parms, filename, send_row_description);
+		if (0 != status) {
+			status = ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]);
+			YDB_ERROR_CHECK(status);
+			// May be freed in the callback function, must check before freeing
+			if (NULL != memory_chunks) {
+				OCTO_CFREE(memory_chunks);
 			}
+			return 1;
 		}
-		// Deciding to free the select_STATEMENT must be done by the caller, as they may want to rerun it or send
+		// Deciding to free the select_STATEMENT etc. must be done by the caller, as they may want to rerun it or send
 		// row descriptions hence the decision to not free the memory_chunk below.
 		free_memory_chunks = false;
 		break;

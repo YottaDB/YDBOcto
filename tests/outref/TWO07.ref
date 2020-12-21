@@ -1,16 +1,9 @@
-OCTO> SELECT t1.firstName, t2.firstName, t3.firstName
-OCTO> FROM names t1
-OCTO> INNER JOIN names t2
-OCTO> ON t1.id = t2.id
-OCTO> INNER JOIN names t3
-OCTO> ON t2.id = t3.id;
 Zero|Zero|Zero
 Acid|Acid|Acid
 Cereal|Cereal|Cereal
 Lord|Lord|Lord
 Joey|Joey|Joey
 Zero|Zero|Zero
-OCTO> 
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  SELECT t1.firstName, t2.firstName, t3.firstName

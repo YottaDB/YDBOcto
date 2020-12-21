@@ -1,6 +1,0 @@
-OCTO> SELECT first_name, last_name, order_date, order_amount
-OCTO> FROM customers c
-OCTO> RIGHT JOIN orders o
-OCTO> ON c.customer_id = o.customer_id
-OCTO> WHERE order_date is NULL;
-OCTO> 

@@ -1,5 +1,4 @@
 [ INFO] PATH:LINENUM DATE TIME : INFO_RECORDING_ENV_VARS : # Recording pertinent ydb_* env var values at process startup
-OCTO> qwerty; select * from names limit 1;
 [ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: QWERTY
 Error with syntax near (line 1, column 0):
 
@@ -7,10 +6,10 @@ qwerty; select * from names limit 1;
 ^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: qwerty;
 [ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command [qwerty;]
-[ INFO] PATH:LINENUM DATE TIME : INFO_RETURNING_FAILURE : Returning failure from octo()
+[ INFO] PATH:LINENUM DATE TIME : INFO_RETURNING_FAILURE : Returning failure from run_query
 [ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command [select * from names limit 1;]
 [ INFO] PATH:LINENUM DATE TIME : INFO_CURSOR : Generating SQL for CURSOR_NUM
 [ INFO] PATH:LINENUM DATE TIME : INFO_M_PLAN : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 [ INFO] PATH:LINENUM DATE TIME : INFO_ENTERING_FUNCTION : Entering print_temporary_table
 0|Zero|Cool
-OCTO> 
+[ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command []

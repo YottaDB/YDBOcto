@@ -1,12 +1,9 @@
-OCTO> select * from names where id like 4::integer;
 4|Joey|
-OCTO> select * from names where id not like 4::integer;
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 5|Zero|Cool
-OCTO> 
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  select * from names where id like 4::integer;

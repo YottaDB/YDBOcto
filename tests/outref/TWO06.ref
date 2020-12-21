@@ -1,7 +1,3 @@
-OCTO> SELECT * FROM namesWithAges AS t1
-OCTO> CROSS JOIN namesWithAges AS t2
-OCTO> WHERE t1.age = t2.id;
-OCTO> 
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  SELECT * FROM namesWithAges AS t1

@@ -1,8 +1,3 @@
-OCTO> select names4.id, firstName, lastName, pastaName from names4
-OCTO> inner join pastas on pastas.pastaName = names4.favoritePasta
-OCTO> where firstName = "Zero"
-OCTO> order by names4.id;
 0|Zero|Cool|Pappardelle
 5|Zero|Lame|Lasagna
 8|Zero|Day|Rotini
-OCTO> 

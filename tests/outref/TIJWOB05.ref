@@ -1,6 +1,1 @@
-OCTO> select distinct pastas.id, favoritePasta from names4
-OCTO> inner join pastas on pastas.pastaName = names4.favoritePasta
-OCTO> where favoritePasta = "Cavatelli"
-OCTO> order by pastas.id;
 1|Cavatelli
-OCTO> 

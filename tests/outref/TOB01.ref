@@ -1,4 +1,2 @@
-OCTO> SELECT id,firstname FROM names WHERE (id = 0 or id = 1) ORDER BY firstname;
 1|Acid
 0|Zero
-OCTO> 

@@ -99,8 +99,7 @@ SELECT *
 FROM names
 WHERE firstName < "Zero";
 OCTO
-  # Allow one "Zero" for echoing the SELECT statement
-  [[ "$(grep -c "Zero" output.txt)" == "1" ]]
+  [[ "$(grep -c "Zero" output.txt)" == "0" ]]
   [[ "$(grep -c "|" output.txt)" != "0" ]]
 }
 

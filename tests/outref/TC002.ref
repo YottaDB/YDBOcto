@@ -1,2 +1,0 @@
-OCTO> create table names4 (id int, First char(20), Last char(30));
-OCTO> 

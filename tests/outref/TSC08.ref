@@ -1,28 +1,5 @@
-OCTO> CREATE TABLE ORDER1(
-OCTO>  order1_id INTEGER PRIMARY KEY,
-OCTO>  status INTEGER,
-OCTO>  current_action INTEGER
-OCTO> );
-OCTO> 
-OCTO> CREATE TABLE ORDERORDERACTIONS(
-OCTO>  order1_id INTEGER PRIMARY KEY,
-OCTO>  order_order_actions_id INTEGER KEY NUM 1,
-OCTO>  action CHARACTER(12)
-OCTO> );
-OCTO> 
-OCTO> CREATE TABLE ORDERSTATUS(
-OCTO>  order_status_id INTEGER PRIMARY KEY
-OCTO> );
-OCTO> 
-OCTO> SELECT order1
-OCTO> FROM   order1 A
-OCTO>        inner join orderorderactions B
-OCTO>                ON A.current_action = B.order_order_actions_id
-OCTO>        inner join orderstatus C
-OCTO>                ON A.status = C.order_status_id
-OCTO> WHERE  B.action = "NW";
 [ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: ORDER1
-Error with syntax near (line 1, column 7):
+Error with syntax near (line 1, column 8):
 
 SELECT order1
        ^^^^^^
@@ -34,4 +11,3 @@ FROM   order1 A
                ON A.status = C.order_status_id
 WHERE  B.action = "NW";
 
-OCTO> 

@@ -1,28 +1,13 @@
-OCTO> select
-OCTO> firstname
-OCTO> ,lastname
-OCTO> from names where
-OCTO> CONDITIONS
-OCTO> 0 = 0;
 Zero|Cool
 Acid|Burn
 Cereal|Killer
 Lord|Nikon
 Joey|
 Zero|Cool
-OCTO> select
-OCTO> firstname
-OCTO> ,lastname
-OCTO> from names where
-OCTO> CONDITIONS
-OCTO> CONDITIONS
-OCTO> 0 = 0;
 Zero|Cool
 Acid|Burn
 Cereal|Killer
 Lord|Nikon
 Joey|
 Zero|Cool
-OCTO> select * from names limit 1;
 0|Zero|Cool
-OCTO> 

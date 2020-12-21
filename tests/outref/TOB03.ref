@@ -1,8 +1,6 @@
-OCTO> select 1+id*2 as a from (select id from names) order by a;
 1
 3
 5
 7
 9
 11
-OCTO> 

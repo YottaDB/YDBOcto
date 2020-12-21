@@ -1,10 +1,4 @@
-OCTO> SELECT first_name, last_name, order_date, order_amount
-OCTO> FROM customers c
-OCTO> INNER JOIN orders o
-OCTO> ON c.customer_id = o.customer_id
-OCTO> ORDER BY last_name ASC;
 John|Adams|05/23/1784|$124.00
 Thomas|Jefferson|03/14/1760|$78.50
 Thomas|Jefferson|09/03/1790|$65.50
 George|Washington|07/04/1776|$234.56
-OCTO> 

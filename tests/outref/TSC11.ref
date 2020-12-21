@@ -1,7 +1,3 @@
-OCTO> select """
-OCTO>  set ^TSC11(1)=1
-OCTO> ;"
-OCTO> from names;
 "
  set ^TSC11(1)=1
 ;
@@ -20,5 +16,4 @@ OCTO> from names;
 "
  set ^TSC11(1)=1
 ;
-OCTO> 
 PASS: ^TSC11(1) is unset

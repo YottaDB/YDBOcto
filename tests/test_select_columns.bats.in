@@ -145,7 +145,7 @@ SELECT
     END
 FROM names;
 OCTO
-  [[ "$(grep -c "Zero" output.txt)" == "3" ]]
+  [[ "$(grep -c "Zero" output.txt)" == "2" ]]
 }
 
 @test "TSC00L : select a negative number" {

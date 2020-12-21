@@ -567,10 +567,12 @@ verify_output() {
 	# To avoid such failure we remove all occurrences of semicolons before the comparison.
 	local isjdbcclient=$(grep "randclient:JDBC" env.out)
 	if [[ ! -z "$isjdbcclient" ]]; then
-		sed -i 's/;//g' outref/$1.ref
-		sed -i 's/;//g' clean_output.txt
+		sed 's/;//g' outref/$1.ref > jdbc_$1.ref
+		sed 's/;//g' clean_output.txt > jdbc_clean_output.txt
+		diff jdbc_$1.ref jdbc_clean_output.txt
+	else
+		diff outref/$1.ref clean_output.txt
 	fi
-	diff outref/$1.ref clean_output.txt
 	return
 }
 

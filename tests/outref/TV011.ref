@@ -1,17 +1,14 @@
 Verbosity set to ERROR:
-OCTO> exit
 
 Verbosity set to INFO:
 [ INFO] PATH:LINENUM DATE TIME : INFO_RECORDING_ENV_VARS : # Recording pertinent ydb_* env var values at process startup
 [ WARN] Global ^%ydboctoxref maps to default region DEFAULT. Recommended mapping for ^%ydbocto* is to a separate region
-OCTO> exit
-[ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command [exit;]
+[ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command [exit]
 
 Verbosity set to DEBUG:
 [ INFO] PATH:LINENUM DATE TIME : INFO_RECORDING_ENV_VARS : # Recording pertinent ydb_* env var values at process startup
 [ WARN] Global ^%ydboctoxref maps to default region DEFAULT. Recommended mapping for ^%ydbocto* is to a separate region
-OCTO> exit
-[ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command [exit;]
+[ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command [exit]
 
 Verbosity set to TRACE:
 [ INFO] PATH:LINENUM DATE TIME : INFO_RECORDING_ENV_VARS : # Recording pertinent ydb_* env var values at process startup
@@ -19,7 +16,6 @@ Verbosity set to TRACE:
 [TRACE] PATH:LINENUM DATE TIME : INFO_OCTO_STARTED : Octo started
 Starting parse
 Entering state sss
-OCTO> exit
 Next token is token EXIT (: )
 Shifting token EXIT (: )
 Entering state sss
@@ -29,15 +25,4 @@ Reducing stack by rule rrr (line lll):
 Entering state sss
 Reducing stack by rule rrr (line lll):
    $1 = nterm exit_command (: )
-Starting parse
-Entering state sss
-Next token is token EXIT (: )
-Shifting token EXIT (: )
-Entering state sss
-Reducing stack by rule rrr (line lll):
-   $1 = token EXIT (: )
--> $$ = nterm exit_command (: )
-Entering state sss
-Reducing stack by rule rrr (line lll):
-   $1 = nterm exit_command (: )
-[ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command [exit;]
+[ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command [exit]

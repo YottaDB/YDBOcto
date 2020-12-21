@@ -1,8 +1,4 @@
 [ INFO] PATH:LINENUM DATE TIME : INFO_RECORDING_ENV_VARS : # Recording pertinent ydb_* env var values at process startup
-OCTO>      select
-OCTO>   notathing         from
-OCTO>                   names
-OCTO>   ;
 [ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: NOTATHING
 Error with syntax near (line 2, column 2):
 
@@ -18,5 +14,5 @@ Error with syntax near (line 2, column 2):
 	notathing  	  from
 			names
 	;]
-[ INFO] PATH:LINENUM DATE TIME : INFO_RETURNING_FAILURE : Returning failure from octo()
-OCTO> 
+[ INFO] PATH:LINENUM DATE TIME : INFO_RETURNING_FAILURE : Returning failure from run_query
+[ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command []

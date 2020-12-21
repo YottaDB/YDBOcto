@@ -1,4 +1,3 @@
-OCTO> select notathing as a from names; select * from names limit 1;
 [ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: NOTATHING
 Error with syntax near (line 1, column 7):
 
@@ -6,4 +5,3 @@ select notathing as a from names; select * from names limit 1;
        ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select notathing as a from names;
 0|Zero|Cool
-OCTO> 

@@ -1,6 +1,4 @@
-OCTO> select * from names limit 1;
 0|Zero|Cool
-OCTO> 
 Listing of dirA should see generated object file
 _ydboctoP*.o
 Listing of dirB should see generated M file

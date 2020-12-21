@@ -1,4 +1,2 @@
-OCTO> select firstname from names limit 1;select lastname from names limit 1;
 Zero
 Cool
-OCTO> 

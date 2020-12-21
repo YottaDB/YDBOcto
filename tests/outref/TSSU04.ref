@@ -1,13 +1,6 @@
-OCTO> SELECT n3.id
-OCTO> FROM   (SELECT n1.id
-OCTO>         FROM   names as n1
-OCTO>         UNION
-OCTO>         SELECT n2.id
-OCTO>         FROM   names as n2) as n3;
 0
 1
 2
 3
 4
 5
-OCTO> 

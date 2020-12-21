@@ -9,7 +9,5 @@
 # Simulate random prior commit by setting plan definition format number to a smaller value
 # Turn on journaling to find out what database nodes get set during auto upgrade
 # Run [octo -f empty_query.sql] so auto upgrade of plan definitions happens
-OCTO>   SELECT * FROM TC039;
-OCTO> 
 # Turn off journaling (no longer needed for this stage of the test)
 # Verify that ^%ydboctoocto("planfmt") gets set to current FMT_PLAN_DEFINITION

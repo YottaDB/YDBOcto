@@ -1,13 +1,6 @@
-OCTO> SELECT id
-OCTO> FROM   (SELECT id
-OCTO>         FROM   names
-OCTO>         UNION
-OCTO>         SELECT id
-OCTO>         FROM   names);
 0
 1
 2
 3
 4
 5
-OCTO> 

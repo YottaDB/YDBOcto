@@ -1,44 +1,18 @@
-OCTO> 
-OCTO> -- TNO01 : OCTO603 : names schema : Assert failure when NOT is used on functions like LEAST, GREATEST, NULLIF etc.
-OCTO> 
-OCTO> select id from names where not least(true,false); -- LP_LEAST
 0
 1
 2
 3
 4
 5
-OCTO> select id from names where not greatest(true,false);      -- LP_GREATEST
-OCTO> select id from names where not nullif(false,true);        -- LP_NULL_IF
 0
 1
 2
 3
 4
 5
-OCTO> select id from names where not coalesce(true,false);      -- LP_COALESCE
-OCTO> 
-OCTO> select id from names where not boolfunc(id);              -- LP_FUNCTION_CALL
 0
 1
 2
-OCTO> 
-OCTO> select id from names where not case when id < 3 then true else false end; -- LP_CASE
 3
 4
 5
-OCTO> 
-OCTO> -- Note: Aggregate functions cannot have boolean operands so no need to test the following LP_* types in lp_action_type.hd
-OCTO> -- LP_ACTION_TYPE(LP_AGGREGATE_FUNCTION_COUNT_ASTERISK)
-OCTO> -- LP_ACTION_TYPE(LP_AGGREGATE_FUNCTION_COUNT)
-OCTO> -- LP_ACTION_TYPE(LP_AGGREGATE_FUNCTION_SUM)
-OCTO> -- LP_ACTION_TYPE(LP_AGGREGATE_FUNCTION_AVG)
-OCTO> -- LP_ACTION_TYPE(LP_AGGREGATE_FUNCTION_MIN)
-OCTO> -- LP_ACTION_TYPE(LP_AGGREGATE_FUNCTION_MAX)
-OCTO> -- LP_ACTION_TYPE(LP_AGGREGATE_FUNCTION_COUNT_DISTINCT)
-OCTO> -- LP_ACTION_TYPE(LP_AGGREGATE_FUNCTION_SUM_DISTINCT)
-OCTO> -- LP_ACTION_TYPE(LP_AGGREGATE_FUNCTION_AVG_DISTINCT)
-OCTO> 
-OCTO> 
-OCTO> 
-OCTO> 

@@ -1,5 +1,3 @@
-OCTO> drop table t1;
-OCTO> create table t1 (a int key num 10, b int key num 5, c int key num 7);
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_KEY : Missing key 0 in table T1; max key was 10
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_KEY : Missing key 1 in table T1; max key was 10
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_KEY : Missing key 2 in table T1; max key was 10
@@ -10,12 +8,10 @@ OCTO> create table t1 (a int key num 10, b int key num 5, c int key num 7);
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_KEY : Missing key 9 in table T1; max key was 10
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table t1 (a int key num 10, b int key num 5, c int key num 7);
 
-OCTO> select * from t1;
 [ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: T1
-Error with syntax near (line 1, column 14):
+Error with syntax near (line 1, column 15):
 
 select * from t1;
               ^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from t1;
 
-OCTO> 

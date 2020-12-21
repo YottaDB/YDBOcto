@@ -1,7 +1,5 @@
-OCTO> SELECT * FROM names WHERE firstName = "Zero";
 0|Zero|Cool
 5|Zero|Cool
-OCTO> 
  --> ZWRITE ^names,^%ydboctoxref
 ^names(0)="Zero|Cool"
 ^names(1)="Acid|Burn"

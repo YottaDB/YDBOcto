@@ -1,4 +1,3 @@
-OCTO> select names.firstName + 5 from names;
 [ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for arithmetic operations
 Error with syntax near (line 1, column 7):
 
@@ -6,4 +5,3 @@ select names.firstName + 5 from names;
        ^^^^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select names.firstName + 5 from names;
 
-OCTO> 

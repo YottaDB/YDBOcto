@@ -1,5 +1,2 @@
-OCTO> select * from names3
-OCTO> where lastName = "Buttons" order by firstName desc;
 6|Bobby|Buttons
 9|Betty|Buttons
-OCTO> 

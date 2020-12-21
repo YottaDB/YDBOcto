@@ -1,4 +1,2 @@
-OCTO> select * from names order by firstname limit 2;
 1|Acid|Burn
 2|Cereal|Killer
-OCTO> 

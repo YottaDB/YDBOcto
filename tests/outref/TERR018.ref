@@ -1,5 +1,4 @@
 # Test Octo built in M mode with ydb_chset set to M. Should work just fine
-OCTO> exit
 # Test of NONUTF8LOCALE error
 [ERROR] PATH:LINENUM DATE TIME : ERR_YOTTADB : YottaDB error: 150381082,(Call-In),%YDB-E-NONUTF8LOCALE, Locale has character encoding (ENCODING) which is not compatible with UTF-8 character set
 # Test of ICUSYMNOTFOUND error

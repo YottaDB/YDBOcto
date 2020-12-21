@@ -1,6 +1,4 @@
-OCTO> select * from names where id = 2;
 2|Cereal|Killer
-OCTO> 
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  select * from names where id = 2;

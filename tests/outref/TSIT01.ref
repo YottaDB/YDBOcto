@@ -1,9 +1,3 @@
-OCTO> SELECT *
-OCTO> FROM names n1
-OCTO> CROSS JOIN (SELECT *
-OCTO>             FROM names n2
-OCTO>             WHERE n1.id = n2.id
-OCTO>            );
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
 Error with syntax near (line 5, column 19):
 
@@ -20,4 +14,3 @@ CROSS JOIN (SELECT *
             WHERE n1.id = n2.id
            );
 
-OCTO> 

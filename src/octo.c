@@ -49,7 +49,10 @@ int main(int argc, char **argv) {
 	cur_input_more = &readline_get_more;
 	if (inputFile == NULL) {
 		inputFile = stdin;
-		config->is_tty = TRUE;
+		/* Check if stdin is a terminal. If so, we need to use "readline()" for command line editing. */
+		if (isatty(0)) {
+			config->is_tty = TRUE;
+		}
 	}
 	cur_input_index = 0;
 	input_buffer_combined[cur_input_index] = '\0';

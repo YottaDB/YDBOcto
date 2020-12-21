@@ -1,4 +1,3 @@
-OCTO> SELECT invalid from (SELECT invalid from names);
 [ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID
 Error with syntax near (line 1, column 28):
 
@@ -6,4 +5,3 @@ SELECT invalid from (SELECT invalid from names);
                             ^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT invalid from (SELECT invalid from names);
 
-OCTO> 

@@ -1,13 +1,6 @@
-OCTO> SELECT t.lastName
-OCTO> FROM (
-OCTO>   SELECT n1.id FROM names n1
-OCTO> ) tt
-OCTO> INNER JOIN names t
-OCTO> ON (t.id = tt.id);
 Cool
 Burn
 Killer
 Nikon
 
 Cool
-OCTO> 

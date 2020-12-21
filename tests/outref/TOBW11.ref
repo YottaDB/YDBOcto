@@ -1,5 +1,3 @@
-OCTO> select * from names3 where firstName = "Zero" order by id asc;
 0|Zero|Cool
 5|Zero|Lame
 8|Zero|Day
-OCTO> 

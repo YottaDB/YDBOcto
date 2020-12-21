@@ -14,8 +14,10 @@ unknown
 varchar
 
 ----- OCTO -----
+TYPNAME
 bool
 int4
 numeric
 unknown
 varchar
+(5 rows)

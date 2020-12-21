@@ -9,19 +9,27 @@ SELECT * FROM delimnamesp;
 SELECT * FROM delimnamesu WHERE firstname = 'Zero';
 SELECT * FROM delimnamesp WHERE firstname = 'Zero';
 
+ID|FIRSTNAME|LASTNAME|MIDDLEINITIAL|AGE
 0|Zero|Cool|B|25
 1|Acid|Burn|I|22
 2|Cereal|Killer|A|59
 3|Lord|Nikon|O|
 4|Joey|||42
 5|Zero|Cool|B|25
+(6 rows)
+ID|FIRSTNAME|LASTNAME|MIDDLEINITIAL|AGE
 0|Zero|Cool|B|25
 1|Acid|Burn|I|22
 2|Cereal|Killer|A|59
 3|Lord|Nikon|O|
 4|Joey|||42
 5|Zero|Cool|B|25
+(6 rows)
+ID|FIRSTNAME|LASTNAME|MIDDLEINITIAL|AGE
 0|Zero|Cool|B|25
 5|Zero|Cool|B|25
+(2 rows)
+ID|FIRSTNAME|LASTNAME|MIDDLEINITIAL|AGE
 0|Zero|Cool|B|25
 5|Zero|Cool|B|25
+(2 rows)

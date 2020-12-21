@@ -1,4 +1,8 @@
+ID|FIRSTNAME
 0|Zero
 1|Acid
+(2 rows)
+ID|FIRSTNAME
 1|Acid
 0|Zero
+(2 rows)

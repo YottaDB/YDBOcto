@@ -1,9 +1,11 @@
+T1_FIRSTNAME
 Acid
 Cereal
 Joey
 Lord
 Zero
 Zero
+(6 rows)
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  select t1_firstName

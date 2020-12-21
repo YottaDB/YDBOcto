@@ -1,7 +1,9 @@
 select a,b from (select 1 as a, 2 as b);
 select a,c from (select 1 as a, 2 as b);
 select c,b from (select 1 as a, 2 as b);
+A|B
 1|2
+(1 row)
 [ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: C
 Error with syntax near (line 1, column 10):
 

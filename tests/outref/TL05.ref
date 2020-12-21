@@ -16,10 +16,18 @@ select * from names limit .;
 select * from names limit;
 select * from names limit 'abcd';
 select * from names limit -3;
+ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
+(1 row)
+ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
+(1 row)
+ID|FIRSTNAME|LASTNAME|ID|FIRSTNAME|LASTNAME
 4|Joey||4|Joey|
+(1 row)
+ID|FIRSTNAME|LASTNAME|ID|FIRSTNAME|LASTNAME
 0|Zero|Cool|0|Zero|Cool
+(1 row)
 Error with syntax near (line 1, column 27):
 
 select * from names limit .;

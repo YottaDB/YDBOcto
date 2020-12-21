@@ -5,4 +5,6 @@ select firstName, lastName from names
 intersect
 select firstName, lastName from names where firstName = "Zero";
 
+FIRSTNAME|LASTNAME
 Zero|Cool
+(1 row)

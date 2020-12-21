@@ -1,3 +1,4 @@
+ID|FIRSTNAME|LASTNAME|PASTANAME
 1|Acid|Burn|Cavatelli
 1|Bobby|Buttons|Cavatelli
 1|Betty|Buttons|Cavatelli
@@ -8,3 +9,4 @@
 8|Zero|Lame|Lasagna
 9|Zero|Cool|Pappardelle
 9|Joey||Pappardelle
+(10 rows)

@@ -1,4 +1,6 @@
+A|B|C|D
 1|2|3|4
+(1 row)
 [ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: T1
 Error with syntax near (line 1, column 15):
 

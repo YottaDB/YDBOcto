@@ -23,30 +23,38 @@ SELECT OVERLOADEDFUNC(true) FROM names;
 -- Parameter type: BOOLEAN; return type: BOOLEAN
 SELECT  * FROM names where firstname = OVERLOADEDFUNC(true);
 
+OVERLOADEDFUNC
 12.5hello
 12.5hello
 12.5hello
 12.5hello
 12.5hello
 12.5hello
+(6 rows)
+OVERLOADEDFUNC
 1.22.5hello
 1.22.5hello
 1.22.5hello
 1.22.5hello
 1.22.5hello
 1.22.5hello
+(6 rows)
+OVERLOADEDFUNC
 hello2
 hello2
 hello2
 hello2
 hello2
 hello2
+(6 rows)
+OVERLOADEDFUNC
 1
 1
 1
 1
 1
 1
+(6 rows)
 [ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right BOOLEAN
 Error with syntax near (line 1, column 28):
 

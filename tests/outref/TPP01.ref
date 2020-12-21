@@ -1,4 +1,8 @@
 # Run TPP01.sql that generates M plan and stores corresponding plan related global variables in database
+ID|FIRSTNAME|LASTNAME
 3|Lord|Nikon
+(1 row)
 # Run TPP01.sql again. Should use already generated M plan and corresponding plan related gvns in database
+ID|FIRSTNAME|LASTNAME
 3|Lord|Nikon
+(1 row)

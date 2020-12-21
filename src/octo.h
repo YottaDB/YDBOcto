@@ -172,7 +172,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_BINARY_DEFINITION 4
+#define FMT_BINARY_DEFINITION 5
 
 /* The below macro needs to be manually bumped if at least one of the following changes.
  *	1) Generated physical plan (_ydboctoP*.m) file name OR contents
@@ -181,7 +181,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_PLAN_DEFINITION 4
+#define FMT_PLAN_DEFINITION 5
 
 // Below are a few utility macros that are similar to those defined in sr_port/gtm_common_defs.h.
 // But we do not use those as that is outside the control of Octo's source code repository
@@ -545,7 +545,7 @@ int  delete_function_from_pg_proc(ydb_buffer_t *function_name_buffer, ydb_buffer
 int  regex_has_no_special_characters(SqlStatement *op1, enum RegexType regex_type, ParseContext *parse_context);
 
 /* Parse related functions invoked from the .y files (parser.y, select.y etc.) */
-int	      as_name(SqlStatement *as_name, ParseContext *parse_context);
+void	      as_name(SqlStatement *as_name);
 SqlStatement *sql_set_statement(SqlStatement *variable, SqlStatement *value, ParseContext *parse_context);
 SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeyword set_quantifier, SqlStatement *value_expression);
 SqlStatement *between_predicate(SqlStatement *row_value_constructor, SqlStatement *from, SqlStatement *to, boolean_t not_specified);

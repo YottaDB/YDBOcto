@@ -75,7 +75,9 @@ LP_SELECT_QUERY:
     - xref_key: false
     - uses_xref_key: false
 
+CURRENT_SCHEMA
 DEFAULT
+(1 row)
 [DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
 LP_SELECT_QUERY: 
   LP_PROJECT: 
@@ -155,12 +157,14 @@ LP_SELECT_QUERY:
     - xref_key: false
     - uses_xref_key: false
 
+ABS
 0
 2
 4
 6
 8
 10
+(6 rows)
 [DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
 LP_SELECT_QUERY: 
   LP_PROJECT: 
@@ -242,4 +246,6 @@ LP_SELECT_QUERY:
     - xref_key: false
     - uses_xref_key: false
 
+REPLACE
 abcdefgh
+(1 row)

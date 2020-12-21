@@ -3,9 +3,11 @@
 
 CREATE FUNCTION ABS(NUMERIC) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;
 select ABS(-id)+2 as absid from names;
+ABSID
 2
 3
 4
 5
 6
 7
+(6 rows)

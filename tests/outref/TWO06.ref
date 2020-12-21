@@ -1,3 +1,5 @@
+ID|FIRSTNAME|LASTNAME|AGE|DATETIME|ID|FIRSTNAME|LASTNAME|AGE|DATETIME
+(0 rows)
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  SELECT * FROM namesWithAges AS t1

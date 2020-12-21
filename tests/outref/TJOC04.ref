@@ -9,5 +9,7 @@ right join (
 ) n2
 on n1.id = n2.id;
 
+ID|FIRSTNAME|LASTNAME|ID|FIRSTNAME|LASTNAME
 1|Acid|Burn|1|Acid|Burn
 2|Cereal|Killer|2|Cereal|Killer
+(2 rows)

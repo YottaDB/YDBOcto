@@ -18,12 +18,14 @@ Error with syntax near (line 1, column 15):
 select * from nonexistanttable;
               ^^^^^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from nonexistanttable;
+ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
+(6 rows)
 
 ------------------------------
 Using config verbosity level: INFO
@@ -52,12 +54,14 @@ select * from nonexistanttable;
 [ INFO] PATH:LINENUM DATE TIME : INFO_CURSOR : Generating SQL for CURSOR_NUM
 [ INFO] PATH:LINENUM DATE TIME : INFO_M_PLAN : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 [ INFO] PATH:LINENUM DATE TIME : INFO_ENTERING_FUNCTION : Entering print_temporary_table
+ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
+(6 rows)
 [ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command []
 
 ------------------------------
@@ -168,12 +172,14 @@ LP_SELECT_QUERY:
     - uses_xref_key: false
 
 [ INFO] PATH:LINENUM DATE TIME : INFO_ENTERING_FUNCTION : Entering print_temporary_table
+ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
+(6 rows)
 [ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command []
 
 ------------------------------
@@ -575,12 +581,14 @@ LP_SELECT_QUERY:
     - uses_xref_key: false
 
 [ INFO] PATH:LINENUM DATE TIME : INFO_ENTERING_FUNCTION : Entering print_temporary_table
+ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
+(6 rows)
 Starting parse
 Entering state sss
 Next token is token ENDOFFILE (: )

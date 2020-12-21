@@ -78,7 +78,7 @@ OCTO
 SELECT *
 FROM names n1, names n2;
 OCTO
-  [[ "$(grep -c "|" output.txt)" == "36" ]]
+  [[ "$(grep -c "|" output.txt)" == "37" ]]
 }
 
 @test "TCJ07 : cross join many matches with comma with many tables" {
@@ -86,7 +86,7 @@ OCTO
 SELECT *
 FROM names n1, names n2, names n3, names n4;
 OCTO
-  [[ "$(grep -c "|" output.txt)" == "1296" ]]
+  [[ "$(grep -c "|" output.txt)" == "1297" ]]
 }
 
 @test "TCJ08 : cross join many matches with comma with additional criteria" {
@@ -95,7 +95,7 @@ SELECT *
 FROM names n1, names n2
 WHERE n1.firstName = "Zero";
 OCTO
-  [[ "$(grep -c "|" output.txt)" == "12" ]]
+  [[ "$(grep -c "|" output.txt)" == "13" ]]
 }
 
 @test "TCJ09 : OCTO529 : Test CROSS JOIN mixed with OUTER JOIN cannot be freely reordered" {

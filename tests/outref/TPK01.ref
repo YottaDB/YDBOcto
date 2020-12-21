@@ -1,3 +1,4 @@
+A|B|C|D|E
 |112|113|114|110
 |206|208|207|
 104||102|101|
@@ -8,6 +9,8 @@
 131|130|134|133|132
 138|139|137|136|135
 142|143|141|140|144
+(10 rows)
+A|B|C|D|E
 |112|113|114|110
 |206|208|207|
 104||102|101|
@@ -18,74 +21,128 @@
 131|130|134|133|132
 138|139|137|136|135
 142|143|141|140|144
+(10 rows)
+A|B|C
 ||c1
 |b1|c2
 a2|b2|c3
 a3||c4
 a3|b3|
+(5 rows)
+A|B|C
 ||c1
 |b1|c2
+(2 rows)
+A|B|C
 a3||c4
 a3|b3|
+(2 rows)
+A|B|C
 ||c1
 a3||c4
+(2 rows)
+A|B|C
 |b1|c2
+(1 row)
+A|B|C
+(0 rows)
+A|B|C
 ||c2
 |b1|c2
+(2 rows)
+A|B|C
 a2|b2|c3
 a3||c4
 a3|b3|
+(3 rows)
+A|B|C
 ||c1
 |b1|c2
 a2|b2|c3
+(3 rows)
+A|B|C
 |b1|c2
 a2|b2|c3
 a3|b3|
+(3 rows)
+A|B|C
 ||c1
 a2|b2|c3
 a3||c4
 a3|b3|
+(4 rows)
+A|B|C
 ||c1
 |b1|c2
 a2|b2|c3
 a3||c4
+(4 rows)
+A|B|C
 ||c1
 a2|b2|c3
 a3||c4
+(3 rows)
+A|B|C
 ||c1
 |b1|c2
 a2|b2|c3
 a3||c4
 a3|b3|
+(5 rows)
+A|B|C
 ||c1
 |b1|c2
+(2 rows)
+A|B|C
 a3||c4
 a3|b3|
+(2 rows)
+A|B|C
 ||c1
 a3||c4
+(2 rows)
+A|B|C
 |b1|c2
+(1 row)
+A|B|C
+(0 rows)
+A|B|C
 ||c2
 |b1|c2
+(2 rows)
+A|B|C
 a2|b2|c3
 a3||c4
 a3|b3|
+(3 rows)
+A|B|C
 ||c1
 |b1|c2
 a2|b2|c3
+(3 rows)
+A|B|C
 |b1|c2
 a2|b2|c3
 a3|b3|
+(3 rows)
+A|B|C
 ||c1
 a2|b2|c3
 a3||c4
 a3|b3|
+(4 rows)
+A|B|C
 ||c1
 |b1|c2
 a2|b2|c3
 a3||c4
+(4 rows)
+A|B|C
 ||c1
 a2|b2|c3
 a3||c4
+(3 rows)
+ORDER_STATUS_ID|NAME|SHORT_NAME|ABBREVIATION|MASTER_ENTRY_FOR_VUID|VUID
 1|DISCONTINUED|dc|dc|1|4500704
 2|COMPLETE|comp|c|1|4501088
 3|HOLD|hold|h|1|4500752
@@ -102,6 +159,8 @@ a3||c4
 14|LAPSED|laps|l|1|4501099
 15|RENEWED|rnew|rn|1|4500873
 99|NO STATUS|none|'|1|4501102
+(16 rows)
+ORDER_STATUS_ID|NAME|SHORT_NAME|ABBREVIATION|MASTER_ENTRY_FOR_VUID|VUID
 0|||||
 1|DISCONTINUED|dc|dc|1|4500704
 2|COMPLETE|comp|c|1|4501088
@@ -119,3 +178,4 @@ a3||c4
 14|LAPSED|laps|l|1|4501099
 15|RENEWED|rnew|rn|1|4500873
 99|NO STATUS|none|'|1|4501102
+(17 rows)

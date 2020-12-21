@@ -13,21 +13,27 @@ select DOLLARZWRITE(firstname) from names;
 CREATE FUNCTION DOLLARZWRITE(VARCHAR) RETURNS VARCHAR AS $zWrItE;
 select DOLLARZWRITE(firstname) from names;
 
+DOLLARZWRITE
 "Zero"
 "Acid"
 "Cereal"
 "Lord"
 "Joey"
 "Zero"
+(6 rows)
+DOLLARZWRITE
 "Zero"
 "Acid"
 "Cereal"
 "Lord"
 "Joey"
 "Zero"
+(6 rows)
+DOLLARZWRITE
 "Zero"
 "Acid"
 "Cereal"
 "Lord"
 "Joey"
 "Zero"
+(6 rows)

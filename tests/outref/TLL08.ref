@@ -1,13 +1,19 @@
+FIRSTNAME|LASTNAME
 Zero|Cool
 Acid|Burn
 Cereal|Killer
 Lord|Nikon
 Joey|
 Zero|Cool
+(6 rows)
+FIRSTNAME|LASTNAME
 Zero|Cool
 Acid|Burn
 Cereal|Killer
 Lord|Nikon
 Joey|
 Zero|Cool
+(6 rows)
+ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
+(1 row)

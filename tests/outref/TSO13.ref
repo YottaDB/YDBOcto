@@ -52,6 +52,7 @@ SELECT ProductID FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
 -- Arithmetic operation of INTEGER and STRING/VARCHAR should issue type mismatch error
 SELECT ProductID + ProductName FROM Products LIMIT 1;
 
+ID|FIRSTNAME|???
 0||Zero
 1||Acid
 2||Cereal
@@ -64,6 +65,7 @@ SELECT ProductID + ProductName FROM Products LIMIT 1;
 3|Lord|
 4|Joey|
 5|Zero|
+(12 rows)
 [ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types INTEGER and VARCHAR cannot be matched
 Error with syntax near (line 1, column 60):
 
@@ -235,8 +237,12 @@ UNION ALL
   EXCEPT ALL
   SELECT n1.id, n1.firstName, n1.lastName, ''::text, NULL, NULL FROM names n1 INNER JOIN names n2 ON n1.id = n2.id
 );
+PRICE
 18
+(1 row)
+PRICE
 19
+(1 row)
 [ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION types NUMERIC and VARCHAR cannot be matched
 Error with syntax near (line 1, column 8):
 

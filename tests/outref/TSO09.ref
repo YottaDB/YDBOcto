@@ -9,9 +9,11 @@ UNION ALL
   SELECT n1.id, n1.firstName, n1.lastName, NULL, NULL, ''::text FROM names n1 INNER JOIN names n2 ON n1.id = n2.id
 );
 
+ID|FIRSTNAME|LASTNAME|???|???|???
 0|Zero|Cool|0|Zero|Cool
 1|Acid|Burn|1|Acid|Burn
 2|Cereal|Killer|2|Cereal|Killer
 3|Lord|Nikon|3|Lord|Nikon
 4|Joey||4|Joey|
 5|Zero|Cool|5|Zero|Cool
+(6 rows)

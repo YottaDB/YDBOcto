@@ -296,10 +296,12 @@ LP_SET_OPERATION:
 
 [ INFO] PATH:LINENUM DATE TIME : INFO_GENERATING_XREF : Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_CATALOG.PG_TYPE] and column [TYPRELID]
 [ INFO] PATH:LINENUM DATE TIME : INFO_ENTERING_FUNCTION : Entering print_temporary_table
+TYPNAME|OID
 bool|16
 int4|23
 name|19
 numeric|1700
 unknown|705
 varchar|1043
+(6 rows)
 [ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command []

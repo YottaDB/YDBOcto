@@ -3,9 +3,11 @@
 
 SELECT firstName FROM names WHERE firstName IN ('Zero', 'Acid', 'Cool');
 
+FIRSTNAME
 Acid
 Zero
 Zero
+(3 rows)
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  SELECT firstName FROM names WHERE firstName IN ('Zero', 'Acid', 'Cool');

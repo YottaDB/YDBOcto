@@ -9,4 +9,6 @@ WHERE  t.typnamespace = n.oid
 64
 
 ----- OCTO -----
+TYPLEN
 64
+(1 row)

@@ -6,15 +6,19 @@ SELECT ABS(-1) FROM names;
 
 CREATE FUNCTION ABS(SMALLINT) RETURNS DECIMAL AS $$ABS^%ydboctosqlfunctions;
 SELECT ABS(-2) FROM names;
+ABS
 1
 1
 1
 1
 1
 1
+(6 rows)
+ABS
 2
 2
 2
 2
 2
 2
+(6 rows)

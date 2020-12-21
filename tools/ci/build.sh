@@ -654,6 +654,20 @@ FILE
 					fi
 				fi
 				if [[ ($subtest =~ ^"TQG") && (! -z $octooutfile) ]]; then
+					# If the random older commit predates the YDBOcto#649 commit, then the octo output
+					# would not contain the row-header and row summary line at the head and tail of the octo output.
+					# So filter that out from the newer Octo build output.
+					pre_octo649_commit="9c64861100d7f6c6653a75f7b06f036465c2f486"
+					# Disable the "set -e" setting temporarily as the "git merge-base" can return exit status 0 or 1
+					set +e
+					git merge-base --is-ancestor $commitsha $pre_octo649_commit
+					is_post_octo649_commit=$?
+					# Re-enable "set -e" now that "git merge-base" invocation is done.
+					set -e
+					if [[ 0 == $is_post_octo649_commit ]]; then
+						mv $outfile $outfile.tmp
+						tail -n +2 $outfile.tmp | head -n -1 > $outfile
+					fi
 					# TEST2
 					# $sqlfile.log is Octo's output for the same query using the older commit build
 					# It could contain "null" references if it was run through the JDBC driver.

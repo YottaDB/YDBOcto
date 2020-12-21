@@ -1,3 +1,4 @@
+FIRST_NAME|LAST_NAME|ORDER_DATE|ORDER_AMOUNT
 George|Washington|07/04/1776|$234.56
 John|Adams|05/23/1784|$124.00
 Thomas|Jefferson|03/14/1760|$78.50
@@ -6,3 +7,4 @@ James|Madison||
 James|Monroe||
 ||07/21/1795|$25.50
 ||11/27/1787|$14.40
+(8 rows)

@@ -4,4 +4,6 @@ select current_schema()
 DEFAULT
 
 ----- OCTO -----
+CURRENT_SCHEMA
 DEFAULT
+(1 row)

@@ -15,6 +15,7 @@ ORDER BY nspname,
          relname desc,
 	 attnum
 
+NSPNAME|RELNAME|ATTNUM
 public|USERS|10
 public|PG_TYPE|12
 public|PG_PROC|15
@@ -34,3 +35,4 @@ public|OCTOONEROWTABLE|1
 public|NAMESWITHAGES|19
 public|NAMES|18
 public|INFORMATION_SCHEMA.TABLES|6
+(19 rows)

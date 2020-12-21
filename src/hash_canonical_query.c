@@ -52,11 +52,20 @@ void hash_canonical_query_column_list_alias(hash128_state_t *state, SqlStatement
 	UNPACK_SQL_STATEMENT(start_cla, stmt, column_list_alias);
 	cur_cla = start_cla;
 	do {
+		int save_status;
+
 		ADD_INT_HASH(state, column_list_alias_STATEMENT);
 		// SqlColumnList
 		hash_canonical_query(state, cur_cla->column_list, status);
 		// SqlValue
+		save_status = *status;
+		*status = HASH_LITERAL_VALUES; /* force different alias values to generate different plans */
 		hash_canonical_query(state, cur_cla->alias, status);
+		if (HASH_LITERAL_VALUES == *status) {
+			*status = save_status;
+		} else {
+			/* *status was changed by the "hash_canonical_query()" call. Retain changed value. */
+		}
 		// SqlOptionalKeyword
 		hash_canonical_query(state, cur_cla->keywords, status);
 		// SqlValueType

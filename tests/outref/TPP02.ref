@@ -1,5 +1,9 @@
 # Run TPP01.sql that generates M plan and stores corresponding plan related global variables in database
+ID|FIRSTNAME|LASTNAME
 3|Lord|Nikon
+(1 row)
 # KILL plan related global variables in database but keep M plan intact to create out-of-sync situation
 # Run TPP01.sql again. Should NOT error out (but instead re-generate M plan and corresponding gvns)
+ID|FIRSTNAME|LASTNAME
 3|Lord|Nikon
+(1 row)

@@ -8,7 +8,9 @@ WHERE n1.firstName IN (SELECT n2.firstName
   WHERE n1.firstName = "Acid"
 );
 
+ID|FIRSTNAME|LASTNAME
 1|Acid|Burn
+(1 row)
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  SELECT *
@@ -54,7 +56,7 @@ octoPlan2(cursorId)
     . NEW %ydboctoexpr SET %ydboctoexpr=1
     . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1),0,-1,"VARCHAR")
     . SET %ydboctoexpr(1)=%ydboctoexpr
-    . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",3))
+    . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
     . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . IF %ydboctoexpr DO
     . . IF $INCREMENT(%ydboctocursor(cursorId,"keys",5,"","",$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))),"|",1),0,-1,"VARCHAR")))

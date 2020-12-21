@@ -1,5 +1,7 @@
+ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 5|Zero|Cool
+(2 rows)
  --> ZWRITE ^names,^%ydboctoxref
 ^names(0)="Zero|Cool"
 ^names(1)="Acid|Burn"

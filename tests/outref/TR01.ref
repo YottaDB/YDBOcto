@@ -1,18 +1,34 @@
 octo
 OCTO> select 'a' from names limit 1;
+???
 a
+(1 row)
 OCTO> select 'a' from names limit 1;
+???
 a
+(1 row)
 OCTO> select 'a' from 
 OCTO> names limit 1;
+???
 a
+(1 row)
 OCTO> select 'a' from^Jnames limit 1;
+???
 a
+(1 row)
 OCTO> select 'a' from names limit 1; select 'b' from names limit 1;
+???
 a
+(1 row)
+???
 b
+(1 row)
 OCTO> select 'b' from names limit 1;
+???
 b
+(1 row)
 OCTO> select 'b' from names limit 1;OCTO> select 'a' from names limit 1;
+???
 a
+(1 row)
 OCTO> quit;

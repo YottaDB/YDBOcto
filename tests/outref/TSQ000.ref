@@ -100,4 +100,6 @@ LP_SELECT_QUERY:
     - uses_xref_key: false
 
 [ INFO] PATH:LINENUM DATE TIME : INFO_ENTERING_FUNCTION : Entering print_temporary_table
+TYPLEN
 64
+(1 row)

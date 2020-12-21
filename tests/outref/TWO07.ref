@@ -1,9 +1,11 @@
+FIRSTNAME|FIRSTNAME|FIRSTNAME
 Zero|Zero|Zero
 Acid|Acid|Acid
 Cereal|Cereal|Cereal
 Lord|Lord|Lord
 Joey|Joey|Joey
 Zero|Zero|Zero
+(6 rows)
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  SELECT t1.firstName, t2.firstName, t3.firstName

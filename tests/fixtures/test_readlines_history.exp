@@ -1,7 +1,7 @@
 #!/usr/bin/expect
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019,2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -22,14 +22,18 @@ expect "OCTO> "
 # Single line query
 send -- "select 'a' from names limit 1;\r"
 expect -exact "select 'a' from names limit 1;\r
+???\r
 a\r
+(1 row)\r
 OCTO> "
 # this is the control sequence for "up arrow"
 send -- "\[A"
 expect -exact "select 'a' from names limit 1;"
 send -- "\r"
 expect -exact "\r
+???\r
 a\r
+(1 row)\r
 OCTO> "
 # Multi-line query
 send -- "select 'a' from \r"
@@ -37,32 +41,44 @@ expect -exact "select 'a' from \r
 OCTO> "
 send -- "names limit 1;\r"
 expect -exact "names limit 1;\r
+???\r
 a\r
+(1 row)\r
 OCTO> "
 send -- "\[A"
 expect -exact "select 'a' from^Jnames limit 1;"
 send -- "\r"
 expect -exact "\r
+???\r
 a\r
+(1 row)\r
 OCTO> "
 # Multiple queries on the same line
 send -- "select 'a' from names limit 1; select 'b' from names limit 1;\r"
-expect -exact "from names limit 1; select 'b' from names limit 1;\r
+expect -exact "select 'a' from names limit 1; select 'b' from names limit 1;\r
+???\r
 a\r
+(1 row)\r
+???\r
 b\r
+(1 row)\r
 OCTO> "
 send -- "\[A"
 expect -exact "select 'b' from names limit 1;"
 send -- "\r"
 expect -exact "\r
+???\r
 b\r
+(1 row)\r
 OCTO> "
 send -- "\[A"
 expect -exact "select 'b' from names limit 1;"
 send -- "\[A"
 send -- "\r"
 expect -exact "\r
+???\r
 a\r
+(1 row)\r
 OCTO> "
 send -- "quit;\r"
 expect -re "\[#\$] "

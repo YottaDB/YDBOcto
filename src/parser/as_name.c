@@ -17,9 +17,8 @@
 #include "octo_types.h"
 
 // Function invoked by the rule named "as_name" in src/parser/select.y
-int as_name(SqlStatement *as_name, ParseContext *parse_context) {
+void as_name(SqlStatement *as_name) {
 	char *c;
-	int   status;
 
 	/* SqlValue type of "as_name" is set to "STRING_LITERAL" in order to prevent multiple plan generation
 	 * for queries differing only by alias name or LITERAL value.
@@ -31,6 +30,4 @@ int as_name(SqlStatement *as_name, ParseContext *parse_context) {
 		*c = toupper(*c);
 		c++;
 	}
-	status = parse_literal_to_parameter(parse_context, as_name->v.value, FALSE);
-	return status;
 }

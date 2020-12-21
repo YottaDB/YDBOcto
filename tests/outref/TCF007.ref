@@ -11,21 +11,27 @@ select dollarzwrite(firstname) from names;
 -- Call function with name in mixed case
 select dollarZWRITE(firstname) from names;
 
+DOLLARZWRITE
 "Zero"
 "Acid"
 "Cereal"
 "Lord"
 "Joey"
 "Zero"
+(6 rows)
+DOLLARZWRITE
 "Zero"
 "Acid"
 "Cereal"
 "Lord"
 "Joey"
 "Zero"
+(6 rows)
+DOLLARZWRITE
 "Zero"
 "Acid"
 "Cereal"
 "Lord"
 "Joey"
 "Zero"
+(6 rows)

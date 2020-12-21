@@ -13,16 +13,36 @@ SELECT 2.49::NUMERIC(1);
 SELECT 2.49::NUMERIC(2,1);
 SELECT 2.465::NUMERIC(3,2);
 
+???
 1.49
+(1 row)
+???
 1
+(1 row)
+???
 1
+(1 row)
+???
 1.5
+(1 row)
+???
 1.47
+(1 row)
+???
 2.49
+(1 row)
+???
 2
+(1 row)
+???
 2
+(1 row)
+???
 2.5
+(1 row)
+???
 2.47
+(1 row)
 ; Queries that have generated plans (expect 3 plans)
 ; --------------------------------------------------
   SELECT 1.49::NUMERIC

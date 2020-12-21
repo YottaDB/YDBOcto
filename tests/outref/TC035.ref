@@ -7,15 +7,21 @@ SELECT * FROM delimnames;
 SELECT * FROM delimnames WHERE firstname = 'Zero';
 SELECT * FROM delimnames WHERE firstname != 'Zero';
 
+ID|FIRSTNAME|LASTNAME|MIDDLEINITIAL|AGE
 0|Zero|B|25|
 1|Acid|I|22|
 2|Cereal|A|59|
 3|Lord|O||
 4|Joey||42|
 5|Zero|B|25|
+(6 rows)
+ID|FIRSTNAME|LASTNAME|MIDDLEINITIAL|AGE
 0|Zero|B|25|
 5|Zero|B|25|
+(2 rows)
+ID|FIRSTNAME|LASTNAME|MIDDLEINITIAL|AGE
 1|Acid|I|22|
 2|Cereal|A|59|
 3|Lord|O||
 4|Joey||42|
+(4 rows)

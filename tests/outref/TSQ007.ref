@@ -417,6 +417,7 @@ LP_SELECT_QUERY:
 
 [ INFO] PATH:LINENUM DATE TIME : INFO_GENERATING_XREF : Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_CATALOG.PG_CLASS] and column [RELKIND]
 [ INFO] PATH:LINENUM DATE TIME : INFO_ENTERING_FUNCTION : Entering print_temporary_table
+SCHEMA|NAME|TYPE|OWNER
 public|INFORMATION_SCHEMA.TABLES|table|octo
 public|NAMES|table|octo
 public|NAMESWITHAGES|table|octo
@@ -436,4 +437,5 @@ public|PG_NAMESPACE|table|octo
 public|PG_PROC|table|octo
 public|PG_TYPE|table|octo
 public|USERS|table|octo
+(19 rows)
 [ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command []

@@ -11,19 +11,31 @@ CREATE FUNCTION ABS(NUMERIC) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;
 SELECT proname,prorettype,proargtypes FROM pg_catalog.pg_proc where proname = 'ABS';
 SELECT 'OID',oid FROM pg_catalog.pg_proc where proname = 'ABS';
 SELECT ABS(-1) FROM names;
+PRONAME|PRORETTYPE|PROARGTYPES
 ABS|1700|1700
 ABS|1700|23
+(2 rows)
+???|OID
+(2 rows)
+ABS
 1
 1
 1
 1
 1
 1
+(6 rows)
+PRONAME|PRORETTYPE|PROARGTYPES
 ABS|1700|23
 ABS|1700|1700
+(2 rows)
+???|OID
+(2 rows)
+ABS
 1
 1
 1
 1
 1
 1
+(6 rows)

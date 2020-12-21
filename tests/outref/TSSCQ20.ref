@@ -25,6 +25,7 @@ null|pg_catalog|TRUNC|null|null|null|null|2|TRUNC_177
 null|pg_catalog|VERSION|null|null|null|null|2|VERSION_180
 
 ----- OCTO -----
+PROCEDURE_CAT|PROCEDURE_SCHEM|PROCEDURE_NAME|???|???|???|REMARKS|PROCEDURE_TYPE|SPECIFIC_NAME
 |pg_catalog|ABS|||||2|ABS_170
 |pg_catalog|ABS|||||2|ABS_171
 |pg_catalog|CURRENT_SCHEMA|||||2|CURRENT_SCHEMA_181
@@ -47,3 +48,4 @@ null|pg_catalog|VERSION|null|null|null|null|2|VERSION_180
 |pg_catalog|TRUNC|||||2|TRUNC_176
 |pg_catalog|TRUNC|||||2|TRUNC_177
 |pg_catalog|VERSION|||||2|VERSION_180
+(22 rows)

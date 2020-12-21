@@ -68,51 +68,31 @@ bufoverlap ;
 	write o,!
 	quit
 
-gt10mb ;
+gt1mb ;
 	open "in.sql":(stream:nowrap)
 	use "in.sql":nowrap
 	set o="select"
-	for i=1:1:4096 write o,! set o="" for k=1:1:21 set o=o_"a1234567890,b1234567890,c1234567890,"
+	for i=1:1:64 write o,! set o="" for k=1:1:21 set o=o_"a1234567890,b1234567890,c1234567890,"
 	write o set o=""
 	set o=o_$c(10)_"a1234567890,b1234567890,c1234567890"
 	set o=o_$c(10)_"from largecolnames;"
 	write o,!
 	quit
 
-gt10mbOutA ;
+gt1mbOut ;
 	open "output.ref":(stream:nowrap)
 	use "output.ref":nowrap
-	set o="OCTO> select"
-	for i=1:1:4096 write o,! set o="OCTO> " for k=1:1:21 set o=o_"a1234567890,b1234567890,c1234567890,"
-	write o set o=""
-	set o=o_$c(10)_"OCTO> a1234567890,b1234567890,c1234567890"
-	set o=o_$c(10)_"OCTO> from largecolnames;"
-	write o,!
-	set o="" for i=1:1:4096 for k=1:1:21 set o=o_"1|2|3|"
+	set o="" for i=1:1:64 for k=1:1:21 set o=o_"A1234567890|B1234567890|C1234567890|"
+	set o=o_"A1234567890|B1234567890|C1234567890" write o,!
+	set o="" for i=1:1:64 for k=1:1:21 set o=o_"1|2|3|"
 	set o=o_"1|2|3" write o,!
-	set o="" for i=1:1:4096 for k=1:1:21 set o=o_"4|5|6|"
+	set o="" for i=1:1:64 for k=1:1:21 set o=o_"4|5|6|"
 	set o=o_"4|5|6" write o,!
-	set o="" for i=1:1:4096 for k=1:1:21 set o=o_"7|8|9|"
+	set o="" for i=1:1:64 for k=1:1:21 set o=o_"7|8|9|"
 	set o=o_"7|8|9" write o,!
-	set o="" for i=1:1:4096 for k=1:1:21 set o=o_"10|11|12|"
+	set o="" for i=1:1:64 for k=1:1:21 set o=o_"10|11|12|"
 	set o=o_"10|11|12" write o,!
-	set o="" for i=1:1:4096 for k=1:1:21 set o=o_"13|14|15|"
+	set o="" for i=1:1:64 for k=1:1:21 set o=o_"13|14|15|"
 	set o=o_"13|14|15" write o,!
-	set o="OCTO> "
-	write o
-	quit
-
-gt10mbOutB ;
-	open "output.ref":(stream:nowrap)
-	use "output.ref":nowrap
-	set o="" for i=1:1:4096 for k=1:1:21 set o=o_"1|2|3|"
-	set o=o_"1|2|3" write o,!
-	set o="" for i=1:1:4096 for k=1:1:21 set o=o_"4|5|6|"
-	set o=o_"4|5|6" write o,!
-	set o="" for i=1:1:4096 for k=1:1:21 set o=o_"7|8|9|"
-	set o=o_"7|8|9" write o,!
-	set o="" for i=1:1:4096 for k=1:1:21 set o=o_"10|11|12|"
-	set o=o_"10|11|12" write o,!
-	set o="" for i=1:1:4096 for k=1:1:21 set o=o_"13|14|15|"
-	set o=o_"13|14|15" write o,!
+	write "(5 rows)",!
 	quit

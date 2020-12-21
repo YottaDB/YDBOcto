@@ -34,15 +34,15 @@ setup() {
   verify_output TAK03 output.txt
 }
 
-@test "TAK04 : Tests verify that one plan is generated for queries differing only by quoted alias values" {
+@test "TAK04 : Tests verify that different plans are generated for queries differing only by quoted column alias values" {
   # Both single and double quotes usage are verified
   # Can't use run_query_in_octo_and_postgres_and_crosscheck_multiple_queries as postgres doesn't support single quoted alias
   load_fixture TAK04.sql subtest novv
   verify_output TAK04 output.txt
-  [[ $(ls -l _ydboctoP*.m | wc -l) -eq 1 ]]
+  [[ $(ls -l _ydboctoP*.m | wc -l) -eq 4 ]]
 }
 
-@test "TAK05 : Tests verify that one plan is generated for queries differing only by quoted alias values (short form)" {
+@test "TAK05 : Tests verify that one plan is generated for queries differing only by quoted table alias values" {
   # Both single and double quotes usage are verified
   # Can't use run_query_in_octo_and_postgres_and_crosscheck_multiple_queries as postgres doesn't support single quoted alias
   load_fixture TAK05.sql subtest novv
@@ -51,12 +51,20 @@ setup() {
 }
 
 @test "TAK06 : OCTO520 : Avoid multiple plan generation when the query only differs by identifier name" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAK06.sql
-  # Verify all queries in TAK06.sql hash only to 2 plans (file has 2 sections of queries each of which should hash to ONE plan)
-  [[ $(ls -l _ydboctoP*.m | wc -l) -eq 2 ]]
+  # Not using run_query_in_octo_and_postgres_and_crosscheck_multiple_queries as we also want to verify Octo's output of
+  # column names in the row header line.
+  load_fixture TAK06.sql subtest novv
+  verify_output TAK06 output.txt
+  # Verify all queries in TAK06.sql hash only to 5 plans (file has 2 sections of queries, the first section has 4 queries
+  # each of which should has to 4 different plans, the second section has lots of queries all of which should hash to ONE plan).
+  [[ $(ls -l _ydboctoP*.m | wc -l) -eq 5 ]]
 }
 
 @test "TAK07 : OCTO496 : Support column aliases in SELECT column list without AS keyword" {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAK07.sql
 }
 
+@test "TAK08 : OCTO649 : octo process to output headers specified by AS keyword when run locally" {
+	load_fixture TAK08.sql subtest novv
+	verify_output TAK08 output.txt
+}

@@ -7,7 +7,9 @@ SELECT ROUND(155, 1.5);
 SELECT ROUND(155, -1.5);
 -- Numeric overflow
 SELECT ROUND(155, -47);
+ROUND
 1.01234567890123456000
+(1 row)
 [ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'ROUND' defined with given parameter types (INTEGER, NUMERIC)
 Error with syntax near (line 1, column 8):
 

@@ -124,18 +124,36 @@ SELECT * FROM names WHERE 'abcd' AND NOT 1=1;
 [ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INPUT_SYNTAX_BOOL : Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
 [ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INPUT_SYNTAX_BOOL : Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
 [ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INPUT_SYNTAX_BOOL : Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
+???
 
 
 
 
 
 
+(6 rows)
+???
 
 
 
 
 
 
+(6 rows)
+ID|FIRSTNAME|LASTNAME
+(0 rows)
+ID|FIRSTNAME|LASTNAME
+(0 rows)
+COL1|COL2
+(0 rows)
+COL2
 
+(1 row)
+COL1|COL2|COL3
+(0 rows)
+COL1|COL2
+(0 rows)
 [ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_MULTIPLE_ROWS : More than one row returned by a subquery used as an expression
+ID|FIRSTNAME|LASTNAME
+(0 rows)
 [ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_MULTIPLE_ROWS : More than one row returned by a subquery used as an expression

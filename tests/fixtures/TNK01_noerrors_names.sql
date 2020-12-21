@@ -166,10 +166,10 @@ SELECT ((col1::varchar)::integer)*((col2::varchar)::integer) FROM ((SELECT NULL 
 SELECT * FROM names WHERE id = NULL;
 SELECT * FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT NULL AS col1, NULL AS id)) u1 WHERE id = NULL;
 SELECT * FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT NULL AS col1, NULL AS id)) u1 WHERE id != NULL;
-SELECT * FROM (SELECT NULL AS col1, NULL AS col2) AS u1 WHERE u1.col1 = NULL;
+SELECT * FROM (SELECT NULL::VARCHAR AS col1, NULL AS col2) AS u1 WHERE u1.col1 = NULL;
 SELECT COUNT(col2) FROM ((SELECT NULL AS col1, NULL AS col2) UNION (SELECT NULL AS col1, 1 AS col2)) u1 having COUNT(u1.col2) = NULL;
 -- -- The result of comparing column values evaluates to true for only those rows which are not NULL
-SELECT * FROM (SELECT NULL AS col1, NULL AS col2) AS u1 WHERE u1.col1 = u1.col2;
+SELECT * FROM (SELECT NULL::VARCHAR AS col1, NULL::VARCHAR AS col2) AS u1 WHERE u1.col1 = u1.col2;
 SELECT * FROM ((SELECT NULL AS col1, NULL AS col2) UNION (SELECT 1 AS col1, 1 AS col2)) AS u1 WHERE u1.col1 = u1.col2;
 
 -- Logical AND
@@ -220,10 +220,10 @@ SELECT COUNT(col2) FROM ((SELECT NULL AS col1, NULL AS col2) UNION (SELECT NULL 
 SELECT * FROM ((SELECT NULL AS col1, NULL AS col2) UNION (SELECT NULL AS col1, 1 AS col2)) AS u1 WHERE u1.col2 IN (1,NULL);
 SELECT * FROM ((SELECT NULL AS col1, NULL AS col2) UNION (SELECT NULL AS col1, 1 AS col2)) AS u1 WHERE u1.col2 BETWEEN 0 AND NULL;
 -- -- CAST operation is performed to escape type checking in postgres
-SELECT * FROM ((SELECT 0 AS col1, NULL AS col2, 3 AS col3 )) AS u1 WHERE (u1.col2 :: INTEGER) BETWEEN (u1.col1 :: INTEGER) AND (u1.col3 :: INTEGER);
+SELECT * FROM ((SELECT 0 AS col1, NULL::INTEGER AS col2, 3 AS col3 )) AS u1 WHERE (u1.col2 :: INTEGER) BETWEEN (u1.col1 :: INTEGER) AND (u1.col3 :: INTEGER);
 -- Result should have 0 rows
-SELECT * FROM (SELECT 1 AS col1, NULL AS col2) AS u1 WHERE u1.col1=(u1.col2 :: INTEGER);
-SELECT * FROM (SELECT NULL AS col1, 1 AS col2) AS u1 WHERE (u1.col1 :: INTEGER)=u1.col2;
+SELECT * FROM (SELECT 1 AS col1, NULL::INTEGER AS col2) AS u1 WHERE u1.col1=(u1.col2 :: INTEGER);
+SELECT * FROM (SELECT NULL::INTEGER AS col1, 1 AS col2) AS u1 WHERE (u1.col1 :: INTEGER)=u1.col2;
 
 -- NULL specific comparison predicates
 SELECT NULL is NULL;
@@ -295,10 +295,10 @@ select * from names n1 where NOT (NULL NOT IN (select 1 union select NULL::integ
 select * from names where NULL NOT IN (select id from names where id = 7);
 
 -- Test edge cases in GetScalar^%ydboctoplanhelpers (mostly related to NULL handling)
-select * from names where lastname = (select NULL);
+select * from names where lastname = (select NULL::VARCHAR);
 select * from names where (select NULL) is NULL;
-select * from names where NULL = (select NULL);
-select * from names where NULL < (select NULL);
+select * from names where NULL::VARCHAR = (select NULL::VARCHAR);
+select * from names where NULL::VARCHAR < (select NULL::VARCHAR);
 select * from names where lastname = (select ''::text);
 
 -- Test column name is inherited fine from sub-query in presence of type casts
@@ -344,5 +344,5 @@ select distinct * from ((select NULL::integer as id) union (select 1) union (sel
 select * from (select 1 as id union select 2 union select NULL union select 3) n1 where id in (1,NULL,3);
 
 -- Below query was encountered while fixing OCTO574
-select * from names where (select NULL) = (select NULL);
+select * from names where (select NULL::VARCHAR) = (select NULL::VARCHAR);
 

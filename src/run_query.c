@@ -57,19 +57,15 @@
 		}                                                                                 \
 	}
 
-#define SETUP_PLAN_METADATA_DB_NODE(PLAN_FILENAME, VARNAME, SUBS_ARRAY)       \
+#define GET_PLAN_METADATA_DB_NODE(PLAN_FILENAME, DB_NODE_FOUND, STATUS)       \
 	{                                                                     \
-		YDB_STRING_TO_BUFFER(config->global_names.octo, &VARNAME);    \
-		YDB_LITERAL_TO_BUFFER(OCTOLIT_PLAN_METADATA, &SUBS_ARRAY[0]); \
-		SUBS_ARRAY[1] = PLAN_FILENAME;                                \
-	}
-
-#define GET_PLAN_METADATA_DB_NODE(PLAN_FILENAME, DB_NODE_FOUND, STATUS)          \
-	{                                                                        \
-		ydb_buffer_t varname, subs_array[2];                             \
-                                                                                 \
-		SETUP_PLAN_METADATA_DB_NODE(PLAN_FILENAME, varname, subs_array); \
-		STATUS = ydb_data_s(&varname, 2, subs_array, &DB_NODE_FOUND);    \
+		ydb_buffer_t varname, subs_array[3];                          \
+                                                                              \
+		YDB_STRING_TO_BUFFER(config->global_names.octo, &varname);    \
+		YDB_LITERAL_TO_BUFFER(OCTOLIT_PLAN_METADATA, &subs_array[0]); \
+		subs_array[1] = PLAN_FILENAME;                                \
+		YDB_LITERAL_TO_BUFFER(OCTOLIT_OUTPUT_KEY, &subs_array[2]);    \
+		STATUS = ydb_data_s(&varname, 3, subs_array, &DB_NODE_FOUND); \
 	}
 
 #define CLEANUP_FILENAME_LOCK(I, FILENAME_LOCK, STATUS)                                                   \

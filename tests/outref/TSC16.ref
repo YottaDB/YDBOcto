@@ -20,26 +20,62 @@ select abs(id-1) from (select * from names) limit 1;    -- LP_SUBTRACTION
 select abs(id*1) from (select * from names) limit 1;    -- LP_MULTIPLICATION
 select abs(id/1) from (select * from names) limit 1;    -- LP_DIVISION
 select abs(-id) from (select * from names) limit 1;     -- LP_NEGATIVE
+ABS
 0
 2
 4
 6
 8
 10
+(6 rows)
+ABS
 1.45
+(1 row)
+ABS
 1.45
+(1 row)
+ABS
 1.05
+(1 row)
+ABS
 8.64197532
+(1 row)
+ABS
 1
+(1 row)
+ABS
 1
+(1 row)
+ABS
 0
+(1 row)
+ABS
 0
+(1 row)
+REPLACE
 abcdefgh
+(1 row)
+REPLACE
 abc
+(1 row)
+ABS
 0
+(1 row)
+ABS
 0
+(1 row)
+ABS
 1
+(1 row)
+ABS
 1
+(1 row)
+ABS
 0
+(1 row)
+ABS
 0
+(1 row)
+ABS
 0
+(1 row)

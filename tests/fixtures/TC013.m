@@ -114,6 +114,7 @@ verifycatalog(mjofile,line,nlines)
 	for i=4:1:nlines  do
 	. quit:""=line(i)
 	. if line(i)'["Running : octo -f catalog.sql" write "Verify failed",! zshow "*" halt
+	. if line($increment(i))'="RELNAME|ATTNAME" write "Verify failed",! zshow "*" halt
 	. if line($increment(i))'="LOTSOFCOLS|ID" write "Verify failed",! zshow "*" halt
 	. ; Verify that output is of the form "LOTSOFCOLS|COLx" where x ranges from 1 thru 2**n
 	. for j=i+1:1  quit:('$data(line(j)))!(line(j)'["LOTSOFCOLS")  do
@@ -121,7 +122,8 @@ verifycatalog(mjofile,line,nlines)
 	. set match=0
 	. for k=1:1:logncols set match=((2**k)=(j-1-i)) quit:match
 	. if match=0 write "Verify failed",! zshow "*" halt
-	. set i=j-1
+	. if line(j)'=("("_((2**k)+1)_" rows)") write "Verify failed",! zshow "*" halt
+	. set i=j
 	quit
 
 verifyselect(mjofile,line,nlines)
@@ -132,6 +134,7 @@ verifyselect(mjofile,line,nlines)
 	. quit:""=line(i)
 	. if line(i)'["Running : octo -f select.sql" write "Verify failed",! zshow "*" halt
 	. if $increment(i)
+	. if $increment(i)	; skip the row header with the names of the selected columns
 	. ; Determine the number of columns that got selected by examining the first line.
 	. set ncols=$length(line(i),"|")-1
 	. set match=0
@@ -142,5 +145,5 @@ verifyselect(mjofile,line,nlines)
 	. ; Verify that output is of the form "id|.|.|...|." where the # of dots in each line matches "ncols"
 	. for j=i:1:i+9  do
 	. . if line(j)'=((j-i+1)_"|"_expect) write "Verify failed",! zshow "*" halt
-	. set i=j
+	. set i=j+1	; also skip the line indicating the number of rows selected (e.g. "(10 rows)")
 	quit

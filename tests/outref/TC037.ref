@@ -20,18 +20,22 @@ CREATE TABLE names2 (
 
 SELECT * FROM names2;
 
+ID|FIRSTNAME|LASTNAME
 0|Zero|Cool|Zero
 1|Acid|Burn|Acid
 2|Cereal|Killer|Cereal
 3|Lord|Nikon|Lord
 4|Joey||Joey
 5|Zero|Cool|Zero
+(6 rows)
+ID|FIRSTNAME|LASTNAME
 0|Zero|Cool|Zero
 1|Acid|Burn|Acid
 2|Cereal|Killer|Cereal
 3|Lord|Nikon|Lord
 4|Joey||Joey
 5|Zero|Cool|Zero
+(6 rows)
 # Verify generated plans do not have $PIECE for FIRSTNAME column
 _ydboctoP*.m:    . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers(^names(%ydboctocursor(cursorId,"keys",1,"NAMES2","ID")),0,-1,"VARCHAR")
 _ydboctoP*.m:    . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES2","ID"))),"|",1),0,-1,"VARCHAR")

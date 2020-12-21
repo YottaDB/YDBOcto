@@ -26,3 +26,5 @@ SELECT * FROM TC041;
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM TC041;
 
 # Run [octo -f input-255char.sql] and verify no error message
+ID|COL1|COL2|COL3|COL4
+(0 rows)

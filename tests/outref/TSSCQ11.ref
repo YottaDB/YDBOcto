@@ -95,6 +95,7 @@ null|public|PG_TYPE|TABLE|null|||||
 null|public|USERS|TABLE|null|||||
 
 ----- OCTO -----
+TABLE_CAT|TABLE_SCHEM|TABLE_NAME|TABLE_TYPE|REMARKS|TYPE_CAT|TYPE_SCHEM|TYPE_NAME|SELF_REFERENCING_COL_NAME|REF_GENERATION
 |public|INFORMATION_SCHEMA.TABLES|TABLE||||||
 |public|NAMES|TABLE||||||
 |public|NAMESWITHAGES|TABLE||||||
@@ -114,3 +115,4 @@ null|public|USERS|TABLE|null|||||
 |public|PG_PROC|TABLE||||||
 |public|PG_TYPE|TABLE||||||
 |public|USERS|TABLE||||||
+(19 rows)

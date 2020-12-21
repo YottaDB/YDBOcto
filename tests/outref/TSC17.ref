@@ -7,19 +7,31 @@ select 1+3%2 from names limit 1;
 select (1+3)%2 from names limit 1;
 select 2*3%2 from names limit 1;
 select (1+id)*2%5 from names;
+???|???
 1|0
+(1 row)
+ID
 0
 1
 2
 0
 1
 2
+(6 rows)
+???
 2
+(1 row)
+???
 0
+(1 row)
+???
 0
+(1 row)
+ID
 2
 4
 1
 3
 0
 2
+(6 rows)

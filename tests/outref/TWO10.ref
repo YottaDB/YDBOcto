@@ -1,3 +1,5 @@
+ID|FIRSTNAME|LASTNAME|AGE|DATETIME|ID|FIRSTNAME|LASTNAME|AGE|DATETIME|ID|FIRSTNAME|LASTNAME|AGE|DATETIME|ID|FIRSTNAME|LASTNAME|AGE|DATETIME
+(0 rows)
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  SELECT * FROM namesWithAges AS t1
@@ -27,14 +29,14 @@ octoPlan1(cursorId)
     . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
     . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))),"|",3),0,-1,"INTEGER")
     . . . . SET %ydboctoexpr(2)=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
-    . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",5))
+    . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
     . . . . SET %ydboctoexpr=-%ydboctoexpr
     . . . . SET %ydboctoexpr=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . SET %ydboctoexpr=%ydboctoexpr(2)'=%ydboctoexpr
     . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))),"|",3),0,-1,"INTEGER")
     . . . . SET %ydboctoexpr(2)=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
-    . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",6))
+    . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",2))
     . . . . SET %ydboctoexpr=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . SET %ydboctoexpr=%ydboctoexpr(2)'=%ydboctoexpr
     . . . . SET %ydboctoexpr=%ydboctoexpr(1)&%ydboctoexpr

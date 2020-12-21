@@ -235,3 +235,5 @@ ORDER  BY data_type,
 [ INFO] PATH:LINENUM DATE TIME : INFO_GENERATING_XREF : Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_TYPE] and column [OID]
 [ INFO] PATH:LINENUM DATE TIME : INFO_GENERATING_XREF : Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_CATALOG.PG_TYPE] and column [TYPTYPE]
 [ INFO] PATH:LINENUM DATE TIME : INFO_ENTERING_FUNCTION : Entering print_temporary_table
+TYPE_CAT|TYPE_SCHEM|TYPE_NAME|CLASS_NAME|DATA_TYPE|REMARKS|BASE_TYPE
+(0 rows)

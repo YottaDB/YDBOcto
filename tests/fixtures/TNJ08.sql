@@ -12,6 +12,6 @@
 
 -- TNJ08 : OCTO537 : Incorrect results when NATURAL JOIN is used with OUTER JOIN in same query
 
-SELECT n1.id, n1.firstname, n2.id, n2.firstname, n3.id, n3.firstname FROM (SELECT 1 AS id, 'Name1' AS firstname) n1 NATURAL JOIN (SELECT 1 AS id, 'Name2' AS firstname) n2 LEFT JOIN (SELECT 2 AS id, 'Name3' AS firstname) n3 ON 1 = 1;
-SELECT n1.id, n1.firstname, n2.id, n2.firstname, n3.id, n3.firstname FROM (SELECT 1 AS id, 'Name1' AS firstname) n1 NATURAL JOIN (SELECT 1 AS id, 'Name2' AS firstname) n2 LEFT JOIN (select 2 AS id, 'Name3' AS firstname) n3 ON 1 = 0;
+SELECT n1.id, n1.firstname, n2.id, n2.firstname, n3.id, n3.firstname FROM (SELECT 1 AS id, 'Name1'::VARCHAR AS firstname) n1 NATURAL JOIN (SELECT 1 AS id, 'Name2'::VARCHAR AS firstname) n2 LEFT JOIN (SELECT 2 AS id, 'Name3'::VARCHAR AS firstname) n3 ON 1 = 1;
+SELECT n1.id, n1.firstname, n2.id, n2.firstname, n3.id, n3.firstname FROM (SELECT 1 AS id, 'Name1'::VARCHAR AS firstname) n1 NATURAL JOIN (SELECT 1 AS id, 'Name2'::VARCHAR AS firstname) n2 LEFT JOIN (select 2 AS id, 'Name3'::VARCHAR AS firstname) n3 ON 1 = 0;
 

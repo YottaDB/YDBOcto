@@ -66,9 +66,11 @@ select * from names n1 left join nameswithages names on n1.id = names.id;
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from ((select * from names union select * from names) union (select * from names union select * from names)) n1 left join names n1 on n1.id = n1.id;
 [ERROR] PATH:LINENUM DATE TIME : ERR_JOIN_ALIAS_DUPLICATE : table name 'N1' specified more than once
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from (((select * from names union select * from names) union (select * from names union select * from names)) union ((select * from names union select * from names) union (select * from names union select * from names))) n1 left join names n1 on n1.id = n1.id;
+ID|FIRSTNAME|LASTNAME|ID|FIRSTNAME|LASTNAME|AGE|DATETIME
 0|Zero|Cool|0|Zero|Cool||DATE TIME
 1|Acid|Burn|1|Acid|Burn||DATE TIME
 2|Cereal|Killer|2|Cereal|Killer||DATE TIME
 3|Lord|Nikon|3|Lord|Nikon||DATE TIME
 4|Joey||4|Joey|||DATE TIME
 5|Zero|Cool|5|Zero|Cool||DATE TIME
+(6 rows)

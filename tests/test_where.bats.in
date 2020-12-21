@@ -90,7 +90,7 @@ SELECT CASE firstName
 FROM names
 WHERE firstName = "Zero";
 OCTO
-  [[ "$(grep -c "|" output.txt)" == "2" ]]
+  [[ "$(grep -c "|" output.txt)" == "3" ]]
 }
 
 @test "TW08 :where with a string inequality" {
@@ -100,7 +100,7 @@ FROM names
 WHERE firstName < "Zero";
 OCTO
   [[ "$(grep -c "Zero" output.txt)" == "0" ]]
-  [[ "$(grep -c "|" output.txt)" != "0" ]]
+  [[ "$(grep -c "|" output.txt)" != "1" ]]
 }
 
 @test "TW09 :where with a string inequality which is not Z" {
@@ -110,14 +110,14 @@ FROM names
 WHERE firstName < "G";
 OCTO
   # Expected response is Acid Burn and Cereal Killer
-  [[ "$(grep -c "|" output.txt)" == "2" ]]
+  [[ "$(grep -c "|" output.txt)" == "3" ]]
   octo <<OCTO &> output2.txt
 SELECT *
 FROM names
 WHERE firstName > "G";
 OCTO
   # Expected response is Zero Cool (twice), Lord Nikon, and Joey
-  [[ "$(grep -c "|" output2.txt)" == "4" ]]
+  [[ "$(grep -c "|" output2.txt)" == "5" ]]
 }
 
 @test "TW10 :verify having a function in the WHERE doesn't break anything" {
@@ -127,7 +127,7 @@ SELECT *
 FROM names
 WHERE MPIECE(firstName, "e", 1) = "Z"
 OCTO
-  [[ "$(grep -c "|" output.txt)" == "2" ]]
+  [[ "$(grep -c "|" output.txt)" == "3" ]]
 }
 
 @test "TW11 :where with a regex comparison" {
@@ -136,7 +136,7 @@ SELECT *
 FROM names
 WHERE firstName ~ "^Z";
 OCTO
-  [[ "$(grep -c "|" output.txt)" == "2" ]]
+  [[ "$(grep -c "|" output.txt)" == "3" ]]
 }
 
 @test "TW12 :where with a regex comparison that fails due to case" {
@@ -145,7 +145,7 @@ SELECT *
 FROM names
 WHERE firstName ~ "^z";
 OCTO
-  [[ "$(grep -c "|" output.txt)" == "0" ]]
+  [[ "$(grep -c "|" output.txt)" == "1" ]]
 }
 
 @test "TW13 :where with a regex comparison that is case insensitive" {
@@ -154,7 +154,7 @@ SELECT *
 FROM names
 WHERE firstName ~* "^z";
 OCTO
-  [[ "$(grep -c "|" output.txt)" == "2" ]]
+  [[ "$(grep -c "|" output.txt)" == "3" ]]
 }
 
 @test "TW14 :where IN with a value-list" {
@@ -163,7 +163,7 @@ SELECT *
 FROM names
 WHERE firstName IN ("Zero", "Acid");
 OCTO
-  [[ "$(grep -c "|" output.txt)" == "3" ]]
+  [[ "$(grep -c "|" output.txt)" == "4" ]]
 }
 
 @test "TW15 :where NOT IN with a value-list" {
@@ -172,7 +172,7 @@ SELECT *
 FROM names
 WHERE firstName NOT IN ("Zero", "Acid");
 OCTO
-  [[ "$(grep -c "|" output.txt)" == "3" ]]
+  [[ "$(grep -c "|" output.txt)" == "4" ]]
   [[ "$(grep -c "Zero|" output.txt)" == "0" ]]
 }
 

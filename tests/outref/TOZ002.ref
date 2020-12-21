@@ -1,4 +1,6 @@
+ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
+(1 row)
 Listing of dirA should see generated object file
 _ydboctoP*.o
 Listing of dirB should see generated M file

@@ -1,0 +1,41 @@
+
+-- Test that column aliases are inherited from subquery into parent query column alias
+SELECT id,(SELECT firstname FROM names LIMIT 1), lastname FROM names;
+SELECT id,(SELECT firstname FROM names LIMIT 1 UNION SELECT firstname FROM names LIMIT 1), lastname FROM names;
+
+-- Test that queries that only differ in alias names do show the respective alias names in the column header
+SELECT id AS ALIAS1 FROM names;
+SELECT id AS ALIAS2 FROM names;
+
+ID|FIRSTNAME|LASTNAME
+0|Zero|Cool
+1|Zero|Burn
+2|Zero|Killer
+3|Zero|Nikon
+4|Zero|
+5|Zero|Cool
+(6 rows)
+ID|FIRSTNAME|LASTNAME
+0|Zero|Cool
+1|Zero|Burn
+2|Zero|Killer
+3|Zero|Nikon
+4|Zero|
+5|Zero|Cool
+(6 rows)
+ALIAS1
+0
+1
+2
+3
+4
+5
+(6 rows)
+ALIAS2
+0
+1
+2
+3
+4
+5
+(6 rows)

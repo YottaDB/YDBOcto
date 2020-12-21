@@ -3,27 +3,35 @@ select id from names as "n1";
 select id from names as "n2";
 select id from names as 'lmo';
 select id from names as 'klm';
+ID
 0
 1
 2
 3
 4
 5
+(6 rows)
+ID
 0
 1
 2
 3
 4
 5
+(6 rows)
+ID
 0
 1
 2
 3
 4
 5
+(6 rows)
+ID
 0
 1
 2
 3
 4
 5
+(6 rows)

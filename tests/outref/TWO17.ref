@@ -63,10 +63,12 @@ LP_SELECT_QUERY:
     - xref_key: false
     - uses_xref_key: false
 
+ID
 0
 1
 2
 3
 4
 5
+(6 rows)
 # Make sure that there is no ZYSQLNULL check present

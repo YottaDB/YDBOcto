@@ -4,4 +4,6 @@ Error with syntax near (line 1, column 26):
 select * from names where notathing = 0;
                           ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names where notathing = 0;
+ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
+(1 row)

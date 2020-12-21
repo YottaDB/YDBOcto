@@ -31,54 +31,70 @@ select * from names order by 1.235,-12345678901234567890;
 select * from names order by -1.235,12345678901234567890;
 select * from names order by 1,2,-12345678901234567890;
 
+ID|FIRSTNAME|LASTNAME
 5|Zero|Cool
 4|Joey|
 3|Lord|Nikon
 2|Cereal|Killer
 1|Acid|Burn
 0|Zero|Cool
+(6 rows)
+ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 5|Zero|Cool
 3|Lord|Nikon
 4|Joey|
 2|Cereal|Killer
 1|Acid|Burn
+(6 rows)
+ID|FIRSTNAME|LASTNAME
 1|Acid|Burn
 0|Zero|Cool
 5|Zero|Cool
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
+(6 rows)
+ID|FIRSTNAME|LASTNAME
 1|Acid|Burn
 5|Zero|Cool
 0|Zero|Cool
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
+(6 rows)
+ID|FIRSTNAME|LASTNAME
 1|Acid|Burn
 0|Zero|Cool
 5|Zero|Cool
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
+(6 rows)
+ID|FIRSTNAME|LASTNAME
 1|Acid|Burn
 2|Cereal|Killer
 4|Joey|
 3|Lord|Nikon
 5|Zero|Cool
 0|Zero|Cool
+(6 rows)
+ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
+(6 rows)
+ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
+(6 rows)
 [ERROR] PATH:LINENUM DATE TIME : ERR_ORDER_BY_POSITION_INVALID : ORDER BY position 4 is not in select list
 Error with syntax near (line 2, column 30):
 

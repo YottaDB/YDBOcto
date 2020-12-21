@@ -9,24 +9,46 @@ select * from easynames where id = 1 or id = 2 or id = 10 order by name limit 1;
 select * from easynames where id = 1 or id = 2 or id = 10 order by name limit 2;
 select * from easynames where id = 1 or id = 2 or id = 10 order by name limit 3;
 select * from easynames where id = 1 or id = 2 or id = 10 order by name limit 4;
+ID|NAME
+(0 rows)
+ID|NAME
 1|Name1
-1|Name1
-2|Name2
-1|Name1
-2|Name2
-10|Name0
-1|Name1
-2|Name2
-10|Name0
-10|Name0
+(1 row)
+ID|NAME
 1|Name1
 2|Name2
-10|Name0
-10|Name0
-1|Name1
-10|Name0
+(2 rows)
+ID|NAME
 1|Name1
 2|Name2
 10|Name0
+(3 rows)
+ID|NAME
 1|Name1
 2|Name2
+10|Name0
+(3 rows)
+ID|NAME
+10|Name0
+1|Name1
+2|Name2
+(3 rows)
+ID|NAME
+(0 rows)
+ID|NAME
+10|Name0
+(1 row)
+ID|NAME
+10|Name0
+1|Name1
+(2 rows)
+ID|NAME
+10|Name0
+1|Name1
+2|Name2
+(3 rows)
+ID|NAME
+10|Name0
+1|Name1
+2|Name2
+(3 rows)

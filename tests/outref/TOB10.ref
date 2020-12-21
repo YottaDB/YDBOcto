@@ -30,24 +30,31 @@ SELECT * FROM (SELECT id, MODULO(id,2) AS newid2, MODULO(id,3) AS newid3 FROM na
 SELECT * FROM (SELECT * FROM (SELECT id, MODULO(id,2) AS newid2, MODULO(id,3) AS newid3 FROM names) n1) n2 ORDER BY newid3 desc, newid2;
 SELECT * FROM (SELECT * FROM (SELECT id, MODULO(id,2) AS newid1, firstname FROM names UNION ALL SELECT id, MODULO(id,3) AS newid2, lastname FROM names) n1) n2 ORDER BY newid2;
 
+ID|NEWID
 0|0
 2|0
 4|0
 1|1
 3|1
 5|1
+(6 rows)
+ID|NEWID
 0|0
 2|0
 4|0
 1|1
 3|1
 5|1
+(6 rows)
+ID|FIRSTNAME|NEWID
 0|Zero|0
 2|Cereal|0
 4|Joey|0
 1|Acid|1
 3|Lord|1
 5|Zero|1
+(6 rows)
+ID|NEWID1
 0|0
 2|0
 4|0
@@ -60,6 +67,8 @@ SELECT * FROM (SELECT * FROM (SELECT id, MODULO(id,2) AS newid1, firstname FROM 
 4|1
 2|2
 5|2
+(12 rows)
+ID|NEWID1
 0|0
 2|0
 4|0
@@ -72,18 +81,23 @@ SELECT * FROM (SELECT * FROM (SELECT id, MODULO(id,2) AS newid1, firstname FROM 
 4|1
 2|2
 5|2
+(12 rows)
+ID|NEWID2|NEWID3
 3|1|0
 0|0|0
 1|1|1
 4|0|1
 5|1|2
 2|0|2
+(6 rows)
+ID|NEWID2|NEWID3
 2|0|2
 5|1|2
 4|0|1
 1|1|1
 0|0|0
 3|1|0
+(6 rows)
 [ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: NEWID2
 Error with syntax near (line 2, column 153):
 
@@ -92,24 +106,31 @@ SELECT * FROM (SELECT * FROM (SELECT id, id%2 AS newid1, firstname FROM names UN
                                                                                                                                                         ^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- ORDER BY column name derived from sub-query but is not the first column name encountered in the SET/UNION operation. Should error out
 SELECT * FROM (SELECT * FROM (SELECT id, id%2 AS newid1, firstname FROM names UNION ALL SELECT id, id%3 AS newid2, lastname FROM names) n1) n2 ORDER BY newid2;
+ID|NEWID
 0|0
 2|0
 4|0
 1|1
 3|1
 5|1
+(6 rows)
+ID|NEWID
 0|0
 2|0
 4|0
 1|1
 3|1
 5|1
+(6 rows)
+ID|FIRSTNAME|NEWID
 0|Zero|0
 2|Cereal|0
 4|Joey|0
 1|Acid|1
 3|Lord|1
 5|Zero|1
+(6 rows)
+ID|NEWID1
 0|0
 2|0
 4|0
@@ -122,6 +143,8 @@ SELECT * FROM (SELECT * FROM (SELECT id, id%2 AS newid1, firstname FROM names UN
 4|1
 2|2
 5|2
+(12 rows)
+ID|NEWID1
 0|0
 2|0
 4|0
@@ -134,18 +157,23 @@ SELECT * FROM (SELECT * FROM (SELECT id, id%2 AS newid1, firstname FROM names UN
 4|1
 2|2
 5|2
+(12 rows)
+ID|NEWID2|NEWID3
 3|1|0
 0|0|0
 1|1|1
 4|0|1
 5|1|2
 2|0|2
+(6 rows)
+ID|NEWID2|NEWID3
 2|0|2
 5|1|2
 4|0|1
 1|1|1
 0|0|0
 3|1|0
+(6 rows)
 [ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: NEWID2
 Error with syntax near (line 1, column 169):
 

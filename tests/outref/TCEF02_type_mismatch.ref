@@ -4,4 +4,6 @@ Error with syntax near (line 1, column 19):
 
 SELECT NULLIF(1, '1');
                    ^
+NULLIF
 
+(1 row)

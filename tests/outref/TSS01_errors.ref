@@ -98,9 +98,11 @@ select id and id from names;
               ^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id and id from names;
 [ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INPUT_SYNTAX_BOOL : Invalid input syntax for type boolean: 'Zero' is not a valid boolean value
+COL1
 
 
 
 
 
 
+(6 rows)

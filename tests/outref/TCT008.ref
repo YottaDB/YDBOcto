@@ -6,8 +6,12 @@ CREATE FUNCTION DOLLARREV(INTEGER) RETURNS VARCHAR AS $REVERSE;
 select DOLLARZWRITE(id)::integer from names limit 1;
 select DOLLARREV(id)::integer from names limit 1;
 
+DOLLARZWRITE
 0
+(1 row)
+DOLLARREV
 0
+(1 row)
 Listing of M files, should see 2
 _ydboctoP*.m
 _ydboctoP*.m

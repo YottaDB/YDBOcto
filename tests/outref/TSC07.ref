@@ -1,56 +1,68 @@
 Running query file query1.sql : [select * from (select * from names as n2) as n1;]
 -------------------------------------------------
+ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
+(6 rows)
 
 Running query file query2.sql : [select * from (select * from names as n2);]
 -------------------------------------------------
+ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
+(6 rows)
 
 Running query file query3.sql : [select * from (select * from names) as n1;]
 -------------------------------------------------
+ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
+(6 rows)
 
 Running query file query4.sql : [select * from (select * from names);]
 -------------------------------------------------
+ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
+(6 rows)
 
 Running query file query5.sql : [select * from (select firstname from names) as n1;]
 -------------------------------------------------
+FIRSTNAME
 Zero
 Acid
 Cereal
 Lord
 Joey
 Zero
+(6 rows)
 
 Running query file query6.sql : [select * from (select firstname from names);]
 -------------------------------------------------
+FIRSTNAME
 Zero
 Acid
 Cereal
 Lord
 Joey
 Zero
+(6 rows)
 
 Running query file query7.sql : [select * from (select invalid from names) as n1;]
 -------------------------------------------------
@@ -94,21 +106,25 @@ select * from (select n1.invalid from names) as n1;
 
 Running query file query11.sql : [select * from (select n2.firstname from names as n2) as n1;]
 -------------------------------------------------
+FIRSTNAME
 Zero
 Acid
 Cereal
 Lord
 Joey
 Zero
+(6 rows)
 
 Running query file query12.sql : [select * from (select n2.firstname from names as n2);]
 -------------------------------------------------
+FIRSTNAME
 Zero
 Acid
 Cereal
 Lord
 Joey
 Zero
+(6 rows)
 
 Running query file query13.sql : [select * from (select n2.invalid from names as n2) as n1;]
 -------------------------------------------------
@@ -132,57 +148,69 @@ select * from (select n2.invalid from names as n2);
 
 Running query file query15.sql : [select firstname from (select * from names as n2) as n1;]
 -------------------------------------------------
+FIRSTNAME
 Zero
 Acid
 Cereal
 Lord
 Joey
 Zero
+(6 rows)
 
 Running query file query16.sql : [select firstname from (select * from names as n2);]
 -------------------------------------------------
+FIRSTNAME
 Zero
 Acid
 Cereal
 Lord
 Joey
 Zero
+(6 rows)
 
 Running query file query17.sql : [select firstname from (select * from names) as n1;]
 -------------------------------------------------
+FIRSTNAME
 Zero
 Acid
 Cereal
 Lord
 Joey
 Zero
+(6 rows)
 
 Running query file query18.sql : [select firstname from (select * from names);]
 -------------------------------------------------
+FIRSTNAME
 Zero
 Acid
 Cereal
 Lord
 Joey
 Zero
+(6 rows)
 
 Running query file query19.sql : [select firstname from (select firstname from names) as n1;]
 -------------------------------------------------
+FIRSTNAME
 Zero
 Acid
 Cereal
 Lord
 Joey
 Zero
+(6 rows)
 
 Running query file query20.sql : [select firstname from (select firstname from names);]
 -------------------------------------------------
+FIRSTNAME
 Zero
 Acid
 Cereal
 Lord
 Joey
 Zero
+(6 rows)
 
 Running query file query21.sql : [select firstname from (select invalid from names) as n1;]
 -------------------------------------------------
@@ -261,12 +289,14 @@ select firstname from (select n1.invalid from names) as n1;
 
 Running query file query27.sql : [select firstname from (select n2.firstname from names as n2);]
 -------------------------------------------------
+FIRSTNAME
 Zero
 Acid
 Cereal
 Lord
 Joey
 Zero
+(6 rows)
 
 Running query file query28.sql : [select firstname from (select n2.invalid from names as n2);]
 -------------------------------------------------
@@ -530,21 +560,25 @@ select invalid1 from (select invalid as invalid1 from names);
 
 Running query file query51.sql : [select n1.firstname from (select * from names as n2) as n1;]
 -------------------------------------------------
+FIRSTNAME
 Zero
 Acid
 Cereal
 Lord
 Joey
 Zero
+(6 rows)
 
 Running query file query52.sql : [select n1.firstname from (select * from names) as n1;]
 -------------------------------------------------
+FIRSTNAME
 Zero
 Acid
 Cereal
 Lord
 Joey
 Zero
+(6 rows)
 
 Running query file query53.sql : [select n1.firstname from (select n1.firstname from names) as n1;]
 -------------------------------------------------
@@ -573,12 +607,14 @@ select n1.firstname from (select n1.invalid from names) as n1;
 
 Running query file query55.sql : [select n1.firstname from (select n2.firstname from names as n2) as n1;]
 -------------------------------------------------
+FIRSTNAME
 Zero
 Acid
 Cereal
 Lord
 Joey
 Zero
+(6 rows)
 
 Running query file query56.sql : [select n1.firstname from (select n2.invalid from names as n2) as n1;]
 -------------------------------------------------
@@ -777,10 +813,12 @@ select n2.invalid1 from (select n2.invalid2 from names as n2);
 
 Running query file query72.sql : [select NULL as a from names order by a;]
 -------------------------------------------------
+A
 
 
 
 
 
 
+(6 rows)
 

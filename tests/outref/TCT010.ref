@@ -5,27 +5,33 @@ select id/2 from names;
 select id::integer/2 from names;
 select id::numeric/2 from names;
 
+ID
 0
 .5
 1
 1.5
 2
 2.5
+(6 rows)
+ID
 0
 .5
 1
 1.5
 2
 2.5
+(6 rows)
+ID
 0
 .5
 1
 1.5
 2
 2.5
+(6 rows)
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
-;  select id::integer/2 from names;
+;  select id::numeric/2 from names;
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId)
@@ -40,7 +46,7 @@ octoPlan1(cursorId)
     . IF %ydboctoexpr DO
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
-    . . SET %ydboctoexpr=((%ydboctoexpr)\1)
+    . . SET %ydboctoexpr=(+(%ydboctoexpr))
     . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
     . . SET %ydboctoexpr=%ydboctoexpr(1)/%ydboctoexpr
@@ -72,7 +78,7 @@ octoPlan1(cursorId)
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
-;  select id::numeric/2 from names;
+;  select id::integer/2 from names;
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId)
@@ -87,7 +93,7 @@ octoPlan1(cursorId)
     . IF %ydboctoexpr DO
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
-    . . SET %ydboctoexpr=(+(%ydboctoexpr))
+    . . SET %ydboctoexpr=((%ydboctoexpr)\1)
     . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
     . . SET %ydboctoexpr=%ydboctoexpr(1)/%ydboctoexpr

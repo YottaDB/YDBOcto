@@ -61,6 +61,5 @@ setup() {
 	echo "SELECT * from names where \"B$longstring\" != \"$longstring\";" >> in.sql
 	octo -f in.sql &> output.txt
 	# Need outref since PostgreSQL doesn't support double-quote string literals but treats them as identifiers
-	# May reuse TBR001.ref since only half of the above queries will return results, resulting in the same output for both tests
-	verify_output TBR001 output.txt
+	verify_output TBR002 output.txt
 }

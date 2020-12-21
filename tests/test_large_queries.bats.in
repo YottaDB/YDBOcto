@@ -19,16 +19,16 @@ setup() {
   load_fixture largecolnames.zwr
 }
 
-@test "TLQ01 : octo -f on query larger than 10MiB" {
-  yottadb -run gt10mb^genlargequery
+@test "TLQ01 : octo -f on query larger than 1MiB" {
+  yottadb -run gt1mb^genlargequery
   octo -f in.sql 2>&1 | tee output.txt
-  if (( 10485760 >= $(stat --printf="%s\n" _ydboctoP*.m) )); then
+  if (( 1048576 >= $(stat --printf="%s\n" _ydboctoP*.m) )); then
     echo "FAIL: generated m routine is too small"
     ls -l _ydbocto*.m
   else
-     echo "PASS: generated M routine is correctly over 10MiB"
+     echo "PASS: generated M routine is correctly over 1MiB"
   fi
-  yottadb -r gt10mbOutB^genlargequery
+  yottadb -r gt1mbOut^genlargequery
   sed '/\[ INFO\]\|^INFO:/d' output.txt > clean_output.txt
   # check that the full query is printed in the header of the generated M code
   awk 'BEGIN {p = 0} /^;; -*$/ {p = 0} NR == 3 {p = 1} p {print substr($0, 4)}' _ydboctoP* > query.cmp

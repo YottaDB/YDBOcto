@@ -3,8 +3,10 @@
 
 select firstName, lastName from names union select firstName, lastName from names;
 
+FIRSTNAME|LASTNAME
 Zero|Cool
 Acid|Burn
 Cereal|Killer
 Lord|Nikon
 Joey|
+(5 rows)

@@ -23,27 +23,37 @@ SELECT OVERLOADEDFUNC(1::boolean) FROM names;
 -- Parameter type: BOOLEAN; return type: BOOLEAN
 SELECT  * FROM names where firstname = OVERLOADEDFUNC(true)::varchar;
 
+OVERLOADEDFUNC
 12.5hello
 12.5hello
 12.5hello
 12.5hello
 12.5hello
 12.5hello
+(6 rows)
+OVERLOADEDFUNC
 1.221
 1.221
 1.221
 1.221
 1.221
 1.221
+(6 rows)
+OVERLOADEDFUNC
 hello2
 hello2
 hello2
 hello2
 hello2
 hello2
+(6 rows)
+OVERLOADEDFUNC
 1
 1
 1
 1
 1
 1
+(6 rows)
+ID|FIRSTNAME|LASTNAME
+(0 rows)

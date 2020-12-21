@@ -5,6 +5,7 @@ SELECT a.id as A_id, b.id as B_id FROM names a INNER JOIN names b ON a.firstName
 UNION
 SELECT id as A_id, NULL AS B_id FROM names a WHERE a.firstName NOT IN (SELECT b.firstName FROM names b);
 
+A_ID|B_ID
 0|0
 0|5
 1|1
@@ -13,3 +14,4 @@ SELECT id as A_id, NULL AS B_id FROM names a WHERE a.firstName NOT IN (SELECT b.
 4|4
 5|0
 5|5
+(8 rows)

@@ -90,9 +90,11 @@ Error with syntax near (line 1, column 96):
 SELECT DISTINCT id,(SELECT n1.lastname FROM names n1 LIMIT 1),firstname FROM names ORDER BY id,(SELECT n2.lastname FROM names n2 ORDER BY n2.lastname LIMIT 1),firstname;
                                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT DISTINCT id,(SELECT n1.lastname FROM names n1 LIMIT 1),firstname FROM names ORDER BY id,(SELECT n2.lastname FROM names n2 ORDER BY n2.lastname LIMIT 1),firstname;
+ID|LASTNAME|FIRSTNAME
 0|Cool|Zero
 1|Cool|Acid
 2|Cool|Cereal
 3|Cool|Lord
 4|Cool|Joey
 5|Cool|Zero
+(6 rows)

@@ -101,36 +101,96 @@ CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 3, lastnam
  -- SIMPLE2 QUERY30
 SELECT * from SIMPLE2;
 
+ID
 1
+(1 row)
+ID|FIRSTNAME
 1|First
+(1 row)
+ID|FIRSTNAME
 1|First
+(1 row)
+ID|FIRSTNAME
 1|
+(1 row)
+ID|FIRSTNAME
 1|
+(1 row)
+ID|FIRSTNAME|LASTNAME
 1|First|Last
+(1 row)
+ID|FIRSTNAME|LASTNAME
 1|First|
+(1 row)
+ID|FIRSTNAME|LASTNAME
 1|First|First
+(1 row)
+ID|FIRSTNAME|LASTNAME
 1|First|Last
+(1 row)
+ID|FIRSTNAME|LASTNAME
 1|First|
+(1 row)
+ID|FIRSTNAME|LASTNAME
 1||First
+(1 row)
+ID|FIRSTNAME|LASTNAME
 1||
+(1 row)
+ID|FIRSTNAME|LASTNAME
 1||First
+(1 row)
+ID|FIRSTNAME|LASTNAME
 1||Last
+(1 row)
+ID|FIRSTNAME|LASTNAME
 1||
+(1 row)
+ID|FIRSTNAME|LASTNAME
 1|First|First
+(1 row)
+ID|FIRSTNAME|LASTNAME
 1|First|
+(1 row)
+ID|FIRSTNAME|LASTNAME
 1|First|First
+(1 row)
+ID|FIRSTNAME|LASTNAME
 1|First|Last
+(1 row)
+ID|FIRSTNAME|LASTNAME
 1|First|
+(1 row)
+ID|FIRSTNAME|LASTNAME
 1|Last|First
+(1 row)
+ID|FIRSTNAME|LASTNAME
 1|Last|
+(1 row)
+ID|FIRSTNAME|LASTNAME
 1|Last|First
+(1 row)
+ID|FIRSTNAME|LASTNAME
 1|Last|Last
+(1 row)
+ID|FIRSTNAME|LASTNAME
 1|Last|
+(1 row)
+ID|FIRSTNAME|LASTNAME
 1||First
+(1 row)
+ID|FIRSTNAME|LASTNAME
 1||
+(1 row)
+ID|FIRSTNAME|LASTNAME
 1||First
+(1 row)
+ID|FIRSTNAME|LASTNAME
 1||Last
+(1 row)
+ID|FIRSTNAME|LASTNAME
 1||
+(1 row)
 _ydboctoP*.m:;  -- SIMPLE1 QUERY05
 _ydboctoP*.m:;  -- SIMPLE2 QUERY30
 _ydboctoP*.m:;  -- SIMPLE0 QUERY01

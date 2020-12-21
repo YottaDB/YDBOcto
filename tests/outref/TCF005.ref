@@ -12,11 +12,13 @@ SELECT id, MODULO(id,2) FROM names;
 -- Map function to non-existing extrinsic function (mixed case)
 CREATE FUNCTION MODULO(INTEGER, INTEGER) RETURNS INTEGER AS $$^mOdUlO;
 SELECT id, MODULO(id,2) FROM names;
+ID|MODULO
 0|0
 1|1
 2|0
 3|1
 4|0
 5|1
+(6 rows)
 [ERROR] PATH:LINENUM DATE TIME : ERR_YOTTADB : YottaDB error: 150373978,octoPlan1+14^%ydboctoP*,%YDB-E-ZLINKFILE, Error while zlinking "modulo",%YDB-E-FILENOTFND, File modulo not found
 [ERROR] PATH:LINENUM DATE TIME : ERR_YOTTADB : YottaDB error: 150373978,octoPlan1+14^%ydboctoP*,%YDB-E-ZLINKFILE, Error while zlinking "mOdUlO",%YDB-E-FILENOTFND, File mOdUlO not found

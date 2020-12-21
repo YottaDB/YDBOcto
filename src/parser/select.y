@@ -371,13 +371,10 @@ optional_as
 as_name
   : IDENTIFIER_ALONE {
   	SqlStatement	*ret;
-	int		status;
 
 	ret = $IDENTIFIER_ALONE;
 	ret->loc = yyloc;
-	status = as_name(ret, parse_context);
-	if (0 != status)
-		YYABORT;
+	as_name(ret);
 	$$ = ret;
       }
   | LITERAL {
@@ -389,11 +386,7 @@ as_name
 		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
 		YYERROR;
 	} else {
-		int	status;
-
-		status = as_name(ret, parse_context);
-		if (0 != status)
-			YYABORT;
+		as_name(ret);
 	}
     }
   ;

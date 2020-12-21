@@ -6,9 +6,11 @@
 --> But it errors out in Postgres with "ERROR:  aggregate functions are not allowed in WHERE".
 SELECT * FROM names n1 WHERE n1.firstName IN (SELECT n2.firstname FROM names n2 GROUP BY n2.firstname HAVING n2.firstname = MAX(n1.firstname));
 
+ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
+(6 rows)

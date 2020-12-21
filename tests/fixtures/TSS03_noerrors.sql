@@ -44,5 +44,5 @@ select (select firstname from names limit 1) || (select lastname from names limi
 SELECT * FROM names a WHERE a.firstName = (SELECT b.firstName FROM names b WHERE -a.id = b.id);
 
 -- Sub-query that returns a scalar NULL (== 1 row, == 1 column)
-SELECT * FROM names a WHERE a.firstName = (SELECT NULL);
+SELECT * FROM names a WHERE a.firstName = (SELECT NULL::VARCHAR);
 

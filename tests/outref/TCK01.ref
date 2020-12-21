@@ -1,2 +1,4 @@
+ORDER1_ID
+(0 rows)
     FOR  SET %ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID")
     . . FOR  SET %ydboctocursor(cursorId,"keys",2,"ORDER_ORDER_ACTIONS","ORDER_ORDER_ACTIONS_ID")

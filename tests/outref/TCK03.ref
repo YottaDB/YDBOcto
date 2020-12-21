@@ -1,3 +1,4 @@
+NAME
 Name1
 Name2
 Name3
@@ -8,6 +9,7 @@ Name7
 Name8
 Name9
 Name10
+(10 rows)
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  SELECT c1.name FROM composite c1
@@ -42,12 +44,12 @@ octoPlan1(cursorId)
     . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
     . . . . . . . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^composite(%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID1"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID2"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID3"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID4"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID5"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID6"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID7"))),"|",1),0,-1,"VARCHAR")
     . . . . . . . . SET %ydboctoexpr(2)=%ydboctoexpr
-    . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",4))
+    . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
     . . . . . . . . SET %ydboctoexpr=$$regexmatch^%ydboctoplanhelpers(%ydboctoexpr(2),%ydboctoexpr,1,0)
     . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID1")
     . . . . . . . . SET %ydboctoexpr(2)=%ydboctoexpr
-    . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",5))
+    . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",2))
     . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(2)<%ydboctoexpr
     . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)!%ydboctoexpr
     . . . . . . . . IF %ydboctoexpr DO

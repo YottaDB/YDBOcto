@@ -1,6 +1,10 @@
 # Run TPP01.sql that generates M xref routine and stores corresponding xref plan related gvn in database
+ID|FIRSTNAME|LASTNAME
 3|Lord|Nikon
+(1 row)
 # KILL ^%ydboctoxref but keep _ydboctoX*.{m,o} intact to create out-of-sync situation
 # Run TPP01.sql again. Should return NO rows (incorrect result) because ^%ydboctoxref was killed
+ID|FIRSTNAME|LASTNAME
+(0 rows)
 # Verify ^%ydboctoxref was NOT rebuilt. Running [ZWRITE ^%ydboctoxref]. Output below
 Error occurred: 150372994,%XCMD+5^%XCMD,%YDB-E-GVUNDEF, Global variable undefined: ^%ydboctoxref

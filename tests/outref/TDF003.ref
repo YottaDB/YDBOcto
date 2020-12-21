@@ -13,24 +13,28 @@ SELECT PARMLESSFUNC() FROM names;
 DROP FUNCTION PARMLESSFUNC;
 SELECT PARMLESSFUNC() FROM names;
 
+PARMLESSFUNC
 SUCCESS
 SUCCESS
 SUCCESS
 SUCCESS
 SUCCESS
 SUCCESS
+(6 rows)
 [ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'PARMLESSFUNC' defined with given parameter types (none)
 Error with syntax near (line 1, column 8):
 
 SELECT PARMLESSFUNC() FROM names;
        ^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT PARMLESSFUNC() FROM names;
+PARMLESSFUNC
 SUCCESS
 SUCCESS
 SUCCESS
 SUCCESS
 SUCCESS
 SUCCESS
+(6 rows)
 [ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'PARMLESSFUNC' defined with given parameter types (none)
 Error with syntax near (line 1, column 8):
 

@@ -64,7 +64,7 @@ select * from names where firstName = "; hello world";
 OCTO
   run cat output.txt
   ! [[ "$output" =~ "ERROR" ]]
-  [[ $(grep -c "|" output.txt) == "0" ]]
+  [[ $(grep -c "|" output.txt) == "1" ]]
 }
 
 # @test "TSC00G : select from table with multiple keys" {
@@ -167,7 +167,7 @@ SELECT firstName /* We need first names */
 # We're going to try a different kind of comment here, just because
 FROM names;
 OCTO
-  [[ "$(grep -c "|" output.txt)" == "6" ]]
+  [[ "$(grep -c "|" output.txt)" == "7" ]]
 }
 
 @test "TSC00N : order by a calculated column" {
@@ -181,7 +181,7 @@ WHERE nspname <> 'pg_toast'
     replace((pg_catalog.current_schemas(true))[1], 'pg_temp_', 'pg_toast_temp_'))
 ORDER BY TABLE_SCHEM;
 OCTO
-  [[ $(grep -c "|" output.txt) -eq 3 ]]
+  [[ $(grep -c "|" output.txt) -eq 4 ]]
 }
 
 @test "TSC00O : cast int column to text" {
@@ -190,7 +190,7 @@ SELECT *
 FROM names
 WHERE (id :: text) = "0";
 OCTO
-  [[ "$(grep -c "|" output.txt)" == "1" ]]
+  [[ "$(grep -c "|" output.txt)" == "2" ]]
 }
 
 @test "TSC00P : verify that columns are cleaned after data is sent" {

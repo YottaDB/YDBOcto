@@ -38,9 +38,23 @@ void lp_optimize_cross_join(LogicalPlan *plan, LogicalPlan *table_join, LogicalP
 	boolean_t *id_seen_array;	/* a 1-d array storing whether an id has already been added to
 					 * "sorted_array".
 					 */
-	LogicalPlan *	 left, *right, *start_right, *next_left, *next_right, *cur_table_join, *tmp;
-	enum SqlJoinType next_join_type;
+	LogicalPlan *	    left, *right, *start_right, *next_left, *next_right, *cur_table_join, *tmp;
+	enum SqlJoinType    next_join_type;
+	SqlOptionalKeyword *keywords, *new_keyword;
 
+	keywords = lp_get_select_keywords(plan)->v.lp_keywords.keywords;
+	new_keyword = get_keyword_from_keywords(keywords, OPTIONAL_BOOLEAN_EXPANSION);
+	if (NULL != new_keyword) {
+		/* This plan is one of many sibling plans each corresponding to a term in the DNF expansion of the WHERE clause
+		 * (that contains at least one OR operator). In that case, reordering one of these sibling plans for cross join
+		 * optimization could pose problems when duplicate checks (implemented by the "emit_duplication_check" member
+		 * in the "PhysicalPlan" structure) happen at the end of each physical plan (corresponding to the sibling logical
+		 * plans) as the duplicate check is based on the primary keys corresponding to the order of the tables in the
+		 * FROM/JOIN list involved and should have the same order in all the sibling plans. Hence disable the cross-join
+		 * reordering optimization in that case as it can reorder the tables in the FROM/JOIN list.
+		 */
+		return;
+	}
 	assert(LP_TABLE_JOIN == table_join->type);
 	/* Allocate an array of table joins (instead of the linked list that we come in with) as it helps do things faster.
 	 * Towards that, first find number of CROSS JOINs that can potentially be moved to the front of the FROM/JOIN list.

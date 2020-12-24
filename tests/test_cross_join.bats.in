@@ -115,3 +115,7 @@ OCTO
   verify_output TCJ11 output.txt
 }
 
+@test "TCJ12 : OCTO652 : Incorrect results if CROSS JOIN is used with OR operator in the WHERE clause" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCJ12.sql
+}
+

@@ -81,7 +81,9 @@ DROP TABLE test1;
 SELECT '-- Test that valid queries work fine after an INSERT INTO query that had an error midway';
 SELECT * FROM names WHERE id = 4;
 
+???
 -- Test ERR_INSERT_TYPE_MISMATCH error
+(1 row)
 [ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_TYPE_MISMATCH : Column 'ID' is of type INTEGER but expression is of type VARCHAR
 Error with syntax near (line 1, column 26):
 
@@ -150,7 +152,9 @@ Error with syntax near (line 1, column 49):
 INSERT INTO names(firstname,id,lastname) SELECT * FROM names;
                                                 ^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names(firstname,id,lastname) SELECT * FROM names;
+???
 -- Test ERR_INSERT_TOO_MANY_EXPRESSIONS error
+(1 row)
 [ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_TOO_MANY_EXPRESSIONS : INSERT has more expressions than target columns
 Error with syntax near (line 1, column 48):
 
@@ -181,14 +185,18 @@ Error with syntax near (line 1, column 53):
 INSERT INTO names(id,firstname) SELECT id,firstname,id FROM names;
                                                     ^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names(id,firstname) SELECT id,firstname,id FROM names;
+???
 -- Test ERR_INSERT_TOO_MANY_COLUMNS error
+(1 row)
 [ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_TOO_MANY_COLUMNS : INSERT has more target columns than expressions
 Error with syntax near (line 1, column 22):
 
 INSERT INTO names(id,firstname) SELECT id FROM names;
                      ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names(id,firstname) SELECT id FROM names;
+???
 -- Test ERR_TABLE_UNKNOWN_COLUMN_NAME error
+(1 row)
 [ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_UNKNOWN_COLUMN_NAME : Column 'INVALID' of table 'NAMES' does not exist
 Error with syntax near (line 1, column 19):
 
@@ -207,14 +215,18 @@ Error with syntax near (line 1, column 31):
 INSERT INTO names(id,lastname,invalid) SELECT * FROM names;
                               ^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names(id,lastname,invalid) SELECT * FROM names;
+???
 -- Test that only ERR_TABLE_UNKNOWN_COLUMN_NAME error is issued if ERR_DUPLICATE_COLUMN error also exists
+(1 row)
 [ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_UNKNOWN_COLUMN_NAME : Column 'INVALID' of table 'NAMES' does not exist
 Error with syntax near (line 1, column 19):
 
 INSERT INTO names(invalid,invalid) SELECT * FROM names;
                   ^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names(invalid,invalid) SELECT * FROM names;
+???
 -- Test ERR_DUPLICATE_COLUMN error
+(1 row)
 [ERROR] PATH:LINENUM DATE TIME : ERR_DUPLICATE_COLUMN : Column 'ID' specified more than once
 Error with syntax near (line 1, column 30):
 
@@ -233,29 +245,59 @@ Error with syntax near (line 1, column 32):
 INSERT INTO names(id,firstname,firstname,firstname,lastname) SELECT * FROM names;
                                ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names(id,firstname,firstname,firstname,lastname) SELECT * FROM names;
+???
 -- Simple ERR_VARCHAR_TOO_LONG error test case
+(1 row)
 [ERROR] PATH:LINENUM DATE TIME : ERR_VARCHAR_TOO_LONG : Value too long for type VARCHAR(3)
 [ERROR] PATH:LINENUM DATE TIME : ERR_VARCHAR_TOO_LONG : Value too long for type VARCHAR(3)
+ID|COLUMN1
+(0 rows)
+???
 -- Fancy ERR_VARCHAR_TOO_LONG error test case
+(1 row)
+???
 -- Test that VARCHAR(4) does not allow 7 character strings to be stored if not all last 3 characters are spaces.
+(1 row)
 [ERROR] PATH:LINENUM DATE TIME : ERR_VARCHAR_TOO_LONG : Value too long for type VARCHAR(4)
 [ERROR] PATH:LINENUM DATE TIME : ERR_VARCHAR_TOO_LONG : Value too long for type VARCHAR(4)
 [ERROR] PATH:LINENUM DATE TIME : ERR_VARCHAR_TOO_LONG : Value too long for type VARCHAR(4)
 [ERROR] PATH:LINENUM DATE TIME : ERR_VARCHAR_TOO_LONG : Value too long for type VARCHAR(4)
 [ERROR] PATH:LINENUM DATE TIME : ERR_VARCHAR_TOO_LONG : Value too long for type VARCHAR(4)
 [ERROR] PATH:LINENUM DATE TIME : ERR_VARCHAR_TOO_LONG : Value too long for type VARCHAR(4)
+COLUMN1
+(0 rows)
+???
 -- Fancier ERR_VARCHAR_TOO_LONG error test case
+(1 row)
+???
 -- Test that an over length value when typecast to varchar(N) will be truncated to N characters
+(1 row)
+???
 -- And that and an error will be issued if N is over length compared to the maximum column size
+(1 row)
 [ERROR] PATH:LINENUM DATE TIME : ERR_VARCHAR_TOO_LONG : Value too long for type VARCHAR(4)
 [ERROR] PATH:LINENUM DATE TIME : ERR_VARCHAR_TOO_LONG : Value too long for type VARCHAR(4)
+COLUMN1
+(0 rows)
+???
 -- Test of ERR_NUMERIC_OVERFLOW
+(1 row)
 [ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_OVERFLOW : Numeric field overflow; A field with precision 2, scale 1 must round to an absolute value less than 10^1
 [ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_OVERFLOW : Numeric field overflow; A field with precision 2, scale 1 must round to an absolute value less than 10^1
 [ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_OVERFLOW : Numeric field overflow; A field with precision 2, scale 1 must round to an absolute value less than 10^1
 [ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_OVERFLOW : Numeric field overflow; A field with precision 2, scale 1 must round to an absolute value less than 10^1
+???
 -- Test of VARCHAR_TOO_LONG midway in the INSERT INTO
+(1 row)
 [ERROR] PATH:LINENUM DATE TIME : ERR_VARCHAR_TOO_LONG : Value too long for type VARCHAR(3)
+???
 -- Verify that no rows are inserted at the end (expecting no rows to be output below)
+(1 row)
+ID|COLUMN1
+(0 rows)
+???
 -- Test that valid queries work fine after an INSERT INTO query that had an error midway
+(1 row)
+ID|FIRSTNAME|LASTNAME
 4|Joey|
+(1 row)

@@ -9,8 +9,10 @@ INSERT INTO namesLastNameXref (SELECT lastName, id FROM NAMES WHERE lastName <> 
 SELECT * FROM namesLastNameXref;
 DROP TABLE namesLastNameXref;
 
+LASTNAME|ID
 Burn|1
 Cool|0
 Cool|5
 Killer|2
 Nikon|3
+(5 rows)

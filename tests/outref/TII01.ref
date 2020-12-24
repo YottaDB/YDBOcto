@@ -6,5 +6,7 @@ INSERT INTO names2 (SELECT * FROM names WHERE firstName='Zero');
 SELECT * FROM names2;
 DROP TABLE names2;
 
+ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 5|Zero|Cool
+(2 rows)

@@ -75,19 +75,36 @@ INSERT INTO test4 VALUES (-9.501);
 SELECT * FROM test4;
 DROP TABLE test4;
 
+???
 
+(1 row)
+???
  -- NAMES table BEFORE INSERT INTO : Has 6 rows
+(1 row)
+ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
+(6 rows)
+???
 
+(1 row)
+???
  -- INSERT INTO
+(1 row)
+???
  -- Add every existing row of NAMES table into same table resulting in 2x rows
+(1 row)
+???
 
+(1 row)
+???
  -- NAMES table AFTER various INSERT INTO operations; Has 21 rows, id=0 thru id=20
+(1 row)
+ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -109,18 +126,36 @@ DROP TABLE test4;
 18|First18|Last18
 19|First19|Last19
 20|First20|Last20
+(21 rows)
+???
 
+(1 row)
+???
  -- CUSTOMERS table BEFORE INSERT INTO : Has 5 rows
+(1 row)
+CUSTOMER_ID|FIRST_NAME|LAST_NAME|EMAIL|ADDRESS|CITY|STATE|ZIPCODE
 1|George|Washington|gwashington@usa.gov|3200 Mt Vernon Hwy|Mount Vernon|VA|22121
 2|John|Adams|jadams@usa.gov|1250 Hancock St|Quincy|MA|02169
 3|Thomas|Jefferson|tjefferson@usa.gov|931 Thomas Jefferson Pkwy|Charlottesville|VA|22902
 4|James|Madison|jmadison@usa.gov|11350 Constitution Hwy|Orange|VA|22960
 5|James|Monroe|jmonroe@usa.gov|2050 James Monroe Parkway|Charlottesville|VA|22902
+(5 rows)
+???
 
+(1 row)
+???
  -- INSERT INTO
+(1 row)
+???
  -- Add every existing row of CUSTOMERS table into same table resulting in 2x rows
+(1 row)
+???
 
+(1 row)
+???
  -- CUSTOMERS table AFTER INSERT INTO : Has 10 rows (twice original number)
+(1 row)
+CUSTOMER_ID|FIRST_NAME|LAST_NAME|EMAIL|ADDRESS|CITY|STATE|ZIPCODE
 1|George|Washington|gwashington@usa.gov|3200 Mt Vernon Hwy|Mount Vernon|VA|22121
 2|John|Adams|jadams@usa.gov|1250 Hancock St|Quincy|MA|02169
 3|Thomas|Jefferson|tjefferson@usa.gov|931 Thomas Jefferson Pkwy|Charlottesville|VA|22902
@@ -131,8 +166,14 @@ DROP TABLE test4;
 8|Thomas|Jefferson|tjefferson@usa.gov|931 Thomas Jefferson Pkwy|Charlottesville|VA|22902
 9|James|Madison|jmadison@usa.gov|11350 Constitution Hwy|Orange|VA|22960
 10|James|Monroe|jmonroe@usa.gov|2050 James Monroe Parkway|Charlottesville|VA|22902
+(10 rows)
+???
 
+(1 row)
+???
  -- COMPOSITE table BEFORE INSERT INTO : Has 10 rows
+(1 row)
+ID0|ID1|ID2|ID3|ID4|ID5|ID6|ID7|NAME
 0|1|2|3|4|5|6|7|Name1
 0|1|2|3|4|5|6|8|Name2
 0|1|2|3|4|5|7|7|Name3
@@ -143,11 +184,23 @@ DROP TABLE test4;
 0|1|3|4|5|6|8|7|Name8
 0|2|3|4|5|6|8|7|Name9
 1|2|3|4|5|6|8|7|Name10
+(10 rows)
+???
 
+(1 row)
+???
  -- INSERT INTO
+(1 row)
+???
  -- Add every existing row of COMPOSITE table into same table resulting in 2x rows
+(1 row)
+???
 
+(1 row)
+???
  -- COMPOSITE table AFTER INSERT INTO : Has 20 rows (twice original number)
+(1 row)
+ID0|ID1|ID2|ID3|ID4|ID5|ID6|ID7|NAME
 0|1|2|3|4|5|6|7|Name1
 0|1|2|3|4|5|6|8|Name2
 0|1|2|3|4|5|7|7|Name3
@@ -168,20 +221,44 @@ DROP TABLE test4;
 0|2|3|4|5|8|8|7|Name9
 1|2|3|4|5|6|8|7|Name10
 1|2|3|4|5|8|8|7|Name10
+(20 rows)
+???
 
+(1 row)
+???
 -- Test that VARCHAR(4) allows character strings shorter than 4 chars to be stored without space padding at end
+(1 row)
+COLUMN1
 |a|
 |ab|
 |abc|
+(3 rows)
+???
 
+(1 row)
+???
 -- Test that VARCHAR(4) allows 7 character strings to be stored if last 3 characters are spaces
+(1 row)
+COLUMN1
 |abc |
 |abcd|
+(2 rows)
+???
 
+(1 row)
+???
 -- Test that an over length value when typecast to varchar(N) will be truncated to N characters without an error
+(1 row)
+COLUMN1
 |ab|
+(1 row)
+???
 
+(1 row)
+???
 -- Test that excess digits to right of decimal point in NUMERIC(PRECISION,SCALE) column are discarded without an error
+(1 row)
+COLUMN1
 -9.5
 -7.5
 -6.4
@@ -189,3 +266,4 @@ DROP TABLE test4;
 5.2
 9.5
 3.0
+(7 rows)

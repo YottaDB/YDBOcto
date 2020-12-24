@@ -10,8 +10,10 @@ INSERT INTO namesXfer (SELECT * FROM names WHERE lastName <> '');
 SELECT * FROM namesXfer;
 DROP TABLE namesXfer;
 
+ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 5|Zero|Cool
+(5 rows)

@@ -69,6 +69,11 @@ if [ -x "$(command -v ctest3)" ]; then
 else
   ctestCommand="ctest"
 fi
+
+if [[ "test-auto-upgrade" != $jobname ]]; then
+  # Enable valgrind when running tests. This has less than a 30 second slowdown out of a 35 minute build.
+  ctestCommand="$ctestCommand -T memcheck"
+fi
 echo " -> ctestCommand = $ctestCommand"
 
 echo "# Install the YottaDB POSIX plugin"
@@ -439,6 +444,12 @@ PSQL
 	${ctestCommand} -j `grep -c ^processor /proc/cpuinfo`
 	exit_status=$?
 	echo " -> exit_status from ${ctestCommand} = $exit_status"
+
+	# If we ran valgrind, ctest puts the logs in a different file for some reason.
+	if [ $use_valgrind = 1 ]; then
+		mv Testing/Temporary/LastDynamicAnalysis* Testing/Temporary/LastTest.log
+	fi
+
 	# Re-enable "set -e" now that ctest is done.
 	set -e
 	# Unset verbose mode as the below for loop and bats-test.* usages can print thousands of lines
@@ -497,6 +508,15 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 		set -v
 		set -x
 	fi
+	# Don't print hundreds of lines of logfiles
+	set +x
+	for file in Testing/Temporary/MemoryChecker.*.log; do
+		if [ -s $file ]; then
+			echo "ERROR  : Octo leaked memory or accessed uninitialized bytes in build/$file"
+			exit_status=1
+		fi
+	done
+	set -x
 	if [[ 0 == $exit_status ]]; then
 		if [[ $build_type != "RelWithDebInfo" || $disable_install != "OFF" ]]; then
 			echo "# Rebuild Octo for packaging as it wasn't a RelWithDebInfo build or was built with installation disabled"

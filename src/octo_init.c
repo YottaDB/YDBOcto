@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -159,6 +159,7 @@ int merge_config_file(const char *path, config_t **config_file, enum config_kind
 		default_octo_conf = (char *)malloc(octo_conf_default_len + 1);
 		memcpy(default_octo_conf, octo_conf_default, octo_conf_default_len);
 		default_octo_conf[octo_conf_default_len] = '\0';
+		// TODO: this leaks memory for the same reason as `parse_config_file_settings` (see below).
 		status = config_read_string(new_config_file, default_octo_conf);
 		free(default_octo_conf);
 		if (CONFIG_FALSE == status) {
@@ -176,6 +177,7 @@ int merge_config_file(const char *path, config_t **config_file, enum config_kind
 	merge_config_file_helper(b_root, a_root);
 	CLEANUP_CONFIG(*config_file);
 	*config_file = new_config_file;
+	// TODO: this function leaks memory. See !656 for ideas on how to fix it, and why it will be hard.
 	status = parse_config_file_settings(path, *config_file);
 	return status;
 }
@@ -570,6 +572,7 @@ int populate_global_names() {
 	return 0;
 }
 
+// TODO: this function leaks about half a kilobyte of memory
 void init_crypto() {
 	/* Load the human readable error strings for libcrypto */
 	ERR_load_crypto_strings();

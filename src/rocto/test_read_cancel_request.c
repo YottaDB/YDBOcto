@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -29,6 +29,7 @@ int __wrap_read_bytes(RoctoSession *session, char **buffer, int *buffer_size, in
 	int pid = mock_type(int);
 	int secret_key = mock_type(int);
 	memcpy(*buffer, &pid, bytes_to_read);
+	// TODO: this is technically UB if `buffer` is not long enough. Fortunately it only happens in the test suite.
 	memcpy(&((*buffer)[sizeof(int)]), &secret_key, bytes_to_read);
 	return 0;
 }

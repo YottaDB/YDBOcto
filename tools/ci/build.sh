@@ -24,12 +24,43 @@ start_dir=$(pwd)
 # Below ensures any errors in this script cause it to exit with a non-zero status right away
 set -e
 
-# CMake commands are different between CentOS and Ubuntu
-# disambiguate them here and make it a varible
+compile_octo() {
+	echo "# Compile Octo"
+	# We do not want any failures in "make" or "ninja" to exit the script (need to print the build errors into stdout)
+	# So disable the "set -e" setting temporarily for this step.
+	set +e
+	# Use Ninja by default, but allow overriding it to use Make.
+	if [ "$USE_MAKE" = 1 ]; then
+		make -j `grep -c ^processor /proc/cpuinfo` 2> build_warnings.txt
+	else
+		# Only show warnings in the GitLab UI. Show the full output in `build_warnings.txt`.
+		# See https://ninja-build.org/manual.html#_environment_variables for the syntax of NINJA_STATUS.
+		NINJA_STATUS="[ninja] [%f/%t] " ninja | tee build_warnings.txt | grep -v '^\[ninja\] '
+	fi
+	exit_status=$?
+	if [[ 0 != $exit_status ]]; then
+		cleanup_before_exit
+		echo "# $build_tool failed with exit status [$exit_status]. output follows below"
+		cat build_warnings.txt
+		exit $exit_status
+	fi
+	# Re-enable "set -e" now that "ninja" is done.
+	set -e
+}
+
+# CMake commands are different between CentOS and Ubuntu.
+# Disambiguate them here and make it a variable.
 if [ -x "$(command -v cmake3)" ]; then
   cmakeCommand="cmake3"
 else
   cmakeCommand="cmake"
+fi
+if [ "$USE_MAKE" = 1 ]; then
+	generator="Unix Makefiles"
+	build_tool="make -j $(grep -c ^processor /proc/cpuinfo)"
+else
+	generator=Ninja
+	build_tool=ninja
 fi
 echo " -> cmakeCommand = $cmakeCommand"
 
@@ -224,31 +255,18 @@ cleanup_before_exit() {
 }
 
 echo "# Configure the build system for Octo"
-${cmakeCommand} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=$build_type -DFULL_TEST_SUITE=$full_test -DDISABLE_INSTALL=$disable_install ..
+${cmakeCommand} -G "$generator" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=$build_type -DFULL_TEST_SUITE=$full_test -DDISABLE_INSTALL=$disable_install ..
 if [[ $? -ne 0 ]]; then
 	cleanup_before_exit
 	exit 1
 fi
 
-echo "# Compile Octo"
-# We do not want any failures in "make" to exit the script (need to print the build errors into stdout)
-# So disable the "set -e" setting temporarily for this step.
-set +e
-make -j `grep -c ^processor /proc/cpuinfo` 2> make_warnings.txt
-exit_status=$?
-if [[ 0 != $exit_status ]]; then
-	cleanup_before_exit
-	echo "# make failed with exit status [$exit_status]. make output follows below"
-	cat make_warnings.txt
-	exit $exit_status
-fi
-# Re-enable "set -e" now that "make" is done.
-set -e
+compile_octo
 
 # If this is the "test-auto-upgrade" job, skip steps that are covered by other jobs (e.g. "make-ubuntu" etc.)
 if [[ "test-auto-upgrade" != $jobname ]]; then
 	echo "# Check for unexpected warnings and error/exit if unexpected errors are found"
-	../tools/ci/sort_warnings.sh make_warnings.txt
+	../tools/ci/sort_warnings.sh build_warnings.txt
 	echo " -> Checking for unexpected warning(s) while compiling ... "
 	if [ -x "$(command -v yum)" ]; then
 		if [[ $build_type == "Debug" ]]; then
@@ -339,15 +357,15 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 	}
 	create_tarball
 
-	echo "# Randomly choose to install from tarball or via make install"
+	echo "# Randomly choose to install from tarball or via make/ninja install"
 	if [[ $(( $RANDOM % 2)) -eq 0 ]]; then
 		echo "# install from tarball"
 		cd $tarball_name
 		./octoinstall.sh
 		cd ..
 	else
-		echo "# make install"
-		make install
+		echo "# $build_tool install"
+		$build_tool install
 	fi
 fi
 
@@ -482,8 +500,8 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 	if [[ 0 == $exit_status ]]; then
 		if [[ $build_type != "RelWithDebInfo" || $disable_install != "OFF" ]]; then
 			echo "# Rebuild Octo for packaging as it wasn't a RelWithDebInfo build or was built with installation disabled"
-			${cmakeCommand} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=RelWithDebInfo -DDISABLE_INSTALL=OFF ..
-			make -j `grep -c ^processor /proc/cpuinfo`
+			${cmakeCommand} -G "$generator" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=RelWithDebInfo -DDISABLE_INSTALL=OFF ..
+			$build_tool
 			create_tarball
 		fi
 
@@ -518,26 +536,13 @@ else
 	# Randomly select a power of two to use for altering the size of OCTO_INIT_BUFFER_LEN to test for regressions
 	new_buffer_size=$(( 2 ** ($RANDOM % 11) ))
 	sed -i "s/OCTO_INIT_BUFFER_LEN [0-9]*/OCTO_INIT_BUFFER_LEN $new_buffer_size/" ../src/octo.h
-	${cmakeCommand} $cmakeflags ..
+	${cmakeCommand} -G "$generator" $cmakeflags ..
 	if [[ $? -ne 0 ]]; then
 		cleanup_before_exit
 		exit 1
 	fi
 
-	echo "# Compile Octo"
-	# We do not want any failures in "make" to exit the script (need to print the build errors into stdout)
-	# So disable the "set -e" setting temporarily for this step.
-	set +e
-	make -j `grep -c ^processor /proc/cpuinfo` 2> make_warnings.txt
-	exit_status=$?
-	if [[ 0 != $exit_status ]]; then
-		cleanup_before_exit
-		echo "# make failed with exit status [$exit_status]. make output follows below"
-		cat make_warnings.txt
-		exit $exit_status
-	fi
-	# Re-enable "set -e" now that "make" is done.
-	set -e
+	compile_octo
 	echo "# Cleanup unit test case executables from newsrc directory"
 	rm -rf src/CMakeFiles
 	rm -f src/test_*	# these are the unit test case executables (should not be needed otherwise)

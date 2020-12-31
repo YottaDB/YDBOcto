@@ -1,7 +1,7 @@
 #!/bin/bash -v
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -18,5 +18,9 @@ source /opt/yottadb/current/ydb_env_set
 ./tools/ci/install_posix.sh cmake
 
 cd build
-make docs
+if [ -e Makefile ]; then
+	make docs
+else
+	ninja docs
+fi
 mv html ../public

@@ -188,6 +188,14 @@ The Octo plugin can be installed by using the `--octo` option when installing Yo
    make -j `grep -c ^processor /proc/cpuinfo`
    ```
 
+  You can also use `ninja`, which has more friendly progress output and compiles slightly faster:
+
+  ```sh
+  cmake -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin .. -G Ninja # for CentOS/RedHat use cmake3 instead
+  ninja && sudo ninja install
+  ```
+
+
    Most users: proceed to the *Install Octo* step below. The instructions here are for those wishing to contribute to Octo, or building it on Supportable but not Supported platforms.
 
    To generate a Debug build instead of a Release build (the default), add `-DCMAKE_BUILD_TYPE=Debug` to the CMake line above.

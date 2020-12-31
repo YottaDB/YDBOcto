@@ -155,8 +155,7 @@ OCTO
   # correspond to non-deterministic output.
   cp output.txt clean_output.txt
   sed -i 's/[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\} [0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}/DATE TIME/g' clean_output.txt
-  # Filter file path
-  sed -i 's/\/.*\/.*\.[yc]:[0-9]*/PATH:LINENUM/' clean_output.txt
+  filter_file_path
   # Strip config file loading message as it is irrelevant to the behavior under test and can cause failures depending on
   # installation configuration
   sed -i '/Loading config from/d' clean_output.txt

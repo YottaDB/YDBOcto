@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -57,6 +57,7 @@ ParameterDescription *make_parameter_description(char *statement, RoctoSession *
 		ret->type = PSQL_ParameterDescription;
 		ret->length = htonl(sizeof(int32_t) + sizeof(int16_t) + (sizeof(int32_t) * num_parms));
 		ret->num_parms = htons(num_parms);
+		free(src_subs);
 		return ret;
 	}
 	assert(0 < num_parms);
@@ -76,6 +77,7 @@ ParameterDescription *make_parameter_description(char *statement, RoctoSession *
 		if (YDB_OK != status) {
 			ERROR(ERR_ROCTO_DB_LOOKUP, "make_parameter_description", "parameter type");
 			YDB_FREE_BUFFER(&parm_type_buf);
+			YDB_FREE_BUFFER(&src_subs[5]);
 			free(parm_data_types);
 			free(src_subs);
 			free(ret);
@@ -88,6 +90,7 @@ ParameterDescription *make_parameter_description(char *statement, RoctoSession *
 		} else {
 			ERROR(ERR_LIBCALL, "strtol")
 			YDB_FREE_BUFFER(&parm_type_buf);
+			YDB_FREE_BUFFER(&src_subs[5]);
 			free(parm_data_types);
 			free(src_subs);
 			free(ret);

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -60,6 +60,7 @@ static void test_valid_input_with_parms(void **state) {
 	assert_int_equal(parse->num_parm_data_types, type_params);
 
 	free(test_data);
+	free(parse->parm_data_types);
 	free(parse);
 }
 

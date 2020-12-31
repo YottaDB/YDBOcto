@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -177,7 +177,8 @@ typedef struct __attribute__((packed)) {
 	char	 type;
 	uint32_t length;
 	int16_t	 num_columns;
-	char	 data[];
+	// If `length == 0`, it is undefined behavior to dereference this pointer.
+	char data[];
 } DataRow;
 
 // F

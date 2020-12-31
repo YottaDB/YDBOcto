@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -184,6 +184,7 @@ SqlFunction *find_function(const char *function_name, const char *function_hash)
 	stmt = (void *)buff;
 	decompress_statement((char *)stmt, length);
 	if (NULL == stmt) {
+		OCTO_CFREE(memory_chunks);
 		memory_chunks = old_chunk;
 		return NULL;
 	}
@@ -194,6 +195,7 @@ SqlFunction *find_function(const char *function_name, const char *function_hash)
 	status = ydb_set_s(&loaded_schemas, 3, &function_subs[0], &save_value);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
+		OCTO_CFREE(memory_chunks);
 		memory_chunks = old_chunk;
 		return NULL;
 	}
@@ -204,6 +206,7 @@ SqlFunction *find_function(const char *function_name, const char *function_hash)
 	status = ydb_set_s(&loaded_schemas, 4, &function_subs[0], &save_value);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
+		OCTO_CFREE(memory_chunks);
 		memory_chunks = old_chunk;
 		return NULL;
 	}

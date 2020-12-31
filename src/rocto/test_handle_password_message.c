@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -61,6 +61,7 @@ int __wrap_ydb_get_s(ydb_buffer_t *varname, int32_t subs_used, ydb_buffer_t *sub
 		return 0;
 	}
 
+	free(ret_value->buf_addr);
 	ydb_buffer_t *t = mock_ptr_type(ydb_buffer_t *);
 	*ret_value = *t;
 	return mock_type(int);
@@ -90,6 +91,7 @@ static StartupMessage *make_startup_message(char *parm_name, char *parm_value) {
 	data_len = name_len + value_len;
 
 	ret = (StartupMessage *)malloc(sizeof(StartupMessage) + data_len);
+	assert(NULL != ret);
 
 	// Set length and protocol version
 	ret->length = sizeof(uint32_t) + sizeof(int) + data_len;
@@ -103,6 +105,7 @@ static StartupMessage *make_startup_message(char *parm_name, char *parm_value) {
 
 	// Populate parameter(s)
 	ret->parameters = (StartupMessageParm *)malloc(sizeof(StartupMessageParm) * ret->num_parameters);
+	assert(NULL != ret->parameters);
 	ret->parameters[0].name = parm_name;
 	ret->parameters[0].value = parm_value;
 
@@ -161,6 +164,8 @@ static PasswordMessage *make_password_message(char *user, char *password, char *
 	length += sizeof(uint32_t);
 	length += MD5_PASSWORD_LEN;
 	ret = (PasswordMessage *)malloc(length + sizeof(PasswordMessage) - sizeof(uint32_t));
+	if (NULL == ret)
+		return NULL;
 	memset(ret, 0, length + sizeof(PasswordMessage) - sizeof(uint32_t));
 
 	ret->type = PSQL_PasswordMessage;
@@ -182,6 +187,7 @@ static void test_valid_password_message(void **state) {
 	// MD5 of "passworduser" == 4d45974e13472b5a0be3533de4666414
 	// MD5 of "4d45974e13472b5a0be3533de4666414salt" == 8e998aaa66bd302e5592df3642c16f78
 	assert_string_equal(password_message->password, "md58e998aaa66bd302e5592df3642c16f78");
+	free(password_message);
 }
 
 static void test_valid_input(void **state) {
@@ -420,6 +426,10 @@ static void test_error_missing_username() {
 
 	// Since we are missing a `user` field, octo should give an error
 	assert_int_not_equal(handle_password_message(password_message, startup_message, salt), 0);
+
+	free(password_message);
+	free(startup_message->parameters);
+	free(startup_message);
 }
 
 int main(void) {

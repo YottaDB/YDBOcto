@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -107,6 +107,7 @@ static void test_query_length_greater_than_max(void **state) {
 	// change global variable's value back to what it should be
 	cur_input_max = INIT_QUERY_SIZE;
 	assert_int_equal(result, 0);
+	free(query);
 }
 
 static void test_run_query_result_equals_negative_one(void **state) {
@@ -127,6 +128,7 @@ static void test_run_query_result_equals_negative_one(void **state) {
 	result = handle_query(query, &session);
 
 	assert_int_equal(result, -1);
+	free(query);
 }
 
 // Also cannot equal -1, as that would trigger the same thing as the test above
@@ -148,6 +150,7 @@ static void test_run_query_result_does_not_equal_zero(void **state) {
 	result = handle_query(query, &session);
 
 	assert_int_equal(result, 1);
+	free(query);
 }
 
 int main(void) {
@@ -159,5 +162,7 @@ int main(void) {
 	    cmocka_unit_test(test_run_query_result_equals_negative_one),
 	    cmocka_unit_test(test_run_query_result_does_not_equal_zero),
 	};
-	return cmocka_run_group_tests(tests, NULL, NULL);
+	int status = cmocka_run_group_tests(tests, NULL, NULL);
+	free(input_buffer_combined);
+	return status;
 }

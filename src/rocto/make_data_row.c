@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -45,6 +45,10 @@ DataRow *make_data_row(DataRowParm *parms, int16_t num_parms, int32_t *col_data_
 
 	// Get the length we need to malloc
 	length = 0;
+	if (num_parms != 0) {
+		// We dereference this in the loops below; this turns UB into a crash with a backtrace.
+		assert(parms != NULL);
+	}
 	for (i = 0; i < num_parms; i++) {
 		// Assign column length for the current column based on column format
 		if (0 == parms[i].format) { // Text format
@@ -73,9 +77,7 @@ DataRow *make_data_row(DataRowParm *parms, int16_t num_parms, int32_t *col_data_
 	ret->num_columns = htons(num_parms);
 
 	c = ret->data;
-	if (num_parms == 0 || parms == NULL) {
-		*((int32_t *)c) = htonl(0);
-	} else {
+	if (num_parms != 0) {
 		for (i = 0; i < num_parms; i++) {
 			if (TEXT_FORMAT == parms[i].format) { // Text format
 				COPY_TEXT_PARM(c, parms[i]);

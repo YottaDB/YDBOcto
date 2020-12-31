@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -94,6 +94,7 @@ static void test_no_parms(void **state) {
 	assert_int_equal(dlength, ntohl(description->length));
 
 	free(description);
+	YDB_FREE_BUFFER(&num_parms_buf);
 }
 
 static void test_valid_input_one_parm_no_types(void **state) {
@@ -130,6 +131,7 @@ static void test_valid_input_one_parm_no_types(void **state) {
 	}
 
 	free(description);
+	YDB_FREE_BUFFER(&num_parms_buf);
 }
 
 static void test_valid_input_two_parms_no_types(void **state) {
@@ -169,6 +171,7 @@ static void test_valid_input_two_parms_no_types(void **state) {
 	}
 
 	free(description);
+	YDB_FREE_BUFFER(&num_parms_buf);
 }
 
 static void test_valid_input_three_parms_no_types(void **state) {
@@ -211,6 +214,7 @@ static void test_valid_input_three_parms_no_types(void **state) {
 	}
 
 	free(description);
+	YDB_FREE_BUFFER(&num_parms_buf);
 }
 
 static void test_valid_input_one_parm_one_type(void **state) {
@@ -245,6 +249,7 @@ static void test_valid_input_one_parm_one_type(void **state) {
 	assert_int_equal(PSQL_TypeOid_int4, ntohl(((int32_t *)description->data)[0]));
 
 	free(description);
+	YDB_FREE_BUFFER(&num_parms_buf);
 }
 
 static void test_valid_input_two_parms_one_type(void **state) {
@@ -284,6 +289,7 @@ static void test_valid_input_two_parms_one_type(void **state) {
 	assert_int_equal(PSQL_TypeOid_unknown, ntohl(((int32_t *)description->data)[1]));
 
 	free(description);
+	YDB_FREE_BUFFER(&num_parms_buf);
 }
 
 static void test_valid_input_three_parms_two_types(void **state) {
@@ -328,6 +334,7 @@ static void test_valid_input_three_parms_two_types(void **state) {
 	assert_int_equal(PSQL_TypeOid_unknown, ntohl(((int32_t *)description->data)[2]));
 
 	free(description);
+	YDB_FREE_BUFFER(&num_parms_buf);
 }
 
 static void test_num_parms_ydb_get_s_failure(void **state) {
@@ -356,6 +363,7 @@ static void test_num_parms_ydb_get_s_failure(void **state) {
 	description = make_parameter_description(query, &session);
 
 	assert_null(description);
+	YDB_FREE_BUFFER(&num_parms_buf);
 }
 
 static void test_parm_type_ydb_get_s_failure(void **state) {
@@ -386,6 +394,7 @@ static void test_parm_type_ydb_get_s_failure(void **state) {
 	description = make_parameter_description(query, &session);
 
 	assert_null(description);
+	YDB_FREE_BUFFER(&num_parms_buf);
 }
 int main(void) {
 	octo_init(0, NULL);

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -214,7 +214,7 @@ OCTO
 
 @test "TC014 : Test that CREATE and DROP TABLE do NOT time out if another process is at the OCTO> prompt" {
   (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/TC014.exp > expect.out) &> expect.dbg
-  sed 's/\r//g;s/.*SHELL#/#/g;s/# .*/\n&/g;s/^# #/#/;' expect.out | grep -E '^# |^\[ERROR|^OCTO>|123456' | grep -vE 'PS1|^OCTO> (|exit)$' > output.txt
+  sed 's/\r//g;s/.*SHELL#/#/g;s/.*SHELL$/$/g;s/# .*/\n&/g;s/^# #/#/;' expect.out | grep -E '^# |^\[ERROR|^OCTO>|123456' | grep -vE 'PS1|^OCTO> (|exit)$' > output.txt
   verify_output TC014 output.txt
 }
 
@@ -222,7 +222,7 @@ OCTO
   export octo_dbg_drop_cache_expected=1	# needed to let Octo/Rocto know that concurrent DROP TABLE commands run in this test
   (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/TC015.exp > expect.out) &> expect.dbg
   # Remove <Ctrl-M> characters (carriage return, i.e. \r) from expect output.
-  sed 's/\r//g;s/.*SHELL#/#/g;s/# .*/\n&/g;s/^# #/#/;' expect.out | grep -E "^# |^\[ERROR|^[0-5]" | grep -v PS1 > output.txt
+  sed 's/\r//g;s/.*SHELL#/#/g;s/.*SHELL$/$/g;s/# .*/\n&/g;s/^# #/#/;' expect.out | grep -E "^# |^\[ERROR|^[0-5]" | grep -v PS1 > output.txt
   verify_output TC015 output.txt
 }
 

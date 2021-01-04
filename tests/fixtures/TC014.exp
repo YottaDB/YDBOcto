@@ -1,7 +1,7 @@
 #!/usr/bin/expect
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -13,6 +13,8 @@
 
 spawn /bin/bash
 
+# Wait for shell prompt first. Allow for # or $ prompt. In the pipeline # is the prompt since it runs as the root user id.
+expect -re "\[#\$] "
 # Change shell prompt to something other than "$" or "#" as that is a substring of many YDB/Octo prompts
 # and can cause incorrect match later when we wait for the shell prompt.
 # Note: Changing the shell prompt to SHELL might seem easily achieved as follows.

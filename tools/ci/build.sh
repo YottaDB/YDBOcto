@@ -1,7 +1,7 @@
 #!/bin/bash
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -579,14 +579,22 @@ else
 				continue
 			fi
 			subtest=`sed 's/.*subtest \[//;s/].*//;' bats_test.out`
-			if [[ $subtest =~ "TC011 : " ]]; then
-				# The TC011 subtest used to have invalid queries which issue errors in later commits
-				# For example, "CREATE TABLE names (id NUMERIC(16,18) PRIMARY KEY ..." used to work fine before
-				# But would issue a "ERR_NUMERIC_SCALE" error due to the YDBOcto#636 fixes.
-				# Therefore, the output of octo against these queries using an older commit and the current commit
-				# could be different (depending on the randomly chosen older commit). And that in turn would
-				# cause the "test-auto-upgrade" pipeline job to signal a false failure. Therefore skip this subtest.
-				echo "SKIPPED : $tstdir : TC011 subtest could cause false failures due to YDBOcto#636" >> ../bats_test.txt
+			# ----------------------------------------------------------------------------
+			# Exclude specific set of subtests (reasons explained below)
+			# ----------------------------------------------------------------------------
+			# 1) The TC011 subtest used to have invalid queries which issue errors in later commits
+			#    For example, "CREATE TABLE names (id NUMERIC(16,18) PRIMARY KEY ..." used to work fine before
+			#    But would issue a "ERR_NUMERIC_SCALE" error due to the YDBOcto#636 fixes.
+			#    Therefore, the output of octo against these queries using an older commit and the current commit
+			#    could be different (depending on the randomly chosen older commit). And that in turn would
+			#    cause the "test-auto-upgrade" pipeline job to signal a false failure. Therefore skip this subtest.
+			# 2) The TPC019 subtest runs the query only with "rocto" and expects a ERR_ROCTO_QUERY_TOO_LONG error.
+			#    The same error does not happen with "octo" (which means the query will run further along and
+			#    terminate abnormally due to not enough "stacksize" limit) which is what this test will use.
+			#    Therefore skip this subtest.
+			# ----------------------------------------------------------------------------
+			if [[ ($subtest =~ "TC011 : ") || ($subtest =~ "TPC019 : ") ]]; then
+				echo "SKIPPED : $tstdir : [subtest : $subtest]" >> ../bats_test.txt
 				cd ..
 				rm -rf $tstdir
 				continue
@@ -639,24 +647,29 @@ FILE
 				# "test_query_generator" test because we know this test validates Octo's output against Postgres
 				# and we do not expect any errors in the output of Octo using either the older or newer commit.
 				#
-				# Sometimes TQG* subtests store the octo output in files of the form
+				# Sometimes TQG* subtests store the octo output in files of the form (if they go through JDBC driver)
 				#	TQG06-0_nocomment-000.sql.octo.out
-				# Sometimes they store it in files of the form
+				# Sometimes they store it in files of the form (if they do not go through JDBC driver)
 				#	TQG01-0-000.octo.out
 				# Handle both cases below.
 				octooutfile=""
 				if [[ -e $sqlfile.octo.out ]]; then
 					octooutfile="$sqlfile.octo.out"
+					usedjdbcdriver=1
 				else
 					basename=`echo $sqlfile | sed 's/\.sql//g'`
 					if [[ -e $basename ]]; then
 						octooutfile=$basename
 					fi
+					usedjdbcdriver=0
 				fi
 				if [[ ($subtest =~ ^"TQG") && (! -z $octooutfile) ]]; then
-					# If the random older commit predates the YDBOcto#649 commit, then the octo output
-					# would not contain the row-header and row summary line at the head and tail of the octo output.
-					# So filter that out from the newer Octo build output.
+					# a) If the random older commit predates the YDBOcto#649 commit, then the octo output
+					#    would not contain the row-header and row summary line at the head and tail of the octo output.
+					#    So filter that out from the newer Octo build output.
+					# b) If the random older commit postdates the YDBOcto#649 commit, even then the octo output would
+					#    not contain the row-header and row summary line if the test ran using the JDBC driver.
+					#    So remove the same lines from the octo output of the newer commit.
 					pre_octo649_commit="9c64861100d7f6c6653a75f7b06f036465c2f486"
 					# Disable the "set -e" setting temporarily as the "git merge-base" can return exit status 0 or 1
 					set +e
@@ -664,7 +677,7 @@ FILE
 					is_post_octo649_commit=$?
 					# Re-enable "set -e" now that "git merge-base" invocation is done.
 					set -e
-					if [[ 0 == $is_post_octo649_commit ]]; then
+					if [[ (0 == $is_post_octo649_commit) || (0 != $usedjdbcdriver) ]]; then
 						mv $outfile $outfile.tmp
 						tail -n +2 $outfile.tmp | head -n -1 > $outfile
 					fi

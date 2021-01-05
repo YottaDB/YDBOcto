@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 #################################################################
 #                                                               #
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.       #
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.  #
 # All rights reserved.                                          #
 #                                                               #
 #       This source code contains the intellectual property     #
@@ -75,7 +75,7 @@ def add_unique_id(stmt):
             assert create.count(')') == 1, "`VARCHAR(30)` or any other types with nested parentheses are not supported"
             columns = create[create.index('(') + 1:create.index(')')].split(',')
             # Keep only the names: [a, b, c]
-            columns = list(map(lambda column: column.strip().split(' ')[0], columns))
+            columns = list([column.strip().split(' ')[0] for column in columns])
         # Add our own primary key if one does not already exist.
         # This prevents catastrophically slow joins when there are many columns in a table.
         if primary_key is None:
@@ -125,10 +125,7 @@ def add_unique_id(stmt):
     return stmt
 
 with open("sqllogic{}.sql".format(file_num), 'w') as sql_file:
-    sql_file.writelines(map(
-        lambda line: format(add_unique_id(line)),
-        statements
-    ))
+    sql_file.writelines([format(add_unique_id(line)) for line in statements])
 
 # Now transform the SQL syntax into something MUPIP LOAD understands
 # This supports the following statements:
@@ -148,7 +145,7 @@ with open("sqllogic{}.zwr".format(file_num), 'w') as zwr_file:
         # Allow spaces inside the VALUES list
         table, rest = stmt[0][len("INSERT INTO "):].split(' ', 1)
         # NOTE: does not handle escaping at all
-        values = list(map(lambda s: s.strip().replace("'", ''), rest.split(',')))
+        values = list([s.strip().replace("'", '') for s in rest.split(',')])
         values[0] = values[0].split('VALUES(', 1)[1].lstrip()
         assert values[-1][-1] == ')', "INSERT INTO ... VALUES (...) should end with a ')', got {}".format(values[-1])
         # Python doesn't have a str.pop function
@@ -162,17 +159,14 @@ with open("sqllogic{}.zwr".format(file_num), 'w') as zwr_file:
             schema_columns = tables[table][1]
             assert schema_columns, "attempted a named insert, but the column names for table {} are unknown".format(table)
             # column = (idx, name)
-            values = map(
-                lambda column: column[1],
-                # Sort the inserts by the index of the column in the schema.
-                # https://stackoverflow.com/a/6422808/7669110
-                # For example, given
-                # - schema_columns = (a, b, c)
-                # - insert_columns = (b, c, a)
-                # - values = (1, 2, 3)
-                # outputs (3, 1, 2)
-                sorted(enumerate(values), key=lambda column: schema_columns.index(insert_columns[column[0]]))
-            )
+            # Sort the inserts by the index of the column in the schema.
+            # https://stackoverflow.com/a/6422808/7669110
+            # For example, given
+            # - schema_columns = (a, b, c)
+            # - insert_columns = (b, c, a)
+            # - values = (1, 2, 3)
+            # outputs (3, 1, 2)
+            values = [column[1] for column in sorted(enumerate(values), key=lambda column: schema_columns.index(insert_columns[column[0]]))]
             print(values)
             #assert False, "named inserts are not supported (for insert statement {})".format(stmt[0])
 
@@ -182,7 +176,7 @@ with open("sqllogic{}.zwr".format(file_num), 'w') as zwr_file:
                 return ''
             else:
                 return val
-        values = map(replace_null, values)
+        values = list(map(replace_null, values))
 
         # Finally write out to disk.
         content = '^{}({})="{}"\n'.format(table, values[0], '|'.join(values[1:]))

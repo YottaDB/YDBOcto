@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -16,32 +16,14 @@ FROM yottadb/yottadb-base:latest-master
 # If these steps aren't done, the build will open an interactive prompt to setup tzdata during apt-get install.
 RUN export DEBIAN_FRONTEND=noninteractive
 RUN ln -fs /usr/share/zoneinfo/US/Eastern /etc/localtime
-RUN apt-get update -qq && \
+RUN apt-get update && \
     apt-get install -y tzdata
 RUN dpkg-reconfigure --frontend noninteractive tzdata
-RUN apt-get install -y -qq --no-install-recommends \
-        build-essential \
-        cmake \
-        bison \
-        flex \
-        libcmocka-dev \
-        python-pip \
-        python-setuptools \
-        python-wheel \
-        libreadline-dev \
-        git \
-        libconfig-dev \
-        libssl-dev \
-        postgresql-client \
-        postgresql \
-        xxd \
-        wget
-RUN pip install \
-        sphinxcontrib-fulltoc \
-        sphinx \
-        sphinx_rtd_theme
+RUN apt-get install -y --no-install-recommends build-essential clang clang-tidy clang-format-9 cmake bison flex libcmocka-dev python3-pip python3-setuptools python3-wheel python-is-python3 libreadline-dev git libconfig-dev libssl-dev postgresql-client postgresql xxd wget libgcrypt20-dev libgpgme-dev expect default-jdk
+RUN pip3 install sphinxcontrib-fulltoc sphinx sphinx_rtd_theme
 ENV PATH=/usr/local/go/bin:$PATH
 ENV GOLANG_VERSION=1.13.1
+ENV JDBC_VERSION=42.2.6
 ENV USER=root
 RUN wget -O go.tgz -q https://golang.org/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz
 RUN tar -C /usr/local -xzf go.tgz

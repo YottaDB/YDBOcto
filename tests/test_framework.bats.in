@@ -1,0 +1,45 @@
+#################################################################
+#								#
+# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+  test_port=$(start_rocto 1344)
+}
+
+teardown() {
+  stop_rocto
+}
+
+@test "TF01 : OCTO621 : Verify that the number of comment and no comment query files are same when cross check interface is invoked with JDBC client" {
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/TF0*.sql .
+  for query_file in TF01 TF02 TF03; do
+    run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names "$query_file".sql usejdbc
+    [[ $( ls -dq "$query_file"_comment-*.sql | wc -l ) -eq $( ls -dq "$query_file"_nocomment-*.sql | wc -l ) ]]
+    for file in "$query_file"_comment-*.sql; do
+      echo $file >> comment_output
+      cat $file >> comment_output
+    done
+    for file in "$query_file"_nocomment-*.sql; do
+      echo $file >> nocomment_output
+      cat $file >> nocomment_output
+    done
+    verify_output "$query_file"_comment comment_output
+    verify_output "$query_file"_nocomment nocomment_output
+    rm comment_output nocomment_output
+  done
+}
+

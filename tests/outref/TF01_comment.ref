@@ -1,0 +1,4 @@
+TF01_comment-0.sql
+select firstname from names limit 1;
+TF01_comment-1.sql
+select id from names limit 1;

@@ -1,0 +1,6 @@
+TF03_nocomment-0.sql
+select id from names order by lastname;
+TF03_nocomment-1.sql
+select lastname from names order by firstname;
+TF03_nocomment-2.sql
+select * from names;

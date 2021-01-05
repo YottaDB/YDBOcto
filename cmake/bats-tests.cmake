@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -116,6 +116,7 @@ if("${FULL_TEST_SUITE}" MATCHES "ON")
 	ADD_BATS_TEST(test_not_operator)
 	ADD_BATS_TEST(test_values_clause)
 	ADD_BATS_TEST(test_buffer_resize)
+	ADD_BATS_TEST(test_framework)
 
 	if(psql)
 		ADD_BATS_TEST(test_psql_connection)

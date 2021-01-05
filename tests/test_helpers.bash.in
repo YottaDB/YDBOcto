@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -696,7 +696,7 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 		# Remove commented instructions like -- sort-needed-check or -- rowcount-only-check
 		# and commented queries as they are not handled well by JDBC client
 		sed 's/\s*--.*//' $queryfile &> "$fname"_nocomment.sql
-		mv $queryfile "$fname"_comment.sql
+		sed 's/^\s*--.*//' $queryfile &> "$fname"_comment.sql
 		# Maintaining two copies of the query file with one having comments is required to facilitate
 		# result comparison in run_query_verify.
 		@PROJECT_SOURCE_DIR@/tests/fixtures/sqllogic/split_queries.py "$fname"_comment.sql

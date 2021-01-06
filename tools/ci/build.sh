@@ -16,13 +16,22 @@ set -v
 set -x
 
 jobname=$1	# could be "make-centos", "make-ubuntu", "make-tls-centos", "make-tls-centos" or "test-auto-upgrade"
-subtaskname=$2	# could be "force" or "" in case jobname is "test-auto-upgrade"
+subtaskname=$2 # Could be "force" or "none" in case jobname is "test-auto-upgrade"
 
 source /opt/yottadb/current/ydb_env_set
+set -u # Enable detection of uninitialized variables. Do *after* ydb_env_set since this script relies on uninitialized variables.
 
 start_dir=$(pwd)
 # Below ensures any errors in this script cause it to exit with a non-zero status right away
 set -e
+
+# Compel use of `make` for test-auto-upgrade pipeline job to avoid test failures present with Ninja builds.
+# See the note at https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/863#note_488254228 for details.
+if [[ "test-auto-upgrade" == $jobname && "force" == $subtaskname ]]; then
+	USE_MAKE=1
+else
+	USE_MAKE=0
+fi
 
 compile_octo() {
 	echo "# Compile Octo"
@@ -74,6 +83,8 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
   # Enable valgrind when running tests. This has less than a 30 second slowdown out of a 35 minute build.
   ctestCommand="$ctestCommand -T memcheck"
   use_valgrind=1
+else
+  use_valgrind=0
 fi
 echo " -> ctestCommand = $ctestCommand"
 
@@ -83,8 +94,10 @@ pushd $start_dir
 popd
 
 echo "# Source the ENV script again to YottaDB environment variables after installing POSIX plugin"
+set +u # Temporarily disable detection of uninitialized variables since ydb_env_set relies on them.
 source /opt/yottadb/current/ydb_env_unset
 source /opt/yottadb/current/ydb_env_set
+set -u # Re-enable detection of uninitialized variables
 echo " -> Done setting up POSIX plugin"
 echo " -> ydb_routines: $ydb_routines"
 
@@ -293,7 +306,7 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 		actual="$2"
 		# We do not want any failures in "diff" command below to exit the script (we want to see the actual diff a few steps later).
 		# So never count this step as failing even if the output does not match.
-		diff "$expected" sorted_warnings.txt &> differences.txt || true
+		diff "$expected" "$actual" &> differences.txt || true
 
 		if [ $(wc -l differences.txt | awk '{print $1}') -gt 0 ]; then
 			cleanup_before_exit
@@ -303,7 +316,7 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 			exit 1
 		fi
 	}
-	compare $reference
+	compare $reference sorted_warnings.txt
 
 	# `clang-tidy` is not available on CentOS 7, and YDB tests on 7 to ensure backwards-compatibility.
 	if ! [ -x "$(command -v yum)" ]; then
@@ -312,9 +325,9 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 		../tools/ci/sort_warnings.sh clang_tidy_warnings.txt
 		# In release mode, `assert`s are compiled out and clang-tidy will emit false positives.
 		if [ "$build_type" = Debug ]; then
-			compare ../tools/ci/clang_tidy_warnings.ref
+			compare ../tools/ci/clang_tidy_warnings.ref sorted_warnings.txt
 		else
-			compare ../tools/ci/clang_tidy_warnings-release.ref
+			compare ../tools/ci/clang_tidy_warnings-release.ref sorted_warnings.txt
 		fi
 	fi
 
@@ -328,6 +341,8 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 		platform_arch="$(../tools/get_platform_arch.sh)"
 		if [[ -f $ydb_dist/plugin/libgtmtls.so ]]; then
 			tls_support="tls_"
+		else
+			tls_support=""
 		fi
 		tarball_name="yottadb_octo_${octo_version}_${tls_support}${os_id}${os_version}_${platform_arch}_pro"
 
@@ -377,10 +392,12 @@ fi
 
 # Skip Postgres setup for the forced auto upgrade job as it does not use psql. All the other jobs use it.
 if [[ ("test-auto-upgrade" != $jobname) || ("force" != $subtaskname) ]]; then
+	set +u # Temporarily disable detection of uninitialized variables for the following -z null check
 	if [ -z $USER ]; then
 	  echo " -> export USER=root"
 	  export USER=root
 	fi
+	set -u
 
 	echo "# Start PostgreSQL Server"
 	if [ -f /etc/init.d/postgresql ]; then
@@ -409,8 +426,10 @@ $ydb_dist/mupip set -null_subscripts=always -reg '*'
 
 echo "# Source ydb_env_set after building and installing Octo"
 if [[ $disable_install == "OFF" ]]; then
+	set +u # Temporarily disable detection of uninitialized variables since ydb_env_set relies on them.
 	source /opt/yottadb/current/ydb_env_unset
 	source /opt/yottadb/current/ydb_env_set
+	set -u # Re-enable detection of uninitialized variables
 	echo " -> Done setting up Octo plugin"
 	echo " -> ydb_routines: $ydb_routines"
 else
@@ -834,7 +853,7 @@ FILE
 			echo " --> Processing $queryfile"
 			# Run the "CREATE TABLE" query in oldsrc directory to create the binary table definition
 			cd ../oldsrc; rm -f ../src || true; ln -s oldsrc ../src
-			run_octo $queryfile oldsrc
+			run_octo $queryfile oldsrc novv
 			# Determine table name and generate a query that selects all columns from that table
 			tablename=`grep -n "CREATE TABLE" $queryfile | grep -v "^--" | sed 's/.*CREATE TABLE //;s/(.*//;' | awk '{print $1}'`
 			echo "select * from $tablename;" > $queryfile.2
@@ -846,7 +865,7 @@ FILE
 			# Run an empty query file in the newsrc directory to force an auto upgrade of the binary table definitions
 			cd ../newsrc; rm -f ../src || true; ln -s newsrc ../src
 			echo "" > $queryfile.null
-			run_octo $queryfile.null newsrc
+			run_octo $queryfile.null newsrc novv
 			# Run the SELECT query in newsrc directory
 			run_octo $queryfile.2 newsrc vv	# sets "plan_name" variable due to "vv"
 			new_plan_name=$plan_name

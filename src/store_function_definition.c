@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,14 +20,14 @@
 	}
 
 /* Store the binary or text representation of the CREATE FUNCTION statement in one or more of the following nodes
- *	^%ydboctoschema(OCTOLIT_FUNCTIONS,function_name,function_hash,OCTOLIT_BINARY,0)
- *	^%ydboctoschema(OCTOLIT_FUNCTIONS,function_name,function_hash,OCTOLIT_BINARY,1)
- *	^%ydboctoschema(OCTOLIT_FUNCTIONS,function_name,function_hash,OCTOLIT_BINARY,2)
+ *	^%ydboctoocto(OCTOLIT_FUNCTIONS,function_name,function_hash,OCTOLIT_BINARY,0)
+ *	^%ydboctoocto(OCTOLIT_FUNCTIONS,function_name,function_hash,OCTOLIT_BINARY,1)
+ *	^%ydboctoocto(OCTOLIT_FUNCTIONS,function_name,function_hash,OCTOLIT_BINARY,2)
  *	...
  * OR:
- *	^%ydboctoschema(OCTOLIT_FUNCTIONS,function_name,function_hash,OCTOLIT_TEXT,0)
- *	^%ydboctoschema(OCTOLIT_FUNCTIONS,function_name,function_hash,OCTOLIT_TEXT,1)
- *	^%ydboctoschema(OCTOLIT_FUNCTIONS,function_name,function_hash,OCTOLIT_TEXT,2)
+ *	^%ydboctoocto(OCTOLIT_FUNCTIONS,function_name,function_hash,OCTOLIT_TEXT,0)
+ *	^%ydboctoocto(OCTOLIT_FUNCTIONS,function_name,function_hash,OCTOLIT_TEXT,1)
+ *	^%ydboctoocto(OCTOLIT_FUNCTIONS,function_name,function_hash,OCTOLIT_TEXT,2)
  *	...
  * Each node can store up to MAX_DEFINITION_FRAGMENT_SIZE bytes.
  * Assumes "function_name_buffers" is an array of 5 "ydb_buffer_t" structures with the following initialized

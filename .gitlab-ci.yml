@@ -85,14 +85,14 @@ make-ubuntu:
     - .make
     - .ubuntu
   script:
-    - ./tools/ci/build.sh "make-ubuntu"
+    - ./tools/ci/build.sh "make-ubuntu" "none"
 
 make-centos:
   image: yottadb/yottadb-centos-base:latest-master
   extends:
     - .make
     - .centos
-  script: ./tools/ci/build.sh "make-centos"
+  script: ./tools/ci/build.sh "make-centos" "none"
 
 make-tls-ubuntu:
   image: yottadb/yottadb-base:latest-master
@@ -101,7 +101,7 @@ make-tls-ubuntu:
     - .ubuntu
   script:
     - ./tools/ci/install-tls.sh
-    - ./tools/ci/build.sh "make-tls-ubuntu"
+    - ./tools/ci/build.sh "make-tls-ubuntu" "none"
 
 make-tls-centos:
   image: yottadb/yottadb-centos-base:latest-master
@@ -110,7 +110,7 @@ make-tls-centos:
     - .centos
   script:
     - ./tools/ci/install-tls.sh
-    - ./tools/ci/build.sh "make-tls-centos"
+    - ./tools/ci/build.sh "make-tls-centos" "none"
 
 test-force-upgrade:
   # This job tests auto upgrade functionality of binary table/function definitions by forcing an auto upgrade

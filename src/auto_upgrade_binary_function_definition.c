@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -42,19 +42,32 @@
 		}                                                                               \
 	}
 
+#define CLEANUP_DANGLING_FUNCTION_NODES_AND_RETURN_IF_NEEDED(SUBLIT, OCTO_GLOBAL, FUNCTION_SUBS, DATA_RET, STATUS, FUNCTION_BUFF, \
+							     RET_BUFF, FREE_MEMORY_CHUNK)                                         \
+	{                                                                                                                         \
+		YDB_STRING_TO_BUFFER(SUBLIT, &FUNCTION_SUBS[3]);                                                                  \
+		STATUS = ydb_data_s(&OCTO_GLOBAL, 4, &FUNCTION_SUBS[0], &DATA_RET);                                               \
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(STATUS, FUNCTION_BUFF, RET_BUFF, FREE_MEMORY_CHUNK);                             \
+		if (0 == DATA_RET) {                                                                                              \
+			STATUS = ydb_delete_s(&OCTO_GLOBAL, 3, &FUNCTION_SUBS[0], YDB_DEL_TREE);                                  \
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(STATUS, FUNCTION_BUFF, RET_BUFF, FREE_MEMORY_CHUNK);                     \
+			CLEANUP_FUNCTION_BUFF(FUNCTION_BUFF, RET_BUFF);                                                           \
+			return YDB_OK;                                                                                            \
+		}                                                                                                                 \
+	}
+
 /* Automatically upgrade all binary function definitions.
  * Returns YDB_OK on success and a non-zero (YDB_ERR_* status code or 1) on errors.
  * Note: The below logic is similar to that in "src/auto_upgrade_binary_table_definition.c".
  */
 int auto_upgrade_binary_function_definition(void) {
-	ydb_buffer_t  octo_global, schema_global, function_subs[5], *function_buff, ret_buff;
+	ydb_buffer_t  octo_global, function_subs[5], *function_buff, ret_buff;
 	int	      status;
 	SqlStatement *result;
 	ParseContext  parse_context;
 
 	ret_buff.buf_addr = NULL; // Allow macros to verify if cleanup is needed and prevent clang compiler warnings
 	YDB_STRING_TO_BUFFER(config->global_names.octo, &octo_global);
-	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
 	/* $order through ^%ydboctoocto(OCTOLIT_FUNCTIONS,function_name) and for each function_name,
 	 * $order through ^%ydboctoocto(OCTOLIT_FUNCTIONS,function_name,function_hash) and for each function_hash,
 	 * get CREATE FUNCTION statement from
@@ -133,6 +146,17 @@ int auto_upgrade_binary_function_definition(void) {
 				}
 				CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, FALSE);
 			} else {
+				/* Check for missing function definitions nodes (OCTOLIT_LENGTH and OCTOLIT_OID) that will be absent
+				 * for commits prior or equal to eeae6bc7 due to a bug that allowed the retention of partially
+				 * populated function definition trees in the case of an ERR_TOO_MANY_FUNCTION_ARGUMENTS error. In
+				 * that case, cleanup the erroneously retained nodes and continue without attempting to reload the
+				 * function definition.
+				 */
+				CLEANUP_DANGLING_FUNCTION_NODES_AND_RETURN_IF_NEEDED(
+				    OCTOLIT_LENGTH, octo_global, function_subs, data_ret, status, function_buff, ret_buff, FALSE);
+				CLEANUP_DANGLING_FUNCTION_NODES_AND_RETURN_IF_NEEDED(
+				    OCTOLIT_OID, octo_global, function_subs, data_ret, status, function_buff, ret_buff, FALSE);
+
 				// Get the length of the full text table definition
 				OCTO_SET_BUFFER(text_defn_buff, text_defn_str);
 				OCTO_SET_BUFFER(function_subs[4], cur_frag_str);
@@ -226,7 +250,7 @@ int auto_upgrade_binary_function_definition(void) {
 			 */
 			cursor_ydb_buff.buf_addr = cursor_buffer;
 			cursor_ydb_buff.len_alloc = sizeof(cursor_buffer);
-			cursorId = create_cursor(&schema_global, &cursor_ydb_buff);
+			cursorId = create_cursor(&octo_global, &cursor_ydb_buff);
 			if (0 > cursorId) {
 				CLEANUP_AND_RETURN(1, function_buff, ret_buff, TRUE);
 			}

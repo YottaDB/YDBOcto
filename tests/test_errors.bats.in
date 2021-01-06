@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -269,6 +269,8 @@ OCTO
 
 @test "TERR026 : OCTO345 : Issue error if number of function arguments exceeds M limit" {
   load_fixture TERR026.sql subtest novv
+  # Confirm that no nodes were created in the database for the failed CREATE FUNCTION attempt
+  [[ 0 -eq $(yottadb -run %XCMD 'ZWRITE ^%ydboctoocto' | grep TOOMANYARGS | wc -l) ]]
   verify_output TERR026 output.txt
 }
 

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -65,8 +65,7 @@ PSQL_TypeOid get_psql_type_from_sqldatatype(SqlDataType type) {
  * Note that this function is similar to store_table_in_pg_class.
  */
 int store_function_in_pg_proc(SqlFunction *function, char *function_hash) {
-	SqlParameterTypeList *start_parameter_type;
-	SqlParameterTypeList *cur_parameter_type;
+	SqlParameterTypeList *start_parameter_type, *cur_parameter_type;
 	SqlValue *	      value;
 	ydb_buffer_t	      oid_buffer[2];
 	ydb_buffer_t	      pg_proc[5];
@@ -111,9 +110,7 @@ int store_function_in_pg_proc(SqlFunction *function, char *function_hash) {
 
 	/* Create "array" (space-delimited list) of function argument types. This format is derived from the results of this query:
 	 *	`select proargtypes from pg_catalog.pg_proc;`
-	 * Also, count the number of arguments for storage in `pg_proc`.
 	 */
-	function->num_args = 0;
 	arg_type_list_len = 0;
 	if (NULL == function->parameter_type_list) { // The parameter type list was empty, so just use the empty string
 		arg_type_list[0] = '\0';
@@ -121,11 +118,6 @@ int store_function_in_pg_proc(SqlFunction *function, char *function_hash) {
 		UNPACK_SQL_STATEMENT(start_parameter_type, function->parameter_type_list, parameter_type_list);
 		cur_parameter_type = start_parameter_type;
 		do {
-			function->num_args++;
-			if (YDB_MAX_PARMS < function->num_args) {
-				ERROR(ERR_TOO_MANY_FUNCTION_ARGUMENTS, function_name, YDB_MAX_PARMS);
-				return 1;
-			}
 			/* Note that size/precision modifiers are discarded for CREATE FUNCTION statements,
 			 * per https://www.postgresql.org/docs/current/sql-createfunction.html
 			 */

@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////
 //								//
-// Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	//
+// Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	//
 // All rights reserved.						//
 //								//
 //	This source code contains the intellectual property	//
@@ -22,7 +22,14 @@ verbosity = "ERROR"
 
 // Settings related to the octod process
 rocto = {
-  // Address and port to listen on for connections
+  /* Specify IP address and port to listen on for connections.
+   * The default is 127.0.0.1 (localhost), which specifies the
+   * loopback interface of the computer running rocto. This allows
+   * rocto to be run and tested locally, but does not expose rocto
+   * to clients on other hosts. To make rocto accessible to external
+   * hosts, set the address to the network IP address assigned to the
+   * machine hosting rocto.
+   */
   address = "127.0.0.1"
   port = 1337
   // Set to use DNS to resolve numeric IP addresses

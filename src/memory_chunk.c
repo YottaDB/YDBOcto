@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -45,7 +45,7 @@ void *octo_cmalloc(MemoryChunk *root, size_t size) {
 		alloc_size = ((MEMORY_CHUNK_SIZE < size) ? size : MEMORY_CHUNK_SIZE);
 		new = alloc_chunk(alloc_size);
 		dqappend(root, new);
-		assert(root->prev == new && new->next == root);
+		assert((root->prev == new) && (new->next == root));
 		cur = root->prev;
 	}
 	ret = &cur->value[cur->offset];

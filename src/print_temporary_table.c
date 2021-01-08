@@ -223,8 +223,6 @@ int print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char *
 		 */
 		status = YDB_OK;
 	}
-	// Cleanup tables
-	ydb_delete_s(&cursor_buffers[0], 1, &cursor_buffers[1], YDB_DEL_TREE);
 	YDB_FREE_BUFFER(&value_buffer);
 	if (NULL != memory_chunks) {
 		// Memory chunks are no longer needed after the query has been processed, so free them here.

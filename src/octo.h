@@ -446,6 +446,16 @@ typedef enum RegexType {
 		input_buffer_combined[cur_input_index + QUERY_LENGTH + NEWLINE_NEEDED] = '\0';                     \
 	}
 
+#define DELETE_QUERY_PARAMETER_CURSOR_LVN(CURSOR_YDB_BUFF)                                 \
+	{                                                                                  \
+		ydb_buffer_t cursor_local;                                                 \
+		int	     dlqStatus;                                                    \
+                                                                                           \
+		YDB_STRING_TO_BUFFER(config->global_names.cursor, &cursor_local);          \
+		dlqStatus = ydb_delete_s(&cursor_local, 1, CURSOR_YDB_BUFF, YDB_DEL_TREE); \
+		YDB_ERROR_CHECK(dlqStatus);                                                \
+	}
+
 #define IS_STMT_BOOLEAN_AND(STMT) ((binary_STATEMENT == STMT->type) && (BOOLEAN_AND == STMT->v.binary->operation))
 
 #ifndef NDEBUG

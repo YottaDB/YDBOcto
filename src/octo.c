@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -99,6 +99,7 @@ int main(int argc, char **argv) {
 			 * resetting "cur_input_index" to "old_input_index" a few lines below.
 			 */
 			result = parse_line(&parse_context);
+			DELETE_QUERY_PARAMETER_CURSOR_LVN(&cursor_ydb_buff);
 			OCTO_CFREE(memory_chunks);
 			/* Before checking result of "parse_line()" call, add the current input line to the readline history */
 			save_eof_hit = eof_hit; /* Save a copy of the global "eof_hit" in a local variable */

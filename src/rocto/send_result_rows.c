@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -51,14 +51,14 @@ int get_column_type_oid(ydb_buffer_t *plan_meta, ydb_buffer_t *value_buffer, int
 	return 0;
 }
 
-int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
+int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 	QueryResponseParms *parms = (QueryResponseParms *)_parms;
 	RoctoSession *	    session = parms->session;
 
 	ydb_buffer_t cursor_subs[7], plan_meta[6], portal_subs[6];
 	ydb_buffer_t value_buffer, row_value_buffer, total_rows_buffer;
 
-	char cursor_id_str[INT64_TO_STRING_MAX];
+	char cursorId_str[INT64_TO_STRING_MAX];
 	char value_str[INT64_TO_STRING_MAX];
 	char output_key_str[INT32_TO_STRING_MAX];
 	char total_rows_str[INT32_TO_STRING_MAX];
@@ -80,9 +80,9 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 	parms->data_sent = TRUE;
 
 	// Populate buffers for cursor LVN and metadata GVN
-	snprintf(cursor_id_str, INT64_TO_STRING_MAX, "%d", cursor_id);
+	snprintf(cursorId_str, INT64_TO_STRING_MAX, "%ld", cursorId);
 	YDB_STRING_TO_BUFFER(config->global_names.cursor, &cursor_subs[0]);
-	YDB_STRING_TO_BUFFER(cursor_id_str, &cursor_subs[1]);
+	YDB_STRING_TO_BUFFER(cursorId_str, &cursor_subs[1]);
 	YDB_STRING_TO_BUFFER(OCTOLIT_KEYS, &cursor_subs[2]);
 	YDB_STRING_TO_BUFFER("", &cursor_subs[4]);
 	YDB_STRING_TO_BUFFER("", &cursor_subs[5]);
@@ -320,7 +320,7 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 	data_row_parms = (DataRowParm *)malloc(DATA_ROW_PARMS_ARRAY_INIT_ALLOC * sizeof(DataRowParm));
 	data_row_parms_alloc_len = DATA_ROW_PARMS_ARRAY_INIT_ALLOC;
 	// Retrieve the value of each row
-	assert(0 == parms->rows_sent);
+	assert(0 == parms->row_count);
 	YDB_MALLOC_BUFFER(&row_value_buffer, OCTO_INIT_BUFFER_LEN);
 	while (cur_row <= last_row) {
 		int	       cur_column;
@@ -398,9 +398,9 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 		free(data_row);
 		// Move to the next index
 		cur_row++;
-		parms->rows_sent++;
+		parms->row_count++;
 	}
-	rows_remaining -= parms->rows_sent;
+	rows_remaining -= parms->row_count;
 	free(data_row_parms);
 	free(col_data_types);
 	free(col_format_codes);

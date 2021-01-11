@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -57,7 +57,6 @@ PSQL_TypeSize get_type_size_from_psql_type(PSQL_TypeOid type) {
  *  values
  */
 PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
-	LPActionType	    set_oper_type;
 	LogicalPlan *	    plan, *cur_plan, *column_alias, *function, *table;
 	PhysicalPlan *	    pplan;
 	SqlValue *	    value;
@@ -292,20 +291,32 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 		assert(IS_INSERT_INTO_PHYSICAL_PLAN(pplan));
 	}
 	/* Store output key for the given plan. Note that for a LP_INSERT_INTO, there is no output key but we still
-	 * note down an output key id of 0 that way a pre-existing plan gets reused instead of creating it afresh
-	 * every time (i.e. "GET_PLAN_METADATA_DB_NODE" check in "run_query.c" succeeds and "generate_plan" variable
-	 * in that function does not get set to TRUE).
+	 * note down an output key id of the source query (e.g. SELECT) that way a pre-existing plan gets reused
+	 * instead of creating it afresh every time (i.e. "GET_PLAN_METADATA_DB_NODE" check in "run_query.c" succeeds
+	 * and "generate_plan" variable in that function does not get set to TRUE).
 	 * Note that we need to do this store as the last step in this function as this global node is checked in
 	 * "run_query.c" as part of the GET_PLAN_METADATA_DB_NODE and if it exists, it is assumed that all other setup
 	 * of global nodes related to the plan is done.
 	 */
 	set_oper = pplan->set_oper_list;
-	set_oper_type = ((NULL == set_oper) ? LP_INVALID_ACTION : set_oper->set_oper_type);
-	assert(((LP_INVALID_ACTION == set_oper_type) && !set_oper_type) || (LP_SET_UNION == set_oper_type)
-	       || (LP_SET_UNION_ALL == set_oper_type) || (LP_SET_DNF == set_oper_type) || (LP_SET_EXCEPT == set_oper_type)
-	       || (LP_SET_EXCEPT_ALL == set_oper_type) || (LP_SET_INTERSECT == set_oper_type)
-	       || (LP_SET_INTERSECT_ALL == set_oper_type));
-	output_key_id = (set_oper_type ? set_oper->output_id : ((NULL != pplan->outputKey) ? pplan->outputKey->unique_id : 0));
+	if (NULL != set_oper) {
+		DEBUG_ONLY(LPActionType set_oper_type);
+
+		DEBUG_ONLY(set_oper_type = set_oper->set_oper_type);
+		DEBUG_ONLY(assert((LP_SET_UNION == set_oper_type) || (LP_SET_UNION_ALL == set_oper_type)
+				  || (LP_SET_DNF == set_oper_type) || (LP_SET_EXCEPT == set_oper_type)
+				  || (LP_SET_EXCEPT_ALL == set_oper_type) || (LP_SET_INTERSECT == set_oper_type)
+				  || (LP_SET_INTERSECT_ALL == set_oper_type)));
+		output_key_id = set_oper->output_id;
+	} else if (NULL == pplan->outputKey) {
+		LogicalPlan *output_key;
+
+		assert(IS_INSERT_INTO_PHYSICAL_PLAN(pplan));
+		output_key = lp_get_output_key(pplan->lp_select_query);
+		output_key_id = output_key->v.lp_key.key->unique_id;
+	} else {
+		output_key_id = pplan->outputKey->unique_id;
+	}
 	YDB_MALLOC_BUFFER(&value_buffer, INT32_TO_STRING_MAX);
 	OCTO_INT32_TO_BUFFER(output_key_id, &value_buffer);
 	YDB_LITERAL_TO_BUFFER(OCTOLIT_OUTPUT_KEY, &plan_meta[3]);

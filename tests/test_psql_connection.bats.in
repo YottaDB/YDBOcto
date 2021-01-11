@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -424,5 +424,11 @@ OCTO
   # Only verify result as generated query differs between platforms
   run_psql $test_port TPC020.sql | tee output.txt
   verify_output TPC020 output.txt noinfo nodebug
+}
+
+@test "TPC021 : OCTO502 : Test that INSERT INTO displays number of rows inserted when used with psql and rocto" {
+	skip    # TODO : YDBOcto#502 : Remove this line once INSERT INTO is fully supported
+	run_psql $test_port TPC021.sql | tee output.txt
+	verify_output TPC021 output.txt noinfo nodebug
 }
 

@@ -98,9 +98,13 @@ ID|FIRSTNAME|LASTNAME
 ???
  -- Add every existing row of NAMES table into same table resulting in 2x rows
 (1 row)
+INSERT 0 6
 ???
 
 (1 row)
+INSERT 0 2
+INSERT 0 3
+INSERT 0 4
 ???
  -- NAMES table AFTER various INSERT INTO operations; Has 21 rows, id=0 thru id=20
 (1 row)
@@ -149,6 +153,7 @@ CUSTOMER_ID|FIRST_NAME|LAST_NAME|EMAIL|ADDRESS|CITY|STATE|ZIPCODE
 ???
  -- Add every existing row of CUSTOMERS table into same table resulting in 2x rows
 (1 row)
+INSERT 0 5
 ???
 
 (1 row)
@@ -194,6 +199,7 @@ ID0|ID1|ID2|ID3|ID4|ID5|ID6|ID7|NAME
 ???
  -- Add every existing row of COMPOSITE table into same table resulting in 2x rows
 (1 row)
+INSERT 0 10
 ???
 
 (1 row)
@@ -228,6 +234,9 @@ ID0|ID1|ID2|ID3|ID4|ID5|ID6|ID7|NAME
 ???
 -- Test that VARCHAR(4) allows character strings shorter than 4 chars to be stored without space padding at end
 (1 row)
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
 COLUMN1
 |a|
 |ab|
@@ -239,6 +248,8 @@ COLUMN1
 ???
 -- Test that VARCHAR(4) allows 7 character strings to be stored if last 3 characters are spaces
 (1 row)
+INSERT 0 1
+INSERT 0 1
 COLUMN1
 |abc |
 |abcd|
@@ -249,6 +260,7 @@ COLUMN1
 ???
 -- Test that an over length value when typecast to varchar(N) will be truncated to N characters without an error
 (1 row)
+INSERT 0 1
 COLUMN1
 |ab|
 (1 row)
@@ -258,6 +270,13 @@ COLUMN1
 ???
 -- Test that excess digits to right of decimal point in NUMERIC(PRECISION,SCALE) column are discarded without an error
 (1 row)
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
 COLUMN1
 -9.5
 -7.5

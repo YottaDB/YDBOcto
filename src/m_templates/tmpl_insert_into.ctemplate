@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -38,6 +38,10 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 	lp_select_query = lp_insert_into_options->v.lp_default.operand[1];
 	lp_key = lp_get_output_key(lp_select_query);
 	outputKey = lp_key->v.lp_key.key;
+	%{}SET {}%
+	TMPL(tmpl_insert_row_count, outputKey);
+	%{}=0{}%
+	%{}`n{{ PLAN_LINE_START }}{}%
 	%{}SET {}%
 	TMPL(tmpl_key, outputKey);
 	%{}=""`n{{ PLAN_LINE_START }}{}%
@@ -236,6 +240,11 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 		 */
 		%{}""{}%
 	}
+	%{}`n{{ PLAN_LINE_START }}{}%
+	TMPL(tmpl_print_dots, dot_count);
+	%{}IF $INCREMENT({}%
+	TMPL(tmpl_insert_row_count, outputKey);
+	%{}){}%
 	%{}`n{{ PLAN_LINE_START }}{}%
 	%{}QUIT{}%
 	%{}`n{}%

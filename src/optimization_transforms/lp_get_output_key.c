@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -21,7 +21,10 @@
 LogicalPlan *lp_get_output_key(LogicalPlan *plan) {
 	LogicalPlan *t;
 
-	assert((LP_SELECT_QUERY == plan->type) || (LP_SET_OPERATION == plan->type) || (LP_TABLE_VALUE == plan->type));
+	if (LP_INSERT_INTO == plan->type) {
+		GET_LP(plan, plan, 1, LP_INSERT_INTO_OPTIONS);
+		plan = plan->v.lp_default.operand[1];
+	}
 	if (LP_SET_OPERATION == plan->type) {
 		LogicalPlan *set_option;
 		LPActionType set_oper_type;
@@ -37,6 +40,8 @@ LogicalPlan *lp_get_output_key(LogicalPlan *plan) {
 			plan = lp_drill_to_insert(plan);
 		else
 			plan = set_option;
+	} else {
+		assert((LP_SELECT_QUERY == plan->type) || (LP_TABLE_VALUE == plan->type));
 	}
 	GET_LP(t, plan, 1, LP_OUTPUT);
 	GET_LP(t, t, 0, LP_KEY);

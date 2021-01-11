@@ -140,6 +140,7 @@
 #define OCTOLIT_PLAN_METADATA	     "plan_metadata"
 #define OCTOLIT_PREPARED	     "prepared"
 #define OCTOLIT_ROUTINE		     "routine"
+#define OCTOLIT_ROW_COUNT	     "RowCount"
 #define OCTOLIT_T		     "t"
 #define OCTOLIT_TABLEPLANS	     "tableplans"
 #define OCTOLIT_TABLES		     "tables"
@@ -156,6 +157,29 @@
 #define OCTOPLAN_LIT	  "octoPlan"
 #define XREFPLAN_LIT	  "xrefPlan"
 #define MAX_PLAN_NAME_LEN sizeof(OCTOPLAN_LIT) + INT32_TO_STRING_MAX
+
+/* Set maximum command tag length for use in extended query protocol, including null terminator
+ * This value should be large enough to hold the longest possible first keyword of a SQL query, i.e. "DEALLOCATE" i.e. 10 bytes
+ * In addition, in case of a "SELECT", the tag would be followed by a space and a 4-byte integer count (number of rows returned).
+ * And in case of a "INSERT", the tag would be followed by 2 spaces and 2 4-byte integers so account for those.
+ */
+#define MAX_FIRST_KEYWORD_OF_SQL_QUERY_LEN 10 /* size of "DEALLOCATE" */
+
+#define MAX_TAG_LEN MAX_FIRST_KEYWORD_OF_SQL_QUERY_LEN + (1 + INT32_TO_STRING_MAX) + (1 + INT32_TO_STRING_MAX) + 1
+
+/* For INSERT INTO, Octo conforms to Postgres output format (see https://www.postgresql.org/docs/9.5/sql-insert.html for details).
+ * Relevant part pasted below.
+ * ---------------------------------------------------------------------------------
+ * On successful completion, an INSERT command returns a command tag of the form
+ *	INSERT oid count
+ * The count is the number of rows inserted or updated. If count is exactly one, and the target
+ * table has OIDs, then oid is the OID assigned to the inserted row. The single row must have
+ * been inserted rather than updated. Otherwise oid is zero.
+ * ---------------------------------------------------------------------------------
+ * Note: In the case of Octo, the "oid" is always 0 (and it is not expected to change in the future either)
+ * hence the 0 in the macro below.
+ */
+#define INSERT_COMMAND_TAG "INSERT 0"
 
 // Default buffer allocated for $zroutines
 #define ZRO_INIT_ALLOC 512
@@ -467,7 +491,7 @@ typedef enum RegexType {
 #endif
 
 // Convenience type definition for run_query callback function
-typedef int (*callback_fnptr_t)(SqlStatement *, int, void *, char *, boolean_t);
+typedef int (*callback_fnptr_t)(SqlStatement *, ydb_long_t, void *, char *, boolean_t);
 
 int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_column);
 int emit_create_table(FILE *output, struct SqlStatement *stmt);
@@ -516,7 +540,8 @@ SqlOptionalKeyword *get_keyword(SqlColumn *column, enum OptionalKeyword keyword)
 SqlOptionalKeyword *get_keyword_from_keywords(SqlOptionalKeyword *start_keyword, enum OptionalKeyword keyword);
 int		    get_key_columns(SqlTable *table, SqlColumn **key_columns);
 int  generate_key_name(char **buffer, int *buffer_size, int target_key_num, SqlTable *table, SqlColumn **key_columns);
-int  print_temporary_table(SqlStatement *, int cursor_id, void *parms, char *plan_name, boolean_t send_row_description);
+int  get_row_count_from_plan_name(char *plan_name, ydb_long_t cursorId);
+int  print_temporary_table(SqlStatement *, ydb_long_t cursorId, void *parms, char *plan_name, boolean_t send_row_description);
 void print_result_row(ydb_buffer_t *row);
 int  get_mval_len(unsigned char *buff, int *data_len);
 

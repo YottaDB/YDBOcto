@@ -50,15 +50,6 @@
 // Length of the string 'md5', which is prefixed to password hashes per https://www.postgresql.org/docs/11/protocol-flow.html
 #define MD5_PREFIX_LEN sizeof(MD5_PREFIX) - 1
 
-/* Set maximum command tag length for use in extended query protocol, including null terminator
- * This value should be large enough to hold the longest possible first keyword of a SQL query, i.e. "DEALLOCATE" i.e. 10 bytes
- * In addition, in case of a "SELECT", the tag would be followed by a space and a 4-byte integer count (number of rows returned).
- * And in case of a "INSERT", the tag would be followed by 2 spaces and 2 4-byte integers so account for those.
- */
-#define MAX_FIRST_KEYWORD_OF_SQL_QUERY_LEN 10 /* size of "DEALLOCATE" */
-
-#define MAX_TAG_LEN MAX_FIRST_KEYWORD_OF_SQL_QUERY_LEN + (1 + INT32_TO_STRING_MAX) + (1 + INT32_TO_STRING_MAX) + 1
-
 typedef struct {
 	int32_t	      connection_fd;
 	int32_t	      sending_message;
@@ -78,7 +69,7 @@ typedef struct {
 	RoctoSession *session;
 	int32_t	      data_sent;
 	int32_t	      max_data_to_send;
-	int32_t	      rows_sent;
+	int32_t	      row_count;
 	char *	      portal_name;
 	char *	      command_type;
 } QueryResponseParms;
@@ -158,9 +149,9 @@ int32_t handle_describe(Describe *describe, RoctoSession *session);
 int32_t handle_password_message(PasswordMessage *password_message, StartupMessage *startup_message, char *salt);
 
 // This isn't a handle function in-of itself, but a helper to handle the results of a query
-int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, char *plan_name, boolean_t send_row_description);
-// Returns result rows from plan_name stored on cursor_id
-int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name);
+int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms, char *plan_name, boolean_t send_row_description);
+// Returns result rows from plan_name stored on cursorId
+int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name);
 
 // Helper to indicate that there is no more input
 int no_more();

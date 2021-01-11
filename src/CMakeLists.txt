@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -175,6 +175,7 @@ add_library(libocto OBJECT
   get_keyword_from_keywords.c
   get_mem_usage.c
   get_mval_len.c
+  get_row_count_from_plan_name.c
   get_set_operation_string.c
   get_sqldatatype_from_sqlvaluetype.c
   get_sqlvaluetype_from_sqldatatype.c
@@ -393,6 +394,7 @@ set(template_files
   ${template_dir}/tmpl_emit_source.ctemplate
   ${template_dir}/tmpl_group_by.ctemplate
   ${template_dir}/tmpl_insert_into.ctemplate
+  ${template_dir}/tmpl_insert_row_count.ctemplate
   ${template_dir}/tmpl_key.ctemplate
   ${template_dir}/tmpl_key_advance.ctemplate
   ${template_dir}/tmpl_key_end.ctemplate

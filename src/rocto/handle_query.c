@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -60,7 +60,7 @@ int handle_query(Query *query, RoctoSession *session) {
 		return 1;
 	}
 
-	response = make_command_complete(parse_context.command_tag, parms.rows_sent);
+	response = make_command_complete(parse_context.command_tag, parms.row_count);
 	if (NULL != response) {
 		send_message(session, (BaseMessage *)(&response->type));
 		free(response);

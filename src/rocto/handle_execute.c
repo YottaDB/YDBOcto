@@ -214,7 +214,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 	}
 
 	if (0 == status) { // No errors, all rows sent
-		command_complete = make_command_complete(command_tag, parms.rows_sent);
+		command_complete = make_command_complete(command_tag, parms.row_count);
 		if (NULL != command_complete) {
 			send_message(session, (BaseMessage *)(&command_complete->type));
 			free(command_complete);

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -52,6 +52,7 @@
  */
 #define PP_ORDER_BY   "\"OrderBy\""
 #define PP_GROUP_BY   "\"GroupBy\""
+#define PP_ROW_COUNT  "\"RowCount\""   /* Note: This has to be maintained in sync with OCTOLIT_ROW_COUNT */
 #define PP_KEYS	      "\"keys\""       /* Note: This has to be maintained in sync with OCTOLIT_KEYS */
 #define PP_PARAMETERS "\"parameters\"" /* Note: This has to be maintained in sync with OCTOLIT_PARAMETERS */
 #define PP_VARIABLES  "\"variables\""  /* Note: This has to be maintained in sync with OCTOLIT_VARIABLES */
@@ -78,6 +79,7 @@ void resize_tmpl_buffer(char **global_buffer, int *buffer_len, int *buffer_index
 TEMPLATE(tmpl_print_dots, int dots);
 TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan);
 TEMPLATE(tmpl_insert_into, PhysicalPlan *plan);
+TEMPLATE(tmpl_insert_row_count, SqlKey *key);
 TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned int cur_key, boolean_t right_join_second_half,
 	 int dot_count, char *tableName, char *columnName);
 TEMPLATE(tmpl_rightjoin_key, PhysicalPlan *plan, unsigned int key_start, unsigned int key_end);

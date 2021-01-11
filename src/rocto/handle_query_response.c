@@ -26,7 +26,7 @@
 
 #define DATA_ROW_PARMS_ARRAY_INIT_ALLOC 16
 
-int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, char *plan_name, boolean_t send_row_description) {
+int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms, char *plan_name, boolean_t send_row_description) {
 	QueryResponseParms *parms = (QueryResponseParms *)_parms;
 	RowDescription *    row_description;
 	RowDescriptionParm  row_desc_parm;
@@ -146,9 +146,13 @@ int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, c
 				free(row_description);
 			}
 			// Send back row data
-			result = send_result_rows(cursor_id, parms, plan_name);
+			result = send_result_rows(cursorId, parms, plan_name); /* Note: updates parms.row_count */
+		} else if (insert_STATEMENT == stmt->type) {
+			/* It is of type INSERT INTO, DELETE FROM etc. In that case, there are no rows to send back.
+			 * Just update "parms->row_count" to reflect the number of rows inserted, deleted etc..
+			 */
+			parms->row_count = get_row_count_from_plan_name(plan_name, cursorId);
 		}
-		/* else: It is of type INSERT INTO, DELETE FROM, etc. In that case, there are no rows to send back. */
 	} else {
 		// Issue ErrorResponse expected by clients indicating a CancelRequest was processed
 		ERROR(ERR_ROCTO_QUERY_CANCELED, "");

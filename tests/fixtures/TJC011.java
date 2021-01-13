@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -28,26 +28,37 @@ public class TJC011 {
 		String connectionString = "jdbc:postgresql://localhost:" + args[0] + "/";
 		try (Connection conn = DriverManager.getConnection(connectionString, props)) {
 			if (conn != null) {
-				String[]		queryStrings = new String[3];
+				String[]		queryStrings = new String[5];
 				PreparedStatement	preparedStatement;
 				ResultSet		resultSet;
 				ResultSetMetaData	resultSetMetaData ;
-				int			columnCount, rowLimit;
+				int			columnCount, rowLimit, numQueries;
 
-				queryStrings[0] = "select * from names;";	// Run with limit
-				queryStrings[1] = "select * from names;";	// Run without limit to confirm new query cycle
-				queryStrings[2] = "select * from names where firstname = 'Zero';";
-				for (int query = 0; query < 3; query++) {
+				numQueries = 0;
+				// Run with limit
+				queryStrings[numQueries++] = "select * from names;";
+				// Run without limit to confirm new query cycle
+				queryStrings[numQueries++] = "select * from names;";
+				queryStrings[numQueries++] = "select * from names where firstname = 'Zero';";
+				// Run INSERT INTO query too to confirm max row limit does not affect it
+				// since that type of query does not anyways return any rows.
+				queryStrings[numQueries++] = "insert into names select id+6,firstname,lastname from names;";
+				// Verify though that the INSERT INTO works fine by doing a SELECT afterwards
+				queryStrings[numQueries++] = "select * from names where firstname = 'Zero';";
+				for (int query = 0; query < numQueries; query++) {
 					preparedStatement = conn.prepareStatement(queryStrings[query]);
 					switch(query) {
 						case 0:
+						case 3:
+							// Run queries 0 and 3 with maximum row-count limit of 3
 							rowLimit = 3;
 							break;
 						case 2:
+							// Run query 2 with maximum row-count limit of 1
 							rowLimit = 1;
 							break;
 						default:
-							// This returns all rows
+							// Run all other queries with unlimited row-count (i.e. returns all rows)
 							rowLimit = 0;
 							break;
 					}

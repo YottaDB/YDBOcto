@@ -17,3 +17,13 @@
  --> Running query (row limit: 1): select * from names where firstname = 'Zero'; <--
 -------------------------------------------------------------------------
 0|Zero|Cool
+-------------------------------------------------------------------------
+ --> Running query (row limit: 3): insert into names select id+6,firstname,lastname from names; <--
+-------------------------------------------------------------------------
+SQL State: 0A000
+ERROR: Feature not implemented: INSERT INTO
+-------------------------------------------------------------------------
+ --> Running query (row limit: 0): select * from names where firstname = 'Zero'; <--
+-------------------------------------------------------------------------
+0|Zero|Cool
+5|Zero|Cool

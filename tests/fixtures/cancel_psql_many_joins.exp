@@ -1,7 +1,7 @@
 #!/usr/bin/expect
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -32,6 +32,9 @@ expect timeout
 send \x03
 expect -re ".*Cancel request sent\r\n"
 expect -re "ERROR:  canceling statement due to user request\r\nydb=. "
+puts "# OCTO645 : Test that a valid short query works fine after a canceled query (it used to be incorrectly treated as canceled)"
+send "select * from names;\r"
+expect -re "ydb=. "
 send "\\q\r"
 expect -re "\[#\$] "
 exit

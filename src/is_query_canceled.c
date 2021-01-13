@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -36,6 +36,12 @@ boolean_t is_query_canceled(callback_fnptr_t callback, int32_t cursorId, void *p
 			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 			return TRUE;
 		}
+		/* Now that the CancelRequest has been handled, delete related local variable so next
+		 * query can proceed fine without being treated as a canceled query.
+		 */
+		status = ydb_delete_s(&ydboctoCancel, 0, NULL, YDB_DEL_TREE);
+		assert(YDB_OK == status);
+		YDB_ERROR_CHECK(status);
 		return TRUE;
 	}
 	return FALSE;

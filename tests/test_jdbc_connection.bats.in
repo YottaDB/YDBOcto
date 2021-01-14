@@ -185,3 +185,15 @@ teardown() {
         [[ $(grep -Ec "ERROR.*handle_query.*ERR_ROCTO_QUERY_TOO_LONG" rocto.log) -eq 1 ]]
 	verify_output TJC018 output.txt
 }
+
+@test "TJC019 : OCTO502 : Test query cancel requests work even when using the extended query protocol" {
+	stop_rocto
+	# Create function that is used in the later query to ensure it takes a long time (and hence needs to be canceled for sure).
+	octo <<OCTO
+CREATE FUNCTION HANGTIME(VARCHAR, INTEGER) RETURNS VARCHAR AS \$\$^HANGTIME;
+OCTO
+	test_port=$(start_rocto 1344 quiet)
+	# Use "useextended" below to ensure extended query protocol is used for the query that gets canceled.
+        run_java TJC019 $test_port "" useextended &> output.txt
+	verify_output TJC019 output.txt
+}

@@ -254,7 +254,6 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 			// Only need type information for bind parameters
 			if (cur_bind_parm < parse_context.num_bind_parms) {
 				if ((0 < parse_context.num_bind_parms) && (cur_bind_parm >= parse->num_parm_data_types)) {
-					assert(cur_bind_parm < parse_context.cur_type);
 					OCTO_INT32_TO_BUFFER(parse_context.types[cur_bind_parm], &parm_type_buffer);
 				} else {
 					OCTO_INT32_TO_BUFFER(parse->parm_data_types[cur_bind_parm], &parm_type_buffer);

@@ -180,10 +180,10 @@ load_postgres_fixture() {
 
 # Load a large amount of dummy data for tests requiring slow queries
 load_big_data() {
-	$ydb_dist/yottadb -run ^%XCMD 'for i=1:4:1000000 s ^names(i+5)=(i+5)_"|A|B"'
-	$ydb_dist/yottadb -run ^%XCMD 'for i=2:4:1000000 s ^names(i+5)=(i+5)_"|C|B"'
-	$ydb_dist/yottadb -run ^%XCMD 'for i=3:4:1000000 s ^names(i+5)=(i+5)_"|A|C"'
-	$ydb_dist/yottadb -run ^%XCMD 'for i=4:4:1000000 s ^names(i+5)=(i+5)_"|B|A"'
+	$ydb_dist/yottadb -run ^%XCMD 'for i=1:4:1000000 s ^names(i+5)="|A|B"'
+	$ydb_dist/yottadb -run ^%XCMD 'for i=2:4:1000000 s ^names(i+5)="|C|B"'
+	$ydb_dist/yottadb -run ^%XCMD 'for i=3:4:1000000 s ^names(i+5)="|A|C"'
+	$ydb_dist/yottadb -run ^%XCMD 'for i=4:4:1000000 s ^names(i+5)="|B|A"'
 }
 
 createdb() {

@@ -32,43 +32,33 @@
 		RESULT = 1;                                                                          \
 	}
 
-#define MAP_TYPE_TO_PARAMETER_VALUE(TYPE_1, TYPE_2)                                                                               \
+#define MAP_TYPE_TO_PARAMETER_VALUE(TYPE_1, TYPE_2, RESULT, PARSE_CONTEXT)                                                        \
 	{                                                                                                                         \
-		/* Map the column's type to the prepared statement parameter for ParameterDescriptions and Bind handling */       \
-		if (parse_context->is_extended_query && (PARAMETER_VALUE == TYPE_1)) {                                            \
-			if (NULL != parse_context->types) {                                                                       \
-				if (parse_context->cur_type < parse_context->num_bind_parm_types) {                               \
-					/* If type specified in Parse message, use that */                                        \
-					TYPE_1 = get_sqlvaluetype_from_psql_type(parse_context->types[parse_context->cur_type]);  \
-					parse_context->cur_type++;                                                                \
-				} else {                                                                                          \
-					/* If not, use the one assigned by the parser from the DDL */                             \
-					if ((PARAMETER_VALUE == TYPE_2) || (NUL_VALUE == TYPE_2)) {                               \
-						ERROR(ERR_FEATURE_NOT_IMPLEMENTED,                                                \
-						      "comparison between literal parameters, e.g. $1 = $2");                     \
-						result = 1;                                                                       \
-					} else {                                                                                  \
-						if (parse_context->cur_type >= parse_context->types_size) {                       \
-							if (parse_context->cur_type > (2 * parse_context->types_size)) {          \
-								/* Sync types to cur_type */                                      \
-								EXPAND_ARRAY_ALLOCATION(parse_context->types,                     \
-											parse_context->types_size,                \
-											parse_context->cur_type, PSQL_TypeOid);   \
-								TRACE(INFO_MEM_REALLOCATION, "expanded", "parse_context->types"); \
-							}                                                                         \
-							DOUBLE_ARRAY_ALLOCATION(parse_context->types, parse_context->types_size,  \
-										PSQL_TypeOid, INT16_MAX);                         \
-							TRACE(INFO_MEM_REALLOCATION, "doubled", "parse_context->types");          \
-						}                                                                                 \
-						parse_context->types[parse_context->cur_type]                                     \
-						    = get_psql_type_from_sqlvaluetype(TYPE_2);                                    \
-						parse_context->cur_type++;                                                        \
-						TYPE_1 = TYPE_2;                                                                  \
-					}                                                                                         \
-				}                                                                                                 \
-			}                                                                                                         \
+		if ((PARAMETER_VALUE == TYPE_2) && (PARAMETER_VALUE == TYPE_1)) {                                                 \
+			ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "comparison between literal parameters, e.g. $1 = $2");                \
+			RESULT = 1;                                                                                               \
 		} else {                                                                                                          \
 			TYPE_1 = TYPE_2;                                                                                          \
+			if (PARSE_CONTEXT->cur_param_num) {                                                                       \
+				/* A placeholder parameter was seen in the query. Now we know what its type should                \
+				 * be based on the placement of this parameter in the query (e.g. it is being compared            \
+				 * against another operand of a known type etc.). Fill in this parameter's type                   \
+				 * so it can be later used in response to a "Describe" message in "handle_describe.c"             \
+				 * (in a call to "make_parameter_description.c").                                                 \
+				 */                                                                                               \
+				if (PARSE_CONTEXT->cur_param_num >= PARSE_CONTEXT->types_size) {                                  \
+					if (PARSE_CONTEXT->cur_param_num > (2 * PARSE_CONTEXT->types_size)) {                     \
+						/* Sync types to cur_param_num */                                                 \
+						EXPAND_ARRAY_ALLOCATION(PARSE_CONTEXT->types, PARSE_CONTEXT->types_size,          \
+									PARSE_CONTEXT->cur_param_num, PSQL_TypeOid);              \
+						TRACE(INFO_MEM_REALLOCATION, "expanded", "PARSE_CONTEXT->types");                 \
+					}                                                                                         \
+					DOUBLE_ARRAY_ALLOCATION(PARSE_CONTEXT->types, PARSE_CONTEXT->types_size, PSQL_TypeOid,    \
+								INT16_MAX);                                                       \
+					TRACE(INFO_MEM_REALLOCATION, "doubled", "PARSE_CONTEXT->types");                          \
+				}                                                                                                 \
+				PARSE_CONTEXT->types[PARSE_CONTEXT->cur_param_num - 1] = get_psql_type_from_sqlvaluetype(TYPE_2); \
+			}                                                                                                         \
 		}                                                                                                                 \
 	}
 
@@ -76,15 +66,15 @@
 // Specifically:
 //	1. Uses DDL-specified types for prepared statement parameter types if not specified by client
 //	2. Converts INTEGER_LITERALs to NUMERIC_LITERALs, as they are equivalent internally within Octo
-#define CAST_AMBIGUOUS_TYPES(TYPE1, TYPE2)                                     \
-	if ((PARAMETER_VALUE == TYPE1) || (NUL_VALUE == TYPE1)) {              \
-		MAP_TYPE_TO_PARAMETER_VALUE(TYPE1, TYPE2);                     \
-	} else if ((PARAMETER_VALUE == TYPE2) || (NUL_VALUE == TYPE2)) {       \
-		MAP_TYPE_TO_PARAMETER_VALUE(TYPE2, TYPE1);                     \
-	} else if ((INTEGER_LITERAL == TYPE1) && (NUMERIC_LITERAL == TYPE2)) { \
-		TYPE1 = TYPE2;                                                 \
-	} else if ((INTEGER_LITERAL == TYPE2) && (NUMERIC_LITERAL == TYPE1)) { \
-		TYPE2 = TYPE1;                                                 \
+#define CAST_AMBIGUOUS_TYPES(TYPE1, TYPE2, RESULT, PARSE_CONTEXT)                 \
+	if ((PARAMETER_VALUE == TYPE1) || (NUL_VALUE == TYPE1)) {                 \
+		MAP_TYPE_TO_PARAMETER_VALUE(TYPE1, TYPE2, RESULT, PARSE_CONTEXT); \
+	} else if ((PARAMETER_VALUE == TYPE2) || (NUL_VALUE == TYPE2)) {          \
+		MAP_TYPE_TO_PARAMETER_VALUE(TYPE2, TYPE1, RESULT, PARSE_CONTEXT); \
+	} else if ((INTEGER_LITERAL == TYPE1) && (NUMERIC_LITERAL == TYPE2)) {    \
+		TYPE1 = TYPE2;                                                    \
+	} else if ((INTEGER_LITERAL == TYPE2) && (NUMERIC_LITERAL == TYPE1)) {    \
+		TYPE2 = TYPE1;                                                    \
 	}
 
 // Compare TYPE1 and TYPE2 and throw ERR_TYPE if not equal
@@ -222,7 +212,7 @@ int ensure_same_type(SqlValueType *existing, SqlValueType *new, SqlStatement *st
 	int result;
 
 	result = 0;
-	CAST_AMBIGUOUS_TYPES(*existing, *new);
+	CAST_AMBIGUOUS_TYPES(*existing, *new, result, parse_context);
 	if (*existing != *new) {
 		ERROR(ERR_TYPE_MISMATCH, get_user_visible_type_string(*existing), get_user_visible_type_string(*new));
 		yyerror(NULL, NULL, &stmt, NULL, parse_context, NULL);
@@ -280,7 +270,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		if (NULL != cas->optional_else) { // No need to validate types if ELSE not present
 			result |= populate_data_type(cas->optional_else, &child_type2, parse_context);
 			// SQL NULL values are acceptable in CASE branches so CAST them appropriately
-			CAST_AMBIGUOUS_TYPES(child_type1, child_type2);
+			CAST_AMBIGUOUS_TYPES(child_type1, child_type2, result, parse_context);
 			CHECK_TYPE_AND_BREAK_ON_MISMATCH(child_type1, child_type2, ERR_CASE_BRANCH_TYPE_MISMATCH,
 							 &cas->branches->v.cas_branch->value, &cas->optional_else, result);
 		}
@@ -299,13 +289,13 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			result |= populate_data_type(cur_branch->condition, &child_type2, parse_context);
 			assert(UNKNOWN_SqlValueType != child_type2);
 			// SQL NULL values are acceptable for CASE value and WHEN condition type so CAST them appropriately
-			CAST_AMBIGUOUS_TYPES(*type, child_type2);
+			CAST_AMBIGUOUS_TYPES(*type, child_type2, result, parse_context);
 			CHECK_TYPE_AND_BREAK_ON_MISMATCH(child_type2, *type, ERR_CASE_VALUE_TYPE_MISMATCH, &cur_branch->condition,
 							 NULL, result);
 			if (cas_branch != cur_branch->next) {
 				result |= populate_data_type(cur_branch->next->value, &child_type2, parse_context);
 				// SQL NULL values are acceptable in CASE branches so CAST them appropriately
-				CAST_AMBIGUOUS_TYPES(child_type1, child_type2);
+				CAST_AMBIGUOUS_TYPES(child_type1, child_type2, result, parse_context);
 				CHECK_TYPE_AND_BREAK_ON_MISMATCH(child_type1, child_type2, ERR_CASE_BRANCH_TYPE_MISMATCH,
 								 &cur_branch->value, &cur_branch->next->value, result);
 				child_type1 = child_type2;
@@ -543,13 +533,38 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		case STRING_LITERAL:
 		case NUL_VALUE:
 		case FUNCTION_NAME:
-		case PARAMETER_VALUE:	   // Note: This is a possibility in "populate_data_type" but not in "hash_canonical_query"
 		case UNKNOWN_SqlValueType: // Note: This is a possibility in "populate_data_type" but not in "hash_canonical_query"
 			/* If lexer determined that the value is an integer literal, use that more specific INTEGER_LITERAL type
 			 * instead of a more generic NUMERIC_LITERAL type.
 			 */
 			*type = value->type;
 			break;
+		case PARAMETER_VALUE: { // Note: This is a possibility in "populate_data_type" but not in "hash_canonical_query"
+			long tmp_long;
+			int  param_num;
+
+			/* Set the type to "PARAMETER_VALUE" by default. Check if this is an extended query and if query
+			 * parameter types have been specified in the "Parse" message. If so use that type instead.
+			 */
+			*type = PARAMETER_VALUE;
+			if (parse_context->is_extended_query) {
+				tmp_long = strtol(value->v.string_literal + 1, NULL, 10); /* + 1 to skip '$' prefix in '$1' etc. */
+				if ((LONG_MIN != tmp_long) && (LONG_MAX != tmp_long)) {
+					param_num = (int)tmp_long;
+					parse_context->cur_param_num = param_num;
+					if ((0 < param_num) && (param_num <= parse_context->num_bind_parm_types)) {
+						/* Note down parameter number corresponding to this "SqlValue" structure
+						 * for later use inside MAP_TYPE_TO_PARAMETER_VALUE macro.
+						 */
+						*type = get_sqlvaluetype_from_psql_type(parse_context->types[param_num - 1]);
+					}
+				} else {
+					ERROR(ERR_LIBCALL, "strtol");
+					result = 1;
+				}
+			}
+			break;
+		}
 		case COLUMN_REFERENCE:
 			/* If this happens it probably means it wasn't an extended reference
 			 * which is not something we want to happen, the parser should expand
@@ -681,7 +696,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			// SqlStatement (?)
 			result |= populate_data_type(binary->operands[1], &child_type2, parse_context);
 		}
-		CAST_AMBIGUOUS_TYPES(child_type1, child_type2);
+		CAST_AMBIGUOUS_TYPES(child_type1, child_type2, result, parse_context);
 		switch (binary->operation) {
 		case ADDITION:
 		case SUBTRACTION:

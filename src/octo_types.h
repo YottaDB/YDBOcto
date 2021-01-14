@@ -354,8 +354,10 @@ typedef struct {
 				      * offsets within the query string, whose length max exceed INT16_MAX since:
 				      * OCTO_MAX_QUERY_LEN == YDB_MAX_STR == 1024 * 1024, while INT16_MAX == 32767.
 				      */
-	int32_t *  parm_end;
-	int16_t	   cur_type;
+	int32_t *parm_end;
+	int16_t	 cur_param_num; /* used inside "populate_data_type" to fill in types of parameter placeholders in query
+				 * based on context (e.g. binary operations where one operand type is known etc.).
+				 */
 	int16_t	   num_bind_parms;
 	int16_t	   num_bind_parm_types;
 	int16_t	   total_parms;

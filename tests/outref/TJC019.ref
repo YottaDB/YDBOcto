@@ -1,0 +1,18 @@
+# Construct first query to run for a total of 60 seconds (10 second for each of the 6 rows in the names table)
+# Set max query timeout to 1 second so first query will get canceled.
+# Then run second query which is same as first query but with a timeout of 0 seconds so that does not need to be canceled.
+# And verify it does not get canceled and works fine after a canceled query.
+-------------------------------------------------------------------------
+ --> Running query : SELECT HANGTIME(firstname,10) FROM names
+-------------------------------------------------------------------------
+SQL State: 57014
+ERROR: canceling statement due to user request
+-------------------------------------------------------------------------
+ --> Running query : SELECT HANGTIME(firstname,0) FROM names
+-------------------------------------------------------------------------
+Zero0
+Acid0
+Cereal0
+Lord0
+Joey0
+Zero0

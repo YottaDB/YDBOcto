@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -54,12 +54,4 @@ YDB
   # Ensure all triggers are cleaned up, i.e. no triggers
   $ydb_dist/mupip TRIGGER -SELECT triggers.txt
   verify_output TCR03 triggers.txt
-}
-
-@test "TCR04 : ensure cancel requests abort extended queries" {
-  # Skip until extended queries are supported
-  skip
-  test_port2=$(start_rocto 1441 quiet)
-  run_psql_expect cancel_psql_extended $test_port2 &> output.txt
-  verify_output TCR04 output.txt
 }

@@ -13,5 +13,9 @@
 ; user defined routine that can be called from octo
 ; just return what is passed in
 HANGTIME(name,wait) ;
+	; If the env var "mupip_intrpt" is set (currently only set by the TCR01 subtest), then send a MUPIP INTRPT to self.
+	; Do it only once (as this function can be invoked multiple times for one query).
+	; Do it before the hang to avoid any test timing issues.
+	if (+$ztrnlnm("mupip_intrpt"))&(1=$increment(^intrptcntr)) zsystem "$ydb_dist/mupip intrpt "_$job
 	hang wait
 	quit name_wait

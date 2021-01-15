@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -137,7 +137,8 @@ FILE *inputFile;
 char *input_buffer_combined; // The input buffer for octo. Contains the query strings.
 int (*cur_input_more)();
 OctoConfig * config;
-ydb_buffer_t lex_buffer; // String buffer for use in lexer.l
+ydb_buffer_t lex_buffer;	 // String buffer for use in lexer.l
+int	     ydb_release_number; /* e.g. the integer 130 in case of r1.30 etc. */
 
 #ifdef IS_ROCTO
 RoctoSession rocto_session;

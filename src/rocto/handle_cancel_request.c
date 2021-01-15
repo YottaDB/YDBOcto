@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -31,7 +31,7 @@ int handle_cancel_request(CancelRequest *cancel_request) {
 	ydb_buffer_t *pid_buffer = &pid_subs[0];
 	char	      pid_str[INT32_TO_STRING_MAX], secret_key_str[INT32_TO_STRING_MAX];
 	unsigned int  ret_value, secret_key;
-	int	      status;
+	int	      status, signal;
 	pid_t	      pid;
 	pid = cancel_request->pid;
 	secret_key = cancel_request->secret_key;
@@ -99,8 +99,12 @@ int handle_cancel_request(CancelRequest *cancel_request) {
 		return -1;
 	}
 
-	// Send cancel signal (SIGUSR1) to target rocto session
-	status = kill(pid, SIGUSR1);
+	/* Send cancel signal (SIGUSR2) to target rocto session.
+	 * If the YottaDB version if r1.30, then the $ZINTERRUPT code in "_ydboctoZinterrupt.m"
+	 * expects SIGUSR1 and not SIGUSR2. So send the appropriate signal.
+	 */
+	signal = ((131 > ydb_release_number) ? SIGUSR1 : SIGUSR2);
+	status = kill(pid, signal);
 	if (0 != status) {
 		ERROR(ERR_SYSCALL, "kill()", errno, strerror(errno));
 		return -1;

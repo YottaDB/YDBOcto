@@ -31,12 +31,37 @@ teardown() {
   stop_rocto
 }
 
-@test "TCR01 : ensure cancel requests abort complicated queries (many joins)" {
-  octo <<OCTO
-CREATE FUNCTION HANGTIME(VARCHAR, INTEGER) RETURNS VARCHAR AS \$\$^HANGTIME;
-OCTO
-  run_psql_expect cancel_psql_many_joins $test_port &> output.txt
-  verify_output TCR01 expect.out noinfo nodebug noexpect stripreturns
+@test "TCR01 : Test cancel requests abort long running queries; OCTO666 : Also test MUPIP INTRPT of rocto produces JOBEXAM file" {
+	echo '# -------------------------------------------------------------------------------------------' >> output.txt
+	echo '# Test cancel request aborts long running query' >> output.txt
+	echo '# -------------------------------------------------------------------------------------------' >> output.txt
+	# Create function that is used in the later query to ensure it takes a long time (and hence needs to be canceled for sure).
+	load_fixture HANGTIME.sql
+	export mupip_intrpt=1	# signal HANGTIME.m to do a MUPIP INTRPT
+	echo '# Randomly enable env var ydb_zinterrupt to test that it overrides the default zinterrupt if set' >> output.txt
+	ydb_zintr_set=$(($RANDOM % 2))
+	if [[ 1 -eq $ydb_zintr_set ]]; then
+		# Set M variable that will be later cross verified in the ZSHOW DUMP
+		export ydb_zinterrupt='SET ZINTRSET=1 IF $ZJOBEXAM()'
+	fi
+	# Restart rocto as we want it to pick up the env var setting
+	stop_rocto
+	test_port=$(start_rocto 1441)
+	run_psql_expect cancel_psql_many_joins $test_port
+	cat expect.out >> output.txt
+	echo "" >> output.txt
+	echo '# -------------------------------------------------------------------------------------------' >> output.txt
+	echo '# Verify MUPIP INTRPT (would have been done inside HANGTIME.m) of rocto produces JOBEXAM file' >> output.txt
+	echo '# Also cerify that JOBEXAM file contains the M-stack as expected' >> output.txt
+	echo '# -------------------------------------------------------------------------------------------' >> output.txt
+	[[ 1 -eq $(ls -1 YDB_JOBEXAM.ZSHOW_DMP_* | wc -l) ]]
+	# Verify M-stack shows up as expected
+	grep -E '^HANGTIME|^octoPlan|^run' YDB_JOBEXAM.ZSHOW_DMP_* | sed 's/:.*//g' >> output.txt
+	echo '# Verify M variable ZINTRSET got set IF ydb_zinterrupt env var (randomly) drove the zinterrupt' >> output.txt
+	if [[ 1 -eq $ydb_zintr_set ]]; then
+		[[ 1 -eq $(grep "^ZINTRSET=1" YDB_JOBEXAM.ZSHOW_DMP_* | wc -l) ]]
+	fi
+	verify_output TCR01 output.txt noinfo nodebug noexpect stripreturns
 }
 
 @test "TCR03 : ensure cancel requests abort simple queries and cleanup xrefs and trigger" {

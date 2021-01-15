@@ -637,6 +637,9 @@ int octo_init(int argc, char **argv) {
 
 	// This loop is only ever executed once
 	for (;;) {
+		ydb_buffer_t zyrelease, zyrel_value;
+		char *	     ch, *ch2, zyrel_value_buff[128]; /* should be more than enough to store $ZYRELEASE value */
+
 		// This should always be 1
 		setenv("ydb_lvnullsubs", "1", 1);
 		status = ydb_init();
@@ -788,6 +791,28 @@ int octo_init(int argc, char **argv) {
 			ERROR(ERR_NULL_SUBS_DISABLED, "");
 			status = 1;
 			break;
+		}
+		/* Set "ydb_release_number" global variable from the $ZYRELEASE ISV.
+		 * Note: "argc" can be 0 in case of cmocka unit tests. Do not attempt "ydb_get_s()" in that case
+		 *	as a few cmocka tests fail in that case.
+		 */
+		if (argc) {
+			/* Store YottaDB release number as an integer (e.g. 130 in case of r1.30 etc.) */
+			YDB_LITERAL_TO_BUFFER("$ZYRELEASE", &zyrelease);
+			OCTO_SET_NULL_TERMINATED_BUFFER(zyrel_value, zyrel_value_buff);
+			ydb_get_s(&zyrelease, 0, NULL, &zyrel_value);
+			zyrel_value.buf_addr[zyrel_value.len_used] = '\0';
+			/* $ZYRELEASE is of the form "YottaDB r1.30 Linux x86_64". Extract the 130 from it */
+			strtok(zyrel_value.buf_addr, " "); /* ch now points to "YottaDB" */
+			ch = strtok(NULL, " ");		   /* ch now points to "r1.30" */
+			ch++;				   /* Skip past "r" in "r1.30" */
+			strtok(ch, ".");
+			ch2 = strtok(NULL, "."); /* ch now points to major version "1", ch2 now points to minor version "30" */
+			ydb_release_number = atoi(ch) * 100;
+			/* Note: ch2 can be NULL in case release is numbered say r999 (i.e. only major version, no minor version) */
+			if (NULL != ch2) {
+				ydb_release_number += atoi(ch2);
+			}
 		}
 		/* readlines setup */
 		rl_bind_key('\t', rl_insert); // display the tab_completion of '\t' and just insert it as a character

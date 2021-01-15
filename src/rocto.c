@@ -37,11 +37,6 @@ void handle_sigint(int sig, siginfo_t *info, void *context) {
 	rocto_session.session_ending = TRUE;
 }
 
-// Currently unused. May need to be used for CancelRequest handling in the future.
-// NOTE: This code has been disabled due to the lack of signal forwarding support for SIGUSR1 to YDB
-// void handle_sigusr1(int sig) {
-// }
-
 #if YDB_TLS_AVAILABLE
 #include "ydb_tls_interface.h"
 #endif
@@ -73,6 +68,9 @@ int main(int argc, char **argv) {
 	ydb_buffer_t		   pid_subs[2], timestamp_buffer;
 	ydb_buffer_t *		   pid_buffer = &pid_subs[0];
 	socklen_t		   addrlen;
+	ydb_buffer_t		   secret_key_list_buffer, secret_key_buffer;
+	char pid_str[INT32_TO_STRING_MAX], secret_key_str[INT32_TO_STRING_MAX], timestamp_str[INT64_TO_STRING_MAX];
+	int  secret_key = 0;
 #if YDB_TLS_AVAILABLE
 	gtm_tls_ctx_t *tls_context;
 #endif
@@ -80,6 +78,11 @@ int main(int argc, char **argv) {
 	// Initialize connection details in case errors prior to connections - needed before octo_init for Rocto error reporting
 	rocto_session.ip = "IP_UNSET";
 	rocto_session.port = "PORT_UNSET";
+
+	/* Before invoking "ydb_init()" (inside "octo_init()") set env var to ensure SIGUSR2 is treated the same as SIGUSR1.
+	 * This is needed by rocto so SIGUSR1 does creates ZSHOW dump files and SIGUSR2 cancels queries.
+	 */
+	setenv("ydb_treat_sigusr2_like_sigusr1", "1", TRUE);
 
 	// Do "octo_init" first as it initializes an environment variable ("ydb_lv_nullsubs") and that needs to be done
 	// before any "ydb_init" call happens (as the latter reads this env var to know whether to allow nullsubs in lv or not)
@@ -90,9 +93,6 @@ int main(int argc, char **argv) {
 	opt = addrlen = 0;
 
 	// Create buffers for managing secret keys for CancelRequests
-	ydb_buffer_t secret_key_list_buffer, secret_key_buffer;
-	char	     pid_str[INT32_TO_STRING_MAX], secret_key_str[INT32_TO_STRING_MAX], timestamp_str[INT64_TO_STRING_MAX];
-	int	     secret_key = 0;
 	YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTOSECRETKEYLIST, &secret_key_list_buffer);
 
 	// Initialize a handler to respond to ctrl + c
@@ -103,17 +103,6 @@ int main(int argc, char **argv) {
 	if (0 != status)
 		FATAL(ERR_SYSCALL, "sigaction(SIGINT)", errno, strerror(errno));
 
-	// NOTE: This code has been disabled due to the lack of signal forwarding support for SIGUSR1 to YDB
-	// Initialize handler for SIGUSR1 in rocto C code
-	// Currently unused. May need to be used for CancelRequest handling in the future.
-	// memset(&sigusr1_action, 0, sizeof(sigusr1_action));
-	// sigusr1_action.sa_flags = SA_SIGINFO;
-	// sigusr1_action.sa_sigaction = (void *)handle_sigusr1;
-	// status = sigaction(SIGUSR1, &sigusr1_action, NULL);
-	// if (0 != status)
-	// FATAL(ERR_SYSCALL, "sigaction", errno, strerror(errno));
-
-	// Initialize SIGUSR1 handler in YDB
 	status = ydb_init(); /* YDB init needed for signal handler setup and gtm_tls_init call below */
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
@@ -121,7 +110,7 @@ int main(int argc, char **argv) {
 		return status;
 	}
 	YDB_LITERAL_TO_BUFFER("$ZINTERRUPT", &z_interrupt);
-	YDB_LITERAL_TO_BUFFER("ZGOTO 1:run^%ydboctoCleanup", &z_interrupt_handler);
+	YDB_LITERAL_TO_BUFFER("DO zintr^%ydboctoZinterrupt", &z_interrupt_handler);
 	status = ydb_set_s(&z_interrupt, 0, NULL, &z_interrupt_handler);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {

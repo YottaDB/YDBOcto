@@ -1,4 +1,8 @@
-ydb=# select n1.id from names as n1 left join names as n2 on n1.id != n2.id left join names as n3 on n1.id != n3.id left join names as n4 on n1.id != n4.id left join names as n5 on n1.id != n5.id left join names as n6 on n1.id != n6.id left join names as n7 on n1.id != n7.id WHERE HANGTIME("Zero",5) = n1.firstname;
+# -------------------------------------------------------------------------------------------
+# Test cancel request aborts long running query
+# -------------------------------------------------------------------------------------------
+# Randomly enable env var ydb_zinterrupt to test that it overrides the default zinterrupt if set
+ydb=# select n1.id,n2.id from names n1, names n2 WHERE HANGTIME('Zero',5) = n1.firstname;
 ^CCancel request sent
 ERROR:  canceling statement due to user request
 ydb=# # OCTO645 : Test that a valid short query works fine after a canceled query (it used to be incorrectly treated as canceled)
@@ -14,3 +18,14 @@ select * from names;
 (6 rows)
 
 ydb=# \q
+# -------------------------------------------------------------------------------------------
+# Verify MUPIP INTRPT (would have been done inside HANGTIME.m) of rocto produces JOBEXAM file
+# Also cerify that JOBEXAM file contains the M-stack as expected
+# -------------------------------------------------------------------------------------------
+HANGTIME+5^HANGTIME    ($ZINTERRUPT) 
+octoPlan1+11^%ydboctoPMAKbK1A43jQMkjbO4MWi05
+octoPlan1+5^%ydboctoPMAKbK1A43jQMkjbO4MWi05
+octoPlan1+3^%ydboctoPMAKbK1A43jQMkjbO4MWi05
+octoPlan0+1^%ydboctoPMAKbK1A43jQMkjbO4MWi05
+run+7^%ydboctoselect
+# Verify M variable ZINTRSET got set IF ydb_zinterrupt env var (randomly) drove the zinterrupt

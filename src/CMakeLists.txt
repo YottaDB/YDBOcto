@@ -433,6 +433,7 @@ set(aux_files
   aux/_ydboctoInit.m
   aux/_ydboctoUtils.m
   aux/_ydboctopgfunctions.m
+  aux/_ydboctoZinterrupt.m
   aux/_ydboctoplanhelpers.m
   aux/_ydboctoselect.m
   aux/_ydboctosqlfunctions.m

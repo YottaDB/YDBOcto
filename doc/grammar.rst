@@ -729,11 +729,13 @@ CONCAT
 ++++++++++
 
 .. code-block:: SQL
+		
    SELECT CONCAT(VARCHAR, VARCHAR)
 
 The built-in CONCAT function returns the concatenation of its arguments as a VARCHAR value. This function may be used with 2 or 3 VARCHAR arguments to be concatenated.
 
 .. code-block:: SQL
+		
    SELECT CONCAT('string1', 'string2')
    SELECT CONCAT('string1', 'string2', 'string3')
 
@@ -790,9 +792,9 @@ If the precision is 0, this behaves the same as the mathematical `floor` functio
 If the precision is less than 0, all fractional digits will be truncated and the number will be truncated to `10^precision`.
 The precision must be no less than -43.
 
-----------
+--------------
 Constructors
-----------
+--------------
 
 -----
 ARRAY

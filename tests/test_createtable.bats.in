@@ -120,7 +120,7 @@ OCTO
   yottadb -run %XCMD 'kill ^T1 set ^T1(1,2.2,3.3)="1.1|2|3"'
   octo <<OCTO 2>&1 | tee output.txt
 drop table t1;
-create table t1 (a int primary key, b int, c numeric, d numeric key num 1, e int, f int key num 2);
+create table t1 (a int primary key, b int, c numeric, d numeric key num 1, e int, f int key num 2) global "^T1(keys(""a""),keys(""d""),keys(""f""))";
 select * from t1;
 OCTO
   verify_output TC008 output.txt
@@ -130,7 +130,7 @@ OCTO
   yottadb -run %XCMD 'kill ^T1 set ^T1("hello")="world"'
   octo <<OCTO 2>&1 | tee output.txt
 drop table t1;
-create table t1(a int primary key, b numeric);
+create table t1(a int primary key, b numeric) global "^T1(keys(""a""))";
 select * from t1;
 OCTO
   verify_output TC009 output.txt
@@ -158,7 +158,12 @@ OCTO
 }
 
 @test "TC012 : OCTO484 : PIECE numbers of non-primary-key columns specified in CREATE TABLE should start at 1 by default" {
-  yottadb -run %XCMD 'set ^SIMPLE0(1)="",^SIMPLE1(1)="First",^SIMPLE2(1)="First|Last"'
+  yottadb -dir << "END" 2>&1 | tee ydbsets.txt
+set prefix="^%ydboctoD"
+set @(prefix_$zysuffix("SIMPLE0"))@(1)=""
+set @(prefix_$zysuffix("SIMPLE1"))@(1)="First"
+set @(prefix_$zysuffix("SIMPLE2"))@(1)="First|Last"
+END
   load_fixture TC012.sql subtest novv
   # Ensure correct # of plans were generated (for 32 queries, we expect only 19 plans to be generated
   # because lots of CREATE TABLE statements are equivalent due to the explicit PIECE # being same as the implicit PIECE#
@@ -548,3 +553,9 @@ OCTO
 	verify_output TC043 output.txt
 }
 
+@test "TC044 : OCTO575 : Octo CREATE TABLE naively creates invalid GVNs from table names" {
+  echo "# Create table with name that contains _ or . then run select on it and" > output.txt
+	echo "# verify that we don't get any errors." >> output.txt
+	load_fixture TC044.sql subtest novv
+	verify_output TC044 output.txt
+}

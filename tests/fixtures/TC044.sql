@@ -1,6 +1,7 @@
+
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -9,6 +10,6 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
-
-CREATE TABLE t1(a INTEGER, b INTEGER, c INTEGER, d INTEGER, e INTEGER)
-GLOBAL "^T1(keys(""a""),keys(""b""),keys(""c""),keys(""d""),keys(""e""))";
+-- TC044 : OCTO575 : Octo CREATE TABLE naively creates invalid GVNs from table names
+CREATE TABLE information_schema.testeroni (tester VARCHAR);
+SELECT * FROM information_schema.testeroni;

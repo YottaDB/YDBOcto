@@ -1,8 +1,8 @@
-YottaDB MUPIP EXTRACT
-21-SEP-2018  14:55:45 ZWR
-^NAMES4(0,"Zero","Cool")="Zero|Cool"
-^NAMES4(1,"Acid","Burn")="Acid|Burn"
-^NAMES4(2,"Cereal","Killer")="Cereal|Killer"
-^NAMES4(3,"Lord","Nikon")="Lord|Nikon"
-^NAMES4(4,"Joey","")="Joey|"
-^NAMES4(5,"Zero","Cool")="Zero|Cool"
+YottaDB MUPIP EXTRACT /usr/library/V989_R131/dbg/mupip extract -sel=%ydboctoDRjvo6GxnmC6en4dT5J9vL3 names4.zwr
+25-JAN-2021  11:38:01 ZWR
+^%ydboctoDRjvo6GxnmC6en4dT5J9vL3(0,"Zero","Cool")="Zero|Cool"
+^%ydboctoDRjvo6GxnmC6en4dT5J9vL3(1,"Acid","Burn")="Acid|Burn"
+^%ydboctoDRjvo6GxnmC6en4dT5J9vL3(2,"Cereal","Killer")="Cereal|Killer"
+^%ydboctoDRjvo6GxnmC6en4dT5J9vL3(3,"Lord","Nikon")="Lord|Nikon"
+^%ydboctoDRjvo6GxnmC6en4dT5J9vL3(4,"Joey","")="Joey|"
+^%ydboctoDRjvo6GxnmC6en4dT5J9vL3(5,"Zero","Cool")="Zero|Cool"

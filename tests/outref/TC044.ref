@@ -1,0 +1,8 @@
+# Create table with name that contains _ or . then run select on it and
+# verify that we don't get any errors.
+
+-- TC044 : OCTO575 : Octo CREATE TABLE naively creates invalid GVNs from table names
+CREATE TABLE information_schema.testeroni (tester VARCHAR);
+SELECT * FROM information_schema.testeroni;
+TESTER
+(0 rows)

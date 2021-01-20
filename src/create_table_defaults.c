@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -22,19 +22,40 @@
 #define DELIM	 (1 << 1)
 #define NULLCHAR (1 << 2)
 
-#define EXPAND_BUFFER_IF_NEEDED(FMT_STR, ARG)                                                 \
-	while ((buffer_size - (buff_ptr - buffer)) <= (total_copied + copied)) {              \
-		char *tmp;                                                                    \
-		int   new_buffer_size;                                                        \
-                                                                                              \
-		new_buffer_size = buffer_size * 2;                                            \
-		tmp = (char *)malloc(sizeof(char) * new_buffer_size);                         \
-		memcpy(tmp, buffer, total_copied);                                            \
-		free(buffer);                                                                 \
-		buffer = tmp;                                                                 \
-		buffer_size = new_buffer_size;                                                \
-		buff_ptr = buffer + total_copied;                                             \
-		copied = snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), FMT_STR, ARG); \
+/* The size of this must match $ZYSUFFIX exactly, which is 22.
+ * This mirrors the design of generate_routine_name function. */
+#define OCTO_TABLE_GLOBAL_PREFIX "%ydboctoD"
+#define OCTO_TABLE_PREFIX_LEN	 (sizeof(OCTO_TABLE_GLOBAL_PREFIX) - 1)
+#define OCTO_HASH_LEN		 (YDB_MAX_IDENT - OCTO_TABLE_PREFIX_LEN)
+
+/* We SNPRINTF and resize buffers multiple times, so this is a convenience
+ * macro that contains all the necessary operations */
+#define SNPRINTF_TO_BUFFER(ARG, BUFFER, BUFF_PTR, BUFFER_SIZE, TOTAL_COPIED)                       \
+	{                                                                                          \
+		int copied;                                                                        \
+                                                                                                   \
+		/* main snprintf */                                                                \
+		copied = snprintf(BUFF_PTR, BUFFER_SIZE - (BUFF_PTR - BUFFER), "%s", ARG);         \
+                                                                                                   \
+		/* resize buffer if needed */                                                      \
+		while ((BUFFER_SIZE - (BUFF_PTR - BUFFER)) <= (TOTAL_COPIED + copied)) {           \
+			char *tmp;                                                                 \
+			int   new_buffer_size;                                                     \
+                                                                                                   \
+			new_buffer_size = BUFFER_SIZE * 2;                                         \
+			tmp = (char *)malloc(sizeof(char) * new_buffer_size);                      \
+			memcpy(tmp, BUFFER, TOTAL_COPIED);                                         \
+			free(BUFFER);                                                              \
+			BUFFER = tmp;                                                              \
+			BUFFER_SIZE = new_buffer_size;                                             \
+			BUFF_PTR = BUFFER + TOTAL_COPIED;                                          \
+			copied = snprintf(BUFF_PTR, BUFFER_SIZE - (BUFF_PTR - BUFFER), "%s", ARG); \
+		}                                                                                  \
+                                                                                                   \
+		/* Advance buffer pointer */                                                       \
+		BUFF_PTR += copied;                                                                \
+		TOTAL_COPIED += copied;                                                            \
+		assert(BUFFER_SIZE > TOTAL_COPIED);                                                \
 	}
 
 #define DQDEL_AND_CONTINUE(CUR_KEYWORD, START_KEYWORD, NEXT_KEYWORD) \
@@ -169,42 +190,45 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		return 0;
 	}
 	if (!(options & SOURCE)) {
-		int   total_copied = 0;
-		int   buffer_size, buffer2_size;
-		char *buffer, *buffer2, *buff_ptr;
+		int	   total_copied = 0;
+		int	   buffer_size, buffer2_size;
+		char *	   buffer, *buffer2, *buff_ptr;
+		ydb_uint16 mmr_table_hash;
+		char	   table_hash[OCTO_HASH_LEN + 1]; // +1 for null terminator
 
 		buffer_size = buffer2_size = OCTO_INIT_BUFFER_LEN;
 		buffer = (char *)malloc(sizeof(char) * buffer_size);
 		buffer2 = (char *)malloc(sizeof(char) * buffer2_size);
 		UNPACK_SQL_STATEMENT(value, table->tableName, value);
 		buff_ptr = buffer;
-		copied = snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), "^%s(", value->v.reference);
-		EXPAND_BUFFER_IF_NEEDED("^%s(", value->v.reference);
-		buff_ptr += copied;
-		total_copied += copied;
-		assert(buffer_size > total_copied);
-		UNUSED(total_copied); // Only used for asserts, so use macro to prevent compiler warnings in RelWithDebInfo builds
+
+		// Hashed table name (which matches $ZYSUFFIX)
+		ydb_mmrhash_128(value->v.reference, strlen(value->v.reference), 0, &mmr_table_hash);
+		ydb_hash_to_string(&mmr_table_hash, table_hash, OCTO_HASH_LEN);
+		table_hash[OCTO_HASH_LEN] = '\0';
+		assert(strlen(table_hash) == 22);
+
+		/* Add ^OCTO_TABLE_GLOBAL_PREFIX to table name, then add table hash to table
+		 * name after prefix and then open paren. */
+		SNPRINTF_TO_BUFFER("^", buffer, buff_ptr, buffer_size, total_copied);
+		SNPRINTF_TO_BUFFER(OCTO_TABLE_GLOBAL_PREFIX, buffer, buff_ptr, buffer_size, total_copied);
+		SNPRINTF_TO_BUFFER(table_hash, buffer, buff_ptr, buffer_size, total_copied);
+		SNPRINTF_TO_BUFFER("(", buffer, buff_ptr, buffer_size, total_copied);
+
+		// Append keys (aka subscripts)
 		for (i = 0; i <= max_key; i++) {
 			generate_key_name(&buffer2, &buffer2_size, i, table, key_columns);
+			// Add a comma if not first key
 			if (0 != i) {
-				copied = snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), ",");
-				EXPAND_BUFFER_IF_NEEDED("%s", ",");
-				buff_ptr += copied;
-				total_copied += copied;
-				assert(buffer_size > total_copied);
+				SNPRINTF_TO_BUFFER(",", buffer, buff_ptr, buffer_size, total_copied);
 			}
-			copied = snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), "%s", buffer2);
-			EXPAND_BUFFER_IF_NEEDED("%s", buffer2);
-			buff_ptr += copied;
-			total_copied += copied;
-			assert(buffer_size > total_copied);
+			// Add key
+			SNPRINTF_TO_BUFFER(buffer2, buffer, buff_ptr, buffer_size, total_copied);
 		}
-		copied = snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), ")");
-		EXPAND_BUFFER_IF_NEEDED("%s", ")");
-		buff_ptr += copied;
-		total_copied += copied;
-		assert(buffer_size > total_copied);
-		UNUSED(total_copied); // Only used for asserts, so use macro to prevent compiler warnings in RelWithDebInfo builds
+		// Add closing parentheses
+		SNPRINTF_TO_BUFFER(")", buffer, buff_ptr, buffer_size, total_copied);
+
+		// Null terminate, and prepare to return
 		*buff_ptr++ = '\0';
 		len = buff_ptr - buffer;
 		out_buffer = octo_cmalloc(memory_chunks, len);

@@ -143,7 +143,10 @@ The keywords denoted above are M expressions and literals. They are explained in
 +--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------+
 | EXTRACT                        | Expression                    | Column                 | Extracts the value of the column from the database                             | PIECE, GLOBAL                | Not applicable                                |
 +--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------+
-| GLOBAL                         | Literal                       | Table, Column          | Represents the "source" location for a table                                   | table/default GLOBAL setting | :code:`<table_name>(keys(0))`                 |
+| GLOBAL                         | Literal                       | Table, Column          | Represents the "source" location for a table. If specified, you must include   | table/default GLOBAL setting | :code:`%ydboctoD_$zysuffix(<tablename>)(keys(0))` |
+|                                |                               |                        | all the keys in the global specification. If the table has no keys, then all   |                              |                                               |
+|                                |                               |                        | columns are considered keys and must be included. See the examples in this     |                              |                                               |
+|                                |                               |                        | document to see how you can construct the GLOBAL keyword.                      |                              |                                               |
 +--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------+
 | KEY NUM                        | Integer Literal               | Column                 | Specifies that the column maps to keys(<number>)                               | Not applicable               | Not applicable                                |
 +--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------+
@@ -729,13 +732,13 @@ CONCAT
 ++++++++++
 
 .. code-block:: SQL
-		
+
    SELECT CONCAT(VARCHAR, VARCHAR)
 
 The built-in CONCAT function returns the concatenation of its arguments as a VARCHAR value. This function may be used with 2 or 3 VARCHAR arguments to be concatenated.
 
 .. code-block:: SQL
-		
+
    SELECT CONCAT('string1', 'string2')
    SELECT CONCAT('string1', 'string2', 'string3')
 

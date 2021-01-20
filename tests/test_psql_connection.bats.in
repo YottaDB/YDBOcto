@@ -191,7 +191,7 @@ OCTO
   test_portD=$(start_rocto $test_port --allowschemachanges)
   cat >> in.sql <<OCTO
 select * from t1;
-create table t1(a int, b int);
+create table t1(a int, b int) global "^T1(keys(""a""),keys(""b""))";
 select * from t1;
 drop table t1;
 select * from t1;
@@ -207,7 +207,7 @@ OCTO
   test_portE=$(start_rocto $test_port --allowschemachanges)
   cat >> in.sql <<OCTO
 select * from t1;
-create table t1(a int, b int);
+create table t1(a int, b int) global "^T1(keys(""a""),keys(""b""))";
 select * from t1;
 drop table t1;
 select * from t1;

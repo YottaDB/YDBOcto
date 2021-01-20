@@ -1,0 +1,15 @@
+# More than 1 region does not reproduce the issue (reasons not clear)
+# Delete gld and 2 *.dat files created by createdb as part of setup() function
+# Create 1 region database
+# Need to set global buffers to a small value for the LRU clock algorithm (in "db_csh_getn" of YDB repo)
+# to kick in and cause a self-inflicted restart.
+# Create ^names1 and ^names2 globals with lots of nodes corresponding to the NAMES1 and NAMES2 tables
+# But more importantly also set nodes in the same globals that are not part of the NAMES1/NAMES2 tables
+# and that take up more space in the GDS block as this is necessary to cause a restart due to lack of
+# global buffers ("cdb_sc_lostcr" in tp_hist.c).
+# Note that two globals are needed to reproduce the original issue.
+# It is not clear yet why that is the case but it is not considered important enough to investigate.
+# Run SQL query TX03.sql that generates xref
+COUNT(*)
+1
+(1 row)

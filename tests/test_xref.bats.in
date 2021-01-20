@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -53,3 +53,26 @@ OCTO
   verify_output TX02 output.txt
 }
 
+@test "TX03 : OCTO667 : Query that builds more than one cross reference does not TP restart indefinitely" {
+	echo '# Need 1 region in order to reproduce the indefinite TP restart issue' > output.txt
+	echo '# More than 1 region does not reproduce the issue (reasons not clear)' > output.txt
+	echo '# Delete gld and 2 *.dat files created by createdb as part of setup() function' >> output.txt
+	rm $ydb_gbldir *.dat
+	echo '# Create 1 region database' >> output.txt
+	createdb 1
+	echo '# Need to set global buffers to a small value for the LRU clock algorithm (in "db_csh_getn" of YDB repo)' >> output.txt
+	echo "# to kick in and cause a self-inflicted restart." >> output.txt
+	mupip set -global_buffers=65 -reg "*"
+	echo '# Create ^names1 and ^names2 globals with lots of nodes corresponding to the NAMES1 and NAMES2 tables' >> output.txt
+	echo '# But more importantly also set nodes in the same globals that are not part of the NAMES1/NAMES2 tables' >> output.txt
+	echo '# and that take up more space in the GDS block as this is necessary to cause a restart due to lack of' >> output.txt
+	echo '# global buffers ("cdb_sc_lostcr" in tp_hist.c).' >> output.txt
+	echo '# Note that two globals are needed to reproduce the original issue.' >> output.txt
+	echo '# It is not clear yet why that is the case but it is not considered important enough to investigate.' >> output.txt
+	yottadb -run ^%XCMD 'for i=1:1:1000 s (^names1(i),^names2(i))="A|B" s (^names1(i,0),^names2(i,0))=$j(1,200)'
+	yottadb -run ^%XCMD 'for i=1001 s (^names1(i),^names2(i))="C|D" s (^names1(i,0),^names2(i,0))=$j(1,200)'
+	echo '# Run SQL query TX03.sql that generates xref' >> output.txt
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TX03.sql .
+	octo -f TX03.sql 2>&1 | tee -a output.txt
+	verify_output TX03 output.txt
+}

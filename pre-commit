@@ -2,7 +2,7 @@
 #
 #################################################################
 #                                                               #
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.       #
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.       #
 # All rights reserved.                                          #
 #                                                               #
 #       This source code contains the intellectual property     #
@@ -26,8 +26,22 @@ foreach file ($filelist)
 	if ($status != 0) then
 		continue
 	endif
+	# Optimization: don't run the python script unless necessary
 	grep 'Copyright (c) .*'$curyear' YottaDB LLC' $file >& /dev/null
-	if ($status != 0) then
+	if ($status == 0) then
+		continue
+	endif
+	# Try to automatically add a copyright to the file
+	set tempfile = `mktemp`
+	tools/ci/copyright.py < $file > $tempfile
+	set copyright_status = $status
+	if ($copyright_status == 1) then
+		echo "note: automatically committing copyright updates to $file"
+		# Preserve the original file permissions
+		chmod --reference=$file $tempfile
+		mv $tempfile $file
+		git add $file
+	else if ($copyright_status != 0) then
 		set fixlist = "$fixlist $file"
 	endif
 end

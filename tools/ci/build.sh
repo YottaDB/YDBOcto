@@ -902,9 +902,9 @@ if [[ 0 != $exit_status ]]; then
 		echo "# List of failed tests/subtests and their output directories"
 		echo "# ----------------------------------------------------------"
 		if [[ -z Testing/Temporary/LastTest.log ]]; then
-			grep -A 6 -E "not ok|Test: " Testing/Temporary/LastTest.log | grep -E "not ok|# Temporary|Test: " | grep -C 1 "not ok" | sed "s/^not/  &/;s/^#/  &/"
-		else
 			echo "# Detected script failure prior to BATS test execution. Please review script output to determine source."
+		else
+			grep -A 6 -E "not ok|Test: " Testing/Temporary/LastTest.log | grep -E "not ok|# Temporary|Test: " | grep -C 1 "not ok" | sed "s/^not/  &/;s/^#/  &/"
 		fi
 		echo "# -----------------------------"
 	else

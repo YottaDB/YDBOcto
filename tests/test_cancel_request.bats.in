@@ -65,7 +65,7 @@ teardown() {
 }
 
 @test "TCR03 : ensure cancel requests abort simple queries and cleanup xrefs and trigger" {
-  load_big_data
+  $ydb_dist/yottadb -run loadbigdata
   # Remove verbosity as the logical plan is too long to print correctly and not needed here
   run_psql_expect cancel_psql_big_data $test_port &> output.txt
   verify_output TCR00 expect.out noinfo nodebug noexpect stripreturns
@@ -80,6 +80,27 @@ YDB
   echo $output >> xref.txt
   verify_output TCR02 xref.txt
   # Ensure all triggers are cleaned up, i.e. no triggers
-  $ydb_dist/mupip TRIGGER -SELECT triggers.txt
+  $ydb_dist/mupip trigger -select triggers.txt
   verify_output TCR03 triggers.txt
+}
+
+@test "TCR04 : Test cancel request works in rocto when running an INSERT INTO query and partial updates are rolled back" {
+	skip    # TODO : YDBOcto#502 : Remove this line once INSERT INTO is fully supported
+	# Stop rocto as we want to bump global buffers which requires standalone access
+	stop_rocto
+	echo '# Set global buffers to 16384 to avoid TRANS2BIG errors' >> output.txt
+	mupip set -global_buffers=16384 -reg "*"
+	# Restart rocto
+	test_port=$(start_rocto 1441)
+	echo '# Test cancel request for INSERT INTO' > output.txt
+	echo '# Generate names tables with 1 million rows' >> output.txt
+	$ydb_dist/yottadb -run loadbigdata "TCR04"
+	echo '# Above step also generates TCR04.sql which has an INSERT INTO query to insert 1 million new rows' >> output.txt
+	echo '# Run TCR04.sql through psql and cancel query; Expect number of rows to still be 1 million afterwards' >> output.txt
+	run_psql_expect TCR04 $test_port
+	cat expect.out >> output.txt
+	echo "" >> output.txt
+	echo '# Verify no partial updates from INSERT INTO' >> output.txt
+	$ydb_dist/yottadb -run verify^loadbigdata >> output.txt
+	verify_output TCR04 output.txt noinfo nodebug noexpect stripreturns
 }

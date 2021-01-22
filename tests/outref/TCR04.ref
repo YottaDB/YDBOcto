@@ -1,0 +1,19 @@
+# Test cancel request for INSERT INTO
+# Generate names tables with 1 million rows
+# Above step also generates TCR04.sql which has an INSERT INTO query to insert 1 million new rows
+# Run TCR04.sql through psql and cancel query; Expect number of rows to still be 1 million afterwards
+ydb=# # Run INSERT INTO query that takes a long time to run so we can Ctrl-C it and verify if CancelRequest processing occurs
+insert into names select id+1000000,firstname,lastname from names;
+# Send interrupt to trigger cancel request
+^CCancel request sent
+ERROR:  canceling statement due to user request
+ydb=# # Run another query to verify queries after a Ctrl-C of INSERT INTO work fine and cancelled query left db in clean state
+select count(*) from names;
+ count(*) 
+----------
+  1000000
+(1 row)
+
+ydb=# \q
+# Verify no partial updates from INSERT INTO
+PASS : Verification passed

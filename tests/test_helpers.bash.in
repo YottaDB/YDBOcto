@@ -178,14 +178,6 @@ load_postgres_fixture() {
 	psql $1 -f @PROJECT_SOURCE_DIR@/tests/fixtures/$2 &> $1.psql.load || true
 }
 
-# Load a large amount of dummy data for tests requiring slow queries
-load_big_data() {
-	$ydb_dist/yottadb -run ^%XCMD 'for i=1:4:1000000 s ^names(i+5)="|A|B"'
-	$ydb_dist/yottadb -run ^%XCMD 'for i=2:4:1000000 s ^names(i+5)="|C|B"'
-	$ydb_dist/yottadb -run ^%XCMD 'for i=3:4:1000000 s ^names(i+5)="|A|C"'
-	$ydb_dist/yottadb -run ^%XCMD 'for i=4:4:1000000 s ^names(i+5)="|B|A"'
-}
-
 createdb() {
 	export ydb_gbldir="yottadb.gld"
 	echo "ydb_gbldir: $ydb_gbldir"

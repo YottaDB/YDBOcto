@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -15,12 +15,15 @@
 -- Map function to intrinsic function (all caps)
 CREATE FUNCTION DOLLARZWRITE(VARCHAR) RETURNS VARCHAR AS $ZWRITE;
 select DOLLARZWRITE(firstname) from names;
+DROP FUNCTION DOLLARZWRITE(VARCHAR);
 
 -- Map function to intrinsic function (lowercase)
 CREATE FUNCTION DOLLARZWRITE(VARCHAR) RETURNS VARCHAR AS $zwrite;
 select DOLLARZWRITE(firstname) from names;
+DROP FUNCTION DOLLARZWRITE(VARCHAR);
 
 -- Map function to intrinsic function (mixed case)
 CREATE FUNCTION DOLLARZWRITE(VARCHAR) RETURNS VARCHAR AS $zWrItE;
 select DOLLARZWRITE(firstname) from names;
+DROP FUNCTION DOLLARZWRITE(VARCHAR);
 

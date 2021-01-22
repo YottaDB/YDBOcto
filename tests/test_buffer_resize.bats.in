@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -34,7 +34,7 @@ setup() {
 	# Test resize for intrinsic function names > OCTO_INIT_BUFFER_LEN
 	echo "CREATE FUNCTION nofunc () RETURNS VARCHAR AS \$$(for i in {1..3000}; do echo -n c; done);" >> in.sql
 	# Test resize for extrinsic function names > OCTO_INIT_BUFFER_LEN
-	echo "CREATE FUNCTION nofunc () RETURNS VARCHAR AS \$\$$(for i in {1..3000}; do echo -n c; done);" >> in.sql
+	echo "CREATE FUNCTION nofunc (integer) RETURNS VARCHAR AS \$\$$(for i in {1..3000}; do echo -n c; done);" >> in.sql
 	octo -f in.sql &> output.txt
 	# TODO: Accept GVSUBOFLOW error until #607 is resolved
 	verify_output TBR000 output.txt

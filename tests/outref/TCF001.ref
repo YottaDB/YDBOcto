@@ -1,6 +1,7 @@
 
 -- TCF001 : OCTO345 : Allow specification of type for parameters and return value of user-defined functions
 
+DROP FUNCTION ABS(NUMERIC);	-- to avoid ERR_CANNOT_CREATE_FUNCTION error
 CREATE FUNCTION ABS(NUMERIC) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;
 select ABS(-id)+2 as absid from names;
 ABSID

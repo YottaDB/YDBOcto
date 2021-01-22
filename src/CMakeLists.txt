@@ -170,6 +170,7 @@ add_library(libocto OBJECT
   get_column_piece_number.c
   get_full_path_of_generated_m_file.c
   get_full_path_of_generated_o_file.c
+  get_function_name_and_parmtypes.c
   get_key_columns.c
   get_keyword.c
   get_keyword_from_keywords.c

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -17,6 +17,7 @@ CREATE FUNCTION OVERLOADEDFUNC (NUMERIC, NUMERIC, VARCHAR) RETURNS VARCHAR AS $$
 CREATE FUNCTION OVERLOADEDFUNC (VARCHAR, INTEGER) RETURNS VARCHAR AS $$^OVERLOADEDFUNC;
 -- Since return types are not considered when distinguishing overloaded functions, only the most recently defined return type will be used
 CREATE FUNCTION OVERLOADEDFUNC (BOOLEAN) RETURNS VARCHAR AS $$^OVERLOADEDFUNC;
+DROP FUNCTION OVERLOADEDFUNC(BOOLEAN);
 CREATE FUNCTION OVERLOADEDFUNC (BOOLEAN) RETURNS BOOLEAN AS $$^OVERLOADEDFUNC;
 
 -- Parameter types: INTEGER, NUMERIC, VARCHAR

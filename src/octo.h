@@ -585,6 +585,7 @@ PSQL_TypeOid  get_psql_type_from_sqlvaluetype(SqlValueType type);
 PSQL_TypeSize get_type_size_from_psql_type(PSQL_TypeOid type);
 SqlTable *    find_table(const char *table_name);
 SqlFunction * find_function(const char *function_name, const char *function_hash);
+void	      get_function_name_and_parmtypes(char *ret_buff, int ret_buff_len, char *function_name, SqlStatement *parm_list_stmt);
 int	   drop_schema_from_local_cache(ydb_buffer_t *name_buffer, SqlSchemaType schema_type, ydb_buffer_t *function_hash_buffer);
 SqlColumn *find_column(char *column_name, SqlTable *table);
 SqlStatement *find_column_alias_name(SqlStatement *stmt);

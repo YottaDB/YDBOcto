@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -19,14 +19,9 @@ setup() {
 	load_fixture names.zwr
 }
 
-@test "TCF000 : CREATE FUNCTION works with existing functions (ABS)" {
+@test "TCF000 : Test of ERR_CANNOT_CREATE_FUNCTION error" {
 	load_fixture TCF000.sql subtest novv
-	# Confirm that a unique OID is generated for each CREATE FUNCTION statement for the same function name
-	# We expect 3 unique OID lines: 1. Stock
-	[[ "$(grep "OID|" output.txt | cut -d'|' -f 2 | uniq | wc -l)" == "3" ]]
-	# Strip OIDs and compare to ensure they are different between CREATE FUNCTION statements
-	grep -v "OID|" output.txt &> nooid_output.txt
-	verify_output TCF000 nooid_output.txt noinfo nodebug
+	verify_output TCF000 output.txt noinfo nodebug
 }
 
 @test "TCF001 : OCTO345 : Allow specification of type for parameters and return value of user-defined functions" {

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -14,5 +14,6 @@
 
 -- TCF023 : OCTO90 : Rerunning query after CREATE FUNCTION should recreate plans that relied on the recreated function
 
+DROP FUNCTION REPLACE(VARCHAR, VARCHAR, VARCHAR);
 CREATE FUNCTION REPLACE(VARCHAR, VARCHAR, VARCHAR) RETURNS VARCHAR AS $$^%ydboctoreplace;
 

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -14,6 +14,9 @@
 
 CREATE FUNCTION TCF009() RETURNS VARCHAR AS $$%TCF009^%TESTPERCENT;
 select TCF009() from names;
+DROP FUNCTION TCF009();
 
 CREATE FUNCTION TCF009() RETURNS VARCHAR AS $$%^%;
 select TCF009() from names;
+DROP FUNCTION TCF009();
+

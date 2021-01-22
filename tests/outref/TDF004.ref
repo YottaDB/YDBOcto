@@ -4,5 +4,5 @@
 DROP FUNCTION PARMLESSFUNC ();
 DROP FUNCTION PARMFULLFUNC (VARCHAR, INTEGER, NUMERIC);
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_FUNCTION : Cannot DROP function 'PARMLESSFUNC': no function defined with given name and parameter types
-[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_FUNCTION : Cannot DROP function 'PARMFULLFUNC': no function defined with given name and parameter types
+[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_FUNCTION : Cannot DROP function 'PARMLESSFUNC()': no function defined with given name and parameter types
+[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_FUNCTION : Cannot DROP function 'PARMFULLFUNC(VARCHAR, INTEGER, NUMERIC)': no function defined with given name and parameter types

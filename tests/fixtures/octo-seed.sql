@@ -326,7 +326,12 @@ CREATE FUNCTION ROW_NUMBER() RETURNS INTEGER AS $$pgRowNumber^%ydboctopgfunction
 CREATE FUNCTION SET_CONFIG(VARCHAR, VARCHAR, BOOLEAN) RETURNS VARCHAR AS $$setConfig^%ydboctopgfunctions;
 CREATE FUNCTION VERSION() RETURNS VARCHAR AS $$VERSION^%ydboctosqlfunctions;
 
+/* Note: Lines that start with "CREATE FUNCTION PG_CATALOG..." need to have an empty line after the query as this is relied upon
+ * by the sed commands in "tests/fixtures/convert_catalog_sql.sh". Hence the blank lines below after each CREATE FUNCTION.
+ */
 CREATE FUNCTION PG_CATALOG.PG_TABLE_IS_VISIBLE(INTEGER) RETURNS BOOLEAN AS $$pgTableIsVisible^%ydboctopgfunctions;
+
+/* Note: Need an empty line after each PG_CATALOG. function. See comment before PG_CATALOG.PG_TABLE_IS_VISIBLE for more detail. */
 CREATE FUNCTION PG_CATALOG.PG_GET_USERBYID(INTEGER) RETURNS VARCHAR AS $$pgGetUserById^%ydboctopgfunctions;
 
 CREATE FUNCTION CURRENT_SCHEMA() RETURNS VARCHAR AS $$pgCurrentSchema^%ydboctopgfunctions;
@@ -340,10 +345,19 @@ CREATE FUNCTION CURRENT_ROLE() RETURNS VARCHAR AS $$pgUser^%ydboctopgfunctions;
 CREATE FUNCTION CURRENT_USER() RETURNS VARCHAR AS $$pgUser^%ydboctopgfunctions;
 CREATE FUNCTION SESSION_USER() RETURNS VARCHAR AS $$pgUser^%ydboctopgfunctions;
 CREATE FUNCTION USER() RETURNS VARCHAR AS $$pgUser^%ydboctopgfunctions;
+
+/* Note: Need an empty line after each PG_CATALOG. function. See comment before PG_CATALOG.PG_TABLE_IS_VISIBLE for more detail. */
 CREATE FUNCTION PG_CATALOG.CURRENT_SCHEMAS(BOOLEAN) RETURNS VARCHAR AS $$pgCurrentSchemas^%ydboctopgfunctions;
+
+/* Note: Need an empty line after each PG_CATALOG. function. See comment before PG_CATALOG.PG_TABLE_IS_VISIBLE for more detail. */
 CREATE FUNCTION PG_CATALOG.OBJ_DESCRIPTION(INTEGER, VARCHAR) RETURNS VARCHAR AS $$pgObjDescription^%ydboctopgfunctions;
+
+/* Note: Need an empty line after each PG_CATALOG. function. See comment before PG_CATALOG.PG_TABLE_IS_VISIBLE for more detail. */
 CREATE FUNCTION PG_CATALOG.PG_BACKEND_PID() RETURNS VARCHAR AS $$pgBackendPid^%ydboctopgfunctions;
+
+/* Note: Need an empty line after each PG_CATALOG. function. See comment before PG_CATALOG.PG_TABLE_IS_VISIBLE for more detail. */
 CREATE FUNCTION PG_CATALOG.PG_GET_EXPR(VARCHAR, INTEGER) RETURNS VARCHAR AS $$pgGetExpr^%ydboctopgfunctions;
+
 /* Until pg_database is fully implemented (#417) this will always return "SQL_ASCII" */
 CREATE FUNCTION PG_ENCODING_TO_CHAR(INTEGER) RETURNS VARCHAR AS $$pgEncodingToChar^%ydboctopgfunctions;
 /* Return true if database is currently recovering from a backup.
@@ -358,3 +372,4 @@ CREATE FUNCTION PG_IS_XLOG_REPLAY_PAUSED() RETURNS BOOLEAN AS $$pgIsXlogReplayPa
 /* Since Octo currently does not implement privileges, the following always return TRUE */
 CREATE FUNCTION HAS_DATABASE_PRIVILEGE(INTEGER, VARCHAR) RETURNS BOOLEAN AS $$pgHasDatabasePrivilege^%ydboctopgfunctions;
 CREATE FUNCTION HAS_DATABASE_PRIVILEGE(VARCHAR, VARCHAR, VARCHAR) RETURNS BOOLEAN AS $$pgHasDatabasePrivilege^%ydboctopgfunctions;
+

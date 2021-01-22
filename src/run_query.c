@@ -116,38 +116,40 @@
  *	-1 if query has been canceled.
  */
 int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_description, ParseContext *parse_context) {
-	FILE *		out;
-	PhysicalPlan *	pplan;
-	SqlStatement *	result;
-	SqlValue *	value;
-	bool		free_memory_chunks;
-	char *		buffer, filename[OCTO_PATH_MAX], routine_name[MAX_ROUTINE_LEN], function_hash[MAX_ROUTINE_LEN];
-	ydb_long_t	cursorId;
-	hash128_state_t state;
-	int		status;
-	size_t		buffer_size = 0;
-	ydb_buffer_t *	filename_lock, query_lock[3], *null_query_lock;
-	ydb_string_t	ci_param1, ci_param2;
-	ydb_buffer_t	cursor_ydb_buff;
-	ydb_buffer_t	schema_global;
-	ydb_buffer_t	octo_global;
-	boolean_t	canceled = FALSE, cursor_used;
-	int		length;
-	int		i;
-	unsigned int	ret_value;
-	SqlTable *	table;
-	char *		tablename;
-	char *		spcfc_buffer; /* specific buffer (i.e. function-specific or table-specific etc.) */
-	ydb_buffer_t	table_name_buffers[3];
-	ydb_buffer_t *	table_name_buffer;
-	SqlFunction *	function;
-	char *		function_name;
-	ydb_buffer_t	function_name_buffers[5];
-	ydb_buffer_t *	function_name_buffer, *function_hash_buffer;
-	char		cursor_buffer[INT64_TO_STRING_MAX];
-	char		pid_buffer[INT64_TO_STRING_MAX]; /* assume max pid is 64 bits even though it is a 4-byte quantity */
-	boolean_t	release_query_lock;
-	SqlStatement	stmt;
+	FILE *			  out;
+	PhysicalPlan *		  pplan;
+	SqlStatement *		  result;
+	SqlValue *		  value;
+	bool			  free_memory_chunks;
+	char *			  buffer, filename[OCTO_PATH_MAX], routine_name[MAX_ROUTINE_LEN], function_hash[MAX_ROUTINE_LEN];
+	ydb_long_t		  cursorId;
+	hash128_state_t		  state;
+	int			  status;
+	size_t			  buffer_size = 0;
+	ydb_buffer_t *		  filename_lock, query_lock[3], *null_query_lock;
+	ydb_string_t		  ci_param1, ci_param2;
+	ydb_buffer_t		  cursor_ydb_buff;
+	ydb_buffer_t		  schema_global;
+	ydb_buffer_t		  octo_global;
+	boolean_t		  canceled = FALSE, cursor_used;
+	int			  length;
+	int			  i;
+	unsigned int		  ret_value;
+	SqlTable *		  table;
+	char *			  tablename;
+	char *			  spcfc_buffer; /* specific buffer (i.e. function-specific or table-specific etc.) */
+	ydb_buffer_t		  table_name_buffers[3];
+	ydb_buffer_t *		  table_name_buffer;
+	SqlFunction *		  function;
+	SqlDropFunctionStatement *drop_function;
+	char *			  function_name;
+	ydb_buffer_t		  function_name_buffers[5];
+	ydb_buffer_t *		  function_name_buffer, *function_hash_buffer;
+	char			  cursor_buffer[INT64_TO_STRING_MAX];
+	char		 pid_buffer[INT64_TO_STRING_MAX]; /* assume max pid is 64 bits even though it is a 4-byte quantity */
+	boolean_t	 release_query_lock;
+	SqlStatement	 stmt;
+	SqlStatementType is_create_function;
 
 	// Assign cursor prior to parsing to allow tracking and storage of literal parameters under the cursor local variable
 	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
@@ -497,11 +499,11 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		break;			    /* OCTO_CFREE(memory_chunks) will be done after the "break" */
 	case drop_function_STATEMENT:	    /* DROP FUNCTION */
 	case create_function_STATEMENT:	    /* CREATE FUNCTION */
-		/* Note that CREATE/DROP FUNCTION is very similar to CREATE/DROP TABLE, and changes to either may need to be
+		/* Note that DROP FUNCTION is very similar to DROP TABLE, and changes to either may need to be
 		 * reflected in the other.
-		 *
-		 * A CREATE FUNCTION should do a DROP FUNCTION followed by a CREATE FUNCTION hence merging the two cases
-		 * above
+		 */
+		/* Note that CREATE FUNCTION is very similar to CREATE TABLE, and changes to either may need to be
+		 * reflected in the other.
 		 */
 		function_name_buffer = &function_name_buffers[1];
 		/* Initialize a few variables to NULL at the start. They are really used much later but any calls to
@@ -519,16 +521,16 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		/* Note: Last parameter is NULL above as we do not have any query lock to release
 		 * at this point since query lock grab failed.
 		 */
-
-		// First, get a ydb_buffer_t of the function name into "function_name_buffer"
-		if (create_function_STATEMENT == result->type) {
+		/* First, get a ydb_buffer_t of the function name into "function_name_buffer" */
+		is_create_function = (create_function_STATEMENT == result->type);
+		if (is_create_function) {
 			UNPACK_SQL_STATEMENT(function, result, create_function);
 			UNPACK_SQL_STATEMENT(value, function->function_name, value);
-			function_name = value->v.reference;
 		} else {
-			function = NULL;
-			function_name = result->v.drop_function->function_name->v.value->v.reference;
+			UNPACK_SQL_STATEMENT(drop_function, result, drop_function);
+			UNPACK_SQL_STATEMENT(value, drop_function->function_name, value);
 		}
+		function_name = value->v.reference;
 		// Then hash the function parameters to determine which function definition is to be CREATEd or DROPed
 		INVOKE_HASH_CANONICAL_QUERY(state, result, status); /* "state" holds final hash */
 		if (0 != status) {
@@ -541,7 +543,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		function_hash_buffer = &function_name_buffers[2];
 		YDB_STRING_TO_BUFFER(function_hash, function_hash_buffer);
 		// Add function hash to parse tree for later addition to logical plan
-		if ((NULL != function) && (create_function_STATEMENT == result->type)) {
+		if (is_create_function) {
 			SQL_STATEMENT(function->function_hash, value_STATEMENT);
 			MALLOC_STATEMENT(function->function_hash, value, SqlValue);
 			UNPACK_SQL_STATEMENT(value, function->function_hash, value);
@@ -559,37 +561,52 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		function_name_buffers[4].len_used = 0;
 		function_name_buffers[4].len_alloc = sizeof(filename);
 
-		if (drop_function_STATEMENT == result->type) {
-			status = ydb_data_s(&octo_global, 3, &function_name_buffers[0], &ret_value);
-			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+		/* Check if function with computed hash exists already or not */
+		status = ydb_data_s(&octo_global, 3, &function_name_buffers[0], &ret_value);
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+		if (!is_create_function) {
+			/* DROP FUNCTION */
 			if (0 == ret_value) {
-				ERROR(ERR_CANNOT_DROP_FUNCTION, function_name);
+				char fn_name[1024];
+
+				/* Function does not already exist. Issue error. */
+				get_function_name_and_parmtypes(fn_name, sizeof(fn_name), function_name,
+								drop_function->parameter_type_list);
+				ERROR(ERR_CANNOT_DROP_FUNCTION, fn_name);
+				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+			}
+			/* Drop the function in question since DROP FUNCTION was explicitly requested */
+			status = delete_function_from_pg_proc(function_name_buffer, function_hash_buffer);
+			if (0 != status) {
+				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+			}
+			/* Call an M routine to discard all plans associated with the function being created/dropped */
+			ci_param1.address = function_name_buffer->buf_addr;
+			ci_param1.length = function_name_buffer->len_used;
+			ci_param2.address = function_hash_buffer->buf_addr;
+			ci_param2.length = function_hash_buffer->len_used;
+			status = ydb_ci("_ydboctoDiscardFunction", &ci_param1, &ci_param2);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+
+			// Drop the function from the local cache
+			status = drop_schema_from_local_cache(function_name_buffer, FunctionSchema, function_hash_buffer);
+			if (YDB_OK != status) {
+				// YDB_ERROR_CHECK would already have been done inside "drop_schema_from_local_cache()"
+				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+			}
+		} else {
+			/* CREATE FUNCTION */
+			if (0 != ret_value) {
+				char fn_name[1024];
+
+				/* Function already exists. Issue error. */
+				get_function_name_and_parmtypes(fn_name, sizeof(fn_name), function_name,
+								function->parameter_type_list);
+				ERROR(ERR_CANNOT_CREATE_FUNCTION, fn_name);
 				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 			}
 		}
-		/* Always drop the function in question, if it exists, either because explicitly requested via DROP or implicitly
-		 * when CREATEing or redefining a function.
-		 */
-		status = delete_function_from_pg_proc(function_name_buffer, function_hash_buffer);
-		if (0 != status) {
-			CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
-		}
-		/* Call an M routine to discard all plans associated with the function being created/dropped */
-		ci_param1.address = function_name_buffer->buf_addr;
-		ci_param1.length = function_name_buffer->len_used;
-		ci_param2.address = function_hash_buffer->buf_addr;
-		ci_param2.length = function_hash_buffer->len_used;
-		status = ydb_ci("_ydboctoDiscardFunction", &ci_param1, &ci_param2);
-		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
-
-		// Drop the function from the local cache
-		status = drop_schema_from_local_cache(function_name_buffer, FunctionSchema, function_hash_buffer);
-		if (YDB_OK != status) {
-			// YDB_ERROR_CHECK would already have been done inside "drop_schema_from_local_cache()"
-			CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
-		}
-
-		if ((NULL != function) && (create_function_STATEMENT == result->type)) {
+		if (is_create_function) {
 			int text_function_defn_length;
 
 			// CREATE FUNCTION case. More processing needed.

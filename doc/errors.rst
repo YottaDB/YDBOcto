@@ -121,6 +121,14 @@ Text: Calling M routine: xxx
 
 Description/Action: This message is generated when M routines are called. PSQL Error Code: 00000
 
+++++++++++++++++++++++++++++
+ERR_CANNOT_CREATE_FUNCTION
+++++++++++++++++++++++++++++
+
+Text: Function 'xxx' already exists with same argument types
+
+Description/Action: This error indicates an attempt to create an already existing function. PSQL Error Code: 42723
+
 +++++++++++++++++++++++++
 ERR_CANNOT_DROP_FUNCTION
 +++++++++++++++++++++++++

@@ -104,7 +104,7 @@ _ydboctoX*.o
 ;trigger name: %ydboctoT2rbmGQx4OtlbPfepALF (region DEFAULT)  cycle: 2
 +^orders(keyCol0=*) -name=%ydboctoT2rbmGQx4OtlbPfepALF -commands=S,K,ZK -delim="|" -pieces=2 -xecute="DO handleSetKill^%ydboctoX2rbmGQx4OtlbPfepALF2EA"
 
-# Stage 2 : Rerun CREATE TABLE of ORDERS
+# Stage 2 : Run DROP TABLE ORDERS followed by CREATE TABLE of ORDERS
 # Verify generated _ydbocto*.m and _ydbocto*.o plan files
 _ydboctoP*.m
 _ydboctoP*.o

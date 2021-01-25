@@ -17,68 +17,72 @@ setup() {
 	createdb
 	load_fixture names.sql
 	load_fixture names.zwr
-	load_fixture northwind.sql
-	load_fixture northwind.zwr
 }
 
 @test "TGB01 : OCTO55 : GROUP BY and AGGREGATE FUNCTIONS : Error scenarios" {
-  load_fixture TGB01.sql subtest novv
-  verify_output TGB01 output.txt noinfo nodebug
+	load_fixture northwind.sql
+	load_fixture northwind.zwr
+	load_fixture TGB01.sql subtest novv
+	verify_output TGB01 output.txt noinfo nodebug
 }
 
 @test "TGB02 : OCTO55 : GROUP BY and AGGREGATE FUNCTIONS : Various valid scenarios in NAMES schema" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB02.sql "trim_trailing_zeroes"
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB02.sql "trim_trailing_zeroes"
 }
 
 @test "TGB03 : OCTO55 : GROUP BY and AGGREGATE FUNCTIONS : Various valid scenarios in NORTHWIND schema" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TGB03.sql "trim_trailing_zeroes"
+	load_fixture northwind.sql
+	load_fixture northwind.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TGB03.sql "trim_trailing_zeroes"
 }
 
 @test "TGB04 : OCTO55 : Test octo -vv and logical plan output for sample GROUP BY query" {
-  load_fixture TGB04.sql subtest
-  # Include generated M code in reference file to verify all optimizations there
-  cat _ydboctoP*.m >> output.txt
-  verify_output TGB04 output.txt
+	load_fixture TGB04.sql subtest
+	# Include generated M code in reference file to verify all optimizations there
+	cat _ydboctoP*.m >> output.txt
+	verify_output TGB04 output.txt
 }
 
 @test "TGB05 : OCTO55 : Edge case GROUP BY and/or HAVING queries that work in Octo but do not in Postgres" {
-  load_fixture TGB05.sql subtest novv
-  verify_output TGB05 output.txt
+	load_fixture TGB05.sql subtest novv
+	verify_output TGB05 output.txt
 }
 
 @test "TGB06 : OCTO55 : Edge case GROUP BY and/or HAVING queries that work in Postgres but do not work in Octo" {
-  load_fixture TGB06.sql subtest novv
-  verify_output TGB06 output.txt
+	load_fixture TGB06.sql subtest novv
+	verify_output TGB06 output.txt
 }
 
 @test "TGB07 : OCTO401 : COUNT(DISTINCT) usage issues `Assert failed` error" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TGB07.sql "trim_trailing_zeroes"
+	load_fixture northwind.sql
+	load_fixture northwind.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TGB07.sql "trim_trailing_zeroes"
 }
 
 @test "TGB08 : OCTO456 : SIG-11 in Octo when using aggregate functions in sub-queries in WHERE clause that also uses OR operator" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB08.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB08.sql
 }
 
 @test "TGB09 : OCTO457 : Assertion failed when GROUP BY is also used in a sub-query inside HAVING clause" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB09.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB09.sql
 }
 
 @test "TGB10 : OCTO453 : SELECT DISTINCT returns incorrect results when used with GROUP BY and OR operator in WHERE clause" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB10.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB10.sql
 }
 
 @test "TGB11 : OCTO452 : Assert failure when invalid column name is specified in GROUP BY" {
-  load_fixture TGB11.sql subtest novv
-  verify_output TGB11 output.txt
+	load_fixture TGB11.sql subtest novv
+	verify_output TGB11 output.txt
 }
 
 @test "TGB12 : OCTO479 : Hang when GROUP BY in sub-query uses all columns from parent query (and no columns from sub-query)" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB12.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB12.sql
 }
 
 @test "TGB13 : OCTO516 : SIG-11 when HAVING clause uses an aggregate function with the IN operator and multiple values" {
-  load_fixture customers.sql
-  load_fixture customers.zwr
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TGB13.sql
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TGB13.sql
 }
 

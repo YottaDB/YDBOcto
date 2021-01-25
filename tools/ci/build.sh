@@ -882,6 +882,13 @@ FILE
 				# file and the actual query is something else like a "DROP TABLE". In that case, skip this check.
 				filediff $old_plan_name $new_plan_name
 			fi
+			# Need to DROP TABLE the current table in "oldsrc" directory to avoid reusing this plan for future
+			# CREATE TABLE queries that point to the same table name (e.g. `Customers` vs `customers`) as that
+			# can cause a failure in the pipeline job (see commit message for details).
+			cd ../oldsrc; rm -f ../src || true; ln -s oldsrc ../src
+			echo "DROP TABLE $tablename;" > $queryfile.drop
+			run_octo $queryfile.drop oldsrc novv
+			cd ../newsrc; rm -f ../src || true; ln -s newsrc ../src
 		done
 		cd ..
 	fi

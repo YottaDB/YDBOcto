@@ -385,10 +385,11 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		break;
 	case drop_table_STATEMENT:   /* DROP TABLE */
 	case create_table_STATEMENT: /* CREATE TABLE */
-		/* Note that CREATE/DROP TABLE is very similar to CREATE/DROP FUNCTION, and changes to either may need to be
+		/* Note that DROP TABLE is very similar to DROP FUNCTION, and changes to either may need to be
 		 * reflected in the other.
-		 *
-		 * A CREATE TABLE should do a DROP TABLE followed by a CREATE TABLE hence merging the two cases above
+		 */
+		/* Note that CREATE TABLE is very similar to CREATE FUNCTION, and changes to either may need to be
+		 * reflected in the other.
 		 */
 		table_name_buffer = &table_name_buffers[0];
 		/* Initialize a few variables to NULL at the start. They are really used much later but any calls to
@@ -416,35 +417,46 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			tablename = value->v.reference;
 		}
 		YDB_STRING_TO_BUFFER(tablename, table_name_buffer);
-		/* Check if OIDs were created for this table.
-		 * If so, delete those nodes from the catalog now that this table is going away.
-		 */
-		status = delete_table_from_pg_class(table_name_buffer);
-		if (0 != status) {
-			CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
-		}
-		/* Call an M routine to discard all plans, xrefs and triggers associated with the table being created/dropped.
-		 * Cannot use SimpleAPI for at least one step (deleting the triggers). Hence using M for all the steps.
-		 */
-		ci_param1.address = table_name_buffer->buf_addr;
-		ci_param1.length = table_name_buffer->len_used;
-		status = ydb_ci("_ydboctoDiscardTable", &ci_param1);
-		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
-		/* Now that OIDs and plan nodes have been cleaned up, dropping the table is a simple
-		 *	KILL ^%ydboctoschema(TABLENAME)
-		 */
-		status = ydb_delete_s(&schema_global, 1, table_name_buffer, YDB_DEL_TREE);
-		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
-		/* Drop the table from the local cache */
-		status = drop_schema_from_local_cache(table_name_buffer, TableSchema, NULL);
-		if (YDB_OK != status) {
-			/* YDB_ERROR_CHECK would already have been done inside "drop_schema_from_local_cache()" */
-			CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
-		}
-		if (create_table_STATEMENT == result->type) {
-			int text_table_defn_length;
-
+		if (drop_table_STATEMENT == result->type) {
+			/* DROP TABLE */
+			/* Check if OIDs were created for this table.
+			 * If so, delete those nodes from the catalog now that this table is going away.
+			 */
+			status = delete_table_from_pg_class(table_name_buffer);
+			if (0 != status) {
+				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+			}
+			/* Call an M routine to discard all plans, xrefs and triggers associated with the table being
+			 * created/dropped. Cannot use SimpleAPI for at least one step (deleting the triggers). Hence using M for
+			 * all the steps.
+			 */
+			ci_param1.address = table_name_buffer->buf_addr;
+			ci_param1.length = table_name_buffer->len_used;
+			status = ydb_ci("_ydboctoDiscardTable", &ci_param1);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+			/* Now that OIDs and plan nodes have been cleaned up, dropping the table is a simple
+			 *	KILL ^%ydboctoschema(TABLENAME)
+			 */
+			status = ydb_delete_s(&schema_global, 1, table_name_buffer, YDB_DEL_TREE);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+			/* Drop the table from the local cache */
+			status = drop_schema_from_local_cache(table_name_buffer, TableSchema, NULL);
+			if (YDB_OK != status) {
+				/* YDB_ERROR_CHECK would already have been done inside "drop_schema_from_local_cache()" */
+				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+			}
+		} else {
 			/* CREATE TABLE case. More processing needed. */
+			int	  text_table_defn_length;
+			SqlTable *sql_table;
+
+			/* Check if table already exists */
+			sql_table = find_table(tablename);
+			if (NULL != sql_table) {
+				/* Table already exists. Issue error. */
+				ERROR(ERR_CANNOT_CREATE_TABLE, tablename);
+				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+			}
 			out = open_memstream(&buffer, &buffer_size);
 			assert(out);
 			text_table_defn_length = emit_create_table(out, result);

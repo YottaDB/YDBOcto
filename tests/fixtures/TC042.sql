@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2021 YottaDB LLC and/OR its subsidiaries.	#
+# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,12 +10,8 @@
 #								#
 #################################################################
 
--- TDT03 : OCTO439 : DROP TABLE deletes unnecessary global variables nodes from catalog
+-- TC042 : OCTO669 : Test of ERR_CANNOT_CREATE_TABLE error
 
--- Below query prints the names of ALL columns of the table called 'CUSTOMERS' using the catalog.
-
-SELECT c.relname, a.attname
-FROM pg_catalog.pg_class AS c
-INNER JOIN pg_catalog.pg_attribute AS a ON a.attrelid = c.oid
-WHERE c.relname = 'ORDERS';
+CREATE TABLE temp (id INTEGER);
+CREATE TABLE temp (id INTEGER);
 

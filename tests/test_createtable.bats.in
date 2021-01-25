@@ -83,20 +83,10 @@ OCTO
 }
 
 @test "TC004 : recreate a cached table and check that the cached version is deleted" {
-  # create a row that will change when more columns are added
-  yottadb -run %XCMD 'set ^T1(1)="2|3|4"'
-  octo <<OCTO 2>&1 | tee output.txt
-drop table t1;
-create table t1 (a int primary key);
-select * from t1;
-create table t1 (a int primary key, b int);
-select * from t1;
-create table t1 (a int primary key, b int, c int);
-select * from t1;
-create table t1 (a int primary key, b int, c int, d int);
-select * from t1;
-OCTO
-  verify_output TC004 output.txt noinfo nodebug
+	# create a row that will change when more columns are added
+	yottadb -run %XCMD 'set ^T1(1)="2|3|4"'
+	load_fixture TC004.sql subtest novv
+	verify_output TC004 output.txt noinfo nodebug
 }
 
 @test "TC005 : create a table with duplicate primary keys then select from it" {
@@ -147,19 +137,19 @@ OCTO
 }
 
 @test "TC010 : OCTO381 : Allow DATE and TIME types to be specified in the Octo DDL but treated as strings internally" {
-  yottadb -run TC010	# load ^datetime global
-  load_fixture TC010.sql subtest novv
-  # Do not use `verify_output` here as we do not want DATE/TIME substitutions to happen
-  # but want to see the actual date/time strings from the ^datetime global displayed in the reference file.
-  # That said, there are a few date/time usages that will show up in error message that we want taken out as they
-  # correspond to non-deterministic output.
-  cp output.txt clean_output.txt
-  sed -i 's/[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\} [0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}/DATE TIME/g' clean_output.txt
-  filter_file_path
-  # Strip config file loading message as it is irrelevant to the behavior under test and can cause failures depending on
-  # installation configuration
-  sed -i '/Loading config from/d' clean_output.txt
-  diff @PROJECT_SOURCE_DIR@/tests/outref/TC010.ref clean_output.txt
+	yottadb -run TC010	# load ^datetime global
+	load_fixture TC010.sql subtest novv
+	# Do not use `verify_output` here as we do not want DATE/TIME substitutions to happen
+	# but want to see the actual date/time strings from the ^datetime global displayed in the reference file.
+	# That said, there are a few date/time usages that will show up in error message that we want taken out as they
+	# correspond to non-deterministic output.
+	cp output.txt clean_output.txt
+	sed -i 's/[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\} [0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}/DATE TIME/g' clean_output.txt
+	filter_file_path
+	# Strip config file loading message as it is irrelevant to the behavior under test and can cause failures depending on
+	# installation configuration
+	sed -i '/Loading config from/d' clean_output.txt
+	diff @PROJECT_SOURCE_DIR@/tests/outref/TC010.ref clean_output.txt
 }
 
 @test "TC011 : OCTO411 : Add support for INTEGER precision specification to parser for CREATE TABLE statements" {
@@ -178,6 +168,13 @@ OCTO
 }
 
 @test "TC013 : OCTO439 : CREATE TABLE and SELECT can run concurrently without errors/assertions" {
+  # This subtest no longer works because CREATE TABLE of an already existing table issues a ERR_CANNOT_CREATE_TABLE error
+  # as part of OCTO669 changes. To fix that, we can do a DROP TABLE before the CREATE TABLE but that creates a small window
+  # when the table does not exist (in between the DROP TABLE and CREATE TABLE commands) and if a concurrently running
+  # SELECT references this table then it will issue an error. If we support transactions (i.e. BEGIN/END sql commands) then
+  # we can get this test to work as the DROP TABLE and CREATE TABLE can be enclosed within a BEGIN/END transaction. Until
+  # then, we have to skip this test.
+  skip		# TODO : YDBOcto#610 : Remove this line once BEGIN/END are supported.
   export octo_dbg_drop_cache_expected=1	# needed to let Octo/Rocto know that concurrent DROP TABLE commands run in this test
   echo "# Populate ^lotsofcols globals and create ddl.sql containing lots of CREATE TABLE commands : yottadb -run init^TC013" > output.txt
   yottadb -run init^TC013
@@ -326,8 +323,9 @@ OCTO
 	octo -vv -f TC030.sql > run1.out 2>&1
 	verify_plans_xrefs_gvns_triggers run1.out output.txt run1.ext
 
-	echo "# Stage 2 : Rerun CREATE TABLE of ORDERS" >> output.txt
-	grep -i "CREATE TABLE orders" @PROJECT_SOURCE_DIR@/tests/fixtures/customers.sql >& TC030b.sql
+	echo "# Stage 2 : Run DROP TABLE ORDERS followed by CREATE TABLE of ORDERS" >> output.txt
+	echo "DROP TABLE orders;" > TC030b.sql
+	grep -i "CREATE TABLE orders" @PROJECT_SOURCE_DIR@/tests/fixtures/customers.sql >> TC030b.sql
 	octo -f TC030b.sql > run2.out 2>&1
 	cat run2.out >> output.txt
 	verify_plans_xrefs_gvns_triggers run2.out output.txt run2.ext
@@ -537,3 +535,16 @@ OCTO
 	octo -f input-255char.sql >> output.txt 2>&1
 	verify_output TC041 output.txt
 }
+
+@test "TC042 : OCTO669 : Test of ERR_CANNOT_CREATE_TABLE error" {
+	load_fixture TC042.sql subtest novv
+	verify_output TC042 output.txt
+}
+
+@test "TC043 : OCTO439 : CREATE TABLE times out if concurrent SELECT query is long running" {
+	load_fixture HANGTIME.sql	# Define HANGTIME as a function
+	(expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/TC043.exp > expect.out) &> expect.dbg
+	sed 's/\r//g;s/.*SHELL#/#/g;s/.*SHELL$/$/g;s/# .*/\n&/g;s/^# #/#/;' expect.out | grep -E '^# |^\[ERROR|^OCTO>|^CREATE' | grep -vE 'PS1|^OCTO> (|exit)$' > output.txt
+	verify_output TC043 output.txt
+}
+

@@ -10,7 +10,7 @@
 5|Zero|Cool
 # Start octo process OCTO2
 # Wait for OCTO> prompt to appear in OCTO2
-# Run <CREATE TABLE names with only id column> in OCTO2
+# Run <DROP TABLE names followed by CREATE TABLE names with only id column> in OCTO2
 # Wait for OCTO> prompt to appear in OCTO2. This signals that the CREATE TABLE query in OCTO2 ran to completion
 # Run <SELECT * FROM names;> in OCTO1. Should display only 1 column now that the CREATE TABLE in OCTO2 has finished
 # Wait for OCTO> prompt to appear in OCTO1

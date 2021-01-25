@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -33,8 +33,7 @@ void ydb_error_check(int status, char *file, int line) {
 		break;
 	case YDB_LOCK_TIMEOUT:
 		octo_log(line, file, ERROR, ERROR_Severity, ERR_YOTTADB,
-			 "ydb_lock_s()/ydb_lock_incr_s() call timed out. "
-			 "Another process with schema change rights, or a long-running query, is active.");
+			 "ydb_lock_s()/ydb_lock_incr_s() call timed out likely due to a concurrent long-running query.");
 		return;
 	default:
 		/* It is an Octo internal error code or a YDB error code that populates $ZSTATUS (i.e. YDB_ERR_*).

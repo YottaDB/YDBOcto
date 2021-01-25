@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -28,12 +28,18 @@ init	;
 	set file="ddl.sql"
 	open file:(newversion)
 	use file
+	; To avoid ERR_CANNOT_CREATE_TABLE errors due to an existing table, we also need to do a DROP TABLE before the
+	; CREATE TABLE. And to avoid errors of a non-existing table from concurrently running SELECT queries, surround
+	; the two inside a BEGIN/END transaction block.
+	write "begin;",!
+	write "drop table lotsofcols;",!
 	for i=1:1:logncols do
 	. ; write CREATE TABLE command with 2**i columns
 	. write "create table lotsofcols (id INTEGER PRIMARY KEY,",!
 	. set ncols=2**i
 	. for j=1:1:(2**i) write "  col"_j_" VARCHAR"  write:j'=ncols "," write !
 	. write ") GLOBAL ""^lotsofcols(keys(""""id""""))"";",!
+	write "end;",!
 	close file
 	;
 	; Create query to check the pg_catalog and determine all columns corresponding to LOTSOFCOLS table

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -53,13 +53,10 @@ OCTO
   # We expect the output of the query to not change. Before the OCTO439 code fixes, the output would increase in size
   # after every DROP TABLE or CREATE TABLE.
   octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TDT03.sql 2>&1 >> output.txt
-  echo "# Now load customers DDL again (CREATE TABLE)" >> output.txt
-  load_fixture customers.sql
-  echo "# Now run query again to verify number of columns of ORDERS table stayed the same as before." >> output.txt
-  octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TDT03.sql 2>&1 >> output.txt
   echo "# Now run DROP TABLE command" >> output.txt
   octo <<OCTO 2>&1 | tee -a output.txt
     drop table ORDERS;
+    drop table CUSTOMERS;
 OCTO
   echo "# Now run query again to verify number of columns of ORDERS table came down to 0." >> output.txt
   octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TDT03.sql 2>&1 >> output.txt

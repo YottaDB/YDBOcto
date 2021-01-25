@@ -129,6 +129,14 @@ Text: Function 'xxx' already exists with same argument types
 
 Description/Action: This error indicates an attempt to create an already existing function. PSQL Error Code: 42723
 
+++++++++++++++++++++++++++++
+ERR_CANNOT_CREATE_TABLE
+++++++++++++++++++++++++++++
+
+Text: Table 'xxx' already exists
+
+Description/Action: This error indicates an attempt to create an already existing table. PSQL Error Code: 42P07
+
 +++++++++++++++++++++++++
 ERR_CANNOT_DROP_FUNCTION
 +++++++++++++++++++++++++

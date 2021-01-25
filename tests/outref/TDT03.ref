@@ -6,14 +6,6 @@ ORDERS|ORDER_DATE
 ORDERS|ORDER_AMOUNT
 ORDERS|CUSTOMER_ID
 (4 rows)
-# Now load customers DDL again (CREATE TABLE)
-# Now run query again to verify number of columns of ORDERS table stayed the same as before.
-RELNAME|ATTNAME
-ORDERS|ORDER_ID
-ORDERS|ORDER_DATE
-ORDERS|ORDER_AMOUNT
-ORDERS|CUSTOMER_ID
-(4 rows)
 # Now run DROP TABLE command
 # Now run query again to verify number of columns of ORDERS table came down to 0.
 RELNAME|ATTNAME

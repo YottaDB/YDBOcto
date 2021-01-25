@@ -1,0 +1,84 @@
+#!/usr/bin/expect
+#################################################################
+#								#
+# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+spawn bash
+
+# Bump timeout from default of 10 seconds to 60 seconds as 10 seconds is not enough to test lock timeout which is also 10 seconds
+set timeout 60
+
+# Wait for shell prompt first. Allow for # or $ prompt. In the pipeline # is the prompt since it runs as the root user id.
+expect -re "\[#\$] "
+# Change shell prompt to something other than "$" or "#" as that is a substring of many YDB/Octo prompts
+# and can cause incorrect match later when we wait for the shell prompt.
+# Note: Changing the shell prompt to SHELL might seem easily achieved as follows.
+#	send -- "PS1=SHELL\r"
+#	expect -exact "SHELL"
+# But that will not work because it is possible the "expect" matches the SHELL from the "PS1=SHELL" input.
+# To avoid this, we first store the "SHELL" string in a variable and use that to set the prompt.
+send -- "shellprompt=SHELL\r"
+# Allow for # or $ prompt. In the pipeline # is the prompt since it runs as the root user id.
+expect -re "\[#\$] "
+send -- "PS1=\$shellprompt\r"
+expect -exact "SHELL"
+
+puts "# Start octo process OCTO0"
+spawn octo
+set octo0 $spawn_id
+
+puts "# Wait for OCTO> prompt to appear in OCTO0"
+expect -i octo0 "OCTO>"
+
+puts "# Run <SELECT HANGTIME(firstname,10) FROM names; in OCTO0. Takes 60 seconds to run"
+send -i octo0 -- "SELECT HANGTIME(firstname,10) FROM names;\r"
+
+# List various DDL queries that require exclusive lock
+array set ddl_queries {
+	1	"CREATE TABLE abcdefgh (id INTEGER PRIMARY KEY);"
+	2	"DROP TABLE abcdefgh;"
+	3	"CREATE FUNCTION ABS(NUMERIC) RETURNS NUMERIC AS \$\$ABS^%ydboctosqlfunctions;"
+	4	"DROP FUNCTION ABS(NUMERIC);"
+	5	"DISCARD ALL;"
+}
+
+# Start various DDL queries concurrently that way all of them will time out at the same time (resulting in shorter test run times)
+foreach number [lsort [array names ddl_queries]] {
+	puts "# Spawn an OCTO process to run query : $ddl_queries($number)"
+	spawn octo
+	set terminal_id($number) $spawn_id
+
+	# Wait for OCTO> prompt to appear in $terminal_id($number)
+	expect -i terminal_id($number) "OCTO>"
+
+	puts "# Run <$ddl_queries($number)>. Expect this DDL change query to time out due to long running SELECT"
+	send -i terminal_id($number) -- "$ddl_queries($number)\r"
+}
+
+# Wait for all DDL queries to time out
+foreach number [lsort [array names ddl_queries]] {
+	expect -i terminal_id($number) "OCTO>"
+}
+
+# Exit from all octo sessions/terminals
+foreach number [lsort [array names ddl_queries]] {
+	send -i terminal_id($number) -- "exit\r"
+	expect -i terminal_id($number) "SHELL"
+}
+
+puts "# Send Ctrl-C to cancel long running SELECT"
+send -i octo0 \x03
+send -i octo "\r"
+
+puts "# Exit from process OCTO0"
+expect -i octo0 "SHELL"
+
+exit

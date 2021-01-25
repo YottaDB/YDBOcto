@@ -97,8 +97,6 @@ teardown() {
 @test "TJC009 : Octo returns RowDescription for query with no return rows" {
   stop_rocto
   test_port=$(start_rocto 1344 verbose)
-  load_fixture names.sql
-  load_fixture names.zwr
   testname="TJC009"
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names $testname.sql "" usejdbc
   grep "Sending message of type T" rocto.log &> output.txt
@@ -108,8 +106,6 @@ teardown() {
 @test "TJC010 : parse_context->is_bind_parm array correctly resizes for large numbers of parameters" {
   stop_rocto
   test_port=$(start_rocto 1344 verbose)
-  load_fixture names.sql
-  load_fixture names.zwr
   testname="TJC010"
   run_java $testname $test_port &> output.txt
   # Cannot test memory expansion path since JDBC driver specifies parameter types; TPGC005 tests the expansion case

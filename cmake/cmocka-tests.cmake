@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -18,7 +18,7 @@ macro(ADD_UNIT_TEST_WITH_OPTIONS TEST_NAME TEST_FILE WRAP_FUNCTION)
     endif()
     set(test_link_flags "${test_link_flags},--wrap=${func}")
   endforeach(func)
-  add_executable(${TEST_NAME} ${PROJECT_SOURCE_DIR}/${TEST_FILE}.c rocto_errors.c
+  add_executable(${TEST_NAME} ${PROJECT_SOURCE_DIR}/${TEST_FILE}.c rocto_errors.c rocto_gbldefs.c
     $<TARGET_OBJECTS:librocto> $<TARGET_OBJECTS:libocto> $<TARGET_OBJECTS:libhelpers>)
 
   set_property(TARGET ${TEST_NAME} PROPERTY C_STANDARD 11)

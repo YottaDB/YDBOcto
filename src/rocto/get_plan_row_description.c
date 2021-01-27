@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -100,7 +100,7 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 		if ((ERANGE != errno) && (0 <= tmp_long) && (INT32_MAX >= tmp_long)) {
 			parms[cur_column].table_id = (int32_t)tmp_long;
 		} else {
-			ERROR(ERR_LIBCALL_WITH_ARG, "strtol", value_buffer.buf_addr);
+			ERROR(ERR_LIBCALL_WITH_ARG, "strtol()", value_buffer.buf_addr);
 			status = -1;
 			break;
 		}
@@ -121,7 +121,7 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 		if ((ERANGE != errno) && (0 <= tmp_long) && (INT16_MAX >= tmp_long)) {
 			parms[cur_column].column_id = (int16_t)tmp_long;
 		} else {
-			ERROR(ERR_LIBCALL_WITH_ARG, "strtol", value_buffer.buf_addr);
+			ERROR(ERR_LIBCALL_WITH_ARG, "strtol()", value_buffer.buf_addr);
 			status = -1;
 			break;
 		}
@@ -143,7 +143,7 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 		if ((ERANGE != errno) && (0 <= tmp_long) && (INT32_MAX >= tmp_long)) {
 			parms[cur_column].data_type = (int32_t)tmp_long;
 		} else {
-			ERROR(ERR_LIBCALL_WITH_ARG, "strtol", value_buffer.buf_addr);
+			ERROR(ERR_LIBCALL_WITH_ARG, "strtol()", value_buffer.buf_addr);
 			status = -1;
 			break;
 		}
@@ -165,7 +165,7 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 		if ((ERANGE != errno) && (-2 <= tmp_long) && (INT16_MAX >= tmp_long)) {
 			parms[cur_column].data_type_size = (int16_t)tmp_long;
 		} else {
-			ERROR(ERR_LIBCALL_WITH_ARG, "strtol", value_buffer.buf_addr);
+			ERROR(ERR_LIBCALL_WITH_ARG, "strtol()", value_buffer.buf_addr);
 			status = -1;
 			break;
 		}
@@ -187,7 +187,7 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 		if ((ERANGE != errno) && (-1 <= tmp_long) && (INT32_MAX >= tmp_long)) {
 			parms[cur_column].type_modifier = (int32_t)tmp_long;
 		} else {
-			ERROR(ERR_LIBCALL_WITH_ARG, "strtol", value_buffer.buf_addr);
+			ERROR(ERR_LIBCALL_WITH_ARG, "strtol()", value_buffer.buf_addr);
 			status = -1;
 			break;
 		}
@@ -209,7 +209,7 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 		if ((ERANGE != errno) && (0 <= tmp_long) && (INT16_MAX >= tmp_long)) {
 			parms[cur_column].format_code = (int16_t)tmp_long;
 		} else {
-			ERROR(ERR_LIBCALL_WITH_ARG, "strtol", value_buffer.buf_addr);
+			ERROR(ERR_LIBCALL_WITH_ARG, "strtol()", value_buffer.buf_addr);
 			status = -1;
 			break;
 		}

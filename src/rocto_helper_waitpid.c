@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -38,7 +38,8 @@ void *rocto_helper_waitpid(void *args) {
 	RoctoSession *session = (RoctoSession *)args;
 	while (!session->session_ending) {
 		// Wait for PID's
-		int   wstatus = 0;
+		int wstatus;
+
 		pid_t result = wait(&wstatus);
 		if (result < 0) {
 			// If there are no children active, just continue

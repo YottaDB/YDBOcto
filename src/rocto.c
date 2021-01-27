@@ -211,7 +211,7 @@ int main(int argc, char **argv) {
 			uint64_t timestamp;
 
 			if (0 > child_id) {
-				ERROR(ERR_SYSCALL, "fork", errno, strerror(errno));
+				ERROR(ERR_SYSCALL, "fork()", errno, strerror(errno));
 				continue;
 			}
 			INFO(INFO_ROCTO_SERVER_FORKED, child_id);

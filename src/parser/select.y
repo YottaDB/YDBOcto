@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -156,6 +156,7 @@ query_specification
       SqlStatement		*join_statement, *t_stmt, *select_list, *ret;
       SqlTableAlias		*alias;
       SqlSelectStatement	*select;
+      char			*table_name = "OCTOONEROWTABLE";
 
       select_list = $select_list;
       if (NULL == select_list->v.column_list_alias->column_list) {
@@ -171,9 +172,9 @@ query_specification
       UNPACK_SQL_STATEMENT(join, join_statement, join);
       dqinit(join);
       join->max_unique_id = config->plan_id;
-      table = find_table("OCTOONEROWTABLE");
+      table = find_table(table_name);
       if (NULL == table) {
-        ERROR(ERR_UNKNOWN_TABLE, "octoOneRowTable: did you load the octo-seed.sql data?");
+        ERROR(ERR_UNKNOWN_TABLE, table_name);
         yyerror(NULL, NULL, &select_list, NULL, NULL, NULL);
         YYERROR;
       }

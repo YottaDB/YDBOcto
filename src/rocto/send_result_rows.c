@@ -45,7 +45,7 @@ int get_column_type_oid(ydb_buffer_t *plan_meta, ydb_buffer_t *value_buffer, int
 	if ((ERANGE != errno) && (0 <= tmp_long) && (INT32_MAX >= tmp_long)) {
 		*col_data_type = (int32_t)tmp_long;
 	} else {
-		ERROR(ERR_LIBCALL_WITH_ARG, "strtol", value_buffer->buf_addr);
+		ERROR(ERR_LIBCALL_WITH_ARG, "strtol()", value_buffer->buf_addr);
 		return 1;
 	}
 	return 0;

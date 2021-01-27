@@ -134,6 +134,8 @@ ADD_CUSTOM_COMMAND(
 add_library(libocto OBJECT
   add_optional_piece_keyword_to_sql_column.c
   assign_table_to_columns.c
+  auto_load_octo_seed.c
+  auto_load_octo_seed_if_needed.c
   auto_upgrade_binary_definition_if_needed.c
   auto_upgrade_binary_function_definition.c
   auto_upgrade_binary_table_definition.c
@@ -171,6 +173,7 @@ add_library(libocto OBJECT
   get_full_path_of_generated_m_file.c
   get_full_path_of_generated_o_file.c
   get_function_name_and_parmtypes.c
+  get_input.c
   get_key_columns.c
   get_keyword.c
   get_keyword_from_keywords.c
@@ -286,6 +289,7 @@ add_library(libocto OBJECT
 add_executable(octo
   octo.c
   errors.c
+  gbldefs.c
   $<TARGET_OBJECTS:libocto>
   $<TARGET_OBJECTS:libhelpers>
   ${POST_CONFIGURE_FILE}
@@ -370,6 +374,7 @@ add_library(librocto OBJECT
 add_executable(rocto
   rocto.c
   rocto_errors.c
+  rocto_gbldefs.c
   $<TARGET_OBJECTS:librocto>
   $<TARGET_OBJECTS:libocto>
   $<TARGET_OBJECTS:libhelpers>
@@ -380,7 +385,7 @@ add_executable(pparser
   ${PROJECT_BINARY_DIR}/default_octo_conf.h
   physical/pparser.c
   errors.c
-  #octo_init.c
+  gbldefs.c
   ${BISON_PhysicalParser_OUTPUTS}
   ${FLEX_PhysicalLexer_OUTPUTS}
   ${POST_CONFIGURE_FILE}
@@ -442,7 +447,7 @@ set(aux_files
 add_library(_ydbocto SHARED ${aux_files})
 set_target_properties(_ydbocto PROPERTIES PREFIX "")
 
-# manually place Call-In file
+# manually place Call-In file in build directory for use in the DISABLE_INSTALL=ON case
 configure_file("${PROJECT_SOURCE_DIR}/src/aux/ydbocto.ci" ${PROJECT_BINARY_DIR}/src/ydbocto.ci COPYONLY)
 
 set_property(TARGET libocto PROPERTY C_STANDARD 11)
@@ -639,9 +644,9 @@ if (DISABLE_INSTALL MATCHES "OFF")
 	install(TARGETS _ydbocto
 		DESTINATION ${CMAKE_INSTALL_PREFIX}/o)
 
-	install(FILES ${PROJECT_BINARY_DIR}/octo-seed.sql
+	install(FILES ${PROJECT_BINARY_DIR}/src/octo-seed.sql
 		DESTINATION ${CMAKE_INSTALL_PREFIX}/octo)
-	install(FILES ${PROJECT_BINARY_DIR}/octo-seed.zwr
+	install(FILES ${PROJECT_BINARY_DIR}/src/octo-seed.zwr
 		DESTINATION ${CMAKE_INSTALL_PREFIX}/octo)
 
 	# Add tests to make install target, if tests are supported. Only the limited test suite should be run at
@@ -665,25 +670,25 @@ endif()
 
 # Seed Data
 # Copy CREATE TABLE statements for PostgreSQL catalog tables without "pg_catalog" or "information_schema" prefixes
-add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/octo-seed.sql
-	COMMAND ${PROJECT_SOURCE_DIR}/tests/fixtures/convert_catalog_sql.sh ${PROJECT_BINARY_DIR}
+add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/src/octo-seed.sql
+	COMMAND ${PROJECT_SOURCE_DIR}/tests/fixtures/convert_catalog_sql.sh ${PROJECT_BINARY_DIR}/src
 	DEPENDS ${PROJECT_SOURCE_DIR}/tests/fixtures/octo-seed.sql ${PROJECT_SOURCE_DIR}/tests/fixtures/convert_catalog_sql.sh
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/fixtures
 )
 
 # Copy PostgreSQL catalog functions without "pg_catalog" prefix
-add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/octo-seed.zwr
-	COMMAND ${PROJECT_SOURCE_DIR}/tests/fixtures/convert_catalog_zwr.sh ${PROJECT_BINARY_DIR}
+add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/src/octo-seed.zwr
+	COMMAND ${PROJECT_SOURCE_DIR}/tests/fixtures/convert_catalog_zwr.sh ${PROJECT_BINARY_DIR}/src
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/fixtures
 )
 
 add_custom_target(
 	convert_catalog_sql ALL
-	DEPENDS ${PROJECT_BINARY_DIR}/octo-seed.sql
+	DEPENDS ${PROJECT_BINARY_DIR}/src/octo-seed.sql
 )
 add_custom_target(
 	convert_catalog_zwr ALL
-	DEPENDS ${PROJECT_BINARY_DIR}/octo-seed.zwr
+	DEPENDS ${PROJECT_BINARY_DIR}/src/octo-seed.zwr
 )
 
 # Strip debug symbols from files

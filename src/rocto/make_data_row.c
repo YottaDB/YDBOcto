@@ -102,7 +102,7 @@ DataRow *make_data_row(DataRowParm *parms, int16_t num_parms, int32_t *col_data_
 							*((int32_t *)c) = htonl((int32_t)int4_value);
 							c += sizeof(int32_t);
 						} else {
-							ERROR(ERR_LIBCALL_WITH_ARG, "strtol", int_buffer);
+							ERROR(ERR_LIBCALL_WITH_ARG, "strtol()", int_buffer);
 							free(ret);
 							return NULL;
 						}

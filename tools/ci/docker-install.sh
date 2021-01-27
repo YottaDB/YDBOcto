@@ -1,7 +1,7 @@
 #!/bin/bash
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -43,9 +43,6 @@ exit
 FILE
 $ydb_dist/mupip create
 $ydb_dist/mupip SET -reg DEFAULT -RECORD_SIZE=300000
-# Load PostgreSQL seed data
-octo -f $ydb_dist/plugin/octo/octo-seed.sql
-ydb_chset="" LC_ALL=C $ydb_dist/mupip load $ydb_dist/plugin/octo/octo-seed.zwr
 octo -f northwind.sql
 $ydb_dist/mupip load northwind.zwr
 # Setup default user

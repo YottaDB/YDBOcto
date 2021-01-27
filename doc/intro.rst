@@ -342,18 +342,6 @@ Configure Octo
      mupip create -region=OCTO
      mupip set -journal=before,enable,on -region OCTO
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  Install Octo seed data
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  .. note::
-
-     This step is mandatory for full Octo functionality, as it loads internal system tables and functions required both by clients and Octo's own test system.
-
-  .. code-block:: bash
-
-     $ydb_dist/mupip load $ydb_dist/plugin/octo/octo-seed.zwr
-     $ydb_dist/plugin/bin/octo -f $ydb_dist/plugin/octo/octo-seed.sql
-
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   *(Optional)* Test with dummy data using Octo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -53,7 +53,7 @@ int auto_upgrade_plan_definition_if_needed(void) {
 	YDB_LITERAL_TO_BUFFER(OCTOLIT_DDL, &locksub);
 	fmt.buf_addr = &fmt_buff[0];
 	fmt.len_alloc = sizeof(fmt_buff);
-	for (release_ddl_lock = FALSE; FALSE == release_ddl_lock; release_ddl_lock = TRUE) {
+	for (release_ddl_lock = FALSE;; release_ddl_lock = TRUE) {
 		status = ydb_get_s(&octo_global, 1, &subs, &fmt);
 		switch (status) {
 		case YDB_ERR_GVUNDEF:
@@ -81,6 +81,8 @@ int auto_upgrade_plan_definition_if_needed(void) {
 			/* Now that we have the exclusive lock, check again if the plan table definition is still different
 			 * (could have been concurrently fixed). Hence we go one more iteration in this for loop.
 			 */
+		} else {
+			break;
 		}
 	}
 	/* Call an M routine to discard all plans, xrefs and triggers associated with all tables in Octo.
@@ -90,7 +92,7 @@ int auto_upgrade_plan_definition_if_needed(void) {
 	CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, release_ddl_lock, octo_global, locksub);
 
 	/* Now that auto upgrade is complete, indicate that (so other processes do not attempt the auto upgrade)
-	 * by setting ^%ydboctoocto(OCTOLIT_PLANFMT,OCTOLIT_TABLES) to FMT_PLAN_DEFINITION.
+	 * by setting ^%ydboctoocto(OCTOLIT_PLANFMT) to FMT_PLAN_DEFINITION.
 	 */
 	fmt.len_used = snprintf(fmt.buf_addr, fmt.len_alloc, "%d", FMT_PLAN_DEFINITION);
 	status = ydb_set_s(&octo_global, 1, &subs, &fmt);

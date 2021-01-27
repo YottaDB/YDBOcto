@@ -10,32 +10,12 @@
  *								*
  ****************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <assert.h>
-#include <unistd.h>
-#include <errno.h>
+#include <stdio.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 
 #include "octo.h"
-#include "octo_types.h"
-
-#define YY_NULL 0
-
-int get_input(char *buf, int size) {
-	UNUSED(size);
-	if (EOF_NONE != eof_hit)
-		return YY_NULL;
-	if (input_buffer_combined[cur_input_index] == '\0') {
-		if (cur_input_more() == 0) {
-			return YY_NULL;
-		}
-		return -1;
-	}
-	buf[0] = input_buffer_combined[cur_input_index++];
-	return 1;
-}
 
 int readline_get_more() {
 	int   line_length, data_read;

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -221,6 +221,9 @@ int auto_upgrade_binary_table_definition(void) {
 		free(binary_table_defn); /* free buffer that was "malloc"ed in "compress_statement" */
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, NULL, TRUE);
 	}
+	ERASE_INPUT_BUFFER; /* Clear history of all "parse_line()" processing related to binary function upgrade to avoid
+			     * confusion when we next proceed to run real queries.
+			     */
 	CLEANUP_TABLE_BUFF(table_buff);
 	return YDB_OK;
 }

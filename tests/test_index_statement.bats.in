@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -13,8 +13,12 @@
 load test_helpers
 
 setup() {
-  init_test
-  createdb
+	init_test
+	createdb
+	# Invoke octo to finish auto load of octo-seed.sql before "load_fixture ... subtest" invocation.
+	# This is to avoid verbose output of each query in "octo-seed.sql" (the "load_fixture" invocation is not
+	# done with "novv") which would otherwise pollute the reference file.
+	octo < /dev/null
 }
 
 # TODO: Remove when INDEX statements are fully implemented.

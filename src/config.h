@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -56,7 +56,12 @@ typedef struct OctoConfig {
 	boolean_t	     is_tty, is_rocto;
 	config_t *	     config_file;
 	pid_t		     process_id;
-	int		     dry_run, plan_id, page_size, allow_schema_changes;
+	boolean_t	     dry_run;
+	int		     plan_id, page_size;
+	boolean_t	     allow_schema_changes;
+	boolean_t	     in_auto_load_octo_seed; /* TRUE for a short window when octo/rocto startup detects it is
+						      * time to auto load the octo-seed.sql and octo-seed.zwr files.
+						      */
 } OctoConfig;
 
 extern OctoConfig *config;

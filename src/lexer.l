@@ -21,21 +21,20 @@
 #include "memory_chunk.h"
 #include "memory_chunk.h"
 
-#define YY_INPUT(buf, result, max_size) while((result = get_input(buf, max_size)) == -1 && result != YY_NULL) { };
+#define YY_INPUT(buf, result, max_size)	result = get_input(buf, max_size)	/* reads 1 byte of input per invocation */
 
 #define YY_USER_ACTION 							\
 	yylloc->first_line = yylloc->last_line;				\
 	yylloc->first_column = yylloc->last_column;			\
-	for(int i = 0; yytext[i] != '\0'; i++) { 			\
-		if(yytext[i] == '\n') { 				\
+	for (int i = 0; yytext[i] != '\0'; i++) { 			\
+		if (yytext[i] == '\n') { 				\
 			yylloc->last_line++; 				\
 			yylloc->first_column = 1; 			\
 			yylloc->last_column = 1; 			\
-		}							\
-		else {							\
+		} else {						\
 			yylloc->last_column++;				\
 		}							\
-    }
+	}
 
 /*
  The first set of tokens are auto converted; copy pasts from .y, and run

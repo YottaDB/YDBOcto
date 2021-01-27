@@ -74,6 +74,9 @@ const int err_code_map[] = {
 #undef ERROR_DEF
 #undef ERROR_END
 
+const char *log_prefix = "[%5s] %s:%d %04d-%02d-%02d %02d:%02d:%02d : %s : ";
+const char *rocto_log_prefix = "[%s:%s] [%5s] %s:%d %04d-%02d-%02d %02d:%02d:%02d : %s : ";
+
 #define MAX_ERR_PREFIX_LEN 1024
 
 void populate_and_print_full_err_str(enum ERROR error, char **full_err_str, int *full_err_len, char *err_prefix,
@@ -118,36 +121,6 @@ void populate_and_print_full_err_str(enum ERROR error, char **full_err_str, int 
 		}
 	}
 }
-
-/* ---------------- BEGIN : ALL Global variables in Octo ------------------ */
-
-OctoConfig * config;
-MemoryChunk *memory_chunks;
-uint64_t     hash_canonical_query_cycle; // incremented before every outermost call to "hash_canonical_query"
-int	     cur_input_index;		 // Current index of input_buffer_combined the parser should read from,
-					 // and readlines should write to. Effectively marks the end of the
-					 // current query.
-int old_input_index;			 // The previous value of cur_input_index before the parser modifies it.
-					 // Effectively marks the start of the current query.
-int leading_spaces;			 // leading spaces in the current query it needs to be stored somewhere
-					 // accessible but should be ignored, except by the lexer and yyerror
-int   cur_input_max;
-int   eof_hit;
-FILE *inputFile;
-char *input_buffer_combined; // The input buffer for octo. Contains the query strings.
-int (*cur_input_more)();
-OctoConfig * config;
-ydb_buffer_t lex_buffer;	 // String buffer for use in lexer.l
-int	     ydb_release_number; /* e.g. the integer 130 in case of r1.30 etc. */
-
-#ifdef IS_ROCTO
-RoctoSession rocto_session;
-#endif
-
-const char *log_prefix = "[%5s] %s:%d %04d-%02d-%02d %02d:%02d:%02d : %s : ";
-const char *rocto_log_prefix = "[%s:%s] [%5s] %s:%d %04d-%02d-%02d %02d:%02d:%02d : %s : ";
-
-/* ---------------- END   : ALL Global variables in Octo ------------------ */
 
 /**
  * Logs error at verbosity level, formatting output and sending to the correct location.

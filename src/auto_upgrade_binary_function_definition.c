@@ -309,6 +309,9 @@ int auto_upgrade_binary_function_definition(void) {
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, TRUE);
 		}
 	}
+	ERASE_INPUT_BUFFER; /* Clear history of all "parse_line()" processing related to binary function upgrade to avoid
+			     * confusion when we next proceed to run real queries.
+			     */
 	CLEANUP_FUNCTION_BUFF(function_buff, ret_buff);
 	return YDB_OK;
 }

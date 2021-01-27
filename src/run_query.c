@@ -149,8 +149,8 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 	char		 pid_buffer[INT64_TO_STRING_MAX]; /* assume max pid is 64 bits even though it is a 4-byte quantity */
 	boolean_t	 release_query_lock;
 	SqlStatement	 stmt;
-	SqlStatementType is_create_function;
-	boolean_t	 wrapInTp;
+	boolean_t	 ok_to_drop, wrapInTp;
+	SqlStatementType result_type;
 
 	// Assign cursor prior to parsing to allow tracking and storage of literal parameters under the cursor local variable
 	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
@@ -210,7 +210,8 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
 		return 1;
 	}
-	if (config->dry_run || (no_data_STATEMENT == result->type)) {
+	result_type = result->type;
+	if (config->dry_run || (no_data_STATEMENT == result_type)) {
 		CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
 		return (YDB_OK != status);
 	}
@@ -219,7 +220,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 
 	cursor_used = TRUE; /* By default, assume a cursor was used to execute the query */
 	release_query_lock = TRUE;
-	switch (result->type) {
+	switch (result_type) {
 	// This effectively means select_STATEMENT, but we have to assign ID's inside this function
 	// and so need to propagate them out
 	case table_alias_STATEMENT:
@@ -327,7 +328,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		ci_param1.address = routine_name;
 		ci_param1.length = sizeof(routine_name);
 		/* Currently read-only queries are not wrapped in TP and read-write queries are wrapped in TP. */
-		switch (result->type) {
+		switch (result_type) {
 		case table_alias_STATEMENT:
 		case set_operation_STATEMENT:
 			/* Read-only query */
@@ -335,7 +336,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			break;
 		default:
 			/* Read-write query */
-			assert(insert_STATEMENT == result->type);
+			assert(insert_STATEMENT == result_type);
 			wrapInTp = TRUE;
 			break;
 		}
@@ -418,20 +419,23 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		/* Wait 10 seconds for the exclusive DDL change lock */
 		status = ydb_lock_incr_s(TIMEOUT_DDL_EXCLUSIVELOCK, &query_lock[0], 1, &query_lock[1]);
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, null_query_lock, &cursor_ydb_buff);
-		/* Note: Last parameter is NULL above as we do not have any query lock to release
+		/* Note: "null_query_lock" used above as we do not have any query lock to release
 		 * at this point since query lock grab failed.
 		 */
 		/* First get a ydb_buffer_t of the table name into "table_name_buffer" */
-		if (drop_table_STATEMENT == result->type) {
+		if (drop_table_STATEMENT == result_type) {
 			tablename = result->v.drop_table->table_name->v.value->v.reference;
 			table = NULL;
+			ok_to_drop = TRUE;
 		} else {
 			UNPACK_SQL_STATEMENT(table, result, create_table);
 			UNPACK_SQL_STATEMENT(value, table->tableName, value);
 			tablename = value->v.reference;
+			/* If auto load of octo-seed.sql is in progress, a CREATE TABLE must do a DROP TABLE. */
+			ok_to_drop = config->in_auto_load_octo_seed;
 		}
 		YDB_STRING_TO_BUFFER(tablename, table_name_buffer);
-		if (drop_table_STATEMENT == result->type) {
+		if (ok_to_drop) {
 			/* DROP TABLE */
 			/* Check if OIDs were created for this table.
 			 * If so, delete those nodes from the catalog now that this table is going away.
@@ -459,17 +463,20 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 				/* YDB_ERROR_CHECK would already have been done inside "drop_schema_from_local_cache()" */
 				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 			}
-		} else {
+		}
+		if (create_table_STATEMENT == result_type) {
 			/* CREATE TABLE case. More processing needed. */
 			int	  text_table_defn_length;
 			SqlTable *sql_table;
 
-			/* Check if table already exists */
-			sql_table = find_table(tablename);
-			if (NULL != sql_table) {
-				/* Table already exists. Issue error. */
-				ERROR(ERR_CANNOT_CREATE_TABLE, tablename);
-				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+			if (!ok_to_drop) {
+				/* Check if table already exists */
+				sql_table = find_table(tablename);
+				if (NULL != sql_table) {
+					/* Table already exists. Issue error. */
+					ERROR(ERR_CANNOT_CREATE_TABLE, tablename);
+					CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+				}
 			}
 			out = open_memstream(&buffer, &buffer_size);
 			assert(out);
@@ -544,12 +551,11 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		// Wait 10 seconds for the exclusive DDL change lock
 		status = ydb_lock_incr_s(TIMEOUT_DDL_EXCLUSIVELOCK, &query_lock[0], 1, &query_lock[1]);
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, null_query_lock, &cursor_ydb_buff);
-		/* Note: Last parameter is NULL above as we do not have any query lock to release
+		/* Note: "null_query_lock" parameter used above as we do not have any query lock to release
 		 * at this point since query lock grab failed.
 		 */
 		/* First, get a ydb_buffer_t of the function name into "function_name_buffer" */
-		is_create_function = (create_function_STATEMENT == result->type);
-		if (is_create_function) {
+		if (create_function_STATEMENT == result_type) {
 			UNPACK_SQL_STATEMENT(function, result, create_function);
 			UNPACK_SQL_STATEMENT(value, function->function_name, value);
 		} else {
@@ -569,7 +575,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		function_hash_buffer = &function_name_buffers[2];
 		YDB_STRING_TO_BUFFER(function_hash, function_hash_buffer);
 		// Add function hash to parse tree for later addition to logical plan
-		if (is_create_function) {
+		if (create_function_STATEMENT == result_type) {
 			SQL_STATEMENT(function->function_hash, value_STATEMENT);
 			MALLOC_STATEMENT(function->function_hash, value, SqlValue);
 			UNPACK_SQL_STATEMENT(value, function->function_hash, value);
@@ -590,7 +596,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		/* Check if function with computed hash exists already or not */
 		status = ydb_data_s(&octo_global, 3, &function_name_buffers[0], &ret_value);
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
-		if (!is_create_function) {
+		if (drop_function_STATEMENT == result_type) {
 			/* DROP FUNCTION */
 			if (0 == ret_value) {
 				char fn_name[1024];
@@ -601,7 +607,30 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 				ERROR(ERR_CANNOT_DROP_FUNCTION, fn_name);
 				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 			}
-			/* Drop the function in question since DROP FUNCTION was explicitly requested */
+			ok_to_drop = TRUE;
+		} else {
+			/* CREATE FUNCTION */
+			/* If auto load of octo-seed.sql is in progress, a CREATE FUNCTION must do a DROP FUNCTION. */
+			ok_to_drop = config->in_auto_load_octo_seed;
+			if (!ok_to_drop) {
+				if (0 != ret_value) {
+					char fn_name[1024];
+
+					/* Function already exists. Issue error. */
+					get_function_name_and_parmtypes(fn_name, sizeof(fn_name), function_name,
+									function->parameter_type_list);
+					ERROR(ERR_CANNOT_CREATE_FUNCTION, fn_name);
+					CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+				}
+			} else {
+				/* It is okay for a function that is being created (using "CREATE FUNCTION" in "octo-seed.sql")
+				 * to already exist or not. No errors should be issued in either case. Handle it accordingly.
+				 */
+				ok_to_drop = (0 != ret_value); /* DROP FUNCTION only if it exists */
+			}
+		}
+		if (ok_to_drop) {
+			/* DROP FUNCTION explicitly requested or implicitly assumed as part of auto load of "octo-seed.sql" */
 			status = delete_function_from_pg_proc(function_name_buffer, function_hash_buffer);
 			if (0 != status) {
 				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
@@ -620,22 +649,11 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 				// YDB_ERROR_CHECK would already have been done inside "drop_schema_from_local_cache()"
 				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 			}
-		} else {
-			/* CREATE FUNCTION */
-			if (0 != ret_value) {
-				char fn_name[1024];
-
-				/* Function already exists. Issue error. */
-				get_function_name_and_parmtypes(fn_name, sizeof(fn_name), function_name,
-								function->parameter_type_list);
-				ERROR(ERR_CANNOT_CREATE_FUNCTION, fn_name);
-				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
-			}
 		}
-		if (is_create_function) {
+		if (create_function_STATEMENT == result_type) {
 			int text_function_defn_length;
 
-			// CREATE FUNCTION case. More processing needed.
+			/* CREATE FUNCTION */
 			out = open_memstream(&buffer, &buffer_size);
 			assert(out);
 			text_function_defn_length = emit_create_function(out, result);

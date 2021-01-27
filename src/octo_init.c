@@ -635,7 +635,7 @@ int octo_init(int argc, char **argv) {
 	// Search for config file octo.conf (OCTO_CONF_FILE_NAME) in directories ".", "~", and "$ydb_dist/plugin/octo" in that order
 	config_init(config_file);
 
-	// This loop is only ever executed once
+	// Note: This loop is only ever executed once. Structured this way to make it easy to break out in case of error code paths.
 	for (;;) {
 		ydb_buffer_t zyrelease, zyrel_value;
 		char *	     ch, *ch2, zyrel_value_buff[128]; /* should be more than enough to store $ZYRELEASE value */
@@ -739,12 +739,15 @@ int octo_init(int argc, char **argv) {
 				INFO(INFO_ENV_VAR, envvar_array[i], ptr);
 			}
 		}
-		// NOTE: this uses hard-coded paths, not $ydb_ci
+		/* Determine full path of "ydbocto.ci" to set as the call-in table path */
 		if (!DISABLE_INSTALL) {
+			/* Octo was installed under $ydb_dist (using "cmake -D DISABLE_INSTALL=OFF"). So pick that path.
+			 * NOTE: this uses a hard-coded path under $ydb_dist. Not the currently active $ydb_ci.
+			 */
 			if (NULL != ydb_dist) {
 				status = snprintf(ci_path, sizeof(ci_path), "%s/plugin/octo/ydbocto.ci", ydb_dist);
 				if ((int)sizeof(ci_path) <= status) {
-					ERROR(ERR_BUFFER_TOO_SMALL, "Octo call-in table path");
+					ERROR(ERR_BUFFER_TOO_SMALL, "Octo call-in table path : $ydb_dist/plugin/octo/ydbocto.ci");
 					status = 1;
 					break;
 				}
@@ -754,6 +757,9 @@ int octo_init(int argc, char **argv) {
 				break;
 			}
 		} else {
+			/* Octo was built but not installed. So derive the path of ydbocto.ci from the path of the
+			 * octo/rocto binary that is currently running.
+			 */
 			exe_path_len = readlink("/proc/self/exe", exe_path, OCTO_PATH_MAX);
 			if ((-1 != exe_path_len) && (OCTO_PATH_MAX > exe_path_len)) {
 				exe_path[exe_path_len] = '\0'; // readlink() doesn't add a null terminator per man page
@@ -761,17 +767,17 @@ int octo_init(int argc, char **argv) {
 				if (NULL != src_path) {
 					status = snprintf(ci_path, sizeof(ci_path), "%s/ydbocto.ci", src_path);
 					if ((int)sizeof(ci_path) <= status) {
-						ERROR(ERR_BUFFER_TOO_SMALL, "Octo call-in table path");
+						ERROR(ERR_BUFFER_TOO_SMALL, "ydbocto.ci call-in table file path");
 						status = 1;
 						break;
 					}
 				} else {
-					ERROR(ERR_LIBCALL_WITH_ARG, "dirname", exe_path);
+					ERROR(ERR_LIBCALL_WITH_ARG, "dirname()", exe_path);
 					status = 1;
 					break;
 				}
 			} else {
-				ERROR(ERR_LIBCALL_WITH_ARG, "readlink", "/proc/self/exe");
+				ERROR(ERR_LIBCALL_WITH_ARG, "readlink()", "/proc/self/exe");
 				status = 1;
 				break;
 			}
@@ -817,7 +823,7 @@ int octo_init(int argc, char **argv) {
 		/* readlines setup */
 		rl_bind_key('\t', rl_insert); // display the tab_completion of '\t' and just insert it as a character
 		config->config_file = config_file;
-		/* "argc" can be 0 in case of cmocka unit tests. Do not attempt auto upgrade in that case. */
+		/* "argc" can be 0 in case of cmocka unit tests. Do not attempt auto upgrade/load in that case. */
 		if (argc) {
 			/* Check if plan-definitions (of tables or functions) need to be auto upgraded (due to format changes).  *
 			 * If so discard them (they will be regenerated as needed).  */
@@ -828,6 +834,12 @@ int octo_init(int argc, char **argv) {
 			}
 			/* Check if binary-definitions (of tables or functions) need to be auto upgraded. If so upgrade them. */
 			status = auto_upgrade_binary_definition_if_needed();
+			if (YDB_OK != status) {
+				/* Error message would have been printed already inside the above function call */
+				break;
+			}
+			/* Check if octo-seed needs to be reloaded (due to a newer Octo build). If so do that. */
+			status = auto_load_octo_seed_if_needed();
 			if (YDB_OK != status) {
 				/* Error message would have been printed already inside the above function call */
 				break;

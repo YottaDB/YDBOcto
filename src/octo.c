@@ -42,12 +42,9 @@ int main(int argc, char **argv) {
 	}
 
 	TRACE(INFO_OCTO_STARTED, "");
-
-	/* Load the existing tables */
-
-	yydebug = config->verbosity_level == TRACE;
+	yydebug = (TRACE == config->verbosity_level); /* Enable yacc/flex/bison tracing if verbosity was set to TRACE */
 	cur_input_more = &readline_get_more;
-	if (inputFile == NULL) {
+	if (NULL == inputFile) {
 		inputFile = stdin;
 		/* Check if stdin is a terminal. If so, we need to use "readline()" for command line editing. */
 		if (isatty(0)) {

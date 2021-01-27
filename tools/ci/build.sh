@@ -362,7 +362,7 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 		cp ../tools/get_platform_arch.sh $tarball_name
 		cp ../src/aux/*.m $tarball_name/plugin/r
 		cp src/ydbocto.ci $tarball_name/plugin/octo
-		cp ../tests/fixtures/octo-seed.* $tarball_name/plugin/octo
+		cp src/octo-seed.* $tarball_name/plugin/octo
 		cp ../src/aux/octo.conf.default $tarball_name/plugin/octo/octo.conf
 		echo "# Copy Octo binaries and libraries for later access by [octo]install.sh"
 		cp src/octo src/rocto $tarball_name/plugin/octo/bin
@@ -422,6 +422,8 @@ fi
 
 echo "# Setup for tests"
 pushd src
+# The below step is not needed by the bats tests as they do their own database initialization (in "init_test" function)
+# but cmocka tests do not have any such facility hence require this setup.
 $ydb_dist/mupip set -null_subscripts=always -reg '*'
 
 echo "# Source ydb_env_set after building and installing Octo"
@@ -437,9 +439,6 @@ else
 	echo " -> ydb_routines: $ydb_routines"
 fi
 
-echo "# Load the data required for tests"
-./octo -f ../../tests/fixtures/names.sql
-$ydb_dist/mupip load ../../tests/fixtures/names.zwr
 popd
 
 if [[ ("test-auto-upgrade" != $jobname) || ("force" != $subtaskname) ]]; then
@@ -845,8 +844,6 @@ FILE
 		cd oldsrc
 		export ydb_routines=". _ydbocto.so $ydb_routines $ydb_dist/libyottadbutil.so"
 		cp ../*.gld ../{mumps,octo}.dat ../create_table-*.sql .
-		echo "Populating seed data"
-		./octo -f ../octo-seed.sql
 		cp *.gld {mumps,octo}.dat create_table-*.sql ../newsrc
 		for queryfile in create_table-*.sql
 		do

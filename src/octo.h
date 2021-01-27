@@ -143,6 +143,7 @@
 #define OCTOLIT_PREPARED	     "prepared"
 #define OCTOLIT_ROUTINE		     "routine"
 #define OCTOLIT_ROW_COUNT	     "RowCount"
+#define OCTOLIT_SEEDFMT		     "seedfmt"
 #define OCTOLIT_T		     "t"
 #define OCTOLIT_TABLEPLANS	     "tableplans"
 #define OCTOLIT_TABLES		     "tables"
@@ -533,6 +534,20 @@ typedef enum RegexType {
 		input_buffer_combined[cur_input_index + QUERY_LENGTH + NEWLINE_NEEDED] = '\0';                     \
 	}
 
+/* Need to clear the entire input buffer. Not enough to just null terminate the first byte as the lexer operates
+ * by reading 1 byte at a time. If the first byte is '\0', we will read input but once the input query is written
+ * over the '\0', bytes after the input query will be read from the pre-existing contents of the buffer. Hence
+ * the need to erase all contents in the buffer.
+ */
+#define ERASE_INPUT_BUFFER                                                                                          \
+	{                                                                                                           \
+		cur_input_index = 0;                                                                                \
+		old_input_index = 0;                                                                                \
+		/* See INIT_INPUT_BUFFER and COPY_QUERY_TO_INPUT_BUFFER macros for why the below assert is valid */ \
+		assert((INIT_QUERY_SIZE - 1) <= cur_input_max);                                                     \
+		memset(input_buffer_combined, 0, cur_input_max + 1);                                                \
+	}
+
 #define DELETE_QUERY_PARAMETER_CURSOR_LVN(CURSOR_YDB_BUFF)                                 \
 	{                                                                                  \
 		ydb_buffer_t cursor_local;                                                 \
@@ -705,6 +720,8 @@ void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, Pa
 int get_full_path_of_generated_m_file(char *filename, int filename_len, char *m_routine_name);
 int get_full_path_of_generated_o_file(char *filename, int filename_len, char *o_routine_name);
 
+int auto_load_octo_seed(void);
+int auto_load_octo_seed_if_needed(void);
 int auto_upgrade_plan_definition_if_needed(void);
 int auto_upgrade_binary_definition_if_needed(void);
 int auto_upgrade_binary_function_definition(void);

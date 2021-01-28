@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -116,7 +116,11 @@ teardown() {
 }
 
 @test "TCT016 : OCTO568 : Accept non-standard integer types" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCT016.sql useocto
+	# Pasted below is a comment from the commit message of da0fb7109b8c627293bd5e490923ee07247dc732 on "useocto" usage.
+	# When executed with JDBC client, the queries in TCT016.sql don't have a result set returned in
+	# `run_multiple_query_files.java`. As a result the test fails. On manual verification even on Octo
+	# there is no row returned. So thought it would be best for now to `useocto` and have it execute as before.
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCT016.sql useocto
 }
 
 @test "TCT017 : OCTO636 : SIZE specified in the VARCHAR type of the typecast operator (::) should be honored" {
@@ -156,3 +160,8 @@ teardown() {
   grep SELECT _ydboctoP*.m | cut -d";" -f 2 | sort_LC_ALL_C >> output.txt 2>&1
   verify_output TCT019 output.txt
 }
+
+@test "TCT020 : OCTO676 : Casting NULL values to INTEGER/NUMERIC/BOOLEAN type returns incorrect results in some cases" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCT020.sql
+}
+

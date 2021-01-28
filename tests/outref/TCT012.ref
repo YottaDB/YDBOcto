@@ -40,7 +40,7 @@ octoPlan1(cursorId)
     . . SET %ydboctoexpr=((%ydboctoexpr)\1)
     . . SET %ydboctoexpr(2)=%ydboctoexpr
     . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",2))
-    . . SET %ydboctoexpr=(+(%ydboctoexpr))
+    . . SET %ydboctoexpr=($$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr))
     . . SET %ydboctoexpr=%ydboctoexpr(2)+%ydboctoexpr
     . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",3))
@@ -69,11 +69,11 @@ octoPlan1(cursorId)
     . . SET %ydboctoexpr=((%ydboctoexpr)\1)
     . . SET %ydboctoexpr(2)=%ydboctoexpr
     . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",2))
-    . . SET %ydboctoexpr=(+(%ydboctoexpr))
+    . . SET %ydboctoexpr=($$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr))
     . . SET %ydboctoexpr=%ydboctoexpr(2)+%ydboctoexpr
     . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",3))
-    . . SET %ydboctoexpr=(+(%ydboctoexpr))
+    . . SET %ydboctoexpr=($$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr))
     . . SET %ydboctoexpr=%ydboctoexpr(1)+%ydboctoexpr
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr

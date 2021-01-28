@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -29,12 +29,14 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 	while (NULL != plan) {
 		LogicalPlan	*expr_plan;
 		int		depth;
+		boolean_t	need_closing_paren;
 
 		assert(((LP_COLUMN_LIST == plan->type)
 				&& ((LP_WHERE == plan->v.lp_default.operand[0]->type) || is_lp_table_value))
 			|| (((LP_ORDER_BY == plan->type) || (LP_GROUP_BY == plan->type) || IS_TYPE_LP_AGGREGATE(plan->type))
 						&& (LP_COLUMN_LIST == plan->v.lp_default.operand[0]->type)));
 		assert(is_order_by == (LP_ORDER_BY == plan->type));
+		need_closing_paren = FALSE;
 		if (is_order_by) {
 			/* This is a call for an ORDER BY. If the ORDER BY was done on an expression which
 			 * has a STRING_LITERAL type, then we need to ensure that it gets treated as a STRING
@@ -63,7 +65,8 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 			case NUMERIC_LITERAL:
 			case INTEGER_LITERAL:
 				/* In case of an integer, force it to be a numeric. Fixes issues like YDBOcto#643. */
-				%{}+{}%
+				%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
+				need_closing_paren = TRUE;
 				break;
 			default:
 				break;
@@ -75,12 +78,13 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 		}
 		expr_plan = (!is_lp_table_value ? plan->v.lp_default.operand[0]->v.lp_default.operand[0]
 						: plan->v.lp_default.operand[0]);
-		if (str2mval && !dot_count) {
-			%{}$$str2mval^%%ydboctoplanhelpers({}%
-		}
+		assert(!str2mval || dot_count);
 		depth = 0;
 		TMPL(tmpl_print_expression, expr_plan, pplan, dot_count, depth);
-		if (str2mval && dot_count) {
+		if (need_closing_paren) {
+			%{}){}%
+		}
+		if (str2mval) {
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {{ PP_YDB_OCTO_EXPR }}=$$str2mval^%%ydboctoplanhelpers({{ PP_YDB_OCTO_EXPR }}){}%
 			%{}`n{{ PLAN_LINE_START }}{}%

@@ -127,7 +127,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			if (SIZE_OR_PRECISION_UNSPECIFIED != plan->extra_detail.lp_coerce_type.coerce_type.size_or_precision) {
 				%{}$$Cast2NUMERIC^%%ydboctoplanhelpers({}%
 			}
-			%{}(+{}%
+			%{}($$ForceNumeric^%%ydboctoplanhelpers{}%
 			break;
 		case NUL_TYPE:
 			break;
@@ -643,11 +643,15 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		if (dot_count) {
 			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
 			TMPL(tmpl_print_dots, dot_count);
-			%{}SET {{ PP_YDB_OCTO_EXPR }}=+{{ PP_YDB_OCTO_EXPR }}{}%
+			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+			%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
+			%{}{{ PP_YDB_OCTO_EXPR }}{}%
+			%{}){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 		} else {
-			%{}+{}%
+			%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
 			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+			%{}){}%
 		}
 		break;
 	case LP_NEGATIVE:

@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -10,13 +10,14 @@
 ;								;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-run(cursorId,routine)
-  ; Note: "routine" variable is of the form "%ydboctoPOyAkV0dwqVINYJD702SbAA"
-  ; where the generated M file name is "_ydboctoPOyAkV0dwqVINYJD702SbAA.m".
-  ; We need to prefix a "^" to it before invoking the M program using "DO" with entryref indirection.
+run(cursorId,routine,wrapInTp)
+  ; * "routine" variable is of the form "%ydboctoPOyAkV0dwqVINYJD702SbAA"
+  ;   where the generated M file name is "_ydboctoPOyAkV0dwqVINYJD702SbAA.m".
+  ;   We need to prefix a "^" to it before invoking the M program using "DO" with entryref indirection.
+  ; * "wrapInTp" is 0 or 1. If 1, the query is wrapped in a TP transaction.
   NEW rtn
   SET rtn="^"_routine
-  TSTART ():(serial)
+  TSTART:wrapInTp ():(serial)
   DO @rtn@(cursorId)
-  TCOMMIT
+  TCOMMIT:wrapInTp
   QUIT

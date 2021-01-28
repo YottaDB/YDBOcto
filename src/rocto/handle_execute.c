@@ -91,7 +91,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 	 * b) when the portal is suspended (rows remain to return on an existing cursor).
 	 */
 	if ((0 != strncmp(routine_buffer.buf_addr, OCTOLIT_NONE, MAX_ROUTINE_LEN)) && (0 > *cursorId)) {
-		boolean_t    send_row_description;
+		boolean_t    send_row_description, wrapInTp;
 		SqlStatement stmt;
 
 		assert((command_tag == select_STATEMENT) || (command_tag == insert_STATEMENT));
@@ -167,9 +167,10 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 		// Prepare call-in interface to execute query
 		ci_routine.address = routine_buffer.buf_addr;
 		ci_routine.length = routine_buffer.len_used;
+		/* Currently read-only queries are not wrapped in TP and read-write queries are wrapped in TP. */
+		wrapInTp = ((command_tag == select_STATEMENT) ? FALSE : TRUE);
 		// Run the target routine
-		// cursorId is typecast here since the YottaDB call-in interface does not yet support 64-bit parameters
-		status = ydb_ci("_ydboctoselect", *cursorId, &ci_routine);
+		status = ydb_ci("_ydboctoselect", *cursorId, &ci_routine, (ydb_int_t)wrapInTp);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
 			// Cleanup cursor parameters

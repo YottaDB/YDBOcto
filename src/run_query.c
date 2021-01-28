@@ -150,6 +150,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 	boolean_t	 release_query_lock;
 	SqlStatement	 stmt;
 	SqlStatementType is_create_function;
+	boolean_t	 wrapInTp;
 
 	// Assign cursor prior to parsing to allow tracking and storage of literal parameters under the cursor local variable
 	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
@@ -325,8 +326,21 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		cursorId = atol(cursor_ydb_buff.buf_addr);
 		ci_param1.address = routine_name;
 		ci_param1.length = sizeof(routine_name);
+		/* Currently read-only queries are not wrapped in TP and read-write queries are wrapped in TP. */
+		switch (result->type) {
+		case table_alias_STATEMENT:
+		case set_operation_STATEMENT:
+			/* Read-only query */
+			wrapInTp = FALSE;
+			break;
+		default:
+			/* Read-write query */
+			assert(insert_STATEMENT == result->type);
+			wrapInTp = TRUE;
+			break;
+		}
 		// Call the select routine
-		status = ydb_ci("_ydboctoselect", cursorId, &ci_param1);
+		status = ydb_ci("_ydboctoselect", cursorId, &ci_param1, (ydb_int_t)wrapInTp);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
 			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);

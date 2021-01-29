@@ -76,33 +76,3 @@ endif()
 set(MEMORYCHECK_SUPPRESSIONS_FILE ${PROJECT_SOURCE_DIR}/tools/ci/ignored-valgrind-errors.supp CACHE STRING "")
 include(CTest)
 add_subdirectory(src)
-
-# Stuff related to documentation building
-find_package(Sphinx)
-if(Sphinx_FOUND)
-	if(NOT DEFINED SPHINX_THEME)
-	    set(SPHINX_THEME default)
-	endif()
-
-	if(NOT DEFINED SPHINX_THEME_DIR)
-	    set(SPHINX_THEME_DIR)
-	endif()
-
-	# Sphinx source directory
-	set(SPHINX_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/doc")
-
-	# Sphinx cache with pickled ReST documents
-	set(SPHINX_CACHE_DIR "${CMAKE_CURRENT_BINARY_DIR}/_doctrees")
-
-	# HTML output directory
-	set(SPHINX_HTML_DIR "${CMAKE_CURRENT_BINARY_DIR}/html")
-
-	add_custom_target(docs
-	    ${SPHINX_EXECUTABLE}
-		-q -b html
-		-c "${SPHINX_SOURCE_DIR}"
-		-d "${SPHINX_CACHE_DIR}"
-		"${SPHINX_SOURCE_DIR}"
-		"${SPHINX_HTML_DIR}"
-	    COMMENT "Building HTML documentation with Sphinx")
-endif()

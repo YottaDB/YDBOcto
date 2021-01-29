@@ -17,10 +17,11 @@ source /opt/yottadb/current/ydb_env_set
 # Install the YottaDB POSIX plugin
 ./tools/ci/install_posix.sh cmake
 
-cd build
+cd doc
+
 if [ -e Makefile ]; then
-	make docs
+	make html
 else
-	ninja docs
+	ninja html
 fi
-mv html ../public
+mv _build/html ../public

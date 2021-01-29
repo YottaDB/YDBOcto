@@ -429,6 +429,7 @@ int copied_so_far;
 
 <COMMENT_CSTYLE>"*/" { BEGIN(INITIAL); }
 <COMMENT_CSTYLE>. { /* Ignore comments */ }
+<COMMENT_CSTYLE>[\n\r] { /* Ignore multi-line C-style comments */ }
 
 <<EOF>> { eof_hit = EOF_CTRLD; return ENDOFFILE; }
 

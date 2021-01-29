@@ -628,6 +628,10 @@ Test with dummy data using Rocto
 
   .. figure:: squirrel.png
 
+     Squirrel SQL Sample Screenshot
+
+  Complete documentation of SQuirreL set-up can be found in the `ROcto Documentation <rocto.html>`_.
+
 ~~~~~~~~~~~~~~~~~
 Usage
 ~~~~~~~~~~~~~~~~~

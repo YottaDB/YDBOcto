@@ -17,12 +17,14 @@ ID|ID
 ;  SELECT ALL orders.customer_id, orders.order_id, orders.order_date, orders.order_amount FROM orders LEFT JOIN customers ON (orders.order_id = customers.customer_id) WHERE orders.order_amount IN ('$25.50', '$124.00', '$78.50');
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    DO:'$DATA(^%ydboctoocto("xref_status","ORDERS","ORDER_AMOUNT")) ^%ydboctoX2rbmGQx4OtlbPfepALF2EA(cursorId)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)
-    DO:'$DATA(^%ydboctoocto("xref_status","ORDERS","ORDER_AMOUNT")) ^%ydboctoX2rbmGQx4OtlbPfepALF2EA(cursorId)
     NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",4,"","")
     NEW %ydboctoin1
     DO
@@ -112,12 +114,14 @@ octoPlan1(cursorId)
 ;  select all n1.id,n2.id from names n1 right join names n2 on (n1.firstname = n2.lastname) where n1.id IN (1,2);
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    DO:'$DATA(^%ydboctoocto("xref_status","NAMES","LASTNAME")) ^%ydboctoXOMMMsQ8ks3NI1C42wS8F05(cursorId)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)
-    DO:'$DATA(^%ydboctoocto("xref_status","NAMES","LASTNAME")) ^%ydboctoXOMMMsQ8ks3NI1C42wS8F05(cursorId)
     NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",4,"","")
     NEW %ydboctoin1
     DO

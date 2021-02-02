@@ -136,8 +136,10 @@ select * from names where firstname::boolean = id;
 ;  select id::integer,ABS(2) from names;
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)
@@ -163,8 +165,10 @@ octoPlan1(cursorId)
 ;  select id::integer,(ABS(2)::numeric + id) from names;
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)
@@ -194,8 +198,10 @@ octoPlan1(cursorId)
 ;  select id-2*((id/2)::integer) from names;
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)
@@ -224,8 +230,10 @@ octoPlan1(cursorId)
 ;  select firstname::integer from names;
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)
@@ -245,8 +253,10 @@ octoPlan1(cursorId)
 ;  select DOLLARZWRITE(id)::integer from names;
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)
@@ -268,10 +278,12 @@ octoPlan1(cursorId)
 ;  select id from (select * from names UNION select 6.5::integer,'A','B');
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)
     DO octoPlan3(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)
@@ -332,8 +344,10 @@ octoPlan3(cursorId)
 ;  select * from names where firstname::integer = id;
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)
@@ -366,8 +380,10 @@ octoPlan1(cursorId)
 ;  select id::integer,(ABS(2)::text || id::text) from names;
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)
@@ -398,8 +414,10 @@ octoPlan1(cursorId)
 ;  select id::text || id::text,ABS(2)::numeric * id from names;
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)
@@ -433,8 +451,10 @@ octoPlan1(cursorId)
 ;  select id-2*(id/2::integer) from names;
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)

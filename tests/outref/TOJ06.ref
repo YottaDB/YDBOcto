@@ -26,13 +26,15 @@ _ydboctoX*.m
 # Verify key fixing optimization happened by looking at the FOR loops in the generated M code
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    DO:'$DATA(^%ydboctoocto("xref_status","ORDER1","STATUS")) ^%ydboctoXl1ZF8QChmrFXG5Ip2jah7D(cursorId)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)
+--
     QUIT
 
 octoPlan1(cursorId)
-    DO:'$DATA(^%ydboctoocto("xref_status","ORDER1","STATUS")) ^%ydboctoXl1ZF8QChmrFXG5Ip2jah7D(cursorId)
 --
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",5))
     SET %ydboctoin1(%ydboctoexpr)=""
@@ -67,7 +69,6 @@ octoPlan1(cursorId)
     QUIT
 
 octoPlan2(cursorId)
-    DO:'$DATA(^%ydboctoocto("xref_status","ORDER1","STATUS")) ^%ydboctoXl1ZF8QChmrFXG5Ip2jah7D(cursorId)
 --
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",5))
     SET %ydboctoin1(%ydboctoexpr)=""

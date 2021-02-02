@@ -18,12 +18,14 @@ Name10
 ;  WHERE (c1.name LIKE "Name%") OR (c1.id1 < 10);
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    DO:'$DATA(^%ydboctoocto("xref_status","COMPOSITE","NAME")) ^%ydboctoXME0THqzTDPU94fIPMVYR4D(cursorId)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)
-    DO:'$DATA(^%ydboctoocto("xref_status","COMPOSITE","NAME")) ^%ydboctoXME0THqzTDPU94fIPMVYR4D(cursorId)
     NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",5,"","")
     SET %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID0")=""
     FOR  SET %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID0")=$ORDER(^composite(%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID0"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID0")="")  DO

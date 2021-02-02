@@ -10,11 +10,13 @@ ID|FIRSTNAME|LASTNAME
 ;    AND ((lastName = 'Cool' AND firstName = 'Zero') OR lastName = 'Cool');
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)
     DO octoPlan3(cursorId)
     DO octoPlan4(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)

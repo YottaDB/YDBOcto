@@ -50,12 +50,13 @@
  *       inside the tmpl_*.ctemplate functions. Not having that will cause generated M code to contain just OrderBy
  *       instead of "OrderBy" as the subscript in an lvn.
  */
-#define PP_ORDER_BY   "\"OrderBy\""
-#define PP_GROUP_BY   "\"GroupBy\""
-#define PP_ROW_COUNT  "\"RowCount\""   /* Note: This has to be maintained in sync with OCTOLIT_ROW_COUNT */
-#define PP_KEYS	      "\"keys\""       /* Note: This has to be maintained in sync with OCTOLIT_KEYS */
-#define PP_PARAMETERS "\"parameters\"" /* Note: This has to be maintained in sync with OCTOLIT_PARAMETERS */
-#define PP_VARIABLES  "\"variables\""  /* Note: This has to be maintained in sync with OCTOLIT_VARIABLES */
+#define PP_ORDER_BY    "\"OrderBy\""
+#define PP_GROUP_BY    "\"GroupBy\""
+#define PP_ROW_COUNT   "\"RowCount\""	 /* Note: This has to be maintained in sync with OCTOLIT_ROW_COUNT */
+#define PP_KEYS	       "\"keys\""	 /* Note: This has to be maintained in sync with OCTOLIT_KEYS */
+#define PP_PARAMETERS  "\"parameters\""	 /* Note: This has to be maintained in sync with OCTOLIT_PARAMETERS */
+#define PP_VARIABLES   "\"variables\""	 /* Note: This has to be maintained in sync with OCTOLIT_VARIABLES */
+#define PP_XREF_STATUS "\"xref_status\"" /* Note: This has to be maintained in sync with OCTOLIT_XREF_STATUS */
 
 /* Note: The below PP_* macros do not contain double-quotes within the string literal */
 #define PP_COL		 "col"

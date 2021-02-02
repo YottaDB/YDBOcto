@@ -16,8 +16,10 @@ ID|FIRSTNAME|LASTNAME
 ;  SELECT * FROM names n1 WHERE n1.firstName IN (SELECT n2.firstName FROM names n2 WHERE n1.id = n2.id);
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)

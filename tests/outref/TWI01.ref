@@ -12,14 +12,16 @@ ID|FIRSTNAME|LASTNAME
 ;  select * from names where firstName in (select firstName from names where firstName="zero" or firstName="Zero");
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    DO:'$DATA(^%ydboctoocto("xref_status","NAMES","FIRSTNAME")) ^%ydboctoXS6loYoNNto55iv2lHkNkCK(cursorId)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)
     DO octoPlan3(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)
-    DO:'$DATA(^%ydboctoocto("xref_status","NAMES","FIRSTNAME")) ^%ydboctoXS6loYoNNto55iv2lHkNkCK(cursorId)
     NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",5,"","")
     DO
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
@@ -34,7 +36,6 @@ octoPlan1(cursorId)
     QUIT
 
 octoPlan2(cursorId)
-    DO:'$DATA(^%ydboctoocto("xref_status","NAMES","FIRSTNAME")) ^%ydboctoXS6loYoNNto55iv2lHkNkCK(cursorId)
     NEW %ydboctoz
     DO
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",2))

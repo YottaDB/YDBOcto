@@ -393,8 +393,10 @@ Zero|2
 ;  SELECT firstname,COUNT(id) FROM names GROUP BY firstname ORDER BY 2,COUNT(id);
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)
@@ -441,9 +443,11 @@ octoPlan1(cursorId)
 ;  SELECT DISTINCT 1 + COUNT(n1.id * 2),n1.firstname from names n1 where n1.id IN (SELECT DISTINCT MAX((n2.id % 3) + 4) from names n2 GROUP BY n2.firstname) GROUP BY n1.firstname ORDER BY 2, 1;
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)

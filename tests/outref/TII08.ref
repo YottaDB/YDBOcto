@@ -1,0 +1,16 @@
+
+-- TII08 : OCTO502 : Test that INSERT INTO builds cross references outside TSTART/TCOMMIT
+
+INSERT INTO names SELECT id+6 FROM names where firstname = 'Zero';
+
+INSERT 0 2
+# Verify that ^%ydboctoX... invocation happens BEFORE the TSTART in the generated M plan
+;  INSERT INTO names SELECT id+6 FROM names where firstname = 'Zero';
+octoPlan0(cursorId,wrapInTp)
+    DO:'$DATA(^%ydboctoocto("xref_status","NAMES","FIRSTNAME")) ^%ydboctoXS6loYoNNto55iv2lHkNkCK(cursorId)
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    DO octoPlan2(cursorId)
+    TCOMMIT:wrapInTp
+octoPlan1(cursorId)
+octoPlan2(cursorId)

@@ -25,8 +25,10 @@ select 1.5::integer+2.5::numeric+"1abcd"::integer from names;
 ;  select 1.5::integer+2.5::numeric+"1abcd"::integer from names;
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)
@@ -54,8 +56,10 @@ octoPlan1(cursorId)
 ;  select 1.5::integer+2.5::numeric+"1abcd"::numeric from names;
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)

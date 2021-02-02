@@ -109,9 +109,11 @@
  * Each macro is prefixed with a OCTOLIT_.
  * A similar piece of code exists in template_helpers.h where PP_* macros are defined.
  */
-#define OCTOLIT_KEYS	   "keys"	/* keep this in sync with PP_KEYS in "template_helpers.h" */
-#define OCTOLIT_PARAMETERS "parameters" /* keep this in sync with PP_PARAMETERS in "template_helpers.h" */
-#define OCTOLIT_VARIABLES  "variables"	/* keep this in sync with PP_VARIABLES in "template_helpers.h" */
+#define OCTOLIT_KEYS	    "keys"	  /* keep this in sync with PP_KEYS in "template_helpers.h" */
+#define OCTOLIT_PARAMETERS  "parameters"  /* keep this in sync with PP_PARAMETERS in "template_helpers.h" */
+#define OCTOLIT_ROW_COUNT   "RowCount"	  /* keep this in sync with PP_ROW_COUNT in "template_helpers.h" */
+#define OCTOLIT_VARIABLES   "variables"	  /* keep this in sync with PP_VARIABLES in "template_helpers.h" */
+#define OCTOLIT_XREF_STATUS "xref_status" /* keep this in sync with PP_XREF_STATUS in "template_helpers.h" */
 
 #define OCTOLIT_0		     "0"
 #define OCTOLIT_ALL		     "all"
@@ -142,7 +144,6 @@
 #define OCTOLIT_PLAN_METADATA	     "plan_metadata"
 #define OCTOLIT_PREPARED	     "prepared"
 #define OCTOLIT_ROUTINE		     "routine"
-#define OCTOLIT_ROW_COUNT	     "RowCount"
 #define OCTOLIT_SEEDFMT		     "seedfmt"
 #define OCTOLIT_T		     "t"
 #define OCTOLIT_TABLEPLANS	     "tableplans"
@@ -210,7 +211,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_PLAN_DEFINITION 6
+#define FMT_PLAN_DEFINITION 7
 
 // Below are a few utility macros that are similar to those defined in sr_port/gtm_common_defs.h.
 // But we do not use those as that is outside the control of Octo's source code repository

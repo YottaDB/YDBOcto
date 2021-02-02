@@ -1,6 +1,6 @@
 # Verify key fixing optimization and number of generated physical plans by looking at generated M code
 _ydboctoP*.m:;  SELECT id FROM names WHERE id IN (1,2,3);
-_ydboctoP*.m:octoPlan0(cursorId)
+_ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
 _ydboctoP*.m:    DO octoPlan1(cursorId)
 _ydboctoP*.m:octoPlan1(cursorId)
 _ydboctoP*.m:    . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
@@ -18,10 +18,10 @@ _ydboctoP*.m:    . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMES"
 _ydboctoP*.m:    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
 _ydboctoP*.m:    . . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
 _ydboctoP*.m:;  SELECT * FROM names n1 WHERE n1.firstname IN ('Zero', 'Lord');
-_ydboctoP*.m:octoPlan0(cursorId)
+_ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
+_ydboctoP*.m:    DO:'$DATA(^%ydboctoocto("xref_status","NAMES","FIRSTNAME")) ^%ydboctoXS6loYoNNto55iv2lHkNkCK(cursorId)
 _ydboctoP*.m:    DO octoPlan1(cursorId)
 _ydboctoP*.m:octoPlan1(cursorId)
-_ydboctoP*.m:    DO:'$DATA(^%ydboctoocto("xref_status","NAMES","FIRSTNAME")) ^%ydboctoXS6loYoNNto55iv2lHkNkCK(cursorId)
 _ydboctoP*.m:    . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
 _ydboctoP*.m:    SET %ydboctoin1(%ydboctoexpr)=""
 _ydboctoP*.m:    . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",2))
@@ -45,7 +45,7 @@ _ydboctoP*.m:    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboct
 _ydboctoP*.m:    . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
 _ydboctoP*.m:    . . . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
 _ydboctoP*.m:;  SELECT n1.id,n2.id FROM names n1, names n2 WHERE n1.id IN (1,5) AND n2.id IN (3,4);
-_ydboctoP*.m:octoPlan0(cursorId)
+_ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
 _ydboctoP*.m:    DO octoPlan1(cursorId)
 _ydboctoP*.m:octoPlan1(cursorId)
 _ydboctoP*.m:    . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
@@ -72,7 +72,7 @@ _ydboctoP*.m:    . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydbo
 _ydboctoP*.m:    . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
 _ydboctoP*.m:    . . . . . SET %ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))=%ydboctoexpr
 _ydboctoP*.m:;  SELECT * FROM names WHERE id IN (1,NULL,2);
-_ydboctoP*.m:octoPlan0(cursorId)
+_ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
 _ydboctoP*.m:    DO octoPlan1(cursorId)
 _ydboctoP*.m:octoPlan1(cursorId)
 _ydboctoP*.m:    . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
@@ -98,7 +98,7 @@ _ydboctoP*.m:    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoe
 _ydboctoP*.m:    . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
 _ydboctoP*.m:    . . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
 _ydboctoP*.m:;  SELECT n1.id,n2.id,n3.id,n4.id,n5.id,n6.id,n7.id FROM names n1, names n2, names n3, names n4, names n5, names n6, names n7 WHERE n1.id in (1,2,10,20,30,40,50) AND n2.id in (2,500,463,161,277,337,600,72) AND n3.id in (3,549,737,898,943,345) AND n4.id in (4) AND n5.id in (5,668,195,61,123,258,823) AND n6.id in (2) AND n7.id in (0,797,797,384,844,485,5);
-_ydboctoP*.m:octoPlan0(cursorId)
+_ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
 _ydboctoP*.m:    DO octoPlan1(cursorId)
 _ydboctoP*.m:octoPlan1(cursorId)
 _ydboctoP*.m:    . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
@@ -226,7 +226,7 @@ _ydboctoP*.m:    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydbo
 _ydboctoP*.m:    . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
 _ydboctoP*.m:    . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",9,"","",%ydboctocursor(cursorId,"keys",9,"",""))=%ydboctoexpr
 _ydboctoP*.m:;  SELECT n1.id,n2.id FROM names n1, names n2 WHERE n1.id+1 IN (2,4) AND n2.id-1 IN (NULL+1,3-1,n1.id-1,2);
-_ydboctoP*.m:octoPlan0(cursorId)
+_ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
 _ydboctoP*.m:    DO octoPlan1(cursorId)
 _ydboctoP*.m:octoPlan1(cursorId)
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
@@ -286,7 +286,7 @@ _ydboctoP*.m:    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoe
 _ydboctoP*.m:    . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
 _ydboctoP*.m:    . . . SET %ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))=%ydboctoexpr
 _ydboctoP*.m:;  SELECT n1.id,n2.id,n3.id,n4.id,n5.id,n6.id FROM names n1, names n2, names n3, names n4, names n5, names n6 WHERE n1.id in (1,2) AND n2.id in (2,500,463,161,277,337,600,72) AND n3.id in (3,549,737) AND n4.id in (4,183,506,884) AND n5.id in (5,668,195,61) AND n6.id in (0,797,797,384,844,485,672);
-_ydboctoP*.m:octoPlan0(cursorId)
+_ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
 _ydboctoP*.m:    DO octoPlan1(cursorId)
 _ydboctoP*.m:octoPlan1(cursorId)
 _ydboctoP*.m:    . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))

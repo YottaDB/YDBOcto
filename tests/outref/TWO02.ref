@@ -8,9 +8,12 @@ ID|FIRSTNAME|LASTNAME
 ;  select * from names where id = 2 or firstName = "Zero";
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    DO:'$DATA(^%ydboctoocto("xref_status","NAMES","FIRSTNAME")) ^%ydboctoXS6loYoNNto55iv2lHkNkCK(cursorId)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)
@@ -37,7 +40,6 @@ octoPlan1(cursorId)
     QUIT
 
 octoPlan2(cursorId)
-    DO:'$DATA(^%ydboctoocto("xref_status","NAMES","FIRSTNAME")) ^%ydboctoXS6loYoNNto55iv2lHkNkCK(cursorId)
     NEW %ydboctoz
     DO
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",2))

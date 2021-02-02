@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -94,3 +94,10 @@ teardown() {
 	verify_output TII07 output.txt
 }
 
+@test "TII08 : OCTO502 : Test that INSERT INTO builds cross references outside TSTART/TCOMMIT" {
+	skip    # TODO : YDBOcto#502 : Remove this line once INSERT INTO is fully supported
+	load_fixture TII08.sql subtest novv
+	echo "# Verify that ^%ydboctoX... invocation happens BEFORE the TSTART in the generated M plan" >> output.txt
+	grep -E "INSERT|ydboctoX|octoPlan|TSTART|TCOMMIT" _ydboctoP*.m >> output.txt
+	verify_output TII08 output.txt
+}

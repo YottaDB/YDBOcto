@@ -21,7 +21,7 @@ ID|ID|ID|ID
 5|4|3|2
 (15 rows)
 # Verify generated M plan has IF checks in between FOR loops instead of after ALL FOR loops
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
     DO octoPlan1(cursorId)
 octoPlan1(cursorId)
     SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""

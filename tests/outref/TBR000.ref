@@ -1,4 +1,4 @@
-[ERROR] PATH:LINENUM DATE TIME : ERR_YOTTADB : YottaDB error: 150372986,octoPlan1+5^%ydboctoP*,%YDB-E-GVSUBOFLOW, Maximum combined length of subscripts exceeded,%YDB-I-GVIS, 		Global variable: ^%ydboctoxref("NAMES","FIRSTNAME"*
+[ERROR] PATH:LINENUM DATE TIME : ERR_YOTTADB : YottaDB error: 150372986,octoPlan1+4^%ydboctoP*,%YDB-E-GVSUBOFLOW, Maximum combined length of subscripts exceeded,%YDB-I-GVIS, 		Global variable: ^%ydboctoxref("NAMES","FIRSTNAME"*
 [ERROR] PATH:LINENUM DATE TIME : ERR_YOTTADB : YottaDB error: 150372986,octoPlan1+4^%ydboctoP*,%YDB-E-GVSUBOFLOW, Maximum combined length of subscripts exceeded,%YDB-I-GVIS, 		Global variable: ^names*
 [ERROR] PATH:LINENUM DATE TIME : ERR_YOTTADB : YottaDB error: 150373506,octoPlan1+8^%ydboctoP*,%YDB-E-NUMOFLOW, Numeric overflow
 [ERROR] PATH:LINENUM DATE TIME : ERR_DOLLAR_SYNTAX : Prepared statement dollar syntax (e.g. $1, $2, etc.) only supported in Rocto using the Extended Query Protocol

@@ -14,10 +14,8 @@ run(cursorId,routine,wrapInTp)
   ; * "routine" variable is of the form "%ydboctoPOyAkV0dwqVINYJD702SbAA"
   ;   where the generated M file name is "_ydboctoPOyAkV0dwqVINYJD702SbAA.m".
   ;   We need to prefix a "^" to it before invoking the M program using "DO" with entryref indirection.
-  ; * "wrapInTp" is 0 or 1. If 1, the query is wrapped in a TP transaction.
+  ; * "wrapInTp" is 0 or 1. If 1, the query execution (excluding building any cross references) is wrapped in a TP transaction.
   NEW rtn
   SET rtn="^"_routine
-  TSTART:wrapInTp ():(serial)
-  DO @rtn@(cursorId)
-  TCOMMIT:wrapInTp
+  DO @rtn@(cursorId,wrapInTp)
   QUIT

@@ -26,6 +26,6 @@ HANGTIME+5^HANGTIME    ($ZINTERRUPT)
 octoPlan1+11^%ydboctoPMAKbK1A43jQMkjbO4MWi05
 octoPlan1+5^%ydboctoPMAKbK1A43jQMkjbO4MWi05
 octoPlan1+3^%ydboctoPMAKbK1A43jQMkjbO4MWi05
-octoPlan0+1^%ydboctoPMAKbK1A43jQMkjbO4MWi05
-run+8^%ydboctoselect
+octoPlan0+2^%ydboctoPMAKbK1A43jQMkjbO4MWi05
+run+7^%ydboctoselect
 # Verify M variable ZINTRSET got set IF ydb_zinterrupt env var (randomly) drove the zinterrupt

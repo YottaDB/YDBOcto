@@ -1,5 +1,5 @@
 # Verify key fixing optimization by looking at generated M code
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
     DO octoPlan1(cursorId)
 octoPlan1(cursorId)
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))

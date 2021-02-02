@@ -15,11 +15,8 @@
 #include "template_helpers.h"
 
 TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
-	SqlKey			*key, *t_key, *prev_t_key;
 	SqlColumnAlias		*column_alias;
 	LogicalPlan		*lp_temp;
-	char			*tableName = "";
-	char			*columnName = "";
 	unsigned int		cur_key;
 	int			dot_count;
 	char			*plan_helper_mlabref;
@@ -45,6 +42,8 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		SqlOptionalKeyword	*keyword;
 		char			*piece;
 		SqlValue		*value;
+		char			*tableName;
+		char			*columnName;
 
 		UNPACK_SQL_STATEMENT(value, plan->outputKey->table->tableName, value);
 		tableName = value->v.reference;
@@ -55,7 +54,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		GET_LP(lp_temp, lp_temp, 0, LP_COLUMN_ALIAS);
 		column_alias = lp_temp->v.lp_column_alias.column_alias;
 		/* If this a plan for a cross reference, put safeguards in place (i.e. QUIT) to prevent building twice */
-		%{}IF $DATA(^{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")) {}%
+		%{}IF $DATA(^{{ config->global_names.raw_octo }}({{ PP_XREF_STATUS }},"{{ tableName }}","{{ columnName }}")) {}%
 		%{}QUIT`n{{ PLAN_LINE_START }}{}%
 		%{}IF '$$dollarZTRIGGER^%%ydboctoplanhelpers("ITEM","+{}%
 		TMPL(tmpl_column_reference, plan, column_alias, TRUE);
@@ -72,7 +71,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		%{}{{ tableName }}"","""",""{{ columnName }}"")" ; stores NULL values of {{ columnName }}`n{{ PLAN_LINE_START }}{}%
 		%{}; Populate cross reference`n{{ PLAN_LINE_START }}{}%
 		%{}DO populateXref`n{{ PLAN_LINE_START }}{}%
-		%{}SET ^{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")={}%
+		%{}SET ^{{ config->global_names.raw_octo }}({{ PP_XREF_STATUS }},"{{ tableName }}","{{ columnName }}")={}%
 		%{}"{{ plan->trigger_name }}"{}%
 		%{}`n{{ PLAN_LINE_START }}{}%
 		%{}; Now that xref building is complete, cleanup saved cancel related state information`n{{ PLAN_LINE_START }}{}%
@@ -227,28 +226,6 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		} while (NULL != lp_row_value);
 	} else {
 		assert(LP_SELECT_QUERY == plan->lp_select_query->type);
-		prev_t_key = NULL;
-		for (cur_key = 0; cur_key < plan->total_iter_keys; cur_key++)
-		{
-			SqlValue	*value;
-
-			key = plan->iterKeys[cur_key];
-			t_key = key->cross_reference_output_key;
-			// If cross-reference-output-key is same or the corresponding table/column is same, an xref has already been
-			// generated in this physical plan so skip doing the check again for whether it has been generated or not.
-			if ((NULL == t_key) || (prev_t_key == t_key)
-				|| ((NULL != prev_t_key) && (prev_t_key->table == t_key->table)
-								&& (prev_t_key->column == t_key->column))) {
-				continue;
-			}
-			prev_t_key = t_key;
-			UNPACK_SQL_STATEMENT(value, t_key->table->tableName, value);
-			tableName = value->v.reference;
-			UNPACK_SQL_STATEMENT (value, t_key->column->columnName, value);
-			columnName = value->v.reference;
-			%{}DO:'$DATA(^{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")) {}%
-			%{}^{{ t_key->cross_reference_filename }}(cursorId)`n{{ PLAN_LINE_START }}{}%
-		}
 		%{}NEW %%ydboctoz{}%
 		limit_keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
 		if ((NULL != limit_keyword) && (NULL == plan->dnf_prev)) {
@@ -262,7 +239,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		cur_key = 0;
 		dot_count = 0;
 		assert(FALSE == plan->tablejoin_body_group_by_done);
-		TMPL(tmpl_tablejoin, plan, plan->tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
+		TMPL(tmpl_tablejoin, plan, plan->tablejoin, cur_key, FALSE, dot_count, NULL, NULL);
 		/* If this plan has GROUP BY, "tmpl_tablejoin" would not have generated output keys in the usual format.
 		 * It would have generated GROUP BY related subscript lvn tree that needs to be converted into an output key.
 		 * Do that here.

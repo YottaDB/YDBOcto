@@ -15,8 +15,10 @@ ID|FIRSTNAME|LASTNAME|ID|FIRSTNAME|LASTNAME
 ;    AND t2.firstName <> 'Charles';
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)

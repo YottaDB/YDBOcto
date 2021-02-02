@@ -97,9 +97,11 @@ CATEGORYID|ALIAS1|CATEGORYNAME
 ;  ;
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)
@@ -282,11 +284,13 @@ octoPlan3(cursorId)
 ;  SELECT id FROM names WHERE EXISTS (SELECT COUNT(*) FROM names n2 GROUP BY n2.lastName) AND ((id < 3) OR (id > 3)) ORDER BY id;
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan2(cursorId)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)
     DO octoPlan3(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)
@@ -368,11 +372,14 @@ octoPlan3(cursorId)
 ;  SELECT * FROM names WHERE EXISTS (SELECT * FROM names WHERE firstname = 'Zero') AND (id < 3 OR id > 3);
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    DO:'$DATA(^%ydboctoocto("xref_status","NAMES","FIRSTNAME")) ^%ydboctoXS6loYoNNto55iv2lHkNkCK(cursorId)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan2(cursorId)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)
     DO octoPlan3(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)
@@ -405,7 +412,6 @@ octoPlan1(cursorId)
     QUIT
 
 octoPlan2(cursorId)
-    DO:'$DATA(^%ydboctoocto("xref_status","NAMES","FIRSTNAME")) ^%ydboctoXS6loYoNNto55iv2lHkNkCK(cursorId)
     NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",5,"","")
     DO
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
@@ -462,10 +468,12 @@ octoPlan3(cursorId)
 ;  SELECT n1.id FROM names n1 INNER JOIN names n2 ON ((n1.firstname > n2.firstname) OR NOT (1 < 2)) WHERE NOT EXISTS (SELECT 1 FROM names WHERE NOT EXISTS (SELECT 1 FROM names));
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)
     DO octoPlan3(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)
@@ -528,12 +536,14 @@ octoPlan3(cursorId)
 ;  SELECT DISTINCT Categories.CategoryID, (SELECT alias1.ShipperID FROM Shippers alias1 ORDER BY alias1.ShipperID LIMIT 1) AS alias1, Categories.CategoryName FROM Categories INNER JOIN Products AS alias2 ON ((Categories.CategoryName > alias2.Unit) OR NOT ((Categories.CategoryID <= alias2.ProductID)) AND (('Dried fruit and bean curd' < '48 - 6 oz jars')) OR (Categories.CategoryID = SOME (SELECT ALL alias2.CategoryID FROM Products alias2 WHERE alias2.ProductName BETWEEN 'Louisiana Hot Spiced Okra' AND 'Escargots de Bourgogne' ORDER BY alias2.CategoryID LIMIT 1)) AND (Categories.Description > '48 - 6 oz jars')) WHERE NOT EXISTS (SELECT MIN(alias4.SupplierID), alias4.City FROM Suppliers alias4 GROUP BY alias4.City HAVING NOT EXISTS (SELECT ALL alias5.ShipperID, alias5.OrderDate FROM Orders alias5));
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)
     DO octoPlan3(cursorId)
     DO octoPlan4(cursorId)
     DO octoPlan5(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)
@@ -693,11 +703,13 @@ octoPlan5(cursorId)
 ;  SELECT * FROM names WHERE EXISTS (SELECT * FROM names) AND (id < 3 OR id > 3);
 ;; ---------------------------------------------------------
 
-octoPlan0(cursorId)
+octoPlan0(cursorId,wrapInTp)
+    TSTART:wrapInTp ():(serial)
     DO octoPlan2(cursorId)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)
     DO octoPlan3(cursorId)
+    TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)

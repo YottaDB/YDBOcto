@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -42,6 +42,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	char *		hyphenline = "---------------------------------------------------------", *linestart, *lineend;
 	ydb_buffer_t	plandirs_buff[4];
 	hash128_state_t state;
+	SqlKey *	prev_t_key;
 
 	assert(NULL != cur_plan);
 	buffer_len = INIT_M_ROUTINE_LENGTH;
@@ -271,7 +272,43 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	}
 	fprintf(output_file, ";; %s\n", hyphenline);
 	// Emit meta plan first that invokes all the Non-Deferred plans in sequence
-	fprintf(output_file, "\noctoPlan0(cursorId)\n");
+	fprintf(output_file, "\noctoPlan0(cursorId,wrapInTp)\n");
+	/* Emit M code to invoke xref plans first (if needed). This lets us wrap the rest of the query inside TP without TRANS2BIG
+	 * errors (which are very likely if xref plans also happen while inside TP). To do that, go through the non-deferred and
+	 * deferred plans and see if any of them rely on cross references and if so invoke that cross reference plan.
+	 */
+	prev_t_key = NULL;
+	for (cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next) {
+		SqlKey *     key, *t_key;
+		unsigned int cur_key;
+
+		for (cur_key = 0; cur_key < cur_plan->total_iter_keys; cur_key++) {
+			SqlValue *value;
+			char *	  tableName;
+			char *	  columnName;
+
+			key = cur_plan->iterKeys[cur_key];
+			t_key = key->cross_reference_output_key;
+			/* If cross-reference-output-key is the same as the previously encountered key or the corresponding
+			 * table/column is the same, an xref has already been generated in this physical plan so skip doing
+			 * the check again for whether it has been generated or not.
+			 */
+			if ((NULL == t_key) || (prev_t_key == t_key)
+			    || ((NULL != prev_t_key) && (prev_t_key->table == t_key->table)
+				&& (prev_t_key->column == t_key->column))) {
+				continue;
+			}
+			prev_t_key = t_key;
+			UNPACK_SQL_STATEMENT(value, t_key->table->tableName, value);
+			tableName = value->v.reference;
+			UNPACK_SQL_STATEMENT(value, t_key->column->columnName, value);
+			columnName = value->v.reference;
+			fprintf(output_file, "    DO:'$DATA(^%s(\"%s\",\"%s\",\"%s\")) ^%s(cursorId)\n",
+				config->global_names.raw_octo, OCTOLIT_XREF_STATUS, tableName, columnName,
+				t_key->cross_reference_filename);
+		}
+	}
+	fprintf(output_file, "    TSTART:wrapInTp ():(serial)\n"); /* Wrap post-xref part of query in TP if requested */
 	for (cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next) {
 		if (NULL != cur_plan->deferred_parent_plan)
 			break; // if we see a Deferred plan, it means we are done with the Non-Deferred plans
@@ -282,6 +319,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		assert(NULL != PHYSICAL_PLAN_NAME(cur_plan));
 		fprintf(output_file, "    DO %s(cursorId)\n", PHYSICAL_PLAN_NAME(cur_plan));
 	}
+	fprintf(output_file, "    TCOMMIT:wrapInTp\n"); /* Commit TP (if wrapped) */
 	fprintf(output_file, "    QUIT\n");
 	// Emit Non-Deferred and Deferred plans in that order
 	for (cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next) {

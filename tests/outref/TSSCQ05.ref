@@ -3,8 +3,10 @@ FROM   pg_catalog.pg_settings
 WHERE  NAME = 'max_index_keys'
 
 ----- ROCTO/JDBC -----
+null
 
 
 ----- OCTO -----
 SETTING
-(0 rows)
+
+(1 row)

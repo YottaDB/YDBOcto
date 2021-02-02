@@ -62,15 +62,16 @@ int main(int argc, char **argv) {
 	struct sigaction	   ctrlc_action;
 	struct sockaddr_in *	   address = NULL;
 	struct sockaddr_in6	   addressv6;
-	ydb_buffer_t		   ydb_buffers[2], *var_defaults, *var_sets, var_value;
+	ydb_buffer_t		   ydb_buffers[2];
 	ydb_buffer_t *		   session_buffer = &(ydb_buffers[0]), *session_id_buffer;
 	ydb_buffer_t		   z_interrupt, z_interrupt_handler;
 	ydb_buffer_t		   pid_subs[2], timestamp_buffer;
 	ydb_buffer_t *		   pid_buffer = &pid_subs[0];
+	ydb_buffer_t		   pg_buffers[4];
 	socklen_t		   addrlen;
-	ydb_buffer_t		   secret_key_list_buffer, secret_key_buffer;
+	ydb_buffer_t		   secret_key_list_buffer, secret_key_buffer, value_buffer, variable_buffer;
 	char pid_str[INT32_TO_STRING_MAX], secret_key_str[INT32_TO_STRING_MAX], timestamp_str[INT64_TO_STRING_MAX];
-	int  secret_key = 0;
+	int  secret_key = 0, done, read_only;
 #if YDB_TLS_AVAILABLE
 	gtm_tls_ctx_t *tls_context;
 #endif
@@ -432,111 +433,135 @@ int main(int argc, char **argv) {
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
 			YDB_FREE_BUFFER(session_id_buffer);
+			free(startup_message->parameters);
+			free(startup_message);
 			break;
 		}
 		rocto_session.session_id = session_id_buffer;
 		rocto_session.session_id->buf_addr[rocto_session.session_id->len_used] = '\0';
 
-		// Populate default parameters
-		var_defaults = make_buffers(config->global_names.octo, 2, OCTOLIT_VARIABLES, "");
-		OCTO_MALLOC_NULL_TERMINATED_BUFFER(&var_defaults[2], OCTO_INIT_BUFFER_LEN);
-		OCTO_MALLOC_NULL_TERMINATED_BUFFER(&var_value, OCTO_INIT_BUFFER_LEN);
-		var_sets = make_buffers(config->global_names.session, 3, rocto_session.session_id->buf_addr, OCTOLIT_VARIABLES, "");
-		var_sets[3] = var_defaults[2];
-		do {
-			status = ydb_subscript_next_s(&var_defaults[0], 2, &var_defaults[1], &var_defaults[2]);
-			if (YDB_ERR_INVSTRLEN == status) {
-				EXPAND_YDB_BUFFER_T_ALLOCATION(var_defaults[2]);
-				status = ydb_subscript_next_s(&var_defaults[0], 2, &var_defaults[1], &var_defaults[2]);
-				assert(YDB_ERR_INVSTRLEN != status);
-				var_sets[3] = var_defaults[2]; // Update var_sets subscript buffer with new allocation
-			}
-			if (YDB_ERR_NODEEND == status) {
-				status = YDB_OK;
-				break;
-			}
-			if (0 != status)
-				break;
-			status = ydb_get_s(&var_defaults[0], 2, &var_defaults[1], &var_value);
-			if (YDB_ERR_INVSTRLEN == status) {
-				EXPAND_YDB_BUFFER_T_ALLOCATION(var_value);
-				status = ydb_get_s(&var_defaults[0], 2, &var_defaults[1], &var_value);
-				assert(YDB_ERR_INVSTRLEN != status);
-			}
-			if (0 != status)
-				break;
-			var_sets[3] = var_defaults[2];
-			status = ydb_set_s(&var_sets[0], 3, &var_sets[1], &var_value);
-			if (0 != status)
-				break;
-		} while (TRUE);
-		YDB_ERROR_CHECK(status);
-		if (YDB_OK != status) {
-			YDB_FREE_BUFFER(&var_defaults[2]);
-			YDB_FREE_BUFFER(&var_value);
-			YDB_FREE_BUFFER(session_id_buffer);
-			free(var_defaults);
-			free(var_sets);
-			break;
-		}
-		// Set parameters
+		/* Override default run-time parameter variables with those specified by the client.
+		 * Default run-time parameters were already loaded at startup by load_pg_defaults() in octo_init().
+		 */
 		for (cur_parm = 0; cur_parm < startup_message->num_parameters; cur_parm++) {
-			ydb_buffer_t varname, subs_array[3], value;
-
-			YDB_STRING_TO_BUFFER(config->global_names.session, &varname);
-			YDB_STRING_TO_BUFFER(rocto_session.session_id->buf_addr, &subs_array[0]);
-			YDB_LITERAL_TO_BUFFER(OCTOLIT_VARIABLES, &subs_array[1]);
-			YDB_STRING_TO_BUFFER(startup_message->parameters[cur_parm].name, &subs_array[2]);
-			YDB_STRING_TO_BUFFER(startup_message->parameters[cur_parm].value, &value);
-			status = ydb_set_s(&varname, 3, subs_array, &value);
-			YDB_ERROR_CHECK(status);
+			char *name;
+			/* Convert to uppercase for parameter name lookup. This is needed since StartupMessages do not pass through
+			 * the lexer and so do not automatically get uppercased. Use the struct packing of StartupMessageParm to
+			 * identify the end of the parameter name without needing to do a strlen().
+			 */
+			name = startup_message->parameters[cur_parm].name;
+			TOUPPER_STR(name);
+			name = startup_message->parameters[cur_parm].name;
+			status = set_parameter_in_pg_settings(name, startup_message->parameters[cur_parm].value);
+			if (YDB_OK != status) {
+				if (2 == status) {
+					/* The parameter name was "user" or "database", and so should not be stored in the database
+					 * since these are not valid runtime parameters but authentication-only parameters. So, just
+					 * continue to the next parameter.
+					 */
+					status = YDB_OK;
+					continue;
+				}
+				break;
+			}
 		}
 		free(startup_message->parameters);
 		free(startup_message);
+		if (YDB_OK != status) {
+			YDB_FREE_BUFFER(session_id_buffer);
+			break;
+		}
 
-		var_sets[3].len_used = 0;
+		/* Prepare buffers for looping over runtime parameter LVNS, i.e.:
+		 *	%ydboctoocto(OCTOLIT_SETTINGS,OCTOLIT_NAMES,NAME_UPPER)=NAME
+		 */
+		YDB_STRING_TO_BUFFER(config->global_names.raw_octo, &pg_buffers[0]);
+		YDB_STRING_TO_BUFFER(OCTOLIT_SETTINGS, &pg_buffers[1]);
+		YDB_STRING_TO_BUFFER(OCTOLIT_NAMES, &pg_buffers[2]);
+		// Prepare buffers for storing runtime parameter names during iteration over list of valid parameter names
+		OCTO_MALLOC_NULL_TERMINATED_BUFFER(&variable_buffer, OCTO_INIT_BUFFER_LEN);
+		OCTO_MALLOC_NULL_TERMINATED_BUFFER(&pg_buffers[3], OCTO_INIT_BUFFER_LEN);
+		YDB_COPY_STRING_TO_BUFFER("", &pg_buffers[3], done);
+		if (!done) {
+			YDB_FREE_BUFFER(session_id_buffer);
+			YDB_FREE_BUFFER(&pg_buffers[3]);
+			break;
+		}
+		/* Send ParameterStatus messages to client for each set runtime parameter,
+		 * i.e. each one with a value other than the empty string.
+		 */
+		read_only = FALSE; /* Indicates whether ydb_subscript_next_s is looping over read-only run-time variables. See
+				    * LOAD_READ_ONLY_VARIABLE in pg_defaults.h and get_parameter_from_pg_settings.c for more
+				    * information.
+				    */
 		do {
-			status = ydb_subscript_next_s(&var_sets[0], 3, &var_sets[1], &var_sets[3]);
+			status = ydb_subscript_next_s(&pg_buffers[0], 3, &pg_buffers[1], &pg_buffers[3]);
 			if (YDB_ERR_INVSTRLEN == status) {
-				EXPAND_YDB_BUFFER_T_ALLOCATION(var_sets[3]);
-				status = ydb_subscript_next_s(&var_sets[0], 3, &var_sets[1], &var_sets[3]);
+				EXPAND_YDB_BUFFER_T_ALLOCATION(pg_buffers[3]);
+				status = ydb_subscript_next_s(&pg_buffers[0], 3, &pg_buffers[1], &pg_buffers[3]);
 				assert(YDB_ERR_INVSTRLEN != status);
-				var_defaults[2] = var_sets[3]; // Update var_defaults subscript buffer with new allocation
 			}
 			if (YDB_ERR_NODEEND == status) {
+				if (FALSE == read_only) {
+					/* We haven't yet sent ParameterStatus messages for read-only runtime variables, which are
+					 * stored in a different LVN, i.e.:
+					 *	%ydboctoocto(OCTOLIT_SETTINGS,OCTOLIT_READ_ONLY,NAME_UPPER)
+					 * So, loop over these next.
+					 */
+					YDB_STRING_TO_BUFFER(OCTOLIT_READ_ONLY, &pg_buffers[2]);
+					YDB_COPY_STRING_TO_BUFFER("", &pg_buffers[3], done);
+					if (!done) {
+						status = (!YDB_OK);
+						break;
+					}
+					read_only = TRUE;
+					continue;
+				}
 				status = YDB_OK;
 				break;
 			}
 			YDB_ERROR_CHECK(status);
-			if (0 != status)
+			if (YDB_OK != status) {
 				break;
-			var_sets[3].buf_addr[var_sets[3].len_used] = '\0';
-			status = ydb_get_s(&var_sets[0], 3, &var_sets[1], &var_value);
-			if (YDB_ERR_INVSTRLEN == status) {
-				EXPAND_YDB_BUFFER_T_ALLOCATION(var_value);
-				status = ydb_get_s(&var_sets[0], 3, &var_sets[1], &var_value);
-				assert(YDB_ERR_INVSTRLEN != status);
 			}
-			YDB_ERROR_CHECK(status);
-			if (0 != status)
+			/* Copy variable name from subscript into separate buffer for parameter lookup, which will modify the
+			 * string to canonical case in-place. This prevents a premature end to the breadth-first subscript loop due
+			 * to reuse of the same subscript in a different case.
+			 */
+			YDB_COPY_BUFFER_TO_BUFFER(&pg_buffers[3], &variable_buffer, done);
+			if (!done) {
+				EXPAND_YDB_BUFFER_T_ALLOCATION(variable_buffer);
+				YDB_COPY_BUFFER_TO_BUFFER(&pg_buffers[3], &variable_buffer, done);
+				assert(done);
+			}
+			variable_buffer.buf_addr[variable_buffer.len_used] = '\0';
+			message_parm.name = variable_buffer.buf_addr;
+			message_parm.value = get_parameter_from_pg_settings(&message_parm.name, &value_buffer);
+			if (NULL == message_parm.value) {
 				break;
-			var_value.buf_addr[var_value.len_used] = '\0';
-			message_parm.name = var_sets[3].buf_addr;
-			message_parm.value = var_value.buf_addr;
+			}
+			if (0 == value_buffer.len_used) {
+				/* There's no value for this parameter, but it exists. Just continue without sending a
+				 * ParameterStatus message.
+				 */
+				free(message_parm.value); // Allocated in get_parameter_from_pg_settings
+				continue;
+			}
 			parameter_status = make_parameter_status(&message_parm);
 			status = send_message(&rocto_session, (BaseMessage *)(&parameter_status->type));
 			LOG_LOCAL_ONLY(INFO, INFO_ROCTO_PARAMETER_STATUS_SENT, message_parm.name, message_parm.value);
+			YDB_FREE_BUFFER(&value_buffer); // Allocated in get_parameter_from_pg_settings
 			free(parameter_status);
 			if (status) {
 				break;
 			}
 		} while (TRUE);
-
-		// Free temporary buffers
-		YDB_FREE_BUFFER(&var_defaults[2]);
-		YDB_FREE_BUFFER(&var_value);
-		free(var_defaults);
-		free(var_sets);
+		YDB_FREE_BUFFER(&variable_buffer);
+		YDB_FREE_BUFFER(&pg_buffers[3]);
+		if (YDB_OK != status) {
+			YDB_FREE_BUFFER(session_id_buffer);
+			break;
+		}
 
 		// Clean up after any errors from the above loop
 		assert(0 == YDB_OK); // or else if `status` evaluated to true in the above loop, we would try to send another

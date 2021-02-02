@@ -26,86 +26,46 @@
  * Iterates over the last output of the plan and prints it to the screen
  */
 int print_temporary_table(SqlStatement *stmt, ydb_long_t cursorId, void *parms, char *plan_name, PSQL_MessageTypeT msg_type) {
-	ydb_buffer_t *session_buffers;
-	ydb_buffer_t  value_buffer;
-	SqlValue *    runtime_variable;
-	int32_t	      status;
-	ydb_buffer_t  cursor_buffers[7];
-	char	      cursorId_str[INT64_TO_STRING_MAX];
-	ydb_buffer_t  plan_meta_buffers[6];
-	char	      col_num_str[INT16_TO_STRING_MAX];
+	int32_t	     status;
+	ydb_buffer_t cursor_buffers[7];
+	char	     cursorId_str[INT64_TO_STRING_MAX];
+	ydb_buffer_t plan_meta_buffers[6];
+	char	     col_num_str[INT16_TO_STRING_MAX];
 
 	UNUSED(parms);
 	UNUSED(msg_type);
 	INFO(INFO_ENTERING_FUNCTION, "print_temporary_table");
 
-	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&value_buffer, OCTO_INIT_BUFFER_LEN);
 	if (set_STATEMENT == stmt->type) {
 		SqlSetStatement *set_stmt;
-		SqlValue *	 runtime_value;
-		int32_t		 done;
+		SqlValue *	 runtime_variable_stmt, *runtime_value_stmt;
 
-		// SET a runtime variable to a specified value by updating the appropriate session LVN
 		UNPACK_SQL_STATEMENT(set_stmt, stmt, set);
-		UNPACK_SQL_STATEMENT(runtime_value, set_stmt->value, value);
-		UNPACK_SQL_STATEMENT(runtime_variable, set_stmt->variable, value);
-		YDB_COPY_STRING_TO_BUFFER(runtime_value->v.string_literal, &value_buffer, done);
-		if (!done) {
-			YDB_FREE_BUFFER(&value_buffer);
-			OCTO_MALLOC_NULL_TERMINATED_BUFFER(&value_buffer, strlen(runtime_value->v.string_literal));
-			YDB_COPY_STRING_TO_BUFFER(runtime_value->v.string_literal, &value_buffer, done);
-			assert(done);
-		}
-		session_buffers = make_buffers(config->global_names.session, 3, OCTOLIT_0, OCTOLIT_VARIABLES,
-					       runtime_variable->v.string_literal);
-		status = ydb_set_s(&session_buffers[0], 3, &session_buffers[1], &value_buffer);
-		free(session_buffers);
-		YDB_FREE_BUFFER(&value_buffer);
-		YDB_ERROR_CHECK(status);
-		if (YDB_OK != status)
-			return 1;
-		return 0;
+		UNPACK_SQL_STATEMENT(runtime_value_stmt, set_stmt->value, value);
+		UNPACK_SQL_STATEMENT(runtime_variable_stmt, set_stmt->variable, value);
+
+		// SET a runtime variable to a specified value
+		status
+		    = set_parameter_in_pg_settings(runtime_variable_stmt->v.string_literal, runtime_value_stmt->v.string_literal);
+		return status;
 	}
 	if (show_STATEMENT == stmt->type) {
 		SqlShowStatement *show_stmt;
+		SqlValue *	  runtime_variable;
+		ydb_buffer_t	  value_buffer;
+		char *		  parameter_value;
 
-		// Attempt to GET the value of the specified runtime variable from the appropriate session LVN
+		// SHOW a runtime variable value
 		UNPACK_SQL_STATEMENT(show_stmt, stmt, show);
 		UNPACK_SQL_STATEMENT(runtime_variable, show_stmt->variable, value);
-		session_buffers = make_buffers(config->global_names.session, 3, OCTOLIT_0, OCTOLIT_VARIABLES,
-					       runtime_variable->v.string_literal);
-		status = ydb_get_s(&session_buffers[0], 3, &session_buffers[1], &value_buffer);
-		if (YDB_ERR_INVSTRLEN == status) {
-			EXPAND_YDB_BUFFER_T_ALLOCATION(value_buffer);
-			status = ydb_get_s(&session_buffers[0], 3, &session_buffers[1], &value_buffer);
-			assert(YDB_ERR_INVSTRLEN != status);
+		parameter_value = get_parameter_from_pg_settings(&runtime_variable->v.string_literal, &value_buffer);
+		if (NULL != parameter_value) {
+			fprintf(stdout, "%.*s\n", value_buffer.len_used, value_buffer.buf_addr);
+			free(parameter_value);
+			return YDB_OK;
+		} else {
+			return 1;
 		}
-		// If the variable isn't defined for the session, attempt to pull the value from the Octo GVN
-		if (YDB_OK != status) {
-			ydb_buffer_t *octo_buffers;
-
-			octo_buffers
-			    = make_buffers(config->global_names.octo, 2, OCTOLIT_VARIABLES, runtime_variable->v.string_literal);
-			status = ydb_get_s(&octo_buffers[0], 2, &octo_buffers[1], &value_buffer);
-			if (YDB_ERR_INVSTRLEN == status) {
-				EXPAND_YDB_BUFFER_T_ALLOCATION(value_buffer);
-				status = ydb_get_s(&octo_buffers[0], 2, &octo_buffers[1], &value_buffer);
-				assert(YDB_ERR_INVSTRLEN != status);
-			}
-			/* If the variable isn't defined on the Octo GVN, the variable isn't defined at all.
-			 * In this case we will return an empty string.
-			 */
-			if (YDB_OK != status) {
-				value_buffer.buf_addr[0] = '\0';
-				value_buffer.len_used = 0;
-			}
-			free(octo_buffers);
-		}
-		value_buffer.buf_addr[value_buffer.len_used] = '\0';
-		fprintf(stdout, "%s\n", value_buffer.buf_addr);
-		YDB_FREE_BUFFER(&value_buffer);
-		free(session_buffers);
-		return 0;
 	}
 	YDB_STRING_TO_BUFFER(config->global_names.cursor, &cursor_buffers[0]);
 	snprintf(cursorId_str, INT64_TO_STRING_MAX, "%ld", cursorId);
@@ -121,7 +81,6 @@ int print_temporary_table(SqlStatement *stmt, ydb_long_t cursorId, void *parms, 
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
 		YDB_FREE_BUFFER(&cursor_buffers[3]);
-		YDB_FREE_BUFFER(&value_buffer);
 		if (NULL != memory_chunks) {
 			OCTO_CFREE(memory_chunks);
 		}
@@ -130,12 +89,15 @@ int print_temporary_table(SqlStatement *stmt, ydb_long_t cursorId, void *parms, 
 	}
 
 	if (select_STATEMENT == stmt->type) {
+		ydb_buffer_t value_buffer;
+
 		YDB_LITERAL_TO_BUFFER(OCTOLIT_OUTPUT_COLUMNS, &plan_meta_buffers[3]);
 		plan_meta_buffers[4].buf_addr = col_num_str;
 		plan_meta_buffers[4].len_alloc = sizeof(col_num_str);
 		plan_meta_buffers[4].len_used = 0;
 		YDB_LITERAL_TO_BUFFER(OCTOLIT_NAME, &plan_meta_buffers[5]);
 
+		OCTO_MALLOC_NULL_TERMINATED_BUFFER(&value_buffer, OCTO_INIT_BUFFER_LEN);
 		// Retrieve the row ID for the given output key
 		for (;;) { /* Note: This is a dummy for loop to be able to use "break" for various error codepaths */
 			int16_t num_columns;
@@ -215,6 +177,7 @@ int print_temporary_table(SqlStatement *stmt, ydb_long_t cursorId, void *parms, 
 			fflush(stdout);
 			break;
 		}
+		YDB_FREE_BUFFER(&value_buffer);
 	} else {
 		/* This is not a SELECT statement type (e.g. INSERT INTO, DELETE FROM statement etc.).
 		 * In that case, there are no result rows to send.
@@ -231,7 +194,6 @@ int print_temporary_table(SqlStatement *stmt, ydb_long_t cursorId, void *parms, 
 		status = YDB_OK;
 	}
 	YDB_FREE_BUFFER(&cursor_buffers[3]);
-	YDB_FREE_BUFFER(&value_buffer);
 	if (NULL != memory_chunks) {
 		// Memory chunks are no longer needed after the query has been processed, so free them here.
 		OCTO_CFREE(memory_chunks);

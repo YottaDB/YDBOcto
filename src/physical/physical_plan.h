@@ -136,7 +136,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename);
 int key_equals_column(SqlKey *key, SqlColumn *column);
 
 PhysicalPlan *get_physical_plan_from_unique_id(PhysicalPlan *pplan, int unique_id);
-PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename);
+PhysicalPlan *emit_sql_statement(SqlStatement *stmt, char *plan_filename);
 int emit_physical_or_xref_plan(char *plan_filename, SqlStatement *stmt, char *tableName, char *columnName, PhysicalPlan *xref_plan);
 int emit_xref_plan(char *plan_filename, char *tableName, char *columnName, PhysicalPlan *xref_plan);
 

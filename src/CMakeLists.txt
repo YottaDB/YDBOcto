@@ -159,7 +159,7 @@ add_library(libocto OBJECT
   emit_column_specification.c
   emit_create_table.c
   emit_create_function.c
-  emit_select_statement.c
+  emit_sql_statement.c
   find_column.c
   find_column_alias_name.c
   find_table.c
@@ -187,6 +187,7 @@ add_library(libocto OBJECT
   get_user_visible_type_string.c
   hash_canonical_query.c
   is_query_canceled.c
+  load_pg_defaults.c
   m_escape_string2.c
   m_templates/resize_tmpl_buffer.c
   match_column_in_table.c
@@ -273,6 +274,8 @@ add_library(libocto OBJECT
   readline_get_more.c
   regex_has_no_special_characters.c
   run_query.c
+  set_parameter_in_pg_settings.c
+  get_parameter_from_pg_settings.c
   store_function_definition.c
   store_function_in_pg_proc.c
   store_plandirs_gvn.c
@@ -447,6 +450,7 @@ set(aux_files
   aux/_ydboctoplanhelpers.m
   aux/_ydboctoselect.m
   aux/_ydboctosqlfunctions.m
+  aux/_ydboctoxrefupdate.m
 )
 add_library(_ydbocto SHARED ${aux_files})
 set_target_properties(_ydbocto PROPERTIES PREFIX "")

@@ -304,3 +304,7 @@ OCTO
 	verify_output TERR032 output.txt
 }
 
+@test "TERR033 : OCTO597 : Error scenarios in SET/SHOW statements" {
+	load_fixture TERR033.sql subtest novv
+	verify_output TERR033 output.txt
+}

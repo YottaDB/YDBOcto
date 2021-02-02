@@ -98,8 +98,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	// Output the cross reference plans
 	if (NULL != xrefplan.prev)
 		xrefplan.prev->next = NULL;
-	plan_id = 0;
-	for (cur_plan = xrefplan.next; NULL != cur_plan; cur_plan = cur_plan->next, plan_id++) {
+	for (cur_plan = xrefplan.next; NULL != cur_plan; cur_plan = cur_plan->next) {
 		char *routine_name;
 
 		/* Assert that the logical plan corresponding to the xref physical plan points back to this physical plan.
@@ -112,7 +111,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		tableName = value->v.reference;
 		UNPACK_SQL_STATEMENT(value, key->column->columnName, value);
 		columnName = value->v.reference;
-		len = snprintf(plan_name_buffer, MAX_PLAN_NAME_LEN, "%s%d", XREFPLAN_LIT, plan_id);
+		len = snprintf(plan_name_buffer, MAX_PLAN_NAME_LEN, "%s", XREFPLAN_LIT);
 		cur_plan->plan_name = octo_cmalloc(memory_chunks, len + 1);
 		memcpy(cur_plan->plan_name, plan_name_buffer, len);
 		cur_plan->plan_name[len] = '\0';
@@ -245,8 +244,8 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 			tableName = value->v.reference;
 			UNPACK_SQL_STATEMENT(value, t_key->column->columnName, value);
 			columnName = value->v.reference;
-			fprintf(output_file, "    DO:'$DATA(^%s(\"%s\",\"%s\",\"%s\")) ^%s(cursorId)\n",
-				config->global_names.raw_octo, OCTOLIT_XREF_STATUS, tableName, columnName,
+			fprintf(output_file, "    DO:'$DATA(%s%s(\"%s\",\"%s\",\"%s\")) %s^%s(cursorId)\n", t_key->xref_prefix,
+				config->global_names.raw_octo, OCTOLIT_XREF_STATUS, tableName, columnName, XREFPLAN_LIT,
 				t_key->cross_reference_filename);
 		}
 	}

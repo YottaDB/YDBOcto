@@ -203,8 +203,8 @@ CREATE TABLE pg_catalog.pg_attrdef (
 /* Stores information on run-time parameters. Acts as an alternative interface for SET and SHOW commands
  * Derived from https://www.postgresql.org/docs/11/view-pg-settings.html
  *
- * Note that this table definition is just a stub, principally for preventing syntax errors, and so remains
- * to be fully implemented/supported (#597).
+ * Note that this table is maintained on a per-session/process basis as it stores runtime parameters.
+ * Accordingly, it is stored in a YDB local variable instead of a YDB global variable.
  */
 CREATE TABLE pg_catalog.pg_settings (
  name VARCHAR primary key,
@@ -223,7 +223,7 @@ CREATE TABLE pg_catalog.pg_settings (
  sourcefile VARCHAR,
  sourceline INTEGER,
  pending_restart BOOLEAN
-) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_settings"",keys(""name"")" READONLY;
+) GLOBAL "%ydboctoocto(""settings"",""pg_settings"",keys(""name"")";
 
 /* Note that this table definition is just a stub, principally for preventing syntax errors, and so remains
  * to be fully implemented/supported (YDBOcto#588).

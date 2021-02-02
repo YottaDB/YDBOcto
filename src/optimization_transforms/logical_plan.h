@@ -237,6 +237,15 @@ typedef struct SqlKey {
 	LPActionType type;
 	// If true, this is an output key for a cross reference
 	int is_cross_reference_key;
+	/* Indicates whether the table is stored in a YDB global variable (set to "^"). Otherwise, the variable is stored in a YDB
+	 * local variable (set to ""). In either case, the node used to store the cross-reference should reflect the type of node
+	 * used to store the underlying table. In other words, tables stored in LVNs should have xrefs stored in LVNs as well, to
+	 * prevent cross-process data leaks (and incorrect/inconsistent results) that would arise from using GVNs to store such
+	 * xrefs.
+	 *
+	 * Note that this is only relevant when is_cross_reference_key is TRUE, and should be ignored otherwise.
+	 */
+	char *xref_prefix;
 	// If this is a cross reference key which is not an output key, this will point to the
 	// output key, which we can snag the column name from
 	struct SqlKey *cross_reference_output_key;

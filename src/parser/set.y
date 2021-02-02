@@ -23,6 +23,12 @@ sql_set_statement
   | SET identifier TO identifier {
       $$ = sql_set_statement($2, $4, parse_context);
     }
+  | SET identifier EQUALS null_specification {
+      $$ = sql_set_statement($2, $4, parse_context);
+    }
+  | SET identifier TO null_specification {
+      $$ = sql_set_statement($2, $4, parse_context);
+    }
   | SHOW identifier {
       SqlShowStatement	*show;
 

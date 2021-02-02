@@ -50,13 +50,13 @@ PSQL_TypeSize get_type_size_from_psql_type(PSQL_TypeOid type) {
 }
 
 /**
- * Emits M code for retrieving values representing this SELECT statement
+ * Emits M code for executing various SQL statements. Previously named "emit_select_statement".
  *
  * @param cursor_exe_global an array of size 3
  * Returns a table describing the temporary table containing the resulting
  *  values
  */
-PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
+PhysicalPlan *emit_sql_statement(SqlStatement *stmt, char *plan_filename) {
 	LogicalPlan *	    plan, *cur_plan, *column_alias, *function, *table;
 	PhysicalPlan *	    pplan;
 	SqlValue *	    value;
@@ -68,7 +68,7 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 	PSQL_TypeOid	    column_type;
 	PSQL_TypeSize	    type_size;
 
-	TRACE(INFO_ENTERING_FUNCTION, "emit_select_statement");
+	TRACE(INFO_ENTERING_FUNCTION, "emit_sql_statement");
 	assert(stmt
 	       && ((table_alias_STATEMENT == stmt->type) || (set_operation_STATEMENT == stmt->type)
 		   || (insert_STATEMENT == stmt->type)));

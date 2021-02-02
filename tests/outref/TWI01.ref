@@ -13,7 +13,7 @@ ID|FIRSTNAME|LASTNAME
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    DO:'$DATA(^%ydboctoocto("xref_status","NAMES","FIRSTNAME")) ^%ydboctoXS6loYoNNto55iv2lHkNkCK(cursorId)
+    DO:'$DATA(^%ydboctoocto("xref_status","NAMES","FIRSTNAME")) xrefPlan^%ydboctoXS6loYoNNto55iv2lHkNkCK(cursorId)
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)

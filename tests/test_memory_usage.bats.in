@@ -84,7 +84,9 @@ setup() {
   #	2. Secret key information used for CancelRequests
   #	3. TimeZone information
   #	4. rocto.log itself
-  grep "\%ydbocto" rocto.log | grep -Ev "loadedschemas|SecretKeyList|TimeZone|Binary file rocto.log" | sort_LC_ALL_C &> node_usage.log
+  #	5. runtime parameter settings (stored under %ydboctoocto("settings"))
+  #	6. runtime parameter cross references (stored under %ydboctoxref("PG_SETTINGS","SETTING"))
+  grep "\%ydbocto" rocto.log | grep -Ev "loadedschemas|SecretKeyList|TimeZone|Binary file rocto.log|settings|PG_SETTINGS" | sort_LC_ALL_C &> node_usage.log
   sed -i 's/%ydboctosession(1,"variables","user")=".*"/%ydboctosession(1,"variables","user")="USER"/' node_usage.log
   sed -i 's/%ydboctosession("user")=".*"/%ydboctosession("user")="USER"/' node_usage.log
   verify_output TMU02 node_usage.log

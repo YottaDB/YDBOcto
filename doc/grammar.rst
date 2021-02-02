@@ -586,6 +586,73 @@ Example:
 
    DELETE FROM Employee WHERE ID = 220;
 
+--------------
+SET
+--------------
+
+*(Partially supported.)*
+
+.. code-block:: SQL
+
+   SET runtime_parameter = value;
+
+The SET command changes the value of a run-time configuration parameter. Presently, Octo does not honor such parameter settings itself, but merely provides the SET interface for compatibility with PostgreSQL clients. Note that run-time parameter names are case-insensitive when using SET.
+
+Example:
+
+.. code-block:: SQL
+
+   SET DateStyle = 'ISO';
+
+Runtime parameter information is maintained in the :code:`pg_catalog.pg_settings` PostgreSQL catalog table. Using a SET command to change the value of a run-time parameter will also update the entry for that parameter in :code:`pg_catalog.pg_settings`.
+
+Note that SET commands treat SQL NULL values as empty strings. For example, the following command sets the DateStyle parameter to the empty string:
+
+.. code-block:: SQL
+
+    SET DateStyle = NULL;
+
+..
+    TODO: The following documentation block is disabled due to lack of support for UPDATE functionality. It may be re-enabled when #579 is resolved.
+
+    Similarly, UPDATE can be used to alter run-time parameters by modifying records in :code:`pg_catalog.pg_settings`. When using this method, the parameter name is case-sensitive, as the name must will be looked up by comparing the given literal value against a canonical name in the database.
+
+    Example:
+
+    .. code-block:: SQL
+
+        UPDATE pg_catalog.pg_settings SET setting = 'ISO' WHERE name = 'DateStyle';
+
+--------------
+SHOW
+--------------
+
+.. code-block:: SQL
+
+   SHOW runtime_parameter;
+
+The SHOW command prints the value of a run-time configuration parameter. Note that run-time parameter names are case-insensitive when using SHOW.
+
+Example:
+
+.. code-block:: SQL
+
+   SHOW DateStyle;
+
+Runtime parameter information is maintained in the :code:`pg_catalog.pg_settings` PostgreSQL catalog table. Accordingly, run-time parameter information may be viewed by querying this table. When using this method, the parameter name is case-sensitive, as the name must will be looked up by comparing the given literal value against a canonical name in the database.
+
+Example:
+
+.. code-block:: SQL
+
+   SELECT name, setting FROM pg_catalog.pg_settings WHERE name = 'DateStyle';
+
+To list of all run-time parameter information:
+
+.. code-block:: SQL
+
+   SELECT * FROM pg_catalog.pg_settings;
+
 -------------------
 Set Operations
 -------------------

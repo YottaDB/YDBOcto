@@ -18,6 +18,7 @@
 #include "octo.h"
 #include "octo_types.h"
 #include "logical_plan.h"
+#include "template_helpers.h"
 
 void lp_optimize_where_multi_equals_ands(LogicalPlan *plan, LogicalPlan *where, SqlTableAlias *right_table_alias,
 					 boolean_t num_outer_joins) {
@@ -361,6 +362,16 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		xref_keys = lp_make_key(column_alias);
 		key = xref_keys->v.lp_key.key;
 		key->is_cross_reference_key = TRUE;
+		/* Determine whether the cross-reference should be stored in a YDB local or global variable. See comment for
+		 * SqlKey.xref_prefix in logical_plan.h for additional background.
+		 */
+		SqlOptionalKeyword *source_keyword;
+		source_keyword = get_keyword(column_alias->column->v.column, OPTIONAL_SOURCE);
+		if (NULL == source_keyword) {
+			UNPACK_SQL_STATEMENT(source_keyword, table->source, keyword);
+		}
+		key->xref_prefix = ('^' == (source_keyword->v->v.value->v.string_literal[0]) ? PP_GLOBAL_PREFIX : PP_LOCAL_PREFIX);
+
 		key->cross_reference_column_alias = column_alias;
 		if (LP_CRITERIA == before_first_key->type) {
 			MALLOC_LP_2ARGS(before_first_key->v.lp_default.operand[0], LP_KEYS);

@@ -22,6 +22,11 @@
 
 #include "octo.h"
 
+/* This macro was previously declared in octo.h, but was obsoleted by the #597 fixes. It is used here simply to clean up any
+ * obsoleted nodes stored in the database prior to these fixes.
+ */
+#define OCTOLIT_VARIABLES "variables"
+
 /* Loads the current "octo-seed.sql" and "octo-seed.zwr" files.
  * Called from "auto_load_octo_seed_if_needed()" only if a need for this is determined (i.e. first use of new Octo build).
  * Returns 0 on success and 1 on error.
@@ -31,9 +36,10 @@ int auto_load_octo_seed(void) {
 	FILE *save_inputFile;
 	int   status;
 	int (*save_cur_input_more)();
-	size_t filename_len;
-	pid_t  child_id;
-	char * ydb_dist;
+	size_t	     filename_len;
+	pid_t	     child_id;
+	char *	     ydb_dist;
+	ydb_buffer_t variable_buffers[2];
 
 	/* Get value of "ydb_dist" env var first */
 	ydb_dist = getenv("ydb_dist");
@@ -42,6 +48,13 @@ int auto_load_octo_seed(void) {
 		assert(FALSE);
 		return 1;
 	}
+
+	YDB_STRING_TO_BUFFER(config->global_names.octo, &variable_buffers[0]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_VARIABLES, &variable_buffers[1]);
+	status = ydb_delete_s(&variable_buffers[0], 1, &variable_buffers[1], YDB_DEL_TREE);
+	UNUSED(status);
+	assert(YDB_OK == status);
+
 	/* -----------------------------------------------------------------
 	 * Do the actual load of the "octo-seed.sql" file.
 	 * -----------------------------------------------------------------

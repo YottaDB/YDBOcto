@@ -52,23 +52,26 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		GET_LP(lp_temp, lp_temp, 0, LP_COLUMN_ALIAS);
 		column_alias = lp_temp->v.lp_column_alias.column_alias;
 		/* If this a plan for a cross reference, put safeguards in place (i.e. QUIT) to prevent building twice */
-		%{}IF $DATA(^{{ config->global_names.raw_octo }}({{ PP_XREF_STATUS }},"{{ tableName }}","{{ columnName }}")) {}%
+		%{}IF $DATA({{ plan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}({{ PP_XREF_STATUS }},"{{ tableName }}","{{ columnName }}")) {}%
 		%{}QUIT`n{{ PLAN_LINE_START }}{}%
-		%{}IF '$$dollarZTRIGGER^%%ydboctoplanhelpers("ITEM","+{}%
-		TMPL(tmpl_column_reference, plan, column_alias, TRUE);
-		%{} -commands=SET,KILL,ZKILL -xecute=""DO handleSetKill^{{ plan->filename }}"" -name={{ plan->trigger_name }}")  {}%
-		%{}HALT`n{{ PLAN_LINE_START }}{}%
+		// Only need triggers for xrefs on global variables, so check the xref name for '^' to confirm a trigger is needed
+		if ('^' == plan->outputKey->xref_prefix[0]) {
+			%{}IF '$$dollarZTRIGGER^%%ydboctoplanhelpers("ITEM","+{}%
+			TMPL(tmpl_column_reference, plan, column_alias, TRUE);
+			%{} -commands=SET,KILL,ZKILL -xecute=""DO handleSetKill^{{ plan->filename }}"" -name={{ plan->trigger_name }}")  {}%
+			%{}HALT`n{{ PLAN_LINE_START }}{}%
+		}
 		%{}SET %%ydboctoCancel("{{ tableName }}","{{ columnName }}","Trigger")="-{}%
 		TMPL(tmpl_column_reference, plan, column_alias, TRUE);
 		%{} -commands=SET,KILL,ZKILL -xecute=""DO handleSetKill^{{ plan->filename }}"""`n{{ PLAN_LINE_START }}{}%
 		%{}; Store state information in case query is canceled in middle of xref building`n{{ PLAN_LINE_START }}{}%
 		%{}; Actual cleanup happens in _ydboctoCleanup.m using this saved state information`n{{ PLAN_LINE_START }}{}%
-		%{}SET %%ydboctoCancel("{{ tableName }}","{{ columnName }}","Node1")="^{{ config->global_names.raw_xref }}(""{}%
+		%{}SET %%ydboctoCancel("{{ tableName }}","{{ columnName }}","Node1")="{{ plan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}(""{}%
 		%{}{{ tableName }}"",""{{ columnName }}"")" ; Note: NULL value of {{ columnName }} is stored as ""{}%
 		%{}`n{{ PLAN_LINE_START }}{}%
 		%{}; Populate cross reference`n{{ PLAN_LINE_START }}{}%
 		%{}DO populateXref`n{{ PLAN_LINE_START }}{}%
-		%{}SET ^{{ config->global_names.raw_octo }}({{ PP_XREF_STATUS }},"{{ tableName }}","{{ columnName }}")={}%
+		%{}SET {{ plan->outputKey->xref_prefix }}{{ config->global_names.raw_octo }}({{ PP_XREF_STATUS }},"{{ tableName }}","{{ columnName }}")={}%
 		%{}"{{ plan->trigger_name }}"{}%
 		%{}`n{{ PLAN_LINE_START }}{}%
 		%{}; Now that xref building is complete, cleanup saved cancel related state information`n{{ PLAN_LINE_START }}{}%
@@ -77,96 +80,100 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		// Generate the populateXref entryref here
 		%{}`npopulateXref`n{{ PLAN_LINE_START }}{}%
 		%{}; Build cross reference for {{ columnName }} column in {{ tableName }} table`n{{ PLAN_LINE_START }}{}%
-		%{}KILL ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"){}%
+		%{}KILL {{ plan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"){}%
 		%{}  ; Remove prior cross reference data (if any still exists)`n{{ PLAN_LINE_START }}{}%
 		cur_key = 0;
 		dot_count = 0;
 		TMPL(tmpl_tablejoin, plan, plan->tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
 		%{}`n{{ PLAN_LINE_START }}QUIT{}%
-		// Generate the trigger definitions here
-		%{}`n`nhandleSetKill`n{{ PLAN_LINE_START }}{}%
-		%{}; M routine that is invoked by SET/KILL/ZKILL trigger to keep xref for {}%
-		%{}{{ columnName }} column in {{ tableName }} table in sync`n{{ PLAN_LINE_START }}{}%
-		%{}IF "S"=$ZTRIGGEROP DO`n{{ PLAN_LINE_START }}{}%
-		%{}. ; SET trigger`n{{ PLAN_LINE_START }}{}%
-		%{}. IF $ZTDATA DO`n{{ PLAN_LINE_START }}{}%
-		%{}. . ; The node existed previously so kill cross reference corresponding to its old value{}%
-		%{}`n{{ PLAN_LINE_START }}{}%
-		%{}. . NEW oldValue`n{{ PLAN_LINE_START }}{}%
-		%{}. . SET oldValue={}%
-		keyword = get_keyword(column, OPTIONAL_PIECE);	/* Note that PIECE keyword could be missing if DELIM is "" */
-		if (NULL != keyword) {
-			%{}$PIECE($ZTOLDVAL,$ZTDELIM,$ZTUPDATE){}%
-		} else {
-			/* No PIECE keyword. So use the full node value. */
-			%{}$ZTOLDVAL{}%
-		}
-		%{}`n{{ PLAN_LINE_START }}{}%
-		%{}. . DO delXrefEntry(oldValue)`n{{ PLAN_LINE_START }}{}%
-		%{}. NEW newValue`n{{ PLAN_LINE_START }}{}%
-		%{}. SET newValue={}%
-		if (NULL != keyword) {
-			%{}$PIECE($ZTVALUE,$ZTDELIM,$ZTUPDATE){}%
-		} else {
-			/* No PIECE keyword. So use the full node value. */
-			%{}$ZTVALUE{}%
-		}
-		%{}`n{{ PLAN_LINE_START }}{}%
-		%{}. DO addXrefEntry(newValue)`n{{ PLAN_LINE_START }}{}%
-		%{}ELSE  DO`n{{ PLAN_LINE_START }}{}%
-		%{}. ; KILL or ZKILL trigger`n{{ PLAN_LINE_START }}{}%
-		%{}. NEW oldValue`n{{ PLAN_LINE_START }}{}%
-		%{}. SET oldValue={}%
-		if (NULL != keyword) {
-			char		*piece;
-			SqlValue	*value;
+		// Generate the trigger definitions here, but only for xrefs stored in GVNs
+		if ('^' == plan->outputKey->xref_prefix[0]) {
+			%{}`n`nhandleSetKill`n{{ PLAN_LINE_START }}{}%
+			%{}; M routine that is invoked by SET/KILL/ZKILL trigger to keep xref for {}%
+			%{}{{ columnName }} column in {{ tableName }} table in sync`n{{ PLAN_LINE_START }}{}%
+			%{}IF "S"=$ZTRIGGEROP DO`n{{ PLAN_LINE_START }}{}%
+			%{}. ; SET trigger`n{{ PLAN_LINE_START }}{}%
+			%{}. IF $ZTDATA DO`n{{ PLAN_LINE_START }}{}%
+			%{}. . ; The node existed previously so kill cross reference corresponding to its old value{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}. . NEW oldValue`n{{ PLAN_LINE_START }}{}%
+			%{}. . SET oldValue={}%
+			keyword = get_keyword(column, OPTIONAL_PIECE);	/* Note that PIECE keyword could be missing if DELIM is "" */
+			if (NULL != keyword) {
+				%{}$PIECE($ZTOLDVAL,$ZTDELIM,$ZTUPDATE){}%
+			} else {
+				/* No PIECE keyword. So use the full node value. */
+				%{}$ZTOLDVAL{}%
+			}
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}. . DO delXrefEntry(oldValue)`n{{ PLAN_LINE_START }}{}%
+			%{}. NEW newValue`n{{ PLAN_LINE_START }}{}%
+			%{}. SET newValue={}%
+			if (NULL != keyword) {
+				%{}$PIECE($ZTVALUE,$ZTDELIM,$ZTUPDATE){}%
+			} else {
+				/* No PIECE keyword. So use the full node value. */
+				%{}$ZTVALUE{}%
+			}
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}. DO addXrefEntry(newValue)`n{{ PLAN_LINE_START }}{}%
+			%{}ELSE  DO`n{{ PLAN_LINE_START }}{}%
+			%{}. ; KILL or ZKILL trigger`n{{ PLAN_LINE_START }}{}%
+			%{}. NEW oldValue`n{{ PLAN_LINE_START }}{}%
+			%{}. SET oldValue={}%
+			if (NULL != keyword) {
+				char		*piece;
+				SqlValue	*value;
 
-			UNPACK_SQL_STATEMENT(value, keyword->v, value);
-			piece = value->v.string_literal;
-			%{}$PIECE($ZTOLDVAL,$ZTDELIM,{{ piece }}){}%
-		} else {
-			/* No PIECE keyword. So use the full node value. */
-			%{}$ZTOLDVAL{}%
+				UNPACK_SQL_STATEMENT(value, keyword->v, value);
+				piece = value->v.string_literal;
+				%{}$PIECE($ZTOLDVAL,$ZTDELIM,{{ piece }}){}%
+			} else {
+				/* No PIECE keyword. So use the full node value. */
+				%{}$ZTOLDVAL{}%
+			}
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}. DO delXrefEntry(oldValue)`n{{ PLAN_LINE_START }}{}%
+			%{}QUIT`n`n{}%
+			%{}addXrefEntry({{ PP_VAL }})	; {{ PP_KEY_COLUMN }}0, {{ PP_KEY_COLUMN }}1 etc. are not passed as parameters{}%
+			%{} but inherited from caller scope{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}SET {{ plan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_VAL }}{}%
+			/* Determine number of primary key columns */
+			lp_temp = plan->projection->v.lp_default.operand[1];
+			num_key_cols = 0;
+			while (NULL != lp_temp) {
+				lp_temp = lp_temp->v.lp_default.operand[1];
+				num_key_cols++;
+			}
+			TMPL(tmpl_xref_key_columns, num_key_cols);
+			%{})=""{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}IF $INCREMENT({{ plan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_VAL }})){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}IF $INCREMENT({{ plan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}QUIT{}%
+			%{}`n`n{}%
+			%{}delXrefEntry({{ PP_VAL }})	; {{ PP_KEY_COLUMN }}0, {{ PP_KEY_COLUMN }}1 etc. are not passed as parameters{}%
+			%{} but inherited from caller scope{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}KILL {{ plan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_VAL }}{}%
+			TMPL(tmpl_xref_key_columns, num_key_cols);
+			%{}){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}KILL:0=$INCREMENT({{ plan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{}%
+			%{}{{ PP_VAL }}),-1) {}%
+			%{}{{ plan->outputKey->xref_prefix }}{}%
+			%{}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_VAL }}){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}KILL:0=$INCREMENT({{ plan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1) {}%
+			%{}{{ plan->outputKey->xref_prefix }}{}%
+			%{}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}QUIT{}%
+			%{}`n{}%
 		}
-		%{}`n{{ PLAN_LINE_START }}{}%
-		%{}. DO delXrefEntry(oldValue)`n{{ PLAN_LINE_START }}{}%
-		%{}QUIT`n`n{}%
-		%{}addXrefEntry({{ PP_VAL }})	; {{ PP_KEY_COLUMN }}0, {{ PP_KEY_COLUMN }}1 etc. are not passed as parameters{}%
-		%{} but inherited from caller scope{}%
-		%{}`n{{ PLAN_LINE_START }}{}%
-		%{}SET ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_VAL }}{}%
-		/* Determine number of primary key columns */
-		lp_temp = plan->projection->v.lp_default.operand[1];
-		num_key_cols = 0;
-		while (NULL != lp_temp) {
-			lp_temp = lp_temp->v.lp_default.operand[1];
-			num_key_cols++;
-		}
-		TMPL(tmpl_xref_key_columns, num_key_cols);
-		%{})=""{}%
-		%{}`n{{ PLAN_LINE_START }}{}%
-		%{}IF $INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_VAL }})){}%
-		%{}`n{{ PLAN_LINE_START }}{}%
-		%{}IF $INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")){}%
-		%{}`n{{ PLAN_LINE_START }}{}%
-		%{}QUIT{}%
-		%{}`n`n{}%
-		%{}delXrefEntry({{ PP_VAL }})	; {{ PP_KEY_COLUMN }}0, {{ PP_KEY_COLUMN }}1 etc. are not passed as parameters{}%
-		%{} but inherited from caller scope{}%
-		%{}`n{{ PLAN_LINE_START }}{}%
-		%{}KILL ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_VAL }}{}%
-		TMPL(tmpl_xref_key_columns, num_key_cols);
-		%{}){}%
-		%{}`n{{ PLAN_LINE_START }}{}%
-		%{}KILL:0=$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{}%
-		%{}{{ PP_VAL }}),-1) {}%
-		%{}^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_VAL }}){}%
-		%{}`n{{ PLAN_LINE_START }}{}%
-		%{}KILL:0=$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1) {}%
-		%{}^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"){}%
-		%{}`n{{ PLAN_LINE_START }}{}%
-		%{}QUIT{}%
-		%{}`n{}%
 		return;
 	}
 	// Not a cross-reference plan

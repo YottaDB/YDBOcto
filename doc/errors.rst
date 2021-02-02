@@ -449,6 +449,14 @@ Text: Read size xxx out of range
 
 Description/Action: This error indicates an internal code attempt to read beyond a buffer's allocated range. Please contact your YottaDB support channel. PSQL Error Code: 22003
 
++++++++++++++++++++++++++++++
+ERR_INVALID_RUNTIME_PARAMETER
++++++++++++++++++++++++++++++
+
+Text: Unrecognized runtime configuration parameter 'xxx'
+
+Description/Action: This error indicates an attempt to access a run-time configuration parameter that does not exist. For a full list of accepted run-time parameters and related information, issue the following query: `SELECT * FROM pg_settings`. PSQL Error Code: 22023
+
 +++++++++++++++++++++++
 ERR_INVALID_TYPE
 +++++++++++++++++++++++
@@ -664,6 +672,14 @@ INFO_OCTO_STARTED
 Text: Octo started
 
 Description/Action: This message indicates that an Octo process has begun execution. PSQL Error Code: 00000
+
+++++++++++++++++++++++++++
+ERR_PARM_CANNOT_BE_CHANGED
+++++++++++++++++++++++++++
+
+Text: Runtime parameter 'xxx' cannot be changed
+
+Description/Action: This message indicates an attempt to modify a read-only runtime parameter. PSQL Error Code: 55P02
 
 +++++++++++++++++++
 ERR_PARSING_COMMAND

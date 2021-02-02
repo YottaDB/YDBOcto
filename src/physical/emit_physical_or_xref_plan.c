@@ -97,7 +97,7 @@ int emit_physical_or_xref_plan(char *plan_filename, SqlStatement *stmt, char *ta
 			assert(NULL == columnName);
 			assert(NULL == xref_plan);
 			INFO(INFO_M_PLAN, plan_filename);
-			pplan = emit_select_statement(stmt, plan_filename);
+			pplan = emit_sql_statement(stmt, plan_filename);
 			if (NULL == pplan) {
 				status = 1; /* non-zero value to signify error */
 				break;

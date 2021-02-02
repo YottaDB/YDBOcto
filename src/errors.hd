@@ -108,6 +108,8 @@ ERROR_DEF(ERR_UNKNOWN_COLUMN_NAME, "Unknown column: %s", PSQL_Code_Undefined_Col
 ERROR_DEF(ERR_UNKNOWN_FUNCTION, "No function '%s' defined with given parameter types (%s)", PSQL_Code_Undefined_Function)
 ERROR_DEF(ERR_UNKNOWN_TABLE, "Unknown table: %s", PSQL_Code_Undefined_Table)
 ERROR_DEF(ERR_VALUES_LENGTH, "VALUES lists must all be the same length", PSQL_Code_Syntax_Error)
+ERROR_DEF(ERR_INVALID_RUNTIME_PARAMETER, "Unrecognized runtime configuration parameter '%s'", PSQL_Code_Cant_Change_Runtime_Param)
+ERROR_DEF(ERR_PARM_CANNOT_BE_CHANGED, "Runtime parameter '%s' cannot be changed", PSQL_Code_Syntax_Error)
 // ROCTO //
 ERROR_DEF(ERR_ROCTO_UNSUPPORTED_BIND_PARAMETER, "Unsupported bind parameter type received", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_ROCTO_BIND_PARAMETER_DECODE_FAILURE, "Failed to decode binary bind parameter", PSQL_Code_Internal_Error)

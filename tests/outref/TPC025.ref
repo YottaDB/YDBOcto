@@ -1,0 +1,15 @@
+   name    | setting  
+-----------+----------
+ DateStyle | ISO, MDY
+(1 row)
+
+SET
+ name | setting 
+------+---------
+(0 rows)
+
+   name    | setting 
+-----------+---------
+ DateStyle | ISO
+(1 row)
+

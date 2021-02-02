@@ -18,7 +18,7 @@ ID|ID
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    DO:'$DATA(^%ydboctoocto("xref_status","ORDERS","ORDER_AMOUNT")) ^%ydboctoX2rbmGQx4OtlbPfepALF2EA(cursorId)
+    DO:'$DATA(^%ydboctoocto("xref_status","ORDERS","ORDER_AMOUNT")) xrefPlan^%ydboctoX2rbmGQx4OtlbPfepALF2EA(cursorId)
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     TCOMMIT:wrapInTp
@@ -115,7 +115,7 @@ octoPlan1(cursorId)
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    DO:'$DATA(^%ydboctoocto("xref_status","NAMES","LASTNAME")) ^%ydboctoXOMMMsQ8ks3NI1C42wS8F05(cursorId)
+    DO:'$DATA(^%ydboctoocto("xref_status","NAMES","LASTNAME")) xrefPlan^%ydboctoXOMMMsQ8ks3NI1C42wS8F05(cursorId)
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     TCOMMIT:wrapInTp

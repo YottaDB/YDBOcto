@@ -869,8 +869,12 @@ int octo_init(int argc, char **argv) {
 				break;
 			}
 		}
+		// Now that configuration is complete, load `pg_settings` defaults into LVNs for process-local access
+		load_pg_defaults();
 		return 0;
 	}
+	// No call to load_pg_settings is needed here since we only get here if there was a configuration error, so assert this.
+	assert(0 != status);
 	CLEANUP_CONFIG(config_file);
 	return status;
 }

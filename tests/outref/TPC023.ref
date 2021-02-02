@@ -1,0 +1,42 @@
+ datestyle 
+-----------
+ ISO, MDY
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO
+(1 row)
+
+   name    | setting | unit |                      category                      |                    short_desc                     |                       extra_desc                       | context | vartype |       source       | min_val | enumvals | boot_val | reset_val | sourcefile | sourceline | pending_restart 
+-----------+---------+------+----------------------------------------------------+---------------------------------------------------+--------------------------------------------------------+---------+---------+--------------------+---------+----------+----------+-----------+------------+------------+-----------------
+ DateStyle | ISO     |      | Client Connection Defaults / Locale and Formatting | Sets the display format for date and time values. | Also controls interpretation of ambiguous date inputs. | user    | string  | configuration file |         |          |          | ISO, MDY  | ISO, MDY   |            | 
+(1 row)
+
+ name | setting | unit | category | short_desc | extra_desc | context | vartype | source | min_val | enumvals | boot_val | reset_val | sourcefile | sourceline | pending_restart 
+------+---------+------+----------+------------+------------+---------+---------+--------+---------+----------+----------+-----------+------------+------------+-----------------
+(0 rows)
+
+ autovacuum_max_workers 
+------------------------
+ 
+(1 row)
+
+SET
+ datestyle 
+-----------
+ 
+(1 row)
+
+         name         | setting | unit | category | short_desc | extra_desc | context | vartype | source | min_val | enumvals | boot_val | reset_val | sourcefile | sourceline | pending_restart 
+----------------------+---------+------+----------+------------+------------+---------+---------+--------+---------+----------+----------+-----------+------------+------------+-----------------
+ max_worker_processes |         |      |          |            |            |         |         |        |         |          |          |           |            |            | 
+(1 row)
+
+SET
+         name         | setting | unit | category | short_desc | extra_desc | context | vartype | source | min_val | enumvals | boot_val | reset_val | sourcefile | sourceline | pending_restart 
+----------------------+---------+------+----------+------------+------------+---------+---------+--------+---------+----------+----------+-----------+------------+------------+-----------------
+ max_worker_processes | 100     |      |          |            |            |         |         |        |         |          |          |           |            |            | 
+(1 row)
+

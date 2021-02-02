@@ -55,8 +55,10 @@
 #define PP_ROW_COUNT   "\"RowCount\""	 /* Note: This has to be maintained in sync with OCTOLIT_ROW_COUNT */
 #define PP_KEYS	       "\"keys\""	 /* Note: This has to be maintained in sync with OCTOLIT_KEYS */
 #define PP_PARAMETERS  "\"parameters\""	 /* Note: This has to be maintained in sync with OCTOLIT_PARAMETERS */
-#define PP_VARIABLES   "\"variables\""	 /* Note: This has to be maintained in sync with OCTOLIT_VARIABLES */
 #define PP_XREF_STATUS "\"xref_status\"" /* Note: This has to be maintained in sync with OCTOLIT_XREF_STATUS */
+// Set prefixes for YDB global and local variables nodes, i.e. "^" and "", respectively
+#define PP_GLOBAL_PREFIX "^"
+#define PP_LOCAL_PREFIX	 ""
 
 /* Note: The below PP_* macros do not contain double-quotes within the string literal */
 #define PP_COL		 "col"

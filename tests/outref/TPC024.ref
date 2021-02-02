@@ -1,0 +1,58 @@
+SET
+SET
+SET
+SET
+SET
+SET
+SET
+SET
+SET
+SET
+ client_encoding 
+-----------------
+ TEST
+(1 row)
+
+ datestyle 
+-----------
+ TEST
+(1 row)
+
+ integer_datetimes 
+-------------------
+ TEST
+(1 row)
+
+ intervalstyle 
+---------------
+ TEST
+(1 row)
+
+ server_encoding 
+-----------------
+ TEST
+(1 row)
+
+ server_version 
+----------------
+ TEST
+(1 row)
+
+SHOW
+ timezone 
+----------
+ TEST
+(1 row)
+
+ is_superuser 
+--------------
+ on
+(1 row)
+
+ session_authorization 
+-----------------------
+ postgres
+(1 row)
+
+[HOST:POST] [ERROR] PATH:LINENUM DATE TIME : ERR_PARM_CANNOT_BE_CHANGED : Runtime parameter 'IS_SUPERUSER' cannot be changed
+[HOST:POST] [ERROR] PATH:LINENUM DATE TIME : ERR_PARM_CANNOT_BE_CHANGED : Runtime parameter 'SESSION_AUTHORIZATION' cannot be changed

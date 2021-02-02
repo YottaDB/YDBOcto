@@ -121,7 +121,6 @@
 #define OCTOLIT_KEYS	    "keys"	  /* keep this in sync with PP_KEYS in "template_helpers.h" */
 #define OCTOLIT_PARAMETERS  "parameters"  /* keep this in sync with PP_PARAMETERS in "template_helpers.h" */
 #define OCTOLIT_ROW_COUNT   "RowCount"	  /* keep this in sync with PP_ROW_COUNT in "template_helpers.h" */
-#define OCTOLIT_VARIABLES   "variables"	  /* keep this in sync with PP_VARIABLES in "template_helpers.h" */
 #define OCTOLIT_XREF_STATUS "xref_status" /* keep this in sync with PP_XREF_STATUS in "template_helpers.h" */
 
 #define OCTOLIT_0		     "0"
@@ -140,6 +139,7 @@
 #define OCTOLIT_LENGTH		     "length"
 #define OCTOLIT_TEXT_LENGTH	     "text_length"
 #define OCTOLIT_NAME		     "name"
+#define OCTOLIT_NAMES		     "names"
 #define OCTOLIT_NONE		     "none"
 #define OCTOLIT_OID		     "oid"
 #define OCTOLIT_OCTOONEROWTABLE	     "OCTOONEROWTABLE"
@@ -148,12 +148,15 @@
 #define OCTOLIT_PG_ATTRIBUTE	     "pg_attribute"
 #define OCTOLIT_PG_CATALOG	     "pg_catalog"
 #define OCTOLIT_PG_CLASS	     "pg_class"
+#define OCTOLIT_PG_SETTINGS	     "pg_settings"
 #define OCTOLIT_PLANDIRS	     "plandirs"
 #define OCTOLIT_PLANFMT		     "planfmt"
 #define OCTOLIT_PLAN_METADATA	     "plan_metadata"
 #define OCTOLIT_PREPARED	     "prepared"
+#define OCTOLIT_READ_ONLY	     "read-only"
 #define OCTOLIT_ROUTINE		     "routine"
 #define OCTOLIT_SEEDFMT		     "seedfmt"
+#define OCTOLIT_SETTINGS	     "settings"
 #define OCTOLIT_T		     "t"
 #define OCTOLIT_TABLEPLANS	     "tableplans"
 #define OCTOLIT_TABLES		     "tables"
@@ -168,6 +171,18 @@
 #define OCTOLIT_VARIABLE	     "variable"
 #define OCTOLIT_YDBOCTOCANCEL	     "%ydboctoCancel"
 #define OCTOLIT_YDBOCTOSECRETKEYLIST "%ydboctoSecretKeyList"
+
+/* Macros for StartupMessage parameters sent by client that are NOT actual runtime parameters.
+ * These strings are used for selective exclusion of such parameters via strncmp checks in rocto.c
+ * to prevent ERR_INVALID_RUNTIME_PARAMETER errors at remote connection startup.
+ */
+#define OCTOLIT_USER_UPPER     "USER"
+#define OCTOLIT_DATABASE_UPPER "DATABASE"
+/* Macros for read-only runtime parameters. Used for conditionally issuing ERR_PARM_CANNOT_BE_CHANGED
+ * message in set_parameter_in_pg_settings.c.
+ */
+#define OCTOLIT_IS_SUPERUSER_UPPER	    "IS_SUPERUSER"
+#define OCTOLIT_SESSION_AUTHORIZATION_UPPER "SESSION_AUTHORIZATION"
 
 // Macros for plan size allocation in physical plan generation
 #define OCTOPLAN_LIT	  "octoPlan"
@@ -731,6 +746,11 @@ SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *ordering_
 SqlStatement *table_expression(SqlStatement *from, SqlStatement *where, SqlStatement *group_by, SqlStatement *having);
 SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlation_specification, int *plan_id);
 
+// Updates a runtime parameter value in `pg_catalog.pg_settings`. Executed for SQL SET commands.
+int set_parameter_in_pg_settings(char *variable, char *value);
+// Displays a runtime parameter value in `pg_catalog.pg_settings`. Executed for SQL SHOW commands.
+char *get_parameter_from_pg_settings(char **variable, ydb_buffer_t *out);
+
 // Creates a new cursor by assigning a new cursorId
 int64_t	  create_cursor(ydb_buffer_t *schema_global, ydb_buffer_t *cursor_buffer);
 boolean_t is_query_canceled(callback_fnptr_t callback);
@@ -741,6 +761,11 @@ boolean_t is_query_canceled(callback_fnptr_t callback);
 int columns_equal(SqlColumn *a, SqlColumn *b);
 int tables_equal(SqlTable *a, SqlTable *b);
 int values_equal(SqlValue *a, SqlValue *b);
+
+/* Loads default runtime parameter settings into `pg_catalog.pg_settings`.
+ * Needed for SET/SHOW commands to work properly.
+ */
+void load_pg_defaults();
 
 // Returns the amount of memory used by the current process
 int64_t get_mem_usage();

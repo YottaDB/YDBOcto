@@ -14,7 +14,7 @@
 #include "template_helpers.h"
 
 /**
- * Outputs the "source" of the given key, such as a value in ^xref global if the key is
+ * Outputs the "source" of the given key, such as a value in xref global (or local) if the key is
  *  a cross reference, or the value of user-specified global mapping
  */
 TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key) {
@@ -35,7 +35,8 @@ TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key) {
 
 		UNPACK_SQL_STATEMENT(value, key->column->columnName, value);
 		columnName = value->v.reference;
-		%{}^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{}%
+		%{}{{ key->xref_prefix }}{}%
+		%{}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{}%
 		// Output the column this cross reference is sourced from
 		iter_key_index = 0;
 		while ((iter_key_index < pplan->total_iter_keys) && (pplan->iterKeys[iter_key_index]->unique_id != key->unique_id))

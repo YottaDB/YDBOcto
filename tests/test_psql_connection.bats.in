@@ -437,3 +437,19 @@ OCTO
 	verify_output TPC022 output.txt noinfo
 }
 
+@test "TPC023 : OCTO597 : Test that SET/SHOW commands correctly update/retrieve runtime variables using the Simple Query Protocol (psql client)" {
+	run_psql $test_port TPC023.sql 2>&1 | tee output.txt
+	verify_output TPC023 output.txt noinfo nodebug
+}
+
+@test "TPC024 : OCTO597 : Test that SET/SHOW commands works for all supported variables" {
+	run_psql $test_port TPC024.sql 2>&1 | tee output.txt
+	# Confirm error messages issued for read-only variables, blocking out host/port info likely to change across test runs
+	grep "ERR_PARM_CANNOT_BE_CHANGED" rocto.log | sed 's/^\[.*:[0-9]*\] /\[HOST:POST\] /' >> output.txt
+	verify_output TPC024 output.txt noinfo nodebug
+}
+
+@test "TPC025 : OCTO597 : Test pg_settings xrefs are updated when value changed via SET command" {
+	run_psql $test_port TPC025.sql 2>&1 | tee output.txt
+	verify_output TPC025 output.txt noinfo nodebug
+}

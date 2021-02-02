@@ -27,7 +27,6 @@
 #define DATA_ROW_PARMS_ARRAY_INIT_ALLOC 16
 
 int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms, char *plan_name, PSQL_MessageTypeT msg_type) {
-	ydb_buffer_t session_buffers[4], octo_buffers[3];
 	ydb_buffer_t value_buffer, plan_name_buffer;
 	int	     status, result = 0;
 
@@ -41,21 +40,16 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 		if (set_STATEMENT == stmt->type) {
 			/* SET the current value of a runtime variable by looking at the appropriate session LVN */
 			if (PSQL_Query == msg_type) {
-				/* Caller is "handle_query()" (simple query protocol). Do SET of runtime variable right away */
-				SqlValue *	 runtime_variable, *runtime_value;
 				SqlSetStatement *set_stmt;
+				SqlValue *	 runtime_variable_stmt, *runtime_value_stmt;
 
-				// Initialize session LVN subscripts
 				UNPACK_SQL_STATEMENT(set_stmt, stmt, set);
-				UNPACK_SQL_STATEMENT(runtime_value, set_stmt->value, value);
-				UNPACK_SQL_STATEMENT(runtime_variable, set_stmt->variable, value);
-				YDB_STRING_TO_BUFFER(config->global_names.session, &session_buffers[0]);
-				YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &session_buffers[1]);
-				YDB_STRING_TO_BUFFER(OCTOLIT_VARIABLES, &session_buffers[2]);
-				YDB_STRING_TO_BUFFER(runtime_variable->v.string_literal, &session_buffers[3]);
-				YDB_STRING_TO_BUFFER(runtime_value->v.string_literal, &value_buffer);
-				assert(value_buffer.len_used < YDB_MAX_STR); // No known PostgreSQL variables exceed YDB_MAX_STR
-				status = ydb_set_s(&session_buffers[0], 3, &session_buffers[1], &value_buffer);
+				UNPACK_SQL_STATEMENT(runtime_value_stmt, set_stmt->value, value);
+				UNPACK_SQL_STATEMENT(runtime_variable_stmt, set_stmt->variable, value);
+
+				/* Caller is "handle_query()" (simple query protocol). Do SET of runtime variable right away */
+				status = set_parameter_in_pg_settings(runtime_variable_stmt->v.string_literal,
+								      runtime_value_stmt->v.string_literal);
 				if (YDB_OK != status) {
 					return 1;
 				}
@@ -126,19 +120,16 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 					YDB_FREE_BUFFER(&value_buffer);
 					return 1;
 				}
-				YDB_STRING_TO_BUFFER(config->global_names.session, &session_buffers[0]);
-				YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &session_buffers[1]);
-				YDB_STRING_TO_BUFFER(OCTOLIT_VARIABLES, &session_buffers[2]);
-				session_buffers[3] = name_buffer;
-				assert(value_buffer.len_used < YDB_MAX_STR); // No known PostgreSQL variables exceed YDB_MAX_STR
-				status = ydb_set_s(&session_buffers[0], 3, &session_buffers[1], &value_buffer);
-				if (YDB_OK != status) {
-					YDB_FREE_BUFFER(&name_buffer);
-					YDB_FREE_BUFFER(&value_buffer);
-					return 1;
-				}
+
+				name_buffer.buf_addr[name_buffer.len_used] = '\0';
+				value_buffer.buf_addr[value_buffer.len_used] = '\0';
+				status = set_parameter_in_pg_settings(name_buffer.buf_addr, value_buffer.buf_addr);
+
 				YDB_FREE_BUFFER(&name_buffer);
 				YDB_FREE_BUFFER(&value_buffer);
+				if (YDB_OK != status) {
+					return 1;
+				}
 			}
 			return 0;
 		}
@@ -147,6 +138,7 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 			ydb_buffer_t name_buffer;
 			DataRowParm  data_row_parms;
 			DataRow *    data_row;
+			char *	     variable_name, *variable_value;
 
 			if (PSQL_Parse == msg_type) {
 				/* Caller is "handle_parse()" (extended query protocol). Set up prepared statement lvns for
@@ -225,7 +217,8 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 					YDB_FREE_BUFFER(&name_buffer);
 					return 1;
 				}
-				session_buffers[3] = name_buffer;
+				name_buffer.buf_addr[name_buffer.len_used] = '\0';
+				variable_name = name_buffer.buf_addr;
 			} else {
 				/* Caller is "handle_query()" (simple query protocol). Do the SHOW right away */
 				SqlValue *	  runtime_variable;
@@ -234,47 +227,14 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 				assert(PSQL_Query == msg_type);
 				UNPACK_SQL_STATEMENT(show_stmt, stmt, show);
 				UNPACK_SQL_STATEMENT(runtime_variable, show_stmt->variable, value);
-				YDB_STRING_TO_BUFFER(runtime_variable->v.string_literal, &session_buffers[3]);
+				variable_name = runtime_variable->v.string_literal;
 			}
-			// Initialize session LVN subscripts
-			YDB_STRING_TO_BUFFER(config->global_names.session, &session_buffers[0]);
-			YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &session_buffers[1]);
-			YDB_STRING_TO_BUFFER(OCTOLIT_VARIABLES, &session_buffers[2]);
-			/* session_buffers[3] is already initialized to the appropriate value */
-
-			OCTO_MALLOC_NULL_TERMINATED_BUFFER(&value_buffer, OCTO_INIT_BUFFER_LEN);
-			status = ydb_get_s(&session_buffers[0], 3, &session_buffers[1], &value_buffer);
-			// Expand value_buffer allocation until it's large enough to store the retrieved row value
-			if (YDB_ERR_INVSTRLEN == status) {
-				EXPAND_YDB_BUFFER_T_ALLOCATION(value_buffer);
-				status = ydb_get_s(&session_buffers[0], 3, &session_buffers[1], &value_buffer);
-				assert(YDB_ERR_INVSTRLEN != status);
-			}
-			// If the variable isn't defined for the session, attempt to pull the value from the Octo GVN
-			if (YDB_ERR_LVUNDEF == status) {
-				YDB_STRING_TO_BUFFER(config->global_names.octo, &octo_buffers[0]);
-				YDB_STRING_TO_BUFFER(OCTOLIT_VARIABLES, &octo_buffers[1]);
-				octo_buffers[2] = session_buffers[3];
-				status = ydb_get_s(&octo_buffers[0], 2, &octo_buffers[1], &value_buffer);
-				if (YDB_ERR_INVSTRLEN == status) {
-					EXPAND_YDB_BUFFER_T_ALLOCATION(value_buffer);
-					status = ydb_get_s(&octo_buffers[0], 2, &octo_buffers[1], &value_buffer);
-					assert(YDB_ERR_INVSTRLEN != status);
-				}
-				// If the variable isn't defined on the Octo GVN, the variable isn't defined at all.
-				// In this case we will return an empty string.
-				if (YDB_ERR_GVUNDEF == status) {
-					status = YDB_OK;
-					value_buffer.buf_addr[0] = '\0';
-					value_buffer.len_used = 0;
-				}
-			}
+			// Lookup the value for the specified runtime variable for transmission to the client
+			variable_value = get_parameter_from_pg_settings(&variable_name, &value_buffer);
 			if (PSQL_Execute == msg_type) {
 				YDB_FREE_BUFFER(&name_buffer);
 			}
-			YDB_ERROR_CHECK(status);
-			if (YDB_OK != status) {
-				YDB_FREE_BUFFER(&value_buffer);
+			if (NULL == variable_value) {
 				return 1;
 			}
 			/* Send DataRow */
@@ -284,7 +244,7 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 			data_row = make_data_row(&data_row_parms, 1, NULL);
 			send_message(parms->session, (BaseMessage *)(&data_row->type));
 			free(data_row);
-			YDB_FREE_BUFFER(&value_buffer);
+			free(variable_value);
 			parms->data_sent = TRUE;
 			return 0;
 		}

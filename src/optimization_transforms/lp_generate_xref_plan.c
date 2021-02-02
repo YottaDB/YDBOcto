@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -17,6 +17,9 @@
 #include "octo.h"
 #include "octo_types.h"
 #include "logical_plan.h"
+#include "template_helpers.h"
+
+#define CARET_CHAR '^'
 
 LogicalPlan *lp_generate_xref_plan(SqlTable *table, SqlColumn *column, int unique_id) {
 	LogicalPlan *	    root, *project, *output, *column_list, *select, *cur, *lp_cla;
@@ -26,7 +29,7 @@ LogicalPlan *lp_generate_xref_plan(SqlTable *table, SqlColumn *column, int uniqu
 	SqlTableAlias *	    table_alias;
 	SqlStatement *	    table_alias_statement;
 	SqlColumn *	    key_columns[MAX_KEY_COUNT];
-	SqlOptionalKeyword *keywords;
+	SqlOptionalKeyword *keywords, *source_keyword;
 	SqlKey *	    output_key;
 	int		    cur_key, max_key;
 
@@ -36,6 +39,16 @@ LogicalPlan *lp_generate_xref_plan(SqlTable *table, SqlColumn *column, int uniqu
 	output_key->column = column;
 	output_key->unique_id = unique_id;
 	output_key->is_cross_reference_key = TRUE;
+
+	/* Determine whether the cross-reference should be stored in a YDB local or global variable. See comment for
+	 * SqlKey.xref_prefix in logical_plan.h for additional background.
+	 */
+	source_keyword = get_keyword(column, OPTIONAL_SOURCE);
+	if (NULL == source_keyword) {
+		UNPACK_SQL_STATEMENT(source_keyword, table->source, keyword);
+	}
+	output_key->xref_prefix
+	    = (CARET_CHAR == (source_keyword->v->v.value->v.string_literal[0]) ? PP_GLOBAL_PREFIX : PP_LOCAL_PREFIX);
 
 	MALLOC_LP_2ARGS(root, LP_SELECT_QUERY);
 	MALLOC_LP(project, root->v.lp_default.operand[0], LP_PROJECT);

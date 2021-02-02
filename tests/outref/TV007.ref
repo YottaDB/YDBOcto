@@ -310,7 +310,7 @@ Reducing stack by rule rrr (line lll):
 [ INFO] PATH:LINENUM DATE TIME : INFO_CURSOR : Generating SQL for CURSOR_NUM
 [TRACE] PATH:LINENUM DATE TIME : INFO_ENTERING_FUNCTION : Entering hash_canonical_query
 [ INFO] PATH:LINENUM DATE TIME : INFO_M_PLAN : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
-[TRACE] PATH:LINENUM DATE TIME : INFO_ENTERING_FUNCTION : Entering emit_select_statement
+[TRACE] PATH:LINENUM DATE TIME : INFO_ENTERING_FUNCTION : Entering emit_sql_statement
 [DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
 LP_SELECT_QUERY: 
   LP_PROJECT: 

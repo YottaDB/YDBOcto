@@ -363,7 +363,7 @@ _ydboctoP*.m:    . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_
 _ydboctoP*.m:    . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",9,"","",%ydboctocursor(cursorId,"keys",9,"",""))=%ydboctoexpr
 _ydboctoP*.m:;  SELECT * FROM names n1 WHERE n1.firstname IN ('Zero', 'Lord');
 _ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
-_ydboctoP*.m:    DO:'$DATA(^%ydboctoocto("xref_status","NAMES","FIRSTNAME")) ^%ydboctoXS6loYoNNto55iv2lHkNkCK(cursorId)
+_ydboctoP*.m:    DO:'$DATA(^%ydboctoocto("xref_status","NAMES","FIRSTNAME")) xrefPlan^%ydboctoXS6loYoNNto55iv2lHkNkCK(cursorId)
 _ydboctoP*.m:    DO octoPlan1(cursorId)
 _ydboctoP*.m:octoPlan1(cursorId)
 _ydboctoP*.m:    . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))

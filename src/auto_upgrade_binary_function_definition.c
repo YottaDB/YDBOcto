@@ -25,32 +25,35 @@
 		}                                      \
 	}
 
-#define CLEANUP_AND_RETURN(STATUS, FUNCTION_BUFF, RET_BUFF, FREE_MEMORY_CHUNK) \
-	{                                                                      \
-		CLEANUP_FUNCTION_BUFF(FUNCTION_BUFF, RET_BUFF);                \
-		if (FREE_MEMORY_CHUNK) {                                       \
-			OCTO_CFREE(memory_chunks);                             \
-		}                                                              \
-		return STATUS;                                                 \
+#define CLEANUP_AND_RETURN(STATUS, FUNCTION_BUFF, RET_BUFF, FREE_MEMORY_CHUNK, CURSOR_YDB_BUFF) \
+	{                                                                                       \
+		CLEANUP_FUNCTION_BUFF(FUNCTION_BUFF, RET_BUFF);                                 \
+		if (FREE_MEMORY_CHUNK) {                                                        \
+			OCTO_CFREE(memory_chunks);                                              \
+		}                                                                               \
+		if (NULL != CURSOR_YDB_BUFF) {                                                  \
+			DELETE_QUERY_PARAMETER_CURSOR_LVN(CURSOR_YDB_BUFF);                     \
+		}                                                                               \
+		return STATUS;                                                                  \
 	}
 
-#define CLEANUP_AND_RETURN_IF_NOT_YDB_OK(STATUS, FUNCTION_BUFF, RET_BUFF, FREE_MEMORY_CHUNK)    \
-	{                                                                                       \
-		if (YDB_OK != STATUS) {                                                         \
-			YDB_ERROR_CHECK(STATUS);                                                \
-			CLEANUP_AND_RETURN(STATUS, FUNCTION_BUFF, RET_BUFF, FREE_MEMORY_CHUNK); \
-		}                                                                               \
+#define CLEANUP_AND_RETURN_IF_NOT_YDB_OK(STATUS, FUNCTION_BUFF, RET_BUFF, FREE_MEMORY_CHUNK, CURSOR_YDB_BUFF)    \
+	{                                                                                                        \
+		if (YDB_OK != STATUS) {                                                                          \
+			YDB_ERROR_CHECK(STATUS);                                                                 \
+			CLEANUP_AND_RETURN(STATUS, FUNCTION_BUFF, RET_BUFF, FREE_MEMORY_CHUNK, CURSOR_YDB_BUFF); \
+		}                                                                                                \
 	}
 
 #define CLEANUP_DANGLING_FUNCTION_NODES_AND_RETURN_IF_NEEDED(SUBLIT, OCTO_GLOBAL, FUNCTION_SUBS, DATA_RET, STATUS, FUNCTION_BUFF, \
-							     RET_BUFF, FREE_MEMORY_CHUNK)                                         \
+							     RET_BUFF, FREE_MEMORY_CHUNK, CURSOR_YDB_BUFF)                        \
 	{                                                                                                                         \
 		YDB_STRING_TO_BUFFER(SUBLIT, &FUNCTION_SUBS[3]);                                                                  \
 		STATUS = ydb_data_s(&OCTO_GLOBAL, 4, &FUNCTION_SUBS[0], &DATA_RET);                                               \
-		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(STATUS, FUNCTION_BUFF, RET_BUFF, FREE_MEMORY_CHUNK);                             \
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(STATUS, FUNCTION_BUFF, RET_BUFF, FREE_MEMORY_CHUNK, CURSOR_YDB_BUFF);            \
 		if (0 == DATA_RET) {                                                                                              \
 			STATUS = ydb_delete_s(&OCTO_GLOBAL, 3, &FUNCTION_SUBS[0], YDB_DEL_TREE);                                  \
-			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(STATUS, FUNCTION_BUFF, RET_BUFF, FREE_MEMORY_CHUNK);                     \
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(STATUS, FUNCTION_BUFF, RET_BUFF, FREE_MEMORY_CHUNK, CURSOR_YDB_BUFF);    \
 			CLEANUP_FUNCTION_BUFF(FUNCTION_BUFF, RET_BUFF);                                                           \
 			return YDB_OK;                                                                                            \
 		}                                                                                                                 \
@@ -89,7 +92,7 @@ int auto_upgrade_binary_function_definition(void) {
 			break;
 		}
 		assert(YDB_ERR_INVSTRLEN != status); /* because we allocated YDB_MAX_KEY_SZ above */
-		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, FALSE);
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, FALSE, NULL);
 		/* A given function name could have multiple function definitions each with a different hash.
 		 * Loop through each of them.
 		 */
@@ -116,11 +119,11 @@ int auto_upgrade_binary_function_definition(void) {
 				break;
 			}
 			assert(YDB_ERR_INVSTRLEN != status); /* because we allocated YDB_MAX_KEY_SZ above */
-			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, FALSE);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, FALSE, NULL);
 
 			YDB_STRING_TO_BUFFER(OCTOLIT_TEXT_LENGTH, &function_subs[3]);
 			status = ydb_data_s(&octo_global, 4, &function_subs[0], &data_ret);
-			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, FALSE);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, FALSE, NULL);
 			/* We expect a subtree except for older commits that pre-date text definition fragmentation, so check for
 			 * for the presence of OCTOLIT_TEXT_LENGTH, as this node is only created during text definition
 			 * fragmentation. Hence, it will not be present on older commits. In that case, we expect an absent node,
@@ -144,7 +147,7 @@ int auto_upgrade_binary_function_definition(void) {
 				if (YDB_OK != status) {
 					ERROR(ERR_AUTO_UPGRADE, "");
 				}
-				CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, FALSE);
+				CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, FALSE, NULL);
 			} else {
 				/* Check for missing function definitions nodes (OCTOLIT_LENGTH and OCTOLIT_OID) that will be absent
 				 * for commits prior or equal to eeae6bc7 due to a bug that allowed the retention of partially
@@ -152,10 +155,12 @@ int auto_upgrade_binary_function_definition(void) {
 				 * that case, cleanup the erroneously retained nodes and continue without attempting to reload the
 				 * function definition.
 				 */
-				CLEANUP_DANGLING_FUNCTION_NODES_AND_RETURN_IF_NEEDED(
-				    OCTOLIT_LENGTH, octo_global, function_subs, data_ret, status, function_buff, ret_buff, FALSE);
-				CLEANUP_DANGLING_FUNCTION_NODES_AND_RETURN_IF_NEEDED(
-				    OCTOLIT_OID, octo_global, function_subs, data_ret, status, function_buff, ret_buff, FALSE);
+				CLEANUP_DANGLING_FUNCTION_NODES_AND_RETURN_IF_NEEDED(OCTOLIT_LENGTH, octo_global, function_subs,
+										     data_ret, status, function_buff, ret_buff,
+										     FALSE, NULL);
+				CLEANUP_DANGLING_FUNCTION_NODES_AND_RETURN_IF_NEEDED(OCTOLIT_OID, octo_global, function_subs,
+										     data_ret, status, function_buff, ret_buff,
+										     FALSE, NULL);
 
 				// Get the length of the full text table definition
 				OCTO_SET_BUFFER(text_defn_buff, text_defn_str);
@@ -167,12 +172,12 @@ int auto_upgrade_binary_function_definition(void) {
 				 * originally stored in store_binary_function_definition.c)
 				 */
 				assert(YDB_ERR_INVSTRLEN != status);
-				CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, FALSE);
+				CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, FALSE, NULL);
 
 				text_defn_len = strtoll(text_defn_buff.buf_addr, NULL, 10);
 				if ((LLONG_MIN == text_defn_len) || (LLONG_MAX == text_defn_len)) {
 					ERROR(ERR_SYSCALL_WITH_ARG, "strtoll()", errno, strerror(errno), text_defn_buff.buf_addr);
-					CLEANUP_AND_RETURN(1, function_buff, ret_buff, TRUE);
+					CLEANUP_AND_RETURN(1, function_buff, ret_buff, FALSE, NULL);
 				}
 				YDB_STRING_TO_BUFFER(OCTOLIT_TEXT, &function_subs[3]); // Reset subscript
 				YDB_MALLOC_BUFFER(&ret_buff, text_defn_len + 1);       /* to store the return */
@@ -186,11 +191,11 @@ int auto_upgrade_binary_function_definition(void) {
 					if (YDB_ERR_NODEEND == status) {
 						break;
 					}
-					CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, FALSE);
+					CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, FALSE, NULL);
 					status = ydb_get_s(&octo_global, 5, &function_subs[0], &text_defn_buff);
 					assert(YDB_ERR_INVSTRLEN
 					       != status); /* because we allocated MAX_DEFINITION_FRAGMENT_SIZE above */
-					CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, FALSE);
+					CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, FALSE, NULL);
 					/* Because we allocated text_defn_len above. More than this shouldn't have been stored by
 					 * store_function_definition.
 					 */
@@ -236,7 +241,7 @@ int auto_upgrade_binary_function_definition(void) {
 						 * to convert again.
 						 */
 						status = ydb_set_s(&octo_global, 4, &function_subs[0], &ret_buff);
-						CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, FALSE);
+						CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, FALSE, NULL);
 					}
 				}
 			}
@@ -245,14 +250,14 @@ int auto_upgrade_binary_function_definition(void) {
 			/* Note: Following code is similar to that in octo.c and run_query.c */
 			memset(&parse_context, 0, sizeof(parse_context));
 			memory_chunks = alloc_chunk(MEMORY_CHUNK_SIZE);
-			/* From now on, all CLEANUP_* macro calls will have TRUE as last parameter
+			/* From now on, all CLEANUP_* macro calls will have TRUE as the last-but-one parameter
 			 * to indicate "OCTO_CFREE(memory_chunks)" is needed for proper cleanup.
 			 */
 			cursor_ydb_buff.buf_addr = cursor_buffer;
 			cursor_ydb_buff.len_alloc = sizeof(cursor_buffer);
 			cursorId = create_cursor(&octo_global, &cursor_ydb_buff);
 			if (0 > cursorId) {
-				CLEANUP_AND_RETURN(1, function_buff, ret_buff, TRUE);
+				CLEANUP_AND_RETURN(1, function_buff, ret_buff, TRUE, NULL);
 			}
 			parse_context.cursorId = cursorId;
 			parse_context.cursorIdString = cursor_ydb_buff.buf_addr;
@@ -261,12 +266,17 @@ int auto_upgrade_binary_function_definition(void) {
 			 */
 			old_input_index = cur_input_index;
 			result = parse_line(&parse_context);
+			/* From now on, all CLEANUP_* macro calls will have TRUE as the last parameter
+			 * to indicate "DELETE_QUERY_PARAMETER_CURSOR_LVN " is needed to cleanup/delete any query parameter
+			 * related lvn nodes and avoid lvn buildup across multiple such invocations of "parse_line()"
+			 * in this "for" loop.
+			 */
 #ifndef FORCE_BINARY_DEFINITION_AUTO_UPGRADE
 			INFO(INFO_PARSING_DONE, cur_input_index - old_input_index, input_buffer_combined + old_input_index);
 #endif
 			if (NULL == result) {
 				INFO(INFO_RETURNING_FAILURE, "parse_line");
-				CLEANUP_AND_RETURN(1, function_buff, ret_buff, TRUE);
+				CLEANUP_AND_RETURN(1, function_buff, ret_buff, TRUE, &cursor_ydb_buff);
 			}
 			/* Get OID of the function_name and function_hash combination (from below gvn) as we need that OID
 			 * to store in the binary function definition.
@@ -274,13 +284,13 @@ int auto_upgrade_binary_function_definition(void) {
 			 */
 			YDB_STRING_TO_BUFFER(OCTOLIT_OID, &function_subs[3]);
 			status = ydb_get_s(&octo_global, 4, &function_subs[0], &ret_buff);
-			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, TRUE);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, TRUE, &cursor_ydb_buff);
 			assert(ret_buff.len_used < ret_buff.len_alloc);
 			ret_buff.buf_addr[ret_buff.len_used] = '\0'; /* null terminate for "strtoll" */
 			function_oid = strtoll(ret_buff.buf_addr, NULL, 10);
 			if ((LLONG_MIN == function_oid) || (LLONG_MAX == function_oid)) {
 				ERROR(ERR_SYSCALL_WITH_ARG, "strtoll()", errno, strerror(errno), ret_buff.buf_addr);
-				CLEANUP_AND_RETURN(1, function_buff, ret_buff, TRUE);
+				CLEANUP_AND_RETURN(1, function_buff, ret_buff, TRUE, &cursor_ydb_buff);
 			}
 			assert(create_function_STATEMENT == result->type);
 			UNPACK_SQL_STATEMENT(function, result, create_function);
@@ -306,7 +316,12 @@ int auto_upgrade_binary_function_definition(void) {
 			status = store_function_definition(&function_subs[0], binary_function_defn, binary_function_defn_length,
 							   FALSE);
 			free(binary_function_defn); /* free buffer that was "malloc"ed in "compress_statement" */
-			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, TRUE);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, TRUE, &cursor_ydb_buff);
+			/* Cleanup any memory allocations in "parse_line()" of this iteration before moving on to next iteration
+			 * to avoid memory buildup that can happen if we have to process thousands of binary definitions.
+			 */
+			OCTO_CFREE(memory_chunks);
+			DELETE_QUERY_PARAMETER_CURSOR_LVN(&cursor_ydb_buff);
 		}
 	}
 	ERASE_INPUT_BUFFER; /* Clear history of all "parse_line()" processing related to binary function upgrade to avoid

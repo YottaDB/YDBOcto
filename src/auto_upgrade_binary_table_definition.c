@@ -22,26 +22,29 @@
 		YDB_FREE_BUFFER(&TABLE_BUFF[2]); \
 	}
 
-#define CLEANUP_AND_RETURN(STATUS, TABLE_BUFF, TEXT_DEFN, FREE_MEMORY_CHUNK) \
-	{                                                                    \
-		if (NULL != TABLE_BUFF) {                                    \
-			CLEANUP_TABLE_BUFF(TABLE_BUFF);                      \
-		}                                                            \
-		if (NULL != TEXT_DEFN) {                                     \
-			free(TEXT_DEFN);                                     \
-		}                                                            \
-		if (FREE_MEMORY_CHUNK) {                                     \
-			OCTO_CFREE(memory_chunks);                           \
-		}                                                            \
-		return STATUS;                                               \
+#define CLEANUP_AND_RETURN(STATUS, TABLE_BUFF, TEXT_DEFN, FREE_MEMORY_CHUNK, CURSOR_YDB_BUFF) \
+	{                                                                                     \
+		if (NULL != TABLE_BUFF) {                                                     \
+			CLEANUP_TABLE_BUFF(TABLE_BUFF);                                       \
+		}                                                                             \
+		if (NULL != TEXT_DEFN) {                                                      \
+			free(TEXT_DEFN);                                                      \
+		}                                                                             \
+		if (FREE_MEMORY_CHUNK) {                                                      \
+			OCTO_CFREE(memory_chunks);                                            \
+		}                                                                             \
+		if (NULL != CURSOR_YDB_BUFF) {                                                \
+			DELETE_QUERY_PARAMETER_CURSOR_LVN(CURSOR_YDB_BUFF);                   \
+		}                                                                             \
+		return STATUS;                                                                \
 	}
 
-#define CLEANUP_AND_RETURN_IF_NOT_YDB_OK(STATUS, TABLE_BUFF, TEXT_DEFN, FREE_MEMORY_CHUNK)    \
-	{                                                                                     \
-		if (YDB_OK != STATUS) {                                                       \
-			YDB_ERROR_CHECK(STATUS);                                              \
-			CLEANUP_AND_RETURN(STATUS, TABLE_BUFF, TEXT_DEFN, FREE_MEMORY_CHUNK); \
-		}                                                                             \
+#define CLEANUP_AND_RETURN_IF_NOT_YDB_OK(STATUS, TABLE_BUFF, TEXT_DEFN, FREE_MEMORY_CHUNK, CURSOR_YDB_BUFF)    \
+	{                                                                                                      \
+		if (YDB_OK != STATUS) {                                                                        \
+			YDB_ERROR_CHECK(STATUS);                                                               \
+			CLEANUP_AND_RETURN(STATUS, TABLE_BUFF, TEXT_DEFN, FREE_MEMORY_CHUNK, CURSOR_YDB_BUFF); \
+		}                                                                                              \
 	}
 
 /* Automatically upgrade all binary table definitions.
@@ -87,13 +90,13 @@ int auto_upgrade_binary_table_definition(void) {
 			break;
 		}
 		assert(YDB_ERR_INVSTRLEN != status); /* because we allocated YDB_MAX_KEY_SZ above */
-		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, NULL, FALSE);
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, NULL, FALSE, NULL);
 		/* Get the "CREATE TABLE" query corresponding to "table_buff" and recompute binary definition.
 		 *	^%ydboctoschema(table_name,OCTOLIT_TEXT)
 		 */
 		YDB_STRING_TO_BUFFER(OCTOLIT_TEXT, &table_subs[1]);
 		status = ydb_data_s(&schema_global, 2, &table_subs[0], &data_ret);
-		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, NULL, FALSE);
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, NULL, FALSE, NULL);
 		/* We expect a subtree except for older commits that pre-date text definition fragmentation, so check for value-only
 		 * and absent nodes, i.e. ydb_data_s returns 0 (no node or subtree) or 1 (value but no subtree).
 		 */
@@ -121,9 +124,9 @@ int auto_upgrade_binary_table_definition(void) {
 				 * So issue an error that asks the user to run a manual upgrade.
 				 */
 				ERROR(ERR_AUTO_UPGRADE, "");
-				CLEANUP_AND_RETURN(1, table_buff, NULL, FALSE);
+				CLEANUP_AND_RETURN(1, table_buff, NULL, FALSE, NULL);
 			}
-			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, NULL, FALSE);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, NULL, FALSE, NULL);
 			COPY_QUERY_TO_INPUT_BUFFER(table_subs[2].buf_addr, (int)table_subs[2].len_used, NEWLINE_NEEDED_FALSE);
 		} else {
 			ydb_buffer_t text_defn_buff;
@@ -138,12 +141,12 @@ int auto_upgrade_binary_table_definition(void) {
 			YDB_STRING_TO_BUFFER(OCTOLIT_TEXT_LENGTH, &table_subs[1]);
 			status = ydb_get_s(&schema_global, 2, &table_subs[0], &text_defn_buff);
 			assert(YDB_ERR_INVSTRLEN != status); /* because we allocated MAX_DEFINITION_FRAGMENT_SIZE above */
-			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, NULL, FALSE);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, NULL, FALSE, NULL);
 
 			text_defn_len = strtoll(text_defn_buff.buf_addr, NULL, 10);
 			if ((LLONG_MIN == text_defn_len) || (LLONG_MAX == text_defn_len)) {
 				ERROR(ERR_SYSCALL_WITH_ARG, "strtoll()", errno, strerror(errno), text_defn_buff.buf_addr);
-				CLEANUP_AND_RETURN(1, table_buff, NULL, FALSE);
+				CLEANUP_AND_RETURN(1, table_buff, NULL, FALSE, NULL);
 			}
 			YDB_STRING_TO_BUFFER(OCTOLIT_TEXT, &table_subs[1]); // Reset subscript
 			cur_len = 0;
@@ -156,14 +159,14 @@ int auto_upgrade_binary_table_definition(void) {
 					status = YDB_OK;
 					break;
 				}
-				CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, text_defn, FALSE);
+				CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, text_defn, FALSE, NULL);
 				status = ydb_get_s(&schema_global, 3, &table_subs[0], &text_defn_buff);
 				assert(YDB_ERR_INVSTRLEN != status); /* because we allocated MAX_DEFINITION_FRAGMENT_SIZE above */
-				CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, text_defn, FALSE);
+				CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, text_defn, FALSE, NULL);
 				memcpy(&text_defn[cur_len], text_defn_buff.buf_addr, text_defn_buff.len_used);
 				cur_len += text_defn_buff.len_used;
 			} while (cur_len <= text_defn_len);
-			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, text_defn, FALSE);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, text_defn, FALSE, NULL);
 			COPY_QUERY_TO_INPUT_BUFFER(text_defn, text_defn_len, NEWLINE_NEEDED_FALSE);
 			free(text_defn);
 		}
@@ -171,14 +174,14 @@ int auto_upgrade_binary_table_definition(void) {
 		/* Note: Following code is similar to that in octo.c and run_query.c */
 		memset(&parse_context, 0, sizeof(parse_context));
 		memory_chunks = alloc_chunk(MEMORY_CHUNK_SIZE);
-		/* From now on, all CLEANUP_* macro calls will have TRUE as last parameter
+		/* From now on, all CLEANUP_* macro calls will have TRUE as the last-but-one parameter
 		 * to indicate "OCTO_CFREE(memory_chunks)" is needed for proper cleanup.
 		 */
 		cursor_ydb_buff.buf_addr = cursor_buffer;
 		cursor_ydb_buff.len_alloc = sizeof(cursor_buffer);
 		cursorId = create_cursor(&schema_global, &cursor_ydb_buff);
 		if (0 > cursorId) {
-			CLEANUP_AND_RETURN(1, table_buff, NULL, TRUE);
+			CLEANUP_AND_RETURN(1, table_buff, NULL, TRUE, NULL);
 		}
 		parse_context.cursorId = cursorId;
 		parse_context.cursorIdString = cursor_ydb_buff.buf_addr;
@@ -188,25 +191,30 @@ int auto_upgrade_binary_table_definition(void) {
 		 */
 		old_input_index = cur_input_index;
 		result = parse_line(&parse_context);
+		/* From now on, all CLEANUP_* macro calls will have TRUE as the last parameter to indicate
+		 * "DELETE_QUERY_PARAMETER_CURSOR_LVN " is needed to cleanup/delete any query parameter
+		 * related lvn nodes and avoid lvn buildup across multiple such invocations of "parse_line()"
+		 * in this "for" loop.
+		 */
 #ifndef FORCE_BINARY_DEFINITION_AUTO_UPGRADE
 		INFO(INFO_PARSING_DONE, cur_input_index - old_input_index, input_buffer_combined + old_input_index);
 #endif
 		if (NULL == result) {
 			INFO(INFO_RETURNING_FAILURE, "parse_line");
-			CLEANUP_AND_RETURN(1, table_buff, NULL, TRUE);
+			CLEANUP_AND_RETURN(1, table_buff, NULL, TRUE, &cursor_ydb_buff);
 		}
 		/* Get OID of the table name (from below gvn) as we need that OID to store in the binary table definition.
 		 *	^%ydboctoschema(table_name,OCTOLIT_PG_CLASS)=TABLEOID
 		 */
 		YDB_STRING_TO_BUFFER(OCTOLIT_PG_CLASS, &table_subs[1]);
 		status = ydb_get_s(&schema_global, 2, &table_subs[0], &table_subs[2]);
-		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, NULL, TRUE);
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, NULL, TRUE, &cursor_ydb_buff);
 		assert(table_subs[2].len_used < table_subs[2].len_alloc);
 		table_subs[2].buf_addr[table_subs[2].len_used] = '\0'; /* null terminate for "strtoll" */
 		table_oid = strtoll(table_subs[2].buf_addr, NULL, 10);
 		if ((LLONG_MIN == table_oid) || (LLONG_MAX == table_oid)) {
 			ERROR(ERR_SYSCALL_WITH_ARG, "strtoll()", errno, strerror(errno), table_subs[2].buf_addr);
-			CLEANUP_AND_RETURN(1, table_buff, NULL, TRUE);
+			CLEANUP_AND_RETURN(1, table_buff, NULL, TRUE, &cursor_ydb_buff);
 		}
 		assert(create_table_STATEMENT == result->type);
 		UNPACK_SQL_STATEMENT(table, result, create_table);
@@ -219,7 +227,12 @@ int auto_upgrade_binary_table_definition(void) {
 		assert(NULL != binary_table_defn);
 		status = store_table_definition(&table_subs[0], binary_table_defn, binary_table_defn_length, FALSE);
 		free(binary_table_defn); /* free buffer that was "malloc"ed in "compress_statement" */
-		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, NULL, TRUE);
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, NULL, TRUE, &cursor_ydb_buff);
+		/* Cleanup any memory allocations in "parse_line()" of this iteration before moving on to next iteration
+		 * to avoid memory buildup that can happen if we have to process thousands of binary definitions.
+		 */
+		OCTO_CFREE(memory_chunks);
+		DELETE_QUERY_PARAMETER_CURSOR_LVN(&cursor_ydb_buff);
 	}
 	ERASE_INPUT_BUFFER; /* Clear history of all "parse_line()" processing related to binary function upgrade to avoid
 			     * confusion when we next proceed to run real queries.

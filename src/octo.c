@@ -155,7 +155,7 @@ int main(int argc, char **argv) {
 		// Any meaningful errors will have already been reported lower in the stack and failed queries are recoverable,
 		// so it can safely be discarded.
 		memset(&parse_context, 0, sizeof(parse_context));
-		run_query(&print_temporary_table, NULL, FALSE, &parse_context);
+		run_query(&print_temporary_table, NULL, PSQL_Invalid, &parse_context);
 		if (config->is_tty) {
 			eof_hit = save_eof_hit; /* Restore global from saved local value now that "run_query()" is done */
 		}

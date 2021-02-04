@@ -16,8 +16,7 @@
 
 #include "octo.h"
 
-boolean_t is_query_canceled(callback_fnptr_t callback, int32_t cursorId, void *parms, char *plan_name,
-			    boolean_t send_row_description) {
+boolean_t is_query_canceled(callback_fnptr_t callback) {
 	ydb_buffer_t ydboctoCancel;
 	unsigned int cancel_result = 0;
 	int	     status = 0;
@@ -28,8 +27,11 @@ boolean_t is_query_canceled(callback_fnptr_t callback, int32_t cursorId, void *p
 	YDB_ERROR_CHECK(status);
 	if (0 != cancel_result) {
 		// Omit results after handling CancelRequest
-		assert(NULL != parms);
-		status = (*callback)(NULL, cursorId, parms, plan_name, send_row_description);
+		/* Note: All parameters to "*callback()" (which is basically the "handle_query_response()" function
+		 * that is hidden inside a function pointer due to static linking issues in the "octo" executable against
+		 * a function defined in "librocto.so") except for the 1st are unused so pass dummy values.
+		 */
+		status = (*callback)(NULL, 0, NULL, NULL, FALSE);
 		if (0 != status) {
 			// This should never happen
 			assert(0 == status);

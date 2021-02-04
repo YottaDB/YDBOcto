@@ -34,7 +34,7 @@ int __wrap_send_message(RoctoSession *session, BaseMessage *message) {
 	return 0;
 }
 
-int __wrap_run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_description, ParseContext *parse_context) {
+int __wrap_run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type, ParseContext *parse_context) {
 	int32_t expected_return = mock_type(int);
 	eof_hit = EOF_CTRLD;
 

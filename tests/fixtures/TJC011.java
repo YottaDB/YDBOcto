@@ -28,7 +28,7 @@ public class TJC011 {
 		String connectionString = "jdbc:postgresql://localhost:" + args[0] + "/";
 		try (Connection conn = DriverManager.getConnection(connectionString, props)) {
 			if (conn != null) {
-				String[]		queryStrings = new String[5];
+				String[]		queryStrings = new String[11];
 				PreparedStatement	preparedStatement;
 				ResultSet		resultSet;
 				ResultSetMetaData	resultSetMetaData ;
@@ -45,6 +45,15 @@ public class TJC011 {
 				queryStrings[numQueries++] = "insert into names select id+6,firstname,lastname from names;";
 				// Verify though that the INSERT INTO works fine by doing a SELECT afterwards
 				queryStrings[numQueries++] = "select * from names where firstname = 'Zero';";
+				// Check if SHOW command with default value works
+				queryStrings[numQueries++] = "show DateStyle;";
+				queryStrings[numQueries++] = "show transaction_isolation;";
+				// Check if SET command works
+				queryStrings[numQueries++] = "set DateStyle to ISO;";
+				queryStrings[numQueries++] = "set transaction_isolation to 'read committed';";
+				// Check if repeat of SHOW command after SET reflects updates done by SET
+				queryStrings[numQueries++] = "show DateStyle;";
+				queryStrings[numQueries++] = "show transaction_isolation;";
 				for (int query = 0; query < numQueries; query++) {
 					preparedStatement = conn.prepareStatement(queryStrings[query]);
 					switch(query) {

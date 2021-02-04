@@ -21,40 +21,9 @@
 // // F are "frontend" messages (send from the frontend, read by us)
 // Several items are just "stubs"; copy-paste the name, but no implementation
 // These start with //#
-// Some structures containe variable-length strings; we declare pointers
+// Some structures contain variable-length strings; we declare pointers
 //  to those (and other items) in the first part of the struct. All network
 //  data should start storing/reading at offset(type)
-
-enum PSQL_MessageTypes {
-	PSQL_Authenication = 'R',
-	PSQL_AuthenticationMD5Password = 'R',
-	PSQL_AuthenticationOk = 'R',
-	PSQL_BackendKeyData = 'K',
-	PSQL_Bind = 'B',
-	PSQL_BindComplete = '2',
-	PSQL_Close = 'C',
-	PSQL_CloseComplete = '3',
-	PSQL_CommandComplete = 'C',
-	PSQL_DataRow = 'D',
-	PSQL_Describe = 'D',
-	PSQL_EmptyQueryResponse = 'I',
-	PSQL_ErrorResponse = 'E',
-	PSQL_Execute = 'E',
-	PSQL_Flush = 'H',
-	PSQL_NoData = 'n',
-	PSQL_NoticeResponse = 'N',
-	PSQL_Query = 'Q',
-	PSQL_ReadyForQuery = 'Z',
-	PSQL_RowDescription = 'T',
-	PSQL_ParameterStatus = 'S',
-	PSQL_Parse = 'P',
-	PSQL_ParseComplete = '1',
-	PSQL_PasswordMessage = 'p',
-	PSQL_PortalSuspended = 's',
-	PSQL_Sync = 'S',
-	PSQL_ParameterDescription = 't',
-	PSQL_Terminate = 'X'
-};
 
 typedef struct __attribute__((packed)) {
 	char	type;

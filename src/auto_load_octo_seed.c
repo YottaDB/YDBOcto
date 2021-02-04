@@ -117,7 +117,7 @@ int auto_load_octo_seed(void) {
 		assert(config->in_auto_load_octo_seed); /* Caller should have set this to TRUE. Needed by "run_query()" to
 							 * bypass ERR_CANNOT_CREATE_TABLE/ERR_CANNOT_CREATE_FUNCTION errors.
 							 */
-		status = run_query(&print_temporary_table, NULL, FALSE, &parse_context);
+		status = run_query(&print_temporary_table, NULL, PSQL_Invalid, &parse_context);
 		if (0 != status) {
 			break;
 		}

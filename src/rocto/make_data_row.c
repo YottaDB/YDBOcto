@@ -51,7 +51,7 @@ DataRow *make_data_row(DataRowParm *parms, int16_t num_parms, int32_t *col_data_
 	}
 	for (i = 0; i < num_parms; i++) {
 		// Assign column length for the current column based on column format
-		if (0 == parms[i].format) { // Text format
+		if (TEXT_FORMAT == parms[i].format) { // Text format
 			// -1 == PSQL_NULL, so convert to 0 to prevent erroneously reducing length to malloc
 			length += ((PSQL_NULL == parms[i].length) ? 0 : parms[i].length);
 		} else { // Binary format

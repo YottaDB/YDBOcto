@@ -25,7 +25,7 @@
 /**
  * Iterates over the last output of the plan and prints it to the screen
  */
-int print_temporary_table(SqlStatement *stmt, ydb_long_t cursorId, void *parms, char *plan_name, boolean_t send_row_description) {
+int print_temporary_table(SqlStatement *stmt, ydb_long_t cursorId, void *parms, char *plan_name, PSQL_MessageTypeT msg_type) {
 	ydb_buffer_t *session_buffers;
 	ydb_buffer_t  value_buffer;
 	SqlValue *    runtime_variable;
@@ -36,7 +36,7 @@ int print_temporary_table(SqlStatement *stmt, ydb_long_t cursorId, void *parms, 
 	char	      col_num_str[INT16_TO_STRING_MAX];
 
 	UNUSED(parms);
-	UNUSED(send_row_description);
+	UNUSED(msg_type);
 	INFO(INFO_ENTERING_FUNCTION, "print_temporary_table");
 
 	YDB_MALLOC_BUFFER(&value_buffer, OCTO_INIT_BUFFER_LEN);

@@ -116,7 +116,7 @@ teardown() {
 # Note: This test is currently insufficient for fully testing PortalSuspended message handling
 # See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/467#note_484704994 for details.
 # This note/comment can be removed if/when YDBOcto#467 is fixed.
-@test "TJC011 : Test SELECT row limiting with Extended Query; Also tests INSERT INTO" {
+@test "TJC011 : Test SELECT row limiting with Extended Query; Also tests INSERT INTO and YDBOcto#683 Extended Query for SET/SHOW" {
   load_fixture customers.sql
   load_fixture customers.zwr
   run_java TJC011 $test_port &> output.txt

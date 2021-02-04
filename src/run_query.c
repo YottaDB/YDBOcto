@@ -115,7 +115,7 @@
  *	 1 for error
  *	-1 if query has been canceled.
  */
-int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_description, ParseContext *parse_context) {
+int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type, ParseContext *parse_context) {
 	FILE *			  out;
 	PhysicalPlan *		  pplan;
 	SqlStatement *		  result;
@@ -349,7 +349,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		}
 		// Check for cancel requests only if running rocto
 		if (config->is_rocto) {
-			canceled = is_query_canceled(callback, cursorId, parms, filename, send_row_description);
+			canceled = is_query_canceled(callback);
 			if (canceled) {
 				CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
 				return -1;
@@ -358,7 +358,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		assert(!config->is_rocto || (NULL != parms));
 		/* Note: The "callback" function only relies on "stmt.type" so it is okay for other fields to be uninitialized */
 		stmt.type = parse_context->command_tag;
-		status = (*callback)(&stmt, cursorId, parms, filename, send_row_description);
+		status = (*callback)(&stmt, cursorId, parms, filename, msg_type);
 		if (0 != status) {
 			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
 			return 1;
@@ -720,7 +720,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 	case set_STATEMENT:
 	case show_STATEMENT:
 		cursorId = atol(cursor_ydb_buff.buf_addr);
-		(*callback)(result, cursorId, parms, NULL, send_row_description);
+		(*callback)(result, cursorId, parms, NULL, msg_type);
 		break;
 	case index_STATEMENT:
 		cursor_used = FALSE; /* Remove this line once this feature gets implemented */

@@ -122,7 +122,8 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 
 	// Parse query to get parameter count, types, and generate plan
 	response_parms.session = session;
-	status = run_query(&handle_query_response, (void *)&response_parms, FALSE, &parse_context);
+	response_parms.parse_dest = parse->dest;
+	status = run_query(&handle_query_response, (void *)&response_parms, PSQL_Parse, &parse_context);
 	if (0 != status) {
 		free(parse_context.is_bind_parm);
 		free(parse_context.types);

@@ -83,11 +83,44 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	}
 	switch (command_tag) {
 	case insert_STATEMENT:
-		/* No row descriptions for INSERT. Send a NoData message in that case. */
+	case set_STATEMENT:
+		/* No row descriptions for INSERT or SET. Send a NoData message in that case. */
 		no_data = make_no_data();
 		send_message(session, (BaseMessage *)(&no_data->type));
 		free(no_data);
 		break;
+	case show_STATEMENT: {
+		RowDescriptionParm row_desc_parm;
+		RowDescription *   row_description;
+		ydb_buffer_t	   parm_value_buf;
+
+		YDB_STRING_TO_BUFFER(OCTOLIT_VARIABLE, &describe_subs[4])
+		OCTO_MALLOC_NULL_TERMINATED_BUFFER(&parm_value_buf, OCTO_INIT_BUFFER_LEN);
+		status = ydb_get_s(&describe_subs[0], 4, &describe_subs[1], &parm_value_buf);
+		if (YDB_ERR_INVSTRLEN == status) {
+			EXPAND_YDB_BUFFER_T_ALLOCATION(parm_value_buf);
+			status = ydb_get_s(&describe_subs[0], 4, &describe_subs[1], &parm_value_buf);
+			assert(YDB_ERR_INVSTRLEN != status);
+		}
+		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status) {
+			YDB_FREE_BUFFER(&parm_value_buf);
+			return 1;
+		}
+		parm_value_buf.buf_addr[parm_value_buf.len_used] = '\0'; /* null terminated buffer needed below */
+		/* Send RowDescription for SHOW. It is a column of type STRING with hardcoded values for most other fields. */
+		memset(&row_desc_parm, 0, sizeof(RowDescriptionParm));
+		row_desc_parm.name = parm_value_buf.buf_addr;
+		row_desc_parm.data_type = PSQL_TypeOid_varchar;
+		row_desc_parm.data_type_size = INT16_TO_STRING_MAX;
+		row_desc_parm.type_modifier = ROWDESC_DEFAULT_TYPE_MODIFIER;
+		row_desc_parm.format_code = ROWDESC_DEFAULT_FORMAT_CODE;
+		row_description = make_row_description(&row_desc_parm, 1);
+		send_message(session, (BaseMessage *)(&row_description->type));
+		free(row_description);
+		YDB_FREE_BUFFER(&parm_value_buf);
+		break;
+	}
 	default:
 		// Retrieve routine name
 		YDB_STRING_TO_BUFFER(OCTOLIT_ROUTINE, &describe_subs[4])

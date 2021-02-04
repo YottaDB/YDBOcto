@@ -71,29 +71,31 @@
 int handle_bind(Bind *bind, RoctoSession *session) {
 	// At the moment, we don't have "bound function"
 	// This feature should be implemented before 1.0
-	ydb_buffer_t  num_parms_buf, cur_parm_buf, cur_bind_parm_buf, parm_type_buf, parm_value_buf;
-	ydb_buffer_t  sql_expression, routine_buf, tag_buf, offset_buffer, value_buffer, bound_query;
-	ydb_buffer_t  statement_subs[7];
-	ydb_buffer_t  portal_subs[6];
-	ydb_buffer_t  all_statement_parms_subs[7];
-	ydb_buffer_t  all_portal_parms_subs[7];
-	char	      value_str[INT16_TO_STRING_MAX];
-	char	      num_parms_str[INT16_TO_STRING_MAX];
-	char	      tag_str[MAX_TAG_LEN];
-	char	      routine_str[MAX_ROUTINE_LEN + 1]; // Null terminator
-	char	      parm_type_str[INT16_TO_STRING_MAX];
-	char	      offset_str[INT16_TO_STRING_MAX];
-	char	      cur_format_str[INT16_TO_STRING_MAX];
-	char	      cur_parm_str[INT16_TO_STRING_MAX];
-	char	      cur_bind_parm_str[INT16_TO_STRING_MAX];
-	uint32_t      data_ret;
-	int32_t	      status, prepared_offset, copied, done;
-	int32_t *     parse_context_array;
-	int16_t	      num_parms, num_bind_parms, cur_parm, cur_bind_parm, cur_parm_temp, cur_bind_parm_temp;
-	int16_t	      num_col_format_codes, cur_format_code;
-	long int      num_parms_long, offset_long, type_long;
-	BindComplete *response;
-	ParseContext  parse_context;
+	ydb_buffer_t	 num_parms_buf, cur_parm_buf, cur_bind_parm_buf, parm_type_buf, parm_value_buf;
+	ydb_buffer_t	 sql_expression, routine_buf, tag_buf, offset_buffer, value_buffer, bound_query;
+	ydb_buffer_t	 statement_subs[7];
+	ydb_buffer_t	 portal_subs[6];
+	ydb_buffer_t	 all_statement_parms_subs[7];
+	ydb_buffer_t	 all_portal_parms_subs[7];
+	char		 value_str[INT16_TO_STRING_MAX];
+	char		 num_parms_str[INT16_TO_STRING_MAX];
+	char		 tag_str[MAX_TAG_LEN];
+	char		 routine_str[MAX_ROUTINE_LEN + 1]; // Null terminator
+	char		 parm_type_str[INT16_TO_STRING_MAX];
+	char		 offset_str[INT16_TO_STRING_MAX];
+	char		 cur_format_str[INT16_TO_STRING_MAX];
+	char		 cur_parm_str[INT16_TO_STRING_MAX];
+	char		 cur_bind_parm_str[INT16_TO_STRING_MAX];
+	uint32_t	 data_ret;
+	int32_t		 status, prepared_offset, copied, done;
+	int32_t *	 parse_context_array;
+	int16_t		 num_parms, num_bind_parms, cur_parm, cur_bind_parm, cur_parm_temp, cur_bind_parm_temp;
+	int16_t		 num_col_format_codes, cur_format_code;
+	long int	 num_parms_long, offset_long, type_long;
+	BindComplete *	 response;
+	ParseContext	 parse_context;
+	SqlStatementType command_tag;
+	long int	 temp_long;
 
 	TRACE(INFO_ENTERING_FUNCTION, "handle_bind");
 
@@ -141,7 +143,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	}
 
 	// Copy command tag to portal for later retrieval in handle_execute
-	OCTO_SET_BUFFER(tag_buf, tag_str);
+	OCTO_SET_NULL_TERMINATED_BUFFER(tag_buf, tag_str); /* "strtol" call below requires null terminated buffer */
 	YDB_STRING_TO_BUFFER(OCTOLIT_TAG, &statement_subs[4]);
 	status = ydb_get_s(&statement_subs[0], 4, &statement_subs[1], &tag_buf);
 	YDB_ERROR_CHECK(status);
@@ -156,6 +158,62 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 		status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
 		return 1;
+	}
+
+	/* Check if the tag corresponds to a SHOW or SET command. If so, copy over a few more lvns from PREPARED to BOUND lvns */
+	tag_buf.buf_addr[tag_buf.len_used] = '\0';
+	temp_long = strtol(tag_buf.buf_addr, NULL, 10);
+	if ((ERANGE != errno) && (0 <= temp_long) && (INT32_MAX >= temp_long) && (invalid_STATEMENT >= temp_long)) {
+		command_tag = (int32_t)temp_long;
+	} else {
+		status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);
+		YDB_ERROR_CHECK(status);
+		return 1;
+	}
+	switch (command_tag) {
+	case set_STATEMENT:
+	case show_STATEMENT: {
+		int   i, max;
+		char *litsubs[2];
+
+		litsubs[0] = OCTOLIT_VARIABLE;
+		if (set_STATEMENT == command_tag) {
+			max = 2;
+			litsubs[1] = OCTOLIT_VALUE;
+		} else {
+			max = 1;
+		}
+		YDB_MALLOC_BUFFER(&parm_value_buf, OCTO_INIT_BUFFER_LEN);
+		for (i = 0; i < max; i++) {
+			YDB_STRING_TO_BUFFER(litsubs[i], &statement_subs[4]);
+			status = ydb_get_s(&statement_subs[0], 4, &statement_subs[1], &parm_value_buf);
+			if (YDB_ERR_INVSTRLEN == status) {
+				EXPAND_YDB_BUFFER_T_ALLOCATION(parm_value_buf);
+				status = ydb_get_s(&statement_subs[0], 4, &statement_subs[1], &parm_value_buf);
+				assert(YDB_ERR_INVSTRLEN != status);
+			}
+			YDB_ERROR_CHECK(status);
+			if (YDB_OK != status) {
+				status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);
+				YDB_ERROR_CHECK(status);
+				YDB_FREE_BUFFER(&parm_value_buf);
+				return 1;
+			}
+			YDB_STRING_TO_BUFFER(litsubs[i], &portal_subs[4]);
+			status = ydb_set_s(&portal_subs[0], 4, &portal_subs[1], &parm_value_buf);
+			YDB_ERROR_CHECK(status);
+			if (YDB_OK != status) {
+				status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);
+				YDB_ERROR_CHECK(status);
+				YDB_FREE_BUFFER(&parm_value_buf);
+				return 1;
+			}
+		}
+		YDB_FREE_BUFFER(&parm_value_buf);
+		break;
+	}
+	default:
+		break;
 	}
 
 	// Reassign buffers to access prepared statement info: ^session(id, OCTOLIT_PREPARED, <name>, ...)

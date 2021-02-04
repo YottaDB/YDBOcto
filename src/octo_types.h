@@ -324,6 +324,41 @@ typedef enum {
 	PSQL_TypeSize_int4 = 4,
 } PSQL_TypeSize;
 
+/* Source: https://www.postgresql.org/docs/current/protocol-message-formats.html
+ * The PSQL_Invalid type below is an Octo-specific addition that is not part of the protocol.
+ */
+typedef enum PSQL_MessageTypes {
+	PSQL_Invalid = 0,
+	PSQL_Authenication = 'R',
+	PSQL_AuthenticationMD5Password = 'R',
+	PSQL_AuthenticationOk = 'R',
+	PSQL_BackendKeyData = 'K',
+	PSQL_Bind = 'B',
+	PSQL_BindComplete = '2',
+	PSQL_Close = 'C',
+	PSQL_CloseComplete = '3',
+	PSQL_CommandComplete = 'C',
+	PSQL_DataRow = 'D',
+	PSQL_Describe = 'D',
+	PSQL_EmptyQueryResponse = 'I',
+	PSQL_ErrorResponse = 'E',
+	PSQL_Execute = 'E',
+	PSQL_Flush = 'H',
+	PSQL_NoData = 'n',
+	PSQL_NoticeResponse = 'N',
+	PSQL_Query = 'Q',
+	PSQL_ReadyForQuery = 'Z',
+	PSQL_RowDescription = 'T',
+	PSQL_ParameterStatus = 'S',
+	PSQL_Parse = 'P',
+	PSQL_ParseComplete = '1',
+	PSQL_PasswordMessage = 'p',
+	PSQL_PortalSuspended = 's',
+	PSQL_Sync = 'S',
+	PSQL_ParameterDescription = 't',
+	PSQL_Terminate = 'X'
+} PSQL_MessageTypeT;
+
 // Simple enum for distinguishing between different types of schemas when caching
 typedef enum {
 	TableSchema,

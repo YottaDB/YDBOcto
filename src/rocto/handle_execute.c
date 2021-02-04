@@ -41,6 +41,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 	char		    tag_str[INT32_TO_STRING_MAX], num_parms_str[INT16_TO_STRING_MAX];
 	char		    cur_parm_str[INT16_TO_STRING_MAX], cursor_str[YDB_MAX_IDENT + 1]; // Null terminator
 	SqlStatementType    command_tag;
+	SqlStatement	    stmt;
 
 	TRACE(INFO_ENTERING_FUNCTION, "handle_execute");
 
@@ -91,8 +92,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 	 * b) when the portal is suspended (rows remain to return on an existing cursor).
 	 */
 	if ((0 != strncmp(routine_buffer.buf_addr, OCTOLIT_NONE, MAX_ROUTINE_LEN)) && (0 > *cursorId)) {
-		boolean_t    send_row_description, wrapInTp;
-		SqlStatement stmt;
+		boolean_t wrapInTp;
 
 		assert((command_tag == select_STATEMENT) || (command_tag == insert_STATEMENT));
 		// Fetch number of parameters
@@ -178,11 +178,9 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 			YDB_ERROR_CHECK(status);
 			return 1;
 		}
-		send_row_description = (select_STATEMENT == command_tag);
 		// Check for cancel requests
 		if (config->is_rocto) {
-			canceled
-			    = is_query_canceled(&handle_query_response, *cursorId, (void *)&parms, filename, send_row_description);
+			canceled = is_query_canceled(&handle_query_response);
 			if (canceled) {
 				// Cleanup cursor parameters
 				status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
@@ -194,7 +192,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 		 * messages for SELECT queries (they are anyways not needed for INSERT type of queries). Hence the FALSE below.
 		 */
 		stmt.type = command_tag;
-		status = handle_query_response(&stmt, *cursorId, (void *)&parms, filename, FALSE);
+		status = handle_query_response(&stmt, *cursorId, (void *)&parms, filename, PSQL_Execute);
 		tmp_status = status; // Store status so it doesn't get overwritten by result of ydb_delete_s
 		/* Don't need to retain the cursor for later Execute messages if it is not the PortalSuspended case */
 		if (PORTAL_SUSPENDED != status) {
@@ -211,7 +209,17 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 		// So rows remain to be sent
 		status = send_result_rows(*cursorId, &parms, filename);
 	} else {
-		parms.data_sent = FALSE;
+		switch (command_tag) {
+		case show_STATEMENT:
+		case set_STATEMENT:
+			stmt.type = command_tag;
+			status = handle_query_response(&stmt, *cursorId, (void *)&parms, filename, PSQL_Execute);
+			parms.data_sent = TRUE; /* to avoid sending EmptyQueryResponse message */
+			break;
+		default:
+			parms.data_sent = FALSE;
+			break;
+		}
 	}
 
 	if (0 == status) { // No errors, all rows sent
@@ -230,12 +238,10 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 		*cursorId = -1; // Reset the cursor
 		return 1;
 	}
-
 	if (!parms.data_sent) {
 		empty = make_empty_query_response();
 		send_message(session, (BaseMessage *)(&empty->type));
 		free(empty);
 	}
-
 	return 0;
 }

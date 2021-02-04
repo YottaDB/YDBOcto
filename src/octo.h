@@ -31,6 +31,14 @@
 
 #include "mmrhash.h"
 
+/* Below is a macro that converts a numeric argument to a string literal using the C preprocessor. */
+#define STRINGIZE(X) #X
+
+/* Below is a macro that converts a numeric argument (that is in turn defined as a macro) to a string literal
+ * using the C preprocessor. See https://gcc.gnu.org/onlinedocs/gcc-8.4.0/cpp/Stringizing.html for details on below macros.
+ */
+#define MACRO_STRINGIZE(X) STRINGIZE(X)
+
 // Max number of chars needed to convert signed or unsigned 8-bit int to char*, including null terminator and possible negative sign
 #define INT8_TO_STRING_MAX 5
 // Max number of chars needed to convert signed or unsigned 16-bit int to char*, including null terminator and possible negative
@@ -155,6 +163,8 @@
 #define OCTOLIT_TYPE_MODIFIER	     "type_modifier"
 #define OCTOLIT_USER		     "user"
 #define OCTOLIT_USERS		     "users"
+#define OCTOLIT_VALUE		     "value"
+#define OCTOLIT_VARIABLE	     "variable"
 #define OCTOLIT_YDBOCTOCANCEL	     "%ydboctoCancel"
 #define OCTOLIT_YDBOCTOSECRETKEYLIST "%ydboctoSecretKeyList"
 
@@ -162,6 +172,10 @@
 #define OCTOPLAN_LIT	  "octoPlan"
 #define XREFPLAN_LIT	  "xrefPlan"
 #define MAX_PLAN_NAME_LEN sizeof(OCTOPLAN_LIT) + INT32_TO_STRING_MAX
+
+/* Below defines the default values used for all row description messages currently sent by Rocto */
+#define ROWDESC_DEFAULT_TYPE_MODIFIER -1
+#define ROWDESC_DEFAULT_FORMAT_CODE   0
 
 /* Set maximum command tag length for use in extended query protocol, including null terminator
  * This value should be large enough to hold the longest possible first keyword of a SQL query, i.e. "DEALLOCATE" i.e. 10 bytes
@@ -459,6 +473,15 @@ typedef enum RegexType {
 		BUFFER.len_used = 0; /* 0-initialize to indicate the buffer is empty in case an empty string is assigned */ \
 	}
 
+/* The below macro is a wrapped on top of YDB_MALLOC_BUFFER but with the ability to reserve a byte at the end for the
+ * null terminator. This is to be used with EXPAND_YDB_BUFFER_T_ALLOCATION whenever a null terminated string is desired.
+ */
+#define OCTO_MALLOC_NULL_TERMINATED_BUFFER(BUFFER, SIZE)                                  \
+	{                                                                                 \
+		YDB_MALLOC_BUFFER(BUFFER, SIZE + 1);                                      \
+		(BUFFER)->len_alloc = SIZE - 1; /* leave room for null terminator byte */ \
+	}
+
 // Free all resources associated with the Octo config file.
 #define CLEANUP_CONFIG(CONFIG)          \
 	{                               \
@@ -570,7 +593,7 @@ typedef enum RegexType {
 #endif
 
 // Convenience type definition for run_query callback function
-typedef int (*callback_fnptr_t)(SqlStatement *, ydb_long_t, void *, char *, boolean_t);
+typedef int (*callback_fnptr_t)(SqlStatement *, ydb_long_t, void *, char *, PSQL_MessageTypeT);
 
 int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_column);
 int emit_create_table(FILE *output, struct SqlStatement *stmt);
@@ -621,7 +644,7 @@ SqlOptionalKeyword *get_keyword_from_keywords(SqlOptionalKeyword *start_keyword,
 int		    get_key_columns(SqlTable *table, SqlColumn **key_columns);
 int  generate_key_name(char **buffer, int *buffer_size, int target_key_num, SqlTable *table, SqlColumn **key_columns);
 int  get_row_count_from_plan_name(char *plan_name, ydb_long_t cursorId);
-int  print_temporary_table(SqlStatement *, ydb_long_t cursorId, void *parms, char *plan_name, boolean_t send_row_description);
+int  print_temporary_table(SqlStatement *, ydb_long_t cursorId, void *parms, char *plan_name, PSQL_MessageTypeT msg_type);
 void print_result_row(ydb_buffer_t *row);
 int  get_mval_len(unsigned char *buff, int *data_len);
 
@@ -631,7 +654,7 @@ int  get_mval_len(unsigned char *buff, int *data_len);
  *
  * @returns TRUE on success, FALSE on failure
  */
-int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_description, ParseContext *parse_context);
+int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type, ParseContext *parse_context);
 
 char *get_aggregate_func_name(SqlAggregateType type);
 char *get_set_operation_string(SqlSetOperationType type);
@@ -700,8 +723,7 @@ SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlati
 
 // Creates a new cursor by assigning a new cursorId
 int64_t	  create_cursor(ydb_buffer_t *schema_global, ydb_buffer_t *cursor_buffer);
-boolean_t is_query_canceled(callback_fnptr_t callback, int32_t cursorId, void *parms, char *plan_name,
-			    boolean_t send_row_description);
+boolean_t is_query_canceled(callback_fnptr_t callback);
 
 /**
  * Returns TRUE if the columns are equal, FALSE otherwise

@@ -72,6 +72,7 @@ typedef struct {
 	int32_t	      row_count;
 	char *	      portal_name;
 	char *	      command_type;
+	char *	      parse_dest;
 } QueryResponseParms;
 
 void *rocto_helper_waitpid(void *args);
@@ -149,7 +150,7 @@ int32_t handle_describe(Describe *describe, RoctoSession *session);
 int32_t handle_password_message(PasswordMessage *password_message, StartupMessage *startup_message, char *salt);
 
 // This isn't a handle function in-of itself, but a helper to handle the results of a query
-int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms, char *plan_name, boolean_t send_row_description);
+int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms, char *plan_name, PSQL_MessageTypeT msg_type);
 // Returns result rows from plan_name stored on cursorId
 int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name);
 

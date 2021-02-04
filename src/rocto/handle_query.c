@@ -52,7 +52,7 @@ int handle_query(Query *query, RoctoSession *session) {
 		memset(&parse_context, 0, sizeof(ParseContext));
 		memset(&parms, 0, sizeof(QueryResponseParms));
 		parms.session = session;
-		run_query_result = run_query(&handle_query_response, (void *)&parms, TRUE, &parse_context);
+		run_query_result = run_query(&handle_query_response, (void *)&parms, PSQL_Query, &parse_context);
 		if (-1 == run_query_result) {
 			// Exit loop if query was interrupted
 			eof_hit = EOF_CTRLD;

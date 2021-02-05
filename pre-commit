@@ -77,6 +77,11 @@ foreach file ($filelist)
 				break
 			endif
 		end
+		file --mime $file | grep "binary" > /dev/null
+		if ($status == 0) then
+			set skip = 1
+			break
+		endif
 		if ($skip) then
 			continue
 		endif

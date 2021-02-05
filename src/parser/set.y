@@ -24,10 +24,9 @@ sql_set_statement
       $$ = sql_set_statement($2, $4, parse_context);
     }
   | SHOW identifier {
-      if (TRUE == parse_context->is_extended_query) {
-	parse_context->command_tag = show_STATEMENT;
-      }
-      SqlShowStatement *show;
+      SqlShowStatement	*show;
+
+      parse_context->command_tag = show_STATEMENT;
       SQL_STATEMENT($$, show_STATEMENT);
       MALLOC_STATEMENT($$, show, SqlShowStatement);
       UNPACK_SQL_STATEMENT(show, $$, show);

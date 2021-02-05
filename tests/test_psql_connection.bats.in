@@ -432,3 +432,8 @@ OCTO
 	verify_output TPC021 output.txt noinfo nodebug
 }
 
+@test "TPC022 : OCTO683 : Test that SHOW command sends RowDescription messages with Simple Query Protocol (psql client)" {
+	run_psql $test_port TPC022.sql 2>&1 | tee output.txt
+	verify_output TPC022 output.txt noinfo
+}
+

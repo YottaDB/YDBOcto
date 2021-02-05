@@ -90,8 +90,8 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 		free(no_data);
 		break;
 	case show_STATEMENT: {
-		RowDescriptionParm row_desc_parm;
-		RowDescription *   row_description;
+		SqlStatement	   stmt;
+		QueryResponseParms parms;
 		ydb_buffer_t	   parm_value_buf;
 
 		YDB_STRING_TO_BUFFER(OCTOLIT_VARIABLE, &describe_subs[4])
@@ -107,18 +107,17 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 			YDB_FREE_BUFFER(&parm_value_buf);
 			return 1;
 		}
-		parm_value_buf.buf_addr[parm_value_buf.len_used] = '\0'; /* null terminated buffer needed below */
-		/* Send RowDescription for SHOW. It is a column of type STRING with hardcoded values for most other fields. */
-		memset(&row_desc_parm, 0, sizeof(RowDescriptionParm));
-		row_desc_parm.name = parm_value_buf.buf_addr;
-		row_desc_parm.data_type = PSQL_TypeOid_varchar;
-		row_desc_parm.data_type_size = INT16_TO_STRING_MAX;
-		row_desc_parm.type_modifier = ROWDESC_DEFAULT_TYPE_MODIFIER;
-		row_desc_parm.format_code = ROWDESC_DEFAULT_FORMAT_CODE;
-		row_description = make_row_description(&row_desc_parm, 1);
-		send_message(session, (BaseMessage *)(&row_description->type));
-		free(row_description);
+		parm_value_buf.buf_addr[parm_value_buf.len_used] = '\0'; /* null-terminated buffer needed below */
+
+		stmt.type = show_STATEMENT;
+		memset(&parms, 0, sizeof(QueryResponseParms));
+		parms.session = session;
+		parms.parm_name = parm_value_buf.buf_addr;
+		status = handle_query_response(&stmt, 0, (void *)&parms, NULL, PSQL_Describe);
 		YDB_FREE_BUFFER(&parm_value_buf);
+		if (YDB_OK != status) {
+			return 1;
+		}
 		break;
 	}
 	default:

@@ -48,7 +48,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 	// Prepare callback parameters
 	memset(&parms, 0, sizeof(QueryResponseParms));
 	parms.session = session;
-	parms.portal_name = execute->source;
+	parms.parm_name = execute->source;
 	parms.max_data_to_send = execute->rows_to_return;
 
 	// Set subscripts to access routine on portal: ^session(id, OCTOLIT_BOUND, <name>, OCTOLIT_ROUTINE

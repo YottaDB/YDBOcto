@@ -1,0 +1,22 @@
+SET
+SET
+ transaction_isolation 
+-----------------------
+ 
+(1 row)
+
+ datestyle 
+-----------
+ ISO
+(1 row)
+
+ extra_float_digits 
+--------------------
+ 2
+(1 row)
+
+ max_identifier_length 
+-----------------------
+ 
+(1 row)
+

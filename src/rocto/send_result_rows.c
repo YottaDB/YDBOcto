@@ -157,7 +157,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 
 	// Retrieve the number of rows remaining to be sent and, if this is an Execute request, the result row format code(s).
 	// If this LVN doesn't exist, this is the first Execute request for this query, so all rows are remaining.
-	if (NULL == parms->portal_name) {
+	if (NULL == parms->parm_name) {
 		// This is a Simple Query request, so no portal exists and all rows should be returned.
 		rows_remaining = total_rows;
 		last_row = rows_remaining;
@@ -169,7 +169,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 		YDB_STRING_TO_BUFFER(config->global_names.session, &portal_subs[0]);
 		YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &portal_subs[1]);
 		YDB_STRING_TO_BUFFER(OCTOLIT_BOUND, &portal_subs[2]);
-		YDB_STRING_TO_BUFFER(parms->portal_name, &portal_subs[3]);
+		YDB_STRING_TO_BUFFER(parms->parm_name, &portal_subs[3]);
 		YDB_STRING_TO_BUFFER("col_formats", &portal_subs[4]);
 
 		status = ydb_get_s(&portal_subs[0], 4, &portal_subs[1], &value_buffer);
@@ -235,7 +235,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 			global_column_format = NO_GLOBAL_COLUMN_FORMAT;
 			// The client should specify a format code for each column when not using the same format for all columns
 			if (num_format_codes != num_columns) {
-				ERROR(ERR_ROCTO_INVALID_NUMBER_COLUMN_FORMAT_CODES, "send_result_rows", parms->portal_name,
+				ERROR(ERR_ROCTO_INVALID_NUMBER_COLUMN_FORMAT_CODES, "send_result_rows", parms->parm_name,
 				      num_columns, num_format_codes);
 				return 1;
 			}

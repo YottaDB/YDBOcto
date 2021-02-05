@@ -70,9 +70,8 @@ typedef struct {
 	int32_t	      data_sent;
 	int32_t	      max_data_to_send;
 	int32_t	      row_count;
-	char *	      portal_name;
+	char *	      parm_name; /* used to store portal name, prepared statement name, variable name in case of SHOW etc. */
 	char *	      command_type;
-	char *	      parse_dest;
 } QueryResponseParms;
 
 void *rocto_helper_waitpid(void *args);

@@ -73,7 +73,7 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 				YDB_STRING_TO_BUFFER(config->global_names.session, &statement_subs[0]);
 				YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &statement_subs[1]);
 				YDB_STRING_TO_BUFFER(OCTOLIT_PREPARED, &statement_subs[2]);
-				YDB_STRING_TO_BUFFER(parms->parse_dest, &statement_subs[3]);
+				YDB_STRING_TO_BUFFER(parms->parm_name, &statement_subs[3]);
 				YDB_STRING_TO_BUFFER(OCTOLIT_VARIABLE, &statement_subs[4]);
 				YDB_STRING_TO_BUFFER(runtime_variable->v.string_literal, &value_buffer);
 				status = ydb_set_s(&statement_subs[0], 4, &statement_subs[1], &value_buffer);
@@ -98,7 +98,7 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 				YDB_STRING_TO_BUFFER(config->global_names.session, &statement_subs[0]);
 				YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &statement_subs[1]);
 				YDB_STRING_TO_BUFFER(OCTOLIT_BOUND, &statement_subs[2]);
-				YDB_STRING_TO_BUFFER(parms->portal_name, &statement_subs[3]);
+				YDB_STRING_TO_BUFFER(parms->parm_name, &statement_subs[3]);
 				YDB_STRING_TO_BUFFER(OCTOLIT_VARIABLE, &statement_subs[4]);
 				YDB_MALLOC_BUFFER(&name_buffer, OCTO_INIT_BUFFER_LEN);
 				status = ydb_get_s(&statement_subs[0], 4, &statement_subs[1], &name_buffer);
@@ -161,13 +161,43 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 				YDB_STRING_TO_BUFFER(config->global_names.session, &statement_subs[0]);
 				YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &statement_subs[1]);
 				YDB_STRING_TO_BUFFER(OCTOLIT_PREPARED, &statement_subs[2]);
-				YDB_STRING_TO_BUFFER(parms->parse_dest, &statement_subs[3]);
+				YDB_STRING_TO_BUFFER(parms->parm_name, &statement_subs[3]);
 				YDB_STRING_TO_BUFFER(OCTOLIT_VARIABLE, &statement_subs[4]);
 				YDB_STRING_TO_BUFFER(runtime_variable->v.string_literal, &value_buffer);
 				status = ydb_set_s(&statement_subs[0], 4, &statement_subs[1], &value_buffer);
 				if (YDB_OK != status) {
 					return 1;
 				}
+				return 0;
+			}
+			if (PSQL_Query == msg_type) {
+				/* Caller is "handle_query()" (simple query protocol). Do the SHOW right away.
+				 * Set up "parms->parm_name" to hold the name of the variable to show.
+				 */
+				SqlShowStatement *show_stmt;
+				SqlValue *	  runtime_variable;
+
+				UNPACK_SQL_STATEMENT(show_stmt, stmt, show);
+				UNPACK_SQL_STATEMENT(runtime_variable, show_stmt->variable, value);
+				parms->parm_name = runtime_variable->v.string_literal;
+			}
+			if ((PSQL_Describe == msg_type) || (PSQL_Query == msg_type)) {
+				RowDescriptionParm row_desc_parm;
+				RowDescription *   row_description;
+
+				/* Send RowDescription for SHOW. It is a column of type STRING with hardcoded values for most other
+				 * fields. */
+				memset(&row_desc_parm, 0, sizeof(RowDescriptionParm));
+				row_desc_parm.name = parms->parm_name;
+				row_desc_parm.data_type = PSQL_TypeOid_varchar;
+				row_desc_parm.data_type_size = INT16_TO_STRING_MAX;
+				row_desc_parm.type_modifier = ROWDESC_DEFAULT_TYPE_MODIFIER;
+				row_desc_parm.format_code = ROWDESC_DEFAULT_FORMAT_CODE;
+				row_description = make_row_description(&row_desc_parm, 1);
+				send_message(session, (BaseMessage *)(&row_description->type));
+				free(row_description);
+			}
+			if (PSQL_Describe == msg_type) {
 				return 0;
 			}
 			if (PSQL_Execute == msg_type) {
@@ -181,7 +211,7 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 				YDB_STRING_TO_BUFFER(config->global_names.session, &statement_subs[0]);
 				YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &statement_subs[1]);
 				YDB_STRING_TO_BUFFER(OCTOLIT_BOUND, &statement_subs[2]);
-				YDB_STRING_TO_BUFFER(parms->portal_name, &statement_subs[3]);
+				YDB_STRING_TO_BUFFER(parms->parm_name, &statement_subs[3]);
 				YDB_STRING_TO_BUFFER(OCTOLIT_VARIABLE, &statement_subs[4]);
 				YDB_MALLOC_BUFFER(&name_buffer, OCTO_INIT_BUFFER_LEN);
 				status = ydb_get_s(&statement_subs[0], 4, &statement_subs[1], &name_buffer);

@@ -1,9 +1,9 @@
 select current_schema()
 
 ----- ROCTO/JDBC -----
-DEFAULT
+public
 
 ----- OCTO -----
 CURRENT_SCHEMA
-DEFAULT
+public
 (1 row)

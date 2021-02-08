@@ -20,7 +20,8 @@ pgCurrentDatabase() ; TODO this is just a placeholder
 	QUIT "octo"
 
 pgCurrentSchema() ; TODO this is just a placeholder
-	QUIT "DEFAULT"
+	; Until schemas (YDBOcto#99 and/or YDBOcto#417) are supported, "public" is the current schema.
+	QUIT "public"
 
 pgCurrentSchemas(implicit) ; TODO this is just a placeholder
 	QUIT ""

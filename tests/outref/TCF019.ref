@@ -76,7 +76,7 @@ LP_SELECT_QUERY:
     - uses_xref_key: false
 
 CURRENT_SCHEMA
-DEFAULT
+public
 (1 row)
 [DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
 LP_SELECT_QUERY: 

@@ -321,7 +321,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 	data_row_parms_alloc_len = DATA_ROW_PARMS_ARRAY_INIT_ALLOC;
 	// Retrieve the value of each row
 	assert(0 == parms->row_count);
-	YDB_MALLOC_BUFFER(&row_value_buffer, OCTO_INIT_BUFFER_LEN);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&row_value_buffer, OCTO_INIT_BUFFER_LEN);
 	while (cur_row <= last_row) {
 		int	       cur_column;
 		unsigned char *buff, *buff_top;
@@ -330,10 +330,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 		status = ydb_get_s(&cursor_subs[0], 6, &cursor_subs[1], &row_value_buffer);
 		// Expand row_value_buffer allocation until it's large enough to store the retrieved row value
 		if (YDB_ERR_INVSTRLEN == status) {
-			int newsize = row_value_buffer.len_used;
-
-			YDB_FREE_BUFFER(&row_value_buffer);
-			YDB_MALLOC_BUFFER(&row_value_buffer, newsize);
+			EXPAND_YDB_BUFFER_T_ALLOCATION(row_value_buffer);
 			status = ydb_get_s(&cursor_subs[0], 6, &cursor_subs[1], &row_value_buffer);
 			assert(YDB_ERR_INVSTRLEN != status);
 		}

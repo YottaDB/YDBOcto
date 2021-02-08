@@ -210,7 +210,7 @@ static void test_valid_input(void **state) {
 	StartupMessage *startup_message = make_startup_message("user", username);
 
 	ydb_buffer_t user_info_subs;
-	YDB_MALLOC_BUFFER(&user_info_subs, OCTO_INIT_BUFFER_LEN);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&user_info_subs, OCTO_INIT_BUFFER_LEN);
 	// md5 hash of passworduser: 4d45974e13472b5a0be3533de4666414
 	char *user_info = "1|user|super|inh|crer|cred|canl|repl|bypassrl|conn|md54d45974e13472b5a0be3533de4666414|valid";
 	int   done = 0;
@@ -273,7 +273,7 @@ static void test_error_user_info_lookup(void **state) {
 	StartupMessage *startup_message = make_startup_message("user", username);
 
 	ydb_buffer_t user_info_subs;
-	YDB_MALLOC_BUFFER(&user_info_subs, OCTO_INIT_BUFFER_LEN);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&user_info_subs, OCTO_INIT_BUFFER_LEN);
 	// md5 hash of passworduser: 4d45974e13472b5a0be3533de4666414
 	char *user_info = "1|user|super|inh|crer|cred|canl|repl|bypassrl|conn|md54d45974e13472b5a0be3533de4666414|valid";
 	int   done = 0;
@@ -310,7 +310,7 @@ static void test_error_hash_lookup(void **state) {
 	StartupMessage *startup_message = make_startup_message("user", username);
 
 	ydb_buffer_t user_info_subs;
-	YDB_MALLOC_BUFFER(&user_info_subs, OCTO_INIT_BUFFER_LEN);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&user_info_subs, OCTO_INIT_BUFFER_LEN);
 	// md5 hash of passworduser: 4d45974e13472b5a0be3533de4666414
 	char *user_info = "1|user|super|inh|crer|cred|canl|repl|bypassrl|conn|md54d45974e13472b5a0be3533de4666414|valid";
 	int   done = 0;
@@ -349,7 +349,7 @@ static void test_error_hash_conversion(void **state) {
 	StartupMessage *startup_message = make_startup_message("user", username);
 
 	ydb_buffer_t user_info_subs;
-	YDB_MALLOC_BUFFER(&user_info_subs, OCTO_INIT_BUFFER_LEN);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&user_info_subs, OCTO_INIT_BUFFER_LEN);
 	// md5 hash of passworduser: 4d45974e13472b5a0be3533de4666414
 	char *user_info = "1|user|super|inh|crer|cred|canl|repl|bypassrl|conn|md54d45974e13472b5a0be3533de4666414|valid";
 	int   done = 0;
@@ -388,7 +388,7 @@ static void test_error_bad_password(void **state) {
 	StartupMessage *startup_message = make_startup_message("user", username);
 
 	ydb_buffer_t user_info_subs;
-	YDB_MALLOC_BUFFER(&user_info_subs, OCTO_INIT_BUFFER_LEN);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&user_info_subs, OCTO_INIT_BUFFER_LEN);
 	// md5 hash of passworduser: 4d45974e13472b5a0be3533de4666414
 	char *user_info = "1|user|super|inh|crer|cred|canl|repl|bypassrl|conn|md54d45974e13472b5a0be3533de4666414|valid";
 	int   done = 0;

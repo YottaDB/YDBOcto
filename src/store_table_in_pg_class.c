@@ -59,7 +59,7 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 	// Prepare buffers
 	pg_class = make_buffers(config->global_names.octo, 4, OCTOLIT_TABLES, OCTOLIT_PG_CATALOG, OCTOLIT_PG_CLASS, "");
 	oid_buffer = make_buffers(config->global_names.octo, 1, OCTOLIT_OID);
-	YDB_MALLOC_BUFFER(&pg_class[4], INT64_TO_STRING_MAX);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&pg_class[4], INT64_TO_STRING_MAX);
 	/* Get a unique oid TABLEOID for the passed in table.
 	 * 	i.e. $INCREMENT(^%ydboctoocto(OCTOLIT_OID))
 	 */

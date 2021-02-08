@@ -50,8 +50,7 @@ void ydb_error_check(int status, char *file, int line) {
 	 *	(i.e. %ydboctoerrcodemin < error-code < %ydboctoerrcodemax).
 	 * If so handle that separately. Else treat it as a YDB error code.
 	 */
-	YDB_MALLOC_BUFFER(&ret_value, YDB_MAX_ERRORMSG);
-	ret_value.len_alloc--; // Space for null terminator
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&ret_value, YDB_MAX_ERRORMSG);
 	YDB_LITERAL_TO_BUFFER("%ydboctoerrcodemin", &varname);
 	/* It is possible we got a ZLINKFILE error in the `ydb_ci()` call done in `octo_init.c` due to `ydb_routines`
 	 * not being properly set up. In that case, `%ydboctoerrcodemin` and `%ydboctoerrcodemax` will not be properly

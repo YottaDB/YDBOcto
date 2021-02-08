@@ -317,7 +317,7 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 	} else {
 		output_key_id = pplan->outputKey->unique_id;
 	}
-	YDB_MALLOC_BUFFER(&value_buffer, INT32_TO_STRING_MAX);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&value_buffer, INT32_TO_STRING_MAX);
 	OCTO_INT32_TO_BUFFER(output_key_id, &value_buffer);
 	YDB_LITERAL_TO_BUFFER(OCTOLIT_OUTPUT_KEY, &plan_meta[3]);
 	status = ydb_set_s(&plan_meta[0], 3, &plan_meta[1], &value_buffer);

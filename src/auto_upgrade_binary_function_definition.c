@@ -82,8 +82,8 @@ int auto_upgrade_binary_function_definition(void) {
 	 *	^%ydboctoocto(OCTOLIT_FUNCTIONS,function_name,function_hash,OCTOLIT_LENGTH)
 	 */
 	YDB_STRING_TO_BUFFER(OCTOLIT_FUNCTIONS, &function_subs[0]);
-	YDB_MALLOC_BUFFER(&function_subs[1], YDB_MAX_KEY_SZ); /* to store the function name */
-	YDB_MALLOC_BUFFER(&function_subs[2], YDB_MAX_KEY_SZ); /* to store the function hash */
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&function_subs[1], YDB_MAX_KEY_SZ); /* to store the function name */
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&function_subs[2], YDB_MAX_KEY_SZ); /* to store the function hash */
 	function_subs[1].len_used = 0;
 	function_buff = &function_subs[0]; /* Note down that this buffer needs to be freed in case of error code path */
 	while (TRUE) {
@@ -134,7 +134,7 @@ int auto_upgrade_binary_function_definition(void) {
 				 *	^%ydboctoocto(OCTOLIT_FUNCTIONS,function_name,function_hash,OCTOLIT_TEXT)
 				 */
 				YDB_STRING_TO_BUFFER(OCTOLIT_TEXT, &function_subs[3]);
-				YDB_MALLOC_BUFFER(&ret_buff, OCTO_INIT_BUFFER_LEN);
+				OCTO_MALLOC_NULL_TERMINATED_BUFFER(&ret_buff, OCTO_INIT_BUFFER_LEN);
 				status = ydb_get_s(&octo_global, 4, &function_subs[0], &ret_buff);
 				if (YDB_ERR_INVSTRLEN == status) {
 					EXPAND_YDB_BUFFER_T_ALLOCATION(ret_buff);
@@ -179,8 +179,8 @@ int auto_upgrade_binary_function_definition(void) {
 					ERROR(ERR_SYSCALL_WITH_ARG, "strtoll()", errno, strerror(errno), text_defn_buff.buf_addr);
 					CLEANUP_AND_RETURN(1, function_buff, ret_buff, FALSE, NULL);
 				}
-				YDB_STRING_TO_BUFFER(OCTOLIT_TEXT, &function_subs[3]); // Reset subscript
-				YDB_MALLOC_BUFFER(&ret_buff, text_defn_len + 1);       /* to store the return */
+				YDB_STRING_TO_BUFFER(OCTOLIT_TEXT, &function_subs[3]);	      // Reset subscript
+				OCTO_MALLOC_NULL_TERMINATED_BUFFER(&ret_buff, text_defn_len); /* to store the return */
 				ret_buff.len_used = 0;
 				// Retrieve each text definition fragment containing up to MAX_DEFINITION_FRAGMENT_SIZE characters
 				// each
@@ -199,7 +199,7 @@ int auto_upgrade_binary_function_definition(void) {
 					/* Because we allocated text_defn_len above. More than this shouldn't have been stored by
 					 * store_function_definition.
 					 */
-					assert(ret_buff.len_alloc >= (ret_buff.len_used + text_defn_buff.len_used + 1));
+					assert(ret_buff.len_alloc >= (ret_buff.len_used + text_defn_buff.len_used));
 					memcpy(&ret_buff.buf_addr[ret_buff.len_used], text_defn_buff.buf_addr,
 					       text_defn_buff.len_used);
 					ret_buff.len_used += text_defn_buff.len_used;
@@ -209,7 +209,9 @@ int auto_upgrade_binary_function_definition(void) {
 			/* Check if back-quotes surround the M extrinsic (a bug that is fixed in later commits). If so remove it.
 			 * Find last occurrence of " AS " in string first.
 			 */
-			ret_buff.buf_addr[ret_buff.len_used] = '\0';
+			ret_buff.buf_addr[ret_buff.len_used]
+			    = '\0'; /* Space for null terminator allocated by OCTO_MALLOC_NULL_TERMINATED_BUFFER and/or
+				       EXPAND_YDB_BUFFER_T_ALLOCATION calls above */
 			curstr = ret_buff.buf_addr;
 			as_len = strlen(as_with_spaces);
 			for (;;) {

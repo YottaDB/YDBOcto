@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -49,7 +49,7 @@ int store_table_definition(ydb_buffer_t *table_name_buff, char *table_defn, int 
 		YDB_STRING_TO_BUFFER(OCTOLIT_BINARY, &table_name_buffers[1]);
 	}
 	sub_buffer = &table_name_buffers[2];
-	YDB_MALLOC_BUFFER(sub_buffer, MAX_DEFINITION_FRAGMENT_SIZE);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(sub_buffer, MAX_DEFINITION_FRAGMENT_SIZE);
 	i = 0;
 	cur_length = 0;
 	while (cur_length < table_defn_length) {

@@ -31,7 +31,7 @@ ParameterDescription *make_parameter_description(char *statement, RoctoSession *
 	ydb_buffer_t *	      src_subs;
 	ydb_buffer_t	      num_parms_buf, parm_type_buf;
 
-	YDB_MALLOC_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);
 	src_subs = make_buffers(config->global_names.session, 6, session->session_id->buf_addr, OCTOLIT_PREPARED, statement,
 				OCTOLIT_PARAMETERS, "", "type");
 	status = ydb_get_s(&src_subs[0], 4, &src_subs[1], &num_parms_buf);
@@ -68,8 +68,8 @@ ParameterDescription *make_parameter_description(char *statement, RoctoSession *
 
 	// Loop over each parameter using ydb_subscript_next to retrieve type values and add to ParameterDescription
 	parm_data_types = (int32_t *)malloc(num_parms * sizeof(int32_t));
-	YDB_MALLOC_BUFFER(&parm_type_buf, INT16_TO_STRING_MAX);
-	YDB_MALLOC_BUFFER(&src_subs[5], INT16_TO_STRING_MAX);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&parm_type_buf, INT16_TO_STRING_MAX);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&src_subs[5], INT16_TO_STRING_MAX);
 	for (cur_parm_type = 0; cur_parm_type < num_parms; cur_parm_type++) {
 		cur_parm_type_temp = cur_parm_type + 1; // Convert from 0-indexed to 1-indexed
 		OCTO_INT16_TO_BUFFER(cur_parm_type_temp, &src_subs[5]);

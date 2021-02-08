@@ -39,8 +39,7 @@ int print_temporary_table(SqlStatement *stmt, ydb_long_t cursorId, void *parms, 
 	UNUSED(msg_type);
 	INFO(INFO_ENTERING_FUNCTION, "print_temporary_table");
 
-	YDB_MALLOC_BUFFER(&value_buffer, OCTO_INIT_BUFFER_LEN);
-	value_buffer.len_alloc--; // Leave room for null terminator
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&value_buffer, OCTO_INIT_BUFFER_LEN);
 	if (set_STATEMENT == stmt->type) {
 		SqlSetStatement *set_stmt;
 		SqlValue *	 runtime_value;
@@ -53,7 +52,7 @@ int print_temporary_table(SqlStatement *stmt, ydb_long_t cursorId, void *parms, 
 		YDB_COPY_STRING_TO_BUFFER(runtime_value->v.string_literal, &value_buffer, done);
 		if (!done) {
 			YDB_FREE_BUFFER(&value_buffer);
-			YDB_MALLOC_BUFFER(&value_buffer, strlen(runtime_value->v.string_literal) + 1); // Null terminator
+			OCTO_MALLOC_NULL_TERMINATED_BUFFER(&value_buffer, strlen(runtime_value->v.string_literal));
 			YDB_COPY_STRING_TO_BUFFER(runtime_value->v.string_literal, &value_buffer, done);
 			assert(done);
 		}
@@ -117,7 +116,7 @@ int print_temporary_table(SqlStatement *stmt, ydb_long_t cursorId, void *parms, 
 	YDB_LITERAL_TO_BUFFER(OCTOLIT_PLAN_METADATA, &plan_meta_buffers[1]);
 	YDB_STRING_TO_BUFFER(plan_name, &plan_meta_buffers[2]);
 	YDB_LITERAL_TO_BUFFER(OCTOLIT_OUTPUT_KEY, &plan_meta_buffers[3]);
-	YDB_MALLOC_BUFFER(&cursor_buffers[3], INT64_TO_STRING_MAX);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&cursor_buffers[3], INT64_TO_STRING_MAX);
 	status = ydb_get_s(&plan_meta_buffers[0], 3, &plan_meta_buffers[1], &cursor_buffers[3]);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
@@ -182,7 +181,7 @@ int print_temporary_table(SqlStatement *stmt, ydb_long_t cursorId, void *parms, 
 			fprintf(stdout, "\n");
 			YDB_LITERAL_TO_BUFFER("", &cursor_buffers[4]);
 			YDB_LITERAL_TO_BUFFER("", &cursor_buffers[5]);
-			YDB_MALLOC_BUFFER(&cursor_buffers[6], INT64_TO_STRING_MAX);
+			OCTO_MALLOC_NULL_TERMINATED_BUFFER(&cursor_buffers[6], INT64_TO_STRING_MAX);
 			/* Print row values if any */
 			num_rows = 0;
 			for (;;) {

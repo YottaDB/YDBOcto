@@ -241,7 +241,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	// In the loop below, we copy a value from a cursor LVN to a query parameter LVN, so only one string needed for this node.
 	all_parms_subs[6].buf_addr = cursor_subs[3].buf_addr = cur_parm_str;
 	all_parms_subs[6].len_alloc = cursor_subs[3].len_alloc = sizeof(cur_parm_str);
-	YDB_MALLOC_BUFFER(&cur_parm_value_buffer, OCTO_INIT_BUFFER_LEN);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&cur_parm_value_buffer, OCTO_INIT_BUFFER_LEN);
 	parm_type_buffer.buf_addr = parm_type_str;
 	parm_type_buffer.len_alloc = sizeof(parm_type_str);
 	offset_buffer.buf_addr = offset_str;

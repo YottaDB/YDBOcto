@@ -346,13 +346,12 @@
 /* Increase allocated size of a ydb_buffer_t. Assumes len_used is set to the desired new size as is done
  * when YDB_ERR_INVSTRLEN is encountered.
  */
-#define EXPAND_YDB_BUFFER_T_ALLOCATION(BUFFER)                           \
-	{                                                                \
-		int newsize = BUFFER.len_used;                           \
-                                                                         \
-		YDB_FREE_BUFFER(&BUFFER);                                \
-		YDB_MALLOC_BUFFER(&BUFFER, newsize + 1);                 \
-		BUFFER.len_alloc--; /* Leave room for null terminator */ \
+#define EXPAND_YDB_BUFFER_T_ALLOCATION(BUFFER)                        \
+	{                                                             \
+		int newsize = BUFFER.len_used;                        \
+                                                                      \
+		YDB_FREE_BUFFER(&BUFFER);                             \
+		OCTO_MALLOC_NULL_TERMINATED_BUFFER(&BUFFER, newsize); \
 	}
 
 // Convert a 16-bit integer to a string and store in a ydb_buffer_t
@@ -473,13 +472,19 @@ typedef enum RegexType {
 		BUFFER.len_used = 0; /* 0-initialize to indicate the buffer is empty in case an empty string is assigned */ \
 	}
 
-/* The below macro is a wrapped on top of YDB_MALLOC_BUFFER but with the ability to reserve a byte at the end for the
+/* The below macro is a wrapper on top of YDB_MALLOC_BUFFER but with the ability to reserve a byte at the end for the
  * null terminator. This is to be used with EXPAND_YDB_BUFFER_T_ALLOCATION whenever a null terminated string is desired.
+ *
+ * Note: In general, it is recommended for callers to use OCTO_MALLOC_NULL_TERMINATED_BUFFER (instead of YDB_MALLOC_BUFFER) as it
+ * reserves space for a null terminator byte whereas YDB_MALLOC_BUFFER does not. And this prevents 1-byte off buffer overflows
+ * (security issue) in most cases at the cost of an unnecessary byte allocation (small performance overhead) in some cases.
+ * The only exception currently known in Octo is "octo_init.c" where YDB_MALLOC_BUFFER is used as it was not so straightforward
+ * to do the conversion from YDB_MALLOC_BUFFER to OCTO_MALLOC_NULL_TERMINATED_BUFFER.
  */
-#define OCTO_MALLOC_NULL_TERMINATED_BUFFER(BUFFER, SIZE)                                  \
-	{                                                                                 \
-		YDB_MALLOC_BUFFER(BUFFER, SIZE + 1);                                      \
-		(BUFFER)->len_alloc = SIZE - 1; /* leave room for null terminator byte */ \
+#define OCTO_MALLOC_NULL_TERMINATED_BUFFER(BUFFER, SIZE)                              \
+	{                                                                             \
+		YDB_MALLOC_BUFFER(BUFFER, SIZE + 1);                                  \
+		(BUFFER)->len_alloc = SIZE; /* leave room for null terminator byte */ \
 	}
 
 // Free all resources associated with the Octo config file.

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -55,8 +55,8 @@ int delete_table_from_pg_class(ydb_buffer_t *table_name_buffer) {
 
 	pg_class = make_buffers(config->global_names.octo, 4, OCTOLIT_TABLES, OCTOLIT_PG_CATALOG, OCTOLIT_PG_CLASS, "");
 	pg_attribute = make_buffers(config->global_names.octo, 4, OCTOLIT_TABLES, OCTOLIT_PG_CATALOG, OCTOLIT_PG_ATTRIBUTE, "");
-	YDB_MALLOC_BUFFER(&oid_buffer, INT64_TO_STRING_MAX);
-	YDB_MALLOC_BUFFER(&pg_attribute_schema[2], OCTO_MAX_IDENT);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&oid_buffer, INT64_TO_STRING_MAX);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&pg_attribute_schema[2], OCTO_MAX_IDENT);
 	/* Check OID for tablename (usually stored as ^%ydboctoschema(TABLENAME,OCTOLIT_PG_CLASS)=TABLEOID) */
 	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
 	pg_class_schema[0] = *table_name_buffer;
@@ -75,7 +75,7 @@ int delete_table_from_pg_class(ydb_buffer_t *table_name_buffer) {
 	 * ^%ydboctoschema(TABLENAME,OCTOLIT_PG_ATTRIBUTE,COLUMNNAME)=COLUMNOID) */
 	pg_attribute_schema[0] = *table_name_buffer;
 	pg_attribute_schema[1] = pg_attribute[3];
-	assert(0 == pg_attribute_schema[2].len_used); /* should have been set by YDB_MALLOC_BUFFER above */
+	assert(0 == pg_attribute_schema[2].len_used); /* should have been set by OCTO_MALLOC_NULL_TERMINATED_BUFFER above */
 	do {
 		/* Find COLUMNNAME such that ^%ydboctoschema(TABLENAME,OCTOLIT_PG_ATTRIBUTE,COLUMNNAME) exists */
 		status = ydb_subscript_next_s(&schema_global, 3, pg_attribute_schema, &pg_attribute_schema[2]);

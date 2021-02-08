@@ -420,7 +420,7 @@ int main(int argc, char **argv) {
 		// Enter the main loop
 		session_id_buffer = &(ydb_buffers[1]);
 		YDB_STRING_TO_BUFFER(config->global_names.session, session_buffer);
-		YDB_MALLOC_BUFFER(session_id_buffer, INT64_TO_STRING_MAX);
+		OCTO_MALLOC_NULL_TERMINATED_BUFFER(session_id_buffer, INT64_TO_STRING_MAX);
 		/* Currently, the session_id will always be 1, since this incrementation is performed by each rocto server process
 		 * *after* it is spawned from the parent "listener" process. This is acceptable as Octo currently has no
 		 * session-specific functionality. However, PostgreSQL does have such functionality (see
@@ -439,8 +439,8 @@ int main(int argc, char **argv) {
 
 		// Populate default parameters
 		var_defaults = make_buffers(config->global_names.octo, 2, OCTOLIT_VARIABLES, "");
-		YDB_MALLOC_BUFFER(&var_defaults[2], OCTO_INIT_BUFFER_LEN);
-		YDB_MALLOC_BUFFER(&var_value, OCTO_INIT_BUFFER_LEN);
+		OCTO_MALLOC_NULL_TERMINATED_BUFFER(&var_defaults[2], OCTO_INIT_BUFFER_LEN);
+		OCTO_MALLOC_NULL_TERMINATED_BUFFER(&var_value, OCTO_INIT_BUFFER_LEN);
 		var_sets = make_buffers(config->global_names.session, 3, rocto_session.session_id->buf_addr, OCTOLIT_VARIABLES, "");
 		var_sets[3] = var_defaults[2];
 		do {

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -28,7 +28,7 @@ SqlStatement *parse_line(ParseContext *parse_context) {
 	SqlStatement *result = 0;
 	yyscan_t      scanner;
 
-	YDB_MALLOC_BUFFER(&lex_buffer, OCTO_INIT_BUFFER_LEN);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&lex_buffer, OCTO_INIT_BUFFER_LEN);
 	lex_buffer.buf_addr[0] = '\0';
 	lex_buffer.len_used = 0;
 	if (yylex_init(&scanner)) {

@@ -78,7 +78,7 @@ static void test_no_parms(void **state) {
 	ydb_buffer_t	      num_parms_buf, session_id;
 
 	// Initialize buffers
-	YDB_MALLOC_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);
 	YDB_COPY_LITERAL_TO_BUFFER("0", &num_parms_buf, done);
 	YDB_LITERAL_TO_BUFFER("1", &session_id);
 	session.session_id = &session_id;
@@ -110,7 +110,7 @@ static void test_valid_input_one_parm_no_types(void **state) {
 	// Initialize buffers
 	YDB_LITERAL_TO_BUFFER("1", &parm1);
 	YDB_LITERAL_TO_BUFFER("705", &type1); // PSQL_TypeOid_unknown == 705
-	YDB_MALLOC_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);
 	YDB_COPY_LITERAL_TO_BUFFER("1", &num_parms_buf, done);
 	YDB_LITERAL_TO_BUFFER("1", &session_id);
 	session.session_id = &session_id;
@@ -148,7 +148,7 @@ static void test_valid_input_two_parms_no_types(void **state) {
 	YDB_LITERAL_TO_BUFFER("1", &parm1);
 	YDB_LITERAL_TO_BUFFER("2", &parm2);
 	YDB_LITERAL_TO_BUFFER("705", &type1); // PSQL_TypeOid_unknown == 705
-	YDB_MALLOC_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);
 	YDB_COPY_LITERAL_TO_BUFFER("2", &num_parms_buf, done);
 	YDB_LITERAL_TO_BUFFER("1", &session_id);
 	session.session_id = &session_id;
@@ -189,7 +189,7 @@ static void test_valid_input_three_parms_no_types(void **state) {
 	YDB_LITERAL_TO_BUFFER("2", &parm2);
 	YDB_LITERAL_TO_BUFFER("3", &parm3);
 	YDB_LITERAL_TO_BUFFER("705", &type1); // PSQL_TypeOid_unknown == 705
-	YDB_MALLOC_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);
 	YDB_COPY_LITERAL_TO_BUFFER("3", &num_parms_buf, done);
 	YDB_LITERAL_TO_BUFFER("1", &session_id);
 	session.session_id = &session_id;
@@ -230,7 +230,7 @@ static void test_valid_input_one_parm_one_type(void **state) {
 	// Initialize buffers
 	YDB_LITERAL_TO_BUFFER("1", &parm1);
 	YDB_LITERAL_TO_BUFFER("23", &type1); // PSQL_TypeOid_int4 == 23
-	YDB_MALLOC_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);
 	YDB_COPY_LITERAL_TO_BUFFER("1", &num_parms_buf, done);
 	YDB_LITERAL_TO_BUFFER("1", &session_id);
 	session.session_id = &session_id;
@@ -267,7 +267,7 @@ static void test_valid_input_two_parms_one_type(void **state) {
 	YDB_LITERAL_TO_BUFFER("2", &parm2);
 	YDB_LITERAL_TO_BUFFER("23", &type1);  // PSQL_TypeOid_int4 == 23
 	YDB_LITERAL_TO_BUFFER("705", &type2); // PSQL_TypeOid_unknown == 705
-	YDB_MALLOC_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);
 	YDB_COPY_LITERAL_TO_BUFFER("2", &num_parms_buf, done);
 	YDB_LITERAL_TO_BUFFER("1", &session_id);
 	session.session_id = &session_id;
@@ -309,7 +309,7 @@ static void test_valid_input_three_parms_two_types(void **state) {
 	YDB_LITERAL_TO_BUFFER("23", &type1);   // PSQL_TypeOid_int4 == 23
 	YDB_LITERAL_TO_BUFFER("1043", &type2); // PSQL_TypeOid_varchar == 1043
 	YDB_LITERAL_TO_BUFFER("705", &type3);  // PSQL_TypeOid_unknown == 705
-	YDB_MALLOC_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);
 	YDB_COPY_LITERAL_TO_BUFFER("3", &num_parms_buf, done);
 	YDB_LITERAL_TO_BUFFER("1", &session_id);
 	session.session_id = &session_id;
@@ -350,7 +350,7 @@ static void test_num_parms_ydb_get_s_failure(void **state) {
 	// Initialize buffers
 	YDB_LITERAL_TO_BUFFER("1", &parm1);
 	YDB_LITERAL_TO_BUFFER("705", &type1); // PSQL_TypeOid_unknown == 705
-	YDB_MALLOC_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);
 	YDB_COPY_LITERAL_TO_BUFFER("1", &num_parms_buf, done);
 	YDB_LITERAL_TO_BUFFER("1", &session_id);
 	session.session_id = &session_id;
@@ -379,7 +379,7 @@ static void test_parm_type_ydb_get_s_failure(void **state) {
 	// Initialize buffers
 	YDB_LITERAL_TO_BUFFER("1", &parm1);
 	YDB_LITERAL_TO_BUFFER("705", &type1); // PSQL_TypeOid_unknown == 705
-	YDB_MALLOC_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);
 	YDB_COPY_LITERAL_TO_BUFFER("1", &num_parms_buf, done);
 	YDB_LITERAL_TO_BUFFER("1", &session_id);
 	session.session_id = &session_id;

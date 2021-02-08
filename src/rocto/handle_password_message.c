@@ -55,7 +55,7 @@ int handle_password_message(PasswordMessage *password_message, StartupMessage *s
 
 	// Retrieve user info from database
 	ydb_buffer_t user_info_subs;
-	YDB_MALLOC_BUFFER(&user_info_subs, OCTO_INIT_BUFFER_LEN);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&user_info_subs, OCTO_INIT_BUFFER_LEN);
 	YDB_STRING_TO_BUFFER(config->global_names.octo, &user_subs[0]);
 	YDB_STRING_TO_BUFFER(OCTOLIT_USERS, &user_subs[1]);
 	YDB_STRING_TO_BUFFER(username, &user_subs[2]);

@@ -113,7 +113,7 @@ SqlTable *find_table(const char *table_name) {
 	}
 	/* Find space (in bytes) used up by table definition from a global variable node */
 	table_binary_b = make_buffers(config->global_names.schema, 3, table_name, "", "");
-	YDB_MALLOC_BUFFER(&table_binary_b[3], INT32_TO_STRING_MAX + 1); /* + 1 for null terminator */
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&table_binary_b[3], INT32_TO_STRING_MAX);
 	/* Set gvn 2nd subscript to OCTOLIT_LENGTH to get the length in bytes of the binary table definition */
 	YDB_LITERAL_TO_BUFFER(OCTOLIT_LENGTH, &table_binary_b[2]);
 	status = ydb_get_s(table_binary_b, 2, &table_binary_b[1], &table_binary_b[3]);

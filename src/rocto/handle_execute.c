@@ -125,7 +125,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 		YDB_STRING_TO_BUFFER(OCTOLIT_ALL, &portal_subs[5]);
 		OCTO_SET_BUFFER(cursor_subs[3], cur_parm_str);
 		OCTO_SET_BUFFER(portal_subs[6], cur_parm_str);
-		YDB_MALLOC_BUFFER(&parm_buf, OCTO_INIT_BUFFER_LEN);
+		OCTO_MALLOC_NULL_TERMINATED_BUFFER(&parm_buf, OCTO_INIT_BUFFER_LEN);
 		for (cur_parm = 0; cur_parm < num_parms; cur_parm++) {
 			// Get parameter value
 			cur_parm_temp = cur_parm + 1;

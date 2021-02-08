@@ -146,14 +146,15 @@ int store_function_in_pg_proc(SqlFunction *function, char *function_hash) {
 	data_type = function->return_type->v.data_type_struct.data_type;
 	// Initialize buffer to at least the size of the format string literal to prevent truncation warning from the compiler
 	literal_len = strlen(ROW_STRING);
-	YDB_MALLOC_BUFFER(&row_buffer, ((OCTO_INIT_BUFFER_LEN > literal_len) ? OCTO_INIT_BUFFER_LEN : literal_len));
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&row_buffer,
+					   ((OCTO_INIT_BUFFER_LEN > literal_len) ? OCTO_INIT_BUFFER_LEN : literal_len));
 	copied = snprintf(row_buffer.buf_addr, row_buffer.len_alloc, ROW_STRING, function_name, function->num_args,
 			  get_psql_type_from_sqldatatype(data_type), arg_type_list,
 			  function->extrinsic_function->v.value->v.string_literal);
 	// Expand buffer to fit result string if needed
 	if (copied >= row_buffer.len_alloc) {
 		YDB_FREE_BUFFER(&row_buffer);
-		YDB_MALLOC_BUFFER(&row_buffer, copied + 1); // Null terminator
+		OCTO_MALLOC_NULL_TERMINATED_BUFFER(&row_buffer, copied);
 		copied = snprintf(row_buffer.buf_addr, row_buffer.len_alloc, ROW_STRING, function_name, function->num_args,
 				  get_psql_type_from_sqldatatype(data_type), arg_type_list,
 				  function->extrinsic_function->v.value->v.string_literal);

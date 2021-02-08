@@ -35,8 +35,7 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 
 	plan_meta = make_buffers(config->global_names.octo, 5, OCTOLIT_PLAN_METADATA, "", OCTOLIT_OUTPUT_COLUMNS, "", "");
 	plan_meta[2] = *plan_filename;
-	YDB_MALLOC_BUFFER(&value_buffer, OCTO_INIT_BUFFER_LEN);
-	value_buffer.len_alloc--; // Leave room for null terminator
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&value_buffer, OCTO_INIT_BUFFER_LEN);
 
 	// Get total number of columns for the given plan
 	status = ydb_get_s(&plan_meta[0], 3, &plan_meta[1], &value_buffer);

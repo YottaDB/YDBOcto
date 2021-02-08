@@ -100,7 +100,7 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 				YDB_STRING_TO_BUFFER(OCTOLIT_BOUND, &statement_subs[2]);
 				YDB_STRING_TO_BUFFER(parms->parm_name, &statement_subs[3]);
 				YDB_STRING_TO_BUFFER(OCTOLIT_VARIABLE, &statement_subs[4]);
-				YDB_MALLOC_BUFFER(&name_buffer, OCTO_INIT_BUFFER_LEN);
+				OCTO_MALLOC_NULL_TERMINATED_BUFFER(&name_buffer, OCTO_INIT_BUFFER_LEN);
 				status = ydb_get_s(&statement_subs[0], 4, &statement_subs[1], &name_buffer);
 				if (YDB_ERR_INVSTRLEN == status) {
 					EXPAND_YDB_BUFFER_T_ALLOCATION(name_buffer);
@@ -113,7 +113,7 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 					return 1;
 				}
 				YDB_STRING_TO_BUFFER(OCTOLIT_VALUE, &statement_subs[4]);
-				YDB_MALLOC_BUFFER(&value_buffer, OCTO_INIT_BUFFER_LEN);
+				OCTO_MALLOC_NULL_TERMINATED_BUFFER(&value_buffer, OCTO_INIT_BUFFER_LEN);
 				status = ydb_get_s(&statement_subs[0], 4, &statement_subs[1], &value_buffer);
 				if (YDB_ERR_INVSTRLEN == status) {
 					EXPAND_YDB_BUFFER_T_ALLOCATION(value_buffer);
@@ -213,7 +213,7 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 				YDB_STRING_TO_BUFFER(OCTOLIT_BOUND, &statement_subs[2]);
 				YDB_STRING_TO_BUFFER(parms->parm_name, &statement_subs[3]);
 				YDB_STRING_TO_BUFFER(OCTOLIT_VARIABLE, &statement_subs[4]);
-				YDB_MALLOC_BUFFER(&name_buffer, OCTO_INIT_BUFFER_LEN);
+				OCTO_MALLOC_NULL_TERMINATED_BUFFER(&name_buffer, OCTO_INIT_BUFFER_LEN);
 				status = ydb_get_s(&statement_subs[0], 4, &statement_subs[1], &name_buffer);
 				if (YDB_ERR_INVSTRLEN == status) {
 					EXPAND_YDB_BUFFER_T_ALLOCATION(name_buffer);
@@ -242,8 +242,7 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 			YDB_STRING_TO_BUFFER(OCTOLIT_VARIABLES, &session_buffers[2]);
 			/* session_buffers[3] is already initialized to the appropriate value */
 
-			YDB_MALLOC_BUFFER(&value_buffer, OCTO_INIT_BUFFER_LEN);
-			value_buffer.len_alloc--; // Leave room for null terminator
+			OCTO_MALLOC_NULL_TERMINATED_BUFFER(&value_buffer, OCTO_INIT_BUFFER_LEN);
 			status = ydb_get_s(&session_buffers[0], 3, &session_buffers[1], &value_buffer);
 			// Expand value_buffer allocation until it's large enough to store the retrieved row value
 			if (YDB_ERR_INVSTRLEN == status) {

@@ -71,9 +71,9 @@ int auto_upgrade_binary_table_definition(void) {
 	 * definition fragmentation to allow for arbitrarily long DDL definitions. However, earlier versions of Octo do not have
 	 * this layout, and so we must handle both cases for backward compatibility.
 	 */
-	YDB_MALLOC_BUFFER(&table_subs[0], YDB_MAX_KEY_SZ); /* to store the table name */
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&table_subs[0], YDB_MAX_KEY_SZ); /* to store the table name */
 	table_subs[0].len_used = 0;
-	YDB_MALLOC_BUFFER(&table_subs[2], MAX_DEFINITION_FRAGMENT_SIZE); /* to store the return */
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&table_subs[2], MAX_DEFINITION_FRAGMENT_SIZE); /* to store the return */
 	table_buff = &table_subs[0]; /* Note down that this buffer needs to be freed in case of error code path */
 	while (TRUE) {
 		char *	     binary_table_defn; /* pointer to the binary table definition */

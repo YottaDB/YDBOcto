@@ -35,21 +35,21 @@
 	YDB_FREE_BUFFER(&parm_value_buf);                                         \
 	YDB_FREE_BUFFER(&sql_expression);
 
-#define COPY_STRING_AND_EXPAND_BUFFER_IF_NEEDED(STRING, BUFFER)                        \
-	{                                                                              \
-		size_t str_len;                                                        \
-                                                                                       \
-		str_len = strlen(STRING);                                              \
-		if (str_len >= BUFFER.len_alloc) {                                     \
-			YDB_FREE_BUFFER(&BUFFER);                                      \
-			YDB_MALLOC_BUFFER(&BUFFER, str_len + 1); /* Null terminator */ \
-		}                                                                      \
-		YDB_COPY_STRING_TO_BUFFER(STRING, &BUFFER, done);                      \
-		if (!done) {                                                           \
-			ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed");        \
-			CLEANUP_FROM_BIND();                                           \
-			return 1;                                                      \
-		}                                                                      \
+#define COPY_STRING_AND_EXPAND_BUFFER_IF_NEEDED(STRING, BUFFER)                 \
+	{                                                                       \
+		size_t str_len;                                                 \
+                                                                                \
+		str_len = strlen(STRING);                                       \
+		if (str_len >= BUFFER.len_alloc) {                              \
+			YDB_FREE_BUFFER(&BUFFER);                               \
+			OCTO_MALLOC_NULL_TERMINATED_BUFFER(&BUFFER, str_len);   \
+		}                                                               \
+		YDB_COPY_STRING_TO_BUFFER(STRING, &BUFFER, done);               \
+		if (!done) {                                                    \
+			ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed"); \
+			CLEANUP_FROM_BIND();                                    \
+			return 1;                                               \
+		}                                                               \
 	}
 
 #define CHECK_COPY_RESULT_AND_RETURN_IF_NEEDED(COPIED) \
@@ -183,7 +183,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 		} else {
 			max = 1;
 		}
-		YDB_MALLOC_BUFFER(&parm_value_buf, OCTO_INIT_BUFFER_LEN);
+		OCTO_MALLOC_NULL_TERMINATED_BUFFER(&parm_value_buf, OCTO_INIT_BUFFER_LEN);
 		for (i = 0; i < max; i++) {
 			YDB_STRING_TO_BUFFER(litsubs[i], &statement_subs[4]);
 			status = ydb_get_s(&statement_subs[0], 4, &statement_subs[1], &parm_value_buf);
@@ -304,10 +304,13 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	}
 
 	// Retrieve the prepared statement query string
-	YDB_MALLOC_BUFFER(&sql_expression, OCTO_MAX_QUERY_LEN);
-	sql_expression.len_alloc--; // Space for null terminator
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&sql_expression, OCTO_INIT_BUFFER_LEN);
 	status = ydb_get_s(&statement_subs[0], 3, &statement_subs[1], &sql_expression);
-	assert(YDB_ERR_INVSTRLEN != status); // OCTO_MAX_QUERY_LEN == YDB_MAX_STR so this should never happen
+	if (YDB_ERR_INVSTRLEN == status) {
+		EXPAND_YDB_BUFFER_T_ALLOCATION(sql_expression);
+		status = ydb_get_s(&statement_subs[0], 3, &statement_subs[1], &sql_expression);
+		assert(YDB_ERR_INVSTRLEN != status);
+	}
 	if (YDB_ERR_LVUNDEF == status) {
 		ERROR(ERR_ROCTO_BIND_TO_UNKNOWN_QUERY, "");
 		status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);
@@ -424,7 +427,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	assert(num_bind_parms <= num_parms);
 	OCTO_SET_BUFFER(cur_parm_buf, cur_parm_str);
 	OCTO_SET_BUFFER(cur_bind_parm_buf, cur_bind_parm_str);
-	YDB_MALLOC_BUFFER(&parm_value_buf, OCTO_INIT_BUFFER_LEN);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&parm_value_buf, OCTO_INIT_BUFFER_LEN);
 	OCTO_SET_BUFFER(parm_type_buf, parm_type_str);
 	OCTO_SET_BUFFER(offset_buffer, offset_str);
 	for (cur_parm = 0, cur_bind_parm = 0; cur_parm < num_parms; cur_parm++) {
@@ -562,8 +565,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 
 	// Bind format rules at https://www.postgresql.org/docs/11/protocol-message-formats.html
 	if (0 < num_bind_parms) {
-		YDB_MALLOC_BUFFER(&bound_query, OCTO_MAX_QUERY_LEN);
-		bound_query.len_alloc--; // Null terminator
+		OCTO_MALLOC_NULL_TERMINATED_BUFFER(&bound_query, OCTO_MAX_QUERY_LEN - 1);
 		// Copy Bind parameters into bound query string
 		// Store ALL parameters on portal for retrieval by handle_execute, both bind parameters and literals
 		// Start with substring leading up to first parameter

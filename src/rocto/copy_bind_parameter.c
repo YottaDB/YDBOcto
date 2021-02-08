@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -52,7 +52,7 @@ int32_t copy_binary_parameter(Bind *bind, const int32_t cur_parm, ydb_buffer_t *
 		// This is a single parameter buffer, expand as needed
 		if (bound_query->len_alloc <= (bound_query->len_used + parm_len)) {
 			YDB_FREE_BUFFER(bound_query);
-			YDB_MALLOC_BUFFER(bound_query, (bound_query->len_used + parm_len + 1)); // Null terminator
+			OCTO_MALLOC_NULL_TERMINATED_BUFFER(bound_query, (bound_query->len_used + parm_len));
 		}
 	}
 

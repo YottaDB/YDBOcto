@@ -203,7 +203,21 @@ Install Octo
 	   alter user [username] createdb;
 	   PSQL
 
-     5. *(Optional - CentOS/RHEL7 only)* Install Perl
+
+     5. *(Optional)* Install UnixODBC and the Postgres ODBC Shared Library
+
+        Octo runs ODBC driver tests if the UnixODBC package is installed. To build and run these tests, you need to do the following:
+
+        .. code-block:: bash
+
+	   # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
+	   sudo apt-get install unixodbc odbc-postgresql
+
+	   # CentOS 8 Linux OR RedHat 8 Linux (names on 7 differ slightly)
+	   sudo yum install unixODBC postgresql-odbc
+
+
+     6. *(Optional - CentOS/RHEL7 only)* Install Perl
 
 	On CentOS 7 and RHEL7, Octo test queries sometimes produce output with superfluous escape sequences. These escape sequences are removed by a Perl script, making Perl a dependency for Octo testing on these platforms.
 

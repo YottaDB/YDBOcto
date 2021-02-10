@@ -1,0 +1,82 @@
+#################################################################
+#               #
+# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries. #
+# All rights reserved.            #
+#               #
+# This source code contains the intellectual property #
+# of its copyright holder(s), and is made available #
+# under a license.  If you do not know the terms of #
+# the license, please stop and do not read further. #
+#               #
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
+    init_tls
+  fi
+  load_fixture names.sql
+  load_fixture names.zwr
+
+  test_port=$(start_rocto 1344)
+
+  # There can be multiple drivers (ANSI, Unicode), just pick one and remove
+  # square brackets ([])
+  postgres_driver=$(odbcinst -q -d | grep -i postgres | tail -1 | sed 's/[][]//g')
+
+  # Create ini file for Database called OCTO
+  cat > odbc.ini <<END
+[OCTO]
+Description         = Octo ODBC Connection
+Driver              = $postgres_driver
+Database            = any
+Servername          = localhost
+UserName            = $USER
+Password            = ydbrocks
+Port                = $test_port
+END
+
+  # Tell us about it
+  export ODBCINI=$PWD/odbc.ini
+
+}
+
+teardown() {
+  stop_rocto
+}
+
+@test "TOC001 : Hello ODBC" {
+  echo | isql -v OCTO |& tee output.txt
+  verify_output TOC001 output.txt
+}
+
+@test "TOC002 : Simple Query from Names" {
+  grep -v "^#" @PROJECT_SOURCE_DIR@/tests/fixtures/TOC002.sql | isql OCTO -b |& tee output.txt
+  verify_output TOC002 output.txt
+}
+
+# We can't verify output directly as CentOS 8 has one extra column over Ubuntu 20.04
+# Instead we just grep for a representative output
+@test "TOC003 : SQL Help for Names Table (Output incorrect right now - tracked by #686)" {
+  grep -v "^#" @PROJECT_SOURCE_DIR@/tests/fixtures/TOC003.sql | isql OCTO -b |& tee output1.txt
+  grep "TABLE_QUALIFIER" output1.txt
+}
+
+@test "TOC004 : Hello ODBC TLS" {
+  if [[ @YDB_TLS_AVAILABLE@ -eq 0 ]]; then
+    skip "YDB_TLS_AVAILABLE is not set"
+  fi
+  # Copy and move and ini file so we won't succeed by mistake!
+  cp odbc.ini odbc.tls.ini
+  mv odbc.ini odbc.ini.iamnothere
+  # Add TLS to ini file
+  echo "SSLmode          = require" >> odbc.tls.ini
+  # Run temporarily with new INI file
+  echo | ODBCINI=$PWD/odbc.tls.ini isql -v OCTO |& tee output.txt
+  verify_output TOC004 output.txt
+  # Restore old ini file
+  mv odbc.ini.iamnothere odbc.ini
+}

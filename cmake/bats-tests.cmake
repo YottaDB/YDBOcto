@@ -135,5 +135,10 @@ if("${FULL_TEST_SUITE}" MATCHES "ON")
 	if(java)
 		ADD_BATS_TEST(test_jdbc_connection)
 	endif()
+
+	find_program(isql NAMES isql)
+	if(isql)
+		ADD_BATS_TEST(test_odbc_connection)
+	endif()
 endif()
 

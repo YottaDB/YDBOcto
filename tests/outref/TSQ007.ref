@@ -444,6 +444,5 @@ public|PG_ROLES|table|octo
 public|PG_SETTINGS|table|octo
 public|PG_TYPE|table|octo
 public|PG_USER|table|octo
-public|USERS|table|octo
-(27 rows)
+(26 rows)
 [ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command []

@@ -29,6 +29,5 @@
  public | PG_SETTINGS               | table | octo
  public | PG_TYPE                   | table | octo
  public | PG_USER                   | table | octo
- public | USERS                     | table | octo
-(29 rows)
+(28 rows)
 

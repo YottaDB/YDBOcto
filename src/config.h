@@ -47,6 +47,11 @@ typedef struct {
 	char *raw_xref;
 } GlobalNames;
 
+typedef enum {
+	TABLETYPE_READWRITE,
+	TABLETYPE_READONLY,
+} tabletype_t;
+
 typedef struct OctoConfig {
 	enum VERBOSITY_LEVEL verbosity_level;
 	RoctoConfig	     rocto_config;
@@ -61,6 +66,9 @@ typedef struct OctoConfig {
 	boolean_t	     allow_schema_changes;
 	boolean_t	     in_auto_load_octo_seed; /* TRUE for a short window when octo/rocto startup detects it is
 						      * time to auto load the octo-seed.sql and octo-seed.zwr files.
+						      */
+	tabletype_t default_tabletype;		     /* type of table (readonly vs readwrite) assigned to CREATE TABLE
+						      * if not explicitly specified.
 						      */
 } OctoConfig;
 

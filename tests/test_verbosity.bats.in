@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -226,5 +226,12 @@ OCTO
 	grep TV015 TII06.sql > input.sql
 	octo -f input.sql -vv > output.txt 2>&1
 	verify_output TV015 output.txt
+}
+
+@test "TV016 : OCTO502 : octo disallows integers as verbosity level (only strings are accepted)" {
+	echo "verbosity = 1" > octo.conf
+	echo "# Test that [verbosity = 1] issues error" > output.txt
+	octo < /dev/null >> output.txt 2>&1 || true
+	verify_output TV016 output.txt
 }
 

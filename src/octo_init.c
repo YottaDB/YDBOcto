@@ -79,7 +79,7 @@
  * cases of the preceding call. Particularly, this allows us to distinguish syntax errors in a setting from that setting simply
  * being omitted (the CONFIG_ERR_NONE case).
  */
-#define CONFIG_ERROR_CHECK(CONFIG_FILE, SETTING_NAME, RESULT)                         \
+#define CONFIG_ERROR_CHECK(CONFIG_FILE, SETTING_NAME)                                 \
 	{                                                                             \
 		int error_type;                                                       \
                                                                                       \
@@ -239,9 +239,9 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 	config_setting_t *ydb_settings, *cur_ydb_setting;
 	ydb_buffer_t	  zroutines_buffer, dollar_zroutines_buffer;
 	unsigned int	  offset, zroutines_from_file_len, zroutines_len;
-	const char *	  item_name, *item_value, *verbosity;
+	const char *	  item_name, *item_value, *verbosity, *tabletype;
 	char *		  zroutines_buf_start, *zroutines_from_file;
-	int		  status, done, i, verbosity_int, plan_src_dir_len, plan_obj_dir_len;
+	int		  status, done, i, verbosity_int, tabletype_int, plan_src_dir_len, plan_obj_dir_len;
 	char		  plan_src_dir[OCTO_PATH_MAX], plan_obj_dir[OCTO_PATH_MAX], *obj_dir;
 	struct stat	  statbuf;
 
@@ -255,38 +255,42 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 		} else if (strcmp(verbosity, "ERROR") == 0) {
 			verbosity_int = ERROR;
 		} else {
-			ERROR(ERR_BAD_CONFIG, config_file_name, "verbosity");
+			ERROR(ERR_BAD_CONFIG, config_file_name,
+			      "verbosity can only take on string values TRACE, DEBUG, INFO or ERROR");
 			return 1;
 		}
 	} else if (CONFIG_FALSE == config_lookup_int(config_file, "verbosity", &verbosity_int)) {
-		CONFIG_ERROR_CHECK(config_file, "verbosity", status);
+		CONFIG_ERROR_CHECK(config_file, "verbosity");
 		verbosity_int = ERROR; // Set to the default if verbosity was not set, i.e. the error check succeeds
+	} else {
+		ERROR(ERR_BAD_CONFIG, config_file_name, "verbosity can only take on string values (not integer values)");
+		return 1;
 	}
 	config->verbosity_level = verbosity_int;
 	if (CONFIG_FALSE == config_lookup_string(config_file, "rocto.address", &config->rocto_config.address)) {
-		CONFIG_ERROR_CHECK(config_file, "rocto.address", status);
+		CONFIG_ERROR_CHECK(config_file, "rocto.address");
 	}
 	if (CONFIG_FALSE == config_lookup_int(config_file, "rocto.port", &config->rocto_config.port)) {
-		CONFIG_ERROR_CHECK(config_file, "rocto.port", status);
+		CONFIG_ERROR_CHECK(config_file, "rocto.port");
 	}
 	if (CONFIG_FALSE == config_lookup_bool(config_file, "rocto.use_dns", &config->rocto_config.use_dns)) {
-		CONFIG_ERROR_CHECK(config_file, "rocto.use_dns", status);
+		CONFIG_ERROR_CHECK(config_file, "rocto.use_dns");
 	}
 	if (CONFIG_FALSE == config_lookup_bool(config_file, "rocto.tcp_delay", &config->rocto_config.tcp_delay)) {
-		CONFIG_ERROR_CHECK(config_file, "rocto.tcp_delay", status);
+		CONFIG_ERROR_CHECK(config_file, "rocto.tcp_delay");
 	}
 #if YDB_TLS_AVAILABLE
 	if (CONFIG_FALSE == config_lookup_string(config_file, "tls.OCTOSERVER.cert", &config->rocto_config.ssl_cert_file)) {
-		CONFIG_ERROR_CHECK(config_file, "tls.OCTOSERVER.cert", status);
+		CONFIG_ERROR_CHECK(config_file, "tls.OCTOSERVER.cert");
 	}
 	if (CONFIG_FALSE == config_lookup_string(config_file, "tls.OCTOSERVER.key", &config->rocto_config.ssl_key_file)) {
-		CONFIG_ERROR_CHECK(config_file, "tls.OCTOSERVER.key", status);
+		CONFIG_ERROR_CHECK(config_file, "tls.OCTOSERVER.key");
 	}
 	if (CONFIG_FALSE == config_lookup_bool(config_file, "rocto.ssl_on", &config->rocto_config.ssl_on)) {
-		CONFIG_ERROR_CHECK(config_file, "rocto.ssl_on", status);
+		CONFIG_ERROR_CHECK(config_file, "rocto.ssl_on");
 	}
 	if (CONFIG_FALSE == config_lookup_bool(config_file, "rocto.ssl_required", &config->rocto_config.ssl_required)) {
-		CONFIG_ERROR_CHECK(config_file, "rocto.ssl_required", status);
+		CONFIG_ERROR_CHECK(config_file, "rocto.ssl_required");
 	}
 	if (!config->rocto_config.ssl_on && config->rocto_config.ssl_required) {
 		ERROR(ERR_BAD_CONFIG, config_file_name, "rocto.ssl_required set, but rocto.ssl_on is disabled");
@@ -295,14 +299,14 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 
 #else
 	if (CONFIG_FALSE == config_lookup_bool(config_file, "rocto.ssl_on", &config->rocto_config.ssl_on)) {
-		CONFIG_ERROR_CHECK(config_file, "rocto.ssl_on", status);
+		CONFIG_ERROR_CHECK(config_file, "rocto.ssl_on");
 	}
 	if (config->rocto_config.ssl_on) {
 		ERROR(ERR_BAD_CONFIG, config_file_name, "rocto.ssl_on set, but YottaDB TLS plugin not installed");
 		return 1;
 	}
 	if (CONFIG_FALSE == config_lookup_bool(config_file, "rocto.ssl_required", &config->rocto_config.ssl_required)) {
-		CONFIG_ERROR_CHECK(config_file, "rocto.ssl_required", status);
+		CONFIG_ERROR_CHECK(config_file, "rocto.ssl_required");
 	}
 	if (config->rocto_config.ssl_required) {
 		ERROR(ERR_BAD_CONFIG, config_file_name, "rocto.ssl_required set, but YottaDB TLS plugin not installed");
@@ -323,6 +327,26 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 		}
 	}
 
+	/* Read in "tabletype" setting */
+	status = config_lookup_string(config_file, "tabletype", &tabletype);
+	if (CONFIG_TRUE == status) {
+		/* Check if a valid value is specified. If not issue error. */
+		if (0 == strcmp(tabletype, "READONLY")) {
+			config->default_tabletype = TABLETYPE_READONLY;
+		} else if (0 == strcmp(tabletype, "READWRITE")) {
+			config->default_tabletype = TABLETYPE_READWRITE;
+		} else {
+			ERROR(ERR_BAD_CONFIG, config_file_name, "tabletype can only take on string values READONLY or READWRITE");
+			return 1;
+		}
+	} else if (CONFIG_FALSE == config_lookup_int(config_file, "tabletype", &tabletype_int)) {
+		UNUSED(tabletype_int);
+		CONFIG_ERROR_CHECK(config_file, "tabletype");
+		config->default_tabletype = TABLETYPE_READWRITE; /* default tabletype for CREATE TABLE is READWRITE */
+	} else {
+		ERROR(ERR_BAD_CONFIG, config_file_name, "tabletype can only take on string values (not integer values)");
+		return 1;
+	}
 	// $ZROUTINES has already been set, just return now
 	if (NULL != config->plan_src_dir) {
 		return 0;

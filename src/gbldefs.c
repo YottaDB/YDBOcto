@@ -33,7 +33,6 @@ int   eof_hit;
 FILE *inputFile;
 char *input_buffer_combined; // The input buffer for octo. Contains the query strings.
 int (*cur_input_more)();
-OctoConfig * config;
 ydb_buffer_t lex_buffer;	 // String buffer for use in lexer.l
 int	     ydb_release_number; /* e.g. the integer 130 in case of r1.30 etc. */
 

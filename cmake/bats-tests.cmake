@@ -140,5 +140,7 @@ if("${FULL_TEST_SUITE}" MATCHES "ON")
 	if(isql)
 		ADD_BATS_TEST(test_odbc_connection)
 	endif()
+
+	ADD_BATS_TEST(test_octo_conf)
 endif()
 

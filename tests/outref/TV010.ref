@@ -1,1 +1,1 @@
-[ERROR] PATH:LINENUM DATE TIME : ERR_BAD_CONFIG : Bad config setting in $PWD/octo.conf: verbosity
+[ERROR] PATH:LINENUM DATE TIME : ERR_BAD_CONFIG : Bad config setting in $PWD/octo.conf: verbosity can only take on string values TRACE, DEBUG, INFO or ERROR

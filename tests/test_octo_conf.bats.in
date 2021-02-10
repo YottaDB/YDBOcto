@@ -1,0 +1,38 @@
+#################################################################
+#								#
+# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+}
+
+@test "TOC01 : OCTO502 : Test tabletype setting in octo.conf" {
+	touch output.txt
+	for setting in READONLY READWRITE
+	do
+		echo '# Test that [tabletype = "'$setting'"] does not issue error' >> output.txt
+		echo 'tabletype = "'$setting'"' > octo.conf
+		octo < /dev/null >> output.txt 2>&1
+	done
+	for setting in readonly readwrite anyothervalue
+	do
+		echo '# Test that [tabletype = "'$setting'"] issues error' >> output.txt
+		echo 'tabletype = "'$setting'"' > octo.conf
+		octo < /dev/null >> output.txt 2>&1 || true
+	done
+	echo '# Test that [tabletype = 1] (any integer value) issues error' >> output.txt
+	echo 'tabletype = 1' > octo.conf
+	octo < /dev/null >> output.txt 2>&1 || true
+	verify_output TOC01 output.txt
+}

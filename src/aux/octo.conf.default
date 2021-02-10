@@ -10,10 +10,16 @@
 //								//
 //////////////////////////////////////////////////////////////////
 
-/* Specifies the verbosity for logging. The valid options are, in order of decreasing verbosity:
+/* Below setting specifies the verbosity for logging. The valid options are, in order of decreasing verbosity:
  * TRACE, DEBUG, INFO, and ERROR. The default is ERROR.
  */
 verbosity = "ERROR"
+
+/* Below setting specifies the default table type of a table created by CREATE TABLE if neither READONLY or READWRITE
+ * keywords are specified in the CREATE TABLE. Valid options are READONLY and READWRITE. The default is READWRITE.
+ */
+// tabletype = "READWRITE"
+
 /* This is prepended to $zroutines on octo startup
  * Generated M routines (which represent SQL queries) are stored in the first source directory found
  * in octo_zroutines followed by $ydb_routines

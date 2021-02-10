@@ -532,10 +532,10 @@ OCTO
 	echo "# Run [yottadb -run TC041] to generate input.sql with 256 characters" > output.txt
 	$ydb_dist/yottadb -run TC041 &> input-256char.sql
 	echo "# Run [octo -f input-256char.sql] and verify error message" >> output.txt
-	octo -f input-256char.sql >> output.txt 2>&1
+	run_octo_allow_error input-256char.sql output.txt
 	cat input-256char.sql | sed 's/(1,/(/' &> input-255char.sql
 	echo "# Run [octo -f input-255char.sql] and verify no error message" >> output.txt
-	octo -f input-255char.sql >> output.txt 2>&1
+	run_octo_allow_error input-255char.sql output.txt
 	verify_output TC041 output.txt
 }
 

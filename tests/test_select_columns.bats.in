@@ -224,23 +224,17 @@ OCTO
 }
 
 @test "TSC04 : SELECT of invalid column name in user-defined table" {
-  octo <<OCTO &> output.txt
-SELECT invalid FROM names;
-OCTO
+  run_octo_allow_error TSC04.sql output.txt
   verify_output TSC04 output.txt noinfo nodebug
 }
 
 @test "TSC05 : SELECT of invalid column name in derived table from a level-1 sub-query" {
-  octo <<OCTO &> output.txt
-SELECT invalid from (SELECT invalid from names);
-OCTO
+  run_octo_allow_error TSC05.sql output.txt
   verify_output TSC05 output.txt noinfo nodebug
 }
 
 @test "TSC06 : SELECT of invalid column name in derived table from a level-2 sub-query" {
-  octo <<OCTO &> output.txt
-SELECT invalid from (SELECT invalid from (SELECT invalid from names));
-OCTO
+  run_octo_allow_error TSC06.sql output.txt
   verify_output TSC06 output.txt noinfo nodebug
 }
 
@@ -255,7 +249,7 @@ OCTO
   echo $line > query${linenum}.sql
   echo "Running query file query${linenum}.sql : [$line]" >> output.txt
   echo "-------------------------------------------------" >> output.txt
-  octo -f query${linenum}.sql >> output.txt 2>&1
+  run_octo_allow_error query${linenum}.sql output.txt
   ((linenum++))
   echo "" >> output.txt
   done < $inputfile
@@ -349,7 +343,7 @@ select a,c from (select 1 as a, 2 as b);
 select c,b from (select 1 as a, 2 as b);
 CAT_EOF
   cat input.sql > output.txt
-  octo -f input.sql >> output.txt 2>&1
+  run_octo_allow_error input.sql output.txt
   verify_output TSC15 output.txt
 }
 

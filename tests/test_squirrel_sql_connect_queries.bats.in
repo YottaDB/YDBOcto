@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -107,11 +107,15 @@ teardown() {
   # Currently returns an error because it tries to interpret the function pg_catalog.Pg_get_keywords() as a
   # table name and ends up with an Unknown table error.
   # Also note that this query uses SQL arrays, which are currently unsupported.
+  #
+  # TODO: Further, note that the fixes for #679 cause octo to exit with a non-zero code on error,
+  # resulting in an otherwise erroneous test failure. `|| true` is added to the octo command
+  # to prevent this failure. When the above issues are resolved, this operation can be removed.
   testname="TSSCQ06"
   echo -e "\n----- ROCTO/JDBC -----" &> output.txt
   run_java run_query $test_port $testname >> output.txt 2>&1
   echo -e "\n\n----- OCTO -----" >> output.txt
-  octo -f $testname.sql >> output.txt 2>&1
+  octo -f $testname.sql >> output.txt 2>&1 || true
   # Prepend query executed
   printf '%s\n%s\n' "$(cat $testname.sql)" "$(cat output.txt)" > output.txt
   verify_output $testname output.txt noinfo
@@ -295,7 +299,8 @@ teardown() {
   echo -e "\n----- ROCTO/JDBC -----" &> output.txt
   run_java run_query $test_port $testname >> output.txt 2>&1
   echo -e "\n\n----- OCTO -----" >> output.txt
-  octo -f $testname.sql >> output.txt 2>&1
+  # Error is expected, so don't fail test with non-zero exit code by appending `|| true`
+  octo -f $testname.sql >> output.txt 2>&1 || true
   # Prepend query executed
   printf '%s\n%s\n' "$(cat $testname.sql)" "$(cat output.txt)" > output.txt
   verify_output $testname output.txt noinfo

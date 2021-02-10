@@ -650,7 +650,10 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 	case set_STATEMENT:
 	case show_STATEMENT:
 		cursorId = atol(cursor_ydb_buff.buf_addr);
-		(*callback)(result, cursorId, parms, NULL, msg_type);
+		status = (*callback)(result, cursorId, parms, NULL, msg_type);
+		if (YDB_OK != status) {
+			CLEANUP_AND_RETURN(memory_chunks, NULL, NULL, query_lock, &cursor_ydb_buff);
+		}
 		break;
 	case index_STATEMENT:
 		cursor_used = FALSE; /* Remove this line once this feature gets implemented */

@@ -707,11 +707,14 @@ FILE
 				ret_status=$?
 				# Re-enable "set -e" now that "octo" invocation is done.
 				set -e
-				if [[ 0 != $ret_status ]]; then
+				if [[ 1 -lt $ret_status ]]; then
 					# Invoking newer build of Octo on environment set up by older Octo resulted in a
-					# non-zero exit status. This most likely means a fatal error like a SIG-11 or
-					# Assert failure etc. (Octo does not exit with a non-zero status for "ERROR" severity
-					# in queries). Record this error.
+					# non-zero exit status greater than 1. This most likely means a fatal error like a SIG-11 or
+					# Assert failure etc. Octo exits with 0 for success and 1 when an error is encountered,
+					# while asserts exit with 250 and SIG-11s with 245. Since we are only testing auto-upgrade
+					# behavior here, we can accept an exit code of 1, as this will be issued only for failing
+					# queries, which are expected in some test cases as of this writing. For all other error
+					# codes, fail and record the error.
 					echo " ERROR : [newsrc/octo -f $tstdir/$sqlfile] > autoupgrade.$sqlfile.out : Exit status = $ret_status" | tee -a ../errors.log
 					echo " ERROR :   --> It is likely that bumping up FMT_BINARY_DEFINITION would fix such failures" | tee -a ../errors.log
 					exit_status=1
@@ -863,7 +866,8 @@ FILE
 			set +e
 			if [[ $3 == "vv" ]]; then
 				./octo -vv -f $queryfile >& $queryfile.vv.out	# Need -vv to figure out generated M plan name
-				if [[ $? -ne 0 ]]; then
+				# See comment in error block for TEST1 above for why exit code of 1 is accepted
+				if [[ $? -gt 1 ]]; then
 					echo "ERROR : [octo -f $dir/$queryfile] returned non-zero exit status : $?" | tee -a ../errors.log
 					exit_status=1
 				fi

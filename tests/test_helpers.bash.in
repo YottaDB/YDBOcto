@@ -247,6 +247,16 @@ find_open_port() {
 	echo $open_port
 }
 
+run_octo_allow_error() {
+	if [[ ! -f $1 ]]; then
+		# If the input file isn't present in the current directory, it's a fixture.
+		# So, strip the comments and copy it into the working directory for use below.
+		strip_sql_comments $1
+	fi
+	# Run octo, but don't fail the test when an error is encountered. Used for testing error cases.
+	octo $3 -f $1 >> $2 2>&1 || true
+}
+
 start_rocto() {
 	create_user $USER "ydbrocks" &> /dev/null
 	echo "ROCTO START" >> env.log

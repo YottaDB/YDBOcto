@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -53,10 +53,7 @@ echo "select lastname from names limit 1;" >> input.in
 }
 
 @test "TML004 : test that input buffer is cleared on an invalid parse" {
-  octo -vv >& output.txt <<OCTO
-qwertyuiop;
-select * from names limit 1;
-OCTO
+  run_octo_allow_error TML004.sql output.txt -vv
   verify_output TML004 output.txt nodebug
 }
 
@@ -73,18 +70,12 @@ OCTO
 }
 
 @test "TML006 : test that a correct query after an error still runs" {
-  octo -vv >& output.txt <<OCTO
-qwerty; select * from names limit 1;
-OCTO
+  run_octo_allow_error TML006.sql output.txt -vv
   verify_output TML006 output.txt nodebug
 }
 
 @test "TML007 : test that a correct query after a multiline error still runs" {
-  octo -vv >& output.txt <<OCTO
-qwerty
-uiop; select *
-from names limit 1;
-OCTO
+  run_octo_allow_error TML007.sql output.txt -vv
   verify_output TML007 output.txt nodebug
 }
 

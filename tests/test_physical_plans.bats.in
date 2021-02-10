@@ -93,7 +93,7 @@ setup() {
   yottadb -run %XCMD 'kill ^%ydboctoocto("xref_status")' 2>&1 | tee -a output.txt
   rm _ydboctoX*.{m,o}
   echo "# Run TPP01.sql again. Should issue ZLINKFILE error because _ydboctoX*.m (which rebuilds xref) has been deleted" >> output.txt
-  octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TPP01.sql >> output.txt 2>&1
+  run_octo_allow_error @PROJECT_SOURCE_DIR@/tests/fixtures/TPP01.sql output.txt
   verify_output TPP07 output.txt
 }
 

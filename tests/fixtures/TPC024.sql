@@ -18,7 +18,7 @@ SET integer_datetimes = 'TEST';
 SET intervalstyle = 'TEST';
 SET server_encoding = 'TEST';
 SET server_version = 'TEST';
-SET standard_confirming_strings = 'TEST';
+SET standard_conforming_strings = 'TEST';
 SET timezone = 'TEST';
 
 -- The following are read-only variables
@@ -31,7 +31,7 @@ SHOW integer_datetimes;
 SHOW intervalstyle;
 SHOW server_encoding;
 SHOW server_version;
-SHOW standard_confirming_strings;
+SHOW standard_conforming_strings;
 SHOW timezone;
 SHOW is_superuser;
 SHOW session_authorization;

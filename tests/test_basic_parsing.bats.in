@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -21,36 +21,36 @@ setup() {
 
 @test "TBP000 : test CREATE TABLE : dry run" {
 	strip_sql_comments TBP000.sql
-	octo --dry-run --input-file TBP000.sql &> output.txt
+	run_octo_allow_error TBP000.sql output.txt --dry-run
 	verify_output TBP000 output.txt
 }
 
 @test "TBP001 : test DELETE : dry run" {
 	strip_sql_comments TBP001.sql
-	octo --dry-run --input-file TBP001.sql &> output.txt
+	run_octo_allow_error TBP001.sql output.txt --dry-run
 	verify_output TBP001 output.txt
 }
 
 @test "TBP002 : test SELECT : dry run" {
 	strip_sql_comments TBP002.sql
-	octo --dry-run --input-file TBP002.sql &> output.txt
+	run_octo_allow_error TBP002.sql output.txt --dry-run
 	verify_output TBP002 output.txt
 }
 
 @test "TBP003 : test INSERT : dry run" {
 	strip_sql_comments TBP003.sql
-	octo --dry-run --input-file TBP003.sql &> output.txt
+	run_octo_allow_error TBP003.sql output.txt --dry-run
 	verify_output TBP003 output.txt
 }
 
 @test "TBP004 : test UPDATE : dry run" {
 	strip_sql_comments TBP004.sql
-	octo --dry-run --input-file TBP004.sql &> output.txt
+	run_octo_allow_error TBP004.sql output.txt --dry-run
 	verify_output TBP004 output.txt
 }
 
 @test "TBP005 : test DROP TABLE : dry run" {
 	strip_sql_comments TBP005.sql
-	octo --dry-run --input-file TBP005.sql &> output.txt
+	run_octo_allow_error TBP005.sql output.txt --dry-run
 	verify_output TBP005 output.txt
 }

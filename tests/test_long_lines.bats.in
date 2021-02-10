@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -46,7 +46,7 @@ OCTO
   export COLUMNS=35000 # increase column limit to avoid control characters
 
   yottadb -run gt32k^genlargequery
-  octo -f in.sql &> output.txt
+  run_octo_allow_error in.sql output.txt
   # No need to filter out long error messages since there are none
   verify_output TLL04 output.txt
 }
@@ -54,7 +54,7 @@ OCTO
 @test "TLL05 : octo -f on series of queries greater than 32k characters" {
   export COLUMNS=35000 # increase column limit to avoid control characters
   yottadb -run almost32k^genlargequery
-  octo -f in.sql &> output.txt
+  run_octo_allow_error in.sql output.txt
   cat output.txt | sed 's/111.*0 = 0/CONDITIONS/ig' | sed 's/^.*\^\^\^/HIGHLIGHT/ig' &> filteredOut.txt
   verify_output TLL05 filteredOut.txt
 }
@@ -66,7 +66,7 @@ OCTO
   fi
   export COLUMNS=35000 # increase column limit to avoid control characters
   yottadb -run gt32k^genlargequery
-  octo < in.sql &> output.txt
+  run_octo_allow_error in.sql output.txt
   cat output.txt | sed 's/111.*$/CONDITIONS/ig' &> filteredOut.txt
   verify_output TLL06 filteredOut.txt
 }
@@ -78,7 +78,7 @@ OCTO
   fi
   export COLUMNS=35000 # increase column limit to avoid control characters
   yottadb -run almost32k^genlargequery
-  octo < in.sql &> output.txt
+  run_octo_allow_error in.sql output.txt
   cat output.txt | sed 's/111.*0 = 0/CONDITIONS/ig' | sed 's/^.*\^\^\^/HIGHLIGHT/ig' &> filteredOut.txt
   # No need to filter out long error messages since there are none
   verify_output TLL07 filteredOut.txt

@@ -35,8 +35,8 @@ setup() {
 	echo "CREATE FUNCTION nofunc () RETURNS VARCHAR AS \$$(for i in {1..3000}; do echo -n c; done);" >> in.sql
 	# Test resize for extrinsic function names > OCTO_INIT_BUFFER_LEN
 	echo "CREATE FUNCTION nofunc (integer) RETURNS VARCHAR AS \$\$$(for i in {1..3000}; do echo -n c; done);" >> in.sql
-	octo -f in.sql &> output.txt
 	# TODO: Accept GVSUBOFLOW error until #607 is resolved
+	run_octo_allow_error in.sql output.txt
 	verify_output TBR000 output.txt
 }
 

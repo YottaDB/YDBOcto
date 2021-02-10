@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -66,7 +66,7 @@ teardown() {
   cp @PROJECT_SOURCE_DIR@/tests/fixtures/TOJ04.sql .	# contains only one query
   yottadb -run genqueryfiles TOJ04.sql	# this generates the query file TOJ04_01.sql (only one)
   cat TOJ04_*.sql > output.txt
-  octo -f TOJ04_*.sql >> output.txt 2>&1
+  run_octo_allow_error TOJ04_*.sql output.txt
   verify_output TOJ04 output.txt
 }
 

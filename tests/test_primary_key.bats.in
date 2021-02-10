@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -27,7 +27,7 @@ setup() {
   # Create a verison of vista-mini.sql that has the STARTINCLUDE keyword specified in each column that already specifies START
   sed 's/\(CREATE TABLE `\)\(.*\)/\1STARTINCLUDE_\2/;s/\<START\> /STARTINCLUDE &/;' vista-mini.sql > startinclude_vista-mini.sql
   # Load this DDL into Octo as well (TPK01.sql uses this DDL to verify differences in behavior when STARTINCLUDE is included or not)
-  octo -f startinclude_vista-mini.sql > startinclude_vista-mini.out 2>&1
+  run_octo_allow_error startinclude_vista-mini.sql startinclude_vista-mini.out
   grep -vE '^-- |^#' TPK01.sql > input.sql
   octo < input.sql > output.txt 2>&1
   verify_output TPK01 output.txt

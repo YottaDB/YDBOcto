@@ -6,8 +6,8 @@ SET
 SET
 SET
 SET
-SET
-SET
+ERROR:  Runtime parameter 'IS_SUPERUSER' cannot be changed
+ERROR:  Runtime parameter 'SESSION_AUTHORIZATION' cannot be changed
  client_encoding 
 -----------------
  TEST
@@ -38,7 +38,11 @@ SET
  TEST
 (1 row)
 
-SHOW
+ standard_conforming_strings 
+-----------------------------
+ TEST
+(1 row)
+
  timezone 
 ----------
  TEST

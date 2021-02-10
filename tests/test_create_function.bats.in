@@ -159,7 +159,7 @@ setup() {
 	verify_plans_xrefs_gvns_triggers run2.out output.txt run2.ext
 
 	echo "# Rerun 8 queries from TCF023.sql that use ABS and REPLACE functions" >> output.txt
-	octo -vv -f TCF023.sql > run3.out 2>&1
+	run_octo_allow_error TCF023.sql run3.out -vv
 	verify_plans_xrefs_gvns_triggers run3.out output.txt run3.ext
 
 	verify_output TCF023 output.txt

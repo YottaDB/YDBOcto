@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -152,7 +152,7 @@ OCTO
   inputfile="TOB08.sql"
   cp @PROJECT_SOURCE_DIR@/tests/fixtures/$inputfile .
   grep -v '^#' $inputfile > output.txt	# Filter out copyright from output
-  octo -f $inputfile >> output.txt 2>&1
+  run_octo_allow_error $inputfile output.txt
   verify_output TOB08 output.txt
 }
 
@@ -160,7 +160,7 @@ OCTO
   inputfile="TOB09.sql"
   cp @PROJECT_SOURCE_DIR@/tests/fixtures/$inputfile .
   grep -v '^#' $inputfile > output.txt	# Filter out copyright from output
-  octo -f $inputfile >> output.txt 2>&1
+  run_octo_allow_error $inputfile output.txt
   verify_output TOB09 output.txt
 }
 
@@ -168,7 +168,7 @@ OCTO
   inputfile="TOB10.sql"
   cp @PROJECT_SOURCE_DIR@/tests/fixtures/$inputfile .
   grep -v '^#' $inputfile > output.txt	# Filter out copyright from output
-  octo -f $inputfile >> output.txt 2>&1
+  run_octo_allow_error $inputfile output.txt
   verify_output TOB10 output.txt
 }
 

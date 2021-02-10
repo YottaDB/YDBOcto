@@ -1,0 +1,43 @@
+-- TC045 : OCTO502 : Test of READONLY and READWRITE keywords in CREATE TABLE
+-- Test both READONLY and READWRITE specified in same CREATE TABLE command. Latest should prevail.
+-- Test multiple GLOBAL keyword specification. Latest keyword should prevail.
+-- Test multiple DELIM keyword specification. Latest keyword should prevail.
+-- Test multiple NULLCHAR keyword specification. Latest keyword should prevail.
+-- Test READONLY keyword overrides any octo.conf "tabletype" setting
+-- Test READWRITE keyword overrides any octo.conf "tabletype" setting
+-- Test octo.conf "tabletype" setting prevails if neither READONLY no READWRITE is specified
+-- Also test that if "tabletype" setting is not specified in octo.conf, READWRITE is the default.
+# Verify text based table definition from database extract to see which keyword prevailed
+# ----------------------------------
+# Test of [tabletype = "READONLY"]
+# ----------------------------------
+^%ydboctoschema("MYTBLREADONLY1","text",0)="CREATE TABLE `MYTBLREADONLY1` (`ID` INTEGER PRIMARY KEY) GLOBAL ""^%ydboctoDsr3H0RYxAv8YPsZ5S16P9D(keys(""""ID""""))"" DELIM ""|"" READWRITE;"
+^%ydboctoschema("MYTBLREADONLY2","text",0)="CREATE TABLE `MYTBLREADONLY2` (`ID` INTEGER PRIMARY KEY) GLOBAL ""^%ydboctoDC54KunffFqTJFlT1VXsj48(keys(""""ID""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("MYTBLREADONLY3","text",0)="CREATE TABLE `MYTBLREADONLY3` (`ID` INTEGER PRIMARY KEY) GLOBAL ""^MYTBLREADONLY32(keys(""""id""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("MYTBLREADONLY4","text",0)="CREATE TABLE `MYTBLREADONLY4` (`ID` INTEGER PRIMARY KEY) GLOBAL ""^%ydboctoDYPQ4ruysHfyAZmMAueFKAC(keys(""""ID""""))"" DELIM ""#"" READONLY;"
+^%ydboctoschema("MYTBLREADONLY5","text",0)="CREATE TABLE `MYTBLREADONLY5` (`ID` INTEGER PRIMARY KEY) GLOBAL ""^%ydboctoDSOYZ8yL5TwZTj8NSBzxz83(keys(""""ID""""))"" DELIM ""|"" NULLCHAR (35) READONLY;"
+^%ydboctoschema("MYTBLREADONLY6","text",0)="CREATE TABLE `MYTBLREADONLY6` (`ID` INTEGER PRIMARY KEY) GLOBAL ""^%ydboctoDmW0YdT1h7WTos6nV2HyhC3(keys(""""ID""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("MYTBLREADONLY7","text",0)="CREATE TABLE `MYTBLREADONLY7` (`ID` INTEGER PRIMARY KEY) GLOBAL ""^%ydboctoDJhCzfp8h8tOeuMyIeWIL68(keys(""""ID""""))"" DELIM ""|"" READWRITE;"
+^%ydboctoschema("MYTBLREADONLY8","text",0)="CREATE TABLE `MYTBLREADONLY8` (`ID` INTEGER PRIMARY KEY) GLOBAL ""^%ydboctoD1zgflWsG6UhwqmPRWiXKGI(keys(""""ID""""))"" DELIM ""|"" READONLY;"
+# ----------------------------------
+# Test of [tabletype = "READWRITE"]
+# ----------------------------------
+^%ydboctoschema("MYTBLREADWRITE1","text",0)="CREATE TABLE `MYTBLREADWRITE1` (`ID` INTEGER PRIMARY KEY) GLOBAL ""^%ydboctoDW7OgcMHWoIsuOI1Ytt2x38(keys(""""ID""""))"" DELIM ""|"" READWRITE;"
+^%ydboctoschema("MYTBLREADWRITE2","text",0)="CREATE TABLE `MYTBLREADWRITE2` (`ID` INTEGER PRIMARY KEY) GLOBAL ""^%ydboctoDu3r3IlLka57xb6bPlGyB93(keys(""""ID""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("MYTBLREADWRITE3","text",0)="CREATE TABLE `MYTBLREADWRITE3` (`ID` INTEGER PRIMARY KEY) GLOBAL ""^MYTBLREADWRITE32(keys(""""id""""))"" DELIM ""|"" READWRITE;"
+^%ydboctoschema("MYTBLREADWRITE4","text",0)="CREATE TABLE `MYTBLREADWRITE4` (`ID` INTEGER PRIMARY KEY) GLOBAL ""^%ydboctoDOggMk2FHXxlouetryuhXKC(keys(""""ID""""))"" DELIM ""#"" READWRITE;"
+^%ydboctoschema("MYTBLREADWRITE5","text",0)="CREATE TABLE `MYTBLREADWRITE5` (`ID` INTEGER PRIMARY KEY) GLOBAL ""^%ydboctoDFHKcDWzn9wEgiSMmHuONCJ(keys(""""ID""""))"" DELIM ""|"" NULLCHAR (35) READWRITE;"
+^%ydboctoschema("MYTBLREADWRITE6","text",0)="CREATE TABLE `MYTBLREADWRITE6` (`ID` INTEGER PRIMARY KEY) GLOBAL ""^%ydboctoDmtrSm1wrdSBEu6aK9orHCB(keys(""""ID""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("MYTBLREADWRITE7","text",0)="CREATE TABLE `MYTBLREADWRITE7` (`ID` INTEGER PRIMARY KEY) GLOBAL ""^%ydboctoD2DkDu5bSC8aCWD0DgEWoD0(keys(""""ID""""))"" DELIM ""|"" READWRITE;"
+^%ydboctoschema("MYTBLREADWRITE8","text",0)="CREATE TABLE `MYTBLREADWRITE8` (`ID` INTEGER PRIMARY KEY) GLOBAL ""^%ydboctoDFxxHVJLBkydYKeybAguTEA(keys(""""ID""""))"" DELIM ""|"" READWRITE;"
+# ----------------------------------
+# Test of [tabletype = "UNSPECIFIED"]
+# ----------------------------------
+^%ydboctoschema("MYTBLUNSPECIFIED1","text",0)="CREATE TABLE `MYTBLUNSPECIFIED1` (`ID` INTEGER PRIMARY KEY) GLOBAL ""^%ydboctoDe0fnkVB77SjRhf74PXDb61(keys(""""ID""""))"" DELIM ""|"" READWRITE;"
+^%ydboctoschema("MYTBLUNSPECIFIED2","text",0)="CREATE TABLE `MYTBLUNSPECIFIED2` (`ID` INTEGER PRIMARY KEY) GLOBAL ""^%ydboctoDAuzQDnmokcNjVaKl72nw64(keys(""""ID""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("MYTBLUNSPECIFIED3","text",0)="CREATE TABLE `MYTBLUNSPECIFIED3` (`ID` INTEGER PRIMARY KEY) GLOBAL ""^MYTBLUNSPECIFIED32(keys(""""id""""))"" DELIM ""|"" READWRITE;"
+^%ydboctoschema("MYTBLUNSPECIFIED4","text",0)="CREATE TABLE `MYTBLUNSPECIFIED4` (`ID` INTEGER PRIMARY KEY) GLOBAL ""^%ydboctoDGZkBCIGrMzNIJnbJrKcoC1(keys(""""ID""""))"" DELIM ""#"" READWRITE;"
+^%ydboctoschema("MYTBLUNSPECIFIED5","text",0)="CREATE TABLE `MYTBLUNSPECIFIED5` (`ID` INTEGER PRIMARY KEY) GLOBAL ""^%ydboctoDYFpxiLsB2HAlV1etG58VJC(keys(""""ID""""))"" DELIM ""|"" NULLCHAR (35) READWRITE;"
+^%ydboctoschema("MYTBLUNSPECIFIED6","text",0)="CREATE TABLE `MYTBLUNSPECIFIED6` (`ID` INTEGER PRIMARY KEY) GLOBAL ""^%ydboctoD5TJPNiiPeB9OjTGnE9JJJL(keys(""""ID""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("MYTBLUNSPECIFIED7","text",0)="CREATE TABLE `MYTBLUNSPECIFIED7` (`ID` INTEGER PRIMARY KEY) GLOBAL ""^%ydboctoDxRYryq3vthg4pCiqUBUU57(keys(""""ID""""))"" DELIM ""|"" READWRITE;"
+^%ydboctoschema("MYTBLUNSPECIFIED8","text",0)="CREATE TABLE `MYTBLUNSPECIFIED8` (`ID` INTEGER PRIMARY KEY) GLOBAL ""^%ydboctoDC4CNUt0OaCiWjR3xeothGF(keys(""""ID""""))"" DELIM ""|"" READWRITE;"

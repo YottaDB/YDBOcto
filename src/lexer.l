@@ -189,6 +189,8 @@ int copied_so_far;
 (?i:PARTITION) { return PARTITION; }
 (?i:PIECE) { return PIECE; }
 (?i:PRIMARY) { return PRIMARY; }
+(?i:READONLY) { return READONLY; }
+(?i:READWRITE) { return READWRITE; }
 (?i:RESTRICT) { return RESTRICT; }
 (?i:RETURNS) { return RETURNS; }
 (?i:RIGHT) { return RIGHT; }

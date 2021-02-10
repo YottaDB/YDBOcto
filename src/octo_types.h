@@ -269,6 +269,8 @@ typedef enum OptionalKeyword {
 	OPTIONAL_ASC,
 	OPTIONAL_DESC,
 	OPTIONAL_STARTINCLUDE,
+	OPTIONAL_READONLY,
+	OPTIONAL_READWRITE,
 } OptionalKeyword;
 
 typedef enum SqlSetOperationType {
@@ -471,7 +473,8 @@ typedef struct SqlTable {
 	struct SqlStatement *columns; // SqlColumn
 	struct SqlStatement *delim;
 	struct SqlStatement *nullchar;
-	uint64_t	     oid; /* TABLEOID; compared against ^%ydboctoschema(TABLENAME,OCTOLIT_PG_CLASS) */
+	boolean_t	     readwrite; /* TRUE if READWRITE keyword is specified, FALSE if READONLY keyword is specified */
+	uint64_t	     oid;	/* TABLEOID; compared against ^%ydboctoschema(TABLENAME,OCTOLIT_PG_CLASS) */
 } SqlTable;
 
 /* Below is the table constructed by the VALUES (...) syntax */

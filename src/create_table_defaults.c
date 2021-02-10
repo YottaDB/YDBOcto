@@ -18,9 +18,11 @@
 #include "octo_types.h"
 #include "template_strings.h"
 
-#define SOURCE	 (1 << 0)
-#define DELIM	 (1 << 1)
-#define NULLCHAR (1 << 2)
+#define SOURCE	  (1 << 0)
+#define DELIM	  (1 << 1)
+#define NULLCHAR  (1 << 2)
+#define READONLY  (1 << 3)
+#define READWRITE (1 << 4)
 
 /* The size of this must match $ZYSUFFIX exactly, which is 22.
  * This mirrors the design of generate_routine_name function. */
@@ -58,16 +60,6 @@
 		assert(BUFFER_SIZE > TOTAL_COPIED);                                                \
 	}
 
-#define DQDEL_AND_CONTINUE(CUR_KEYWORD, START_KEYWORD, NEXT_KEYWORD) \
-	{                                                            \
-		dqdel(CUR_KEYWORD);                                  \
-		if (START_KEYWORD == CUR_KEYWORD) {                  \
-			START_KEYWORD = NEXT_KEYWORD;                \
-		}                                                    \
-		CUR_KEYWORD = NEXT_KEYWORD;                          \
-		continue;                                            \
-	}
-
 /* 0 return value implies table create was successful
  * non-zero return value implies error while creating table
  */
@@ -80,7 +72,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	char *		    out_buffer;
 	size_t		    str_len;
 	int		    max_key = 0, copied, i, len;
-	unsigned int	    options = 0;
+	unsigned int	    options;
 
 	assert(NULL != keywords_statement);
 
@@ -143,6 +135,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	} else if (-2 == max_key) {
 		return 1; // non-zero return value is an error (i.e causes YYABORT in caller)
 	}
+	options = 0;
 	cur_keyword = start_keyword;
 	do {
 		SqlOptionalKeyword *next_keyword;
@@ -150,28 +143,30 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		next_keyword = cur_keyword->next;
 		switch (cur_keyword->keyword) {
 		case OPTIONAL_SOURCE:
-			assert(0 == (options & SOURCE));
 			options |= SOURCE;
 			SQL_STATEMENT(statement, keyword_STATEMENT);
 			statement->v.keyword = cur_keyword;
 			table->source = statement;
-			DQDEL_AND_CONTINUE(cur_keyword, start_keyword, next_keyword);
 			break;
 		case OPTIONAL_DELIM:
-			assert(0 == (options & DELIM));
 			options |= DELIM;
 			SQL_STATEMENT(statement, keyword_STATEMENT);
 			statement->v.keyword = cur_keyword;
 			table->delim = statement;
-			DQDEL_AND_CONTINUE(cur_keyword, start_keyword, next_keyword);
 			break;
 		case OPTIONAL_NULLCHAR:
-			assert(0 == (options & NULLCHAR));
 			options |= NULLCHAR;
 			SQL_STATEMENT(statement, keyword_STATEMENT);
 			statement->v.keyword = cur_keyword;
 			table->nullchar = statement;
-			DQDEL_AND_CONTINUE(cur_keyword, start_keyword, next_keyword);
+			break;
+		case OPTIONAL_READONLY:
+			options |= READONLY;
+			table->readwrite = FALSE;
+			break;
+		case OPTIONAL_READWRITE:
+			options |= READWRITE;
+			table->readwrite = TRUE;
 			break;
 		case NO_KEYWORD:
 			break;
@@ -181,14 +176,17 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 			return 1;
 			break;
 		}
-		cur_keyword = next_keyword;
-		if (cur_keyword == start_keyword) {
-			break;
+		dqdel(cur_keyword);
+		if (cur_keyword != next_keyword) {
+			if (start_keyword == cur_keyword) {
+				start_keyword = next_keyword;
+			}
+			cur_keyword = next_keyword;
+			continue;
 		}
+		assert(cur_keyword == start_keyword);
+		break;
 	} while (TRUE);
-	if ((SOURCE | DELIM) == options) {
-		return 0;
-	}
 	if (!(options & SOURCE)) {
 		int	   total_copied = 0;
 		int	   buffer_size, buffer2_size;
@@ -237,7 +235,10 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		(keyword)->keyword = OPTIONAL_SOURCE;
 		SQL_VALUE_STATEMENT(keyword->v, STRING_LITERAL, out_buffer);
 		dqinit(keyword);
-		dqappend(start_keyword, keyword);
+		assert(NULL == table->source);
+		SQL_STATEMENT(statement, keyword_STATEMENT);
+		statement->v.keyword = keyword;
+		table->source = statement;
 		free(buffer);
 		free(buffer2);
 	}
@@ -252,46 +253,14 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		(keyword)->keyword = OPTIONAL_DELIM;
 		SQL_VALUE_STATEMENT(keyword->v, STRING_LITERAL, out_buffer);
 		dqinit(keyword);
-		dqappend(start_keyword, keyword);
+		assert(NULL == table->delim);
+		SQL_STATEMENT(statement, keyword_STATEMENT);
+		statement->v.keyword = keyword;
+		table->delim = statement;
 	}
-	cur_keyword = start_keyword;
-	do {
-		SqlOptionalKeyword *next_keyword;
-
-		next_keyword = cur_keyword->next;
-		switch (cur_keyword->keyword) {
-		case OPTIONAL_SOURCE:
-			if ((NULL != table->source) && (table->source->v.keyword == cur_keyword)) {
-				break;
-			}
-			assert(NULL == table->source);
-			SQL_STATEMENT(statement, keyword_STATEMENT);
-			statement->v.keyword = cur_keyword;
-			table->source = statement;
-			DQDEL_AND_CONTINUE(cur_keyword, start_keyword, next_keyword);
-			break;
-		case OPTIONAL_DELIM:
-			if ((NULL != table->delim) && (table->delim->v.keyword == cur_keyword)) {
-				break;
-			}
-			assert(NULL == table->delim);
-			SQL_STATEMENT(statement, keyword_STATEMENT);
-			statement->v.keyword = cur_keyword;
-			table->delim = statement;
-			DQDEL_AND_CONTINUE(cur_keyword, start_keyword, next_keyword);
-			break;
-		case NO_KEYWORD:
-			break;
-		default:
-			ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
-			assert(FALSE);
-			return 1;
-			break;
-		}
-		cur_keyword = next_keyword;
-		if (cur_keyword == start_keyword) {
-			break;
-		}
-	} while (TRUE);
+	if (!(options & READONLY) && !(options & READWRITE)) {
+		/* Neither READONLY or READWRITE was specified. Assume default based on octo.conf tabletype setting. */
+		table->readwrite = ((TABLETYPE_READWRITE == config->default_tabletype) ? TRUE : FALSE);
+	}
 	return 0;
 }

@@ -554,8 +554,31 @@ OCTO
 }
 
 @test "TC044 : OCTO575 : Octo CREATE TABLE naively creates invalid GVNs from table names" {
-  echo "# Create table with name that contains _ or . then run select on it and" > output.txt
+	echo "# Create table with name that contains _ or . then run select on it and" > output.txt
 	echo "# verify that we don't get any errors." >> output.txt
 	load_fixture TC044.sql subtest novv
 	verify_output TC044 output.txt
+}
+
+@test "TC045 : OCTO502 : Various tests of READONLY and READWRITE keywords in CREATE TABLE" {
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TC045.sql .
+	grep '^--' TC045.sql > output.txt
+	echo "# Verify text based table definition from database extract to see which keyword prevailed" >> output.txt
+	for setting in READONLY READWRITE UNSPECIFIED
+	do
+		echo "# ----------------------------------" >> output.txt
+		echo '# Test of [tabletype = "'$setting'"]' >> output.txt
+		echo "# ----------------------------------" >> output.txt
+		if [[ "UNSPECIFIED" == $setting ]]; then
+			confsetting=""
+		else
+			confsetting="tabletype = \"$setting\""
+		fi
+		echo $confsetting > octo.conf
+		sed 's/MYTBL/&'$setting'/g' TC045.sql > input_$setting.sql
+		octo -f input_$setting.sql >> output.txt 2>&1
+		$ydb_dist/mupip extract run$setting.ext
+		grep "ydboctoschema.*MYTBL"$setting".*text.*CREATE TABLE" run$setting.ext >> output.txt
+	done
+	verify_output TC045 output.txt
 }

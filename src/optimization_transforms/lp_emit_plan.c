@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -141,6 +141,12 @@
 			break;                                                                         \
 		case OPTIONAL_DESC:                                                                    \
 			str = "DESC";                                                                  \
+			break;                                                                         \
+		case OPTIONAL_READWRITE:                                                               \
+			str = "READWRITE";                                                             \
+			break;                                                                         \
+		case OPTIONAL_READONLY:                                                                \
+			str = "READONLY";                                                              \
 			break;                                                                         \
 		default:                                                                               \
 			assert(FALSE);                                                                 \

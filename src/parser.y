@@ -162,6 +162,8 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token PARTITION
 %token PIECE
 %token PRIMARY
+%token READONLY
+%token READWRITE
 %token RESTRICT
 %token RETURNS
 %token RIGHT
@@ -1310,6 +1312,18 @@ optional_keyword_element
 	($$)->v.keyword->keyword = OPTIONAL_NULLCHAR;
 	($$)->v.keyword->v = literal;
 	dqinit(($$)->v.keyword);
+  }
+  | READONLY {
+      SQL_STATEMENT($$, keyword_STATEMENT);
+      MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
+      ($$)->v.keyword->keyword = OPTIONAL_READONLY;
+      dqinit(($$)->v.keyword);
+  }
+  | READWRITE {
+      SQL_STATEMENT($$, keyword_STATEMENT);
+      MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
+      ($$)->v.keyword->keyword = OPTIONAL_READWRITE;
+      dqinit(($$)->v.keyword);
   }
   ;
 

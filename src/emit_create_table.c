@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -86,6 +86,11 @@ int emit_create_table(FILE *output, struct SqlStatement *stmt) {
 		UNPACK_SQL_STATEMENT(keyword, table->nullchar, keyword);
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
 		defn_len += fprintf(output, "%s)", value->v.reference);
+	}
+	if (table->readwrite) {
+		defn_len += fprintf(output, " READWRITE");
+	} else {
+		defn_len += fprintf(output, " READONLY");
 	}
 	defn_len += fprintf(output, ";");
 	free(buffer);

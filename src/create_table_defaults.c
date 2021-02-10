@@ -259,8 +259,18 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		table->delim = statement;
 	}
 	if (!(options & READONLY) && !(options & READWRITE)) {
-		/* Neither READONLY or READWRITE was specified. Assume default based on octo.conf tabletype setting. */
-		table->readwrite = ((TABLETYPE_READWRITE == config->default_tabletype) ? TRUE : FALSE);
+		if (config->in_auto_upgrade_binary_table_definition) {
+			/* In auto upgrade logic where pre-existing tables are being upgraded. In this case, it is not safe
+			 * to infer the READONLY vs READWRITE characteristic of a table from the current octo.conf setting
+			 * of "tabletype" since the user of the new Octo build might not have yet known this new keyword
+			 * (let alone set this keyword in octo.conf appropriately). Therefore, to be safe, assume it is a
+			 * READONLY table.
+			 */
+			table->readwrite = FALSE;
+		} else {
+			/* Neither READONLY or READWRITE was specified. Assume default based on octo.conf tabletype setting. */
+			table->readwrite = ((TABLETYPE_READWRITE == config->default_tabletype) ? TRUE : FALSE);
+		}
 	}
 	return 0;
 }

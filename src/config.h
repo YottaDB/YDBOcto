@@ -64,12 +64,15 @@ typedef struct OctoConfig {
 	boolean_t	     dry_run;
 	int		     plan_id, page_size;
 	boolean_t	     allow_schema_changes;
-	boolean_t	     in_auto_load_octo_seed; /* TRUE for a short window when octo/rocto startup detects it is
-						      * time to auto load the octo-seed.sql and octo-seed.zwr files.
-						      */
-	tabletype_t default_tabletype;		     /* type of table (readonly vs readwrite) assigned to CREATE TABLE
-						      * if not explicitly specified.
-						      */
+	boolean_t in_auto_upgrade_binary_table_definition; /* TRUE for a short window when octo/rocto startup detects it is
+							    * time to auto upgrade the binary table definitions.
+							    */
+	boolean_t in_auto_load_octo_seed;		   /* TRUE for a short window when octo/rocto startup detects it is
+							    * time to auto load the octo-seed.sql and octo-seed.zwr files.
+							    */
+	tabletype_t default_tabletype;			   /* type of table (readonly vs readwrite) assigned to CREATE TABLE
+							    * if not explicitly specified.
+							    */
 } OctoConfig;
 
 extern OctoConfig *config;

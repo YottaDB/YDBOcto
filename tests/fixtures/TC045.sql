@@ -37,3 +37,6 @@ CREATE TABLE MYTBL7 (id INTEGER PRIMARY KEY) READWRITE;
 -- Also test that if "tabletype" setting is not specified in octo.conf, READWRITE is the default.
 CREATE TABLE MYTBL8 (id INTEGER PRIMARY KEY);
 
+-- Test that READWRITE is compatible with table-level NULLCHAR/DELIM and column-level PRIMARY KEY/KEY NUM/NOT NULL/UNIQUE
+CREATE TABLE MYTBL9 (id INTEGER PRIMARY KEY, id2 INTEGER KEY NUM 1, firstname VARCHAR(10) NOT NULL UNIQUE) NULLCHAR (35) DELIM "#" READWRITE;
+

@@ -27,6 +27,7 @@ SqlStatement *insert_statement(SqlStatement *table_name, SqlStatement *column_na
 	SqlInsertStatement *insert;
 	SqlJoin *	    join;
 	SqlTableAlias *	    table_alias;
+	SqlTable *	    table;
 
 	assert(value_STATEMENT == table_name->type);
 	join_stmt = table_reference(table_name, NULL, plan_id);
@@ -35,9 +36,13 @@ SqlStatement *insert_statement(SqlStatement *table_name, SqlStatement *column_na
 	}
 	UNPACK_SQL_STATEMENT(join, join_stmt, join);
 	UNPACK_SQL_STATEMENT(table_alias, join->value, table_alias);
+	UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
+	if (!table->readwrite) {
+		ERROR(ERR_TABLE_READONLY, "INSERT");
+		return NULL;
+	}
 	if (NULL != column_name_list) {
 		SqlColumnList *	    start_cl, *cur_cl;
-		SqlTable *	    table;
 		SqlTableAlias *	    src_table_alias;
 		SqlColumnListAlias *start_cla, *cur_cla;
 		SqlStatement *	    table_alias_stmt;
@@ -48,7 +53,6 @@ SqlStatement *insert_statement(SqlStatement *table_name, SqlStatement *column_na
 		cur_cla = start_cla;
 		/* Check if column names specified are valid columns in the source table. If not issue error. */
 		UNPACK_SQL_STATEMENT(start_cl, column_name_list, column_list);
-		UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
 		cur_cl = start_cl;
 		do {
 			SqlColumn *    tbl_col;

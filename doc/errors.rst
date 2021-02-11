@@ -865,6 +865,14 @@ Text: xxx
 
 Description/Action: This message prints the text representation of a DDL specification. PSQL Error Code: 00000
 
++++++++++++++++++++
+ERR_TABLE_READONLY
++++++++++++++++++++
+
+Text: xxx not allowed on READONLY tables. Only allowed on READWRITE tables.
+
+Description/Action: Queries that modify tables (e.g. INSERT INTO, DELETE, ALTER etc.) are not allowed on tables that have been created as READONLY. They are only allowed on READWRITE tables. PSQL Error Code: 42601
+
 ++++++++++++++++++++++++++++++
 ERR_TABLE_UNKNOWN_COLUMN_NAME
 ++++++++++++++++++++++++++++++

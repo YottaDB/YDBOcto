@@ -99,6 +99,7 @@ ERROR_DEF(ERR_SETOPER_NUMCOLS_MISMATCH, "Each %s query must have same number of 
 ERROR_DEF(ERR_SETOPER_TYPE_MISMATCH, "%s types %s and %s cannot be matched", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_SUBQUERY_ONE_COLUMN, "Subquery must return only one column", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_TABLE_DEFINITION_TOO_LONG, "Table definition for %s too long; max size is %d, table length is %d", PSQL_Code_Invalid_Table_Definition)
+ERROR_DEF(ERR_TABLE_READONLY, "%s not allowed on READONLY tables. Only allowed on READWRITE tables.", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_TABLE_UNKNOWN_COLUMN_NAME, "Column '%s' of table '%s' does not exist", PSQL_Code_Undefined_Column)
 ERROR_DEF(ERR_TYPE_MISMATCH, "Type mismatch: left %s, right %s", PSQL_Code_Datatype_Mismatch)
 ERROR_DEF(ERR_TYPE_NOT_COMPATIBLE, "Type %s not compatible for %s", PSQL_Code_Undefined_Function)

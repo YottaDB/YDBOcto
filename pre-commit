@@ -136,6 +136,8 @@ end
 
 tools/ci/doc_error_update.sh
 if ($status) then
+	echo "  --> Hook $0 returned non-zero status"
+	echo "  --> HOOK-E-FAIL : Non-zero exit status returned by doc_error_update.sh"
 	@ exitstatus = 1
 endif
 

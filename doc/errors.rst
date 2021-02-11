@@ -737,6 +737,14 @@ Text: Processing message type xxx
 
 Description/Action: This debug message indicates that a PostgreSQL wire protocol message of a particular type is being processed. PSQL Error Code: 00000
 
+++++++++++++++++++++++++
+ERR_READWRITE_DISALLOWED
+++++++++++++++++++++++++
+
+Text: READWRITE disallowed if table-level GLOBAL or column-level EXTRACT/PIECE/GLOBAL/DELIM/START/STARTINCLUDE/END are specified
+
+Description/Action: This error is generated when a CREATE TABLE command specifies the table type to be READWRITE but also specifies another keyword that is incompatible with READWRITE. A table level GLOBAL or a column level EXTRACT, PIECE, GLOBAL, DELIM, START, STARTINCLUDE or END are keywords that are not compatible with READWRITE. PSQL Error Code: 42601
+
 ++++++++++++++++++++
 INFO_READ_MESSAGE
 ++++++++++++++++++++

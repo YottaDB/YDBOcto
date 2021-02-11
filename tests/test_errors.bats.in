@@ -263,38 +263,44 @@ OCTO
 }
 
 @test "TERR025 : OCTO345 : Issue error for type mismatch between expression and function return type" {
-  load_fixture TERR025.sql subtest novv
-  verify_output TERR025 output.txt
+	load_fixture TERR025.sql subtest novv
+	verify_output TERR025 output.txt
 }
 
 @test "TERR026 : OCTO345 : Issue error if number of function arguments exceeds M limit" {
-  load_fixture TERR026.sql subtest novv
-  # Confirm that no nodes were created in the database for the failed CREATE FUNCTION attempt
-  [[ 0 -eq $(yottadb -run %XCMD 'ZWRITE ^%ydboctoocto' | grep TOOMANYARGS | wc -l) ]]
-  verify_output TERR026 output.txt
+	load_fixture TERR026.sql subtest novv
+	# Confirm that no nodes were created in the database for the failed CREATE FUNCTION attempt
+	[[ 0 -eq $(yottadb -run %XCMD 'ZWRITE ^%ydboctoocto' | grep TOOMANYARGS | wc -l) ]]
+	verify_output TERR026 output.txt
 }
 
 @test "TERR027 : OCTO345 : Issue error for extrinsic functions with '%' in invalid places" {
-  load_fixture TERR027.sql subtest novv
-  verify_output TERR027 output.txt
+	load_fixture TERR027.sql subtest novv
+	verify_output TERR027 output.txt
 }
 
 @test "TERR028 : OCTO345 : Issue error when inline M function use is attempted" {
-  load_fixture TERR028.sql subtest novv
-  verify_output TERR028 output.txt
+	load_fixture TERR028.sql subtest novv
+	verify_output TERR028 output.txt
 }
 
 @test "TERR029 : OCTO502 : Error scenarios in INSERT INTO" {
-  load_fixture TERR029.sql subtest novv
-  verify_output TERR029 output.txt
+	load_fixture TERR029.sql subtest novv
+	verify_output TERR029 output.txt
 }
 
 @test "TERR030 : OCTO502 : Error scenarios in VALUES" {
-  load_fixture TERR030.sql subtest novv
-  verify_output TERR030 output.txt
+	load_fixture TERR030.sql subtest novv
+	verify_output TERR030 output.txt
 }
 
 @test "TERR031 : OCTO502 : Error scenarios in AS column name alias list" {
-  load_fixture TERR031.sql subtest novv
-  verify_output TERR031 output.txt
+	load_fixture TERR031.sql subtest novv
+	verify_output TERR031 output.txt
 }
+
+@test "TERR032 : OCTO502 : Test of ERR_READWRITE_DISALLOWED error" {
+	load_fixture TERR032.sql subtest novv
+	verify_output TERR032 output.txt
+}
+

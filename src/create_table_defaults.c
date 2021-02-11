@@ -25,7 +25,8 @@
 #define READWRITE (1 << 4)
 
 /* The size of this must match $ZYSUFFIX exactly, which is 22.
- * This mirrors the design of generate_routine_name function. */
+ * This mirrors the design of generate_routine_name function.
+ */
 #define OCTO_TABLE_GLOBAL_PREFIX "%ydboctoD"
 #define OCTO_TABLE_PREFIX_LEN	 (sizeof(OCTO_TABLE_GLOBAL_PREFIX) - 1)
 #define OCTO_HASH_LEN		 (YDB_MAX_IDENT - OCTO_TABLE_PREFIX_LEN)
@@ -73,18 +74,19 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	size_t		    str_len;
 	int		    max_key = 0, copied, i, len;
 	unsigned int	    options;
+	boolean_t	    readwrite_disallowed; /* TRUE if READWRITE at table level is disallowed due to incompatible qualifier */
 
-	assert(NULL != keywords_statement);
-
-	UNPACK_SQL_STATEMENT(start_keyword, keywords_statement, keyword);
 	UNPACK_SQL_STATEMENT(table, table_statement, create_table);
 
-	/* Check for duplicate column names. If so issue error. */
+	readwrite_disallowed = FALSE; /* Start with FALSE . Will be set to TRUE later if we find an incompatibility. */
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
-	for (cur_column = start_column; start_column != cur_column->next; cur_column = cur_column->next) {
+	/* Do various column-level checks */
+	cur_column = start_column;
+	do {
 		SqlColumn *cur_column2;
 		SqlValue * columnName1;
 
+		/* Check for duplicate column names. If so issue error. */
 		UNPACK_SQL_STATEMENT(columnName1, cur_column->columnName, value);
 		for (cur_column2 = cur_column->next; start_column != cur_column2; cur_column2 = cur_column2->next) {
 			SqlValue *columnName2;
@@ -95,7 +97,38 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 				return 1; // non-zero return value is an error (i.e causes YYABORT in caller)
 			}
 		}
-	}
+		/* Check if there are any incompatible qualifier specifications */
+		UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
+		cur_keyword = start_keyword;
+		do {
+			switch (cur_keyword->keyword) {
+			case PRIMARY_KEY:
+			case NOT_NULL:
+			case UNIQUE_CONSTRAINT:
+			case OPTIONAL_KEY_NUM:
+				/* These column-level keywords are compatible with table-level keyword READONLY or READWRITE */
+				break;
+			case OPTIONAL_EXTRACT:
+			case OPTIONAL_PIECE:
+			case OPTIONAL_SOURCE:
+			case OPTIONAL_DELIM:
+			case OPTIONAL_START:
+			case OPTIONAL_STARTINCLUDE:
+			case OPTIONAL_END:
+				readwrite_disallowed = TRUE;
+				break;
+			case NO_KEYWORD:
+				break;
+			default:
+				ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
+				assert(FALSE);
+				return 1;
+				break;
+			}
+			cur_keyword = cur_keyword->next;
+		} while (cur_keyword != start_keyword);
+		cur_column = cur_column->next;
+	} while (cur_column != start_column);
 	memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn *));
 	max_key = get_key_columns(table, key_columns);
 	/* max_key >= 0 is the number of key columns found
@@ -136,6 +169,8 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		return 1; // non-zero return value is an error (i.e causes YYABORT in caller)
 	}
 	options = 0;
+	assert(NULL != keywords_statement);
+	UNPACK_SQL_STATEMENT(start_keyword, keywords_statement, keyword);
 	cur_keyword = start_keyword;
 	do {
 		SqlOptionalKeyword *next_keyword;
@@ -187,6 +222,26 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		assert(cur_keyword == start_keyword);
 		break;
 	} while (TRUE);
+	/* Now that all table level keywords have been seen, check for incompatibilities.
+	 * Table-level GLOBAL keyword is incompatible with Table-level READWRITE.
+	 */
+	if (options & SOURCE) {
+		readwrite_disallowed = TRUE;
+	}
+	if ((options & READWRITE) && readwrite_disallowed) {
+		/* READWRITE has been explicitly specified but at least one incompatible qualifier was found. Issue error.
+		 * The only exception is if we are auto upgrading a binary table definition. In that case, if READWRITE and
+		 * an incompatible keyword at a table or column level has been specified, it is most definitely a table
+		 * definition created by a previous auto upgrade and the incompatible keyword would not have been
+		 * specified explicitly at that time (or else it would have issued a ERR_READWRITE_DISALLOWED error then) and so
+		 * the incompatible keyword (e.g. table-level GLOBAL or column-level PIECE keyword) was implicitly derived
+		 * then and so can continue to stay.
+		 */
+		if (!config->in_auto_upgrade_binary_table_definition) {
+			ERROR(ERR_READWRITE_DISALLOWED, NULL);
+			return 1;
+		}
+	}
 	if (!(options & SOURCE)) {
 		int	   total_copied = 0;
 		int	   buffer_size, buffer2_size;
@@ -263,13 +318,17 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 			/* In auto upgrade logic where pre-existing tables are being upgraded. In this case, it is not safe
 			 * to infer the READONLY vs READWRITE characteristic of a table from the current octo.conf setting
 			 * of "tabletype" since the user of the new Octo build might not have yet known this new keyword
-			 * (let alone set this keyword in octo.conf appropriately). Therefore, to be safe, assume it is a
-			 * READONLY table.
+			 * (let alone set this keyword in octo.conf appropriately). Therefore, check if READWRITE is allowable
+			 * (i.e. no incompatible column level keywords have been specified). If so use that. If not use READONLY.
 			 */
-			table->readwrite = FALSE;
+			table->readwrite = !readwrite_disallowed;
 		} else {
-			/* Neither READONLY or READWRITE was specified. Assume default based on octo.conf tabletype setting. */
-			table->readwrite = ((TABLETYPE_READWRITE == config->default_tabletype) ? TRUE : FALSE);
+			/* Neither READONLY or READWRITE was specified.
+			 * If incompatible column level keyword has been specified, assume READONLY.
+			 * If not, assume value based on octo.conf "tabletype" setting.
+			 */
+			table->readwrite
+			    = (readwrite_disallowed ? FALSE : ((TABLETYPE_READWRITE == config->default_tabletype) ? TRUE : FALSE));
 		}
 	}
 	return 0;

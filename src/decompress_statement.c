@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -70,6 +70,7 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 		CALL_DECOMPRESS_HELPER(table->columns, out, out_length);
 		CALL_DECOMPRESS_HELPER(table->delim, out, out_length);
 		CALL_DECOMPRESS_HELPER(table->nullchar, out, out_length);
+		/* table->readwrite is not a pointer value so no need to call CALL_DECOMPRESS_HELPER on this member */
 		/* table->oid is not a pointer value so no need to call CALL_DECOMPRESS_HELPER on this member */
 		break;
 	case create_function_STATEMENT:

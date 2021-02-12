@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -46,9 +46,10 @@ discardXREFS	;
 	; Not currently implemented
 	QUIT
 
-discardTable(tableName)	;
+discardTable(tableName,tableGVNAME)	;
 	; ----------------------------------------------------------------------------
 	; Discards all generated xrefs, plans and triggers associated with a table.
+	; Also KILLs the M global name associated with a table in case "tableGVNAME" parameter is set to a non-empty string.
 	; ----------------------------------------------------------------------------
 	; Delete all plans associated with "tableName"
 	;
@@ -73,6 +74,8 @@ discardTable(tableName)	;
 	.  ; Delete the trigger named `trigname` now that the cross reference is gone
 	.  IF '$$dollarZTRIGGER^%ydboctoplanhelpers("ITEM","-"_trigname)  WRITE $ZSTATUS,!
 	.  KILL ^%ydboctoocto("xref_status",tableName,column)
+	; If tableGVNAME is not "", it points to an gvn whose subtree needs to be KILLed as part of the DROP TABLE
+	KILL:$data(tableGVNAME)&(""'=tableGVNAME) @tableGVNAME
 	QUIT
 
 discardFunction(functionName,functionHash)	;

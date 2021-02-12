@@ -89,3 +89,25 @@ OCTO
 	verify_output TDT04 output.txt
 }
 
+@test "TDT05 : OCTO502 : DROP TABLE on READWRITE table does a KILL of the underlying GVN storing the table data" {
+	echo "# Test that READONLY table does not do KILL of underlying GVN storing the table data" > final_output.txt
+	echo "# And that READWRITE table does KILL of underlying GVN storing the table data" >> final_output.txt
+	echo "-----------------------------------------------------------------------------" >> final_output.txt
+	for setting in READONLY READWRITE
+	do
+		echo 'tabletype = "'$setting'"' > octo.conf
+		echo "# CREATE TABLE NAMES with $setting tabletype" >> final_output.txt
+		load_fixture names.sql
+		echo "# Populate ^names with data for NAMES table" >> final_output.txt
+		load_fixture names.zwr
+		echo "# Verify NAMES table got created with READONLY or READWRITE tabletype" >> final_output.txt
+		$ydb_dist/yottadb -run %XCMD 'write ^%ydboctoschema("NAMES","text",0)' >> final_output.txt
+		echo "# DROP TABLE names" >> final_output.txt
+		load_fixture TDT05.sql subtest novv
+		cat output.txt >> final_output.txt
+		echo "# Verify ^names still exists (READONLY) or not (READWRITE)" >> final_output.txt
+		$ydb_dist/yottadb -run %XCMD 'write "$DATA(^names) = ",$DATA(^names),!' >> final_output.txt
+	done
+	verify_output TDT05 final_output.txt
+}
+

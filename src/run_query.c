@@ -425,7 +425,12 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		/* First get a ydb_buffer_t of the table name into "table_name_buffer" */
 		if (drop_table_STATEMENT == result_type) {
 			tablename = result->v.drop_table->table_name->v.value->v.reference;
-			table = NULL;
+			table = find_table(tablename);
+			if (NULL == table) {
+				/* Table to be dropped does not exist. Issue error. */
+				ERROR(ERR_CANNOT_DROP_TABLE, tablename);
+				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+			}
 			ok_to_drop = TRUE;
 		} else {
 			UNPACK_SQL_STATEMENT(table, result, create_table);
@@ -437,6 +442,9 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		YDB_STRING_TO_BUFFER(tablename, table_name_buffer);
 		if (ok_to_drop) {
 			/* DROP TABLE */
+			char	     tableGVNAME[YDB_MAX_IDENT + 1];
+			ydb_buffer_t gvname_buff;
+
 			/* Check if OIDs were created for this table.
 			 * If so, delete those nodes from the catalog now that this table is going away.
 			 */
@@ -448,9 +456,32 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			 * created/dropped. Cannot use SimpleAPI for at least one step (deleting the triggers). Hence using M for
 			 * all the steps.
 			 */
+			if (table->readwrite) {
+				/* This is a READWRITE table. DROP TABLE should also KILL the gvn corresponding to this table. */
+				SqlOptionalKeyword *keyword;
+				char *		    gvname, *firstsub;
+
+				UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
+				UNPACK_SQL_STATEMENT(value, keyword->v, value);
+				gvname = value->v.reference;
+				firstsub = strchr(gvname, '(');
+				if (NULL == firstsub) {
+					/* Not sure how an unsubscripted gvn can be specified in GLOBAL. But handle it anyways. */
+					assert(FALSE);
+					YDB_STRING_TO_BUFFER(gvname, &gvname_buff);
+				} else {
+					memcpy(tableGVNAME, gvname, firstsub - gvname);
+					tableGVNAME[firstsub - gvname] = '\0';
+					YDB_STRING_TO_BUFFER(tableGVNAME, &gvname_buff);
+				}
+			} else {
+				YDB_STRING_TO_BUFFER("", &gvname_buff);
+			}
 			ci_param1.address = table_name_buffer->buf_addr;
 			ci_param1.length = table_name_buffer->len_used;
-			status = ydb_ci("_ydboctoDiscardTable", &ci_param1);
+			ci_param2.address = gvname_buff.buf_addr;
+			ci_param2.length = gvname_buff.len_used;
+			status = ydb_ci("_ydboctoDiscardTable", &ci_param1, &ci_param2);
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 			/* Now that OIDs and plan nodes have been cleaned up, dropping the table is a simple
 			 *	KILL ^%ydboctoschema(TABLENAME)

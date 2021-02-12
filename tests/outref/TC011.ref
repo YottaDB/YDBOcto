@@ -2,8 +2,7 @@
 -- TC011 : OCTO411 : Add support for INTEGER precision specification to parser for CREATE TABLE statements
 
 -- Test that INTEGER(precision) type works
-DROP TABLE names;
-CREATE TABLE names (id INTEGER(64) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id INTEGER(64) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 SELECT id FROM names;
 SELECT id::integer FROM names;
 SELECT id::numeric FROM names;
@@ -14,7 +13,7 @@ SELECT id::time FROM names;
 
 -- Test that NUMERIC(precision) type works
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC(10) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(10) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 SELECT id FROM names;
 SELECT id::integer FROM names;
 SELECT id::numeric FROM names;
@@ -25,7 +24,7 @@ SELECT id::time FROM names;
 
 -- Test that NUMERIC(precision,scale) type works
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC(10,4) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(10,4) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 SELECT id FROM names;
 SELECT id::integer FROM names;
 SELECT id::numeric FROM names;
@@ -36,84 +35,86 @@ SELECT id::time FROM names;
 
 -- Test various precision and scale values with INTEGER and NUMERIC (some work, some issue error)
 DROP TABLE names;
-CREATE TABLE names (id INTEGER(4) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id INTEGER(4) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id INTEGER(8) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id INTEGER(8) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id INTEGER(16) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id INTEGER(16) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id INTEGER(32) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id INTEGER(32) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id INTEGER(64) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id INTEGER(64) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id INTEGER(127) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id INTEGER(127) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id INTEGER(0) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id INTEGER(0) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id INTEGER(-1) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id INTEGER(-1) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id INTEGER(-1.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id INTEGER(-1.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id INTEGER(15.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id INTEGER(15.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id INTEGER('abcd') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id INTEGER('abcd') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id INTEGER(abcd) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id INTEGER(abcd) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC(4) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(4) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC(8) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(8) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC(16) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(16) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC(32) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(32) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC(64) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(64) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC(127) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(127) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC(0) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(0) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC(-1) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(-1) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC(-1.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(-1.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC(15.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(15.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC('abcd') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC('abcd') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC(abcd) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(abcd) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC(4,2) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(4,2) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC(8,7) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(8,7) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC(16,18) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(16,18) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC(32,25) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(32,25) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC(64,2047) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(64,2047) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC(127,85.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(127,85.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC(0,100.87) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(0,100.87) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC(-1,20) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(-1,20) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC(-1.5,-2.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(-1.5,-2.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC(15.5,20.835) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(15.5,20.835) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC('abcd',20.835) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC('abcd',20.835) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC('abcd','efgh') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC('abcd','efgh') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC(abcd,'efgh') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(abcd,'efgh') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
-CREATE TABLE names (id NUMERIC(abcd,efgh) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(abcd,efgh) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+DROP TABLE names;
 
+[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_CREATE_TABLE : Table 'NAMES' already exists
 ID
 0
 1
@@ -284,137 +285,158 @@ ID
 (6 rows)
 Error with syntax near (line 1, column 32):
 
-CREATE TABLE names (id INTEGER(-1) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id INTEGER(-1) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
                                ^
 syntax error, unexpected MINUS, expecting LITERAL
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id INTEGER(-1) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id INTEGER(-1) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_TABLE : Cannot DROP table 'NAMES' as it does not exist
 Error with syntax near (line 1, column 32):
 
-CREATE TABLE names (id INTEGER(-1.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id INTEGER(-1.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
                                ^
 syntax error, unexpected MINUS, expecting LITERAL
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id INTEGER(-1.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id INTEGER(-1.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_TABLE : Cannot DROP table 'NAMES' as it does not exist
 [ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INTEGER_SYNTAX : Invalid input syntax for type integer: '15.5'
 Error with syntax near (line 1, column 32):
 
-CREATE TABLE names (id INTEGER(15.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id INTEGER(15.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
                                ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id INTEGER(15.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id INTEGER(15.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_TABLE : Cannot DROP table 'NAMES' as it does not exist
 [ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INTEGER_SYNTAX : Invalid input syntax for type integer: 'abcd'
 Error with syntax near (line 1, column 37):
 
-CREATE TABLE names (id INTEGER('abcd') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id INTEGER('abcd') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
                                     ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id INTEGER('abcd') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id INTEGER('abcd') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_TABLE : Cannot DROP table 'NAMES' as it does not exist
 Error with syntax near (line 1, column 32):
 
-CREATE TABLE names (id INTEGER(abcd) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id INTEGER(abcd) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
                                ^^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id INTEGER(abcd) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id INTEGER(abcd) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_TABLE : Cannot DROP table 'NAMES' as it does not exist
 Error with syntax near (line 1, column 32):
 
-CREATE TABLE names (id NUMERIC(-1) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(-1) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
                                ^
 syntax error, unexpected MINUS, expecting LITERAL
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(-1) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(-1) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_TABLE : Cannot DROP table 'NAMES' as it does not exist
 Error with syntax near (line 1, column 32):
 
-CREATE TABLE names (id NUMERIC(-1.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(-1.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
                                ^
 syntax error, unexpected MINUS, expecting LITERAL
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(-1.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(-1.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_TABLE : Cannot DROP table 'NAMES' as it does not exist
 [ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INTEGER_SYNTAX : Invalid input syntax for type integer: '15.5'
 Error with syntax near (line 1, column 32):
 
-CREATE TABLE names (id NUMERIC(15.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(15.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
                                ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(15.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(15.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_TABLE : Cannot DROP table 'NAMES' as it does not exist
 [ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INTEGER_SYNTAX : Invalid input syntax for type integer: 'abcd'
 Error with syntax near (line 1, column 37):
 
-CREATE TABLE names (id NUMERIC('abcd') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC('abcd') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
                                     ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC('abcd') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC('abcd') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_TABLE : Cannot DROP table 'NAMES' as it does not exist
 Error with syntax near (line 1, column 32):
 
-CREATE TABLE names (id NUMERIC(abcd) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(abcd) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
                                ^^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(abcd) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(abcd) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_TABLE : Cannot DROP table 'NAMES' as it does not exist
 [ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_SCALE : Numeric scale 18 must be between 0 and precision 16
 Error with syntax near (line 1, column 31):
 
-CREATE TABLE names (id NUMERIC(16,18) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(16,18) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
                               ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(16,18) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(16,18) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_TABLE : Cannot DROP table 'NAMES' as it does not exist
 [ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_SCALE : Numeric scale 2047 must be between 0 and precision 64
 Error with syntax near (line 1, column 31):
 
-CREATE TABLE names (id NUMERIC(64,2047) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(64,2047) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
                               ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(64,2047) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(64,2047) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_TABLE : Cannot DROP table 'NAMES' as it does not exist
 [ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INTEGER_SYNTAX : Invalid input syntax for type integer: '85.5'
 Error with syntax near (line 1, column 36):
 
-CREATE TABLE names (id NUMERIC(127,85.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(127,85.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
                                    ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(127,85.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(127,85.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_TABLE : Cannot DROP table 'NAMES' as it does not exist
 [ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INTEGER_SYNTAX : Invalid input syntax for type integer: '100.87'
 Error with syntax near (line 1, column 34):
 
-CREATE TABLE names (id NUMERIC(0,100.87) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(0,100.87) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
                                  ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(0,100.87) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(0,100.87) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_TABLE : Cannot DROP table 'NAMES' as it does not exist
 Error with syntax near (line 1, column 32):
 
-CREATE TABLE names (id NUMERIC(-1,20) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(-1,20) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
                                ^
 syntax error, unexpected MINUS, expecting LITERAL
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(-1,20) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(-1,20) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_TABLE : Cannot DROP table 'NAMES' as it does not exist
 Error with syntax near (line 1, column 32):
 
-CREATE TABLE names (id NUMERIC(-1.5,-2.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(-1.5,-2.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
                                ^
 syntax error, unexpected MINUS, expecting LITERAL
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(-1.5,-2.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(-1.5,-2.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_TABLE : Cannot DROP table 'NAMES' as it does not exist
 [ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INTEGER_SYNTAX : Invalid input syntax for type integer: '15.5'
 Error with syntax near (line 1, column 32):
 
-CREATE TABLE names (id NUMERIC(15.5,20.835) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(15.5,20.835) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
                                ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(15.5,20.835) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(15.5,20.835) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_TABLE : Cannot DROP table 'NAMES' as it does not exist
 [ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INTEGER_SYNTAX : Invalid input syntax for type integer: 'abcd'
 Error with syntax near (line 1, column 37):
 
-CREATE TABLE names (id NUMERIC('abcd',20.835) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC('abcd',20.835) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
                                     ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC('abcd',20.835) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC('abcd',20.835) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_TABLE : Cannot DROP table 'NAMES' as it does not exist
 [ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INTEGER_SYNTAX : Invalid input syntax for type integer: 'abcd'
 Error with syntax near (line 1, column 37):
 
-CREATE TABLE names (id NUMERIC('abcd','efgh') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC('abcd','efgh') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
                                     ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC('abcd','efgh') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC('abcd','efgh') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_TABLE : Cannot DROP table 'NAMES' as it does not exist
 Error with syntax near (line 1, column 32):
 
-CREATE TABLE names (id NUMERIC(abcd,'efgh') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(abcd,'efgh') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
                                ^^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(abcd,'efgh') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(abcd,'efgh') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_TABLE : Cannot DROP table 'NAMES' as it does not exist
 Error with syntax near (line 1, column 32):
 
-CREATE TABLE names (id NUMERIC(abcd,efgh) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+CREATE TABLE names (id NUMERIC(abcd,efgh) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
                                ^^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(abcd,efgh) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(abcd,efgh) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_TABLE : Cannot DROP table 'NAMES' as it does not exist

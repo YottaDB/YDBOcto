@@ -1,6 +1,6 @@
 _ydboctoselect          :void        run^%ydboctoselect(I:ydb_ulong_t,I:ydb_string_t*,I:ydb_int_t)
 _ydboctoInit            :ydb_long_t* ^%ydboctoInit(I:ydb_int_t)
 _ydboctoNodeDump        :void        ydboctoNodeDump^%ydboctoUtils()
-_ydboctoDiscardTable    :void        discardTable^%ydboctoDiscard(I:ydb_string_t*)
+_ydboctoDiscardTable    :void        discardTable^%ydboctoDiscard(I:ydb_string_t*,I:ydb_string_t*)
 _ydboctoDiscardFunction :void        discardFunction^%ydboctoDiscard(I:ydb_string_t*,I:ydb_string_t*)
 _ydboctoDiscardAll      :void        discardALL^%ydboctoDiscard()

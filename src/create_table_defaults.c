@@ -148,7 +148,9 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 				/* Disallow if PIECE number (explicit or implicit) is not in order */
 				UNPACK_SQL_STATEMENT(lcl_value, piece_keyword->v, value);
 				assert(INTEGER_LITERAL == lcl_value->type);
-				readwrite_disallowed = (piece_number != atoi(lcl_value->v.string_literal));
+				if (!readwrite_disallowed) {
+					readwrite_disallowed = (piece_number != atoi(lcl_value->v.string_literal));
+				}
 			}
 		}
 		cur_column = cur_column->next;

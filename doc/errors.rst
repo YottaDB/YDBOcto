@@ -145,6 +145,14 @@ Text: Cannot DROP function 'xxx': no function defined with given name and parame
 
 Description/Action: This error indicates an attempt to drop a non-existent function. PSQL Error Code: 42883
 
++++++++++++++++++++++++++
+ERR_CANNOT_DROP_TABLE
++++++++++++++++++++++++++
+
+Text: Cannot DROP table 'xxx' as it does not exist
+
+Description/Action: This error indicates an attempt to drop a non-existent table. PSQL Error Code: 42P01
+
 ++++++++++++++++++++++++++++++
 ERR_CASE_BRANCH_TYPE_MISMATCH
 ++++++++++++++++++++++++++++++

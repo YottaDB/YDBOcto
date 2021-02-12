@@ -61,6 +61,7 @@ ERROR_DEF(ERR_AS_MORE_COLUMNS, "Table name '%s' has %d columns available but %d 
 ERROR_DEF(ERR_CANNOT_CREATE_FUNCTION, "Function '%s' already exists with same argument types", PSQL_Code_Duplicate_Function)
 ERROR_DEF(ERR_CANNOT_CREATE_TABLE, "Table '%s' already exists", PSQL_Code_Duplicate_Table)
 ERROR_DEF(ERR_CANNOT_DROP_FUNCTION, "Cannot DROP function '%s': no function defined with given name and parameter types", PSQL_Code_Undefined_Function)
+ERROR_DEF(ERR_CANNOT_DROP_TABLE, "Cannot DROP table '%s' as it does not exist", PSQL_Code_Undefined_Table)
 ERROR_DEF(ERR_CASE_BRANCH_TYPE_MISMATCH, "CASE branch type mismatch: left %s, right %s", PSQL_Code_Datatype_Mismatch)
 ERROR_DEF(ERR_CASE_VALUE_TYPE_MISMATCH, "WHEN argument is of type %s but is used in a context that expects a %s type", PSQL_Code_Datatype_Mismatch)
 ERROR_DEF(ERR_COMMON_COLUMN, "Common column name '%s' appears more than once in %s side of NATURAL JOIN", PSQL_Code_Ambiguous_Column)

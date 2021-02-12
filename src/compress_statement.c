@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -88,6 +88,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 		CALL_COMPRESS_HELPER(r, table->columns, new_table->columns, out, out_length);
 		CALL_COMPRESS_HELPER(r, table->delim, new_table->delim, out, out_length);
 		CALL_COMPRESS_HELPER(r, table->nullchar, new_table->nullchar, out, out_length);
+		/* table->readwrite is not a pointer value so no need to call CALL_COMPRESS_HELPER on this member */
 		/* table->oid is not a pointer value so no need to call CALL_COMPRESS_HELPER on this member */
 		break;
 	case create_function_STATEMENT:

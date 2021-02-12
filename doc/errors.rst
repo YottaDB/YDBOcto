@@ -741,9 +741,9 @@ Description/Action: This debug message indicates that a PostgreSQL wire protocol
 ERR_READWRITE_DISALLOWED
 ++++++++++++++++++++++++
 
-Text: READWRITE disallowed if table-level GLOBAL or column-level EXTRACT/PIECE/GLOBAL/DELIM/START/STARTINCLUDE/END are specified
+Text: READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
 
-Description/Action: This error is generated when a CREATE TABLE command specifies the table type to be READWRITE but also specifies another keyword that is incompatible with READWRITE. A table level GLOBAL or a column level EXTRACT, PIECE, GLOBAL, DELIM, START, STARTINCLUDE or END are keywords that are not compatible with READWRITE. PSQL Error Code: 42601
+Description/Action: This error is generated when a CREATE TABLE command specifies the table type to be READWRITE but also specifies another keyword that is incompatible with READWRITE. A table level GLOBAL keyword is compatible if it specifies just an unsubscripted M global name followed by subscripts that only correspond to primary key columns (using the :code:`keys(...)` syntax). Otherwise it is considered incompatible. A column level PIECE keyword is compatible if it is specified for a non-key column and the piece number matches the number of this non-key column (starting from 1 from the leftmost non-key column in the CREATE TABLE command). Otherwise it is considered incompatible. A column level EXTRACT, GLOBAL, DELIM, START, STARTINCLUDE or END keyword is considered incompatible. PSQL Error Code: 42601
 
 ++++++++++++++++++++
 INFO_READ_MESSAGE

@@ -13,13 +13,13 @@
 -- TERR032 : OCTO502 : Test of ERR_READWRITE_DISALLOWED error
 
 -- Test of READWRITE with table-level GLOBAL
-CREATE TABLE abcd (id INTEGER) GLOBAL "^names(keys(""id""))" READWRITE;
+CREATE TABLE abcd (id INTEGER) GLOBAL "^names(keys(""id""),1)" READWRITE;
 
 -- Test of READWRITE with column-level EXTRACT
 CREATE TABLE abcd (id INTEGER PRIMARY KEY, datetime INTEGER EXTRACT "$ZHOROLOG") READWRITE;
 
 -- Test of READWRITE with column-level PIECE
-CREATE TABLE abcd (id INTEGER, firstname VARCHAR(20) PIECE 1) READWRITE;
+CREATE TABLE abcd (id INTEGER, firstname VARCHAR(20) PIECE 3) READWRITE;
 
 -- Test of READWRITE with column-level GLOBAL
 CREATE TABLE abcd (id INTEGER, firstname VARCHAR(20) GLOBAL "^names(keys(""id""))") READWRITE;

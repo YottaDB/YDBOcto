@@ -72,7 +72,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	SqlValue *	    value;
 	char *		    out_buffer;
 	size_t		    str_len;
-	int		    max_key = 0, copied, i, len;
+	int		    max_key = 0, copied, i, len, piece_number;
 	unsigned int	    options;
 	boolean_t	    readwrite_disallowed; /* TRUE if READWRITE at table level is disallowed due to incompatible qualifier */
 
@@ -82,9 +82,12 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 	/* Do various column-level checks */
 	cur_column = start_column;
+	piece_number = 0;
 	do {
-		SqlColumn *cur_column2;
-		SqlValue * columnName1;
+		SqlColumn *	    cur_column2;
+		SqlValue *	    columnName1;
+		boolean_t	    is_key_column;
+		SqlOptionalKeyword *piece_keyword;
 
 		/* Check for duplicate column names. If so issue error. */
 		UNPACK_SQL_STATEMENT(columnName1, cur_column->columnName, value);
@@ -100,22 +103,29 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		/* Check if there are any incompatible qualifier specifications */
 		UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
 		cur_keyword = start_keyword;
+		is_key_column = FALSE;
+		piece_keyword = NULL;
 		do {
 			switch (cur_keyword->keyword) {
 			case PRIMARY_KEY:
+			case OPTIONAL_KEY_NUM:
+				/* These column-level keywords are compatible with table-level keyword READONLY or READWRITE */
+				is_key_column = TRUE;
+				break;
 			case NOT_NULL:
 			case UNIQUE_CONSTRAINT:
-			case OPTIONAL_KEY_NUM:
 				/* These column-level keywords are compatible with table-level keyword READONLY or READWRITE */
 				break;
 			case OPTIONAL_EXTRACT:
-			case OPTIONAL_PIECE:
 			case OPTIONAL_SOURCE:
 			case OPTIONAL_DELIM:
 			case OPTIONAL_START:
 			case OPTIONAL_STARTINCLUDE:
 			case OPTIONAL_END:
 				readwrite_disallowed = TRUE;
+				break;
+			case OPTIONAL_PIECE:
+				piece_keyword = cur_keyword;
 				break;
 			case NO_KEYWORD:
 				break;
@@ -127,6 +137,20 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 			}
 			cur_keyword = cur_keyword->next;
 		} while (cur_keyword != start_keyword);
+		if (!is_key_column) {
+			/* If it is not a key column, treat it as a column with a PIECE number
+			 * (explicitly specified or implicitly assumed).
+			 */
+			SqlValue *lcl_value;
+
+			piece_number++;
+			if (NULL != piece_keyword) {
+				/* Disallow if PIECE number (explicit or implicit) is not in order */
+				UNPACK_SQL_STATEMENT(lcl_value, piece_keyword->v, value);
+				assert(INTEGER_LITERAL == lcl_value->type);
+				readwrite_disallowed = (piece_number != atoi(lcl_value->v.string_literal));
+			}
+		}
 		cur_column = cur_column->next;
 	} while (cur_column != start_column);
 	memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn *));
@@ -149,7 +173,8 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 			// key num value is index of key in table
 			copied = snprintf(key_num_buffer, INT32_TO_STRING_MAX, "%d", i);
 			assert(INT32_TO_STRING_MAX > copied);
-			UNUSED(copied); // Only used for asserts, so use macro to prevent compiler warnings in RelWithDebInfo builds
+			UNUSED(copied); // Only used for asserts, so use macro to prevent compiler warnings in
+					// RelWithDebInfo builds
 			len = strlen(key_num_buffer);
 			out_buffer = octo_cmalloc(memory_chunks, len + 1);
 			strncpy(out_buffer, key_num_buffer, len + 1);
@@ -222,50 +247,50 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		assert(cur_keyword == start_keyword);
 		break;
 	} while (TRUE);
-	/* Now that all table level keywords have been seen, check for incompatibilities.
-	 * Table-level GLOBAL keyword is incompatible with Table-level READWRITE.
+	/* Now that all table level keywords have been seen, check for incompatibilities. */
+	/* 1) If table-level GLOBAL keyword is NOT specified, compute the keyword value.
+	 * 2) If table-level GLOBAL keyword is specified and we don't yet know that READWRITE is disallowed in this table,
+	 * check if the GLOBAL keyword value can cause an incompatibility. For this check if the specified GLOBAL keyword is
+	 * an M global name following by the primary key column(s) as subscripts in the KEY NUM order. If so it is
+	 * compatible with READWRITE. Otherwise it is not. 3) If table-level GLOBAL keyword is specified and we already know
+	 * that READWRITE is disallowed in this table due to other incompatibilities, no need to do any checks of the
+	 * specified GLOBAL.
 	 */
-	if (options & SOURCE) {
-		readwrite_disallowed = TRUE;
-	}
-	if ((options & READWRITE) && readwrite_disallowed) {
-		/* READWRITE has been explicitly specified but at least one incompatible qualifier was found. Issue error.
-		 * The only exception is if we are auto upgrading a binary table definition. In that case, if READWRITE and
-		 * an incompatible keyword at a table or column level has been specified, it is most definitely a table
-		 * definition created by a previous auto upgrade and the incompatible keyword would not have been
-		 * specified explicitly at that time (or else it would have issued a ERR_READWRITE_DISALLOWED error then) and so
-		 * the incompatible keyword (e.g. table-level GLOBAL or column-level PIECE keyword) was implicitly derived
-		 * then and so can continue to stay.
-		 */
-		if (!config->in_auto_upgrade_binary_table_definition) {
-			ERROR(ERR_READWRITE_DISALLOWED, NULL);
-			return 1;
-		}
-	}
-	if (!(options & SOURCE)) {
-		int	   total_copied = 0;
+	if (!(options & SOURCE) || !readwrite_disallowed) {
+		int	   total_copied;
 		int	   buffer_size, buffer2_size;
 		char *	   buffer, *buffer2, *buff_ptr;
 		ydb_uint16 mmr_table_hash;
 		char	   table_hash[OCTO_HASH_LEN + 1]; // +1 for null terminator
+		char *	   start, *next;
 
 		buffer_size = buffer2_size = OCTO_INIT_BUFFER_LEN;
 		buffer = (char *)malloc(sizeof(char) * buffer_size);
 		buffer2 = (char *)malloc(sizeof(char) * buffer2_size);
-		UNPACK_SQL_STATEMENT(value, table->tableName, value);
 		buff_ptr = buffer;
+		total_copied = 0;
+		if (!(options & SOURCE)) {
+			UNPACK_SQL_STATEMENT(value, table->tableName, value);
 
-		// Hashed table name (which matches $ZYSUFFIX)
-		ydb_mmrhash_128(value->v.reference, strlen(value->v.reference), 0, &mmr_table_hash);
-		ydb_hash_to_string(&mmr_table_hash, table_hash, OCTO_HASH_LEN);
-		table_hash[OCTO_HASH_LEN] = '\0';
-		assert(strlen(table_hash) == 22);
+			// Hashed table name (which matches $ZYSUFFIX)
+			ydb_mmrhash_128(value->v.reference, strlen(value->v.reference), 0, &mmr_table_hash);
+			ydb_hash_to_string(&mmr_table_hash, table_hash, OCTO_HASH_LEN);
+			table_hash[OCTO_HASH_LEN] = '\0';
+			assert(strlen(table_hash) == 22);
 
-		/* Add ^OCTO_TABLE_GLOBAL_PREFIX to table name, then add table hash to table
-		 * name after prefix and then open paren. */
-		SNPRINTF_TO_BUFFER("^", buffer, buff_ptr, buffer_size, total_copied);
-		SNPRINTF_TO_BUFFER(OCTO_TABLE_GLOBAL_PREFIX, buffer, buff_ptr, buffer_size, total_copied);
-		SNPRINTF_TO_BUFFER(table_hash, buffer, buff_ptr, buffer_size, total_copied);
+			/* Add ^OCTO_TABLE_GLOBAL_PREFIX to table name, then add table hash to table
+			 * name after prefix and then open paren. */
+			SNPRINTF_TO_BUFFER("^", buffer, buff_ptr, buffer_size, total_copied);
+			SNPRINTF_TO_BUFFER(OCTO_TABLE_GLOBAL_PREFIX, buffer, buff_ptr, buffer_size, total_copied);
+			SNPRINTF_TO_BUFFER(table_hash, buffer, buff_ptr, buffer_size, total_copied);
+		} else {
+			/* Copy just the subscripts portion of the M gvn specified in GLOBAL keyword for later "strcasecmp"
+			 * check */
+			UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
+			UNPACK_SQL_STATEMENT(value, keyword->v, value);
+			start = value->v.string_literal;
+			next = strchr(start, '(');
+		}
 		SNPRINTF_TO_BUFFER("(", buffer, buff_ptr, buffer_size, total_copied);
 
 		// Append keys (aka subscripts)
@@ -284,16 +309,27 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		// Null terminate, and prepare to return
 		*buff_ptr++ = '\0';
 		len = buff_ptr - buffer;
-		out_buffer = octo_cmalloc(memory_chunks, len);
-		memcpy(out_buffer, buffer, len);
-		OCTO_CMALLOC_STRUCT((keyword), SqlOptionalKeyword);
-		(keyword)->keyword = OPTIONAL_SOURCE;
-		SQL_VALUE_STATEMENT(keyword->v, STRING_LITERAL, out_buffer);
-		dqinit(keyword);
-		assert(NULL == table->source);
-		SQL_STATEMENT(statement, keyword_STATEMENT);
-		statement->v.keyword = keyword;
-		table->source = statement;
+		if (!(options & SOURCE)) {
+			out_buffer = octo_cmalloc(memory_chunks, len);
+			memcpy(out_buffer, buffer, len);
+			OCTO_CMALLOC_STRUCT(keyword, SqlOptionalKeyword);
+			keyword->keyword = OPTIONAL_SOURCE;
+			SQL_VALUE_STATEMENT(keyword->v, STRING_LITERAL, out_buffer);
+			dqinit(keyword);
+			assert(NULL == table->source);
+			SQL_STATEMENT(statement, keyword_STATEMENT);
+			statement->v.keyword = keyword;
+			table->source = statement;
+		} else if ((NULL == next) || strcasecmp(buffer, next)) {
+			/* GLOBAL keyword value did not specify any subscripts OR has specified subscripts that is not in
+			 * a format compatible with READWRITE.
+			 * Note: Need to use "starcasecmp" since the user might specify column name in "keys(...)" syntax
+			 * in any case but "generate_key_name" would have used upper case and they should be treated as the
+			 * same. Since the case matters in the global name, we use "next" (instead of "start") and avoid the
+			 * global name in the string compare call.
+			 */
+			readwrite_disallowed = TRUE;
+		}
 		free(buffer);
 		free(buffer2);
 	}
@@ -313,13 +349,20 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		statement->v.keyword = keyword;
 		table->delim = statement;
 	}
+	if ((options & READWRITE) && readwrite_disallowed) {
+		/* READWRITE has been explicitly specified but at least one incompatible qualifier was found. Issue error.
+		 */
+		ERROR(ERR_READWRITE_DISALLOWED, NULL);
+		return 1;
+	}
 	if (!(options & READONLY) && !(options & READWRITE)) {
 		if (config->in_auto_upgrade_binary_table_definition) {
 			/* In auto upgrade logic where pre-existing tables are being upgraded. In this case, it is not safe
 			 * to infer the READONLY vs READWRITE characteristic of a table from the current octo.conf setting
 			 * of "tabletype" since the user of the new Octo build might not have yet known this new keyword
-			 * (let alone set this keyword in octo.conf appropriately). Therefore, check if READWRITE is allowable
-			 * (i.e. no incompatible column level keywords have been specified). If so use that. If not use READONLY.
+			 * (let alone set this keyword in octo.conf appropriately). Therefore, check if READWRITE is
+			 * allowable (i.e. no incompatible column level keywords have been specified). If so use that. If
+			 * not use READONLY.
 			 */
 			table->readwrite = !readwrite_disallowed;
 		} else {

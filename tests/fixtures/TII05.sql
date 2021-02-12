@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -91,4 +91,30 @@ SELECT * FROM test1;
 DROP TABLE test1;
 SELECT '-- Test that valid queries work fine after an INSERT INTO query that had an error midway';
 SELECT * FROM names WHERE id = 4;
+
+SELECT '-- Test of ERR_TABLE_READONLY error against various catalog tables';
+INSERT INTO octoOneRowTable SELECT * from names;
+INSERT INTO pg_catalog.pg_namespace SELECT * from names;
+INSERT INTO pg_catalog.pg_type SELECT * from names;
+INSERT INTO pg_catalog.pg_class SELECT * from names;
+INSERT INTO pg_catalog.pg_description SELECT * from names;
+INSERT INTO information_schema.tables SELECT * from names;
+INSERT INTO pg_catalog.pg_proc SELECT * from names;
+INSERT INTO pg_catalog.pg_attribute SELECT * from names;
+INSERT INTO pg_catalog.pg_attrdef SELECT * from names;
+INSERT INTO pg_catalog.pg_settings SELECT * from names;
+INSERT INTO pg_catalog.pg_database SELECT * from names;
+INSERT INTO pg_catalog.pg_roles SELECT * from names;
+INSERT INTO pg_catalog.pg_user SELECT * from names;
+
+SELECT '-- Test of ERR_TABLE_READONLY error in a table created with READONLY';
+CREATE TABLE test1 (id INTEGER PRIMARY KEY) READONLY;
+INSERT INTO test1 SELECT 1;
+DROP TABLE test1;
+
+SELECT '-- Test same table created with READWRITE works fine with INSERT INTO';
+CREATE TABLE test1 (id INTEGER PRIMARY KEY) READWRITE;
+INSERT INTO test1 SELECT 1;
+SELECT * from test1;
+DROP TABLE test1;
 

@@ -1239,10 +1239,10 @@ table_definition
           && $column_name->v.value->type == COLUMN_REFERENCE);
         ($$)->v.create_table->tableName = $column_name;
         ($$)->v.create_table->columns = $table_element_list;
+        assign_table_to_columns($$);
         if (create_table_defaults($$, $table_definition_tail)) {
           YYABORT;
         }
-        assign_table_to_columns($$);
       }
   ;
 

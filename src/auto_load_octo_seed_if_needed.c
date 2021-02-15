@@ -67,8 +67,9 @@ int auto_load_octo_seed_if_needed(void) {
 			auto_load_needed = memcmp(fmt.buf_addr, YDBOCTO_GIT_COMMIT_VERSION, fmt.len_used + 1);
 			break;
 		default:
-			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, release_ddl_lock, octo_global, locksub);
-			break;
+			YDB_ERROR_CHECK(status);
+			CLEANUP_AND_RETURN(status, release_ddl_lock, octo_global, locksub);
+			assert(FALSE);
 		}
 		if (!auto_load_needed) {
 			/* No auto upgrade needed. Return after releasing ddl exclusive lock (if applicable). */

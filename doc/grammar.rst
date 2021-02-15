@@ -129,7 +129,7 @@ If mapping to existing YottaDB global variables, an optional_keyword can be adde
 
 .. code-block:: none
 
-   [DELIM | END | EXTRACT | GLOBAL | KEY NUM | NULLCHAR | PIECE | START | STARTINCLUDE ]
+   [DELIM | END | EXTRACT | GLOBAL | KEY NUM | NULLCHAR | PIECE | READONLY | READWRITE | START | STARTINCLUDE ]
 
 The keywords denoted above are M expressions and literals. They are explained in the following table:
 
@@ -152,11 +152,27 @@ The keywords denoted above are M expressions and literals. They are explained in
 +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+---------------------------------------------------+
 | NULLCHAR     | Literal            | Table, Column | Specifies a custom character to be interpreted as a SQL NULL value. Characters | default interpretation of    | See discussion under                              |
 |              |                    |               | are specified as an integer ASCII value from 0-127 to be used in a call to     | empty strings as NULL values | :ref:`sqlnull`                                    |
-|              |                    |               | `$CHAR() <https://docs.yottadb.com/ProgrammersGuide/functions.html#char>`_     |                              |                                                   | 
+|              |                    |               | `$CHAR() <https://docs.yottadb.com/ProgrammersGuide/functions.html#char>`_     |                              |                                                   |
 +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+---------------------------------------------------+
 | PIECE        | Integer Literal    | Column        | Represents the                                                                 | default (column number,      | Not applicable                                    |
 |              |                    |               | `$PIECE() <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_   | starting at 1)               |                                                   |
 |              |                    |               | number of the row this column refers to                                        |                              |                                                   |
++--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+---------------------------------------------------+
+| READONLY     | Not applicable     | Table         | Specifies that the table maps to an existing YottaDB global variable           | Not applicable               | :code:`tabletype` setting in :code:`octo.conf`    |
+|              |                    |               | and allows use of various keywords like :code:`START`, :code:`END` etc.        |                              |                                                   |
+|              |                    |               | in the same :code:`CREATE TABLE` command. Queries that update tables like      |                              |                                                   |
+|              |                    |               | :code:`INSERT INTO`, :code:`DELETE FROM` etc. are not allowed in such tables.  |                              |                                                   |
+|              |                    |               | :code:`DROP TABLE` command drops the table and leaves the underlying mapping   |                              |                                                   |
+|              |                    |               | global variable nodes untouched.                                               |                              |                                                   |
++--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+---------------------------------------------------+
+| READWRITE    | Not applicable     | Table         | Is the opposite of the :code:`READONLY` keyword. This allows queries that      | Not applicable               | :code:`tabletype` setting in :code:`octo.conf`    |
+|              |                    |               | update tables like :code:`INSERT INTO`, :code:`DELETE FROM` etc. but does not  |                              |                                                   |
+|              |                    |               | allow certain keywords like :code:`START`, :code:`END` etc. in the same        |                              |                                                   |
+|              |                    |               | :code:`CREATE TABLE` command. That is, it does not allow a lot of flexibility  |                              |                                                   |
+|              |                    |               | in mapping like :code:`READONLY` tables do. But queries that update tables     |                              |                                                   |
+|              |                    |               | like :code:`INSERT INTO`, :code:`DELETE FROM` etc. are allowed in such tables. |                              |                                                   |
+|              |                    |               | And a :code:`DROP TABLE` command on a :code:`READWRITE` table drops the table  |                              |                                                   |
+|              |                    |               | and deletes/kills the underlying mapping global variable nodes.                |                              |                                                   |
 +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+---------------------------------------------------+
 | START        | Command expression | Column        | Indicates where to start a FOR loop (using                                     | Not applicable               | :code:`""`                                        |
 |              |                    |               | `$ORDER() <https://docs.yottadb.com/ProgrammersGuide/functions.html#order>`_)  |                              |                                                   |
@@ -173,6 +189,8 @@ In the table above:
 
 * table_name and cursor_name are variables representing the names of the table and the cursor being used.
 * keys is a special variable in Octo that contains all of the columns that are identified as keys in the DDL (either via the "PRIMARY KEY" or "KEY NUM X" set of keywords).
+
+If the same :code:`CREATE TABLE` command specifies :code:`READONLY` and :code:`READWRITE`, the keyword that is specified last (in left to right order of parsing the command) prevails.
 
 +++++++++++++
 Error Case

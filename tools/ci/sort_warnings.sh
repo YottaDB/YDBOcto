@@ -1,7 +1,7 @@
 #!/bin/bash
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -21,12 +21,12 @@ echo "OK."
 # Extract base filename
 # NOTE: this intentionally ignores errors that don't have a filename, since they're an issue with the build process itself.
 echo -n "Extracting basename... "
-grep "^/" no_note.txt | cut -d " " -f 1 | sed 's!.*/!!' | cut -d ":" -f 1 > filenames.txt
+grep "warning:" no_note.txt | cut -d " " -f 1 | sed 's!.*/!!' | cut -d ":" -f 1 > filenames.txt
 echo "OK."
 
 # Extract base warning message
 echo -n "Extracting warning message... "
-grep "^/" no_note.txt | cut -d " " -f 2- > warnings.txt
+grep "warning:" no_note.txt | cut -d " " -f 2- > warnings.txt
 echo "OK."
 
 # Concatenate filenames with warning messages and sort

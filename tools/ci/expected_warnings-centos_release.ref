@@ -1,11 +1,16 @@
-lexer.c:In function ‘yyalloc’:
-lexer.c:In function ‘yy_fatal_error’:
-lexer.c:In function ‘yyfree’:
-lexer.c:In function ‘yyrealloc’:
+auto_upgrade_binary_function_definition.c:warning: the comparison will always evaluate as ‘true’ for the address of ‘cursor_ydb_buff’ will never be NULL [-Waddress]
+auto_upgrade_binary_function_definition.c:warning: the comparison will always evaluate as ‘true’ for the address of ‘cursor_ydb_buff’ will never be NULL [-Waddress]
+auto_upgrade_binary_function_definition.c:warning: the comparison will always evaluate as ‘true’ for the address of ‘cursor_ydb_buff’ will never be NULL [-Waddress]
+auto_upgrade_binary_function_definition.c:warning: the comparison will always evaluate as ‘true’ for the address of ‘cursor_ydb_buff’ will never be NULL [-Waddress]
+auto_upgrade_binary_table_definition.c:warning: the comparison will always evaluate as ‘true’ for the address of ‘cursor_ydb_buff’ will never be NULL [-Waddress]
+auto_upgrade_binary_table_definition.c:warning: the comparison will always evaluate as ‘true’ for the address of ‘cursor_ydb_buff’ will never be NULL [-Waddress]
+auto_upgrade_binary_table_definition.c:warning: the comparison will always evaluate as ‘true’ for the address of ‘cursor_ydb_buff’ will never be NULL [-Waddress]
+auto_upgrade_binary_table_definition.c:warning: the comparison will always evaluate as ‘true’ for the address of ‘cursor_ydb_buff’ will never be NULL [-Waddress]
+create_table_defaults.c:warning: ‘next’ may be used uninitialized in this function [-Wmaybe-uninitialized]
 lexer.c:warning: unused parameter ‘yyscanner’ [-Wunused-parameter]
 lexer.c:warning: unused parameter ‘yyscanner’ [-Wunused-parameter]
 lexer.c:warning: unused parameter ‘yyscanner’ [-Wunused-parameter]
 lexer.c:warning: unused parameter ‘yyscanner’ [-Wunused-parameter]
 parser.y:warning: 19 shift/reduce conflicts [-Wconflicts-sr]
-physical-lexer.c:In function ‘yylex’:
 physical-lexer.c:warning: variable ‘yylval’ set but not used [-Wunused-but-set-variable]
+run_query.c:warning: ‘function’ may be used uninitialized in this function [-Wmaybe-uninitialized]

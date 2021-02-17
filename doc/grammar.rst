@@ -506,7 +506,7 @@ Example:
    /* Selects the first five rows from the employee table */
    SELECT * FROM Employee LIMIT 5;
 
-The above example returns no more than 5 rows.
+The above example returns no more than five rows.
 
 +++++++++++++++++++++
 Queries without rows
@@ -739,7 +739,7 @@ If all arguments are NULL, NULL is returned.
 COALESCE must have at least one argument.
 
 Note that unlike other RDBMSs, the values passed to COALESCE are not required to all have the same type.
-For example, the following query is valid and returns the value 1:
+For example, the following query is valid and returns the value one:
 
 .. code-block:: SQL
 
@@ -753,7 +753,7 @@ CONCAT
 
    SELECT CONCAT(VARCHAR, VARCHAR)
 
-The built-in CONCAT function returns the concatenation of its arguments as a VARCHAR value. This function may be used with 2 or 3 VARCHAR arguments to be concatenated.
+The built-in CONCAT function returns the concatenation of its arguments as a VARCHAR value. This function may be used with two or three VARCHAR arguments to be concatenated.
 
 .. code-block:: SQL
 
@@ -794,9 +794,9 @@ ROUND
    SELECT ROUND(NUMERIC, INTEGER) ...
 
 ROUND returns the first argument rounded to the precision specified by the second argument.
-If the precision is greater than 0, the number will be rounded to that number of decimal places.
-If the precision is 0, it will be rounded to the nearest integer.
-If the precision is less than 0, all fractional digits will be truncated and the number will be rounded to `10^precision`.
+If the precision is greater than zero, the number will be rounded to that number of decimal places.
+If the precision is zero, it will be rounded to the nearest integer.
+If the precision is less than zero, all fractional digits will be truncated and the number will be rounded to `10^precision`.
 The precision must be no less than -46.
 
 +++++++
@@ -808,9 +808,9 @@ TRUNC
    SELECT TRUNC(NUMERIC, INTEGER) ...
 
 TRUNC returns the first argument truncated to the precision specified by the second argument.
-If the precision is greater than 0, the number will be truncated to that number of decimal places.
-If the precision is 0, this behaves the same as the mathematical `floor` function.
-If the precision is less than 0, all fractional digits will be truncated and the number will be truncated to `10^precision`.
+If the precision is greater than zero, the number will be truncated to that number of decimal places.
+If the precision is zero, this behaves the same as the mathematical `floor` function.
+If the precision is less than zero, all fractional digits will be truncated and the number will be truncated to `10^precision`.
 The precision must be no less than -43.
 
 --------------
@@ -953,7 +953,7 @@ Examples:
    1
    1
 
-   /* The select subquery uses aliases for the table as well as columns. This query selects one row from the names table aliased as tblalias, where the value of the colalias1 is 1. */
+   /* The select subquery uses aliases for the table as well as columns. This query selects one row from the names table aliased as tblalias, where the value of the colalias1 is one(1). */
    OCTO> SELECT * FROM (SELECT * FROM names) as tblalias(colalias1, colalias2, colalias3) WHERE tblalias.colalias1 = 1;
    1|Acid|Burn
 
@@ -1511,7 +1511,7 @@ NULLCHAR() can be used to designate a specific character as representing a SQL N
    NULLCHAR (127)
    GLOBAL "^names(keys(""id""))";
 
-In the example, NULLCHAR(127) means that if first piece of a :code:`^names(…)` node has the ASCII value 127 (DEL), Octo is to treat the corresponding :code:`firstName` as NULL, and :code:`lastName` as NULL if the second piece is an ASCII 127. NULLCHAR() accepts the entire ASCII range of characters, 0 through 127.
+In the example, NULLCHAR(127) means that if first piece of a :code:`^names(…)` node has the ASCII value 127 (DEL), Octo is to treat the corresponding :code:`firstName` as NULL, and :code:`lastName` as NULL if the second piece is an ASCII 127. NULLCHAR() accepts the entire ASCII range of characters, zero(0) through 127.
 
 .. note::
    When parsed, if a table and a column have the same name, a query will give preference to the table name over the derived column name.

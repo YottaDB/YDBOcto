@@ -431,7 +431,7 @@ ERR_INVALID_KEYWORD_CHAR
 
 Text: Integer value xxx given for xxx character is not a valid ASCII (0-127) character
 
-Description/Action: This error is issued when a user attempts to use an invalid character as part of a :code:`DELIM` or :code:`NULLCHAR` specfication. Accepted values range from 0 to 127 (ASCII). PSQL Error Code: 42601
+Description/Action: This error is issued when a user attempts to use an invalid character as part of a :code:`DELIM` or :code:`NULLCHAR` specfication. Accepted values range from zero(0) to 127 (ASCII). PSQL Error Code: 42601
 
 +++++++++++++++++++++++++
 ERR_INVALID_NUMBER
@@ -621,7 +621,7 @@ Description/Action: This error indicates that Null Subscripts have been turned o
 ERR_NUMERIC_SCALE
 +++++++++++++++++++++++++++++
 
-Text: Numeric scale xxx must be between 0 and precision xxx
+Text: Numeric scale xxx must be between zero(0) and precision xxx
 
 Description/Action: This error indicates that the SCALE value in a NUMERIC(PRECISION,SCALE) specification cannot be greater than the PRECISION value. PSQL Error Code: 22023
 
@@ -751,7 +751,7 @@ ERR_READWRITE_DISALLOWED
 
 Text: READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
 
-Description/Action: This error is generated when a CREATE TABLE command specifies the table type to be READWRITE but also specifies another keyword that is incompatible with READWRITE. A table level GLOBAL keyword is compatible if it specifies just an unsubscripted M global name followed by subscripts that only correspond to primary key columns (using the :code:`keys(...)` syntax). Otherwise it is considered incompatible. A column level PIECE keyword is compatible if it is specified for a non-key column and the piece number matches the number of this non-key column (starting from 1 from the leftmost non-key column in the CREATE TABLE command). Otherwise it is considered incompatible. A column level EXTRACT, GLOBAL, DELIM, START, STARTINCLUDE or END keyword is considered incompatible. PSQL Error Code: 42601
+Description/Action: This error is generated when a CREATE TABLE command specifies the table type to be READWRITE but also specifies another keyword that is incompatible with READWRITE. A table level GLOBAL keyword is compatible if it specifies just an unsubscripted M global name followed by subscripts that only correspond to primary key columns (using the :code:`keys(...)` syntax). Otherwise it is considered incompatible. A column level PIECE keyword is compatible if it is specified for a non-key column and the piece number matches the number of this non-key column (starting from one(1) from the leftmost non-key column in the CREATE TABLE command). Otherwise it is considered incompatible. A column level EXTRACT, GLOBAL, DELIM, START, STARTINCLUDE or END keyword is considered incompatible. PSQL Error Code: 42601
 
 ++++++++++++++++++++
 INFO_READ_MESSAGE
@@ -1135,7 +1135,7 @@ Description/Action: This error occurs when a client requests a different number 
 ERR_ROCTO_INVALID_FORMAT_CODE
 ++++++++++++++++++++++++++++++++++
 
-Text: Bind: invalid xxx format code xxx: must be 0 (text) or 1 (binary)
+Text: Bind: invalid xxx format code xxx: must be zero (text) or one (binary)
 
 Description/Action: This error indicates multiple invalid integer values were provided via a PostgreSQL wire protocol message. PSQL Error Code: 22003
 

@@ -698,9 +698,9 @@ Launching Options
 
     When a number level is specified, the verbose output contains all information corresponding to that level as well as the previous levels.
 
-    The default verbose level is set to 2 (WARNING).
+    The default verbose level is set to two(2) (WARNING).
 
-    A single :code:`-v` in the command line puts the verbose level at 3, :code:`-vv` puts the level at 4, and :code:`-vvv` puts the level at 5.
+    A single :code:`-v` in the command line puts the verbose level at three(3), :code:`-vv` puts the level at four(4), and :code:`-vvv` puts the level at five(5).
 
     Example:
 

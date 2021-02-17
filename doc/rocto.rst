@@ -56,7 +56,7 @@ Command Line Flags
 
 #. **-v,  \-\-verbose=<number>**
 
-    Specify amount of information to output when running commands specifying a numeric value from 0-5 or adding additional 'v' characters.
+    Specify amount of information to output when running commands specifying a numeric value from zero to five or adding additional 'v' characters.
 
 #. **-r,  \-\-version**
 
@@ -102,7 +102,7 @@ Download  `JAR <https://en.wikipedia.org/wiki/JAR_(file_format)>`_ from `Squirre
 
 Launch the installer program as an administrator/root. On Windows, see `here <https://stackoverflow.com/questions/37105012/execute-jar-file-as-administrator-in-windows>`_ for some guidance, as it is not on the right-click menu for jars.
 
-Press Next 3 times going through these screens, NOTE where you are installing it, and STOP at the last one
+Press Next three times going through these screens, NOTE where you are installing it, and STOP at the last one
 
 * Welcome Screen
 * Information Screen

@@ -28,19 +28,19 @@ SELECT -1.49::NUMERIC(0);
 SELECT -15.54::NUMERIC(1);
 SELECT -15.54::NUMERIC(0);
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_SCALE : Numeric scale 4 must be between 0 and precision 3
+[ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_SCALE : Numeric scale 4 must be between zero(0) and precision 3
 Error with syntax near (line 1, column 29):
 
 CREATE TABLE abcd(id NUMERIC(3,4));
                             ^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE abcd(id NUMERIC(3,4));
-[ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_SCALE : Numeric scale 3 must be between 0 and precision 2
+[ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_SCALE : Numeric scale 3 must be between zero(0) and precision 2
 Error with syntax near (line 1, column 21):
 
 SELECT 1.50::numeric(2,3);
                     ^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT 1.50::numeric(2,3);
-[ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_SCALE : Numeric scale 3 must be between 0 and precision 2
+[ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_SCALE : Numeric scale 3 must be between zero(0) and precision 2
 Error with syntax near (line 1, column 22):
 
 SELECT -1.50::numeric(2,3);

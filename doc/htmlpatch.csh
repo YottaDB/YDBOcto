@@ -1,7 +1,7 @@
 #!/usr/bin/env tcsh
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2018-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -16,14 +16,14 @@ echo '# In files docs.yottadb.com/*/_static/css/theme.css, make the following re
 echo '#'
 set filelist = `ls -1 _build/html/_static/css/theme.css`
 
-echo '# monospace,serif -> Inconsolata,"Courier New",monospace'
+echo '# monospace,serif -> "Fira Mono",Consolas,monospace'
 set from = 'monospace,serif'
-set to   = 'Inconsolata,"Courier New",monospace'
+set to   = '"Fira Mono",Consolas,monospace'
 perl -p -i -e "s/$from/$to/g" $filelist
 
-echo '# Lato,proxima-nova,Helvetica Neue,Arial,sans-serif -> Raleway,Tahoma,sans-serif'
+echo '# Lato,proxima-nova,Helvetica Neue,Arial,sans-serif -> "Fira Sans",Tahoma,sans-serif'
 set from = 'Lato,proxima-nova,Helvetica Neue,Arial,sans-serif'
-set to   = 'Raleway,Tahoma,sans-serif'
+set to   = '"Fira Sans",Tahoma,sans-serif'
 perl -p -i -e "s/$from/$to/g" $filelist
 
 echo '# Roboto Slab,ff-tisa-web-pro,Georgia,Arial,sans-serif -> Lora,Georgia,serif'
@@ -31,9 +31,9 @@ set from = 'Roboto Slab,ff-tisa-web-pro,Georgia,Arial,sans-serif'
 set to   = 'Lora,Georgia,serif'
 perl -p -i -e "s/$from/$to/g" $filelist
 
-echo '# SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,Courier,monospace -> Inconsolata,Consolas,monospace'
+echo '# SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,Courier,monospace -> "Fira Mono",Consolas,monospace'
 set from = 'SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,Courier,monospace'
-set to   = 'Inconsolata,Consolas,monospace'
+set to   = '"Fira Mono",Consolas,monospace'
 perl -p -i -e "s/$from/$to/g" $filelist
 echo ""
 echo " --> Step 1 complete"
@@ -43,16 +43,18 @@ echo '# Step 2 : Make the following changes to the html files under docs.yottadb
 echo '#'
 echo '# Before the line that contains: <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />'
 echo '# Add the lines:'
-echo '# <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,500;1,500&display=swap" />'
+echo '# <link rel="preconnect" href="https://fonts.gstatic.com">'
+echo '# <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,300;1,300&display=swap" />'
 echo '# <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora&display=swap" />'
-echo '# <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inconsolata&display=swap" />'
+echo '# <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Mono:wght@300&display=swap" />'
 
 set filelist = `ls -1 _build/html/*.html`
 set from = '<link rel="stylesheet" href="_static\/css\/theme.css" type="text\/css" \/>'
-set to1  = '<link rel="stylesheet" href="https:\/\/fonts.googleapis.com\/css2?family=Raleway:ital,wght\@0,500;1,500&display=swap" \/>'
-set to2  = '<link rel="stylesheet" href="https:\/\/fonts.googleapis.com\/css2?family=Lora&display=swap" \/>'
-set to3  = '<link rel="stylesheet" href="https:\/\/fonts.googleapis.com\/css2?family=Inconsolata&display=swap" \/>'
-set to   = "${to1}${to2}${to3}$from"
+set to1  = '<link rel="preconnect" href="https:\/\/fonts.gstatic.com">'
+set to2  = '<link rel="stylesheet" href="https:\/\/fonts.googleapis.com\/css2?family=Fira+Sans:ital,wght\@0,300;1,300&display=swap" \/>'
+set to3  = '<link rel="stylesheet" href="https:\/\/fonts.googleapis.com\/css2?family=Lora&display=swap" \/>'
+set to4  = '<link rel="stylesheet" href="https:\/\/fonts.googleapis.com\/css2?family=Fira+Mono:wght\@300&display=swap" \/>'
+set to   = "${to1}${to2}${to3}${to4}$from"
 perl -p -i -e "s/$from/$to/g" $filelist
 
 echo ""

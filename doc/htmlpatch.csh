@@ -46,14 +46,14 @@ echo '# Add the lines:'
 echo '# <link rel="preconnect" href="https://fonts.gstatic.com">'
 echo '# <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,300;1,300&display=swap" />'
 echo '# <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora&display=swap" />'
-echo '# <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Mono:wght@300&display=swap" />'
+echo '# <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Mono&display=swap" />'
 
 set filelist = `ls -1 _build/html/*.html`
 set from = '<link rel="stylesheet" href="_static\/css\/theme.css" type="text\/css" \/>'
 set to1  = '<link rel="preconnect" href="https:\/\/fonts.gstatic.com">'
 set to2  = '<link rel="stylesheet" href="https:\/\/fonts.googleapis.com\/css2?family=Fira+Sans:ital,wght\@0,300;1,300&display=swap" \/>'
 set to3  = '<link rel="stylesheet" href="https:\/\/fonts.googleapis.com\/css2?family=Lora&display=swap" \/>'
-set to4  = '<link rel="stylesheet" href="https:\/\/fonts.googleapis.com\/css2?family=Fira+Mono:wght\@300&display=swap" \/>'
+set to4  = '<link rel="stylesheet" href="https:\/\/fonts.googleapis.com\/css2?family=Fira+Mono&display=swap" \/>'
 set to   = "${to1}${to2}${to3}${to4}$from"
 perl -p -i -e "s/$from/$to/g" $filelist
 

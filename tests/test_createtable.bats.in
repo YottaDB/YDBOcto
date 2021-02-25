@@ -16,6 +16,8 @@ setup() {
 	init_test
 	createdb
 	# Below is at least needed by TC015 as it does a DROP TABLE and expects underlying M global ^names to not be deleted.
+	# Below is also needed by TC037 as it does a CREATE TABLE without using READONLY but using keywords that are not
+	# compatible with the default READWRITE.
 	echo 'tabletype = "READONLY"' > octo.conf
 	load_fixture names.sql
 	load_fixture names.zwr
@@ -469,16 +471,17 @@ END
 }
 
 @test "TC037 : OCTO589 : DELIM "" at the column level invalidates any PIECE specified and fetches entire node" {
+	$ydb_dist/yottadb -run %XCMD 'set ^names3(1)="first|1",^names3(2)="second|2"'	# needed for one query in TC037.sql
 	testname="TC037"
 	load_fixture $testname.sql subtest novv
 	mv output.txt $testname.log
-	echo '# Test DELIM "" without and with PIECE specified' > output.txt
+	grep '^-- ' $testname.sql > output.txt	# Capture high level purpose of test at start of reference file
 	cat $testname.log >> output.txt
-	echo '# Verify generated plans do not have $PIECE for FIRSTNAME column' >> output.txt
-	grep colvalue2null _ydboctoP*.m >> output.txt
+	echo '# Verify generated plans (including xref plans) do not have $PIECE for FIRSTNAME column' >> output.txt
+	grep -E 'colvalue2null|\$PIECE' _ydbocto*.m >> output.txt
 	echo '# Verify text table definition does not have PIECE specified for FIRSTNAME column' >> output.txt
 	$ydb_dist/mupip extract $testname.ext
-	grep -w "text" $testname.ext | grep -wE "NAMES1|NAMES2" >> output.txt
+	grep -w "text" $testname.ext | grep -wE "NAMES1|NAMES2|NAMES3" >> output.txt
 	verify_output $testname output.txt
 }
 

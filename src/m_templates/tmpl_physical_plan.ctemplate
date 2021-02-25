@@ -40,7 +40,6 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		boolean_t		not_null;
 		int			num_key_cols;
 		SqlOptionalKeyword	*keyword;
-		char			*piece;
 		SqlValue		*value;
 		char			*tableName;
 		char			*columnName;
@@ -96,20 +95,42 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		%{}. . ; The node existed previously so kill cross reference corresponding to its old value{}%
 		%{}`n{{ PLAN_LINE_START }}{}%
 		%{}. . NEW oldValue`n{{ PLAN_LINE_START }}{}%
-		%{}. . SET oldValue=$PIECE($ZTOLDVAL,$ZTDELIM,$ZTUPDATE)`n{{ PLAN_LINE_START }}{}%
+		%{}. . SET oldValue={}%
+		keyword = get_keyword(column, OPTIONAL_PIECE);	/* Note that PIECE keyword could be missing if DELIM is "" */
+		if (NULL != keyword) {
+			%{}$PIECE($ZTOLDVAL,$ZTDELIM,$ZTUPDATE){}%
+		} else {
+			/* No PIECE keyword. So use the full node value. */
+			%{}$ZTOLDVAL{}%
+		}
+		%{}`n{{ PLAN_LINE_START }}{}%
 		%{}. . DO delXrefEntry(oldValue)`n{{ PLAN_LINE_START }}{}%
 		%{}. NEW newValue`n{{ PLAN_LINE_START }}{}%
-		%{}. SET newValue=$PIECE($ZTVALUE,$ZTDELIM,$ZTUPDATE)`n{{ PLAN_LINE_START }}{}%
+		%{}. SET newValue={}%
+		if (NULL != keyword) {
+			%{}$PIECE($ZTVALUE,$ZTDELIM,$ZTUPDATE){}%
+		} else {
+			/* No PIECE keyword. So use the full node value. */
+			%{}$ZTVALUE{}%
+		}
+		%{}`n{{ PLAN_LINE_START }}{}%
 		%{}. DO addXrefEntry(newValue)`n{{ PLAN_LINE_START }}{}%
 		%{}ELSE  DO`n{{ PLAN_LINE_START }}{}%
 		%{}. ; KILL or ZKILL trigger`n{{ PLAN_LINE_START }}{}%
 		%{}. NEW oldValue`n{{ PLAN_LINE_START }}{}%
-		keyword = get_keyword(column, OPTIONAL_PIECE);
-		assert(NULL != keyword);
-		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		piece = value->v.string_literal;
-		%{}. SET oldValue=$PIECE($ZTOLDVAL,$ZTDELIM,{{ piece }}{}%
-		%{})`n{{ PLAN_LINE_START }}{}%
+		%{}. SET oldValue={}%
+		if (NULL != keyword) {
+			char		*piece;
+			SqlValue	*value;
+
+			UNPACK_SQL_STATEMENT(value, keyword->v, value);
+			piece = value->v.string_literal;
+			%{}$PIECE($ZTOLDVAL,$ZTDELIM,{{ piece }}){}%
+		} else {
+			/* No PIECE keyword. So use the full node value. */
+			%{}$ZTOLDVAL{}%
+		}
+		%{}`n{{ PLAN_LINE_START }}{}%
 		%{}. DO delXrefEntry(oldValue)`n{{ PLAN_LINE_START }}{}%
 		%{}QUIT`n`n{}%
 		%{}addXrefEntry({{ PP_VAL }})	; {{ PP_KEY_COLUMN }}0, {{ PP_KEY_COLUMN }}1 etc. are not passed as parameters{}%

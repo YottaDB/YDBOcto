@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -66,10 +66,15 @@ void assign_table_to_columns(SqlStatement *table_statement) {
 				if (!delim_is_empty) {
 					SqlOptionalKeyword *column_keywords, *new_piece_keyword;
 
-					new_piece_keyword = add_optional_piece_keyword_to_sql_column(piece_number++);
+					new_piece_keyword = add_optional_piece_keyword_to_sql_column(piece_number);
 					UNPACK_SQL_STATEMENT(column_keywords, cur_column->keywords, keyword);
 					dqappend(column_keywords, new_piece_keyword);
 				}
+				/* PIECE was not explicitly specified for this non-key column so count this column towards
+				 * the default piece number that is used for other non-key columns with no PIECE specified.
+				 * Note that this is done even in the case DELIM "" is specified for a non-key column.
+				 */
+				piece_number++;
 			} else if (delim_is_empty) {
 				/* PIECE numbers are not applicable for non-key columns with DELIM "" so remove it */
 				remove_piece_keyword = TRUE;

@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -179,9 +179,10 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 		if (NULL != delim) {
 			if (is_dollar_char) {
 				%{} -delim={{ delim }} -pieces=""{{ piece }}""{}%
-			} else {
+			} else if ('\0' != *delim) {
 				%{} -delim=""{{ delim }}"" -pieces=""{{ piece }}""{}%
 			}
+			/* else : DELIM "" case. Do not specify -delim and -pieces in trigger in that case */
 		}
 	}
 	return;

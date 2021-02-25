@@ -1,4 +1,8 @@
-# Test DELIM "" without and with PIECE specified
+-- TC037 : OCTO589 : DELIM "" at the column level invalidates any PIECE specified and fetches entire node
+-- Test DELIM "" without PIECE specified at the column level
+-- Test DELIM "" with PIECE specified at the column level
+-- Test xref plan does not have $PIECE for column with DELIM ""
+-- Also test that xref plan produces correct output
 
 -- TC037 : OCTO589 : DELIM "" at the column level invalidates any PIECE specified and fetches entire node
 
@@ -20,27 +24,52 @@ CREATE TABLE names2 (
 
 SELECT * FROM names2;
 
+-- Test xref plan does not have $PIECE for column with DELIM ""
+-- Also test that xref plan produces correct output
+
+CREATE TABLE names3 (
+	id INTEGER PRIMARY KEY,
+	firstName VARCHAR DELIM ""
+) GLOBAL "^names3(keys(""id""))";
+
+SELECT * from names3;
+SELECT * from names3 WHERE firstname = 'first|1';
+SELECT * from names3 WHERE firstname = 'second|2';
+
 ID|FIRSTNAME|LASTNAME
-0|Zero|Cool|Zero
-1|Acid|Burn|Acid
-2|Cereal|Killer|Cereal
-3|Lord|Nikon|Lord
-4|Joey||Joey
-5|Zero|Cool|Zero
+0|Zero|Cool|Cool
+1|Acid|Burn|Burn
+2|Cereal|Killer|Killer
+3|Lord|Nikon|Nikon
+4|Joey||
+5|Zero|Cool|Cool
 (6 rows)
 ID|FIRSTNAME|LASTNAME
-0|Zero|Cool|Zero
-1|Acid|Burn|Acid
-2|Cereal|Killer|Cereal
-3|Lord|Nikon|Lord
-4|Joey||Joey
-5|Zero|Cool|Zero
+0|Zero|Cool|Cool
+1|Acid|Burn|Burn
+2|Cereal|Killer|Killer
+3|Lord|Nikon|Nikon
+4|Joey||
+5|Zero|Cool|Cool
 (6 rows)
-# Verify generated plans do not have $PIECE for FIRSTNAME column
+ID|FIRSTNAME
+1|first|1
+2|second|2
+(2 rows)
+ID|FIRSTNAME
+1|first|1
+(1 row)
+ID|FIRSTNAME
+2|second|2
+(1 row)
+# Verify generated plans (including xref plans) do not have $PIECE for FIRSTNAME column
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers(^names3(%ydboctocursor(cursorId,"keys",1,"NAMES3","ID")),0,-1,"VARCHAR")
 _ydboctoP*.m:    . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers(^names(%ydboctocursor(cursorId,"keys",1,"NAMES2","ID")),0,-1,"VARCHAR")
-_ydboctoP*.m:    . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES2","ID"))),"|",1),0,-1,"VARCHAR")
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES2","ID"))),"|",2),0,-1,"VARCHAR")
 _ydboctoP*.m:    . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers(^names(%ydboctocursor(cursorId,"keys",1,"NAMES1","ID")),0,-1,"VARCHAR")
-_ydboctoP*.m:    . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES1","ID"))),"|",1),0,-1,"VARCHAR")
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES1","ID"))),"|",2),0,-1,"VARCHAR")
+_ydboctoX*.m:    . SET xrefCol=$$colvalue2null^%ydboctoplanhelpers($$colvalue2null^%ydboctoplanhelpers(^names3(%ydboctocursor(cursorId,"keys",4,"NAMES3","ID")),0,-1,"VARCHAR"),0,-1,"VARCHAR")
 # Verify text table definition does not have PIECE specified for FIRSTNAME column
-^%ydboctoschema("NAMES1","text",0)="CREATE TABLE `NAMES1` (`ID` INTEGER PRIMARY KEY, `FIRSTNAME` VARCHAR(30) DELIM """", `LASTNAME` VARCHAR(30) PIECE 1) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"" READONLY;"
-^%ydboctoschema("NAMES2","text",0)="CREATE TABLE `NAMES2` (`ID` INTEGER PRIMARY KEY, `FIRSTNAME` VARCHAR(30) DELIM """", `LASTNAME` VARCHAR(30) PIECE 1) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("NAMES1","text",0)="CREATE TABLE `NAMES1` (`ID` INTEGER PRIMARY KEY, `FIRSTNAME` VARCHAR(30) DELIM """", `LASTNAME` VARCHAR(30) PIECE 2) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("NAMES2","text",0)="CREATE TABLE `NAMES2` (`ID` INTEGER PRIMARY KEY, `FIRSTNAME` VARCHAR(30) DELIM """", `LASTNAME` VARCHAR(30) PIECE 2) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("NAMES3","text",0)="CREATE TABLE `NAMES3` (`ID` INTEGER PRIMARY KEY, `FIRSTNAME` VARCHAR DELIM """") GLOBAL ""^names3(keys(""""id""""))"" DELIM ""|"" READONLY;"

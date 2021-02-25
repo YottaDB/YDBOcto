@@ -84,3 +84,15 @@ tls: {
     key: "server.key";
   };
 };
+
+/* Octo History location. By default it's in "~/.octo_history".
+ * You can override it here.
+ * More information can be found here: https://docs.yottadb.com/Octo/history.html
+ */
+octo_history = "~/.octo_history"
+
+/* Octo History Maximum Length. By default it's 500. You can override it
+ * here.
+ * More information can be found here: https://docs.yottadb.com/Octo/history.html
+ */
+octo_history_max_length = 500

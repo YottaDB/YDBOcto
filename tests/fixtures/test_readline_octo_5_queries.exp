@@ -1,0 +1,42 @@
+#!/usr/bin/expect
+#################################################################
+#								#
+# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+set timeout 60
+spawn /bin/bash
+# Enable long lines to prevent wrapping
+send -- "stty cols 4096\r"
+expect "stty cols 4096\r"
+
+# Start octo
+send -- "octo -v 2>octo.log\r"
+expect "OCTO> "
+
+# Query 1
+send -- "select * from names;\r"
+expect "OCTO> "
+
+# Query 2
+send -- "select id from names where id = 2;\r"
+expect "OCTO> "
+
+# Query 3
+send -- "select lastname from names where lastname is null;\r"
+expect "OCTO> "
+
+# Query 4 (not really a query though)
+send -- "\\s\r"
+expect "OCTO> "
+
+# Query 5 (still not a query, but good enough for us)
+send -- "QUIT;\r"
+expect -re "\[#\$] "

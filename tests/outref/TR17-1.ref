@@ -1,0 +1,8 @@
+octo
+OCTO> \s
+select * from names;
+select id from names where id = 2;
+select lastname from names where lastname is null;
+\s
+QUIT;
+OCTO> 

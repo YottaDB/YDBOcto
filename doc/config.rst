@@ -128,6 +128,20 @@ The :code:`verbosity` configuration setting controls logging verbosity. It can t
 * :code:`"DEBUG"`: A DEBUG message helps users debug configuration issues
 * :code:`"ERROR"` : An ERROR message informs the user that an error has occurred
 
+~~~~~~~~~~~~
+octo_history
+~~~~~~~~~~~~
+Octo History location. If not specified, it will be in :code:`~/.octo_history` by
+default. You can override it here.
+
+~~~~~~~~~~~~~~~~~~~~~~~
+octo_history_max_length
+~~~~~~~~~~~~~~~~~~~~~~~
+Maximum number of entries to save for Octo history. If not specified, it will
+be 500 by default. Note: while Octo is running, there is no history trimming
+being performed, so you can have more history while running Octo than the
+limit specified here.
+
 -----------------------
 TLS/SSL Configuration
 -----------------------

@@ -248,6 +248,7 @@ int copied_so_far;
 \] { return RIGHT_BRACKET; }
 \: { return COLON; }
 \\q { return QUIT; }
+\\s { return HISTORY; }
 
 ^[ \t\r\n]* { /* skip leading whitespace */
 		if (0 == yylloc->first_line) {

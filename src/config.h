@@ -73,6 +73,12 @@ typedef struct OctoConfig {
 	tabletype_t default_tabletype;			   /* type of table (readonly vs readwrite) assigned to CREATE TABLE
 							    * if not explicitly specified.
 							    */
+	const char *octo_history;			   /* User supplied and also final parsed location of history */
+	int	    octo_history_max_length;		   /* User supplied */
+	int	    octo_history_initial_length;	   /* Initial length of history immediately after load.
+							    * This helps us to know how many entries we need to append
+							    * when we quit.
+							    */
 } OctoConfig;
 
 extern OctoConfig *config;

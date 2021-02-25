@@ -99,6 +99,11 @@
 #define EOF_CTRLD 1 /* Ctrl-D signaled the Octo process to terminate */
 #define EOF_EXIT  2 /* EXIT or QUIT commands signaled the Octo process to terminate */
 
+/* History defines used in history.c */
+#define OCTO_HISTORY_DEFAULT		"~/.octo_history"
+#define OCTO_HISTORY_MAX_LENGTH_DEFAULT 500
+#define OCTO_HISTORY_MAX_LENGTH_UNSET	-1
+
 // Allows us to leave parameters in place even if they are unused and avoid warning from the
 // compiler.
 #define UNUSED(x) (void)(x)
@@ -789,6 +794,15 @@ int auto_upgrade_plan_definition_if_needed(void);
 int auto_upgrade_binary_definition_if_needed(void);
 int auto_upgrade_binary_function_definition(void);
 int auto_upgrade_binary_table_definition(void);
+
+/* history.c function prototypes */
+void print_history(void);
+void load_readline_history(void);
+void save_readline_history(void);
+void set_readline_file(void);
+void set_octo_history_max_length(void);
+void readline_setup(void);
+void add_single_history_item(char *input_buffer_combined, int old_input_index);
 
 /* Globals */
 extern uint64_t hash_canonical_query_cycle; // incremented before every outermost call to "hash_canonical_query"

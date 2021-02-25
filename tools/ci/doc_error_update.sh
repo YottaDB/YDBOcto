@@ -1,7 +1,7 @@
 #!/bin/bash
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -25,7 +25,7 @@ missing_messages=""
 missing_text=""
 duplicated_text=""
 while read line; do
-	mnemonic=$(echo $line | sed 's/ERROR_DEF(\(ERR_.*\|INFO_.*\),/\1/' | cut -f 1 -d ',')
+	mnemonic=$(echo $line | sed 's/ERROR_DEF(\(ERR_.*\|INFO_.*\|WARN_.*\),/\1/' | cut -f 1 -d ',')
 	if [[ $(grep -cn "^$mnemonic$" doc/errors.rst) -eq 0 ]]; then
 		missing_mnemonics="$mnemonic\n$missing_mnemonics"
 	else

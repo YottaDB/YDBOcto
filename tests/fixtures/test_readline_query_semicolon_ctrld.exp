@@ -1,0 +1,39 @@
+#!/usr/bin/expect
+#################################################################
+#								#
+# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+set timeout 60
+spawn /bin/bash
+# Enable long lines to prevent wrapping
+send -- "stty cols 4096\r"
+expect "stty cols 4096\r"
+
+# Start octo
+send -- "octo\r"
+expect "OCTO> "
+
+# Single line query w/o semicolon
+send -- "select * from names\r"
+expect "OCTO> "
+
+# Exit Octo using CTRL-D
+send -- "\x04"
+expect -exact "\r
+ID|FIRSTNAME|LASTNAME\r
+0|Zero|Cool\r
+1|Acid|Burn\r
+2|Cereal|Killer\r
+3|Lord|Nikon\r
+4|Joey|\r
+5|Zero|Cool\r
+(6 rows)\r"
+expect -re "\[#\$] "

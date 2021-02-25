@@ -161,6 +161,7 @@ typedef enum SqlStatementType {
 	row_value_STATEMENT,
 	table_value_STATEMENT,
 	array_STATEMENT,
+	history_STATEMENT,
 	invalid_STATEMENT,
 } SqlStatementType;
 

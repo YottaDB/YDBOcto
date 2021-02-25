@@ -1,0 +1,2 @@
+select 'a' from names limit 1;
+select HANGTIME('A',2);

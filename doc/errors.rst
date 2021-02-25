@@ -43,7 +43,7 @@ TRACE and DEBUG are used to get helpful output for debugging. INFO provides pote
 Octo or Rocto Errors
 ---------------------
 
-Octo or Rocto Errors are of the form :code:`ERR_<error>` or :code:`INFO_<error>`. These errors can occur in either :code:`octo` or :code:`rocto`. The errors are detailed below, in alphabetical order. Occurrences of "xxx" indicate portions of the error message text that vary depending on the details of the particular error.
+Octo or Rocto Errors are of the form :code:`ERR_<error>` or :code:`INFO_<error>` or :code:`WARNING_<error>`. These errors can occur in either :code:`octo` or :code:`rocto`. The errors are detailed below, in alphabetical order. Occurrences of "xxx" indicate portions of the error message text that vary depending on the details of the particular error.
 
 .. contents::
    :local:
@@ -771,6 +771,96 @@ INFO_PROCESSING_MESSAGE_TYPE
 Text: Processing message type xxx
 
 Description/Action: This debug message indicates that a PostgreSQL wire protocol message of a particular type is being processed. PSQL Error Code: 00000
+
+.. _WARN_READLINE_LOAD_FAIL:
+
+++++++++++++++++++++++++++++++++
+WARN_READLINE_LOAD_FAIL
+++++++++++++++++++++++++++++++++
+
+Text: Failed to load history file xxx (check your file name and permissions)
+
+Description/Action: This warning message says that history couldn't be read
+from the specific file. This is due to a bad file name or a file on which you
+don't have permissions. Fix this by specifying the correct history file in
+octo.conf. If you are sure that the file is correct, then check the permissions
+on the file to make sure you can write it to. Hint: starting Octo with -v gives
+you information on where the history file is stored.
+
+++++++++++++++++++++++++++++++++
+WARN_READLINE_SAVE_FAIL
+++++++++++++++++++++++++++++++++
+
+Text: Failed to save history file xxx (check your file name and permissions)
+
+Description/Action: See :ref:`WARN_READLINE_LOAD_FAIL`. This is the
+same error but occurs on save.
+
+++++++++++++++++++++++++++++++++
+INFO_READLINE_NOTIFY_HIST_COUNT
+++++++++++++++++++++++++++++++++
+
+Text: History limited to xxx entries
+
+Description/Action: This is an informational message to tell you how many
+entries in history will be saved when you exit Octo.
+
+++++++++++++++++++++++++++++++++++
+INFO_READLINE_NOTIFY_HIST_LOCATION
+++++++++++++++++++++++++++++++++++
+
+Text: History located at xxx
+
+Description/Action: This is an informational message to tell you where your
+history will be stored. This can be helpful if you need to know why your
+history didn't load, or why a certain history file is not writable.
+
+++++++++++++++++++++++++++++++++
+INFO_READLINE_NOTIFY_LOAD
+++++++++++++++++++++++++++++++++
+
+Text: Reading history
+
+Description/Action: Purely informational message to say that we are about to
+read the history.
+
+++++++++++++++++++++++++++++++++
+INFO_READLINE_NOTIFY_LOAD_COUNT
+++++++++++++++++++++++++++++++++
+
+Text: Reading xxx history entries
+
+Description/Action: Purely informational message to say how many entries we
+read from history.
+
+++++++++++++++++++++++++++++++++
+INFO_READLINE_NOTIFY_SAVE
+++++++++++++++++++++++++++++++++
+
+Text: Saving history
+
+Description/Action: Purely informational message to say that we are about to
+save the history.
+
+++++++++++++++++++++++++++++++++
+INFO_READLINE_NOTIFY_SAVE_COUNT
+++++++++++++++++++++++++++++++++
+
+Text: Saving xxx additional history entries
+
+Description/Action: Purely informational message to say how many entries we
+will save to history.
+
+++++++++++++++++++++++++++++++++
+INFO_READLINE_NOTIFY_TRUNCATE
+++++++++++++++++++++++++++++++++
+
+Text: Truncating history xxx entries to max entries xxx
+
+Description/Action: This message says that the the history size configured in
+octo.conf (or 500 by default if not configured) has been reached; as a result,
+the oldest xxx entries will be discarded. The history size is printed as "max
+entries xxx".
 
 ++++++++++++++++++++++++
 ERR_READWRITE_DISALLOWED

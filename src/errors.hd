@@ -138,6 +138,16 @@ ERROR_DEF(INFO_SEND_MESSAGE, "Sending message of type %c and length %d", PSQL_Co
 ERROR_DEF(INFO_PROCESSING_MESSAGE_TYPE, "Processing message type %c", PSQL_Code_Success)
 ERROR_DEF(INFO_CALLING_M_ROUTINE, "Calling M routine: %s", PSQL_Code_Success)
 ERROR_DEF(INFO_MEM_REALLOCATION, "Memory %s for variable %s", PSQL_Code_Success)
+ERROR_DEF(INFO_READLINE_NOTIFY_LOAD, "Reading history", PSQL_Code_Success)
+ERROR_DEF(INFO_READLINE_NOTIFY_SAVE, "Saving history", PSQL_Code_Success)
+ERROR_DEF(INFO_READLINE_NOTIFY_LOAD_COUNT, "Reading %d history entries", PSQL_Code_Success)
+ERROR_DEF(INFO_READLINE_NOTIFY_SAVE_COUNT, "Saving %d additional history entries", PSQL_Code_Success)
+ERROR_DEF(INFO_READLINE_NOTIFY_TRUNCATE, "Truncating history %d entries to max entries %d", PSQL_Code_Success)
+ERROR_DEF(INFO_READLINE_NOTIFY_HIST_LOCATION, "History located at %s", PSQL_Code_Success)
+ERROR_DEF(INFO_READLINE_NOTIFY_HIST_COUNT, "History limited to %d entries", PSQL_Code_Success)
+// This next two aren't really fatal errors, as Octo works without it, so that's why it's warning
+ERROR_DEF(WARN_READLINE_LOAD_FAIL, "Failed to load history file %s (check your file name and permissions)", PSQL_Code_Success)
+ERROR_DEF(WARN_READLINE_SAVE_FAIL, "Failed to save history file %s (check your file name and permissions)", PSQL_Code_Success)
 // ROCTO //
 ERROR_DEF(INFO_ROCTO_CHILD_STATE_UPDATED, "Process %d switched to state %d", PSQL_Code_Success)
 ERROR_DEF(INFO_ROCTO_CLEAN_DISCONNECT, "connection closed cleanly", PSQL_Code_Success)

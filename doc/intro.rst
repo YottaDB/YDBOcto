@@ -667,6 +667,10 @@ Usage
 
   To use the PostgreSQL protocol compatible server run :code:`$ydb_dist/plugin/bin/rocto`.
 
+  If you use the :code:`octo` command line interpreter, history is stored by
+  default in :code:`~/.octo_history`. More information is provided in the
+  :doc:`history` document.
+
 ~~~~~~~~~~~~~~~~~~~
 Launching Options
 ~~~~~~~~~~~~~~~~~~~

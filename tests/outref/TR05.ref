@@ -1,0 +1,13 @@
+octo
+OCTO> select 'a'
+OCTO> from names
+OCTO> limit 1;
+???
+a
+(1 row)
+OCTO> 
+OCTO> select 'a'^Jfrom names^Jlimit 1;
+???
+a
+(1 row)
+OCTO> 

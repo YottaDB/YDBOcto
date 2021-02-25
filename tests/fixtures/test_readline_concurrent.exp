@@ -1,0 +1,61 @@
+#!/usr/bin/expect
+#################################################################
+#								#
+# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+set timeout 60
+spawn /bin/bash
+# Enable long lines to prevent wrapping
+send -- "stty cols 4096\r"
+expect "stty cols 4096\r"
+
+puts "# Start octo process OCTO1"
+spawn octo
+set octo1 $spawn_id
+
+puts "# Wait for OCTO> prompt to appear in OCTO1"
+expect -i octo1 "OCTO> "
+
+# Octo1 Single line query
+puts "# Octo1 first query"
+send -i octo1 -- "select HANGTIME('A',2);\r"
+
+# And let it run while we do a short query in Octo 2
+puts "# Start octo process OCTO2"
+spawn octo
+set octo2 $spawn_id
+
+puts "# Wait for OCTO> prompt to appear in OCTO2"
+expect -i octo2 "OCTO> "
+
+# Single line query
+puts "# Octo2 first query"
+send -i octo2 -- "select 'a' from names limit 1;\r"
+expect -i octo2 -exact "select 'a' from names limit 1;\r
+???\r
+a\r
+(1 row)\r
+OCTO> "
+
+# Exit Octo using CTRL-D
+puts "# Octo2 CTRL-D"
+send -i octo2 -- "\x04"
+expect -i octo2 -re "\[#\$] "
+
+# Wait for Octo 1 to finish
+puts "# Wait for Octo 1 to finish"
+expect -i octo1 "OCTO> "
+
+# Octo1 Exit Octo using CTRL-D
+puts "# Octo1 CTRL-D"
+send -i octo1 -- "\x04"
+expect -i octo1 -re "\[#\$] "
+

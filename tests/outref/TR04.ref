@@ -1,0 +1,5 @@
+octo
+OCTO> \s
+select * from names;
+select * from names where lastname is null;
+OCTO> 

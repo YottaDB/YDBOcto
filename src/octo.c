@@ -17,7 +17,6 @@
 #include <getopt.h>
 #include <assert.h>
 #include <string.h>
-#include <readline/history.h>
 
 #include <libyottadb.h>
 #include <gtmxc_types.h>
@@ -49,6 +48,7 @@ int main(int argc, char **argv) {
 		/* Check if stdin is a terminal. If so, we need to use "readline()" for command line editing. */
 		if (isatty(0)) {
 			config->is_tty = TRUE;
+			readline_setup();
 		}
 	}
 	cur_input_index = 0;
@@ -64,9 +64,9 @@ int main(int argc, char **argv) {
 				       * This lets octo -vv dump the current query that is being parsed instead of dumping
 				       * all queries that have been keyed in till now.
 				       */
-			HIST_ENTRY * cur_hist;
-			ydb_long_t   cursorId;
-			ydb_buffer_t schema_global;
+			ydb_long_t	 cursorId;
+			ydb_buffer_t	 schema_global;
+			SqlStatementType result_type = invalid_STATEMENT; // for History statement
 
 			/* All current queries in the buffer will have been read when
 			 * cur_input_index+1 is the location of \0 in the buffer.
@@ -96,12 +96,17 @@ int main(int argc, char **argv) {
 			 * resetting "cur_input_index" to "old_input_index" a few lines below.
 			 */
 			result = parse_line(&parse_context);
+
+			/* Grab result type (set to invalid_STATEMENT originally) before OCTO_CFREE,
+			 * which will discard the result variable.
+			 */
+			if (NULL != result)
+				result_type = result->type;
+
 			DELETE_QUERY_PARAMETER_CURSOR_LVN(&cursor_ydb_buff);
 			OCTO_CFREE(memory_chunks);
-			/* Before checking result of "parse_line()" call, add the current input line to the readline history */
 			save_eof_hit = eof_hit; /* Save a copy of the global "eof_hit" in a local variable */
 			/* else: INFO_PARSING_DONE message will be invoked inside "run_query()" call later below */
-			/* Add the current query to the readlines history */
 			if (EOF_NONE != eof_hit) {
 				/* If Octo was started without an input file (i.e. sitting at the "OCTO>" prompt) and
 				 * Ctrl-D was pressed by the user, then print a newline to cleanly terminate the current line
@@ -111,39 +116,73 @@ int main(int argc, char **argv) {
 				if (EOF_CTRLD == eof_hit) {
 					printf("\n");
 				}
+
+				/* The purpose of this block is to add ";" so that a previous
+				 * query, prior to CTRL-D, will be processed, when you type
+				 * query w/o ";", and then CTRL-D. However, QUIT and EXIT also
+				 * come here, for no good reason. We just need to handle
+				 * everything appropriately.
+				 *
+				 * Note that 'select * from names quit' won't be parsed, so this
+				 * block is really only for CTRL-D.
+				 *
+				 * We add semicolon, newline, and increment cur_input_index
+				 */
 				assert(cur_input_index < cur_input_max);
 				if ((0 < cur_input_index) && ('\n' == input_buffer_combined[cur_input_index])) {
-					input_buffer_combined[cur_input_index] = ';';
-					if ((cur_input_index + 1) < cur_input_max) {
-						input_buffer_combined[cur_input_index + 1] = '\n';
+					// 'QUIT;' is legal, and we don't want to add another ;
+					if (';' != input_buffer_combined[cur_input_index - 1]) {
+						input_buffer_combined[cur_input_index] = ';';
+						if ((cur_input_index + 1) < cur_input_max) {
+							input_buffer_combined[++cur_input_index] = '\n';
+						}
 					}
 				}
+
+				/* This block only also runs with CTRL-D, but only when pressed
+				 * on a blank line and no other queries were previously entered.
+				 * It has the effect of terminating Octo.
+				 */
 				if (old_input_index == cur_input_index) {
 					break;
 				}
-				eof_hit = EOF_NONE; /* reset global to avoid "get_input()" (called from "run_query()"
-						     * below) from prematurely returning YY_NULL.
-						     */
+
+				/* reset global to avoid "get_input()" (called from "run_query()"
+				 * below) from prematurely returning YY_NULL.
+				 */
+				eof_hit = EOF_NONE;
 			}
+
+			/* Before checking result of "parse_line()" call, add the current
+			 * input line to the readline history.
+			 * We replace the last character with a null terminator prior to
+			 * adding history, then restore it.
+			 */
 			placeholder = input_buffer_combined[cur_input_index];
 			input_buffer_combined[cur_input_index] = '\0';
-			/* get the last item added to the history
-			 * if it is the same as the current query don't add it to the history again
-			 */
-			cur_hist = history_get(history_length);
-			if (NULL != cur_hist) {
-				if (0 != strcmp(cur_hist->line, input_buffer_combined + old_input_index))
-					add_history(input_buffer_combined + old_input_index);
-			} else {
-				add_history(input_buffer_combined + old_input_index);
-			}
+			add_single_history_item(input_buffer_combined, old_input_index);
 			input_buffer_combined[cur_input_index] = placeholder;
+
 			/* Now that readline history addition is done, get back to checking return value from "parse_line()" */
 			if (NULL == result) {
 				INFO(INFO_PARSING_DONE, cur_input_index - old_input_index, input_buffer_combined + old_input_index);
 				INFO(INFO_RETURNING_FAILURE, "octo()");
 				continue;
 			}
+
+			/* History statement (\s) does not need to be processed further */
+			/* NB: Switch statement here for future no-op statements like the
+			 * history statement.
+			 */
+			if (invalid_STATEMENT != result_type) {
+				switch (result_type) {
+				case history_STATEMENT:
+					continue;
+				default:
+					break;
+				}
+			}
+
 			cur_input_index = old_input_index; /* This ensures that the already parsed query is presented again
 							    * to "parse_line()" invocation in "run_query()" call below.
 							    */
@@ -167,6 +206,12 @@ int main(int argc, char **argv) {
 			break;
 		}
 	} while (!feof(inputFile));
+
+	// Save readline history for interactive sessions
+	if (config->is_tty) {
+		save_readline_history();
+	}
+
 	cleanup_tables();
 	CLEANUP_CONFIG(config->config_file);
 	return ret;

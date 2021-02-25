@@ -182,6 +182,7 @@ add_library(libocto OBJECT
   get_sqldatatype_from_sqlvaluetype.c
   get_sqlvaluetype_from_sqldatatype.c
   get_user_visible_type_string.c
+  history.c
   hash_canonical_query.c
   is_query_canceled.c
   load_pg_defaults.c

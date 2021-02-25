@@ -1,0 +1,55 @@
+#!/usr/bin/expect
+#################################################################
+#								#
+# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+set timeout 60
+spawn /bin/bash
+# Enable long lines to prevent wrapping
+send -- "stty cols 4096\r"
+expect "stty cols 4096\r"
+
+# Start octo
+send -- "octo\r"
+expect "OCTO> "
+
+# Single line query
+send -- "select 'a'\r"
+expect "OCTO> "
+send -- "from names\r"
+expect "OCTO> "
+send -- "limit 1;\r"
+expect -exact "limit 1;\r
+???\r
+a\r
+(1 row)\r
+OCTO> "
+
+# Exit Octo using CTRL-D
+send -- "\x04"
+expect -re "\[#\$] "
+
+# Now enter Octo again
+send -- "octo\r"
+expect "OCTO> "
+
+# Send "up arrow", look for "limit 1", make sure query executes properly.
+send -- "\[A"
+expect "limit 1"
+send -- "\r"
+expect -exact "\r
+???\r
+a\r
+(1 row)\r
+OCTO> "
+# Exit Octo using CTRL-D
+send -- "\x04"
+expect -re "\[#\$] "

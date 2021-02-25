@@ -223,6 +223,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token ENDOFFILE
 %token EXIT
 %token QUIT
+%token HISTORY
 
 %%
 
@@ -272,6 +273,11 @@ sql_statement
       eof_hit = EOF_EXIT;
       YYACCEPT;
   }
+  | history_command {
+      SQL_STATEMENT(*out, history_STATEMENT);
+      print_history();
+      YYACCEPT;
+  }
   ;
 
 semicolon_or_eof
@@ -282,6 +288,10 @@ semicolon_or_eof
 exit_command
   : QUIT
   | EXIT
+  ;
+
+history_command
+  : HISTORY
   ;
 
 %include "parser/select.y"

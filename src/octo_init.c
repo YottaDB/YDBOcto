@@ -27,8 +27,6 @@
 #include <openssl/evp.h>
 #include <openssl/err.h>
 
-#include <readline.h>
-
 #include "octo.h"
 #include "octo_types.h"
 
@@ -347,6 +345,21 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 		ERROR(ERR_BAD_CONFIG, config_file_name, "tabletype can only take on string values (not integer values)");
 		return 1;
 	}
+
+	/* Load octo_history and octo_history_max_length
+	 * For octo_history if not set, it will just be NULL, which we can easily
+	 * check.
+	 * if octo_history_max_length is not set, we need to set it to -1, as 0 is
+	 * a valid value and we cannot tell whether a user entered zero or if a
+	 * config value was not found.
+	 */
+	if (CONFIG_FALSE == config_lookup_string(config_file, "octo_history", &config->octo_history))
+		CONFIG_ERROR_CHECK(config_file, "octo_history");
+	if (CONFIG_FALSE == config_lookup_int(config_file, "octo_history_max_length", &config->octo_history_max_length)) {
+		config->octo_history_max_length = OCTO_HISTORY_MAX_LENGTH_UNSET;
+		CONFIG_ERROR_CHECK(config_file, "octo_history_max_length")
+	}
+
 	// $ZROUTINES has already been set, just return now
 	if (NULL != config->plan_src_dir) {
 		return 0;
@@ -844,8 +857,6 @@ int octo_init(int argc, char **argv) {
 				ydb_release_number += atoi(ch2);
 			}
 		}
-		/* readlines setup */
-		rl_bind_key('\t', rl_insert); // display the tab_completion of '\t' and just insert it as a character
 		config->config_file = config_file;
 		/* "argc" can be 0 in case of cmocka unit tests. Do not attempt auto upgrade/load in that case. */
 		if (argc) {

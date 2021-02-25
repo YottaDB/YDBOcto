@@ -132,6 +132,7 @@ ADD_CUSTOM_COMMAND(
 )
 
 add_library(libocto OBJECT
+  add_key_num_keyword_if_needed.c
   add_optional_piece_keyword_to_sql_column.c
   assign_table_to_columns.c
   auto_load_octo_seed.c

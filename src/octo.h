@@ -110,6 +110,7 @@
 
 // Specify character for delimiting column values in Octo
 #define COLUMN_DELIMITER "|"
+#define EMPTY_DELIMITER	 ""
 
 #define VALUES_COLUMN_NAME_PREFIX "COLUMN"
 
@@ -225,7 +226,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_PLAN_DEFINITION 7
+#define FMT_PLAN_DEFINITION 8
 
 // Below are a few utility macros that are similar to those defined in sr_port/gtm_common_defs.h.
 // But we do not use those as that is outside the control of Octo's source code repository
@@ -672,6 +673,7 @@ void ydb_hash_to_string(ydb_uint16 *hash, char *buffer, const unsigned int buf_l
 
 void		    assign_table_to_columns(SqlStatement *table_statement);
 SqlOptionalKeyword *add_optional_piece_keyword_to_sql_column(int column_number);
+int		    add_key_num_keyword_if_needed(SqlStatement *table_statement);
 
 // Converts a list of columns to a column list alias associated with the given table alias
 SqlColumnListAlias *columns_to_column_list_alias(SqlColumn *column, SqlStatement *table_alias_stmt);

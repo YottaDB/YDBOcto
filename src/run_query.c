@@ -614,6 +614,8 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			memcpy(value->v.string_literal, function_hash, function_hash_buffer->len_used);
 			value->v.string_literal[function_hash_buffer->len_used] = '\0'; /* null terminate */
 			value->type = FUNCTION_HASH;
+		} else {
+			function = NULL; /* to avoid false [-Wmaybe-uninitialized] warnings from compiler */
 		}
 		YDB_STRING_TO_BUFFER(function_name, function_name_buffer);
 

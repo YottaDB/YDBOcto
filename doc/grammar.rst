@@ -136,8 +136,13 @@ The keywords denoted above are M expressions and literals. They are explained in
 +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+---------------------------------------------------+
 | Keyword      | Type               | Range         | Purpose                                                                        | Overrides                    | Default Value                                     |
 +==============+====================+===============+================================================================================+==============================+===================================================+
-| DELIM        | Literal            | Table, Column | Represents the "PIECE" string to be used in                                    | table/default DELIM setting  | :code:`"|"`                                       |
+| DELIM        | Literal            | Table, Column | Represents the delimiter string to be used in                                  | table/default DELIM setting  | :code:`"|"`                                       |
 |              |                    |               | `$PIECE() <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_   |                              |                                                   |
+|              |                    |               | when obtaining the value of a particular column from the global variable       |                              |                                                   |
+|              |                    |               | node that stores one row of the SQL table.  When specified at the column       |                              |                                                   |
+|              |                    |               | level, an empty delimiter string (:code:`DELIM ""`) is allowed. In this        |                              |                                                   |
+|              |                    |               | case, the entire global variable node value is returned as the column value    |                              |                                                   |
+|              |                    |               | (i.e. no :code:`$PIECE` is performed).                                         |                              |                                                   |
 +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+---------------------------------------------------+
 | END          | Boolean expression | Table         | Indicates that the cursor has hit the last record in the table                 | Not applicable               | :code:`""=keys(0)`                                |
 +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+---------------------------------------------------+
@@ -148,15 +153,25 @@ The keywords denoted above are M expressions and literals. They are explained in
 |              |                    |               | columns are considered keys and must be included. See the examples in this     |                              |                                                   |
 |              |                    |               | document to see how you can construct the GLOBAL keyword.                      |                              |                                                   |
 +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+---------------------------------------------------+
-| KEY NUM      | Integer Literal    | Column        | Specifies that the column maps to keys(<number>)                               | Not applicable               | Not applicable                                    |
+| KEY NUM      | Integer Literal    | Column        | Specifies an integer indicating this column as part of a composite key.        | Not applicable               | Not applicable                                    |
+|              |                    |               | The :code:`PRIMARY KEY` column correponds to :code:`KEY NUM 0`.                |                              |                                                   |
+|              |                    |               | The first key column is specified with a :code:`PRIMARY KEY` keyword.          |                              |                                                   |
+|              |                    |               | All other key columns are specified with a :code:`KEY NUM` keyword             |                              |                                                   |
+|              |                    |               | with an integer value starting at :code:`1` and incrementing by 1 for          |                              |                                                   |
+|              |                    |               | every key column. Such a column is considered a key column and is part of the  |                              |                                                   |
+|              |                    |               | the subscript in the global variable node that represents a row of the table.  |                              |                                                   |
 +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+---------------------------------------------------+
 | NULLCHAR     | Literal            | Table, Column | Specifies a custom character to be interpreted as a SQL NULL value. Characters | default interpretation of    | See discussion under                              |
 |              |                    |               | are specified as an integer ASCII value from 0-127 to be used in a call to     | empty strings as NULL values | :ref:`sqlnull`                                    |
 |              |                    |               | `$CHAR() <https://docs.yottadb.com/ProgrammersGuide/functions.html#char>`_     |                              |                                                   |
 +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+---------------------------------------------------+
-| PIECE        | Integer Literal    | Column        | Represents the                                                                 | default (column number,      | Not applicable                                    |
-|              |                    |               | `$PIECE() <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_   | starting at 1)               |                                                   |
-|              |                    |               | number of the row this column refers to                                        |                              |                                                   |
+| PIECE        | Integer Literal    | Column        | Represents a piece number. Used to obtain the value of a column in a table     | default (column number,      | Not applicable                                    |
+|              |                    |               | by extracting this piece number from the value of the global variable node     | starting at 1 for non-key    |                                                   |
+|              |                    |               | specified by the :code:`GLOBAL` keyword at this column level or at the table   | columns)                     |                                                   |
+|              |                    |               | level. The generated code does a                                               |                              |                                                   |
+|              |                    |               | `$PIECE() <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_   |                              |                                                   |
+|              |                    |               | on the value to obtain the value. See also :code:`DELIM` keyword for the       |                              |                                                   |
+|              |                    |               | delimiter string that is used in the :code:`$PIECE`.                           |                              |                                                   |
 +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+---------------------------------------------------+
 | READONLY     | Not applicable     | Table         | Specifies that the table maps to an existing YottaDB global variable           | Not applicable               | :code:`tabletype` setting in :code:`octo.conf`    |
 |              |                    |               | and allows use of various keywords like :code:`START`, :code:`END` etc.        |                              |                                                   |
@@ -191,6 +206,8 @@ In the table above:
 * keys is a special variable in Octo that contains all of the columns that are identified as keys in the DDL (either via the "PRIMARY KEY" or "KEY NUM X" set of keywords).
 
 If the same :code:`CREATE TABLE` command specifies :code:`READONLY` and :code:`READWRITE`, the keyword that is specified last (in left to right order of parsing the command) prevails.
+
+If a :code:`DELIM ""` is specified for a column, any :code:`PIECE` keyword specified for that column is ignored and is treated as if the keyword was not specified.
 
 +++++++++++++
 Error Case

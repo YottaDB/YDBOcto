@@ -6,7 +6,7 @@ CREATE TABLE namesXfer (
 , firstName VARCHAR(30)
 , lastName VARCHAR(30)
 );
-INSERT INTO namesXfer (SELECT * FROM names WHERE lastName <> '');
+INSERT INTO namesXfer (SELECT * FROM names WHERE lastName IS NOT NULL);
 SELECT * FROM namesXfer;
 DROP TABLE namesXfer;
 

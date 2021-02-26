@@ -8,9 +8,9 @@ ID|FIRSTNAME|LASTNAME
 3|Lord|Nikon
 (1 row)
 # Verify ^%ydboctoxref was correctly rebuilt : Running [ZWRITE ^%ydboctoxref]. Output below
-^%ydboctoxref("NAMES","","LASTNAME")=2
-^%ydboctoxref("NAMES","","LASTNAME",4)=""
 ^%ydboctoxref("NAMES","LASTNAME")=6
+^%ydboctoxref("NAMES","LASTNAME","")=1
+^%ydboctoxref("NAMES","LASTNAME","",4)=""
 ^%ydboctoxref("NAMES","LASTNAME","Burn")=1
 ^%ydboctoxref("NAMES","LASTNAME","Burn",1)=""
 ^%ydboctoxref("NAMES","LASTNAME","Cool")=2

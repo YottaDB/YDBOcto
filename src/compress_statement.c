@@ -87,7 +87,6 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 		CALL_COMPRESS_HELPER(r, table->source, new_table->source, out, out_length);
 		CALL_COMPRESS_HELPER(r, table->columns, new_table->columns, out, out_length);
 		CALL_COMPRESS_HELPER(r, table->delim, new_table->delim, out, out_length);
-		CALL_COMPRESS_HELPER(r, table->nullchar, new_table->nullchar, out, out_length);
 		/* table->readwrite is not a pointer value so no need to call CALL_COMPRESS_HELPER on this member */
 		/* table->oid is not a pointer value so no need to call CALL_COMPRESS_HELPER on this member */
 		break;

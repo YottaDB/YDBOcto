@@ -20,9 +20,8 @@
 
 #define SOURCE	  (1 << 0)
 #define DELIM	  (1 << 1)
-#define NULLCHAR  (1 << 2)
-#define READONLY  (1 << 3)
-#define READWRITE (1 << 4)
+#define READONLY  (1 << 2)
+#define READWRITE (1 << 3)
 
 /* The size of this must match $ZYSUFFIX exactly, which is 22.
  * This mirrors the design of generate_routine_name function.
@@ -292,12 +291,6 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 			SQL_STATEMENT(statement, keyword_STATEMENT);
 			statement->v.keyword = cur_keyword;
 			table->delim = statement;
-			break;
-		case OPTIONAL_NULLCHAR:
-			options |= NULLCHAR;
-			SQL_STATEMENT(statement, keyword_STATEMENT);
-			statement->v.keyword = cur_keyword;
-			table->nullchar = statement;
 			break;
 		case OPTIONAL_READONLY:
 			options |= READONLY;

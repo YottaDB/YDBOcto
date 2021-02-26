@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -25,6 +25,8 @@ select * from names where id = -(-(+3));
 select * from names where id = 2+(+3);
 select * from names where firstname = 'Zero' || +'';
 select * from names where firstname = 'Zero' || -'';
+select * from names where firstname = 'Zero' || +NULL;
+select * from names where firstname = 'Zero' || -NULL;
 select * from names where firstname = 'Zero' || +lastname;
 select * from names where firstname = 'Zero' || -lastname;
 

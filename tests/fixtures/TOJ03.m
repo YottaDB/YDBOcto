@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -176,7 +176,7 @@ boolexpr(maxdepth)
 	. . set nchoice=$random(5)
 	. . set subs="" for k=1:1 set subs=$order(columns(table(t),colname,subs)) quit:(subs="")!(k>nchoice)
 	. . set delim=$select($data(numtype(table(t),colname)):"",1:"'")
-	. . set value=value_delim_subs_delim
+	. . set value=value_$select(""=subs:"NULL",1:delim_subs_delim)
 	. set boolstr="("_col_" "_oper_value_")"
 	set depth=1+$random(maxdepth)
 	set boolstr=$$boolexpr(maxdepth-1)
@@ -210,7 +210,7 @@ chooseOnClauseOperands(left,right,i)
 	. ; choose literal based on the chosen column reference
 	. set lit=value(table(t),colname,1+$random(value(table(t),colname)))
 	. set delim=$select($data(numtype(table(t),colname)):"",1:"'")
-	. set lit=delim_lit_delim
+	. set lit=$select(""=lit:"NULL",1:delim_lit_delim)
 	. ; choose literal position (in left or right) randomly
 	. if $random(2) do
 	. . set left=colref,right=lit

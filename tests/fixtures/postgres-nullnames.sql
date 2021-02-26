@@ -1,6 +1,6 @@
 -- ######################################################################
 -- #									#
--- # Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+-- # Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 -- # All rights reserved.						#
 -- #									#
 -- #	This source code contains the intellectual property		#
@@ -13,8 +13,8 @@
 -- Below is to skip the INSERT commands if the table already exists (CREATE TABLE will cause an error and script will exit)
 \set ON_ERROR_STOP on
 
-CREATE TABLE nullnames (id INTEGER PRIMARY KEY NOT NULL, firstName VARCHAR(30), lastName VARCHAR(30) NOT NULL, salary NUMERIC NOT NULL, exempt BOOLEAN NOT NULL, yearsTenured INTEGER);
-CREATE TABLE nullnamesb (id INTEGER PRIMARY KEY NOT NULL, firstName VARCHAR(30), lastName VARCHAR(30) NOT NULL, salary NUMERIC NOT NULL, exempt BOOLEAN NOT NULL, yearsTenured INTEGER NOT NULL);
+CREATE TABLE nullnames (id INTEGER PRIMARY KEY NOT NULL, firstName VARCHAR(30), lastName VARCHAR(30), salary NUMERIC NOT NULL, exempt BOOLEAN NOT NULL, yearsTenured INTEGER);
+CREATE TABLE nullnamesb (id INTEGER PRIMARY KEY NOT NULL, firstName VARCHAR(30), lastName VARCHAR(30), salary NUMERIC NOT NULL, exempt BOOLEAN NOT NULL, yearsTenured INTEGER NOT NULL);
 
 INSERT INTO nullnames (id, firstName, lastName, salary, exempt, yearsTenured)
 VALUES
@@ -22,7 +22,7 @@ VALUES
 	(1, 'Acid', 'Burn', 62530.56, FALSE, 5),
 	(2, 'Cereal', 'Killer', 0, FALSE, NULL),
 	(3, 'Lord', 'Nikon', 2000567.49, TRUE, 2),
-	(4, 'Joey', '', 0, FALSE, NULL),
+	(4, 'Joey', NULL, 0, FALSE, NULL),
 	(5, 'Zero', 'Cool', 25000.01, TRUE, 10);
 
 INSERT INTO nullnamesb (id, firstName, lastName, salary, exempt, yearsTenured)
@@ -31,5 +31,5 @@ VALUES
 	(1, 'Acid', 'Burn', 62530.56, FALSE, 5),
 	(2, 'Cereal', 'Killer', 0, TRUE, 0),
 	(3, 'Lord', 'Nikon', 2000567.49, FALSE, 2),
-	(4, 'Joey', '', 0, FALSE, 0),
+	(4, 'Joey', NULL, 0, FALSE, 0),
 	(5, 'Zero', 'Cool', 25000.01, FALSE, 20);

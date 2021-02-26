@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -37,7 +37,8 @@ TSO15	;
 
 init	;
 	set num(0)=1,num(1)=2,num(2)=3,num(3)="NULL::INTEGER",num=4
-	set str(0)="''",str(1)="'a'",str(2)="'b'",str(3)="NULL::VARCHAR",str=4
+	; TODO: Set str(0)="''" (instead of the current value of NULL) once YDBOcto#687 is fixed.
+	set str(0)="NULL",str(1)="'a'",str(2)="'b'",str(3)="NULL::VARCHAR",str=4
 	quit
 
 subquery(isstring) ;

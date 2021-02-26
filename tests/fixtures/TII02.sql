@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -16,7 +16,7 @@ CREATE TABLE namesLastNameXref (
   lastName VARCHAR(30) PRIMARY KEY,
   id INTEGER KEY NUM 1
 );
-INSERT INTO namesLastNameXref (SELECT lastName, id FROM NAMES WHERE lastName <> '');
+INSERT INTO namesLastNameXref (SELECT lastName, id FROM NAMES WHERE lastName IS NOT NULL);
 SELECT * FROM namesLastNameXref;
 DROP TABLE namesLastNameXref;
 

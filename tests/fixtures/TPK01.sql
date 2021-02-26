@@ -77,3 +77,25 @@ SELECT * FROM ORDER_STATUS;
 -- Rerun the same query as above but with STARTINCLUDE specified.
 SELECT * FROM STARTINCLUDE_ORDER_STATUS;
 
+-- Test queries that use the xref plan return correct results
+SELECT * from T2 where a = 'a1';
+SELECT * from T2 where a = 'a2';
+SELECT * from T2 where a = 'a3';
+SELECT * from T2 where a = 'a4';
+SELECT * from T2 where a = '';
+SELECT * from T2 where a is NULL;
+
+SELECT * from T2 where b = 'b1';
+SELECT * from T2 where b = 'b2';
+SELECT * from T2 where b = 'b3';
+SELECT * from T2 where b = 'b4';
+SELECT * from T2 where b = '';
+SELECT * from T2 where b is NULL;
+
+SELECT * from T2 where c = 'c1';
+SELECT * from T2 where c = 'c2';
+SELECT * from T2 where c = 'c3';
+SELECT * from T2 where c = 'c4';
+SELECT * from T2 where c = '';
+SELECT * from T2 where c is NULL;
+

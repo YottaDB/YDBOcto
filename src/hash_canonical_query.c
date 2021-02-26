@@ -407,7 +407,6 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		} while ((cur_column != start_column));
 		hash_canonical_query(state, table->source, status);
 		hash_canonical_query(state, table->delim, status);
-		hash_canonical_query(state, table->nullchar, status);
 		/* Note: No need to hash "readwrite" as it is a derived value (derived from various other keywords in the
 		 * table that are already part of the hash so it is redundant to hash this one too).
 		 *	hash_canonical_query(state, table->readwrite, status);

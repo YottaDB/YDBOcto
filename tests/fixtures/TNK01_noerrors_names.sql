@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -19,23 +19,23 @@ select * from names n1 where n1.id = NULL;
 select * from names n1 where n1.id != NULL;
 
 -- Test of a mix of NULL and empty string (inherited from a sub-query) with ORDER BY, GROUP BY, DISTINCT etc.
-select id,col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1;
-select id,col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 order by col1, id;
-select id,col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 order by col1 desc, id;
-select id,col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 order by id, col1;
-select id,col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 order by id, col1 desc;
-select AVG(id),col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 GROUP BY col1 order by col1;
-select MIN(id),col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 GROUP BY col1 order by col1;
-select MAX(id),col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 GROUP BY col1 order by col1 desc;
-select SUM(id),col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 GROUP BY col1 order by col1;
-select COUNT(id),col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 GROUP BY col1 order by col1;
-select COUNT(*),col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 GROUP BY col1 order by col1;
-select * from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1;
-select * from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 order by col1, id;
-select * from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 order by col1 desc, id;
-select * from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 order by id, col1;
-select * from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 order by id, col1 desc;
-select distinct col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 order by col1 desc;
+select id,col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select NULL, 3) union (select 'Cool',4) union (select 'Cool',5)) u1;
+select id,col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select NULL, 3) union (select 'Cool',4) union (select 'Cool',5)) u1 order by col1, id;
+select id,col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select NULL, 3) union (select 'Cool',4) union (select 'Cool',5)) u1 order by col1 desc, id;
+select id,col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select NULL, 3) union (select 'Cool',4) union (select 'Cool',5)) u1 order by id, col1;
+select id,col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select NULL, 3) union (select 'Cool',4) union (select 'Cool',5)) u1 order by id, col1 desc;
+select AVG(id),col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select NULL, 3) union (select 'Cool',4) union (select 'Cool',5)) u1 GROUP BY col1 order by col1;
+select MIN(id),col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select NULL, 3) union (select 'Cool',4) union (select 'Cool',5)) u1 GROUP BY col1 order by col1;
+select MAX(id),col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select NULL, 3) union (select 'Cool',4) union (select 'Cool',5)) u1 GROUP BY col1 order by col1 desc;
+select SUM(id),col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select NULL, 3) union (select 'Cool',4) union (select 'Cool',5)) u1 GROUP BY col1 order by col1;
+select COUNT(id),col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select NULL, 3) union (select 'Cool',4) union (select 'Cool',5)) u1 GROUP BY col1 order by col1;
+select COUNT(*),col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select NULL, 3) union (select 'Cool',4) union (select 'Cool',5)) u1 GROUP BY col1 order by col1;
+select * from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select NULL, 3) union (select 'Cool',4) union (select 'Cool',5)) u1;
+select * from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select NULL, 3) union (select 'Cool',4) union (select 'Cool',5)) u1 order by col1, id;
+select * from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select NULL, 3) union (select 'Cool',4) union (select 'Cool',5)) u1 order by col1 desc, id;
+select * from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select NULL, 3) union (select 'Cool',4) union (select 'Cool',5)) u1 order by id, col1;
+select * from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select NULL, 3) union (select 'Cool',4) union (select 'Cool',5)) u1 order by id, col1 desc;
+select distinct col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select NULL, 3) union (select 'Cool',4) union (select 'Cool',5)) u1 order by col1 desc;
 
 -- Tests that were added for #192 but failed because they were waiting for #311 to be fixed.
 -- Misc queries that did not work until OCTO311 was fixed
@@ -120,7 +120,7 @@ SELECT * FROM ((SELECT 'Cool' AS col1, NULL AS id) UNION (SELECT 'First' AS col1
 SELECT * FROM (SELECT NULL::integer AS col1, 1 AS col2) AS u1 WHERE u1.col1 = u1.col2;
 SELECT id = 1 FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT 'First', 2) UNION (SELECT NULL AS col1, NULL AS id)) u1 ORDER BY id;
 SELECT * from ((SELECT NULL AS col1, NULL AS col2) UNION (SELECT 10 AS col1, 2 AS col2)) u1 WHERE u1.col1/u1.col2 = 5;
-SELECT id * 1 from ((SELECT NULL AS col1, 1 AS id) UNION (SELECT '', 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
+SELECT id * 1 from ((SELECT NULL AS col1, 1 AS id) UNION (SELECT NULL, 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
 SELECT 1*col2::INTEGER from ((SELECT 1 AS col1, 1 AS col2) UNION (SELECT NULL AS col1, NULL AS col2)) u1;
 SELECT 1*col2 from ((SELECT NULL AS col1, NULL::integer AS col2)) u1;
 SELECT * from ((SELECT NULL AS col1, NULL AS col2) UNION (SELECT NULL AS col1, 1 AS col2)) AS u1 WHERE u1.col2 IN (NULL+1);
@@ -148,14 +148,14 @@ SELECT 1*((col2::varchar)::integer) FROM ((SELECT NULL as col1, NULL AS col2)) u
 -- Postgres issues an operator doesn't exist for integer * text operation error (when cast is not used) for the above query.
 -- But, though similar values are tested below, no errors are reported by postgres as type is inferred here.
 -- Octo works in both cases. These queries verify its behavior in both case.
-SELECT id + 1 FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT '', 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
-SELECT id - 1 FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT '', 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
-SELECT id * 1 FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT '', 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
-SELECT id / 1 FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT '', 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
-SELECT 10 / id FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT '', 2) UNION (SELECT 'Cool',5) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
-SELECT 10 * id FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT '', 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
-SELECT 10 - id FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT '', 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
-SELECT 10 + id FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT '', 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
+SELECT id + 1 FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT NULL, 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
+SELECT id - 1 FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT NULL, 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
+SELECT id * 1 FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT NULL, 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
+SELECT id / 1 FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT NULL, 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
+SELECT 10 / id FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT NULL, 2) UNION (SELECT 'Cool',5) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
+SELECT 10 * id FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT NULL, 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
+SELECT 10 - id FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT NULL, 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
+SELECT 10 + id FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT NULL, 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
 -- -- Original query had u1.col1/u1.col2 in the where clause. But, to avoid postgres type checking CAST operation is performed.
 SELECT * FROM ((SELECT NULL AS col1, NULL AS col2)) u1 WHERE ((u1.col1::varchar)::integer)/((u1.col2::varchar)::integer) = 5;
 SELECT * FROM ((SELECT NULL AS col1, NULL AS col2)) u1 WHERE ((u1.col1::varchar)::integer)*((u1.col2::varchar)::integer) = 20;
@@ -299,7 +299,7 @@ select * from names where lastname = (select NULL::VARCHAR);
 select * from names where (select NULL) is NULL;
 select * from names where NULL::VARCHAR = (select NULL::VARCHAR);
 select * from names where NULL::VARCHAR < (select NULL::VARCHAR);
-select * from names where lastname = (select ''::text);
+select * from names where lastname = (select NULL::text);
 
 -- Test column name is inherited fine from sub-query in presence of type casts
 -- Note: This is unrelated to NULL handling but is placed here because this issue was noticed while testing for NULL.

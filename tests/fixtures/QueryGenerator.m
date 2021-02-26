@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -1311,7 +1311,9 @@ chooseEntry(tableName,columnName)
 
 	; If selected entry is not of "INTEGER", "NUMERIC", or "BOOLEAN" type, pre/append a single quote (')
 	; This is done to match PSQL format rules, Octo does not care
-	if (($find(type,"INTEGER")=0)&($find(type,"NUMERIC")=0)&($find(type,"BOOLEAN")=0)) set entry="'"_entry_"'"
+	if (($find(type,"INTEGER")=0)&($find(type,"NUMERIC")=0)&($find(type,"BOOLEAN")=0)) do
+	. if (""=entry) set entry="NULL::varchar"	; Need "::varchar" since this can be used as left side of || operator
+	. else  set entry="'"_entry_"'"
 
 	; Convert empty field to default value based on type.
 	; No action needed for VARCHAR case as this is incidentally handled by the single-quote wrapping done above.
@@ -2058,6 +2060,7 @@ getRandFuncStr(colEntry)
 	quit $$getRandFunc(colEntry,"VARCHAR")
 
 getRandFunc(colEntry,type)
+	quit:("NULL"=colEntry) colEntry
 	quit "samevalue("_colEntry_")"
 
 valuesClause()

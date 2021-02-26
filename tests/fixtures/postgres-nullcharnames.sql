@@ -1,6 +1,6 @@
 -- #################################################################
 -- #								#
--- # Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+-- # Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 -- # All rights reserved.						#
 -- #								#
 -- #	This source code contains the intellectual property	#
@@ -22,5 +22,5 @@ INSERT INTO nullcharnames VALUES (3,'Lord','Nikon');
 INSERT INTO nullcharnames VALUES (4,'Joey',NULL);
 INSERT INTO nullcharnames VALUES (5,'Zero','Cool');
 INSERT INTO nullcharnames VALUES (6,NULL,NULL);
-INSERT INTO nullcharnames VALUES (7,'',NULL);
-INSERT INTO nullcharnames VALUES (8,'Suzy','');
+INSERT INTO nullcharnames VALUES (7,NULL,NULL);
+INSERT INTO nullcharnames VALUES (8,'Suzy',NULL);

@@ -1,12 +1,12 @@
 # cat TX02.sql
-SELECT * FROM customers WHERE Postalcode = '';
+SELECT * FROM customers WHERE Postalcode is NULL;
 # Running : octo -f TX02.sql : Expect 1 row of output
 CUSTOMERID|CUSTOMERNAME|CONTACTNAME|ADDRESS|CITY|POSTALCODE|COUNTRY
 37|Hungry Owl All-Night Grocers|Patricia McKenna|8 Johnstown Road|Cork||Ireland
 (1 row)
 # Running : zwrite ^Customers(37)
 ^Customers(37)="Hungry Owl All-Night Grocers|Patricia McKenna|8 Johnstown Road|Cork||Ireland"
-# Running : set ^Customers(37) : Changing PostalCode from '' to 'NullCode'
+# Running : set ^Customers(37) : Changing PostalCode from NULL to 'NullCode'
 # Re-Running : octo -f TX02.sql : Expect NO output
 CUSTOMERID|CUSTOMERNAME|CONTACTNAME|ADDRESS|CITY|POSTALCODE|COUNTRY
 (0 rows)

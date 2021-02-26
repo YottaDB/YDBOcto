@@ -14,7 +14,7 @@ _ydboctoP*.m:    DO octoPlan2(cursorId)
 _ydboctoP*.m:octoPlan1(cursorId)
 _ydboctoP*.m:octoPlan2(cursorId)
 _ydboctoP*.m:;; ---------------------------------------------------------
-_ydboctoP*.m:;  SELECT * FROM (VALUES (12, 'First', 'Last'), (13, 'First2', 'Last2')) n1, names n2;
+_ydboctoP*.m:;  SELECT * FROM (VALUES (1, 'First')) n1;
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
 _ydboctoP*.m:    DO octoPlan1(cursorId)
@@ -22,7 +22,7 @@ _ydboctoP*.m:    DO octoPlan2(cursorId)
 _ydboctoP*.m:octoPlan1(cursorId)
 _ydboctoP*.m:octoPlan2(cursorId)
 _ydboctoP*.m:;; ---------------------------------------------------------
-_ydboctoP*.m:;  SELECT * FROM (VALUES (1, 'First')) n1;
+_ydboctoP*.m:;  SELECT * FROM (VALUES (12, 'First', 'Last'), (13, 'First2', 'Last2')) n1, names n2;
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
 _ydboctoP*.m:    DO octoPlan1(cursorId)

@@ -431,7 +431,7 @@ ERR_INVALID_KEYWORD_CHAR
 
 Text: Integer value xxx given for xxx character is not a valid ASCII (0-127) character
 
-Description/Action: This error is issued when a user attempts to use an invalid character as part of a :code:`DELIM` or :code:`NULLCHAR` specfication. Accepted values range from zero(0) to 127 (ASCII). PSQL Error Code: 42601
+Description/Action: This error is issued when a user attempts to use an invalid character as part of a :code:`DELIM` specfication. Accepted values range from zero(0) to 127 (ASCII). PSQL Error Code: 42601
 
 +++++++++++++++++++++++++
 ERR_INVALID_NUMBER

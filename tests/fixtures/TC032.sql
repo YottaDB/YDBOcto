@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,7 +10,7 @@
 #								#
 #################################################################
 
--- TC032 : OCTO527/OCTO320 : DDLs using EXTRACT wrap \$E[XTRACT] calls with colvalue2null
+-- TC032 : OCTO527/OCTO320 : DDLs using EXTRACT wrap \$E[XTRACT] calls with piecevalue2colvalue
 
 CREATE TABLE `INDEX_DESCRIPTION`(
 	`INDEX_ID` NUMERIC PRIMARY KEY START 0 END "'(keys(""INDEX_ID""))!(keys(""INDEX_ID"")="""")",

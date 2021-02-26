@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -17,11 +17,11 @@ select id from names where firstname ~ ('Zero|Lord');
 select id from names where firstname ~ ('Ze' || 'ro');
 select id from names where firstname ~ ('e' || 'ro');
 select id from names where firstname LIKE ('e' || 'ro');
-select firstname from ((select * from names) union (select 8 as id,'ey' as firstname, '' as lastname))n1 where firstname SIMILAR TO (firstname || lastname);
-select firstname from ((select * from names) union (select 8 as id,'ey' as firstname, '' as lastname))n1 where firstname LIKE (firstname || lastname);
-select * from ((select * from names) union (select 8 as id,'ey' as firstname, '' as lastname))n1 where (firstname || lastname) SIMILAR TO firstname;
-select * from ((select * from names) union (select 8 as id,'ey' as firstname, '' as lastname))n1 where (firstname || lastname) LIKE firstname;
-select * from ((select * from names) union (select 8 as id,'ey' as firstname, '' as lastname))n1 where (firstname || lastname) ~ firstname;
+select firstname from ((select * from names) union (select 8 as id,'ey' as firstname, NULL as lastname))n1 where firstname SIMILAR TO (firstname || lastname);
+select firstname from ((select * from names) union (select 8 as id,'ey' as firstname, NULL as lastname))n1 where firstname LIKE (firstname || lastname);
+select * from ((select * from names) union (select 8 as id,'ey' as firstname, NULL as lastname))n1 where (firstname || lastname) SIMILAR TO firstname;
+select * from ((select * from names) union (select 8 as id,'ey' as firstname, NULL as lastname))n1 where (firstname || lastname) LIKE firstname;
+select * from ((select * from names) union (select 8 as id,'ey' as firstname, NULL as lastname))n1 where (firstname || lastname) ~ firstname;
 select id from names where firstname SIMILAR TO ('e' || 'ro');
 select id from names where firstname LIKE ('e' || 'ro');
 select * from names where id::varchar SIMILAR TO (3*id)::varchar;

@@ -111,14 +111,6 @@ Note that CREATE TABLE statements can also accept a list of ASCII integer values
 
 Here, two TAB characters (ASCII value 9) act as the internal delimiter of an Octo table. Note, however, that these delimiters are not applied to Octo output, which retains the default pipe :code:`|` delimiter. The reason for this is that tables may be joined that have different delimiters, so one common delimiter needs to be chosen anyway. Thus, the default is used.
 
-Similarly, CREATE TABLE statements can also accept an ASCII integer value to specify a character to interpret as a SQL NULL value:
-
-.. code-block:: SQL
-
-   CREATE TABLE nullcharnames (id INTEGER PRIMARY KEY, firstName VARCHAR(30) NOT NULL, lastName TEXT(30)) NULLCHAR (127) GLOBAL "^nullcharnames(keys(""id""))";
-
-Here, the ASCII value for DEL[ETE] is designated to be interpreted as a SQL NULL value.
-
 .. _mapexisting:
 
 +++++++++++++++++++++++++++++++++++++++++++++
@@ -129,7 +121,7 @@ If mapping to existing YottaDB global variables, an optional_keyword can be adde
 
 .. code-block:: none
 
-   [DELIM | END | EXTRACT | GLOBAL | KEY NUM | NULLCHAR | PIECE | READONLY | READWRITE | START | STARTINCLUDE ]
+   [DELIM | END | EXTRACT | GLOBAL | KEY NUM | PIECE | READONLY | READWRITE | START | STARTINCLUDE ]
 
 The keywords denoted above are M expressions and literals. They are explained in the following table:
 
@@ -160,10 +152,6 @@ The keywords denoted above are M expressions and literals. They are explained in
 |              |                    |               | with an integer value starting at :code:`1` and incrementing by 1 for          |                              |                                                   |
 |              |                    |               | every key column. Such a column is considered a key column and is part of the  |                              |                                                   |
 |              |                    |               | the subscript in the global variable node that represents a row of the table.  |                              |                                                   |
-+--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+---------------------------------------------------+
-| NULLCHAR     | Literal            | Table, Column | Specifies a custom character to be interpreted as a SQL NULL value. Characters | default interpretation of    | See discussion under                              |
-|              |                    |               | are specified as an integer ASCII value from 0-127 to be used in a call to     | empty strings as NULL values | :ref:`sqlnull`                                    |
-|              |                    |               | `$CHAR() <https://docs.yottadb.com/ProgrammersGuide/functions.html#char>`_     |                              |                                                   |
 +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+---------------------------------------------------+
 | PIECE        | Integer Literal    | Column        | Represents a piece number. Used to obtain the value of a column in a table     | default (column number,      | Not applicable                                    |
 |              |                    |               | by extracting this piece number from the value of the global variable node     | starting at 1 for non-key    |                                                   |
@@ -1416,7 +1404,7 @@ Columns such as :code:`CustomerName` are pieces of the node, using the default :
 
 As Octo 1.0 is a read-only SQL engine, it ignores the VARCHAR() size limits and reports the actual data in the global variable nodes. They will be used when Octo supports read-write access to databases.
 
-SQL allows columns other than key columns to be NULL. When a column is a piece of a global variable node, there is no way to distinguish from the data whether or not an empty string (:code:`""`) should be treated as a NULL. Octo's default behavior is to treat empty strings as NULL, which is the SQL default. The :code:`NOT NULL` for the :code:`PostalCode` column tells Octo that empty strings in the fifth piece of :code:`^Customers` global variable nodes should be treated as empty strings, rather than NULLs.
+SQL allows columns other than key columns to have a :code:`NULL` value. The :code:`NOT NULL` for the :code:`PostalCode` column tells Octo that this column can never have a :code:`NULL` value. Since Octo uses empty strings to store :code:`NULL` in the global variable nodes, this means that there can never be a global variable node in the :code:`^Customers` global with an empty string as the fifth piece.
 
 ---------------------
 VistA DDL Example 1
@@ -1470,6 +1458,10 @@ As with the :code:`PostalCode` column from the :ref:`northwind-ddl-ex` above, th
 SQL NULL Values
 ---------------------
 
+Octo treats every empty string (:code:`''`) specified in a query as if :code:`NULL` was instead specified. This differs from Postgres where empty strings and :code:`NULL` are treated differently. Therefore queries that use empty strings will most likely need to be examined and reworded to instead use :code:`NULL`.
+
+For example, :code:`select * from names where lastname = ''` is equivalent to :code:`select * from names where lastname = NULL`. And since the check :code:`lastname = NULL` will never evaluate to :code:`TRUE`, the query should instead be reworded as :code:`select * from names where lastname is NULL` to return the intended results.
+
 SQL allows columns other than key columns to be NULL by default. Consider a YottaDB global node :code:`^USAddress("White House")="1600 Pennsylvania Ave NW||Washingtion|DC|20500-0005"` mapped to a table defined as follows:
 
 .. code-block:: SQL
@@ -1484,51 +1476,5 @@ SQL allows columns other than key columns to be NULL by default. Consider a Yott
    )
    GLOBAL "^USAddresses(keys(""CommonName""))";
 
-The second piece of the node is an empty string (:code:`""`). There is no way to store a NULL as the piece of a YottaDB global variable node. Octo can either report that empty string as an empty string, or a NULL. The default is to treat it as a NULL. To treat it as a value, the column would be described in the DDL as NOT NULL:
+The second piece of the node, which corresponds to the :code:`AddressLine2` column, is an empty string (:code:`''` in SQL). In this case, Octo treats the :code:`AddressLine2` column as having a :code:`NULL` value.
 
-.. code-block:: SQL
-
-   CREATE TABLE USFamousAddresses(
-     CommonName VARCHAR PRIMARY KEY,
-     AddressLine1 VARCHAR,
-     AddressLine2 VARCHAR NOT NULL,
-     City VARCHAR,
-     Territory VARCHAR(2),
-     Zip VARCHAR(10)
-   )
-   GLOBAL "^USAddresses(keys(""CommonName""))";
-
-When Octo encounters an empty string as the piece of a node (or the entire node) mapped to a column, the column is considered to have a value determined by the column type in the DDL, as follows:
-
-+-----------------+-----------------------------------+-------------------------------+
-| Column Type     | NOT NULL specified in DDL         | NOT NULL not specified in DDL |
-+=================+===================================+===============================+
-| INTEGER/NUMERIC | Treat empty value as 0            | Treat empty value as NULL     |
-+-----------------+-----------------------------------+-------------------------------+
-| VARCHAR/TEXT    | Treat empty value as empty string | Treat empty value as NULL     |
-+-----------------+-----------------------------------+-------------------------------+
-| BOOLEAN         | Treat empty value as FALSE        | Treat empty value as NULL     |
-+-----------------+-----------------------------------+-------------------------------+
-
-As described in the :ref:`mapexisting` Octo allows a 7-bit ASCII character to be designated as mapping to a SQL NULL. For such tables, an empty string as a piece is always treated as a value, as described in the table above.
-
----------------------
-Explicit NULL Example
----------------------
-
-NULLCHAR() can be used to designate a specific character as representing a SQL NULL.
-
-.. code-block:: SQL
-
-   CREATE TABLE names (
-    id INTEGER PRIMARY KEY,
-    firstName VARCHAR(30),
-    lastName TEXT(30)
-   )
-   NULLCHAR (127)
-   GLOBAL "^names(keys(""id""))";
-
-In the example, NULLCHAR(127) means that if first piece of a :code:`^names(…)` node has the ASCII value 127 (DEL), Octo is to treat the corresponding :code:`firstName` as NULL, and :code:`lastName` as NULL if the second piece is an ASCII 127. NULLCHAR() accepts the entire ASCII range of characters, zero(0) through 127.
-
-.. note::
-   When parsed, if a table and a column have the same name, a query will give preference to the table name over the derived column name.

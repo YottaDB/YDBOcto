@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -17,7 +17,7 @@ CREATE TABLE namesXfer (
 , firstName VARCHAR(30)
 , lastName VARCHAR(30)
 );
-INSERT INTO namesXfer (SELECT * FROM names WHERE lastName <> '');
+INSERT INTO namesXfer (SELECT * FROM names WHERE lastName IS NOT NULL);
 SELECT * FROM namesXfer;
 DROP TABLE namesXfer;
 

@@ -81,12 +81,6 @@ int emit_create_table(FILE *output, struct SqlStatement *stmt) {
 			defn_len += fprintf(output, "%s", delim);
 		}
 	}
-	if (table->nullchar) {
-		defn_len += fprintf(output, " NULLCHAR (");
-		UNPACK_SQL_STATEMENT(keyword, table->nullchar, keyword);
-		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		defn_len += fprintf(output, "%s)", value->v.reference);
-	}
 	if (table->readwrite) {
 		defn_len += fprintf(output, " READWRITE");
 	} else {

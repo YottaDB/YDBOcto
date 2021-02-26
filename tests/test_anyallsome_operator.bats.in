@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -37,6 +37,9 @@ setup() {
 }
 
 @test "TAO04 : OCTO448 : Incorrect results from ALL/ANY when empty string is in the list" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAO04.sql
+	# TODO: Use run_query_in_octo_and_postgres_and_crosscheck_multiple_queries when YDBOcto#687 is fixed.
+	# Cannot use it now because Octo and Postgres currently handle '' vs NULL differently.
+	load_fixture TAO04.sql subtest novv
+	verify_output TAO04 output.txt noinfo
 }
 

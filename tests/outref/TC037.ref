@@ -63,12 +63,11 @@ ID|FIRSTNAME
 2|second|2
 (1 row)
 # Verify generated plans (including xref plans) do not have $PIECE for FIRSTNAME column
-_ydboctoP*.m:    . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers(^names3(%ydboctocursor(cursorId,"keys",1,"NAMES3","ID")),0,-1,"VARCHAR")
-_ydboctoP*.m:    . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers(^names(%ydboctocursor(cursorId,"keys",1,"NAMES2","ID")),0,-1,"VARCHAR")
-_ydboctoP*.m:    . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES2","ID"))),"|",2),0,-1,"VARCHAR")
-_ydboctoP*.m:    . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers(^names(%ydboctocursor(cursorId,"keys",1,"NAMES1","ID")),0,-1,"VARCHAR")
-_ydboctoP*.m:    . . SET %ydboctoexpr=$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES1","ID"))),"|",2),0,-1,"VARCHAR")
-_ydboctoX*.m:    . SET xrefCol=$$colvalue2null^%ydboctoplanhelpers($$colvalue2null^%ydboctoplanhelpers(^names3(%ydboctocursor(cursorId,"keys",4,"NAMES3","ID")),0,-1,"VARCHAR"),0,-1,"VARCHAR")
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$piecevalue2colvalue^%ydboctoplanhelpers(^names3(%ydboctocursor(cursorId,"keys",1,"NAMES3","ID")))
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$piecevalue2colvalue^%ydboctoplanhelpers(^names(%ydboctocursor(cursorId,"keys",1,"NAMES1","ID")))
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$piecevalue2colvalue^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES1","ID"))),"|",2))
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$piecevalue2colvalue^%ydboctoplanhelpers(^names(%ydboctocursor(cursorId,"keys",1,"NAMES2","ID")))
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$piecevalue2colvalue^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES2","ID"))),"|",2))
 # Verify text table definition does not have PIECE specified for FIRSTNAME column
 ^%ydboctoschema("NAMES1","text",0)="CREATE TABLE `NAMES1` (`ID` INTEGER PRIMARY KEY, `FIRSTNAME` VARCHAR(30) DELIM """", `LASTNAME` VARCHAR(30) PIECE 2) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"" READONLY;"
 ^%ydboctoschema("NAMES2","text",0)="CREATE TABLE `NAMES2` (`ID` INTEGER PRIMARY KEY, `FIRSTNAME` VARCHAR(30) DELIM """", `LASTNAME` VARCHAR(30) PIECE 2) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"" READONLY;"

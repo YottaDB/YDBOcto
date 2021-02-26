@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,14 +20,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 	assert(NULL != plan->outputKey);
 	if (plan->outputKey->is_cross_reference_key) {
 		/* Simplest case. Finish it first */
- 		LogicalPlan	*col1, *col2_onwards;
-		SqlColumn	*column;
-		boolean_t	not_null;
-		SqlValueType	column_type;
-		SqlTable	*table;
-		SqlValue	*value;
-		SqlOptionalKeyword	*keyword;
-		char		*nullchar, *not_nullchar;
+ 		LogicalPlan		*col1, *col2_onwards;
 
 		assert(NULL == plan->where->v.lp_default.operand[0]);
 		assert(!plan->distinct_values);
@@ -44,37 +37,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 		col1 = plan->projection;
 		col2_onwards = col1->v.lp_default.operand[1];
 		col1->v.lp_default.operand[1] = NULL;
-		column = plan->outputKey->column;
-		not_null = IS_COLUMN_NOT_NULL(column);
-		column_type = get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type, FALSE);
-		UNPACK_SQL_STATEMENT(table, column->table, create_table);
-		if (table->nullchar) {
-			UNPACK_SQL_STATEMENT(keyword, table->nullchar, keyword);
-			UNPACK_SQL_STATEMENT(value, keyword->v, value);
-			nullchar = value->v.string_literal;
-		} else {
-			nullchar = NULL;
-		}
-		// This function is also called in tmpl_column_reference.ctemplate: any changes there must also be reflected here
-		%{}$$colvalue2null^%%ydboctoplanhelpers({}%
 		TMPL(tmpl_column_list_combine, col1, plan, ",", FALSE, 0);
-		%{},{{ not_null|%d }}{}%
-		not_nullchar = NOT_NULLCHAR;
-		%{},{{ ((NULL != nullchar) ? nullchar : not_nullchar) }}{}%
-		%{},"{{ get_user_visible_type_string(column_type) }}"{}%
-		%{}){}%
-		%{}`n{{ PLAN_LINE_START }}{}%
-		TMPL(tmpl_print_dots, dot_count);
-		if ((!not_null) && (NULL == nullchar)) {
-			%{}SET:""={{ PP_XREF_COLUMN }} {{ PP_XREF_COLUMN }}=$ZYSQLNULL{}%
-			%{}	; note: this line is NOT generated for NOT NULL columns{}%
-			%{}`n{{ PLAN_LINE_START }}{}%
-			TMPL(tmpl_print_dots, dot_count);
-		}
-		%{}IF '$ZYISSQLNULL({{ PP_XREF_COLUMN }}) DO`n{{ PLAN_LINE_START }}{}%
-		dot_count++;
-		TMPL(tmpl_print_dots, dot_count);
-		%{}; non-NULL {{ columnName }}; Can be safely stored as a subscript in ^%%ydboctoxref global{}%
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET{}%
@@ -84,23 +47,6 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 		TMPL(tmpl_print_dots, dot_count);
 		%{}IF $INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_XREF_COLUMN }})){}%
 		%{}`n{{ PLAN_LINE_START }}{}%
-		dot_count--;
-		TMPL(tmpl_print_dots, dot_count);
-		%{}ELSE  DO`n{{ PLAN_LINE_START }}{}%
-		dot_count++;
-		TMPL(tmpl_print_dots, dot_count);
-		%{}; NULL {{ columnName }}; Cannot be stored as a subscript in ^%%ydboctoxref global{}%
-		%{} so use "" for 2nd subscript (usually column name){}%
-		%{}`n{{ PLAN_LINE_START }}{}%
-		TMPL(tmpl_print_dots, dot_count);
-		%{}SET{}%
-		%{} ^{{ config->global_names.raw_xref }}("{{ tableName }}","","{{ columnName }}",{}%
-		TMPL(tmpl_column_list_combine, col2_onwards, plan, ",", FALSE, 0);
-		%{})=""`n{{ PLAN_LINE_START }}{}%
-		TMPL(tmpl_print_dots, dot_count);
-		%{}IF $INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","","{{ columnName }}")){}%
-		%{}`n{{ PLAN_LINE_START }}{}%
-		dot_count--;
 		TMPL(tmpl_print_dots, dot_count);
 		%{}IF $INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")){}%
 		col1->v.lp_default.operand[1] = col2_onwards;	/* Make the 2nd column visible again */

@@ -24,9 +24,6 @@ CREATE TABLE MYTBL3 (id INTEGER PRIMARY KEY) GLOBAL "^MYTBL31(keys(""id""))" GLO
 -- Test multiple DELIM keyword specification. Latest keyword should prevail.
 CREATE TABLE MYTBL4 (id INTEGER PRIMARY KEY) DELIM "@" DELIM "#";
 
--- Test multiple NULLCHAR keyword specification. Latest keyword should prevail.
-CREATE TABLE MYTBL5 (id INTEGER PRIMARY KEY) NULLCHAR (64) NULLCHAR (35);
-
 -- Test READONLY keyword overrides any octo.conf "tabletype" setting
 CREATE TABLE MYTBL6 (id INTEGER PRIMARY KEY) READONLY;
 
@@ -37,6 +34,6 @@ CREATE TABLE MYTBL7 (id INTEGER PRIMARY KEY) READWRITE;
 -- Also test that if "tabletype" setting is not specified in octo.conf, READWRITE is the default.
 CREATE TABLE MYTBL8 (id INTEGER PRIMARY KEY);
 
--- Test that READWRITE is compatible with table-level NULLCHAR/DELIM and column-level PRIMARY KEY/KEY NUM/NOT NULL/UNIQUE
-CREATE TABLE MYTBL9 (id INTEGER PRIMARY KEY, id2 INTEGER KEY NUM 1, firstname VARCHAR(10) NOT NULL UNIQUE) NULLCHAR (35) DELIM "#" READWRITE;
+-- Test that READWRITE is compatible with table-level DELIM and column-level PRIMARY KEY/KEY NUM/NOT NULL/UNIQUE
+CREATE TABLE MYTBL9 (id INTEGER PRIMARY KEY, id2 INTEGER KEY NUM 1, firstname VARCHAR(10) NOT NULL UNIQUE) DELIM "#" READWRITE;
 

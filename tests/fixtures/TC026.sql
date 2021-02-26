@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,6 +10,6 @@
 #								#
 #################################################################
 
--- TC030 : OCTO527 : Correct handling ASCII null-byte when neither NULLCHAR nor NOT NULL are specified
+-- TC030 : OCTO527 : Correct handling ASCII null-byte when NOT NULL is not specified
 
 select * from names where lastname is NULL;

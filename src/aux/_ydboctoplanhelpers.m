@@ -686,39 +686,22 @@ get3bytedatalen(byte1,mval,offset)
 	; `offset` indicates how many bytes to go past before extracting the 2nd/3rd byte
 	QUIT (byte1-192)*65536+($ZASCII($ZEXTRACT(mval,offset+2))*256)+$ZASCII($ZEXTRACT(mval,offset+3))-3
 
-colvalue2null(piecevalue,colisnotnull,nullcharnum,coltype)
-	; Conditionally converts an empty string or NULLCHAR value returned by $PIECE to $ZYSQLNULL if NOT NULL is not specified
-	; First handle case where custom NULLCHAR is specified
-	QUIT:(-1'=nullcharnum) $SELECT(($CHAR(nullcharnum)=piecevalue):$ZYSQLNULL,1:piecevalue)	; Note: -1 is NOT_NULLCHAR macro in C code
-	; Now that we know no custom NULLCHAR is specified, check if piece value is not empty. If so, return that right away.
+piecevalue2colvalue(piecevalue)
+	; Check if "piecevalue" is not empty string. If so, return that right away.
 	QUIT:(""'=piecevalue) piecevalue
-	; Now that we know no custom NULLCHAR is specified and "piecevalue" is "", if NOT NULL is not specified, return NULL
-	QUIT:'colisnotnull $ZYSQLNULL
-	; Now that we know NOT NULL is specified for this column, return default value based on the column type
-	; For VARCHAR it is "". For other types it is 0.
-	QUIT $SELECT((("NUMERIC"=coltype)!("INTEGER"=coltype)!("BOOLEAN"=coltype)):0,1:"")
-
-null2colvalue(colvalue,colisnotnull,nullcharnum)
-	; Inverse of "colvalue2null()"
-	;
-	; Conditionally converts a $ZYSQLNULL "colvalue" (column value) to an empty string or the table-level NULLCHAR value
-	; (specified by "nullcharnum"). "colisnotnull" is 1 if column has "NOT NULL" specified in table definition and 0 otherwise.
-	;
-	; First handle case where "colvalue" is not $ZYSQLNULL.
-	QUIT:'$ZYISSQLNULL(colvalue) colvalue
-	; Now we know "colvalue" is $ZYSQLNULL.
-	; Next handle case where custom NULLCHAR is specified
-	QUIT:(-1'=nullcharnum) $CHAR(nullcharnum)	; Note: -1 is actually NOT_NULLCHAR macro in C code
-	; Now that we know no custom NULLCHAR is specified and "colvalue" is "$ZYSQLNULL".
-	; If NOT NULL is not specified, return empty string.
-	QUIT:'colisnotnull ""
-	; Now that we know no custom NULLCHAR is specified, "colvalue" is "$ZYSQLNULL" and NOT NULL has been specified.
-	; In this case, we cannot convert the NULL into an empty string. Return it as is (will result in an error
-	; in later stages of query execution).
+	; Now that we know "piecevalue" is "" (i.e. empty string), return M equivalent of SQL NULL.
 	QUIT $ZYSQLNULL
 
+colvalue2piecevalue(colvalue)
+	; Inverse of "piecevalue2colvalue()"
+	;
+	; First handle case where "colvalue" is not $ZYSQLNULL (the M equivalent of SQL NULL).
+	QUIT:'$ZYISSQLNULL(colvalue) colvalue
+	; Now we know "colvalue" is $ZYSQLNULL. Return empty string.
+	QUIT ""
+
 trimdotstar(resstr)
-	; Removes consequent .*'s present in resstr
+	; Removes consecutive .*'s present in resstr
 	; Example: .*.* -> .*
 	NEW trim,result,len
 	SET trim=0,result=""

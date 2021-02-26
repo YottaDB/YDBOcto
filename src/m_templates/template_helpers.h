@@ -67,8 +67,7 @@
 
 #define PLAN_LINE_START "    " /* 4 spaces start an M line in the generated plan */
 
-#define NOT_NULLCHAR "-1" /* to indicate to generated M code that NULLCHAR is not defined for this table */
-
+/* This macro is currently unused but preserved in the hope that it might be needed in the near future */
 #define IS_COLUMN_NOT_NULL(COLUMN)                                                                     \
 	((NULL != get_keyword(COLUMN, PRIMARY_KEY)) || (NULL != get_keyword(COLUMN, OPTIONAL_KEY_NUM)) \
 	 || (NULL != get_keyword(COLUMN, NOT_NULL)))

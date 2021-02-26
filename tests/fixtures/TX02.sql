@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,7 +10,7 @@
 #								#
 #################################################################
 
--- TX02 : OCTO540 : Incorrect results if WHERE clause has COLUMN = '' usage and M global nodes change after xrefs were built
+-- TX02 : OCTO540 : Incorrect results if WHERE clause has COLUMN is NULL usage and M global nodes change after xrefs were built
 
-SELECT * FROM customers WHERE Postalcode = '';
+SELECT * FROM customers WHERE Postalcode is NULL;
 

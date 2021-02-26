@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,7 +10,7 @@
 #								#
 #################################################################
 
--- TC028 : OCTO527 : Correct precedence of NULLCHAR and NOT NULL column specifications
+-- TC028 : OCTO527 : Correct precedence of NOT NULL column specifications
 
 SELECT * FROM nullcharnames n1 LEFT JOIN nullcharnames n2 ON n1.lastname = n2.lastname;
 

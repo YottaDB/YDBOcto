@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,7 +10,7 @@
 #								#
 #################################################################
 
--- TC034 : OCTO527/OCTO320 : DDLs using NULLCHAR and EXTRACT wrap \$E[XTRACT] calls with colvalue2null
+-- TC034 : OCTO527/OCTO320 : DDLs using EXTRACT wrap \$E[XTRACT] calls with piecevalue2colvalue
 
 CREATE TABLE `INDEX_DESCRIPTION`(
 	`INDEX_ID` NUMERIC PRIMARY KEY START 0 END "'(keys(""INDEX_ID""))!(keys(""INDEX_ID"")="""")",
@@ -18,7 +18,6 @@ CREATE TABLE `INDEX_DESCRIPTION`(
 	`DESCRIPTION` CHARACTER(80) GLOBAL "^DD(""IX"",keys(""INDEX_ID""),.1,keys(""INDEX_DESCRIPTION_ID""),0)" EXTRACT "$E($G(^DD(""IX"",keys(""INDEX_ID""),.1,keys(""INDEX_DESCRIPTION_ID""),0)),1,245)"
 )
 GLOBAL "^DD(""IX"",keys(""INDEX_ID""),.1,keys(""INDEX_DESCRIPTION_ID""))"
-NULLCHAR (127)
 DELIM "^";
 
 select index_id from index_description;

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -16,7 +16,6 @@ SELECT GREATEST('a', 'b', 'c');
 SELECT GREATEST('1', '2', '3');
 SELECT GREATEST('10', '2', '3'); -- should give '3'
 SELECT GREATEST(10, 2, 3); -- should give 10
-SELECT GREATEST(''); -- should be empty string
 -- NULL is ignored unless all arguments are NULL
 SELECT GREATEST(NULL); -- should be NULL
 SELECT LEAST(NULL, NULL, NULL); -- should be NULL
@@ -30,7 +29,6 @@ SELECT LEAST('a', 'b', 'c');
 SELECT LEAST('1', '2', '3');
 SELECT LEAST('10', '2', '3'); -- should give '10'
 SELECT LEAST(10, 2, 3); -- should give 2
-SELECT LEAST(''); -- should be empty string
 SELECT LEAST(NULL); -- should be NULL
 SELECT LEAST(NULL, NULL, NULL); -- should be NULL
 SELECT LEAST(NULL, 1); -- 1

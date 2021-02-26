@@ -175,7 +175,6 @@ int copied_so_far;
 (?i:MIN) { return MIN; }
 (?i:NATURAL) { return NATURAL; }
 (?i:NOT) { return NOT; }
-(?i:NULLCHAR) { return NULLCHAR; }
 (?i:NUM) { return NUM; }
 (?i:NULLIF) { return NULLIF; }
 (?i:NUMERIC) { return NUMERIC; }
@@ -384,14 +383,25 @@ int copied_so_far;
 <SINGLE_STRING>\'\' { char *yptr = yytext + 1; COPY_STRING((&lex_buffer), yptr, copied_so_far); }
 <SINGLE_STRING>[^\']* { char *yptr = yytext; COPY_STRING((&lex_buffer), yptr, copied_so_far); }
 <SINGLE_STRING>\' {
-		SQL_STATEMENT(*yylval_param, value_STATEMENT);
-		OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
-		(*yylval_param)->v.value->type = STRING_LITERAL;
-		(*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
-		strncpy((*yylval_param)->v.value->v.string_literal, lex_buffer.buf_addr, copied_so_far+1);
+		int	retval;
+
+		if (copied_so_far) {
+			/* We have read at least one byte between the starting and ending single-quote */
+			SQL_STATEMENT(*yylval_param, value_STATEMENT);
+			OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
+			(*yylval_param)->v.value->type = STRING_LITERAL;
+			(*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
+			strncpy((*yylval_param)->v.value->v.string_literal, lex_buffer.buf_addr, copied_so_far+1);
+			retval = LITERAL;
+		} else {
+			/* We saw no bytes in between the starting and ending single-quote.
+			 * That is, it is an empty string. Treat it as if a NULL keyword was specified.
+			 */
+			retval = NULL_TOKEN;
+		}
 		RESET_BUFFER(lex_buffer);
 		BEGIN(INITIAL);
-		return LITERAL;
+		return retval;
             }
 
 

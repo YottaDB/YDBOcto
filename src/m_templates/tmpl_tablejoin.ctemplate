@@ -16,7 +16,7 @@
 
 TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned int cur_key, boolean_t right_join_second_half,
 								int dot_count, char *tableName, char *columnName) {
-	SqlKey			*key, *save_key;
+	SqlKey			*key, *save_key, *fixed_xref_key;
 	unsigned int		total_keys, key_start;
 	int			left_table_id, right_table_id, this_table_id;
 	enum SqlJoinType	this_join_type, next_join_type;
@@ -83,6 +83,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 		}
 		cur_key = save_cur_key;
 	}
+	fixed_xref_key = NULL;
 	for ( ; cur_key < total_keys; cur_key++) {
 		// For each key, output the key start, a FOR loop, QUIT, and increment
 		key = plan->iterKeys[cur_key];
@@ -146,6 +147,9 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 				TMPL(tmpl_key, key);
 				%{}) IF $DATA({}%
 				TMPL(tmpl_key_source, plan, key);
+				if (key->is_cross_reference_key) {
+					fixed_xref_key = key;	/* Note down this key for later "tmpl_key_advance" call */
+				}
 				%{}){}%
 				if (NULL != limit_keyword) {
 					TMPL(tmpl_limit_check, limit_keyword, "&", ">%ydboctozlimit");
@@ -157,6 +161,12 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 				/* If fixed_to_value is NULL, then there is no output from this key fix.
 				 * So skip entire DO block (that will get generated later). Generate M code accordingly.
 				 */
+				TMPL(tmpl_print_dots, dot_count);
+				%{}; Note: The below IF 0 check skips the entire DO block and is intentional{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				TMPL(tmpl_print_dots, dot_count);
+				%{}; as it is not straightforward to skip generating the M code that follows{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
 				TMPL(tmpl_print_dots, dot_count);
 				%{}IF 0{}%
 			}
@@ -191,7 +201,11 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			keyword = (key->column ? get_keyword(key->column, OPTIONAL_STARTINCLUDE) : NULL);
 			if (NULL != keyword) {
 				%{}DO:$DATA({}%
-				TMPL(tmpl_key_source, plan, key);
+				if (NULL == fixed_xref_key) {
+					TMPL(tmpl_key_source, plan, key);
+				} else {
+					TMPL(tmpl_key_advance, plan, key);
+				}
 				%{})  {}%
 			}
 		}

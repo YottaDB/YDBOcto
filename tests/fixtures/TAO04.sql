@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -12,6 +12,11 @@
 
 -- TAO04 : OCTO448 : Incorrect results from ALL/ANY when empty string is in the list
 
+ -- Test empty string
 select * from names where lastname <= ALL (select ''::varchar);
 select * from names where lastname > ANY (select ''::varchar);
+
+-- Test NULL
+select * from names where lastname <= ALL (select NULL::varchar);
+select * from names where lastname > ANY (select NULL::varchar);
 

@@ -293,7 +293,7 @@ END
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TC023.sql "trim_trailing_zeroes" "usejdbc"
 }
 
-@test "TC026 : OCTO527 : Correct handling ASCII null-byte when neither NULLCHAR nor NOT NULL are specified" {
+@test "TC026 : OCTO527 : Correct handling ASCII null-byte when NOT NULL is not specified" {
 	$ydb_dist/yottadb -run %XCMD 'set ^names(6)="First|"_$char(0)'
 	load_fixture TC026.sql subtest novv
 	verify_output TC026 output.txt
@@ -347,7 +347,7 @@ END
 	verify_output TC031 output.txt
 }
 
-@test "TC032 : OCTO527/OCTO320 : DDLs using EXTRACT wrap \$E[XTRACT] calls with colvalue2null" {
+@test "TC032 : OCTO527/OCTO320 : DDLs using EXTRACT wrap \$E[XTRACT] calls with piecevalue2colvalue" {
 	testname="TC032"
 	load_fixture $testname.zwr
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/$testname.sql .
@@ -355,7 +355,7 @@ END
 	for queryfile in $(ls TC032-*.sql); do
 		run_java run_query $test_port $queryfile useextended >> output.txt 2>&1
 	done
-	echo -e "\n# Confirm colvalue2null call included in generated plan:\n" >> output.txt
+	echo -e "\n# Confirm piecevalue2colvalue call included in generated plan:\n" >> output.txt
 	cat _ydboctoP*.m >> output.txt
 	verify_output $testname output.txt
 }
@@ -373,7 +373,7 @@ END
 	verify_output TC033 output.txt
 }
 
-@test "TC034 : OCTO527/OCTO320 : DDLs using NULLCHAR and EXTRACT wrap \$E[XTRACT] calls with colvalue2null" {
+@test "TC034 : OCTO527/OCTO320 : DDLs using EXTRACT wrap \$E[XTRACT] calls with piecevalue2colvalue" {
 	testname="TC034"
 	load_fixture $testname.zwr
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/$testname.sql .
@@ -381,7 +381,7 @@ END
 	for queryfile in $(ls $testname-*.sql); do
 		run_java run_query $test_port $queryfile useextended >> output.txt 2>&1
 	done
-	echo -e "\n# Confirm colvalue2null call included in generated plan:\n" >> output.txt
+	echo -e "\n# Confirm piecevalue2colvalue call included in generated plan:\n" >> output.txt
 	cat _ydboctoP*.m >> output.txt
 	verify_output $testname output.txt
 }
@@ -478,7 +478,7 @@ END
 	grep '^-- ' $testname.sql > output.txt	# Capture high level purpose of test at start of reference file
 	cat $testname.log >> output.txt
 	echo '# Verify generated plans (including xref plans) do not have $PIECE for FIRSTNAME column' >> output.txt
-	grep -E 'colvalue2null|\$PIECE' _ydbocto*.m >> output.txt
+	grep -E 'piecevalue2colvalue|\$PIECE' _ydbocto*.m >> output.txt
 	echo '# Verify text table definition does not have PIECE specified for FIRSTNAME column' >> output.txt
 	$ydb_dist/mupip extract $testname.ext
 	grep -w "text" $testname.ext | grep -wE "NAMES1|NAMES2|NAMES3" >> output.txt

@@ -1,0 +1,19 @@
+
+-- TAO04 : OCTO448 : Incorrect results from ALL/ANY when empty string is in the list
+
+ -- Test empty string
+select * from names where lastname <= ALL (select ''::varchar);
+select * from names where lastname > ANY (select ''::varchar);
+
+-- Test NULL
+select * from names where lastname <= ALL (select NULL::varchar);
+select * from names where lastname > ANY (select NULL::varchar);
+
+ID|FIRSTNAME|LASTNAME
+(0 rows)
+ID|FIRSTNAME|LASTNAME
+(0 rows)
+ID|FIRSTNAME|LASTNAME
+(0 rows)
+ID|FIRSTNAME|LASTNAME
+(0 rows)

@@ -603,6 +603,15 @@ else
 		octodat="octo.dat"
 		touch skip_bats_test.txt gde_change_segment.txt
 		export ydb_icu_version=`pkg-config --modversion icu-io`	# needed for UTF-8 chset in for loop below
+		# Note down if older commit is prior to the YDBOcto#275 commit when NULL and empty string began to be
+		# treated the same. This will be used later to skip a few tests.
+		pre_octo275_commit="babc2e2e78eb00813cb5d76a8f2bbda66742c1b7"	# 1 commit before the #275 commit
+		# Disable the "set -e" setting temporarily as the "git merge-base" can return exit status 0 or 1
+		set +e
+		git merge-base --is-ancestor $commitsha $pre_octo275_commit
+		is_post_octo275_commit=$?
+		# Re-enable "set -e" now that "git merge-base" invocation is done.
+		set -e
 		# Point src to newsrc
 		ln -s newsrc src
 		for tstdir in bats-test.*
@@ -636,8 +645,19 @@ else
 			#    The same error does not happen with "octo" (which means the query will run further along and
 			#    terminate abnormally due to not enough "stacksize" limit) which is what this test will use.
 			#    Therefore skip this subtest.
+			# 3) The TQG03 subtest randomly chooses "nullcharnames" schema and before the YDBOcto#275 commit,
+			#    it could use the "NULLCHAR" keyword in the "CREATE TABLE" command which is no longer supported
+			#    after the YDBOcto#275 commit. Therefore the auto upgrade would issue a syntax error in that case
+			#    as it sees an unsupported NULLCHAR keyword in the "NULLCHARNAMES" table's text definition.
+			#    Therefore skip this subtest if the random older commit is prior to the YDBOcto#275 commit.
+			# 4) All the TQG* subtests (TQG01, TQG02, TQG03, TQG04, TQG05, TQG06 as of now) could use the empty
+			#    string in their queries if the older commit was prior to the YDBOcto#275 commit. Those queries
+			#    could give different output in the newer build since the empty string will now be treated as NULL.
+			#    Therefore, skip all TQG* subtests if the random older commit is prior to the YDBOcto#275 commit.
+			#    Note that (3) is subsumed by (4) so just one check is needed below for both those cases.
 			# ----------------------------------------------------------------------------
-			if [[ ($subtest =~ "TC011 : ") || ($subtest =~ "TPC019 : ") ]]; then
+			if [[ ($subtest =~ "TC011 : ") || ($subtest =~ "TPC019 : ") \
+					|| (($subtest =~ ^"TQG") && (0 == $is_post_octo275_commit)) ]]; then
 				echo "SKIPPED : $tstdir : [subtest : $subtest]" >> ../bats_test.txt
 				cd ..
 				rm -rf $tstdir
@@ -660,6 +680,7 @@ else
 			change -segment DEFAULT -file_name=$defaultdat
 			change -segment OCTOSEG -file_name=$octodat
 FILE
+
 			# TEST1 and TEST2 below together test that Octo automatically recreates any
 			# binary-definitions/plans/xrefs/triggers as needed thereby testing YDBOcto#90.
 			errors_found=0

@@ -26,10 +26,10 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	SqlColumnList		*column_list;
 	SqlOptionalKeyword	*keyword;
 	SqlKey			*key;
-	char			*table_name, *delim, *nullchar;
+	char			*table_name, *delim;
 	char			*piece = NULL, *source;
 	unsigned int		i;
-	boolean_t		skip_dollar_piece, is_dollar_char, not_null;
+	boolean_t		skip_dollar_piece, is_dollar_char;
 	PhysicalPlan		*cur_plan;
 
 	// First check for EXTRACT, then GLOBAL & PIECE, and lastly assemble it ourselves based on table_alias->source
@@ -73,7 +73,6 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	// Find the columns in the table so we can look at the correct keywords
 	UNPACK_SQL_STATEMENT(value, table->tableName, value);
 	table_name = value->v.string_literal;
-	is_dollar_char = FALSE;
 	if (column->delim) {
 		UNPACK_SQL_STATEMENT(value, column->delim, value);
 		delim = value->v.string_literal;
@@ -86,6 +85,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 		is_dollar_char = (DELIM_IS_DOLLAR_CHAR == delim[0] ? TRUE : FALSE);
 		delim = &value->v.string_literal[1];
 	} else {
+		is_dollar_char = FALSE;
 		delim = (is_trigger ? NULL : COLUMN_DELIMITER);
 	}
 	/* Optimization : If the column is a key column, use key rather than column value when possible.
@@ -138,19 +138,14 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	}
 	UNPACK_SQL_STATEMENT(value, keyword->v, value);
 	source = value->v.string_literal;
-	// Primary keys cannot be null, so assume NOT NULL was specified
-	not_null = IS_COLUMN_NOT_NULL(column);
-	if (table->nullchar) {
-		UNPACK_SQL_STATEMENT(keyword, table->nullchar, keyword);
-		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		nullchar = value->v.string_literal;
-	} else {
-		nullchar = NULL;
-	}
 
 	if (!is_trigger) {
-		// This function is also called in tmpl_tablejoin_body.ctemplate: changes there must also be reflected here
-		%{}$$colvalue2null^%%ydboctoplanhelpers({}%
+		if (!pplan->outputKey->is_cross_reference_key) {
+			%{}$$piecevalue2colvalue^%%ydboctoplanhelpers({}%
+		}
+		/* else : If xref plan, a NULL column value is represented as the empty string and the xref will be stored in the
+		 *	global node using the empty string value as the subscript so no need to convert from "" to $ZYSQLNULL.
+		 */
 	}
 
 	if (!skip_dollar_piece) {
@@ -159,9 +154,6 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	TMPL(tmpl_emit_source, table, source, table_name, table_alias->unique_id, MAX_KEY_COUNT,	\
 				(is_trigger ? EmitSourceForm_Trigger : EmitSourceForm_Value));
 	if (!is_trigger) {
-		char		*not_nullchar;
-		SqlValueType	column_type;
-
 		if (!skip_dollar_piece) {
 			if (is_dollar_char) {
 				%{}),{{ delim }},{{ piece }}){}%
@@ -169,12 +161,9 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 				%{}),"{{ delim }}",{{ piece }}){}%
 			}
 		}
-		%{},{{ not_null|%d }}{}%
-		not_nullchar = NOT_NULLCHAR;
-		%{},{{ ((NULL != nullchar) ? nullchar : not_nullchar) }}{}%
-		column_type = get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type, FALSE);
-		%{},"{{ get_user_visible_type_string(column_type) }}"{}%
-		%{}){}%
+		if (!pplan->outputKey->is_cross_reference_key) {
+			%{}){}%
+		}
 	} else {
 		if (NULL != delim) {
 			if (is_dollar_char) {

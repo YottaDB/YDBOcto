@@ -255,7 +255,6 @@ typedef enum OptionalKeyword {
 	OPTIONAL_END,
 	OPTIONAL_START,
 	OPTIONAL_DELIM,
-	OPTIONAL_NULLCHAR,
 	OPTIONAL_EXTRACT,
 	OPTIONAL_CASCADE,
 	OPTIONAL_RESTRICT,
@@ -472,7 +471,6 @@ typedef struct SqlTable {
 	struct SqlStatement *source;
 	struct SqlStatement *columns; // SqlColumn
 	struct SqlStatement *delim;
-	struct SqlStatement *nullchar;
 	boolean_t	     readwrite; /* TRUE if READWRITE keyword is specified, FALSE if READONLY keyword is specified */
 	uint64_t	     oid;	/* TABLEOID; compared against ^%ydboctoschema(TABLENAME,OCTOLIT_PG_CLASS) */
 } SqlTable;

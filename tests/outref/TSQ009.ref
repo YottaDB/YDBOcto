@@ -105,7 +105,7 @@ LP_SELECT_QUERY:
       LP_WHERE: 
         LP_VALUE: ''
         LP_COLUMN_LIST_ALIAS: 
-        - type: STRING_LITERAL
+        - type: NULL
         - alias: ???
       LP_WHERE: 
         LP_COLUMN_ALIAS: C(1).RELHASSUBCLASS
@@ -294,7 +294,7 @@ LP_SELECT_QUERY:
       LP_WHERE: 
         LP_VALUE: ''
         LP_COLUMN_LIST_ALIAS: 
-        - type: STRING_LITERAL
+        - type: NULL
         - alias: ???
       LP_WHERE: 
         LP_COLUMN_ALIAS: C(1).RELHASSUBCLASS

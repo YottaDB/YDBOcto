@@ -15,7 +15,6 @@
 
 -- ARRAY syntax in SELECT list
 SELECT ARRAY(SELECT NULL FROM names);
-SELECT ARRAY(SELECT '' FROM names);
 SELECT ARRAY(SELECT firstname FROM names);
 SELECT ARRAY(SELECT id FROM names) from names;
 SELECT ARRAY(SELECT firstname FROM names ORDER BY id) from names;

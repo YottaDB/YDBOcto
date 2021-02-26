@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -47,4 +47,11 @@ setup() {
 
 @test "TNK04 : OCTO311 : Tests law of the excluded fourth (in WHERE clauses)" {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TNK04.sql
+}
+
+@test "TNK05 : OCTO687 : Test of '' vs NULL" {
+	# TODO: Use run_query_in_octo_and_postgres_and_crosscheck_multiple_queries when YDBOcto#687 is fixed.
+	# Cannot use it now because Octo and Postgres currently handle '' vs NULL differently.
+	load_fixture TNK05.sql subtest novv
+	verify_output TNK05 output.txt noinfo nodebug
 }

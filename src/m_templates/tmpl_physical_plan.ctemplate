@@ -37,7 +37,6 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 	// Check if there are any cross references that need to be built
 	if (plan->outputKey->is_cross_reference_key) {
 		SqlColumn		*column;
-		boolean_t		not_null;
 		int			num_key_cols;
 		SqlOptionalKeyword	*keyword;
 		SqlValue		*value;
@@ -65,9 +64,8 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		%{}; Store state information in case query is canceled in middle of xref building`n{{ PLAN_LINE_START }}{}%
 		%{}; Actual cleanup happens in _ydboctoCleanup.m using this saved state information`n{{ PLAN_LINE_START }}{}%
 		%{}SET %%ydboctoCancel("{{ tableName }}","{{ columnName }}","Node1")="^{{ config->global_names.raw_xref }}(""{}%
-		%{}{{ tableName }}"",""{{ columnName }}"")" ; stores non-NULL values of {{ columnName }}`n{{ PLAN_LINE_START }}{}%
-		%{}SET %%ydboctoCancel("{{ tableName }}","{{ columnName }}","Node2")="^{{ config->global_names.raw_xref }}(""{}%
-		%{}{{ tableName }}"","""",""{{ columnName }}"")" ; stores NULL values of {{ columnName }}`n{{ PLAN_LINE_START }}{}%
+		%{}{{ tableName }}"",""{{ columnName }}"")" ; Note: NULL value of {{ columnName }} is stored as ""{}%
+		%{}`n{{ PLAN_LINE_START }}{}%
 		%{}; Populate cross reference`n{{ PLAN_LINE_START }}{}%
 		%{}DO populateXref`n{{ PLAN_LINE_START }}{}%
 		%{}SET ^{{ config->global_names.raw_octo }}({{ PP_XREF_STATUS }},"{{ tableName }}","{{ columnName }}")={}%
@@ -75,9 +73,9 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		%{}`n{{ PLAN_LINE_START }}{}%
 		%{}; Now that xref building is complete, cleanup saved cancel related state information`n{{ PLAN_LINE_START }}{}%
 		%{}KILL %%ydboctoCancel`n{{ PLAN_LINE_START }}{}%
-		%{}QUIT`n`n{}%
+		%{}QUIT`n{}%
 		// Generate the populateXref entryref here
-		%{}`n`npopulateXref`n{{ PLAN_LINE_START }}{}%
+		%{}`npopulateXref`n{{ PLAN_LINE_START }}{}%
 		%{}; Build cross reference for {{ columnName }} column in {{ tableName }} table`n{{ PLAN_LINE_START }}{}%
 		%{}KILL ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"){}%
 		%{}  ; Remove prior cross reference data (if any still exists)`n{{ PLAN_LINE_START }}{}%
@@ -136,14 +134,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		%{}addXrefEntry({{ PP_VAL }})	; {{ PP_KEY_COLUMN }}0, {{ PP_KEY_COLUMN }}1 etc. are not passed as parameters{}%
 		%{} but inherited from caller scope{}%
 		%{}`n{{ PLAN_LINE_START }}{}%
-		not_null = IS_COLUMN_NOT_NULL(column);
-		if (!not_null) {
-			%{}SET:""={{ PP_VAL }} {{ PP_VAL }}=$ZYSQLNULL	; note: this line is NOT generated for NOT NULL columns{}%
-			%{}`n{{ PLAN_LINE_START }}{}%
-		}
-		%{}IF '$ZYISSQLNULL({{ PP_VAL }}) DO{}%
-		%{}`n{{ PLAN_LINE_START }}{}%
-		%{}. SET ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_VAL }}{}%
+		%{}SET ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_VAL }}{}%
 		/* Determine number of primary key columns */
 		lp_temp = plan->projection->v.lp_default.operand[1];
 		num_key_cols = 0;
@@ -154,15 +145,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		TMPL(tmpl_xref_key_columns, num_key_cols);
 		%{})=""{}%
 		%{}`n{{ PLAN_LINE_START }}{}%
-		%{}. IF $INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_VAL }})){}%
-		%{}`n{{ PLAN_LINE_START }}{}%
-		%{}ELSE  DO{}%
-		%{}`n{{ PLAN_LINE_START }}{}%
-		%{}. SET ^{{ config->global_names.raw_xref }}("{{ tableName }}","","{{ columnName }}"{}%
-		TMPL(tmpl_xref_key_columns, num_key_cols);
-		%{})=""{}%
-		%{}`n{{ PLAN_LINE_START }}{}%
-		%{}. IF $INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","","{{ columnName }}")){}%
+		%{}IF $INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_VAL }})){}%
 		%{}`n{{ PLAN_LINE_START }}{}%
 		%{}IF $INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")){}%
 		%{}`n{{ PLAN_LINE_START }}{}%
@@ -171,28 +154,13 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		%{}delXrefEntry({{ PP_VAL }})	; {{ PP_KEY_COLUMN }}0, {{ PP_KEY_COLUMN }}1 etc. are not passed as parameters{}%
 		%{} but inherited from caller scope{}%
 		%{}`n{{ PLAN_LINE_START }}{}%
-		if (!not_null) {
-			%{}SET:""={{ PP_VAL }} {{ PP_VAL }}=$ZYSQLNULL	; note: this line is NOT generated for NOT NULL columns{}%
-			%{}`n{{ PLAN_LINE_START }}{}%
-		}
-		%{}IF '$ZYISSQLNULL({{ PP_VAL }}) DO{}%
-		%{}`n{{ PLAN_LINE_START }}{}%
-		%{}. KILL ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_VAL }}{}%
+		%{}KILL ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_VAL }}{}%
 		TMPL(tmpl_xref_key_columns, num_key_cols);
 		%{}){}%
 		%{}`n{{ PLAN_LINE_START }}{}%
-		%{}. KILL:0=$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{}%
+		%{}KILL:0=$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{}%
 		%{}{{ PP_VAL }}),-1) {}%
 		%{}^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_VAL }}){}%
-		%{}`n{{ PLAN_LINE_START }}{}%
-		%{}ELSE  DO{}%
-		%{}`n{{ PLAN_LINE_START }}{}%
-		%{}. KILL ^{{ config->global_names.raw_xref }}("{{ tableName }}","","{{ columnName }}"{}%
-		TMPL(tmpl_xref_key_columns, num_key_cols);
-		%{}){}%
-		%{}`n{{ PLAN_LINE_START }}{}%
-		%{}. KILL:(0=$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","","{{ columnName }}"),-1)) {}%
-		%{}^{{ config->global_names.raw_xref }}("{{ tableName }}","","{{ columnName }}"){}%
 		%{}`n{{ PLAN_LINE_START }}{}%
 		%{}KILL:0=$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1) {}%
 		%{}^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"){}%

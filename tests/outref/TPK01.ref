@@ -34,6 +34,10 @@ A|B|C
 |b1|c2
 (2 rows)
 A|B|C
+(0 rows)
+A|B|C
+(0 rows)
+A|B|C
 a3||c4
 a3|b3|
 (2 rows)
@@ -42,10 +46,19 @@ A|B|C
 a3||c4
 (2 rows)
 A|B|C
+(0 rows)
+A|B|C
+(0 rows)
+A|B|C
 |b1|c2
 (1 row)
 A|B|C
 (0 rows)
+A|B|C
+(0 rows)
+A|B|C
+a3|b3|
+(1 row)
 A|B|C
 ||c2
 |b1|c2
@@ -56,6 +69,15 @@ a3||c4
 a3|b3|
 (3 rows)
 A|B|C
+(0 rows)
+A|B|C
+||c1
+|b1|c2
+a2|b2|c3
+a3||c4
+a3|b3|
+(5 rows)
+A|B|C
 ||c1
 |b1|c2
 a2|b2|c3
@@ -65,12 +87,29 @@ A|B|C
 a2|b2|c3
 a3|b3|
 (3 rows)
+A|B|C
+(0 rows)
+A|B|C
+||c1
+|b1|c2
+a2|b2|c3
+a3||c4
+a3|b3|
+(5 rows)
 A|B|C
 ||c1
 a2|b2|c3
 a3||c4
 a3|b3|
 (4 rows)
+A|B|C
+||c1
+|b1|c2
+a2|b2|c3
+a3||c4
+(4 rows)
+A|B|C
+(0 rows)
 A|B|C
 ||c1
 |b1|c2
@@ -94,6 +133,10 @@ A|B|C
 |b1|c2
 (2 rows)
 A|B|C
+(0 rows)
+A|B|C
+(0 rows)
+A|B|C
 a3||c4
 a3|b3|
 (2 rows)
@@ -102,10 +145,19 @@ A|B|C
 a3||c4
 (2 rows)
 A|B|C
+(0 rows)
+A|B|C
+(0 rows)
+A|B|C
 |b1|c2
 (1 row)
 A|B|C
 (0 rows)
+A|B|C
+(0 rows)
+A|B|C
+a3|b3|
+(1 row)
 A|B|C
 ||c2
 |b1|c2
@@ -116,6 +168,15 @@ a3||c4
 a3|b3|
 (3 rows)
 A|B|C
+(0 rows)
+A|B|C
+||c1
+|b1|c2
+a2|b2|c3
+a3||c4
+a3|b3|
+(5 rows)
+A|B|C
 ||c1
 |b1|c2
 a2|b2|c3
@@ -125,12 +186,29 @@ A|B|C
 a2|b2|c3
 a3|b3|
 (3 rows)
+A|B|C
+(0 rows)
+A|B|C
+||c1
+|b1|c2
+a2|b2|c3
+a3||c4
+a3|b3|
+(5 rows)
 A|B|C
 ||c1
 a2|b2|c3
 a3||c4
 a3|b3|
 (4 rows)
+A|B|C
+||c1
+|b1|c2
+a2|b2|c3
+a3||c4
+(4 rows)
+A|B|C
+(0 rows)
 A|B|C
 ||c1
 |b1|c2

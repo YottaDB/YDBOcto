@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -157,6 +157,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 				/* If fixed_to_value is NULL, then there is no output from this key fix.
 				 * So skip entire DO block (that will get generated later). Generate M code accordingly.
 				 */
+				TMPL(tmpl_print_dots, dot_count);
 				%{}IF 0{}%
 			}
 			%{} DO{}%

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -19,29 +19,53 @@ SELECT * FROM (SELECT * FROM T1);
 -- Some columns are not key columns
 SELECT * FROM T2;
 SELECT * FROM T2 WHERE a = '';
+SELECT * FROM T2 WHERE a = NULL;
+SELECT * FROM T2 WHERE a is NULL;
 SELECT * FROM T2 WHERE a = 'a3';
 SELECT * FROM T2 WHERE b = '';
+SELECT * FROM T2 WHERE b = NULL;
+SELECT * FROM T2 WHERE b is NULL;
 SELECT * FROM T2 WHERE b = 'b1';
 SELECT * FROM T2 WHERE c = '';
+SELECT * FROM T2 WHERE c = NULL;
+SELECT * FROM T2 WHERE c is NULL;
 SELECT * FROM T2 WHERE c = 'c2';
 SELECT * FROM T2 WHERE a != '';
+SELECT * FROM T2 WHERE a != NULL;
+SELECT * FROM T2 WHERE a is not NULL;
 SELECT * FROM T2 WHERE a != 'a3';
 SELECT * FROM T2 WHERE b != '';
+SELECT * FROM T2 WHERE b != NULL;
+SELECT * FROM T2 WHERE b is not NULL;
 SELECT * FROM T2 WHERE b != 'b1';
 SELECT * FROM T2 WHERE c != '';
+SELECT * FROM T2 WHERE c != NULL;
+SELECT * FROM T2 WHERE c is not NULL;
 SELECT * FROM T2 WHERE c != 'c2';
 SELECT * FROM (SELECT * FROM T2);
 SELECT * FROM (SELECT * FROM T2 WHERE a = '');
+SELECT * FROM (SELECT * FROM T2 WHERE a = NULL);
+SELECT * FROM (SELECT * FROM T2 WHERE a is NULL);
 SELECT * FROM (SELECT * FROM T2 WHERE a = 'a3');
 SELECT * FROM (SELECT * FROM T2 WHERE b = '');
+SELECT * FROM (SELECT * FROM T2 WHERE b = NULL);
+SELECT * FROM (SELECT * FROM T2 WHERE b is NULL);
 SELECT * FROM (SELECT * FROM T2 WHERE b = 'b1');
 SELECT * FROM (SELECT * FROM T2 WHERE c = '');
+SELECT * FROM (SELECT * FROM T2 WHERE c = NULL);
+SELECT * FROM (SELECT * FROM T2 WHERE c is NULL);
 SELECT * FROM (SELECT * FROM T2 WHERE c = 'c2');
 SELECT * FROM (SELECT * FROM T2 WHERE a != '');
+SELECT * FROM (SELECT * FROM T2 WHERE a != NULL);
+SELECT * FROM (SELECT * FROM T2 WHERE a is not NULL);
 SELECT * FROM (SELECT * FROM T2 WHERE a != 'a3');
 SELECT * FROM (SELECT * FROM T2 WHERE b != '');
+SELECT * FROM (SELECT * FROM T2 WHERE b != NULL);
+SELECT * FROM (SELECT * FROM T2 WHERE b is not NULL);
 SELECT * FROM (SELECT * FROM T2 WHERE b != 'b1');
 SELECT * FROM (SELECT * FROM T2 WHERE c != '');
+SELECT * FROM (SELECT * FROM T2 WHERE c != NULL);
+SELECT * FROM (SELECT * FROM T2 WHERE c is not NULL);
 SELECT * FROM (SELECT * FROM T2 WHERE c != 'c2');
 
 -- Test that when START is specified, we go PAST the START value and not include it in the FOR loop

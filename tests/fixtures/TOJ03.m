@@ -109,6 +109,7 @@ genrandomqueries	;
 	. . set:(modulo>0) outerjoinchosen=1
 	. . set sqlquery=sqlquery_" "_joinstr(modulo)_" "_table(i)_" "_tablealias(i)_i
 	. . set:modulo>0 outerjoinchosen=1
+	. . set isnull=0
 	. . if modulo=3 do
 	. . . ; Due to Postgres not supporting arbitrary ON clauses with a FULL JOIN, limit it to a simple one
 	. . . set fulljoinchosen=1
@@ -117,9 +118,14 @@ genrandomqueries	;
 	. . else  do
 	. . . ; Not a FULL JOIN so can choose arbitrary ON clause
 	. . . do chooseOnClauseOperands(.left,.right,i)
-	. . set modulo=$random(2)
-	. . set:modulo=1 notequalchosen=1
-	. . set sqlquery=sqlquery_" on "_left_" "_$select(modulo:"!=",1:"=")_" "_right
+	. . . set isnull='$random(4) ; With 25% probability randomly choose IS NULL or IS NOT NULL instead of = or !=
+	. . set sqlquery=sqlquery_" on "_left_" "
+	. . if 'isnull do
+	. . . if $random(2) do
+	. . . . set notequalchosen=1
+	. . . . set sqlquery=sqlquery_"!= "_right
+	. . . else  set sqlquery=sqlquery_"= "_right
+	. . else  set sqlquery=sqlquery_"IS "_$select($random(2):"",1:"NOT ")_"NULL"
 	. ; Add optional WHERE
 	. if $random(2) do
 	. . set sqlquery=sqlquery_" where "_$$boolexpr(1+$random(4))

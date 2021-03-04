@@ -309,6 +309,9 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		case NUL_VALUE:
 			data_type_ptr = "NULL";
 			break;
+		case IS_NULL_LITERAL:
+			data_type_ptr = "IS_NULL_LITERAL";
+			break;
 		default:
 			assert(FALSE);
 			data_type_ptr = "<INVALID>";

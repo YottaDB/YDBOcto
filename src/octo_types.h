@@ -229,6 +229,10 @@ typedef enum SqlValueType {
 	NUL_VALUE,
 	COERCE_TYPE,
 	DELIM_VALUE,
+	IS_NULL_LITERAL, /* Special type to correspond to value of NULL as part of an IS NULL.
+			  * This is treated as an empty string `""` or `$ZYSQLNULL` based on
+			  * the context. This duality is why it is different from a NUL_VALUE type.
+			  */
 	INVALID_SqlValueType
 } SqlValueType;
 

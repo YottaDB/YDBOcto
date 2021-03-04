@@ -165,19 +165,29 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 			ret &= (NULL == plan->v.lp_default.operand[1]);
 		}
 		break;
-	case LP_KEY:
+	case LP_KEY: {
+		SqlKey *key;
+
+		key = plan->v.lp_key.key;
+		switch (key->type) {
+		case LP_KEY_FIX:
+			ret = !((NULL == plan->v.lp_default.operand[0]) || (NULL != plan->v.lp_default.operand[1]) || (NULL == key)
+				|| (NULL == key->fixed_to_value));
+			break;
+		case LP_KEY_ADVANCE:
+			ret = !((NULL == plan->v.lp_default.operand[0]) || (NULL != plan->v.lp_default.operand[1]) || (NULL == key)
+				|| (NULL != key->fixed_to_value));
+			break;
+		case LP_INVALID_ACTION:
+			/* This has to be the output key in an xref plan (generated in "lp_generate_xref_plan.c") */
+			ret = key->is_cross_reference_key;
+			break;
+		default:
+			assert(FALSE);
+			break;
+		}
 		break;
-	case LP_KEY_FIX:
-		ret = !((NULL == plan->v.lp_default.operand[0]) || (NULL != plan->v.lp_default.operand[1])
-			|| (NULL == plan->v.lp_default.operand[0]->v.lp_key.key)
-			|| (NULL == plan->v.lp_default.operand[0]->v.lp_key.key->fixed_to_value));
-		break;
-	case LP_KEY_ADVANCE:
-		ret = !((NULL == plan->v.lp_default.operand[0]) || (NULL != plan->v.lp_default.operand[1])
-			|| (NULL == plan->v.lp_default.operand[0]->v.lp_key.key)
-			|| (NULL != plan->v.lp_default.operand[0]->v.lp_key.key->fixed_to_value)
-			|| (NULL == plan->v.lp_default.operand[0]->v.lp_key.key->column));
-		break;
+	}
 	case LP_SELECT_OPTIONS:
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_WHERE);
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_SELECT_MORE_OPTIONS);

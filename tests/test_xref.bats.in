@@ -76,3 +76,15 @@ OCTO
 	octo -f TX03.sql 2>&1 | tee -a output.txt
 	verify_output TX03 output.txt
 }
+
+@test "TX04 : OCTO531 : Optimize IS NULL check in WHERE clause by using key fixing optimization" {
+	echo '# Run IS NULL query using Octo and Postgres and verify same output (should see no message below)' > final_output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TX04.sql
+	echo '# Verify ^%ydboctoxref got built and has correct contents' >> final_output.txt
+	yottadb -run %XCMD 'zwrite ^%ydboctoxref' >> final_output.txt
+	echo '# Verify key fixing optimization happened in physical plan only for <lastname IS NULL> query' >> final_output.txt
+	echo '# Key fixed query will have a plan that does $ORDER(^%ydboctoxref)' >> final_output.txt
+	grep -E -B 1 "SELECT|ydboctoxref" _ydboctoP*.m >> final_output.txt
+	verify_output TX04 final_output.txt
+}
+

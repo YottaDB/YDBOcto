@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -109,6 +109,8 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	case LP_BOOLEAN_EQUALS:
 		break;
 	case LP_BOOLEAN_IS_NOT_NULL:
+	case LP_BOOLEAN_IS_NULL:
+		assert(NULL == right);
 		break;
 	case LP_BOOLEAN_IN:
 		/* Check if left side of IN is a LP_COLUMN_ALIAS. If not, we cannot do key fixing. */
@@ -160,7 +162,12 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		break;
 	}
 
-	right_type = ((LP_BOOLEAN_IS_NOT_NULL == type) ? LP_VALUE : right->type);
+	/* IS NULL and IS NOT NULL are operations that have only one operand (unlike = for example which has 2 operands).
+	 * But we want to treat IS NULL and IS NOT NULL as if the right side operand is the empty string as that helps
+	 * us fall through to the right code blocks below. Hence the need for the "right_type" variable below which is
+	 * different from "right->type".
+	 */
+	right_type = (((LP_BOOLEAN_IS_NULL == type) || (LP_BOOLEAN_IS_NOT_NULL == type)) ? LP_VALUE : right->type);
 	switch (right_type) {
 	case LP_VALUE:
 		right_id = 0;
@@ -241,35 +248,48 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		} else {
 			// Both left and right are values.
 			assert(LP_VALUE == left->type);
-			assert(LP_VALUE == right->type);
+			assert(LP_VALUE == right_type); /* Note: Cannot use "right->type" as it would be NULL in the
+							 * LP_BOOLEAN_IS_NULL and LP_BOOLEAN_IS_NOT_NULL cases.
+							 * "right_type" though is correctly set in all cases.
+							 */
 			// This something like 5=5; dumb and senseless, but the M
 			//  compiler will optimize it away. Nothing we can do here.
 			return where;
 		}
 	}
-	/* Check if this is part of a JOIN ON clause (`right_table_alias` variable non-NULL). In this case, we cannot fix the key
-	 * if it corresponds to a column reference i.e. LP_COLUMN_ALIAS (see YDBOcto#426 for examples that fail) from a previous
-	 * table in the join list. But if the key being fixed belongs to the RIGHT side table of this JOIN then it is safe to fix.
-	 * Check that. Note that the key being fixed corresponds to the variable `left` hence the check for `left->type` below.
-	 */
 	right_table_alias = (SqlTableAlias *)ptr;
-	if ((NULL != right_table_alias) && (LP_COLUMN_ALIAS == left->type)) {
-		SqlColumnAlias *column_alias;
-		SqlTableAlias * column_table_alias;
+	if (NULL != right_table_alias) {
+		/* This is part of a JOIN ON clause (`right_table_alias` variable non-NULL). In this case, we cannot fix the key
+		 * if it corresponds to a column reference i.e. LP_COLUMN_ALIAS (see YDBOcto#426 for examples that fail) from a
+		 * previous table in the join list. But if the key being fixed belongs to the RIGHT side table of this JOIN then
+		 * it is safe to fix. Check that. Note that the key being fixed corresponds to the variable `left` hence the
+		 * check for `left->type` below.
+		 */
+		if (LP_COLUMN_ALIAS == left->type) {
+			SqlColumnAlias *column_alias;
+			SqlTableAlias * column_table_alias;
 
-		column_alias = left->v.lp_column_alias.column_alias;
-		UNPACK_SQL_STATEMENT(column_table_alias, column_alias->table_alias_stmt, table_alias);
-		if (column_table_alias != right_table_alias) {
-			/* The column reference being fixed does not belong to the RIGHT side table of OUTER JOIN.
-			 * Cannot fix this. Return unfixed plan as is.
-			 */
+			column_alias = left->v.lp_column_alias.column_alias;
+			UNPACK_SQL_STATEMENT(column_table_alias, column_alias->table_alias_stmt, table_alias);
+			if (column_table_alias != right_table_alias) {
+				/* The column reference being fixed does not belong to the RIGHT side table of OUTER JOIN.
+				 * Cannot fix this. Return unfixed plan as is.
+				 */
+				return where;
+			}
+		}
+	} else {
+		/* This is part of a WHERE clause. Check if this is an IS NULL check and OUTER JOINs are present. If so,
+		 * we cannot fix the key since fixing the value to NULL can confuse with NULLs created by the OUTER JOINs.
+		 */
+		if ((LP_BOOLEAN_IS_NULL == type) && num_outer_joins) {
 			return where;
 		}
 	}
 	key = lp_get_key(plan, left);
 	if (LP_BOOLEAN_IS_NOT_NULL == type) {
 		// Recall that right_table_alias is NULL if this is a WHERE and non-null if this is an ON clause in a join
-		if (NULL != key && NULL == right_table_alias && 0 == num_outer_joins) {
+		if ((NULL != key) && (NULL == right_table_alias) && !num_outer_joins) {
 			// This is of the form `WHERE primary_key IS NOT NULL`.
 			// Since there are no outer joins (they are the only
 			// joins that can cause NULL values even for primary
@@ -369,6 +389,20 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	if ((LP_KEY_ADVANCE == key->type) && (NULL == key->cross_reference_output_key)) {
 		boolean_t remove_lp_boolean_equals;
 
+		if (NULL == right) {
+			SqlValue *value;
+
+			assert(LP_BOOLEAN_IS_NULL == type); /* only case we know of currently */
+			/* Fix the IS NULL value to be the empty string (so that value gets used in the xref) */
+			MALLOC_LP_2ARGS(right, LP_VALUE);
+			OCTO_CMALLOC_STRUCT(value, SqlValue);
+			value->type = IS_NULL_LITERAL; /* Special type to indicate this is key fixing to NULL for "IS NULL".
+							* Key fixing to NULL for "= NULL" will use NUL_VALUE type.
+							*/
+			value->v.string_literal = "";
+			right->v.lp_value.value = value;
+			assert(IS_NULL_FIXED_VALUE(right));
+		}
 		key->fixed_to_value = right;
 		key->type = LP_KEY_FIX;
 		/* Now that a key has been fixed to a constant (or another key), see if we can eliminate this LP_BOOLEAN_EQUALS

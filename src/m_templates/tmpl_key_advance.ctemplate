@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -38,6 +38,8 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 
 	// We ignore the key value here, so we can check if there is data in this key in some cases
 	if (key->cross_reference_output_key) {
+		SqlKey	*iter_key;
+
 		UNPACK_SQL_STATEMENT(value, key->cross_reference_output_key->column->columnName, value);
 		columnName = value->v.reference;
 		%{}^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{}%
@@ -47,15 +49,26 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 				&& (pplan->iterKeys[iter_key_index]->unique_id != key->unique_id)) {
 			iter_key_index++;
 		}
+		iter_key = pplan->iterKeys[iter_key_index];
 		while (iter_key_index < pplan->total_iter_keys) {
-			if (pplan->iterKeys[iter_key_index]->unique_id == key->unique_id)
+			if (iter_key->unique_id == key->unique_id)
 				keys_to_match++;
 			%{},{}%
-			TMPL(tmpl_key, pplan->iterKeys[iter_key_index]);
+			if ((1 == keys_to_match) && IS_NULL_FIXED_VALUE(iter_key->fixed_to_value)) {
+				/* Use empty string instead of $ZYSQLNULL when generating xref global subscript.
+				 * This is because we use "" to store NULL values in the xref global.
+				 * Cannot use $ZSYSQLNULL as a subscript (will issue ZYSQLNULLNOTVALID error).
+				 */
+				%{}""{}%
+			} else {
+				assert(!IS_NULL_FIXED_VALUE(iter_key->fixed_to_value));
+				TMPL(tmpl_key, iter_key);
+			}
 			iter_key_index++;
-			if (hit_key && (pplan->iterKeys[iter_key_index] != key))
+			iter_key = pplan->iterKeys[iter_key_index];
+			if (hit_key && (iter_key != key))
 				break;
-			if (pplan->iterKeys[iter_key_index] == key)
+			if (iter_key == key)
 				hit_key = TRUE;
 		}
 		%{}){}%

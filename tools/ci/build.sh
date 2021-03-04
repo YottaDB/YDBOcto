@@ -658,13 +658,18 @@ else
 			# 5) By a similar reasoning as (4), the TJC004/TJC005/TJC006/TJC007 subtests in the
 			#    "test_jdbc_connection" test use the same query generator that the "TQG*" subtests use.
 			#    And so need to be skipped for the same conditions as TQG*.
+			# 6) By a similar reasoning, the TC027/TC033/TC034 subtests (in the "test_createtable" bats test) used
+			#    "NULLCHAR" previously and so have to be skipped.
 			# ----------------------------------------------------------------------------
 			if [[ ($subtest =~ "TC011 : ") || ($subtest =~ "TPC019 : ") \
 					|| (($subtest =~ ^"TQG") && (0 == $is_post_octo275_commit)) \
 					|| (($subtest =~ ^"TJC004") && (0 == $is_post_octo275_commit)) \
 					|| (($subtest =~ ^"TJC005") && (0 == $is_post_octo275_commit)) \
 					|| (($subtest =~ ^"TJC006") && (0 == $is_post_octo275_commit)) \
-					|| (($subtest =~ ^"TJC007") && (0 == $is_post_octo275_commit)) ]]; then
+					|| (($subtest =~ ^"TJC007") && (0 == $is_post_octo275_commit)) \
+					|| (($subtest =~ ^"TC027") && (0 == $is_post_octo275_commit)) \
+					|| (($subtest =~ ^"TC033") && (0 == $is_post_octo275_commit)) \
+					|| (($subtest =~ ^"TC034") && (0 == $is_post_octo275_commit)) ]]; then
 				echo "SKIPPED : $tstdir : [subtest : $subtest]" >> ../bats_test.txt
 				cd ..
 				rm -rf $tstdir

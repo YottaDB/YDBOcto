@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -33,6 +33,9 @@ SqlDataType get_sqldatatype_from_sqlvaluetype(SqlValueType type) {
 		return NUL_TYPE;
 		break;
 	default:
+		/* Note: We don't expect to enter this function if the "type" is "IS_NULL_LITERAL" too.
+		 * Hence we don't have a special case for this type and instead fall through to the "default:" case block.
+		 */
 		assert(FALSE);
 		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
 		return UNKNOWN_SqlDataType;

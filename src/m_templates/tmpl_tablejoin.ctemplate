@@ -110,7 +110,8 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 
 			fixed_to_value = key->fixed_to_value;
 			if ((LP_VALUE != fixed_to_value->type) || (NUL_VALUE != fixed_to_value->v.lp_value.value->type)) {
-				int	in_value_list_id;
+				int		in_value_list_id;
+				boolean_t	is_key_column;
 
 				/* Key is fixed to a value (= operator) or list of values (IN operator) */
 				assert((LP_COLUMN_LIST != fixed_to_value->type) || (0 < key->in_value_list_id));
@@ -139,13 +140,32 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 				%{}SET {}%
 				TMPL(tmpl_key, key);
 				%{}={{ PP_YDB_OCTO_EXPR }}{}%
-				/* The "tmpl_key_source" function call below would result in an M gvn. If the `fixed_to_value`
-				 * is `$ZYSQLNULL`, we have to skip doing the gvn reference with `$ZYSQLNULL` as a subscript
-				 * (as it causes a ZYSQLNULLNOTVALID error currently). Hence the need for a `$ZYISSQLNULL` check.
+				/* The "tmpl_key_source" function call below would result in an M gvn.
+				 * If the `fixed_to_value` is `$ZYSQLNULL`, we have to skip doing the gvn reference
+				 * with `$ZYSQLNULL` as a subscript (as it causes a ZYSQLNULLNOTVALID error currently).
+				 * Hence the need for a `$ZYISSQLNULL` check below (in the generated M code).
+				 *
+				 * But we do not want to do this in case the key is fixed to a IS_NULL_LITERAL value type.
+				 * This is because in that case, we will generate the empty string instead of $ZYSQLNULL
+				 * in "tmpl_key_source" and "tmpl_key_advance" thereby avoiding ZYSQLNULLNOTVALID errors.
+				 * And having a `$ZYISSQLNULL` check in this case would skip the entire block of code
+				 * which is not right (as we do want to loop through the xref). Hence the "IS_NULL_FIXED_VALUE"
+				 * macro check below.
+				 *
+				 * Finally, even if the key is fixed to a IS_NULL_LITERAL value type, if the key corresponds
+				 * to a key column, then we want to skip doing the gvn reference as the primary key can never
+				 * take on a NULL value (even if the xref global does contain "" subscripts for the key columns).
+				 * Hence the "is_key_column" check below.
 				 */
-				%{} IF '$ZYISSQLNULL({}%
-				TMPL(tmpl_key, key);
-				%{}) IF $DATA({}%
+				is_key_column = ((NULL != key->column)
+					&& ((NULL != get_keyword(key->column, PRIMARY_KEY))
+						|| (NULL != get_keyword(key->column, OPTIONAL_KEY_NUM))));
+				if (is_key_column || !IS_NULL_FIXED_VALUE(key->fixed_to_value) ) {
+					%{} IF '$ZYISSQLNULL({}%
+					TMPL(tmpl_key, key);
+					%{}){}%
+				}
+				%{} IF $DATA({}%
 				TMPL(tmpl_key_source, plan, key);
 				if (key->is_cross_reference_key) {
 					fixed_xref_key = key;	/* Note down this key for later "tmpl_key_advance" call */

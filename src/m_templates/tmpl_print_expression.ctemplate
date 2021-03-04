@@ -70,12 +70,14 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		case INTEGER_LITERAL:
 		case NUMERIC_LITERAL:
 		case STRING_LITERAL:
+			assert(value->parameter_index);
 			%{}$GET({{ config->global_names.cursor }}(cursorId,{{ PP_PARAMETERS }},{{ value->parameter_index|%d }})){}%
 			break;
 		case FUNCTION_NAME:
 			%{}{{ value->v.string_literal }}{}%
 			break;
 		case NUL_VALUE:
+		case IS_NULL_LITERAL:
 			%{}$ZYSQLNULL{}%
 			break;
 		case COLUMN_REFERENCE:

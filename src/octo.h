@@ -453,6 +453,9 @@ typedef enum RegexType {
 	((NUMERIC_LITERAL == VALUE_TYPE) || (INTEGER_LITERAL == VALUE_TYPE) || (BOOLEAN_VALUE == VALUE_TYPE) \
 	 || (STRING_LITERAL == VALUE_TYPE))
 
+#define IS_NULL_FIXED_VALUE(FIX_VALUE) \
+	((NULL != FIX_VALUE) && (LP_VALUE == FIX_VALUE->type) && (IS_NULL_LITERAL == FIX_VALUE->v.lp_value.value->type))
+
 // Initialize a stack-allocated ydb_buffer_t to point to a stack-allocated buffer (char [])
 #define OCTO_SET_BUFFER(BUFFER, STRING)                                                                                     \
 	{                                                                                                                   \

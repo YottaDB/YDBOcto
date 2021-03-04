@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -32,6 +32,7 @@ char *get_user_visible_type_string(SqlValueType type) {
 	case COLUMN_REFERENCE:
 	case CALCULATED_VALUE:
 	case UNKNOWN_SqlValueType:
+	case IS_NULL_LITERAL:
 	default:
 		assert(FALSE);
 		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");

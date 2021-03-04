@@ -85,7 +85,9 @@ Octo uses :code:`0` and :code:`1` internally to represent boolean :code:`false` 
 
 .. code-block:: SQL
 
-   SELECT * FROM names WHERE true;
+   SELECT *
+   FROM names
+   WHERE true;
 
 .. note::
 
@@ -98,27 +100,57 @@ CREATE TABLE
 
 .. code-block:: SQL
 
-   CREATE TABLE table_name (column_name data_type [constraints][, ... column_name data_type [constraints]]) [optional_keyword];
+   CREATE TABLE table_name
+   (column_name data_type [constraints][, ... column_name data_type [constraints]])
+   [optional_keyword];
 
 The CREATE TABLE statement is used to create tables in the database. The keywords CREATE TABLE are used followed by the name of the table to be created.
 
-The names of columns to be created in the database and their datatypes are then specified in a list, along with any constraints that might need to apply (such as denoting a PRIMARY KEY, UNIQUE KEY or FOREIGN KEY). If none of the columns are specified as keys (PRIMARY KEY or KEY NUM not specified in any column) then the primary key for the table is assumed to be the set of all columns in the order given.
+The names of columns to be created in the database and their datatypes are then specified in a list, along with any constraints that might need to apply (such as denoting a PRIMARY KEY, UNIQUE KEY, FOREIGN KEY or NOT NULL). If none of the columns are specified as keys (PRIMARY KEY or KEY NUM not specified in any column) then the primary key for the table is assumed to be the set of all columns in the order given.
 
 Example:
 
 .. code-block:: SQL
 
-   CREATE TABLE Employee (ID int PRIMARY KEY, FirstName char(20), LastName char(30));
+   CREATE TABLE Employee
+   (ID int PRIMARY KEY,
+   FirstName char(20),
+   LastName char(30));
 
-   CREATE TABLE Employee (ID int, FirstName char(20), LastName char(30));
+   CREATE TABLE Employee
+   (ID int,
+   FirstName char(20),
+   LastName char(30));
    /* is equivalent to */
-   CREATE TABLE (ID int KEY NUM 0, FirstName char(20) KEY NUM 1, LastName char(30) KEY NUM 2);
+   CREATE TABLE Employee
+   (ID int KEY NUM 0,
+   FirstName char(20) KEY NUM 1,
+   LastName char(30) KEY NUM 2);
+
+By default, a column can have NULL values. The NOT NULL constraint enforces a column to **not** accept NULL values.
+
+Example:
+
+.. code-block:: SQL
+
+   CREATE TABLE Employee
+   (ID int PRIMARY KEY,
+   FirstName char(20) NOT NULL,
+   LastName char(30) NOT NULL);
+
+The above example CREATEs a table named :code:`Employee`, where the :code:`FirstName` and :code:`LastName` columns cannot accept NULL values.
 
 Note that CREATE TABLE statements can also accept a list of ASCII integer values for use in the DELIM qualifier, for example:
 
 .. code-block:: SQL
 
-   CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, 9) GLOBAL "^delimnames";
+   CREATE TABLE DELIMNAMES
+   (id INTEGER PRIMARY KEY,
+   firstName VARCHAR(30),
+   lastName VARCHAR(30),
+   middleInitial VARCHAR(1),
+   age INTEGER)
+   DELIM (9, 9) GLOBAL "^delimnames(keys(""id""))";
 
 Here, two TAB characters (ASCII value 9) act as the internal delimiter of an Octo table. Note, however, that these delimiters are not applied to Octo output, which retains the default pipe :code:`|` delimiter. The reason for this is that tables may be joined that have different delimiters, so one common delimiter needs to be chosen anyway. Thus, the default is used.
 
@@ -230,7 +262,9 @@ CREATE FUNCTION
 
 .. code-block:: SQL
 
-   CREATE FUNCTION function_name([data_type[, data_type[, ...]]]) RETURNS data_type AS extrinsic_function_name;
+   CREATE FUNCTION function_name
+   ([data_type[, data_type[, ...]]])
+   RETURNS data_type AS extrinsic_function_name;
 
 The CREATE FUNCTION statement is used to create SQL functions that map to extrinsic M functions and store these mappings in the database. The keywords CREATE FUNCTION are followed by the name of the SQL function to be created, the data types of its parameters, its return type, and the fully-qualified extrinsic M function name.
 
@@ -244,19 +278,23 @@ When a function is created from a CREATE FUNCTION statement, an entry is added t
 
 .. code-block:: SQL
 
-   select proname,pronargs,prorettype,proargtypes from pg_proc;
+   select proname,pronargs,prorettype,proargtypes
+   from pg_proc;
 
 Type information for each function parameter and return type will be returned as an OID. This OID can be used to look up type information, including type name, from the :code:`pg_catalog.pg_type` system table. For example, to retrieve the human-readable return type and function name of all existing functions:
 
 .. code-block:: SQL
 
-   select proname,typname from pg_catalog.pg_proc inner join pg_catalog.pg_type on pg_catalog.pg_proc.prorettype = pg_catalog.pg_type.oid;
+   select proname,typname
+   from pg_catalog.pg_proc
+   inner join pg_catalog.pg_type on pg_catalog.pg_proc.prorettype = pg_catalog.pg_type.oid;
 
 However, function parameter types are currently stored as a list in a VARCHAR string, rather than in a SQL array as the latter isn't yet supported by Octo. In the meantime, users can lookup the type name corresponding to a given type OID by using the following query:
 
 .. code-block:: SQL
 
-   select oid,typname from pg_catalog.pg_type;
+   select oid,typname
+   from pg_catalog.pg_type;
 
 Note that CREATE FUNCTION is the preferred method for creating new SQL functions and manually creating these functions through direct database modifications is not advised.
 
@@ -264,9 +302,11 @@ Example:
 
 .. code-block:: none
 
-   CREATE FUNCTION ADD(int, int) RETURNS int AS $$ADD^myextrinsicfunction;
+   CREATE FUNCTION ADD(int, int)
+   RETURNS int AS $$ADD^myextrinsicfunction;
 
-   CREATE FUNCTION APPEND(varchar, varchar) RETURNS varchar AS $$APPEND;
+   CREATE FUNCTION APPEND(varchar, varchar)
+   RETURNS varchar AS $$APPEND;
 
 To create a parameterless function, the parameter type list may be omitted by leaving the parentheses blank:
 
@@ -274,7 +314,8 @@ Example:
 
 .. code-block:: none
 
-   CREATE FUNCTION userfunc() RETURNS int AS $$userfunc^myextrinsicfunction;
+   CREATE FUNCTION userfunc()
+   RETURNS int AS $$userfunc^myextrinsicfunction;
 
 +++++++++++++
 Error Case
@@ -454,8 +495,8 @@ Example:
 
    /* Selects the first name, last name and address of an employee that have an address. The employee and address table are joined on the employee ID values. */
    SELECT FirstName, LastName, Address
-   FROM Employee INNER JOIN Addresses
-   ON Employee.ID = Addresses.EID;
+   FROM Employee
+   INNER JOIN Addresses ON Employee.ID = Addresses.EID;
 
 .. note::
 
@@ -486,7 +527,10 @@ Example:
 .. code-block:: SQL
 
    /* Selects the Employee ID, first name and last name from the employee table for employees with ID greater than 100. The results are grouped by the last name of the employees. */
-   SELECT ID, FirstName, LastName FROM Employee WHERE ID > 100 GROUP BY LastName;
+   SELECT ID, FirstName, LastName
+   FROM Employee
+   WHERE ID > 100
+   GROUP BY LastName;
 
 ++++++++++
 ORDER BY
@@ -516,7 +560,10 @@ Example:
 .. code-block:: SQL
 
    /* Selects the Employee ID, first name and last name from the employee table for employees with ID greater than 100. The results are ordered in descending order of ID. */
-   SELECT ID, FirstName, LastName FROM Employee WHERE ID > 100 ORDER BY ID DESC;
+   SELECT ID, FirstName, LastName
+   FROM Employee
+   WHERE ID > 100
+   ORDER BY ID DESC;
 
 +++++++
 LIMIT
@@ -529,7 +576,9 @@ Example:
 .. code-block:: SQL
 
    /* Selects the first five rows from the employee table */
-   SELECT * FROM Employee LIMIT 5;
+   SELECT *
+   FROM Employee
+   LIMIT 5;
 
 The above example returns no more than five rows.
 
@@ -690,7 +739,11 @@ UNION
 
 .. code-block:: SQL
 
-   SELECT [.....] FROM table_name[...]  UNION [ALL] SELECT [.....] FROM table_name2[...]....;
+   SELECT [.....]
+   FROM table_name[...]
+   UNION
+   [ALL] SELECT [.....]
+   FROM table_name2[...]....;
 
 The UNION operation consists of two or more queries joined together with the word UNION.  It combines the results of two individual queries into a single set of results.
 
@@ -700,7 +753,11 @@ Example:
 
 .. code-block:: SQL
 
-   SELECT FirstName FROM Employee UNION SELECT FirstName FROM AddressBook;
+   SELECT FirstName
+   FROM Employee
+   UNION
+   SELECT FirstName
+   FROM AddressBook;
 
 ++++++++++++++++
 INTERSECT
@@ -708,7 +765,11 @@ INTERSECT
 
 .. code-block:: SQL
 
-   SELECT [.....] FROM table_name[......] INTERSECT [ALL] SELECT [.....] FROM table_name2[....]......;
+   SELECT [.....]
+   FROM table_name[......]
+   INTERSECT
+   [ALL] SELECT [.....]
+   FROM table_name2[....]......;
 
 The INTERSECT operation consists of two or more queries joined together with the word INTERSECT. It returns distinct non-duplicate results that are returned by both queries on either side of the operation.
 
@@ -716,7 +777,11 @@ The keyword ALL ensures that duplicate rows of results returned by both queries 
 
 .. code-block:: SQL
 
-   SELECT ID FROM Employee INTERSECT SELECT ID FROM AddressBook;
+   SELECT ID
+   FROM Employee
+   INTERSECT
+   SELECT ID
+   FROM AddressBook;
 
 ++++++++++++++
 EXCEPT
@@ -724,7 +789,11 @@ EXCEPT
 
 .. code-block:: SQL
 
-   SELECT [.....] FROM table_name[.....] EXCEPT [ALL] SELECT [.....] FROM table_name2[......].......;
+   SELECT [.....]
+   FROM table_name[.....]
+   EXCEPT
+   [ALL] SELECT [.....]
+   FROM table_name2[......].......;
 
 The EXCEPT operation consists of two or more queries joined together with the word EXCEPT. It returns (non-duplicate) results from the query on the left side except those that are also part of the results from the query on the right side.
 
@@ -732,7 +801,11 @@ The keyword ALL affects the resulting rows such that duplicate results are allow
 
 .. code-block:: SQL
 
-   SELECT LastName FROM Employee EXCEPT SELECT LastName FROM AddressBook;
+   SELECT LastName
+   FROM Employee
+   EXCEPT
+   SELECT LastName
+   FROM AddressBook;
 
 --------------
 VALUES

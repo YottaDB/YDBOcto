@@ -655,9 +655,16 @@ else
 			#    could give different output in the newer build since the empty string will now be treated as NULL.
 			#    Therefore, skip all TQG* subtests if the random older commit is prior to the YDBOcto#275 commit.
 			#    Note that (3) is subsumed by (4) so just one check is needed below for both those cases.
+			# 5) By a similar reasoning as (4), the TJC004/TJC005/TJC006/TJC007 subtests in the
+			#    "test_jdbc_connection" test use the same query generator that the "TQG*" subtests use.
+			#    And so need to be skipped for the same conditions as TQG*.
 			# ----------------------------------------------------------------------------
 			if [[ ($subtest =~ "TC011 : ") || ($subtest =~ "TPC019 : ") \
-					|| (($subtest =~ ^"TQG") && (0 == $is_post_octo275_commit)) ]]; then
+					|| (($subtest =~ ^"TQG") && (0 == $is_post_octo275_commit)) \
+					|| (($subtest =~ ^"TJC004") && (0 == $is_post_octo275_commit)) \
+					|| (($subtest =~ ^"TJC005") && (0 == $is_post_octo275_commit)) \
+					|| (($subtest =~ ^"TJC006") && (0 == $is_post_octo275_commit)) \
+					|| (($subtest =~ ^"TJC007") && (0 == $is_post_octo275_commit)) ]]; then
 				echo "SKIPPED : $tstdir : [subtest : $subtest]" >> ../bats_test.txt
 				cd ..
 				rm -rf $tstdir

@@ -2,7 +2,7 @@
 
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -29,9 +29,7 @@ if ! [ -e "$file" ]; then
        exit 1
 fi
 
-skipextensions="ref rst png zwr html ci"	# List of extensions that cannot have copyrights.
-	# .rst  -> file used to generate documentation. Since final documentation has
-	#		copyrights, this one does not require it.
+skipextensions="ref png zwr html ci"	# List of extensions that cannot have copyrights.
 	# .png  -> these are images (i.e. binary files) used in the documentation.
 	#		Same reason as .rst for not requiring a copyright.
 	# .ref  -> reference files used by the test cases (e.g. tests/outref/T0001.ref).

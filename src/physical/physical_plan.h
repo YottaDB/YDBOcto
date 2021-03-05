@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -105,6 +105,7 @@ typedef struct PhysicalPlan {
 #define PHYSICAL_PLAN_NAME(PLAN)    PRIMARY_PHYSICAL_PLAN(PLAN)->plan_name
 
 #define IS_INSERT_INTO_PHYSICAL_PLAN(PPLAN) ((NULL != PPLAN->lp_select_query) && (LP_INSERT_INTO == PPLAN->lp_select_query->type))
+#define HYPHEN_LINE			    "---------------------------------------------------------"
 
 // This provides a convenient way to pass options to subplans
 // which need to be aware of a request from a higher level
@@ -136,5 +137,7 @@ int key_equals_column(SqlKey *key, SqlColumn *column);
 
 PhysicalPlan *get_physical_plan_from_unique_id(PhysicalPlan *pplan, int unique_id);
 PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename);
+int emit_physical_or_xref_plan(char *plan_filename, SqlStatement *stmt, char *tableName, char *columnName, PhysicalPlan *xref_plan);
+int emit_xref_plan(char *plan_filename, char *tableName, char *columnName, PhysicalPlan *xref_plan);
 
 #endif

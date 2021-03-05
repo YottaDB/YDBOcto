@@ -60,18 +60,15 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 	LogicalPlan *	    plan, *cur_plan, *column_alias, *function, *table;
 	PhysicalPlan *	    pplan;
 	SqlValue *	    value;
-	char		    output_key[INT32_TO_STRING_MAX], valbuff[INT32_TO_STRING_MAX];
-	int32_t		    output_key_id, status;
+	char		    valbuff[INT32_TO_STRING_MAX];
+	int		    status;
 	int16_t		    num_columns = 0;
 	ydb_buffer_t	    plan_meta[6], value_buffer;
-	SetOperType *	    set_oper;
 	PhysicalPlanOptions options;
 	PSQL_TypeOid	    column_type;
 	PSQL_TypeSize	    type_size;
 
 	TRACE(INFO_ENTERING_FUNCTION, "emit_select_statement");
-	memset(output_key, 0, INT32_TO_STRING_MAX);
-
 	assert(stmt
 	       && ((table_alias_STATEMENT == stmt->type) || (set_operation_STATEMENT == stmt->type)
 		   || (insert_STATEMENT == stmt->type)));
@@ -289,41 +286,6 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 	} else {
 		/* Physical plan corresponding to LP_INSERT_INTO has no output columns so skip "if" block above in that case */
 		assert(IS_INSERT_INTO_PHYSICAL_PLAN(pplan));
-	}
-	/* Store output key for the given plan. Note that for a LP_INSERT_INTO, there is no output key but we still
-	 * note down an output key id of the source query (e.g. SELECT) that way a pre-existing plan gets reused
-	 * instead of creating it afresh every time (i.e. "GET_PLAN_METADATA_DB_NODE" check in "run_query.c" succeeds
-	 * and "generate_plan" variable in that function does not get set to TRUE).
-	 * Note that we need to do this store as the last step in this function as this global node is checked in
-	 * "run_query.c" as part of the GET_PLAN_METADATA_DB_NODE and if it exists, it is assumed that all other setup
-	 * of global nodes related to the plan is done.
-	 */
-	set_oper = pplan->set_oper_list;
-	if (NULL != set_oper) {
-		DEBUG_ONLY(LPActionType set_oper_type);
-
-		DEBUG_ONLY(set_oper_type = set_oper->set_oper_type);
-		DEBUG_ONLY(assert((LP_SET_UNION == set_oper_type) || (LP_SET_UNION_ALL == set_oper_type)
-				  || (LP_SET_DNF == set_oper_type) || (LP_SET_EXCEPT == set_oper_type)
-				  || (LP_SET_EXCEPT_ALL == set_oper_type) || (LP_SET_INTERSECT == set_oper_type)
-				  || (LP_SET_INTERSECT_ALL == set_oper_type)));
-		output_key_id = set_oper->output_id;
-	} else if (NULL == pplan->outputKey) {
-		LogicalPlan *output_key;
-
-		assert(IS_INSERT_INTO_PHYSICAL_PLAN(pplan));
-		output_key = lp_get_output_key(pplan->lp_select_query);
-		output_key_id = output_key->v.lp_key.key->unique_id;
-	} else {
-		output_key_id = pplan->outputKey->unique_id;
-	}
-	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&value_buffer, INT32_TO_STRING_MAX);
-	OCTO_INT32_TO_BUFFER(output_key_id, &value_buffer);
-	YDB_LITERAL_TO_BUFFER(OCTOLIT_OUTPUT_KEY, &plan_meta[3]);
-	status = ydb_set_s(&plan_meta[0], 3, &plan_meta[1], &value_buffer);
-	YDB_FREE_BUFFER(&value_buffer);
-	if (YDB_OK != status) {
-		return NULL;
 	}
 	// Create a table from the last physical table which reads from the output values
 	return pplan;

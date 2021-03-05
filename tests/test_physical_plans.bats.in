@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -95,5 +95,33 @@ setup() {
   echo "# Run TPP01.sql again. Should issue ZLINKFILE error because _ydboctoX*.m (which rebuilds xref) has been deleted" >> output.txt
   octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TPP01.sql >> output.txt 2>&1
   verify_output TPP07 output.txt
+}
+
+@test "TPP08 : OCTO694 : Test that xref plan gets regenerated if a physical plan that relies on it gets regenerated" {
+	echo "# Run TPP08.sql that generates xref plan for NAMES table and LASTNAME column" >> output.txt
+	octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TPP08.sql >> output.txt 2>&1
+	echo "# Delete xref plan _ydboctoX*.{m,o}" >> output.txt
+	rm _ydboctoX*.{m,o}
+	echo "# Run TPP08b.sql again. Verify that no error occurs. xref plan gets regenerated" >> output.txt
+	octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TPP08b.sql >> output.txt 2>&1
+	verify_output TPP08 output.txt
+}
+
+@test "TPP09 : OCTO694 : Test that xref plan gets regenerated (even if it exists) if Octo has no idea of it in its global nodes" {
+	echo "# Run TPP08.sql that generates xref plan for NAMES table and LASTNAME column" >> output.txt
+	octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TPP08.sql >> output.txt 2>&1
+	echo '# KILL internal gvns so Octo has no idea of any generated physical/xref plans' >> output.txt
+	yottadb -run %XCMD 'kill ^%ydboctoocto("plandirs"),^%ydboctoocto("plan_metadata"),^%ydboctoocto("xref_status")' 2>&1 | tee -a output.txt
+	echo "# Edit the existing xref plan so it contains garbage. And rerun query that will use this xref plan" >> output.txt
+	echo "# If the xref plan does not get regenerated we would see an error due to running the garbage M code" >> output.txt
+	echo "# This is a way of verifying that the xref plan does indeed get regenerated" >> output.txt
+	xrefplan=`echo _ydboctoX*.m`
+	mv $xrefplan $xrefplan.tmp
+	echo "  Garbage xref plan" > $xrefplan
+	echo "# Run TPP08.sql again. Verify that no error occurs and xref plan gets regenerated" >> output.txt
+	octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TPP08.sql >> output.txt 2>&1
+	echo '# Verify internal gvns in Octo corresponding to xref plans did get regenerated' >> output.txt
+	yottadb -run %XCMD 'zwrite ^%ydboctoocto("plandirs",*) zwrite ^%ydboctoocto("plan_metadata",*) zwrite ^%ydboctoocto("xref_status",*)' 2>&1 | tee -a output.txt
+	verify_output TPP09 output.txt
 }
 

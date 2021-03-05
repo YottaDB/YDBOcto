@@ -46,6 +46,9 @@ _ydboctoX*.o
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="4"
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoX*.m","output_key")="1"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoX*.m","output_key")="1"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoX*.m","output_key")="1"
 # Verify db nodes correctly represent cross-references
 ^%ydboctoocto("xref_status","CUSTOMERS","FIRST_NAME")="%ydboctoTlGFZzU7b74ygU5grJjV"
 ^%ydboctoocto("xref_status","ORDERS","ORDER_AMOUNT")="%ydboctoT2rbmGQx4OtlbPfepALF"

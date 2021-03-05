@@ -258,7 +258,9 @@ add_library(libocto OBJECT
   parser/table_reference.c
   parser/validate_query_expression.c
   physical/allocate_physical_plan.c
+  physical/emit_physical_or_xref_plan.c
   physical/emit_physical_plan.c
+  physical/emit_xref_plan.c
   physical/generate_physical_plan.c
   physical/get_physical_plan_from_unique_id.c
   populate_data_type.c
@@ -272,9 +274,10 @@ add_library(libocto OBJECT
   regex_has_no_special_characters.c
   run_query.c
   store_function_definition.c
+  store_function_in_pg_proc.c
+  store_plandirs_gvn.c
   store_table_definition.c
   store_table_in_pg_class.c
-  store_function_in_pg_proc.c
   tables_equal.c
   traverse_where_clause.c
   values_equal.c

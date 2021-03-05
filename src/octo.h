@@ -694,16 +694,16 @@ boolean_t	    match_sql_statement(SqlStatement *stmt, SqlStatement *match_stmt);
 void	      compress_statement(SqlStatement *stmt, char **out, int *out_length);
 SqlStatement *decompress_statement(char *buffer, int out_length);
 
-int store_table_definition(ydb_buffer_t *table_name_buff, char *table_defn, int table_defn_length, boolean_t is_text);
-int store_function_definition(ydb_buffer_t *function_name_buffers, char *function_defn, int function_defn_length,
-			      boolean_t is_text);
-
+int  store_table_definition(ydb_buffer_t *table_name_buff, char *table_defn, int table_defn_length, boolean_t is_text);
+int  store_function_definition(ydb_buffer_t *function_name_buffers, char *function_defn, int function_defn_length,
+			       boolean_t is_text);
 int  store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer);
 int  delete_table_from_pg_class(ydb_buffer_t *table_name_buffer);
 void cleanup_tables();
 int  store_function_in_pg_proc(SqlFunction *function, char *function_hash);
 int  delete_function_from_pg_proc(ydb_buffer_t *function_name_buffer, ydb_buffer_t *function_hash_buffer);
 int  regex_has_no_special_characters(SqlStatement *op1, enum RegexType regex_type, ParseContext *parse_context);
+int  store_plandirs_gvn(char *plan_filename);
 
 /* Parse related functions invoked from the .y files (parser.y, select.y etc.) */
 void	      as_name(SqlStatement *as_name);

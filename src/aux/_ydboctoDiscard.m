@@ -51,13 +51,8 @@ discardTable(tableName,tableGVNAME)	;
 	; Discards all generated xrefs, plans and triggers associated with a table.
 	; Also KILLs the M global name associated with a table in case "tableGVNAME" parameter is set to a non-empty string.
 	; ----------------------------------------------------------------------------
-	; Delete all plans associated with "tableName"
-	;
-	; Ensure all _ydboctoP*.m plans that rely on this table are recreated by deleting those database nodes
-	; that correspond to the plan metadata of these plans. We do not delete the _ydboctoP*.m files since
-	; the _ydboctoP*.o files would anyways exist and also need to be removed but it is not straightforward (since
-	; we need to find the first obj directory in the zroutines list). Just deleting the database nodes is enough
-	; since that is checked every time using the GET_PLAN_METADATA_DB_NODE macro before using a pre-existing plan.
+	; Delete all _ydboctoP*.m and _ydboctoX*.m plans associated with "tableName".
+	; Also delete those database nodes that correspond to the plan metadata of these deleted plans.
 	;
 	NEW planName
 	SET planName="" FOR  SET planName=$ORDER(^%ydboctoocto("tableplans",tableName,planName))  QUIT:""=planName  DO

@@ -58,31 +58,6 @@
 		}                                                                                                  \
 	}
 
-#define GET_PLAN_METADATA_DB_NODE(PLAN_FILENAME, DB_NODE_FOUND, STATUS)       \
-	{                                                                     \
-		ydb_buffer_t varname, subs_array[3];                          \
-                                                                              \
-		YDB_STRING_TO_BUFFER(config->global_names.octo, &varname);    \
-		YDB_LITERAL_TO_BUFFER(OCTOLIT_PLAN_METADATA, &subs_array[0]); \
-		subs_array[1] = PLAN_FILENAME;                                \
-		YDB_LITERAL_TO_BUFFER(OCTOLIT_OUTPUT_KEY, &subs_array[2]);    \
-		STATUS = ydb_data_s(&varname, 3, subs_array, &DB_NODE_FOUND); \
-	}
-
-#define CLEANUP_FILENAME_LOCK(I, FILENAME_LOCK, STATUS)                                                   \
-	{                                                                                                 \
-		if (1 == I) {                                                                             \
-			/* If this is the second iteration, release the lock obtained in first iteration. \
-			 * Cannot do much if call fails. Hence no check of return status.                 \
-			 */                                                                               \
-			STATUS = ydb_lock_decr_s(&FILENAME_LOCK[0], 2, &FILENAME_LOCK[1]);                \
-			YDB_ERROR_CHECK(STATUS);                                                          \
-		}                                                                                         \
-		if (NULL != FILENAME_LOCK) {                                                              \
-			free(FILENAME_LOCK);                                                              \
-		}                                                                                         \
-	}
-
 #define CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS_SKIP_PARAMETER_LVN(QUERY_LOCK, MEMORY_CHUNKS) \
 	{                                                                                  \
 		int lclStatus;                                                             \
@@ -98,17 +73,6 @@
 		CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS_SKIP_PARAMETER_LVN(QUERY_LOCK, MEMORY_CHUNKS); \
 	}
 
-#define CLEANUP_FROM_PLAN_GENERATION(I, FILENAME_LOCK, QUERY_LOCK, MEMORY_CHUNKS, CURSOR_YDB_BUFF)      \
-	{                                                                                               \
-		int lclStatus;                                                                          \
-                                                                                                        \
-		CLEANUP_FILENAME_LOCK(I, FILENAME_LOCK, lclStatus); /* lclStatus is set but not used */ \
-		/* No need to use lclStatus to return a non-zero value since the caller of this macro   \
-		 * is already in a code path that returns a non-zero value to signify an error.         \
-		 */                                                                                     \
-		CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(QUERY_LOCK, MEMORY_CHUNKS, CURSOR_YDB_BUFF);       \
-	}
-
 /* Runs a query that has already been read and parsed. Creates a logical and physical plan if necessary. And executes it.
  * Returns
  *	 0 for normal
@@ -117,7 +81,6 @@
  */
 int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type, ParseContext *parse_context) {
 	FILE *			  out;
-	PhysicalPlan *		  pplan;
 	SqlStatement *		  result;
 	SqlValue *		  value;
 	bool			  free_memory_chunks;
@@ -126,14 +89,13 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 	hash128_state_t		  state;
 	int			  status;
 	size_t			  buffer_size = 0;
-	ydb_buffer_t *		  filename_lock, query_lock[3], *null_query_lock;
+	ydb_buffer_t		  query_lock[3], *null_query_lock;
 	ydb_string_t		  ci_param1, ci_param2;
 	ydb_buffer_t		  cursor_ydb_buff;
 	ydb_buffer_t		  schema_global;
 	ydb_buffer_t		  octo_global;
 	boolean_t		  canceled = FALSE, cursor_used;
 	int			  length;
-	int			  i;
 	unsigned int		  ret_value;
 	SqlTable *		  table;
 	char *			  tablename;
@@ -245,76 +207,11 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
 			return 1;
 		}
-		filename_lock = NULL; /* used by CLEANUP_FROM_PLAN_GENERATION macro to know whether to invoke free() or not */
-		for (i = 0; i < 2; i++) {
-			/* i = 0 is the iteration BEFORE we get the M lock (to generate the plan).
-			 * i = 1 is the iteration AFTER  we get the M lock (to generate the plan).
-			 *
-			 * The code to do checks is mostly common for both iterations hence this for loop to avoid code duplication.
-			 */
-			boolean_t generate_plan;
-
-			generate_plan = (-1 == access(filename, F_OK));
-			if (!generate_plan) {
-				/* The plan exists (i.e. has already been generated). But check if the corresponding nodes
-				 * in the database are in sync as well. If not, regenerate the plan. This way we will avoid
-				 * an ERR_DATABASE_FILES_OOS error later.
-				 */
-				unsigned int db_node_found;
-				ydb_buffer_t filename_buffer;
-
-				YDB_STRING_TO_BUFFER(filename, &filename_buffer);
-				GET_PLAN_METADATA_DB_NODE(filename_buffer, db_node_found,
-							  status); /* sets "db_node_found" and "status" */
-				YDB_ERROR_CHECK(status);
-				if (YDB_OK != status) {
-					CLEANUP_FROM_PLAN_GENERATION(i, filename_lock, query_lock, memory_chunks, &cursor_ydb_buff);
-					return 1;
-				}
-				if (0 == db_node_found) {
-					/* Plan exists but no corresponding db node was found. Regenerate plan. */
-					generate_plan = TRUE;
-				}
-			}
-			if (generate_plan) {
-				if (0 == i) {
-					/* Get the M lock and redo the check of whether the plan is still not generated */
-					filename_lock = make_buffers(config->global_names.octo, 2, OCTOLIT_FILES, filename);
-					/* Wait for 5 seconds in case another process is writing to same filename */
-					status = ydb_lock_incr_s(TIMEOUT_5_SEC, &filename_lock[0], 2, &filename_lock[1]);
-					YDB_ERROR_CHECK(status);
-					if (YDB_OK != status) {
-						CLEANUP_FROM_PLAN_GENERATION(i, filename_lock, query_lock, memory_chunks,
-									     &cursor_ydb_buff);
-						return 1;
-					}
-					continue; /* So we redo the check of whether plan exists or not after getting lock */
-				} else {
-					/* We got the lock and the plan still does not exist. Generate the plan this time around. */
-					INFO(INFO_M_PLAN, filename);
-					pplan = emit_select_statement(result, filename);
-					if (NULL == pplan) {
-						CLEANUP_FROM_PLAN_GENERATION(i, filename_lock, query_lock, memory_chunks,
-									     &cursor_ydb_buff);
-						return 1;
-					}
-				}
-			} else {
-				/* Plan was found to already exist. So reuse it. */
-				INFO(INFO_REUSE_M_PLAN, filename);
-				/* If this is the first iteration, then we can break out of the loop but if the second
-				 * iteration, then we need to release the locks obtained in the first iteration.
-				 */
-				if (0 == i) {
-					break;
-				}
-			}
-			assert(1 == i);
-			CLEANUP_FILENAME_LOCK(i, filename_lock, status);
-			if (YDB_OK != status) {
-				CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
-				return 1;
-			}
+		status = emit_physical_or_xref_plan(filename, result, NULL, NULL, NULL);
+		if (status) {
+			/* Error would have already been issued in "emit_physical_or_xref_plan()" */
+			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
+			return 1;
 		}
 		if (parse_context->is_extended_query) {
 			memcpy(parse_context->routine, routine_name, sizeof(routine_name));

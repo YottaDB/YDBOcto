@@ -22,7 +22,7 @@
 // Note that this function is very similar to find_function.c, so changes there may need to be reflected here also.
 SqlTable *find_table(const char *table_name) {
 	SqlTable *    table;
-	SqlStatement *stmt;
+	SqlStatement *table_stmt;
 	ydb_buffer_t  save_value;
 	ydb_buffer_t *table_binary_b;
 	ydb_buffer_t  value_b;
@@ -41,7 +41,7 @@ SqlTable *find_table(const char *table_name) {
 	TRACE(INFO_TABLE_SEARCH, table_name);
 
 	/* We look to see if the table has already been loaded, and if so we get the pointer to process-local memory
-	 * from the YDB local variable, then setup the stmt pointer. Else, we load the binary from the database
+	 * from the YDB local variable, then setup the table_stmt pointer. Else, we load the binary from the database
 	 * and store a pointer to the parsed schema.
 	 *
 	 * Once a table is loaded from the database, it is stored in process local memory and used from there unless
@@ -58,8 +58,8 @@ SqlTable *find_table(const char *table_name) {
 		/* We have the table definition already stored in process local memory. Use that as long as the
 		 * table definition has not changed in the database.
 		 */
-		stmt = *((SqlStatement **)ret.buf_addr);
-		UNPACK_SQL_STATEMENT(table, stmt, create_table);
+		table_stmt = *((SqlStatement **)ret.buf_addr);
+		UNPACK_SQL_STATEMENT(table, table_stmt, create_table);
 		/* Check if table has not changed in the database since we cached it */
 		YDB_STRING_TO_BUFFER(config->global_names.schema, &varname);
 		YDB_STRING_TO_BUFFER((char *)table_name, &subs_array[0]);
@@ -193,19 +193,18 @@ SqlTable *find_table(const char *table_name) {
 	}
 	assert(length == (cur_buff - buff));
 
-	stmt = (void *)buff;
-	decompress_statement((char *)stmt, length);
-	if (NULL == stmt) {
+	table_stmt = (void *)buff;
+	decompress_statement((char *)table_stmt, length);
+	if (NULL == table_stmt) {
 		OCTO_CFREE(memory_chunks);
 		memory_chunks = old_chunk;
 		YDB_FREE_BUFFER(&table_binary_b[3]);
 		free(table_binary_b);
 		return NULL;
 	}
-	assign_table_to_columns(stmt);
 
 	// Note the pointer to the loaded parse tree root
-	save_value.buf_addr = (char *)&stmt;
+	save_value.buf_addr = (char *)&table_stmt;
 	save_value.len_used = save_value.len_alloc = sizeof(void *);
 	status = ydb_set_s(&varname, 2, &subs_array[0], &save_value);
 	YDB_ERROR_CHECK(status);
@@ -229,7 +228,6 @@ SqlTable *find_table(const char *table_name) {
 		free(table_binary_b);
 		return NULL;
 	}
-	UNPACK_SQL_STATEMENT(table, stmt, create_table);
 
 	// Restore memory chunks
 	memory_chunks = old_chunk;
@@ -238,5 +236,6 @@ SqlTable *find_table(const char *table_name) {
 	YDB_FREE_BUFFER(&table_binary_b[3]);
 	free(table_binary_b);
 
+	UNPACK_SQL_STATEMENT(table, table_stmt, create_table);
 	return table;
 }

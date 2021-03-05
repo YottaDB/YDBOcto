@@ -74,7 +74,12 @@
 	((NULL != get_keyword(COLUMN, PRIMARY_KEY)) || (NULL != get_keyword(COLUMN, OPTIONAL_KEY_NUM)) \
 	 || (NULL != get_keyword(COLUMN, NOT_NULL)))
 
-enum EmitSourceForm { EmitSourceForm_Value, EmitSourceForm_Trigger };
+enum EmitSourceForm {
+	EmitSourceForm_Value,
+	EmitSourceForm_Trigger,
+	EmitSourceForm_Insert,
+	EmitSourceForm_NoKeyCol,
+};
 
 void resize_tmpl_buffer(char **global_buffer, int *buffer_len, int *buffer_index);
 

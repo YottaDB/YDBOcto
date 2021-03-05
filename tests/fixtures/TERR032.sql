@@ -36,3 +36,17 @@ CREATE TABLE abcd (id INTEGER STARTINCLUDE) READWRITE;
 -- Test of READWRITE with column-level END
 CREATE TABLE abcd (id INTEGER END 100) READWRITE;
 
+-- Test of READWRITE explicitly specified and column-level DELIM that is not ""
+CREATE TABLE abcd (id INTEGER, firstname VARCHAR DELIM "a") READWRITE;
+
+-- Test of READWRITE not explicitly specified but being default and column-level DELIM that is not ""
+-- In this case it might be more user-friendly to assume READONLY and not issue an error.
+-- But ERR_READWRITE_DISALLOWED error is how Octo behaves currently and so we test that here.
+CREATE TABLE abcd (id INTEGER, firstname VARCHAR DELIM "a");
+
+-- Test of READWRITE not explicitly specified where multiple non-key columns with DELIM "" have been specified.
+-- In this case it might be more user-friendly to assume READONLY and not issue an error.
+-- But ERR_READWRITE_DISALLOWED error is how Octo behaves currently (as it assumed READWRITE to create the hidden
+-- key column initially and cannot easily change that to READONLY later) and so we test that here.
+CREATE TABLE abcd (id INTEGER, firstname VARCHAR DELIM "", lastname VARCHAR DELIM "");
+

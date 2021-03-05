@@ -189,6 +189,13 @@
 #define XREFPLAN_LIT	  "xrefPlan"
 #define MAX_PLAN_NAME_LEN sizeof(OCTOPLAN_LIT) + INT32_TO_STRING_MAX
 
+/* Below macro defines the name of the hidden primary key column that is added by Octo in a READWRITE table
+ * which has no primary key columns specified by the user in the CREATE TABLE command. For a READONLY table
+ * all columns specified by the user are together assumed to be the primary key.
+ * All column names that are Octo created have a %YO prefix (short form for YdbOcto).
+ */
+#define HIDDEN_KEY_COL_NAME "%YO_KEYCOL"
+
 /* Below defines the default values used for all row description messages currently sent by Rocto */
 #define ROWDESC_DEFAULT_TYPE_MODIFIER -1
 #define ROWDESC_DEFAULT_FORMAT_CODE   0
@@ -232,7 +239,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_BINARY_DEFINITION 8
+#define FMT_BINARY_DEFINITION 9
 
 /* The below macro needs to be manually bumped if at least one of the following changes.
  *	1) Generated physical plan (_ydboctoP*.m) file name OR contents
@@ -241,7 +248,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_PLAN_DEFINITION 9
+#define FMT_PLAN_DEFINITION 10
 
 // Below are a few utility macros that are similar to those defined in sr_port/gtm_common_defs.h.
 // But we do not use those as that is outside the control of Octo's source code repository
@@ -624,14 +631,6 @@ int emit_create_table(FILE *output, struct SqlStatement *stmt);
 int emit_create_function(FILE *output, struct SqlStatement *stmt);
 // Recursively copies all of stmt, including making copies of strings
 
-/**
- * Examines the table to make sure needed columns are specified, and fills out
- * any that are needed but not present.
- *
- * @returns 0 if success, 1 otherwise
- */
-int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_statement);
-
 char *m_escape_string(const char *string);
 int   m_escape_string2(char **buffer, int *buffer_len, char *string);
 char *m_unescape_string(const char *string);
@@ -689,9 +688,7 @@ int  generate_routine_name(hash128_state_t *state, char *routine_name, int routi
 void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *status);
 void ydb_hash_to_string(ydb_uint16 *hash, char *buffer, const unsigned int buf_len);
 
-void		    assign_table_to_columns(SqlStatement *table_statement);
 SqlOptionalKeyword *add_optional_piece_keyword_to_sql_column(int column_number);
-int		    add_key_num_keyword_if_needed(SqlStatement *table_statement);
 
 // Converts a list of columns to a column list alias associated with the given table alias
 SqlColumnListAlias *columns_to_column_list_alias(SqlColumn *column, SqlStatement *table_alias_stmt);
@@ -743,6 +740,7 @@ int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op
 			int is_not, ParseContext *parse_context);
 SqlStatement *set_operation(enum SqlSetOperationType setoper_type, SqlStatement *left_operand, SqlStatement *right_operand);
 SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *ordering_specification);
+SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_element_list, SqlStatement *table_definition_tail);
 SqlStatement *table_expression(SqlStatement *from, SqlStatement *where, SqlStatement *group_by, SqlStatement *having);
 SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlation_specification, int *plan_id);
 

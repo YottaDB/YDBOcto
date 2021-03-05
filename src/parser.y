@@ -1232,26 +1232,13 @@ sql_schema_definition_statement
 /// TODO: not complete
 table_definition
   : CREATE TABLE column_name LEFT_PAREN table_element_list RIGHT_PAREN table_definition_tail {
-        SQL_STATEMENT($$, create_table_STATEMENT);
-        MALLOC_STATEMENT($$, create_table, SqlTable);
-        assert($column_name->type == value_STATEMENT
-          && $column_name->v.value->type == COLUMN_REFERENCE);
-        ($$)->v.create_table->tableName = $column_name;
-        ($$)->v.create_table->columns = $table_element_list;
-	/* In case no column is specified as a key column in the table (i.e. no "PRIMARY KEY" or "KEY NUM" keyword in any
-	 * column) the below call to "add_key_num_keyword_if_needed()" adds those keywords to all columns effectively treating
-	 * all table columns as one big composite key. It is therefore important that this call (which converts what were
-	 * non-key columns into key columns) happens before "assign_table_to_columns()" is called as the latter assigns PIECE
-	 * numbers to non-key columns that don't have any PIECE number explicitly specified and assumes the list of non-key
-	 * columns is final.
-	 */
-        if (add_key_num_keyword_if_needed($$)) {
-          YYABORT;
-        }
-        assign_table_to_columns($$);
-        if (create_table_defaults($$, $table_definition_tail)) {
-          YYABORT;
-        }
+  	SqlStatement	*ret;
+
+	ret = table_definition($column_name, $table_element_list, $table_definition_tail);
+	if (NULL == ret) {
+		YYABORT;
+	}
+	$$ = ret;
       }
   ;
 
@@ -1481,6 +1468,7 @@ column_definition
 	($$)->v.column->data_type_struct = $data_type->v.data_type_struct;
 	($$)->v.column->keywords = $column_definition_tail;
 	($$)->v.column->delim = NULL;
+	($$)->v.column->is_hidden_keycol = FALSE;
     }
 //  | more stuff
   ;

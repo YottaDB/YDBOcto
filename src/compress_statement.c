@@ -30,10 +30,15 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length);
 void compress_statement(SqlStatement *stmt, char **out, int *out_length) {
 	*out_length = 0;
 	compress_statement_helper(stmt, NULL, out_length);
-	assert(0 != *out_length);
-	*out = malloc(*out_length);
-	*out_length = 0;
-	compress_statement_helper(stmt, *out, out_length);
+	if (0 != *out_length) {
+		*out = malloc(*out_length);
+		*out_length = 0;
+		compress_statement_helper(stmt, *out, out_length);
+	} else {
+		assert(FALSE);
+		*out = NULL;
+	}
+	return;
 }
 
 /*
@@ -167,7 +172,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 			*out_length += sizeof(SqlColumn);
 			CALL_COMPRESS_HELPER(r, cur_column->columnName, new_column->columnName, out, out_length);
 			CALL_COMPRESS_HELPER(r, cur_column->keywords, new_column->keywords, out, out_length);
-			CALL_COMPRESS_HELPER(r, cur_column->delim, new_column->delim, out, out_length);
+			/* cur_column->delim can be derived from cur_column->keywords and so does not need to be compressed */
 			cur_column = cur_column->next;
 			if ((NULL != out) && (cur_column != start_column)) {
 				new_column->next = ((void *)&out[*out_length]);

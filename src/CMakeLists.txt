@@ -132,9 +132,7 @@ ADD_CUSTOM_COMMAND(
 )
 
 add_library(libocto OBJECT
-  add_key_num_keyword_if_needed.c
   add_optional_piece_keyword_to_sql_column.c
-  assign_table_to_columns.c
   auto_load_octo_seed.c
   auto_load_octo_seed_if_needed.c
   auto_upgrade_binary_definition_if_needed.c
@@ -149,7 +147,6 @@ add_library(libocto OBJECT
   copy_column_list_alias_list.c
   copy_sql_statement.c
   create_cursor.c
-  create_table_defaults.c
   decompress_statement.c
   ${PROJECT_BINARY_DIR}/default_octo_conf.h
   delete_table_from_pg_class.c
@@ -255,6 +252,7 @@ add_library(libocto OBJECT
   parser/regex_specification.c
   parser/set_operation.c
   parser/sort_specification.c
+  parser/table_definition.c
   parser/table_expression.c
   parser/table_reference.c
   parser/validate_query_expression.c

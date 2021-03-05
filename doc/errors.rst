@@ -250,7 +250,7 @@ ERR_DUPLICATE_COLUMN
 
 Text: Column 'xxx' specified more than once
 
-Description/Action: This error is generated when the :code:`CREATE TABLE` or :code:`INSERT INTO` command specifies more than one column with the same column name. PSQL Error Code: 42701
+Description/Action: This error is generated when the :code:`CREATE TABLE` or :code:`INSERT INTO` command specifies more than one column with the same column name. Additionally, this error is generated if a :code:`CREATE TABLE` command specifies no columns with the :code:`PRIMARY KEY` or :code:`KEY NUM` keywords and specifies at least one column with the special name :code:`%YO_KEYCOL` which would then collide with the name of the hidden primary key column that Octo internally creates. PSQL Error Code: 42701
 
 +++++++++++++++++++++++++
 INFO_ENTERING_FUNCTION
@@ -778,7 +778,7 @@ ERR_READWRITE_DISALLOWED
 
 Text: READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
 
-Description/Action: This error is generated when a CREATE TABLE command specifies the table type to be READWRITE but also specifies another keyword that is incompatible with READWRITE. A table level GLOBAL keyword is compatible if it specifies just an unsubscripted M global name followed by subscripts that only correspond to primary key columns (using the :code:`keys(...)` syntax). Otherwise it is considered incompatible. A column level PIECE keyword is compatible if it is specified for a non-key column and the piece number matches the number of this non-key column (starting from one(1) from the leftmost non-key column in the CREATE TABLE command). Otherwise it is considered incompatible. A column level EXTRACT, GLOBAL, DELIM, START, STARTINCLUDE or END keyword is considered incompatible. There is one exception to this rule and that is a table with only one non-key column that also has a column level :code:`DELIM ""` specified. This is considered compatible. PSQL Error Code: 42601
+Description/Action: This error is generated when a CREATE TABLE command specifies the table type to be READWRITE but also specifies another keyword that is incompatible with READWRITE. A table level GLOBAL keyword is compatible if it specifies just an unsubscripted M global name followed by subscripts that only correspond to primary key columns (using the :code:`keys(...)` syntax). Otherwise it is considered incompatible. A column level PIECE keyword is compatible if it is specified for a non-key column and the piece number matches the number of this non-key column (starting from one(1) from the leftmost non-key column in the CREATE TABLE command). Otherwise it is considered incompatible. A column level EXTRACT, GLOBAL, DELIM, START, STARTINCLUDE or END keyword is considered incompatible. There is one exception to this rule and that is a table with only one non-key column that also has a column level :code:`DELIM ""` specified. This is considered compatible. This error is also generated in some cases when a CREATE TABLE command does not specify the table type to be READWRITE or READONLY but specifies a keyword that is incompatible with READWRITE and a default table type of READWRITE is assumed. In such cases, explicitly specifying the table type as READONLY would fix the error. PSQL Error Code: 42601
 
 ++++++++++++++++++++
 INFO_READ_MESSAGE

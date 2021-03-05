@@ -1,0 +1,192 @@
+
+-- TII09 : OCTO502 : Test that INSERT INTO correctly adds duplicate rows on table with no primary key columns
+
+CREATE TABLE tmp1 (id INTEGER, firstname VARCHAR);
+INSERT INTO tmp1 VALUES (1234, 'First'), (1234, 'First');
+INSERT INTO tmp1 SELECT * FROM tmp1;
+-- In addition to testing that duplicate rows are printed below, also test that hidden key column %YO_KEYCOL
+-- is not printed in case of a SELECT *. Only user specified columns are selected in case * was specified.
+SELECT * FROM tmp1;
+
+-- Test that "%YO_KEYCOL" column is hidden from the user (lower case or upper case names) if it was implicitly inserted by Octo.
+-- Test of ERR_UNKNOWN_COLUMN_NAME
+SELECT `%yo_keycol` FROM tmp1;
+SELECT `%YO_KEYCOL` FROM tmp1;
+
+-- Test that INSERT INTO cannot specify the hidden column by name in the list of columns that it is allowed to optionally specify.
+-- Test of ERR_TABLE_UNKNOWN_COLUMN_NAME error
+INSERT INTO tmp1(`%yo_keycol`, id) SELECT id, id from tmp1;
+INSERT INTO tmp1(id, `%yo_keycol`) SELECT id, id from tmp1;
+
+-- Test that "%YO_KEYCOL" is a column name that can be used in a CREATE TABLE as well as a SELECT if it was NOT an implicitly inserted column.
+-- Create a READONLY table tmp2 that uses the same gvn created by the READWRITE table tmp1 so we can see the actual hidden column.
+CREATE TABLE tmp2 (`%yo_keycol` INTEGER PRIMARY KEY, id INTEGER, firstname VARCHAR) READONLY GLOBAL "^%ydboctoDAgeMzpAgs346YlVTTNcBB6(keys(""%YO_KEYCOL"")";
+SELECT `%yo_keycol` from tmp2;
+SELECT * from tmp2;
+
+-- Test that cross references get built automatically using the hidden key column for queries that involve key fixing optimization.
+CREATE TABLE tmp3 (firstName VARCHAR, lastName varchar) READWRITE;
+INSERT INTO tmp3 VALUES (NULL, NULL);
+INSERT INTO tmp3 VALUES (NULL, 'last1');
+INSERT INTO tmp3 VALUES (NULL, 'last2');
+INSERT INTO tmp3 VALUES ('first1', NULL);
+INSERT INTO tmp3 VALUES ('first1', 'last1');
+INSERT INTO tmp3 VALUES ('first1', 'last2');
+INSERT INTO tmp3 VALUES ('first2', NULL);
+INSERT INTO tmp3 VALUES ('first2', 'last1');
+INSERT INTO tmp3 VALUES ('first2', 'last2');
+SELECT * FROM tmp3 WHERE firstname = 'first1';
+SELECT * FROM tmp3 WHERE lastname = 'last2';
+SELECT * FROM tmp3 WHERE firstname IS NULL;
+SELECT * FROM tmp3 WHERE lastname IS NULL;
+
+INSERT 0 2
+INSERT 0 2
+ID|FIRSTNAME
+1234|First
+1234|First
+1234|First
+1234|First
+(4 rows)
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: %YO_KEYCOL
+Error with syntax near (line 1, column 19):
+
+SELECT `%yo_keycol` FROM tmp1;
+                  ^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT `%yo_keycol` FROM tmp1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: %YO_KEYCOL
+Error with syntax near (line 1, column 19):
+
+SELECT `%YO_KEYCOL` FROM tmp1;
+                  ^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT `%YO_KEYCOL` FROM tmp1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_UNKNOWN_COLUMN_NAME : Column '%YO_KEYCOL' of table 'TMP1' does not exist
+Error with syntax near (line 1, column 29):
+
+INSERT INTO tmp1(`%yo_keycol`, id) SELECT id, id from tmp1;
+                            ^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO tmp1(`%yo_keycol`, id) SELECT id, id from tmp1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_UNKNOWN_COLUMN_NAME : Column '%YO_KEYCOL' of table 'TMP1' does not exist
+Error with syntax near (line 1, column 33):
+
+INSERT INTO tmp1(id, `%yo_keycol`) SELECT id, id from tmp1;
+                                ^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO tmp1(id, `%yo_keycol`) SELECT id, id from tmp1;
+%YO_KEYCOL
+1
+2
+3
+4
+(4 rows)
+%YO_KEYCOL|ID|FIRSTNAME
+1|1234|First
+2|1234|First
+3|1234|First
+4|1234|First
+(4 rows)
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+FIRSTNAME|LASTNAME
+first1|
+first1|last1
+first1|last2
+(3 rows)
+FIRSTNAME|LASTNAME
+|last2
+first1|last2
+first2|last2
+(3 rows)
+FIRSTNAME|LASTNAME
+|
+|last1
+|last2
+(3 rows)
+FIRSTNAME|LASTNAME
+|
+first1|
+first2|
+(3 rows)
+# Run [mupip extract run.ext]
+
+# Additionally verify that hidden column is not emitted in the text table definition
+# But also verify that the hidden column name shows up in the M gvn of the GLOBAL keyword
+^%ydboctoschema("TMP1","text",0)="CREATE TABLE `TMP1` (`ID` INTEGER PIECE 1, `FIRSTNAME` VARCHAR PIECE 2) GLOBAL ""^%ydboctoDAgeMzpAgs346YlVTTNcBB6(keys(""""%YO_KEYCOL""""))"" DELIM ""|"" READWRITE;"
+# Additionally verify ^%ydboctoxref got built and has correct contents
+^%ydboctoxref("TMP3","FIRSTNAME")=9
+^%ydboctoxref("TMP3","FIRSTNAME","")=3
+^%ydboctoxref("TMP3","FIRSTNAME","",1)=""
+^%ydboctoxref("TMP3","FIRSTNAME","",2)=""
+^%ydboctoxref("TMP3","FIRSTNAME","",3)=""
+^%ydboctoxref("TMP3","FIRSTNAME","first1")=3
+^%ydboctoxref("TMP3","FIRSTNAME","first1",4)=""
+^%ydboctoxref("TMP3","FIRSTNAME","first1",5)=""
+^%ydboctoxref("TMP3","FIRSTNAME","first1",6)=""
+^%ydboctoxref("TMP3","FIRSTNAME","first2")=3
+^%ydboctoxref("TMP3","FIRSTNAME","first2",7)=""
+^%ydboctoxref("TMP3","FIRSTNAME","first2",8)=""
+^%ydboctoxref("TMP3","FIRSTNAME","first2",9)=""
+^%ydboctoxref("TMP3","LASTNAME")=9
+^%ydboctoxref("TMP3","LASTNAME","")=3
+^%ydboctoxref("TMP3","LASTNAME","",1)=""
+^%ydboctoxref("TMP3","LASTNAME","",4)=""
+^%ydboctoxref("TMP3","LASTNAME","",7)=""
+^%ydboctoxref("TMP3","LASTNAME","last1")=3
+^%ydboctoxref("TMP3","LASTNAME","last1",2)=""
+^%ydboctoxref("TMP3","LASTNAME","last1",5)=""
+^%ydboctoxref("TMP3","LASTNAME","last1",8)=""
+^%ydboctoxref("TMP3","LASTNAME","last2")=3
+^%ydboctoxref("TMP3","LASTNAME","last2",3)=""
+^%ydboctoxref("TMP3","LASTNAME","last2",6)=""
+^%ydboctoxref("TMP3","LASTNAME","last2",9)=""
+# Verify key fixing optimization happened for = and IS NULL operators in WHERE clause
+# Key fixed query will have a plan that does $ORDER(^%ydboctoxref)
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  SELECT * from tmp2;
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  SELECT `%yo_keycol` from tmp2;
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  SELECT * FROM tmp3 WHERE lastname = 'last2';
+--
+_ydboctoP*.m-    . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TMP3","LASTNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"TMP3","LASTNAME")) IF $DATA(^%ydboctoxref("TMP3","LASTNAME",%ydboctocursor(cursorId,"keys",1,"TMP3","LASTNAME"))) DO
+_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"TMP3","%YO_KEYCOL")=""
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"TMP3","%YO_KEYCOL")=$ORDER(^%ydboctoxref("TMP3","LASTNAME",%ydboctocursor(cursorId,"keys",1,"TMP3","LASTNAME"),%ydboctocursor(cursorId,"keys",1,"TMP3","%YO_KEYCOL"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TMP3","%YO_KEYCOL")="")  DO
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  INSERT INTO tmp1 SELECT * FROM tmp1;
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  SELECT * FROM tmp1;
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  SELECT * FROM tmp3 WHERE firstname IS NULL;
+--
+_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TMP3","FIRSTNAME")=%ydboctoexpr IF $DATA(^%ydboctoxref("TMP3","FIRSTNAME","")) DO
+_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"TMP3","%YO_KEYCOL")=""
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"TMP3","%YO_KEYCOL")=$ORDER(^%ydboctoxref("TMP3","FIRSTNAME","",%ydboctocursor(cursorId,"keys",1,"TMP3","%YO_KEYCOL"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TMP3","%YO_KEYCOL")="")  DO
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  SELECT * FROM tmp3 WHERE firstname = 'first1';
+--
+_ydboctoP*.m-    . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TMP3","FIRSTNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"TMP3","FIRSTNAME")) IF $DATA(^%ydboctoxref("TMP3","FIRSTNAME",%ydboctocursor(cursorId,"keys",1,"TMP3","FIRSTNAME"))) DO
+_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"TMP3","%YO_KEYCOL")=""
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"TMP3","%YO_KEYCOL")=$ORDER(^%ydboctoxref("TMP3","FIRSTNAME",%ydboctocursor(cursorId,"keys",1,"TMP3","FIRSTNAME"),%ydboctocursor(cursorId,"keys",1,"TMP3","%YO_KEYCOL"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TMP3","%YO_KEYCOL")="")  DO
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  SELECT * FROM tmp3 WHERE lastname IS NULL;
+--
+_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TMP3","LASTNAME")=%ydboctoexpr IF $DATA(^%ydboctoxref("TMP3","LASTNAME","")) DO
+_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"TMP3","%YO_KEYCOL")=""
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"TMP3","%YO_KEYCOL")=$ORDER(^%ydboctoxref("TMP3","LASTNAME","",%ydboctocursor(cursorId,"keys",1,"TMP3","%YO_KEYCOL"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TMP3","%YO_KEYCOL")="")  DO

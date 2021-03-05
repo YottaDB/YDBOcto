@@ -60,9 +60,9 @@ INSERT 0 1
 INSERT 0 1
 INSERT 0 1
 COLUMN1
-|Ａ|
-|ＡＢ|
 |ＡＢＣ|
+|ＡＢ|
+|Ａ|
 (3 rows)
 ???
 
@@ -73,8 +73,8 @@ COLUMN1
 INSERT 0 1
 INSERT 0 1
 COLUMN1
-|ＡＢＣ |
 |ＡＢＣＤ|
+|ＡＢＣ |
 (2 rows)
 ???
 

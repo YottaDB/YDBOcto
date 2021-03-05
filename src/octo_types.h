@@ -446,6 +446,7 @@ typedef struct SqlColumn {
 	struct SqlStatement *	 columnName;
 	struct SqlDataTypeStruct data_type_struct;
 	int			 column_number;
+	boolean_t		 is_hidden_keycol;
 	struct SqlStatement *	 table;
 	struct SqlStatement *	 delim;
 	struct SqlStatement *	 keywords;

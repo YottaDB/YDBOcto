@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -11,12 +11,8 @@
  ****************************************************************/
 
 #include <assert.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include "octo.h"
-#include "octo_types.h"
-#include "template_strings.h"
 
 #define SOURCE	  (1 << 0)
 #define DELIM	  (1 << 1)
@@ -84,11 +80,17 @@
 		dqdel(CUR_KEYWORD); /* Delete keyword */                                                   \
 	}
 
-/* 0 return value implies table create was successful
- * non-zero return value implies error while creating table
+/* Function invoked by the rule named "table_definition" in src/parser.y (parses the CREATE TABLE command).
+ * Returns
+ *	non-NULL pointer to SqlStatement structure on success
+ *	NULL on failure
  */
-int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_statement) {
+SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_element_list, SqlStatement *table_definition_tail) {
+	SqlStatement *	    table_stmt;
 	SqlTable *	    table;
+	SqlColumn *	    key_columns[MAX_KEY_COUNT];
+	int		    max_key;
+	int		    column_number;
 	SqlOptionalKeyword *keyword, *cur_keyword, *start_keyword;
 	SqlColumn *	    cur_column, *start_column, *first_non_key_column;
 	SqlStatement *	    statement;
@@ -98,9 +100,276 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	int		    len, piece_number, num_non_key_columns;
 	unsigned int	    options;
 	boolean_t	    readwrite_disallowed; /* TRUE if READWRITE at table level is disallowed due to incompatible qualifier */
+	tabletype_t	    table_type;
+	boolean_t	    hidden_column_added;
 
-	UNPACK_SQL_STATEMENT(table, table_statement, create_table);
+	SQL_STATEMENT(table_stmt, create_table_STATEMENT);
+	MALLOC_STATEMENT(table_stmt, create_table, SqlTable);
+	assert((value_STATEMENT == tableName->type) && (COLUMN_REFERENCE == tableName->v.value->type));
+	UNPACK_SQL_STATEMENT(table, table_stmt, create_table);
+	table->tableName = tableName;
+	table->columns = table_element_list;
+	/* Determine whether table is READWRITE or READONLY. Use default setting from octo.conf.
+	 * Override this later based on whether READWRITE or READONLY keywords have been specified in the CREATE TABLE.
+	 */
+	table_type = config->default_tabletype;
+	/*********************************************************************************************************************
+	 * First process table-level keywords and set "options" bitmask variable accordingly.
+	 * Also update "table_type" based on whether READONLY or READWRITE keywords were specified.
+	 *********************************************************************************************************************
+	 */
+	options = 0;
+	assert(NULL != table_definition_tail);
+	UNPACK_SQL_STATEMENT(start_keyword, table_definition_tail, keyword);
+	cur_keyword = start_keyword;
+	do {
+		SqlOptionalKeyword *next_keyword;
+
+		next_keyword = cur_keyword->next;
+		switch (cur_keyword->keyword) {
+		case OPTIONAL_SOURCE:
+			options |= SOURCE;
+			SQL_STATEMENT(statement, keyword_STATEMENT);
+			statement->v.keyword = cur_keyword;
+			table->source = statement;
+			break;
+		case OPTIONAL_DELIM:
+			options |= DELIM;
+			SQL_STATEMENT(statement, keyword_STATEMENT);
+			statement->v.keyword = cur_keyword;
+			table->delim = statement;
+			break;
+		case OPTIONAL_READONLY:
+			options &= ~READWRITE; /* Clear any prior READWRITE keyword specifications in same command */
+			options |= READONLY;
+			table_type = TABLETYPE_READONLY;
+			break;
+		case OPTIONAL_READWRITE:
+			options &= ~READONLY; /* Clear any prior READONLY keyword specifications in same command */
+			options |= READWRITE;
+			table_type = TABLETYPE_READWRITE;
+			break;
+		case NO_KEYWORD:
+			break;
+		default:
+			ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
+			assert(FALSE);
+			return NULL;
+			break;
+		}
+		dqdel(cur_keyword);
+		if (cur_keyword != next_keyword) {
+			if (start_keyword == cur_keyword) {
+				start_keyword = next_keyword;
+			}
+			cur_keyword = next_keyword;
+			continue;
+		}
+		assert(cur_keyword == start_keyword);
+		break;
+	} while (TRUE);
+	/*********************************************************************************************************************
+	 * Determine the key columns in the table (i.e. those that have "PRIMARY KEY" or "KEY NUM" keyword specified.
+	 * At the end of the "get_key_columns()" call below, "max_key" will contain a value
+	 *  0    if 1 key column was found
+	 *  1    if 2 key columns were found
+	 *  N    if N+1 key columns were found where N is a positive number >= 0
+	 * -1    if no key columns were found.
+	 * -2    if there was some error during this determination.
+	 *********************************************************************************************************************
+	 */
+	hidden_column_added = FALSE;
+	memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn *));
+	max_key = get_key_columns(table, key_columns);
+	switch (max_key) {
+	case -1:
+		/*************************************************************************************************************
+		 * This means no column is specified as a key column in the table (i.e. no "PRIMARY KEY" or "KEY NUM" keyword
+		 * in any column). There are 2 cases to consider.
+		 *
+		 * If the table is READWRITE, we will create a hidden key column. This will let us allow duplicate rows to be
+		 * inserted into the table using the hidden key column to serve as a unique subscript in the mapped M global.
+		 *
+		 * But if the table is READONLY, we have to map to a pre-existing M global and so cannot create an additional
+		 * column (would require structural changes to the existing M global to add the hidden key column subscript).
+		 * Therefore in that case, we treat all columns in the table as key columns i.e. effectively treating all
+		 * columns as one big composite key.
+		 ************************************************************************************************************
+		 */
+		if ((options & SOURCE) && !(options & READWRITE) && !(options & READONLY)) {
+			/* Table-level GLOBAL keyword specified but neither READWRITE nor READONLY specified.
+			 * In this case, READWRITE is incompatible so set table_type to be READONLY
+			 * (in case it was set to READWRITE from the default octo.conf setting).
+			 */
+			table_type = TABLETYPE_READONLY;
+		}
+		if (TABLETYPE_READWRITE == table_type) {
+			SqlStatement *colname_stmt, *data_type_stmt, *keycol_stmt, *keyword_stmt;
+
+			SQL_STATEMENT(colname_stmt, value_STATEMENT);
+			OCTO_CMALLOC_STRUCT(colname_stmt->v.value, SqlValue);
+			colname_stmt->v.value->type = COLUMN_REFERENCE;
+			/* Note: sizeof of a string literal will include null terminator so that too gets copied in memcpy below */
+			colname_stmt->v.value->v.string_literal = octo_cmalloc(memory_chunks, sizeof(HIDDEN_KEY_COL_NAME));
+			memcpy(colname_stmt->v.value->v.string_literal, HIDDEN_KEY_COL_NAME, sizeof(HIDDEN_KEY_COL_NAME));
+
+			SQL_STATEMENT(keyword_stmt, keyword_STATEMENT);
+			MALLOC_STATEMENT(keyword_stmt, keyword, SqlOptionalKeyword);
+			keyword_stmt->v.keyword->keyword = PRIMARY_KEY;
+			dqinit(keyword_stmt->v.keyword);
+
+			data_type_stmt = data_type(INTEGER_TYPE, NULL, NULL);
+
+			SQL_STATEMENT(keycol_stmt, column_STATEMENT);
+			MALLOC_STATEMENT(keycol_stmt, column, SqlColumn);
+			dqinit(keycol_stmt->v.column);
+			keycol_stmt->v.column->columnName = colname_stmt;
+			keycol_stmt->v.column->data_type_struct = data_type_stmt->v.data_type_struct;
+			keycol_stmt->v.column->keywords = keyword_stmt;
+			keycol_stmt->v.column->delim = NULL;
+			keycol_stmt->v.column->is_hidden_keycol = TRUE;
+			/* Add the new hidden key column to tail of the linked list */
+			dqappend(table->columns->v.column, keycol_stmt->v.column);
+			/* Make the hidden column the start of the list of columns so it gets assigned "column_number" of 1.
+			 * Not necessary but better to have the primary key column at the beginning.
+			 */
+			table->columns = keycol_stmt;
+			/* Get the new key columns */
+			max_key = get_key_columns(table, key_columns);
+			assert(0 == max_key); /* Assert that there is 1 primary key column now */
+			hidden_column_added = TRUE;
+		} else {
+			char	   key_num_buffer[INT32_TO_STRING_MAX];
+			int	   i, len;
+			char *	   out_buffer;
+			SqlColumn *cur_column, *start_column;
+
+			assert(TABLETYPE_READONLY == table_type);
+			UNPACK_SQL_STATEMENT(start_column, table->columns, column);
+			cur_column = start_column;
+			i = 0;
+			do {
+				SqlOptionalKeyword *keyword, *t_keyword;
+				int		    copied;
+
+				// Construct the key num keyword
+				SQL_STATEMENT(statement, keyword_STATEMENT);
+				MALLOC_STATEMENT(statement, keyword, SqlOptionalKeyword);
+				keyword = statement->v.keyword;
+				keyword->keyword = OPTIONAL_KEY_NUM;
+				// key num value is index of key in table
+				copied = snprintf(key_num_buffer, INT32_TO_STRING_MAX, "%d", i);
+				assert(INT32_TO_STRING_MAX > copied);
+				UNUSED(copied); /* Needed to avoid DeadStores warning in non-Debug builds */
+				len = strlen(key_num_buffer);
+				out_buffer = octo_cmalloc(memory_chunks, len + 1);
+				strncpy(out_buffer, key_num_buffer, len + 1);
+				SQL_VALUE_STATEMENT(keyword->v, INTEGER_LITERAL, out_buffer);
+				// Insert statement into column keyword list
+				dqinit(keyword);
+				UNPACK_SQL_STATEMENT(t_keyword, cur_column->keywords, keyword);
+				dqappend(t_keyword, keyword);
+				// Walk to next key and increment index
+				cur_column = cur_column->next;
+				i++;
+			} while (cur_column != start_column);
+			/* Get the new key columns */
+			max_key = get_key_columns(table, key_columns);
+			assert((i - 1) == max_key); /* Assert that there are "i" (i.e. all columns) primary key columns */
+		}
+		break;
+	case -2:
+		/* There was some error during the key column determination */
+		return NULL;
+		break;
+	default:
+		/* Normal case. There was at least one key column defined by the user. */
+		assert(0 <= max_key);
+		break;
+	}
+	assert(0 <= max_key);
+	/****************************************************************************
+	 * Assign column PIECE numbers to non-key columns if not explicitly specified.
+	 * Also assign "column_number" to all columns (key or non-key). Later used by hash_canonical_query.
+	 * This is safe to do now that all key columns (if any) have been determined at this point.
+	 ****************************************************************************
+	 */
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
+	cur_column = start_column;
+	column_number = 0;
+	piece_number = 1;
+	do {
+		boolean_t	    delim_is_empty, remove_piece_keyword;
+		SqlOptionalKeyword *keyword, *piece_keyword;
+
+		column_number++;
+		cur_column->table = table_stmt;
+		keyword = get_keyword(cur_column, OPTIONAL_DELIM);
+		delim_is_empty = FALSE;
+		if (NULL != keyword) {
+			char *delim, ch;
+
+			cur_column->delim = keyword->v;
+			/* Check if DELIM is "". If so, ignore any PIECE specifications as we want the entire node. */
+			UNPACK_SQL_STATEMENT(value, keyword->v, value);
+			delim = value->v.reference;
+			ch = *delim;
+			assert((DELIM_IS_DOLLAR_CHAR == ch) || (DELIM_IS_LITERAL == ch));
+			if (DELIM_IS_LITERAL == ch) {
+				delim++; /* skip first byte to get actual delimiter */
+				ch = *delim;
+				delim_is_empty = ('\0' == ch);
+			}
+		} else {
+			assert(NULL == cur_column->delim);
+		}
+		/* Assign each column a PIECE number if one was not explicitly specified.
+		 * PRIMARY KEY columns (those that have a PRIMARY_KEY or OPTIONAL_KEY_NUM specified) are not
+		 * counted towards the default piece #.
+		 */
+		piece_keyword = get_keyword(cur_column, OPTIONAL_PIECE);
+		remove_piece_keyword = FALSE;
+		if ((NULL == get_keyword(cur_column, PRIMARY_KEY)) && (NULL == get_keyword(cur_column, OPTIONAL_KEY_NUM))) {
+			/* Add PIECE keyword only if DELIM is not "" */
+			if (NULL == piece_keyword) {
+				if (!delim_is_empty) {
+					SqlOptionalKeyword *column_keywords, *new_piece_keyword;
+
+					new_piece_keyword = add_optional_piece_keyword_to_sql_column(piece_number);
+					UNPACK_SQL_STATEMENT(column_keywords, cur_column->keywords, keyword);
+					dqappend(column_keywords, new_piece_keyword);
+				}
+				/* PIECE was not explicitly specified for this non-key column so count this column towards
+				 * the default piece number that is used for other non-key columns with no PIECE specified.
+				 * Note that this is done even in the case DELIM "" is specified for a non-key column.
+				 */
+				piece_number++;
+			} else if (delim_is_empty) {
+				/* PIECE numbers are not applicable for non-key columns with DELIM "" so remove it */
+				remove_piece_keyword = TRUE;
+			}
+		} else if (NULL != piece_keyword) {
+			/* PIECE numbers (if specified) are not applicable for primary key columns so remove it */
+			remove_piece_keyword = TRUE;
+		}
+		if (remove_piece_keyword) {
+			SqlOptionalKeyword *next;
+
+			next = piece_keyword->next; /* Note down next before "dqdel" */
+			dqdel(piece_keyword);
+			if (piece_keyword == cur_column->keywords->v.keyword) {
+				/* We removed the first element in the keyword list. Update column keyword list head pointer */
+				cur_column->keywords->v.keyword = next;
+			}
+		}
+		cur_column->column_number = column_number;
+		cur_column = cur_column->next;
+	} while (cur_column != start_column);
+	/**************************************************************************************************************
+	 * Now that key columns are identified and column PIECE numbers for non-key columns are assigned, proceed with
+	 * rest of the initialization.
+	 **************************************************************************************************************
+	 */
 	readwrite_disallowed = FALSE; /* Start with FALSE . Will be set to TRUE later if we find an incompatibility. */
 	/* Do various column-level checks */
 	cur_column = start_column;
@@ -121,7 +390,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 			UNPACK_SQL_STATEMENT(columnName2, cur_column2->columnName, value);
 			if (!strcmp(columnName1->v.string_literal, columnName2->v.string_literal)) {
 				ERROR(ERR_DUPLICATE_COLUMN, columnName1->v.string_literal);
-				return 1; // non-zero return value is an error (i.e causes YYABORT in caller)
+				return NULL;
 			}
 		}
 		/* Check if there are any incompatible qualifier specifications */
@@ -162,7 +431,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 			default:
 				ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
 				assert(FALSE);
-				return 1;
+				return NULL;
 				break;
 			}
 			cur_keyword = cur_keyword->next;
@@ -193,7 +462,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 					/* A DELIM keyword was specified in the first non-key column. Check if it is "".
 					 * If so, it is compatible with READWRITE. Otherwise, it is not compatible.
 					 */
-					readwrite_disallowed = (!delim_is_empty);
+					readwrite_disallowed = (!delim_is_empty || (NULL != first_non_key_column));
 				}
 				if (delim_is_empty && (NULL != piece_keyword)) {
 					/* Delete the PIECE keyword (anyways going to be ignored) */
@@ -271,54 +540,6 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 			}
 		}
 	}
-	options = 0;
-	assert(NULL != keywords_statement);
-	UNPACK_SQL_STATEMENT(start_keyword, keywords_statement, keyword);
-	cur_keyword = start_keyword;
-	do {
-		SqlOptionalKeyword *next_keyword;
-
-		next_keyword = cur_keyword->next;
-		switch (cur_keyword->keyword) {
-		case OPTIONAL_SOURCE:
-			options |= SOURCE;
-			SQL_STATEMENT(statement, keyword_STATEMENT);
-			statement->v.keyword = cur_keyword;
-			table->source = statement;
-			break;
-		case OPTIONAL_DELIM:
-			options |= DELIM;
-			SQL_STATEMENT(statement, keyword_STATEMENT);
-			statement->v.keyword = cur_keyword;
-			table->delim = statement;
-			break;
-		case OPTIONAL_READONLY:
-			options |= READONLY;
-			table->readwrite = FALSE;
-			break;
-		case OPTIONAL_READWRITE:
-			options |= READWRITE;
-			table->readwrite = TRUE;
-			break;
-		case NO_KEYWORD:
-			break;
-		default:
-			ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
-			assert(FALSE);
-			return 1;
-			break;
-		}
-		dqdel(cur_keyword);
-		if (cur_keyword != next_keyword) {
-			if (start_keyword == cur_keyword) {
-				start_keyword = next_keyword;
-			}
-			cur_keyword = next_keyword;
-			continue;
-		}
-		assert(cur_keyword == start_keyword);
-		break;
-	} while (TRUE);
 	/* Now that all table level keywords have been seen, check for incompatibilities. */
 	/* 1) If table-level GLOBAL keyword is NOT specified, compute the keyword value.
 	 * 2) If table-level GLOBAL keyword is specified and we don't yet know that READWRITE is disallowed in this table,
@@ -329,13 +550,12 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	 * specified GLOBAL.
 	 */
 	if (!(options & SOURCE) || !readwrite_disallowed) {
-		int	   i, max_key, total_copied;
+		int	   i, total_copied;
 		int	   buffer_size, buffer2_size;
 		char *	   buffer, *buffer2, *buff_ptr;
 		ydb_uint16 mmr_table_hash;
 		char	   table_hash[OCTO_HASH_LEN + 1]; // +1 for null terminator
 		char *	   start, *next;
-		SqlColumn *key_columns[MAX_KEY_COUNT];
 
 		buffer_size = buffer2_size = OCTO_INIT_BUFFER_LEN;
 		buffer = (char *)malloc(sizeof(char) * buffer_size);
@@ -368,9 +588,6 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		SNPRINTF_TO_BUFFER("(", buffer, buff_ptr, buffer_size, total_copied);
 
 		// Append keys (aka subscripts)
-		memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn *));
-		max_key = get_key_columns(table, key_columns);
-		assert(0 <= max_key); /* Prior call to "add_key_num_keyword_if_needed()" should ensure this assert */
 		for (i = 0; i <= max_key; i++) {
 			generate_key_name(&buffer2, &buffer2_size, i, table, key_columns);
 			// Add a comma if not first key
@@ -427,12 +644,12 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		table->delim = statement;
 	}
 	if ((options & READWRITE) && readwrite_disallowed) {
-		/* READWRITE has been explicitly specified but at least one incompatible qualifier was found. Issue error.
-		 */
+		/* READWRITE has been explicitly specified but at least one incompatible qualifier was found. Issue error. */
 		ERROR(ERR_READWRITE_DISALLOWED, NULL);
-		return 1;
+		return NULL;
 	}
 	if (!(options & READONLY) && !(options & READWRITE)) {
+		/* Neither READONLY nor READWRITE was specified in the CREATE TABLE command */
 		if (config->in_auto_upgrade_binary_table_definition) {
 			/* In auto upgrade logic where pre-existing tables are being upgraded. In this case, it is not safe
 			 * to infer the READONLY vs READWRITE characteristic of a table from the current octo.conf setting
@@ -447,9 +664,24 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 			 * If incompatible column level keyword has been specified, assume READONLY.
 			 * If not, assume value based on octo.conf "tabletype" setting.
 			 */
-			table->readwrite
-			    = (readwrite_disallowed ? FALSE : ((TABLETYPE_READWRITE == config->default_tabletype) ? TRUE : FALSE));
+			if (hidden_column_added && readwrite_disallowed) {
+				/* We added a hidden column at the beginning of this function due to the lack of an explicitly
+				 * specified primary key column. This was done since at that time the default table type was
+				 * READWRITE. But later we found some incompatability that disallows READWRITE and so we
+				 * are about to set the table type to READONLY here. But then we have to undo the addition of
+				 * the hidden column and a lot of other things that relied on it (e.g. column numbers, primary
+				 * key columns, piece numbers etc.). Basically redo this entire function. It is not straightforward
+				 * to do so and is not a use case that is likely encountered in practice so we just issue an
+				 * error for now even though the user did not explicitly specify READWRITE. We can later rework
+				 * this logic to redo and assume as if READONLY was explicitly specified if the need arises.
+				 */
+				ERROR(ERR_READWRITE_DISALLOWED, NULL);
+				return NULL;
+			}
+			table->readwrite = (readwrite_disallowed ? FALSE : (TABLETYPE_READWRITE == table_type));
 		}
+	} else {
+		table->readwrite = (TABLETYPE_READWRITE == table_type);
 	}
-	return 0;
+	return table_stmt;
 }

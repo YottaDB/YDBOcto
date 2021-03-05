@@ -101,3 +101,20 @@ teardown() {
 	grep -E "INSERT|ydboctoX|octoPlan|TSTART|TCOMMIT" _ydboctoP*.m >> output.txt
 	verify_output TII08 output.txt
 }
+
+@test "TII09 : OCTO502 : Test that INSERT INTO correctly adds duplicate rows on table with no primary key columns" {
+	skip    # TODO : YDBOcto#502 : Remove this line once INSERT INTO is fully supported
+	load_fixture TII09.sql subtest novv
+	echo "# Run [mupip extract run.ext]" >> output.txt
+	$ydb_dist/mupip extract run.ext
+	echo "" >> output.txt
+	echo "# Additionally verify that hidden column is not emitted in the text table definition" >> output.txt
+	echo "# But also verify that the hidden column name shows up in the M gvn of the GLOBAL keyword" >> output.txt
+	grep -w "text" run.ext | grep -w TMP1 >> output.txt
+	echo '# Additionally verify ^%ydboctoxref got built and has correct contents' >> output.txt
+	yottadb -run %XCMD 'zwrite ^%ydboctoxref' >> output.txt
+	echo '# Verify key fixing optimization happened for = and IS NULL operators in WHERE clause' >> output.txt
+	echo '# Key fixed query will have a plan that does $ORDER(^%ydboctoxref)' >> output.txt
+	grep -E -B 1 "SELECT|ydboctoxref" _ydboctoP*.m >> output.txt
+	verify_output TII09 output.txt
+}

@@ -107,6 +107,13 @@ INSERT INTO test1 SELECT 1;
 SELECT * from test1;
 DROP TABLE test1;
 
+SELECT '-- Test of ERR_TABLE_READONLY error in a table created with READONLY implicitly assumed';
+CREATE TABLE test1 (id INTEGER PRIMARY KEY, firstname VARCHAR DELIM "", lastname VARCHAR DELIM "");
+-- The below command used to previously assert fail as follows previously.
+-- octo: build/src/tmpl_insert_into.ctemplate.c:230: tmpl_insert_into: Assertion `((void *)0) != get_keyword(cur_column, OPTIONAL_PIECE)' failed.
+INSERT INTO test1 VALUES (1, 'abcd', 'efgh');
+DROP TABLE test1;
+
 ???
 -- Test ERR_INSERT_TYPE_MISMATCH error
 (1 row)
@@ -368,3 +375,8 @@ INSERT 0 1
 ID
 1
 (1 row)
+???
+-- Test of ERR_TABLE_READONLY error in a table created with READONLY implicitly assumed
+(1 row)
+[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : INSERT not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO test1 VALUES (1, 'abcd', 'efgh');

@@ -37,3 +37,6 @@ CREATE TABLE MYTBL8 (id INTEGER PRIMARY KEY);
 -- Test that READWRITE is compatible with table-level DELIM and column-level PRIMARY KEY/KEY NUM/NOT NULL/UNIQUE
 CREATE TABLE MYTBL9 (id INTEGER PRIMARY KEY, id2 INTEGER KEY NUM 1, firstname VARCHAR(10) NOT NULL UNIQUE) DELIM "#" READWRITE;
 
+-- Test case where multiple non-key columns with DELIM "" have been specified. Should assume READONLY table type.
+CREATE TABLE MYTBL10 (id INTEGER PRIMARY KEY, firstname VARCHAR DELIM "", lastname VARCHAR DELIM "");
+

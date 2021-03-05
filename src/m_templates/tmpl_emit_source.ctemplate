@@ -48,39 +48,65 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *table_name, int 
 		t = match_expression(source_ptr, column, OCTO_MAX_IDENT);
 		assert(-1 != t);
 		if (0 < t) {
+			if (EmitSourceForm_NoKeyCol == form) {
+				char	ch;
+
+				assert (NULL == table_name);
+				assert(!unique_id);
+				/* Caller wants no keys included in the emitted global source. Stop at the first key. */
+				assert(source < source_ptr);
+				ch = *(source_ptr - 1);
+				switch(ch) {
+				case ',':
+					/* If character before "keys(...)" is a ',' replace it with a ')' in the emitted source */
+					(*buffer_index)--;
+					%{}){}%
+					break;
+				case '(':
+					/* If character before "keys(...)" is a '(', just remove it in the emitted source to
+					 * keep the unsubscripted global name.
+					 */
+					(*buffer_index)--;
+					assert(0 < paren_count);
+					paren_count--;
+					break;
+				default:
+					assert(FALSE);
+					break;
+				}
+				break;
+			}
 			// Note that we don't add quotes to column in case the user uses an
 			//  extrinsic or something
 			switch(form) {
 			case EmitSourceForm_Value:
-				if (NULL != table_name) {
-					/* If "table_name" is non-NULL (the usual type of call), it is an indication by the
-					 * caller to generate a form of the M global source that is usable in a SELECT query.
-					 */
-					assert(unique_id);
-					%{}{{ config->global_names.cursor }}{}%
-					%{}(cursorId,{{ PP_KEYS }},{{ unique_id|%d }},"{{ table_name }}",{{ column }}){}%
-				} else {
-					/* If "table_name" is NULL, it is a special indication by the caller to generate a
-					 * different form of the M global source that is usable in an INSERT INTO query.
-					 */
-					SqlColumn	*sql_column;
-					int		column_len;
-
-					assert(!unique_id);
-					assert(MAX_KEY_COUNT == num_vars_to_match);
-					/* Find the SqlColumn structure. The column name returned by "match_expression()"
-					 * would surround the name with double quotes so remove it temporarily before
-					 * invoking "find_column()" to find the corresponding SqlColumn structure.
-					 */
-					column_len = strlen(column);
-					assert('"' == column[0]);
-					assert('"' == column[column_len - 1]);
-					column[column_len - 1] = '\0';
-					sql_column = find_column(column + 1, table);
-					assert(NULL != sql_column);
-					%{}{{ PP_COL }}({{ sql_column->column_number|%d }}){}%
-				}
+				/* Caller wants M global source form that is usable in a SELECT query. */
+				assert (NULL != table_name);
+				assert(unique_id);
+				%{}{{ config->global_names.cursor }}{}%
+				%{}(cursorId,{{ PP_KEYS }},{{ unique_id|%d }},"{{ table_name }}",{{ column }}){}%
 				break;
+			case EmitSourceForm_Insert: {
+				/* Caller wants M global source form that is usable in an INSERT INTO query. */
+				SqlColumn	*sql_column;
+				int		column_len;
+
+				assert (NULL == table_name);
+				assert(!unique_id);
+				assert(MAX_KEY_COUNT == num_vars_to_match);
+				/* Find the SqlColumn structure. The column name returned by "match_expression()"
+				 * would surround the name with double quotes so remove it temporarily before
+				 * invoking "find_column()" to find the corresponding SqlColumn structure.
+				 */
+				column_len = strlen(column);
+				assert('"' == column[0]);
+				assert('"' == column[column_len - 1]);
+				column[column_len - 1] = '\0';
+				sql_column = find_column(column + 1, table);
+				assert(NULL != sql_column);
+				%{}{{ PP_COL }}({{ sql_column->column_number|%d }}){}%
+				break;
+			}
 			case EmitSourceForm_Trigger:
 				%{}{{ PP_KEY_COLUMN }}{}%
 				%{}{{ key_count|%d }}=:{}%
@@ -94,7 +120,7 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *table_name, int 
 			source_ptr += t;
 			matched_vars += 1;
 		} else {
-			if ((form == EmitSourceForm_Trigger) && ('"' == *source_ptr)) {
+			if ((EmitSourceForm_Trigger == form) && ('"' == *source_ptr)) {
 				%{}""{}%
 			} else {
 				%{}{{ *source_ptr|%c }}{}%

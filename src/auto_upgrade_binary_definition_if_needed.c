@@ -106,7 +106,7 @@ int auto_upgrade_binary_definition_if_needed(void) {
 	config->allow_schema_changes = TRUE;
 	/* Do the actual auto upgrade of the binary table definition.
 	 * Set a global variable to indicate this is the small window where auto upgrade of binary table definitions happens.
-	 * This lets "create_table_defaults.c" know to do some special processing (use different logic to calculate whether
+	 * This lets "table_definition.c" know to do some special processing (use different logic to calculate whether
 	 * a table should be considered READONLY or READWRITE).
 	 */
 	assert(FALSE == config->in_auto_upgrade_binary_table_definition);

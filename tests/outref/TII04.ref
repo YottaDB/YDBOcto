@@ -238,9 +238,9 @@ INSERT 0 1
 INSERT 0 1
 INSERT 0 1
 COLUMN1
-|a|
-|ab|
 |abc|
+|ab|
+|a|
 (3 rows)
 ???
 
@@ -251,8 +251,8 @@ COLUMN1
 INSERT 0 1
 INSERT 0 1
 COLUMN1
-|abc |
 |abcd|
+|abc |
 (2 rows)
 ???
 
@@ -278,11 +278,11 @@ INSERT 0 1
 INSERT 0 1
 INSERT 0 1
 COLUMN1
--9.5
--7.5
--6.4
+3.0
 -4.1
 5.2
+-6.4
+-7.5
 9.5
-3.0
+-9.5
 (7 rows)

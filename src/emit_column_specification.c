@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -41,6 +41,11 @@
 		}                                                                                                 \
 	}
 
+/* Returns
+ *	> 0 if something was emitted for this column (most common case).
+ *	  0 if this column was skipped (e.g. hidden key column)
+ *	 -1 if there was an error
+ */
 int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_column) {
 	SqlValue *	    value;
 	SqlOptionalKeyword *cur_keyword, *start_keyword;
@@ -52,6 +57,12 @@ int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_co
 	DEBUG_ONLY(boolean_t piece_seen = FALSE);
 	DEBUG_ONLY(boolean_t empty_delim_seen = FALSE);
 
+	if (cur_column->is_hidden_keycol) {
+		/* This is a hidden key column. Do not emit it in the text table definition as it can confuse the user.
+		 * Only emit user specified columns in the text definition.
+		 */
+		return 0;
+	}
 	UNPACK_SQL_STATEMENT(value, cur_column->columnName, value);
 	INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "`%s`", value->v.reference);
 	switch (cur_column->data_type_struct.data_type) {

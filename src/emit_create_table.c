@@ -49,10 +49,15 @@ int emit_create_table(FILE *output, struct SqlStatement *stmt) {
 			free(buffer);
 			return -1;
 		}
-		defn_len += fprintf(output, "%s", buffer);
+		/* Note: status can be 0 if it is a hidden key column in which case nothing would be emitted */
+		if (0 < status) {
+			defn_len += fprintf(output, "%s", buffer);
+		}
 		cur_column = cur_column->next;
 		if (start_column != cur_column) {
-			defn_len += fprintf(output, ", ");
+			if (0 < status) {
+				defn_len += fprintf(output, ", ");
+			}
 		}
 	} while (start_column != cur_column);
 	defn_len += fprintf(output, ")");

@@ -107,16 +107,17 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 		start_column = cur_column;
 		do {
 			CALL_DECOMPRESS_HELPER(cur_column->columnName, out, out_length);
-			// Don't copy table
 			CALL_DECOMPRESS_HELPER(cur_column->keywords, out, out_length);
-			CALL_DECOMPRESS_HELPER(cur_column->delim, out, out_length);
+			/* Fix "cur_column->delim" now that "cur_column->keywords" is set up */
+			cur_keyword = get_keyword(cur_column, OPTIONAL_DELIM);
+			cur_column->delim = ((NULL != cur_keyword) ? cur_keyword->v : NULL);
 			if (0 == cur_column->next) {
 				cur_column->next = start_column;
 			} else {
 				cur_column->next = R2A(cur_column->next);
 			}
-			cur_column->table = (SqlStatement *)out; /* table is first element in compressed structure i.e. "out" */
 			cur_column->next->prev = cur_column;
+			cur_column->table = (SqlStatement *)out; /* table is first element in compressed structure i.e. "out" */
 			cur_column = cur_column->next;
 		} while (cur_column != start_column);
 		break;

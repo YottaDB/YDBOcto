@@ -66,7 +66,10 @@ SqlStatement *insert_statement(SqlStatement *table_name, SqlStatement *column_na
 			}
 			UNPACK_SQL_STATEMENT(col_name, cur_cl->value, value);
 			tbl_col = find_column(col_name->v.string_literal, table);
-			if (NULL == tbl_col) {
+			/* If user specified a hidden key column name, treat it as if the column name was not found.
+			 * This is because the user is not supposed to specify explicit values for hidden column names.
+			 */
+			if ((NULL == tbl_col) || tbl_col->is_hidden_keycol) {
 				SqlValue *tbl_name;
 
 				UNPACK_SQL_STATEMENT(tbl_name, table->tableName, value);

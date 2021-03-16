@@ -121,8 +121,6 @@ int main(int argc, char **argv) {
 
 	rocto_session.session_ending = FALSE;
 
-	INFO(INFO_ROCTO_STARTED, config->rocto_config.port);
-
 	// Disable sending log messages until all startup messages have been sent
 	rocto_session.sending_message = TRUE;
 
@@ -182,6 +180,13 @@ int main(int argc, char **argv) {
 	if (listen(sfd, 3) < 0) {
 		FATAL(ERR_SYSCALL, "listen", errno, strerror(errno));
 	}
+	/* Now that we have started listening on a port, print message to rocto log so whoever monitors the rocto log
+	 * knows that rocto is now accepting connections. Issuing this message before the "listen" can result in
+	 * a race condition where another process sees the INFO_ROCTO_STARTED message but tries to connect before the
+	 * "listen" system call has started and gets a "Connection refused" error because there is no listener.
+	 */
+	INFO(INFO_ROCTO_STARTED, config->rocto_config.port);
+
 #if YDB_TLS_AVAILABLE
 	tls_context = INVALID_TLS_CONTEXT;
 #endif

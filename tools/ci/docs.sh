@@ -11,6 +11,8 @@
 #								#
 #################################################################
 
+set -e
+
 source /opt/yottadb/current/ydb_env_set
 
 # Download, Compile, and Install the YottaDB POSIX plugin
@@ -20,8 +22,8 @@ source /opt/yottadb/current/ydb_env_set
 cd doc
 
 if [ -e Makefile ]; then
-	make html
+    make html
 else
-	ninja html
+    ninja html
 fi
 mv _build/html ../public

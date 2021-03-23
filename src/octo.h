@@ -189,6 +189,13 @@
 #define XREFPLAN_LIT	  "xrefPlan"
 #define MAX_PLAN_NAME_LEN sizeof(OCTOPLAN_LIT) + INT32_TO_STRING_MAX
 
+/* Macros for various prefixes. All of them having the same length. */
+#define TABLE_GLOBAL_NAME_PREFIX  "%ydboctoD"
+#define FUNCTION_NAME_PREFIX	  "%ydboctoF"
+#define PHYSICAL_PLAN_NAME_PREFIX "%ydboctoP"
+#define TRIGGER_NAME_PREFIX	  "%ydboctoT"
+#define XREF_PLAN_NAME_PREFIX	  "%ydboctoX"
+
 /* Below macro defines the name of the hidden primary key column that is added by Octo in a READWRITE table
  * which has no primary key columns specified by the user in the CREATE TABLE command. For a READONLY table
  * all columns specified by the user are together assumed to be the primary key.

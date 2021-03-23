@@ -1,0 +1,85 @@
+
+
+-- TC047 : OCTO672 : GLOBAL keyword in CREATE TABLE command should accept just an unsubscripted global name
+
+SELECT '-- Simple test case first';
+CREATE TABLE tmp1 (id INTEGER PRIMARY KEY, firstName VARCHAR, lastName TEXT) GLOBAL "^names";
+SELECT * from tmp1;
+
+SELECT '-- Test for READONLY with user specified primary key columns';
+CREATE TABLE tmp2 (id INTEGER PRIMARY KEY, firstName VARCHAR, lastName TEXT) GLOBAL "^names" READONLY;
+SELECT * from tmp2;
+
+SELECT '-- Test for READONLY with no user specified primary key columns';
+CREATE TABLE tmp3 (id INTEGER) GLOBAL "^names" READONLY;
+SELECT * from tmp3;
+
+SELECT '-- Test for READWRITE with user specified primary key columns';
+CREATE TABLE tmp4 (id INTEGER PRIMARY KEY, firstName VARCHAR, lastName TEXT) GLOBAL "^names" READWRITE;
+SELECT * from tmp4;
+
+SELECT '-- Test for READWRITE with no user specified primary key columns';
+CREATE TABLE tmp5 (firstandlastname VARCHAR) GLOBAL "^names" READWRITE;
+SELECT * from tmp5;
+
+???
+-- Simple test case first
+(1 row)
+ID|FIRSTNAME|LASTNAME
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+(6 rows)
+???
+-- Test for READONLY with user specified primary key columns
+(1 row)
+ID|FIRSTNAME|LASTNAME
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+(6 rows)
+???
+-- Test for READONLY with no user specified primary key columns
+(1 row)
+ID
+0
+1
+2
+3
+4
+5
+(6 rows)
+???
+-- Test for READWRITE with user specified primary key columns
+(1 row)
+ID|FIRSTNAME|LASTNAME
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+(6 rows)
+???
+-- Test for READWRITE with no user specified primary key columns
+(1 row)
+FIRSTANDLASTNAME
+Zero|Cool
+Acid|Burn
+Cereal|Killer
+Lord|Nikon
+Joey|
+Zero|Cool
+(6 rows)
+# Verify text table definition does not keys() inserted appropriately in the GLOBAL keyword
+^%ydboctoschema("TMP1","text",0)="CREATE TABLE `TMP1` (`ID` INTEGER PRIMARY KEY, `FIRSTNAME` VARCHAR PIECE 1, `LASTNAME` VARCHAR PIECE 2) GLOBAL ""^names(keys(""""ID""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("TMP2","text",0)="CREATE TABLE `TMP2` (`ID` INTEGER PRIMARY KEY, `FIRSTNAME` VARCHAR PIECE 1, `LASTNAME` VARCHAR PIECE 2) GLOBAL ""^names(keys(""""ID""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("TMP3","text",0)="CREATE TABLE `TMP3` (`ID` INTEGER KEY NUM 0) GLOBAL ""^names(keys(""""ID""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("TMP4","text",0)="CREATE TABLE `TMP4` (`ID` INTEGER PRIMARY KEY, `FIRSTNAME` VARCHAR PIECE 1, `LASTNAME` VARCHAR PIECE 2) GLOBAL ""^names(keys(""""ID""""))"" DELIM ""|"" READWRITE;"
+^%ydboctoschema("TMP5","text",0)="CREATE TABLE `TMP5` (`FIRSTANDLASTNAME` VARCHAR DELIM """") GLOBAL ""^names(keys(""""%YO_KEYCOL""""))"" DELIM ""|"" READWRITE;"

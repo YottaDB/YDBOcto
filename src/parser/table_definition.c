@@ -22,9 +22,7 @@
 /* The size of this must match $ZYSUFFIX exactly, which is 22.
  * This mirrors the design of generate_routine_name function.
  */
-#define OCTO_TABLE_GLOBAL_PREFIX "%ydboctoD"
-#define OCTO_TABLE_PREFIX_LEN	 (sizeof(OCTO_TABLE_GLOBAL_PREFIX) - 1)
-#define OCTO_HASH_LEN		 (YDB_MAX_IDENT - OCTO_TABLE_PREFIX_LEN)
+#define OCTO_HASH_LEN (YDB_MAX_IDENT - LIT_LEN(TABLE_GLOBAL_NAME_PREFIX))
 
 /* We SNPRINTF and resize buffers multiple times, so this is a convenience
  * macro that contains all the necessary operations */
@@ -91,7 +89,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	SqlColumn *	    key_columns[MAX_KEY_COUNT];
 	int		    max_key;
 	int		    column_number;
-	SqlOptionalKeyword *keyword, *cur_keyword, *start_keyword;
+	SqlOptionalKeyword *cur_keyword, *start_keyword;
 	SqlColumn *	    cur_column, *start_column, *first_non_key_column;
 	SqlStatement *	    statement;
 	SqlValue *	    value;
@@ -102,6 +100,11 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	boolean_t	    readwrite_disallowed; /* TRUE if READWRITE at table level is disallowed due to incompatible qualifier */
 	tabletype_t	    table_type;
 	boolean_t	    hidden_column_added;
+	char *		    table_source_gvname; /* Points to a null-terminated string containing the unsubscripted global
+						  * name specified in the GLOBAL keyword (if one was specified by the user).
+						  * If a subscripted global name is specified in the GLOBAL keyword or no
+						  * GLOBAL keyword was specified, this is NULL.
+						  */
 
 	SQL_STATEMENT(table_stmt, create_table_STATEMENT);
 	MALLOC_STATEMENT(table_stmt, create_table, SqlTable);
@@ -119,6 +122,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	 *********************************************************************************************************************
 	 */
 	options = 0;
+	table_source_gvname = NULL;
 	assert(NULL != table_definition_tail);
 	UNPACK_SQL_STATEMENT(start_keyword, table_definition_tail, keyword);
 	cur_keyword = start_keyword;
@@ -127,12 +131,29 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 
 		next_keyword = cur_keyword->next;
 		switch (cur_keyword->keyword) {
-		case OPTIONAL_SOURCE:
-			options |= SOURCE;
-			SQL_STATEMENT(statement, keyword_STATEMENT);
-			statement->v.keyword = cur_keyword;
-			table->source = statement;
+		case OPTIONAL_SOURCE: {
+			char *start, *next;
+
+			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
+			start = value->v.string_literal;
+			next = strchr(start, '(');
+			if (NULL == next) {
+				/* User specified an unsubscripted global name in the GLOBAL keyword. Note down the name
+				 * but otherwise consider the GLOBAL keyword as not specified by the user. This will help
+				 * later logic autogenerate the GLOBAL keyword with the proper subscripts (primary key
+				 * columns substituted).
+				 */
+				table_source_gvname = start;
+				options &= ~SOURCE; /* Forget GLOBAL keyword(s) specified prior to this GLOBAL keyword */
+			} else {
+				options |= SOURCE;
+				SQL_STATEMENT(statement, keyword_STATEMENT);
+				statement->v.keyword = cur_keyword;
+				table->source = statement;
+				table_source_gvname = NULL;
+			}
 			break;
+		}
 		case OPTIONAL_DELIM:
 			options |= DELIM;
 			SQL_STATEMENT(statement, keyword_STATEMENT);
@@ -198,8 +219,10 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		 */
 		if ((options & SOURCE) && !(options & READWRITE) && !(options & READONLY)) {
 			/* Table-level GLOBAL keyword specified but neither READWRITE nor READONLY specified.
-			 * In this case, READWRITE is incompatible so set table_type to be READONLY
-			 * (in case it was set to READWRITE from the default octo.conf setting).
+			 * The GLOBAL keyword specifies a subscripted global name (this is because if an unsubscripted
+			 * global name was specified, "options & SOURCE" would be FALSE and we would not have come down
+			 * the "if" condition above). In that case, READWRITE is incompatible so set table_type to be
+			 * READONLY (in case it was set to READWRITE from the default octo.conf setting).
 			 */
 			table_type = TABLETYPE_READONLY;
 		}
@@ -543,11 +566,11 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	/* Now that all table level keywords have been seen, check for incompatibilities. */
 	/* 1) If table-level GLOBAL keyword is NOT specified, compute the keyword value.
 	 * 2) If table-level GLOBAL keyword is specified and we don't yet know that READWRITE is disallowed in this table,
-	 * check if the GLOBAL keyword value can cause an incompatibility. For this check if the specified GLOBAL keyword is
-	 * an M global name following by the primary key column(s) as subscripts in the KEY NUM order. If so it is
-	 * compatible with READWRITE. Otherwise it is not. 3) If table-level GLOBAL keyword is specified and we already know
-	 * that READWRITE is disallowed in this table due to other incompatibilities, no need to do any checks of the
-	 * specified GLOBAL.
+	 *    check if the GLOBAL keyword value can cause an incompatibility. For this check if the specified GLOBAL keyword is
+	 *    an M global name followed by the primary key column(s) as subscripts in the KEY NUM order. If so it is
+	 *    compatible with READWRITE. Otherwise it is not.
+	 * 3) If table-level GLOBAL keyword is specified and we already know that READWRITE is disallowed in this table due to
+	 *    other incompatibilities, no need to do any checks of the specified GLOBAL keyword.
 	 */
 	if (!(options & SOURCE) || !readwrite_disallowed) {
 		int	   i, total_copied;
@@ -563,23 +586,29 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		buff_ptr = buffer;
 		total_copied = 0;
 		if (!(options & SOURCE)) {
-			UNPACK_SQL_STATEMENT(value, table->tableName, value);
+			if (NULL != table_source_gvname) {
+				/* User had specified an unsubscripted global name. Use that name. */
+				SNPRINTF_TO_BUFFER(table_source_gvname, buffer, buff_ptr, buffer_size, total_copied);
+			} else {
+				/* User did not specify any global name. Auto-generate one. */
+				UNPACK_SQL_STATEMENT(value, table->tableName, value);
 
-			// Hashed table name (which matches $ZYSUFFIX)
-			ydb_mmrhash_128(value->v.reference, strlen(value->v.reference), 0, &mmr_table_hash);
-			ydb_hash_to_string(&mmr_table_hash, table_hash, OCTO_HASH_LEN);
-			table_hash[OCTO_HASH_LEN] = '\0';
-			assert(strlen(table_hash) == 22);
+				/* Hashed table name (which matches $ZYSUFFIX) */
+				ydb_mmrhash_128(value->v.reference, strlen(value->v.reference), 0, &mmr_table_hash);
+				ydb_hash_to_string(&mmr_table_hash, table_hash, OCTO_HASH_LEN);
+				table_hash[OCTO_HASH_LEN] = '\0';
+				assert(strlen(table_hash) == 22);
 
-			/* Add ^OCTO_TABLE_GLOBAL_PREFIX to table name, then add table hash to table
-			 * name after prefix and then open paren. */
-			SNPRINTF_TO_BUFFER("^", buffer, buff_ptr, buffer_size, total_copied);
-			SNPRINTF_TO_BUFFER(OCTO_TABLE_GLOBAL_PREFIX, buffer, buff_ptr, buffer_size, total_copied);
-			SNPRINTF_TO_BUFFER(table_hash, buffer, buff_ptr, buffer_size, total_copied);
+				/* Add ^TABLE_GLOBAL_NAME_PREFIX to table name, then add table hash to table name after prefix */
+				SNPRINTF_TO_BUFFER("^", buffer, buff_ptr, buffer_size, total_copied);
+				SNPRINTF_TO_BUFFER(TABLE_GLOBAL_NAME_PREFIX, buffer, buff_ptr, buffer_size, total_copied);
+				SNPRINTF_TO_BUFFER(table_hash, buffer, buff_ptr, buffer_size, total_copied);
+			}
 			next = NULL; /* to avoid false [-Wmaybe-uninitialized] warnings from compiler */
 		} else {
-			/* Copy just the subscripts portion of the M gvn specified in GLOBAL keyword for later "strcasecmp"
-			 * check */
+			SqlOptionalKeyword *keyword;
+
+			/* Copy just the subscripts portion of the M gvn specified in GLOBAL keyword for later "strcasecmp" check */
 			UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
 			UNPACK_SQL_STATEMENT(value, keyword->v, value);
 			start = value->v.string_literal;
@@ -604,6 +633,8 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		*buff_ptr++ = '\0';
 		len = buff_ptr - buffer;
 		if (!(options & SOURCE)) {
+			SqlOptionalKeyword *keyword;
+
 			out_buffer = octo_cmalloc(memory_chunks, len);
 			memcpy(out_buffer, buffer, len);
 			OCTO_CMALLOC_STRUCT(keyword, SqlOptionalKeyword);
@@ -628,6 +659,8 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		free(buffer2);
 	}
 	if (!(options & DELIM)) {
+		SqlOptionalKeyword *keyword;
+
 		assert(2 == sizeof(COLUMN_DELIMITER));	// 2 includes null terminator
 		str_len = sizeof(COLUMN_DELIMITER) + 1; // +1 for "is_dollar_char" flag
 		out_buffer = octo_cmalloc(memory_chunks, str_len);

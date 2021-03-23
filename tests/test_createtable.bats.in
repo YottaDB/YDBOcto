@@ -585,3 +585,11 @@ OCTO
 	load_fixture TC046.sql subtest novv
 	verify_output TC046 output.txt
 }
+
+@test "TC047 : OCTO672 : GLOBAL keyword in CREATE TABLE command should accept just an unsubscripted global name" {
+	load_fixture TC047.sql subtest novv
+	echo '# Verify text table definition does not keys() inserted appropriately in the GLOBAL keyword' >> output.txt
+	$ydb_dist/mupip extract octo672.ext
+	grep -w "text" octo672.ext | grep "TMP" >> output.txt
+	verify_output TC047 output.txt
+}

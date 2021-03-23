@@ -118,7 +118,7 @@ Note that CREATE TABLE statements can also accept a list of ASCII integer values
 
 .. code-block:: SQL
 
-   CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, 9) GLOBAL "^delimnames(keys(""id""))";
+   CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, 9) GLOBAL "^delimnames";
 
 Here, two TAB characters (ASCII value 9) act as the internal delimiter of an Octo table. Note, however, that these delimiters are not applied to Octo output, which retains the default pipe :code:`|` delimiter. The reason for this is that tables may be joined that have different delimiters, so one common delimiter needs to be chosen anyway. Thus, the default is used.
 
@@ -136,68 +136,77 @@ If mapping to existing YottaDB global variables, an optional_keyword can be adde
 
 The keywords denoted above are M expressions and literals. They are explained in the following table:
 
-+--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+---------------------------------------------------+
-| Keyword      | Type               | Range         | Purpose                                                                        | Overrides                    | Default Value                                     |
-+==============+====================+===============+================================================================================+==============================+===================================================+
-| DELIM        | Literal            | Table, Column | Represents the delimiter string to be used in                                  | table/default DELIM setting  | :code:`"|"`                                       |
-|              |                    |               | `$PIECE() <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_   |                              |                                                   |
-|              |                    |               | when obtaining the value of a particular column from the global variable       |                              |                                                   |
-|              |                    |               | node that stores one row of the SQL table.  When specified at the column       |                              |                                                   |
-|              |                    |               | level, an empty delimiter string (:code:`DELIM ""`) is allowed. In this        |                              |                                                   |
-|              |                    |               | case, the entire global variable node value is returned as the column value    |                              |                                                   |
-|              |                    |               | (i.e. no :code:`$PIECE` is performed).                                         |                              |                                                   |
-+--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+---------------------------------------------------+
-| END          | Boolean expression | Table         | Indicates that the cursor has hit the last record in the table                 | Not applicable               | :code:`""=keys(0)`                                |
-+--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+---------------------------------------------------+
-| EXTRACT      | Expression         | Column        | Extracts the value of the column from the database                             | PIECE, GLOBAL                | Not applicable                                    |
-+--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+---------------------------------------------------+
-| GLOBAL       | Literal            | Table, Column | Represents the "source" location for a table. If specified, you must include   | table/default GLOBAL setting | :code:`%ydboctoD_$zysuffix(<tablename>)(keys(0))` |
-|              |                    |               | all the keys in the global specification. If the table has no keys, then all   |                              |                                                   |
-|              |                    |               | columns are considered keys and must be included. See the examples in this     |                              |                                                   |
-|              |                    |               | document to see how you can construct the GLOBAL keyword.                      |                              |                                                   |
-+--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+---------------------------------------------------+
-| KEY NUM      | Integer Literal    | Column        | Specifies an integer indicating this column as part of a composite key.        | Not applicable               | Not applicable                                    |
-|              |                    |               | The :code:`PRIMARY KEY` column correponds to :code:`KEY NUM 0`.                |                              |                                                   |
-|              |                    |               | The first key column is specified with a :code:`PRIMARY KEY` keyword.          |                              |                                                   |
-|              |                    |               | All other key columns are specified with a :code:`KEY NUM` keyword             |                              |                                                   |
-|              |                    |               | with an integer value starting at :code:`1` and incrementing by 1 for          |                              |                                                   |
-|              |                    |               | every key column. Such a column is considered a key column and is part of the  |                              |                                                   |
-|              |                    |               | the subscript in the global variable node that represents a row of the table.  |                              |                                                   |
-+--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+---------------------------------------------------+
-| PIECE        | Integer Literal    | Column        | Represents a piece number. Used to obtain the value of a column in a table     | default (column number,      | Not applicable                                    |
-|              |                    |               | by extracting this piece number from the value of the global variable node     | starting at 1 for non-key    |                                                   |
-|              |                    |               | specified by the :code:`GLOBAL` keyword at this column level or at the table   | columns)                     |                                                   |
-|              |                    |               | level. The generated code does a                                               |                              |                                                   |
-|              |                    |               | `$PIECE() <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_   |                              |                                                   |
-|              |                    |               | on the value to obtain the value. See also :code:`DELIM` keyword for the       |                              |                                                   |
-|              |                    |               | delimiter string that is used in the :code:`$PIECE`.                           |                              |                                                   |
-+--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+---------------------------------------------------+
-| READONLY     | Not applicable     | Table         | Specifies that the table maps to an existing YottaDB global variable           | Not applicable               | :code:`tabletype` setting in :code:`octo.conf`    |
-|              |                    |               | and allows use of various keywords like :code:`START`, :code:`END` etc.        |                              |                                                   |
-|              |                    |               | in the same :code:`CREATE TABLE` command. Queries that update tables like      |                              |                                                   |
-|              |                    |               | :code:`INSERT INTO`, :code:`DELETE FROM` etc. are not allowed in such tables.  |                              |                                                   |
-|              |                    |               | :code:`DROP TABLE` command drops the table and leaves the underlying mapping   |                              |                                                   |
-|              |                    |               | global variable nodes untouched.                                               |                              |                                                   |
-+--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+---------------------------------------------------+
-| READWRITE    | Not applicable     | Table         | Is the opposite of the :code:`READONLY` keyword. This allows queries that      | Not applicable               | :code:`tabletype` setting in :code:`octo.conf`    |
-|              |                    |               | update tables like :code:`INSERT INTO`, :code:`DELETE FROM` etc. but does not  |                              |                                                   |
-|              |                    |               | allow certain keywords like :code:`START`, :code:`END` etc. in the same        |                              |                                                   |
-|              |                    |               | :code:`CREATE TABLE` command. That is, it does not allow a lot of flexibility  |                              |                                                   |
-|              |                    |               | in mapping like :code:`READONLY` tables do. But queries that update tables     |                              |                                                   |
-|              |                    |               | like :code:`INSERT INTO`, :code:`DELETE FROM` etc. are allowed in such tables. |                              |                                                   |
-|              |                    |               | And a :code:`DROP TABLE` command on a :code:`READWRITE` table drops the table  |                              |                                                   |
-|              |                    |               | and deletes/kills the underlying mapping global variable nodes.                |                              |                                                   |
-+--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+---------------------------------------------------+
-| START        | Command expression | Column        | Indicates where to start a FOR loop (using                                     | Not applicable               | :code:`""`                                        |
-|              |                    |               | `$ORDER() <https://docs.yottadb.com/ProgrammersGuide/functions.html#order>`_)  |                              |                                                   |
-|              |                    |               | for a given key column in the table.                                           |                              |                                                   |
-+--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+---------------------------------------------------+
-| STARTINCLUDE | Not applicable     | Column        | If specified, the FOR loop (using $ORDER()) that is generated for every key    | Not applicable               | Not specified                                     |
-|              |                    |               | column in the physical plan processes includes the START value of the key      |                              |                                                   |
-|              |                    |               | column as the first iteration of the loop. If not specified (the default),     |                              |                                                   |
-|              |                    |               | the loop does a $ORDER() of the START value and uses that for the first        |                              |                                                   |
-|              |                    |               | loop iteration.                                                                |                              |                                                   |
-+--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+---------------------------------------------------+
++--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
+| Keyword      | Type               | Range         | Purpose                                                                        | Overrides                    | Default Value                                             |
++==============+====================+===============+================================================================================+==============================+===========================================================+
+| DELIM        | Literal            | Table, Column | Represents the delimiter string to be used in                                  | table/default DELIM setting  | :code:`"|"`                                               |
+|              |                    |               | `$PIECE() <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_   |                              |                                                           |
+|              |                    |               | when obtaining the value of a particular column from the global variable       |                              |                                                           |
+|              |                    |               | node that stores one row of the SQL table.  When specified at the column       |                              |                                                           |
+|              |                    |               | level, an empty delimiter string (:code:`DELIM ""`) is allowed. In this        |                              |                                                           |
+|              |                    |               | case, the entire global variable node value is returned as the column value    |                              |                                                           |
+|              |                    |               | (i.e. no :code:`$PIECE` is performed).                                         |                              |                                                           |
++--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
+| END          | Boolean expression | Table         | Indicates that the cursor has hit the last record in the table                 | Not applicable               | :code:`""=keys(0)`                                        |
++--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
+| EXTRACT      | Expression         | Column        | Extracts the value of the column from the database                             | PIECE, GLOBAL                | Not applicable                                            |
++--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
+| GLOBAL       | Literal            | Table, Column | Represents the "source" location for a table. It consists of a global name     | table/default GLOBAL setting | :code:`^%ydboctoD_$zysuffix(TABLENAME)(keys("COLNAME"))`  |
+|              |                    |               | followed by an optional list of subscripts. One may refer to a key column in   |                              | where :code:`TABLENAME` is the table name and             |
+|              |                    |               | the subscript by specifying :code:`keys("COLNAME")` where :code:`COLNAME`      |                              | :code:`COLNAME` is the name of the primary key column.    |
+|              |                    |               | is the name of the key column. Note that in the case of a :code:`READONLY`     |                              | If more than one key column exists, they will form more   |
+|              |                    |               | table, if no key columns are specified, all columns in the order specified     |                              | subscripts. For example, if :code:`KEYCOL` is a column    |
+|              |                    |               | are automatically assumed to be key columns. In case of a :code:`READWRITE`    |                              | that is specified with a :code:`PRIMARY KEY` keyword and  |
+|              |                    |               | table, if no key columns are specified, a hidden key column is created by Octo |                              | :code:`KEYCOL2` is an additional column specified with a  |
+|              |                    |               | with the name :code:`%YO_KEYCOL`. See examples in this document for how you    |                              | :code:`KEY NUM 1` keyword, then the default value would   |
+|              |                    |               | can construct the GLOBAL keyword. If the Table-level GLOBAL keyword specifies  |                              | be :code:`^%ydboctoD...(keys("KEYCOL"),keys("KEYCOL2"))   |
+|              |                    |               | a global name with no subscripts, Octo adds subscripts to it one for every     |                              |                                                           |
+|              |                    |               | key column that is explicitly specified or automatically assumed/generated     |                              |                                                           |
+|              |                    |               | but if the Column-level GLOBAL keyword specifies a global name with no         |                              |                                                           |
+|              |                    |               | subscripts no such automatic subscript addition takes place.                   |                              |                                                           |
++--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
+| KEY NUM      | Integer Literal    | Column        | Specifies an integer indicating this column as part of a composite key.        | Not applicable               | Not applicable                                            |
+|              |                    |               | The :code:`PRIMARY KEY` column correponds to :code:`KEY NUM 0`.                |                              |                                                           |
+|              |                    |               | The first key column is specified with a :code:`PRIMARY KEY` keyword.          |                              |                                                           |
+|              |                    |               | All other key columns are specified with a :code:`KEY NUM` keyword             |                              |                                                           |
+|              |                    |               | with an integer value starting at :code:`1` and incrementing by 1 for          |                              |                                                           |
+|              |                    |               | every key column. Such a column is considered a key column and is part of the  |                              |                                                           |
+|              |                    |               | the subscript in the global variable node that represents a row of the table.  |                              |                                                           |
++--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
+| PIECE        | Integer Literal    | Column        | Represents a piece number. Used to obtain the value of a column in a table     | default (column number,      | Not applicable                                            |
+|              |                    |               | by extracting this piece number from the value of the global variable node     | starting at 1 for non-key    |                                                           |
+|              |                    |               | specified by the :code:`GLOBAL` keyword at this column level or at the table   | columns)                     |                                                           |
+|              |                    |               | level. The generated code does a                                               |                              |                                                           |
+|              |                    |               | `$PIECE() <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_   |                              |                                                           |
+|              |                    |               | on the value to obtain the value. See also :code:`DELIM` keyword for the       |                              |                                                           |
+|              |                    |               | delimiter string that is used in the :code:`$PIECE`.                           |                              |                                                           |
++--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
+| READONLY     | Not applicable     | Table         | Specifies that the table maps to an existing YottaDB global variable           | Not applicable               | :code:`tabletype` setting in :code:`octo.conf`            |
+|              |                    |               | and allows use of various keywords like :code:`START`, :code:`END` etc.        |                              |                                                           |
+|              |                    |               | in the same :code:`CREATE TABLE` command. Queries that update tables like      |                              |                                                           |
+|              |                    |               | :code:`INSERT INTO`, :code:`DELETE FROM` etc. are not allowed in such tables.  |                              |                                                           |
+|              |                    |               | :code:`DROP TABLE` command drops the table and leaves the underlying mapping   |                              |                                                           |
+|              |                    |               | global variable nodes untouched.                                               |                              |                                                           |
++--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
+| READWRITE    | Not applicable     | Table         | Is the opposite of the :code:`READONLY` keyword. This allows queries that      | Not applicable               | :code:`tabletype` setting in :code:`octo.conf`            |
+|              |                    |               | update tables like :code:`INSERT INTO`, :code:`DELETE FROM` etc. but does not  |                              |                                                           |
+|              |                    |               | allow certain keywords like :code:`START`, :code:`END` etc. in the same        |                              |                                                           |
+|              |                    |               | :code:`CREATE TABLE` command. That is, it does not allow a lot of flexibility  |                              |                                                           |
+|              |                    |               | in mapping like :code:`READONLY` tables do. But queries that update tables     |                              |                                                           |
+|              |                    |               | like :code:`INSERT INTO`, :code:`DELETE FROM` etc. are allowed in such tables. |                              |                                                           |
+|              |                    |               | And a :code:`DROP TABLE` command on a :code:`READWRITE` table drops the table  |                              |                                                           |
+|              |                    |               | and deletes/kills the underlying mapping global variable nodes.                |                              |                                                           |
++--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
+| START        | Command expression | Column        | Indicates where to start a FOR loop (using                                     | Not applicable               | :code:`""`                                                |
+|              |                    |               | `$ORDER() <https://docs.yottadb.com/ProgrammersGuide/functions.html#order>`_)  |                              |                                                           |
+|              |                    |               | for a given key column in the table.                                           |                              |                                                           |
++--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
+| STARTINCLUDE | Not applicable     | Column        | If specified, the FOR loop (using $ORDER()) that is generated for every key    | Not applicable               | Not specified                                             |
+|              |                    |               | column in the physical plan processes includes the START value of the key      |                              |                                                           |
+|              |                    |               | column as the first iteration of the loop. If not specified (the default),     |                              |                                                           |
+|              |                    |               | the loop does a $ORDER() of the START value and uses that for the first        |                              |                                                           |
+|              |                    |               | loop iteration.                                                                |                              |                                                           |
++--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
 
 In the table above:
 
@@ -1552,7 +1561,7 @@ SQL allows columns other than key columns to be NULL by default. Consider a Yott
      Territory VARCHAR(2),
      Zip VARCHAR(10)
    )
-   GLOBAL "^USAddresses(keys(""CommonName""))";
+   GLOBAL "^USAddresses";
 
 The second piece of the node, which corresponds to the :code:`AddressLine2` column, is an empty string (:code:`''` in SQL). In this case, Octo treats the :code:`AddressLine2` column as having a :code:`NULL` value.
 

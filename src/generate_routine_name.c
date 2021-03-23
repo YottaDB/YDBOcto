@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,14 +23,10 @@
 
 #include "mmrhash.h"
 
-#define ROUTINE_PREFIX_LEN 9 // All prefixes have the same size
+#define ROUTINE_PREFIX_LEN LIT_LEN(TABLE_GLOBAL_NAME_PREFIX)
 
 int generate_routine_name(hash128_state_t *state, char *routine_name, int routine_len, FileType file_type) {
 	char	     hash_str[MAX_ROUTINE_LEN];
-	char *	     xref_prefix = "%ydboctoX";
-	char *	     output_plan_prefix = "%ydboctoP";
-	char *	     ydb_trigger_prefix = "%ydboctoT";
-	char *	     function_hash = "%ydboctoF";
 	char *	     c = NULL;
 	unsigned int hash_len = 0;
 	ydb_uint16   hash;
@@ -39,20 +35,20 @@ int generate_routine_name(hash128_state_t *state, char *routine_name, int routin
 
 	switch (file_type) {
 	case CrossReference:
-		assert(ROUTINE_PREFIX_LEN == strlen(xref_prefix));
-		memcpy(routine_name, xref_prefix, ROUTINE_PREFIX_LEN);
+		assert(ROUTINE_PREFIX_LEN == LIT_LEN(XREF_PLAN_NAME_PREFIX));
+		MEMCPY_LIT(routine_name, XREF_PLAN_NAME_PREFIX);
 		break;
 	case OutputPlan:
-		assert(ROUTINE_PREFIX_LEN == strlen(output_plan_prefix));
-		memcpy(routine_name, output_plan_prefix, ROUTINE_PREFIX_LEN);
+		assert(ROUTINE_PREFIX_LEN == LIT_LEN(PHYSICAL_PLAN_NAME_PREFIX));
+		MEMCPY_LIT(routine_name, PHYSICAL_PLAN_NAME_PREFIX);
 		break;
 	case YDBTrigger:
-		assert(ROUTINE_PREFIX_LEN == strlen(ydb_trigger_prefix));
-		memcpy(routine_name, ydb_trigger_prefix, ROUTINE_PREFIX_LEN);
+		assert(ROUTINE_PREFIX_LEN == LIT_LEN(TRIGGER_NAME_PREFIX));
+		MEMCPY_LIT(routine_name, TRIGGER_NAME_PREFIX);
 		break;
 	case FunctionHash:
-		assert(ROUTINE_PREFIX_LEN == strlen(function_hash));
-		memcpy(routine_name, function_hash, ROUTINE_PREFIX_LEN);
+		assert(ROUTINE_PREFIX_LEN == LIT_LEN(FUNCTION_NAME_PREFIX));
+		MEMCPY_LIT(routine_name, FUNCTION_NAME_PREFIX);
 		break;
 	default:
 		return 1;

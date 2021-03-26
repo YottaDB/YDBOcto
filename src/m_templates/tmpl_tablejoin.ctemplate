@@ -286,24 +286,6 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			 * table need the cross-reference key value set properly (an optimization in "tmpl_column_reference"
 			 * to generate the key instead of the column value relies on this).
 			 */
-			unsigned int	tmp_key;
-
-			for (tmp_key = key_start; tmp_key < cur_key; tmp_key++)
-			{
-				key = plan->iterKeys[tmp_key];
-				if (key->is_cross_reference_key)
-				{
-					assert(!key->skip_column_reference_optimization);
-					TMPL(tmpl_print_dots, dot_count);
-					%{}SET {}%
-					TMPL(tmpl_key, key);
-					%{}={}%
-					key->skip_column_reference_optimization = TRUE;
-					TMPL(tmpl_column_reference, plan, key->cross_reference_column_alias, FALSE);
-					key->skip_column_reference_optimization = FALSE;
-					%{}`n{{ PLAN_LINE_START }}{}%
-				}
-			}
 			TMPL(tmpl_print_dots, dot_count);
 			%{}IF '$DATA(%%ydboctoz({}%
 			TMPL(tmpl_rightjoin_key, plan, key_start, cur_key);
@@ -367,11 +349,13 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			assert(LP_TABLE_JOIN == this_table_join->type);
 			this_join_type = this_table_join->extra_detail.lp_table_join.cur_join_type;
 			if ((RIGHT_JOIN == this_join_type) || (FULL_JOIN == this_join_type)) {
+				int		right_join_table_id;
+				unsigned int	right_join_cur_key;
+
 				/* Set keys of all tables till now to NULL */
 				assert(cur_key < total_keys);
 				cur_tables = 0;
-				for ( ; cur_key < total_keys; cur_key++)
-				{
+				do {
 					this_table_id = plan->iterKeys[cur_key]->unique_id;
 					if (!plan->treat_key_as_null[this_table_id]) {
 						if (cur_tables == num_tables) {
@@ -381,15 +365,28 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 						key_nullified = TRUE;
 						cur_tables++;
 					}
-				}
+				} while (++cur_key < total_keys);
 				assert(cur_key);
 				%{}`n{{ PLAN_LINE_START }}{}%
 				/* Assert that this is not the outermost "tmpl_tablejoin" invocation */
 				assert(this_table_join != plan->tablejoin);
+				right_join_table_id = this_table_id;
+				for (right_join_cur_key = cur_key; right_join_cur_key < total_keys; right_join_cur_key++) {
+					key = plan->iterKeys[right_join_cur_key];
+					if (right_join_table_id == key->unique_id) {
+						if (key->is_cross_reference_key) {
+							key->skip_column_reference_optimization = TRUE;
+						}
+					} else {
+						break;
+					}
+				}
 				TMPL(tmpl_tablejoin, plan, this_table_join, cur_key, TRUE, dot_count, tableName, columnName);
+				/* No need to undo "key->skip_column_reference_optimization" as it is not used after here */
 				num_tables = 1;	// include this table as first one for next round of RIGHT JOIN key nullification
-			} else
+			} else {
 				num_tables++;
+			}
 			this_table_join = this_table_join->v.lp_default.operand[1];
 		} while (NULL != this_table_join);
 		if (key_nullified) {

@@ -17,13 +17,18 @@
 #include "physical_plan.h"
 #include "template_helpers.h"
 
-TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t is_trigger) {
+/* Note: "dot_count" is unused if "is_trigger" is TRUE. That is, it is used only if "is_trigger" is FALSE.
+ * It reflects the real dot count of the currently generated M line in case this is non-zero.
+ *	In this case, we are free to generate new M commands or M lines in this function as we please.
+ * If this is zero though, it does not necessarily reflect the real dot count of the currently generated M line.
+ *	In that case, it just says we are in the midst of generating an expression and hence all of our generation
+ *	in this function has to happen as one expression (i.e. cannot generate new M commands or start a new M line).
+ */
+TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t is_trigger, int dot_count) {
 	SqlColumn		*column = NULL, *key_column;
 	SqlTable		*table;
 	SqlValue		*value;
 	SqlTableAlias		*table_alias;
-	SqlColumnListAlias	*cl_alias;
-	SqlColumnList		*column_list;
 	SqlOptionalKeyword	*keyword;
 	SqlKey			*key;
 	char			*table_name, *delim;
@@ -32,24 +37,16 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	boolean_t		skip_dollar_piece, is_dollar_char;
 	PhysicalPlan		*cur_plan;
 
-	// First check for EXTRACT, then GLOBAL & PIECE, and lastly assemble it ourselves based on table_alias->source
-	if (column_list_alias_STATEMENT == column_alias->column->type) {
-		UNPACK_SQL_STATEMENT(cl_alias, column_alias->column, column_list_alias);
-		UNPACK_SQL_STATEMENT(column_list, cl_alias->column_list, column_list);
-		if (value_STATEMENT == column_list->value->type) {
-			// This can happen when we are referencing a column in a generated table; simply unwrap
-			//  one layer. The next layer should be just the column_alias, so let it fall through
-			//  to the next if
-			UNPACK_SQL_STATEMENT(value, column_list->value, value);
-			UNPACK_SQL_STATEMENT(column_alias, value->v.calculated, column_alias);
-			TMPL(tmpl_column_reference, pplan, column_alias, is_trigger);
-			return;
-		}
-		if (column_alias_STATEMENT == column_list->value->type) {
-			TMPL(tmpl_column_reference, pplan, column_list->value->v.column_alias, is_trigger);
-			return;
-		}
-	}
+        /* Note: The callers should pass a column, not a column list alias.
+         *
+         * Previously, there was a code block here that peeled any column_alias one layer at a time into a column.
+         * However, in the current code, a LP_COLUMN_ALIAS is transformed into a LP_DERIVED_COLUMN in a previous
+	 * logical plan optimization phase. Therefore during physical plan generation, all LP_COLUMN_ALIAS
+	 * references would have a column pointing to a column_STATEMENT and not a column_list_alias_STATEMENT.
+         *
+         * The following assert ensures this is true.
+         */
+	assert(column_STATEMENT == column_alias->column->type);
 	if (pplan->tablejoin_body_group_by_done && column_alias->group_by_column_number) {
 		/* This column reference was specified in the GROUP BY clause and GROUP BY related processing already
 		 * happened and wrote the records (based on the FROM/WHERE clauses) into the lvn subtree under
@@ -118,6 +115,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 		}
 		cur_plan = next_plan;
 	} while (NULL != cur_plan);
+	/* Check for EXTRACT or GLOBAL/PIECE, and assemble it ourselves based on table_alias->source */
 	/* It is possible for PIECE keyword to be missing in non-key columns that have DELIM of "" */
 	keyword = get_keyword(column, OPTIONAL_PIECE);
 	if (NULL != keyword) {
@@ -140,14 +138,16 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	source = value->v.string_literal;
 
 	if (!is_trigger) {
-		if (!pplan->outputKey->is_cross_reference_key) {
-			%{}$$piecevalue2colvalue^%%ydboctoplanhelpers({}%
+		if (!dot_count) {
+			if (!pplan->outputKey->is_cross_reference_key) {
+				%{}$$piecevalue2colvalue^%%ydboctoplanhelpers({}%
+			}
+			/* else : If xref plan, a NULL column value is represented as the empty string and the
+			 * xref will be stored in the global node using the empty string value as the subscript
+			 * so no need to convert from "" to $ZYSQLNULL.
+			 */
 		}
-		/* else : If xref plan, a NULL column value is represented as the empty string and the xref will be stored in the
-		 *	global node using the empty string value as the subscript so no need to convert from "" to $ZYSQLNULL.
-		 */
 	}
-
 	if (!skip_dollar_piece) {
 		%{}$PIECE($GET({}%
 	}
@@ -161,8 +161,12 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 				%{}),"{{ delim }}",{{ piece }}){}%
 			}
 		}
-		if (!pplan->outputKey->is_cross_reference_key) {
-			%{}){}%
+		if (dot_count) {
+			%{} SET:(""={{ PP_YDB_OCTO_EXPR }}) {{ PP_YDB_OCTO_EXPR  }}=$ZYSQLNULL{}%
+		} else {
+			if (!pplan->outputKey->is_cross_reference_key) {
+				%{}){}%
+			}
 		}
 	} else {
 		if (NULL != delim) {

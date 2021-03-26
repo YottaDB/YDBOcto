@@ -57,12 +57,18 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		// Only need triggers for xrefs on global variables, so check the xref name for '^' to confirm a trigger is needed
 		if ('^' == plan->outputKey->xref_prefix[0]) {
 			%{}IF '$$dollarZTRIGGER^%%ydboctoplanhelpers("ITEM","+{}%
-			TMPL(tmpl_column_reference, plan, column_alias, TRUE);
+			/* The last parameter ("dot_count") below is unused if the last-but-one parameter ("is_trigger") is TRUE.
+			 * Hence we call it with a dummy value of "0".
+			 */
+			TMPL(tmpl_column_reference, plan, column_alias, TRUE, 0);
 			%{} -commands=SET,KILL,ZKILL -xecute=""DO handleSetKill^{{ plan->filename }}"" -name={{ plan->trigger_name }}")  {}%
 			%{}HALT`n{{ PLAN_LINE_START }}{}%
 		}
 		%{}SET %%ydboctoCancel("{{ tableName }}","{{ columnName }}","Trigger")="-{}%
-		TMPL(tmpl_column_reference, plan, column_alias, TRUE);
+		/* The last parameter ("dot_count") below is unused if the last-but-one parameter ("is_trigger") is TRUE.
+		 * Hence we call it with a dummy value of "0".
+		 */
+		TMPL(tmpl_column_reference, plan, column_alias, TRUE, 0);
 		%{} -commands=SET,KILL,ZKILL -xecute=""DO handleSetKill^{{ plan->filename }}"""`n{{ PLAN_LINE_START }}{}%
 		%{}; Store state information in case query is canceled in middle of xref building`n{{ PLAN_LINE_START }}{}%
 		%{}; Actual cleanup happens in _ydboctoCleanup.m using this saved state information`n{{ PLAN_LINE_START }}{}%

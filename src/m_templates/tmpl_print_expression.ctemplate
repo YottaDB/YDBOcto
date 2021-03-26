@@ -260,7 +260,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				TMPL(tmpl_print_dots, dot_count);
 				%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
 			}
-			TMPL(tmpl_column_reference, pplan, plan->v.lp_column_alias.column_alias, FALSE);
+			TMPL(tmpl_column_reference, pplan, plan->v.lp_column_alias.column_alias, FALSE, dot_count);
 			if (dot_count) {
 				%{}`n{{ PLAN_LINE_START }}{}%
 			}

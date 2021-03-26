@@ -478,7 +478,7 @@ END
 	grep '^-- ' $testname.sql > output.txt	# Capture high level purpose of test at start of reference file
 	cat $testname.log >> output.txt
 	echo '# Verify generated plans (including xref plans) do not have $PIECE for FIRSTNAME column' >> output.txt
-	grep -E 'piecevalue2colvalue|\$PIECE' _ydbocto*.m >> output.txt
+	grep -E '=$ZYSQLNULL|\$PIECE' _ydbocto*.m >> output.txt
 	echo '# Verify text table definition does not have PIECE specified for FIRSTNAME column' >> output.txt
 	$ydb_dist/mupip extract $testname.ext
 	grep -w "text" $testname.ext | grep -wE "NAMES1|NAMES2|NAMES3" >> output.txt

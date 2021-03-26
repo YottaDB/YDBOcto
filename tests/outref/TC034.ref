@@ -58,7 +58,7 @@ octoPlan1(cursorId)
     . . NEW %ydboctoexpr SET %ydboctoexpr=1
     . . IF %ydboctoexpr DO
     . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . . SET %ydboctoexpr=$$piecevalue2colvalue^%ydboctoplanhelpers($E($G(^DD("IX",%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_ID"),.1,%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_DESCRIPTION_ID"),0)),1,245))
+    . . . SET %ydboctoexpr=$E($G(^DD("IX",%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_ID"),.1,%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_DESCRIPTION_ID"),0)),1,245) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     QUIT

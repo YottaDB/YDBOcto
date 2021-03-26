@@ -48,7 +48,6 @@ compile_octo() {
 	fi
 	exit_status=$?
 	if [[ 0 != $exit_status ]]; then
-		cleanup_before_exit
 		echo "# $build_tool failed with exit status [$exit_status]. output follows below"
 		cat build_warnings.txt
 		exit $exit_status
@@ -284,15 +283,11 @@ cleanup_before_exit() {
 	rm -f postgresql*.jar ./*.cmake || true
 	rm -f src/test_* || true	# these are the unit test case executables (should not be needed otherwise)
 }
+trap cleanup_before_exit EXIT
 
 echo "# Configure the build system for Octo"
 
-if ! ${cmakeCommand} -G "$generator" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=$build_type -DFULL_TEST_SUITE=$full_test -DDISABLE_INSTALL=$disable_install ..
-then
-	cleanup_before_exit
-	exit 1
-fi
-
+${cmakeCommand} -G "$generator" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=$build_type -DFULL_TEST_SUITE=$full_test -DDISABLE_INSTALL=$disable_install ..
 compile_octo
 
 # If this is the "test-auto-upgrade" job, skip steps that are covered by other jobs (e.g. "make-ubuntu" etc.)
@@ -323,7 +318,6 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 		diff "$expected" "$actual" &> differences.txt || true
 
 		if [ $(wc -l differences.txt | awk '{print $1}') -gt 0 ]; then
-			cleanup_before_exit
 			set +x  # don't print these diagnostics twice
 			echo " -> Expected warnings differ from actual warnings! diff output follows"
 			echo " -> note: '<' indicates an expected warning, '>' indicates an actual warning"
@@ -603,11 +597,7 @@ else
 	new_buffer_size=$(( 2 ** (RANDOM % 11) ))
 	sed -i "s/OCTO_INIT_BUFFER_LEN [0-9]*/OCTO_INIT_BUFFER_LEN $new_buffer_size/" ../src/octo.h
 
-	if ! ${cmakeCommand} -G "$generator" $cmakeflags ..; then
-		cleanup_before_exit
-		exit 1
-	fi
-
+	${cmakeCommand} -G "$generator" $cmakeflags ..
 	compile_octo
 	echo "# Cleanup unit test case executables from newsrc directory"
 	rm -rf src/CMakeFiles
@@ -960,7 +950,6 @@ FILE
 	set -x
 fi
 
-cleanup_before_exit
 echo " -> exit $exit_status"
 # Unset verbose mode before printing summary of failure results if any
 set +x

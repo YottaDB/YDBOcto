@@ -1,7 +1,7 @@
 #!/bin/sh -v
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -15,6 +15,7 @@
 #
 # * Install YottaDB master from source
 # * Install Octo from source or from a mounted directory
+set -e
 
 cd ..
 git clone https://github.com/OSEHRA/docker-vista.git

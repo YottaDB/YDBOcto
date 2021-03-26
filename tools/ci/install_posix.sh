@@ -1,7 +1,7 @@
 #!/bin/bash
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,6 +10,7 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
+set -e
 
 # Download, Compile, and Install the YottaDB POSIX plugin
 # This

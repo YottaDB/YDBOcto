@@ -1,7 +1,7 @@
 #!/bin/bash
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -11,5 +11,4 @@
 #								#
 #################################################################
 
-platform_arch="$(lscpu | grep Architecture | sed 's/ //g' | sed 's/_//g' | cut -f 2 -d ':')"
-echo -n $platform_arch
+lscpu | grep Architecture | sed 's/ //g' | sed 's/_//g' | cut -f 2 -d ':'

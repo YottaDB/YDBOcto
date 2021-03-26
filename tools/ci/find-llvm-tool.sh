@@ -1,7 +1,7 @@
 #!/bin/sh
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -21,14 +21,14 @@ version="$2"
 FOUND=
 
 exists() {
-	[ -x "$(which $1)" ]
+	[ -x "$(command -v "$1")" ]
 }
 
 # Ubuntu likes to name the tools after the version
 # NOTE: should be updated when later versions of LLVM are released
-for version in $(seq 11 -1 $version); do
-	if exists $tool-$version; then
-		FOUND=$tool-$version
+for version in $(seq 11 -1 "$version"); do
+	if exists "$tool-$version"; then
+		FOUND="$tool-$version"
 		break
 	fi
 done
@@ -36,14 +36,14 @@ done
 # No version suffix, we get what we get.
 if [ "" = "$FOUND" ]; then
 	# We didn't find it at all.
-	if ! exists $tool; then
+	if ! exists "$tool"; then
 		exit 1
 	fi
 	FOUND=$tool
 fi
 
 # Make sure we have a recent enough version.
-if [ "$($FOUND --version | grep version | awk '{print $3}' | cut -d '.' -f 1)" -ge $version ]; then
+if [ "$($FOUND --version | grep version | awk '{print $3}' | cut -d '.' -f 1)" -ge "$version" ]; then
 	echo "$FOUND"
 else
 	exit 1

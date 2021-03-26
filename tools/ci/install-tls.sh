@@ -1,7 +1,7 @@
 #!/bin/bash -v
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,13 +10,14 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
-
 source /opt/yottadb/current/ydb_env_set
+set -e
 
-export ydb_icu_version=`pkg-config --modversion icu-io`
+ydb_icu_version=$(pkg-config --modversion icu-io)
+export ydb_icu_version
 
 # Install TLS plugin
-pushd $ydb_dist/plugin/gtmcrypt
+pushd "$ydb_dist/plugin/gtmcrypt"
 tar -xf source.tar
 make
 make install

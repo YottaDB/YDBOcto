@@ -1,7 +1,7 @@
 #!/bin/sh
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,14 +10,14 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
-if [ -x "$(which "$1")" ]; then
+if [ -x "$(command -v "$1")" ]; then
 	CLANG_FORMAT="$1"
 else
 	CLANG_FORMAT=clang-format
 fi
 # NOTE: does not format .ctemplate files, because clang-format will change `%{}` to `% {}`, breaking the preprocessor.
-find ../src -name '*.c' -o -name '*.h' | xargs "$CLANG_FORMAT" -i
-if ! [ $(git diff --stat | wc -l) = 0 ]; then
+find ../src -printf0 -name '*.c' -o -name '*.h' | xargs -0 "$CLANG_FORMAT" -i
+if ! [ "$(git diff --stat | wc -l)" = 0 ]; then
   echo " -> Formatting differences found!"
   git diff
   exit 1

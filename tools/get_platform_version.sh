@@ -1,7 +1,7 @@
 #!/bin/bash
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,6 +10,4 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
-
-platform_version="$(cat /etc/os-release | grep "VERSION_ID" | cut -f 2 -d '=' | sed 's/"//g')"
-echo -n $platform_version
+grep VERSION_ID /etc/os-release | cut -f 2 -d '=' | sed 's/"//g' | tr -d '\n'

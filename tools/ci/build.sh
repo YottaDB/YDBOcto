@@ -40,7 +40,7 @@ compile_octo() {
 	set +e
 	# Use Ninja by default, but allow overriding it to use Make.
 	if [ "$USE_MAKE" = 1 ]; then
-		make -j `grep -c ^processor /proc/cpuinfo` 2> build_warnings.txt
+		make -j $(grep -c ^processor /proc/cpuinfo) 2> build_warnings.txt
 	else
 		# Only show warnings in the GitLab UI. Show the full output in `build_warnings.txt`.
 		# See https://ninja-build.org/manual.html#_environment_variables for the syntax of NINJA_STATUS.
@@ -141,6 +141,12 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 	fi
 	popd
 
+	if [ -x "$(command -v rpm)" ] && grep -q 'VERSION_ID=.*7' /etc/os-release; then
+		is_centos7=1
+	else
+		is_centos7=0
+	fi
+
 	# If we found a recent enough version, run clang-format
 	if CLANG_FORMAT="$(../tools/ci/find-llvm-tool.sh clang-format 9)"; then
 		echo "# Check code style using clang-format"
@@ -148,9 +154,16 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 		../tools/ci/clang-format-all.sh $CLANG_FORMAT
 	# RHEL/CentOS 7 has an outdated version of clang-format, but we run it in pipelines.
 	# Ignore failures only on this platform.
-	elif [ -x "$(which rpm)" ] && ! grep 'VERSION_ID=.*7' /etc/os-release; then
+	elif [ $is_centos7 = 0 ]; then
 		# Otherwise, fail the pipeline.
 		echo " -> A recent enough version of clang-format was not found!"
+		exit 1
+	fi
+
+	if [ -x "$(command -v shellcheck)" ]; then
+		find .. -name build -prune -o -name '*.sh' -print0 | xargs -0 shellcheck -e SC1091,SC2154,SC1090,SC2086,SC2053,SC2046
+	elif [ $is_centos7 = 0 ]; then
+		echo " -> Shellcheck not found!"
 		exit 1
 	fi
 fi
@@ -158,13 +171,10 @@ fi
 # Confirm all error message mnemonics and text are included in the documentation
 pushd ..
 ./tools/ci/doc_error_update.sh "check"
-if [[ $? -ne 0 ]]; then
-	exit 1
-fi
 popd
 
 echo "# Randomly choose to test Debug or Release build"
-if [[ $(( $RANDOM % 2)) -eq 0 ]]; then
+if [[ $(( RANDOM % 2)) -eq 0 ]]; then
 	build_type="Debug"
 else
 	build_type="RelWithDebInfo"
@@ -173,13 +183,13 @@ echo " -> build_type = $build_type"
 
 if [[ "test-auto-upgrade" != $jobname ]]; then
 	echo "# Randomly choose whether to use the full test suite or its limited version (prefer full version 3/4 times)"
-	if [[ $(( $RANDOM % 4)) -eq 0 ]]; then
+	if [[ $(( RANDOM % 4)) -eq 0 ]]; then
 		full_test="OFF"
 	else
 		full_test="ON"
 	fi
 	echo "# Randomly choose whether to test from installed directory OR from build directory (prefer install 3/4 times)"
-	if [[ $(( $RANDOM % 4)) -eq 0 ]]; then
+	if [[ $(( RANDOM % 4)) -eq 0 ]]; then
 		disable_install="ON"
 	else
 		disable_install="OFF"
@@ -222,16 +232,16 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 		git remote add upstream_repo "$upstream_URL"
 		git fetch upstream_repo
 	fi
-	stopcommit=`git merge-base HEAD upstream_repo/master`
+	stopcommit=$(git merge-base HEAD upstream_repo/master)
 	# Find HEAD commit to verify its not the same as $stopcommit
-	HEAD_COMMIT_ID=`git rev-list HEAD~1..HEAD`
+	HEAD_COMMIT_ID=$(git rev-list HEAD~1..HEAD)
 	if [[ "$stopcommit" == "$HEAD_COMMIT_ID" ]]; then
 		echo "INFO : HEAD commit and stopcommit is the same. No in between commits to choose from."
 		echo "INFO : Back off stopcommit by 1 commit"
-		stopcommit=`git rev-list HEAD~2..HEAD~1`
+		stopcommit=$(git rev-list HEAD~2..HEAD~1)
 	fi
 	# Find common ancestor of $hardstopcommit and $stopcommit. Verify it is $hardstopcommit. If not, we cannot test.
-	startcommit=`git merge-base $hardstopcommit $stopcommit`
+	startcommit=$(git merge-base $hardstopcommit $stopcommit)
 	if [[ "$startcommit" != "$hardstopcommit" ]]; then
 		echo "INFO : Ancestor commit of $hardstopcommit and $stopcommit was not the former but instead is [$startcommit]"
 		echo "INFO : Cannot run the test-auto-upgrade test in this case. Exiting with success."
@@ -243,9 +253,9 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 	git log --graph --oneline $startcommit~1..$stopcommit > gitlogmaster.txt
 	# Note: The awk usage below is needed to only skip commits that branch off an otherwise linear commit history.
 	awk '($1 == "*") && ($2 != "|") {print $0;}' gitlogmaster.txt > commit_history.txt
-	numcommits=`wc -l commit_history.txt | awk '{print $1}'`
-	commitnumber=`shuf -i 1-$numcommits -n 1`
-	commitsha=`head -$commitnumber commit_history.txt | tail -1 | awk '{print $2}'`
+	numcommits=$(wc -l commit_history.txt | awk '{print $1}')
+	commitnumber=$(shuf -i 1-$numcommits -n 1)
+	commitsha=$(head -$commitnumber commit_history.txt | tail -1 | awk '{print $2}')
 	echo $commitsha > commit_picked.txt
 	echo "# Random older commit picked = $commitsha"
 	echo "# Checkout the older commit"
@@ -258,7 +268,7 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 	# Temporarily switch ydb_routines for running M program (testAutoUpgrade.m)
 	saveydbroutines="$ydb_routines"
 	export ydb_routines="."	# so testAutoUpgrade.o gets created in current directory
-	cat bats-tests.cmake.orig | $ydb_dist/yottadb -run batsTestsChooseRandom^testAutoUpgrade > bats-tests.cmake.new
+	$ydb_dist/yottadb -run batsTestsChooseRandom^testAutoUpgrade < bats-tests.cmake.orig > bats-tests.cmake.new
 	export ydb_routines="$saveydbroutines"	# Switch back to original ydb_routines
 	cp bats-tests.cmake.new ../cmake/bats-tests.cmake
 else
@@ -271,13 +281,14 @@ fi
 cleanup_before_exit() {
 	echo "# Cleanup files and directories that don't need to be included in the pipeline artifacts"
 	rm -rf CMakeFiles _CPack_Packages bats-test.*/go src/CMakeFiles || true
-	rm -f postgresql*.jar *.cmake || true
+	rm -f postgresql*.jar ./*.cmake || true
 	rm -f src/test_* || true	# these are the unit test case executables (should not be needed otherwise)
 }
 
 echo "# Configure the build system for Octo"
-${cmakeCommand} -G "$generator" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=$build_type -DFULL_TEST_SUITE=$full_test -DDISABLE_INSTALL=$disable_install ..
-if [[ $? -ne 0 ]]; then
+
+if ! ${cmakeCommand} -G "$generator" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=$build_type -DFULL_TEST_SUITE=$full_test -DDISABLE_INSTALL=$disable_install ..
+then
 	cleanup_before_exit
 	exit 1
 fi
@@ -388,7 +399,7 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 	create_tarball
 
 	echo "# Randomly choose to install from tarball or via make/ninja install"
-	if [[ $(( $RANDOM % 2)) -eq 0 ]]; then
+	if [[ $(( RANDOM % 2)) -eq 0 ]]; then
 		echo "# install from tarball"
 		cd $tarball_name
 		./octoinstall.sh
@@ -447,10 +458,11 @@ else
 	# In case DISABLE_INSTALL = ON, we need to set the correct UTF-8 directory for $ZROUTINES
 	# In case DISABLE_INSTALL = OFF, ydb_env_set takes care of that for us.
 	if [ "$ydb_chset" = "UTF-8" ]; then
-		export ydb_routines="$(pwd)/utf8/_ydbocto.so $ydb_routines"
+		ydb_routines="$(pwd)/utf8/_ydbocto.so $ydb_routines"
 	else
-		export ydb_routines="$(pwd)/_ydbocto.so $ydb_routines"
+		ydb_routines="$(pwd)/_ydbocto.so $ydb_routines"
 	fi
+	export ydb_routines
 	echo " -> ydb_routines: $ydb_routines"
 fi
 
@@ -475,7 +487,7 @@ PSQL
 	# We do not want any failures in "ctest" to exit the script (need to do some cleanup so the artifacts
 	# are not that huge etc.). So disable the "set -e" setting temporarily for this step.
 	set +e
-	${ctestCommand} -j `grep -c ^processor /proc/cpuinfo`
+	${ctestCommand} -j $(grep -c ^processor /proc/cpuinfo)
 	exit_status=$?
 	echo " -> exit_status from ${ctestCommand} = $exit_status"
 
@@ -491,12 +503,12 @@ PSQL
 	set +v
 	set +x
 	# Find out list of passed bats dirs. Need to sort for later use by "join"
-	ls -1d bats-test.*// | sed 's,/.*,,g' | sort > all_bats_dirs.txt
+	find . -maxdepth 1 -type d | sed 's#^\./##' | grep '^bats-test' | sort > all_bats_dirs.txt
 	# Find out list of failed bats dirs. Need to sort for later use by "join"
 	grep "Temporary files in" Testing/Temporary/LastTest.log | awk '{print $NF}' | sed 's,.*/,,g' | sort > failed_bats_dirs.txt
 	# Note down list of bats test directory names and corresponding subtest name in one file
-	cat */bats_test.out > all_bats_test.out
-	ls -lart */bats_test.out > lslart_bats_test.out	# this is to note down time stamp of the bats_test.out files
+	cat ./*/bats_test.out > all_bats_test.out
+	ls -lart ./*/bats_test.out > lslart_bats_test.out	# this is to note down time stamp of the bats_test.out files
 	grep '^ok' Testing/Temporary/LastTest.log > passed_bats_subtests.txt || true
 	grep '^not ok' Testing/Temporary/LastTest.log > failed_bats_subtests.txt || true
 	touch summary_bats_dirs.txt passed_bats_dirs.txt
@@ -510,7 +522,7 @@ PSQL
 			continue
 		fi
 		cd $tstdir
-		subtest=`sed 's/.*subtest \[//;s/].*//;' bats_test.out`
+		subtest=$(sed 's/.*subtest \[//;s/].*//;' bats_test.out)
 		# Need -F below in case there are any special characters in the subtest name (e.g. '*')
 		# We do not want to treat those as regex in the grep.
 		if [[ $(grep -F -c "$subtest" ../passed_bats_subtests.txt) -eq 1 ]]; then
@@ -537,7 +549,7 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 		# and pollute the pipeline console output
 		set +v
 		set +x
-		rm -rf `cat passed_bats_dirs.txt`
+		rm -rf $(cat passed_bats_dirs.txt)
 		# Restore verbose output now that for long line of output is done
 		set -v
 		set -x
@@ -588,10 +600,10 @@ else
 	cmakeflags="$cmakeflags -DCMAKE_BUILD_TYPE=$build_type -DFULL_TEST_SUITE=$full_test"
 	cmakeflags="$cmakeflags -DDISABLE_INSTALL=$disable_install"
 	# Randomly select a power of two to use for altering the size of OCTO_INIT_BUFFER_LEN to test for regressions
-	new_buffer_size=$(( 2 ** ($RANDOM % 11) ))
+	new_buffer_size=$(( 2 ** (RANDOM % 11) ))
 	sed -i "s/OCTO_INIT_BUFFER_LEN [0-9]*/OCTO_INIT_BUFFER_LEN $new_buffer_size/" ../src/octo.h
-	${cmakeCommand} -G "$generator" $cmakeflags ..
-	if [[ $? -ne 0 ]]; then
+
+	if ! ${cmakeCommand} -G "$generator" $cmakeflags ..; then
 		cleanup_before_exit
 		exit 1
 	fi
@@ -609,7 +621,7 @@ else
 	set +v
 	if [[ "force" != $subtaskname ]]; then
 		echo '# Remove "bats-test*" directories corresponding to failed subtests (if any)'
-		rm -rf `cat failed_bats_dirs.txt`
+		rm -rf $(cat failed_bats_dirs.txt)
 		env > env.out
 		echo '# Do auto-upgrade tests on the leftover "bats-test*" directories.'
 		gldfile="yottadb.gld"
@@ -617,7 +629,8 @@ else
 		defaultdat="mumps.dat"
 		octodat="octo.dat"
 		touch skip_bats_test.txt gde_change_segment.txt
-		export ydb_icu_version=`pkg-config --modversion icu-io`	# needed for UTF-8 chset in for loop below
+		ydb_icu_version=$(pkg-config --modversion icu-io)	# needed for UTF-8 chset in for loop below
+		export ydb_icu_version
 		# Note down if older commit is prior to the YDBOcto#275 commit when NULL and empty string began to be
 		# treated the same. This will be used later to skip a few tests.
 		pre_octo275_commit="babc2e2e78eb00813cb5d76a8f2bbda66742c1b7"	# 1 commit before the #275 commit
@@ -639,14 +652,14 @@ else
 				rm -rf $tstdir
 				continue
 			fi
-			if ! ls *.sql 1> /dev/null 2>&1; then
+			if ! ls ./*.sql 1> /dev/null 2>&1; then
 				# This test directory does not contain any "*.sql" files. Skip auto-upgrade test.
 				echo "SKIPPED : $tstdir : Does not contain *.sql files" >> ../bats_test.txt
 				cd ..
 				rm -rf $tstdir
 				continue
 			fi
-			subtest=`sed 's/.*subtest \[//;s/].*//;' bats_test.out`
+			subtest=$(sed 's/.*subtest \[//;s/].*//;' bats_test.out)
 			# ----------------------------------------------------------------------------
 			# Exclude specific set of subtests (reasons explained below)
 			# ----------------------------------------------------------------------------
@@ -693,7 +706,7 @@ else
 			echo "# Running *.sql files in $tstdir : [subtest : $subtest]" | tee -a ../errors.log
 			echo "INCLUDE : $tstdir" >> ../include_bats_test.txt
 			# Check if subtest ran in M or UTF-8 mode and switch ydb_chset and ydb_routines accordingly
-			is_utf8=`grep "ydb_chset=UTF-8" env.out | wc -l` || true
+			is_utf8=$(grep -c "ydb_chset=UTF-8" env.out) || true
 			if [[ $is_utf8 == 0 ]]; then
 				export ydb_chset=M
 				utf8_path="."
@@ -752,13 +765,14 @@ FILE
 					octooutfile="$sqlfile.octo.out"
 					usedjdbcdriver=1
 				else
-					basename=`echo $sqlfile | sed 's/\.sql//g'`
+					# shellcheck disable=SC2001
+					basename=$(echo $sqlfile | sed 's/\.sql//g')
 					if [[ -e $basename ]]; then
 						octooutfile=$basename
 					fi
 					usedjdbcdriver=0
 				fi
-				if [[ ($subtest =~ ^"TQG") && (! -z $octooutfile) ]]; then
+				if [[ ($subtest =~ ^"TQG") && (-n $octooutfile) ]]; then
 					# a) If the random older commit predates the YDBOcto#649 commit, then the octo output
 					#    would not contain the row-header and row summary line at the head and tail of the octo output.
 					#    So filter that out from the newer Octo build output.
@@ -829,10 +843,10 @@ FILE
 		# Find out all "CREATE TABLE" queries in tests/fixtures/*.sql. Generate one query file for each.
 		# Filter out lines like "\set ON_ERROR_STOP on" that are in tests/fixtures/postgres-*.sql files
 		# as they confuse split_queries.py. Also filter out queries with errors that are in TERR*.sql files.
-		cat `grep -l "CREATE TABLE" ../tests/fixtures/*.sql | grep -v TERR` | grep -v ON_ERROR_STOP > create_table.sql
+		grep -l "CREATE TABLE" ../tests/fixtures/*.sql | grep -v TERR | xargs cat | grep -v ON_ERROR_STOP > create_table.sql
 		../tests/fixtures/sqllogic/split_queries.py create_table.sql "CREATE TABLE"
 		# Create *.gld and *.dat files
-		rm -f *.gld *.dat || true
+		rm -f ./*.gld ./*.dat || true
 		# Point src to newsrc so GDE works fine or else ZROSYNTAX error would be issued.
 		rm -f src || true; ln -s newsrc src
 		export ydb_gbldir="yottadb.gld"
@@ -844,7 +858,7 @@ FILE
 		add -segment OCTOSEG -file=octo.dat
 		change -region OCTOREG -null_subscripts=true -key_size=1019 -record_size=1048576
 FILE
-		rm *.dat || true
+		rm ./*.dat || true
 		$ydb_dist/mupip create
 		touch errors.log
 		filediff() {
@@ -869,7 +883,7 @@ FILE
 			if [[ -s $filename2.diff ]]; then
 				echo "ERROR : [diff oldsrc/$filename1 newsrc/$filename2] returned non-zero diff" | tee -a ../errors.log
 				echo "[cat $filename2.diff] output follows" | tee -a ../errors.log
-				cat $filename2.diff | tee -a ../errors.log
+				tee -a < $filename2.diff ../errors.log
 				exit_status=1
 			fi
 		}
@@ -886,7 +900,7 @@ FILE
 					echo "ERROR : [octo -f $dir/$queryfile] returned non-zero exit status : $?" | tee -a ../errors.log
 					exit_status=1
 				fi
-				plan_name=`grep _ydboctoP $queryfile.vv.out | sed 's/.*_ydboctoP/_ydboctoP/;s/].*//'`
+				plan_name=$(grep _ydboctoP $queryfile.vv.out | sed 's/.*_ydboctoP/_ydboctoP/;s/].*//')
 			fi
 			./octo -f $queryfile >& $queryfile.out	# Run without -vv to get actual output (minus INFO/LP_ etc. output)
 								# This will be used for filediff as it is deterministic.
@@ -896,7 +910,7 @@ FILE
 		cd oldsrc
 		export ydb_routines=". _ydbocto.so $ydb_routines $ydb_dist/libyottadbutil.so"
 		cp ../*.gld ../{mumps,octo}.dat ../create_table-*.sql .
-		cp *.gld {mumps,octo}.dat create_table-*.sql ../newsrc
+		cp ./*.gld {mumps,octo}.dat create_table-*.sql ../newsrc
 		for queryfile in create_table-*.sql
 		do
 			echo " --> Processing $queryfile"
@@ -904,7 +918,7 @@ FILE
 			cd ../oldsrc; rm -f ../src || true; ln -s oldsrc ../src
 			run_octo $queryfile oldsrc novv
 			# Determine table name and generate a query that selects all columns from that table
-			tablename=`grep -n "CREATE TABLE" $queryfile | grep -v "^--" | sed 's/.*CREATE TABLE //;s/(.*//;' | awk '{print $1}'`
+			tablename=$(grep -n "CREATE TABLE" $queryfile | grep -v "^--" | sed 's/.*CREATE TABLE //;s/(.*//;' | awk '{print $1}')
 			echo "select * from $tablename;" > $queryfile.2
 			# Copy over database files from oldsrc to newsrc
 			cp {mumps,octo}.dat $queryfile.2 ../newsrc
@@ -926,17 +940,17 @@ FILE
 				echo "ERROR : $queryfile : Plan name in oldsrc [$old_plan_name] differs from newsrc [$new_plan_name]" | tee -a ../errors.log
 				exit_status=1
 			fi
-			if [[ ("" != $new_plan_name) && ("" != old_plan_name) ]]; then
+			if [[ ("" != "$new_plan_name") && ("" != "$old_plan_name") ]]; then
 				# "$new_plan_name" can be "" for example if "CREATE TABLE" occurs in a comment in the query
 				# file and the actual query is something else like a "DROP TABLE". In that case, skip this check.
-				filediff $old_plan_name $new_plan_name
+				filediff "$old_plan_name" "$new_plan_name"
 			fi
 			# Need to DROP TABLE the current table in "oldsrc" directory to avoid reusing this plan for future
 			# CREATE TABLE queries that point to the same table name (e.g. `Customers` vs `customers`) as that
 			# can cause a failure in the pipeline job (see commit message for details).
 			cd ../oldsrc; rm -f ../src || true; ln -s oldsrc ../src
-			echo "DROP TABLE $tablename;" > $queryfile.drop
-			run_octo $queryfile.drop oldsrc novv
+			echo "DROP TABLE $tablename;" > "$queryfile.drop"
+			run_octo "$queryfile.drop" oldsrc novv
 			cd ../newsrc; rm -f ../src || true; ln -s newsrc ../src
 		done
 		cd ..
@@ -952,12 +966,12 @@ echo " -> exit $exit_status"
 set +x
 set +v
 
-if [[ 0 != $exit_status ]]; then
-	if [[ "test-auto-upgrade" != $jobname ]]; then
+if [[ 0 != "$exit_status" ]]; then
+	if [[ "test-auto-upgrade" != "$jobname" ]]; then
 		echo "# ----------------------------------------------------------"
 		echo "# List of failed tests/subtests and their output directories"
 		echo "# ----------------------------------------------------------"
-		if [[ -z Testing/Temporary/LastTest.log ]]; then
+		if ! [[ -s Testing/Temporary/LastTest.log ]]; then
 			echo "# Detected script failure prior to BATS test execution. Please review script output to determine source."
 		else
 			grep -A 6 -E "not ok|Test: " Testing/Temporary/LastTest.log | grep -E "not ok|# Temporary|Test: " | grep -C 1 "not ok" | sed "s/^not/  &/;s/^#/  &/"

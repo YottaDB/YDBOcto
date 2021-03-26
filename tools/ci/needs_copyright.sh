@@ -44,7 +44,7 @@ fi
 # Below is a list of specific files that do not have a copyright so ignore them
 skiplist="COPYING README.md LICENSE"
 for skipfile in $skiplist; do
-	if [ $file = $skipfile ]; then
+	if [ "$file" = "$skipfile" ]; then
 		exit 1
 	fi
 done

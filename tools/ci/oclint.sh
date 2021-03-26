@@ -1,7 +1,7 @@
 #!/bin/bash
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -17,4 +17,4 @@ oclint-json-compilation-database -e build/parser.c -e build/src/lexer.c -e src/t
 
 sed -i "s%$(pwd)/%%g" ./build/report.txt
 diff build/report.txt tools/oclint_allowed.ref > report_diff.txt
-exit $(cat report_diff.txt | wc -l)
+exit "$(wc -l report_diff.txt)"

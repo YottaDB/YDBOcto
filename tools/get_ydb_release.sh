@@ -16,13 +16,13 @@ actual_release=$($ydb_dist/yottadb -version | grep "YottaDB release:" | awk '{pr
 echo -n $actual_release
 
 # Require an expected version
-if [ -z $1 ]; then
+if [ -z "$1" ]; then
 	exit 1
 fi
 # https://stackoverflow.com/a/25731924/7669110
 # Split by `.`, then compare each field numerically.
-later_version=$(printf "$actual_release\n$1\n" | sort -t '.' -k 1,1 -k 2,2 -n | tail -n1)
-if [[ "$actual_release" == $later_version ]]; then
+later_version=$(printf "%s\n%s\n" "$actual_release" "$1" | sort -t '.' -k 1,1 -k 2,2 -n | tail -n1)
+if [[ "$actual_release" == "$later_version" ]]; then
 	exit 0
 else
 	exit 1

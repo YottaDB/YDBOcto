@@ -304,19 +304,26 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 	compare() {
 		expected="$1"
 		actual="$2"
+		full_warnings="$3"
 		# We do not want any failures in "diff" command below to exit the script (we want to see the actual diff a few steps later).
 		# So never count this step as failing even if the output does not match.
 		diff "$expected" "$actual" &> differences.txt || true
 
 		if [ $(wc -l differences.txt | awk '{print $1}') -gt 0 ]; then
 			cleanup_before_exit
+			set +x  # don't print these diagnostics twice
 			echo " -> Expected warnings differ from actual warnings! diff output follows"
 			echo " -> note: '<' indicates an expected warning, '>' indicates an actual warning"
+			echo " -> help: you can see the full warnings at $CI_JOB_URL/artifacts/raw/build/$3"
+			if echo "$full_warnings" | grep -q clang_tidy; then
+				echo " -> help: to generate clang-tidy warnings locally, run 'cmake -D CMAKE_EXPORT_COMPILE_COMMANDS=ON .. && ../tools/ci/clang-tidy-all.sh'"
+			fi
 			cat differences.txt
+			set -x
 			exit 1
 		fi
 	}
-	compare $reference sorted_warnings.txt
+	compare $reference sorted_warnings.txt build_warnings.txt
 
 	# `clang-tidy` is not available on CentOS 7, and YDB tests on 7 to ensure backwards-compatibility.
 	if ! [ -x "$(command -v yum)" ]; then
@@ -325,9 +332,9 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 		../tools/ci/sort_warnings.sh clang_tidy_warnings.txt
 		# In release mode, `assert`s are compiled out and clang-tidy will emit false positives.
 		if [ "$build_type" = Debug ]; then
-			compare ../tools/ci/clang_tidy_warnings.ref sorted_warnings.txt
+			compare ../tools/ci/clang_tidy_warnings.ref sorted_warnings.txt clang_tidy_warnings.txt
 		else
-			compare ../tools/ci/clang_tidy_warnings-release.ref sorted_warnings.txt
+			compare ../tools/ci/clang_tidy_warnings-release.ref sorted_warnings.txt clang_tidy_warnings.txt
 		fi
 	fi
 

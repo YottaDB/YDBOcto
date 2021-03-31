@@ -311,11 +311,18 @@ You can use the [Northwind](https://docs.yottadb.com/Octo/grammar.html#northwind
 A dummy data set consists of a `.zwr` file and a `.sql` file. The former contains the actual data to be stored in YottaDB, while the latter contains a schema that maps relational SQL structures (tables and columns) to the NoSQL data contained in YottaDB. Assuming that `/tmp/YDBOcto-master` is the directory from the `git clone https://gitlab.com/YottaDB/DBMS/YDBOcto.git YDBOcto-master` command:
 
 ```sh
-$ydb_dist/mupip load /tmp/YDBOcto-master/build/tests/fixtures/northwind.zwr
-$ydb_dist/plugin/bin/octo -f /tmp/YDBOcto-master/build/tests/fixtures/northwind.sql
+# Unset all ydb_*, gtm* and GTM* environment variables:
+unset `env | grep -Ei ^\(\(gtm\)\|\(ydb\)\) | cut -d= -f 1`
+export ydb_chset=UTF-8
+# Source ydb_* variables:
+source $(pkg-config --variable=prefix yottadb)/ydb_env_set
+# ydb_dir can optionally be set to use a location other than $HOME/.yottadb for the working environment.
+
+mupip load /tmp/YDBOcto-master/tests/fixtures/northwind.zwr
+octo -f /tmp/YDBOcto-master/tests/fixtures/northwind.sql
 ```
 
-Once loaded, you can use [SELECT](https://docs.yottadb.com/Octo/grammar.html#select) queries to access the data.
+Once loaded, you can run `octo` to start the Octo interactive shell and use [SELECT](https://docs.yottadb.com/Octo/grammar.html#select) queries to access the data.
 
 ## Additional Configuration
 

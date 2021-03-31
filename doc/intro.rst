@@ -377,10 +377,17 @@ Configure Octo
 
    .. code-block:: bash
 
-      $ydb_dist/mupip load /tmp/YDBOcto-master/build/tests/fixtures/northwind.zwr
-      $ydb_dist/plugin/bin/octo -f /tmp/YDBOcto-master/build/tests/fixtures/northwind.sql
+      # Unset all ydb_*, gtm* and GTM* environment variables:
+      unset `env | grep -Ei ^\(\(gtm\)\|\(ydb\)\) | cut -d= -f 1`
+      export ydb_chset=UTF-8
+      # Source ydb_* variables:
+      source $(pkg-config --variable=prefix yottadb)/ydb_env_set
+      # ydb_dir can optionally be set to use a location other than $HOME/.yottadb for the working environment.
 
-  Once loaded, you can use `SELECT <https://docs.yottadb.com/Octo/grammar.html#select>`_ queries to access the data.
+      mupip load /tmp/YDBOcto-master/build/tests/fixtures/northwind.zwr
+      octo -f /tmp/YDBOcto-master/build/tests/fixtures/northwind.sql
+
+  Once loaded, you can run `octo` to start the Octo interactive shell and use `SELECT <https://docs.yottadb.com/Octo/grammar.html#select>`_ queries to access the data.
 
 """"""""""""""""""
 Sample Queries

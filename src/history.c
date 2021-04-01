@@ -205,6 +205,7 @@ void set_readline_file(void) {
 	wordexp_t    wordexp_result;
 	char *	     readline_actualfile;
 	unsigned int readline_actualfile_max_length;
+	int	     wordexp_status;
 
 	// Final History File memory location. Allocate memory for it and zero out
 	// free() in save_readline_history()
@@ -224,8 +225,11 @@ void set_readline_file(void) {
 	 * wordexp behaves like argc and argv, with c providing the number of
 	 * arguments into v.
 	 */
-	if (0 == wordexp(readline_initialfile, &wordexp_result, 0)) {
-		unsigned int offset = 0; // offset into readline_actualfile char array
+	wordexp_status = wordexp(readline_initialfile, &wordexp_result, 0);
+	if (0 == wordexp_status) {
+		unsigned int offset;
+
+		offset = 0; // offset into readline_actualfile char array
 		for (unsigned int i = 0; i < wordexp_result.we_wordc; i++) {
 			char *	     token;
 			unsigned int token_length;
@@ -262,9 +266,9 @@ void set_readline_file(void) {
 	} else {
 		WARNING(WARN_READLINE_LOAD_FAIL, readline_initialfile);
 	}
-
-	wordfree(&wordexp_result);
-
+	if ((0 == wordexp_status) || (WRDE_NOSPACE == wordexp_status)) {
+		wordfree(&wordexp_result);
+	}
 	// Final answer!
 	if (readline_actualfile[0] == '\0') {
 		config->octo_history = NULL;

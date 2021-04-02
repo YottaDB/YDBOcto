@@ -423,7 +423,8 @@ octoPlan1(cursorId)
     . NEW %ydboctoexpr SET %ydboctoexpr=1
     . SET %ydboctoexpr=%ydboctoexpr&('$DATA(%ydboctozdistinct(5,$GET(%ydboctocursor(cursorId,"keys",5,"","","GroupBy",%ydboctog,1),$ZYSQLNULL))))
     . IF %ydboctoexpr DO
-    . . IF $INCREMENT(%ydboctocursor(cursorId,"keys",5,"","",$GET(%ydboctocursor(cursorId,"keys",5,"","","GroupBy",%ydboctog,1),$ZYSQLNULL)))
+    . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"keys",5,"","","GroupBy",%ydboctog,1),$ZYSQLNULL)
+    . . IF $INCREMENT(%ydboctocursor(cursorId,"keys",5,"","",%ydboctoexpr))
     . . SET:1 %ydboctozdistinct(5,$GET(%ydboctocursor(cursorId,"keys",5,"","","GroupBy",%ydboctog,1),$ZYSQLNULL))=""
     KILL %ydboctocursor(cursorId,"keys",5,"","","GroupBy")
     KILL %ydboctozdistinct(5)

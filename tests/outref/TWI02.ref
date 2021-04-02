@@ -53,5 +53,6 @@ octoPlan2(cursorId)
     SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")) IF $DATA(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) DO
     . NEW %ydboctoexpr SET %ydboctoexpr=1
     . IF %ydboctoexpr DO
-    . . IF $INCREMENT(%ydboctocursor(cursorId,"keys",5,"","",$$piecevalue2colvalue^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))),"|",1))))
+    . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . IF $INCREMENT(%ydboctocursor(cursorId,"keys",5,"","",%ydboctoexpr))
     QUIT

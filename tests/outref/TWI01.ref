@@ -31,7 +31,8 @@ octoPlan1(cursorId)
     . . NEW %ydboctoexpr SET %ydboctoexpr=1
     . . SET %ydboctoexpr=%ydboctoexpr&('$DATA(%ydboctozduplicate(5,%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))))
     . . IF %ydboctoexpr DO
-    . . . IF $INCREMENT(%ydboctocursor(cursorId,"keys",5,"","",%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME")))
+    . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME")
+    . . . IF $INCREMENT(%ydboctocursor(cursorId,"keys",5,"","",%ydboctoexpr))
     . . . SET %ydboctozduplicate(5,%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))=1
     QUIT
 
@@ -45,7 +46,8 @@ octoPlan2(cursorId)
     . . NEW %ydboctoexpr SET %ydboctoexpr=1
     . . SET %ydboctoexpr=%ydboctoexpr&('$DATA(%ydboctozduplicate(5,%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))))
     . . IF %ydboctoexpr DO
-    . . . IF $INCREMENT(%ydboctocursor(cursorId,"keys",5,"","",%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME")))
+    . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME")
+    . . . IF $INCREMENT(%ydboctocursor(cursorId,"keys",5,"","",%ydboctoexpr))
     . . . SET %ydboctozduplicate(5,%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))=1
     KILL %ydboctozduplicate(5)
     QUIT

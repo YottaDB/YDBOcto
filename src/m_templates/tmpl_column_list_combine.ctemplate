@@ -21,7 +21,13 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 	boolean_t	is_order_by, is_lp_table_value, left_concat_needed;
 
 	assert((',' == *delim) || ('_' == *delim));
-	assert(('_' == *delim) || !dot_count);
+	/* Assert that if delim is ',', we either have a "dot_count" of 0 (which means we cannot generate new M commands
+	 * inside this function as the parent is in the middle of generating an expression) or we have a "dot_count" of non-zero
+	 * value in which case we expect that there is only one plan to generate. In that case, the ',' delim is unused (since
+	 * it is used only for the 2nd plan in the linked list onwards) and so it is okay to generate new M commands without
+	 * risk of generating invalid M code.
+	 */
+	assert((',' != *delim) || !dot_count || (NULL == plan->v.lp_default.operand[1]));
 	assert(NULL != plan);
 	is_order_by = (plan == pplan->order_by);
 	is_lp_table_value = (LP_TABLE_VALUE == pplan->lp_select_query->type);

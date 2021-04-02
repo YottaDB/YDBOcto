@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -23,19 +23,19 @@ teardown() {
   stop_rocto
 }
 
-@test "call rocto with port number < 0" {
+@test "TPO01 : call rocto with port number < 0" {
   run rocto -p -500
   [[ "$status" == "1" ]]
   [[ $output =~ "Please use a port number between 0 and 65535" ]]
 }
 
-@test "call rocto with port number > 65535 {
+@test "TPO02 : call rocto with port number > 65535" {
   run rocto -p 70000
   [[ "$status" == "1" ]]
   [[ $output =~ "Please use a port number between 0 and 65535" ]]
 }
 
-@test "call rocto with default port" {
+@test "TPO03 : call rocto with default port" {
   test_port=$(start_rocto)
   if [[ 1337 -ne $test_port ]]; then
     skip
@@ -43,7 +43,7 @@ teardown() {
   [[ "$(grep -c "rocto started on port 1337" rocto.log)" == "1" ]]
 }
 
-@test "call rocto with port from config file" {
+@test "TPO04 : call rocto with port from config file" {
     test_port=$(find_open_port 1400)
     cat <<OCTO &> octo.conf
 rocto: {
@@ -59,12 +59,12 @@ OCTO
   [[ "$(grep -c "rocto started on port $test_port" rocto.log)" == "1" ]]
 }
 
-@test "ensure rocto -p supercedes default" {
+@test "TPO05 : ensure rocto -p supercedes default" {
   test_port=$(start_rocto 1401)
   [[ "$(grep -c "rocto started on port $test_port" rocto.log)" == "1" ]]
 }
 
-@test "ensure rocto -p supercedes config file" {
+@test "TPO06 : ensure rocto -p supercedes config file" {
     cat <<OCTO &> octo.conf
 rocto: {
   port: 1400;

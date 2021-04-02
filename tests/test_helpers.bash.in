@@ -232,19 +232,45 @@ set_null_subs() {
 }
 
 find_open_port() {
-	if [[ $1 =~ ^[-+]?[0-9]+$ ]]; then
-		open_port=$1
-	else
-		open_port=1337
+	local start_port=$1
+	# We need to find an open port on the system.
+	# Note that it is possible tests are run concurrently. In that case,
+	# this function can be invoked at the same time from different processes.
+	# Therefore we need to get a lock and execute the below code.
+
+	local lockfile=@TEST_OUTPUT_DIR@/find_open_port
+	# Find a free file descriptor in the current shell process first (using {var} syntax in bash)
+	exec {lockfd}>$lockfile.lock
+	# At this point "$lockfd" contains the value of the fd in the current shell process
+	# which was obtained as a result of opening the file "$lockfile.lock"
+
+	# Now lock this file descriptor to effectively lock the file.
+	flock $lockfd
+
+	# ---------------- BEGIN : Code that runs under the exclusive lock -----------------
+
+	# Need to switch to portno allocation .gld/.dat files for below commands (to find an open port) hence the "ydb_gbldir="
+	# env var set just before each command invocation below. This avoids having to store the env var "ydb_gbldir" value (set
+	# by createdb()) in a local variable, switch the env var to the portno allocation .gld and then switch it back to the
+	# saved value at the end of these commands.
+
+	# If not already done, create database file that stores portno allocations
+	if ! [ -e $lockfile.gld ]; then
+		ydb_gbldir=$lockfile.gld $ydb_dist/yottadb -run GDE "change -segment DEFAULT -file_name=$lockfile.dat"
+		ydb_gbldir=$lockfile.gld $ydb_dist/mupip create
 	fi
-	netstat -tulpn | grep ":$open_port" &> /dev/null
-	result=$?
-	while [[ $result -eq 0 ]]; do
-		open_port=$(($open_port+1))
-		netstat -tulpn | grep ":$open_port" &> /dev/null
-		result=$?
-	done
+
+	# Find open port
+	open_port=`ydb_gbldir=$lockfile.gld $ydb_dist/yottadb -run findopenport^portno $start_port`
+
 	echo $open_port
+	# Record free port number that was found and time when it was found for later debugging in case it is needed
+	echo " `date -Ins` : Allocated port [$open_port]" >> portno.out
+
+	# ---------------- END  : Code that runs under the exclusive lock -----------------
+
+	# Drop lock on the file
+	flock -u $lockfd
 }
 
 run_octo_allow_error() {
@@ -274,6 +300,8 @@ start_rocto() {
 	rocto_port=$(find_open_port $1)
 	rocto $verbosity -p $rocto_port $opt &> rocto.log &
 	echo $! > rocto.pid
+	# Store rocto port number in the file "rocto.port" for later use in "stop_rocto"
+	echo $rocto_port > rocto.port
 	while [[ ! -e rocto.log || "$(grep -c "rocto started" rocto.log)" == "0" ]]; do
 		sleep .1s
 	done
@@ -300,6 +328,12 @@ stop_rocto() {
 				sleep .1s
 			done
 		fi
+		# Release port number held by rocto (stored in the file "rocto.port")
+		local lockfile=@TEST_OUTPUT_DIR@/find_open_port
+		local test_port=`cat rocto.port`
+		ydb_gbldir=$lockfile.gld $ydb_dist/yottadb -run releaseport^portno $test_port
+		# Record port number release time for later debugging in case it is needed
+		echo " `date -Ins` : Released port [$test_port]" >> portno.out
 	fi
 }
 
@@ -849,9 +883,12 @@ run_query_stop_rocto() {
 	# This function is only used inside the test framework
 	if [[ $randclientstr != "OCTO" ]]; then
 		if [[ ! -z $isnotexternal ]];then
+			stop_rocto
+			# Reset rocto port related variables so the next "if [[ -z "$test_port" ]];"
+			# check in "run_query_in_octo_and_postgres_and_crosscheck_multiple_queries"
+			# function will correctly invoke "start_rocto" like it should.
 			isnotexternal=
 			test_port=
-			stop_rocto
 		fi
 	fi
 	randclientstr=

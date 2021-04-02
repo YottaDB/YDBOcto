@@ -75,7 +75,7 @@ def add_unique_id(stmt):
             assert create.count(')') == 1, "`VARCHAR(30)` or any other types with nested parentheses are not supported"
             columns = create[create.index('(') + 1:create.index(')')].split(',')
             # Keep only the names: [a, b, c]
-            columns = list([column.strip().split(' ')[0] for column in columns])
+            columns = [column.strip().split(' ')[0] for column in columns]
         # Add our own primary key if one does not already exist.
         # This prevents catastrophically slow joins when there are many columns in a table.
         if primary_key is None:
@@ -125,7 +125,7 @@ def add_unique_id(stmt):
     return stmt
 
 with open("sqllogic{}.sql".format(file_num), 'w') as sql_file:
-    sql_file.writelines([format(add_unique_id(line)) for line in statements])
+    sql_file.writelines(format(add_unique_id(line)) for line in statements)
 
 # Now transform the SQL syntax into something MUPIP LOAD understands
 # This supports the following statements:
@@ -145,7 +145,7 @@ with open("sqllogic{}.zwr".format(file_num), 'w') as zwr_file:
         # Allow spaces inside the VALUES list
         table, rest = stmt[0][len("INSERT INTO "):].split(' ', 1)
         # NOTE: does not handle escaping at all
-        values = list([s.strip().replace("'", '') for s in rest.split(',')])
+        values = [s.strip().replace("'", '') for s in rest.split(',')]
         values[0] = values[0].split('VALUES(', 1)[1].lstrip()
         assert values[-1][-1] == ')', "INSERT INTO ... VALUES (...) should end with a ')', got {}".format(values[-1])
         # Python doesn't have a str.pop function

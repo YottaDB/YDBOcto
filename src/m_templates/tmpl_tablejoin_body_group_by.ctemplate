@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -27,9 +27,6 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count) {
 	 * M lvn subtree. DISTINCT, ORDER BY, LIMIT etc. cannot be processed at this point. They will have to be deferred
 	 * until later when GROUP BY processing is done.
 	 */
-	TMPL(tmpl_print_dots, dot_count);
-	%{}NEW %%ydboctog,%%ydboctop{}%
-	%{}`n{{ PLAN_LINE_START }}{}%
 	if ((NULL != plan->aggregate_options) && (NULL != plan->aggregate_options->v.lp_default.operand[0])) {
 		LogicalPlan	*group_by;
 

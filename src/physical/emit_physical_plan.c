@@ -249,6 +249,11 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 				t_key->cross_reference_filename);
 		}
 	}
+	/* NEW variables that are used across all plans. Do it only once at the start of plan instead of inside each plan
+	 * where the variable is used. Saves on multiple NEWs of the same variable particularly if the NEW happens to be
+	 * inside a FOR loop.
+	 */
+	fprintf(output_file, "    NEW %%ydboctog,%%ydboctop,%%ydboctoz,%%ydboctoexpr\n");
 	fprintf(output_file, "    TSTART:wrapInTp ():(serial)\n"); /* Wrap post-xref part of query in TP if requested */
 	for (cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next) {
 		if (NULL != cur_plan->deferred_parent_plan)

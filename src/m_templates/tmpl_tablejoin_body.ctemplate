@@ -54,7 +54,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 	}
 	// Apply the conditions for this statement
 	TMPL(tmpl_print_dots, dot_count);
-	%{}NEW {{ PP_YDB_OCTO_EXPR }} SET {{ PP_YDB_OCTO_EXPR }}=1{}%
+	%{}SET {{ PP_YDB_OCTO_EXPR }}=1{}%
 	if (plan->where && plan->where->v.lp_default.operand[0]) {
 		TMPL(tmpl_where_or_having_or_on, plan->where->v.lp_default.operand[0], plan, dot_count);
 	} else {

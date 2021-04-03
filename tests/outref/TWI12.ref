@@ -12,7 +12,7 @@ _ydboctoP*.m:    SET %ydboctoin1(%ydboctoexpr)=""
 _ydboctoP*.m:    SET %ydboctoin1="" FOR  DO:$DATA(%ydboctoin1(%ydboctoin1))  SET %ydboctoin1=$ORDER(%ydboctoin1(%ydboctoin1)) QUIT:""=%ydboctoin1
 _ydboctoP*.m:    . SET %ydboctoexpr=%ydboctoin1
 _ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")) IF $DATA(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) DO
-_ydboctoP*.m:    . . NEW %ydboctoexpr SET %ydboctoexpr=1
+_ydboctoP*.m:    . . SET %ydboctoexpr=1
 _ydboctoP*.m:    . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
 _ydboctoP*.m:    . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
 _ydboctoP*.m:    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
@@ -30,7 +30,7 @@ _ydboctoP*.m:    SET %ydboctoin1(%ydboctoexpr)=""
 _ydboctoP*.m:    SET %ydboctoin1="" FOR  DO:$DATA(%ydboctoin1(%ydboctoin1))  SET %ydboctoin1=$ORDER(%ydboctoin1(%ydboctoin1)) QUIT:""=%ydboctoin1
 _ydboctoP*.m:    . SET %ydboctoexpr=%ydboctoin1
 _ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")) IF $DATA(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) DO
-_ydboctoP*.m:    . . NEW %ydboctoexpr SET %ydboctoexpr=1
+_ydboctoP*.m:    . . SET %ydboctoexpr=1
 _ydboctoP*.m:    . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
 _ydboctoP*.m:    . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
 _ydboctoP*.m:    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
@@ -121,7 +121,7 @@ _ydboctoP*.m:    . . . . . . . . . SET %ydboctocursor(cursorId,"keys",5,"NAMES",
 _ydboctoP*.m:    . . . . . . . . . . SET %ydboctoin6="" FOR  DO:$DATA(%ydboctoin6(%ydboctoin6))  SET %ydboctoin6=$ORDER(%ydboctoin6(%ydboctoin6)) QUIT:""=%ydboctoin6
 _ydboctoP*.m:    . . . . . . . . . . . SET %ydboctoexpr=%ydboctoin6
 _ydboctoP*.m:    . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",6,"NAMES","ID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",6,"NAMES","ID")) IF $DATA(^names(%ydboctocursor(cursorId,"keys",6,"NAMES","ID"))) DO
-_ydboctoP*.m:    . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
+_ydboctoP*.m:    . . . . . . . . . . . . SET %ydboctoexpr=1
 _ydboctoP*.m:    . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",8,"","")) %ydboctoz=42
 _ydboctoP*.m:    . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
 _ydboctoP*.m:    . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
@@ -164,7 +164,7 @@ _ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=%ydboctoex
 _ydboctoP*.m:    . . SET %ydboctoin2="" FOR  DO:$DATA(%ydboctoin2(%ydboctoin2))  SET %ydboctoin2=$ORDER(%ydboctoin2(%ydboctoin2)) QUIT:""=%ydboctoin2
 _ydboctoP*.m:    . . . SET %ydboctoexpr=%ydboctoin2
 _ydboctoP*.m:    . . . SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")) IF $DATA(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) DO
-_ydboctoP*.m:    . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
+_ydboctoP*.m:    . . . . SET %ydboctoexpr=1
 _ydboctoP*.m:    . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",4,"","")) %ydboctoz=42
 _ydboctoP*.m:    . . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
 _ydboctoP*.m:    . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
@@ -181,7 +181,7 @@ _ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
 _ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
 _ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=""
 _ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")="")  DO
-_ydboctoP*.m:    . . NEW %ydboctoexpr SET %ydboctoexpr=1
+_ydboctoP*.m:    . . SET %ydboctoexpr=1
 _ydboctoP*.m:    . . SET %ydboctoexpr(2)=0
 _ydboctoP*.m:    . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
 _ydboctoP*.m:    . . SET %ydboctoexpr(3)=%ydboctoexpr
@@ -247,7 +247,7 @@ _ydboctoP*.m:    . SET %ydboctoexpr=%ydboctoin1
 _ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"NAMES","FIRSTNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"NAMES","FIRSTNAME")) IF $DATA(^%ydboctoxref("NAMES","FIRSTNAME",%ydboctocursor(cursorId,"keys",1,"NAMES","FIRSTNAME"))) DO
 _ydboctoP*.m:    . . SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
 _ydboctoP*.m:    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^%ydboctoxref("NAMES","FIRSTNAME",%ydboctocursor(cursorId,"keys",1,"NAMES","FIRSTNAME"),%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
-_ydboctoP*.m:    . . . NEW %ydboctoexpr SET %ydboctoexpr=1
+_ydboctoP*.m:    . . . SET %ydboctoexpr=1
 _ydboctoP*.m:    . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
 _ydboctoP*.m:    . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
 _ydboctoP*.m:    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
@@ -359,7 +359,7 @@ _ydboctoP*.m:    . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",6,"NAM
 _ydboctoP*.m:    . . . . . . . . . . . . SET %ydboctoin7="" FOR  DO:$DATA(%ydboctoin7(%ydboctoin7))  SET %ydboctoin7=$ORDER(%ydboctoin7(%ydboctoin7)) QUIT:""=%ydboctoin7
 _ydboctoP*.m:    . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoin7
 _ydboctoP*.m:    . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",7,"NAMES","ID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",7,"NAMES","ID")) IF $DATA(^names(%ydboctocursor(cursorId,"keys",7,"NAMES","ID"))) DO
-_ydboctoP*.m:    . . . . . . . . . . . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
+_ydboctoP*.m:    . . . . . . . . . . . . . . SET %ydboctoexpr=1
 _ydboctoP*.m:    . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",9,"","")) %ydboctoz=42
 _ydboctoP*.m:    . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
 _ydboctoP*.m:    . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)

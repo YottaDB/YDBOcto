@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -25,7 +25,7 @@ TEMPLATE(tmpl_tablejoin_on_condition, LogicalPlan *tablejoin, PhysicalPlan *plan
 		TMPL(tmpl_tablejoin_deferred_plans, plan, *dot_count);
 		*deferred_plans_emitted = TRUE;
 		TMPL(tmpl_print_dots, *dot_count);
-		%{}NEW {{ PP_YDB_OCTO_EXPR }} SET {{ PP_YDB_OCTO_EXPR }}=1{}%
+		%{}SET {{ PP_YDB_OCTO_EXPR }}=1{}%
 		TMPL(tmpl_where_or_having_or_on, join_condition, plan, *dot_count);
 		TMPL(tmpl_print_dots, *dot_count);
 		%{}IF {{ PP_YDB_OCTO_EXPR }} DO{}%

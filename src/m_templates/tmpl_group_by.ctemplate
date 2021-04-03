@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -22,7 +22,7 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
 	assert(!plan->outputKey->is_cross_reference_key);	/* caller should have ensured this */
 	TMPL(tmpl_print_dots, dot_count);
 	%{}`n{{ PLAN_LINE_START }}{}%
-	%{}NEW %%ydboctog SET %%ydboctog=""{}%
+	%{}SET %%ydboctog=""{}%
 	/* If there is no GROUP BY clause in the query, check if any aggregate function usages happened.
 	 * If so initialize those to 0 or NULL if they don't exist (due to WHERE clauses skipping all rows).
 	 * See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/455#note_321309198 for details on why only
@@ -112,7 +112,7 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
 	%{}`n{{ PLAN_LINE_START }}{}%
 	dot_count++;
 	TMPL(tmpl_print_dots, dot_count);
-	%{}NEW {{ PP_YDB_OCTO_EXPR }} SET {{ PP_YDB_OCTO_EXPR }}=1{}%
+	%{}SET {{ PP_YDB_OCTO_EXPR }}=1{}%
 	if (NULL != plan->aggregate_options) {
 		LogicalPlan	*having;
 

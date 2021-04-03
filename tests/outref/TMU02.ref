@@ -19,9 +19,6 @@
 %ydboctoerror("VARCHARTOOLONG")=1073741829
 %ydboctoerror("VARCHARTOOLONG")=1073741829
 %ydboctoerror("VARCHARTOOLONG")=1073741829
-%ydboctoexpr=101
-%ydboctoexpr=3
-%ydboctoexpr=3
 %ydboctosession("user")="USER"
 %ydboctosession("user")="USER"
 %ydboctosession("user")="USER"

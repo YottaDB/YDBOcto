@@ -67,7 +67,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 		if (!IS_GROUP_BY_PLAN(plan)) {
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_EXPR }}&{}%
-			%{}('$DATA(%%ydboctozdistinct({{ plan->outputKey->unique_id|%d }},{}%
+			%{}('$DATA({{ PP_YDB_OCTO_ZDISTINCT }}({{ plan->outputKey->unique_id|%d }},{}%
 			TMPL(tmpl_column_list_combine, plan->projection, plan, ",", FALSE, 0);
 			%{}))){}%
 			%{}`n{{ PLAN_LINE_START }}{}%

@@ -61,11 +61,19 @@
 #define PP_LOCAL_PREFIX	 ""
 
 /* Note: The below PP_* macros do not contain double-quotes within the string literal */
-#define PP_COL		 "col"
-#define PP_KEY_COLUMN	 "keyCol"
-#define PP_VAL		 "val"
-#define PP_XREF_COLUMN	 "xrefCol"
-#define PP_YDB_OCTO_EXPR "%ydboctoexpr"
+#define PP_COL		       "col"
+#define PP_KEY_COLUMN	       "keyCol"
+#define PP_VAL		       "val"
+#define PP_XREF_COLUMN	       "xrefCol"
+#define PP_YDB_OCTO_EXPR       "%ydboctoexpr"
+#define PP_YDB_OCTO_G	       "%ydboctog"
+#define PP_YDB_OCTO_I	       "%ydboctoi"
+#define PP_YDB_OCTO_IN	       "%ydboctoin"
+#define PP_YDB_OCTO_P	       "%ydboctop"
+#define PP_YDB_OCTO_Z	       "%ydboctoz"
+#define PP_YDB_OCTO_ZDUPLICATE "%ydboctozduplicate"
+#define PP_YDB_OCTO_ZLIMIT     "%ydboctozlimit"
+#define PP_YDB_OCTO_ZDISTINCT  "%ydboctozdistinct"
 
 #define PLAN_LINE_START "    " /* 4 spaces start an M line in the generated plan */
 

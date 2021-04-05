@@ -22,7 +22,7 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
 	assert(!plan->outputKey->is_cross_reference_key);	/* caller should have ensured this */
 	TMPL(tmpl_print_dots, dot_count);
 	%{}`n{{ PLAN_LINE_START }}{}%
-	%{}SET %%ydboctog=""{}%
+	%{}SET {{ PP_YDB_OCTO_G }}=""{}%
 	/* If there is no GROUP BY clause in the query, check if any aggregate function usages happened.
 	 * If so initialize those to 0 or NULL if they don't exist (due to WHERE clauses skipping all rows).
 	 * See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/455#note_321309198 for details on why only
@@ -49,7 +49,7 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
 			%{}SET:'$DATA({}%
 			TMPL(tmpl_key, plan->outputKey);
 			(*buffer_index)--;
-			%{},{{ PP_GROUP_BY }},%%ydboctog,{}%
+			%{},{{ PP_GROUP_BY }},{{ PP_YDB_OCTO_G }},{}%
 			aggregate_cnt = af->extra_detail.lp_aggregate_function.aggregate_cnt;
 			if (is_avg) {
 				/* In case of AVG function, the SUM and COUNT are stored separately so use that to find the AVG.
@@ -64,7 +64,7 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
 			%{})) {}%
 			TMPL(tmpl_key, plan->outputKey);
 			(*buffer_index)--;
-			%{},{{ PP_GROUP_BY }},%%ydboctog,{}%
+			%{},{{ PP_GROUP_BY }},{{ PP_YDB_OCTO_G }},{}%
 			%{}{{ aggregate_cnt|%d }}{}%
 			if (is_avg) {
 				%{},"SUM"{}%
@@ -96,7 +96,8 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
 		limit_keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
 		if (NULL != limit_keyword) {
 			%{}QUIT:{}%
-			TMPL(tmpl_limit_check, limit_keyword, "", "'>%ydboctozlimit");
+			TMPL(tmpl_limit_check, limit_keyword, "", "'>" PP_YDB_OCTO_ZLIMIT);
+						/* Note: literal concatenation in last parameter above */
 			(*buffer_index)--;	/* Remove the trailing ")" from `tmpl_limit_check` call */
 			%{}({{ plan->outputKey->unique_id|%d }}){}%	/* Add subscript based on output key */
 			%{}){}%	/* Add back the trailing ")" from `tmpl_limit_check` call above */
@@ -105,9 +106,9 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
 	}
 	%{}DO:$DATA({}%
 	TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
-	%{},{{ PP_GROUP_BY }},%%ydboctog))  SET %%ydboctog=$ORDER({}%
+	%{},{{ PP_GROUP_BY }},{{ PP_YDB_OCTO_G }}))  SET {{ PP_YDB_OCTO_G }}=$ORDER({}%
 	TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
-	%{},{{ PP_GROUP_BY }},%%ydboctog)) QUIT:(""=%%ydboctog){}%
+	%{},{{ PP_GROUP_BY }},{{ PP_YDB_OCTO_G }})) QUIT:(""={{ PP_YDB_OCTO_G }}){}%
 	// Apply the conditions for this statement
 	%{}`n{{ PLAN_LINE_START }}{}%
 	dot_count++;
@@ -129,7 +130,7 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
 	if (plan->distinct_values) {
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_EXPR }}&{}%
-		%{}('$DATA(%%ydboctozdistinct({{ plan->outputKey->unique_id|%d }},{}%
+		%{}('$DATA({{ PP_YDB_OCTO_ZDISTINCT }}({{ plan->outputKey->unique_id|%d }},{}%
 		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", FALSE, 0);
 		%{}))){}%
 		%{}`n{{ PLAN_LINE_START }}{}%

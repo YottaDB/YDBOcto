@@ -221,7 +221,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			 */
 			%{}$$mval2str^%%ydboctoplanhelpers{}%
 			%{}($$mvalPiece^%%ydboctoplanhelpers{}%
-			%{}(%%ydboctog,{{ subquery_column_alias->group_by_column_number|%d }}){}%
+			%{}({{ PP_YDB_OCTO_G }},{{ subquery_column_alias->group_by_column_number|%d }}){}%
 			%{}){}%
 			if (dot_count) {
 				%{}`n{{ PLAN_LINE_START }}{}%
@@ -421,7 +421,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				int	unique_id;
 
 				unique_id = cur_lp_key->v.lp_key.key->unique_id;
-				%{}(1>=$DATA(%%ydboctocursor(cursorId,{{ PP_KEYS }},{{ unique_id|%d }},"",""))):1,{}%
+				%{}(1>=$DATA({{ config->global_names.cursor }}(cursorId,{{ PP_KEYS }},{{ unique_id|%d }},"",""))):1,{}%
 			}
 			/* If LHS is NULL, the result is NULL */
 			%{}$ZYISSQLNULL({}%
@@ -969,7 +969,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			 */
 			aggregate_cnt = - aggregate_cnt;
 		}
-		%{},{{ PP_GROUP_BY }},%%ydboctog,{{ aggregate_cnt|%d }}{}%
+		%{},{{ PP_GROUP_BY }},{{ PP_YDB_OCTO_G }},{{ aggregate_cnt|%d }}{}%
 		if (is_avg) {
 			%{},"SUM"{}%
 		}
@@ -999,7 +999,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			%{}$GET({}%
 			TMPL(tmpl_key, pplan->outputKey);
 			(*buffer_index)--;
-			%{},{{ PP_GROUP_BY }},%%ydboctog,{{ aggregate_cnt|%d }},"COUNT"){}%
+			%{},{{ PP_GROUP_BY }},{{ PP_YDB_OCTO_G }},{{ aggregate_cnt|%d }},"COUNT"){}%
 			%{},1){}%
 		}
 		if (dot_count) {

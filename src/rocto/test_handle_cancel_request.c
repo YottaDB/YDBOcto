@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -46,8 +46,8 @@ static void test_valid_cancel_request(void **state) {
 	ydb_buffer_t *pid_buffer = &pid_subs[0];
 	char	      pid_str[INT32_TO_STRING_MAX], secret_key_str[INT32_TO_STRING_MAX];
 	int	      secret_key = 0;
-	YDB_LITERAL_TO_BUFFER("%ydboctoSecretKeyList", &secret_key_list_buffer);
 
+	YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTOSECRETKEYLIST, &secret_key_list_buffer);
 	// Initialize secret key and pid buffers
 	syscall(SYS_getrandom, &secret_key, 4, 0);
 	snprintf(secret_key_str, INT32_TO_STRING_MAX, "%u", secret_key);
@@ -92,8 +92,8 @@ static void test_bad_pid(void **state) {
 	ydb_buffer_t  z_status, z_status_value;
 	char	      pid_str[INT32_TO_STRING_MAX], secret_key_str[INT32_TO_STRING_MAX];
 	int	      secret_key = 0;
-	YDB_LITERAL_TO_BUFFER("%ydboctoSecretKeyList", &secret_key_list_buffer);
 
+	YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTOSECRETKEYLIST, &secret_key_list_buffer);
 	// Initialize secret key and pid buffers
 	syscall(SYS_getrandom, &secret_key, 4, 0);
 	snprintf(secret_key_str, INT32_TO_STRING_MAX, "%u", secret_key);
@@ -134,8 +134,8 @@ static void test_bad_timestamp(void **state) {
 	ydb_buffer_t  z_status, z_status_value;
 	char	      pid_str[INT32_TO_STRING_MAX], secret_key_str[INT32_TO_STRING_MAX];
 	int	      secret_key = 0;
-	YDB_LITERAL_TO_BUFFER("%ydboctoSecretKeyList", &secret_key_list_buffer);
 
+	YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTOSECRETKEYLIST, &secret_key_list_buffer);
 	// Initialize secret key and pid buffers
 	syscall(SYS_getrandom, &secret_key, 4, 0);
 	snprintf(secret_key_str, INT32_TO_STRING_MAX, "%u", secret_key);
@@ -178,8 +178,8 @@ static void test_bad_secret_key(void **state) {
 	ydb_buffer_t  z_status, z_status_value;
 	char	      pid_str[INT32_TO_STRING_MAX], secret_key_str[INT32_TO_STRING_MAX];
 	int	      secret_key = 0;
-	YDB_LITERAL_TO_BUFFER("%ydboctoSecretKeyList", &secret_key_list_buffer);
 
+	YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTOSECRETKEYLIST, &secret_key_list_buffer);
 	// Initialize secret key and pid buffers
 	syscall(SYS_getrandom, &secret_key, 4, 0);
 	snprintf(secret_key_str, INT32_TO_STRING_MAX, "%u", secret_key);
@@ -223,8 +223,8 @@ static void test_kill_failure(void **state) {
 	ydb_buffer_t  z_status, z_status_value;
 	char	      pid_str[INT32_TO_STRING_MAX], secret_key_str[INT32_TO_STRING_MAX];
 	int	      secret_key = 0;
-	YDB_LITERAL_TO_BUFFER("%ydboctoSecretKeyList", &secret_key_list_buffer);
 
+	YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTOSECRETKEYLIST, &secret_key_list_buffer);
 	// Initialize secret key and pid buffers
 	syscall(SYS_getrandom, &secret_key, 4, 0);
 	snprintf(secret_key_str, INT32_TO_STRING_MAX, "%u", secret_key);

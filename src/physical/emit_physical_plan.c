@@ -253,7 +253,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	 * where the variable is used. Saves on multiple NEWs of the same variable particularly if the NEW happens to be
 	 * inside a FOR loop.
 	 */
-	fprintf(output_file, "    NEW %%ydboctog,%%ydboctop,%%ydboctoz,%%ydboctoexpr\n");
+	fprintf(output_file, "    NEW %s,%s,%s,%s\n", PP_YDB_OCTO_G, PP_YDB_OCTO_P, PP_YDB_OCTO_Z, PP_YDB_OCTO_EXPR);
 	fprintf(output_file, "    TSTART:wrapInTp ():(serial)\n"); /* Wrap post-xref part of query in TP if requested */
 	for (cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next) {
 		if (NULL != cur_plan->deferred_parent_plan)

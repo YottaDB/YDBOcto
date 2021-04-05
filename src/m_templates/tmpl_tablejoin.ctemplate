@@ -62,7 +62,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 				continue;
 			}
 			TMPL(tmpl_print_dots, dot_count);
-			%{}NEW %%ydboctoin{{ in_value_list_id|%d }}{}%
+			%{}NEW {{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 			key->in_value_list_id = in_value_list_id;
 			do {
@@ -75,7 +75,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 				assert(LP_VALUE == value->type);
 				TMPL(tmpl_print_expression_assignment, value, plan, dot_count, 0);
 				TMPL(tmpl_print_dots, dot_count);
-				%{}SET %%ydboctoin{{ in_value_list_id|%d }}({{ PP_YDB_OCTO_EXPR }})=""{}%
+				%{}SET {{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}({{ PP_YDB_OCTO_EXPR }})=""{}%
 				%{}`n{{ PLAN_LINE_START }}{}%
 				list = list->v.lp_default.operand[1];
 			} while (NULL != list);
@@ -121,11 +121,11 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 				if (0 < in_value_list_id) {
 					/* This is a list of values on the right hand side of an IN operator */
 					TMPL(tmpl_print_dots, dot_count);
-					%{}SET %%ydboctoin{{ in_value_list_id|%d }}="" FOR  {}%
-					%{}DO:$DATA(%%ydboctoin{{ in_value_list_id|%d }}(%%ydboctoin{{ in_value_list_id|%d }}))  {}%
-					%{}SET %%ydboctoin{{ in_value_list_id|%d }}={}%
-					%{}$ORDER(%%ydboctoin{{ in_value_list_id|%d }}(%%ydboctoin{{ in_value_list_id|%d }})) {}%
-					%{}QUIT:""=%%ydboctoin{{ in_value_list_id|%d }}{}%
+					%{}SET {{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}="" FOR  {}%
+					%{}DO:$DATA({{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}({{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}))  {}%
+					%{}SET {{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}={}%
+					%{}$ORDER({{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}({{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }})) {}%
+					%{}QUIT:""={{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}{}%
 					%{}`n{{ PLAN_LINE_START }}{}%
 					dot_count++;
 				}
@@ -133,7 +133,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 					TMPL(tmpl_print_expression_assignment, fixed_to_value, plan, dot_count, 0);
 				} else {
 					TMPL(tmpl_print_dots, dot_count);
-					%{}SET {{ PP_YDB_OCTO_EXPR }}=%%ydboctoin{{ in_value_list_id|%d }}{}%
+					%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}{}%
 					%{}`n{{ PLAN_LINE_START }}{}%
 				}
 				TMPL(tmpl_print_dots, dot_count);
@@ -172,7 +172,8 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 				}
 				%{}){}%
 				if (NULL != limit_keyword) {
-					TMPL(tmpl_limit_check, limit_keyword, "&", ">%ydboctozlimit");
+					TMPL(tmpl_limit_check, limit_keyword, "&", ">" PP_YDB_OCTO_ZLIMIT);
+						/* Note: literal concatenation in last parameter above */
 					(*buffer_index)--;	/* Remove the trailing ")" from "tmpl_limit_check" call above */
 					%{}({{ plan->outputKey->unique_id|%d }}){}%	/* Add subscript based on output key */
 					%{}){}%	/* Add back the trailing ")" from "tmpl_limit_check" call above */
@@ -237,7 +238,8 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 		TMPL(tmpl_key_end, key);
 		%{}){}%
 		if (NULL != limit_keyword) {
-			TMPL(tmpl_limit_check, limit_keyword, "!", "'>%ydboctozlimit");
+			TMPL(tmpl_limit_check, limit_keyword, "!", "'>" PP_YDB_OCTO_ZLIMIT);
+						/* Note: literal concatenation in last parameter above */
 			(*buffer_index)--;	/* Remove the trailing ")" from `tmpl_limit_check` call */
 			%{}({{ plan->outputKey->unique_id|%d }}){}%	/* Add subscript based on output key */
 			%{}){}%	/* Add back the trailing ")" from `tmpl_limit_check` call above */
@@ -259,7 +261,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 	if (this_join_is_left_join && !plan->treat_key_as_null[left_table_id]) {
 		TMPL(tmpl_tablejoin_on_condition, tablejoin, plan, &dot_count, &deferred_plans_emitted);
 		TMPL(tmpl_print_dots, dot_count);
-		%{}SET %%ydboctoz({{ key_start|%d }})=1{}%
+		%{}SET {{ PP_YDB_OCTO_Z }}({{ key_start|%d }})=1{}%
 		%{}`n{{ PLAN_LINE_START }}{}%
 	}
 	if ((RIGHT_JOIN == this_join_type) || (FULL_JOIN == this_join_type)) {
@@ -274,7 +276,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			 */
 			if (!this_join_is_left_join || !plan->treat_key_as_null[left_table_id]) {
 				TMPL(tmpl_print_dots, dot_count);
-				%{}SET %%ydboctoz({}%
+				%{}SET {{ PP_YDB_OCTO_Z }}({}%
 				TMPL(tmpl_rightjoin_key, plan, key_start, cur_key);
 				%{})=""`n{{ PLAN_LINE_START }}{}%
 			}
@@ -287,7 +289,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			 * to generate the key instead of the column value relies on this).
 			 */
 			TMPL(tmpl_print_dots, dot_count);
-			%{}IF '$DATA(%%ydboctoz({}%
+			%{}IF '$DATA({{ PP_YDB_OCTO_Z }}({}%
 			TMPL(tmpl_rightjoin_key, plan, key_start, cur_key);
 			%{})) DO`n{{ PLAN_LINE_START }}{}%
 			dot_count++;
@@ -308,7 +310,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 		}
 		if (LEFT_JOIN == next_join_type) {
 			TMPL(tmpl_print_dots, dot_count);
-			%{}SET %%ydboctoz({{ cur_key|%d }})=0`n{{ PLAN_LINE_START }}{}%
+			%{}SET {{ PP_YDB_OCTO_Z }}({{ cur_key|%d }})=0`n{{ PLAN_LINE_START }}{}%
 		}
 		TMPL(tmpl_tablejoin, plan, right_tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
 		if (LEFT_JOIN == next_join_type) {
@@ -318,7 +320,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			assert(NULL != right_tablejoin->extra_detail.lp_table_join.join_on_condition);
 			%{}`n{{ PLAN_LINE_START }}{}%
 			TMPL(tmpl_print_dots, dot_count);
-			%{}IF %%ydboctoz({{ cur_key|%d }})=0 DO`n{{ PLAN_LINE_START }}{}%
+			%{}IF {{ PP_YDB_OCTO_Z }}({{ cur_key|%d }})=0 DO`n{{ PLAN_LINE_START }}{}%
 			dot_count++;
 			/* Treat all keys in the right table as NULL and invoke nested joins (if needed) */
 			key = plan->iterKeys[cur_key];

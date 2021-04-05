@@ -40,13 +40,13 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count) {
 		%{}`n{{ PLAN_LINE_START }}{}%
 	}
 	TMPL(tmpl_print_dots, dot_count);
-	%{}SET %%ydboctog={{ PP_YDB_OCTO_EXPR }}{}%
+	%{}SET {{ PP_YDB_OCTO_G }}={{ PP_YDB_OCTO_EXPR }}{}%
 	%{}`n{{ PLAN_LINE_START }}{}%
 	TMPL(tmpl_print_dots, dot_count);
 	%{}SET {}%
 	TMPL(tmpl_key, plan->outputKey);
 	(*buffer_index)--;
-	%{},{{ PP_GROUP_BY }},%%ydboctog)=""{}%
+	%{},{{ PP_GROUP_BY }},{{ PP_YDB_OCTO_G }})=""{}%
 	assert(LP_SELECT_QUERY == plan->lp_select_query->type);
 	first_aggregate = plan->lp_select_query->extra_detail.lp_select_query.first_aggregate;
 	for (af = first_aggregate; NULL != af; af = af->extra_detail.lp_aggregate_function.next_aggregate) {
@@ -67,14 +67,14 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count) {
 			TMPL(tmpl_print_expression, lp_column_list->v.lp_default.operand[0], plan, dot_count, 0);
 		}
 		TMPL(tmpl_print_dots, dot_count);
-		%{}SET %%ydboctop={{ PP_YDB_OCTO_EXPR }}{}%
+		%{}SET {{ PP_YDB_OCTO_P }}={{ PP_YDB_OCTO_EXPR }}{}%
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
 		m_func = lp_get_aggregate_plan_helper_func_name(af->type);
 		%{}DO {{ m_func }}^%%ydboctoplanhelpers({}%
-		%{}{{plan->outputKey->unique_id|%d }},%%ydboctog,{{ aggregate_cnt|%d }},%%ydboctop{}%
+		%{}{{plan->outputKey->unique_id|%d }},{{ PP_YDB_OCTO_G }},{{ aggregate_cnt|%d }},{{ PP_YDB_OCTO_P }}{}%
 		if ((LP_AGGREGATE_FUNCTION_MIN == af->type) || (LP_AGGREGATE_FUNCTION_MAX == af->type)) {
-			/* Need to pass an additional parameter `isString` to know if the type of %ydboctop is STRING or not */
+			/* Need to pass an additional parameter `isString` to know if the type of PP_YDB_OCTO_P is STRING or not */
 			SqlValueType	param_type;
 			boolean_t	isString;
 

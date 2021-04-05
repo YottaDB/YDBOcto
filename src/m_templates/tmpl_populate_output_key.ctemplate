@@ -105,11 +105,11 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count) {
 			 * UNION is in effect across this plan and another plan in which case both will share the
 			 * same output key but could have differing limits (#269).
 			 */
-			%{}&$INCREMENT(%%ydboctozlimit({{ plan->outputKey->unique_id|%d }})){}%
+			%{}&$INCREMENT({{ PP_YDB_OCTO_ZLIMIT }}({{ plan->outputKey->unique_id|%d }})){}%
 		}
 	}
 	if (!stash_columns_in_keys) {
-		%{} %%ydboctoz=42`n{{ PLAN_LINE_START }}{}%
+		%{} {{ PP_YDB_OCTO_Z }}=42`n{{ PLAN_LINE_START }}{}%
 		/* If ORDER BY and stashing columns into keys (i.e. `plan->stash_columns_in_keys` is TRUE even though
 		 *	`stash_columns_in_keys` is FALSE), do not do `str2mval` transformation as we will keep the column as is
 		 *	for later retrieval from parent query.
@@ -137,7 +137,7 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count) {
 	}
 	if (!plan->distinct_values) {
 		/* If we are being called here through `tmpl_group_by`, then we don't need to worry about `tmpl_duplication_check`
-		 * as the output key is being populated from the GROUP BY subscript (`%ydboctog`) which has already aggregated
+		 * as the output key is being populated from the GROUP BY subscript (PP_YDB_OCTO_G) which has already aggregated
 		 * the results across DNF plans (if any) and hence already accounted for duplicates. In that case though,
 		 * `plan->tablejoin_body_group_by_done` would be TRUE hence the `!` check below.
 		 */
@@ -153,7 +153,7 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count) {
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET:1{}%
-		%{} %%ydboctozdistinct({{ plan->outputKey->unique_id|%d }},{}%
+		%{} {{ PP_YDB_OCTO_ZDISTINCT }}({{ plan->outputKey->unique_id|%d }},{}%
 		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", FALSE, 0);
 		%{})=""{}%
 	}

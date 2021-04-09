@@ -23,4 +23,5 @@ Lord
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_columns",1,"type_modifier")=-1
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")=3
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoX*.m","output_key")=1
-^%ydboctoocto("xref_status","NAMES","LASTNAME")="%ydboctoTOMMMsQ8ks3NI1C42wS8"
+^%ydbAIMOctoCache("NAMES","LASTNAME","completed?")=1
+^%ydbAIMOctoCache("NAMES","LASTNAME","location")="^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2)"

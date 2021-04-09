@@ -8,7 +8,7 @@ ID|FIRSTNAME|LASTNAME|AGE|DATETIME|ID|FIRSTNAME|LASTNAME|AGE|DATETIME
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    DO:'$DATA(^%ydboctoocto("xref_status","NAMESWITHAGES","AGE")) xrefPlan^%ydboctoXfmDvuo7xJZ0ji6igiLkrH6(cursorId)
+    DO:'$GET(^%ydbAIMOctoCache("NAMESWITHAGES","AGE","completed?")) xrefPlan^%ydboctoXfmDvuo7xJZ0ji6igiLkrH6(cursorId)
     NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
@@ -20,9 +20,9 @@ octoPlan1(cursorId)
     SET %ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")=""
     FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")="")  DO
     . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")
-    . SET %ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","AGE")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","AGE")) IF $DATA(^%ydboctoxref("NAMESWITHAGES","AGE",%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","AGE"))) DO
+    . SET %ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","AGE")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","AGE")) IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(3,%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","AGE"))) DO
     . . SET %ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID")=""
-    . . FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID")=$ORDER(^%ydboctoxref("NAMESWITHAGES","AGE",%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","AGE"),%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID")="")  DO
+    . . FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(3,%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","AGE"),%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID")="")  DO
     . . . SET %ydboctoexpr=1
     . . . DO:%ydboctoexpr
     . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",4,"","")) %ydboctoz=42

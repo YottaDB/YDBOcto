@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -43,8 +43,6 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 	int		t, matched_vars = 0;
 	int		key_count;
 	int		paren_count = 0;
-	SqlColumn	*sql_column;
-	int		column_len;
 
 	source_ptr = source;
 	key_count = 0;
@@ -54,6 +52,21 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 		t = match_expression(source_ptr, column, OCTO_MAX_IDENT);
 		assert(-1 != t);
 		if (0 < t) {
+			SqlColumn	*sql_column;
+			int		column_len;
+
+			/* Find the SqlColumn structure. The column name returned by "match_expression()"
+			 * would surround the name with double quotes so remove it temporarily before
+			 * invoking "find_column()" to find the corresponding SqlColumn structure.
+			 */
+			column_len = strlen(column);
+			assert('"' == column[0]);
+			assert('"' == column[column_len - 1]);
+			column[column_len - 1] = '\0';
+			sql_column = find_column(column + 1, table);
+			assert(NULL != sql_column);
+			column[column_len - 1] = '"';
+
 			if (EmitSourceForm_NoKeyCol == form) {
 				char	ch;
 
@@ -100,16 +113,7 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 				assert(NULL == parm1);
 				assert(!unique_id);
 				assert(MAX_KEY_COUNT == num_vars_to_match);
-				/* Find the SqlColumn structure. The column name returned by "match_expression()"
-				 * would surround the name with double quotes so remove it temporarily before
-				 * invoking "find_column()" to find the corresponding SqlColumn structure.
-				 */
-				column_len = strlen(column);
-				assert('"' == column[0]);
-				assert('"' == column[column_len - 1]);
-				column[column_len - 1] = '\0';
-				sql_column = find_column(column + 1, table);
-				assert(NULL != sql_column);
+				/* Caller wants M global source form that is usable in an INSERT INTO query. */
 				%{}{{ PP_COL }}({{ sql_column->column_number|%d }}){}%
 				break;
 			case EmitSourceForm_UpdateKeyCol:
@@ -181,6 +185,40 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 				%{}{{ key_count|%d }}=:{}%
 				key_count++;
 				break;
+			case EmitSourceForm_AIM: {
+				char			*start, *endpoint;
+				SqlOptionalKeyword	*keyword;
+				SqlValue	*value;
+
+				// Get key starting value
+				keyword = get_keyword(sql_column, OPTIONAL_START);
+				if (NULL != keyword) {
+					UNPACK_SQL_STATEMENT(value, keyword->v, value);
+					start = value->v.string_literal;
+					// Emit start ONLY if it's not the empty string
+					// Otherwise, we end up double quoting it in $ZWRITE.
+					if (!((2 == strlen(start)) && (0 == strncmp("\"\"", start, 2)))) {
+						%{}$zwrite({{start}})_{}%
+					}
+				}
+
+				// Range colon
+				%{}":"{}%
+
+				// Get key ending value
+				keyword = get_keyword(sql_column, OPTIONAL_ENDPOINT);
+				if (NULL != keyword) {
+					UNPACK_SQL_STATEMENT(value, keyword->v, value);
+					endpoint = value->v.string_literal;
+					// Emit endpoint ONLY if it's not the empty string
+					// Otherwise, we end up double quoting it in $ZWRITE.
+					if (!((2 == strlen(endpoint)) && (0 == strncmp("\"\"", endpoint, 2)))) {
+						%{}_$zwrite({{endpoint}}){}%
+					}
+				}
+
+				break;
+			}
 			default:
 				assert(FALSE);
 				FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");

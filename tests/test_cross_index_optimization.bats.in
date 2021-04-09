@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -22,107 +22,50 @@ setup() {
 }
 
 @test "TCIO01 : where with string limits return values" {
-  octo <<OCTO 2>&1 | tee output.txt
-select * from names where firstName = "Zero";
-OCTO
-  run cat output.txt
-  [[ "$output" =~ "Zero|Cool" ]]
-  ! [[ "$output" =~ "Joey" ]]
-  ls _ydboctoX*.m &> ls.txt
-  wc -w ls.txt &> wc.txt
-  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
-  run cat output.txt
-  [[ $output -eq 1 ]]
-  [[ "$(grep -c xref _ydboctoP*.m)" > 0 ]]
-  run $ydb_dist/yottadb -run %XCMD zwrite ^%ydboctoxref
-  [[ "$output" =~ "^%ydboctoxref(\"NAMES\",\"FIRSTNAME\",\"Zero\")=" ]]
-  [[ "$output" =~ "^%ydboctoxref(\"NAMES\",\"FIRSTNAME\")=" ]]
+  load_fixture TCIO01.sql subtest novv
+  ls _ydboctoX*.m &>> output.txt
+  $ydb_dist/mupip extract -sel='^%ydbAIMD*' aims.zwr
+  # Remove the constantly changing first two lines of zwr output
+  tail -n +3 aims.zwr >> output.txt
+  verify_output TCIO01 output.txt
 }
 
 @test "TCIO02 : where from table with two keys" {
-  octo <<OCTO 2>&1 | tee output.txt
-select * from names2 where lastName = "Cool";
-OCTO
-  run cat output.txt
-  [[ "$output" =~ "Zero|Cool" ]]
-  ! [[ "$output" =~ "Joey" ]]
-  ls _ydboctoX*.m &> ls.txt
-  wc -w ls.txt &> wc.txt
-  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
-  run cat output.txt
-  [[ $output -eq 1 ]]
-  [[ "$(grep -c xref _ydboctoP*.m)" > 0 ]]
-  run $ydb_dist/yottadb -run %XCMD zwrite ^%ydboctoxref
-  [[ "$output" =~ "^%ydboctoxref(\"NAMES2\",\"LASTNAME\",\"Cool\")=" ]]
-  [[ "$output" =~ "^%ydboctoxref(\"NAMES2\",\"LASTNAME\")=" ]]
+  load_fixture TCIO02.sql subtest novv
+  ls _ydboctoX*.m &>> output.txt
+  $ydb_dist/mupip extract -sel='^%ydbAIMD*' aims.zwr
+  # Remove the constantly changing first two lines of zwr output
+  tail -n +3 aims.zwr >> output.txt
+  verify_output TCIO02 output.txt
 }
 
 @test "TCIO03 : where from table with two keys and where is key" {
-  octo <<OCTO 2>&1 | tee output.txt
-select * from names2 where firstName = "Zero";
-OCTO
-  run cat output.txt
-  [[ "$output" =~ "Zero|Cool" ]]
-  ! [[ "$output" =~ "Joey" ]]
+  load_fixture TCIO03.sql subtest novv
+  verify_output TCIO03 output.txt
 }
 
 @test "TCIO04 : where from table with two keys inverted where" {
-  octo <<OCTO 2>&1 | tee output.txt
-select * from names2 where "Cool" = lastName;
-OCTO
-  run cat output.txt
-  [[ "$output" =~ "Zero|Cool" ]]
-  ! [[ "$output" =~ "Joey" ]]
-  ls _ydboctoX*.m &> ls.txt
-  wc -w ls.txt &> wc.txt
-  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
-  run cat output.txt
-  [[ $output -eq 1 ]]
-  [[ "$(grep -c xref _ydboctoP*.m)" > 0 ]]
-  run $ydb_dist/yottadb -run %XCMD zwrite ^%ydboctoxref
-  [[ "$output" =~ "^%ydboctoxref(\"NAMES2\",\"LASTNAME\",\"Cool\")=" ]]
-  [[ "$output" =~ "^%ydboctoxref(\"NAMES2\",\"LASTNAME\")=" ]]
+  load_fixture TCIO04.sql subtest novv
+  ls _ydboctoX*.m &>> output.txt
+  $ydb_dist/mupip extract -sel='^%ydbAIMD*' aims.zwr
+  # Remove the constantly changing first two lines of zwr output
+  tail -n +3 aims.zwr >> output.txt
+  verify_output TCIO04 output.txt
 }
-
-@test "TCIO05 : where from table with two keys and one key is equal to non-key" {
-  ## TODO: this test is skipped until we get the optimization engine to "order" expressions
-  octo <<OCTO 2>&1 | tee output.txt
-select * from names2 where firstName = lastName;
-OCTO
-  # We can't know the lastName before getting the firstName, so there are no optimizations in this case
-}
-
-@test "TCIO06 : where from table with two keys and one key is equal to non-key inverted" {
-  octo <<OCTO 2>&1 | tee output.txt
-select * from names2 where lastName = firstName;
-OCTO
-}
-
 
 @test "TCIO07 : verify that triggers create new indexes and delete them" {
-  octo <<OCTO 2>&1 | tee output.txt
-SELECT * FROM names WHERE firstName = "Zero";
-OCTO
-  ls _ydboctoX*.m &> ls.txt
-  wc -w ls.txt &> wc.txt
-  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
-  run cat output.txt
-  [[ $output -eq 1 ]]
+  load_fixture TCIO01.sql subtest novv
   $ydb_dist/yottadb -r %XCMD 'SET ^names(6)="Charles|Hathaway"'
-  run $ydb_dist/yottadb -run %XCMD zwrite ^%ydboctoxref
-  [[ "$output" =~ "%ydboctoxref(\"NAMES\",\"FIRSTNAME\",\"Charles\",6)" ]]
+  $ydb_dist/mupip extract -sel='^%ydbAIMD*' aims1.zwr
+  # Remove the constantly changing first two lines of zwr output
+  tail -n +3 aims1.zwr >> output.txt
   $ydb_dist/yottadb -run %XCMD 'kill ^names(6)'
-  run $ydb_dist/yottadb -run %XCMD 'ZWRITE ^%ydboctoxref'
-  [[ ! ( "$output" =~ "%ydboctoxref(\"NAMES\",\"FIRSTNAME\",\"Charles\",6)" ) ]]
+  $ydb_dist/mupip extract -sel='^%ydbAIMD*' aims2.zwr
+  tail -n +3 aims2.zwr >> output.txt
+  verify_output TCIO07 output.txt
 }
 
 @test "TCIO08 : verify that when we iterate on a fix'd key we don't iterate extra xref keys" {
-  octo <<OCTO 2>&1 | tee output.txt
-SELECT *
-FROM names n1
-INNER JOIN names n2
-ON n1.id = n2.id
-WHERE n2.firstName = "Zero"
-OCTO
-  [[ "$(grep -c "|" output.txt)" == "3" ]]
+  load_fixture TCIO08.sql subtest novv
+  verify_output TCIO08 output.txt
 }

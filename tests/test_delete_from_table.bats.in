@@ -100,18 +100,14 @@ teardown() {
 	verify_output TDFT06 output.txt
 }
 
-@test "TDFT07 : OCTO54 : Test that DELETE FROM and INSERT INTO, after xref plan files get deleted, issues ZLINKFILE error" {
+@test "TDFT07 : OCTO54 : Test that DELETE FROM and INSERT INTO, after xref plan files get deleted, generates no errors" {
 	# This subtest is similar to the test_physical_plans/TPP03 subtest.
-	echo "# Run SELECT query that generates xref plan and installs triggers which rely on the xref plan" >> output.txt
+	echo "# Run SELECT query that generates xref plan and creates AIM triggers" >> output.txt
 	echo "SELECT * from names WHERE lastname = 'Cool'" | octo >> output.txt
 	echo "# Remove generated xref plans" >> output.txt
 	rm _ydboctoX*.{m,o}
-	echo "# Run INSERT INTO and DELETE FROM queries that will need the triggers (and in turn xref plan)" >> output.txt
-	echo "# They should issue a ZLINKFILE error because the xref plan does not exist anymore" >> output.txt
-	# "|| true" needed below since we expect octo to exit with a non-zero status (ZLINKFILE error)
-	octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TDFT07.sql >> output.txt 2>&1 || true
-	echo "# Now run a SELECT query. It should not issue a ZLINKFILE error because it does not need triggers" >> output.txt
-	echo "SELECT * from names;" | octo >> output.txt
+	echo "# Run INSERT INTO and DELETE FROM queries that will need the triggers" >> output.txt
+	load_fixture TDFT07.sql subtest novv
 	verify_output TDFT07 output.txt
 }
 

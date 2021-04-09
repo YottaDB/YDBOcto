@@ -14,14 +14,19 @@
 #include "physical_plan.h"
 #include "template_helpers.h"
 
+#define OCTO_AIM_XREF_COMMENT "xref for table %s column %s"
+// Adding one below for null terminator as LIT_LEN does not include it.
+#define OCTO_AIM_XREF_COMMENT_MAXSIZE (LIT_LEN(OCTO_AIM_XREF_COMMENT) + 1 /* null */ - 4 /* strlen("%s") * 2 */ +  OCTO_MAX_IDENT * 2)
 TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
-	SqlColumnAlias		*column_alias;
 	LogicalPlan		*lp_temp;
 	unsigned int		cur_key;
 	int			dot_count;
 	SqlOptionalKeyword	*limit_keyword;
 
-	%{}`n{{ pplan->plan_name }}(cursorId)`n{{ PLAN_LINE_START }}{}% // The whitespace here is needed for proper M formatting
+	// Entrypoint xrefPlan(cursorId) at the top of the routine
+	// NB: We don't use cursorId anymore for xrefs in globals, but lvn
+	// tables (such as pg_settings) use it
+	%{}`n{{ pplan->plan_name }}(cursorId)`n{{ PLAN_LINE_START }}{}%
 
 	/* Handle LP_INSERT_INTO/LP_DELETE_FROM/LP_UPDATE plans first as they are relatively easy to handle */
 	if (IS_INSERT_INTO_PHYSICAL_PLAN(pplan)) {
@@ -44,152 +49,225 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 	assert(NULL != pplan->outputKey);
 	// Check if there are any cross references that need to be built
 	if (pplan->outputKey->is_cross_reference_key) {
+		SqlTable		*table;
 		SqlColumn		*column;
 		int			num_key_cols;
+		boolean_t		is_dollar_char;
 		SqlOptionalKeyword	*keyword;
 		SqlValue		*value;
 		char			*tableName;
 		char			*columnName;
+		char			*source;
+		char			*delim;
+		char			*piece;
+		char			comment[OCTO_AIM_XREF_COMMENT_MAXSIZE];
 
+		// Get table, column, table name, column name
+		table = pplan->outputKey->table;
+		column = pplan->outputKey->column;
 		UNPACK_SQL_STATEMENT(value, pplan->outputKey->table->tableName, value);
 		tableName = value->v.reference;
-		column = pplan->outputKey->column;
-		UNPACK_SQL_STATEMENT (value, column->columnName, value);
+		UNPACK_SQL_STATEMENT (value, pplan->outputKey->column->columnName, value);
 		columnName = value->v.reference;
-		GET_LP(lp_temp, pplan->projection, 0, LP_WHERE);
-		GET_LP(lp_temp, lp_temp, 0, LP_COLUMN_ALIAS);
-		column_alias = lp_temp->v.lp_column_alias.column_alias;
-		/* If this a plan for a cross reference, put safeguards in place (i.e. QUIT) to prevent building twice */
-		%{}IF $DATA({{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}({{ PP_XREF_STATUS }},"{{ tableName }}","{{ columnName }}")) {}%
-		%{}QUIT`n{{ PLAN_LINE_START }}{}%
-		// Only need triggers for xrefs on global variables, so check the xref name for '^' to confirm a trigger is needed
-		if ('^' == pplan->outputKey->xref_prefix[0]) {
-			%{}IF '$$dollarZTRIGGER^%%ydboctoplanhelpers("ITEM","+{}%
-			/* The last parameter ("dot_count") below is unused if the last-but-one parameter ("is_trigger") is TRUE.
-			 * Hence we call it with a dummy value of "0".
-			 */
-			TMPL(tmpl_column_reference, pplan, column_alias, TRUE, 0, 0);
-			%{} -commands=SET,KILL,ZKILL -xecute=""DO handleSetKill^{{ pplan->filename }}"" -name={{ pplan->trigger_name }}")  {}%
-			%{}HALT`n{{ PLAN_LINE_START }}{}%
-		}
-		%{}SET %%ydboctoCancel("{{ tableName }}","{{ columnName }}","Trigger")="-{}%
-		/* The last parameter ("dot_count") below is unused if the last-but-one parameter ("is_trigger") is TRUE.
-		 * Hence we call it with a dummy value of "0".
-		 */
-		TMPL(tmpl_column_reference, pplan, column_alias, TRUE, 0, 0);
-		%{} -commands=SET,KILL,ZKILL -xecute=""DO handleSetKill^{{ pplan->filename }}"""`n{{ PLAN_LINE_START }}{}%
-		%{}; Store state information in case query is canceled in middle of xref building`n{{ PLAN_LINE_START }}{}%
-		%{}; Actual cleanup happens in _ydboctoCleanup.m using this saved state information`n{{ PLAN_LINE_START }}{}%
-		%{}SET %%ydboctoCancel("{{ tableName }}","{{ columnName }}","Node1")="{{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}(""{}%
-		%{}{{ tableName }}"",""{{ columnName }}"")" ; Note: NULL value of {{ columnName }} is stored as ""{}%
-		%{}`n{{ PLAN_LINE_START }}{}%
-		%{}; Populate cross reference`n{{ PLAN_LINE_START }}{}%
-		%{}DO populateXref`n{{ PLAN_LINE_START }}{}%
-		%{}SET {{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_octo }}({{ PP_XREF_STATUS }},"{{ tableName }}","{{ columnName }}")={}%
-		%{}"{{ pplan->trigger_name }}"{}%
-		%{}`n{{ PLAN_LINE_START }}{}%
-		%{}; Now that xref building is complete, cleanup saved cancel related state information`n{{ PLAN_LINE_START }}{}%
-		%{}KILL %%ydboctoCancel`n{{ PLAN_LINE_START }}{}%
-		%{}QUIT`n{}%
-		// Generate the populateXref entryref here
-		%{}`npopulateXref`n{{ PLAN_LINE_START }}{}%
-		%{}; Build cross reference for {{ columnName }} column in {{ tableName }} table`n{{ PLAN_LINE_START }}{}%
-		%{}KILL {{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"){}%
-		%{}  ; Remove prior cross reference data (if any still exists)`n{{ PLAN_LINE_START }}{}%
-		cur_key = 0;
-		dot_count = 0;
-		TMPL(tmpl_tablejoin, pplan, pplan->tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
-		%{}`n{{ PLAN_LINE_START }}QUIT{}%
-		// Generate the trigger definitions here, but only for xrefs stored in GVNs
-		if ('^' == pplan->outputKey->xref_prefix[0]) {
-			%{}`n`nhandleSetKill`n{{ PLAN_LINE_START }}{}%
-			%{}; M routine that is invoked by SET/KILL/ZKILL trigger to keep xref for {}%
-			%{}{{ columnName }} column in {{ tableName }} table in sync`n{{ PLAN_LINE_START }}{}%
-			%{}IF "S"=$ZTRIGGEROP DO`n{{ PLAN_LINE_START }}{}%
-			%{}. ; SET trigger`n{{ PLAN_LINE_START }}{}%
-			%{}. DO:$ZTDATA`n{{ PLAN_LINE_START }}{}%
-			%{}. . ; The node existed previously so kill cross reference corresponding to its old value{}%
-			%{}`n{{ PLAN_LINE_START }}{}%
-			%{}. . NEW oldValue`n{{ PLAN_LINE_START }}{}%
-			%{}. . SET oldValue={}%
-			keyword = get_keyword(column, OPTIONAL_PIECE);	/* Note that PIECE keyword could be missing if DELIM is "" */
-			if (NULL != keyword) {
-				%{}$PIECE($ZTOLDVAL,$ZTDELIM,$ZTUPDATE){}%
-			} else {
-				/* No PIECE keyword. So use the full node value. */
-				%{}$ZTOLDVAL{}%
-			}
-			%{}`n{{ PLAN_LINE_START }}{}%
-			%{}. . DO delXrefEntry(oldValue)`n{{ PLAN_LINE_START }}{}%
-			%{}. NEW newValue`n{{ PLAN_LINE_START }}{}%
-			%{}. SET newValue={}%
-			if (NULL != keyword) {
-				%{}$PIECE($ZTVALUE,$ZTDELIM,$ZTUPDATE){}%
-			} else {
-				/* No PIECE keyword. So use the full node value. */
-				%{}$ZTVALUE{}%
-			}
-			%{}`n{{ PLAN_LINE_START }}{}%
-			%{}. DO addXrefEntry(newValue)`n{{ PLAN_LINE_START }}{}%
-			%{}ELSE  DO`n{{ PLAN_LINE_START }}{}%
-			%{}. ; KILL or ZKILL trigger`n{{ PLAN_LINE_START }}{}%
-			%{}. NEW oldValue`n{{ PLAN_LINE_START }}{}%
-			%{}. SET oldValue={}%
-			if (NULL != keyword) {
-				char		*piece;
-				SqlValue	*value;
 
-				UNPACK_SQL_STATEMENT(value, keyword->v, value);
-				piece = value->v.string_literal;
-				%{}$PIECE($ZTOLDVAL,$ZTDELIM,{{ piece }}){}%
+		// Get Piece
+		keyword = get_keyword(column, OPTIONAL_PIECE);
+		if (NULL != keyword) {
+			UNPACK_SQL_STATEMENT(value, keyword->v, value);
+			piece = value->v.string_literal;
+		} else {
+			piece = NULL;
+		}
+
+		// Get Delimiter
+		if (column->delim) {
+			UNPACK_SQL_STATEMENT(value, column->delim, value);
+			delim = value->v.string_literal;
+			is_dollar_char = (DELIM_IS_DOLLAR_CHAR == delim[0] ? TRUE : FALSE);
+			delim = &value->v.string_literal[1];
+		} else if (table->delim) {
+			UNPACK_SQL_STATEMENT(keyword, table->delim, keyword);
+			UNPACK_SQL_STATEMENT(value, keyword->v, value);
+			delim = value->v.string_literal;
+			is_dollar_char = (DELIM_IS_DOLLAR_CHAR == delim[0] ? TRUE : FALSE);
+			delim = &value->v.string_literal[1];
+		} else {
+			delim = COLUMN_DELIMITER;
+			is_dollar_char = FALSE;
+		}
+
+		// Get source
+		keyword = get_keyword(column, OPTIONAL_EXTRACT);
+		if (NULL == keyword) {
+			keyword = get_keyword(column, OPTIONAL_SOURCE);
+			if (NULL == keyword) {
+				UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
+			}
+		}
+		UNPACK_SQL_STATEMENT(value, keyword->v, value);
+		source = value->v.string_literal;
+
+		// Determine number of primary key columns
+		lp_temp = pplan->projection->v.lp_default.operand[1];
+		num_key_cols = 0;
+		while (NULL != lp_temp) {
+			lp_temp = lp_temp->v.lp_default.operand[1];
+			num_key_cols++;
+		}
+
+		// Create comment
+		snprintf(comment, OCTO_AIM_XREF_COMMENT_MAXSIZE, OCTO_AIM_XREF_COMMENT, tableName, columnName);
+
+		// Write M code for %YDBAIM
+		// If Global (most Octo tables are except rare ones like pg_settings)
+		if ('^' == pplan->outputKey->xref_prefix[0]) {
+			%{}NEW base,subs DO baseSubs(.base,.subs){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}; XREFDATA parameters: global, subscripts, delimiter, piece, nmonly (0 here), zpiece (always 0), omitfix (always 1),{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{};   stat (always 2){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}NEW aimglobal SET aimglobal=$$XREFDATA^%%YDBAIM(base,.subs,{}%
+			if (is_dollar_char) {
+				%{}{{delim}}{}%
 			} else {
-				/* No PIECE keyword. So use the full node value. */
-				%{}$ZTOLDVAL{}%
+				%{}"{{delim}}"{}%
+			}
+			if (NULL == piece) {
+				%{},{}%
+			} else {
+				%{},{{piece}}{}%
+			}
+			%{},0,0,1,2){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}; Now that xref building is complete, cleanup saved cancel related state information{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}KILL {{OCTOLIT_YDBOCTOCANCEL}}("{{tableName}}","{{columnName}}","{{OCTOLIT_AIM_SUB_CANCELXREF}}"){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}; Put the comment in again, in case it's deleted after the metadata is created but before the xref is built{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}NEW comment SET comment="{{ comment }}"{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			if (NULL == piece) {
+				%{}SET @aimglobal@("comment-0")=comment{}%
+			} else {
+				%{}SET @aimglobal@("comment-{{piece}}")=comment{}%
 			}
 			%{}`n{{ PLAN_LINE_START }}{}%
-			%{}. DO delXrefEntry(oldValue)`n{{ PLAN_LINE_START }}{}%
-			%{}QUIT`n`n{}%
-			%{}addXrefEntry({{ PP_VAL }})	; {{ PP_KEY_COLUMN }}0, {{ PP_KEY_COLUMN }}1 etc. are not passed as parameters{}%
-			%{} but inherited from caller scope{}%
+			%{}; And mark that we are done with building xref so we won't try to build again{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
-			%{}SET {{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_VAL }}{}%
-			/* Determine number of primary key columns */
-			lp_temp = pplan->projection->v.lp_default.operand[1];
-			num_key_cols = 0;
-			while (NULL != lp_temp) {
-				lp_temp = lp_temp->v.lp_default.operand[1];
-				num_key_cols++;
+			%{}SET {{OCTOLIT_AIM_OCTO_CACHE}}("{{tableName}}","{{columnName}}","{{OCTOLIT_AIM_SUB_COMPLETED}}")=1{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}; This is redundant, but is here just in case the {{OCTOLIT_AIM_OCTO_CACHE}} global is deleted.{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}; Otherwise, %%ydboctoDiscard will have no way to figure out how to discard the AIM global.{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			if (NULL == piece) {
+				%{}SET {{OCTOLIT_AIM_OCTO_CACHE}}("{{tableName}}","{{columnName}}","{{OCTOLIT_AIM_SUB_LOCATION}}")=$name(@aimglobal@(0)){}%
+			} else {
+				%{}SET {{OCTOLIT_AIM_OCTO_CACHE}}("{{tableName}}","{{columnName}}","{{OCTOLIT_AIM_SUB_LOCATION}}")=$name(@aimglobal@({{piece}})){}%
 			}
-			TMPL(tmpl_xref_key_columns, num_key_cols);
-			%{})=""{}%
-			%{}`n{{ PLAN_LINE_START }}{}%
-			%{}IF $INCREMENT({{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_VAL }})){}%
-			%{}`n{{ PLAN_LINE_START }}{}%
-			%{}IF $INCREMENT({{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}QUIT{}%
-			%{}`n`n{}%
-			%{}delXrefEntry({{ PP_VAL }})	; {{ PP_KEY_COLUMN }}0, {{ PP_KEY_COLUMN }}1 etc. are not passed as parameters{}%
-			%{} but inherited from caller scope{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
-			%{}KILL {{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_VAL }}{}%
-			TMPL(tmpl_xref_key_columns, num_key_cols);
+			%{};{}%
+			%{}`n{}%
+
+			// Entry point xrefMetadata
+			%{}`nxrefMetadata ; called by src/physical/emit_physical_plan.c after xref plan generation{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}NEW base,subs DO baseSubs(.base,.subs){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}; XREFDATA parameters: global, subscripts, delimiter, piece, nmonly (1 here), zpiece (always 0), omitfix (always 1),{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{};   stat (always 2){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}NEW aimglobal SET aimglobal=$$XREFDATA^%%YDBAIM(base,.subs{}%
+			if (is_dollar_char) {
+				%{},{{delim}}{}%
+			} else {
+				%{},"{{delim}}"{}%
+			}
+			if (NULL == piece) {
+			%{},{}%
+			} else {
+			%{},{{piece}}{}%
+			}
+			%{},1,0,1,2){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			if (NULL == piece) {
+				%{}SET {{OCTOLIT_AIM_OCTO_CACHE}}("{{tableName}}","{{columnName}}","{{OCTOLIT_AIM_SUB_LOCATION}}")=$name(@aimglobal@(0)){}%
+			} else {
+				%{}SET {{OCTOLIT_AIM_OCTO_CACHE}}("{{tableName}}","{{columnName}}","{{OCTOLIT_AIM_SUB_LOCATION}}")=$name(@aimglobal@({{piece}})){}%
+			}
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}SET {{OCTOLIT_AIM_OCTO_CACHE}}("{{tableName}}","{{columnName}}","{{OCTOLIT_AIM_SUB_COMPLETED}}")=0{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}; Cancelation information for _ydboctoCleanup.m{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}SET {{OCTOLIT_YDBOCTOCANCEL}}("{{tableName}}","{{columnName}}","{{OCTOLIT_AIM_SUB_CANCELXREF}}")=""{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}NEW comment SET comment="{{ comment }}"{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			if (NULL == piece) {
+				%{}SET @aimglobal@("comment-0")=comment{}%
+			} else {
+				%{}SET @aimglobal@("comment-{{piece}}")=comment{}%
+			}
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}QUIT{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{};{}%
+			%{}`n{}%
+
+			// Private entry point baseSubs
+			%{}`nbaseSubs:(base,subs) ; Private entry point for use by other labels in this routine{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}NEW global SET global=$NAME({}%
+			TMPL(tmpl_emit_source, table, source, tableName, pplan->outputKey->unique_id, MAX_KEY_COUNT, EmitSourceForm_AIM);
 			%{}){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
-			%{}KILL:0=$INCREMENT({{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{}%
-			%{}{{ PP_VAL }}),-1) {}%
-			%{}{{ pplan->outputKey->xref_prefix }}{}%
-			%{}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_VAL }}){}%
+			%{}NEW subn for subn=1:1:$QLENGTH(global) DO{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
-			%{}KILL:0=$INCREMENT({{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1) {}%
-			%{}{{ pplan->outputKey->xref_prefix }}{}%
-			%{}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"){}%
+			%{}. SET subs(subn)=$QSUBSCRIPT(global,subn){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}. IF subs(subn)'[":" SET subs(subn)=$ZWRITE(subs(subn)){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}SET base=$QSUBSCRIPT(global,0){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}QUIT{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{};{}%
 			%{}`n{}%
+		} else { // This is table kept in a local variable, e.g. pg_settings
+			/* If this a plan for a cross reference, put safeguards in place (i.e. QUIT) to prevent building twice */
+			%{}IF $DATA({{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}({{ PP_XREF_STATUS }},"{{ tableName }}","{{ columnName }}")) {}%
+			%{}QUIT`n{{ PLAN_LINE_START }}{}%
+			%{}; Store state information in case query is canceled in middle of xref building`n{{ PLAN_LINE_START }}{}%
+			%{}; Actual cleanup happens in _ydboctoCleanup.m using this saved state information`n{{ PLAN_LINE_START }}{}%
+			%{}SET {{OCTOLIT_YDBOCTOCANCEL}}("{{ tableName }}","{{ columnName }}","{{OCTOLIT_YDBOCTOCANCELLOCALXF}}")="{{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}(""{}%
+			%{}{{ tableName }}"",""{{ columnName }}"")" ; Note: NULL value of {{ columnName }} is stored as ""{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}; Populate cross reference`n{{ PLAN_LINE_START }}{}%
+			%{}DO populateXref`n{{ PLAN_LINE_START }}{}%
+			%{}SET {{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_octo }}({{ PP_XREF_STATUS }},"{{ tableName }}","{{ columnName }}")=""{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}; Now that xref building is complete, cleanup saved cancel related state information`n{{ PLAN_LINE_START }}{}%
+			%{}KILL {{OCTOLIT_YDBOCTOCANCEL}}`n{{ PLAN_LINE_START }}{}%
+			%{}QUIT`n{}%
+			// Generate the populateXref entryref here
+			%{}`npopulateXref`n{{ PLAN_LINE_START }}{}%
+			%{}; Build cross reference for {{ columnName }} column in {{ tableName }} table`n{{ PLAN_LINE_START }}{}%
+			%{}KILL {{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"){}%
+			%{}  ; Remove prior cross reference data (if any still exists)`n{{ PLAN_LINE_START }}{}%
+			cur_key = 0;
+			dot_count = 0;
+			TMPL(tmpl_tablejoin, pplan, pplan->tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
+			%{}`n{{ PLAN_LINE_START }}QUIT{}%
 		}
 		return;
 	}
+
 	// Not a cross-reference plan
 	if (LP_TABLE_VALUE == pplan->lp_select_query->type) {
 		LogicalPlan	*lp_table_data, *lp_row_value;

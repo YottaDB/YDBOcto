@@ -44,6 +44,8 @@
 // Max number of chars needed to convert signed or unsigned 16-bit int to char*, including null terminator and possible negative
 // sign
 #define INT16_TO_STRING_MAX 7
+// Max number of chars needed for length of 1048576 (max number of pieces in YottaDB) + null terminator + possible negative sign
+#define INT20_TO_STRING_MAX 9
 // Max number of chars needed to convert signed or unsigned 32-bit int to char*, including null terminator and possible negative
 // sign
 #define INT32_TO_STRING_MAX 12
@@ -190,8 +192,14 @@
 #define OCTOLIT_VARIABLE	     "variable"
 #define OCTOLIT_YDBOCTO		     "^%ydbocto"
 #define OCTOLIT_YDBOCTOCANCEL	     "%ydboctoCancel"
+#define OCTOLIT_YDBOCTOCANCELLOCALXF "localTableXref"
 #define OCTOLIT_YDBOCTOSECRETKEYLIST "%ydboctoSecretKeyList"
 #define OCTOLIT_YDBOCTOTBLCONSTRAINT "%ydboctoTblConstraint"
+
+#define OCTOLIT_AIM_OCTO_CACHE	   "^%ydbAIMOctoCache"
+#define OCTOLIT_AIM_SUB_COMPLETED  "completed?"
+#define OCTOLIT_AIM_SUB_LOCATION   "location"
+#define OCTOLIT_AIM_SUB_CANCELXREF "aimXref"
 
 /* Macros for StartupMessage parameters sent by client that are NOT actual runtime parameters.
  * These strings are used for selective exclusion of such parameters via strncmp checks in rocto.c
@@ -307,7 +315,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_PLAN_DEFINITION 14
+#define FMT_PLAN_DEFINITION 15
 
 /* Used by `hash_canonical_query()` */
 #define HASH_LITERAL_VALUES -1

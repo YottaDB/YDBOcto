@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -57,7 +57,7 @@ setup() {
   octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TPP01.sql >> output.txt 2>&1
   echo "# Remove _ydboctoX*.{m,o} but keep _ydboctoP*.{m,o} intact to create out-of-sync situation" >> output.txt
   rm _ydboctoX*.{m,o}
-  echo "# Run TPP01.sql again. Should NOT error out (but instead re-generate _ydboctoX*.{m,o})" >> output.txt
+  echo "# Run TPP01.sql again. Should NOT error out (but _ydboctoX*.{m,o} WILL NOT be regenerated)" >> output.txt
   octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TPP01.sql >> output.txt 2>&1
   verify_output TPP04 output.txt
 }
@@ -65,32 +65,32 @@ setup() {
 @test "TPP05 : OCTO543 : Test scenario where _ydbocotoX*.m exists but corresponding xref plan gvn does not exist" {
   echo "# Run TPP01.sql that generates M xref routine and stores corresponding xref plan related gvn in database" >> output.txt
   octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TPP01.sql >> output.txt 2>&1
-  echo "# KILL ^%ydboctoxref but keep _ydboctoX*.{m,o} intact to create out-of-sync situation" >> output.txt
-  yottadb -run %XCMD 'kill ^%ydboctoxref' 2>&1 | tee -a output.txt
-  echo "# Run TPP01.sql again. Should return NO rows (incorrect result) because ^%ydboctoxref was killed" >> output.txt
+  echo "# KILL ^%ydbAIMD* but keep (_ydboctoX*.{m,o} and ^%ydbAIMOctoCache) to create an out-of-sync situation" >> output.txt
+  yottadb -r killAIMData^aimutils &>> output.txt
+  echo "# Run TPP01.sql again. Should return NO rows (incorrect result) because ^%ydbAIMD* was killed" >> output.txt
   octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TPP01.sql >> output.txt 2>&1
-  echo "# Verify ^%ydboctoxref was NOT rebuilt. Running [ZWRITE ^%ydboctoxref]. Output below" >> output.txt
-  yottadb -run %XCMD 'zwrite ^%ydboctoxref' 2>&1 | tee -a output.txt
+  echo "# Verify ^%ydbAIMD* was NOT rebuilt. Running [ZWRITE ^%ydbAIMD*]. Output below" >> output.txt
+  yottadb -r zwriteAIMData^aimutils &>> output.txt
   verify_output TPP05 output.txt
 }
 
 @test "TPP06 : OCTO543 : Test scenario where gvn (that indicates xref has been built) is killed" {
   echo "# Run TPP01.sql that generates M xref plan and stores corresponding xref plan related gvn in database" >> output.txt
   octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TPP01.sql >> output.txt 2>&1
-  echo "# KILL ^%ydboctoocto(""xref_status"") but keep _ydboctoX*.{m,o} intact to create out-of-sync situation" >> output.txt
-  yottadb -run %XCMD 'kill ^%ydboctoocto("xref_status")' 2>&1 | tee -a output.txt
-  echo "# Run TPP01.sql again. Should return correct results and automatically rebuild ^%ydboctoxref" >> output.txt
+  echo "# KILL ^%ydbAIMOctoCache but keep _ydboctoX*.{m,o} intact to create out-of-sync situation" >> output.txt
+  yottadb -run %XCMD 'kill ^%ydbAIMOctoCache' 2>&1 | tee -a output.txt
+  echo "# Run TPP01.sql again. Should return correct results and automatically reconstitute ^%ydbAIMOctoCache" >> output.txt
   octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TPP01.sql >> output.txt 2>&1
-  echo "# Verify ^%ydboctoxref was correctly rebuilt : Running [ZWRITE ^%ydboctoxref]. Output below" >> output.txt
-  yottadb -run %XCMD 'zwrite ^%ydboctoxref' 2>&1 | tee -a output.txt
+  echo "# Verify ^%ydbAIMOctoCache was correctly rebuilt : Running [ZWRITE ^%ydbAIMOctoCache]. Output below" >> output.txt
+  yottadb -run %XCMD 'zwrite ^%ydbAIMOctoCache' 2>&1 | tee -a output.txt
   verify_output TPP06 output.txt
 }
 
 @test "TPP07 : OCTO543 : Test ZLINKFILE error if xref rebuild is forced and _ydboctoX*.{m,o} has been deleted" {
   echo "# Run TPP01.sql that generates M xref plan and stores corresponding xref plan related gvn in database" >> output.txt
   octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TPP01.sql >> output.txt 2>&1
-  echo "# KILL ^%ydboctoocto(""xref_status"") and also remove _ydboctoX*.{m,o} to xref rebuild" >> output.txt
-  yottadb -run %XCMD 'kill ^%ydboctoocto("xref_status")' 2>&1 | tee -a output.txt
+  echo "# KILL ^%ydbAIMOctoCache and also remove _ydboctoX*.{m,o} to xref rebuild" >> output.txt
+  yottadb -run %XCMD 'kill ^%ydbAIMOctoCache' 2>&1 | tee -a output.txt
   rm _ydboctoX*.{m,o}
   echo "# Run TPP01.sql again. Should issue ZLINKFILE error because _ydboctoX*.m (which rebuilds xref) has been deleted" >> output.txt
   run_octo_allow_error @PROJECT_SOURCE_DIR@/tests/fixtures/TPP01.sql output.txt
@@ -111,7 +111,7 @@ setup() {
 	echo "# Run TPP08.sql that generates xref plan for NAMES table and LASTNAME column" >> output.txt
 	octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TPP08.sql >> output.txt 2>&1
 	echo '# KILL internal gvns so Octo has no idea of any generated physical/xref plans' >> output.txt
-	yottadb -run %XCMD 'kill ^%ydboctoocto("plandirs"),^%ydboctoocto("plan_metadata"),^%ydboctoocto("xref_status")' 2>&1 | tee -a output.txt
+	yottadb -run %XCMD 'kill ^%ydboctoocto("plandirs"),^%ydboctoocto("plan_metadata"),^%ydbAIMOctoCache' 2>&1 | tee -a output.txt
 	echo "# Edit the existing xref plan so it contains garbage. And rerun query that will use this xref plan" >> output.txt
 	echo "# If the xref plan does not get regenerated we would see an error due to running the garbage M code" >> output.txt
 	echo "# This is a way of verifying that the xref plan does indeed get regenerated" >> output.txt
@@ -121,7 +121,7 @@ setup() {
 	echo "# Run TPP08.sql again. Verify that no error occurs and xref plan gets regenerated" >> output.txt
 	octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TPP08.sql >> output.txt 2>&1
 	echo '# Verify internal gvns in Octo corresponding to xref plans did get regenerated' >> output.txt
-	yottadb -run %XCMD 'zwrite ^%ydboctoocto("plandirs",*) zwrite ^%ydboctoocto("plan_metadata",*) zwrite ^%ydboctoocto("xref_status",*)' 2>&1 | tee -a output.txt
+	yottadb -run %XCMD 'zwrite ^%ydboctoocto("plandirs",*) zwrite ^%ydboctoocto("plan_metadata",*) zwrite ^%ydbAIMOctoCache' 2>&1 | tee -a output.txt
 	verify_output TPP09 output.txt
 }
 

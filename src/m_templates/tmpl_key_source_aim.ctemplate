@@ -1,0 +1,58 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include <assert.h>
+
+#include "template_helpers.h"
+
+// strlen("^") + Max length of aim name + strlen("()") + max number of pieces = 1MB as string (= $length(1024*1024))
+#define AIM_GLOBAL_MAX_LENGTH (1 + YDB_MAX_IDENT + 2 + INT20_TO_STRING_MAX)
+
+/* This template gets the value of global ^%ydbAIMOctoCache("tableName","columnName",OCTOLIT_AIM_SUB_LOCATION)
+ * This will look like this: "^%ydbAIMDXTIlxwLhDMDgDyahUM0VL0(2)"
+ * But we put in the M source code without the trailing parentheses so that we can add subscripts to it later.
+ */
+TEMPLATE(tmpl_key_source_aim, char* tableName, char* columnName) {
+	ydb_buffer_t AIMOctoCacheGlobal;
+	ydb_buffer_t subs[3];
+	ydb_buffer_t result;
+	int status;
+
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&result, AIM_GLOBAL_MAX_LENGTH);
+
+	// Copy global, tableName, columnName, OCTOLIT_AIM_SUB_LOCATION into AIMOctoCacheGlobal, subs[0], [1], [2] respectively
+	// = ^%ydbAIMOctoCache("tableName","columnName",OCTOLIT_AIM_SUB_LOCATION)
+	YDB_STRING_TO_BUFFER(OCTOLIT_AIM_OCTO_CACHE, &AIMOctoCacheGlobal);
+	YDB_STRING_TO_BUFFER(tableName, &subs[0]);
+	YDB_STRING_TO_BUFFER(columnName, &subs[1]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_AIM_SUB_LOCATION, &subs[2]);
+
+	// Get ^%ydbAIMOctoCache("tableName","columnName",OCTOLIT_AIM_SUB_LOCATION) from database
+	status = ydb_get_s(&AIMOctoCacheGlobal, 3, &subs[0], &result);
+
+	UNUSED(status); // Needed for clang-tidy
+	assert(YDB_OK == status);
+
+	// Result will look like this: ^%ydbAIMDXTIlxwLhDMDgDyahUM0VL0(2)
+	// Convert so that it will look like this: ^%ydbAIMDXTIlxwLhDMDgDyahUM0VL0(2
+	result.len_used--;
+	result.buf_addr[result.len_used] = '\0';
+
+	// Inline global into generated xref M code (finally)!
+	%{}{{ result.buf_addr }}{}%
+
+	// free result
+	YDB_FREE_BUFFER(&result);
+	return;
+}
+%{}

@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -67,8 +67,15 @@ discardTable(tableName,tableGVNAME)	;
 	.  NEW trigname
 	.  SET trigname=^%ydboctoocto("xref_status",tableName,column)
 	.  ; Delete the trigger named `trigname` now that the cross reference is gone
-	.  IF '$$dollarZTRIGGER^%ydboctoplanhelpers("ITEM","-"_trigname)  WRITE $ZSTATUS,!
+	.  IF '$$dollarZTRIGGER^%ydboctoplanhelpers("ITEM","-"_trigname) WRITE "Removing Trigger failed",!
 	.  KILL ^%ydboctoocto("xref_status",tableName,column)
+	; Remove AIM data (xref and triggers) stored in the AIM global
+	DO
+	.  NEW aimgbl
+	.  SET column="" FOR  SET column=$ORDER(^%ydbAIMOctoCache(tableName,column))  QUIT:""=column  DO
+	. .  SET aimgbl=$QSUBSCRIPT(^%ydbAIMOctoCache(tableName,column,"location"),0)
+	. .  DO UNXREFDATA^%YDBAIM(aimgbl)
+	. .  KILL ^%ydbAIMOctoCache(tableName,column)
 	; If tableGVNAME is not "", it points to an gvn whose subtree needs to be KILLed as part of the DROP TABLE
 	KILL:$data(tableGVNAME)&(""'=tableGVNAME) @tableGVNAME
 	QUIT

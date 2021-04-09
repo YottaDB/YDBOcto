@@ -5,3 +5,4 @@ _ydboctoDiscardTable    :void        discardTable^%ydboctoDiscard(I:ydb_string_t
 _ydboctoDiscardFunction :void        discardFunction^%ydboctoDiscard(I:ydb_string_t*,I:ydb_string_t*)
 _ydboctoDiscardAll      :void        discardALL^%ydboctoDiscard()
 _ydboctoxrefupdate      :void        handleSetKill^%ydboctoxrefupdate(I:ydb_string_t*,I:ydb_string_t*)
+_ydboctoxrefMetadata    :void        xrefMetadata^%ydboctoselect(I:ydb_string_t*)

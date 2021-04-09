@@ -28,7 +28,7 @@ _ydboctoX*.m
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    DO:'$DATA(^%ydboctoocto("xref_status","ORDER1","STATUS")) xrefPlan^%ydboctoXl1ZF8QChmrFXG5Ip2jah7D(cursorId)
+    DO:'$GET(^%ydbAIMOctoCache("ORDER1","STATUS","completed?")) xrefPlan^%ydboctoXl1ZF8QChmrFXG5Ip2jah7D(cursorId)
     NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
@@ -42,9 +42,9 @@ octoPlan1(cursorId)
     SET %ydboctoin1(%ydboctoexpr)=""
     SET %ydboctoin1="" FOR  DO:$DATA(%ydboctoin1(%ydboctoin1))  SET %ydboctoin1=$ORDER(%ydboctoin1(%ydboctoin1)) QUIT:""=%ydboctoin1
 --
-    . SET %ydboctocursor(cursorId,"keys",1,"ORDER1","STATUS")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"ORDER1","STATUS")) IF $DATA(^%ydboctoxref("ORDER1","STATUS",%ydboctocursor(cursorId,"keys",1,"ORDER1","STATUS"))) DO
+    . SET %ydboctocursor(cursorId,"keys",1,"ORDER1","STATUS")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"ORDER1","STATUS")) IF $DATA(^%ydbAIMDkhryjZbAGBxsFRR7PrVfA4(3,%ydboctocursor(cursorId,"keys",1,"ORDER1","STATUS"))) DO
     . . SET %ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID")=0
-    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID")=$ORDER(^%ydboctoxref("ORDER1","STATUS",%ydboctocursor(cursorId,"keys",1,"ORDER1","STATUS"),%ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID"))!(%ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID")=""))  DO
+    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID")=$ORDER(^%ydbAIMDkhryjZbAGBxsFRR7PrVfA4(3,%ydboctocursor(cursorId,"keys",1,"ORDER1","STATUS"),%ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID"))!(%ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID")=""))  DO
 --
     ZKILL %ydboctocursor(cursorId,"keys",1,"ORDER1","STATUS")
     SET %ydboctocursor(cursorId,"keys",2,"PATIENT","PATIENT_ID")=0
@@ -76,9 +76,9 @@ octoPlan2(cursorId)
     SET %ydboctoin1(%ydboctoexpr)=""
     SET %ydboctoin1="" FOR  DO:$DATA(%ydboctoin1(%ydboctoin1))  SET %ydboctoin1=$ORDER(%ydboctoin1(%ydboctoin1)) QUIT:""=%ydboctoin1
 --
-    . SET %ydboctocursor(cursorId,"keys",1,"ORDER1","STATUS")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"ORDER1","STATUS")) IF $DATA(^%ydboctoxref("ORDER1","STATUS",%ydboctocursor(cursorId,"keys",1,"ORDER1","STATUS"))) DO
+    . SET %ydboctocursor(cursorId,"keys",1,"ORDER1","STATUS")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"ORDER1","STATUS")) IF $DATA(^%ydbAIMDkhryjZbAGBxsFRR7PrVfA4(3,%ydboctocursor(cursorId,"keys",1,"ORDER1","STATUS"))) DO
     . . SET %ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID")=0
-    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID")=$ORDER(^%ydboctoxref("ORDER1","STATUS",%ydboctocursor(cursorId,"keys",1,"ORDER1","STATUS"),%ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID"))!(%ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID")=""))  DO
+    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID")=$ORDER(^%ydbAIMDkhryjZbAGBxsFRR7PrVfA4(3,%ydboctocursor(cursorId,"keys",1,"ORDER1","STATUS"),%ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID"))!(%ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID")=""))  DO
 --
     ZKILL %ydboctocursor(cursorId,"keys",1,"ORDER1","STATUS")
     SET %ydboctocursor(cursorId,"keys",2,"PATIENT","PATIENT_ID")=0

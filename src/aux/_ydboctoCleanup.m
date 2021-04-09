@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -11,16 +11,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 run
-  ; Cleanup global variables and relevant triggers when CancelRequest received during cross reference generation
+  ; Cancellation with YDBAIM only throws aways the Octo-level metadata, rather than the entire AIM level cross-reference. This
+  ; means that cancellation deletes ^%ydbAIMOctoCache(<table>,<column>) but keeps the ^%ydbAIMD* globals. The cross-reference stays
+  ; in a half-built ; state and may be resumed by another query.
+  ;
   ; Note: _ydboctoX*.m has the corresponding sets of %ydboctoCancel lvn which are used here.
   NEW tableName,columnName
   SET tableName="",columnName=""
   FOR  SET tableName=$ORDER(%ydboctoCancel(tableName)) QUIT:""=tableName  DO
   . FOR  SET columnName=$ORDER(%ydboctoCancel(tableName,columnName)) QUIT:""=columnName  DO
-  . . DO:$DATA(%ydboctoCancel(tableName,columnName,"Trigger"))
-  . . . IF $$dollarZTRIGGER^%ydboctoplanhelpers("item",%ydboctoCancel(tableName,columnName,"Trigger"))
-  . . KILL:$DATA(%ydboctoCancel(tableName,columnName,"Node1")) @%ydboctoCancel(tableName,columnName,"Node1")
-  . . KILL:$DATA(%ydboctoCancel(tableName,columnName,"Node2")) @%ydboctoCancel(tableName,columnName,"Node2")
+  . . KILL:$DATA(%ydboctoCancel(tableName,columnName,"aimXref")) ^%ydbAIMOctoCache(tableName,columnName)
+  . . KILL:$DATA(%ydboctoCancel(tableName,columnName,"lvnTableXref")) @%ydboctoCancel(tableName,columnName,"lvnTableXref")
   KILL %ydboctoCancel
   ; Set to let run_query know the query was canceled
   SET %ydboctoCancel=1

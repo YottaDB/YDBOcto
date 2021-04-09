@@ -114,6 +114,7 @@ enum EmitSourceForm {
 	EmitSourceForm_Insert,
 	EmitSourceForm_NoKeyCol,
 	EmitSourceForm_UpdateKeyCol,
+	EmitSourceForm_AIM
 };
 
 typedef enum {
@@ -149,6 +150,7 @@ TEMPLATE(tmpl_key_dollardata_check, SqlKey *key, boolean_t is_derived_column);
 TEMPLATE(tmpl_key, SqlKey *key);
 TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key);
 TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key, enum EmitSourceForm form);
+TEMPLATE(tmpl_key_source_aim, char *tableName, char *columnName);
 TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count, int depth);
 TEMPLATE(tmpl_print_expression_assignment, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count, int depth);
 TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t is_trigger, int dot_count, int depth);

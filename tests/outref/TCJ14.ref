@@ -9,6 +9,6 @@ octoPlan0(cursorId,wrapInTp)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)
 octoPlan1(cursorId)
-    SET %ydboctocursor(cursorId,"keys",1,"NAMES","LASTNAME")=%ydboctoexpr IF $DATA(^%ydboctoxref("NAMES","LASTNAME","")) DO
+    SET %ydboctocursor(cursorId,"keys",1,"NAMES","LASTNAME")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
 octoPlan2(cursorId)
-    SET %ydboctocursor(cursorId,"keys",2,"NAMES","LASTNAME")=%ydboctoexpr IF $DATA(^%ydboctoxref("NAMES","LASTNAME","")) DO
+    SET %ydboctocursor(cursorId,"keys",2,"NAMES","LASTNAME")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO

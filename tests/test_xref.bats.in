@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -25,13 +25,16 @@ setup() {
 SELECT * FROM names WHERE firstName = "Zero";
 OCTO
   # Verify xref is generated
-  echo " --> ZWRITE ^names,^%ydboctoxref" >> output.txt
-  yottadb -run %XCMD 'zwrite ^names,^%ydboctoxref' 2>&1 | tee -a output.txt
+  echo " --> ZWRITE ^names,^%ydbAIMD*" >> output.txt
+  yottadb -run %XCMD 'zwrite ^names'  2>&1 | tee -a output.txt
+  yottadb -run zwriteAIMData^aimutils 2>&1 | tee -a output.txt
   # Delete mapped node and Verify xref is automatically updated by the installed trigger
-  echo " --> KILL ^names(0)  ZWRITE ^%ydboctoxref" >> output.txt
-  yottadb -run %XCMD 'kill ^names(0) zwrite ^%ydboctoxref' 2>&1 | tee -a output.txt
-  echo " --> KILL ^names(5)  ZWRITE ^%ydboctoxref" >> output.txt
-  yottadb -run %XCMD 'kill ^names(5) zwrite ^%ydboctoxref' 2>&1 | tee -a output.txt
+  echo " --> KILL ^names(0)  ZWRITE ^%ydbAIMD*" >> output.txt
+  yottadb -run %XCMD 'kill ^names(0)' 2>&1 | tee -a output.txt
+  yottadb -run zwriteAIMData^aimutils 2>&1 | tee -a output.txt
+  echo " --> KILL ^names(5)  ZWRITE ^%ydbAIMD*" >> output.txt
+  yottadb -run %XCMD 'kill ^names(5)' 2>&1 | tee -a output.txt
+  yottadb -run zwriteAIMData^aimutils 2>&1 | tee -a output.txt
   verify_output TX01 output.txt noinfo nodebug
 }
 
@@ -80,11 +83,11 @@ OCTO
 @test "TX04 : OCTO531 : Optimize IS NULL check in WHERE clause by using key fixing optimization" {
 	echo '# Run IS NULL query using Octo and Postgres and verify same output (should see no message below)' > final_output.txt
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TX04.sql
-	echo '# Verify ^%ydboctoxref got built and has correct contents' >> final_output.txt
-	yottadb -run %XCMD 'zwrite ^%ydboctoxref' >> final_output.txt
+	echo '# Verify ^%ydbAIMD* got built and has correct contents' >> final_output.txt
+	yottadb -run zwriteAIMData^aimutils >> final_output.txt
 	echo '# Verify key fixing optimization happened in physical plan only for <lastname IS NULL> query' >> final_output.txt
-	echo '# Key fixed query will have a plan that does $ORDER(^%ydboctoxref)' >> final_output.txt
-	grep -E -B 1 "SELECT|ydboctoxref" _ydboctoP*.m >> final_output.txt
+	echo '# Key fixed query will have a plan that does $ORDER(^%ydbAIMD*)' >> final_output.txt
+	grep -E -B 1 "SELECT|%ydbAIMD" _ydboctoP*.m >> final_output.txt
 	verify_output TX04 final_output.txt
 }
 

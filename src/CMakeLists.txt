@@ -32,7 +32,7 @@ else()
 	set(ydb_chsets "")
 endif()
 
-if(DEFINED YOTTADB_INCLUDE_DIRS AND EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/o/_ydbposix.so")
+if(EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/o/_ydbposix.so")
 	message(STATUS "Found YDBPosix plugin: ${YOTTADB_INCLUDE_DIRS}/plugin/o/_ydbposix.so")
 	if(utf8_installed)
 		if(EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/o/utf8/_ydbposix.so")
@@ -45,7 +45,20 @@ else()
 	message(FATAL_ERROR "Could NOT find YDBPosix plugin in ${YOTTADB_INCLUDE_DIRS}/o. Please install YDBPosix and rebuild Octo.")
 endif()
 
-if(DEFINED YOTTADB_INCLUDE_DIRS AND EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/libgtmtls.so")
+if(EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/o/_ydbaim.so")
+	message(STATUS "Found YDBAIM plugin: ${YOTTADB_INCLUDE_DIRS}/plugin/o/_ydbaim.so")
+	if(utf8_installed)
+		if(EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/o/utf8/_ydbaim.so")
+			message(STATUS "Found YDBAIM plugin with UTF-8 support: ${YOTTADB_INCLUDE_DIRS}/plugin/o/utf8/_ydbaim.so")
+		else()
+			message(FATAL_ERROR "YottaDB supports UTF-8, but YDBAIM does not. Please install YDBAIM with UTF-8 support.")
+		endif()
+	endif()
+else()
+	message(FATAL_ERROR "Could NOT find YDBAIM plugin in ${YOTTADB_INCLUDE_DIRS}/o. Please install YDBAIM and rebuild Octo.")
+endif()
+
+if(EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/libgtmtls.so")
   message(STATUS "Found YottaDB TLS plugin: ${YOTTADB_INCLUDE_DIRS}")
     set(YDB_TLS_AVAILABLE 1)
 else()
@@ -454,6 +467,7 @@ set(template_files
   ${template_dir}/tmpl_key_end.ctemplate
   ${template_dir}/tmpl_key_finish.ctemplate
   ${template_dir}/tmpl_key_source.ctemplate
+  ${template_dir}/tmpl_key_source_aim.ctemplate
   ${template_dir}/tmpl_key_start.ctemplate
   ${template_dir}/tmpl_limit_check.ctemplate
   ${template_dir}/tmpl_order_by_key.ctemplate

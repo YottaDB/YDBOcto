@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -263,3 +263,62 @@ OCTO
 	verify_output TW26 output.txt
 }
 
+@test "TW27 : OCTO675 : Test various ENDPOINTs with AIM " {
+	# NB: In zwriteAIMData calls below, 2 has data, 6,7,8 has the triggers
+	load_fixture vista-mini.zwr
+	echo 'Test ENDPOINT with a space' | tee -a output.txt
+	load_fixture TW27-1.sql subtest novv
+	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '\(2,|\(6\)|\(7\)|\(8\)' | tee -a output.txt
+	grep 'SET global=' _ydboctoX* | tee -a output.txt
+
+	echo | tee -a output.txt
+	echo 'Test ENDPOINT with a "A"' | tee -a output.txt
+	load_fixture TW27-2.sql subtest novv
+	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '\(2,|\(6\)|\(7\)|\(8\)' | tee -a output.txt
+	grep 'SET global=' _ydboctoX* | tee -a output.txt
+
+	echo | tee -a output.txt
+	echo 'Test ENDPOINT with a ""' | tee -a output.txt
+	load_fixture TW27-3.sql subtest novv
+	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '\(2,|\(6\)|\(7\)|\(8\)' | tee -a output.txt
+	grep 'SET global=' _ydboctoX* | tee -a output.txt
+
+	echo | tee -a output.txt
+	echo 'Test ENDPOINT with a 3' | tee -a output.txt
+	load_fixture TW27-4.sql subtest novv
+	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '\(2,|\(6\)|\(7\)|\(8\)' | tee -a output.txt
+	grep 'SET global=' _ydboctoX* | tee -a output.txt
+
+	echo | tee -a output.txt
+	echo 'Test ENDPOINT with a $CHAR(0)' | tee -a output.txt
+	load_fixture TW27-5.sql subtest novv
+	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '\(2,|\(6\)|\(7\)|\(8\)' | tee -a output.txt
+	grep 'SET global=' _ydboctoX* | tee -a output.txt
+
+	verify_output TW27 output.txt
+}
+
+@test "TW28 : OCTO675 : Test ENDPOINT with AIM and NULL Data" {
+	load_fixture vista-mini.zwr
+	load_fixture vista-mini-endpoint-c0.sql
+
+	# Our small zwr file does not have NULLs in it. Create them here:
+	# On record 1:
+	# Make SHORT_NAME a null piece
+	# Make VUID and MASTER_ENTRY_FOR_VUID null data
+	# ^ORD(100.01,1,0)="DISCONTINUED^dc" -> "DISCONTINUED"
+        # ^ORD(100.01,1,"VUID")="4500704^1"  -> kill node
+	yottadb -run %XCMD 'set ^ORD(100.01,1,0)="DISCONTINUED"'
+	yottadb -run %XCMD 'kill ^ORD(100.01,1,"VUID")'
+
+	echo 'Test AIM/ENDPOINT on NULL piece' | tee -a output.txt
+	load_fixture TW28-1.sql subtest novv
+
+	# NB This doesn't work properly right now, so the data is wrong here
+	echo 'Test AIM/ENDPOINT on NULL data' | tee -a output.txt
+	load_fixture TW28-2.sql subtest novv
+
+	yottadb -run zwriteAIMData^aimutils 2>&1 | tee -a output.txt
+
+	verify_output TW28 output.txt
+}

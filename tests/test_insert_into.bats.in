@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -104,10 +104,10 @@ teardown() {
 	echo "# Additionally verify that hidden column is not emitted in the text table definition" >> output.txt
 	echo "# But also verify that the hidden column name shows up in the M gvn of the GLOBAL keyword" >> output.txt
 	grep -w "text" run.ext | grep -w TMP1 >> output.txt
-	echo '# Additionally verify ^%ydboctoxref got built and has correct contents' >> output.txt
-	yottadb -run %XCMD 'zwrite ^%ydboctoxref' >> output.txt
+	echo '# Additionally verify AIM Data got built and has correct contents' >> output.txt
+	$ydb_dist/yottadb -r zwriteAIMData^aimutils &>> output.txt
 	echo '# Verify key fixing optimization happened for = and IS NULL operators in WHERE clause' >> output.txt
-	echo '# Key fixed query will have a plan that does $ORDER(^%ydboctoxref)' >> output.txt
-	grep -E -B 1 "SELECT|ydboctoxref" _ydboctoP*.m >> output.txt
+	echo '# Key fixed query will have a plan that does $ORDER(^%ydbAIMD*)' >> output.txt
+	grep -E -B 1 "SELECT|%ydbAIMD.*" _ydboctoP*.m >> output.txt
 	verify_output TII09 output.txt
 }

@@ -102,6 +102,7 @@ echo " -> ctestCommand = $ctestCommand"
 echo "# Install the YottaDB POSIX plugin"
 pushd $start_dir
 ./tools/ci/install_posix.sh "cmake"
+./tools/ci/install_ydbaim.sh
 popd
 
 echo "# Source the ENV script again to YottaDB environment variables after installing POSIX plugin"
@@ -679,6 +680,7 @@ else
 		export ydb_gbldir=$gldfile
 		defaultdat="mumps.dat"
 		octodat="octo.dat"
+		aimdat="aim.dat"
 		touch skip_bats_test.txt gde_change_segment.txt
 		ydb_icu_version=$(pkg-config --modversion icu-io)	# needed for UTF-8 chset in for loop below
 		export ydb_icu_version
@@ -709,6 +711,7 @@ else
 			cd $tstdir
 			if [[ ! -e $gldfile || ! -e $defaultdat || ! -e $octodat ]]; then
 				# This test directory does not contain a 2-region octo setup. auto-upgrade cannot be tested here. Skip.
+				# Okay to have AIM region not listed here
 				echo "SKIPPED : $tstdir : Does not contain $gldfile or $defaultdat or $octodat" >> ../bats_test.txt
 				cd ..
 				rm -rf $tstdir
@@ -792,11 +795,12 @@ else
 				export ydb_chset=UTF-8
 				utf8_path="utf8"
 			fi
-			export ydb_routines=". ../newsrc/$utf8_path/_ydbocto.so $ydb_dist/plugin/o/$utf8_path/_ydbposix.so $ydb_dist/$utf8_path/libyottadbutil.so"
+			export ydb_routines=". ../newsrc/$utf8_path/_ydbocto.so $ydb_dist/plugin/o/$utf8_path/_ydbposix.so $ydb_dist/plugin/o/$utf8_path/_ydbaim.so $ydb_dist/$utf8_path/libyottadbutil.so"
 			# Change absolute path names of database files to relative path names for ease of later debugging (if needed)
 			$ydb_dist/yottadb -run GDE >> gde_change_segment.txt 2>&1 << FILE
 			change -segment DEFAULT -file_name=$defaultdat
 			change -segment OCTOSEG -file_name=$octodat
+			change -segment AIMSEG -file_name=$aimdat
 FILE
 
 			# TEST1 and TEST2 below together test that Octo automatically recreates any
@@ -932,10 +936,12 @@ FILE
 		$ydb_dist/yottadb -run ^GDE <<FILE
 		change -region DEFAULT -null_subscripts=true -record_size=1048576
 		change -segment DEFAULT -file_name=mumps.dat
+		add -region OCTOREG -dyn=OCTOSEG -null_subscripts=true -key_size=1019 -record_size=1048576
+		add -segment OCTOSEG -file="octo.dat"
+		add -segment AIMSEG -file="aim.dat" -access_method=MM -block_size=2048
+		add -region AIMREG -dyn=AIMSEG -nojournal -key_size=1019 -null_subscripts=always -record_size=2048
 		add -name %ydbocto* -region=OCTOREG
-		add -region OCTOREG -dyn=OCTOSEG
-		add -segment OCTOSEG -file=octo.dat
-		change -region OCTOREG -null_subscripts=true -key_size=1019 -record_size=1048576
+		add -name %ydbAIM* -region=AIMREG
 FILE
 		rm ./*.dat || true
 		$ydb_dist/mupip create

@@ -2,21 +2,11 @@
 ID|FIRSTNAME|LASTNAME
 3|Lord|Nikon
 (1 row)
-# KILL ^%ydboctoocto(xref_status) but keep _ydboctoX*.{m,o} intact to create out-of-sync situation
-# Run TPP01.sql again. Should return correct results and automatically rebuild ^%ydboctoxref
+# KILL ^%ydbAIMOctoCache but keep _ydboctoX*.{m,o} intact to create out-of-sync situation
+# Run TPP01.sql again. Should return correct results and automatically reconstitute ^%ydbAIMOctoCache
 ID|FIRSTNAME|LASTNAME
 3|Lord|Nikon
 (1 row)
-# Verify ^%ydboctoxref was correctly rebuilt : Running [ZWRITE ^%ydboctoxref]. Output below
-^%ydboctoxref("NAMES","LASTNAME")=6
-^%ydboctoxref("NAMES","LASTNAME","")=1
-^%ydboctoxref("NAMES","LASTNAME","",4)=""
-^%ydboctoxref("NAMES","LASTNAME","Burn")=1
-^%ydboctoxref("NAMES","LASTNAME","Burn",1)=""
-^%ydboctoxref("NAMES","LASTNAME","Cool")=2
-^%ydboctoxref("NAMES","LASTNAME","Cool",0)=""
-^%ydboctoxref("NAMES","LASTNAME","Cool",5)=""
-^%ydboctoxref("NAMES","LASTNAME","Killer")=1
-^%ydboctoxref("NAMES","LASTNAME","Killer",2)=""
-^%ydboctoxref("NAMES","LASTNAME","Nikon")=1
-^%ydboctoxref("NAMES","LASTNAME","Nikon",3)=""
+# Verify ^%ydbAIMOctoCache was correctly rebuilt : Running [ZWRITE ^%ydbAIMOctoCache]. Output below
+^%ydbAIMOctoCache("NAMES","LASTNAME","completed?")=1
+^%ydbAIMOctoCache("NAMES","LASTNAME","location")="^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2)"

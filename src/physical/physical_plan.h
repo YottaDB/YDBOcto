@@ -40,7 +40,7 @@ typedef struct SetOperType {
 } SetOperType;
 
 typedef struct PhysicalPlan {
-	char *		     plan_name, *filename, *trigger_name;
+	char *		     plan_name, *filename;
 	struct PhysicalPlan *prev, *next;
 	SqlKey *	     iterKeys[MAX_KEY_COUNT]; /* These represent the keys we used to do the iteration */
 	SqlKey *	     outputKey;

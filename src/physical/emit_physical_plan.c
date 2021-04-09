@@ -30,7 +30,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	PhysicalPlan *	prev_plan, *next_plan;
 	char *		buffer, plan_name_buffer[MAX_PLAN_NAME_LEN];
 	char		filename[OCTO_PATH_MAX];
-	char *		trigger_name, *tableName, *columnName;
+	char *		tableName, *columnName;
 	char *		tmp_plan_filename = NULL;
 	unsigned int	plan_filename_len;
 	SqlValue *	value;
@@ -99,7 +99,8 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	if (NULL != xrefplan.prev)
 		xrefplan.prev->next = NULL;
 	for (cur_plan = xrefplan.next; NULL != cur_plan; cur_plan = cur_plan->next) {
-		char *routine_name;
+		char *	     routine_name;
+		ydb_string_t ci_routine_name;
 
 		/* Assert that the logical plan corresponding to the xref physical plan points back to this physical plan.
 		 * This is because duplicate xref plans are avoided in "generate_physical_plan.c".
@@ -127,13 +128,6 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 			free(buffer);
 			return 1;
 		}
-		trigger_name = octo_cmalloc(memory_chunks, MAX_TRIGGER_LEN + 1); // + 1 needed for null terminator
-		status = generate_routine_name(&state, trigger_name, MAX_TRIGGER_LEN, YDBTrigger);
-		if (status) {
-			ERROR(ERR_PLAN_HASH_FAILED, "");
-			free(buffer);
-			return 1;
-		}
 		// Convert '%' to '_'
 		key->cross_reference_filename = routine_name;
 		/* The below call updates "filename" to be the full path including "routine_name" at the end */
@@ -143,11 +137,27 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 			return 1;
 		}
 		cur_plan->filename = key->cross_reference_filename;
-		cur_plan->trigger_name = trigger_name;
 		status = emit_physical_or_xref_plan(filename, NULL, tableName, columnName, cur_plan);
 		if (status) {
 			free(buffer);
 			return 1;
+		}
+
+		/* This calls 'do xrefMetadata@routine_name' to populate AIM xref metadata.
+		 * Sets global variable used in src/m_templates/tmpl_key_source_aim.ctemplate.
+		 * Only called for global tables, as local tables don't use AIM.
+		 */
+		if ('^' == key->xref_prefix[0]) {
+			ci_routine_name.address = routine_name;
+			ci_routine_name.length = strlen(routine_name);
+			status = ydb_ci("_ydboctoxrefMetadata", &ci_routine_name);
+
+			// Error will be printed out from YDB_ERROR_CHECK, no need to print another error message.
+			if (YDB_OK != status) {
+				YDB_ERROR_CHECK(status);
+				free(buffer);
+				return 1;
+			}
 		}
 	}
 
@@ -239,9 +249,17 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 			tableName = value->v.reference;
 			UNPACK_SQL_STATEMENT(value, t_key->column->columnName, value);
 			columnName = value->v.reference;
-			fprintf(output_file, "    DO:'$DATA(%s%s(\"%s\",\"%s\",\"%s\")) %s^%s(cursorId)\n", t_key->xref_prefix,
-				config->global_names.raw_octo, OCTOLIT_XREF_STATUS, tableName, columnName, XREFPLAN_LIT,
-				t_key->cross_reference_filename);
+
+			/* Global tables (most Octo tables) xref differs from local tables (e.g. pg_settings) */
+			if ('^' == t_key->xref_prefix[0]) {
+				fprintf(output_file, "    DO:'$GET(%s(\"%s\",\"%s\",\"%s\")) %s^%s(cursorId)\n",
+					OCTOLIT_AIM_OCTO_CACHE, tableName, columnName, OCTOLIT_AIM_SUB_COMPLETED, XREFPLAN_LIT,
+					t_key->cross_reference_filename);
+			} else {
+				fprintf(output_file, "    DO:'$DATA(%s%s(\"%s\",\"%s\",\"%s\")) %s^%s(cursorId)\n",
+					t_key->xref_prefix, config->global_names.raw_octo, OCTOLIT_XREF_STATUS, tableName,
+					columnName, XREFPLAN_LIT, t_key->cross_reference_filename);
+			}
 		}
 	}
 	/* NEW variables that are used across all plans. Do it only once at the start of plan instead of inside each plan

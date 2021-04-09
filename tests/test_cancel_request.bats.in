@@ -64,24 +64,24 @@ teardown() {
 	verify_output TCR01 output.txt noinfo nodebug noexpect stripreturns
 }
 
-@test "TCR03 : ensure cancel requests abort simple queries and cleanup xrefs and trigger" {
+@test "TCR03 : ensure cancel requests abort simple queries and remove metadata but keep xrefs and trigger" {
   $ydb_dist/yottadb -run loadbigdata
   # Remove verbosity as the logical plan is too long to print correctly and not needed here
   run_psql_expect cancel_psql_big_data $test_port &> output.txt
   verify_output TCR00 expect.out noinfo nodebug noexpect stripreturns
-  # Ensure all cross references cleaned up for the given query, i.e. test_seed_queries.bats "test1"
-  run $ydb_dist/yottadb -direct > xref.txt <<YDB
-zwrite ^%ydboctoxref
-YDB
-  echo $output > xref.txt
-  run $ydb_dist/yottadb -direct >> xref.txt <<YDB
-zwrite ^%ydboctoxref("NAMES","FIRSTNAME")
-YDB
-  echo $output >> xref.txt
-  verify_output TCR02 xref.txt
-  # Ensure all triggers are cleaned up, i.e. no triggers
+  # Ensure all cross references metadata cleaned up for the given query
+  run $ydb_dist/mupip extract -select='%ydbAIMOcto*' xref_metadata.zwr
+  # mupip will give an error code saying that the global doesn't exist.
+  [ "$status" -eq 224 ]
+  # xref.txt won't exist.
+  [ ! -f xref_metadata.zwr ]
+  # Ensure AIM xref still exists (but we don't know its exact contents, as it was cancelled mid-creation)
+  run $ydb_dist/mupip extract -select='%ydbAIM*' xref.zwr
+  [ -f xref.zwr ]
+  grep '%ydbAIMD' xref.zwr
+  # Ensure all triggers still exist
   $ydb_dist/mupip trigger -select triggers.txt
-  verify_output TCR03 triggers.txt
+  grep '%ydbAIMD' triggers.txt
 }
 
 @test "TCR04 : Test cancel request works in rocto for an INSERT INTO, DELETE FROM and UPDATE and partial updates are rolled back" {

@@ -3,7 +3,7 @@ ID|FIRSTNAME|LASTNAME
 3|Lord|Nikon
 (1 row)
 # Remove _ydboctoX*.{m,o} but keep _ydboctoP*.{m,o} intact to create out-of-sync situation
-# Run TPP01.sql again. Should NOT error out (but instead re-generate _ydboctoX*.{m,o})
+# Run TPP01.sql again. Should NOT error out (but _ydboctoX*.{m,o} WILL NOT be regenerated)
 ID|FIRSTNAME|LASTNAME
 3|Lord|Nikon
 (1 row)

@@ -97,11 +97,10 @@ init_test() {
 		# while trying to use the master branch of YDB repo when .o files created by r1.29 in Nov 2019 were tried to be used
 		# by r1.29 in Dec 2019 (after the .o file format was changed in between). Having the .o files in the test output directory
 		# avoids such issues. This comment also applies to the similar line in the below `else` block.
-		ydbroutines=".(. @PROJECT_SOURCE_DIR@/tests/fixtures) @PROJECT_BINARY_DIR@/src$utf8_path/_ydbocto.so @PROJECT_BINARY_DIR@"
+		ydbroutines=".(. @PROJECT_SOURCE_DIR@/tests/fixtures) @PROJECT_BINARY_DIR@/src$utf8_path/_ydbocto.so"
 	else
 		# Add the UTF-8 path, if set, as this is not done by build.sh in the pipeline
 		ydbroutines=".(. @PROJECT_SOURCE_DIR@/tests/fixtures)"
-		ydbroutines="$ydbroutines @PROJECT_BINARY_DIR@"
 	fi
 	export ydb_routines="$ydbroutines $ydb_routines"
 
@@ -288,11 +287,13 @@ FILE
 	else
 		$ydb_dist/yottadb -run ^GDE <<FILE
 change -region DEFAULT -null_subscripts=true -record_size=1048576 -key_size=1019
-change -segment DEFAULT -file_name=$test_temp/mumps.dat
+change -segment DEFAULT -file_name="$test_temp/mumps.dat"
+add -segment OCTOSEG -file="$test_temp/octo.dat"
+add -region OCTOREG -dyn=OCTOSEG -null_subscripts=true -key_size=1019 -record_size=1048576
+add -segment AIMSEG -file="$test_temp/aim.dat" -access_method=MM -block_size=2048
+add -region AIMREG -dyn=AIMSEG -nojournal -key_size=1019 -null_subscripts=always -record_size=2048
 add -name %ydbocto* -region=OCTOREG
-add -region OCTOREG -dyn=OCTOSEG
-add -segment OCTOSEG -file=$test_temp/octo.dat
-change -region OCTOREG -null_subscripts=true -key_size=1019 -record_size=1048576
+add -name %ydbAIM* -region=AIMREG
 exit
 FILE
 	fi
@@ -598,7 +599,7 @@ verify_plans_xrefs_gvns_triggers() {
 	echo "# Verify db nodes for plans that are reusable (i.e. do not need to be regenerated)" >> $referencefile
 	grep -w "plan_metadata.*output_key" $mupipextractfile >> $referencefile || true
 	echo "# Verify db nodes correctly represent cross-references" >> $referencefile
-	grep -E "xref_status|ydboctoxref" $mupipextractfile >> $referencefile || true
+	grep "^\^%ydbAIM" $mupipextractfile >> $referencefile || true
 	echo "# Verify db nodes correctly represent src/obj dirs of generated plans (including xref plans)" >> $referencefile
 	grep "plandirs" $mupipextractfile >> $referencefile || true
 	echo "# Verify currently installed triggers" >> $referencefile
@@ -670,6 +671,10 @@ verify_output() {
 	# Convert symbolic links into absolute paths
 	cd -P $PWD
 	sed -i 's,'$PWD',$PWD,g' clean_output.txt
+	# Change ^%ydbAIMDuAwRJbyqDiW78aZmOOKGGE(0)="1617743959908264 247102 YottaDB r989 Linux x86_64" to
+	#        ^%ydbAIMDuAwRJbyqDiW78aZmOOKGGE(0)="*YottaDB*"
+	# This sed is too complicated, I won't try to explain it.
+	sed -i 's/\(\^%ydbAIMD.*(0)=\).*/\1"*YottaDB*"/g' clean_output.txt
 	# Convert PROJECT_SOURCE_DIR references to generic one
 	sed -i 's,'@PROJECT_SOURCE_DIR@',SRCDIR,g' clean_output.txt
 	# Convert YDB C source file/line references to generic one

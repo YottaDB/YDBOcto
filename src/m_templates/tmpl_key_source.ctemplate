@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -35,8 +35,13 @@ TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key, enum EmitSourceForm 
 
 		UNPACK_SQL_STATEMENT(value, key->column->columnName, value);
 		columnName = value->v.reference;
-		%{}{{ key->xref_prefix }}{}%
-		%{}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{}%
+		// Tables kept in local variables can't go through YDBAIM
+		if ('^' == key->xref_prefix[0]) {
+			TMPL(tmpl_key_source_aim, tableName, columnName);
+		} else {
+			%{}{{ key->xref_prefix }}{}%
+			%{}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{}%
+		}
 		// Output the column this cross reference is sourced from
 		iter_key_index = 0;
 		while ((iter_key_index < pplan->total_iter_keys) && (pplan->iterKeys[iter_key_index]->unique_id != key->unique_id))

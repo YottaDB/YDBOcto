@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -19,3 +19,13 @@ run(cursorId,routine,wrapInTp)
   SET rtn="^"_routine
   DO @rtn@(cursorId,wrapInTp)
   QUIT
+  ;
+xrefMetadata(routine) ; Octo entry point to get AIM xref metadata before creating xref
+  ; The metadata contains the location of the AIM global in
+  ; ^%ydbAIMOctoCache(<table>,<column>,"location") so that we can inline it in generated plans.
+  ; The metadata also contains comments, and cancellation information
+  ; Note: "routine" variable is of the form "%ydboctoXOyAkV0dwqVINYJD702SbAA"
+  ;   where the generated M file name is "_ydboctoXOyAkV0dwqVINYJD702SbAA.m".
+  DO xrefMetadata^@routine
+  QUIT
+

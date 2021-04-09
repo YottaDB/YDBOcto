@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -133,7 +133,7 @@ OCTO
 	echo "# Tables were specified in FROM clause in the order           : T3, T6, T8, T2, T5, T9, T4" >> output.txt
 	echo "# But they are expected to be reordered after optimization as : T3, T2, T5, T9, T4, T8, T6" >> output.txt
 	echo "# Capture key parts of the physical plan in reference file that verifies this." >> output.txt
-	grep -E "octoPlan|SELECT|FROM|WHERE|AND|DATA\(\^\%ydboctoxref" _ydboctoP*.m >> output.txt
+	grep -E "octoPlan|SELECT|FROM|WHERE|AND|DATA\(\^\%ydbAIMD.*" _ydboctoP*.m >> output.txt
 	verify_output TCJ13 output.txt
 }
 
@@ -146,7 +146,7 @@ OCTO
 	echo "# Capture key parts of the physical plan in reference file that verifies this." >> output.txt
 	echo "# We expect N1 cross reference to be used in first DNF plan." >> output.txt
 	echo "# And we expect N2 cross reference to be used in the second DNF plan." >> output.txt
-	grep -E "octoPlan|SELECT|DATA\(\^\%ydboctoxref" _ydboctoP*.m >> output.txt
+	grep -E "octoPlan|SELECT|DATA\(\^\%ydbAIMD.*" _ydboctoP*.m >> output.txt
 	verify_output TCJ14 output.txt
 }
 

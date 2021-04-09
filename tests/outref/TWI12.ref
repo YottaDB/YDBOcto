@@ -233,7 +233,7 @@ _ydboctoP*.m:    . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
 _ydboctoP*.m:    . . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
 _ydboctoP*.m:;  SELECT * FROM names n1 WHERE n1.firstname IN ('Zero', 'Lord');
 _ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
-_ydboctoP*.m:    DO:'$DATA(^%ydboctoocto("xref_status","NAMES","FIRSTNAME")) xrefPlan^%ydboctoXS6loYoNNto55iv2lHkNkCK(cursorId)
+_ydboctoP*.m:    DO:'$GET(^%ydbAIMOctoCache("NAMES","FIRSTNAME","completed?")) xrefPlan^%ydboctoXS6loYoNNto55iv2lHkNkCK(cursorId)
 _ydboctoP*.m:    DO octoPlan1(cursorId)
 _ydboctoP*.m:octoPlan1(cursorId)
 _ydboctoP*.m:    . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
@@ -242,9 +242,9 @@ _ydboctoP*.m:    . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",2)
 _ydboctoP*.m:    SET %ydboctoin1(%ydboctoexpr)=""
 _ydboctoP*.m:    SET %ydboctoin1="" FOR  DO:$DATA(%ydboctoin1(%ydboctoin1))  SET %ydboctoin1=$ORDER(%ydboctoin1(%ydboctoin1)) QUIT:""=%ydboctoin1
 _ydboctoP*.m:    . SET %ydboctoexpr=%ydboctoin1
-_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"NAMES","FIRSTNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"NAMES","FIRSTNAME")) IF $DATA(^%ydboctoxref("NAMES","FIRSTNAME",%ydboctocursor(cursorId,"keys",1,"NAMES","FIRSTNAME"))) DO
+_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"NAMES","FIRSTNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"NAMES","FIRSTNAME")) IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",1,"NAMES","FIRSTNAME"))) DO
 _ydboctoP*.m:    . . SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
-_ydboctoP*.m:    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^%ydboctoxref("NAMES","FIRSTNAME",%ydboctocursor(cursorId,"keys",1,"NAMES","FIRSTNAME"),%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
+_ydboctoP*.m:    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",1,"NAMES","FIRSTNAME"),%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
 _ydboctoP*.m:    . . . SET %ydboctoexpr=1
 _ydboctoP*.m:    . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
 _ydboctoP*.m:    . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")

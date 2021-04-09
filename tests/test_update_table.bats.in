@@ -98,18 +98,14 @@ teardown() {
 	verify_output TUT005 output.txt
 }
 
-@test "TUT006 : OCTO579 : Test that UPDATE after xref plan files get deleted, issues ZLINKFILE error" {
+@test "TUT006 : OCTO579 : Test that UPDATE after xref plan files get deleted, generates no errors" {
 	# This subtest is similar to the test_delete_from_table/TDFT07 subtest
-	echo "# Run SELECT query that generates xref plan and installs triggers which rely on the xref plan" >> output.txt
+	echo "# Run SELECT query that generates xref plan and creates AIM triggers" >> output.txt
 	echo "SELECT * from names WHERE firstname = 'Zero'" | octo >> output.txt
 	echo "# Remove generated xref plans" >> output.txt
 	rm _ydboctoX*.{m,o}
-	echo "# Run UPDATE queries that will need the triggers (and in turn xref plan)" >> output.txt
-	echo "# They should issue a ZLINKFILE error because the xref plan does not exist anymore" >> output.txt
-	# "|| true" needed below since we expect octo to exit with a non-zero status (ZLINKFILE error)
-	octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TUT006.sql >> output.txt 2>&1 || true
-	echo "# Now run a SELECT query. It should not issue a ZLINKFILE error because it does not need triggers" >> output.txt
-	echo "SELECT * from names;" | octo >> output.txt
+	echo "# Run UPDATE queries that will need the triggers" >> output.txt
+	load_fixture TUT006.sql subtest novv
 	verify_output TUT006 output.txt
 }
 
@@ -141,8 +137,8 @@ teardown() {
 	# (e.g. hello_db/HDB01 subtest etc.) in case we error out in the later steps of this TUT009 subtest
 	psql names -c 'drop table if exists TUT009;' >& postgres.drop_table_TUT009.out
 	echo '# Verify key fixing optimization happened for = operator in WHERE clause' >> output.txt
-	echo '# Key fixed query will have a plan that does $ORDER(^%ydboctoxref)' >> output.txt
-	grep -E -B 1 "insert into|update|select|ydboctoxref" _ydboctoP*.m >> output.txt
+	echo '# Key fixed query will have a plan that does $ORDER(^%ydbAIMD*)' >> output.txt
+	grep -E -B 1 "insert into|update|select|ydbAIMD" _ydboctoP*.m >> output.txt
 	verify_output TUT009 output.txt
 }
 

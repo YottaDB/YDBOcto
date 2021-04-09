@@ -1,0 +1,24 @@
+# Start 3 rocto servers in the background by initiating 3 client connections to the same rocto port
+# Each client runs the same query in TPC026.sql that takes 12 seconds to complete
+# Sleep 5 seconds to give rocto servers time to have started executing queries
+# Since they anyways will take 12 seconds to run, we are not losing any test runtime due to this sleep.
+# Check YDB locks owned by backgrounded rocto server processes. We expect 3 of them.
+# Before YDBOcto#710 fix, we would see only 1 lock at any point in time.
+PASS : 3 locks seen in LKE SHOW -ALL output as expected
+# Wait for backgrounded clients to finish
+# Verify that all 3 queries that ran concurrently gave the correct output
+ hangtime 
+----------
+ Zero12
+(1 row)
+
+ hangtime 
+----------
+ Zero12
+(1 row)
+
+ hangtime 
+----------
+ Zero12
+(1 row)
+

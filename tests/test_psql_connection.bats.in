@@ -452,3 +452,25 @@ OCTO
 	run_psql $test_port TPC025.sql 2>&1 | tee output.txt
 	verify_output TPC025 output.txt noinfo nodebug
 }
+
+@test "TPC026 : OCTO710 : Test multiple clients connect to same rocto listener and run concurrent queries fine" {
+	load_fixture HANGTIME.sql       # Define HANGTIME as a function
+	echo "# Start 3 rocto servers in the background by initiating 3 client connections to the same rocto port" > output.txt
+	echo "# Each client runs the same query in TPC026.sql that takes 12 seconds to complete" >> output.txt
+	run_psql $test_port TPC026.sql > output1.txt 2>&1 &
+	run_psql $test_port TPC026.sql > output2.txt 2>&1 &
+	run_psql $test_port TPC026.sql > output3.txt 2>&1 &
+	echo "# Sleep 5 seconds to give rocto servers time to have started executing queries" >> output.txt
+	echo "# Since they anyways will take 12 seconds to run, we are not losing any test runtime due to this sleep." >> output.txt
+	sleep 5s
+	echo "# Check YDB locks owned by backgrounded rocto server processes. We expect 3 of them." >> output.txt
+	echo "# Before YDBOcto#710 fix, we would see only 1 lock at any point in time." >> output.txt
+	$ydb_dist/lke show -all > output0.txt 2>&1
+	echo "PASS : 3 locks seen in LKE SHOW -ALL output as expected" >> output.txt
+	[[ $(grep "ddl" output0.txt | sort -u | wc -l) -eq 3 ]]
+	echo "# Wait for backgrounded clients to finish" >> output.txt
+	wait %1 %2 %3
+	echo "# Verify that all 3 queries that ran concurrently gave the correct output" >> output.txt
+	cat output1.txt output2.txt output3.txt >> output.txt
+	verify_output TPC026 output.txt noinfo nodebug
+}

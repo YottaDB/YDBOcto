@@ -251,6 +251,9 @@ int main(int argc, char **argv) {
 		// Reset thread id to identify it as child process
 		thread_id = 0;
 
+		// Reset process_id to point to the child (would be pointing to the parent pid till now)
+		config->process_id = getpid();
+
 		// First we read the startup message, which has a special format
 		// 2x32-bit ints
 		rocto_session.connection_fd = cfd;
@@ -362,7 +365,7 @@ int main(int argc, char **argv) {
 		}
 
 		// Get actual (non-zero) pid of child/server
-		child_id = getpid();
+		child_id = config->process_id;
 		snprintf(pid_str, INT32_TO_STRING_MAX, "%u", child_id);
 		YDB_STRING_TO_BUFFER(pid_str, pid_buffer);
 		// Clear all other secret key/pid pairs from other servers

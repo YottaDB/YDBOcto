@@ -251,9 +251,10 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	}
 	/* NEW variables that are used across all plans. Do it only once at the start of plan instead of inside each plan
 	 * where the variable is used. Saves on multiple NEWs of the same variable particularly if the NEW happens to be
-	 * inside a FOR loop.
+	 * inside a FOR loop. Note that PP_YDB_OCTO_Z needs to be NEWed inside each plan separately (as opposed to once
+	 * across all plans). See YDBOcto#706 for details.
 	 */
-	fprintf(output_file, "    NEW %s,%s,%s,%s\n", PP_YDB_OCTO_G, PP_YDB_OCTO_P, PP_YDB_OCTO_Z, PP_YDB_OCTO_EXPR);
+	fprintf(output_file, "    NEW %s,%s,%s\n", PP_YDB_OCTO_G, PP_YDB_OCTO_P, PP_YDB_OCTO_EXPR);
 	fprintf(output_file, "    TSTART:wrapInTp ():(serial)\n"); /* Wrap post-xref part of query in TP if requested */
 	for (cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next) {
 		if (NULL != cur_plan->deferred_parent_plan)

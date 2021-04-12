@@ -36,7 +36,7 @@ octoPlan0(cursorId,wrapInTp)
     DO:'$DATA(^%ydboctoocto("xref_status","PG_CATALOG.PG_CLASS","RELNAMESPACE")) xrefPlan^%ydboctoXYkad267rlVZ6m59u2qFgB3(cursorId)
     DO:'$DATA(^%ydboctoocto("xref_status","PG_CATALOG.PG_ATTRIBUTE","ATTRELID")) xrefPlan^%ydboctoXrhrVFmIWwx028jWceQCy61(cursorId)
     DO:'$DATA(^%ydboctoocto("xref_status","PG_CATALOG.PG_TYPE","OID")) xrefPlan^%ydboctoXvhqpVjZolduTu0c3uUtyBH(cursorId)
-    NEW %ydboctog,%ydboctop,%ydboctoz,%ydboctoexpr
+    NEW %ydboctog,%ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)
@@ -44,7 +44,7 @@ octoPlan0(cursorId,wrapInTp)
     QUIT
 
 octoPlan1(cursorId)
-    KILL %ydboctocursor(cursorId,"keys",8,"","")
+    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",8,"","")
     DO
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",8))
     SET %ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","NSPNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","NSPNAME")) IF $DATA(^%ydboctoxref("PG_CATALOG.PG_NAMESPACE","NSPNAME",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","NSPNAME"))) DO
@@ -153,7 +153,7 @@ octoPlan1(cursorId)
     QUIT
 
 octoPlan2(cursorId)
-    KILL %ydboctocursor(cursorId,"keys",7,"","")
+    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",7,"","")
     SET %ydboctocursor(cursorId,"keys",8,"","")=""
     FOR  SET %ydboctocursor(cursorId,"keys",8,"","")=$ORDER(%ydboctocursor(cursorId,"keys",8,"","",%ydboctocursor(cursorId,"keys",8,"",""))) QUIT:(%ydboctocursor(cursorId,"keys",8,"","")="")  DO
     . SET %ydboctoexpr=1
@@ -226,14 +226,14 @@ octoPlan0(cursorId,wrapInTp)
     DO:'$DATA(^%ydboctoocto("xref_status","PG_CATALOG.PG_TYPE","OID")) xrefPlan^%ydboctoXvhqpVjZolduTu0c3uUtyBH(cursorId)
     DO:'$DATA(^%ydboctoocto("xref_status","PG_CATALOG.PG_ATTRDEF","ADRELID")) xrefPlan^%ydboctoXP4JgVezp1y2WP35NRvu7A8(cursorId)
     DO:'$DATA(^%ydboctoocto("xref_status","PG_CATALOG.PG_DESCRIPTION","OBJOID")) xrefPlan^%ydboctoX3SmteSmt6Etu65fUXSSiJ0(cursorId)
-    NEW %ydboctog,%ydboctop,%ydboctoz,%ydboctoexpr
+    NEW %ydboctog,%ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)
-    KILL %ydboctocursor(cursorId,"keys",10,"","")
+    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",10,"","")
     SET %ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID")=""
     FOR  SET %ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID")=$ORDER(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID")="")  DO
     . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID")
@@ -728,14 +728,14 @@ octoPlan0(cursorId,wrapInTp)
     DO:'$DATA(^%ydboctoocto("xref_status","PG_CATALOG.PG_TYPE","OID")) xrefPlan^%ydboctoXvhqpVjZolduTu0c3uUtyBH(cursorId)
     DO:'$DATA(^%ydboctoocto("xref_status","PG_CATALOG.PG_ATTRDEF","ADRELID")) xrefPlan^%ydboctoXP4JgVezp1y2WP35NRvu7A8(cursorId)
     DO:'$DATA(^%ydboctoocto("xref_status","PG_CATALOG.PG_DESCRIPTION","OBJOID")) xrefPlan^%ydboctoX3SmteSmt6Etu65fUXSSiJ0(cursorId)
-    NEW %ydboctog,%ydboctop,%ydboctoz,%ydboctoexpr
+    NEW %ydboctog,%ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)
-    KILL %ydboctocursor(cursorId,"keys",10,"","")
+    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",10,"","")
     SET %ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID")=""
     FOR  SET %ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID")=$ORDER(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID")="")  DO
     . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID")
@@ -1165,7 +1165,7 @@ octoPlan0(cursorId,wrapInTp)
     DO:'$DATA(^%ydboctoocto("xref_status","PG_CATALOG.PG_CLASS","RELNAMESPACE")) xrefPlan^%ydboctoXYkad267rlVZ6m59u2qFgB3(cursorId)
     DO:'$DATA(^%ydboctoocto("xref_status","PG_CATALOG.PG_ATTRIBUTE","ATTRELID")) xrefPlan^%ydboctoXrhrVFmIWwx028jWceQCy61(cursorId)
     DO:'$DATA(^%ydboctoocto("xref_status","PG_CATALOG.PG_TYPE","OID")) xrefPlan^%ydboctoXvhqpVjZolduTu0c3uUtyBH(cursorId)
-    NEW %ydboctog,%ydboctop,%ydboctoz,%ydboctoexpr
+    NEW %ydboctog,%ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)
@@ -1173,7 +1173,7 @@ octoPlan0(cursorId,wrapInTp)
     QUIT
 
 octoPlan1(cursorId)
-    KILL %ydboctocursor(cursorId,"keys",8,"","")
+    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",8,"","")
     DO
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",9))
     SET %ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","NSPNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","NSPNAME")) IF $DATA(^%ydboctoxref("PG_CATALOG.PG_NAMESPACE","NSPNAME",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","NSPNAME"))) DO
@@ -1282,7 +1282,7 @@ octoPlan1(cursorId)
     QUIT
 
 octoPlan2(cursorId)
-    KILL %ydboctocursor(cursorId,"keys",7,"","")
+    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",7,"","")
     SET %ydboctocursor(cursorId,"keys",8,"","")=""
     FOR  SET %ydboctocursor(cursorId,"keys",8,"","")=$ORDER(%ydboctocursor(cursorId,"keys",8,"","",%ydboctocursor(cursorId,"keys",8,"",""))) QUIT:(%ydboctocursor(cursorId,"keys",8,"","")="")  DO
     . SET %ydboctoexpr=1

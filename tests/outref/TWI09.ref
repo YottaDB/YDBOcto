@@ -19,14 +19,14 @@ ID|ID
 
 octoPlan0(cursorId,wrapInTp)
     DO:'$DATA(^%ydboctoocto("xref_status","ORDERS","ORDER_AMOUNT")) xrefPlan^%ydboctoX2rbmGQx4OtlbPfepALF2EA(cursorId)
-    NEW %ydboctog,%ydboctop,%ydboctoz,%ydboctoexpr
+    NEW %ydboctog,%ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)
-    KILL %ydboctocursor(cursorId,"keys",4,"","")
+    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",4,"","")
     NEW %ydboctoin1
     DO
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
@@ -117,14 +117,14 @@ octoPlan1(cursorId)
 
 octoPlan0(cursorId,wrapInTp)
     DO:'$DATA(^%ydboctoocto("xref_status","NAMES","LASTNAME")) xrefPlan^%ydboctoXOMMMsQ8ks3NI1C42wS8F05(cursorId)
-    NEW %ydboctog,%ydboctop,%ydboctoz,%ydboctoexpr
+    NEW %ydboctog,%ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)
-    KILL %ydboctocursor(cursorId,"keys",4,"","")
+    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",4,"","")
     NEW %ydboctoin1
     DO
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))

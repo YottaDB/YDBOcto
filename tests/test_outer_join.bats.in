@@ -115,3 +115,9 @@ teardown() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TOJ09.sql
 }
 
+@test "TOJ10 : OCTO706 : customers schema : Incorrect query results when RIGHT/FULL JOIN is used with OR in WHERE clause" {
+  load_fixture customers.sql
+  load_fixture customers.zwr
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TOJ10.sql
+}
+

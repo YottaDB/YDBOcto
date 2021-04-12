@@ -228,16 +228,16 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		} while (NULL != lp_row_value);
 	} else {
 		assert(LP_SELECT_QUERY == plan->lp_select_query->type);
+		%{}NEW %%ydboctoz{}%
 		limit_keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
 		if ((NULL != limit_keyword) && (NULL == plan->dnf_prev)) {
-			%{}SET {{ PP_YDB_OCTO_ZLIMIT }}({{ plan->outputKey->unique_id|%d }})=0{}%
-			%{}`n{{ PLAN_LINE_START }}{}% // Whitespace for MUMPS
+			%{} SET {{ PP_YDB_OCTO_ZLIMIT }}({{ plan->outputKey->unique_id|%d }})=0{}%
 		}
 		if (NULL == plan->dnf_prev) {
-			%{}KILL {}%
+			%{} KILL {}%
 			TMPL(tmpl_key, plan->outputKey);
-			%{}`n{{ PLAN_LINE_START }}{}% // Whitespace for MUMPS
 		}
+		%{}`n{{ PLAN_LINE_START }}{}% // Whitespace for MUMPS
 		cur_key = 0;
 		dot_count = 0;
 		assert(FALSE == plan->tablejoin_body_group_by_done);

@@ -31,7 +31,7 @@ init_test() {
 		export ydb_chset=UTF-8
 		utf8_path="/utf8"
 	else
-		unset ydb_chset
+		export ydb_chset=M
 		utf8_path=""
 		# Set ydb_icu_version to the right value even if we chose M mode. This way, wherever we set ydb_chset to "UTF-8"
 		# (e.g. in "load_fixture()" function while loading the northwind.zwr fixture) things will work fine.

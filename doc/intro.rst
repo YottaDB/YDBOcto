@@ -266,7 +266,7 @@ Install Octo
       To additionally disable the generation of installation rules for the :code:`make install`, add :code:`-DDISABLE_INSTALL=ON`. This can be useful when doing testing in a temporary build directory only.
 
 
-      To build the full test suite rather than a subset of it, the :code:`FULL_TEST_SUITE` option needs to be set to :code:`ON`, e.g. :code:`cmake -D FULL_TEST_SUITE=ON ..`.
+      To build the full test suite rather than a subset of it, the :code:`FULL_TEST_SUITE` option needs to be set to :code:`ON`, e.g. :code:`cmake -D FULL_TEST_SUITE=ON ..`. In addition, there is a speed test that can be enabled by :code:`cmake -D TEST_SPEED=ON`. The speed test is intended for use in benchmarking and needs to be run separately from the full test suite. Run it with :code:`bats -T bats_tests/test_speed.bats` or with the equivalent command :code:`ctest -V -R test_speed`.
 
       To show the output of failed tests, export the environment variable :code:`CTEST_OUTPUT_ON_FAILURE=TRUE`. Alternatively, you can show output for only a single run by passing the argument to make: :code:`make CTEST_OUTPUT_ON_FAILURE=TRUE test`.
 

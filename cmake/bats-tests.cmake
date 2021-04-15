@@ -10,14 +10,23 @@
 #								#
 #################################################################
 
-macro(ADD_BATS_TEST TEST_NAME)
+macro(CONFIGURE_BATS_TEST TEST_NAME)
   configure_file (
     "${PROJECT_SOURCE_DIR}/tests/${TEST_NAME}.bats.in"
     "${PROJECT_BINARY_DIR}/bats_tests/${TEST_NAME}.bats"
     @ONLY
   )
+endmacro()
+
+macro(ADD_BATS_TEST TEST_NAME)
+  CONFIGURE_BATS_TEST(${TEST_NAME})
   add_test(${TEST_NAME} ${BATS} --tap ${PROJECT_BINARY_DIR}/bats_tests/${TEST_NAME}.bats)
 endmacro(ADD_BATS_TEST)
+
+macro(ADD_BATS_TEST_WITH_TIME TEST_NAME)
+  CONFIGURE_BATS_TEST(${TEST_NAME})
+  add_test(${TEST_NAME} ${BATS} -T --tap ${PROJECT_BINARY_DIR}/bats_tests/${TEST_NAME}.bats)
+endmacro(ADD_BATS_TEST_WITH_TIME)
 
 # Copy over the setup script
 configure_file (
@@ -36,7 +45,7 @@ if(psql)
 endif()
 
 # These tests are only run in the full test suite, but omitted during installation testing
-if("${FULL_TEST_SUITE}" MATCHES "ON")
+if("${FULL_TEST_SUITE}")
 	ADD_BATS_TEST(hello_psql)
 	ADD_BATS_TEST(test_where)
 	ADD_BATS_TEST(test_order_by)
@@ -143,4 +152,6 @@ if("${FULL_TEST_SUITE}" MATCHES "ON")
 
 	ADD_BATS_TEST(test_octo_conf)
 endif()
-
+if(${TEST_SPEED})
+	ADD_BATS_TEST_WITH_TIME(test_speed)
+endif()

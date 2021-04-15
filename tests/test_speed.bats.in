@@ -1,0 +1,146 @@
+#################################################################
+#								#
+# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+load test_helpers
+
+# We only have a setup_file not setup, as we only want to create
+# a single database and run multiple tests on it. This gives us several
+# advantages:
+# 1. loadbigdata and downloading data takes time, so only run once.
+# 2. BATS counts the set-up time in test execution time; we don't want that.
+# 3. where queries can be tested a second time after the xref is created so
+#    that we can see the speed of the subsequent queries
+# Disadvantages:
+# The tests rely on each other executed sequentially. Since we don't use bats
+# parallelization (it doesn't actually work with Octo's tests for un unknown
+# reason right now), it is not a problem.
+
+setup_file() {
+  # Get RxNorm Data
+  # Download at base level, to prevent re-downloads
+  if [ ! -d rrf ]; then
+	  if [ ! -f RxNorm_full_prescribe_04052021.zip ]; then
+		  curl -LO https://download.nlm.nih.gov/rxnorm/RxNorm_full_prescribe_04052021.zip
+	  fi
+	  unzip RxNorm_full_prescribe_04052021.zip 'rrf/*'
+	  rm RxNorm_full_prescribe_04052021.zip
+  fi
+
+  init_test
+
+  # 600MB initial DEFAULT region/segment file to prevent expansion while loading RxNorm
+  createdb
+  $ydb_dist/mupip extend -blocks=153600 DEFAULT
+
+  # Turn on journaling for Octo for a realistic testing scenario
+  $ydb_dist/mupip set -journal="enable,on,before" -file octo.dat
+
+  # Create names table, and load 1 million rows of A|B, A|C etc into ^names
+  load_fixture names.sql
+  load_fixture names.zwr
+  $ydb_dist/yottadb -run loadbigdata
+  # Create RxNorm Data Tables (data already uses pipe delimiter)
+  load_fixture RXNCONSO_create_table.sql
+  load_fixture RXNREL_create_table.sql
+  load_fixture RXNSAT_create_table.sql
+  # We load the tables for tests
+  # For RxNorm Load, files are:
+  # - ../rrf/RXNCONSO.RRF
+  # - ../rrf/RXNREL.RRF
+  # - ../rrf/RXNSAT.RRF
+  $ydb_dist/mumps -r rxnconso^rxnormload ../rrf/RXNCONSO.RRF
+  $ydb_dist/mumps -r rxnrel^rxnormload ../rrf/RXNREL.RRF
+  $ydb_dist/mumps -r rxnsat^rxnormload ../rrf/RXNSAT.RRF
+
+  # Load Northwind for the Squirrel SQL Column Listing
+  load_fixture northwind.sql
+  load_fixture northwind.zwr
+}
+
+# Test philosophy. Run each query 2-3 times. It proves the following:
+# - If an index needs to be created, it will be created in the first time.
+# - Cacheing effects are seen with subsequent queries.
+
+@test "TSPEED001-1 : select count * from names #1" {
+  load_fixture TSPEED001.sql subtest novv
+}
+
+@test "TSPEED001-2 : select count * from names #2" {
+  load_fixture TSPEED001.sql subtest novv
+}
+
+@test "TSPEED003-1 : select where #1" {
+  load_fixture TSPEED003.sql subtest novv
+}
+
+@test "TSPEED003-2 : select where #2" {
+  load_fixture TSPEED003.sql subtest novv
+}
+
+@test "TSPEED003-3 : select where #3" {
+  load_fixture TSPEED003.sql subtest novv
+}
+
+@test "TSPEED004-1 : Northwind database Squirrel SQL Column Listing" {
+  load_fixture TSSCQ18.sql subtest novv
+}
+
+@test "TSPEED004-2 : Northwind database Squirrel SQL Column Listing" {
+  load_fixture TSSCQ18.sql subtest novv
+}
+
+@test "TSPEED004-3 : Northwind database Squirrel SQL Column Listing" {
+  load_fixture TSSCQ18.sql subtest novv
+}
+
+@test "TSPEED005-1 : select count * from RXNCONSO" {
+  load_fixture TSPEED005.sql subtest novv
+}
+
+@test "TSPEED005-2 : select count * from RXNCONSO" {
+  load_fixture TSPEED005.sql subtest novv
+}
+
+@test "TSPEED006-1 : sample 1: RXNORM entries for Ibuprofen 200mg oral tablets" {
+  load_fixture TSPEED006.sql subtest novv
+}
+
+@test "TSPEED006-2 : sample 1: RXNORM entries for Ibuprofen 200mg oral tablets" {
+  load_fixture TSPEED006.sql subtest novv
+}
+
+@test "TSPEED006-3 : sample 1: RXNORM entries for Ibuprofen 200mg oral tablets" {
+  load_fixture TSPEED006.sql subtest novv
+}
+
+@test "TSPEED007-1 : sample 2: Ibuprofen Tradenames" {
+  load_fixture TSPEED007.sql subtest novv
+}
+
+@test "TSPEED007-2 : sample 2: Ibuprofen Tradenames" {
+  load_fixture TSPEED007.sql subtest novv
+}
+
+@test "TSPEED007-3 : sample 2: Ibuprofen Tradenames" {
+  load_fixture TSPEED007.sql subtest novv
+}
+
+@test "TSPEED008-1 : sample 3: Ibuprofen 200mg oral tablets NDCs" {
+  load_fixture TSPEED008.sql subtest novv
+}
+
+@test "TSPEED008-2 : sample 3: Ibuprofen 200mg oral tablets NDCs" {
+  load_fixture TSPEED008.sql subtest novv
+}
+
+@test "TSPEED008-3 : sample 3: Ibuprofen 200mg oral tablets NDCs" {
+  load_fixture TSPEED008.sql subtest novv
+}

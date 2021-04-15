@@ -42,7 +42,7 @@ if echo "$skipextensions" | grep -q -w "$(echo "$file" | awk -F . '{print $NF}')
 fi
 
 # Below is a list of specific files that do not have a copyright so ignore them
-skiplist="COPYING README.md LICENSE"
+skiplist="COPYING README.md LICENSE tests/fixtures/TSPEED006.sql tests/fixtures/TSPEED007.sql"
 for skipfile in $skiplist; do
 	if [ "$file" = "$skipfile" ]; then
 		exit 1

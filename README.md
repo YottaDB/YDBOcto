@@ -214,7 +214,7 @@ The Octo plugin can be installed by using the `--octo` option when installing Yo
 
    To additionally disable the generation of installation rules for `make install`, add `-DDISABLE_INSTALL=ON`. This can be useful when doing testing in a temporary build directory only.
 
-   To build the full test suite rather than a subset of it, the `FULL_TEST_SUITE` option needs to be set to `ON`, e.g. `cmake -D FULL_TEST_SUITE=ON ..`.
+   To build the full test suite rather than a subset of it, the `FULL_TEST_SUITE` option needs to be set to `ON`, e.g. `cmake -D FULL_TEST_SUITE=ON ..`. In addition, there is a speed test that can be enabled by `cmake -D TEST_SPEED=ON`. The speed test is intended for use in benchmarking and needs to be run separately from the full test suite. Run it with `bats -T bats_tests/test_speed.bats` or with the equivalent command `ctest -V -R test_speed`.
 
    To show the output of failed tests, export the environment variable `CTEST_OUTPUT_ON_FAILURE=TRUE`. Alternatively, you can show output for only a single run by passing the argument to make: `make CTEST_OUTPUT_ON_FAILURE=TRUE test`.
 

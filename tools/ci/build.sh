@@ -444,7 +444,13 @@ if [[ $disable_install == "OFF" ]]; then
 	echo " -> Done setting up Octo plugin"
 	echo " -> ydb_routines: $ydb_routines"
 else
-	export ydb_routines="$(pwd)/_ydbocto.so $ydb_routines"
+	# In case DISABLE_INSTALL = ON, we need to set the correct UTF-8 directory for $ZROUTINES
+	# In case DISABLE_INSTALL = OFF, ydb_env_set takes care of that for us.
+	if [ "$ydb_chset" = "UTF-8" ]; then
+		export ydb_routines="$(pwd)/utf8/_ydbocto.so $ydb_routines"
+	else
+		export ydb_routines="$(pwd)/_ydbocto.so $ydb_routines"
+	fi
 	echo " -> ydb_routines: $ydb_routines"
 fi
 

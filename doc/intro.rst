@@ -168,7 +168,20 @@ Install Octo
 	   export JDBC_VERSION=42.2.12
 	   wget https://jdbc.postgresql.org/download/postgresql-$JDBC_VERSION.jar
 
-     2. *(Optional)* Install cmocka unit testing framework
+     2.  Install the en_US.utf8 locale
+ 
+         Octo tests should be run with the en_US.utf8 locale due to collation order differences in other locales that cause some test outputs to not match reference outputs.
+ 
+        .. code-block:: bash
+
+           # Debian
+           locale -a
+           # if "en_US.utf8" does not appear among the available locales listed by the above command, proceed to the steps below:
+           sudo vi /etc/locale.gen # or use your preferred text editor
+           # Uncomment the line in /etc/locale.gen that reads "en_US.UTF-8 UTF-8", then save and exit
+           sudo locale-gen
+
+     3. *(Optional)* Install cmocka unit testing framework
 
         Octo uses cmocka for automated unit testing. To build and run Octo's unit tests, cmocka must be installed:
 
@@ -180,7 +193,7 @@ Install Octo
 	   # CentOS Linux OR RedHat Linux
 	   sudo yum install libcmocka-devel
 
-     3. *(Optional)* Install PostgreSQL client (psql)
+     4. *(Optional)* Install PostgreSQL client (psql)
 
         Octo uses the psql PostgreSQL for some integration/regression tests. To build and run these tests, psql must be installed:
 
@@ -193,7 +206,7 @@ Install Octo
 	   sudo yum install postgresql
 
 
-     4. *(Optional)* Install PostgreSQL server
+     5. *(Optional)* Install PostgreSQL server
 
         Octo uses the PostgreSQL server for some integration/regression tests. To build and run these tests, PostgreSQL must be installed:
 
@@ -215,7 +228,7 @@ Install Octo
 	   PSQL
 
 
-     5. *(Optional)* Install UnixODBC and the Postgres ODBC Shared Library
+     6. *(Optional)* Install UnixODBC and the Postgres ODBC Shared Library
 
         Octo runs ODBC driver tests if the UnixODBC package is installed. To build and run these tests, you need to do the following:
 
@@ -228,7 +241,7 @@ Install Octo
 	   sudo yum install unixODBC postgresql-odbc
 
 
-     6. *(Optional - CentOS/RHEL7 only)* Install Perl
+     7. *(Optional - CentOS/RHEL7 only)* Install Perl
 
 	On CentOS 7 and RHEL7, Octo test queries sometimes produce output with superfluous escape sequences. These escape sequences are removed by a Perl script, making Perl a dependency for Octo testing on these platforms.
 

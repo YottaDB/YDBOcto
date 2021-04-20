@@ -116,6 +116,19 @@ The Octo plugin can be installed by using the `--octo` option when installing Yo
 	 wget https://jdbc.postgresql.org/download/postgresql-$JDBC_VERSION.jar
 	 ```
 
+   - Install the en_US.utf8 locale
+
+	 Octo tests should be run with the en_US.utf8 locale due to collation order differences in other locales that cause some test outputs to not match reference outputs.
+
+	 ```sh
+	 # Debian
+	 locale -a
+	 # if "en_US.utf8" does not appear among the available locales listed by the above command, proceed to the steps below:
+	 sudo vi /etc/locale.gen # or use your preferred text editor
+	 # Uncomment the line in /etc/locale.gen that reads "en_US.UTF-8 UTF-8", then save and exit
+	 sudo locale-gen
+	 ```
+
    - Install cmocka unit testing framework
 
 	 Octo uses cmocka for automated unit testing. To build and run Octo's unit tests, cmocka must be installed:
@@ -163,7 +176,7 @@ The Octo plugin can be installed by using the `--octo` option when installing Yo
 
    - Install UnixODBC and the Postgres ODBC Shared Library
 
-	Octo runs ODBC driver tests if the UnixODBC package is installed. To build and run these tests, you need to do the following:
+	 Octo runs ODBC driver tests if the UnixODBC package is installed. To build and run these tests, you need to do the following:
 
 	 ```sh
 	 # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian

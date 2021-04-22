@@ -1694,7 +1694,11 @@ innerSelectList(queryDepth,subQueryType,curDepth,alias)
 	. . set toBeAdded=agg_" as "_chosenColumn_", "
 	. . set result=result_toBeAdded
 	.
-	. for i=1:1 do  quit:(chosenColumn'=chosenColumn2)  do assert(i<16)
+	. ; Note: In tables that have only 2 columns (e.g. `stock_availability` table in `boolean.sql`)
+	. ; it is possible that the randomly chosen "chosenColumn2" ends up being the same as "chosenColumn"
+	. ; for a lot of iterations (we have seen "i" go as high as up to 16 and fail an "assert(i<16)" below).
+	. ; Hence the use of "64" below which should make it almost impossible for the for loop to assert fail.
+	. for i=1:1 do  quit:(chosenColumn'=chosenColumn2)  do assert(i<64)
 	. . set chosenColumn2=$$chooseColumn(table)
 	. set tc=table_"."_chosenColumn2
 	. set selectListLVN(queryDepth,tc)="table.column"

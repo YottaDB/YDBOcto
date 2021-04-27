@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -42,7 +42,11 @@ int get_field_start(char *buffer, int num_spaces) {
 	return -1;
 }
 
-// Retrieves the start time of process with specified PID relative to time of system boot
+/* Retrieves the start time of process with specified PID relative to time of system boot.
+ * Returns non-zero time in most cases (normal return).
+ * Returns 0 time in rare cases if child process has already terminated (normal return).
+ * Returns 0 time in case of an error (abnormal return).
+ */
 unsigned long long get_pid_start_time(pid_t pid) {
 	int		   field_start, stat_fd, result;
 	int		   stat_buf_size = 8192;
@@ -57,6 +61,20 @@ unsigned long long get_pid_start_time(pid_t pid) {
 	snprintf(file_path, INT32_TO_STRING_MAX + 12, "/proc/%u/stat", pid);
 	// Read the file
 	stat_fd = open(file_path, O_RDONLY);
+	if (0 > stat_fd) {
+		/* Check if the "open()" failed because the file is missing (i.e. errno is "ENOENT"). If so,
+		 * the only way we know this as possible is if the child (rocto server) pid, that was created
+		 * just now in the caller of this function using a "fork()" call, already terminated (very soon
+		 * after it was created) and the "rocto_helper_waitpid()" thread in the parent already did a "wait()"
+		 * call so the child's exit status was reaped. In this case, there is no need to register the pid
+		 * start time as there is no need to handle any cancel query requests for this child pid. Therefore
+		 * return without an error in this case. If not "ENOENT" though, record an error in the log file.
+		 */
+		if (ENOENT != errno) {
+			ERROR(ERR_SYSCALL, "open()", errno, strerror(errno));
+		}
+		return 0;
+	}
 	result = read(stat_fd, stat_buf, stat_buf_size);
 	// Handle errors
 	if (result < 0) {

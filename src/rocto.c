@@ -230,21 +230,24 @@ int main(int argc, char **argv) {
 
 			// Get timestamp of the new process
 			timestamp = get_pid_start_time(child_id);
-			if (0 == timestamp) {
-				// Error emitted by callee get_pid_start_time()
-				// No ErrorResponse is issued as this block is executed by the listener process,
-				// i.e. we haven't yet established a client-server connection.
-				// This means that the server won't be able to process cancel requests for this pid
-				// due to the missing timestamp.
-				break;
+			if (0 != timestamp) {
+				// Populate pid/timestamp buffers
+				YDB_LITERAL_TO_BUFFER(OCTOLIT_TIMESTAMP, &pid_subs[1]);
+				snprintf(timestamp_str, INT64_TO_STRING_MAX, "%zu", timestamp);
+				YDB_STRING_TO_BUFFER(timestamp_str, &timestamp_buffer);
+				// Add timestamp under PID key
+				status = ydb_set_s(&secret_key_list_buffer, 2, &pid_subs[0], &timestamp_buffer);
+				YDB_ERROR_CHECK(status);
 			}
-			// Populate pid/timestamp buffers
-			YDB_LITERAL_TO_BUFFER(OCTOLIT_TIMESTAMP, &pid_subs[1]);
-			snprintf(timestamp_str, INT64_TO_STRING_MAX, "%zu", timestamp);
-			YDB_STRING_TO_BUFFER(timestamp_str, &timestamp_buffer);
-			// Add timestamp under PID key
-			status = ydb_set_s(&secret_key_list_buffer, 2, &pid_subs[0], &timestamp_buffer);
-			YDB_ERROR_CHECK(status);
+			/* Else: "timestamp" is 0. This could mean
+			 * a) normal return if "child_id" has already terminated OR
+			 * b) an abnormal return if "child_id" is a live process and there was an error trying to
+			 *	retrieve the creation timestamp of "child_id".
+			 * In either case, we will not be able to process cancel requests for this pid due to the missing
+			 * timestamp. But in case (a), it does not matter since the pid is dead. In case (b), an error message
+			 * would have already been logged by "get_pid_start_time()" so we have a record of this incident.
+			 * Nothing more to be done. Continue to listen in the port for future connections.
+			 */
 			continue;
 		}
 

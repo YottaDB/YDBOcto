@@ -1,13 +1,13 @@
 #################################################################
-#								#
-# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
-# All rights reserved.						#
-#								#
-#	This source code contains the intellectual property	#
-#	of its copyright holder(s), and is made available	#
-#	under a license.  If you do not know the terms of	#
-#	the license, please stop and do not read further.	#
-#								#
+#                                                               #
+# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.       #
+# All rights reserved.                                          #
+#                                                               #
+#       This source code contains the intellectual property     #
+#       of its copyright holder(s), and is made available       #
+#       under a license.  If you do not know the terms of       #
+#       the license, please stop and do not read further.       #
+#                                                               #
 #################################################################
 load test_helpers
 
@@ -27,11 +27,22 @@ setup_file() {
   # Get RxNorm Data
   # Download at base level, to prevent re-downloads
   if [ ! -d rrf ]; then
-	  if [ ! -f RxNorm_full_prescribe_04052021.zip ]; then
-		  curl -LO https://download.nlm.nih.gov/rxnorm/RxNorm_full_prescribe_04052021.zip
-	  fi
-	  unzip RxNorm_full_prescribe_04052021.zip 'rrf/*'
-	  rm RxNorm_full_prescribe_04052021.zip
+    if [ ! -f RxNorm_full_prescribe_04052021.zip ]; then
+      curl -LO https://download.nlm.nih.gov/rxnorm/RxNorm_full_prescribe_04052021.zip
+    fi
+    unzip RxNorm_full_prescribe_04052021.zip 'rrf/*'
+    rm RxNorm_full_prescribe_04052021.zip
+  fi
+
+  # Get VistA Data
+  # Download at base level, to prevent re-downloads
+  if [ ! -d vista_zwr ]; then
+    mkdir vista_zwr && cd vista_zwr
+    curl \
+      -LO https://raw.githubusercontent.com/WorldVistA/VistA-M/master/Packages/Enterprise%20Terminology%20Services/Globals/129.2-1%2BRXNORM%20CONCEPT%20NAMES%20AND%20SOURCES.zwr \
+      -LO https://raw.githubusercontent.com/WorldVistA/VistA-M/master/Packages/Enterprise%20Terminology%20Services/Globals/129.2-2%2BRXNORM%20CONCEPT%20NAMES%20AND%20SOURCES.zwr \
+      -LO https://raw.githubusercontent.com/WorldVistA/VistA-M/master/Packages/Enterprise%20Terminology%20Services/Globals/129.2-3%2BRXNORM%20CONCEPT%20NAMES%20AND%20SOURCES.zwr
+    cd ..
   fi
 
   init_test
@@ -63,6 +74,12 @@ setup_file() {
   # Load Northwind for the Squirrel SQL Column Listing
   load_fixture northwind.sql
   load_fixture northwind.zwr
+
+  # Load VistA Table with its DDL
+  $ydb_dist/mupip load -ignorechset ../vista_zwr/129.2-1%2BRXNORM%20CONCEPT%20NAMES%20AND%20SOURCES.zwr
+  $ydb_dist/mupip load -ignorechset ../vista_zwr/129.2-2%2BRXNORM%20CONCEPT%20NAMES%20AND%20SOURCES.zwr
+  $ydb_dist/mupip load -ignorechset ../vista_zwr/129.2-3%2BRXNORM%20CONCEPT%20NAMES%20AND%20SOURCES.zwr
+  load_fixture vista-file-129_2.sql
 }
 
 # Test philosophy. Run each query 2-3 times. It proves the following:
@@ -143,4 +160,16 @@ setup_file() {
 
 @test "TSPEED008-3 : sample 3: Ibuprofen 200mg oral tablets NDCs" {
   load_fixture TSPEED008.sql subtest novv
+}
+
+@test "TSPEED009-1 : VistA Dispersed .5 million records where clause" {
+  load_fixture TSPEED009.sql subtest novv
+}
+
+@test "TSPEED009-2 : VistA Dispersed .5 million records where clause" {
+  load_fixture TSPEED009.sql subtest novv
+}
+
+@test "TSPEED009-3 : VistA Dispersed .5 million records where clause" {
+  load_fixture TSPEED009.sql subtest novv
 }

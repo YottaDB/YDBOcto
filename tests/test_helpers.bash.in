@@ -179,6 +179,10 @@ load_postgres_fixture() {
 }
 
 createdb() {
+	# Need to have non-default key size specified as otherwise it won't fit
+	# VistA globals.  Technically, VistA only needs the M standard's
+	# maximum of 256 whereas the default maximum in GDE is 64. But the
+	# maximum possible key size of 1019 does not hurt.
 	export ydb_gbldir="yottadb.gld"
 	echo "ydb_gbldir: $ydb_gbldir"
 	# Create two regions by default. One to hold application/user data. One to hold Octo internal data (%ydbocto* namespace)
@@ -192,7 +196,7 @@ createdb() {
 FILE
 	else
 		$ydb_dist/yottadb -run ^GDE <<FILE
-change -region DEFAULT -null_subscripts=true -record_size=1048576
+change -region DEFAULT -null_subscripts=true -record_size=1048576 -key_size=1019
 change -segment DEFAULT -file_name=$test_temp/mumps.dat
 add -name %ydbocto* -region=OCTOREG
 add -region OCTOREG -dyn=OCTOSEG

@@ -21,6 +21,7 @@ set filelist = `git diff --name-only --cached HEAD`
 set fixlist = ""
 set curyear = `date +%Y`
 @ exitstatus = 0
+
 foreach file ($filelist)
 	tools/ci/needs_copyright.sh $file
 	if ($status != 0) then
@@ -33,7 +34,7 @@ foreach file ($filelist)
 	endif
 	# Try to automatically add a copyright to the file
 	set tempfile = `mktemp`
-	tools/ci/copyright.py < $file > $tempfile
+	./tools/ci/copyright.py $file > $tempfile
 	set copyright_status = $status
 	if ($copyright_status == 1) then
 		echo "note: automatically committing copyright updates to $file"

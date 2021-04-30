@@ -32,7 +32,7 @@ fi
 skipextensions="ref png zwr html ci"	# List of extensions that cannot have copyrights.
 	# .png  -> these are images (i.e. binary files) used in the documentation.
 	#		Same reason as .rst for not requiring a copyright.
-	# .ref  -> reference files used by the test cases (e.g. tests/outref/T0001.ref).
+	# .ref  -> reference files used by the test cases (e.g. tests/outref/TUF001.ref).
 	#		Those have a fixed format and should not go through copyright changes.
 	# .zwr  -> zwrite format extract file (does not currently allow a comment character).
 	# .html -> there are a couple of files currently under doc/templates which don't need copyrights.

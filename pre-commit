@@ -58,7 +58,7 @@ endif
 # 2) Removes trailing white space
 # -----------------------------------------------------------------
 set nowhitespace_extensions = "ref"	# List of extensions that cannot have trailing white space removed.
-	# .ref -> reference files used by the test cases (e.g. tests/outref/T0001.ref).
+	# .ref -> reference files used by the test cases (e.g. tests/outref/TUF001.ref).
 	#		Those have a fixed format and should not go through any white-space changes.
 
 set filelist = `git diff --name-only --cached HEAD`	# recompute "filelist" in case Step (1) had regenerated new files

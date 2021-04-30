@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -19,7 +19,7 @@ setup() {
   load_fixture names.zwr
 }
 
-@test "generate one plan" {
+@test "TUF000A : generate one plan from one query" {
   octo <<OCTO 2>&1 | tee output.txt
 select * from names;
 OCTO
@@ -30,7 +30,7 @@ OCTO
   [[ $output -eq 1 ]]
 }
 
-@test "generate one plan from two identical queries" {
+@test "TUF000B : generate one plan from two identical queries" {
   octo <<OCTO 2>&1 | tee output.txt
 select * from names;
 select * from names;
@@ -42,7 +42,7 @@ OCTO
   [[ $output -eq 1 ]]
 }
 
-@test "generate two plans from two unique queries" {
+@test "TUF000C : generate two plans from two unique queries" {
   octo <<OCTO 2>&1 | tee output.txt
 select * from names;
 select * from names where firstName = "Zero";
@@ -54,7 +54,7 @@ OCTO
   [[ $output -eq 2 ]]
 }
 
-@test "generate five unique plans from five unique queries" {
+@test "TUF000D : generate five unique plans from five unique queries" {
   octo <<OCTO 2>&1 | tee output.txt
 select * from names;
 select * from names where firstName = "Zero";
@@ -69,7 +69,7 @@ OCTO
   [[ $output -eq 5 ]]
 }
 
-@test "generate two unique plans several queries" {
+@test "TUF000E : generate two unique plans several queries" {
   octo <<OCTO 2>&1 | tee output.txt
 select * from names;
 select lastName from names;
@@ -85,7 +85,7 @@ OCTO
   [[ $output -eq 2 ]]
 }
 
-@test "generate three unique plans from five queries" {
+@test "TUF000F : generate three unique plans from five queries" {
   octo <<OCTO 2>&1 | tee output.txt
 select * from names;
 select firstName from names;
@@ -100,7 +100,7 @@ OCTO
   [[ $output -eq 3 ]]
 }
 
-@test "generate four unique plans from five queries" {
+@test "TUF000G : generate four unique plans from five queries" {
   octo <<OCTO 2>&1 | tee output.txt
 select * from names;
 select * from names where firstName = "Zero";
@@ -115,7 +115,7 @@ OCTO
   [[ $output -eq 4 ]]
 }
 
-@test "generate four unique plans from six queries" {
+@test "TUF000H : generate four unique plans from six queries" {
   octo <<OCTO 2>&1 | tee output.txt
 select * from names;
 select * from names where firstName = "Zero";
@@ -131,7 +131,7 @@ OCTO
   [[ $output -eq 4 ]]
 }
 
-@test "generate single plan for successive queries on same column name within single table" {
+@test "TUF000I : generate single plan for successive queries on same column name within single table" {
   octo <<OCTO 2>&1 | tee output.txt
 select firstName from names where id = 0;
 select firstName from names where id = 1;
@@ -143,7 +143,7 @@ OCTO
   [[ $output -eq 1 ]]
 }
 
-@test "generate unique plans for successive queries on different column names within single table" {
+@test "TUF000J : generate unique plans for successive queries on different column names within single table" {
   octo <<OCTO 2>&1 | tee output.txt
 select firstName from names where id = 0;
 select firstName from names where firstname = "Zero";
@@ -155,17 +155,17 @@ OCTO
   [[ $output -eq 2 ]]
 }
 
-@test "T0001 generate unique plan for row-value (list of values after IN keyword) constructions on different columns" {
+@test "TUF000K : generate unique plan for row-value (list of values after IN keyword) constructions on different columns" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names WHERE firstName IN ('Zero', 'Acid');
 SELECT * FROM names WHERE firstName IN ('Zero', 'Cool');
 OCTO
   [[ $(ls -l _ydboctoP*.m | wc -l) -eq 1 ]]
   [[ $(grep -c 'Acid|' output.txt) -eq 1 ]]
-  verify_output T0001 output.txt noinfo nodebug
+  verify_output TUF000K output.txt noinfo nodebug
 }
 
-@test "TUF001 generate one plan for row-value (list of values after IN keyword) constructions on same column" {
+@test "TUF001 : generate one plan for row-value (list of values after IN keyword) constructions on same column" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names WHERE firstName IN ('Zero', 'Acid');
 SELECT * FROM names WHERE id IN (0, 1);

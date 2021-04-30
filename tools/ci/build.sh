@@ -519,10 +519,18 @@ PSQL
 		subtest=$(sed 's/.*subtest \[//;s/].*//;' bats_test.out)
 		# Need -F below in case there are any special characters in the subtest name (e.g. '*')
 		# We do not want to treat those as regex in the grep.
-		if [[ $(grep -F -c "$subtest" ../passed_bats_subtests.txt) -eq 1 ]]; then
+		passed=$(grep -F -c "$subtest" ../passed_bats_subtests.txt) || true
+		failed=$(grep -F -c "$subtest" ../failed_bats_subtests.txt) || true
+		if [[ $((passed + failed)) -gt 1 ]]; then
+			echo " --> Multiple subtests with name [$subtest] found in passed_bats_subtests.txt and/or failed_bats_subtests.txt"
+			echo " --> Please first fix ambiguity by giving the subtests unique names. Exiting."
+			echo " --> List of subtests found is pasted below."
+			grep -F "$subtest" ../passed_bats_subtests.txt ../failed_bats_subtests.txt
+			exit 1
+		elif [[ $passed -eq 1 ]]; then
 			echo "PASSED  : $tstdir : $subtest" >> ../summary_bats_dirs.txt
 			echo $tstdir >> ../passed_bats_dirs.txt
-		elif [[ $(grep -F -c "$subtest" ../failed_bats_subtests.txt) -eq 1 ]]; then
+		elif [[ $failed -eq 1 ]]; then
 			echo "FAILED  : $tstdir : $subtest" >> ../summary_bats_dirs.txt
 		else
 			# It has to be a timed out test. It is also possible some passed/failed subtests show up here

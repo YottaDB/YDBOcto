@@ -293,7 +293,7 @@ compile_octo
 # If this is the "test-auto-upgrade" job, skip steps that are covered by other jobs (e.g. "make-ubuntu" etc.)
 if [[ "test-auto-upgrade" != $jobname ]]; then
 	echo "# Check for unexpected warnings and error/exit if unexpected errors are found"
-	../tools/ci/sort_warnings.sh build_warnings.txt
+	../tools/ci/sort_warnings.sh build_warnings.txt sorted_build_warnings.txt
 	echo " -> Checking for unexpected warning(s) while compiling ... "
 	if [ -x "$(command -v yum)" ]; then
 		if [[ $build_type == "Debug" ]]; then
@@ -330,18 +330,18 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 			exit 1
 		fi
 	}
-	compare $reference sorted_warnings.txt build_warnings.txt
+	compare $reference sorted_build_warnings.txt build_warnings.txt
 
 	# `clang-tidy` is not available on CentOS 7, and YDB tests on 7 to ensure backwards-compatibility.
 	if ! [ -x "$(command -v yum)" ]; then
 		echo "# Check for unexpected warning(s) from clang-tidy ..."
 		../tools/ci/clang-tidy-all.sh > clang_tidy_warnings.txt 2>/dev/null
-		../tools/ci/sort_warnings.sh clang_tidy_warnings.txt
+		../tools/ci/sort_warnings.sh clang_tidy_warnings.txt sorted_clang_warnings.txt
 		# In release mode, `assert`s are compiled out and clang-tidy will emit false positives.
 		if [ "$build_type" = Debug ]; then
-			compare ../tools/ci/clang_tidy_warnings.ref sorted_warnings.txt clang_tidy_warnings.txt
+			compare ../tools/ci/clang_tidy_warnings.ref sorted_clang_warnings.txt clang_tidy_warnings.txt
 		else
-			compare ../tools/ci/clang_tidy_warnings-release.ref sorted_warnings.txt clang_tidy_warnings.txt
+			compare ../tools/ci/clang_tidy_warnings-release.ref sorted_clang_warnings.txt clang_tidy_warnings.txt
 		fi
 	fi
 

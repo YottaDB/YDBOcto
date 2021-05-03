@@ -11,7 +11,10 @@
 #								#
 #################################################################
 
+set -eu
+
 warnings="$1"
+output_file="$2"
 
 # These don't impact the warning itself
 printf "Remove 'note:' lines... "
@@ -31,5 +34,5 @@ echo "OK."
 
 # Concatenate filenames with warning messages and sort
 echo -n "Combining and sorting filenames with messages... "
-paste -d ": " filenames.txt warnings.txt | sort > sorted_warnings.txt
+paste -d ": " filenames.txt warnings.txt | sort > "$output_file"
 echo "OK."

@@ -496,49 +496,55 @@ PSQL
 	# and/or very long lines that can pollute the pipeline console output
 	set +v
 	set +x
-	# Find out list of passed bats dirs. Need to sort for later use by "join"
+	# Find out list of passed bats dirs. sortis not necessary but nice to have.
 	find . -maxdepth 1 -type d | sed 's#^\./##' | grep '^bats-test' | sort > all_bats_dirs.txt
-	# Find out list of failed bats dirs. Need to sort for later use by "join"
+	# Find out list of failed bats dirs. sort is not necessary but nice to have.
 	grep "Temporary files in" Testing/Temporary/LastTest.log | awk '{print $NF}' | sed 's,.*/,,g' | sort > failed_bats_dirs.txt
-	# Note down list of bats test directory names and corresponding subtest name in one file
-	cat ./*/bats_test.out > all_bats_test.out
-	ls -lart ./*/bats_test.out > lslart_bats_test.out	# this is to note down time stamp of the bats_test.out files
-	grep '^ok' Testing/Temporary/LastTest.log > passed_bats_subtests.txt || true
-	grep '^not ok' Testing/Temporary/LastTest.log > failed_bats_subtests.txt || true
-	touch summary_bats_dirs.txt passed_bats_dirs.txt
-	# Find out list of bats dirs corresponding to passed subtests.
-	for tstdir in bats-test.*
-	do
-		if [[ ! -d $tstdir || ! -e $tstdir/bats_test.out ]]; then
-			# $tstdir is not a directory OR it does not contain the file bats_test.out.
-			# Cannot determine if this is a failed or passed or timedout bats test.
-			echo "SUSPECT : $tstdir" >> summary_bats_dirs.txt
-			continue
-		fi
-		cd $tstdir
-		subtest=$(sed 's/.*subtest \[//;s/].*//;' bats_test.out)
-		# Need -F below in case there are any special characters in the subtest name (e.g. '*')
-		# We do not want to treat those as regex in the grep.
-		passed=$(grep -F -c "$subtest" ../passed_bats_subtests.txt) || true
-		failed=$(grep -F -c "$subtest" ../failed_bats_subtests.txt) || true
-		if [[ $((passed + failed)) -gt 1 ]]; then
-			echo " --> Multiple subtests with name [$subtest] found in passed_bats_subtests.txt and/or failed_bats_subtests.txt"
-			echo " --> Please first fix ambiguity by giving the subtests unique names. Exiting."
-			echo " --> List of subtests found is pasted below."
-			grep -F "$subtest" ../passed_bats_subtests.txt ../failed_bats_subtests.txt
-			exit 1
-		elif [[ $passed -eq 1 ]]; then
-			echo "PASSED  : $tstdir : $subtest" >> ../summary_bats_dirs.txt
-			echo $tstdir >> ../passed_bats_dirs.txt
-		elif [[ $failed -eq 1 ]]; then
-			echo "FAILED  : $tstdir : $subtest" >> ../summary_bats_dirs.txt
-		else
-			# It has to be a timed out test. It is also possible some passed/failed subtests show up here
-			# in case "$subtest" matched multiple lines. If so, treat that as a timedout directory for now.
-			echo "TIMEDOUT : $tstdir : $subtest" >> ../summary_bats_dirs.txt
-		fi
-		cd ..
-	done
+	# Update "passed_bats_dirs.txt" for use by a later stage (to remove passed directories and reduce pipeline artifact size)
+	# No need to do this for "test-auto-upgrade" job as it does not use this file. And it is actually not correct to run
+	# this code for that job as we are running an older commit and it could have multiple subtests with name ambiguity
+	# which would then cause this script (that belongs to the latest commit) to incorrectly (and prematurely) "exit 1" below.
+	if [[ ("test-auto-upgrade" != $jobname) ]]; then
+		# Note down list of bats test directory names and corresponding subtest name in one file
+		cat ./*/bats_test.out > all_bats_test.out
+		ls -lart ./*/bats_test.out > lslart_bats_test.out	# this is to note down time stamp of the bats_test.out files
+		grep '^ok' Testing/Temporary/LastTest.log > passed_bats_subtests.txt || true
+		grep '^not ok' Testing/Temporary/LastTest.log > failed_bats_subtests.txt || true
+		touch summary_bats_dirs.txt passed_bats_dirs.txt
+		# Find out list of bats dirs corresponding to passed subtests.
+		for tstdir in bats-test.*
+		do
+			if [[ ! -d $tstdir || ! -e $tstdir/bats_test.out ]]; then
+				# $tstdir is not a directory OR it does not contain the file bats_test.out.
+				# Cannot determine if this is a failed or passed or timedout bats test.
+				echo "SUSPECT : $tstdir" >> summary_bats_dirs.txt
+				continue
+			fi
+			cd $tstdir
+			subtest=$(sed 's/.*subtest \[//;s/].*//;' bats_test.out)
+			# Need -F below in case there are any special characters in the subtest name (e.g. '*')
+			# We do not want to treat those as regex in the grep.
+			passed=$(grep -F -c "$subtest" ../passed_bats_subtests.txt) || true
+			failed=$(grep -F -c "$subtest" ../failed_bats_subtests.txt) || true
+			if [[ $((passed + failed)) -gt 1 ]]; then
+				echo " --> Multiple subtests with name [$subtest] found in passed_bats_subtests.txt and/or failed_bats_subtests.txt"
+				echo " --> Please first fix ambiguity by giving the subtests unique names. Exiting."
+				echo " --> List of subtests found is pasted below."
+				grep -F "$subtest" ../passed_bats_subtests.txt ../failed_bats_subtests.txt
+				exit 1
+			elif [[ $passed -eq 1 ]]; then
+				echo "PASSED  : $tstdir : $subtest" >> ../summary_bats_dirs.txt
+				echo $tstdir >> ../passed_bats_dirs.txt
+			elif [[ $failed -eq 1 ]]; then
+				echo "FAILED  : $tstdir : $subtest" >> ../summary_bats_dirs.txt
+			else
+				# It has to be a timed out test. It is also possible some passed/failed subtests show up here
+				# in case "$subtest" matched multiple lines. If so, treat that as a timedout directory for now.
+				echo "TIMEDOUT : $tstdir : $subtest" >> ../summary_bats_dirs.txt
+			fi
+			cd ..
+		done
+	fi
 	# Restore verbose output now that for loop and bats-test.* usages (long/lots-of lines) are done
 	set -v
 	set -x

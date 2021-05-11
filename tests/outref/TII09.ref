@@ -164,14 +164,6 @@ first2|
 ^%ydboctoschema("TMP1","text",0)="CREATE TABLE `TMP1` (`ID` INTEGER PIECE 1, `FIRSTNAME` VARCHAR PIECE 2) GLOBAL ""^%ydboctoDAgeMzpAgs346YlVTTNcBB6(keys(""""%YO_KEYCOL""""))"" DELIM ""|"" READWRITE;"
 # Additionally verify AIM Data got built and has correct contents
 ^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A="^%ydboctoDvt9jqaQAeaH6MtsF2mzhG9"
-^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(-2)=3
-^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(-2,"")=3
-^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(-2,"last1")=3
-^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(-2,"last2")=3
-^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(-1)=3
-^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(-1,"")=3
-^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(-1,"first1")=3
-^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(-1,"first2")=3
 ^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(0)="*YottaDB*"
 ^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(1)=1
 ^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(1,"",1)=""
@@ -196,12 +188,11 @@ first2|
 ^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(3)="#11"
 ^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(4)="#11"
 ^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(5)=""
-^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(6)="+^%ydboctoDvt9jqaQAeaH6MtsF2mzhG9(sub1=*) -command=set -name=%ydbrvYNq1X1eIqaUrQpE7dF1AS -xecute=<<"_$C(10)_" for i=1,2 set p=$piece($ztoldval,""|"",i),q=$piece($ztvalue,""|"",i),j=-i do"_$C(10)_" . if p'=q do"_$C(10)_" . . if $data(^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(i,p,sub1))#10 zkill ^(sub1) zkill:1>$increment(^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(11),-1) ^(11) if 1>$increment(^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(j,p),-1) zkill ^(p) if 1>$increment(^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(j),-1) zkill ^(j)"_$C(10)_" . . if '($data(^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(i,q,sub1))#10) set ^(sub1)="""" if $increment(^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(11)),(1=$increment(^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(j,q))),$increment(^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(j))"_$C(10)_" . else  if '$zlength(q),'($data(^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(i,"""",sub1))#10) set ^(sub1)="""" if $increment(^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(11)),(1=$increment(^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(j,""""))),$increment(^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(j))"_$C(10)
+^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(6)="+^%ydboctoDvt9jqaQAeaH6MtsF2mzhG9(sub1=*) -command=set -name=%ydbrvYNq1X1eIqaUrQpE7dF1AS -xecute=<<"_$C(10)_" for i=1,2 set p=$piece($ztoldval,""|"",i),q=$piece($ztvalue,""|"",i) do"_$C(10)_" . if p'=q zkill ^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(i,p,sub1) set ^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(i,q,sub1)="""""_$C(10)_" . else  set:'$zlength(q) ^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(i,"""",sub1)="""""_$C(10)
 ^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(7)="+^%ydboctoDvt9jqaQAeaH6MtsF2mzhG9(sub1=*) -command=kill -name=%ydbrvYNq1X1eIqaUrQpE7dF1AK -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
-^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(8)="+^%ydboctoDvt9jqaQAeaH6MtsF2mzhG9(sub1=*) -command=zkill -name=%ydbrvYNq1X1eIqaUrQpE7dF1AZ -xecute=""for i=1,2 set j=-i,p=$piece($ztoldval,""""|"""",i) if $data(^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(i,p,sub1)) zkill ^(sub1) zkill:1>$increment(^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(11),-1) ^(11) if 1>$increment(^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(j,p),-1) zkill ^(p) zkill:1>$increment(^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(j),-1) ^(j)"""
+^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(8)="+^%ydboctoDvt9jqaQAeaH6MtsF2mzhG9(sub1=*) -command=zkill -name=%ydbrvYNq1X1eIqaUrQpE7dF1AZ -xecute=""for i=1,2 zkill ^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(i,$piece($ztoldval,""""|"""",i),sub1)"""
 ^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(9)=1
-^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(10)=2
-^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(11)=18
+^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(10)=0
 ^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A(12)="+^%ydboctoDvt9jqaQAeaH6MtsF2mzhG9 -command=kill -name=%ydbrvYNq1X1eIqaUrQpE7dF1A0 -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
 ^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A("comment-1")="xref for table TMP3 column FIRSTNAME"
 ^%ydbAIMDrvYNq1X1eIqaUrQpE7dF1A("comment-2")="xref for table TMP3 column LASTNAME"

@@ -381,6 +381,10 @@ setup_go() {
 
 run_go() {
 	cp -r @PROJECT_SOURCE_DIR@/tests/go/src/$1 $GOPATH/src/$1
+	# As of Go 1.16, the default behavior is GO111MODULE=on but we want to keep using the old GOPATH way,
+	# therefore set the below env var to Go not to use the Go Modules feature. This is not needed by
+	# Go versions older the Go 1.16 but it does not hurt.
+	export GO111MODULE=off
 	go get $1
 	go build $1
 	$GOPATH/bin/$1 $2

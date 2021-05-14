@@ -25,6 +25,14 @@ init_test() {
 	# Set YDB related env vars
 	unset ydb_gbldir gtmgbldir	# needed or else ydb_env_set can issue ZGBLDIRACC error (due to it calling MUPIP DUMPFHEAD)
 					# if ydb_gbldir is defined and points to a non-existent gld file.
+	# The below is needed to ensure that the bats tests run fine even if run concurrently.
+	# Without setting ydb_dir to the current directory (which is unique for each test/subtest),
+	# concurrent calls to ydb_env_set would create/update/delete journal files under ~/.yottadb/r*/g/yottadb.mjl
+	# at the same time which would cause mysterious errors (e.g. %YDB-E-JNLFILEOPNERR) in random tests depending on timing.
+	export ydb_dir=.
+	# Pipeline jobs start with `gtmdir` set (to "/data") so fix that to be in sync with `ydb_dir`
+	# or else `ydb_env_set` would issue a %YDBENV-F-YDBGTMMISMATCH error.
+	export gtmdir=$ydb_dir
 	# Randomly choose whether to use UTF-8 or M mode
 	source @YOTTADB_INCLUDE_DIRS@/ydb_env_unset
 	if [[ $(( $RANDOM % 2)) -eq 0 ]]; then

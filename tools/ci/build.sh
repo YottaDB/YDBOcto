@@ -259,8 +259,11 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 	echo "# Random older commit picked = $commitsha"
 	echo "# Checkout the older commit"
 	git checkout $commitsha
-	# Due to https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/712, ensure the correct tools/get_ydb_release.sh is downloaded
+	# Due to https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/712 and # https://gitlab.com/YottaDB/DB/YDB/-/issues/661, ensure
+	# that test framework files corresponding to an older commit are updated minimally enough so they will work with a
+	# later/newer version of ydb_env_set.
 	git checkout 8587b12086666c88ea2c8a19b55a736629269907 -- ../tools/get_ydb_release.sh
+	sed -i 's/unset ydb_chset/export ydb_chset=M/' ../tests/test_helpers.bash.in
 	# Run only a random fraction of the bats tests as we will be running an auto upgrade test on the same queries
 	# once more a little later.
 	cp ../cmake/bats-tests.cmake bats-tests.cmake.orig

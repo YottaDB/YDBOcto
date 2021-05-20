@@ -311,11 +311,16 @@ start_rocto() {
 	fi
 	rocto_port=$(find_open_port $1)
 	rocto $verbosity -p $rocto_port $opt &> rocto.log &
-	echo $! > rocto.pid
+	rocto_pid=$!
+	echo $rocto_pid > rocto.pid
 	# Store rocto port number in the file "rocto.port" for later use in "stop_rocto"
 	echo $rocto_port > rocto.port
 	while [[ ! -e rocto.log || "$(grep -c "rocto started" rocto.log)" == "0" ]]; do
 		sleep .1s
+		# If the rocto job disappears while checking, signal failure.
+		if [[ ! -e /proc/$rocto_pid ]]; then
+			return -1
+		fi
 	done
 	echo $rocto_port
 }

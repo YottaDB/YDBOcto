@@ -17,9 +17,6 @@ setup() {
   createdb
   load_fixture names.sql
   load_fixture names.zwr
-  # set TERM env to same value so this test passes in-house and in pipeline
-  # (escape sequences in readline rely on this)
-  export TERM=dummy
   # For all tests, configure the history by default to be in the current
   # directory, except the last one, where we delete the octo.conf file to test
   # the default history in ~/.octo_history

@@ -324,8 +324,14 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			tablename = result->v.drop_table->table_name->v.value->v.reference;
 			table = find_table(tablename);
 			if (NULL == table) {
-				/* Table to be dropped does not exist. Issue error. */
-				ERROR(ERR_CANNOT_DROP_TABLE, tablename);
+				/* Table to be dropped does not exist. */
+				if (FALSE == result->v.drop_table->if_exists_specified) {
+					/* The DROP TABLE statement does not specify IF EXISTS. Issue error. */
+					ERROR(ERR_CANNOT_DROP_TABLE, tablename);
+				} else {
+					/* The DROP TABLE statement specifies IF EXISTS. Issue info message. */
+					WARNING(WARN_TABLE_DOES_NOT_EXIST, tablename);
+				}
 				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 			}
 			ok_to_drop = TRUE;
@@ -401,8 +407,14 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 				/* Check if table already exists */
 				sql_table = find_table(tablename);
 				if (NULL != sql_table) {
-					/* Table already exists. Issue error. */
-					ERROR(ERR_CANNOT_CREATE_TABLE, tablename);
+					/* Table already exists. */
+					if (FALSE == sql_table->if_not_exists_specified) {
+						/* The CREATE TABLE statement does not specify IF NOT EXISTS. Issue error. */
+						ERROR(ERR_CANNOT_CREATE_TABLE, tablename);
+					} else {
+						/* The CREATE TABLE statement specifies IF NOT EXISTS. Issue info message. */
+						WARNING(WARN_TABLE_ALREADY_EXISTS, tablename);
+					}
 					CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 				}
 			}

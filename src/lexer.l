@@ -152,6 +152,7 @@ int copied_so_far;
 (?i:IDENTIFIER_ALONE) { return IDENTIFIER_ALONE; }
 (?i:IDENTIFIER_BACK_TICK) { return IDENTIFIER_BACK_TICK; }
 (?i:IDENTIFIER_PERIOD_IDENTIFIER) { return IDENTIFIER_PERIOD_IDENTIFIER; }
+(?i:IF) { return IF; }
 (?i:ILIKE) { return ILIKE; }
 (?i:IN) { return IN; }
 (?i:INDEX) { return INDEX; }

@@ -17,8 +17,9 @@ setup() {
   createdb
 }
 
-@test "TDT01 : drop a table check that octo reports it does not exist" {
-  # create a table that can be selected from
+@test "TDT01 : drop a table, check that octo reports table unknown error on select statements and doesn't return any rows" {
+  # create a global for a table that could be selected from if the table existed
+  # this is included in order to test that data isn't returned from ^T1 through the select statement even when data is present
   yottadb -run %XCMD 'set ^T1(1)="2|3|4"'
   octo <<OCTO 2>&1 | tee output.txt
 create table t1 (a int primary key, b int, c int, d int);
@@ -30,8 +31,8 @@ OCTO
   verify_output TDT01 output.txt noinfo nodebug
 }
 
-@test "TDT02 : drop a cached table check that octo reports it does not exist" {
-  # create a table that can be selected from
+@test "TDT02 : drop a cached table, check that octo reports table unknown error on select statements and doesn't return any rows" {
+  # create a global for a table that can be selected from
   yottadb -run %XCMD 'set ^T1(1)="2|3|4"'
   octo <<OCTO 2>&1 | tee output.txt
 create table t1 (a int primary key, b int, c int, d int) GLOBAL "^T1(keys(""a""))";
@@ -111,3 +112,13 @@ OCTO
 	verify_output TDT05 final_output.txt
 }
 
+@test "TDT06 : OCTO595 : Warn and skip drop table execution when IF EXISTS is used and the table doesn't exist" {
+  octo <<OCTO 2>&1 | tee output.txt
+create table t1 (a int primary key, b int, c int, d int);
+OCTO
+  octo -v <<OCTO 2>&1 | tee output.txt
+drop table if exists t1;
+drop table if exists t1;
+OCTO
+  verify_output TDT06 output.txt
+}

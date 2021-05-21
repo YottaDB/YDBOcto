@@ -593,3 +593,8 @@ OCTO
 	grep -w "text" octo672.ext | grep "TMP" >> output.txt
 	verify_output TC047 output.txt
 }
+
+@test "TC048 : OCTO595 : Creation of multiple tables of the same name in sequence with IF NOT EXISTS is skipped with a warning" {
+	load_fixture TC048.sql subtest v
+	verify_output TC048 output.txt
+}

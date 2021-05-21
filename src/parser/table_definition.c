@@ -83,7 +83,8 @@
  *	non-NULL pointer to SqlStatement structure on success
  *	NULL on failure
  */
-SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_element_list, SqlStatement *table_definition_tail) {
+SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_element_list, SqlStatement *table_definition_tail,
+			       boolean_t if_not_exists_specified) {
 	SqlStatement *	    table_stmt;
 	SqlTable *	    table;
 	SqlColumn *	    key_columns[MAX_KEY_COUNT];
@@ -112,6 +113,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	UNPACK_SQL_STATEMENT(table, table_stmt, create_table);
 	table->tableName = tableName;
 	table->columns = table_element_list;
+	table->if_not_exists_specified = if_not_exists_specified;
 	/* Determine whether table is READWRITE or READONLY. Use default setting from octo.conf.
 	 * Override this later based on whether READWRITE or READONLY keywords have been specified in the CREATE TABLE.
 	 */

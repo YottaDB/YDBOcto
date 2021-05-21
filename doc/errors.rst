@@ -43,7 +43,7 @@ TRACE and DEBUG are used to get helpful output for debugging. INFO provides pote
 Octo or Rocto Errors
 ---------------------
 
-Octo or Rocto Errors are of the form :code:`ERR_<error>` or :code:`INFO_<error>` or :code:`WARNING_<error>`. These errors can occur in either :code:`octo` or :code:`rocto`. The errors are detailed below, in alphabetical order. Occurrences of "xxx" indicate portions of the error message text that vary depending on the details of the particular error.
+Octo or Rocto Errors are of the form :code:`ERR_<error>` or :code:`INFO_<error>` or :code:`WARN_<error>`. These errors can occur in either :code:`octo` or :code:`rocto`. The errors are detailed below, in alphabetical order. Occurrences of "xxx" indicate portions of the error message text that vary depending on the details of the particular error.
 
 .. contents::
    :local:
@@ -974,6 +974,14 @@ Text: System call failed: xxx, return xxx (xxx): args: xxx
 
 Description/Action: This error is generated when a system call fails, and provides additional information about the arguments passed to it. PSQL Error Code: 58000
 
+++++++++++++++++++++++++++
+WARN_TABLE_ALREADY_EXISTS
+++++++++++++++++++++++++++
+
+Text: Table 'xxx' already exists, skipping
+
+Description/Action: This message lets the user know that Octo is skipping the action since the specified table already exists. PSQL Error Code: 42P07
+
 ++++++++++++++++++++++++++++++
 ERR_TABLE_DEFINITION_TOO_LONG
 ++++++++++++++++++++++++++++++
@@ -982,6 +990,14 @@ Text: Table definition for xxx too long; max size is xxx, table length is xxx
 
 Description/Action: This error is generated when the table definition is too long. PSQL Error Code: 42P16
 
+++++++++++++++++++++++++++
+WARN_TABLE_DOES_NOT_EXIST
+++++++++++++++++++++++++++
+
+Text: Table 'xxx' does not exist, skipping
+
+Description/Action: This message lets the user know that Octo is skipping the action since the specified table does not exist. PSQL Error Code: 00000
+
 ++++++++++++++++++++++
 INFO_TABLE_SEARCH
 ++++++++++++++++++++++
@@ -989,14 +1005,6 @@ INFO_TABLE_SEARCH
 Text: Searching for table xxx
 
 Description/Action: This message lets the user know that Octo is looking up the given table. PSQL Error Code: 00000
-
-+++++++++++++++++++++++++
-INFO_TEXT_REPRESENTATION
-+++++++++++++++++++++++++
-
-Text: xxx
-
-Description/Action: This message prints the text representation of a DDL specification. PSQL Error Code: 00000
 
 +++++++++++++++++++
 ERR_TABLE_READONLY
@@ -1013,6 +1021,14 @@ ERR_TABLE_UNKNOWN_COLUMN_NAME
 Text: Column 'xxx' of table 'xxx' does not exist
 
 Description/Action: This error is generated when the specified column name is not a valid column in the specified table. PSQL Error Code: 42703
+
++++++++++++++++++++++++++
+INFO_TEXT_REPRESENTATION
++++++++++++++++++++++++++
+
+Text: xxx
+
+Description/Action: This message prints the text representation of a DDL specification. PSQL Error Code: 00000
 
 ++++++++++++++++++++++++++++++++
 ERR_TOO_MANY_DELIM_CHARS

@@ -125,6 +125,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token IDENTIFIER_ALONE
 %token IDENTIFIER_BACK_TICK
 %token IDENTIFIER_PERIOD_IDENTIFIER
+%token IF
 %token ILIKE
 %token IN
 %token INDEX
@@ -1243,9 +1244,20 @@ sql_schema_definition_statement
 /// TODO: not complete
 table_definition
   : CREATE TABLE column_name LEFT_PAREN table_element_list RIGHT_PAREN table_definition_tail {
-  	SqlStatement	*ret;
+	SqlStatement	*ret;
+	boolean_t	if_not_exists_specified = FALSE;
 
-	ret = table_definition($column_name, $table_element_list, $table_definition_tail);
+	ret = table_definition($column_name, $table_element_list, $table_definition_tail, if_not_exists_specified);
+	if (NULL == ret) {
+		YYABORT;
+	}
+	$$ = ret;
+      }
+  | CREATE TABLE IF NOT EXISTS column_name LEFT_PAREN table_element_list RIGHT_PAREN table_definition_tail {
+	SqlStatement	*ret;
+	boolean_t	if_not_exists_specified = TRUE;
+
+	ret = table_definition($column_name, $table_element_list, $table_definition_tail, if_not_exists_specified);
 	if (NULL == ret) {
 		YYABORT;
 	}

@@ -49,6 +49,8 @@ ERROR_DEF(ERR_ROCTO_COMMAND_TAG, "Failed to identify command tag", PSQL_Code_Int
 // OCTO //
 ERROR_DEF(ERR_FILE_NOT_FOUND, "Error opening input file: %s", PSQL_Code_Io_Error)
 ERROR_DEF(ERR_FEATURE_NOT_IMPLEMENTED, "Feature not implemented: %s", PSQL_Code_Feature_Not_Supported)
+ERROR_DEF(WARN_TABLE_ALREADY_EXISTS, "Table '%s' already exists, skipping", PSQL_Code_Duplicate_Table)
+ERROR_DEF(WARN_TABLE_DOES_NOT_EXIST, "Table '%s' does not exist, skipping", PSQL_Code_Success)
 // ROCTO //
 
 /*** Syntax Errors ***/

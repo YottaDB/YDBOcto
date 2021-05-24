@@ -1,6 +1,6 @@
 -- ######################################################################
 -- #									#
--- # Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+-- # Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 -- # All rights reserved.						#
 -- #									#
 -- #	This source code contains the intellectual property		#
@@ -9,9 +9,6 @@
 -- #	the license, please stop and do not read further.		#
 -- #									#
 -- ######################################################################
-
--- Below is to skip the INSERT commands if the table already exists (CREATE TABLE will cause an error and script will exit)
-\set ON_ERROR_STOP on
 
 CREATE TABLE customers (customer_id INTEGER PRIMARY KEY, first_name VARCHAR(8), last_name VARCHAR(10), email VARCHAR(20), address VARCHAR(26), city VARCHAR(16), state VARCHAR(2), zipcode VARCHAR(5));
 CREATE TABLE orders (order_id INTEGER PRIMARY KEY, order_date VARCHAR(10), order_amount VARCHAR(7), customer_id INTEGER);

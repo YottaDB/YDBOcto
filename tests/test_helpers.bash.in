@@ -183,10 +183,16 @@ PSQL
 }
 
 load_postgres_fixture() {
-	# If the table already exists, the psql command will return with a non-zero exit status due to the
-	# `\set ON_ERROR_STOP on` usage in the .sql script. But that is not a real error and so we use the `run` command
-	# below to avoid bats from treating this as an error.
-	psql $1 -f @PROJECT_SOURCE_DIR@/tests/fixtures/$2 &> $1.psql.load || true
+	# Create a Postgres table and load data in it. But if the table already exists, do nothing.
+	# The way we achieve this is by setting "ON_ERROR_STOP" to "on" before doing the "CREATE TABLE".
+	# This way the "CREATE TABLE" will fail if the table already exists and we will skip the INSERT commands.
+	# An alternative way to avoid the "ON_ERROR_STOP" is to "DROP TABLE IF EXISTS" first and then run the "CREATE TABLE".
+	# But this has the issue that any table privileges that were added for multiple users will get removed and have to be
+	# added again. Additionally, if tests are run concurrently, it is possible a test using this Postgres table run
+	# at the same time the table is being dropped/created leading to mysterious test failures due to a missing/incomplete
+	# table. Hence we stick with the "ON_ERROR_STOP" approach. Since this can return a non-zero exit status and that is
+	# expected, we use the "|| true" below to avoid the bats framework from treating this as a failure and stopping the test.
+	psql $1 -c '\set ON_ERROR_STOP on' -f @PROJECT_SOURCE_DIR@/tests/fixtures/$2 &> $1.psql.load || true
 }
 
 createdb() {

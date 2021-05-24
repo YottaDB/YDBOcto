@@ -10,9 +10,6 @@
 -- #									#
 -- ######################################################################
 
--- Below is to skip the INSERT commands if the table already exists (CREATE TABLE will cause an error and script will exit)
-\set ON_ERROR_STOP on
-
 CREATE TABLE nullnames (id INTEGER PRIMARY KEY NOT NULL, firstName VARCHAR(30), lastName VARCHAR(30), salary NUMERIC NOT NULL, exempt BOOLEAN NOT NULL, yearsTenured INTEGER);
 CREATE TABLE nullnamesb (id INTEGER PRIMARY KEY NOT NULL, firstName VARCHAR(30), lastName VARCHAR(30), salary NUMERIC NOT NULL, exempt BOOLEAN NOT NULL, yearsTenured INTEGER NOT NULL);
 

@@ -10,9 +10,6 @@
 -- #									#
 -- ######################################################################
 
--- Below is to skip the INSERT commands if the table already exists (CREATE TABLE will cause an error and script will exit)
-\set ON_ERROR_STOP on
-
 CREATE TABLE Customers (CustomerID INTEGER PRIMARY KEY, CustomerName VARCHAR(48), ContactName VARCHAR(32), Address VARCHAR(64), City VARCHAR(32), PostalCode VARCHAR(16), Country VARCHAR(32));
 CREATE TABLE Orders (OrderID INTEGER PRIMARY KEY, CustomerID INTEGER, EmployeeID INTEGER, OrderDate VARCHAR(16), ShipperID INTEGER);
 CREATE TABLE Shippers (ShipperID INTEGER PRIMARY KEY, ShipperName VARCHAR(32), Phone VARCHAR(14));

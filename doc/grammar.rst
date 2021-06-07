@@ -1528,6 +1528,7 @@ A primary value expression is denoted as follows:
 The value expression can contain an unsigned value, a column reference, a set function, a subquery or :code:`table_name.*`
 
 :code:`table_name.*` usage:
+
 * When :code:`table_name.*` is used, all columns of the table specified are included
 * It can be used in SELECT, GROUP BY, and ORDER BY column list
 * It can also be used with set functions in SELECT, HAVING and ORDER BY expressions

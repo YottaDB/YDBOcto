@@ -152,3 +152,11 @@ setup() {
   verify_output TSCP15 output.txt
 }
 
+@test "TSCP16 : OCTO386 : Pipeline failure on centos related to outer join, order by and table.* usage" {
+  load_fixture nullnames.sql
+  load_fixture nullnames.zwr
+  # Postgres result ordering is incorrect for this query so we don't call cross check here
+  # QueryGenerator is update to not generate such queries so validating the behavior here
+  load_fixture TSCP16.sql subtest novv
+  verify_output TSCP16 output.txt
+}

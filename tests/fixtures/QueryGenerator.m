@@ -93,7 +93,7 @@
 	. set aliasNum=0
 	. set fromNum=1
 	. ; The following variables need to be reset to their default values for each, seperate query.
-	. set orderByExists=0,limitExists=0,asteriskExists=0,tableAsteriskExists=0
+	. set orderByExists=0,limitExists=0,asteriskExists=0,tableAsteriskExists=0,outerJoinExists=0
 	. set existsInHavingExists="FALSE"  set caseFunctionExists="FALSE"
 	. kill columns			; refresh columns array for next query (remove any temporary tables created in prior query)
 	. merge columns=savecolumns
@@ -970,7 +970,11 @@ orderbyClause(queryDepth,aNum,location)
 	. . ; Only choose select column list columns at query depth "queryDepth" for ORDER BY due to SELECT DISTINCT usage.
 	. . set holder="" for  set holder=$order(selectListLVN(queryDepth,holder))  quit:holder=""  do
 	. . . write "orderbyClause() : holder = ",holder,!
-	. . . if (holder'="*")  set result=result_$select(firstholder:"",1:", ")_holder,firstholder=0
+	. . . ; With the presence of NULL values, Postgres results in wrong ordering when outer join and order by table.* is present
+	. . . ; Postgres bug report: https://www.postgresql.org/message-id/flat/17068-18d0626f1d26394d%40postgresql.org
+	. . . ; So avoid adding table.* when outer join exists
+	. . . if (((holder'="*")&(holder'="table.*"))!((holder="table.*")&('outerJoinExists)))  do
+	. . . . set result=result_$select(firstholder:"",1:", ")_holder,firstholder=0
 	. else  do
 	. . ; #FUTURE_TODO: There is no basis for determining whether an ORDER BY occurs within a subquery
 	. . ;               or not, so eventually add the fourth parameter to the below call to
@@ -1001,6 +1005,9 @@ joinClause(queryDepth,joinCount)
 	set result=""
 
 	set joinType=$$joinTypes(joinCount)
+	; If previous join was an outer join retain outerJoinExists value
+	; Possible OUTER JOIN value types are LEFT, LEFT OUTER, RIGHT and RIGHT OUTER
+	set:('outerJoinExists) outerJoinExists=$select(joinType["LEFT":1,joinType["RIGHT":1,1:0)
 
 	set result=result_" "_joinType_" JOIN "
 	; Remove " OUTER" from join type for further processing so "LEFT" AND "LEFT OUTER" joins are treated the same.

@@ -246,6 +246,8 @@ add_library(libocto OBJECT
   parser/data_type.c
   parser/derived_column.c
   parser/derived_table.c
+  parser/drop_function.c
+  parser/function_definition.c
   parser/grouping_column_reference.c
   parser/insert_statement.c
   parser/natural_join_condition.c

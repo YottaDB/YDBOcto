@@ -174,3 +174,8 @@ setup() {
 	load_fixture TCF025.sql subtest novv
 	verify_output TCF025 output.txt noinfo nodebug
 }
+
+@test "TCF026 : OCTO595 : CREATE FUNCTION IF NOT EXISTS skips existing function of the same name with warning" {
+	load_fixture TCF026.sql subtest v
+	verify_output TCF026 output.txt
+}

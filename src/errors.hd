@@ -51,6 +51,8 @@ ERROR_DEF(ERR_FILE_NOT_FOUND, "Error opening input file: %s", PSQL_Code_Io_Error
 ERROR_DEF(ERR_FEATURE_NOT_IMPLEMENTED, "Feature not implemented: %s", PSQL_Code_Feature_Not_Supported)
 ERROR_DEF(WARN_TABLE_ALREADY_EXISTS, "Table '%s' already exists, skipping", PSQL_Code_Duplicate_Table)
 ERROR_DEF(WARN_TABLE_DOES_NOT_EXIST, "Table '%s' does not exist, skipping", PSQL_Code_Success)
+ERROR_DEF(WARN_FUNCTION_ALREADY_EXISTS, "Function '%s' already exists, skipping", PSQL_Code_Duplicate_Function)
+ERROR_DEF(WARN_FUNCTION_DOES_NOT_EXIST, "Function '%s' does not exist, skipping", PSQL_Code_Success)
 // ROCTO //
 
 /*** Syntax Errors ***/

@@ -98,6 +98,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 	int			  length;
 	unsigned int		  ret_value;
 	SqlTable *		  table;
+	SqlDropTableStatement *	  drop_table;
 	char *			  tablename;
 	char *			  spcfc_buffer; /* specific buffer (i.e. function-specific or table-specific etc.) */
 	ydb_buffer_t		  table_name_buffers[3];
@@ -321,11 +322,13 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		 */
 		/* First get a ydb_buffer_t of the table name into "table_name_buffer" */
 		if (drop_table_STATEMENT == result_type) {
-			tablename = result->v.drop_table->table_name->v.value->v.reference;
+			UNPACK_SQL_STATEMENT(drop_table, result, drop_table);
+			UNPACK_SQL_STATEMENT(value, drop_table->table_name, value);
+			tablename = value->v.reference;
 			table = find_table(tablename);
 			if (NULL == table) {
 				/* Table to be dropped does not exist. */
-				if (FALSE == result->v.drop_table->if_exists_specified) {
+				if (FALSE == drop_table->if_exists_specified) {
 					/* The DROP TABLE statement does not specify IF EXISTS. Issue error. */
 					ERROR(ERR_CANNOT_DROP_TABLE, tablename);
 				} else {
@@ -408,7 +411,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 				sql_table = find_table(tablename);
 				if (NULL != sql_table) {
 					/* Table already exists. */
-					if (FALSE == sql_table->if_not_exists_specified) {
+					if (FALSE == table->if_not_exists_specified) {
 						/* The CREATE TABLE statement does not specify IF NOT EXISTS. Issue error. */
 						ERROR(ERR_CANNOT_CREATE_TABLE, tablename);
 					} else {
@@ -543,10 +546,16 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			if (0 == ret_value) {
 				char fn_name[1024];
 
-				/* Function does not already exist. Issue error. */
+				/* Function does not already exist. */
 				get_function_name_and_parmtypes(fn_name, sizeof(fn_name), function_name,
 								drop_function->parameter_type_list);
-				ERROR(ERR_CANNOT_DROP_FUNCTION, fn_name);
+				if (FALSE == drop_function->if_exists_specified) {
+					/* The DROP FUNCTION statement does not specify IF EXISTS. Issue error. */
+					ERROR(ERR_CANNOT_DROP_FUNCTION, fn_name);
+				} else {
+					/* The DROP FUNCTION statement specifies IF EXISTS. Issue info message. */
+					WARNING(WARN_FUNCTION_DOES_NOT_EXIST, fn_name);
+				}
 				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 			}
 			ok_to_drop = TRUE;
@@ -558,10 +567,16 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 				if (0 != ret_value) {
 					char fn_name[1024];
 
-					/* Function already exists. Issue error. */
+					/* Function already exists. */
 					get_function_name_and_parmtypes(fn_name, sizeof(fn_name), function_name,
 									function->parameter_type_list);
-					ERROR(ERR_CANNOT_CREATE_FUNCTION, fn_name);
+					if (FALSE == function->if_not_exists_specified) {
+						/* The CREATE FUNCTION statement does not specify IF NOT EXISTS. Issue error. */
+						ERROR(ERR_CANNOT_CREATE_FUNCTION, fn_name);
+					} else {
+						/* The CREATE FUNCTION statement specifies IF NOT EXISTS. Issue info message. */
+						WARNING(WARN_FUNCTION_ALREADY_EXISTS, fn_name);
+					}
 					CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 				}
 			} else {

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,26 +10,9 @@
 #								#
 #################################################################
 
-doc/_build/
-build*/
-doc/make.bat
-.tags
-.tags1
-*/*.sc*
-cscope.*
-gen_cscope.sh
-\#*\#
-**/*~
-TAGS
-*.swp
-*.pyc
-*.orig
-tags
-.dir-locals.el
-.vscode/
-data/
-Testing/
+-- TCF026 : OCTO595 : CREATE FUNCTION IF NOT EXISTS skips existing function of the same name with warning
 
-roctolist.md
-src/gtmcrypt/
-tests/fixtures/*.o
+CREATE FUNCTION IF NOT EXISTS PARMLESSFUNC() RETURNS VARCHAR AS $$^PARMLESSFUNC;
+SELECT PARMLESSFUNC() FROM names LIMIT 1;
+CREATE FUNCTION IF NOT EXISTS PARMLESSFUNC() RETURNS VARCHAR AS $$^PARMLESSFUNC;
+

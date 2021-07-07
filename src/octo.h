@@ -664,6 +664,36 @@ typedef enum RegexType {
 		(RET) = ca;                                                       \
 	}
 
+/* Below parses a function_definition SQL grammar component  */
+#define INVOKE_FUNCTION_DEFINITION(STMT, IDENTIFIER_START, FUNCTION_PARAMETER_TYPE_LIST, DATA_TYPE, M_FUNCTION,  \
+				   IF_NOT_EXISTS_SPECIFIED)                                                      \
+	{                                                                                                        \
+		SqlStatement *ret;                                                                               \
+                                                                                                                 \
+		ret = function_definition(IDENTIFIER_START, FUNCTION_PARAMETER_TYPE_LIST, DATA_TYPE, M_FUNCTION, \
+					  IF_NOT_EXISTS_SPECIFIED);                                              \
+		if (NULL == ret) {                                                                               \
+			yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);                                           \
+			YYABORT;                                                                                 \
+		}                                                                                                \
+		STMT = ret;                                                                                      \
+	}
+
+/* Below parses a drop_function SQL grammar component
+ * FUNCTION_PARAMETER_TYPE_LIST parameter accepts $optional_function_parameter_type_list argument since its value can be NULL
+ */
+#define INVOKE_DROP_FUNCTION(STMT, IDENTIFIER_START, FUNCTION_PARAMETER_TYPE_LIST, IF_EXISTS_SPECIFIED)   \
+	{                                                                                                 \
+		SqlStatement *ret;                                                                        \
+                                                                                                          \
+		ret = drop_function(IDENTIFIER_START, FUNCTION_PARAMETER_TYPE_LIST, IF_EXISTS_SPECIFIED); \
+		if (NULL == ret) {                                                                        \
+			yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);                                    \
+			YYABORT;                                                                          \
+		}                                                                                         \
+		STMT = ret;                                                                               \
+	}
+
 #ifndef NDEBUG
 #define NDEBUG_ONLY(X)
 #define DEBUG_ONLY(X) X
@@ -799,6 +829,10 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			       boolean_t is_not_exists_specified);
 SqlStatement *table_expression(SqlStatement *from, SqlStatement *where, SqlStatement *group_by, SqlStatement *having);
 SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlation_specification, int *plan_id);
+SqlStatement *function_definition(SqlStatement *identifier_start, SqlStatement *function_parameter_type_list,
+				  SqlStatement *data_type, SqlStatement *m_function, boolean_t if_not_exists_specified);
+SqlStatement *drop_function(SqlStatement *identifier_start, SqlStatement *function_parameter_type_list,
+			    boolean_t if_exists_specified);
 
 // Updates a runtime parameter value in `pg_catalog.pg_settings`. Executed for SQL SET commands.
 int set_parameter_in_pg_settings(char *variable, char *value);

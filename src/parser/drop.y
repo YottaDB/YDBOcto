@@ -28,19 +28,18 @@ drop_table_statement
   ;
 
 drop_function_statement
-  : DROP FUNCTION IDENTIFIER_START {
-      SQL_STATEMENT($$, drop_function_STATEMENT);
-      OCTO_CMALLOC_STRUCT(($$)->v.drop_function, SqlDropFunctionStatement);
-      ($$)->v.drop_function->function_name = $IDENTIFIER_START;
-      ($$)->v.drop_function->function_name->v.value->type = FUNCTION_NAME;
-      ($$)->v.drop_function->parameter_type_list = NULL;
+  : DROP FUNCTION identifier_start optional_function_parameter_type_list {
+	INVOKE_DROP_FUNCTION($$, $identifier_start, $optional_function_parameter_type_list, FALSE);
     }
-  | DROP FUNCTION IDENTIFIER_START LEFT_PAREN function_parameter_type_list RIGHT_PAREN {
-      SQL_STATEMENT($$, drop_function_STATEMENT);
-      OCTO_CMALLOC_STRUCT(($$)->v.drop_function, SqlDropFunctionStatement);
-      ($$)->v.drop_function->function_name = $IDENTIFIER_START;
-      ($$)->v.drop_function->function_name->v.value->type = FUNCTION_NAME;
-      ($$)->v.drop_function->parameter_type_list = $function_parameter_type_list;
+  | DROP FUNCTION IF EXISTS identifier_start optional_function_parameter_type_list {
+	INVOKE_DROP_FUNCTION($$, $identifier_start, $optional_function_parameter_type_list, TRUE);
+    }
+  ;
+
+optional_function_parameter_type_list
+  : /* Empty */ { $$ = NULL; }
+  | LEFT_PAREN function_parameter_type_list RIGHT_PAREN {
+      $$ = $function_parameter_type_list;
     }
   ;
 

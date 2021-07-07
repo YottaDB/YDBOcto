@@ -308,6 +308,22 @@ Text: Error opening input file: xxx
 
 Description/Action: This error is generated when Octo tries to read from a file that is non-existent. PSQL Error Code: 58030
 
++++++++++++++++++++++++++++++
+WARN_FUNCTION_ALREADY_EXISTS
++++++++++++++++++++++++++++++
+
+Text: Function 'xxx' already exists, skipping
+
+Description/Action: This message lets the user know that Octo is skipping the action since the specified function already exists. PSQL Error Code: 42723
+
++++++++++++++++++++++++++++++
+WARN_FUNCTION_DOES_NOT_EXIST
++++++++++++++++++++++++++++++
+
+Text: Function 'xxx' does not exist, skipping
+
+Description/Action: This message lets the user know that Octo is skipping the action since the specified function does not exist. PSQL Error Code: 00000
+
 ++++++++++++++++++++++
 INFO_FUNCTION_SEARCH
 ++++++++++++++++++++++

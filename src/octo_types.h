@@ -479,7 +479,7 @@ typedef struct SqlTable {
 	struct SqlStatement *delim;
 	boolean_t	     readwrite; /* TRUE if READWRITE keyword is specified, FALSE if READONLY keyword is specified */
 	uint64_t	     oid;	/* TABLEOID; compared against ^%ydboctoschema(TABLENAME,OCTOLIT_PG_CLASS) */
-	boolean_t 	     if_not_exists_specified;
+	boolean_t	     if_not_exists_specified;
 } SqlTable;
 
 /* Below is the table constructed by the VALUES (...) syntax */
@@ -602,7 +602,7 @@ typedef struct SqlDropTableStatement {
 	struct SqlStatement *table_name;
 	// SqlOptionalKeyword
 	struct SqlStatement *optional_keyword;
-	boolean_t	    if_exists_specified;
+	boolean_t	     if_exists_specified;
 } SqlDropTableStatement;
 
 typedef struct SqlArray {
@@ -673,11 +673,13 @@ typedef struct SqlFunction {
 	struct SqlStatement *function_hash;	  // SqlValue
 	int32_t		     num_args;
 	uint64_t	     oid;
+	boolean_t	     if_not_exists_specified;
 } SqlFunction;
 
 typedef struct SqlDropFunctionStatement {
 	struct SqlStatement *function_name;	  // SqlValue
 	struct SqlStatement *parameter_type_list; // SqlParameterTypeList
+	boolean_t	     if_exists_specified;
 } SqlDropFunctionStatement;
 
 typedef struct SqlParameterTypeList {

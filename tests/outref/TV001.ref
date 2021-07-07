@@ -228,10 +228,10 @@ Shifting token IDENTIFIER_ALONE (: )
 Entering state sss
 Reducing stack by rule rrr (line lll):
    $1 = token IDENTIFIER_ALONE (: )
--> $$ = nterm IDENTIFIER_START (: )
+-> $$ = nterm identifier_start (: )
 Entering state sss
 Reducing stack by rule rrr (line lll):
-   $1 = nterm IDENTIFIER_START (: )
+   $1 = nterm identifier_start (: )
 -> $$ = nterm identifier_body (: )
 Entering state sss
 Reducing stack by rule rrr (line lll):
@@ -288,10 +288,10 @@ Shifting token IDENTIFIER_ALONE (: )
 Entering state sss
 Reducing stack by rule rrr (line lll):
    $1 = token IDENTIFIER_ALONE (: )
--> $$ = nterm IDENTIFIER_START (: )
+-> $$ = nterm identifier_start (: )
 Entering state sss
 Reducing stack by rule rrr (line lll):
-   $1 = nterm IDENTIFIER_START (: )
+   $1 = nterm identifier_start (: )
 -> $$ = nterm identifier_body (: )
 Entering state sss
 Reducing stack by rule rrr (line lll):
@@ -381,10 +381,10 @@ Shifting token IDENTIFIER_ALONE (: )
 Entering state sss
 Reducing stack by rule rrr (line lll):
    $1 = token IDENTIFIER_ALONE (: )
--> $$ = nterm IDENTIFIER_START (: )
+-> $$ = nterm identifier_start (: )
 Entering state sss
 Reducing stack by rule rrr (line lll):
-   $1 = nterm IDENTIFIER_START (: )
+   $1 = nterm identifier_start (: )
 -> $$ = nterm identifier_body (: )
 Entering state sss
 Reducing stack by rule rrr (line lll):

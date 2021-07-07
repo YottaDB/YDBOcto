@@ -1731,7 +1731,7 @@ regular_identifier
   ;
 
 identifier_body
-  : IDENTIFIER_START { $$ = $IDENTIFIER_START; ($$)->loc = yyloc; }
+  : identifier_start { $$ = $identifier_start; ($$)->loc = yyloc; }
   | m_function {
 	/* Disallow invoking arbitary M code (e.g. `SELECT $$^MCODE()`). Only M code defined
 	 * in the DDL (through a CREATE FUNCTION statement) is allowed to be invoked through an SQL function.
@@ -1747,7 +1747,7 @@ identifier_body
 //  | identifier_start identifier_part
   ;
 
-IDENTIFIER_START
+identifier_start
   : IDENTIFIER_BACK_TICK { $$ = $IDENTIFIER_BACK_TICK; ($$)->loc = yyloc; }
   | IDENTIFIER_PERIOD_IDENTIFIER { $$ = $IDENTIFIER_PERIOD_IDENTIFIER; ($$)->loc = yyloc; }
   | IDENTIFIER_ALONE { $$ = $IDENTIFIER_ALONE; ($$)->loc = yyloc; }
@@ -1983,42 +1983,11 @@ optional_order_by
   ;
 
 function_definition
-  : CREATE FUNCTION IDENTIFIER_START LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
-  	SqlStatement	*ret;
-	SqlFunction	*function;
-	SqlParameterTypeList *start_parameter_type, *cur_parameter_type;
-
-	SQL_STATEMENT(ret, create_function_STATEMENT);
-	MALLOC_STATEMENT(ret, create_function, SqlFunction);
-
-	ret->v.create_function->function_name = $IDENTIFIER_START;
-	ret->v.create_function->function_name->v.value->type = FUNCTION_NAME;
-	ret->v.create_function->parameter_type_list = $function_parameter_type_list;
-
-	if (NULL != ret->v.create_function->parameter_type_list) {
-		UNPACK_SQL_STATEMENT(function, ret, create_function);
-		UNPACK_SQL_STATEMENT(start_parameter_type, ret->v.create_function->parameter_type_list, parameter_type_list);
-		cur_parameter_type = start_parameter_type;
-		// Count the number of arguments for later storage in `pg_proc`, issue error if it exceeds YDB_MAX_PARMS
-		function->num_args = 0;
-		do {
-			function->num_args++;
-			if (YDB_MAX_PARMS < function->num_args) {
-				ERROR(ERR_TOO_MANY_FUNCTION_ARGUMENTS, ret->v.create_function->function_name->v.value->v.string_literal,
-					YDB_MAX_PARMS);
-				yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
-				YYABORT;
-			}
-			cur_parameter_type = cur_parameter_type->next;
-		} while (start_parameter_type != cur_parameter_type);
-	}
-	/* For FUNCTION return type, ignore any size specifications (i.e. if VARCHAR(30) is specified, ignore the 30).
-	 * Hence only the "data_type" member is copied over below. "size" member is not copied over.
-	 */
-	ret->v.create_function->return_type = $data_type;
-	ret->v.create_function->extrinsic_function = $m_function;
-	ret->v.create_function->extrinsic_function->v.value->type = FUNCTION_NAME;
-	$$ = ret;
+  : CREATE FUNCTION identifier_start LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
+	INVOKE_FUNCTION_DEFINITION($$, $identifier_start, $function_parameter_type_list, $data_type, $m_function, FALSE);
+      }
+  | CREATE FUNCTION IF NOT EXISTS identifier_start LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
+	INVOKE_FUNCTION_DEFINITION($$, $identifier_start, $function_parameter_type_list, $data_type, $m_function, TRUE);
       }
   ;
 

@@ -61,7 +61,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	for (; NULL != cur_plan;) {
 		if (cur_plan->outputKey && cur_plan->outputKey->is_cross_reference_key)
 			tmp_plan = &xrefplan; // Use cross-reference plan linked list
-		else if (NULL != cur_plan->deferred_parent_plan)
+		else if (cur_plan->is_deferred_plan)
 			tmp_plan = &deferredplan; // Use deferred plan linked list
 		else
 			tmp_plan = &nondeferredplan; // Use non-deferred plan linked list
@@ -257,7 +257,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	fprintf(output_file, "    NEW %s,%s,%s\n", PP_YDB_OCTO_G, PP_YDB_OCTO_P, PP_YDB_OCTO_EXPR);
 	fprintf(output_file, "    TSTART:wrapInTp ():(serial)\n"); /* Wrap post-xref part of query in TP if requested */
 	for (cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next) {
-		if (NULL != cur_plan->deferred_parent_plan)
+		if (cur_plan->is_deferred_plan)
 			break; // if we see a Deferred plan, it means we are done with the Non-Deferred plans
 		/* Note that it is possible we encounter multiple physical plans that map to the same logical plan.
 		 * In that case, only the first of those physical plans would have had a name generated. So use that for

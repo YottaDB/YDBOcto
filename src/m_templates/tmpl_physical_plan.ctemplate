@@ -228,7 +228,12 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		} while (NULL != lp_row_value);
 	} else {
 		assert(LP_SELECT_QUERY == plan->lp_select_query->type);
-		%{}NEW %%ydboctoz{}%
+		/* New variables that are used in almost every plan. This is needed since deferred plans can be called from
+		 * within another plan (see "XECUTE" in "GetScalarOrArray" entryref in "src/aux/_ydboctoplanhelpers.m")
+		 * and we do not want say "%ydboctoexpr" variable in the deferred plan to affect the variable of the same
+		 * name (but holding a completely different value) in the caller plan.
+		 */
+		%{}NEW {{ PP_YDB_OCTO_Z }},{{ PP_YDB_OCTO_EXPR }}{}%
 		limit_keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
 		if ((NULL != limit_keyword) && (NULL == plan->dnf_prev)) {
 			%{} SET {{ PP_YDB_OCTO_ZLIMIT }}({{ plan->outputKey->unique_id|%d }})=0{}%

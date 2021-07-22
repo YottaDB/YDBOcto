@@ -413,6 +413,7 @@ set(template_files
   ${template_dir}/tmpl_group_by.ctemplate
   ${template_dir}/tmpl_insert_into.ctemplate
   ${template_dir}/tmpl_insert_row_count.ctemplate
+  ${template_dir}/tmpl_invoke_deferred_plan.ctemplate
   ${template_dir}/tmpl_key.ctemplate
   ${template_dir}/tmpl_key_advance.ctemplate
   ${template_dir}/tmpl_key_end.ctemplate
@@ -429,7 +430,6 @@ set(template_files
   ${template_dir}/tmpl_tablejoin.ctemplate
   ${template_dir}/tmpl_tablejoin_body.ctemplate
   ${template_dir}/tmpl_tablejoin_body_group_by.ctemplate
-  ${template_dir}/tmpl_tablejoin_deferred_plans.ctemplate
   ${template_dir}/tmpl_tablejoin_on_condition.ctemplate
   ${template_dir}/tmpl_where_or_having_or_on.ctemplate
   ${template_dir}/tmpl_xref_key_columns.ctemplate

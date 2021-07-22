@@ -27,7 +27,7 @@ octoPlan0(cursorId,wrapInTp)
     QUIT
 
 octoPlan1(cursorId)
-    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",3,"","")
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
     SET %ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_ID")=0
     FOR  SET %ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_ID")=$ORDER(^DD("IX",%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_ID"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_ID"))!(%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_ID")=""))  DO
     . SET %ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_DESCRIPTION_ID")=0
@@ -52,7 +52,7 @@ octoPlan0(cursorId,wrapInTp)
     QUIT
 
 octoPlan1(cursorId)
-    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",3,"","")
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
     SET %ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_ID")=0
     FOR  SET %ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_ID")=$ORDER(^DD("IX",%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_ID"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_ID"))!(%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_ID")=""))  DO
     . SET %ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_DESCRIPTION_ID")=0
@@ -77,7 +77,7 @@ octoPlan0(cursorId,wrapInTp)
     QUIT
 
 octoPlan1(cursorId)
-    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",3,"","")
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
     SET %ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_ID")=0
     FOR  SET %ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_ID")=$ORDER(^DD("IX",%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_ID"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_ID"))!(%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_ID")=""))  DO
     . SET %ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_DESCRIPTION_ID")=0

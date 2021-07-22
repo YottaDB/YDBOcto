@@ -424,29 +424,7 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 			}
 			if (set_deferred_plan) {
 				do {
-					PhysicalPlan *parent;
-
-					set_deferred_plan = TRUE; /* for next iteration */
-					parent = child_plan->deferred_parent_plan;
-					if (NULL != parent) {
-						/* We already have set `deferred_parent_plan`. Check if the new deferred parent
-						 * is a parent of the already set value. If so do not touch what was set.
-						 * Else update it to reflect the newly computed deferred parent.
-						 */
-						for (; parent != cur;) {
-							parent = parent->parent_plan;
-							if (NULL == parent) {
-								/* The pre existing parent is a closer ancestor than the newly
-								 * computed parent so do not modify what was already set.
-								 */
-								set_deferred_plan = FALSE;
-								break;
-							}
-						}
-					}
-					if (set_deferred_plan) {
-						child_plan->deferred_parent_plan = cur;
-					}
+					child_plan->is_deferred_plan = TRUE;
 					child_plan = child_plan->parent_plan;
 				} while (child_plan != cur);
 			}

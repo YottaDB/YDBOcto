@@ -89,6 +89,14 @@ enum EmitSourceForm {
 	EmitSourceForm_NoKeyCol,
 };
 
+typedef enum {
+	InvokeDeferredPlan_ANY_ALL,
+	InvokeDeferredPlan_EXISTS,
+	InvokeDeferredPlan_IN,
+	InvokeDeferredPlan_SELECT_SET_VALUES,
+	InvokeDeferredPlan_TABLEJOIN,
+} InvokeDeferredPlanType;
+
 void resize_tmpl_buffer(char **global_buffer, int *buffer_len, int *buffer_index);
 
 TEMPLATE(tmpl_print_dots, int dots);
@@ -100,9 +108,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 TEMPLATE(tmpl_rightjoin_key, PhysicalPlan *plan, unsigned int key_start, unsigned int key_end);
 TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName, char *columnName);
 TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count);
-TEMPLATE(tmpl_tablejoin_deferred_plans, PhysicalPlan *plan, int dot_count);
-TEMPLATE(tmpl_tablejoin_on_condition, LogicalPlan *tablejoin, PhysicalPlan *plan, int *dot_count,
-	 boolean_t *deferred_plans_emitted);
+TEMPLATE(tmpl_tablejoin_on_condition, LogicalPlan *tablejoin, PhysicalPlan *plan, int *dot_count);
 TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count);
 TEMPLATE(tmpl_key_start, SqlKey *key);
 TEMPLATE(tmpl_key_end, SqlKey *key);
@@ -115,6 +121,7 @@ TEMPLATE(tmpl_print_expression_assignment, LogicalPlan *plan, PhysicalPlan *ppla
 TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t is_trigger, int dot_count);
 TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim, boolean_t str2mval, int dot_count,
 	 boolean_t is_asterisk);
+TEMPLATE(tmpl_invoke_deferred_plan, InvokeDeferredPlanType invocation_type, LogicalPlan *plan, int dot_count);
 TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *table_name, int unique_id, int keys_to_match,
 	 enum EmitSourceForm form);
 TEMPLATE(tmpl_duplication_check, PhysicalPlan *plan);

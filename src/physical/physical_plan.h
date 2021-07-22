@@ -41,41 +41,30 @@ typedef struct SetOperType {
 typedef struct PhysicalPlan {
 	char *		     plan_name, *filename, *trigger_name;
 	struct PhysicalPlan *prev, *next;
-	// These represent the keys we used to do the iteration
-	SqlKey *	    iterKeys[MAX_KEY_COUNT];
-	SqlKey *	    outputKey;
-	LogicalPlan *	    where;	       /* WHERE clause */
-	LogicalPlan *	    tablejoin;	       /* FROM clause */
-	LogicalPlan *	    aggregate_options; /* GROUP BY and HAVING */
-	SqlOptionalKeyword *keywords;	       /* DISTINCT etc. */
-	LogicalPlan *	    order_by;	       /* ORDER BY clause */
-	LogicalPlan *	    projection;
-	unsigned int	    total_iter_keys;
-	// If set to 1, this plan should emit the columns as subscripts of the key,
-	//  rather than using a row id
-	boolean_t stash_columns_in_keys;
-	// If true, this plan outputs a cross reference key, and should be treated thusly
-	boolean_t is_cross_reference_key;
-
-	// If true, maintain a column-wise index of known types
-	boolean_t maintain_columnwise_index;
-	// If true, only add the value to the output key if it doesn't already exist in
-	//  the columnwise index; requires the columnwise index
-	boolean_t distinct_values;
-
-	/* If non-NULL, this plan should not be emitted in order but waited until after all required
-	 * plans have been emitted first. This is important when the plan will not run in-order,
-	 * but will be called as a subquery which can't be extracted due to a parent reference.
-	 * This field points to a parent/ancestor physical plan that will need to generate a call to
-	 * this plan as part of going through every result row of that parent/ancestor physical plan.
-	 */
-	struct PhysicalPlan *deferred_parent_plan;
-	// Points to the parent plan of this plan; we need this so we can resolve
-	//   references to parent queries and mark intermediate plans as deferred
-	struct PhysicalPlan *parent_plan;
-	// If true, we should emit code to ensure only one value gets inserted to the output key
-	// for a given set of keys
-	boolean_t  emit_duplication_check;
+	SqlKey *	     iterKeys[MAX_KEY_COUNT]; /* These represent the keys we used to do the iteration */
+	SqlKey *	     outputKey;
+	LogicalPlan *	     where;		/* WHERE clause */
+	LogicalPlan *	     tablejoin;		/* FROM clause */
+	LogicalPlan *	     aggregate_options; /* GROUP BY and HAVING */
+	SqlOptionalKeyword * keywords;		/* DISTINCT etc. */
+	LogicalPlan *	     order_by;		/* ORDER BY clause */
+	LogicalPlan *	     projection;
+	unsigned int	     total_iter_keys;
+	boolean_t	     stash_columns_in_keys; /* If set to 1, this plan should emit the columns
+						     * as subscripts of the key, rather than using a row id
+						     */
+	boolean_t is_cross_reference_key;	/* If true, this plan outputs a cross reference key, and should be treated thusly */
+	boolean_t maintain_columnwise_index;	/* If true, maintain a column-wise index of known types */
+	boolean_t distinct_values;		/* If true, only add the value to the output key if it doesn't already exist in
+						 *  the columnwise index; requires the columnwise index.
+						 */
+	struct PhysicalPlan *parent_plan;	/* Points to the parent plan of this plan; we need this so we can resolve
+						 * references to parent queries and mark intermediate plans as deferred.
+						 */
+	boolean_t is_deferred_plan;		/* TRUE if this physical plan is a deferred plan */
+	boolean_t emit_duplication_check;	/* If true, we should emit code to ensure only one value gets inserted to
+						 * the output key for a given set of keys.
+						 */
 	boolean_t *treat_key_as_null;		/* Set to TRUE for a short period when generating M code for
 						 * the case where a left table row did not match any right
 						 * table row in an OUTER JOIN (LEFT/RIGHT/FULL). If TRUE, any

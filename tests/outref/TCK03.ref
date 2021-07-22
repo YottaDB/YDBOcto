@@ -27,7 +27,7 @@ octoPlan0(cursorId,wrapInTp)
     QUIT
 
 octoPlan1(cursorId)
-    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",5,"","")
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",5,"","")
     SET %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID0")=""
     FOR  SET %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID0")=$ORDER(^composite(%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID0"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID0")="")  DO
     . SET %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID1")=""

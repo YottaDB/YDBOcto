@@ -44,7 +44,7 @@ octoPlan0(cursorId,wrapInTp)
     QUIT
 
 octoPlan1(cursorId)
-    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",8,"","")
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",8,"","")
     DO
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",8))
     SET %ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","NSPNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","NSPNAME")) IF $DATA(^%ydboctoxref("PG_CATALOG.PG_NAMESPACE","NSPNAME",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","NSPNAME"))) DO
@@ -153,7 +153,7 @@ octoPlan1(cursorId)
     QUIT
 
 octoPlan2(cursorId)
-    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",7,"","")
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",7,"","")
     SET %ydboctocursor(cursorId,"keys",8,"","")=""
     FOR  SET %ydboctocursor(cursorId,"keys",8,"","")=$ORDER(%ydboctocursor(cursorId,"keys",8,"","",%ydboctocursor(cursorId,"keys",8,"",""))) QUIT:(%ydboctocursor(cursorId,"keys",8,"","")="")  DO
     . SET %ydboctoexpr=1
@@ -233,7 +233,7 @@ octoPlan0(cursorId,wrapInTp)
     QUIT
 
 octoPlan1(cursorId)
-    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",10,"","")
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",10,"","")
     SET %ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID")=""
     FOR  SET %ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID")=$ORDER(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID")="")  DO
     . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID")
@@ -735,7 +735,7 @@ octoPlan0(cursorId,wrapInTp)
     QUIT
 
 octoPlan1(cursorId)
-    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",10,"","")
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",10,"","")
     SET %ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID")=""
     FOR  SET %ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID")=$ORDER(^%ydboctoocto("tables","pg_catalog","pg_namespace",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID")="")  DO
     . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","OID")
@@ -1173,7 +1173,7 @@ octoPlan0(cursorId,wrapInTp)
     QUIT
 
 octoPlan1(cursorId)
-    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",8,"","")
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",8,"","")
     DO
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",9))
     SET %ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","NSPNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","NSPNAME")) IF $DATA(^%ydboctoxref("PG_CATALOG.PG_NAMESPACE","NSPNAME",%ydboctocursor(cursorId,"keys",1,"PG_CATALOG.PG_NAMESPACE","NSPNAME"))) DO
@@ -1282,7 +1282,7 @@ octoPlan1(cursorId)
     QUIT
 
 octoPlan2(cursorId)
-    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",7,"","")
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",7,"","")
     SET %ydboctocursor(cursorId,"keys",8,"","")=""
     FOR  SET %ydboctocursor(cursorId,"keys",8,"","")=$ORDER(%ydboctocursor(cursorId,"keys",8,"","",%ydboctocursor(cursorId,"keys",8,"",""))) QUIT:(%ydboctocursor(cursorId,"keys",8,"","")="")  DO
     . SET %ydboctoexpr=1

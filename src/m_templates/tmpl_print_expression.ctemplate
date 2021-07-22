@@ -416,6 +416,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			}
 			cur_lp_key = lp_get_output_key(second_operand);
 			%{}$SELECT({}%
+			TMPL(tmpl_invoke_deferred_plan, InvokeDeferredPlan_IN, second_operand, dot_count);
 			/* If RHS did not return any row, then result of NOT IN is TRUE */
 			if (LP_BOOLEAN_NOT_IN == plan_type) {
 				int	unique_id;
@@ -636,7 +637,9 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		} else {
 			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
 		}
-		%{},{{ key->v.lp_key.key->unique_id|%d }},"{{ compare_operator }}",{{ use_string_comparison|%d }}){}%
+		%{},{{ key->v.lp_key.key->unique_id|%d }},"{{ compare_operator }}",{{ use_string_comparison|%d }}{}%
+		TMPL(tmpl_invoke_deferred_plan, InvokeDeferredPlan_ANY_ALL, second_operand, dot_count);
+		%{}){}%
 		if (dot_count) {
 			%{}`n{{ PLAN_LINE_START }}{}%
 		}
@@ -689,7 +692,9 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		if (LP_BOOLEAN_NOT_EXISTS == plan_type) {
 			%{}'{}%
 		}
-		%{}$$EXISTS^%%ydboctoplanhelpers({{ key->v.lp_key.key->unique_id|%d }}){}%
+		%{}$$EXISTS^%%ydboctoplanhelpers({{ key->v.lp_key.key->unique_id|%d }}{}%
+		TMPL(tmpl_invoke_deferred_plan, InvokeDeferredPlan_EXISTS, first_operand, dot_count);
+		%{}){}%
 		if (dot_count) {
 			%{}`n{{ PLAN_LINE_START }}{}%
 		}
@@ -1015,11 +1020,13 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		}
 		// Fetch the first value from the output key of this query/table
 		key = lp_get_output_key(plan);
-		if ((LP_SELECT_QUERY == plan_type) && (plan->extra_detail.lp_select_query.to_array)) {
-			%{}$$GetScalarOrArray^%%ydboctoplanhelpers({{ key->v.lp_key.key->unique_id|%d }},{{ 1|%d }}){}%
-		} else {
-			%{}$$GetScalarOrArray^%%ydboctoplanhelpers({{ key->v.lp_key.key->unique_id|%d }},{{ 0|%d }}){}%
-		}
+		%{}$$GetScalarOrArray^%%ydboctoplanhelpers({{ key->v.lp_key.key->unique_id|%d }},{}%
+
+		boolean_t	to_array;
+		to_array = (LP_SET_OPERATION != plan->type) ? plan->extra_detail.lp_select_query.to_array : 0;
+		%{}{{ to_array|%d }}{}%
+		TMPL(tmpl_invoke_deferred_plan, InvokeDeferredPlan_SELECT_SET_VALUES, plan, dot_count);
+		%{}){}%
 		if (dot_count) {
 			%{}`n{{ PLAN_LINE_START }}{}%
 		}

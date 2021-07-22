@@ -303,7 +303,7 @@ columnkeyEXCEPT(inputId1,inputId2,outputId)
 	. SET %ydboctocursor(cursorId,"keys",outputId,"","",subs)=1
 	QUIT
 
-GetScalarOrArray(keyId,toArray)
+GetScalarOrArray(keyId,toArray,planName)
 	; Helper M function for processing scalar values and single-row arrays. The toArray parameter indicates whether or not to
 	; produce a scalar value or compose an array based on the provided output key # (keyId). In either case, the return is a
 	; single value. In the array case, this return value is a string in PostgreSQL array format, i.e. {elem1,elem2,...}. In the
@@ -316,6 +316,11 @@ GetScalarOrArray(keyId,toArray)
 	; This routine is used by generated plans where a sub-query is used in place of a scalar value (e.g. arithmetic expression
 	; etc.). Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
 	NEW firstsub,secondsub,morethanonesub,curvalue,result
+	; The variable planName points to the physical plan entryref that needs to be invoked first (in case it is a deferred plan)
+	;   in order to generate the output key rows. Example value is "octoPlan2^%ydboctoPrTrjCuwSxj7urDaUaUSh1G"). The
+	;   resulting output key rows are used to obtain the return value of this function call.
+	;   It is "" in case the plan is not a deferred plan. And in this case, no physical plan entryref needs to be invoked.
+	IF $$InvokeOctoPlan(planName)
 	; Check if there are no rows in subquery output. If so we should return NULL per SQL standard.
 	QUIT:(1>=$DATA(%ydboctocursor(cursorId,"keys",keyId,"",""))) $ZYSQLNULL
 	SET firstsub=$SELECT($DATA(%ydboctocursor(cursorId,"keys",keyId,"","","")):"",1:$ORDER(%ydboctocursor(cursorId,"keys",keyId,"","","")))
@@ -343,37 +348,43 @@ GetScalarOrArray(keyId,toArray)
 	. ZMESSAGE:morethanonesub %ydboctoerror("SUBQUERYMULTIPLEROWS")
 	QUIT result ; Return scalar in only column and only row of keyId
 
-EXISTS(keyId)
+EXISTS(keyId,planName)
 	; Helper M function that given an output key # (keyId) checks if the output key has at least one row
 	; If so returns 1 and if not returns 0. Implements the EXISTS operator in SQL.
 	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
+	; See comment about "planName" variable in "GetScalarOrArray" entryref section.
 	;
+	IF $$InvokeOctoPlan(planName)
 	QUIT (1<$DATA(%ydboctocursor(cursorId,"keys",keyId,"","")))
 
-ANY(inputValue,keyId,compOp,isString)
+ANY(inputValue,keyId,compOp,isString,planName)
 	; Helper M function that implements the ANY/SOME operator in SQL.
 	; Given an output key # (keyId) checks if the output key has at least one row with a value that satisfies the
-	; compOp property (which can be any one of "<",">","<=",">=","=","'=") against the input value (inputValue).
+	;   compOp property (which can be any one of "<",">","<=",">=","=","'=") against the input value (inputValue).
 	; If so returns 1 and if not returns 0.
 	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
 	; NOTE: The below implementation returns $ZYSQLNULL in case none of the $$Compare calls returns TRUE and at
-	; least one of the return is NULL (in accordance with SQL rules for NULL).
+	;   least one of the return is NULL (in accordance with SQL rules for NULL).
+	; See comment about "planName" variable in "GetScalarOrArray" entryref section.
 	;
+	IF $$InvokeOctoPlan(planName)
 	NEW ret,sub
 	SET sub="",ret=0
 	FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",keyId,"","",sub))  SET sub=$ORDER(%ydboctocursor(cursorId,"keys",keyId,"","",sub)) QUIT:ret!(""=sub)
 	. SET ret=$$Compare(inputValue,compOp,sub,isString)
 	QUIT ret
 
-ALL(inputValue,keyId,compOp,isString)
+ALL(inputValue,keyId,compOp,isString,planName)
 	; Helper M function that implements the ALL operator in SQL.
 	; Given an output key # (keyId) checks if the output key has ALL rows with a value that satisfies the
-	; compOp property (which can be any one of "<",">","<=",">=","=","'=") against the input value (inputValue).
+	;   compOp property (which can be any one of "<",">","<=",">=","=","'=") against the input value (inputValue).
 	; If so returns 1 and if not returns 0.
 	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
 	; NOTE: The below implementation returns $ZYSQLNULL in case none of the $$Compare calls returns FALSE and at
-	; least one of the return is NULL (in accordance with SQL rules for NULL).
+	;   least one of the return is NULL (in accordance with SQL rules for NULL).
+	; See comment about "planName" variable in "GetScalarOrArray" entryref section.
 	;
+	IF $$InvokeOctoPlan(planName)
 	NEW ret,sub
 	SET sub="",ret=1
 	FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",keyId,"","",sub))  SET sub=$ORDER(%ydboctocursor(cursorId,"keys",keyId,"","",sub)) QUIT:'ret!(""=sub)
@@ -925,4 +936,14 @@ SizeCheckVARCHAR(string,size)
 	SET %ydboctoerror("VARCHARTOOLONG",1)=size	; pass parameter to `src/ydb_error_check.c`
 	ZMESSAGE %ydboctoerror("VARCHARTOOLONG")
 	QUIT
+
+InvokeOctoPlan(planName)
+	; Given a plan name entryref (e.g. "octoPlan2^%ydboctoP0sGaZQ410YcOGHn8750h9E"), this function invokes that plan
+	; and returns a value of 0. This is needed in cases where we want to invoke the plan (using "DO octoPlan2" etc.)
+	; but cannot do so because we are in the middle of an expression evaluation. Making it a function that returns a
+	; value of 0 allows us to use this function as the first choice of a $SELECT function call which always gets
+	; evaluated before processing the rest of the $SELECT function call (where the real processing happens based on
+	; the results of the execution of the input plan name).
+	DO:""'=planName @planName@(cursorId)
+	QUIT 0
 

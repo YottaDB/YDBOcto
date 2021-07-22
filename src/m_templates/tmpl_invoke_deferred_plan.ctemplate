@@ -1,0 +1,79 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "octo_types.h"
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+
+TEMPLATE(tmpl_invoke_deferred_plan, InvokeDeferredPlanType invocation_type, LogicalPlan *plan, int dot_count) {
+	PhysicalPlan	*sub_query_pplan;
+	boolean_t	is_deferred_plan;
+
+	switch(plan->type) {
+	case LP_SELECT_QUERY:
+	case LP_SET_OPERATION:
+	case LP_TABLE_VALUE:
+		sub_query_pplan = plan->extra_detail.lp_select_query.physical_plan;
+		if (NULL != sub_query_pplan) {
+			assert(NULL != sub_query_pplan->plan_name);
+			is_deferred_plan = sub_query_pplan->is_deferred_plan;
+		} else {
+			/* NARSTODO: What if sub_query_pplan is NULL? Can be in case of LP_SET_OPERATION.
+			 * Need to handle it. Needs thought.
+			 */
+			is_deferred_plan = FALSE;
+		}
+		break;
+	default:
+		assert(FALSE);
+		break;
+	}
+	switch(invocation_type) {
+	case InvokeDeferredPlan_ANY_ALL:
+	case InvokeDeferredPlan_EXISTS:
+	case InvokeDeferredPlan_SELECT_SET_VALUES:
+		%{},{}%
+		if (is_deferred_plan) {
+			/* Note: "routine" is a variable that is defined and holds the plan name at function entry
+			 * in "src/aux/_ydboctoselect.m" at start of plan execution. Hence using it below is okay.
+			 */
+			%{}"{{ sub_query_pplan->plan_name }}^"_routine{}%
+		} else {
+			/* It is not a deferred plan. No need to invoke plan as part of evaluating the expression
+			 * as we would have already generated code to invoke it. Pass empty routine to indicate this.
+			 */
+			%{}""{}%
+		}
+		break;
+	case InvokeDeferredPlan_IN:
+		if (is_deferred_plan) {
+			%{}$$InvokeOctoPlan^%%ydboctoplanhelpers({}%
+			%{}"{{ sub_query_pplan->plan_name }}^"_routine):0,{}%
+		}
+		break;
+	case InvokeDeferredPlan_TABLEJOIN:
+		if (is_deferred_plan) {
+			TMPL(tmpl_print_dots, dot_count);
+			%{}DO {{ sub_query_pplan->plan_name }}(cursorId){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+		}
+		break;
+	default:
+		assert(FALSE);
+		break;
+	}
+	return;
+}
+%{}

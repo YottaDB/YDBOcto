@@ -22,7 +22,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 	enum SqlJoinType	this_join_type, next_join_type;
 	SqlOptionalKeyword	*limit_keyword;
 	LogicalPlan		*right_tablejoin;
-	boolean_t		deferred_plans_emitted, nested_call, this_join_is_left_join;
+	boolean_t		nested_call, this_join_is_left_join;
 
 	total_keys = plan->total_iter_keys;
 	assert(((NULL != tablejoin) && (LP_TABLE_JOIN == tablejoin->type)) || ((NULL == tablejoin) && (cur_key == total_keys)));
@@ -82,6 +82,25 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			in_value_list_id++;
 		}
 		cur_key = save_cur_key;
+	}
+	if (NULL != tablejoin) {
+		LogicalPlan	*left_tablejoin;
+
+		left_tablejoin = tablejoin->v.lp_default.operand[0];
+		switch(left_tablejoin->type) {
+		case LP_SELECT_QUERY:
+		case LP_SET_OPERATION:
+		case LP_TABLE_VALUE:
+			/* If a table in the FROM/JOIN list is a sub-query that corresponds to a deferred plan,
+			 * generate code to invoke it here (before we generate code to use the results of the plan
+			 * in the next "for" loop). If it does not correspond to a deferred plan, we would have
+			 * already generated M code to invoke it so no need to do anything in that case.
+			 */
+			TMPL(tmpl_invoke_deferred_plan, InvokeDeferredPlan_TABLEJOIN, left_tablejoin, dot_count);
+			break;
+		default:
+			break;
+		}
 	}
 	fixed_xref_key = NULL;
 	for ( ; cur_key < total_keys; cur_key++) {
@@ -250,16 +269,15 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 		}
 		dot_count++;
 	}
-	deferred_plans_emitted = FALSE;
 	/* If this is a JOIN with an ON condition, generate an IF statement in M for doing the check */
 	if (!IS_OUTER_JOIN(this_join_type)) {
 		/* This is not an OUTER JOIN. In that case, generate the IF condition for the ON clause (if one exists).
 		 * For an OUTER JOIN, we have later code that generates this if certain conditions are satisfied.
 		 */
-		TMPL(tmpl_tablejoin_on_condition, tablejoin, plan, &dot_count, &deferred_plans_emitted);
+		TMPL(tmpl_tablejoin_on_condition, tablejoin, plan, &dot_count);
 	}
 	if (this_join_is_left_join && !plan->treat_key_as_null[left_table_id]) {
-		TMPL(tmpl_tablejoin_on_condition, tablejoin, plan, &dot_count, &deferred_plans_emitted);
+		TMPL(tmpl_tablejoin_on_condition, tablejoin, plan, &dot_count);
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET {{ PP_YDB_OCTO_Z }}({{ key_start|%d }})=1{}%
 		%{}`n{{ PLAN_LINE_START }}{}%
@@ -267,7 +285,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 	if ((RIGHT_JOIN == this_join_type) || (FULL_JOIN == this_join_type)) {
 		if (!right_join_second_half) {
 			if (!this_join_is_left_join) {
-				TMPL(tmpl_tablejoin_on_condition, tablejoin, plan, &dot_count, &deferred_plans_emitted);
+				TMPL(tmpl_tablejoin_on_condition, tablejoin, plan, &dot_count);
 			}
 			/* Generate an M line to indicate a matched right table row ONLY if the current invocation of
 			 * `tmpl_tablejoin` is not from the NO_MATCHING_RIGHT_TABLE_ROWS (search for occurrence below)
@@ -296,9 +314,6 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 		}
 	}
 	if (!nested_call) {
-		if (!deferred_plans_emitted) {
-			TMPL(tmpl_tablejoin_deferred_plans, plan, dot_count);
-		}
 		TMPL(tmpl_tablejoin_body, plan, dot_count, tableName, columnName);
 	} else {
 		assert(cur_key < total_keys);

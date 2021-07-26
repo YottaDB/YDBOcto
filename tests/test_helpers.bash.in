@@ -67,13 +67,16 @@ init_test() {
 		ydbroutines="$ydbroutines @PROJECT_BINARY_DIR@"
 	fi
 	export ydb_routines="$ydbroutines $ydb_routines"
-	# Note: The below 3 lines also exist in `tools/ci/build.sh` so any change here might need to be made there too.
-	# Log env vars, shell vars, locale info in files for later analysis (if needed). Mask any sensitive env vars out.
 	echo " --> Running test [$BATS_TEST_FILENAME] : subtest [$BATS_TEST_DESCRIPTION] : in $PWD : build type @CMAKE_BUILD_TYPE@ " > bats_test.out
-	env | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > env.out
-	set | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > set.out
-	locale > locale.out
-	locale -a > localeall.out
+
+	# Note: The below set of lines also exist in `tools/ci/build.sh` so any change here might need to be made there too.
+	# Log env vars, shell vars, locale info in files for later analysis of test failures.
+	# Mask any sensitive env vars out.
+	env | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > dbg_env.out
+	set | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > dbg_set.out
+	locale > dbg_locale.out
+	locale -a > dbg_localeall.out
+
 	# Set env var to allow .m and .o file timestamps to be identical. This is expected to be particularly useful
 	# in the pipeline test runs where we have seen the _ydboctoP*.o file almost always created with a timestamp
 	# that is 1 second later than the corresponding _ydboctoP*.m file. We suspect this is due to the underlying

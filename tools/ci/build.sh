@@ -109,10 +109,21 @@ cd bats-core
 ./install.sh /usr/local
 cd ..
 
-# Note: The below 3 lines also exist in `tests/test_helpers.bash.in` so any change here might need to be made there too.
-# Log env vars, shell vars, locale info in files for later analysis (if needed). Mask any sensitive env vars out.
-env | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > env.out
-set | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > set.out
+# Note: The below set of lines also exist in `tests/test_helpers.bash.in` so any change here might need to be made there too.
+# Log env vars, shell vars, locale info, ulimit, memory/disk/cpu limits in files for later analysis of test failures.
+# Mask any sensitive env vars out.
+env | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > dbg_env.out
+set | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > dbg_set.out
+locale > dbg_locale.out
+locale -a > dbg_localeall.out
+
+# Log ulimit, memory/disk/cpu limits in files for later analysis of test failures.
+# Note that the below are the same across all subtests so we don't record this in each subtest output directory so
+# the below lines are not duplicated in `tests/test_helpers.bash.in`.
+ulimit -a > dbg_ulimit.out	# ulimit settings of memory/file descriptors/stack etc.
+free > dbg_free.out		# system RAM and SWAP
+df -h > dbg_dfh.out		# system disk space
+lscpu > dbg_lscpu.out		# system CPUs
 
 echo "# Download PostgreSQL JDBC driver for testing"
 export JDBC_VERSION=42.2.12
@@ -638,6 +649,7 @@ else
 		touch skip_bats_test.txt gde_change_segment.txt
 		ydb_icu_version=$(pkg-config --modversion icu-io)	# needed for UTF-8 chset in for loop below
 		export ydb_icu_version
+
 		# Note down if older commit is prior to the YDBOcto#275 commit when NULL and empty string began to be
 		# treated the same. This will be used later to skip a few tests.
 		pre_octo275_commit="babc2e2e78eb00813cb5d76a8f2bbda66742c1b7"	# 1 commit before the #275 commit
@@ -647,6 +659,16 @@ else
 		is_post_octo275_commit=$?
 		# Re-enable "set -e" now that "git merge-base" invocation is done.
 		set -e
+
+		# Note down if older commit is prior to the YDBOcto#649 commit. This will be used later to skip a few tests.
+		pre_octo649_commit="9c64861100d7f6c6653a75f7b06f036465c2f486"	# 1 commit before the #649 commit
+		# Disable the "set -e" setting temporarily as the "git merge-base" can return exit status 0 or 1
+		set +e
+		git merge-base --is-ancestor $commitsha $pre_octo649_commit
+		is_post_octo649_commit=$?
+		# Re-enable "set -e" now that "git merge-base" invocation is done.
+		set -e
+
 		# Point src to newsrc
 		ln -s newsrc src
 		for tstdir in bats-test.*
@@ -695,16 +717,22 @@ else
 			#    And so need to be skipped for the same conditions as TQG*.
 			# 6) By a similar reasoning, the TC027/TC033/TC034 subtests (in the "test_createtable" bats test) used
 			#    "NULLCHAR" previously and so have to be skipped.
+			# 7) The "TLQ02" subtest runs a large query which require a lot of memory when rerun in the
+			#    test-auto-upgrade job (VmSize value in /proc/PID/status goes as high as 3.3GiB) and causes the
+			#    process to get "Killed" in the gitlab pipelines (likely the OOM killer kicks in) so skip this.
+			#    Note though that as part of YDBOcto#649, this query was reduced 10x and so we need to skip only
+			#    if the random prior commit is older than the #649 commit.
 			# ----------------------------------------------------------------------------
-			if [[ ($subtest =~ "TC011 : ") || ($subtest =~ "TPC019 : ") \
-					|| (($subtest =~ ^"TQG") && (0 == $is_post_octo275_commit)) \
+			if [[ ($subtest =~ "TC011 : ") || ($subtest =~ "TPC019 : ")                    \
+					|| (($subtest =~ ^"TQG") && (0 == $is_post_octo275_commit))    \
 					|| (($subtest =~ ^"TJC004") && (0 == $is_post_octo275_commit)) \
 					|| (($subtest =~ ^"TJC005") && (0 == $is_post_octo275_commit)) \
 					|| (($subtest =~ ^"TJC006") && (0 == $is_post_octo275_commit)) \
 					|| (($subtest =~ ^"TJC007") && (0 == $is_post_octo275_commit)) \
-					|| (($subtest =~ ^"TC027") && (0 == $is_post_octo275_commit)) \
-					|| (($subtest =~ ^"TC033") && (0 == $is_post_octo275_commit)) \
-					|| (($subtest =~ ^"TC034") && (0 == $is_post_octo275_commit)) ]]; then
+					|| (($subtest =~ ^"TC027") && (0 == $is_post_octo275_commit))  \
+					|| (($subtest =~ ^"TC033") && (0 == $is_post_octo275_commit))  \
+					|| (($subtest =~ ^"TC034") && (0 == $is_post_octo275_commit))  \
+					|| (($subtest =~ ^"TLQ02") && (0 == $is_post_octo649_commit)) ]]; then
 				echo "SKIPPED : $tstdir : [subtest : $subtest]" >> ../bats_test.txt
 				cd ..
 				rm -rf $tstdir

@@ -106,10 +106,6 @@ mkdir build
 cd build
 git clone https://github.com/bats-core/bats-core.git
 cd bats-core
-# Checkout the below stable version (instead of the master branch) as we found issues in later commits.
-# Various subtests in the test_cross_index_optimization bats test (e.g. TCIO01 subtest) failed due to that.
-# See https://github.com/bats-core/bats-core/issues/471 for simple test case.
-git checkout tags/v1.4.1
 ./install.sh /usr/local
 cd ..
 

@@ -198,7 +198,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 				assert(LP_COLUMN_LIST == select_column_list->type);
 				column_list->v.lp_default.operand[0] = select_column_list->v.lp_default.operand[0];
 				order_by->v.lp_default.operand[0] = column_list;
-				order_by->extra_detail.lp_order_by.order_by_column_num = TRUE;
+				order_by->extra_detail.lp_order_by.order_by_column_num = cur_cla->tbl_and_col_id.column_number;
 			} else {
 				save_next = cur_cla->next;
 				cur_cla->next = cur_cla; /* set "next" to self so below call processes only one column instead of
@@ -206,7 +206,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 							  */
 				order_by->v.lp_default.operand[0] = lp_column_list_to_lp(cur_cla, &error_encountered);
 				cur_cla->next = save_next;
-				order_by->extra_detail.lp_order_by.order_by_column_num = FALSE;
+				order_by->extra_detail.lp_order_by.order_by_column_num = 0;
 			}
 			if (NULL != cur_cla->keywords) {
 				UNPACK_SQL_STATEMENT(keyword, cur_cla->keywords, keyword);

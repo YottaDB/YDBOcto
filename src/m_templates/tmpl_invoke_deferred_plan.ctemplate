@@ -33,6 +33,7 @@ TEMPLATE(tmpl_invoke_deferred_plan, InvokeDeferredPlanType invocation_type, Logi
 			/* NARSTODO: What if sub_query_pplan is NULL? Can be in case of LP_SET_OPERATION.
 			 * Need to handle it. Needs thought.
 			 */
+			assert(LP_SET_OPERATION == plan->type);
 			is_deferred_plan = FALSE;
 		}
 		break;

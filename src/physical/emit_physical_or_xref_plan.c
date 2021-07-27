@@ -46,8 +46,7 @@ int emit_physical_or_xref_plan(char *plan_filename, SqlStatement *stmt, char *ta
 		 *
 		 * The code to do checks is mostly common for both iterations hence this for loop to avoid code duplication.
 		 */
-		boolean_t    generate_plan;
-		SetOperType *set_oper;
+		boolean_t generate_plan;
 
 		generate_plan = (-1 == access(plan_filename, F_OK));
 		if (!generate_plan) {
@@ -119,6 +118,7 @@ int emit_physical_or_xref_plan(char *plan_filename, SqlStatement *stmt, char *ta
 		 * "emit_physical_or_xref_plan.c" as part of the GET_PLAN_METADATA_DB_NODE and if it exists, it is assumed that all
 		 * other setup of global nodes related to the plan is done.
 		 */
+		SetOperType *set_oper;
 		set_oper = pplan->set_oper_list;
 		if (NULL != set_oper) {
 			DEBUG_ONLY(LPActionType set_oper_type);

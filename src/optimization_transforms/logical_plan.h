@@ -117,7 +117,11 @@ typedef struct LpExtraTableJoin {
 /* Extra fields needed by LP_ORDER_BY */
 typedef struct LpExtraOrderBy {
 	enum OptionalKeyword direction;		  /* OPTIONAL_ASC or OPTIONAL_DESC */
-	boolean_t	     order_by_column_num; /* this is an ORDER BY COLUMN NUM usage */
+	int		order_by_column_num; /* If non-zero, this is an ORDER BY COLUMN NUM usage and the value
+						   *   points to the column number in the SELECT column list that this
+						   *   ORDER BY corresponds to.
+						   * If not an ORDER BY COLUMN NUM usage, it is 0.
+						   */
 } LpExtraOrderBy;
 
 /* Extra fields needed by LP_ORDER_BY */

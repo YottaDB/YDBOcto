@@ -42,6 +42,8 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	plan_options = *options;
 	// If this is a union plan, construct physical plans for the two children
 	if (LP_SET_OPERATION == plan->type) {
+		PhysicalPlan *next;
+
 		GET_LP(set_option, plan, 0, LP_SET_OPTION);
 		GET_LP(set_plans, plan, 1, LP_PLANS);
 		out = generate_physical_plan(set_plans->v.lp_default.operand[1], &plan_options);
@@ -55,7 +57,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		       || (LP_SET_INTERSECT == set_oper_type) || (LP_SET_INTERSECT_ALL == set_oper_type));
 		is_set_dnf = (LP_SET_DNF == set_oper_type);
 		if (is_set_dnf) {
-			PhysicalPlan *next, *tmp;
+			PhysicalPlan *tmp;
 
 			tmp = out;
 			if (LP_SET_OPERATION == set_plans->v.lp_default.operand[1]->type) {
@@ -98,6 +100,34 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 				next_oper->prev = set_oper;
 			}
 			out->set_oper_list = set_oper;
+		} else {
+			/* Check if "prev" is a deferred plan and "next" is not. If so fix "next" and all of its right
+			 * DNF siblings to be a deferred plan. Similarly, check if "next" is a deferred plan and "prev"
+			 * is not. If so, fix "prev" and its left DNF siblings to be a deferred plan. This way all DNF
+			 * sibling plans get treated the same way (all of them are either deferred or all of them are not
+			 * deferred) and work correctly even if it is not optimal (see YDBOcto#727).
+			 */
+			assert(next == prev->dnf_next);
+			assert(prev == next->dnf_prev);
+			if (prev->is_deferred_plan && !next->is_deferred_plan) {
+				PhysicalPlan *tmp;
+
+				tmp = next;
+				do {
+					assert(!tmp->is_deferred_plan);
+					tmp->is_deferred_plan = TRUE;
+					tmp = tmp->dnf_next;
+				} while (NULL != tmp);
+			} else if (!prev->is_deferred_plan && next->is_deferred_plan) {
+				PhysicalPlan *tmp;
+
+				tmp = prev;
+				do {
+					assert(!tmp->is_deferred_plan);
+					tmp->is_deferred_plan = TRUE;
+					tmp = tmp->dnf_prev;
+				} while (NULL != tmp);
+			}
 		}
 		return out;
 	} else if (LP_INSERT_INTO == plan->type) {

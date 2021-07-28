@@ -414,6 +414,7 @@ set(template_files
   ${template_dir}/tmpl_insert_into.ctemplate
   ${template_dir}/tmpl_insert_row_count.ctemplate
   ${template_dir}/tmpl_invoke_deferred_plan.ctemplate
+  ${template_dir}/tmpl_invoke_deferred_plan_lp_set_dnf.ctemplate
   ${template_dir}/tmpl_key.ctemplate
   ${template_dir}/tmpl_key_advance.ctemplate
   ${template_dir}/tmpl_key_end.ctemplate

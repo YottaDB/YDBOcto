@@ -16,7 +16,6 @@
 #include "physical_plan.h"
 #include "template_helpers.h"
 
-
 TEMPLATE(tmpl_invoke_deferred_plan, InvokeDeferredPlanType invocation_type, LogicalPlan *plan, int dot_count) {
 	PhysicalPlan	*sub_query_pplan;
 	boolean_t	is_deferred_plan;
@@ -33,8 +32,30 @@ TEMPLATE(tmpl_invoke_deferred_plan, InvokeDeferredPlanType invocation_type, Logi
 			/* NARSTODO: What if sub_query_pplan is NULL? Can be in case of LP_SET_OPERATION.
 			 * Need to handle it. Needs thought.
 			 */
+			LogicalPlan	*set_option;
+			LPActionType	set_oper_type;
+
 			assert(LP_SET_OPERATION == plan->type);
-			is_deferred_plan = FALSE;
+			GET_LP(set_option, plan, 0, LP_SET_OPTION);
+			set_oper_type = set_option->v.lp_default.operand[0]->type;
+			if (LP_SET_DNF == set_oper_type) {
+				if ((InvokeDeferredPlan_ANY_ALL != invocation_type)
+						&& (InvokeDeferredPlan_EXISTS != invocation_type)
+						&& (InvokeDeferredPlan_SELECT_SET_VALUES != invocation_type)) {
+					TMPL(tmpl_invoke_deferred_plan_lp_set_dnf, invocation_type, plan, dot_count);
+					return;
+				} else {
+					/* NARSTODO: Handle case where invocation_type is any of the following.
+						case InvokeDeferredPlan_ANY_ALL:
+						case InvokeDeferredPlan_EXISTS:
+						case InvokeDeferredPlan_SELECT_SET_VALUES:
+					 * In that case, calling multpile plans might not generate usable M code.
+					 */
+					is_deferred_plan = FALSE;	/* NARSTODO: */
+				}
+			} else {
+				is_deferred_plan = FALSE;	/* NARSTODO: */
+			}
 		}
 		break;
 	default:

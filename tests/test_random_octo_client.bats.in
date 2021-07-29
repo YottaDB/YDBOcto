@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -23,7 +23,7 @@ setup() {
   test_port=$(start_rocto 1344)
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TROC01.sql usejdbc
   stop_rocto
-  local JDBCdriverused=$(grep "randclient: usejdbc:usejdbc" env.out)
+  local JDBCdriverused=$(grep "randclient: usejdbc:usejdbc" dbg_env.out)
   if [[ -z $JDBCdriverused ]]; then
     echo "Test Failed: Test not executed using JDBC driver even though usejdbc is passed as argument"
     exit 1
@@ -36,7 +36,7 @@ setup() {
 
 @test "TROC02: Verifies that when useocto argument is passed to cross check function, randomization doesn't happen and Octo is used for query execution and rocto is not started" {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TROC02.sql useocto
-  local OCTOused=$(grep "randclient:OCTO" env.out)
+  local OCTOused=$(grep "randclient:OCTO" dbg_env.out)
   if [[ -z $OCTOused ]]; then
     echo "Test Failed: OCTO not found"
     exit 1

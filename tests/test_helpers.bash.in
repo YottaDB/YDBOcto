@@ -643,7 +643,7 @@ verify_output() {
 	# test_where_in.bats TWI12 when executed with JDBC driver fails without the following code.
 	# This is because the semicolon at the end of a query is left out of the physical plan in this case.
 	# To avoid such failure we remove all occurrences of semicolons before the comparison.
-	local isjdbcclient=$(grep "randclient:JDBC" env.out)
+	local isjdbcclient=$(grep "randclient:JDBC" dbg_env.out)
 	if [[ ! -z "$isjdbcclient" ]]; then
 		sed 's/;//g' outref/$1.ref > jdbc_$1.ref
 		sed 's/;//g' clean_output.txt > jdbc_clean_output.txt
@@ -766,8 +766,8 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 			randclientstr="OCTO"
 		fi
 	fi
-	echo "Cross check parameters:" >> env.out
-	echo "postgres_version:$postgres_version randclient:$randclientstr usejdbc:$usejdbc jdbcprotocol:$jdbcprotocol" >> env.out
+	echo "Cross check parameters:" >> dbg_env.out
+	echo "postgres_version:$postgres_version randclient:$randclientstr usejdbc:$usejdbc jdbcprotocol:$jdbcprotocol" >> dbg_env.out
 
 	# Prepare query file/files for execution
 	if [[ $randclientstr == "JDBC" || $usejdbc == "usejdbc" ]]; then

@@ -81,6 +81,13 @@ typedef struct PhysicalPlan {
 	LogicalPlan *	     lp_select_query;	  /* The owning LP_SELECT_QUERY or LP_TABLE_VALUE or LP_INSERT_INTO
 						   * logical plan corresponding to this physical plan.
 						   */
+	boolean_t primary_physical_plan_emitted;  /* TRUE if this is the primary physical plan (of multiple physical plans)
+						   * corresponding to the same logical plan and a "DO octoPlanNNN" call for
+						   * this plan name has been emitted in "emit_physical_plan.c". Used to skip
+						   * emitting duplicate calls and unnecessary computation (i.e. an optimization).
+						   * See comment in "emit_physical_plan.c" where this field is used for more
+						   * details on why this field cannot be avoided.
+						   */
 } PhysicalPlan;
 
 /* Below macro returns TRUE if GROUP BY or HAVING have been specified and/or Aggregate functions have been used in plan */

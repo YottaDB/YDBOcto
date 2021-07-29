@@ -99,7 +99,6 @@ octoPlan0(cursorId,wrapInTp)
     TSTART:wrapInTp ():(serial)
     DO octoPlan2(cursorId)
     DO octoPlan1(cursorId)
-    DO octoPlan2(cursorId)
     DO octoPlan3(cursorId)
     TCOMMIT:wrapInTp
     QUIT
@@ -195,7 +194,6 @@ octoPlan0(cursorId,wrapInTp)
     TSTART:wrapInTp ():(serial)
     DO octoPlan2(cursorId)
     DO octoPlan1(cursorId)
-    DO octoPlan2(cursorId)
     DO octoPlan3(cursorId)
     TCOMMIT:wrapInTp
     QUIT
@@ -709,7 +707,6 @@ octoPlan0(cursorId,wrapInTp)
     TSTART:wrapInTp ():(serial)
     DO octoPlan2(cursorId)
     DO octoPlan1(cursorId)
-    DO octoPlan2(cursorId)
     DO octoPlan3(cursorId)
     TCOMMIT:wrapInTp
     QUIT

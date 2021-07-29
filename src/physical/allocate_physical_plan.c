@@ -14,17 +14,11 @@
 #include "physical_plan.h"
 
 /* Allocate and initialize (a few fields) a physical plan. Returns the allocated physical plan. */
-PhysicalPlan *allocate_physical_plan(LogicalPlan *plan, PhysicalPlan *pplan_from_lp, PhysicalPlanOptions *plan_options,
-				     PhysicalPlanOptions *orig_plan_options) {
+PhysicalPlan *allocate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *plan_options, PhysicalPlanOptions *orig_plan_options) {
 	PhysicalPlan *pplan;
 
 	OCTO_CMALLOC_STRUCT(pplan, PhysicalPlan);
-	if (NULL != pplan_from_lp) {
-		/* This is a duplicate physical plan pointing to the same logical plan. */
-		assert(pplan_from_lp->lp_select_query == plan);
-	} else {
-		plan->extra_detail.lp_select_query.physical_plan = pplan;
-	}
+	plan->extra_detail.lp_select_query.physical_plan = pplan;
 	assert(NULL == pplan->prev);
 	pplan->lp_select_query = plan;
 	pplan->parent_plan = orig_plan_options->parent;

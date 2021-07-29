@@ -138,9 +138,8 @@ typedef struct LpExtraInsert {
 					       * at this level (not outer level) corresponding to this logical plan.
 					       */
 	struct LogicalPlan * first_aggregate; /* Used only in case of LP_SELECT_QUERY. Not used if LP_TABLE_VALUE */
-	struct PhysicalPlan *physical_plan;   /* Pointer to corresponding physical plan. Note that there could be
-					       * multiple physical plans corresponding to the same logical plan
-					       * (i.e. many physical plans to 1 logical plan relationship).
+	struct PhysicalPlan *physical_plan;   /* Pointer to corresponding physical plan. Note that there is only ONE physical
+					       * plan corresponding to this logical plan i.e. there is a 1 to 1 mapping.
 					       */
 	boolean_t to_array;		      // Indicates the result of this LP_INSERT should be converted to a SQL array
 } LpExtraInsert;

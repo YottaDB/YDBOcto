@@ -154,16 +154,11 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	// Generate plan names for Non-deferred and Deferred plans
 	for (plan_id = 1, cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next) {
 		assert(!(cur_plan->outputKey && cur_plan->outputKey->is_cross_reference_key));
-		/* Although there can be multiple physical plans corresponding to the same logical plan,
-		 * we will emit only one physical plan. So generate plan name only for the first of the duplicates.
-		 */
-		if (PRIMARY_PHYSICAL_PLAN(cur_plan) == cur_plan) {
-			len = snprintf(plan_name_buffer, MAX_PLAN_NAME_LEN, "%s%d", OCTOPLAN_LIT, plan_id);
-			cur_plan->plan_name = octo_cmalloc(memory_chunks, len + 1);
-			memcpy(cur_plan->plan_name, plan_name_buffer, len);
-			cur_plan->plan_name[len] = '\0';
-			plan_id++;
-		}
+		len = snprintf(plan_name_buffer, MAX_PLAN_NAME_LEN, "%s%d", OCTOPLAN_LIT, plan_id);
+		cur_plan->plan_name = octo_cmalloc(memory_chunks, len + 1);
+		memcpy(cur_plan->plan_name, plan_name_buffer, len);
+		cur_plan->plan_name[len] = '\0';
+		plan_id++;
 	}
 
 	plan_filename_len = strlen(plan_filename);
@@ -257,36 +252,10 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	fprintf(output_file, "    NEW %s,%s,%s\n", PP_YDB_OCTO_G, PP_YDB_OCTO_P, PP_YDB_OCTO_EXPR);
 	fprintf(output_file, "    TSTART:wrapInTp ():(serial)\n"); /* Wrap post-xref part of query in TP if requested */
 	for (cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next) {
-		PhysicalPlan *pri_plan;
-
 		if (cur_plan->is_deferred_plan)
 			break; // if we see a Deferred plan, it means we are done with the Non-Deferred plans
-		/* Note that it is possible multiple physical plans correspond to the same logical plan and this physical plan
-		 * is the primary physical plan in that set/group. In that case we want to avoid emitting code for each of the
-		 * multiple physical plans after the first one. The first solution that comes to mind is the following.
-		 *
-		 * if (cur_plan != cur_plan->lp_select_query->extra_detail.lp_select_query.physical_plan) {
-		 *	continue;
-		 * }
-		 *
-		 * But it is possible that the multiple physical plans are stored in the linked list in such an order that the
-		 * primary physical plan comes AFTER a non-primary physical plan. In this case, skipping all non-primary physical
-		 * plans and emitting code only when the primary physical plan is reached (like the above solution) would not
-		 * work in case there are other plans in between the non-primary and primary physical plans (in the "cur_plan"
-		 * linked list) that rely on the non-primary plan code having already been invoked (as the intermediate plan
-		 * uses the results of that computation). Hence the need for the "primary_physical_plan_emitted" field below.
-		 */
-		pri_plan = PRIMARY_PHYSICAL_PLAN(cur_plan);
-		if (pri_plan->primary_physical_plan_emitted) {
-			continue;
-		}
-		/* Note that it is possible we encounter multiple physical plans that map to the same logical plan.
-		 * In that case, only the first of those physical plans would have had a name generated. So use that for
-		 * all the physical plans we go through.
-		 */
-		assert(NULL != PHYSICAL_PLAN_NAME(cur_plan));
-		fprintf(output_file, "    DO %s(cursorId)\n", PHYSICAL_PLAN_NAME(cur_plan));
-		pri_plan->primary_physical_plan_emitted = TRUE;
+		assert(NULL != cur_plan->plan_name);
+		fprintf(output_file, "    DO %s(cursorId)\n", cur_plan->plan_name);
 
 		/* Check if this physical plan corresponds to a SET operation. If so, generate code that does the SET
 		 * operation based on the results obtained from the SET operands (which would be queries whose physical
@@ -338,17 +307,12 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	fprintf(output_file, "    QUIT\n");
 	// Emit Non-Deferred and Deferred plans in that order
 	for (cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next) {
-		if (cur_plan == cur_plan->lp_select_query->extra_detail.lp_select_query.physical_plan) {
-			cur_plan->filename = NULL; // filename needed only for cross reference plans
-			buffer_index = 0;
-			tmpl_physical_plan(&buffer, &buffer_len, &buffer_index, cur_plan);
-			fprintf(output_file, "%s\n", buffer);
-		}
-		/* else: This physical plan maps to the same logical plan that a prior physical plan points to.
-		 *	 Skip emitting this plan as the prior physical plan is good enough.
-		 */
+		assert(cur_plan == cur_plan->lp_select_query->extra_detail.lp_select_query.physical_plan);
+		cur_plan->filename = NULL; // filename needed only for cross reference plans
+		buffer_index = 0;
+		tmpl_physical_plan(&buffer, &buffer_len, &buffer_index, cur_plan);
+		fprintf(output_file, "%s\n", buffer);
 	}
-
 	free(buffer);
 	// Close out the file
 	fd = fileno(output_file);

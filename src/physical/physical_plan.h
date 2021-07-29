@@ -81,24 +81,20 @@ typedef struct PhysicalPlan {
 	LogicalPlan *	     lp_select_query;	  /* The owning LP_SELECT_QUERY or LP_TABLE_VALUE or LP_INSERT_INTO
 						   * logical plan corresponding to this physical plan.
 						   */
-	boolean_t primary_physical_plan_emitted;  /* TRUE if this is the primary physical plan (of multiple physical plans)
-						   * corresponding to the same logical plan and a "DO octoPlanNNN" call for
-						   * this plan name has been emitted in "emit_physical_plan.c". Used to skip
-						   * emitting duplicate calls and unnecessary computation (i.e. an optimization).
-						   * See comment in "emit_physical_plan.c" where this field is used for more
-						   * details on why this field cannot be avoided.
+	struct PhysicalPlan *dependent_plans_end; /* Points to the last physical plan that was added to the linked list of
+						   * physical plans as part of the "generate_physical_plan()" that first
+						   * generated this "PhysicalPlan" structure. The linked list starting from
+						   * the current "PhysicalPlan" structure going back the "prev" links until
+						   * "dependent_plans_end" form a list of physical plans that need to be moved
+						   * ahead in case we encounter the need for this physical plan again during
+						   * "generate_physical_plan()". Moving these plans avoids the need for us to
+						   * generate multiple physical plans for the same logical plan i.e. allowing us
+						   * to have a 1-1 mapping between physical and logical plans.
 						   */
 } PhysicalPlan;
 
 /* Below macro returns TRUE if GROUP BY or HAVING have been specified and/or Aggregate functions have been used in plan */
 #define IS_GROUP_BY_PLAN(PLAN) (PLAN->aggregate_function_or_group_by_specified)
-
-/* The below macros take into account that multiple physical plans can correspond to the same logical plan in which case
- * the physical plan name would have only been filled in one of those duplicates (the one whose logical plan points
- * back to this physical plan).
- */
-#define PRIMARY_PHYSICAL_PLAN(PLAN) PLAN->lp_select_query->extra_detail.lp_select_query.physical_plan
-#define PHYSICAL_PLAN_NAME(PLAN)    PRIMARY_PHYSICAL_PLAN(PLAN)->plan_name
 
 #define IS_INSERT_INTO_PHYSICAL_PLAN(PPLAN) ((NULL != PPLAN->lp_select_query) && (LP_INSERT_INTO == PPLAN->lp_select_query->type))
 #define HYPHEN_LINE			    "---------------------------------------------------------"
@@ -120,8 +116,7 @@ typedef struct PhysicalPlanOptions {
 PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *options);
 
 /* Allocate and initialize (a few fields) a physical plan. Returns the allocated physical plan. */
-PhysicalPlan *allocate_physical_plan(LogicalPlan *plan, PhysicalPlan *pplan_from_lp, PhysicalPlanOptions *plan_options,
-				     PhysicalPlanOptions *orig_plan_options);
+PhysicalPlan *allocate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *plan_options, PhysicalPlanOptions *orig_plan_options);
 
 // Outputs physical plans to temporary files located in config.plan_src_dir
 //  Names are like ppplanXXXX, where XXXX is a unique number

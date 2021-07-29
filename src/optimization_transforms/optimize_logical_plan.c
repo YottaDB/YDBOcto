@@ -212,7 +212,6 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 					if (order_by->extra_detail.lp_order_by.order_by_column_num) {
 						/* This is an ORDER BY COLUMN NUM N case. Handle it. */
 						LogicalPlan *nth_column_list;
-
 						nth_column_list = lp_get_col_num_n_in_select_column_list(
 						    select_column_list, order_by->extra_detail.lp_order_by.order_by_column_num);
 						order_by->v.lp_default.operand[0] = nth_column_list;

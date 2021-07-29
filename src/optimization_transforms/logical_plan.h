@@ -117,7 +117,7 @@ typedef struct LpExtraTableJoin {
 /* Extra fields needed by LP_ORDER_BY */
 typedef struct LpExtraOrderBy {
 	enum OptionalKeyword direction;		  /* OPTIONAL_ASC or OPTIONAL_DESC */
-	int		order_by_column_num; /* If non-zero, this is an ORDER BY COLUMN NUM usage and the value
+	int		     order_by_column_num; /* If non-zero, this is an ORDER BY COLUMN NUM usage and the value
 						   *   points to the column number in the SELECT column list that this
 						   *   ORDER BY corresponds to.
 						   * If not an ORDER BY COLUMN NUM usage, it is 0.
@@ -190,6 +190,25 @@ typedef struct LpExtraTable {
 	struct LogicalPlan *next_table; /* maintains linked list of LP_TABLE plans in entire query */
 } LpExtraTable;
 
+typedef struct LpExtraSetOperation {
+	boolean_t is_deferred_plan;	    /* TRUE if at least one of the SET operation operands point to deferred plans.
+					     * A LP_SET_OPERATION plan can have its 2 operands as LP_SET_OPERATION or
+					     * LP_SELECT_QUERY or LP_TABLE_VALUE etc. Except for LP_SET_OPERATION type,
+					     * all other types of logical plans correspond to an actual physical plan.
+					     * In that case we check the "is_deferred_plan" field in that physical plan.
+					     * For the LP_SET_OPERATION type operand, we check the "is_deferred_plan" field
+					     * in that logical plan's LpExtraSetOperation type member.
+					     */
+	boolean_t is_deferred_plan_valid;   /* TRUE if "is_deferred_plan" field has been already initialized.
+					     * Need a separate field than "is_deferred_plan" to track this as the
+					     * latter can take on FALSE (0) and TRUE (1) as valid values.
+					     */
+	struct SetOperType *set_oper;	    /* Back pointer to "SetOperType" structure whose "lp_set_operation" field points
+					     * to this LP_SET_OPERATION plan.
+					     */
+	struct PhysicalPlan *physical_plan; /* The physical plan whose "set_oper_list" contains the above "set_oper" field */
+} LpExtraSetOperation;
+
 /* We use yet another triple type here so we can easily traverse the tree to replace tables and WHEREs.
  * Specifically, the WHERE can have complete trees under it, and it would be awkward to overload void pointers.
  */
@@ -221,6 +240,7 @@ typedef struct LogicalPlan {
 		LpExtraCoerceType	 lp_coerce_type;	// To be used if type == LP_COERCE_TYPE
 		LpExtraFunctionCall	 lp_function_call;	// To be used if type == LP_FUNCTION_CALL
 		LpExtraTable		 lp_table;		// To be used if type == LP_TABLE
+		LpExtraSetOperation	 lp_set_operation;	// To be used if type == LP_SET_OPERATION
 	} extra_detail;
 } LogicalPlan;
 

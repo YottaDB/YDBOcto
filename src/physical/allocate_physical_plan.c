@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -18,6 +18,7 @@ PhysicalPlan *allocate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *pla
 	PhysicalPlan *pplan;
 
 	OCTO_CMALLOC_STRUCT(pplan, PhysicalPlan);
+	assert((LP_SELECT_QUERY == plan->type) || (LP_TABLE_VALUE == plan->type) || (LP_INSERT_INTO == plan->type));
 	plan->extra_detail.lp_select_query.physical_plan = pplan;
 	assert(NULL == pplan->prev);
 	pplan->lp_select_query = plan;

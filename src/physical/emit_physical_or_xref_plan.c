@@ -47,7 +47,6 @@ int emit_physical_or_xref_plan(char *plan_filename, SqlStatement *stmt, char *ta
 		 * The code to do checks is mostly common for both iterations hence this for loop to avoid code duplication.
 		 */
 		boolean_t generate_plan;
-
 		generate_plan = (-1 == access(plan_filename, F_OK));
 		if (!generate_plan) {
 			/* The plan exists (i.e. has already been generated). But check if the corresponding nodes

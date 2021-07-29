@@ -31,6 +31,7 @@ typedef enum PPSetOperation { PP_NOT_SET, PP_UNION_SET, PP_EXCEPT_SET, PP_INTERS
 
 typedef struct SetOperType {
 	LPActionType	    set_oper_type;
+	LogicalPlan *	    lp_set_operation; /* used for deferred plan determination and corresponding M code generation */
 	int		    input_id1;
 	int		    input_id2;
 	int		    output_id;
@@ -126,6 +127,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename);
 // Returns true if the key is a version of this column
 int key_equals_column(SqlKey *key, SqlColumn *column);
 
+char *	      get_setoper_mlabref(SetOperType *set_oper, PhysicalPlan *pplan);
 PhysicalPlan *get_physical_plan_from_unique_id(PhysicalPlan *pplan, int unique_id);
 PhysicalPlan *emit_sql_statement(SqlStatement *stmt, char *plan_filename);
 int emit_physical_or_xref_plan(char *plan_filename, SqlStatement *stmt, char *tableName, char *columnName, PhysicalPlan *xref_plan);

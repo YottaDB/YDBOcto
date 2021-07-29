@@ -266,6 +266,7 @@ add_library(libocto OBJECT
   physical/emit_xref_plan.c
   physical/generate_physical_plan.c
   physical/get_physical_plan_from_unique_id.c
+  physical/get_setoper_mlabref.c
   populate_data_type.c
   print_result_row.c
   print_temporary_table.c
@@ -414,7 +415,7 @@ set(template_files
   ${template_dir}/tmpl_insert_into.ctemplate
   ${template_dir}/tmpl_insert_row_count.ctemplate
   ${template_dir}/tmpl_invoke_deferred_plan.ctemplate
-  ${template_dir}/tmpl_invoke_deferred_plan_lp_set_dnf.ctemplate
+  ${template_dir}/tmpl_invoke_deferred_plan_setoper.ctemplate
   ${template_dir}/tmpl_key.ctemplate
   ${template_dir}/tmpl_key_advance.ctemplate
   ${template_dir}/tmpl_key_end.ctemplate

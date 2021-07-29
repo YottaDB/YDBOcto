@@ -85,7 +85,6 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 	}
 	if (NULL != tablejoin) {
 		LogicalPlan	*left_tablejoin;
-
 		left_tablejoin = tablejoin->v.lp_default.operand[0];
 		switch(left_tablejoin->type) {
 		case LP_SELECT_QUERY:

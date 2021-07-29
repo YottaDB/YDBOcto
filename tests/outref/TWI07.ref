@@ -35,7 +35,7 @@ octoPlan1(cursorId)
     . SET %ydboctoexpr=1
     . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . SET %ydboctoexpr(1)=%ydboctoexpr
-    . SET %ydboctoexpr=$SELECT($$InvokeOctoPlan^%ydboctoplanhelpers("octoPlan2^"_routine):0,$ZYISSQLNULL(%ydboctoexpr(1)):$ZYSQLNULL,$DATA(%ydboctocursor(cursorId,"keys",5,"","",%ydboctoexpr(1))):1,$DATA(%ydboctocursor(cursorId,"keys",5,"","",$ZYSQLNULL)):$ZYSQLNULL,1:0)
+    . SET %ydboctoexpr=$SELECT($$InvokeOctoPlan^%ydboctoplanhelpers("octoPlan2,"):0,$ZYISSQLNULL(%ydboctoexpr(1)):$ZYSQLNULL,$DATA(%ydboctocursor(cursorId,"keys",5,"","",%ydboctoexpr(1))):1,$DATA(%ydboctocursor(cursorId,"keys",5,"","",$ZYSQLNULL)):$ZYSQLNULL,1:0)
     . IF %ydboctoexpr DO
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",6,"","")) %ydboctoz=42
     . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")

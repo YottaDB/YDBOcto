@@ -938,12 +938,44 @@ SizeCheckVARCHAR(string,size)
 	QUIT
 
 InvokeOctoPlan(planName)
-	; Given a plan name entryref (e.g. "octoPlan2^%ydboctoP0sGaZQ410YcOGHn8750h9E"), this function invokes that plan
-	; and returns a value of 0. This is needed in cases where we want to invoke the plan (using "DO octoPlan2" etc.)
-	; but cannot do so because we are in the middle of an expression evaluation. Making it a function that returns a
-	; value of 0 allows us to use this function as the first choice of a $SELECT function call which always gets
-	; evaluated before processing the rest of the $SELECT function call (where the real processing happens based on
-	; the results of the execution of the input plan name).
-	DO:""'=planName @planName@(cursorId)
+	; Given a comma-separated list of plan names in "planName" (e.g. "octoPlan2,octoPlan3") this function invokes each of
+	;   those plans and finally returns a value of 0. This is needed in cases where we want to invoke the plan (using
+	;   "DO octoPlan2" etc.) but cannot do so because we are in the middle of an expression evaluation. Making it a
+	;   function that returns a value of 0 allows us to use this function as the first choice of a $SELECT function call
+	;   which always gets evaluated before processing the rest of the $SELECT function call (where the real processing
+	;   happens based on the results of the execution of the input plan name).
+	; Additionally a plan name can also contain a space-separated list of parameters corresponding to a SET operation.
+	;   For example, a plan name in "planName" could be the string "SET 1 2 3 UNION". In this case, we are guaranteed
+	;   the first word in the space-separated list is the string "SET" (see "tmpl_invoke_deferred_setoper.ctemplate"
+	;   for the "InvokeDeferredPlan_EXISTS" case).
+	; So the logic is to first extract each plan name using $PIECE() and the delimiter ",".
+	;   And in the result check if the first space separated word is "SET". If so, it is a SET operation related invocation.
+	;   Do SET related processing. If not, it is a direct octo plan invocation request. So do that instead.
+	; Assumes "routine" and "cursorId" are appropriately set by caller.
+	; Example values for routine is "%ydboctoP0sGaZQ410YcOGHn8750h9E" and "cursorId" is some integer like "10".
+	NEW entryref,i,pieces
+	SET pieces=$ZLENGTH(planName,",")
+	; Since we will always have a trailing comma at the end, ignore the last empty piece. Hence the use of "pieces-1" below.
+	FOR i=1:1:pieces-1 DO
+	. SET entryref=$ZPIECE(planName,",",i)
+	. IF "SET"=$ZPIECE(entryref," ",1) DO
+	. . ; This is a SET operation type of request
+	. . NEW inputId1,inputId2,outputId,mlabref
+	. . SET inputId1=$ZPIECE(entryref," ",2)
+	. . SET inputId2=$ZPIECE(entryref," ",3)
+	. . SET outputId=$ZPIECE(entryref," ",4)
+	. . SET mlabref=$ZPIECE(entryref," ",5)
+	. . DO @mlabref@(inputId1,inputId2,outputId)
+	. ELSE  DO
+	. . ; This is an octo plan invocation type of request
+	. . SET entryref=entryref_"^"_routine	; note: "routine" is a variable set in "src/aux/_ydboctoselect.m"
+	. . DO @entryref@(cursorId)
 	QUIT 0
 
+InvokeSetOper(inputId1,inputId2,outputId,mlabref)
+	; Just like "InvokeOctoPlan" entryref above helps invoke generated plan entryrefs, "InvokeSetOper" does it for SET
+	; operations where the outputs of two operands of the SET operation (pointed to by "inputId1" and "inputId2") need
+	; to be merged into the output table (pointed to by "outputId"). The entryref that implements the SET operation type
+	; is pointed to by "mlabref".
+	DO @mlabref@(inputId1,inputId2,outputId)
+	QUIT 0

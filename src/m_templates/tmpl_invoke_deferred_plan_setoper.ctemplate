@@ -1,0 +1,77 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "octo_types.h"
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+TEMPLATE(tmpl_invoke_deferred_plan_setoper, InvokeDeferredPlanType invocation_type, LogicalPlan *plan, int dot_count) {
+	if (LP_SET_OPERATION == plan->type) {
+		LogicalPlan 	*lp_plans;
+
+		GET_LP(lp_plans, plan, 1, LP_PLANS);
+		/* Handle deferred plan generation of SET operands first */
+		TMPL(tmpl_invoke_deferred_plan_setoper, invocation_type, lp_plans->v.lp_default.operand[0], dot_count);
+		TMPL(tmpl_invoke_deferred_plan_setoper, invocation_type, lp_plans->v.lp_default.operand[1], dot_count);
+
+		/* Handle deferred plan generation of SET operation next (if needed).
+		 * For LP_SET_DNF type of SET operations, it is not needed. But for other types of SET operations,
+		 * we might need to implement the SET operation in case any of the operands had deferred plans generated above.
+		 */
+		SetOperType	*set_oper;
+		set_oper = plan->extra_detail.lp_set_operation.set_oper;
+		assert((NULL == set_oper) || plan->extra_detail.lp_set_operation.is_deferred_plan_valid);
+		if ((NULL != set_oper) && plan->extra_detail.lp_set_operation.is_deferred_plan) {
+			/* This is a SET operation that has at least one of the operands which is a deferred plan.
+			 * Generate M code to implement the SET operation given the results of the two operands.
+			 */
+			char	*plan_helper_mlabref;
+			PhysicalPlan	*pplan;
+
+			assert(NULL != plan->extra_detail.lp_set_operation.physical_plan);
+			pplan = plan->extra_detail.lp_set_operation.physical_plan;
+			plan_helper_mlabref = get_setoper_mlabref(set_oper, pplan);
+			switch(invocation_type) {
+			case InvokeDeferredPlan_ANY_ALL:
+			case InvokeDeferredPlan_EXISTS:
+			case InvokeDeferredPlan_SELECT_SET_VALUES:
+				/* Note: The below "SET" string and space-separated list of parameters format is relied upon by
+				 * the "InvokeOctoPlan" entryref in "src/aux/_ydboctoplanhelpers.m".
+				 * Also note that "," is needed between each parameter as well as after last parameter in usages
+				 * below because "InvokeOctoPlan" relies on "planName" parameter always having a trailing comma.
+				 */
+				%{}SET {{ set_oper->input_id1|%d }} {{ set_oper->input_id2|%d }} {{ set_oper->output_id|%d }} {}%
+				%{}{{ plan_helper_mlabref }},{}%
+				break;
+			case InvokeDeferredPlan_IN:
+				%{}$$InvokeSetOper^%%ydboctoplanhelpers({}%
+				%{}{{ set_oper->input_id1|%d }},{{ set_oper->input_id2|%d }},{{ set_oper->output_id|%d }},{}%
+				%{}"{{ plan_helper_mlabref }}"):0,{}%
+				break;
+			case InvokeDeferredPlan_TABLEJOIN:
+				TMPL(tmpl_print_dots, dot_count);
+				%{}DO {{ plan_helper_mlabref }}^%%ydboctoplanhelpers({}%
+				%{}{{ set_oper->input_id1|%d }},{{ set_oper->input_id2|%d }},{{ set_oper->output_id|%d }}){}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				break;
+			default:
+				assert(FALSE);
+				break;
+			}
+		}
+		return;
+	}
+	TMPL(tmpl_invoke_deferred_plan, invocation_type, plan, dot_count);
+}
+%{}

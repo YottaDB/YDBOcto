@@ -19,8 +19,6 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 	LogicalPlan		*lp_temp;
 	unsigned int		cur_key;
 	int			dot_count;
-	char			*plan_helper_mlabref;
-	SetOperType		*set_oper, *prev_oper;
 	SqlOptionalKeyword	*limit_keyword;
 
 	%{}`n{{ plan->plan_name }}(cursorId)`n{{ PLAN_LINE_START }}{}% // The whitespace here is needed for proper M formatting
@@ -365,47 +363,6 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 				%{}KILL {{ PP_YDB_OCTO_ZDISTINCT }}({{ plan->outputKey->unique_id|%d }}){}%
 			}
 		}
-	}
-	set_oper = plan->set_oper_list;
-	prev_oper = set_oper;
-	assert((NULL == set_oper) || (NULL == set_oper->prev));
-	for ( ; NULL != set_oper; )
-	{
-		prev_oper = set_oper;
-		set_oper = set_oper->next;
-	}
-	for ( ; NULL != prev_oper; )
-	{
-		switch(prev_oper->set_oper_type)
-		{
-			case LP_SET_UNION:
-				plan_helper_mlabref = (plan->stash_columns_in_keys ? "columnkeyUNION" : "UNION");
-				break;
-			case LP_SET_UNION_ALL:
-				plan_helper_mlabref = (plan->stash_columns_in_keys ? "columnkeyUNIONALL" : "UNIONALL");
-				break;
-			case LP_SET_EXCEPT:
-				plan_helper_mlabref = (plan->stash_columns_in_keys ? "columnkeyEXCEPT" : "EXCEPT");
-				break;
-			case LP_SET_EXCEPT_ALL:
-				plan_helper_mlabref = (plan->stash_columns_in_keys ? "columnkeyEXCEPTALL" : "EXCEPTALL");
-				break;
-			case LP_SET_INTERSECT:
-				plan_helper_mlabref = (plan->stash_columns_in_keys ? "columnkeyINTERSECT" : "INTERSECT");
-				break;
-			case LP_SET_INTERSECT_ALL:
-				plan_helper_mlabref = (plan->stash_columns_in_keys ? "columnkeyINTERSECTALL" : "INTERSECTALL");
-				break;
-			default:
-				plan_helper_mlabref = NULL;
-				assert(FALSE);
-				break;
-		}
-		if (NULL != plan_helper_mlabref) {
-			%{}`n{{ PLAN_LINE_START }}DO {{ plan_helper_mlabref }}^%%ydboctoplanhelpers({}%
-			%{}{{ prev_oper->input_id1|%d }},{{ prev_oper->input_id2|%d }},{{ prev_oper->output_id|%d }}){}%
-		}
-		prev_oper = prev_oper->prev;
 	}
 	%{}`n{{ PLAN_LINE_START }}{}%
 	%{}QUIT{}%

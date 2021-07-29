@@ -296,6 +296,7 @@ octoPlan0(cursorId,wrapInTp)
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)
+    DO UNION^%ydboctoplanhelpers(7,8,9)
     DO octoPlan3(cursorId)
     TCOMMIT:wrapInTp
     QUIT
@@ -339,7 +340,6 @@ octoPlan2(cursorId)
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . SET %ydboctocursor(cursorId,"keys",8,"","",%ydboctocursor(cursorId,"keys",8,"",""))=%ydboctoexpr
-    DO UNION^%ydboctoplanhelpers(7,8,9)
     QUIT
 
 octoPlan3(cursorId)

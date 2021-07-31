@@ -20,6 +20,9 @@ subtaskname=$2 # Could be "force" or "none" in case jobname is "test-auto-upgrad
 
 source /opt/yottadb/current/ydb_env_set
 set -u # Enable detection of uninitialized variables. Do *after* ydb_env_set since this script relies on uninitialized variables.
+set -o pipefail	# this way $? is set to zero only if ALL commands in a pipeline succeed. Else only last command determines $?
+		# For example, this ensures the "ninja | ... | grep ..." command used a little later returns a non-zero exit
+		# status even if "ninja" fails (due to a build failure) and not just if "grep" fails.
 
 start_dir=$(pwd)
 # Below ensures any errors in this script cause it to exit with a non-zero status right away
@@ -513,7 +516,10 @@ PSQL
 	# Find out list of passed bats dirs. sortis not necessary but nice to have.
 	find . -maxdepth 1 -type d | sed 's#^\./##' | grep '^bats-test' | sort > all_bats_dirs.txt
 	# Find out list of failed bats dirs. sort is not necessary but nice to have.
-	grep "Temporary files in" Testing/Temporary/LastTest.log | awk '{print $NF}' | sed 's,.*/,,g' | sort > failed_bats_dirs.txt
+	# Note that "grep" exits with status of 1 if no match is found. But we do not want the script to error (due to "set -e")
+	# because of this ("set -o pipefail" will cause final exit status of pipeline to be non-zero if at least one of the
+	# commands exits with a non-zero status). Hence the "|| true" usage below.
+	grep "Temporary files in" Testing/Temporary/LastTest.log || true | awk '{print $NF}' | sed 's,.*/,,g' | sort > failed_bats_dirs.txt
 	# Update "passed_bats_dirs.txt" for use by a later stage (to remove passed directories and reduce pipeline artifact size)
 	# No need to do this for "test-auto-upgrade" job as it does not use this file. And it is actually not correct to run
 	# this code for that job as we are running an older commit and it could have multiple subtests with name ambiguity

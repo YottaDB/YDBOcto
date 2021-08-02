@@ -165,7 +165,6 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 				PhysicalPlan *tmp;
 				tmp = next;
 				do {
-					assert(!tmp->is_deferred_plan);
 					tmp->is_deferred_plan = TRUE;
 					tmp = tmp->dnf_next;
 				} while (NULL != tmp);
@@ -173,7 +172,6 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 				PhysicalPlan *tmp;
 				tmp = prev;
 				do {
-					assert(!tmp->is_deferred_plan);
 					tmp->is_deferred_plan = TRUE;
 					tmp = tmp->dnf_prev;
 				} while (NULL != tmp);

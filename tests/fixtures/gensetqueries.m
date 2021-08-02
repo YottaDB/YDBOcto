@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -23,6 +23,7 @@ gensetqueries	;
 	set setoper(2)="intersect",setoper(3)="intersect all"
 	set setoper(4)="except",setoper(5)="except all"
 	for q=1:1:numqueries do
+	. set issubquery=(0=$random(4))	; Test subqueries 25% of the time (tests YDBOcto#727, see below "subquery" use for details)
 	. set sqlquery=""
 	. set numsimplequeries=2+$random(3)
 	. for j=1:1:numsimplequeries do
@@ -36,7 +37,9 @@ gensetqueries	;
 	. . . . set o=$random(3)
 	. . . . set oper=$select(o=0:"=",o=1:"<",1:">")
 	. . . . set sqlquery(j)=sqlquery(j)_"id "_oper
-	. . . . set sqlquery(j)=sqlquery(j)_" "_$select(o=1:$random(4),o=2:12+$random(5),1:$random(17))
+	. . . . ; If "issubquery" is TRUE, then randomly choose a colum from parent query as operand (instead of a constant)
+	. . . . ; This tests https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/727#note_633454087
+	. . . . set sqlquery(j)=sqlquery(j)_" "_$select(issubquery&$random(2):"e1.id",o=1:$random(4),o=2:12+$random(5),2:$random(17))
 	. . . . set:k'=numbools sqlquery(j)=sqlquery(j)_" "_$select($random(4):"AND",1:"OR")_" "
 	. . if $random(2) do
 	. . . ; generate ORDER BY
@@ -63,6 +66,7 @@ gensetqueries	;
 	. . close file
 	. . set sqlquery=sqlquery_"("_sqlquery(j)_")"
 	. . kill row(row)  if $incr(row,-1)
+	. set:issubquery sqlquery="select * from easynames e1 where name in ("_sqlquery_")"
 	. set file="settest"_$translate($justify(q,2)," ","0")_".sql"
 	. open file:(newversion)  use file
 	. write sqlquery,";",!

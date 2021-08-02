@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -148,5 +148,9 @@ setup() {
 
 @test "TSS25 : OCTO510 : LVUNDEF error when both sub query and parent query use parent query column with = operator in WHERE clause" {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS25.sql
+}
+
+@test "TSS26 : OCTO727 : LVUNDEF error when running a query with sub-queries" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS26.sql
 }
 

@@ -10,7 +10,7 @@
 #								#
 #################################################################
 
--- TS016 : OCTO627 : Test SET operations whose operands end up as deferred physical plans
+-- TS016 : OCTO727 : Test SET operations whose operands end up as deferred physical plans
 
 -- Note: The OR operator below tests LP_SET_DNF type of SET operations
 --       Whereas operations like UNION test LP_SET_UNION type of SET operations.

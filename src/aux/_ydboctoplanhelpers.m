@@ -43,11 +43,9 @@ UNIONALL(inputId1,inputId2,outputId)
 	; Merge key corresponding to inputId1 into outputId
 	SET zmax1=$GET(%ydboctocursor(cursorId,"keys",inputId1,"",""),0)
 	FOR z1=1:1:zmax1 SET %ydboctocursor(cursorId,"keys",outputId,"","",z1)=%ydboctocursor(cursorId,"keys",inputId1,"","",z1)
-	KILL %ydboctocursor(cursorId,"keys",inputId1,"","")
 	; Merge key corresponding to inputId2 into outputId
 	SET zmax2=$GET(%ydboctocursor(cursorId,"keys",inputId2,"",""),0)
 	FOR z2=1:1:zmax2 SET %ydboctocursor(cursorId,"keys",outputId,"","",zmax1+z2)=%ydboctocursor(cursorId,"keys",inputId2,"","",z2)
-	KILL %ydboctocursor(cursorId,"keys",inputId2,"","")
 	; Set # of records in output table before returning
 	SET %ydboctocursor(cursorId,"keys",outputId,"","")=zmax1+zmax2
 	QUIT
@@ -66,7 +64,6 @@ UNION(inputId1,inputId2,outputId)
 	. . QUIT:$DATA(index(val))
 	. . SET %ydboctocursor(cursorId,"keys",outputId,"","",$INCREMENT(z2))=val
 	. . SET index(val)=""
-	. KILL %ydboctocursor(cursorId,"keys",id,"","")
 	; Set # of records in output table before returning
 	SET:$DATA(z2) %ydboctocursor(cursorId,"keys",outputId,"","")=z2
 	QUIT
@@ -87,7 +84,6 @@ INTERSECTALL(inputId1,inputId2,outputId)
 	. . ELSE  IF +$GET(index(val)) DO
 	. . . IF $INCREMENT(index(val),-1)
 	. . . SET %ydboctocursor(cursorId,"keys",outputId,"","",$INCREMENT(z2))=val
-	. KILL %ydboctocursor(cursorId,"keys",id,"","")
 	; Set # of records in output table before returning
 	SET:$DATA(z2) %ydboctocursor(cursorId,"keys",outputId,"","")=z2
 	QUIT
@@ -107,7 +103,6 @@ INTERSECT(inputId1,inputId2,outputId)
 	. . ELSE  IF $DATA(index(val)) DO
 	. . . KILL index(val)
 	. . . SET %ydboctocursor(cursorId,"keys",outputId,"","",$INCREMENT(z2))=val
-	. KILL %ydboctocursor(cursorId,"keys",id,"","")
 	; Set # of records in output table before returning
 	SET:$DATA(z2) %ydboctocursor(cursorId,"keys",outputId,"","")=z2
 	QUIT
@@ -127,7 +122,6 @@ EXCEPTALL(inputId1,inputId2,outputId)
 	. . . IF $INCREMENT(index(val))
 	. . ELSE  IF +$GET(index(val)) DO
 	. . . IF $INCREMENT(index(val),-1)
-	. KILL %ydboctocursor(cursorId,"keys",id,"","")
 	SET subs=""
 	FOR  SET subs=$ORDER(index(subs)) QUIT:subs=""  DO
 	. FOR z=1:1:index(subs) DO
@@ -149,7 +143,6 @@ EXCEPT(inputId1,inputId2,outputId)
 	. . SET val=%ydboctocursor(cursorId,"keys",id,"","",z)
 	. . IF (id=inputId1) SET index(val)=""
 	. . ELSE  KILL index(val)
-	. KILL %ydboctocursor(cursorId,"keys",id,"","")
 	SET subs=""
 	FOR  SET subs=$ORDER(index(subs)) QUIT:subs=""  DO
 	. SET %ydboctocursor(cursorId,"keys",outputId,"","",$INCREMENT(z2))=subs
@@ -180,7 +173,6 @@ columnkeyUNIONALL(inputId1,inputId2,outputId)
 	. FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",id,"","",subs))  SET subs=$ORDER(%ydboctocursor(cursorId,"keys",id,"","",subs)) QUIT:subs=""
 	. . SET val=%ydboctocursor(cursorId,"keys",id,"","",subs)
 	. . IF $INCREMENT(%ydboctocursor(cursorId,"keys",outputId,"","",subs),val)
-	. KILL %ydboctocursor(cursorId,"keys",id,"","")
 	QUIT
 
 columnkeyUNION(inputId1,inputId2,outputId)
@@ -198,7 +190,6 @@ columnkeyUNION(inputId1,inputId2,outputId)
 	. SET subs=""
 	. FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",id,"","",subs))  SET subs=$ORDER(%ydboctocursor(cursorId,"keys",id,"","",subs)) QUIT:subs=""
 	. . SET %ydboctocursor(cursorId,"keys",outputId,"","",subs)=1
-	. KILL %ydboctocursor(cursorId,"keys",id,"","")
 	QUIT
 
 columnkeyINTERSECTALL(inputId1,inputId2,outputId)
@@ -223,7 +214,6 @@ columnkeyINTERSECTALL(inputId1,inputId2,outputId)
 	. . . SET val2=+$GET(index(subs))
 	. . . SET:(val>val2) val=val2
 	. . . SET %ydboctocursor(cursorId,"keys",outputId,"","",subs)=val
-	. KILL %ydboctocursor(cursorId,"keys",id,"","")
 	QUIT
 
 columnkeyINTERSECT(inputId1,inputId2,outputId)
@@ -245,7 +235,6 @@ columnkeyINTERSECT(inputId1,inputId2,outputId)
 	. . . SET index(subs)=1
 	. . ELSE  IF $GET(index(subs)) DO
 	. . . SET %ydboctocursor(cursorId,"keys",outputId,"","",subs)=1
-	. KILL %ydboctocursor(cursorId,"keys",id,"","")
 	QUIT
 
 columnkeyEXCEPTALL(inputId1,inputId2,outputId)
@@ -270,7 +259,6 @@ columnkeyEXCEPTALL(inputId1,inputId2,outputId)
 	. . . SET val2=+$GET(index(subs))
 	. . . SET:(val>val2) val=val2
 	. . . IF $INCREMENT(index(subs),-val)
-	. KILL %ydboctocursor(cursorId,"keys",id,"","")
 	SET subs=""
 	FOR  DO:$DATA(index(subs))  SET subs=$ORDER(index(subs)) QUIT:subs=""
 	. SET val=+$GET(index(subs))
@@ -297,7 +285,6 @@ columnkeyEXCEPT(inputId1,inputId2,outputId)
 	. . . SET index(subs)=1
 	. . ELSE  IF $GET(index(subs)) DO
 	. . . KILL index(subs)
-	. KILL %ydboctocursor(cursorId,"keys",id,"","")
 	SET subs=""
 	FOR  DO:$DATA(index(subs))  SET subs=$ORDER(index(subs)) QUIT:subs=""
 	. SET %ydboctocursor(cursorId,"keys",outputId,"","",subs)=1

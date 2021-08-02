@@ -416,11 +416,15 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			}
 			cur_lp_key = lp_get_output_key(second_operand);
 			%{}$SELECT({}%
-			TMPL(tmpl_invoke_deferred_plan, InvokeDeferredPlan_IN, second_operand, dot_count);
+			/* Note: We can invoke "tmpl_invoke_deferred_plan" here but it would be an unnecessary call in case
+			 * it is a LP_BOOLEAN_IN plan and LHS is NULL (no need to access the second_operand/RHS at all).
+			 * Hence we duplicate the calls in mutually exclusive 2 code paths below.
+			 */
 			/* If RHS did not return any row, then result of NOT IN is TRUE */
 			if (LP_BOOLEAN_NOT_IN == plan_type) {
 				int	unique_id;
 
+				TMPL(tmpl_invoke_deferred_plan, InvokeDeferredPlan_IN, second_operand, dot_count);
 				unique_id = cur_lp_key->v.lp_key.key->unique_id;
 				%{}(1>=$DATA({{ config->global_names.cursor }}(cursorId,{{ PP_KEYS }},{{ unique_id|%d }},"",""))):1,{}%
 			}
@@ -432,6 +436,9 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
 			}
 			%{}):$ZYSQLNULL,{}%
+			if (LP_BOOLEAN_NOT_IN != plan_type) {
+				TMPL(tmpl_invoke_deferred_plan, InvokeDeferredPlan_IN, second_operand, dot_count);
+			}
 			/* Check if RHS has at least one equal value. If so use that. */
 			%{}$DATA({}%
 			TMPL(tmpl_key, cur_lp_key->v.lp_key.key);

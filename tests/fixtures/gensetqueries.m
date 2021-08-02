@@ -25,7 +25,7 @@ gensetqueries	;
 	for q=1:1:numqueries do
 	. set issubquery=(0=$random(4))	; Test subqueries 25% of the time (tests YDBOcto#727, see below "subquery" use for details)
 	. set sqlquery=""
-	. set numsimplequeries=2+$random(3)
+	. set numsimplequeries=1+$random(3)
 	. for j=1:1:numsimplequeries do
 	. . set sqlquery(j)="select name from easynames"
 	. . if $random(8) do

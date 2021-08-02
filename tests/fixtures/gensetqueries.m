@@ -66,7 +66,7 @@ gensetqueries	;
 	. . close file
 	. . set sqlquery=sqlquery_"("_sqlquery(j)_")"
 	. . kill row(row)  if $incr(row,-1)
-	. set:issubquery sqlquery="select * from easynames e1 where name in ("_sqlquery_")"
+	. set:issubquery sqlquery="select * from easynames e1 where name "_$select($random(2):"not ",1:"")_"in ("_sqlquery_")"
 	. set file="settest"_$translate($justify(q,2)," ","0")_".sql"
 	. open file:(newversion)  use file
 	. write sqlquery,";",!

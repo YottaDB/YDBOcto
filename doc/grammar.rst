@@ -154,6 +154,8 @@ Note that CREATE TABLE statements can also accept a list of ASCII integer values
 
 Here, two TAB characters (ASCII value 9) act as the internal delimiter of an Octo table. Note, however, that these delimiters are not applied to Octo output, which retains the default pipe :code:`|` delimiter. The reason for this is that tables may be joined that have different delimiters, so one common delimiter needs to be chosen anyway. Thus, the default is used.
 
+If IF NOT EXISTS is supplied for a CREATE TABLE statement and a table exists, the result is a no-op with no errors. In this case, error type WARN_TABLE_ALREADY_EXISTS is emitted at WARNING log severity level.
+
 .. _mapexisting:
 
 +++++++++++++++++++++++++++++++++++++++++++++
@@ -317,6 +319,8 @@ Example:
    CREATE FUNCTION userfunc()
    RETURNS int AS $$userfunc^myextrinsicfunction;
 
+If IF NOT EXISTS is supplied for a CREATE FUNCTION statement and a function exists, the result is a no-op with no errors. In this case, error type WARN_FUNCTION_ALREADY_EXISTS is emitted at WARNING log severity level.
+
 +++++++++++++
 Error Case
 +++++++++++++
@@ -342,19 +346,23 @@ DROP TABLE
 
 .. code-block:: SQL
 
-   DROP TABLE table_name [CASCADE | RESTRICT];
+   DROP TABLE table_name;
 
-The DROP TABLE statement is used to remove tables from the database. The keywords DROP TABLE are followed by the name of the table desired to be dropped. Optional parameters include CASCADE and RESTRICT.
+The DROP TABLE statement is used to remove tables from the database. The keywords DROP TABLE are followed by the name of the table desired to be dropped.
 
-The CASCADE parameter is used to specify that all objects depending on the table will also be dropped.
-
-The RESTRICT parameter is used to specify that the table referred to by table_name will not be dropped if there are existing objects depending on it.
+.. Optional parameters include CASCADE and RESTRICT.
+.. The CASCADE parameter is used to specify that all objects depending on the table will also be dropped.
+.. The RESTRICT parameter is used to specify that the table referred to by table_name will not be dropped if there are existing objects depending on it.
 
 Example:
 
 .. code-block:: SQL
 
-   DROP TABLE Employee CASCADE;
+   DROP TABLE Employee;
+
+If IF EXISTS is supplied for a DROP TABLE statement and a table does not exist, the result is a no-op with no errors. In this case, error type WARN_TABLE_DOES_NOT_EXIST is emitted at WARNING log severity level.
+
+A :code:`DROP TABLE` command on a :code:`READWRITE` table drops the table as well as kills all underlying global nodes that stored the table data. On the other hand, a :code:`DROP TABLE` command on a :code:`READONLY` table only drops the table and leaves the underlying global nodes that stored the table data untouched.
 
 +++++++++++++
 Error Case
@@ -390,6 +398,8 @@ This example demonstrates dropping a function with parameters of types VARCHAR a
 
    DROP FUNCTION userfuncwithargs (VARCHAR, INTEGER);
 
+If IF EXISTS is supplied for a DROP FUNCTION statement and a function does not exist, the result is a no-op with no errors. In this case, error type WARN_FUNCTION_DOES_NOT_EXIST is emitted at WARNING log severity level.
+   
 +++++++++++++
 Error Case
 +++++++++++++
@@ -602,8 +612,6 @@ Example:
 --------------
 INSERT
 --------------
-
-*(Currently not supported.)*
 
 .. code-block:: SQL
 

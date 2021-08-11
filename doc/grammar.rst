@@ -183,7 +183,7 @@ The keywords denoted above are M expressions and literals. They are explained in
 +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
 | END          | Boolean expression | Table         | Indicates that the cursor has hit the last record in the table                 | Not applicable               | :code:`""=keys(0)`                                        |
 +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
-| EXTRACT      | Expression         | Column        | Extracts the value of the column from the database                             | PIECE, GLOBAL                | Not applicable                                            |
+| EXTRACT      | Expression         | Column        | Gets data based on the M expression following the EXTRACT keyword.             | PIECE, GLOBAL                | Not applicable                                            |
 +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
 | GLOBAL       | Literal            | Table, Column | Represents the "source" location for a table. It consists of a global name     | table/default GLOBAL setting | :code:`^%ydboctoD_$zysuffix(TABLENAME)(keys("COLNAME"))`  |
 |              |                    |               | followed by an optional list of subscripts. One may refer to a key column in   |                              | where :code:`TABLENAME` is the table name and             |
@@ -204,7 +204,7 @@ The keywords denoted above are M expressions and literals. They are explained in
 |              |                    |               | The first key column is specified with a :code:`PRIMARY KEY` keyword.          |                              |                                                           |
 |              |                    |               | All other key columns are specified with a :code:`KEY NUM` keyword             |                              |                                                           |
 |              |                    |               | with an integer value starting at :code:`1` and incrementing by 1 for          |                              |                                                           |
-|              |                    |               | every key column. Such a column is considered a key column and is part of the  |                              |                                                           |
+|              |                    |               | every key column. Such a column is considered a key column and is part of      |                              |                                                           |
 |              |                    |               | the subscript in the global variable node that represents a row of the table.  |                              |                                                           |
 +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
 | PIECE        | Integer Literal    | Column        | Represents a piece number. Used to obtain the value of a column in a table     | default (column number,      | Not applicable                                            |
@@ -250,6 +250,120 @@ In the table above:
 If the same :code:`CREATE TABLE` command specifies :code:`READONLY` and :code:`READWRITE`, the keyword that is specified last (in left to right order of parsing the command) prevails.
 
 If a :code:`DELIM ""` is specified for a column, any :code:`PIECE` keyword specified for that column is ignored and is treated as if the keyword was not specified.
+
+~~~~~~~~~~~
+Examples
+~~~~~~~~~~~
+
+.. code-block:: SQL
+
+   CREATE TABLE Orders
+   (OrderID INTEGER PRIMARY KEY,
+    CustomerID INTEGER,
+    EmployeeID INTEGER,
+    OrderDate VARCHAR(16),
+    ShipperID INTEGER)
+   GLOBAL "^Orders(keys(""OrderID""))";		
+
+In the above example, the :code:`Orders` table maps data in the nodes of the global variable :code:`^Orders`. :code:`^Orders` has a single subscript, :code:`OrderID`. Its nodes are strings, whose :code:`|` separated pieces are, respectively, :code:`CustomerID`, :code:`EmployeeID`, :code:`OrderDate`, and :code:`ShipperID`, e.g., :code:`^Orders(535088)="9015|57|2021-08-26|17"`. :code:`"|"` is the default piece operator.
+
+.. code-block:: SQL
+
+   CREATE TABLE Orders
+   (OrderID INTEGER PRIMARY KEY,
+    CustomerID INTEGER,
+    EmployeeID INTEGER,
+    OrderDate VARCHAR(16),
+    ShipperID INTEGER)
+   DELIM "^" 
+   GLOBAL "^Orders(keys(""OrderID""))";
+
+This example is similar to the last, except that the nodes of :code:`^Orders` are strings whose pieces are separated by :code:`"^"`, e.g., :code:`^Orders(535088)="9015^57^2021-08-26^17"`. 
+
+.. code-block:: SQL
+
+   CREATE TABLE USPresidents
+   (FirstYear INTEGER PRIMARY KEY,
+    LastYear INTEGER KEY NUM 1,
+    FirstName VARCHAR,
+    MiddleName VARCHAR,
+    LastName VARCHAR,
+    BirthYear INTEGER,
+    DeathYear INTEGER)
+   GLOBAL "^USPresidents(keys(""FirstYear""),keys(""LastYear""))";
+
+In the above example, ^USPresidents has records like :code:`^USPresidents(1933,1945)="Franklin|Delano|Roosevelt|1882|1945"` and :code:`^USPresidents(2009,2017)="Barack||Obama|1961"`.
+   
+.. code-block:: SQL
+
+   CREATE TABLE PresidentNames
+   (ID INTEGER PRIMARY KEY,
+    FName VARCHAR PIECE 2,
+    LName VARCHAR PIECE 1)
+   GLOBAL "^PresidentNames(keys(""ID""))";		
+
+In the above example, ^PresidentNames has records like :code:`^Names(1)="Lincoln|Abraham"` and :code:`^Names(2)="Obama|Barack"`.
+
+.. code-block:: SQL
+
+   CREATE TABLE AuthorNames
+   (ID INTEGER PRIMARY KEY,
+    LName VARCHAR ,
+    FName VARCHAR EXTRACT "$PIECE(^AuthorNames(keys(""ID"")),""^"",2)")
+   DELIM "^"
+   GLOBAL "^AuthorNames(keys(""ID""))";
+   
+In the above example, ^AuthorNames has records like :code:`^Names(1)="Dahl^Roald"` and :code:`^Names(2)="Blyton^Enid"`.
+   
+.. code-block:: SQL
+
+   CREATE TABLE Orders
+   (OrderID INTEGER PRIMARY KEY,
+    CustomerID INTEGER,
+    EmployeeID INTEGER,
+    OrderDate VARCHAR(16),
+    ShipperID INTEGER)
+   GLOBAL "^Orders(keys(""OrderID""))"
+   READONLY;
+
+In the above example, the :code:`Orders` table is set to be :code:`READONLY`. If the :code:`Orders` table is DROPped then the underlying mapped global variable node (:code:`^Orders`) will be untouched.
+
+.. code-block:: SQL
+
+   CREATE TABLE Orders
+   (OrderID INTEGER PRIMARY KEY,
+    CustomerID INTEGER,
+    EmployeeID INTEGER,
+    OrderDate VARCHAR(16),
+    ShipperID INTEGER)
+   GLOBAL "^Orders(keys(""OrderID""))"
+   READWRITE;
+
+In the above example, the :code:`Orders` table is set to be :code:`READWRITE`. If the :code:`Orders` table is DROPped then the underlying mapped global variable nodes (:code:`^Orders`) will be deleted.
+
+.. code-block:: SQL
+
+   CREATE TABLE Orders
+   (OrderID INTEGER PRIMARY KEY START 0 END "$CHAR(0)]]keys(""OrderID"")",
+    CustomerID INTEGER,
+    EmployeeID INTEGER,
+    OrderDate VARCHAR(16),
+    ShipperID INTEGER)
+   GLOBAL "^Orders(keys(""OrderID""))";
+
+In the above example, the START and END keywords tell Octo what subset of the ^Orders nodes with one subscript should be mapped to the Orders table. :code:`START 0` indicates that subscripts greater than :code:`0` should be mapped, and :code:`END "$CHAR(0)]]keys(""OrderID"")"` restricts the mapping to numeric subscripts..
+
+.. code-block:: SQL
+
+   CREATE TABLE Orders
+   (OrderID INTEGER PRIMARY KEY START 1 END "'+keys(""OrderID"")" STARTINCLUDE,
+    CustomerID INTEGER,
+    EmployeeID INTEGER,
+    OrderDate VARCHAR(16),
+    ShipperID INTEGER)
+   GLOBAL "^Orders(keys(""OrderID""))";
+
+In the above example STARTINCLUDE is used with START and END. In this case the FOR loop for `$ORDER() <https://docs.yottadb.com/ProgrammersGuide/functions.html#order>`_ includes the START value of the key column as the first iteration of the loop.
 
 +++++++++++++
 Error Case
@@ -1575,7 +1689,7 @@ The following is a CREATE TABLE statement from the `Northwind database adapted f
    )
    GLOBAL "^Customers(keys(""CustomerID""))";
 
-In the above, the :code:`Customers` table is stored in the global variable :code:`^Customers`. The columns of the primary key of the table are all subscripts of a global variable node (all columns in the primary key are global variable subscripts; all global variable subscripts are not necessarily columns, as shown by the next example). The :code:`^Customers` global variable has one subscript, an integer mapping to the column :code:`CustomerID`.
+In the above, the :code:`Customers` table maps data in nodes of the global variable :code:`^Customers`. The columns of the primary key of the table are all subscripts of a global variable node (all columns in the primary key are global variable subscripts; all global variable subscripts are not necessarily columns, as shown by the next example). The :code:`^Customers` global variable has one subscript, an integer mapping to the column :code:`CustomerID`.
 
 Columns such as :code:`CustomerName` are pieces of the node, using the default :code:`"|"` as the piece separator, in the order listed. If PIECE is not specified, Octo maps columns in the order in which they appear in the CREATE TABLE statement to consecutive pieces of the global node value.
 
@@ -1599,7 +1713,7 @@ The following is a CREATE TABLE for the :code:`INDEX_DESCRIPTION` table of a `Vi
    )
    GLOBAL "^DD(""IX"",keys(""INDEX_ID""),.1,keys(""INDEX_DESCRIPTION_ID""))";
 
-The table has a numeric primary key. :code:`INDEX_ID`. :code:`START 0` means that a :code:`$ORDER()` loop to find the next subscript starts with :code:`0` and :code:`END "'(keys(""INDEX_DESCRIPTION_ID""))!(keys(""INDEX_DESCRIPTION_ID"")="""")"` means that the loop ends when the result of that :code:`$ORDER()` is :code:`0` or the empty string (:code:`""`), indicating the end of breadth first traversal of that level of the tree.
+The table has a numeric primary key, :code:`INDEX_ID`. :code:`START 0` means that a :code:`$ORDER()` loop to find the next subscript starts with :code:`0` and :code:`END "'(keys(""INDEX_DESCRIPTION_ID""))!(keys(""INDEX_DESCRIPTION_ID"")="""")"` means that the loop ends when the result of that :code:`$ORDER()` is :code:`0` or the empty string (:code:`""`), indicating the end of breadth first traversal of that level of the tree.
 
 :code:`GLOBAL "^DD(""IX"",keys(""INDEX_ID""),.1,keys(""INDEX_DESCRIPTION_ID""))"` means that the table is in multiple :code:`^DD("IX",…,.1,…)` subtrees of :code:`^DD` with the primary key :code:`INDEX_ID` in the second subscript, and the :code:`INDEX_DESCRIPTION_ID` column in the fourth subscript, with :code:`.1` as the third subscript. GLOBAL can also be applied at the COLUMN level to allow a table to incorporate columns from different global variables, with the restriction that KEY columns of a table must all be subscripts of the same global variable.
 

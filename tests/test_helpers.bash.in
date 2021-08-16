@@ -10,7 +10,7 @@
 #								#
 #################################################################
 
-init_test() {
+setup_bats_env() {
 	export test_temp=$(mktemp -d @TEST_OUTPUT_DIR@/bats-test.XXXXXX)
 	echo "Temporary files in: $test_temp"
 	exec >  >(tee -ia $test_temp/stdout.txt)
@@ -25,6 +25,21 @@ init_test() {
 	export INPUTRC=/etc/inputrc
 	# Below has been seen to avoid Ctrl-M ('^M') characters in long query strings
 	export COLUMNS=4096
+}
+
+save_env_variables() {
+	# Note: The below set of lines also exist in `tools/ci/build.sh` so any change here might need to be made there too.
+	# Log env vars, shell vars, locale info in files for later analysis of test failures.
+	# Mask any sensitive env vars out.
+	env | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > dbg_env.out
+	set | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > dbg_set.out
+	locale > dbg_locale.out
+	locale -a > dbg_localeall.out
+}
+
+init_test() {
+	setup_bats_env
+
 	# Set YDB related env vars
 	unset ydb_gbldir gtmgbldir	# needed or else ydb_env_set can issue ZGBLDIRACC error (due to it calling MUPIP DUMPFHEAD)
 					# if ydb_gbldir is defined and points to a non-existent gld file.
@@ -69,13 +84,7 @@ init_test() {
 	export ydb_routines="$ydbroutines $ydb_routines"
 	echo " --> Running test [$BATS_TEST_FILENAME] : subtest [$BATS_TEST_DESCRIPTION] : in $PWD : build type @CMAKE_BUILD_TYPE@ " > bats_test.out
 
-	# Note: The below set of lines also exist in `tools/ci/build.sh` so any change here might need to be made there too.
-	# Log env vars, shell vars, locale info in files for later analysis of test failures.
-	# Mask any sensitive env vars out.
-	env | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > dbg_env.out
-	set | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > dbg_set.out
-	locale > dbg_locale.out
-	locale -a > dbg_localeall.out
+	save_env_variables
 
 	# Set env var to allow .m and .o file timestamps to be identical. This is expected to be particularly useful
 	# in the pipeline test runs where we have seen the _ydboctoP*.o file almost always created with a timestamp

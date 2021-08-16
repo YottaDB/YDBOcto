@@ -492,6 +492,12 @@ else()
 endif()
 set_target_properties(libocto librocto pparser octo rocto PROPERTIES COMPILE_FLAGS "${CC_COMPILE_FLAGS}")
 
+# We set RPATH here so that Octo can find YottaDB at runtime without us having
+# to modify LD_LIBRARY_PATH. This only applies to Octo when it's installed in
+# $ydb_dist as a plugin. Without installation, it can find YottaDB due to
+# linker action (target_link_libraries).
+set_target_properties(octo rocto PROPERTIES INSTALL_RPATH ${YOTTADB_INCLUDE_DIRS})
+
 target_link_libraries(octo ${YOTTADB_LIBRARIES} ${Readline_LIBRARY} ${CONFIG_LIBRARY} ${OPENSSL_LIBRARIES})
 target_link_libraries(rocto
   ${YOTTADB_LIBRARIES}

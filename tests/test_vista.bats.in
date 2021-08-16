@@ -1,0 +1,99 @@
+#################################################################
+#								#
+# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup_file() {
+	# This sets-up a temporary directory so that we can download and generate files there.
+	setup_bats_env
+
+	# Remove Octo environment (except $ydb_dist); disrupts VistA
+	old_ydb_dist=$ydb_dist
+	for e in `env | grep -E '^(ydb|gtm)' | cut -d= -f1`; do unset $e; done
+	export ydb_dist=$old_ydb_dist
+	export gtm_dist=$ydb_dist
+
+	# Source VistA environment, and add $ydb_routines for Octo, restore $ydb_dist (override what's in @VISTA_ENV_FILE@)
+	source @VISTA_ENV_FILE@
+	[[ -z ${ydb_routines} ]] && export ydb_routines=$gtmroutines
+
+	# Get a good routine directory, and download %YDBOCTOVISTAM
+	if [ ! -f @PROJECT_BINARY_DIR@/vista.sql ]; then
+		primary_routine_directory=$($ydb_dist/yottadb -r %XCMD 'W $$RTNDIR^%ZOSV')
+		echo "Primary Routine Directory: $primary_routine_directory"
+		pushd $primary_routine_directory
+		rm -f _YDBOCTOVISTAM.m
+		curl -sLO https://gitlab.com/YottaDB/DBMS/ydbvistaocto/raw/master/_YDBOCTOVISTAM.m
+		popd
+
+		# Generate the vista.sql file
+		# Variables DUZ and DIQUIET are VistA variables to allow Fileman to operate.
+		# DUZ=.5 Run as Postmaster
+		# DUZ(0)="@" Run with Programmer Priviliges
+		# DIQUIET Don't print new lines during DT^DICRW
+		# DT^DICRW Set-up minimum Fileman Environment
+		# MAPALL^%YDBOCTOVISTAM Main code that creates the SQL mapping file
+		$ydb_dist/yottadb -r %XCMD 'S DUZ=.5,DIQUIET=1,DUZ(0)="@" D DT^DICRW,MAPALL^%YDBOCTOVISTAM("@PROJECT_BINARY_DIR@/vista.sql")'
+	fi
+
+	# Set-up PATH and the rest of ydb_routines, normally done by other scripts we are not using
+	if [[ @DISABLE_INSTALL@ == "ON" ]]; then
+		export PATH="@PROJECT_BINARY_DIR@/src:$PATH"
+		export ydb_routines=".(. @PROJECT_SOURCE_DIR@/tests/fixtures) @PROJECT_BINARY_DIR@/src/_ydbocto.so @PROJECT_BINARY_DIR@ $ydb_routines"
+	else
+		# In our other tests, ydb_env_set does this.
+		export PATH="$ydb_dist/plugin/bin:$PATH"
+		export ydb_routines=".(. @PROJECT_SOURCE_DIR@/tests/fixtures) @PROJECT_BINARY_DIR@ $ydb_routines $ydb_dist/plugin/o/_ydbocto.so"
+	fi
+
+	# Save environment for debugging
+	env > dbg_env.out
+	env | grep -E '^(ydb|gtm)' > dbg_ydb_env.out
+
+	# Delete and recreate the Octo region (just in case it was done before)
+	# This test needs to be re-runnable, and thus we ensure that the region is created
+	# with the correct settings
+	if $ydb_dist/yottadb -run ^GDE show | grep '%ydbocto'; then
+		$ydb_dist/yottadb -run ^GDE <<FILE1
+delete -region OCTO
+delete -segment OCTO
+delete -name %ydbocto*
+FILE1
+	fi
+	$ydb_dist/yottadb -run ^GDE <<FILE2
+add -name %ydbocto* -region=OCTO
+add -region OCTO -dyn=OCTO -null_subscripts=true -key_size=1019 -record_size=1048576
+add -segment OCTO -file="$test_temp/octo.dat" -block_size=2048 -allocation=128000
+exit
+FILE2
+
+	# Create Octo Database
+	$ydb_dist/mupip create -r=OCTO
+
+	# Import VistA DDL into Octo
+	octo -f @PROJECT_BINARY_DIR@/vista.sql > OctoImport.log
+}
+
+setup() {
+	setup_bats_env
+	save_env_variables
+}
+
+@test "TVA0000 : Hello VistA" {
+	load_fixture TVA0000.sql subtest novv
+	verify_output TVA0000 output.txt
+}
+
+@test "TVA0001 : NULL queries against ORDER1 table" {
+	load_fixture TVA0001.sql subtest novv
+	verify_output TVA0001 output.txt
+}

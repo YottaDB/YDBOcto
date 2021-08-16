@@ -133,6 +133,16 @@ test-auto-upgrade:
     - apt-get install -y -qq --no-install-recommends python2 python-is-python2
     - ./tools/ci/build.sh "test-auto-upgrade" "binary"
 
+test-vista:
+  # This job tests that various Octo tests run inside of a VistA instance
+  image:
+    name: yottadb/octo-vehu:latest-master
+    entrypoint: [""] # override the default entry point, which starts VistA and Octo etc.
+  extends:
+    - .make
+  script:
+    - ./tools/ci/vistatest.sh
+
 octo:
   image: docker:latest
   stage: docker

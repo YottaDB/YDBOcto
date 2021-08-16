@@ -14,15 +14,19 @@ cmake_minimum_required (VERSION 3.0)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/;${CMAKE_SOURCE_DIR}/ydbcmake/")
 
+# Find YottaDB
+find_package(YOTTADB REQUIRED)
+
+# Do this unconditionally, as our cmake plugin double-checks our values to
+# ensure correctness; i.e. if you set a bad ydb_dist, our plugin will set the
+# correct value. You must double check it yourself in the status messages.
+set(ENV{ydb_dist} ${YOTTADB_INCLUDE_DIRS})
+message(STATUS "$ydb_dist: $ENV{ydb_dist}")
+
 project(YDBOcto C M)
 set(YDBOCTO_MAJOR_VERSION 1)
 set(YDBOCTO_MINOR_VERSION 0)
 set(YDBOCTO_PATCH_VERSION 0)
-if(DEFINED ENV{ydb_dist})
-	message(STATUS "$ydb_dist: $ENV{ydb_dist}")
-else()
-	message(FATAL_ERROR "The $ydb_dist environment variable is not set. Please set $ydb_dist before building and installing Octo")
-endif()
 
 set(MIN_YDB_RELEASE "1.29")
 execute_process(
@@ -48,6 +52,7 @@ set(CMAKE_INSTALL_PREFIX "$ENV{ydb_dist}/plugin")
 option(DISABLE_INSTALL "Disable Installation?" OFF)
 option(FULL_TEST_SUITE "Run full test suite?" OFF)
 option(TEST_SPEED "Run separate speed test?" OFF)
+option(TEST_VISTA "Run separate VistA test (Database needs to be set-up separately)?" OFF)
 if(NOT ${DISABLE_INSTALL})
 	message(STATUS "Install destination: ${CMAKE_INSTALL_PREFIX}")
 endif()
@@ -58,6 +63,9 @@ else()
 endif()
 if(${TEST_SPEED})
 	message(STATUS "`make test` will run speed test")
+endif()
+if(${TEST_VISTA})
+	message(STATUS "`make test` will run VistA tests")
 endif()
 
 set(OCTO_TOOLS_DIR "${CMAKE_SOURCE_DIR}/tools/")

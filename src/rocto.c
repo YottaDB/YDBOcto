@@ -204,7 +204,7 @@ int main(int argc, char **argv) {
 				continue;
 			}
 			ERROR(ERR_SYSCALL, "accept", errno, strerror(errno));
-			continue;
+			break;
 		}
 
 		// Create secret key and matching buffer
@@ -216,9 +216,14 @@ int main(int argc, char **argv) {
 		if (0 != child_id) {
 			uint64_t timestamp;
 
+			/* Close client socket fd now that it has been passed on to child (rocto server) process.
+			 * Need to do this before moving on to accept more connections in parent (rocto listener)
+			 * to avoid a file descriptor leak (YDBOcto#739).
+			 */
+			close(cfd);
 			if (0 > child_id) {
 				ERROR(ERR_SYSCALL, "fork()", errno, strerror(errno));
-				continue;
+				break;
 			}
 			INFO(INFO_ROCTO_SERVER_FORKED, child_id);
 			// Create pid buffer

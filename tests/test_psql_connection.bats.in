@@ -480,3 +480,20 @@ OCTO
 	cat output1.txt output2.txt output3.txt >> output.txt
 	verify_output TPC026 output.txt noinfo nodebug
 }
+
+@test "TPC027 : OCTO739 : Test lots of client/psql connections to rocto work without EMFILE/ENO24 (Too many open files) error" {
+	echo "# Restart rocto after limiting process to 16 max file descriptors" > output.txt
+	stop_rocto
+	ulimit -n 16
+	test_port=$(start_rocto $test_port)
+	echo "# Run 16 queries one after other using different psql connections to same rocto listener" >> output.txt
+	echo "# Verify all psql connections executed fine without max fd limit being reached" >> output.txt
+	try=1
+	while [ $try -le 16 ];
+	do
+		run_psql $test_port TPC027.sql 2>&1 | tee -a output.txt
+		try=$[$try + 1]
+	done
+	verify_output TPC027 output.txt noinfo nodebug
+}
+

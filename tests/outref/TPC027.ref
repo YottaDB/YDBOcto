@@ -1,0 +1,83 @@
+# Restart rocto after limiting process to 16 max file descriptors
+# Run 16 queries one after other using different psql connections to same rocto listener
+# Verify all psql connections executed fine without max fd limit being reached
+ count(*) 
+----------
+        6
+(1 row)
+
+ count(*) 
+----------
+        6
+(1 row)
+
+ count(*) 
+----------
+        6
+(1 row)
+
+ count(*) 
+----------
+        6
+(1 row)
+
+ count(*) 
+----------
+        6
+(1 row)
+
+ count(*) 
+----------
+        6
+(1 row)
+
+ count(*) 
+----------
+        6
+(1 row)
+
+ count(*) 
+----------
+        6
+(1 row)
+
+ count(*) 
+----------
+        6
+(1 row)
+
+ count(*) 
+----------
+        6
+(1 row)
+
+ count(*) 
+----------
+        6
+(1 row)
+
+ count(*) 
+----------
+        6
+(1 row)
+
+ count(*) 
+----------
+        6
+(1 row)
+
+ count(*) 
+----------
+        6
+(1 row)
+
+ count(*) 
+----------
+        6
+(1 row)
+
+ count(*) 
+----------
+        6
+(1 row)
+

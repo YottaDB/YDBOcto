@@ -646,7 +646,6 @@ else
 	if [[ "force" != $subtaskname ]]; then
 		echo '# Remove "bats-test*" directories corresponding to failed subtests (if any)'
 		rm -rf $(cat failed_bats_dirs.txt)
-		env > env.out
 		echo '# Do auto-upgrade tests on the leftover "bats-test*" directories.'
 		gldfile="yottadb.gld"
 		export ydb_gbldir=$gldfile
@@ -747,7 +746,17 @@ else
 			echo "# Running *.sql files in $tstdir : [subtest : $subtest]" | tee -a ../errors.log
 			echo "INCLUDE : $tstdir" >> ../include_bats_test.txt
 			# Check if subtest ran in M or UTF-8 mode and switch ydb_chset and ydb_routines accordingly
-			is_utf8=$(grep -c "ydb_chset=UTF-8" env.out) || true
+			# A few older commits had env vars logged in the file "env.out" but later commits changed it
+			# to "dbg_env.out" so allow for either of those files since we don't know which older commit
+			# got randomly picked.
+			if [[ ! -e dbg_env.out ]]; then
+				# "dbg_env.out" does not exist. This means it is an older commit that stored env vars in
+				# the file "env.out". So rename it to "dbg_env.out" just like more recent commits would do.
+				mv env.out dbg_env.out
+			fi
+			# Now that we are guaranteed env vars are in the file "dbg_env.out" search that file for whether
+			# the chset was M or UTF-8.
+			is_utf8=$(grep -c "ydb_chset=UTF-8" dbg_env.out) || true
 			if [[ $is_utf8 == 0 ]]; then
 				export ydb_chset=M
 				utf8_path="."

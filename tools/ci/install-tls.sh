@@ -17,8 +17,8 @@ ydb_icu_version=$(pkg-config --modversion icu-io)
 export ydb_icu_version
 
 # Install TLS plugin
+git clone "https://gitlab.com/YottaDB/Util/YDBEncrypt.git" "$ydb_dist/plugin/gtmcrypt"
 pushd "$ydb_dist/plugin/gtmcrypt"
-tar -xf source.tar
 make
 make install
 popd

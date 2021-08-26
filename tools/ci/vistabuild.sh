@@ -10,11 +10,6 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
-
-# We are going to use a forked version of docker-vista until the changes are accepted upstream we need the following features:
-#
-# * Install YottaDB master from source
-# * Install Octo from source or from a mounted directory
 set -e
 
 cd ..
@@ -24,11 +19,11 @@ docker ps -a
 
 # command line args:
 #
-# -y install YottaDB
+# -o install YottaDB from source
 # -f install Kernel-GTM fixes
 # -b Skip bootstrapping (aka setup for docker container)
 # -s Skip testing
 # -q Install Octo
 # -d Create development directories
 # -a Alternate VistA version (VEHU)
-docker build --pull -t yottadb/octo-vehu:latest-master --build-arg flags="-y -f -b -s -q -d -a https://github.com/OSEHRA-Sandbox/VistA-VEHU-M/archive/master.zip" --build-arg instance="vehu" -t yottadb/octo-vehu:latest-master .
+docker build --pull --build-arg flags="-o -f -b -s -q -d -a https://github.com/OSEHRA-Sandbox/VistA-VEHU-M/archive/master.zip" --build-arg instance="vehu" -t yottadb/octo-vehu:latest-master .

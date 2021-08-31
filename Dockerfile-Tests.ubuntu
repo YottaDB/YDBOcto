@@ -9,6 +9,9 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
+# This file mirrors the pipeline set-up, but is not used by the
+# pipeline. It lets you run the pipeline tests locally.
+# If you change .gitlab-ci.yml, update this as well.
 
 FROM yottadb/yottadb-base:latest-master
 
@@ -19,7 +22,7 @@ RUN ln -fs /usr/share/zoneinfo/US/Eastern /etc/localtime
 RUN apt-get update && \
     apt-get install -y tzdata
 RUN dpkg-reconfigure --frontend noninteractive tzdata
-RUN apt-get install -y --no-install-recommends build-essential clang clang-tidy clang-format-9 cmake bison flex libcmocka-dev python3-pip python3-setuptools python3-wheel python-is-python3 libreadline-dev git libconfig-dev libssl-dev postgresql-client postgresql xxd wget libgcrypt20-dev libgpgme-dev expect default-jdk
+RUN apt-get install -y -qq --no-install-recommends build-essential clang clang-tidy clang-format-9 cmake bison flex libcmocka-dev python3 python3-pip python3-setuptools python3-wheel libreadline-dev git libconfig-dev libssl-dev postgresql-client postgresql xxd wget libgcrypt20-dev libgpgme-dev expect default-jdk ninja-build valgrind unixodbc odbc-postgresql tcsh shellcheck
 RUN pip3 install sphinxcontrib-fulltoc sphinx sphinx_rtd_theme
 ENV PATH=/usr/local/go/bin:$PATH
 ENV GOLANG_VERSION=1.13.1
@@ -33,4 +36,4 @@ RUN go version
 ADD . /builds/YDBDBMS/
 WORKDIR /builds/YDBDBMS
 
-RUN tools/ci/build.sh
+RUN tools/ci/build.sh "make-ubuntu" "none"

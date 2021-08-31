@@ -41,8 +41,9 @@ if echo "$skipextensions" | grep -q -w "$(echo "$file" | awk -F . '{print $NF}')
 	exit 1
 fi
 
-# Below is a list of specific files that do not have a copyright so ignore them
-skiplist="COPYING README.md LICENSE tests/fixtures/TSPEED006.sql tests/fixtures/TSPEED007.sql"
+# Below is a list of specific files that do not have a copyright or are from an
+# external project with a specific copyright so ignore them
+skiplist="COPYING README.md LICENSE tests/fixtures/TSPEED006.sql tests/fixtures/TSPEED007.sql tools/ci/postgres-rocky/NOTICE tools/ci/postgres-rocky/postgresql-setup tools/ci/postgres-rocky/postgresql.conf"
 for skipfile in $skiplist; do
 	if [ "$file" = "$skipfile" ]; then
 		exit 1

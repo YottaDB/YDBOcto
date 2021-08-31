@@ -1,0 +1,45 @@
+#################################################################
+#								#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+# This file mirrors the pipeline set-up, but is not used by the
+# pipeline. It lets you run the pipeline tests locally.
+# If you change .gitlab-ci.yml, update this as well.
+
+FROM yottadb/yottadb-rocky-base:latest-master
+
+# Yum update and packages
+RUN yum update && \
+    yum clean all && \
+    rm -rf /var/cache/yum/* && \
+    yum --enablerepo=powertools install -y libcmocka-devel gcc make clang clang-tools-extra cmake bison flex python3-pip readline-devel git libconfig-devel openssl-devel postgresql postgresql-server libgcrypt-devel gpgme-devel openssl expect java-11-openjdk-devel unzip valgrind unixODBC postgresql-odbc
+
+# Ninja
+RUN wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-linux.zip && unzip ninja-linux.zip && mv ninja /usr/local/bin/ninja
+
+# Shellcheck
+RUN curl -LOf https://github.com/koalaman/shellcheck/releases/download/v0.7.2/shellcheck-v0.7.2.linux.x86_64.tar.xz && tar -C /usr/local/bin/ -xf shellcheck-v0.7.2.linux.x86_64.tar.xz --no-anchored 'shellcheck' --strip=1
+
+# Go
+ENV PATH=/usr/local/go/bin:$PATH
+ENV GOLANG_VERSION=1.13.1
+ENV USER=root
+RUN wget -O go.tgz -q https://golang.org/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz
+RUN tar -C /usr/local -xzf go.tgz
+RUN rm go.tgz
+RUN go version
+
+# Java
+ENV JDBC_VERSION=42.2.6
+
+ADD . /builds/YDBDBMS/
+WORKDIR /builds/YDBDBMS
+
+RUN tools/ci/build.sh "make-rocky" "none"

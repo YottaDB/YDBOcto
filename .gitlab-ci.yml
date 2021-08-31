@@ -51,16 +51,19 @@ before_script:
     - rm go.tgz
     - go version
 
-.centos:
+.rocky:
   before_script:
-    - yum install -y epel-release
-    - yum install -y gcc make clang cmake3 bison flex libcmocka-devel python-pip readline-devel git libconfig-devel openssl-devel postgresql postgresql-server libgcrypt-devel gpgme-devel openssl expect java-11-openjdk-devel unzip valgrind unixODBC postgresql-odbc
-    # Ninja is not available from the default repositories on CentOS 8.
-    # On 7 it is not available at all without going through third-party repositories.
+    - yum --enablerepo=powertools install -y libcmocka-devel gcc make clang clang-tools-extra cmake bison flex python3-pip readline-devel git libconfig-devel openssl-devel postgresql postgresql-server libgcrypt-devel gpgme-devel openssl expect java-11-openjdk-devel unzip valgrind unixODBC postgresql-odbc
+    # Ninja is not available from the default repositories on Rocky Linux.
+    # On CentOS 7 it is not available at all without going through third-party repositories.
     # Rather than setting that up, just install ninja from the GitHub releases page directly.
     - wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-linux.zip
     - unzip ninja-linux.zip
     - mv ninja /usr/local/bin/ninja
+    # ShellCheck is not available on Rocky Linux; instructions here: https://github.com/koalaman/shellcheck/issues/1789
+    - curl -LOf https://github.com/koalaman/shellcheck/releases/download/v0.7.2/shellcheck-v0.7.2.linux.x86_64.tar.xz
+    - tar -C /usr/local/bin/ -xf shellcheck-v0.7.2.linux.x86_64.tar.xz --no-anchored 'shellcheck' --strip=1
+    # Install Go
     - export PATH=/usr/local/go/bin:$PATH
     - export JDBC_VERSION=42.2.6
     - wget -O go.tgz -q https://golang.org/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz
@@ -87,12 +90,12 @@ make-ubuntu:
   script:
     - ./tools/ci/build.sh "make-ubuntu" "none"
 
-make-centos:
-  image: yottadb/yottadb-centos-base:latest-master
+make-rocky:
+  image: yottadb/yottadb-rocky-base:latest-master
   extends:
     - .make
-    - .centos
-  script: ./tools/ci/build.sh "make-centos" "none"
+    - .rocky
+  script: ./tools/ci/build.sh "make-rocky" "none"
 
 make-tls-ubuntu:
   image: yottadb/yottadb-base:latest-master
@@ -103,14 +106,14 @@ make-tls-ubuntu:
     - ./tools/ci/install-tls.sh
     - ./tools/ci/build.sh "make-tls-ubuntu" "none"
 
-make-tls-centos:
-  image: yottadb/yottadb-centos-base:latest-master
+make-tls-rocky:
+  image: yottadb/yottadb-rocky-base:latest-master
   extends:
     - .make
-    - .centos
+    - .rocky
   script:
     - ./tools/ci/install-tls.sh
-    - ./tools/ci/build.sh "make-tls-centos" "none"
+    - ./tools/ci/build.sh "make-tls-rocky" "none"
 
 test-force-upgrade:
   # This job tests auto upgrade functionality of binary table/function definitions by forcing an auto upgrade

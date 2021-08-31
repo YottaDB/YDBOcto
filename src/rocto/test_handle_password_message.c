@@ -121,8 +121,10 @@ static StartupMessage *make_startup_message(char *parm_name, char *parm_value) {
 
 // Make function to simulate client transmission of password_message.
 static PasswordMessage *make_password_message(char *user, char *password, char *salt) {
-#define HEX_HASH_LEN	 MD5_DIGEST_LENGTH * 2 + 1 /* count null */
-#define MD5_PASSWORD_LEN HEX_HASH_LEN + 3	   /* Add "md5" prefix to hex hash */
+/* count null */
+#define HEX_HASH_LEN MD5_DIGEST_LENGTH * 2 + 1
+/* Add "md5" prefix to hex hash */
+#define MD5_PASSWORD_LEN HEX_HASH_LEN + 3
 
 	PasswordMessage *ret;
 	int32_t		 length = 0, result;

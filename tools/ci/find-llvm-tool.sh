@@ -52,7 +52,21 @@ FOUND=$tool
 #	Arch Linux   : clang-format version 12.0.1
 #	Ubuntu 21.04 : Ubuntu clang-format version 12.0.0-3ubuntu1~21.04.1
 # We want to extract the major version from the above (11, 10, 12, 12 respectively). Hence the gsub() function usage below.
-majorver=$($FOUND --version | awk '/version/ {gsub(".*clang-format version", ""); print $1}' | cut -d '.' -f 1)
+#
+# "clang-tidy --version" output is different too.
+# LLVM (http://llvm.org/):
+#  LLVM version 10.0.0
+#
+#  Optimized build.
+#  Default target: x86_64-pc-linux-gnu
+#  Host CPU: haswell
+
+if [ "$tool" = "clang-tidy" ]; then
+	majorver=$($FOUND --version | awk '/version/ {print $3}' | cut -d '.' -f 1)
+elif [ "$tool" = "clang-format" ]; then
+	majorver=$($FOUND --version | awk '/version/ {gsub(".*clang-format version", ""); print $1}' | cut -d '.' -f 1)
+fi
+
 if [ "$majorver" -ge "$version" ]; then
 	echo "$FOUND"
 else

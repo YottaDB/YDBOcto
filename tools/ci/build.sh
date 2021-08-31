@@ -15,8 +15,26 @@
 set -v
 set -x
 
-jobname=$1	# could be "make-centos", "make-ubuntu", "make-tls-centos", "make-tls-centos" or "test-auto-upgrade"
+jobname=$1	# could be "make-rocky", "make-ubuntu", "make-tls-rocky", "make-tls-rocky" or "test-auto-upgrade"
 subtaskname=$2 # Could be "force" or "none" in case jobname is "test-auto-upgrade"
+
+# Determine if we are running on Ubuntu or Rocky Linux (Centos 8 successor)
+. /etc/os-release
+
+case "$ID" in
+	ubuntu)
+		is_ubuntu="true"
+		is_rocky8="false"
+		;;
+	rocky)
+		is_ubuntu="false"
+		is_rocky8="true"
+		;;
+	*)
+		echo "unsupported distribution"
+		exit 1
+		;;
+esac
 
 source /opt/yottadb/current/ydb_env_set
 set -u # Enable detection of uninitialized variables. Do *after* ydb_env_set since this script relies on uninitialized variables.
@@ -59,13 +77,6 @@ compile_octo() {
 	set -e
 }
 
-# CMake commands are different between CentOS and Ubuntu.
-# Disambiguate them here and make it a variable.
-if [ -x "$(command -v cmake3)" ]; then
-  cmakeCommand="cmake3"
-else
-  cmakeCommand="cmake"
-fi
 if [ "$USE_MAKE" = 1 ]; then
 	generator="Unix Makefiles"
 	build_tool="make -j $(grep -c ^processor /proc/cpuinfo)"
@@ -73,26 +84,24 @@ else
 	generator=Ninja
 	build_tool=ninja
 fi
-echo " -> cmakeCommand = $cmakeCommand"
 
-if [ -x "$(command -v ctest3)" ]; then
-  ctestCommand="ctest3"
-else
-  ctestCommand="ctest"
-fi
-
-if [[ "test-auto-upgrade" != $jobname ]]; then
+# For now, cannot run valgrind on bats with Rocky Linux; only Ubuntu
+# See this issue opened by @shabiel: https://github.com/bats-core/bats-core/issues/494
+# However, we are restructuring the test as part of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/205,
+# and therefore, we can enable the test on Rocky Linux again once we do that.
+if [ "test-auto-upgrade" != $jobname ] && $is_ubuntu; then
   # Enable valgrind when running tests. This has less than a 30 second slowdown out of a 35 minute build.
-  ctestCommand="$ctestCommand -T memcheck"
+  ctestCommand="ctest -T memcheck"
   use_valgrind=1
 else
+  ctestCommand="ctest"
   use_valgrind=0
 fi
 echo " -> ctestCommand = $ctestCommand"
 
 echo "# Install the YottaDB POSIX plugin"
 pushd $start_dir
-./tools/ci/install_posix.sh $cmakeCommand
+./tools/ci/install_posix.sh "cmake"
 popd
 
 echo "# Source the ENV script again to YottaDB environment variables after installing POSIX plugin"
@@ -154,20 +163,12 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 	fi
 	popd
 
-	if [ -x "$(command -v rpm)" ] && grep -q 'VERSION_ID=.*7' /etc/os-release; then
-		is_centos7=1
-	else
-		is_centos7=0
-	fi
-
 	# If we found a recent enough version, run clang-format
 	if CLANG_FORMAT="$(../tools/ci/find-llvm-tool.sh clang-format 9)"; then
 		echo "# Check code style using clang-format"
 		# This modifies the files in place so no need to record the output.
 		../tools/ci/clang-format-all.sh $CLANG_FORMAT
-	# RHEL/CentOS 7 has an outdated version of clang-format, but we run it in pipelines.
-	# Ignore failures only on this platform.
-	elif [ $is_centos7 = 0 ]; then
+	else
 		# Otherwise, fail the pipeline.
 		echo " -> A recent enough version of clang-format was not found!"
 		exit 1
@@ -175,7 +176,7 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 
 	if [ -x "$(command -v shellcheck)" ]; then
 		find .. -name build -prune -o -name '*.sh' -print0 | xargs -0 shellcheck -e SC1091,SC2154,SC1090,SC2086,SC2053,SC2046
-	elif [ $is_centos7 = 0 ]; then
+	else
 		echo " -> Shellcheck not found!"
 		exit 1
 	fi
@@ -304,7 +305,7 @@ trap cleanup_before_exit EXIT
 
 echo "# Configure the build system for Octo"
 
-${cmakeCommand} -G "$generator" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=$build_type -DFULL_TEST_SUITE=$full_test -DDISABLE_INSTALL=$disable_install ..
+cmake -G "$generator" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=$build_type -DFULL_TEST_SUITE=$full_test -DDISABLE_INSTALL=$disable_install ..
 compile_octo
 
 # If this is the "test-auto-upgrade" job, skip steps that are covered by other jobs (e.g. "make-ubuntu" etc.)
@@ -312,18 +313,10 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 	echo "# Check for unexpected warnings and error/exit if unexpected errors are found"
 	../tools/ci/sort_warnings.sh build_warnings.txt sorted_build_warnings.txt
 	echo " -> Checking for unexpected warning(s) while compiling ... "
-	if [ -x "$(command -v yum)" ]; then
-		if [[ $build_type == "Debug" ]]; then
-			reference=../tools/ci/expected_warnings-centos.ref
-		else
-			reference=../tools/ci/expected_warnings-centos_release.ref
-		fi
+	if [[ $build_type == "Debug" ]]; then
+		reference=../tools/ci/expected_warnings.ref
 	else
-		if [[ $build_type == "Debug" ]]; then
-			reference=../tools/ci/expected_warnings.ref
-		else
-			reference=../tools/ci/expected_warnings-release.ref
-		fi
+		reference=../tools/ci/expected_warnings-release.ref
 	fi
 
 	compare() {
@@ -349,17 +342,14 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 	}
 	compare $reference sorted_build_warnings.txt build_warnings.txt
 
-	# `clang-tidy` is not available on CentOS 7, and YDB tests on 7 to ensure backwards-compatibility.
-	if ! [ -x "$(command -v yum)" ]; then
-		echo "# Check for unexpected warning(s) from clang-tidy ..."
-		../tools/ci/clang-tidy-all.sh > clang_tidy_warnings.txt 2>/dev/null
-		../tools/ci/sort_warnings.sh clang_tidy_warnings.txt sorted_clang_warnings.txt
-		# In release mode, `assert`s are compiled out and clang-tidy will emit false positives.
-		if [ "$build_type" = Debug ]; then
-			compare ../tools/ci/clang_tidy_warnings.ref sorted_clang_warnings.txt clang_tidy_warnings.txt
-		else
-			compare ../tools/ci/clang_tidy_warnings-release.ref sorted_clang_warnings.txt clang_tidy_warnings.txt
-		fi
+	echo "# Check for unexpected warning(s) from clang-tidy ..."
+	../tools/ci/clang-tidy-all.sh > clang_tidy_warnings.txt 2>/dev/null
+	../tools/ci/sort_warnings.sh clang_tidy_warnings.txt sorted_clang_warnings.txt
+	# In release mode, `assert`s are compiled out and clang-tidy will emit false positives.
+	if [ "$build_type" = Debug ]; then
+		compare ../tools/ci/clang_tidy_warnings.ref sorted_clang_warnings.txt clang_tidy_warnings.txt
+	else
+		compare ../tools/ci/clang_tidy_warnings-release.ref sorted_clang_warnings.txt clang_tidy_warnings.txt
 	fi
 
 	echo "# prepare binary tarball"
@@ -431,14 +421,13 @@ if [[ ("test-auto-upgrade" != $jobname) || ("force" != $subtaskname) ]]; then
 	set -u
 
 	echo "# Start PostgreSQL Server"
-	if [ -f /etc/init.d/postgresql ]; then
+	if $is_ubuntu; then
 	  /etc/init.d/postgresql start
-	else
-	  # Blindly assuming we are CentOS
-	  cp ../tools/ci/postgres-centos/postgresql-setup /usr/bin/postgresql-setup
+	elif $is_rocky8; then
+	  cp ../tools/ci/postgres-rocky/postgresql-setup /usr/bin/postgresql-setup
 	  chmod +x /usr/bin/postgresql-setup
 	  postgresql-setup initdb
-	  mv ../tools/ci/postgres-centos/postgresql.conf /var/lib/pgsql/data/postgresql.conf
+	  mv ../tools/ci/postgres-rocky/postgresql.conf /var/lib/pgsql/data/postgresql.conf
 	  chown -v postgres.postgres /var/lib/pgsql/data/postgresql.conf
 	  su postgres -c "/usr/bin/postgres -D /var/lib/pgsql/data -p 5432" &
 	  sleep 2
@@ -482,11 +471,11 @@ popd
 if [[ ("test-auto-upgrade" != $jobname) || ("force" != $subtaskname) ]]; then
 	# Force password authentication for PSQL by revising and reloading the config file. This is needed to prevent authentication
 	# failures of the form "FATAL: Ident authentication failed for user ..." when attempting to connect to the PostgreSQL server.
-	if [[ $cmakeCommand == "cmake" ]]; then
+	if $is_ubuntu; then
 		# Ubuntu
 		psql_conf=$(find /etc/postgresql -name "pg_hba.conf")
-	else
-		# CentOS
+	elif $is_rocky8; then
+		# Rocky Linux
 		psql_conf=$(find /var/lib/pgsql -name "pg_hba.conf")
 	fi
 	sed -i "s/ident/md5/" $psql_conf
@@ -594,12 +583,12 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 	if [[ 0 == $exit_status ]]; then
 		if [[ $build_type != "RelWithDebInfo" || $disable_install != "OFF" ]]; then
 			echo "# Rebuild Octo for packaging as it wasn't a RelWithDebInfo build or was built with installation disabled"
-			${cmakeCommand} -G "$generator" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=RelWithDebInfo -DDISABLE_INSTALL=OFF ..
+			cmake -G "$generator" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=RelWithDebInfo -DDISABLE_INSTALL=OFF ..
 			$build_tool
 			create_tarball
 		fi
 
-		if [[ $cmakeCommand == "cmake" ]]; then
+		if $is_ubuntu; then
 			echo "# Ubuntu pipelines only: Copy installation script into tarball directory for use in Docker image construction"
 			cp ../tools/ci/docker-install.sh $tarball_name
 			echo "# Copy dummy data for use in Docker image. No other fixtures are needed as Northwind tests full functionality"
@@ -631,7 +620,7 @@ else
 	new_buffer_size=$(( 2 ** (RANDOM % 11) ))
 	sed -i "s/OCTO_INIT_BUFFER_LEN [0-9]*/OCTO_INIT_BUFFER_LEN $new_buffer_size/" ../src/octo.h
 
-	${cmakeCommand} -G "$generator" $cmakeflags ..
+	cmake -G "$generator" $cmakeflags ..
 	compile_octo
 	echo "# Cleanup unit test case executables from newsrc directory"
 	rm -rf src/CMakeFiles

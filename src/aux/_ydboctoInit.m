@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -57,8 +57,8 @@
 	. FOR regnum=1:1:numregs DO
 	. . SET regname=$PIECE(reglist,",",regnum)
 	. . QUIT:$DATA(verified(regname))
-	. . ; 2=INFO level from VERBOSITY_LEVEL enum in errors.h. Changes there should also be reflected here.
-	. . IF ('starwarningissued&(regname=starregname)&(2>=verbosity)) DO
+	. . ; 3=ERROR level from VERBOSITY_LEVEL enum in errors.h. Changes there should also be reflected here.
+	. . IF ('starwarningissued&(regname=starregname)&(3>=verbosity)) DO
 	. . . WRITE "[ WARN] Global "_octogbl_" maps to default region "_regname_". Recommended mapping for ^%ydbocto* is to a separate region",!
 	. . . USE $PRINCIPAL	; In case principal device is terminal, above WRITE is flushed
 	. . . SET starwarningissued=1

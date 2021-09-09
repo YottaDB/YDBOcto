@@ -3,5 +3,6 @@ SELECT * FROM (SELECT n.nspname,c.relname,a.attname,a.atttypid,a.attnotnull OR (
 ----- ROCTO/JDBC -----
 
 ----- OCTO -----
+[ WARN] PATH:LINENUM DATE TIME : ERR_FEATURE_NOT_IMPLEMENTED : Feature not implemented: OVER not implemented, just returning columns
 NSPNAME|RELNAME|ATTNAME|ATTTYPID|ATTNOTNULL|ATTTYPMOD|ATTLEN|ATTNUM|ATTIDENTITY|ADSRC|DESCRIPTION|TYPBASETYPE|TYPTYPE
 (0 rows)

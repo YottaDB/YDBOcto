@@ -1,4 +1,5 @@
 Verbosity set to ERROR:
+[ WARN] Global ^%ydboctoxref maps to default region DEFAULT. Recommended mapping for ^%ydbocto* is to a separate region
 
 Verbosity set to INFO:
 [ INFO] PATH:LINENUM DATE TIME : INFO_RECORDING_ENV_VARS : # Recording pertinent ydb_* env var values at process startup

@@ -57,5 +57,6 @@ AND      attname LIKE '%'
 ORDER BY nspname,
          c.relname,
          attnum
+[ WARN] PATH:LINENUM DATE TIME : ERR_FEATURE_NOT_IMPLEMENTED : Feature not implemented: OVER not implemented, just returning columns
 NSPNAME|RELNAME|ATTNAME|ATTTYPID|ATTNOTNULL|ATTTYPMOD|ATTLEN|ATTNUM|ATTIDENTITY|ADSRC|DESCRIPTION|TYPBASETYPE|TYPTYPE
 (0 rows)

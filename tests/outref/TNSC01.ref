@@ -1,3 +1,4 @@
+[ WARN] Global ^%ydboctoxref maps to default region DEFAULT. Recommended mapping for ^%ydbocto* is to a separate region
 ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 1|Acid|Burn

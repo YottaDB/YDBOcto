@@ -10,6 +10,7 @@ Error with syntax near (line 1, column 15):
 select * from nonexistanttable;
               ^^^^^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from nonexistanttable;
+[ WARN] PATH:LINENUM DATE TIME : ERR_FEATURE_NOT_IMPLEMENTED : Feature not implemented: INDEX statements
 ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 1|Acid|Burn

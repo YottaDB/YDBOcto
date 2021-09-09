@@ -10,6 +10,7 @@
 # Note that two globals are needed to reproduce the original issue.
 # It is not clear yet why that is the case but it is not considered important enough to investigate.
 # Run SQL query TX03.sql that generates xref
+[ WARN] Global ^%ydboctoxref maps to default region DEFAULT. Recommended mapping for ^%ydbocto* is to a separate region
 COUNT(*)
 1
 (1 row)

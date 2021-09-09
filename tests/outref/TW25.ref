@@ -19,8 +19,10 @@ NSPNAME|RELNAME|ATTNAME
 (0 rows)
 NSPNAME|RELNAME|ATTNAME
 (0 rows)
+[ WARN] PATH:LINENUM DATE TIME : ERR_FEATURE_NOT_IMPLEMENTED : Feature not implemented: OVER not implemented, just returning columns
 NSPNAME|RELNAME|ATTNAME|ATTTYPID|ATTNOTNULL|ATTTYPMOD|ATTLEN|ATTNUM|TYPBASETYPE|TYPTYPE
 (0 rows)
+[ WARN] PATH:LINENUM DATE TIME : ERR_FEATURE_NOT_IMPLEMENTED : Feature not implemented: OVER not implemented, just returning columns
 NSPNAME|RELNAME|ATTNAME|ATTTYPID|ATTNOTNULL|ATTTYPMOD|ATTLEN|ATTNUM|TYPBASETYPE|TYPTYPE
 (0 rows)
 # ----------------------------------------------------------------------------

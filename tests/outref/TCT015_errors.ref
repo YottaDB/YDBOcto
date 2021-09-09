@@ -4,12 +4,17 @@
 select 1[1];
 select 1[1][1];
 select (1[1])[1];
+[ WARN] PATH:LINENUM DATE TIME : ERR_FEATURE_NOT_IMPLEMENTED : Feature not implemented: arrays
 ???
 1
 (1 row)
+[ WARN] PATH:LINENUM DATE TIME : ERR_FEATURE_NOT_IMPLEMENTED : Feature not implemented: arrays
+[ WARN] PATH:LINENUM DATE TIME : ERR_FEATURE_NOT_IMPLEMENTED : Feature not implemented: arrays
 ???
 1
 (1 row)
+[ WARN] PATH:LINENUM DATE TIME : ERR_FEATURE_NOT_IMPLEMENTED : Feature not implemented: arrays
+[ WARN] PATH:LINENUM DATE TIME : ERR_FEATURE_NOT_IMPLEMENTED : Feature not implemented: arrays
 ???
 1
 (1 row)

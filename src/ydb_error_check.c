@@ -223,7 +223,7 @@ void ydb_error_check(int status, char *file, int line) {
 			octo_log(line, file, INFO, INFO_Severity, ERR_YOTTADB, ret_value.buf_addr);
 			break;
 		case YDB_SEVERITY_WARNING:
-			octo_log(line, file, INFO, WARNING_Severity, ERR_YOTTADB, ret_value.buf_addr);
+			octo_log(line, file, ERROR, WARNING_Severity, ERR_YOTTADB, ret_value.buf_addr);
 			break;
 		case YDB_SEVERITY_ERROR:
 			octo_log(line, file, ERROR, ERROR_Severity, ERR_YOTTADB, ret_value.buf_addr);

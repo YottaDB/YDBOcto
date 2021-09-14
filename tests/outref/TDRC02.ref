@@ -1,0 +1,66 @@
+FIRSTNAME
+Zero
+Acid
+(2 rows)
+SCHEMA|NAME|TYPE|OWNER
+public|INFORMATION_SCHEMA.TABLES|table|octo
+public|NAMES|table|octo
+public|NAMESWITHAGES|table|octo
+public|OCTOONEROWTABLE|table|octo
+public|PG_ATTRDEF|table|octo
+public|PG_ATTRIBUTE|table|octo
+public|PG_CATALOG.PG_ATTRDEF|table|octo
+public|PG_CATALOG.PG_ATTRIBUTE|table|octo
+public|PG_CATALOG.PG_CLASS|table|octo
+public|PG_CATALOG.PG_DATABASE|table|octo
+public|PG_CATALOG.PG_DESCRIPTION|table|octo
+public|PG_CATALOG.PG_NAMESPACE|table|octo
+public|PG_CATALOG.PG_PROC|table|octo
+public|PG_CATALOG.PG_ROLES|table|octo
+public|PG_CATALOG.PG_SETTINGS|table|octo
+public|PG_CATALOG.PG_TYPE|table|octo
+public|PG_CATALOG.PG_USER|table|octo
+public|PG_CLASS|table|octo
+public|PG_DATABASE|table|octo
+public|PG_DESCRIPTION|table|octo
+public|PG_NAMESPACE|table|octo
+public|PG_PROC|table|octo
+public|PG_ROLES|table|octo
+public|PG_SETTINGS|table|octo
+public|PG_TYPE|table|octo
+public|PG_USER|table|octo
+(26 rows)
+[ERROR] PATH:LINENUM DATE TIME : ERR_FEATURE_NOT_IMPLEMENTED : Feature not implemented: display relation table
+FIRSTNAME
+Zero
+Acid
+(2 rows)
+SCHEMA|NAME|TYPE|OWNER
+public|INFORMATION_SCHEMA.TABLES|table|octo
+public|NAMES|table|octo
+public|NAMESWITHAGES|table|octo
+public|OCTOONEROWTABLE|table|octo
+public|PG_ATTRDEF|table|octo
+public|PG_ATTRIBUTE|table|octo
+public|PG_CATALOG.PG_ATTRDEF|table|octo
+public|PG_CATALOG.PG_ATTRIBUTE|table|octo
+public|PG_CATALOG.PG_CLASS|table|octo
+public|PG_CATALOG.PG_DATABASE|table|octo
+public|PG_CATALOG.PG_DESCRIPTION|table|octo
+public|PG_CATALOG.PG_NAMESPACE|table|octo
+public|PG_CATALOG.PG_PROC|table|octo
+public|PG_CATALOG.PG_ROLES|table|octo
+public|PG_CATALOG.PG_SETTINGS|table|octo
+public|PG_CATALOG.PG_TYPE|table|octo
+public|PG_CATALOG.PG_USER|table|octo
+public|PG_CLASS|table|octo
+public|PG_DATABASE|table|octo
+public|PG_DESCRIPTION|table|octo
+public|PG_NAMESPACE|table|octo
+public|PG_PROC|table|octo
+public|PG_ROLES|table|octo
+public|PG_SETTINGS|table|octo
+public|PG_TYPE|table|octo
+public|PG_USER|table|octo
+(26 rows)
+[ERROR] PATH:LINENUM DATE TIME : ERR_FEATURE_NOT_IMPLEMENTED : Feature not implemented: display relation table

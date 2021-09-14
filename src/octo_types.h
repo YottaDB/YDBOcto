@@ -164,7 +164,8 @@ typedef enum SqlStatementType {
 	history_STATEMENT,
 	delete_from_STATEMENT,
 	update_STATEMENT,
-	invalid_STATEMENT,
+	display_relation_STATEMENT,
+	invalid_STATEMENT, // Keep invalid_STATEMENT at the end
 } SqlStatementType;
 
 // The order of these must be kept in sync with `LPActionType` in `src/optimization_transforms/lp_action_type.hd`
@@ -310,6 +311,8 @@ typedef enum SqlAggregateType {
 	/* Note: AGGREGATE_MAX_DISTINCT is equivalent to AGGREGATE_MAX */
 	AGGREGATE_LAST
 } SqlAggregateType;
+
+typedef enum SqlDisplayRelationType { DISPLAY_ALL_RELATION, DISPLAY_TABLE_RELATION } SqlDisplayRelationType;
 
 // Values for this enum are derived from the PostgreSQL catalog and
 // only include types Octo currently supports.
@@ -872,6 +875,11 @@ typedef struct SqlConstraint {
 	dqcreate(SqlConstraint);
 } SqlConstraint;
 
+typedef struct SqlDisplayRelation {
+	SqlDisplayRelationType type;
+	struct SqlStatement *  table_name; /* Used by `\d tablename` command */
+} SqlDisplayRelation;
+
 typedef struct SqlStatement {
 	enum SqlStatementType type;
 	struct YYLTYPE	      loc;
@@ -914,6 +922,7 @@ typedef struct SqlStatement {
 		struct SqlDelimiterCharacterList *delim_char_list;
 		struct SqlIndex *		  index;
 		struct SqlDataTypeStruct	  data_type_struct;
+		struct SqlDisplayRelation *	  display_relation;
 		enum SqlJoinType		  join_type;
 		/* Below SqlStatementType types do not have any parameters so they do not have corresponding members here.
 		 *	discard_all_STATEMENT

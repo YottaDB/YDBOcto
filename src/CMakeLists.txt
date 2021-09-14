@@ -190,6 +190,7 @@ add_library(libocto OBJECT
   get_sqlvaluetype_from_psql_type.c
   get_sqlvaluetype_from_sqldatatype.c
   get_user_visible_type_string.c
+  get_display_relation_query_stmt.c
   history.c
   hash_canonical_query.c
   is_query_canceled.c

@@ -833,6 +833,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	case discard_all_STATEMENT:
 	case row_value_STATEMENT:
 	case history_STATEMENT:
+	case display_relation_STATEMENT:
 	case invalid_STATEMENT:
 		/* Do not add "default:" case as we want to enumerate each explicit case here instead of having a
 		 * general purpose bucket where all types not listed above fall into as that could hide subtle bugs.

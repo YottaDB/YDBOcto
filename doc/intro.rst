@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2018-2021 YottaDB LLC and/or its subsidiaries.  #
+.. # Copyright (c) 2018-2022 YottaDB LLC and/or its subsidiaries.  #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -169,9 +169,9 @@ Install Octo
 	   wget https://jdbc.postgresql.org/download/postgresql-$JDBC_VERSION.jar
 
      2.  Install the en_US.utf8 locale
- 
+
          Octo tests should be run with the en_US.utf8 locale due to collation order differences in other locales that cause some test outputs to not match reference outputs.
- 
+
         .. code-block:: bash
 
            # Debian
@@ -805,4 +805,52 @@ Launching Options
     .. code-block:: bash
 
        octo --input-file=files/commands.txt
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Useful Commands at OCTO>
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++------------------------+---------------------------------------------+
+| Command                | Information                                 |
++========================+=============================================+
+| :code:`\q`             | Exits the prompt                            |
++------------------------+---------------------------------------------+
+| :code:`\d`             | Displays all relations                      |
++------------------------+---------------------------------------------+
+
+    Relation shown will be similar to the following:
+
+    .. code-block:: bash
+
+	OCTO> \d
+	SCHEMA|NAME|TYPE|OWNER
+	public|INFORMATION_SCHEMA.TABLES|table|octo
+	public|NAMES|table|octo
+	public|NAMESWITHAGES|table|octo
+	public|OCTOONEROWTABLE|table|octo
+	public|PG_ATTRDEF|table|octo
+	public|PG_ATTRIBUTE|table|octo
+	public|PG_CATALOG.PG_ATTRDEF|table|octo
+	public|PG_CATALOG.PG_ATTRIBUTE|table|octo
+	public|PG_CATALOG.PG_CLASS|table|octo
+	public|PG_CATALOG.PG_DATABASE|table|octo
+	public|PG_CATALOG.PG_DESCRIPTION|table|octo
+	public|PG_CATALOG.PG_NAMESPACE|table|octo
+	public|PG_CATALOG.PG_PROC|table|octo
+	public|PG_CATALOG.PG_ROLES|table|octo
+	public|PG_CATALOG.PG_SETTINGS|table|octo
+	public|PG_CATALOG.PG_TYPE|table|octo
+	public|PG_CATALOG.PG_USER|table|octo
+	public|PG_CLASS|table|octo
+	public|PG_DATABASE|table|octo
+	public|PG_DESCRIPTION|table|octo
+	public|PG_NAMESPACE|table|octo
+	public|PG_PROC|table|octo
+	public|PG_ROLES|table|octo
+	public|PG_SETTINGS|table|octo
+	public|PG_TYPE|table|octo
+	public|PG_USER|table|octo
+	(26 rows)
+
 

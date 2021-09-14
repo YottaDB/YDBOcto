@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -252,6 +252,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token EXIT
 %token QUIT
 %token HISTORY
+%token DISPLAY
 
 %%
 
@@ -306,6 +307,10 @@ sql_statement
       print_history();
       YYACCEPT;
   }
+  | display_relation_command {
+      *out = $display_relation_command;
+      YYACCEPT;
+  }
   ;
 
 semicolon_or_eof
@@ -320,6 +325,10 @@ exit_command
 
 history_command
   : HISTORY
+  ;
+
+display_relation_command
+  : DISPLAY { $$ = $DISPLAY; }
   ;
 
 %include "parser/select.y"

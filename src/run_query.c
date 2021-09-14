@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -120,11 +120,12 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 	ydb_buffer_t		  function_name_buffers[5];
 	ydb_buffer_t *		  function_name_buffer, *function_hash_buffer;
 	char			  cursor_buffer[INT64_TO_STRING_MAX];
-	char		 pid_buffer[INT64_TO_STRING_MAX]; /* assume max pid is 64 bits even though it is a 4-byte quantity */
-	boolean_t	 release_query_lock;
-	SqlStatement	 stmt;
-	boolean_t	 ok_to_drop, wrapInTp;
-	SqlStatementType result_type;
+	char		    pid_buffer[INT64_TO_STRING_MAX]; /* assume max pid is 64 bits even though it is a 4-byte quantity */
+	boolean_t	    release_query_lock;
+	SqlStatement	    stmt;
+	boolean_t	    ok_to_drop, wrapInTp;
+	SqlStatementType    result_type;
+	SqlDisplayRelation *display_relation;
 
 	// Assign cursor prior to parsing to allow tracking and storage of literal parameters under the cursor local variable
 	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
@@ -197,6 +198,21 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 	switch (result_type) {
 	// This effectively means select_STATEMENT, but we have to assign ID's inside this function
 	// and so need to propagate them out
+	case display_relation_STATEMENT:
+		UNPACK_SQL_STATEMENT(display_relation, result, display_relation);
+		if (DISPLAY_TABLE_RELATION == display_relation->type) {
+			ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "display relation table");
+			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
+			return 1;
+		}
+		assert(DISPLAY_ALL_RELATION == display_relation->type);
+		result = get_display_relation_query_stmt(parse_context);
+		assert(table_alias_STATEMENT == result->type);
+		result_type = table_alias_STATEMENT;
+		/* `result` retrieved from the above call will be a table_alias_STATEMENT.
+		 * Execute the rest of the code in the following case block (by falling through) to process it.
+		 */
+		/* fall through */
 	case table_alias_STATEMENT:
 	case set_operation_STATEMENT:
 	case insert_STATEMENT:

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -852,9 +852,10 @@ int  get_mval_len(unsigned char *buff, int *data_len);
  */
 int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type, ParseContext *parse_context);
 
-char *get_aggregate_func_name(SqlAggregateType type);
-char *get_set_operation_string(SqlSetOperationType type);
-char *get_user_visible_type_string(SqlValueType type);
+char *	      get_aggregate_func_name(SqlAggregateType type);
+char *	      get_set_operation_string(SqlSetOperationType type);
+char *	      get_user_visible_type_string(SqlValueType type);
+SqlStatement *get_display_relation_query_stmt(ParseContext *parse_context);
 
 /* Hashing support functions */
 int  generate_routine_name(hash128_state_t *state, char *routine_name, int routine_len, FileType file_type);

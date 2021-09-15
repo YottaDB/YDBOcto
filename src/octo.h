@@ -694,6 +694,52 @@ typedef enum RegexType {
 		STMT = ret;                                                                               \
 	}
 
+/* Below parses a table_reference SQL grammar component  */
+#define INVOKE_TABLE_REFERENCE(STMT, COLUMN_NAME, CORRELATION_SPECIFICATION, PLAN_ID)   \
+	{                                                                               \
+		SqlStatement *ret;                                                      \
+		ret = table_reference(COLUMN_NAME, CORRELATION_SPECIFICATION, PLAN_ID); \
+		if (NULL == ret) {                                                      \
+			YYERROR;                                                        \
+		}                                                                       \
+		STMT = ret;                                                             \
+	}
+
+/* Below parses a derived_table SQL grammar component  */
+#define INVOKE_DERIVED_TABLE(STMT, TABLE_SUBQUERY, CORRELATION_SPECIFICATION)   \
+	{                                                                       \
+		SqlStatement *ret;                                              \
+		ret = derived_table(TABLE_SUBQUERY, CORRELATION_SPECIFICATION); \
+		if (NULL == ret) {                                              \
+			YYERROR;                                                \
+		}                                                               \
+		STMT = ret;                                                     \
+	}
+
+/* Below parses a drop_table_statement SQL grammar component  */
+#define INVOKE_DROP_TABLE_STATEMENT(STMT, COLUMN_NAME, DROP_BEHAVIOR, IF_EXISTS_SPECIFIED) \
+	{                                                                                  \
+		SqlStatement *ret;                                                         \
+		SQL_STATEMENT(ret, drop_table_STATEMENT);                                  \
+		OCTO_CMALLOC_STRUCT(ret->v.drop_table, SqlDropTableStatement);             \
+		ret->v.drop_table->table_name = COLUMN_NAME;                               \
+		ret->v.drop_table->optional_keyword = DROP_BEHAVIOR;                       \
+		ret->v.drop_table->if_exists_specified = IF_EXISTS_SPECIFIED;              \
+		STMT = ret;                                                                \
+	}
+
+/* Below parses a drop_behavior SQL grammar component  */
+#define INVOKE_DROP_BEHAVIOR(STMT, KEYWORD)                              \
+	{                                                                \
+		SqlStatement *ret;                                       \
+		SQL_STATEMENT(ret, keyword_STATEMENT);                   \
+		OCTO_CMALLOC_STRUCT(ret->v.keyword, SqlOptionalKeyword); \
+		ret->v.keyword->keyword = KEYWORD;                       \
+		ret->v.keyword->v = NULL;                                \
+		dqinit(ret->v.keyword);                                  \
+		STMT = ret;                                              \
+	}
+
 #ifndef NDEBUG
 #define NDEBUG_ONLY(X)
 #define DEBUG_ONLY(X) X

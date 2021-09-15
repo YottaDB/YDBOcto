@@ -11,19 +11,11 @@
  ****************************************************************/
 
 drop_table_statement
-  : DROP TABLE column_name DROP_BEHAVIOR {
-      SQL_STATEMENT($$, drop_table_STATEMENT);
-      OCTO_CMALLOC_STRUCT(($$)->v.drop_table, SqlDropTableStatement);
-      ($$)->v.drop_table->table_name = $column_name;
-      ($$)->v.drop_table->optional_keyword = $DROP_BEHAVIOR;
-      ($$)->v.drop_table->if_exists_specified = FALSE;
+  : DROP TABLE column_name drop_behavior {
+      INVOKE_DROP_TABLE_STATEMENT($$, $column_name, $drop_behavior, FALSE);
     }
-  | DROP TABLE IF EXISTS column_name DROP_BEHAVIOR {
-      SQL_STATEMENT($$, drop_table_STATEMENT);
-      OCTO_CMALLOC_STRUCT(($$)->v.drop_table, SqlDropTableStatement);
-      ($$)->v.drop_table->table_name = $column_name;
-      ($$)->v.drop_table->optional_keyword = $DROP_BEHAVIOR;
-      ($$)->v.drop_table->if_exists_specified = TRUE;
+  | DROP TABLE IF EXISTS column_name drop_behavior {
+      INVOKE_DROP_TABLE_STATEMENT($$, $column_name, $drop_behavior, TRUE);
     }
   ;
 
@@ -43,20 +35,12 @@ optional_function_parameter_type_list
     }
   ;
 
-DROP_BEHAVIOR
+drop_behavior
   : /* Empty */ { $$ = NULL; }
   | CASCADE {
-      SQL_STATEMENT($$, keyword_STATEMENT);
-      OCTO_CMALLOC_STRUCT(($$)->v.keyword, SqlOptionalKeyword);
-      ($$)->v.keyword->keyword = OPTIONAL_CASCADE;
-      ($$)->v.keyword->v = NULL;
-      dqinit(($$)->v.keyword);
+      INVOKE_DROP_BEHAVIOR($$, OPTIONAL_CASCADE);
     }
   | RESTRICT {
-      SQL_STATEMENT($$, keyword_STATEMENT);
-      OCTO_CMALLOC_STRUCT(($$)->v.keyword, SqlOptionalKeyword);
-      ($$)->v.keyword->keyword = OPTIONAL_RESTRICT;
-      ($$)->v.keyword->v = NULL;
-      dqinit(($$)->v.keyword);
+      INVOKE_DROP_BEHAVIOR($$, OPTIONAL_RESTRICT);
     }
   ;

@@ -309,16 +309,10 @@ table_reference_list
 // Just consider these a list of values for all intents and purposes
 table_reference
   : column_name {
-	$$ = table_reference($column_name, NULL, plan_id);
-	if (NULL == $$) {
-		YYERROR;
-	}
+	INVOKE_TABLE_REFERENCE($$, $column_name, NULL, plan_id);
     }
   | column_name correlation_specification {
-	$$ = table_reference($column_name, $correlation_specification, plan_id);
-	if (NULL == $$) {
-		YYERROR;
-	}
+	INVOKE_TABLE_REFERENCE($$, $column_name, $correlation_specification, plan_id);
     }
   | derived_table {
 	$$ = $derived_table;
@@ -328,16 +322,10 @@ table_reference
 
 derived_table
   : table_subquery {
-	$$ = derived_table($table_subquery, NULL);
-	if (NULL == $$) {
-		YYERROR;
-	}
+	INVOKE_DERIVED_TABLE($$, $table_subquery, NULL);
     }
   | table_subquery correlation_specification {
-	$$ = derived_table($table_subquery, $correlation_specification);
-	if (NULL == $$) {
-		YYERROR;
-	}
+	INVOKE_DERIVED_TABLE($$, $table_subquery, $correlation_specification);
     }
   ;
 

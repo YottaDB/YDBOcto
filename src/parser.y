@@ -299,6 +299,7 @@ history_command
 
 %include "parser/select.y"
 %include "parser/insert.y"
+%include "parser/delete.y"
 %include "parser/update.y"
 %include "parser/drop.y"
 %include "parser/discard.y"
@@ -319,15 +320,6 @@ sql_data_change_statement
   | insert_statement { $$ = $insert_statement; }
 //  | update_statement_positioned
   | update_statement_searched { $$ = $update_statement_searched; }
-  ;
-
-delete_statement_searched
-  : DELETE FROM column_name delete_statement_searched_tail { ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "DELETE FROM"); YYABORT; }
-  ;
-
-delete_statement_searched_tail
-  : /* Empty */ { $$ = NULL; }
-  | WHERE search_condition { ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "DELETE FROM WHERE search_condition"); YYABORT; }
   ;
 
 search_condition
@@ -1269,11 +1261,7 @@ table_definition
 
 table_definition_tail
   : /* Empty */ {
-      SQL_STATEMENT($$, keyword_STATEMENT);
-      MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
-      ($$)->v.keyword->keyword = NO_KEYWORD;
-      ($$)->v.keyword->v = NULL;
-      dqinit(($$)->v.keyword);
+      $$ = alloc_no_keyword();
     }
   | optional_keyword { $$ = $optional_keyword; }
   ;
@@ -1452,11 +1440,7 @@ delim_char_list_tail
 
 optional_keyword_tail
   : /* Empty */ {
-      SQL_STATEMENT($$, keyword_STATEMENT);
-      MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
-      ($$)->v.keyword->keyword = NO_KEYWORD;
-      ($$)->v.keyword->v = NULL;
-      dqinit(($$)->v.keyword);
+      $$ = alloc_no_keyword();
     }
   | optional_keyword { assert($optional_keyword->type == keyword_STATEMENT); $$ = $optional_keyword; }
   ;

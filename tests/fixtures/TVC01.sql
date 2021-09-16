@@ -19,7 +19,7 @@ VALUES (1);
 VALUES (1,2,3);
 
 -- Test VALUES clause using more than one row and column (2 row, 3 columns) and INTEGER type
-VALUES (1,2,3), (4,5,6);
+VALUES (1,2,3), (4,5,SAMEVALUE(6));
 
 -- Test VALUES clause in subquery
 SELECT * FROM (VALUES (1)) as MyTable;
@@ -31,7 +31,7 @@ SELECT * FROM (VALUES ('abcd')) AS tvc;
 SELECT * FROM (VALUES (true, false)) AS tvc;
 
 -- Test non-integer numeric literals
-SELECT * FROM (VALUES (1), (1.5)) AS tvc;
+SELECT * FROM (VALUES (1), (SAMEVALUE(1.5))) AS tvc;
 
 -- Test fancier VALUES clause in subquery
 SELECT column3,column2,column1 FROM (VALUES (4,5,6), (1,2,3)) AS tvc;
@@ -49,8 +49,8 @@ SELECT * FROM (VALUES (1, 2), (3, 4), (5, 6), (7, 8), (9, 10) ) AS MyTable;
 SELECT * FROM (VALUES ((SELECT 1), 2)) as abcd;
 SELECT * FROM (VALUES ((SELECT 1), (SELECT 2), 3)) as abcd;
 SELECT * FROM (VALUES (1, (SELECT 2))) as abcd;
-VALUES((SELECT id FROM names WHERE id > 4));
-VALUES ((VALUES (1)));
+VALUES ((SELECT id FROM names WHERE id > 4));
+VALUES ((VALUES (SAMEVALUE(1))));
 VALUES (1 + (VALUES (1)));
 
 -- Test that column names are by default "column1", "column2" etc.
@@ -59,7 +59,7 @@ SELECT column1,column3,column2,column2 FROM (VALUES (4,5,(SELECT id FROM names W
 
 -- Test of NULL
 VALUES (NULL);
-VALUES((SELECT id FROM names WHERE id > 5));
+VALUES ((SELECT id FROM names WHERE id > 5));
 SELECT id FROM names WHERE id = (SELECT * FROM (VALUES (NULL),(1)) n1 WHERE column1 = 1);
 SELECT id FROM names WHERE id = (SELECT * FROM (VALUES (NULL),(1)) n1 WHERE column1 IS NULL);
 SELECT id FROM names WHERE id = (SELECT * FROM (VALUES (NULL),(1)) n1 WHERE column1 IS NOT NULL);

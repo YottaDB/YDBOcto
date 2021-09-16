@@ -216,6 +216,8 @@
  * This value should be large enough to hold the longest possible first keyword of a SQL query, i.e. "DEALLOCATE" i.e. 10 bytes
  * In addition, in case of a "SELECT", the tag would be followed by a space and a 4-byte integer count (number of rows returned).
  * And in case of a "INSERT", the tag would be followed by 2 spaces and 2 4-byte integers so account for those.
+ * In the case of a "DELETE", the tag would be followed by 1 space and 1 4-byte integer so whatever space calculations
+ * were done for "INSERT" is guaranteed to be more than enough for "DELETE".
  */
 #define MAX_FIRST_KEYWORD_OF_SQL_QUERY_LEN 10 /* size of "DEALLOCATE" */
 
@@ -234,6 +236,32 @@
  * hence the 0 in the macro below.
  */
 #define INSERT_COMMAND_TAG "INSERT 0"
+
+/* For DELETE FROM, Octo conforms to Postgres output format (see https://www.postgresql.org/docs/9.5/sql-delete.html for details).
+ * Relevant part pasted below.
+ * ---------------------------------------------------------------------------------
+ * On successful completion, a DELETE command returns a command tag of the form
+ * DELETE count
+ * The count is the number of rows deleted. Note that the number may be less than the number
+ * of rows that matched the condition when deletes were suppressed by a BEFORE DELETE trigger.
+ * If count is 0, no rows were deleted by the query (this is not considered an error).
+ * ---------------------------------------------------------------------------------
+ */
+#define DELETE_COMMAND_TAG "DELETE"
+
+#define SET_COMMAND_TAG		    "SET"
+#define SHOW_COMMAND_TAG	    "SHOW"
+#define CREATE_TABLE_COMMAND_TAG    "CREATE TABLE"
+#define DROP_TABLE_COMMAND_TAG	    "DROP TABLE"
+#define CREATE_FUNCTION_COMMAND_TAG "CREATE FUNCTION"
+#define DROP_FUNCTION_COMMAND_TAG   "DROP FUNCTION"
+
+#define PRINT_COMMAND_TAG(COMMAND_TAG)                                                                                       \
+	/* Skip printing COMMAND TAG if running auto load of octo-seed.sql as it is internal (not a user driven activity) */ \
+	if (!config->in_auto_load_octo_seed) {                                                                               \
+		fprintf(stdout, "%s\n", COMMAND_TAG);                                                                        \
+		fflush(stdout);                                                                                              \
+	}
 
 // Default buffer allocated for $zroutines
 #define ZRO_INIT_ALLOC 512
@@ -792,7 +820,7 @@ SqlOptionalKeyword *get_keyword(SqlColumn *column, enum OptionalKeyword keyword)
 SqlOptionalKeyword *get_keyword_from_keywords(SqlOptionalKeyword *start_keyword, enum OptionalKeyword keyword);
 int		    get_key_columns(SqlTable *table, SqlColumn **key_columns);
 int  generate_key_name(char **buffer, int *buffer_size, int target_key_num, SqlTable *table, SqlColumn **key_columns);
-int  get_row_count_from_plan_name(char *plan_name, ydb_long_t cursorId);
+int  get_row_count_from_cursorId(ydb_long_t cursorId);
 int  print_temporary_table(SqlStatement *, ydb_long_t cursorId, void *parms, char *plan_name, PSQL_MessageTypeT msg_type);
 void print_result_row(ydb_buffer_t *row);
 int  get_mval_len(unsigned char *buff, int *data_len);
@@ -848,6 +876,7 @@ int  store_plandirs_gvn(char *plan_filename);
 void	      as_name(SqlStatement *as_name);
 SqlStatement *sql_set_statement(SqlStatement *variable, SqlStatement *value, ParseContext *parse_context);
 SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeyword set_quantifier, SqlStatement *value_expression);
+SqlStatement *alloc_no_keyword(void);
 SqlStatement *between_predicate(SqlStatement *row_value_constructor, SqlStatement *from, SqlStatement *to, boolean_t not_specified);
 SqlStatement *cast_specification(SqlStatement *cast_specification, SqlStatement *source);
 SqlStatement *create_sql_column_list(SqlStatement *elem, SqlStatement *tail, YYLTYPE *llocp);
@@ -858,6 +887,8 @@ SqlStatement *derived_table(SqlStatement *table_subquery, SqlStatement *correlat
 SqlStatement *grouping_column_reference(SqlStatement *derived_column_expression, SqlStatement *collate_clause);
 SqlStatement *insert_statement(SqlStatement *table_name, SqlStatement *column_name_list, SqlStatement *query_expression,
 			       int *plan_id, ParseContext *parse_context);
+SqlStatement *delete_from_statement(SqlStatement *table_name, SqlStatement *alias_name, SqlStatement *where_clause, int *plan_id,
+				    ParseContext *parse_context);
 int	      natural_join_condition(SqlJoin *start, SqlJoin *r_join);
 int	      parse_literal_to_parameter(ParseContext *parse_context, SqlValue *value, boolean_t update_existing);
 SqlStatement *query_specification(OptionalKeyword set_quantifier, SqlStatement *select_list, SqlStatement *table_expression,

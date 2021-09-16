@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -21,9 +21,8 @@
 SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 	SqlColumnAlias *    column_alias;
 	SqlColumn *	    column;
-	SqlValue *	    key_table_name, *search_table_name, *key_column_name, *search_column_name;
+	SqlValue *	    search_column_name;
 	SqlTableAlias *	    table_alias;
-	SqlTable *	    table;
 	SqlColumnListAlias *cl_alias;
 	SqlKey *	    key, *primary_key;
 	int		    key_id, search_id, join_table_id, join_table_num;
@@ -38,9 +37,6 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 		assert(table_value_STATEMENT == table_alias->table->type);
 		return NULL;
 	}
-	UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
-	UNPACK_SQL_STATEMENT(search_table_name, table->tableName, value);
-
 	if (column_alias->column->type == column_STATEMENT) {
 		UNPACK_SQL_STATEMENT(column, column_alias->column, column);
 		UNPACK_SQL_STATEMENT(search_column_name, column->columnName, value);
@@ -87,9 +83,19 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 				assert(NULL == key->column);
 				break;
 			}
+#ifndef NDEBUG
+			SqlTable *table;
+			SqlValue *key_table_name, *search_table_name;
+
+			UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
+			UNPACK_SQL_STATEMENT(search_table_name, table->tableName, value);
 			UNPACK_SQL_STATEMENT(key_table_name, key->table->tableName, value);
-			if (0 != strcmp(search_table_name->v.string_literal, key_table_name->v.string_literal))
-				break;
+			/* We are guaranteed the below assert because "key_id" is same as "search_id" */
+			assert(0 == strcmp(search_table_name->v.string_literal, key_table_name->v.string_literal));
+#endif
+
+			SqlValue *key_column_name;
+
 			UNPACK_SQL_STATEMENT(key_column_name, key->column->columnName, value);
 			if (0 != strcmp(search_column_name->v.string_literal, key_column_name->v.string_literal))
 				break;

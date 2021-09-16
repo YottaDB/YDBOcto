@@ -73,6 +73,7 @@ setup() {
 	yottadb -r CHECKFUNCDELETE PARMFULLFUNC 2>&1 | tee -a output.txt	# Confirm the relevant database nodes for the function were deleted
 	# Check that we unlock properly
 	$ydb_dist/yottadb -run %XCMD 'for i=1:1:512 write "DROP FUNCTION IF EXISTS PARMFULLFUNC (NUMERIC);",!' > lock.sql
-	octo -f lock.sql &>> output.txt # should not error.
+	# The above produces lots of 'DROP FUNCTION' output. Don't want to keep that in the reference file so filter that out.
+	octo -f lock.sql | grep -v 'DROP FUNCTION' || true &>> output.txt # should not error.
 	verify_output TDF006 output.txt
 }

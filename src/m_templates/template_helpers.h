@@ -102,7 +102,8 @@ void resize_tmpl_buffer(char **global_buffer, int *buffer_len, int *buffer_index
 TEMPLATE(tmpl_print_dots, int dots);
 TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan);
 TEMPLATE(tmpl_insert_into, PhysicalPlan *plan);
-TEMPLATE(tmpl_insert_row_count, SqlKey *key);
+TEMPLATE(tmpl_delete_from, PhysicalPlan *plan);
+TEMPLATE(tmpl_delete_record_from_table, PhysicalPlan *plan, int dot_count);
 TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned int cur_key, boolean_t right_join_second_half,
 	 int dot_count, char *tableName, char *columnName);
 TEMPLATE(tmpl_rightjoin_key, PhysicalPlan *plan, unsigned int key_start, unsigned int key_end);

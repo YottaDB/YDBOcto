@@ -1,0 +1,17 @@
+# Run a DELETE FROM query and a SELECT query to verify the DELETE FROM worked
+DELETE 3
+ID|FIRSTNAME|LASTNAME
+0|Zero|Cool
+4|Joey|
+5|Zero|Cool
+(3 rows)
+# Turn off write permissions in the current directory (thereby preventing physical plans from being deleted/created)
+# Rerun the DELETE FROM and SELECT query to verify no new physical plans get created
+DELETE 0
+ID|FIRSTNAME|LASTNAME
+0|Zero|Cool
+4|Joey|
+5|Zero|Cool
+(3 rows)
+# We expect no errors confirming that DELETE FROM plans get reused once generated
+# Turn write permissions back on in the current directory

@@ -23,14 +23,20 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 
 	%{}`n{{ plan->plan_name }}(cursorId)`n{{ PLAN_LINE_START }}{}% // The whitespace here is needed for proper M formatting
 
-	/* Handle LP_INSERT_INTO plans first as it is the easiest */
+	/* Handle LP_INSERT_INTO, LP_DELETE_FROM plans first as they are relatively easy to handle */
 	if (IS_INSERT_INTO_PHYSICAL_PLAN(plan)) {
 		TMPL(tmpl_insert_into, plan);
 		return;
 	}
+
 	// The below initialization is needed for cross-reference plans and the regular plans
 	assert(NULL == plan->treat_key_as_null);
 	plan->treat_key_as_null = octo_cmalloc(memory_chunks, sizeof(boolean_t) * config->plan_id);
+
+	if (IS_DELETE_FROM_PHYSICAL_PLAN(plan)) {
+		TMPL(tmpl_delete_from, plan);
+		return;
+	}
 	assert(NULL != plan->outputKey);
 	// Check if there are any cross references that need to be built
 	if (plan->outputKey->is_cross_reference_key) {
@@ -270,7 +276,9 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}NEW {{ PP_YDB_OCTO_I }}  SET {{ PP_YDB_OCTO_I }}(0)=1`n{{ PLAN_LINE_START }}{}%
 			assert((NULL != plan->outputKey)
-				&& ((NULL == plan->next) || (NULL != plan->next->outputKey) || IS_INSERT_INTO_PHYSICAL_PLAN(plan->next)));
+				&& ((NULL == plan->next) || (NULL != plan->next->outputKey)
+				|| IS_INSERT_INTO_PHYSICAL_PLAN(plan->next)
+				|| IS_DELETE_FROM_PHYSICAL_PLAN(plan->next)));
 			// Determine how many columns are specified in ORDER BY. Need to generate M code accordingly.
 			// The below code is a simplified version of that in "tmpl_column_list_combine.ctemplate".
 			num_cols = 0;

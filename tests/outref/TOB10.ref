@@ -30,6 +30,7 @@ SELECT * FROM (SELECT id, MODULO(id,2) AS newid2, MODULO(id,3) AS newid3 FROM na
 SELECT * FROM (SELECT * FROM (SELECT id, MODULO(id,2) AS newid2, MODULO(id,3) AS newid3 FROM names) n1) n2 ORDER BY newid3 desc, newid2;
 SELECT * FROM (SELECT * FROM (SELECT id, MODULO(id,2) AS newid1, firstname FROM names UNION ALL SELECT id, MODULO(id,3) AS newid2, lastname FROM names) n1) n2 ORDER BY newid2;
 
+CREATE FUNCTION
 ID|NEWID
 0|0
 2|0

@@ -19,6 +19,7 @@ WHERE
    AND E.CURRENT_MOVEMENT>0
 );
 
+CREATE FUNCTION
 ORDER1_ID|PATIENT_ID|OBJECT_OF_ORDER
 (0 rows)
 # Verify cross reference plans did get generated

@@ -1,0 +1,116 @@
+#################################################################
+#								#
+# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+	load_fixture names.sql
+	load_fixture names.zwr
+	# Start rocto at subtest startup as part of framework for all subtests as most of them will need to start rocto
+	# with --allowschemachanges due to the presence of DELETE FROM commands.
+	test_port=$(start_rocto 1400 --allowschemachanges)
+}
+
+teardown() {
+	stop_rocto
+}
+
+@test "TDFT01 : OCTO54 : Test of simple DELETE FROM queries in names database (one primary key column)" {
+	echo "# Load SAMEVALUE function (used in TVC01.sql) in Octo and Postgres" >> output.txt
+	load_fixture "QueryGenerator.sql"
+	load_postgres_fixture names postgres-QueryGenerator.sql
+	echo "# Run cross check" >> output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDFT01.sql
+	# Firstly, delete TDFT01 table from Postgres database as it can confuse later runs of other tests
+	# (e.g. hello_psql/HP01 subtest etc.) in case we error out in the later steps of this TDFT01 subtest
+	psql names -c 'drop table if exists tdft01;' >& postgres.drop_table_tdft01.out
+	# Now do various verifications of Octo plans
+	echo "# Include key parts of generated M plans in reference file" >> output.txt
+	grep -Ei "INSERT INTO|DELETE FROM|VALUES|SELECT|maintains cross reference|^octoPlan|RowCount|FOR|SET .ydboctocursor|------" _ydbocto*.m >> output.txt
+	echo "# Test [DROP TABLE names] removes all plans using names table for INSERT INTO and DELETE FROM queries too" >> output.txt
+	echo "DROP TABLE names" | octo
+	echo "# Below are plans that remain after [DROP TABLE names]" >> output.txt
+	grep -Ei "INSERT INTO|DELETE FROM|VALUES|SELECT|maintains cross reference" _ydbocto*.m >> output.txt
+	echo "# Test [DROP FUNCTION SAMEVALUE(VARCHAR)] removes all plans using SAMEVALUE function for INSERT INTO and DELETE FROM queries too" >> output.txt
+	echo "DROP FUNCTION SAMEVALUE(VARCHAR);" | octo
+	echo "# Below are plans that remain after DROP FUNCTION SAMEVALUE(VARCHAR)" >> output.txt
+	echo "# SAMEVALUE(INTEGER) function plans should show up below since only SAMEVALUE(VARCHAR) function was dropped" >> output.txt
+	grep -Ei "INSERT INTO|DELETE FROM|VALUES|SELECT|maintains cross reference" _ydbocto*.m >> output.txt
+	echo "# Test [DROP TABLE TDFT01] removes all plans using TDFT01 table for INSERT INTO and DELETE FROM queries too" >> output.txt
+	echo "DROP TABLE TDFT01" | octo
+	echo "# Verify NO plans remain now" >> output.txt
+	if compgen -G "_ydbocto*" > /dev/null; then
+		grep -Ei "INSERT INTO|DELETE FROM|VALUES|SELECT|maintains cross reference" _ydbocto*.m >> output.txt
+	fi
+	verify_output TDFT01 output.txt
+}
+
+@test "TDFT02 : OCTO54 : Test of simple DELETE FROM queries in composite database (multiple primary key columns)" {
+	load_fixture compositekey.sql
+	load_fixture compositekey.zwr
+	load_fixture TDFT02.sql subtest novv
+	echo "# Include key parts of generated M plans in reference file" >> output.txt
+	grep -Ei "DELETE FROM|VALUES|SELECT|maintains cross reference|^octoPlan|FOR|SET .ydboctocursor|------" _ydbocto*.m >> output.txt
+	verify_output TDFT02 output.txt
+}
+
+@test "TDFT03 : OCTO54 : Test various errors in DELETE FROM" {
+	load_fixture TDFT03.sql subtest novv
+	verify_output TDFT03 output.txt
+}
+
+@test "TDFT04 : OCTO54 : Test that physical plans get reused in case of repeated DELETE FROM queries" {
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TDFT04.sql .
+	echo "# Run a DELETE FROM query and a SELECT query to verify the DELETE FROM worked" > output.txt
+	octo -f TDFT04.sql >> output.txt
+	echo "# Turn off write permissions in the current directory (thereby preventing physical plans from being deleted/created)" >> output.txt
+	chmod -w .
+	echo "# Rerun the DELETE FROM and SELECT query to verify no new physical plans get created" >> output.txt
+	octo -f TDFT04.sql >> output.txt
+	echo "# We expect no errors confirming that DELETE FROM plans get reused once generated" >> output.txt
+	echo "# Turn write permissions back on in the current directory" >> output.txt
+	chmod +w .
+	verify_output TDFT04 output.txt
+}
+
+@test "TDFT05 : OCTO54 : Test that DELETE FROM builds cross references outside TSTART/TCOMMIT" {
+	load_fixture TDFT05.sql subtest novv
+	echo "# Verify that ^%ydboctoX... invocation happens BEFORE the TSTART in the generated M plan" >> output.txt
+	grep -E "DELETE|----|ydboctoX|octoPlan|TSTART|TCOMMIT" _ydboctoP*.m >> output.txt
+	verify_output TDFT05 output.txt
+}
+
+@test "TDFT06 : OCTO54 : Test TP wrapping of M plan for DELETE FROM, INSERT INTO, SELECT, VALUES and UNION/INTERSECT/EXCEPT" {
+	echo '# Test $TLEVEL (which is driven by wrapInTp parameter passed to src/aux/_ydboctoSelect.m)' >> output.txt
+	echo '#   while in generated M code for various types of SQL queries' >> output.txt
+	echo '# Expect $TLEVEL to be 1 for INSERT INTO, DELETE FROM and 0 for SELECT/VALUES etc.' >> output.txt
+	load_fixture TDFT06.sql subtest novv
+	verify_output TDFT06 output.txt
+}
+
+@test "TDFT07 : OCTO54 : Test that DELETE FROM and INSERT INTO, after xref plan files get deleted, issues ZLINKFILE error" {
+	# This subtest is similar to the test_physical_plans/TPP03 subtest.
+	echo "# Run SELECT query that generates xref plan and installs triggers which rely on the xref plan" >> output.txt
+	echo "SELECT * from names WHERE lastname = 'Cool'" | octo >> output.txt
+	echo "# Remove generated xref plans" >> output.txt
+	rm _ydboctoX*.{m,o}
+	echo "# Run INSERT INTO and DELETE FROM queries that will need the triggers (and in turn xref plan)" >> output.txt
+	echo "# They should issue a ZLINKFILE error because the xref plan does not exist anymore" >> output.txt
+	# "|| true" needed below since we expect octo to exit with a non-zero status (ZLINKFILE error)
+	octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TDFT07.sql >> output.txt 2>&1 || true
+	echo "# Now run a SELECT query. It should not issue a ZLINKFILE error because it does not need triggers" >> output.txt
+	echo "SELECT * from names;" | octo >> output.txt
+	verify_output TDFT07 output.txt
+}
+

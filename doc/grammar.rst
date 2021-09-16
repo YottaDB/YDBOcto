@@ -758,7 +758,7 @@ Example:
 
 .. code-block:: SQL
 
-   INSERT INTO Employee (ID , FirstName, LastName) [220, "Jon", "Doe"];
+   INSERT INTO Employee (ID , FirstName, LastName) VALUES (220, 'Jon', 'Doe'), (383, 'Another', 'Name');
 
 --------------
 UPDATE
@@ -781,8 +781,6 @@ Example:
 ------------
 DELETE
 ------------
-
-*(Currently not supported.)*
 
 .. code-block:: SQL
 

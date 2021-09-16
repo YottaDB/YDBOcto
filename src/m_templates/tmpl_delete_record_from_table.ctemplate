@@ -1,0 +1,93 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "octo_types.h"
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+TEMPLATE(tmpl_delete_record_from_table, PhysicalPlan *pplan, int dot_count) {
+	LogicalPlan		*lp_delete_from, *table_join, *lp_table, *lp_select_query;
+	SqlStatement		*table_stmt;
+	SqlTable		*table;
+	SqlOptionalKeyword	*keyword;
+	SqlValue		*value;
+	char			*tableName;
+
+	lp_delete_from = pplan->lp_select_query;
+	assert(LP_DELETE_FROM == lp_delete_from->type);
+	%{}`n{{ PLAN_LINE_START }}{}%
+	dot_count++;
+	TMPL(tmpl_print_dots, dot_count);
+	table_join = lp_get_table_join(lp_delete_from);
+	if (LP_SELECT_QUERY == table_join->v.lp_default.operand[0]->type) {
+		/* This is a case where the LP_TABLE got overwritten by a LP_TABLE_JOIN as part of "lp_generate_xref_plan"
+		 * (which can happen if the WHERE clause in the DELETE FROM query had a key fix condition).
+		 * In that case, find the original LP_TABLE by drilling down one level further.
+		 */
+		GET_LP(lp_select_query, table_join, 0, LP_SELECT_QUERY);
+		table_join = lp_get_table_join(lp_select_query);
+	}
+	GET_LP(lp_table, table_join, 0, LP_TABLE);
+	table_stmt = lp_table->v.lp_table.table_alias->table;
+	UNPACK_SQL_STATEMENT(table, table_stmt, create_table);
+	UNPACK_SQL_STATEMENT(value, table->tableName, value);
+	tableName = value->v.reference;
+	UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
+	UNPACK_SQL_STATEMENT(value, keyword->v, value);
+	%{}KILL {}%
+
+	SqlKey		*key;
+	int		total_keys;
+	int		iter_key_index = 0;
+
+	total_keys = pplan->total_iter_keys;
+	iter_key_index = 0;
+	key = pplan->iterKeys[0];
+	/* Skip cross reference key (if any) */
+	if (key->is_cross_reference_key) {
+		total_keys--;
+		key = pplan->iterKeys[++iter_key_index];
+		/* We expect only ONE cross reference key in the DELETE FROM query since only 1 table is involved and
+		 * currently we only xref a max of 1 non-key column in one table.
+		 */
+		assert(!key->is_cross_reference_key);
+	}
+	assert(total_keys);	/* Assert we have at least one primary key in the table we are doing the DELETE on */
+
+#	ifndef NDEBUG
+	SqlKey		*plan_key;
+	int		keys_to_match;
+
+	keys_to_match = 0;
+	for ( ; ; ) {
+		plan_key = pplan->iterKeys[iter_key_index];
+		assert(!plan_key->is_cross_reference_key);
+		if (plan_key->unique_id == key->unique_id) {
+			keys_to_match++;
+		}
+		iter_key_index++;
+		if (iter_key_index >= (int)pplan->total_iter_keys) {
+			break;
+		}
+	}
+	assert(keys_to_match == total_keys);
+#	endif
+	TMPL(tmpl_emit_source, table, value->v.string_literal, tableName, key->unique_id, total_keys, EmitSourceForm_Value);
+	%{}`n{{ PLAN_LINE_START }}{}%
+	TMPL(tmpl_print_dots, dot_count);
+	%{}IF $INCREMENT({}%
+	%{}{{ config->global_names.cursor }}(cursorId,{{ PP_ROW_COUNT }}){}%
+	%{}) ; Increment count of deleted records{}%
+}
+%{}

@@ -69,6 +69,7 @@ _ydboctoP*.o
 # Verify currently installed triggers
 
 # Run DROP FUNCTION of REPLACE
+DROP FUNCTION
 # Verify generated _ydbocto*.m and _ydbocto*.o plan files
 _ydboctoP*.m
 _ydboctoP*.o

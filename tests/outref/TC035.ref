@@ -7,6 +7,7 @@ SELECT * FROM delimnames;
 SELECT * FROM delimnames WHERE firstname = 'Zero';
 SELECT * FROM delimnames WHERE firstname != 'Zero';
 
+CREATE TABLE
 ID|FIRSTNAME|LASTNAME|MIDDLEINITIAL|AGE
 0|Zero|B|25|
 1|Acid|I|22|

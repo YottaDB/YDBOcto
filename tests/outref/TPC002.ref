@@ -8,6 +8,7 @@ ERROR:  Error with syntax near (line 1, column 14):
 ERROR:  select * from t1;
 ERROR:                ^^
 ERROR:  Error parsing statement: select * from t1;
+CREATE TABLE
   a   |  b   
 ------+------
     1 |    2
@@ -15,6 +16,7 @@ ERROR:  Error parsing statement: select * from t1;
  1337 |   42
 (3 rows)
 
+DROP TABLE
 ERROR:  Unknown table: T1
 ERROR:  Error with syntax near (line 1, column 14):
 ERROR:  select * from t1;

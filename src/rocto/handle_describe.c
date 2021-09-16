@@ -63,8 +63,8 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 		return 1;
 	}
 
-	/* Retrieve command tag to find out which type of operation SELECT, INSERT etc.
-	 * If it is for example an INSERT operation, then there is no corresponding row description even though
+	/* Retrieve command tag to find out which type of operation SELECT, INSERT INTO, DELETE FROM etc.
+	 * If it is for example an INSERT INTO operation, then there is no corresponding row description even though
 	 * there is a corresponding routine (i.e. M plan) to execute. So send a NoData message in that case.
 	 */
 	YDB_STRING_TO_BUFFER(OCTOLIT_TAG, &describe_subs[4]);
@@ -83,8 +83,9 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	}
 	switch (command_tag) {
 	case insert_STATEMENT:
+	case delete_from_STATEMENT:
 	case set_STATEMENT:
-		/* No row descriptions for INSERT or SET. Send a NoData message in that case. */
+		/* No row descriptions for INSERT INTO or DELETE FROM or SET. Send a NoData message in that case. */
 		no_data = make_no_data();
 		send_message(session, (BaseMessage *)(&no_data->type));
 		free(no_data);

@@ -7,6 +7,8 @@ ORDERS|ORDER_AMOUNT
 ORDERS|CUSTOMER_ID
 (4 rows)
 # Now run DROP TABLE command
+DROP TABLE
+DROP TABLE
 # Now run query again to verify number of columns of ORDERS table came down to 0.
 RELNAME|ATTNAME
 (0 rows)

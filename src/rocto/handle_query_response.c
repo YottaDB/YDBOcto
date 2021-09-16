@@ -248,7 +248,7 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 			parms->data_sent = TRUE;
 			return 0;
 		}
-		parms->data_sent = TRUE; /* Note: In case of INSERT INTO etc. we do not send data rows but set this
+		parms->data_sent = TRUE; /* Note: In case of INSERT INTO, DELETE FROM etc. we do not send data rows but set this
 					  * variable to TRUE even in that case as one caller function "handle_execute"
 					  * relies on this.
 					  */
@@ -270,11 +270,11 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 			}
 			// Send back row data
 			result = send_result_rows(cursorId, parms, plan_name); /* Note: updates parms.row_count */
-		} else if (insert_STATEMENT == stmt->type) {
+		} else if ((insert_STATEMENT == stmt->type) || (delete_from_STATEMENT == stmt->type)) {
 			/* It is of type INSERT INTO, DELETE FROM etc. In that case, there are no rows to send back.
 			 * Just update "parms->row_count" to reflect the number of rows inserted, deleted etc..
 			 */
-			parms->row_count = get_row_count_from_plan_name(plan_name, cursorId);
+			parms->row_count = get_row_count_from_cursorId(cursorId);
 		}
 	} else {
 		// Issue ErrorResponse expected by clients indicating a CancelRequest was processed

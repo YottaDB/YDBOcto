@@ -108,6 +108,7 @@ _ydboctoX*.o
 +^orders(keyCol0=*) -name=%ydboctoT2rbmGQx4OtlbPfepALF -commands=S,K,ZK -delim="|" -pieces=2 -xecute="DO handleSetKill^%ydboctoX2rbmGQx4OtlbPfepALF2EA"
 
 # Stage 2 : Run DROP TABLE of ORDERS
+DROP TABLE
 # Verify generated _ydbocto*.m and _ydbocto*.o plan files
 _ydboctoP*.m
 _ydboctoP*.o

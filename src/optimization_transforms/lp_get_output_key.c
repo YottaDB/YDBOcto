@@ -21,10 +21,6 @@
 LogicalPlan *lp_get_output_key(LogicalPlan *plan) {
 	LogicalPlan *t;
 
-	if (LP_INSERT_INTO == plan->type) {
-		GET_LP(plan, plan, 1, LP_INSERT_INTO_OPTIONS);
-		plan = plan->v.lp_default.operand[1];
-	}
 	if (LP_SET_OPERATION == plan->type) {
 		LogicalPlan *set_option;
 		LPActionType set_oper_type;

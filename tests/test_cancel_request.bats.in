@@ -84,22 +84,26 @@ YDB
   verify_output TCR03 triggers.txt
 }
 
-@test "TCR04 : Test cancel request works in rocto when running an INSERT INTO query and partial updates are rolled back" {
+@test "TCR04 : Test cancel request works in rocto for an INSERT INTO and DELETE FROM and partial updates are rolled back" {
+	# Create function that is used in a later DELETE FROM query in the WHERE clause to ensure it takes a long time
+	# (and hence needs to be canceled for sure).
+	load_fixture HANGTIME.sql
 	# Stop rocto as we want to bump global buffers which requires standalone access
 	stop_rocto
 	echo '# Set global buffers to 16384 to avoid TRANS2BIG errors' >> output.txt
 	mupip set -global_buffers=16384 -reg "*"
 	# Restart rocto
 	test_port=$(start_rocto 1441)
-	echo '# Test cancel request for INSERT INTO' > output.txt
+	echo '# Test cancel request for INSERT INTO and DELETE FROM' > output.txt
 	echo '# Generate names tables with 1 million rows' >> output.txt
 	$ydb_dist/yottadb -run loadbigdata "TCR04"
 	echo '# Above step also generates TCR04.sql which has an INSERT INTO query to insert 1 million new rows' >> output.txt
 	echo '# Run TCR04.sql through psql and cancel query; Expect number of rows to still be 1 million afterwards' >> output.txt
+	echo '# Run DELETE FROM names through psql and cancel query; Expect number of rows to still be 1 million afterwards' >> output.txt
 	run_psql_expect TCR04 $test_port
 	cat expect.out >> output.txt
 	echo "" >> output.txt
-	echo '# Verify no partial updates from INSERT INTO' >> output.txt
+	echo '# Verify no partial updates from INSERT INTO or DELETE FROM' >> output.txt
 	$ydb_dist/yottadb -run verify^loadbigdata >> output.txt
 	verify_output TCR04 output.txt noinfo nodebug noexpect stripreturns
 }

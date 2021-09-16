@@ -6,6 +6,7 @@ select DOLLARZWRITE(firstname) from names;
 DROP FUNCTION DOLLARZWRITE (VARCHAR);
 select DOLLARZWRITE(firstname) from names;
 
+CREATE FUNCTION
 DOLLARZWRITE
 "Zero"
 "Acid"
@@ -14,6 +15,7 @@ DOLLARZWRITE
 "Joey"
 "Zero"
 (6 rows)
+DROP FUNCTION
 [ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'DOLLARZWRITE' defined with given parameter types (VARCHAR)
 Error with syntax near (line 1, column 8):
 

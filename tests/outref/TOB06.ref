@@ -34,6 +34,7 @@ select id as c1, MODULO(id,2) as c2, MODULO(id,4) as c3, MODULO(id,2) as c4, MOD
 select id as c1, MODULO(id,3) as c2, MODULO(id,4) as c3, MODULO(id,2) as c4, MODULO(id,3) as c5 from names order by c2 desc,c3 asc,c4 desc,c5 desc;
 select id as c1, MODULO(id,3) as c2, MODULO(id,4) as c3, MODULO(id,3) as c4, MODULO(id,3) as c5 from names order by c2 desc,c3 asc,c4 desc,c5 desc;
 select id as c1, MODULO(id,3) as c2, MODULO(id,4) as c3, MODULO(id,3) as c4, MODULO(id,4) as c5 from names order by c2 desc,c3 asc,c4 desc,c5 desc;
+CREATE FUNCTION
 C1|C2
 0|0
 1|1

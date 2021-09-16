@@ -171,6 +171,8 @@ ID
 4
 5
 (6 rows)
+DROP TABLE
+CREATE TABLE
 ID
 0
 1
@@ -227,6 +229,8 @@ ID
 4
 5
 (6 rows)
+DROP TABLE
+CREATE TABLE
 ID
 0
 1
@@ -283,6 +287,21 @@ ID
 4
 5
 (6 rows)
+DROP TABLE
+CREATE TABLE
+DROP TABLE
+CREATE TABLE
+DROP TABLE
+CREATE TABLE
+DROP TABLE
+CREATE TABLE
+DROP TABLE
+CREATE TABLE
+DROP TABLE
+CREATE TABLE
+DROP TABLE
+CREATE TABLE
+DROP TABLE
 Error with syntax near (line 1, column 32):
 
 CREATE TABLE names (id INTEGER(-1) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
@@ -321,6 +340,20 @@ syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
 
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id INTEGER(abcd) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 [ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_TABLE : Cannot DROP table 'NAMES' as it does not exist
+CREATE TABLE
+DROP TABLE
+CREATE TABLE
+DROP TABLE
+CREATE TABLE
+DROP TABLE
+CREATE TABLE
+DROP TABLE
+CREATE TABLE
+DROP TABLE
+CREATE TABLE
+DROP TABLE
+CREATE TABLE
+DROP TABLE
 Error with syntax near (line 1, column 32):
 
 CREATE TABLE names (id NUMERIC(-1) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
@@ -359,6 +392,10 @@ syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
 
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(abcd) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 [ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_TABLE : Cannot DROP table 'NAMES' as it does not exist
+CREATE TABLE
+DROP TABLE
+CREATE TABLE
+DROP TABLE
 [ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_SCALE : Numeric scale 18 must be between zero(0) and precision 16
 Error with syntax near (line 1, column 31):
 
@@ -366,6 +403,8 @@ CREATE TABLE names (id NUMERIC(16,18) PRIMARY KEY, firstName VARCHAR(30), lastNa
                               ^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE names (id NUMERIC(16,18) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 [ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_TABLE : Cannot DROP table 'NAMES' as it does not exist
+CREATE TABLE
+DROP TABLE
 [ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_SCALE : Numeric scale 2047 must be between zero(0) and precision 64
 Error with syntax near (line 1, column 31):
 

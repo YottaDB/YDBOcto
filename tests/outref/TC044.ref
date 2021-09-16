@@ -4,5 +4,6 @@
 -- TC044 : OCTO575 : Octo CREATE TABLE naively creates invalid GVNs from table names
 CREATE TABLE information_schema.testeroni (tester VARCHAR);
 SELECT * FROM information_schema.testeroni;
+CREATE TABLE
 TESTER
 (0 rows)

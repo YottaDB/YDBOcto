@@ -205,7 +205,8 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	switch (parse_context.command_tag) {
 	case select_STATEMENT:
 	case insert_STATEMENT:
-		/* Queries containing SELECT and INSERT have plans to execute so continue processing */
+	case delete_from_STATEMENT:
+		/* Queries of type SELECT, INSERT INTO, DELETE FROM have plans to execute so continue processing */
 		break;
 	case set_STATEMENT:
 	case show_STATEMENT:

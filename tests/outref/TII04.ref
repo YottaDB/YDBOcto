@@ -234,6 +234,7 @@ ID0|ID1|ID2|ID3|ID4|ID5|ID6|ID7|NAME
 ???
 -- Test that VARCHAR(4) allows character strings shorter than 4 chars to be stored without space padding at end
 (1 row)
+CREATE TABLE
 INSERT 0 1
 INSERT 0 1
 INSERT 0 1
@@ -242,34 +243,40 @@ COLUMN1
 |ab|
 |a|
 (3 rows)
+DROP TABLE
 ???
 
 (1 row)
 ???
 -- Test that VARCHAR(4) allows 7 character strings to be stored if last 3 characters are spaces
 (1 row)
+CREATE TABLE
 INSERT 0 1
 INSERT 0 1
 COLUMN1
 |abcd|
 |abc |
 (2 rows)
+DROP TABLE
 ???
 
 (1 row)
 ???
 -- Test that an over length value when typecast to varchar(N) will be truncated to N characters without an error
 (1 row)
+CREATE TABLE
 INSERT 0 1
 COLUMN1
 |ab|
 (1 row)
+DROP TABLE
 ???
 
 (1 row)
 ???
 -- Test that excess digits to right of decimal point in NUMERIC(PRECISION,SCALE) column are discarded without an error
 (1 row)
+CREATE TABLE
 INSERT 0 1
 INSERT 0 1
 INSERT 0 1
@@ -286,3 +293,4 @@ COLUMN1
 9.5
 -9.5
 (7 rows)
+DROP TABLE

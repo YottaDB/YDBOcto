@@ -10,6 +10,7 @@ INSERT INTO namesXfer (SELECT * FROM names WHERE lastName IS NOT NULL);
 SELECT * FROM namesXfer;
 DROP TABLE namesXfer;
 
+CREATE TABLE
 INSERT 0 5
 ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
@@ -18,3 +19,4 @@ ID|FIRSTNAME|LASTNAME
 3|Lord|Nikon
 5|Zero|Cool
 (5 rows)
+DROP TABLE

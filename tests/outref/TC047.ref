@@ -25,6 +25,7 @@ SELECT * from tmp5;
 ???
 -- Simple test case first
 (1 row)
+CREATE TABLE
 ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 1|Acid|Burn
@@ -36,6 +37,7 @@ ID|FIRSTNAME|LASTNAME
 ???
 -- Test for READONLY with user specified primary key columns
 (1 row)
+CREATE TABLE
 ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 1|Acid|Burn
@@ -47,6 +49,7 @@ ID|FIRSTNAME|LASTNAME
 ???
 -- Test for READONLY with no user specified primary key columns
 (1 row)
+CREATE TABLE
 ID
 0
 1
@@ -58,6 +61,7 @@ ID
 ???
 -- Test for READWRITE with user specified primary key columns
 (1 row)
+CREATE TABLE
 ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 1|Acid|Burn
@@ -69,6 +73,7 @@ ID|FIRSTNAME|LASTNAME
 ???
 -- Test for READWRITE with no user specified primary key columns
 (1 row)
+CREATE TABLE
 FIRSTANDLASTNAME
 Zero|Cool
 Acid|Burn

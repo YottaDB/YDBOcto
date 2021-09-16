@@ -33,21 +33,13 @@ optional_query_words
       dqappend(keyword, ($$)->v.keyword);
     }
   | /* Empty */ {
-      SQL_STATEMENT($$, keyword_STATEMENT);
-      OCTO_CMALLOC_STRUCT(($$)->v.keyword, SqlOptionalKeyword);
-      ($$)->v.keyword->keyword = NO_KEYWORD;
-      ($$)->v.keyword->v = NULL;
-      dqinit(($$)->v.keyword);
+      $$ = alloc_no_keyword();
     }
   ;
 
  optional_query_word_tail
   : /* Empty */ {
-      SQL_STATEMENT($$, keyword_STATEMENT);
-      OCTO_CMALLOC_STRUCT(($$)->v.keyword, SqlOptionalKeyword);
-      ($$)->v.keyword->keyword = NO_KEYWORD;
-      ($$)->v.keyword->v = NULL;
-      dqinit(($$)->v.keyword);
+      $$ = alloc_no_keyword();
     }
   | COMMA optional_query_words { $$ = $COMMA; }
   ;

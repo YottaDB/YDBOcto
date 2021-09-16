@@ -343,7 +343,8 @@ END
 	echo "# Run [yottadb -run TC031] to generate input.sql" > output.txt
 	$ydb_dist/yottadb -run TC031 > input.sql
 	echo "# Run [octo -f input.sql] and verify no SIG-11 etc." >> output.txt
-	octo -f input.sql >> output.txt 2>&1
+	# The above produces lots of 'CREATE TABLE' output. Don't want to keep that in the reference file so filter that out.
+	octo -f input.sql | grep -v 'CREATE TABLE' >> output.txt || true 2>&1
 	verify_output TC031 output.txt
 }
 
@@ -599,7 +600,8 @@ OCTO
 	echo "Exit Status:" $? | tee -a output.txt
 	# Check that we unlock properly
 	$ydb_dist/yottadb -run %XCMD 'for i=1:1:512 write "CREATE TABLE IF NOT EXISTS Customers (CustomerID INTEGER PRIMARY KEY);",!' > lock.sql
-	octo -f lock.sql &>> output.txt # should not error.
+	# The above produces lots of 'CREATE TABLE' output. Don't want to keep that in the reference file so filter that out.
+	octo -f lock.sql | grep -v 'CREATE TABLE' || true &>> output.txt # should not error.
 	verify_output TC048 output.txt
 }
 

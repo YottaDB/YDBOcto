@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -20,7 +20,21 @@ setup() {
 }
 
 @test "TVC01 : OCTO502 : Implement VALUES clause (aka table-value-constructor)" {
+	echo "# Load SAMEVALUE function (used in TVC01.sql) in Octo and Postgres" >> output.txt
+	load_fixture "QueryGenerator.sql"
+	load_postgres_fixture names postgres-QueryGenerator.sql
+	echo "# Run cross check" >> output.txt
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TVC01.sql
+	echo "# Test [DROP TABLE names] removes all plans using names table for VALUES queries too" >> output.txt
+	echo "DROP TABLE NAMES" | octo
+	echo "# Below are plans that remain after DROP TABLE names" >> output.txt
+	grep -Ei "VALUES|SELECT|maintains cross reference" _ydbocto*.m >> output.txt
+	echo "# Test [DROP FUNCTION SAMEVALUE(INTEGER)] removes all plans using SAMEVALUE function for VALUES queries too" >> output.txt
+	echo "DROP FUNCTION SAMEVALUE(INTEGER);" | octo
+	echo "# Below are plans that remain after DROP FUNCTION SAMEVALUE(INTEGER)" >> output.txt
+	echo "# SAMEVALUE(NUMERIC) function plans should show up below since only SAMEVALUE(INTEGER) function was dropped" >> output.txt
+	grep -Ei "VALUES|SELECT|maintains cross reference" _ydbocto*.m >> output.txt
+	verify_output TVC01 output.txt
 }
 
 @test "TVC02 : OCTO502 : Verify VALUES clause results in no unnecessary physical plans" {
@@ -29,3 +43,4 @@ setup() {
 	grep -E "VALUES|SELECT|octoPlan|--------" _ydboctoP*.m >> output.txt
 	verify_output TVC02 output.txt
 }
+

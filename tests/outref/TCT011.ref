@@ -23,6 +23,7 @@ select * from names where firstname::boolean = id;
 select id-2*(id/2::bool) from names;
 select id-2*((id/2)::boolean) from names;
 
+CREATE FUNCTION
 ID|ABS
 0|2
 1|2

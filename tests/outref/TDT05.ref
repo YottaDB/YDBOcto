@@ -12,6 +12,8 @@ CREATE TABLE `NAMES` (`ID` INTEGER PRIMARY KEY, `FIRSTNAME` VARCHAR(30) PIECE 1,
 DROP TABLE names;
 DROP TABLE nameswithages;
 
+DROP TABLE
+DROP TABLE
 # Verify ^names still exists (READONLY) or not (READWRITE)
 $DATA(^names) = 10
 # CREATE TABLE NAMES with READWRITE tabletype
@@ -25,11 +27,15 @@ CREATE TABLE `NAMES` (`ID` INTEGER PRIMARY KEY, `FIRSTNAME` VARCHAR(30) PIECE 1,
 DROP TABLE names;
 DROP TABLE nameswithages;
 
+DROP TABLE
+DROP TABLE
 
 -- TDT05 : OCTO502 : DROP TABLE on READWRITE table does a KILL of the underlying GVN storing the table data
 
 DROP TABLE names;
 DROP TABLE nameswithages;
 
+DROP TABLE
+DROP TABLE
 # Verify ^names still exists (READONLY) or not (READWRITE)
 $DATA(^names) = 0

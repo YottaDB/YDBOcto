@@ -9,6 +9,7 @@ DROP FUNCTION ABS (VARCHAR);
 DROP FUNCTION ABS (INTEGER);
 
 [ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_DROP_FUNCTION : Cannot DROP function 'ABS(VARCHAR)': no function defined with given name and parameter types
+DROP FUNCTION
 Remaining function definitions (hashes):
 --> Found: ^%ydboctoocto("functions","ABS","%ydboctoF0BXSKYtCkTUXzFwpivpB68")
 Successfully deleted function "ABS" from pg_catalog.pg_proc

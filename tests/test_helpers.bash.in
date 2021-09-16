@@ -195,8 +195,14 @@ PSQL
 }
 
 load_postgres_fixture() {
-	# Create a Postgres table and load data in it. But if the table already exists, do nothing.
-	# The way we achieve this is by setting "ON_ERROR_STOP" to "on" before doing the "CREATE TABLE".
+	# Check if $1 is a valid Postgres database name first. Do this separately as the next step has a "|| true"
+	# to account for ON_ERROR_STOP and we do not want errors from a non-existent table name to be swallowed there.
+	# See https://stackoverflow.com/a/16783253 for more details on the below.
+	# If a database with name $1 does not exist, the below step would set $? to 1 and bats would exit right here with an error.
+	psql -lqt | cut -d \| -f 1 | grep -qw $1
+	# Now that we know $1 is a valid table, run the file $2 that creates tables and loads data for the database $1.
+	# If the table already exists, we want to do nothing here.
+	# The way we achieve this is by setting "ON_ERROR_STOP" to "on" before doing the "CREATE TABLE" inside the $2 file.
 	# This way the "CREATE TABLE" will fail if the table already exists and we will skip the INSERT commands.
 	# An alternative way to avoid the "ON_ERROR_STOP" is to "DROP TABLE IF EXISTS" first and then run the "CREATE TABLE".
 	# But this has the issue that any table privileges that were added for multiple users will get removed and have to be
@@ -701,7 +707,6 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 	# Init
 	database="$1"
 	queryfile="$2"
-	jdbcprotocol=usesimple
 	psql_port="5432"
 	local num_clients
 	# psql errors will never have the same output as octo errors, so they cannot be used in crosscheck.
@@ -720,7 +725,6 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 		psql_cmd="psql -v ON_ERROR_STOP=1"
 		num_clients=3
 	fi
-
 	# Process parameters
 	for i in "$@"; do
 		if [[ $i == "trim_trailing_zeroes" ]]; then
@@ -736,14 +740,15 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 			randclientstr="OCTO"
 		fi
 	done
-	if [[ ! -f $queryfile ]]; then
-		if [[ ! -f @PROJECT_SOURCE_DIR@/tests/fixtures/$queryfile ]]; then
-			echo "Query file: $queryfile doesn't exist"
-			exit 1
+	if [[ ($usejdbc == "usejdbc") && ("$jdbcprotocol" == "") ]]; then
+		# Randomly choose simple or extended query protocol
+		jdbcprotocol=$(( $RANDOM % 2))
+		if [[ $jdbcprotocol == 0 ]]; then
+			jdbcprotocol=usesimple
+		else
+			jdbcprotocol=useextended
 		fi
-		cp @PROJECT_SOURCE_DIR@/tests/fixtures/$queryfile .
 	fi
-	fname=`echo $queryfile | sed 's/\..*//g'`
 	if [[ $randclientstr != "OCTO" && $usejdbc != "usejdbc" ]]; then
 		# Randomly select client
 		randclient=$(( $RANDOM % $num_clients))
@@ -778,6 +783,14 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 	echo "Cross check parameters:" >> dbg_env.out
 	echo "postgres_version:$postgres_version randclient:$randclientstr usejdbc:$usejdbc jdbcprotocol:$jdbcprotocol" >> dbg_env.out
 
+	if [[ ! -f $queryfile ]]; then
+		if [[ ! -f @PROJECT_SOURCE_DIR@/tests/fixtures/$queryfile ]]; then
+			echo "Query file: $queryfile doesn't exist"
+			exit 1
+		fi
+		cp @PROJECT_SOURCE_DIR@/tests/fixtures/$queryfile .
+	fi
+	fname=`echo $queryfile | sed 's/\..*//g'`
 	# Prepare query file/files for execution
 	if [[ $randclientstr == "JDBC" || $usejdbc == "usejdbc" ]]; then
 		# Remove commented instructions like -- sort-needed-check or -- rowcount-only-check
@@ -806,19 +819,16 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 }
 
 run_query_in_octo_and_postgres_and_crosscheck() {
-	if [[ $randclientstr == "JDBC" || $usejdbc == "usejdbc" ]]; then
-		local fname="$1"
-	else
-		query_file="$1"
-		local fname=`echo $query_file | sed 's/\..*//g'`
-	fi
 	if [[ $usejdbc == "usejdbc" || $randclientstr == "JDBC" ]]; then
+		local fname="$1"
 		run_java run_multiple_query_files $psql_port "$fname"_nocomment- "$jdbcprotocol" ".psql.out" $database
 		run_java run_multiple_query_files $test_port "$fname"_nocomment- "$jdbcprotocol" ".octo.out"
 		local query_file
 		for nocomment_query_file in "$fname"_nocomment-*.sql
 		do
-			# Postgres displays boolean values as t and f whereas Octo displays them as 1 and 0 so fix that before the diff.
+			# Note that "run_multiple_query_files.java" produces output even for DML/DDL commands (e.g. INSERT INTO)
+			# and not just for "SELECT" so it is safe to assume that the *.psql.out and *.octo.out files exist.
+			# Postgres displays boolean values as t/f whereas Octo displays them as 1/0 so fix that before the diff.
 			cat $nocomment_query_file.psql.out | sed 's/\<t\>/1/g;s/\<f\>/0/g;' >& $nocomment_query_file.ref
 			query_num=`echo $nocomment_query_file | sed 's/.*_nocomment-//g'`
 			query_file="$fname"_comment-"$query_num"
@@ -827,17 +837,31 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 			run_query_verify $query_file $nocomment_query_file
 		done
 	else
-		$psql_cmd --no-align $database -f $query_file >& $fname.psql.out
+		query_file="$1"
+		local fname=`echo $query_file | sed 's/\..*//g'`
+		# Additionally, DROP TABLE IF EXISTS queries issue a NOTICE that the table does not exist. We do not want this
+		# as it makes comparing Postgres vs Octo output harder so disable that using the PGOPTIONS variable below.
+		PGOPTIONS='--client-min-messages=warning' $psql_cmd --no-align $database -f $query_file >& $fname.psql.out
 		# Postgres displays boolean values as t and f whereas Octo displays them as 1 and 0 so fix that before the diff.
-		tail -n +2 $fname.psql.out | sed 's/\<t\>/1/g;s/\<f\>/0/g;' >& $fname.ref
 		if [[ $randclientstr == "PSQL" ]]; then
 			run_psql $test_port $query_file --no-align > $fname.octo.out.tmp 2> $fname.octo.out.err
 		else
 			# OCTO
 			octo -f $query_file >& $fname.octo.out.tmp
 		fi
-		# trim header and footer information from octo output for effective comparison
-		tail -n +2 $fname.octo.out.tmp | sed 's/\<t\>/1/g;s/\<f\>/0/g;' &> $fname.octo.out
+		# If it is a SELECT or VALUES query, then trim header information from Postgres and Octo output for effective
+		# comparison. This is because the column names in the select column list might not match between Octo and Postgres
+		# most of the times (sometimes they might match, but be in different case etc.). Note that SET operations might
+		# start with "(SELECT ...) UNION (...)" therefore you need to also check for "(select" below.
+		# For all other queries like DROP TABLE, CREATE TABLE, INSERT INTO, DELETE FROM, no need to do this trimming.
+		querytype=`awk 'NR==1 {print tolower($1);}' $query_file`
+		if [[ "select" == $querytype || "(select" == $querytype || "values" == $querytype ]]; then
+			tail -n +2 $fname.octo.out.tmp | sed 's/\<t\>/1/g;s/\<f\>/0/g;' &> $fname.octo.out
+			tail -n +2 $fname.psql.out | sed 's/\<t\>/1/g;s/\<f\>/0/g;' &> $fname.ref
+		else
+			sed 's/\<t\>/1/g;s/\<f\>/0/g;' $fname.octo.out.tmp &> $fname.octo.out
+			sed 's/\<t\>/1/g;s/\<f\>/0/g;' $fname.psql.out >& $fname.ref
+		fi
 		run_query_verify $query_file $fname
 	fi
 	return

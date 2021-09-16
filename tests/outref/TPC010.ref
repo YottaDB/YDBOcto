@@ -1,3 +1,4 @@
+CREATE TABLE
  id | firstname | lastname | middleinitial | age 
 ----+-----------+----------+---------------+-----
   0 | Zero      | Cool     | B             |  25

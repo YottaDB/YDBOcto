@@ -18,7 +18,8 @@ PhysicalPlan *allocate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *pla
 	PhysicalPlan *pplan;
 
 	OCTO_CMALLOC_STRUCT(pplan, PhysicalPlan);
-	assert((LP_SELECT_QUERY == plan->type) || (LP_TABLE_VALUE == plan->type) || (LP_INSERT_INTO == plan->type));
+	assert((LP_SELECT_QUERY == plan->type) || (LP_TABLE_VALUE == plan->type) || (LP_INSERT_INTO == plan->type)
+	       || (LP_DELETE_FROM == plan->type));
 	plan->extra_detail.lp_select_query.physical_plan = pplan;
 	assert(NULL == pplan->prev);
 	pplan->lp_select_query = plan;

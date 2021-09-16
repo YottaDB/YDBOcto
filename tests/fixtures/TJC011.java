@@ -28,7 +28,7 @@ public class TJC011 {
 		String connectionString = "jdbc:postgresql://localhost:" + args[0] + "/";
 		try (Connection conn = DriverManager.getConnection(connectionString, props)) {
 			if (conn != null) {
-				String[]		queryStrings = new String[11];
+				String[]		queryStrings = new String[12];
 				PreparedStatement	preparedStatement;
 				ResultSet		resultSet;
 				ResultSetMetaData	resultSetMetaData ;
@@ -45,6 +45,8 @@ public class TJC011 {
 				queryStrings[numQueries++] = "insert into names select id+6,firstname,lastname from names;";
 				// Verify though that the INSERT INTO works fine by doing a SELECT afterwards
 				queryStrings[numQueries++] = "select * from names where firstname = 'Zero';";
+				// Run DELETE FROM query too to confirm max row limit does not affect it (just like INSERT INTO)
+				queryStrings[numQueries++] = "delete from names where id > 5;";
 				// Check if SHOW command with default value works
 				queryStrings[numQueries++] = "show DateStyle;";
 				queryStrings[numQueries++] = "show transaction_isolation;";
@@ -59,7 +61,8 @@ public class TJC011 {
 					switch(query) {
 						case 0:
 						case 3:
-							// Run queries 0 and 3 with maximum row-count limit of 3
+						case 5:
+							// Run queries 0, 3 and 5 with maximum row-count limit of 3
 							rowLimit = 3;
 							break;
 						case 2:

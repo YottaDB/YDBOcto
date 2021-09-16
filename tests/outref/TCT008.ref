@@ -6,6 +6,8 @@ CREATE FUNCTION DOLLARREV(INTEGER) RETURNS VARCHAR AS $REVERSE;
 select DOLLARZWRITE(id)::integer from names limit 1;
 select DOLLARREV(id)::integer from names limit 1;
 
+CREATE FUNCTION
+CREATE FUNCTION
 DOLLARZWRITE
 0
 (1 row)

@@ -15,10 +15,11 @@
 #include "template_helpers.h"
 
 TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName, char *columnName) {
-	boolean_t	distinct_processed;
+	boolean_t	distinct_processed, is_delete_from;
 
-	assert(NULL != plan->outputKey);
-	if (plan->outputKey->is_cross_reference_key) {
+	is_delete_from = (LP_DELETE_FROM == plan->lp_select_query->type);
+	assert((NULL != plan->outputKey) || is_delete_from);
+	if (!is_delete_from && (plan->outputKey->is_cross_reference_key)) {
 		/* Simplest case. Finish it first */
  		LogicalPlan		*col1, *col2_onwards;
 
@@ -97,8 +98,13 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 		TMPL(tmpl_tablejoin_body_group_by, plan, dot_count);
 		return;
 	}
-	// Populate records in the output key (i.e. SELECT column list)
-	TMPL(tmpl_populate_output_key, plan, dot_count);
+	if (!is_delete_from) {
+		// Populate records in the output key (i.e. SELECT column list)
+		TMPL(tmpl_populate_output_key, plan, dot_count);
+	} else {
+		// Generate code to delete record from the table
+		TMPL(tmpl_delete_record_from_table, plan, dot_count);
+	}
 	return;
 }
 %{}

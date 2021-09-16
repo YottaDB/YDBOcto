@@ -62,11 +62,11 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 		select = lp_get_select(root);
 		GET_LP(criteria, select, 1, LP_CRITERIA);
 		GET_LP(keys, criteria, 0, LP_KEYS);
-		// Drill down to the bottom of the keys
+		// Drill down to the tail end of the linked list of keys that have already been allocated.
 		while (NULL != keys->v.lp_default.operand[1]) {
 			GET_LP(keys, keys, 1, LP_KEYS);
 		}
-		// If we drilled down somewhat, make sure we start on a fresh "key"
+		// Malloc the keys corresponding to this LP_TABLE/LP_TABLE_VALUE and APPEND them to the end of the linked list.
 		if (NULL != keys->v.lp_default.operand[0]) {
 			MALLOC_LP_2ARGS(keys->v.lp_default.operand[1], LP_KEYS);
 			keys = keys->v.lp_default.operand[1];
@@ -123,7 +123,8 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	if (NULL == plan)
 		return NULL;
 
-	if (LP_SET_OPERATION == plan->type) {
+	switch (plan->type) {
+	case LP_SET_OPERATION:
 		plan->v.lp_default.operand[1]->v.lp_default.operand[0]
 		    = optimize_logical_plan(plan->v.lp_default.operand[1]->v.lp_default.operand[0]);
 		if (NULL == plan->v.lp_default.operand[1]->v.lp_default.operand[0]) {
@@ -135,7 +136,8 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			return NULL;
 		}
 		return plan;
-	} else if (LP_INSERT_INTO == plan->type) {
+		break;
+	case LP_INSERT_INTO:; /* semicolon for empty statement so we can declare variables in case block */
 		LogicalPlan *lp_insert_into_options, *lp_ret;
 
 		/* For an INSERT INTO, we only need to optimize the SELECT query (source of the INSERT INTO) */
@@ -146,14 +148,20 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 		}
 		lp_insert_into_options->v.lp_default.operand[1] = lp_ret;
 		return plan;
-	} else if (LP_TABLE_VALUE == plan->type) {
+		break;
+	case LP_TABLE_VALUE:
 		/* VALUES clause. Nothing to optimize here. Note that it is possible one or more sub-queries are specified
 		 * in the data across multiple rows/columns. "optimize_logical_plan()" would be invoked for those sub-queries
 		 * separately as part of "lp_generate_where()" processing.
 		 */
 		return plan;
+	case LP_DELETE_FROM:
+		break;
+	default:
+		assert(LP_SELECT_QUERY == plan->type);
+		break;
 	}
-	assert(LP_SELECT_QUERY == plan->type);
+	assert((LP_SELECT_QUERY == plan->type) || (LP_DELETE_FROM == plan->type));
 	/* First focus on the WHERE clause. Before any key fixing can be done, expand the WHERE clause into disjunctive normal form
 	 * (DNF expansion) as that is what enables key fixing.
 	 */
@@ -192,31 +200,35 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 				dqappend(keywords, new_keyword);
 			}
 			p = lp_copy_plan(plan);
-			/* After a new copy of the logical plan has been created, check for any ORDER BY COLUMN NUM N usages
-			 * in prior plan (in that case the Nth LP_COLUMN_LIST plan list under LP_ORDER_BY would point to the
-			 * exact same Nth logical plan under the LP_COLUMN_LIST under LP_PROJECT). If present, that connection
-			 * would have been severed by the "lp_copy_plan()" call as each LP_COLUMN_LIST under LP_ORDER_BY
-			 * and LP_PROJECT would have been copied over to different memory. Re-establish the connection.
-			 */
-			assert(LP_SELECT_QUERY == p->type);
+			assert((LP_SELECT_QUERY == p->type) || (LP_DELETE_FROM == p->type));
+			if (LP_SELECT_QUERY == p->type) {
+				/* After a new DNF copy of the LP_SELECT_QUERY logical plan has been created, check for any
+				 * ORDER BY COLUMN NUM N usages in prior plan (in that case the Nth LP_COLUMN_LIST plan list under
+				 * LP_ORDER_BY would point to the exact same Nth logical plan under the LP_COLUMN_LIST under
+				 * LP_PROJECT). If present, that connection would have been severed by the "lp_copy_plan()" call as
+				 * each LP_COLUMN_LIST under LP_ORDER_BY and LP_PROJECT would have been copied over to different
+				 * memory. Re-establish the connection.
+				 */
+				LogicalPlan *output;
 
-			LogicalPlan *output;
-			GET_LP(output, p, 1, LP_OUTPUT);
-			if (NULL != output->v.lp_default.operand[1]) {
-				LogicalPlan *order_by, *project, *select_column_list;
+				GET_LP(output, p, 1, LP_OUTPUT);
+				if (NULL != output->v.lp_default.operand[1]) {
+					LogicalPlan *order_by, *project, *select_column_list;
 
-				GET_LP(order_by, output, 1, LP_ORDER_BY);
-				GET_LP(project, p, 0, LP_PROJECT);
-				GET_LP(select_column_list, project, 0, LP_COLUMN_LIST);
-				while (NULL != order_by) {
-					if (order_by->extra_detail.lp_order_by.order_by_column_num) {
-						/* This is an ORDER BY COLUMN NUM N case. Handle it. */
-						LogicalPlan *nth_column_list;
-						nth_column_list = lp_get_col_num_n_in_select_column_list(
-						    select_column_list, order_by->extra_detail.lp_order_by.order_by_column_num);
-						order_by->v.lp_default.operand[0] = nth_column_list;
+					GET_LP(order_by, output, 1, LP_ORDER_BY);
+					GET_LP(project, p, 0, LP_PROJECT);
+					GET_LP(select_column_list, project, 0, LP_COLUMN_LIST);
+					while (NULL != order_by) {
+						if (order_by->extra_detail.lp_order_by.order_by_column_num) {
+							/* This is an ORDER BY COLUMN NUM N case. Handle it. */
+							LogicalPlan *nth_column_list;
+							nth_column_list = lp_get_col_num_n_in_select_column_list(
+							    select_column_list,
+							    order_by->extra_detail.lp_order_by.order_by_column_num);
+							order_by->v.lp_default.operand[0] = nth_column_list;
+						}
+						order_by = order_by->v.lp_default.operand[1];
 					}
-					order_by = order_by->v.lp_default.operand[1];
 				}
 			}
 			child_where = lp_get_select_where(p);

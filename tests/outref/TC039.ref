@@ -1,5 +1,6 @@
 # Run [yottadb -run TC039] to generate input.sql
 # Run [octo -f input.sql] and verify no SIG-11 etc.
+CREATE TABLE
 ------------------------------------------------------------------------------------------------
 # Validate that long DDL definitions are correctly fragmented and retrieved
 # Do this by causing a difference in FMT_PLAN_DEFINITION to force retrieval after initial storage

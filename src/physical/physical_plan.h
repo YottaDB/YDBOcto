@@ -80,7 +80,7 @@ typedef struct PhysicalPlan {
 	SetOperType *	     set_oper_list;	  /* Linked list of SET OPERATIONS to do on this plan at the end */
 	struct PhysicalPlan *dnf_prev, *dnf_next; /* Linked list of plans that are at the same LP_SET_DNF level */
 	LogicalPlan *	     lp_select_query;	  /* The owning LP_SELECT_QUERY or LP_TABLE_VALUE or LP_INSERT_INTO
-						   * logical plan corresponding to this physical plan.
+						   * or LP_DELETE_FROM logical plan corresponding to this physical plan.
 						   */
 	struct PhysicalPlan *dependent_plans_end; /* Points to the last physical plan that was added to the linked list of
 						   * physical plans as part of the "generate_physical_plan()" that first
@@ -98,6 +98,7 @@ typedef struct PhysicalPlan {
 #define IS_GROUP_BY_PLAN(PLAN) (PLAN->aggregate_function_or_group_by_specified)
 
 #define IS_INSERT_INTO_PHYSICAL_PLAN(PPLAN) ((NULL != PPLAN->lp_select_query) && (LP_INSERT_INTO == PPLAN->lp_select_query->type))
+#define IS_DELETE_FROM_PHYSICAL_PLAN(PPLAN) ((NULL != PPLAN->lp_select_query) && (LP_DELETE_FROM == PPLAN->lp_select_query->type))
 #define HYPHEN_LINE			    "---------------------------------------------------------"
 
 // This provides a convenient way to pass options to subplans

@@ -36,6 +36,7 @@ SELECT * from names3;
 SELECT * from names3 WHERE firstname = 'first|1';
 SELECT * from names3 WHERE firstname = 'second|2';
 
+CREATE TABLE
 ID|FIRSTNAME|LASTNAME
 0|Zero|Cool|Cool
 1|Acid|Burn|Burn
@@ -44,6 +45,7 @@ ID|FIRSTNAME|LASTNAME
 4|Joey||
 5|Zero|Cool|Cool
 (6 rows)
+CREATE TABLE
 ID|FIRSTNAME|LASTNAME
 0|Zero|Cool|Cool
 1|Acid|Burn|Burn
@@ -52,6 +54,7 @@ ID|FIRSTNAME|LASTNAME
 4|Joey||
 5|Zero|Cool|Cool
 (6 rows)
+CREATE TABLE
 ID|FIRSTNAME
 1|first|1
 2|second|2

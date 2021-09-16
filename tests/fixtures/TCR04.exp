@@ -30,19 +30,34 @@ set queryfile [open "$queryfilename" r]
 set query [read $queryfile]
 # Send first query which is the INSERT INTO query
 send "$query"
-
 # get back to small timeout since we want the below to timeout so we can continue with canceling the query
 set timeout 2
+puts "# Wait for 2 seconds to pass"
 expect timeout
-
 puts "# Send interrupt to trigger cancel request"
 send \x03
+# Get back to original timeout now that we are done with the 2 second hang
+set timeout 60
+expect -re ".*Cancel request sent\r\n"
+expect -re "ERROR:  canceling statement due to user request\r\nydb=. "
+
+puts "# Run DELETE FROM query that takes a long time to run so we can Ctrl-C it and verify if CancelRequest processing occurs"
+# We invoke HANGTIME below to return the "firstname" column but after sleeping for 1 second that way we ensure the DELETE FROM
+# query will end up requiring million seconds to run (1 second for each row) and hence will be canceled for sure after
+# a timeout of 2 seconds.
+send "DELETE FROM names WHERE lastname = HANGTIME(firstname,1);\r"
+# get back to small timeout since we want the below to timeout so we can continue with canceling the query
+set timeout 2
+puts "# Wait for 2 seconds to pass before canceling query"
+expect timeout
+puts "# Send interrupt to trigger cancel request"
+send \x03
+# Get back to original timeout now that we are done with the 2 second hang
+set timeout 60
 expect -re ".*Cancel request sent\r\n"
 expect -re "ERROR:  canceling statement due to user request\r\nydb=. "
 
 puts "# Run another query to verify queries after a Ctrl-C of INSERT INTO work fine and canceled query left db in clean state"
-# Bump timeout back to a high value to avoid failures in case next query (that is not canceled) takes more than 2 seconds to run
-set timeout 60
 send -- "select count(*) from names;\r"
 expect -re ".*ydb=. "
 send "\\q\r"

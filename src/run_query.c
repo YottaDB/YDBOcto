@@ -200,6 +200,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 	case table_alias_STATEMENT:
 	case set_operation_STATEMENT:
 	case insert_STATEMENT:
+	case delete_from_STATEMENT:
 		TRACE(INFO_ENTERING_FUNCTION, "hash_canonical_query");
 		INVOKE_HASH_CANONICAL_QUERY(state, result, status); /* "state" holds final hash */
 		if (0 != status) {
@@ -245,7 +246,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			break;
 		default:
 			/* Read-write query */
-			assert(insert_STATEMENT == result_type);
+			assert((insert_STATEMENT == result_type) || (delete_from_STATEMENT == result_type));
 			wrapInTp = TRUE;
 			break;
 		}
@@ -348,6 +349,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 				} else {
 					/* The DROP TABLE statement specifies IF EXISTS. Issue info message. */
 					INFO(INFO_TABLE_DOES_NOT_EXIST, tablename);
+					PRINT_COMMAND_TAG(DROP_TABLE_COMMAND_TAG);
 					CLEANUP_AND_RETURN_WITH_SUCCESS(memory_chunks, buffer, spcfc_buffer, query_lock,
 									&cursor_ydb_buff);
 				}
@@ -439,6 +441,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 					} else {
 						/* The CREATE TABLE statement specifies IF NOT EXISTS. Issue info message. */
 						INFO(INFO_TABLE_ALREADY_EXISTS, tablename);
+						PRINT_COMMAND_TAG(CREATE_TABLE_COMMAND_TAG);
 						CLEANUP_AND_RETURN_WITH_SUCCESS(memory_chunks, buffer, spcfc_buffer, query_lock,
 										&cursor_ydb_buff);
 					}
@@ -494,6 +497,11 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			assert(NULL == null_query_lock);
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, null_query_lock,
 							 &cursor_ydb_buff);
+		}
+		if (drop_table_STATEMENT == result_type) {
+			PRINT_COMMAND_TAG(DROP_TABLE_COMMAND_TAG);
+		} else {
+			PRINT_COMMAND_TAG(CREATE_TABLE_COMMAND_TAG);
 		}
 		release_query_lock = FALSE; /* Set variable to FALSE so we do not try releasing same lock later */
 		break;			    /* OCTO_CFREE(memory_chunks) will be done after the "break" */
@@ -582,6 +590,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 				} else {
 					/* The DROP FUNCTION statement specifies IF EXISTS. Issue info message. */
 					INFO(INFO_FUNCTION_DOES_NOT_EXIST, fn_name);
+					PRINT_COMMAND_TAG(DROP_FUNCTION_COMMAND_TAG);
 					CLEANUP_AND_RETURN_WITH_SUCCESS(memory_chunks, buffer, spcfc_buffer, query_lock,
 									&cursor_ydb_buff);
 				}
@@ -606,6 +615,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 					} else {
 						/* The CREATE FUNCTION statement specifies IF NOT EXISTS. Issue info message. */
 						INFO(INFO_FUNCTION_ALREADY_EXISTS, fn_name);
+						PRINT_COMMAND_TAG(CREATE_FUNCTION_COMMAND_TAG);
 						CLEANUP_AND_RETURN_WITH_SUCCESS(memory_chunks, buffer, spcfc_buffer, query_lock,
 										&cursor_ydb_buff);
 					}
@@ -698,6 +708,11 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			assert(NULL == null_query_lock);
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, null_query_lock,
 							 &cursor_ydb_buff);
+		}
+		if (drop_function_STATEMENT == result_type) {
+			PRINT_COMMAND_TAG(DROP_FUNCTION_COMMAND_TAG);
+		} else {
+			PRINT_COMMAND_TAG(CREATE_FUNCTION_COMMAND_TAG);
 		}
 		release_query_lock = FALSE; /* Set variable to FALSE so we do not try releasing same lock later */
 		break;

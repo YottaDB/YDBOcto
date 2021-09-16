@@ -1,3 +1,6 @@
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
 [ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: ORDER1
 Error with syntax near (line 1, column 8):
 

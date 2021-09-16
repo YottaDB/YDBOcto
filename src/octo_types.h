@@ -162,6 +162,7 @@ typedef enum SqlStatementType {
 	table_value_STATEMENT,
 	array_STATEMENT,
 	history_STATEMENT,
+	delete_from_STATEMENT,
 	invalid_STATEMENT,
 } SqlStatementType;
 
@@ -599,6 +600,11 @@ typedef struct SqlInsertStatement {
 	struct SqlStatement *src_table_alias_stmt; /* SqlTableAlias */
 } SqlInsertStatement;
 
+typedef struct SqlDeleteFromStatement {
+	struct SqlStatement *src_join;	   /* SqlJoin */
+	struct SqlStatement *where_clause; /* SqlBinaryOperation or SqlUnaryOperation etc. */
+} SqlDeleteFromStatement;
+
 typedef struct SqlDropTableStatement {
 	// SqlValue
 	struct SqlStatement *table_name;
@@ -823,6 +829,7 @@ typedef struct SqlStatement {
 		struct SqlFunction *		  create_function;
 		struct SqlSelectStatement *	  select;
 		struct SqlInsertStatement *	  insert;
+		struct SqlDeleteFromStatement *	  delete_from;
 		struct SqlDropTableStatement *	  drop_table;
 		struct SqlDropFunctionStatement * drop_function;
 		struct SqlArray *		  array;

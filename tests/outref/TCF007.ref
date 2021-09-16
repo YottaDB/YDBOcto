@@ -11,6 +11,7 @@ select dollarzwrite(firstname) from names;
 -- Call function with name in mixed case
 select dollarZWRITE(firstname) from names;
 
+CREATE FUNCTION
 DOLLARZWRITE
 "Zero"
 "Acid"

@@ -27,6 +27,8 @@
 		bufSize = ((0 >= (signed)BUFFER_SIZE) ? 0 : (BUFFER_SIZE - (BUFFER - BUFF_PTR))); \
 		WRITTEN = snprintf(BUFF_PTR, bufSize, ##__VA_ARGS__);                             \
 		BUFF_PTR += WRITTEN;                                                              \
+		assert(0 <= (signed)bufSize);                                                     \
+		/* Caller should have reserved space for trailing null hence the "<" below */     \
 		assert((0 == bufSize) || (WRITTEN < bufSize));                                    \
 	}
 
@@ -178,8 +180,11 @@ void lp_emit_plan(LogicalPlan *plan, char *stage) {
 	// No need to force it to stay around until compilation ends
 	buffer = malloc(buffer_len + 2); /* 1 byte for EMIT_SNPRINTF("\n") below, 1 byte for trailing null terminator */
 	buff_ptr = buffer;
-	EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");
-	DEBUG_ONLY(actual_len =) emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), 0, plan, NULL);
+	EMIT_SNPRINTF(written, buff_ptr, buffer, 2, "\n"); /* 2 includes space for \n and trailing null (needed by snprintf) */
+	/* Note that "buffer_len" does not include space for the leading \n or trailing null terminator.
+	 * So need to add space for trailing null byte (needed by snprintf calls inside that function).
+	 */
+	DEBUG_ONLY(actual_len =) emit_plan_helper(buff_ptr, buffer_len + 1, 0, plan, NULL);
 	DEBUG_ONLY(assert(actual_len == buffer_len));
 	DEBUG(INFO_CURPLAN, stage, buffer);
 	free(buffer);

@@ -94,7 +94,8 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 	if ((0 != strncmp(routine_buffer.buf_addr, OCTOLIT_NONE, MAX_ROUTINE_LEN)) && (0 > *cursorId)) {
 		boolean_t wrapInTp;
 
-		assert((command_tag == select_STATEMENT) || (command_tag == insert_STATEMENT));
+		assert((select_STATEMENT == command_tag) || (insert_STATEMENT == command_tag)
+		       || (delete_from_STATEMENT == command_tag));
 		// Fetch number of parameters
 		YDB_STRING_TO_BUFFER(OCTOLIT_PARAMETERS, &portal_subs[4]);
 		YDB_STRING_TO_BUFFER(OCTOLIT_ALL, &portal_subs[5]);
@@ -168,7 +169,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 		ci_routine.address = routine_buffer.buf_addr;
 		ci_routine.length = routine_buffer.len_used;
 		/* Currently read-only queries are not wrapped in TP and read-write queries are wrapped in TP. */
-		wrapInTp = ((command_tag == select_STATEMENT) ? FALSE : TRUE);
+		wrapInTp = (select_STATEMENT != command_tag);
 		// Run the target routine
 		status = ydb_ci("_ydboctoselect", *cursorId, &ci_routine, (ydb_int_t)wrapInTp);
 		YDB_ERROR_CHECK(status);
@@ -188,10 +189,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 				return -1;
 			}
 		}
-		/* Send back data rows, but pass FALSE to omit row descriptions as they are not expected in response to Execute
-		 * messages for SELECT queries (they are anyways not needed for INSERT type of queries). Hence the FALSE below.
-		 */
-		stmt.type = command_tag;
+		stmt.type = command_tag; /* needed by "handle_query_response" to know which message to handle */
 		status = handle_query_response(&stmt, *cursorId, (void *)&parms, filename, PSQL_Execute);
 		tmp_status = status; // Store status so it doesn't get overwritten by result of ydb_delete_s
 		/* Don't need to retain the cursor for later Execute messages if it is not the PortalSuspended case */

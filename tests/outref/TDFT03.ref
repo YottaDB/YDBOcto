@@ -1,0 +1,106 @@
+
+-- TDFT03 : OCTO54 : Test various errors in DELETE FROM
+
+select '-- Test of ERR_UNKNOWN_COLUMN_NAME';
+delete from names where abcd = 2;
+
+select '-- Test of ERR_MISSING_FROM_ENTRY';
+delete from names n1 where names.id = 2;
+
+select '-- Test of ERR_TABLE_READONLY error against various catalog tables';
+delete from octoOneRowTable;
+delete from pg_catalog.pg_namespace where NULL != NULL;
+delete from pg_catalog.pg_type;
+delete from pg_catalog.pg_class;
+delete from pg_catalog.pg_description;
+delete from information_schema.tables where NULL = NULL;
+delete from pg_catalog.pg_proc;
+delete from pg_catalog.pg_attribute;
+delete from pg_catalog.pg_attrdef;
+delete from pg_catalog.pg_settings;
+delete from pg_catalog.pg_database;
+delete from pg_catalog.pg_roles;
+delete from pg_catalog.pg_user;
+
+select '-- Test of ERR_TABLE_READONLY error in a table created with READONLY';
+create table test1 (id INTEGER PRIMARY KEY) READONLY;
+delete from test1;
+drop table test1;
+
+select '-- Test same table created with READWRITE works fine with DELETE FROM';
+create table test1 (id INTEGER PRIMARY KEY) READWRITE;
+delete from test1;
+drop table test1;
+
+select '-- Test of ERR_TABLE_READONLY error in a table created with READONLY implicitly assumed';
+create table test1 (id INTEGER PRIMARY KEY, firstname VARCHAR DELIM "", lastname VARCHAR DELIM "");
+delete from test1;
+drop table test1;
+
+???
+-- Test of ERR_UNKNOWN_COLUMN_NAME
+(1 row)
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: ABCD
+Error with syntax near (line 1, column 25):
+
+delete from names where abcd = 2;
+                        ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from names where abcd = 2;
+???
+-- Test of ERR_MISSING_FROM_ENTRY
+(1 row)
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : NAMES
+Error with syntax near (line 1, column 28):
+
+delete from names n1 where names.id = 2;
+                           ^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from names n1 where names.id = 2;
+???
+-- Test of ERR_TABLE_READONLY error against various catalog tables
+(1 row)
+[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from octoOneRowTable;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from pg_catalog.pg_namespace where NULL != NULL;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from pg_catalog.pg_type;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from pg_catalog.pg_class;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from pg_catalog.pg_description;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from information_schema.tables where NULL = NULL;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from pg_catalog.pg_proc;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from pg_catalog.pg_attribute;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from pg_catalog.pg_attrdef;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from pg_catalog.pg_settings;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from pg_catalog.pg_database;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from pg_catalog.pg_roles;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from pg_catalog.pg_user;
+???
+-- Test of ERR_TABLE_READONLY error in a table created with READONLY
+(1 row)
+CREATE TABLE
+[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from test1;
+DROP TABLE
+???
+-- Test same table created with READWRITE works fine with DELETE FROM
+(1 row)
+CREATE TABLE
+DELETE 0
+DROP TABLE
+???
+-- Test of ERR_TABLE_READONLY error in a table created with READONLY implicitly assumed
+(1 row)
+CREATE TABLE
+[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from test1;
+DROP TABLE

@@ -80,8 +80,8 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *table_name, int 
 			//  extrinsic or something
 			switch(form) {
 			case EmitSourceForm_Value:
-				/* Caller wants M global source form that is usable in a SELECT query. */
-				assert (NULL != table_name);
+				/* Caller wants M global source form that is usable in a SELECT or DELETE FROM query. */
+				assert(NULL != table_name);
 				assert(unique_id);
 				%{}{{ config->global_names.cursor }}{}%
 				%{}(cursorId,{{ PP_KEYS }},{{ unique_id|%d }},"{{ table_name }}",{{ column }}){}%
@@ -91,7 +91,7 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *table_name, int 
 				SqlColumn	*sql_column;
 				int		column_len;
 
-				assert (NULL == table_name);
+				assert(NULL == table_name);
 				assert(!unique_id);
 				assert(MAX_KEY_COUNT == num_vars_to_match);
 				/* Find the SqlColumn structure. The column name returned by "match_expression()"

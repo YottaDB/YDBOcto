@@ -97,3 +97,9 @@ setup() {
 	load_fixture TVA0001.sql subtest novv
 	verify_output TVA0001 output.txt
 }
+
+@test "TVA0002 : Test INSERT INTO, DELETE FROM queries against ORDER1 table are disallowed due to READ_ONLY" {
+	load_fixture TVA0002.sql subtest novv
+	verify_output TVA0002 output.txt
+}
+

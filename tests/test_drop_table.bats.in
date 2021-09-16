@@ -123,7 +123,8 @@ OCTO
   echo "Exit Status:" $? | tee -a output.txt
   # Check that we released the locks
   $ydb_dist/yottadb -run %XCMD 'for i=1:1:512 write "drop table if exists abc;",!' > lock.sql
-  octo -f lock.sql &>> output.txt # should not error.
+  # The above produces lots of 'DROP TABLE' output. Don't want to keep that in the reference file so filter that out.
+  octo -f lock.sql | grep -v 'DROP TABLE' || true &>> output.txt # should not error.
   verify_output TDT06 output.txt
 }
 

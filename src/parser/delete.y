@@ -1,4 +1,3 @@
-{}%
 /****************************************************************
  *								*
  * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
@@ -11,12 +10,18 @@
  *								*
  ****************************************************************/
 
-#include "octo_types.h"
+delete_statement_searched
+  : DELETE FROM column_name where_clause {
+      $$ = delete_from_statement($column_name, NULL, $where_clause, plan_id, parse_context);
+      if (NULL == $$) {
+        YYERROR;
+      }
+    }
+  | DELETE FROM column_name optional_as as_name where_clause {
+      $$ = delete_from_statement($column_name, $as_name, $where_clause, plan_id, parse_context);
+      if (NULL == $$) {
+        YYERROR;
+      }
+    }
+  ;
 
-#include "template_helpers.h"
-
-TEMPLATE(tmpl_insert_row_count, SqlKey *key) {
-	%{}{{ config->global_names.cursor }}(cursorId,{{ PP_ROW_COUNT }},{{ key->unique_id|%d }}){}%
-	return;
-}
-%{}

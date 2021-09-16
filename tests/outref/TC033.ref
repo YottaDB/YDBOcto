@@ -1,4 +1,9 @@
 # Run [octo -f TC033.sql] to run lots of CREATE TABLE queries
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
 
 # Run [mupip extract run.ext]
 

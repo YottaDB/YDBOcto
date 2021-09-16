@@ -26,6 +26,7 @@ select id=2 from names union select id from names;
 select id=2 from names union select firstname from names;
 select Price=2.5 from Products union select Price from Products;
 
+CREATE FUNCTION
 [ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INPUT_SYNTAX : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type BOOLEAN
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select +id::boolean from names;
 [ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INPUT_SYNTAX : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type BOOLEAN

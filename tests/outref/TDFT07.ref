@@ -1,0 +1,20 @@
+# Run SELECT query that generates xref plan and installs triggers which rely on the xref plan
+ID|FIRSTNAME|LASTNAME
+0|Zero|Cool
+5|Zero|Cool
+(2 rows)
+# Remove generated xref plans
+# Run INSERT INTO and DELETE FROM queries that will need the triggers (and in turn xref plan)
+# They should issue a ZLINKFILE error because the xref plan does not exist anymore
+[ERROR] PATH:LINENUM DATE TIME : ERR_YOTTADB : YottaDB error: 150373978,+1^%ydboctoTOMMMsQ8ks3NI1C42wS8#,%YDB-E-ZLINKFILE, Error while zlinking "_ydboctoXOMMMsQ8ks3NI1C42wS8F05",%YDB-E-FILENOTFND, File _ydboctoX*.m not found,%YDB-E-FILENOTFND, File _ydboctoX*.o not found
+[ERROR] PATH:LINENUM DATE TIME : ERR_YOTTADB : YottaDB error: 150373978,+1^%ydboctoTOMMMsQ8ks3NI1C42wS8#,%YDB-E-ZLINKFILE, Error while zlinking "_ydboctoXOMMMsQ8ks3NI1C42wS8F05",%YDB-E-FILENOTFND, File _ydboctoX*.m not found,%YDB-E-FILENOTFND, File _ydboctoX*.o not found
+[ERROR] PATH:LINENUM DATE TIME : ERR_YOTTADB : YottaDB error: 150373978,+1^%ydboctoTOMMMsQ8ks3NI1C42wS8#,%YDB-E-ZLINKFILE, Error while zlinking "_ydboctoXOMMMsQ8ks3NI1C42wS8F05",%YDB-E-FILENOTFND, File _ydboctoX*.m not found,%YDB-E-FILENOTFND, File _ydboctoX*.o not found
+# Now run a SELECT query. It should not issue a ZLINKFILE error because it does not need triggers
+ID|FIRSTNAME|LASTNAME
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+(6 rows)

@@ -67,6 +67,38 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 			lp_insert_into_options->v.lp_default.operand[0] = NULL;
 		}
 		return (error_encountered ? NULL : lp_insert_into);
+	} else if (delete_from_STATEMENT == stmt->type) {
+		SqlDeleteFromStatement *delete;
+		LogicalPlan *  lp_delete_from;
+		LogicalPlan *  lp_table;
+		LogicalPlan *  lp_where;
+		SqlJoin *      join;
+		SqlTableAlias *table_alias;
+
+		UNPACK_SQL_STATEMENT(delete, stmt, delete_from);
+		MALLOC_LP_2ARGS(lp_delete_from, LP_DELETE_FROM);
+		/* Note: The LP_DELETE_FROM logical plan subtree only needs to contain LP_TABLE and LP_WHERE.
+		 * But the structure is constructed so it mirrors the LP_SELECT_QUERY structure (with dummy plans
+		 * for example LP_SELECT/LP_CRITERIA etc.). This will later help us in "optimize_logical_plan" to
+		 * avoid code duplication as all the DNF and key fixing logic that applies for LP_SELECT_QUERY
+		 * can automatically be applied to LP_DELETE_FROM too.
+		 */
+		MALLOC_LP(project, lp_delete_from->v.lp_default.operand[0], LP_PROJECT);
+		MALLOC_LP(select, project->v.lp_default.operand[1], LP_SELECT);
+		MALLOC_LP(criteria, select->v.lp_default.operand[1], LP_CRITERIA);
+		MALLOC_LP_2ARGS(criteria->v.lp_default.operand[0], LP_KEYS);
+		MALLOC_LP(select_options, criteria->v.lp_default.operand[1], LP_SELECT_OPTIONS);
+		MALLOC_LP(join_right, select->v.lp_default.operand[0], LP_TABLE_JOIN);
+		MALLOC_LP(lp_table, join_right->v.lp_default.operand[0], LP_TABLE);
+		UNPACK_SQL_STATEMENT(join, delete->src_join, join);
+		UNPACK_SQL_STATEMENT(table_alias, join->value, table_alias);
+		lp_table->v.lp_table.table_alias = table_alias;
+		MALLOC_LP(lp_where, select_options->v.lp_default.operand[0], LP_WHERE);
+		LP_GENERATE_WHERE(delete->where_clause, stmt, lp_where->v.lp_default.operand[0], error_encountered);
+		MALLOC_LP(select_more_options, select_options->v.lp_default.operand[1], LP_SELECT_MORE_OPTIONS);
+		MALLOC_LP(keywords, select_more_options->v.lp_default.operand[1], LP_KEYWORDS);
+		UNPACK_SQL_STATEMENT(keywords->v.lp_keywords.keywords, alloc_no_keyword(), keyword);
+		return (error_encountered ? NULL : lp_delete_from);
 	}
 	UNPACK_SQL_STATEMENT(table_alias, stmt, table_alias);
 	if (table_value_STATEMENT == table_alias->table->type) {

@@ -20,6 +20,7 @@ SELECT * FROM tmp;
 SELECT firstName from tmp;
 DROP TABLE tmp;
 
+CREATE TABLE
 INSERT 0 1
 INSERT 0 1
 ID|FIRSTNAME
@@ -30,6 +31,8 @@ FIRSTNAME
 first|1
 second|2
 (2 rows)
+DROP TABLE
+CREATE TABLE
 INSERT 0 1
 INSERT 0 1
 ID|FIRSTNAME
@@ -40,3 +43,4 @@ FIRSTNAME
 first|1
 second|2
 (2 rows)
+DROP TABLE

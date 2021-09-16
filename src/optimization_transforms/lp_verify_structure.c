@@ -30,6 +30,7 @@ int lp_verify_structure(LogicalPlan *plan, PhysicalPlanOptions *options) {
 	case LP_SET_OPERATION:
 	case LP_TABLE_VALUE:
 	case LP_INSERT_INTO:
+	case LP_DELETE_FROM:
 		break;
 	default:
 		assert(FALSE);
@@ -68,6 +69,10 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_SELECT_QUERY)
 		       | lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_SET_OPERATION)
 		       | lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_TABLE_VALUE);
+		break;
+	case LP_DELETE_FROM:
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_PROJECT);
+		ret &= (NULL == plan->v.lp_default.operand[1]);
 		break;
 	case LP_OUTPUT:
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_KEY);

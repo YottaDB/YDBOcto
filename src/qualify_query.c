@@ -37,7 +37,8 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	SqlRowValue *	    row_value, *start_row_value;
 
 	result = 0;
-	if (insert_STATEMENT == table_alias_stmt->type) {
+	switch (table_alias_stmt->type) {
+	case insert_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */
 		SqlStatement *	    insert_stmt;
 		SqlInsertStatement *insert;
 
@@ -86,14 +87,34 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		}
 		/* There is nothing to qualify in "insert->dst_table_alias" and "insert->columns" */
 		return result;
-	}
-	if (set_operation_STATEMENT == table_alias_stmt->type) {
+		break;
+	case delete_from_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */
+		SqlStatement *delete_stmt;
+		SqlDeleteFromStatement *delete;
+		SqlJoin *join;
+
+		delete_stmt = table_alias_stmt;
+		UNPACK_SQL_STATEMENT(delete, delete_stmt, delete_from);
+		assert(NULL == parent_join);
+		assert(NULL == parent_table_alias);
+		assert(NULL == ret->ret_cla);
+		UNPACK_SQL_STATEMENT(join, delete->src_join, join);
+		assert(join == join->next);
+		assert(NULL == join->condition);
+		result |= qualify_query(join->value, parent_join, parent_table_alias, ret);
+		result |= qualify_statement(delete->where_clause, join, join->value, 0, ret);
+		return result;
+		break;
+	case set_operation_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */
 		SqlSetOperation *set_opr;
 
 		UNPACK_SQL_STATEMENT(set_opr, table_alias_stmt, set_operation);
 		result |= qualify_query(set_opr->operand[0], parent_join, parent_table_alias, ret);
 		result |= qualify_query(set_opr->operand[1], parent_join, parent_table_alias, ret);
 		return result;
+		break;
+	default:
+		break;
 	}
 	assert(table_alias_STATEMENT == table_alias_stmt->type);
 	UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
@@ -132,8 +153,8 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	 */
 	table_alias->do_group_by_checks = FALSE; /* need to set this before invoking "qualify_statement()" */
 	start_join = cur_join = join;
-	/* Qualify FROM clause first. For this qualification, only use tables from the parent query FROM list.
-	 * Do not use any tables from the current query level FROM list for this qualification.
+	/* Qualify list of tables in FROM and JOIN clauses first. For this qualification, only use tables from the parent query
+	 * FROM/JOIN list. Do not use any tables from the current query level FROM/JOIN list for this qualification.
 	 */
 	do {
 		SqlStatement *stmt = join->value;
@@ -143,8 +164,8 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		 */
 		result |= qualify_query(cur_join->value, parent_join, table_alias, ret);
 		/* The following code block needs to be after above call to qualify_query() because we need
-		 * any asterisk usage in cur_join->value to be expanded and qualified for the later natural_join_condition() to work
-		 * correctly.
+		 * any asterisk usage in cur_join->value to be expanded and qualified for the later
+		 * natural_join_condition() to work correctly.
 		 * TODO: avoid deferring the following processing in cases where its not required. Refer:
 		 * https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/816#note_583771101
 		 */
@@ -176,11 +197,11 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		}
 		cur_join = cur_join->next;
 	} while (cur_join != start_join);
-	/* Now that FROM clause has been qualified, qualify the JOIN conditions etc. in the FROM clause.
+	/* Now that table names in FROM/JOIN clause have been qualified, qualify the JOIN conditions.
 	 * Also add in joins (if any) from higher/parent level queries so sub-queries (current level) can use them.
-	 * And for this part we can use tables from the FROM list at this level. In some cases we can only use
+	 * And for this part we can use table names from the FROM/JOIN list at this level. In some cases we can only use
 	 * a partial FROM list (as the loop progresses, the list size increases in some cases). In other cases (NATURAL JOIN)
-	 * we can use the full FROM list.
+	 * we can use the full list of table names in the FROM/JOIN list.
 	 */
 	prev_start = join;
 	prev_end = join->prev;

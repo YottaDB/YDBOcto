@@ -49,6 +49,7 @@ SELECT t3.* FROM tmp3 t3 WHERE firstname = 'first1';
 SELECT t3.* FROM tmp3 t3 WHERE lastname = 'last2';
 SELECT t3.* FROM tmp3 t3 WHERE firstname IS NULL;
 SELECT t3.* FROM tmp3 t3 WHERE lastname IS NULL;
+CREATE TABLE
 INSERT 0 2
 INSERT 0 2
 ID|FIRSTNAME
@@ -87,6 +88,7 @@ Error with syntax near (line 1, column 33):
 INSERT INTO tmp1(id, `%yo_keycol`) SELECT id, id from tmp1;
                                 ^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO tmp1(id, `%yo_keycol`) SELECT id, id from tmp1;
+CREATE TABLE
 %YO_KEYCOL
 1
 2
@@ -105,6 +107,7 @@ INSERT INTO tmp1(id, `%yo_keycol`) SELECT id, id from tmp1;
 3|1234|First
 4|1234|First
 (4 rows)
+CREATE TABLE
 INSERT 0 1
 INSERT 0 1
 INSERT 0 1

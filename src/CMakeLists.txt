@@ -91,7 +91,10 @@ FLEX_TARGET(PhysicalLexer ${PROJECT_SOURCE_DIR}/src/physical/physical-lexer.l
 # Combine the parser grammars into a single file
 add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/parser.y
   DEPENDS parser.y
-          parser/select.y parser/insert.y parser/update.y
+          parser/select.y
+          parser/insert.y
+          parser/delete.y
+          parser/update.y
           parser/drop.y
           parser/discard.y
           parser/set.y
@@ -177,7 +180,7 @@ add_library(libocto OBJECT
   get_keyword_from_keywords.c
   get_mem_usage.c
   get_mval_len.c
-  get_row_count_from_plan_name.c
+  get_row_count_from_cursorId.c
   get_set_operation_string.c
   get_sqldatatype_from_sqlvaluetype.c
   get_sqlvaluetype_from_sqldatatype.c
@@ -236,14 +239,15 @@ add_library(libocto OBJECT
   parse_line.c
   parse_startup_flags.c
   parse_tree_optimize.c
-  parser/sql_set_statement.c
   parser/aggregate_function.c
+  parser/alloc_no_keyword.c
   parser/as_name.c
   parser/between_predicate.c
   parser/cast_specification.c
-  parser/create_sql_column_list.c
   parser/copy_correlation_specification_aliases.c
+  parser/create_sql_column_list.c
   parser/data_type.c
+  parser/delete_from_statement.c
   parser/derived_column.c
   parser/derived_table.c
   parser/drop_function.c
@@ -256,6 +260,7 @@ add_library(libocto OBJECT
   parser/regex_specification.c
   parser/set_operation.c
   parser/sort_specification.c
+  parser/sql_set_statement.c
   parser/table_definition.c
   parser/table_expression.c
   parser/table_reference.c
@@ -409,11 +414,12 @@ set(template_dir ${PROJECT_SOURCE_DIR}/src/m_templates)
 set(template_files
   ${template_dir}/tmpl_column_list_combine.ctemplate
   ${template_dir}/tmpl_column_reference.ctemplate
+  ${template_dir}/tmpl_delete_from.ctemplate
+  ${template_dir}/tmpl_delete_record_from_table.ctemplate
   ${template_dir}/tmpl_duplication_check.ctemplate
   ${template_dir}/tmpl_emit_source.ctemplate
   ${template_dir}/tmpl_group_by.ctemplate
   ${template_dir}/tmpl_insert_into.ctemplate
-  ${template_dir}/tmpl_insert_row_count.ctemplate
   ${template_dir}/tmpl_invoke_deferred_plan.ctemplate
   ${template_dir}/tmpl_invoke_deferred_plan_setoper.ctemplate
   ${template_dir}/tmpl_key.ctemplate

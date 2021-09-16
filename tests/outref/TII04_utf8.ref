@@ -46,16 +46,19 @@ DROP TABLE testu4;
 ???
 -- Test that VARCHAR(4) allows 4 characters (even if it is more than 4 bytes) to be stored.
 (1 row)
+CREATE TABLE
 INSERT 0 1
 COLUMN1
 ＡＢＣＤ
 (1 row)
+DROP TABLE
 ???
 
 (1 row)
 ???
 -- Test that VARCHAR(4) allows character strings shorter than 4 chars to be stored without space padding at end
 (1 row)
+CREATE TABLE
 INSERT 0 1
 INSERT 0 1
 INSERT 0 1
@@ -64,25 +67,30 @@ COLUMN1
 |ＡＢ|
 |Ａ|
 (3 rows)
+DROP TABLE
 ???
 
 (1 row)
 ???
 -- Test that VARCHAR(4) allows 7 character strings to be stored if last 3 characters are spaces.
 (1 row)
+CREATE TABLE
 INSERT 0 1
 INSERT 0 1
 COLUMN1
 |ＡＢＣＤ|
 |ＡＢＣ |
 (2 rows)
+DROP TABLE
 ???
 
 (1 row)
 ???
 -- Test that an over length value when typecast to varchar(N) will be truncated to N characters without an error.
 (1 row)
+CREATE TABLE
 INSERT 0 1
 COLUMN1
 |ＡＢ|
 (1 row)
+DROP TABLE

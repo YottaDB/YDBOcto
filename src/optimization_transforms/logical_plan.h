@@ -141,7 +141,7 @@ typedef struct LpExtraInsert {
 	struct PhysicalPlan *physical_plan;   /* Pointer to corresponding physical plan. Note that there is only ONE physical
 					       * plan corresponding to this logical plan i.e. there is a 1 to 1 mapping.
 					       */
-	boolean_t to_array;		      // Indicates the result of this LP_INSERT should be converted to a SQL array
+	boolean_t to_array;		      // Indicates the result of this LP_SELECT_QUERY should be converted to a SQL array
 } LpExtraInsert;
 
 /* Extra fields needed by LP_COLUMN_ALIAS */
@@ -233,7 +233,7 @@ typedef struct LogicalPlan {
 		LpExtraOrderBy	 lp_order_by;			// To be used if type == LP_ORDER_BY
 		LpExtraWhere	 lp_where;			// To be used if type == LP_WHERE
 		LpExtraInsert	 lp_select_query;		// To be used if type == LP_SELECT_QUERY or LP_TABLE_VALUE
-								//	or LP_INSERT_INTO
+								//	or LP_INSERT_INTO or LP_DELETE_FROM
 		LpExtraColumnAlias	 lp_column_alias;	// To be used if type == LP_COLUMN_ALIAS
 		LpExtraDerivedColumn	 lp_derived_column;	// To be used if type == LP_DERIVED_COLUMN
 		LpExtraAggregateFunction lp_aggregate_function; // To be used if type == LP_AGGREGATE_*

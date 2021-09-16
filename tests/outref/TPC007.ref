@@ -9,3 +9,4 @@ FATAL:  Server requires all connections to be TLS encrypted. Please re-connect u
   5 | Zero      | Cool
 (6 rows)
 
+CREATE TABLE

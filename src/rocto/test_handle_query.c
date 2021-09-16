@@ -56,6 +56,7 @@ static void test_valid_input(void **state) {
 	query->query = query->data;
 
 	will_return(__wrap_run_query, 0);
+	will_return(__wrap_send_message, PSQL_CommandComplete);
 	result = handle_query(query, &session);
 
 	free(query);
@@ -102,6 +103,7 @@ static void test_query_length_greater_than_max(void **state) {
 	assert(query->length > cur_input_max);
 
 	will_return(__wrap_run_query, 0);
+	will_return(__wrap_send_message, PSQL_CommandComplete);
 	result = handle_query(query, &session);
 
 	// change global variable's value back to what it should be

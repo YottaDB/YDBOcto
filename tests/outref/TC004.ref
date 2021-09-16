@@ -16,15 +16,23 @@ CREATE TABLE t1 (a int primary key, b int, c int, d int) GLOBAL "^T1(keys(""a"")
 SELECT * FROM t1;
 DROP TABLE t1;
 
+CREATE TABLE
 A
 1
 (1 row)
+DROP TABLE
+CREATE TABLE
 A|B
 1|2|3|4
 (1 row)
+DROP TABLE
+CREATE TABLE
 A|B|C
 1|2|3
 (1 row)
+DROP TABLE
+CREATE TABLE
 A|B|C|D
 1|2|3|4
 (1 row)
+DROP TABLE

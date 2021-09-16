@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -85,8 +85,7 @@ static void test_show_statement(void **state) {
 static void test_no_command_tag_statement(void **state) {
 	CommandComplete *response = NULL;
 
-	response = make_command_complete(create_table_STATEMENT, 0);
-
+	response = make_command_complete(discard_all_STATEMENT, 0);
 	assert_null(response);
 }
 

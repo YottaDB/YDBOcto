@@ -236,7 +236,6 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	SqlLeast *		least_call;
 	SqlNullIf *		null_if;
 	SqlAggregateFunction *	aggregate_function;
-	SqlJoin *		start_join, *cur_join;
 	SqlSetOperation *	set_operation;
 	SqlTableAlias *		table_alias;
 	SqlUnaryOperation *	unary = NULL;
@@ -310,6 +309,18 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		UNPACK_SQL_STATEMENT(insert, v, insert);
 		result |= populate_data_type(insert->src_table_alias_stmt, &child_type1, parse_context);
 		result |= check_column_lists_for_type_match(v);
+		break;
+	case delete_from_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */
+		SqlDeleteFromStatement *delete;
+
+		UNPACK_SQL_STATEMENT(delete, v, delete_from);
+		result |= populate_data_type(delete->src_join, type, parse_context);
+		if (NULL != delete->where_clause) {
+			result |= populate_data_type(delete->where_clause, &child_type1, parse_context);
+			if (!result && (BOOLEAN_VALUE != child_type1) && (NUL_VALUE != child_type1)) {
+				ISSUE_TYPE_COMPATIBILITY_ERROR(child_type1, "boolean operations", &delete->where_clause, result);
+			}
+		}
 		break;
 	case select_STATEMENT:
 		UNPACK_SQL_STATEMENT(select, v, select);
@@ -534,7 +545,9 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			break;
 		}
 		break;
-	case join_STATEMENT:
+	case join_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */
+		SqlJoin *start_join, *cur_join;
+
 		UNPACK_SQL_STATEMENT(start_join, v, join);
 		cur_join = start_join;
 		do {

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,7 +23,6 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 	SqlTableAlias *		table_alias, *new_table_alias;
 	SqlColumnList *		cur_column_list, *start_column_list, *new_column_list;
 	SqlJoin *		cur_join, *start_join, *new_join;
-	SqlInsertStatement *	insert;
 	SqlStatement *		ret;
 	SqlSelectStatement *	select;
 	SqlDropTableStatement * drop_table;
@@ -196,17 +195,6 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 			cur_keyword = cur_keyword->next;
 		} while (cur_keyword != start_keyword);
 		break;
-	case insert_STATEMENT:
-		UNPACK_SQL_STATEMENT(insert, stmt, insert);
-		MALLOC_STATEMENT(ret, insert, SqlInsertStatement);
-		/* Because "dst_table_alias->table" points to a "create_table_STATEMENT" type, we can just copy the "table_alias".
-		 * No need to invoke "copy_sql_statement" as the underlying "SqlTable" structure stays the same.
-		 */
-		assert(create_table_STATEMENT == insert->dst_table_alias->table->type);
-		ret->v.insert->dst_table_alias = insert->dst_table_alias;
-		ret->v.insert->columns = copy_sql_statement(insert->columns);
-		ret->v.insert->src_table_alias_stmt = copy_sql_statement(insert->src_table_alias_stmt);
-		break;
 	case cas_STATEMENT:
 		UNPACK_SQL_STATEMENT(cas, stmt, cas);
 		MALLOC_STATEMENT(ret, cas, SqlCaseStatement);
@@ -253,6 +241,11 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		 * below. If this assert fails in the future, we will need to handle it then. At that point, code in
 		 * "match_sql_statement.c" might need to be fixed as it currently does nothing for the
 		 * "case table_value_STATEMENT:" code path.
+		 */
+	case insert_STATEMENT:
+	case delete_from_STATEMENT:
+		/* We don't expect INSERT INTO or DELETE FROM related parse tree structures to be copied over.
+		 * Hence falling through the below code which would issue an error.
 		 */
 	default:
 		assert(FALSE);

@@ -6,6 +6,7 @@ CREATE FUNCTION SAMEVALUE(VARCHAR) RETURNS VARCHAR AS $$samevalue^functions;
 SELECT * FROM names WHERE firstname > lastname;
 SELECT * FROM names WHERE SAMEVALUE(firstname) > SAMEVALUE(lastname);
 
+CREATE FUNCTION
 ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 5|Zero|Cool

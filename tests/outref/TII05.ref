@@ -281,16 +281,19 @@ INSERT INTO names(id,firstname,firstname,firstname,lastname) SELECT * FROM names
 ???
 -- Simple ERR_VARCHAR_TOO_LONG error test case
 (1 row)
+CREATE TABLE
 [ERROR] PATH:LINENUM DATE TIME : ERR_VARCHAR_TOO_LONG : Value too long for type VARCHAR(3)
 [ERROR] PATH:LINENUM DATE TIME : ERR_VARCHAR_TOO_LONG : Value too long for type VARCHAR(3)
 ID|COLUMN1
 (0 rows)
+DROP TABLE
 ???
 -- Fancy ERR_VARCHAR_TOO_LONG error test case
 (1 row)
 ???
 -- Test that VARCHAR(4) does not allow 7 character strings to be stored if not all last 3 characters are spaces.
 (1 row)
+CREATE TABLE
 [ERROR] PATH:LINENUM DATE TIME : ERR_VARCHAR_TOO_LONG : Value too long for type VARCHAR(4)
 [ERROR] PATH:LINENUM DATE TIME : ERR_VARCHAR_TOO_LONG : Value too long for type VARCHAR(4)
 [ERROR] PATH:LINENUM DATE TIME : ERR_VARCHAR_TOO_LONG : Value too long for type VARCHAR(4)
@@ -299,6 +302,7 @@ ID|COLUMN1
 [ERROR] PATH:LINENUM DATE TIME : ERR_VARCHAR_TOO_LONG : Value too long for type VARCHAR(4)
 COLUMN1
 (0 rows)
+DROP TABLE
 ???
 -- Fancier ERR_VARCHAR_TOO_LONG error test case
 (1 row)
@@ -308,26 +312,32 @@ COLUMN1
 ???
 -- And that and an error will be issued if N is over length compared to the maximum column size
 (1 row)
+CREATE TABLE
 [ERROR] PATH:LINENUM DATE TIME : ERR_VARCHAR_TOO_LONG : Value too long for type VARCHAR(4)
 [ERROR] PATH:LINENUM DATE TIME : ERR_VARCHAR_TOO_LONG : Value too long for type VARCHAR(4)
 COLUMN1
 (0 rows)
+DROP TABLE
 ???
 -- Test of ERR_NUMERIC_OVERFLOW
 (1 row)
+CREATE TABLE
 [ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_OVERFLOW : Numeric field overflow; A field with precision 2, scale 1 must round to an absolute value less than 10^1
 [ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_OVERFLOW : Numeric field overflow; A field with precision 2, scale 1 must round to an absolute value less than 10^1
 [ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_OVERFLOW : Numeric field overflow; A field with precision 2, scale 1 must round to an absolute value less than 10^1
 [ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_OVERFLOW : Numeric field overflow; A field with precision 2, scale 1 must round to an absolute value less than 10^1
+DROP TABLE
 ???
 -- Test of VARCHAR_TOO_LONG midway in the INSERT INTO
 (1 row)
+CREATE TABLE
 [ERROR] PATH:LINENUM DATE TIME : ERR_VARCHAR_TOO_LONG : Value too long for type VARCHAR(3)
 ???
 -- Verify that no rows are inserted at the end (expecting no rows to be output below)
 (1 row)
 ID|COLUMN1
 (0 rows)
+DROP TABLE
 ???
 -- Test that valid queries work fine after an INSERT INTO query that had an error midway
 (1 row)
@@ -366,17 +376,23 @@ ID|FIRSTNAME|LASTNAME
 ???
 -- Test of ERR_TABLE_READONLY error in a table created with READONLY
 (1 row)
+CREATE TABLE
 [ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : INSERT not allowed on READONLY tables. Only allowed on READWRITE tables.
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO test1 SELECT 1;
+DROP TABLE
 ???
 -- Test same table created with READWRITE works fine with INSERT INTO
 (1 row)
+CREATE TABLE
 INSERT 0 1
 ID
 1
 (1 row)
+DROP TABLE
 ???
 -- Test of ERR_TABLE_READONLY error in a table created with READONLY implicitly assumed
 (1 row)
+CREATE TABLE
 [ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : INSERT not allowed on READONLY tables. Only allowed on READWRITE tables.
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO test1 VALUES (1, 'abcd', 'efgh');
+DROP TABLE

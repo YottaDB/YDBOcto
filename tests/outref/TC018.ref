@@ -9,6 +9,8 @@ SELECT * FROM delimnamesp;
 SELECT * FROM delimnamesu WHERE firstname = 'Zero';
 SELECT * FROM delimnamesp WHERE firstname = 'Zero';
 
+CREATE TABLE
+CREATE TABLE
 ID|FIRSTNAME|LASTNAME|MIDDLEINITIAL|AGE
 0|Zero|Cool|B|25
 1|Acid|Burn|I|22

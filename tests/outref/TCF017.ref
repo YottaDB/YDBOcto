@@ -9,6 +9,7 @@ SELECT ABS(ABS(ABS(1, 2))) FROM names;
 SELECT LENGTH(LENGTH(1, 2)) FROM names;
 SELECT LENGTH(LENGTH(LENGTH(1, 2))) FROM names;
 
+CREATE FUNCTION
 [ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'ABS' defined with given parameter types (INTEGER, INTEGER)
 Error with syntax near (line 1, column 12):
 

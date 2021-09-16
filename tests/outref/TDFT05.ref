@@ -1,0 +1,16 @@
+
+-- TDFT05 : OCTO54 : Test that DELETE FROM builds cross references outside TSTART/TCOMMIT
+
+DELETE FROM names where lastname = 'Cool';
+
+DELETE 2
+# Verify that ^%ydboctoX... invocation happens BEFORE the TSTART in the generated M plan
+;; ---------------------------------------------------------
+;  DELETE FROM names where lastname = 'Cool';
+;; ---------------------------------------------------------
+octoPlan0(cursorId,wrapInTp)
+    DO:'$DATA(^%ydboctoocto("xref_status","NAMES","LASTNAME")) xrefPlan^%ydboctoXOMMMsQ8ks3NI1C42wS8F05(cursorId)
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+octoPlan1(cursorId)

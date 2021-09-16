@@ -30,6 +30,11 @@ No results were returned by the query.
 6|Zero|Cool
 11|Zero|Cool
 -------------------------------------------------------------------------
+ --> Running query (row limit: 3): delete from names where id > 5; <--
+-------------------------------------------------------------------------
+SQL State: 02000
+No results were returned by the query.
+-------------------------------------------------------------------------
  --> Running query (row limit: 0): show DateStyle; <--
 -------------------------------------------------------------------------
 ISO

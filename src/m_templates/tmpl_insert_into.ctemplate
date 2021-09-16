@@ -38,8 +38,8 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 	lp_key = lp_get_output_key(lp_select_query);
 	outputKey = lp_key->v.lp_key.key;
 	%{}SET {}%
-	TMPL(tmpl_insert_row_count, outputKey);
-	%{}=0{}%
+	%{}{{ config->global_names.cursor }}(cursorId,{{ PP_ROW_COUNT }}){}%
+	%{}=0 ; Initialize count of inserted records{}%
 	%{}`n{{ PLAN_LINE_START }}{}%
 	%{}SET {}%
 	TMPL(tmpl_key, outputKey);
@@ -234,8 +234,8 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 	%{}`n{{ PLAN_LINE_START }}{}%
 	TMPL(tmpl_print_dots, dot_count);
 	%{}IF $INCREMENT({}%
-	TMPL(tmpl_insert_row_count, outputKey);
-	%{}){}%
+	%{}{{ config->global_names.cursor }}(cursorId,{{ PP_ROW_COUNT }}){}%
+	%{}) ; Increment count of inserted records{}%
 	%{}`n{{ PLAN_LINE_START }}{}%
 	%{}QUIT{}%
 	%{}`n{}%

@@ -18,6 +18,8 @@ INSERT INTO tmp1 SELECT * FROM tmp1;
 -- In addition to testing that duplicate rows are printed below, also test that hidden key column %YO_KEYCOL
 -- is not printed in case of a SELECT *. Only user specified columns are selected in case * was specified.
 SELECT * FROM tmp1;
+-- Test that tablename.* syntax also skips hidden key column %YO_KEYCOL like * did above.
+SELECT t1.* from tmp1 t1;
 
 -- Test that "%YO_KEYCOL" column is hidden from the user (lower case or upper case names) if it was implicitly inserted by Octo.
 -- Test of ERR_UNKNOWN_COLUMN_NAME
@@ -34,6 +36,9 @@ INSERT INTO tmp1(id, `%yo_keycol`) SELECT id, id from tmp1;
 CREATE TABLE tmp2 (`%yo_keycol` INTEGER PRIMARY KEY, id INTEGER, firstname VARCHAR) READONLY GLOBAL "^%ydboctoDAgeMzpAgs346YlVTTNcBB6(keys(""%YO_KEYCOL"")";
 SELECT `%yo_keycol` from tmp2;
 SELECT * from tmp2;
+-- Test that tablename.* syntax produces same output as * did above;
+-- i.e. tablename.* syntax includes key column %YO_KEYCOL since it is not a hidden column.
+SELECT t2.* from tmp2 t2;
 
 -- Test that cross references get built automatically using the hidden key column for queries that involve key fixing optimization.
 CREATE TABLE tmp3 (firstName VARCHAR, lastName varchar) READWRITE;
@@ -50,4 +55,8 @@ SELECT * FROM tmp3 WHERE firstname = 'first1';
 SELECT * FROM tmp3 WHERE lastname = 'last2';
 SELECT * FROM tmp3 WHERE firstname IS NULL;
 SELECT * FROM tmp3 WHERE lastname IS NULL;
-
+-- Test that tablename.* syntax uses hidden key column for key fixing optimization where possible just like * did above.
+SELECT t3.* FROM tmp3 t3 WHERE firstname = 'first1';
+SELECT t3.* FROM tmp3 t3 WHERE lastname = 'last2';
+SELECT t3.* FROM tmp3 t3 WHERE firstname IS NULL;
+SELECT t3.* FROM tmp3 t3 WHERE lastname IS NULL;

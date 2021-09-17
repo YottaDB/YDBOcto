@@ -312,6 +312,8 @@ void readline_setup(void) {
 	using_history();
 	// display the tab_completion of '\t' and just insert it as a character
 	rl_bind_key('\t', rl_insert);
+	// disable bracketed paste so that cursor doesn't jump to beginning of prompt
+	rl_variable_bind("enable-bracketed-paste", "off");
 	set_readline_file();
 	set_octo_history_max_length();
 	load_readline_history();

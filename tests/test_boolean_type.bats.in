@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -42,3 +42,9 @@ setup() {
 @test "TBT04 : Test NOT with boolean comparison as operand from failed QueryGenerator case" {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TBT04.sql "trim_trailing_zeroes"
 }
+
+@test "TBT05 : OCTO747 : Test WHERE/HAVING/ON clause with non-boolean expressions issues ERR_TYPE_NOT_COMPATIBLE error" {
+  load_fixture TBT05_errors.sql subtest novv
+  verify_output TBT05_errors output.txt
+}
+

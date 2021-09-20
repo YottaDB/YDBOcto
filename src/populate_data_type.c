@@ -539,7 +539,12 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		cur_join = start_join;
 		do {
 			result |= populate_data_type(cur_join->value, type, parse_context);
-			result |= populate_data_type(cur_join->condition, type, parse_context);
+			if (NULL != cur_join->condition) {
+				result |= populate_data_type(cur_join->condition, type, parse_context);
+				if (!result && (BOOLEAN_VALUE != *type) && (NUL_VALUE != *type)) {
+					ISSUE_TYPE_COMPATIBILITY_ERROR(*type, "boolean operations", &cur_join->condition, result);
+				}
+			}
 			cur_join = cur_join->next;
 		} while (cur_join != start_join);
 		break;

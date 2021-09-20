@@ -95,6 +95,9 @@
 		case OPTIONAL_END:                                                                     \
 			str = "END";                                                                   \
 			break;                                                                         \
+		case OPTIONAL_ENDPOINT:                                                                \
+			str = "ENDPOINT";                                                              \
+			break;                                                                         \
 		case OPTIONAL_START:                                                                   \
 			str = "START";                                                                 \
 			break;                                                                         \

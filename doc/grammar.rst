@@ -166,7 +166,7 @@ If mapping to existing YottaDB global variables, an optional_keyword can be adde
 
 .. code-block:: none
 
-   [DELIM | END | EXTRACT | GLOBAL | KEY NUM | PIECE | READONLY | READWRITE | START | STARTINCLUDE ]
+   [DELIM | END | ENDPOINT | EXTRACT | GLOBAL | KEY NUM | PIECE | READONLY | READWRITE | START | STARTINCLUDE ]
 
 The keywords denoted above are M expressions and literals. They are explained in the following table:
 
@@ -181,7 +181,11 @@ The keywords denoted above are M expressions and literals. They are explained in
 |              |                    |               | case, the entire global variable node value is returned as the column value    |                              |                                                           |
 |              |                    |               | (i.e. no :code:`$PIECE` is performed).                                         |                              |                                                           |
 +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
-| END          | Boolean expression | Table         | Indicates that the cursor has hit the last record in the table                 | Not applicable               | :code:`""=keys(0)`                                        |
+| END          | Boolean expression | Table         | A condition that is tested to see if the cursor has gone past the last record  | Not applicable               | :code:`""=keys(0)`                                        |
+|              |                    |               | in the table. If the condition evaluates to TRUE then that is considered past  |                              |                                                           |
+|              |                    |               | the last record in the table.                                                  |                              |                                                           |
++--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
+| ENDPOINT     | Literal            | Column        | Include all records including this value but not any value after it.           | Not applicable               | :code:`""=keys(0)`                                        |
 +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
 | EXTRACT      | Expression         | Column        | Gets data based on the M expression following the EXTRACT keyword.             | PIECE, GLOBAL                | Not applicable                                            |
 +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
@@ -251,6 +255,10 @@ If the same :code:`CREATE TABLE` command specifies :code:`READONLY` and :code:`R
 
 If a :code:`DELIM ""` is specified for a column, any :code:`PIECE` keyword specified for that column is ignored and is treated as if the keyword was not specified.
 
+For :code:`ENDPOINT`, you can specify literals, M style $CHAR data, or a space. Note that to specify a space, you need to say :code:`'" "'`. For $CHAR(n), say :code:`'$CHAR(n)'`.
+
+You can combine :code:`END` and :code:`ENDPOINT` together. If you do so, both conditions are evaulated; however, the END condition is evaluated before the ENDPOINT condition.
+
 ~~~~~~~~~~~
 Examples
 ~~~~~~~~~~~
@@ -263,7 +271,7 @@ Examples
     EmployeeID INTEGER,
     OrderDate VARCHAR(16),
     ShipperID INTEGER)
-   GLOBAL "^Orders(keys(""OrderID""))";		
+   GLOBAL "^Orders(keys(""OrderID""))";
 
 In the above example, the :code:`Orders` table maps data in the nodes of the global variable :code:`^Orders`. :code:`^Orders` has a single subscript, :code:`OrderID`. Its nodes are strings, whose :code:`|` separated pieces are, respectively, :code:`CustomerID`, :code:`EmployeeID`, :code:`OrderDate`, and :code:`ShipperID`, e.g., :code:`^Orders(535088)="9015|57|2021-08-26|17"`. :code:`"|"` is the default piece operator.
 
@@ -275,10 +283,10 @@ In the above example, the :code:`Orders` table maps data in the nodes of the glo
     EmployeeID INTEGER,
     OrderDate VARCHAR(16),
     ShipperID INTEGER)
-   DELIM "^" 
+   DELIM "^"
    GLOBAL "^Orders(keys(""OrderID""))";
 
-This example is similar to the last, except that the nodes of :code:`^Orders` are strings whose pieces are separated by :code:`"^"`, e.g., :code:`^Orders(535088)="9015^57^2021-08-26^17"`. 
+This example is similar to the last, except that the nodes of :code:`^Orders` are strings whose pieces are separated by :code:`"^"`, e.g., :code:`^Orders(535088)="9015^57^2021-08-26^17"`.
 
 .. code-block:: SQL
 
@@ -293,14 +301,14 @@ This example is similar to the last, except that the nodes of :code:`^Orders` ar
    GLOBAL "^USPresidents(keys(""FirstYear""),keys(""LastYear""))";
 
 In the above example, ^USPresidents has records like :code:`^USPresidents(1933,1945)="Franklin|Delano|Roosevelt|1882|1945"` and :code:`^USPresidents(2009,2017)="Barack||Obama|1961"`.
-   
+
 .. code-block:: SQL
 
    CREATE TABLE PresidentNames
    (ID INTEGER PRIMARY KEY,
     FName VARCHAR PIECE 2,
     LName VARCHAR PIECE 1)
-   GLOBAL "^PresidentNames(keys(""ID""))";		
+   GLOBAL "^PresidentNames(keys(""ID""))";
 
 In the above example, ^PresidentNames has records like :code:`^Names(1)="Lincoln|Abraham"` and :code:`^Names(2)="Obama|Barack"`.
 
@@ -312,9 +320,10 @@ In the above example, ^PresidentNames has records like :code:`^Names(1)="Lincoln
     FName VARCHAR EXTRACT "$PIECE(^AuthorNames(keys(""ID"")),""^"",2)")
    DELIM "^"
    GLOBAL "^AuthorNames(keys(""ID""))";
-   
+
+
 In the above example, ^AuthorNames has records like :code:`^Names(1)="Dahl^Roald"` and :code:`^Names(2)="Blyton^Enid"`.
-   
+
 .. code-block:: SQL
 
    CREATE TABLE Orders
@@ -351,7 +360,20 @@ In the above example, the :code:`Orders` table is set to be :code:`READWRITE`. I
     ShipperID INTEGER)
    GLOBAL "^Orders(keys(""OrderID""))";
 
-In the above example, the START and END keywords tell Octo what subset of the ^Orders nodes with one subscript should be mapped to the Orders table. :code:`START 0` indicates that subscripts greater than :code:`0` should be mapped, and :code:`END "$CHAR(0)]]keys(""OrderID"")"` restricts the mapping to numeric subscripts..
+In the above example, the START and END keywords tell Octo what subset of the ^Orders nodes with one subscript should be mapped to the Orders table. :code:`START 0` indicates that subscripts greater than :code:`0` should be mapped, and :code:`END "$CHAR(0)]]keys(""OrderID"")"` restricts the mapping to numeric subscripts.
+
+Rather than using END in the previous example, you can use the simpler ENDPOINT, which will achieve the same result (the below example illustrates that). ENDPOINT will traverse the global until it reaches the specified endpoint, and it will include the end point record as well. Most of the time, ENDPOINT should be used to reach the end of a numeric subscript range. Therefore, a good value to use is :code:`'$CHAR(0)'` or :code:`'" "'`, as these sort after numbers.
+
+.. code-block:: SQL
+
+   CREATE TABLE Orders
+   (OrderID INTEGER PRIMARY KEY START 0 ENDPOINT '$CHAR(0)',
+    CustomerID INTEGER,
+    EmployeeID INTEGER,
+    OrderDate VARCHAR(16),
+    ShipperID INTEGER)
+   GLOBAL "^Orders(keys(""OrderID""))";
+
 
 .. code-block:: SQL
 
@@ -513,7 +535,7 @@ This example demonstrates dropping a function with parameters of types VARCHAR a
    DROP FUNCTION userfuncwithargs (VARCHAR, INTEGER);
 
 If IF EXISTS is supplied for a DROP FUNCTION statement and a function does not exist, the result is a no-op with no errors. In this case, error type WARN_FUNCTION_DOES_NOT_EXIST is emitted at WARNING log severity level.
-   
+
 +++++++++++++
 Error Case
 +++++++++++++

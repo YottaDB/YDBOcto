@@ -602,3 +602,48 @@ OCTO
 	octo -f lock.sql &>> output.txt # should not error.
 	verify_output TC048 output.txt
 }
+
+@test "TC049 : OCTO476 : ENDPOINT keyword, as a supplement to END" {
+	load_fixture vista-mini.zwr
+
+	echo 'Test ENDPOINT with a space' | tee -a output.txt
+	load_fixture TC049-1.sql subtest novv
+
+	echo | tee -a output.txt
+	echo 'Test ENDPOINT with a $CHAR(0) (should be same as space)' | tee -a output.txt
+	load_fixture TC049-2.sql subtest novv
+
+	echo | tee -a output.txt
+	echo 'Add a couple of records at $CHAR(27), and test with space again' | tee -a output.txt
+	yottadb -run %XCMD 'set ^ORD(100.01,$C(27),0)="ESC STATUS 1^esc1"'
+	yottadb -run %XCMD 'set ^ORD(100.01,$C(27)_"[PQ",0)="ESC STATUS 2^esc2"'
+	load_fixture TC049-1.sql subtest novv
+	yottadb -run %XCMD 'kill ^ORD(100.01,$C(27),0)'
+	yottadb -run %XCMD 'kill ^ORD(100.01,$C(27)_"[PQ",0)'
+
+	echo | tee -a output.txt
+	echo 'Add a couple of records at "A", and test ENDPOINT with a "A"' | tee -a output.txt
+	yottadb -run %XCMD 'set ^ORD(100.01,"A",0)="A STATUS^a"'
+	yottadb -run %XCMD 'set ^ORD(100.01,"ABC",0)="ABC STATUS^abc"'
+	load_fixture TC049-3.sql subtest novv
+	yottadb -run %XCMD 'kill ^ORD(100.01,"A",0)'
+	yottadb -run %XCMD 'kill ^ORD(100.01,"ABC",0)'
+
+	echo | tee -a output.txt
+	echo 'Test ENDPOINT with a ""' | tee -a output.txt
+	load_fixture TC049-4.sql subtest novv
+
+	echo | tee -a output.txt
+	echo 'Test ENDPOINT with a 3' | tee -a output.txt
+	load_fixture TC049-5.sql subtest novv
+
+	echo | tee -a output.txt
+	echo 'Test END and ENDPOINT together; END overrides ENDPOINT' | tee -a output.txt
+	load_fixture TC049-6.sql subtest novv
+
+	echo | tee -a output.txt
+	echo 'Test END and ENDPOINT together; END never happens, ENDPOINT prevails' | tee -a output.txt
+	load_fixture TC049-7.sql subtest novv
+
+	verify_output TC049 output.txt
+}

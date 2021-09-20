@@ -139,6 +139,7 @@ int copied_so_far;
 (?i:DROP) { return DROP; }
 (?i:ELSE) { return ELSE; }
 (?i:END) { return END; }
+(?i:ENDPOINT) { return ENDPOINT; }
 (?i:EXCEPT) { return EXCEPT; }
 (?i:EXISTS) { return EXISTS; }
 (?i:EXTRACT) { return EXTRACT; }

@@ -191,6 +191,11 @@ int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_co
 			m_escape_string2(&buffer2, &buffer2_size, value->v.reference);
 			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " END \"%s\"", buffer2);
 			break;
+		case OPTIONAL_ENDPOINT:
+			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
+			m_escape_string2(&buffer2, &buffer2_size, value->v.reference);
+			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " ENDPOINT \"%s\"", buffer2);
+			break;
 		default:
 			ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
 			assert(FALSE);

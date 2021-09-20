@@ -440,6 +440,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			case OPTIONAL_START:
 			case OPTIONAL_STARTINCLUDE:
 			case OPTIONAL_END:
+			case OPTIONAL_ENDPOINT:
 				readwrite_disallowed = TRUE;
 				break;
 			case OPTIONAL_DELIM:

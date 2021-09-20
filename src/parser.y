@@ -110,6 +110,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token DROP
 %token ELSE
 %token END
+%token ENDPOINT
 %token EXCEPT
 %token EXISTS
 %token EXTRACT
@@ -1635,6 +1636,17 @@ column_definition_tail
        SQL_STATEMENT($$, keyword_STATEMENT);
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        ($$)->v.keyword->keyword = OPTIONAL_END;
+       ($$)->v.keyword->v = $ddl_str_literal_value;
+       dqinit(($$)->v.keyword);
+
+       SqlOptionalKeyword *keyword;
+       UNPACK_SQL_STATEMENT(keyword, $3, keyword);
+       dqappend(keyword, ($$)->v.keyword);
+    }
+  | ENDPOINT ddl_str_literal_value column_definition_tail {
+       SQL_STATEMENT($$, keyword_STATEMENT);
+       MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
+       ($$)->v.keyword->keyword = OPTIONAL_ENDPOINT;
        ($$)->v.keyword->v = $ddl_str_literal_value;
        dqinit(($$)->v.keyword);
 

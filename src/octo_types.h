@@ -274,7 +274,8 @@ typedef enum OptionalKeyword {
 	OPTIONAL_DESC,
 	OPTIONAL_STARTINCLUDE,
 	OPTIONAL_READONLY,
-	OPTIONAL_READWRITE
+	OPTIONAL_READWRITE,
+	OPTIONAL_ENDPOINT,
 } OptionalKeyword;
 
 typedef enum SqlSetOperationType {

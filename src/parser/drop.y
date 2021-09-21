@@ -11,11 +11,11 @@
  ****************************************************************/
 
 drop_table_statement
-  : DROP TABLE column_name drop_behavior {
-      INVOKE_DROP_TABLE_STATEMENT($$, $column_name, $drop_behavior, FALSE);
+  : DROP TABLE column_name drop_behavior drop_data_retention {
+      INVOKE_DROP_TABLE_STATEMENT($$, $column_name, $drop_behavior, $drop_data_retention, FALSE);
     }
-  | DROP TABLE IF EXISTS column_name drop_behavior {
-      INVOKE_DROP_TABLE_STATEMENT($$, $column_name, $drop_behavior, TRUE);
+  | DROP TABLE IF EXISTS column_name drop_behavior drop_data_retention {
+      INVOKE_DROP_TABLE_STATEMENT($$, $column_name, $drop_behavior, $drop_data_retention, TRUE);
     }
   ;
 
@@ -42,5 +42,15 @@ drop_behavior
     }
   | RESTRICT {
       INVOKE_DROP_BEHAVIOR($$, OPTIONAL_RESTRICT);
+    }
+  ;
+
+/* Note: C code using this element should cast it back to type `enum OptionalKeyword` */
+drop_data_retention
+  : /* Empty */ {
+      $$ = (SqlStatement *)NO_KEYWORD;
+  }
+  | KEEPDATA {
+      $$ = (SqlStatement *)OPTIONAL_KEEPDATA;
     }
   ;

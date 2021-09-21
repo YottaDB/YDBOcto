@@ -141,6 +141,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token INTO
 %token IS
 %token JOIN
+%token KEEPDATA
 %token KEY
 %token LEAST
 %token LEFT

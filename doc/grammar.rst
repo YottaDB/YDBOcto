@@ -154,7 +154,7 @@ Note that CREATE TABLE statements can also accept a list of ASCII integer values
 
 Here, two TAB characters (ASCII value 9) act as the internal delimiter of an Octo table. Note, however, that these delimiters are not applied to Octo output, which retains the default pipe :code:`|` delimiter. The reason for this is that tables may be joined that have different delimiters, so one common delimiter needs to be chosen anyway. Thus, the default is used.
 
-If IF NOT EXISTS is supplied for a CREATE TABLE statement and a table exists, the result is a no-op with no errors. In this case, error type WARN_TABLE_ALREADY_EXISTS is emitted at WARNING log severity level.
+If IF NOT EXISTS is supplied for a CREATE TABLE statement and a table exists, the result is a no-op with no errors. In this case, error type INFO_TABLE_ALREADY_EXISTS is emitted at INFO log severity level.
 
 .. _mapexisting:
 
@@ -321,7 +321,6 @@ In the above example, ^PresidentNames has records like :code:`^Names(1)="Lincoln
    DELIM "^"
    GLOBAL "^AuthorNames(keys(""ID""))";
 
-
 In the above example, ^AuthorNames has records like :code:`^Names(1)="Dahl^Roald"` and :code:`^Names(2)="Blyton^Enid"`.
 
 .. code-block:: SQL
@@ -455,7 +454,7 @@ Example:
    CREATE FUNCTION userfunc()
    RETURNS int AS $$userfunc^myextrinsicfunction;
 
-If IF NOT EXISTS is supplied for a CREATE FUNCTION statement and a function exists, the result is a no-op with no errors. In this case, error type WARN_FUNCTION_ALREADY_EXISTS is emitted at WARNING log severity level.
+If IF NOT EXISTS is supplied for a CREATE FUNCTION statement and a function exists, the result is a no-op with no errors. In this case, error type INFO_FUNCTION_ALREADY_EXISTS is emitted at INFO log severity level.
 
 +++++++++++++
 Error Case
@@ -482,7 +481,7 @@ DROP TABLE
 
 .. code-block:: SQL
 
-   DROP TABLE table_name;
+   DROP TABLE [IF EXISTS] table_name [KEEPDATA];
 
 The DROP TABLE statement is used to remove tables from the database. The keywords DROP TABLE are followed by the name of the table desired to be dropped.
 
@@ -496,9 +495,9 @@ Example:
 
    DROP TABLE Employee;
 
-If IF EXISTS is supplied for a DROP TABLE statement and a table does not exist, the result is a no-op with no errors. In this case, error type WARN_TABLE_DOES_NOT_EXIST is emitted at WARNING log severity level.
+If :code:`IF EXISTS` is supplied for a :code:`DROP TABLE` statement and a table does not exist, the result is a no-op with no errors. In this case, error type :code:`INFO_TABLE_DOES_NOT_EXIST` is emitted at :code:`INFO` log severity level.
 
-A :code:`DROP TABLE` command on a :code:`READWRITE` table drops the table as well as kills all underlying global nodes that stored the table data. On the other hand, a :code:`DROP TABLE` command on a :code:`READONLY` table only drops the table and leaves the underlying global nodes that stored the table data untouched.
+By default, a :code:`DROP TABLE` statement for a :code:`READWRITE` table drops the table and also kills all underlying global nodes that stored the table data. The optional parameter :code:`KEEPDATA` overrides this behavior, preserving the underlying global nodes regardless of table writability type. :code:`DROP TABLE` statements for :code:`READONLY` tables always preserve the underlying global nodes whether :code:`KEEPDATA` is explicitly specified or not.
 
 +++++++++++++
 Error Case
@@ -534,7 +533,7 @@ This example demonstrates dropping a function with parameters of types VARCHAR a
 
    DROP FUNCTION userfuncwithargs (VARCHAR, INTEGER);
 
-If IF EXISTS is supplied for a DROP FUNCTION statement and a function does not exist, the result is a no-op with no errors. In this case, error type WARN_FUNCTION_DOES_NOT_EXIST is emitted at WARNING log severity level.
+If IF EXISTS is supplied for a DROP FUNCTION statement and a function does not exist, the result is a no-op with no errors. In this case, error type INFO_FUNCTION_DOES_NOT_EXIST is emitted at INFO log severity level.
 
 +++++++++++++
 Error Case

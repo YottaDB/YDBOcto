@@ -717,15 +717,16 @@ typedef enum RegexType {
 	}
 
 /* Below parses a drop_table_statement SQL grammar component  */
-#define INVOKE_DROP_TABLE_STATEMENT(STMT, COLUMN_NAME, DROP_BEHAVIOR, IF_EXISTS_SPECIFIED) \
-	{                                                                                  \
-		SqlStatement *ret;                                                         \
-		SQL_STATEMENT(ret, drop_table_STATEMENT);                                  \
-		OCTO_CMALLOC_STRUCT(ret->v.drop_table, SqlDropTableStatement);             \
-		ret->v.drop_table->table_name = COLUMN_NAME;                               \
-		ret->v.drop_table->optional_keyword = DROP_BEHAVIOR;                       \
-		ret->v.drop_table->if_exists_specified = IF_EXISTS_SPECIFIED;              \
-		STMT = ret;                                                                \
+#define INVOKE_DROP_TABLE_STATEMENT(STMT, COLUMN_NAME, DROP_BEHAVIOR, DROP_DATA_RETENTION, IF_EXISTS_SPECIFIED) \
+	{                                                                                                       \
+		SqlStatement *ret;                                                                              \
+		SQL_STATEMENT(ret, drop_table_STATEMENT);                                                       \
+		OCTO_CMALLOC_STRUCT(ret->v.drop_table, SqlDropTableStatement);                                  \
+		ret->v.drop_table->table_name = COLUMN_NAME;                                                    \
+		ret->v.drop_table->optional_keyword = DROP_BEHAVIOR;                                            \
+		ret->v.drop_table->drop_data_retention = (enum OptionalKeyword)DROP_DATA_RETENTION;             \
+		ret->v.drop_table->if_exists_specified = IF_EXISTS_SPECIFIED;                                   \
+		STMT = ret;                                                                                     \
 	}
 
 /* Below parses a drop_behavior SQL grammar component  */

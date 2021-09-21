@@ -168,6 +168,7 @@ int copied_so_far;
 (?i:INTO) { return INTO; }
 (?i:IS) { return IS; }
 (?i:JOIN) { return JOIN; }
+(?i:KEEPDATA) { return KEEPDATA; }
 (?i:KEY) { return KEY; }
 (?i:LEAST) { return LEAST; }
 (?i:LEFT) { return LEFT; }

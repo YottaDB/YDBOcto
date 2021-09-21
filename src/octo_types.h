@@ -276,6 +276,7 @@ typedef enum OptionalKeyword {
 	OPTIONAL_READONLY,
 	OPTIONAL_READWRITE,
 	OPTIONAL_ENDPOINT,
+	OPTIONAL_KEEPDATA,
 } OptionalKeyword;
 
 typedef enum SqlSetOperationType {
@@ -603,6 +604,7 @@ typedef struct SqlDropTableStatement {
 	struct SqlStatement *table_name;
 	// SqlOptionalKeyword
 	struct SqlStatement *optional_keyword;
+	enum OptionalKeyword drop_data_retention;
 	boolean_t	     if_exists_specified;
 } SqlDropTableStatement;
 

@@ -363,8 +363,6 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		YDB_STRING_TO_BUFFER(tablename, table_name_buffer);
 		if (ok_to_drop) {
 			/* DROP TABLE */
-			char	     tableGVNAME[YDB_MAX_IDENT + 1];
-			ydb_buffer_t gvname_buff;
 
 			/* Check if OIDs were created for this table.
 			 * If so, delete those nodes from the catalog now that this table is going away.
@@ -373,12 +371,15 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			if (0 != status) {
 				CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 			}
-			/* Call an M routine to discard all plans, xrefs and triggers associated with the table being
-			 * created/dropped. Cannot use SimpleAPI for at least one step (deleting the triggers). Hence using M for
-			 * all the steps.
-			 */
-			if (table->readwrite) {
-				/* This is a READWRITE table. DROP TABLE should also KILL the gvn corresponding to this table. */
+
+			char		     tableGVNAME[YDB_MAX_IDENT + 1];
+			ydb_buffer_t	     gvname_buff;
+			enum OptionalKeyword retention = NO_KEYWORD;
+			if (drop_table_STATEMENT == result_type) {
+				retention = drop_table->drop_data_retention;
+			}
+			if (table->readwrite && (OPTIONAL_KEEPDATA != retention)) {
+				/* DROP TABLE should also KILL the gvn corresponding to this table. */
 				SqlOptionalKeyword *keyword;
 				char *		    gvname, *firstsub;
 
@@ -398,6 +399,10 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			} else {
 				YDB_STRING_TO_BUFFER("", &gvname_buff);
 			}
+			/* Call an M routine to discard all plans, xrefs and triggers associated with the table being
+			 * created/dropped. Cannot use SimpleAPI for at least one step (deleting the triggers). Hence using M for
+			 * all the steps.
+			 */
 			ci_param1.address = table_name_buffer->buf_addr;
 			ci_param1.length = table_name_buffer->len_used;
 			ci_param2.address = gvname_buff.buf_addr;

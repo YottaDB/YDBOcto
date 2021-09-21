@@ -1,0 +1,35 @@
+# Test that READONLY table does not do KILL of underlying GVN storing the table data with KEEPDATA
+# And that READWRITE table does not do KILL of underlying GVN storing the table data with KEEPDATA
+-----------------------------------------------------------------------------
+# CREATE TABLE NAMES with READONLY tabletype
+# Populate ^names with data for NAMES table
+# Verify NAMES table got created with READONLY or READWRITE tabletype
+CREATE TABLE `NAMES` (`ID` INTEGER PRIMARY KEY, `FIRSTNAME` VARCHAR(30) PIECE 1, `LASTNAME` VARCHAR(30) PIECE 2) GLOBAL "^names(keys(""id""))" DELIM "|" READONLY;
+# DROP TABLE names KEEPDATA
+
+-- TDT08 : OCTO735 : DROP TABLE with KEEPDATA keyword does not do a KILL of the underlying GVN storing the table data
+
+DROP TABLE names KEEPDATA;
+DROP TABLE nameswithages KEEPDATA;
+
+# Verify ^names exists
+$DATA(^names) = 10
+# CREATE TABLE NAMES with READWRITE tabletype
+# Populate ^names with data for NAMES table
+# Verify NAMES table got created with READONLY or READWRITE tabletype
+CREATE TABLE `NAMES` (`ID` INTEGER PRIMARY KEY, `FIRSTNAME` VARCHAR(30) PIECE 1, `LASTNAME` VARCHAR(30) PIECE 2) GLOBAL "^names(keys(""id""))" DELIM "|" READWRITE;
+# DROP TABLE names KEEPDATA
+
+-- TDT08 : OCTO735 : DROP TABLE with KEEPDATA keyword does not do a KILL of the underlying GVN storing the table data
+
+DROP TABLE names KEEPDATA;
+DROP TABLE nameswithages KEEPDATA;
+
+
+-- TDT08 : OCTO735 : DROP TABLE with KEEPDATA keyword does not do a KILL of the underlying GVN storing the table data
+
+DROP TABLE names KEEPDATA;
+DROP TABLE nameswithages KEEPDATA;
+
+# Verify ^names exists
+$DATA(^names) = 10

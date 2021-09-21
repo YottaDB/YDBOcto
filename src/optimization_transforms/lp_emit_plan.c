@@ -151,6 +151,9 @@
 		case OPTIONAL_READONLY:                                                                \
 			str = "READONLY";                                                              \
 			break;                                                                         \
+		case OPTIONAL_KEEPDATA:                                                                \
+			str = "KEEPDATA";                                                              \
+			break;                                                                         \
 		default:                                                                               \
 			assert(FALSE);                                                                 \
 			break;                                                                         \

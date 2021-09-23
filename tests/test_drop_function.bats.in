@@ -66,9 +66,13 @@ setup() {
 	verify_output TDF005 output.txt noinfo nodebug
 }
 
-@test "TDF006 : OCTO595 : DROP FUNCTION IF EXISTS issues a warning when the specified function doesn't exist" {
+@test "TDF006 : OCTO595 : DROP FUNCTION IF EXISTS issues an info message when the specified function doesn't exist" {
 	load_fixture TDF006.sql subtest v
+	echo "Exit Status:" $? | tee -a output.txt
 	yottadb -r CHECKFUNCDELETE PARMLESSFUNC 2>&1 | tee -a output.txt	# Confirm the relevant database nodes for the function were deleted
 	yottadb -r CHECKFUNCDELETE PARMFULLFUNC 2>&1 | tee -a output.txt	# Confirm the relevant database nodes for the function were deleted
+	# Check that we unlock properly
+	$ydb_dist/yottadb -run %XCMD 'for i=1:1:512 write "DROP FUNCTION IF EXISTS PARMFULLFUNC (NUMERIC);",!' > lock.sql
+	octo -f lock.sql &>> output.txt # should not error.
 	verify_output TDF006 output.txt
 }

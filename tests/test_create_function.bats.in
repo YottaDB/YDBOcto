@@ -175,7 +175,11 @@ setup() {
 	verify_output TCF025 output.txt noinfo nodebug
 }
 
-@test "TCF026 : OCTO595 : CREATE FUNCTION IF NOT EXISTS skips existing function of the same name with warning" {
+@test "TCF026 : OCTO595 : CREATE FUNCTION IF NOT EXISTS skips existing function of the same name with info message" {
 	load_fixture TCF026.sql subtest v
+	echo "Exit Status:" $? | tee -a output.txt
+	# Check that we unlock properly
+	$ydb_dist/yottadb -run %XCMD 'for i=1:1:512 write "CREATE FUNCTION IF NOT EXISTS PARMLESSFUNC() RETURNS VARCHAR AS $$^PARMLESSFUNC;",!' > lock.sql
+	octo -f lock.sql &>> output.txt # should not error.
 	verify_output TCF026 output.txt
 }

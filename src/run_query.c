@@ -31,7 +31,7 @@
 #include "lexer.h"
 #include "helpers.h"
 
-#define CLEANUP_AND_RETURN(MEMORY_CHUNKS, BUFFER, TABLE_BUFFER, QUERY_LOCK, CURSOR_YDB_BUFF)                        \
+#define CLEANUP_AND_RETURN_COMMON(MEMORY_CHUNKS, BUFFER, TABLE_BUFFER, QUERY_LOCK, CURSOR_YDB_BUFF)                 \
 	{                                                                                                           \
 		if (NULL != BUFFER) {                                                                               \
 			free(BUFFER);                                                                               \
@@ -47,15 +47,26 @@
 			YDB_ERROR_CHECK(lclStatus);                                                                 \
 		}                                                                                                   \
 		OCTO_CFREE(MEMORY_CHUNKS);                                                                          \
-		return 1;                                                                                           \
 	}
 
-#define CLEANUP_AND_RETURN_IF_NOT_YDB_OK(STATUS, MEMORY_CHUNKS, BUFFER, TABLE_BUFFER, QUERY_LOCK, CURSOR_YDB_BUFF) \
-	{                                                                                                          \
-		YDB_ERROR_CHECK(STATUS);                                                                           \
-		if (YDB_OK != STATUS) {                                                                            \
-			CLEANUP_AND_RETURN(MEMORY_CHUNKS, BUFFER, TABLE_BUFFER, QUERY_LOCK, CURSOR_YDB_BUFF);      \
-		}                                                                                                  \
+#define CLEANUP_AND_RETURN_WITH_SUCCESS(MEMORY_CHUNKS, BUFFER, TABLE_BUFFER, QUERY_LOCK, CURSOR_YDB_BUFF)   \
+	{                                                                                                   \
+		CLEANUP_AND_RETURN_COMMON(MEMORY_CHUNKS, BUFFER, TABLE_BUFFER, QUERY_LOCK, CURSOR_YDB_BUFF) \
+		return 0;                                                                                   \
+	}
+
+#define CLEANUP_AND_RETURN_WITH_ERROR(MEMORY_CHUNKS, BUFFER, TABLE_BUFFER, QUERY_LOCK, CURSOR_YDB_BUFF)     \
+	{                                                                                                   \
+		CLEANUP_AND_RETURN_COMMON(MEMORY_CHUNKS, BUFFER, TABLE_BUFFER, QUERY_LOCK, CURSOR_YDB_BUFF) \
+		return 1;                                                                                   \
+	}
+
+#define CLEANUP_AND_RETURN_IF_NOT_YDB_OK(STATUS, MEMORY_CHUNKS, BUFFER, TABLE_BUFFER, QUERY_LOCK, CURSOR_YDB_BUFF)       \
+	{                                                                                                                \
+		YDB_ERROR_CHECK(STATUS);                                                                                 \
+		if (YDB_OK != STATUS) {                                                                                  \
+			CLEANUP_AND_RETURN_WITH_ERROR(MEMORY_CHUNKS, BUFFER, TABLE_BUFFER, QUERY_LOCK, CURSOR_YDB_BUFF); \
+		}                                                                                                        \
 	}
 
 #define CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS_SKIP_PARAMETER_LVN(QUERY_LOCK, MEMORY_CHUNKS) \
@@ -266,7 +277,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		free_memory_chunks = false;
 		break;
 	case discard_all_STATEMENT: /* DISCARD ALL */
-		/* Initialize a few variables to NULL at the start. They are used in the CLEANUP_AND_RETURN and
+		/* Initialize a few variables to NULL at the start. They are used in the CLEANUP_AND_RETURN_WITH_ERROR and
 		 * CLEANUP_AND_RETURN_IF_NOT_YDB_OK macro as parameters (we cannot use NULL literal there due to compile errors).
 		 */
 		buffer = NULL;
@@ -306,7 +317,8 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		 */
 		table_name_buffer = &table_name_buffers[0];
 		/* Initialize a few variables to NULL at the start. They are really used much later but any calls to
-		 * CLEANUP_AND_RETURN and CLEANUP_AND_RETURN_IF_NOT_YDB_OK before then need this so they skip freeing this.
+		 * CLEANUP_AND_RETURN_WITH_ERROR and CLEANUP_AND_RETURN_IF_NOT_YDB_OK before then need this so they skip freeing
+		 * this.
 		 */
 		buffer = NULL;
 		spcfc_buffer = NULL;
@@ -331,11 +343,14 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 				if (FALSE == drop_table->if_exists_specified) {
 					/* The DROP TABLE statement does not specify IF EXISTS. Issue error. */
 					ERROR(ERR_CANNOT_DROP_TABLE, tablename);
+					CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock,
+								      &cursor_ydb_buff);
 				} else {
 					/* The DROP TABLE statement specifies IF EXISTS. Issue info message. */
-					WARNING(WARN_TABLE_DOES_NOT_EXIST, tablename);
+					INFO(INFO_TABLE_DOES_NOT_EXIST, tablename);
+					CLEANUP_AND_RETURN_WITH_SUCCESS(memory_chunks, buffer, spcfc_buffer, query_lock,
+									&cursor_ydb_buff);
 				}
-				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 			}
 			ok_to_drop = TRUE;
 		} else {
@@ -356,7 +371,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			 */
 			status = delete_table_from_pg_class(table_name_buffer);
 			if (0 != status) {
-				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+				CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 			}
 			/* Call an M routine to discard all plans, xrefs and triggers associated with the table being
 			 * created/dropped. Cannot use SimpleAPI for at least one step (deleting the triggers). Hence using M for
@@ -398,7 +413,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			status = drop_schema_from_local_cache(table_name_buffer, TableSchema, NULL);
 			if (YDB_OK != status) {
 				/* YDB_ERROR_CHECK would already have been done inside "drop_schema_from_local_cache()" */
-				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+				CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 			}
 		}
 		if (create_table_STATEMENT == result_type) {
@@ -414,11 +429,14 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 					if (FALSE == table->if_not_exists_specified) {
 						/* The CREATE TABLE statement does not specify IF NOT EXISTS. Issue error. */
 						ERROR(ERR_CANNOT_CREATE_TABLE, tablename);
+						CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock,
+									      &cursor_ydb_buff);
 					} else {
 						/* The CREATE TABLE statement specifies IF NOT EXISTS. Issue info message. */
-						WARNING(WARN_TABLE_ALREADY_EXISTS, tablename);
+						INFO(INFO_TABLE_ALREADY_EXISTS, tablename);
+						CLEANUP_AND_RETURN_WITH_SUCCESS(memory_chunks, buffer, spcfc_buffer, query_lock,
+										&cursor_ydb_buff);
 					}
-					CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 				}
 			}
 			out = open_memstream(&buffer, &buffer_size);
@@ -428,7 +446,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			if (0 > text_table_defn_length) {
 				// Error messages for the negative status would already have been issued in
 				// "emit_create_table"
-				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+				CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 			}
 			INFO(INFO_TEXT_REPRESENTATION,
 			     buffer); /* print the converted text representation of the CREATE TABLE command */
@@ -439,7 +457,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			status = store_table_definition(table_name_buffers, buffer, text_table_defn_length, TRUE);
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 			free(buffer);
-			buffer = NULL; /* So CLEANUP_AND_RETURN* macro calls below do not try "free(buffer)" */
+			buffer = NULL; /* So CLEANUP_AND_RETURN_WITH_ERROR* macro calls below do not try "free(buffer)" */
 			/* First store table name in catalog. As we need that OID to store in the binary table definition.
 			 * The below call also sets table->oid which is needed before the call to "compress_statement" as
 			 * that way the oid also gets stored in the binary table definition.
@@ -448,10 +466,11 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			/* Cannot use CLEANUP_AND_RETURN_IF_NOT_YDB_OK macro here because the above function could set
 			 * status to 1 to indicate an error (not necessarily a valid YDB_ERR_* code). In case it is a
 			 * YDB error code, the YDB_ERROR_CHECK call would have already been done inside "store_table_in_pg_class"
-			 * so all we need to do here is check if status is not 0 (aka YDB_OK) and if so invoke CLEANUP_AND_RETURN.
+			 * so all we need to do here is check if status is not 0 (aka YDB_OK) and if so invoke
+			 * CLEANUP_AND_RETURN_WITH_ERROR.
 			 */
 			if (YDB_OK != status) {
-				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+				CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 			}
 			compress_statement(result, &spcfc_buffer, &length); /* Sets "spcfc_buffer" to "malloc"ed storage */
 			assert(NULL != spcfc_buffer);
@@ -483,7 +502,8 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		 */
 		function_name_buffer = &function_name_buffers[1];
 		/* Initialize a few variables to NULL at the start. They are really used much later but any calls to
-		 * CLEANUP_AND_RETURN and CLEANUP_AND_RETURN_IF_NOT_YDB_OK before then need this so they skip freeing this.
+		 * CLEANUP_AND_RETURN_WITH_ERROR and CLEANUP_AND_RETURN_IF_NOT_YDB_OK before then need this so they skip freeing
+		 * this.
 		 */
 		buffer = NULL;
 		spcfc_buffer = NULL;
@@ -509,11 +529,11 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		// Then hash the function parameters to determine which function definition is to be CREATEd or DROPed
 		INVOKE_HASH_CANONICAL_QUERY(state, result, status); /* "state" holds final hash */
 		if (0 != status) {
-			CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+			CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 		}
 		status = generate_routine_name(&state, function_hash, sizeof(function_hash), FunctionHash);
 		if (1 == status) {
-			CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+			CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 		}
 		function_hash_buffer = &function_name_buffers[2];
 		YDB_STRING_TO_BUFFER(function_hash, function_hash_buffer);
@@ -552,11 +572,14 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 				if (FALSE == drop_function->if_exists_specified) {
 					/* The DROP FUNCTION statement does not specify IF EXISTS. Issue error. */
 					ERROR(ERR_CANNOT_DROP_FUNCTION, fn_name);
+					CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock,
+								      &cursor_ydb_buff);
 				} else {
 					/* The DROP FUNCTION statement specifies IF EXISTS. Issue info message. */
-					WARNING(WARN_FUNCTION_DOES_NOT_EXIST, fn_name);
+					INFO(INFO_FUNCTION_DOES_NOT_EXIST, fn_name);
+					CLEANUP_AND_RETURN_WITH_SUCCESS(memory_chunks, buffer, spcfc_buffer, query_lock,
+									&cursor_ydb_buff);
 				}
-				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 			}
 			ok_to_drop = TRUE;
 		} else {
@@ -573,11 +596,14 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 					if (FALSE == function->if_not_exists_specified) {
 						/* The CREATE FUNCTION statement does not specify IF NOT EXISTS. Issue error. */
 						ERROR(ERR_CANNOT_CREATE_FUNCTION, fn_name);
+						CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock,
+									      &cursor_ydb_buff);
 					} else {
 						/* The CREATE FUNCTION statement specifies IF NOT EXISTS. Issue info message. */
-						WARNING(WARN_FUNCTION_ALREADY_EXISTS, fn_name);
+						INFO(INFO_FUNCTION_ALREADY_EXISTS, fn_name);
+						CLEANUP_AND_RETURN_WITH_SUCCESS(memory_chunks, buffer, spcfc_buffer, query_lock,
+										&cursor_ydb_buff);
 					}
-					CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 				}
 			} else {
 				/* It is okay for a function that is being created (using "CREATE FUNCTION" in "octo-seed.sql")
@@ -590,7 +616,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			/* DROP FUNCTION explicitly requested or implicitly assumed as part of auto load of "octo-seed.sql" */
 			status = delete_function_from_pg_proc(function_name_buffer, function_hash_buffer);
 			if (0 != status) {
-				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+				CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 			}
 			/* Call an M routine to discard all plans associated with the function being created/dropped */
 			ci_param1.address = function_name_buffer->buf_addr;
@@ -604,7 +630,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			status = drop_schema_from_local_cache(function_name_buffer, FunctionSchema, function_hash_buffer);
 			if (YDB_OK != status) {
 				// YDB_ERROR_CHECK would already have been done inside "drop_schema_from_local_cache()"
-				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+				CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 			}
 		}
 		if (create_function_STATEMENT == result_type) {
@@ -619,7 +645,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 				/* Error messages for the non-zero status would already have been issued in
 				 * "emit_create_function"
 				 */
-				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+				CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 			}
 			/* Print the converted text representation of the CREATE TABLE command */
 			INFO(INFO_TEXT_REPRESENTATION, buffer);
@@ -628,7 +654,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			 */
 			status = store_function_definition(function_name_buffers, buffer, text_function_defn_length, TRUE);
 			free(buffer);
-			buffer = NULL; // So CLEANUP_AND_RETURN* macro calls below do not try "free(buffer)"
+			buffer = NULL; // So CLEANUP_AND_RETURN_WITH_ERROR* macro calls below do not try "free(buffer)"
 
 			/* First store function name in catalog. As we need that OID to store in the binary table
 			 * definition. The below call also sets table->oid which is needed before the call to
@@ -640,10 +666,11 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			/* Cannot use CLEANUP_AND_RETURN_IF_NOT_YDB_OK macro here because the above function could set
 			 * status to 1 to indicate an error (not necessarily a valid YDB_ERR_* code). In case it is a
 			 * YDB error code, the YDB_ERROR_CHECK call would have already been done inside "store_function_in_pg_proc"
-			 * so all we need to do here is check if status is not 0 (aka YDB_OK) and if so invoke CLEANUP_AND_RETURN.
+			 * so all we need to do here is check if status is not 0 (aka YDB_OK) and if so invoke
+			 * CLEANUP_AND_RETURN_WITH_ERROR.
 			 */
 			if (YDB_OK != status) {
-				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+				CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 			}
 
 			/* Now that we know there are no too-many-parameter errors in ths function, we can safely go ahead
@@ -679,7 +706,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		cursorId = atol(cursor_ydb_buff.buf_addr);
 		status = (*callback)(result, cursorId, parms, NULL, msg_type);
 		if (YDB_OK != status) {
-			CLEANUP_AND_RETURN(memory_chunks, NULL, NULL, query_lock, &cursor_ydb_buff);
+			CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, NULL, NULL, query_lock, &cursor_ydb_buff);
 		}
 		break;
 	case index_STATEMENT:

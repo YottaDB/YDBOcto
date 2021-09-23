@@ -112,7 +112,7 @@ OCTO
 	verify_output TDT05 final_output.txt
 }
 
-@test "TDT06 : OCTO595 : Warn and skip drop table execution when IF EXISTS is used and the table doesn't exist" {
+@test "TDT06 : OCTO595 : Info msg and skip drop table execution when IF EXISTS is used and the table doesn't exist" {
   octo <<OCTO 2>&1 | tee output.txt
 create table t1 (a int primary key, b int, c int, d int);
 OCTO
@@ -120,5 +120,9 @@ OCTO
 drop table if exists t1;
 drop table if exists t1;
 OCTO
+  echo "Exit Status:" $? | tee -a output.txt
+  # Check that we released the locks
+  $ydb_dist/yottadb -run %XCMD 'for i=1:1:512 write "drop table if exists abc;",!' > lock.sql
+  octo -f lock.sql &>> output.txt # should not error.
   verify_output TDT06 output.txt
 }

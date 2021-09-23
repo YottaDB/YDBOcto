@@ -309,7 +309,7 @@ Text: Error opening input file: xxx
 Description/Action: This error is generated when Octo tries to read from a file that is non-existent. PSQL Error Code: 58030
 
 +++++++++++++++++++++++++++++
-WARN_FUNCTION_ALREADY_EXISTS
+INFO_FUNCTION_ALREADY_EXISTS
 +++++++++++++++++++++++++++++
 
 Text: Function 'xxx' already exists, skipping
@@ -317,7 +317,7 @@ Text: Function 'xxx' already exists, skipping
 Description/Action: This message lets the user know that Octo is skipping the action since the specified function already exists. PSQL Error Code: 42723
 
 +++++++++++++++++++++++++++++
-WARN_FUNCTION_DOES_NOT_EXIST
+INFO_FUNCTION_DOES_NOT_EXIST
 +++++++++++++++++++++++++++++
 
 Text: Function 'xxx' does not exist, skipping
@@ -991,7 +991,7 @@ Text: System call failed: xxx, return xxx (xxx): args: xxx
 Description/Action: This error is generated when a system call fails, and provides additional information about the arguments passed to it. PSQL Error Code: 58000
 
 ++++++++++++++++++++++++++
-WARN_TABLE_ALREADY_EXISTS
+INFO_TABLE_ALREADY_EXISTS
 ++++++++++++++++++++++++++
 
 Text: Table 'xxx' already exists, skipping
@@ -1007,7 +1007,7 @@ Text: Table definition for xxx too long; max size is xxx, table length is xxx
 Description/Action: This error is generated when the table definition is too long. PSQL Error Code: 42P16
 
 ++++++++++++++++++++++++++
-WARN_TABLE_DOES_NOT_EXIST
+INFO_TABLE_DOES_NOT_EXIST
 ++++++++++++++++++++++++++
 
 Text: Table 'xxx' does not exist, skipping

@@ -20,9 +20,13 @@ verbosity = "ERROR"
  */
 // tabletype = "READWRITE"
 
-/* This is prepended to $zroutines on octo startup
- * Generated M routines (which represent SQL queries) are stored in the first source directory found
- * in octo_zroutines followed by $ydb_routines
+/* If octo_zroutines is set (default is unset), a process prepends it to ydb_routines (and in turn to $ZROUTINES). As
+ * Octo places the M routines generated from SQL queries in the first source directory in $ydb_routines/$ZROUTINES and
+ * YottaDB places the object code for M routines as specified by $ZROUTINES, octo_zroutines should not normally be
+ * uncommented when Octo is installed as a YottaDB plugin under $ydb_dist. It is also unwise to set it in any octo.conf
+ * that is shared between Octo environments, because that has the potential for the SQL for one Octo environment being
+ * executed against another. Note that if YottaDB's ydb_env_set is being sourced to set up & manage an environment,
+ * there is no need to assign a value to octo_zroutines.
  */
 // octo_zroutines = "./"
 

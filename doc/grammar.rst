@@ -255,7 +255,7 @@ If the same :code:`CREATE TABLE` command specifies :code:`READONLY` and :code:`R
 
 If a :code:`DELIM ""` is specified for a column, any :code:`PIECE` keyword specified for that column is ignored and is treated as if the keyword was not specified.
 
-For :code:`ENDPOINT`, you can specify literals, M style $CHAR data, or a space. Note that to specify a space, you need to say :code:`'" "'`. For $CHAR(n), say :code:`'$CHAR(n)'`.
+For :code:`ENDPOINT`, you can specify literals, M style $CHAR data, or a space. Note that to specify a space, you need to say :code:`'" "'`. For $CHAR(n), say :code:`'$CHAR(n)'`. Note that if you specify an empty string (:code:`'""'`), you will get no records. In this case you should just omit :code:`ENDPOINT`.
 
 You can combine :code:`END` and :code:`ENDPOINT` together. If you do so, both conditions are evaulated; however, the END condition is evaluated before the ENDPOINT condition.
 

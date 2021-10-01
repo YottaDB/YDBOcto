@@ -149,7 +149,7 @@ CREATE TABLE pg_catalog.pg_proc (
   pronargs INTEGER,
   pronargdefaults INTEGER,
   prorettype INTEGER,
-  proargtypes INTEGER,
+  proargtypes VARCHAR,
   proallargtypes INTEGER,
   proargmodes VARCHAR,
   proargnames VARCHAR,

@@ -10,8 +10,9 @@
 #								#
 #################################################################
 
--- TVA0002 : Test INSERT INTO, DELETE FROM queries against ORDER1 table are disallowed due to READ_ONLY
+-- TVD0002 : Test INSERT INTO, DELETE FROM, UPDATE queries against ORDER1 table are disallowed due to READ_ONLY
 
 INSERT INTO ORDER1(ORDER1_ID) VALUES(-1);
 DELETE FROM ORDER1;
+UPDATE ORDER1 SET ORDER1_ID = ORDER1_ID;
 

@@ -14,23 +14,24 @@
 #include "physical_plan.h"
 #include "template_helpers.h"
 
-TEMPLATE(tmpl_duplication_check, PhysicalPlan *plan) {
+TEMPLATE(tmpl_duplication_check, PhysicalPlan *pplan) {
 	unsigned int	i;
+	int		output_key_id;
 	SqlKey		*key;
 
 	// Emit this as a series of keys (we do not choose key,value pairs to reduce the chances of a MAXNRSUBSCRIPTS error)
 	// Composite keys will be fine because they will be consistently represented
 	// Skip cross reference keys, since those will vary; they still have all the
 	// required keys, in order, under them anyway
-
-	%{}{{ PP_YDB_OCTO_ZDUPLICATE }}({{ plan->outputKey->unique_id|%d }}{}%
-	for (i = 0; i < plan->total_iter_keys; i++) {
-		key = plan->iterKeys[i];
+	output_key_id = ((NULL != pplan->outputKey) ? pplan->outputKey->unique_id : ZERO_OUTPUT_KEY_ID);
+	%{}{{ PP_YDB_OCTO_ZDUPLICATE }}({{ output_key_id|%d }}{}%
+	for (i = 0; i < pplan->total_iter_keys; i++) {
+		key = pplan->iterKeys[i];
 		if (key->is_cross_reference_key)
 			continue;
 		%{},{}%
 		/* Check if the table owning this key has all columns set to be treated as NULL (as part of an OUTER JOIN) */
-		if (!plan->treat_key_as_null[key->unique_id]) {
+		if (!pplan->treat_key_as_null[key->unique_id]) {
 			TMPL(tmpl_key, key);
 		} else {
 			%{}$ZYSQLNULL{}%

@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -17,7 +17,7 @@ run
   SET tableName="",columnName=""
   FOR  SET tableName=$ORDER(%ydboctoCancel(tableName)) QUIT:""=tableName  DO
   . FOR  SET columnName=$ORDER(%ydboctoCancel(tableName,columnName)) QUIT:""=columnName  DO
-  . . IF $DATA(%ydboctoCancel(tableName,columnName,"Trigger")) DO
+  . . DO:$DATA(%ydboctoCancel(tableName,columnName,"Trigger"))
   . . . IF $$dollarZTRIGGER^%ydboctoplanhelpers("item",%ydboctoCancel(tableName,columnName,"Trigger"))
   . . KILL:$DATA(%ydboctoCancel(tableName,columnName,"Node1")) @%ydboctoCancel(tableName,columnName,"Node1")
   . . KILL:$DATA(%ydboctoCancel(tableName,columnName,"Node2")) @%ydboctoCancel(tableName,columnName,"Node2")

@@ -322,6 +322,36 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			}
 		}
 		break;
+	case update_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */
+		SqlUpdateStatement *update;
+
+		UNPACK_SQL_STATEMENT(update, v, update);
+		result |= populate_data_type(update->src_join, type, parse_context);
+		if (NULL != update->where_clause) {
+			result |= populate_data_type(update->where_clause, &child_type1, parse_context);
+			if (!result && (BOOLEAN_VALUE != child_type1) && (NUL_VALUE != child_type1)) {
+				ISSUE_TYPE_COMPATIBILITY_ERROR(child_type1, "boolean operations", &update->where_clause, result);
+			}
+		}
+
+		SqlUpdateColumnValue *ucv, *ucv_head;
+		ucv_head = update->col_value_list;
+		ucv = ucv_head;
+		do {
+			UNPACK_SQL_STATEMENT(column, ucv->col_name, column);
+			child_type1 = get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type, FALSE);
+			result |= populate_data_type(ucv->col_value, &child_type2, parse_context);
+			CAST_AMBIGUOUS_TYPES(child_type1, child_type2, result, parse_context);
+			if (!result && (child_type1 != child_type2)) {
+				ERROR(ERR_TYPE_MISMATCH, get_user_visible_type_string(child_type1),
+				      get_user_visible_type_string(child_type2));
+				yyerror(NULL, NULL, &ucv->col_name, NULL, NULL, NULL);
+				yyerror(NULL, NULL, &ucv->col_value, NULL, NULL, NULL);
+				result = 1;
+			}
+			ucv = ucv->next;
+		} while (ucv != ucv_head);
+		break;
 	case select_STATEMENT:
 		UNPACK_SQL_STATEMENT(select, v, select);
 		// SqlJoin

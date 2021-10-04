@@ -10,7 +10,9 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
-# TVA0004 : Test Realistic Sample Query 2
+
+-- TVD0004 : Test Realistic Sample Query 2
+
 SELECT A.ORDER1_ID,
 E.NAME,
 A.CURRENT_ACTION,
@@ -36,3 +38,4 @@ WHERE
    AND (A.OBJECT_OF_ORDER is not null and E.CURRENT_MOVEMENT is not null AND E.NAME NOT LIKE "ZZ%")
    AND C.NAME="ACTIVE"
 order by e.patient_id,a.order1_id,G.ORDER_ORDER_ACT_ORDER_TEXT_ID
+

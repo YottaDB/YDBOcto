@@ -17,7 +17,7 @@
  * Outputs the "source" of the given key, such as a value in xref global (or local) if the key is
  *  a cross reference, or the value of user-specified global mapping
  */
-TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key) {
+TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key, enum EmitSourceForm form) {
 	char			*tableName;
 	SqlValue		*value;
 	SqlTable		*table;
@@ -79,7 +79,19 @@ TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key) {
 		assert(keys_to_match);
 		UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		TMPL(tmpl_emit_source, table, value->v.string_literal, tableName, key->unique_id, keys_to_match, EmitSourceForm_Value);
+		if (EmitSourceForm_Value == form) {
+			TMPL(tmpl_emit_source, table, value->v.string_literal, tableName, key->unique_id, keys_to_match, form);
+		} else {
+			assert(EmitSourceForm_UpdateKeyCol == form);
+			/* In this case a linked list of "lp_column_list" structures needs to be passed in to "tmpl_emit_source". */
+			LogicalPlan	*lp_update, *lp_column_list;
+
+			lp_update = pplan->lp_select_query;
+			assert(LP_UPDATE == lp_update->type);
+			GET_LP(lp_column_list, lp_update, 1, LP_COLUMN_LIST);
+			TMPL(tmpl_emit_source, table, value->v.string_literal, (char *)lp_column_list,		\
+									key->unique_id, keys_to_match, form);
+		}
 	}
 	return;
 }

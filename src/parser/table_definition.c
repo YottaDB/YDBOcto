@@ -365,7 +365,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		 */
 		piece_keyword = get_keyword(cur_column, OPTIONAL_PIECE);
 		remove_piece_keyword = FALSE;
-		if ((NULL == get_keyword(cur_column, PRIMARY_KEY)) && (NULL == get_keyword(cur_column, OPTIONAL_KEY_NUM))) {
+		if (!IS_KEY_COLUMN(cur_column)) {
 			/* Add PIECE keyword only if DELIM is not "" and column isn't an EXTRACT field */
 			if (NULL == piece_keyword) {
 				if (!delim_is_empty && !is_extract) {

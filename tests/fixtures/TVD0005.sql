@@ -9,5 +9,7 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
-# TVA0005 : Test Realistic Sample Query 2
+
+-- TVD0005 : Test Realistic Sample Query 2
 select * from BLOCK where PRE_ACTION is not NULL;
+

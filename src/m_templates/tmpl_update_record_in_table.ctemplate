@@ -1,0 +1,235 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "octo_types.h"
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
+	LogicalPlan		*lp_update, *table_join, *lp_table, *lp_select_query;
+	SqlStatement		*table_stmt;
+	SqlTable		*table;
+
+	lp_update = pplan->lp_select_query;
+	assert(LP_UPDATE == lp_update->type);
+	%{}`n{{ PLAN_LINE_START }}{}%
+	dot_count++;
+	TMPL(tmpl_print_dots, dot_count);
+	table_join = lp_get_table_join(lp_update);
+	if (LP_SELECT_QUERY == table_join->v.lp_default.operand[0]->type) {
+		/* This is a case where the LP_TABLE got overwritten by a LP_TABLE_JOIN as part of "lp_generate_xref_plan"
+		 * (which can happen if the WHERE clause in the UPDATE query had a key fix condition).
+		 * In that case, find the original LP_TABLE by drilling down one level further.
+		 * An example query that exercises this code path is the following.
+		 *	UPDATE names SET firstname = 'Newname' WHERE firstname = 'Oldname';
+		 */
+		GET_LP(lp_select_query, table_join, 0, LP_SELECT_QUERY);
+		table_join = lp_get_table_join(lp_select_query);
+	}
+	GET_LP(lp_table, table_join, 0, LP_TABLE);
+	table_stmt = lp_table->v.lp_table.table_alias->table;
+	UNPACK_SQL_STATEMENT(table, table_stmt, create_table);
+	%{}SET {{ PP_YDB_OCTO_UPD }}={}%
+
+	SqlKey		*key;
+	assert(0 < pplan->total_iter_keys);
+	key = pplan->iterKeys[pplan->total_iter_keys - 1];
+	TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Value);
+
+	LogicalPlan	*lp_column_list;
+	boolean_t	num_key_cols_in_set_clause = 0;
+	char		*tableName;
+	SqlValue	*value;
+	UNPACK_SQL_STATEMENT(value, table->tableName, value);
+	tableName = value->v.reference;
+	GET_LP(lp_column_list, lp_update, 1, LP_COLUMN_LIST);
+	do {
+		LogicalPlan	*lp_upd_col_value, *lp_column, *lp_value;
+		SqlColumn	*cur_column;
+		SqlValue	*piece_value;
+		boolean_t	is_key_column;
+		char		*columnName;
+
+		%{}`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, dot_count);
+		GET_LP(lp_upd_col_value, lp_column_list, 0, LP_UPD_COL_VALUE);
+		GET_LP(lp_column, lp_upd_col_value, 0, LP_COLUMN);
+		cur_column = lp_column->v.lp_column.column;
+		assert(!cur_column->is_hidden_keycol);
+		%{}SET {}%
+		if (!IS_KEY_COLUMN(cur_column)) {
+			/* This is a non-key column */
+			is_key_column = FALSE;
+
+			/* Check PIECE number of column (could be missing in non-key columns that have DELIM of "") */
+			SqlOptionalKeyword	*keyword;
+			keyword = get_keyword(cur_column, OPTIONAL_PIECE);
+			if (NULL != keyword) {
+				boolean_t	is_dollar_char;
+				char		*delim, *piece;
+
+				UNPACK_SQL_STATEMENT(piece_value, keyword->v, value);
+				piece = piece_value->v.string_literal;
+				%{}$PIECE({{ PP_YDB_OCTO_UPD }},{}%
+				SET_DELIM_AND_IS_DOLLAR_CHAR(table, cur_column, FALSE, delim, is_dollar_char);
+					/* sets "delim" and "is_dollar_char" */
+				if (is_dollar_char) {
+					%{}{{ delim }},{{ piece }})={}%
+				} else {
+					%{}"{{ delim }}",{{ piece }})={}%
+				}
+			} else {
+				%{}{{ PP_YDB_OCTO_UPD }}={}%
+			}
+			/* Check if the column has size/precision/scale specified. If so, do checks/conversions as appropriate.
+			 * Currently the only 2 types that honor the size/precision/scale are STRING_TYPE and NUMERIC_TYPE.
+			 * So check for those below (similar code exists in "tmpl_insert_into.ctemplate").
+			 */
+			/* Generate the size/precision/scale prefix code first */
+			switch(cur_column->data_type_struct.data_type) {
+			case NUMERIC_TYPE:
+			case STRING_TYPE:
+				if (SIZE_OR_PRECISION_UNSPECIFIED != cur_column->data_type_struct.size_or_precision) {
+					%{}$$colvalue2piecevalue^%%ydboctoplanhelpers({}%
+					if (NUMERIC_TYPE == cur_column->data_type_struct.data_type) {
+						%{}$$Cast2NUMERIC^%%ydboctoplanhelpers({}%
+					} else {
+						%{}$$SizeCheckVARCHAR^%%ydboctoplanhelpers({}%
+					}
+				}
+				break;
+			case INTEGER_TYPE:
+			case NUL_TYPE:
+			case BOOLEAN_TYPE:
+				/* No checks are currently done/deemed-necessary for these types. Will add them as the need arises. */
+				break;
+			default:
+				assert(FALSE);
+				break;
+			}
+		} else {
+			/* This is a key column. Emit different M code than that for a non-key column. */
+			SqlValue	*colname_value;
+
+			is_key_column = TRUE;
+			num_key_cols_in_set_clause++;
+			UNPACK_SQL_STATEMENT (colname_value, cur_column->columnName, value);
+			columnName = colname_value->v.reference;
+			%{}{{ PP_YDB_OCTO_UPD }}("{{ columnName }}")={}%
+		}
+		/* Generate M code that evaluates the specified value for the current column */
+		lp_value = lp_upd_col_value->v.lp_default.operand[1];
+		TMPL(tmpl_print_expression, lp_value, pplan, 0, 0);
+		if (!is_key_column) {
+			/* Finish emitting the size/precision check suffix for non-key columns */
+			switch(cur_column->data_type_struct.data_type) {
+			case NUMERIC_TYPE:
+			case STRING_TYPE:
+				if (SIZE_OR_PRECISION_UNSPECIFIED != cur_column->data_type_struct.size_or_precision) {
+					%{},{{ cur_column->data_type_struct.size_or_precision|%d }}{}%
+					if (SCALE_UNSPECIFIED != cur_column->data_type_struct.scale) {
+						assert(NUMERIC_TYPE == cur_column->data_type_struct.data_type);
+						%{},{{ cur_column->data_type_struct.scale|%d }}{}%
+					}
+					%{})){}%
+				}
+				break;
+			default:
+				break;
+			}
+		} else {
+			/* Check if key column value is NULL. If so issue an error */
+			%{}`n{{ PLAN_LINE_START }}{}%
+			TMPL(tmpl_print_dots, dot_count);
+			%{}DO:$ZYISSQLNULL({{ PP_YDB_OCTO_UPD }}("{{ columnName }}")){}%
+			%{} NullKeyValue^%%ydboctoplanhelpers("{{ columnName }}"){}%
+			/* Check if key column value changed. Since it is a key column  */
+			%{}`n{{ PLAN_LINE_START }}{}%
+			TMPL(tmpl_print_dots, dot_count);
+			if (1 == num_key_cols_in_set_clause) {
+				%{}SET {{ PP_YDB_OCTO_KEYCHNGD }}={}%
+			} else {
+				assert(1 < num_key_cols_in_set_clause);
+				%{}SET:{}%
+			}
+			%{}({{ PP_YDB_OCTO_UPD }}("{{ columnName }}")'={}%
+			%{}{{ config->global_names.cursor }}(cursorId,{{ PP_KEYS }},{{ key->unique_id|%d }},{}%
+			%{}"{{ tableName }}","{{ columnName }}")){}%
+			if (1 < num_key_cols_in_set_clause) {
+				%{} {{ PP_YDB_OCTO_KEYCHNGD }}=1{}%
+			}
+		}
+		lp_column_list = lp_column_list->v.lp_default.operand[1];
+		assert((NULL == lp_column_list) || (LP_COLUMN_LIST == lp_column_list->type));
+	} while (NULL != lp_column_list);
+	assert(num_key_cols_in_set_clause == get_num_key_cols_in_set_clause(pplan));
+	if (num_key_cols_in_set_clause) {
+		/* UPDATE is modifying at least one key column.
+		 * Check if the updated row's key values match an existing row's key values. If so issue error.
+		 */
+		GET_LP(lp_column_list, lp_update, 1, LP_COLUMN_LIST);
+		%{}`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, dot_count);
+		%{}DO:({{ PP_YDB_OCTO_KEYCHNGD }})&$DATA({}%
+		TMPL(tmpl_key_source, pplan, key, EmitSourceForm_UpdateKeyCol);
+		%{}) DuplicateKeyValue^%%ydboctoplanhelpers({}%
+		/* A new row with duplicate primary keys is being created. Issue error.
+		 * TODO: Currently we don't support the UNIQUE constraint feature (YDBOcto#582).
+		 * When it is supported, duplicate primary keys will be just one type of UNIQUE constraint.
+		 * At that point in time, the below logic will need to be reworked/generalized.
+		 * For now, we issue an error as if a UNIQUE constraint got violated.
+		 * The constraint name is obtained by using the table name and adding a "pkey" suffix to it like Postgres does.
+		 * The constraint related error detail is obtained by displaying the M node corresponding to the duplicate row.
+		 */
+		%{}"{{ tableName }}_pkey",{}%
+		%{}$NAME({}%
+		TMPL(tmpl_key_source, pplan, key, EmitSourceForm_UpdateKeyCol);
+		%{})){}%
+		%{}`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, dot_count);
+		%{}KILL {}%
+		TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Value);
+		%{}`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, dot_count);
+		%{}SET {}%
+		TMPL(tmpl_key_source, pplan, key, EmitSourceForm_UpdateKeyCol);
+	} else {
+		/* UPDATE is only modifying non-key column(s). Don't need to do as many checks as for key columns. */
+		%{}`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, dot_count);
+		%{}SET {}%
+		TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Value);
+	}
+	%{}={{ PP_YDB_OCTO_UPD }}{}%
+	if (num_key_cols_in_set_clause) {
+		%{}`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, dot_count);
+		%{}SET {}%
+		TMPL(tmpl_update_key_source, pplan, FALSE);
+		%{}=""{}%
+	}
+	if (pplan->emit_duplication_check) {
+		%{}`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, dot_count);
+		%{}SET {}%
+		TMPL(tmpl_duplication_check, pplan);
+		%{}=1{}%
+	}
+	%{}`n{{ PLAN_LINE_START }}{}%
+	TMPL(tmpl_print_dots, dot_count);
+	%{}IF $INCREMENT({}%
+	%{}{{ config->global_names.cursor }}(cursorId,{{ PP_ROW_COUNT }}){}%
+	%{}) ; Increment count of updated records{}%
+}
+%{}

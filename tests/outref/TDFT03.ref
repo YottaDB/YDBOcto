@@ -37,6 +37,15 @@ create table test1 (id INTEGER PRIMARY KEY, firstname VARCHAR DELIM "", lastname
 delete from test1;
 drop table test1;
 
+select '-- Test of ERR_UNKNOWN_TABLE error';
+delete from abcd;
+
+select '-- Test of ERR_TYPE_NOT_COMPATIBLE error';
+delete from names where firstname;
+
+select '-- Test of ERR_TYPE_MISMATCH error';
+delete from names where lastname = id; -- a modified version of this query (with a type cast operator) is tested in TDFT01.sql
+
 ???
 -- Test of ERR_UNKNOWN_COLUMN_NAME
 (1 row)
@@ -104,3 +113,34 @@ CREATE TABLE
 [ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from test1;
 DROP TABLE
+???
+-- Test of ERR_UNKNOWN_TABLE error
+(1 row)
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: ABCD
+Error with syntax near (line 1, column 13):
+
+delete from abcd;
+            ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from abcd;
+???
+-- Test of ERR_TYPE_NOT_COMPATIBLE error
+(1 row)
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for boolean operations
+Error with syntax near (line 1, column 25):
+
+delete from names where firstname;
+                        ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from names where firstname;
+???
+-- Test of ERR_TYPE_MISMATCH error
+(1 row)
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
+Error with syntax near (line 1, column 25):
+
+delete from names where lastname = id; -- a modified version of this query (with a type cast operator) is tested in TDFT01.sql
+                        ^^^^^^^^
+Error with syntax near (line 1, column 36):
+
+delete from names where lastname = id; -- a modified version of this query (with a type cast operator) is tested in TDFT01.sql
+                                   ^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from names where lastname = id;

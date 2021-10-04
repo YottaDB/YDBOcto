@@ -109,7 +109,7 @@ int emit_physical_or_xref_plan(char *plan_filename, SqlStatement *stmt, char *ta
 			emit_xref_plan(plan_filename, tableName, columnName, xref_plan);
 			pplan = xref_plan;
 		}
-		/* Store output key for the given plan. Note that for a LP_INSERT_INTO/LP_DELETE_FROM plan, there is no
+		/* Store output key for the given plan. Note that for a LP_INSERT_INTO/LP_DELETE_FROM/LP_UPDATE plan, there is no
 		 * output key but we still note down an output key id of 0 that way a pre-existing plan gets reused instead
 		 * of creating it afresh every time (i.e. "GET_PLAN_METADATA_DB_NODE" check in "emit_physical_or_xref_plan.c"
 		 * succeeds and "generate_plan" variable in that function does not get set to TRUE). Note that we need to do
@@ -129,11 +129,12 @@ int emit_physical_or_xref_plan(char *plan_filename, SqlStatement *stmt, char *ta
 					  || (LP_SET_INTERSECT_ALL == set_oper_type)));
 			output_key_id = set_oper->output_id;
 		} else if (NULL == pplan->outputKey) {
-			/* The only cases we know of are an XREF/INSERT INTO/DELETE FROM plan. They are asserted below.
+			/* The only cases we know of are an XREF/INSERT INTO/DELETE FROM/UPDATE plan. They are asserted below.
 			 * In this case, there is no output key so use key id of 0.
 			 */
-			assert((NULL != xref_plan) || IS_INSERT_INTO_PHYSICAL_PLAN(pplan) || IS_DELETE_FROM_PHYSICAL_PLAN(pplan));
-			output_key_id = 0;
+			assert((NULL != xref_plan) || IS_INSERT_INTO_PHYSICAL_PLAN(pplan) || IS_DELETE_FROM_PHYSICAL_PLAN(pplan)
+			       || IS_UPDATE_PHYSICAL_PLAN(pplan));
+			output_key_id = ZERO_OUTPUT_KEY_ID;
 		} else {
 			output_key_id = pplan->outputKey->unique_id;
 		}

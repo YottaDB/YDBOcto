@@ -71,7 +71,8 @@ PhysicalPlan *emit_sql_statement(SqlStatement *stmt, char *plan_filename) {
 	TRACE(INFO_ENTERING_FUNCTION, "emit_sql_statement");
 	assert(stmt
 	       && ((table_alias_STATEMENT == stmt->type) || (set_operation_STATEMENT == stmt->type)
-		   || (insert_STATEMENT == stmt->type) || (delete_from_STATEMENT == stmt->type)));
+		   || (insert_STATEMENT == stmt->type) || (delete_from_STATEMENT == stmt->type)
+		   || (update_STATEMENT == stmt->type)));
 	plan = generate_logical_plan(stmt);
 	if (NULL == plan) {
 		return NULL;
@@ -284,10 +285,11 @@ PhysicalPlan *emit_sql_statement(SqlStatement *stmt, char *plan_filename) {
 			return NULL;
 		}
 	} else {
-		/* Physical plan corresponding to LP_INSERT_INTO or LP_DELETE_FROM has no output columns
+		/* Physical plan corresponding to LP_INSERT_INTO/LP_DELETE_FROM/LP_UPDATE has no output columns
 		 * so skip "if" block above in that case.
 		 */
-		assert(IS_INSERT_INTO_PHYSICAL_PLAN(pplan) || IS_DELETE_FROM_PHYSICAL_PLAN(pplan));
+		assert(IS_INSERT_INTO_PHYSICAL_PLAN(pplan) || IS_DELETE_FROM_PHYSICAL_PLAN(pplan)
+		       || IS_UPDATE_PHYSICAL_PLAN(pplan));
 	}
 	// Create a table from the last physical table which reads from the output values
 	return pplan;

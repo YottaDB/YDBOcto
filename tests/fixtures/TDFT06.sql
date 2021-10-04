@@ -10,7 +10,7 @@
 #								#
 #################################################################
 
--- TDFT06 : OCTO54 : Test TP wrapping of M plan for DELETE FROM, INSERT INTO, SELECT, VALUES and UNION/INTERSECT/EXCEPT
+-- TDFT06 : OCTO54 : Test TP wrapping of M plan for DELETE FROM, INSERT INTO, UPDATE, SELECT, VALUES and UNION/INTERSECT/EXCEPT
 
 CREATE FUNCTION DISPLAYTLEVEL() RETURNS VARCHAR AS $$DISPLAYTLEVEL^TDFT06;
 
@@ -43,4 +43,7 @@ INSERT INTO names SELECT id+1,firstname,lastname FROM names WHERE DISPLAYTLEVEL(
 
 SELECT '-- Test of $TLEVEL for DELETE FROM : Expect 1';
 DELETE FROM names WHERE DISPLAYTLEVEL() is NULL AND id = 6;
+
+SELECT '-- Test of $TLEVEL for UPDATE : Expect 1';
+UPDATE names SET firstname = lastname, lastname = firstname WHERE DISPLAYTLEVEL() is NULL AND id = 5;
 

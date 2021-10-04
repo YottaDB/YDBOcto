@@ -114,6 +114,28 @@ CREATE TABLE test1 (id INTEGER PRIMARY KEY, firstname VARCHAR DELIM "", lastname
 INSERT INTO test1 VALUES (1, 'abcd', 'efgh');
 DROP TABLE test1;
 
+SELECT '-- Test of ERR_UNKNOWN_TABLE error';
+INSERT INTO abcd VALUES (1);
+
+SELECT '-- Test of ERR_DUPLICATE_KEY_VALUE on names database';
+INSERT INTO names VALUES (4, 'abcd', 'efgh');
+INSERT INTO names VALUES (6, 'First6', 'Last6'), (3, 'First3', 'Last3'), (5, 'First5', 'Last5');
+
+SELECT '-- Test of ERR_DUPLICATE_KEY_VALUE on composite database';
+INSERT INTO composite VALUES (1,2,3,4,5,6,8,7,NULL);
+
+SELECT '-- Test of ERR_NULL_KEY_VALUE on names database where ID column is explicitly specified as NULL';
+INSERT INTO names VALUES (NULL, 'FirstNULL', 'LastNULL');
+
+SELECT '-- Test of ERR_NULL_KEY_VALUE on names database where ID column is implicitly specified as NULL';
+INSERT INTO names(firstname) VALUES ('FirstName');
+
+SELECT '-- Test of ERR_NULL_KEY_VALUE on composite database where ID5 column is explicitly specified as NULL';
+INSERT INTO composite VALUES (1,2,3,4,5,NULL,8,7,NULL);
+
+SELECT '-- Test of ERR_NULL_KEY_VALUE on composite database where ID3 column is implicitly specified as NULL';
+INSERT INTO composite(id0,id1,id2,id4,id5,id6,id7) VALUES (1,2,3,5,6,8,7);
+
 ???
 -- Test ERR_INSERT_TYPE_MISMATCH error
 (1 row)
@@ -396,3 +418,37 @@ CREATE TABLE
 [ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : INSERT not allowed on READONLY tables. Only allowed on READWRITE tables.
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO test1 VALUES (1, 'abcd', 'efgh');
 DROP TABLE
+???
+-- Test of ERR_UNKNOWN_TABLE error
+(1 row)
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: ABCD
+Error with syntax near (line 1, column 13):
+
+INSERT INTO abcd VALUES (1);
+            ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO abcd VALUES (1);
+???
+-- Test of ERR_DUPLICATE_KEY_VALUE on names database
+(1 row)
+[ERROR] PATH:LINENUM DATE TIME : ERR_DUPLICATE_KEY_VALUE : Duplicate Key Value violates UNIQUE constraint NAMES_pkey : Node ^names(4) already exists
+[ERROR] PATH:LINENUM DATE TIME : ERR_DUPLICATE_KEY_VALUE : Duplicate Key Value violates UNIQUE constraint NAMES_pkey : Node ^names(3) already exists
+???
+-- Test of ERR_DUPLICATE_KEY_VALUE on composite database
+(1 row)
+[ERROR] PATH:LINENUM DATE TIME : ERR_DUPLICATE_KEY_VALUE : Duplicate Key Value violates UNIQUE constraint COMPOSITE_pkey : Node ^composite(1,2,3,4,5,6,8,7) already exists
+???
+-- Test of ERR_NULL_KEY_VALUE on names database where ID column is explicitly specified as NULL
+(1 row)
+[ERROR] PATH:LINENUM DATE TIME : ERR_NULL_KEY_VALUE : NULL value in column ID violates NOT NULL constraint
+???
+-- Test of ERR_NULL_KEY_VALUE on names database where ID column is implicitly specified as NULL
+(1 row)
+[ERROR] PATH:LINENUM DATE TIME : ERR_NULL_KEY_VALUE : NULL value in column ID violates NOT NULL constraint
+???
+-- Test of ERR_NULL_KEY_VALUE on composite database where ID5 column is explicitly specified as NULL
+(1 row)
+[ERROR] PATH:LINENUM DATE TIME : ERR_NULL_KEY_VALUE : NULL value in column ID5 violates NOT NULL constraint
+???
+-- Test of ERR_NULL_KEY_VALUE on composite database where ID3 column is implicitly specified as NULL
+(1 row)
+[ERROR] PATH:LINENUM DATE TIME : ERR_NULL_KEY_VALUE : NULL value in column ID3 violates NOT NULL constraint

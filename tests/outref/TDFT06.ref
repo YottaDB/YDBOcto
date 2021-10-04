@@ -1,8 +1,8 @@
 # Test $TLEVEL (which is driven by wrapInTp parameter passed to src/aux/_ydboctoSelect.m)
 #   while in generated M code for various types of SQL queries
-# Expect $TLEVEL to be 1 for INSERT INTO, DELETE FROM and 0 for SELECT/VALUES etc.
+# Expect $TLEVEL to be 1 for INSERT INTO, DELETE FROM, UPDATE and 0 for SELECT/VALUES etc.
 
--- TDFT06 : OCTO54 : Test TP wrapping of M plan for DELETE FROM, INSERT INTO, SELECT, VALUES and UNION/INTERSECT/EXCEPT
+-- TDFT06 : OCTO54 : Test TP wrapping of M plan for DELETE FROM, INSERT INTO, UPDATE, SELECT, VALUES and UNION/INTERSECT/EXCEPT
 
 CREATE FUNCTION DISPLAYTLEVEL() RETURNS VARCHAR AS $$DISPLAYTLEVEL^TDFT06;
 
@@ -35,6 +35,9 @@ INSERT INTO names SELECT id+1,firstname,lastname FROM names WHERE DISPLAYTLEVEL(
 
 SELECT '-- Test of $TLEVEL for DELETE FROM : Expect 1';
 DELETE FROM names WHERE DISPLAYTLEVEL() is NULL AND id = 6;
+
+SELECT '-- Test of $TLEVEL for UPDATE : Expect 1';
+UPDATE names SET firstname = lastname, lastname = firstname WHERE DISPLAYTLEVEL() is NULL AND id = 5;
 
 CREATE FUNCTION
 ???
@@ -113,3 +116,8 @@ INSERT 0 1
 (1 row)
 $TLEVEL=1
 DELETE 1
+???
+-- Test of $TLEVEL for UPDATE : Expect 1
+(1 row)
+$TLEVEL=1
+UPDATE 1

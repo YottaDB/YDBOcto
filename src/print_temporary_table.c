@@ -179,17 +179,29 @@ int print_temporary_table(SqlStatement *stmt, ydb_long_t cursorId, void *parms, 
 		}
 		YDB_FREE_BUFFER(&value_buffer);
 	} else {
-		/* This is not a SELECT statement type (e.g. INSERT INTO, DELETE FROM statement etc.).
+		/* This is not a SELECT statement type (e.g. INSERT INTO/DELETE FROM/UPDATE statement etc.).
 		 * In that case, there are no result rows to send.
 		 * Just print the number of rows inserted/deleted etc.
 		 * Note: Below code is somewhat similar to that in "make_command_complete.c".
 		 */
-		char command_tag[MAX_TAG_LEN];
-		int  row_count;
+		char  command_tag[MAX_TAG_LEN];
+		int   row_count;
+		char *cmd_tag;
 
 		row_count = get_row_count_from_cursorId(cursorId);
-		snprintf(command_tag, MAX_TAG_LEN, "%s %d",
-			 (insert_STATEMENT == stmt->type) ? INSERT_COMMAND_TAG : DELETE_COMMAND_TAG, row_count);
+		switch (stmt->type) {
+		case insert_STATEMENT:
+			cmd_tag = INSERT_COMMAND_TAG;
+			break;
+		case delete_from_STATEMENT:
+			cmd_tag = DELETE_COMMAND_TAG;
+			break;
+		default:
+			assert(update_STATEMENT == stmt->type);
+			cmd_tag = UPDATE_COMMAND_TAG;
+			break;
+		}
+		snprintf(command_tag, MAX_TAG_LEN, "%s %d", cmd_tag, row_count);
 		/* Print number of rows */
 		PRINT_COMMAND_TAG(command_tag);
 		status = YDB_OK;

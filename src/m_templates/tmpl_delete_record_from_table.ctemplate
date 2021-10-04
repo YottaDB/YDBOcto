@@ -34,6 +34,8 @@ TEMPLATE(tmpl_delete_record_from_table, PhysicalPlan *pplan, int dot_count) {
 		/* This is a case where the LP_TABLE got overwritten by a LP_TABLE_JOIN as part of "lp_generate_xref_plan"
 		 * (which can happen if the WHERE clause in the DELETE FROM query had a key fix condition).
 		 * In that case, find the original LP_TABLE by drilling down one level further.
+		 * An example query that exercises this code path is the following.
+		 *	DELETE FROM names WHERE firstname = 'Wrongname';
 		 */
 		GET_LP(lp_select_query, table_join, 0, LP_SELECT_QUERY);
 		table_join = lp_get_table_join(lp_select_query);
@@ -84,6 +86,16 @@ TEMPLATE(tmpl_delete_record_from_table, PhysicalPlan *pplan, int dot_count) {
 	assert(keys_to_match == total_keys);
 #	endif
 	TMPL(tmpl_emit_source, table, value->v.string_literal, tableName, key->unique_id, total_keys, EmitSourceForm_Value);
+	/* Note: "emit_duplication_check" is not necessary for LP_DELETE_FROM and is there only for consistency with
+	 * LP_UPDATE (where it is necessary). See comment in "src/physical/generate_physical_plan.c" for more details.
+	 */
+	if (pplan->emit_duplication_check) {
+		%{}`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, dot_count);
+		%{}SET {}%
+		TMPL(tmpl_duplication_check, pplan);
+		%{}=1{}%
+	}
 	%{}`n{{ PLAN_LINE_START }}{}%
 	TMPL(tmpl_print_dots, dot_count);
 	%{}IF $INCREMENT({}%

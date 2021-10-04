@@ -32,13 +32,19 @@ int match_expression(char *start, char *column, int column_size);
 /**
  * Emits the source given, replacing keys("columnName") with
  *  references to this PhysicalPlan's keys
+ * Note: "parm1" can take on different meanings based on the "form" parameter value. Hence the generic name for this parameter.
+ *	It means a "table_name"     when "form" is EmitSourceForm_Value or EmitSourceForm_Trigger
+ *	It means a "lp_column_list" when "form" is EmitSourceForm_UpdateKeyCol
+ *	It is      NULL             when "form" is EmitSourceForm_Insert or EmitSourceForm_NoKeyCol
  */
-TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *table_name, int unique_id, int num_vars_to_match, enum EmitSourceForm form) {
-	char	*source_ptr;
-	char	column[OCTO_MAX_IDENT + 1]; // Null terminator
-	int	t, matched_vars = 0;
-	int	key_count;
-	int	paren_count = 0;
+TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int unique_id, int num_vars_to_match, enum EmitSourceForm form) {
+	char		*source_ptr;
+	char		column[OCTO_MAX_IDENT + 1]; // Null terminator
+	int		t, matched_vars = 0;
+	int		key_count;
+	int		paren_count = 0;
+	SqlColumn	*sql_column;
+	int		column_len;
 
 	source_ptr = source;
 	key_count = 0;
@@ -51,7 +57,7 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *table_name, int 
 			if (EmitSourceForm_NoKeyCol == form) {
 				char	ch;
 
-				assert (NULL == table_name);
+				assert(NULL == parm1);
 				assert(!unique_id);
 				/* Caller wants no keys included in the emitted global source. Stop at the first key. */
 				assert(source < source_ptr);
@@ -79,19 +85,19 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *table_name, int 
 			// Note that we don't add quotes to column in case the user uses an
 			//  extrinsic or something
 			switch(form) {
-			case EmitSourceForm_Value:
-				/* Caller wants M global source form that is usable in a SELECT or DELETE FROM query. */
+			case EmitSourceForm_Value:;
+				/* Caller wants M global source form that is usable in a SELECT/DELETE FROM query. */
+				char	*table_name;
+
+				table_name = parm1;
 				assert(NULL != table_name);
 				assert(unique_id);
 				%{}{{ config->global_names.cursor }}{}%
 				%{}(cursorId,{{ PP_KEYS }},{{ unique_id|%d }},"{{ table_name }}",{{ column }}){}%
 				break;
-			case EmitSourceForm_Insert: {
+			case EmitSourceForm_Insert:
 				/* Caller wants M global source form that is usable in an INSERT INTO query. */
-				SqlColumn	*sql_column;
-				int		column_len;
-
-				assert(NULL == table_name);
+				assert(NULL == parm1);
 				assert(!unique_id);
 				assert(MAX_KEY_COUNT == num_vars_to_match);
 				/* Find the SqlColumn structure. The column name returned by "match_expression()"
@@ -106,7 +112,70 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *table_name, int 
 				assert(NULL != sql_column);
 				%{}{{ PP_COL }}({{ sql_column->column_number|%d }}){}%
 				break;
-			}
+			case EmitSourceForm_UpdateKeyCol:
+				/* Caller wants M global source form that is usable in an UPDATE query. */
+				/* Find the SqlColumn structure. The column name returned by "match_expression()"
+				 * would surround the name with double quotes so remove it temporarily before
+				 * invoking "find_column()" to find the corresponding SqlColumn structure.
+				 */
+				column_len = strlen(column);
+				assert('"' == column[0]);
+				assert('"' == column[column_len - 1]);
+				column[column_len - 1] = '\0';
+				sql_column = find_column(column + 1, table);
+				assert(NULL != sql_column);
+				column[column_len - 1] = '"'; /* Restore double quote as it is needed later to emit correct code */
+
+				/* EmitSourceForm_UpdateKeyCol case needs some more processing */
+				LogicalPlan	*lp_column_list;
+				boolean_t	keycol_is_in_set_clause;
+
+				/* Note: The "parm1" parameter in this case actually holds a "lp_column_list".
+				 * Use this to determine if the current column is a key column AND is being modified
+				 * in the SET clause of the UPDATE or not. If so, generate appropriate M code.
+				 * Also see comment in "tmpl_update_record_in_table.ctemplate" for more details.
+				 */
+				lp_column_list = (LogicalPlan *)parm1;
+				keycol_is_in_set_clause = FALSE;
+				if (IS_KEY_COLUMN(sql_column)) {
+					do {
+						LogicalPlan	*lp_upd_col_value, *lp_column;
+						SqlColumn	*cur_column;
+
+						GET_LP(lp_upd_col_value, lp_column_list, 0, LP_UPD_COL_VALUE);
+						GET_LP(lp_column, lp_upd_col_value, 0, LP_COLUMN);
+						cur_column = lp_column->v.lp_column.column;
+						assert(!cur_column->is_hidden_keycol);
+						if (sql_column == cur_column) {
+							keycol_is_in_set_clause = TRUE;
+							break;
+						}
+						lp_column_list = lp_column_list->v.lp_default.operand[1];
+						assert((NULL == lp_column_list) || (LP_COLUMN_LIST == lp_column_list->type));
+					} while (NULL != lp_column_list);
+				}
+				if (keycol_is_in_set_clause) {
+					/* Key column whose value is modified in the SET clause. In this case, the
+					 * modified value of this column is stored in a different lvn. Emit that lvn out.
+					 */
+					%{}{{ PP_YDB_OCTO_UPD }}({{ column }}){}%
+				} else {
+					/* Now that we know this is not a key column that is being modified, we can generate
+					 * exactly the same code that we would have for the "EmitSourceForm_Value" case.
+					 * But for that, the only thing missing is the "table_name" parameter since we overloaded
+					 * it to pass "lp_column_list" in this case. Fix that by getting the table name from
+					 * the "table" parameter.
+					 */
+					SqlValue	*value;
+					char		*table_name;
+
+					UNPACK_SQL_STATEMENT(value, table->tableName, value);
+					table_name = value->v.reference;
+					assert(unique_id);
+					%{}{{ config->global_names.cursor }}{}%
+					%{}(cursorId,{{ PP_KEYS }},{{ unique_id|%d }},"{{ table_name }}",{{ column }}){}%
+				}
+				break;
 			case EmitSourceForm_Trigger:
 				%{}{{ PP_KEY_COLUMN }}{}%
 				%{}{{ key_count|%d }}=:{}%

@@ -69,21 +69,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	// Find the columns in the table so we can look at the correct keywords
 	UNPACK_SQL_STATEMENT(value, table->tableName, value);
 	table_name = value->v.string_literal;
-	if (column->delim) {
-		UNPACK_SQL_STATEMENT(value, column->delim, value);
-		delim = value->v.string_literal;
-		is_dollar_char = (DELIM_IS_DOLLAR_CHAR == delim[0] ? TRUE : FALSE);
-		delim = &value->v.string_literal[1];
-	} else if (table->delim) {
-		UNPACK_SQL_STATEMENT(keyword, table->delim, keyword);
-		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		delim = value->v.string_literal;
-		is_dollar_char = (DELIM_IS_DOLLAR_CHAR == delim[0] ? TRUE : FALSE);
-		delim = &value->v.string_literal[1];
-	} else {
-		is_dollar_char = FALSE;
-		delim = (is_trigger ? NULL : COLUMN_DELIMITER);
-	}
+	SET_DELIM_AND_IS_DOLLAR_CHAR(table, column, is_trigger, delim, is_dollar_char);	/* sets "delim" and "is_dollar_char" */
 	/* Optimization : If the column is a key column, use key rather than column value when possible.
 	 * Update: It turns out that this is not just an optimization but a necessity since key columns
 	 * are not necessarily part of the value and so don't have a PIECE # and so should not go through
@@ -130,17 +116,19 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 			UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
 		}
 	} else {
-		assert(NULL == piece);
+		assert(NULL == piece);	/* A column cannot be a piece and an extract column at the same time */
 		is_extract = TRUE;
 	}
 	UNPACK_SQL_STATEMENT(value, keyword->v, value);
 	source = value->v.string_literal;
 
-	/* A column cannot be a piece and an extract column at the same time */
+	boolean_t	is_xref_plan;
 
+	/* Note: pplan->outputKey can be NULL in case of LP_UPDATE plan so account for that below with a "NULL != " check */
+	is_xref_plan = ((NULL != pplan->outputKey) && pplan->outputKey->is_cross_reference_key);
 	if (!is_trigger) {
 		if (!dot_count) {
-			if (!pplan->outputKey->is_cross_reference_key) {
+			if (!is_xref_plan) {
 				%{}$$piecevalue2colvalue^%%ydboctoplanhelpers({}%
 			}
 			/* else : If xref plan, a NULL column value is represented as the empty string and the
@@ -174,7 +162,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 		if (dot_count) {
 			%{} SET:(""={{ PP_YDB_OCTO_EXPR }}) {{ PP_YDB_OCTO_EXPR  }}=$ZYSQLNULL{}%
 		} else {
-			if (!pplan->outputKey->is_cross_reference_key) {
+			if (!is_xref_plan) {
 				%{}){}%
 			}
 		}

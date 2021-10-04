@@ -13,4 +13,5 @@
 -- Define M function to hang. Helps simulate slow running queries if say used in a WHERE clause
 
 CREATE FUNCTION HANGTIME(VARCHAR, INTEGER) RETURNS VARCHAR AS $$^HANGTIME;
+CREATE FUNCTION HANGTIME(VARCHAR, NUMERIC) RETURNS VARCHAR AS $$^HANGTIME;
 

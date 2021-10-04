@@ -14,7 +14,7 @@
 #include "physical_plan.h"
 #include "template_helpers.h"
 
-TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned int cur_key, boolean_t right_join_second_half,
+TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned int cur_key, boolean_t right_join_second_half,
 								int dot_count, char *tableName, char *columnName) {
 	SqlKey			*key, *save_key, *fixed_xref_key;
 	unsigned int		total_keys, key_start;
@@ -24,10 +24,10 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 	LogicalPlan		*right_tablejoin;
 	boolean_t		nested_call, this_join_is_left_join;
 
-	total_keys = plan->total_iter_keys;
+	total_keys = pplan->total_iter_keys;
 	assert(((NULL != tablejoin) && (LP_TABLE_JOIN == tablejoin->type)) || ((NULL == tablejoin) && (cur_key == total_keys)));
 	assert(cur_key < total_keys);
-	key = plan->iterKeys[cur_key];
+	key = pplan->iterKeys[cur_key];
 	left_table_id = key->unique_id;
 	nested_call = FALSE;
 	this_join_type = ((NULL == tablejoin) ? NO_JOIN
@@ -35,7 +35,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 	this_join_is_left_join = ((LEFT_JOIN == this_join_type) || ((FULL_JOIN == this_join_type) && !right_join_second_half));
 	key_start = cur_key;
 	assert(((RIGHT_JOIN != this_join_type) && (FULL_JOIN != this_join_type)) || cur_key);
-	if (plan->tablejoin == tablejoin) {
+	if (pplan->tablejoin == tablejoin) {
 		unsigned int	save_cur_key;
 		int		in_value_list_id;
 
@@ -51,7 +51,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 		for ( ; cur_key < total_keys; cur_key++) {
 			LogicalPlan	*list;
 
-			key = plan->iterKeys[cur_key];
+			key = pplan->iterKeys[cur_key];
 			assert(0 == key->in_value_list_id);
 			assert(in_value_list_id != key->in_value_list_id);	/* hence "in_value_list_id" start at 1 above */
 			list = key->fixed_to_value;
@@ -73,7 +73,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 				 */
 				value = list->v.lp_default.operand[0];
 				assert(LP_VALUE == value->type);
-				TMPL(tmpl_print_expression_assignment, value, plan, dot_count, 0);
+				TMPL(tmpl_print_expression_assignment, value, pplan, dot_count, 0);
 				TMPL(tmpl_print_dots, dot_count);
 				%{}SET {{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}({{ PP_YDB_OCTO_EXPR }})=""{}%
 				%{}`n{{ PLAN_LINE_START }}{}%
@@ -104,20 +104,20 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 	fixed_xref_key = NULL;
 	for ( ; cur_key < total_keys; cur_key++) {
 		// For each key, output the key start, a FOR loop, QUIT, and increment
-		key = plan->iterKeys[cur_key];
+		key = pplan->iterKeys[cur_key];
 		if (key->unique_id != left_table_id) {
 			/* We are done with all key columns in this table; recurse to move on to next table/key */
 			nested_call = TRUE;
 			break;
 		}
-		if (this_join_is_left_join && plan->treat_key_as_null[key->unique_id]) {
+		if (this_join_is_left_join && pplan->treat_key_as_null[key->unique_id]) {
 			continue;
 		}
 		// If this plan has no ORDER BY or GROUP BY, then any LIMIT usage can be safely applied right away.
 		// Otherwise, we need to apply the LIMIT after the ORDER BY processing finally happens in "tmpl_physical_plan"
 		//	or GROUP BY processing finally happens in "tmpl_group_by"
-		limit_keyword = ((NULL == plan->order_by) && !IS_GROUP_BY_PLAN(plan))
-					? get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT)
+		limit_keyword = ((NULL == pplan->order_by) && !IS_GROUP_BY_PLAN(pplan))
+					? get_keyword_from_keywords(pplan->keywords, OPTIONAL_LIMIT)
 					: NULL;
 		/* If this is the second half of the right join, then treat all keys as non-fixed.
 		 * And do not include cross-reference keys. Only primary-keys. This is because we want
@@ -148,7 +148,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 					dot_count++;
 				}
 				if (0 == in_value_list_id) {
-					TMPL(tmpl_print_expression_assignment, fixed_to_value, plan, dot_count, 0);
+					TMPL(tmpl_print_expression_assignment, fixed_to_value, pplan, dot_count, 0);
 				} else {
 					TMPL(tmpl_print_dots, dot_count);
 					%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}{}%
@@ -175,16 +175,14 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 				 * take on a NULL value (even if the xref global does contain "" subscripts for the key columns).
 				 * Hence the "is_key_column" check below.
 				 */
-				is_key_column = ((NULL != key->column)
-					&& ((NULL != get_keyword(key->column, PRIMARY_KEY))
-						|| (NULL != get_keyword(key->column, OPTIONAL_KEY_NUM))));
+				is_key_column = ((NULL != key->column) && IS_KEY_COLUMN(key->column));
 				if (is_key_column || !IS_NULL_FIXED_VALUE(key->fixed_to_value) ) {
 					%{} IF '$ZYISSQLNULL({}%
 					TMPL(tmpl_key, key);
 					%{}){}%
 				}
 				%{} IF $DATA({}%
-				TMPL(tmpl_key_source, plan, key);
+				TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Value);
 				if (key->is_cross_reference_key) {
 					fixed_xref_key = key;	/* Note down this key for later "tmpl_key_advance" call */
 				}
@@ -193,7 +191,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 					TMPL(tmpl_limit_check, limit_keyword, "&", ">" PP_YDB_OCTO_ZLIMIT);
 						/* Note: literal concatenation in last parameter above */
 					(*buffer_index)--;	/* Remove the trailing ")" from "tmpl_limit_check" call above */
-					%{}({{ plan->outputKey->unique_id|%d }}){}%	/* Add subscript based on output key */
+					%{}({{ pplan->outputKey->unique_id|%d }}){}%	/* Add subscript based on output key */
 					%{}){}%	/* Add back the trailing ")" from "tmpl_limit_check" call above */
 				}
 			} else {
@@ -241,9 +239,9 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			if (NULL != keyword) {
 				%{}DO:$DATA({}%
 				if (NULL == fixed_xref_key) {
-					TMPL(tmpl_key_source, plan, key);
+					TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Value);
 				} else {
-					TMPL(tmpl_key_advance, plan, key);
+					TMPL(tmpl_key_advance, pplan, key);
 				}
 				%{})  {}%
 			}
@@ -251,7 +249,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 		%{}FOR  SET {}%
 		TMPL(tmpl_key, key);
 		%{}=$ORDER({}%
-		TMPL(tmpl_key_advance, plan, key);
+		TMPL(tmpl_key_advance, pplan, key);
 		%{}) QUIT:({}%
 		TMPL(tmpl_key_end, key);
 		%{}){}%
@@ -259,7 +257,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			TMPL(tmpl_limit_check, limit_keyword, "!", "'>" PP_YDB_OCTO_ZLIMIT);
 						/* Note: literal concatenation in last parameter above */
 			(*buffer_index)--;	/* Remove the trailing ")" from `tmpl_limit_check` call */
-			%{}({{ plan->outputKey->unique_id|%d }}){}%	/* Add subscript based on output key */
+			%{}({{ pplan->outputKey->unique_id|%d }}){}%	/* Add subscript based on output key */
 			%{}){}%	/* Add back the trailing ")" from `tmpl_limit_check` call above */
 		}
 		%{}  DO`n{{ PLAN_LINE_START }}{}%
@@ -273,10 +271,10 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 		/* This is not an OUTER JOIN. In that case, generate the IF condition for the ON clause (if one exists).
 		 * For an OUTER JOIN, we have later code that generates this if certain conditions are satisfied.
 		 */
-		TMPL(tmpl_tablejoin_on_condition, tablejoin, plan, &dot_count);
+		TMPL(tmpl_tablejoin_on_condition, tablejoin, pplan, &dot_count);
 	}
-	if (this_join_is_left_join && !plan->treat_key_as_null[left_table_id]) {
-		TMPL(tmpl_tablejoin_on_condition, tablejoin, plan, &dot_count);
+	if (this_join_is_left_join && !pplan->treat_key_as_null[left_table_id]) {
+		TMPL(tmpl_tablejoin_on_condition, tablejoin, pplan, &dot_count);
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET {{ PP_YDB_OCTO_Z }}({{ key_start|%d }})=1{}%
 		%{}`n{{ PLAN_LINE_START }}{}%
@@ -284,17 +282,17 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 	if ((RIGHT_JOIN == this_join_type) || (FULL_JOIN == this_join_type)) {
 		if (!right_join_second_half) {
 			if (!this_join_is_left_join) {
-				TMPL(tmpl_tablejoin_on_condition, tablejoin, plan, &dot_count);
+				TMPL(tmpl_tablejoin_on_condition, tablejoin, pplan, &dot_count);
 			}
 			/* Generate an M line to indicate a matched right table row ONLY if the current invocation of
 			 * `tmpl_tablejoin` is not from the NO_MATCHING_RIGHT_TABLE_ROWS (search for occurrence below)
-			 * code block. In that code block, we set `plan->treat_key_as_null[table_id]` to TRUE and we
+			 * code block. In that code block, we set `pplan->treat_key_as_null[table_id]` to TRUE and we
 			 * passed FALSE as `this_join_is_left_join`. So that is what we check for below.
 			 */
-			if (!this_join_is_left_join || !plan->treat_key_as_null[left_table_id]) {
+			if (!this_join_is_left_join || !pplan->treat_key_as_null[left_table_id]) {
 				TMPL(tmpl_print_dots, dot_count);
 				%{}SET {{ PP_YDB_OCTO_Z }}({}%
-				TMPL(tmpl_rightjoin_key, plan, key_start, cur_key);
+				TMPL(tmpl_rightjoin_key, pplan, key_start, cur_key);
 				%{})=""`n{{ PLAN_LINE_START }}{}%
 			}
 		} else {
@@ -306,14 +304,28 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			 * to generate the key instead of the column value relies on this).
 			 */
 			TMPL(tmpl_print_dots, dot_count);
-			%{}IF '$DATA({{ PP_YDB_OCTO_Z }}({}%
-			TMPL(tmpl_rightjoin_key, plan, key_start, cur_key);
-			%{})) DO`n{{ PLAN_LINE_START }}{}%
+			%{}DO:'$DATA({{ PP_YDB_OCTO_Z }}({}%
+			TMPL(tmpl_rightjoin_key, pplan, key_start, cur_key);
+			%{}))`n{{ PLAN_LINE_START }}{}%
 			dot_count++;
 		}
 	}
 	if (!nested_call) {
-		TMPL(tmpl_tablejoin_body, plan, dot_count, tableName, columnName);
+		/* Check if this is an UPDATE query and if at least one primary key column was specified in the SET clause.
+		 * If so, we need to generate extra code.
+		 */
+		if (IS_UPDATE_PHYSICAL_PLAN(pplan) && (0 < get_num_key_cols_in_set_clause(pplan))) {
+			/* Check if the primary key(s) corresponding to the current row was(were) created as part of a
+			 * prior iteration of the current UPDATE query. If so, skip processing this row as it did not
+			 * exist at the time the UPDATE query started.
+			 */
+			TMPL(tmpl_print_dots, dot_count);
+			%{}DO:'$DATA({}%
+			TMPL(tmpl_update_key_source, pplan, TRUE);
+			%{}`n{{ PLAN_LINE_START }}{}%
+			dot_count++;
+		}
+		TMPL(tmpl_tablejoin_body, pplan, dot_count, tableName, columnName);
 	} else {
 		assert(cur_key < total_keys);
 		right_tablejoin = tablejoin->v.lp_default.operand[1];
@@ -326,7 +338,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {{ PP_YDB_OCTO_Z }}({{ cur_key|%d }})=0`n{{ PLAN_LINE_START }}{}%
 		}
-		TMPL(tmpl_tablejoin, plan, right_tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
+		TMPL(tmpl_tablejoin, pplan, right_tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
 		if (LEFT_JOIN == next_join_type) {
 			/* Generate M code to include rows from the left table where there is no matching right table rows
 			 * (NO_MATCHING_RIGHT_TABLE_ROWS code block).
@@ -334,19 +346,19 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			assert(NULL != right_tablejoin->extra_detail.lp_table_join.join_on_condition);
 			%{}`n{{ PLAN_LINE_START }}{}%
 			TMPL(tmpl_print_dots, dot_count);
-			%{}IF {{ PP_YDB_OCTO_Z }}({{ cur_key|%d }})=0 DO`n{{ PLAN_LINE_START }}{}%
+			%{}DO:0={{ PP_YDB_OCTO_Z }}({{ cur_key|%d }})`n{{ PLAN_LINE_START }}{}%
 			dot_count++;
 			/* Treat all keys in the right table as NULL and invoke nested joins (if needed) */
-			key = plan->iterKeys[cur_key];
+			key = pplan->iterKeys[cur_key];
 			right_table_id = key->unique_id;
-			plan->treat_key_as_null[right_table_id] = TRUE;
-			TMPL(tmpl_tablejoin, plan, right_tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
+			pplan->treat_key_as_null[right_table_id] = TRUE;
+			TMPL(tmpl_tablejoin, pplan, right_tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
 			/* Undo NULL-treating of keys in right table */
-			assert(plan->treat_key_as_null[right_table_id]);
-			plan->treat_key_as_null[right_table_id] = FALSE;
+			assert(pplan->treat_key_as_null[right_table_id]);
+			pplan->treat_key_as_null[right_table_id] = FALSE;
 		}
 	}
-	if (plan->tablejoin == tablejoin) {
+	if (pplan->tablejoin == tablejoin) {
 		/* This is the outermost "tmpl_tablejoin" invocation. Do additional invocation for RIGHT JOINs (if any)
 		 * to include rows from the right table where there is no matching left table rows.
 		 * We do that by scanning the linked list of tablejoins and finding the first tablejoin that is a RIGHT JOIN,
@@ -372,12 +384,12 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 				assert(cur_key < total_keys);
 				cur_tables = 0;
 				do {
-					this_table_id = plan->iterKeys[cur_key]->unique_id;
-					if (!plan->treat_key_as_null[this_table_id]) {
+					this_table_id = pplan->iterKeys[cur_key]->unique_id;
+					if (!pplan->treat_key_as_null[this_table_id]) {
 						if (cur_tables == num_tables) {
 							break;
 						}
-						plan->treat_key_as_null[this_table_id] = TRUE;
+						pplan->treat_key_as_null[this_table_id] = TRUE;
 						key_nullified = TRUE;
 						cur_tables++;
 					}
@@ -385,10 +397,10 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 				assert(cur_key);
 				%{}`n{{ PLAN_LINE_START }}{}%
 				/* Assert that this is not the outermost "tmpl_tablejoin" invocation */
-				assert(this_table_join != plan->tablejoin);
+				assert(this_table_join != pplan->tablejoin);
 				right_join_table_id = this_table_id;
 				for (right_join_cur_key = cur_key; right_join_cur_key < total_keys; right_join_cur_key++) {
-					key = plan->iterKeys[right_join_cur_key];
+					key = pplan->iterKeys[right_join_cur_key];
 					if (right_join_table_id == key->unique_id) {
 						if (key->is_cross_reference_key) {
 							key->skip_column_reference_optimization = TRUE;
@@ -397,7 +409,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 						break;
 					}
 				}
-				TMPL(tmpl_tablejoin, plan, this_table_join, cur_key, TRUE, dot_count, tableName, columnName);
+				TMPL(tmpl_tablejoin, pplan, this_table_join, cur_key, TRUE, dot_count, tableName, columnName);
 				/* No need to undo "key->skip_column_reference_optimization" as it is not used after here */
 				num_tables = 1;	// include this table as first one for next round of RIGHT JOIN key nullification
 			} else {
@@ -409,8 +421,8 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			/* We nullified at least one key above for a RIGHT JOIN. Undo all of those. */
 			for (cur_key = 0; cur_key < total_keys; cur_key++)
 			{
-				this_table_id = plan->iterKeys[cur_key]->unique_id;
-				plan->treat_key_as_null[this_table_id] = FALSE;
+				this_table_id = pplan->iterKeys[cur_key]->unique_id;
+				pplan->treat_key_as_null[this_table_id] = FALSE;
 			}
 		}
 	}

@@ -764,19 +764,17 @@ Example:
 UPDATE
 --------------
 
-*(Currently not supported.)*
-
 .. code-block:: SQL
 
-   UPDATE table_name SET object_column EQUALS update_source [WHERE search_condition];
+   UPDATE table_name [[AS] alias_name] SET column1 = expression [, column2 = expression ...] [WHERE search_condition];
 
-The UPDATE statement begins with the keyword UPDATE. The table_name to be updated and the keyword SET is followed by a list of comma-separated statements that are used to update existing columns, where object_column is a particular column and update_source is set to either NULL or a specific value expression. The optional WHERE condition allows you to update columns based on a certain condition you specify.
+:code:`table_name` specifies the name of the table to be updated followed by a list of comma-separated statements that are used to update existing columns in the table with specified values. Only those columns in :code:`table_name` that require change need to be mentioned in the :code:`SET` clause. The remaining columns retain their previous values. The optional WHERE condition allows you to update columns only on those rows of the table that satisfy the specified :code:`search_condition`.
 
 Example:
 
 .. code-block:: SQL
 
-   UPDATE Employee SET FirstName = "John" WHERE ID = 220;
+   UPDATE Employee SET FirstName = 'John' WHERE ID = 220;
 
 ------------
 DELETE
@@ -784,7 +782,7 @@ DELETE
 
 .. code-block:: SQL
 
-   DELETE FROM table_name [WHERE search_condition];
+   DELETE FROM table_name [[AS] alias_name] [WHERE search_condition];
 
 The DELETE statement consists of the keywords DELETE FROM followed by the name of the table and possibly a search condition.
 
@@ -822,16 +820,7 @@ Note that SET commands treat SQL NULL values as empty strings. For example, the 
 
     SET DateStyle = NULL;
 
-..
-    TODO: The following documentation block is disabled due to lack of support for UPDATE functionality. It may be re-enabled when #579 is resolved.
-
-    Similarly, UPDATE can be used to alter run-time parameters by modifying records in :code:`pg_catalog.pg_settings`. When using this method, the parameter name is case-sensitive, as the name must will be looked up by comparing the given literal value against a canonical name in the database.
-
-    Example:
-
-    .. code-block:: SQL
-
-        UPDATE pg_catalog.pg_settings SET setting = 'ISO' WHERE name = 'DateStyle';
+Note that updates to :code:`pg_catalog.pg_settings` using the :code:`INSERT INTO`, :code:`DELETE FROM` or :code:`UPDATE` commands are disallowed (would issue a :code:`ERR_TABLE_READONLY` error).
 
 --------------
 SHOW

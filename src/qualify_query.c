@@ -25,7 +25,6 @@
 int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTableAlias *parent_table_alias,
 		  QualifyStatementParms *ret) {
 	SqlColumnListAlias *ret_cla;
-	SqlJoin *	    join;
 	SqlJoin *	    prev_start, *prev_end;
 	SqlJoin *	    start_join, *cur_join;
 	SqlSelectStatement *select;
@@ -37,6 +36,10 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	SqlRowValue *	    row_value, *start_row_value;
 
 	result = 0;
+
+	// Below are variables used in multiple "case" blocks below so are declared before the "switch" statement.
+	SqlJoin *join;
+
 	switch (table_alias_stmt->type) {
 	case insert_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */
 		SqlStatement *	    insert_stmt;
@@ -48,10 +51,11 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		assert(NULL == parent_table_alias);
 		assert(NULL == ret->ret_cla);
 		result |= qualify_query(insert->src_table_alias_stmt, NULL, NULL, ret);
-		/* Check if insert->columns to src_table_alias_stmt columns mapping is valid. If not issue error.
-		 * Deferred till this point as we need the expanded column list in case of * or table.* usage.
-		 * TODO: avoid deferring the following processing in cases where its not required. Refer:
-		 * https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/816#note_583771101
+		/* Some error checks happened already in "insert_statement.c". Do some more here.
+		 * If "insert->columns" is non-NULL, check if "insert->columns" and "src_table_alias_stmt" has same number of
+		 * columns and issue error otherwise.
+		 * If "insert->columns" is NULL, similar errors will be issued later in "check_column_lists_for_type_match()"
+		 * (called by "populate_data_type()").
 		 */
 		if (NULL != insert->columns) {
 			SqlColumnList *	    start_cl, *cur_cl;
@@ -85,13 +89,15 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 				return 1;
 			}
 		}
-		/* There is nothing to qualify in "insert->dst_table_alias" and "insert->columns" */
+		/* There is nothing to qualify in "insert->dst_table_alias" and nothing more to qualify in "insert->columns".
+		 * Qualification of column names in "insert->columns" happened already as part of the "find_column()" call in
+		 * "src/parser/insert_statement.c".
+		 */
 		return result;
 		break;
 	case delete_from_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */
 		SqlStatement *delete_stmt;
 		SqlDeleteFromStatement *delete;
-		SqlJoin *join;
 
 		delete_stmt = table_alias_stmt;
 		UNPACK_SQL_STATEMENT(delete, delete_stmt, delete_from);
@@ -103,6 +109,33 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		assert(NULL == join->condition);
 		result |= qualify_query(join->value, parent_join, parent_table_alias, ret);
 		result |= qualify_statement(delete->where_clause, join, join->value, 0, ret);
+		return result;
+		break;
+	case update_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */
+		SqlStatement *	    update_stmt;
+		SqlUpdateStatement *update;
+
+		update_stmt = table_alias_stmt;
+		UNPACK_SQL_STATEMENT(update, update_stmt, update);
+		assert(NULL == parent_join);
+		assert(NULL == parent_table_alias);
+		assert(NULL == ret->ret_cla);
+		UNPACK_SQL_STATEMENT(join, update->src_join, join);
+		assert(join == join->next);
+		assert(NULL == join->condition);
+		result |= qualify_query(join->value, parent_join, parent_table_alias, ret);
+		result |= qualify_statement(update->where_clause, join, join->value, 0, ret);
+
+		SqlUpdateColumnValue *ucv, *ucv_head;
+		ucv_head = update->col_value_list;
+		ucv = ucv_head;
+		do {
+			/* Qualifying "ucv->col_name" happened already as part of the "find_column()"
+			 * call in "src/parser/update_statement.c". So skip qualifying that here.
+			 */
+			result |= qualify_statement(ucv->col_value, join, join->value, 0, ret);
+			ucv = ucv->next;
+		} while (ucv != ucv_head);
 		return result;
 		break;
 	case set_operation_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */

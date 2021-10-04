@@ -48,3 +48,12 @@ create table test1 (id INTEGER PRIMARY KEY, firstname VARCHAR DELIM "", lastname
 delete from test1;
 drop table test1;
 
+select '-- Test of ERR_UNKNOWN_TABLE error';
+delete from abcd;
+
+select '-- Test of ERR_TYPE_NOT_COMPATIBLE error';
+delete from names where firstname;
+
+select '-- Test of ERR_TYPE_MISMATCH error';
+delete from names where lastname = id; -- a modified version of this query (with a type cast operator) is tested in TDFT01.sql
+

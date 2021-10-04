@@ -1,0 +1,16 @@
+
+-- TUT005 : OCTO579 : Test that UPDATE builds cross references outside TSTART/TCOMMIT
+
+UPDATE names SET firstname = firstname || '#' where lastname = 'Cool';
+
+UPDATE 2
+# Verify that ^%ydboctoX... invocation happens BEFORE the TSTART in the generated M plan
+;; ---------------------------------------------------------
+;  UPDATE names SET firstname = firstname || '#' where lastname = 'Cool';
+;; ---------------------------------------------------------
+octoPlan0(cursorId,wrapInTp)
+    DO:'$DATA(^%ydboctoocto("xref_status","NAMES","LASTNAME")) xrefPlan^%ydboctoXOMMMsQ8ks3NI1C42wS8F05(cursorId)
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+octoPlan1(cursorId)

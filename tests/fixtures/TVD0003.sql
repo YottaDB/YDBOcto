@@ -10,7 +10,9 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
-# TVA0003 : Test Realistic Sample Query 1
+
+-- TVD0003 : Test Realistic Sample Query 1
+
 SELECT P.NAME AS PATIENT_NAME, P.PATIENT_ID as PATIENT_ID,
        P.WARD_LOCATION,
        TOKEN(REPLACE(TOKEN(REPLACE(P.WARD_LOCATION,"WARD ",""),"-",1),"WARD ","")," ",2) AS PCU,
@@ -31,3 +33,4 @@ left join patient_movement PM on P.CURRENT_MOVEMENT=PM.PATIENT_MOVEMENT_ID
 left join patient_movement AM on P.CURRENT_ADMISSION=AM.PATIENT_MOVEMENT_ID
 where P.CURRENT_MOVEMENT is not null
 and P.ward_location not like "ZZ%" and P.NAME not like "ZZ%";
+

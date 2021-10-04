@@ -201,6 +201,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 	case set_operation_STATEMENT:
 	case insert_STATEMENT:
 	case delete_from_STATEMENT:
+	case update_STATEMENT:
 		TRACE(INFO_ENTERING_FUNCTION, "hash_canonical_query");
 		INVOKE_HASH_CANONICAL_QUERY(state, result, status); /* "state" holds final hash */
 		if (0 != status) {
@@ -246,7 +247,8 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			break;
 		default:
 			/* Read-write query */
-			assert((insert_STATEMENT == result_type) || (delete_from_STATEMENT == result_type));
+			assert((insert_STATEMENT == result_type) || (delete_from_STATEMENT == result_type)
+			       || (update_STATEMENT == result_type));
 			wrapInTp = TRUE;
 			break;
 		}

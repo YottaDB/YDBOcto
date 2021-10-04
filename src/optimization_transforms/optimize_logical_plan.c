@@ -156,12 +156,13 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 		 */
 		return plan;
 	case LP_DELETE_FROM:
+	case LP_UPDATE:
 		break;
 	default:
 		assert(LP_SELECT_QUERY == plan->type);
 		break;
 	}
-	assert((LP_SELECT_QUERY == plan->type) || (LP_DELETE_FROM == plan->type));
+	assert((LP_SELECT_QUERY == plan->type) || (LP_DELETE_FROM == plan->type) || (LP_UPDATE == plan->type));
 	/* First focus on the WHERE clause. Before any key fixing can be done, expand the WHERE clause into disjunctive normal form
 	 * (DNF expansion) as that is what enables key fixing.
 	 */
@@ -200,7 +201,7 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 				dqappend(keywords, new_keyword);
 			}
 			p = lp_copy_plan(plan);
-			assert((LP_SELECT_QUERY == p->type) || (LP_DELETE_FROM == p->type));
+			assert((LP_SELECT_QUERY == p->type) || (LP_DELETE_FROM == p->type) || (LP_UPDATE == plan->type));
 			if (LP_SELECT_QUERY == p->type) {
 				/* After a new DNF copy of the LP_SELECT_QUERY logical plan has been created, check for any
 				 * ORDER BY COLUMN NUM N usages in prior plan (in that case the Nth LP_COLUMN_LIST plan list under

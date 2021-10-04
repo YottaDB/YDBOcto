@@ -15,7 +15,7 @@ handleSetKill(variable,value)
     ; Note that this routine is called directly by plans modifying the LVN this table is stored in,
     ; rather than using a trigger. This is needed because triggers are only applicable to GVNs.
     NEW pgsettings
-    IF $DATA(%ydboctoocto("settings","pg_settings",variable)) DO
+    DO:$DATA(%ydboctoocto("settings","pg_settings",variable))
     . ; The node existed previously so kill cross reference corresponding to its old value
     . NEW oldValue
     . SET oldValue=$PIECE(%ydboctoocto("settings","pg_settings",variable),"|",1)

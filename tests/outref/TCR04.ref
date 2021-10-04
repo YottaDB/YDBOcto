@@ -1,8 +1,9 @@
-# Test cancel request for INSERT INTO and DELETE FROM
+# Test cancel request for INSERT INTO, DELETE FROM and UPDATE
 # Generate names tables with 1 million rows
 # Above step also generates TCR04.sql which has an INSERT INTO query to insert 1 million new rows
 # Run TCR04.sql through psql and cancel query; Expect number of rows to still be 1 million afterwards
 # Run DELETE FROM names through psql and cancel query; Expect number of rows to still be 1 million afterwards
+# Run UPDATE names through psql and cancel query; Expect number of rows to still be 1 million afterwards
 ydb=# # Run INSERT INTO query that takes a long time to run so we can Ctrl-C it and verify if CancelRequest processing occurs
 # Wait for 2 seconds to pass
 insert into names select id+1000000,firstname,lastname from names;
@@ -11,7 +12,13 @@ insert into names select id+1000000,firstname,lastname from names;
 ERROR:  canceling statement due to user request
 ydb=# # Run DELETE FROM query that takes a long time to run so we can Ctrl-C it and verify if CancelRequest processing occurs
 # Wait for 2 seconds to pass before canceling query
-DELETE FROM names WHERE lastname = HANGTIME(firstname,1);
+DELETE FROM names WHERE lastname = HANGTIME(firstname,0.001);
+# Send interrupt to trigger cancel request
+^CCancel request sent
+ERROR:  canceling statement due to user request
+ydb=# # Run UPDATE query that takes a long time to run so we can Ctrl-C it and verify if CancelRequest processing occurs
+# Wait for 2 seconds to pass before canceling query
+UPDATE names set firstname = lastname, lastname = firstname WHERE lastname = HANGTIME(firstname,0.001);
 # Send interrupt to trigger cancel request
 ^CCancel request sent
 ERROR:  canceling statement due to user request
@@ -23,5 +30,5 @@ select count(*) from names;
 (1 row)
 
 ydb=# \q
-# Verify no partial updates from INSERT INTO or DELETE FROM
+# Verify no partial updates from INSERT INTO, DELETE FROM or UPDATE
 PASS : Verification passed

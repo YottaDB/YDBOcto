@@ -64,6 +64,15 @@ _ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",4,"","")=""
 _ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",4,"","")=$ORDER(%ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))) QUIT:(%ydboctocursor(cursorId,"keys",4,"","")="")  DO
 _ydboctoP*.m:    . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of inserted records
 _ydboctoP*.m:;; ---------------------------------------------------------
+_ydboctoP*.m:;  delete from TDFT01 where lastname = id::text;
+_ydboctoP*.m:;; ---------------------------------------------------------
+_ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
+_ydboctoP*.m:octoPlan1(cursorId)
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of deleted records
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TDFT01","ID")=""
+_ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"TDFT01","ID")=$ORDER(^%ydboctoDgWgAGcpPXtQQ3rYDwgYlG1(%ydboctocursor(cursorId,"keys",1,"TDFT01","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TDFT01","ID")="")  DO
+_ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of deleted records
+_ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:;  insert into TDFT01 (select * FROM names n1 where EXISTS (select * from names n2 where n2.id = n1.id + 2));
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
@@ -330,6 +339,7 @@ _ydboctoX*.m:    ; M routine that is invoked by SET/KILL/ZKILL trigger to keep x
 # Below are plans that remain after [DROP TABLE names]
 _ydboctoP*.m:;  delete from TDFT01 where lastname = 'Last6';
 _ydboctoP*.m:;  delete from TDFT01 n1 where lastname = 'Cool';
+_ydboctoP*.m:;  delete from TDFT01 where lastname = id::text;
 _ydboctoP*.m:;  delete from TDFT01 where lastname is NULL;
 _ydboctoP*.m:;  insert into TDFT01 VALUES((SAMEVALUE(6)), 'First6', 'Last6');
 _ydboctoP*.m:;  delete from TDFT01 where lastname = 'Cool' OR firstname = 'Zero';
@@ -349,6 +359,7 @@ _ydboctoX*.m:;; Generated M code maintains cross reference for FIRSTNAME column 
 # SAMEVALUE(INTEGER) function plans should show up below since only SAMEVALUE(VARCHAR) function was dropped
 _ydboctoP*.m:;  delete from TDFT01 where lastname = 'Last6';
 _ydboctoP*.m:;  delete from TDFT01 n1 where lastname = 'Cool';
+_ydboctoP*.m:;  delete from TDFT01 where lastname = id::text;
 _ydboctoP*.m:;  delete from TDFT01 where lastname is NULL;
 _ydboctoP*.m:;  insert into TDFT01 VALUES((SAMEVALUE(6)), 'First6', 'Last6');
 _ydboctoP*.m:;  delete from TDFT01 where lastname = 'Cool' OR firstname = 'Zero';

@@ -30,7 +30,7 @@ octoPlan1(cursorId)
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",3))
     . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . SET %ydboctoexpr=%ydboctoexpr&('$DATA(%ydboctozduplicate(3,%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))))
-    . IF %ydboctoexpr DO
+    . DO:%ydboctoexpr
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
@@ -57,7 +57,7 @@ octoPlan2(cursorId)
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",4))
     . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . SET %ydboctoexpr=%ydboctoexpr&('$DATA(%ydboctozduplicate(3,%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))))
-    . IF %ydboctoexpr DO
+    . DO:%ydboctoexpr
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
@@ -84,7 +84,7 @@ octoPlan3(cursorId)
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",3))
     . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . SET %ydboctoexpr=%ydboctoexpr&('$DATA(%ydboctozduplicate(3,%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))))
-    . IF %ydboctoexpr DO
+    . DO:%ydboctoexpr
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
@@ -111,7 +111,7 @@ octoPlan4(cursorId)
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",4))
     . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . SET %ydboctoexpr=%ydboctoexpr&('$DATA(%ydboctozduplicate(3,%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))))
-    . IF %ydboctoexpr DO
+    . DO:%ydboctoexpr
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)

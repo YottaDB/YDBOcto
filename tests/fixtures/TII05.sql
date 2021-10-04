@@ -125,3 +125,25 @@ CREATE TABLE test1 (id INTEGER PRIMARY KEY, firstname VARCHAR DELIM "", lastname
 INSERT INTO test1 VALUES (1, 'abcd', 'efgh');
 DROP TABLE test1;
 
+SELECT '-- Test of ERR_UNKNOWN_TABLE error';
+INSERT INTO abcd VALUES (1);
+
+SELECT '-- Test of ERR_DUPLICATE_KEY_VALUE on names database';
+INSERT INTO names VALUES (4, 'abcd', 'efgh');
+INSERT INTO names VALUES (6, 'First6', 'Last6'), (3, 'First3', 'Last3'), (5, 'First5', 'Last5');
+
+SELECT '-- Test of ERR_DUPLICATE_KEY_VALUE on composite database';
+INSERT INTO composite VALUES (1,2,3,4,5,6,8,7,NULL);
+
+SELECT '-- Test of ERR_NULL_KEY_VALUE on names database where ID column is explicitly specified as NULL';
+INSERT INTO names VALUES (NULL, 'FirstNULL', 'LastNULL');
+
+SELECT '-- Test of ERR_NULL_KEY_VALUE on names database where ID column is implicitly specified as NULL';
+INSERT INTO names(firstname) VALUES ('FirstName');
+
+SELECT '-- Test of ERR_NULL_KEY_VALUE on composite database where ID5 column is explicitly specified as NULL';
+INSERT INTO composite VALUES (1,2,3,4,5,NULL,8,7,NULL);
+
+SELECT '-- Test of ERR_NULL_KEY_VALUE on composite database where ID3 column is implicitly specified as NULL';
+INSERT INTO composite(id0,id1,id2,id4,id5,id6,id7) VALUES (1,2,3,5,6,8,7);
+

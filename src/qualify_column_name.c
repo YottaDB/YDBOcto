@@ -220,12 +220,13 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 						/* Note that "cur_alias->parent_table_alias" would be non-NULL at this point
 						 * in case of a SELECT query because the entire query output itself is an
 						 * on-the-fly constructed TABLE (and corresponds to the "parent_table_alias").
-						 * But in case of a DELETE FROM query that has a sub-query in the WHERE clause,
-						 * it is possible that "matching_table_alias" points to a table in the sub-query
-						 * while "cur_alias" points to the table name being deleted in the DELETE FROM.
-						 * In that case, "cur_alias->parent_table_alias" would be NULL. Therefore, we
-						 * cannot assert that "cur_alias->parent_table_alias" is non-NULL just like we
-						 * are able to do with "matching_table_alias->parent_table_alias" below.
+						 * But in case of a DELETE FROM or UPDATE query that has a sub-query in the
+						 * WHERE clause, it is possible that "matching_table_alias" points to a table
+						 * in the sub-query while "cur_alias" points to the table name being
+						 * deleted/updated in the DELETE FROM/UPDATE query. In that case,
+						 * "cur_alias->parent_table_alias" would be NULL. Therefore, we cannot assert
+						 * that "cur_alias->parent_table_alias" is non-NULL just like we are able to
+						 * do with "matching_table_alias->parent_table_alias" below.
 						 */
 						assert(NULL != matching_table_alias->parent_table_alias);
 						if (cur_alias->parent_table_alias == matching_table_alias->parent_table_alias) {

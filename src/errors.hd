@@ -217,6 +217,12 @@ ERROR_DEF(ERR_ROCTO_BAD_TIMESTAMP, "handle_cancel_request: PID timestamp doesn't
 // OCTO //
 ERROR_DEF(ERR_SUBQUERY_MULTIPLE_ROWS, "More than one row returned by a subquery used as an expression", PSQL_Code_Cardinality_Violation)
 
+/*** Integrity Constraint Violations ***/
+// OCTO //
+// ROCTO //
+ERROR_DEF(ERR_DUPLICATE_KEY_VALUE, "Duplicate Key Value violates UNIQUE constraint %s", PSQL_Code_Unique_Violation)
+ERROR_DEF(ERR_NULL_KEY_VALUE, "NULL value in column %s violates NOT NULL constraint", PSQL_Code_Not_Null_Violation)
+
 /*** Data exceptions ***/
 // OCTO //
 ERROR_DEF(ERR_LINE_TOO_LONG, "Input line too long", PSQL_Code_String_Data_Length_Mismatch)

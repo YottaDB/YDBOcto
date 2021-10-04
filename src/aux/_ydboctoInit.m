@@ -34,6 +34,8 @@
 	SET %ydboctoerror("INVALIDESCAPEPATTERN")=$incr(%ydboctoerrcode) ; signaled by `regexmatch` in `_ydboctoplanhelpers.m`
 	SET %ydboctoerror("NUMERICOVERFLOW")=$incr(%ydboctoerrcode) ; signaled by `Cast2NUMERIC` in `_ydboctoplanhelpers.m`
 	SET %ydboctoerror("VARCHARTOOLONG")=$incr(%ydboctoerrcode) ; signaled by `SizeCheckVARCHAR` in `_ydboctoplanhelpers.m`
+	SET %ydboctoerror("DUPLICATEKEYVALUE")=$incr(%ydboctoerrcode) ; signaled by `DuplicateKeyValue` in `_ydboctoplanhelpers.m`
+	SET %ydboctoerror("NULLKEYVALUE")=$incr(%ydboctoerrcode) ; signaled by `NullKeyValue` in `_ydboctoplanhelpers.m`
 	; Any additions of error codes needs to happen before the following line (%ydboctoerrcodemax)
 	; Changes need to also happen in `ydb_error_check.c` and likely in `_ydboctoplanhelpers.m`
 	SET %ydboctoerrcodemax=$incr(%ydboctoerrcode)
@@ -58,11 +60,11 @@
 	. . SET regname=$PIECE(reglist,",",regnum)
 	. . QUIT:$DATA(verified(regname))
 	. . ; 3=ERROR level from VERBOSITY_LEVEL enum in errors.h. Changes there should also be reflected here.
-	. . IF ('starwarningissued&(regname=starregname)&(3>=verbosity)) DO
+	. . DO:('starwarningissued&(regname=starregname)&(3>=verbosity))
 	. . . WRITE "[ WARN] Global "_octogbl_" maps to default region "_regname_". Recommended mapping for ^%ydbocto* is to a separate region",!
 	. . . USE $PRINCIPAL	; In case principal device is terminal, above WRITE is flushed
 	. . . SET starwarningissued=1
-	. . IF ($$^%PEEKBYNAME("sgmnt_data.null_subs",regname)'=1) DO
+	. . DO:($$^%PEEKBYNAME("sgmnt_data.null_subs",regname)'=1)
 	. . . WRITE "[ERROR] Null subscripts must be enabled for database file ["_$VIEW("GVFILE",regname)_"] : region ["_regname_"] (global "_octogbl_" maps to this region)",!
 	. . . USE $PRINCIPAL	; In case principal device is terminal, above WRITE is flushed
 	. . . SET quit=1

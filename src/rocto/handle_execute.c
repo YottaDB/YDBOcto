@@ -95,7 +95,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 		boolean_t wrapInTp;
 
 		assert((select_STATEMENT == command_tag) || (insert_STATEMENT == command_tag)
-		       || (delete_from_STATEMENT == command_tag));
+		       || (delete_from_STATEMENT == command_tag) || (update_STATEMENT == command_tag));
 		// Fetch number of parameters
 		YDB_STRING_TO_BUFFER(OCTOLIT_PARAMETERS, &portal_subs[4]);
 		YDB_STRING_TO_BUFFER(OCTOLIT_ALL, &portal_subs[5]);

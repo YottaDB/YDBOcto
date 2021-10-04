@@ -24,7 +24,7 @@ octoPlan1(cursorId)
     . . SET %ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID")=""
     . . FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID")=$ORDER(^%ydboctoxref("NAMESWITHAGES","AGE",%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","AGE"),%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID")="")  DO
     . . . SET %ydboctoexpr=1
-    . . . IF %ydboctoexpr DO
+    . . . DO:%ydboctoexpr
     . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",4,"","")) %ydboctoz=42
     . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")
     . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)

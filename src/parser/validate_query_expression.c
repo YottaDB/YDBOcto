@@ -27,8 +27,9 @@ SqlStatement *validate_query_expression(SqlStatement *query_expression, ParseCon
 	QualifyStatementParms ret_parms;
 	int		      max_unique_id;
 
-	/* cmd_type distinguishes various command types. Currently it only stores 2 values. SELECT or INSERT. */
-	assert((select_STATEMENT == cmd_type) || (insert_STATEMENT == cmd_type) || (delete_from_STATEMENT == cmd_type));
+	/* cmd_type distinguishes various command types */
+	assert((select_STATEMENT == cmd_type) || (insert_STATEMENT == cmd_type) || (delete_from_STATEMENT == cmd_type)
+	       || (update_STATEMENT == cmd_type));
 	parse_context->command_tag = cmd_type;
 	if (parse_context->abort) {
 		return NULL;

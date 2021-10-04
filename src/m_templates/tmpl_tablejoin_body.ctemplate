@@ -14,20 +14,21 @@
 #include "physical_plan.h"
 #include "template_helpers.h"
 
-TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName, char *columnName) {
-	boolean_t	distinct_processed, is_delete_from;
+TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *pplan, int dot_count, char *tableName, char *columnName) {
+	boolean_t	distinct_processed, is_delete_from, is_update;
 
-	is_delete_from = (LP_DELETE_FROM == plan->lp_select_query->type);
-	assert((NULL != plan->outputKey) || is_delete_from);
-	if (!is_delete_from && (plan->outputKey->is_cross_reference_key)) {
+	is_delete_from = (LP_DELETE_FROM == pplan->lp_select_query->type);
+	is_update = (LP_UPDATE == pplan->lp_select_query->type);
+	assert((NULL != pplan->outputKey) || is_delete_from || is_update);
+	if ((NULL != pplan->outputKey) && (pplan->outputKey->is_cross_reference_key)) {
 		/* Simplest case. Finish it first */
  		LogicalPlan		*col1, *col2_onwards;
 
-		assert(NULL == plan->where->v.lp_default.operand[0]);
-		assert(!plan->distinct_values);
-		assert(!plan->emit_duplication_check);
-		assert(NULL == plan->order_by);
-		assert(NULL == plan->aggregate_options);
+		assert(NULL == pplan->where->v.lp_default.operand[0]);
+		assert(!pplan->distinct_values);
+		assert(!pplan->emit_duplication_check);
+		assert(NULL == pplan->order_by);
+		assert(NULL == pplan->aggregate_options);
 		TMPL(tmpl_print_dots, dot_count);
 		%{}NEW {{ PP_XREF_COLUMN }}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
@@ -35,41 +36,41 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 		/* We want only the first column in the column list for the "tmpl_column_list_combine" call below so
 		 * temporarily make the 2nd column onwards invisible.
 		 */
-		col1 = plan->projection;
+		col1 = pplan->projection;
 		col2_onwards = col1->v.lp_default.operand[1];
 		col1->v.lp_default.operand[1] = NULL;
-		TMPL(tmpl_column_list_combine, col1, plan, ",", FALSE, 0, FALSE);
+		TMPL(tmpl_column_list_combine, col1, pplan, ",", FALSE, 0, FALSE);
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET{}%
-		%{} {{ plan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_XREF_COLUMN }},{}%
-		TMPL(tmpl_column_list_combine, col2_onwards, plan, ",", FALSE, 0, FALSE);
+		%{} {{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_XREF_COLUMN }},{}%
+		TMPL(tmpl_column_list_combine, col2_onwards, pplan, ",", FALSE, 0, FALSE);
 		%{})=""`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
-		%{}IF $INCREMENT({{ plan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_XREF_COLUMN }})){}%
+		%{}IF $INCREMENT({{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_XREF_COLUMN }})){}%
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
-		%{}IF $INCREMENT({{ plan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")){}%
+		%{}IF $INCREMENT({{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")){}%
 		col1->v.lp_default.operand[1] = col2_onwards;	/* Make the 2nd column visible again */
 		return;
 	}
 	// Apply the conditions for this statement
 	TMPL(tmpl_print_dots, dot_count);
 	%{}SET {{ PP_YDB_OCTO_EXPR }}=1{}%
-	if (plan->where && plan->where->v.lp_default.operand[0]) {
-		TMPL(tmpl_where_or_having_or_on, plan->where->v.lp_default.operand[0], plan, dot_count);
+	if (pplan->where && pplan->where->v.lp_default.operand[0]) {
+		TMPL(tmpl_where_or_having_or_on, pplan->where->v.lp_default.operand[0], pplan, dot_count);
 	} else {
 		%{}`n{{ PLAN_LINE_START }}{}%
 	}
 	// DISTINCT value processing (if needed)
 	distinct_processed = FALSE;
-	if (plan->distinct_values) {
-		/* If this plan has a GROUP BY, then we will do DISTINCT processing in `tmpl_group_by` so skip that here */
-		if (!IS_GROUP_BY_PLAN(plan)) {
+	if (pplan->distinct_values) {
+		/* If this physical plan has a GROUP BY, then we will do DISTINCT processing in `tmpl_group_by` so skip that here */
+		if (!IS_GROUP_BY_PLAN(pplan)) {
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_EXPR }}&{}%
-			%{}('$DATA({{ PP_YDB_OCTO_ZDISTINCT }}({{ plan->outputKey->unique_id|%d }},{}%
-			TMPL(tmpl_column_list_combine, plan->projection, plan, ",", FALSE, 0, FALSE);
+			%{}('$DATA({{ PP_YDB_OCTO_ZDISTINCT }}({{ pplan->outputKey->unique_id|%d }},{}%
+			TMPL(tmpl_column_list_combine, pplan->projection, pplan, ",", FALSE, 0, FALSE);
 			%{}))){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 			distinct_processed = TRUE;
@@ -80,30 +81,33 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 	 * processing both avoid duplicates). But if GROUP BY has been specified, we would have skipped DISTINCT processing
 	 * above in which case we DO need to check for DUPLICATE processing. Hence the check below.
 	 */
-	if (!distinct_processed && plan->emit_duplication_check) {
+	if (!distinct_processed && pplan->emit_duplication_check) {
 		// Ensure we don't emit duplicates
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_EXPR }}&{}%
 		%{}('$DATA({}%
-		TMPL(tmpl_duplication_check, plan);
+		TMPL(tmpl_duplication_check, pplan);
 		%{})){}%
 		%{}`n{{ PLAN_LINE_START }}{}%
 	}
 	TMPL(tmpl_print_dots, dot_count);
-	%{}IF {{ PP_YDB_OCTO_EXPR }} DO{}%
+	%{}DO:{{ PP_YDB_OCTO_EXPR }}{}%
 	/* If GROUP BY or HAVING have been specified and/or Aggregate functions have been used, invoke another function
 	 * to do the M code generation as the flow is very different (more complicated).
 	 */
-	if (IS_GROUP_BY_PLAN(plan)) {
-		TMPL(tmpl_tablejoin_body_group_by, plan, dot_count);
+	if (IS_GROUP_BY_PLAN(pplan)) {
+		TMPL(tmpl_tablejoin_body_group_by, pplan, dot_count);
 		return;
 	}
-	if (!is_delete_from) {
-		// Populate records in the output key (i.e. SELECT column list)
-		TMPL(tmpl_populate_output_key, plan, dot_count);
-	} else {
+	if (is_delete_from) {
 		// Generate code to delete record from the table
-		TMPL(tmpl_delete_record_from_table, plan, dot_count);
+		TMPL(tmpl_delete_record_from_table, pplan, dot_count);
+	} else if (is_update) {
+		// Generate code to update record in table
+		TMPL(tmpl_update_record_in_table, pplan, dot_count);
+	} else {
+		// Populate records in the output key (i.e. SELECT column list)
+		TMPL(tmpl_populate_output_key, pplan, dot_count);
 	}
 	return;
 }

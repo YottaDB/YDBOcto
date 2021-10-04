@@ -247,6 +247,7 @@ add_library(libocto OBJECT
   parser/create_sql_column_list.c
   parser/data_type.c
   parser/delete_from_statement.c
+  parser/update_statement.c
   parser/derived_column.c
   parser/derived_table.c
   parser/drop_function.c
@@ -269,6 +270,7 @@ add_library(libocto OBJECT
   physical/emit_physical_plan.c
   physical/emit_xref_plan.c
   physical/generate_physical_plan.c
+  physical/get_num_key_cols_in_set_clause.c
   physical/get_physical_plan_from_unique_id.c
   physical/get_setoper_mlabref.c
   populate_data_type.c
@@ -436,6 +438,9 @@ set(template_files
   ${template_dir}/tmpl_tablejoin_body.ctemplate
   ${template_dir}/tmpl_tablejoin_body_group_by.ctemplate
   ${template_dir}/tmpl_tablejoin_on_condition.ctemplate
+  ${template_dir}/tmpl_update_key_source.ctemplate
+  ${template_dir}/tmpl_update_record_in_table.ctemplate
+  ${template_dir}/tmpl_update_table.ctemplate
   ${template_dir}/tmpl_where_or_having_or_on.ctemplate
   ${template_dir}/tmpl_xref_key_columns.ctemplate
   )

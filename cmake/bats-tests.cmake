@@ -23,6 +23,15 @@ macro(ADD_BATS_TEST TEST_NAME)
   add_test(${TEST_NAME} ${BATS} --tap ${PROJECT_BINARY_DIR}/bats_tests/${TEST_NAME}.bats)
 endmacro(ADD_BATS_TEST)
 
+# This macro is to be used to run tests that involve DML operations (INSERT, DELETE, UPDATE etc.)
+# These tests create tables in Postgres and so it is necessary that the "hello_psql" test (which dumps
+# the Postgres tables and verifies the output) runs BEFORE any of these tests (e.g. if `ctest -j` is used).
+# This is achieved by additionally using the DEPENDS test property on the test.
+macro(ADD_BATS_TEST_DML TEST_NAME)
+  ADD_BATS_TEST(${TEST_NAME})
+  set_tests_properties(${TEST_NAME} PROPERTIES DEPENDS "hello_psql")
+endmacro(ADD_BATS_TEST_DML)
+
 macro(ADD_BATS_TEST_WITH_TIME TEST_NAME)
   CONFIGURE_BATS_TEST(${TEST_NAME})
   add_test(${TEST_NAME} ${BATS} -T --tap ${PROJECT_BINARY_DIR}/bats_tests/${TEST_NAME}.bats)
@@ -87,8 +96,9 @@ if("${FULL_TEST_SUITE}")
 	ADD_BATS_TEST(test_readline)
 	ADD_BATS_TEST(test_unique_filenames)
 	ADD_BATS_TEST(test_where_in)
-	ADD_BATS_TEST(test_insert_into)
-	ADD_BATS_TEST(test_delete_from_table)
+	ADD_BATS_TEST_DML(test_insert_into)
+	ADD_BATS_TEST_DML(test_delete_from_table)
+	ADD_BATS_TEST_DML(test_update_table)
 	ADD_BATS_TEST(test_cross_join)
 	ADD_BATS_TEST(test_limit)
 	ADD_BATS_TEST(test_set_operations)

@@ -12,8 +12,8 @@
 
 #include "octo.h"
 
-/* Given a cursorId corresponding to an INSERT INTO or DELETE FROM query, it returns the number of rows that were inserted/deleted.
- * In case of any errors, this returns the number 0.
+/* Given a cursorId corresponding to an INSERT INTO/DELETE FROM/UPDATE query, it returns the number of rows
+ * that were inserted/deleted/updated. In case of any errors, this returns the number 0.
  */
 int get_row_count_from_cursorId(ydb_long_t cursorId) {
 	int	     row_count, status;

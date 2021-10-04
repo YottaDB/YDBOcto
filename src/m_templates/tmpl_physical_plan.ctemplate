@@ -14,32 +14,36 @@
 #include "physical_plan.h"
 #include "template_helpers.h"
 
-TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
+TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 	SqlColumnAlias		*column_alias;
 	LogicalPlan		*lp_temp;
 	unsigned int		cur_key;
 	int			dot_count;
 	SqlOptionalKeyword	*limit_keyword;
 
-	%{}`n{{ plan->plan_name }}(cursorId)`n{{ PLAN_LINE_START }}{}% // The whitespace here is needed for proper M formatting
+	%{}`n{{ pplan->plan_name }}(cursorId)`n{{ PLAN_LINE_START }}{}% // The whitespace here is needed for proper M formatting
 
-	/* Handle LP_INSERT_INTO, LP_DELETE_FROM plans first as they are relatively easy to handle */
-	if (IS_INSERT_INTO_PHYSICAL_PLAN(plan)) {
-		TMPL(tmpl_insert_into, plan);
+	/* Handle LP_INSERT_INTO/LP_DELETE_FROM/LP_UPDATE plans first as they are relatively easy to handle */
+	if (IS_INSERT_INTO_PHYSICAL_PLAN(pplan)) {
+		TMPL(tmpl_insert_into, pplan);
 		return;
 	}
 
 	// The below initialization is needed for cross-reference plans and the regular plans
-	assert(NULL == plan->treat_key_as_null);
-	plan->treat_key_as_null = octo_cmalloc(memory_chunks, sizeof(boolean_t) * config->plan_id);
+	assert(NULL == pplan->treat_key_as_null);
+	pplan->treat_key_as_null = octo_cmalloc(memory_chunks, sizeof(boolean_t) * config->plan_id);
 
-	if (IS_DELETE_FROM_PHYSICAL_PLAN(plan)) {
-		TMPL(tmpl_delete_from, plan);
+	if (IS_DELETE_FROM_PHYSICAL_PLAN(pplan)) {
+		TMPL(tmpl_delete_from, pplan);
 		return;
 	}
-	assert(NULL != plan->outputKey);
+	if (IS_UPDATE_PHYSICAL_PLAN(pplan)) {
+		TMPL(tmpl_update_table, pplan);
+		return;
+	}
+	assert(NULL != pplan->outputKey);
 	// Check if there are any cross references that need to be built
-	if (plan->outputKey->is_cross_reference_key) {
+	if (pplan->outputKey->is_cross_reference_key) {
 		SqlColumn		*column;
 		int			num_key_cols;
 		SqlOptionalKeyword	*keyword;
@@ -47,42 +51,42 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		char			*tableName;
 		char			*columnName;
 
-		UNPACK_SQL_STATEMENT(value, plan->outputKey->table->tableName, value);
+		UNPACK_SQL_STATEMENT(value, pplan->outputKey->table->tableName, value);
 		tableName = value->v.reference;
-		column = plan->outputKey->column;
+		column = pplan->outputKey->column;
 		UNPACK_SQL_STATEMENT (value, column->columnName, value);
 		columnName = value->v.reference;
-		GET_LP(lp_temp, plan->projection, 0, LP_WHERE);
+		GET_LP(lp_temp, pplan->projection, 0, LP_WHERE);
 		GET_LP(lp_temp, lp_temp, 0, LP_COLUMN_ALIAS);
 		column_alias = lp_temp->v.lp_column_alias.column_alias;
 		/* If this a plan for a cross reference, put safeguards in place (i.e. QUIT) to prevent building twice */
-		%{}IF $DATA({{ plan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}({{ PP_XREF_STATUS }},"{{ tableName }}","{{ columnName }}")) {}%
+		%{}IF $DATA({{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}({{ PP_XREF_STATUS }},"{{ tableName }}","{{ columnName }}")) {}%
 		%{}QUIT`n{{ PLAN_LINE_START }}{}%
 		// Only need triggers for xrefs on global variables, so check the xref name for '^' to confirm a trigger is needed
-		if ('^' == plan->outputKey->xref_prefix[0]) {
+		if ('^' == pplan->outputKey->xref_prefix[0]) {
 			%{}IF '$$dollarZTRIGGER^%%ydboctoplanhelpers("ITEM","+{}%
 			/* The last parameter ("dot_count") below is unused if the last-but-one parameter ("is_trigger") is TRUE.
 			 * Hence we call it with a dummy value of "0".
 			 */
-			TMPL(tmpl_column_reference, plan, column_alias, TRUE, 0);
-			%{} -commands=SET,KILL,ZKILL -xecute=""DO handleSetKill^{{ plan->filename }}"" -name={{ plan->trigger_name }}")  {}%
+			TMPL(tmpl_column_reference, pplan, column_alias, TRUE, 0);
+			%{} -commands=SET,KILL,ZKILL -xecute=""DO handleSetKill^{{ pplan->filename }}"" -name={{ pplan->trigger_name }}")  {}%
 			%{}HALT`n{{ PLAN_LINE_START }}{}%
 		}
 		%{}SET %%ydboctoCancel("{{ tableName }}","{{ columnName }}","Trigger")="-{}%
 		/* The last parameter ("dot_count") below is unused if the last-but-one parameter ("is_trigger") is TRUE.
 		 * Hence we call it with a dummy value of "0".
 		 */
-		TMPL(tmpl_column_reference, plan, column_alias, TRUE, 0);
-		%{} -commands=SET,KILL,ZKILL -xecute=""DO handleSetKill^{{ plan->filename }}"""`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_column_reference, pplan, column_alias, TRUE, 0);
+		%{} -commands=SET,KILL,ZKILL -xecute=""DO handleSetKill^{{ pplan->filename }}"""`n{{ PLAN_LINE_START }}{}%
 		%{}; Store state information in case query is canceled in middle of xref building`n{{ PLAN_LINE_START }}{}%
 		%{}; Actual cleanup happens in _ydboctoCleanup.m using this saved state information`n{{ PLAN_LINE_START }}{}%
-		%{}SET %%ydboctoCancel("{{ tableName }}","{{ columnName }}","Node1")="{{ plan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}(""{}%
+		%{}SET %%ydboctoCancel("{{ tableName }}","{{ columnName }}","Node1")="{{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}(""{}%
 		%{}{{ tableName }}"",""{{ columnName }}"")" ; Note: NULL value of {{ columnName }} is stored as ""{}%
 		%{}`n{{ PLAN_LINE_START }}{}%
 		%{}; Populate cross reference`n{{ PLAN_LINE_START }}{}%
 		%{}DO populateXref`n{{ PLAN_LINE_START }}{}%
-		%{}SET {{ plan->outputKey->xref_prefix }}{{ config->global_names.raw_octo }}({{ PP_XREF_STATUS }},"{{ tableName }}","{{ columnName }}")={}%
-		%{}"{{ plan->trigger_name }}"{}%
+		%{}SET {{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_octo }}({{ PP_XREF_STATUS }},"{{ tableName }}","{{ columnName }}")={}%
+		%{}"{{ pplan->trigger_name }}"{}%
 		%{}`n{{ PLAN_LINE_START }}{}%
 		%{}; Now that xref building is complete, cleanup saved cancel related state information`n{{ PLAN_LINE_START }}{}%
 		%{}KILL %%ydboctoCancel`n{{ PLAN_LINE_START }}{}%
@@ -90,20 +94,20 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		// Generate the populateXref entryref here
 		%{}`npopulateXref`n{{ PLAN_LINE_START }}{}%
 		%{}; Build cross reference for {{ columnName }} column in {{ tableName }} table`n{{ PLAN_LINE_START }}{}%
-		%{}KILL {{ plan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"){}%
+		%{}KILL {{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"){}%
 		%{}  ; Remove prior cross reference data (if any still exists)`n{{ PLAN_LINE_START }}{}%
 		cur_key = 0;
 		dot_count = 0;
-		TMPL(tmpl_tablejoin, plan, plan->tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
+		TMPL(tmpl_tablejoin, pplan, pplan->tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
 		%{}`n{{ PLAN_LINE_START }}QUIT{}%
 		// Generate the trigger definitions here, but only for xrefs stored in GVNs
-		if ('^' == plan->outputKey->xref_prefix[0]) {
+		if ('^' == pplan->outputKey->xref_prefix[0]) {
 			%{}`n`nhandleSetKill`n{{ PLAN_LINE_START }}{}%
 			%{}; M routine that is invoked by SET/KILL/ZKILL trigger to keep xref for {}%
 			%{}{{ columnName }} column in {{ tableName }} table in sync`n{{ PLAN_LINE_START }}{}%
 			%{}IF "S"=$ZTRIGGEROP DO`n{{ PLAN_LINE_START }}{}%
 			%{}. ; SET trigger`n{{ PLAN_LINE_START }}{}%
-			%{}. IF $ZTDATA DO`n{{ PLAN_LINE_START }}{}%
+			%{}. DO:$ZTDATA`n{{ PLAN_LINE_START }}{}%
 			%{}. . ; The node existed previously so kill cross reference corresponding to its old value{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}. . NEW oldValue`n{{ PLAN_LINE_START }}{}%
@@ -148,9 +152,9 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 			%{}addXrefEntry({{ PP_VAL }})	; {{ PP_KEY_COLUMN }}0, {{ PP_KEY_COLUMN }}1 etc. are not passed as parameters{}%
 			%{} but inherited from caller scope{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
-			%{}SET {{ plan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_VAL }}{}%
+			%{}SET {{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_VAL }}{}%
 			/* Determine number of primary key columns */
-			lp_temp = plan->projection->v.lp_default.operand[1];
+			lp_temp = pplan->projection->v.lp_default.operand[1];
 			num_key_cols = 0;
 			while (NULL != lp_temp) {
 				lp_temp = lp_temp->v.lp_default.operand[1];
@@ -159,26 +163,26 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 			TMPL(tmpl_xref_key_columns, num_key_cols);
 			%{})=""{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
-			%{}IF $INCREMENT({{ plan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_VAL }})){}%
+			%{}IF $INCREMENT({{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_VAL }})){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
-			%{}IF $INCREMENT({{ plan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")){}%
+			%{}IF $INCREMENT({{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}QUIT{}%
 			%{}`n`n{}%
 			%{}delXrefEntry({{ PP_VAL }})	; {{ PP_KEY_COLUMN }}0, {{ PP_KEY_COLUMN }}1 etc. are not passed as parameters{}%
 			%{} but inherited from caller scope{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
-			%{}KILL {{ plan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_VAL }}{}%
+			%{}KILL {{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_VAL }}{}%
 			TMPL(tmpl_xref_key_columns, num_key_cols);
 			%{}){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
-			%{}KILL:0=$INCREMENT({{ plan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{}%
+			%{}KILL:0=$INCREMENT({{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{}%
 			%{}{{ PP_VAL }}),-1) {}%
-			%{}{{ plan->outputKey->xref_prefix }}{}%
+			%{}{{ pplan->outputKey->xref_prefix }}{}%
 			%{}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_VAL }}){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
-			%{}KILL:0=$INCREMENT({{ plan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1) {}%
-			%{}{{ plan->outputKey->xref_prefix }}{}%
+			%{}KILL:0=$INCREMENT({{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1) {}%
+			%{}{{ pplan->outputKey->xref_prefix }}{}%
 			%{}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}QUIT{}%
@@ -187,18 +191,18 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		return;
 	}
 	// Not a cross-reference plan
-	if (LP_TABLE_VALUE == plan->lp_select_query->type) {
+	if (LP_TABLE_VALUE == pplan->lp_select_query->type) {
 		LogicalPlan	*lp_table_data, *lp_row_value;
 
-		assert(NULL == plan->dnf_prev);
-		assert(NULL == plan->dnf_next);
-		assert(NULL == plan->order_by);
-		assert(!plan->emit_duplication_check);
-		assert(!plan->distinct_values);
-		assert(!plan->distinct_values);
+		assert(NULL == pplan->dnf_prev);
+		assert(NULL == pplan->dnf_next);
+		assert(NULL == pplan->order_by);
+		assert(!pplan->emit_duplication_check);
+		assert(!pplan->distinct_values);
+		assert(!pplan->distinct_values);
 		%{}KILL {}%
-		TMPL(tmpl_key, plan->outputKey);
-		GET_LP(lp_table_data, plan->lp_select_query, 0, LP_TABLE_DATA);
+		TMPL(tmpl_key, pplan->outputKey);
+		GET_LP(lp_table_data, pplan->lp_select_query, 0, LP_TABLE_DATA);
 		GET_LP(lp_row_value, lp_table_data, 1, LP_ROW_VALUE);
 		dot_count = 1;
 		do {
@@ -208,22 +212,22 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 			assert(LP_ROW_VALUE == lp_row_value->type);
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}IF $INCREMENT({}%
-			TMPL(tmpl_key, plan->outputKey);
+			TMPL(tmpl_key, pplan->outputKey);
 			%{}) DO{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 			GET_LP(lp_column_list, lp_row_value, 0, LP_COLUMN_LIST);
-			stash_columns_in_keys = plan->stash_columns_in_keys;
-			TMPL(tmpl_column_list_combine, lp_column_list, plan, "_", !stash_columns_in_keys, dot_count, FALSE);
+			stash_columns_in_keys = pplan->stash_columns_in_keys;
+			TMPL(tmpl_column_list_combine, lp_column_list, pplan, "_", !stash_columns_in_keys, dot_count, FALSE);
 			if (!stash_columns_in_keys) {
 				%{}SET {}%
-				TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+				TMPL(tmpl_key, pplan->outputKey); (*buffer_index)--;
 				%{},{}%
-				TMPL(tmpl_key, plan->outputKey);
+				TMPL(tmpl_key, pplan->outputKey);
 				%{}){}%
 				%{}={{ PP_YDB_OCTO_EXPR }}{}%
 			} else {
 				%{}IF $INCREMENT({}%
-				TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+				TMPL(tmpl_key, pplan->outputKey); (*buffer_index)--;
 				%{},{}%
 				%{}{{ PP_YDB_OCTO_EXPR }}{}%
 				%{})){}%
@@ -231,54 +235,55 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 			lp_row_value = lp_row_value->v.lp_default.operand[1];
 		} while (NULL != lp_row_value);
 	} else {
-		assert(LP_SELECT_QUERY == plan->lp_select_query->type);
+		assert(LP_SELECT_QUERY == pplan->lp_select_query->type);
 		/* New variables that are used in almost every plan. This is needed since deferred plans can be called from
 		 * within another plan (see "XECUTE" in "GetScalarOrArray" entryref in "src/aux/_ydboctoplanhelpers.m")
 		 * and we do not want say "%ydboctoexpr" variable in the deferred plan to affect the variable of the same
 		 * name (but holding a completely different value) in the caller plan.
 		 */
 		%{}NEW {{ PP_YDB_OCTO_Z }},{{ PP_YDB_OCTO_EXPR }}{}%
-		limit_keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
-		if ((NULL != limit_keyword) && (NULL == plan->dnf_prev)) {
-			%{} SET {{ PP_YDB_OCTO_ZLIMIT }}({{ plan->outputKey->unique_id|%d }})=0{}%
+		limit_keyword = get_keyword_from_keywords(pplan->keywords, OPTIONAL_LIMIT);
+		if ((NULL != limit_keyword) && (NULL == pplan->dnf_prev)) {
+			%{} SET {{ PP_YDB_OCTO_ZLIMIT }}({{ pplan->outputKey->unique_id|%d }})=0{}%
 		}
-		if (NULL == plan->dnf_prev) {
+		if (NULL == pplan->dnf_prev) {
 			%{} KILL {}%
-			TMPL(tmpl_key, plan->outputKey);
+			TMPL(tmpl_key, pplan->outputKey);
 		}
 		%{}`n{{ PLAN_LINE_START }}{}% // Whitespace for MUMPS
 		cur_key = 0;
 		dot_count = 0;
-		assert(FALSE == plan->tablejoin_body_group_by_done);
-		TMPL(tmpl_tablejoin, plan, plan->tablejoin, cur_key, FALSE, dot_count, NULL, NULL);
+		assert(FALSE == pplan->tablejoin_body_group_by_done);
+		TMPL(tmpl_tablejoin, pplan, pplan->tablejoin, cur_key, FALSE, dot_count, NULL, NULL);
 		/* If this plan has GROUP BY, "tmpl_tablejoin" would not have generated output keys in the usual format.
 		 * It would have generated GROUP BY related subscript lvn tree that needs to be converted into an output key.
 		 * Do that here.
 		 */
-		if (IS_GROUP_BY_PLAN(plan) && (NULL == plan->dnf_next)) {
-			assert(FALSE == plan->tablejoin_body_group_by_done);
-			plan->tablejoin_body_group_by_done = TRUE;
-			TMPL(tmpl_group_by, plan, dot_count);
+		if (IS_GROUP_BY_PLAN(pplan) && (NULL == pplan->dnf_next)) {
+			assert(FALSE == pplan->tablejoin_body_group_by_done);
+			pplan->tablejoin_body_group_by_done = TRUE;
+			TMPL(tmpl_group_by, pplan, dot_count);
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}KILL {}%
-			TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+			TMPL(tmpl_key, pplan->outputKey); (*buffer_index)--;
 			%{},{{ PP_GROUP_BY }}){}%
 		}
 		// If this expression had an order by, we now need to go back and make the ordering uniform
 		// If we have a lot of plans each of which have the same output key and order by, then do this step
 		// only for the last plan in that set.
-		if ((NULL != plan->order_by) && (NULL == plan->dnf_next)) {
+		if ((NULL != pplan->order_by) && (NULL == pplan->dnf_next)) {
 			char			*direction;
 			LogicalPlan		*order_by;
 			int			num_cols;
 
-			order_by = plan->order_by;
+			order_by = pplan->order_by;
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}NEW {{ PP_YDB_OCTO_I }}  SET {{ PP_YDB_OCTO_I }}(0)=1`n{{ PLAN_LINE_START }}{}%
-			assert((NULL != plan->outputKey)
-				&& ((NULL == plan->next) || (NULL != plan->next->outputKey)
-				|| IS_INSERT_INTO_PHYSICAL_PLAN(plan->next)
-				|| IS_DELETE_FROM_PHYSICAL_PLAN(plan->next)));
+			assert((NULL != pplan->outputKey)
+				&& ((NULL == pplan->next) || (NULL != pplan->next->outputKey)
+				|| IS_INSERT_INTO_PHYSICAL_PLAN(pplan->next)
+				|| IS_DELETE_FROM_PHYSICAL_PLAN(pplan->next)
+				|| IS_UPDATE_PHYSICAL_PLAN(pplan->next)));
 			// Determine how many columns are specified in ORDER BY. Need to generate M code accordingly.
 			// The below code is a simplified version of that in "tmpl_column_list_combine.ctemplate".
 			num_cols = 0;
@@ -296,18 +301,18 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 				 */
 				if (is_desc) {
 					%{}FOR  SET {{ PP_YDB_OCTO_I }}({{ num_cols|%d }})=$ORDER({}%
-					TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+					TMPL(tmpl_key, pplan->outputKey); (*buffer_index)--;
 					TMPL(tmpl_order_by_key, num_cols);
 					%{}),{{ direction }})  QUIT:$DATA({}%
-					TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+					TMPL(tmpl_key, pplan->outputKey); (*buffer_index)--;
 					TMPL(tmpl_order_by_key, num_cols);
 					%{}))=0  DO  QUIT:({{ PP_YDB_OCTO_I }}({{ num_cols|%d }})=""){}%
 				} else {
 					%{}FOR  DO:$DATA({}%
-					TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+					TMPL(tmpl_key, pplan->outputKey); (*buffer_index)--;
 					TMPL(tmpl_order_by_key, num_cols);
 					%{}))  SET {{ PP_YDB_OCTO_I }}({{ num_cols|%d }})=$ORDER({}%
-					TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+					TMPL(tmpl_key, pplan->outputKey); (*buffer_index)--;
 					TMPL(tmpl_order_by_key, num_cols);
 					%{}),{{ direction }})  QUIT:({{ PP_YDB_OCTO_I }}({{ num_cols|%d }})=""){}%
 				}
@@ -321,7 +326,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 			num_cols++;
 			%{}SET {{ PP_YDB_OCTO_I }}({{ num_cols|%d }})="" {}%
 			%{}FOR  SET {{ PP_YDB_OCTO_I }}({{ num_cols|%d }})=$ORDER({}%
-			TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+			TMPL(tmpl_key, pplan->outputKey); (*buffer_index)--;
 			TMPL(tmpl_order_by_key, num_cols);
 			%{})) QUIT:({{ PP_YDB_OCTO_I }}({{ num_cols|%d }})=""){}%
 			if (NULL != limit_keyword) {
@@ -329,20 +334,20 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 			}
 			%{}  DO`n{{ PLAN_LINE_START }}{}%
 			TMPL(tmpl_print_dots, num_cols);
-			if (!plan->stash_columns_in_keys) {
+			if (!pplan->stash_columns_in_keys) {
 				%{}SET {}%
-				TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+				TMPL(tmpl_key, pplan->outputKey); (*buffer_index)--;
 				%{},{{ PP_YDB_OCTO_I }}(0))={}%
-				TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+				TMPL(tmpl_key, pplan->outputKey); (*buffer_index)--;
 				TMPL(tmpl_order_by_key, num_cols);
 			} else {
 				/* Plan is part of a sub-query with an ORDER BY. Finish actual stashing of keys in columns
 				 * that was deferred in "tmpl_populate_output_key".
 				 */
 				%{}IF $INCREMENT({}%
-				TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+				TMPL(tmpl_key, pplan->outputKey); (*buffer_index)--;
 				%{},{}%
-				TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+				TMPL(tmpl_key, pplan->outputKey); (*buffer_index)--;
 				TMPL(tmpl_order_by_key, num_cols);
 				%{})){}%
 			}
@@ -351,24 +356,24 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 			%{}IF $INCREMENT({{ PP_YDB_OCTO_I }}(0)){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}KILL {}%
-			TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+			TMPL(tmpl_key, pplan->outputKey); (*buffer_index)--;
 			%{},{{ PP_ORDER_BY }}){}%
 			%{}`n{{ PLAN_LINE_START }}SET {}%
-			TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+			TMPL(tmpl_key, pplan->outputKey); (*buffer_index)--;
 			%{})={{ PP_YDB_OCTO_I }}(0)-1{}%
 		}
-		if (NULL == plan->dnf_next) {
-			if (plan->emit_duplication_check) {
+		if (NULL == pplan->dnf_next) {
+			if (pplan->emit_duplication_check) {
 				%{}`n{{ PLAN_LINE_START }}{}%
-				%{}KILL {{ PP_YDB_OCTO_ZDUPLICATE }}({{ plan->outputKey->unique_id|%d }}){}%
+				%{}KILL {{ PP_YDB_OCTO_ZDUPLICATE }}({{ pplan->outputKey->unique_id|%d }}){}%
 			}
 			if (NULL != limit_keyword) {
 				%{}`n{{ PLAN_LINE_START }}{}%
-				%{}KILL {{ PP_YDB_OCTO_ZLIMIT }}({{ plan->outputKey->unique_id|%d }}){}%
+				%{}KILL {{ PP_YDB_OCTO_ZLIMIT }}({{ pplan->outputKey->unique_id|%d }}){}%
 			}
-			if (plan->distinct_values) {
+			if (pplan->distinct_values) {
 				%{}`n{{ PLAN_LINE_START }}{}%
-				%{}KILL {{ PP_YDB_OCTO_ZDISTINCT }}({{ plan->outputKey->unique_id|%d }}){}%
+				%{}KILL {{ PP_YDB_OCTO_ZDISTINCT }}({{ pplan->outputKey->unique_id|%d }}){}%
 			}
 		}
 	}

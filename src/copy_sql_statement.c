@@ -244,7 +244,8 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		 */
 	case insert_STATEMENT:
 	case delete_from_STATEMENT:
-		/* We don't expect INSERT INTO or DELETE FROM related parse tree structures to be copied over.
+	case update_STATEMENT:
+		/* We don't expect INSERT INTO, DELETE FROM or UPDATE related parse tree structures to be copied over.
 		 * Hence falling through the below code which would issue an error.
 		 */
 	default:

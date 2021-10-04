@@ -33,7 +33,6 @@ octoPlan1(cursorId)
     . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
     . . SET %ydboctoexpr=%ydboctoexpr(1)<%ydboctoexpr
-    . . IF %ydboctoexpr DO
     . . . SET %ydboctocursor(cursorId,"keys",3,"NAMES","ID")=""
     . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",3,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"NAMES","ID")="")  DO
     . . . . SET %ydboctoexpr=1
@@ -41,7 +40,6 @@ octoPlan1(cursorId)
     . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",2,"NAMES","ID")
     . . . . SET %ydboctoexpr=%ydboctoexpr(1)<%ydboctoexpr
-    . . . . IF %ydboctoexpr DO
     . . . . . SET %ydboctocursor(cursorId,"keys",4,"NAMES","ID")=""
     . . . . . FOR  SET %ydboctocursor(cursorId,"keys",4,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",4,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",4,"NAMES","ID")="")  DO
     . . . . . . SET %ydboctoexpr=1
@@ -49,9 +47,7 @@ octoPlan1(cursorId)
     . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",3,"NAMES","ID")
     . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)<%ydboctoexpr
-    . . . . . . IF %ydboctoexpr DO
     . . . . . . . SET %ydboctoexpr=1
-    . . . . . . . IF %ydboctoexpr DO
     . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",6,"","")) %ydboctoz=42
     . . . . . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
     . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)

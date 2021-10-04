@@ -209,7 +209,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt) {
 		}
 		break;
 	case column_STATEMENT:
-		/* Currently this is reachable only if called for the target columns of an INSERT INTO.
+		/* Currently this is reachable only if called for the target columns of an INSERT INTO or UPDATE.
 		 * In that case, "generate_logical_plan()" would have passed in "NULL" as the "parent_stmt" parameter.
 		 * Assert that.
 		 */

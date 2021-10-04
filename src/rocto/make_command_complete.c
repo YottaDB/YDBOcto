@@ -41,6 +41,9 @@ CommandComplete *make_command_complete(SqlStatementType cmd_type, int32_t row_co
 	case delete_from_STATEMENT:
 		snprintf(command_tag, MAX_TAG_LEN, "%s %d", DELETE_COMMAND_TAG, row_count);
 		break;
+	case update_STATEMENT:
+		snprintf(command_tag, MAX_TAG_LEN, "%s %d", UPDATE_COMMAND_TAG, row_count);
+		break;
 	case set_STATEMENT:
 		assert(MAX_TAG_LEN >= sizeof(SET_COMMAND_TAG));
 		snprintf(command_tag, MAX_TAG_LEN, SET_COMMAND_TAG);

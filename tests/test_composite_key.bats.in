@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -82,8 +82,8 @@ OCTO
 }
 
 @test "TCK03 : Check unnecessary subscripts are not generated in M code (avoids MAXNRSUBSCRIPTS error)" {
-  load_fixture compositekey.sql
-  load_fixture compositekey.zwr
+  load_fixture composite.sql
+  load_fixture composite.zwr
   octo <<OCTO 2>&1 | tee output.txt
 SELECT c1.name FROM composite c1
 INNER JOIN composite c2 ON c2.name = c1.name

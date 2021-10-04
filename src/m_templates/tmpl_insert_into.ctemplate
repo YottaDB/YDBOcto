@@ -168,10 +168,41 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 				 */
 				%{}$ZYSQLNULL{}%
 			}
+			if (IS_KEY_COLUMN(cur_column)) {
+				/* Check if key column value is NULL. If so issue an error */
+				%{}`n{{ PLAN_LINE_START }}{}%
+				TMPL(tmpl_print_dots, dot_count);
+				%{}DO:$ZYISSQLNULL({{ PP_COL }}({{ cur_column->column_number|%d }})){}%
+
+				SqlValue	*colname_value;
+				UNPACK_SQL_STATEMENT (colname_value, cur_column->columnName, value);
+
+				char		*columnName;
+				columnName = colname_value->v.reference;
+				%{} NullKeyValue^%%ydboctoplanhelpers("{{ columnName }}"){}%
+			}
 		}
 		%{}`n{{ PLAN_LINE_START }}{}%
 		cur_column = cur_column->next;
 	} while (cur_column != start_column);
+	/* Check if the to be inserted row's key values match an existing row's key values. If so issue error. */
+	TMPL(tmpl_print_dots, dot_count);
+	%{}DO:$DATA({}%
+	TMPL(tmpl_emit_source, table, value->v.string_literal, NULL, 0, MAX_KEY_COUNT, EmitSourceForm_Insert);
+	%{}) DuplicateKeyValue^%%ydboctoplanhelpers({}%
+	/* TODO: Currently we don't support the UNIQUE constraint feature (YDBOcto#582).
+	 * When we do this code needs to be reworked/generalized.
+	 * See similar comment in "tmpl_update_record_in_table.ctemplate" for more details.
+	 */
+	char		*tableName;
+	SqlValue	*tbl_name_value;
+	UNPACK_SQL_STATEMENT(tbl_name_value, table->tableName, value);
+	tableName = tbl_name_value->v.reference;
+	%{}"{{ tableName }}_pkey",{}%
+	%{}$NAME({}%
+	TMPL(tmpl_emit_source, table, value->v.string_literal, NULL, 0, MAX_KEY_COUNT, EmitSourceForm_Insert);
+	%{})){}%
+	%{}`n{{ PLAN_LINE_START }}{}%
 	/* Generate global reference */
 	TMPL(tmpl_print_dots, dot_count);
 	%{}SET {}%
@@ -188,7 +219,7 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 	}
 	first_nonkey_column = TRUE;
 	do {
-		if ((NULL == get_keyword(cur_column, PRIMARY_KEY)) && (NULL == get_keyword(cur_column, OPTIONAL_KEY_NUM))) {
+		if (!IS_KEY_COLUMN(cur_column)) {
 			if (!first_nonkey_column) {
 				char	ch;
 

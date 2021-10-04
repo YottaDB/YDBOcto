@@ -42,7 +42,7 @@
 		(DEST) = (SOURCE)->v.lp_default.operand[(SIDE)];                   \
 	}
 
-/* The ERROR_ENCOUNTERED parameter is set to TRUE in case we notice errors inside "lp-generate_where()" (it could recurse
+/* The ERROR_ENCOUNTERED parameter is set to TRUE in case we notice errors inside "lp_generate_where()" (it could recurse
  * and go deep). This is so outermost caller knows to issue an error at logical plan stage and not proceed with physical plan
  * even if one error is seen anywhere in a recursive function call.
  */
@@ -233,7 +233,7 @@ typedef struct LogicalPlan {
 		LpExtraOrderBy	 lp_order_by;			// To be used if type == LP_ORDER_BY
 		LpExtraWhere	 lp_where;			// To be used if type == LP_WHERE
 		LpExtraInsert	 lp_select_query;		// To be used if type == LP_SELECT_QUERY or LP_TABLE_VALUE
-								//	or LP_INSERT_INTO or LP_DELETE_FROM
+								//	or LP_INSERT_INTO or LP_DELETE_FROM or LP_UPDATE
 		LpExtraColumnAlias	 lp_column_alias;	// To be used if type == LP_COLUMN_ALIAS
 		LpExtraDerivedColumn	 lp_derived_column;	// To be used if type == LP_DERIVED_COLUMN
 		LpExtraAggregateFunction lp_aggregate_function; // To be used if type == LP_AGGREGATE_*

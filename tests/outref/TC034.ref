@@ -33,7 +33,7 @@ octoPlan1(cursorId)
     . SET %ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_DESCRIPTION_ID")=0
     . FOR  SET %ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_DESCRIPTION_ID")=$ORDER(^DD("IX",%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_ID"),.1,%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_DESCRIPTION_ID"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_DESCRIPTION_ID"))!(%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_DESCRIPTION_ID")=""))  DO
     . . SET %ydboctoexpr=1
-    . . IF %ydboctoexpr DO
+    . . DO:%ydboctoexpr
     . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . . SET %ydboctoexpr=$E($G(^DD("IX",%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_ID"),.1,%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_DESCRIPTION_ID"),0)),1,245) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
@@ -58,7 +58,7 @@ octoPlan1(cursorId)
     . SET %ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_DESCRIPTION_ID")=0
     . FOR  SET %ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_DESCRIPTION_ID")=$ORDER(^DD("IX",%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_ID"),.1,%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_DESCRIPTION_ID"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_DESCRIPTION_ID"))!(%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_DESCRIPTION_ID")=""))  DO
     . . SET %ydboctoexpr=1
-    . . IF %ydboctoexpr DO
+    . . DO:%ydboctoexpr
     . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_ID")
     . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
@@ -83,7 +83,7 @@ octoPlan1(cursorId)
     . SET %ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_DESCRIPTION_ID")=0
     . FOR  SET %ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_DESCRIPTION_ID")=$ORDER(^DD("IX",%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_ID"),.1,%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_DESCRIPTION_ID"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_DESCRIPTION_ID"))!(%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_DESCRIPTION_ID")=""))  DO
     . . SET %ydboctoexpr=1
-    . . IF %ydboctoexpr DO
+    . . DO:%ydboctoexpr
     . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"INDEX_DESCRIPTION","INDEX_DESCRIPTION_ID")
     . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)

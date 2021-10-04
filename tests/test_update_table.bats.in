@@ -1,0 +1,166 @@
+#################################################################
+#								#
+# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+	load_fixture names.sql
+	load_fixture names.zwr
+	# Start rocto at subtest startup as part of framework for all subtests as most of them will need to start rocto
+	# with --allowschemachanges due to the presence of DROP TABLE/FUNCTION commands.
+	test_port=$(start_rocto 1400 --allowschemachanges)
+}
+
+teardown() {
+	stop_rocto
+}
+
+@test "TUT001 : OCTO579 : Test various errors in UPDATE" {
+	# This subtest is similar to the test_delete_from_table/TDFT03 subtest
+	load_fixture composite.sql
+	load_fixture composite.zwr
+	load_fixture TUT001.sql subtest novv
+	verify_output TUT001 output.txt
+}
+
+@test "TUT002 : OCTO579 : Test of simple UPDATE queries in names database (one primary key column)" {
+	# This subtest is similar to the test_delete_from_table/TDFT01 subtest
+	echo "# Load SAMEVALUE function (used in TVC01.sql) in Octo and Postgres" >> output.txt
+	load_fixture "QueryGenerator.sql"
+	load_postgres_fixture names postgres-QueryGenerator.sql
+	echo "# Run cross check" >> output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TUT002.sql
+	# Firstly, delete created tables from Postgres as it can confuse later runs of other tests
+	# (e.g. hello_psql/HP01 subtest etc.) in case we error out in the later steps of this TUT002 subtest
+	psql names -c 'drop table if exists TUT002; drop table if exists TUT002B' >& postgres.drop_table_TUT002.out
+	# Now do various verifications of Octo plans
+	echo "# Include key parts of generated M plans in reference file" >> output.txt
+	grep -Ei 'INSERT INTO|DELETE FROM|UPDATE|VALUES|SELECT|maintains cross reference|^octoPlan|RowCount|FOR|SET .ydboctocursor|SET \$PIECE|SET %ydboctoUPD|SET val|------' _ydbocto*.m >> output.txt
+	echo "# Test [DROP TABLE names] removes all plans using names table for UPDATE queries" >> output.txt
+	echo "DROP TABLE names" | octo
+	echo "# Below are plans that remain after [DROP TABLE names]" >> output.txt
+	grep -Ei "INSERT INTO|DELETE FROM|UPDATE|VALUES|SELECT|maintains cross reference" _ydbocto*.m >> output.txt
+	echo "# Test [DROP FUNCTION SAMEVALUE(VARCHAR)] removes all plans using SAMEVALUE function for UPDATE queries" >> output.txt
+	echo "DROP FUNCTION SAMEVALUE(VARCHAR);" | octo
+	echo "# Below are plans that remain after DROP FUNCTION SAMEVALUE(VARCHAR)" >> output.txt
+	echo "# SAMEVALUE(INTEGER) function plans should show up below since only SAMEVALUE(VARCHAR) function was dropped" >> output.txt
+	grep -Ei "INSERT INTO|DELETE FROM|UPDATE|VALUES|SELECT|maintains cross reference" _ydbocto*.m >> output.txt
+	echo "# Test [DROP TABLE TUT002] removes all plans using TUT002 table for UPDATE queries" >> output.txt
+	echo "DROP TABLE TUT002" | octo
+	echo "# Verify all plans related to TUT002 are gone and only 1 plan related to TUT002B remains now" >> output.txt
+	if compgen -G "_ydbocto*" > /dev/null; then
+		grep -Ei "INSERT INTO|DELETE FROM|UPDATE|VALUES|SELECT|maintains cross reference" _ydbocto*.m >> output.txt
+	fi
+	verify_output TUT002 output.txt
+}
+
+@test "TUT003 : OCTO579 : Test of simple UPDATE queries in composite database (multiple primary key columns)" {
+	# This subtest is similar to the test_delete_from_table/TDFT02 subtest
+	load_fixture composite.sql
+	load_fixture composite.zwr
+	load_fixture TUT003.sql subtest novv
+	echo "# Include key parts of generated M plans in reference file" >> output.txt
+	grep -Ei "UPDATE|VALUES|SELECT|maintains cross reference|^octoPlan|FOR|SET .ydboctocursor|------" _ydbocto*.m >> output.txt
+	verify_output TUT003 output.txt
+}
+
+@test "TUT004 : OCTO579 : Test that physical plans get reused in case of repeated UPDATE queries" {
+	# This subtest is similar to the test_delete_from_table/TDFT04 subtest
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TUT004.sql .
+	echo "# Run an UPDATE query and a SELECT query to verify the UPDATE worked" > output.txt
+	octo -f TUT004.sql >> output.txt
+	echo "# Turn off write permissions in the current directory (thereby preventing physical plans from being deleted/created)" >> output.txt
+	chmod -w .
+	echo "# Rerun the UPDATE and SELECT query to verify no new physical plans get created" >> output.txt
+	octo -f TUT004.sql >> output.txt
+	echo "# We expect no errors confirming that UPDATE plans get reused once generated" >> output.txt
+	echo "# Turn write permissions back on in the current directory" >> output.txt
+	chmod +w .
+	verify_output TUT004 output.txt
+}
+
+@test "TUT005 : OCTO579 : Test that UPDATE builds cross references outside TSTART/TCOMMIT" {
+	# This subtest is similar to the test_delete_from_table/TDFT05 subtest
+	load_fixture TUT005.sql subtest novv
+	echo "# Verify that ^%ydboctoX... invocation happens BEFORE the TSTART in the generated M plan" >> output.txt
+	grep -E "UPDATE|----|ydboctoX|octoPlan|TSTART|TCOMMIT" _ydboctoP*.m >> output.txt
+	verify_output TUT005 output.txt
+}
+
+@test "TUT006 : OCTO579 : Test that UPDATE after xref plan files get deleted, issues ZLINKFILE error" {
+	# This subtest is similar to the test_delete_from_table/TDFT07 subtest
+	echo "# Run SELECT query that generates xref plan and installs triggers which rely on the xref plan" >> output.txt
+	echo "SELECT * from names WHERE firstname = 'Zero'" | octo >> output.txt
+	echo "# Remove generated xref plans" >> output.txt
+	rm _ydboctoX*.{m,o}
+	echo "# Run UPDATE queries that will need the triggers (and in turn xref plan)" >> output.txt
+	echo "# They should issue a ZLINKFILE error because the xref plan does not exist anymore" >> output.txt
+	# "|| true" needed below since we expect octo to exit with a non-zero status (ZLINKFILE error)
+	octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TUT006.sql >> output.txt 2>&1 || true
+	echo "# Now run a SELECT query. It should not issue a ZLINKFILE error because it does not need triggers" >> output.txt
+	echo "SELECT * from names;" | octo >> output.txt
+	verify_output TUT006 output.txt
+}
+
+@test "TUT007 : OCTO579 : Crosscheck of simple UPDATE queries in names database between Octo and Postgres" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TUT007.sql "trim_trailing_zeroes"
+	# Firstly, delete created tables from Postgres as it can confuse later runs of other tests
+	# (e.g. hello_psql/HP01 subtest etc.) in case we error out in the later steps of this TUT007 subtest
+	psql names -c 'drop table if exists TUT007' >& postgres.drop_table_TUT007.out
+}
+
+@test "TUT008 : OCTO579 : Test UTF-8 string handling when ydb_chset=UTF-8" {
+	# Note: This test is based on the UTF-8 section of the test_insert_into/TII04 subtest
+	if [[ $ydb_chset == "UTF-8" ]]; then
+		# Since YDB is in UTF-8 mode, we can safely run queries which have UTF-8 code points
+		# Some of them when run in M mode can end up with errors as the character length of
+		# UTF-8 strings is different in M (byte length) vs UTF-8 (character length) mode and
+		# in M mode they can exceed the column size (i.e. VARCHAR(SIZE) in CREATE TABLE).
+		run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TUT008.sql
+		# Firstly, delete created tables from Postgres as it can confuse later runs of other tests
+		# (e.g. hello_psql/HP01 subtest etc.) in case we error out in the later steps of this TUT008 subtest
+		psql names -c 'drop table if exists TUT008' >& postgres.drop_table_TUT008.out
+	fi
+}
+
+@test "TUT009 : OCTO579 : Test that UPDATE correctly updates duplicate rows on table with no primary key columns" {
+	echo "# Run cross check first" >> output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TUT009.sql
+	# Delete TUT009 table from Postgres database as it can confuse later runs of other tests
+	# (e.g. hello_psql/HP01 subtest etc.) in case we error out in the later steps of this TUT009 subtest
+	psql names -c 'drop table if exists TUT009;' >& postgres.drop_table_TUT009.out
+	echo '# Verify key fixing optimization happened for = operator in WHERE clause' >> output.txt
+	echo '# Key fixed query will have a plan that does $ORDER(^%ydboctoxref)' >> output.txt
+	grep -E -B 1 "insert into|update|select|ydboctoxref" _ydboctoP*.m >> output.txt
+	verify_output TUT009 output.txt
+}
+
+@test "TUT010 : OCTO579 : Crosscheck of simple UPDATE queries in composite database between Octo and Postgres" {
+	# First populate temporary table TUT010 (for updates) from composite table (read-only as it is used by other tests)
+	# In Postgres, this is easily done using one command. But in Octo, it is not because "SELECT INTO" is not yet supported.
+	# Therefore do it separately for the two. Simplify the below logic once YDBOcto#730 (SELECT INTO syntax) is supported
+	# by moving the below "SELECT INTO" query into "tests/fixtures/TUT010.sql" and getting rid of some code below.
+	psql composite -c 'DROP TABLE IF EXISTS TUT010; SELECT * INTO TUT010 FROM composite;' > postgres.create_TUT010.out
+	echo "DROP TABLE IF EXISTS TUT010" | octo > create_TUT010.octo.out
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/composite.sql create_TUT010.sql
+	grep INSERT @PROJECT_SOURCE_DIR@/tests/fixtures/postgres-composite.sql >> create_TUT010.sql
+	sed -i 's/composite/TUT010/g' create_TUT010.sql
+	octo -f create_TUT010.sql >> create_TUT010.octo.out
+	# Run cross check
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries composite TUT010.sql
+	# Firstly, delete created tables from Postgres as it can confuse later runs of other tests
+	# (e.g. hello_psql/HP01 subtest etc.) in case we error out in the later steps of this TUT010 subtest
+	psql composite -c 'drop table if exists TUT010' >& postgres.drop_table_TUT010.out
+}
+

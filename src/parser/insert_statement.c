@@ -42,32 +42,9 @@ SqlStatement *insert_statement(SqlStatement *table_name, SqlStatement *column_na
 		return NULL;
 	}
 	if (NULL != column_name_list) {
+		/* Do a few error checks here. More error checks are done later in "qualify_query.c" and "populate_data_type.c" */
 		SqlColumnList *start_cl, *cur_cl;
 
-		/* The validation of query_expression columns with column_name_list colums is deferred to qualify_query() to account
-		 * for asterisk expansion. Reasoning explained below.
-		 *
-		 * Consider the following example query:
-		 * 	`INSERT INTO names(id,firstname,lastname) SELECT * FROM names;`
-		 * Here the column validation (comparison between insert into table columns given by column_name_list parameter and
-		 * query_expression select column list) would fail as asterisk is not yet expanded before the call to
-		 * insert_statement().
-		 *
-		 * Before the asterisk deferral change it would have been in query_specification() call, so when the execution
-		 * reaches insert_statement() the query would have been logically similar to the following:
-		 * 	`INSERT INTO names(id,firstname,lastname) SELECT (id),(firstname),(lastname) FROM names;`
-		 * but since asterisk processing is deferred we will need to defer this check as well.
-		 *
-		 * Validate ERR_TABLE_UNKNOWN_COLUMN_NAME and ERR_DUPLICATE_COLUMN here itself because:
-		 * ERR_TABLE_UNKNOWN_COLUMN_NAME -
-		 * Relies on table_name (first parameter) which is obtained by column_name grammar as a result it
-		 * can only be a simple value_STATEMENT representing the table name. So the table corresponding to this table_name
-		 * will already be qualified. Hence no need to worry about asterisk here. Also the column_name_list (second
-		 * parameter) which is being validate here will not have any asterisk usage. So no need to defer for now.
-		 * ERR_DUPLICATE_COLUMN -
-		 * Just validates that duplicate column name is not used in the column_name_list. Since asterisk cannot be
-		 * used in column_name_list and here its just a comparison within the list itself no need to defer.
-		 */
 		UNPACK_SQL_STATEMENT(start_cl, column_name_list, column_list);
 		cur_cl = start_cl;
 		do {
@@ -77,7 +54,7 @@ SqlStatement *insert_statement(SqlStatement *table_name, SqlStatement *column_na
 
 			UNPACK_SQL_STATEMENT(col_name, cur_cl->value, value);
 			tbl_col = find_column(col_name->v.string_literal, table);
-			/* If user specified a hidden key column name, treat it as if the column name was not found.
+			/* Note: If user specified a hidden key column name, we should treat it as if the column name was not found.
 			 * This is because the user is not supposed to specify explicit values for hidden column names.
 			 */
 			if ((NULL == tbl_col) || tbl_col->is_hidden_keycol) {
@@ -105,7 +82,6 @@ SqlStatement *insert_statement(SqlStatement *table_name, SqlStatement *column_na
 			}
 		} while (cur_cl != start_cl);
 	}
-	/* else: An "ERR_INSERT_TOO_MANY_EXPRESSIONS" error is issued (if needed) later in "check_column_lists_for_type_match.c" */
 	SQL_STATEMENT(ret, insert_STATEMENT);
 	MALLOC_STATEMENT(ret, insert, SqlInsertStatement);
 	UNPACK_SQL_STATEMENT(insert, ret, insert);

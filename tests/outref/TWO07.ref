@@ -32,7 +32,7 @@ octoPlan1(cursorId)
     . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",2,"NAMES","ID")
     . . SET %ydboctocursor(cursorId,"keys",3,"NAMES","ID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"NAMES","ID")) IF $DATA(^names(%ydboctocursor(cursorId,"keys",3,"NAMES","ID"))) DO
     . . . SET %ydboctoexpr=1
-    . . . IF %ydboctoexpr DO
+    . . . DO:%ydboctoexpr
     . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",5,"","")) %ydboctoz=42
     . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)

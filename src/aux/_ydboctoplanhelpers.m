@@ -709,7 +709,7 @@ trimdotstar(resstr)
 	. IF "."=ch DO
 	. . SET ch=$ZEXTRACT(resstr,i+1)
 	. . IF "*"=ch DO
-	. . . IF 1'=trim DO
+	. . . DO:1'=trim
 	. . . . SET trim=1
 	. . . . SET result=result_".*"
 	. . . SET i=i+1
@@ -725,7 +725,7 @@ regexinit
 	; Initialize the regex transformation local variables once per octo process.
 	; Comments at the beginning of routine regexmatch explains why and how the transformations
 	; arrays below are used.
-	IF (0=$GET(%ydboctoregex(0,1,"%"),0)) DO
+	DO:(0=$GET(%ydboctoregex(0,1,"%"),0))
 	. ; LIKE
 	. SET %ydboctoregex(0,1,"%")=".*",%ydboctoregex(0,1,"_")=".",%ydboctoregex(0,1,".")="\.",%ydboctoregex(0,1,"*")="\*"
 	. SET %ydboctoregex(0,1,"[")="\[",%ydboctoregex(0,1,"]")="\]",%ydboctoregex(0,1,"+")="+",%ydboctoregex(0,1,"?")="?"
@@ -861,7 +861,7 @@ regexmatch(str,regexstr,regextype,regexflags)
 	; anchor in case of LIKE and SIMILAR TO
 	SET:3'=regextype resstr=resstr_"$"
 	SET ret=0,result=resstr
-	IF 3=regextype DO
+	DO:3=regextype
 	. ; .*.* type of regexstr can only occur in ~ operation
 	. ; trim .* as its processing is faster here than in regex engine
 	. SET result=$$trimdotstar(resstr)
@@ -896,7 +896,7 @@ Cast2NUMERIC(number,precision,scale)
 	SET tmpnumber=number\1		; Remove fractional part
 	SET:(0>tmpnumber) tmpnumber=-tmpnumber ; Get absolute value (if negative)
 	SET:(0>tmpprecision) tmpprecision=0	; If precision is negative, set it to 0
-	IF tmpnumber>=(10**tmpprecision) DO
+	DO:tmpnumber>=(10**tmpprecision)
 	.	SET %ydboctoerror("NUMERICOVERFLOW",1)=precision	; pass parameter to `src/ydb_error_check.c`
 	.	SET:'$DATA(scale) scale=0
 	.	SET %ydboctoerror("NUMERICOVERFLOW",2)=scale		; pass parameter to `src/ydb_error_check.c`
@@ -922,6 +922,21 @@ SizeCheckVARCHAR(string,size)
 	; Excess portion is not all spaces. This is an error scenario. Issue error.
 	SET %ydboctoerror("VARCHARTOOLONG",1)=size	; pass parameter to `src/ydb_error_check.c`
 	ZMESSAGE %ydboctoerror("VARCHARTOOLONG")
+	QUIT
+
+DuplicateKeyValue(name,detail)
+	; This function is invoked to signal a UNIQUE constraint violation error.
+	; "name" has the constraint name.
+	; "detail" has additional detail on the actual values of the affected columns for the user.
+	SET %ydboctoerror("DUPLICATEKEYVALUE",1)=name_" : Node "_detail_" already exists" ; pass parameter to `src/ydb_error_check.c`
+	ZMESSAGE %ydboctoerror("DUPLICATEKEYVALUE")
+	QUIT
+
+NullKeyValue(colname)
+	; This function is invoked to signal a NOT NULL constraint violation error.
+	; "colname" has the column name.
+	SET %ydboctoerror("NULLKEYVALUE",1)=colname	; pass parameter to `src/ydb_error_check.c`
+	ZMESSAGE %ydboctoerror("NULLKEYVALUE")
 	QUIT
 
 InvokeOctoPlan(planName)
@@ -966,3 +981,4 @@ InvokeSetOper(inputId1,inputId2,outputId,mlabref)
 	; is pointed to by "mlabref".
 	DO @mlabref@(inputId1,inputId2,outputId)
 	QUIT 0
+

@@ -14,7 +14,7 @@
 #include "physical_plan.h"
 #include "template_helpers.h"
 
-TEMPLATE(tmpl_tablejoin_on_condition, LogicalPlan *tablejoin, PhysicalPlan *plan, int *dot_count) {
+TEMPLATE(tmpl_tablejoin_on_condition, LogicalPlan *tablejoin, PhysicalPlan *pplan, int *dot_count) {
 	LogicalPlan		*join_condition;
 
 	join_condition = tablejoin->extra_detail.lp_table_join.join_on_condition;
@@ -23,9 +23,9 @@ TEMPLATE(tmpl_tablejoin_on_condition, LogicalPlan *tablejoin, PhysicalPlan *plan
 	if (NULL != join_condition) {
 		TMPL(tmpl_print_dots, *dot_count);
 		%{}SET {{ PP_YDB_OCTO_EXPR }}=1{}%
-		TMPL(tmpl_where_or_having_or_on, join_condition, plan, *dot_count);
+		TMPL(tmpl_where_or_having_or_on, join_condition, pplan, *dot_count);
 		TMPL(tmpl_print_dots, *dot_count);
-		%{}IF {{ PP_YDB_OCTO_EXPR }} DO{}%
+		%{}DO:{{ PP_YDB_OCTO_EXPR }}{}%
 		%{}`n{{ PLAN_LINE_START }}{}%
 		(*dot_count)++;
 	}

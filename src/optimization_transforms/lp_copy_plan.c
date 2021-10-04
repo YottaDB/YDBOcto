@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -25,6 +25,7 @@ LogicalPlan *lp_copy_plan(LogicalPlan *plan) {
 	case LP_TABLE_VALUE:
 	case LP_TABLE_DATA:
 	case LP_ROW_VALUE:
+	case LP_COLUMN:
 	case LP_COLUMN_ALIAS:
 	case LP_COLUMN_LIST_ALIAS:
 	case LP_KEYWORDS:

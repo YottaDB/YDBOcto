@@ -206,7 +206,8 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	case select_STATEMENT:
 	case insert_STATEMENT:
 	case delete_from_STATEMENT:
-		/* Queries of type SELECT, INSERT INTO, DELETE FROM have plans to execute so continue processing */
+	case update_STATEMENT:
+		/* Queries of type SELECT, INSERT INTO, DELETE FROM, UPDATE have plans to execute so continue processing */
 		break;
 	case set_STATEMENT:
 	case show_STATEMENT:

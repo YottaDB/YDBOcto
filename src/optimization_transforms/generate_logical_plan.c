@@ -99,6 +99,61 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		MALLOC_LP(keywords, select_more_options->v.lp_default.operand[1], LP_KEYWORDS);
 		UNPACK_SQL_STATEMENT(keywords->v.lp_keywords.keywords, alloc_no_keyword(), keyword);
 		return (error_encountered ? NULL : lp_delete_from);
+	} else if (update_STATEMENT == stmt->type) {
+		SqlUpdateStatement *update;
+		LogicalPlan *	    lp_update;
+		LogicalPlan *	    lp_table;
+		LogicalPlan *	    lp_where;
+		SqlJoin *	    join;
+		SqlTableAlias *	    table_alias;
+
+		MALLOC_LP_2ARGS(lp_update, LP_UPDATE);
+		/* Note: Just like the LP_DELETE_FROM logical plan subtree, LP_UPDATE logical plan subtree
+		 * is constructed so it mirrors the LP_SELECT_QUERY structure (with dummy plans
+		 * for example LP_SELECT/LP_CRITERIA etc.). This will later help us in "optimize_logical_plan" to
+		 * avoid code duplication as all the DNF and key fixing logic that applies for LP_SELECT_QUERY
+		 * can automatically be applied to LP_UPDATE too.
+		 */
+		MALLOC_LP(project, lp_update->v.lp_default.operand[0], LP_PROJECT);
+		MALLOC_LP(select, project->v.lp_default.operand[1], LP_SELECT);
+		MALLOC_LP(criteria, select->v.lp_default.operand[1], LP_CRITERIA);
+		MALLOC_LP_2ARGS(criteria->v.lp_default.operand[0], LP_KEYS);
+		MALLOC_LP(select_options, criteria->v.lp_default.operand[1], LP_SELECT_OPTIONS);
+		MALLOC_LP(join_right, select->v.lp_default.operand[0], LP_TABLE_JOIN);
+		MALLOC_LP(lp_table, join_right->v.lp_default.operand[0], LP_TABLE);
+		UNPACK_SQL_STATEMENT(update, stmt, update);
+		UNPACK_SQL_STATEMENT(join, update->src_join, join);
+		UNPACK_SQL_STATEMENT(table_alias, join->value, table_alias);
+		lp_table->v.lp_table.table_alias = table_alias;
+		MALLOC_LP(lp_where, select_options->v.lp_default.operand[0], LP_WHERE);
+		LP_GENERATE_WHERE(update->where_clause, stmt, lp_where->v.lp_default.operand[0], error_encountered);
+		MALLOC_LP(select_more_options, select_options->v.lp_default.operand[1], LP_SELECT_MORE_OPTIONS);
+		MALLOC_LP(keywords, select_more_options->v.lp_default.operand[1], LP_KEYWORDS);
+		UNPACK_SQL_STATEMENT(keywords->v.lp_keywords.keywords, alloc_no_keyword(), keyword);
+		/* Store the SET clause contents (list of column names and corresponding values to assign to) inside
+		 * a LP_WHERE plan under a sequence of LP_COLUMN_LIST/LP_UPD_COL_VALUE plans.
+		 */
+		LogicalPlan *lp_column_list, *lp_upd_col_value, *next_lp_column_list;
+		MALLOC_LP(lp_column_list, lp_update->v.lp_default.operand[1], LP_COLUMN_LIST);
+		MALLOC_LP(lp_upd_col_value, lp_column_list->v.lp_default.operand[0], LP_UPD_COL_VALUE);
+
+		SqlUpdateColumnValue *ucv, *ucv_head;
+		ucv_head = update->col_value_list;
+		ucv = ucv_head;
+		do {
+			LP_GENERATE_WHERE(ucv->col_name, NULL, lp_upd_col_value->v.lp_default.operand[0], error_encountered);
+			LP_GENERATE_WHERE(ucv->col_value, stmt, lp_upd_col_value->v.lp_default.operand[1], error_encountered);
+			ucv = ucv->next;
+			if (ucv == ucv_head) {
+				assert(NULL == lp_column_list->v.lp_default.operand[1]);
+				break;
+			}
+			MALLOC_LP_2ARGS(next_lp_column_list, LP_COLUMN_LIST);
+			lp_column_list->v.lp_default.operand[1] = next_lp_column_list;
+			lp_column_list = next_lp_column_list;
+			MALLOC_LP(lp_upd_col_value, lp_column_list->v.lp_default.operand[0], LP_UPD_COL_VALUE);
+		} while (TRUE);
+		return (error_encountered ? NULL : lp_update);
 	}
 	UNPACK_SQL_STATEMENT(table_alias, stmt, table_alias);
 	if (table_value_STATEMENT == table_alias->table->type) {

@@ -729,7 +729,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		break;
 	case LP_COALESCE_CALL:
 		/* COALESCE(a, b, ...) -> $SELECT('$ZYISSQLNULL(a):a,'$ZYISSQLNULL(b):b,...,1:$ZYSQLNULL) */
-		/* first_operand is a LP_COLUMN_LIST, but we want to get the first LP_COLUMN_VALUE */
+		/* first_operand is a LP_COLUMN_LIST, but we want to get the first column value */
 		cur_plan = first_operand->v.lp_default.operand[0];
 		if (!dot_count) {
 			%{}$SELECT('$ZYISSQLNULL({}%

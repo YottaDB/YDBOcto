@@ -27,7 +27,7 @@ void	     iterate_keys(PhysicalPlan *out, LogicalPlan *plan);
 LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *options, LogicalPlan *stmt, LogicalPlan *parent);
 
 PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *options) {
-	SqlOptionalKeyword *keywords, *keyword;
+	SqlOptionalKeyword *keyword;
 	LogicalPlan *	    keys, *table_joins, *select;
 	LogicalPlan *	    project, *select_column_list;
 	LogicalPlan *	    criteria, *select_options, *select_more_options;
@@ -181,8 +181,8 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		}
 		return out;
 	}
-	assert((LP_SELECT_QUERY == plan->type) || (LP_TABLE_VALUE == plan->type) || (LP_DELETE_FROM == plan->type)
-	       || (LP_INSERT_INTO == plan->type));
+	assert((LP_SELECT_QUERY == plan->type) || (LP_TABLE_VALUE == plan->type) || (LP_INSERT_INTO == plan->type)
+	       || (LP_DELETE_FROM == plan->type) || (LP_UPDATE == plan->type));
 	/* Note that it is possible a physical plan has already been generated for this logical plan.
 	 *
 	 * For example "select * from names where EXISTS (select * from names) and (id < 3 or id > 4);" would get expanded as
@@ -262,7 +262,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	/* Note: root_table_alias can be NULL for xref plans (which do not correspond to any actual user-specified query) */
 	out->aggregate_function_or_group_by_specified
 	    = ((NULL == root_table_alias) ? FALSE : root_table_alias->aggregate_function_or_group_by_specified);
-	if (LP_DELETE_FROM != plan->type) {
+	if ((LP_SELECT_QUERY == plan->type) || (LP_TABLE_VALUE == plan->type)) {
 		LogicalPlan *output;
 
 		// Set my output key
@@ -283,7 +283,6 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		}
 		out->projection = lp_get_projection_columns(plan);
 	}
-	/* Some things are applicable only for a LP_SELECT_QUERY (not for a LP_TABLE_VALUE) hence the if check below */
 	if (LP_TABLE_VALUE != plan->type) {
 		// See if there are any tables we rely on in the SELECT tablejoin list. If so, add them as prev records in physical
 		// plan.
@@ -356,7 +355,17 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		 */
 		out->where = sub_query_check_and_generate_physical_plan(&plan_options, where, NULL);
 		out->keywords = lp_get_select_keywords(plan)->v.lp_keywords.keywords;
-		if (LP_DELETE_FROM != plan->type) {
+		switch (plan->type) {
+		case LP_DELETE_FROM:
+			break;
+		case LP_UPDATE:; /* semicolon for empty statement so we can declare variables in case block */
+			LogicalPlan *lp_column_list;
+
+			GET_LP(lp_column_list, plan, 1, LP_COLUMN_LIST);
+			sub_query_check_and_generate_physical_plan(&plan_options, lp_column_list, NULL);
+			break;
+		default:
+			assert(LP_SELECT_QUERY == plan->type);
 			/* See if there are any sub-queries in the SELECT column list. If so, generate separate physical plans
 			 * (deferred and/or non-deferred) for them and add them as prev records in physical plan.
 			 */
@@ -382,22 +391,24 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 			if (NULL != out->order_by) {
 				sub_query_check_and_generate_physical_plan(&plan_options, out->order_by, NULL);
 			}
+			// Check for DISTINCT keyword (possible only for LP_SELECT_QUERY plan)
+			keyword = get_keyword_from_keywords(out->keywords, OPTIONAL_DISTINCT);
+			if (NULL != keyword) {
+				out->distinct_values = TRUE;
+				out->maintain_columnwise_index = TRUE;
+			}
+			break;
 		}
-		keywords = out->keywords;
-		// Check for DISTINCT keyword (posible only for LP_SELECT_QUERY plan, not for LP_DELETE_FROM plan)
-		keyword = get_keyword_from_keywords(keywords, OPTIONAL_DISTINCT);
+		// Check for OPTIONAL_BOOLEAN_EXPANSION keyword (possible for LP_SELECT_QUERY/LP_DELETE_FROM/LP_UPDATE plans)
+		keyword = get_keyword_from_keywords(out->keywords, OPTIONAL_BOOLEAN_EXPANSION);
 		if (NULL != keyword) {
-			out->distinct_values = TRUE;
-			out->maintain_columnwise_index = TRUE;
-		}
-		// Check for OPTIONAL_BOOLEAN_EXPANSION keyword (possible for LP_SELECT_QUERY and LP_DELETE_FROM plans)
-		keyword = get_keyword_from_keywords(keywords, OPTIONAL_BOOLEAN_EXPANSION);
-		if (NULL != keyword) {
-			/* "emit_duplication_check" and "maintain_columnwise_index" make sense only for a LP_SELECT_QUERY.
-			 * So skip them for LP_DELETE_FROM.
+			/* Note that "emit_duplication_check" is necessary for LP_SELECT_QUERY and LP_UPDATE but not for
+			 * LP_DELETE_FROM. It is kept to true since it keeps the code for LP_UPDATE and LP_DELETE_FROM consistent.
+			 * See #579 commit message for details on why LP_UPDATE needs it and LP_DELETE_FROM does not.
 			 */
-			if (LP_DELETE_FROM != plan->type) {
-				out->emit_duplication_check = TRUE;
+			out->emit_duplication_check = TRUE;
+			/* "maintain_columnwise_index" makes sense only for a LP_SELECT_QUERY. */
+			if (LP_SELECT_QUERY == plan->type) {
 				out->maintain_columnwise_index = TRUE; /* needs to be set in all DNF siblings */
 			}
 			if (NULL != plan_options.dnf_plan_next) {
@@ -574,6 +585,11 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 			if (NULL == new_plan) {
 				return NULL;
 			}
+			break;
+		case LP_UPD_COL_VALUE:
+			assert(LP_COLUMN == stmt->v.lp_default.operand[0]->type); /* subqueries are not possible here */
+			stmt->v.lp_default.operand[1]
+			    = sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[1], stmt);
 			break;
 		case LP_ARRAY:
 			assert(LP_SELECT_QUERY == stmt->v.lp_default.operand[0]->type);

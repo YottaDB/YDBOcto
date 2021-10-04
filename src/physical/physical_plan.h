@@ -80,7 +80,8 @@ typedef struct PhysicalPlan {
 	SetOperType *	     set_oper_list;	  /* Linked list of SET OPERATIONS to do on this plan at the end */
 	struct PhysicalPlan *dnf_prev, *dnf_next; /* Linked list of plans that are at the same LP_SET_DNF level */
 	LogicalPlan *	     lp_select_query;	  /* The owning LP_SELECT_QUERY or LP_TABLE_VALUE or LP_INSERT_INTO
-						   * or LP_DELETE_FROM logical plan corresponding to this physical plan.
+						   * or LP_DELETE_FROM or LP_UPDATE logical plan corresponding to this
+						   * physical plan.
 						   */
 	struct PhysicalPlan *dependent_plans_end; /* Points to the last physical plan that was added to the linked list of
 						   * physical plans as part of the "generate_physical_plan()" that first
@@ -99,6 +100,7 @@ typedef struct PhysicalPlan {
 
 #define IS_INSERT_INTO_PHYSICAL_PLAN(PPLAN) ((NULL != PPLAN->lp_select_query) && (LP_INSERT_INTO == PPLAN->lp_select_query->type))
 #define IS_DELETE_FROM_PHYSICAL_PLAN(PPLAN) ((NULL != PPLAN->lp_select_query) && (LP_DELETE_FROM == PPLAN->lp_select_query->type))
+#define IS_UPDATE_PHYSICAL_PLAN(PPLAN)	    ((NULL != PPLAN->lp_select_query) && (LP_UPDATE == PPLAN->lp_select_query->type))
 #define HYPHEN_LINE			    "---------------------------------------------------------"
 
 // This provides a convenient way to pass options to subplans
@@ -128,6 +130,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename);
 // Returns true if the key is a version of this column
 int key_equals_column(SqlKey *key, SqlColumn *column);
 
+int	      get_num_key_cols_in_set_clause(PhysicalPlan *pplan);
 char *	      get_setoper_mlabref(SetOperType *set_oper, PhysicalPlan *pplan);
 PhysicalPlan *get_physical_plan_from_unique_id(PhysicalPlan *pplan, int unique_id);
 PhysicalPlan *emit_sql_statement(SqlStatement *stmt, char *plan_filename);

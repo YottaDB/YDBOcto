@@ -18,7 +18,7 @@ setup() {
 	load_fixture names.sql
 	load_fixture names.zwr
 	# Start rocto at subtest startup as part of framework for all subtests as most of them will need to start rocto
-	# with --allowschemachanges due to the presence of DELETE FROM commands.
+	# with --allowschemachanges due to the presence of DROP TABLE/FUNCTION commands.
 	test_port=$(start_rocto 1400 --allowschemachanges)
 }
 
@@ -34,7 +34,7 @@ teardown() {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDFT01.sql
 	# Firstly, delete TDFT01 table from Postgres database as it can confuse later runs of other tests
 	# (e.g. hello_psql/HP01 subtest etc.) in case we error out in the later steps of this TDFT01 subtest
-	psql names -c 'drop table if exists tdft01;' >& postgres.drop_table_tdft01.out
+	psql names -c 'drop table if exists TDFT01;' >& postgres.drop_table_TDFT01.out
 	# Now do various verifications of Octo plans
 	echo "# Include key parts of generated M plans in reference file" >> output.txt
 	grep -Ei "INSERT INTO|DELETE FROM|VALUES|SELECT|maintains cross reference|^octoPlan|RowCount|FOR|SET .ydboctocursor|------" _ydbocto*.m >> output.txt
@@ -57,8 +57,8 @@ teardown() {
 }
 
 @test "TDFT02 : OCTO54 : Test of simple DELETE FROM queries in composite database (multiple primary key columns)" {
-	load_fixture compositekey.sql
-	load_fixture compositekey.zwr
+	load_fixture composite.sql
+	load_fixture composite.zwr
 	load_fixture TDFT02.sql subtest novv
 	echo "# Include key parts of generated M plans in reference file" >> output.txt
 	grep -Ei "DELETE FROM|VALUES|SELECT|maintains cross reference|^octoPlan|FOR|SET .ydboctocursor|------" _ydbocto*.m >> output.txt
@@ -91,10 +91,10 @@ teardown() {
 	verify_output TDFT05 output.txt
 }
 
-@test "TDFT06 : OCTO54 : Test TP wrapping of M plan for DELETE FROM, INSERT INTO, SELECT, VALUES and UNION/INTERSECT/EXCEPT" {
+@test "TDFT06 : OCTO54 : Test TP wrapping of M plan for DELETE FROM, INSERT INTO, UPDATE, SELECT, VALUES and UNION/INTERSECT/EXCEPT" {
 	echo '# Test $TLEVEL (which is driven by wrapInTp parameter passed to src/aux/_ydboctoSelect.m)' >> output.txt
 	echo '#   while in generated M code for various types of SQL queries' >> output.txt
-	echo '# Expect $TLEVEL to be 1 for INSERT INTO, DELETE FROM and 0 for SELECT/VALUES etc.' >> output.txt
+	echo '# Expect $TLEVEL to be 1 for INSERT INTO, DELETE FROM, UPDATE and 0 for SELECT/VALUES etc.' >> output.txt
 	load_fixture TDFT06.sql subtest novv
 	verify_output TDFT06 output.txt
 }
@@ -114,3 +114,14 @@ teardown() {
 	verify_output TDFT07 output.txt
 }
 
+@test "TDFT08 : OCTO54 : Test that DELETE FROM correctly deletes duplicate rows on table with no primary key columns" {
+	echo "# Run cross check first" >> output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDFT08.sql
+	# Delete TDFT08 table from Postgres database as it can confuse later runs of other tests
+	# (e.g. hello_psql/HP01 subtest etc.) in case we error out in the later steps of this TDFT08 subtest
+	psql names -c 'drop table if exists TDFT08;' >& postgres.drop_table_TDFT08.out
+	echo '# Verify key fixing optimization happened for = operator in WHERE clause' >> output.txt
+	echo '# Key fixed query will have a plan that does $ORDER(^%ydboctoxref)' >> output.txt
+	grep -E -B 1 "insert into|delete from|select|ydboctoxref" _ydboctoP*.m >> output.txt
+	verify_output TDFT08 output.txt
+}

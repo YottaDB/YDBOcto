@@ -1,0 +1,30 @@
+# Run cross check first
+# Verify key fixing optimization happened for = operator in WHERE clause
+# Key fixed query will have a plan that does $ORDER(^%ydboctoxref)
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  update TUT009 set id = id * 2, firstname = firstname || '#' where id = 1234 OR firstname is NULL;
+--
+_ydboctoP*.m-    NEW %ydboctoz,%ydboctoexpr
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
+--
+_ydboctoP*.m-    . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",3))
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TUT009","ID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"TUT009","ID")) IF $DATA(^%ydboctoxref("TUT009","ID",%ydboctocursor(cursorId,"keys",1,"TUT009","ID"))) DO
+_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"TUT009","%YO_KEYCOL")=""
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"TUT009","%YO_KEYCOL")=$ORDER(^%ydboctoxref("TUT009","ID",%ydboctocursor(cursorId,"keys",1,"TUT009","ID"),%ydboctocursor(cursorId,"keys",1,"TUT009","%YO_KEYCOL"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TUT009","%YO_KEYCOL")="")  DO
+--
+_ydboctoP*.m-    . . . SET %ydboctozduplicate(0,%ydboctocursor(cursorId,"keys",1,"TUT009","%YO_KEYCOL"))=1
+_ydboctoP*.m:    . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+--
+_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TUT009","FIRSTNAME")=%ydboctoexpr IF $DATA(^%ydboctoxref("TUT009","FIRSTNAME","")) DO
+_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"TUT009","%YO_KEYCOL")=""
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"TUT009","%YO_KEYCOL")=$ORDER(^%ydboctoxref("TUT009","FIRSTNAME","",%ydboctocursor(cursorId,"keys",1,"TUT009","%YO_KEYCOL"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TUT009","%YO_KEYCOL")="")  DO
+--
+_ydboctoP*.m-    . . . SET %ydboctozduplicate(0,%ydboctocursor(cursorId,"keys",1,"TUT009","%YO_KEYCOL"))=1
+_ydboctoP*.m:    . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  select * from TUT009;
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  insert into TUT009 values (1234, 'First'), (1234, 'First'), (5678, 'Last'), (5678, NULL), (NULL, NULL), (NULL, NULL);

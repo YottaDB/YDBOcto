@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -14,13 +14,13 @@
 #include "physical_plan.h"
 #include "template_helpers.h"
 
-TEMPLATE(tmpl_rightjoin_key, PhysicalPlan *plan, unsigned int key_start, unsigned int key_end) {
+TEMPLATE(tmpl_rightjoin_key, PhysicalPlan *pplan, unsigned int key_start, unsigned int key_end) {
 	%{}{{ key_start|%d }},{}%
 	assert(key_start < key_end);
 	do {
 		SqlKey	*key;
 
-		key = plan->iterKeys[key_start];
+		key = pplan->iterKeys[key_start];
 		if (!key->is_cross_reference_key)
 			TMPL(tmpl_key, key);
 		key_start++;

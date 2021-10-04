@@ -70,6 +70,8 @@
 // Maximum number of key columns
 #define MAX_KEY_COUNT 255
 
+#define IS_KEY_COLUMN(COLUMN) ((NULL != get_keyword(COLUMN, PRIMARY_KEY)) || (NULL != get_keyword(COLUMN, OPTIONAL_KEY_NUM)))
+
 /* Maximum query string length for all Octo queries. Currently set to YDB_MAX_STR (the maximum size of a GVN/LVN value) since query
  * strings are stored in LVNs during processing and so are constrained the size limit for LVN values. Should users require a greater
  * maximum query length, this limit will need to be revised and a method devised for storing strings that exceed YDB_MAX_STR.
@@ -118,6 +120,8 @@
 #define EMPTY_DELIMITER	 ""
 
 #define VALUES_COLUMN_NAME_PREFIX "COLUMN"
+
+#define ZERO_OUTPUT_KEY_ID 0
 
 /* Define various string literals used as gvn subscripts and/or in physical plans (generated M code).
  * Each macro is prefixed with a OCTOLIT_.
@@ -248,6 +252,9 @@
  * ---------------------------------------------------------------------------------
  */
 #define DELETE_COMMAND_TAG "DELETE"
+
+/* Like INSERT and DELETE above, Octo conforms to Postgres output format for UPDATE too */
+#define UPDATE_COMMAND_TAG "UPDATE"
 
 #define SET_COMMAND_TAG		    "SET"
 #define SHOW_COMMAND_TAG	    "SHOW"
@@ -889,6 +896,8 @@ SqlStatement *insert_statement(SqlStatement *table_name, SqlStatement *column_na
 			       int *plan_id, ParseContext *parse_context);
 SqlStatement *delete_from_statement(SqlStatement *table_name, SqlStatement *alias_name, SqlStatement *where_clause, int *plan_id,
 				    ParseContext *parse_context);
+SqlStatement *update_statement(SqlStatement *table_name, SqlStatement *alias_name, SqlStatement *set_clause_list,
+			       SqlStatement *where_clause, int *plan_id, ParseContext *parse_context);
 int	      natural_join_condition(SqlJoin *start, SqlJoin *r_join);
 int	      parse_literal_to_parameter(ParseContext *parse_context, SqlValue *value, boolean_t update_existing);
 SqlStatement *query_specification(OptionalKeyword set_quantifier, SqlStatement *select_list, SqlStatement *table_expression,

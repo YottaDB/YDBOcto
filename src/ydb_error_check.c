@@ -187,12 +187,60 @@ void ydb_error_check(int status, char *file, int line) {
 			YDB_LITERAL_TO_BUFFER("%ydboctoerror", &varname);
 			YDB_LITERAL_TO_BUFFER("VARCHARTOOLONG", &subs[0]);
 			YDB_LITERAL_TO_BUFFER("1", &subs[1]);
-			ydb_get_s(&varname, 2, subs, &ret_value);
+			status = ydb_get_s(&varname, 2, subs, &ret_value);
+			/* No possibility of YDB_ERR_INVSTRLEN because the return is an integer number ("size")
+			 * and so will occupy only less than a dozen bytes/characters in "ret_value.buf_addr".
+			 */
+			assert(YDB_OK == status);
+			UNUSED(status); // Prevent 'value never read' compiler warning
 			ret_value.buf_addr[ret_value.len_used] = '\0';
 			octo_log(line, file, ERROR, ERROR_Severity, ERR_VARCHAR_TOO_LONG, ret_value.buf_addr);
 			/* Now that we have got the value, delete the M node */
 			ydb_delete_s(&varname, 2, subs, YDB_DEL_NODE);
 		}
+		/* Check if %ydboctoerror("DUPLICATEKEYVALUE")	*/
+		ydboctoerrcode++;
+		if (positive_status == ydboctoerrcode) {
+			ydb_buffer_t subs[2];
+
+			/* M code would have passed the actual string involved in an M node. Get that before printing error. */
+			YDB_LITERAL_TO_BUFFER("%ydboctoerror", &varname);
+			YDB_LITERAL_TO_BUFFER("DUPLICATEKEYVALUE", &subs[0]);
+			YDB_LITERAL_TO_BUFFER("1", &subs[1]);
+			status = ydb_get_s(&varname, 2, subs, &ret_value);
+			if (YDB_ERR_INVSTRLEN == status) {
+				EXPAND_YDB_BUFFER_T_ALLOCATION(ret_value);
+				status = ydb_get_s(&varname, 2, subs, &ret_value);
+				assert(YDB_OK == status);
+				UNUSED(status); // Prevent 'value never read' compiler warning
+			}
+			ret_value.buf_addr[ret_value.len_used] = '\0';
+			octo_log(line, file, ERROR, ERROR_Severity, ERR_DUPLICATE_KEY_VALUE, ret_value.buf_addr);
+			/* Now that we have got the value, delete the M node */
+			ydb_delete_s(&varname, 2, subs, YDB_DEL_NODE);
+		}
+		/* Check if %ydboctoerror("NULLKEYVALUE")	*/
+		ydboctoerrcode++;
+		if (positive_status == ydboctoerrcode) {
+			ydb_buffer_t subs[2];
+
+			/* M code would have passed the actual string involved in an M node. Get that before printing error. */
+			YDB_LITERAL_TO_BUFFER("%ydboctoerror", &varname);
+			YDB_LITERAL_TO_BUFFER("NULLKEYVALUE", &subs[0]);
+			YDB_LITERAL_TO_BUFFER("1", &subs[1]);
+			status = ydb_get_s(&varname, 2, subs, &ret_value);
+			if (YDB_ERR_INVSTRLEN == status) {
+				EXPAND_YDB_BUFFER_T_ALLOCATION(ret_value);
+				status = ydb_get_s(&varname, 2, subs, &ret_value);
+				assert(YDB_OK == status);
+				UNUSED(status); // Prevent 'value never read' compiler warning
+			}
+			ret_value.buf_addr[ret_value.len_used] = '\0';
+			octo_log(line, file, ERROR, ERROR_Severity, ERR_NULL_KEY_VALUE, ret_value.buf_addr);
+			/* Now that we have got the value, delete the M node */
+			ydb_delete_s(&varname, 2, subs, YDB_DEL_NODE);
+		}
+		/* Not an Octo internal error */
 		ydboctoerrcode++;
 		assert(ydboctoerrcode == ydboctoerrcodemax);
 		/* Clear "$ECODE" now that we have handled the Octo-internal error.

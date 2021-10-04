@@ -117,7 +117,7 @@ setup() {
 	verify_output TVD0001 output.txt
 }
 
-@test "TVD0002 : Test INSERT INTO, DELETE FROM queries against ORDER1 table are disallowed due to READ_ONLY" {
+@test "TVD0002 : Test INSERT INTO, DELETE FROM, UPDATE queries against ORDER1 table are disallowed due to READ_ONLY" {
 	load_fixture TVD0002.sql subtest novv
 	verify_output TVD0002 output.txt
 }

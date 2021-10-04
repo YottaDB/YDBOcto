@@ -14,12 +14,12 @@
 #include "physical_plan.h"
 #include "template_helpers.h"
 
-TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
+TEMPLATE(tmpl_group_by, PhysicalPlan *pplan, int dot_count) {
 	LogicalPlan	*af, *first_aggregate, *group_by;
 
-	assert(NULL != plan->outputKey);
-	assert(IS_GROUP_BY_PLAN(plan));
-	assert(!plan->outputKey->is_cross_reference_key);	/* caller should have ensured this */
+	assert(NULL != pplan->outputKey);
+	assert(IS_GROUP_BY_PLAN(pplan));
+	assert(!pplan->outputKey->is_cross_reference_key);	/* caller should have ensured this */
 	TMPL(tmpl_print_dots, dot_count);
 	%{}`n{{ PLAN_LINE_START }}{}%
 	%{}SET {{ PP_YDB_OCTO_G }}=""{}%
@@ -28,13 +28,13 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
 	 * See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/455#note_321309198 for details on why only
 	 * the no-GROUP-BY-specified case is treated specially.
 	 */
-	if (NULL != plan->aggregate_options) {
-		group_by = plan->aggregate_options->v.lp_default.operand[0];
+	if (NULL != pplan->aggregate_options) {
+		group_by = pplan->aggregate_options->v.lp_default.operand[0];
 	} else {
 		group_by = NULL;
 	}
 	if (NULL == group_by) {
-		first_aggregate = plan->lp_select_query->extra_detail.lp_select_query.first_aggregate;
+		first_aggregate = pplan->lp_select_query->extra_detail.lp_select_query.first_aggregate;
 		for (af = first_aggregate; NULL != af; af = af->extra_detail.lp_aggregate_function.next_aggregate) {
 			boolean_t	is_avg;
 			int		aggregate_cnt;
@@ -47,7 +47,7 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
 			%{}`n{{ PLAN_LINE_START }}{}%
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET:'$DATA({}%
-			TMPL(tmpl_key, plan->outputKey);
+			TMPL(tmpl_key, pplan->outputKey);
 			(*buffer_index)--;
 			%{},{{ PP_GROUP_BY }},{{ PP_YDB_OCTO_G }},{}%
 			aggregate_cnt = af->extra_detail.lp_aggregate_function.aggregate_cnt;
@@ -62,7 +62,7 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
 				%{},"SUM"{}%
 			}
 			%{})) {}%
-			TMPL(tmpl_key, plan->outputKey);
+			TMPL(tmpl_key, pplan->outputKey);
 			(*buffer_index)--;
 			%{},{{ PP_GROUP_BY }},{{ PP_YDB_OCTO_G }},{}%
 			%{}{{ aggregate_cnt|%d }}{}%
@@ -90,55 +90,55 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
 	%{}`n{{ PLAN_LINE_START }}{}%
 	TMPL(tmpl_print_dots, dot_count);
 	%{}FOR  {}%
-	if (NULL == plan->order_by) {
+	if (NULL == pplan->order_by) {
 		SqlOptionalKeyword	*limit_keyword;
 
-		limit_keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
+		limit_keyword = get_keyword_from_keywords(pplan->keywords, OPTIONAL_LIMIT);
 		if (NULL != limit_keyword) {
 			%{}QUIT:{}%
 			TMPL(tmpl_limit_check, limit_keyword, "", "'>" PP_YDB_OCTO_ZLIMIT);
 						/* Note: literal concatenation in last parameter above */
 			(*buffer_index)--;	/* Remove the trailing ")" from `tmpl_limit_check` call */
-			%{}({{ plan->outputKey->unique_id|%d }}){}%	/* Add subscript based on output key */
+			%{}({{ pplan->outputKey->unique_id|%d }}){}%	/* Add subscript based on output key */
 			%{}){}%	/* Add back the trailing ")" from `tmpl_limit_check` call above */
 			%{}  {}%
 		}
 	}
 	%{}DO:$DATA({}%
-	TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+	TMPL(tmpl_key, pplan->outputKey); (*buffer_index)--;
 	%{},{{ PP_GROUP_BY }},{{ PP_YDB_OCTO_G }}))  SET {{ PP_YDB_OCTO_G }}=$ORDER({}%
-	TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+	TMPL(tmpl_key, pplan->outputKey); (*buffer_index)--;
 	%{},{{ PP_GROUP_BY }},{{ PP_YDB_OCTO_G }})) QUIT:(""={{ PP_YDB_OCTO_G }}){}%
 	// Apply the conditions for this statement
 	%{}`n{{ PLAN_LINE_START }}{}%
 	dot_count++;
 	TMPL(tmpl_print_dots, dot_count);
 	%{}SET {{ PP_YDB_OCTO_EXPR }}=1{}%
-	if (NULL != plan->aggregate_options) {
+	if (NULL != pplan->aggregate_options) {
 		LogicalPlan	*having;
 
-		/* Check if there is a HAVING clause. If so, generate plan for that. */
-		having = plan->aggregate_options->v.lp_default.operand[1];
+		/* Check if there is a HAVING clause. If so, generate pplan for that. */
+		having = pplan->aggregate_options->v.lp_default.operand[1];
 		if (NULL != having) {
-			TMPL(tmpl_where_or_having_or_on, having->v.lp_default.operand[0], plan, dot_count);
+			TMPL(tmpl_where_or_having_or_on, having->v.lp_default.operand[0], pplan, dot_count);
 		} else {
 			%{}`n{{ PLAN_LINE_START }}{}%
 		}
 	} else {
 		%{}`n{{ PLAN_LINE_START }}{}%
 	}
-	if (plan->distinct_values) {
+	if (pplan->distinct_values) {
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_EXPR }}&{}%
-		%{}('$DATA({{ PP_YDB_OCTO_ZDISTINCT }}({{ plan->outputKey->unique_id|%d }},{}%
-		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", FALSE, 0, FALSE);
+		%{}('$DATA({{ PP_YDB_OCTO_ZDISTINCT }}({{ pplan->outputKey->unique_id|%d }},{}%
+		TMPL(tmpl_column_list_combine, pplan->projection, pplan, ",", FALSE, 0, FALSE);
 		%{}))){}%
 		%{}`n{{ PLAN_LINE_START }}{}%
 	}
 	TMPL(tmpl_print_dots, dot_count);
-	%{}IF {{ PP_YDB_OCTO_EXPR }} DO{}%
+	%{}DO:{{ PP_YDB_OCTO_EXPR }}{}%
 	// Populate records in the output key (i.e. SELECT column list)
-	TMPL(tmpl_populate_output_key, plan, dot_count);
+	TMPL(tmpl_populate_output_key, pplan, dot_count);
 	return;
 }
 %{}

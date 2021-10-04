@@ -1,0 +1,104 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+#include "logical_plan.h"
+#include "template_helpers.h"
+
+/* This function is similar to "tmpl_key_source.ctemplate" in that it outputs the "source" of the key except that
+ * this is called by an UPDATE query (which is a lot simpler than a SELECT query in terms of number of keys).
+ * Since there is only one table involved in the UPDATE query, the keys can be obtained from the physical plan itself
+ * hence no "key" parameter like is the case in "tmpl_key_source".
+ *
+ * This function is invoked only if the UPDATE query specified at least one key column in the SET clause (asserted at start).
+ *
+ * "pre_update" is a boolean parameter whether pre-update or post-update values of the key columns need to be emitted.
+ *
+ * If it is TRUE, the emitted code will generate subscripts matching the pre-update
+ * values of any key columns. The pre-update value is emitted by a "tmpl_key()" call so that will be done in this case.
+ * Example emitted code in the case of "ID" column of the "names" table would be like the below.
+ *	%ydboctoUPD(%ydboctocursor(cursorId,"keys",1,"TUT007","ID"))
+ *
+ * If it is FALSE, the emitted code will generate subscripts matching post-update values of any key columns. For example,
+ * for the "ID" column in the names table, the post-update value will be stored in the local variable `%ydboctoUPD("ID")`.
+ * Example emitted code in the case of "ID" column of the "names" table would be like the below.
+ *	%ydboctoUPD(%ydboctoUPD("ID"))
+ *
+ * In the case of a table with multiple key columns, it is possible only a subset of the key columns are specified in the
+ * SET clause. In that case, if "pre_update" is FALSE, then we will emit code to use `%ydboctoUPD("ID")` like syntax
+ * only for those columns that are specified in the SET clause (as only those will have post-update values maintained in
+ * the `%ydboctoUPD` local variable). Other primary key columns that are not specified in the SET clause will have the
+ * same pre-update and post-update value so we will use "tmpl_key()" to generate them in either case.
+ */
+TEMPLATE(tmpl_update_key_source, PhysicalPlan *pplan, boolean_t pre_update) {
+	boolean_t	is_first_col;
+	LogicalPlan	*lp_update;
+	unsigned int	iter_key_index, total_keys;
+
+	assert(0 < get_num_key_cols_in_set_clause(pplan));
+	is_first_col = TRUE;
+	iter_key_index = 0;
+	total_keys = pplan->total_iter_keys;
+	lp_update = pplan->lp_select_query;
+	for ( ; ; ) {
+		SqlKey		*plan_key;
+
+		plan_key = pplan->iterKeys[iter_key_index];
+		if (!plan_key->is_cross_reference_key) {
+			LogicalPlan	*lp_column_list;
+			GET_LP(lp_column_list, lp_update, 1, LP_COLUMN_LIST);
+
+			boolean_t	is_a_key_col;
+			is_a_key_col = FALSE;
+			do {
+				LogicalPlan	*lp_upd_col_value, *lp_column;
+				SqlColumn	*cur_column;
+
+				GET_LP(lp_upd_col_value, lp_column_list, 0, LP_UPD_COL_VALUE);
+				GET_LP(lp_column, lp_upd_col_value, 0, LP_COLUMN);
+				cur_column = lp_column->v.lp_column.column;
+				if (cur_column == plan_key->column) {
+					/* This key column was specified in the SET clause. */
+					is_a_key_col = TRUE;
+					break;
+				}
+				lp_column_list = lp_column_list->v.lp_default.operand[1];
+				assert((NULL == lp_column_list) || (LP_COLUMN_LIST == lp_column_list->type));
+			} while (NULL != lp_column_list);
+			if (is_first_col) {
+				%{}{{ PP_YDB_OCTO_UPD }}({}%
+			} else {
+				%{},{}%
+			}
+			is_first_col = FALSE;
+			/* See last paragraph of comment at start of this function to see why the below "if" check is needed */
+			if (is_a_key_col && !pre_update) {
+				char		*columnName;
+				SqlValue	*colname_value;
+
+				UNPACK_SQL_STATEMENT (colname_value, plan_key->column->columnName, value);
+				columnName = colname_value->v.reference;
+				%{}{{ PP_YDB_OCTO_UPD }}("{{ columnName }}"){}%
+			} else {
+				TMPL(tmpl_key, plan_key);
+			}
+		}
+		iter_key_index++;
+		if (iter_key_index >= total_keys) {
+			break;
+		}
+	}
+	%{}){}%
+	if (pre_update) {
+		%{}){}%
+	}
+}
+%{}

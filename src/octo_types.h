@@ -163,6 +163,7 @@ typedef enum SqlStatementType {
 	array_STATEMENT,
 	history_STATEMENT,
 	delete_from_STATEMENT,
+	update_STATEMENT,
 	invalid_STATEMENT,
 } SqlStatementType;
 
@@ -605,6 +606,20 @@ typedef struct SqlDeleteFromStatement {
 	struct SqlStatement *where_clause; /* SqlBinaryOperation or SqlUnaryOperation etc. */
 } SqlDeleteFromStatement;
 
+typedef struct SqlUpdateColumnValue {
+	struct SqlStatement *col_name;	/* Contains name of the column (SqlValue) at start of parsing.
+					 * "update_statement.c" later modifies this to contain SqlColumn.
+					 */
+	struct SqlStatement *col_value; /* Value to assign to the column. Can be SqlValue, SqlBinaryOperation, etc. */
+	dqcreate(SqlUpdateColumnValue);
+} SqlUpdateColumnValue;
+
+typedef struct SqlUpdateStatement {
+	struct SqlStatement * src_join; /* SqlJoin */
+	SqlUpdateColumnValue *col_value_list;
+	struct SqlStatement * where_clause; /* SqlBinaryOperation or SqlUnaryOperation etc. */
+} SqlUpdateStatement;
+
 typedef struct SqlDropTableStatement {
 	// SqlValue
 	struct SqlStatement *table_name;
@@ -830,6 +845,7 @@ typedef struct SqlStatement {
 		struct SqlSelectStatement *	  select;
 		struct SqlInsertStatement *	  insert;
 		struct SqlDeleteFromStatement *	  delete_from;
+		struct SqlUpdateStatement *	  update;
 		struct SqlDropTableStatement *	  drop_table;
 		struct SqlDropFunctionStatement * drop_function;
 		struct SqlArray *		  array;

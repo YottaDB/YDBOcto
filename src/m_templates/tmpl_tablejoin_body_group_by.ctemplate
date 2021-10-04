@@ -14,12 +14,12 @@
 #include "physical_plan.h"
 #include "template_helpers.h"
 
-TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count) {
+TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *pplan, int dot_count) {
 	LogicalPlan	*af, *lp_column_list, *first_aggregate;
 
-	assert(NULL != plan->outputKey);
-	assert(IS_GROUP_BY_PLAN(plan));
-	assert(!plan->outputKey->is_cross_reference_key);	/* caller should have ensured this */
+	assert(NULL != pplan->outputKey);
+	assert(IS_GROUP_BY_PLAN(pplan));
+	assert(!pplan->outputKey->is_cross_reference_key);	/* caller should have ensured this */
 	/* At this point, M code for the WHERE clause has been emitted (in tmpl_tablejoin_body.ctemplate) */
 	%{}`n{{ PLAN_LINE_START }}{}%
 	dot_count++;
@@ -27,12 +27,12 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count) {
 	 * M lvn subtree. DISTINCT, ORDER BY, LIMIT etc. cannot be processed at this point. They will have to be deferred
 	 * until later when GROUP BY processing is done.
 	 */
-	if ((NULL != plan->aggregate_options) && (NULL != plan->aggregate_options->v.lp_default.operand[0])) {
+	if ((NULL != pplan->aggregate_options) && (NULL != pplan->aggregate_options->v.lp_default.operand[0])) {
 		LogicalPlan	*group_by;
 
 		/* GROUP BY was specified. Emit the specified columns as the GROUP BY subscript */
-		GET_LP(group_by, plan->aggregate_options, 0, LP_GROUP_BY);
-		TMPL(tmpl_column_list_combine, group_by->v.lp_default.operand[0], plan, "_", TRUE, dot_count, FALSE);
+		GET_LP(group_by, pplan->aggregate_options, 0, LP_GROUP_BY);
+		TMPL(tmpl_column_list_combine, group_by->v.lp_default.operand[0], pplan, "_", TRUE, dot_count, FALSE);
 	} else {
 		/* GROUP BY was NOT specified. Emit "" as the GROUP BY subscript */
 		TMPL(tmpl_print_dots, dot_count);
@@ -44,11 +44,11 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count) {
 	%{}`n{{ PLAN_LINE_START }}{}%
 	TMPL(tmpl_print_dots, dot_count);
 	%{}SET {}%
-	TMPL(tmpl_key, plan->outputKey);
+	TMPL(tmpl_key, pplan->outputKey);
 	(*buffer_index)--;
 	%{},{{ PP_GROUP_BY }},{{ PP_YDB_OCTO_G }})=""{}%
-	assert(LP_SELECT_QUERY == plan->lp_select_query->type);
-	first_aggregate = plan->lp_select_query->extra_detail.lp_select_query.first_aggregate;
+	assert(LP_SELECT_QUERY == pplan->lp_select_query->type);
+	first_aggregate = pplan->lp_select_query->extra_detail.lp_select_query.first_aggregate;
 	for (af = first_aggregate; NULL != af; af = af->extra_detail.lp_aggregate_function.next_aggregate) {
 		char	*m_func;
 		int	aggregate_cnt;
@@ -94,7 +94,7 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count) {
 					UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
 					unique_id = table_alias->unique_id;
 				}
-				if (plan->treat_key_as_null[unique_id]) {
+				if (pplan->treat_key_as_null[unique_id]) {
 					TMPL(tmpl_print_dots, dot_count);
 					%{}SET {{ PP_YDB_OCTO_EXPR }}=$ZYSQLNULL{}%
 					%{}`n{{ PLAN_LINE_START }}{}%
@@ -105,11 +105,11 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count) {
 						%{}`n{{ PLAN_LINE_START }}{}%
 					} else {
 						// COUNT(DISTINCT table.*) usage
-						TMPL(tmpl_column_list_combine, lp_column_list, plan, "_", TRUE, dot_count, TRUE);
+						TMPL(tmpl_column_list_combine, lp_column_list, pplan, "_", TRUE, dot_count, TRUE);
 					}
 				}
 			} else {
-				TMPL(tmpl_print_expression, l_plan, plan, dot_count, 0);
+				TMPL(tmpl_print_expression, l_plan, pplan, dot_count, 0);
 			}
 		}
 		TMPL(tmpl_print_dots, dot_count);
@@ -118,7 +118,7 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count) {
 		TMPL(tmpl_print_dots, dot_count);
 		m_func = lp_get_aggregate_plan_helper_func_name(af->type);
 		%{}DO {{ m_func }}^%%ydboctoplanhelpers({}%
-		%{}{{plan->outputKey->unique_id|%d }},{{ PP_YDB_OCTO_G }},{{ aggregate_cnt|%d }},{{ PP_YDB_OCTO_P }}{}%
+		%{}{{pplan->outputKey->unique_id|%d }},{{ PP_YDB_OCTO_G }},{{ aggregate_cnt|%d }},{{ PP_YDB_OCTO_P }}{}%
 		if ((LP_AGGREGATE_FUNCTION_MIN == af->type) || (LP_AGGREGATE_FUNCTION_MAX == af->type)) {
 			/* Need to pass an additional parameter `isString` to know if the type of PP_YDB_OCTO_P is STRING or not */
 			SqlValueType	param_type;
@@ -131,11 +131,11 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count) {
 		}
 		%{}){}%
 	}
-	if (plan->emit_duplication_check) {
+	if (pplan->emit_duplication_check) {
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET {}%
-		TMPL(tmpl_duplication_check, plan);
+		TMPL(tmpl_duplication_check, pplan);
 		%{}=1{}%
 	}
 	return;

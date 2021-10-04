@@ -14,24 +14,24 @@
 #include "physical_plan.h"
 #include "template_helpers.h"
 
-TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count) {
+TEMPLATE(tmpl_populate_output_key, PhysicalPlan *pplan, int dot_count) {
 	boolean_t	stash_columns_in_keys;
 
-	assert(NULL != plan->outputKey);
-	assert(!plan->outputKey->is_cross_reference_key);	/* caller should have ensured this */
+	assert(NULL != pplan->outputKey);
+	assert(!pplan->outputKey->is_cross_reference_key);	/* caller should have ensured this */
 	// Populate records in the output key (i.e. SELECT column list)
 	%{}`n{{ PLAN_LINE_START }}{}%
 	dot_count++;
 	/* If the plan has an ORDER BY, then we need to fill in the PP_ORDER_BY node even if the plan is part of
-	 * a sub-query (i.e. plan->stash_columns_in_keys is TRUE) hence the "&&" check below. In this case, the actual stashing
+	 * a sub-query (i.e. pplan->stash_columns_in_keys is TRUE) hence the "&&" check below. In this case, the actual stashing
 	 * of the columns in keys will happen as part of the final ORDER BY processing in "tmpl_physical_plan".
 	 */
-	stash_columns_in_keys = (plan->stash_columns_in_keys && (NULL == plan->order_by));
+	stash_columns_in_keys = (pplan->stash_columns_in_keys && (NULL == pplan->order_by));
 	if (!stash_columns_in_keys) {
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET:1{}%
 		%{}&$INCREMENT({}%
-		TMPL(tmpl_key, plan->outputKey);
+		TMPL(tmpl_key, pplan->outputKey);
 		%{}){}%
 	} else {
 		LogicalPlan	*column_list, *where, *first_operand;
@@ -39,12 +39,12 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count) {
 		/* The below assert implies there is only one column that will be generated and so it is okay to pass
 		 * "dot_count" as is (need to pass 0 otherwise as we cannot generate new M commands in that case).
 		 */
-		column_list = plan->projection;
+		column_list = pplan->projection;
 		assert(NULL == column_list->v.lp_default.operand[1]);
-		TMPL(tmpl_column_list_combine, column_list, plan, ",", FALSE, dot_count, FALSE);
+		TMPL(tmpl_column_list_combine, column_list, pplan, ",", FALSE, dot_count, FALSE);
 		TMPL(tmpl_print_dots, dot_count);
 		%{}IF $INCREMENT({}%
-		TMPL(tmpl_key, plan->outputKey);
+		TMPL(tmpl_key, pplan->outputKey);
 		(*buffer_index)--;
 		%{},{{ PP_YDB_OCTO_EXPR }}){}%
 		/* Since "stash_columns_in_keys" is TRUE, this is a sub-query. Check if the SELECT column list for this
@@ -65,7 +65,7 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count) {
 			SqlKey		*outputKey;
 
 			GET_LP(key, first_operand, 0, LP_KEY);
-			child_plan = get_physical_plan_from_unique_id(plan, key->v.lp_key.key->unique_id);
+			child_plan = get_physical_plan_from_unique_id(pplan, key->v.lp_key.key->unique_id);
 			if (child_plan->stash_columns_in_keys) {
 				/* It is possible "child_plan" is the result of a SET operation. In that case, the output_id
 				 * is actually "child_plan->set_oper_list->output_id" and not "child_plan->outputKey->unique_id".
@@ -95,57 +95,57 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count) {
 	}
 	// If this plan has no ORDER BY, then any LIMIT related processing can happen. Otherwise we need to
 	// apply the LIMIT after the ORDER BY processing finally happens in "tmpl_physical_plan".
-	if (NULL == plan->order_by) {
+	if (NULL == pplan->order_by) {
 		SqlOptionalKeyword	*keyword;
 
-		keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
+		keyword = get_keyword_from_keywords(pplan->keywords, OPTIONAL_LIMIT);
 		if (NULL != keyword)
 		{	/* Need to maintain a local variable parallely with the output key to be used to break from
 			 * the FOR loop in case the LIMIT is reached. Cannot use the output key for example if a
 			 * UNION is in effect across this plan and another plan in which case both will share the
 			 * same output key but could have differing limits (#269).
 			 */
-			%{}&$INCREMENT({{ PP_YDB_OCTO_ZLIMIT }}({{ plan->outputKey->unique_id|%d }})){}%
+			%{}&$INCREMENT({{ PP_YDB_OCTO_ZLIMIT }}({{ pplan->outputKey->unique_id|%d }})){}%
 		}
 	}
 	if (!stash_columns_in_keys) {
 		%{} {{ PP_YDB_OCTO_Z }}=42`n{{ PLAN_LINE_START }}{}%
-		/* If ORDER BY and stashing columns into keys (i.e. `plan->stash_columns_in_keys` is TRUE even though
+		/* If ORDER BY and stashing columns into keys (i.e. `pplan->stash_columns_in_keys` is TRUE even though
 		 *	`stash_columns_in_keys` is FALSE), do not do `str2mval` transformation as we will keep the column as is
 		 *	for later retrieval from parent query.
-		 * Else (i.e. `plan->stash_columns_in_keys` is FALSE and `stash_columns_in_keys` is FALSE), we do want to do
+		 * Else (i.e. `pplan->stash_columns_in_keys` is FALSE and `stash_columns_in_keys` is FALSE), we do want to do
 		 *	`str2mval` transformation.
-		 * Hence `!plan->stash_columns_in_keys` passed below as the 4th parameter (`str2mval`).
+		 * Hence `!pplan->stash_columns_in_keys` passed below as the 4th parameter (`str2mval`).
 		 */
-		TMPL(tmpl_column_list_combine, plan->projection, plan, "_", !plan->stash_columns_in_keys, dot_count, FALSE);
+		TMPL(tmpl_column_list_combine, pplan->projection, pplan, "_", !pplan->stash_columns_in_keys, dot_count, FALSE);
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET {}%
-		TMPL(tmpl_key, plan->outputKey);
+		TMPL(tmpl_key, pplan->outputKey);
 		(*buffer_index)--;
-		if (NULL != plan->order_by) {
+		if (NULL != pplan->order_by) {
 			%{},{{ PP_ORDER_BY }},{}%
-			TMPL(tmpl_column_list_combine, plan->order_by, plan, ",", FALSE, 0, FALSE);
+			TMPL(tmpl_column_list_combine, pplan->order_by, pplan, ",", FALSE, 0, FALSE);
 			%{},{}%
-			TMPL(tmpl_key, plan->outputKey);
+			TMPL(tmpl_key, pplan->outputKey);
 			%{}){}%
 		} else {
 			%{},{}%
-			TMPL(tmpl_key, plan->outputKey);
+			TMPL(tmpl_key, pplan->outputKey);
 			%{}){}%
 		}
 		%{}={{ PP_YDB_OCTO_EXPR }}{}%
 	}
-	if (!plan->distinct_values) {
+	if (!pplan->distinct_values) {
 		/* If we are being called here through `tmpl_group_by`, then we don't need to worry about `tmpl_duplication_check`
 		 * as the output key is being populated from the GROUP BY subscript (PP_YDB_OCTO_G) which has already aggregated
 		 * the results across DNF plans (if any) and hence already accounted for duplicates. In that case though,
-		 * `plan->tablejoin_body_group_by_done` would be TRUE hence the `!` check below.
+		 * `pplan->tablejoin_body_group_by_done` would be TRUE hence the `!` check below.
 		 */
-		if (!plan->tablejoin_body_group_by_done && plan->emit_duplication_check) {
+		if (!pplan->tablejoin_body_group_by_done && pplan->emit_duplication_check) {
 			%{}`n{{ PLAN_LINE_START }}{}%
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {}%
-			TMPL(tmpl_duplication_check, plan);
+			TMPL(tmpl_duplication_check, pplan);
 			%{}=1{}%
 		}
 	} else {
@@ -153,8 +153,8 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count) {
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET:1{}%
-		%{} {{ PP_YDB_OCTO_ZDISTINCT }}({{ plan->outputKey->unique_id|%d }},{}%
-		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", FALSE, 0, FALSE);
+		%{} {{ PP_YDB_OCTO_ZDISTINCT }}({{ pplan->outputKey->unique_id|%d }},{}%
+		TMPL(tmpl_column_list_combine, pplan->projection, pplan, ",", FALSE, 0, FALSE);
 		%{})=""{}%
 	}
 	return;

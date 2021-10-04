@@ -28,7 +28,7 @@ TEMPLATE(tmpl_delete_from, PhysicalPlan *pplan) {
 	%{}`n{{ PLAN_LINE_START }}{}% // Whitespace for MUMPS
 	/* If we have a set of LP_SET_DNF plans each corresponding to a LP_DELETE_FROM plan, then set the delete count to 0
 	 * only at the start of the first DNF plan. Do not want the count after the first DNF plan execution to get reset to 0
-	 * before the start of the second/later DNF plans.
+	 * at the start of the second/later DNF plans.
 	 */
 	if (NULL == pplan->dnf_prev) {
 		%{}SET {}%
@@ -40,6 +40,16 @@ TEMPLATE(tmpl_delete_from, PhysicalPlan *pplan) {
 	dot_count = 0;
 	assert(FALSE == pplan->tablejoin_body_group_by_done);
 	TMPL(tmpl_tablejoin, pplan, pplan->tablejoin, cur_key, FALSE, dot_count, NULL, NULL);
+	if (NULL == pplan->dnf_next) {
+		/* Note: "emit_duplication_check" is not necessary for LP_DELETE_FROM and is there only for consistency with
+		 * LP_UPDATE (where it is necessary). See comment in "src/physical/generate_physical_plan.c" for more details.
+		 */
+		if (pplan->emit_duplication_check) {
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}KILL {{ PP_YDB_OCTO_ZDUPLICATE }}({{ ZERO_OUTPUT_KEY_ID|%d }}){}%
+		}
+		assert(!pplan->distinct_values); /* or else we need to emit PP_YDB_OCTO_ZDISTINCT like in tmpl_physical_plan() */
+	}
 	%{}`n{{ PLAN_LINE_START }}{}%
 	%{}QUIT{}%
 }

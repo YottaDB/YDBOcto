@@ -78,3 +78,6 @@ delete from TDFT01 where lastname = SAMEVALUE('Last7');
 insert into TDFT01 VALUES(8, SAMEVALUE('First8'), 'Last8');
 delete from TDFT01 where lastname = 'Last8';
 
+-- Test that DELETE FROM works with type cast operator (without that operator it issued a ERR_TYPE_MISMATCH error)
+delete from TDFT01 where lastname = id::text; -- this query without a type cast is tested in TDFT03.sql
+

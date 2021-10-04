@@ -222,6 +222,23 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		hash_canonical_query(state, delete->src_join, status); // SqlJoin
 		hash_canonical_query(state, delete->where_clause, status);
 		break;
+	case update_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */
+		SqlUpdateStatement *update;
+
+		UNPACK_SQL_STATEMENT(update, stmt, update);
+		ADD_INT_HASH(state, update_STATEMENT);
+		hash_canonical_query(state, update->src_join, status); // SqlTable
+		hash_canonical_query(state, update->where_clause, status);
+
+		SqlUpdateColumnValue *ucv, *ucv_head;
+		ucv_head = update->col_value_list;
+		ucv = ucv_head;
+		do {
+			hash_canonical_query(state, ucv->col_name, status);
+			hash_canonical_query(state, ucv->col_value, status);
+			ucv = ucv->next;
+		} while (ucv != ucv_head);
+		break;
 	case select_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */
 		SqlSelectStatement *select;
 

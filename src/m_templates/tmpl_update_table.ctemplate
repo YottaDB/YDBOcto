@@ -1,0 +1,54 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "octo_types.h"
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+TEMPLATE(tmpl_update_table, PhysicalPlan *pplan) {
+	int			dot_count;
+	unsigned int		cur_key;
+
+	/* Note: Most of the below code is similar to code in "tmpl_delete_from.ctemplate". */
+	assert(LP_UPDATE == pplan->lp_select_query->type);
+	%{}NEW {{ PP_YDB_OCTO_Z }},{{ PP_YDB_OCTO_EXPR }}{}%
+	%{}`n{{ PLAN_LINE_START }}{}% // Whitespace for MUMPS
+	/* If we have a set of LP_SET_DNF plans each corresponding to a LP_UPDATE plan, then set the update count to 0
+	 * only at the start of the first DNF plan. Do not want the count after the first DNF plan execution to get reset to 0
+	 * at the start of the second/later DNF plans.
+	 */
+	if (NULL == pplan->dnf_prev) {
+		%{}SET {}%
+		%{}{{ config->global_names.cursor }}(cursorId,{{ PP_ROW_COUNT }}){}%
+		%{}=0 ; Initialize count of updated records{}%
+		%{}`n{{ PLAN_LINE_START }}{}%
+	}
+	/* Note that the variable PP_YDB_OCTO_UPD would be used across all the DNF plans */
+	cur_key = 0;
+	dot_count = 0;
+	assert(FALSE == pplan->tablejoin_body_group_by_done);
+	TMPL(tmpl_tablejoin, pplan, pplan->tablejoin, cur_key, FALSE, dot_count, NULL, NULL);
+	if (NULL == pplan->dnf_next) {
+		%{}`n{{ PLAN_LINE_START }}{}%
+		%{}KILL {{ PP_YDB_OCTO_UPD }}{}%
+		if (pplan->emit_duplication_check) {
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}KILL {{ PP_YDB_OCTO_ZDUPLICATE }}({{ ZERO_OUTPUT_KEY_ID|%d }}){}%
+		}
+		assert(!pplan->distinct_values); /* or else we need to emit PP_YDB_OCTO_ZDISTINCT like in tmpl_physical_plan() */
+	}
+	%{}`n{{ PLAN_LINE_START }}{}%
+	%{}QUIT{}%
+}
+%{}

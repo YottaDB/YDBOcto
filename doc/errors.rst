@@ -253,6 +253,14 @@ Text: Column 'xxx' specified more than once
 Description/Action: This error is generated when the :code:`CREATE TABLE` or :code:`INSERT INTO` command specifies more than one column with the same column name. Additionally, this error is generated if a :code:`CREATE TABLE` command specifies no columns with the :code:`PRIMARY KEY` or :code:`KEY NUM` keywords and specifies at least one column with the special name :code:`%YO_KEYCOL` which would then collide with the name of the hidden primary key column that Octo internally creates. PSQL Error Code: 42701
 
 +++++++++++++++++++++++++
+ERR_DUPLICATE_KEY_VALUE
++++++++++++++++++++++++++
+
+Text: Duplicate Key Value violates UNIQUE constraint xxx
+
+Description/Action: This error is generated when the :code:`UPDATE` or :code:`INSERT INTO` command tries to add a row that violates a :code:`UNIQUE` constraint defined on the table. The name of the constraint along with the affected list of columns and their corresponding values are included in the error detail. PSQL Error Code: 23505
+
++++++++++++++++++++++++++
 INFO_ENTERING_FUNCTION
 +++++++++++++++++++++++++
 
@@ -651,6 +659,14 @@ ERR_MULTIPLE_ZERO_KEYS
 Text: Multiple xxx keys found for table xxx
 
 Description/Action: This error indicates that the table has multiple :code:`KEY NUM` elements with the same number, and that the source schema needs to be corrected. PSQL Error Code: 42P08
+
+++++++++++++++++++++
+ERR_NULL_KEY_VALUE
+++++++++++++++++++++
+
+Text: NULL value in column xxx violates NOT NULL constraint
+
+Description/Action: This error is generated when the :code:`UPDATE` or :code:`INSERT INTO` command tries to add a row that violates a :code:`NOT NULL` constraint defined on the table. The affected primary key column name is included in the error detail. PSQL Error Code: 23502
 
 +++++++++++++++++++++++++++++
 ERR_NULL_SUBS_DISABLED

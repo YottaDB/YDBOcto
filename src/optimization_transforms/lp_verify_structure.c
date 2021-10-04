@@ -31,6 +31,7 @@ int lp_verify_structure(LogicalPlan *plan, PhysicalPlanOptions *options) {
 	case LP_TABLE_VALUE:
 	case LP_INSERT_INTO:
 	case LP_DELETE_FROM:
+	case LP_UPDATE:
 		break;
 	default:
 		assert(FALSE);
@@ -73,6 +74,10 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 	case LP_DELETE_FROM:
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_PROJECT);
 		ret &= (NULL == plan->v.lp_default.operand[1]);
+		break;
+	case LP_UPDATE:
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_PROJECT);
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_COLUMN_LIST);
 		break;
 	case LP_OUTPUT:
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_KEY);
@@ -379,13 +384,20 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 				  && lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_COLUMN_LIST_ALIAS));
 		}
 		break;
+	case LP_UPD_COL_VALUE:
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COLUMN);
+		ret &= lp_verify_value(plan->v.lp_default.operand[1], options);
+		break;
 	case LP_COLUMN_LIST:
 		/* To avoid a large recursion stack in case of thousands of columns, walk the column list iteratively */
 		while (NULL != plan) {
 			assert(LP_COLUMN_LIST == plan->type);
-			/* LP_COLUMN is only possible inside a LP_COLUMN_LIST. Hence the additional check for it here. */
+			/* LP_COLUMN and LP_UPD_COL_VALUE are only possible inside a LP_COLUMN_LIST.
+			 * Hence the additional check for those below.
+			 */
 			ret &= lp_verify_value(plan->v.lp_default.operand[0], options)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COLUMN);
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COLUMN)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_UPD_COL_VALUE);
 			assert(ret);
 			plan = plan->v.lp_default.operand[1];
 		}

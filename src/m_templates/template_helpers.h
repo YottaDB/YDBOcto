@@ -61,15 +61,24 @@
 #define PP_LOCAL_PREFIX	 ""
 
 /* Note: The below PP_* macros do not contain double-quotes within the string literal */
-#define PP_COL		       "col"
-#define PP_KEY_COLUMN	       "keyCol"
-#define PP_VAL		       "val"
+#define PP_COL	      "col"
+#define PP_KEY_COLUMN "keyCol"
+#define PP_VAL                                                                                \
+	"val" /* Note: This variable is easy to read in generated M code but should be used   \
+	       * only when we are guaranteed that we won't be invoking user M code. In that   \
+	       * case we cannot use such simple variable names as it can cause namespace      \
+	       * collisions with user created local variable names. In that case use the      \
+	       * PP_YDB_OCTO_* variables as they will have a `%ydbocto` prefix in the name.   \
+	       * Makes it harder to read the M code but need it for correctness just in case. \
+	       */
 #define PP_XREF_COLUMN	       "xrefCol"
 #define PP_YDB_OCTO_EXPR       "%ydboctoexpr"
 #define PP_YDB_OCTO_G	       "%ydboctog"
 #define PP_YDB_OCTO_I	       "%ydboctoi"
 #define PP_YDB_OCTO_IN	       "%ydboctoin"
+#define PP_YDB_OCTO_KEYCHNGD   "%ydboctokeychngd"
 #define PP_YDB_OCTO_P	       "%ydboctop"
+#define PP_YDB_OCTO_UPD	       "%ydboctoUPD"
 #define PP_YDB_OCTO_Z	       "%ydboctoz"
 #define PP_YDB_OCTO_ZDUPLICATE "%ydboctozduplicate"
 #define PP_YDB_OCTO_ZLIMIT     "%ydboctozlimit"
@@ -78,15 +87,36 @@
 #define PLAN_LINE_START "    " /* 4 spaces start an M line in the generated plan */
 
 /* This macro is currently unused but preserved in the hope that it might be needed in the near future */
-#define IS_COLUMN_NOT_NULL(COLUMN)                                                                     \
-	((NULL != get_keyword(COLUMN, PRIMARY_KEY)) || (NULL != get_keyword(COLUMN, OPTIONAL_KEY_NUM)) \
-	 || (NULL != get_keyword(COLUMN, NOT_NULL)))
+#define IS_COLUMN_NOT_NULL(COLUMN) (IS_KEY_COLUMN(COLUMN) || (NULL != get_keyword(COLUMN, NOT_NULL)))
+
+/* Sets output parameters "DELIM" and "IS_DOLLAR_CHAR" based on input parameters "TABLE" "COLUMN" and "IS_TRIGGER" */
+#define SET_DELIM_AND_IS_DOLLAR_CHAR(TABLE, COLUMN, IS_TRIGGER, DELIM, IS_DOLLAR_CHAR)      \
+	{                                                                                   \
+		SqlValue *value;                                                            \
+                                                                                            \
+		if (COLUMN->delim) {                                                        \
+			UNPACK_SQL_STATEMENT(value, COLUMN->delim, value);                  \
+			DELIM = value->v.string_literal;                                    \
+			IS_DOLLAR_CHAR = (DELIM_IS_DOLLAR_CHAR == DELIM[0] ? TRUE : FALSE); \
+			DELIM = &value->v.string_literal[1];                                \
+		} else if (TABLE->delim) {                                                  \
+			UNPACK_SQL_STATEMENT(keyword, TABLE->delim, keyword);               \
+			UNPACK_SQL_STATEMENT(value, keyword->v, value);                     \
+			DELIM = value->v.string_literal;                                    \
+			IS_DOLLAR_CHAR = (DELIM_IS_DOLLAR_CHAR == DELIM[0] ? TRUE : FALSE); \
+			DELIM = &value->v.string_literal[1];                                \
+		} else {                                                                    \
+			IS_DOLLAR_CHAR = FALSE;                                             \
+			DELIM = (IS_TRIGGER ? NULL : COLUMN_DELIMITER);                     \
+		}                                                                           \
+	}
 
 enum EmitSourceForm {
 	EmitSourceForm_Value,
 	EmitSourceForm_Trigger,
 	EmitSourceForm_Insert,
 	EmitSourceForm_NoKeyCol,
+	EmitSourceForm_UpdateKeyCol,
 };
 
 typedef enum {
@@ -100,23 +130,26 @@ typedef enum {
 void resize_tmpl_buffer(char **global_buffer, int *buffer_len, int *buffer_index);
 
 TEMPLATE(tmpl_print_dots, int dots);
-TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan);
-TEMPLATE(tmpl_insert_into, PhysicalPlan *plan);
-TEMPLATE(tmpl_delete_from, PhysicalPlan *plan);
-TEMPLATE(tmpl_delete_record_from_table, PhysicalPlan *plan, int dot_count);
-TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned int cur_key, boolean_t right_join_second_half,
+TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan);
+TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan);
+TEMPLATE(tmpl_delete_from, PhysicalPlan *pplan);
+TEMPLATE(tmpl_delete_record_from_table, PhysicalPlan *pplan, int dot_count);
+TEMPLATE(tmpl_update_key_source, PhysicalPlan *pplan, boolean_t pre_update);
+TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count);
+TEMPLATE(tmpl_update_table, PhysicalPlan *pplan);
+TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned int cur_key, boolean_t right_join_second_half,
 	 int dot_count, char *tableName, char *columnName);
-TEMPLATE(tmpl_rightjoin_key, PhysicalPlan *plan, unsigned int key_start, unsigned int key_end);
-TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName, char *columnName);
-TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count);
-TEMPLATE(tmpl_tablejoin_on_condition, LogicalPlan *tablejoin, PhysicalPlan *plan, int *dot_count);
-TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count);
+TEMPLATE(tmpl_rightjoin_key, PhysicalPlan *pplan, unsigned int key_start, unsigned int key_end);
+TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *pplan, int dot_count, char *tableName, char *columnName);
+TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *pplan, int dot_count);
+TEMPLATE(tmpl_tablejoin_on_condition, LogicalPlan *tablejoin, PhysicalPlan *pplan, int *dot_count);
+TEMPLATE(tmpl_group_by, PhysicalPlan *pplan, int dot_count);
 TEMPLATE(tmpl_key_start, SqlKey *key);
 TEMPLATE(tmpl_key_end, SqlKey *key);
 // Outputs: '%ydboctocursor(cursorId,PP_KEYS,key->unique_id,tableName,columnName)'
 TEMPLATE(tmpl_key, SqlKey *key);
 TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key);
-TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key);
+TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key, enum EmitSourceForm form);
 TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count, int depth);
 TEMPLATE(tmpl_print_expression_assignment, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count, int depth);
 TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t is_trigger, int dot_count);
@@ -124,11 +157,10 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 	 boolean_t is_asterisk);
 TEMPLATE(tmpl_invoke_deferred_plan, InvokeDeferredPlanType invocation_type, LogicalPlan *plan, int dot_count);
 TEMPLATE(tmpl_invoke_deferred_plan_setoper, InvokeDeferredPlanType invocation_type, LogicalPlan *plan, int dot_count);
-TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *table_name, int unique_id, int keys_to_match,
-	 enum EmitSourceForm form);
-TEMPLATE(tmpl_duplication_check, PhysicalPlan *plan);
+TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int unique_id, int keys_to_match, enum EmitSourceForm form);
+TEMPLATE(tmpl_duplication_check, PhysicalPlan *pplan);
 TEMPLATE(tmpl_order_by_key, int num_cols);
-TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count);
+TEMPLATE(tmpl_populate_output_key, PhysicalPlan *pplan, int dot_count);
 TEMPLATE(tmpl_limit_check, SqlOptionalKeyword *limit_keyword, char *prefix, char *suffix);
 TEMPLATE(tmpl_where_or_having_or_on, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count);
 TEMPLATE(tmpl_xref_key_columns, int num_key_cols);

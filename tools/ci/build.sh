@@ -295,11 +295,13 @@ else
 	export CTEST_OUTPUT_ON_FAILURE=TRUE
 fi
 
+# This function is duplicated in tools/ci/vistatest.sh
 cleanup_before_exit() {
 	echo "# Cleanup files and directories that don't need to be included in the pipeline artifacts"
 	rm -rf CMakeFiles _CPack_Packages bats-test.*/go src/CMakeFiles || true
 	rm -f postgresql*.jar ./*.cmake || true
 	rm -f src/test_* || true	# these are the unit test case executables (should not be needed otherwise)
+	rm -f src/*.dbg
 }
 trap cleanup_before_exit EXIT
 
@@ -496,6 +498,7 @@ PSQL
 		mv Testing/Temporary/LastDynamicAnalysis* Testing/Temporary/LastTest.log
 	fi
 
+	# This block and much under it is duplicated in tools/ci/vistatest.sh
 	# Re-enable "set -e" now that ctest is done.
 	set -e
 	# Unset verbose mode as the below for loop and bats-test.* usages can print thousands of lines

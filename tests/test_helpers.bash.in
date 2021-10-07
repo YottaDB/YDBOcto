@@ -25,6 +25,8 @@ setup_bats_env() {
 	export INPUTRC=/etc/inputrc
 	# Below has been seen to avoid Ctrl-M ('^M') characters in long query strings
 	export COLUMNS=4096
+	# Create a a log of the test being run
+	echo " --> Running test [$BATS_TEST_FILENAME] : subtest [$BATS_TEST_DESCRIPTION] : in $PWD : build type @CMAKE_BUILD_TYPE@ " > bats_test.out
 }
 
 save_env_variables() {
@@ -82,7 +84,6 @@ init_test() {
 		ydbroutines="$ydbroutines @PROJECT_BINARY_DIR@"
 	fi
 	export ydb_routines="$ydbroutines $ydb_routines"
-	echo " --> Running test [$BATS_TEST_FILENAME] : subtest [$BATS_TEST_DESCRIPTION] : in $PWD : build type @CMAKE_BUILD_TYPE@ " > bats_test.out
 
 	save_env_variables
 

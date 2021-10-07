@@ -81,6 +81,10 @@ FILE2
 
 	# Import VistA DDL into Octo
 	octo -f @PROJECT_BINARY_DIR@/vista.sql > OctoImport.log
+
+	# Remove bats_test.out as we are not really a test but just a temporary directory
+	# Otherwise pipeline tries to evaluate us as a test
+	rm -f bats_test.out
 }
 
 setup() {

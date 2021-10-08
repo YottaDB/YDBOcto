@@ -19,7 +19,7 @@ Error with syntax near (line 1, column 23):
 select count(DISTINCT n1.*) from names1col n11;
                       ^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select count(DISTINCT n1.*) from names1col n11;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: N1.FIRSTNAME
 Error with syntax near (line 1, column 15):
 
 select n1.* = n1.firstname from names1col n1;

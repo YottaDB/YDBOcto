@@ -46,9 +46,7 @@ OCTO
   octo <<OCTO 2>&1 | tee output.txt
 select names.hackName from names;
 OCTO
-  run cat output.txt
-  [[ "$output" =~ "ERROR" ]]
-  [[ "$output" =~ "Missing FROM-clause entry for table" ]]
+  verify_output TSC00D output.txt
 }
 
 @test "TSC00E : select column with invalid typing" {

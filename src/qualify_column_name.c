@@ -247,9 +247,20 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 		if (NULL == col_cla) {
 			if (NULL == table_name) {
 				ERROR(ERR_UNKNOWN_COLUMN_NAME, column_name);
+			} else if (NULL != matching_alias_stmt) {
+				/* A table name was specified along with the column name and we found the table name
+				 * matched with an existing table in the FROM/JOIN list. This means the column name is
+				 * not found in the specified table name. Issue same error as above but with table name
+				 * included in the column name. "table_name" points to a string of the form
+				 * "tablename.columnname" hence using that below to print both table and column name.
+				 */
+				ERROR(ERR_UNKNOWN_COLUMN_NAME, table_name);
 			} else {
-				/* If table_name is non-NULL, it points to a string of the form "tablename.columnname" but we want
-				 * to only print the tablename hence the use of "table_name_len" below to stop there.
+				/* table_name is non-NULL and "matching_alias_stmt" is NULL. This means a table name was
+				 * explicitly specified but we did not find that in any of the FROM/JOIN list. Issue a
+				 * table related error (different than the above column related errors). "table_name"
+				 * points to a string of the form "tablename.columnname" but we want to only print the
+				 * tablename hence the use of "table_name_len" below to stop there.
 				 */
 				ERROR(ERR_MISSING_FROM_ENTRY, table_name_len, table_name);
 			}

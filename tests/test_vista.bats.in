@@ -19,17 +19,22 @@ setup_file() {
 	# Remove Octo environment (except $ydb_dist); disrupts VistA
 	old_ydb_dist=$ydb_dist
 	for e in `env | grep -E '^(ydb|gtm)' | cut -d= -f1`; do unset $e; done
+
+	# Restore $ydb_dist (override what's in @VISTA_ENV_FILE@), source VistA environment, and add $ydb_routines for Octo,
 	export ydb_dist=$old_ydb_dist
 	export gtm_dist=$ydb_dist
-
-	# Source VistA environment, and add $ydb_routines for Octo, restore $ydb_dist (override what's in @VISTA_ENV_FILE@)
 	source @VISTA_ENV_FILE@
 	[[ -z ${ydb_routines} ]] && export ydb_routines=$gtmroutines
 
-	# Get a good routine directory, and download %YDBOCTOVISTAM
+	# Add Posix plugin call-out file
+	export ydb_xc_ydbposix="$ydb_dist/plugin/ydbposix.xc"
+
+	# Get a good routine directory
+	primary_routine_directory=$($ydb_dist/yottadb -r %XCMD 'W $P($$SRCDIR^%RSEL," ")')
+	echo "Primary Routine Directory: $primary_routine_directory"
+
+	# ... and download %YDBOCTOVISTAM if vista.sql doesn't exist
 	if [ ! -f @PROJECT_BINARY_DIR@/vista.sql ]; then
-		primary_routine_directory=$($ydb_dist/yottadb -r %XCMD 'W $$RTNDIR^%ZOSV')
-		echo "Primary Routine Directory: $primary_routine_directory"
 		pushd $primary_routine_directory
 		rm -f _YDBOCTOVISTAM.m
 		curl -sLO https://gitlab.com/YottaDB/DBMS/ydbvistaocto/raw/master/_YDBOCTOVISTAM.m
@@ -45,14 +50,23 @@ setup_file() {
 		$ydb_dist/yottadb -r %XCMD 'S DUZ=.5,DIQUIET=1,DUZ(0)="@" D DT^DICRW,MAPALL^%YDBOCTOVISTAM("@PROJECT_BINARY_DIR@/vista.sql")'
 	fi
 
+	# Get VistA functions routine
+	pushd $primary_routine_directory
+	rm -f _YDBOCTOVISTAF.m
+	curl -sLO https://gitlab.com/YottaDB/DBMS/ydbvistaocto/raw/master/_YDBOCTOVISTAF.m
+	popd
+
+	# Get VistA functions definitions SQL
+	curl -sLO https://gitlab.com/YottaDB/DBMS/ydbvistaocto/raw/master/_YDBOCTOVISTAF.sql
+
 	# Set-up PATH and the rest of ydb_routines, normally done by other scripts we are not using
 	if [[ @DISABLE_INSTALL@ == "ON" ]]; then
 		export PATH="@PROJECT_BINARY_DIR@/src:$PATH"
-		export ydb_routines=".(. @PROJECT_SOURCE_DIR@/tests/fixtures) @PROJECT_BINARY_DIR@/src/_ydbocto.so @PROJECT_BINARY_DIR@ $ydb_routines"
+		export ydb_routines=".(. @PROJECT_SOURCE_DIR@/tests/fixtures) $ydb_dist/plugin/o/_ydbposix.so @PROJECT_BINARY_DIR@/src/_ydbocto.so @PROJECT_BINARY_DIR@ $ydb_routines"
 	else
 		# In our other tests, ydb_env_set does this.
 		export PATH="$ydb_dist/plugin/bin:$PATH"
-		export ydb_routines=".(. @PROJECT_SOURCE_DIR@/tests/fixtures) @PROJECT_BINARY_DIR@ $ydb_routines $ydb_dist/plugin/o/_ydbocto.so"
+		export ydb_routines=".(. @PROJECT_SOURCE_DIR@/tests/fixtures) $ydb_dist/plugin/o/_ydbposix.so $ydb_dist/plugin/o/_ydbocto.so @PROJECT_BINARY_DIR@ $ydb_routines"
 	fi
 
 	# Save environment for debugging
@@ -79,8 +93,9 @@ FILE2
 	# Create Octo Database
 	$ydb_dist/mupip create -r=OCTO
 
-	# Import VistA DDL into Octo
+	# Import VistA DDL and Functions into Octo
 	octo -f @PROJECT_BINARY_DIR@/vista.sql > OctoImport.log
+	octo -f _YDBOCTOVISTAF.sql             > OctoFunctionsImport.log
 
 	# Remove bats_test.out as we are not really a test but just a temporary directory
 	# Otherwise pipeline tries to evaluate us as a test
@@ -107,3 +122,12 @@ setup() {
 	verify_output TVA0002 output.txt
 }
 
+@test "TVA0003 : Test Realistic Sample Query 1" {
+	load_fixture TVA0003.sql subtest novv
+	verify_output TVA0003 output.txt
+}
+
+@test "TVA0004 : Test Realistic Sample Query 2" {
+	load_fixture TVA0004.sql subtest novv
+	verify_output TVA0004 output.txt
+}

@@ -1012,7 +1012,7 @@ if [[ 0 != "$exit_status" ]]; then
 		if ! [[ -s Testing/Temporary/LastTest.log ]]; then
 			echo "# Detected script failure prior to BATS test execution. Please review script output to determine source."
 		else
-			grep -A 6 -E "not ok|Test: " Testing/Temporary/LastTest.log | grep -E "not ok|# Temporary|Test: " | grep -C 1 "not ok" | sed "s/^not/  &/;s/^#/  &/"
+			grep -A 32 -E "not ok|Test: " Testing/Temporary/LastTest.log | grep -E "not ok|# Temporary|Test: " | grep -C 1 "not ok" | sed "s/^not/  &/;s/^#/  &/"
 		fi
 		echo "# -----------------------------"
 	else

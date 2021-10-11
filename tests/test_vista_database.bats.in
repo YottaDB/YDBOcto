@@ -107,27 +107,27 @@ setup() {
 	save_env_variables
 }
 
-@test "TVA0000 : Hello VistA" {
-	load_fixture TVA0000.sql subtest novv
-	verify_output TVA0000 output.txt
+@test "TVD0000 : Hello VistA" {
+	load_fixture TVD0000.sql subtest novv
+	verify_output TVD0000 output.txt
 }
 
-@test "TVA0001 : NULL queries against ORDER1 table" {
-	load_fixture TVA0001.sql subtest novv
-	verify_output TVA0001 output.txt
+@test "TVD0001 : NULL queries against ORDER1 table" {
+	load_fixture TVD0001.sql subtest novv
+	verify_output TVD0001 output.txt
 }
 
-@test "TVA0002 : Test INSERT INTO, DELETE FROM queries against ORDER1 table are disallowed due to READ_ONLY" {
-	load_fixture TVA0002.sql subtest novv
-	verify_output TVA0002 output.txt
+@test "TVD0002 : Test INSERT INTO, DELETE FROM queries against ORDER1 table are disallowed due to READ_ONLY" {
+	load_fixture TVD0002.sql subtest novv
+	verify_output TVD0002 output.txt
 }
 
-@test "TVA0003 : Test Realistic Sample Query 1" {
-	load_fixture TVA0003.sql subtest novv
-	verify_output TVA0003 output.txt
+@test "TVD0003 : Test Realistic Sample Query 1" {
+	load_fixture TVD0003.sql subtest novv
+	verify_output TVD0003 output.txt
 }
 
-@test "TVA0004 : Test Realistic Sample Query 2" {
-	load_fixture TVA0004.sql subtest novv
-	verify_output TVA0004 output.txt
+@test "TVD0004 : Test Realistic Sample Query 2" {
+	load_fixture TVD0004.sql subtest novv
+	verify_output TVD0004 output.txt
 }

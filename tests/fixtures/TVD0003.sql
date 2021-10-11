@@ -21,7 +21,7 @@ SELECT P.NAME AS PATIENT_NAME, P.PATIENT_ID as PATIENT_ID,
        P.CURRENT_ADMISSION as CURRENT_ADMISSION,
        P.CURRENT_MOVEMENT as CURRENT_MOVEMENT,
        DATEFORMAT(P.DATE_OF_BIRTH,"5Z") as DATE_OF_BIRTH,
-       P.Age,
+       -- P.Age, -- Don't add Age to pipeline as it will keep changing
        PM.PATIENT_MOVEMENT_ID as Current_Patient_Movement,
        PM.TYPE_OF_MOVEMENT as Current_Movement_Type,
        AM.PATIENT_MOVEMENT_ID as Admission_Movement,

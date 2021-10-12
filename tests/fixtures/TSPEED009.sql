@@ -10,4 +10,4 @@
 #								#
 #################################################################
 -- TSPEED009 - Speed Test
-select * from RXNORM_CONC_NAMES_AND_SOUR where RXCUI = '828';
+select * from RXNORM_CONC_NAMES_AND_SOUR where RXCUI = '103';

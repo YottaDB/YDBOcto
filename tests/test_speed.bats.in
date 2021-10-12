@@ -27,11 +27,11 @@ setup_file() {
   # Get RxNorm Data
   # Download at base level, to prevent re-downloads
   if [ ! -d rrf ]; then
-    if [ ! -f RxNorm_full_prescribe_04052021.zip ]; then
-      curl -LO https://download.nlm.nih.gov/rxnorm/RxNorm_full_prescribe_04052021.zip
+    if [ ! -f RxNorm_full_prescribe_10042021.zip ]; then
+      curl -LO https://download.nlm.nih.gov/rxnorm/RxNorm_full_prescribe_10042021.zip
     fi
-    unzip RxNorm_full_prescribe_04052021.zip 'rrf/*'
-    rm RxNorm_full_prescribe_04052021.zip
+    unzip RxNorm_full_prescribe_10042021.zip 'rrf/*'
+    rm RxNorm_full_prescribe_10042021.zip
   fi
 
   # Get VistA Data

@@ -37,6 +37,8 @@ save_env_variables() {
 	set | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > dbg_set.out
 	locale > dbg_locale.out
 	locale -a > dbg_localeall.out
+	# This exports an environment that can be easily sourced to examine the test interactively
+	declare -p -x | grep -- "-x ydb_" | grep -v ydb_unset_ | grep -v ydb_sav_ > test.env
 }
 
 init_test() {
@@ -84,8 +86,6 @@ init_test() {
 		ydbroutines="$ydbroutines @PROJECT_BINARY_DIR@"
 	fi
 	export ydb_routines="$ydbroutines $ydb_routines"
-
-	save_env_variables
 
 	# Set env var to allow .m and .o file timestamps to be identical. This is expected to be particularly useful
 	# in the pipeline test runs where we have seen the _ydboctoP*.o file almost always created with a timestamp
@@ -247,6 +247,9 @@ FILE
 	# e.g. if a test redirects stderr to a file output.txt, then syslog messages would show up in that file if run through
 	# the pipeline causing a test failure if that is compared against a reference file (e.g. TC001 in test_create_table.bats.in)
 	export ydb_dbfilext_syslog_disable=1
+
+	save_env_variables
+
 }
 
 gde_add_region() {

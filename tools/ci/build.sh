@@ -748,7 +748,7 @@ else
 			fi
 			# Now that we are guaranteed env vars are in the file "dbg_env.out" search that file for whether
 			# the chset was M or UTF-8.
-			is_utf8=$(grep -c "ydb_chset=UTF-8" dbg_env.out) || true
+			is_utf8=$(grep -c "^ydb_chset=UTF-8" dbg_env.out) || true
 			if [[ $is_utf8 == 0 ]]; then
 				export ydb_chset=M
 				utf8_path="."

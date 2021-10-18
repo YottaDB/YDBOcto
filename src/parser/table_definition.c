@@ -324,11 +324,13 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	column_number = 0;
 	piece_number = 1;
 	do {
-		boolean_t	    delim_is_empty, remove_piece_keyword;
+		boolean_t	    delim_is_empty, remove_piece_keyword, is_extract;
 		SqlOptionalKeyword *keyword, *piece_keyword;
 
 		column_number++;
 		cur_column->table = table_stmt;
+
+		// Handle DELIM
 		keyword = get_keyword(cur_column, OPTIONAL_DELIM);
 		delim_is_empty = FALSE;
 		if (NULL != keyword) {
@@ -348,6 +350,15 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		} else {
 			assert(NULL == cur_column->delim);
 		}
+
+		// Handle EXTRACT
+		keyword = get_keyword(cur_column, OPTIONAL_EXTRACT);
+		if (NULL != keyword) {
+			is_extract = TRUE;
+		} else {
+			is_extract = FALSE;
+		}
+
 		/* Assign each column a PIECE number if one was not explicitly specified.
 		 * PRIMARY KEY columns (those that have a PRIMARY_KEY or OPTIONAL_KEY_NUM specified) are not
 		 * counted towards the default piece #.
@@ -355,9 +366,9 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		piece_keyword = get_keyword(cur_column, OPTIONAL_PIECE);
 		remove_piece_keyword = FALSE;
 		if ((NULL == get_keyword(cur_column, PRIMARY_KEY)) && (NULL == get_keyword(cur_column, OPTIONAL_KEY_NUM))) {
-			/* Add PIECE keyword only if DELIM is not "" */
+			/* Add PIECE keyword only if DELIM is not "" and column isn't an EXTRACT field */
 			if (NULL == piece_keyword) {
-				if (!delim_is_empty) {
+				if (!delim_is_empty && !is_extract) {
 					SqlOptionalKeyword *column_keywords, *new_piece_keyword;
 
 					new_piece_keyword = add_optional_piece_keyword_to_sql_column(piece_number);
@@ -369,8 +380,9 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				 * Note that this is done even in the case DELIM "" is specified for a non-key column.
 				 */
 				piece_number++;
-			} else if (delim_is_empty) {
-				/* PIECE numbers are not applicable for non-key columns with DELIM "" so remove it */
+			} else if (delim_is_empty || is_extract) {
+				/* PIECE numbers are not applicable for non-key columns with DELIM "" or EXTRACT so remove it
+				 */
 				remove_piece_keyword = TRUE;
 			}
 		} else if (NULL != piece_keyword) {

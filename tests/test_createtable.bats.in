@@ -649,3 +649,15 @@ OCTO
 
 	verify_output TC049 output.txt
 }
+
+@test "TC050 : OCTO761 : DELIM \"\" with GLOBAL on a column crash with GVUNDEF error" {
+	echo '# Run query with extract fields that previously crashed' | tee -a output.txt
+	load_fixture TC050.zwr
+	load_fixture TC050-1.sql subtest novv
+
+	echo | tee -a output.txt
+	echo '# Verify that PIECE keyword is ignored if EXTRACT is specified' | tee -a output.txt
+	load_fixture TC050-2.sql subtest novv
+
+	verify_output TC050 output.txt
+}

@@ -1,0 +1,5 @@
+YottaDB MUPIP EXTRACT /usr/library/V989_R133/pro/mupip extract -sel=DELIMNULL -stdout
+15-OCT-2021  17:43:31 ZWR
+^DELIMNULL(1,0)="1P01|1P02"
+^DELIMNULL(1,2)="1E2|||||"
+^DELIMNULL(2,0)="2P01|2P02"

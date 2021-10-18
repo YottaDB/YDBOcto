@@ -34,7 +34,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	char			*table_name, *delim;
 	char			*piece = NULL, *source;
 	unsigned int		i;
-	boolean_t		skip_dollar_piece, is_dollar_char;
+	boolean_t		is_extract, is_dollar_char;
 	PhysicalPlan		*cur_plan;
 
         /* Note: The callers should pass a column, not a column list alias.
@@ -125,16 +125,19 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	}
 	keyword = get_keyword(column, OPTIONAL_EXTRACT);
 	if (NULL == keyword) {
+		is_extract = FALSE;
 		keyword = get_keyword(column, OPTIONAL_SOURCE);
 		if (NULL == keyword) {
 			UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
 		}
-		skip_dollar_piece = (is_trigger || (NULL == piece));
 	} else {
-		skip_dollar_piece = TRUE;
+		assert(NULL == piece);
+		is_extract = TRUE;
 	}
 	UNPACK_SQL_STATEMENT(value, keyword->v, value);
 	source = value->v.string_literal;
+
+	/* A column cannot be a piece and an extract column at the same time */
 
 	if (!is_trigger) {
 		if (!dot_count) {
@@ -147,17 +150,26 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 			 */
 		}
 	}
-	if (!skip_dollar_piece) {
-		%{}$PIECE($GET({}%
+
+	/* All non-extract references get $GET. Add $PIECE for if piece number specified. */
+	if (!is_trigger && !is_extract) {
+		if (NULL != piece) {
+			%{}$PIECE({}%
+		}
+		%{}$GET({}%
 	}
 	TMPL(tmpl_emit_source, table, source, table_name, table_alias->unique_id, MAX_KEY_COUNT,	\
 				(is_trigger ? EmitSourceForm_Trigger : EmitSourceForm_Value));
 	if (!is_trigger) {
-		if (!skip_dollar_piece) {
-			if (is_dollar_char) {
-				%{}),{{ delim }},{{ piece }}){}%
-			} else {
-				%{}),"{{ delim }}",{{ piece }}){}%
+		if (!is_extract) {
+			if (NULL != piece) {
+				if (is_dollar_char) {
+					%{}),{{ delim }},{{ piece }}){}%
+				} else {
+					%{}),"{{ delim }}",{{ piece }}){}%
+				}
+			} else { /* DELIM "" case need closing paren to $GET */
+				%{}){}%
 			}
 		}
 		if (dot_count) {

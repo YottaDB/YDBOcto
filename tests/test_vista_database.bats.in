@@ -131,3 +131,8 @@ setup() {
 	load_fixture TVD0004.sql subtest novv
 	verify_output TVD0004 output.txt
 }
+
+@test "TVD0005 : OCTO761, YDBOctoVistA#7 Refactoring Extract Fields to use DELIM \"\"" {
+	load_fixture TVD0005.sql subtest novv
+	verify_output TVD0005 output.txt
+}

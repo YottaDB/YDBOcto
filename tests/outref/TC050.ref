@@ -1,0 +1,22 @@
+# Run query with extract fields that previously crashed
+CREATE TABLE delim_null (
+        ID NUMERIC PRIMARY KEY START 0 ENDPOINT '" "',
+        P01 CHARACTER(30) NOT NULL GLOBAL "^DELIMNULL(keys(""ID""),0)" PIECE 1,
+        P02 CHARACTER(30) GLOBAL "^DELIMNULL(keys(""ID""),0)" PIECE 2,
+        P11 CHARACTER(30) GLOBAL "^DELIMNULL(keys(""ID""),1)" PIECE 1,
+        P12 CHARACTER(30) GLOBAL "^DELIMNULL(keys(""ID""),1)" PIECE 2,
+        E2  CHARACTER(30) GLOBAL "^DELIMNULL(keys(""ID""),2)" DELIM ""
+) GLOBAL "^DELIMNULL(keys(""ID""))";
+select * from delim_null;
+CREATE TABLE
+ID|P01|P02|P11|P12|E2
+1|1P01|1P02|||1E2|||||
+2|2P01|2P02|||
+(2 rows)
+
+# Verify that PIECE keyword is ignored if EXTRACT is specified
+CREATE TABLE tmp (id INTEGER PRIMARY KEY, datetime VARCHAR PIECE 2 EXTRACT "$HOROLOG");
+SELECT * FROM tmp;
+CREATE TABLE
+ID|DATETIME
+(0 rows)

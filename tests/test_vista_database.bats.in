@@ -136,3 +136,8 @@ setup() {
 	load_fixture TVD0005.sql subtest novv
 	verify_output TVD0005 output.txt
 }
+
+@test "TVD0006 : YDBOctoVistA#7 Refactoring Word Processing Extract Fields to use DELIM \"\"" {
+	load_fixture TVD0006.sql subtest novv
+	verify_output TVD0006 output.txt
+}

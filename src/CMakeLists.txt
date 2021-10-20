@@ -144,7 +144,6 @@ add_library(libocto OBJECT
   auto_upgrade_plan_definition_if_needed.c
   check_column_lists_for_type_match.c
   cleanup_tables.c
-  columns_equal.c
   columns_to_column_list_alias.c
   compress_statement.c
   copy_column_list_alias_list.c
@@ -292,9 +291,7 @@ add_library(libocto OBJECT
   store_plandirs_gvn.c
   store_table_definition.c
   store_table_in_pg_class.c
-  tables_equal.c
   traverse_where_clause.c
-  values_equal.c
   ydb_error_check.c
   ydb_hash_to_string.c
   yyerror.c

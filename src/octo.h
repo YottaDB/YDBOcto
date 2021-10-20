@@ -921,13 +921,6 @@ char *get_parameter_from_pg_settings(char **variable, ydb_buffer_t *out);
 int64_t	  create_cursor(ydb_buffer_t *schema_global, ydb_buffer_t *cursor_buffer);
 boolean_t is_query_canceled(callback_fnptr_t callback);
 
-/**
- * Returns TRUE if the columns are equal, FALSE otherwise
- */
-int columns_equal(SqlColumn *a, SqlColumn *b);
-int tables_equal(SqlTable *a, SqlTable *b);
-int values_equal(SqlValue *a, SqlValue *b);
-
 /* Loads default runtime parameter settings into `pg_catalog.pg_settings`.
  * Needed for SET/SHOW commands to work properly.
  */

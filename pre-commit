@@ -40,11 +40,12 @@ foreach file ($filelist)
 		echo "note: automatically committing copyright updates to $file"
 		# Preserve the original file permissions
 		chmod --reference=$file $tempfile
-		mv $tempfile $file
+		cp $tempfile $file
 		git add $file
 	else if ($copyright_status != 0) then
 		set fixlist = "$fixlist $file"
 	endif
+	rm $tempfile
 end
 if ("" != "$fixlist") then
 	echo "  --> Hook $0 returned non-zero status"
@@ -118,7 +119,7 @@ foreach file ($filelist)
 	set fixlist = ""
 	if ( "c" == "$extension" || "h" == "$extension" ) then
 		"$CLANG_FORMAT" -i "$file"
-		# Check if there a changes that are unstaged (as opposed to staged and uncommitted)
+		# Check if there are unstaged changes (as opposed to staged and uncommitted)
 		git diff-files --exit-code --name-only -- "$file" >/dev/null
 		if ($status) then
 			git add "$file"

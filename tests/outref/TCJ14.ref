@@ -1,0 +1,14 @@
+# Run cross check on one query.
+PASS : cross check
+# Verify that CROSS JOIN reordering happened INDEPENDENTLY in each of the 2 DNF plans
+# Capture key parts of the physical plan in reference file that verifies this.
+# We expect N1 cross reference to be used in first DNF plan.
+# And we expect N2 cross reference to be used in the second DNF plan.
+;  SELECT * FROM names n1, names n2                   WHERE (n1.lastname IS NULL) OR  (n2.lastname IS NULL);
+octoPlan0(cursorId,wrapInTp)
+    DO octoPlan1(cursorId)
+    DO octoPlan2(cursorId)
+octoPlan1(cursorId)
+    SET %ydboctocursor(cursorId,"keys",1,"NAMES","LASTNAME")=%ydboctoexpr IF $DATA(^%ydboctoxref("NAMES","LASTNAME","")) DO
+octoPlan2(cursorId)
+    SET %ydboctocursor(cursorId,"keys",2,"NAMES","LASTNAME")=%ydboctoexpr IF $DATA(^%ydboctoxref("NAMES","LASTNAME","")) DO

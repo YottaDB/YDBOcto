@@ -18,19 +18,43 @@ TEMPLATE(tmpl_duplication_check, PhysicalPlan *pplan) {
 	unsigned int	i;
 	int		output_key_id;
 	SqlKey		*key;
+	PhysicalPlan	*first_dnf_pplan;
 
-	// Emit this as a series of keys (we do not choose key,value pairs to reduce the chances of a MAXNRSUBSCRIPTS error)
-	// Composite keys will be fine because they will be consistently represented
-	// Skip cross reference keys, since those will vary; they still have all the
-	// required keys, in order, under them anyway
+	/* Check if this plan is one of many sibling plans each corresponding to a term in the DNF expansion of the WHERE
+	 * clause (that contains at least one OR operator). In that case, note that each plan could have had the tables in
+	 * its FROM/JOIN list reordered independent of its other sibling plans. The check for duplicate keys that happens
+	 * below is based on the primary keys which are derived from the key columns in the order of the tables in the
+	 * FROM/JOIN list involved. Because this check should be consistent across each of the sibling plans, for every such
+	 * plan, we find its leftmost/first DNF sibling plan and use the keys in order from that plan. Hence the need for
+	 * the "first_dnf_pplan" variable.
+	 */
+	first_dnf_pplan = pplan;
+	do {
+		if (NULL == first_dnf_pplan->dnf_prev) {
+			break;
+		}
+		assert(((NULL == pplan->outputKey) && (NULL == first_dnf_pplan->outputKey))
+			|| ((NULL != pplan->outputKey) && (NULL != first_dnf_pplan->outputKey)
+				&& (pplan->outputKey->unique_id == first_dnf_pplan->outputKey->unique_id)));
+		first_dnf_pplan = first_dnf_pplan->dnf_prev;
+	} while (TRUE);
+	/* Emit this as a series of keys (we do not choose key,value pairs to reduce the chances of a MAXNRSUBSCRIPTS error).
+	 * Composite keys will be fine because they will be consistently represented.
+	 * Skip cross reference keys, since those will vary; they still have all the required keys, in order, under them anyway.
+	 * Note that "pplan" and "first_dnf_pplan" can be used interchangeably in the below line because of the "outputKey"
+	 * asserts done above. We use "pplan" because it is the currently being processed physical plan.
+	 */
 	output_key_id = ((NULL != pplan->outputKey) ? pplan->outputKey->unique_id : ZERO_OUTPUT_KEY_ID);
 	%{}{{ PP_YDB_OCTO_ZDUPLICATE }}({{ output_key_id|%d }}{}%
-	for (i = 0; i < pplan->total_iter_keys; i++) {
-		key = pplan->iterKeys[i];
+	for (i = 0; i < first_dnf_pplan->total_iter_keys; i++) {
+		key = first_dnf_pplan->iterKeys[i];
 		if (key->is_cross_reference_key)
 			continue;
 		%{},{}%
 		/* Check if the table owning this key has all columns set to be treated as NULL (as part of an OUTER JOIN) */
+		/* Note that we should use "pplan" (currently processed physical plan) below and not "first_pplan" whose
+		 * processing is most likely done at this point and whose "treat_key_as_null" array contains arbitrary values.
+		 */
 		if (!pplan->treat_key_as_null[key->unique_id]) {
 			TMPL(tmpl_key, key);
 		} else {

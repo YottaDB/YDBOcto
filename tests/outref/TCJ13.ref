@@ -1,0 +1,127 @@
+# Run cross check on one query. It used to take 15 minutes to run.
+# It runs in less than a second after the YDBOcto#769 fixes.
+# We do not do actual time verification. But expect us to notice a regression right away since
+# this test would then take 900 seconds to run and be seen in the pipeline as an outlier.
+PASS : cross check
+# Verify generated plan to see CROSS JOIN reordering happened as expected.
+# Tables were specified in FROM clause in the order           : T3, T6, T8, T2, T5, T9, T4
+# But they are expected to be reordered after optimization as : T3, T2, T5, T9, T4, T8, T6
+# Capture key parts of the physical plan in reference file that verifies this.
+;  SELECT e6, e8+376, x4, x9, e5*680, d2+210, d3
+;    FROM t3, t6, t8, t2, t5, t9, t4
+;   WHERE (18=c5 OR c5=31 OR 915=c5)
+;     AND (b4=810 OR b4=849 OR 653=b4 OR b4=288)
+;     AND a2 in (543,324,253)
+;     AND a3 in (651,964,197,234,995,364,478)
+;     AND c9 in (126,992,732,811,327,800,87)
+;     AND e8=a5
+;     AND d6=d9
+octoPlan0(cursorId,wrapInTp)
+    DO octoPlan1(cursorId)
+    DO octoPlan2(cursorId)
+    DO octoPlan3(cursorId)
+    DO octoPlan4(cursorId)
+    DO octoPlan5(cursorId)
+    DO octoPlan6(cursorId)
+    DO octoPlan7(cursorId)
+    DO octoPlan8(cursorId)
+    DO octoPlan9(cursorId)
+    DO octoPlan10(cursorId)
+    DO octoPlan11(cursorId)
+    DO octoPlan12(cursorId)
+octoPlan1(cursorId)
+    . SET %ydboctocursor(cursorId,"keys",1,"T3","A3")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"T3","A3")) IF $DATA(^%ydboctoxref("T3","A3",%ydboctocursor(cursorId,"keys",1,"T3","A3"))) DO
+    . . . . SET %ydboctocursor(cursorId,"keys",4,"T2","A2")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",4,"T2","A2")) IF $DATA(^%ydboctoxref("T2","A2",%ydboctocursor(cursorId,"keys",4,"T2","A2"))) DO
+    . . . . . . SET %ydboctocursor(cursorId,"keys",5,"T5","C5")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",5,"T5","C5")) IF $DATA(^%ydboctoxref("T5","C5",%ydboctocursor(cursorId,"keys",5,"T5","C5"))) DO
+    . . . . . . . . . SET %ydboctocursor(cursorId,"keys",6,"T9","C9")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",6,"T9","C9")) IF $DATA(^%ydboctoxref("T9","C9",%ydboctocursor(cursorId,"keys",6,"T9","C9"))) DO
+    . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",7,"T4","B4")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",7,"T4","B4")) IF $DATA(^%ydboctoxref("T4","B4",%ydboctocursor(cursorId,"keys",7,"T4","B4"))) DO
+    . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"T8","E8")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"T8","E8")) IF $DATA(^%ydboctoxref("T8","E8",%ydboctocursor(cursorId,"keys",3,"T8","E8"))) DO
+    . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"T6","D6")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"T6","D6")) IF $DATA(^%ydboctoxref("T6","D6",%ydboctocursor(cursorId,"keys",2,"T6","D6"))) DO
+octoPlan2(cursorId)
+    . SET %ydboctocursor(cursorId,"keys",1,"T3","A3")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"T3","A3")) IF $DATA(^%ydboctoxref("T3","A3",%ydboctocursor(cursorId,"keys",1,"T3","A3"))) DO
+    . . . . SET %ydboctocursor(cursorId,"keys",4,"T2","A2")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",4,"T2","A2")) IF $DATA(^%ydboctoxref("T2","A2",%ydboctocursor(cursorId,"keys",4,"T2","A2"))) DO
+    . . . . . . SET %ydboctocursor(cursorId,"keys",5,"T5","C5")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",5,"T5","C5")) IF $DATA(^%ydboctoxref("T5","C5",%ydboctocursor(cursorId,"keys",5,"T5","C5"))) DO
+    . . . . . . . . . SET %ydboctocursor(cursorId,"keys",6,"T9","C9")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",6,"T9","C9")) IF $DATA(^%ydboctoxref("T9","C9",%ydboctocursor(cursorId,"keys",6,"T9","C9"))) DO
+    . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",7,"T4","B4")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",7,"T4","B4")) IF $DATA(^%ydboctoxref("T4","B4",%ydboctocursor(cursorId,"keys",7,"T4","B4"))) DO
+    . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"T8","E8")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"T8","E8")) IF $DATA(^%ydboctoxref("T8","E8",%ydboctocursor(cursorId,"keys",3,"T8","E8"))) DO
+    . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"T6","D6")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"T6","D6")) IF $DATA(^%ydboctoxref("T6","D6",%ydboctocursor(cursorId,"keys",2,"T6","D6"))) DO
+octoPlan3(cursorId)
+    . SET %ydboctocursor(cursorId,"keys",1,"T3","A3")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"T3","A3")) IF $DATA(^%ydboctoxref("T3","A3",%ydboctocursor(cursorId,"keys",1,"T3","A3"))) DO
+    . . . . SET %ydboctocursor(cursorId,"keys",4,"T2","A2")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",4,"T2","A2")) IF $DATA(^%ydboctoxref("T2","A2",%ydboctocursor(cursorId,"keys",4,"T2","A2"))) DO
+    . . . . . . SET %ydboctocursor(cursorId,"keys",5,"T5","C5")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",5,"T5","C5")) IF $DATA(^%ydboctoxref("T5","C5",%ydboctocursor(cursorId,"keys",5,"T5","C5"))) DO
+    . . . . . . . . . SET %ydboctocursor(cursorId,"keys",6,"T9","C9")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",6,"T9","C9")) IF $DATA(^%ydboctoxref("T9","C9",%ydboctocursor(cursorId,"keys",6,"T9","C9"))) DO
+    . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",7,"T4","B4")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",7,"T4","B4")) IF $DATA(^%ydboctoxref("T4","B4",%ydboctocursor(cursorId,"keys",7,"T4","B4"))) DO
+    . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"T8","E8")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"T8","E8")) IF $DATA(^%ydboctoxref("T8","E8",%ydboctocursor(cursorId,"keys",3,"T8","E8"))) DO
+    . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"T6","D6")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"T6","D6")) IF $DATA(^%ydboctoxref("T6","D6",%ydboctocursor(cursorId,"keys",2,"T6","D6"))) DO
+octoPlan4(cursorId)
+    . SET %ydboctocursor(cursorId,"keys",1,"T3","A3")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"T3","A3")) IF $DATA(^%ydboctoxref("T3","A3",%ydboctocursor(cursorId,"keys",1,"T3","A3"))) DO
+    . . . . SET %ydboctocursor(cursorId,"keys",4,"T2","A2")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",4,"T2","A2")) IF $DATA(^%ydboctoxref("T2","A2",%ydboctocursor(cursorId,"keys",4,"T2","A2"))) DO
+    . . . . . . SET %ydboctocursor(cursorId,"keys",5,"T5","C5")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",5,"T5","C5")) IF $DATA(^%ydboctoxref("T5","C5",%ydboctocursor(cursorId,"keys",5,"T5","C5"))) DO
+    . . . . . . . . . SET %ydboctocursor(cursorId,"keys",6,"T9","C9")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",6,"T9","C9")) IF $DATA(^%ydboctoxref("T9","C9",%ydboctocursor(cursorId,"keys",6,"T9","C9"))) DO
+    . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",7,"T4","B4")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",7,"T4","B4")) IF $DATA(^%ydboctoxref("T4","B4",%ydboctocursor(cursorId,"keys",7,"T4","B4"))) DO
+    . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"T8","E8")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"T8","E8")) IF $DATA(^%ydboctoxref("T8","E8",%ydboctocursor(cursorId,"keys",3,"T8","E8"))) DO
+    . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"T6","D6")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"T6","D6")) IF $DATA(^%ydboctoxref("T6","D6",%ydboctocursor(cursorId,"keys",2,"T6","D6"))) DO
+octoPlan5(cursorId)
+    . SET %ydboctocursor(cursorId,"keys",1,"T3","A3")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"T3","A3")) IF $DATA(^%ydboctoxref("T3","A3",%ydboctocursor(cursorId,"keys",1,"T3","A3"))) DO
+    . . . . SET %ydboctocursor(cursorId,"keys",4,"T2","A2")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",4,"T2","A2")) IF $DATA(^%ydboctoxref("T2","A2",%ydboctocursor(cursorId,"keys",4,"T2","A2"))) DO
+    . . . . . . SET %ydboctocursor(cursorId,"keys",5,"T5","C5")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",5,"T5","C5")) IF $DATA(^%ydboctoxref("T5","C5",%ydboctocursor(cursorId,"keys",5,"T5","C5"))) DO
+    . . . . . . . . . SET %ydboctocursor(cursorId,"keys",6,"T9","C9")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",6,"T9","C9")) IF $DATA(^%ydboctoxref("T9","C9",%ydboctocursor(cursorId,"keys",6,"T9","C9"))) DO
+    . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",7,"T4","B4")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",7,"T4","B4")) IF $DATA(^%ydboctoxref("T4","B4",%ydboctocursor(cursorId,"keys",7,"T4","B4"))) DO
+    . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"T8","E8")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"T8","E8")) IF $DATA(^%ydboctoxref("T8","E8",%ydboctocursor(cursorId,"keys",3,"T8","E8"))) DO
+    . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"T6","D6")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"T6","D6")) IF $DATA(^%ydboctoxref("T6","D6",%ydboctocursor(cursorId,"keys",2,"T6","D6"))) DO
+octoPlan6(cursorId)
+    . SET %ydboctocursor(cursorId,"keys",1,"T3","A3")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"T3","A3")) IF $DATA(^%ydboctoxref("T3","A3",%ydboctocursor(cursorId,"keys",1,"T3","A3"))) DO
+    . . . . SET %ydboctocursor(cursorId,"keys",4,"T2","A2")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",4,"T2","A2")) IF $DATA(^%ydboctoxref("T2","A2",%ydboctocursor(cursorId,"keys",4,"T2","A2"))) DO
+    . . . . . . SET %ydboctocursor(cursorId,"keys",5,"T5","C5")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",5,"T5","C5")) IF $DATA(^%ydboctoxref("T5","C5",%ydboctocursor(cursorId,"keys",5,"T5","C5"))) DO
+    . . . . . . . . . SET %ydboctocursor(cursorId,"keys",6,"T9","C9")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",6,"T9","C9")) IF $DATA(^%ydboctoxref("T9","C9",%ydboctocursor(cursorId,"keys",6,"T9","C9"))) DO
+    . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",7,"T4","B4")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",7,"T4","B4")) IF $DATA(^%ydboctoxref("T4","B4",%ydboctocursor(cursorId,"keys",7,"T4","B4"))) DO
+    . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"T8","E8")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"T8","E8")) IF $DATA(^%ydboctoxref("T8","E8",%ydboctocursor(cursorId,"keys",3,"T8","E8"))) DO
+    . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"T6","D6")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"T6","D6")) IF $DATA(^%ydboctoxref("T6","D6",%ydboctocursor(cursorId,"keys",2,"T6","D6"))) DO
+octoPlan7(cursorId)
+    . SET %ydboctocursor(cursorId,"keys",1,"T3","A3")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"T3","A3")) IF $DATA(^%ydboctoxref("T3","A3",%ydboctocursor(cursorId,"keys",1,"T3","A3"))) DO
+    . . . . SET %ydboctocursor(cursorId,"keys",4,"T2","A2")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",4,"T2","A2")) IF $DATA(^%ydboctoxref("T2","A2",%ydboctocursor(cursorId,"keys",4,"T2","A2"))) DO
+    . . . . . . SET %ydboctocursor(cursorId,"keys",5,"T5","C5")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",5,"T5","C5")) IF $DATA(^%ydboctoxref("T5","C5",%ydboctocursor(cursorId,"keys",5,"T5","C5"))) DO
+    . . . . . . . . . SET %ydboctocursor(cursorId,"keys",6,"T9","C9")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",6,"T9","C9")) IF $DATA(^%ydboctoxref("T9","C9",%ydboctocursor(cursorId,"keys",6,"T9","C9"))) DO
+    . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",7,"T4","B4")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",7,"T4","B4")) IF $DATA(^%ydboctoxref("T4","B4",%ydboctocursor(cursorId,"keys",7,"T4","B4"))) DO
+    . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"T8","E8")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"T8","E8")) IF $DATA(^%ydboctoxref("T8","E8",%ydboctocursor(cursorId,"keys",3,"T8","E8"))) DO
+    . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"T6","D6")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"T6","D6")) IF $DATA(^%ydboctoxref("T6","D6",%ydboctocursor(cursorId,"keys",2,"T6","D6"))) DO
+octoPlan8(cursorId)
+    . SET %ydboctocursor(cursorId,"keys",1,"T3","A3")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"T3","A3")) IF $DATA(^%ydboctoxref("T3","A3",%ydboctocursor(cursorId,"keys",1,"T3","A3"))) DO
+    . . . . SET %ydboctocursor(cursorId,"keys",4,"T2","A2")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",4,"T2","A2")) IF $DATA(^%ydboctoxref("T2","A2",%ydboctocursor(cursorId,"keys",4,"T2","A2"))) DO
+    . . . . . . SET %ydboctocursor(cursorId,"keys",5,"T5","C5")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",5,"T5","C5")) IF $DATA(^%ydboctoxref("T5","C5",%ydboctocursor(cursorId,"keys",5,"T5","C5"))) DO
+    . . . . . . . . . SET %ydboctocursor(cursorId,"keys",6,"T9","C9")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",6,"T9","C9")) IF $DATA(^%ydboctoxref("T9","C9",%ydboctocursor(cursorId,"keys",6,"T9","C9"))) DO
+    . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",7,"T4","B4")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",7,"T4","B4")) IF $DATA(^%ydboctoxref("T4","B4",%ydboctocursor(cursorId,"keys",7,"T4","B4"))) DO
+    . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"T8","E8")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"T8","E8")) IF $DATA(^%ydboctoxref("T8","E8",%ydboctocursor(cursorId,"keys",3,"T8","E8"))) DO
+    . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"T6","D6")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"T6","D6")) IF $DATA(^%ydboctoxref("T6","D6",%ydboctocursor(cursorId,"keys",2,"T6","D6"))) DO
+octoPlan9(cursorId)
+    . SET %ydboctocursor(cursorId,"keys",1,"T3","A3")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"T3","A3")) IF $DATA(^%ydboctoxref("T3","A3",%ydboctocursor(cursorId,"keys",1,"T3","A3"))) DO
+    . . . . SET %ydboctocursor(cursorId,"keys",4,"T2","A2")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",4,"T2","A2")) IF $DATA(^%ydboctoxref("T2","A2",%ydboctocursor(cursorId,"keys",4,"T2","A2"))) DO
+    . . . . . . SET %ydboctocursor(cursorId,"keys",5,"T5","C5")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",5,"T5","C5")) IF $DATA(^%ydboctoxref("T5","C5",%ydboctocursor(cursorId,"keys",5,"T5","C5"))) DO
+    . . . . . . . . . SET %ydboctocursor(cursorId,"keys",6,"T9","C9")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",6,"T9","C9")) IF $DATA(^%ydboctoxref("T9","C9",%ydboctocursor(cursorId,"keys",6,"T9","C9"))) DO
+    . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",7,"T4","B4")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",7,"T4","B4")) IF $DATA(^%ydboctoxref("T4","B4",%ydboctocursor(cursorId,"keys",7,"T4","B4"))) DO
+    . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"T8","E8")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"T8","E8")) IF $DATA(^%ydboctoxref("T8","E8",%ydboctocursor(cursorId,"keys",3,"T8","E8"))) DO
+    . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"T6","D6")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"T6","D6")) IF $DATA(^%ydboctoxref("T6","D6",%ydboctocursor(cursorId,"keys",2,"T6","D6"))) DO
+octoPlan10(cursorId)
+    . SET %ydboctocursor(cursorId,"keys",1,"T3","A3")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"T3","A3")) IF $DATA(^%ydboctoxref("T3","A3",%ydboctocursor(cursorId,"keys",1,"T3","A3"))) DO
+    . . . . SET %ydboctocursor(cursorId,"keys",4,"T2","A2")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",4,"T2","A2")) IF $DATA(^%ydboctoxref("T2","A2",%ydboctocursor(cursorId,"keys",4,"T2","A2"))) DO
+    . . . . . . SET %ydboctocursor(cursorId,"keys",5,"T5","C5")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",5,"T5","C5")) IF $DATA(^%ydboctoxref("T5","C5",%ydboctocursor(cursorId,"keys",5,"T5","C5"))) DO
+    . . . . . . . . . SET %ydboctocursor(cursorId,"keys",6,"T9","C9")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",6,"T9","C9")) IF $DATA(^%ydboctoxref("T9","C9",%ydboctocursor(cursorId,"keys",6,"T9","C9"))) DO
+    . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",7,"T4","B4")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",7,"T4","B4")) IF $DATA(^%ydboctoxref("T4","B4",%ydboctocursor(cursorId,"keys",7,"T4","B4"))) DO
+    . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"T8","E8")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"T8","E8")) IF $DATA(^%ydboctoxref("T8","E8",%ydboctocursor(cursorId,"keys",3,"T8","E8"))) DO
+    . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"T6","D6")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"T6","D6")) IF $DATA(^%ydboctoxref("T6","D6",%ydboctocursor(cursorId,"keys",2,"T6","D6"))) DO
+octoPlan11(cursorId)
+    . SET %ydboctocursor(cursorId,"keys",1,"T3","A3")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"T3","A3")) IF $DATA(^%ydboctoxref("T3","A3",%ydboctocursor(cursorId,"keys",1,"T3","A3"))) DO
+    . . . . SET %ydboctocursor(cursorId,"keys",4,"T2","A2")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",4,"T2","A2")) IF $DATA(^%ydboctoxref("T2","A2",%ydboctocursor(cursorId,"keys",4,"T2","A2"))) DO
+    . . . . . . SET %ydboctocursor(cursorId,"keys",5,"T5","C5")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",5,"T5","C5")) IF $DATA(^%ydboctoxref("T5","C5",%ydboctocursor(cursorId,"keys",5,"T5","C5"))) DO
+    . . . . . . . . . SET %ydboctocursor(cursorId,"keys",6,"T9","C9")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",6,"T9","C9")) IF $DATA(^%ydboctoxref("T9","C9",%ydboctocursor(cursorId,"keys",6,"T9","C9"))) DO
+    . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",7,"T4","B4")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",7,"T4","B4")) IF $DATA(^%ydboctoxref("T4","B4",%ydboctocursor(cursorId,"keys",7,"T4","B4"))) DO
+    . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"T8","E8")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"T8","E8")) IF $DATA(^%ydboctoxref("T8","E8",%ydboctocursor(cursorId,"keys",3,"T8","E8"))) DO
+    . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"T6","D6")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"T6","D6")) IF $DATA(^%ydboctoxref("T6","D6",%ydboctocursor(cursorId,"keys",2,"T6","D6"))) DO
+octoPlan12(cursorId)
+    . SET %ydboctocursor(cursorId,"keys",1,"T3","A3")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"T3","A3")) IF $DATA(^%ydboctoxref("T3","A3",%ydboctocursor(cursorId,"keys",1,"T3","A3"))) DO
+    . . . . SET %ydboctocursor(cursorId,"keys",4,"T2","A2")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",4,"T2","A2")) IF $DATA(^%ydboctoxref("T2","A2",%ydboctocursor(cursorId,"keys",4,"T2","A2"))) DO
+    . . . . . . SET %ydboctocursor(cursorId,"keys",5,"T5","C5")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",5,"T5","C5")) IF $DATA(^%ydboctoxref("T5","C5",%ydboctocursor(cursorId,"keys",5,"T5","C5"))) DO
+    . . . . . . . . . SET %ydboctocursor(cursorId,"keys",6,"T9","C9")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",6,"T9","C9")) IF $DATA(^%ydboctoxref("T9","C9",%ydboctocursor(cursorId,"keys",6,"T9","C9"))) DO
+    . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",7,"T4","B4")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",7,"T4","B4")) IF $DATA(^%ydboctoxref("T4","B4",%ydboctocursor(cursorId,"keys",7,"T4","B4"))) DO
+    . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"T8","E8")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"T8","E8")) IF $DATA(^%ydboctoxref("T8","E8",%ydboctocursor(cursorId,"keys",3,"T8","E8"))) DO
+    . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"T6","D6")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"T6","D6")) IF $DATA(^%ydboctoxref("T6","D6",%ydboctocursor(cursorId,"keys",2,"T6","D6"))) DO

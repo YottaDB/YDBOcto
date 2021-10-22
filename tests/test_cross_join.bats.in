@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -117,5 +117,36 @@ OCTO
 
 @test "TCJ12 : OCTO652 : Incorrect results if CROSS JOIN is used with OR operator in the WHERE clause" {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCJ12.sql
+}
+
+@test "TCJ13 : OCTO769 : Speed up CROSS JOIN by rearranging FROM/JOIN even if OR is used in WHERE clause" {
+	load_fixture sqllogic4.sql
+	load_fixture sqllogic4.zwr
+	echo "# Run cross check on one query. It used to take 15 minutes to run." >> output.txt
+	echo "# It runs in less than a second after the YDBOcto#769 fixes." >> output.txt
+	echo "# We do not do actual time verification. But expect us to notice a regression right away since" >> output.txt
+	echo "# this test would then take 900 seconds to run and be seen in the pipeline as an outlier." >> output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries sqllogic4 TCJ13.sql
+	# If we reached here, it means the above cross check succeeded so note that in the reference file.
+	echo "PASS : cross check" >> output.txt
+	echo "# Verify generated plan to see CROSS JOIN reordering happened as expected." >> output.txt
+	echo "# Tables were specified in FROM clause in the order           : T3, T6, T8, T2, T5, T9, T4" >> output.txt
+	echo "# But they are expected to be reordered after optimization as : T3, T2, T5, T9, T4, T8, T6" >> output.txt
+	echo "# Capture key parts of the physical plan in reference file that verifies this." >> output.txt
+	grep -E "octoPlan|SELECT|FROM|WHERE|AND|DATA\(\^\%ydboctoxref" _ydboctoP*.m >> output.txt
+	verify_output TCJ13 output.txt
+}
+
+@test "TCJ14 : OCTO769 : Verify CROSS JOIN reordering optimization happens INDEPENDENTLY in each plan if OR is used in WHERE clause" {
+	echo "# Run cross check on one query." >> output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCJ14.sql
+	# If we reached here, it means the above cross check succeeded so note that in the reference file.
+	echo "PASS : cross check" >> output.txt
+	echo "# Verify that CROSS JOIN reordering happened INDEPENDENTLY in each of the 2 DNF plans" >> output.txt
+	echo "# Capture key parts of the physical plan in reference file that verifies this." >> output.txt
+	echo "# We expect N1 cross reference to be used in first DNF plan." >> output.txt
+	echo "# And we expect N2 cross reference to be used in the second DNF plan." >> output.txt
+	grep -E "octoPlan|SELECT|DATA\(\^\%ydboctoxref" _ydboctoP*.m >> output.txt
+	verify_output TCJ14 output.txt
 }
 

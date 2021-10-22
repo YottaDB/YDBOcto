@@ -164,7 +164,7 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 				/* This needed target table column is not available in the source query select column list.
 				 * For now, treat it as NULL. Later when support for DEFAULT is added, we should set
 				 * this to that DEFAULT value if one is defined for this column.
-				 * TODO: YDBOcto#555, YDBOcto#502.
+				 * TODO: YDBOcto#555.
 				 */
 				%{}$ZYSQLNULL{}%
 			}

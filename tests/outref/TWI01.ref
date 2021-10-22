@@ -29,12 +29,12 @@ octoPlan1(cursorId)
     SET %ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME")) IF $DATA(^%ydboctoxref("NAMES","FIRSTNAME",%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME"))) DO
     . SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=""
     . FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$ORDER(^%ydboctoxref("NAMES","FIRSTNAME",%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME"),%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")="")  DO
-    . . SET %ydboctoexpr=1
-    . . SET %ydboctoexpr=%ydboctoexpr&('$DATA(%ydboctozduplicate(5,%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))))
-    . . DO:%ydboctoexpr
-    . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME")
-    . . . IF $INCREMENT(%ydboctocursor(cursorId,"keys",5,"","",%ydboctoexpr))
-    . . . SET %ydboctozduplicate(5,%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))=1
+    . . DO:'$DATA(%ydboctozduplicate(5,%ydboctocursor(cursorId,"keys",2,"NAMES","ID")))
+    . . . SET %ydboctoexpr=1
+    . . . DO:%ydboctoexpr
+    . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME")
+    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"keys",5,"","",%ydboctoexpr))
+    . . . . SET %ydboctozduplicate(5,%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))=1
     QUIT
 
 octoPlan2(cursorId)
@@ -44,12 +44,12 @@ octoPlan2(cursorId)
     SET %ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME")) IF $DATA(^%ydboctoxref("NAMES","FIRSTNAME",%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME"))) DO
     . SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=""
     . FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$ORDER(^%ydboctoxref("NAMES","FIRSTNAME",%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME"),%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")="")  DO
-    . . SET %ydboctoexpr=1
-    . . SET %ydboctoexpr=%ydboctoexpr&('$DATA(%ydboctozduplicate(5,%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))))
-    . . DO:%ydboctoexpr
-    . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME")
-    . . . IF $INCREMENT(%ydboctocursor(cursorId,"keys",5,"","",%ydboctoexpr))
-    . . . SET %ydboctozduplicate(5,%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))=1
+    . . DO:'$DATA(%ydboctozduplicate(5,%ydboctocursor(cursorId,"keys",2,"NAMES","ID")))
+    . . . SET %ydboctoexpr=1
+    . . . DO:%ydboctoexpr
+    . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME")
+    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"keys",5,"","",%ydboctoexpr))
+    . . . . SET %ydboctozduplicate(5,%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))=1
     KILL %ydboctozduplicate(5)
     QUIT
 

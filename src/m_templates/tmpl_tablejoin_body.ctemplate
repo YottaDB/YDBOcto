@@ -15,7 +15,7 @@
 #include "template_helpers.h"
 
 TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *pplan, int dot_count, char *tableName, char *columnName) {
-	boolean_t	distinct_processed, is_delete_from, is_update;
+	boolean_t	is_delete_from, is_update;
 
 	is_delete_from = (LP_DELETE_FROM == pplan->lp_select_query->type);
 	is_update = (LP_UPDATE == pplan->lp_select_query->type);
@@ -54,7 +54,20 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *pplan, int dot_count, char *tableNam
 		col1->v.lp_default.operand[1] = col2_onwards;	/* Make the 2nd column visible again */
 		return;
 	}
-	// Apply the conditions for this statement
+	/* Check if the currently processed row has already been processed and chosen as part of a previous sibling DNF plan
+	 * (possible if an OR was specified in the WHERE clause). If so, we can skip processing this row since it got already
+	 * chosen as part of processing another OR operand. Saves us time by not evaluating the WHERE clause unnecessarily.
+	 */
+	if (pplan->emit_duplication_check) {
+		// Ensure we don't emit duplicates
+		TMPL(tmpl_print_dots, dot_count);
+		%{}DO:'$DATA({}%
+		TMPL(tmpl_duplication_check, pplan);
+		%{}){}%
+		%{}`n{{ PLAN_LINE_START }}{}%
+		dot_count++;
+	}
+	/* Evaluate the WHERE clause (if any) */
 	TMPL(tmpl_print_dots, dot_count);
 	%{}SET {{ PP_YDB_OCTO_EXPR }}=1{}%
 	if (pplan->where && pplan->where->v.lp_default.operand[0]) {
@@ -63,7 +76,6 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *pplan, int dot_count, char *tableNam
 		%{}`n{{ PLAN_LINE_START }}{}%
 	}
 	// DISTINCT value processing (if needed)
-	distinct_processed = FALSE;
 	if (pplan->distinct_values) {
 		/* If this physical plan has a GROUP BY, then we will do DISTINCT processing in `tmpl_group_by` so skip that here */
 		if (!IS_GROUP_BY_PLAN(pplan)) {
@@ -73,22 +85,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *pplan, int dot_count, char *tableNam
 			TMPL(tmpl_column_list_combine, pplan->projection, pplan, ",", FALSE, 0, FALSE);
 			%{}))){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
-			distinct_processed = TRUE;
 		}
-	}
-	/* DUPLICATE value processing (if needed) i.e. OR was specified in WHERE clause.
-	 * Note: This is usually not needed if DISTINCT value processing was already done above (since DISTINCT and DUPLICATE
-	 * processing both avoid duplicates). But if GROUP BY has been specified, we would have skipped DISTINCT processing
-	 * above in which case we DO need to check for DUPLICATE processing. Hence the check below.
-	 */
-	if (!distinct_processed && pplan->emit_duplication_check) {
-		// Ensure we don't emit duplicates
-		TMPL(tmpl_print_dots, dot_count);
-		%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_EXPR }}&{}%
-		%{}('$DATA({}%
-		TMPL(tmpl_duplication_check, pplan);
-		%{})){}%
-		%{}`n{{ PLAN_LINE_START }}{}%
 	}
 	TMPL(tmpl_print_dots, dot_count);
 	%{}DO:{{ PP_YDB_OCTO_EXPR }}{}%

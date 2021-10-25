@@ -45,3 +45,13 @@ select * from TUT010;
 -- Test that UPDATE does not issue a false ERR_DUPLICATE_KEY_VALUE error if key column is modified to same value
 update TUT010 set id3 = id3 * 1, id7 = id7, id0 = id0 + 0;
 
+-- Test UPDATE does not issue ZYSQLNULLNOTVALID error (happened in an interim version of the code) when non-key
+-- columns are set to a NULL value (see https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/579#note_713264461)
+drop table if exists TUT010;
+create table TUT010 (id integer primary key, firstname varchar, lastname varchar);
+insert into TUT010 values (1, 'f1', 'l1'), (2, 'f2', 'l2'), (3, 'f3', 'l3'), (4, 'f4', 'l4'), (5, 'f5', 'l5');
+update TUT010 set firstname = NULL where id < 3;
+update TUT010 set lastname = NULL where id = 4;
+update TUT010 set firstname = NULL, lastname = NULL where id > 3;
+select * from TUT010;
+

@@ -40,11 +40,16 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 	GET_LP(lp_table, table_join, 0, LP_TABLE);
 	table_stmt = lp_table->v.lp_table.table_alias->table;
 	UNPACK_SQL_STATEMENT(table, table_stmt, create_table);
+	/* Store current node value in a local variable for later when we SET the global variable node value for the output row */
 	%{}SET {{ PP_YDB_OCTO_UPD }}={}%
 
 	SqlKey		*key;
 	assert(0 < pplan->total_iter_keys);
 	key = pplan->iterKeys[pplan->total_iter_keys - 1];
+	/* Note that we do not do a "$GET" before the "tmpl_key_source" call because this is* the UPDATE command and we are
+	 * guaranteed this runs in TP. In the case of other callers like "tmpl_column_reference.ctemplate", they could be invoked
+	 * even for a SELECT query in which case they are not guaranteed TP and hence need the "$GET" to avoid GVUNDEF errors.
+	 */
 	TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Value);
 
 	LogicalPlan	*lp_column_list;
@@ -92,6 +97,10 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 			} else {
 				%{}{{ PP_YDB_OCTO_UPD }}={}%
 			}
+			/* Need to convert column value (which could be $ZYQSLNULL) to a piece value (i.e. "") before it can
+			 * be used as the entire value or a piece of a global variable node (to avoid ZYSQLNULLNOTVALID errors).
+			 */
+			%{}$$colvalue2piecevalue^%%ydboctoplanhelpers({}%
 			/* Check if the column has size/precision/scale specified. If so, do checks/conversions as appropriate.
 			 * Currently the only 2 types that honor the size/precision/scale are STRING_TYPE and NUMERIC_TYPE.
 			 * So check for those below (similar code exists in "tmpl_insert_into.ctemplate").
@@ -101,7 +110,6 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 			case NUMERIC_TYPE:
 			case STRING_TYPE:
 				if (SIZE_OR_PRECISION_UNSPECIFIED != cur_column->data_type_struct.size_or_precision) {
-					%{}$$colvalue2piecevalue^%%ydboctoplanhelpers({}%
 					if (NUMERIC_TYPE == cur_column->data_type_struct.data_type) {
 						%{}$$Cast2NUMERIC^%%ydboctoplanhelpers({}%
 					} else {
@@ -142,12 +150,13 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 						assert(NUMERIC_TYPE == cur_column->data_type_struct.data_type);
 						%{},{{ cur_column->data_type_struct.scale|%d }}{}%
 					}
-					%{})){}%
+					%{}){}%
 				}
 				break;
 			default:
 				break;
 			}
+			%{}){}%	/* closing paren for $$colvalue2piecevalue^%ydboctoplanhelpers invocation above */
 		} else {
 			/* Check if key column value is NULL. If so issue an error */
 			%{}`n{{ PLAN_LINE_START }}{}%
@@ -184,7 +193,7 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 		%{}DO:({{ PP_YDB_OCTO_KEYCHNGD }})&$DATA({}%
 		TMPL(tmpl_key_source, pplan, key, EmitSourceForm_UpdateKeyCol);
 		%{}) DuplicateKeyValue^%%ydboctoplanhelpers({}%
-		/* A new row with duplicate primary keys is being created. Issue error.
+		/* If a new row with duplicate primary keys is being created, issue error.
 		 * TODO: Currently we don't support the UNIQUE constraint feature (YDBOcto#582).
 		 * When it is supported, duplicate primary keys will be just one type of UNIQUE constraint.
 		 * At that point in time, the below logic will need to be reworked/generalized.

@@ -139,25 +139,38 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 		}
 	}
 
+	boolean_t	skipped_dollar_get;
+	skipped_dollar_get = TRUE;
 	/* All non-extract references get $GET. Add $PIECE for if piece number specified. */
 	if (!is_trigger && !is_extract) {
 		if (NULL != piece) {
 			%{}$PIECE({}%
 		}
-		%{}$GET({}%
+		/* If the current query/command is guaranteed to be running inside TSTART/TCOMMIT fence, then we
+		 * do not need to wrap the database access around a "$GET" call. Otherwise we need to or else we
+		 * could encounter GVUNDEF errors due to concurrent updates after we did the "$ORDER" in the preceding
+		 * for loop but before we reach this database access point in the M code. The INSERT/UPDATE/DELETE
+		 * plans currently run inside a TP fence so we should be able to skip the "$GET" call for them.
+		 */
+		if (!IS_INSERT_INTO_PHYSICAL_PLAN(pplan) && !IS_DELETE_FROM_PHYSICAL_PLAN(pplan)	\
+				&& !IS_UPDATE_PHYSICAL_PLAN(pplan)) {
+			skipped_dollar_get = FALSE;
+			%{}$GET({}%
+		}
 	}
 	TMPL(tmpl_emit_source, table, source, table_name, table_alias->unique_id, MAX_KEY_COUNT,	\
 				(is_trigger ? EmitSourceForm_Trigger : EmitSourceForm_Value));
 	if (!is_trigger) {
 		if (!is_extract) {
+			if (!skipped_dollar_get) {
+				%{}){}%
+			}
 			if (NULL != piece) {
 				if (is_dollar_char) {
-					%{}),{{ delim }},{{ piece }}){}%
+					%{},{{ delim }},{{ piece }}){}%
 				} else {
-					%{}),"{{ delim }}",{{ piece }}){}%
+					%{},"{{ delim }}",{{ piece }}){}%
 				}
-			} else { /* DELIM "" case need closing paren to $GET */
-				%{}){}%
 			}
 		}
 		if (dot_count) {

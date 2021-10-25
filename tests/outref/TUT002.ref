@@ -116,7 +116,6 @@ _ydboctoP*.m:octoPlan1(cursorId)
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TUT002B","ID")=""
 _ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"TUT002B","ID")=$ORDER(^%ydboctoDeTIXYtFfRF5XCGws2uUI38(%ydboctocursor(cursorId,"keys",1,"TUT002B","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TUT002B","ID")="")  DO
-_ydboctoP*.m:    . . SET %ydboctoUPD=^%ydboctoDeTIXYtFfRF5XCGws2uUI38(%ydboctocursor(cursorId,"keys",1,"TUT002B","ID"))
 _ydboctoP*.m:    . . SET %ydboctoUPD=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers(($$piecevalue2colvalue^%ydboctoplanhelpers(^%ydboctoDeTIXYtFfRF5XCGws2uUI38(%ydboctocursor(cursorId,"keys",1,"TUT002B","ID")))_$GET(%ydboctocursor(cursorId,"parameters",1))),30))
 _ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoP*.m:;; ---------------------------------------------------------

@@ -23,9 +23,7 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 
 	lp_update = pplan->lp_select_query;
 	assert(LP_UPDATE == lp_update->type);
-	%{}`n{{ PLAN_LINE_START }}{}%
 	dot_count++;
-	TMPL(tmpl_print_dots, dot_count);
 	table_join = lp_get_table_join(lp_update);
 	if (LP_SELECT_QUERY == table_join->v.lp_default.operand[0]->type) {
 		/* This is a case where the LP_TABLE got overwritten by a LP_TABLE_JOIN as part of "lp_generate_xref_plan"
@@ -40,25 +38,21 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 	GET_LP(lp_table, table_join, 0, LP_TABLE);
 	table_stmt = lp_table->v.lp_table.table_alias->table;
 	UNPACK_SQL_STATEMENT(table, table_stmt, create_table);
-	/* Store current node value in a local variable for later when we SET the global variable node value for the output row */
-	%{}SET {{ PP_YDB_OCTO_UPD }}={}%
 
-	SqlKey		*key;
-	assert(0 < pplan->total_iter_keys);
-	key = pplan->iterKeys[pplan->total_iter_keys - 1];
-	/* Note that we do not do a "$GET" before the "tmpl_key_source" call because this is* the UPDATE command and we are
-	 * guaranteed this runs in TP. In the case of other callers like "tmpl_column_reference.ctemplate", they could be invoked
-	 * even for a SELECT query in which case they are not guaranteed TP and hence need the "$GET" to avoid GVUNDEF errors.
-	 */
-	TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Value);
-
-	LogicalPlan	*lp_column_list;
-	boolean_t	num_key_cols_in_set_clause = 0;
 	char		*tableName;
 	SqlValue	*value;
 	UNPACK_SQL_STATEMENT(value, table->tableName, value);
 	tableName = value->v.reference;
+
+	SqlKey		*key;
+	assert(0 < pplan->total_iter_keys);
+	key = pplan->iterKeys[pplan->total_iter_keys - 1];
+
+	int		num_key_cols_in_set_clause, node_value_fetched;
+	LogicalPlan	*lp_column_list;
 	GET_LP(lp_column_list, lp_update, 1, LP_COLUMN_LIST);
+	num_key_cols_in_set_clause = 0;
+	node_value_fetched = FALSE;
 	do {
 		LogicalPlan	*lp_upd_col_value, *lp_column, *lp_value;
 		SqlColumn	*cur_column;
@@ -84,6 +78,24 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 				boolean_t	is_dollar_char;
 				char		*delim, *piece;
 
+				if (!node_value_fetched) {
+					/* This is the first non-key column that has a PIECE number and is in the SET clause.
+					 * Before determining the post-update value of this column fetch the entire node value
+					 * in the unsubscripted PP_YDB_OCTO_UPD variable in the hope that it will be used
+					 * for multiple non-key column updates (saves unnecessary multiple global references).
+					 * Note that we do not do a "$GET" before the "tmpl_key_source" call because this is
+					 * the UPDATE command and we are guaranteed this runs in TP. In the case of other
+					 * callers like "tmpl_column_reference.ctemplate", they could be invoked even for a SELECT
+					 * query in which case they are not guaranteed TP and hence need the "$GET" to avoid
+					 * GVUNDEF errors.
+					 */
+					%{}{{ PP_YDB_OCTO_UPD }}={}%
+					TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Value);
+					node_value_fetched = TRUE;
+					%{}`n{{ PLAN_LINE_START }}{}%
+					TMPL(tmpl_print_dots, dot_count);
+					%{}SET {}%
+				}
 				UNPACK_SQL_STATEMENT(piece_value, keyword->v, value);
 				piece = piece_value->v.string_literal;
 				%{}$PIECE({{ PP_YDB_OCTO_UPD }},{}%
@@ -96,6 +108,10 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 				}
 			} else {
 				%{}{{ PP_YDB_OCTO_UPD }}={}%
+				/* This non-key column does not have a PIECE number so we are going to fetch the current
+				 * value directly into PP_YDB_OCTO_UPD local variable. So update tracking variable accordingly.
+				 */
+				node_value_fetched = TRUE;
 			}
 			/* Need to convert column value (which could be $ZYQSLNULL) to a piece value (i.e. "") before it can
 			 * be used as the entire value or a piece of a global variable node (to avoid ZYSQLNULLNOTVALID errors).
@@ -205,6 +221,20 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 		%{}$NAME({}%
 		TMPL(tmpl_key_source, pplan, key, EmitSourceForm_UpdateKeyCol);
 		%{})){}%
+		if (!node_value_fetched) {
+			/* Node value is not yet fetched into unsubscripted local variable. So fetch pre-update node value from
+			 * global. Needed to set the post-update value of the node. Since this code path is reachable only if
+			 * no non-key columns are updated in the SET clause, the pre-update and post-update node values are not
+			 * going to be any different so the fetched value is going to be fed directly into the SET command
+			 * a few steps later to set the global variable node corresponding to the output row.
+			 * See comment in similar block above for why "$GET" is not needed before the "tmpl_key_source" call.
+			 */
+			%{}`n{{ PLAN_LINE_START }}{}%
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_UPD }}=$GET({}%
+			TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Value);
+			%{}){}%
+		}
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
 		%{}KILL {}%

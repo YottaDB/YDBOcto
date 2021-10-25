@@ -12,7 +12,7 @@ _ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TUT009","ID")=%ydboctoexp
 _ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"TUT009","%YO_KEYCOL")=""
 _ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"TUT009","%YO_KEYCOL")=$ORDER(^%ydboctoxref("TUT009","ID",%ydboctocursor(cursorId,"keys",1,"TUT009","ID"),%ydboctocursor(cursorId,"keys",1,"TUT009","%YO_KEYCOL"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TUT009","%YO_KEYCOL")="")  DO
 --
-_ydboctoP*.m-    . . . . SET %ydboctozduplicate(0,%ydboctocursor(cursorId,"keys",1,"TUT009","%YO_KEYCOL"))=1
+_ydboctoP*.m-    . . . . SET %ydboctozduplicate(0,%ydboctocursor(cursorId,"keys",1,"TUT009","%YO_KEYCOL"))=""
 _ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 --
 _ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
@@ -20,7 +20,7 @@ _ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TUT009","FIRSTNAME")=%ydb
 _ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"TUT009","%YO_KEYCOL")=""
 _ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"TUT009","%YO_KEYCOL")=$ORDER(^%ydboctoxref("TUT009","FIRSTNAME","",%ydboctocursor(cursorId,"keys",1,"TUT009","%YO_KEYCOL"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TUT009","%YO_KEYCOL")="")  DO
 --
-_ydboctoP*.m-    . . . . SET %ydboctozduplicate(0,%ydboctocursor(cursorId,"keys",1,"TUT009","%YO_KEYCOL"))=1
+_ydboctoP*.m-    . . . . SET %ydboctozduplicate(0,%ydboctocursor(cursorId,"keys",1,"TUT009","%YO_KEYCOL"))=""
 _ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 --
 _ydboctoP*.m-;; ---------------------------------------------------------

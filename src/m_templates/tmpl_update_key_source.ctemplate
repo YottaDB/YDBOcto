@@ -26,11 +26,18 @@
  * values of any key columns. The pre-update value is emitted by a "tmpl_key()" call so that will be done in this case.
  * Example emitted code in the case of "ID" column of the "names" table would be like the below.
  *	%ydboctoUPD(%ydboctocursor(cursorId,"keys",1,"TUT007","ID"))
+ * This value of TRUE is passed from one caller ("tmpl_tablejoin.ctemplate") when we want to check if the current row being
+ * processed was actually an output row created by the UPDATE command in a previous iteration of the same $ORDER loop
+ * of the table being updated. If so, we want to skip processing this output row (only rows at the start of the UPDATE
+ * should be processed in the loop, if we include output rows we could go into an infinite loop as each output row would
+ * keep adding one more row at the end to the $ORDER loop).
  *
  * If it is FALSE, the emitted code will generate subscripts matching post-update values of any key columns. For example,
  * for the "ID" column in the names table, the post-update value will be stored in the local variable `%ydboctoUPD("ID")`.
  * Example emitted code in the case of "ID" column of the "names" table would be like the below.
  *	%ydboctoUPD(%ydboctoUPD("ID"))
+ * This value of FALSE is passed from one caller ("tmpl_update_record_in_table.ctemplate") where as part of processing one
+ * row and creating a new output row in the UPDATE command, we note down the output row related key column values.
  *
  * In the case of a table with multiple key columns, it is possible only a subset of the key columns are specified in the
  * SET clause. In that case, if "pre_update" is FALSE, then we will emit code to use `%ydboctoUPD("ID")` like syntax

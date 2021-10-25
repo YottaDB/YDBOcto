@@ -78,7 +78,7 @@
 #define PP_YDB_OCTO_IN	       "%ydboctoin"
 #define PP_YDB_OCTO_KEYCHNGD   "%ydboctokeychngd"
 #define PP_YDB_OCTO_P	       "%ydboctop"
-#define PP_YDB_OCTO_UPD	       "%ydboctoUPD"
+#define PP_YDB_OCTO_UPD	       "%ydboctoUPD" /* see comment in tmpl_update_table.ctemplate for its purpose */
 #define PP_YDB_OCTO_Z	       "%ydboctoz"
 #define PP_YDB_OCTO_ZDUPLICATE "%ydboctozduplicate"
 #define PP_YDB_OCTO_ZLIMIT     "%ydboctozlimit"
@@ -159,6 +159,7 @@ TEMPLATE(tmpl_invoke_deferred_plan, InvokeDeferredPlanType invocation_type, Logi
 TEMPLATE(tmpl_invoke_deferred_plan_setoper, InvokeDeferredPlanType invocation_type, LogicalPlan *plan, int dot_count);
 TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int unique_id, int keys_to_match, enum EmitSourceForm form);
 TEMPLATE(tmpl_duplication_check, PhysicalPlan *pplan);
+TEMPLATE(tmpl_set_duplication_check, PhysicalPlan *pplan, int dot_count);
 TEMPLATE(tmpl_order_by_key, int num_cols);
 TEMPLATE(tmpl_populate_output_key, PhysicalPlan *pplan, int dot_count);
 TEMPLATE(tmpl_limit_check, SqlOptionalKeyword *limit_keyword, char *prefix, char *suffix);

@@ -434,6 +434,7 @@ set(template_files
   ${template_dir}/tmpl_print_expression.ctemplate
   ${template_dir}/tmpl_print_expression_assignment.ctemplate
   ${template_dir}/tmpl_rightjoin_key.ctemplate
+  ${template_dir}/tmpl_set_duplication_check.ctemplate
   ${template_dir}/tmpl_tablejoin.ctemplate
   ${template_dir}/tmpl_tablejoin_body.ctemplate
   ${template_dir}/tmpl_tablejoin_body_group_by.ctemplate

@@ -46,25 +46,25 @@ octoPlan1(cursorId)
     . . SET %ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID")=0
     . . FOR  SET %ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID")=$ORDER(^%ydboctoxref("ORDER1","STATUS",%ydboctocursor(cursorId,"keys",1,"ORDER1","STATUS"),%ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID"))!(%ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID")=""))  DO
 --
-    . . . . . . . . . . SET %ydboctozduplicate(8,%ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID"),$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL)=1
+    . . . . . . . . . . SET %ydboctozduplicate(8,%ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID"),$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL)=""
     SET %ydboctocursor(cursorId,"keys",2,"PATIENT","PATIENT_ID")=0
     FOR  SET %ydboctocursor(cursorId,"keys",2,"PATIENT","PATIENT_ID")=$ORDER(^DPT(%ydboctocursor(cursorId,"keys",2,"PATIENT","PATIENT_ID"))) QUIT:('(%ydboctocursor(cursorId,"keys",2,"PATIENT","PATIENT_ID"))!(%ydboctocursor(cursorId,"keys",2,"PATIENT","PATIENT_ID")=""))  DO
 --
-    . . . . . . . . SET %ydboctozduplicate(8,$ZYSQLNULL,%ydboctocursor(cursorId,"keys",2,"PATIENT","PATIENT_ID"),$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL)=1
+    . . . . . . . . SET %ydboctozduplicate(8,$ZYSQLNULL,%ydboctocursor(cursorId,"keys",2,"PATIENT","PATIENT_ID"),$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL)=""
     SET %ydboctocursor(cursorId,"keys",3,"ORDER_STATUS","ORDER_STATUS_ID")=0
     FOR  SET %ydboctocursor(cursorId,"keys",3,"ORDER_STATUS","ORDER_STATUS_ID")=$ORDER(^ORD(100.01,%ydboctocursor(cursorId,"keys",3,"ORDER_STATUS","ORDER_STATUS_ID"))) QUIT:('(%ydboctocursor(cursorId,"keys",3,"ORDER_STATUS","ORDER_STATUS_ID"))!(%ydboctocursor(cursorId,"keys",3,"ORDER_STATUS","ORDER_STATUS_ID")=""))  DO
 --
-    . . . . . . . SET %ydboctozduplicate(8,$ZYSQLNULL,$ZYSQLNULL,%ydboctocursor(cursorId,"keys",3,"ORDER_STATUS","ORDER_STATUS_ID"),$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL)=1
+    . . . . . . . SET %ydboctozduplicate(8,$ZYSQLNULL,$ZYSQLNULL,%ydboctocursor(cursorId,"keys",3,"ORDER_STATUS","ORDER_STATUS_ID"),$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL)=""
     SET %ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER1_ID")=0
     FOR  SET %ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER1_ID")=$ORDER(^OR(100,%ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER1_ID"))) QUIT:('(%ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER1_ID"))!(%ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER1_ID")=""))  DO
     . SET %ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER_ORDER_ACTIONS_ID")=0
     . FOR  SET %ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER_ORDER_ACTIONS_ID")=$ORDER(^OR(100,%ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER1_ID"),8,%ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER_ORDER_ACTIONS_ID"))) QUIT:('(%ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER_ORDER_ACTIONS_ID"))!(%ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER_ORDER_ACTIONS_ID")=""))  DO
 --
-    . . . . . . . SET %ydboctozduplicate(8,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,%ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER1_ID"),%ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER_ORDER_ACTIONS_ID"),$ZYSQLNULL,$ZYSQLNULL)=1
+    . . . . . . . SET %ydboctozduplicate(8,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,%ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER1_ID"),%ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER_ORDER_ACTIONS_ID"),$ZYSQLNULL,$ZYSQLNULL)=""
     SET %ydboctocursor(cursorId,"keys",5,"NEW_PERSON","NEW_PERSON_ID")=0
     FOR  SET %ydboctocursor(cursorId,"keys",5,"NEW_PERSON","NEW_PERSON_ID")=$ORDER(^VA(200,%ydboctocursor(cursorId,"keys",5,"NEW_PERSON","NEW_PERSON_ID"))) QUIT:('(%ydboctocursor(cursorId,"keys",5,"NEW_PERSON","NEW_PERSON_ID"))!(%ydboctocursor(cursorId,"keys",5,"NEW_PERSON","NEW_PERSON_ID")=""))  DO
 --
-    . . . . . SET %ydboctozduplicate(8,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,%ydboctocursor(cursorId,"keys",5,"NEW_PERSON","NEW_PERSON_ID"),$ZYSQLNULL)=1
+    . . . . . SET %ydboctozduplicate(8,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,%ydboctocursor(cursorId,"keys",5,"NEW_PERSON","NEW_PERSON_ID"),$ZYSQLNULL)=""
     SET %ydboctocursor(cursorId,"keys",6,"DISPLAY_GROUP","DISPLAY_GROUP_ID")=0
     FOR  SET %ydboctocursor(cursorId,"keys",6,"DISPLAY_GROUP","DISPLAY_GROUP_ID")=$ORDER(^ORD(100.98,%ydboctocursor(cursorId,"keys",6,"DISPLAY_GROUP","DISPLAY_GROUP_ID"))) QUIT:('(%ydboctocursor(cursorId,"keys",6,"DISPLAY_GROUP","DISPLAY_GROUP_ID"))!(%ydboctocursor(cursorId,"keys",6,"DISPLAY_GROUP","DISPLAY_GROUP_ID")=""))  DO
 --
@@ -80,24 +80,24 @@ octoPlan2(cursorId)
     . . SET %ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID")=0
     . . FOR  SET %ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID")=$ORDER(^%ydboctoxref("ORDER1","STATUS",%ydboctocursor(cursorId,"keys",1,"ORDER1","STATUS"),%ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID"))!(%ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID")=""))  DO
 --
-    . . . . . . . . . . SET %ydboctozduplicate(8,%ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID"),$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL)=1
+    . . . . . . . . . . SET %ydboctozduplicate(8,%ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID"),$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL)=""
     SET %ydboctocursor(cursorId,"keys",2,"PATIENT","PATIENT_ID")=0
     FOR  SET %ydboctocursor(cursorId,"keys",2,"PATIENT","PATIENT_ID")=$ORDER(^DPT(%ydboctocursor(cursorId,"keys",2,"PATIENT","PATIENT_ID"))) QUIT:('(%ydboctocursor(cursorId,"keys",2,"PATIENT","PATIENT_ID"))!(%ydboctocursor(cursorId,"keys",2,"PATIENT","PATIENT_ID")=""))  DO
 --
-    . . . . . . . . SET %ydboctozduplicate(8,$ZYSQLNULL,%ydboctocursor(cursorId,"keys",2,"PATIENT","PATIENT_ID"),$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL)=1
+    . . . . . . . . SET %ydboctozduplicate(8,$ZYSQLNULL,%ydboctocursor(cursorId,"keys",2,"PATIENT","PATIENT_ID"),$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL)=""
     SET %ydboctocursor(cursorId,"keys",3,"ORDER_STATUS","ORDER_STATUS_ID")=0
     FOR  SET %ydboctocursor(cursorId,"keys",3,"ORDER_STATUS","ORDER_STATUS_ID")=$ORDER(^ORD(100.01,%ydboctocursor(cursorId,"keys",3,"ORDER_STATUS","ORDER_STATUS_ID"))) QUIT:('(%ydboctocursor(cursorId,"keys",3,"ORDER_STATUS","ORDER_STATUS_ID"))!(%ydboctocursor(cursorId,"keys",3,"ORDER_STATUS","ORDER_STATUS_ID")=""))  DO
 --
-    . . . . . . . SET %ydboctozduplicate(8,$ZYSQLNULL,$ZYSQLNULL,%ydboctocursor(cursorId,"keys",3,"ORDER_STATUS","ORDER_STATUS_ID"),$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL)=1
+    . . . . . . . SET %ydboctozduplicate(8,$ZYSQLNULL,$ZYSQLNULL,%ydboctocursor(cursorId,"keys",3,"ORDER_STATUS","ORDER_STATUS_ID"),$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL)=""
     SET %ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER1_ID")=0
     FOR  SET %ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER1_ID")=$ORDER(^OR(100,%ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER1_ID"))) QUIT:('(%ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER1_ID"))!(%ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER1_ID")=""))  DO
     . SET %ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER_ORDER_ACTIONS_ID")=0
     . FOR  SET %ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER_ORDER_ACTIONS_ID")=$ORDER(^OR(100,%ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER1_ID"),8,%ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER_ORDER_ACTIONS_ID"))) QUIT:('(%ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER_ORDER_ACTIONS_ID"))!(%ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER_ORDER_ACTIONS_ID")=""))  DO
 --
-    . . . . . . . SET %ydboctozduplicate(8,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,%ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER1_ID"),%ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER_ORDER_ACTIONS_ID"),$ZYSQLNULL,$ZYSQLNULL)=1
+    . . . . . . . SET %ydboctozduplicate(8,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,%ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER1_ID"),%ydboctocursor(cursorId,"keys",4,"ORDER_ORDER_ACTIONS","ORDER_ORDER_ACTIONS_ID"),$ZYSQLNULL,$ZYSQLNULL)=""
     SET %ydboctocursor(cursorId,"keys",5,"NEW_PERSON","NEW_PERSON_ID")=0
     FOR  SET %ydboctocursor(cursorId,"keys",5,"NEW_PERSON","NEW_PERSON_ID")=$ORDER(^VA(200,%ydboctocursor(cursorId,"keys",5,"NEW_PERSON","NEW_PERSON_ID"))) QUIT:('(%ydboctocursor(cursorId,"keys",5,"NEW_PERSON","NEW_PERSON_ID"))!(%ydboctocursor(cursorId,"keys",5,"NEW_PERSON","NEW_PERSON_ID")=""))  DO
 --
-    . . . . . SET %ydboctozduplicate(8,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,%ydboctocursor(cursorId,"keys",5,"NEW_PERSON","NEW_PERSON_ID"),$ZYSQLNULL)=1
+    . . . . . SET %ydboctozduplicate(8,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,$ZYSQLNULL,%ydboctocursor(cursorId,"keys",5,"NEW_PERSON","NEW_PERSON_ID"),$ZYSQLNULL)=""
     SET %ydboctocursor(cursorId,"keys",6,"DISPLAY_GROUP","DISPLAY_GROUP_ID")=0
     FOR  SET %ydboctocursor(cursorId,"keys",6,"DISPLAY_GROUP","DISPLAY_GROUP_ID")=$ORDER(^ORD(100.98,%ydboctocursor(cursorId,"keys",6,"DISPLAY_GROUP","DISPLAY_GROUP_ID"))) QUIT:('(%ydboctocursor(cursorId,"keys",6,"DISPLAY_GROUP","DISPLAY_GROUP_ID"))!(%ydboctocursor(cursorId,"keys",6,"DISPLAY_GROUP","DISPLAY_GROUP_ID")=""))  DO

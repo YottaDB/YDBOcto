@@ -1,0 +1,34 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "octo_types.h"
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+/* Sets the lvn that is later checked to determine if a row has already been processed as part of a prior DNF plan.
+ * Prevents processing the same row multiple times (i.e. acts as a duplication check).
+ */
+TEMPLATE(tmpl_set_duplication_check, PhysicalPlan *pplan, int dot_count) {
+	/* Note: "emit_duplication_check" is not necessary for LP_DELETE_FROM and is there only for consistency with
+	 * LP_UPDATE (where it is necessary). See comment in "src/physical/generate_physical_plan.c" for more details.
+	 */
+	if (pplan->emit_duplication_check) {
+		%{}`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, dot_count);
+		%{}SET {}%
+		TMPL(tmpl_duplication_check, pplan);
+		%{}=""{}%
+	}
+}
+%{}

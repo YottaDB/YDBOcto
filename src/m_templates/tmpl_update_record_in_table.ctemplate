@@ -219,13 +219,7 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 		TMPL(tmpl_update_key_source, pplan, FALSE);
 		%{}=""{}%
 	}
-	if (pplan->emit_duplication_check) {
-		%{}`n{{ PLAN_LINE_START }}{}%
-		TMPL(tmpl_print_dots, dot_count);
-		%{}SET {}%
-		TMPL(tmpl_duplication_check, pplan);
-		%{}=1{}%
-	}
+	TMPL(tmpl_set_duplication_check, pplan, dot_count);
 	%{}`n{{ PLAN_LINE_START }}{}%
 	TMPL(tmpl_print_dots, dot_count);
 	%{}IF $INCREMENT({}%

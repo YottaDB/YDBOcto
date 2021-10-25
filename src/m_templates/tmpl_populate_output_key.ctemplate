@@ -136,17 +136,13 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *pplan, int dot_count) {
 		%{}={{ PP_YDB_OCTO_EXPR }}{}%
 	}
 	if (!pplan->distinct_values) {
-		/* If we are being called here through `tmpl_group_by`, then we don't need to worry about `tmpl_duplication_check`
+		/* If we are being called here through `tmpl_group_by`, then we don't need to worry about duplicate check
 		 * as the output key is being populated from the GROUP BY subscript (PP_YDB_OCTO_G) which has already aggregated
 		 * the results across DNF plans (if any) and hence already accounted for duplicates. In that case though,
 		 * `pplan->tablejoin_body_group_by_done` would be TRUE hence the `!` check below.
 		 */
-		if (!pplan->tablejoin_body_group_by_done && pplan->emit_duplication_check) {
-			%{}`n{{ PLAN_LINE_START }}{}%
-			TMPL(tmpl_print_dots, dot_count);
-			%{}SET {}%
-			TMPL(tmpl_duplication_check, pplan);
-			%{}=1{}%
+		if (!pplan->tablejoin_body_group_by_done) {
+			TMPL(tmpl_set_duplication_check, pplan, dot_count);
 		}
 	} else {
 		// Do DISTINCT processing

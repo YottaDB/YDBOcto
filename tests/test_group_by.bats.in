@@ -86,3 +86,8 @@ setup() {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TGB13.sql
 }
 
+@test "TGB14: OCTO766 : Test HAVING clause of sub query using GROUP BY column of outer query" {
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TGB14.sql
+}

@@ -64,7 +64,7 @@ SqlTable *find_table(const char *table_name) {
 		YDB_STRING_TO_BUFFER(config->global_names.schema, &varname);
 		YDB_STRING_TO_BUFFER((char *)table_name, &subs_array[0]);
 		YDB_STRING_TO_BUFFER(OCTOLIT_PG_CLASS, &subs_array[1]);
-		OCTO_SET_NULL_TERMINATED_BUFFER(ret, &oid_buff[0]);
+		OCTO_SET_NULL_TERMINATED_BUFFER(ret, oid_buff);
 		status = ydb_get_s(&varname, 2, &subs_array[0], &ret);
 		switch (status) {
 		case YDB_OK:

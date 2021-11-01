@@ -661,3 +661,24 @@ OCTO
 
 	verify_output TC050 output.txt
 }
+
+@test "TC051 : OCTO776 : INVSTRLEN in find_table.c when there are > 999,999 objects in Octo" {
+	echo '# Set OID counter to 999,999' | tee -a output.txt
+	yottadb -r %XCMD 'set ^%ydboctoocto("oid")=999999'
+
+	echo '# Increment subscript "pg_class" to above 999,999' | tee -a output.txt
+	echo "DROP TABLE IF EXISTS names;"          > TC051a.sql
+	echo "DROP TABLE IF EXISTS namesWithAges;" >> TC051a.sql
+	octo -f TC051a.sql                        &>> output.txt
+	load_fixture names.sql subtest novv
+	octo -f TC051a.sql                        &>> output.txt
+	load_fixture names.sql subtest novv
+
+	echo '# Verify Increment' | tee -a output.txt
+	yottadb -r %XCMD 'write ^%ydboctoschema("NAMES","pg_class")' | tee -a output.txt
+	echo '# Run select query twice. The second one fails with assert without the fix.' | tee -a output.txt
+	echo 'SELECT * FROM names;'                 > TC051b.sql
+	echo 'SELECT * FROM names;'                >> TC051b.sql
+	octo -f TC051b.sql                        &>> output.txt
+	verify_output TC051 output.txt
+}

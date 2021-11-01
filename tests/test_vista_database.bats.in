@@ -20,10 +20,10 @@ setup_file() {
 	old_ydb_dist=$ydb_dist
 	for e in `env | grep -E '^(ydb|gtm)' | cut -d= -f1`; do unset $e; done
 
-	# Restore $ydb_dist (override what's in @VISTA_ENV_FILE@), source VistA environment, and add $ydb_routines for Octo,
+	# Restore $ydb_dist (override what's in @TEST_VISTA_ENV_FILE@), source VistA environment, and add $ydb_routines for Octo,
 	export ydb_dist=$old_ydb_dist
 	export gtm_dist=$ydb_dist
-	source @VISTA_ENV_FILE@
+	source @TEST_VISTA_ENV_FILE@
 	[[ -z ${ydb_routines} ]] && export ydb_routines=$gtmroutines
 
 	# Add Posix plugin call-out file
@@ -33,13 +33,23 @@ setup_file() {
 	primary_routine_directory=$($ydb_dist/yottadb -r %XCMD 'W $P($$SRCDIR^%RSEL," ")')
 	echo "Primary Routine Directory: $primary_routine_directory"
 
-	# ... and download %YDBOCTOVISTAM if vista.sql doesn't exist
-	if [ ! -f @PROJECT_BINARY_DIR@/vista.sql ]; then
-		pushd $primary_routine_directory
+	# Set the location of various optional files from CMake
+	test_vista_input_sql="@TEST_VISTA_INPUT_SQL@"
+	test_vista_input_m="@TEST_VISTA_INPUT_M@"
+	test_vista_input_f="@TEST_VISTA_INPUT_F@"
+	test_vista_input_f_sql="@TEST_VISTA_INPUT_F_SQL@"
+
+	# Get SQL Generator %YDBOCTOVISTAM
+	pushd $primary_routine_directory
+	if [ ! -f "$test_vista_input_m" ]; then
 		rm -f _YDBOCTOVISTAM.m
 		curl -sLO https://gitlab.com/YottaDB/DBMS/ydbvistaocto/raw/master/_YDBOCTOVISTAM.m
-		popd
+	else
+		cp "$test_vista_input_m" .
+	fi
+	popd
 
+	if [ ! -f "$test_vista_input_sql" ]; then
 		# Generate the vista.sql file
 		# Variables DUZ and DIQUIET are VistA variables to allow Fileman to operate.
 		# DUZ=.5 Run as Postmaster
@@ -48,16 +58,27 @@ setup_file() {
 		# DT^DICRW Set-up minimum Fileman Environment
 		# MAPALL^%YDBOCTOVISTAM Main code that creates the SQL mapping file
 		$ydb_dist/yottadb -r %XCMD 'S DUZ=.5,DIQUIET=1,DUZ(0)="@" D DT^DICRW,MAPALL^%YDBOCTOVISTAM("@PROJECT_BINARY_DIR@/vista.sql")'
+	else
+		cp "$test_vista_input_sql" "@PROJECT_BINARY_DIR@"
 	fi
 
-	# Get VistA functions routine
+	# Get VistA functions routine %YDBOCTOVISTAF
 	pushd $primary_routine_directory
-	rm -f _YDBOCTOVISTAF.m
-	curl -sLO https://gitlab.com/YottaDB/DBMS/ydbvistaocto/raw/master/_YDBOCTOVISTAF.m
+	if [ ! -f "$test_vista_input_f" ]; then
+		rm -f _YDBOCTOVISTAF.m
+		curl -sLO https://gitlab.com/YottaDB/DBMS/ydbvistaocto/raw/master/_YDBOCTOVISTAF.m
+	else
+		cp "$test_vista_input_f" .
+	fi
 	popd
 
 	# Get VistA functions definitions SQL
-	curl -sLO https://gitlab.com/YottaDB/DBMS/ydbvistaocto/raw/master/_YDBOCTOVISTAF.sql
+	if [ ! -f "$test_vista_input_f_sql" ]; then
+		rm -f _YDBOCTOVISTAF.sql
+		curl -sLO https://gitlab.com/YottaDB/DBMS/ydbvistaocto/raw/master/_YDBOCTOVISTAF.sql
+	else
+		cp "$test_vista_input_f_sql" .
+	fi
 
 	# Set-up PATH and the rest of ydb_routines, normally done by other scripts we are not using
 	if [[ @DISABLE_INSTALL@ == "ON" ]]; then
@@ -140,4 +161,9 @@ setup() {
 @test "TVD0006 : YDBOctoVistA#7 Refactoring Word Processing Extract Fields to use DELIM \"\"" {
 	load_fixture TVD0006.sql subtest novv
 	verify_output TVD0006 output.txt
+}
+
+@test "TVD0007 : YDBOctoVistA#14 COMPUTED MULTIPLE fields produce valid output" {
+	load_fixture TVD0007.sql subtest novv
+	verify_output TVD0007 output.txt
 }

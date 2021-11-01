@@ -88,3 +88,8 @@ endif()
 set(MEMORYCHECK_SUPPRESSIONS_FILE ${PROJECT_SOURCE_DIR}/tools/ci/ignored-valgrind-errors.supp CACHE STRING "")
 include(CTest)
 add_subdirectory(src)
+
+# Sanity check to ensure that required variables are set
+if(${TEST_VISTA} AND NOT EXISTS ${TEST_VISTA_ENV_FILE})
+	message(FATAL_ERROR "You must set TEST_VISTA_ENV_FILE (e.g. '~vehu/etc/env') if you set TEST_VISTA")
+endif()

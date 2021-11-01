@@ -38,8 +38,8 @@ popd
 echo "Current directory is: $PWD"
 echo "# Compiling Octo"
 mkdir build && cd build
-# VISTA_ENV_FILE contains all the environment variables ($gtm*, $ydb*) needed to run VistA.
-cmake3 -D TEST_VISTA=ON -D VISTA_ENV_FILE="~vehu/etc/env" ..
+# TEST_VISTA_ENV_FILE contains all the environment variables ($gtm*, $ydb*) needed to run VistA.
+cmake3 -D TEST_VISTA=ON -D TEST_VISTA_ENV_FILE="~vehu/etc/env" ..
 make -j $(getconf _NPROCESSORS_ONLN) install
 
 set +e

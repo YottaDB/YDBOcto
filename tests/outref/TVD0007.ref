@@ -1,0 +1,34 @@
+select QUESTION_TEXT from MH_INSTRUMENT_CONTENT LIMIT 5;
+QUESTION_TEXT
+Facial and Oral Movements
+ 
+ 
+Muscles of facial expression,
+e.g., movements of forehead, eyebrows, periorbital area, cheeks. Include
+frowning, blinking, grimacing of upper face.
+ 
+Facial and Oral Movements
+ 
+Lips and perioral area,
+e.g., puckering, pouting, smacking.
+ 
+Facial and Oral Movements
+ 
+Jaw,
+e.g., biting, clenching, chewing, mouth opening, lateral movement.
+ 
+Facial and Oral Movements
+ 
+Tongue.
+Rate only increase in movement both in and out of mouth, not inability to
+sustain movement.
+ 
+Extremity Movements
+ 
+Upper (arms, wrists, hands, fingers).
+Include movements that are choreic (rapid, objectively purposeless,
+Irregular, spontaneous) or athetoid (slow, irregular, complex,
+serpentine). Do not include tremor (repetitive, regular, rhythmic
+movements).
+ 
+(5 rows)

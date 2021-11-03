@@ -243,10 +243,6 @@ _ydboctoP*.m:    . . . . . . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCou
 _ydboctoX*.m:;; ---------------------------------------------------------
 _ydboctoX*.m:;; Generated M code maintains cross reference for NAME column in COMPOSITE table
 _ydboctoX*.m:;; ---------------------------------------------------------
-_ydboctoX*.m:    ; Store state information in case query is canceled in middle of xref building
-_ydboctoX*.m:    ; Actual cleanup happens in _ydboctoCleanup.m using this saved state information
-_ydboctoX*.m:    ; Now that xref building is complete, cleanup saved cancel related state information
-_ydboctoX*.m:    ; Build cross reference for NAME column in COMPOSITE table
 _ydboctoX*.m:    SET %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID0")=""
 _ydboctoX*.m:    FOR  SET %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID0")=$ORDER(^composite(%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID0"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID0")="")  DO
 _ydboctoX*.m:    . SET %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID1")=""
@@ -263,4 +259,3 @@ _ydboctoX*.m:    . . . . . . SET %ydboctocursor(cursorId,"keys",2,"COMPOSITE","I
 _ydboctoX*.m:    . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID6")=$ORDER(^composite(%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID1"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID2"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID3"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID4"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID5"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID6"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID6")="")  DO
 _ydboctoX*.m:    . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID7")=""
 _ydboctoX*.m:    . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID7")=$ORDER(^composite(%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID1"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID2"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID3"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID4"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID5"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID6"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID7"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID7")="")  DO
-_ydboctoX*.m:    ; M routine that is invoked by SET/KILL/ZKILL trigger to keep xref for NAME column in COMPOSITE table in sync

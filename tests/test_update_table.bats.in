@@ -46,21 +46,21 @@ teardown() {
 	psql names -c 'drop table if exists TUT002; drop table if exists TUT002B' >& postgres.drop_table_TUT002.out
 	# Now do various verifications of Octo plans
 	echo "# Include key parts of generated M plans in reference file" >> output.txt
-	grep -Ei 'INSERT INTO|DELETE FROM|UPDATE|VALUES|SELECT|maintains cross reference|^octoPlan|RowCount|FOR|SET .ydboctocursor|SET \$PIECE|SET %ydboctoUPD|SET val|------' _ydbocto*.m >> output.txt
+	grep -P '(?i)INSERT INTO|DELETE FROM|UPDATE|VALUES|SELECT(?-i)|maintains cross reference|^octoPlan|RowCount|FOR|SET \%ydboctocursor|SET \$PIECE|SET \%ydboctoUPD|SET val|------' _ydbocto*.m >> output.txt
 	echo "# Test [DROP TABLE names] removes all plans using names table for UPDATE queries" >> output.txt
 	echo "DROP TABLE names" | octo
 	echo "# Below are plans that remain after [DROP TABLE names]" >> output.txt
-	grep -Ei "INSERT INTO|DELETE FROM|UPDATE|VALUES|SELECT|maintains cross reference" _ydbocto*.m >> output.txt
+	grep -P "(?i)INSERT INTO|DELETE FROM|UPDATE|VALUES|SELECT(?-i)|maintains cross reference" _ydbocto*.m >> output.txt
 	echo "# Test [DROP FUNCTION SAMEVALUE(VARCHAR)] removes all plans using SAMEVALUE function for UPDATE queries" >> output.txt
 	echo "DROP FUNCTION SAMEVALUE(VARCHAR);" | octo
 	echo "# Below are plans that remain after DROP FUNCTION SAMEVALUE(VARCHAR)" >> output.txt
 	echo "# SAMEVALUE(INTEGER) function plans should show up below since only SAMEVALUE(VARCHAR) function was dropped" >> output.txt
-	grep -Ei "INSERT INTO|DELETE FROM|UPDATE|VALUES|SELECT|maintains cross reference" _ydbocto*.m >> output.txt
+	grep -P "(?i)INSERT INTO|DELETE FROM|UPDATE|VALUES|SELECT(?-i)|maintains cross reference" _ydbocto*.m >> output.txt
 	echo "# Test [DROP TABLE TUT002] removes all plans using TUT002 table for UPDATE queries" >> output.txt
 	echo "DROP TABLE TUT002" | octo
 	echo "# Verify all plans related to TUT002 are gone and only 1 plan related to TUT002B remains now" >> output.txt
 	if compgen -G "_ydbocto*" > /dev/null; then
-		grep -Ei "INSERT INTO|DELETE FROM|UPDATE|VALUES|SELECT|maintains cross reference" _ydbocto*.m >> output.txt
+		grep -P "(?i)INSERT INTO|DELETE FROM|UPDATE|VALUES|SELECT(?-i)|maintains cross reference" _ydbocto*.m >> output.txt
 	fi
 	verify_output TUT002 output.txt
 }
@@ -71,7 +71,7 @@ teardown() {
 	load_fixture composite.zwr
 	load_fixture TUT003.sql subtest novv
 	echo "# Include key parts of generated M plans in reference file" >> output.txt
-	grep -Ei "UPDATE|VALUES|SELECT|maintains cross reference|^octoPlan|FOR|SET .ydboctocursor|------" _ydbocto*.m >> output.txt
+	grep -P "(?i)UPDATE|VALUES|SELECT(?-i)|maintains cross reference|^octoPlan|FOR|SET \%ydboctocursor|------" _ydbocto*.m >> output.txt
 	verify_output TUT003 output.txt
 }
 

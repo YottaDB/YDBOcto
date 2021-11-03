@@ -37,21 +37,21 @@ teardown() {
 	psql names -c 'drop table if exists TDFT01;' >& postgres.drop_table_TDFT01.out
 	# Now do various verifications of Octo plans
 	echo "# Include key parts of generated M plans in reference file" >> output.txt
-	grep -Ei "INSERT INTO|DELETE FROM|VALUES|SELECT|maintains cross reference|^octoPlan|RowCount|FOR|SET .ydboctocursor|------" _ydbocto*.m >> output.txt
+	grep -P "(?i)INSERT INTO|DELETE FROM|VALUES|SELECT(?-i)|maintains cross reference|^octoPlan|RowCount|FOR|SET \%ydboctocursor|------" _ydbocto*.m >> output.txt
 	echo "# Test [DROP TABLE names] removes all plans using names table for INSERT INTO and DELETE FROM queries too" >> output.txt
 	echo "DROP TABLE names" | octo
 	echo "# Below are plans that remain after [DROP TABLE names]" >> output.txt
-	grep -Ei "INSERT INTO|DELETE FROM|VALUES|SELECT|maintains cross reference" _ydbocto*.m >> output.txt
+	grep -P "(?i)INSERT INTO|DELETE FROM|VALUES|SELECT(?-i)|maintains cross reference" _ydbocto*.m >> output.txt
 	echo "# Test [DROP FUNCTION SAMEVALUE(VARCHAR)] removes all plans using SAMEVALUE function for INSERT INTO and DELETE FROM queries too" >> output.txt
 	echo "DROP FUNCTION SAMEVALUE(VARCHAR);" | octo
 	echo "# Below are plans that remain after DROP FUNCTION SAMEVALUE(VARCHAR)" >> output.txt
 	echo "# SAMEVALUE(INTEGER) function plans should show up below since only SAMEVALUE(VARCHAR) function was dropped" >> output.txt
-	grep -Ei "INSERT INTO|DELETE FROM|VALUES|SELECT|maintains cross reference" _ydbocto*.m >> output.txt
+	grep -P "(?i)INSERT INTO|DELETE FROM|VALUES|SELECT(?-i)|maintains cross reference" _ydbocto*.m >> output.txt
 	echo "# Test [DROP TABLE TDFT01] removes all plans using TDFT01 table for INSERT INTO and DELETE FROM queries too" >> output.txt
 	echo "DROP TABLE TDFT01" | octo
 	echo "# Verify NO plans remain now" >> output.txt
 	if compgen -G "_ydbocto*" > /dev/null; then
-		grep -Ei "INSERT INTO|DELETE FROM|VALUES|SELECT|maintains cross reference" _ydbocto*.m >> output.txt
+		grep -P "(?i)INSERT INTO|DELETE FROM|VALUES|SELECT(?-i)|maintains cross reference" _ydbocto*.m >> output.txt
 	fi
 	verify_output TDFT01 output.txt
 }
@@ -61,7 +61,7 @@ teardown() {
 	load_fixture composite.zwr
 	load_fixture TDFT02.sql subtest novv
 	echo "# Include key parts of generated M plans in reference file" >> output.txt
-	grep -Ei "DELETE FROM|VALUES|SELECT|maintains cross reference|^octoPlan|FOR|SET .ydboctocursor|------" _ydbocto*.m >> output.txt
+	grep -P "(?i)DELETE FROM|VALUES|SELECT(?-i)|maintains cross reference|^octoPlan|FOR|SET \%ydboctocursor|------" _ydbocto*.m >> output.txt
 	verify_output TDFT02 output.txt
 }
 

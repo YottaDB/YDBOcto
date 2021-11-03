@@ -46,8 +46,6 @@ _ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increm
 _ydboctoP*.m:octoPlan2(cursorId)
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
 _ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
-_ydboctoP*.m:    . SET %ydboctoexpr(1)=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
-_ydboctoP*.m:    . SET %ydboctoexpr=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
 _ydboctoP*.m:    . . SET %ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))=%ydboctoexpr
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:;  insert into TDFT01 (select * FROM names where lastname = 'Cool');
@@ -88,8 +86,6 @@ _ydboctoP*.m:    . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Incremen
 _ydboctoP*.m:octoPlan3(cursorId)
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=""
 _ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")="")  DO
-_ydboctoP*.m:    . SET %ydboctoexpr(1)=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
-_ydboctoP*.m:    . SET %ydboctoexpr=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
 _ydboctoP*.m:    . . SET %ydboctocursor(cursorId,"keys",6,"","",%ydboctocursor(cursorId,"keys",6,"",""))=%ydboctoexpr
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:;  delete from TDFT01 where lastname is NULL;
@@ -298,43 +294,23 @@ _ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increm
 _ydboctoX*.m:;; ---------------------------------------------------------
 _ydboctoX*.m:;; Generated M code maintains cross reference for LASTNAME column in TDFT01 table
 _ydboctoX*.m:;; ---------------------------------------------------------
-_ydboctoX*.m:    ; Store state information in case query is canceled in middle of xref building
-_ydboctoX*.m:    ; Actual cleanup happens in _ydboctoCleanup.m using this saved state information
-_ydboctoX*.m:    ; Now that xref building is complete, cleanup saved cancel related state information
-_ydboctoX*.m:    ; Build cross reference for LASTNAME column in TDFT01 table
 _ydboctoX*.m:    SET %ydboctocursor(cursorId,"keys",2,"TDFT01","ID")=""
 _ydboctoX*.m:    FOR  SET %ydboctocursor(cursorId,"keys",2,"TDFT01","ID")=$ORDER(^%ydboctoDgWgAGcpPXtQQ3rYDwgYlG1(%ydboctocursor(cursorId,"keys",2,"TDFT01","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"TDFT01","ID")="")  DO
-_ydboctoX*.m:    ; M routine that is invoked by SET/KILL/ZKILL trigger to keep xref for LASTNAME column in TDFT01 table in sync
 _ydboctoX*.m:;; ---------------------------------------------------------
 _ydboctoX*.m:;; Generated M code maintains cross reference for LASTNAME column in NAMES table
 _ydboctoX*.m:;; ---------------------------------------------------------
-_ydboctoX*.m:    ; Store state information in case query is canceled in middle of xref building
-_ydboctoX*.m:    ; Actual cleanup happens in _ydboctoCleanup.m using this saved state information
-_ydboctoX*.m:    ; Now that xref building is complete, cleanup saved cancel related state information
-_ydboctoX*.m:    ; Build cross reference for LASTNAME column in NAMES table
 _ydboctoX*.m:    SET %ydboctocursor(cursorId,"keys",5,"NAMES","ID")=""
 _ydboctoX*.m:    FOR  SET %ydboctocursor(cursorId,"keys",5,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",5,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",5,"NAMES","ID")="")  DO
-_ydboctoX*.m:    ; M routine that is invoked by SET/KILL/ZKILL trigger to keep xref for LASTNAME column in NAMES table in sync
 _ydboctoX*.m:;; ---------------------------------------------------------
 _ydboctoX*.m:;; Generated M code maintains cross reference for FIRSTNAME column in NAMES table
 _ydboctoX*.m:;; ---------------------------------------------------------
-_ydboctoX*.m:    ; Store state information in case query is canceled in middle of xref building
-_ydboctoX*.m:    ; Actual cleanup happens in _ydboctoCleanup.m using this saved state information
-_ydboctoX*.m:    ; Now that xref building is complete, cleanup saved cancel related state information
-_ydboctoX*.m:    ; Build cross reference for FIRSTNAME column in NAMES table
 _ydboctoX*.m:    SET %ydboctocursor(cursorId,"keys",6,"NAMES","ID")=""
 _ydboctoX*.m:    FOR  SET %ydboctocursor(cursorId,"keys",6,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",6,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",6,"NAMES","ID")="")  DO
-_ydboctoX*.m:    ; M routine that is invoked by SET/KILL/ZKILL trigger to keep xref for FIRSTNAME column in NAMES table in sync
 _ydboctoX*.m:;; ---------------------------------------------------------
 _ydboctoX*.m:;; Generated M code maintains cross reference for FIRSTNAME column in TDFT01 table
 _ydboctoX*.m:;; ---------------------------------------------------------
-_ydboctoX*.m:    ; Store state information in case query is canceled in middle of xref building
-_ydboctoX*.m:    ; Actual cleanup happens in _ydboctoCleanup.m using this saved state information
-_ydboctoX*.m:    ; Now that xref building is complete, cleanup saved cancel related state information
-_ydboctoX*.m:    ; Build cross reference for FIRSTNAME column in TDFT01 table
 _ydboctoX*.m:    SET %ydboctocursor(cursorId,"keys",3,"TDFT01","ID")=""
 _ydboctoX*.m:    FOR  SET %ydboctocursor(cursorId,"keys",3,"TDFT01","ID")=$ORDER(^%ydboctoDgWgAGcpPXtQQ3rYDwgYlG1(%ydboctocursor(cursorId,"keys",3,"TDFT01","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"TDFT01","ID")="")  DO
-_ydboctoX*.m:    ; M routine that is invoked by SET/KILL/ZKILL trigger to keep xref for FIRSTNAME column in TDFT01 table in sync
 # Test [DROP TABLE names] removes all plans using names table for INSERT INTO and DELETE FROM queries too
 # Below are plans that remain after [DROP TABLE names]
 _ydboctoP*.m:;  delete from TDFT01 where lastname = 'Last6';

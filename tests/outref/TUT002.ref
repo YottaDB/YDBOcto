@@ -273,8 +273,6 @@ _ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increm
 _ydboctoP*.m:octoPlan2(cursorId)
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
 _ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
-_ydboctoP*.m:    . SET %ydboctoexpr(1)=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
-_ydboctoP*.m:    . SET %ydboctoexpr=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
 _ydboctoP*.m:    . . SET %ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))=%ydboctoexpr
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = id::text;
@@ -325,25 +323,15 @@ _ydboctoP*.m:    . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Incr
 _ydboctoX*.m:;; ---------------------------------------------------------
 _ydboctoX*.m:;; Generated M code maintains cross reference for LASTNAME column in TUT002 table
 _ydboctoX*.m:;; ---------------------------------------------------------
-_ydboctoX*.m:    ; Store state information in case query is canceled in middle of xref building
-_ydboctoX*.m:    ; Actual cleanup happens in _ydboctoCleanup.m using this saved state information
-_ydboctoX*.m:    ; Now that xref building is complete, cleanup saved cancel related state information
-_ydboctoX*.m:    ; Build cross reference for LASTNAME column in TUT002 table
 _ydboctoX*.m:    SET %ydboctocursor(cursorId,"keys",2,"TUT002","ID")=""
 _ydboctoX*.m:    FOR  SET %ydboctocursor(cursorId,"keys",2,"TUT002","ID")=$ORDER(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",2,"TUT002","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"TUT002","ID")="")  DO
-_ydboctoX*.m:    ; M routine that is invoked by SET/KILL/ZKILL trigger to keep xref for LASTNAME column in TUT002 table in sync
 _ydboctoX*.m:    . . SET oldValue=$PIECE($ZTOLDVAL,$ZTDELIM,$ZTUPDATE)
 _ydboctoX*.m:    . SET newValue=$PIECE($ZTVALUE,$ZTDELIM,$ZTUPDATE)
 _ydboctoX*.m:;; ---------------------------------------------------------
 _ydboctoX*.m:;; Generated M code maintains cross reference for FIRSTNAME column in TUT002 table
 _ydboctoX*.m:;; ---------------------------------------------------------
-_ydboctoX*.m:    ; Store state information in case query is canceled in middle of xref building
-_ydboctoX*.m:    ; Actual cleanup happens in _ydboctoCleanup.m using this saved state information
-_ydboctoX*.m:    ; Now that xref building is complete, cleanup saved cancel related state information
-_ydboctoX*.m:    ; Build cross reference for FIRSTNAME column in TUT002 table
 _ydboctoX*.m:    SET %ydboctocursor(cursorId,"keys",2,"TUT002","ID")=""
 _ydboctoX*.m:    FOR  SET %ydboctocursor(cursorId,"keys",2,"TUT002","ID")=$ORDER(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",2,"TUT002","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"TUT002","ID")="")  DO
-_ydboctoX*.m:    ; M routine that is invoked by SET/KILL/ZKILL trigger to keep xref for FIRSTNAME column in TUT002 table in sync
 _ydboctoX*.m:    . . SET oldValue=$PIECE($ZTOLDVAL,$ZTDELIM,$ZTUPDATE)
 _ydboctoX*.m:    . SET newValue=$PIECE($ZTVALUE,$ZTDELIM,$ZTUPDATE)
 # Test [DROP TABLE names] removes all plans using names table for UPDATE queries

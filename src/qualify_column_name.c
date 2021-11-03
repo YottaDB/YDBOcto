@@ -54,12 +54,12 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 	}
 	if ('.' == *c) {
 		first_delim = c;
-		/* Until issue #139 is resolved, i.e. databases are supported, there are two possibilities here:
+		/* Until issue YDBOcto#139 is resolved, i.e. databases are supported, there are two possibilities here:
 		 *	1. There is a table name and a column name, e.g. table_name.column_name
 		 *	2. There is a database name before the table name and column name, e.g. database_name.table_name.column_name
 		 * Accordingly, here we check to see if there is a database name specified by continuing past the initial '.'
-		 * delimiter to see if another '.' is present. If so, that means a database name is included and, until #139 is
-		 * resolved, should be treated as part of the table name.
+		 * delimiter to see if another '.' is present. If so, that means a database name is included and, until
+		 * YDBOcto#139 is resolved, should be treated as part of the table name.
 		 */
 		for (c++; ('\0' != *c) && ('.' != *c); c++) {
 			// Pass

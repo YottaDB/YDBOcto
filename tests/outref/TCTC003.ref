@@ -1,0 +1,518 @@
+
+-- TCTC003 : OCTO772 : Test various errors in CONSTRAINTS
+
+-- Test table level NOT NULL constraint issues SYNTAX ERROR
+create table products (first varchar, last varchar, not null);
+
+-- Test column level UNIQUE constraint issues SYNTAX ERROR if one or more columns is specified along with it.
+-- Only a table level UNIQUE constraint is allowed to specify one or more columns.
+create table products (id integer, name varchar unique (name));
+create table products (id integer, name varchar unique (id, name));
+
+-- Test of ERR_TABLE_MULTIPLE_PRIMARY_KEYS error
+create table products (id integer constraint prikey primary key primary key);
+create table products (id integer constraint prikey primary key constraint seckey primary key);
+create table products (id integer constraint prikey primary key, name varchar primary key);
+-- Note: The below produces a syntax error currently
+-- but will produce a ERR_TABLE_MULTIPLE_PRIMARY_KEYS error once YDBOcto#770 is implemented.
+create table products (id integer constraint prikey primary key, name varchar, primary key (id, name));
+
+-- Test of ERR_AGGREGATE_FUNCTION_CHECK error
+create table products (id integer, name text check (COUNT(*) is NULL));
+create table products (id integer, name text check (COUNT(name) is NULL));
+create table products (id integer, name text check (MIN(name) is NULL));
+create table products (id integer, name text check (MAX(name) is NULL));
+create table products (id integer, name text check (AVG(name) is NULL));
+create table products (id integer, name text check (SUM(name) is NULL));
+
+-- Test of ERR_SUBQUERY_CHECK error
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < (select 1000)));
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < (select * from names)));
+
+-- Test of ERR_AGGREGATE_FUNCTION_CHECK and ERR_SUBQUERY_CHECK errors
+create table products (id integer, name text check (COUNT(*) = (SELECT 1000)));
+
+-- Test of ERR_UNKNOWN_TABLE error in CHECK constraint
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < (select * from invalid)));
+
+-- Test of syntax error (TABLE_ASTERISK case in src/qualify_check_constraint.c)
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < *));
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < t.*));
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < products.*));
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price in products.*));
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price in names.*));
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < names.*));
+
+-- Test of ERR_MISSING_FROM_ENTRY error in CHECK constraint
+-- Test existing table name "names"
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < names.id));
+-- Test non-existent table name "x"
+create table products (id integer, name varchar check (2 > 0) check (x.name is not null));
+
+-- Test of ERR_UNKNOWN_COLUMN_NAME error in CHECK constraint
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < invalid));
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < product));
+---- Test error inside function call parameters
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < samevalue(product)));
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (ABS(id)));
+
+-- Test of syntax error in CHECK constraint (missing surrounding parentheses for entire expression)
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price > 5) AND (price < 10));
+
+-- Test of ERR_TYPE_NOT_COMPATIBLE error
+create table products (id integer CHECK (id + firstname), firstname varchar);
+create table products (id integer CHECK (id - true), firstname varchar);
+create table products (id integer CHECK (id * 0::boolean), firstname varchar);
+create table products (id integer CHECK (id / 1::varchar), firstname varchar);
+create table products (id integer CHECK (id % true), firstname varchar);
+create table products (id integer CHECK (id || true), firstname varchar);
+create table products (id integer CHECK (id || 0::numeric), firstname varchar);
+create table products (id integer CHECK (NULL || 0::numeric), firstname varchar);
+create table products (id integer CHECK (firstname), firstname varchar);
+create table products (id integer CHECK (firstname || id), firstname varchar);
+create table products (id integer CHECK (id::boolean || firstname), firstname varchar);
+create table products (id integer CHECK (firstname AND id::boolean), firstname varchar);
+create table products (id integer CHECK (id::boolean OR id), firstname varchar);
+---- Test error inside function call parameters
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (ABS(product_no)));
+
+-- Test of ERR_TYPE_MISMATCH error
+create table products (id integer CHECK (firstname IN (1, 2)), firstname varchar);
+create table products (id integer CHECK (id IN (1, 'abcd')), firstname varchar);
+
+-- Test of ERR_INVALID_INPUT_SYTNAX error
+create table products (id integer CHECK (+id::boolean));
+create table products (id integer CHECK (-id::boolean));
+create table products (id integer CHECK (-id::varchar));
+create table products (id integer, firstname varchar CHECK (firstname = +'Zero'));
+create table products (id integer, firstname varchar CHECK (firstname = 'Zero' || +'Zero'));
+create table products (id integer, firstname varchar CHECK (firstname = 'Zero' || -'Zero'));
+create table products (id integer, firstname varchar CHECK (firstname = 'Zero' || +NULL));
+create table products (id integer, firstname varchar CHECK (firstname = 'Zero' || -NULL));
+
+-- Test of ERR_UNKNOWN_FUNCTION error
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (ABS(name)));
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (INVALIDFUNC(name)));
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price * samevalue(product_no) < 1000));
+
+Error with syntax near (line 1, column 53):
+
+create table products (first varchar, last varchar, not null);
+                                                    ^^^
+syntax error, unexpected NOT, expecting CHECK
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (first varchar, last varchar, not null);
+Error with syntax near (line 1, column 56):
+
+create table products (id integer, name varchar unique (name));
+                                                       ^
+syntax error, unexpected LEFT_PAREN, expecting CHECK or NOT or PRIMARY or UNIQUE
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer, name varchar unique (name));
+Error with syntax near (line 1, column 56):
+
+create table products (id integer, name varchar unique (id, name));
+                                                       ^
+syntax error, unexpected LEFT_PAREN, expecting CHECK or NOT or PRIMARY or UNIQUE
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer, name varchar unique (id, name));
+[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_MULTIPLE_PRIMARY_KEYS : Multiple primary keys for table 'PRODUCTS' are not allowed
+Error with syntax near (line 1, column 65):
+
+create table products (id integer constraint prikey primary key primary key);
+                                                                ^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer constraint prikey primary key primary key);
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_MULTIPLE_PRIMARY_KEYS : Multiple primary keys for table 'PRODUCTS' are not allowed
+Error with syntax near (line 1, column 83):
+
+create table products (id integer constraint prikey primary key constraint seckey primary key);
+                                                                                  ^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer constraint prikey primary key constraint seckey primary key);
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_MULTIPLE_PRIMARY_KEYS : Multiple primary keys for table 'PRODUCTS' are not allowed
+Error with syntax near (line 1, column 79):
+
+create table products (id integer constraint prikey primary key, name varchar primary key);
+                                                                              ^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer constraint prikey primary key, name varchar primary key);
+
+Error with syntax near (line 1, column 80):
+
+create table products (id integer constraint prikey primary key, name varchar, primary key (id, name));
+                                                                               ^^^^^^^
+syntax error, unexpected PRIMARY, expecting CHECK
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer constraint prikey primary key, name varchar, primary key (id, name));
+[ERROR] PATH:LINENUM DATE TIME : ERR_AGGREGATE_FUNCTION_CHECK : Aggregate functions are not allowed in CHECK constraints
+Error with syntax near (line 1, column 53):
+
+create table products (id integer, name text check (COUNT(*) is NULL));
+                                                    ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer, name text check (COUNT(*) is NULL));
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_AGGREGATE_FUNCTION_CHECK : Aggregate functions are not allowed in CHECK constraints
+Error with syntax near (line 1, column 53):
+
+create table products (id integer, name text check (COUNT(name) is NULL));
+                                                    ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer, name text check (COUNT(name) is NULL));
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_AGGREGATE_FUNCTION_CHECK : Aggregate functions are not allowed in CHECK constraints
+Error with syntax near (line 1, column 53):
+
+create table products (id integer, name text check (MIN(name) is NULL));
+                                                    ^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer, name text check (MIN(name) is NULL));
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_AGGREGATE_FUNCTION_CHECK : Aggregate functions are not allowed in CHECK constraints
+Error with syntax near (line 1, column 53):
+
+create table products (id integer, name text check (MAX(name) is NULL));
+                                                    ^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer, name text check (MAX(name) is NULL));
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_AGGREGATE_FUNCTION_CHECK : Aggregate functions are not allowed in CHECK constraints
+Error with syntax near (line 1, column 53):
+
+create table products (id integer, name text check (AVG(name) is NULL));
+                                                    ^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer, name text check (AVG(name) is NULL));
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_AGGREGATE_FUNCTION_CHECK : Aggregate functions are not allowed in CHECK constraints
+Error with syntax near (line 1, column 53):
+
+create table products (id integer, name text check (SUM(name) is NULL));
+                                                    ^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer, name text check (SUM(name) is NULL));
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_CHECK : Cannot use subquery in CHECK constraint
+Error with syntax near (line 1, column 102):
+
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < (select 1000)));
+                                                                                                     ^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < (select 1000)));
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: NAMES
+Error with syntax near (line 1, column 116):
+
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < (select * from names)));
+                                                                                                                   ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < (select * from names)));
+[ERROR] PATH:LINENUM DATE TIME : ERR_AGGREGATE_FUNCTION_CHECK : Aggregate functions are not allowed in CHECK constraints
+Error with syntax near (line 1, column 53):
+
+create table products (id integer, name text check (COUNT(*) = (SELECT 1000)));
+                                                    ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer, name text check (COUNT(*) = (SELECT 1000)));
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: INVALID
+Error with syntax near (line 1, column 116):
+
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < (select * from invalid)));
+                                                                                                                   ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < (select * from invalid)));
+Error with syntax near (line 1, column 101):
+
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < *));
+                                                                                                    ^
+syntax error, unexpected ASTERISK
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < *));
+Error with syntax near (line 1, column 101):
+
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < t.*));
+                                                                                                    ^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < t.*));
+
+Error with syntax near (line 1, column 101):
+
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < products.*));
+                                                                                                    ^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < products.*));
+
+Error with syntax near (line 1, column 102):
+
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price in products.*));
+                                                                                                     ^^^^^^^^
+syntax error, unexpected IDENTIFIER_ALONE, expecting LEFT_PAREN
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price in products.*));
+Error with syntax near (line 1, column 102):
+
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price in names.*));
+                                                                                                     ^^^^^
+syntax error, unexpected IDENTIFIER_ALONE, expecting LEFT_PAREN
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price in names.*));
+Error with syntax near (line 1, column 101):
+
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < names.*));
+                                                                                                    ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < names.*));
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : NAMES
+Error with syntax near (line 1, column 101):
+
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < names.id));
+                                                                                                    ^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < names.id));
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : X
+Error with syntax near (line 1, column 70):
+
+create table products (id integer, name varchar check (2 > 0) check (x.name is not null));
+                                                                     ^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer, name varchar check (2 > 0) check (x.name is not null));
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID
+Error with syntax near (line 1, column 101):
+
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < invalid));
+                                                                                                    ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < invalid));
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: PRODUCT
+Error with syntax near (line 1, column 101):
+
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < product));
+                                                                                                    ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < product));
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: PRODUCT
+Error with syntax near (line 2, column 111):
+
+---- Test error inside function call parameters
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < samevalue(product)));
+                                                                                                              ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: ---- Test error inside function call parameters
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < samevalue(product)));
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: ID
+Error with syntax near (line 1, column 97):
+
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (ABS(id)));
+                                                                                                ^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (ABS(id)));
+
+Error with syntax near (line 1, column 104):
+
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price > 5) AND (price < 10));
+                                                                                                       ^^^
+syntax error, unexpected AND, expecting CHECK or NOT or PRIMARY or UNIQUE
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price > 5) AND (price < 10));
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for arithmetic operations
+Error with syntax near (line 1, column 47):
+
+create table products (id integer CHECK (id + firstname), firstname varchar);
+                                              ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer CHECK (id + firstname), firstname varchar);
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for arithmetic operations
+Error with syntax near (line 1, column 47):
+
+create table products (id integer CHECK (id - true), firstname varchar);
+                                              ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer CHECK (id - true), firstname varchar);
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for arithmetic operations
+Error with syntax near (line 1, column 47):
+
+create table products (id integer CHECK (id * 0::boolean), firstname varchar);
+                                              ^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer CHECK (id * 0::boolean), firstname varchar);
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for arithmetic operations
+Error with syntax near (line 1, column 47):
+
+create table products (id integer CHECK (id / 1::varchar), firstname varchar);
+                                              ^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer CHECK (id / 1::varchar), firstname varchar);
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for arithmetic operations
+Error with syntax near (line 1, column 47):
+
+create table products (id integer CHECK (id % true), firstname varchar);
+                                              ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer CHECK (id % true), firstname varchar);
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for || operator
+Error with syntax near (line 1, column 42):
+
+create table products (id integer CHECK (id || true), firstname varchar);
+                                         ^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for || operator
+Error with syntax near (line 1, column 48):
+
+create table products (id integer CHECK (id || true), firstname varchar);
+                                               ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer CHECK (id || true), firstname varchar);
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for || operator
+Error with syntax near (line 1, column 42):
+
+create table products (id integer CHECK (id || 0::numeric), firstname varchar);
+                                         ^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for || operator
+Error with syntax near (line 1, column 48):
+
+create table products (id integer CHECK (id || 0::numeric), firstname varchar);
+                                               ^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer CHECK (id || 0::numeric), firstname varchar);
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for || operator
+Error with syntax near (line 1, column 42):
+
+create table products (id integer CHECK (NULL || 0::numeric), firstname varchar);
+                                         ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for || operator
+Error with syntax near (line 1, column 50):
+
+create table products (id integer CHECK (NULL || 0::numeric), firstname varchar);
+                                                 ^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer CHECK (NULL || 0::numeric), firstname varchar);
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for boolean operations
+Error with syntax near (line 1, column 42):
+
+create table products (id integer CHECK (firstname), firstname varchar);
+                                         ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer CHECK (firstname), firstname varchar);
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for boolean operations
+Error with syntax near (line 1, column 42):
+
+create table products (id integer CHECK (firstname || id), firstname varchar);
+                                         ^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer CHECK (firstname || id), firstname varchar);
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for boolean operations
+Error with syntax near (line 1, column 42):
+
+create table products (id integer CHECK (id::boolean || firstname), firstname varchar);
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer CHECK (id::boolean || firstname), firstname varchar);
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for boolean operations
+Error with syntax near (line 1, column 42):
+
+create table products (id integer CHECK (firstname AND id::boolean), firstname varchar);
+                                         ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer CHECK (firstname AND id::boolean), firstname varchar);
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
+Error with syntax near (line 1, column 57):
+
+create table products (id integer CHECK (id::boolean OR id), firstname varchar);
+                                                        ^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer CHECK (id::boolean OR id), firstname varchar);
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for boolean operations
+Error with syntax near (line 2, column 93):
+
+---- Test error inside function call parameters
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (ABS(product_no)));
+                                                                                            ^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: ---- Test error inside function call parameters
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (ABS(product_no)));
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
+Error with syntax near (line 1, column 42):
+
+create table products (id integer CHECK (firstname IN (1, 2)), firstname varchar);
+                                         ^^^^^^^^^
+Error with syntax near (line 1, column 56):
+
+create table products (id integer CHECK (firstname IN (1, 2)), firstname varchar);
+                                                       ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer CHECK (firstname IN (1, 2)), firstname varchar);
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
+Error with syntax near (line 1, column 49):
+
+create table products (id integer CHECK (id IN (1, 'abcd')), firstname varchar);
+                                                ^
+Error with syntax near (line 1, column 57):
+
+create table products (id integer CHECK (id IN (1, 'abcd')), firstname varchar);
+                                                        ^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer CHECK (id IN (1, 'abcd')), firstname varchar);
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INPUT_SYNTAX : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type BOOLEAN
+Error with syntax near (line 1, column 43):
+
+create table products (id integer CHECK (+id::boolean));
+                                          ^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer CHECK (+id::boolean));
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INPUT_SYNTAX : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type BOOLEAN
+Error with syntax near (line 1, column 43):
+
+create table products (id integer CHECK (-id::boolean));
+                                          ^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer CHECK (-id::boolean));
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INPUT_SYNTAX : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
+Error with syntax near (line 1, column 43):
+
+create table products (id integer CHECK (-id::varchar));
+                                          ^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer CHECK (-id::varchar));
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INPUT_SYNTAX : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
+Error with syntax near (line 1, column 79):
+
+create table products (id integer, firstname varchar CHECK (firstname = +'Zero'));
+                                                                              ^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer, firstname varchar CHECK (firstname = +'Zero'));
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INPUT_SYNTAX : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
+Error with syntax near (line 1, column 89):
+
+create table products (id integer, firstname varchar CHECK (firstname = 'Zero' || +'Zero'));
+                                                                                        ^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer, firstname varchar CHECK (firstname = 'Zero' || +'Zero'));
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INPUT_SYNTAX : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
+Error with syntax near (line 1, column 89):
+
+create table products (id integer, firstname varchar CHECK (firstname = 'Zero' || -'Zero'));
+                                                                                        ^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer, firstname varchar CHECK (firstname = 'Zero' || -'Zero'));
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INPUT_SYNTAX : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type NULL
+Error with syntax near (line 1, column 84):
+
+create table products (id integer, firstname varchar CHECK (firstname = 'Zero' || +NULL));
+                                                                                   ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer, firstname varchar CHECK (firstname = 'Zero' || +NULL));
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INPUT_SYNTAX : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type NULL
+Error with syntax near (line 1, column 84):
+
+create table products (id integer, firstname varchar CHECK (firstname = 'Zero' || -NULL));
+                                                                                   ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (id integer, firstname varchar CHECK (firstname = 'Zero' || -NULL));
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'ABS' defined with given parameter types (VARCHAR)
+Error with syntax near (line 1, column 93):
+
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (ABS(name)));
+                                                                                            ^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (ABS(name)));
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'INVALIDFUNC' defined with given parameter types (VARCHAR)
+Error with syntax near (line 1, column 93):
+
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (INVALIDFUNC(name)));
+                                                                                            ^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (INVALIDFUNC(name)));
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'SAMEVALUE' defined with given parameter types (INTEGER)
+Error with syntax near (line 1, column 101):
+
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price * samevalue(product_no) < 1000));
+                                                                                                    ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price * samevalue(product_no) < 1000));
+

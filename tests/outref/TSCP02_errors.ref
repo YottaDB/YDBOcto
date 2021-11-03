@@ -13,6 +13,10 @@ SELECT 1 IN (true) FROM names;
              ^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT 1 IN (true) FROM names;
 [ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left BOOLEAN, right INTEGER
+Error with syntax near (line 1, column 8):
+
+SELECT true IN (1) FROM names;
+       ^^^^
 Error with syntax near (line 1, column 17):
 
 SELECT true IN (1) FROM names;

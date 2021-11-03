@@ -287,10 +287,10 @@ Error with syntax near (line 1, column 18):
 
 update names set firstname = (select id from names);
                  ^^^^^^^^^
-Error with syntax near (line 1, column 38):
+Error with syntax near (line 1, column 31):
 
 update names set firstname = (select id from names);
-                                     ^^
+                              ^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: update names set firstname = (select id from names);
 ???
 -- Test of various syntax errors (SET clause not specified etc.)
@@ -388,10 +388,10 @@ update names set firstname = 'abcd', abcd = 4, id = 4, id = 5;
 -- Test of ERR_SUBQUERY_ONE_COLUMN error
 (1 row)
 [ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_ONE_COLUMN : Subquery must return only one column
-Error with syntax near (line 1, column 38):
+Error with syntax near (line 1, column 31):
 
 update names set firstname = (select firstname,lastname from names limit 1);
-                                     ^^^^^^^^^
+                              ^^^^^^
 ???
 -- Test of ERR_SUBQUERY_MULTIPLE_ROWS error
 (1 row)

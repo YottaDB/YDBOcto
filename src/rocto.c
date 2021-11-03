@@ -281,7 +281,7 @@ int main(int argc, char **argv) {
 		rocto_session.port = serv_buf;
 		LOG_LOCAL_ONLY(INFO, INFO_CLIENT_CONNECTED, NULL);
 
-		status = ydb_init(); // YDB init needed by gtm_tls_init call below */
+		status = ydb_init(); // YDB init needed by gtm_tls_init call below
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
 			break;

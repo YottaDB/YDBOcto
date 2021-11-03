@@ -43,25 +43,25 @@ select count(n1.*) from ((select 1 as id, 'test' as name) union (select 2 as id,
 Error with syntax near (line 1, column 8):
 
 select SUM(n1.*) from customers n1;
-       ^^^^^^^^^
+       ^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select SUM(n1.*) from customers n1;
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION : Function MIN cannot be invoked with a parameter of type TABLENAME.*
 Error with syntax near (line 1, column 8):
 
 select MIN(n1.*) from customers n1;
-       ^^^^^^^^^
+       ^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select MIN(n1.*) from customers n1;
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION : Function MAX cannot be invoked with a parameter of type TABLENAME.*
 Error with syntax near (line 1, column 8):
 
 select MAX(n1.*) from customers n1;
-       ^^^^^^^^^
+       ^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select MAX(n1.*) from customers n1;
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION_TABLE_ASTERISK : Function AVG cannot be invoked with a parameter of type TABLENAME.* when table has more than one column
 Error with syntax near (line 1, column 8):
 
 select AVG(n1.*) from customers n1;
-       ^^^^^^^^^
+       ^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select AVG(n1.*) from customers n1;
 [ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right VARCHAR
 Error with syntax near (line 1, column 8):
@@ -84,12 +84,16 @@ select count(n1.*) from ((select 1 as id, 'test' as name) union (select 2 as id,
                                                                                                                                      ^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select count(n1.*) from ((select 1 as id, 'test' as name) union (select 2 as id, 'test' as name)) as n1 group by n1.* having (n1.* > 1);
 [ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for boolean operations
-Error with syntax near (line 1, column 127):
+Error with syntax near (line 1, column 126):
 
 select count(n1.*) from ((select 1 as id, 'test' as name) union (select 2 as id, 'test' as name)) as n1 group by n1.* having (n1.*);
-                                                                                                                              ^^
+                                                                                                                             ^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select count(n1.*) from ((select 1 as id, 'test' as name) union (select 2 as id, 'test' as name)) as n1 group by n1.* having (n1.*);
 [ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_ONE_COLUMN : Subquery must return only one column
+Error with syntax near (line 1, column 8):
+
+select (select names.*) from names;
+       ^^^^^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : NAMES
 Error with syntax near (line 1, column 41):
 
@@ -100,7 +104,7 @@ select firstname from names n1 group by names.*;
 Error with syntax near (line 1, column 8):
 
 select n1.* from names n2;
-       ^^
+       ^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* from names n2;
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N2
 Error with syntax near (line 1, column 38):
@@ -112,7 +116,7 @@ select firstname from names group by n2.*;
 Error with syntax near (line 1, column 14):
 
 select count(n2.*) from names;
-             ^^
+             ^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select count(n2.*) from names;
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 38):
@@ -124,7 +128,7 @@ select firstname from names order by n1.*;
 Error with syntax near (line 1, column 44):
 
 select firstname from names order by count(n1.*);
-                                           ^^
+                                           ^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 1, column 8):
 
@@ -135,7 +139,7 @@ select firstname from names order by count(n1.*);
 Error with syntax near (line 1, column 42):
 
 select firstname from names having count(n1.*);
-                                         ^^
+                                         ^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 1, column 8):
 
@@ -146,13 +150,13 @@ select firstname from names having count(n1.*);
 Error with syntax near (line 1, column 36):
 
 select firstname from names having n1.*;
-                                   ^^
+                                   ^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select firstname from names having n1.*;
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 23):
 
 select count(DISTINCT n1.*) from names n11;
-                      ^^
+                      ^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select count(DISTINCT n1.*) from names n11;
 [ERROR] PATH:LINENUM DATE TIME : ERR_AS_MORE_COLUMNS : Table name 'ABCD' has 3 columns available but 4 columns specified
 Error with syntax near (line 1, column 50):

@@ -16,21 +16,30 @@
 #include "octo_types.h"
 
 char *get_user_visible_type_string(SqlValueType type) {
+	char *ret;
+
 	switch (type) {
 	case BOOLEAN_VALUE:
-		return "BOOLEAN";
+		ret = "BOOLEAN";
+		break;
 	case NUMERIC_LITERAL:
-		return "NUMERIC";
+		ret = "NUMERIC";
+		break;
 	case INTEGER_LITERAL:
-		return "INTEGER";
+		ret = "INTEGER";
+		break;
 	case STRING_LITERAL:
-		return "VARCHAR"; /* VARCHAR (not STRING) is the externally visible type name in SQL */
+		ret = "VARCHAR"; /* VARCHAR (not STRING) is the externally visible type name in SQL */
+		break;
 	case TABLE_ASTERISK:
-		return "TABLENAME.*";
+		ret = "TABLENAME.*";
+		break;
 	case PARAMETER_VALUE:
-		return "PARAMETER";
+		ret = "PARAMETER";
+		break;
 	case NUL_VALUE:
-		return "NULL";
+		ret = "NULL";
+		break;
 	case COLUMN_REFERENCE:
 	case CALCULATED_VALUE:
 	case UNKNOWN_SqlValueType:
@@ -38,7 +47,9 @@ char *get_user_visible_type_string(SqlValueType type) {
 	default:
 		assert(FALSE);
 		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
+		ret = "";
 		break;
 	}
-	return "";
+	assert(MAX_TYPE_NAME_LEN > strlen(ret)); /* relied upon by users of MAX_TYPE_NAME_LEN (e.g. populate_data_type.c) */
+	return ret;
 }

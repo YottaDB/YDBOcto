@@ -119,10 +119,12 @@ int copied_so_far;
 (?i:CAST) { return CAST; }
 (?i:CHAR) { return CHAR; }
 (?i:CHARACTER) { return CHARACTER; }
+(?i:CHECK) { return CHECK; }
 (?i:COALESCE) { return COALESCE; }
 (?i:COLLATE) { return COLLATE; }
 (?i:COMMAND) { return COMMAND; }
 (?i:COMMIT) { return COMMIT; }
+(?i:CONSTRAINT) { return CONSTRAINT; }
 (?i:CORRESPONDING) { return CORRESPONDING; }
 (?i:COUNT) { return COUNT; }
 (?i:CREATE) { return CREATE; }

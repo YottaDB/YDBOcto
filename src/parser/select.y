@@ -140,6 +140,7 @@ query_specification
       INVOKE_QUERY_SPECIFICATION(ret, (OptionalKeyword)$set_quantifier, $select_list, $table_expression,
       									$optional_order_by, plan_id);
       $$ = ret;
+      $$->loc = @SELECT;	/* useful for error reporting to know lexical start of query */
     }
   | SELECT set_quantifier select_list {
       // We're going to run against a secret table with one row so the list gets found
@@ -181,6 +182,7 @@ query_specification
       select->table_list = join_statement;
       INVOKE_QUERY_SPECIFICATION(ret, (OptionalKeyword)$set_quantifier, select_list, t_stmt, NULL, plan_id);
       $$ = ret;
+      $$->loc = @SELECT;	/* useful for error reporting to know lexical start of query */
     }
   ;
 

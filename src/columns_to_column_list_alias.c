@@ -39,9 +39,10 @@ SqlColumnListAlias *columns_to_column_list_alias(SqlColumn *column, SqlStatement
 
 			OCTO_CMALLOC_STRUCT(cur_column_list_alias, SqlColumnListAlias);
 			cur_column_list_alias->alias = cur_column->columnName;
-			/* Note: Unlike other callers of "get_sqlvaluetype_from_sqldatatype()", in this caller case, it is
-			 * possible to see "UNKNOWN_SqlDataType" so handle that exception before invoking the function by passing
-			 * "TRUE" as the second parameter below. In that case, caller would at a later point issue an error.
+			/* Note: Unlike other callers of "get_sqlvaluetype_from_sqldatatype()", in this caller case, it is possible
+			 * to see "UNKNOWN_SqlDataType" (in case of a VALUES() clause as we don't yet know the data type of the
+			 * elements specified). The type will be later determined in "populate_data_type.c" so allow for an
+			 * unknown type by passing "TRUE" as the second parameter below.
 			 */
 			cur_column_list_alias->type
 			    = get_sqlvaluetype_from_sqldatatype(cur_column->data_type_struct.data_type, TRUE);

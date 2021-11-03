@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -16,7 +16,8 @@
 #include "octo_types.h"
 
 // Function invoked by the rule named "set_function_specification" and "general_set_function" in src/parser.y
-SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeyword set_quantifier, SqlStatement *value_expression) {
+SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeyword set_quantifier, SqlStatement *value_expression,
+				 YYLTYPE *loc) {
 	SqlStatement *	      ret, *aggregate_stmt;
 	SqlAggregateFunction *af;
 	SqlValue *	      value;
@@ -46,6 +47,6 @@ SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeywor
 	} else {
 		af->type = aggregate_type;
 	}
-	af->parameter = create_sql_column_list(value_expression, NULL, (NULL != value_expression) ? &value_expression->loc : NULL);
+	af->parameter = create_sql_column_list(value_expression, NULL, loc);
 	return ret;
 }

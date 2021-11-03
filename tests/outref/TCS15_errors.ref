@@ -68,15 +68,6 @@ Error with syntax near (line 1, column 23):
 
 select case when 'Zero' then 'MyZero' else 1 end from names;
                       ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_CASE_BRANCH_TYPE_MISMATCH : CASE branch type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 37):
-
-select case when 'Zero' then 'MyZero' else 1 end from names;
-                                    ^
-Error with syntax near (line 1, column 44):
-
-select case when 'Zero' then 'MyZero' else 1 end from names;
-                                           ^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select case when 'Zero' then 'MyZero' else 1 end from names;
 [ERROR] PATH:LINENUM DATE TIME : ERR_CASE_VALUE_TYPE_MISMATCH : WHEN argument is of type INTEGER but is used in a context that expects a BOOLEAN type
 Error with syntax near (line 1, column 24):

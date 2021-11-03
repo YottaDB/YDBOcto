@@ -21,19 +21,19 @@ select *;
 Error with syntax near (line 1, column 8):
 
 select n1.*;
-       ^^
+       ^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.*;
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 8):
 
 select n1.* from names n2;
-       ^^
+       ^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* from names n2;
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 23):
 
 select * from (select n1.* from names n2);
-                      ^^
+                      ^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from (select n1.* from names n2);
 [ERROR] PATH:LINENUM DATE TIME : ERR_SELECT_STAR_NO_TABLES : SELECT * with no tables specified is not valid
 Error with syntax near (line 1, column 8):
@@ -48,6 +48,10 @@ select * alias from names;
        ^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * alias from names;
 [ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_ONE_COLUMN : Subquery must return only one column
+Error with syntax near (line 1, column 8):
+
+select (select names.*) from names;
+       ^^^^^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N2
 Error with syntax near (line 1, column 68):
 

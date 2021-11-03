@@ -198,6 +198,14 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 			}
 		} while (cur_keyword != start_keyword);
 		break;
+	case constraint_STATEMENT:;
+		SqlConstraint *constraint;
+
+		UNPACK_SQL_STATEMENT(constraint, stmt, constraint);
+		UNUSED(constraint); /* TODO: YDBOcto#772: Remove this line when below lines are uncommented */
+		/* TODO: YDBOcto#772: Need to handle constraint->name */
+		/* TODO: YDBOcto#772: Need to handle constraint->definition */
+		break;
 	default:
 		assert(FALSE);
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");

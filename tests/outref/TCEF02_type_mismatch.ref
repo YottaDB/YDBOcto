@@ -1,5 +1,9 @@
 SELECT NULLIF(1, '1');
 [ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
+Error with syntax near (line 1, column 14):
+
+SELECT NULLIF(1, '1');
+              ^
 Error with syntax near (line 1, column 19):
 
 SELECT NULLIF(1, '1');

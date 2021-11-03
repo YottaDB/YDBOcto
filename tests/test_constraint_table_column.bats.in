@@ -1,0 +1,33 @@
+#################################################################
+#								#
+# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+}
+
+@test "TCTC001 : OCTO772 : Test CONSTRAINT name is accepted for PRIMARY KEY, UNIQUE and NOT NULL" {
+	load_fixture TCTC001.sql subtest novv
+	verify_output TCTC001 output.txt
+}
+
+@test "TCTC002 : OCTO772 : Test column level and table level CHECK constraints are accepted" {
+	load_fixture TCTC002.sql subtest novv
+	verify_output TCTC002 output.txt
+}
+
+@test "TCTC003 : OCTO772 : Test various errors in CONSTRAINTS" {
+	load_fixture TCTC003.sql subtest novv
+	verify_output TCTC003 output.txt
+}

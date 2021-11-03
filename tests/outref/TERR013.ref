@@ -70,10 +70,10 @@ ID|FIRSTNAME|LASTNAME|ID|FIRSTNAME|LASTNAME
 5|Zero|Cool|5|Zero|Cool
 (36 rows)
 [ERROR] PATH:LINENUM DATE TIME : ERR_AMBIGUOUS_COLUMN_NAME : Ambiguous column name 'FIRSTNAME': qualify name for safe execution
-Error with syntax near (line 1, column 23):
+Error with syntax near (line 1, column 16):
 
 SELECT * FROM (SELECT * FROM names n1, names n2) n3 WHERE firstName = 'Zero';
-                      ^
+               ^^^^^^
 Error with syntax near (line 1, column 59):
 
 SELECT * FROM (SELECT * FROM names n1, names n2) n3 WHERE firstName = 'Zero';

@@ -60,6 +60,29 @@ typedef void* yyscan_t;
       value->v.calculated = stmt;                   \
 }
 
+/* RET is variable where a pointer to the allocated keyword_STATEMENT structure is placed.
+ * TYPE is type of constraint (OPTIONAL_CHECK_CONSTRAINT etc.)
+ * NAME is name of constraint (user specified, NULL if not specified)
+ * DEFINITION is more details about constraint (currently for CHECK constraint it is a boolean condition)
+ */
+#define	MALLOC_KEYWORD_CONSTRAINT_STATEMENT(RET, TYPE, NAME, DEFINITION)			\
+{												\
+	SqlOptionalKeyword	*keyword;							\
+	SqlConstraint		*constraint;							\
+												\
+	SQL_STATEMENT(RET, keyword_STATEMENT);							\
+	MALLOC_STATEMENT(RET, keyword, SqlOptionalKeyword);					\
+	UNPACK_SQL_STATEMENT(keyword, RET, keyword);						\
+	keyword->keyword = TYPE;								\
+	SQL_STATEMENT(keyword->v, constraint_STATEMENT);					\
+	MALLOC_STATEMENT(keyword->v, constraint, SqlConstraint);				\
+	keyword->v->loc = yyloc; /* note down location for later use in error reporting */	\
+	dqinit(keyword);									\
+	UNPACK_SQL_STATEMENT(constraint, keyword->v, constraint);				\
+	constraint->definition = DEFINITION;							\
+        constraint->name = NAME;								\
+}
+
 extern int yylex(YYSTYPE * yylval_param, YYLTYPE *llocp, yyscan_t yyscanner);
 extern int yyparse(yyscan_t scan, SqlStatement **out, int *plan_id, ParseContext *parse_context);
 extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, ParseContext *parse_context, char const *s);
@@ -90,10 +113,12 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token CAST
 %token CHAR
 %token CHARACTER
+%token CHECK
 %token COALESCE
 %token COLLATE
 %token COMMAND
 %token COMMIT
+%token CONSTRAINT
 %token CORRESPONDING
 %token COUNT
 %token CREATE
@@ -330,17 +355,22 @@ search_condition
       ($$)->v.binary->operation = BOOLEAN_OR;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($boolean_term);
+      $$->loc = @1;
     }
   ;
 
 boolean_term
-  : boolean_factor { $$ = $boolean_factor; }
+  : boolean_factor {
+      $$ = $boolean_factor;
+      $$->loc = yyloc;
+    }
   | boolean_term AND boolean_factor {
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_AND;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($boolean_factor);
+      $$->loc = @1;
     }
   ;
 
@@ -351,11 +381,15 @@ boolean_factor
       MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
       ($$)->v.unary->operation = BOOLEAN_NOT;
       ($$)->v.unary->operand = ($boolean_test);
+      $$->loc = @1;
     }
   ;
 
 boolean_test
-  : predicate { $$ = $predicate; }
+  : predicate {
+      $$ = $predicate;
+      $$->loc = yyloc;
+    }
   | predicate IS NULL_TOKEN {
       SQL_STATEMENT($$, unary_STATEMENT);
       MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
@@ -363,12 +397,14 @@ boolean_test
       // that way, we could use the same code for both NULL, NOT NULL, TRUE, and FALSE.
       ($$)->v.unary->operation = BOOLEAN_IS_NULL;
       ($$)->v.unary->operand = ($predicate);
+      $$->loc = @1;
     }
   | predicate IS NOT NULL_TOKEN {
       SQL_STATEMENT($$, unary_STATEMENT);
       MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
       ($$)->v.unary->operation = BOOLEAN_IS_NOT_NULL;
       ($$)->v.unary->operand = ($predicate);
+      $$->loc = @1;
     }
   | predicate IS boolean_primary { ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "boolean_test_tail: IS boolean_primary"); YYABORT; }
   | predicate IS NOT boolean_primary { ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "boolean_test_tail: IS NOT boolean_primary"); YYABORT; }
@@ -379,10 +415,12 @@ boolean_primary
   : TRUE_TOKEN {
       SQL_VALUE_STATEMENT($$, BOOLEAN_VALUE, "1");
       INVOKE_PARSE_LITERAL_TO_PARAMETER(parse_context, ($$)->v.value, FALSE);
+      $$->loc = yyloc;
     }
   | FALSE_TOKEN {
       SQL_VALUE_STATEMENT($$, BOOLEAN_VALUE, "0");
       INVOKE_PARSE_LITERAL_TO_PARAMETER(parse_context, ($$)->v.value, FALSE);
+      $$->loc = yyloc;
     }
   | UNKNOWN { ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "boolean_primary: UNKNOWN"); YYABORT; }
   ;
@@ -405,7 +443,7 @@ comparison_predicate
       ($$)->v.binary->operation = (BinaryOperations)$comp_op;	/* Note: "comp_op" rule returns "BinaryOperations" type */
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
-      ($$)->loc = yyloc; /* note down the location for later use in populate_data_type (for error reporting) */
+      ($$)->loc = @1; /* note down the location for later use in populate_data_type (for error reporting) */
     }
   | row_value_constructor TILDE row_value_constructor {
       /* generates a regex type statement
@@ -696,6 +734,7 @@ value_expression
 null_specification
   : NULL_TOKEN {
 	SQL_VALUE_STATEMENT($$, NUL_VALUE, "");
+	$$->loc = yyloc;
     }
   ;
 
@@ -816,6 +855,7 @@ numeric_primary
       if (NULL == $$) {
         YYERROR;
       }
+      $$->loc = @1;
     }
 //  | numeric_value_function
   ;
@@ -930,15 +970,16 @@ result
 
 set_function_specification
   : COUNT LEFT_PAREN ASTERISK RIGHT_PAREN {
-	$$ = aggregate_function(COUNT_ASTERISK_AGGREGATE, NO_KEYWORD, NULL);
+        YYLTYPE	tmploc;
+
+        tmploc = @COUNT;	/* pass location of "COUNT" token below for later useful error reporting */
+        $$ = aggregate_function(COUNT_ASTERISK_AGGREGATE, NO_KEYWORD, NULL, &tmploc);
     }
   | COUNT LEFT_PAREN set_quantifier value_expression RIGHT_PAREN {
-	YYLTYPE	tmploc;
+        YYLTYPE	tmploc;
 
-	tmploc = $value_expression->loc;	/* needed so we can pass a different yyloc to "aggregate_function()" */
-	$value_expression->loc = yyloc;		/* for later use by "aggregate_function()" */
-	$$ = aggregate_function(COUNT_AGGREGATE, (OptionalKeyword)$set_quantifier, $value_expression);
-	$value_expression->loc = tmploc;	/* Restore origin "loc" now that passing yyloc is done */
+        tmploc = @COUNT;	/* pass location of "COUNT" token below for later useful error reporting */
+        $$ = aggregate_function(COUNT_AGGREGATE, (OptionalKeyword)$set_quantifier, $value_expression, &tmploc);
     }
   | general_set_function { $$ = $general_set_function; }
   | generic_function_call { $$ = $generic_function_call; }
@@ -946,12 +987,10 @@ set_function_specification
 
 general_set_function
   : set_function_type LEFT_PAREN set_quantifier value_expression RIGHT_PAREN {
-	YYLTYPE	tmploc;
+        YYLTYPE	tmploc;
 
-	tmploc = $value_expression->loc;	/* needed so we can pass a different yyloc to "aggregate_function()" */
-	$value_expression->loc = yyloc;		/* for later use by "aggregate_function()" */
-	$$ = aggregate_function((SqlAggregateType)$set_function_type, (OptionalKeyword)$set_quantifier, $value_expression);
-	$value_expression->loc = tmploc;	/* Restore origin "loc" now that passing yyloc is done */
+        tmploc = @set_function_type;	/* pass location of "set_function_type" token below for later useful error reporting */
+        $$ = aggregate_function((SqlAggregateType)$set_function_type, (OptionalKeyword)$set_quantifier, $value_expression, &tmploc);
     }
   ;
 
@@ -1464,8 +1503,59 @@ table_element_list_tail
 
 table_element
   : column_definition { $$ = $column_definition; }
-//  | table_constraint_definition
+  | table_constraint_definition {
+	/* Return the table level constraint inside a dummy SqlColumn structure to be in sync with the type
+	 * returned by the previous grammar rule ("column_definition").
+	 */
+	SQL_STATEMENT($$, column_STATEMENT);
+	MALLOC_STATEMENT($$, column, SqlColumn);
+	dqinit(($$)->v.column);
+	($$)->v.column->keywords = $table_constraint_definition;
+    }
   ;
+
+table_constraint_definition
+  : constraint_name_definition table_constraint constraint_check_time {
+	SqlStatement		*ret;
+	SqlOptionalKeyword	*keyword;
+	SqlConstraint		*constraint;
+
+	ret = $table_constraint;
+	UNPACK_SQL_STATEMENT(keyword, ret, keyword);
+	UNPACK_SQL_STATEMENT(constraint, keyword->v, constraint);
+	constraint->name = $constraint_name_definition;
+	assert(NULL == $constraint_check_time);	/* TODO: "constraint_check_time" is currently ignored (i.e. unsupported) */
+	$$ = ret;
+    }
+  ;
+
+table_constraint
+   : check_constraint_definition { $$ = $check_constraint_definition; }
+//   <unique constraint definition>		TODO: Uncomment as part of YDBOcto#582 UNIQUE constraint support
+//   <unique constraint definition>		TODO: Uncomment as part of YDBOcto#770 PRIMARY KEY constraint support
+// | <referential constraint definition>	TODO: Uncomment as part of YDBOcto#773 FOREIGN KEY constraint support
+   ;
+
+/* ------------------------------------------------------------------------------------
+ * TODO: Uncomment below grammar rules as part of YDBOcto#582 UNIQUE constraint support
+ * TODO: Uncomment below grammar rules as part of YDBOcto#770 PRIMARY KEY constraint support
+ * ------------------------------------------------------------------------------------
+ * <unique constraint definition>    ::=   <unique specification> <left paren> <unique column list> <right paren>
+ * <unique specification>    ::=   UNIQUE | PRIMARY KEY
+ * <unique column list>    ::=   <column name list>
+ * ------------------------------------------------------------------------------------
+ */
+
+/* ------------------------------------------------------------------------------------
+ * TODO: Uncomment below grammar rules as part of YDBOcto#773 FOREIGN KEY constraint support
+ * ------------------------------------------------------------------------------------
+ * <referential constraint definition>    ::=
+ *       FOREIGN KEY <left paren> <referencing columns> <right paren> <references specification>
+ * <referencing columns>    ::=   <reference column list>
+ * <reference column list>    ::=   <column name list>
+ * <column name list>    ::=   <column name> [ { <comma> <column name> }... ]
+ * ------------------------------------------------------------------------------------
+ */
 
 /// TODO: not complete
 column_definition
@@ -1517,6 +1607,7 @@ column_name
       len = table_name_len + column_name_len + 2;
       c = octo_cmalloc(memory_chunks, len);
       SQL_VALUE_STATEMENT($$, COLUMN_REFERENCE, c);
+      $$->loc = @1;
       d = table_name->v.string_literal;
       // Convert to caps as we copy
       TOUPPER(c, &c[table_name_len+1], d, &d[strlen(d)]);
@@ -1649,46 +1740,69 @@ column_definition_tail
 
 column_constraint_definition
   : constraint_name_definition column_constraint constraint_attributes {
-      ($$) = $column_constraint;
+	SqlStatement		*ret;
+	SqlOptionalKeyword	*keyword;
+	SqlConstraint		*constraint;
+
+	ret = $column_constraint;
+	UNPACK_SQL_STATEMENT(keyword, ret, keyword);
+	UNPACK_SQL_STATEMENT(constraint, keyword->v, constraint);
+	constraint->name = $constraint_name_definition;
+	assert(NULL == $constraint_attributes);	/* TODO: "constraint_attributes" is currently ignored (i.e. unsupported) */
+	$$ = ret;
     }
   ;
 
-/// TODO: not complete
 constraint_name_definition
   : /* Empty */ { $$ = NULL; }
+  | CONSTRAINT constraint_name { $$ = $constraint_name; }
+  ;
+
+constraint_name
+  : qualified_name { $$ = $qualified_name; }
   ;
 
 /// TODO: not complete
 column_constraint
   : NOT NULL_TOKEN {
-      SQL_STATEMENT($$, keyword_STATEMENT);
-      MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
-      ($$)->v.keyword->keyword = NOT_NULL;
-      dqinit(($$)->v.keyword);
+      MALLOC_KEYWORD_CONSTRAINT_STATEMENT($$, NOT_NULL, NULL, NULL);
     }
   | unique_specifications { $$ = $unique_specifications; }
 //  | reference_specifications
-//  | check_constraint_definition
+  | check_constraint_definition { $$ = $check_constraint_definition; }
   ;
 
 unique_specifications
   : UNIQUE {
-      SQL_STATEMENT($$, keyword_STATEMENT);
-      MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
-      ($$)->v.keyword->keyword = UNIQUE_CONSTRAINT;
-      dqinit(($$)->v.keyword);
+      MALLOC_KEYWORD_CONSTRAINT_STATEMENT($$, UNIQUE_CONSTRAINT, NULL, NULL);
     }
   | PRIMARY KEY {
-      SQL_STATEMENT($$, keyword_STATEMENT);
-      MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
-      ($$)->v.keyword->keyword = PRIMARY_KEY;
-      dqinit(($$)->v.keyword);
+      MALLOC_KEYWORD_CONSTRAINT_STATEMENT($$, PRIMARY_KEY, NULL, NULL);
     }
   ;
 
-/// TODO: not complete
+check_constraint_definition
+  : CHECK LEFT_PAREN search_condition RIGHT_PAREN {
+      MALLOC_KEYWORD_CONSTRAINT_STATEMENT($$, OPTIONAL_CHECK_CONSTRAINT, NULL, $search_condition)
+    }
+  ;
+
 constraint_attributes
-  : /* Empty */
+  : { $$ = NULL; } /* Empty */
+  /* TODO: Currently commented out.
+   * See https://ronsavage.github.io/SQL/sql-92.bnf.html#constraint%20attributes for details
+  | constraint_check_time [ [ NOT ] DEFERRABLE ]
+  | [ NOT ] DEFERRABLE [ <constraint check time> ]
+   */
+  ;
+
+constraint_check_time
+  : { $$ = NULL; } /* Empty */
+  /* TODO: Currently commented out.
+   * See https://ronsavage.github.io/SQL/sql-92.bnf.html#constraint%20check%20time for details.
+  | INITIALLY DEFERRED
+  | INITIALLY IMMEDIATE
+   */
   ;
 
 // TODO: Implement indexes. For now, create a dummy struct to ignore them in run_query.
@@ -1745,9 +1859,9 @@ identifier_body
   ;
 
 identifier_start
-  : IDENTIFIER_BACK_TICK { $$ = $IDENTIFIER_BACK_TICK; ($$)->loc = yyloc; }
-  | IDENTIFIER_PERIOD_IDENTIFIER { $$ = $IDENTIFIER_PERIOD_IDENTIFIER; ($$)->loc = yyloc; }
-  | IDENTIFIER_ALONE { $$ = $IDENTIFIER_ALONE; ($$)->loc = yyloc; }
+  : IDENTIFIER_BACK_TICK { $$ = $IDENTIFIER_BACK_TICK; }
+  | IDENTIFIER_PERIOD_IDENTIFIER { $$ = $IDENTIFIER_PERIOD_IDENTIFIER; }
+  | IDENTIFIER_ALONE { $$ = $IDENTIFIER_ALONE; }
   ;
 
 data_type

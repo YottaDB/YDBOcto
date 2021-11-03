@@ -139,7 +139,18 @@ end
 tools/ci/doc_error_update.sh
 if ($status) then
 	echo "  --> Hook $0 returned non-zero status"
-	echo "  --> HOOK-E-FAIL : Non-zero exit status returned by doc_error_update.sh"
+	echo "  --> HOOK-E-FAIL : Non-zero exit status returned by tools/ci/doc_error_update.sh"
+	@ exitstatus = 1
+endif
+
+# -----------------------------------------------------------
+# 5) Verify all code base related assertions are still valid
+# -----------------------------------------------------------
+
+tools/ci/check_code_base_assertions.sh
+if ($status) then
+	echo "  --> Hook $0 returned non-zero status"
+	echo "  --> HOOK-E-FAIL : Non-zero exit status returned by tools/ci/check_code_base_assertions.sh"
 	@ exitstatus = 1
 endif
 

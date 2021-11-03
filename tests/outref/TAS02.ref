@@ -3,7 +3,7 @@
 
 SELECT ARRAY(SELECT * FROM names);
 [ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_ONE_COLUMN : Subquery must return only one column
-Error with syntax near (line 1, column 21):
+Error with syntax near (line 1, column 14):
 
 SELECT ARRAY(SELECT * FROM names);
-                    ^
+             ^^^^^^

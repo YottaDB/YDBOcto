@@ -182,9 +182,14 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 	fi
 fi
 
-# Confirm all error message mnemonics and text are included in the documentation
 pushd ..
+
+# Confirm all error message mnemonics and text are included in the documentation
 ./tools/ci/doc_error_update.sh "check"
+
+# Confirm code base assertions are still valid
+./tools/ci/check_code_base_assertions.sh
+
 popd
 
 echo "# Randomly choose to test Debug or Release build"

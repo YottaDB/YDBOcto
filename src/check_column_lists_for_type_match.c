@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -121,7 +121,7 @@ int check_column_lists_for_type_match(SqlStatement *stmt) {
 		if (NULL == type_mismatch_cla[0]) {
 			switch (left_type) {
 			case BOOLEAN_VALUE:
-				is_type_mismatch = ((NUL_VALUE != right_type) && (BOOLEAN_VALUE != right_type));
+				is_type_mismatch = !IS_BOOLEAN_TYPE(right_type);
 				break;
 			case INTEGER_LITERAL:
 			case NUMERIC_LITERAL:

@@ -25,18 +25,30 @@ SELECT COALESCE(invalid_column) FROM names;
                 ^^^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COALESCE(invalid_column) FROM names;
 [ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right NUMERIC
+Error with syntax near (line 1, column 17):
+
+SELECT COALESCE(NULL, 'a', 1.2);
+                ^^^^
 Error with syntax near (line 1, column 28):
 
 SELECT COALESCE(NULL, 'a', 1.2);
                            ^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COALESCE(NULL, 'a', 1.2);
 [ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right NUMERIC
+Error with syntax near (line 1, column 19):
+
+SELECT COALESCE('a', 1.2, 1);
+                  ^
 Error with syntax near (line 1, column 22):
 
 SELECT COALESCE('a', 1.2, 1);
                      ^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COALESCE('a', 1.2, 1);
 [ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
+Error with syntax near (line 1, column 17):
+
+SELECT COALESCE(NULL, 1, 'a');
+                ^^^^
 Error with syntax near (line 1, column 28):
 
 SELECT COALESCE(NULL, 1, 'a');

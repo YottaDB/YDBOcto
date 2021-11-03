@@ -18,6 +18,12 @@
 #include "octo.h"
 #include "octo_types.h"
 
+/* Note: The code in "qualify_check_constraint.c" is modeled on the below so it is possible changes here might need to be
+ *       made there too. And vice versa (i.e. changes to "qualify_statement.c" might need to be made here too).
+ *       An automated tool "tools/ci/check_code_base_assertions.csh" alerts us (through the pre-commit script and/or
+ *       pipeline jobs) if these two get out of sync.
+ */
+
 /* Returns:
  *	0 if query is successfully qualified.
  *	1 if query had errors during qualification.
@@ -48,9 +54,6 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 	if (NULL == stmt)
 		return result;
 	switch (stmt->type) {
-	case select_STATEMENT:
-		assert(FALSE);
-		break;
 	case column_alias_STATEMENT:
 		/* We can get here if the select list was empty and we took all columns from the table.
 		 * OR if we are doing GROUP BY validation. Do some checks in the latter case.
@@ -156,9 +159,10 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 			result |= qualify_statement(value->v.calculated, tables, table_alias_stmt, depth + 1, ret);
 			break;
 		case FUNCTION_NAME:
-			/* The function name lookup is done in populate_data_type by a call to find_function,
-			 * so no action is needed here.
-			 *
+			/* Cannot validate the function using a "find_function()" call here (like we did "find_table()" for
+			 * the table name in the parser). This is because we need type information of the actual function
+			 * parameters to determine which function definition matches the current usage and that has to wait
+			 * until "populate_data_type()". See detailed comment under "case function_call_STATEMENT:" there.
 			 */
 			break;
 		case COERCE_TYPE:
@@ -167,8 +171,23 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 				yyerror(NULL, NULL, &stmt, NULL, NULL, NULL);
 			}
 			break;
-		default:
+		case BOOLEAN_VALUE:
+		case NUMERIC_LITERAL:
+		case INTEGER_LITERAL:
+		case STRING_LITERAL:
+		case NUL_VALUE:
+		case PARAMETER_VALUE:
 			break;
+		case FUNCTION_HASH:
+		case DELIM_VALUE:
+		case IS_NULL_LITERAL:
+		case INVALID_SqlValueType:
+		case UNKNOWN_SqlValueType:
+			assert(FALSE);
+			break;
+			/* Do not add "default" case as we want to enumerate each explicit case here instead of having a
+			 * general purpose bucket where all types not listed above fall into as that could hide subtle bugs.
+			 */
 		}
 		break;
 	case binary_STATEMENT:
@@ -251,7 +270,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 					assert(FALSE);
 				}
 			}
-			yyerror(NULL, NULL, &af->parameter, NULL, NULL, NULL);
+			yyerror(&af->parameter->loc, NULL, NULL, NULL, NULL, NULL);
 			result = 1;
 		} else {
 			assert(!table_alias->do_group_by_checks || table_alias->aggregate_function_or_group_by_specified);
@@ -490,9 +509,35 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		} while (cur_cla != start_cla);
 		break;
 	case create_table_STATEMENT:
-		break;
+	case select_STATEMENT:
 	case table_value_STATEMENT:
-	default:
+	case insert_STATEMENT:
+	case delete_from_STATEMENT:
+	case update_STATEMENT:
+	case join_STATEMENT:
+	case create_function_STATEMENT:
+	case drop_table_STATEMENT:
+	case drop_function_STATEMENT:
+	case column_STATEMENT:
+	case parameter_type_list_STATEMENT:
+	case constraint_STATEMENT:
+	case keyword_STATEMENT:
+	case begin_STATEMENT:
+	case commit_STATEMENT:
+	case set_STATEMENT:
+	case show_STATEMENT:
+	case no_data_STATEMENT:
+	case delim_char_list_STATEMENT:
+	case index_STATEMENT:
+	case data_type_struct_STATEMENT:
+	case join_type_STATEMENT:
+	case discard_all_STATEMENT:
+	case row_value_STATEMENT:
+	case history_STATEMENT:
+	case invalid_STATEMENT:
+		/* Do not add "default:" case as we want to enumerate each explicit case here instead of having a
+		 * general purpose bucket where all types not listed above fall into as that could hide subtle bugs.
+		 */
 		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
 		assert(FALSE);
 		result = 1;

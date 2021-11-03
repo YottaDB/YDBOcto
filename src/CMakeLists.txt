@@ -142,6 +142,7 @@ add_library(libocto OBJECT
   auto_upgrade_binary_function_definition.c
   auto_upgrade_binary_table_definition.c
   auto_upgrade_plan_definition_if_needed.c
+  binary_operation_data_type_check.c
   check_column_lists_for_type_match.c
   cleanup_tables.c
   columns_to_column_list_alias.c
@@ -159,10 +160,12 @@ add_library(libocto OBJECT
   emit_create_table.c
   emit_create_function.c
   emit_sql_statement.c
+  ensure_same_type.c
   find_column.c
   find_column_alias_name.c
   find_table.c
   find_function.c
+  function_call_data_type_check.c
   generate_key_name.c
   generate_routine_name.c
   get_aggregate_func_name.c
@@ -180,8 +183,10 @@ add_library(libocto OBJECT
   get_mem_usage.c
   get_mval_len.c
   get_row_count_from_cursorId.c
+  get_psql_type_from_sqlvaluetype.c
   get_set_operation_string.c
   get_sqldatatype_from_sqlvaluetype.c
+  get_sqlvaluetype_from_psql_type.c
   get_sqlvaluetype_from_sqldatatype.c
   get_user_visible_type_string.c
   history.c
@@ -279,6 +284,7 @@ add_library(libocto OBJECT
   process_asterisk.c
   process_table_asterisk_cl.c
   process_table_asterisk_cla.c
+  qualify_check_constraint.c
   qualify_column_name.c
   qualify_query.c
   qualify_statement.c
@@ -294,6 +300,7 @@ add_library(libocto OBJECT
   store_table_definition.c
   store_table_in_pg_class.c
   traverse_where_clause.c
+  unary_operation_data_type_check.c
   ydb_error_check.c
   ydb_hash_to_string.c
   yyerror.c

@@ -25,7 +25,15 @@ select firstname from names where (NOT firstname);
 -- Boolean operations should issue error if one operand is not boolean type
 select n2.id and EXISTS (select * from names n1) from names n2;
 [ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for || operator
+Error with syntax near (line 1, column 8):
+
+select true || false;
+       ^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for || operator
+Error with syntax near (line 1, column 16):
+
+select true || false;
+               ^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select true || false;
 ID|ID
 0|0
@@ -104,6 +112,10 @@ select id from names where (id AND id);
                                    ^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id from names where (id AND id);
 [ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
+Error with syntax near (line 1, column 28):
+
+select id from names where (NOT id);
+                           ^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id from names where (NOT id);
 [ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for boolean operations
 Error with syntax near (line 1, column 36):
@@ -128,6 +140,10 @@ select firstname from names where (firstname AND firstname);
                                                  ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select firstname from names where (firstname AND firstname);
 [ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for boolean operations
+Error with syntax near (line 1, column 35):
+
+select firstname from names where (NOT firstname);
+                                  ^^^^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select firstname from names where (NOT firstname);
 [ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
 Error with syntax near (line 1, column 8):

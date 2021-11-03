@@ -279,6 +279,7 @@ typedef enum OptionalKeyword {
 	OPTIONAL_READWRITE,
 	OPTIONAL_ENDPOINT,
 	OPTIONAL_KEEPDATA,
+	OPTIONAL_CHECK_CONSTRAINT,
 } OptionalKeyword;
 
 typedef enum SqlSetOperationType {
@@ -531,7 +532,7 @@ typedef struct SqlTableAlias {
  * Represents an optional KEYWORD which has a value associated with it */
 typedef struct SqlOptionalKeyword {
 	enum OptionalKeyword keyword;
-	// Keyword value (SqlValue) or UNION statement (SqlSelectStatement)
+	// Keyword value (SqlValue) or UNION statement (SqlSelectStatement) or CONSTRAINT (SqlConstraint)
 	struct SqlStatement *v;
 	dqcreate(SqlOptionalKeyword);
 } SqlOptionalKeyword;
@@ -833,6 +834,15 @@ typedef struct SqlNoDataStatement {
 	char b;
 } SqlNoDataStatement;
 
+typedef struct SqlConstraint {
+	struct SqlStatement *name;	 /* Name of constraint (user specified or automatically assigned) */
+	struct SqlStatement *definition; /* Constraint specific content.
+					  * e.g. For OPTIONAL_CHECK_CONSTRAINT, this will point to the CHECK condition
+					  *      that needs to be satisfied.
+					  */
+	dqcreate(SqlConstraint);
+} SqlConstraint;
+
 typedef struct SqlStatement {
 	enum SqlStatementType type;
 	struct YYLTYPE	      loc;
@@ -844,11 +854,8 @@ typedef struct SqlStatement {
 		struct SqlFunction *		  create_function;
 		struct SqlSelectStatement *	  select;
 		struct SqlInsertStatement *	  insert;
-		struct SqlDeleteFromStatement *	  delete_from;
-		struct SqlUpdateStatement *	  update;
 		struct SqlDropTableStatement *	  drop_table;
 		struct SqlDropFunctionStatement * drop_function;
-		struct SqlArray *		  array;
 		struct SqlValue *		  value;
 		struct SqlFunctionCall *	  function_call;
 		struct SqlCoalesceCall *	  coalesce;
@@ -862,7 +869,7 @@ typedef struct SqlStatement {
 		struct SqlColumn *		  column; // Note singular versus plural
 		struct SqlJoin *		  join;
 		struct SqlParameterTypeList *	  parameter_type_list;
-		struct SqlOptionalKeyword *	  constraint;
+		struct SqlConstraint *		  constraint; /* corresponding to constraint_STATEMENT */
 		struct SqlOptionalKeyword *	  keyword;
 		struct SqlColumnListAlias *	  column_list_alias;
 		struct SqlColumnAlias *		  column_alias;
@@ -884,6 +891,12 @@ typedef struct SqlStatement {
 		 */
 		struct SqlRowValue *  row_value;   /* corresponding to row_value_STATEMENT */
 		struct SqlTableValue *table_value; /* corresponding to table_value_STATEMENT */
+		struct SqlArray *     array;
+		/* Below SqlStatementType types do not have any parameters so they do not have corresponding members here.
+		 *	history_STATEMENT
+		 */
+		struct SqlDeleteFromStatement *delete_from;
+		struct SqlUpdateStatement *    update;
 		/* Below SqlStatementType types do not have any parameters so they do not have corresponding members here.
 		 *	invalid_STATEMENT
 		 */

@@ -43,12 +43,24 @@ SELECT * FROM (VALUES (1), (2), (3), (2,3)) AS MyTable;
                                 ^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM (VALUES (1), (2), (3), (2,3)) AS MyTable;
 [ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
+Error with syntax near (line 1, column 24):
+
+SELECT * FROM (VALUES (1), ('abcd')) AS abcd;
+                       ^
 Error with syntax near (line 1, column 34):
 
 SELECT * FROM (VALUES (1), ('abcd')) AS abcd;
                                  ^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM (VALUES (1), ('abcd')) AS abcd;
 [ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left NUMERIC, right BOOLEAN
+Error with syntax near (line 1, column 24):
+
+SELECT * FROM (VALUES (1), (1.5), (true)) AS abcd;
+                       ^
+Error with syntax near (line 1, column 36):
+
+SELECT * FROM (VALUES (1), (1.5), (true)) AS abcd;
+                                   ^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM (VALUES (1), (1.5), (true)) AS abcd;
 [ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
 Error with syntax near (line 1, column 82):
@@ -65,10 +77,10 @@ Error with syntax near (line 1, column 28):
 
 SELECT id FROM names WHERE id = (SELECT * FROM (VALUES (NULL),('abcd')) n1 WHERE column1 IS NOT NULL);
                            ^^
-Error with syntax near (line 1, column 41):
+Error with syntax near (line 1, column 34):
 
 SELECT id FROM names WHERE id = (SELECT * FROM (VALUES (NULL),('abcd')) n1 WHERE column1 IS NOT NULL);
-                                        ^
+                                 ^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id FROM names WHERE id = (SELECT * FROM (VALUES (NULL),('abcd')) n1 WHERE column1 IS NOT NULL);
 [ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: A
 Error with syntax near (line 1, column 8):

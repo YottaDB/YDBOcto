@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -41,6 +41,7 @@ SELECT 1+COUNT(1+COUNT(id)) FROM names;
 
 --> Below should error out because aggregate functions are not allowed in WHERE
 SELECT COUNT(OrderID),CustomerID FROM Orders WHERE COUNT(OrderID)>10 GROUP BY CustomerID ORDER BY COUNT(OrderID) DESC, CustomerID;
+SELECT * FROM names where firstname = count(*);
 
 --> Below should error out because aggregate functions are not allowed in WHERE clause even in a sub-query
 SELECT * FROM names n1 WHERE n1.firstName IN (SELECT n2.firstname FROM names n2 where n2.firstname = MAX(n2.lastname));

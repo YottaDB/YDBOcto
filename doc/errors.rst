@@ -49,6 +49,14 @@ Octo or Rocto Errors are of the form :code:`ERR_<error>` or :code:`INFO_<error>`
    :local:
 
 ++++++++++++++++++++++++++++
+ERR_AGGREGATE_FUNCTION_CHECK
+++++++++++++++++++++++++++++
+
+Text: Aggregate functions are not allowed in CHECK constraints
+
+Description/Action: This error is generated when aggregate functions are used in a CHECK constraint, which is not allowed. PSQL Error Code: 42803
+
+++++++++++++++++++++++++++++
 ERR_AGGREGATE_FUNCTION_JOIN
 ++++++++++++++++++++++++++++
 
@@ -982,6 +990,14 @@ Text: Subquery must return only one column
 
 Description/Action: This error is generated when a subquery must return only one column. PSQL Error Code: 42601
 
++++++++++++++++++++
+ERR_SUBQUERY_CHECK
++++++++++++++++++++
+
+Text: Cannot use subquery in CHECK constraint
+
+Description/Action: This error is generated when a subquery is used in a CHECK constraint, which is not allowed. PSQL Error Code: 0A000
+
 ++++++++++++++++++++++++++++
 ERR_SUBQUERY_MULTIPLE_ROWS
 ++++++++++++++++++++++++++++
@@ -1030,13 +1046,13 @@ Text: Table 'xxx' does not exist, skipping
 
 Description/Action: This message lets the user know that Octo is skipping the action since the specified table does not exist. PSQL Error Code: 00000
 
-++++++++++++++++++++++
-INFO_TABLE_SEARCH
-++++++++++++++++++++++
+++++++++++++++++++++++++++++++++
+ERR_TABLE_MULTIPLE_PRIMARY_KEYS
+++++++++++++++++++++++++++++++++
 
-Text: Searching for table xxx
+Text: Multiple primary keys for table 'xxx' are not allowed
 
-Description/Action: This message lets the user know that Octo is looking up the given table. PSQL Error Code: 00000
+Description/Action: This error is generated when a :code:`CREATE TABLE` command specifies more than one column level or table level :code:`PRIMARY KEY` constraint. PSQL Error Code: 42P10
 
 +++++++++++++++++++
 ERR_TABLE_READONLY
@@ -1045,6 +1061,14 @@ ERR_TABLE_READONLY
 Text: xxx not allowed on READONLY tables. Only allowed on READWRITE tables.
 
 Description/Action: Queries that modify tables (e.g. INSERT INTO, DELETE, ALTER etc.) are not allowed on tables that have been created as READONLY. They are only allowed on READWRITE tables. PSQL Error Code: 42601
+
+++++++++++++++++++++++
+INFO_TABLE_SEARCH
+++++++++++++++++++++++
+
+Text: Searching for table xxx
+
+Description/Action: This message lets the user know that Octo is looking up the given table. PSQL Error Code: 00000
 
 ++++++++++++++++++++++++++++++
 ERR_TABLE_UNKNOWN_COLUMN_NAME

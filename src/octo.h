@@ -525,6 +525,12 @@ typedef enum RegexType {
 #define IS_NULL_FIXED_VALUE(FIX_VALUE) \
 	((NULL != FIX_VALUE) && (LP_VALUE == FIX_VALUE->type) && (IS_NULL_LITERAL == FIX_VALUE->v.lp_value.value->type))
 
+/* A NULL is also considered compatible with BOOLEAN, STRING, INTEGER, NUMERIC etc.
+ * Below macros take that into account.
+ */
+#define IS_BOOLEAN_TYPE(TYPE) ((BOOLEAN_VALUE == TYPE) || (NUL_VALUE == TYPE))
+#define IS_STRING_TYPE(TYPE)  ((STRING_LITERAL == TYPE) || (NUL_VALUE == TYPE))
+
 // Initialize a stack-allocated ydb_buffer_t to point to a stack-allocated buffer (char [])
 #define OCTO_SET_BUFFER(BUFFER, STRING)                                                                                     \
 	{                                                                                                                   \
@@ -784,6 +790,8 @@ typedef enum RegexType {
 #define DEBUG_ONLY(X)
 #endif
 
+#define MAX_TYPE_NAME_LEN 16 /* maximum length of a type name displayed to the user */
+
 // Convenience type definition for run_query callback function
 typedef int (*callback_fnptr_t)(SqlStatement *, ydb_long_t, void *, char *, PSQL_MessageTypeT);
 
@@ -815,11 +823,14 @@ SqlStatement *find_column_alias_name(SqlStatement *stmt);
 void	      parse_tree_optimize(SqlSelectStatement *select);
 void	      move_where_clause_to_on_clause(SqlStatement **stmt_ptr, SqlJoin *start_join);
 SqlStatement *traverse_where_clause(SqlStatement *binary_stmt, SqlJoin *start_join);
-int	      qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTableAlias *parent_table_alias,
-			    QualifyStatementParms *ret);
+
+SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, SqlStatement *table_alias_stmt, int depth,
+				    SqlColumnListAlias **ret_cla);
+int		qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *type);
+int		qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTableAlias *parent_table_alias,
+			      QualifyStatementParms *ret);
 int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_alias_stmt, int depth, QualifyStatementParms *ret);
-SqlColumnAlias *    qualify_column_name(SqlValue *column_value, SqlJoin *tables, SqlStatement *table_alias_stmt, int depth,
-					SqlColumnListAlias **ret_cla);
+
 SqlColumnListAlias *match_column_in_table(SqlTableAlias *table, char *column_name, int column_name_len, boolean_t *ambiguous,
 					  boolean_t issue_error);
 boolean_t	    match_column_list_alias_in_select_column_list(SqlColumnListAlias *match_cla, SqlStatement *cla_stmt);
@@ -882,7 +893,8 @@ int  store_plandirs_gvn(char *plan_filename);
 /* Parse related functions invoked from the .y files (parser.y, select.y etc.) */
 void	      as_name(SqlStatement *as_name);
 SqlStatement *sql_set_statement(SqlStatement *variable, SqlStatement *value, ParseContext *parse_context);
-SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeyword set_quantifier, SqlStatement *value_expression);
+SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeyword set_quantifier, SqlStatement *value_expression,
+				 YYLTYPE *loc);
 SqlStatement *alloc_no_keyword(void);
 SqlStatement *between_predicate(SqlStatement *row_value_constructor, SqlStatement *from, SqlStatement *to, boolean_t not_specified);
 SqlStatement *cast_specification(SqlStatement *cast_specification, SqlStatement *source);

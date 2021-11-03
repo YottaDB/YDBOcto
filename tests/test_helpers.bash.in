@@ -362,20 +362,12 @@ stop_rocto() {
 		listener_pid=$(cat rocto.pid)
 		# Wait for rocto servers (i.e. children of the listener) to die
 		ps --no-headers --ppid $listener_pid | awk '{print $1}' | while read server_pid; do
-			if [[ -d /proc/$server_pid ]]; then
-				# Wait for rocto process to actually die
-				while [[ -d /proc/$server_pid ]]; do
-					sleep .1s
-				done
-			fi
+			# Wait for rocto server process to actually die
+			tail --pid=$server_pid -f /dev/null
 		done
-		if [[ -d /proc/$listener_pid ]]; then
-			$ydb_dist/mupip stop $listener_pid
-			# Wait for rocto process to actually die
-			while [[ -d /proc/$listener_pid ]]; do
-				sleep .1s
-			done
-		fi
+		$ydb_dist/mupip stop $listener_pid
+		# Wait for rocto process to actually die
+		tail --pid=$listener_pid -f /dev/null
 		# Release port number held by rocto (stored in the file "rocto.port")
 		local lockfile=@TEST_OUTPUT_DIR@/find_open_port
 		local test_port=`cat rocto.port`

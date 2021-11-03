@@ -13,6 +13,7 @@
 #include <assert.h>
 
 #include "octo.h"
+#include "octo_type_check.h"
 
 #define SOURCE	  (1 << 0)
 #define DELIM	  (1 << 1)
@@ -118,6 +119,127 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	 * Override this later based on whether READWRITE or READONLY keywords have been specified in the CREATE TABLE.
 	 */
 	table_type = config->default_tabletype;
+
+	/* TODO: YDBOcto#772:
+	 * For each column level and/or table level constraint,
+	 * Check if it can be a column level constraint or needs to be a table level constraint.
+	 * For CHECK : If specified as a column level constraint, check the search condition to see if at least one column
+	 *		in the table other than the current column of interest is used.
+	 *		If so, move this to a table level constraint.
+	 *	       If specified as a column level constraint, check the search condition to see if the only column used
+	 *		in the constraint is another valid column. If so, make this a column level constraint of that column.
+	 *		Not of the current column.
+	 *	       If specified as a column level constraint, check the search condition to see if no columns are used
+	 *		in the constraint. If so, make this a table level constraint.
+	 * For UNIQUE : If specified as a column level constraint, there is no way multiple columns can be specified there so
+	 *		it stays a column level constraint (no table level constraint possible).
+	 * For PRIMARY KEY : Same description above as UNIQUE holds.
+	 *
+	 * For each column level constraint,
+	 * Go through each column and combine all UNIQUE/PRIMARY KEY/NOT NULL/CHECK constraints into ONE keyword structure
+	 * For CHECK : The SqlConstraint structure will maintain a doubly linked list of all column level CHECK constraints.
+	 *		Discard all remaining CHECK keyword structures. Just use the SqlConstraint part of that structure.
+	 * For UNIQUE : Maintain only the first named unique structure. If nothing is named, pick the first unnamed structure.
+	 *		Discard all remaining UNIQUE keyword structures.
+	 * For PRIMARY KEY : If more than one specified at a column level and/or the table level (across all columns), issue error.
+	 * For NOT NULL : Take just the first structure. Discard all the rest. Also discard constraint name for this.
+	 *
+	 * For each table level constraint,
+	 * Go through each table level constraint and handle it separately.
+	 * For CHECK : Maintain a linked list of CHECK keyword structures. Possible to have more than one CHECK table level
+	 *		constraints.
+	 * For UNIQUE : Maintain a linked list of UNIQUE keyword structures. Possible to have more than one UNIQUE table level
+	 *		constraints.
+	 * For PRIMARY KEY : If more than one specified at a column level and/or the table level (across all columns), issue error.
+	 * For NOT NULL : Not possible as a table level constraint.
+	 *
+	 */
+	boolean_t primary_key_constraint_seen;
+	primary_key_constraint_seen = FALSE;
+
+	/* Column level keyword scan */
+	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
+	cur_column = start_column;
+	do {
+		UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
+		cur_keyword = start_keyword;
+		do {
+			switch (cur_keyword->keyword) {
+			case NOT_NULL:
+				/* For NOT NULL, Postgres ignores the constraint name. So Octo will do the same.
+				 * Discard the SqlStatement and SqlConstraint structures that were malloced.
+				 */
+				assert(NULL != cur_keyword->v);
+				cur_keyword->v = NULL;
+				break;
+			case PRIMARY_KEY:
+				if (primary_key_constraint_seen) {
+					UNPACK_SQL_STATEMENT(value, table->tableName, value);
+					ERROR(ERR_TABLE_MULTIPLE_PRIMARY_KEYS, value->v.reference);
+					yyerror(NULL, NULL, &cur_keyword->v, NULL, NULL, NULL);
+					return NULL;
+				}
+				primary_key_constraint_seen = TRUE;
+				cur_keyword->v = NULL; /* TODO: YDBOcto#772: Temporarily set this to get tests to pass */
+				break;
+			case UNIQUE_CONSTRAINT:
+				cur_keyword->v = NULL; /* TODO: YDBOcto#772: Temporarily set this to get tests to pass */
+				break;
+			case OPTIONAL_CHECK_CONSTRAINT:;
+				SqlConstraint *constraint;
+				SqlValueType   type;
+
+				UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
+				if (qualify_check_constraint(constraint->definition, table, &type)) {
+					return NULL; /* CHECK constraint qualification failed */
+				}
+				if (!IS_BOOLEAN_TYPE(type)) {
+					int result;
+
+					ISSUE_TYPE_COMPATIBILITY_ERROR(type, "boolean operations", &constraint->definition, result);
+					UNUSED(result);
+					return NULL;
+				}
+#ifdef TODO_YDBOCTO_772
+				/* TODO: YDBOcto#772: User specified constraint name is NULL. Auto generate a constraint name */
+				if (NULL == constraint->name) {
+					SqlStatement *name_stmt;
+
+					switch (keyword->keyword) {
+					case UNIQUE_CONSTRAINT:
+					case PRIMARY_KEY:
+					case OPTIONAL_CHECK_CONSTRAINT:
+						break;
+					default:
+						assert(FALSE);
+						break;
+					}
+					constraint->name = name_stmt;
+				}
+#endif
+				cur_keyword->v = NULL; /* TODO: YDBOcto#772: Temporarily set this to get tests to pass */
+			default:
+				break;
+			}
+			cur_keyword = cur_keyword->next;
+		} while (cur_keyword != start_keyword);
+
+		SqlColumn *save_cur_column;
+		save_cur_column = cur_column;
+		cur_column = cur_column->next;
+		/* TODO: YDBOcto#772: Temporarily remove table level constraint to get tests to pass */
+		if (NULL == save_cur_column->columnName) {
+			dqdel(save_cur_column);
+		}
+	} while (cur_column != start_column);
+
+	/* TODO: YDBOcto#772: Go through column level keywords and table level keywords AND auto assign constraint names if needed.
+	 * Take this opportunity to check if any of the constraint names have already been used (i.e. if there
+	 * is a collision between a user specified constraint name and an auto assigned name and if so issue error.
+	 * When auto assigning names, check against currently used names for collision and if so issue error.
+	 * Choose a random 8 byte sub string for auto assigning if the total length of the name becomes more than 63.
+	 */
+
 	/*********************************************************************************************************************
 	 * First process table-level keywords and set "options" bitmask variable accordingly.
 	 * Also update "table_type" based on whether READONLY or READWRITE keywords were specified.
@@ -419,7 +541,11 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		boolean_t	    is_key_column;
 		SqlOptionalKeyword *piece_keyword, *delim_keyword;
 
-		/* Check for duplicate column names. If so issue error. */
+		/* Check for duplicate column names. If so issue error.
+		 * Note: Cannot do this earlier than when a hidden key column could possibly be added
+		 * as otherwise we would skip checking for column name collisions between a user specified
+		 * column name and the auto generated hidden key column name.
+		 */
 		UNPACK_SQL_STATEMENT(columnName1, cur_column->columnName, value);
 		for (cur_column2 = cur_column->next; start_column != cur_column2; cur_column2 = cur_column2->next) {
 			SqlValue *columnName2;
@@ -465,6 +591,9 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				piece_keyword = cur_keyword;
 				break;
 			case NO_KEYWORD:
+				break;
+			case OPTIONAL_CHECK_CONSTRAINT:
+				/* TODO: YDBOcto#772: Check if any readwrite incompatibilities can arise with this keyword */
 				break;
 			default:
 				ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");

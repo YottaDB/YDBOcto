@@ -30,6 +30,7 @@ SELECT 1+COUNT(1+COUNT(id)) FROM names;
 
 --> Below should error out because aggregate functions are not allowed in WHERE
 SELECT COUNT(OrderID),CustomerID FROM Orders WHERE COUNT(OrderID)>10 GROUP BY CustomerID ORDER BY COUNT(OrderID) DESC, CustomerID;
+SELECT * FROM names where firstname = count(*);
 
 --> Below should error out because aggregate functions are not allowed in WHERE clause even in a sub-query
 SELECT * FROM names n1 WHERE n1.firstName IN (SELECT n2.firstname FROM names n2 where n2.firstname = MAX(n2.lastname));
@@ -127,50 +128,50 @@ Error with syntax near (line 2, column 8):
 
 --> Below should error out because AVG and SUM cannot operate on VARCHAR type (i.e. string literals), only on INTEGER/NUMERIC
 SELECT SUM(firstname) FROM names;
-       ^^^^^^^^^^^^^^
+       ^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below should error out because AVG and SUM cannot operate on VARCHAR type (i.e. string literals), only on INTEGER/NUMERIC
 SELECT SUM(firstname) FROM names;
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION : Function AVG cannot be invoked with a parameter of type VARCHAR
 Error with syntax near (line 1, column 8):
 
 SELECT AVG(firstname) FROM names;
-       ^^^^^^^^^^^^^^
+       ^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT AVG(firstname) FROM names;
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION : Function SUM cannot be invoked with a parameter of type VARCHAR
 Error with syntax near (line 1, column 8):
 
 SELECT SUM(firstname || 'abcd') FROM names;
-       ^^^^^^^^^^^^^^^^^^^^^^^^
+       ^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT SUM(firstname || 'abcd') FROM names;
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION : Function AVG cannot be invoked with a parameter of type VARCHAR
 Error with syntax near (line 1, column 8):
 
 SELECT AVG(firstname || 'abcd') FROM names;
-       ^^^^^^^^^^^^^^^^^^^^^^^^
+       ^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT AVG(firstname || 'abcd') FROM names;
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION : Function SUM cannot be invoked with a parameter of type VARCHAR
 Error with syntax near (line 1, column 8):
 
 SELECT SUM('abcd' || firstname) FROM names;
-       ^^^^^^^^^^^^^^^^^^^^^^^^
+       ^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT SUM('abcd' || firstname) FROM names;
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION : Function AVG cannot be invoked with a parameter of type VARCHAR
 Error with syntax near (line 1, column 8):
 
 SELECT AVG('abcd' || firstname) FROM names;
-       ^^^^^^^^^^^^^^^^^^^^^^^^
+       ^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT AVG('abcd' || firstname) FROM names;
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION : Function SUM cannot be invoked with a parameter of type VARCHAR
 Error with syntax near (line 1, column 8):
 
 SELECT SUM(Country) FROM Customers;
-       ^^^^^^^^^^^^
+       ^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT SUM(Country) FROM Customers;
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION : Function AVG cannot be invoked with a parameter of type VARCHAR
 Error with syntax near (line 1, column 8):
 
 SELECT AVG(Country) FROM Customers;
-       ^^^^^^^^^^^^
+       ^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT AVG(Country) FROM Customers;
 Error with syntax near (line 2, column 23):
 
@@ -194,29 +195,35 @@ Error with syntax near (line 2, column 16):
 
 --> Below should error out because aggregate function calls cannot be nested
 SELECT 1+2*AVG(AVG(id)) FROM names;
-               ^^^^^^^
+               ^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below should error out because aggregate function calls cannot be nested
 SELECT 1+2*AVG(AVG(id)) FROM names;
 [ERROR] PATH:LINENUM DATE TIME : ERR_AGGREGATE_FUNCTION_NESTED : Aggregate function calls cannot be nested
 Error with syntax near (line 1, column 18):
 
 SELECT 1+COUNT(1+COUNT(id)) FROM names;
-                 ^^^^^^^^^
+                 ^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT 1+COUNT(1+COUNT(id)) FROM names;
 [ERROR] PATH:LINENUM DATE TIME : ERR_AGGREGATE_FUNCTION_WHERE : Aggregate functions are not allowed in WHERE
 Error with syntax near (line 2, column 52):
 
 --> Below should error out because aggregate functions are not allowed in WHERE
 SELECT COUNT(OrderID),CustomerID FROM Orders WHERE COUNT(OrderID)>10 GROUP BY CustomerID ORDER BY COUNT(OrderID) DESC, CustomerID;
-                                                   ^^^^^^^^^^^^^^
+                                                   ^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below should error out because aggregate functions are not allowed in WHERE
 SELECT COUNT(OrderID),CustomerID FROM Orders WHERE COUNT(OrderID)>10 GROUP BY CustomerID ORDER BY COUNT(OrderID) DESC, CustomerID;
+[ERROR] PATH:LINENUM DATE TIME : ERR_AGGREGATE_FUNCTION_WHERE : Aggregate functions are not allowed in WHERE
+Error with syntax near (line 1, column 39):
+
+SELECT * FROM names where firstname = count(*);
+                                      ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names where firstname = count(*);
 [ERROR] PATH:LINENUM DATE TIME : ERR_AGGREGATE_FUNCTION_WHERE : Aggregate functions are not allowed in WHERE
 Error with syntax near (line 2, column 102):
 
 --> Below should error out because aggregate functions are not allowed in WHERE clause even in a sub-query
 SELECT * FROM names n1 WHERE n1.firstName IN (SELECT n2.firstname FROM names n2 where n2.firstname = MAX(n2.lastname));
-                                                                                                     ^^^^^^^^^^^^^^^^
+                                                                                                     ^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below should error out because aggregate functions are not allowed in WHERE clause even in a sub-query
 SELECT * FROM names n1 WHERE n1.firstName IN (SELECT n2.firstname FROM names n2 where n2.firstname = MAX(n2.lastname));
 [ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column COUNTRY must appear in the GROUP BY clause or be used in an aggregate function
@@ -266,7 +273,7 @@ Error with syntax near (line 4, column 70):
 -->	a) aggregate function (COUNT(c.CustomerID) above) cannot be inside JOIN conditions
 -->	b) o.OrderID should appear in GROUP BY or used in an aggregate function
 SELECT c.CustomerID,o.OrderID FROM Customers c LEFT JOIN Orders o ON COUNT(c.CustomerID) = o.CustomerID GROUP BY c.CustomerID;
-                                                                     ^^^^^^^^^^^^^^^^^^^
+                                                                     ^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ORDERID must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 4, column 21):
 

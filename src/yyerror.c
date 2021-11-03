@@ -3,6 +3,9 @@
  * Copyright (c) 2019,2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
+ * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
  *	This source code contains the intellectual property	*
  *	of its copyright holder(s), and is made available	*
  *	under a license.  If you do not know the terms of	*
@@ -61,27 +64,21 @@ void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, Pa
 		/* This is a "yyerror" call from outside the parser (e.g. "populate_data_type.c").
 		 * In this case, compute "llocp" from "out".
 		 */
-		SqlColumnListAlias *cur_cla;
-		SqlSetOperation *   set_operation;
-		SqlStatement *	    sql_stmt, *stmt;
-		SqlTableAlias *	    table_alias;
+		SqlSetOperation *set_operation;
+		SqlStatement *	 sql_stmt, *stmt;
 
 		assert(NULL == llocp);
 		stmt = *out;
 		switch (stmt->type) {
 		case set_operation_STATEMENT:
 		case table_alias_STATEMENT:
-			/* In this case, use the location of the first select column_list operand */
 			if (set_operation_STATEMENT == stmt->type) {
 				UNPACK_SQL_STATEMENT(set_operation, stmt, set_operation);
 				sql_stmt = drill_to_table_alias(set_operation->operand[0]);
 			} else {
 				sql_stmt = stmt;
 			}
-			UNPACK_SQL_STATEMENT(table_alias, sql_stmt, table_alias);
-			assert(NULL != table_alias->column_list);
-			UNPACK_SQL_STATEMENT(cur_cla, table_alias->column_list, column_list_alias);
-			llocp = &cur_cla->column_list->loc;
+			llocp = &sql_stmt->loc;
 			break;
 		default:
 			llocp = &stmt->loc;

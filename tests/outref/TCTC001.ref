@@ -1,0 +1,11 @@
+
+-- TCTC001 : OCTO772 : Test CONSTRAINT name is accepted for PRIMARY KEY, UNIQUE and NOT NULL
+
+drop table if exists products;
+CREATE TABLE products (product_no integer CONSTRAINT c1 PRIMARY KEY, name text CONSTRAINT c2 UNIQUE CONSTRAINT c3 NOT NULL);
+select * from products;
+
+DROP TABLE
+CREATE TABLE
+PRODUCT_NO|NAME
+(0 rows)

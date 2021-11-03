@@ -132,8 +132,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 			UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
 		}
 	} else {
-		/* Reneable later as it breaks pipeline: https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/768 */
-		//assert(NULL == piece); /* A column cannot be a piece and an extract column at the same time */
+		assert(NULL == piece); /* A column cannot be a piece and an extract column at the same time */
 		is_extract = TRUE;
 	}
 	UNPACK_SQL_STATEMENT(value, keyword->v, value);

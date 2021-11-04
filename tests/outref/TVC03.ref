@@ -1,0 +1,51 @@
+
+-- TVC03 : OCTO502 : Test various errors with VALUES clause
+
+-- Test of ERR_UNKNOWN_COLUMN_NAME error
+select * from (values (id));
+select * from names n1 where id in (values (1), (n1.invalid));
+
+-- Test of ERR_MISSING_FROM_ENTRY error
+select * from (values (tbl.id)) as abcd;
+select * from names n1 where id in (values (1), (n2.id));
+
+-- Test of ERR_TYPE_MISMATCH error
+select * from names n1 where id in (values (1), (n1.firstname));
+select * from names n1 where id in (values (n1.lastname), (n1.firstname));
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: ID
+Error with syntax near (line 1, column 24):
+
+select * from (values (id));
+                       ^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from (values (id));
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: N1.INVALID
+Error with syntax near (line 1, column 50):
+
+select * from names n1 where id in (values (1), (n1.invalid));
+                                                 ^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names n1 where id in (values (1), (n1.invalid));
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : TBL
+Error with syntax near (line 1, column 24):
+
+select * from (values (tbl.id)) as abcd;
+                       ^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from (values (tbl.id)) as abcd;
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N2
+Error with syntax near (line 1, column 50):
+
+select * from names n1 where id in (values (1), (n2.id));
+                                                 ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names n1 where id in (values (1), (n2.id));
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
+Error with syntax near (line 1, column 50):
+
+select * from names n1 where id in (values (1), (n1.firstname));
+                                                 ^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names n1 where id in (values (1), (n1.firstname));
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
+Error with syntax near (line 1, column 30):
+
+select * from names n1 where id in (values (n1.lastname), (n1.firstname));
+                             ^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names n1 where id in (values (n1.lastname), (n1.firstname));

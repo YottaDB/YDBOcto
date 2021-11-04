@@ -44,3 +44,8 @@ setup() {
 	verify_output TVC02 output.txt
 }
 
+@test "TVC03 : OCTO502 : Test various errors with VALUES clause" {
+	load_fixture TVC03.sql subtest novv
+	verify_output TVC03 output.txt
+}
+

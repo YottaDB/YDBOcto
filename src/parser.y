@@ -1504,6 +1504,12 @@ table_element_list_tail
 table_element
   : column_definition { $$ = $column_definition; }
   | table_constraint_definition {
+	WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "Constraints");
+	$$ = NULL;
+	/* TODO : YDBOcto#772 : Remove the above 2 lines and uncomment the below #ifdef block of code
+	 * once CHECK CONSTRAINT functionality is fully implemented.
+	 */
+#ifdef TODO_YDBOCTO_772
 	/* Return the table level constraint inside a dummy SqlColumn structure to be in sync with the type
 	 * returned by the previous grammar rule ("column_definition").
 	 */
@@ -1511,6 +1517,7 @@ table_element
 	MALLOC_STATEMENT($$, column, SqlColumn);
 	dqinit(($$)->v.column);
 	($$)->v.column->keywords = $table_constraint_definition;
+#endif
     }
   ;
 

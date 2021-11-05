@@ -18,16 +18,19 @@ setup() {
 }
 
 @test "TCTC001 : OCTO772 : Test CONSTRAINT name is accepted for PRIMARY KEY, UNIQUE and NOT NULL" {
+	skip	# TODO : YDBOcto#772 : Remove this line once CHECK CONSTRAINT functionality is fully supported
 	load_fixture TCTC001.sql subtest novv
 	verify_output TCTC001 output.txt
 }
 
 @test "TCTC002 : OCTO772 : Test column level and table level CHECK constraints are accepted" {
+	skip	# TODO : YDBOcto#772 : Remove this line once CHECK CONSTRAINT functionality is fully supported
 	load_fixture TCTC002.sql subtest novv
 	verify_output TCTC002 output.txt
 }
 
 @test "TCTC003 : OCTO772 : Test various errors in CONSTRAINTS" {
+	skip	# TODO : YDBOcto#772 : Remove this line once CHECK CONSTRAINT functionality is fully supported
 	load_fixture TCTC003.sql subtest novv
 	verify_output TCTC003 output.txt
 }

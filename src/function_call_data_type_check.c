@@ -46,20 +46,28 @@ int function_call_data_type_check(SqlFunctionCall *fc, SqlValueType *type, Parse
 	assert(value_STATEMENT == fc->function_name->type);
 	ADD_INT_HASH(&state, fc->function_name->type);
 
-	SqlValue *value;
-	value = fc->function_name->v.value;
-	ADD_INT_HASH(&state, value->type);
-	ydb_mmrhash_128_ingest(&state, (void *)value->v.reference, strlen(value->v.reference));
+	SqlValue *function_name_value;
+	function_name_value = fc->function_name->v.value;
+	ADD_INT_HASH(&state, function_name_value->type);
+	ydb_mmrhash_128_ingest(&state, (void *)function_name_value->v.reference, strlen(function_name_value->v.reference));
 
 	char *c, function_parm_types[MAX_FUNC_TYPES_LEN];
 	int   function_parm_types_len = 0;
 	c = function_parm_types;
 
 	// Identify the type of each function parameter and add it to the hash
+	int	       num_args;
 	SqlColumnList *cur_column_list, *start_column_list;
 	cur_column_list = start_column_list = fc->parameters->v.column_list;
+	num_args = 0;
 	if (NULL != cur_column_list->value) { // Only iterate over parameters if there are any
 		do {
+			num_args++;
+			if (YDB_MAX_PARMS < num_args) {
+				ERROR(ERR_TOO_MANY_FUNCTION_ARGUMENTS, function_name_value->v.string_literal, YDB_MAX_PARMS);
+				result = 1;
+				break;
+			}
 			if (NULL == table) {
 				/* Called from "populate_data_type.c" */
 				result |= populate_data_type(cur_column_list->value, type, parse_context);

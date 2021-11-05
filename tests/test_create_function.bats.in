@@ -183,3 +183,13 @@ setup() {
 	octo -f lock.sql &>> output.txt # should not error.
 	verify_output TCF026 output.txt
 }
+
+@test "TCF027 : OCTO778 : Test function call with lots of actual parameters does not cause <stack smashing detected>" {
+	echo "# Run 8 random queries with more than 32 function parameters." >> output.txt
+	echo "# Expect ERR_TOO_MANY_FUNCTION_ARGUMENTS errors in final output" >> output.txt
+	$ydb_dist/yottadb -run TCF027 > TCF027.sql
+	octo -f TCF027.sql >> interim_output.txt 2>&1 || true	# || true since octo will exit with non-zero status
+	grep "ERR_TOO_MANY_FUNCTION_ARGUMENTS" interim_output.txt >> output.txt
+	verify_output TCF027 output.txt noinfo nodebug
+}
+

@@ -1807,9 +1807,6 @@ column_constraint_definition
 constraint_name_definition
   : /* Empty */ { $$ = NULL; }
   | CONSTRAINT constraint_name {
-	/* TODO : YDBOcto#772 : Remove this line and the below 2 lines once CHECK CONSTRAINT functionality is fully implemented. */
-	ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "Constraints");
-	YYERROR;
         $$ = $constraint_name;
 
 	size_t ident_len;
@@ -1847,9 +1844,6 @@ unique_specifications
 
 check_constraint_definition
   : CHECK LEFT_PAREN search_condition RIGHT_PAREN {
-        /* TODO : YDBOcto#772 : Remove this line and the below 2 lines once CHECK CONSTRAINT functionality is fully implemented. */
-	ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "Constraints");
-	YYERROR;
 	MALLOC_KEYWORD_CONSTRAINT_STATEMENT($$, OPTIONAL_CHECK_CONSTRAINT, NULL, $search_condition)
     }
   ;

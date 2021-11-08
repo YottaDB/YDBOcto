@@ -18,25 +18,21 @@ setup() {
 }
 
 @test "TCTC001 : OCTO772 : Test CONSTRAINT name is accepted for PRIMARY KEY, UNIQUE and NOT NULL" {
-	skip	# TODO : YDBOcto#772 : Remove this line once CHECK CONSTRAINT functionality is fully supported
 	load_fixture TCTC001.sql subtest novv
 	verify_output TCTC001 output.txt
 }
 
 @test "TCTC002 : OCTO772 : Test column level and table level CHECK constraints are accepted" {
-	skip	# TODO : YDBOcto#772 : Remove this line once CHECK CONSTRAINT functionality is fully supported
 	load_fixture TCTC002.sql subtest novv
 	verify_output TCTC002 output.txt
 }
 
 @test "TCTC003 : OCTO772 : Test various errors in CONSTRAINTS" {
-	skip	# TODO : YDBOcto#772 : Remove this line once CHECK CONSTRAINT functionality is fully supported
 	load_fixture TCTC003.sql subtest novv
 	verify_output TCTC003 output.txt
 }
 
 @test "TCTC004 : OCTO772 : Test slight changes in CHECK constraint change plan hash for otherwise identical tables" {
-	skip	# TODO : YDBOcto#772 : Remove this line once CHECK CONSTRAINT functionality is fully supported
 	echo "# Run same query against 6 almost similar CREATE TABLE statements" >> output.txt
 	echo "# The only difference in the CREATE TABLE is some literals used inside the CHECK constraint" >> output.txt
 	filename="TCTC004.sql"
@@ -57,7 +53,6 @@ setup() {
 }
 
 @test "TCTC005 : OCTO772 : Test CHECK constraint shows up correctly in CREATE TABLE text definition" {
-	skip	# TODO : YDBOcto#772 : Remove this line once CHECK CONSTRAINT functionality is fully supported
 	testname="TCTC005"
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/$testname.sql .
 	echo "# Run CREATE TABLE commands in $testname.sql that tests various types of CHECK constraints" >> output.txt
@@ -80,13 +75,11 @@ setup() {
 }
 
 @test "TCTC006 : OCTO772 : Test \d tablename with too long table and/or column names resulting in too long CHECK constraint names" {
-	skip	# TODO : YDBOcto#772 : Remove this line once CHECK CONSTRAINT functionality is fully supported
 	load_fixture TCTC006.sql subtest novv
 	verify_output TCTC006 output.txt
 }
 
 @test "TCTC007 : OCTO772 : Test col(i) usages are optimized in generated M code for CHECK constraint (in UPDATE command)" {
-	skip	# TODO : YDBOcto#772 : Remove this line once CHECK CONSTRAINT functionality is fully supported
 	# The goal of this test is to ensure that "SET col(i)" usages happen in the generated code only as needed.
 	# If say "col(1)" is already initialized, later constraint code should not reinitialize this lvn again.
 	# If an error handler needs to be invoked due to a CHECK constraint violation, it should initialize only those

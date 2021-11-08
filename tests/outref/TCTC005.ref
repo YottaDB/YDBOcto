@@ -152,8 +152,8 @@ CREATE TABLE
 CREATE TABLE
 CREATE TABLE
 CREATE TABLE
-[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_CREATE_TABLE : Table 'PRODUCTS' already exists
-[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_CREATE_TABLE : Table 'PRODUCTS' already exists
+[ERROR]: ERR_CANNOT_CREATE_TABLE: Table 'PRODUCTS' already exists
+[ERROR]: ERR_CANNOT_CREATE_TABLE: Table 'PRODUCTS' already exists
 # Generate and Run query file select.sql that does a SELECT * of all tables created in TCTC005.sql
 ID
 (0 rows)

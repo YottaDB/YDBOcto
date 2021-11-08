@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -308,3 +308,9 @@ OCTO
 	load_fixture TERR033.sql subtest novv
 	verify_output TERR033 output.txt
 }
+
+@test "TERR034 : OCTO772 : Test of ERR_READONLY_DISALLOWED and ERR_READONLY_AND_READWRITE_DISALLOWED errors" {
+	load_fixture TERR034.sql subtest novv
+	verify_output TERR034 output.txt
+}
+

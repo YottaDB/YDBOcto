@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -99,7 +99,6 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	size_t		    str_len;
 	int		    len, piece_number, num_non_key_columns;
 	unsigned int	    options;
-	boolean_t	    readwrite_disallowed; /* TRUE if READWRITE at table level is disallowed due to incompatible qualifier */
 	tabletype_t	    table_type;
 	boolean_t	    hidden_column_added;
 	char *		    table_source_gvname; /* Points to a null-terminated string containing the unsubscripted global
@@ -121,27 +120,27 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	table_type = config->default_tabletype;
 
 	/* TODO: YDBOcto#772:
-	 * For each column level and/or table level constraint,
-	 * Check if it can be a column level constraint or needs to be a table level constraint.
-	 * For CHECK : If specified as a column level constraint, check the search condition to see if at least one column
+	 * For each column-level and/or table level constraint,
+	 * Check if it can be a column-level constraint or needs to be a table level constraint.
+	 * For CHECK : If specified as a column-level constraint, check the search condition to see if at least one column
 	 *		in the table other than the current column of interest is used.
 	 *		If so, move this to a table level constraint.
-	 *	       If specified as a column level constraint, check the search condition to see if the only column used
-	 *		in the constraint is another valid column. If so, make this a column level constraint of that column.
+	 *	       If specified as a column-level constraint, check the search condition to see if the only column used
+	 *		in the constraint is another valid column. If so, make this a column-level constraint of that column.
 	 *		Not of the current column.
-	 *	       If specified as a column level constraint, check the search condition to see if no columns are used
+	 *	       If specified as a column-level constraint, check the search condition to see if no columns are used
 	 *		in the constraint. If so, make this a table level constraint.
-	 * For UNIQUE : If specified as a column level constraint, there is no way multiple columns can be specified there so
-	 *		it stays a column level constraint (no table level constraint possible).
+	 * For UNIQUE : If specified as a column-level constraint, there is no way multiple columns can be specified there so
+	 *		it stays a column-level constraint (no table level constraint possible).
 	 * For PRIMARY KEY : Same description above as UNIQUE holds.
 	 *
-	 * For each column level constraint,
+	 * For each column-level constraint,
 	 * Go through each column and combine all UNIQUE/PRIMARY KEY/NOT NULL/CHECK constraints into ONE keyword structure
-	 * For CHECK : The SqlConstraint structure will maintain a doubly linked list of all column level CHECK constraints.
+	 * For CHECK : The SqlConstraint structure will maintain a doubly linked list of all column-level CHECK constraints.
 	 *		Discard all remaining CHECK keyword structures. Just use the SqlConstraint part of that structure.
 	 * For UNIQUE : Maintain only the first named unique structure. If nothing is named, pick the first unnamed structure.
 	 *		Discard all remaining UNIQUE keyword structures.
-	 * For PRIMARY KEY : If more than one specified at a column level and/or the table level (across all columns), issue error.
+	 * For PRIMARY KEY : If more than one specified at a column-level and/or the table level (across all columns), issue error.
 	 * For NOT NULL : Take just the first structure. Discard all the rest. Also discard constraint name for this.
 	 *
 	 * For each table level constraint,
@@ -150,13 +149,12 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	 *		constraints.
 	 * For UNIQUE : Maintain a linked list of UNIQUE keyword structures. Possible to have more than one UNIQUE table level
 	 *		constraints.
-	 * For PRIMARY KEY : If more than one specified at a column level and/or the table level (across all columns), issue error.
+	 * For PRIMARY KEY : If more than one specified at a column-level and/or the table level (across all columns), issue error.
 	 * For NOT NULL : Not possible as a table level constraint.
 	 *
 	 */
 	boolean_t primary_key_constraint_seen;
 	primary_key_constraint_seen = FALSE;
-
 	/* Column level keyword scan */
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 	cur_column = start_column;
@@ -234,9 +232,9 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		}
 	} while (cur_column != start_column);
 
-	/* TODO: YDBOcto#772: Go through column level keywords and table level keywords AND auto assign constraint names if needed.
+	/* TODO: YDBOcto#772: Go through column-level keywords and table level keywords AND auto assign constraint names if needed.
 	 * Take this opportunity to check if any of the constraint names have already been used (i.e. if there
-	 * is a collision between a user specified constraint name and an auto assigned name and if so issue error.
+	 * is a collision between a user specified constraint name and an auto assigned name and if so issue error).
 	 * When auto assigning names, check against currently used names for collision and if so issue error.
 	 * Choose a random 8 byte sub string for auto assigning if the total length of the name becomes more than 63.
 	 */
@@ -530,7 +528,11 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	 * rest of the initialization.
 	 **************************************************************************************************************
 	 */
+	boolean_t readonly_disallowed;	/* TRUE if READONLY at table level is disallowed due to incompatible option */
+	boolean_t readwrite_disallowed; /* TRUE if READWRITE at table level is disallowed due to incompatible option */
+
 	readwrite_disallowed = FALSE; /* Start with FALSE . Will be set to TRUE later if we find an incompatibility. */
+	readonly_disallowed = FALSE;  /* Start with FALSE . Will be set to TRUE later if we find an incompatibility. */
 	/* Do various column-level checks */
 	cur_column = start_column;
 	piece_number = 0;
@@ -557,7 +559,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				return NULL;
 			}
 		}
-		/* Check if there are any incompatible qualifier specifications */
+		/* Check if there are any incompatible keyword specifications */
 		UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
 		cur_keyword = start_keyword;
 		is_key_column = FALSE;
@@ -569,10 +571,18 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			case OPTIONAL_KEY_NUM:
 				/* These column-level keywords are compatible with table-level keyword READONLY or READWRITE */
 				is_key_column = TRUE;
+				/* PRIMARY KEY and KEY NUM are allowed for both READONLY and READWRITE type of tables
+				 * so should not set "readonly_disallowed" to TRUE here.
+				 */
 				break;
 			case NOT_NULL:
+				/* NOT NULL is allowed for both READONLY and READWRITE type of tables
+				 * so should not set "readonly_disallowed" to TRUE here.
+				 */
+				break;
 			case UNIQUE_CONSTRAINT:
-				/* These column-level keywords are compatible with table-level keyword READONLY or READWRITE */
+				/* Disallow UNIQUE constraint on a READONLY table as it is not possible to enforce this. */
+				readonly_disallowed = TRUE; /* UNIQUE is only allowed for READWRITE table. Not READONLY. */
 				break;
 			case OPTIONAL_EXTRACT:
 			case OPTIONAL_SOURCE:
@@ -594,7 +604,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			case NO_KEYWORD:
 				break;
 			case OPTIONAL_CHECK_CONSTRAINT:
-				/* TODO: YDBOcto#772: Check if any readwrite incompatibilities can arise with this keyword */
+				readonly_disallowed = TRUE; /* CHECK is only allowed for READWRITE table. Not READONLY. */
 				break;
 			default:
 				ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
@@ -822,9 +832,23 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		table->delim = statement;
 	}
 	if ((options & READWRITE) && readwrite_disallowed) {
-		/* READWRITE has been explicitly specified but at least one incompatible qualifier was found. Issue error. */
+		/* READWRITE has been explicitly specified but at least one incompatible keyword was found. Issue error. */
 		ERROR(ERR_READWRITE_DISALLOWED, NULL);
 		return NULL;
+	}
+	if (readonly_disallowed) {
+		if (options & READONLY) {
+			/* READONLY has been explicitly specified but at least one incompatible keyword was found. Issue error. */
+			ERROR(ERR_READONLY_DISALLOWED, NULL);
+			return NULL;
+		}
+		if (readwrite_disallowed) {
+			/* READONLY and READWRITE are both disallowed due to incompatible keywords.
+			 * Cannot proceed since a table has to be one of those 2 types.
+			 */
+			ERROR(ERR_READONLY_AND_READWRITE_DISALLOWED, NULL);
+			return NULL;
+		}
 	}
 	if (!(options & READONLY) && !(options & READWRITE)) {
 		/* Neither READONLY nor READWRITE was specified in the CREATE TABLE command */
@@ -832,16 +856,21 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			/* In auto upgrade logic where pre-existing tables are being upgraded. In this case, it is not safe
 			 * to infer the READONLY vs READWRITE characteristic of a table from the current octo.conf setting
 			 * of "tabletype" since the user of the new Octo build might not have yet known this new keyword
-			 * (let alone set this keyword in octo.conf appropriately). Therefore, check if READWRITE is
-			 * allowable (i.e. no incompatible column level keywords have been specified). If so use that. If
-			 * not use READONLY.
+			 * (let alone set this keyword in octo.conf appropriately). Therefore do some additional checks.
 			 */
-			table->readwrite = !readwrite_disallowed;
+			if (readonly_disallowed) {
+				/* READONLY is disallowed. Have to use READWRITE. */
+				assert(!readwrite_disallowed); /* or else we would have issued an error above */
+				table->readwrite = TRUE;
+			} else if (readwrite_disallowed) {
+				/* READWRITE is disallowed. Have to use READONLY. */
+				assert(!readonly_disallowed); /* or else we would have issued an error above */
+				table->readwrite = FALSE;
+			} else {
+				/* Assume READONLY by default */
+				table->readwrite = FALSE;
+			}
 		} else {
-			/* Neither READONLY or READWRITE was specified.
-			 * If incompatible column level keyword has been specified, assume READONLY.
-			 * If not, assume value based on octo.conf "tabletype" setting.
-			 */
 			if (hidden_column_added && readwrite_disallowed) {
 				/* We added a hidden column at the beginning of this function due to the lack of an explicitly
 				 * specified primary key column. This was done since at that time the default table type was
@@ -856,7 +885,12 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				ERROR(ERR_READWRITE_DISALLOWED, NULL);
 				return NULL;
 			}
-			table->readwrite = (readwrite_disallowed ? FALSE : (TABLETYPE_READWRITE == table_type));
+			/* If READWRITE incompatible column-level keyword has been specified, assume READONLY.
+			 * If READONLY incompatible column-level keyword has been specified, assume READWRITE.
+			 * If not, assume value based on octo.conf "tabletype" setting.
+			 */
+			table->readwrite
+			    = (readwrite_disallowed ? FALSE : readonly_disallowed ? TRUE : (TABLETYPE_READWRITE == table_type));
 		}
 	} else {
 		table->readwrite = (TABLETYPE_READWRITE == table_type);

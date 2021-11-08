@@ -1,7 +1,7 @@
 #!/bin/bash
 #################################################################
 #								#
-# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -12,6 +12,15 @@
 #################################################################
 
 set -e
+
+# Have a generic trap to display line number where error occurred in case an error occurs and script exits
+# abruptly due to the "set -e" line above (courtesy https://unix.stackexchange.com/a/462157)
+failure() {
+  local lineno=$1
+  local msg=$2
+  echo "Failed at $lineno: $msg"
+}
+trap 'failure ${LINENO} "$BASH_COMMAND"' ERR
 
 topleveldir=$(git rev-parse --show-toplevel)
 cwd=$(pwd)
@@ -26,16 +35,16 @@ missing_text=""
 duplicated_text=""
 while read -r line; do
 	mnemonic=$(echo "$line" | sed 's/ERROR_DEF(\(ERR_.*\|INFO_.*\|WARN_.*\),/\1/' | cut -f 1 -d ',')
-	if [[ $(grep -cn "^$mnemonic$" doc/errors.rst) -eq 0 ]]; then
+	if [[ $(grep -cn "^$mnemonic$" doc/errors.rst || true) -eq 0 ]]; then
 		missing_mnemonics="$mnemonic\n$missing_mnemonics"
 	else
 		format_string=$(echo "$line" | sed 's/.*, "\(.*\)", PSQL.*)/\1/' | sed 's/%s\|%d\|%c\|%x\|%ld\|%\.\*s/xxx/g')
 		if [[ $1 == "check" ]]; then
-			if [[ $(grep -c "$format_string" doc/errors.rst) -eq 0 ]]; then
+			if [[ $(grep -c "$format_string" doc/errors.rst || true) -eq 0 ]]; then
 				missing_messages="$mnemonic\n$missing_messages"
 			fi
 		else
-			format_occurrences=$(grep -cn "^Text: $format_string$" doc/errors.rst)
+			format_occurrences=$(grep -cn "^Text: $format_string$" doc/errors.rst || true)
 			if [[ $format_occurrences -ne 1 ]]; then
 				if [[ $format_occurrences -eq 0 ]]; then
 					missing_text="$mnemonic\n$missing_text"

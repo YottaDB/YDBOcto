@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -40,7 +40,7 @@ create table products (id integer, name text check (SUM(name) is NULL));
 create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < (select 1000)));
 create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < (select * from names)));
 
--- Test of ERR_AGGREGATE_FUNCTION_CHECK and ERR_SUBQUERY_CHECK errors
+-- Test of ERR_AGGREGATE_FUNCTION_CHECK error (ERR_SUBQUERY_CHECK error exists too but will not show since it is 2nd error)
 create table products (id integer, name text check (COUNT(*) = (SELECT 1000)));
 
 -- Test of ERR_UNKNOWN_TABLE error in CHECK constraint
@@ -66,6 +66,10 @@ create table products (product_no integer, name text, price numeric CONSTRAINT n
 ---- Test error inside function call parameters
 create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < samevalue(product)));
 create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (ABS(id)));
+create table products (product_no integer, price numeric CONSTRAINT name1 CHECK (price < COALESCE(NULL, 1, invalidcol)));
+create table products (product_no integer, price numeric CONSTRAINT name1 CHECK (price < GREATEST(1, invalidcol)));
+create table products (product_no integer, price numeric CONSTRAINT name1 CHECK (price < LEAST(1, invalidcol)));
+create table products (product_no integer, price numeric CONSTRAINT name1 CHECK (price < NULLIF(1, invalidcol)));
 
 -- Test of syntax error in CHECK constraint (missing surrounding parentheses for entire expression)
 create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price > 5) AND (price < 10));
@@ -90,6 +94,14 @@ create table products (product_no integer, name text, price numeric CONSTRAINT n
 -- Test of ERR_TYPE_MISMATCH error
 create table products (id integer CHECK (firstname IN (1, 2)), firstname varchar);
 create table products (id integer CHECK (id IN (1, 'abcd')), firstname varchar);
+create table products (id integer CHECK (COALESCE(NULL, 'a', 1.2)), firstname varchar);
+create table products (id integer CHECK (COALESCE(id, NULL, firstname)), firstname varchar);
+create table products (id integer CHECK (GREATEST(NULL, 'a', 1.2)), firstname varchar);
+create table products (id integer CHECK (GREATEST(id, NULL, firstname)), firstname varchar);
+create table products (id integer CHECK (LEAST(NULL, 'a', 1.2)), firstname varchar);
+create table products (id integer CHECK (LEAST(id, NULL, firstname)), firstname varchar);
+create table products (id integer CHECK (NULLIF('a', 1.2)), firstname varchar);
+create table products (id integer CHECK (NULLIF(id, firstname)), firstname varchar);
 
 -- Test of ERR_INVALID_INPUT_SYTNAX error
 create table products (id integer CHECK (+id::boolean));
@@ -108,4 +120,14 @@ create table products (product_no integer, name text, price numeric CONSTRAINT n
 
 -- Test of ERR_TOO_MANY_FUNCTION_ARGUMENTS error
 create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (INVALIDFUNC(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33)));
+
+-- Test of ERR_CASE_BRANCH_TYPE_MISMATCH error
+create table products (id integer CONSTRAINT name1 CHECK (case when 1=1 then 2 when 2=2 then 'abcd' end));
+create table products (id integer CONSTRAINT name1 CHECK (case when 1=1 then 2 else 'abcd' end));
+create table products (id integer CONSTRAINT name1 CHECK (case id when 1 then 'abcd' when 2 then id end));
+create table products (id integer CONSTRAINT name1 CHECK (case id when 1 then 'abcd' else id end));
+
+-- Test of ERR_CASE_VALUE_TYPE_MISMATCH error
+create table products (id integer CONSTRAINT name1 CHECK (case when id then 2 end));
+create table products (id integer CONSTRAINT name1 CHECK (case id when 'abcd' then 2 end));
 

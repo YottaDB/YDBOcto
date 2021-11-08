@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -100,6 +100,8 @@ ERROR_DEF(ERR_ORDER_BY_POSITION_NOT_INTEGER, "Non integer constant %s%s in ORDER
 ERROR_DEF(ERR_ORDER_BY_SELECT_DISTINCT, "For SELECT DISTINCT, ORDER BY expressions must appear in select list", PSQL_Code_Invalid_Column_Reference)
 ERROR_DEF(ERR_PERCENT_IN_EXTRINSIC_FUNCTION_NAME, "'%%' is only allowed at the beginning of an M label or routine name.", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_PRIMARY_KEY_NOT_FOUND, "No primary key specified when creating table '%s'. Please consult the documentation for more information.", PSQL_Code_Syntax_Error)
+ERROR_DEF(ERR_READONLY_DISALLOWED, "READONLY keyword in CREATE TABLE is disallowed due to an incompatible keyword", PSQL_Code_Syntax_Error)
+ERROR_DEF(ERR_READONLY_AND_READWRITE_DISALLOWED, "CREATE TABLE specifies keywords that make it incompatible with both READONLY and READWRITE keywords", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_READWRITE_DISALLOWED, "READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_SELECT_STAR_NO_TABLES, "SELECT * with no tables specified is not valid", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_SETOPER_NUMCOLS_MISMATCH, "Each %s query must have same number of columns", PSQL_Code_Datatype_Mismatch)

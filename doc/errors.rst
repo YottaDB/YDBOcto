@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.  #
+.. # Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.  #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -909,6 +909,22 @@ Description/Action: This message says that the the history size configured in
 octo.conf (or 500 by default if not configured) has been reached; as a result,
 the oldest xxx entries will be discarded. The history size is printed as "max
 entries xxx".
+
+++++++++++++++++++++++++
+ERR_READONLY_DISALLOWED
+++++++++++++++++++++++++
+
+Text: READONLY keyword in CREATE TABLE is disallowed due to an incompatible keyword
+
+Description/Action: This error is generated when a CREATE TABLE command specifies the table type to be READONLY but also specifies another keyword that is incompatible with READONLY. Specifying a CHECK or a UNIQUE constraint is the only way to create an incompatibility currently. Such constraints are only supported with READWRITE type tables. So changing the table type to be READWRITE will fix the error. PSQL Error Code: 42601
+
++++++++++++++++++++++++++++++++++++++
+ERR_READONLY_AND_READWRITE_DISALLOWED
++++++++++++++++++++++++++++++++++++++
+
+Text: CREATE TABLE specifies keywords that make it incompatible with both READONLY and READWRITE keywords
+
+Description/Action: This error is generated when a CREATE TABLE command does not explicitly specify the table type as READONLY or READWRITE (the only two possible types) but specifies keyword(s) that make it incompatible with READONLY and keyword(s) that make it incompatible with READWRITE. See ERR_READONLY_DISALLOWED and/or ERR_READWRITE_DISALLOWED message description for potential causes of the incompatibility. Decide which type the table needs to be, specify that keyword explicitly and remove the keywords that are incompatible with this type from the CREATE TABLE command. PSQL Error Code: 42601
 
 ++++++++++++++++++++++++
 ERR_READWRITE_DISALLOWED

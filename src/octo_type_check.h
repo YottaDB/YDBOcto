@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -71,6 +71,20 @@
 		ERROR(ERR_TYPE_NOT_COMPATIBLE, get_user_visible_type_string(CHILD_TYPE), OPERATION); \
 		yyerror(NULL, NULL, OPERAND, NULL, NULL, NULL);                                      \
 		RESULT = 1;                                                                          \
+	}
+
+// Compare TYPE1 and TYPE2 and throw ERR_TYPE if not equal
+#define CHECK_TYPE_AND_BREAK_ON_MISMATCH(TYPE1, TYPE2, ERR_TYPE, CUR_BRANCH_VALUE, NEXT_BRANCH_VALUE, RESULT)            \
+	{                                                                                                                \
+		if ((TYPE1) != (TYPE2)) {                                                                                \
+			ERROR((ERR_TYPE), get_user_visible_type_string((TYPE1)), get_user_visible_type_string((TYPE2))); \
+			yyerror(NULL, NULL, (CUR_BRANCH_VALUE), NULL, NULL, NULL);                                       \
+			if (NULL != (NEXT_BRANCH_VALUE)) {                                                               \
+				yyerror(NULL, NULL, (NEXT_BRANCH_VALUE), NULL, NULL, NULL);                              \
+			}                                                                                                \
+			RESULT = 1;                                                                                      \
+			break;                                                                                           \
+		}                                                                                                        \
 	}
 
 typedef int (*DataTypeCallback)(SqlValueType *left_type, SqlValueType *right_type, SqlStatement *left_stmt,

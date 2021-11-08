@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -25,6 +25,9 @@ int ensure_same_type(SqlValueType *left_type, SqlValueType *right_type, SqlState
 
 	result = 0;
 	CAST_AMBIGUOUS_TYPES(*left_type, *right_type, result, parse_context);
+	if (result) {
+		return result;
+	}
 	if (*left_type != *right_type) {
 		ERROR(ERR_TYPE_MISMATCH, get_user_visible_type_string(*left_type), get_user_visible_type_string(*right_type));
 		yyerror(&left_stmt->loc, NULL, NULL, NULL, parse_context, NULL);

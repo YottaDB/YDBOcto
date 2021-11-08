@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -18,19 +18,6 @@
 #include "octo.h"
 #include "octo_types.h"
 #include "octo_type_check.h"
-
-// Compare TYPE1 and TYPE2 and throw ERR_TYPE if not equal
-#define CHECK_TYPE_AND_BREAK_ON_MISMATCH(TYPE1, TYPE2, ERR_TYPE, CUR_BRANCH_VALUE, NEXT_BRANCH_VALUE, RESULT)            \
-	{                                                                                                                \
-		if ((TYPE1) != (TYPE2)) {                                                                                \
-			ERROR((ERR_TYPE), get_user_visible_type_string((TYPE1)), get_user_visible_type_string((TYPE2))); \
-			yyerror(NULL, NULL, (CUR_BRANCH_VALUE), NULL, NULL, NULL);                                       \
-			if (NULL != (NEXT_BRANCH_VALUE))                                                                 \
-				yyerror(NULL, NULL, (NEXT_BRANCH_VALUE), NULL, NULL, NULL);                              \
-			RESULT = 1;                                                                                      \
-			break;                                                                                           \
-		}                                                                                                        \
-	}
 
 // Helper function that is invoked when we have to traverse a "column_list_alias_STATEMENT".
 // Caller passes "do_loop" variable set to TRUE  if they want us to traverse the linked list.
@@ -140,48 +127,77 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	//       Any change here or there needs to also be done in the other module.
 	switch (v->type) {
 	case cas_STATEMENT:
-		*type = UNKNOWN_SqlValueType;
 		UNPACK_SQL_STATEMENT(cas, v, cas);
-		// We expect type to get overriden here; only the last type matters
-		result |= populate_data_type(cas->value, type, parse_context);
+		/* There are two valid ways of specifying case statements in SQL.
+		 *
+		 * The first takes a variable called case_value and matches it with some statement_list.
+		 * 	CASE case_value
+		 * 	    WHEN when_value THEN statement_list
+		 * 	    [WHEN when_value THEN statement_list] ...
+		 * 	    [ELSE statement_list]
+		 * 	END
+		 *
+		 * The second considers a search_condition instead of variable equality and executes the
+		 * statement_list accordingly.
+		 * 	CASE
+		 * 	    WHEN search_condition THEN statement_list
+		 * 	    [WHEN search_condition THEN statement_list] ...
+		 * 	    [ELSE statement_list]
+		 * 	END
+		 *
+		 * cas->value would be NULL in the second way. Handle that accordingly.
+		 */
+		if (NULL != cas->value) {
+			/* This is the first way of specifying case statements.
+			 * That is, "case_value" is specified. Note down its type in "*type".
+			 * This is later used as the expected type of the WHEN arguments that follow.
+			 */
+			result |= populate_data_type(cas->value, type, parse_context);
+			if (result) {
+				break;
+			}
+		} else {
+			/* This is the second way of specifying case statements.
+			 * In this case, the "WHEN search_condition" is a boolean type expression.
+			 * So note that down as the expected type of the WHEN argument.
+			 */
+			*type = BOOLEAN_VALUE;
+		}
+		assert(NULL != cas->branches);
+		/* Compare "*type" (type of "case_value") against type of WHEN argument ("when_value") in the below call.
+		 * Issue error if they don't match.
+		 */
+		result |= populate_data_type(cas->branches, type, parse_context);
 		if (result) {
 			break;
 		}
-		// Pass CASE value type to the next call of populate_data_type to compare
-		// CASE value and WHEN condition result type.
-		child_type[0] = *type;
-		result |= populate_data_type(cas->branches, &child_type[0], parse_context);
-		if (result) {
-			break;
-		}
-		if (NULL != cas->optional_else) { // No need to validate types if ELSE not present
-			result |= populate_data_type(cas->optional_else, &child_type[1], parse_context);
+		/* "*type" at this point stores the type of the THEN argument ("statement_list") */
+		if (NULL != cas->optional_else) {
+			/* ELSE is present. Check that type of ELSE argument matches with type of THEN arguments till now */
+			result |= populate_data_type(cas->optional_else, &child_type[0], parse_context);
 			if (result) {
 				break;
 			}
 			// SQL NULL values are acceptable in CASE branches so CAST them appropriately
-			CAST_AMBIGUOUS_TYPES(child_type[0], child_type[1], result, parse_context);
+			CAST_AMBIGUOUS_TYPES(*type, child_type[0], result, parse_context);
 			if (result) {
 				break;
 			}
-			CHECK_TYPE_AND_BREAK_ON_MISMATCH(child_type[0], child_type[1], ERR_CASE_BRANCH_TYPE_MISMATCH,
+			CHECK_TYPE_AND_BREAK_ON_MISMATCH(*type, child_type[0], ERR_CASE_BRANCH_TYPE_MISMATCH,
 							 &cas->branches->v.cas_branch->value, &cas->optional_else, result);
 			if (result) {
 				break;
 			}
 		}
-		if ((!result) && (TABLE_ASTERISK == child_type[0])) {
-			ISSUE_TYPE_COMPATIBILITY_ERROR(child_type[0], "case operation", &cas->branches->v.cas_branch->value,
-						       result);
+		/* Now that we know types of all CASE code paths match, check if that type is a table.asterisk.
+		 * If so issue error as that is not a valid type for CASE currently.
+		 */
+		if (TABLE_ASTERISK == *type) {
+			ISSUE_TYPE_COMPATIBILITY_ERROR(*type, "case operation", &cas->branches->v.cas_branch->value, result);
 		}
-		*type = child_type[0];
 		break;
 	case cas_branch_STATEMENT:
-		// CASE value type is stored in *type
-		// UNKNOWN_SqlValueType is a possible type for CASE value as it is optional in case_STATEMENTS.
-		// In such a case consider it to be equal to BOOLEAN_VALUE.
-		if (UNKNOWN_SqlValueType == *type)
-			*type = BOOLEAN_VALUE;
+		assert(UNKNOWN_SqlValueType != *type); /* "*type" stores the expected type of "cur_branch->condition" */
 		UNPACK_SQL_STATEMENT(cas_branch, v, cas_branch);
 		cur_branch = cas_branch;
 		result |= populate_data_type(cur_branch->value, &child_type[0], parse_context);
@@ -194,6 +210,9 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 				break;
 			}
 			assert(UNKNOWN_SqlValueType != child_type[1]);
+			/* Compare expected ("*type") and actual type ("child_type[1]") of "cur_branch->condition" and issue
+			 * error if they don't match.
+			 */
 			// SQL NULL values are acceptable for CASE value and WHEN condition type so CAST them appropriately
 			CAST_AMBIGUOUS_TYPES(*type, child_type[1], result, parse_context);
 			if (result) {
@@ -201,9 +220,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			}
 			CHECK_TYPE_AND_BREAK_ON_MISMATCH(child_type[1], *type, ERR_CASE_VALUE_TYPE_MISMATCH, &cur_branch->condition,
 							 NULL, result);
-			if (result) {
-				break;
-			}
+			assert(!result); /* because the above macro would have done a "break" otherwise */
 			if (cas_branch != cur_branch->next) {
 				result |= populate_data_type(cur_branch->next->value, &child_type[1], parse_context);
 				if (result) {
@@ -216,16 +233,15 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 				}
 				CHECK_TYPE_AND_BREAK_ON_MISMATCH(child_type[0], child_type[1], ERR_CASE_BRANCH_TYPE_MISMATCH,
 								 &cur_branch->value, &cur_branch->next->value, result);
-				if (result) {
-					break;
-				}
-				child_type[0] = child_type[1];
+				assert(!result); /* because the above macro would have done a "break" otherwise */
+				assert(child_type[0] == child_type[1]);
 			}
 			cur_branch = cur_branch->next;
 		} while (cur_branch != cas_branch);
 		if (result) {
 			break;
 		}
+		/* Store type of the THEN argument in "*type" for caller to use to compare ELSE argument type if one exists */
 		*type = child_type[0];
 		break;
 	case insert_STATEMENT:
@@ -385,8 +401,6 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			assert(coalesce_call->arguments);
 			ISSUE_TYPE_COMPATIBILITY_ERROR(*type, "coalesce operation", &coalesce_call->arguments, result);
 		}
-		// NOTE: if the types of the parameters do not match, no error is issued.
-		// This matches the behavior of sqlite but not that of Postgres and Oracle DB.
 		break;
 	case greatest_STATEMENT:
 		UNPACK_SQL_STATEMENT(greatest_call, v, greatest);

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -82,7 +82,8 @@ int qualify_check_constraint_column_list(SqlStatement *v, SqlTable *table, SqlVa
  *       invoked by "populate_data_type.c".
  */
 int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *type) {
-	int result;
+	int	     result;
+	SqlValueType child_type[2];
 
 	result = 0;
 	if (NULL == stmt)
@@ -227,7 +228,6 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 		break;
 	case binary_STATEMENT:;
 		SqlBinaryOperation *binary;
-		SqlValueType	    child_type[2];
 
 		/* Note: The below code is similar to that in populate_data_type.c. Any changes here might need to be done there. */
 		UNPACK_SQL_STATEMENT(binary, stmt, binary);
@@ -283,82 +283,122 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 	case coalesce_STATEMENT:;
 		SqlCoalesceCall *coalesce_call;
 
-		/* TODO: YDBOcto#772: Copy logic from populate_data_type.c */
 		UNPACK_SQL_STATEMENT(coalesce_call, stmt, coalesce);
-		result |= qualify_check_constraint(coalesce_call->arguments, table, type);
+		result |= qualify_check_constraint_column_list(coalesce_call->arguments, table, type, TRUE, ensure_same_type);
 		break;
 	case greatest_STATEMENT:;
 		SqlGreatest *greatest_call;
 
-		/* TODO: YDBOcto#772: Copy logic from populate_data_type.c */
 		UNPACK_SQL_STATEMENT(greatest_call, stmt, greatest);
-		result |= qualify_check_constraint(greatest_call->arguments, table, type);
+		result |= qualify_check_constraint_column_list(greatest_call->arguments, table, type, TRUE, ensure_same_type);
 		break;
 	case least_STATEMENT:;
 		SqlLeast *least_call;
 
-		/* TODO: YDBOcto#772: Copy logic from populate_data_type.c */
 		UNPACK_SQL_STATEMENT(least_call, stmt, least);
-		result |= qualify_check_constraint(least_call->arguments, table, type);
+		result |= qualify_check_constraint_column_list(least_call->arguments, table, type, TRUE, ensure_same_type);
 		break;
 	case null_if_STATEMENT:;
-		SqlNullIf *null_if;
+		SqlNullIf *  null_if;
+		SqlValueType tmpType;
 
-		/* TODO: YDBOcto#772: Copy logic from populate_data_type.c */
 		UNPACK_SQL_STATEMENT(null_if, stmt, null_if);
 		result |= qualify_check_constraint(null_if->left, table, type);
 		if (result) {
 			break;
 		}
-		result |= qualify_check_constraint(null_if->right, table, type);
+		result |= qualify_check_constraint(null_if->right, table, &tmpType);
+		if (result) {
+			break;
+		}
+		result |= ensure_same_type(type, &tmpType, null_if->left, null_if->right, NULL);
 		break;
 	case cas_STATEMENT:;
 		SqlCaseStatement *cas;
 
-		/* TODO: YDBOcto#772: Copy logic from populate_data_type.c */
+		/* The below layout is very similar to that in the "cas_STATEMENT" case block of populate_data_type.c.
+		 * See there for comments on why the below code is laid out this way.
+		 */
 		UNPACK_SQL_STATEMENT(cas, stmt, cas);
-		result |= qualify_check_constraint(cas->value, table, type);
-		if (result) {
-			break;
+		if (NULL != cas->value) {
+			result |= qualify_check_constraint(cas->value, table, type);
+			if (result) {
+				break;
+			}
+		} else {
+			*type = BOOLEAN_VALUE;
 		}
+		assert(NULL != cas->branches);
 		result |= qualify_check_constraint(cas->branches, table, type);
 		if (result) {
 			break;
 		}
-		result |= qualify_check_constraint(cas->optional_else, table, type);
+		if (NULL != cas->optional_else) {
+			result |= qualify_check_constraint(cas->optional_else, table, &child_type[0]);
+			if (result) {
+				break;
+			}
+			CAST_AMBIGUOUS_TYPES(*type, child_type[0], result, ((ParseContext *)NULL));
+			if (result) {
+				break;
+			}
+			CHECK_TYPE_AND_BREAK_ON_MISMATCH(*type, child_type[0], ERR_CASE_BRANCH_TYPE_MISMATCH,
+							 &cas->branches->v.cas_branch->value, &cas->optional_else, result);
+			if (result) {
+				break;
+			}
+		}
+		assert(TABLE_ASTERISK != *type);
 		break;
 	case cas_branch_STATEMENT:;
 		SqlCaseBranchStatement *cas_branch, *cur_branch;
 
-		/* TODO: YDBOcto#772: Copy logic from populate_data_type.c */
+		/* The below layout is very similar to that in the "cas_branch_STATEMENT" case block of populate_data_type.c.
+		 * See there for comments on why the below code is laid out this way.
+		 */
+		assert(UNKNOWN_SqlValueType != *type); /* "*type" stores the expected type of "cur_branch->condition" */
 		UNPACK_SQL_STATEMENT(cas_branch, stmt, cas_branch);
 		cur_branch = cas_branch;
+		result |= qualify_check_constraint(cur_branch->value, table, &child_type[0]);
+		if (result) {
+			break;
+		}
 		do {
-			result |= qualify_check_constraint(cur_branch->condition, table, type);
+			result |= qualify_check_constraint(cur_branch->condition, table, &child_type[1]);
 			if (result) {
 				break;
 			}
-			result |= qualify_check_constraint(cur_branch->value, table, type);
+			assert(UNKNOWN_SqlValueType != child_type[1]);
+			CAST_AMBIGUOUS_TYPES(*type, child_type[1], result, ((ParseContext *)NULL));
 			if (result) {
 				break;
+			}
+			CHECK_TYPE_AND_BREAK_ON_MISMATCH(child_type[1], *type, ERR_CASE_VALUE_TYPE_MISMATCH, &cur_branch->condition,
+							 NULL, result);
+			assert(!result); /* because the above macro would have done a "break" otherwise */
+			if (cas_branch != cur_branch->next) {
+				result |= qualify_check_constraint(cur_branch->next->value, table, &child_type[1]);
+				if (result) {
+					break;
+				}
+				CAST_AMBIGUOUS_TYPES(child_type[0], child_type[1], result, ((ParseContext *)NULL));
+				if (result) {
+					break;
+				}
+				CHECK_TYPE_AND_BREAK_ON_MISMATCH(child_type[0], child_type[1], ERR_CASE_BRANCH_TYPE_MISMATCH,
+								 &cur_branch->value, &cur_branch->next->value, result);
+				assert(!result); /* because the above macro would have done a "break" otherwise */
+				assert(child_type[0] == child_type[1]);
 			}
 			cur_branch = cur_branch->next;
 		} while (cur_branch != cas_branch);
+		if (result) {
+			break;
+		}
+		/* Store type of the THEN argument in "*type". For caller to use to compare ELSE argument type if one exists */
+		*type = child_type[0];
 		break;
-	case column_list_STATEMENT:;
-		SqlColumnList *start_cl, *cur_cl;
-
-		/* TODO: YDBOcto#772: Copy logic from populate_data_type.c */
-		UNPACK_SQL_STATEMENT(start_cl, stmt, column_list);
-		cur_cl = start_cl;
-		do {
-			result |= qualify_check_constraint(cur_cl->value, table, type);
-			if (result) {
-				break;
-			}
-			cur_cl = cur_cl->next;
-		} while (cur_cl != start_cl);
-		break;
+	case column_list_STATEMENT:
 	case column_alias_STATEMENT:
 	case column_list_alias_STATEMENT:
 	case create_table_STATEMENT:

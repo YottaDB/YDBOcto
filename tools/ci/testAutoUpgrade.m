@@ -30,13 +30,22 @@ batsTestsChooseRandom
 	FOR i=1:1:nLines DO
 	.	NEW skip
 	.	SET skip=0
-	.	IF (line(i)["ADD_BATS_TEST(") DO  QUIT:skip
-	.	.	SET batsTestName=$PIECE($PIECE(line(i),"ADD_BATS_TEST(",2),")",1)
-	.	.	QUIT:$DATA(include(batsTestName))  ; check if test cannot be excluded
-	.	.	; We pick only 10% of the bats tests. This is because we have seen that picking 25% resulted in
-	.	.	; the `test-auto-upgrade` pipeline job sometime running for as high as 45 minutes which is more
-	.	.	; than the main jobs (`make-ubuntu` etc.). Hence reduced it to 10% since with enough number of
-	.	.	; pipeline runs, we will see good coverage eventually and keeping each pipeline run reasonably short.
-	.	.	SET skip=$RANDOM(10) ; Include 10% of the tests, Skip 90% of the tests
-	.	WRITE line(i),!
+	.	; If the line is of the form "ADD_BATS_TEST(test_basic_parsing)", then decide whether to pick or skip it.
+	.	; If the line is of the form "ADD_BATS_TEST(${TEST_NAME})" which is possible inside a macro like the
+	.	;	ADD_BATS_TEST_DML macro, then pick it all the time as it is not a line corresponding to a test
+	.	;	but a line needed by a macro definition.
+	.	; Hence the use of the "?" operator and 1A below to distinguish "$" from a test name which starts with an alphabet.
+	.	; The "$zwrite()" function usage is to add double quotes around the string literal as it is used inside the @
+	.	; operator (indirection).
+	.	; By similar reasoning, if the line is of the form "ADD_BATS_TEST_DML(test_insert_into)" then decide to pick/skip.
+	.	FOR macro="ADD_BATS_TEST(","ADD_BATS_TEST_DML(" DO  QUIT:skip
+	.	.	IF (line(i)?@(".E1"_$zwrite(macro)_"1A.E")) DO  QUIT:skip
+	.	.	.	SET batsTestName=$PIECE($PIECE(line(i),macro,2),")",1)
+	.	.	.	QUIT:$DATA(include(batsTestName))  ; check if test cannot be excluded
+	.	.	.	; We pick only 10% of the bats tests. This is because we have seen that picking 25% resulted in
+	.	.	.	; the `test-auto-upgrade` pipeline job sometime running for as high as 45 minutes which is more
+	.	.	.	; than the main jobs (`make-ubuntu` etc.). Hence reduced it to 10% since with enough number of
+	.	.	.	; pipeline runs, we will see good coverage eventually and keep each pipeline run reasonably short.
+	.	.	.	SET skip=$RANDOM(10) ; Include 10% of the tests, Skip 90% of the tests
+	.	WRITE:'skip line(i),!
 	QUIT

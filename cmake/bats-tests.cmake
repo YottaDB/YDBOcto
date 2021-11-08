@@ -32,6 +32,11 @@ macro(ADD_BATS_TEST_DML TEST_NAME)
   set_tests_properties(${TEST_NAME} PROPERTIES DEPENDS "hello_psql")
 endmacro(ADD_BATS_TEST_DML)
 
+# Note: Any newly defined macro in this file that is used to add tests which get run in the "test-auto-upgrade" job
+# would need special handling in "tools/ci/testAutoUpgrade.m" (already has special handling for "ADD_BATS_TEST" and
+# "ADD_BATS_TEST_DML" macros). The "ADD_BATS_TEST_WITH_TIME" macro does not need such special handling as tests
+# defined using it do not get run in the "test-auto-upgrade" job.
+
 macro(ADD_BATS_TEST_WITH_TIME TEST_NAME)
   CONFIGURE_BATS_TEST(${TEST_NAME})
   add_test(${TEST_NAME} ${BATS} -T --tap ${PROJECT_BINARY_DIR}/bats_tests/${TEST_NAME}.bats)

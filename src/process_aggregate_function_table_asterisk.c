@@ -18,20 +18,28 @@
 /*
  * Called by aggregate_function_STATEMENT case in qualify_statement() to expand table.* in aggregate functions.
  * SqlColumnAlias for TABLE.ASTERISK node is already qualified with the correct table_alias_stmt. We just iterate through its
- * column_list to retrieve all the columns required by table.*. SqlColumnList given by specification_list is updated to have
- * SqlColumnAlias nodes for all columns of table.
- * Paremeter `type` is passed the aggregate function type information. Used to determine if expansion is required.
+ * column_list to retrieve all the columns required by table.*.
+ * The input parameter "af" is used as follows.
+ * 1) SqlColumnList given by "af->parameter" is updated to have SqlColumnAlias nodes for all columns of table.
+ * 2) The aggregate function type information is obtained from "af->type". Used to determine if expansion is required.
  */
-void process_table_asterisk_cl(SqlStatement *specification_list, SqlAggregateType type) {
-	SqlStatement *	table_alias_stmt;
-	SqlTableAlias * table_alias;
-	SqlColumnList * cl_new;
-	SqlColumnAlias *column_alias;
+void process_aggregate_function_table_asterisk(SqlAggregateFunction *af) {
 
+	SqlAggregateType type;
+	type = af->type;
 	if ((AGGREGATE_COUNT_ASTERISK == type) || (AGGREGATE_COUNT == type))
 		return;
+
+	SqlStatement *specification_list;
+	specification_list = af->parameter;
 	assert(NULL != specification_list);
+
 	/* Replace TABLENAME.ASTERISK node in specification_list with column list corresponding to TABLENAME table. */
+	SqlColumnAlias *column_alias;
+	SqlColumnList * cl_new;
+	SqlStatement *	table_alias_stmt;
+	SqlTableAlias * table_alias;
+
 	GET_TABLE_ASTERISK_COLUMN_ALIAS_FROM_COLUMN_LIST(column_alias, specification_list);
 	cl_new = NULL;
 	table_alias_stmt = column_alias->table_alias_stmt;

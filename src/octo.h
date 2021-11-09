@@ -918,7 +918,7 @@ SqlStatement *validate_query_expression(SqlStatement *query_expression, ParseCon
 SqlColumnListAlias *process_asterisk(SqlJoin *select_table_list, struct YYLTYPE loc);
 void process_table_asterisk_cla(SqlStatement *specification_list, SqlColumnListAlias **cla_cur, SqlTableAlias *table_alias_stmt,
 				SqlColumnListAlias **cla_head);
-void process_table_asterisk_cl(SqlStatement *sort_specification_list, SqlAggregateType type);
+void process_aggregate_function_table_asterisk(SqlAggregateFunction *af);
 boolean_t is_stmt_table_asterisk(SqlStatement *stmt);
 int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, enum RegexType regex_type, int is_sensitive,
 			int is_not, ParseContext *parse_context);

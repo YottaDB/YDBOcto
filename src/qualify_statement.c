@@ -284,7 +284,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 				if ((NULL != cur_cl->value) && (column_alias_STATEMENT == cur_cl->value->type)) {
 					UNPACK_SQL_STATEMENT(new_column_alias, cur_cl->value, column_alias);
 					if (is_stmt_table_asterisk(new_column_alias->column)) {
-						process_table_asterisk_cl(af->parameter, af->type);
+						process_aggregate_function_table_asterisk(af);
 					}
 				}
 			}

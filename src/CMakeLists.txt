@@ -282,7 +282,7 @@ add_library(libocto OBJECT
   print_result_row.c
   print_temporary_table.c
   process_asterisk.c
-  process_table_asterisk_cl.c
+  process_aggregate_function_table_asterisk.c
   process_table_asterisk_cla.c
   qualify_check_constraint.c
   qualify_column_name.c

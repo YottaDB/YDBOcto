@@ -118,7 +118,6 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	SqlGreatest *		greatest_call;
 	SqlLeast *		least_call;
 	SqlNullIf *		null_if;
-	SqlAggregateFunction *	aggregate_function;
 	SqlSetOperation *	set_operation;
 	SqlTableAlias *		table_alias;
 	SqlValue *		value;
@@ -406,7 +405,9 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		}
 		result |= ensure_same_type(type, &tmp, null_if->left, null_if->right, parse_context);
 		break;
-	case aggregate_function_STATEMENT:
+	case aggregate_function_STATEMENT:;
+		SqlAggregateFunction *aggregate_function;
+
 		UNPACK_SQL_STATEMENT(aggregate_function, v, aggregate_function);
 		// SqlColumnList : table.* usage will have more than one node so loop through
 		result |= populate_data_type_column_list(aggregate_function->parameter, type, TRUE, NULL, parse_context);
@@ -419,11 +420,11 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			assert(TABLE_ASTERISK != (*type));
 			/* The above assert is valid as count(DISTINCT table.*) value would have been expanded at
 			 * qualify_statement() aggregate_function_STATEMENT case to column_list of column_alias values
-			 * by "process_table_asterisk_cl()" call. And this is why we are also guaranteed that "*type"
-			 * would be initialized in the "populate_data_type_column_list()" call above as there is at least
-			 * one column in the list that would have been processed and "*type" would be initialized to the
-			 * type of the last column in that list. For example, in the "AGGREGATE_COUNT_ASTERISK" case below,
-			 * we are not guaranteed "*type" is initialized and hence cannot have a similar assert.
+			 * by "process_aggregate_function_table_asterisk()" call. And this is why we are also guaranteed
+			 * that "*type" would be initialized in the "populate_data_type_column_list()" call above as there
+			 * is at least one column in the list that would have been processed and "*type" would be initialized
+			 * to the type of the last column in that list. For example, in the "AGGREGATE_COUNT_ASTERISK" case
+			 * below, we are not guaranteed "*type" is initialized and hence cannot have a similar assert.
 			 */
 			*type = INTEGER_LITERAL;
 			break;

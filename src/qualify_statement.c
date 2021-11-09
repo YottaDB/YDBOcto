@@ -29,7 +29,6 @@
  *	1 if query had errors during qualification.
  */
 int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_alias_stmt, int depth, QualifyStatementParms *ret) {
-	SqlAggregateFunction *	af;
 	SqlBinaryOperation *	binary;
 	SqlCaseBranchStatement *cas_branch, *cur_branch;
 	SqlCaseStatement *	cas;
@@ -240,7 +239,9 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		result |= qualify_statement(null_if->left, tables, table_alias_stmt, depth + 1, ret);
 		result |= qualify_statement(null_if->right, tables, table_alias_stmt, depth + 1, ret);
 		break;
-	case aggregate_function_STATEMENT:
+	case aggregate_function_STATEMENT:;
+		SqlAggregateFunction *af;
+
 		UNPACK_SQL_STATEMENT(af, stmt, aggregate_function);
 		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		if (table_alias->aggregate_depth) {

@@ -617,13 +617,15 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 			stmt->v.lp_default.operand[1]
 			    = sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[1], stmt);
 			break;
-		case LP_AGGREGATE_FUNCTION_COUNT_ASTERISK:
 		case LP_AGGREGATE_FUNCTION_COUNT:
+		case LP_AGGREGATE_FUNCTION_COUNT_ASTERISK:
+		case LP_AGGREGATE_FUNCTION_COUNT_TABLE_ASTERISK:
 		case LP_AGGREGATE_FUNCTION_AVG:
 		case LP_AGGREGATE_FUNCTION_MIN:
 		case LP_AGGREGATE_FUNCTION_MAX:
 		case LP_AGGREGATE_FUNCTION_SUM:
 		case LP_AGGREGATE_FUNCTION_COUNT_DISTINCT:
+		case LP_AGGREGATE_FUNCTION_COUNT_DISTINCT_TABLE_ASTERISK:
 		case LP_AGGREGATE_FUNCTION_AVG_DISTINCT:
 		case LP_AGGREGATE_FUNCTION_SUM_DISTINCT:
 		case LP_CASE:

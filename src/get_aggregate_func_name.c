@@ -21,7 +21,9 @@ char *get_aggregate_func_name(SqlAggregateType type) {
 		return "COUNT(*)";
 		break;
 	case AGGREGATE_COUNT:
+	case AGGREGATE_COUNT_TABLE_ASTERISK:
 	case AGGREGATE_COUNT_DISTINCT:
+	case AGGREGATE_COUNT_DISTINCT_TABLE_ASTERISK:
 		return "COUNT";
 		break;
 	case AGGREGATE_AVG:

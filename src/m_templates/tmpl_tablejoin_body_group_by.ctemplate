@@ -15,7 +15,7 @@
 #include "template_helpers.h"
 
 TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *pplan, int dot_count) {
-	LogicalPlan	*af, *lp_column_list, *first_aggregate;
+	LogicalPlan	*af, *first_aggregate;
 
 	assert(NULL != pplan->outputKey);
 	assert(IS_GROUP_BY_PLAN(pplan));
@@ -50,47 +50,34 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *pplan, int dot_count) {
 	assert(LP_SELECT_QUERY == pplan->lp_select_query->type);
 	first_aggregate = pplan->lp_select_query->extra_detail.lp_select_query.first_aggregate;
 	for (af = first_aggregate; NULL != af; af = af->extra_detail.lp_aggregate_function.next_aggregate) {
-		char	*m_func;
-		int	aggregate_cnt;
-
-		assert(IS_TYPE_LP_AGGREGATE(af->type));
-		aggregate_cnt = af->extra_detail.lp_aggregate_function.aggregate_cnt;
-		assert(aggregate_cnt);
 		%{}`n{{ PLAN_LINE_START }}{}%
 		if (LP_AGGREGATE_FUNCTION_COUNT_ASTERISK == af->type) {
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {{ PP_YDB_OCTO_EXPR }}=""{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 		} else {
-			SqlColumnAlias *column_alias;
-			int		is_table_asterisk;
-			LogicalPlan *	l_plan;
+			LogicalPlan	*lp_column_list;
+			LogicalPlan	*l_plan;
 
 			lp_column_list = af->v.lp_default.operand[0];
 			assert(LP_COLUMN_LIST == lp_column_list->type);
 			l_plan = lp_column_list->v.lp_default.operand[0];
-			if (LP_COLUMN_ALIAS == l_plan->type) {
-				column_alias = l_plan->v.lp_column_alias.column_alias;
-			} else if (LP_DERIVED_COLUMN == l_plan->type) {
-				column_alias = l_plan->extra_detail.lp_derived_column.subquery_column_alias;
-			} else {
-				column_alias = NULL;
-			}
-			is_table_asterisk = (NULL != column_alias) && (is_stmt_table_asterisk(column_alias->column)
-							|| (NULL != lp_column_list->v.lp_default.operand[1]));
-			if (is_table_asterisk) {
-				int unique_id;
+			assert(NULL != l_plan);
+			if ((LP_AGGREGATE_FUNCTION_COUNT_TABLE_ASTERISK == af->type)
+					|| (LP_AGGREGATE_FUNCTION_COUNT_DISTINCT_TABLE_ASTERISK == af->type)) {
+				int	unique_id;
 
-				assert((LP_AGGREGATE_FUNCTION_COUNT == af->type) ||
-				       (LP_AGGREGATE_FUNCTION_COUNT_DISTINCT == af->type));
 				if (LP_DERIVED_COLUMN == l_plan->type) {
-					LogicalPlan *lp_key;
+					LogicalPlan	*lp_key;
 
 					GET_LP(lp_key, l_plan, 0, LP_KEY);
 					unique_id = lp_key->v.lp_key.key->unique_id;
 				} else {
-					SqlTableAlias * table_alias;
+					SqlColumnAlias	*column_alias;
+					SqlTableAlias	*table_alias;
 
+					assert(LP_COLUMN_ALIAS == l_plan->type);
+					column_alias = l_plan->v.lp_column_alias.column_alias;
 					UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
 					unique_id = table_alias->unique_id;
 				}
@@ -98,15 +85,14 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *pplan, int dot_count) {
 					TMPL(tmpl_print_dots, dot_count);
 					%{}SET {{ PP_YDB_OCTO_EXPR }}=$ZYSQLNULL{}%
 					%{}`n{{ PLAN_LINE_START }}{}%
+				} else if (LP_AGGREGATE_FUNCTION_COUNT_TABLE_ASTERISK == af->type) {
+					/* COUNT(TABLE.*) usage */
+					TMPL(tmpl_print_dots, dot_count);
+					%{}SET {{ PP_YDB_OCTO_EXPR }}=""{}%
+					%{}`n{{ PLAN_LINE_START }}{}%
 				} else {
-					if (LP_AGGREGATE_FUNCTION_COUNT == af->type) {
-						TMPL(tmpl_print_dots, dot_count);
-						%{}SET {{ PP_YDB_OCTO_EXPR }}=""{}%
-						%{}`n{{ PLAN_LINE_START }}{}%
-					} else {
-						// COUNT(DISTINCT table.*) usage
-						TMPL(tmpl_column_list_combine, lp_column_list, pplan, "_", TRUE, dot_count, TRUE);
-					}
+					// COUNT(DISTINCT TABLE.*) usage
+					TMPL(tmpl_column_list_combine, lp_column_list, pplan, "_", TRUE, dot_count, TRUE);
 				}
 			} else {
 				TMPL(tmpl_print_expression, l_plan, pplan, dot_count, 0);
@@ -116,6 +102,12 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *pplan, int dot_count) {
 		%{}SET {{ PP_YDB_OCTO_P }}={{ PP_YDB_OCTO_EXPR }}{}%
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
+
+		char	*m_func;
+		int	aggregate_cnt;
+		assert(IS_TYPE_LP_AGGREGATE(af->type));
+		aggregate_cnt = af->extra_detail.lp_aggregate_function.aggregate_cnt;
+		assert(aggregate_cnt);
 		m_func = lp_get_aggregate_plan_helper_func_name(af->type);
 		%{}DO {{ m_func }}^%%ydboctoplanhelpers({}%
 		%{}{{pplan->outputKey->unique_id|%d }},{{ PP_YDB_OCTO_G }},{{ aggregate_cnt|%d }},{{ PP_YDB_OCTO_P }}{}%

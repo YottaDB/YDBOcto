@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -96,9 +96,11 @@ boolean_t lp_is_operand_type_string(LogicalPlan *plan) {
 			break;
 		case LP_AGGREGATE_FUNCTION_COUNT_ASTERISK:
 		case LP_AGGREGATE_FUNCTION_COUNT:
+		case LP_AGGREGATE_FUNCTION_COUNT_TABLE_ASTERISK:
 		case LP_AGGREGATE_FUNCTION_AVG:
 		case LP_AGGREGATE_FUNCTION_SUM:
 		case LP_AGGREGATE_FUNCTION_COUNT_DISTINCT:
+		case LP_AGGREGATE_FUNCTION_COUNT_DISTINCT_TABLE_ASTERISK:
 		case LP_AGGREGATE_FUNCTION_AVG_DISTINCT:
 		case LP_AGGREGATE_FUNCTION_SUM_DISTINCT:
 			assert(FALSE == ret);

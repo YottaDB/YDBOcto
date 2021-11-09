@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -34,14 +34,16 @@ SELECT firstname || COALESCE(1,0) FROM names;					-- LP_COALESCE_CALL
 SELECT firstname || GREATEST(1,0) FROM names;					-- LP_GREATEST
 SELECT firstname || LEAST(1,0) FROM names;					-- LP_LEAST
 SELECT firstname || NULLIF(1,0) FROM names;					-- LP_NULL_IF
-SELECT firstname || COUNT(*) FROM names GROUP BY firstname;			-- LP_AGGREGATE_FUNCTION_COUNT_ASTERISK
 SELECT firstname || COUNT(lastname) FROM names GROUP BY firstname;		-- LP_AGGREGATE_FUNCTION_COUNT
+SELECT firstname || COUNT(*) FROM names GROUP BY firstname;			-- LP_AGGREGATE_FUNCTION_COUNT_ASTERISK
+SELECT firstname || COUNT(names.*) FROM names GROUP BY firstname;		-- LP_AGGREGATE_FUNCTION_COUNT_TABLE_ASTERISK
 -- The below query also tests [OCTO629 : Incorrect results when string concatenation operator || is used with aggregate functions]
 SELECT firstname || AVG(id) FROM names GROUP BY firstname;			-- LP_AGGREGATE_FUNCTION_AVG
 SELECT firstname || MIN(id) FROM names GROUP BY firstname;			-- LP_AGGREGATE_FUNCTION_MIN
 SELECT firstname || MAX(id) FROM names GROUP BY firstname;			-- LP_AGGREGATE_FUNCTION_MAX
 SELECT firstname || SUM(id) FROM names GROUP BY firstname;			-- LP_AGGREGATE_FUNCTION_SUM
 SELECT firstname || COUNT(DISTINCT lastname) FROM names GROUP BY firstname;	-- LP_AGGREGATE_FUNCTION_COUNT_DISTINCT
+SELECT firstname || COUNT(DISTINCT names.*) FROM names GROUP BY firstname;	-- LP_AGGREGATE_FUNCTION_COUNT_DISTINCT_TABLE_ASTERISK
 SELECT firstname || AVG(DISTINCT id) FROM names GROUP BY firstname;		-- LP_AGGREGATE_FUNCTION_AVG_DISTINCT
 SELECT firstname || SUM(DISTINCT id) FROM names GROUP BY firstname;		-- LP_AGGREGATE_FUNCTION_SUM_DISTINCT
 SELECT firstname || id FROM (SELECT * FROM names) n1;				-- LP_DERIVED_COLUMN

@@ -417,9 +417,10 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		// Note that COUNT(...) is always an INTEGER type even though ... might be a string type column.
 		switch (aggregate_function->type) {
 		case AGGREGATE_COUNT_DISTINCT:
+		case AGGREGATE_COUNT:
 			assert(TABLE_ASTERISK != (*type));
-			/* The above assert is valid as count(DISTINCT table.*) value would have been expanded at
-			 * qualify_statement() aggregate_function_STATEMENT case to column_list of column_alias values
+			/* The above assert is valid as COUNT(DISTINCT TABLE.*) or COUNT(TABLE.*) value would have been expanded
+			 * at qualify_statement() aggregate_function_STATEMENT case to column_list of column_alias values
 			 * by "process_aggregate_function_table_asterisk()" call. And this is why we are also guaranteed
 			 * that "*type" would be initialized in the "populate_data_type_column_list()" call above as there
 			 * is at least one column in the list that would have been processed and "*type" would be initialized
@@ -428,8 +429,9 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			 */
 			*type = INTEGER_LITERAL;
 			break;
+		case AGGREGATE_COUNT_TABLE_ASTERISK:
+		case AGGREGATE_COUNT_DISTINCT_TABLE_ASTERISK:
 		case AGGREGATE_COUNT_ASTERISK:
-		case AGGREGATE_COUNT:
 			*type = INTEGER_LITERAL;
 			break;
 		case AGGREGATE_AVG:

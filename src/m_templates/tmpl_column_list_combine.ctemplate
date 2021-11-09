@@ -89,9 +89,9 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 			 */
 			assert(!str2mval);
 		}
-			expr_plan = (((!is_lp_table_value) && (!is_asterisk))
-						? plan->v.lp_default.operand[0]->v.lp_default.operand[0]
-						: plan->v.lp_default.operand[0]);
+		expr_plan = (((!is_lp_table_value) && (!is_asterisk))
+					? plan->v.lp_default.operand[0]->v.lp_default.operand[0]
+					: plan->v.lp_default.operand[0]);
 		assert(!str2mval || dot_count);
 		depth = 0;
 		TMPL(tmpl_print_expression, expr_plan, pplan, dot_count, depth);

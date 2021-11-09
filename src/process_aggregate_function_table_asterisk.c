@@ -27,8 +27,17 @@ void process_aggregate_function_table_asterisk(SqlAggregateFunction *af) {
 
 	SqlAggregateType type;
 	type = af->type;
-	if ((AGGREGATE_COUNT_ASTERISK == type) || (AGGREGATE_COUNT == type))
+	if ((AGGREGATE_COUNT_ASTERISK == type) || (AGGREGATE_COUNT == type)) {
+		if (AGGREGATE_COUNT == type) {
+			/* COUNT(t1.*) behaves differently from COUNT(t1.col) in terms of NULL value counting
+			 * even if t1 has only one column. See YDBOcto #759 for details. Therefore, need to distinguish the two.
+			 * Hence the type change below. COUNT(t1.col) will continue to have AGGREGATE_COUNT as the type.
+			 * COUNT(t1.*) will have type AGGREGATE_COUNT_TABLE_ASTERISK.
+			 */
+			af->type = AGGREGATE_COUNT_TABLE_ASTERISK;
+		}
 		return;
+	}
 
 	SqlStatement *specification_list;
 	specification_list = af->parameter;
@@ -60,6 +69,13 @@ void process_aggregate_function_table_asterisk(SqlAggregateFunction *af) {
 			 */
 			if (inner_cur_cla->next != inner_cur_cla)
 				return;
+		} else {
+			/* COUNT(DISTINCT t1.*) behaves differently from COUNT(DISTINCT t1.col) in terms of NULL value counting
+			 * even if t1 has only one column. See YDBOcto #759 for details. Therefore, need to distinguish the two.
+			 * Hence the type change below. COUNT(DISTINCT t1.col) will continue to have AGGREGATE_COUNT_DISTINCT
+			 * as the type. COUNT(DISTINCT t1.*) will have type AGGREGATE_COUNT_DISTINCT_TABLE_ASTERISK.
+			 */
+			af->type = AGGREGATE_COUNT_DISTINCT_TABLE_ASTERISK;
 		}
 		do {
 			OCTO_CMALLOC_STRUCT(cl, SqlColumnList);

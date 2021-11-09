@@ -325,6 +325,10 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 							    LP_AGGREGATE_FUNCTION_AVG_DISTINCT)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options,
 							    LP_AGGREGATE_FUNCTION_SUM_DISTINCT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options,
+							    LP_AGGREGATE_FUNCTION_COUNT_DISTINCT_TABLE_ASTERISK)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options,
+							    LP_AGGREGATE_FUNCTION_COUNT_TABLE_ASTERISK)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_DERIVED_COLUMN)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_VALUE)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_COERCE_TYPE)
@@ -488,6 +492,8 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 	case LP_AGGREGATE_FUNCTION_COUNT_DISTINCT:
 	case LP_AGGREGATE_FUNCTION_AVG_DISTINCT:
 	case LP_AGGREGATE_FUNCTION_SUM_DISTINCT:
+	case LP_AGGREGATE_FUNCTION_COUNT_DISTINCT_TABLE_ASTERISK:
+	case LP_AGGREGATE_FUNCTION_COUNT_TABLE_ASTERISK:
 		if (NULL != options) {
 			int	     prev_aggregate_cnt;
 			LogicalPlan *prev_aggregate;
@@ -544,6 +550,8 @@ boolean_t lp_verify_value(LogicalPlan *plan, PhysicalPlanOptions *options) {
 	       | lp_verify_structure_helper(plan, options, LP_AGGREGATE_FUNCTION_COUNT_DISTINCT)
 	       | lp_verify_structure_helper(plan, options, LP_AGGREGATE_FUNCTION_AVG_DISTINCT)
 	       | lp_verify_structure_helper(plan, options, LP_AGGREGATE_FUNCTION_SUM_DISTINCT)
+	       | lp_verify_structure_helper(plan, options, LP_AGGREGATE_FUNCTION_COUNT_DISTINCT_TABLE_ASTERISK)
+	       | lp_verify_structure_helper(plan, options, LP_AGGREGATE_FUNCTION_COUNT_TABLE_ASTERISK)
 	       | lp_verify_structure_helper(plan, options, LP_DERIVED_COLUMN) | lp_verify_structure_helper(plan, options, LP_VALUE)
 	       | lp_verify_structure_helper(plan, options, LP_COERCE_TYPE)
 	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_IN)

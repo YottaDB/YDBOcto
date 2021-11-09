@@ -33,6 +33,8 @@ SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeywor
 	value->v.calculated = aggregate_stmt;
 	if (OPTIONAL_DISTINCT == set_quantifier) {
 		assert(AGGREGATE_COUNT_ASTERISK != aggregate_type);
+		assert(AGGREGATE_COUNT_TABLE_ASTERISK != aggregate_type);
+		assert(AGGREGATE_COUNT_DISTINCT_TABLE_ASTERISK != aggregate_type);
 		assert(AGGREGATE_COUNT <= aggregate_type);
 		assert(AGGREGATE_MAX >= aggregate_type);
 		assert((AGGREGATE_MAX + 1) == AGGREGATE_COUNT_DISTINCT);

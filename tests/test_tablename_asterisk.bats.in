@@ -1,0 +1,31 @@
+#################################################################
+#								#
+# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+}
+
+@test "TTA001 : OCTO759 : COUNT(DISTINCT TABLENAME.ASTERISK) produces incorrect results in some cases : nullcharnames database" {
+	load_fixture nullcharnames.sql
+	load_fixture nullcharnames.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullcharnames TTA001.sql
+}
+
+@test "TTA002 : OCTO759 : COUNT(DISTINCT TABLENAME.ASTERISK) produces incorrect results in some cases : names database" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TTA002.sql
+}
+

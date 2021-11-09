@@ -81,7 +81,9 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *pplan, int dot_count) {
 				break;
 			default:
 				assert((LP_AGGREGATE_FUNCTION_COUNT_ASTERISK == type)
-					|| (LP_AGGREGATE_FUNCTION_COUNT == type) || (LP_AGGREGATE_FUNCTION_COUNT_DISTINCT == type));
+					|| (LP_AGGREGATE_FUNCTION_COUNT == type) || (LP_AGGREGATE_FUNCTION_COUNT_DISTINCT == type)
+					|| (LP_AGGREGATE_FUNCTION_COUNT_DISTINCT_TABLE_ASTERISK == type)
+					|| (LP_AGGREGATE_FUNCTION_COUNT_TABLE_ASTERISK == type));
 				%{}0{}%
 				break;
 			}

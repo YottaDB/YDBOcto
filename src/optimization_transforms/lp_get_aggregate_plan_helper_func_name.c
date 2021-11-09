@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -24,6 +24,7 @@ char *lp_get_aggregate_plan_helper_func_name(LPActionType type) {
 		m_func = "CountAsterisk";
 		break;
 	case LP_AGGREGATE_FUNCTION_COUNT:
+	case LP_AGGREGATE_FUNCTION_COUNT_TABLE_ASTERISK:
 		m_func = "Count";
 		break;
 	case LP_AGGREGATE_FUNCTION_AVG:
@@ -39,6 +40,7 @@ char *lp_get_aggregate_plan_helper_func_name(LPActionType type) {
 		m_func = "Sum";
 		break;
 	case LP_AGGREGATE_FUNCTION_COUNT_DISTINCT:
+	case LP_AGGREGATE_FUNCTION_COUNT_DISTINCT_TABLE_ASTERISK:
 		m_func = "CountDistinct";
 		break;
 	case LP_AGGREGATE_FUNCTION_AVG_DISTINCT:

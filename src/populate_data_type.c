@@ -401,7 +401,10 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			break;
 		}
 		result |= populate_data_type(null_if->right, &tmp, parse_context);
-		ensure_same_type(type, &tmp, null_if->left, null_if->right, parse_context);
+		if (result) {
+			break;
+		}
+		result |= ensure_same_type(type, &tmp, null_if->left, null_if->right, parse_context);
 		break;
 	case aggregate_function_STATEMENT:
 		UNPACK_SQL_STATEMENT(aggregate_function, v, aggregate_function);

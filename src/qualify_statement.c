@@ -279,8 +279,8 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 			result |= qualify_statement(af->parameter, tables, table_alias_stmt, depth + 1, ret);
 			if (0 == result) {
 				UNPACK_SQL_STATEMENT(cur_cl, af->parameter, column_list);
-				assert((COUNT_ASTERISK_AGGREGATE == af->type) || (NULL != cur_cl->value));
-				assert((COUNT_ASTERISK_AGGREGATE != af->type) || (NULL == cur_cl->value));
+				assert((AGGREGATE_COUNT_ASTERISK == af->type) || (NULL != cur_cl->value));
+				assert((AGGREGATE_COUNT_ASTERISK != af->type) || (NULL == cur_cl->value));
 				if ((NULL != cur_cl->value) && (column_alias_STATEMENT == cur_cl->value->type)) {
 					UNPACK_SQL_STATEMENT(new_column_alias, cur_cl->value, column_alias);
 					if (is_stmt_table_asterisk(new_column_alias->column)) {

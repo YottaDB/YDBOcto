@@ -32,17 +32,17 @@ SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeywor
 	UNPACK_SQL_STATEMENT(af, aggregate_stmt, aggregate_function);
 	value->v.calculated = aggregate_stmt;
 	if (OPTIONAL_DISTINCT == set_quantifier) {
-		assert(COUNT_ASTERISK_AGGREGATE != aggregate_type);
-		assert(COUNT_AGGREGATE <= aggregate_type);
-		assert(MAX_AGGREGATE >= aggregate_type);
-		assert((MAX_AGGREGATE + 1) == COUNT_AGGREGATE_DISTINCT);
-		assert((AVG_AGGREGATE_DISTINCT - AVG_AGGREGATE) == (COUNT_AGGREGATE_DISTINCT - COUNT_AGGREGATE));
-		assert((SUM_AGGREGATE_DISTINCT - SUM_AGGREGATE) == (COUNT_AGGREGATE_DISTINCT - COUNT_AGGREGATE));
-		if ((MIN_AGGREGATE == aggregate_type) || (MAX_AGGREGATE == aggregate_type)) {
+		assert(AGGREGATE_COUNT_ASTERISK != aggregate_type);
+		assert(AGGREGATE_COUNT <= aggregate_type);
+		assert(AGGREGATE_MAX >= aggregate_type);
+		assert((AGGREGATE_MAX + 1) == AGGREGATE_COUNT_DISTINCT);
+		assert((AGGREGATE_AVG_DISTINCT - AGGREGATE_AVG) == (AGGREGATE_COUNT_DISTINCT - AGGREGATE_COUNT));
+		assert((AGGREGATE_SUM_DISTINCT - AGGREGATE_SUM) == (AGGREGATE_COUNT_DISTINCT - AGGREGATE_COUNT));
+		if ((AGGREGATE_MIN == aggregate_type) || (AGGREGATE_MAX == aggregate_type)) {
 			/* MIN(DISTINCT) and MAX(DISTINCT) are equivalent to MIN and MAX respectively */
 			af->type = aggregate_type;
 		} else {
-			af->type = aggregate_type + (COUNT_AGGREGATE_DISTINCT - COUNT_AGGREGATE);
+			af->type = aggregate_type + (AGGREGATE_COUNT_DISTINCT - AGGREGATE_COUNT);
 		}
 	} else {
 		af->type = aggregate_type;

@@ -973,13 +973,13 @@ set_function_specification
         YYLTYPE	tmploc;
 
         tmploc = @COUNT;	/* pass location of "COUNT" token below for later useful error reporting */
-        $$ = aggregate_function(COUNT_ASTERISK_AGGREGATE, NO_KEYWORD, NULL, &tmploc);
+        $$ = aggregate_function(AGGREGATE_COUNT_ASTERISK, NO_KEYWORD, NULL, &tmploc);
     }
   | COUNT LEFT_PAREN set_quantifier value_expression RIGHT_PAREN {
         YYLTYPE	tmploc;
 
         tmploc = @COUNT;	/* pass location of "COUNT" token below for later useful error reporting */
-        $$ = aggregate_function(COUNT_AGGREGATE, (OptionalKeyword)$set_quantifier, $value_expression, &tmploc);
+        $$ = aggregate_function(AGGREGATE_COUNT, (OptionalKeyword)$set_quantifier, $value_expression, &tmploc);
     }
   | general_set_function { $$ = $general_set_function; }
   | generic_function_call { $$ = $generic_function_call; }
@@ -995,10 +995,10 @@ general_set_function
   ;
 
 set_function_type
-  : AVG { $$ = (SqlStatement *)AVG_AGGREGATE; }
-  | MAX { $$ = (SqlStatement *)MAX_AGGREGATE; }
-  | MIN { $$ = (SqlStatement *)MIN_AGGREGATE; }
-  | SUM { $$ = (SqlStatement *)SUM_AGGREGATE; }
+  : AVG { $$ = (SqlStatement *)AGGREGATE_AVG; }
+  | MAX { $$ = (SqlStatement *)AGGREGATE_MAX; }
+  | MIN { $$ = (SqlStatement *)AGGREGATE_MIN; }
+  | SUM { $$ = (SqlStatement *)AGGREGATE_SUM; }
   ;
 
 generic_function_call

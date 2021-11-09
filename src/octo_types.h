@@ -295,17 +295,17 @@ typedef enum SqlJoinType { NO_JOIN, NATURAL_JOIN, CROSS_JOIN, INNER_JOIN, RIGHT_
 
 /* Note: Order of the below enums should be kept in sync with order of `LP_AGGREGATE_FUNCTION_*` types in `lp_action_type.hd` */
 typedef enum SqlAggregateType {
-	COUNT_ASTERISK_AGGREGATE,
-	COUNT_AGGREGATE,
-	SUM_AGGREGATE,
-	AVG_AGGREGATE,
-	MIN_AGGREGATE,
-	MAX_AGGREGATE,
-	COUNT_AGGREGATE_DISTINCT,
-	SUM_AGGREGATE_DISTINCT,
-	AVG_AGGREGATE_DISTINCT,
-	/* Note: MIN_AGGREGATE_DISTINCT is equivalent to MIN_AGGREGATE */
-	/* Note: MAX_AGGREGATE_DISTINCT is equivalent to MAX_AGGREGATE */
+	AGGREGATE_COUNT_ASTERISK,
+	AGGREGATE_COUNT,
+	AGGREGATE_SUM,
+	AGGREGATE_AVG,
+	AGGREGATE_MIN,
+	AGGREGATE_MAX,
+	AGGREGATE_COUNT_DISTINCT,
+	AGGREGATE_SUM_DISTINCT,
+	AGGREGATE_AVG_DISTINCT,
+	/* Note: AGGREGATE_MIN_DISTINCT is equivalent to AGGREGATE_MIN */
+	/* Note: AGGREGATE_MAX_DISTINCT is equivalent to AGGREGATE_MAX */
 	AGGREGATE_LAST
 } SqlAggregateType;
 
@@ -653,7 +653,7 @@ typedef struct SqlBinaryOperation {
 typedef struct SqlAggregateFunction {
 	SqlAggregateType type;	     // COUNT_ASTERISK, AVG, SUM, MIN, MAX
 	SqlValueType	 param_type; /* Data type (STRING_LITERAL, NUMERIC_LITERAL etc.) of function parameter.
-				      * Initialized/Needed only if `type` is MIN_AGGREGATE or MAX_AGGREGATE.
+				      * Initialized/Needed only if `type` is AGGREGATE_MIN or AGGREGATE_MAX.
 				      */
 	// SqlColumnList
 	struct SqlStatement *parameter;

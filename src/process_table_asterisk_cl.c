@@ -28,7 +28,7 @@ void process_table_asterisk_cl(SqlStatement *specification_list, SqlAggregateTyp
 	SqlColumnList * cl_new;
 	SqlColumnAlias *column_alias;
 
-	if ((COUNT_ASTERISK_AGGREGATE == type) || (COUNT_AGGREGATE == type))
+	if ((AGGREGATE_COUNT_ASTERISK == type) || (AGGREGATE_COUNT == type))
 		return;
 	assert(NULL != specification_list);
 	/* Replace TABLENAME.ASTERISK node in specification_list with column list corresponding to TABLENAME table. */
@@ -45,7 +45,7 @@ void process_table_asterisk_cl(SqlStatement *specification_list, SqlAggregateTyp
 
 		UNPACK_SQL_STATEMENT(inner_start_cla, table_alias->column_list, column_list_alias);
 		inner_cur_cla = inner_start_cla;
-		if (COUNT_AGGREGATE_DISTINCT != type) {
+		if (AGGREGATE_COUNT_DISTINCT != type) {
 			/* For AVG, SUM, MIN & MAX aggregate functions having a single column is valid.
 			 * Check here if it has only a single column. If it does then replace table.* with the column.
 			 * If not, return table.* as is and let populate_data_type() issue an error.

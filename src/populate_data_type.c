@@ -415,26 +415,26 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		}
 		// Note that COUNT(...) is always an INTEGER type even though ... might be a string type column.
 		switch (aggregate_function->type) {
-		case COUNT_AGGREGATE_DISTINCT:
+		case AGGREGATE_COUNT_DISTINCT:
 			assert(TABLE_ASTERISK != (*type));
 			/* The above assert is valid as count(DISTINCT table.*) value would have been expanded at
 			 * qualify_statement() aggregate_function_STATEMENT case to column_list of column_alias values
 			 * by "process_table_asterisk_cl()" call. And this is why we are also guaranteed that "*type"
 			 * would be initialized in the "populate_data_type_column_list()" call above as there is at least
 			 * one column in the list that would have been processed and "*type" would be initialized to the
-			 * type of the last column in that list. For example, in the "COUNT_ASTERISK_AGGREGATE" case below,
+			 * type of the last column in that list. For example, in the "AGGREGATE_COUNT_ASTERISK" case below,
 			 * we are not guaranteed "*type" is initialized and hence cannot have a similar assert.
 			 */
 			*type = INTEGER_LITERAL;
 			break;
-		case COUNT_ASTERISK_AGGREGATE:
-		case COUNT_AGGREGATE:
+		case AGGREGATE_COUNT_ASTERISK:
+		case AGGREGATE_COUNT:
 			*type = INTEGER_LITERAL;
 			break;
-		case AVG_AGGREGATE:
-		case AVG_AGGREGATE_DISTINCT:
-		case SUM_AGGREGATE:
-		case SUM_AGGREGATE_DISTINCT:
+		case AGGREGATE_AVG:
+		case AGGREGATE_AVG_DISTINCT:
+		case AGGREGATE_SUM:
+		case AGGREGATE_SUM_DISTINCT:
 			if ((TABLE_ASTERISK == *type) || (STRING_LITERAL == *type) || (BOOLEAN_VALUE == *type)) {
 				/* TABLE_ASTERISK or STRING or BOOLEAN type cannot be input for the AVG or SUM function so signal
 				 * an error in that case.
@@ -451,8 +451,8 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 				result = 1;
 			}
 			break;
-		case MIN_AGGREGATE:
-		case MAX_AGGREGATE:
+		case AGGREGATE_MIN:
+		case AGGREGATE_MAX:
 			if ((TABLE_ASTERISK == *type) || (BOOLEAN_VALUE == *type)) {
 				/* TABLE_ASTERISK or BOOLEAN type cannot be input for the MIN or MAX function so signal an error in
 				 * that case. */

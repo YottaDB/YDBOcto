@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -17,25 +17,25 @@
 
 char *get_aggregate_func_name(SqlAggregateType type) {
 	switch (type) {
-	case COUNT_ASTERISK_AGGREGATE:
+	case AGGREGATE_COUNT_ASTERISK:
 		return "COUNT(*)";
 		break;
-	case COUNT_AGGREGATE:
-	case COUNT_AGGREGATE_DISTINCT:
+	case AGGREGATE_COUNT:
+	case AGGREGATE_COUNT_DISTINCT:
 		return "COUNT";
 		break;
-	case AVG_AGGREGATE:
-	case AVG_AGGREGATE_DISTINCT:
+	case AGGREGATE_AVG:
+	case AGGREGATE_AVG_DISTINCT:
 		return "AVG";
 		break;
-	case MIN_AGGREGATE:
+	case AGGREGATE_MIN:
 		return "MIN";
 		break;
-	case MAX_AGGREGATE:
+	case AGGREGATE_MAX:
 		return "MAX";
 		break;
-	case SUM_AGGREGATE:
-	case SUM_AGGREGATE_DISTINCT:
+	case AGGREGATE_SUM:
+	case AGGREGATE_SUM_DISTINCT:
 		return "SUM";
 		break;
 	default:

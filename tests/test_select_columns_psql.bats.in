@@ -160,3 +160,8 @@ setup() {
   load_fixture TSCP16.sql subtest novv
   verify_output TSCP16 output.txt
 }
+
+@test "TSCP17 : OCTO779 : Incorrect ERR_UNKNOWN_COLUMN_NAME error when GROUP BY is used on a VALUES table in the JOIN list" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP17.sql
+}
+

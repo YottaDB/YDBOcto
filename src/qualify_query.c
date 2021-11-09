@@ -190,7 +190,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	 * FROM/JOIN list. Do not use any tables from the current query level FROM/JOIN list for this qualification.
 	 */
 	do {
-		SqlStatement *stmt = join->value;
+		SqlStatement *stmt = cur_join->value;
 
 		/* Qualify sub-queries involved in the join. Note that it is possible a `table` is involved in the join instead
 		 * of a `sub-query` in which case the below `qualify_query` call will return right away.

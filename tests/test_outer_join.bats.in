@@ -15,8 +15,6 @@ load test_helpers
 setup() {
   init_test
   createdb
-  load_fixture names.sql
-  load_fixture names.zwr
   test_port=$(start_rocto 1344)
 }
 
@@ -25,6 +23,8 @@ teardown() {
 }
 
 @test "TOJ01 : Various OUTER JOIN queries (including OCTO363)" {
+  load_fixture names.sql
+  load_fixture names.zwr
   cp @PROJECT_SOURCE_DIR@/tests/fixtures/TOJ01.sql .
   yottadb -run genqueryfiles TOJ01.sql	# this generates query files of the form TOJ01_01.sql, TOJ01_02.sql ...
   for file in TOJ01_*.sql
@@ -51,18 +51,17 @@ teardown() {
 }
 
 @test "TOJ03 : random outer join queries" {
-  load_fixture customers.sql
-  load_fixture customers.zwr
-  # 8 below is max # of inner/outer joins in one query
-  yottadb -run TOJ03 8	# this generates a set of queries jointest01.sql, jointest02.sql ...
-  # Run using psql and Octo against each of the generated queries
-  for file in jointest*.sql
-  do
-    run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers $file
-  done
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	# 8 below is max # of inner/outer joins in one query
+	yottadb -run TOJ03 8 > TOJ03.sql
+	# Run using psql and Octo against each of the generated queries
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TOJ03.sql
 }
 
 @test "TOJ04 : outer join with no ON condition specified" {
+  load_fixture names.sql
+  load_fixture names.zwr
   cp @PROJECT_SOURCE_DIR@/tests/fixtures/TOJ04.sql .	# contains only one query
   yottadb -run genqueryfiles TOJ04.sql	# this generates the query file TOJ04_01.sql (only one)
   cat TOJ04_*.sql > output.txt

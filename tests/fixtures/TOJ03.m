@@ -158,12 +158,9 @@ genrandomqueries	;
 	. ; The below if check is because postgres issues the following error if FULL JOIN and != in ON clause is chosen
 	. ;	--> ERROR:  FULL JOIN is only supported with merge-joinable or hash-joinable join conditions
 	. quit:fulljoinchosen&notequalchosen
-	. set file="jointest"_$translate($justify($increment(q),2)," ","0")_".sql"
-	. open file:(newversion)  use file
 	. write sqlquery
 	. write:'outputsorted " ",$select('nolimit:"-- rowcount-only-check",1:"-- sort-needed-check")
 	. write !
-	. close file
 	quit
 	;
 boolexpr(maxdepth)

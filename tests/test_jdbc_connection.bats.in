@@ -29,12 +29,9 @@ teardown() {
 	load_fixture customers.sql
 	load_fixture customers.zwr
 	# 8 below is max # of inner/outer joins in one query
-	yottadb -run TOJ03 8	# this generates a set of queries jointest01.sql, jointest02.sql ...
+	yottadb -run TOJ03 8 > TJC001.sql
 	# Run using psql and Octo against each of the generated queries
-	for file in jointest*.sql
-	do
-		run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers $file "" usejdbc useextended
-	done
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TJC001.sql "" usejdbc useextended
 }
 
 @test "TJC002 : Simple extended query parameter tests" {

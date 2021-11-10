@@ -53,6 +53,7 @@ public class run_multiple_query_files {
 			databaseName = args[4];
 		// Establish connection to database
 		connectionString = "jdbc:postgresql://localhost:" + args[0] + "/" + databaseName;
+		int exitStatus = 0;
 		try (Connection conn = DriverManager.getConnection(connectionString, props)) {
 			if (null != conn) {
 				if (4 <= args.length) {
@@ -126,14 +127,24 @@ public class run_multiple_query_files {
 					}
 				} else {
 					System.out.println("Please pass a SQL file.");
+					exitStatus = 1;
 				}
 			} else {
 				System.out.println("Failed to make connection!");
+				exitStatus = 1;
 			}
 		} catch (SQLException e) {
-				System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+			exitStatus = 1;
 		} catch (Exception e) {
-				e.printStackTrace();
+			e.printStackTrace();
+			exitStatus = 1;
+		}
+		if (0 != exitStatus) {
+			/* Some error occurred. Caller (i.e. bats) relies on a non-zero exit status so it can signal
+			 * a test failure. So do just that using "exit".
+			 */
+			System.exit(exitStatus);
 		}
 	}
 

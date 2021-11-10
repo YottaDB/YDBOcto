@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -32,6 +32,7 @@ public class TJC017 {
 			props.setProperty("preferQueryMode","simple");
 
 		String connectionString = "jdbc:postgresql://localhost:" + args[0] + "/";
+		int exitStatus = 0;
 		try (Connection conn = DriverManager.getConnection(connectionString, props)) {
 			if (conn != null) {
 				int			num_queries = 2;
@@ -104,16 +105,28 @@ public class TJC017 {
 						}
 					} catch (SQLException e) {
 						System.err.format("SQL State: %s\n%s\n", e.getSQLState(), e.getMessage());
+						/* Note: Do not set "exitStatus = 1;" like is done in other *.java files
+						 * in this repository as we do expect some errors in this test.
+						 */
 					}
 					statements[cur_query].close();
 				}
 			} else {
-					System.out.println("Failed to make connection!");
+				System.out.println("Failed to make connection!");
+				exitStatus = 1;
 			}
 		} catch (SQLException e) {
 			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+			exitStatus = 1;
 		} catch (Exception e) {
 			e.printStackTrace();
+			exitStatus = 1;
+		}
+		if (0 != exitStatus) {
+			/* Some error occurred. Caller (i.e. bats) relies on a non-zero exit status so it can signal
+			 * a test failure. So do just that using "exit".
+			 */
+			System.exit(exitStatus);
 		}
 	}
 }

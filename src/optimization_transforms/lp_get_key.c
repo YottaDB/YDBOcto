@@ -19,31 +19,25 @@
 #include "logical_plan.h"
 
 SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
-	SqlColumnAlias *    column_alias;
-	SqlColumn *	    column;
-	SqlValue *	    search_column_name;
-	SqlTableAlias *	    table_alias;
-	SqlColumnListAlias *cl_alias;
-	SqlKey *	    key, *primary_key;
-	int		    key_id, search_id, join_table_id, join_table_num;
-	LogicalPlan *	    cur_key, *lp_key;
-	boolean_t	    first_matching_key;
+	SqlColumnAlias *column_alias;
+	SqlColumn *	column;
+	SqlValue *	search_column_name;
+	SqlTableAlias * table_alias;
+	SqlKey *	key, *primary_key;
+	int		key_id, search_id, join_table_id, join_table_num;
+	LogicalPlan *	cur_key, *lp_key;
+	boolean_t	first_matching_key;
 
 	column_alias = lp_column_alias->v.lp_column_alias.column_alias;
 	UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
-	search_id = table_alias->unique_id;
 	if (create_table_STATEMENT != table_alias->table->type) {
 		/* There is no key for an on-the-fly table constructued using the VALUES clause */
 		assert(table_value_STATEMENT == table_alias->table->type);
 		return NULL;
 	}
-	if (column_alias->column->type == column_STATEMENT) {
-		UNPACK_SQL_STATEMENT(column, column_alias->column, column);
-		UNPACK_SQL_STATEMENT(search_column_name, column->columnName, value);
-	} else {
-		UNPACK_SQL_STATEMENT(cl_alias, column_alias->column, column_list_alias);
-		UNPACK_SQL_STATEMENT(search_column_name, cl_alias->alias, value);
-	}
+	assert(column_alias->column->type == column_STATEMENT);
+	UNPACK_SQL_STATEMENT(column, column_alias->column, column);
+	UNPACK_SQL_STATEMENT(search_column_name, column->columnName, value);
 
 	cur_key = lp_get_keys(plan);
 
@@ -51,6 +45,7 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 	first_matching_key = TRUE;
 	join_table_num = 0;
 	join_table_id = -1;
+	search_id = table_alias->unique_id;
 	do {
 		GET_LP(lp_key, cur_key, 0, LP_KEY);
 		key = lp_key->v.lp_key.key;

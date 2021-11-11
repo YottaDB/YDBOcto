@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -231,3 +231,8 @@ CAT
   echo verifying output
   verify_output TWO17 output.txt noinfo
 }
+
+@test "TWO18 : OCTO782 : Fix incorrect results when WHERE clause has IS NOT NULL and FROM/JOIN list has more than one table" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TWO18.sql
+}
+

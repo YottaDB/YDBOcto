@@ -148,10 +148,47 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	case LP_VALUE:
 		left_id = 0;
 		break;
-	case LP_COLUMN_ALIAS:
-		UNPACK_SQL_STATEMENT(table_alias, left->v.lp_column_alias.column_alias->table_alias_stmt, table_alias);
+	case LP_COLUMN_ALIAS:;
+		SqlColumnAlias *column_alias;
+
+		column_alias = left->v.lp_column_alias.column_alias;
+		UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
 		left_id = table_alias->unique_id;
 		assert(0 < left_id);
+		/* Now that we know the left side is a column reference, check if it is a IS NOT NULL operation AND
+		 * if the column corresponds to a primary key column. In that case, we are guaranteed the primary key column
+		 * can never take on a NULL value. That is, the IS NOT NULL condition would always evaluate to TRUE.
+		 * So no need to check it for each row. Therefore remove the `LP_BOOLEAN_IS_NOT_NULL` from the ON/WHERE clause.
+		 */
+		if (LP_BOOLEAN_IS_NOT_NULL == type) {
+			if (num_outer_joins) {
+				/* OUTER JOINs can cause NULL values even for primary keys and so we cannot optimize in that case */
+				return where;
+			}
+			if (create_table_STATEMENT != table_alias->table->type) {
+				/* It is an on-the-fly table constructued using the VALUES clause.
+				 * Such a table does not have PRIMARY KEY columns so no optimization possible.
+				 */
+				assert(table_value_STATEMENT == table_alias->table->type);
+				return where;
+			}
+			assert(column_alias->column->type == column_STATEMENT);
+
+			SqlColumn *column;
+			UNPACK_SQL_STATEMENT(column, column_alias->column, column);
+			if (IS_KEY_COLUMN(column)) {
+				/* IS NOT NULL on a key column. Can be safely removed from the ON/WHERE clause. */
+				if (LP_WHERE == where->type) {
+					where->v.lp_default.operand[0] = NULL;
+				}
+				return NULL;
+			} else {
+				/* IS NOT NULL on a non-key column. Cannot be fixed to a constant value.
+				 * Return ON/WHERE clause with no change (i.e. no optimization possible).
+				 */
+				return where;
+			}
+		}
 		break;
 	case LP_DERIVED_COLUMN:
 		return where; /* Currently derived columns cannot be fixed. Remove this line when YDBOcto#355 is fixed */
@@ -250,14 +287,19 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 			// Both left and right are values.
 			assert(LP_VALUE == left->type);
 			assert(LP_VALUE == right_type); /* Note: Cannot use "right->type" as it would be NULL in the
-							 * LP_BOOLEAN_IS_NULL and LP_BOOLEAN_IS_NOT_NULL cases.
-							 * "right_type" though is correctly set in all cases.
+							 * LP_BOOLEAN_IS_NULL case."right_type" though is correctly set
+							 * even in that case.
 							 */
-			// This something like 5=5; dumb and senseless, but the M
-			//  compiler will optimize it away. Nothing we can do here.
+			/* This is one of the following cases.
+			 *	WHERE 5=5           -> LP_BOOLEAN_EQUALS
+			 *	WHERE 5 IS NULL     -> LP_BOOLEAN_IS_NULL
+			 *	WHERE 5 IS NOT NULL -> LP_BOOLEAN_IS_NOT_NULL
+			 * Nothing we can do here in terms of optimizing.
+			 */
 			return where;
 		}
 	}
+	assert((LP_BOOLEAN_EQUALS == type) || (LP_BOOLEAN_IS_NULL == type) || (LP_BOOLEAN_IN == type));
 	right_table_alias = (SqlTableAlias *)ptr;
 	if (NULL != right_table_alias) {
 		/* This is part of a JOIN ON clause (`right_table_alias` variable non-NULL). In this case, we cannot fix the key
@@ -288,24 +330,6 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		}
 	}
 	key = lp_get_key(plan, left);
-	if (LP_BOOLEAN_IS_NOT_NULL == type) {
-		// Recall that right_table_alias is NULL if this is a WHERE and non-null if this is an ON clause in a join
-		if ((NULL != key) && (NULL == right_table_alias) && !num_outer_joins) {
-			// This is of the form `WHERE primary_key IS NOT NULL`.
-			// Since there are no outer joins (they are the only
-			// joins that can cause NULL values even for primary
-			// keys), we are guaranteed the primary key can never be NULL.
-			// Therefore the condition is always true, so no need to check it for each row.
-			// Therefore remove the `LP_BOOLEAN_IS_NOT_NULL` from the WHERE clause.
-			if (LP_WHERE == where->type) {
-				where->v.lp_default.operand[0] = NULL;
-			}
-			return NULL;
-		} else {
-			// IS NOT NULL on a non-primary column. Cannot be fixed to a constant value.
-			return where;
-		}
-	}
 	// If the left isn't a key, generate a cross reference
 	if (NULL == key) {
 		SqlTable *table;

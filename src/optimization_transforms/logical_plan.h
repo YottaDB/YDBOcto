@@ -326,7 +326,7 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *column_alias);
 LogicalPlan *lp_get_output_key(LogicalPlan *plan);
 // Returns the number of columns in the SELECT column list for a given plan
 int lp_get_num_cols_in_select_column_list(LogicalPlan *plan);
-// Returns the 'n'th LP_COLUMN_LIST in the SELECT column list for a given plan */
+// Returns the 'n'th LP_COLUMN_LIST in the SELECT column list for a given plan
 LogicalPlan *lp_get_col_num_n_in_select_column_list(LogicalPlan *column_list, int n);
 int	     lp_get_num_cols_in_select_column_list(LogicalPlan *plan);
 // Returns the M function name in _ydboctoplanhelpers.m corresponding to the aggregate function type (input parameter `type`)

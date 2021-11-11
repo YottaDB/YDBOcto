@@ -26,8 +26,6 @@
 	;               SUM(column) -> SUM(column1 + column2 ... + 1 * 100)
 	; #FUTURE_TODO: Put aggregate functions into other places in the query
 	; #FUTURE_TODO: Combine whereClause(), innerWhereClause(), and havingClause as they are all nearly identical to each other
-	; #FUTURE_TODO: Add the NULL value to various comparisons
-	;               Example: column IS NULL or WHERE column = NULL
 	; #FUTURE_TODO: Test to see if CASEs comparisons can be made against other CASEs, if so
 	;               implement this into WHERE and HAVING clauses
 
@@ -503,14 +501,14 @@ whereClause(queryDepth)
 	. . if $random(2) set notString="NOT "
 	. .
 	. . ; First portion of WHERE, no AND or OR
-	. . if (i=1) set result=result_"("_notString_"("_leftSide_" "_$$comparisonOperators_" "_rightSide_")"
+	. . if (i=1) set result=result_"("_notString_$$comparisonOperators(leftSide,rightSide)
 	. . ; Following portions of WHERE, with AND or OR separators
 	. . if (i'=1) do
 	. . . set result=result_" "_$$booleanOperator_" "
 	. . . if (($random(2))&(opened="FALSE"))  do
 	. . . . set result=result_"("
 	. . . . set opened="TRUE"
-	. . . set result=result_notString_"("_leftSide_" "_$$comparisonOperators_" "_rightSide_")"
+	. . . set result=result_notString_$$comparisonOperators(leftSide,rightSide)
 	. . . if (($random(2))&(opened="TRUE"))  do
 	. . . . set result=result_")"
 	. . . . set opened="FALSE"
@@ -548,9 +546,7 @@ whereClause(queryDepth)
 	. . set type=$$returnColumnType(table,chosenColumn2)
 	. . set rightSide=$$getRandFunc(rightSide,type)
 	.
-	. set result=result_"(("_leftSide_"||"_rightSide_")"
-	. set result=result_$$comparisonOperators
-	. set result=result_"'"_entry1_entry2_"')"
+	. set result=result_$$comparisonOperators("("_leftSide_"||"_rightSide_")","'"_entry1_entry2_"'")
 
 	if (randInt=3) do
 	. new chosenColumn,plusMinus,plusMinus2,i
@@ -559,7 +555,7 @@ whereClause(queryDepth)
 	. if $random(2) set plusMinus="-"
 	. set plusMinus2="+"
 	. if $random(2) set plusMinus2="-"
-	. set result=result_"("_table_"."_chosenColumn_" "_$$comparisonOperators_" "_plusMinus_"("_plusMinus2_$$chooseEntry(table,chosenColumn)_"))"
+	. set result=result_$$comparisonOperators(table_"."_chosenColumn,plusMinus_"("_plusMinus2_$$chooseEntry(table,chosenColumn)_")")
 
 	if (randInt=4) do
 	. new chosenColumn,beginning,plusMinus,end,aOperator,i
@@ -576,7 +572,7 @@ whereClause(queryDepth)
 	.
 	. set end=plusMinus_"("_plusMinus_endEntry_")"
 	.
-	. set result=result_"(("_beginning_" "_aOperator_" "_end_") "_$$comparisonOperators_" "_table_"."_chosenColumn_")"
+	. set result=result_$$comparisonOperators("("_beginning_" "_aOperator_" "_end_")",table_"."_chosenColumn)
 
 	if (randInt=5) do
 	. new notString,alias
@@ -646,7 +642,7 @@ whereClause(queryDepth)
 	. set leftSide=table_"."_leftSide
 	.
 	. if (i'=15) do
-	. . set result=result_leftSide_" "_$$comparisonOperators_" "_word_" "_rightSide
+	. . set result=result_$$comparisonOperators(leftSide,word_" "_rightSide)
 	. else  set result=""
 
 	; When randInt=10 a BOOLEAN type column is necessary in the selected table,
@@ -668,8 +664,7 @@ whereClause(queryDepth)
 	; Example: ((id = 1) OR (firstname = 'Zero')) AND (lastname '= 'Cool')
 	; #FUTURE_TODO: Maybe combine this with WHERE clause version #0 (randInt=0)
 	if (randInt=14) do
-	. new operator,leftSide,rightSide
-	. set operator=$$comparisonOperators
+	. new leftSide,rightSide
 	. set chosenColumn=$$chooseColumn(table)
 	. set leftSide=""
 	. set rightSide=""
@@ -677,7 +672,7 @@ whereClause(queryDepth)
 	. else  set leftSide=$$chooseEntry(table,chosenColumn)
 	. if ($random(2))  set rightSide=table_"."_chosenColumn
 	. else  set rightSide=$$chooseEntry(table,chosenColumn)
-	. set result=result_"(("_leftSide_" "_operator_" "_rightSide_") = "_$$tf_")"
+	. set result=result_"("_$$comparisonOperators(leftSide,rightSide)_" = "_$$tf_")"
 
 	; #FUTURE_TODO: This sometimes generates invalid queries. Skip it for now.
 	if (randInt=999) do
@@ -809,14 +804,14 @@ havingClause(queryDepth,clauseType)
 	. . if $random(2) set notString="NOT "
 	. .
 	. . ; First portion of WHERE, no AND or OR
-	. . if (i=1) set result=result_"("_notString_"("_leftSide_" "_$$comparisonOperators_" "_rightSide_")"
+	. . if (i=1) set result=result_"("_notString_$$comparisonOperators(leftSide,rightSide)
 	. . ; Following portions of WHERE, with AND or OR separators
 	. . if (i'=1) do
 	. . . set result=result_" "_$$booleanOperator_" "
 	. . . if (($random(2))&(opened="FALSE"))  do
 	. . . . set result=result_"("
 	. . . . set opened="TRUE"
-	. . . set result=result_"("_leftSide_" "_$$comparisonOperators_" "_rightSide_")"
+	. . . set result=result_$$comparisonOperators(leftSide,rightSide)
 	. . . if (($random(2))&(opened="TRUE"))  do
 	. . . . set result=result_")"
 	. . . . set opened="FALSE"
@@ -903,7 +898,7 @@ havingClause(queryDepth,clauseType)
 	. . set leftType=$$returnColumnType(table,leftSide)
 	. . set tblcol=$$havingGetTblCol(isAggrFuncColumn,table,leftSide)
 	. zwrite i,leftType,rightType,leftSide,tblcol,table,rightSide
-	. if (i'=15) set result=result_tblcol_" "_$$comparisonOperators_" "_word_" "_rightSide
+	. if (i'=15) set result=result_$$comparisonOperators(tblcol,word_" "_rightSide)
 	. else  set result=""
 
 	if (randInt=6) do
@@ -1166,12 +1161,10 @@ joinClause(queryDepth,joinCount)
 	. . .
 	. . . set leftSide=chosenTable1_"."_leftSide
 	. .
-	. . set operator=$$comparisonOperators
-	. .
 	. . if (($random(2))&(opened="FALSE"))  do
 	. . . set onClause=onClause_"("
 	. . . set opened="TRUE"
-	. . set onClause=onClause_"("_leftSide_" "_operator_" "_rightSide_")"
+	. . set onClause=onClause_$$comparisonOperators(leftSide,rightSide)
 	. . write "joinClause() : onClause = ",onClause,!
 	. . if (($random(2))&(opened="TRUE"))  do
 	. . . set onClause=onClause_")"
@@ -1398,7 +1391,19 @@ maxIndex(tableName)
 	if (maxIndex=0)  set maxIndex=2
 	quit maxIndex
 
-comparisonOperators()
+comparisonOperators(leftSide,rightSide)
+	new compareRand
+	; Randomly choose one of the following (set in "compareRand" variable).
+	;	x IS NULL          : 1/compareRandMax of the time
+	;	x IS NOT NULL      : 1/compareRandMax of the time
+	;	x = NULL           : 1/compareRandMax of the time
+	;	x = y, x != y etc. : (compareRandMax-3)/compareRandMax of the time
+	; compareRandMax is set to 8 75% of the time as it reflects real world query usage.
+	; It is set to 2 25% of the time which tests "IS NOT NULL" and "IS NULL" a lot more and therefore tests YDBOcto#782.
+	set:'$data(compareRandMax) compareRandMax=$select($random(4):8,1:2)
+	set compareRand=$random(compareRandMax)
+	quit:compareRand=0 "("_leftSide_" IS NULL)"		; Test "column IS NULL"
+	quit:compareRand=1 "("_leftSide_" IS NOT NULL)"		; Test "column IS NOT NULL"
 	if (initDone("comparisonOperators")=0) do
 	. set initDone("comparisonOperators")=1
 	. set comparisonOperators=-1
@@ -1410,7 +1415,8 @@ comparisonOperators()
 	. set comparisonOperators($increment(comparisonOperators))=">="
 	. if $increment(comparisonOperators)
 	set toBeReturned=comparisonOperators($random(comparisonOperators))
-	quit toBeReturned
+	set:compareRand=2 rightSide="NULL"			; Test "column = NULL", "column < NULL" etc.
+	quit "("_leftSide_" "_toBeReturned_" "_rightSide_")"	; Test "column1 = column2", "column1 != value1" etc.
 
 arithmeticOperator()
 	if (initDone("arithmeticOperator")=0) do
@@ -1560,8 +1566,8 @@ returnCaseFunction(location,conditionType,resultType,subqueryBoolean,toCompare)
 	; Limit the amount of nesting that can be done with CASEs
 	for i=1:1:whenCount  do
 	. set condition=""
-	. if (conditionType="randomNumbers")  set condition="("_$random(5)_$$comparisonOperators_$random(5)_")"
-	. if (conditionType="lrComparison")  set condition="("_leftCaseArg_$$comparisonOperators_rightCaseArg_")"
+	. if (conditionType="randomNumbers")  set condition=$$comparisonOperators($random(5),$random(5))
+	. if (conditionType="lrComparison")  set condition=$$comparisonOperators(leftCaseArg,rightCaseArg)
 	.
 	. set r=""
 	. if (resultType="numbers")  set r=i
@@ -1860,14 +1866,14 @@ innerWhereClause(queryDepth)
 	. . if $random(2) set notString="NOT "
 	. .
 	. . ; First portion of WHERE, no AND or OR
-	. . if (i=1) set result=result_"("_notString_"("_leftSide_" "_$$comparisonOperators_" "_rightSide_")"
+	. . if (i=1) set result=result_"("_notString_$$comparisonOperators(leftSide,rightSide)
 	. . ; Following portions of WHERE, with AND or OR separators
 	. . if (i'=1) do
 	. . . set result=result_" "_$$booleanOperator_" "
 	. . . if (($random(2))&(opened="FALSE"))  do
 	. . . . set result=result_"("
 	. . . . set opened="TRUE"
-	. . . set result=result_notString_"("_leftSide_" "_$$comparisonOperators_" "_rightSide_")"
+	. . . set result=result_notString_$$comparisonOperators(leftSide,rightSide)
 	. . . if (($random(2))&(opened="TRUE"))  do
 	. . . . set result=result_")"
 	. . . . set opened="FALSE"
@@ -1903,7 +1909,7 @@ innerWhereClause(queryDepth)
 	. set rightSide="alias"_aliasNum_"."_chosenColumn2
 	. if $random(2)  set rightSide=$$chooseEntry(innerTable,chosenColumn2)
 	.
-	. set result=result_"(("_leftSide_"||"_rightSide_")"_$$comparisonOperators_"'"_entry1_entry2_"')"
+	. set result=result_"("_$$comparisonOperators("("_leftSide_"||"_rightSide_")","'"_entry1_entry2_"'")_")"
 
 	if (randInt=3) do
 	. new chosenColumn,plusMinus,plusMinus2,i
@@ -1913,7 +1919,7 @@ innerWhereClause(queryDepth)
 	. if $random(2) set plusMinus="-"
 	. set plusMinus2="+"
 	. if $random(2) set plusMinus2="-"
-	. set result=result_"("_"alias"_aliasNum_"."_chosenColumn_" "_$$comparisonOperators_" "_plusMinus_"("_plusMinus2_$$chooseEntry(innerTable,chosenColumn)_"))"
+	. set result=result_"("_$$comparisonOperators("alias"_aliasNum_"."_chosenColumn," "_plusMinus_"("_plusMinus2_$$chooseEntry(innerTable,chosenColumn)_")")_")"
 
 	if (randInt=4) do
 	. new chosenColumn,beginning,plusMinus,end,aOperator,i
@@ -1934,7 +1940,7 @@ innerWhereClause(queryDepth)
 	.
 	. set end=plusMinus_"("_plusMinus_endEntry_")"
 	.
-	. set result=result_"(("_beginning_" "_aOperator_" "_end_") "_$$comparisonOperators_" "_"alias"_aliasNum_"."_chosenColumn_")"
+	. set result=result_"("_$$comparisonOperators("("_beginning_" "_aOperator_" "_end_") ","alias"_aliasNum_"."_chosenColumn)_")"
 
 	if (randInt=5) do
 	. new notString,alias
@@ -2005,7 +2011,7 @@ innerWhereClause(queryDepth)
 	. set leftSide="alias"_(nextAliasNum-1)_"."_leftSide
 	.
 	. if (i'=15) do
-	. . set result=result_leftSide_" "_$$comparisonOperators_" "_word_" "_rightSide
+	. . set result=result_$$comparisonOperators(leftSide,word_" "_rightSide)
 	. else  set result=""
 
 	if (randInt=10) do
@@ -2052,8 +2058,7 @@ innerWhereClause(queryDepth)
 	; Example: ((id = 1) OR (firstname = 'Zero')) AND (lastname '= 'Cool')
 	; #FUTURE_TODO: Maybe combine this with WHERE clause version #0 (randInt=0)
 	if (randInt=16) do
-	. new operator,leftSide,rightSide
-	. set operator=$$comparisonOperators
+	. new leftSide,rightSide
 	. set chosenColumn=$$chooseColumn(innerTable)
 	. set leftSide=""
 	. set rightSide=""
@@ -2061,7 +2066,7 @@ innerWhereClause(queryDepth)
 	. else  set leftSide=$$chooseEntry(innerTable,chosenColumn)
 	. if ($random(2))  set rightSide=table_"."_chosenColumn
 	. else  set rightSide=$$chooseEntry(innerTable,chosenColumn)
-	. set result=result_"(("_leftSide_" "_operator_" "_rightSide_") = "_$$tf_")"
+	. set result=result_"("_$$comparisonOperators(leftSide,rightSide)_" = "_$$tf_")"
 
 	quit result
 

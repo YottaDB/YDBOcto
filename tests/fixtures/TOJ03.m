@@ -85,7 +85,7 @@ genrandomqueries	;
 	set joinstr(3)="full join"
 	set numqueries=30	; generate 30 queries so as not to take a long time for this test to run in pipeline
 	set q=0
-	for  do  quit:q=numqueries
+	for  do  quit:$increment(q)=numqueries
 	. set numjoins=1+(q#maxjoins)	; can be 1-way, 2-way, 3-way, ... up to n-way join where n is specified through $zcmdline
 	. for i=1:1:numjoins  do
 	. . set modulo=$random(2),table(i)=$select(modulo:"customers",1:"orders"),tablealias(i)=$extract(table(i),1)

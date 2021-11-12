@@ -24,8 +24,7 @@
  * column_list to retrieve all the columns required by table.*. `c_cla_head`, `c_cla_cur and `specification_list` list pointers are
  * updated after modification to list.
  */
-void process_table_asterisk_cla(SqlStatement *specification_list, SqlColumnListAlias **c_cla_cur, SqlTableAlias *table_alias,
-				SqlColumnListAlias **c_cla_head) {
+void process_table_asterisk_cla(SqlStatement *specification_list, SqlColumnListAlias **c_cla_cur, SqlColumnListAlias **c_cla_head) {
 	SqlColumnListAlias *cla_cur, *cla_head, *result, *cla;
 	SqlColumnAlias *    column_alias;
 	SqlStatement *	    cur_table_alias_stmt;
@@ -43,7 +42,7 @@ void process_table_asterisk_cla(SqlStatement *specification_list, SqlColumnListA
 	UNPACK_SQL_STATEMENT(cur_table_alias, cur_table_alias_stmt, table_alias);
 	/* Update the list with new nodes */
 	UNPACK_SQL_STATEMENT(cla, cur_table_alias->column_list, column_list_alias);
-	result = copy_column_list_alias_list(cla, cur_table_alias_stmt, cla_cur->keywords, table_alias);
+	result = copy_column_list_alias_list(cla, cur_table_alias_stmt, cla_cur->keywords);
 	REPLACE_COLUMNLISTALIAS(cla_cur, result, cla_head, specification_list);
 	*c_cla_cur = cla_cur;
 	*c_cla_head = cla_head;

@@ -400,7 +400,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 					} else {
 						SqlColumnListAlias *cla_alias;
 
-						cla_alias = copy_column_list_alias_list(asterisk_list, NULL, NULL, NULL);
+						cla_alias = copy_column_list_alias_list(asterisk_list, NULL, NULL);
 						/* ASTERISK is present among other columns `select n1.id,*,n2.id from ..`
 						 * Replace dummy node (current cla_cur) with column alias list corresponding
 						 * to ASTERISK in the position where it was seen in select column list.

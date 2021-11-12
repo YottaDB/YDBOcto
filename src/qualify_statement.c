@@ -116,22 +116,9 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 						if (0 < parent_table_alias->aggregate_depth) {
 							parent_table_alias->aggregate_function_or_group_by_specified = TRUE;
 						} else if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE == parent_table_alias->aggregate_depth) {
-							SqlValue *value;
-							if ((NULL != new_column_alias->column)
-							    && (value_STATEMENT == new_column_alias->column->type)) {
-								UNPACK_SQL_STATEMENT(value, new_column_alias->column, value);
-							} else {
-								value = NULL;
-							}
-							/* `group_by_column_count` and `group_by_column_number` in case of
-							 * TABLE_ASTERISK is updated by `process_table_asterisk_cla()` invocation so
-							 * no need to do it here.
-							 */
-							if ((NULL == value) || (TABLE_ASTERISK != value->type)) {
-
-								new_column_alias->group_by_column_number
-								    = ++parent_table_alias->group_by_column_count;
-							}
+							/* Update `group_by_column_count` and `group_by_column_number` */
+							new_column_alias->group_by_column_number
+							    = ++parent_table_alias->group_by_column_count;
 						} else if (0 != parent_table_alias->aggregate_depth) {
 							assert((AGGREGATE_DEPTH_WHERE_CLAUSE == parent_table_alias->aggregate_depth)
 							       || (AGGREGATE_DEPTH_FROM_CLAUSE
@@ -335,10 +322,12 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 				if (column_alias_STATEMENT == cur_cl->value->type) {
 					UNPACK_SQL_STATEMENT(new_column_alias, cur_cl->value, column_alias);
 					if (is_stmt_table_asterisk(new_column_alias->column)) {
-						/* Processing table.asterisk here is necessary to update group_by_column_count
-						 * correctly in relation to other columns
+						/* Note: tablename.asterisk in GROUP BY should NOT be expanded (YDBOcto#759).
+						 * So skip the "process_table_asterisk_cla" call in that case.
 						 */
-						process_table_asterisk_cla(stmt, &cur_cla, table_alias, &start_cla);
+						if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE != table_alias->aggregate_depth) {
+							process_table_asterisk_cla(stmt, &cur_cla, &start_cla);
+						}
 					}
 				}
 			}

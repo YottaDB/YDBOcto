@@ -295,7 +295,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_PLAN_DEFINITION 11
+#define FMT_PLAN_DEFINITION 12
 
 // Below are a few utility macros that are similar to those defined in sr_port/gtm_common_defs.h.
 // But we do not use those as that is outside the control of Octo's source code repository
@@ -871,8 +871,7 @@ int		    get_column_number_from_column_list_alias(SqlColumnListAlias *input_cla,
 SqlColumnListAlias *get_column_list_alias_n_from_table_alias(SqlTableAlias *table_alias, int column_number);
 SqlColumnAlias *    get_column_alias_for_column_list_alias(SqlColumnListAlias *col_cla, SqlStatement *matching_alias_stmt);
 
-SqlColumnListAlias *copy_column_list_alias_list(SqlColumnListAlias *cla, SqlStatement *sql_stmt, SqlStatement *keywords,
-						SqlTableAlias *table_alias);
+SqlColumnListAlias *copy_column_list_alias_list(SqlColumnListAlias *cla, SqlStatement *sql_stmt, SqlStatement *keywords);
 SqlStatement *	    copy_sql_statement(SqlStatement *stmt);
 boolean_t	    match_sql_statement(SqlStatement *stmt, SqlStatement *match_stmt);
 
@@ -916,9 +915,8 @@ SqlStatement *query_specification(OptionalKeyword set_quantifier, SqlStatement *
 				  SqlStatement *sort_specification_list, int *plan_id);
 SqlStatement *validate_query_expression(SqlStatement *query_expression, ParseContext *parse_context, SqlStatementType cmd_type);
 SqlColumnListAlias *process_asterisk(SqlJoin *select_table_list, struct YYLTYPE loc);
-void process_table_asterisk_cla(SqlStatement *specification_list, SqlColumnListAlias **cla_cur, SqlTableAlias *table_alias_stmt,
-				SqlColumnListAlias **cla_head);
-void process_aggregate_function_table_asterisk(SqlAggregateFunction *af);
+void	  process_table_asterisk_cla(SqlStatement *specification_list, SqlColumnListAlias **cla_cur, SqlColumnListAlias **cla_head);
+void	  process_aggregate_function_table_asterisk(SqlAggregateFunction *af);
 boolean_t is_stmt_table_asterisk(SqlStatement *stmt);
 int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, enum RegexType regex_type, int is_sensitive,
 			int is_not, ParseContext *parse_context);

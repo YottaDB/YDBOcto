@@ -277,10 +277,11 @@ typedef struct SqlKey {
 	// If this is a cross refence key, this value will point to the filename used to store the
 	// code to provide the cross reference
 	char *	  cross_reference_filename;
-	boolean_t skip_column_reference_optimization; /* TRUE => an optimization in "tmpl_column_reference"
-						       * will be skipped. Used by the second half of RIGHT JOIN.
-						       */
-	int in_value_list_id;			      /* id used during physical plan phase to store value list of IN operator */
+	boolean_t use_tmpl_emit_source_for_xref_key; /* TRUE => "tmpl_column_reference" will use "tmpl_emit_source" instead of
+						      * "tmpl_key" to generate the column value for this non-key column.
+						      * Used by the second half of RIGHT JOIN.
+						      */
+	int in_value_list_id;			     /* id used during physical plan phase to store value list of IN operator */
 } SqlKey;
 
 // Helper functions

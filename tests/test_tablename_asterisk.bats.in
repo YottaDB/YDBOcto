@@ -17,6 +17,11 @@ setup() {
   createdb
 }
 
+teardown() {
+	# In case a subtest started rocto, stop it before moving on to the next subtest
+	stop_rocto
+}
+
 @test "TTA001 : OCTO759 : COUNT(DISTINCT TABLENAME.ASTERISK) produces incorrect results in some cases : nullcharnames database" {
 	load_fixture nullcharnames.sql
 	load_fixture nullcharnames.zwr
@@ -27,5 +32,33 @@ setup() {
 	load_fixture names.sql
 	load_fixture names.zwr
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TTA002.sql
+}
+
+@test "TTA003 : OCTO759 : TABLENAME.ASTERISK in GROUP BY should not be expanded to list of table columns : Error scenarios" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	load_fixture names1col.sql
+	load_fixture names1col.zwr
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	load_fixture TTA003.sql subtest novv
+	verify_output TTA003 output.txt
+}
+
+@test "TTA004 : OCTO759 : TABLENAME.ASTERISK produces incorrect results when used with GROUP BY and LEFT JOIN : nullcharnames database" {
+	load_fixture nullcharnames.sql
+	load_fixture nullcharnames.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullcharnames TTA004.sql
+}
+
+@test "TTA005 : OCTO759 : TABLENAME.ASTERISK produces incorrect results when used with GROUP BY and LEFT JOIN : names database" {
+	# Start rocto with --allowschemachanges due to the presence of DROP TABLE commands.
+	test_port=$(start_rocto 1400 --allowschemachanges)
+	load_fixture names.sql
+	load_fixture names.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TTA005.sql
+	# Delete TTA005* tables from Postgres database as it can confuse later runs of other tests
+	# (e.g. hello_psql/HP01 subtest etc.) in case we error out in the later steps of this subtest
+	psql names -c 'drop table if exists TTA005A; drop table if exists TTA005B;' >& postgres.drop_table_TTA005.out
 }
 

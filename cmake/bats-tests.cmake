@@ -145,7 +145,7 @@ if("${FULL_TEST_SUITE}")
 	ADD_BATS_TEST(test_pgadmin)
 	ADD_BATS_TEST(test_array_syntax)
 	ADD_BATS_TEST(test_constraint_table_column)
-	ADD_BATS_TEST(test_tablename_asterisk)
+	ADD_BATS_TEST_DML(test_tablename_asterisk)
 
 	if(psql)
 		ADD_BATS_TEST(test_psql_connection)

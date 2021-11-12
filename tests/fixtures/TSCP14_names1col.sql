@@ -10,6 +10,7 @@
 #								#
 #################################################################
 
+-- Below are queries that use aggregate functions on the only column in the table
 select SUM(n1.id) from names1col n1;
 select MIN(n1.id) from names1col n1;
 select MAX(n1.id) from names1col n1;
@@ -27,10 +28,6 @@ select SUM(DISTINCT n2.column1) from (values (1), (2), (NULL)) n2;
 select MIN(DISTINCT n2.column1) from (values (1), (2), (NULL)) n2;
 select MAX(DISTINCT n2.column1) from (values (1), (2), (NULL)) n2;
 select AVG(DISTINCT n2.column1) from (values (1), (2), (NULL)) n2;
-select MIN(n2.firstname) from (select n1.firstname from names n1) n2;
-select MAX(n2.firstname) from (select n1.firstname from names n1) n2;
-select min(DISTINCT n2.firstname) from (select n1.firstname from names n1) n2;
-select max(DISTINCT n2.firstname) from (select n1.firstname from names n1) n2;
 
 select n1.id from names1col n1 group by n1.id having SUM(n1.id)>1;
 select n1.id from names1col n1 group by n1.id having MIN(n1.id)>1;
@@ -40,3 +37,4 @@ select n1.id from names1col n1 group by n1.id having SUM(DISTINCT n1.id)>1;
 select n1.id from names1col n1 group by n1.id having MIN(DISTINCT n1.id)>1;
 select n1.id from names1col n1 group by n1.id having MAX(DISTINCT n1.id)>1;
 select n1.id from names1col n1 group by n1.id having AVG(DISTINCT n1.id)>1;
+

@@ -1,0 +1,333 @@
+
+-- TTA003 : OCTO759 : TABLENAME.ASTERISK in GROUP BY should not be expanded to list of table columns : Error scenarios
+
+-- Below tests queries from https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/759#note_732301265
+-- Test of ERR_GROUP_BY_OR_AGGREGATE_FUNCTION error
+
+SELECT lastname FROM names GROUP BY names.* ORDER BY firstname;
+SELECT * FROM names GROUP BY names.*;
+SELECT id FROM names GROUP BY names.* HAVING id < 1;
+SELECT COUNT(id) FROM names GROUP BY names.* HAVING id < 1;
+SELECT n1.* FROM names n1 GROUP BY n1.* HAVING n1.* IS NOT NULL;
+
+-- Test of ERR_GROUP_BY_OR_AGGREGATE_FUNCTION error
+-- Below queries are moved from TSCP14_table_asterisk.sql (note: this file was nixed as part of YDBOcto#759 changes)
+-- They used to work before YDBOcto#759 code changes but issue an error (like Postgres) after then.
+SELECT n1.* FROM names1col n1 GROUP BY n1.* HAVING SUM(n1.*)>1;
+SELECT n1.* FROM names1col n1 GROUP BY n1.* HAVING MIN(n1.*)>1;
+SELECT n1.* FROM names1col n1 GROUP BY n1.* HAVING MAX(n1.*)>1;
+SELECT n1.* FROM names1col n1 GROUP BY n1.* HAVING AVG(n1.*)>1;
+SELECT n1.* FROM names1col n1 GROUP BY n1.* HAVING SUM(DISTINCT n1.*)>1;
+SELECT n1.* FROM names1col n1 GROUP BY n1.* HAVING MIN(DISTINCT n1.*)>1;
+SELECT n1.* FROM names1col n1 GROUP BY n1.* HAVING MAX(DISTINCT n1.*)>1;
+SELECT n1.* FROM names1col n1 GROUP BY n1.* HAVING AVG(DISTINCT n1.*)>1;
+
+-- Test of ERR_GROUP_BY_OR_AGGREGATE_FUNCTION error
+-- Below queries are moved from TSCP15.sql
+-- They used to work before YDBOcto#759 code changes but issue an error (like Postgres) after then.
+SELECT firstname FROM names GROUP BY names.*;
+SELECT COUNT(n1.*),n1.customer_id FROM customers AS n1 GROUP BY n1.*;
+SELECT n1.customer_id FROM customers AS n1 GROUP BY n1.*;
+SELECT COUNT(n1.customer_id),n1.customer_id FROM customers AS n1 GROUP BY n1.*;
+SELECT COUNT(n1.*),* FROM customers AS n1 GROUP BY n1.*;
+SELECT COUNT(n1.*),n1.name FROM ((SELECT 1 AS id, 'test' AS name) UNION (SELECT 2 AS id, 'test' AS name)) AS n1 GROUP BY n1.*;
+SELECT COUNT(n1.*),n1.id FROM names1col AS n1 GROUP BY n1.*;
+SELECT COUNT(n1.*),n1.* FROM customers AS n1 GROUP BY n1.*;
+SELECT n1.* FROM customers AS n1 GROUP BY n1.*;
+SELECT n1.* FROM names n1 GROUP BY n1.*;
+SELECT COUNT(n1.*),* from names1col AS n1 GROUP BY n1.*;
+SELECT n1.* FROM names1col AS n1 GROUP BY n1.*;
+
+-- Test of ERR_TYPE_CAST_TABLE_ASTERISK error
+SELECT SUM(n1.*::INTEGER) FROM (SELECT id FROM names) n1;
+SELECT AVG(n1.*::INTEGER) FROM (SELECT id FROM names) n1;
+SELECT MAX(n1.*::INTEGER) FROM (SELECT id FROM names) n1;
+SELECT MIN(n1.*::INTEGER) FROM (SELECT id FROM names) n1;
+SELECT COUNT(n1.*::INTEGER) FROM (SELECT id FROM names) n1;
+SELECT COUNT(DISTINCT n1.*::INTEGER) FROM (SELECT id FROM names) n1;
+SELECT SUM(n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
+SELECT AVG(n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
+SELECT MAX(n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
+SELECT MIN(n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
+SELECT COUNT(n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
+SELECT COUNT(DISTINCT n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
+SELECT SUM(n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
+SELECT AVG(n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
+SELECT MAX(n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
+SELECT MIN(n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
+SELECT COUNT(n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
+SELECT COUNT(DISTINCT n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
+SELECT SUM(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
+SELECT AVG(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
+SELECT MAX(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
+SELECT MIN(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
+SELECT COUNT(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
+SELECT COUNT(DISTINCT n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 1, column 8):
+
+SELECT lastname FROM names GROUP BY names.* ORDER BY firstname;
+       ^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 1, column 54):
+
+SELECT lastname FROM names GROUP BY names.* ORDER BY firstname;
+                                                     ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT lastname FROM names GROUP BY names.* ORDER BY firstname;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names GROUP BY names.*;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 1, column 46):
+
+SELECT id FROM names GROUP BY names.* HAVING id < 1;
+                                             ^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 1, column 8):
+
+SELECT id FROM names GROUP BY names.* HAVING id < 1;
+       ^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id FROM names GROUP BY names.* HAVING id < 1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 1, column 53):
+
+SELECT COUNT(id) FROM names GROUP BY names.* HAVING id < 1;
+                                                    ^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COUNT(id) FROM names GROUP BY names.* HAVING id < 1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT n1.* FROM names n1 GROUP BY n1.* HAVING n1.* IS NOT NULL;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT n1.* FROM names1col n1 GROUP BY n1.* HAVING SUM(n1.*)>1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT n1.* FROM names1col n1 GROUP BY n1.* HAVING MIN(n1.*)>1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT n1.* FROM names1col n1 GROUP BY n1.* HAVING MAX(n1.*)>1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT n1.* FROM names1col n1 GROUP BY n1.* HAVING AVG(n1.*)>1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT n1.* FROM names1col n1 GROUP BY n1.* HAVING SUM(DISTINCT n1.*)>1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT n1.* FROM names1col n1 GROUP BY n1.* HAVING MIN(DISTINCT n1.*)>1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT n1.* FROM names1col n1 GROUP BY n1.* HAVING MAX(DISTINCT n1.*)>1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT n1.* FROM names1col n1 GROUP BY n1.* HAVING AVG(DISTINCT n1.*)>1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 1, column 8):
+
+SELECT firstname FROM names GROUP BY names.*;
+       ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT firstname FROM names GROUP BY names.*;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 1, column 20):
+
+SELECT COUNT(n1.*),n1.customer_id FROM customers AS n1 GROUP BY n1.*;
+                   ^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COUNT(n1.*),n1.customer_id FROM customers AS n1 GROUP BY n1.*;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 1, column 8):
+
+SELECT n1.customer_id FROM customers AS n1 GROUP BY n1.*;
+       ^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT n1.customer_id FROM customers AS n1 GROUP BY n1.*;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 1, column 30):
+
+SELECT COUNT(n1.customer_id),n1.customer_id FROM customers AS n1 GROUP BY n1.*;
+                             ^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COUNT(n1.customer_id),n1.customer_id FROM customers AS n1 GROUP BY n1.*;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column LAST_NAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column EMAIL must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ADDRESS must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column CITY must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column STATE must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ZIPCODE must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COUNT(n1.*),* FROM customers AS n1 GROUP BY n1.*;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column NAME must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 1, column 20):
+
+SELECT COUNT(n1.*),n1.name FROM ((SELECT 1 AS id, 'test' AS name) UNION (SELECT 2 AS id, 'test' AS name)) AS n1 GROUP BY n1.*;
+                   ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COUNT(n1.*),n1.name FROM ((SELECT 1 AS id, 'test' AS name) UNION (SELECT 2 AS id, 'test' AS name)) AS n1 GROUP BY n1.*;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 1, column 20):
+
+SELECT COUNT(n1.*),n1.id FROM names1col AS n1 GROUP BY n1.*;
+                   ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COUNT(n1.*),n1.id FROM names1col AS n1 GROUP BY n1.*;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column LAST_NAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column EMAIL must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ADDRESS must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column CITY must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column STATE must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ZIPCODE must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COUNT(n1.*),n1.* FROM customers AS n1 GROUP BY n1.*;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column LAST_NAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column EMAIL must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ADDRESS must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column CITY must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column STATE must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ZIPCODE must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT n1.* FROM customers AS n1 GROUP BY n1.*;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT n1.* FROM names n1 GROUP BY n1.*;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COUNT(n1.*),* from names1col AS n1 GROUP BY n1.*;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT n1.* FROM names1col AS n1 GROUP BY n1.*;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_CAST_TABLE_ASTERISK : Cannot cast type TABLENAME.* to type INTEGER
+Error with syntax near (line 1, column 12):
+
+SELECT SUM(n1.*::INTEGER) FROM (SELECT id FROM names) n1;
+           ^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT SUM(n1.*::INTEGER) FROM (SELECT id FROM names) n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_CAST_TABLE_ASTERISK : Cannot cast type TABLENAME.* to type INTEGER
+Error with syntax near (line 1, column 12):
+
+SELECT AVG(n1.*::INTEGER) FROM (SELECT id FROM names) n1;
+           ^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT AVG(n1.*::INTEGER) FROM (SELECT id FROM names) n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_CAST_TABLE_ASTERISK : Cannot cast type TABLENAME.* to type INTEGER
+Error with syntax near (line 1, column 12):
+
+SELECT MAX(n1.*::INTEGER) FROM (SELECT id FROM names) n1;
+           ^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT MAX(n1.*::INTEGER) FROM (SELECT id FROM names) n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_CAST_TABLE_ASTERISK : Cannot cast type TABLENAME.* to type INTEGER
+Error with syntax near (line 1, column 12):
+
+SELECT MIN(n1.*::INTEGER) FROM (SELECT id FROM names) n1;
+           ^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT MIN(n1.*::INTEGER) FROM (SELECT id FROM names) n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_CAST_TABLE_ASTERISK : Cannot cast type TABLENAME.* to type INTEGER
+Error with syntax near (line 1, column 14):
+
+SELECT COUNT(n1.*::INTEGER) FROM (SELECT id FROM names) n1;
+             ^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COUNT(n1.*::INTEGER) FROM (SELECT id FROM names) n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_CAST_TABLE_ASTERISK : Cannot cast type TABLENAME.* to type INTEGER
+Error with syntax near (line 1, column 23):
+
+SELECT COUNT(DISTINCT n1.*::INTEGER) FROM (SELECT id FROM names) n1;
+                      ^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COUNT(DISTINCT n1.*::INTEGER) FROM (SELECT id FROM names) n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_CAST_TABLE_ASTERISK : Cannot cast type TABLENAME.* to type NUMERIC
+Error with syntax near (line 1, column 12):
+
+SELECT SUM(n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
+           ^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT SUM(n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_CAST_TABLE_ASTERISK : Cannot cast type TABLENAME.* to type NUMERIC
+Error with syntax near (line 1, column 12):
+
+SELECT AVG(n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
+           ^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT AVG(n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_CAST_TABLE_ASTERISK : Cannot cast type TABLENAME.* to type NUMERIC
+Error with syntax near (line 1, column 12):
+
+SELECT MAX(n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
+           ^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT MAX(n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_CAST_TABLE_ASTERISK : Cannot cast type TABLENAME.* to type NUMERIC
+Error with syntax near (line 1, column 12):
+
+SELECT MIN(n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
+           ^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT MIN(n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_CAST_TABLE_ASTERISK : Cannot cast type TABLENAME.* to type NUMERIC
+Error with syntax near (line 1, column 14):
+
+SELECT COUNT(n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
+             ^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COUNT(n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_CAST_TABLE_ASTERISK : Cannot cast type TABLENAME.* to type NUMERIC
+Error with syntax near (line 1, column 23):
+
+SELECT COUNT(DISTINCT n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
+                      ^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COUNT(DISTINCT n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_CAST_TABLE_ASTERISK : Cannot cast type TABLENAME.* to type VARCHAR
+Error with syntax near (line 1, column 12):
+
+SELECT SUM(n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
+           ^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT SUM(n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_CAST_TABLE_ASTERISK : Cannot cast type TABLENAME.* to type VARCHAR
+Error with syntax near (line 1, column 12):
+
+SELECT AVG(n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
+           ^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT AVG(n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_CAST_TABLE_ASTERISK : Cannot cast type TABLENAME.* to type VARCHAR
+Error with syntax near (line 1, column 12):
+
+SELECT MAX(n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
+           ^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT MAX(n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_CAST_TABLE_ASTERISK : Cannot cast type TABLENAME.* to type VARCHAR
+Error with syntax near (line 1, column 12):
+
+SELECT MIN(n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
+           ^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT MIN(n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_CAST_TABLE_ASTERISK : Cannot cast type TABLENAME.* to type VARCHAR
+Error with syntax near (line 1, column 14):
+
+SELECT COUNT(n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
+             ^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COUNT(n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_CAST_TABLE_ASTERISK : Cannot cast type TABLENAME.* to type VARCHAR
+Error with syntax near (line 1, column 23):
+
+SELECT COUNT(DISTINCT n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
+                      ^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COUNT(DISTINCT n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_CAST_TABLE_ASTERISK : Cannot cast type TABLENAME.* to type BOOLEAN
+Error with syntax near (line 1, column 12):
+
+SELECT SUM(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
+           ^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT SUM(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_CAST_TABLE_ASTERISK : Cannot cast type TABLENAME.* to type BOOLEAN
+Error with syntax near (line 1, column 12):
+
+SELECT AVG(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
+           ^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT AVG(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_CAST_TABLE_ASTERISK : Cannot cast type TABLENAME.* to type BOOLEAN
+Error with syntax near (line 1, column 12):
+
+SELECT MAX(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
+           ^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT MAX(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_CAST_TABLE_ASTERISK : Cannot cast type TABLENAME.* to type BOOLEAN
+Error with syntax near (line 1, column 12):
+
+SELECT MIN(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
+           ^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT MIN(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_CAST_TABLE_ASTERISK : Cannot cast type TABLENAME.* to type BOOLEAN
+Error with syntax near (line 1, column 14):
+
+SELECT COUNT(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
+             ^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COUNT(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_CAST_TABLE_ASTERISK : Cannot cast type TABLENAME.* to type BOOLEAN
+Error with syntax near (line 1, column 23):
+
+SELECT COUNT(DISTINCT n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
+                      ^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COUNT(DISTINCT n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;

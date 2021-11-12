@@ -195,12 +195,17 @@ PSQL
 PSQL
 }
 
-load_postgres_fixture() {
+# This function sets $? to - if a postgres database named $1 exists. If not, it sets $? to 1.
+postgres_database_exists() {
 	# Check if $1 is a valid Postgres database name first. Do this separately as the next step has a "|| true"
 	# to account for ON_ERROR_STOP and we do not want errors from a non-existent table name to be swallowed there.
 	# See https://stackoverflow.com/a/16783253 for more details on the below.
-	# If a database with name $1 does not exist, the below step would set $? to 1 and bats would exit right here with an error.
+	# If a database with name $1 does not exist, the below step would set $? to 1.
 	psql -lqt | cut -d \| -f 1 | grep -qw $1
+}
+
+load_postgres_fixture() {
+	postgres_database_exists $1 # If a Postgres database with the name $1 does not exist, exit right here with an error.
 	# Now that we know $1 is a valid table, run the file $2 that creates tables and loads data for the database $1.
 	# If the table already exists, we want to do nothing here.
 	# The way we achieve this is by setting "ON_ERROR_STOP" to "on" before doing the "CREATE TABLE" inside the $2 file.

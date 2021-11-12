@@ -24,7 +24,7 @@
  *	In that case, it just says we are in the midst of generating an expression and hence all of our generation
  *	in this function has to happen as one expression (i.e. cannot generate new M commands or start a new M line).
  */
-TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t is_trigger, int dot_count) {
+TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t is_trigger, int dot_count, int depth) {
 	SqlColumn		*column = NULL, *key_column;
 	SqlTable		*table;
 	SqlValue		*value;
@@ -38,24 +38,31 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	PhysicalPlan		*cur_plan;
 	int			unique_id;
 
-        /* Note: The callers should pass a column, not a column list alias.
-         *
-         * Previously, there was a code block here that peeled any column_alias one layer at a time into a column.
-         * However, in the current code, a LP_COLUMN_ALIAS is transformed into a LP_DERIVED_COLUMN in a previous
+	/* Note: The callers should pass a column, not a column list alias.
+	 *
+	 * Previously, there was a code block here that peeled any column_alias one layer at a time into a column.
+	 * However, in the current code, a LP_COLUMN_ALIAS is transformed into a LP_DERIVED_COLUMN in a previous
 	 * logical plan optimization phase. Therefore during physical plan generation, all LP_COLUMN_ALIAS
 	 * references would have a column pointing to a column_STATEMENT and not a column_list_alias_STATEMENT.
-         *
-         * The following assert ensures this is true.
-         */
-	assert(column_STATEMENT == column_alias->column->type);
+	 *
+	 * The only exception is a TABLENAME.ASTERISK reference.
+	 *
+	 * The following assert ensures this.
+	 */
+	assert((column_STATEMENT == column_alias->column->type)
+		|| ((value_STATEMENT == column_alias->column->type) && (TABLE_ASTERISK == column_alias->column->v.value->type)));
 	UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
 	unique_id = table_alias->unique_id;
 
 	boolean_t	done;
-	TMPL(tmpl_column_reference_common, pplan, column_alias, unique_id, &done);
+	/* Note: Need "++depth" below to prevent intersection of M temporary variables (e.g. %ydboctoexpr(0))
+	 * used inside the below call and the caller ("tmpl_print_expression").
+	 */
+	TMPL(tmpl_column_reference_common, pplan, column_alias, is_trigger, dot_count, ++depth, NULL, unique_id, &done);
 	if (done) {
 		return;
 	}
+	/* "column_alias" is a COLUMN reference (TABLENAME.ASTERISK would have returned above). Fetch it from the database. */
 	assert(column_STATEMENT == column_alias->column->type);
 	UNPACK_SQL_STATEMENT(column, column_alias->column, column);
 	// Find the columns in the table so we can look at the correct keywords
@@ -63,10 +70,12 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	UNPACK_SQL_STATEMENT(value, table->tableName, value);
 	table_name = value->v.string_literal;
 	SET_DELIM_AND_IS_DOLLAR_CHAR(table, column, is_trigger, delim, is_dollar_char);	/* sets "delim" and "is_dollar_char" */
-	/* Optimization : If the column is a key column, use key rather than column value when possible.
-	 * Update: It turns out that this is not just an optimization but a necessity since key columns
-	 * are not necessarily part of the value and so don't have a PIECE # and so should not go through
-	 * "tmpl_emit_source()" function below (they should instead go through the "tmpl_key()" invocation below).
+	/* If a key exists for current column, use key value (using "tmpl_key") rather than column value (using "tmpl_emit_source").
+	 * Note that a key can exist for key columns and non-key columns (in case the non-key column had its value fixed using
+	 * an xref key). In case of a key column, we have to always go through "tmpl_key" (this is because key columns are not
+	 * part of the node value and so don't have a PIECE # and hence should not go through "tmpl_emit_source"). In case of a
+	 * non-key column, we will mostly go through "tmpl_key" but can go through "tmpl_emit_source" in the case of the second
+	 * half of a RIGHT JOIN ("key->use_tmpl_emit_source_for_xref_key" would be TRUE in that case).
 	 */
 	cur_plan = pplan;
 	do {
@@ -78,10 +87,13 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 			if (key->unique_id == unique_id) {
 				key_column = key->column;
 				if (key_column == column) {
-					/* If using-key optimization has been asked to be disabled,
-					 * continue generating column value instead of key.
+					/* If using "tmpl_key" has been asked to be disabled (possible for xref key in second half
+					 * of RIGHT JOIN), continue generating column value (using "tmpl_emit_source") instead of
+					 * key value. In this case, we are guaranteed the column of interest is a non-key column
+					 * (whose value got fixed using an xref and hence got added as a key). Therefore it is okay
+					 * to go ahead and generate a value using "tmpl_emit_source".
 					 */
-					if (key->skip_column_reference_optimization) {
+					if (key->use_tmpl_emit_source_for_xref_key) {
 						next_plan = NULL;	/* so we break out of outer "do" loop too */
 						break;
 					}

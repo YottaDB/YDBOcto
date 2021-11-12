@@ -63,12 +63,11 @@ void process_aggregate_function_table_asterisk(SqlAggregateFunction *af) {
 		UNPACK_SQL_STATEMENT(inner_start_cla, table_alias->column_list, column_list_alias);
 		inner_cur_cla = inner_start_cla;
 		if (AGGREGATE_COUNT_DISTINCT != type) {
-			/* For AVG, SUM, MIN & MAX aggregate functions having a single column is valid.
-			 * Check here if it has only a single column. If it does then replace table.* with the column.
-			 * If not, return table.* as is and let populate_data_type() issue an error.
+			/* For AVG, SUM, MIN & MAX aggregate functions having a TABLENAME.ASTERISK is NOT valid even if it
+			 * only has a single column. It is treated as a "record" type by Postgres and so Octo follows the same
+			 * model and issues an error here. Return table.* as is and let populate_data_type() issue an error.
 			 */
-			if (inner_cur_cla->next != inner_cur_cla)
-				return;
+			return;
 		} else {
 			/* COUNT(DISTINCT t1.*) behaves differently from COUNT(DISTINCT t1.col) in terms of NULL value counting
 			 * even if t1 has only one column. See YDBOcto #759 for details. Therefore, need to distinguish the two.

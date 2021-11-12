@@ -648,9 +648,9 @@ Description/Action: This error indicates that a function was passed an argument 
 ERR_MISTYPED_FUNCTION_TABLE_ASTERISK
 ++++++++++++++++++++++++++++++++++++
 
-Text: Function xxx cannot be invoked with a parameter of type xxx when table has more than one column
+Text: Aggregate function xxx cannot be invoked with a parameter of type xxx
 
-Description/Action: This error indicates that a function was passed an argument whose type does not match that defined for the given parameter. Which in this case is a :code:`table.*` with the table having more than one column. PSQL Error Code: 42883
+Description/Action: This error indicates that the aggregate function xxx was passed a parameter of type :code:`table.*` which is unsupported. PSQL Error Code: 42883
 
 ++++++++++++++++++++++++++++
 ERR_MULTIPLE_VALUES_PROVIDED
@@ -1101,6 +1101,14 @@ ERR_TOO_MANY_FUNCTION_ARGUMENTS
 Text: Too many arguments passed for function xxx (max: xxx)
 
 Description/Action: This error indicates an attempt to create a function with more arguments than the maximum allowed. PSQL Error Code: 22003
+
++++++++++++++++++++++++++++++
+ERR_TYPE_CAST_TABLE_ASTERISK
++++++++++++++++++++++++++++++
+
+Text: Cannot cast type xxx to type xxx
+
+Description/Action: This error is generated when a type cast operation is attempted on a :code:`table.*` typed value. No type cast operations are allowed on that type. PSQL Error Code: 42846
 
 +++++++++++++++++++
 ERR_TYPE_MISMATCH

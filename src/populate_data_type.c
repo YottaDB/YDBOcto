@@ -459,8 +459,14 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			if ((TABLE_ASTERISK == *type) || (BOOLEAN_VALUE == *type)) {
 				/* TABLE_ASTERISK or BOOLEAN type cannot be input for the MIN or MAX function so signal an error in
 				 * that case. */
-				ERROR(ERR_MISTYPED_FUNCTION, get_aggregate_func_name(aggregate_function->type),
-				      get_user_visible_type_string(*type));
+				if (TABLE_ASTERISK == *type) {
+					ERROR(ERR_MISTYPED_FUNCTION_TABLE_ASTERISK,
+					      get_aggregate_func_name(aggregate_function->type),
+					      get_user_visible_type_string(*type));
+				} else {
+					ERROR(ERR_MISTYPED_FUNCTION, get_aggregate_func_name(aggregate_function->type),
+					      get_user_visible_type_string(*type));
+				}
 				yyerror(NULL, NULL, &aggregate_function->parameter, NULL, NULL, NULL);
 				result = 1;
 				break;
@@ -565,21 +571,35 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			assert(FALSE);
 			result = 1;
 			break;
-		case COERCE_TYPE:
-			result |= populate_data_type(value->v.coerce_target, &child_type[0], parse_context);
+		case COERCE_TYPE:;
+			SqlValueType source_type, target_type;
+
+			result |= populate_data_type(value->v.coerce_target, &source_type, parse_context);
 			if (result) {
 				break;
 			}
-			/* Note down type of target before coerce */
-			value->pre_coerced_type = child_type[0];
-			/* At this time (Jan 2020), we allow any type to be coerced to any other type at parser time.
+			target_type = get_sqlvaluetype_from_sqldatatype(value->coerced_type.data_type, FALSE);
+			if (TABLE_ASTERISK == source_type) {
+				/* Type cast of TABLE.* syntax is not allowed as it does not make sense to type cast
+				 * what is a record into a scalar type. Issue error.
+				 */
+				ERROR(ERR_TYPE_CAST_TABLE_ASTERISK, get_user_visible_type_string(source_type),
+				      get_user_visible_type_string(target_type));
+				yyerror(NULL, NULL, &v, NULL, NULL, NULL);
+				result = 1;
+				break;
+			}
+			/* At this time (Nov 2021), we allow any type to be coerced to any other type at parser time (the only
+			 * exception being TABLE_ASTERISK in which case we would have already issued an error above).
 			 * Errors in type conversion, if any, should show up at run-time based on the actual values.
 			 * But since our run-time is M and we currently only allow INTEGER/NUMERIC/STRING types,
 			 * M will allow for converting between either of these types without any errors which is
 			 * different from Postgres (where `'Zero'::integer` will cause an error). We will deal with
 			 * this if users complain about this incompatibility with Postgres.
 			 */
-			*type = get_sqlvaluetype_from_sqldatatype(value->coerced_type.data_type, FALSE);
+			/* Note down type of target before coerce */
+			value->pre_coerced_type = source_type;
+			*type = target_type;
 			break;
 		case FUNCTION_HASH:
 		case DELIM_VALUE:

@@ -39,25 +39,25 @@ Error with syntax near (line 1, column 114):
 select count(n1.*) from ((select 1 as id, 'test' as name) union (select 2 as id, 'test' as name)) as n1 group by count(n1.*);
                                                                                                                  ^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select count(n1.*) from ((select 1 as id, 'test' as name) union (select 2 as id, 'test' as name)) as n1 group by count(n1.*);
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION_TABLE_ASTERISK : Function SUM cannot be invoked with a parameter of type TABLENAME.* when table has more than one column
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION_TABLE_ASTERISK : Function SUM cannot be invoked with a parameter of type TABLENAME.*
 Error with syntax near (line 1, column 8):
 
 select SUM(n1.*) from customers n1;
        ^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select SUM(n1.*) from customers n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION : Function MIN cannot be invoked with a parameter of type TABLENAME.*
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION_TABLE_ASTERISK : Function MIN cannot be invoked with a parameter of type TABLENAME.*
 Error with syntax near (line 1, column 8):
 
 select MIN(n1.*) from customers n1;
        ^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select MIN(n1.*) from customers n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION : Function MAX cannot be invoked with a parameter of type TABLENAME.*
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION_TABLE_ASTERISK : Function MAX cannot be invoked with a parameter of type TABLENAME.*
 Error with syntax near (line 1, column 8):
 
 select MAX(n1.*) from customers n1;
        ^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select MAX(n1.*) from customers n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION_TABLE_ASTERISK : Function AVG cannot be invoked with a parameter of type TABLENAME.* when table has more than one column
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION_TABLE_ASTERISK : Function AVG cannot be invoked with a parameter of type TABLENAME.*
 Error with syntax near (line 1, column 8):
 
 select AVG(n1.*) from customers n1;

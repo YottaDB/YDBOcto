@@ -403,14 +403,18 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 					key = pplan->iterKeys[right_join_cur_key];
 					if (right_join_table_id == key->unique_id) {
 						if (key->is_cross_reference_key) {
-							key->skip_column_reference_optimization = TRUE;
+							/* Until now, we would have used "tmpl_key()" to emit code for "key".
+							 * But now on, we need to use "tmpl_emit_source()" to emit different
+							 * code for the second half of a RIGHT JOIN. Hence set the below.
+							 */
+							key->use_tmpl_emit_source_for_xref_key = TRUE;
 						}
 					} else {
 						break;
 					}
 				}
 				TMPL(tmpl_tablejoin, pplan, this_table_join, cur_key, TRUE, dot_count, tableName, columnName);
-				/* No need to undo "key->skip_column_reference_optimization" as it is not used after here */
+				/* No need to undo "key->use_tmpl_emit_source_for_xref_key" as it is not used after here */
 				num_tables = 1;	// include this table as first one for next round of RIGHT JOIN key nullification
 			} else {
 				num_tables++;

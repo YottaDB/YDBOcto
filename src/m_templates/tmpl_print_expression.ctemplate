@@ -208,9 +208,12 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		boolean_t	done;
 		int 		unique_id;
 		SqlColumnAlias	*subquery_column_alias;
-		unique_id = key->v.lp_key.key->unique_id;
+		SqlKey		*sql_key;
+		sql_key = key->v.lp_key.key;
+		unique_id = sql_key->unique_id;
 		subquery_column_alias = plan->extra_detail.lp_derived_column.subquery_column_alias;
-		TMPL(tmpl_column_reference_common, pplan, subquery_column_alias, unique_id, &done);
+		TMPL(tmpl_column_reference_common, pplan, subquery_column_alias, FALSE, dot_count, depth,
+			sql_key, unique_id, &done);
 		if (done) {
 			if (dot_count) {
 				%{}`n{{ PLAN_LINE_START }}{}%
@@ -225,11 +228,11 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			%{}$$mval2str^%%ydboctoplanhelpers({}%
 			%{}$$mvalPiece^%%ydboctoplanhelpers({}%
 		}
-		TMPL(tmpl_key, key->v.lp_key.key);
+		TMPL(tmpl_key, sql_key);
 		if (!stash_columns_in_keys) {
 			(*buffer_index)--;	// Go back one, removing paren
 			%{},{}%
-			TMPL(tmpl_key, key->v.lp_key.key);
+			TMPL(tmpl_key, sql_key);
 			%{}),{{ piece_num->v.lp_piece_number.piece_number|%d }}{}%
 			%{})){}%
 		}
@@ -250,7 +253,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				TMPL(tmpl_print_dots, dot_count);
 				%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
 			}
-			TMPL(tmpl_column_reference, pplan, plan->v.lp_column_alias.column_alias, FALSE, dot_count);
+			TMPL(tmpl_column_reference, pplan, plan->v.lp_column_alias.column_alias, FALSE, dot_count, depth);
 			if (dot_count) {
 				%{}`n{{ PLAN_LINE_START }}{}%
 			}

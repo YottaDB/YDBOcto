@@ -24,7 +24,8 @@
  * got done here and caller does not need to do anything more. It is set to FALSE otherwise in which case caller will
  * have to do additional work to generate appropriate M code.
  */
-TEMPLATE(tmpl_column_reference_common, PhysicalPlan *pplan, SqlColumnAlias *column_alias, int unique_id, boolean_t *done) {
+TEMPLATE(tmpl_column_reference_common, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t is_trigger, int dot_count,
+		int depth, SqlKey *sql_key, int unique_id, boolean_t *done) {
 	if (pplan->tablejoin_body_group_by_done) {
 		boolean_t	is_col_cur_pplan = FALSE;
 		unsigned int	i;
@@ -70,6 +71,94 @@ TEMPLATE(tmpl_column_reference_common, PhysicalPlan *pplan, SqlColumnAlias *colu
 		 * together as one NULL value here. This is necessary for YDBOcto#759.
 		 */
 		%{}$ZYSQLNULL{}%
+		*done = TRUE;
+		return;
+	}
+
+	if (is_stmt_table_asterisk(column_alias->column)) {
+		/* "column_alias" is a TABLENAME.ASTERISK reference. In this case, we are guaranteed this is inside a GROUP BY
+		 * as other usages would have been expanded to a list of columns even before we come here. In this case, we
+		 * obtain the values of all the individual columns in that table, run a "str2mval" transformation on them
+		 * (since individual column values can be $ZYSQLNULL), concatenate them all and return that as the GROUP BY value.
+		 * Note that this means we will never return $ZYSQLNULL in this case even if all column values are NULL.
+		 * This way we will be able to distinguish the case where all columns in the table are treated as NULL (due to
+		 * OUTER JOIN) by returning $ZYSQLNULL as the GROUP BY value (see "return" code path above) whereas a table row
+		 * containing all NULL values would return a non-$ZYSQLNULL as the GROUP BY value (YDBOcto#759).
+		 */
+		SqlTableAlias	*table_alias;
+		UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
+
+		SqlStatementType	table_type;
+		table_type = table_alias->table->type;
+		if (create_table_STATEMENT != table_type) {
+			/* This is a case of a sub-query. The values of all columns of the sub-query have already gone through
+			 * the "str2mval" transformation and concatenated in a form that is readily usable. So use that.
+			 */
+			assert((select_STATEMENT == table_type) || (table_value_STATEMENT == table_type));
+			assert(NULL != sql_key);
+			assert(unique_id == sql_key->unique_id);
+			TMPL(tmpl_key, sql_key);
+			(*buffer_index)--;
+			%{},{}%
+			TMPL(tmpl_key, sql_key);
+			%{}){}%
+			*done = TRUE;
+			return;
+		}
+		assert(NULL == sql_key);
+
+		int		save_group_by_column_number;
+		boolean_t	left_concat_needed;
+		SqlColumn	*start_column, *cur_column;
+
+		assert(dot_count);	/* A lot of the emitted code below relies on this assert */
+		save_group_by_column_number = column_alias->group_by_column_number;	/* Save "group_by_column_number" */
+		column_alias->group_by_column_number = 0;  /* Reset this temporarily for the below loop as none of the
+							    * individual columns should be considered as specified in the
+							    * GROUP BY while we are expanding this TABLENAME.ASTERISK specification.
+							    */
+		SqlTable	*table;
+		UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
+		UNPACK_SQL_STATEMENT(start_column, table->columns, column);
+		left_concat_needed = FALSE;
+		cur_column = start_column;
+		do {
+			/* Do not include HIDDEN key column (if any) in list of columns for tablename.asterisk expansion */
+			if (!cur_column->is_hidden_keycol) {
+				/* Overload "column_alias" to store the column alias for current table column.
+				 * This way "tmpl_column_reference" will emit the right code. Save/Restore values around that call.
+				 */
+				SqlStatementType	save_column_type;
+				SqlColumn		*save_column;
+				save_column_type = column_alias->column->type;
+				save_column = column_alias->column->v.column;
+				column_alias->column->type = column_STATEMENT;
+				column_alias->column->v.column = cur_column;
+				TMPL(tmpl_column_reference, pplan, column_alias, is_trigger, dot_count, depth);
+				column_alias->column->type = save_column_type;
+				column_alias->column->v.column = save_column;
+				%{}`n{{ PLAN_LINE_START }}{}%
+				TMPL(tmpl_print_dots, dot_count);
+				%{}SET {{ PP_YDB_OCTO_EXPR }}=$$str2mval^%%ydboctoplanhelpers({{ PP_YDB_OCTO_EXPR }}){}%
+				if (left_concat_needed) {
+					%{}`n{{ PLAN_LINE_START }}{}%
+					TMPL(tmpl_print_dots, dot_count);
+					%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_EXPR }}({{ depth|%d }}){}%
+					%{}_{{ PP_YDB_OCTO_EXPR }}{}%
+				}
+				if (cur_column->next != start_column) {
+					%{}`n{{ PLAN_LINE_START }}{}%
+					TMPL(tmpl_print_dots, dot_count);
+					%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }})={{ PP_YDB_OCTO_EXPR }}{}%
+					left_concat_needed = TRUE;
+					%{}`n{{ PLAN_LINE_START }}{}%
+					TMPL(tmpl_print_dots, dot_count);
+					%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+				}
+			}
+			cur_column = cur_column->next;
+		} while (cur_column != start_column);
+ 		column_alias->group_by_column_number = save_group_by_column_number;	/* Restore "group_by_column_number" */
 		*done = TRUE;
 		return;
 	}

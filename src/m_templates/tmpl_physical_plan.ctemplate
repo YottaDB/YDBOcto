@@ -68,7 +68,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			/* The last parameter ("dot_count") below is unused if the last-but-one parameter ("is_trigger") is TRUE.
 			 * Hence we call it with a dummy value of "0".
 			 */
-			TMPL(tmpl_column_reference, pplan, column_alias, TRUE, 0);
+			TMPL(tmpl_column_reference, pplan, column_alias, TRUE, 0, 0);
 			%{} -commands=SET,KILL,ZKILL -xecute=""DO handleSetKill^{{ pplan->filename }}"" -name={{ pplan->trigger_name }}")  {}%
 			%{}HALT`n{{ PLAN_LINE_START }}{}%
 		}
@@ -76,7 +76,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 		/* The last parameter ("dot_count") below is unused if the last-but-one parameter ("is_trigger") is TRUE.
 		 * Hence we call it with a dummy value of "0".
 		 */
-		TMPL(tmpl_column_reference, pplan, column_alias, TRUE, 0);
+		TMPL(tmpl_column_reference, pplan, column_alias, TRUE, 0, 0);
 		%{} -commands=SET,KILL,ZKILL -xecute=""DO handleSetKill^{{ pplan->filename }}"""`n{{ PLAN_LINE_START }}{}%
 		%{}; Store state information in case query is canceled in middle of xref building`n{{ PLAN_LINE_START }}{}%
 		%{}; Actual cleanup happens in _ydboctoCleanup.m using this saved state information`n{{ PLAN_LINE_START }}{}%

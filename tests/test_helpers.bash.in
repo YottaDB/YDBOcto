@@ -341,7 +341,12 @@ start_rocto() {
 		opt=$2
 	fi
 	rocto_port=$(find_open_port $1)
-	rocto $verbosity -p $rocto_port $opt &> rocto.log &
+	# We are about to start a "rocto" listener process in the background below . If the current subtest fails due to an
+	# octo/rocto issue (e.g. a SIG-11 in the rocto server process that causes the run_psql or run_java test helper scripts
+	# to exit with a non-zero status), bats would try to exit the subtest right then but will hang because the rocto listener
+	# process still has an open file descriptor that bats cares about. The "3>&-" is needed below to close that. See
+	# https://bats-core.readthedocs.io/en/stable/writing-tests.html#file-descriptor-3-read-this-if-bats-hangs for more details.
+	rocto $verbosity -p $rocto_port $opt &> rocto.log 3>&- &
 	rocto_pid=$!
 	echo $rocto_pid > rocto.pid
 	# Store rocto port number in the file "rocto.port" for later use in "stop_rocto"
@@ -397,7 +402,7 @@ run_psql_auth() {
 
 run_psql_expect() {
 	unset PGPASSWORD
-	(expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/$1.exp $2 > expect.out) &> expect.dbg
+	expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/$1.exp $2 > expect.out 2> expect.dbg
 }
 
 create_user() {

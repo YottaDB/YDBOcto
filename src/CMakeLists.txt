@@ -420,6 +420,7 @@ set(template_dir ${PROJECT_SOURCE_DIR}/src/m_templates)
 set(template_files
   ${template_dir}/tmpl_column_list_combine.ctemplate
   ${template_dir}/tmpl_column_reference.ctemplate
+  ${template_dir}/tmpl_column_reference_common.ctemplate
   ${template_dir}/tmpl_delete_from.ctemplate
   ${template_dir}/tmpl_delete_record_from_table.ctemplate
   ${template_dir}/tmpl_duplication_check.ctemplate

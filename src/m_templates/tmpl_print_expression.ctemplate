@@ -30,7 +30,6 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	char		*m_operator, *sql_operator, *compare_operator;
 	boolean_t	use_string_comparison, coerce_to_numeric;
 	SqlValue	*value;
-	SqlColumnAlias	*subquery_column_alias;
 	LogicalPlan	*key, *piece_num, *cur_plan, *branch_value, *cas_value, *condition;
 	LogicalPlan	*cur_branch, *default_value;
 	LogicalPlan	*first_operand, *second_operand, *t_operand;
@@ -205,30 +204,20 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
 		}
 		GET_LP(key, plan, 0, LP_KEY);
-		if (pplan->treat_key_as_null[key->v.lp_key.key->unique_id])
-		{	/* Treat all columns in the table as NULL (used for OUTER JOINs) */
-			%{}$ZYSQLNULL{}%
-			if (dot_count) {
-				%{}`n{{ PLAN_LINE_START }}{}%
-			}
-			break;
-		}
+
+		boolean_t	done;
+		int 		unique_id;
+		SqlColumnAlias	*subquery_column_alias;
+		unique_id = key->v.lp_key.key->unique_id;
 		subquery_column_alias = plan->extra_detail.lp_derived_column.subquery_column_alias;
-		if (pplan->tablejoin_body_group_by_done && subquery_column_alias->group_by_column_number) {
-			/* This column reference was specified in the GROUP BY clause and GROUP BY related processing already
-			 * happened and wrote the records (based on the FROM/WHERE clauses) into the lvn subtree under
-			 * PP_GROUP_BY. Retrieve the column reference from there.
-			 */
-			%{}$$mval2str^%%ydboctoplanhelpers{}%
-			%{}($$mvalPiece^%%ydboctoplanhelpers{}%
-			%{}({{ PP_YDB_OCTO_G }},{{ subquery_column_alias->group_by_column_number|%d }}){}%
-			%{}){}%
+		TMPL(tmpl_column_reference_common, pplan, subquery_column_alias, unique_id, &done);
+		if (done) {
 			if (dot_count) {
 				%{}`n{{ PLAN_LINE_START }}{}%
 			}
-			break;
+			return;
 		}
-		output_pplan = get_physical_plan_from_unique_id(pplan, key->v.lp_key.key->unique_id);
+		output_pplan = get_physical_plan_from_unique_id(pplan, unique_id);
 		stash_columns_in_keys = ((NULL != output_pplan) && (output_pplan->stash_columns_in_keys));
 		GET_LP(piece_num, plan, 1, LP_PIECE_NUMBER);
 		assert(!stash_columns_in_keys || (1 == piece_num->v.lp_piece_number.piece_number));
@@ -249,11 +238,12 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		}
 		break;
 	case LP_COLUMN_ALIAS:
-		/* Check if this LP_COLUMN_ALIAS was later replaced by a LP_DERIVED_COLUMN.
-		 * If so generate code for the latter.
-		 */
+		/* Check if this LP_COLUMN_ALIAS was later replaced by a LP_DERIVED_COLUMN. If so generate code for the latter. */
 		derived_column = plan->extra_detail.lp_column_alias.derived_column;
 		if (NULL != derived_column) {
+ 			/* Note that this is currently reachable only with "key->fixed_to_value" (see comments in
+			 * "lp_replace_derived_table_references.c" for "derived_column" field for more details).
+			 */
 			TMPL(tmpl_print_expression, derived_column, pplan, dot_count, depth);
 		} else {
 			if (dot_count) {

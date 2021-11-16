@@ -36,6 +36,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	unsigned int		i;
 	boolean_t		is_extract, is_dollar_char;
 	PhysicalPlan		*cur_plan;
+	int			unique_id;
 
         /* Note: The callers should pass a column, not a column list alias.
          *
@@ -48,41 +49,17 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
          */
 	assert(column_STATEMENT == column_alias->column->type);
 	UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
-	if (pplan->tablejoin_body_group_by_done) {
-		boolean_t	is_col_cur_pplan = FALSE;
+	unique_id = table_alias->unique_id;
 
-		// Check if the column belongs to the current pplan
-		for (i = 0; i < pplan->total_iter_keys; i++) {
-			key = pplan->iterKeys[i];
-			if (key->unique_id == table_alias->unique_id) {
-				is_col_cur_pplan = TRUE;
-				break;
-			}
-		}
-		if (is_col_cur_pplan) {
-			if (column_alias->group_by_column_number) {
-				/* This column reference was specified in the GROUP BY clause and GROUP BY related processing already
-				 * happened and wrote the records (based on the FROM/WHERE clauses) into the lvn subtree under
-				 * PP_GROUP_BY. Retrieve the column reference from there.
-				 */
-				%{}$$mval2str^%%ydboctoplanhelpers({}%
-				%{}$$mvalPiece^%%ydboctoplanhelpers({{ PP_YDB_OCTO_G }},{{ column_alias->group_by_column_number|%d }}){}%
-				%{}){}%
-				return;
-			}
-		} else {
-			// The column belongs to parent pplan drop through to the code below to fetch the correct column
-		}
-	}
-	assert(create_table_STATEMENT == table_alias->table->type);
-	if (pplan->treat_key_as_null[table_alias->unique_id]) {	/* Treat all columns in the table as NULL (used for OUTER JOINs) */
-		%{}$ZYSQLNULL{}%
+	boolean_t	done;
+	TMPL(tmpl_column_reference_common, pplan, column_alias, unique_id, &done);
+	if (done) {
 		return;
 	}
-	// If this is a traditional value, fetch it from the database
-	UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
+	assert(column_STATEMENT == column_alias->column->type);
 	UNPACK_SQL_STATEMENT(column, column_alias->column, column);
 	// Find the columns in the table so we can look at the correct keywords
+	UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
 	UNPACK_SQL_STATEMENT(value, table->tableName, value);
 	table_name = value->v.string_literal;
 	SET_DELIM_AND_IS_DOLLAR_CHAR(table, column, is_trigger, delim, is_dollar_char);	/* sets "delim" and "is_dollar_char" */
@@ -98,7 +75,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 		next_plan = cur_plan->parent_plan;
 		for (i = 0; i < cur_plan->total_iter_keys; i++) {
 			key = cur_plan->iterKeys[i];
-			if (key->unique_id == table_alias->unique_id) {
+			if (key->unique_id == unique_id) {
 				key_column = key->column;
 				if (key_column == column) {
 					/* If using-key optimization has been asked to be disabled,
@@ -173,7 +150,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 			%{}$GET({}%
 		}
 	}
-	TMPL(tmpl_emit_source, table, source, table_name, table_alias->unique_id, MAX_KEY_COUNT,	\
+	TMPL(tmpl_emit_source, table, source, table_name, unique_id, MAX_KEY_COUNT,	\
 				(is_trigger ? EmitSourceForm_Trigger : EmitSourceForm_Value));
 	if (!is_trigger) {
 		if (!is_extract) {

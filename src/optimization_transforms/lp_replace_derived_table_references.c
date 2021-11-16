@@ -105,8 +105,17 @@ LogicalPlan *lp_replace_helper(LogicalPlan *plan, SqlTableAlias *table_alias, Sq
 			}
 			/* Note down sub-query SqlColumnAlias to later retrieve type information of this column */
 			ret->extra_detail.lp_derived_column.subquery_column_alias = alias;
-			/* Note down pointer to LP_DERIVED_COLUMN in the LP_COLUMN_ALIAS (needed later by template files
-			 * to generate correct M code)
+			/* Note down pointer to LP_DERIVED_COLUMN in the LP_COLUMN_ALIAS. This is needed later to generate
+			 * correct M code. Note that LP_COLUMN_ALIAS in most places will have been converted to a
+			 * LP_DERIVED_COLUMN so the M code generation logic would not need this normally. The only known
+			 * exception currently is "key->fixed_to_value". This can point to a LP_COLUMN_ALIAS. It won't point
+			 * to a LP_DERIVED_COLUMN (if applicable) because the key fixing optimization happens AFTER the
+			 * "lp_replace_derived_table_references()" call. It might be possible to avoid the "derived_column"
+			 * field and instead enhance "lp_replace_derived_table_references()" to scan "plan->iterKeys[]"
+			 * and examine all the "key->fixed_to_value" fields (some of them could be a list of values) and
+			 * invoke "lp_replace_helper()" on those. But this has to be done AFTER "optimize_logical_plan()"
+			 * is done with the key fixing. It is not considered worth the effort right now but might be needed
+			 * at a later point. Noting the current reasoning here in the hope it will help when the time comes.
 			 */
 			plan->extra_detail.lp_column_alias.derived_column = ret;
 		}

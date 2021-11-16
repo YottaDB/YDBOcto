@@ -355,6 +355,13 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 	# In release mode, `assert`s are compiled out and clang-tidy will emit false positives.
 	if [ "$build_type" = Debug ]; then
 		compare ../tools/ci/clang_tidy_warnings.ref sorted_clang_warnings.txt clang_tidy_warnings.txt
+	elif $is_rocky8; then
+		# Rocky Linux has a newer version of clang (clang-12) compared to Ubuntu (clang-10) at the time of this writing.
+		# And therefore gives a slightly different warning. Hence the need to maintain a rocky specific warning file.
+		# We could have chosen to run the clang test only on Ubuntu but that might run the risk of not catching issues
+		# shown by a newer clang-tidy. Hence we decided to maintain almost duplicate reference files
+		# tools/ci/clang_tidy_warnings_rocky-release.ref and tools/ci/clang_tidy_warnings-release.ref.
+		compare ../tools/ci/clang_tidy_warnings_rocky-release.ref sorted_clang_warnings.txt clang_tidy_warnings.txt
 	else
 		compare ../tools/ci/clang_tidy_warnings-release.ref sorted_clang_warnings.txt clang_tidy_warnings.txt
 	fi

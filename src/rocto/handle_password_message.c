@@ -65,10 +65,12 @@ int handle_password_message(PasswordMessage *password_message, StartupMessage *s
 	}
 	if (YDB_ERR_GVUNDEF == result) {
 		ERROR(ERR_ROCTO_USER_LOOKUP, "handle_password_message", "user info", username);
+		YDB_FREE_BUFFER(&user_info_subs);
 		return 1;
 	}
 	YDB_ERROR_CHECK(result);
 	if (YDB_OK != result) {
+		YDB_FREE_BUFFER(&user_info_subs);
 		return 1;
 	}
 

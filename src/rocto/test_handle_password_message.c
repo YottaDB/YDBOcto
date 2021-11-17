@@ -293,7 +293,6 @@ static void test_error_user_info_lookup(void **state) {
 	int32_t result = handle_password_message(password_message, startup_message, salt);
 	assert_int_equal(result, 1);
 
-	YDB_FREE_BUFFER(&user_info_subs);
 	free(password_message);
 	free(startup_message->parameters);
 	free(startup_message);

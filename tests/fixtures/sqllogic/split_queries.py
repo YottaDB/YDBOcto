@@ -32,8 +32,8 @@ def line_info(line):
     return (is_start, is_end, inclusive)
 
 with open(filename) as fd:
-    # Allow '#' comments
-    lines = filter(lambda line: not line.strip().startswith('#'), fd)
+    # Filter out lines starting with '#' or '--' (comment lines). Do not want them to show up in the output *.sql files
+    lines = filter(lambda line: not line.strip().startswith('#') and not line.strip().startswith('--'), fd)
     queries = list(parse_queries(lines, line_info))
 
 root, ext = path.splitext(filename)

@@ -19,7 +19,7 @@ FROM yottadb/yottadb-rocky-base:latest-master
 RUN yum update && \
     yum clean all && \
     rm -rf /var/cache/yum/* && \
-    yum --enablerepo=powertools install -y libcmocka-devel gcc make clang clang-tools-extra cmake bison flex python3-pip readline-devel git libconfig-devel openssl-devel postgresql postgresql-server libgcrypt-devel gpgme-devel openssl expect java-11-openjdk-devel unzip valgrind unixODBC postgresql-odbc
+    yum --enablerepo=powertools install -y libcmocka-devel gcc make clang clang-tools-extra cmake bison flex python3-pip readline-devel git libconfig-devel openssl-devel postgresql postgresql-server libgcrypt-devel gpgme-devel openssl expect java-11-openjdk-devel unzip valgrind unixODBC postgresql-odbc diffutils
 
 # Ninja
 RUN wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-linux.zip && unzip ninja-linux.zip && mv ninja /usr/local/bin/ninja

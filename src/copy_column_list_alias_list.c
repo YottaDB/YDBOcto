@@ -16,8 +16,8 @@
 #include "octo_types.h"
 
 /* A copy function to copy a given column_list_alias list. Shallow copy is done when `table_alias_stmt` argument is NULL.
- * `table_alias_stmt`, `keywords` and `count` are used by `process_table_asterisk_cla()` to process cla in select column list,
- * and ORDER BY. These require copy of keywords to account for `ASC` and `DESC` usage.
+ * `table_alias_stmt`, `keywords` and `count` are used by `process_table_asterisk_cla()`.
+ * These require copy of keywords to account for `ASC` and `DESC` usage.
  * `cla` - the list to be copied
  * `table_alias_stmt` - If `table_alias_stmt` is not NULL `get_column_alias_for_column_list_alias()` is used to get `column_alias`.
  * `keywords` - is only considered when `table_alias_stmt` exists. This is currently based on usage and can be enhanced if required.

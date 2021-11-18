@@ -279,11 +279,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			order_by = pplan->order_by;
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}NEW {{ PP_YDB_OCTO_I }}  SET {{ PP_YDB_OCTO_I }}(0)=1`n{{ PLAN_LINE_START }}{}%
-			assert((NULL != pplan->outputKey)
-				&& ((NULL == pplan->next) || (NULL != pplan->next->outputKey)
-				|| IS_INSERT_INTO_PHYSICAL_PLAN(pplan->next)
-				|| IS_DELETE_FROM_PHYSICAL_PLAN(pplan->next)
-				|| IS_UPDATE_PHYSICAL_PLAN(pplan->next)));
+			assert(NULL != pplan->outputKey);
 			// Determine how many columns are specified in ORDER BY. Need to generate M code accordingly.
 			// The below code is a simplified version of that in "tmpl_column_list_combine.ctemplate".
 			num_cols = 0;

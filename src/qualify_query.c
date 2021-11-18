@@ -253,6 +253,9 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		cur_join->next = next_join; /* restore join list to original */
 		cur_join = next_join;
 	} while ((cur_join != start_join) && (cur_join != parent_join));
+	table_alias->qualify_query_stage = QualifyQuery_NONE; /* Initialize before any "qualify_statement" calls
+							       * using "table_alias_stmt" as the 3rd parameter.
+							       */
 	// Qualify WHERE clause next
 	table_alias->aggregate_depth = AGGREGATE_DEPTH_WHERE_CLAUSE;
 	if (NULL != ret) {
@@ -415,9 +418,12 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	for (;;) {
 		assert(0 == table_alias->aggregate_depth);
 		// Qualify SELECT column list next
+		table_alias->qualify_query_stage = QualifyQuery_SELECT_COLUMN_LIST;
 		result |= qualify_statement(select->select_list, start_join, table_alias_stmt, 0, NULL);
 		// Qualify ORDER BY clause next (see comment above for why "&lcl_ret" is passed only for ORDER BY).
+		table_alias->qualify_query_stage = QualifyQuery_ORDER_BY;
 		result |= qualify_statement(select->order_by_expression, start_join, table_alias_stmt, 0, &lcl_ret);
+		table_alias->qualify_query_stage = QualifyQuery_NONE;
 		if (!table_alias->aggregate_function_or_group_by_specified) {
 			/* GROUP BY or AGGREGATE function was never used in the query. No need to do GROUP BY validation checks. */
 			break;

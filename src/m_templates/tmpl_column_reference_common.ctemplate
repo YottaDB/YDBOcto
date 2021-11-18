@@ -108,7 +108,6 @@ TEMPLATE(tmpl_column_reference_common, PhysicalPlan *pplan, SqlColumnAlias *colu
 		boolean_t	left_concat_needed;
 		SqlColumn	*start_column, *cur_column;
 
-		assert(dot_count);	/* A lot of the emitted code below relies on this assert */
 		save_group_by_column_number = column_alias->group_by_column_number;	/* Save "group_by_column_number" */
 		column_alias->group_by_column_number = 0;  /* Reset this temporarily for the below loop as none of the
 							    * individual columns should be considered as specified in the
@@ -133,26 +132,36 @@ TEMPLATE(tmpl_column_reference_common, PhysicalPlan *pplan, SqlColumnAlias *colu
 				save_column = column_alias->column->v.column;
 				column_alias->column->type = column_STATEMENT;
 				column_alias->column->v.column = cur_column;
+				if (!dot_count) {
+					%{}$$str2mval^%%ydboctoplanhelpers({}%
+				}
 				TMPL(tmpl_column_reference, pplan, column_alias, is_trigger, dot_count, depth);
+				if (!dot_count) {
+					%{}){}%
+				}
 				column_alias->column->type = save_column_type;
 				column_alias->column->v.column = save_column;
-				%{}`n{{ PLAN_LINE_START }}{}%
-				TMPL(tmpl_print_dots, dot_count);
-				%{}SET {{ PP_YDB_OCTO_EXPR }}=$$str2mval^%%ydboctoplanhelpers({{ PP_YDB_OCTO_EXPR }}){}%
-				if (left_concat_needed) {
+				if (dot_count) {
 					%{}`n{{ PLAN_LINE_START }}{}%
 					TMPL(tmpl_print_dots, dot_count);
-					%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_EXPR }}({{ depth|%d }}){}%
-					%{}_{{ PP_YDB_OCTO_EXPR }}{}%
-				}
-				if (cur_column->next != start_column) {
-					%{}`n{{ PLAN_LINE_START }}{}%
-					TMPL(tmpl_print_dots, dot_count);
-					%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }})={{ PP_YDB_OCTO_EXPR }}{}%
-					left_concat_needed = TRUE;
-					%{}`n{{ PLAN_LINE_START }}{}%
-					TMPL(tmpl_print_dots, dot_count);
-					%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+					%{}SET {{ PP_YDB_OCTO_EXPR }}=$$str2mval^%%ydboctoplanhelpers({{ PP_YDB_OCTO_EXPR }}){}%
+					if (left_concat_needed) {
+						%{}`n{{ PLAN_LINE_START }}{}%
+						TMPL(tmpl_print_dots, dot_count);
+						%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_EXPR }}({{ depth|%d }}){}%
+						%{}_{{ PP_YDB_OCTO_EXPR }}{}%
+					}
+					if (cur_column->next != start_column) {
+						%{}`n{{ PLAN_LINE_START }}{}%
+						TMPL(tmpl_print_dots, dot_count);
+						%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }})={{ PP_YDB_OCTO_EXPR }}{}%
+						left_concat_needed = TRUE;
+						%{}`n{{ PLAN_LINE_START }}{}%
+						TMPL(tmpl_print_dots, dot_count);
+						%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+					}
+				} else if (cur_column->next != start_column) {
+					%{}_{}%
 				}
 			}
 			cur_column = cur_column->next;

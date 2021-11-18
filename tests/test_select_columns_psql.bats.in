@@ -152,10 +152,7 @@ setup() {
 @test "TSCP16 : OCTO386 : Pipeline failure on centos related to outer join, order by and table.* usage" {
 	load_fixture nullnames.sql
 	load_fixture nullnames.zwr
-	# Postgres result ordering is incorrect for this query so we don't call cross check here
-	# QueryGenerator is update to not generate such queries so validating the behavior here
-	load_fixture TSCP16.sql subtest novv
-	verify_output TSCP16 output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TSCP16.sql
 }
 
 @test "TSCP17 : OCTO779 : Incorrect ERR_UNKNOWN_COLUMN_NAME error when GROUP BY is used on a VALUES table in the JOIN list" {

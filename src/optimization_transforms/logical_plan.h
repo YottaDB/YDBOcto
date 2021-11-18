@@ -339,6 +339,10 @@ LogicalPlan *lp_get_col_num_n_in_select_column_list(LogicalPlan *column_list, in
 int	     lp_get_num_cols_in_select_column_list(LogicalPlan *plan);
 // Returns the M function name in _ydboctoplanhelpers.m corresponding to the aggregate function type (input parameter `type`)
 char *lp_get_aggregate_plan_helper_func_name(LPActionType type);
+
+// Returns "unique_id" given a LP_COLUMN_ALIAS or LP_DERIVED_COLUMN logical plan
+int lp_get_unique_id_from_lp_column_alias_or_lp_derived_column(LogicalPlan *plan);
+
 // Inserts a key at the end of the plans keys
 void lp_insert_key(LogicalPlan *plan, LogicalPlan *key);
 // Returns if either operand of a boolean operation logical plan (e.g. LP_BOOLEAN_LESS_THAN) is of type STRING

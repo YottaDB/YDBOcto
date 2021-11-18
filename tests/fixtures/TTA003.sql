@@ -79,3 +79,11 @@ SELECT MIN(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
 SELECT COUNT(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
 SELECT COUNT(DISTINCT n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
 
+-- Test of ERR_UNKNOWN_COLUMN_NAME error when AS is used with TABLENAME.ASTERISK
+SELECT n1.* AS x, n1.* AS b FROM names n1 ORDER BY a, b;
+
+-- Test of ERR_ORDER_BY_SELECT_DISTINCT error when TABLENAME.ASTERISK is used in SELECT column list AND ORDER BY list
+-- The TABLENAME.ASTERISK in the SELECT column list is expanded but the ORDER BY one is not. And so an error is expected.
+-- Postgres too issues a similar error in this case.
+SELECT DISTINCT n1.* FROM names n1 ORDER BY n1.*;
+

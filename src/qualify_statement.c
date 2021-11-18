@@ -353,12 +353,8 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 				if (column_alias_STATEMENT == cur_cl->value->type) {
 					UNPACK_SQL_STATEMENT(new_column_alias, cur_cl->value, column_alias);
 					if (is_stmt_table_asterisk(new_column_alias->column)) {
-						/* Note: tablename.asterisk in GROUP BY should NOT be expanded (YDBOcto#759).
-						 * So skip the "process_table_asterisk_cla" call in that case.
-						 */
-						if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE != table_alias->aggregate_depth) {
-							process_table_asterisk_cla(stmt, &cur_cla, &start_cla);
-						}
+						process_table_asterisk_cla(stmt, &cur_cla, &start_cla,
+									   table_alias->qualify_query_stage);
 					}
 				}
 			}

@@ -501,6 +501,16 @@ typedef struct SqlRowValue {
 	dqcreate(SqlRowValue);		  /* doubly linked list pointer to next row in this table of values */
 } SqlRowValue;
 
+/* Various stages of qualify_query.
+ * Currently only a few stages are needed. For example, there is no "QualifyQuery_WHERE" or "QualifyQuery_HAVING".
+ * More can be added at a later stage as and when necessary.
+ */
+typedef enum {
+	QualifyQuery_NONE,
+	QualifyQuery_SELECT_COLUMN_LIST,
+	QualifyQuery_ORDER_BY,
+} QualifyQueryStage;
+
 typedef struct SqlTableAlias {
 	// SqlTable or SqlTableValue or SqlSelectStatement
 	struct SqlStatement *table;
@@ -508,8 +518,11 @@ typedef struct SqlTableAlias {
 	struct SqlStatement *alias;
 	int		     unique_id;
 	// Below fields are used for GROUP BY validation and/or to track Aggregate function use
-	int	  group_by_column_count;
-	int	  aggregate_depth;
+	int group_by_column_count;
+	int aggregate_depth; /* Non-zero and Positive if currently inside an aggregate function.
+			      * Non-zero and Negative if currently inside a FROM or WHERE or GROUP BY clause.
+			      * Used while qualifying a query for error checking in both the above cases.
+			      */
 	boolean_t aggregate_function_or_group_by_specified;
 	boolean_t do_group_by_checks; /* TRUE for the time we are in "qualify_statement()" while doing GROUP BY related checks
 				       * in the HAVING, SELECT column list and ORDER BY clause. Note that "qualify_statement()"
@@ -533,6 +546,7 @@ typedef struct SqlTableAlias {
 							   * because "group_by_column_number" can only be maintained in one such
 							   * column alias and not multiple copies of it.
 							   */
+	QualifyQueryStage qualify_query_stage;
 } SqlTableAlias;
 
 /**

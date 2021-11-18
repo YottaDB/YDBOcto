@@ -231,6 +231,7 @@ add_library(libocto OBJECT
   optimization_transforms/lp_get_select_where.c
   optimization_transforms/lp_get_table_join.c
   optimization_transforms/lp_get_tablejoin_unique_id.c
+  optimization_transforms/lp_get_unique_id_from_lp_column_alias_or_lp_derived_column.c
   optimization_transforms/lp_insert_key.c
   optimization_transforms/lp_is_operand_type_string.c
   optimization_transforms/lp_join_where.c

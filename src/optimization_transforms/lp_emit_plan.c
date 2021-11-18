@@ -333,7 +333,7 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 			break;
 		case TABLE_ASTERISK:
 			/* Note: This is not possible inside SELECT column list as .* would have been expanded to list of columns
-			 * but is possible in GROUP BY column list (.* does not get expanded to list of columns there).
+			 * but is possible in GROUP BY or ORDER BY column list (.* does not get expanded to list of columns there).
 			 */
 			data_type_ptr = "TABLE_ASTERISK";
 			break;

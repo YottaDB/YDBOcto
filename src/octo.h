@@ -295,7 +295,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_PLAN_DEFINITION 12
+#define FMT_PLAN_DEFINITION 13
 
 // Below are a few utility macros that are similar to those defined in sr_port/gtm_common_defs.h.
 // But we do not use those as that is outside the control of Octo's source code repository
@@ -917,7 +917,8 @@ SqlStatement *query_specification(OptionalKeyword set_quantifier, SqlStatement *
 				  SqlStatement *sort_specification_list, int *plan_id);
 SqlStatement *validate_query_expression(SqlStatement *query_expression, ParseContext *parse_context, SqlStatementType cmd_type);
 SqlColumnListAlias *process_asterisk(SqlJoin *select_table_list, struct YYLTYPE loc);
-void	  process_table_asterisk_cla(SqlStatement *specification_list, SqlColumnListAlias **cla_cur, SqlColumnListAlias **cla_head);
+void	  process_table_asterisk_cla(SqlStatement *specification_list, SqlColumnListAlias **cla_cur, SqlColumnListAlias **cla_head,
+				     QualifyQueryStage qualify_query_stage);
 void	  process_aggregate_function_table_asterisk(SqlAggregateFunction *af);
 boolean_t is_stmt_table_asterisk(SqlStatement *stmt);
 int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, enum RegexType regex_type, int is_sensitive,

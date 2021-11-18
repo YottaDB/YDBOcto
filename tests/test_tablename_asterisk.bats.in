@@ -63,3 +63,9 @@ teardown() {
 	psql names -c 'drop table if exists TTA005A; drop table if exists TTA005B;' >& postgres.drop_table_TTA005.out
 }
 
+@test "TTA006 : OCTO759 : TABLENAME.ASTERISK produces incorrect results when used with ORDER BY and LEFT JOIN : nullnames database" {
+	load_fixture nullnames.sql
+	load_fixture nullnames.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TTA006.sql
+}
+

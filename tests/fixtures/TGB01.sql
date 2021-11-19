@@ -112,3 +112,8 @@ SELECT (SELECT n3.id FROM names n3 ORDER BY COUNT(n1.id)),(SELECT n2.id FROM nam
 SELECT (SELECT n3.id FROM names n3 WHERE n3.id = n1.id),(SELECT n2.id FROM names n2 ORDER BY COUNT(n1.id)) FROM names n1;
 SELECT (SELECT n3.id FROM names n3 WHERE n3.id = n1.id),(SELECT n2.id FROM names n2 ORDER BY COUNT(n1.id)) FROM names n1 GROUP BY n1.id;
 
+--> Below should error because non-grouped columns cannot be outside of aggregate functions in HAVING clause
+select 1 from names n1 having n1.firstname = 'Acid';
+select 1 from names n1 having n1.id is null;
+select 1 from names n1 having n1.* is null;
+

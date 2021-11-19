@@ -581,6 +581,7 @@ typedef enum RegexType {
 #define AGGREGATE_DEPTH_FROM_CLAUSE	-1
 #define AGGREGATE_DEPTH_WHERE_CLAUSE	-2
 #define AGGREGATE_DEPTH_GROUP_BY_CLAUSE -3
+#define AGGREGATE_DEPTH_HAVING_CLAUSE	-4
 
 /* Timeouts used in various ydb_lock_incr_s() function calls */
 #define TIMEOUT_1_SEC		  ((unsigned long long)1000000000)

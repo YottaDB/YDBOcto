@@ -338,6 +338,11 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 			select->group_by_expression = NULL;
 		}
 	}
+
+	/* Qualify HAVING clause */
+	table_alias->aggregate_depth = AGGREGATE_DEPTH_HAVING_CLAUSE;
+	result |= qualify_statement(select->having_expression, start_join, table_alias_stmt, 0, NULL);
+
 	/* Expand "*" usage in SELECT column list here. This was not done in "query_specification.c" when the "*" usage was
 	 * first encountered because the FROM/JOIN list of that query could in turn contain a "TABLENAME.*" usage that refers
 	 * to a parent query table. In that case "query_specification.c" does not have access to the parent query context.
@@ -409,8 +414,6 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	 */
 	for (;;) {
 		assert(0 == table_alias->aggregate_depth);
-		// Qualify HAVING clause
-		result |= qualify_statement(select->having_expression, start_join, table_alias_stmt, 0, NULL);
 		// Qualify SELECT column list next
 		result |= qualify_statement(select->select_list, start_join, table_alias_stmt, 0, NULL);
 		// Qualify ORDER BY clause next (see comment above for why "&lcl_ret" is passed only for ORDER BY).

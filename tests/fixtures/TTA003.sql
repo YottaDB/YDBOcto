@@ -12,8 +12,8 @@
 
 -- TTA003 : OCTO759 : TABLENAME.ASTERISK in GROUP BY should not be expanded to list of table columns : Error scenarios
 
--- Below tests queries from https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/759#note_732301265
 -- Test of ERR_GROUP_BY_OR_AGGREGATE_FUNCTION error
+-- Below tests queries from https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/759#note_732301265
 
 SELECT lastname FROM names GROUP BY names.* ORDER BY firstname;
 SELECT * FROM names GROUP BY names.*;
@@ -48,6 +48,10 @@ SELECT n1.* FROM customers AS n1 GROUP BY n1.*;
 SELECT n1.* FROM names n1 GROUP BY n1.*;
 SELECT COUNT(n1.*),* from names1col AS n1 GROUP BY n1.*;
 SELECT n1.* FROM names1col AS n1 GROUP BY n1.*;
+
+-- Test of ERR_GROUP_BY_OR_AGGREGATE_FUNCTION error
+-- Below is from https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/759#note_738472680
+SELECT 1 FROM names n1 GROUP BY n1.firstname HAVING n1.* IS NOT NULL;
 
 -- Test of ERR_TYPE_CAST_TABLE_ASTERISK error
 SELECT SUM(n1.*::INTEGER) FROM (SELECT id FROM names) n1;

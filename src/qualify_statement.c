@@ -54,20 +54,21 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		return result;
 	switch (stmt->type) {
 	case column_alias_STATEMENT:
-		/* We can get here if the select list was empty and we took all columns from the table.
-		 * OR if we are doing GROUP BY validation. Do some checks in the latter case.
-		 * 1. The column name is being used outside of an aggregate function. Check if the outer query
-		 * has found at least one aggregate function or GROUP BY usage. In that case, we expect this
-		 * column name to have a GROUP BY specified. If not, issue error.
-		 * 2. We do not expect TABLE_ASTERISK node here but if we find one let populate_data_type() handle error generation
-		 * as its a case of incorrect type. For example `HAVING (table.*) will result in this case.
-		 */
 		UNPACK_SQL_STATEMENT(new_column_alias, stmt, column_alias);
 		UNPACK_SQL_STATEMENT(column_table_alias, new_column_alias->table_alias_stmt, table_alias);
 		parent_table_alias = column_table_alias->parent_table_alias;
+		/* Assert that if we are doing GROUP BY related checks ("do_group_by_checks" is TRUE), then the
+		 * "aggregate_function_or_group_by_specified" field is also TRUE.
+		 */
+		assert(!parent_table_alias->do_group_by_checks || parent_table_alias->aggregate_function_or_group_by_specified);
 		if (parent_table_alias->do_group_by_checks && (0 == parent_table_alias->aggregate_depth)
-		    && parent_table_alias->aggregate_function_or_group_by_specified && !new_column_alias->group_by_column_number
-		    && !is_stmt_table_asterisk(stmt)) {
+		    && !new_column_alias->group_by_column_number) {
+			/* 1) We are doing GROUP BY related validation of column references in the query (and because
+			 *    of the above assert implies that the query has GROUP BY or aggregate function usages) AND
+			 * 2) The current column reference is not inside an aggregate function AND
+			 * 3) The current column reference is not in the GROUP BY clause.
+			 * Issue an error.
+			 */
 			SqlStatement *column_name;
 			SqlValue *    value;
 

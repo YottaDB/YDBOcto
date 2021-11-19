@@ -511,14 +511,12 @@ typedef struct SqlTableAlias {
 	int	  group_by_column_count;
 	int	  aggregate_depth;
 	boolean_t aggregate_function_or_group_by_specified;
-	boolean_t do_group_by_checks; /* TRUE for the time we are in "qualify_statement()" while doing
-				       * GROUP BY related checks in the SELECT column list and ORDER BY
-				       * list. Note that "qualify_statement()" is invoked twice on these
-				       * lists. The first time, this flag is FALSE. The second time it is
-				       * TRUE. This is used to issue GROUP BY related errors (which
-				       * requires us to have scanned the entire SELECT column list at
-				       * least once) and also to avoid issuing duplicate errors related
-				       * to Unknown column name etc.
+	boolean_t do_group_by_checks; /* TRUE for the time we are in "qualify_statement()" while doing GROUP BY related checks
+				       * in the HAVING, SELECT column list and ORDER BY clause. Note that "qualify_statement()"
+				       * is invoked twice on these lists. The first time, this flag is FALSE. The second time
+				       * it is TRUE. This is used to issue GROUP BY related errors (which requires us to have
+				       * scanned the entire SELECT column list at least once). It is also used to avoid issuing
+				       * duplicate errors (e.g. ERR_UNKNOWN_COLUMN_NAME).
 				       */
 	struct SqlTableAlias *parent_table_alias;
 	// SqlColumnListAlias list of available columns
@@ -528,6 +526,13 @@ typedef struct SqlTableAlias {
 	 * set to a SQLColumnList with nodes corresponding to tablealias, columnalias1 and columnalias2 in the same order.
 	 */
 	struct SqlStatement *correlation_specification;
+	SqlColumnAlias *     table_asterisk_column_alias; /* The ColumnAlias structure corresponding to a TABLE.* specification
+							   * for this table. This is needed to ensure that all references to
+							   * t1.* in the query (for table "t1") return a pointer to the same
+							   * SqlColumnAlias structure as otherwise GROUP BY validation would fail
+							   * because "group_by_column_number" can only be maintained in one such
+							   * column alias and not multiple copies of it.
+							   */
 } SqlTableAlias;
 
 /**

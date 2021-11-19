@@ -24,7 +24,6 @@
  */
 int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTableAlias *parent_table_alias,
 		  QualifyStatementParms *ret) {
-	SqlColumnListAlias *ret_cla;
 	SqlJoin *	    prev_start, *prev_end;
 	SqlJoin *	    start_join, *cur_join;
 	SqlSelectStatement *select;
@@ -195,12 +194,9 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		/* Qualify sub-queries involved in the join. Note that it is possible a `table` is involved in the join instead
 		 * of a `sub-query` in which case the below `qualify_query` call will return right away.
 		 */
-		result |= qualify_query(cur_join->value, parent_join, table_alias, ret);
-		/* The following code block needs to be after above call to qualify_query() because we need
-		 * any asterisk usage in cur_join->value to be expanded and qualified for the later
-		 * natural_join_condition() to work correctly.
-		 * TODO: avoid deferring the following processing in cases where its not required. Refer:
-		 * https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/816#note_583771101
+		result |= qualify_query(stmt, parent_join, table_alias, ret);
+		/* The following code block needs to be after above call to qualify_query() because we need any asterisk usage
+		 * in "stmt" to be expanded and qualified for the later natural_join_condition() to work correctly.
 		 */
 		if (NATURAL_JOIN == cur_join->type) {
 			/* cur_join->condition would not yet have been filled in (deferred in parser). Do that here and
@@ -213,20 +209,16 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 				return 1;
 			}
 		}
-		/* Copy correlation specification i.e. aliases. We defer it till this point as asterisk and table.* expansion has to
-		 * be complete before we can determine if the correlation specification is valid or not.
-		 * TODO: avoid deferring the following processing in cases where its not required. Refer:
-		 * https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/816#note_583771101
+		/* Copy correlation specification i.e. aliases. We defer it till this point as "*" and "TABLE.*" expansion
+		 * has to be complete before we can determine if the correlation specification is valid or not.
 		 */
+		SqlTableAlias *join_table_alias;
 		stmt = drill_to_table_alias(stmt);
-		if (table_alias_STATEMENT == stmt->type) {
-			SqlTableAlias *join_table_alias;
-
-			UNPACK_SQL_STATEMENT(join_table_alias, stmt, table_alias);
-			if (join_table_alias->correlation_specification != NULL) {
-				if (copy_correlation_specification_aliases(join_table_alias))
-					return 1;
-			}
+		assert(table_alias_STATEMENT == stmt->type);
+		UNPACK_SQL_STATEMENT(join_table_alias, stmt, table_alias);
+		if (NULL != join_table_alias->correlation_specification) {
+			if (copy_correlation_specification_aliases(join_table_alias))
+				return 1;
 		}
 		cur_join = cur_join->next;
 	} while (cur_join != start_join);
@@ -346,97 +338,96 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 			select->group_by_expression = NULL;
 		}
 	}
-	ret_cla = NULL;
-	table_alias->aggregate_depth = 0;
-	for (;;) {
-		QualifyStatementParms lcl_ret;
+	/* Expand "*" usage in SELECT column list here. This was not done in "query_specification.c" when the "*" usage was
+	 * first encountered because the FROM/JOIN list of that query could in turn contain a "TABLENAME.*" usage that refers
+	 * to a parent query table. In that case "query_specification.c" does not have access to the parent query context.
+	 * Therefore it cannot do "*" expansion then. We deferred this processing till here as all parent query contexts are
+	 * available only here. See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/816#note_583797217 for details.
+	 */
+	SqlStatement *	    select_list;
+	SqlColumnListAlias *cla_cur, *cla_head, *asterisk_list;
+	select_list = select->select_list;
+	assert((NULL != select_list) && (column_list_alias_STATEMENT == select_list->type));
+	cla_cur = cla_head = select_list->v.column_list_alias;
+	asterisk_list = NULL;
+	/* Go through the select column list (`select n1.id,*,n2.id ...`) to find/process ASTERISK */
+	do {
+		if (NULL == cla_cur->column_list) {
+			/* Came across an ASTERISK in the select column list */
+			if (NULL == asterisk_list) {
+				SqlJoin *next_join = NULL;
 
+				if (prev_end != start_join->prev) {
+					/* Parent join exists. Remove them temporarily so process_asterisk() expands
+					 * * to only all current query level columns and not parent query columns */
+					next_join = prev_end->next;
+					start_join->prev->next = next_join;
+					next_join->prev = start_join->prev;
+					start_join->prev = prev_end;
+					prev_end->next = start_join;
+				}
+				asterisk_list = process_asterisk(start_join, select_list->loc);
+				if (NULL != next_join) {
+					/* Add back the parent join nodes */
+					prev_end->next = next_join;
+					start_join->prev = next_join->prev;
+					next_join->prev->next = start_join;
+					next_join->prev = prev_end;
+				}
+			}
+			if (cla_cur->next == cla_cur) {
+				/* cla_cur is the only member of select column list (`select * from ..`) */
+				select_list->v.column_list_alias = asterisk_list;
+			} else {
+				SqlColumnListAlias *cla_alias;
+
+				cla_alias = copy_column_list_alias_list(asterisk_list, NULL, NULL);
+				/* ASTERISK is present among other columns `select n1.id,*,n2.id from ..`
+				 * Replace dummy node (current cla_cur) with column alias list corresponding
+				 * to ASTERISK in the position where it was seen in select column list.
+				 */
+				REPLACE_COLUMNLISTALIAS(cla_cur, cla_alias, cla_head, select_list);
+			}
+		}
+		cla_cur = cla_cur->next;
+	} while (cla_cur != cla_head);
+
+	SqlColumnListAlias *  ret_cla;
+	QualifyStatementParms lcl_ret;
+	ret_cla = NULL;
+	/* Initialize "lcl_ret->ret_cla" to a non-NULL value (&ret_cla) and pass "&lcl_ret" in case of qualifying ORDER BY.
+	 * This allows columns specified in an ORDER BY to be qualified against any column names specified till now (including
+	 * aliases specified after an AS) without any strict checking.
+	 */
+	lcl_ret.ret_cla = &ret_cla;
+	lcl_ret.max_unique_id = ((NULL != ret) ? ret->max_unique_id : NULL);
+	table_alias->aggregate_depth = 0;
+	/* We qualify HAVING, SELECT and ORDER BY clauses TWICE below. Hence the "for" loop. This is because we want to
+	 * check if any aggregate functions were used anywhere even if a GROUP BY was not used. In that case, we want to
+	 * ensure there are no non-grouped column references in the remainder of the query. See comment where
+	 * "do_group_by_checks" member is defined in the "SqlTableAlias" structure in "octo_types.h" for more details.
+	 */
+	for (;;) {
 		assert(0 == table_alias->aggregate_depth);
 		// Qualify HAVING clause
 		result |= qualify_statement(select->having_expression, start_join, table_alias_stmt, 0, NULL);
 		// Qualify SELECT column list next
-		/* Expand ASTERISK here using prev_start and prev_end
-		 * Deferred till this point as we might come across a table.* usage in the join and that might be referring to a
-		 * parent query table.
-		 * TODO: avoid deferring the following processing in cases where its not required. Refer:
-		 * https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/816#note_583771101
-		 */
-		if ((!table_alias->do_group_by_checks) && (NULL != select->select_list)
-		    && (column_list_alias_STATEMENT == select->select_list->type)) {
-			SqlStatement *	    select_list;
-			SqlColumnListAlias *cla_cur, *cla_head, *asterisk_list;
-
-			select_list = select->select_list;
-			cla_cur = cla_head = select->select_list->v.column_list_alias;
-			asterisk_list = NULL;
-			/* Go through the select column list (`select n1.id,*,n2.id ...`) to find/process ASTERISK */
-			do {
-				if (NULL == cla_cur->column_list) {
-					/* Came across an ASTERISK in the select column list */
-					if (NULL == asterisk_list) {
-						SqlJoin *next_join = NULL;
-
-						if (prev_end != start_join->prev) {
-							/* Parent join exists. Remove them temporarily so process_asterisk() expands
-							 * * to only all current query level columns and not parent query columns */
-							next_join = prev_end->next;
-							start_join->prev->next = next_join;
-							next_join->prev = start_join->prev;
-							start_join->prev = prev_end;
-							prev_end->next = start_join;
-						}
-						asterisk_list = process_asterisk(start_join, select_list->loc);
-						if (NULL != next_join) {
-							/* Add back the parent join nodes */
-							prev_end->next = next_join;
-							start_join->prev = next_join->prev;
-							next_join->prev->next = start_join;
-							next_join->prev = prev_end;
-						}
-					}
-					if (cla_cur->next == cla_cur) {
-						/* cla_cur is the only member of select column list (`select * from ..`) */
-						select_list->v.column_list_alias = asterisk_list;
-					} else {
-						SqlColumnListAlias *cla_alias;
-
-						cla_alias = copy_column_list_alias_list(asterisk_list, NULL, NULL);
-						/* ASTERISK is present among other columns `select n1.id,*,n2.id from ..`
-						 * Replace dummy node (current cla_cur) with column alias list corresponding
-						 * to ASTERISK in the position where it was seen in select column list.
-						 */
-						REPLACE_COLUMNLISTALIAS(cla_cur, cla_alias, cla_head, select_list);
-					}
-				}
-				cla_cur = cla_cur->next;
-			} while (cla_cur != cla_head);
-		}
 		result |= qualify_statement(select->select_list, start_join, table_alias_stmt, 0, NULL);
-		// Qualify ORDER BY clause next
-		/* Now that all column names used in the query have been qualified, allow columns specified in
-		 * ORDER BY to be qualified against any column names specified till now without any strict checking.
-		 * Hence the use of a non-NULL value ("&ret_cla") for "lcl_ret->ret_cla".
-		 */
-		lcl_ret.ret_cla = &ret_cla;
-		lcl_ret.max_unique_id = ((NULL != ret) ? ret->max_unique_id : NULL);
+		// Qualify ORDER BY clause next (see comment above for why "&lcl_ret" is passed only for ORDER BY).
 		result |= qualify_statement(select->order_by_expression, start_join, table_alias_stmt, 0, &lcl_ret);
 		if (!table_alias->aggregate_function_or_group_by_specified) {
 			/* GROUP BY or AGGREGATE function was never used in the query. No need to do GROUP BY validation checks. */
 			break;
-		}
-		if (table_alias->do_group_by_checks) {
+		} else if (table_alias->do_group_by_checks) {
 			/* GROUP BY or AGGREGATE function was used in the query. And GROUP BY validation checks already done
 			 * as part of the second iteration in this for loop. Can now break out of the loop.
 			 */
 			break;
 		}
-		if (table_alias->aggregate_function_or_group_by_specified) {
-			/* GROUP BY or AGGREGATE function was used in the query. Do GROUP BY validation checks by doing
-			 * a second iteration in this for loop.
-			 */
-			table_alias->do_group_by_checks = TRUE;
-			continue;
-		}
+		/* GROUP BY or AGGREGATE function was used in the query. Do GROUP BY validation checks by doing
+		 * a second iteration in this for loop.
+		 */
+		table_alias->do_group_by_checks = TRUE;
 	}
 	/* Make sure to reset parent query only AFTER WHERE clause, ORDER BY clause etc. are processed.
 	 * This is because it is possible columns from the current level query can be used in sub-queries

@@ -37,7 +37,6 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 				    SqlColumnListAlias **ret_cla) {
 	SqlColumnListAlias *start_cla, *cur_cla, *col_cla, *t_col_cla;
 	SqlJoin *	    cur_join, *start_join;
-	SqlTableAlias *	    cur_alias;
 	SqlStatement *	    matching_alias_stmt;
 	SqlValue *	    value;
 	char *		    table_name, *column_name, *c, *first_delim;
@@ -85,7 +84,7 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 	/* Check if ret_cla is non-NULL. If so, this means we are matching a column reference in the ORDER BY clause.
 	 * In this case, we should first check if any alias name specified explicitly by the user in the SELECT column list
 	 * matches the column name. If so match that. If not, we then later try to match this column name against an input
-	 * column name in the JOIN list of tables. Also check if the column reference in the ORDER BY clause has no table
+	 * column name in the JOIN list of tables. Also check if the column reference in the ORDER BY clause has a table
 	 * name specified. If it does, then we cannot match it against the SELECT column list so skip this "if" block.
 	 */
 	if ((NULL != ret_cla) && (NULL == table_name)) {
@@ -154,12 +153,13 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 
 				sql_stmt = drill_to_table_alias(cur_join->value);
 				// If we need to match a table, ensure this table is the correct one before calling the helper
-				UNPACK_SQL_STATEMENT(cur_alias, sql_stmt, table_alias);
+				SqlTableAlias *cur_table_alias;
+				UNPACK_SQL_STATEMENT(cur_table_alias, sql_stmt, table_alias);
 				if (NULL != table_name) {
-					if (NULL != cur_alias->alias) {
+					if (NULL != cur_table_alias->alias) {
 						int table_name_len2;
 
-						UNPACK_SQL_STATEMENT(value, cur_alias->alias, value);
+						UNPACK_SQL_STATEMENT(value, cur_table_alias->alias, value);
 						table_name_len2 = strlen(value->v.reference);
 						if ((table_name_len == table_name_len2)
 						    && (0 == memcmp(value->v.reference, table_name, table_name_len))) {
@@ -167,41 +167,43 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 							if (TABLE_ASTERISK == column_value->type) {
 								SqlColumnAlias *ret;
 
-								/* As this is a table.asterisk value and exists only as an
-								 * indication to later stages to consider the entire row value we do
-								 * not need additional processing here. Return a SqlColumnAlias with
-								 * TABLE_ASTERISK value and matching_alias_stmt value. A consequence
-								 * of `not doing additional processing` and instead `returning right
-								 * away` in this case is that if `n1.*` is specified multiple times,
-								 * we will be creating a different column alias for each of those
-								 * occurrences whereas that is not the case if say `n1.firstname` is
-								 * specified multiple times in the select column list.
+								/* This is a table.asterisk value and exists only as an indication
+								 * to later stages to consider the entire row value. Return a
+								 * "SqlColumnAlias" with "TABLE_ASTERISK" value and matching
+								 * "table_alias_stmt". Note: We need to return the same column alias
+								 * in case "n1.*" is specified multiple times (for the "n1" table)
+								 * in the same query (or else GROUP BY validation related to
+								 * "group_by_column_number" field in the column alias cannot work)
 								 */
-								OCTO_CMALLOC_STRUCT(ret, SqlColumnAlias);
-								SQL_VALUE_STATEMENT(ret->column, TABLE_ASTERISK,
-										    column_value->v.string_literal);
-								ret->table_alias_stmt = matching_alias_stmt;
-								return ret;
-							} else {
-								col_cla = match_column_in_table(cur_alias, column_name,
-												column_name_len, &ambiguous, TRUE);
-								if ((NULL != col_cla) && ambiguous) {
-									/* There are multiple column matches within one table in the
-									 * FROM list. An error has already been issued inside
-									 * "match_column_in_table". Record error context here.
-									 * Signal an error return from this function by returning
-									 * NULL.
-									 */
-									yyerror(NULL, NULL, &cur_alias->alias, NULL, NULL, NULL);
-									return NULL;
+								if (NULL == cur_table_alias->table_asterisk_column_alias) {
+									OCTO_CMALLOC_STRUCT(ret, SqlColumnAlias);
+									SQL_VALUE_STATEMENT(ret->column, TABLE_ASTERISK,
+											    column_value->v.string_literal);
+									ret->table_alias_stmt = matching_alias_stmt;
+									cur_table_alias->table_asterisk_column_alias = ret;
+								} else {
+									ret = cur_table_alias->table_asterisk_column_alias;
 								}
+								return ret;
+							}
+							col_cla = match_column_in_table(cur_table_alias, column_name,
+											column_name_len, &ambiguous, TRUE);
+							if ((NULL != col_cla) && ambiguous) {
+								/* There are multiple column matches within one table in the
+								 * FROM list. An error has already been issued inside
+								 * "match_column_in_table". Record error context here.
+								 * Signal an error return from this function by returning
+								 * NULL.
+								 */
+								yyerror(NULL, NULL, &cur_table_alias->alias, NULL, NULL, NULL);
+								return NULL;
 							}
 							break;
 						}
 					}
 				} else {
-					t_col_cla
-					    = match_column_in_table(cur_alias, column_name, column_name_len, &ambiguous, TRUE);
+					t_col_cla = match_column_in_table(cur_table_alias, column_name, column_name_len, &ambiguous,
+									  TRUE);
 					if (NULL != t_col_cla) {
 						if (ambiguous) {
 							/* There are multiple column matches within one table in the FROM list. An
@@ -222,20 +224,20 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 
 							UNPACK_SQL_STATEMENT(matching_table_alias, matching_alias_stmt,
 									     table_alias);
-							/* Note that "cur_alias->parent_table_alias" would be non-NULL at this point
-							 * in case of a SELECT query because the entire query output itself is an
-							 * on-the-fly constructed TABLE (and corresponds to the
-							 * "parent_table_alias"). But in case of a DELETE FROM or UPDATE query that
-							 * has a sub-query in the WHERE clause, it is possible that
+							/* Note that "cur_table_alias->parent_table_alias" would be non-NULL at
+							 * this point in case of a SELECT query because the entire query output
+							 * itself is an on-the-fly constructed TABLE (and corresponds to the
+							 * "parent_table_alias"). But in case of a DELETE FROM or UPDATE query
+							 * that has a sub-query in the WHERE clause, it is possible that
 							 * "matching_table_alias" points to a table in the sub-query while
-							 * "cur_alias" points to the table name being deleted/updated in the DELETE
-							 * FROM/UPDATE query. In that case, "cur_alias->parent_table_alias" would be
-							 * NULL. Therefore, we cannot assert that "cur_alias->parent_table_alias" is
-							 * non-NULL just like we are able to do with
-							 * "matching_table_alias->parent_table_alias" below.
+							 * "cur_table_alias" points to the table name being deleted/updated in
+							 * the DELETE FROM/UPDATE query. "cur_table_alias->parent_table_alias"
+							 * would be NULL in that case. Therefore, we cannot assert that
+							 * "cur_table_alias->parent_table_alias" is non-NULL just like
+							 * we are able to do with "matching_table_alias->parent_table_alias" below.
 							 */
 							assert(NULL != matching_table_alias->parent_table_alias);
-							if (cur_alias->parent_table_alias
+							if (cur_table_alias->parent_table_alias
 							    == matching_table_alias->parent_table_alias) {
 								ERROR(ERR_AMBIGUOUS_COLUMN_NAME, column_name);
 								return NULL;

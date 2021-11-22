@@ -144,51 +144,17 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	 *  3. If one is a key, the other a column, that they're not from the same table
 	 *  4. No columns are from compound statements (which don't have xref)
 	 */
+	table_alias = NULL;  /* needed to avoid incorrect [-Wmaybe-uninitialized] C compiler warning */
+	column_alias = NULL; /* needed to avoid incorrect [-Wmaybe-uninitialized] C compiler warning */
 	switch (left->type) {
 	case LP_VALUE:
 		left_id = 0;
 		break;
-	case LP_COLUMN_ALIAS:;
-		SqlColumnAlias *column_alias;
-
+	case LP_COLUMN_ALIAS:
 		column_alias = left->v.lp_column_alias.column_alias;
 		UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
 		left_id = table_alias->unique_id;
 		assert(0 < left_id);
-		/* Now that we know the left side is a column reference, check if it is a IS NOT NULL operation AND
-		 * if the column corresponds to a primary key column. In that case, we are guaranteed the primary key column
-		 * can never take on a NULL value. That is, the IS NOT NULL condition would always evaluate to TRUE.
-		 * So no need to check it for each row. Therefore remove the `LP_BOOLEAN_IS_NOT_NULL` from the ON/WHERE clause.
-		 */
-		if (LP_BOOLEAN_IS_NOT_NULL == type) {
-			if (num_outer_joins) {
-				/* OUTER JOINs can cause NULL values even for primary keys and so we cannot optimize in that case */
-				return where;
-			}
-			if (create_table_STATEMENT != table_alias->table->type) {
-				/* It is an on-the-fly table constructued using the VALUES clause.
-				 * Such a table does not have PRIMARY KEY columns so no optimization possible.
-				 */
-				assert(table_value_STATEMENT == table_alias->table->type);
-				return where;
-			}
-			assert(column_alias->column->type == column_STATEMENT);
-
-			SqlColumn *column;
-			UNPACK_SQL_STATEMENT(column, column_alias->column, column);
-			if (IS_KEY_COLUMN(column)) {
-				/* IS NOT NULL on a key column. Can be safely removed from the ON/WHERE clause. */
-				if (LP_WHERE == where->type) {
-					where->v.lp_default.operand[0] = NULL;
-				}
-				return NULL;
-			} else {
-				/* IS NOT NULL on a non-key column. Cannot be fixed to a constant value.
-				 * Return ON/WHERE clause with no change (i.e. no optimization possible).
-				 */
-				return where;
-			}
-		}
 		break;
 	case LP_DERIVED_COLUMN:
 		return where; /* Currently derived columns cannot be fixed. Remove this line when YDBOcto#355 is fixed */
@@ -242,6 +208,9 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		equals_id1_id2[(right_id * max_unique_id) + left_id] = TRUE;
 		return where;
 	}
+	/* From here on "num_outer_joins" is no longer overloaded and a non-zero value truly implies OUTER JOIN usage.
+	 * Hence a few checks for OUTER JOIN usage are done after this point.
+	 */
 	if (left_id && right_id) {
 		// If both column references correspond to the same table, then we cannot fix either columns/keys.
 		if (left_id == right_id) {
@@ -282,6 +251,63 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 				// The left column corresponds to a unique_id coming in from the parent query.
 				// In that case we cannot fix it in the sub-query. Return.
 				return where;
+			}
+			/* Now that we know the left side is a column reference, check for one of the below optimizations.
+			 * 1) If it is an IS NOT NULL operation AND if the column corresponds to a primary key column.
+			 *    In that case, we are guaranteed the primary key column can never take on a NULL value.
+			 *    That is, the IS NOT NULL condition would always evaluate to TRUE.
+			 *    So no need to check it for each row. Therefore remove the `LP_BOOLEAN_IS_NOT_NULL`
+			 *    from the ON/WHERE clause.
+			 * 2) If it is an IS NULL operation, we can fix the key.
+			 */
+			if ((LP_BOOLEAN_IS_NOT_NULL == type) || (LP_BOOLEAN_IS_NULL == type)) {
+				/* Note: "column_alias" and "table_alias" would have been initialized in the "switch(left->type)"
+				 * code block above if we reach here. But the C compiler incorrectly issues a
+				 * "[-Wmaybe-uninitialized]" warning here and therefore we initialize these to "NULL"
+				 * before the "switch(left->type)" code block above.
+				 */
+				if (create_table_STATEMENT != table_alias->table->type) {
+					/* It is an on-the-fly table constructued using the VALUES clause. Such a table does
+					 * not have PRIMARY KEY columns so no IS NOT NULL or IS NULL optimizations possible.
+					 */
+					assert(table_value_STATEMENT == table_alias->table->type);
+					return where;
+				}
+				assert(NULL != column_alias);
+				if (column_alias->column->type == column_STATEMENT) {
+					SqlColumn *column;
+					UNPACK_SQL_STATEMENT(column, column_alias->column, column);
+					if (LP_BOOLEAN_IS_NOT_NULL == type) {
+						if (num_outer_joins) {
+							/* OUTER JOINs can cause NULL values even for primary keys and so we
+							 * cannot optimize IS NOT NULL in that case. A similar check for the
+							 * IS NULL case will be done a little later in this function.
+							 */
+							return where;
+						}
+						if (IS_KEY_COLUMN(column)) {
+							/* IS NOT NULL on a key column. Can be safely removed from the
+							 * ON/WHERE clause now that we know .
+							 */
+							if (LP_WHERE == where->type) {
+								where->v.lp_default.operand[0] = NULL;
+							}
+							return NULL;
+						} else {
+							/* IS NOT NULL on a non-key column. Cannot be fixed to a constant value.
+							 * Return ON/WHERE clause with no change (i.e. no optimization possible).
+							 */
+							return where;
+						}
+					}
+					/* else : LP_BOOLEAN_IS_NULL on a LP_COLUMN_ALIAS. Fall through for key-fixing. */
+				} else {
+					/* IS NOT NULL or IS NULL on a TABLENAME.ASTERISK type of column. No optimizations possible.
+					 * Return ON/WHERE clause with no change (i.e. no optimization possible).
+					 */
+					assert(is_stmt_table_asterisk(column_alias->column));
+					return where;
+				}
 			}
 		} else {
 			// Both left and right are values.

@@ -982,3 +982,38 @@ InvokeSetOper(inputId1,inputId2,outputId,mlabref)
 	DO @mlabref@(inputId1,inputId2,outputId)
 	QUIT 0
 
+RowIsNull(mval,numCols)
+	; Implements the IS NULL check for a row/record (potentially more than 1 column value).
+	; Currently this is invoked only for the "t1.* IS NULL" case (where "t1.*" is a TABLENAME.ASTERISK syntax).
+	; Input
+	;   "mval" is a concatenated list of mvals representing the column values.
+	;   "numCols" is the total number of column values in the row.
+	; Returns
+	;   1 if ALL columns values are NULL
+	;   0 otherwise (i.e. if at least one column value is not NULL)
+	NEW i,str,isNull
+	SET isNull=1
+	FOR i=1:1:numCols DO  QUIT:'isNull
+	. SET str=$$mval2str($$mvalPiece(mval,i))
+	. SET:'$ZYISSQLNULL(str) isNull=0
+	QUIT isNull
+
+RowIsNotNull(mval,numCols)
+	; Implements the IS NOT NULL check for a row/record (potentially more than 1 column value).
+	; Currently this is invoked only for the "t1.* IS NOT NULL" case (where "t1.*" is a TABLENAME.ASTERISK syntax).
+	; Input
+	;   "mval" is a concatenated list of mvals representing the column values.
+	;   "numCols" is the total number of column values in the row.
+	; Returns
+	;   1 if ALL columns values are not NULL
+	;   0 otherwise (i.e. if at least one column value is NULL)
+	; Note that it is possible for both IS NULL and IS NOT NULL to return FALSE for a row if a row has
+	; a mix of NULL and non-NULL values. So "NOT t1.* IS NULL" is not the same as "t1.* IS NOT NULL".
+	; Hence the need for separate RowIsNull and RowIsNotNull entryrefs.
+	NEW i,str,isNotNull
+	SET isNotNull=1
+	FOR i=1:1:numCols DO  QUIT:'isNotNull
+	. SET str=$$mval2str($$mvalPiece(mval,i))
+	. SET:$ZYISSQLNULL(str) isNotNull=0
+	QUIT isNotNull
+

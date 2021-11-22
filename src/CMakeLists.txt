@@ -182,6 +182,7 @@ add_library(libocto OBJECT
   get_keyword_from_keywords.c
   get_mem_usage.c
   get_mval_len.c
+  get_num_cols_in_table_alias.c
   get_row_count_from_cursorId.c
   get_psql_type_from_sqlvaluetype.c
   get_set_operation_string.c

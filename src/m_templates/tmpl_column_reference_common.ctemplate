@@ -48,12 +48,7 @@ TEMPLATE(tmpl_column_reference_common, PhysicalPlan *pplan, SqlColumnAlias *colu
 				 * Retrieve the column value from the lvn. That is easily done using PP_YDB_OCTO_G since that
 				 * lvn already holds the needed value of the entire GROUP BY expression. We then retrieve the
 				 * Nth piece of that expression assuming this column reference is the Nth column in the GROUP BY.
-				 *
-				 * In this case, we are guaranteed the column is not a tablename.asterisk type. This is because
-				 * if it was such a type in the SELECT column list, it would have been expanded to a list of
-				 * columns and not retain the TABLENAME_ASTERISK type. Assert that below.
 				 */
-				assert(!is_stmt_table_asterisk(column_alias->column));
 				%{}$$mval2str^%%ydboctoplanhelpers({}%
 				%{}$$mvalPiece^%%ydboctoplanhelpers({}%
 				%{}{{ PP_YDB_OCTO_G }},{{ column_alias->group_by_column_number|%d }}{}%
@@ -77,13 +72,15 @@ TEMPLATE(tmpl_column_reference_common, PhysicalPlan *pplan, SqlColumnAlias *colu
 
 	if (is_stmt_table_asterisk(column_alias->column)) {
 		/* "column_alias" is a TABLENAME.ASTERISK reference. In this case, we are guaranteed this is inside a GROUP BY
-		 * as other usages would have been expanded to a list of columns even before we come here. In this case, we
-		 * obtain the values of all the individual columns in that table, run a "str2mval" transformation on them
-		 * (since individual column values can be $ZYSQLNULL), concatenate them all and return that as the GROUP BY value.
-		 * Note that this means we will never return $ZYSQLNULL in this case even if all column values are NULL.
-		 * This way we will be able to distinguish the case where all columns in the table are treated as NULL (due to
-		 * OUTER JOIN) by returning $ZYSQLNULL as the GROUP BY value (see "return" code path above) whereas a table row
-		 * containing all NULL values would return a non-$ZYSQLNULL as the GROUP BY value (YDBOcto#759).
+		 * or a WHERE clause but not in the SELECT column list (would have been expanded to a list of columns even
+		 * before we came here) or HAVING clause (would have returned through the "pplan->tablejoin_body_group_by_done"
+		 * if check above). In this case, we obtain the values of all the individual columns in that table, run a
+		 * "str2mval" transformation on them (since individual column values can be $ZYSQLNULL), concatenate them all
+		 * and return that as the GROUP BY or WHERE clause value. Note that this means we will never return $ZYSQLNULL
+		 * in this case even if all column values are NULL. This way we will be able to distinguish the case where all
+		 * columns in the table are treated as NULL (due to OUTER JOIN) by returning $ZYSQLNULL as the GROUP BY value
+		 * (see "return" code path above) whereas a table row containing all NULL values would return a non-$ZYSQLNULL
+		 * as the GROUP BY value (YDBOcto#759).
 		 */
 		SqlTableAlias	*table_alias;
 		UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
@@ -115,7 +112,9 @@ TEMPLATE(tmpl_column_reference_common, PhysicalPlan *pplan, SqlColumnAlias *colu
 		save_group_by_column_number = column_alias->group_by_column_number;	/* Save "group_by_column_number" */
 		column_alias->group_by_column_number = 0;  /* Reset this temporarily for the below loop as none of the
 							    * individual columns should be considered as specified in the
-							    * GROUP BY while we are expanding this TABLENAME.ASTERISK specification.
+							    * GROUP BY (if this is indeed inside the GROUP BY clause and not
+							    * inside the WHERE clause) while we are expanding this
+							    * TABLENAME.ASTERISK specification.
 							    */
 		SqlTable	*table;
 		UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);

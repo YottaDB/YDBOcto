@@ -67,7 +67,14 @@ typedef enum {
 } LPActionType;
 #undef LP_ACTION_TYPE
 
-#define IS_TYPE_LP_AGGREGATE(TYPE) ((LP_AGGREGATE_FUNCTION_COUNT_ASTERISK <= TYPE) && (TYPE < LP_AGGREGATE_LAST))
+#define IS_TYPE_LP_AGGREGATE(TYPE)		      ((LP_AGGREGATE_FUNCTION_COUNT_ASTERISK <= TYPE) && (TYPE < LP_AGGREGATE_LAST))
+#define IS_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(PLAN) ((LP_COLUMN_ALIAS == PLAN->type) || (LP_DERIVED_COLUMN == PLAN->type))
+#define GET_COLUMN_ALIAS_FROM_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(PLAN, COLUMN_ALIAS)                                         \
+	{                                                                                                                      \
+		assert(IS_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(PLAN));                                                         \
+		COLUMN_ALIAS = ((LP_COLUMN_ALIAS == PLAN->type) ? PLAN->v.lp_column_alias.column_alias                         \
+								: PLAN->extra_detail.lp_derived_column.subquery_column_alias); \
+	}
 
 extern const char *lp_action_type_str[];
 

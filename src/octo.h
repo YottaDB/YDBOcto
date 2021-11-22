@@ -871,6 +871,7 @@ int		    get_column_piece_number(SqlColumnAlias *column_alias, SqlTableAlias *ta
 int		    get_column_number_from_column_list_alias(SqlColumnListAlias *input_cla, SqlTableAlias *table_alias);
 SqlColumnListAlias *get_column_list_alias_n_from_table_alias(SqlTableAlias *table_alias, int column_number);
 SqlColumnAlias *    get_column_alias_for_column_list_alias(SqlColumnListAlias *col_cla, SqlStatement *matching_alias_stmt);
+int		    get_num_cols_in_table_alias(SqlTableAlias *table_alias);
 
 SqlColumnListAlias *copy_column_list_alias_list(SqlColumnListAlias *cla, SqlStatement *sql_stmt, SqlStatement *keywords);
 SqlStatement *	    copy_sql_statement(SqlStatement *stmt);

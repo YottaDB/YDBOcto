@@ -28,13 +28,38 @@ LogicalPlan *lp_apply_not(LogicalPlan *root, int count) {
 	LPActionType type;
 
 	if (LP_BOOLEAN_NOT == root->type) {
-		type = root->v.lp_default.operand[0]->type;
-		// Don't recurse for stuff that we cannot apply the NOT operation.
-		// (e.g. regex calls, or anything like a function call or columns ref)
-		if ((LP_BOOLEAN_REGEX_SENSITIVE == type) || (LP_BOOLEAN_REGEX_INSENSITIVE == type)
-		    || (LP_BOOLEAN_REGEX_SENSITIVE_LIKE == type) || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE == type)
-		    || (LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO == type) || (LP_BOOLEAN_REGEX_INSENSITIVE_SIMILARTO == type)
-		    || (LP_COERCE_TYPE == type) || (LP_BOOLEAN_IS == type) || (LP_ADDITION > type)) {
+		LogicalPlan *not_operand;
+
+		not_operand = root->v.lp_default.operand[0];
+		type = not_operand->type;
+		/* Don't recurse for stuff that we cannot apply the NOT operation (e.g. regex calls, or anything like a
+		 * function call or columns ref). Note that "NOT x IS NULL" is the same as "x IS NOT NULL" for scalar "x"
+		 * but not for "x" of the form "t1.*" (TABLENAME.ASTERISK) because that is a record/row and IS NULL and
+		 * IS NOT NULL rules for a row are not the converse of each other. See comment inside "LP_BOOLEAN_IS_NULL"
+		 * case statement in "tmpl_print_expression.ctemplate" for more details.
+		 */
+		if ((LP_BOOLEAN_IS_NULL == type) || (LP_BOOLEAN_IS_NOT_NULL == type)) {
+			LogicalPlan *first_operand;
+
+			first_operand = not_operand->v.lp_default.operand[0];
+			if (IS_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(first_operand)) {
+				SqlColumnAlias *column_alias;
+
+				GET_COLUMN_ALIAS_FROM_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(first_operand, column_alias);
+				if (is_stmt_table_asterisk(column_alias->column)) {
+					if (0 == (count % 2)) {
+						/* This is a case of "NOT t1.* IS NULL". Has to be returned as is. */
+						return root;
+					} else {
+						/* This is a case of "NOT NOT t1.* IS NULL". Can be simplified as "t1.* IS NULL" */
+						return not_operand;
+					}
+				}
+			}
+		} else if ((LP_BOOLEAN_REGEX_SENSITIVE == type) || (LP_BOOLEAN_REGEX_INSENSITIVE == type)
+			   || (LP_BOOLEAN_REGEX_SENSITIVE_LIKE == type) || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE == type)
+			   || (LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO == type) || (LP_BOOLEAN_REGEX_INSENSITIVE_SIMILARTO == type)
+			   || (LP_COERCE_TYPE == type) || (LP_BOOLEAN_IS == type) || (LP_ADDITION > type)) {
 			/* If "NOT NOT", then remove both of them. If "NOT", then need to return with the "NOT".
 			 * Hence the check for "count % 2" below and different return values.
 			 */
@@ -42,7 +67,7 @@ LogicalPlan *lp_apply_not(LogicalPlan *root, int count) {
 		}
 		count++;
 		// This will trim the NOT from the expression
-		return lp_apply_not(root->v.lp_default.operand[0], count);
+		return lp_apply_not(not_operand, count);
 	}
 	if (count % 2) {
 		switch (root->type) {

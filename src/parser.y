@@ -376,11 +376,11 @@ boolean_term
 
 boolean_factor
   : boolean_test { $$ = $boolean_test; }
-  | NOT boolean_test {
+  | NOT boolean_factor {
       SQL_STATEMENT($$, unary_STATEMENT);
       MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
       ($$)->v.unary->operation = BOOLEAN_NOT;
-      ($$)->v.unary->operand = ($boolean_test);
+      ($$)->v.unary->operand = ($2);
       $$->loc = @1;
     }
   ;

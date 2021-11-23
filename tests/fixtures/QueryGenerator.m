@@ -482,7 +482,7 @@ whereClause(queryDepth)
 
 	write "whereClause(): queryDepth=",queryDepth," randInt=",randInt,!
 	if (randInt=0) do
-	. new loopCount,i,leftSide,rightSide,notString,chosenColumn,opened
+	. new loopCount,i,leftSide,rightSide,chosenColumn,opened
 	. set loopCount=$random(3)+1 ; 1-3
 	. set opened="FALSE"
 	. for i=1:1:loopCount do
@@ -497,18 +497,16 @@ whereClause(queryDepth)
 	. . else  set rightSide=$$chooseEntry(table,chosenColumn)
 	. . set leftSide=$$getRandFunc(leftSide,type)
 	. . set rightSide=$$getRandFunc(rightSide,type)
-	. . set notString=""
-	. . if $random(2) set notString="NOT "
 	. .
 	. . ; First portion of WHERE, no AND or OR
-	. . if (i=1) set result=result_"("_notString_$$comparisonOperators(leftSide,rightSide)
+	. . if (i=1) set result=result_"("_$$notString_$$comparisonOperators(leftSide,rightSide)
 	. . ; Following portions of WHERE, with AND or OR separators
 	. . if (i'=1) do
 	. . . set result=result_" "_$$booleanOperator_" "
 	. . . if (($random(2))&(opened="FALSE"))  do
 	. . . . set result=result_"("
 	. . . . set opened="TRUE"
-	. . . set result=result_notString_$$comparisonOperators(leftSide,rightSide)
+	. . . set result=result_$$notString_$$comparisonOperators(leftSide,rightSide)
 	. . . if (($random(2))&(opened="TRUE"))  do
 	. . . . set result=result_")"
 	. . . . set opened="FALSE"
@@ -575,16 +573,12 @@ whereClause(queryDepth)
 	. set result=result_$$comparisonOperators("("_beginning_" "_aOperator_" "_end_")",table_"."_chosenColumn)
 
 	if (randInt=5) do
-	. new notString,alias
-	. set notString=""
-	. if $random(2) set notString="NOT "
-	. set result=result_notString_"EXISTS ("_$$generateSubQuery(queryDepth,"full","")_")"
+	. new alias
+	. set result=result_$$notString_"EXISTS ("_$$generateSubQuery(queryDepth,"full","")_")"
 
 	if (randInt=6) do
 	. new chosenColumn,notString,entryList,i
 	. set chosenColumn=$$chooseColumn(table)
-	. set notString=""
-	. if $random(2) set notString="NOT "
 	. set entryList=""
 	. set limit=($random($$maxIndex(table)-1)+1)
 	. if (limit>8)  set limit=8
@@ -592,6 +586,7 @@ whereClause(queryDepth)
 	. . set entryList=entryList_$$chooseEntry(table,chosenColumn)_", "
 	. ; strip the ", " off of entryList
 	. set entryList=$extract(entryList,0,$length(entryList)-2)
+	. set notString=$select($random(2):"NOT ",1:"")	; cannot use $$notString here because "NOT NOT IN" is not valid syntax
 	. set result=result_table_"."_chosenColumn_" "_notString_"IN ("_entryList_")"
 
 	if (randInt=7) do
@@ -656,7 +651,7 @@ whereClause(queryDepth)
 	if ((11<=randInt)&(randInt<=13)) do
 	. set x="sqlInfo("""_table_""")"
 	. set chosenColumn=table_"."_$$getColumnOfType(table,"BOOLEAN")
-	. set:11=randInt result=result_"NOT "_chosenColumn
+	. set:11=randInt result=result_$$notString_chosenColumn
 	. set:12=randInt result=result_chosenColumn_" = TRUE"
 	. set:13=randInt result=result_chosenColumn_" = FALSE"
 
@@ -779,7 +774,7 @@ havingClause(queryDepth,clauseType)
 	write "havingClause() : randInt = ",randInt,!
 
 	if (randInt=0) do
-	. new loopCount,opened,i,leftSide,rightSide,notString,rightRand,leftRand
+	. new loopCount,opened,i,leftSide,rightSide,rightRand,leftRand
 	. set loopCount=$random(3)+1 ; 1-3
 	. set opened="FALSE"
 	. for i=1:1:loopCount do
@@ -800,11 +795,8 @@ havingClause(queryDepth,clauseType)
 	. . if (leftRand=1)&(rightRand=0)&("COUNT"=isAggrFuncColumn) set rightSide=$$chooseCount
 	. . zwrite leftRand,rightRand,leftSide,rightSide
 	. .
-	. . set notString=""
-	. . if $random(2) set notString="NOT "
-	. .
 	. . ; First portion of WHERE, no AND or OR
-	. . if (i=1) set result=result_"("_notString_$$comparisonOperators(leftSide,rightSide)
+	. . if (i=1) set result=result_"("_$$notString_$$comparisonOperators(leftSide,rightSide)
 	. . ; Following portions of WHERE, with AND or OR separators
 	. . if (i'=1) do
 	. . . set result=result_" "_$$booleanOperator_" "
@@ -820,16 +812,12 @@ havingClause(queryDepth,clauseType)
 
 	if (randInt=1) do
 	. set existsInHavingExists="TRUE"
-	. new notString,alias
-	. set notString=""
-	. if $random(2) set notString="NOT "
-	. set result=result_notString_"EXISTS ("_$$generateSubQuery(queryDepth,"full","")_")"
+	. new alias
+	. set result=result_$$notString_"EXISTS ("_$$generateSubQuery(queryDepth,"full","")_")"
 
 	if (randInt=2) do
 	. new chosenColumn,notString,entryList,i,tblcol
 	. set chosenColumn=$$havingChooseColumn(queryDepth,.table,.isAggrFuncColumn,count)
-	. set notString=""
-	. if $random(2) set notString="NOT "
 	. set entryList=""
 	. set limit=($random($$maxIndex(table)-1)+1)
 	. if (limit>8)  set limit=8
@@ -837,6 +825,7 @@ havingClause(queryDepth,clauseType)
 	. . set entryList=entryList_$select(1<i:", ",1:"")
 	. . set entryList=entryList_$select(("COUNT"=isAggrFuncColumn):$$chooseCount,1:$$chooseEntry(table,chosenColumn))
 	. set tblcol=$$havingGetTblCol(isAggrFuncColumn,table,chosenColumn)
+	. set notString=$select($random(2):"NOT ",1:"")	; cannot use $$notString here because "NOT NOT IN" is not valid syntax
 	. set result=result_tblcol_" "_notString_"IN ("_entryList_")"
 
 	if (randInt=3) do
@@ -1088,8 +1077,6 @@ joinClause(queryDepth,joinCount)
 	if ((result'="")&(joinType'="CROSS")&(joinType'="NATURAL"))  do
 	. for i=1:1:loopCount  do
 	. . new rightRand
-	. . set notString=""
-	. . if $random(2) set notString=" NOT"
 	. . if ($random(2))  set leftSide=chosenTable1_"."_chosenColumn1
 	. . else  set leftSide=chosenEntry1
 	. .
@@ -1169,7 +1156,7 @@ joinClause(queryDepth,joinCount)
 	. . if (($random(2))&(opened="TRUE"))  do
 	. . . set onClause=onClause_")"
 	. . . set opened="FALSE"
-	. . if (i<loopCount)  set onClause=onClause_" "_$$booleanOperator_notString_" "
+	. . if (i<loopCount)  set onClause=onClause_" "_$$booleanOperator_" "_$$notString
 	. set onClause=" ON ("_onClause_")"
 	. if (opened="TRUE")  set onClause=onClause_")"  set opened="FALSE"
 	. set:resetOnClause onClause="",result=""
@@ -1851,7 +1838,7 @@ innerWhereClause(queryDepth)
 	. set:((i=15)!(x="")) randInt=0
 
 	if (randInt=0) do
-	. new loopCount,i,leftSide,rightSide,notString,chosenColumn,opened
+	. new loopCount,i,leftSide,rightSide,chosenColumn,opened
 	. set loopCount=$random(3)+1 ; 1-3
 	. set opened="FALSE"
 	. for i=1:1:loopCount do
@@ -1862,18 +1849,16 @@ innerWhereClause(queryDepth)
 	. . else  set leftSide=$$chooseEntry(innerTable,chosenColumn)
 	. . if $random(2)  set rightSide="alias"_aliasNum_"."_chosenColumn
 	. . else  set rightSide=$$chooseEntry(innerTable,chosenColumn)
-	. . set notString=""
-	. . if $random(2) set notString="NOT "
 	. .
 	. . ; First portion of WHERE, no AND or OR
-	. . if (i=1) set result=result_"("_notString_$$comparisonOperators(leftSide,rightSide)
+	. . if (i=1) set result=result_"("_$$notString_$$comparisonOperators(leftSide,rightSide)
 	. . ; Following portions of WHERE, with AND or OR separators
 	. . if (i'=1) do
 	. . . set result=result_" "_$$booleanOperator_" "
 	. . . if (($random(2))&(opened="FALSE"))  do
 	. . . . set result=result_"("
 	. . . . set opened="TRUE"
-	. . . set result=result_notString_$$comparisonOperators(leftSide,rightSide)
+	. . . set result=result_$$notString_$$comparisonOperators(leftSide,rightSide)
 	. . . if (($random(2))&(opened="TRUE"))  do
 	. . . . set result=result_")"
 	. . . . set opened="FALSE"
@@ -1943,17 +1928,13 @@ innerWhereClause(queryDepth)
 	. set result=result_"("_$$comparisonOperators("("_beginning_" "_aOperator_" "_end_") ","alias"_aliasNum_"."_chosenColumn)_")"
 
 	if (randInt=5) do
-	. new notString,alias
+	. new alias
 	. ; ... WHERE EXISTS (SELECT ... query)
-	. set notString=""
-	. if $random(2) set notString="NOT "
-	. set result=result_notString_"EXISTS ("_$$generateSubQuery(queryDepth,"full","")_")"
+	. set result=result_$$notString_"EXISTS ("_$$generateSubQuery(queryDepth,"full","")_")"
 
 	if (randInt=6) do
 	. new chosenColumn,notString,entryList,i
 	. set chosenColumn=$$chooseColumn(innerTable)
-	. set notString=""
-	. if $random(2) set notString="NOT "
 	. set entryList=""
 	. set limit=($random($$maxIndex(innerTable)-1)+1)
 	. if (limit>8)  set limit=8
@@ -1961,6 +1942,7 @@ innerWhereClause(queryDepth)
 	. . set entryList=entryList_$$chooseEntry(innerTable,chosenColumn)_", "
 	. ; strip the ", " off of entryList
 	. set entryList=$extract(entryList,0,$length(entryList)-2)
+	. set notString=$select($random(2):"NOT ",1:"")	; cannot use $$notString here because "NOT NOT IN" is not valid syntax
 	. set result=result_"alias"_aliasNum_"."_chosenColumn_" "_notString_"IN ("_entryList_")"
 
 	if (randInt=7) do
@@ -2050,7 +2032,7 @@ innerWhereClause(queryDepth)
 	. new i
 	. set result=result_table_"."_$$getColumnOfType(table,"BOOLEAN")
 	. set chosenColumn=table_"."_$$getColumnOfType(innerTable,"BOOLEAN")
-	. set:13=randInt result=result_"NOT "_chosenColumn
+	. set:13=randInt result=result_$$notString_chosenColumn
         . set:14=randInt result=result_chosenColumn_" = TRUE"
         . set:15=randInt result=result_chosenColumn_" = FALSE"
 
@@ -2124,4 +2106,11 @@ valuesClause()
 assert(cond)	;
 	if 'cond zshow "*"  zhalt 1
 	quit
+
+notString()	;
+	; Randomly returns one or more NOT operators (tests YDBOcto#788)
+	quit:$random(2) ""		; return ""            50.000% of the time
+	quit:$random(4) "NOT "		; return "NOT"         37.500% of the time
+	quit:$random(4) "NOT NOT "	; return "NOT NOT"      9.375% of the time
+	quit "NOT NOT NOT "		; return "NOT NOT NOT"  3.125% of the time
 

@@ -27,7 +27,8 @@ setup() {
   mv clean_output.txt errors_clean_output.txt
   # TNK01_noerrors_names.sql can be used with `run_query_in_octo_and_postgres_and_crosscheck_multiple_queries` because all queries
   # generate valid output (i.e. no errors at all). No reference file needed for this.
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TNK01_noerrors_names.sql "trim_trailing_zeroes"
+  # TNK01_noerrors_names.sql has 250+ queries so run only a small random fraction (20%) of them to cut down test runtime.
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TNK01_noerrors_names.sql 0.20 "trim_trailing_zeroes"
   load_fixture customers.sql
   load_fixture customers.zwr
   # TNK01_noerrors_customers.sql can be used with `run_query_in_octo_and_postgres_and_crosscheck_multiple_queries` because all queries

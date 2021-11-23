@@ -91,7 +91,8 @@ setup() {
 }
 
 @test "TSCP08 : OCTO385/OCTO386 : Verify different asterisk and TABLENAME.ASTERISK usage in select column list and ORDER BY" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP08.sql
+  # TSCP08.sql has 100+ queries so run only a small random fraction (25%) of them to cut down test runtime.
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP08.sql 0.25
   load_fixture customers.sql
   load_fixture customers.zwr
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TSCP08_customers.sql
@@ -108,7 +109,8 @@ setup() {
 }
 
 @test "TSCP11 : OCTO386 : Verify different TABLENAME.ASTERISK usage with GROUP BY and aggregate functions" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP11.sql
+  # TSCP11.sql has 100+ queries so run only a small random fraction (25%) of them to cut down test runtime.
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP11.sql 0.25
   load_fixture customers.sql
   load_fixture customers.zwr
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TSCP11_customers.sql

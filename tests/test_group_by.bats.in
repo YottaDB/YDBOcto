@@ -27,13 +27,15 @@ setup() {
 }
 
 @test "TGB02 : OCTO55 : GROUP BY and AGGREGATE FUNCTIONS : Various valid scenarios in NAMES schema" {
-	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB02.sql "trim_trailing_zeroes"
+	# TGB02.sql has 100+ queries so run only a small random fraction (25%) of them to cut down test runtime.
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB02.sql 0.25 "trim_trailing_zeroes"
 }
 
 @test "TGB03 : OCTO55 : GROUP BY and AGGREGATE FUNCTIONS : Various valid scenarios in NORTHWIND schema" {
 	load_fixture northwind.sql
 	load_fixture northwind.zwr
-	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TGB03.sql "trim_trailing_zeroes"
+	# TGB03.sql has 100+ queries so run only a small random fraction (25%) of them to cut down test runtime.
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TGB03.sql 0.25 "trim_trailing_zeroes"
 }
 
 @test "TGB04 : OCTO55 : Test octo -vv and logical plan output for sample GROUP BY query" {

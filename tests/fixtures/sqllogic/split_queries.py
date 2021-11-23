@@ -17,6 +17,7 @@ Queries can span multiple lines, but there cannot be multiple queries on the sam
 """
 
 import sys
+import random
 from os import path
 from filter import parse_queries
 
@@ -34,22 +35,27 @@ def line_info(line):
 with open(filename) as fd:
     # Filter out lines starting with '#' or '--' (comment lines). Do not want them to show up in the output *.sql files
     lines = filter(lambda line: not line.strip().startswith('#') and not line.strip().startswith('--'), fd)
-    queries = list(parse_queries(lines, line_info))
+    queries = parse_queries(lines, line_info)
+
+# Check if argv[2] was provided. If yes it is a string such that only queries that contain this search string
+# are included in the final split query files. An example search string is "CREATE TABLE" or "SELECT".
+query_filter = sys.argv[2] if len(sys.argv) > 2 else ""
+
+# If no fraction was specified, include all queries for splitting.
+# Else include a random sample of queries based on the specified fraction.
+fraction = float(sys.argv[3]) if len(sys.argv) > 3 else 1
+# Below code is similar to the "write_random_sample()" function in "tests/fixtures/sqllogic/filter.py"
+num_to_output = int(round(len(queries) * fraction))
+# Keep the original index of the query even though we're only taking a subset
+outputs = random.sample(list(enumerate(queries)), num_to_output)
 
 root, ext = path.splitext(filename)
 digits = len(str(len(queries)))
-cnt = 0
-if len(sys.argv) > 2:
-    query_filter = sys.argv[2]
-else:
-    query_filter = ""
-for query in queries:
-    # Check if argv[2] was provided. If yes it is a string such that only queries that contain this search string
-    # are included in the final split query files. An example search string is "CREATE TABLE" or "SELECT".
+for query_num, query in outputs:
     if query_filter != "":
         skip = not any(query_filter in s for s in query)
         if skip:
             continue
-    with open("{}-{}{}".format(root, str(cnt).zfill(digits), ext), 'w') as output:
+    with open("{}-{}{}".format(root, str(query_num).zfill(digits), ext), 'w') as output:
         output.write(''.join(query))
-    cnt += 1
+

@@ -30,8 +30,9 @@ setup() {
 }
 
 @test "TBT02 : Test of BOOLEAN type across various valid queries in `names` database" {
-  $ydb_dist/yottadb -run %XCMD 'set ^%ydboctoocto("functions","DOLLARZWRITE")="$ZWRITE"'  # Needed by one query in TBT02.sql
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TBT02.sql "trim_trailing_zeroes"
+	$ydb_dist/yottadb -run %XCMD 'set ^%ydboctoocto("functions","DOLLARZWRITE")="$ZWRITE"'  # Needed by one query in TBT02.sql
+	# TBT02.sql has ~100 queries so run only a small random fraction (25%) of them to cut down test runtime.
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TBT02.sql 0.25 "trim_trailing_zeroes"
 }
 
 @test "TBT03 : Test of BOOLEAN type across various queries with errors OR different output between Octo & Postgres" {

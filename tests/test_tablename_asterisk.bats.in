@@ -31,7 +31,8 @@ teardown() {
 @test "TTA002 : OCTO759 : COUNT(DISTINCT TABLENAME.ASTERISK) produces incorrect results in some cases : names database" {
 	load_fixture names.sql
 	load_fixture names.zwr
-	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TTA002.sql
+	# TTA002.sql has 250+ queries. To reduce test runtime only run a small random fraction (20%) of that.
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TTA002.sql 0.20
 }
 
 @test "TTA003 : OCTO759 : TABLENAME.ASTERISK in GROUP BY should not be expanded to list of table columns : Error scenarios" {

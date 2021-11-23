@@ -714,14 +714,19 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 	database="$1"
 	queryfile="$2"
 	psql_port="5432"
+	if [[ $3 =~ ^[0-1]$ || $3 =~ ^[0]*\.?[0-9]+$ ]]; then
+		# $3 is 0 or 1 (integer form) or a decimal number between 0.0 and 1.0.
+		# If so, it is the "fraction" of queries. Note that down.
+		# (e.g. 0.50 implies test only a random 50% of the queries)
+		fraction="$3"
+	else
+		# $3 is not a fraction between 0.0 and 1.0. If so, include ALL queries i.e. 100% == 1.0
+		fraction="1.0"
+	fi
+
 	local num_clients
 	# psql errors will never have the same output as octo errors, so they cannot be used in crosscheck.
 	# Therefore any error should fail the test.
-	# However, on CentOS 7 there are many spurious failures due to postgres not being able to infer the type of NULL.
-	# Ignore these failures because they do not affect the correctness of Octo.
-	# Postgres versions under 10 throw "failed to find conversion function from unknown to text" error
-	# when queries such as ".. WHERE a.firstName = (SELECT NULL);" access postgres through JDBC driver.
-	# To avoid such failures the JDBC client is excluded in such a case.
 	postgres_version="$(psql --command='show server_version;' --no-align --tuples-only postgres)"
 	local psql_cmd
 	if [ "$(echo "$postgres_version" | cut -d . -f 1)" -lt 10 ]; then
@@ -804,14 +809,21 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 		sed 's/\s*--.*//' $queryfile &> "$fname"_nocomment.sql
 		sed 's/^\s*--.*//' $queryfile &> "$fname"_comment.sql
 		# Maintaining two copies of the query file with one having comments is required to facilitate
-		# result comparison in run_query_verify.
+		# result comparison in run_query_verify. The "*_nocomment.sql" files are passed to the JDBC client
+		# for actual execution. But the corresponding "*_comment.sql" files are needed for later cross check
+		# to process flags like "-- rowcount-only-check" etc. But if "$fraction" is specified, we cannot use
+		# it in both the calls below as that would mean a different set of "*_comment.sql" and "*_nocomment.sql"
+		# files could be generated in the calls due to the randomization. What we want is that for every
+		# "*_nocomment.sql" file that is randomly generated, the corresponding "*_comment.sql" file exists.
+		# An easy way to ensure this is to generate all "*_comment.sql" files but only a fraction of the
+		# "*_nocomment.sql" files. Hence the use of "$fraction" only in the "*_nocomment.sql" call below.
 		@PROJECT_SOURCE_DIR@/tests/fixtures/sqllogic/split_queries.py "$fname"_comment.sql
-		@PROJECT_SOURCE_DIR@/tests/fixtures/sqllogic/split_queries.py "$fname"_nocomment.sql
+		@PROJECT_SOURCE_DIR@/tests/fixtures/sqllogic/split_queries.py "$fname"_nocomment.sql "" "$fraction"
 		# Only $fname is passed as it acts as a search pattern for run_multiple_query_files
 		# to find all query files.
 		run_query_in_octo_and_postgres_and_crosscheck "$fname"
 	else
-		@PROJECT_SOURCE_DIR@/tests/fixtures/sqllogic/split_queries.py $queryfile
+		@PROJECT_SOURCE_DIR@/tests/fixtures/sqllogic/split_queries.py $queryfile "" "$fraction"
 		for splitfile in $fname-*.sql
 		do
 			run_query_in_octo_and_postgres_and_crosscheck $splitfile

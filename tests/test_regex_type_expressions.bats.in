@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -22,7 +22,8 @@ setup() {
 }
 
 @test "TRTE01 : LIKE/SIMILAR TO etc. usages in names database" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TRTE01.sql
+	# TRTE01.sql has 250+ queries so run only a small random fraction (20%) of them to cut down test runtime.
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TRTE01.sql 0.20
 }
 
 @test "TRTE02 : OCTO398 : LIKE with Wildcard Characters returns incorrect results in some cases" {

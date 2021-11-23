@@ -1033,12 +1033,12 @@ The built-in COALESCE function returns the first of its arguments that is not NU
 If all arguments are NULL, NULL is returned.
 COALESCE must have at least one argument.
 
-Note that unlike other RDBMSs, the values passed to COALESCE are not required to all have the same type.
-For example, the following query is valid and returns the value one:
+The arguments passed to COALESCE all have to be of the same type.
+For example, the following query is valid and returns the value 'a':
 
 .. code-block:: SQL
 
-   SELECT COALESCE(1, 'a', 1.0);
+   SELECT COALESCE(NULL, 'a', 'b');
 
 ++++++++++
 CONCAT

@@ -255,7 +255,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	 * principal for loop in handle_bind.c.
 	 */
 	for (cur_parm = 0, cur_bind_parm = 0; cur_parm < parse_context.total_parms; cur_parm++) {
-		if ((cur_parm <= parse_context.is_bind_parm_size) && (parse_context.is_bind_parm[cur_parm])) {
+		if ((cur_parm < parse_context.is_bind_parm_size) && (parse_context.is_bind_parm[cur_parm])) {
 			// Only need type information for bind parameters
 			if (cur_bind_parm < parse_context.num_bind_parms) {
 				if ((0 < parse_context.num_bind_parms) && (cur_bind_parm >= parse->num_parm_data_types)) {

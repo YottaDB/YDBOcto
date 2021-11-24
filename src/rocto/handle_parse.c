@@ -246,8 +246,10 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&cur_parm_value_buffer, OCTO_INIT_BUFFER_LEN);
 	parm_type_buffer.buf_addr = parm_type_str;
 	parm_type_buffer.len_alloc = sizeof(parm_type_str);
+	parm_type_buffer.len_used = 0;
 	offset_buffer.buf_addr = offset_str;
 	offset_buffer.len_alloc = sizeof(offset_str);
+	offset_buffer.len_used = 0;
 	/* Store number of parameters and any parameter type information for later use in handle_bind.c and in
 	 * ParameterDescription messages. For more context on the parameter storage done here, please see the comment preceding the
 	 * principal for loop in handle_bind.c.

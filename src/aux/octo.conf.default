@@ -37,8 +37,7 @@ rocto = {
    * loopback interface of the computer running rocto. This allows
    * rocto to be run and tested locally, but does not expose rocto
    * to clients on other hosts. To make rocto accessible to external
-   * hosts, set the address to the network IP address assigned to the
-   * machine hosting rocto.
+   * hosts, set the address to 0.0.0.0 
    */
   address = "127.0.0.1"
   port = 1337

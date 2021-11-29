@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -257,3 +257,9 @@ OCTO
   cat _ydboctoP*.m >> output.txt
   verify_output TW25 output.txt
 }
+
+@test "TW26 : OCTO790 : Octo incorrectly issues ERR_SUBQUERY_MULTIPLE_ROWS error" {
+	load_fixture TW26.sql subtest novv
+	verify_output TW26 output.txt
+}
+

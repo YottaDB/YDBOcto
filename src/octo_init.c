@@ -857,6 +857,15 @@ int octo_init(int argc, char **argv) {
 				ydb_release_number += atoi(ch2);
 			}
 		}
+		/* Set global variables to non-default values if necessary (default value is 0) */
+		hash_canonical_query_cycle = (uint64_t)INT32_MAX;
+		/* This global variable is incremented before every outermost call to "hash_canonical_query".
+		 * It is initialized to INT32_MAX instead of 0 (default for most globals) since the field that this is
+		 * checked for equality (in "hash_canonical_query()") is "stmt->hash_canonical_query_cycle" and the latter
+		 * can take on an overloaded meaning of a 4-byte signed integer "max_unique_id" (see comments in
+		 * "SqlStatement" in "octo_types.h" for more details). Initializing this to INT32_MAX avoids this field
+		 * from incorrectly/coincidentally being set to the exact same value as "max_unique_id" (YDBOcto#790).
+		 */
 		config->config_file = config_file;
 		/* "argc" can be 0 in case of cmocka unit tests. Do not attempt auto upgrade/load in that case. */
 		if (argc) {

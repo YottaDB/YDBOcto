@@ -419,21 +419,21 @@
 
 // Double the amount of memory allocated for a given array and copy in values from previous allocation
 // and zero-initialize remaining memory
-#define DOUBLE_ARRAY_ALLOCATION(ARRAY, SIZE, TYPE, MAX)              \
-	{                                                            \
-		int new_size;                                        \
-                                                                     \
-		new_size = SIZE * 2;                                 \
-		if ((0 < MAX) && (MAX < new_size)) {                 \
-			new_size = MAX;                              \
-		}                                                    \
-		TYPE *new_array;                                     \
-		new_array = (TYPE *)malloc(new_size * sizeof(TYPE)); \
-		memcpy(new_array, ARRAY, SIZE * sizeof(TYPE));       \
-		memset(&new_array[SIZE], 0, SIZE * sizeof(TYPE));    \
-		free(ARRAY);                                         \
-		ARRAY = new_array;                                   \
-		SIZE = new_size;                                     \
+#define DOUBLE_ARRAY_ALLOCATION(ARRAY, SIZE, TYPE, MAX)                        \
+	{                                                                      \
+		int new_size;                                                  \
+                                                                               \
+		new_size = SIZE * 2;                                           \
+		if ((0 < MAX) && (MAX < new_size)) {                           \
+			new_size = MAX;                                        \
+		}                                                              \
+		TYPE *new_array;                                               \
+		new_array = (TYPE *)malloc(new_size * sizeof(TYPE));           \
+		memcpy(new_array, ARRAY, SIZE * sizeof(TYPE));                 \
+		memset(&new_array[SIZE], 0, (new_size - SIZE) * sizeof(TYPE)); \
+		free(ARRAY);                                                   \
+		ARRAY = new_array;                                             \
+		SIZE = new_size;                                               \
 	}
 
 /* Increase allocated size of a ydb_buffer_t. Assumes len_used is set to the desired new size as is done

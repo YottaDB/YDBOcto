@@ -705,6 +705,15 @@ count_num_occurrences() {
 	return
 }
 
+choose_jdbc_protocol_randomly() {
+	# Randomly choose simple or extended query protocol
+	if [[ $(( $RANDOM % 2)) == 0 ]]; then
+		echo "usesimple"
+	else
+		echo "useextended"
+	fi
+}
+
 run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 	# Query file has multiple queries.
 	# Split it into multiple query files each containing one query and invoke "run_query_in_octo_and_postgres_and_crosscheck()".
@@ -743,6 +752,10 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 		fi
 		if [[ $i == "usejdbc" ]]; then
 			usejdbc="usejdbc"
+			randclientstr="JDBC"	# Since the user specified "usejdbc", fixate random client choice to JDBC
+		fi
+		if [[ $i == "usesimple" ]]; then
+			jdbcprotocol="usesimple"
 		fi
 		if [[ $i == "useextended" ]]; then
 			jdbcprotocol="useextended"
@@ -752,43 +765,35 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 		fi
 	done
 	if [[ ($usejdbc == "usejdbc") && ("$jdbcprotocol" == "") ]]; then
+		# User specified "usejdbc" but did not explicitly specify "usesimple" or "useextended"
 		# Randomly choose simple or extended query protocol
-		jdbcprotocol=$(( $RANDOM % 2))
-		if [[ $jdbcprotocol == 0 ]]; then
-			jdbcprotocol=usesimple
-		else
-			jdbcprotocol=useextended
-		fi
+		jdbcprotocol=$(choose_jdbc_protocol_randomly)
 	fi
-	if [[ $randclientstr != "OCTO" && $usejdbc != "usejdbc" ]]; then
-		# Randomly select client
+	if [[ $randclientstr == "" ]]; then
+		# If client selection was not specified in any parameters, randomly select client
 		randclient=$(( $RANDOM % $num_clients))
 		# Setup client parameters based on the selection
 		if [[ $randclient == 2 ]]; then
 			randclientstr="JDBC"
-			jdbcprotocol=$(( $RANDOM % 2))
-			if [[ $jdbcprotocol == 0 ]]; then
-				jdbcprotocol=usesimple
-			else
-				jdbcprotocol=useextended
-			fi
-			if [[ -z "$test_port" ]]; then
-				# test_port not set in subtest, set isnotexternal to
-				# inform further script to stop_rocto on test completion or failure
-				isnotexternal=1
-				test_port=$(start_rocto 1344)
-			fi
+			# Randomly choose simple or extended query protocol
+			jdbcprotocol=$(choose_jdbc_protocol_randomly)
 		elif [[ $randclient == 1 ]]; then
 			randclientstr="PSQL"
 			load_fixture default_user.zwr
-			if [[ -z "$test_port" ]]; then
-				# test_port not set in subtest, set isnotexternal to
-				# inform further script to stop_rocto on test completion or failure
-				isnotexternal=1
-				test_port=$(start_rocto 1339)
-			fi
 		else
 			randclientstr="OCTO"
+		fi
+	fi
+	if [[ $randclientstr != "OCTO" ]]; then
+		# Random client choice is PSQL or JDBC. Both these choices require the rocto server to be running.
+		if [[ -z "$test_port" ]]; then
+			# test_port not set in subtest, but random client choice requires starting rocto so do it
+			# internally in the test framework. But also set "isnotexternal" to inform further script
+			# in test framework to invoke "stop_rocto" on test completion or failure (that way the
+			# caller test script (which invokes "run_query_in_octo_and_postgres_and_crosscheck_multiple_queries")
+			# sees "rocto" shut down after the call just like it was before the call.
+			test_port=$(start_rocto 1339)
+			isnotexternal=1
 		fi
 	fi
 	echo "Cross check parameters:" >> dbg_env.out

@@ -20,10 +20,8 @@ setup() {
 }
 
 @test "TROC01: Verifies that when usejdbc argument is passed to cross check function, JDBC client is used and rocto is started" {
-  test_port=$(start_rocto 1344)
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TROC01.sql usejdbc
-  stop_rocto
-  local JDBCdriverused=$(grep "randclient: usejdbc:usejdbc" dbg_env.out)
+  local JDBCdriverused=$(grep "randclient:JDBC usejdbc:usejdbc" dbg_env.out)
   if [[ -z $JDBCdriverused ]]; then
     echo "Test Failed: Test not executed using JDBC driver even though usejdbc is passed as argument"
     exit 1

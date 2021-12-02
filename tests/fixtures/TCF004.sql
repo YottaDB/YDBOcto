@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -14,3 +14,6 @@
 
 CREATE FUNCTION DOLLARZWRITE(VARCHAR) RETURNS VARCHAR AS $ZWRITE;
 select DOLLARZWRITE(firstname) from names;
+-- Intrinsic functions using abbreviated syntax supported
+CREATE FUNCTION DOLLARLENGTH(VARCHAR) RETURNS VARCHAR AS $L;
+select DOLLARLENGTH(firstname) from names;

@@ -13,6 +13,20 @@ TRUNC|numeric
 TRUNC|numeric
 TRUNC|numeric
 TRUNC|numeric
+TRUNCATE|numeric
+TRUNCATE|numeric
+TRUNCATE|numeric
+TRUNCATE|numeric
+NOW|varchar
+DAY|varchar
+LOCALTIME|varchar
+LOCALTIMESTAMP|varchar
+CURRENT_TIMESTAMP|varchar
+CURRENT_TIME|varchar
+DATE_FORMAT|varchar
+DAYOFMONTH|varchar
+LPAD|varchar
+LPAD|varchar
 REPLACE|varchar
 ROW_NUMBER|int4
 SET_CONFIG|varchar
@@ -41,4 +55,4 @@ CURRENT_SCHEMAS|varchar
 OBJ_DESCRIPTION|varchar
 PG_BACKEND_PID|varchar
 PG_GET_EXPR|varchar
-(38 rows)
+(52 rows)

@@ -1,0 +1,1 @@
+./postgres-sqllogic4.sql

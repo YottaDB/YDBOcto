@@ -69,6 +69,10 @@
 #define MEMORY_CHUNK_SIZE (1 * 1024 * 1024)
 // Maximum number of key columns
 #define MAX_KEY_COUNT 255
+// Maximum length for database emulation strings, e.g. "PostgreSQL"
+#define MAX_EMULATION_STRING_LEN 12
+// Length of M extrinsic function prefix, i.e. "$$"
+#define EXTRINSIC_PREFIX_LEN 2
 
 #define IS_KEY_COLUMN(COLUMN) ((NULL != get_keyword(COLUMN, PRIMARY_KEY)) || (NULL != get_keyword(COLUMN, OPTIONAL_KEY_NUM)))
 
@@ -149,6 +153,7 @@
 #define OCTOLIT_FORMAT_CODE	     "format_code"
 #define OCTOLIT_LENGTH		     "length"
 #define OCTOLIT_TEXT_LENGTH	     "text_length"
+#define OCTOLIT_MYSQL		     "MySQL"
 #define OCTOLIT_NAME		     "name"
 #define OCTOLIT_NAMES		     "names"
 #define OCTOLIT_NONE		     "none"
@@ -164,6 +169,7 @@
 #define OCTOLIT_PLANDIRS	     "plandirs"
 #define OCTOLIT_PLANFMT		     "planfmt"
 #define OCTOLIT_PLAN_METADATA	     "plan_metadata"
+#define OCTOLIT_POSTGRESQL	     "PostgreSQL"
 #define OCTOLIT_PREPARED	     "prepared"
 #define OCTOLIT_READ_ONLY	     "read-only"
 #define OCTOLIT_ROUTINE		     "routine"
@@ -181,6 +187,7 @@
 #define OCTOLIT_USERS		     "users"
 #define OCTOLIT_VALUE		     "value"
 #define OCTOLIT_VARIABLE	     "variable"
+#define OCTOLIT_YDBOCTO		     "^%ydbocto"
 #define OCTOLIT_YDBOCTOCANCEL	     "%ydboctoCancel"
 #define OCTOLIT_YDBOCTOSECRETKEYLIST "%ydboctoSecretKeyList"
 #define OCTOLIT_YDBOCTOTBLCONSTRAINT "%ydboctoTblConstraint"
@@ -961,8 +968,9 @@ int no_more();
 int  get_input(char *buf, int size);
 void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, ParseContext *parse_context, char const *s);
 
-int get_full_path_of_generated_m_file(char *filename, int filename_len, char *m_routine_name);
-int get_full_path_of_generated_o_file(char *filename, int filename_len, char *o_routine_name);
+int   get_full_path_of_generated_m_file(char *filename, int filename_len, char *m_routine_name);
+int   get_full_path_of_generated_o_file(char *filename, int filename_len, char *o_routine_name);
+char *get_emulation_string();
 
 int auto_load_octo_seed(void);
 int auto_load_octo_seed_if_needed(void);

@@ -34,7 +34,7 @@ teardown() {
 	echo "# Run cross check" >> output.txt
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDFT01.sql
 	# Firstly, delete TDFT01 table from Postgres database as it can confuse later runs of other tests
-	# (e.g. hello_psql/HP01 subtest etc.) in case we error out in the later steps of this TDFT01 subtest
+	# (e.g. hello_db/HDB01 subtest etc.) in case we error out in the later steps of this TDFT01 subtest
 	psql names -c 'drop table if exists TDFT01;' >& postgres.drop_table_TDFT01.out
 	# Now do various verifications of Octo plans
 	echo "# Include key parts of generated M plans in reference file" >> output.txt
@@ -119,7 +119,7 @@ teardown() {
 	echo "# Run cross check first" >> output.txt
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDFT08.sql
 	# Delete TDFT08 table from Postgres database as it can confuse later runs of other tests
-	# (e.g. hello_psql/HP01 subtest etc.) in case we error out in the later steps of this TDFT08 subtest
+	# (e.g. hello_db/HDB01 subtest etc.) in case we error out in the later steps of this TDFT08 subtest
 	psql names -c 'drop table if exists TDFT08;' >& postgres.drop_table_TDFT08.out
 	echo '# Verify key fixing optimization happened for = operator in WHERE clause' >> output.txt
 	echo '# Key fixed query will have a plan that does $ORDER(^%ydboctoxref)' >> output.txt

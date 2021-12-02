@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -159,3 +159,6 @@ setup() {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP17.sql
 }
 
+@test "TSCP18 : OCTO288 : Test functions now(), lpad(), localtimestamp(), localtime(), current_timestamp(), current_time()" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP18.sql
+}

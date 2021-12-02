@@ -41,6 +41,24 @@ save_env_variables() {
 	declare -p -x | grep -- "-x ydb_" | grep -v ydb_unset_ | grep -v ydb_sav_ > test.env
 }
 
+set_ydb_xc_octo() {
+	# Set the ydb_xc_octo environment variable to allow M callouts to C functions needed in some tests
+	if [[ @DISABLE_INSTALL@ == "ON" ]]; then
+		# ydbocto.xc specifies the callout library as $ydb_dist/plugin/o/libcocto.so by default.
+		# However, if installation is disabled, this file won't exist at this location. So,
+		# create a new .xc file that specifies the location of libcocto.so. Note that a new
+		# file is created to avoid needing to revert ydbocto.xc to the default libcocto.so
+		# installation path at tarball generation time in build.sh.
+		cp @PROJECT_BINARY_DIR@/src/ydbocto.xc @PROJECT_BINARY_DIR@/src/ydbocto_noinstall.xc
+		libcocto=@PROJECT_BINARY_DIR@/src/libcocto.so
+		sed -i "12s,.*,$libcocto," @PROJECT_BINARY_DIR@/src/ydbocto_noinstall.xc
+		export ydb_xc_octo="@PROJECT_BINARY_DIR@/src/ydbocto_noinstall.xc"
+	else
+		export ydb_xc_octo=$ydb_dist/plugin/octo/ydbocto.xc
+	fi
+	echo "ydb_xc_octo=$ydb_xc_octo" >> env.out
+}
+
 init_test() {
 	setup_bats_env
 
@@ -103,6 +121,8 @@ init_test() {
 	# All the python scripts take a very small fraction of the test time,
 	# so this does not impact pipeline times in any significant way.
 	export PYTHONDONTWRITEBYTECODE=1
+	# Set env var to maintain list of common schemas to create across different database emulations, e.g. Postgres and MySQL
+	export schema_list="names names1col nameslastname customers pastas easynames northwind $(echo sqllogic{1,2,3,4,5}) boolean nullnames nullcharnames composite "
 }
 
 init_tls() {
@@ -160,11 +180,11 @@ load_fixture() {
 			grep -v '^#' $fixture_name 2>&1 | tee -a output.txt	   # Filter out copyright from output
 			grep -vE '^-- |^#' $fixture_name > input.sql || [ $? = 1 ] # Filter out comment lines as they otherwise clutter the parse error output (if any)
 			if [[ $3 == "novv" ]]; then
-				octoflags=""
+				octoflags="$4"
 			elif [[ $3 =~ "v" ]]; then	# Allow verbosity level to be passed directly
-				octoflags="-$3"
+				octoflags="-$3 $4"
 			else
-				octoflags="-vv"
+				octoflags="-vv $4"
 			fi
 			octo $octoflags -f input.sql 2>&1 | tee -a output.txt
 		else
@@ -217,6 +237,36 @@ load_postgres_fixture() {
 	# table. Hence we stick with the "ON_ERROR_STOP" approach. Since this can return a non-zero exit status and that is
 	# expected, we use the "|| true" below to avoid the bats framework from treating this as a failure and stopping the test.
 	psql $1 -c '\set ON_ERROR_STOP on' -f @PROJECT_SOURCE_DIR@/tests/fixtures/$2 &> $1.psql.load || true
+}
+
+run_mysql() {
+	# When running in the pipeline the host must be specified as "mysql", since
+	# localhost is inaccessible from within the GitLab CI Docker container. When
+	# run outside of the pipeline, localhost is suitable.
+	if [[ $USER == "root" ]]; then
+		host=mysql
+	else
+		host=localhost
+	fi
+	# Specify password by environment variable to avoid MySQL warning on command-line password security, which breaks outrefs
+	MYSQL_PWD="ydbrocks" mysql --host=$host --protocol=TCP --user=$USER $1 < $2
+}
+
+create_mysql_database() {
+	echo "-- Need to use LC_COLLATE='C' to ensure string comparison of 'Z' < 'a' returns TRUE (default is en_US.UTF8)" &> in.sql
+	echo "CREATE DATABASE IF NOT EXISTS $1;" &> in.sql
+	run_mysql "" in.sql &> $1.setup.out
+	# Set the timezone explicitly for consistency when running in pipeline, as there is no guarantee that
+	# MySQL will actually use the system timezone and the actual timezone cannot be manually queried, either.
+	# For more information, see:
+	# https://stackoverflow.com/questions/2934258/how-do-i-get-the-current-time-zone-of-mysql/2934271#2934271
+	echo "SET GLOBAL time_zone = '$(date +%:z)';" >> tz.sql
+	run_mysql "" tz.sql >> $1.setup.out
+}
+
+load_mysql_fixture() {
+	# Create a MySQL table and load data into it
+	run_mysql $1 @PROJECT_SOURCE_DIR@/tests/fixtures/$2 &> $3
 }
 
 createdb() {
@@ -1048,4 +1098,128 @@ run_query_generator() {
   queryfile=$prefix$count
   queryfile+=".sql"
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries $databaseName $queryfile "trim_trailing_zeroes" $usejdbcoption $useextended
+}
+
+run_query_in_octo_and_mysql_and_crosscheck_multiple_queries() {
+	# Query file has multiple queries.
+	# Split it into multiple query files each containing one query and invoke "run_query_in_octo_and_postgres_and_crosscheck()".
+	# Spliting queries are needed as otherwise Postgres and Octo output cannot be easily compared.
+
+	# Init
+	database="$1"
+	queryfile="$2"
+	checktime="$3"
+
+	if [[ ! -f $queryfile ]]; then
+		if [[ ! -f @PROJECT_SOURCE_DIR@/tests/fixtures/$queryfile ]]; then
+			echo "Query file: $queryfile doesn't exist"
+			exit 1
+		fi
+		cp @PROJECT_SOURCE_DIR@/tests/fixtures/$queryfile .
+	fi
+	fname=`echo $queryfile | sed 's/\..*//g'`
+	echo "Cross check parameters:" >> env.out
+	echo "mysql_version:$(mysql --version)" >> env.out
+
+	@PROJECT_SOURCE_DIR@/tests/fixtures/sqllogic/split_queries.py $queryfile
+	for splitfile in $fname-*.sql
+	do
+		run_query_in_octo_and_mysql_and_crosscheck $splitfile $checktime
+	done
+
+	# Stop Rocto when started by the test framework in parameter processing phase
+	run_query_stop_rocto
+	return
+}
+
+run_query_in_octo_and_mysql_and_crosscheck() {
+	query_file="$1"
+	checktime="$2"
+	local fname=`echo $query_file | sed 's/\..*//g'`
+
+	# Export the MySQL user password to suppress a security warning from MySQL
+	# that muddles output. While this is insecure and shouldn't be done on production
+	# systems, it is acceptable in a test environment where programmatic execution
+	# is desired and no sensitive data is stored in the database.
+	export MYSQL_PWD="ydbrocks"
+	starttime=$(date +%s) # Mark start time in case time function output is to be validated
+	run_mysql $database $query_file >& $fname.mysql.out
+	# MySQL displays boolean values as t and f whereas Octo displays them as 1 and 0 so fix that before the diff.
+	tail -n +2 $fname.mysql.out | sed 's/\<t\>/1/g;s/\<f\>/0/g;' >& $fname.ref
+	# Replace NULL with empty string to match Octo behavior
+	sed -i 's/NULL//g;' $fname.ref
+
+	# Run query in octo
+	octo -e MYSQL -f $query_file >& $fname.octo.out.tmp
+	endtime=$(date +%s) # Mark end time in case time function output is to be validated
+
+	# trim header and footer information from octo output for effective comparison
+	tail -n +2 $fname.octo.out.tmp | sed 's/\<t\>/1/g;s/\<f\>/0/g;' &> $fname.octo.out.tmp2
+	head -n -1 $fname.octo.out.tmp2 &> $fname.octo.out
+
+	export MYSQL_PWD=""
+	# If the queries contain time-related functions, as indicated by the $checktime, check whether the queries executed within
+	# the same second. If so, run the cross check. If not, skip the cross-check by returning from this function, as the
+	# crosscheck is likely to fail due to a timing discrepancy, even if Octo executed the query correctly.
+	if [[ "checktime" == $checktime ]]; then
+		# Record all time output in case needed for debugging
+		echo "Start time: $starttime" >> time.out
+		echo "End time: $endtime" >> time.out
+		if [[ $starttime -ne $endtime ]]; then
+			echo "--> Query verification skipped for $query_file." >> time.out
+			return
+		fi
+	fi
+	run_query_verify $query_file $fname
+
+	return
+}
+
+run_query_in_two_emulations_and_crosscheck_multiple_queries() {
+	# Query file has multiple queries.
+	# Split it into multiple query files each containing one query and invoke "run_query_in_octo_and_postgres_and_crosscheck()".
+	# Spliting queries are needed as otherwise Postgres and Octo output cannot be easily compared.
+
+	# Init
+	database="$1"
+	queryfile="$2"
+	first_emulation=$3
+	second_emulation=$4
+	fname=`echo $queryfile | sed 's/\..*//g'`
+
+	if [[ ! -f $queryfile ]]; then
+		if [[ ! -f @PROJECT_SOURCE_DIR@/tests/fixtures/$queryfile ]]; then
+			echo "Query file: $queryfile doesn't exist"
+			exit 1
+		fi
+		cp @PROJECT_SOURCE_DIR@/tests/fixtures/$queryfile .
+	fi
+	echo "Cross check parameters:" >> env.out
+	echo -e "emulation #1:$first_emulation\temulation #2:$second_emulation" >> env.out
+
+	@PROJECT_SOURCE_DIR@/tests/fixtures/sqllogic/split_queries.py $queryfile
+	for splitfile in $fname-*.sql
+	do
+		run_query_in_two_emulations_and_crosscheck $splitfile $first_emulation $second_emulation
+	done
+
+	# Stop Rocto when started by the test framework in parameter processing phase
+	run_query_stop_rocto
+	return
+}
+
+run_query_in_two_emulations_and_crosscheck() {
+	query_file="$1"
+	first_emulation=$2
+	second_emulation=$3
+	local fname=`echo $query_file | sed 's/\..*//g'`
+
+	# Run query in octo, first emulation
+	octo -e $first_emulation -f $query_file >& $fname.emu1.out
+	# Run query in octo, second emulation
+	octo -e $second_emulation -f $query_file >& $fname.emu2.out
+
+	diff $fname.emu1.out $fname.emu2.out
+
+	return
 }

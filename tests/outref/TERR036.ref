@@ -1,0 +1,7 @@
+
+-- TERR036 : OCTO288 : Test of ERR_UNKNOWN_FUNCTION_EMULATION/UNKNOWNFUNCTION error
+
+-- Currently only tested with LPAD, as this is the only function that requires an M-level
+-- error to be issued. However, other functions are likely to issue similar errors in the future.
+select lpad("dfdf", 5);
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION_EMULATION : No 2-parameter function 'LPAD' defined for the current database emulation mode (MYSQL)

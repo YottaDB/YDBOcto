@@ -93,6 +93,12 @@ Sample config file:
 A few of the configuration settings are described below.
 
 ~~~~~~~~~~~~~~~
+emulate
+~~~~~~~~~~~~~~~
+
+Octo supports partial emulation of multiple SQL database products. The :code:`emulate` configuration option may be used to specify which SQL database Octo will attempt emulate at process initialization time. Currently supported options are: :code:`POSTGRES` and :code:`MYSQL`. The default is :code:`POSTGRES`.
+
+~~~~~~~~~~~~~~~
 octo_zroutines
 ~~~~~~~~~~~~~~~
 

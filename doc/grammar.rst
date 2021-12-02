@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2018-2021 YottaDB LLC and/or its subsidiaries.  #
+.. # Copyright (c) 2018-2022 YottaDB LLC and/or its subsidiaries.  #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -404,6 +404,8 @@ CREATE FUNCTION
    RETURNS data_type AS extrinsic_function_name;
 
 The CREATE FUNCTION statement is used to create SQL functions that map to extrinsic M functions and store these mappings in the database. The keywords CREATE FUNCTION are followed by the name of the SQL function to be created, the data types of its parameters, its return type, and the fully-qualified extrinsic M function name.
+
+Note that Octo reserves the M routine prefix :code:`^%ydbocto` for internal functions defined by Octo itself. Moreover, Octo assumes that any YottaDB extrinsic function name that includes this prefix but omits a label will have its own :code:`_ydbocto*.m` file containing emulation label mappings for :code:`PostgreSQL` and :code:`MySQL`. Accordingly, extrinsic function names like `$$^ydboctoxyz` will prompt Octo to look for a :code:`_ydboctoxyz.m` file containing two labels, :code:`PostgreSQL` and :code:`MySQL`. If these labels are absent, a `LABELMISSING` will be issued by YottaDB. For this reason, it is advised that users do not use the :code:`^%ydbocto` prefix in extrinsic function names to avoid conflicts and complications with Octo internal M routines.
 
 CREATE FUNCTION can be used to define multiple functions with the same name, provided the number of parameters and/or the types of the parameters are different. In other words, CREATE FUNCTION supports function overloading.
 
@@ -1009,7 +1011,9 @@ The second form of the CASE statement sequentially tests each condition_expressi
 Functions
 ----------
 
-Octo supports the following pre-defined functions.
+Octo supports the following built-in functions. Each of these functions comes pre-defined with Octo, and can be used straightaway without the need for the user to define them.
+
+Note that function prototypes that appear both with and without parentheses indicate that the given function may be called both with and without parentheses. For example, :code:`CURRENT_CATALOG()` may be called with either :code:`CURRENT_CATALOG()` or :code:`CURRENT_CATALOG`.
 
 +++++
 ABS
@@ -1017,7 +1021,7 @@ ABS
 
 .. code-block:: SQL
 
-   SELECT ABS(NUMERIC) ...
+   ABS(NUMERIC)
 
 ABS returns the absolute value of a number.
 
@@ -1027,7 +1031,7 @@ COALESCE
 
 .. code-block:: SQL
 
-   SELECT COALESCE(value_expression [, value_expression...]) ...
+   COALESCE(value_expression [, value_expression...])
 
 The built-in COALESCE function returns the first of its arguments that is not NULL.
 If all arguments are NULL, NULL is returned.
@@ -1046,7 +1050,8 @@ CONCAT
 
 .. code-block:: SQL
 
-   SELECT CONCAT(VARCHAR, VARCHAR)
+   CONCAT(VARCHAR, VARCHAR)
+   CONCAT(VARCHAR, VARCHAR, VARCHAR)
 
 The built-in CONCAT function returns the concatenation of its arguments as a VARCHAR value. This function may be used with two or three VARCHAR arguments to be concatenated.
 
@@ -1055,30 +1060,344 @@ The built-in CONCAT function returns the concatenation of its arguments as a VAR
    SELECT CONCAT('string1', 'string2')
    SELECT CONCAT('string1', 'string2', 'string3')
 
-++++++++++++++++++++
-GREATEST and LEAST
-++++++++++++++++++++
++++++++++++++++
+CURRENT_CATALOG
++++++++++++++++
 
 .. code-block:: SQL
 
-   SELECT GREATEST(value_expression [, value_expression...]) ...
-   SELECT LEAST(value_expression [, value_expression...]) ...
+   CURRENT_CATALOG
+   CURRENT_CATALOG()
+
+The built-in CURRENT_CATALOG function returns the name of the current database catalog. However, since Octo currently does not support the use of more than one database catalog, this function always returns "octo".
+
+++++++++++++++++
+CURRENT_DATABASE
+++++++++++++++++
+
+.. code-block:: SQL
+
+   CURRENT_DATABASE()
+
+The built-in CURRENT_DATABASE function returns the name of the current database. However, since Octo currently does not support the use of more than one database, this function always returns "octo".
+
+++++++++++++
+CURRENT_ROLE
+++++++++++++
+
+.. code-block:: SQL
+
+   CURRENT_ROLE
+   CURRENT_ROLE()
+
+The built-in CURRENT_ROLE function returns the name of the current user role. However, since Octo currently does not support user roles, this function is an alias for CURRENT_USER().
+
+++++++++++++++
+CURRENT_SCHEMA
+++++++++++++++
+
+.. code-block:: SQL
+
+   CURRENT_SCHEMA
+   CURRENT_SCHEMA()
+
+The built-in CURRENT_SCHEMA function returns the name of the current database schema. However, since Octo currently does not multiple schemas, this function will always return "public".
+
+++++++++++++
+CURRENT_TIME
+++++++++++++
+
+.. code-block:: SQL
+
+   CURRENT_TIME
+   CURRENT_TIME()
+
+The built-in CURRENT_TIME returns the current system time in the following formats, depending on which database emulation setting is active:
+
+* :code:`POSTGRES` emulation: :code:`hh:mm:ss.UUUUUU[-|+]LL`, where `U` is a microsecond field and `[-|+]LL` is the positive or negative UTC offset.
+* :code:`MYSQL` emulation: :code:`hh:mm:ss`
+
++++++++++++++++++
+CURRENT_TIMESTAMP
++++++++++++++++++
+
+.. code-block:: SQL
+
+   CURRENT_TIMESTAMP
+   CURRENT_TIMESTAMP()
+
+The built-in CURRENT_TIMESTAMP is a synonym for the NOW function, and returns the current system time in the following formats, depending on which database emulation setting is active:
+
+* :code:`POSTGRES` emulation: :code:`YYYY-MM-DD hh:mm:ss.uuuuuu[-|+]LL`, where `u` is a microsecond field and `[-|+]LL` is the positive or negative UTC offset.
+* :code:`MYSQL` emulation: :code:`YYYY-MM-DD hh:mm:ss`
+
+++++++++++++
+CURRENT_USER
+++++++++++++
+
+.. code-block:: SQL
+
+   CURRENT_USER
+   CURRENT_USER()
+
+The built-in CURRENT_USER function returns the username of the current Rocto user. Does not work in Octo, since Octo does not implement SQL user authentication and does not distinguish between users.
+
++++
+DAY
++++
+
+.. code-block:: SQL
+
+   DAY(VARCHAR)
+
+The built-in DAY function is a synonym for DAYOFMONTH, and accepts a date in the format :code:`YYYY-MM-DD` and returns the numeric day of the month in the range 0-31 for dates that have a value of zero for the day field, e.g. `0000-00-00`.
+
+++++++++++
+DAYOFMONTH
+++++++++++
+
+.. code-block:: SQL
+
+   DAYOFMONTH(VARCHAR)
+
+The built-in DAYOFMONTH function accepts a date in the format :code:`YYYY-MM-DD` and returns the numeric day of the month in the range 0-31 for dates that have a value of zero for the day field, e.g. `1999-06-00`.
+
++++++++++++
+DATE_FORMAT
++++++++++++
+
+.. code-block:: SQL
+
+   DATE_FORMAT(VARCHAR)
+
+The built-in DATE_FORMAT function accepts a date in the format :code:`YYYY-MM-DD hh:mm:ss.uuuuuu` and a format string, and returns a new string wherein the given date is formatted according to the format specified. Note that the number of microseconds :code:`uuuuuu` may be omitted such that the date may be in the format :code:`YYYY-MM-DD hh:mm:ss`.
+
+Note that in the following table there is reference to MySQL :code:`WEEK()` modes. Presently, Octo does not implement `WEEK()`, but the MySQL `WEEK()` modes are implemented for those format codes below that require them. For more information on :code:`WEEK()` modes, see the `MySQL documentation <https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_week>`_.
+
+Acceptable formatting symbols for DATE_FORMAT format string are as follows:
+
++----------------+--------------------------------------------------------------------------------------------------------------+
+| Format symbol  | Description                                                                                                  |
++================+==============================================================================================================+
+| %a             | Abbreviated weekday name (Sun..Sat)                                                                          |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %b             | Abbreviated month name (Jan..Dec)                                                                            |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %c             | Month, numeric (0..12)                                                                                       |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %D             | Day of the month with English suffix (0th, 1st, 2nd, 3rd, ...)                                               |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %d             | Day of the month, numeric (00..31)                                                                           |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %e             | Day of the month, numeric (0..31)                                                                            |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %f             | Microseconds (000000..999999)                                                                                |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %H             | Hour (00..23)                                                                                                |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %h             | Hour (01..12)                                                                                                |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %I             | Hour (01..12)                                                                                                |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %i             | Minutes, numeric (00..59)                                                                                    |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %j             | Day of year (001..366)                                                                                       |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %k             | Hour (0..23)                                                                                                 |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %l             | Hour (1..12)                                                                                                 |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %M             | Month name (January..December)                                                                               |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %m             | Month, numeric (00..12)                                                                                      |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %p             | AM or PM                                                                                                     |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %r             | Time, 12-hour (hh:mm:ss followed by AM or PM)                                                                |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %S             | Seconds (00..59)                                                                                             |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %s             | Seconds (00..59)                                                                                             |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %T             | Time, 24-hour (hh:mm:ss)                                                                                     |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %U             | Week (00..53), where Sunday is the first day of the week; Corresponding to MySQL WEEK() mode 0               |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %u             | Week (00..53), where Monday is the first day of the week; Corresponding to MySQL WEEK() mode 1               |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %V             | Week (01..53), where Sunday is the first day of the week; Corresponding to MySQL WEEK() mode 2; used with %X |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %v             | Week (01..53), where Monday is the first day of the week; Corresponding to MySQL WEEK() mode 3; used with %x |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %W             | Weekday name (Sunday..Saturday)                                                                              |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %w             | Day of the week (0=Sunday..6=Saturday)                                                                       |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %X             | Year for the week where Sunday is the first day of the week, numeric, four digits; used with %V              |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %x             | Year for the week, where Monday is the first day of the week, numeric, four digits; used with %v             |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %Y             | Year, numeric, four digits                                                                                   |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %y             | Year, numeric (two digits)                                                                                   |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %%             | A literal % character                                                                                        |
++----------------+--------------------------------------------------------------------------------------------------------------+
+| %x             | x, for any "x" not listed above                                                                              |
++----------------+--------------------------------------------------------------------------------------------------------------+
+
+.. code-block:: SQL
+
+    OCTO> SELECT DATE_FORMAT('2004-10-22 21:20:14', '%W %M %Y');
+    DATE_FORMAT
+    Friday October 2004
+    (1 row)
+    OCTO> SELECT DATE_FORMAT('2019-10-22 21:20:14', '%H:%i:%s');
+    DATE_FORMAT
+    21:20:14
+    (1 row)
+    OCTO> SELECT DATE_FORMAT('1920-10-22 21:20:14', '%D %y %a %d %m %b %j');
+    DATE_FORMAT
+    22nd 20 Fri 22 10 Oct 296
+    (1 row)
+    OCTO> SELECT DATE_FORMAT('1994-10-22 21:20:14', '%H %k %I %r %T %S %w');
+    DATE_FORMAT
+    21 21 09 09:20:14 PM 21:20:14 14 6
+    (1 row)
+    OCTO> SELECT DATE_FORMAT('1999-01-01', '%X %V');
+    DATE_FORMAT
+    1998 52
+    (1 row)
+    OCTO> SELECT DATE_FORMAT('2006-06-00', '%d');
+    DATE_FORMAT
+    00
+    (1 row)
+
+++++++++++++++++++
+GREATEST and LEAST
+++++++++++++++++++
+
+.. code-block:: SQL
+
+   GREATEST(value_expression [, value_expression...])
+   LEAST(value_expression [, value_expression...])
 
 The built-in GREATEST function returns the largest value from a list of expressions.
 Similarly, LEAST returns the smallest value.
 NULL values are ignored, unless all values are NULL, in which case the return value is NULL.
 All arguments must have the same type.
 
+++++++++++++++++++++++
+HAS_DATABASE_PRIVILEGE
+++++++++++++++++++++++
+
+.. code-block:: SQL
+
+    HAS_DATABASE_PRIVILEGE(username, databasename, privilege)
+
+The built-in HAS_DATABASE_PRIVILEGE function returns true if the user (first argument) of the specified database (second argument) has the specified privilege (third argument). However, since Octo currently does not implement privileges, this function will always return true (1).
+
++++++++++
+LOCALTIME
++++++++++
+
+.. code-block:: SQL
+
+   LOCALTIME
+   LOCALTIME()
+
+The built-in LOCALTIME function returns the current system time in the following formats, depending on which database emulation setting is active:
+
+* :code:`POSTGRES` emulation: :code:`hh:mm:ss.UUUUUU[-|+]LL`, where `U` is a microsecond field and `[-|+]LL` is the positive or negative UTC offset.
+* :code:`MYSQL` emulation (synonym for NOW): :code:`YYYY-MM-DD hh:mm:ss`
+
+++++++++++++++
+LOCALTIMESTAMP
+++++++++++++++
+
+.. code-block:: SQL
+
+   LOCALTIMESTAMP
+   LOCALTIMESTAMP()
+
+The built-in LOCALTIMESTAMP is a synonym for the NOW function, and returns the current system time in the following formats, depending on which database emulation setting is active:
+
+* :code:`POSTGRES` emulation: :code:`YYYY-MM-DD hh:mm:ss.UUUUUU[-|+]LL`, where `U` is a microsecond field and `[-|+]LL` is the positive or negative UTC offset.
+* :code:`MYSQL` emulation: :code:`YYYY-MM-DD hh:mm:ss`
+
+++++++++++++++++
+LPAD
+++++++++++++++++
+
+.. code-block:: SQL
+
+    LPAD(VARCHAR, INTEGER)
+    LPAD(VARCHAR, INTEGER, VARCHAR)
+
+The built-in LPAD function adds padding to the left hand side of a string (first argument) up to the designated length (second argument). The default padding is a space, which is used in the two-argument form of this function. However, an optional third argument specifying a specific string to use for padding may also be used.
+
+Note that in :code:`POSTGRES` emulation either the two- or three- argument form may be used. However, MySQL only supports the three-argument version, so a third argument must always be specified when using the :code:`MYSQL` emulation setting.
+
 ++++++++
-NULLIF
+NOW
 ++++++++
 
 .. code-block:: SQL
 
-   SELECT NULLIF(value_expression, value_expression) ...
+   NOW()
+
+The built-in NOW function returns the current system time in the following formats, depending on which database emulation setting is active:
+
+* :code:`POSTGRES` emulation: :code:`YYYY-MM-DD hh:mm:ss.UUUUUU[-|+]LL`, where `U` is a microsecond field and `[-|+]LL` is the positive or negative UTC offset.
+* :code:`MYSQL` emulation: :code:`YYYY-MM-DD hh:mm:ss`
+
+Note that NOW is a synonym for CURRENT_TIMESTAMP, but, unlike the latter function, it must always include parentheses.
+
+++++++
+NULLIF
+++++++
+
+.. code-block:: SQL
+
+   NULLIF(value_expression, value_expression)
 
 The built-in NULLIF function returns NULL if both arguments are equal, or the first argument otherwise.
 The arguments must have the same type.
+
+.. The following function is not currently documented because it is not fully functional, but is partially implemented to avoid syntax errors during SQL client startup.
+    +++++++++++++++++++
+    PG_ENCODING_TO_CHAR
+    +++++++++++++++++++
+
+    .. code-block:: SQL
+
+       PG_ENCODING_TO_CHAR(INTEGER)
+
+    The built-in PG_ENCODING_TO_CHAR function converts the value of the current character encoding setting from INTEGER representation to VARCHAR.
+
+    Since PostgreSQL encodings are not fully supported by Octo, this function will always return SQL_ASCII.
+
+.. The following function is not currently documented because it is not fully functional, but is partially implemented to avoid syntax errors during SQL client startup.
+    +++++++++++++++++
+    PG_IS_IN_RECOVERY
+    +++++++++++++++++
+
+    .. code-block:: SQL
+
+       PG_IS_IN_RECOVERY()
+
+    The built-in PG_IS_IN_RECOVERY function returns true if the database is in the process of recovering from a failure by restoring a backup. Since Octo doesn't currently support this feature, this function always returns false (0).
+
+.. The following function is not currently documented because it is not fully functional, but is partially implemented to avoid syntax errors during SQL client startup.
+    ++++++++++++++++++++++++
+    PG_IS_XLOG_REPLAY_PAUSED
+    ++++++++++++++++++++++++
+
+    .. code-block:: SQL
+
+       PG_IS_XLOG_REPLAY_PAUSED()
+
+    The built-in PG_IS_XLOG_REPLAY_PAUSED function returns true if the database has paused the process of recovering from a failure by restoring a backup. Since Octo doesn't currently support this feature, this function always returns false (0).
 
 +++++++
 ROUND
@@ -1086,7 +1405,7 @@ ROUND
 
 .. code-block:: SQL
 
-   SELECT ROUND(NUMERIC, INTEGER) ...
+   ROUND(NUMERIC, INTEGER)
 
 ROUND returns the first argument rounded to the precision specified by the second argument.
 If the precision is greater than zero, the number will be rounded to that number of decimal places.
@@ -1094,15 +1413,33 @@ If the precision is zero, it will be rounded to the nearest integer.
 If the precision is less than zero, all fractional digits will be truncated and the number will be rounded to `10^precision`.
 The precision must be no less than -46.
 
-+++++++
-TRUNC
-+++++++
+++++++++++++
+SESSION_USER
+++++++++++++
 
 .. code-block:: SQL
 
-   SELECT TRUNC(NUMERIC, INTEGER) ...
+   SESSION_USER
+   SESSION_USER()
 
-TRUNC returns the first argument truncated to the precision specified by the second argument.
+The built-in SESSION_USER function returns the name of the current session user. However, since Octo currently does not support session users, this function is an alias for CURRENT_USER.
+
+++++++++++++++++
+TRUNC/TRUNCATE
+++++++++++++++++
+
+.. code-block:: SQL
+
+   TRUNC(NUMERIC, INTEGER)
+   TRUNC(NUMERIC, NUMERIC)
+   TRUNC(INTEGER, NUMERIC)
+   TRUNC(INTEGER, INTEGER)
+   TRUNCATE(NUMERIC, INTEGER)
+   TRUNCATE(NUMERIC, NUMERIC)
+   TRUNCATE(INTEGER, NUMERIC)
+   TRUNCATE(INTEGER, INTEGER)
+
+TRUNC (or TRUNCATE) returns the first argument truncated to the precision specified by the second argument.
 If the precision is greater than zero, the number will be truncated to that number of decimal places.
 If the precision is zero, this behaves the same as the mathematical `floor` function.
 If the precision is less than zero, all fractional digits will be truncated and the number will be truncated to `10^precision`.
@@ -1118,7 +1455,7 @@ ARRAY
 
 .. code-block:: SQL
 
-   SELECT ARRAY(single_column_subquery) ...
+   ARRAY(single_column_subquery)
 
 The ARRAY constructor can be used to generate a single-dimensional array from the results of a subquery, with each result row value occupying one element of the array. The subquery must return only one column.
 

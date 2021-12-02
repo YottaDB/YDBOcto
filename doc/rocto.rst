@@ -57,6 +57,10 @@ Command Line Flags
 
     Use specified configuration file instead of the default.
 
+#. **-e,  \-\-emulate=<db_name>**
+
+   Specify the SQL database that Octo should emulate. Currently supported emulations are MYSQL and POSTGRES.
+
 #. **-h,  \-\-help**
 
     Display the help message and exit.

@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////
 //								//
-// Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	//
+// Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	//
 // All rights reserved.						//
 //								//
 //	This source code contains the intellectual property	//
@@ -9,6 +9,11 @@
 //	the license, please stop and do not read further.	//
 //								//
 //////////////////////////////////////////////////////////////////
+
+/* Below setting specifies the SQL database Octo will emulate. The valid options are:
+ * POSTGRES and MYSQL. The default is POSTGRES.
+ */
+emulate = "POSTGRES"
 
 /* Below setting specifies the verbosity for logging. The valid options are, in order of decreasing verbosity:
  * TRACE, DEBUG, INFO, and ERROR. The default is ERROR.
@@ -37,7 +42,7 @@ rocto = {
    * loopback interface of the computer running rocto. This allows
    * rocto to be run and tested locally, but does not expose rocto
    * to clients on other hosts. To make rocto accessible to external
-   * hosts, set the address to 0.0.0.0 
+   * hosts, set the address to 0.0.0.0
    */
   address = "127.0.0.1"
   port = 1337

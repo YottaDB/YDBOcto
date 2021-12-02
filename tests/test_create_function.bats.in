@@ -193,3 +193,16 @@ setup() {
 	verify_output TCF027 output.txt noinfo nodebug
 }
 
+@test "TCF028 : OCTO288 : CREATE FUNCTION works with case-insensitive parenless functions, both with and without parentheses" {
+	load_fixture TCF028.sql subtest novv
+	# Ensure no syntax errors due to mixed case parenless function calls
+	[[ $(grep -c "ERROR" output.txt) -eq 0 ]]
+}
+
+@test "TCF029 : OCTO288 : Correct handling of maximum extrinsic function definition length" {
+	routine="_ydboctoabcdefghijklmnopqrstuvw.m"
+	echo "PostgreSQL() ;" >> $routine
+	echo "	quit 1" >> $routine
+	load_fixture TCF029.sql subtest novv
+	verify_output TCF029 output.txt noinfo nodebug
+}

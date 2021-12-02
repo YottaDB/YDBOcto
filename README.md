@@ -174,6 +174,40 @@ The Octo plugin can be installed by using the `--octo` option when installing Yo
 	 PSQL
 	 ```
 
+   - Install MySQL server and client (mysql)
+
+	 Octo uses the MySQL server for some integration/regression tests. To build and run these tests, MySQL must be installed:
+
+	 ```sh
+	 # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
+	 sudo apt-get install mysql-server mysql-client
+
+	 # CentOS Linux OR RedHat Linux
+	 # MySQL is not included in CentOS repositories, so install manually from tarball, e.g.:
+     wget -O mysql.tgz -q https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm
+     diff <(echo "893b55d5d885df5c4d4cf7c4f2f6c153") <(md5sum mysql.tgz | cut -f 1 -d ' ')
+     rpm -ivh mysql.tgz
+	 yum install -y mysql-server
+	 ```
+
+	 Additionally, MySQL must be set up for the user who will be running the tests, using a password of 'ydbrocks'. Assuming a `bash` shell, the following can be run as a single command to do the necessary setup:
+
+	 ```sh
+	 sudo mysql <<MYSQL
+	 CREATE USER '$USER'@'localhost' IDENTIFIED BY 'ydbrocks';
+	 GRANT CREATE, ALTER, DROP, INSERT, UPDATE, DELETE, SELECT, REFERENCES, RELOAD on *.* TO '$USER'@'localhost' WITH GRANT OPTION;
+	 FLUSH PRIVILEGES;
+	 MYSQL
+	 ```
+
+	 To do the user configuration manually, the following may be done from the `mysql` command line. Assuming a username of `ydbuser`:
+
+	```sql
+	 CREATE USER 'ydbuser'@'localhost' IDENTIFIED BY 'ydbrocks';
+	 GRANT CREATE, ALTER, DROP, INSERT, UPDATE, DELETE, SELECT, REFERENCES, RELOAD on *.* TO 'ydbuser'@'localhost' WITH GRANT OPTION;
+	 FLUSH PRIVILEGES;
+	 ```
+
    - Install UnixODBC and the Postgres ODBC Shared Library
 
 	 Octo runs ODBC driver tests if the UnixODBC package is installed. To build and run these tests, you need to do the following:
@@ -257,6 +291,7 @@ The following environment variables must be set for Octo to operate properly:
 * `ydb_dist`
 * `ydb_gbldir`
 * `ydb_routines`
+* `ydb_xc_octo`
 * `ydb_xc_ydbposix`
 
 The environment variables `ydb_dist`, `ydb_gbldir`, and `ydb_routines` can initially be set by sourcing `ydb_env_set` in your YottaDB installation directory. Additional modifications to ydb_routines may be needed due to configuration in `octo.conf` described later in this manual.
@@ -266,6 +301,7 @@ Example setting of the environment variables (assuming default paths):
 ```sh
 source /usr/local/lib/yottadb/r1.28/ydb_env_set
 export ydb_xc_ydbposix=$ydb_dist/plugin/ydbposix.xc
+export ydb_xc_octo=$ydb_dist/plugin/octo/ydbocto.xc  # Allow usage of some SQL functions, e.g. DATE_FORMAT()
 ```
 
 #### Setup Database
@@ -483,6 +519,24 @@ You can use the `docker exec` command to get access to the container for more tr
 
 ```sh
 docker exec -it {nameOfContainer/IDOfContainer} /bin/bash
+```
+
+## Building the documentation
+
+Octo's documentation is maintained in reStructuredText (RST) format. Assuming the current working directory is the repository root, the documentation can be built as an html site with the following commands:
+
+```sh
+cd doc/
+make html
+```
+
+When the build is complete, the documentation will be accessible as html files in `doc/_build/html`.
+
+To clean up after a documentation build, use:
+
+```sh
+cd doc/
+make clean
 ```
 
 ## Contributing

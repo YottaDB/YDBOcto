@@ -368,12 +368,10 @@ int copied_so_far;
 		RESET_BUFFER(lex_buffer);
                 return INTRINSIC_FUNCTION;
               }
-(current_(catalog|role|user|schema))|((session_)?user) {
-		/* The following SQL functions are syntactically exceptional
-		* in that they must be called without parentheses:
-		* current_catalog, current_role, current_user, current_schema, session_user, user.
-		* See the note at https://www.postgresql.org/docs/11/functions-info.html for details.
-		*/
+(?i:current_catalog|current_role|current_user|current_schema|session_user|user|localtime|localtimestamp|current_time|current_timestamp) {
+		/* These SQL functions are syntactically exceptional in that they must be called without parentheses.
+		 * See the note at https://www.postgresql.org/docs/11/functions-info.html for details.
+		 */
                 copied_so_far = 0;
                 char *yptr = yytext;
                 COPY_STRING((&lex_buffer), yptr, copied_so_far);

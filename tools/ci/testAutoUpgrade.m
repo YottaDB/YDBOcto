@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -25,7 +25,7 @@ batsTestsChooseRandom
         FOR  READ line($increment(nLines)) QUIT:$zeof
 	KILL line(nLines) if $increment(nLines,-1)
 	; Make a list of tests that we never want to exclude
-	SET include("hello_psql")=""
+	SET include("hello_db")=""
 	SET include("test_query_generator")=""
 	FOR i=1:1:nLines DO
 	.	NEW skip

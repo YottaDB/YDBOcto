@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -297,6 +297,11 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 
 		UNPACK_SQL_STATEMENT(function_call, stmt, function_call);
 		ADD_INT_HASH(state, function_call_STATEMENT);
+		/* Currently, only some functions behave differently depending on Postgres vs MySQL emulation mode.
+		 * Hence we include the emulation flag in the hash only for function calls instead of once per query.
+		 * This keeps the generated plan the same for both emulation modes in case the query does not use function calls.
+		 */
+		ADD_INT_HASH(state, config->database_emulation);
 		// SqlValue
 		hash_canonical_query(state, function_call->function_name, status);
 		// SqlValue

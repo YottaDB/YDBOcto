@@ -59,14 +59,14 @@ teardown() {
 	load_fixture names.zwr
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TTA005.sql
 	# Delete TTA005* tables from Postgres database as it can confuse later runs of other tests
-	# (e.g. hello_psql/HP01 subtest etc.) in case we error out in the later steps of this subtest
+	# (e.g. hello_db/HDB01 subtest etc.) in case we error out in the later steps of this subtest
 	psql names -c 'drop table if exists TTA005A; drop table if exists TTA005B;' >& postgres.drop_table_TTA005.out
 }
 
 @test "TTA006 : OCTO759 : TABLENAME.ASTERISK produces incorrect results when used with ORDER BY and LEFT JOIN : nullnames database" {
 	load_fixture nullnames.sql
 	load_fixture nullnames.zwr
-	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TTA006.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TTA006.sql "trim_trailing_zeroes"
 }
 
 @test "TTA007 : OCTO386/OCTO797/OCTO798 : TABLENAME.ASTERISK doesn't cause assert failures" {

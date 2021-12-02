@@ -173,6 +173,7 @@ add_library(libocto OBJECT
   get_column_list_alias_n_from_table_alias.c
   get_column_number_from_column_list_alias.c
   get_column_piece_number.c
+  get_emulation_string.c
   get_full_path_of_generated_m_file.c
   get_full_path_of_generated_o_file.c
   get_function_name_and_parmtypes.c
@@ -420,6 +421,11 @@ add_executable(pparser
   ${POST_CONFIGURE_FILE}
 )
 
+add_library(libcocto SHARED
+	aux/ydboctodateformat.c
+)
+set_target_properties(libcocto PROPERTIES PREFIX "")
+
 # Generate C files from templates
 set(template_dir ${PROJECT_SOURCE_DIR}/src/m_templates)
 set(template_files
@@ -474,6 +480,12 @@ set(aux_files
   aux/_ydboctoAdmin.m
   aux/_ydboctoCleanup.m
   aux/_ydboctoDiscard.m
+  aux/_ydboctofCURRENTTIME.m
+  aux/_ydboctofCURRENTTIMESTAMP.m
+  aux/_ydboctofDATEFORMAT.m
+  aux/_ydboctofLOCALTIME.m
+  aux/_ydboctofLPAD.m
+  aux/_ydboctofTRUNCATE.m
   aux/_ydboctoInit.m
   aux/_ydboctoUtils.m
   aux/_ydboctopgfunctions.m
@@ -486,11 +498,13 @@ set(aux_files
 add_library(_ydbocto SHARED ${aux_files})
 set_target_properties(_ydbocto PROPERTIES PREFIX "")
 
-# manually place Call-In file in build directory for use in the DISABLE_INSTALL=ON case
+# manually place Call-In/Call-Out files in build directory for use in the DISABLE_INSTALL=ON case
 configure_file("${PROJECT_SOURCE_DIR}/src/aux/ydbocto.ci" ${PROJECT_BINARY_DIR}/src/ydbocto.ci COPYONLY)
+configure_file("${PROJECT_SOURCE_DIR}/src/aux/ydbocto.xc" ${PROJECT_BINARY_DIR}/src/ydbocto.xc COPYONLY)
 
 set_property(TARGET libocto PROPERTY C_STANDARD 11)
 set_property(TARGET librocto PROPERTY C_STANDARD 11)
+set_property(TARGET libcocto PROPERTY C_STANDARD 11)
 set_property(TARGET pparser PROPERTY C_STANDARD 11)
 set_property(TARGET octo PROPERTY C_STANDARD 11)
 set_property(TARGET rocto PROPERTY C_STANDARD 11)
@@ -514,7 +528,7 @@ if (CMAKE_COMPILER_IS_GNUCC)
 else()
 	set(CC_COMPILE_FLAGS "${CC_COMPILE_FLAGS} -Wno-gnu-zero-variadic-macro-arguments")
 endif()
-set_target_properties(libocto librocto pparser octo rocto PROPERTIES COMPILE_FLAGS "${CC_COMPILE_FLAGS}")
+set_target_properties(libocto librocto libcocto pparser octo rocto PROPERTIES COMPILE_FLAGS "${CC_COMPILE_FLAGS}")
 
 # We set RPATH here so that Octo can find YottaDB at runtime without us having
 # to modify LD_LIBRARY_PATH. This only applies to Octo when it's installed in
@@ -686,7 +700,13 @@ if (DISABLE_INSTALL MATCHES "OFF")
 	install(FILES ${PROJECT_SOURCE_DIR}/src/aux/ydbocto.ci
 			DESTINATION octo)
 
+	install(FILES ${PROJECT_SOURCE_DIR}/src/aux/ydbocto.xc
+			DESTINATION octo)
+
 	install(TARGETS _ydbocto
+		DESTINATION ${CMAKE_INSTALL_PREFIX}/o)
+
+	install(TARGETS libcocto
 		DESTINATION ${CMAKE_INSTALL_PREFIX}/o)
 
 	install(FILES ${PROJECT_BINARY_DIR}/src/octo-seed.sql

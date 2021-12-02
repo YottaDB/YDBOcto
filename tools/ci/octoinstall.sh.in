@@ -1,7 +1,7 @@
 #!/bin/bash
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -163,6 +163,14 @@ if [[ $? -eq 0 ]]; then
 else
 	error_exit "$LINENO: Failed to install ydbocto.ci"
 fi
+echo -n "----> Checking for $ydb_dist/plugin/octo/ydbocto.xc... "
+install -D plugin/octo/ydbocto.xc $ydb_dist/plugin/octo/
+if [[ $? -eq 0 ]]; then
+	echo "OK."
+	cleanup_files="$cleanup_files $ydb_dist/plugin/octo/ydbocto.xc"
+else
+	error_exit "$LINENO: Failed to install ydbocto.xc"
+fi
 echo -n "----> Checking for $ydb_dist/plugin/octo/octo-seed.\{sql,zwr\}... "
 install -D plugin/octo/octo-seed.* $ydb_dist/plugin/octo/
 if [[ $? -eq 0 ]]; then
@@ -243,6 +251,14 @@ if [[ -f plugin/o/utf8/_ydbocto.so ]]; then
 else
 	echo "WARNING: Octo UTF-8 libraries not found. Octo libraries installed without UTF-8 support."
 	utf8_supported="no"
+fi
+echo -n "----> Installing Octo C shared libraries... "
+install -D -m 644 plugin/o/libcocto.so $ydb_dist/plugin/o
+if [[ $? -eq 0 ]]; then
+	echo "OK."
+	cleanup_files="$cleanup_files $ydb_dist/plugin/o/libcocto.so"
+else
+	error_exit "$LINENO: Failed to install Octo C shared libraries."
 fi
 echo -n "----> Installing Octo debug files... "
 install -D -m 644 plugin/octo/*.dbg $ydb_dist/plugin/octo

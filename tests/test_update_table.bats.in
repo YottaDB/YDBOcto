@@ -42,7 +42,7 @@ teardown() {
 	echo "# Run cross check" >> output.txt
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TUT002.sql
 	# Firstly, delete created tables from Postgres as it can confuse later runs of other tests
-	# (e.g. hello_psql/HP01 subtest etc.) in case we error out in the later steps of this TUT002 subtest
+	# (e.g. hello_db/HDB01 subtest etc.) in case we error out in the later steps of this TUT002 subtest
 	psql names -c 'drop table if exists TUT002; drop table if exists TUT002B' >& postgres.drop_table_TUT002.out
 	# Now do various verifications of Octo plans
 	echo "# Include key parts of generated M plans in reference file" >> output.txt
@@ -116,7 +116,7 @@ teardown() {
 @test "TUT007 : OCTO579 : Crosscheck of simple UPDATE queries in names database between Octo and Postgres" {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TUT007.sql "trim_trailing_zeroes"
 	# Firstly, delete created tables from Postgres as it can confuse later runs of other tests
-	# (e.g. hello_psql/HP01 subtest etc.) in case we error out in the later steps of this TUT007 subtest
+	# (e.g. hello_db/HDB01 subtest etc.) in case we error out in the later steps of this TUT007 subtest
 	psql names -c 'drop table if exists TUT007' >& postgres.drop_table_TUT007.out
 }
 
@@ -129,7 +129,7 @@ teardown() {
 		# in M mode they can exceed the column size (i.e. VARCHAR(SIZE) in CREATE TABLE).
 		run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TUT008.sql
 		# Firstly, delete created tables from Postgres as it can confuse later runs of other tests
-		# (e.g. hello_psql/HP01 subtest etc.) in case we error out in the later steps of this TUT008 subtest
+		# (e.g. hello_db/HDB01 subtest etc.) in case we error out in the later steps of this TUT008 subtest
 		psql names -c 'drop table if exists TUT008' >& postgres.drop_table_TUT008.out
 	fi
 }
@@ -138,7 +138,7 @@ teardown() {
 	echo "# Run cross check first" >> output.txt
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TUT009.sql
 	# Delete TUT009 table from Postgres database as it can confuse later runs of other tests
-	# (e.g. hello_psql/HP01 subtest etc.) in case we error out in the later steps of this TUT009 subtest
+	# (e.g. hello_db/HDB01 subtest etc.) in case we error out in the later steps of this TUT009 subtest
 	psql names -c 'drop table if exists TUT009;' >& postgres.drop_table_TUT009.out
 	echo '# Verify key fixing optimization happened for = operator in WHERE clause' >> output.txt
 	echo '# Key fixed query will have a plan that does $ORDER(^%ydboctoxref)' >> output.txt
@@ -160,7 +160,7 @@ teardown() {
 	# Run cross check
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries composite TUT010.sql
 	# Firstly, delete created tables from Postgres as it can confuse later runs of other tests
-	# (e.g. hello_psql/HP01 subtest etc.) in case we error out in the later steps of this TUT010 subtest
+	# (e.g. hello_db/HDB01 subtest etc.) in case we error out in the later steps of this TUT010 subtest
 	psql composite -c 'drop table if exists TUT010' >& postgres.drop_table_TUT010.out
 }
 

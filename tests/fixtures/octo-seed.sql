@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -296,10 +296,32 @@ CREATE FUNCTION CONCAT(VARCHAR, VARCHAR, VARCHAR) RETURNS VARCHAR AS $$CONCAT^%y
 CREATE FUNCTION ROUND(NUMERIC, INTEGER) RETURNS NUMERIC AS $$ROUND^%ydboctosqlfunctions;
 CREATE FUNCTION ROUND(INTEGER, INTEGER) RETURNS NUMERIC AS $$ROUND^%ydboctosqlfunctions;
 /* This only implements the 2-argument version of TRUNC, since Octo doesn't support function overloading. */
-CREATE FUNCTION TRUNC(NUMERIC, INTEGER) RETURNS NUMERIC AS $$TRUNC^%ydboctosqlfunctions;
-CREATE FUNCTION TRUNC(INTEGER, NUMERIC) RETURNS NUMERIC AS $$TRUNC^%ydboctosqlfunctions;
-CREATE FUNCTION TRUNC(NUMERIC, NUMERIC) RETURNS NUMERIC AS $$TRUNC^%ydboctosqlfunctions;
-CREATE FUNCTION TRUNC(INTEGER, INTEGER) RETURNS NUMERIC AS $$TRUNC^%ydboctosqlfunctions;
+CREATE FUNCTION TRUNC(NUMERIC, INTEGER) RETURNS NUMERIC AS $$^%ydboctofTRUNCATE;
+CREATE FUNCTION TRUNC(INTEGER, NUMERIC) RETURNS NUMERIC AS $$^%ydboctofTRUNCATE;
+CREATE FUNCTION TRUNC(NUMERIC, NUMERIC) RETURNS NUMERIC AS $$^%ydboctofTRUNCATE;
+CREATE FUNCTION TRUNC(INTEGER, INTEGER) RETURNS NUMERIC AS $$^%ydboctofTRUNCATE;
+/* The following are non-standard MySQL and MariaDB functions. */
+CREATE FUNCTION TRUNCATE(NUMERIC, INTEGER) RETURNS NUMERIC AS $$^%ydboctofTRUNCATE;
+CREATE FUNCTION TRUNCATE(INTEGER, NUMERIC) RETURNS NUMERIC AS $$^%ydboctofTRUNCATE;
+CREATE FUNCTION TRUNCATE(NUMERIC, NUMERIC) RETURNS NUMERIC AS $$^%ydboctofTRUNCATE;
+CREATE FUNCTION TRUNCATE(INTEGER, INTEGER) RETURNS NUMERIC AS $$^%ydboctofTRUNCATE;
+
+/* TODO(#382): When DATETIME is implemented, change these to return DATETIME */
+CREATE FUNCTION NOW() RETURNS VARCHAR AS $$^%ydboctofCURRENTTIMESTAMP;
+CREATE FUNCTION DAY(VARCHAR) RETURNS VARCHAR AS $$DAY^%ydboctosqlfunctions;
+/* Aliases for NOW
+   TODO: move these to a MariaDB-specific seed file
+*/
+CREATE FUNCTION LOCALTIME() RETURNS VARCHAR AS $$^%ydboctofLOCALTIME;
+CREATE FUNCTION LOCALTIMESTAMP() RETURNS VARCHAR AS $$^%ydboctofCURRENTTIMESTAMP;
+CREATE FUNCTION CURRENT_TIMESTAMP() RETURNS VARCHAR AS $$^%ydboctofCURRENTTIMESTAMP;
+CREATE FUNCTION CURRENT_TIME() RETURNS VARCHAR AS $$^%ydboctofCURRENTTIME;
+CREATE FUNCTION DATE_FORMAT(VARCHAR, VARCHAR) RETURNS VARCHAR AS $$^%ydboctofDATEFORMAT;;
+/* Alias for DAY */
+CREATE FUNCTION DAYOFMONTH(VARCHAR) RETURNS VARCHAR AS $$DAY^%ydboctosqlfunctions;
+
+CREATE FUNCTION LPAD(VARCHAR, INTEGER) RETURNS VARCHAR AS $$^%ydboctofLPAD;
+CREATE FUNCTION LPAD(VARCHAR, INTEGER, VARCHAR) RETURNS VARCHAR AS $$^%ydboctofLPAD;
 
 /* REPLACE is used by SquirrelSQL during connection intialize and so is included here.
  * Note that REPLACE is not currently implemented and the matching M routine is an empty placeholder that
@@ -357,4 +379,3 @@ CREATE FUNCTION PG_IS_XLOG_REPLAY_PAUSED() RETURNS BOOLEAN AS $$pgIsXlogReplayPa
 /* Since Octo currently does not implement privileges, the following always return TRUE */
 CREATE FUNCTION HAS_DATABASE_PRIVILEGE(INTEGER, VARCHAR) RETURNS BOOLEAN AS $$pgHasDatabasePrivilege^%ydboctopgfunctions;
 CREATE FUNCTION HAS_DATABASE_PRIVILEGE(VARCHAR, VARCHAR, VARCHAR) RETURNS BOOLEAN AS $$pgHasDatabasePrivilege^%ydboctopgfunctions;
-

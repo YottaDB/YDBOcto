@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -35,4 +35,24 @@ setup() {
 	echo 'tabletype = 1' > octo.conf
 	octo < /dev/null >> output.txt 2>&1 || true
 	verify_output TOC01 output.txt
+}
+
+@test "TOC02 : OCTO288 : Test emulate setting in octo.conf" {
+	touch output.txt
+	for setting in MYSQL POSTGRES
+	do
+		echo '# Test that [emulate = "'$setting'"] does not issue error' >> output.txt
+		echo 'emulate = "'$setting'"' > octo.conf
+		octo < /dev/null >> output.txt 2>&1
+	done
+	for setting in readonly mysql anyothervalue
+	do
+		echo '# Test that [emulate = "'$setting'"] issues error' >> output.txt
+		echo 'emulate = "'$setting'"' > octo.conf
+		octo < /dev/null >> output.txt 2>&1 || true
+	done
+	echo '# Test that [tabletype = 1] (any integer value) issues error' >> output.txt
+	echo 'tabletype = 1' > octo.conf
+	octo < /dev/null >> output.txt 2>&1 || true
+	verify_output TOC02 output.txt
 }

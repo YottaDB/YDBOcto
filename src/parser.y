@@ -2140,6 +2140,9 @@ function_definition
   : CREATE FUNCTION identifier_start LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
 	INVOKE_FUNCTION_DEFINITION($$, $identifier_start, $function_parameter_type_list, $data_type, $m_function, FALSE);
       }
+  | CREATE FUNCTION PARENLESS_FUNCTION LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
+	INVOKE_FUNCTION_DEFINITION($$, $PARENLESS_FUNCTION, $function_parameter_type_list, $data_type, $m_function, FALSE);
+      }
   | CREATE FUNCTION IF NOT EXISTS identifier_start LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
 	INVOKE_FUNCTION_DEFINITION($$, $identifier_start, $function_parameter_type_list, $data_type, $m_function, TRUE);
       }

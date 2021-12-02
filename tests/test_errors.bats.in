@@ -326,3 +326,13 @@ OCTO
 	verify_output TERR034 output.txt
 }
 
+
+@test "TERR035 : OCTO288 : Test error raised for non-existent extrinsic function" {
+	load_fixture TERR035.sql subtest novv
+	verify_output TERR035 output.txt
+}
+
+@test "TERR036 : OCTO288 : Test of ERR_UNKNOWN_FUNCTION_EMULATION/UNKNOWNFUNCTION error" {
+	load_fixture TERR036.sql subtest novv "-e MYSQL"
+	verify_output TERR036 output.txt
+}

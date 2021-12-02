@@ -48,12 +48,19 @@ typedef struct {
 } GlobalNames;
 
 typedef enum {
+	EMULATION_UNSET,
+	POSTGRES,
+	MYSQL,
+} DatabaseEmulation;
+
+typedef enum {
 	TABLETYPE_READWRITE,
 	TABLETYPE_READONLY,
 } tabletype_t;
 
 typedef struct OctoConfig {
 	enum VERBOSITY_LEVEL verbosity_level;
+	DatabaseEmulation    database_emulation;
 	RoctoConfig	     rocto_config;
 	GlobalNames	     global_names;
 	const char *	     plan_src_dir; /* the directory where _ydbocto*.m plans are generated */

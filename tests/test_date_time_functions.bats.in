@@ -1,0 +1,143 @@
+#################################################################
+#								#
+# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+	# Specify call-out table to allow M to access C date format function
+	set_ydb_xc_octo
+}
+
+@test "TDTF01 : OCTO288 : Support functions now(), lpad(), coalesce(), isnull(), current_user(), truncate(), day()" {
+	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TDTF01.sql checktime
+}
+
+@test "TDTF02 : OCTO288 : Support date_format() MySQL function" {
+	# Randomly generate 50 dates, and use these to create queries using date_format().
+	# This ensures a wide range of coverage for the behavior of %U/%u/%V/%v/%x/%X formats.
+	for i in {1..20}; do
+		# Choose a year from 100 AD to 9999 AD. The first 100 years are omitted as MySQL
+		# contains a bug that leads to incorrect and inconsistent results in this range.
+		year=$((100 + $RANDOM % 9899))
+		# Choose a month of the year, 1 = January, 12 = December
+		month=$((1 + $RANDOM % 12))
+		# Choose a day of the month, using the shortest possible month to
+		# avoid edge cases when months have different lengths
+		day=$((1 + $RANDOM % 28))
+		if [[ $day -lt 10 ]]; then
+			day="0$day"
+		fi
+		# Choose an hour of the day, 0-23
+		hours=$(($RANDOM % 23))
+		if [[ $hours -lt 10 ]]; then
+			hours="0$hours"
+		fi
+		# Choose minutes of an hour, 0-59
+		minutes=$(($RANDOM % 59))
+		if [[ $minutes -lt 10 ]]; then
+			minutes="0$minutes"
+		fi
+		# Choose seconds of a minute, 0-59
+		seconds=$(($RANDOM % 59))
+		if [[ $seconds -lt 10 ]]; then
+			seconds="0$seconds"
+		fi
+
+		# All WEEK() modes across a range of years to cover various edge cases
+		echo "SELECT DATE_FORMAT('$year-$month-$day $hours:$minutes:$seconds', '%%U:%U %%u:%u %%V:%V %%v:%v %%X:%X %%x:%x');" >> TDTF02.sql
+		# Month, day, year formats
+		echo "SELECT DATE_FORMAT('$year-$month-$day $hours:$minutes:$seconds', '%a %b %D %Y');" >> TDTF02.sql
+		echo "SELECT DATE_FORMAT('$year-$month-$day $hours:$minutes:$seconds', '%c/%e/%y');" >> TDTF02.sql
+		echo "SELECT DATE_FORMAT('$year-$month-$day $hours:$minutes:$seconds', '%m/%d/%Y');" >> TDTF02.sql
+		echo "SELECT DATE_FORMAT('$year-$month-$day $hours:$minutes:$seconds', '%W, %M %D');" >> TDTF02.sql
+		echo "SELECT DATE_FORMAT('$year-$month-$day $hours:$minutes:$seconds', 'DoY: %j');" >> TDTF02.sql
+		echo "SELECT DATE_FORMAT('$year-$month-$day $hours:$minutes:$seconds', '%w = %W');" >> TDTF02.sql
+		# Hour, minute, second (and microsecond) formats
+		echo "SELECT DATE_FORMAT('$year-$month-$day $hours:$minutes:$seconds', '%H:%i:%s');" >> TDTF02.sql
+		echo "SELECT DATE_FORMAT('$year-$month-$day $hours:$minutes:$seconds', '%I:%i:%S');" >> TDTF02.sql
+		echo "SELECT DATE_FORMAT('$year-$month-$day $hours:$minutes:$seconds', '%k:%i:%S');" >> TDTF02.sql
+		echo "SELECT DATE_FORMAT('$year-$month-$day $hours:$minutes:$seconds', '%l:%i:%s:%f %p');" >> TDTF02.sql
+		echo "SELECT DATE_FORMAT('$year-$month-$day $hours:$minutes:$seconds', '%T');" >> TDTF02.sql
+		echo "SELECT DATE_FORMAT('$year-$month-$day $hours:$minutes:$seconds', '%r');" >> TDTF02.sql
+		# Catch-all format (just removes the % from an otherwise invalid format code)
+		echo "SELECT DATE_FORMAT('$year-$month-$day $hours:$minutes:$seconds', '%q %Q %z %Z %G %g');" >> TDTF02.sql
+		# Samples from documentation, omitting time
+		echo "SELECT DATE_FORMAT('$year-$month-$day', '%X %V');" >> TDTF02.sql
+		echo "SELECT DATE_FORMAT('$year-$month-$day', '%d');" >> TDTF02.sql
+	done
+	# Randomly generate DATE_FORMAT calls from the full range of valid format codes
+	yottadb -r octo288 >> TDTF02.sql
+
+	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TDTF02.sql
+}
+
+@test "TDTF03 : OCTO288 : Calling DATE_FORMAT() when emulating PostgreSQL issues an error" {
+	load_fixture TDTF03.sql subtest novv
+	verify_output TDTF03 output.txt noinfo nodebug
+}
+
+@test "TDTF04 : OCTO288 : Support dates with 0 for month and/or date in date_format() MySQL function" {
+	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TDTF04.sql
+}
+
+@test "TDTF05 : OCTO288 : Test day(), dayofmonth()" {
+	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TDTF05.sql
+}
+
+@test "TDTF06 : OCTO288 : No stack smashing in DATE_FORMAT() if input date string is too long" {
+	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TDTF06.sql
+}
+
+@test "TDTF07 : OCTO288 : NULL returned for invalid values in each date/time field" {
+	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TDTF07.sql
+}
+
+@test "TDTF08 : OCTO288 : Correct handling of extra hyphens in date string" {
+	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TDTF08.sql
+}
+
+@test "TDTF09 : OCTO288 : Correct handling of non-numeric characters between date/time fields" {
+	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TDTF09.sql
+}
+
+@test "TDTF10 : OCTO288 : Correct handling of dates in the year 1900" {
+	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TDTF10.sql
+}
+
+@test "TDTF11 : OCTO288 : Correct handling of 0 month and 0 day dates" {
+	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TDTF11.sql
+}
+
+@test "TDTF12 : OCTO288 : Correct handling of terminal % character in format string" {
+	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TDTF12.sql
+}
+
+@test "TDTF13 : OCTO288 : Correct handling of %j, %W formats" {
+	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TDTF13.sql
+}
+
+@test "TDTF14 : OCTO288 : Correct handling of %U, %M formats" {
+	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TDTF14.sql
+}
+
+@test "TDTF15 : OCTO288 : Correct handling of %x format" {
+	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TDTF15.sql
+}
+
+@test "TDTF16 : OCTO288 : Test current_user" {
+	create_default_user
+	test_port=$(start_rocto 1339)
+	run_psql $test_port TDTF16.sql 2>&1 | tee output.txt
+	verify_output TDTF16 output.txt noinfo nodebug
+}

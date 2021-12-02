@@ -73,7 +73,31 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			%{}$GET({{ config->global_names.cursor }}(cursorId,{{ PP_PARAMETERS }},{{ value->parameter_index|%d }})){}%
 			break;
 		case FUNCTION_NAME:
-			%{}{{ value->v.string_literal }}{}%
+			/* Check whether the specified function is internal to Octo or is user-defined
+			 * by checking whether the routine name for the function includes the prefix
+			 * used for Octo's internal SQL functions, i.e. OCTOLIT_YDBOCTO. Note that this
+			 * comparison starts at string index 2 to omit the "$$" at the start of the M
+			 * extrinsic function name.
+			 */
+			if ((EXTRINSIC_PREFIX_LEN < strlen(value->v.string_literal))
+				&& strncmp(&value->v.string_literal[2], OCTOLIT_YDBOCTO, (sizeof(OCTOLIT_YDBOCTO) - 1)) == 0) {
+				/* If the function is internal to Octo, select the appropriate label name within the specified
+				 * routine based on emulation type by calling the get_emulation_string() helper function.
+				 * Then, prefix this label to the extrinsic function's routine name and output it to the compiled
+				 * M plan.
+				 */
+				char function_name[EXTRINSIC_PREFIX_LEN + MAX_EMULATION_STRING_LEN + MAX_ROUTINE_LEN];
+
+				/* Octo does not use YDB intrinsic functions internally, only extrinsic functions. So assert that
+				 * here, i.e. the function name begins with `$$`. */
+				assert(('$' == value->v.string_literal[0]) && ('$' == value->v.string_literal[1]));
+				snprintf(function_name, EXTRINSIC_PREFIX_LEN + MAX_EMULATION_STRING_LEN + MAX_ROUTINE_LEN, "$$%s%s",
+					get_emulation_string(), &value->v.string_literal[2]);
+				%{}{{ function_name }}{}%
+			} else {
+				/* The function is not internal to Octo, so use the function name as is. */
+				%{}{{ value->v.string_literal }}{}%
+			}
 			break;
 		case NUL_VALUE:
 		case IS_NULL_LITERAL:

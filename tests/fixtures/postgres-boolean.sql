@@ -1,6 +1,6 @@
 -- ######################################################################
 -- #									#
--- # Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+-- # Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 -- # All rights reserved.						#
 -- #									#
 -- #	This source code contains the intellectual property		#
@@ -16,10 +16,10 @@ INSERT INTO stock_availability (product_id, available)
 VALUES
    (100, TRUE),
    (200, FALSE),
-   (300, 't'),
-   (400, '1'),
-   (500, 'y'),
-   (600, 'yes'),
-   (700, 'no'),
-   (800, '0');
+   (300, TRUE),
+   (400, TRUE),
+   (500, TRUE),
+   (600, TRUE),
+   (700, FALSE),
+   (800, FALSE);
 

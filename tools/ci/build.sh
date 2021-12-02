@@ -419,11 +419,13 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 		cp ../tools/get_platform_arch.sh $tarball_name
 		cp ../src/aux/*.m $tarball_name/plugin/r
 		cp src/ydbocto.ci $tarball_name/plugin/octo
+		cp src/ydbocto.xc $tarball_name/plugin/octo
 		cp src/octo-seed.* $tarball_name/plugin/octo
 		cp ../src/aux/octo.conf.default $tarball_name/plugin/octo/octo.conf
 		echo "# Copy Octo binaries and libraries for later access by [octo]install.sh"
 		cp src/octo src/rocto $tarball_name/plugin/octo/bin
 		cp src/_ydbocto.so $tarball_name/plugin/o
+		cp src/libcocto.so $tarball_name/plugin/o
 		cp src/utf8/_ydbocto.so $tarball_name/plugin/o/utf8
 		echo "# Copy .dbg files for debugging RelWithDebInfo builds"
 		if [[ -f src/octo.dbg && -f src/rocto.dbg ]]; then
@@ -918,8 +920,9 @@ FILE
 	else
 		# Find out all "CREATE TABLE" queries in tests/fixtures/*.sql. Generate one query file for each.
 		# Filter out lines like "\set ON_ERROR_STOP on" that are in tests/fixtures/postgres-*.sql files
-		# as they confuse split_queries.py. Also filter out queries with errors that are in TERR*.sql files.
-		grep -l "CREATE TABLE" ../tests/fixtures/*.sql | grep -v TERR | xargs cat | grep -v ON_ERROR_STOP > create_table.sql
+		# as they confuse split_queries.py. Also filter out queries with errors that are in TERR*.sql files
+		# and exclude `mysql-*-.sql` symbolic links from `auto-upgrade` cleanup.
+		grep --exclude=mysql-*.sql -l "CREATE TABLE" ../tests/fixtures/*.sql | grep -v TERR | xargs cat | grep -v ON_ERROR_STOP > create_table.sql
 		../tests/fixtures/sqllogic/split_queries.py create_table.sql "CREATE TABLE"
 		# Create *.gld and *.dat files
 		rm -f ./*.gld ./*.dat || true

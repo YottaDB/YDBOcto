@@ -238,9 +238,9 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 	config_setting_t *ydb_settings, *cur_ydb_setting;
 	ydb_buffer_t	  zroutines_buffer, dollar_zroutines_buffer;
 	unsigned int	  offset, zroutines_from_file_len, zroutines_len;
-	const char *	  item_name, *item_value, *verbosity, *tabletype;
+	const char *	  item_name, *item_value, *verbosity, *tabletype, *emulate;
 	char *		  zroutines_buf_start, *zroutines_from_file;
-	int		  status, done, i, verbosity_int, tabletype_int, plan_src_dir_len, plan_obj_dir_len;
+	int		  status, done, i, emulate_int, verbosity_int, tabletype_int, plan_src_dir_len, plan_obj_dir_len;
 	char		  plan_src_dir[OCTO_PATH_MAX], plan_obj_dir[OCTO_PATH_MAX], *obj_dir;
 	struct stat	  statbuf;
 
@@ -266,6 +266,23 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 		return 1;
 	}
 	config->verbosity_level = verbosity_int;
+	if (CONFIG_TRUE == config_lookup_string(config_file, "emulate", &emulate)) {
+		if (strcmp(emulate, "POSTGRES") == 0) {
+			emulate_int = POSTGRES;
+		} else if (strcmp(emulate, "MYSQL") == 0) {
+			emulate_int = MYSQL;
+		} else {
+			ERROR(ERR_BAD_CONFIG, config_file_name, "'emulate' can only take on string values 'POSTGRES' and 'MYSQL'");
+			return 1;
+		}
+	} else if (CONFIG_FALSE == config_lookup_int(config_file, "emulate", &emulate_int)) {
+		CONFIG_ERROR_CHECK(config_file, "emulate");
+		emulate_int = POSTGRES; // Set to the default if no emulation was specified
+	} else {
+		ERROR(ERR_BAD_CONFIG, config_file_name, "'emulate' can only take on string values 'POSTGRES' and 'MYSQL'");
+		return 1;
+	}
+	config->database_emulation = emulate_int;
 	if (CONFIG_FALSE == config_lookup_string(config_file, "rocto.address", &config->rocto_config.address)) {
 		CONFIG_ERROR_CHECK(config_file, "rocto.address");
 	}
@@ -665,6 +682,7 @@ int octo_init(int argc, char **argv) {
 		verbosity_set = FALSE;
 	}
 	temp_config.rocto_config.port = config->rocto_config.port;
+	temp_config.database_emulation = config->database_emulation;
 	/* Set initial verbosity to the default to rollback the verbosity_unset case in parse_startup_flags and
 	 * allow errors during config merging to be reported
 	 */
@@ -738,6 +756,9 @@ int octo_init(int argc, char **argv) {
 		}
 		if (-1 != temp_config.rocto_config.port) { // Only overwrite if initialized
 			config->rocto_config.port = temp_config.rocto_config.port;
+		}
+		if (EMULATION_UNSET != temp_config.database_emulation) { // Only overwrite if initialized
+			config->database_emulation = temp_config.database_emulation;
 		}
 		// Issue INFO messages for loaded configuration files now that verbosity level is finalized
 		for (i = 0; i < config_file_list.num_files; i++) {

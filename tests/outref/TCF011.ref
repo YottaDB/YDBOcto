@@ -9,3 +9,14 @@ CREATE FUNCTION
  "Zero"
 (6 rows)
 
+CREATE FUNCTION
+ dollarlength 
+--------------
+ 4
+ 4
+ 6
+ 4
+ 4
+ 4
+(6 rows)
+

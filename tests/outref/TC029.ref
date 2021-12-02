@@ -8,6 +8,20 @@ TRUNC|2|1700|1700 23|null|null|null
 TRUNC|2|1700|23 1700|null|null|null
 TRUNC|2|1700|1700 1700|null|null|null
 TRUNC|2|1700|23 23|null|null|null
+TRUNCATE|2|1700|1700 23|null|null|null
+TRUNCATE|2|1700|23 1700|null|null|null
+TRUNCATE|2|1700|1700 1700|null|null|null
+TRUNCATE|2|1700|23 23|null|null|null
+NOW|0|1043|null|null|null|null
+DAY|1|1043|1043|null|null|null
+LOCALTIME|0|1043|null|null|null|null
+LOCALTIMESTAMP|0|1043|null|null|null|null
+CURRENT_TIMESTAMP|0|1043|null|null|null|null
+CURRENT_TIME|0|1043|null|null|null|null
+DATE_FORMAT|2|1043|1043 1043|null|null|null
+DAYOFMONTH|1|1043|1043|null|null|null
+LPAD|2|1043|1043 23|null|null|null
+LPAD|3|1043|1043 23 1043|null|null|null
 REPLACE|3|1043|1043 1043 1043|null|null|null
 ROW_NUMBER|0|23|null|null|null|null
 SET_CONFIG|3|1043|1043 1043 16|null|null|null

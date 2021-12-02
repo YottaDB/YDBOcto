@@ -2,7 +2,7 @@
 #
 #################################################################
 #                                                               #
-# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.  #
+# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.  #
 # All rights reserved.                                          #
 #                                                               #
 #       This source code contains the intellectual property     #
@@ -153,5 +153,29 @@ if ($status) then
 	echo "  --> HOOK-E-FAIL : Non-zero exit status returned by tools/ci/check_code_base_assertions.sh"
 	@ exitstatus = 1
 endif
+
+# -----------------------------------------------------------
+# 6) Verify no UTF characters are present in source code
+# -----------------------------------------------------------
+
+foreach file ($filelist)
+	if (! -e $file) then
+		continue
+	endif
+	set extension = $file:e
+	# Do not check SQL, ZWRITE, or reference files for UTF characters, as these contain data
+	# and not source code, and so it is acceptable if they contain UTF characters.
+	if ( "sql" == "$extension" || "ref" == "$extension" || "zwr" == "$extension" || "md" == "$extension" || "rst" == "$extension" ) then
+		continue
+	endif
+	set fixfile = ""
+	if  (0 != `file $file | grep UTF | wc -l` ) then
+		set fixfile = "$file"
+	endif
+	if ("" != "$fixfile") then
+		echo "--> HOOK-E-FAIL : File $fixfile contains UTF characters. Must be ASCII only."
+		@ exitstatus = 1
+	endif
+end
 
 exit $exitstatus

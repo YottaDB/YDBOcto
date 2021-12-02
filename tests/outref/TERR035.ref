@@ -1,0 +1,7 @@
+
+-- TERR035 : OCTO288 : Test error raised for non-existent extrinsic function
+
+CREATE FUNCTION BADEXTRINSIC() RETURNS VARCHAR AS $$^%ydboctobadextrinsic;
+SELECT BADEXTRINSIC();
+CREATE FUNCTION
+[ERROR] PATH:LINENUM DATE TIME : ERR_YOTTADB : YottaDB error: 150373978,octoPlan1+7^%ydboctoP*,%YDB-E-ZLINKFILE, Error while zlinking "_ydboctobadextrinsic",%YDB-E-FILENOTFND, File _ydboctobadextrinsic.m not found,%YDB-E-FILENOTFND, File _ydboctobadextrinsic.o not found

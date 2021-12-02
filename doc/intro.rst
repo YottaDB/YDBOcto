@@ -317,6 +317,7 @@ Configure Octo
       * :code:`ydb_dist`
       * :code:`ydb_gbldir`
       * :code:`ydb_routines`
+      * :code:`ydb_xc_octo`
       * :code:`ydb_xc_ydbposix`
 
   The environment variables :code:`ydb_dist`, :code:`ydb_gbldir`, and :code:`ydb_routines` can initially be set by sourcing :code:`ydb_env_set` in your YottaDB installation directory. Additional modifications to ydb_routines may be needed due to configuration in :code:`octo.conf` described later in this manual.
@@ -328,6 +329,7 @@ Configure Octo
      source /usr/local/lib/yottadb/r1.28/ydb_env_set
      export ydb_routines="$ydb_dist/plugin/octo/o/_ydbocto.so $ydb_routines"
      export ydb_xc_ydbposix=$ydb_dist/plugin/ydbposix.xc
+     export ydb_xc_octo=$ydb_dist/plugin/octo/ydbocto.xc  # Allow usage of some SQL functions, e.g. DATE_FORMAT()
 
 ^^^^^^^^^^^^^^^^^^
   Setup Database
@@ -781,6 +783,28 @@ Launching Options
     .. code-block:: bash
 
        octo --dry-run
+
+^^^^^^^^^^^^^^
+  Emulate
+^^^^^^^^^^^^^^
+
+    The emulate option allows the user to specify which SQL database Octo should emulate. Database names should be in all caps. Currently supported emulations are MYSQL and POSTGRES.
+
+    .. code-block:: bash
+
+       --emulate=<db_name>
+
+    or equivalently,
+
+    .. code-block:: bash
+
+       -e <db_name>
+
+    Example:
+
+    .. code-block:: bash
+
+       octo --emulate=MYSQL
 
 ^^^^^^^^^^^^^^
   Input-file

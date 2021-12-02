@@ -24,12 +24,12 @@ macro(ADD_BATS_TEST TEST_NAME)
 endmacro(ADD_BATS_TEST)
 
 # This macro is to be used to run tests that involve DML operations (INSERT, DELETE, UPDATE etc.)
-# These tests create tables in Postgres and so it is necessary that the "hello_psql" test (which dumps
+# These tests create tables in Postgres and so it is necessary that the "hello_db" test (which dumps
 # the Postgres tables and verifies the output) runs BEFORE any of these tests (e.g. if `ctest -j` is used).
 # This is achieved by additionally using the DEPENDS test property on the test.
 macro(ADD_BATS_TEST_DML TEST_NAME)
   ADD_BATS_TEST(${TEST_NAME})
-  set_tests_properties(${TEST_NAME} PROPERTIES DEPENDS "hello_psql")
+  set_tests_properties(${TEST_NAME} PROPERTIES DEPENDS "hello_db")
 endmacro(ADD_BATS_TEST_DML)
 
 # Note: Any newly defined macro in this file that is used to add tests which get run in the "test-auto-upgrade" job
@@ -60,7 +60,7 @@ endif()
 
 # These tests are only run in the full test suite, but omitted during installation testing
 if("${FULL_TEST_SUITE}")
-	ADD_BATS_TEST(hello_psql)
+	ADD_BATS_TEST(hello_db) # Requires MySQL and PostgreSQL
 	ADD_BATS_TEST(test_where)
 	ADD_BATS_TEST(test_order_by)
 	ADD_BATS_TEST(test_order_by_where)
@@ -148,12 +148,13 @@ if("${FULL_TEST_SUITE}")
 	ADD_BATS_TEST_DML(test_tablename_asterisk)
 	ADD_BATS_TEST(test_display_relation_commands)
 
-	if(psql)
-		ADD_BATS_TEST(test_psql_connection)
-		ADD_BATS_TEST(test_cancel_request)
-		ADD_BATS_TEST(test_select_columns_psql)
-		ADD_BATS_TEST(test_permissions)
-	endif()
+	# The following tests require PostgreSQL
+	ADD_BATS_TEST(test_psql_connection)
+	ADD_BATS_TEST(test_cancel_request)
+	ADD_BATS_TEST(test_select_columns_psql)
+	ADD_BATS_TEST(test_permissions)
+	# The following test requires MySQL and PostgreSQL
+	ADD_BATS_TEST(test_date_time_functions)
 
 	find_program(go NAMES go)
 	if(go)

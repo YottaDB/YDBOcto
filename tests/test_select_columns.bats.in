@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -373,5 +373,5 @@ CAT_EOF
 
 # Note: Any subtest that wishes to use `run_query_in_octo_and_postgres_and_crosscheck_multiple_queries` needs to be
 # added in the `test_select_columns_psql` test and not this (i.e. `test_select_columns`) test as the latter is a core
-# test and is run even before `hello_psql` test runs in some configurations in which case we cannot assume Postgres
+# test and is run even before `hello_db` test runs in some configurations in which case we cannot assume Postgres
 # tables are loaded. Keep this comment at the end of this file so add new subtests BEFORE this comment.

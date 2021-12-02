@@ -1,0 +1,9 @@
+
+-- TCF029 : OCTO288 : Correct handling of maximum extrinsic function name length
+
+CREATE FUNCTION functoolong() RETURNS INTEGER AS $$^%ydboctoabcdefghijklmnopqrstuvw;
+SELECT functoolong();
+CREATE FUNCTION
+FUNCTOOLONG
+1
+(1 row)

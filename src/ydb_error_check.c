@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -239,6 +239,49 @@ void ydb_error_check(int status, char *file, int line) {
 			octo_log(line, file, ERROR, ERROR_Severity, ERR_NULL_KEY_VALUE, ret_value.buf_addr);
 			/* Now that we have got the value, delete the M node */
 			ydb_delete_s(&varname, 2, subs, YDB_DEL_NODE);
+		}
+		/* Check if %ydboctoerror("UNKNOWNFUNCTION")	*/
+		ydboctoerrcode++;
+		if (positive_status == ydboctoerrcode) {
+			ydb_buffer_t subs[2], ret_buff;
+			char	     funcname_buff[MAX_ROUTINE_LEN + 1], numparm_buff[INT64_TO_STRING_MAX],
+			    emulation_buff[MAX_EMULATION_STRING_LEN + 1];
+
+			/* M code would have passed the parameters for the error message in M nodes.
+			 * Get that before printing error.
+			 */
+			YDB_LITERAL_TO_BUFFER("%ydboctoerror", &varname);
+			YDB_LITERAL_TO_BUFFER("UNKNOWNFUNCTION", &subs[0]);
+			/* Get function name */
+			YDB_LITERAL_TO_BUFFER("1", &subs[1]);
+			ret_buff.len_alloc = sizeof(funcname_buff) - 1; /* Leave 1 byte for null terminator */
+			ret_buff.buf_addr = funcname_buff;
+			status = ydb_get_s(&varname, 2, subs, &ret_buff);
+			assert(YDB_OK == status);
+			UNUSED(status); /* needed to avoid a [clang-analyzer-deadcode.DeadStores] warning */
+			ret_buff.buf_addr[ret_buff.len_used] = '\0';
+			ydb_delete_s(&varname, 2, subs, YDB_DEL_NODE); /* Now that we have got the value, delete the M node */
+			/* Get number of parameters */
+			YDB_LITERAL_TO_BUFFER("2", &subs[1]);
+			ret_buff.len_alloc = sizeof(numparm_buff) - 1; /* Leave 1 byte for null terminator */
+			ret_buff.buf_addr = numparm_buff;
+			status = ydb_get_s(&varname, 2, subs, &ret_buff);
+			assert(YDB_OK == status);
+			UNUSED(status); /* needed to avoid a [clang-analyzer-deadcode.DeadStores] warning */
+			ret_buff.buf_addr[ret_buff.len_used] = '\0';
+			ydb_delete_s(&varname, 2, subs, YDB_DEL_NODE); /* Now that we have got the value, delete the M node */
+			/* Get database emulation mode */
+			YDB_LITERAL_TO_BUFFER("3", &subs[1]);
+			ret_buff.len_alloc = sizeof(emulation_buff) - 1; /* Leave 1 byte for null terminator */
+			ret_buff.buf_addr = emulation_buff;
+			status = ydb_get_s(&varname, 2, subs, &ret_buff);
+			assert(YDB_OK == status);
+			UNUSED(status); /* needed to avoid a [clang-analyzer-deadcode.DeadStores] warning */
+			ret_buff.buf_addr[ret_buff.len_used] = '\0';
+			ydb_delete_s(&varname, 2, subs, YDB_DEL_NODE); /* Now that we have got the value, delete the M node */
+			/* Issue error */
+			octo_log(line, file, ERROR, ERROR_Severity, ERR_UNKNOWN_FUNCTION_EMULATION, numparm_buff, funcname_buff,
+				 emulation_buff);
 		}
 		/* Not an Octo internal error */
 		ydboctoerrcode++;

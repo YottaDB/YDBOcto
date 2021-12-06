@@ -32,6 +32,7 @@ typedef void* yyscan_t;
 #include "octo_types.h"
 #include "parser.h"
 #include "helpers.h"
+#include "rocto_common.h"
 
 #define YYDEBUG 1
 #define YYSTYPE SqlStatement *
@@ -258,9 +259,15 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 
 sql_statement
   : sql_schema_statement semicolon_or_eof {
-      if (!config->allow_schema_changes){
-           ERROR(ERR_ROCTO_NO_SCHEMA, "");
-           YYABORT;
+      if (config->is_rocto) {
+        if (!config->allow_schema_changes) {
+          ERROR(ERR_ROCTO_NO_SCHEMA, "");
+          YYABORT;
+        } else if ((UserPermissions_ROAllowSchemaChanges != rocto_session.permissions)
+            && (UserPermissions_RWAllowSchemaChanges != rocto_session.permissions)) {
+          ERROR(ERR_ROCTO_NOSCHEMA_USER, rocto_session.username);
+          YYABORT;
+        }
       }
       *out = $sql_schema_statement;
       YYACCEPT;
@@ -340,7 +347,19 @@ display_relation_command
 %include "parser/set.y"
 
 sql_data_statement
-  : sql_data_change_statement { $$ = $sql_data_change_statement; }
+  : sql_data_change_statement {
+      if (config->is_rocto) {
+        if (!config->readwrite) {
+	  ERROR(ERR_ROCTO_READONLY_MODE, NULL);
+	  YYERROR;
+	} else if ((UserPermissions_ReadWrite != rocto_session.permissions)
+	    && (UserPermissions_RWAllowSchemaChanges != rocto_session.permissions)) {
+	  ERROR(ERR_ROCTO_READONLY_USER, rocto_session.username);
+	  YYERROR;
+	}
+      }
+      $$ = $sql_data_change_statement;
+    }
 //  | open_statement
 //  | fetch_statement
 //  | close_statement
@@ -348,7 +367,6 @@ sql_data_statement
   ;
 
 sql_data_change_statement
-
   : delete_statement_searched { $$ = $delete_statement_searched; }
 //  | delete_statement_position
   | insert_statement { $$ = $insert_statement; }

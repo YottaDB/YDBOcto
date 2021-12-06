@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -54,7 +54,7 @@ teardown() {
 
 @test "TTA005 : OCTO759 : TABLENAME.ASTERISK produces incorrect results when used with GROUP BY and LEFT JOIN : names database" {
 	# Start rocto with --allowschemachanges due to the presence of DROP TABLE commands.
-	test_port=$(start_rocto 1400 --allowschemachanges)
+	test_port=$(start_rocto 1400 -aw)
 	load_fixture names.sql
 	load_fixture names.zwr
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TTA005.sql

@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.  #
+.. # Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.  #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -47,7 +47,7 @@ Command Line Flags
 
 	The :code:`-a/--allowschemachanges` option is off by default and must be explicitly enabled since normal users will not need to change the schema. When using this option, implement security measures appropriate to the environment, e.g. network controls to restrict access to the listening TCP port to a specific host or subnet.
 
-    Allows Rocto to make changes to the schema (CREATE TABLE and DROP TABLE).
+    Allows Rocto to make changes to the schema (CREATE TABLE and DROP TABLE) and to modify existing tables (INSERT, UPDATE, and DELETE).
 
 #. **-c,  \-\-config-file=<filepath>**
 
@@ -73,6 +73,10 @@ Command Line Flags
 
     Display version information and exit.
 
+#. **-w,  \-\-readwrite**
+
+    Allow users with read-write permissions to run INSERT, UPDATE, and DELETE.
+
 #. **-r,  \-\-release**
 
     Display release information and exit.
@@ -91,6 +95,8 @@ Pre-requisite steps:
 
 1. Make sure you know the IP address/port for your Rocto server. The port can be configured for Rocto in the `config file <config.html#config-files>`_.
 2. Rocto requires the creation of a user name and password. Follow the directions given in the `Octo Administration Guide <https://docs.yottadb.com/Octo/admin.html>`_ to add a new user.
+
+Note that users must be created with adequate permissions to run certain types of SQL statements, i.e. CREATE, DROP, INSERT, UPDATE, and DELETE. See the `Octo Administration Guide <https://docs.yottadb.com/Octo/admin.html>`_ for more information on user permissions.
 
 The overall steps are as follows:
 

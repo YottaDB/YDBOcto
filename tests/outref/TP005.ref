@@ -1,0 +1,40 @@
+ERROR:  Cannot modify schema: user 'leibniz' not allowed to change schema
+ERROR:  Error parsing statement: drop table if exists TP005;
+ERROR:  Cannot modify schema: user 'leibniz' not allowed to change schema
+ERROR:  Error parsing statement: create table TP005 (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30));
+ERROR:  Cannot modify table: rocto started in read-only mode
+ERROR:  Error parsing statement: insert into names (select * FROM names);
+ id | firstname | lastname 
+----+-----------+----------
+  0 | Zero      | Cool
+  1 | Acid      | Burn
+  2 | Cereal    | Killer
+  3 | Lord      | Nikon
+  4 | Joey      | 
+  5 | Zero      | Cool
+(6 rows)
+
+ERROR:  Cannot modify table: rocto started in read-only mode
+ERROR:  Error parsing statement: update names set firstname = lastname, lastname = firstname where lastname != 'Cool';
+ id | firstname | lastname 
+----+-----------+----------
+  0 | Zero      | Cool
+  1 | Acid      | Burn
+  2 | Cereal    | Killer
+  3 | Lord      | Nikon
+  4 | Joey      | 
+  5 | Zero      | Cool
+(6 rows)
+
+ERROR:  Cannot modify table: rocto started in read-only mode
+ERROR:  Error parsing statement: delete from names where lastname != 'Burn';
+ id | firstname | lastname 
+----+-----------+----------
+  0 | Zero      | Cool
+  1 | Acid      | Burn
+  2 | Cereal    | Killer
+  3 | Lord      | Nikon
+  4 | Joey      | 
+  5 | Zero      | Cool
+(6 rows)
+

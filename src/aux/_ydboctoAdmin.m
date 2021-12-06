@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -26,29 +26,24 @@
 	;        _ydboctoAdmin delete user <name>
 	;        _ydboctoAdmin show users
 	; Options:
-	;        -h --help	Print this message
+	;        -a --allowschemachanges	When used with `add user`, grants the new user permission to run CREATE, ADD, and
+	;					DROP statements. Automatically applies -w/--readwrite.
+	;        -h --help			Print this message
+	;        -w --readwrite			When used with `add user`, grants the new user permission to run INSERT, UPDATE, and
+	;					DELETE statements.
 
-	new action,subAction,user,rawPass1,rawPass2
+	new action,subAction,user
 	set action=$piece($zcmdline," ",1)
 	set subAction=$piece($zcmdline," ",2)
 	if "add"=action do
 		. if "user"=subAction do
-		. . if 3'=$length($zcmdline," ") do usage() quit
+		. . if 3>$length($zcmdline," ") do usage() quit
 		. . set user=$piece($zcmdline," ",3)
-		. . if ""'=$get(^%ydboctoocto("users",user)) write "AddUser: That user already exists",! quit
-		. . write "Enter password for user ",user,": "
-		. . use $principal:noecho ; disable echo here so plaintext password is not printed
-		. . read rawPass1
-		. . use $principal:echo
-		. . write !,"Re-enter password for user ",user,": "
-		. . use $principal:noecho ; disable echo here so plaintext password is not printed
-		. . read rawPass2
-		. . use $principal:echo
-		. . if rawPass1=rawPass2 do
-		. . . do addUser(user,rawPass1)
-		. . . write !,"Successfully added user: """,user,"""",!
-		. . else  do
-		. . . write !,"Passwords don't match. Cancelling user creation.",!
+		. . if "-"=$extract(user) write "AddUser: Usernames cannot begin with '-' or '--'",! zhalt 1
+		. . if 64<$length(user) write "AddUser: Usernames must be 64 characters or fewer in length",! zhalt 1
+		. . if ""'=$get(^%ydboctoocto("users",user)) write "AddUser: That user already exists",! zhalt 1
+		. . set status=$$addUser(user)
+		. . zhalt:status status
 		. else  do usage()
 	else  if "delete"=action do
 		. if "user"=subAction do
@@ -77,23 +72,69 @@ usage()
 ; Adds a user and md5 password hash to the database
 ;
 ; @param {string} user - username for the user
-; @param {string} rawPass - the plaintext password for the user
 ;
 ; @example
-; d addUser^%ydboctoAdmin("Arthur","qwerty")
+; d addUser^%ydboctoAdmin("Arthur")
 ;
-addUser(user,rawPass)
-	new id,pass,ddlString
+addUser(user)
+	new options,option,quitonerror,permissions,permstr,allowschemachanges
+	new id,rawPass1,rawPass2,pass,ddlString
+
+	; Determine permissions for the new user.
+	; Integer values indicate permissions level as specified in the UserPermissions_t enum in rocto.h.
+	; The default is the most-restrictive setting, UserPermissions_ReadOnly
+	set permissions=0 ; UserPermissions_ReadOnly
+	set permstr="readonly"
+	set quitonerror=0
+	set allowschemachanges=0
+	set options=$piece($zcmdline," ",4,$length($zcmdline," "))
+	for i=1:1:$length(options," ")  do
+	. set option=$piece(options," ",i)
+	. if ("-"=$extract(option)) do
+	. . if ("-a"=option)!("--allowschemachanges"=option) do
+	. . . set allowschemachanges=1
+	. . else  if ("-w"=option)!("--readwrite"=option) do
+	. . . set permissions=1 ; UserPermissions_ReadWrite
+	. . . set permstr="readwrite"
+	. . else  do
+	. . . set quitonerror=1
+	. . . write "AddUser: Invalid option: '"_option_"'",!
+	quit:quitonerror 1
+
+	; Read user password after validating options to avoid needless hash if there is an invalid option
+	write "Enter password for user ",user,": "
+	use $principal:noecho ; disable echo here so plaintext password is not printed
+	read rawPass1
+	use $principal:echo
+	write !,"Re-enter password for user ",user,": "
+	use $principal:noecho ; disable echo here so plaintext password is not printed
+	read rawPass2
+	use $principal:echo
+	if rawPass1'=rawPass2 do
+	. write !,"Passwords don't match. Cancelling user creation.",!
+	. set quitonerror=1
+	quit:quitonerror 1
 	set id=$incr(^%ydboctoocto("users"))
-	set pass=$$MD5(rawPass_user)
+	set pass=$$MD5(rawPass1_user)
 	set $piece(ddlString,"|",12)=""
 	set $piece(ddlString,"|",1)=id
 	set $piece(ddlString,"|",2)=user
 	set $piece(ddlString,"|",11)=pass
 	set ^%ydboctoocto("users",user)=ddlString
-	quit
 
-; Adds a user deletes a user from the database
+	; If allowschemachanges is set, increment the permissions setting (0 for RO and 1 for RW) by 2 to bring the value into
+	; alignment with either UserPermissions_ROAllowSchemaChanges (read-only + allowschemachanges) or
+	; UserPermissions_RWAllowSchemaChanges (read-write + allowschemachanges).
+	; These values reflect those defined in the UserPermissions_t enum in rocto.h.
+	do:allowschemachanges
+	. set permissions=permissions+2
+	. set permstr=permstr_"+allowschemachanges"
+	; Set the final permissions value for the given user
+	set ^%ydboctoocto("users",user,"permissions")=permissions
+	write !,"Successfully added user: """,user,""" with """,permstr,""" permissions",!
+	quit 0
+
+; Deletes a user from the database
 ;
 ; @param {string} user - username for the user
 ;
@@ -114,19 +155,14 @@ showUsers()
 	new user,users,i,row,id
 	set user=$order(^%ydboctoocto("users",""))
 	for i=0:1  quit:""=user  do
-		. set row=^%ydboctoocto("users",user)
-		. set id=$piece(row,"|",1)
-		. set users(id)=user
-		. set user=$order(^%ydboctoocto("users",user))
+	. set row=^%ydboctoocto("users",user)
+	. set id=$piece(row,"|",1)
+	. set users(id)=user
+	. set user=$order(^%ydboctoocto("users",user))
 	if i=0 write "No YDBOcto users found.",! quit
 	write "Current YDBOcto users, by ID:",!
 	set id=$order(users(""))
 	for  quit:""=id  write id,$char(9),users(id),! set id=$order(users(id))
-	quit
-
-Etrap	; Set error handler to print error message and return error code to shell
-	open "/proc/self/fd/2" ; open stderr for output if needed
-	set $etrap="set $etrap=""use """"/proc/self/fd/2"""" write $zstatus,! zhalt 1"" set tmp1=$zpiece($ecode,"","",2),tmp2=$text(@tmp1) if $zlength(tmp2) use ""/proc/self/fd/2"" write $text(+0),@$zpiece(tmp2,"";"",2),! zhalt +$extract(tmp1,2,$zlength(tmp1))"
 	quit
 
 MD5(blob)

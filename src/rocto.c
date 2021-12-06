@@ -614,6 +614,13 @@ int main(int argc, char **argv) {
 			break;
 		}
 
+		// Get user permissions and store on rocto_session for reference during query handling
+		status = get_user_permissions(&rocto_session);
+		if (status) {
+			YDB_FREE_BUFFER(session_id_buffer);
+			break;
+		}
+
 		rocto_main_loop(&rocto_session);
 		YDB_FREE_BUFFER(session_id_buffer);
 		break;

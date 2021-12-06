@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -27,6 +27,7 @@
 #include "parser.h"
 #include "lexer.h"
 #include "git_hashes.h"
+#include "rocto_common.h"
 
 void handle_invalid_option(char *executable_name, char short_option) {
 	printf("%s: invalid option -- '%c'\n", executable_name, short_option);
@@ -65,17 +66,20 @@ int parse_startup_flags(int argc, char **argv, char **config_file_name) {
 	      "	-v: include INFO and WARNING messages\n"
 	      "	-vv: include DEBUG messages\n"
 	      "	-vvv: include TRACE messages\n"
+	      "  -w, --readwrite			Allow users with read-write permissions to run INSERT, UPDATE, and DELETE\n"
 	      "  -r, --release				Display release information and exit.\n";
 	int	  c;
 	boolean_t verbosity_unset = TRUE, port_unset = TRUE;
 
 	if ((0 < argc) && (NULL != strstr(argv[0], "rocto"))) {
 		config->is_rocto = TRUE;
-		// Rocto is by default not allowed to make schema changes
+		// Rocto is by default not allowed to make schema changes or update tables (INSERT, UPDATE, DELETE)
 		config->allow_schema_changes = FALSE;
+		config->readwrite = FALSE;
 	} else {
 		config->is_rocto = FALSE;
 		config->allow_schema_changes = TRUE;
+		config->readwrite = TRUE;
 	}
 	config->process_id = getpid();
 	optind = 1;
@@ -99,12 +103,13 @@ int parse_startup_flags(int argc, char **argv, char **config_file_name) {
 							     {"help", no_argument, NULL, 'h'},
 							     {"allowschemachanges", no_argument, NULL, 'a'},
 							     {"version", no_argument, NULL, 'r'},
+							     {"readwrite", no_argument, NULL, 'w'},
 							     {"release", no_argument, NULL, 'r'},
 							     {0, 0, 0, 0}};
 		int		     option_index = 0;
 
 		if (config->is_rocto) {
-			c = getopt_long(argc, argv, "vhc:p:ar", rocto_long_options, &option_index);
+			c = getopt_long(argc, argv, "vhc:p:arw", rocto_long_options, &option_index);
 		} else {
 			c = getopt_long(argc, argv, "vdhf:c:r", octo_long_options, &option_index);
 		}
@@ -171,6 +176,9 @@ int parse_startup_flags(int argc, char **argv, char **config_file_name) {
 			printf("Git commit: %s\n", YDBOCTO_GIT_COMMIT_VERSION);
 			printf("Uncommitted changes: %s\n", YDBOCTO_GIT_IS_DIRTY);
 			exit(0);
+			break;
+		case 'w':
+			config->readwrite = TRUE;
 			break;
 		default:
 			printf("Please use '%s --help' for more information.\n", argv[0]);

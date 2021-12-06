@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -17,7 +17,7 @@ setup() {
   createdb
   load_fixture names.sql
   load_fixture names.zwr
-  load_fixture default_user.zwr
+  create_default_user
 }
 
 @test "TBR000 : lexer buffer resizes for tokens longer than OCTO_INIT_BUFFER_LEN in column name comparisons" {

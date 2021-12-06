@@ -346,6 +346,7 @@ add_library(librocto OBJECT
   rocto/read_flush.c
   rocto/read_sync.c
   rocto/read_describe.c
+  rocto/get_user_permissions.c
   rocto/handle_bind.c
   rocto/handle_cancel_request.c
   rocto/handle_query.c

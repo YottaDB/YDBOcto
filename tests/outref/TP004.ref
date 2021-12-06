@@ -1,0 +1,35 @@
+ERROR:  Rocto is not allowed to make schema changes without startup flag --allowschemachanges
+ERROR:  Error parsing statement: drop table if exists TP004;
+ERROR:  Rocto is not allowed to make schema changes without startup flag --allowschemachanges
+ERROR:  Error parsing statement: create table TP004 (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30));
+INSERT 0 1
+ id | firstname | lastname 
+----+-----------+----------
+  0 | Zero      | Cool
+  1 | Acid      | Burn
+  2 | Cereal    | Killer
+  3 | Lord      | Nikon
+  4 | Joey      | 
+  5 | Zero      | Cool
+  6 | Mr.       | Numbers
+(7 rows)
+
+UPDATE 4
+ id | firstname | lastname 
+----+-----------+----------
+  0 | Zero      | Cool
+  1 | Burn      | Acid
+  2 | Killer    | Cereal
+  3 | Nikon     | Lord
+  4 | Joey      | 
+  5 | Zero      | Cool
+  6 | Numbers   | Mr.
+(7 rows)
+
+DELETE 5
+ id | firstname | lastname 
+----+-----------+----------
+  4 | Joey      | 
+  6 | Numbers   | Mr.
+(2 rows)
+

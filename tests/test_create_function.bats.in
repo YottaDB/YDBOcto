@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -78,7 +78,7 @@ setup() {
 }
 
 @test "TCF011 : OCTO345 : CREATE FUNCTION in rocto with --allowschemachanges" {
-	load_fixture default_user.zwr
+	create_default_user
 	test_port=$(start_rocto 1400 --allowschemachanges)
 	strip_sql_comments TCF004	# No need for new fixture, just testing whether DDL modification is allowed
 	run_psql $test_port < TCF004.sql 2>&1 | tee -a output.txt
@@ -87,7 +87,7 @@ setup() {
 }
 
 @test "TCF012 : OCTO345 : CREATE FUNCTION disallowed in rocto without --allowschemachanges" {
-	load_fixture default_user.zwr
+	create_default_user
 	test_port=$(start_rocto 1401)
 	strip_sql_comments TCF004	# No need for new fixture, just testing whether DDL modification is allowed
 	run_psql $test_port < TCF004.sql 2>&1 | tee -a output.txt

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -14,6 +14,10 @@
 
 #ifdef IS_ROCTO
 #include "rocto/rocto.h"
+#endif
+
+#ifndef ROCTO_COMMON
+#include "rocto_common.h"
 #endif
 
 /* ---------------- BEGIN : ALL Global variables in Octo ------------------ */
@@ -36,8 +40,6 @@ int (*cur_input_more)();
 ydb_buffer_t lex_buffer;	 // String buffer for use in lexer.l
 int	     ydb_release_number; /* e.g. the integer 130 in case of r1.30 etc. */
 
-#ifdef IS_ROCTO
 RoctoSession rocto_session;
-#endif
 
 /* ---------------- END   : ALL Global variables in Octo ------------------ */

@@ -1416,23 +1416,37 @@ Text: Rocto is not allowed to make schema changes without startup flag --allowsc
 
 Description/Action: This error indicates that Rocto is not allowed to make schema changes without the startup flag set to :code:`--allowschemachanges`. PSQL Error Code: XX000
 
-.. note:: Rocto is yet to implement certain features with respect to Data Manipulation Language (DML) and queries such as INSERT INTO, UPDATE, and DELETE could cause this error to be generated.
++++++++++++++++++++++++
+ERR_ROCTO_NOSCHEMA_USER
++++++++++++++++++++++++
 
-++++++++++++++++++++++++++
+Text: Cannot modify schema: user 'xxx' not allowed to change schema
+
+Description/Action: This error indicates that a user attempted to change a schema using :code:`CREATE` or :code:`DROP`, but lacks permission to do so. To give a user permission to modify schemas, recreate the user using :code:`ydboctoAdmin` with the :code:`--allowschemachanges` option. PSQL Error Code: 42601
+
++++++++++++++++++++++++++
 ERR_ROCTO_PARAMETER_COUNT
-++++++++++++++++++++++++++
++++++++++++++++++++++++++
 
 Text: Failed to count number of parameters in prepared statement
 
 Description/Action: This error indicates that Rocto failed to count the number of parameters provided in the prepared statement. PSQL Error Code: XX000
 
-+++++++++++++++++++++++++
++++++++++++++++++++++++
 ERR_ROCTO_PASSWORD_TYPE
-+++++++++++++++++++++++++
++++++++++++++++++++++++
 
 Text: xxx: expected xxx encrypted password
 
 Description/Action: This error indicates that Rocto received a password encrypted in an unexpected format. PSQL Error Code: 28000
+
++++++++++++++++++++++++++++++++++++
+ERR_ROCTO_PERMISSIONS_LOOKUP_FAILED
++++++++++++++++++++++++++++++++++++
+
+Text: Server failed to lookup user permissions. Valid permissions not defined for user 'xxx'
+
+Description/Action: Indicates that a rocto server was unable to determine access permissions for the user indicated. This may occur because the user does not exist, or because permissions were not defined for that user. Accordingly, the user should be created and/or permissions set for that user. PSQL Error Code: 28000
 
 ++++++++++++++++++++++++
 ERR_ROCTO_QUERY_CANCELED
@@ -1442,25 +1456,41 @@ Text: canceling statement due to user request
 
 Description/Action: This error indicates a query was successfully cancelled via a CancelRequest message. PSQL Error Code: 57014
 
-++++++++++++++++++++++++++++
+++++++++++++++++++++++++
 ERR_ROCTO_QUERY_TOO_LONG
-++++++++++++++++++++++++++++
+++++++++++++++++++++++++
 
 Text: Query length xxx exceeded maximum size (xxx)
 
 Description/Action: This error indicates that the query length exceeded maximum size. PSQL Error Code: 08P01
 
-++++++++++++++++++++++++
++++++++++++++++++++++
 ERR_ROCTO_READ_FAILED
-++++++++++++++++++++++++
++++++++++++++++++++++
 
 Text: read failure: xxx
 
 Description/Action: This error is generated when Rocto fails to read data from a remote connection. PSQL Error Code: 08000
 
-+++++++++++++++++++++++++
++++++++++++++++++++++++
+ERR_ROCTO_READONLY_MODE
++++++++++++++++++++++++
+
+Text: Cannot modify table: rocto started in read-only mode
+
+Description/Action: This error is generated when a user attempts to modify a table using an INSERT, UPDATE, or DELETE statement, but Rocto was not started with the :code:`--readwrite` option.  PSQL Error Code: 42601
+
++++++++++++++++++++++++
+ERR_ROCTO_READONLY_USER
++++++++++++++++++++++++
+
+Text: Cannot modify table: user 'xxx' has read-only permissions
+
+Description/Action: This error is generated when a user attempts to modify a table using an INSERT, UPDATE, or DELETE statement, but does not have "readwrite" permissions. To give a user these permissions, recreate the user using :code:`ydboctoAdmin` with the :code:`--readwrite` option. PSQL Error Code: 42601
+
+++++++++++++++++++++++++
 ERR_ROCTO_READ_TOO_LARGE
-+++++++++++++++++++++++++
+++++++++++++++++++++++++
 
 Text: Read size xxx greater than buffer size xxx
 

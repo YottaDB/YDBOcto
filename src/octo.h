@@ -154,6 +154,7 @@
 #define OCTOLIT_OCTOONEROWTABLE	     "OCTOONEROWTABLE"
 #define OCTOLIT_OUTPUT_COLUMNS	     "output_columns"
 #define OCTOLIT_OUTPUT_KEY	     "output_key"
+#define OCTOLIT_PERMISSIONS	     "permissions"
 #define OCTOLIT_PG_ATTRIBUTE	     "pg_attribute"
 #define OCTOLIT_PG_CATALOG	     "pg_catalog"
 #define OCTOLIT_PG_CLASS	     "pg_class"

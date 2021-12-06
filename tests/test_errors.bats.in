@@ -17,7 +17,7 @@ setup() {
   createdb
   load_fixture names.sql
   load_fixture names.zwr
-  load_fixture default_user.zwr
+  create_default_user
 }
 
 @test "TERR000 : Octo doesn't generate core file for fatal errors" {

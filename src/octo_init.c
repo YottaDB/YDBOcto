@@ -29,6 +29,7 @@
 
 #include "octo.h"
 #include "octo_types.h"
+#include "rocto_common.h"
 
 // Read binary file with default config settings
 #include "default_octo_conf.h"
@@ -869,6 +870,16 @@ int octo_init(int argc, char **argv) {
 		config->config_file = config_file;
 		/* "argc" can be 0 in case of cmocka unit tests. Do not attempt auto upgrade/load in that case. */
 		if (argc) {
+			/* If running rocto, the following auto upgrade/load logic will execute before any user has logged in,
+			 * leading to failed updates due to a lack of adequate permissions. This results from 0-initialization of
+			 * rocto_session in parse_startup_flags.c, thus setting the default permissions level to
+			 * UserPermissions_ReadOnly. So, temporarily set rocto_session.permissions to
+			 * UserPermissions_RWAllowSchemaChanges to allow the following code to execute.
+			 */
+			if (config->is_rocto) {
+				assert(UserPermissions_ReadOnly == rocto_session.permissions);
+				rocto_session.permissions = UserPermissions_RWAllowSchemaChanges;
+			}
 			/* Check if plan-definitions (of tables or functions) need to be auto upgraded (due to format changes).  *
 			 * If so discard them (they will be regenerated as needed).  */
 			status = auto_upgrade_plan_definition_if_needed();
@@ -888,6 +899,9 @@ int octo_init(int argc, char **argv) {
 				/* Error message would have been printed already inside the above function call */
 				break;
 			}
+			if (config->is_rocto) {
+				rocto_session.permissions = UserPermissions_ReadOnly;
+			}
 		}
 		// Now that configuration is complete, load `pg_settings` defaults into LVNs for process-local access
 		status = load_pg_defaults();
@@ -895,6 +909,10 @@ int octo_init(int argc, char **argv) {
 			break;
 		}
 		return 0;
+	}
+	// In case there was an error inside auto upgrade/load, rocto user permissions can be returned to the read-only default
+	if (config->is_rocto) {
+		rocto_session.permissions = UserPermissions_ReadOnly;
 	}
 	// No call to load_pg_settings is needed here since we only get here if there was a configuration error, so assert this.
 	assert(0 != status);

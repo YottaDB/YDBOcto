@@ -1,0 +1,6 @@
+# Error from password mismatch: 
+Enter password for user ydb2: 
+Re-enter password for user ydb2: 
+Passwords don't match. Cancelling user creation.
+# Error from invalid option: 
+AddUser: Invalid option: '-abcd'

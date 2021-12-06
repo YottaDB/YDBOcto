@@ -332,7 +332,7 @@ run_octo_allow_error() {
 }
 
 start_rocto() {
-	create_user $USER "ydbrocks" &> /dev/null
+	create_user $USER "ydbrocks" --readwrite --allowschemachanges
 	echo "ROCTO START" >> env.log
 	if [[ $2 == "quiet" ]]; then
 		verbosity="-v"
@@ -414,13 +414,32 @@ run_psql_auth() {
 	fi
 }
 
+# Run psql using a specific username ($4) and password ($5)
+run_psql_user() {
+	if [[ $2 =~ ".sql" ]]; then
+		# Load a fixture
+		strip_sql_comments $2
+		PGPASSWORD=$5 psql $3 -U $4 "host=localhost port=$1" < $2
+	else
+		PGPASSWORD=$5 psql $3 -U $4 "host=localhost port=$1"
+	fi
+}
+
 run_psql_expect() {
 	unset PGPASSWORD
 	expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/$1.exp $2 > expect.out 2> expect.dbg
 }
 
 create_user() {
-	echo -en "$2\n$2" | yottadb -r %ydboctoAdmin add user $1
+	# Create the specified user ($1) if it doesn't exist already.
+	if [[ 0 -eq $(yottadb -r %ydboctoAdmin show users | grep $1 | wc -l) ]]; then
+		echo -en "$2\n$2" | yottadb -r %ydboctoAdmin add user $1 $3 $4 >> user.log
+	fi
+}
+
+create_default_user() {
+	# Create the default `ydb` user with permissions to create, drop, and modify tables
+	create_user ydb ydbrocks --readwrite --allowschemachanges
 }
 
 delete_users() {
@@ -795,7 +814,7 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 			jdbcprotocol=$(choose_jdbc_protocol_randomly)
 		elif [[ $randclient == 1 ]]; then
 			randclientstr="PSQL"
-			load_fixture default_user.zwr
+			create_default_user
 		else
 			randclientstr="OCTO"
 		fi

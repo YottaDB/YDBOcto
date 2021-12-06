@@ -124,6 +124,9 @@ ERROR_DEF(ERR_PARM_CANNOT_BE_CHANGED, "Runtime parameter '%s' cannot be changed"
 // ROCTO //
 ERROR_DEF(ERR_ROCTO_UNSUPPORTED_BIND_PARAMETER, "Unsupported bind parameter type received", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_ROCTO_BIND_PARAMETER_DECODE_FAILURE, "Failed to decode binary bind parameter", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_ROCTO_READONLY_MODE, "Cannot modify table: rocto started in read-only mode", PSQL_Code_Syntax_Error)
+ERROR_DEF(ERR_ROCTO_READONLY_USER, "Cannot modify table: user '%s' has read-only permissions", PSQL_Code_Syntax_Error)
+ERROR_DEF(ERR_ROCTO_NOSCHEMA_USER, "Cannot modify schema: user '%s' not allowed to change schema", PSQL_Code_Syntax_Error)
 
 /*** Trace messages ***/
 // OCTO //
@@ -212,6 +215,7 @@ ERROR_DEF(ERR_ROCTO_TRAILING_CHARS, "%s: message has trailing characters", PSQL_
 /*** Authentication errors ***/
 // OCTO //
 // ROCTO //
+ERROR_DEF(ERR_ROCTO_PERMISSIONS_LOOKUP_FAILED, "Server failed to lookup user permissions. Valid permissions not defined for user '%s'", PSQL_Code_Invalid_Authorization_Specification)
 ERROR_DEF(ERR_ROCTO_MISSING_USERNAME, "%s: startup message missing username", PSQL_Code_Connection_Exception)
 ERROR_DEF(ERR_ROCTO_PASSWORD_TYPE, "%s: expected %s encrypted password", PSQL_Code_Invalid_Authorization_Specification)
 ERROR_DEF(ERR_ROCTO_BAD_PASSWORD, "%s: password doesn't match stored value", PSQL_Code_Invalid_Password)

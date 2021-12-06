@@ -152,6 +152,7 @@ if("${FULL_TEST_SUITE}")
 		ADD_BATS_TEST(test_psql_connection)
 		ADD_BATS_TEST(test_cancel_request)
 		ADD_BATS_TEST(test_select_columns_psql)
+		ADD_BATS_TEST(test_permissions)
 	endif()
 
 	find_program(go NAMES go)

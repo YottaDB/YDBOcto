@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -23,7 +23,7 @@ setup() {
   load_fixture names.zwr
   load_fixture pastas.sql
   load_fixture pastas.zwr
-  load_fixture default_user.zwr
+  create_default_user
   test_port=$(start_rocto 1441)
 }
 
@@ -93,7 +93,7 @@ YDB
 	echo '# Set global buffers to 16384 to avoid TRANS2BIG errors' >> output.txt
 	mupip set -global_buffers=16384 -reg "*"
 	# Restart rocto
-	test_port=$(start_rocto 1441)
+	test_port=$(start_rocto 1441 --readwrite)
 	echo '# Test cancel request for INSERT INTO, DELETE FROM and UPDATE' > output.txt
 	echo '# Generate names tables with 1 million rows' >> output.txt
 	$ydb_dist/yottadb -run loadbigdata "TCR04"

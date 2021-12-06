@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -18,8 +18,9 @@ setup() {
 	load_fixture names.sql
 	load_fixture names.zwr
 	# Start rocto at subtest startup as part of framework for all subtests as most of them will need to start rocto
-	# with --allowschemachanges due to the presence of DROP TABLE/FUNCTION commands.
-	test_port=$(start_rocto 1400 --allowschemachanges)
+	# with --allowschemachanges due to the presence of DROP TABLE/FUNCTION commands and --readwrite due to presence of
+	# INSERT/DELETE commands.
+	test_port=$(start_rocto 1400 -aw)
 }
 
 teardown() {

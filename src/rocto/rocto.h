@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,10 +23,7 @@
 #include "physical_plan.h"
 #include "message_formats.h"
 #include "constants.h"
-
-#if YDB_TLS_AVAILABLE
-#include "ydb_tls_interface.h"
-#endif
+#include "rocto_common.h"
 
 /* The PostgreSQL wire protocol specifies that SQL NULL values are signaled to the client by returning a row length of -1.
  * See the `DataRow` entry at: https://www.postgresql.org/docs/11/protocol-message-formats.html
@@ -49,21 +46,6 @@
 #define MD5_PREFIX "md5"
 // Length of the string 'md5', which is prefixed to password hashes per https://www.postgresql.org/docs/11/protocol-flow.html
 #define MD5_PREFIX_LEN sizeof(MD5_PREFIX) - 1
-
-typedef struct {
-	int32_t	      connection_fd;
-	int32_t	      sending_message;
-	char *	      ip;
-	char *	      port;
-	ydb_buffer_t *session_id;
-	int32_t	      session_ending;
-	int32_t	      ssl_active;
-	int32_t	      pid;
-	int32_t	      secret_key;
-#if YDB_TLS_AVAILABLE
-	gtm_tls_socket_t *tls_socket;
-#endif
-} RoctoSession;
 
 typedef struct {
 	RoctoSession *session;
@@ -156,6 +138,9 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name);
 // Helper to indicate that there is no more input
 int no_more();
 
+// Helper to lookup rocto user permissions from database
+int get_user_permissions(RoctoSession *session);
+
 // Helpers to deserialize binary data
 int64_t ntoh64(int64_t little_endian);
 int64_t hton64(int64_t little_endian);
@@ -200,8 +185,5 @@ ParseComplete *	    read_parse_complete(BaseMessage *message);
 PortalSuspended *   read_portal_suspended(BaseMessage *message);
 ReadyForQuery *	    read_ready_for_query(BaseMessage *message);
 RowDescription *    read_row_description(BaseMessage *message);
-
-// Globals
-extern RoctoSession rocto_session;
 
 #endif

@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.  #
+.. # Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.  #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -17,7 +17,11 @@ Administration
 .. contents::
    :depth: 4
 
-Octo uses an M routine to manage the users of the database and other administrative tasks, called %ydboctoAdmin.
+Octo uses an M routine to manage the users of the database and other administrative tasks, called :code:`%ydboctoAdmin`.
+
+Currently Octo user administration consists of user creation and deletion, and setting of user database permissions.
+
+User database permissions are set at user-creation time, i.e. via :code:`%ydboctoAdmin add user`. If no options are passed to this command, the user is created with read-only permissions. To grant additional permissions, use :code:`--readwrite` or :code:`--allowschemachanges`, described below.
 
 ----------------
 ydboctoAdmin
@@ -45,7 +49,21 @@ The following is an example of adding users to the database:
 
     yottadb -r %ydboctoAdmin add user OctoUser
 
-This adds OctoUser as a user of the database, after verifying the password for the user.
+This adds OctoUser as a user of the database, after verifying the password for the user. Unless otherwise specified, new users are created with read-only database permissions.
+
+To grant a user read-write permissions (:code:`INSERT`, :code:`UPDATE`, and :code:`DELETE`) use the :code:`-w`/:code:`--readwrite` flag:
+
+ .. code-block:: bash
+
+    yottadb -r %ydboctoAdmin add user OctoUser --readwrite
+    yottadb -r %ydboctoAdmin add user OctoUser -w
+
+To grant a user read-write permissions and permission to modify schemas (:code:`CREATE` and :code:`DROP`), use the `-a`/`--allowschemachanges` flag:
+
+ .. code-block:: bash
+
+    yottadb -r %ydboctoAdmin add user OctoUser --allowschemachanges
+    yottadb -r %ydboctoAdmin add user OctoUser -a
 
 ++++++++++++++
 Delete

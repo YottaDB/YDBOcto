@@ -1,0 +1,141 @@
+#################################################################
+#								#
+# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+	if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
+		init_tls
+	fi
+	load_fixture names.sql
+	load_fixture names.zwr
+	create_default_user
+	username="leibniz"
+	password="ydbrocks"
+	delete_users $username # Cleanup user between tests
+}
+
+teardown() {
+	stop_rocto
+}
+
+@test "TP000 : OCTO656 : INSERT, UPDATE, DELETE prohibited when: table is READONLY, rocto run with -w, and user can readwrite" {
+	load_fixture TP000a.sql
+	create_user $username $password --readwrite
+	test_port=$(start_rocto 1339)
+	run_psql_user $test_port TP000.sql "" $username $password 2>&1 | tee -a output.txt
+
+	verify_output TP000 output.txt noinfo nodebug
+}
+
+@test "TP001 : OCTO656 : INSERT, UPDATE, DELETE prohibited if rocto run without -w" {
+	load_fixture TP001a.sql
+	create_user $username $password --readwrite
+	test_port=$(start_rocto 1339)
+	run_psql_user $test_port TP001.sql "" $username $password 2>&1 | tee -a output.txt
+
+	verify_output TP001 output.txt noinfo nodebug
+}
+
+@test "TP002 : OCTO656 : INSERT, UPDATE, DELETE prohibited if rocto run with -w but user lacks readwrite permissions" {
+	load_fixture TP001a.sql
+	create_user $username $password
+	test_port=$(start_rocto 1339 -w)
+	run_psql_user $test_port TP001.sql "" $username $password 2>&1 | tee -a output.txt
+
+	verify_output TP002 output.txt noinfo nodebug
+}
+
+@test "TP003 : OCTO656 : All permissions granted if rocto run with -aw and user has readwrite+allowschemachanges permissions" {
+	create_user $username $password --readwrite --allowschemachanges
+	test_port=$(start_rocto 1339 -aw)
+	run_psql_user $test_port TP001a.sql "" $username $password 2>&1 | tee -a output.txt
+	run_psql_user $test_port TP001.sql "" $username $password 2>&1 | tee -a output.txt
+
+	verify_output TP003 output.txt noinfo nodebug
+}
+
+@test "TP004 : OCTO656 : CREATE, DROP prohibited if rocto run without -a" {
+	create_user $username $password --readwrite --allowschemachanges
+	test_port=$(start_rocto 1339 -w)
+	run_psql_user $test_port TP004.sql "" $username $password 2>&1 | tee -a output.txt
+
+	verify_output TP004 output.txt noinfo nodebug
+}
+
+@test "TP005 : OCTO656 : CREATE, DROP prohibited if rocto run with -a, user lacks allowschemachanges permissions" {
+	create_user $username $password --readwrite
+	test_port=$(start_rocto 1339 -a)
+	run_psql_user $test_port TP005.sql "" $username $password &> output.txt
+
+	verify_output TP005 output.txt noinfo nodebug
+}
+
+@test "TP006 : OCTO656 : INSERT, UPDATE, DELETE prohibited user has allowschemachanges permissions only (lacks readwrite)" {
+	create_user $username $password --allowschemachanges
+	test_port=$(start_rocto 1339 -wa)
+	run_psql_user $test_port TP001a.sql "" $username $password 2>&1 | tee -a output.txt
+	run_psql_user $test_port TP001.sql "" $username $password 2>&1 | tee -a output.txt
+
+	verify_output TP006 output.txt noinfo nodebug
+}
+
+@test "TP007 : OCTO656 : ydboctoAdmin: Usernames cannot contain '-' or '--'" {
+	yottadb -r %ydboctoAdmin add user --allowschemachanges OctoUser &> output.txt || status=$?
+	[[ $status -eq 1 ]]
+
+	verify_output TP007 output.txt
+}
+
+@test "TP008 : OCTO656 : ydboctoAdmin: Invalid options not accepted" {
+	# If a `-b` option gets added then this list must be updated to use a different invalid option
+	for option in --badoption -b
+	do
+		yottadb -r %ydboctoAdmin add user OctoUser $option >> output.txt || status=$?
+		[[ $status -eq 1 ]]
+	done
+
+	verify_output TP008 output.txt
+}
+
+@test "TP009 : OCTO656 : ydboctoAdmin: Usernames must be 64 characters or fewer in length" {
+	longname=user123456789012345678901234567890123456789012345678901234567890
+	echo -en "ydbrocks\nydbrocks" |  yottadb -r %ydboctoAdmin add user $longname &> output.txt
+	yottadb -r %ydboctoAdmin add user a$longname >> output.txt || status=$?
+	[[ $status -eq 1 ]]
+
+	verify_output TP009 output.txt
+}
+
+@test "TP010 : OCTO656 : ydboctoAdmin: Correct error messages emitted when errors encountered during user creation" {
+	echo "# Error from password mismatch: " >> output.txt
+	echo -en "ydbrocks\nydbisfine" | yottadb -r %ydboctoAdmin add user ydb2 >> output.txt || status=$?
+	[[ $status -eq 1 ]]
+	echo "# Error from invalid option: " >> output.txt
+	echo -en "ydbrocks\nydbrocks" | $ydb_dist/yottadb -r %ydboctoAdmin add user ydb2 -abcd >> output.txt || status=$?
+	[[ $status -eq 1 ]]
+
+	verify_output TP010 output.txt
+}
+
+@test "TP011 : OCTO656 : Only allowschemachanges permissions granted if rocto run with -a and user has readwrite+allowschemachanges permissions" {
+	create_user $username $password --readwrite --allowschemachanges
+	test_port=$(start_rocto 1339 -a)
+	echo "# Schema changes permitted (user and rocto both set --allowschemachanges: " >> output.txt
+	run_psql_user $test_port TP011a.sql "" $username $password 2>&1 | tee -a output.txt
+	echo "# Readwrite changes not permitted (rocto does not set --readwrite): " >> output.txt
+	run_psql_user $test_port TP011.sql "" $username $password 2>&1 | tee -a output.txt
+
+	verify_output TP011 output.txt noinfo nodebug
+}

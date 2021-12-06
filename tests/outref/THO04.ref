@@ -10,4 +10,5 @@ Mandatory arguments for long options are also mandatory for short options.
 	-v: include INFO and WARNING messages
 	-vv: include DEBUG messages
 	-vvv: include TRACE messages
+  -w, --readwrite			Allow users with read-write permissions to run INSERT, UPDATE, and DELETE
   -r, --release				Display release information and exit.

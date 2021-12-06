@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -64,6 +64,7 @@ typedef struct OctoConfig {
 	boolean_t	     dry_run;
 	int		     plan_id, page_size;
 	boolean_t	     allow_schema_changes;
+	boolean_t	     readwrite;
 	boolean_t in_auto_upgrade_binary_table_definition; /* TRUE for a short window when octo/rocto startup detects it is
 							    * time to auto upgrade the binary table definitions.
 							    */

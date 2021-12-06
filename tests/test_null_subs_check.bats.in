@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -17,7 +17,7 @@ setup() {
   createdb 1	# we want only 1 region to be created
   load_fixture names.sql
   load_fixture names.zwr
-  load_fixture default_user.zwr
+  create_default_user
 }
 
 @test "TNSC00 : Octo - one region - null subs set to NEVER on DEFAULT" {
@@ -45,7 +45,7 @@ OCTO
   # Load fixtures based on new global directory setup
   load_fixture names.sql
   load_fixture names.zwr
-  load_fixture default_user.zwr
+  create_default_user
   octo <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
@@ -119,7 +119,7 @@ OCTO
   # Load fixtures based on new global directory setup
   load_fixture names.sql
   load_fixture names.zwr
-  load_fixture default_user.zwr
+  create_default_user
   test_port=$(start_rocto 1340)
   sleep 1
   run_psql $test_port <<OCTO 2>&1 | tee output.txt

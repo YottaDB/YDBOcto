@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -143,7 +143,10 @@ int auto_upgrade_binary_table_definition(void) {
 			assert(YDB_ERR_INVSTRLEN != status); /* because we allocated MAX_DEFINITION_FRAGMENT_SIZE above */
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, NULL, FALSE, NULL);
 
+			// Null terminate for strtoll
+			text_defn_buff.buf_addr[text_defn_buff.len_used] = '\0';
 			text_defn_len = strtoll(text_defn_buff.buf_addr, NULL, 10);
+
 			if ((LLONG_MIN == text_defn_len) || (LLONG_MAX == text_defn_len)) {
 				ERROR(ERR_SYSCALL_WITH_ARG, "strtoll()", errno, strerror(errno), text_defn_buff.buf_addr);
 				CLEANUP_AND_RETURN(1, table_buff, NULL, FALSE, NULL);

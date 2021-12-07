@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -174,7 +174,10 @@ int auto_upgrade_binary_function_definition(void) {
 				assert(YDB_ERR_INVSTRLEN != status);
 				CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, FALSE, NULL);
 
+				// Null terminate for strtoll
+				text_defn_buff.buf_addr[text_defn_buff.len_used] = '\0';
 				text_defn_len = strtoll(text_defn_buff.buf_addr, NULL, 10);
+
 				if ((LLONG_MIN == text_defn_len) || (LLONG_MAX == text_defn_len)) {
 					ERROR(ERR_SYSCALL_WITH_ARG, "strtoll()", errno, strerror(errno), text_defn_buff.buf_addr);
 					CLEANUP_AND_RETURN(1, function_buff, ret_buff, FALSE, NULL);
@@ -321,9 +324,11 @@ int auto_upgrade_binary_function_definition(void) {
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, TRUE, &cursor_ydb_buff);
 			/* Cleanup any memory allocations in "parse_line()" of this iteration before moving on to next iteration
 			 * to avoid memory buildup that can happen if we have to process thousands of binary definitions.
+			 * Also free memory used in this iteration for ret_buff
 			 */
 			OCTO_CFREE(memory_chunks);
 			DELETE_QUERY_PARAMETER_CURSOR_LVN(&cursor_ydb_buff);
+			YDB_FREE_BUFFER(&ret_buff);
 		}
 	}
 	ERASE_INPUT_BUFFER; /* Clear history of all "parse_line()" processing related to binary function upgrade to avoid

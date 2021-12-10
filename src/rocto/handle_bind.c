@@ -52,17 +52,6 @@
 		}                                                               \
 	}
 
-#define CHECK_COPY_RESULT_AND_RETURN_IF_NEEDED(COPIED) \
-	{                                              \
-		if (0 <= COPIED) {                     \
-			bound_query.len_used = COPIED; \
-		} else {                               \
-			YDB_FREE_BUFFER(&bound_query); \
-			CLEANUP_FROM_BIND();           \
-			return 1;                      \
-		}                                      \
-	}
-
 // Args:
 //	Bind *bind: A PostgreSQL Bind message
 //	RoctoSession *session: Structu containing data for the current client session
@@ -72,7 +61,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	// At the moment, we don't have "bound function"
 	// This feature should be implemented before 1.0
 	ydb_buffer_t	 num_parms_buf, cur_parm_buf, cur_bind_parm_buf, parm_type_buf, parm_value_buf;
-	ydb_buffer_t	 sql_expression, routine_buf, tag_buf, offset_buffer, value_buffer, bound_query;
+	ydb_buffer_t	 sql_expression, routine_buf, tag_buf, offset_buffer, value_buffer;
 	ydb_buffer_t	 statement_subs[7];
 	ydb_buffer_t	 portal_subs[6];
 	ydb_buffer_t	 all_statement_parms_subs[7];
@@ -87,7 +76,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	char		 cur_parm_str[INT16_TO_STRING_MAX];
 	char		 cur_bind_parm_str[INT16_TO_STRING_MAX];
 	uint32_t	 data_ret;
-	int32_t		 status, prepared_offset, copied, done;
+	int32_t		 status, done;
 	int32_t *	 parse_context_array;
 	int16_t		 num_parms, num_bind_parms, cur_parm, cur_bind_parm, cur_parm_temp, cur_bind_parm_temp;
 	int16_t		 num_col_format_codes, cur_format_code;
@@ -562,120 +551,10 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 		parm_value_buf.len_used = 0; // Reset to empty buffer before reuse on next parameter
 	}
 	assert(cur_bind_parm == num_bind_parms);
-
-	// Bind format rules at https://www.postgresql.org/docs/11/protocol-message-formats.html
-	if (0 < num_bind_parms) {
-		OCTO_MALLOC_NULL_TERMINATED_BUFFER(&bound_query, OCTO_MAX_QUERY_LEN - 1);
-		// Copy Bind parameters into bound query string
-		// Store ALL parameters on portal for retrieval by handle_execute, both bind parameters and literals
-		// Start with substring leading up to first parameter
-		bound_query.len_used = prepared_offset = 0;
-		memcpy(&bound_query.buf_addr[bound_query.len_used], &sql_expression.buf_addr[prepared_offset],
-		       parse_context.parm_start[0]);
-		bound_query.len_used += parse_context.parm_start[0];
-		prepared_offset += parse_context.parm_start[0];
-		for (cur_bind_parm = 0; cur_bind_parm < num_bind_parms; cur_bind_parm++) {
-			// Insert quotes if parameter is a string
-			if (PSQL_TypeOid_varchar == parse_context.types[cur_bind_parm]) {
-				bound_query.buf_addr[bound_query.len_used] = '\'';
-				bound_query.len_used++;
-				if (bound_query.len_used > bound_query.len_alloc) {
-					/* +1 so that the error message shows a value greated than OCTO_MAX_QUERY_LEN, which is
-					 * needed since the impending overrun was in fact prevented by the above check.
-					 */
-					ERROR(ERR_ROCTO_QUERY_TOO_LONG, bound_query.len_used + 1, OCTO_MAX_QUERY_LEN);
-					YDB_FREE_BUFFER(&bound_query);
-					CLEANUP_FROM_BIND();
-					return 1;
-				}
-			}
-			// Copy parameter value
-			if (1 < bind->num_parm_format_codes) {
-				if (TEXT_FORMAT == bind->parm_format_codes[cur_bind_parm]) {
-					copied = copy_text_parameter(bind, cur_bind_parm, &bound_query);
-					CHECK_COPY_RESULT_AND_RETURN_IF_NEEDED(copied);
-				} else {
-					// Binary
-					copied = copy_binary_parameter(bind, cur_bind_parm, &bound_query);
-					CHECK_COPY_RESULT_AND_RETURN_IF_NEEDED(copied);
-				}
-			} else if (0 == bind->num_parm_format_codes) {
-				// All parameters are in text format
-				bound_query.len_used = copy_text_parameter(bind, cur_bind_parm, &bound_query);
-			} else if (1 == bind->num_parm_format_codes) {
-				if (TEXT_FORMAT == bind->parm_format_codes[FIRST_FORMAT_CODE]) {
-					copied = copy_text_parameter(bind, cur_bind_parm, &bound_query);
-					CHECK_COPY_RESULT_AND_RETURN_IF_NEEDED(copied);
-				} else {
-					// Binary
-					copied = copy_binary_parameter(bind, cur_bind_parm, &bound_query);
-					CHECK_COPY_RESULT_AND_RETURN_IF_NEEDED(copied);
-				}
-			}
-			// Insert quotes if parameter is a string
-			if (PSQL_TypeOid_varchar == parse_context.types[cur_bind_parm]) {
-				bound_query.buf_addr[bound_query.len_used] = '\'';
-				bound_query.len_used++;
-				if (bound_query.len_used > bound_query.len_alloc) {
-					/* +1 so that the error message shows a value greated than OCTO_MAX_QUERY_LEN, which is
-					 * needed since the impending overrun was in fact prevented by the above check.
-					 */
-					ERROR(ERR_ROCTO_QUERY_TOO_LONG, bound_query.len_used + 1, OCTO_MAX_QUERY_LEN);
-					YDB_FREE_BUFFER(&bound_query);
-					CLEANUP_FROM_BIND();
-					return 1;
-				}
-			}
-			prepared_offset += parse_context.parm_end[cur_bind_parm] - parse_context.parm_start[cur_bind_parm];
-
-			// Copy portion of query string between two parameters
-			if ((cur_bind_parm + 1) == num_bind_parms) {
-				int to_copy = sql_expression.len_used - parse_context.parm_end[cur_bind_parm];
-
-				if ((bound_query.len_used + to_copy) > bound_query.len_alloc) {
-					ERROR(ERR_ROCTO_QUERY_TOO_LONG, bound_query.len_used + to_copy, OCTO_MAX_QUERY_LEN);
-					YDB_FREE_BUFFER(&bound_query);
-					CLEANUP_FROM_BIND();
-					return 1;
-				}
-				memcpy(&bound_query.buf_addr[bound_query.len_used], &sql_expression.buf_addr[prepared_offset],
-				       to_copy);
-				bound_query.len_used += to_copy;
-			} else {
-				int to_copy = parse_context.parm_start[cur_bind_parm + 1] - parse_context.parm_end[cur_bind_parm];
-
-				if ((bound_query.len_used + to_copy) > bound_query.len_alloc) {
-					ERROR(ERR_ROCTO_QUERY_TOO_LONG, bound_query.len_used + to_copy, OCTO_MAX_QUERY_LEN);
-					YDB_FREE_BUFFER(&bound_query);
-					CLEANUP_FROM_BIND();
-					return 1;
-				}
-				memcpy(&bound_query.buf_addr[bound_query.len_used], &sql_expression.buf_addr[prepared_offset],
-				       to_copy);
-				prepared_offset += to_copy;
-				prepared_offset += to_copy;
-				bound_query.len_used += to_copy;
-			}
-		}
-		bound_query.buf_addr[bound_query.len_used] = '\0';
-		free(parse_context_array);
-		free(parse_context.types);
-		YDB_FREE_BUFFER(&sql_expression);
-
-		status = ydb_set_s(&portal_subs[0], 3, &portal_subs[1], &bound_query);
-		// These pointers are not allocated when there are no bind parameters
-		YDB_FREE_BUFFER(&parm_value_buf);
-		YDB_FREE_BUFFER(&bound_query);
-	} else {
-		status = ydb_set_s(&portal_subs[0], 3, &portal_subs[1], &sql_expression);
-		YDB_FREE_BUFFER(&sql_expression);
-	}
-	YDB_ERROR_CHECK(status);
-	if (YDB_OK != status) {
-		status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);
-		YDB_ERROR_CHECK(status);
-		return 1;
-	}
+	free(parse_context.types);
+	free(parse_context_array);
+	YDB_FREE_BUFFER(&parm_value_buf);
+	YDB_FREE_BUFFER(&sql_expression);
 
 	// Construct the response message
 	response = make_bind_complete();

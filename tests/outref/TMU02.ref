@@ -28,9 +28,6 @@
 %ydboctosession("user")="USER"
 %ydboctosession("user")="USER"
 %ydboctosession("user")="USER"
-%ydboctosession(1,"bound","")="SELECT * FROM OrderDetails WHERE OrderDetailID = 101"
-%ydboctosession(1,"bound","")="SELECT * FROM OrderDetails WHERE OrderDetailID = 3"
-%ydboctosession(1,"bound","")="SELECT * FROM Shippers WHERE ShipperID = 3"
 %ydboctosession(1,"bound","","col_formats")=0
 %ydboctosession(1,"bound","","col_formats")=0
 %ydboctosession(1,"bound","","col_formats")=0

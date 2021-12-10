@@ -21,17 +21,6 @@
 #include "message_formats.h"
 #include "rocto.h"
 
-int32_t copy_text_parameter(Bind *bind, const int32_t cur_parm, ydb_buffer_t *bound_query) {
-	assert((OCTO_MAX_QUERY_LEN - 1) == bound_query->len_alloc);
-	if (bound_query->len_alloc <= (bound_query->len_used + bind->parms[cur_parm].length)) {
-		ERROR(ERR_ROCTO_QUERY_TOO_LONG, bound_query->len_used + bind->parms[cur_parm].length, OCTO_MAX_QUERY_LEN);
-		return -1;
-	}
-	memcpy(&bound_query->buf_addr[bound_query->len_used], bind->parms[cur_parm].value, bind->parms[cur_parm].length);
-	bound_query->len_used += bind->parms[cur_parm].length;
-	return bound_query->len_used;
-}
-
 // TODO: Confirm that this function does what clients expect it to. This has not yet been done as the only clients known to use this
 // feature are proprietary and therefore difficult to test.
 int32_t copy_binary_parameter(Bind *bind, const int32_t cur_parm, ydb_buffer_t *bound_query) {
@@ -40,20 +29,10 @@ int32_t copy_binary_parameter(Bind *bind, const int32_t cur_parm, ydb_buffer_t *
 	size_t	parm_len;
 
 	parm_len = ((8 >= bind->parms[cur_parm].length) ? INT64_TO_STRING_MAX : bind->parms[cur_parm].length);
-	if ((YDB_MAX_STR - 1) == bound_query->len_alloc) {
-		/* The buffer for the full query string has been passed, cannot expand buffer so check to confirm result of binary
-		 * to text conversion is in bounds.
-		 */
-		if (bound_query->len_alloc <= (bound_query->len_used + parm_len)) {
-			ERROR(ERR_ROCTO_QUERY_TOO_LONG, bound_query->len_used + parm_len, OCTO_MAX_QUERY_LEN);
-			return -1;
-		}
-	} else {
-		// This is a single parameter buffer, expand as needed
-		if (bound_query->len_alloc <= (bound_query->len_used + parm_len)) {
-			YDB_FREE_BUFFER(bound_query);
-			OCTO_MALLOC_NULL_TERMINATED_BUFFER(bound_query, (bound_query->len_used + parm_len));
-		}
+	// This is a single parameter buffer, expand as needed
+	if (bound_query->len_alloc <= (bound_query->len_used + parm_len)) {
+		YDB_FREE_BUFFER(bound_query);
+		OCTO_MALLOC_NULL_TERMINATED_BUFFER(bound_query, (bound_query->len_used + parm_len));
 	}
 
 	switch (bind->parms[cur_parm].length) {
@@ -88,7 +67,7 @@ int32_t copy_binary_parameter(Bind *bind, const int32_t cur_parm, ydb_buffer_t *
 		break;
 	}
 	bound_query->len_used += copied;
-	return bound_query->len_used + copied;
+	return bound_query->len_used;
 }
 
 int32_t get_binary_parameter_length(Bind *bind, const int32_t cur_parm) {

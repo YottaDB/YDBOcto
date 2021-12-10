@@ -173,7 +173,6 @@ char *bin_to_bytea(char *bin);
 void  bin_to_uuid(char *bin, char *buffer);
 
 // Utility functions for copying Bind parameters into query string
-int32_t copy_text_parameter(Bind *bind, const int32_t cur_parm, ydb_buffer_t *bound_query);
 int32_t copy_binary_parameter(Bind *bind, const int32_t cur_parm, ydb_buffer_t *bound_query);
 int32_t get_binary_parameter_length(Bind *bind, const int32_t cur_parm);
 

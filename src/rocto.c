@@ -381,6 +381,7 @@ int main(int argc, char **argv) {
 			handle_cancel_request(cancel_request);
 			// Shutdown connection immediately to free client prompt
 			shutdown(rocto_session.connection_fd, SHUT_RDWR);
+			free(cancel_request);
 			break;
 		}
 

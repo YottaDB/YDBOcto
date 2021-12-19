@@ -1,0 +1,64 @@
+#################################################################
+#								#
+# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+# YottaDB Init
+leak:db_init
+
+# Leak from YottaDB in several levels down from op_gvorder in init_hashtab_intl_int4
+leak:init_hashtab_intl_int4
+
+# Leak from YottaDB by gtm_main->init_gtm->gtm_startup->io_init->op_open->io_open_try->iorm_open->iorm_use
+leak:iorm_use
+
+# Leak from YottaDB by mupip_main->mu_extract->mu_extr_gblout
+leak:mu_extr_gblout
+
+# Leak from YottaDB by op_fngvget->gvcst_get->op_tcommit
+leak:op_tcommit
+
+# find_function and find_table
+# Memory is managed by YottaDB
+# https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/615#note_434704262
+leak:find_function
+leak:find_table
+
+# Known leak in merge_config_file (per pre-existing Valgrind work)
+leak:merge_config_file
+
+# No clue why, but there are leaks from ncurses and libterm
+leak:libncursesw.so.*
+leak:libtinfo.so.*
+
+# Librt leak (likely due to thread not being suspended properly)
+# https://github.com/google/sanitizers/issues/1479
+leak:librt.so.*
+
+# libcrypto leaks
+leak:libcrypto.so.*
+
+# Libconfig leaks
+leak:libconfig.so.*
+
+# This is a pesky one, which I think is a bug in GCC10/ASAN5
+# Signature looks like this:
+#
+# Direct leak of 40 byte(s) in 1 object(s) allocated from:
+#    #0 0x7f2e641abba8 in __interceptor_malloc (/lib64/libasan.so.5+0xefba8)
+#    #1 0x473002 in alloc_chunk (/opt/yottadb/current/plugin/octo/bin/octo+0x473002)
+#
+# Indirect leak of 729 byte(s) in 1 object(s) allocated from:
+#    #0 0x7f2e641abdb0 in calloc (/lib64/libasan.so.5+0xefdb0)
+#    #1 0x47304d in alloc_chunk (/opt/yottadb/current/plugin/octo/bin/octo+0x47304d)
+#
+# It's correct that there are leaks, but these all come from find_function,
+# find_table, which are already excluded above. This solution is the best I can
+# come up with now.
+leak:alloc_chunk

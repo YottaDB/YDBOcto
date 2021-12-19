@@ -44,7 +44,7 @@ before_script:
     - ln -fs /usr/share/zoneinfo/US/Eastern /etc/localtime
     - apt-get update -qq && apt-get install -y tzdata
     - dpkg-reconfigure --frontend noninteractive tzdata
-    - apt-get install -y -qq --no-install-recommends build-essential clang clang-tidy clang-format-11 cmake bison flex libcmocka-dev python3 python3-pip python3-setuptools python3-wheel libreadline-dev git libconfig-dev libssl-dev postgresql-client postgresql xxd wget libgcrypt20-dev libgpgme-dev expect default-jdk ninja-build valgrind unixodbc odbc-postgresql tcsh shellcheck libicu-dev pkg-config locales mysql-server-8.0 mysql-client
+    - apt-get install -y -qq --no-install-recommends build-essential clang clang-tidy clang-format-11 cmake bison flex libcmocka-dev python3 python3-pip python3-setuptools python3-wheel libreadline-dev git libconfig-dev libssl-dev postgresql-client postgresql xxd wget libgcrypt20-dev libgpgme-dev expect default-jdk ninja-build unixodbc odbc-postgresql tcsh shellcheck libicu-dev pkg-config locales mysql-server-8.0 mysql-client
     - locale-gen en_US.UTF-8
     - pip3 install sphinxcontrib-fulltoc sphinx sphinx_rtd_theme
     - export PATH=/usr/local/go/bin:$PATH
@@ -55,7 +55,7 @@ before_script:
 
 .rocky:
   before_script:
-    - yum --enablerepo=powertools install -y libcmocka-devel gcc make clang clang-tools-extra cmake bison flex python3-pip readline-devel git libconfig-devel openssl-devel postgresql postgresql-server libgcrypt-devel gpgme-devel openssl expect java-11-openjdk-devel unzip valgrind unixODBC postgresql-odbc diffutils pkg-config libicu-devel glibc-langpack-en wget vim mysql-server xz
+    - yum --enablerepo=powertools install -y libcmocka-devel gcc libasan make clang clang-tools-extra cmake bison flex python3-pip readline-devel git libconfig-devel openssl-devel postgresql postgresql-server libgcrypt-devel gpgme-devel openssl expect java-11-openjdk-devel unzip unixODBC postgresql-odbc diffutils pkg-config libicu-devel glibc-langpack-en wget vim mysql-server xz
     # Ninja is not available from the default repositories on Rocky Linux.
     # On Rocky Linux it is not available at all without going through third-party repositories.
     # Rather than setting that up, just install ninja from the GitHub releases page directly.
@@ -102,6 +102,38 @@ make-rocky:
     - .make
     - .rocky
   script: ./tools/ci/build.sh "make-rocky" "none"
+
+asan-ubuntu:
+  image: yottadb/yottadb-base:latest-master
+  # Timeout max for shared runners on Gitlab is 3h
+  timeout: 3h
+  # Run ASAN job only if this is a scheduled pipeline or if we are on a ASAN branch
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_COMMIT_BRANCH =~ /asan/'
+  extends:
+    - .make
+    - .ubuntu
+  services:
+    - mysql:8.0
+  script:
+    - ./tools/ci/build.sh "make-ubuntu" "asan"
+
+asan-rocky:
+  image: yottadb/yottadb-rocky-base:latest-master
+  # Timeout max for shared runners on Gitlab is 3h
+  timeout: 3h
+  # Run ASAN job only if this is a scheduled pipeline or if we are on a ASAN branch
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_COMMIT_BRANCH =~ /asan/'
+  extends:
+    - .make
+    - .rocky
+  services:
+    - mysql:8.0
+  script:
+    - ./tools/ci/build.sh "make-rocky" "asan"
 
 make-tls-ubuntu:
   image: yottadb/yottadb-base:latest-master

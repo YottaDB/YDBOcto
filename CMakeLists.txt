@@ -53,6 +53,9 @@ option(DISABLE_INSTALL "Disable Installation?" OFF)
 option(FULL_TEST_SUITE "Run full test suite?" OFF)
 option(TEST_SPEED "Run separate speed test?" OFF)
 option(TEST_VISTA "Run separate VistA test (Database needs to be set-up separately)?" OFF)
+option(ENABLE_ASAN "Enable address sanitizer in build?" OFF)
+option(ENABLE_AUTO_VAR_INIT_PATTERN "Enable -ftrivial-auto-var-init=pattern in build?" OFF)
+
 if(NOT ${DISABLE_INSTALL})
 	message(STATUS "Install destination: ${CMAKE_INSTALL_PREFIX}")
 endif()
@@ -67,6 +70,16 @@ endif()
 if(${TEST_VISTA})
 	message(STATUS "`make test` will run VistA tests")
 endif()
+if(${ENABLE_ASAN})
+	message(STATUS "All Octo operations will have Address Santizer enabled")
+endif()
+if(${ENABLE_AUTO_VAR_INIT_PATTERN})
+	message(STATUS "All files will be compiled with -ftrivial-auto-var-init=pattern")
+endif()
+
+if(NOT ${DISABLE_INSTALL})
+	message(STATUS "Install destination: ${CMAKE_INSTALL_PREFIX}")
+endif()
 
 set(OCTO_TOOLS_DIR "${CMAKE_SOURCE_DIR}/tools/")
 set(TEST_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}")
@@ -79,13 +92,6 @@ if(NOT MAX_KEY_COUNT)
 	set(MAX_KEY_COUNT 255)
 endif()
 
-# This tells valgrind to use `ignored-valgrind-errors.supp` as the list of errors to ignore when
-# running Octo.
-# NOTE: `CACHE` is required or CMake will not generate the right `MemoryCheckSuppressionFile` line
-# in `DartConfiguration.tcl` (similar to `export` in shell). See
-# https://cmake.org/cmake/help/latest/manual/cmake-language.7.html#cmake-language-variables for
-# more information.
-set(MEMORYCHECK_SUPPRESSIONS_FILE ${PROJECT_SOURCE_DIR}/tools/ci/ignored-valgrind-errors.supp CACHE STRING "")
 include(CTest)
 add_subdirectory(src)
 

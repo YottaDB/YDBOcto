@@ -15,8 +15,9 @@
 set -v
 set -x
 
-jobname=$1	# could be "make-rocky", "make-ubuntu", "make-tls-rocky", "make-tls-rocky" or "test-auto-upgrade"
-subtaskname=$2 # Could be "force" or "none" in case jobname is "test-auto-upgrade"
+jobname=$1      # Could be "make-rocky", "make-ubuntu", "make-tls-rocky", "make-tls-rocky" or "test-auto-upgrade"
+subtaskname=$2  # Could be "force" or "none" in case jobname is "test-auto-upgrade"
+                # Could be "asan" for "make-rocky", "make-ubuntu", "make-tls-rocky", "make-tls-rocky"
 autoupgrade_old_commit=$3 # Git hash
 autoupgrade_test_to_troubleshoot=$4 # specific CMake test name to troubleshoot
 
@@ -86,20 +87,6 @@ else
 	generator=Ninja
 	build_tool=ninja
 fi
-
-# For now, cannot run valgrind on bats with Rocky Linux; only Ubuntu
-# See this issue opened by @shabiel: https://github.com/bats-core/bats-core/issues/494
-# However, we are restructuring the test as part of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/205,
-# and therefore, we can enable the test on Rocky Linux again once we do that.
-if [ "test-auto-upgrade" != $jobname ] && $is_ubuntu; then
-  # Enable valgrind when running tests. This has less than a 30 second slowdown out of a 35 minute build.
-  ctestCommand="ctest -T memcheck"
-  use_valgrind=1
-else
-  ctestCommand="ctest"
-  use_valgrind=0
-fi
-echo " -> ctestCommand = $ctestCommand"
 
 echo "# Install the YottaDB POSIX plugin"
 pushd $start_dir
@@ -224,6 +211,15 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 	else
 		disable_install="OFF"
 	fi
+
+	if [ "asan" = $subtaskname ]; then
+	  # Enable ASAN. It's only a 2x slowdown
+	  # Run full test suite
+	  asan="ON"
+	  full_test="ON"
+	else
+	  asan="OFF"
+	fi
 else
 	# Always run the full test suite in case of "test-auto-upgrade" job.
 	# That will give us maximum coverage for auto-upgrade testing.
@@ -231,9 +227,12 @@ else
 	# Disable installs for "test-auto-upgrade" as we need to run tests with 2 Octo builds and so need to keep those
 	# two builds in separate subdirectories and cannot install both into $ydb_dist.
 	disable_install="ON"
+	# Don't run any ASAN on upgrade jobs.
+	asan="OFF"
 fi
 echo " -> full_test = $full_test"
 echo " -> disable_install = $disable_install"
+echo " -> enable_asan = $asan"
 
 if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 	# Note that a lot of code is duplicated in the "debug" portion below
@@ -369,7 +368,7 @@ trap cleanup_before_exit EXIT
 
 echo "# Configure the build system for Octo"
 
-cmake -G "$generator" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=$build_type -DFULL_TEST_SUITE=$full_test -DDISABLE_INSTALL=$disable_install ..
+cmake -G "$generator" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=$build_type -DFULL_TEST_SUITE=$full_test -DDISABLE_INSTALL=$disable_install -DENABLE_ASAN=$asan ..
 compile_octo
 
 # If this is the "test-auto-upgrade" job, skip steps that are covered by other jobs (e.g. "make-ubuntu" etc.)
@@ -560,14 +559,9 @@ PSQL
 	# We do not want any failures in "ctest" to exit the script (need to do some cleanup so the artifacts
 	# are not that huge etc.). So disable the "set -e" setting temporarily for this step.
 	set +e
-	${ctestCommand} -j $(grep -c ^processor /proc/cpuinfo)
+	ctest -j $(grep -c ^processor /proc/cpuinfo)
 	exit_status=$?
-	echo " -> exit_status from ${ctestCommand} = $exit_status"
-
-	# If we ran valgrind, ctest puts the logs in a different file for some reason.
-	if [ $use_valgrind = 1 ]; then
-		mv Testing/Temporary/LastDynamicAnalysis* Testing/Temporary/LastTest.log
-	fi
+	echo " -> exit_status from ctest = $exit_status"
 
 	# This block and much under it is duplicated in tools/ci/vistatest.sh
 	# Re-enable "set -e" now that ctest is done.
@@ -645,15 +639,6 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 		set -v
 		set -x
 	fi
-	# Don't print hundreds of lines of logfiles
-	set +x
-	for file in Testing/Temporary/MemoryChecker.*.log; do
-		if [ -s $file ]; then
-			echo "ERROR  : Octo leaked memory or accessed uninitialized bytes in build/$file"
-			exit_status=1
-		fi
-	done
-	set -x
 	if [[ 0 == $exit_status ]]; then
 		if [[ $build_type != "RelWithDebInfo" || $disable_install != "OFF" ]]; then
 			echo "# Rebuild Octo for packaging as it wasn't a RelWithDebInfo build or was built with installation disabled"

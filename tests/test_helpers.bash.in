@@ -122,6 +122,12 @@ init_test() {
 	export PYTHONDONTWRITEBYTECODE=1
 	# Set env var to maintain list of common schemas to create across different database emulations, e.g. Postgres and MySQL
 	export schema_list="names names1col nameslastname customers pastas easynames northwind $(echo sqllogic{1,2,3,4,5}) boolean nullnames nullcharnames composite "
+
+	# ASAN Options if ASAN is enabled
+	if [[ @ENABLE_ASAN@ == "ON" ]]; then
+		export ASAN_OPTIONS="abort_on_error=1:disable_coredump=0:unmap_shadow_on_exit=1:verify_asan_link_order=0:suppressions=@PROJECT_SOURCE_DIR@/tests/fixtures/asan-supp.txt"
+		export LSAN_OPTIONS="suppressions=@PROJECT_SOURCE_DIR@/tests/fixtures/lsan-supp.txt:print_suppressions=0"
+	fi
 }
 
 init_tls() {
@@ -431,10 +437,13 @@ stop_rocto() {
 	if [[ -e rocto.pid ]]; then
 		listener_pid=$(cat rocto.pid)
 		# Wait for rocto servers (i.e. children of the listener) to die
-		ps --no-headers --ppid $listener_pid | awk '{print $1}' | while read server_pid; do
+		# The grep is to filter out non-rocto processes that can start with ASAN
+		# With clang, we found that llvm-symbolizer starts as a child process of rocto and won't die on its own
+		ps --no-headers --ppid $listener_pid | grep rocto | awk '{print $1}' | while read server_pid; do
 			# Wait for rocto server process to actually die
 			tail --pid=$server_pid -f /dev/null
 		done
+
 		$ydb_dist/mupip stop $listener_pid
 		# Wait for rocto process to actually die
 		tail --pid=$listener_pid -f /dev/null
@@ -691,6 +700,11 @@ verify_output() {
 	# Convert psql prompt to root for compatibility when running tests on systems with different PostgreSQL user permissions
 	# Specifically, some test machines do not run tests with full PostgreSQL user permissions and so receive a prompt with '>' instead of '#'
 	sed -i 's/=>/=#/' clean_output.txt
+	# Remove message "Running thread PID was not suspended. False leaks are possible."
+	# https://github.com/google/sanitizers/issues/1479
+	if [[ @ENABLE_ASAN@ == "ON" ]]; then
+		sed -i '/was not suspended. False leaks are possible./d' clean_output.txt
+	fi
 
 	# Selectively process output
 	for i in "$@"; do

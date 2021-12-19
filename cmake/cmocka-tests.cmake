@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -37,6 +37,10 @@ macro(ADD_UNIT_TEST_WITH_OPTIONS TEST_NAME TEST_FILE WRAP_FUNCTION)
     )
   endif()
   add_test(${TEST_NAME} ${TEST_NAME})
+  if(${ENABLE_ASAN})
+	  set_tests_properties(${TEST_NAME} PROPERTIES
+		  ENVIRONMENT "LSAN_OPTIONS=suppressions=${PROJECT_SOURCE_DIR}/tests/fixtures/lsan-supp.txt:print_suppressions=0;ASAN_OPTIONS=abort_on_error=1:disable_coredump=0:unmap_shadow_on_exit=1:verify_asan_link_order=0")
+  endif()
 endmacro(ADD_UNIT_TEST_WITH_OPTIONS)
 
 if("${FULL_TEST_SUITE}" MATCHES "ON")

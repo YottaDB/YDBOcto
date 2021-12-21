@@ -377,6 +377,10 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		UNPACK_SQL_STATEMENT(coalesce_call, v, coalesce);
 		// SqlColumnList
 		result |= populate_data_type_column_list(coalesce_call->arguments, type, TRUE, ensure_same_type, parse_context);
+		if ((!result) && (TABLE_ASTERISK == *type)) {
+			assert(coalesce_call->arguments);
+			ISSUE_TYPE_COMPATIBILITY_ERROR(*type, "coalesce operation", &coalesce_call->arguments, result);
+		}
 		// NOTE: if the types of the parameters do not match, no error is issued.
 		// This matches the behavior of sqlite but not that of Postgres and Oracle DB.
 		break;
@@ -384,11 +388,17 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		UNPACK_SQL_STATEMENT(greatest_call, v, greatest);
 		// SqlColumnList
 		result |= populate_data_type_column_list(greatest_call->arguments, type, TRUE, ensure_same_type, parse_context);
+		if ((!result) && (TABLE_ASTERISK == *type)) {
+			ISSUE_TYPE_COMPATIBILITY_ERROR(*type, "greatest operation", &greatest_call->arguments, result);
+		}
 		break;
 	case least_STATEMENT:
 		UNPACK_SQL_STATEMENT(least_call, v, least);
 		// SqlColumnList
 		result |= populate_data_type_column_list(least_call->arguments, type, TRUE, ensure_same_type, parse_context);
+		if ((!result) && (TABLE_ASTERISK == *type)) {
+			ISSUE_TYPE_COMPATIBILITY_ERROR(*type, "least operation", &least_call->arguments, result);
+		}
 		break;
 	case null_if_STATEMENT:;
 		SqlValueType tmp;
@@ -404,6 +414,9 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			break;
 		}
 		result |= ensure_same_type(type, &tmp, null_if->left, null_if->right, parse_context);
+		if ((!result) && (TABLE_ASTERISK == *type)) {
+			ISSUE_TYPE_COMPATIBILITY_ERROR(*type, "nullif operation", &null_if->left, result);
+		}
 		break;
 	case aggregate_function_STATEMENT:;
 		SqlAggregateFunction *aggregate_function;

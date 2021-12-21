@@ -69,3 +69,9 @@ teardown() {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TTA006.sql
 }
 
+@test "TTA007 : OCTO386 : TABLENAME.ASTERISK doesn't cause assert failures" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	load_fixture TTA007.sql subtest novv
+	verify_output TTA007 output.txt
+}

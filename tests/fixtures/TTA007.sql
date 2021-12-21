@@ -43,3 +43,11 @@ select 1 from names n1 group by n1.* having greatest(n1.*)=NULL;
 select 1 from names n1 group by n1.* having least(n1.*)=NULL;
 select 1 from names n1 group by n1.* having nullif(n1.*,NULL)=NULL;
 select 1 from names n1 group by n1.* having nullif(n1.*,n1.*)=NULL;
+
+select 1 from names n1 where case NULL when NULL then n1.* else n1.* end;
+select 1 from names n1 order by case NULL when NULL then n1.* else n1.* end;
+select 1 from names n1 order by case NULL when NULL then n1.id else n1.* end;
+select case NULL when NULL then n1.id else n1.* end from names n1;
+select case NULL when NULL then n1.* else n1.* end from names n1;
+select case n1.*=NULL when n1.* then n1.* else n1.* end from names n1;
+select case n1.*=NULL when n1.*=NULL then n1.* else n1.* end from names n1;

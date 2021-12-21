@@ -170,6 +170,10 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 				break;
 			}
 		}
+		if ((!result) && (TABLE_ASTERISK == child_type[0])) {
+			ISSUE_TYPE_COMPATIBILITY_ERROR(child_type[0], "case operation", &cas->branches->v.cas_branch->value,
+						       result);
+		}
 		*type = child_type[0];
 		break;
 	case cas_branch_STATEMENT:

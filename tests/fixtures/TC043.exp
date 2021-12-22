@@ -47,6 +47,10 @@ expect -i octo0 "OCTO>"
 puts "# Run <SELECT HANGTIME(firstname,10) FROM names; in OCTO0. Takes 60 seconds to run"
 send -i octo0 -- "SELECT HANGTIME(firstname,10) FROM names;\r"
 
+# For ASAN tests, the next statements continue w/o the first one establishing the lock
+# Wait a tiny bit so that we will have the lock for sure.
+sleep 1
+
 # List various DDL queries that require exclusive lock
 array set ddl_queries {
 	1	"CREATE TABLE abcdefgh (id INTEGER PRIMARY KEY);"

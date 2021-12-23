@@ -21,6 +21,9 @@ setup() {
 }
 
 @test "TMU01 : memory usage remains constant across subsequent query executions" {
+  if [[ @ENABLE_ASAN@ == "ON" ]]; then
+    skip "This test cannot run correctly under ASAN as ASAN increases memory usage on each run"
+  fi
   test_port=$(start_rocto 1444)
   cp @PROJECT_SOURCE_DIR@/tests/fixtures/report_memory_usage.sh .
 

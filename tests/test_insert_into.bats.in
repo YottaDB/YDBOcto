@@ -75,6 +75,9 @@ teardown() {
 }
 
 @test "TII07 : OCTO502 : Test that physical plans get reused in case of repeated INSERT INTO queries" {
+	if [[ @ENABLE_ASAN@ == "ON" ]]; then
+		skip "This test cannot run correctly under ASAN as ASAN writes to the directory, and write permission gets turned off"
+	fi
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TII07.sql .
 	echo "# Run an INSERT INTO query and a SELECT query to verify the INSERT INTO worked" > output.txt
 	octo -f TII07.sql >> output.txt

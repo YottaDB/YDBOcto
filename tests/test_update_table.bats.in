@@ -76,6 +76,9 @@ teardown() {
 }
 
 @test "TUT004 : OCTO579 : Test that physical plans get reused in case of repeated UPDATE queries" {
+	if [[ @ENABLE_ASAN@ == "ON" ]]; then
+		skip "This test cannot run correctly under ASAN as ASAN writes to the directory, and write permission gets turned off"
+	fi
 	# This subtest is similar to the test_delete_from_table/TDFT04 subtest
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TUT004.sql .
 	echo "# Run an UPDATE query and a SELECT query to verify the UPDATE worked" > output.txt

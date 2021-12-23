@@ -72,6 +72,9 @@ teardown() {
 }
 
 @test "TDFT04 : OCTO54 : Test that physical plans get reused in case of repeated DELETE FROM queries" {
+	if [[ @ENABLE_ASAN@ == "ON" ]]; then
+		skip "This test cannot run correctly under ASAN as ASAN writes to the directory, and write permission gets turned off"
+	fi
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TDFT04.sql .
 	echo "# Run a DELETE FROM query and a SELECT query to verify the DELETE FROM worked" > output.txt
 	octo -f TDFT04.sql >> output.txt

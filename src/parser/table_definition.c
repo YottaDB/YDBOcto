@@ -218,6 +218,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				}
 #endif
 				cur_keyword->v = NULL; /* TODO: YDBOcto#772: Temporarily set this to get tests to pass */
+				break;
 			default:
 				break;
 			}

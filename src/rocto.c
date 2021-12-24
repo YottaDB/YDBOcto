@@ -193,7 +193,7 @@ int main(int argc, char **argv) {
 	ssl_request = NULL;
 	buffer = (char *)malloc(sizeof(char) * buffer_size);
 	while (!rocto_session.session_ending) {
-		if ((cfd = accept(sfd, (struct sockaddr *)&address, &addrlen)) < 0) {
+		if ((cfd = accept(sfd, (struct sockaddr *)address, &addrlen)) < 0) {
 			if (rocto_session.session_ending) {
 				break;
 			}
@@ -279,10 +279,10 @@ int main(int argc, char **argv) {
 		rocto_session.connection_fd = cfd;
 		rocto_session.ssl_active = FALSE;
 		if (config->rocto_config.use_dns) {
-			status = getnameinfo((const struct sockaddr *)&address, addrlen, host_buf, NI_MAXHOST, serv_buf, NI_MAXSERV,
-					     0);
+			status
+			    = getnameinfo((const struct sockaddr *)address, addrlen, host_buf, NI_MAXHOST, serv_buf, NI_MAXSERV, 0);
 		} else {
-			status = getnameinfo((const struct sockaddr *)&address, addrlen, host_buf, NI_MAXHOST, serv_buf, NI_MAXSERV,
+			status = getnameinfo((const struct sockaddr *)address, addrlen, host_buf, NI_MAXHOST, serv_buf, NI_MAXSERV,
 					     NI_NUMERICHOST | NI_NUMERICSERV);
 		}
 		if (0 != status) {

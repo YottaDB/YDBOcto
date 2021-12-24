@@ -111,24 +111,25 @@
  *	-1 if query has been canceled.
  */
 int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type, ParseContext *parse_context) {
-	FILE *			   out;
-	SqlStatement *		   result;
-	SqlValue *		   value;
-	bool			   free_memory_chunks;
-	char *			   buffer, filename[OCTO_PATH_MAX], routine_name[MAX_ROUTINE_LEN], function_hash[MAX_ROUTINE_LEN];
-	ydb_long_t		   cursorId;
-	hash128_state_t		   state;
-	int			   status;
-	size_t			   buffer_size = 0;
-	ydb_buffer_t		   query_lock[3], *null_query_lock;
-	ydb_string_t		   ci_param1, ci_param2;
-	ydb_buffer_t		   cursor_ydb_buff;
-	ydb_buffer_t		   schema_global;
-	ydb_buffer_t		   octo_global;
-	boolean_t		   canceled = FALSE, cursor_used;
-	int			   length;
-	unsigned int		   ret_value;
-	SqlTable *		   table;
+	FILE *	      out;
+	SqlStatement *result;
+	SqlValue *    value;
+	bool	      free_memory_chunks;
+	// + 1 for NULL terminator
+	char *		buffer, filename[OCTO_PATH_MAX + 1], routine_name[MAX_ROUTINE_LEN + 1], function_hash[MAX_ROUTINE_LEN + 1];
+	ydb_long_t	cursorId;
+	hash128_state_t state;
+	int		status;
+	size_t		buffer_size = 0;
+	ydb_buffer_t	query_lock[3], *null_query_lock;
+	ydb_string_t	ci_param1, ci_param2;
+	ydb_buffer_t	cursor_ydb_buff;
+	ydb_buffer_t	schema_global;
+	ydb_buffer_t	octo_global;
+	boolean_t	canceled = FALSE, cursor_used;
+	int		length;
+	unsigned int	ret_value;
+	SqlTable *	table;
 	SqlDropTableStatement *	   drop_table;
 	SqlTruncateTableStatement *truncate_table;
 	SqlColumnList *		   column_list, *cur_table;
@@ -248,9 +249,11 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
 			return 1;
 		}
-		generate_routine_name(&state, routine_name, sizeof(routine_name), OutputPlan);
+		// - 1 don't include null terminator in size
+		generate_routine_name(&state, routine_name, sizeof(routine_name) - 1, OutputPlan);
 		/* The below call updates "filename" to be the full path including "routine_name" at the end */
-		status = get_full_path_of_generated_m_file(filename, sizeof(filename), &routine_name[1]);
+		// - 1 don't include null terminator in size
+		status = get_full_path_of_generated_m_file(filename, sizeof(filename) - 1, &routine_name[1]);
 		if (status) {
 			ERROR(ERR_PLAN_HASH_FAILED, "");
 			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
@@ -263,7 +266,8 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			return 1;
 		}
 		if (parse_context->is_extended_query) {
-			memcpy(parse_context->routine, routine_name, sizeof(routine_name));
+			// - 1 don't include null terminator in size
+			memcpy(parse_context->routine, routine_name, sizeof(routine_name) - 1);
 			/* Note: We do not want to do parameter lvn related cleanup as the query is still not completely done
 			 * hence using the below macro instead of the usual CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS macro.
 			 */
@@ -272,7 +276,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		}
 		cursorId = atol(cursor_ydb_buff.buf_addr);
 		ci_param1.address = routine_name;
-		ci_param1.length = sizeof(routine_name);
+		ci_param1.length = sizeof(routine_name) - 1; // don't include null terminator
 		/* Currently read-only queries are not wrapped in TP and read-write queries are wrapped in TP. */
 		switch (result_type) {
 		case table_alias_STATEMENT:
@@ -591,7 +595,8 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		if (0 != status) {
 			CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 		}
-		generate_routine_name(&state, function_hash, sizeof(function_hash), FunctionHash);
+		// - 1: don't include null terminator in size calculations
+		generate_routine_name(&state, function_hash, sizeof(function_hash) - 1, FunctionHash);
 		function_hash_buffer = &function_name_buffers[2];
 		YDB_STRING_TO_BUFFER(function_hash, function_hash_buffer);
 		// Add function hash to parse tree for later addition to logical plan
@@ -613,7 +618,8 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		YDB_STRING_TO_BUFFER(OCTOLIT_FUNCTIONS, &function_name_buffers[0]);
 		function_name_buffers[4].buf_addr = filename;
 		function_name_buffers[4].len_used = 0;
-		function_name_buffers[4].len_alloc = sizeof(filename);
+		// - 1: don't include null terminator in size calculations
+		function_name_buffers[4].len_alloc = sizeof(filename) - 1;
 
 		/* Check if function with computed hash exists already or not */
 		status = ydb_data_s(&octo_global, 3, &function_name_buffers[0], &ret_value);

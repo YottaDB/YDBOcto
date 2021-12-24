@@ -48,7 +48,7 @@ void function_definition_lookup(FunctionCallContext *fc_context, FunctionMatchCo
 	 * the current parameter specifications.
 	 */
 
-	char	  function_hash[MAX_ROUTINE_LEN];
+	char	  function_hash[MAX_ROUTINE_LEN + 1];
 	int	  i;
 	SqlValue *function_name_value;
 
@@ -65,7 +65,8 @@ void function_definition_lookup(FunctionCallContext *fc_context, FunctionMatchCo
 	for (i = 0; i < fc_context->num_args; i++) {
 		ADD_INT_HASH(&state, fc_context->arg_types[i]);
 	}
-	generate_routine_name(&state, function_hash, sizeof(function_hash), FunctionHash);
+	// - 1 don't include null terminator in size
+	generate_routine_name(&state, function_hash, sizeof(function_hash) - 1, FunctionHash);
 	// Retrieve the DDL for the given function
 	if (NULL == fc->function_schema) {
 		// Only allocate a new function schema when there isn't one already.

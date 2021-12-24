@@ -441,7 +441,8 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 				CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 			}
 
-			char		     tableGVNAME[YDB_MAX_IDENT + 1];
+			// + 2: One for ^, one for null pointer. YDB_MAX_IDENT does not include ^.
+			char		     tableGVNAME[YDB_MAX_IDENT + 2];
 			ydb_buffer_t	     gvname_buff;
 			enum OptionalKeyword retention = NO_KEYWORD;
 			if (drop_table_STATEMENT == result_type) {

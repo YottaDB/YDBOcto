@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -28,9 +28,16 @@
 int __wrap_read_bytes(RoctoSession *session, char **buffer, int *buffer_size, int bytes_to_read) {
 	int pid = mock_type(int);
 	int secret_key = mock_type(int);
-	memcpy(*buffer, &pid, bytes_to_read);
-	// TODO: this is technically UB if `buffer` is not long enough. Fortunately it only happens in the test suite.
-	memcpy(&((*buffer)[sizeof(int)]), &secret_key, bytes_to_read);
+	// These sizes match the parameters in read_cancel_request.c
+	// Asserting here that they do indeed match
+	assert_int_equal(sizeof(pid_t), sizeof(pid));
+	assert_int_equal(sizeof(uint32_t), sizeof(secret_key));
+	// We can't use bytes_to_read directly, as reading this much at once would overflow the memory for each item
+	// Instead, we just make sure that whatever we will "read" adds up to bytes_to_read
+	assert_int_equal(sizeof(pid) + sizeof(secret_key), bytes_to_read);
+	// Fake "read" into memory
+	memcpy(*buffer, &pid, sizeof(pid));
+	memcpy(&((*buffer)[sizeof(int)]), &secret_key, sizeof(secret_key));
 	return 0;
 }
 

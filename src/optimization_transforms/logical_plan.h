@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -346,7 +346,7 @@ int lp_get_unique_id_from_lp_column_alias_or_lp_derived_column(LogicalPlan *plan
 // Inserts a key at the end of the plans keys
 void lp_insert_key(LogicalPlan *plan, LogicalPlan *key);
 // Returns if either operand of a boolean operation logical plan (e.g. LP_BOOLEAN_LESS_THAN) is of type STRING
-boolean_t lp_is_operand_type_string(LogicalPlan *plan);
+boolean_t lp_is_operand_type_string(LogicalPlan *plan, boolean_t *is_null);
 // Returns LP_WHERE with an AND of the two wheres
 LogicalPlan *lp_join_where(LogicalPlan *where1, LogicalPlan *where2);
 // Returns a new logical plan representing the boolean structure from stmt

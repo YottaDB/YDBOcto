@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -16,26 +16,35 @@
 #include "octo_types.h"
 #include "logical_plan.h"
 
-/* This can only be used for expressions where operand[0] is non-NULL.
+/* When `is_null` is NULL this function can only be used for expressions where operand[0] is non-NULL.
  * Additionally, if operand[1] is non-null, it must have the same type as operand[0].
+ * When `is_null` is not NULL then the plan is traversed and if its leaf node has a NUL_VALUE `*is_null`
+ * will be set to TRUE. At present Call with `is_null` arguement is done only from tmpl_print_expression.ctemplate
+ * LP_GREATEST/LP_LEAST case.
  */
-boolean_t lp_is_operand_type_string(LogicalPlan *plan) {
+boolean_t lp_is_operand_type_string(LogicalPlan *plan, boolean_t *is_null) {
 	boolean_t	ret, loop_done;
 	LogicalPlan *	cur_plan, *ret_type_plan;
 	SqlColumnAlias *column_alias;
 	SqlValueType	return_type;
 
-	assert((LP_BOOLEAN_LESS_THAN == plan->type) || (LP_BOOLEAN_GREATER_THAN == plan->type)
-	       || (LP_BOOLEAN_LESS_THAN_OR_EQUALS == plan->type) || (LP_BOOLEAN_GREATER_THAN_OR_EQUALS == plan->type)
-	       || (LP_BOOLEAN_ANY_LESS_THAN == plan->type) || (LP_BOOLEAN_ANY_GREATER_THAN == plan->type)
-	       || (LP_BOOLEAN_ANY_LESS_THAN_OR_EQUALS == plan->type) || (LP_BOOLEAN_ANY_GREATER_THAN_OR_EQUALS == plan->type)
-	       || (LP_BOOLEAN_ANY_EQUALS == plan->type) || (LP_BOOLEAN_ANY_NOT_EQUALS == plan->type)
-	       || (LP_BOOLEAN_ALL_LESS_THAN == plan->type) || (LP_BOOLEAN_ALL_GREATER_THAN == plan->type)
-	       || (LP_BOOLEAN_ALL_LESS_THAN_OR_EQUALS == plan->type) || (LP_BOOLEAN_ALL_GREATER_THAN_OR_EQUALS == plan->type)
-	       || (LP_BOOLEAN_ALL_EQUALS == plan->type) || (LP_BOOLEAN_ALL_NOT_EQUALS == plan->type)
-	       || (LP_GREATEST == plan->type) | (LP_LEAST == plan->type) || (LP_NULL_IF == plan->type)
-	       || (LP_BOOLEAN_IN == plan->type) || (LP_BOOLEAN_NOT_IN == plan->type) || (LP_BOOLEAN_EQUALS == plan->type)
-	       || (LP_BOOLEAN_NOT_EQUALS == plan->type));
+	/* When `is_null` is not NULL the call is to process LP_GREATEST/LP_LEAST operands and the operand can
+	 * be of any type as it is parsed as a `value_expression`. Hence we only perform assertions in case where
+	 * `is_null` doesn't have an argument as the type in such calls are known to be the ones asserted below.
+	 */
+	if (NULL == is_null) {
+		assert((LP_BOOLEAN_LESS_THAN == plan->type) || (LP_BOOLEAN_GREATER_THAN == plan->type)
+		       || (LP_BOOLEAN_LESS_THAN_OR_EQUALS == plan->type) || (LP_BOOLEAN_GREATER_THAN_OR_EQUALS == plan->type)
+		       || (LP_BOOLEAN_ANY_LESS_THAN == plan->type) || (LP_BOOLEAN_ANY_GREATER_THAN == plan->type)
+		       || (LP_BOOLEAN_ANY_LESS_THAN_OR_EQUALS == plan->type)
+		       || (LP_BOOLEAN_ANY_GREATER_THAN_OR_EQUALS == plan->type) || (LP_BOOLEAN_ANY_EQUALS == plan->type)
+		       || (LP_BOOLEAN_ANY_NOT_EQUALS == plan->type) || (LP_BOOLEAN_ALL_LESS_THAN == plan->type)
+		       || (LP_BOOLEAN_ALL_GREATER_THAN == plan->type) || (LP_BOOLEAN_ALL_LESS_THAN_OR_EQUALS == plan->type)
+		       || (LP_BOOLEAN_ALL_GREATER_THAN_OR_EQUALS == plan->type) || (LP_BOOLEAN_ALL_EQUALS == plan->type)
+		       || (LP_BOOLEAN_ALL_NOT_EQUALS == plan->type) || (LP_NULL_IF == plan->type) || (LP_BOOLEAN_IN == plan->type)
+		       || (LP_BOOLEAN_NOT_IN == plan->type) || (LP_BOOLEAN_EQUALS == plan->type)
+		       || (LP_BOOLEAN_NOT_EQUALS == plan->type));
+	}
 	/* We assume all values in this expression have the same type, which should be true due to the matching of types
 	 * further up the stack (in `populate_data_type`). Traverse down the left side of the logical plan tree until we get
 	 * to a plan node which has only a left child (right hand child is NULL) OR stop traversing if we end up with
@@ -43,11 +52,15 @@ boolean_t lp_is_operand_type_string(LogicalPlan *plan) {
 	 */
 	cur_plan = plan;
 	ret = FALSE;
+	if (NULL != is_null)
+		*is_null = FALSE;
 	for (loop_done = FALSE; !loop_done;) {
 		switch (cur_plan->type) {
 		case LP_VALUE:
 			if (STRING_LITERAL == cur_plan->v.lp_value.value->type) {
 				ret = TRUE;
+			} else if ((NULL != is_null) && (NUL_VALUE == cur_plan->v.lp_value.value->type)) {
+				*is_null = TRUE;
 			}
 			loop_done = TRUE;
 			break;
@@ -83,6 +96,7 @@ boolean_t lp_is_operand_type_string(LogicalPlan *plan) {
 			if (STRING_LITERAL == return_type) {
 				ret = TRUE;
 			}
+			assert(NUL_VALUE != return_type);
 			loop_done = TRUE;
 			break;
 		case LP_COLUMN_LIST_ALIAS:

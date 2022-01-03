@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -291,18 +291,18 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		 * dealing with are NUMERIC. Hence the need for the "coerce_to_numeric" variable (see YDBOcto#574 for more details).
 		 */
 		m_operator = "=";
-		coerce_to_numeric = !lp_is_operand_type_string(plan);
+		coerce_to_numeric = !lp_is_operand_type_string(plan, NULL);
 		break;
 	case LP_BOOLEAN_NOT_EQUALS:
 		m_operator = "'=";
-		coerce_to_numeric = !lp_is_operand_type_string(plan);
+		coerce_to_numeric = !lp_is_operand_type_string(plan, NULL);
 		break;
 	case LP_BOOLEAN_LESS_THAN:
 	case LP_BOOLEAN_GREATER_THAN:
 	case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
 	case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
 		// If the arguments are strings, we need to use the M follows operator ']' as appropriate.
-		use_string_comparison = lp_is_operand_type_string(plan);
+		use_string_comparison = lp_is_operand_type_string(plan, NULL);
 		if (use_string_comparison) {
 			// String type. Need to use "]" or "']" operator and swap operands as needed.
 			if (LP_BOOLEAN_GREATER_THAN == plan_type) {
@@ -473,7 +473,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			 * LP_BOOLEAN_AND/LP_BOOLEAN_OR in terms of "dot_count" handling.
 			 */
 			assert(LP_COLUMN_LIST == second_operand->type);
-			coerce_to_numeric = !lp_is_operand_type_string(plan);
+			coerce_to_numeric = !lp_is_operand_type_string(plan, NULL);
 			plan2 = second_operand;
 			if (dot_count) {
 				TMPL(tmpl_print_dots, dot_count);
@@ -631,7 +631,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			sql_operator = "ALL";
 			break;
 		}
-		use_string_comparison = lp_is_operand_type_string(plan);
+		use_string_comparison = lp_is_operand_type_string(plan, NULL);
 		%{}$${{ sql_operator }}^%%ydboctoplanhelpers({}%
 		if (dot_count) {
 			%{}{{ PP_YDB_OCTO_EXPR }}{}%
@@ -823,14 +823,27 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		break;
 	case LP_GREATEST:
 	case LP_LEAST: {
-		boolean_t	use_string_comparison;
+		boolean_t	use_string_comparison, is_null;
 		LogicalPlan	*next_plan;
 		char		*min_or_max;
 
 		assert((NULL != first_operand) && "fatal error: GREATEST/LEAST should have at least one value");
 		min_or_max = ((LP_GREATEST == plan_type) ? "$$max" : "$$min");
 		/* If the arguments are strings, we need to use the M follows operator ']' as appropriate */
-		use_string_comparison = lp_is_operand_type_string(plan);
+		cur_plan = plan->v.lp_default.operand[0];
+		assert(LP_COLUMN_LIST == cur_plan->type);
+		while (NULL != cur_plan) {
+			use_string_comparison = lp_is_operand_type_string(cur_plan->v.lp_default.operand[0], &is_null);
+			if (is_null) {
+				/* The operand was a NUL_VALUE. This can be treated as a string or number.
+				 * Check next operand(s) to get real type information if any are non-NULL.
+				 */
+				cur_plan = cur_plan->v.lp_default.operand[1];
+			} else {
+				/* Operand is not NULL. Therefore its type is determined for sure. No need to check any more operands. */
+				break;
+			}
+		}
 
 		/* GREATEST(a) or LEAST(a) -> a
 		 * GREATEST(a, b, c) -> max(a,max(b,c))
@@ -883,7 +896,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	}
 	case LP_NULL_IF:
 		/* NULLIF(a,b) -> $select(a=b:$ZYSQLNULL,1:a) */
-		coerce_to_numeric = !lp_is_operand_type_string(plan);
+		coerce_to_numeric = !lp_is_operand_type_string(plan, NULL);
 		if (dot_count) {
 			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
 			TMPL(tmpl_print_dots, dot_count);

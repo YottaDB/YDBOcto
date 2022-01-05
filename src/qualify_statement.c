@@ -80,9 +80,10 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		UNPACK_SQL_STATEMENT(column_table_alias, new_column_alias->table_alias_stmt, table_alias);
 		parent_table_alias = column_table_alias->parent_table_alias;
 		/* Assert that if we are doing GROUP BY related checks ("do_group_by_checks" is TRUE), then the
-		 * "aggregate_function_or_group_by_specified" field is also TRUE.
+		 * "aggregate_function_or_group_by_or_having_specified" field is also TRUE.
 		 */
-		assert(!parent_table_alias->do_group_by_checks || parent_table_alias->aggregate_function_or_group_by_specified);
+		assert(!parent_table_alias->do_group_by_checks
+		       || parent_table_alias->aggregate_function_or_group_by_or_having_specified);
 		if (parent_table_alias->do_group_by_checks && (0 == parent_table_alias->aggregate_depth)
 		    && !new_column_alias->group_by_column_number) {
 			/* 1) We are doing GROUP BY related validation of column references in the query (and because
@@ -136,7 +137,8 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 
 						aggregate_depth = parent_table_alias->aggregate_depth;
 						if (0 < aggregate_depth) {
-							parent_table_alias->aggregate_function_or_group_by_specified = TRUE;
+							parent_table_alias->aggregate_function_or_group_by_or_having_specified
+							    = TRUE;
 						} else if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE == aggregate_depth) {
 							/* Update `group_by_column_count` and `group_by_column_number` */
 							new_column_alias->group_by_column_number
@@ -286,8 +288,8 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 			}
 		}
 		if (!result) {
-			assert(!table_alias->do_group_by_checks || table_alias->aggregate_function_or_group_by_specified);
-			table_alias->aggregate_function_or_group_by_specified = TRUE;
+			assert(!table_alias->do_group_by_checks || table_alias->aggregate_function_or_group_by_or_having_specified);
+			table_alias->aggregate_function_or_group_by_or_having_specified = TRUE;
 			table_alias->aggregate_depth++;
 			result |= qualify_statement(af->parameter, tables, table_alias_stmt, depth + 1, ret);
 			if (0 == result) {

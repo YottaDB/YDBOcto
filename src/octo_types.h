@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -523,7 +523,7 @@ typedef struct SqlTableAlias {
 			      * Non-zero and Negative if currently inside a FROM or WHERE or GROUP BY clause.
 			      * Used while qualifying a query for error checking in both the above cases.
 			      */
-	boolean_t aggregate_function_or_group_by_specified;
+	boolean_t aggregate_function_or_group_by_or_having_specified;
 	boolean_t do_group_by_checks; /* TRUE for the time we are in "qualify_statement()" while doing GROUP BY related checks
 				       * in the HAVING, SELECT column list and ORDER BY clause. Note that "qualify_statement()"
 				       * is invoked twice on these lists. The first time, this flag is FALSE. The second time

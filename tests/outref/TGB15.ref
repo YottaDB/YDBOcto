@@ -1,0 +1,23 @@
+
+select id from names having 1=1;
+select 1 from names having 1=1 order by id;
+select 1 from names having id = 2;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 1, column 8):
+
+select id from names having 1=1;
+       ^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id from names having 1=1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 1, column 41):
+
+select 1 from names having 1=1 order by id;
+                                        ^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names having 1=1 order by id;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 1, column 28):
+
+select 1 from names having id = 2;
+                           ^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names having id = 2;
+

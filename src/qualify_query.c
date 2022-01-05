@@ -265,14 +265,14 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	result |= qualify_statement(select->where_expression, start_join, table_alias_stmt, 0, ret);
 	// Qualify GROUP BY clause next
 	group_by_expression = select->group_by_expression;
-	/* Note that while table_alias->aggregate_function_or_group_by_specified will mostly be FALSE at this point, it is
+	/* Note that while table_alias->aggregate_function_or_group_by_or_having_specified will mostly be FALSE at this point, it is
 	 * possible for it to be TRUE in some cases (see YDBOcto#457 for example query) if this `qualify_query()` invocation
 	 * corresponds to a sub-query in say the HAVING clause of an outer query. In that case, `qualify_query()` for the
 	 * sub-query would be invoked twice by the `qualify_query()` of the outer query (see `table_alias->do_group_by_checks`
 	 * `for` loop later in this function). If so, we can skip the GROUP BY expression processing for the sub-query the
-	 * second time. Hence the `&& !table_alias->aggregate_function_or_group_by_specified)` in the `if` check below.
+	 * second time. Hence the `&& !table_alias->aggregate_function_or_group_by_or_having_specified)` in the `if` check below.
 	 */
-	if ((NULL != group_by_expression) && !table_alias->aggregate_function_or_group_by_specified) {
+	if ((NULL != group_by_expression) && !table_alias->aggregate_function_or_group_by_or_having_specified) {
 		SqlColumnListAlias *start_cla, *cur_cla;
 		SqlTableAlias *	    group_by_table_alias;
 		SqlColumnList *	    col_list;
@@ -283,7 +283,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		result |= qualify_statement(group_by_expression, start_join, table_alias_stmt, 0, ret);
 		/* Note: table_alias->group_by_column_count can still be 0 if GROUP BY was done on a parent query column */
 		if (table_alias->group_by_column_count) {
-			table_alias->aggregate_function_or_group_by_specified = TRUE;
+			table_alias->aggregate_function_or_group_by_or_having_specified = TRUE;
 		}
 		/* Traverse the GROUP BY list to see what columns belong to this table_alias. Include only those in the
 		 * GROUP BY list. Exclude any other columns (e.g. columns belonging to outer query) from the list
@@ -343,8 +343,11 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	}
 
 	/* Qualify HAVING clause */
-	table_alias->aggregate_depth = AGGREGATE_DEPTH_HAVING_CLAUSE;
-	result |= qualify_statement(select->having_expression, start_join, table_alias_stmt, 0, ret);
+	if (NULL != select->having_expression) {
+		table_alias->aggregate_depth = AGGREGATE_DEPTH_HAVING_CLAUSE;
+		result |= qualify_statement(select->having_expression, start_join, table_alias_stmt, 0, ret);
+		table_alias->aggregate_function_or_group_by_or_having_specified = TRUE;
+	}
 
 	/* Expand "*" usage in SELECT column list here. This was not done in "query_specification.c" when the "*" usage was
 	 * first encountered because the FROM/JOIN list of that query could in turn contain a "TABLENAME.*" usage that refers
@@ -424,16 +427,17 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		table_alias->qualify_query_stage = QualifyQuery_ORDER_BY;
 		result |= qualify_statement(select->order_by_expression, start_join, table_alias_stmt, 0, &lcl_ret);
 		table_alias->qualify_query_stage = QualifyQuery_NONE;
-		if (!table_alias->aggregate_function_or_group_by_specified) {
-			/* GROUP BY or AGGREGATE function was never used in the query. No need to do GROUP BY validation checks. */
+		if (!table_alias->aggregate_function_or_group_by_or_having_specified) {
+			/* GROUP BY or AGGREGATE function or HAVING was never used in the query. No need to do GROUP BY
+			 * validation checks.*/
 			break;
 		} else if (table_alias->do_group_by_checks) {
-			/* GROUP BY or AGGREGATE function was used in the query. And GROUP BY validation checks already done
-			 * as part of the second iteration in this for loop. Can now break out of the loop.
+			/* GROUP BY or AGGREGATE function or HAVING was used in the query. And GROUP BY validation checks already
+			 * done as part of the second iteration in this for loop. Can now break out of the loop.
 			 */
 			break;
 		}
-		/* GROUP BY or AGGREGATE function was used in the query. Do GROUP BY validation checks by doing
+		/* GROUP BY or AGGREGATE function or HAVING was used in the query. Do GROUP BY validation checks by doing
 		 * a second iteration in this for loop.
 		 */
 		table_alias->do_group_by_checks = TRUE;

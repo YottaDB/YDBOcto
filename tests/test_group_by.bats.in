@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -92,4 +92,10 @@ setup() {
 	load_fixture customers.sql
 	load_fixture customers.zwr
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TGB14.sql
+}
+
+@test "TGB15: OCTO796 : Test HAVING clause without GROUP BY clause usage" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB15.sql
+	load_fixture TGB15_errors.sql subtest novv
+	verify_output TGB15 output.txt
 }

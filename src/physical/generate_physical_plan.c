@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -260,8 +260,8 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	}
 	root_table_alias = plan->extra_detail.lp_select_query.root_table_alias;
 	/* Note: root_table_alias can be NULL for xref plans (which do not correspond to any actual user-specified query) */
-	out->aggregate_function_or_group_by_specified
-	    = ((NULL == root_table_alias) ? FALSE : root_table_alias->aggregate_function_or_group_by_specified);
+	out->aggregate_function_or_group_by_or_having_specified
+	    = ((NULL == root_table_alias) ? FALSE : root_table_alias->aggregate_function_or_group_by_or_having_specified);
 	if ((LP_SELECT_QUERY == plan->type) || (LP_TABLE_VALUE == plan->type)) {
 		LogicalPlan *output;
 

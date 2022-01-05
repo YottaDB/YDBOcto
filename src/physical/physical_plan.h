@@ -76,7 +76,7 @@ typedef struct PhysicalPlan {
 						 * once "tmpl_tablejoin_body_group_by" call is done
 						 * but "tmpl_group_by" call has not happened.
 						 */
-	boolean_t	     aggregate_function_or_group_by_specified;
+	boolean_t	     aggregate_function_or_group_by_or_having_specified;
 	SetOperType *	     set_oper_list;	  /* Linked list of SET OPERATIONS to do on this plan at the end */
 	struct PhysicalPlan *dnf_prev, *dnf_next; /* Linked list of plans that are at the same LP_SET_DNF level */
 	LogicalPlan *	     lp_select_query;	  /* The owning LP_SELECT_QUERY or LP_TABLE_VALUE or LP_INSERT_INTO
@@ -96,7 +96,7 @@ typedef struct PhysicalPlan {
 } PhysicalPlan;
 
 /* Below macro returns TRUE if GROUP BY or HAVING have been specified and/or Aggregate functions have been used in plan */
-#define IS_GROUP_BY_PLAN(PLAN) (PLAN->aggregate_function_or_group_by_specified)
+#define IS_GROUP_BY_PLAN(PLAN) (PLAN->aggregate_function_or_group_by_or_having_specified)
 
 #define IS_INSERT_INTO_PHYSICAL_PLAN(PPLAN) ((NULL != PPLAN->lp_select_query) && (LP_INSERT_INTO == PPLAN->lp_select_query->type))
 #define IS_DELETE_FROM_PHYSICAL_PLAN(PPLAN) ((NULL != PPLAN->lp_select_query) && (LP_DELETE_FROM == PPLAN->lp_select_query->type))

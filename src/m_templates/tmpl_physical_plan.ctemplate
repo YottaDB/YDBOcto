@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -255,9 +255,9 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 		dot_count = 0;
 		assert(FALSE == pplan->tablejoin_body_group_by_done);
 		TMPL(tmpl_tablejoin, pplan, pplan->tablejoin, cur_key, FALSE, dot_count, NULL, NULL);
-		/* If this plan has GROUP BY, "tmpl_tablejoin" would not have generated output keys in the usual format.
-		 * It would have generated GROUP BY related subscript lvn tree that needs to be converted into an output key.
-		 * Do that here.
+		/* If this plan has GROUP BY or HAVING or Aggregate function usage, "tmpl_tablejoin" would not have generated
+		 * output keys in the usual format. It would have generated GROUP BY related subscript lvn tree that needs
+		 * to be converted into an output key. Do that here.
 		 */
 		if (IS_GROUP_BY_PLAN(pplan) && (NULL == pplan->dnf_next)) {
 			assert(FALSE == pplan->tablejoin_body_group_by_done);

@@ -832,7 +832,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		/* If the arguments are strings, we need to use the M follows operator ']' as appropriate */
 		cur_plan = plan->v.lp_default.operand[0];
 		assert(LP_COLUMN_LIST == cur_plan->type);
-		while (NULL != cur_plan) {
+		do {
 			use_string_comparison = lp_is_operand_type_string(cur_plan->v.lp_default.operand[0], &is_null);
 			if (is_null) {
 				/* The operand was a NUL_VALUE. This can be treated as a string or number.
@@ -843,7 +843,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				/* Operand is not NULL. Therefore its type is determined for sure. No need to check any more operands. */
 				break;
 			}
-		}
+		} while (NULL != cur_plan);
 
 		/* GREATEST(a) or LEAST(a) -> a
 		 * GREATEST(a, b, c) -> max(a,max(b,c))

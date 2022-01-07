@@ -70,6 +70,14 @@ endif()
 if(${TEST_VISTA})
 	message(STATUS "`make test` will run VistA tests")
 endif()
+# Check if YottaDB is compiled using ASAN. If so, enable ASAN by default
+execute_process(COMMAND nm $ENV{ydb_dist}/libyottadb.so
+	COMMAND grep -c "U __asan_init"
+	OUTPUT_VARIABLE YDBASAN)
+if(${YDBASAN} GREATER_EQUAL 1)
+	set(ENABLE_ASAN ON)
+	message(STATUS "Forcing Address Sanitizer usage as YottaDB is compiled using Address Sanitizer")
+endif()
 if(${ENABLE_ASAN})
 	message(STATUS "All Octo operations will have Address Santizer enabled")
 endif()

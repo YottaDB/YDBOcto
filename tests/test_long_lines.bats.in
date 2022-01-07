@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -43,8 +43,13 @@ OCTO
 }
 
 @test "TLL04 : octo -f on query greater than 32k characters in one query" {
+  # On Rocky Linux on GCC 8.5, the default stack of 8M is not enough to run this query with ASAN due to Octo's use of recursion
+  # This not an issue on Ubuntu with GCC 9.3
+  # Raise the limit pre-emptively to 64M
+  if [[ "@ENABLE_ASAN@" == "ON" ]]; then
+    ulimit -s 65536
+  fi
   export COLUMNS=35000 # increase column limit to avoid control characters
-
   yottadb -run gt32k^genlargequery
   run_octo_allow_error in.sql output.txt
   # No need to filter out long error messages since there are none
@@ -52,6 +57,12 @@ OCTO
 }
 
 @test "TLL05 : octo -f on series of queries greater than 32k characters" {
+  # On Rocky Linux on GCC 8.5, the default stack of 8M is not enough to run this query with ASAN due to Octo's use of recursion
+  # This not an issue on Ubuntu with GCC 9.3
+  # Raise the limit pre-emptively to 64M
+  if [[ "@ENABLE_ASAN@" == "ON" ]]; then
+    ulimit -s 65536
+  fi
   export COLUMNS=35000 # increase column limit to avoid control characters
   yottadb -run almost32k^genlargequery
   run_octo_allow_error in.sql output.txt

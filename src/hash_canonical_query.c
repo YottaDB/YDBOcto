@@ -458,6 +458,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		 * table that are already part of the hash so it is redundant to hash this one too).
 		 *	hash_canonical_query(state, table->readwrite, status);
 		 */
+		hash_canonical_query(state, table->aim_type, status);
 		break;
 	case table_value_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */
 		SqlTableValue *table_value;

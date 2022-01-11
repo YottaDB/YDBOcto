@@ -69,8 +69,10 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 		CALL_DECOMPRESS_HELPER(table->source, out, out_length);
 		CALL_DECOMPRESS_HELPER(table->columns, out, out_length);
 		CALL_DECOMPRESS_HELPER(table->delim, out, out_length);
+		CALL_DECOMPRESS_HELPER(table->aim_type, out, out_length);
 		/* table->readwrite is not a pointer value so no need to call CALL_DECOMPRESS_HELPER on this member */
 		/* table->oid is not a pointer value so no need to call CALL_DECOMPRESS_HELPER on this member */
+		/* table->if_not_exists_specified is not a pointer value */
 		break;
 	case create_function_STATEMENT:
 		UNPACK_SQL_STATEMENT(function, stmt, create_function);

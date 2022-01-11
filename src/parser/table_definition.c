@@ -573,6 +573,11 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			break;
 		case NO_KEYWORD:
 			break;
+		case OPTIONAL_AIM_TYPE:
+			SQL_STATEMENT(statement, keyword_STATEMENT);
+			statement->v.keyword = cur_keyword;
+			table->aim_type = statement;
+			break;
 		default:
 			ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
 			assert(FALSE);

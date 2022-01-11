@@ -166,13 +166,20 @@ If mapping to existing YottaDB global variables, an optional_keyword can be adde
 
 .. code-block:: none
 
-   [DELIM | END | ENDPOINT | EXTRACT | GLOBAL | KEY NUM | PIECE | READONLY | READWRITE | START | STARTINCLUDE ]
+   [ AIMTYPE | DELIM | END | ENDPOINT | EXTRACT | GLOBAL | KEY NUM | PIECE | READONLY | READWRITE | START | STARTINCLUDE ]
 
 The keywords denoted above are M expressions and literals. They are explained in the following table:
 
 +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
 | Keyword      | Type               | Range         | Purpose                                                                        | Overrides                    | Default Value                                             |
 +==============+====================+===============+================================================================================+==============================+===========================================================+
+| AIMTYPE      | Integer Literal    | Table         | By default, when Octo uses a YottaDB component called AIM to created indexes,  |                              | :code:`0`                                                 |
+|              |                    |               | it does not include NULL data in the index. This can only happen when the data |                              |                                                           |
+|              |                    |               | stored by Octo is on multiple levels, such as VistA data. Specifying "1" for a |                              |                                                           |
+|              |                    |               | table means that we want data that is stored on other levels but is not        |                              |                                                           |
+|              |                    |               | currently present to be considered NULL. If you specify "1", the region housing|                              |                                                           |
+|              |                    |               | the table MUST have NULL subscripts in globals disabled.                       |                              |                                                           |
++--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
 | DELIM        | Literal            | Table, Column | Represents the delimiter string to be used in                                  | table/default DELIM setting  | :code:`"|"`                                               |
 |              |                    |               | `$PIECE() <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_   |                              |                                                           |
 |              |                    |               | when obtaining the value of a particular column from the global variable       |                              |                                                           |

@@ -97,6 +97,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %parse-param { yyscan_t scanner } { SqlStatement **out } { int *plan_id } { ParseContext *parse_context }
 
 %token ADVANCE
+%token AIMTYPE
 %token ALL
 %token AND
 %token ANY
@@ -1362,6 +1363,13 @@ optional_keyword_element
       SQL_STATEMENT($$, keyword_STATEMENT);
       MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
       ($$)->v.keyword->keyword = OPTIONAL_READWRITE;
+      dqinit(($$)->v.keyword);
+  }
+  | AIMTYPE ddl_int_literal_value {
+      SQL_STATEMENT($$, keyword_STATEMENT);
+      MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
+      ($$)->v.keyword->keyword = OPTIONAL_AIM_TYPE;
+      ($$)->v.keyword->v = $ddl_int_literal_value;
       dqinit(($$)->v.keyword);
   }
   ;

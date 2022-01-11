@@ -280,6 +280,7 @@ typedef enum OptionalKeyword {
 	OPTIONAL_ENDPOINT,
 	OPTIONAL_KEEPDATA,
 	OPTIONAL_CHECK_CONSTRAINT,
+	OPTIONAL_AIM_TYPE,
 } OptionalKeyword;
 
 typedef enum SqlSetOperationType {
@@ -501,6 +502,7 @@ typedef struct SqlTable {
 	struct SqlStatement *source;
 	struct SqlStatement *columns; // SqlColumn
 	struct SqlStatement *delim;
+	struct SqlStatement *aim_type;	/* Type parameter for AIM */
 	boolean_t	     readwrite; /* TRUE if READWRITE keyword is specified, FALSE if READONLY keyword is specified */
 	uint64_t	     oid;	/* TABLEOID; compared against ^%ydboctoschema(TABLENAME,OCTOLIT_PG_CLASS) */
 	boolean_t	     if_not_exists_specified;

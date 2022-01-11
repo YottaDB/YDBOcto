@@ -97,6 +97,9 @@ char *get_keyword_name(OptionalKeyword keyword) {
 	case OPTIONAL_CHECK_CONSTRAINT:
 		ret = "CHECK_CONSTRAINT";
 		break;
+	case OPTIONAL_AIM_TYPE:
+		ret = "AIMTYPE";
+		break;
 	default:
 		assert(FALSE);
 		ret = NULL;

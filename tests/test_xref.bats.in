@@ -92,8 +92,25 @@ OCTO
 }
 
 @test "TX05 : OCTO657 : Octo-AIM regression where NULLs are missed because data that doesn't exist isn't indexed" {
-	$ydb_dist/yottadb -run %XCMD 'kill ^x set ^x(1,1)="a",^x(2)=""'
+        # Type 1 does not work will any region that has null enabled
+        # Normally, Octo testing framework has nulls enabled even for DEFAULT region
+	mupip set -null_subscripts=never -region DEFAULT
+	$ydb_dist/yottadb -run %XCMD 'kill ^x set ^x(1,1)="a",^x(2,0)=""'
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TX05.sql .
 	octo -f TX05.sql 2>&1 | tee -a output.txt
 	verify_output TX05 output.txt
+}
+
+@test "TX06 : Test AIMTYPE 1 on CREATE TABLE" {
+        # Type 1 does not work will any region that has null enabled
+        # Normally, Octo testing framework has nulls enabled even for DEFAULT region
+	mupip set -null_subscripts=never -region DEFAULT
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TX06.sql .
+	load_fixture vista-mini.zwr
+	# Remove node which will result into a NULL entry
+	yottadb -run %XCMD 'kill ^ORD(100.01,1,"VUID")'
+	load_fixture TX06.sql
+	yottadb -run zwriteAIMData^aimutils 2>&1 | tee -a output.txt
+	grep '%YDBAIM' _ydboctoX* | tee -a output.txt
+	verify_output TX06 output.txt
 }

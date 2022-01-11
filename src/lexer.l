@@ -101,6 +101,7 @@ int copied_so_far;
 %%
 
 (?i:ADVANCE) { return ADVANCE; }
+(?i:AIMTYPE) { return AIMTYPE; }
 (?i:ALL) { return ALL; }
 (?i:AND) { return AND; }
 (?i:ANY) { return ANY; }

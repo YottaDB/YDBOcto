@@ -1,6 +1,6 @@
 #################################################################
 #								#
-u Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -77,6 +77,7 @@ CREATE TABLE `ORDER1`(
  `PATIENT_ID` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID"")" EXTRACT "$$COMPEXP^%YDBOCTOVISTAM(100,99,keys(""ORDER1_ID""))"
 )
 GLOBAL "^OR(100,keys(""ORDER1_ID""))"
+AIMTYPE 1
 DELIM "^";
 
 CREATE TABLE `ORDER_STATUS` (
@@ -88,6 +89,7 @@ CREATE TABLE `ORDER_STATUS` (
  `VUID` CHARACTER(20) GLOBAL "^ORD(100.01,keys(""ORDER_STATUS_ID""),""VUID"")" PIECE 1
 )
 GLOBAL "^ORD(100.01,keys(""ORDER_STATUS_ID""))"
+AIMTYPE 1
 DELIM "^";
 
 CREATE TABLE `ORDER_ORDER_ACTIONS`(
@@ -136,6 +138,7 @@ CREATE TABLE `ORDER_ORDER_ACTIONS`(
  `ADMIN_RELEASED_BY_POLICY` CHARACTER(3) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),8)" PIECE 1
 )
 GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""))"
+AIMTYPE 1
 DELIM "^";
 
 CREATE TABLE `NEW_PERSON`(
@@ -313,6 +316,7 @@ CREATE TABLE `NEW_PERSON`(
  `ESS_CUSTOMER_ID` CHARACTER(5) GLOBAL "^VA(200,keys(""NEW_PERSON_ID""),776000)" PIECE 2
 )
 GLOBAL "^VA(200,keys(""NEW_PERSON_ID""))"
+AIMTYPE 1
 DELIM "^";
 
 CREATE TABLE `DISPLAY_GROUP`(
@@ -323,6 +327,7 @@ CREATE TABLE `DISPLAY_GROUP`(
  `DEFAULT_DIALOG` INTEGER GLOBAL "^ORD(100.98,keys(""DISPLAY_GROUP_ID""),0)" PIECE 4
 )
 GLOBAL "^ORD(100.98,keys(""DISPLAY_GROUP_ID""))"
+AIMTYPE 1
 DELIM "^";
 
 CREATE TABLE `PATIENT`(
@@ -810,6 +815,7 @@ CREATE TABLE `PATIENT`(
  `MHV_MSG_DECLINED_REASON` INTEGER GLOBAL "^DPT(keys(""PATIENT_ID""),2)" PIECE 9
 )
 GLOBAL "^DPT(keys(""PATIENT_ID""))"
+AIMTYPE 1
 DELIM "^";
 
 -- Various functions used by VistA. Commented functions are currently unused in the test system and are undefined.

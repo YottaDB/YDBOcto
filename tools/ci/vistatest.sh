@@ -1,7 +1,7 @@
 #!/bin/bash
 #################################################################
 #								#
-# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -34,12 +34,18 @@ cd bats-core
 ./install.sh /usr/local
 popd
 
-# The VistA Image is Centos, so use cmake3
+# The VistA Image is CentOS 7, so use cmake3
 echo "Current directory is: $PWD"
 echo "# Compiling Octo"
 mkdir build && cd build
 # TEST_VISTA_ENV_FILE contains all the environment variables ($gtm*, $ydb*) needed to run VistA.
-cmake3 -D TEST_VISTA=ON -D TEST_VISTA_ENV_FILE="~vehu/etc/env" ..
+#cmake3 -D TEST_VISTA=ON -D TEST_VISTA_ENV_FILE="~vehu/etc/env" ..
+# TEMPORARY - REMOVE AFTER BOTH AIM BRANCHES (OCTO AND DDL) ARE MERGED
+# https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/898 & https://gitlab.com/YottaDB/DBMS/YDBOctoVistA/-/merge_requests/26
+# Above line is the original line
+wget https://gitlab.com/shabiel/YDBOctoVistA/-/raw/ddl24-aimmetadatatype/_YDBOCTOVISTAM.m
+cmake3 -D TEST_VISTA=ON -D TEST_VISTA_ENV_FILE="~vehu/etc/env" -D TEST_VISTA_INPUT_M="$PWD/_YDBOCTOVISTAM.m" ..
+# END TEMPORARY
 make -j $(getconf _NPROCESSORS_ONLN) install
 
 set +e
@@ -48,6 +54,9 @@ make test ARGS="-V"
 exit_status=$?
 echo " -> exit_status from make test = $exit_status"
 set -e
+
+echo "Printing a sample of the VistA DDL SQL for a spot check"
+tail -100 ./vista.sql
 
 # NB: Copied from tools/ci/build.sh
 # Unset verbose mode as the below for loop and bats-test.* usages can print thousands of lines

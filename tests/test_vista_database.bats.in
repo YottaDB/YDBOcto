@@ -110,8 +110,29 @@ add -segment OCTO -file="$test_temp/octo.dat" -block_size=2048 -allocation=12800
 exit
 FILE2
 
-	# Create Octo Database
+	# Ditto for AIM region
+	if $ydb_dist/yottadb -run ^GDE show | grep '%ydbAIMD'; then
+		$ydb_dist/yottadb -run ^GDE <<FILE3
+delete -region AIM
+delete -segment AIM
+delete -name %ydbAIMD*
+FILE3
+	fi
+	$ydb_dist/yottadb -run ^GDE <<FILE4
+add -name %ydbAIMD* -r=AIM
+add -segment AIM -access_method=mm -block_size=2048 -file="$test_temp/aim.dat"
+add -region AIM -key_size=1019 -record_size=2048 -null_subscripts=ALWAYS -nojournal -dynamic_segment=AIM
+exit
+FILE4
+
+	# Create Octo & AIM Databases
 	$ydb_dist/mupip create -r=OCTO
+	$ydb_dist/mupip create -r=AIM
+
+	# Set the below env var to ensure no DBFILEXT messages show up in syslog and in turn in individual test output files
+	# e.g. if a test redirects stderr to a file output.txt, then syslog messages would show up in that file if run through
+	# the pipeline causing a test failure if that is compared against a reference file (e.g. TC001 in test_create_table.bats.in)
+	export ydb_dbfilext_syslog_disable=1
 
 	# Import VistA DDL and Functions into Octo
 	octo -f @PROJECT_BINARY_DIR@/vista.sql > OctoImport.log

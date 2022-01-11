@@ -298,9 +298,13 @@ OCTO
 	verify_output TW27 output.txt
 }
 
-@test "TW28 : OCTO675 : Test ENDPOINT with AIM and NULL Data" {
+@test "TW28 : OCTO675 : Test ENDPOINT with AIM and NULL Data with AIMTYPE 1" {
+        # Type 1 does not work will any region that has null enabled
+        # Normally, Octo testing framework has nulls enabled even for DEFAULT region
+	mupip set -null_subscripts=never -region DEFAULT
+
 	load_fixture vista-mini.zwr
-	load_fixture vista-mini-endpoint-c0.sql
+	load_fixture vista-mini-endpoint-c0-aim1.sql
 
 	# Our small zwr file does not have NULLs in it. Create them here:
 	# On record 1:

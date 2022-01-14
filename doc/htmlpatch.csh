@@ -1,7 +1,7 @@
 #!/usr/bin/env tcsh
 #################################################################
 #								#
-# Copyright (c) 2018-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2018-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -44,17 +44,17 @@ echo '#'
 echo '# Before the line that contains: <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />'
 echo '# Add the lines:'
 echo '# <link rel="preconnect" href="https://fonts.gstatic.com">'
-echo '# <link rel="stylesheet" href="https://free.bboxtype.com/embedfonts/?family=FiraGO:200,200i,600,600i" />'
+# echo '# <link rel="stylesheet" href="https://free.bboxtype.com/embedfonts/?family=FiraGO:200,200i,600,600i" />'
 echo '# <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora&display=swap" />'
 echo '# <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inconsolata&display=swap" />'
 
 set filelist = `ls -1 _build/html/*.html`
 set from = '<link rel="stylesheet" href="_static\/css\/theme.css" type="text\/css" \/>'
 set to1  = '<link rel="preconnect" href="https:\/\/fonts.gstatic.com">'
-set to2  = '<link rel="stylesheet" href="https:\/\/free.bboxtype.com\/embedfonts\/?family=FiraGO:200,200i,600,600i" \/>'
+# set to2  = '<link rel="stylesheet" href="https:\/\/free.bboxtype.com\/embedfonts\/?family=FiraGO:200,200i,600,600i" \/>'
 set to3  = '<link rel="stylesheet" href="https:\/\/fonts.googleapis.com\/css2?family=Lora&display=swap" \/>'
 set to4  = '<link rel="stylesheet" href="https:\/\/fonts.googleapis.com\/css2?family=Inconsolata&display=swap" \/>'
-set to   = "${to1}${to2}${to3}${to4}$from"
+set to   = "${to1}${to3}${to4}$from"
 perl -p -i -e "s/$from/$to/g" $filelist
 
 echo ""

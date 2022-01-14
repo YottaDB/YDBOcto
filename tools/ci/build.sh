@@ -299,6 +299,9 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 		break
 	done
 	echo $commitsha > commit_picked.txt
+	# BEGIN For Developers Troubleshooting Autoupgrade pipelines: Set old commit here
+	# commitsha=cc515a49
+	# END For Developers Troubleshooting Autoupgrade pipelines
 	echo "# Random older commit picked = $commitsha"
 	echo "# Checkout the older commit"
 	git checkout $commitsha
@@ -704,6 +707,17 @@ else
 		# Re-enable "set -e" now that "git merge-base" invocation is done.
 		set -e
 
+		# Note down if older commit is prior to the YDBAIM implementation commit
+		# If older commit, then we won't have an aim.dat, and we need to create the
+		# segment, region and data file
+		pre_ydbaim_commit="809ed8d862be726c80a4ef1f4f43bebac1e9bc7b"    # 1 commit before the AIM commit
+		# Disable the "set -e" setting temporarily as the "git merge-base" can return exit status 0 or 1
+		set +e
+		git merge-base --is-ancestor $commitsha $pre_ydbaim_commit
+		is_post_ydbaim_commit=$?
+		# Re-enable "set -e" now that "git merge-base" invocation is done.
+		set -e
+
 		# Point src to newsrc
 		ln -s newsrc src
 		for tstdir in bats-test.*
@@ -796,6 +810,17 @@ else
 				utf8_path="utf8"
 			fi
 			export ydb_routines=". ../newsrc/$utf8_path/_ydbocto.so $ydb_dist/plugin/o/$utf8_path/_ydbposix.so $ydb_dist/plugin/o/$utf8_path/_ydbaim.so $ydb_dist/$utf8_path/libyottadbutil.so"
+			# Create the AIM database if the previous commit predates AIM
+			if [ 0 -eq $is_post_ydbaim_commit ]; then
+				echo "# Previous commit predates AIM; create AIM database for upgrade"
+				$ydb_dist/yottadb -run ^GDE > gde_create_aim.txt 2>&1 << AIM
+add -segment AIMSEG -file="$aimdat" -access_method=MM -block_size=2048
+add -region AIMREG -dyn=AIMSEG -nojournal -key_size=1019 -null_subscripts=always -record_size=2048
+add -name %ydbAIM* -region=AIMREG
+exit
+AIM
+				mupip create -region=AIMREG &>> gde_create_aim.txt
+			fi
 			# Change absolute path names of database files to relative path names for ease of later debugging (if needed)
 			$ydb_dist/yottadb -run GDE >> gde_change_segment.txt 2>&1 << FILE
 			change -segment DEFAULT -file_name=$defaultdat

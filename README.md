@@ -56,10 +56,10 @@ If you do not install the YottaDB encryption plugin when installing YottaDB usin
 
 ```sh
 # In a temporary directory perform the following commands
-sudo tar -xf $ydb_dist/plugin/gtmcrypt/source.tar
+git clone https://gitlab.com/YottaDB/Util/YDBEncrypt.git && cd YDBEncrypt
 # Make sure that you have the ydb_dist environment variable defined in your shell before continuing
-sudo ydb_dist=$ydb_dist make -j `grep -c ^processor /proc/cpuinfo`
-sudo ydb_dist=$ydb_dist make install
+make -j `grep -c ^processor /proc/cpuinfo`
+sudo --preserve-env=ydb_dist make install
 ```
 
 ### Install Octo

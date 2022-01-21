@@ -318,8 +318,8 @@ OCTO
 	echo 'Test AIM/ENDPOINT on NULL piece' | tee -a output.txt
 	load_fixture TW28-1.sql subtest novv
 
-	# NB This doesn't work properly right now, so the data is wrong here
-	echo 'Test AIM/ENDPOINT on NULL data' | tee -a output.txt
+	echo | tee -a output.txt
+	echo 'Test AIM/ENDPOINT on NULL data (node does not exist)' | tee -a output.txt
 	load_fixture TW28-2.sql subtest novv
 
 	yottadb -run zwriteAIMData^aimutils 2>&1 | tee -a output.txt

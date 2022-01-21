@@ -105,11 +105,22 @@ OCTO
         # Type 1 does not work will any region that has null enabled
         # Normally, Octo testing framework has nulls enabled even for DEFAULT region
 	mupip set -null_subscripts=never -region DEFAULT
+
+	# Note that this SQL DDL does not use ENDPOINT, and therefore, has some weird data
+	# that looks like this:
+	# ^%ydbAIMDDolRlgd8xujbnMBgUv9VCA(1,"","AMASTERVUID")=""
+	# ^%ydbAIMDDolRlgd8xujbnMBgUv9VCA(1,"","AVUID")=""
+	# ^%ydbAIMDDolRlgd8xujbnMBgUv9VCA(1,"","B")=""
+	#
+	# These are index nodes in VistA and are not supposed to be indexed; however, for the
+	# purposes of this test, this is fine, as the ENDPOINT logic is tested in TW28.
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TX06.sql .
 	load_fixture vista-mini.zwr
+
 	# Remove node which will result into a NULL entry
 	yottadb -run %XCMD 'kill ^ORD(100.01,1,"VUID")'
 	load_fixture TX06.sql
+
 	yottadb -run zwriteAIMData^aimutils 2>&1 | tee -a output.txt
 	grep '%YDBAIM' _ydboctoX* | tee -a output.txt
 	verify_output TX06 output.txt

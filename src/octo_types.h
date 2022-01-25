@@ -512,6 +512,7 @@ typedef enum {
 	QualifyQuery_NONE,
 	QualifyQuery_SELECT_COLUMN_LIST,
 	QualifyQuery_ORDER_BY,
+	QualifyQuery_WHERE,
 } QualifyQueryStage;
 
 /* The below is used as a bitmask to form the "aggregate_function_or_group_by_or_having_specified" field below */

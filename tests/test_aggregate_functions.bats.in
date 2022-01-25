@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -33,3 +33,8 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAF03.sql "trim_trailing_zeroes"
 }
 
+@test "TAF04 : OCTO804 : Aggregate function with a column referring to an outer query within an EXISTS clause used in a WHERE clause should result in an error" {
+  load_fixture TAF04_errors.sql subtest novv
+  verify_output TAF04_errors output.txt
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAF04.sql
+}

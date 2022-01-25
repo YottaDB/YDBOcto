@@ -132,9 +132,22 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 					}
 					parent_table_alias = column_table_alias->parent_table_alias;
 					if ((NULL != parent_table_alias) && (parent_table_alias->aggregate_depth)) {
-						int aggregate_depth;
-
-						aggregate_depth = parent_table_alias->aggregate_depth;
+						if ((0 < table_alias->aggregate_depth)
+						    && (QualifyQuery_WHERE == parent_table_alias->qualify_query_stage)) {
+							/* `aggregate_function_STATEMENT` case itself throws error when current
+							 * table_alias is executing a WHERE clause. Because of that we are sure we
+							 * wont reach this block of code when `table_alias == parent_table_alias`.
+							 */
+							assert(table_alias != parent_table_alias);
+							/* Aggregate functions in a sub query is referencing outer query
+							 * column. Also, the sub query is inside WHERE clause of the outer
+							 * query. This usage is not allowed. Issue an ERROR.
+							 */
+							ERROR(ERR_AGGREGATE_FUNCTION_WHERE, "");
+							result = 1;
+							yyerror(NULL, NULL, &stmt, NULL, NULL, NULL);
+						}
+						int aggregate_depth = parent_table_alias->aggregate_depth;
 						if (0 < aggregate_depth) {
 							assert(AGGREGATE_FUNCTION_SPECIFIED
 							       & parent_table_alias
@@ -145,15 +158,17 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 							    = ++parent_table_alias->group_by_column_count;
 						} else if (AGGREGATE_DEPTH_HAVING_CLAUSE == aggregate_depth) {
 							if (!new_column_alias->group_by_column_number) {
-								/* We are inside a HAVING clause while making a non-grouped column
-								 * reference outside of an aggregate function. Issue error.
+								/* We are inside a HAVING clause while making a non-grouped
+								 * column reference outside of an aggregate function. Issue
+								 * error.
 								 */
 								ISSUE_GROUP_BY_OR_AGGREGATE_FUNCTION_ERROR(stmt);
 								result = 1;
 							}
 						} else {
-							/* We are inside a WHERE or FROM/JOIN clause where  aggregate function
-							 * use is disallowed so no need to record anything related to GROUP BY.
+							/* We are inside a WHERE or FROM/JOIN clause where  aggregate
+							 * function use is disallowed so no need to record anything related
+							 * to GROUP BY.
 							 */
 							assert((AGGREGATE_DEPTH_WHERE_CLAUSE == aggregate_depth)
 							       || (AGGREGATE_DEPTH_FROM_CLAUSE == aggregate_depth));

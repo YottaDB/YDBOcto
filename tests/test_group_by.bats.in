@@ -45,7 +45,8 @@ setup() {
 	verify_output TGB04 output.txt
 }
 
-@test "TGB05 : OCTO55 : Edge case GROUP BY and/or HAVING queries that work in Octo but do not in Postgres" {
+@test "TGB05 : OCTO55 : Edge case GROUP BY and/or HAVING query that issue error in both Octo and Postgres" {
+	# This test is updated to match postgres output. More details in #804
 	load_fixture TGB05.sql subtest novv
 	verify_output TGB05 output.txt
 }

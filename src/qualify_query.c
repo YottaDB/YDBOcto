@@ -253,16 +253,17 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		cur_join->next = next_join; /* restore join list to original */
 		cur_join = next_join;
 	} while ((cur_join != start_join) && (cur_join != parent_join));
-	table_alias->qualify_query_stage = QualifyQuery_NONE; /* Initialize before any "qualify_statement" calls
-							       * using "table_alias_stmt" as the 3rd parameter.
-							       */
 	// Qualify WHERE clause next
 	table_alias->aggregate_depth = AGGREGATE_DEPTH_WHERE_CLAUSE;
+	table_alias->qualify_query_stage = QualifyQuery_WHERE;
 	if (NULL != ret) {
 		ret->ret_cla = NULL;
 		/* Note: Inherit ret.max_unique_id from caller (could be parent/outer query in case this is a sub-query) as is */
 	}
 	result |= qualify_statement(select->where_expression, start_join, table_alias_stmt, 0, ret);
+	table_alias->qualify_query_stage = QualifyQuery_NONE; /* Initialize before any other "qualify_statement" calls
+							       * using "table_alias_stmt" as the 3rd parameter.
+							       */
 	// Qualify GROUP BY clause next
 	group_by_expression = select->group_by_expression;
 	/* Note that while table_alias->aggregate_function_or_group_by_or_having_specified will mostly be FALSE at this point, it is

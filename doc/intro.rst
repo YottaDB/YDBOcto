@@ -50,7 +50,7 @@ Features
 Setup
 --------------------
 
-  YottaDB r1.32 or greater is required for successful installation of Octo.
+  YottaDB r1.34 or greater is required for successful installation of Octo.
 
   Installing and configuring YottaDB is described on its own `documentation page <https://docs.yottadb.com/AdminOpsGuide/installydb.html>`__. With the :code:`--octo`, :code:`--posix`, :code:`--aim` options of YottaDB's `ydbinstall.sh <https://gitlab.com/YottaDB/DB/YDB/-/blob/master/sr_unix/ydbinstall.sh>`_ script, you can install YottaDB and Octo with one command.
 

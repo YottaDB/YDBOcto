@@ -10,7 +10,7 @@ Homepage: https://gitlab.com/YottaDB/DBMS/YDBOcto
 
 Documentation: https://docs.yottadb.com/Octo/
 
-Octo requires [YottaDB](https://gitlab.com/YottaDB/DB/YDB) r1.32 or greater. Installing and configuring YottaDB is described on its [documentation page](https://docs.yottadb.com/AdminOpsGuide/installydb.html).
+Octo requires [YottaDB](https://gitlab.com/YottaDB/DB/YDB) r1.34 or greater. Installing and configuring YottaDB is described on its [documentation page](https://docs.yottadb.com/AdminOpsGuide/installydb.html).
 
 *NOTE: Octo is a YottaDB application, not an application that runs on the upstream GT.M for which YottaDB is a drop-in upward-compatible replacement. Octo requires `ydb*` environment variables to be defined, and does not recognize the `gtm*` environnment variables. Specifically, it requires `ydb_dist` to be defined.*
 

@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -43,15 +43,15 @@
 	set caseFunctionExists="FALSE"
 
 	set arguments=$zcmdline
-	set sqlFile=$piece(arguments," ",1)
+	set sqlFile=$piece(arguments," ",2)
 	if (sqlFile="") set sqlFile="customers.sql"
-	set zwrFile=$piece(arguments," ",2)
+	set zwrFile=$piece(arguments," ",3)
 	if (zwrFile="") set zwrFile="customers.zwr"
 	; The runCount variable determines the amount of .sql files to be generated when this file is ran.
-	set runCount=$piece(arguments," ",3)
+	set runCount=$piece(arguments," ",4)
 	if (runCount="") set runCount=1
 	; The prefix variable defines the prefix for the .sql files in the form of "prefix###.sql"
-	set prefix=$piece(arguments," ",4)
+	set prefix=$piece(arguments," ",5)
 	if (prefix="") set prefix="query"
 
 	do readSQL($$findFile(sqlFile))

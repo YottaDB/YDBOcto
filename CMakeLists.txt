@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -25,7 +25,7 @@ message(STATUS "$ydb_dist: $ENV{ydb_dist}")
 
 project(YDBOcto C M)
 set(YDBOCTO_MAJOR_VERSION 1)
-set(YDBOCTO_MINOR_VERSION 0)
+set(YDBOCTO_MINOR_VERSION 1)
 set(YDBOCTO_PATCH_VERSION 0)
 
 set(MIN_YDB_RELEASE "1.29")

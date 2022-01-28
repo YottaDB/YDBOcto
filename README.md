@@ -426,7 +426,13 @@ To exit either an Octo or Rocto instance running in a terminal, you may use `CTR
 
 ### Docker container
 
-A Docker image is available on [docker hub](https://hub.docker.com/r/yottadb/octo). This image is built with the following assumptions about the host environment and automatically starts `rocto` when run by Docker using the commands below.
+We provide a couple of different docker containers. One for [VistA users with a demo VistA database](https://hub.docker.com/r/yottadb/octo-vehu); and one that contains the [Northwind sample database](https://hub.docker.com/r/yottadb/octo).
+
+Instructions for using the VistA docker container are provided in the link.
+
+The following instructions are for the Northwind sample database Octo image.
+
+This image is built with the following assumptions about the host environment and automatically starts `rocto` when run by Docker using the commands below.
 
 * The `ydb_env_set` script is used to setup the YottaDB environment and creates/expects a specific layout for globals and routines, specifically:
   * a `r1.30_x86_64` directory with the following sub directories:

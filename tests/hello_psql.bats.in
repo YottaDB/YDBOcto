@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -35,7 +35,7 @@ setup() {
 		psql composite -c 'DROP TABLE IF EXISTS TUT010' >& postgres.drop_table_TUT010.out
 	fi
 	echo "\d" > listdb.sql
-	for schema in names names1col customers pastas easynames northwind sqllogic{1,2,3,4,5} boolean nullnames nullcharnames composite
+	for schema in names names1col nameslastname customers pastas easynames northwind sqllogic{1,2,3,4,5} boolean nullnames nullcharnames composite
 	do
 		# If the database and/or table already exists, the `create_postgres_database` or `lost_postgres_fixture` function
 		# invocations might return with a non-zero exit status due to the database being created by a different userid

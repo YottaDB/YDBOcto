@@ -31,11 +31,20 @@ teardown() {
 }
 
 @test "TQG03 : Test Query Generator against names OR nullcharnames database" {
-	if [[ $(( $RANDOM % 2)) -eq 0 ]]; then
-		database="names"
-	else
-		database="nullcharnames"
-	fi
+	randInt=$(($RANDOM % 3))
+	case $randInt in
+	   0)
+	   database="names"
+	   ;;
+
+	   1)
+	   database="nullcharnames"
+	   ;;
+
+	   2)
+	   database="nameslastname"
+	   ;;
+	esac
 	run_query_generator $database TQG03-
 }
 

@@ -1032,12 +1032,17 @@ run_query_generator() {
   fi
 
   cp @PROJECT_SOURCE_DIR@/tests/fixtures/QueryGenerator.m .
-  load_fixture "$databaseName.sql"
-  load_fixture "$databaseName.zwr"
+  if [[ "nameslastname" = $databaseName ]]; then
+	load_fixture "postgres-$databaseName.sql"
+  	databaseSqlFileName="postgres-$databaseName.sql"
+  else
+	load_fixture "$databaseName.sql"
+	load_fixture "$databaseName.zwr"
+  	databaseSqlFileName="$databaseName.sql"
+  fi
   load_fixture "QueryGenerator.sql"
   load_postgres_fixture $databaseName postgres-QueryGenerator.sql
-
-  $ydb_dist/yottadb -run -noignore QueryGenerator "$databaseName.sql" "$databaseName.zwr" "$numQueries" "$prefix"
+  $ydb_dist/yottadb -run -noignore QueryGenerator $databaseSqlFileName "$databaseName.zwr" "$numQueries" "$prefix"
 
   count=0
   queryfile=$prefix$count

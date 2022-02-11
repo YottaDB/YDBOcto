@@ -25,6 +25,19 @@ id
 4
 (5 rows)
 #######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : nameslastname] [TABLE : nameslastname]
+#######################################################################
+lastname
+Cool
+Burn
+Killer
+...
+...
+Nikon
+
+Cool
+(6 rows)
+#######################################################################
 # Listing first 3 lines and last 3 lines of [SCHEMA : customers] [TABLE : customers]
 #######################################################################
 customer_id|first_name|last_name|email|address|city|state|zipcode

@@ -55,7 +55,12 @@
 	if (prefix="") set prefix="query"
 
 	do readSQL($$findFile(sqlFile))
-	do readZWR($$findFile(zwrFile))
+	; `data` for `nameslastname` database is filled in directly without parsing a `.zwr` file.
+	; This is because Octo's m representation of a single column table is different from a
+	; regular table with multiple columns.
+	; More details -> https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1071#note_854613974
+	if ("postgres-nameslastname.sql"=sqlFile) do fillDefaultNamesLastnameTbl()
+	else  do readZWR($$findFile(zwrFile))
 	do checkForEmptyTables()
 	do initTable()
 	do initColumn()
@@ -216,6 +221,15 @@ readZWR(file)
 	. . . set primaryKeys($extract(table,0,$find(table,"(")-2),pKey)=""
 	quit
 
+fillDefaultNamesLastnameTbl()
+	set data("^nameslastname(1)",1,"Cool")=""
+	set data("^nameslastname(2)",1,"Burn")=""
+	set data("^nameslastname(3)",1,"Killer")=""
+	set data("^nameslastname(4)",1,"Nikon")=""
+	set data("^nameslastname(5)",1,"")=""
+	set data("^nameslastname(6)",1,"Cool")=""
+	quit
+
 checkForEmptyTables()
 	; If a table "exists" but has no data (such as namesWithAges in names db),
 	; then this function will remove it
@@ -374,6 +388,14 @@ tableExpression(queryDepth)
 	; allow for proper column(s) to be chosen
 	set result=""
 
+	; We do not rely on values previously added to innerQuerySLLVN at this point. But ignoring it results in
+	; innerSelectList() call returning empty list in case of single column table usage.
+	; This is because innerSelectList() utilizes innerQuerySLLVN to determine if another column needs to be added.
+	; When previous subquery's values are carried over `innerQuerySLLVN` will not be co-herent with the actual list.
+	; To prevent this we use a new variable. As the code from this point only rely on selectListLVN
+	; and the table itself to select columns, using a new innerQuerySLLVN is safe and doesn't reduce the query variations.
+	new innerQuerySLLVN
+
 	write "tableExpression(): queryDepth=",queryDepth,!
 	set:enableWhereClause result=result_$$whereClause(queryDepth)
 	if (enableGroupByHavingClause&(allowGBH("alias"_queryDepth)="TRUE"))  do
@@ -449,21 +471,22 @@ whereClause(queryDepth)
 
 	set table=$piece(fc," ",2)
 
-	set type=""
+	; When randInt=1 or 3 or 4 a INTEGER type column is necessary in the selected table,
+	; this code block ensures that this requirement is satisfied, and if it isn't
+	; then set randInt to a different value.
+	; WHERE clause type 1 is integer function expression
+	; WHERE clause type 3 is integer comparison expression
+	; WHERE clause type 4 is arithmetic operation based comparison expression
+	if ((randInt=1)!(randInt=3)!(randInt=4)) do checkAndChangeCaseIfColumnTypeAbsent(table,"INTEGER",.randInt)
 
 	; When randInt=2 or 8 a VARCHAR type column is necessary in the selected table,
 	; this code block ensures that this requirement is satisfied, and if it isn't
 	; then set randInt to a different value.
 	; WHERE clause type 2 is string concatenation, which requires at least one VARCHAR in order to function
 	; WHERE clause type 8 is LIKE with wildcards, this comparison can only occur on VARCHARs, not numeric/integer/boolean
-	if ((randInt=2)!(randInt=8))  do
-	. set x="sqlInfo("""_table_""")"
-	. set x=$query(@x)
-	. for i=1:1  do  quit:(($find(type,"VARCHAR")'=0)!(x=""))  do assert(i<16)
-	. . set type=$qsubscript(x,4)
-	. . if ($qsubscript(x,1)'=table)  set randInt=0
-	. . set x=$query(@x)
-	. set:x="" randInt=0
+	if ((randInt=2)!(randInt=8)) do checkAndChangeCaseIfColumnTypeAbsent(table,"VARCHAR",.randInt)
+
+	set type=""
 
 	; Don't use a random generator that requires a BOOLEAN type column if it's not present
 	; WHERE clause type 10 is boolean-type-column
@@ -1052,6 +1075,7 @@ joinClause(queryDepth,joinCount)
 	. . set type1=$$returnColumnType(chosenTable1,chosenColumn1)
 	. set chosenEntry1=$$chooseEntry(chosenTable1,chosenColumn1)
 	.
+	. ; #FUTURE_TODO: `chosenColumn2` set in the below code isn't used anywhere. Check if the following if block can be removed.
 	. if ($find(subquery,"EXISTS (")'=0)  do
 	. . set aliasNum1Less=aliasNum-1
 	. . for i=0:1:randFromInnerQuerySLLVN  do
@@ -1697,11 +1721,9 @@ innerSelectList(queryDepth,subQueryType,curDepth,alias)
 	if ((subQueryType="full")&(allowGBH("alias"_aliasNum)="FALSE"))  do
 	. for i=1:1:15  quit:($data(selectListLVN(queryDepth,toBeAdded))=0)  do
 	. . set toBeAdded=alias_"."_$$chooseColumn(aliastable)
-	.
 	. if (i'=15)  do
 	. . set selectListLVN(queryDepth,toBeAdded)="table.column"
-	. . set innerQuerySLLVN($piece(toBeAdded,"."),$piece(toBeAdded,".",2))=aliastable
-	. . if $increment(innerQuerySLLVN)
+	. . do addToInnerQuerySLLVN($piece(toBeAdded,"."),$piece(toBeAdded,".",2),aliastable)
 	. . set result=result_toBeAdded
 	.
 	. if (i=15)  set curDepth=0  set result=$extract(result,0,$length(result)-1)
@@ -1712,28 +1734,41 @@ innerSelectList(queryDepth,subQueryType,curDepth,alias)
 	. ; #FUTURE_TODO: Remove following line when issues (both in Octo and in test_helpers)
 	. ;               pertaining to aggregate functions are resolved
 	. set curDepth=0
-	.
 	. set table="alias"_aliasNum
 	. set chosenColumn=$$chooseColumn(table)
 	. if enableGroupByHavingClause do
+	. . ; Adds aggregate column with an alias whose name is same as the actual column
+	. . ; Example: `SELECT MIN(alias1.lastname) as lastname,..`
 	. . set agg=$$returnAggregateFunction(queryDepth,table,chosenColumn)
 	. . set selectListLVN(queryDepth,agg)="aggregate_function"
-	. . set innerQuerySLLVN(table,chosenColumn)=$piece(innerFC," ",2)
-	. . if $increment(innerQuerySLLVN)
+	. . do addToInnerQuerySLLVN(table,chosenColumn,$piece(innerFC," ",2))
 	. . set toBeAdded=agg_" as "_chosenColumn_", "
 	. . set result=result_toBeAdded
 	.
-	. ; Note: In tables that have only 2 columns (e.g. `stock_availability` table in `boolean.sql`)
-	. ; it is possible that the randomly chosen "chosenColumn2" ends up being the same as "chosenColumn"
-	. ; for a lot of iterations (we have seen "i" go as high as up to 16 and fail an "assert(i<16)" below).
-	. ; Hence the use of "64" below which should make it almost impossible for the for loop to assert fail.
-	. for i=1:1 do  quit:(chosenColumn'=chosenColumn2)  do assert(i<64)
+	. new setColumn
+	. if ($$columnCounter(table)>1)  do
+	. . ; Note: In tables that have only 2 columns (e.g. `stock_availability` table in `boolean.sql`)
+	. . ; it is possible that the randomly chosen "chosenColumn2" ends up being the same as "chosenColumn"
+	. . ; for a lot of iterations (we have seen "i" go as high as up to 16 and fail an "assert(i<16)" below).
+	. . ; Hence the use of "64" below which should make it almost impossible for the for loop to assert fail.
+	. . for i=1:1 do  quit:(chosenColumn'=chosenColumn2)  do assert(i<64)
+	. . . set chosenColumn2=$$chooseColumn(table)
+	. . set setColumn=1
+	. else  if (0=$get(innerQuerySLLVN,0)) do
+	. . ; It is necessary to check `($get(innerQuerySLLVN,0))=0)` as its possible that the aggregate addition code in this
+	. . ; routine generates an aggregate function with the same alias as the actual column. In this case if a table with
+	. . ; only one column is being used, not checking `innerQuerySLLVN` before addition of a column in else block, we will
+	. . ; end up with an ambiguous column name like `RIGHT OUTER JOIN (SELECT ALL MIN(DISTINCT alias1.lastname) as lastname,
+	. . ;  alias1.lastname FROM nameslastname alias1 ..`. Here both columns in select list of inner query have the same
+	. . ; name which results in ambiguity when referenced by outer query.
+	. . do assert(result="")
 	. . set chosenColumn2=$$chooseColumn(table)
-	. set tc=table_"."_chosenColumn2
-	. set selectListLVN(queryDepth,tc)="table.column"
-	. set innerQuerySLLVN($piece(tc,"."),$piece(tc,".",2))=$piece(innerFC," ",2)
-	. if $increment(innerQuerySLLVN)
-	. set result=result_tc
+	. . set setColumn=1
+	. if $data(setColumn) do
+	. . set tc=table_"."_chosenColumn2
+	. . set selectListLVN(queryDepth,tc)="table.column"
+	. . do addToInnerQuerySLLVN($piece(tc,"."),$piece(tc,".",2),$piece(innerFC," ",2))
+	. . set result=result_tc
 
 	if (subQueryType="limited")  do
 	. set selectListLVN(queryDepth,toBeAdded)="table.column"
@@ -1782,6 +1817,22 @@ innerTableExpression(queryDepth,subQueryType)
 
 	quit innerResult
 
+; This function updates `randInt` based on the value of `columnType`.
+; If the table given by `table` doesn't have a column of type `columnType` the randInt value is set to 0.
+; This routine is used by innerWhereClause() and whereClause() to avoid duplicate code to change `randInt` based
+; on column type.
+checkAndChangeCaseIfColumnTypeAbsent(table,columnType,randInt)
+	new x,type
+	set type=""
+	set x="sqlInfo("""_table_""")"
+	set x=$query(@x)
+	for i=1:1  do  quit:(($find(type,columnType)'=0)!(x=""))  do assert(i<16)
+	. set type=$qsubscript(x,4)
+	. if ($qsubscript(x,1)'=table)  set randInt=0
+	. set x=$query(@x)
+	set:x="" randInt=0
+	quit
+
 ; https://ronsavage.github.io/SQL/sql-92.bnf.html#where%20clause
 ; This function returns a WHERE CLAUSE specific to subqueries.
 ; This is due to the fact that the WHERE clause in a subquery needed a lot more logic to properly run,
@@ -1803,21 +1854,22 @@ innerWhereClause(queryDepth)
 
 	set innerTable=$piece(innerFC," ",2)
 
-	set type=""
+	; When randInt=1 or 3 or 4 a INTEGER type column is necessary in the selected table,
+	; this code block ensures that this requirement is satisfied, and if it isn't
+	; then set randInt to a different value.
+	; WHERE clause type 1 is integer function expression
+	; WHERE clause type 3 is integer comparison expression
+	; WHERE clause type 4 is arithmetic operation based comparison expression
+	if ((randInt=1)!(randInt=3)!(randInt=4)) do checkAndChangeCaseIfColumnTypeAbsent(innerTable,"INTEGER",.randInt)
 
 	; When randInt=2 or 8 a VARCHAR type column is necessary in the selected table,
 	; this code block ensures that this requirement is satisfied, and if it isn't
 	; then set randInt to a different value.
 	; WHERE clause type 2 is string concatenation, which requires at least one VARCHAR in order to function
 	; WHERE clause type 8 is LIKE with wildcards, this comparison can only occur on VARCHARs, not numeric/integer
-	if ((randInt=2)!(randInt=8))  do
-	. set x="sqlInfo("""_innerTable_""")"
-	. set x=$query(@x)
-	. for i=1:1  do  quit:(($find(type,"VARCHAR")'=0)!(x=""))  do assert(i<16)
-	. . set type=$qsubscript(x,4)
-	. . if ($qsubscript(x,1)'=innerTable)  set randInt=0
-	. . set x=$query(@x)
-	. set:x="" randInt=0
+	if ((randInt=2)!(randInt=8)) do checkAndChangeCaseIfColumnTypeAbsent(innerTable,"VARCHAR",.randInt)
+
+	set type=""
 
 	; Don't use a random generator that requires a BOOLEAN type column if it's not present
 	; WHERE clause type 12 is boolean-type-column
@@ -2106,4 +2158,11 @@ notString()	;
 	quit:$random(4) "NOT "		; return "NOT"         37.500% of the time
 	quit:$random(4) "NOT NOT "	; return "NOT NOT"      9.375% of the time
 	quit "NOT NOT NOT "		; return "NOT NOT NOT"  3.125% of the time
+
+; The following routine adds the passed argumets to `innerQuerySLLVN` tree if it doesn't exists already and increments its value
+addToInnerQuerySLLVN(table,column,alias)
+	if (0=$data(innerQuerySLLVN(table,column))) do
+	. set innerQuerySLLVN(table,column)=alias
+	. if $increment(innerQuerySLLVN)
+	quit
 

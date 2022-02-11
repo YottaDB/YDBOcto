@@ -59,3 +59,7 @@ teardown() {
 @test "TQG06 : Test Query Generator against nullnames database" {
 	run_query_generator nullnames TQG06-
 }
+
+@test "TQG07 : Test Query Generator against compositekey database" {
+	run_query_generator composite TQG07-
+}

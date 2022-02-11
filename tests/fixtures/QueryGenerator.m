@@ -55,12 +55,16 @@
 	set prefix=$piece(arguments," ",5)
 	if (prefix="") set prefix="query"
 
-	do readSQL($$findFile(sqlFile))
+	; #FUTURE_TODO: Following fillCompositeSql(), fillDefaultNamesLastnameTbl(), fillDefaultCompositeTbl() should ideally be
+	;               done by readSQL and readZWR itself.
+	if ("composite.sql"=sqlFile) do fillCompositeSql()
+	else  do readSQL($$findFile(sqlFile))
 	; `data` for `nameslastname` database is filled in directly without parsing a `.zwr` file.
 	; This is because Octo's m representation of a single column table is different from a
 	; regular table with multiple columns.
 	; More details -> https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1071#note_854613974
 	if ("postgres-nameslastname.sql"=sqlFile) do fillDefaultNamesLastnameTbl()
+	else  if ("composite.sql"=sqlFile) do fillDefaultCompositeTbl()
 	else  do readZWR($$findFile(zwrFile))
 	do checkForEmptyTables()
 	do initTable()
@@ -74,6 +78,10 @@
 	; result rows that are gigabytes long and take a long time to run (greater than 10 minutes)
 	; so restrict max joins to 1 in that case.
 	set:(sqlFile["northwind")&(1<joinCount) joinCount=1
+	; With Composite data set, we will have 8 keys including primary key, this can result in ERR_MAX_SUBSCRIPTS error when more
+	; than 3 joins (including FROM clause) are generated in a query. To avoid this, reduce the joins to 2 such that max 3 joins
+	; are generated including FROM clause.
+	set:(sqlFile["composite")&(2<joinCount) joinCount=2
 	; Randomly choose if subqueries will be tested or not (50% yes, 50% no).
 	set enableSubQuery=$random(2)
 	; Randomly choose if WHERE clause will be present in outermost query or not (87.5% yes, 12.5% no).
@@ -127,6 +135,19 @@
 	. ; thus they need to be KILLED after each query is created
 	. kill tableColumn,selectListLVN,subQuerySelectedTables,innerQuerySLLVN,groupByListLVN,groupByColumnLVN,selectedExprGroupBy,groupByComparisonExpressionExists
 
+	quit
+
+fillCompositeSql()
+	set sqlInfo("composite",1,"id0","INTEGER")=""
+	set sqlInfo("composite",2,"id1","INTEGER")=""
+	set sqlInfo("composite",3,"id2","INTEGER")=""
+	set sqlInfo("composite",4,"id3","INTEGER")=""
+	set sqlInfo("composite",5,"id4","INTEGER")=""
+	set sqlInfo("composite",6,"id5","INTEGER")=""
+	set sqlInfo("composite",7,"id6","INTEGER")=""
+	set sqlInfo("composite",8,"id7","INTEGER")=""
+	set sqlInfo("composite",9,"name","VARCHAR(20)")=""
+	if $increment(GLOBALtotalTables)
 	quit
 
 ; #FUTURE_TODO: Look into using $piece functions instead of $extract and $find for parsers,
@@ -234,6 +255,119 @@ fillDefaultNamesLastnameTbl()
 	set data("^nameslastname(5)",1,"")=""
 	set data("^nameslastname(6)",1,"Cool")=""
 	quit
+
+fillDefaultCompositeTbl()
+	; 1st row
+	set data("^composite(1)",1,0)=""
+	set data("^composite(1)",2,1)=""
+	set data("^composite(1)",3,2)=""
+	set data("^composite(1)",4,3)=""
+	set data("^composite(1)",5,4)=""
+	set data("^composite(1)",6,5)=""
+	set data("^composite(1)",7,6)=""
+	set data("^composite(1)",8,7)=""
+	set data("^composite(1)",9,"Name1")=""
+
+	; 2nd row
+	set data("^composite(2)",1,0)=""
+	set data("^composite(2)",2,1)=""
+	set data("^composite(2)",3,2)=""
+	set data("^composite(2)",4,3)=""
+	set data("^composite(2)",5,4)=""
+	set data("^composite(2)",6,5)=""
+	set data("^composite(2)",7,6)=""
+	set data("^composite(2)",8,8)=""
+	set data("^composite(2)",9,"Name2")=""
+
+	; 3rd row
+	set data("^composite(3)",1,0)=""
+	set data("^composite(3)",2,1)=""
+	set data("^composite(3)",3,2)=""
+	set data("^composite(3)",4,3)=""
+	set data("^composite(3)",5,4)=""
+	set data("^composite(3)",6,5)=""
+	set data("^composite(3)",7,7)=""
+	set data("^composite(3)",8,7)=""
+	set data("^composite(3)",9,"Name3")=""
+
+	; 4th row
+	set data("^composite(4)",1,0)=""
+	set data("^composite(4)",2,1)=""
+	set data("^composite(4)",3,2)=""
+	set data("^composite(4)",4,3)=""
+	set data("^composite(4)",5,4)=""
+	set data("^composite(4)",6,5)=""
+	set data("^composite(4)",7,8)=""
+	set data("^composite(4)",8,7)=""
+	set data("^composite(4)",9,"Name4")=""
+
+	; 5th row
+	set data("^composite(5)",1,0)=""
+	set data("^composite(5)",2,1)=""
+	set data("^composite(5)",3,2)=""
+	set data("^composite(5)",4,3)=""
+	set data("^composite(5)",5,4)=""
+	set data("^composite(5)",6,6)=""
+	set data("^composite(5)",7,8)=""
+	set data("^composite(5)",8,7)=""
+	set data("^composite(5)",9,"Name5")=""
+
+	; 6th row
+	set data("^composite(6)",1,0)=""
+	set data("^composite(6)",2,1)=""
+	set data("^composite(6)",3,2)=""
+	set data("^composite(6)",4,3)=""
+	set data("^composite(6)",5,5)=""
+	set data("^composite(6)",6,6)=""
+	set data("^composite(6)",7,8)=""
+	set data("^composite(6)",8,7)=""
+	set data("^composite(6)",9,"Name6")=""
+
+	; 7th row
+	set data("^composite(7)",1,0)=""
+	set data("^composite(7)",2,1)=""
+	set data("^composite(7)",3,2)=""
+	set data("^composite(7)",4,4)=""
+	set data("^composite(7)",5,5)=""
+	set data("^composite(7)",6,6)=""
+	set data("^composite(7)",7,8)=""
+	set data("^composite(7)",8,7)=""
+	set data("^composite(7)",9,"Name7")=""
+
+	; 8th row
+	set data("^composite(8)",1,0)=""
+	set data("^composite(8)",2,1)=""
+	set data("^composite(8)",3,3)=""
+	set data("^composite(8)",4,4)=""
+	set data("^composite(8)",5,5)=""
+	set data("^composite(8)",6,6)=""
+	set data("^composite(8)",7,8)=""
+	set data("^composite(8)",8,7)=""
+	set data("^composite(8)",9,"Name8")=""
+
+	; 9th row
+	set data("^composite(9)",1,0)=""
+	set data("^composite(9)",2,2)=""
+	set data("^composite(9)",3,3)=""
+	set data("^composite(9)",4,4)=""
+	set data("^composite(9)",5,5)=""
+	set data("^composite(9)",6,6)=""
+	set data("^composite(9)",7,8)=""
+	set data("^composite(9)",8,7)=""
+	set data("^composite(9)",9,"Name9")=""
+
+	; 10th row
+	set data("^composite(10)",1,1)=""
+	set data("^composite(10)",2,2)=""
+	set data("^composite(10)",3,3)=""
+	set data("^composite(10)",4,4)=""
+	set data("^composite(10)",5,5)=""
+	set data("^composite(10)",6,6)=""
+	set data("^composite(10)",7,8)=""
+	set data("^composite(10)",8,7)=""
+	set data("^composite(10)",9,"Name10")=""
+	quit
+
 
 checkForEmptyTables()
 	; If a table "exists" but has no data (such as namesWithAges in names db),

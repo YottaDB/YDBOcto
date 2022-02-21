@@ -1,0 +1,138 @@
+
+-- TBT11 : OCTO498 : Test that BOOLEAN_IS plans show an empty LP_WHERE clause and an LP_KEY_FIX key
+-- See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1092#note_932705081 for more information.
+
+select * from names where firstname is null;
+[ INFO] PATH:LINENUM DATE TIME : INFO_RECORDING_ENV_VARS : # Recording pertinent ydb_* env var values at process startup
+[ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command [select * from names where firstname is null;]
+[ INFO] PATH:LINENUM DATE TIME : INFO_CURSOR : Generating SQL for CURSOR_NUM
+[ INFO] PATH:LINENUM DATE TIME : INFO_M_PLAN : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
+LP_SELECT_QUERY: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: NAMES(1).ID
+        LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: ID
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: FIRSTNAME
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: NAMES(1).LASTNAME
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: LASTNAME
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_TABLE: NAMES
+      LP_CRITERIA: 
+        LP_KEYS: 
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+            LP_BOOLEAN_IS: 
+              LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+              LP_VALUE: ''
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name: 
+    - column_name: 
+    - unique_id: 3
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+
+[DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN AFTER optimize_logical_plan() follows 
+LP_SELECT_QUERY: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: NAMES(1).ID
+        LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: ID
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: FIRSTNAME
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: NAMES(1).LASTNAME
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: LASTNAME
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_SELECT_QUERY: 
+          LP_PROJECT: 
+            LP_COLUMN_LIST: 
+              LP_WHERE: 
+                LP_COLUMN_ALIAS: NAMES(4).FIRSTNAME
+              LP_WHERE: 
+                LP_COLUMN_ALIAS: NAMES(4).ID
+            LP_SELECT: 
+              LP_TABLE_JOIN: 
+                LP_TABLE: NAMES
+              LP_CRITERIA: 
+                LP_KEYS: 
+                  LP_KEY: 
+                  - table_name: NAMES
+                  - column_name: ID
+                  - unique_id: 4
+                  - method: LP_KEY_ADVANCE
+                  - xref_key: false
+                  - uses_xref_key: false
+                LP_SELECT_OPTIONS: 
+                  LP_WHERE: 
+                  LP_SELECT_MORE_OPTIONS: 
+                    LP_KEYWORDS:  XREF_INDEX;
+          LP_OUTPUT: 
+            LP_KEY: 
+            - table_name: NAMES
+            - column_name: FIRSTNAME
+            - unique_id: 1
+            - method: LP_INVALID_ACTION
+            - xref_key: true
+            - uses_xref_key: false
+      LP_CRITERIA: 
+        LP_KEYS: 
+          LP_KEY: 
+          - table_name: NAMES
+          - column_name: FIRSTNAME
+          - unique_id: 1
+          - method: LP_KEY_FIX
+          - xref_key: true
+          - uses_xref_key: false
+          - value:
+              LP_VALUE: ''
+          LP_KEYS: 
+            LP_KEY: 
+            - table_name: NAMES
+            - column_name: ID
+            - unique_id: 1
+            - method: LP_KEY_ADVANCE
+            - xref_key: false
+            - uses_xref_key: true
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name: 
+    - column_name: 
+    - unique_id: 3
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+
+[ INFO] PATH:LINENUM DATE TIME : INFO_GENERATING_XREF : Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [NAMES] and column [FIRSTNAME]
+[ INFO] PATH:LINENUM DATE TIME : INFO_ENTERING_FUNCTION : Entering print_temporary_table
+ID|FIRSTNAME|LASTNAME
+(0 rows)
+[ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command []

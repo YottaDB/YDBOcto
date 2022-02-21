@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -399,8 +399,6 @@ Compare(value1,compOp,value2,isString)
 	QUIT  ; We do not expect to reach here. Hence the QUIT without any value (will generate a runtime error).
 
 ForceNumeric(value)
-	; Check for $ZYSQLNULL first as `+` operator on that does not work in all cases (YDB#629)
-	QUIT:$ZYISSQLNULL(value) $ZYSQLNULL	; This line can be removed when YDB#629 is fixed.
 	QUIT +value
 
 CountAsterisk(keyId,groupBySubs,aggrIndex,curValue)

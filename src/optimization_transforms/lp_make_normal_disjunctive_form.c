@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -29,16 +29,26 @@ LogicalPlan *lp_apply_not(LogicalPlan *root, int count) {
 
 	if (LP_BOOLEAN_NOT == root->type) {
 		LogicalPlan *not_operand;
+		boolean_t    is_null;
 
 		not_operand = root->v.lp_default.operand[0];
 		type = not_operand->type;
+		/* If the plan is a BOOLEAN IS/IS NOT clause, then we need to determine whether the second operand (i.e., `right`)
+		 * is NULL/UNKNOWN, since this case requires special handling. So, check whether the right operand is a SqlValue of
+		 * type NUL_VALUE and store the result of the check in a variable for later reference.
+		 */
+		if ((NULL != not_operand->v.lp_default.operand[1]) && (LP_VALUE == not_operand->v.lp_default.operand[1]->type)) {
+			is_null = (NUL_VALUE == not_operand->v.lp_default.operand[1]->v.lp_value.value->type);
+		} else {
+			is_null = FALSE;
+		}
 		/* Don't recurse for stuff that we cannot apply the NOT operation (e.g. regex calls, or anything like a
 		 * function call or columns ref). Note that "NOT x IS NULL" is the same as "x IS NOT NULL" for scalar "x"
 		 * but not for "x" of the form "t1.*" (TABLENAME.ASTERISK) because that is a record/row and IS NULL and
-		 * IS NOT NULL rules for a row are not the converse of each other. See comment inside "LP_BOOLEAN_IS_NULL"
+		 * IS NOT NULL rules for a row are not the converse of each other. See comment inside "LP_BOOLEAN_IS"
 		 * case statement in "tmpl_print_expression.ctemplate" for more details.
 		 */
-		if ((LP_BOOLEAN_IS_NULL == type) || (LP_BOOLEAN_IS_NOT_NULL == type)) {
+		if (((LP_BOOLEAN_IS == type) || (LP_BOOLEAN_IS_NOT == type)) && is_null) {
 			LogicalPlan *first_operand;
 
 			first_operand = not_operand->v.lp_default.operand[0];
@@ -59,7 +69,7 @@ LogicalPlan *lp_apply_not(LogicalPlan *root, int count) {
 		} else if ((LP_BOOLEAN_REGEX_SENSITIVE == type) || (LP_BOOLEAN_REGEX_INSENSITIVE == type)
 			   || (LP_BOOLEAN_REGEX_SENSITIVE_LIKE == type) || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE == type)
 			   || (LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO == type) || (LP_BOOLEAN_REGEX_INSENSITIVE_SIMILARTO == type)
-			   || (LP_COERCE_TYPE == type) || (LP_BOOLEAN_IS == type) || (LP_ADDITION > type)) {
+			   || (LP_COERCE_TYPE == type) || (LP_ADDITION > type)) {
 			/* If "NOT NOT", then remove both of them. If "NOT", then need to return with the "NOT".
 			 * Hence the check for "count % 2" below and different return values.
 			 */
@@ -155,11 +165,11 @@ LogicalPlan *lp_apply_not(LogicalPlan *root, int count) {
 			assert(FALSE);
 			root->type = LP_BOOLEAN_EXISTS;
 			break;
-		case LP_BOOLEAN_IS_NULL:
-			root->type = LP_BOOLEAN_IS_NOT_NULL;
+		case LP_BOOLEAN_IS:
+			root->type = LP_BOOLEAN_IS_NOT;
 			break;
-		case LP_BOOLEAN_IS_NOT_NULL:
-			root->type = LP_BOOLEAN_IS_NULL;
+		case LP_BOOLEAN_IS_NOT:
+			root->type = LP_BOOLEAN_IS;
 			break;
 		default:
 			// We should never recurse into anything except boolean values

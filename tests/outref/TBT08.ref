@@ -1,0 +1,51 @@
+
+-- TBT08 : OCTO498 : Test correct results in successive queries using IS (NOT) TRUE, IS (NOT) FALSE, and IS (NOT) UNKNOWN
+
+discard all;
+select id::boolean is true from names;
+select * from stock_availability where available is false;
+ID
+0
+1
+1
+1
+1
+1
+(6 rows)
+PRODUCT_ID|AVAILABLE
+200|0
+700|0
+800|0
+(3 rows)
+
+-- TBT08 : OCTO498 : Test correct results in successive queries using IS (NOT) TRUE, IS (NOT) FALSE, and IS (NOT) UNKNOWN
+
+discard all;
+select id::boolean is unknown from names;
+select id::boolean is true from names;
+
+select * from stock_availability where available is unknown;
+select * from stock_availability where available is false;
+ID
+0
+0
+0
+0
+0
+0
+(6 rows)
+ID
+0
+1
+1
+1
+1
+1
+(6 rows)
+PRODUCT_ID|AVAILABLE
+(0 rows)
+PRODUCT_ID|AVAILABLE
+200|0
+700|0
+800|0
+(3 rows)

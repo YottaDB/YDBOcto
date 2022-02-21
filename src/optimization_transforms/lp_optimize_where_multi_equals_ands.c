@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -71,8 +71,9 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	SqlKey *	    key;
 	int		    left_id, right_id;
 	LogicalPlan *	    new_left, *new_right, *list;
-	LPActionType	    right_type, type;
+	LPActionType	    type;
 	SqlTableAlias *	    right_table_alias;
+	boolean_t	    is_null;
 
 	if (LP_WHERE == where->type) {
 		cur = where->v.lp_default.operand[0];
@@ -85,6 +86,16 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	type = cur->type;
 	left = cur->v.lp_default.operand[0];
 	right = cur->v.lp_default.operand[1];
+	/* If the plan is a BOOLEAN IS/IS NOT clause, then we need to determine whether the second operand (i.e., `right`) is NULL,
+	 * since this case requires special handling. So, check whether the right operand is a SqlValue of type `NUL_VALUE` and
+	 * store in a variable for repeated reference below.
+	 */
+	if ((LP_BOOLEAN_IS == type) || (LP_BOOLEAN_IS_NOT == type)) {
+		assert(LP_VALUE == right->type);
+		is_null = (NUL_VALUE == right->v.lp_value.value->type);
+	} else {
+		is_null = FALSE;
+	}
 	switch (type) {
 	case LP_BOOLEAN_AND:
 		new_left = lp_optimize_where_multi_equals_ands_helper(plan, left, key_unique_id_array, ptr, num_outer_joins);
@@ -107,11 +118,13 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		}
 		return where;
 		break;
+	case LP_BOOLEAN_IS_NOT:
+		if (!is_null) {
+			// We cannot optimize `IS NOT TRUE` or `IS NOT FALSE`, so skip optimization and return here
+			return where;
+		}
+	case LP_BOOLEAN_IS:
 	case LP_BOOLEAN_EQUALS:
-		break;
-	case LP_BOOLEAN_IS_NOT_NULL:
-	case LP_BOOLEAN_IS_NULL:
-		assert(NULL == right);
 		break;
 	case LP_BOOLEAN_IN:
 		/* Check if left side of IN is a LP_COLUMN_ALIAS. If not, we cannot do key fixing. */
@@ -166,13 +179,7 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		break;
 	}
 
-	/* IS NULL and IS NOT NULL are operations that have only one operand (unlike = for example which has 2 operands).
-	 * But we want to treat IS NULL and IS NOT NULL as if the right side operand is the empty string as that helps
-	 * us fall through to the right code blocks below. Hence the need for the "right_type" variable below which is
-	 * different from "right->type".
-	 */
-	right_type = (((LP_BOOLEAN_IS_NULL == type) || (LP_BOOLEAN_IS_NOT_NULL == type)) ? LP_VALUE : right->type);
-	switch (right_type) {
+	switch (right->type) {
 	case LP_VALUE:
 		right_id = 0;
 		break;
@@ -256,11 +263,11 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 			 * 1) If it is an IS NOT NULL operation AND if the column corresponds to a primary key column.
 			 *    In that case, we are guaranteed the primary key column can never take on a NULL value.
 			 *    That is, the IS NOT NULL condition would always evaluate to TRUE.
-			 *    So no need to check it for each row. Therefore remove the `LP_BOOLEAN_IS_NOT_NULL`
+			 *    So no need to check it for each row. Therefore remove the `LP_BOOLEAN_IS_NOT`
 			 *    from the ON/WHERE clause.
 			 * 2) If it is an IS NULL operation, we can fix the key.
 			 */
-			if ((LP_BOOLEAN_IS_NOT_NULL == type) || (LP_BOOLEAN_IS_NULL == type)) {
+			if (((LP_BOOLEAN_IS_NOT == type) || (LP_BOOLEAN_IS == type))) {
 				/* Note: "column_alias" and "table_alias" would have been initialized in the "switch(left->type)"
 				 * code block above if we reach here. But the C compiler incorrectly issues a
 				 * "[-Wmaybe-uninitialized]" warning here and therefore we initialize these to "NULL"
@@ -277,7 +284,8 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 				if (column_alias->column->type == column_STATEMENT) {
 					SqlColumn *column;
 					UNPACK_SQL_STATEMENT(column, column_alias->column, column);
-					if (LP_BOOLEAN_IS_NOT_NULL == type) {
+					if (LP_BOOLEAN_IS_NOT == type) {
+						assert(is_null);
 						if (num_outer_joins) {
 							/* OUTER JOINs can cause NULL values even for primary keys and so we
 							 * cannot optimize IS NOT NULL in that case. A similar check for the
@@ -300,7 +308,7 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 							return where;
 						}
 					}
-					/* else : LP_BOOLEAN_IS_NULL on a LP_COLUMN_ALIAS. Fall through for key-fixing. */
+					/* else : LP_BOOLEAN_IS on a LP_COLUMN_ALIAS. Fall through for key-fixing. */
 				} else {
 					/* IS NOT NULL or IS NULL on a TABLENAME.ASTERISK type of column. No optimizations possible.
 					 * Return ON/WHERE clause with no change (i.e. no optimization possible).
@@ -312,20 +320,17 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		} else {
 			// Both left and right are values.
 			assert(LP_VALUE == left->type);
-			assert(LP_VALUE == right_type); /* Note: Cannot use "right->type" as it would be NULL in the
-							 * LP_BOOLEAN_IS_NULL case."right_type" though is correctly set
-							 * even in that case.
-							 */
+			assert(LP_VALUE == right->type);
 			/* This is one of the following cases.
 			 *	WHERE 5=5           -> LP_BOOLEAN_EQUALS
-			 *	WHERE 5 IS NULL     -> LP_BOOLEAN_IS_NULL
-			 *	WHERE 5 IS NOT NULL -> LP_BOOLEAN_IS_NOT_NULL
+			 *	WHERE 5 IS NULL     -> LP_BOOLEAN_IS
+			 *	WHERE 5 IS NOT NULL -> LP_BOOLEAN_IS_NOT
 			 * Nothing we can do here in terms of optimizing.
 			 */
 			return where;
 		}
 	}
-	assert((LP_BOOLEAN_EQUALS == type) || (LP_BOOLEAN_IS_NULL == type) || (LP_BOOLEAN_IN == type));
+	assert((LP_BOOLEAN_EQUALS == type) || (LP_BOOLEAN_IN == type) || (LP_BOOLEAN_IS == type));
 	right_table_alias = (SqlTableAlias *)ptr;
 	if (NULL != right_table_alias) {
 		/* This is part of a JOIN ON clause (`right_table_alias` variable non-NULL). In this case, we cannot fix the key
@@ -351,7 +356,7 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		/* This is part of a WHERE clause. Check if this is an IS NULL check and OUTER JOINs are present. If so,
 		 * we cannot fix the key since fixing the value to NULL can confuse with NULLs created by the OUTER JOINs.
 		 */
-		if ((LP_BOOLEAN_IS_NULL == type) && num_outer_joins) {
+		if (is_null && num_outer_joins) {
 			return where;
 		}
 	}
@@ -450,10 +455,9 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	if ((LP_KEY_ADVANCE == key->type) && (NULL == key->cross_reference_output_key)) {
 		boolean_t remove_lp_boolean_equals;
 
-		if (NULL == right) {
+		if (is_null) {
 			SqlValue *value;
 
-			assert(LP_BOOLEAN_IS_NULL == type); /* only case we know of currently */
 			/* Fix the IS NULL value to be the empty string (so that value gets used in the xref) */
 			MALLOC_LP_2ARGS(right, LP_VALUE);
 			OCTO_CMALLOC_STRUCT(value, SqlValue);

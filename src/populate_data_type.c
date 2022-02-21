@@ -556,6 +556,13 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			 * instead of a more generic NUMERIC_LITERAL type.
 			 */
 			*type = value->type;
+			if ((BOOLEAN_VALUE == value->type) && (0 == strlen(value->v.reference))) {
+				/* This is an UNKNOWN boolean value, which should be treated the same as SQL NULL after type
+				 * checking. So, now that we have extracted the BOOLEAN type for this value, change it to be
+				 * a regular NUL_VALUE for the purposes of plan generation.
+				 */
+				value->type = NUL_VALUE;
+			}
 			break;
 		case FUNCTION_NAME:
 			/* No need to do any qualification or type checking in this case */

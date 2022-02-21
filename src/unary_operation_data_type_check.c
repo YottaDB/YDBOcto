@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -38,8 +38,6 @@ int unary_operation_data_type_check(SqlUnaryOperation *unary, SqlValueType child
 		assert(BOOLEAN_NOT_EXISTS != unary->operation);
 		switch (unary->operation) {
 		case BOOLEAN_EXISTS:
-		case BOOLEAN_IS_NULL:
-		case BOOLEAN_IS_NOT_NULL:
 			*type = BOOLEAN_VALUE;
 			break;
 		default:

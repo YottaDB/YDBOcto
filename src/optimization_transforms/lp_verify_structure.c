@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -250,6 +250,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 	case LP_BOOLEAN_OR:
 	case LP_BOOLEAN_AND:
 	case LP_BOOLEAN_IS:
+	case LP_BOOLEAN_IS_NOT:
 	case LP_BOOLEAN_EQUALS:
 	case LP_BOOLEAN_NOT_EQUALS:
 	case LP_BOOLEAN_LESS_THAN:
@@ -281,16 +282,13 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 	case LP_BOOLEAN_ALL_GREATER_THAN_OR_EQUALS:
 	case LP_BOOLEAN_EXISTS:
 	case LP_BOOLEAN_NOT_EXISTS:
-	case LP_BOOLEAN_IS_NULL:
-	case LP_BOOLEAN_IS_NOT_NULL:
 	case LP_WHERE:
 		for (i = 0; i < 2; i++) {
 			boolean_t is_where, is_bool_in;
 
 			if ((1 == i)
 			    && ((LP_BOOLEAN_NOT == expected) || (LP_BOOLEAN_EXISTS == expected)
-				|| (LP_BOOLEAN_NOT_EXISTS == expected) || (LP_BOOLEAN_IS_NULL == expected)
-				|| (LP_BOOLEAN_IS_NOT_NULL == expected))) {
+				|| (LP_BOOLEAN_NOT_EXISTS == expected))) {
 				ret &= (NULL == plan->v.lp_default.operand[1]);
 				break;
 			}
@@ -335,6 +333,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_BOOLEAN_OR)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_BOOLEAN_AND)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_BOOLEAN_IS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_BOOLEAN_IS_NOT)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_BOOLEAN_EQUALS)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_BOOLEAN_NOT_EQUALS)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_BOOLEAN_LESS_THAN)
@@ -372,8 +371,6 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 							    LP_BOOLEAN_ALL_GREATER_THAN_OR_EQUALS)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_BOOLEAN_EXISTS)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_BOOLEAN_NOT_EXISTS)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_BOOLEAN_IS_NULL)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_BOOLEAN_IS_NOT_NULL)
 			       /* LP_BOOLEAN_IN and LP_BOOLEAN_NOT_IN can have a LP_COLUMN_LIST as operand 1 */
 			       | (is_bool_in && lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_COLUMN_LIST))
 			       /* LP_SELECT_QUERY/LP_TABLE_VALUE/LP_SET_OPERATIONs usually show up as operand[1] only for the IN
@@ -560,6 +557,7 @@ boolean_t lp_verify_value(LogicalPlan *plan, PhysicalPlanOptions *options) {
 	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_OR)
 	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_AND)
 	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_IS)
+	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_IS_NOT)
 	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_EQUALS)
 	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_NOT_EQUALS)
 	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_LESS_THAN)
@@ -568,8 +566,6 @@ boolean_t lp_verify_value(LogicalPlan *plan, PhysicalPlanOptions *options) {
 	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_GREATER_THAN_OR_EQUALS)
 	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_EXISTS)
 	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_NOT_EXISTS)
-	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_IS_NULL)
-	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_IS_NOT_NULL)
 	       /* LP_SELECT_QUERY/LP_TABLE_VALUE/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean
 		* expression. But they can show up wherever a scalar is expected (e.g. select column list etc.)
 		* and hence have to be allowed in a lot more cases.

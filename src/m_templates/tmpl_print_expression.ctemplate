@@ -739,75 +739,111 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			%{}`n{{ PLAN_LINE_START }}{}%
 		}
 		break;
-	case LP_BOOLEAN_IS_NULL:
-	case LP_BOOLEAN_IS_NOT_NULL:
-		if (IS_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(first_operand)) {
-			/* Check if this is a TABLE_ASTERISK type column alias. If so, the NULL or NOT NULL check has to
-			 * work on a record type (not on a scalar column) and has different semantics.
-			 * Below is the crux (see https://stackoverflow.com/a/22764076 for more details).
-			 *
-			 * a) IS NULL on a record/row returns TRUE only if ALL fields/columns of the record/row are NULL.
-			 *    And returns FALSE otherwise.
-			 * b) IS NOT NULL on a record/row returns TRUE only when ALL fields/columns of the record/row are NOT NULL.
-			 *    And returns FALSE otherwise.
-			 */
-			SqlColumnAlias	*column_alias;
+	case LP_BOOLEAN_IS:
+	case LP_BOOLEAN_IS_NOT: {
+		boolean_t is_null;
 
-			GET_COLUMN_ALIAS_FROM_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(first_operand, column_alias);
-			if (is_stmt_table_asterisk(column_alias->column)) {
-				/* We can reach here if a "T1.* IS NOT NULL" or "T1.* IS NULL" check happens.
-				 * It could happen in the WHERE or HAVING or ORDER BY clause.
+		/* The second operand of a BOOLEAN_IS/BOOLEAN_IS_NOT may be TRUE, FALSE, UNKNOWN, or NULL. NULL and UNKNOWN behave
+		 * identically after type checking has been performed by `populate_data_type()`. In either case, we must use a
+		 * `$ZYISSQLNULL()` check instead of a direct `=`/`'=` comparison to ensure a result of true or false (1 or 0).
+		 */
+		assert(LP_VALUE == second_operand->type);
+		is_null = (NUL_VALUE == second_operand->v.lp_value.value->type); // Value is SQL NULL
+		if (is_null) {
+			if (IS_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(first_operand)) {
+				/* Check if this is a TABLE_ASTERISK type column alias. If so, the NULL or NOT NULL check has to
+				 * work on a record type (not on a scalar column) and has different semantics.
+				 * Below is the crux (see https://stackoverflow.com/a/22764076 for more details).
+				 *
+				 * a) IS NULL on a record/row returns TRUE only if ALL fields/columns of the record/row are NULL.
+				 *    And returns FALSE otherwise.
+				 * b) IS NOT NULL on a record/row returns TRUE only when ALL fields/columns of the record/row are NOT NULL.
+				 *    And returns FALSE otherwise.
 				 */
-				if (dot_count) {
-					TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
-					TMPL(tmpl_print_dots, dot_count);
-					%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
-				}
-				%{}$${}%
-				if (LP_BOOLEAN_IS_NOT_NULL == plan_type) {
-					%{}RowIsNotNull{}%
-				} else {
-					%{}RowIsNull{}%
-				}
-				%{}^%%ydboctoplanhelpers({}%
-				if (dot_count) {
-					%{}{{ PP_YDB_OCTO_EXPR }}{}%
-				} else {
-					TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
-				}
-				%{},{}%
+				SqlColumnAlias	*column_alias;
 
-				SqlTableAlias	*table_alias;
-				int		num_cols;
-				UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
-				num_cols = get_num_cols_in_table_alias(table_alias);
-				assert(0 < num_cols);
-				%{}{{ num_cols|%d }}){}%
-				if (dot_count) {
-					%{}`n{{ PLAN_LINE_START }}{}%
+				GET_COLUMN_ALIAS_FROM_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(first_operand, column_alias);
+				if (is_stmt_table_asterisk(column_alias->column)) {
+					/* We can reach here if a "T1.* IS NOT NULL" or "T1.* IS NULL" check happens.
+					 * It could happen in the WHERE or HAVING or ORDER BY clause.
+					 */
+					if (dot_count) {
+						TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+						TMPL(tmpl_print_dots, dot_count);
+						%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+					}
+					%{}$${}%
+					if (LP_BOOLEAN_IS_NOT == plan_type) {
+						%{}RowIsNotNull{}%
+					} else {
+						%{}RowIsNull{}%
+					}
+					%{}^%%ydboctoplanhelpers({}%
+					if (dot_count) {
+						%{}{{ PP_YDB_OCTO_EXPR }}{}%
+					} else {
+						TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+					}
+					%{},{}%
+
+					SqlTableAlias	*table_alias;
+					int		num_cols;
+					UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
+					num_cols = get_num_cols_in_table_alias(table_alias);
+					assert(0 < num_cols);
+					%{}{{ num_cols|%d }}){}%
+					if (dot_count) {
+						%{}`n{{ PLAN_LINE_START }}{}%
+					}
+					break;
 				}
-				break;
 			}
 		}
 		if (dot_count) {
 			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
 			TMPL(tmpl_print_dots, dot_count);
+			if (!is_null) {
+				%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }})={{ PP_YDB_OCTO_EXPR }}{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				TMPL(tmpl_print_expression, second_operand, pplan, dot_count, depth);
+				TMPL(tmpl_print_dots, dot_count);
+			}
 			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
 		}
-		if (LP_BOOLEAN_IS_NOT_NULL == plan_type) {
-			%{}'{}%
-		}
-		%{}$ZYISSQLNULL({}%
-		if (!dot_count) {
-			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+		if (is_null) {
+			if (LP_BOOLEAN_IS_NOT == plan_type) {
+				%{}'{}%
+			}
+			%{}$ZYISSQLNULL({}%
+			if (!dot_count) {
+				TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+			} else {
+				%{}{{ PP_YDB_OCTO_EXPR }}{}%
+			}
+			%{}){}%
 		} else {
-			%{}{{ PP_YDB_OCTO_EXPR }}{}%
+			%{}({}%
+			if (!dot_count) {
+				TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+			} else {
+				%{}{{ PP_YDB_OCTO_EXPR }}{}%
+			}
+			if (LP_BOOLEAN_IS_NOT == plan_type) {
+				%{}'{}%
+			}
+			%{}={}%
+			if (!dot_count) {
+				TMPL(tmpl_print_expression, second_operand, pplan, dot_count, depth);
+			} else {
+				%{}{{ PP_YDB_OCTO_EXPR }}({{ depth|%d }}){}%
+			}
+			%{}){}%
 		}
-		%{}){}%
 		if (dot_count) {
 			%{}`n{{ PLAN_LINE_START }}{}%
 		}
 		break;
+	}
 	case LP_COALESCE_CALL:
 		/* COALESCE(a, b, ...) -> $SELECT('$ZYISSQLNULL(a):a,'$ZYISSQLNULL(b):b,...,1:$ZYSQLNULL) */
 		/* first_operand is a LP_COLUMN_LIST, but we want to get the first column value */

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -13,20 +13,20 @@
 load test_helpers
 
 setup() {
-  init_test
-  createdb
-  load_fixture names.sql
-  load_fixture names.zwr
-  load_fixture boolean.sql
-  load_fixture boolean.zwr
-  load_fixture northwind.sql
-  load_fixture northwind.zwr
-  load_fixture nullnames.sql
-  load_fixture nullnames.zwr
+	init_test
+	createdb
+	load_fixture names.sql
+	load_fixture names.zwr
+	load_fixture boolean.sql
+	load_fixture boolean.zwr
+	load_fixture northwind.sql
+	load_fixture northwind.zwr
+	load_fixture nullnames.sql
+	load_fixture nullnames.zwr
 }
 
 @test "TBT01 : Test of BOOLEAN type across various valid queries in `boolean` database" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries boolean TBT01.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries boolean TBT01.sql
 }
 
 @test "TBT02 : Test of BOOLEAN type across various valid queries in `names` database" {
@@ -36,16 +36,69 @@ setup() {
 }
 
 @test "TBT03 : Test of BOOLEAN type across various queries with errors OR different output between Octo & Postgres" {
-  load_fixture TBT03.sql subtest novv
-  verify_output TBT03 output.txt
+	load_fixture TBT03.sql subtest novv
+	verify_output TBT03 output.txt
 }
 
 @test "TBT04 : Test NOT with boolean comparison as operand from failed QueryGenerator case" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TBT04.sql "trim_trailing_zeroes"
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TBT04.sql "trim_trailing_zeroes"
 }
 
 @test "TBT05 : OCTO747 : Test WHERE/HAVING/ON clause with non-boolean expressions issues ERR_TYPE_NOT_COMPATIBLE error" {
-  load_fixture TBT05_errors.sql subtest novv
-  verify_output TBT05_errors output.txt
+	load_fixture TBT05_errors.sql subtest novv
+	verify_output TBT05_errors output.txt
 }
 
+@test "TBT06 : OCTO498 : Test of IS (NOT) TRUE, IS (NOT) FALSE, and IS (NOT) UNKNOWN across various valid queries" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries boolean TBT06.sql
+}
+
+@test "TBT07 : OCTO498 : Test of various error scenarios of IS (NOT) TRUE, IS (NOT) FALSE, and IS (NOT) UNKNOWN " {
+	load_fixture TBT07.sql subtest novv
+	verify_output TBT07 output.txt
+}
+
+@test "TBT08 : OCTO498 : Test correct results in successive queries using IS (NOT) TRUE, IS (NOT) FALSE, and IS (NOT) UNKNOWN " {
+	# Two fixtures are needed in order to test plan regeneration and prevent reuse
+	# across successive octo process spawns.
+	load_fixture TBT08.sql subtest novv
+	load_fixture TBT08b.sql subtest novv
+	verify_output TBT08 output.txt
+}
+
+@test "TBT09 : OCTO498 : Confirm proper number of plans generated for queries using IS (NOT) TRUE, IS (NOT) FALSE, and IS (NOT) UNKNOWN" {
+	# The first fixture used below contains 16 queries. Of these, 8 pairs of queries will map to different/unique plans, i.e.:
+	# 1. queries with IS TRUE/FALSE
+	# 2. queries with IS NULL/UNKNOWN
+	# 3. queries with IS NOT TRUE/FALSE
+	# 4. queries with IS NULL/UNKNOWN
+	# 5. queries with IS TRUE/FALSE and ORDER BY
+	# 6. queries with IS NULL/UNKNOWN and ORDER BY
+	# 7. queries with IS NOT TRUE/FALSE and ORDER BY
+	# 8. queries with IS NULL/UNKNOWN and ORDER BY
+	#
+	# So, we expect 16 - 8 = 8 plans in the first case. In the second case, there are only 8 queries, covering cases 1-4 listed
+	# above. In that case, we expect 8 - 4 = 4 queries.
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries boolean TBT09.sql
+	[[ 8 -eq $(ls _ydboctoP*.m | wc -l) ]]
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TBT09b.sql
+	[[ 12 -eq $(ls _ydboctoP*.m | wc -l) ]] # The previous 4 plans plus 4 new ones
+}
+
+@test "TBT10 : OCTO498 : Confirm proper number of cross reference plans generated for queries using IS (NOT) TRUE, IS (NOT) FALSE, and IS (NOT) UNKNOWN" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries boolean TBT10.sql
+	# We expect 1 cross reference plan to be generated for the 4 queries in TBT10
+	[[ 1 -eq $(ls _ydboctoX*.m | wc -l) ]]
+	# We expect all 2 plans (2 pairs of queries hash to the same plan) generated for the 4 queries in TBT10 to use the cross
+	# reference plan, i.e.:
+	# 1. queries with IS TRUE/FALSE
+	# 2. queries with IS NULL/UNKNOWN
+	[[ 2 -eq $(grep "ydboctoX" $(ls _ydboctoP*.m) | wc -l) ]]
+}
+
+@test "TBT11 : OCTO498 : Test that BOOLEAN_IS plans show an empty LP_WHERE clause and an LP_KEY_FIX key" {
+	# Two fixtures are needed in order to test plan regeneration and prevent reuse
+	# across successive octo process spawns.
+	load_fixture TBT11.sql subtest
+	verify_output TBT11 output.txt
+}

@@ -417,24 +417,22 @@ boolean_test
       $$ = $predicate;
       $$->loc = yyloc;
     }
-  | predicate IS NULL_TOKEN {
-      SQL_STATEMENT($$, unary_STATEMENT);
-      MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
-      // TODO: refactor this so that this is BOOLEAN_IS with a value of NULL (#498)
-      // that way, we could use the same code for both NULL, NOT NULL, TRUE, and FALSE.
-      ($$)->v.unary->operation = BOOLEAN_IS_NULL;
-      ($$)->v.unary->operand = ($predicate);
+  | predicate IS boolean_primary {
+      SQL_STATEMENT($$, binary_STATEMENT);
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
+      ($$)->v.binary->operation = BOOLEAN_IS;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[1] = ($boolean_primary);
       $$->loc = @1;
     }
-  | predicate IS NOT NULL_TOKEN {
-      SQL_STATEMENT($$, unary_STATEMENT);
-      MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
-      ($$)->v.unary->operation = BOOLEAN_IS_NOT_NULL;
-      ($$)->v.unary->operand = ($predicate);
+  | predicate IS NOT boolean_primary {
+      SQL_STATEMENT($$, binary_STATEMENT);
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
+      ($$)->v.binary->operation = BOOLEAN_IS_NOT;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[1] = ($boolean_primary);
       $$->loc = @1;
     }
-  | predicate IS boolean_primary { ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "boolean_test_tail: IS boolean_primary"); YYABORT; }
-  | predicate IS NOT boolean_primary { ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "boolean_test_tail: IS NOT boolean_primary"); YYABORT; }
   // TODO: IS DISTINCT FROM(#557)
   ;
 
@@ -449,7 +447,12 @@ boolean_primary
       INVOKE_PARSE_LITERAL_TO_PARAMETER(parse_context, ($$)->v.value, FALSE);
       $$->loc = yyloc;
     }
-  | UNKNOWN { ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "boolean_primary: UNKNOWN"); YYABORT; }
+  | null_specification { $$ = $null_specification; }
+  | UNKNOWN {
+      SQL_VALUE_STATEMENT($$, BOOLEAN_VALUE, "");
+      INVOKE_PARSE_LITERAL_TO_PARAMETER(parse_context, ($$)->v.value, FALSE);
+      $$->loc = yyloc;
+  }
   ;
 
 predicate
@@ -895,7 +898,6 @@ value_expression_primary
   | array_constructor { $$ = $array_constructor; }
   | table_subquery { $$ = $table_subquery; }
   | LEFT_PAREN value_expression RIGHT_PAREN { $$ = $value_expression; }
-  | null_specification { $$ = $null_specification; }
   | cast_expression { $$ = $cast_expression; }
   | boolean_primary { $$ = $boolean_primary; }
   | exists_predicate

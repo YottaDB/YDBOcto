@@ -16,19 +16,6 @@ _ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",4,"","")=$ORDER(%ydboct
 _ydboctoP*.m:    . SET val=%ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))
 _ydboctoP*.m:    . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of inserted records
 _ydboctoP*.m:;; ---------------------------------------------------------
-_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where firstname is NULL;
-_ydboctoP*.m:;; ---------------------------------------------------------
-_ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
-_ydboctoP*.m:octoPlan1(cursorId)
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME")=%ydboctoexpr IF $DATA(^%ydboctoxref("TUT002","FIRSTNAME","")) DO
-_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=$ORDER(^%ydboctoxref("TUT002","FIRSTNAME","",%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")="")  DO
-_ydboctoP*.m:    . . . SET %ydboctoUPD=^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))
-_ydboctoP*.m:    . . . SET $PIECE(%ydboctoUPD,"|",1)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",2)),30))
-_ydboctoP*.m:    . . . SET $PIECE(%ydboctoUPD,"|",2)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME"),30))
-_ydboctoP*.m:    . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname is NULL;
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
@@ -61,6 +48,56 @@ _ydboctoP*.m:octoPlan1(cursorId)
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=""
 _ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=$ORDER(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")="")  DO
 _ydboctoP*.m:    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+_ydboctoP*.m:;; ---------------------------------------------------------
+_ydboctoP*.m:;  update TUT002 as n1 set firstname = lastname, lastname = firstname where EXISTS (select * FROM names n2 where n2.id = n1.id + 2);
+_ydboctoP*.m:;; ---------------------------------------------------------
+_ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
+_ydboctoP*.m:octoPlan1(cursorId)
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",3,"TUT002","ID")=""
+_ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",3,"TUT002","ID")=$ORDER(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",3,"TUT002","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"TUT002","ID")="")  DO
+_ydboctoP*.m:    . . SET %ydboctoUPD=^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",3,"TUT002","ID"))
+_ydboctoP*.m:    . . SET $PIECE(%ydboctoUPD,"|",1)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",3,"TUT002","ID")),"|",2)),30))
+_ydboctoP*.m:    . . SET $PIECE(%ydboctoUPD,"|",2)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",3,"TUT002","ID")),"|",1)),30))
+_ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+_ydboctoP*.m:octoPlan2(cursorId)
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
+_ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
+_ydboctoP*.m:    . SET %ydboctoexpr=$SELECT('$DATA(%ydboctocursor(cursorId,"keys",3,"TUT002","ID")):$ZYSQLNULL,1:%ydboctocursor(cursorId,"keys",3,"TUT002","ID"))
+_ydboctoP*.m:    . . SET %ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))=%ydboctoexpr
+_ydboctoP*.m:;; ---------------------------------------------------------
+_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where firstname = 'Cool' OR lastname = 'Zero';
+_ydboctoP*.m:;; ---------------------------------------------------------
+_ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
+_ydboctoP*.m:octoPlan1(cursorId)
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME")) IF $DATA(^%ydboctoxref("TUT002","FIRSTNAME",%ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME"))) DO
+_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=""
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=$ORDER(^%ydboctoxref("TUT002","FIRSTNAME",%ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME"),%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")="")  DO
+_ydboctoP*.m:    . . . . SET %ydboctoUPD=^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))
+_ydboctoP*.m:    . . . . SET $PIECE(%ydboctoUPD,"|",1)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",2)),30))
+_ydboctoP*.m:    . . . . SET $PIECE(%ydboctoUPD,"|",2)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME"),30))
+_ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+_ydboctoP*.m:octoPlan2(cursorId)
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME")) IF $DATA(^%ydboctoxref("TUT002","LASTNAME",%ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME"))) DO
+_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=""
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=$ORDER(^%ydboctoxref("TUT002","LASTNAME",%ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME"),%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")="")  DO
+_ydboctoP*.m:    . . . . SET %ydboctoUPD=^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))
+_ydboctoP*.m:    . . . . SET $PIECE(%ydboctoUPD,"|",1)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME"),30))
+_ydboctoP*.m:    . . . . SET $PIECE(%ydboctoUPD,"|",2)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",1)),30))
+_ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+_ydboctoP*.m:;; ---------------------------------------------------------
+_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname = SAMEVALUE('Last7');
+_ydboctoP*.m:;; ---------------------------------------------------------
+_ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
+_ydboctoP*.m:octoPlan1(cursorId)
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=""
+_ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=$ORDER(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")="")  DO
+_ydboctoP*.m:    . . SET %ydboctoUPD=^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))
+_ydboctoP*.m:    . . SET $PIECE(%ydboctoUPD,"|",1)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",2)),30))
+_ydboctoP*.m:    . . SET $PIECE(%ydboctoUPD,"|",2)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",1)),30))
+_ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where firstname is NULL OR lastname = 'Zero';
 _ydboctoP*.m:;; ---------------------------------------------------------
@@ -97,6 +134,19 @@ _ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",4,"","")=$ORDER(%ydboct
 _ydboctoP*.m:    . SET val=%ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))
 _ydboctoP*.m:    . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of inserted records
 _ydboctoP*.m:;; ---------------------------------------------------------
+_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where firstname = 'Cool';
+_ydboctoP*.m:;; ---------------------------------------------------------
+_ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
+_ydboctoP*.m:octoPlan1(cursorId)
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME")) IF $DATA(^%ydboctoxref("TUT002","FIRSTNAME",%ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME"))) DO
+_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=""
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=$ORDER(^%ydboctoxref("TUT002","FIRSTNAME",%ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME"),%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")="")  DO
+_ydboctoP*.m:    . . . SET %ydboctoUPD=^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))
+_ydboctoP*.m:    . . . SET $PIECE(%ydboctoUPD,"|",1)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",2)),30))
+_ydboctoP*.m:    . . . SET $PIECE(%ydboctoUPD,"|",2)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME"),30))
+_ydboctoP*.m:    . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+_ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:;  update TUT002B set firstname = firstname || '#';
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
@@ -119,7 +169,7 @@ _ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"","")=$ORDER(%ydboct
 _ydboctoP*.m:    . SET val=%ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""))
 _ydboctoP*.m:    . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of inserted records
 _ydboctoP*.m:;; ---------------------------------------------------------
-_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname != 'Cool' AND id > 3;
+_ydboctoP*.m:;  update TUT002 n1 set firstname = lastname, lastname = firstname where n1.lastname != 'Cool';
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
 _ydboctoP*.m:octoPlan1(cursorId)
@@ -131,17 +181,39 @@ _ydboctoP*.m:    . . SET $PIECE(%ydboctoUPD,"|",1)=$$colvalue2piecevalue^%ydboct
 _ydboctoP*.m:    . . SET $PIECE(%ydboctoUPD,"|",2)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",1)),30))
 _ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoP*.m:;; ---------------------------------------------------------
-_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname = SAMEVALUE('Last7');
+_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname = 'Cool' OR firstname = 'Zero';
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
 _ydboctoP*.m:octoPlan1(cursorId)
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=""
-_ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=$ORDER(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")="")  DO
-_ydboctoP*.m:    . . SET %ydboctoUPD=^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))
-_ydboctoP*.m:    . . SET $PIECE(%ydboctoUPD,"|",1)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",2)),30))
-_ydboctoP*.m:    . . SET $PIECE(%ydboctoUPD,"|",2)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",1)),30))
-_ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME")) IF $DATA(^%ydboctoxref("TUT002","LASTNAME",%ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME"))) DO
+_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=""
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=$ORDER(^%ydboctoxref("TUT002","LASTNAME",%ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME"),%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")="")  DO
+_ydboctoP*.m:    . . . . SET %ydboctoUPD=^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))
+_ydboctoP*.m:    . . . . SET $PIECE(%ydboctoUPD,"|",1)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME"),30))
+_ydboctoP*.m:    . . . . SET $PIECE(%ydboctoUPD,"|",2)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",1)),30))
+_ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+_ydboctoP*.m:octoPlan2(cursorId)
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME")) IF $DATA(^%ydboctoxref("TUT002","FIRSTNAME",%ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME"))) DO
+_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=""
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=$ORDER(^%ydboctoxref("TUT002","FIRSTNAME",%ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME"),%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")="")  DO
+_ydboctoP*.m:    . . . . SET %ydboctoUPD=^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))
+_ydboctoP*.m:    . . . . SET $PIECE(%ydboctoUPD,"|",1)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",2)),30))
+_ydboctoP*.m:    . . . . SET $PIECE(%ydboctoUPD,"|",2)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME"),30))
+_ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+_ydboctoP*.m:;; ---------------------------------------------------------
+_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where firstname is NULL;
+_ydboctoP*.m:;; ---------------------------------------------------------
+_ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
+_ydboctoP*.m:octoPlan1(cursorId)
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME")=%ydboctoexpr IF $DATA(^%ydboctoxref("TUT002","FIRSTNAME","")) DO
+_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=""
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=$ORDER(^%ydboctoxref("TUT002","FIRSTNAME","",%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")="")  DO
+_ydboctoP*.m:    . . . SET %ydboctoUPD=^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))
+_ydboctoP*.m:    . . . SET $PIECE(%ydboctoUPD,"|",1)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",2)),30))
+_ydboctoP*.m:    . . . SET $PIECE(%ydboctoUPD,"|",2)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME"),30))
+_ydboctoP*.m:    . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname is NULL OR firstname = 'Zero';
 _ydboctoP*.m:;; ---------------------------------------------------------
@@ -164,65 +236,7 @@ _ydboctoP*.m:    . . . . SET $PIECE(%ydboctoUPD,"|",1)=$$colvalue2piecevalue^%yd
 _ydboctoP*.m:    . . . . SET $PIECE(%ydboctoUPD,"|",2)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME"),30))
 _ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoP*.m:;; ---------------------------------------------------------
-_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where firstname = 'Cool';
-_ydboctoP*.m:;; ---------------------------------------------------------
-_ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
-_ydboctoP*.m:octoPlan1(cursorId)
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME")) IF $DATA(^%ydboctoxref("TUT002","FIRSTNAME",%ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME"))) DO
-_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=$ORDER(^%ydboctoxref("TUT002","FIRSTNAME",%ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME"),%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")="")  DO
-_ydboctoP*.m:    . . . SET %ydboctoUPD=^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))
-_ydboctoP*.m:    . . . SET $PIECE(%ydboctoUPD,"|",1)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",2)),30))
-_ydboctoP*.m:    . . . SET $PIECE(%ydboctoUPD,"|",2)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME"),30))
-_ydboctoP*.m:    . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:;; ---------------------------------------------------------
-_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname = 'Cool' OR firstname = 'Zero';
-_ydboctoP*.m:;; ---------------------------------------------------------
-_ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
-_ydboctoP*.m:octoPlan1(cursorId)
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME")) IF $DATA(^%ydboctoxref("TUT002","LASTNAME",%ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME"))) DO
-_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=$ORDER(^%ydboctoxref("TUT002","LASTNAME",%ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME"),%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")="")  DO
-_ydboctoP*.m:    . . . . SET %ydboctoUPD=^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))
-_ydboctoP*.m:    . . . . SET $PIECE(%ydboctoUPD,"|",1)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME"),30))
-_ydboctoP*.m:    . . . . SET $PIECE(%ydboctoUPD,"|",2)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",1)),30))
-_ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:octoPlan2(cursorId)
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME")) IF $DATA(^%ydboctoxref("TUT002","FIRSTNAME",%ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME"))) DO
-_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=$ORDER(^%ydboctoxref("TUT002","FIRSTNAME",%ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME"),%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")="")  DO
-_ydboctoP*.m:    . . . . SET %ydboctoUPD=^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))
-_ydboctoP*.m:    . . . . SET $PIECE(%ydboctoUPD,"|",1)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",2)),30))
-_ydboctoP*.m:    . . . . SET $PIECE(%ydboctoUPD,"|",2)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME"),30))
-_ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:;; ---------------------------------------------------------
-_ydboctoP*.m:;  update TUT002 n1 set firstname = lastname, lastname = firstname where n1.lastname != 'Cool';
-_ydboctoP*.m:;; ---------------------------------------------------------
-_ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
-_ydboctoP*.m:octoPlan1(cursorId)
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=""
-_ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=$ORDER(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")="")  DO
-_ydboctoP*.m:    . . SET %ydboctoUPD=^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))
-_ydboctoP*.m:    . . SET $PIECE(%ydboctoUPD,"|",1)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",2)),30))
-_ydboctoP*.m:    . . SET $PIECE(%ydboctoUPD,"|",2)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",1)),30))
-_ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname != 'Cool';
-_ydboctoP*.m:;; ---------------------------------------------------------
-_ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
-_ydboctoP*.m:octoPlan1(cursorId)
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=""
-_ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=$ORDER(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")="")  DO
-_ydboctoP*.m:    . . SET %ydboctoUPD=^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))
-_ydboctoP*.m:    . . SET $PIECE(%ydboctoUPD,"|",1)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",2)),30))
-_ydboctoP*.m:    . . SET $PIECE(%ydboctoUPD,"|",2)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",1)),30))
-_ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:;; ---------------------------------------------------------
-_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname;
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
 _ydboctoP*.m:octoPlan1(cursorId)
@@ -247,22 +261,42 @@ _ydboctoP*.m:    . . . SET $PIECE(%ydboctoUPD,"|",1)=$$colvalue2piecevalue^%ydbo
 _ydboctoP*.m:    . . . SET $PIECE(%ydboctoUPD,"|",2)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",1)),30))
 _ydboctoP*.m:    . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoP*.m:;; ---------------------------------------------------------
-_ydboctoP*.m:;  update TUT002 as n1 set firstname = lastname, lastname = firstname where EXISTS (select * FROM names n2 where n2.id = n1.id + 2);
+_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname = 'Last6';
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
 _ydboctoP*.m:octoPlan1(cursorId)
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",3,"TUT002","ID")=""
-_ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",3,"TUT002","ID")=$ORDER(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",3,"TUT002","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"TUT002","ID")="")  DO
-_ydboctoP*.m:    . . SET %ydboctoUPD=^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",3,"TUT002","ID"))
-_ydboctoP*.m:    . . SET $PIECE(%ydboctoUPD,"|",1)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",3,"TUT002","ID")),"|",2)),30))
-_ydboctoP*.m:    . . SET $PIECE(%ydboctoUPD,"|",2)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",3,"TUT002","ID")),"|",1)),30))
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME")) IF $DATA(^%ydboctoxref("TUT002","LASTNAME",%ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME"))) DO
+_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=""
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=$ORDER(^%ydboctoxref("TUT002","LASTNAME",%ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME"),%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")="")  DO
+_ydboctoP*.m:    . . . SET %ydboctoUPD=^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))
+_ydboctoP*.m:    . . . SET $PIECE(%ydboctoUPD,"|",1)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME"),30))
+_ydboctoP*.m:    . . . SET $PIECE(%ydboctoUPD,"|",2)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",1)),30))
+_ydboctoP*.m:    . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+_ydboctoP*.m:;; ---------------------------------------------------------
+_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname != 'Cool' AND id > 3;
+_ydboctoP*.m:;; ---------------------------------------------------------
+_ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
+_ydboctoP*.m:octoPlan1(cursorId)
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=""
+_ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=$ORDER(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")="")  DO
+_ydboctoP*.m:    . . SET %ydboctoUPD=^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))
+_ydboctoP*.m:    . . SET $PIECE(%ydboctoUPD,"|",1)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",2)),30))
+_ydboctoP*.m:    . . SET $PIECE(%ydboctoUPD,"|",2)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",1)),30))
 _ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:octoPlan2(cursorId)
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
-_ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
-_ydboctoP*.m:    . SET %ydboctoexpr=$SELECT('$DATA(%ydboctocursor(cursorId,"keys",3,"TUT002","ID")):$ZYSQLNULL,1:%ydboctocursor(cursorId,"keys",3,"TUT002","ID"))
-_ydboctoP*.m:    . . SET %ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))=%ydboctoexpr
+_ydboctoP*.m:;; ---------------------------------------------------------
+_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname;
+_ydboctoP*.m:;; ---------------------------------------------------------
+_ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
+_ydboctoP*.m:octoPlan1(cursorId)
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=""
+_ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=$ORDER(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")="")  DO
+_ydboctoP*.m:    . . SET %ydboctoUPD=^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))
+_ydboctoP*.m:    . . SET $PIECE(%ydboctoUPD,"|",1)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",2)),30))
+_ydboctoP*.m:    . . SET $PIECE(%ydboctoUPD,"|",2)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",1)),30))
+_ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = id::text;
 _ydboctoP*.m:;; ---------------------------------------------------------
@@ -276,27 +310,6 @@ _ydboctoP*.m:    . . SET $PIECE(%ydboctoUPD,"|",1)=$$colvalue2piecevalue^%ydboct
 _ydboctoP*.m:    . . SET $PIECE(%ydboctoUPD,"|",2)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers((%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),30))
 _ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoP*.m:;; ---------------------------------------------------------
-_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where firstname = 'Cool' OR lastname = 'Zero';
-_ydboctoP*.m:;; ---------------------------------------------------------
-_ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
-_ydboctoP*.m:octoPlan1(cursorId)
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME")) IF $DATA(^%ydboctoxref("TUT002","FIRSTNAME",%ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME"))) DO
-_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=$ORDER(^%ydboctoxref("TUT002","FIRSTNAME",%ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME"),%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")="")  DO
-_ydboctoP*.m:    . . . . SET %ydboctoUPD=^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))
-_ydboctoP*.m:    . . . . SET $PIECE(%ydboctoUPD,"|",1)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",2)),30))
-_ydboctoP*.m:    . . . . SET $PIECE(%ydboctoUPD,"|",2)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"TUT002","FIRSTNAME"),30))
-_ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:octoPlan2(cursorId)
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME")) IF $DATA(^%ydboctoxref("TUT002","LASTNAME",%ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME"))) DO
-_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=$ORDER(^%ydboctoxref("TUT002","LASTNAME",%ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME"),%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")="")  DO
-_ydboctoP*.m:    . . . . SET %ydboctoUPD=^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))
-_ydboctoP*.m:    . . . . SET $PIECE(%ydboctoUPD,"|",1)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME"),30))
-_ydboctoP*.m:    . . . . SET $PIECE(%ydboctoUPD,"|",2)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",1)),30))
-_ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:;  insert into TUT002 VALUES((SAMEVALUE(6)), 'First6', 'Last6');
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
@@ -308,19 +321,6 @@ _ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"","")=""
 _ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"","")=$ORDER(%ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""))) QUIT:(%ydboctocursor(cursorId,"keys",1,"","")="")  DO
 _ydboctoP*.m:    . SET val=%ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""))
 _ydboctoP*.m:    . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of inserted records
-_ydboctoP*.m:;; ---------------------------------------------------------
-_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname = 'Last6';
-_ydboctoP*.m:;; ---------------------------------------------------------
-_ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
-_ydboctoP*.m:octoPlan1(cursorId)
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME")) IF $DATA(^%ydboctoxref("TUT002","LASTNAME",%ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME"))) DO
-_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"TUT002","ID")=$ORDER(^%ydboctoxref("TUT002","LASTNAME",%ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME"),%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")="")  DO
-_ydboctoP*.m:    . . . SET %ydboctoUPD=^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID"))
-_ydboctoP*.m:    . . . SET $PIECE(%ydboctoUPD,"|",1)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"TUT002","LASTNAME"),30))
-_ydboctoP*.m:    . . . SET $PIECE(%ydboctoUPD,"|",2)=$$colvalue2piecevalue^%ydboctoplanhelpers($$SizeCheckVARCHAR^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDIE3o6W9pdQRsfTypRrNX7J(%ydboctocursor(cursorId,"keys",1,"TUT002","ID")),"|",1)),30))
-_ydboctoP*.m:    . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoX*.m:;; ---------------------------------------------------------
 _ydboctoX*.m:;; Generated M code maintains cross reference for LASTNAME column in TUT002 table
 _ydboctoX*.m:;; ---------------------------------------------------------
@@ -337,62 +337,62 @@ _ydboctoX*.m:    . . SET oldValue=$PIECE($ZTOLDVAL,$ZTDELIM,$ZTUPDATE)
 _ydboctoX*.m:    . SET newValue=$PIECE($ZTVALUE,$ZTDELIM,$ZTUPDATE)
 # Test [DROP TABLE names] removes all plans using names table for UPDATE queries
 # Below are plans that remain after [DROP TABLE names]
-_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where firstname is NULL;
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
-_ydboctoP*.m:    . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname is NULL;
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
 _ydboctoP*.m:    . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoP*.m:;  insert into TUT002 VALUES(8, SAMEVALUE('First8'), 'Last8');
 _ydboctoP*.m:;  select * from TUT002;
-_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where firstname is NULL OR lastname = 'Zero';
+_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where firstname = 'Cool' OR lastname = 'Zero';
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
 _ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:;  update TUT002B set firstname = firstname || '#';
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
-_ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:;  insert into TUT002 VALUES(7, 'First7', 'Last7');
-_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname != 'Cool' AND id > 3;
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
-_ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname = SAMEVALUE('Last7');
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
 _ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname is NULL OR firstname = 'Zero';
+_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where firstname is NULL OR lastname = 'Zero';
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
 _ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where firstname = 'Cool';
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
 _ydboctoP*.m:    . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+_ydboctoP*.m:;  update TUT002B set firstname = firstname || '#';
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
+_ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+_ydboctoP*.m:;  insert into TUT002 VALUES(7, 'First7', 'Last7');
+_ydboctoP*.m:;  update TUT002 n1 set firstname = lastname, lastname = firstname where n1.lastname != 'Cool';
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
+_ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname = 'Cool' OR firstname = 'Zero';
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
 _ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:;  update TUT002 n1 set firstname = lastname, lastname = firstname where n1.lastname != 'Cool';
+_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where firstname is NULL;
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
-_ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+_ydboctoP*.m:    . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname is NULL OR firstname = 'Zero';
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
+_ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+_ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname != 'Cool';
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
-_ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname;
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
 _ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoP*.m:;  update TUT002 n1 set firstname = lastname, lastname = firstname where lastname = 'Cool';
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
 _ydboctoP*.m:    . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = id::text;
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
-_ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where firstname = 'Cool' OR lastname = 'Zero';
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
-_ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:;  insert into TUT002 VALUES((SAMEVALUE(6)), 'First6', 'Last6');
 _ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname = 'Last6';
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
 _ydboctoP*.m:    . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname != 'Cool' AND id > 3;
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
+_ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname;
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
+_ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = id::text;
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
+_ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+_ydboctoP*.m:;  insert into TUT002 VALUES((SAMEVALUE(6)), 'First6', 'Last6');
 _ydboctoX*.m:;; Generated M code maintains cross reference for LASTNAME column in TUT002 table
 _ydboctoX*.m:    . . SET oldValue=$PIECE($ZTOLDVAL,$ZTDELIM,$ZTUPDATE)
 _ydboctoX*.m:    . SET newValue=$PIECE($ZTVALUE,$ZTDELIM,$ZTUPDATE)
@@ -402,58 +402,58 @@ _ydboctoX*.m:    . SET newValue=$PIECE($ZTVALUE,$ZTDELIM,$ZTUPDATE)
 # Test [DROP FUNCTION SAMEVALUE(VARCHAR)] removes all plans using SAMEVALUE function for UPDATE queries
 # Below are plans that remain after DROP FUNCTION SAMEVALUE(VARCHAR)
 # SAMEVALUE(INTEGER) function plans should show up below since only SAMEVALUE(VARCHAR) function was dropped
-_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where firstname is NULL;
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
-_ydboctoP*.m:    . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname is NULL;
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
 _ydboctoP*.m:    . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoP*.m:;  select * from TUT002;
+_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where firstname = 'Cool' OR lastname = 'Zero';
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
+_ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+_ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where firstname is NULL OR lastname = 'Zero';
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
-_ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:;  update TUT002B set firstname = firstname || '#';
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
-_ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:;  insert into TUT002 VALUES(7, 'First7', 'Last7');
-_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname != 'Cool' AND id > 3;
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
-_ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname is NULL OR firstname = 'Zero';
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
 _ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where firstname = 'Cool';
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
 _ydboctoP*.m:    . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+_ydboctoP*.m:;  update TUT002B set firstname = firstname || '#';
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
+_ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+_ydboctoP*.m:;  insert into TUT002 VALUES(7, 'First7', 'Last7');
+_ydboctoP*.m:;  update TUT002 n1 set firstname = lastname, lastname = firstname where n1.lastname != 'Cool';
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
+_ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname = 'Cool' OR firstname = 'Zero';
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
 _ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:;  update TUT002 n1 set firstname = lastname, lastname = firstname where n1.lastname != 'Cool';
+_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where firstname is NULL;
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
-_ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+_ydboctoP*.m:    . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname is NULL OR firstname = 'Zero';
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
+_ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+_ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname != 'Cool';
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
-_ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname;
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
 _ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
 _ydboctoP*.m:;  update TUT002 n1 set firstname = lastname, lastname = firstname where lastname = 'Cool';
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
 _ydboctoP*.m:    . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = id::text;
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
-_ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where firstname = 'Cool' OR lastname = 'Zero';
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
-_ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
-_ydboctoP*.m:;  insert into TUT002 VALUES((SAMEVALUE(6)), 'First6', 'Last6');
 _ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname = 'Last6';
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
 _ydboctoP*.m:    . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname where lastname != 'Cool' AND id > 3;
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
+_ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = firstname;
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
+_ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+_ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = id::text;
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
+_ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of updated records
+_ydboctoP*.m:;  insert into TUT002 VALUES((SAMEVALUE(6)), 'First6', 'Last6');
 _ydboctoX*.m:;; Generated M code maintains cross reference for LASTNAME column in TUT002 table
 _ydboctoX*.m:    . . SET oldValue=$PIECE($ZTOLDVAL,$ZTDELIM,$ZTUPDATE)
 _ydboctoX*.m:    . SET newValue=$PIECE($ZTVALUE,$ZTDELIM,$ZTUPDATE)

@@ -175,8 +175,6 @@ typedef enum UnaryOperations {
 	BOOLEAN_NOT,
 	BOOLEAN_EXISTS,
 	BOOLEAN_NOT_EXISTS, // Not used but needed to be in sync with LP_BOOLEAN_NOT_EXISTS in `lp_action_type.hd`
-	BOOLEAN_IS_NULL,
-	BOOLEAN_IS_NOT_NULL,
 } UnaryOperations;
 
 // The order of these must be kept in sync with `LPActionType` in `src/optimization_transforms/lp_action_type.hd`
@@ -190,6 +188,7 @@ typedef enum BinaryOperations {
 	BOOLEAN_OR,
 	BOOLEAN_AND,
 	BOOLEAN_IS,
+	BOOLEAN_IS_NOT,
 	BOOLEAN_EQUALS,
 	BOOLEAN_NOT_EQUALS,
 	BOOLEAN_LESS_THAN,

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -97,6 +97,7 @@ LP_ACTION_TYPE(LP_CONCAT)
 LP_ACTION_TYPE(LP_BOOLEAN_OR)
 LP_ACTION_TYPE(LP_BOOLEAN_AND)
 LP_ACTION_TYPE(LP_BOOLEAN_IS)
+LP_ACTION_TYPE(LP_BOOLEAN_IS_NOT)
 LP_ACTION_TYPE(LP_BOOLEAN_EQUALS)
 LP_ACTION_TYPE(LP_BOOLEAN_NOT_EQUALS)
 LP_ACTION_TYPE(LP_BOOLEAN_LESS_THAN)
@@ -137,8 +138,6 @@ LP_ACTION_TYPE(LP_NEGATIVE)
 LP_ACTION_TYPE(LP_BOOLEAN_NOT)
 LP_ACTION_TYPE(LP_BOOLEAN_EXISTS)
 LP_ACTION_TYPE(LP_BOOLEAN_NOT_EXISTS)
-LP_ACTION_TYPE(LP_BOOLEAN_IS_NULL)
-LP_ACTION_TYPE(LP_BOOLEAN_IS_NOT_NULL)
 LP_ACTION_TYPE(LP_COERCE_TYPE)	/* There is code that relies on LP_COERCE_TYPE being placed in this unary operations section
 				 * (i.e. after LP_FORCE_NUM and before LP_UNARY_LAST) even though there is no parallel
 				 * `COERCE_TYPE` definition in the `enum UnaryOperations` list in `src/octo_types.h`.

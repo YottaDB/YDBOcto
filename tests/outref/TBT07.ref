@@ -1,0 +1,269 @@
+
+-- TBT07 : OCTO498 : Test of various error scenarios of IS (NOT) TRUE, IS (NOT) FALSE, and IS (NOT) UNKNOWN
+
+-- Test comparison of non-BOOLEAN field against each IS and IS NOT scenario, i.e. TRUE, FALSE, UNKNOWN
+SELECT * FROM names WHERE id IS TRUE;
+SELECT * FROM names WHERE id IS NOT TRUE;
+SELECT * FROM names WHERE id IS FALSE;
+SELECT * FROM names WHERE id IS NOT FALSE;
+SELECT * FROM names WHERE id IS UNKNOWN;
+SELECT * FROM names WHERE id IS NOT UNKNOWN;
+SELECT * FROM names a1 WHERE a1.id IS TRUE;
+SELECT * FROM names a1 WHERE a1.id IS NOT TRUE;
+SELECT * FROM names a1 WHERE a1.id IS FALSE;
+SELECT * FROM names a1 WHERE a1.id IS NOT FALSE;
+SELECT * FROM names a1 WHERE a1.id IS UNKNOWN;
+SELECT * FROM names a1 WHERE a1.id IS NOT UNKNOWN;
+SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS TRUE FROM names a1;
+SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS NOT TRUE FROM names a1;
+SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS TRUE FROM names a1;
+SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS NOT TRUE FROM names a1;
+SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS FALSE FROM names a1;
+SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS NOT FALSE FROM names a1;
+SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS FALSE FROM names a1;
+SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS NOT FALSE FROM names a1;
+SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS UNKNOWN FROM names a1;
+SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS NOT UNKNOWN FROM names a1;
+SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS UNKNOWN FROM names a1;
+SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS NOT UNKNOWN FROM names a1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right BOOLEAN
+Error with syntax near (line 1, column 27):
+
+SELECT * FROM names WHERE id IS TRUE;
+                          ^^
+Error with syntax near (line 1, column 33):
+
+SELECT * FROM names WHERE id IS TRUE;
+                                ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names WHERE id IS TRUE;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right BOOLEAN
+Error with syntax near (line 1, column 27):
+
+SELECT * FROM names WHERE id IS NOT TRUE;
+                          ^^
+Error with syntax near (line 1, column 37):
+
+SELECT * FROM names WHERE id IS NOT TRUE;
+                                    ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names WHERE id IS NOT TRUE;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right BOOLEAN
+Error with syntax near (line 1, column 27):
+
+SELECT * FROM names WHERE id IS FALSE;
+                          ^^
+Error with syntax near (line 1, column 33):
+
+SELECT * FROM names WHERE id IS FALSE;
+                                ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names WHERE id IS FALSE;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right BOOLEAN
+Error with syntax near (line 1, column 27):
+
+SELECT * FROM names WHERE id IS NOT FALSE;
+                          ^^
+Error with syntax near (line 1, column 37):
+
+SELECT * FROM names WHERE id IS NOT FALSE;
+                                    ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names WHERE id IS NOT FALSE;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right BOOLEAN
+Error with syntax near (line 1, column 27):
+
+SELECT * FROM names WHERE id IS UNKNOWN;
+                          ^^
+Error with syntax near (line 1, column 33):
+
+SELECT * FROM names WHERE id IS UNKNOWN;
+                                ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names WHERE id IS UNKNOWN;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right BOOLEAN
+Error with syntax near (line 1, column 27):
+
+SELECT * FROM names WHERE id IS NOT UNKNOWN;
+                          ^^
+Error with syntax near (line 1, column 37):
+
+SELECT * FROM names WHERE id IS NOT UNKNOWN;
+                                    ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names WHERE id IS NOT UNKNOWN;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right BOOLEAN
+Error with syntax near (line 1, column 30):
+
+SELECT * FROM names a1 WHERE a1.id IS TRUE;
+                             ^^^^^
+Error with syntax near (line 1, column 39):
+
+SELECT * FROM names a1 WHERE a1.id IS TRUE;
+                                      ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names a1 WHERE a1.id IS TRUE;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right BOOLEAN
+Error with syntax near (line 1, column 30):
+
+SELECT * FROM names a1 WHERE a1.id IS NOT TRUE;
+                             ^^^^^
+Error with syntax near (line 1, column 43):
+
+SELECT * FROM names a1 WHERE a1.id IS NOT TRUE;
+                                          ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names a1 WHERE a1.id IS NOT TRUE;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right BOOLEAN
+Error with syntax near (line 1, column 30):
+
+SELECT * FROM names a1 WHERE a1.id IS FALSE;
+                             ^^^^^
+Error with syntax near (line 1, column 39):
+
+SELECT * FROM names a1 WHERE a1.id IS FALSE;
+                                      ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names a1 WHERE a1.id IS FALSE;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right BOOLEAN
+Error with syntax near (line 1, column 30):
+
+SELECT * FROM names a1 WHERE a1.id IS NOT FALSE;
+                             ^^^^^
+Error with syntax near (line 1, column 43):
+
+SELECT * FROM names a1 WHERE a1.id IS NOT FALSE;
+                                          ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names a1 WHERE a1.id IS NOT FALSE;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right BOOLEAN
+Error with syntax near (line 1, column 30):
+
+SELECT * FROM names a1 WHERE a1.id IS UNKNOWN;
+                             ^^^^^
+Error with syntax near (line 1, column 39):
+
+SELECT * FROM names a1 WHERE a1.id IS UNKNOWN;
+                                      ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names a1 WHERE a1.id IS UNKNOWN;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right BOOLEAN
+Error with syntax near (line 1, column 30):
+
+SELECT * FROM names a1 WHERE a1.id IS NOT UNKNOWN;
+                             ^^^^^
+Error with syntax near (line 1, column 43):
+
+SELECT * FROM names a1 WHERE a1.id IS NOT UNKNOWN;
+                                          ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names a1 WHERE a1.id IS NOT UNKNOWN;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right BOOLEAN
+Error with syntax near (line 1, column 9):
+
+SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS TRUE FROM names a1;
+        ^^^^^^
+Error with syntax near (line 1, column 60):
+
+SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS TRUE FROM names a1;
+                                                           ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS TRUE FROM names a1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right BOOLEAN
+Error with syntax near (line 1, column 9):
+
+SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS NOT TRUE FROM names a1;
+        ^^^^^^
+Error with syntax near (line 1, column 64):
+
+SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS NOT TRUE FROM names a1;
+                                                               ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS NOT TRUE FROM names a1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right BOOLEAN
+Error with syntax near (line 1, column 9):
+
+SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS TRUE FROM names a1;
+        ^^^^^^
+Error with syntax near (line 1, column 84):
+
+SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS TRUE FROM names a1;
+                                                                                   ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS TRUE FROM names a1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right BOOLEAN
+Error with syntax near (line 1, column 9):
+
+SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS NOT TRUE FROM names a1;
+        ^^^^^^
+Error with syntax near (line 1, column 88):
+
+SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS NOT TRUE FROM names a1;
+                                                                                       ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS NOT TRUE FROM names a1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right BOOLEAN
+Error with syntax near (line 1, column 9):
+
+SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS FALSE FROM names a1;
+        ^^^^^^
+Error with syntax near (line 1, column 60):
+
+SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS FALSE FROM names a1;
+                                                           ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS FALSE FROM names a1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right BOOLEAN
+Error with syntax near (line 1, column 9):
+
+SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS NOT FALSE FROM names a1;
+        ^^^^^^
+Error with syntax near (line 1, column 64):
+
+SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS NOT FALSE FROM names a1;
+                                                               ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS NOT FALSE FROM names a1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right BOOLEAN
+Error with syntax near (line 1, column 9):
+
+SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS FALSE FROM names a1;
+        ^^^^^^
+Error with syntax near (line 1, column 84):
+
+SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS FALSE FROM names a1;
+                                                                                   ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS FALSE FROM names a1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right BOOLEAN
+Error with syntax near (line 1, column 9):
+
+SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS NOT FALSE FROM names a1;
+        ^^^^^^
+Error with syntax near (line 1, column 88):
+
+SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS NOT FALSE FROM names a1;
+                                                                                       ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS NOT FALSE FROM names a1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right BOOLEAN
+Error with syntax near (line 1, column 9):
+
+SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS UNKNOWN FROM names a1;
+        ^^^^^^
+Error with syntax near (line 1, column 60):
+
+SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS UNKNOWN FROM names a1;
+                                                           ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS UNKNOWN FROM names a1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right BOOLEAN
+Error with syntax near (line 1, column 9):
+
+SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS NOT UNKNOWN FROM names a1;
+        ^^^^^^
+Error with syntax near (line 1, column 64):
+
+SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS NOT UNKNOWN FROM names a1;
+                                                               ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS NOT UNKNOWN FROM names a1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right BOOLEAN
+Error with syntax near (line 1, column 9):
+
+SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS UNKNOWN FROM names a1;
+        ^^^^^^
+Error with syntax near (line 1, column 84):
+
+SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS UNKNOWN FROM names a1;
+                                                                                   ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS UNKNOWN FROM names a1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right BOOLEAN
+Error with syntax near (line 1, column 9):
+
+SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS NOT UNKNOWN FROM names a1;
+        ^^^^^^
+Error with syntax near (line 1, column 88):
+
+SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS NOT UNKNOWN FROM names a1;
+                                                                                       ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS NOT UNKNOWN FROM names a1;
+

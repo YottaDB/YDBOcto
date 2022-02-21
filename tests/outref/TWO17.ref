@@ -16,8 +16,9 @@ LP_SELECT_QUERY:
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
           LP_WHERE: 
-            LP_BOOLEAN_IS_NOT_NULL: 
+            LP_BOOLEAN_IS_NOT: 
               LP_COLUMN_ALIAS: NAMES(1).ID
+              LP_VALUE: ''
           LP_SELECT_MORE_OPTIONS: 
             LP_KEYWORDS: 
   LP_OUTPUT: 

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -12,16 +12,21 @@
 
 FROM yottadb/yottadb-base:latest-master
 
-RUN export DEBIAN_FRONTEND=noninteractive
+ARG DEBIAN_FRONTEND=noninteractive
 # `apt-get update` is included to account for the case when the upstream Ubuntu container
 # goes out of sync with the upstream Ubuntu repositories. When this happens, `apt-get install`
 # fails, causing `docker build` to fail in turn.
 RUN apt-get update && \
-	apt-get install -y -qq --no-install-recommends \
+        apt-get install -y -qq --no-install-recommends \
         git \
         libreadline-dev \
         libconfig-dev \
-		cmake
+        cmake \
+        locales \
+        pkg-config
+
+RUN locale-gen en_US.UTF-8
+
 
 # Copy requisite files from testing environment into Docker build environment
 ADD ./build/yottadb_octo* /tmp/build/

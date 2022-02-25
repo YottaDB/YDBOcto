@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -37,9 +37,7 @@ teardown() {
 
 @test "TPO03 : call rocto with default port" {
   test_port=$(start_rocto)
-  if [[ 1337 -ne $test_port ]]; then
-    skip
-  fi
+  # Verify default rocto port is 1337
   [[ "$(grep -c "rocto started on port 1337" rocto.log)" == "1" ]]
 }
 

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -168,7 +168,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		UNPACK_SQL_STATEMENT(row_value, table_value->row_value_stmt, row_value);
 		start_row_value = row_value;
 		do {
-			result |= qualify_statement(row_value->value_list, parent_join, table_alias_stmt, 0, NULL);
+			result |= qualify_statement(row_value->value_list, parent_join, table_alias_stmt, 0, ret);
 			row_value = row_value->next;
 		} while (row_value != start_row_value);
 		return result;
@@ -249,7 +249,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		 */
 		cur_join->next = ((NULL != parent_join) ? parent_join : start_join); /* stop join list at current join */
 		table_alias->aggregate_depth = AGGREGATE_DEPTH_FROM_CLAUSE;
-		result |= qualify_statement(cur_join->condition, start_join, table_alias_stmt, 0, NULL);
+		result |= qualify_statement(cur_join->condition, start_join, table_alias_stmt, 0, ret);
 		cur_join->next = next_join; /* restore join list to original */
 		cur_join = next_join;
 	} while ((cur_join != start_join) && (cur_join != parent_join));
@@ -280,7 +280,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 
 		table_alias->aggregate_depth = AGGREGATE_DEPTH_GROUP_BY_CLAUSE;
 		assert(0 == table_alias->group_by_column_count);
-		result |= qualify_statement(group_by_expression, start_join, table_alias_stmt, 0, NULL);
+		result |= qualify_statement(group_by_expression, start_join, table_alias_stmt, 0, ret);
 		/* Note: table_alias->group_by_column_count can still be 0 if GROUP BY was done on a parent query column */
 		if (table_alias->group_by_column_count) {
 			table_alias->aggregate_function_or_group_by_specified = TRUE;
@@ -344,7 +344,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 
 	/* Qualify HAVING clause */
 	table_alias->aggregate_depth = AGGREGATE_DEPTH_HAVING_CLAUSE;
-	result |= qualify_statement(select->having_expression, start_join, table_alias_stmt, 0, NULL);
+	result |= qualify_statement(select->having_expression, start_join, table_alias_stmt, 0, ret);
 
 	/* Expand "*" usage in SELECT column list here. This was not done in "query_specification.c" when the "*" usage was
 	 * first encountered because the FROM/JOIN list of that query could in turn contain a "TABLENAME.*" usage that refers
@@ -419,7 +419,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		assert(0 == table_alias->aggregate_depth);
 		// Qualify SELECT column list next
 		table_alias->qualify_query_stage = QualifyQuery_SELECT_COLUMN_LIST;
-		result |= qualify_statement(select->select_list, start_join, table_alias_stmt, 0, NULL);
+		result |= qualify_statement(select->select_list, start_join, table_alias_stmt, 0, ret);
 		// Qualify ORDER BY clause next (see comment above for why "&lcl_ret" is passed only for ORDER BY).
 		table_alias->qualify_query_stage = QualifyQuery_ORDER_BY;
 		result |= qualify_statement(select->order_by_expression, start_join, table_alias_stmt, 0, &lcl_ret);

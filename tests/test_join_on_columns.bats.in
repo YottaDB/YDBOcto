@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -53,5 +53,12 @@ setup() {
 
 @test "TJOC07 : OCTO426 : Incorrect results from LEFT/RIGHT/FULL JOIN if ON clause has = or IN operator" {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TJOC07.sql
+}
+
+@test "TJOC08 : OCTO800 : %YDB-E-LVUNDEF error when WHERE clause references FROM/JOIN columns in sub-query" {
+	# Generate random queries such that WHERE clause uses FROM/JOIN columns in sub-query
+	yottadb -run TJOC08 > TJOC08.sql
+	# Run using psql and Octo against each of the generated queries
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TJOC08.sql
 }
 

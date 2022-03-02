@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -58,12 +58,22 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 	int			result;
 	SqlTableAlias *		column_table_alias, *parent_table_alias, *table_alias;
 	SqlColumnListAlias **	ret_cla;
-	int *			max_unique_id;
+	int			save_max_unique_id;
 	int			i;
 
 	result = 0;
 	if (NULL == stmt)
 		return result;
+	if ((NULL != ret) && (NULL != ret->max_unique_id)) {
+		/* Determine max_unique_id under current subtree and store it in "stmt->hash_canonical_query_cycle".
+		 * Hence the temporary reset. At the end, before returning, we will update "ret->max_unique_id" to be MAX.
+		 */
+		save_max_unique_id = *ret->max_unique_id;
+		assert(0 <= save_max_unique_id);
+		*ret->max_unique_id = 0;
+	} else {
+		save_max_unique_id = 0;
+	}
 	switch (stmt->type) {
 	case column_alias_STATEMENT:
 		UNPACK_SQL_STATEMENT(new_column_alias, stmt, column_alias);
@@ -112,6 +122,8 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 					stmt->v.column_alias = new_column_alias;
 					UNPACK_SQL_STATEMENT(column_table_alias, new_column_alias->table_alias_stmt, table_alias);
 					if ((NULL != ret) && (NULL != ret->max_unique_id)) {
+						int *max_unique_id;
+
 						max_unique_id = ret->max_unique_id;
 						if (*max_unique_id <= column_table_alias->unique_id) {
 							*max_unique_id = column_table_alias->unique_id + 1;
@@ -192,22 +204,8 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		break;
 	case binary_STATEMENT:
 		UNPACK_SQL_STATEMENT(binary, stmt, binary);
-		max_unique_id = (((BOOLEAN_AND == binary->operation) && (NULL != ret)) ? ret->max_unique_id : NULL);
 		for (i = 0; i < 2; i++) {
-			int save_max_unique_id;
-
-			if (NULL != max_unique_id) {
-				/* Compute max_unique_id for the AND subtree afresh */
-				save_max_unique_id = *max_unique_id;
-				*max_unique_id = 0;
-				depth = -1; /* So next call too uses a depth of 0 for left and right operand of AND */
-			}
 			result |= qualify_statement(binary->operands[i], tables, table_alias_stmt, depth + 1, ret);
-			if (NULL != max_unique_id) {
-				assert(0 <= *max_unique_id);
-				binary->operands[i]->hash_canonical_query_cycle = (uint64_t)(*max_unique_id);
-				*max_unique_id = MAX(*max_unique_id, save_max_unique_id);
-			}
 		}
 		break;
 	case unary_STATEMENT:
@@ -563,6 +561,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 	if ((NULL != ret) && (NULL != ret->max_unique_id)) {
 		/* Caller has requested us to store the maximum unique_id seen under this subtree. So do that. */
 		stmt->hash_canonical_query_cycle = (uint64_t)(*ret->max_unique_id);
+		*ret->max_unique_id = MAX(*ret->max_unique_id, save_max_unique_id);
 	}
 	return result;
 }

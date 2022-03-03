@@ -38,6 +38,7 @@ octoPlan1(cursorId)
     . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     . . . SET %ydboctozduplicate(3,%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))=""
+    ZKILL %ydboctocursor(cursorId,"keys",1,"NAMES","ID")
     QUIT
 
 octoPlan2(cursorId)
@@ -63,5 +64,7 @@ octoPlan2(cursorId)
     . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     . . . . SET %ydboctozduplicate(3,%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))=""
+    ZKILL %ydboctocursor(cursorId,"keys",1,"NAMES","ID")
+    ZKILL %ydboctocursor(cursorId,"keys",1,"NAMES","FIRSTNAME")
     KILL %ydboctozduplicate(3)
     QUIT

@@ -77,6 +77,7 @@ octoPlan1(cursorId)
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . SET %ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))=%ydboctoexpr
+    . . . ZKILL %ydboctocursor(cursorId,"keys",2,"CUSTOMERS","CUSTOMER_ID")
     . . . DO:0=%ydboctoz(2)
     . . . . SET %ydboctoexpr=1
     . . . . SET %ydboctoexpr(1)=0
@@ -109,6 +110,9 @@ octoPlan1(cursorId)
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . SET %ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))=%ydboctoexpr
+    . . . . ZKILL %ydboctocursor(cursorId,"keys",2,"CUSTOMERS","CUSTOMER_ID")
+    ZKILL %ydboctocursor(cursorId,"keys",1,"ORDERS","ORDER_ID")
+    ZKILL %ydboctocursor(cursorId,"keys",1,"ORDERS","ORDER_AMOUNT")
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
@@ -160,6 +164,9 @@ octoPlan1(cursorId)
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . SET %ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))=%ydboctoexpr
+    . . ZKILL %ydboctocursor(cursorId,"keys",2,"NAMES","ID")
+    . . ZKILL %ydboctocursor(cursorId,"keys",2,"NAMES","LASTNAME")
+    ZKILL %ydboctocursor(cursorId,"keys",1,"NAMES","ID")
     SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=""
     FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")="")  DO
     . DO:'$DATA(%ydboctoz(1,%ydboctocursor(cursorId,"keys",2,"NAMES","ID")))
@@ -183,4 +190,6 @@ octoPlan1(cursorId)
     . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . SET %ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",2,"NAMES","ID")
+    ZKILL %ydboctocursor(cursorId,"keys",2,"NAMES","LASTNAME")
     QUIT

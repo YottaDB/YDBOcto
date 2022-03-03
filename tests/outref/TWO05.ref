@@ -65,4 +65,7 @@ octoPlan1(cursorId)
     . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . SET %ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))=%ydboctoexpr
+    . ZKILL %ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID")
+    . ZKILL %ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","AGE")
+    ZKILL %ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")
     QUIT

@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -101,6 +101,9 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 			break;
 		}
 	}
+
+	int	orig_dot_count;
+	orig_dot_count = dot_count;
 	fixed_xref_key = NULL;
 	for ( ; cur_key < total_keys; cur_key++) {
 		// For each key, output the key start, a FOR loop, QUIT, and increment
@@ -357,6 +360,13 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 			assert(pplan->treat_key_as_null[right_table_id]);
 			pplan->treat_key_as_null[right_table_id] = FALSE;
 		}
+	}
+	assert(cur_key > key_start);
+	for ( ; cur_key > key_start; cur_key--) {
+		%{}`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, orig_dot_count);
+		assert(0 < cur_key);
+		TMPL(tmpl_key_finish, pplan->iterKeys[cur_key - 1]);
 	}
 	if (pplan->tablejoin == tablejoin) {
 		/* This is the outermost "tmpl_tablejoin" invocation. Do additional invocation for RIGHT JOINs (if any)

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -434,6 +434,7 @@ set(template_files
   ${template_dir}/tmpl_key.ctemplate
   ${template_dir}/tmpl_key_advance.ctemplate
   ${template_dir}/tmpl_key_end.ctemplate
+  ${template_dir}/tmpl_key_finish.ctemplate
   ${template_dir}/tmpl_key_source.ctemplate
   ${template_dir}/tmpl_key_start.ctemplate
   ${template_dir}/tmpl_limit_check.ctemplate

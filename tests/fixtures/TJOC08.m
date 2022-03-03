@@ -16,7 +16,7 @@
 ; -----------------------------------------------------------------------------------------------------
 
 genrandomqueries	;
-	set maxjoins=3
+	set maxjoins=4
 	set numqueries=20	; generate 20 queries so as not to take a long time for this test to run in pipeline
 	set q=0
 	for  do  quit:$increment(q)=numqueries

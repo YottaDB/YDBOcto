@@ -57,7 +57,7 @@ octoPlan2(cursorId)
     SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=""
     FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")="")  DO
     . SET %ydboctoexpr=1
-    . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . SET %ydboctoexpr=$SELECT('$DATA(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")):$ZYSQLNULL,1:$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1)) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . SET %ydboctoexpr(1)=%ydboctoexpr
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
     . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr

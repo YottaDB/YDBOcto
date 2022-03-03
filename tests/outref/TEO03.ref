@@ -640,7 +640,7 @@ octoPlan3(cursorId)
     . . . . . SET %ydboctoexpr=1
     . . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",2,"T1","B")
     . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
-    . . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"T1","B")
+    . . . . . SET %ydboctoexpr=$SELECT('$DATA(%ydboctocursor(cursorId,"keys",1,"T1","B")):$ZYSQLNULL,1:%ydboctocursor(cursorId,"keys",1,"T1","B"))
     . . . . . SET %ydboctoexpr=%ydboctoexpr(1)<%ydboctoexpr
     . . . . . DO:%ydboctoexpr
     . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",5,"","")) %ydboctoz=42

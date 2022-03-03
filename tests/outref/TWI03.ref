@@ -66,7 +66,7 @@ octoPlan1(cursorId)
 octoPlan2(cursorId)
     NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",7,"","")
     DO
-    . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
+    . SET %ydboctoexpr=$SELECT('$DATA(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")):$ZYSQLNULL,1:%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))
     SET %ydboctocursor(cursorId,"keys",3,"NAMES","ID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"NAMES","ID")) IF $DATA(^names(%ydboctocursor(cursorId,"keys",3,"NAMES","ID"))) DO
     . SET %ydboctoexpr=1
     . DO:%ydboctoexpr

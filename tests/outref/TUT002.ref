@@ -273,6 +273,7 @@ _ydboctoP*.m:    . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increm
 _ydboctoP*.m:octoPlan2(cursorId)
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
 _ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
+_ydboctoP*.m:    . SET %ydboctoexpr=$SELECT('$DATA(%ydboctocursor(cursorId,"keys",3,"TUT002","ID")):$ZYSQLNULL,1:%ydboctocursor(cursorId,"keys",3,"TUT002","ID"))
 _ydboctoP*.m:    . . SET %ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))=%ydboctoexpr
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:;  update TUT002 set firstname = lastname, lastname = id::text;

@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -171,7 +171,8 @@ boolexpr(maxdepth)
 	. set col=tablealias(t)_t
 	. set ncol=$random(numcolumns(table(t))),colname=numcolumns(table(t),ncol)
 	. set col=col_"."_colname
-	. set o=$random(8)
+	. set o=$random(9)
+	. if (o=8) set boolstr=$select($random(2):"NOT ",1:"")_"EXISTS (SELECT "_col_")" quit
 	. set oper=$select(o=0:"=",o=1:"<",o=2:">",o=3:$select($random(2):"!=",1:"<>"),o=4:"<=",o=5:">=",o=6:"IS NULL",o=7:"IS NOT NULL")
 	. set value=""
 	. if o<6 do

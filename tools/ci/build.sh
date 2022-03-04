@@ -424,7 +424,7 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 	fi
 
 	echo "# prepare binary tarball"
-	# Declare the tarball generation logic as a function in case we need to rebuild in release mode for Docker image creation
+	# Declare the tarball generation logic as a function in case we need to rebuild in release mode
 	create_tarball() {
 		# Gather elements of tarball name format: yottadb_octo_<octo_version>_<os_id><os_version>_<platform_arch>_pro.tar.gz
 		octo_version="$(src/octo --version | grep "Octo version" | cut -f 3 -d ' ')"
@@ -660,13 +660,6 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 			cmake -G "$generator" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=RelWithDebInfo -DDISABLE_INSTALL=OFF ..
 			$build_tool
 			create_tarball
-		fi
-
-		if $is_ubuntu; then
-			echo "# Ubuntu pipelines only: Copy installation script into tarball directory for use in Docker image construction"
-			cp ../tools/ci/docker-install.sh $tarball_name
-			echo "# Copy dummy data for use in Docker image. No other fixtures are needed as Northwind tests full functionality"
-			cp ../tests/fixtures/northwind.* $tarball_name
 		fi
 	fi
 else

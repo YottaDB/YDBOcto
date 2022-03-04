@@ -81,6 +81,45 @@ Kill the ROcto process:
 kill %1
 ```
 
+## Using the Docker Image
+To run the docker image, with the Rocto Daemon running on port 1337:
+
+```sh
+docker run -d --rm -p 1337:1337 --name=rocto yottadb/octo
+```
+
+You can pass a directory on your computer to keep the data in, so you won't lose it when you stop the docker container:
+
+```sh
+docker run -d -v $HOME/mydata:/data --rm -p 1337:1337 --name=rocto yottadb/octo
+```
+
+To access the data, you can use the Postgres client (or any other compatible client) like this (Username `ydb` password `ydbrocks`):
+
+```sh
+PGPASSWORD=ydbrocks psql -U ydb -h localhost -p 1337
+```
+
+To look at the Rocto log, you can type this:
+```sh
+docker logs rocto
+```
+
+To go to the shell, and access YottaDB or the Octo command line:
+
+```sh
+docker exec -it rocto su -
+yottadb -dir # YottaDB
+octo # Octo
+exit
+```
+
+To stop the image, simply kill it, as it will autodelete after stopping. Your data will be kept if you mapped a directory on your computer:
+
+```sh
+docker kill rocto
+```
+
 ## Building the documentation
 
 Octo's documentation is maintained in reStructuredText (RST) format. Assuming the current working directory is the repository root, the documentation can be built as an html site with the following commands:

@@ -82,7 +82,7 @@ Install Prerequisites
 .. note::
 
    If YottaDB has already been installed, use the --plugins-only option with the ydbinstall.sh script to install the plugins.
-   
+
 ++++++++++++
 Install Octo
 ++++++++++++
@@ -543,75 +543,6 @@ Sample Queries
      Chocolade|Confections|Zaanse Snoepfabriek
 
 
-+++++++++++++++++++++++
-Use a Docker Container
-+++++++++++++++++++++++
-
-  A Docker image is available on `docker hub <https://hub.docker.com/r/yottadb/octo>`_. This image is built with the following assumptions about the host environment and automatically starts :code:`rocto` when run by Docker using the commands below.
-
-  * The :code:`ydb_env_set` script is used to setup the YottaDB environment and creates/expects a specific layout for globals and routines, specifically:
-
-    * a :code:`r1.30_x86_64` directory with the following sub directories:
-
-      * :code:`g` directory which contains at a minimum:
-
-	* :code:`yottadb.gld` global directory
-
-      * :code:`o` directory which contains the compiled M code
-      * :code:`r` directory which contains the source M code
-    * a :code:`r` directory which contains the source M code
-  * The octo default configuration is used in :code:`/opt/yottadb/current/plugin/octo/octo.conf`
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Starting the Docker Container
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    To start the Docker container and make rocto available on the host's network on the default port 1337 (unless octo.conf within the container is configured otherwise):
-
-    .. code-block:: bash
-
-       docker run -it --network=host yottadb/octo:latest-master
-
-    To login with the default :code:`ydb` user use :code:`psql` and enter :code:`ydbrocks` when prompted for a password:
-
-    .. code-block:: bash
-
-       psql -U ydb -h localhost -p 1337
-
-    If you would like to use YDB data in an existing local directory structure, then issue the :code:`docker run` command from a directory where the above directory structure is defined. This is needed to mount it as a volume within the Docker container.
-
-    .. code-block:: bash
-
-       docker run -it -v `pwd`:/data yottadb/octo:latest-master
-
-    This will then display the rocto log file on stdout. If you would prefer to run the container as a daemon use the :code:`-d` command line parameter. Also, if you would like to publish the container on specific ports, specify this with the :code:`-p` option. For example:
-
-    .. code-block:: bash
-
-       docker run -itd -v `pwd`:/data -p 1337:1337 yottadb/octo:latest-master
-
-    The logs can then be retrieved using the :code:`docker logs` command with the container name or ID as an argument.
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Getting access to the container
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-^^^^^^^^^^^^^^^^^^^^^^^^
-PostgreSQL wire protocol
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-    The rocto server is listening on port 1337 and all of the directions in the above documentation apply.
-
-^^^^^^^^^^^^^^^^^^^
-Command-line access
-^^^^^^^^^^^^^^^^^^^
-
-    You can use the :code:`docker exec` command to get access to the container for more troubleshooting. Example:
-
-    .. code-block:: bash
-
-       docker exec -it {nameOfContainer/IDOfContainer} /bin/bash
-
 +++++++++++++++++++++++++++++++++
 Test with dummy data using Rocto
 +++++++++++++++++++++++++++++++++
@@ -768,7 +699,7 @@ Launching Options
 
 ~~~~~~~~~
   Emulate
-~~~~~~~~~  
+~~~~~~~~~
 
     The emulate option allows the user to specify which SQL database Octo should emulate. Database names should be in all caps. Currently supported emulations are MYSQL and POSTGRES.
 

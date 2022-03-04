@@ -171,10 +171,10 @@ octo:
   dependencies:
     - make-ubuntu
   script:
-    - docker build --pull -t yottadb/octo:latest-master .
+    - docker build --pull -t yottadb/octo:latest .
     # Suppress Docker warning advising against using the --password flag
     - echo -n $HUB_PASSWORD | docker login -u $HUB_USERNAME --password-stdin
-    - docker push yottadb/octo:latest-master
+    - docker push yottadb/octo:latest
   only:
     - master@YottaDB/DBMS/YDBOcto
 

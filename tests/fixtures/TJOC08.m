@@ -16,20 +16,25 @@
 ; -----------------------------------------------------------------------------------------------------
 
 genrandomqueries	;
-	set maxjoins=4
+	set maxjoins=1+$random(4)
 	set numqueries=20	; generate 20 queries so as not to take a long time for this test to run in pipeline
 	set q=0
 	for  do  quit:$increment(q)=numqueries
 	. set numjoins=1+(q#maxjoins)	; can be 1-way, 2-way, 3-way, ... up to n-way join where n is specified through $zcmdline
-	. set sqlquery="select * from names n0"
+	. set sqlquery="select * from "_$$table_" n0"
 	. ; Add JOIN list
 	. for i=1:1:numjoins  do
-	. . set sqlquery=sqlquery_" "_$$jointype_" join names n"_i_" on "_$$onclause
+	. . set sqlquery=sqlquery_" "_$$jointype_" join "_$$table_" n"_i_" on "_$$onclause
 	. ; Add WHERE
-	. set sqlquery=sqlquery_" where exists (select "_$$choosetable(numjoins)_"."_$$choosecolumn_");"
+	. set sqlquery=sqlquery_" where exists (select "_$$tablename(numjoins)_"."_$$column_");"
 	. write sqlquery,!
 	quit
 	;
+
+table()
+	new table
+	set tabletype=$random(2)
+	quit $select(tabletype=0:"names",1:"(select * from names)")
 
 jointype()
 	new jointype
@@ -41,12 +46,12 @@ onclause()
 	set onclause=$random(3)
 	quit $select(onclause=0:"false",onclause=1:"true",1:"null")
 
-choosetable(numjoins)
+tablename(numjoins)
 	new tablename
 	quit "n"_(1+$random(numjoins))
 
-choosecolumn()
+column()
 	new columnname
-	set columnname=$random(3)
-	quit $select(columnname=0:"id",columnname=1:"firstname",1:"lastname")
+	set columnname=$random(4)
+	quit $select(columnname=0:"id",columnname=1:"firstname",columnname=2:"lastname",1:"*")
 

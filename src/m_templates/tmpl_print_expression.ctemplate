@@ -221,6 +221,18 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			}
 			return;
 		}
+		/* This code is very similar to that in "tmpl_column_reference.ctemplate". See comment referencing #800 there.
+		 * In this case, we know for sure the column belongs to a table from a different query than the one we are
+		 * emitting M code for currently. Like mentioned in the other comment, it might be possible to optimize this and
+		 * avoid this extra check if OUTER JOINs are not in use, but it involves more work so we take the easy route
+		 * for now and generate it always. We can revisit this later if needed.
+		 */
+		PhysicalPlan	*matching_plan;
+		SqlKey		*matching_key;
+		matching_plan = get_physical_plan_and_key_for_unique_id(pplan, unique_id, &matching_key);
+		if (matching_plan != pplan) {
+			TMPL(tmpl_key_dollardata_check, sql_key, TRUE);	/* TRUE to indicate this is a derived column */
+		}
 		output_pplan = get_physical_plan_from_unique_id(pplan, unique_id);
 		stash_columns_in_keys = ((NULL != output_pplan) && (output_pplan->stash_columns_in_keys));
 		GET_LP(piece_num, plan, 1, LP_PIECE_NUMBER);
@@ -236,6 +248,9 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			TMPL(tmpl_key, sql_key);
 			%{}),{{ piece_num->v.lp_piece_number.piece_number|%d }}{}%
 			%{})){}%
+		}
+		if (matching_plan != pplan) {
+			%{}){}%	/* closing paren for "tmpl_key_dollardata_check" call above */
 		}
 		if (dot_count) {
 			%{}`n{{ PLAN_LINE_START }}{}%

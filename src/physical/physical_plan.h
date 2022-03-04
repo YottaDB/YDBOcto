@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -133,6 +133,7 @@ int key_equals_column(SqlKey *key, SqlColumn *column);
 int	      get_num_key_cols_in_set_clause(PhysicalPlan *pplan);
 char *	      get_setoper_mlabref(SetOperType *set_oper, PhysicalPlan *pplan);
 PhysicalPlan *get_physical_plan_from_unique_id(PhysicalPlan *pplan, int unique_id);
+PhysicalPlan *get_physical_plan_and_key_for_unique_id(PhysicalPlan *pplan, int unique_id, SqlKey **matching_key);
 PhysicalPlan *emit_sql_statement(SqlStatement *stmt, char *plan_filename);
 int emit_physical_or_xref_plan(char *plan_filename, SqlStatement *stmt, char *tableName, char *columnName, PhysicalPlan *xref_plan);
 int emit_xref_plan(char *plan_filename, char *tableName, char *columnName, PhysicalPlan *xref_plan);

@@ -279,6 +279,7 @@ add_library(libocto OBJECT
   physical/generate_physical_plan.c
   physical/get_num_key_cols_in_set_clause.c
   physical/get_physical_plan_from_unique_id.c
+  physical/get_physical_plan_and_key_for_unique_id.c
   physical/get_setoper_mlabref.c
   populate_data_type.c
   print_result_row.c
@@ -433,6 +434,7 @@ set(template_files
   ${template_dir}/tmpl_invoke_deferred_plan_setoper.ctemplate
   ${template_dir}/tmpl_key.ctemplate
   ${template_dir}/tmpl_key_advance.ctemplate
+  ${template_dir}/tmpl_key_dollardata_check.ctemplate
   ${template_dir}/tmpl_key_end.ctemplate
   ${template_dir}/tmpl_key_finish.ctemplate
   ${template_dir}/tmpl_key_source.ctemplate

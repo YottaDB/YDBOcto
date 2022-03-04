@@ -1,0 +1,41 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "octo_types.h"
+
+#include "template_helpers.h"
+
+/* Invoked when we are not sure if key lvn exists */
+TEMPLATE(tmpl_key_dollardata_check, SqlKey *key, boolean_t is_derived_column) {
+	%{}$SELECT('{}%
+	/* In case this is a derived column, it is possible the lvn (that iterates through the table rows) does not exist
+	 * but the subtree (table row output that is already computed and stored in a lvn tree) exists. Therefore, we cannot
+	 * just check if $DATA is non-zero (as a value of 10 implies lvn does not exist but sub-tree exists). We need to
+	 * therefore check if $DATA#10 is non-zero to know if the lvn does not exist.
+	 * If this is not a derived column, it is a column reference and points to an underlying table. The source of such a
+	 * reference is an M global and is guaranteed to not be stored in a subtree under this lvn and so a simple $DATA'=0
+	 * check is sufficient in that case.
+	 */
+	if (is_derived_column) {
+		%{}({}%
+	}
+	%{}$DATA({}%
+	TMPL(tmpl_key, key);
+	%{}){}%
+	if (is_derived_column) {
+		%{}#10){}%
+	}
+	%{}:$ZYSQLNULL,1:{}%;
+	return;
+}
+%{}

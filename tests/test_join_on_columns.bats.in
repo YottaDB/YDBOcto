@@ -56,9 +56,17 @@ setup() {
 }
 
 @test "TJOC08 : OCTO800 : %YDB-E-LVUNDEF error when WHERE clause references FROM/JOIN columns in sub-query" {
+	# ------------------------------------------------
+	# Test random set of queries in names database
+	# ------------------------------------------------
 	# Generate random queries such that WHERE clause uses FROM/JOIN columns in sub-query
-	yottadb -run TJOC08 > TJOC08.sql
+	yottadb -run TJOC08 > TJOC08_names.sql
 	# Run using psql and Octo against each of the generated queries
-	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TJOC08.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TJOC08_names.sql
+
+	# ------------------------------------------------
+	# Test fixed set of queries in customers database
+	# ------------------------------------------------
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TJOC08_customers.sql
 }
 

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -20,7 +20,7 @@ setup() {
 }
 
 replace_release() {
-  sed -i 's/r[0-9]\{1,\}\.\{0,1\}[0-9]*/RELEASE/' output.txt
+  sed -i 's/r[0-9]\{1,\}\.\{0,1\}[0-9]*[A-Z]*/RELEASE/' output.txt
 }
 
 @test "THO00 : call octo with -h" {

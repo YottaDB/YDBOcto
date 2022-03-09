@@ -511,6 +511,11 @@ typedef enum {
 	QualifyQuery_ORDER_BY,
 } QualifyQueryStage;
 
+/* The below is used as a bitmask to form the "aggregate_function_or_group_by_or_having_specified" field below */
+#define GROUP_BY_SPECIFIED	     0x1
+#define HAVING_SPECIFIED	     0x2
+#define AGGREGATE_FUNCTION_SPECIFIED 0x4
+
 typedef struct SqlTableAlias {
 	// SqlTable or SqlTableValue or SqlSelectStatement
 	struct SqlStatement *table;
@@ -519,11 +524,14 @@ typedef struct SqlTableAlias {
 	int		     unique_id;
 	// Below fields are used for GROUP BY validation and/or to track Aggregate function use
 	int group_by_column_count;
-	int aggregate_depth; /* Non-zero and Positive if currently inside an aggregate function.
-			      * Non-zero and Negative if currently inside a FROM or WHERE or GROUP BY clause.
-			      * Used while qualifying a query for error checking in both the above cases.
-			      */
-	boolean_t aggregate_function_or_group_by_or_having_specified;
+	int aggregate_depth;					/* Non-zero and Positive if currently inside an aggregate function.
+								 * Non-zero and Negative if currently inside a FROM or WHERE or GROUP BY clause.
+								 * Used while qualifying a query for error checking in both the above cases.
+								 */
+	int aggregate_function_or_group_by_or_having_specified; /* bitmask of flags (e.g. GROUP_BY_SPECIFIED etc.)
+								 * based on whether a GROUP BY, HAVING, and/or
+								 * aggregate function were specified in the query.
+								 */
 	boolean_t do_group_by_checks; /* TRUE for the time we are in "qualify_statement()" while doing GROUP BY related checks
 				       * in the HAVING, SELECT column list and ORDER BY clause. Note that "qualify_statement()"
 				       * is invoked twice on these lists. The first time, this flag is FALSE. The second time

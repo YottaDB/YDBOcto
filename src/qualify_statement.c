@@ -137,8 +137,9 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 
 						aggregate_depth = parent_table_alias->aggregate_depth;
 						if (0 < aggregate_depth) {
-							parent_table_alias->aggregate_function_or_group_by_or_having_specified
-							    = TRUE;
+							assert(AGGREGATE_FUNCTION_SPECIFIED
+							       & parent_table_alias
+								     ->aggregate_function_or_group_by_or_having_specified);
 						} else if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE == aggregate_depth) {
 							/* Update `group_by_column_count` and `group_by_column_number` */
 							new_column_alias->group_by_column_number
@@ -289,7 +290,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		}
 		if (!result) {
 			assert(!table_alias->do_group_by_checks || table_alias->aggregate_function_or_group_by_or_having_specified);
-			table_alias->aggregate_function_or_group_by_or_having_specified = TRUE;
+			table_alias->aggregate_function_or_group_by_or_having_specified |= AGGREGATE_FUNCTION_SPECIFIED;
 			table_alias->aggregate_depth++;
 			result |= qualify_statement(af->parameter, tables, table_alias_stmt, depth + 1, ret);
 			if (0 == result) {

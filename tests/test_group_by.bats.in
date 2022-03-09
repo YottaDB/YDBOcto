@@ -99,3 +99,16 @@ setup() {
 	load_fixture TGB15_errors.sql subtest novv
 	verify_output TGB15 output.txt
 }
+
+@test "TGB16: OCTO812 : Test sub-query in WHERE clause doing GROUP BY on parent query column" {
+	# --------------------------
+	# Test random set of queries
+	# --------------------------
+	yottadb -run TGB16 > TGB16_names.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB16_names.sql
+
+	# -------------------------
+	# Test fixed set of queries
+	# -------------------------
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB16.sql
+}

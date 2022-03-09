@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -15,7 +15,7 @@
 #include "template_helpers.h"
 
 TEMPLATE(tmpl_group_by, PhysicalPlan *pplan, int dot_count) {
-	LogicalPlan	*af, *first_aggregate, *group_by;
+	LogicalPlan	*af, *first_aggregate;
 
 	assert(NULL != pplan->outputKey);
 	assert(IS_GROUP_BY_PLAN(pplan));
@@ -28,12 +28,7 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *pplan, int dot_count) {
 	 * See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/455#note_321309198 for details on why only
 	 * the no-GROUP-BY-specified case is treated specially.
 	 */
-	if (NULL != pplan->aggregate_options) {
-		group_by = pplan->aggregate_options->v.lp_default.operand[0];
-	} else {
-		group_by = NULL;
-	}
-	if (NULL == group_by) {
+	if (!(GROUP_BY_SPECIFIED & pplan->aggregate_function_or_group_by_or_having_specified)) {
 		first_aggregate = pplan->lp_select_query->extra_detail.lp_select_query.first_aggregate;
 		for (af = first_aggregate; NULL != af; af = af->extra_detail.lp_aggregate_function.next_aggregate) {
 			boolean_t	is_avg;

@@ -99,6 +99,11 @@ Error with syntax near (line 1, column 41):
 
 select firstname from names n1 group by names.*;
                                         ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 1, column 8):
+
+select firstname from names n1 group by names.*;
+       ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select firstname from names n1 group by names.*;
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 8):
@@ -111,6 +116,11 @@ Error with syntax near (line 1, column 38):
 
 select firstname from names group by n2.*;
                                      ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 1, column 8):
+
+select firstname from names group by n2.*;
+       ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select firstname from names group by n2.*;
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N2
 Error with syntax near (line 1, column 14):

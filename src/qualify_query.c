@@ -273,22 +273,24 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	 * second time. Hence the `&& !table_alias->aggregate_function_or_group_by_or_having_specified)` in the `if` check below.
 	 */
 	if ((NULL != group_by_expression) && !table_alias->aggregate_function_or_group_by_or_having_specified) {
-		SqlColumnListAlias *start_cla, *cur_cla;
-		SqlTableAlias *	    group_by_table_alias;
-		SqlColumnList *	    col_list;
-		int		    group_by_column_count;
+		int group_by_column_count;
 
 		table_alias->aggregate_depth = AGGREGATE_DEPTH_GROUP_BY_CLAUSE;
 		assert(0 == table_alias->group_by_column_count);
 		result |= qualify_statement(group_by_expression, start_join, table_alias_stmt, 0, ret);
 		/* Note: table_alias->group_by_column_count can still be 0 if GROUP BY was done on a parent query column */
-		if (table_alias->group_by_column_count) {
-			table_alias->aggregate_function_or_group_by_or_having_specified = TRUE;
-		}
+		/* But irrespective of whether current level query columns or parent level query columns were specified
+		 * in the GROUP BY, the fact that one was specified means we need to do GROUP BY related checks. Therefore
+		 * set "table_alias->aggregate_function_or_group_by_or_having_specified" to TRUE.
+		 */
+		table_alias->aggregate_function_or_group_by_or_having_specified |= GROUP_BY_SPECIFIED;
 		/* Traverse the GROUP BY list to see what columns belong to this table_alias. Include only those in the
 		 * GROUP BY list. Exclude any other columns (e.g. columns belonging to outer query) from the list
 		 * as they are constant as far as this sub-query is concerned.
 		 */
+		SqlColumnListAlias *start_cla, *cur_cla;
+		SqlColumnList *	    col_list;
+
 		UNPACK_SQL_STATEMENT(start_cla, group_by_expression, column_list_alias);
 		group_by_column_count = 0;
 		cur_cla = start_cla;
@@ -296,6 +298,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 			UNPACK_SQL_STATEMENT(col_list, cur_cla->column_list, column_list);
 			if (column_alias_STATEMENT == col_list->value->type) {
 				SqlColumnAlias *column_alias;
+				SqlTableAlias * group_by_table_alias;
 
 				UNPACK_SQL_STATEMENT(column_alias, col_list->value, column_alias);
 				UNPACK_SQL_STATEMENT(group_by_table_alias, column_alias->table_alias_stmt, table_alias);
@@ -346,7 +349,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	if (NULL != select->having_expression) {
 		table_alias->aggregate_depth = AGGREGATE_DEPTH_HAVING_CLAUSE;
 		result |= qualify_statement(select->having_expression, start_join, table_alias_stmt, 0, ret);
-		table_alias->aggregate_function_or_group_by_or_having_specified = TRUE;
+		table_alias->aggregate_function_or_group_by_or_having_specified |= HAVING_SPECIFIED;
 	}
 
 	/* Expand "*" usage in SELECT column list here. This was not done in "query_specification.c" when the "*" usage was
@@ -428,12 +431,13 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		result |= qualify_statement(select->order_by_expression, start_join, table_alias_stmt, 0, &lcl_ret);
 		table_alias->qualify_query_stage = QualifyQuery_NONE;
 		if (!table_alias->aggregate_function_or_group_by_or_having_specified) {
-			/* GROUP BY or AGGREGATE function or HAVING was never used in the query. No need to do GROUP BY
-			 * validation checks.*/
+			/* GROUP BY or AGGREGATE function or HAVING was never used in the query.
+			 * No need to do GROUP BY validation checks.
+			 */
 			break;
 		} else if (table_alias->do_group_by_checks) {
-			/* GROUP BY or AGGREGATE function or HAVING was used in the query. And GROUP BY validation checks already
-			 * done as part of the second iteration in this for loop. Can now break out of the loop.
+			/* GROUP BY or AGGREGATE function or HAVING was used in the query. And GROUP BY validation checks
+			 * already done as part of the second iteration in this for loop. Can now break out of the loop.
 			 */
 			break;
 		}

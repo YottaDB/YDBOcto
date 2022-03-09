@@ -316,13 +316,6 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 			}
 			table_joins = table_joins->v.lp_default.operand[1];
 		} while (NULL != table_joins);
-		// Check GROUP BY and HAVING
-		GET_LP(criteria, select, 1, LP_CRITERIA);
-		GET_LP(select_options, criteria, 1, LP_SELECT_OPTIONS);
-		GET_LP(select_more_options, select_options, 1, LP_SELECT_MORE_OPTIONS);
-		if (NULL != select_more_options->v.lp_default.operand[0]) {
-			GET_LP(out->aggregate_options, select_more_options, 0, LP_AGGREGATE_OPTIONS);
-		}
 		// Iterate through the keys in the logical plan and use them to fill out the "iterKeys[]" array in physical plan
 		keys = lp_get_keys(plan);
 		assert((NULL != keys->v.lp_default.operand[0]));
@@ -372,17 +365,29 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 			project = lp_get_project(plan);
 			GET_LP(select_column_list, project, 0, LP_COLUMN_LIST);
 			sub_query_check_and_generate_physical_plan(&plan_options, select_column_list, NULL);
+			// Check GROUP BY and HAVING
+			GET_LP(criteria, select, 1, LP_CRITERIA);
+			GET_LP(select_options, criteria, 1, LP_SELECT_OPTIONS);
+			GET_LP(select_more_options, select_options, 1, LP_SELECT_MORE_OPTIONS);
+			if (NULL != select_more_options->v.lp_default.operand[0]) {
+				GET_LP(out->aggregate_options, select_more_options, 0, LP_AGGREGATE_OPTIONS);
+			}
 			/* See if there are any sub-queries in the HAVING clause. If so, generate separate physical plans
 			 * (deferred and/or non-deferred) for them and add them as prev records in physical plan.
 			 */
 			if (NULL != out->aggregate_options) {
-				LogicalPlan *having;
+				int	     i;
+				LogicalPlan *group_by_or_having;
 
-				having
-				    = out->aggregate_options->v.lp_default.operand[1]; /* cannot use GET_LP as having can be NULL */
-				if (NULL != having) {
-					out->aggregate_options->v.lp_default.operand[1]
-					    = sub_query_check_and_generate_physical_plan(&plan_options, having, NULL);
+				/* Note: LP_GROUP_BY is lp_default_operand[0], LP_HAVING is lp_default_operand[1] */
+				for (i = 0; i < 2; i++) {
+					group_by_or_having = out->aggregate_options->v.lp_default.operand[i];
+					/* cannot use GET_LP as LP_GROUP_BY and/or LP_HAVING can be NULL */
+					if (NULL != group_by_or_having) {
+						out->aggregate_options->v.lp_default.operand[i]
+						    = sub_query_check_and_generate_physical_plan(&plan_options, group_by_or_having,
+												 NULL);
+					}
 				}
 			}
 			/* See if there are any sub-queries in the ORDER BY clause. If so, generate separate physical plans
@@ -492,13 +497,14 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 			/* No action */
 			break;
 		case LP_WHERE:
+		case LP_GROUP_BY:
 		case LP_HAVING:
 			stmt->v.lp_default.operand[0]
 			    = sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[0], stmt);
-			if (LP_HAVING == stmt->type) {
+			if (LP_WHERE != stmt->type) {
+				assert((LP_GROUP_BY == stmt->type) || (LP_HAVING == stmt->type));
 				break;
 			}
-			assert(LP_WHERE == stmt->type);
 			oper1 = stmt->v.lp_default.operand[1];
 			if ((NULL != oper1) && (LP_COLUMN_LIST_ALIAS != oper1->type)) {
 				/* Note that it is possible we have `operand[1]` set to a non-NULL value for a LP_WHERE.

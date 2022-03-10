@@ -23,12 +23,12 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *pplan, int dot_count) {
 	TMPL(tmpl_print_dots, dot_count);
 	%{}`n{{ PLAN_LINE_START }}{}%
 	%{}SET {{ PP_YDB_OCTO_G }}=""{}%
-	/* If there is no GROUP BY clause in the query, check if any aggregate function usages happened.
-	 * If so initialize those to 0 or NULL if they don't exist (due to WHERE clauses skipping all rows).
-	 * See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/455#note_321309198 for details on why only
-	 * the no-GROUP-BY-specified case is treated specially.
-	 */
 	if (!(GROUP_BY_SPECIFIED & pplan->aggregate_function_or_group_by_or_having_specified)) {
+		/* If there is no GROUP BY clause in the query, check if any aggregate function usages happened.
+		 * If so initialize those to 0 or NULL if they don't exist (due to WHERE clauses skipping all rows).
+		 * See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/455#note_321309198 for details on why only the
+		 * no-GROUP-BY-specified case is treated specially.
+		 */
 		first_aggregate = pplan->lp_select_query->extra_detail.lp_select_query.first_aggregate;
 		for (af = first_aggregate; NULL != af; af = af->extra_detail.lp_aggregate_function.next_aggregate) {
 			boolean_t	is_avg;
@@ -82,6 +82,22 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *pplan, int dot_count) {
 				%{}0{}%
 				break;
 			}
+		}
+		/* Also do similar processing as above if no aggregate functions are specified but a HAVING clause is specified.
+		 * See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/813#description for details.
+		 */
+		if ((NULL == first_aggregate) && (HAVING_SPECIFIED & pplan->aggregate_function_or_group_by_or_having_specified)) {
+			%{}`n{{ PLAN_LINE_START }}{}%
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET:'$DATA({}%
+			TMPL(tmpl_key, pplan->outputKey);
+			(*buffer_index)--;
+			%{},{{ PP_GROUP_BY }},{{ PP_YDB_OCTO_G }}{}%
+			%{})) {}%
+			TMPL(tmpl_key, pplan->outputKey);
+			(*buffer_index)--;
+			%{},{{ PP_GROUP_BY }},{{ PP_YDB_OCTO_G }}{}%
+			%{})=""{}%
 		}
 	}
 	%{}`n{{ PLAN_LINE_START }}{}%

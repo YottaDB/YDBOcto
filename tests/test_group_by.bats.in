@@ -112,3 +112,8 @@ setup() {
 	# -------------------------
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB16.sql
 }
+
+@test "TGB17: OCTO813 : Test query with no GROUP BY or aggregate function but HAVING when WHERE returns no rows" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB17.sql
+}
+

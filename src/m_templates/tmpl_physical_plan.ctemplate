@@ -242,6 +242,13 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 		 * name (but holding a completely different value) in the caller plan.
 		 */
 		%{}NEW {{ PP_YDB_OCTO_Z }},{{ PP_YDB_OCTO_EXPR }}{}%
+		if (IS_GROUP_BY_PLAN(pplan)) {
+			/* If this physical plan uses GROUP BY/HAVING/AGGREGATE FUNCTIONS, make sure to NEW PP_YDB_OCTO_G
+			 * to avoid altering a variable of the same name in a caller physical plan corresponding to an
+			 * outer query (#814)
+			 */
+			%{},{{ PP_YDB_OCTO_G }}{}%
+		}
 		limit_keyword = get_keyword_from_keywords(pplan->keywords, OPTIONAL_LIMIT);
 		if ((NULL != limit_keyword) && (NULL == pplan->dnf_prev)) {
 			%{} SET {{ PP_YDB_OCTO_ZLIMIT }}({{ pplan->outputKey->unique_id|%d }})=0{}%

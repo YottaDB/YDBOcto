@@ -182,7 +182,7 @@ select id-2*((id/2)::boolean) from names;
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctog,%ydboctop,%ydboctoexpr
+    NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     TCOMMIT:wrapInTp
@@ -216,7 +216,7 @@ octoPlan1(cursorId)
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctog,%ydboctop,%ydboctoexpr
+    NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     TCOMMIT:wrapInTp
@@ -243,7 +243,7 @@ octoPlan1(cursorId)
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctog,%ydboctop,%ydboctoexpr
+    NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     TCOMMIT:wrapInTp
@@ -268,7 +268,7 @@ octoPlan1(cursorId)
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctog,%ydboctop,%ydboctoexpr
+    NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     TCOMMIT:wrapInTp
@@ -307,7 +307,7 @@ octoPlan1(cursorId)
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctog,%ydboctop,%ydboctoexpr
+    NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     TCOMMIT:wrapInTp
@@ -342,7 +342,7 @@ octoPlan1(cursorId)
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctog,%ydboctop,%ydboctoexpr
+    NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)
@@ -412,7 +412,7 @@ octoPlan3(cursorId)
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctog,%ydboctop,%ydboctoexpr
+    NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     TCOMMIT:wrapInTp
@@ -448,7 +448,7 @@ octoPlan1(cursorId)
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctog,%ydboctop,%ydboctoexpr
+    NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     TCOMMIT:wrapInTp
@@ -482,7 +482,7 @@ octoPlan1(cursorId)
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctog,%ydboctop,%ydboctoexpr
+    NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     TCOMMIT:wrapInTp
@@ -520,7 +520,7 @@ octoPlan1(cursorId)
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctog,%ydboctop,%ydboctoexpr
+    NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     TCOMMIT:wrapInTp

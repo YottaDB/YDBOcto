@@ -94,7 +94,7 @@ CATEGORYID|ALIAS1|CATEGORYNAME
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctog,%ydboctop,%ydboctoexpr
+    NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)
@@ -142,7 +142,7 @@ octoPlan2(cursorId)
     QUIT
 
 octoPlan3(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",12,"","")
+    NEW %ydboctoz,%ydboctoexpr,%ydboctog KILL %ydboctocursor(cursorId,"keys",12,"","")
     SET %ydboctocursor(cursorId,"keys",7,"SUPPLIERS","SUPPLIERID")=""
     FOR  SET %ydboctocursor(cursorId,"keys",7,"SUPPLIERS","SUPPLIERID")=$ORDER(^Suppliers(%ydboctocursor(cursorId,"keys",7,"SUPPLIERS","SUPPLIERID"))) QUIT:(%ydboctocursor(cursorId,"keys",7,"SUPPLIERS","SUPPLIERID")="")  DO
     . SET %ydboctoexpr=1
@@ -265,7 +265,7 @@ octoPlan5(cursorId)
 
 octoPlan0(cursorId,wrapInTp)
     DO:'$DATA(^%ydboctoocto("xref_status","NAMES","FIRSTNAME")) xrefPlan^%ydboctoXS6loYoNNto55iv2lHkNkCK(cursorId)
-    NEW %ydboctog,%ydboctop,%ydboctoexpr
+    NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)
@@ -364,7 +364,7 @@ octoPlan3(cursorId)
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctog,%ydboctop,%ydboctoexpr
+    NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)
@@ -373,7 +373,7 @@ octoPlan0(cursorId,wrapInTp)
     QUIT
 
 octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",5,"","")
+    NEW %ydboctoz,%ydboctoexpr,%ydboctog KILL %ydboctocursor(cursorId,"keys",5,"","")
     SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=""
     FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")="")  DO
     . SET %ydboctoexpr=1
@@ -458,7 +458,7 @@ octoPlan3(cursorId)
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctog,%ydboctop,%ydboctoexpr
+    NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)
@@ -659,7 +659,7 @@ octoPlan3(cursorId)
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctog,%ydboctop,%ydboctoexpr
+    NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)
@@ -732,7 +732,7 @@ octoPlan3(cursorId)
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctog,%ydboctop,%ydboctoexpr
+    NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)

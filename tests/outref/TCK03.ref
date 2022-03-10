@@ -20,7 +20,7 @@ Name10
 
 octoPlan0(cursorId,wrapInTp)
     DO:'$DATA(^%ydboctoocto("xref_status","COMPOSITE","NAME")) xrefPlan^%ydboctoXME0THqzTDPU94fIPMVYR4D(cursorId)
-    NEW %ydboctog,%ydboctop,%ydboctoexpr
+    NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     TCOMMIT:wrapInTp

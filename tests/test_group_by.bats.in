@@ -117,3 +117,6 @@ setup() {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB17.sql
 }
 
+@test "TGB18: OCTO814 : Test that GROUP BY usage inside a sub query in outer query HAVING clause doesn't spinloops with no output" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB18.sql
+}

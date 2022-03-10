@@ -26,7 +26,7 @@ select 1.5::integer+2.5::numeric+"1abcd"::integer from names;
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctog,%ydboctop,%ydboctoexpr
+    NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     TCOMMIT:wrapInTp
@@ -59,7 +59,7 @@ octoPlan1(cursorId)
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctog,%ydboctop,%ydboctoexpr
+    NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     TCOMMIT:wrapInTp

@@ -10,6 +10,4 @@
 #								#
 #################################################################
 
--- TGB17: OCTO813 : Test query with no GROUP BY or aggregate function but HAVING when WHERE returns no rows
-
-select 1 from names where FALSE having 1=1;
+select n1.firstname,count(*) from names n1 group by n1.firstname having exists (select n1.firstname from names n2 group by n2.firstname);

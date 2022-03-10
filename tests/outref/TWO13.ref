@@ -11,7 +11,7 @@ ID|FIRSTNAME|LASTNAME
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctog,%ydboctop,%ydboctoexpr
+    NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)

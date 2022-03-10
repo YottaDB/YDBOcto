@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -249,7 +249,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	 * inside a FOR loop. Note that PP_YDB_OCTO_Z needs to be NEWed inside each plan separately (as opposed to once
 	 * across all plans). See YDBOcto#706 for details.
 	 */
-	fprintf(output_file, "    NEW %s,%s,%s\n", PP_YDB_OCTO_G, PP_YDB_OCTO_P, PP_YDB_OCTO_EXPR);
+	fprintf(output_file, "    NEW %s,%s\n", PP_YDB_OCTO_P, PP_YDB_OCTO_EXPR);
 	fprintf(output_file, "    TSTART:wrapInTp ():(serial)\n"); /* Wrap post-xref part of query in TP if requested */
 	for (cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next) {
 		if (cur_plan->is_deferred_plan)

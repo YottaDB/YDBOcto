@@ -8,7 +8,7 @@ ID|FIRSTNAME|LASTNAME|AGE|DATETIME|ID|FIRSTNAME|LASTNAME|AGE|DATETIME
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctog,%ydboctop,%ydboctoexpr
+    NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     TCOMMIT:wrapInTp

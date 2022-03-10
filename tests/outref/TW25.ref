@@ -38,7 +38,7 @@ octoPlan0(cursorId,wrapInTp)
     DO:'$DATA(^%ydboctoocto("xref_status","PG_CATALOG.PG_CLASS","RELNAMESPACE")) xrefPlan^%ydboctoXYkad267rlVZ6m59u2qFgB3(cursorId)
     DO:'$DATA(^%ydboctoocto("xref_status","PG_CATALOG.PG_ATTRIBUTE","ATTRELID")) xrefPlan^%ydboctoXrhrVFmIWwx028jWceQCy61(cursorId)
     DO:'$DATA(^%ydboctoocto("xref_status","PG_CATALOG.PG_TYPE","OID")) xrefPlan^%ydboctoXvhqpVjZolduTu0c3uUtyBH(cursorId)
-    NEW %ydboctog,%ydboctop,%ydboctoexpr
+    NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)
@@ -237,7 +237,7 @@ octoPlan0(cursorId,wrapInTp)
     DO:'$DATA(^%ydboctoocto("xref_status","PG_CATALOG.PG_TYPE","OID")) xrefPlan^%ydboctoXvhqpVjZolduTu0c3uUtyBH(cursorId)
     DO:'$DATA(^%ydboctoocto("xref_status","PG_CATALOG.PG_ATTRDEF","ADRELID")) xrefPlan^%ydboctoXP4JgVezp1y2WP35NRvu7A8(cursorId)
     DO:'$DATA(^%ydboctoocto("xref_status","PG_CATALOG.PG_DESCRIPTION","OBJOID")) xrefPlan^%ydboctoX3SmteSmt6Etu65fUXSSiJ0(cursorId)
-    NEW %ydboctog,%ydboctop,%ydboctoexpr
+    NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     TCOMMIT:wrapInTp
@@ -782,7 +782,7 @@ octoPlan0(cursorId,wrapInTp)
     DO:'$DATA(^%ydboctoocto("xref_status","PG_CATALOG.PG_TYPE","OID")) xrefPlan^%ydboctoXvhqpVjZolduTu0c3uUtyBH(cursorId)
     DO:'$DATA(^%ydboctoocto("xref_status","PG_CATALOG.PG_ATTRDEF","ADRELID")) xrefPlan^%ydboctoXP4JgVezp1y2WP35NRvu7A8(cursorId)
     DO:'$DATA(^%ydboctoocto("xref_status","PG_CATALOG.PG_DESCRIPTION","OBJOID")) xrefPlan^%ydboctoX3SmteSmt6Etu65fUXSSiJ0(cursorId)
-    NEW %ydboctog,%ydboctop,%ydboctoexpr
+    NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     TCOMMIT:wrapInTp
@@ -1262,7 +1262,7 @@ octoPlan0(cursorId,wrapInTp)
     DO:'$DATA(^%ydboctoocto("xref_status","PG_CATALOG.PG_CLASS","RELNAMESPACE")) xrefPlan^%ydboctoXYkad267rlVZ6m59u2qFgB3(cursorId)
     DO:'$DATA(^%ydboctoocto("xref_status","PG_CATALOG.PG_ATTRIBUTE","ATTRELID")) xrefPlan^%ydboctoXrhrVFmIWwx028jWceQCy61(cursorId)
     DO:'$DATA(^%ydboctoocto("xref_status","PG_CATALOG.PG_TYPE","OID")) xrefPlan^%ydboctoXvhqpVjZolduTu0c3uUtyBH(cursorId)
-    NEW %ydboctog,%ydboctop,%ydboctoexpr
+    NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)

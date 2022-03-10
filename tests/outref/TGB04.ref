@@ -392,7 +392,7 @@ Zero|2
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctog,%ydboctop,%ydboctoexpr
+    NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     DO octoPlan2(cursorId)
@@ -400,7 +400,7 @@ octoPlan0(cursorId,wrapInTp)
     QUIT
 
 octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",5,"","")
+    NEW %ydboctoz,%ydboctoexpr,%ydboctog KILL %ydboctocursor(cursorId,"keys",5,"","")
     SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=""
     FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")="")  DO
     . SET %ydboctoexpr=1
@@ -432,7 +432,7 @@ octoPlan1(cursorId)
     QUIT
 
 octoPlan2(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",6,"","")
+    NEW %ydboctoz,%ydboctoexpr,%ydboctog KILL %ydboctocursor(cursorId,"keys",6,"","")
     SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
     FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
     . SET %ydboctoexpr=1
@@ -487,14 +487,14 @@ octoPlan2(cursorId)
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctog,%ydboctop,%ydboctoexpr
+    NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     TCOMMIT:wrapInTp
     QUIT
 
 octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    NEW %ydboctoz,%ydboctoexpr,%ydboctog KILL %ydboctocursor(cursorId,"keys",3,"","")
     SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
     FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
     . SET %ydboctoexpr=1

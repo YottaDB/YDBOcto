@@ -352,6 +352,9 @@ start_rocto() {
 		rocto_port=""
 		portspec=""
 	fi
+	if [[ -e rocto.log ]]; then
+		mv rocto.log rocto.log_`date -Ins`_$$
+	fi
 	# We are about to start a "rocto" listener process in the background below . If the current subtest fails due to an
 	# octo/rocto issue (e.g. a SIG-11 in the rocto server process that causes the run_psql or run_java test helper scripts
 	# to exit with a non-zero status), bats would try to exit the subtest right then but will hang because the rocto listener

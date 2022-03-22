@@ -120,3 +120,8 @@ setup() {
 @test "TGB18: OCTO814 : Test that GROUP BY usage inside a sub query in outer query HAVING clause doesn't spinloops with no output" {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB18.sql
 }
+
+@test "TGB19: OCTO767 : Test that in an inner query Group By of outer query column results in an error when select list has a inner query column usage" {
+	load_fixture TGB19_errors.sql subtest novv
+	verify_output TGB19_errors output.txt
+}

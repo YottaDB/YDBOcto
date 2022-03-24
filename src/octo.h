@@ -947,7 +947,7 @@ boolean_t is_query_canceled(callback_fnptr_t callback);
 /* Loads default runtime parameter settings into `pg_catalog.pg_settings`.
  * Needed for SET/SHOW commands to work properly.
  */
-void load_pg_defaults();
+int load_pg_defaults();
 
 // Returns the amount of memory used by the current process
 int64_t get_mem_usage();

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -44,6 +44,9 @@ int handle_cancel_request(CancelRequest *cancel_request) {
 	// Ensure data exists for PID
 	status = ydb_data_s(&secret_key_list_buffer, 1, pid_buffer, &ret_value);
 	YDB_ERROR_CHECK(status);
+	if (YDB_OK != status) {
+		return -1;
+	}
 	if (11 != ret_value) {
 		// Error NOT propagated to client for security reasons
 		LOG_LOCAL_ONLY(ERROR, ERR_ROCTO_DB_LOOKUP, "handle_cancel_request", "pid");
@@ -61,6 +64,9 @@ int handle_cancel_request(CancelRequest *cancel_request) {
 	// Retrieve timestamp for given PID
 	status = ydb_get_s(&secret_key_list_buffer, 2, &pid_subs[0], &timestamp_result);
 	YDB_ERROR_CHECK(status);
+	if (YDB_OK != status) {
+		return -1;
+	}
 	// Add null terminator
 	timestamp_result.buf_addr[timestamp_result.len_used] = '\0';
 
@@ -88,6 +94,9 @@ int handle_cancel_request(CancelRequest *cancel_request) {
 	// Retrieve secret key for given PID
 	status = ydb_get_s(&secret_key_list_buffer, 1, pid_buffer, &secret_key_result);
 	YDB_ERROR_CHECK(status);
+	if (YDB_OK != status) {
+		return -1;
+	}
 	// Add null terminator
 	secret_key_result.buf_addr[secret_key_result.len_used] = '\0';
 

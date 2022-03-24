@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -34,6 +34,9 @@
 		/* and so should not fail. */                                                                        \
 		assert(YDB_OK == status);                                                                            \
 		YDB_ERROR_CHECK(status);                                                                             \
+		if (YDB_OK != status) {                                                                              \
+			return status;                                                                               \
+		}                                                                                                    \
                                                                                                                      \
 		/* Load the default row data for the given runtime parameter into pg_settings for later access. */   \
 		/*	%ydboctoocto(OCTOLIT_SETTINGS,OCTOLIT_PG_SETTINGS,NAME)=ROW_DEFAULT */                            \
@@ -46,6 +49,9 @@
 		/* and so should not fail. */                                                                        \
 		assert(YDB_OK == status);                                                                            \
 		YDB_ERROR_CHECK(status);                                                                             \
+		if (YDB_OK != status) {                                                                              \
+			return status;                                                                               \
+		}                                                                                                    \
 	}
 
 #define LOAD_READ_ONLY_VARIABLE(NAME_UPPER, DEFAULT_VALUE)                                                             \
@@ -68,8 +74,12 @@
 		/* and so should not fail. */                                                                          \
 		assert(YDB_OK == status);                                                                              \
 		YDB_ERROR_CHECK(status);                                                                               \
+		if (YDB_OK != status) {                                                                                \
+			return status;                                                                                 \
+		}                                                                                                      \
 	}
 
-void load_pg_defaults() {
-#include "pg_defaults_table.h"
+int load_pg_defaults() {
+#include "pg_defaults_table.h" /* this would return with a value that is not YDB_OK in case of errors */
+	return YDB_OK;
 }

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -890,7 +890,10 @@ int octo_init(int argc, char **argv) {
 			}
 		}
 		// Now that configuration is complete, load `pg_settings` defaults into LVNs for process-local access
-		load_pg_defaults();
+		status = load_pg_defaults();
+		if (YDB_OK != status) {
+			break;
+		}
 		return 0;
 	}
 	// No call to load_pg_settings is needed here since we only get here if there was a configuration error, so assert this.

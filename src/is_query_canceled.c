@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -25,6 +25,12 @@ boolean_t is_query_canceled(callback_fnptr_t callback) {
 	YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTOCANCEL, &ydboctoCancel);
 	status = ydb_data_s(&ydboctoCancel, 0, NULL, &cancel_result);
 	YDB_ERROR_CHECK(status);
+	if (YDB_OK != status) {
+		/* Out of design situation */
+		assert(FALSE);
+		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
+		return TRUE;
+	}
 	if (0 != cancel_result) {
 		// Omit results after handling CancelRequest
 		/* Note: All parameters to "*callback()" (which is basically the "handle_query_response()" function
@@ -34,7 +40,7 @@ boolean_t is_query_canceled(callback_fnptr_t callback) {
 		status = (*callback)(NULL, 0, NULL, NULL, FALSE);
 		if (0 != status) {
 			// This should never happen
-			assert(0 == status);
+			assert(FALSE);
 			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 			return TRUE;
 		}

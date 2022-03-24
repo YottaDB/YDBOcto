@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -324,8 +324,6 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 
 	// Cleanup cursor
 	status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
-	YDB_ERROR_CHECK(status);
-
 	YDB_ERROR_CHECK(status);
 	response = make_parse_complete();
 	send_message(session, (BaseMessage *)(&response->type));

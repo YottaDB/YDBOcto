@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -232,6 +232,12 @@ int main(int argc, char **argv) {
 			// Add pid/secret key pair to list in listener/parent
 			status = ydb_set_s(&secret_key_list_buffer, 1, pid_buffer, &secret_key_buffer);
 			YDB_ERROR_CHECK(status);
+			if (YDB_OK != status) {
+				/* We have already logged the error as part of the YDB_ERROR_CHECK invocation above.
+				 * Move on and listen on the port for future connections.
+				 */
+				continue;
+			}
 
 			// Get timestamp of the new process
 			timestamp = get_pid_start_time(child_id);
@@ -243,6 +249,12 @@ int main(int argc, char **argv) {
 				// Add timestamp under PID key
 				status = ydb_set_s(&secret_key_list_buffer, 2, &pid_subs[0], &timestamp_buffer);
 				YDB_ERROR_CHECK(status);
+				if (YDB_OK != status) {
+					/* We have already logged the error as part of the YDB_ERROR_CHECK invocation above.
+					 * Move on and listen on the port for future connections.
+					 */
+					continue;
+				}
 			}
 			/* Else: "timestamp" is 0. This could mean
 			 * a) normal return if "child_id" has already terminated OR
@@ -251,7 +263,7 @@ int main(int argc, char **argv) {
 			 * In either case, we will not be able to process cancel requests for this pid due to the missing
 			 * timestamp. But in case (a), it does not matter since the pid is dead. In case (b), an error message
 			 * would have already been logged by "get_pid_start_time()" so we have a record of this incident.
-			 * Nothing more to be done. Continue to listen in the port for future connections.
+			 * Nothing more to be done. Continue to listen on the port for future connections.
 			 */
 			continue;
 		}
@@ -379,9 +391,15 @@ int main(int argc, char **argv) {
 		// Clear all other secret key/pid pairs from other servers
 		status = ydb_delete_s(&secret_key_list_buffer, 0, NULL, YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status) {
+			break;
+		}
 		// Add pid/secret key pair to list in server/child
 		status = ydb_set_s(&secret_key_list_buffer, 1, pid_buffer, &secret_key_buffer);
 		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status) {
+			break;
+		}
 
 		startup_message = read_startup_message(&rocto_session, &buffer, &buffer_size);
 		if (NULL == startup_message) {

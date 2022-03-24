@@ -123,7 +123,7 @@
 
 #define ZERO_OUTPUT_KEY_ID 0
 
-/* Define various string literals used as gvn subscripts and/or in physical plans (generated M code).
+/* Define various string literals used as gvn/lvn subscripts and/or in physical plans (generated M code).
  * Each macro is prefixed with a OCTOLIT_.
  * A similar piece of code exists in template_helpers.h where PP_* macros are defined.
  */
@@ -181,6 +181,7 @@
 #define OCTOLIT_VARIABLE	     "variable"
 #define OCTOLIT_YDBOCTOCANCEL	     "%ydboctoCancel"
 #define OCTOLIT_YDBOCTOSECRETKEYLIST "%ydboctoSecretKeyList"
+#define OCTOLIT_YDBOCTOTBLCONSTRAINT "%ydboctoTblConstraint"
 
 /* Macros for StartupMessage parameters sent by client that are NOT actual runtime parameters.
  * These strings are used for selective exclusion of such parameters via strncmp checks in rocto.c

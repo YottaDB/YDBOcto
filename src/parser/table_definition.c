@@ -155,6 +155,25 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	 */
 	boolean_t primary_key_constraint_seen;
 	primary_key_constraint_seen = FALSE;
+
+	/* Define the local variable name under which we will store constraint names as we process the CREATE TABLE.
+	 * This will help us identify duplicate constraint names.
+	 */
+	ydb_buffer_t ydboctoTblConstraint;
+	YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTOTBLCONSTRAINT, &ydboctoTblConstraint);
+	/* Remove any leftover lvn nodes from prior CREATE TABLE query runs just in case */
+	int status;
+	status = ydb_delete_s(&ydboctoTblConstraint, 0, NULL, YDB_DEL_TREE);
+	assert(YDB_OK == status);
+	YDB_ERROR_CHECK(status);
+	if (YDB_OK != status) {
+		return NULL;
+	}
+
+	/* Define 2 subscripts. First level subscript is OCTOLIT_NAME. Second level subscript is actual constraint name. */
+	ydb_buffer_t subs[2];
+	YDB_LITERAL_TO_BUFFER(OCTOLIT_NAME, &subs[0]);
+
 	/* Column level keyword scan */
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 	cur_column = start_column;
@@ -198,6 +217,34 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 					UNUSED(result);
 					return NULL;
 				}
+				if (NULL != constraint->name) {
+					char *	     constraint_name;
+					SqlValue *   value;
+					unsigned int ret_value;
+
+					/* User specified a constraint name. Check if there are duplicates. */
+					UNPACK_SQL_STATEMENT(value, constraint->name, value);
+					constraint_name = value->v.string_literal;
+					YDB_STRING_TO_BUFFER(constraint_name, &subs[1]);
+					status = ydb_data_s(&ydboctoTblConstraint, 2, &subs[0], &ret_value);
+					assert(YDB_OK == status);
+					YDB_ERROR_CHECK(status);
+					if (YDB_OK != status) {
+						return NULL;
+					}
+					if (ret_value) {
+						/* A constraint with the name already exists. Issue duplicate name error. */
+						ERROR(ERR_DUPLICATE_CONSTRAINT, constraint_name);
+						return NULL;
+					}
+					/* Now that we know this is not a duplicate, add it to list of known constraint names */
+					status = ydb_set_s(&ydboctoTblConstraint, 2, &subs[0], NULL);
+					assert(YDB_OK == status);
+					YDB_ERROR_CHECK(status);
+					if (YDB_OK != status) {
+						return NULL;
+					}
+				}
 #ifdef TODO_YDBOCTO_772
 				/* TODO: YDBOcto#772: User specified constraint name is NULL. Auto generate a constraint name */
 				if (NULL == constraint->name) {
@@ -238,6 +285,14 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	 * When auto assigning names, check against currently used names for collision and if so issue error.
 	 * Choose a random 8 byte sub string for auto assigning if the total length of the name becomes more than 63.
 	 */
+
+	/* Remove lvn nodes, if any, from tracking constraint names */
+	status = ydb_delete_s(&ydboctoTblConstraint, 0, NULL, YDB_DEL_TREE);
+	assert(YDB_OK == status);
+	YDB_ERROR_CHECK(status);
+	if (YDB_OK != status) {
+		return NULL;
+	}
 
 	/*********************************************************************************************************************
 	 * First process table-level keywords and set "options" bitmask variable accordingly.

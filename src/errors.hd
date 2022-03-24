@@ -88,6 +88,7 @@ ERROR_DEF(ERR_INVALID_INTEGER_SYNTAX, "Invalid input syntax for type integer: '%
 ERROR_DEF(ERR_INVALID_KEYWORD_CHAR, "Integer value %ld given for %s character is not a valid ASCII (0-127) character", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_INVALID_TYPE, "Type %s does not exist", PSQL_Code_Undefined_Object)
 ERROR_DEF(ERR_JOIN_ALIAS_DUPLICATE, "table name '%s' specified more than once", PSQL_Code_Duplicate_Alias)
+ERROR_DEF(ERR_DUPLICATE_CONSTRAINT, "Constraint name '%s' already exists", PSQL_Code_Duplicate_Object)
 ERROR_DEF(ERR_M_CALL, "Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_MISSING_FROM_ENTRY, "Missing FROM-clause entry for table : %.*s", PSQL_Code_Undefined_Table)
 ERROR_DEF(ERR_MISSING_KEY, "Missing key %d in table %s; max key was %d", PSQL_Code_Undefined_Object)

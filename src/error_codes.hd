@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -44,6 +44,7 @@ ERROR_DEF(PSQL_Code_Duplicate_Column, "42701")
 ERROR_DEF(PSQL_Code_Ambiguous_Column, "42702")
 ERROR_DEF(PSQL_Code_Undefined_Column, "42703")
 ERROR_DEF(PSQL_Code_Undefined_Object, "42704")
+ERROR_DEF(PSQL_Code_Duplicate_Object, "42710")
 ERROR_DEF(PSQL_Code_Duplicate_Alias, "42712")
 ERROR_DEF(PSQL_Code_Duplicate_Function, "42723")
 ERROR_DEF(PSQL_Code_Grouping_Error, "42803")

@@ -131,3 +131,32 @@ create table products (id integer CONSTRAINT name1 CHECK (case id when 1 then 'a
 create table products (id integer CONSTRAINT name1 CHECK (case when id then 2 end));
 create table products (id integer CONSTRAINT name1 CHECK (case id when 'abcd' then 2 end));
 
+-- Test of ERR_DUPLICATE_CONSTRAINT error
+-- Test explicitly specified constraint name collision within multiple CHECK constraints all inside one column
+CREATE TABLE products (
+	     product_no integer,
+	     name text,
+	     price numeric CHECK (price > 0) CONSTRAINT name1 CHECK (price > 5) CONSTRAINT name1 CHECK (price < 10)
+	 );
+-- Test explicitly specified constraint name collision across CHECK constraints in multiple columns
+CREATE TABLE products (
+	     product_no integer CONSTRAINT name1 CHECK (product_no > 0),
+	     name text CONSTRAINT name2 CHECK (name is NOT NULL),
+	     price numeric CONSTRAINT name2 CHECK (price > 5)
+	 );
+-- Test explicitly specified constraint name collision between a column level and table level CHECK constraint
+CREATE TABLE products (
+	     product_no integer,
+	     name text,
+	     price numeric CHECK (price > 0) CONSTRAINT name3 CHECK (price > 5),
+	     CONSTRAINT name3 CHECK (price < 10)
+	 );
+-- Test explicitly specified constraint name collision between two table level CHECK constraints
+CREATE TABLE products (
+	     product_no integer,
+	     name text,
+	     price numeric CHECK (price > 0),
+	     CONSTRAINT name3 CHECK (price > 5),
+	     CONSTRAINT name3 CHECK (price < 10)
+	 );
+

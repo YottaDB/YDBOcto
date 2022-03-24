@@ -260,6 +260,14 @@ Text: Column 'xxx' specified more than once
 
 Description/Action: This error is generated when the :code:`CREATE TABLE` or :code:`INSERT INTO` command specifies more than one column with the same column name. Additionally, this error is generated if a :code:`CREATE TABLE` command specifies no columns with the :code:`PRIMARY KEY` or :code:`KEY NUM` keywords and specifies at least one column with the special name :code:`%YO_KEYCOL` which would then collide with the name of the hidden primary key column that Octo internally creates. PSQL Error Code: 42701
 
+++++++++++++++++++++++++
+ERR_DUPLICATE_CONSTRAINT
+++++++++++++++++++++++++
+
+Text: Constraint name 'xxx' already exists
+
+Description/Action: This error is generated when a :code:`CREATE TABLE` specifies multiple constraints with the same name. Every constraint within a table must have a uniquely specified name. PSQL Error Code: 42710
+
 +++++++++++++++++++++++++
 ERR_DUPLICATE_KEY_VALUE
 +++++++++++++++++++++++++

@@ -198,8 +198,23 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 				yyerror(&stmt->loc, NULL, NULL, NULL, NULL, NULL);
 				result = 1;
 			} else {
-				/* Now that column qualification is successful, do data type population for caller */
-				*type = get_sqlvaluetype_from_sqldatatype(cur_column->data_type_struct.data_type, FALSE);
+				/* Note down the column name as encountered in this CHECK constraint. */
+				ydb_buffer_t ydboctoTblConstraint;
+				ydb_buffer_t subs[2];
+				int	     status;
+
+				YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTOTBLCONSTRAINT, &ydboctoTblConstraint);
+				YDB_LITERAL_TO_BUFFER(OCTOLIT_COLUMNS, &subs[0]);
+				YDB_STRING_TO_BUFFER(column_name, &subs[1]);
+				status = ydb_set_s(&ydboctoTblConstraint, 2, &subs[0], NULL);
+				assert(YDB_OK == status);
+				YDB_ERROR_CHECK(status);
+				if (YDB_OK != status) {
+					result = 1;
+				} else {
+					/* Now that column qualification is successful, do data type population for caller */
+					*type = get_sqlvaluetype_from_sqldatatype(cur_column->data_type_struct.data_type, FALSE);
+				}
 			}
 			break;
 		case COERCE_TYPE:

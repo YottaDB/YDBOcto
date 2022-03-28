@@ -159,4 +159,10 @@ CREATE TABLE products (
 	     CONSTRAINT name3 CHECK (price > 5),
 	     CONSTRAINT name3 CHECK (price < 10)
 	 );
+-- Test explicitly specified constraint name that collides with a previously specified implicitly assigned CHECK constraint
+CREATE TABLE products (
+	     product_no integer CHECK (product_no > 0),
+	     name text,
+	     price numeric CONSTRAINT products_product_no_check CHECK (price > 5)
+	 );
 

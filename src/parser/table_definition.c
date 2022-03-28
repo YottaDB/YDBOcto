@@ -120,18 +120,10 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	table_type = config->default_tabletype;
 
 	/* TODO: YDBOcto#772:
-	 * For each column-level and/or table level constraint,
-	 * Check if it can be a column-level constraint or needs to be a table level constraint.
-	 * For CHECK : If specified as a column-level constraint, check the search condition to see if at least one column
-	 *		in the table other than the current column of interest is used.
-	 *		If so, move this to a table level constraint.
-	 *	       If specified as a column-level constraint, check the search condition to see if the only column used
-	 *		in the constraint is another valid column. If so, make this a column-level constraint of that column.
-	 *		Not of the current column.
-	 *	       If specified as a column-level constraint, check the search condition to see if no columns are used
-	 *		in the constraint. If so, make this a table level constraint.
+	 * For each column-level and/or table-level constraint,
+	 * Check if it can be a column-level constraint or needs to be a table-level constraint.
 	 * For UNIQUE : If specified as a column-level constraint, there is no way multiple columns can be specified there so
-	 *		it stays a column-level constraint (no table level constraint possible).
+	 *		it stays a column-level constraint (no table-level constraint possible).
 	 * For PRIMARY KEY : Same description above as UNIQUE holds.
 	 *
 	 * For each column-level constraint,
@@ -140,17 +132,17 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	 *		Discard all remaining CHECK keyword structures. Just use the SqlConstraint part of that structure.
 	 * For UNIQUE : Maintain only the first named unique structure. If nothing is named, pick the first unnamed structure.
 	 *		Discard all remaining UNIQUE keyword structures.
-	 * For PRIMARY KEY : If more than one specified at a column-level and/or the table level (across all columns), issue error.
+	 * For PRIMARY KEY : If more than one specified at a column-level and/or the table-level (across all columns), issue error.
 	 * For NOT NULL : Take just the first structure. Discard all the rest. Also discard constraint name for this.
 	 *
-	 * For each table level constraint,
-	 * Go through each table level constraint and handle it separately.
-	 * For CHECK : Maintain a linked list of CHECK keyword structures. Possible to have more than one CHECK table level
+	 * For each table-level constraint,
+	 * Go through each table-level constraint and handle it separately.
+	 * For CHECK : Maintain a linked list of CHECK keyword structures. Possible to have more than one CHECK table-level
 	 *		constraints.
-	 * For UNIQUE : Maintain a linked list of UNIQUE keyword structures. Possible to have more than one UNIQUE table level
+	 * For UNIQUE : Maintain a linked list of UNIQUE keyword structures. Possible to have more than one UNIQUE table-level
 	 *		constraints.
-	 * For PRIMARY KEY : If more than one specified at a column-level and/or the table level (across all columns), issue error.
-	 * For NOT NULL : Not possible as a table level constraint.
+	 * For PRIMARY KEY : If more than one specified at a column-level and/or the table-level (across all columns), issue error.
+	 * For NOT NULL : Not possible as a table-level constraint.
 	 *
 	 */
 	boolean_t primary_key_constraint_seen;
@@ -161,6 +153,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	 */
 	ydb_buffer_t ydboctoTblConstraint;
 	YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTOTBLCONSTRAINT, &ydboctoTblConstraint);
+
 	/* Remove any leftover lvn nodes from prior CREATE TABLE query runs just in case */
 	int status;
 	status = ydb_delete_s(&ydboctoTblConstraint, 0, NULL, YDB_DEL_TREE);
@@ -170,13 +163,187 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		return NULL;
 	}
 
-	/* Define 2 subscripts. First level subscript is OCTOLIT_NAME. Second level subscript is actual constraint name. */
+	/* Define 2 subscripts. */
 	ydb_buffer_t subs[2];
-	YDB_LITERAL_TO_BUFFER(OCTOLIT_NAME, &subs[0]);
+	char	     columnName[OCTO_MAX_IDENT + 1]; /* + 1 for null terminator */
 
-	/* Column level keyword scan */
+	/* ==============================================================================================================
+	 * Scan column-level keywords for CHECK constraint.
+	 * a) If specified as a column-level constraint, check the search condition to see if at least one column in the table
+	 *    other than the current column of interest is used. If so, move this to a table-level constraint.
+	 * b) If specified as a column-level constraint, check the search condition to see if the only column used
+	 *    in the constraint is another valid column. If so, make this a column-level constraint of that column.
+	 *    Not of the current column.
+	 * c) If specified as a column-level constraint, check the search condition to see if no columns are used
+	 *    in the constraint. If so, make this a table-level constraint.
+	 * This needs to be done first as the automatic name assignment of a CHECK constraint (that happens in a later do/while
+	 * loop) is based on which column (if it is a column-level constraint) or table name (if it is a table-level constraint)
+	 * it is a part of.
+	 */
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 	cur_column = start_column;
+	/* Set up first-level subscript as OCTOLIT_COLUMNS for helping determine which columns are used in the CHECK constraint.
+	 * Second-level subscript is the actual column name which will be filled inside the "qualify_check_constraint" call.
+	 */
+	YDB_LITERAL_TO_BUFFER(OCTOLIT_COLUMNS, &subs[0]);
+	subs[1].buf_addr = columnName;
+	subs[1].len_alloc = sizeof(columnName) - 1; /* reserve 1 byte for null terminator */
+	do {
+		SqlColumn *noted_column = NULL;
+
+		UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
+		cur_keyword = start_keyword;
+		do {
+			SqlOptionalKeyword *next_keyword;
+
+			next_keyword = cur_keyword->next;
+			switch (cur_keyword->keyword) {
+			case OPTIONAL_CHECK_CONSTRAINT:;
+				SqlConstraint *constraint;
+				SqlValueType   type;
+
+				UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
+				if (qualify_check_constraint(constraint->definition, table, &type)) {
+					status = ydb_delete_s(&ydboctoTblConstraint, 1, &subs[0], YDB_DEL_TREE);
+					assert(YDB_OK == status);
+					YDB_ERROR_CHECK(status);
+					return NULL; /* CHECK constraint qualification failed */
+				}
+				if (!IS_BOOLEAN_TYPE(type)) {
+					int result;
+
+					ISSUE_TYPE_COMPATIBILITY_ERROR(type, "boolean operations", &constraint->definition, result);
+					UNUSED(result);
+					status = ydb_delete_s(&ydboctoTblConstraint, 1, &subs[0], YDB_DEL_TREE);
+					assert(YDB_OK == status);
+					YDB_ERROR_CHECK(status);
+					return NULL;
+				}
+				/* Process list of column names identified as referenced in this CHECK constraint.
+				 * Use that to determine if this constraint has to be moved to another column or a table-level one.
+				 */
+				subs[1].len_used = 0;
+				while (TRUE) {
+					status = ydb_subscript_next_s(&ydboctoTblConstraint, 2, &subs[0], &subs[1]);
+					if (YDB_ERR_NODEEND == status) {
+						break;
+					}
+					YDB_ERROR_CHECK(status);
+					if (YDB_OK != status) {
+						assert(FALSE);
+						return NULL;
+					}
+					if (NULL != noted_column) {
+						/* A column was already noted. This means the current CHECK constraint
+						 * references at least 2 columns. It has to be made a table-level constraint.
+						 * No need to scan any more.
+						 */
+						noted_column = NULL;
+						break;
+					}
+					subs[1].buf_addr[subs[1].len_used] = '\0';
+					noted_column = find_column(subs[1].buf_addr, table);
+					assert(NULL != noted_column);
+				}
+				/* Remove lvn nodes (if any) that track list of column names referenced in the current
+				 * CHECK constraint so we start the next CHECK constraint with a clean state.
+				 */
+				status = ydb_delete_s(&ydboctoTblConstraint, 1, &subs[0], YDB_DEL_TREE);
+				assert(YDB_OK == status);
+				YDB_ERROR_CHECK(status);
+				if (YDB_OK != status) {
+					return NULL;
+				}
+				if (NULL == noted_column) {
+					if (NULL != cur_column->columnName) {
+						/* The current column-level CHECK constraint references either 0 columns or more
+						 * than 1 column from the table and so has to be moved to a table-level constraint
+						 * (i.e. a new column with an empty column name).
+						 */
+						SqlColumn *new_column;
+
+						OCTO_CMALLOC_STRUCT(new_column, SqlColumn);
+						dqinit(new_column);
+						new_column->columnName = NULL;
+						SQL_STATEMENT(new_column->keywords, keyword_STATEMENT);
+						new_column->keywords->v.keyword = cur_keyword;
+						/* Delete CHECK constraint keyword from current column's keyword linked list */
+						dqdel(cur_keyword);
+						/* Move this keyword to a new table-level constraint column */
+						dqappend(start_column, new_column);
+					} else {
+						/* An empty current column name implies the CHECK constraint is already part of a
+						 * table-level constraint. No need to do anything.
+						 */
+						cur_keyword = NULL; /* No CHECK constraint keyword deletion happened in this case */
+					}
+				} else if (noted_column != cur_column) {
+					/* The CHECK constraint references only one column but is defined as part of a different
+					 * column's CHECK constraint. Move the constraint from the current column to the
+					 * referenced column.
+					 */
+					/* Delete CHECK constraint keyword from current column's keyword linked list */
+					dqdel(cur_keyword);
+					/* Move this keyword to the noted column */
+					if (NULL == noted_column->keywords->v.keyword) {
+						noted_column->keywords->v.keyword = cur_keyword;
+					} else {
+						dqappend(noted_column->keywords->v.keyword, cur_keyword);
+					}
+				} else {
+					/* The CHECK constraint references only one column and is already part of that column
+					 * level constraint. No more moves needed.
+					 */
+					cur_keyword = NULL; /* No CHECK constraint keyword deletion happened in this case */
+				}
+				if (NULL != cur_keyword) {
+					/* If CHECK constraint keyword had been deleted from current keyword linked list,
+					 * do pointer adjustment as appropriate.
+					 */
+					if (cur_keyword != next_keyword) {
+						if (start_keyword == cur_keyword) {
+							/* We are removing the first keyword from the keyword linked list.
+							 * Adjust pointers.
+							 */
+							cur_column->keywords->v.keyword = next_keyword;
+							start_keyword = next_keyword;
+						}
+						cur_keyword = next_keyword;
+						continue; /* Need this (and not a "break") to ensure we go on to the next
+							   * iteration of the enclosing do/while loop.
+							   */
+					} else {
+						/* The only keyword in this column is being deleted.
+						 * Allocate a dummy NO_KEYWORD keyword as the keyword list is expected
+						 * to be non-empty by various parts of the code.
+						 */
+						assert(cur_keyword == start_keyword);
+						cur_column->keywords = alloc_no_keyword();
+						start_keyword = next_keyword; /* helps break out of enclosing do/while loop */
+						break;
+					}
+				}
+				break;
+			default:
+				break;
+			}
+			cur_keyword = next_keyword;
+			if (cur_keyword == start_keyword) {
+				break;
+			}
+		} while (TRUE);
+		cur_column = cur_column->next;
+	} while (cur_column != start_column);
+	/* ==============================================================================================================
+	 * Now that CHECK constraint reordering has happened (if needed), do scan/processing of all column-level keywords.
+	 * And auto assign constraint names if not specified by the user.
+	 */
+	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
+	cur_column = start_column;
+	/* Set up first-level subscript as OCTOLIT_NAME for CHECK constraint auto name generation.
+	 * Second-level subscript is actual constraint name.
+	 */
+	YDB_LITERAL_TO_BUFFER(OCTOLIT_NAME, &subs[0]);
 	do {
 		UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
 		cur_keyword = start_keyword;
@@ -197,32 +364,81 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 					return NULL;
 				}
 				primary_key_constraint_seen = TRUE;
-				cur_keyword->v = NULL; /* TODO: YDBOcto#772: Temporarily set this to get tests to pass */
+				/* TODO : YDBOcto#770  : Auto assign name for PRIMARY KEY constraint */
+				cur_keyword->v = NULL; /* TODO: YDBOcto#770: Temporarily set this to get tests to pass */
 				break;
 			case UNIQUE_CONSTRAINT:
-				cur_keyword->v = NULL; /* TODO: YDBOcto#772: Temporarily set this to get tests to pass */
+				/* TODO : YDBOcto#582  : Auto assign name for UNIQUE constraint */
+				cur_keyword->v = NULL; /* TODO: YDBOcto#582: Temporarily set this to get tests to pass */
 				break;
 			case OPTIONAL_CHECK_CONSTRAINT:;
 				SqlConstraint *constraint;
-				SqlValueType   type;
+				unsigned int   ret_value;
 
 				UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
-				if (qualify_check_constraint(constraint->definition, table, &type)) {
-					return NULL; /* CHECK constraint qualification failed */
-				}
-				if (!IS_BOOLEAN_TYPE(type)) {
-					int result;
+				if (NULL == constraint->name) {
+					/* User-specified constraint name is NULL. Auto generate a constraint name */
+					char *table_name;
+					char *column_name;
+					char  constraint_name[OCTO_MAX_IDENT + 1];
 
-					ISSUE_TYPE_COMPATIBILITY_ERROR(type, "boolean operations", &constraint->definition, result);
-					UNUSED(result);
-					return NULL;
-				}
-				if (NULL != constraint->name) {
-					char *	     constraint_name;
-					SqlValue *   value;
-					unsigned int ret_value;
+					UNPACK_SQL_STATEMENT(value, table->tableName, value);
+					table_name = value->v.reference;
+					if (NULL == cur_column->columnName) {
+						column_name = "";
+					} else {
+						SqlValue *column_name_val;
+						UNPACK_SQL_STATEMENT(column_name_val, cur_column->columnName, value);
+						column_name = column_name_val->v.string_literal;
+					}
+					/* Generate constraint name of the form TABLENAME_COLUMNNAME_check.
+					 * If such a named constraint already exists, try TABLENAME_COLUMNNAME_check1.
+					 * If that exists as well, try TABLENAME_COLUMNNAME_check2. etc.
+					 */
+					int num = 0;
+					do {
+						/* TODO : YDBOcto#772. Check return value of snprintf below and handle error
+						 * if space is not enough by truncating the column name and/or table name
+						 * parts of the generated name so we have space for the numeric part at the end.
+						 */
+						if (!num) {
+							snprintf(constraint_name, sizeof(constraint_name), "%s_%s_%s", table_name,
+								 column_name, OCTOLIT_CHECK);
+						} else {
+							snprintf(constraint_name, sizeof(constraint_name), "%s_%s_%s%d", table_name,
+								 column_name, OCTOLIT_CHECK, num);
+						}
+						/* Check if generated name exists. If so, try next number suffix. */
+						YDB_STRING_TO_BUFFER(constraint_name, &subs[1]);
+						status = ydb_data_s(&ydboctoTblConstraint, 2, &subs[0], &ret_value);
+						assert(YDB_OK == status);
+						YDB_ERROR_CHECK(status);
+						if (YDB_OK != status) {
+							return NULL;
+						}
+						if (!ret_value) {
+							/* Found a name that does not already exist. We are done. */
+							break;
+						}
+						num++;
+					} while (TRUE);
 
-					/* User specified a constraint name. Check if there are duplicates. */
+					SqlStatement *name_stmt;
+					int	      len;
+					char *	      malloc_space;
+					len = strlen(constraint_name);
+					malloc_space = octo_cmalloc(memory_chunks, len + 1);
+					strncpy(malloc_space, constraint_name, len + 1);
+					SQL_VALUE_STATEMENT(name_stmt, STRING_LITERAL, malloc_space);
+					constraint->name = name_stmt;
+					YDB_STRING_TO_BUFFER(malloc_space, &subs[1]); /* for use in "ydb_set_s()" call below */
+				} else {
+					char *	  constraint_name;
+					SqlValue *value;
+
+					/* Now that we have a constraint name (either user-specified or auto generated), check if
+					 * there are duplicates. If so, issue error.
+					 */
 					UNPACK_SQL_STATEMENT(value, constraint->name, value);
 					constraint_name = value->v.string_literal;
 					YDB_STRING_TO_BUFFER(constraint_name, &subs[1]);
@@ -237,31 +453,14 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 						ERROR(ERR_DUPLICATE_CONSTRAINT, constraint_name);
 						return NULL;
 					}
-					/* Now that we know this is not a duplicate, add it to list of known constraint names */
-					status = ydb_set_s(&ydboctoTblConstraint, 2, &subs[0], NULL);
-					assert(YDB_OK == status);
-					YDB_ERROR_CHECK(status);
-					if (YDB_OK != status) {
-						return NULL;
-					}
 				}
-#ifdef TODO_YDBOCTO_772
-				/* TODO: YDBOcto#772: User specified constraint name is NULL. Auto generate a constraint name */
-				if (NULL == constraint->name) {
-					SqlStatement *name_stmt;
-
-					switch (keyword->keyword) {
-					case UNIQUE_CONSTRAINT:
-					case PRIMARY_KEY:
-					case OPTIONAL_CHECK_CONSTRAINT:
-						break;
-					default:
-						assert(FALSE);
-						break;
-					}
-					constraint->name = name_stmt;
+				/* Now that we know this is not a duplicate, add it to list of known constraint names */
+				status = ydb_set_s(&ydboctoTblConstraint, 2, &subs[0], NULL);
+				assert(YDB_OK == status);
+				YDB_ERROR_CHECK(status);
+				if (YDB_OK != status) {
+					return NULL;
 				}
-#endif
 				cur_keyword->v = NULL; /* TODO: YDBOcto#772: Temporarily set this to get tests to pass */
 				break;
 			default:
@@ -269,19 +468,12 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			}
 			cur_keyword = cur_keyword->next;
 		} while (cur_keyword != start_keyword);
-
-		SqlColumn *save_cur_column;
-		save_cur_column = cur_column;
 		cur_column = cur_column->next;
-		/* TODO: YDBOcto#772: Temporarily remove table level constraint to get tests to pass */
-		if (NULL == save_cur_column->columnName) {
-			dqdel(save_cur_column);
-		}
 	} while (cur_column != start_column);
 
-	/* TODO: YDBOcto#772: Go through column-level keywords and table level keywords AND auto assign constraint names if needed.
+	/* TODO: YDBOcto#772: Go through column-level keywords and table-level keywords AND auto assign constraint names if needed.
 	 * Take this opportunity to check if any of the constraint names have already been used (i.e. if there
-	 * is a collision between a user specified constraint name and an auto assigned name and if so issue error).
+	 * is a collision between a user-specified constraint name and an auto assigned name and if so issue error).
 	 * When auto assigning names, check against currently used names for collision and if so issue error.
 	 * Choose a random 8 byte sub string for auto assigning if the total length of the name becomes more than 63.
 	 */
@@ -316,7 +508,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			start = value->v.string_literal;
 			next = strchr(start, '(');
 			if (NULL == next) {
-				/* User specified an unsubscripted global name in the GLOBAL keyword. Note down the name
+				/* User-specified an unsubscripted global name in the GLOBAL keyword. Note down the name
 				 * but otherwise consider the GLOBAL keyword as not specified by the user. This will help
 				 * later logic autogenerate the GLOBAL keyword with the proper subscripts (primary key
 				 * columns substituted).
@@ -583,8 +775,8 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	 * rest of the initialization.
 	 **************************************************************************************************************
 	 */
-	boolean_t readonly_disallowed;	/* TRUE if READONLY at table level is disallowed due to incompatible option */
-	boolean_t readwrite_disallowed; /* TRUE if READWRITE at table level is disallowed due to incompatible option */
+	boolean_t readonly_disallowed;	/* TRUE if READONLY at table-level is disallowed due to incompatible option */
+	boolean_t readwrite_disallowed; /* TRUE if READWRITE at table-level is disallowed due to incompatible option */
 
 	readwrite_disallowed = FALSE; /* Start with FALSE . Will be set to TRUE later if we find an incompatibility. */
 	readonly_disallowed = FALSE;  /* Start with FALSE . Will be set to TRUE later if we find an incompatibility. */
@@ -600,18 +792,23 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		SqlOptionalKeyword *piece_keyword, *delim_keyword;
 
 		/* Check for duplicate column names. If so issue error.
+		 * Skip table-level constraints (which are columns with a NULL columnName).
 		 * Note: Cannot do this earlier than when a hidden key column could possibly be added
-		 * as otherwise we would skip checking for column name collisions between a user specified
+		 * as otherwise we would skip checking for column name collisions between a user-specified
 		 * column name and the auto generated hidden key column name.
 		 */
-		UNPACK_SQL_STATEMENT(columnName1, cur_column->columnName, value);
-		for (cur_column2 = cur_column->next; start_column != cur_column2; cur_column2 = cur_column2->next) {
-			SqlValue *columnName2;
+		if (NULL != cur_column->columnName) {
+			UNPACK_SQL_STATEMENT(columnName1, cur_column->columnName, value);
+			for (cur_column2 = cur_column->next; start_column != cur_column2; cur_column2 = cur_column2->next) {
+				if (NULL != cur_column2->columnName) {
+					SqlValue *columnName2;
 
-			UNPACK_SQL_STATEMENT(columnName2, cur_column2->columnName, value);
-			if (!strcmp(columnName1->v.string_literal, columnName2->v.string_literal)) {
-				ERROR(ERR_DUPLICATE_COLUMN, columnName1->v.string_literal);
-				return NULL;
+					UNPACK_SQL_STATEMENT(columnName2, cur_column2->columnName, value);
+					if (!strcmp(columnName1->v.string_literal, columnName2->v.string_literal)) {
+						ERROR(ERR_DUPLICATE_COLUMN, columnName1->v.string_literal);
+						return NULL;
+					}
+				}
 			}
 		}
 		/* Check if there are any incompatible keyword specifications */
@@ -717,7 +914,14 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				}
 			}
 		}
+		SqlColumn *save_cur_column;
+
+		save_cur_column = cur_column;
 		cur_column = cur_column->next;
+		/* TODO: YDBOcto#772: Temporarily remove table-level constraint to get tests to pass */
+		if (NULL == save_cur_column->columnName) {
+			dqdel(save_cur_column);
+		}
 	} while (cur_column != start_column);
 	if (1 == num_non_key_columns) {
 		/* Only one non-key column in the table. If so, check if column-level PIECE number (if any specified) is 1
@@ -773,7 +977,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			}
 		}
 	}
-	/* Now that all table level keywords have been seen, check for incompatibilities. */
+	/* Now that all table-level keywords have been seen, check for incompatibilities. */
 	/* 1) If table-level GLOBAL keyword is NOT specified, compute the keyword value.
 	 * 2) If table-level GLOBAL keyword is specified and we don't yet know that READWRITE is disallowed in this table,
 	 *    check if the GLOBAL keyword value can cause an incompatibility. For this check if the specified GLOBAL keyword is

@@ -148,6 +148,12 @@ CREATE TABLE products (
 	     CONSTRAINT name3 CHECK (price > 5),
 	     CONSTRAINT name3 CHECK (price < 10)
 	 );
+-- Test explicitly specified constraint name that collides with a previously specified implicitly assigned CHECK constraint
+CREATE TABLE products (
+	     product_no integer CHECK (product_no > 0),
+	     name text,
+	     price numeric CONSTRAINT products_product_no_check CHECK (price > 5)
+	 );
 
 Error with syntax near (line 1, column 53):
 
@@ -776,5 +782,12 @@ create table products (id integer CONSTRAINT name1 CHECK (case id when 'abcd' th
 	     price numeric CHECK (price > 0),
 	     CONSTRAINT name3 CHECK (price > 5),
 	     CONSTRAINT name3 CHECK (price < 10)
+	 );
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_DUPLICATE_CONSTRAINT : Constraint name 'PRODUCTS_PRODUCT_NO_CHECK' already exists
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE products (
+	     product_no integer CHECK (product_no > 0),
+	     name text,
+	     price numeric CONSTRAINT products_product_no_check CHECK (price > 5)
 	 );
 

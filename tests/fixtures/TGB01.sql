@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -112,8 +112,14 @@ SELECT (SELECT n3.id FROM names n3 ORDER BY COUNT(n1.id)),(SELECT n2.id FROM nam
 SELECT (SELECT n3.id FROM names n3 WHERE n3.id = n1.id),(SELECT n2.id FROM names n2 ORDER BY COUNT(n1.id)) FROM names n1;
 SELECT (SELECT n3.id FROM names n3 WHERE n3.id = n1.id),(SELECT n2.id FROM names n2 ORDER BY COUNT(n1.id)) FROM names n1 GROUP BY n1.id;
 
---> Below should error because non-grouped columns cannot be outside of aggregate functions in HAVING clause
+--> OCTO786 : Below should error because non-grouped columns cannot be outside of aggregate functions in HAVING clause
 select 1 from names n1 having n1.firstname = 'Acid';
 select 1 from names n1 having n1.id is null;
 select 1 from names n1 having n1.* is null;
+
+-- OCTO786 : Below should error because non-grouped column n1.firstname is used inside HAVING clause in a sub-query
+-- Below tests https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/786#note_893116624
+SELECT COUNT(firstname) FROM names n1 HAVING EXISTS (select n1.firstname);
+-- Below is a slightly fancier version of the previous query using deeper sub-queries.
+SELECT COUNT(firstname) FROM names n1 HAVING EXISTS (SELECT COUNT(firstname) FROM names n2 WHERE 'Zero' IN (select n1.firstname));
 

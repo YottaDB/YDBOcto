@@ -416,7 +416,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	lcl_ret.ret_cla = &ret_cla;
 	lcl_ret.max_unique_id = ((NULL != ret) ? ret->max_unique_id : NULL);
 	table_alias->aggregate_depth = 0;
-	/* We qualify HAVING, SELECT and ORDER BY clauses TWICE below. Hence the "for" loop. This is because we want to
+	/* We qualify SELECT and ORDER BY clauses TWICE below. Hence the "for" loop. This is because we want to
 	 * check if any aggregate functions were used anywhere even if a GROUP BY was not used. In that case, we want to
 	 * ensure there are no non-grouped column references in the remainder of the query. See comment where
 	 * "do_group_by_checks" member is defined in the "SqlTableAlias" structure in "octo_types.h" for more details.

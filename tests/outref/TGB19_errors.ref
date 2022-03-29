@@ -13,6 +13,11 @@ SELECT id,firstname FROM names n1 WHERE id IN (SELECT n2.id FROM names n2 group 
                                                       ^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id,firstname FROM names n1 WHERE id IN (SELECT n2.id FROM names n2 group by n1.id);
 [ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 1, column 84):
+
+SELECT id,firstname FROM names n1 HAVING 1 IN (SELECT n2.id FROM names n2 group by n1.id);
+                                                                                   ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 1, column 55):
 
 SELECT id,firstname FROM names n1 HAVING 1 IN (SELECT n2.id FROM names n2 group by n1.id);

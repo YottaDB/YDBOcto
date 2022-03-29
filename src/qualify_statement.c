@@ -131,8 +131,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 						}
 					}
 					parent_table_alias = column_table_alias->parent_table_alias;
-
-					if ((parent_table_alias == table_alias) && parent_table_alias->aggregate_depth) {
+					if ((NULL != parent_table_alias) && (parent_table_alias->aggregate_depth)) {
 						int aggregate_depth;
 
 						aggregate_depth = parent_table_alias->aggregate_depth;

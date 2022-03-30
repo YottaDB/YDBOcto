@@ -270,10 +270,13 @@ exit
 OCTO
 
 		test_portF=$(start_rocto 1339)
+		# Add a "|| true" at the end as we expect the psql command to exit with a non-zero error code.
+		PGPASSWORD=ydbrocks psql -U ydb "sslmode=disable host=localhost port=$test_portF" > psql.out 2>&1 || true
 		# Ignore extra verbiage emitted by some versions of psql and retain only the common/relevant message
-		PGPASSWORD=ydbrocks psql -U ydb "sslmode=disable host=localhost port=$test_portF" 2>&1	\
-			| grep "FATAL:  Server requires all connections to be TLS encrypted."		\
-			| sed 's/psql: //' >> output.txt		# Remove psql prompt for output compatibility between versions
+		# Remove "psql:" prompt and/or "error:" string as they are present only in some psql versions
+		# Also some psql versions have extra lines in the output. Filter them out by searching only for the
+		# line containing the "FATAL" string.
+		grep "FATAL" psql.out | sed 's/^.*FATAL:/FATAL:/' >> output.txt
 		run_psql $test_portF < in.sql 2>&1 | tee -a output.txt
 		verify_output TPC007 output.txt noinfo nodebug
 	else

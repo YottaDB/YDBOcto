@@ -1531,12 +1531,6 @@ table_element_list_tail
 table_element
   : column_definition { $$ = $column_definition; }
   | table_constraint_definition {
-	WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "Constraints");
-	$$ = NULL;
-	/* TODO : YDBOcto#772 : Remove the above 2 lines and uncomment the below #ifdef block of code
-	 * once CHECK CONSTRAINT functionality is fully implemented.
-	 */
-#ifdef TODO_YDBOCTO_772
 	/* Return the table level constraint inside a dummy SqlColumn structure to be in sync with the type
 	 * returned by the previous grammar rule ("column_definition").
 	 */
@@ -1544,7 +1538,6 @@ table_element
 	MALLOC_STATEMENT($$, column, SqlColumn);
 	dqinit(($$)->v.column);
 	($$)->v.column->keywords = $table_constraint_definition;
-#endif
     }
   ;
 
@@ -1789,7 +1782,20 @@ column_constraint_definition
 
 constraint_name_definition
   : /* Empty */ { $$ = NULL; }
-  | CONSTRAINT constraint_name { $$ = $constraint_name; }
+  | CONSTRAINT constraint_name {
+	/* TODO : YDBOcto#772 : Remove this line and the below 2 lines once CHECK CONSTRAINT functionality is fully implemented. */
+	ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "Constraints");
+	YYERROR;
+        $$ = $constraint_name;
+
+	size_t ident_len;
+	ident_len = strlen(($$)->v.value->v.string_literal);
+	if (OCTO_MAX_IDENT < ident_len) {
+		ERROR(ERR_IDENT_LENGTH, "Constraint name", ident_len, OCTO_MAX_IDENT);
+		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+		YYERROR;
+	}
+    }
   ;
 
 constraint_name
@@ -1817,7 +1823,10 @@ unique_specifications
 
 check_constraint_definition
   : CHECK LEFT_PAREN search_condition RIGHT_PAREN {
-      MALLOC_KEYWORD_CONSTRAINT_STATEMENT($$, OPTIONAL_CHECK_CONSTRAINT, NULL, $search_condition)
+        /* TODO : YDBOcto#772 : Remove this line and the below 2 lines once CHECK CONSTRAINT functionality is fully implemented. */
+	ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "Constraints");
+	YYERROR;
+	MALLOC_KEYWORD_CONSTRAINT_STATEMENT($$, OPTIONAL_CHECK_CONSTRAINT, NULL, $search_condition)
     }
   ;
 

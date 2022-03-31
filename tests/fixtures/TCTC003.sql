@@ -165,4 +165,20 @@ CREATE TABLE products (
 	     name text,
 	     price numeric CONSTRAINT products_product_no_check CHECK (price > 5)
 	 );
+-- Test name collision among multiple 63-byte user specified column-level constraint names (longest allowed name length)
+CREATE TABLE products (
+	     product_no integer
+	     CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu CHECK (product_no < 2)
+	     CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu CHECK (product_no > 0)
+	);
+-- Test name collision among multiple 63-byte user specified table-level constraint names (longest allowed name length)
+CREATE TABLE products (
+	     product_no integer,
+	     CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu CHECK (product_no < 2),
+	     CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu CHECK (product_no > 0)
+	);
+
+-- Test of ERR_IDENT_LENGTH error on constraint name by specifying a 64-byte name (max allowed is 63 bytes)
+CREATE TABLE products (
+	product_no integer CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstuv CHECK (product_no < 2));
 

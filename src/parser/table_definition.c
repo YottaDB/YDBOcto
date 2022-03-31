@@ -364,11 +364,27 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 					return NULL;
 				}
 				primary_key_constraint_seen = TRUE;
-				/* TODO : YDBOcto#770  : Auto assign name for PRIMARY KEY constraint */
+				/* TODO : YDBOcto#770 : Auto assign name for PRIMARY KEY constraint.
+				 * 1) Take this opportunity to check if any of the constraint names have already been used
+				 *    (i.e. if there is a collision between a user-specified constraint name and an auto
+				 *    assigned name and if so issue error).
+				 * 2) When auto assigning names, check against currently used names for collision and if
+				 *    so issue error.
+				 * 3) Choose a random 8 byte sub string for auto assigning if the total length of
+				 *    the name becomes more than 63.
+				 */
 				cur_keyword->v = NULL; /* TODO: YDBOcto#770: Temporarily set this to get tests to pass */
 				break;
 			case UNIQUE_CONSTRAINT:
-				/* TODO : YDBOcto#582  : Auto assign name for UNIQUE constraint */
+				/* TODO : YDBOcto#582 : Auto assign name for UNIQUE constraint.
+				 * 1) Take this opportunity to check if any of the constraint names have already been used
+				 *    (i.e. if there is a collision between a user-specified constraint name and an auto
+				 *    assigned name and if so issue error).
+				 * 2) When auto assigning names, check against currently used names for collision and if
+				 *    so issue error.
+				 * 3) Choose a random 8 byte sub string for auto assigning if the total length of
+				 *    the name becomes more than 63.
+				 */
 				cur_keyword->v = NULL; /* TODO: YDBOcto#582: Temporarily set this to get tests to pass */
 				break;
 			case OPTIONAL_CHECK_CONSTRAINT:;
@@ -400,6 +416,8 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 						/* TODO : YDBOcto#772. Check return value of snprintf below and handle error
 						 * if space is not enough by truncating the column name and/or table name
 						 * parts of the generated name so we have space for the numeric part at the end.
+						 * Choose a random 8 byte sub string for auto assigning if the total length of
+						 * the name becomes more than 63.
 						 */
 						if (!num) {
 							snprintf(constraint_name, sizeof(constraint_name), "%s_%s_%s", table_name,
@@ -470,13 +488,6 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		} while (cur_keyword != start_keyword);
 		cur_column = cur_column->next;
 	} while (cur_column != start_column);
-
-	/* TODO: YDBOcto#772: Go through column-level keywords and table-level keywords AND auto assign constraint names if needed.
-	 * Take this opportunity to check if any of the constraint names have already been used (i.e. if there
-	 * is a collision between a user-specified constraint name and an auto assigned name and if so issue error).
-	 * When auto assigning names, check against currently used names for collision and if so issue error.
-	 * Choose a random 8 byte sub string for auto assigning if the total length of the name becomes more than 63.
-	 */
 
 	/* Remove lvn nodes, if any, from tracking constraint names */
 	status = ydb_delete_s(&ydboctoTblConstraint, 0, NULL, YDB_DEL_TREE);

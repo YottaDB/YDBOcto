@@ -29,9 +29,21 @@ setup() {
 
 @test "TERR001 : Invalid Octo GLD" {
   export ydb_gbldir="does_not_exist.gld"
-  octo <<OCTO 2>&1 | tee output.txt
+  octo <<OCTO 2>&1 | tee output1.txt
 SELECT * FROM names WHERE lastName = "Cool";
 OCTO
+  # The above octo invocation causes YottaDB to send a message like the following to the syslog.
+  #
+  # YDB-OCTO[59195]: %YDB-I-TEXT, %YDB-E-ZGBLDIRACC, Cannot access global directory /builds/nars1/YDBOcto/build/bats-test.gYhhuj/does_not_exist.gld.  Cannot continue. -- generated from 0x00007F1BC160CDD0.
+  #
+  # This is because ZGBLDIRACC is one of select messages which are automatically logged in the syslog (since YDB@a4e7d6ec).
+  # Therefore any build of Octo that uses a recent build of YottaDB will see the above line in the syslog.
+  #
+  # But when this test gets run in the pipeline (i.e. a docker container), the syslog message goes to stderr
+  # and because of the "2>&1" done above, ends up in "output1.txt" causing an extra line only when run in the pipeline.
+  # Therefore filter that out even when not run in the pipeline.
+  # The syslog message has a "generated from" text that uniquely identifies so grep for that.
+  grep -v "generated from" output1.txt > output.txt
   verify_output TERR001 output.txt noinfo nodebug
 }
 

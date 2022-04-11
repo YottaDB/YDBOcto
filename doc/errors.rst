@@ -332,6 +332,14 @@ Text: Error opening input file: xxx
 
 Description/Action: This error is generated when Octo tries to read from a file that is non-existent. PSQL Error Code: 58030
 
++++++++++++++++++++++++
+ERR_FUNCTION_NOT_UNIQUE
++++++++++++++++++++++++
+
+Text: Function 'xxx(xxx)' not unique. Parameter(s) may require explicit type cast(s)
+
+Description/Action: A SQL function was called with one or more :code:`NULL` arguments and the call signature matched more than one function definition (as defined by a :code:`CREATE FUNCTION` command) with the same name. Consequently, Octo cannot determine which function definition to use to call the SQL function. To resolve the ambiguity and target a specific function definition, use an explicit type cast on the ambiguous argument(s).
+
 +++++++++++++++++++++++++++++
 INFO_FUNCTION_ALREADY_EXISTS
 +++++++++++++++++++++++++++++

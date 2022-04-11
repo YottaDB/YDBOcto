@@ -21,16 +21,6 @@ ABS(num)
 	; Implements the SQL ABS function (returns absolute value of an input number)
 	quit $select(num<0:-num,1:+num)
 
-CONCAT(str1,str2,str3)
-	; Implements the SQL CONCAT function (concatenates passed strings)
-	; Additional checks are used for overloading the SQL function definition.
-	new result
-	set result=str1
-	set:(0'=$DATA(str2)) result=result_str2
-	set:(0'=$DATA(str3)) result=result_str3
-
-	quit result
-
 REPLACE(src,from,to) ; TODO this is just a placeholder
 	QUIT src
 

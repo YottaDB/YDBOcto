@@ -26,6 +26,5 @@ SELECT day("2021-12-32");
 SELECT dayofmonth("2021-12-32");
 SELECT day("2021-11-31");
 SELECT dayofmonth("2021-11-31");
--- TODO: The NULL case is disabled until issue #816 is resolved
--- SELECT day(NULL);
--- SELECT dayofmonth(NULL);
+SELECT day(NULL);
+SELECT dayofmonth(NULL);

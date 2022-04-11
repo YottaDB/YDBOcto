@@ -12,6 +12,29 @@
 
 ; Implements the SQL LPAD function (left pad a string `str` with another string `padstr` up to a maximum number of characters `num`)
 LPAD(str,num,padstr)
+	quit
+
+PostgreSQL(str,num,padstr)
+	new result
+	if (0'=$DATA(padstr))  do
+	. set result=$$LPADhelper(str,num,padstr)
+	else  do
+	. set result=$$LPADhelper(str,num)
+	quit result
+
+MySQL(str,num,padstr)
+	new result
+	if (0'=$DATA(padstr))  do
+	. set result=$$LPADhelper(str,num,padstr)
+	else  do
+	. set %ydboctoerror("UNKNOWNFUNCTION",1)="LPAD"	; pass parameter to `src/ydb_error_check.c`
+	. set %ydboctoerror("UNKNOWNFUNCTION",2)="2"	; pass parameter to `src/ydb_error_check.c`
+	. set %ydboctoerror("UNKNOWNFUNCTION",3)="MYSQL"	; pass parameter to `src/ydb_error_check.c`
+	. zmessage %ydboctoerror("UNKNOWNFUNCTION")
+	. set result=$ZYSQLNULL
+	quit result
+
+LPADhelper(str,num,padstr)
 	; Return `str` padded to `num` spaces. If `num` is less than the length of the string, truncate to `num` characters instead.
 	new result,len,pad,padlen,i
 	set pad=""
@@ -29,35 +52,4 @@ LPAD(str,num,padstr)
 	. . set result=$extract(pad,0,padlen)_str
 	else  do
 	. set result=$extract($justify(str,num),0,num)
-	quit result
-
-type1(str,num,padstr)
-	new result
-	if (0'=$DATA(padstr))  do
-	. set result=$$LPAD(str,num,padstr)
-	else  do
-	. set result=$$LPAD(str,num)
-	quit result
-
-type2(str,num,padstr)
-	quit $$LPAD(str,num,padstr)
-
-PostgreSQL(str,num,padstr)
-	new result
-	if (0'=$DATA(padstr))  do
-	. set result=$$type1(str,num,padstr)
-	else  do
-	. set result=$$type1(str,num)
-	quit result
-
-MySQL(str,num,padstr)
-	new result
-	if (0'=$DATA(padstr))  do
-	. set result=$$type2(str,num,padstr)
-	else  do
-	. set %ydboctoerror("UNKNOWNFUNCTION",1)="LPAD"	; pass parameter to `src/ydb_error_check.c`
-	. set %ydboctoerror("UNKNOWNFUNCTION",2)="2"	; pass parameter to `src/ydb_error_check.c`
-	. set %ydboctoerror("UNKNOWNFUNCTION",3)="MYSQL"	; pass parameter to `src/ydb_error_check.c`
-	. zmessage %ydboctoerror("UNKNOWNFUNCTION")
-	. set result=$ZYSQLNULL
 	quit result

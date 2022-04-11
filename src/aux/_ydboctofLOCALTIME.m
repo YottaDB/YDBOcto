@@ -10,16 +10,15 @@
 ;								;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-type1()
-	; Returns the current time in `HH:MM:SS.US-TT` format
-	quit $$type1^%ydboctofCURRENTTIME()
-
-type2()
-	; Returns the current time in `YYYY-MM-DD HH:MM:SS` format
-	quit $$type2^%ydboctofCURRENTTIMESTAMP()
+; Implements the SQL LOCALTIME function, which returns the current
+; time based on the system locale
+LOCALTIME()
+	quit
 
 PostgreSQL()
-	quit $$type1()
+	; Returns the current time in `HH:MM:SS.US-TT` format
+	quit $$PostgreSQL^%ydboctofCURRENTTIME()
 
 MySQL()
-	quit $$type2()
+	; Returns the current time in `YYYY-MM-DD HH:MM:SS` format
+	quit $$MySQL^%ydboctofCURRENTTIMESTAMP()

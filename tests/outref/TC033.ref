@@ -10,8 +10,8 @@ CREATE TABLE
 # Verify text based table definition for all CREATE TABLE queries in TC033.sql
 ^%ydboctoocto("functions","ABS","%ydboctoF0BXSKYtCkTUXzFwpivpB68","text",0)="CREATE FUNCTION `ABS`( NUMERIC) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;"
 ^%ydboctoocto("functions","ABS","%ydboctoFXjpLNKLu1sElo0JiZVgdDG","text",0)="CREATE FUNCTION `ABS`( INTEGER) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;"
-^%ydboctoocto("functions","CONCAT","%ydboctoFJJfw1n30qNHuHtdxCxVzIG","text",0)="CREATE FUNCTION `CONCAT`( VARCHAR,  VARCHAR,  VARCHAR) RETURNS VARCHAR AS $$CONCAT^%ydboctosqlfunctions;"
-^%ydboctoocto("functions","CONCAT","%ydboctoFoGO5XAvk4aaOdYpI5k13E7","text",0)="CREATE FUNCTION `CONCAT`( VARCHAR,  VARCHAR) RETURNS VARCHAR AS $$CONCAT^%ydboctosqlfunctions;"
+^%ydboctoocto("functions","CONCAT","%ydboctoFJJfw1n30qNHuHtdxCxVzIG","text",0)="CREATE FUNCTION `CONCAT`( VARCHAR,  VARCHAR,  VARCHAR) RETURNS VARCHAR AS $$^%ydboctofCONCAT;"
+^%ydboctoocto("functions","CONCAT","%ydboctoFoGO5XAvk4aaOdYpI5k13E7","text",0)="CREATE FUNCTION `CONCAT`( VARCHAR,  VARCHAR) RETURNS VARCHAR AS $$^%ydboctofCONCAT;"
 ^%ydboctoocto("functions","CURRENT_CATALOG","%ydboctoFCuhqqi7C1iy7pen0f5lg3G","text",0)="CREATE FUNCTION `CURRENT_CATALOG`() RETURNS VARCHAR AS $$pgCurrentCatalog^%ydboctopgfunctions;"
 ^%ydboctoocto("functions","CURRENT_DATABASE","%ydboctoFchU3WuMuK6Wd9wc5HerrC3","text",0)="CREATE FUNCTION `CURRENT_DATABASE`() RETURNS VARCHAR AS $$pgCurrentDatabase^%ydboctopgfunctions;"
 ^%ydboctoocto("functions","CURRENT_ROLE","%ydboctoFXykQHozGLcfiFyF7Xti314","text",0)="CREATE FUNCTION `CURRENT_ROLE`() RETURNS VARCHAR AS $$pgUser^%ydboctopgfunctions;"

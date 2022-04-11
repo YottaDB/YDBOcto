@@ -1,0 +1,9 @@
+
+-- TCF032 : OCTO816 : Octo does not issue incorrect `ERR_FUNCTION_NOT_UNIQUE` error
+-- See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1094#note_968288462 for more background.
+CREATE FUNCTION secondvalue(varchar, integer) RETURNS integer AS $$b5^TCF031;
+select secondvalue(NULL, 1);
+CREATE FUNCTION
+SECONDVALUE
+5
+(1 row)

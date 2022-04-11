@@ -183,6 +183,7 @@ add_library(libocto OBJECT
   find_table.c
   find_function.c
   function_call_data_type_check.c
+  function_definition_lookup.c
   generate_key_name.c
   generate_routine_name.c
   get_aggregate_func_name.c
@@ -511,6 +512,7 @@ set(aux_files
   aux/_ydboctoAdmin.m
   aux/_ydboctoCleanup.m
   aux/_ydboctoDiscard.m
+  aux/_ydboctofCONCAT.m
   aux/_ydboctofCURRENTTIME.m
   aux/_ydboctofCURRENTTIMESTAMP.m
   aux/_ydboctofDATEFORMAT.m

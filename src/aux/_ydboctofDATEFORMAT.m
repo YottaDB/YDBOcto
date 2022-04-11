@@ -10,18 +10,20 @@
 ;								;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-type1(date,format)
+; Implements the MySQL DATE_FORMAT() function, which populates the given
+; format string using the provided date string.
+DATEFORMAT(date,format)
+	quit
+
+; DATE_FORMAT() is a MySQL-only function, so if the emulation is not MySQL,
+; we emit an error.
+PostgreSQL(date,format)
 	set %ydboctoerror("UNKNOWNFUNCTION",1)="DATE_FORMAT"	; pass parameter to `src/ydb_error_check.c`
-	set %ydboctoerror("UNKNOWNFUNCTION",2)="2"	; pass parameter to `src/ydb_error_check.c`
+	set %ydboctoerror("UNKNOWNFUNCTION",2)="2"		; pass parameter to `src/ydb_error_check.c`
 	set %ydboctoerror("UNKNOWNFUNCTION",3)="POSTGRES"	; pass parameter to `src/ydb_error_check.c`
 	zmessage %ydboctoerror("UNKNOWNFUNCTION")
 	quit $ZYSQLNULL
 
-type2(date,format)
-	quit $$DATEFORMAT^%ydboctosqlfunctions(date,format)
-
-PostgreSQL(date,format)
-	quit $$type1(date,format)
-
+; Populate the given format string using the provided date string.
 MySQL(date,format)
-	quit $$type2(date,format)
+	quit $$DATEFORMAT^%ydboctosqlfunctions(date,format)

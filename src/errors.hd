@@ -123,6 +123,7 @@ ERROR_DEF(ERR_TYPE_NOT_COMPATIBLE, "Type %s not compatible for %s", PSQL_Code_Un
 ERROR_DEF(ERR_UNKNOWN_COLUMN_NAME, "Unknown column: %s", PSQL_Code_Undefined_Column)
 ERROR_DEF(ERR_UNKNOWN_FUNCTION, "No function '%s' defined with given parameter types (%s)", PSQL_Code_Undefined_Function)
 ERROR_DEF(ERR_UNKNOWN_FUNCTION_EMULATION, "No %s-parameter function '%s' defined for the current database emulation mode (%s)", PSQL_Code_Undefined_Function)
+ERROR_DEF(ERR_FUNCTION_NOT_UNIQUE, "Function '%s(%s)' not unique. Parameter(s) may require explicit type cast(s)", PSQL_Code_Undefined_Function)
 ERROR_DEF(ERR_UNKNOWN_TABLE, "Unknown table: %s", PSQL_Code_Undefined_Table)
 ERROR_DEF(ERR_VALUES_LENGTH, "VALUES lists must all be the same length", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_INVALID_RUNTIME_PARAMETER, "Unrecognized runtime configuration parameter '%s'", PSQL_Code_Cant_Change_Runtime_Param)

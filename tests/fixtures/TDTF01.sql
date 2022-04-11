@@ -18,10 +18,9 @@ SELECT lpad('ab', 1, 'd');
 SELECT lpad('a', 5, 'bcd');
 SELECT lpad('abb', 10, 'cdef');
 SELECT lpad('ab', 1, 'defgh');
--- TODO: NULL cases are disabled until issue #816 is resolved
--- SELECT lpad(NULL, 1, 'defgh');
--- SELECT lpad('ab', NULL, 'defgh');
--- SELECT lpad('ab', 1, NULL);
+SELECT lpad(NULL, 1, 'defgh');
+SELECT lpad('ab', NULL, 'defgh');
+SELECT lpad('ab', 1, NULL);
 SELECT truncate(1.525, 0); -- same as one-argument version
 SELECT truncate(1.525, 1);
 SELECT truncate(1, 0); -- should work for integers as well as floats

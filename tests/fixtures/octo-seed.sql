@@ -290,8 +290,8 @@ CREATE FUNCTION ABS(INTEGER) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;
 /* Note that PostgreSQL CONCAT accepts a variable number of arguments. Since Octo doesn't support this,
  * just use the number currently required by clients (i.e. BeeKeeper).
  */
-CREATE FUNCTION CONCAT(VARCHAR, VARCHAR) RETURNS VARCHAR AS $$CONCAT^%ydboctosqlfunctions;
-CREATE FUNCTION CONCAT(VARCHAR, VARCHAR, VARCHAR) RETURNS VARCHAR AS $$CONCAT^%ydboctosqlfunctions;
+CREATE FUNCTION CONCAT(VARCHAR, VARCHAR) RETURNS VARCHAR AS $$^%ydboctofCONCAT;
+CREATE FUNCTION CONCAT(VARCHAR, VARCHAR, VARCHAR) RETURNS VARCHAR AS $$^%ydboctofCONCAT;
 /* This only implements the 2-argument version of ROUND, since Octo doesn't support function overloading. */
 CREATE FUNCTION ROUND(NUMERIC, INTEGER) RETURNS NUMERIC AS $$ROUND^%ydboctosqlfunctions;
 CREATE FUNCTION ROUND(INTEGER, INTEGER) RETURNS NUMERIC AS $$ROUND^%ydboctosqlfunctions;

@@ -226,12 +226,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
 			return 1;
 		}
-		status = generate_routine_name(&state, routine_name, sizeof(routine_name), OutputPlan);
-		if (1 == status) {
-			ERROR(ERR_PLAN_HASH_FAILED, "");
-			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
-			return 1;
-		}
+		generate_routine_name(&state, routine_name, sizeof(routine_name), OutputPlan);
 		/* The below call updates "filename" to be the full path including "routine_name" at the end */
 		status = get_full_path_of_generated_m_file(filename, sizeof(filename), &routine_name[1]);
 		if (status) {
@@ -564,10 +559,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		if (0 != status) {
 			CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 		}
-		status = generate_routine_name(&state, function_hash, sizeof(function_hash), FunctionHash);
-		if (1 == status) {
-			CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
-		}
+		generate_routine_name(&state, function_hash, sizeof(function_hash), FunctionHash);
 		function_hash_buffer = &function_name_buffers[2];
 		YDB_STRING_TO_BUFFER(function_hash, function_hash_buffer);
 		// Add function hash to parse tree for later addition to logical plan

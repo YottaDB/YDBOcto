@@ -1,0 +1,27 @@
+
+-- TCF030 : OCTO816 : SQL functions accept NULL values without additional CREATE FUNCTION definitions
+
+SELECT CONCAT('myarg', NULL);
+SELECT CONCAT(NULL, 'myarg');
+SELECT CONCAT(NULL, NULL);
+SELECT CONCAT(NULL, NULL, NULL);
+SELECT ABS(NULL);
+SELECT ABS((select id from names where firstname = 'noname'));
+CONCAT
+
+(1 row)
+CONCAT
+
+(1 row)
+CONCAT
+
+(1 row)
+CONCAT
+
+(1 row)
+ABS
+
+(1 row)
+ABS
+
+(1 row)

@@ -920,7 +920,7 @@ int		   get_group_by_column_number(SqlTableAlias *table_alias, SqlStatement *has
 group_by_fields_t *get_group_by_fields(SqlStatement *stmt);
 
 /* Hashing support functions */
-int  generate_routine_name(hash128_state_t *state, char *routine_name, int routine_len, FileType file_type);
+void generate_routine_name(hash128_state_t *state, char *routine_name, int routine_len, FileType file_type);
 void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *status);
 void ydb_hash_to_string(ydb_uint16 *hash, char *buffer, const unsigned int buf_len);
 

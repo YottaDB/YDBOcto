@@ -206,3 +206,19 @@ setup() {
 	load_fixture TCF029.sql subtest novv
 	verify_output TCF029 output.txt noinfo nodebug
 }
+
+@test "TCF030 : OCTO816 : SQL functions accept NULL values without additional CREATE FUNCTION definitions " {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCF030.sql
+	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TCF030.sql
+}
+
+@test "TCF031 : OCTO816 : Octo issues error for ambiguous function calls" {
+	load_fixture TCF031.sql subtest novv
+	verify_output TCF031 output.txt noinfo nodebug
+}
+
+@test "TCF032 : OCTO816 : Octo does not issue incorrect 'ERR_FUNCTION_NOT_UNIQUE' error" {
+	# See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1094#note_968288462 for more background.
+	load_fixture TCF032.sql subtest novv
+	verify_output TCF032 output.txt noinfo nodebug
+}

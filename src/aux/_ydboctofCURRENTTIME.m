@@ -10,16 +10,15 @@
 ;								;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-type1()
-	; Returns the current time in `HH:MM:SS.US-TT` format
-	quit $extract($$type1^%ydboctofCURRENTTIMESTAMP(),12,29)
-
-type2()
-	; Returns the current time in `HH:MM:SS.US-TT` format
-	quit $extract($$type2^%ydboctofCURRENTTIMESTAMP(),12,29)
+; Implements the SQL CURRENT_TIME function, which returns the current
+; time.
+CURRENTTIME()
+	quit
 
 PostgreSQL()
-	quit $$type1()
+	; Returns the current time in `HH:MM:SS.US-TT` format
+	quit $extract($$PostgreSQL^%ydboctofCURRENTTIMESTAMP(),12,29)
 
 MySQL()
-	quit $$type2()
+	; Returns the current time in `HH:MM:SS` format
+	quit $extract($$MySQL^%ydboctofCURRENTTIMESTAMP(),12,21)

@@ -9,24 +9,21 @@
 ;	the license, please stop and do not read further.	;
 ;								;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ; Implements the SQL TRUNCATE function (truncate to a set number of digits)
 ; To truncate to the nearest integer, use a precision of 0.
 ; If `num` has fewer digits than `precision`, it will be zero-padded to `precision`.
 ; If `precision < 0`, then any fraction will be removed and the last `-precision` digits of the integer will be removed.
 ; `precision` must be no less than -43.
+TRUNCATE(num,precision)
+	quit
 
-type1(num,precision)
+PostgreSQL(num,precision)
 	quit:$ZYISSQLNULL(num) $ZYSQLNULL
 	new t  set precision=$fnumber(precision,"",0),t=(num*(10**precision)\1)/(10**precision)
 	quit $select(precision<0:t,1:$fnumber(t,"",precision))
 
-type2(num,precision)
+MySQL(num,precision)
 	quit:$ZYISSQLNULL(num) $ZYSQLNULL
 	new t  set precision=$fnumber(precision,"",0),t=(num*(10**precision)\1)/(10**precision)
 	quit $select(precision<0:t,(0=+$piece($fnumber(t,"",precision+1),".",2)):t,1:$fnumber(t,"",precision))
-
-PostgreSQL(num,precision)
-	quit $$type1(num,precision)
-
-MySQL(num,precision)
-	quit $$type2(num,precision)

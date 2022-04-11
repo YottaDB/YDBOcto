@@ -78,6 +78,9 @@ setup() {
 	done
 	# Randomly generate DATE_FORMAT calls from the full range of valid format codes
 	yottadb -r octo288 >> TDTF02.sql
+	# Test handling of NULL arguments
+	echo "SELECT DATE_FORMAT(NULL, '%d');" >> TDTF02.sql
+	echo "SELECT DATE_FORMAT('1999-12-31', NULL);" >> TDTF02.sql
 
 	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TDTF02.sql
 }

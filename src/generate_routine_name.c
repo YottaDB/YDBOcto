@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -25,7 +25,7 @@
 
 #define ROUTINE_PREFIX_LEN LIT_LEN(TABLE_GLOBAL_NAME_PREFIX)
 
-int generate_routine_name(hash128_state_t *state, char *routine_name, int routine_len, FileType file_type) {
+void generate_routine_name(hash128_state_t *state, char *routine_name, int routine_len, FileType file_type) {
 	char	     hash_str[MAX_ROUTINE_LEN];
 	char *	     c = NULL;
 	unsigned int hash_len = 0;
@@ -47,11 +47,10 @@ int generate_routine_name(hash128_state_t *state, char *routine_name, int routin
 		MEMCPY_LIT(routine_name, TRIGGER_NAME_PREFIX);
 		break;
 	case FunctionHash:
+	default:
+		assert(FunctionHash == file_type);
 		assert(ROUTINE_PREFIX_LEN == LIT_LEN(FUNCTION_NAME_PREFIX));
 		MEMCPY_LIT(routine_name, FUNCTION_NAME_PREFIX);
-		break;
-	default:
-		return 1;
 		break;
 	}
 
@@ -67,5 +66,5 @@ int generate_routine_name(hash128_state_t *state, char *routine_name, int routin
 	c += hash_len;
 	*c = '\0';
 
-	return 0;
+	return;
 }

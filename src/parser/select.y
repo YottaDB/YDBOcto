@@ -126,7 +126,7 @@ query_specification
       $$ = ret;
       $$->loc = @SELECT;	/* useful for error reporting to know lexical start of query */
     }
-  | SELECT set_quantifier select_list {
+  | SELECT set_quantifier select_list where_clause group_by_clause having_clause {
       // We're going to run against a secret table with one row so the list gets found
       SqlJoin			*join;
       SqlTable			*table;
@@ -164,6 +164,9 @@ query_specification
       alias->unique_id = *plan_id;
       (*plan_id)++;
       select->table_list = join_statement;
+      select->where_expression = $where_clause;
+      select->group_by_expression = $group_by_clause;
+      select->having_expression = $having_clause;
       INVOKE_QUERY_SPECIFICATION(ret, (OptionalKeyword)$set_quantifier, select_list, t_stmt, NULL, plan_id);
       $$ = ret;
       $$->loc = @SELECT;	/* useful for error reporting to know lexical start of query */

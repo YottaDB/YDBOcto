@@ -281,8 +281,22 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 	# Note: The awk usage below is needed to only skip commits that branch off an otherwise linear commit history.
 	awk '($1 == "*") && ($2 != "|") {print $0;}' gitlogmaster.txt > commit_history.txt
 	numcommits=$(wc -l commit_history.txt | awk '{print $1}')
-	commitnumber=$(shuf -i 1-$numcommits -n 1)
-	commitsha=$(head -$commitnumber commit_history.txt | tail -1 | awk '{print $2}')
+	while true;
+	do
+		commitnumber=$(shuf -i 1-$numcommits -n 1)
+		commitsha=$(head -$commitnumber commit_history.txt | tail -1 | awk '{print $2}')
+		if [[ "3d03de63" == "$commitsha" ]]; then
+			# This commit has a known issue in `tests/fixtures/TOJ03.m` that can cause the TJC001 subtest to time out
+			# (see https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1035/pipelines for failure details).
+			# This is fixed in the immediately next commit (e748ab3f) so do not choose this particular commit
+			# as otherwise the "test-auto-upgrade" pipeline job (the current job) will also timeout (see
+			# https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/977#note_923383570 for description of failure).
+			echo "# Skipping $commitsha as it has a known issue that can cause job to timeout"
+			continue
+		fi
+		# Now that we are here, the chosen random older commit has no known issue. So break out of the while loop.
+		break
+	done
 	echo $commitsha > commit_picked.txt
 	echo "# Random older commit picked = $commitsha"
 	echo "# Checkout the older commit"

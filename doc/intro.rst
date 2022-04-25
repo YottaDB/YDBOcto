@@ -697,6 +697,8 @@ Launching Options
 
   Octo has a few options that can be specified when it is launched.
 
+.. _verbose-option:
+
 ^^^^^^^^^^^
   Verbose
 ^^^^^^^^^^^
@@ -718,30 +720,26 @@ Launching Options
 +-----------------+------------------------+---------------------------------------------+
 | Number          | Level                  | Information                                 |
 +=================+========================+=============================================+
-| 0               | FATAL                  | Informaton about fatal errors               |
+| 0               | ERROR                  | Information about all errors                |
 +-----------------+------------------------+---------------------------------------------+
-| 1               | ERROR                  | Information about all errors                |
+| 1               | INFO                   | Additional information useful to log        |
 +-----------------+------------------------+---------------------------------------------+
-| 2               | WARNING                | Includes warnings                           |
+| 2               | DEBUG                  | Includes information useful for debugging   |
 +-----------------+------------------------+---------------------------------------------+
-| 3               | DEBUG                  | Includes information useful for debugging   |
-+-----------------+------------------------+---------------------------------------------+
-| 4               | INFO                   | Additional information useful to log        |
-+-----------------+------------------------+---------------------------------------------+
-| 5               | TRACE                  | Information logged steppping through actions|
+| 3               | TRACE                  | Information logged stepping through actions |
 +-----------------+------------------------+---------------------------------------------+
 
     When a number level is specified, the verbose output contains all information corresponding to that level as well as the previous levels.
 
-    The default verbose level is set to two(2) (WARNING).
+    The default verbose level is set to zero(0) (ERROR).
 
-    A single :code:`-v` in the command line puts the verbose level at three(3), :code:`-vv` puts the level at four(4), and :code:`-vvv` puts the level at five(5).
+    A single :code:`-v` in the command line puts the verbose level at one(1) (INFO), :code:`-vv` puts the level at two(2) (DEBUG), and :code:`-vvv` puts the level at three(3) (TRACE).
 
     Example:
 
     .. code-block:: bash
 
-       octo --verbose=4
+       octo --verbose=3
 
     Example:
 

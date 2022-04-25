@@ -67,7 +67,7 @@ Command Line Flags
 
 #. **-v,  \-\-verbose=<number>**
 
-    Specify amount of information to output when running commands specifying a numeric value from zero to five or adding additional 'v' characters.
+    Specify amount of information to output when running commands specifying a numeric value from zero to five or adding additional 'v' characters. See :ref:`Verbose Launching Option <verbose-option>` for more information on verbosity levels.
 
 #. **-r,  \-\-version**
 

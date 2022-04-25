@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.  #
+.. # Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.  #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -123,10 +123,12 @@ verbosity
 
 The :code:`verbosity` configuration setting controls logging verbosity. It can take on one of the following values.
 
-* :code:`"TRACE"`: A TRACE message is useful to help identify issues in the code
-* :code:`"INFO"`: An INFO message is used to relay information to the user
-* :code:`"DEBUG"`: A DEBUG message helps users debug configuration issues
-* :code:`"ERROR"` : An ERROR message informs the user that an error has occurred
+* :code:`"TRACE"`: A TRACE message is useful to help identify issues in the code. The equivalent verbosity option is :code:`--verbose=3`.
+* :code:`"INFO"`: An INFO message is used to relay information to the user. The equivalent verbosity option is :code:`--verbose=2`. 
+* :code:`"DEBUG"`: A DEBUG message helps users debug configuration issues. The equivalent verbosity option is :code:`--verbose=1`.
+* :code:`"ERROR"` : An ERROR message informs the user that an error has occurred. The equivalent verbosity option is :code:`--verbose=0`.
+
+See :ref:`Verbose Launching Option <verbose-option>` for more information on verbosity levels.
 
 ~~~~~~~~~~~~
 octo_history

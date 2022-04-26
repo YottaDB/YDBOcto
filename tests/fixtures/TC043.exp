@@ -1,7 +1,7 @@
 #!/usr/bin/expect
 #################################################################
 #								#
-# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,6 +10,12 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
+
+# Enable long lines to prevent wrapping. This is usually done using "stty cols 4096" after a "spawn bash"
+# (see various tests/fixtures/*.exp files for examples). But in this test we later do a "spawn octo" as well
+# and we cannot use the "stty cols" setting there like we can do in a "spawn bash". Therefore, we use the
+# stty_init variable to provide the parameters to the "stty" command for all "spawn" commands done in this expect script.
+set stty_init "cols 4096"
 
 spawn bash
 

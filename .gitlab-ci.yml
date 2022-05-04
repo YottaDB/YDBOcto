@@ -55,7 +55,7 @@ before_script:
 
 .rocky:
   before_script:
-    - yum --enablerepo=powertools install -y libcmocka-devel gcc make clang clang-tools-extra cmake bison flex python3-pip readline-devel git libconfig-devel openssl-devel postgresql postgresql-server libgcrypt-devel gpgme-devel openssl expect java-11-openjdk-devel unzip valgrind unixODBC postgresql-odbc diffutils pkg-config libicu-devel glibc-langpack-en wget vim
+    - yum --enablerepo=powertools install -y libcmocka-devel gcc make clang clang-tools-extra cmake bison flex python3-pip readline-devel git libconfig-devel openssl-devel postgresql postgresql-server libgcrypt-devel gpgme-devel openssl expect java-11-openjdk-devel unzip valgrind unixODBC postgresql-odbc diffutils pkg-config libicu-devel glibc-langpack-en wget vim mysql-server
     # Ninja is not available from the default repositories on Rocky Linux.
     # On Rocky Linux it is not available at all without going through third-party repositories.
     # Rather than setting that up, just install ninja from the GitHub releases page directly.
@@ -72,13 +72,6 @@ before_script:
     - tar -C /usr/local -xzf go.tgz
     - rm go.tgz
     - go version
-    # Install MySQL (not in Rocky Linux repositories)
-    # Package and checksum information: https://dev.mysql.com/downloads/repo/yum/
-    # Additional yum installation instructions: https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-centos-7
-    - wget -O mysql.tgz -q https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm
-    - diff <(echo "893b55d5d885df5c4d4cf7c4f2f6c153") <(md5sum mysql.tgz | cut -f 1 -d ' ')
-    - rpm -ivh mysql.tgz
-    - yum install -y mysql-server
 
 commit-verify:
   image: ubuntu:18.04

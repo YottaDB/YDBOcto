@@ -16,7 +16,7 @@ setup() {
   init_test
 }
 
-@test "HDB01 : Can load data into MySQL database/tables and communicate with the MySQL server" {
+@test "HDB01 : Can communicate and load data into Postgres & MySQL" {
 	for db in mysql postgres
 	do
 		if [[ "mysql" == $db ]]; then
@@ -123,7 +123,7 @@ setup() {
 			sed -i 's/|t$/|1/g;' output.txt
 			sed -i 's/|f$/|0/g;' output.txt
 		fi
-		verify_output HDB01 output.txt
 		mv output.txt output-$db.txt
+		verify_output HDB01 output-$db.txt
 	done
 }

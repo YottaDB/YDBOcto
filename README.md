@@ -183,10 +183,6 @@ The Octo plugin can be installed by using the `--octo` option when installing Yo
 	 sudo apt-get install mysql-server mysql-client
 
 	 # CentOS Linux OR RedHat Linux
-	 # MySQL is not included in CentOS repositories, so install manually from tarball, e.g.:
-     wget -O mysql.tgz -q https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm
-     diff <(echo "893b55d5d885df5c4d4cf7c4f2f6c153") <(md5sum mysql.tgz | cut -f 1 -d ' ')
-     rpm -ivh mysql.tgz
 	 yum install -y mysql-server
 	 ```
 

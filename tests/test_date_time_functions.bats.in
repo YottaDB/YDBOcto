@@ -139,5 +139,6 @@ setup() {
 	create_default_user
 	test_port=$(start_rocto 1339)
 	run_psql $test_port TDTF16.sql 2>&1 | tee output.txt
+	stop_rocto
 	verify_output TDTF16 output.txt noinfo nodebug
 }

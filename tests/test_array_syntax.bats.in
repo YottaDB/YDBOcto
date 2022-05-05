@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -20,11 +20,6 @@ setup() {
 }
 
 @test "TAS00 : ARRAY constructor subquery syntax" {
-  # This test fails on CentOS due to PostgreSQL version < 10.
-  if [[ $(psql --version | cut -f 3 -d " " | cut -f 1 -d ".") -lt 10 ]]; then
-    skip "Skipping test as it does not work on with PostgreSQL versions < 10"
-  fi
-  load_fixture TAS00.sql subtest novv
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAS00.sql
 }
 
@@ -37,3 +32,13 @@ setup() {
   load_fixture TAS02.sql subtest novv
   verify_output TAS02 output.txt
 }
+
+@test "TAS03 : Test ERR_SUBQUERY_ONE_COLUMN error for ARRAY constructor with subquery returning more than one column" {
+  load_fixture TAS03.sql subtest novv
+  verify_output TAS03 output.txt
+}
+
+@test "TAS04 : OCTO824 : ARRAY constructor works with subquery using VALUES or SET operations" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAS04.sql
+}
+

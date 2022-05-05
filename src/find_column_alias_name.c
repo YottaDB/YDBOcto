@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -129,20 +129,15 @@ SqlStatement *find_column_alias_name(SqlStatement *stmt) {
 		/* We do not do anything for now */
 		break;
 	case array_STATEMENT:
+		return string_literal("ARRAY");
+		break;
 	case table_alias_STATEMENT:
 	case set_operation_STATEMENT: {
 		SqlTableAlias *	    table_alias;
 		SqlStatement *	    table_alias_stmt;
 		SqlColumnListAlias *cur_cla;
 
-		if (array_STATEMENT == stmt->type) {
-			/* array_STATEMENTs do not directly contain table alias information, but rather store this information
-			 * (derived from the subquery specified via an ARRAY() constructor) in the SqlArray.argument field.
-			 */
-			table_alias_stmt = drill_to_table_alias(stmt->v.array->argument);
-		} else {
-			table_alias_stmt = drill_to_table_alias(stmt);
-		}
+		table_alias_stmt = drill_to_table_alias(stmt);
 		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		UNPACK_SQL_STATEMENT(cur_cla, table_alias->column_list, column_list_alias);
 		ret = cur_cla->alias;

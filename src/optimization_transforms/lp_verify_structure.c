@@ -444,8 +444,9 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_COLUMN_LIST);
 		break;
 	case LP_ARRAY:
-		assert(LP_SELECT_QUERY == plan->v.lp_default.operand[0]->type);
-		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_SELECT_QUERY);
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_SELECT_QUERY)
+		       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_TABLE_VALUE)
+		       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_SET_OPERATION);
 		break;
 	case LP_COALESCE_CALL:
 		assert(LP_COLUMN_LIST == plan->v.lp_default.operand[0]->type);

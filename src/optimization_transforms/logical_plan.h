@@ -214,6 +214,7 @@ typedef struct LpExtraSetOperation {
 					     * to this LP_SET_OPERATION plan.
 					     */
 	struct PhysicalPlan *physical_plan; /* The physical plan whose "set_oper_list" contains the above "set_oper" field */
+	boolean_t	     to_array;	    /* Indicates the result of this LP_SET_OPERATION should be converted to a SQL array */
 } LpExtraSetOperation;
 
 /* We use yet another triple type here so we can easily traverse the tree to replace tables and WHEREs.

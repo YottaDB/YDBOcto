@@ -573,19 +573,22 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 			 */
 			plan_options = *options;
 			plan_options.dnf_plan_next = NULL;
-			if ((NULL != parent) && ((LP_BOOLEAN_EXISTS == parent->type) || (LP_BOOLEAN_NOT_EXISTS == parent->type))) {
+			if ((NULL != parent)
+			    && ((LP_BOOLEAN_EXISTS == parent->type) || (LP_BOOLEAN_NOT_EXISTS == parent->type)
+				|| (LP_ARRAY == parent->type))) {
 				/* If sub-query is due to an EXISTS or NOT EXISTS operation, then do not stash columns in keys.
 				 * Keep it as is (it can have any # of columns).
+				 * If sub-query is due to an ARRAY operation, then again do not stash columns in keys.
+				 * Keep it as is as otherwise GetScalarOrArray^%ydboctoplanhelpers might get confused
+				 * and/or return incorrect results.
 				 */
 				plan_options.stash_columns_in_keys = FALSE;
 			} else {
 				/* Otherwise, we are guaranteed only 1 column in sub-query so stash it in a key (due to the
 				 * check done in "src/optimization_transforms/lp_generate_where.c" (search for BOOLEAN_EXISTS).
 				 */
-				if ((LP_SET_OPERATION == stmt->type) || (!stmt->extra_detail.lp_select_query.to_array)) {
-					assert(1 == lp_get_num_cols_in_select_column_list(stmt));
-					plan_options.stash_columns_in_keys = TRUE;
-				}
+				assert(1 == lp_get_num_cols_in_select_column_list(stmt));
+				plan_options.stash_columns_in_keys = TRUE;
 			}
 			new_plan = generate_physical_plan(stmt, &plan_options);
 			if (NULL == new_plan) {
@@ -598,7 +601,9 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 			    = sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[1], stmt);
 			break;
 		case LP_ARRAY:
-			assert(LP_SELECT_QUERY == stmt->v.lp_default.operand[0]->type);
+			assert((LP_SELECT_QUERY == stmt->v.lp_default.operand[0]->type)
+			       || (LP_SET_OPERATION == stmt->v.lp_default.operand[0]->type)
+			       || (LP_TABLE_VALUE == stmt->v.lp_default.operand[0]->type));
 			stmt->v.lp_default.operand[0]
 			    = sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[0], stmt);
 			break;

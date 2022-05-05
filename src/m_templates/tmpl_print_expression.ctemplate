@@ -1164,7 +1164,9 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		%{}$$GetScalarOrArray^%%ydboctoplanhelpers({{ key->v.lp_key.key->unique_id|%d }},{}%
 
 		boolean_t	to_array;
-		to_array = (LP_SET_OPERATION != plan->type) ? plan->extra_detail.lp_select_query.to_array : 0;
+		to_array = (LP_SET_OPERATION != plan->type)
+				? plan->extra_detail.lp_select_query.to_array
+				: plan->extra_detail.lp_set_operation.to_array;
 		%{}{{ to_array|%d }},"{}%
 		TMPL(tmpl_invoke_deferred_plan, InvokeDeferredPlan_SELECT_SET_VALUES, plan, dot_count);
 		%{}"){}%

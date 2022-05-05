@@ -1,0 +1,18 @@
+
+-- TAS03 : Test ERR_SUBQUERY_ONE_COLUMN error for ARRAY constructor with subquery returning more than one column
+
+SELECT ARRAY(VALUES(1,2,3)) from names;
+SELECT ARRAY(SELECT id, id from names);
+SELECT ARRAY(SELECT id, id from names UNION SELECT id, id from names);
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_ONE_COLUMN : Subquery must return only one column
+[ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_ONE_COLUMN : Subquery must return only one column
+Error with syntax near (line 1, column 14):
+
+SELECT ARRAY(SELECT id, id from names);
+             ^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_ONE_COLUMN : Subquery must return only one column
+Error with syntax near (line 1, column 14):
+
+SELECT ARRAY(SELECT id, id from names UNION SELECT id, id from names);
+             ^^^^^^

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -75,93 +75,24 @@
 /* The below code needs to be kept in sync with `enum OptionalKeyword` in "octo_types.h" */
 #define EMIT_SNPRINTF_KEYWORD_IF_NEEDED(WRITTEN, BUFF_PTR, BUFFER, BUFFER_LEN, KEYWORD)                \
 	{                                                                                              \
-		char *	  str, keyWordStr[64];                                                         \
+		char *	  keywordName, keyWordStr[64];                                                 \
 		SqlValue *value;                                                                       \
                                                                                                        \
-		str = NULL;                                                                            \
 		switch (KEYWORD->keyword) {                                                            \
 		case NO_KEYWORD:                                                                       \
-			break;                                                                         \
-		case PRIMARY_KEY:                                                                      \
-			str = "PRIMARY_KEY";                                                           \
-			break;                                                                         \
-		case NOT_NULL:                                                                         \
-			str = "NOT_NULL";                                                              \
-			break;                                                                         \
-		case UNIQUE_CONSTRAINT:                                                                \
-			str = "UNIQUE_CONSTRAINT";                                                     \
-			break;                                                                         \
-		case OPTIONAL_SOURCE:                                                                  \
-			str = "SOURCE";                                                                \
-			break;                                                                         \
-		case OPTIONAL_END:                                                                     \
-			str = "END";                                                                   \
-			break;                                                                         \
-		case OPTIONAL_ENDPOINT:                                                                \
-			str = "ENDPOINT";                                                              \
-			break;                                                                         \
-		case OPTIONAL_START:                                                                   \
-			str = "START";                                                                 \
-			break;                                                                         \
-		case OPTIONAL_STARTINCLUDE:                                                            \
-			str = "STARTINCLUDE";                                                          \
-			break;                                                                         \
-		case OPTIONAL_DELIM:                                                                   \
-			str = "DELIM";                                                                 \
-			break;                                                                         \
-		case OPTIONAL_EXTRACT:                                                                 \
-			str = "EXTRACT";                                                               \
-			break;                                                                         \
-		case OPTIONAL_CASCADE:                                                                 \
-			str = "CASCADE";                                                               \
-			break;                                                                         \
-		case OPTIONAL_RESTRICT:                                                                \
-			str = "RESTRICT";                                                              \
-			break;                                                                         \
-		case OPTIONAL_PIECE:                                                                   \
-			str = "PIECE";                                                                 \
-			break;                                                                         \
-		case OPTIONAL_KEY_NUM:                                                                 \
-			str = "KEY_NUM";                                                               \
-			break;                                                                         \
-		case OPTIONAL_ADVANCE:                                                                 \
-			str = "ADVANCE";                                                               \
+			keywordName = NULL;                                                            \
 			break;                                                                         \
 		case OPTIONAL_LIMIT:                                                                   \
 			UNPACK_SQL_STATEMENT(value, KEYWORD->v, value);                                \
 			snprintf(keyWordStr, sizeof(keyWordStr), "LIMIT %s", value->v.string_literal); \
-			str = keyWordStr;                                                              \
-			break;                                                                         \
-		case OPTIONAL_DISTINCT:                                                                \
-			str = "DISTINCT";                                                              \
-			break;                                                                         \
-		case OPTIONAL_XREF_INDEX:                                                              \
-			str = "XREF_INDEX";                                                            \
-			break;                                                                         \
-		case OPTIONAL_BOOLEAN_EXPANSION:                                                       \
-			str = "BOOLEAN_EXPANSION";                                                     \
-			break;                                                                         \
-		case OPTIONAL_ASC:                                                                     \
-			str = "ASC";                                                                   \
-			break;                                                                         \
-		case OPTIONAL_DESC:                                                                    \
-			str = "DESC";                                                                  \
-			break;                                                                         \
-		case OPTIONAL_READWRITE:                                                               \
-			str = "READWRITE";                                                             \
-			break;                                                                         \
-		case OPTIONAL_READONLY:                                                                \
-			str = "READONLY";                                                              \
-			break;                                                                         \
-		case OPTIONAL_KEEPDATA:                                                                \
-			str = "KEEPDATA";                                                              \
+			keywordName = keyWordStr;                                                      \
 			break;                                                                         \
 		default:                                                                               \
-			assert(FALSE);                                                                 \
+			keywordName = get_keyword_name(KEYWORD->keyword);                              \
 			break;                                                                         \
 		}                                                                                      \
-		if (NULL != str)                                                                       \
-			EMIT_SNPRINTF(WRITTEN, BUFF_PTR, BUFFER, BUFFER_LEN, " %s;", str);             \
+		if (NULL != keywordName)                                                               \
+			EMIT_SNPRINTF(WRITTEN, BUFF_PTR, BUFFER, BUFFER_LEN, " %s;", keywordName);     \
 	}
 
 int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *plan, LogicalPlan *parent_plan);

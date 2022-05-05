@@ -847,6 +847,7 @@ SqlColumnListAlias *match_column_in_table(SqlTableAlias *table, char *column_nam
 					  boolean_t issue_error);
 boolean_t	    match_column_list_alias_in_select_column_list(SqlColumnListAlias *match_cla, SqlStatement *cla_stmt);
 SqlOptionalKeyword *get_keyword(SqlColumn *column, enum OptionalKeyword keyword);
+char *		    get_keyword_name(enum OptionalKeyword keyword);
 SqlOptionalKeyword *get_keyword_from_keywords(SqlOptionalKeyword *start_keyword, enum OptionalKeyword keyword);
 int		    get_key_columns(SqlTable *table, SqlColumn **key_columns);
 int  generate_key_name(char **buffer, int *buffer_size, int target_key_num, SqlTable *table, SqlColumn **key_columns);

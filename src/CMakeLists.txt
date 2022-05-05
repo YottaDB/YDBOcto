@@ -180,6 +180,7 @@ add_library(libocto OBJECT
   get_input.c
   get_key_columns.c
   get_keyword.c
+  get_keyword_name.c
   get_keyword_from_keywords.c
   get_mem_usage.c
   get_mval_len.c

@@ -156,6 +156,7 @@ add_library(libocto OBJECT
   delete_function_from_pg_proc.c
   drill_to_table_alias.c
   drop_schema_from_local_cache.c
+  emit_check_constraint.c
   emit_column_specification.c
   emit_create_table.c
   emit_create_function.c
@@ -193,7 +194,9 @@ add_library(libocto OBJECT
   get_sqldatatype_from_sqlvaluetype.c
   get_sqlvaluetype_from_psql_type.c
   get_sqlvaluetype_from_sqldatatype.c
+  get_user_visible_binary_operator_string.c
   get_user_visible_type_string.c
+  get_user_visible_unary_operator_string.c
   get_display_relation_query_stmt.c
   history.c
   hash_canonical_query.c

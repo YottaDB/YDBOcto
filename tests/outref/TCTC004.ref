@@ -1,0 +1,9 @@
+# Run same query against 6 almost similar CREATE TABLE statements
+# The only difference in the CREATE TABLE is some literals used inside the CHECK constraint
+# Search for INFO_M_PLAN messages and sort -u the output. We expect to see 6 different plans below.
+M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+M file [$PWD/_ydboctoP*.m] (to execute SQL query)

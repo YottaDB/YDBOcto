@@ -1,0 +1,160 @@
+
+-- TCTC005 : OCTO772 : Test CHECK constraint shows up correctly in CREATE TABLE text definition
+-- Test all possible CHECK constraint expressions (i.e. all "case" code paths in "src/emit_check_constraint.c")
+
+create table tmp01 (id integer, check ((true is unknown) and (false is null)));
+create table tmp02 (id integer, check (('abcd' != 'efgh') and (1 <= id) and (1.5 > abs(-2.35))));
+create table tmp03 (id integer, check (NOT nullif(1.0, 1) is not null));
+create table tmp04 (id integer, firstname varchar, check (greatest(firstname, 'abcd', NULL, 'zzz') is null));
+create table tmp05 (id integer, firstname varchar, lastname varchar, check (least(firstname || 'efgh', lastname, firstname || lastname) is null));
+create table tmp06 (id integer, lastname varchar, check (coalesce(NULL, lastname) is null));
+create table tmp07 (id integer, lastname varchar, check (nullif(NULL, 2) is null));
+create table tmp08 (id integer, check(case id when 2 then true end));
+create table tmp09 (id integer, check(case id when 2 then true else false end));
+create table tmp10 (id integer, check(case when id is null then true end));
+create table tmp11 (id integer, check(case when id is null then true else false end));
+create table tmp12 (id integer, check(id::boolean));
+create table tmp13 (id integer, check(id::numeric(3) = 3.0));
+create table tmp14 (id integer, check(id::numeric(4,1) != 4.5));
+create table tmp15 (id integer, check(id::integer < 4));
+create table tmp16 (id integer, check(id::varchar(10) > 'abcd'));
+create table tmp17 (id integer, check(+id >= -2));
+create table tmp18 (id integer, check(NOT id::boolean));
+create table tmp19 (id integer, check(id + (id % 3) - (id * 2) <= (id / 20)));
+create table tmp20 (id integer, check(id::boolean OR NOT id::boolean));
+create table tmp21 (id integer, check(id::boolean AND NOT id::boolean));
+create table tmp22 (lastname varchar, check(lastname ~ 'abcd'));
+create table tmp23 (lastname varchar, check(lastname ~* 'abcd'));
+create table tmp24 (lastname varchar, check((lastname like 'abcd%') or (lastname not like 'abcd%')));
+create table tmp25 (lastname varchar, check((lastname ilike 'ab%cd') or (lastname not ilike 'ab%cd')));
+create table tmp26 (lastname varchar, check((lastname similar to 'ab%cd') and (lastname not similar to 'ab%cd')));
+create table tmp27 (id integer, check(id in (2,3)));
+create table tmp28 (id integer, check(id not in (2,3)));
+
+-- Note: The below queries will not work because they need sub-query usage for ANY/ALL operator.
+-- But sub-queries are not supported with CHECK constraint. So just recording them here but disabling it.
+-- -- create table tmp29 (id integer, check(id = any (2,3)));
+-- -- create table tmp30 (id integer, check(id != any (2,3)));
+-- -- create table tmp31 (id integer, check(id < any (2,3)));
+-- -- create table tmp32 (id integer, check(id > any (2,3)));
+-- -- create table tmp33 (id integer, check(id <= any (2,3)));
+-- -- create table tmp34 (id integer, check(id >= any (2,3)));
+-- -- create table tmp35 (id integer, check(id = all (2,3)));
+-- -- create table tmp36 (id integer, check(id != all (2,3)));
+-- -- create table tmp37 (id integer, check(id < all (2,3)));
+-- -- create table tmp38 (id integer, check(id > all (2,3)));
+-- -- create table tmp39 (id integer, check(id <= all (2,3)));
+-- -- create table tmp40 (id integer, check(id >= all (2,3)));
+
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+ID
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+ID|FIRSTNAME
+(0 rows)
+ID|FIRSTNAME|LASTNAME
+(0 rows)
+ID|LASTNAME
+(0 rows)
+ID|LASTNAME
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+LASTNAME
+(0 rows)
+LASTNAME
+(0 rows)
+LASTNAME
+(0 rows)
+LASTNAME
+(0 rows)
+LASTNAME
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+`TMP01` (`ID` INTEGER DELIM """",  CONSTRAINT TMP01_CHECK CHECK (((TRUE IS UNKNOWN) AND (FALSE IS NULL))))
+`TMP02` (`ID` INTEGER CONSTRAINT TMP02_ID_CHECK CHECK (((('abcd' != 'efgh') AND (1 <= ID)) AND (1.5 > ABS((- 2.35))))) DELIM """")
+`TMP03` (`ID` INTEGER DELIM """",  CONSTRAINT TMP03_CHECK CHECK ((NOT (NULLIF(1.0,1) IS NOT NULL))))
+`TMP04` (`ID` INTEGER PIECE 1, `FIRSTNAME` VARCHAR CONSTRAINT TMP04_FIRSTNAME_CHECK CHECK ((GREATEST(FIRSTNAME,'abcd',NULL,'zzz') IS NULL)) PIECE 2)
+`TMP05` (`ID` INTEGER PIECE 1, `FIRSTNAME` VARCHAR PIECE 2, `LASTNAME` VARCHAR PIECE 3,  CONSTRAINT TMP05_CHECK CHECK ((LEAST((FIRSTNAME || 'efgh'),LASTNAME,(FIRSTNAME || LASTNAME)) IS NULL)))
+`TMP06` (`ID` INTEGER PIECE 1, `LASTNAME` VARCHAR CONSTRAINT TMP06_LASTNAME_CHECK CHECK ((COALESCE(NULL,LASTNAME) IS NULL)) PIECE 2)
+`TMP07` (`ID` INTEGER PIECE 1, `LASTNAME` VARCHAR PIECE 2,  CONSTRAINT TMP07_CHECK CHECK ((NULLIF(NULL,2) IS NULL)))
+`TMP08` (`ID` INTEGER CONSTRAINT TMP08_ID_CHECK CHECK (CASE ID WHEN 2 THEN TRUE END) DELIM """")
+`TMP09` (`ID` INTEGER CONSTRAINT TMP09_ID_CHECK CHECK (CASE ID WHEN 2 THEN TRUE ELSE FALSE END) DELIM """")
+`TMP10` (`ID` INTEGER CONSTRAINT TMP10_ID_CHECK CHECK (CASE WHEN (ID IS NULL) THEN TRUE END) DELIM """")
+`TMP11` (`ID` INTEGER CONSTRAINT TMP11_ID_CHECK CHECK (CASE WHEN (ID IS NULL) THEN TRUE ELSE FALSE END) DELIM """")
+`TMP12` (`ID` INTEGER CONSTRAINT TMP12_ID_CHECK CHECK (ID::BOOLEAN) DELIM """")
+`TMP13` (`ID` INTEGER CONSTRAINT TMP13_ID_CHECK CHECK ((ID::NUMERIC(3) = 3.0)) DELIM """")
+`TMP14` (`ID` INTEGER CONSTRAINT TMP14_ID_CHECK CHECK ((ID::NUMERIC(4,1) != 4.5)) DELIM """")
+`TMP15` (`ID` INTEGER CONSTRAINT TMP15_ID_CHECK CHECK ((ID::INTEGER < 4)) DELIM """")
+`TMP16` (`ID` INTEGER CONSTRAINT TMP16_ID_CHECK CHECK ((ID::VARCHAR(10) > 'abcd')) DELIM """")
+`TMP17` (`ID` INTEGER CONSTRAINT TMP17_ID_CHECK CHECK (((+ ID) >= (- 2))) DELIM """")
+`TMP18` (`ID` INTEGER CONSTRAINT TMP18_ID_CHECK CHECK ((NOT ID::BOOLEAN)) DELIM """")
+`TMP19` (`ID` INTEGER CONSTRAINT TMP19_ID_CHECK CHECK ((((ID + (ID % 3)) - (ID * 2)) <= (ID / 20))) DELIM """")
+`TMP20` (`ID` INTEGER CONSTRAINT TMP20_ID_CHECK CHECK ((ID::BOOLEAN OR (NOT ID::BOOLEAN))) DELIM """")
+`TMP21` (`ID` INTEGER CONSTRAINT TMP21_ID_CHECK CHECK ((ID::BOOLEAN AND (NOT ID::BOOLEAN))) DELIM """")
+`TMP22` (`LASTNAME` VARCHAR CONSTRAINT TMP22_LASTNAME_CHECK CHECK ((LASTNAME ~ 'abcd')) DELIM """")
+`TMP23` (`LASTNAME` VARCHAR CONSTRAINT TMP23_LASTNAME_CHECK CHECK ((LASTNAME ~* 'abcd')) DELIM """")
+`TMP24` (`LASTNAME` VARCHAR CONSTRAINT TMP24_LASTNAME_CHECK CHECK (((LASTNAME LIKE 'abcd%') OR (NOT (LASTNAME LIKE 'abcd%')))) DELIM """")
+`TMP25` (`LASTNAME` VARCHAR CONSTRAINT TMP25_LASTNAME_CHECK CHECK (((LASTNAME ILIKE 'ab%cd') OR (NOT (LASTNAME ILIKE 'ab%cd')))) DELIM """")
+`TMP26` (`LASTNAME` VARCHAR CONSTRAINT TMP26_LASTNAME_CHECK CHECK (((LASTNAME SIMILAR TO 'ab%cd') AND (NOT (LASTNAME SIMILAR TO 'ab%cd')))) DELIM """")
+`TMP27` (`ID` INTEGER CONSTRAINT TMP27_ID_CHECK CHECK ((ID IN (2,3))) DELIM """")
+`TMP28` (`ID` INTEGER CONSTRAINT TMP28_ID_CHECK CHECK ((ID NOT IN (2,3))) DELIM """")

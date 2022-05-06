@@ -1,6 +1,6 @@
 /****************************************************************
  *                                                              *
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.      *
+ * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.      *
  * All rights reserved.                                         *
  *                                                              *
  *      This source code contains the intellectual property     *
@@ -36,6 +36,10 @@ SqlStatement *function_definition(SqlStatement *identifier_start, SqlStatement *
 	 */
 	function->return_type = data_type;
 	function->extrinsic_function = m_function;
+	/* Note:
+	 *   "function->function_hash" is initialized later in "run_query.c" (under "case create_function_STATEMENT")
+	 *   "function->oid" is initialized later in "store_function_in_pg_proc.c" (at end just before a "compress_statement" call)
+	 */
 
 	SqlValue *function_name_value;
 	UNPACK_SQL_STATEMENT(function_name_value, function->function_name, value);

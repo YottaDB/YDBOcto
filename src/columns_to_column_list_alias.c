@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -24,7 +24,10 @@ SqlColumnListAlias *columns_to_column_list_alias(SqlColumn *column, SqlStatement
 	cur_column = start_column = column;
 	ret = NULL;
 	do {
-		if (!cur_column->is_hidden_keycol) {
+		/* "cur_column->columnName" is NULL implies it is a table-level constraint stored as a column.
+		 * Skip such columns as they are not user-visible columns.
+		 */
+		if (!cur_column->is_hidden_keycol && (NULL != cur_column->columnName)) {
 			SqlColumnList *	    cur;
 			SqlColumnAlias *    column_alias;
 			SqlColumnListAlias *cur_column_list_alias;

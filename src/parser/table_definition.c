@@ -59,15 +59,12 @@
  * If CUR_KEYWORD happens to be the first keyword in the linked list, then START_KEYWORD and KEYWORDS_STMT->v.keyword
  * are both updated to point to the next element (guaranteed by an assert below) in the linked list.
  */
-#define DQDEL(CUR_KEYWORD, START_KEYWORD, KEYWORDS_STMT)                                                   \
+#define DQDELKEYWORD(CUR_KEYWORD, START_KEYWORD, START_KEYWORD_CHANGED, KEYWORDS_STMT)                     \
 	{                                                                                                  \
 		if (START_KEYWORD == CUR_KEYWORD) {                                                        \
+			START_KEYWORD_CHANGED = TRUE;                                                      \
 			/* Keyword to be deleted is first in list. Update start pointer of linked list. */ \
 			START_KEYWORD = CUR_KEYWORD->next;                                                 \
-			/* Assert that DELIM is not the only keyword in the column keyword list.           \
-			 * Even if nothing else is there, we would have a NO_KEYWORD keyword in the list.  \
-			 * This way we are guaranteed "START_KEYWORD" will not point to a deleted pointer. \
-			 */                                                                                \
 			if (START_KEYWORD == CUR_KEYWORD) {                                                \
 				/* The only keyword in the linked list is going to be deleted.             \
 				 * Reset the start of linked list to NULL.                                 \
@@ -79,6 +76,23 @@
 		dqdel(CUR_KEYWORD); /* Delete keyword */                                                   \
 	}
 
+/* The below macro is similar to the DQDELKEYWORD macro above but does it for columns instead of keywords */
+#define DQDELCOLUMN(CUR_COLUMN, START_COLUMN, START_COLUMN_CHANGED, COLUMN_STMT)                          \
+	{                                                                                                 \
+		if (START_COLUMN == CUR_COLUMN) {                                                         \
+			START_COLUMN_CHANGED = TRUE;                                                      \
+			/* Column to be deleted is first in list. Update start pointer of linked list. */ \
+			START_COLUMN = CUR_COLUMN->next;                                                  \
+			if (START_COLUMN == CUR_COLUMN) {                                                 \
+				/* The only column in the linked list is going to be deleted.             \
+				 * Reset the start of linked list to NULL.                                \
+				 */                                                                       \
+				START_COLUMN = NULL;                                                      \
+			}                                                                                 \
+			COLUMN_STMT->v.column = START_COLUMN;                                             \
+		}                                                                                         \
+		dqdel(CUR_COLUMN); /* Delete column */                                                    \
+	}
 /* Function invoked by the rule named "table_definition" in src/parser.y (parses the CREATE TABLE command).
  * Returns
  *	non-NULL pointer to SqlStatement structure on success
@@ -92,7 +106,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	int		    max_key;
 	int		    column_number;
 	SqlOptionalKeyword *cur_keyword, *start_keyword;
-	SqlColumn *	    cur_column, *start_column, *first_non_key_column;
+	SqlColumn *	    cur_column, *start_column, *next_column, *first_non_key_column;
 	SqlStatement *	    statement;
 	SqlValue *	    value;
 	char *		    out_buffer;
@@ -119,32 +133,42 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	 */
 	table_type = config->default_tabletype;
 
-	/* TODO: YDBOcto#772:
-	 * For each column-level and/or table-level constraint,
-	 * Check if it can be a column-level constraint or needs to be a table-level constraint.
-	 * For UNIQUE : If specified as a column-level constraint, there is no way multiple columns can be specified there so
-	 *		it stays a column-level constraint (no table-level constraint possible).
-	 * For PRIMARY KEY : Same description above as UNIQUE holds.
+	/* TODO : YDBOcto#582 : UNIQUE
+	 *
+	 * If specified as a column-level constraint, there is no way multiple columns can be specified there so
+	 * it stays a column-level constraint (no table-level constraint possible).
 	 *
 	 * For each column-level constraint,
-	 * Go through each column and combine all UNIQUE/PRIMARY KEY/NOT NULL/CHECK constraints into ONE keyword structure
-	 * For CHECK : The SqlConstraint structure will maintain a doubly linked list of all column-level CHECK constraints.
-	 *		Discard all remaining CHECK keyword structures. Just use the SqlConstraint part of that structure.
-	 * For UNIQUE : Maintain only the first named unique structure. If nothing is named, pick the first unnamed structure.
-	 *		Discard all remaining UNIQUE keyword structures.
-	 * For PRIMARY KEY : If more than one specified at a column-level and/or the table-level (across all columns), issue error.
-	 * For NOT NULL : Take just the first structure. Discard all the rest. Also discard constraint name for this.
+	 * 1) Go through each column and combine all UNIQUE constraints into ONE keyword structure
+	 * 2) Maintain only the first named unique structure. If nothing is named, pick the first unnamed structure.
+	 *    Discard all remaining UNIQUE keyword structures.
 	 *
 	 * For each table-level constraint,
-	 * Go through each table-level constraint and handle it separately.
-	 * For CHECK : Maintain a linked list of CHECK keyword structures. Possible to have more than one CHECK table-level
-	 *		constraints.
-	 * For UNIQUE : Maintain a linked list of UNIQUE keyword structures. Possible to have more than one UNIQUE table-level
-	 *		constraints.
-	 * For PRIMARY KEY : If more than one specified at a column-level and/or the table-level (across all columns), issue error.
-	 * For NOT NULL : Not possible as a table-level constraint.
+	 * 1) Maintain a linked list of UNIQUE keyword structures. Possible to have more than one UNIQUE table-level constraints.
 	 *
 	 */
+	/* TODO : YDBOcto#581 : NOT NULL
+	 *
+	 * For each column-level constraint,
+	 * 1) Go through each column and combine all NOT NULL constraints into ONE keyword structure
+	 * 2) Take just the first structure. Discard all the rest. Also discard constraint name for this.
+	 *
+	 * For each table-level constraint,
+	 * 1) Not possible as a table-level constraint.
+	 *
+	 */
+	/* TODO : YDBOcto#770 : PRIMARY KEY
+	 * If specified as a column-level constraint, there is no way multiple columns can be specified there so
+	 * it stays a column-level constraint (no table-level constraint possible).
+	 *
+	 * For each column-level constraint,
+	 * 1) If more than one specified at a column-level and/or the table-level (across all columns), issue error.
+	 *
+	 * For each table-level constraint,
+	 * 1) If more than one specified at a column-level and/or the table-level (across all columns), issue error.
+	 *
+	 */
+
 	boolean_t primary_key_constraint_seen;
 	primary_key_constraint_seen = FALSE;
 
@@ -166,6 +190,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	/* Define 2 subscripts. */
 	ydb_buffer_t subs[2];
 	char	     columnName[OCTO_MAX_IDENT + 1]; /* + 1 for null terminator */
+	boolean_t    start_column_changed, start_keyword_changed;
 
 	/* ==============================================================================================================
 	 * Scan column-level keywords for CHECK constraint.
@@ -189,19 +214,22 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	subs[1].buf_addr = columnName;
 	subs[1].len_alloc = sizeof(columnName) - 1; /* reserve 1 byte for null terminator */
 	do {
-		SqlColumn *noted_column = NULL;
-
+		start_column_changed = FALSE;
+		next_column = cur_column->next; /* need to note this down before any DQDELCOLUMN calls below */
 		UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
 		cur_keyword = start_keyword;
 		do {
 			SqlOptionalKeyword *next_keyword;
+			SqlColumn *	    noted_column;
 
+			start_keyword_changed = FALSE;
 			next_keyword = cur_keyword->next;
 			switch (cur_keyword->keyword) {
 			case OPTIONAL_CHECK_CONSTRAINT:;
 				SqlConstraint *constraint;
 				SqlValueType   type;
 
+				noted_column = NULL;
 				UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
 				if (qualify_check_constraint(constraint->definition, table, &type)) {
 					status = ydb_delete_s(&ydboctoTblConstraint, 1, &subs[0], YDB_DEL_TREE);
@@ -268,14 +296,14 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 						SQL_STATEMENT(new_column->keywords, keyword_STATEMENT);
 						new_column->keywords->v.keyword = cur_keyword;
 						/* Delete CHECK constraint keyword from current column's keyword linked list */
-						dqdel(cur_keyword);
+						DQDELKEYWORD(cur_keyword, start_keyword, start_keyword_changed,
+							     cur_column->keywords);
 						/* Move this keyword to a new table-level constraint column */
 						dqappend(start_column, new_column);
 					} else {
 						/* An empty current column name implies the CHECK constraint is already part of a
-						 * table-level constraint. No need to do anything.
+						 * table-level constraint. No need to do anything more.
 						 */
-						cur_keyword = NULL; /* No CHECK constraint keyword deletion happened in this case */
 					}
 				} else if (noted_column != cur_column) {
 					/* The CHECK constraint references only one column but is defined as part of a different
@@ -283,57 +311,40 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 					 * referenced column.
 					 */
 					/* Delete CHECK constraint keyword from current column's keyword linked list */
-					dqdel(cur_keyword);
+					DQDELKEYWORD(cur_keyword, start_keyword, start_keyword_changed, cur_column->keywords);
 					/* Move this keyword to the noted column */
 					if (NULL == noted_column->keywords->v.keyword) {
 						noted_column->keywords->v.keyword = cur_keyword;
 					} else {
 						dqappend(noted_column->keywords->v.keyword, cur_keyword);
 					}
+					if (NULL == cur_column->columnName) {
+						/* An empty current column name implies the CHECK constraint is already part of
+						 * a table-level constraint. Now that it has been moved to a column-level
+						 * constraint, remove this column as its only purpose was to store the
+						 * table-level constraint.
+						 */
+						DQDELCOLUMN(cur_column, start_column, start_column_changed, table->columns);
+					}
 				} else {
 					/* The CHECK constraint references only one column and is already part of that column
-					 * level constraint. No more moves needed.
+					 * level constraint. No more changes needed.
 					 */
-					cur_keyword = NULL; /* No CHECK constraint keyword deletion happened in this case */
-				}
-				if (NULL != cur_keyword) {
-					/* If CHECK constraint keyword had been deleted from current keyword linked list,
-					 * do pointer adjustment as appropriate.
-					 */
-					if (cur_keyword != next_keyword) {
-						if (start_keyword == cur_keyword) {
-							/* We are removing the first keyword from the keyword linked list.
-							 * Adjust pointers.
-							 */
-							cur_column->keywords->v.keyword = next_keyword;
-							start_keyword = next_keyword;
-						}
-						cur_keyword = next_keyword;
-						continue; /* Need this (and not a "break") to ensure we go on to the next
-							   * iteration of the enclosing do/while loop.
-							   */
-					} else {
-						/* The only keyword in this column is being deleted.
-						 * Allocate a dummy NO_KEYWORD keyword as the keyword list is expected
-						 * to be non-empty by various parts of the code.
-						 */
-						assert(cur_keyword == start_keyword);
-						cur_column->keywords = alloc_no_keyword();
-						start_keyword = next_keyword; /* helps break out of enclosing do/while loop */
-						break;
-					}
 				}
 				break;
 			default:
 				break;
 			}
 			cur_keyword = next_keyword;
-			if (cur_keyword == start_keyword) {
+			if ((NULL == start_keyword) || (!start_keyword_changed && (cur_keyword == start_keyword))) {
 				break;
 			}
 		} while (TRUE);
-		cur_column = cur_column->next;
-	} while (cur_column != start_column);
+		cur_column = next_column;
+		if ((NULL == start_column) || (!start_column_changed && (cur_column == start_column))) {
+			break;
+		}
+	} while (TRUE);
 	/* ==============================================================================================================
 	 * Now that CHECK constraint reordering has happened (if needed), do scan/processing of all column-level keywords.
 	 * And auto assign constraint names if not specified by the user.
@@ -401,7 +412,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 					UNPACK_SQL_STATEMENT(value, table->tableName, value);
 					table_name = value->v.reference;
 					if (NULL == cur_column->columnName) {
-						column_name = "";
+						column_name = NULL;
 					} else {
 						SqlValue *column_name_val;
 						UNPACK_SQL_STATEMENT(column_name_val, cur_column->columnName, value);
@@ -420,11 +431,21 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 						 * the name becomes more than 63.
 						 */
 						if (!num) {
-							snprintf(constraint_name, sizeof(constraint_name), "%s_%s_%s", table_name,
-								 column_name, OCTOLIT_CHECK);
+							if (NULL == column_name) {
+								snprintf(constraint_name, sizeof(constraint_name), "%s_%s",
+									 table_name, OCTOLIT_CHECK);
+							} else {
+								snprintf(constraint_name, sizeof(constraint_name), "%s_%s_%s",
+									 table_name, column_name, OCTOLIT_CHECK);
+							}
 						} else {
-							snprintf(constraint_name, sizeof(constraint_name), "%s_%s_%s%d", table_name,
-								 column_name, OCTOLIT_CHECK, num);
+							if (NULL == column_name) {
+								snprintf(constraint_name, sizeof(constraint_name), "%s_%s%d",
+									 table_name, OCTOLIT_CHECK, num);
+							} else {
+								snprintf(constraint_name, sizeof(constraint_name), "%s_%s_%s%d",
+									 table_name, column_name, OCTOLIT_CHECK, num);
+							}
 						}
 						/* Check if generated name exists. If so, try next number suffix. */
 						YDB_STRING_TO_BUFFER(constraint_name, &subs[1]);
@@ -479,7 +500,6 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				if (YDB_OK != status) {
 					return NULL;
 				}
-				cur_keyword->v = NULL; /* TODO: YDBOcto#772: Temporarily set this to get tests to pass */
 				break;
 			default:
 				break;
@@ -744,29 +764,32 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		 */
 		piece_keyword = get_keyword(cur_column, OPTIONAL_PIECE);
 		remove_piece_keyword = FALSE;
-		if (!IS_KEY_COLUMN(cur_column)) {
-			/* Add PIECE keyword only if DELIM is not "" and column isn't an EXTRACT field */
-			if (NULL == piece_keyword) {
-				if (!delim_is_empty && !is_extract) {
-					SqlOptionalKeyword *column_keywords, *new_piece_keyword;
+		if (NULL != cur_column->columnName) {
+			if (!IS_KEY_COLUMN(cur_column)) {
+				/* Add PIECE keyword only if DELIM is not "" and column isn't an EXTRACT field */
+				if (NULL == piece_keyword) {
+					if (!delim_is_empty && !is_extract) {
+						SqlOptionalKeyword *column_keywords, *new_piece_keyword;
 
-					new_piece_keyword = add_optional_piece_keyword_to_sql_column(piece_number);
-					UNPACK_SQL_STATEMENT(column_keywords, cur_column->keywords, keyword);
-					dqappend(column_keywords, new_piece_keyword);
+						new_piece_keyword = add_optional_piece_keyword_to_sql_column(piece_number);
+						UNPACK_SQL_STATEMENT(column_keywords, cur_column->keywords, keyword);
+						dqappend(column_keywords, new_piece_keyword);
+					}
+					/* PIECE was not explicitly specified for this non-key column so count this column towards
+					 * the default piece number that is used for other non-key columns with no PIECE specified.
+					 * Note that this is done even in the case DELIM "" is specified for a non-key column.
+					 */
+					piece_number++;
+				} else if (delim_is_empty || is_extract) {
+					/* PIECE numbers are not applicable for non-key columns with DELIM "" or EXTRACT so remove
+					 * it
+					 */
+					remove_piece_keyword = TRUE;
 				}
-				/* PIECE was not explicitly specified for this non-key column so count this column towards
-				 * the default piece number that is used for other non-key columns with no PIECE specified.
-				 * Note that this is done even in the case DELIM "" is specified for a non-key column.
-				 */
-				piece_number++;
-			} else if (delim_is_empty || is_extract) {
-				/* PIECE numbers are not applicable for non-key columns with DELIM "" or EXTRACT so remove it
-				 */
+			} else if (NULL != piece_keyword) {
+				/* PIECE numbers (if specified) are not applicable for primary key columns so remove it */
 				remove_piece_keyword = TRUE;
 			}
-		} else if (NULL != piece_keyword) {
-			/* PIECE numbers (if specified) are not applicable for primary key columns so remove it */
-			remove_piece_keyword = TRUE;
 		}
 		if (remove_piece_keyword) {
 			SqlOptionalKeyword *next;
@@ -877,10 +900,11 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			}
 			cur_keyword = cur_keyword->next;
 		} while (cur_keyword != start_keyword);
-		if (!is_key_column) {
-			/* If it is not a key column, treat it as a column with a PIECE number
-			 * (explicitly specified or implicitly assumed). The only exception is if DELIM ""
-			 * is also specified in the column. If so delete the PIECE keyword as it is ignored.
+		if ((NULL != cur_column->columnName) && (!is_key_column)) {
+			/* If it is a column with a name (i.e. not a table level constraint) and is not a key column,
+			 * treat it as a column with a PIECE number (explicitly specified or implicitly assumed).
+			 * The only exception is if DELIM "" is also specified in the column.
+			 * If so delete the PIECE keyword as it is ignored.
 			 */
 			SqlValue *lcl_value;
 
@@ -907,7 +931,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				}
 				if (delim_is_empty && (NULL != piece_keyword)) {
 					/* Delete the PIECE keyword (anyways going to be ignored) */
-					DQDEL(piece_keyword, start_keyword, cur_column->keywords);
+					DQDELKEYWORD(piece_keyword, start_keyword, start_keyword_changed, cur_column->keywords);
 					piece_keyword = NULL;
 				}
 			}
@@ -925,14 +949,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				}
 			}
 		}
-		SqlColumn *save_cur_column;
-
-		save_cur_column = cur_column;
 		cur_column = cur_column->next;
-		/* TODO: YDBOcto#772: Temporarily remove table-level constraint to get tests to pass */
-		if (NULL == save_cur_column->columnName) {
-			dqdel(save_cur_column);
-		}
 	} while (cur_column != start_column);
 	if (1 == num_non_key_columns) {
 		/* Only one non-key column in the table. If so, check if column-level PIECE number (if any specified) is 1
@@ -964,10 +981,12 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 
 				delim_keyword = get_keyword_from_keywords(start_keyword, OPTIONAL_DELIM);
 				if (NULL != delim_keyword) {
-					DQDEL(delim_keyword, start_keyword, first_non_key_column->keywords);
+					DQDELKEYWORD(delim_keyword, start_keyword, start_keyword_changed,
+						     first_non_key_column->keywords);
 				}
 				if (NULL != piece_keyword) {
-					DQDEL(piece_keyword, start_keyword, first_non_key_column->keywords);
+					DQDELKEYWORD(piece_keyword, start_keyword, start_keyword_changed,
+						     first_non_key_column->keywords);
 				}
 				/* Add DELIM "" keyword */
 				OCTO_CMALLOC_STRUCT(delim_keyword, SqlOptionalKeyword);

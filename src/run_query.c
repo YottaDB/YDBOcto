@@ -689,9 +689,9 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			free(buffer);
 			buffer = NULL; // So CLEANUP_AND_RETURN_WITH_ERROR* macro calls below do not try "free(buffer)"
 
-			/* First store function name in catalog. As we need that OID to store in the binary table
-			 * definition. The below call also sets table->oid which is needed before the call to
-			 * "compress_statement" as that way the oid also gets stored in the binary table definition.
+			/* First store function name in catalog. As we need that OID to store in the binary function
+			 * definition. The below call also sets function->oid which is needed before the call to
+			 * "compress_statement" as that way the oid also gets stored in the binary function definition.
 			 * It also checks if there are too many parameters and if so issues an error. Therefore it is best
 			 * that we do this step first.
 			 */

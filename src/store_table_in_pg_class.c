@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -119,73 +119,75 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 		int   atttypid;
 		char *column_name;
 
-		switch (cur_column->data_type_struct.data_type) {
-		/* Below atttypid values were obtained from Postgres using the below query.
-		 *	`select typname,oid from pg_type where typname in ('numeric','int4','varchar','bool');`
-		 */
-		case BOOLEAN_TYPE:
-			atttypid = 16;
-			break;
-		case INTEGER_TYPE:
-			atttypid = 23;
-			break;
-		case STRING_TYPE:
-			atttypid = 1043;
-			break;
-		case NUMERIC_TYPE:
-			atttypid = 1700;
-			break;
-		default:
-			assert(FALSE);
-			status = 1;
-			ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
-			break;
-		}
-		if (YDB_OK != status) {
-			break;
-		}
-		UNPACK_SQL_STATEMENT(value, cur_column->columnName, value);
-		column_name = value->v.string_literal;
-		// Convert name to upper case
-		TOUPPER_STR(column_name);
-		column_name = value->v.string_literal;
-		/* Store table oid, column name, type,
-		 * These are hard-coded magic values related to the Postgres catalog
-		 * Columns of `pg_catalog.pg_attribute` table in `tests/fixtures/postgres.sql`.
-		 * Any changes to that table definition will require changes here too.
-		 */
-		copied = snprintf(buffer, sizeof(buffer), "%lld|%s|%d|-1|-1|2|0|-1|-1|0|x|i|0|0|0|\"\"|0|1|0|100||||", class_oid,
-				  column_name, atttypid);
-		assert(sizeof(buffer) > copied);
-		UNUSED(copied);
-		/* Get a unique oid COLUMNOID for each column in the table.
-		 * 	i.e. $INCREMENT(^%ydboctoocto(OCTOLIT_OID))
-		 */
-		status = ydb_incr_s(&oid_buffer[0], 1, &oid_buffer[1], NULL, &pg_attribute[4]);
-		YDB_ERROR_CHECK(status);
-		if (YDB_OK != status) {
-			break;
-		}
-		/* Set the column name as having an oid of COLUMNOID in the pg_catalog.
-		 * 	i.e. SET ^%ydboctoocto(OCTOLIT_TABLES,OCTOLIT_PG_CATALOG,OCTOLIT_PG_ATTRIBUTE,COLUMNOID)=...
-		 */
-		status = ydb_set_s(&pg_attribute[0], 4, &pg_attribute[1], &buffer_b);
-		YDB_ERROR_CHECK(status);
-		if (YDB_OK != status) {
-			break;
-		}
-		/* Store a cross reference of the COLUMNOID in ^%ydboctoschema.
-		 *	i.e. SET^ %ydboctoschema(TABLENAME,OCTOLIT_PG_ATTRIBUTE,COLUMNNAME)=COLUMNOID
-		 */
-		column_name = value->v.string_literal;
-		// Convert name to upper case
-		TOUPPER_STR(column_name);
-		column_name = value->v.string_literal;
-		YDB_STRING_TO_BUFFER(column_name, &pg_attribute_schema[2]);
-		status = ydb_set_s(&schema_global, 3, &pg_attribute_schema[0], &pg_attribute[4]);
-		YDB_ERROR_CHECK(status);
-		if (YDB_OK != status) {
-			break;
+		if (NULL != cur_column->columnName) {
+			switch (cur_column->data_type_struct.data_type) {
+			/* Below atttypid values were obtained from Postgres using the below query.
+			 *	`select typname,oid from pg_type where typname in ('numeric','int4','varchar','bool');`
+			 */
+			case BOOLEAN_TYPE:
+				atttypid = 16;
+				break;
+			case INTEGER_TYPE:
+				atttypid = 23;
+				break;
+			case STRING_TYPE:
+				atttypid = 1043;
+				break;
+			case NUMERIC_TYPE:
+				atttypid = 1700;
+				break;
+			default:
+				assert(FALSE);
+				status = 1;
+				ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
+				break;
+			}
+			if (YDB_OK != status) {
+				break;
+			}
+			UNPACK_SQL_STATEMENT(value, cur_column->columnName, value);
+			column_name = value->v.string_literal;
+			// Convert name to upper case
+			TOUPPER_STR(column_name);
+			column_name = value->v.string_literal;
+			/* Store table oid, column name, type,
+			 * These are hard-coded magic values related to the Postgres catalog
+			 * Columns of `pg_catalog.pg_attribute` table in `tests/fixtures/postgres.sql`.
+			 * Any changes to that table definition will require changes here too.
+			 */
+			copied = snprintf(buffer, sizeof(buffer), "%lld|%s|%d|-1|-1|2|0|-1|-1|0|x|i|0|0|0|\"\"|0|1|0|100||||",
+					  class_oid, column_name, atttypid);
+			assert(sizeof(buffer) > copied);
+			UNUSED(copied);
+			/* Get a unique oid COLUMNOID for each column in the table.
+			 * 	i.e. $INCREMENT(^%ydboctoocto(OCTOLIT_OID))
+			 */
+			status = ydb_incr_s(&oid_buffer[0], 1, &oid_buffer[1], NULL, &pg_attribute[4]);
+			YDB_ERROR_CHECK(status);
+			if (YDB_OK != status) {
+				break;
+			}
+			/* Set the column name as having an oid of COLUMNOID in the pg_catalog.
+			 * 	i.e. SET ^%ydboctoocto(OCTOLIT_TABLES,OCTOLIT_PG_CATALOG,OCTOLIT_PG_ATTRIBUTE,COLUMNOID)=...
+			 */
+			status = ydb_set_s(&pg_attribute[0], 4, &pg_attribute[1], &buffer_b);
+			YDB_ERROR_CHECK(status);
+			if (YDB_OK != status) {
+				break;
+			}
+			/* Store a cross reference of the COLUMNOID in ^%ydboctoschema.
+			 *	i.e. SET^ %ydboctoschema(TABLENAME,OCTOLIT_PG_ATTRIBUTE,COLUMNNAME)=COLUMNOID
+			 */
+			column_name = value->v.string_literal;
+			// Convert name to upper case
+			TOUPPER_STR(column_name);
+			column_name = value->v.string_literal;
+			YDB_STRING_TO_BUFFER(column_name, &pg_attribute_schema[2]);
+			status = ydb_set_s(&schema_global, 3, &pg_attribute_schema[0], &pg_attribute[4]);
+			YDB_ERROR_CHECK(status);
+			if (YDB_OK != status) {
+				break;
+			}
 		}
 		cur_column = cur_column->next;
 	} while (cur_column != start_column);

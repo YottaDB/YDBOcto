@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -34,3 +34,40 @@ setup() {
 	load_fixture TCTC003.sql subtest novv
 	verify_output TCTC003 output.txt
 }
+
+@test "TCTC004 : OCTO772 : Test slight changes in CHECK constraint change plan hash for otherwise identical tables" {
+	skip	# TODO : YDBOcto#772 : Remove this line once CHECK CONSTRAINT functionality is fully supported
+	echo "# Run same query against 6 almost similar CREATE TABLE statements" >> output.txt
+	echo "# The only difference in the CREATE TABLE is some literals used inside the CHECK constraint" >> output.txt
+	filename="TCTC004.sql"
+	for colname in id firstname lastname
+	do
+		for const in 5 6
+		do
+			echo "DROP TABLE IF EXISTS tmp;" >> $filename
+			echo "CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)," >> $filename
+			echo "	CHECK (($colname is null) and ($const is null)));" >> $filename
+			echo "SELECT * from tmp;" >> $filename
+		done
+	done
+	octo -vv -f TCTC004.sql >& TCTC004.out
+	echo "# Search for INFO_M_PLAN messages and sort -u the output. We expect to see 6 different plans below." >> output.txt
+	grep "INFO_M_PLAN" TCTC004.out | sed 's/.*Generating //g' | sort -u >> output.txt
+	verify_output TCTC004 output.txt
+}
+
+@test "TCTC005 : OCTO772 : Test CHECK constraint shows up correctly in CREATE TABLE text definition" {
+	skip	# TODO : YDBOcto#772 : Remove this line once CHECK CONSTRAINT functionality is fully supported
+	testname="TCTC005"
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/$testname.sql .
+	grep '^create table' $testname.sql | awk '{printf "select * from %s;\n", $3}' >> select.sql
+	echo "# Run lots of CREATE TABLE commands that test various syntax for CHECK constraints"
+	load_fixture $testname.sql subtest novv
+	echo "# Execute SELECT * queries for all the tables created above"
+	octo -f select.sql >> output.txt
+	echo "# Verify CHECK constraints are correctly stored in the CREATE TABLE text definition (in global variable nodes)"
+	$ydb_dist/mupip extract $testname.ext
+	grep -w "text" $testname.ext | grep TMP | sed 's/ GLOBAL .*//g;s/.*CREATE TABLE //g;' >> output.txt
+	verify_output $testname output.txt
+}
+

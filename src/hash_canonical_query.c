@@ -659,6 +659,15 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		hash_canonical_query(state, column->table, status);
 		hash_canonical_query(state, column->keywords, status);
 		break;
+	case constraint_STATEMENT:;
+		// This is a valid case in "hash_canonical_query" but is not a case in "populate_data_type"
+		SqlConstraint *constraint;
+
+		UNPACK_SQL_STATEMENT(constraint, stmt, constraint);
+		ADD_INT_HASH(state, constraint_STATEMENT);
+		hash_canonical_query(state, constraint->name, status);
+		hash_canonical_query(state, constraint->definition, status);
+		break;
 	default:
 		assert(FALSE);
 		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");

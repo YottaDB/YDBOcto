@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -98,9 +98,34 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 			cur_parameter_type_list = cur_parameter_type_list->next;
 		} while (cur_parameter_type_list != start_parameter_type_list);
 		break;
+	case data_type_struct_STATEMENT:
+		/* Not possible as we would have returned earlier. But included to avoid a [-Wswitch] compiler warning. */
+		assert(FALSE);
+		break;
 	case value_STATEMENT:
 		UNPACK_SQL_STATEMENT(value, stmt, value);
-		value->v.string_literal = R2A(value->v.string_literal);
+		switch (value->type) {
+		case CALCULATED_VALUE:
+			CALL_DECOMPRESS_HELPER(value->v.calculated, out, out_length);
+			break;
+		case COERCE_TYPE:
+			CALL_DECOMPRESS_HELPER(value->v.coerce_target, out, out_length);
+			break;
+		case BOOLEAN_VALUE:
+		case NUMERIC_LITERAL:
+		case INTEGER_LITERAL:
+		case STRING_LITERAL:
+		case DELIM_VALUE:
+		case NUL_VALUE:
+		case FUNCTION_NAME:
+		case FUNCTION_HASH:
+		case COLUMN_REFERENCE:
+			value->v.string_literal = R2A(value->v.string_literal);
+			break;
+		default:
+			assert(FALSE);
+			break;
+		}
 		break;
 	case column_STATEMENT:
 		UNPACK_SQL_STATEMENT(cur_column, stmt, column);
@@ -139,11 +164,134 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 		SqlConstraint *constraint;
 
 		UNPACK_SQL_STATEMENT(constraint, stmt, constraint);
-		UNUSED(constraint); /* TODO: YDBOcto#772: Remove this line when below lines are uncommented */
-		/* TODO: YDBOcto#772: Need to handle constraint->name */
-		/* TODO: YDBOcto#772: Need to handle constraint->definition */
+		CALL_DECOMPRESS_HELPER(constraint->name, out, out_length);
+		CALL_DECOMPRESS_HELPER(constraint->definition, out, out_length);
 		break;
-	default:
+	case unary_STATEMENT:;
+		SqlUnaryOperation *unary;
+
+		UNPACK_SQL_STATEMENT(unary, stmt, unary);
+		CALL_DECOMPRESS_HELPER(unary->operand, out, out_length);
+		break;
+	case binary_STATEMENT:;
+		int		    i;
+		SqlBinaryOperation *binary;
+
+		UNPACK_SQL_STATEMENT(binary, stmt, binary);
+		for (i = 0; i < 2; i++) {
+			CALL_DECOMPRESS_HELPER(binary->operands[i], out, out_length);
+		}
+		break;
+	case function_call_STATEMENT:;
+		SqlFunctionCall *function_call;
+
+		UNPACK_SQL_STATEMENT(function_call, stmt, function_call);
+		CALL_DECOMPRESS_HELPER(function_call->function_name, out, out_length);
+		CALL_DECOMPRESS_HELPER(function_call->function_schema, out, out_length);
+		CALL_DECOMPRESS_HELPER(function_call->parameters, out, out_length);
+		/* YDBOcto#772 TODO : Validate that the function oid noted at compress_statement.c time still exists.
+		 * (i.e. the function did not get deleted in between because a CHECK constraint relied on it).
+		 * DROP FUNCTION on that function in the meantime should have errored out.
+		 */
+		break;
+	case coalesce_STATEMENT:;
+		SqlCoalesceCall *coalesce_call;
+
+		UNPACK_SQL_STATEMENT(coalesce_call, stmt, coalesce);
+		CALL_DECOMPRESS_HELPER(coalesce_call->arguments, out, out_length);
+		break;
+	case greatest_STATEMENT:;
+		SqlGreatest *greatest;
+
+		UNPACK_SQL_STATEMENT(greatest, stmt, greatest);
+		CALL_DECOMPRESS_HELPER(greatest->arguments, out, out_length);
+		break;
+	case least_STATEMENT:;
+		SqlLeast *least;
+
+		UNPACK_SQL_STATEMENT(least, stmt, least);
+		CALL_DECOMPRESS_HELPER(least->arguments, out, out_length);
+		break;
+	case null_if_STATEMENT:;
+		SqlNullIf *null_if;
+
+		UNPACK_SQL_STATEMENT(null_if, stmt, null_if);
+		CALL_DECOMPRESS_HELPER(null_if->left, out, out_length);
+		CALL_DECOMPRESS_HELPER(null_if->right, out, out_length);
+		break;
+	case column_list_STATEMENT:;
+		SqlColumnList *start_column_list, *cur_column_list;
+
+		UNPACK_SQL_STATEMENT(start_column_list, stmt, column_list);
+		cur_column_list = start_column_list;
+		do {
+			CALL_DECOMPRESS_HELPER(cur_column_list->value, out, out_length);
+			if (cur_column_list->next == 0) {
+				cur_column_list->next = start_column_list;
+			} else {
+				cur_column_list->next = R2A(cur_column_list->next);
+			}
+			cur_column_list->next->prev = cur_column_list;
+			cur_column_list = cur_column_list->next;
+		} while (cur_column_list != start_column_list);
+		break;
+	case cas_STATEMENT:;
+		SqlCaseStatement *cas;
+
+		UNPACK_SQL_STATEMENT(cas, stmt, cas);
+		CALL_DECOMPRESS_HELPER(cas->value, out, out_length);
+		CALL_DECOMPRESS_HELPER(cas->branches, out, out_length);
+		CALL_DECOMPRESS_HELPER(cas->optional_else, out, out_length);
+		break;
+	case cas_branch_STATEMENT:;
+		SqlCaseBranchStatement *start_cas_branch, *cur_cas_branch;
+
+		UNPACK_SQL_STATEMENT(start_cas_branch, stmt, cas_branch);
+		cur_cas_branch = start_cas_branch;
+		do {
+			CALL_DECOMPRESS_HELPER(cur_cas_branch->condition, out, out_length);
+			CALL_DECOMPRESS_HELPER(cur_cas_branch->value, out, out_length);
+			if (cur_cas_branch->next == 0) {
+				cur_cas_branch->next = start_cas_branch;
+			} else {
+				cur_cas_branch->next = R2A(cur_cas_branch->next);
+			}
+			cur_cas_branch->next->prev = cur_cas_branch;
+			cur_cas_branch = cur_cas_branch->next;
+		} while (cur_cas_branch != start_cas_branch);
+		break;
+
+	/* The below types are not possible currently in a CREATE TABLE definition */
+	case select_STATEMENT:
+	case insert_STATEMENT:
+	case drop_table_STATEMENT:
+	case drop_function_STATEMENT:
+	case aggregate_function_STATEMENT:
+	case join_STATEMENT:
+	case column_list_alias_STATEMENT:
+	case column_alias_STATEMENT:
+	case table_alias_STATEMENT:
+	case set_operation_STATEMENT:
+	case begin_STATEMENT:
+	case commit_STATEMENT:
+	case set_STATEMENT:
+	case show_STATEMENT:
+	case no_data_STATEMENT:
+	case delim_char_list_STATEMENT:
+	case index_STATEMENT:
+	case join_type_STATEMENT:
+	case discard_all_STATEMENT:
+	case row_value_STATEMENT:
+	case table_value_STATEMENT:
+	case array_STATEMENT:
+	case history_STATEMENT:
+	case delete_from_STATEMENT:
+	case update_STATEMENT:
+	case display_relation_STATEMENT:
+	case invalid_STATEMENT:
+		/* Do not add "default:" case as we want to enumerate each explicit case here instead of having a
+		 * general purpose bucket where all types not listed above fall into as that could hide subtle bugs.
+		 */
 		assert(FALSE);
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 		return NULL;

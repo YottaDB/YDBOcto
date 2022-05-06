@@ -807,10 +807,35 @@ typedef enum RegexType {
 
 #define MAX_TYPE_NAME_LEN 16 /* maximum length of a type name displayed to the user */
 
+#define INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(BUFFER, BUFFER_SIZE, BUFF_PTR, ...)                            \
+	{                                                                                                          \
+		int index;                                                                                         \
+                                                                                                                   \
+		index = *BUFF_PTR - *BUFFER; /* Save current index into buffer to apply after resize, if needed */ \
+		assert((0 <= index) && (*BUFFER_SIZE >= index));                                                   \
+		/* Attempt to print value into buffer. If it won't fit, expand buffer and try again */             \
+		*BUFF_PTR += snprintf(*BUFF_PTR, *BUFFER_SIZE - index, ##__VA_ARGS__);                             \
+		while (0 >= (*BUFFER_SIZE - (*BUFF_PTR - *BUFFER))) {                                              \
+			char *tmp;                                                                                 \
+			int   new_size;                                                                            \
+                                                                                                                   \
+			new_size = *BUFFER_SIZE * 2;                                                               \
+			tmp = (char *)malloc(sizeof(char) * new_size);                                             \
+			memcpy(tmp, *BUFFER, *BUFFER_SIZE);                                                        \
+			free(*BUFFER);                                                                             \
+			*BUFFER = tmp;                                                                             \
+			*BUFFER_SIZE = new_size;                                                                   \
+			assert((0 <= index) && (*BUFFER_SIZE >= index));                                           \
+			*BUFF_PTR = *BUFFER + index;                                                               \
+			*BUFF_PTR += snprintf(*BUFF_PTR, *BUFFER_SIZE - index, ##__VA_ARGS__);                     \
+		}                                                                                                  \
+	}
+
 // Convenience type definition for run_query callback function
 typedef int (*callback_fnptr_t)(SqlStatement *, ydb_long_t, void *, char *, PSQL_MessageTypeT);
 
 int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_column);
+int emit_check_constraint(char **buffer, int *buffer_size, char **buff_ptr, struct SqlStatement *stmt);
 int emit_create_table(FILE *output, struct SqlStatement *stmt);
 int emit_create_function(FILE *output, struct SqlStatement *stmt);
 // Recursively copies all of stmt, including making copies of strings
@@ -869,7 +894,9 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 
 char *	      get_aggregate_func_name(SqlAggregateType type);
 char *	      get_set_operation_string(SqlSetOperationType type);
+char *	      get_user_visible_binary_operator_string(enum BinaryOperations operation);
 char *	      get_user_visible_type_string(SqlValueType type);
+char *	      get_user_visible_unary_operator_string(enum UnaryOperations operation);
 SqlStatement *get_display_relation_query_stmt(ParseContext *parse_context);
 
 // GROUP BY expression support functions

@@ -454,7 +454,12 @@ typedef struct SqlDataTypeStruct {
  *  we are dealing with a SELECT column list because the column may be a calculated column
  */
 typedef struct SqlColumn {
-	struct SqlStatement *	 columnName;
+	struct SqlStatement *columnName; /* is non-NULL in most cases. Can be NULL in case this structure
+					  * corresponds to a table-level constraint. It might be better to
+					  * have a separate `boolean_t` field indicating whether a column
+					  * is a constraint or not. Doesn't seem necessary at this point
+					  * but might be something to consider for the future.
+					  */
 	struct SqlDataTypeStruct data_type_struct;
 	int			 column_number;
 	boolean_t		 is_hidden_keycol;
@@ -890,7 +895,6 @@ typedef struct SqlConstraint {
 					  * e.g. For OPTIONAL_CHECK_CONSTRAINT, this will point to the CHECK condition
 					  *      that needs to be satisfied.
 					  */
-	dqcreate(SqlConstraint);
 } SqlConstraint;
 
 typedef struct SqlDisplayRelation {

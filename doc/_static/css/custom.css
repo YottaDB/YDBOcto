@@ -71,3 +71,15 @@ pre,code,.rst-content tt,.rst-content code,kbd,samp {
     src: url("https://docs.yottadb.com/Fonts/FiraGO-Light.woff");
     font-weight: 200;
 }
+
+@font-face {
+    font-family: "Inconsolata";
+    src: url("https://docs.yottadb.com/Fonts/Inconsolata-Regular.ttf");
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: "Lora";
+    src: url("https://docs.yottadb.com/Fonts/Lora-Bold.ttf");
+    font-weight: 700;
+}

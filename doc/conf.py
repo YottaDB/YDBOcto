@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2018-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2018-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -40,8 +40,6 @@ import sphinx_rtd_theme
 #
 # needs_sphinx = '1.0'
 
-def setup(app):
-                app.add_css_file('custom.css')
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom

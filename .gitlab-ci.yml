@@ -143,7 +143,8 @@ test-auto-upgrade:
     - .ubuntu
   script:
     # We use python3 in our tests, but previous commits require python2, and so we need it for the test-auto-upgrade job to pass
-    - apt-get install -y -qq --no-install-recommends python2 python-is-python2
+    # We previously used netstat, and that's why we install net-tools
+    - apt-get install -y -qq --no-install-recommends python2 python-is-python2 net-tools
     - ./tools/ci/build.sh "test-auto-upgrade" "binary"
 
 test-vista:

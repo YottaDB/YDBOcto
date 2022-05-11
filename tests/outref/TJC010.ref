@@ -7,5 +7,5 @@
 3|Lord|Nikon
 2|Cereal|Killer
 4|Joey|null
-[SOCKET] [TRACE] PATH:LINENUM DATE TIME : INFO_MEM_REALLOCATION : Memory doubled for variable parse_context->is_bind_parm
-[SOCKET] [TRACE] PATH:LINENUM DATE TIME : INFO_MEM_REALLOCATION : Memory doubled for variable parse_context->is_bind_parm
+[SOCKET] [TRACE] PATH:LINENUM DATE TIME: INFO_MEM_REALLOCATION: Memory doubled for variable parse_context->is_bind_parm
+[SOCKET] [TRACE] PATH:LINENUM DATE TIME: INFO_MEM_REALLOCATION: Memory doubled for variable parse_context->is_bind_parm

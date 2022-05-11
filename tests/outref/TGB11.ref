@@ -19,75 +19,39 @@ SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY unknowncol
 SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY n1.id,n2.id,unknowncolumn);
 SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY n1.id,unknowncolumn,n2.id);
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: UNKNOWNCOLUMN
-Error with syntax near (line 1, column 30):
-
-SELECT 1 FROM names GROUP BY unknowncolumn;
-                             ^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT 1 FROM names GROUP BY unknowncolumn;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: UNKNOWNCOLUMN
-Error with syntax near (line 1, column 77):
-
-SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY n1.id,unknowncolumn);
-                                                                            ^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY n1.id,unknowncolumn);
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: UNKNOWNCOLUMN
-Error with syntax near (line 1, column 71):
-
-SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY unknowncolumn,n1.id);
-                                                                      ^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY unknowncolumn,n1.id);
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: N1.UNKNOWNCOLUMN
-Error with syntax near (line 1, column 71):
-
-SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY n1.unknowncolumn);
-                                                                      ^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY n1.unknowncolumn);
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: UNKNOWNCOLUMN
-Error with syntax near (line 1, column 77):
-
-SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY n2.id,unknowncolumn);
-                                                                            ^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY n2.id,unknowncolumn);
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: UNKNOWNCOLUMN
-Error with syntax near (line 1, column 71):
-
-SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY unknowncolumn,n2.id);
-                                                                      ^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY unknowncolumn,n2.id);
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: UNKNOWNCOLUMN
-Error with syntax near (line 1, column 83):
-
-SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY n2.id,n1.id,unknowncolumn);
-                                                                                  ^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY n2.id,n1.id,unknowncolumn);
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: UNKNOWNCOLUMN
-Error with syntax near (line 1, column 77):
-
-SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY n2.id,unknowncolumn,n1.id);
-                                                                            ^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY n2.id,unknowncolumn,n1.id);
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: UNKNOWNCOLUMN
-Error with syntax near (line 1, column 71):
-
-SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY unknowncolumn,n1.id,n2.id);
-                                                                      ^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY unknowncolumn,n1.id,n2.id);
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: UNKNOWNCOLUMN
-Error with syntax near (line 1, column 71):
-
-SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY unknowncolumn,n2.id,n1.id);
-                                                                      ^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY unknowncolumn,n2.id,n1.id);
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: UNKNOWNCOLUMN
-Error with syntax near (line 1, column 83):
-
-SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY n1.id,n2.id,unknowncolumn);
-                                                                                  ^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY n1.id,n2.id,unknowncolumn);
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: UNKNOWNCOLUMN
-Error with syntax near (line 1, column 77):
-
-SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY n1.id,unknowncolumn,n2.id);
-                                                                            ^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY n1.id,unknowncolumn,n2.id);
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: UNKNOWNCOLUMN
+LINE 1: SELECT 1 FROM names GROUP BY unknowncolumn;
+                                     ^^^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: UNKNOWNCOLUMN
+LINE 1: ... n1.id = (SELECT 1 FROM names n2 GROUP BY n1.id,unknowncolumn);
+                                                           ^^^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: UNKNOWNCOLUMN
+LINE 1: ... n1.id = (SELECT 1 FROM names n2 GROUP BY unknowncolumn,n1.id);
+                                                     ^^^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N1.UNKNOWNCOLUMN
+LINE 1: ...HERE n1.id = (SELECT 1 FROM names n2 GROUP BY n1.unknowncolumn);
+                                                         ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: UNKNOWNCOLUMN
+LINE 1: ... n1.id = (SELECT 1 FROM names n2 GROUP BY n2.id,unknowncolumn);
+                                                           ^^^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: UNKNOWNCOLUMN
+LINE 1: ... n1.id = (SELECT 1 FROM names n2 GROUP BY unknowncolumn,n2.id);
+                                                     ^^^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: UNKNOWNCOLUMN
+LINE 1: ... = (SELECT 1 FROM names n2 GROUP BY n2.id,n1.id,unknowncolumn);
+                                                           ^^^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: UNKNOWNCOLUMN
+LINE 1: ... = (SELECT 1 FROM names n2 GROUP BY n2.id,unknowncolumn,n1.id);
+                                                     ^^^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: UNKNOWNCOLUMN
+LINE 1: ... = (SELECT 1 FROM names n2 GROUP BY unknowncolumn,n1.id,n2.id);
+                                               ^^^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: UNKNOWNCOLUMN
+LINE 1: ... = (SELECT 1 FROM names n2 GROUP BY unknowncolumn,n2.id,n1.id);
+                                               ^^^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: UNKNOWNCOLUMN
+LINE 1: ... = (SELECT 1 FROM names n2 GROUP BY n1.id,n2.id,unknowncolumn);
+                                                           ^^^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: UNKNOWNCOLUMN
+LINE 1: ... = (SELECT 1 FROM names n2 GROUP BY n1.id,unknowncolumn,n2.id);
+                                                     ^^^^^^^^^^^^^

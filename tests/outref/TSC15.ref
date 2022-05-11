@@ -4,16 +4,9 @@ select c,b from (select 1 as a, 2 as b);
 A|B
 1|2
 (1 row)
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: C
-Error with syntax near (line 1, column 10):
-
-select a,c from (select 1 as a, 2 as b);
-         ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select a,c from (select 1 as a, 2 as b);
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: C
-Error with syntax near (line 1, column 8):
-
-select c,b from (select 1 as a, 2 as b);
-       ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select c,b from (select 1 as a, 2 as b);
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: C
+LINE 1: select a,c from (select 1 as a, 2 as b);
+                 ^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: C
+LINE 1: select c,b from (select 1 as a, 2 as b);
+               ^

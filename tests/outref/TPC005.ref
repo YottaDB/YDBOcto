@@ -1,6 +1,4 @@
 select * from names where $1 = $2;
 ERROR:  Prepared statement dollar syntax (e.g. $1, $2, etc.) only supported in Rocto using the Extended Query Protocol
-ERROR:  Error with syntax near (line 1, column 26):
-ERROR:  select * from names where $1 = $2;
-ERROR:                            ^^
-ERROR:  Error parsing statement: select * from names where $1 = $2;
+ERROR:  LINE 1: select * from names where $1 = $2;
+ERROR:                                    ^^

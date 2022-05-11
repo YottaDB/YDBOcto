@@ -28,64 +28,32 @@ SELECT -1.49::NUMERIC(0);
 SELECT -15.54::NUMERIC(1);
 SELECT -15.54::NUMERIC(0);
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_SCALE : Numeric scale 4 must be between zero(0) and precision 3
-Error with syntax near (line 1, column 29):
-
-CREATE TABLE abcd(id NUMERIC(3,4));
+[ERROR]: ERR_NUMERIC_SCALE: Numeric scale 4 must be between zero(0) and precision 3
+LINE 1: CREATE TABLE abcd(id NUMERIC(3,4));
+                                    ^^^^^
+[ERROR]: ERR_NUMERIC_SCALE: Numeric scale 3 must be between zero(0) and precision 2
+LINE 1: SELECT 1.50::numeric(2,3);
                             ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE abcd(id NUMERIC(3,4));
-[ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_SCALE : Numeric scale 3 must be between zero(0) and precision 2
-Error with syntax near (line 1, column 21):
-
-SELECT 1.50::numeric(2,3);
-                    ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT 1.50::numeric(2,3);
-[ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_SCALE : Numeric scale 3 must be between zero(0) and precision 2
-Error with syntax near (line 1, column 22):
-
-SELECT -1.50::numeric(2,3);
-                     ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT -1.50::numeric(2,3);
-Error with syntax near (line 1, column 32):
-
-CREATE TABLE abcd(id NUMERIC(3,-1));	-- negative scale is not allowed
-                               ^
+[ERROR]: ERR_NUMERIC_SCALE: Numeric scale 3 must be between zero(0) and precision 2
+LINE 1: SELECT -1.50::numeric(2,3);
+                             ^^^^^
+LINE 1: CREATE TABLE abcd(id NUMERIC(3,-1));	-- negative scale is not a...
+                                       ^
 syntax error, unexpected MINUS, expecting LITERAL
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE abcd(id NUMERIC(3,-1));
-Error with syntax near (line 2, column 23):
-
-CREATE TABLE abcd(id NUMERIC(3,-1));	-- negative scale is not allowed
-SELECT 1.50::INTEGER(2,3);		-- scale parameter is not allowed for INTEGER
-                      ^
+LINE 2: SELECT 1.50::INTEGER(2,3);		-- scale parameter is not allowed f...
+                              ^
 syntax error, unexpected COMMA, expecting RIGHT_PAREN
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- negative scale is not allowed
-SELECT 1.50::INTEGER(2,3);
-Error with syntax near (line 2, column 24):
-
-SELECT 1.50::INTEGER(2,3);		-- scale parameter is not allowed for INTEGER
-SELECT -1.50::INTEGER(2,3);		-- scale parameter is not allowed for INTEGER
-                       ^
+LINE 2: SELECT -1.50::INTEGER(2,3);		-- scale parameter is not allowed ...
+                               ^
 syntax error, unexpected COMMA, expecting RIGHT_PAREN
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- scale parameter is not allowed for INTEGER
-SELECT -1.50::INTEGER(2,3);
-[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INTEGER_SYNTAX : Invalid input syntax for type integer: '0.5'
-Error with syntax near (line 3, column 32):
-
-SELECT -1.50::INTEGER(2,3);		-- scale parameter is not allowed for INTEGER
-
-CREATE TABLE abcd(id NUMERIC(3,0.5));
-                               ^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- scale parameter is not allowed for INTEGER
-
-CREATE TABLE abcd(id NUMERIC(3,0.5));
-[ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_OVERFLOW : Numeric field overflow; A field with precision 2, scale 0 must round to an absolute value less than 10^2
-[ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_OVERFLOW : Numeric field overflow; A field with precision 2, scale 0 must round to an absolute value less than 10^2
-[ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_OVERFLOW : Numeric field overflow; A field with precision 0, scale 0 must round to an absolute value less than 10^0
-[ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_OVERFLOW : Numeric field overflow; A field with precision 1, scale 0 must round to an absolute value less than 10^1
-[ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_OVERFLOW : Numeric field overflow; A field with precision 0, scale 0 must round to an absolute value less than 10^0
-[ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_OVERFLOW : Numeric field overflow; A field with precision 0, scale 0 must round to an absolute value less than 10^0
-[ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_OVERFLOW : Numeric field overflow; A field with precision 1, scale 0 must round to an absolute value less than 10^1
-[ERROR] PATH:LINENUM DATE TIME : ERR_NUMERIC_OVERFLOW : Numeric field overflow; A field with precision 0, scale 0 must round to an absolute value less than 10^0
+[ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: '0.5'
+LINE 3: CREATE TABLE abcd(id NUMERIC(3,0.5));
+                                       ^^^
+[ERROR]: ERR_NUMERIC_OVERFLOW: Numeric field overflow; A field with precision 2, scale 0 must round to an absolute value less than 10^2
+[ERROR]: ERR_NUMERIC_OVERFLOW: Numeric field overflow; A field with precision 2, scale 0 must round to an absolute value less than 10^2
+[ERROR]: ERR_NUMERIC_OVERFLOW: Numeric field overflow; A field with precision 0, scale 0 must round to an absolute value less than 10^0
+[ERROR]: ERR_NUMERIC_OVERFLOW: Numeric field overflow; A field with precision 1, scale 0 must round to an absolute value less than 10^1
+[ERROR]: ERR_NUMERIC_OVERFLOW: Numeric field overflow; A field with precision 0, scale 0 must round to an absolute value less than 10^0
+[ERROR]: ERR_NUMERIC_OVERFLOW: Numeric field overflow; A field with precision 0, scale 0 must round to an absolute value less than 10^0
+[ERROR]: ERR_NUMERIC_OVERFLOW: Numeric field overflow; A field with precision 1, scale 0 must round to an absolute value less than 10^1
+[ERROR]: ERR_NUMERIC_OVERFLOW: Numeric field overflow; A field with precision 0, scale 0 must round to an absolute value less than 10^0

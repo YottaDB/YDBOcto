@@ -1,10 +1,6 @@
 ERROR:  SELECT * with no tables specified is not valid
-ERROR:  Error with syntax near (line 1, column 7):
-ERROR:  SELECT * AFRO names;
-ERROR:         ^
-ERROR:  Error parsing statement: SELECT * AFRO names;
-[SOCKET] [ERROR] PATH:LINENUM DATE TIME : ERR_SELECT_STAR_NO_TABLES : SELECT * with no tables specified is not valid
-[SOCKET] [ERROR] PATH:LINENUM DATE TIME : CUSTOM_ERROR : Error with syntax near (line 1, column 7):
-[SOCKET] [ERROR] PATH:LINENUM DATE TIME : CUSTOM_ERROR : SELECT * AFRO names;
-[SOCKET] [ERROR] PATH:LINENUM DATE TIME : CUSTOM_ERROR :        ^
-[SOCKET] [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * AFRO names;
+ERROR:  LINE 1: SELECT * AFRO names;
+ERROR:                 ^
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME: ERR_SELECT_STAR_NO_TABLES: SELECT * with no tables specified is not valid
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME: CUSTOM_ERROR: LINE 1: SELECT * AFRO names;
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME: CUSTOM_ERROR:                ^

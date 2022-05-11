@@ -1,18 +1,9 @@
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: NOTATHING
-Error with syntax near (line 1, column 7):
-
-select notathing as a
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select notathing as a
-from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: ALSONOTATHING
-Error with syntax near (line 2, column 1):
-
-from names; select * from names where
-alsonotathing = 0; select * from names limit 1;
-^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names where
-alsonotathing = 0;
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: NOTATHING
+LINE 1: select notathing as a
+               ^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ALSONOTATHING
+LINE 2: alsonotathing = 0; select * from names limit 1;
+        ^^^^^^^^^^^^^
 ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 (1 row)

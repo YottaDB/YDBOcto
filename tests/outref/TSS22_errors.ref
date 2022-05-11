@@ -8,7 +8,7 @@ SELECT (SELECT n2.id FROM (SELECT n3.id FROM names n4) n2 INNER JOIN names n1 ON
 SELECT (SELECT n2.id FROM (SELECT n1.id FROM names n1) n2) FROM names n3;
 SELECT (SELECT firstname FROM (SELECT n3.id,firstname FROM names n1) n2) FROM names n3;
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_MULTIPLE_ROWS : More than one row returned by a subquery used as an expression
-[ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_MULTIPLE_ROWS : More than one row returned by a subquery used as an expression
-[ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_MULTIPLE_ROWS : More than one row returned by a subquery used as an expression
-[ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_MULTIPLE_ROWS : More than one row returned by a subquery used as an expression
+[ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
+[ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
+[ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
+[ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression

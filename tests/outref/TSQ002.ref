@@ -53,8 +53,8 @@ ORDER BY
   TABLE_TYPE,
   TABLE_SCHEM,
   TABLE_NAME
-[ INFO] PATH:LINENUM DATE TIME : INFO_RECORDING_ENV_VARS : # Recording pertinent ydb_* env var values at process startup
-[ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command [SELECT
+[ INFO] PATH:LINENUM DATE TIME: INFO_RECORDING_ENV_VARS: # Recording pertinent ydb_* env var values at process startup
+[ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [SELECT
   NULL AS TABLE_CAT,
   n.nspname AS TABLE_SCHEM,
   c.relname AS TABLE_NAME,
@@ -108,21 +108,21 @@ ORDER BY
   TABLE_TYPE,
   TABLE_SCHEM,
   TABLE_NAME]
-[ INFO] PATH:LINENUM DATE TIME : INFO_CURSOR : Generating SQL for CURSOR_NUM
-[ INFO] PATH:LINENUM DATE TIME : INFO_M_PLAN : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
-[ INFO] PATH:LINENUM DATE TIME : INFO_GENERATING_XREF : Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_CATALOG.PG_DESCRIPTION] and column [OBJOID]
-[ INFO] PATH:LINENUM DATE TIME : INFO_GENERATING_XREF : Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_CATALOG.PG_CLASS] and column [RELNAMESPACE]
-[ INFO] PATH:LINENUM DATE TIME : INFO_GENERATING_XREF : Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_CATALOG.PG_NAMESPACE] and column [NSPNAME]
-[ INFO] PATH:LINENUM DATE TIME : INFO_REUSE_M_PLAN : Using already generated M file [$PWD/_ydboctoX*.m] (to execute SQL query)
-[ INFO] PATH:LINENUM DATE TIME : INFO_REUSE_M_PLAN : Using already generated M file [$PWD/_ydboctoX*.m] (to execute SQL query)
-[ INFO] PATH:LINENUM DATE TIME : INFO_REUSE_M_PLAN : Using already generated M file [$PWD/_ydboctoX*.m] (to execute SQL query)
-[ INFO] PATH:LINENUM DATE TIME : INFO_REUSE_M_PLAN : Using already generated M file [$PWD/_ydboctoX*.m] (to execute SQL query)
-[ INFO] PATH:LINENUM DATE TIME : INFO_REUSE_M_PLAN : Using already generated M file [$PWD/_ydboctoX*.m] (to execute SQL query)
-[ INFO] PATH:LINENUM DATE TIME : INFO_REUSE_M_PLAN : Using already generated M file [$PWD/_ydboctoX*.m] (to execute SQL query)
-[ INFO] PATH:LINENUM DATE TIME : INFO_REUSE_M_PLAN : Using already generated M file [$PWD/_ydboctoX*.m] (to execute SQL query)
-[ INFO] PATH:LINENUM DATE TIME : INFO_REUSE_M_PLAN : Using already generated M file [$PWD/_ydboctoX*.m] (to execute SQL query)
-[ INFO] PATH:LINENUM DATE TIME : INFO_REUSE_M_PLAN : Using already generated M file [$PWD/_ydboctoX*.m] (to execute SQL query)
-[ INFO] PATH:LINENUM DATE TIME : INFO_ENTERING_FUNCTION : Entering print_temporary_table
+[ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
+[ INFO] PATH:LINENUM DATE TIME: INFO_M_PLAN: Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME: INFO_GENERATING_XREF: Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_CATALOG.PG_DESCRIPTION] and column [OBJOID]
+[ INFO] PATH:LINENUM DATE TIME: INFO_GENERATING_XREF: Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_CATALOG.PG_CLASS] and column [RELNAMESPACE]
+[ INFO] PATH:LINENUM DATE TIME: INFO_GENERATING_XREF: Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_CATALOG.PG_NAMESPACE] and column [NSPNAME]
+[ INFO] PATH:LINENUM DATE TIME: INFO_REUSE_M_PLAN: Using already generated M file [$PWD/_ydboctoX*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME: INFO_REUSE_M_PLAN: Using already generated M file [$PWD/_ydboctoX*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME: INFO_REUSE_M_PLAN: Using already generated M file [$PWD/_ydboctoX*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME: INFO_REUSE_M_PLAN: Using already generated M file [$PWD/_ydboctoX*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME: INFO_REUSE_M_PLAN: Using already generated M file [$PWD/_ydboctoX*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME: INFO_REUSE_M_PLAN: Using already generated M file [$PWD/_ydboctoX*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME: INFO_REUSE_M_PLAN: Using already generated M file [$PWD/_ydboctoX*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME: INFO_REUSE_M_PLAN: Using already generated M file [$PWD/_ydboctoX*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME: INFO_REUSE_M_PLAN: Using already generated M file [$PWD/_ydboctoX*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering print_temporary_table
 TABLE_CAT|TABLE_SCHEM|TABLE_NAME|TABLE_TYPE|REMARKS|TYPE_CAT|TYPE_SCHEM|TYPE_NAME|SELF_REFERENCING_COL_NAME|REF_GENERATION
 |public|INFORMATION_SCHEMA.TABLES|TABLE||||||
 |public|NAMES|TABLE||||||

@@ -2,8 +2,6 @@
 -- TAS02 : Issue error for ARRAY constructor with subquery returning more than one column
 
 SELECT ARRAY(SELECT * FROM names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_ONE_COLUMN : Subquery must return only one column
-Error with syntax near (line 1, column 14):
-
-SELECT ARRAY(SELECT * FROM names);
-             ^^^^^^
+[ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
+LINE 1: SELECT ARRAY(SELECT * FROM names);
+                     ^^^^^^

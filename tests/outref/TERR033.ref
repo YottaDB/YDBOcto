@@ -7,5 +7,5 @@ SET nonexistent_parameter = 'invalid';
 -- SHOW statement for invalid run-time parameter issues error
 SHOW nonexistent_parameter;
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_RUNTIME_PARAMETER : Unrecognized runtime configuration parameter 'NONEXISTENT_PARAMETER'
-[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_RUNTIME_PARAMETER : Unrecognized runtime configuration parameter 'NONEXISTENT_PARAMETER'
+[ERROR]: ERR_INVALID_RUNTIME_PARAMETER: Unrecognized runtime configuration parameter 'NONEXISTENT_PARAMETER'
+[ERROR]: ERR_INVALID_RUNTIME_PARAMETER: Unrecognized runtime configuration parameter 'NONEXISTENT_PARAMETER'

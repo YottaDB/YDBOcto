@@ -14,27 +14,11 @@ CREATE TABLE tmp (id INTEGER, firstname VARCHAR, lastname VARCHAR, firstname INT
 -- and READWRITE is specified).
 CREATE TABLE tmp (firstName VARCHAR, lastName VARCHAR, `%yo_keycol` INTEGER) READWRITE;
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_DUPLICATE_COLUMN : Column 'ID' specified more than once
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE tmp (id INTEGER, id INTEGER);
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_DUPLICATE_COLUMN : Column 'FIRSTNAME' specified more than once
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE tmp (firstname VARCHAR, firstname VARCHAR);
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_DUPLICATE_COLUMN : Column 'ID' specified more than once
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE tmp (id INTEGER, firstname VARCHAR, id INTEGER);
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_DUPLICATE_COLUMN : Column 'ID' specified more than once
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE tmp (id INTEGER, id INTEGER, firstname VARCHAR);
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_DUPLICATE_COLUMN : Column 'FIRSTNAME' specified more than once
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE tmp (firstname VARCHAR, id INTEGER, firstname VARCHAR);
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_DUPLICATE_COLUMN : Column 'FIRSTNAME' specified more than once
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE tmp (firstname VARCHAR, firstname VARCHAR, id INTEGER);
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_DUPLICATE_COLUMN : Column 'FIRSTNAME' specified more than once
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE tmp (id INTEGER, firstname VARCHAR, lastname VARCHAR, firstname INTEGER, id2 INTEGER);
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_DUPLICATE_COLUMN : Column '%YO_KEYCOL' specified more than once
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE tmp (firstName VARCHAR, lastName VARCHAR, `%yo_keycol` INTEGER) READWRITE;
-
+[ERROR]: ERR_DUPLICATE_COLUMN: Column 'ID' specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column 'FIRSTNAME' specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column 'ID' specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column 'ID' specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column 'FIRSTNAME' specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column 'FIRSTNAME' specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column 'FIRSTNAME' specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column '%YO_KEYCOL' specified more than once

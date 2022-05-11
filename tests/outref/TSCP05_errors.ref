@@ -11,11 +11,11 @@ SELECT TRUNC(155, 45);
 TRUNC
 1.01234567890123456000
 (1 row)
-[ERROR] PATH:LINENUM DATE TIME : ERR_YOTTADB : YottaDB error: 150373210,PostgreSQL+2^%ydboctofTRUNCATE,%YDB-E-DIVZERO, Attempt to divide by zero
+[ERROR]: ERR_YOTTADB: YottaDB error: 150373210,PostgreSQL+2^%ydboctofTRUNCATE,%YDB-E-DIVZERO, Attempt to divide by zero
 TRUNC
 155.00
 (1 row)
 TRUNC
 100
 (1 row)
-[ERROR] PATH:LINENUM DATE TIME : ERR_YOTTADB : YottaDB error: 150373506,PostgreSQL+2^%ydboctofTRUNCATE,%YDB-E-NUMOFLOW, Numeric overflow
+[ERROR]: ERR_YOTTADB: YottaDB error: 150373506,PostgreSQL+2^%ydboctofTRUNCATE,%YDB-E-NUMOFLOW, Numeric overflow

@@ -9,69 +9,36 @@ SELECT (SELECT n3.id FROM names n3 LEFT JOIN names n4 ON n4.id = COUNT(n1.id) OR
 SELECT (SELECT n3.id FROM names n3 WHERE n3.id = COUNT(n1.id) LIMIT 1),(SELECT n2.id FROM names n2 ORDER BY COUNT(n1.id) LIMIT 1) FROM names n1;
 SELECT (SELECT id FROM names n1 WHERE COUNT(n2.id) = 6 LIMIT 1),COUNT(n2.id) FROM names n2;
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_AGGREGATE_FUNCTION_WHERE : Aggregate functions are not allowed in WHERE
-Error with syntax near (line 3, column 60):
-
---> Below should not error out even though subquery uses aggregate function on column from outer query
---> even though the aggregate function usage is inside a WHERE clause or FROM clause.
-SELECT COUNT(id),(SELECT n2.id FROM names n2 WHERE n2.id = COUNT(n1.id)) FROM names n1;
-                                                           ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_AGGREGATE_FUNCTION_WHERE : Aggregate functions are not allowed in WHERE
-Error with syntax near (line 3, column 60):
-
---> Below should not error out even though subquery uses aggregate function on column from outer query
---> even though the aggregate function usage is inside a WHERE clause or FROM clause.
-SELECT COUNT(id),(SELECT n2.id FROM names n2 WHERE n2.id = COUNT(n1.id)) FROM names n1;
-                                                           ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below should not error out even though subquery uses aggregate function on column from outer query
---> even though the aggregate function usage is inside a WHERE clause or FROM clause.
-SELECT COUNT(id),(SELECT n2.id FROM names n2 WHERE n2.id = COUNT(n1.id)) FROM names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 1, column 16):
-
-SELECT (SELECT n3.id FROM names n3 ORDER BY COUNT(n1.id) LIMIT 1),(SELECT n2.id FROM names n2 WHERE n2.id = COUNT(n1.id) LIMIT 1) FROM names n1;
-               ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_AGGREGATE_FUNCTION_WHERE : Aggregate functions are not allowed in WHERE
-Error with syntax near (line 1, column 109):
-
-SELECT (SELECT n3.id FROM names n3 ORDER BY COUNT(n1.id) LIMIT 1),(SELECT n2.id FROM names n2 WHERE n2.id = COUNT(n1.id) LIMIT 1) FROM names n1;
-                                                                                                            ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT n3.id FROM names n3 ORDER BY COUNT(n1.id) LIMIT 1),(SELECT n2.id FROM names n2 WHERE n2.id = COUNT(n1.id) LIMIT 1) FROM names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_AGGREGATE_FUNCTION_JOIN : Aggregate functions are not allowed in JOIN conditions
-Error with syntax near (line 1, column 66):
-
-SELECT (SELECT n3.id FROM names n3 LEFT JOIN names n4 ON n4.id = COUNT(n1.id) ORDER BY COUNT(n1.id) LIMIT 1),(SELECT n2.id FROM names n2 WHERE n2.id = COUNT(n1.id) LIMIT 1) FROM names n1;
-                                                                 ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 1, column 16):
-
-SELECT (SELECT n3.id FROM names n3 LEFT JOIN names n4 ON n4.id = COUNT(n1.id) ORDER BY COUNT(n1.id) LIMIT 1),(SELECT n2.id FROM names n2 WHERE n2.id = COUNT(n1.id) LIMIT 1) FROM names n1;
-               ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_AGGREGATE_FUNCTION_WHERE : Aggregate functions are not allowed in WHERE
-Error with syntax near (line 1, column 152):
-
-SELECT (SELECT n3.id FROM names n3 LEFT JOIN names n4 ON n4.id = COUNT(n1.id) ORDER BY COUNT(n1.id) LIMIT 1),(SELECT n2.id FROM names n2 WHERE n2.id = COUNT(n1.id) LIMIT 1) FROM names n1;
-                                                                                                                                                       ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT n3.id FROM names n3 LEFT JOIN names n4 ON n4.id = COUNT(n1.id) ORDER BY COUNT(n1.id) LIMIT 1),(SELECT n2.id FROM names n2 WHERE n2.id = COUNT(n1.id) LIMIT 1) FROM names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_AGGREGATE_FUNCTION_WHERE : Aggregate functions are not allowed in WHERE
-Error with syntax near (line 1, column 50):
-
-SELECT (SELECT n3.id FROM names n3 WHERE n3.id = COUNT(n1.id) LIMIT 1),(SELECT n2.id FROM names n2 ORDER BY COUNT(n1.id) LIMIT 1) FROM names n1;
-                                                 ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 1, column 80):
-
-SELECT (SELECT n3.id FROM names n3 WHERE n3.id = COUNT(n1.id) LIMIT 1),(SELECT n2.id FROM names n2 ORDER BY COUNT(n1.id) LIMIT 1) FROM names n1;
-                                                                               ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT n3.id FROM names n3 WHERE n3.id = COUNT(n1.id) LIMIT 1),(SELECT n2.id FROM names n2 ORDER BY COUNT(n1.id) LIMIT 1) FROM names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_AGGREGATE_FUNCTION_WHERE : Aggregate functions are not allowed in WHERE
-Error with syntax near (line 1, column 39):
-
-SELECT (SELECT id FROM names n1 WHERE COUNT(n2.id) = 6 LIMIT 1),COUNT(n2.id) FROM names n2;
-                                      ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_AGGREGATE_FUNCTION_WHERE : Aggregate functions are not allowed in WHERE
-Error with syntax near (line 1, column 39):
-
-SELECT (SELECT id FROM names n1 WHERE COUNT(n2.id) = 6 LIMIT 1),COUNT(n2.id) FROM names n2;
-                                      ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT id FROM names n1 WHERE COUNT(n2.id) = 6 LIMIT 1),COUNT(n2.id) FROM names n2;
+[ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
+LINE 3: ... n2.id FROM names n2 WHERE n2.id = COUNT(n1.id)) FROM names n1;
+                                              ^^^^^
+[ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
+LINE 3: ... n2.id FROM names n2 WHERE n2.id = COUNT(n1.id)) FROM names n1;
+                                              ^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 1: SELECT (SELECT n3.id FROM names n3 ORDER BY COUNT(n1.id) LIMIT ...
+                       ^^^^^
+[ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
+LINE 1: ... FROM names n2 WHERE n2.id = COUNT(n1.id) LIMIT 1) FROM names n...
+                                        ^^^^^
+[ERROR]: ERR_AGGREGATE_FUNCTION_JOIN: Aggregate functions are not allowed in JOIN conditions
+LINE 1: ...EFT JOIN names n4 ON n4.id = COUNT(n1.id) ORDER BY COUNT(n1.id)...
+                                        ^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 1: SELECT (SELECT n3.id FROM names n3 LEFT JOIN names n4 ON n4.id ...
+                       ^^^^^
+[ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
+LINE 1: ... FROM names n2 WHERE n2.id = COUNT(n1.id) LIMIT 1) FROM names n...
+                                        ^^^^^
+[ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
+LINE 1: ... FROM names n3 WHERE n3.id = COUNT(n1.id) LIMIT 1),(SELECT n2.i...
+                                        ^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 1: ...OUNT(n1.id) LIMIT 1),(SELECT n2.id FROM names n2 ORDER BY COUNT...
+                                        ^^^^^
+[ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
+LINE 1: ...ELECT id FROM names n1 WHERE COUNT(n2.id) = 6 LIMIT 1),COUNT(n2...
+                                        ^^^^^
+[ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
+LINE 1: ...ELECT id FROM names n1 WHERE COUNT(n2.id) = 6 LIMIT 1),COUNT(n2...
+                                        ^^^^^

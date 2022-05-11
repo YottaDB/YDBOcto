@@ -77,684 +77,343 @@ select n1.lastname not in (n1.*) from names n1;
 select n1.* not in (n1.id) from names n1;
 select n1.id not in (n1.*) from names n1;
 select n1.* not in (select n2.*) from (select 'test' union select NULL union select 'numtest') n1, (select 'nottest' union select NULL) n2;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 18):
-
-select 1 in ('stf',12) from names n1;
-                 ^
-Error with syntax near (line 1, column 20):
-
-select 1 in ('stf',12) from names n1;
-                   ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 in ('stf',12) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
-Error with syntax near (line 1, column 14):
-
-select 1 in (12,'stf') from names n1;
-             ^^
-Error with syntax near (line 1, column 21):
-
-select 1 in (12,'stf') from names n1;
-                    ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 in (12,'stf') from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 12):
-
-select 'stf' in (12,12) from names n1;
-           ^
-Error with syntax near (line 1, column 18):
-
-select 'stf' in (12,12) from names n1;
-                 ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 'stf' in (12,12) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 22):
-
-select 'stf' in ('stf',12) from names n1;
-                     ^
-Error with syntax near (line 1, column 24):
-
-select 'stf' in ('stf',12) from names n1;
-                       ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 'stf' in ('stf',12) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
-Error with syntax near (line 1, column 18):
-
-select 'stf' in (12,'stf') from names n1;
-                 ^^
-Error with syntax near (line 1, column 25):
-
-select 'stf' in (12,'stf') from names n1;
-                        ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 'stf' in (12,'stf') from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 22):
-
-select n1.id in ('stf',12) from names n1;
-                     ^
-Error with syntax near (line 1, column 24):
-
-select n1.id in ('stf',12) from names n1;
-                       ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.id in ('stf',12) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 18):
-
-select n1.id in (n1.lastname,12) from names n1;
-                 ^^^^^^^^^^^
-Error with syntax near (line 1, column 30):
-
-select n1.id in (n1.lastname,12) from names n1;
-                             ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.id in (n1.lastname,12) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 18):
-
-select n1.id in (n1.lastname,n1.id) from names n1;
-                 ^^^^^^^^^^^
-Error with syntax near (line 1, column 30):
-
-select n1.id in (n1.lastname,n1.id) from names n1;
-                             ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.id in (n1.lastname,n1.id) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
-Error with syntax near (line 1, column 18):
-
-select n1.id in (n1.id,n1.lastname) from names n1;
-                 ^^^^^
-Error with syntax near (line 1, column 24):
-
-select n1.id in (n1.id,n1.lastname) from names n1;
-                       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.id in (n1.id,n1.lastname) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right INTEGER
-Error with syntax near (line 1, column 18):
-
-select n1.id in (n1.*,n1.id) from names n1;
-                 ^^^^
-Error with syntax near (line 1, column 23):
-
-select n1.id in (n1.*,n1.id) from names n1;
-                      ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.id in (n1.*,n1.id) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right TABLENAME.*
-Error with syntax near (line 1, column 18):
-
-select n1.id in (n1.id,n1.*) from names n1;
-                 ^^^^^
-Error with syntax near (line 1, column 24):
-
-select n1.id in (n1.id,n1.*) from names n1;
-                       ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.id in (n1.id,n1.*) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 24):
-
-select n1.lastname in (n1.lastname,12) from names n1;
-                       ^^^^^^^^^^^
-Error with syntax near (line 1, column 36):
-
-select n1.lastname in (n1.lastname,12) from names n1;
-                                   ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.lastname in (n1.lastname,12) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 24):
-
-select n1.lastname in (n1.lastname,n1.id) from names n1;
-                       ^^^^^^^^^^^
-Error with syntax near (line 1, column 36):
-
-select n1.lastname in (n1.lastname,n1.id) from names n1;
-                                   ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.lastname in (n1.lastname,n1.id) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
-Error with syntax near (line 1, column 24):
-
-select n1.lastname in (n1.id,n1.lastname) from names n1;
-                       ^^^^^
-Error with syntax near (line 1, column 30):
-
-select n1.lastname in (n1.id,n1.lastname) from names n1;
-                             ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.lastname in (n1.id,n1.lastname) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 8):
-
-select n1.lastname in (n1.id,n1.id) from names n1;
-       ^^^^^^^^^^^
-Error with syntax near (line 1, column 24):
-
-select n1.lastname in (n1.id,n1.id) from names n1;
-                       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.lastname in (n1.id,n1.id) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right TABLENAME.*
-Error with syntax near (line 1, column 24):
-
-select n1.lastname in (n1.lastname,n1.*) from names n1;
-                       ^^^^^^^^^^^
-Error with syntax near (line 1, column 36):
-
-select n1.lastname in (n1.lastname,n1.*) from names n1;
-                                   ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.lastname in (n1.lastname,n1.*) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right VARCHAR
-Error with syntax near (line 1, column 24):
-
-select n1.lastname in (n1.*,n1.lastname) from names n1;
-                       ^^^^
-Error with syntax near (line 1, column 29):
-
-select n1.lastname in (n1.*,n1.lastname) from names n1;
-                            ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.lastname in (n1.*,n1.lastname) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 21):
-
-select n1.* in ('stf',12) from names n1;
-                    ^
-Error with syntax near (line 1, column 23):
-
-select n1.* in ('stf',12) from names n1;
-                      ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* in ('stf',12) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 17):
-
-select n1.* in (n1.lastname,12) from names n1;
-                ^^^^^^^^^^^
-Error with syntax near (line 1, column 29):
-
-select n1.* in (n1.lastname,12) from names n1;
-                            ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* in (n1.lastname,12) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
-Error with syntax near (line 1, column 17):
-
-select n1.* in (n1.id,n1.lastname) from names n1;
-                ^^^^^
-Error with syntax near (line 1, column 23):
-
-select n1.* in (n1.id,n1.lastname) from names n1;
-                      ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* in (n1.id,n1.lastname) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right VARCHAR
-Error with syntax near (line 1, column 8):
-
-select n1.* in (n1.lastname,n1.lastname) from names n1;
-       ^^
-Error with syntax near (line 1, column 17):
-
-select n1.* in (n1.lastname,n1.lastname) from names n1;
-                ^^^^^^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* in (n1.lastname,n1.lastname) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right VARCHAR
-Error with syntax near (line 1, column 17):
-
-select n1.* in (n1.*,n1.lastname) from names n1;
-                ^^^^
-Error with syntax near (line 1, column 22):
-
-select n1.* in (n1.*,n1.lastname) from names n1;
-                     ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* in (n1.*,n1.lastname) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right TABLENAME.*
-Error with syntax near (line 1, column 17):
-
-select n1.* in (n1.lastname,n1.*) from names n1;
-                ^^^^^^^^^^^
-Error with syntax near (line 1, column 29):
-
-select n1.* in (n1.lastname,n1.*) from names n1;
-                            ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* in (n1.lastname,n1.*) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right TABLENAME.*
-Error with syntax near (line 1, column 17):
-
-select n1.* in (n1.id,n1.*) from names n1;
-                ^^^^^
-Error with syntax near (line 1, column 23):
-
-select n1.* in (n1.id,n1.*) from names n1;
-                      ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* in (n1.id,n1.*) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right INTEGER
-Error with syntax near (line 1, column 17):
-
-select n1.* in (n1.*,n1.id) from names n1;
-                ^^^^
-Error with syntax near (line 1, column 22):
-
-select n1.* in (n1.*,n1.id) from names n1;
-                     ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* in (n1.*,n1.id) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right TABLENAME.*
-Error with syntax near (line 1, column 17):
-
-select n1.* in (n1.lastname,n1.*) from names n1;
-                ^^^^^^^^^^^
-Error with syntax near (line 1, column 29):
-
-select n1.* in (n1.lastname,n1.*) from names n1;
-                            ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* in (n1.lastname,n1.*) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right VARCHAR
-Error with syntax near (line 1, column 17):
-
-select n1.* in (n1.*,n1.lastname) from names n1;
-                ^^^^
-Error with syntax near (line 1, column 22):
-
-select n1.* in (n1.*,n1.lastname) from names n1;
-                     ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* in (n1.*,n1.lastname) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right VARCHAR
-Error with syntax near (line 1, column 8):
-
-select n1.* in (n1.lastname,NULL) from names n1;
-       ^^
-Error with syntax near (line 1, column 17):
-
-select n1.* in (n1.lastname,NULL) from names n1;
-                ^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* in (n1.lastname,NULL) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right VARCHAR
-Error with syntax near (line 1, column 8):
-
-select n1.* in (NULL,n1.lastname) from names n1;
-       ^^
-Error with syntax near (line 1, column 17):
-
-select n1.* in (NULL,n1.lastname) from names n1;
-                ^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* in (NULL,n1.lastname) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right VARCHAR
-Error with syntax near (line 1, column 8):
-
-select n1.* in (n1.lastname) from names n1;
-       ^^
-Error with syntax near (line 1, column 17):
-
-select n1.* in (n1.lastname) from names n1;
-                ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* in (n1.lastname) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right TABLENAME.*
-Error with syntax near (line 1, column 8):
-
-select n1.lastname in (n1.*) from names n1;
-       ^^^^^^^^^^^
-Error with syntax near (line 1, column 24):
-
-select n1.lastname in (n1.*) from names n1;
-                       ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.lastname in (n1.*) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right INTEGER
-Error with syntax near (line 1, column 8):
-
-select n1.* in (n1.id) from names n1;
-       ^^
-Error with syntax near (line 1, column 17):
-
-select n1.* in (n1.id) from names n1;
-                ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* in (n1.id) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right TABLENAME.*
-Error with syntax near (line 1, column 8):
-
-select n1.id in (n1.*) from names n1;
-       ^^^^^
-Error with syntax near (line 1, column 18):
-
-select n1.id in (n1.*) from names n1;
-                 ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.id in (n1.*) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right VARCHAR
-Error with syntax near (line 1, column 8):
-
-select n1.* in (select n2.*) from (select 'test' union select NULL union select 'numtest') n1, (select 'nottest' union select NULL) n2;
-       ^^
-Error with syntax near (line 1, column 17):
-
-select n1.* in (select n2.*) from (select 'test' union select NULL union select 'numtest') n1, (select 'nottest' union select NULL) n2;
-                ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* in (select n2.*) from (select 'test' union select NULL union select 'numtest') n1, (select 'nottest' union select NULL) n2;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 22):
-
-select 1 not in ('stf',12) from names n1;
-                     ^
-Error with syntax near (line 1, column 24):
-
-select 1 not in ('stf',12) from names n1;
-                       ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 not in ('stf',12) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
-Error with syntax near (line 1, column 18):
-
-select 1 not in (12,'stf') from names n1;
-                 ^^
-Error with syntax near (line 1, column 25):
-
-select 1 not in (12,'stf') from names n1;
-                        ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 not in (12,'stf') from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 12):
-
-select 'stf' not in (12,12) from names n1;
-           ^
-Error with syntax near (line 1, column 22):
-
-select 'stf' not in (12,12) from names n1;
-                     ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 'stf' not in (12,12) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 26):
-
-select 'stf' not in ('stf',12) from names n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: select 1 in ('stf',12) from names n1;
                          ^
-Error with syntax near (line 1, column 28):
-
-select 'stf' not in ('stf',12) from names n1;
+LINE 1: select 1 in ('stf',12) from names n1;
                            ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 'stf' not in ('stf',12) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
-Error with syntax near (line 1, column 22):
-
-select 'stf' not in (12,'stf') from names n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 1: select 1 in (12,'stf') from names n1;
                      ^^
-Error with syntax near (line 1, column 29):
-
-select 'stf' not in (12,'stf') from names n1;
+LINE 1: select 1 in (12,'stf') from names n1;
                             ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 'stf' not in (12,'stf') from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 26):
-
-select n1.id not in ('stf',12) from names n1;
-                         ^
-Error with syntax near (line 1, column 28):
-
-select n1.id not in ('stf',12) from names n1;
-                           ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.id not in ('stf',12) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 22):
-
-select n1.id not in (n1.lastname,12) from names n1;
-                     ^^^^^^^^^^^
-Error with syntax near (line 1, column 34):
-
-select n1.id not in (n1.lastname,12) from names n1;
-                                 ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.id not in (n1.lastname,12) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 22):
-
-select n1.id not in (n1.lastname,n1.id) from names n1;
-                     ^^^^^^^^^^^
-Error with syntax near (line 1, column 34):
-
-select n1.id not in (n1.lastname,n1.id) from names n1;
-                                 ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.id not in (n1.lastname,n1.id) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
-Error with syntax near (line 1, column 22):
-
-select n1.id not in (n1.id,n1.lastname) from names n1;
-                     ^^^^^
-Error with syntax near (line 1, column 28):
-
-select n1.id not in (n1.id,n1.lastname) from names n1;
-                           ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.id not in (n1.id,n1.lastname) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right INTEGER
-Error with syntax near (line 1, column 22):
-
-select n1.id not in (n1.*,n1.id) from names n1;
-                     ^^^^
-Error with syntax near (line 1, column 27):
-
-select n1.id not in (n1.*,n1.id) from names n1;
-                          ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.id not in (n1.*,n1.id) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right TABLENAME.*
-Error with syntax near (line 1, column 22):
-
-select n1.id not in (n1.id,n1.*) from names n1;
-                     ^^^^^
-Error with syntax near (line 1, column 28):
-
-select n1.id not in (n1.id,n1.*) from names n1;
-                           ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.id not in (n1.id,n1.*) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 28):
-
-select n1.lastname not in (n1.lastname,12) from names n1;
-                           ^^^^^^^^^^^
-Error with syntax near (line 1, column 40):
-
-select n1.lastname not in (n1.lastname,12) from names n1;
-                                       ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.lastname not in (n1.lastname,12) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 28):
-
-select n1.lastname not in (n1.lastname,n1.id) from names n1;
-                           ^^^^^^^^^^^
-Error with syntax near (line 1, column 40):
-
-select n1.lastname not in (n1.lastname,n1.id) from names n1;
-                                       ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.lastname not in (n1.lastname,n1.id) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
-Error with syntax near (line 1, column 28):
-
-select n1.lastname not in (n1.id,n1.lastname) from names n1;
-                           ^^^^^
-Error with syntax near (line 1, column 34):
-
-select n1.lastname not in (n1.id,n1.lastname) from names n1;
-                                 ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.lastname not in (n1.id,n1.lastname) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 8):
-
-select n1.lastname not in (n1.id,n1.id) from names n1;
-       ^^^^^^^^^^^
-Error with syntax near (line 1, column 28):
-
-select n1.lastname not in (n1.id,n1.id) from names n1;
-                           ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.lastname not in (n1.id,n1.id) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right TABLENAME.*
-Error with syntax near (line 1, column 28):
-
-select n1.lastname not in (n1.lastname,n1.*) from names n1;
-                           ^^^^^^^^^^^
-Error with syntax near (line 1, column 40):
-
-select n1.lastname not in (n1.lastname,n1.*) from names n1;
-                                       ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.lastname not in (n1.lastname,n1.*) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right VARCHAR
-Error with syntax near (line 1, column 28):
-
-select n1.lastname not in (n1.*,n1.lastname) from names n1;
-                           ^^^^
-Error with syntax near (line 1, column 33):
-
-select n1.lastname not in (n1.*,n1.lastname) from names n1;
-                                ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.lastname not in (n1.*,n1.lastname) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 25):
-
-select n1.* not in ('stf',12) from names n1;
-                        ^
-Error with syntax near (line 1, column 27):
-
-select n1.* not in ('stf',12) from names n1;
-                          ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* not in ('stf',12) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 21):
-
-select n1.* not in (n1.lastname,12) from names n1;
-                    ^^^^^^^^^^^
-Error with syntax near (line 1, column 33):
-
-select n1.* not in (n1.lastname,12) from names n1;
-                                ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* not in (n1.lastname,12) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
-Error with syntax near (line 1, column 21):
-
-select n1.* not in (n1.id,n1.lastname) from names n1;
-                    ^^^^^
-Error with syntax near (line 1, column 27):
-
-select n1.* not in (n1.id,n1.lastname) from names n1;
-                          ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* not in (n1.id,n1.lastname) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right VARCHAR
-Error with syntax near (line 1, column 8):
-
-select n1.* not in (n1.lastname,n1.lastname) from names n1;
-       ^^
-Error with syntax near (line 1, column 21):
-
-select n1.* not in (n1.lastname,n1.lastname) from names n1;
-                    ^^^^^^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* not in (n1.lastname,n1.lastname) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right VARCHAR
-Error with syntax near (line 1, column 21):
-
-select n1.* not in (n1.*,n1.lastname) from names n1;
-                    ^^^^
-Error with syntax near (line 1, column 26):
-
-select n1.* not in (n1.*,n1.lastname) from names n1;
-                         ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* not in (n1.*,n1.lastname) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right TABLENAME.*
-Error with syntax near (line 1, column 21):
-
-select n1.* not in (n1.lastname,n1.*) from names n1;
-                    ^^^^^^^^^^^
-Error with syntax near (line 1, column 33):
-
-select n1.* not in (n1.lastname,n1.*) from names n1;
-                                ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* not in (n1.lastname,n1.*) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right TABLENAME.*
-Error with syntax near (line 1, column 21):
-
-select n1.* not in (n1.id,n1.*) from names n1;
-                    ^^^^^
-Error with syntax near (line 1, column 27):
-
-select n1.* not in (n1.id,n1.*) from names n1;
-                          ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* not in (n1.id,n1.*) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right INTEGER
-Error with syntax near (line 1, column 21):
-
-select n1.* not in (n1.*,n1.id) from names n1;
-                    ^^^^
-Error with syntax near (line 1, column 26):
-
-select n1.* not in (n1.*,n1.id) from names n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: select 'stf' in (12,12) from names n1;
+                   ^
+LINE 1: select 'stf' in (12,12) from names n1;
                          ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* not in (n1.*,n1.id) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right TABLENAME.*
-Error with syntax near (line 1, column 21):
-
-select n1.* not in (n1.lastname,n1.*) from names n1;
-                    ^^^^^^^^^^^
-Error with syntax near (line 1, column 33):
-
-select n1.* not in (n1.lastname,n1.*) from names n1;
-                                ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* not in (n1.lastname,n1.*) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right VARCHAR
-Error with syntax near (line 1, column 21):
-
-select n1.* not in (n1.*,n1.lastname) from names n1;
-                    ^^^^
-Error with syntax near (line 1, column 26):
-
-select n1.* not in (n1.*,n1.lastname) from names n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: select 'stf' in ('stf',12) from names n1;
+                             ^
+LINE 1: select 'stf' in ('stf',12) from names n1;
+                               ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 1: select 'stf' in (12,'stf') from names n1;
+                         ^^
+LINE 1: select 'stf' in (12,'stf') from names n1;
+                                ^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: select n1.id in ('stf',12) from names n1;
+                             ^
+LINE 1: select n1.id in ('stf',12) from names n1;
+                               ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: select n1.id in (n1.lastname,12) from names n1;
                          ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* not in (n1.*,n1.lastname) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right VARCHAR
-Error with syntax near (line 1, column 8):
-
-select n1.* not in (n1.lastname,NULL) from names n1;
-       ^^
-Error with syntax near (line 1, column 21):
-
-select n1.* not in (n1.lastname,NULL) from names n1;
-                    ^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* not in (n1.lastname,NULL) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right VARCHAR
-Error with syntax near (line 1, column 8):
-
-select n1.* not in (NULL,n1.lastname) from names n1;
-       ^^
-Error with syntax near (line 1, column 21):
-
-select n1.* not in (NULL,n1.lastname) from names n1;
-                    ^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* not in (NULL,n1.lastname) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right VARCHAR
-Error with syntax near (line 1, column 8):
-
-select n1.* not in (n1.lastname) from names n1;
-       ^^
-Error with syntax near (line 1, column 21):
-
-select n1.* not in (n1.lastname) from names n1;
-                    ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* not in (n1.lastname) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right TABLENAME.*
-Error with syntax near (line 1, column 8):
-
-select n1.lastname not in (n1.*) from names n1;
-       ^^^^^^^^^^^
-Error with syntax near (line 1, column 28):
-
-select n1.lastname not in (n1.*) from names n1;
-                           ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.lastname not in (n1.*) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right INTEGER
-Error with syntax near (line 1, column 8):
-
-select n1.* not in (n1.id) from names n1;
-       ^^
-Error with syntax near (line 1, column 21):
-
-select n1.* not in (n1.id) from names n1;
-                    ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* not in (n1.id) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right TABLENAME.*
-Error with syntax near (line 1, column 8):
-
-select n1.id not in (n1.*) from names n1;
-       ^^^^^
-Error with syntax near (line 1, column 22):
-
-select n1.id not in (n1.*) from names n1;
-                     ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.id not in (n1.*) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right VARCHAR
-Error with syntax near (line 1, column 8):
-
-select n1.* not in (select n2.*) from (select 'test' union select NULL union select 'numtest') n1, (select 'nottest' union select NULL) n2;
-       ^^
-Error with syntax near (line 1, column 21):
-
-select n1.* not in (select n2.*) from (select 'test' union select NULL union select 'numtest') n1, (select 'nottest' union select NULL) n2;
-                    ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* not in (select n2.*) from (select 'test' union select NULL union select 'numtest') n1, (select 'nottest' union select NULL) n2;
-
+LINE 1: select n1.id in (n1.lastname,12) from names n1;
+                                     ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: select n1.id in (n1.lastname,n1.id) from names n1;
+                         ^^^^^^^^^^^
+LINE 1: select n1.id in (n1.lastname,n1.id) from names n1;
+                                     ^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 1: select n1.id in (n1.id,n1.lastname) from names n1;
+                         ^^^^^
+LINE 1: select n1.id in (n1.id,n1.lastname) from names n1;
+                               ^^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
+LINE 1: select n1.id in (n1.*,n1.id) from names n1;
+                         ^^^^
+LINE 1: select n1.id in (n1.*,n1.id) from names n1;
+                              ^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
+LINE 1: select n1.id in (n1.id,n1.*) from names n1;
+                         ^^^^^
+LINE 1: select n1.id in (n1.id,n1.*) from names n1;
+                               ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: select n1.lastname in (n1.lastname,12) from names n1;
+                               ^^^^^^^^^^^
+LINE 1: select n1.lastname in (n1.lastname,12) from names n1;
+                                           ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: select n1.lastname in (n1.lastname,n1.id) from names n1;
+                               ^^^^^^^^^^^
+LINE 1: select n1.lastname in (n1.lastname,n1.id) from names n1;
+                                           ^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 1: select n1.lastname in (n1.id,n1.lastname) from names n1;
+                               ^^^^^
+LINE 1: select n1.lastname in (n1.id,n1.lastname) from names n1;
+                                     ^^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: select n1.lastname in (n1.id,n1.id) from names n1;
+               ^^^^^^^^^^^
+LINE 1: select n1.lastname in (n1.id,n1.id) from names n1;
+                               ^^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
+LINE 1: select n1.lastname in (n1.lastname,n1.*) from names n1;
+                               ^^^^^^^^^^^
+LINE 1: select n1.lastname in (n1.lastname,n1.*) from names n1;
+                                           ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
+LINE 1: select n1.lastname in (n1.*,n1.lastname) from names n1;
+                               ^^^^
+LINE 1: select n1.lastname in (n1.*,n1.lastname) from names n1;
+                                    ^^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: select n1.* in ('stf',12) from names n1;
+                            ^
+LINE 1: select n1.* in ('stf',12) from names n1;
+                              ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: select n1.* in (n1.lastname,12) from names n1;
+                        ^^^^^^^^^^^
+LINE 1: select n1.* in (n1.lastname,12) from names n1;
+                                    ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 1: select n1.* in (n1.id,n1.lastname) from names n1;
+                        ^^^^^
+LINE 1: select n1.* in (n1.id,n1.lastname) from names n1;
+                              ^^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
+LINE 1: select n1.* in (n1.lastname,n1.lastname) from names n1;
+               ^^
+LINE 1: select n1.* in (n1.lastname,n1.lastname) from names n1;
+                        ^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
+LINE 1: select n1.* in (n1.*,n1.lastname) from names n1;
+                        ^^^^
+LINE 1: select n1.* in (n1.*,n1.lastname) from names n1;
+                             ^^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
+LINE 1: select n1.* in (n1.lastname,n1.*) from names n1;
+                        ^^^^^^^^^^^
+LINE 1: select n1.* in (n1.lastname,n1.*) from names n1;
+                                    ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
+LINE 1: select n1.* in (n1.id,n1.*) from names n1;
+                        ^^^^^
+LINE 1: select n1.* in (n1.id,n1.*) from names n1;
+                              ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
+LINE 1: select n1.* in (n1.*,n1.id) from names n1;
+                        ^^^^
+LINE 1: select n1.* in (n1.*,n1.id) from names n1;
+                             ^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
+LINE 1: select n1.* in (n1.lastname,n1.*) from names n1;
+                        ^^^^^^^^^^^
+LINE 1: select n1.* in (n1.lastname,n1.*) from names n1;
+                                    ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
+LINE 1: select n1.* in (n1.*,n1.lastname) from names n1;
+                        ^^^^
+LINE 1: select n1.* in (n1.*,n1.lastname) from names n1;
+                             ^^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
+LINE 1: select n1.* in (n1.lastname,NULL) from names n1;
+               ^^
+LINE 1: select n1.* in (n1.lastname,NULL) from names n1;
+                        ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
+LINE 1: select n1.* in (NULL,n1.lastname) from names n1;
+               ^^
+LINE 1: select n1.* in (NULL,n1.lastname) from names n1;
+                        ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
+LINE 1: select n1.* in (n1.lastname) from names n1;
+               ^^
+LINE 1: select n1.* in (n1.lastname) from names n1;
+                        ^^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
+LINE 1: select n1.lastname in (n1.*) from names n1;
+               ^^^^^^^^^^^
+LINE 1: select n1.lastname in (n1.*) from names n1;
+                               ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
+LINE 1: select n1.* in (n1.id) from names n1;
+               ^^
+LINE 1: select n1.* in (n1.id) from names n1;
+                        ^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
+LINE 1: select n1.id in (n1.*) from names n1;
+               ^^^^^
+LINE 1: select n1.id in (n1.*) from names n1;
+                         ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
+LINE 1: select n1.* in (select n2.*) from (select 'test' union select NU...
+               ^^
+LINE 1: select n1.* in (select n2.*) from (select 'test' union select NU...
+                        ^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: select 1 not in ('stf',12) from names n1;
+                             ^
+LINE 1: select 1 not in ('stf',12) from names n1;
+                               ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 1: select 1 not in (12,'stf') from names n1;
+                         ^^
+LINE 1: select 1 not in (12,'stf') from names n1;
+                                ^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: select 'stf' not in (12,12) from names n1;
+                   ^
+LINE 1: select 'stf' not in (12,12) from names n1;
+                             ^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: select 'stf' not in ('stf',12) from names n1;
+                                 ^
+LINE 1: select 'stf' not in ('stf',12) from names n1;
+                                   ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 1: select 'stf' not in (12,'stf') from names n1;
+                             ^^
+LINE 1: select 'stf' not in (12,'stf') from names n1;
+                                    ^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: select n1.id not in ('stf',12) from names n1;
+                                 ^
+LINE 1: select n1.id not in ('stf',12) from names n1;
+                                   ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: select n1.id not in (n1.lastname,12) from names n1;
+                             ^^^^^^^^^^^
+LINE 1: select n1.id not in (n1.lastname,12) from names n1;
+                                         ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: select n1.id not in (n1.lastname,n1.id) from names n1;
+                             ^^^^^^^^^^^
+LINE 1: select n1.id not in (n1.lastname,n1.id) from names n1;
+                                         ^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 1: select n1.id not in (n1.id,n1.lastname) from names n1;
+                             ^^^^^
+LINE 1: select n1.id not in (n1.id,n1.lastname) from names n1;
+                                   ^^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
+LINE 1: select n1.id not in (n1.*,n1.id) from names n1;
+                             ^^^^
+LINE 1: select n1.id not in (n1.*,n1.id) from names n1;
+                                  ^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
+LINE 1: select n1.id not in (n1.id,n1.*) from names n1;
+                             ^^^^^
+LINE 1: select n1.id not in (n1.id,n1.*) from names n1;
+                                   ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: select n1.lastname not in (n1.lastname,12) from names n1;
+                                   ^^^^^^^^^^^
+LINE 1: select n1.lastname not in (n1.lastname,12) from names n1;
+                                               ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: select n1.lastname not in (n1.lastname,n1.id) from names n1;
+                                   ^^^^^^^^^^^
+LINE 1: select n1.lastname not in (n1.lastname,n1.id) from names n1;
+                                               ^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 1: select n1.lastname not in (n1.id,n1.lastname) from names n1;
+                                   ^^^^^
+LINE 1: select n1.lastname not in (n1.id,n1.lastname) from names n1;
+                                         ^^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: select n1.lastname not in (n1.id,n1.id) from names n1;
+               ^^^^^^^^^^^
+LINE 1: select n1.lastname not in (n1.id,n1.id) from names n1;
+                                   ^^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
+LINE 1: select n1.lastname not in (n1.lastname,n1.*) from names n1;
+                                   ^^^^^^^^^^^
+LINE 1: select n1.lastname not in (n1.lastname,n1.*) from names n1;
+                                               ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
+LINE 1: select n1.lastname not in (n1.*,n1.lastname) from names n1;
+                                   ^^^^
+LINE 1: select n1.lastname not in (n1.*,n1.lastname) from names n1;
+                                        ^^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: select n1.* not in ('stf',12) from names n1;
+                                ^
+LINE 1: select n1.* not in ('stf',12) from names n1;
+                                  ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: select n1.* not in (n1.lastname,12) from names n1;
+                            ^^^^^^^^^^^
+LINE 1: select n1.* not in (n1.lastname,12) from names n1;
+                                        ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 1: select n1.* not in (n1.id,n1.lastname) from names n1;
+                            ^^^^^
+LINE 1: select n1.* not in (n1.id,n1.lastname) from names n1;
+                                  ^^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
+LINE 1: select n1.* not in (n1.lastname,n1.lastname) from names n1;
+               ^^
+LINE 1: select n1.* not in (n1.lastname,n1.lastname) from names n1;
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
+LINE 1: select n1.* not in (n1.*,n1.lastname) from names n1;
+                            ^^^^
+LINE 1: select n1.* not in (n1.*,n1.lastname) from names n1;
+                                 ^^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
+LINE 1: select n1.* not in (n1.lastname,n1.*) from names n1;
+                            ^^^^^^^^^^^
+LINE 1: select n1.* not in (n1.lastname,n1.*) from names n1;
+                                        ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
+LINE 1: select n1.* not in (n1.id,n1.*) from names n1;
+                            ^^^^^
+LINE 1: select n1.* not in (n1.id,n1.*) from names n1;
+                                  ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
+LINE 1: select n1.* not in (n1.*,n1.id) from names n1;
+                            ^^^^
+LINE 1: select n1.* not in (n1.*,n1.id) from names n1;
+                                 ^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
+LINE 1: select n1.* not in (n1.lastname,n1.*) from names n1;
+                            ^^^^^^^^^^^
+LINE 1: select n1.* not in (n1.lastname,n1.*) from names n1;
+                                        ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
+LINE 1: select n1.* not in (n1.*,n1.lastname) from names n1;
+                            ^^^^
+LINE 1: select n1.* not in (n1.*,n1.lastname) from names n1;
+                                 ^^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
+LINE 1: select n1.* not in (n1.lastname,NULL) from names n1;
+               ^^
+LINE 1: select n1.* not in (n1.lastname,NULL) from names n1;
+                            ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
+LINE 1: select n1.* not in (NULL,n1.lastname) from names n1;
+               ^^
+LINE 1: select n1.* not in (NULL,n1.lastname) from names n1;
+                            ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
+LINE 1: select n1.* not in (n1.lastname) from names n1;
+               ^^
+LINE 1: select n1.* not in (n1.lastname) from names n1;
+                            ^^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
+LINE 1: select n1.lastname not in (n1.*) from names n1;
+               ^^^^^^^^^^^
+LINE 1: select n1.lastname not in (n1.*) from names n1;
+                                   ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
+LINE 1: select n1.* not in (n1.id) from names n1;
+               ^^
+LINE 1: select n1.* not in (n1.id) from names n1;
+                            ^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
+LINE 1: select n1.id not in (n1.*) from names n1;
+               ^^^^^
+LINE 1: select n1.id not in (n1.*) from names n1;
+                             ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
+LINE 1: select n1.* not in (select n2.*) from (select 'test' union selec...
+               ^^
+LINE 1: select n1.* not in (select n2.*) from (select 'test' union selec...
+                            ^^^^^^

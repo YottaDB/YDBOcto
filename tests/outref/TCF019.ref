@@ -4,7 +4,7 @@
 select current_schema();
 select abs(-2*id) from names;
 select replace("abcd" || "efgh", "efgh", "abcd");
-[DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
+[DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
 LP_SELECT_QUERY: 
   LP_PROJECT: 
     LP_COLUMN_LIST: 
@@ -36,7 +36,7 @@ LP_SELECT_QUERY:
     - xref_key: false
     - uses_xref_key: false
 
-[DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN AFTER optimize_logical_plan() follows 
+[DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN AFTER optimize_logical_plan() follows 
 LP_SELECT_QUERY: 
   LP_PROJECT: 
     LP_COLUMN_LIST: 
@@ -78,7 +78,7 @@ LP_SELECT_QUERY:
 CURRENT_SCHEMA
 public
 (1 row)
-[DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
+[DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
 LP_SELECT_QUERY: 
   LP_PROJECT: 
     LP_COLUMN_LIST: 
@@ -114,7 +114,7 @@ LP_SELECT_QUERY:
     - xref_key: false
     - uses_xref_key: false
 
-[DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN AFTER optimize_logical_plan() follows 
+[DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN AFTER optimize_logical_plan() follows 
 LP_SELECT_QUERY: 
   LP_PROJECT: 
     LP_COLUMN_LIST: 
@@ -165,7 +165,7 @@ ABS
 8
 10
 (6 rows)
-[DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
+[DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
 LP_SELECT_QUERY: 
   LP_PROJECT: 
     LP_COLUMN_LIST: 
@@ -202,7 +202,7 @@ LP_SELECT_QUERY:
     - xref_key: false
     - uses_xref_key: false
 
-[DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN AFTER optimize_logical_plan() follows 
+[DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN AFTER optimize_logical_plan() follows 
 LP_SELECT_QUERY: 
   LP_PROJECT: 
     LP_COLUMN_LIST: 

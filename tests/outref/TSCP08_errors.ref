@@ -11,64 +11,33 @@ select (select names.*) from names;
 select * from (select firstname,lastname,id from names)n1 order by n2.*,n1.id;
 select id from names n1 order by n2.*;
 select n1.* from names n1 order by *,n1.id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SELECT_STAR_NO_TABLES : SELECT * with no tables specified is not valid
-Error with syntax near (line 1, column 7):
-
-select *;
-       ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select *;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 8):
-
-select n1.*;
-       ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.*;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 8):
-
-select n1.* from names n2;
-       ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* from names n2;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 23):
-
-select * from (select n1.* from names n2);
-                      ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from (select n1.* from names n2);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SELECT_STAR_NO_TABLES : SELECT * with no tables specified is not valid
-Error with syntax near (line 1, column 8):
-
-select * as alias from names;
-       ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * as alias from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SELECT_STAR_NO_TABLES : SELECT * with no tables specified is not valid
-Error with syntax near (line 1, column 8):
-
-select * alias from names;
-       ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * alias from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_ONE_COLUMN : Subquery must return only one column
-Error with syntax near (line 1, column 8):
-
-select (select names.*) from names;
-       ^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N2
-Error with syntax near (line 1, column 68):
-
-select * from (select firstname,lastname,id from names)n1 order by n2.*,n1.id;
-                                                                   ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from (select firstname,lastname,id from names)n1 order by n2.*,n1.id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N2
-Error with syntax near (line 1, column 34):
-
-select id from names n1 order by n2.*;
-                                 ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id from names n1 order by n2.*;
-Error with syntax near (line 1, column 36):
-
-select n1.* from names n1 order by *,n1.id;
-                                   ^
+[ERROR]: ERR_SELECT_STAR_NO_TABLES: SELECT * with no tables specified is not valid
+LINE 1: select *;
+               ^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: select n1.*;
+               ^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: select n1.* from names n2;
+               ^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: select * from (select n1.* from names n2);
+                              ^^^^
+[ERROR]: ERR_SELECT_STAR_NO_TABLES: SELECT * with no tables specified is not valid
+LINE 1: select * as alias from names;
+               ^
+[ERROR]: ERR_SELECT_STAR_NO_TABLES: SELECT * with no tables specified is not valid
+LINE 1: select * alias from names;
+               ^
+[ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
+LINE 1: select (select names.*) from names;
+               ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
+LINE 1: ...(select firstname,lastname,id from names)n1 order by n2.*,n1.id;
+                                                                ^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
+LINE 1: select id from names n1 order by n2.*;
+                                         ^^^^
+LINE 1: select n1.* from names n1 order by *,n1.id;
+                                           ^
 syntax error, unexpected ASTERISK
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* from names n1 order by *,n1.id;
-

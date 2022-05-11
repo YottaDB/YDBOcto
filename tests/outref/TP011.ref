@@ -3,19 +3,16 @@ DROP TABLE
 CREATE TABLE
 # Readwrite changes not permitted (rocto does not set --readwrite): 
 ERROR:  Cannot modify table: rocto started in read-only mode
-ERROR:  Error parsing statement: insert into TP001 (select * FROM names);
  id | firstname | lastname 
 ----+-----------+----------
 (0 rows)
 
 ERROR:  Cannot modify table: rocto started in read-only mode
-ERROR:  Error parsing statement: update TP001 set firstname = lastname, lastname = firstname where lastname != 'Cool';
  id | firstname | lastname 
 ----+-----------+----------
 (0 rows)
 
 ERROR:  Cannot modify table: rocto started in read-only mode
-ERROR:  Error parsing statement: delete from TP001 where lastname != 'Burn';
  id | firstname | lastname 
 ----+-----------+----------
 (0 rows)

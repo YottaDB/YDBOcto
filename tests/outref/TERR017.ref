@@ -35,194 +35,102 @@ SELECT * FROM customers c inner join (SELECT c.customer_id) c2 ON c2.customer_id
 
 SELECT * FROM (SELECT n3.id) n3;
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N2
-Error with syntax near (line 1, column 65):
-
-SELECT (SELECT * FROM (SELECT n1.id FROM names n1 WHERE n1.id = n2.id) n2);
-                                                                ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT * FROM (SELECT n1.id FROM names n1 WHERE n1.id = n2.id) n2);
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N4
-Error with syntax near (line 1, column 96):
-
-SELECT (SELECT * FROM (SELECT * FROM (SELECT * FROM (SELECT DISTINCT n1.id FROM names n1 WHERE n4.id = n5.id) n2) n3) n4) FROM names n5;
-                                                                                               ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT * FROM (SELECT * FROM (SELECT * FROM (SELECT DISTINCT n1.id FROM names n1 WHERE n4.id = n5.id) n2) n3) n4) FROM names n5;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N3
-Error with syntax near (line 1, column 96):
-
-SELECT (SELECT * FROM (SELECT * FROM (SELECT * FROM (SELECT DISTINCT n1.id FROM names n1 WHERE n3.id = n5.id) n2) n3) n4) FROM names n5;
-                                                                                               ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT * FROM (SELECT * FROM (SELECT * FROM (SELECT DISTINCT n1.id FROM names n1 WHERE n3.id = n5.id) n2) n3) n4) FROM names n5;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N2
-Error with syntax near (line 1, column 96):
-
-SELECT (SELECT * FROM (SELECT * FROM (SELECT * FROM (SELECT DISTINCT n1.id FROM names n1 WHERE n2.id = n5.id) n2) n3) n4) FROM names n5;
-                                                                                               ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT * FROM (SELECT * FROM (SELECT * FROM (SELECT DISTINCT n1.id FROM names n1 WHERE n2.id = n5.id) n2) n3) n4) FROM names n5;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N3
-Error with syntax near (line 1, column 96):
-
-SELECT (SELECT * FROM (SELECT * FROM (SELECT * FROM (SELECT DISTINCT n1.id FROM names n1 WHERE n3.id = n4.id) n2) n3) n4) FROM names n5;
-                                                                                               ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N4
-Error with syntax near (line 1, column 104):
-
-SELECT (SELECT * FROM (SELECT * FROM (SELECT * FROM (SELECT DISTINCT n1.id FROM names n1 WHERE n3.id = n4.id) n2) n3) n4) FROM names n5;
-                                                                                                       ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT * FROM (SELECT * FROM (SELECT * FROM (SELECT DISTINCT n1.id FROM names n1 WHERE n3.id = n4.id) n2) n3) n4) FROM names n5;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N2
-Error with syntax near (line 1, column 96):
-
-SELECT (SELECT * FROM (SELECT * FROM (SELECT * FROM (SELECT DISTINCT n1.id FROM names n1 WHERE n2.id = n4.id) n2) n3) n4) FROM names n5;
-                                                                                               ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N4
-Error with syntax near (line 1, column 104):
-
-SELECT (SELECT * FROM (SELECT * FROM (SELECT * FROM (SELECT DISTINCT n1.id FROM names n1 WHERE n2.id = n4.id) n2) n3) n4) FROM names n5;
-                                                                                                       ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT * FROM (SELECT * FROM (SELECT * FROM (SELECT DISTINCT n1.id FROM names n1 WHERE n2.id = n4.id) n2) n3) n4) FROM names n5;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N4
-Error with syntax near (line 1, column 104):
-
-SELECT (SELECT * FROM (SELECT * FROM (SELECT * FROM (SELECT DISTINCT n1.id FROM names n1 WHERE n1.id = n4.id) n2) n3) n4) FROM names n5;
-                                                                                                       ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT * FROM (SELECT * FROM (SELECT * FROM (SELECT DISTINCT n1.id FROM names n1 WHERE n1.id = n4.id) n2) n3) n4) FROM names n5;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N2
-Error with syntax near (line 1, column 96):
-
-SELECT (SELECT * FROM (SELECT * FROM (SELECT * FROM (SELECT DISTINCT n1.id FROM names n1 WHERE n2.id = n3.id) n2) n3) n4) FROM names n5;
-                                                                                               ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N3
-Error with syntax near (line 1, column 104):
-
-SELECT (SELECT * FROM (SELECT * FROM (SELECT * FROM (SELECT DISTINCT n1.id FROM names n1 WHERE n2.id = n3.id) n2) n3) n4) FROM names n5;
-                                                                                                       ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT * FROM (SELECT * FROM (SELECT * FROM (SELECT DISTINCT n1.id FROM names n1 WHERE n2.id = n3.id) n2) n3) n4) FROM names n5;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N3
-Error with syntax near (line 1, column 104):
-
-SELECT (SELECT * FROM (SELECT * FROM (SELECT * FROM (SELECT DISTINCT n1.id FROM names n1 WHERE n1.id = n3.id) n2) n3) n4) FROM names n5;
-                                                                                                       ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT * FROM (SELECT * FROM (SELECT * FROM (SELECT DISTINCT n1.id FROM names n1 WHERE n1.id = n3.id) n2) n3) n4) FROM names n5;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N2
-Error with syntax near (line 1, column 104):
-
-SELECT (SELECT * FROM (SELECT * FROM (SELECT * FROM (SELECT DISTINCT n1.id FROM names n1 WHERE n1.id = n2.id) n2) n3) n4) FROM names n5;
-                                                                                                       ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT * FROM (SELECT * FROM (SELECT * FROM (SELECT DISTINCT n1.id FROM names n1 WHERE n1.id = n2.id) n2) n3) n4) FROM names n5;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 33):
-
-SELECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2;
-                                ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 39):
-
-SELECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2;
-                                      ^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 52):
-
-SELECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2;
-                                                   ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: N1
-Error with syntax near (line 1, column 40):
-
-SELECT * FROM names n1, (SELECT * FROM n1) n2;
-                                       ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names n1, (SELECT * FROM n1) n2;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N2
-Error with syntax near (line 1, column 23):
-
-SELECT * FROM (SELECT n2.id) n1, names n2;
-                      ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM (SELECT n2.id) n1, names n2;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 33):
-
-SELECT * FROM names n1, (SELECT n1.id) n2;
-                                ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names n1, (SELECT n1.id) n2;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 48):
-
-SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2) n3;
-                                               ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 54):
-
-SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2) n3;
-                                                     ^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 67):
-
-SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2) n3;
-                                                                  ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2) n3;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: N1
-Error with syntax near (line 1, column 55):
-
-SELECT * FROM (SELECT * FROM names n1, (SELECT * FROM n1) n2) n3;
-                                                      ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM (SELECT * FROM names n1, (SELECT * FROM n1) n2) n3;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N2
-Error with syntax near (line 1, column 38):
-
-SELECT * FROM (SELECT * FROM (SELECT n2.id) n1, names n2) n3;
-                                     ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM (SELECT * FROM (SELECT n2.id) n1, names n2) n3;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 48):
-
-SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id) n2) n3;
-                                               ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id) n2) n3;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N0
-Error with syntax near (line 1, column 58):
-
-SELECT * FROM names n0, (SELECT * FROM names n1, (SELECT n0.id) n2) n3;
-                                                         ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names n0, (SELECT * FROM names n1, (SELECT n0.id) n2) n3;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N0
-Error with syntax near (line 1, column 66):
-
-SELECT (SELECT * FROM names n0, (SELECT * FROM names n1, (SELECT n0.id) n2) n3);
-                                                                 ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT * FROM names n0, (SELECT * FROM names n1, (SELECT n0.id) n2) n3);
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 45):
-
-SELECT (SELECT n1.id FROM names n1, (SELECT n1.id) n2);
-                                            ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT n1.id FROM names n1, (SELECT n1.id) n2);
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 52):
-
-SELECT (SELECT n1.firstname FROM names n1, (SELECT n1.id) n2);
-                                                   ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT n1.firstname FROM names n1, (SELECT n1.id) n2);
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 45):
-
-SELECT (SELECT n2.id FROM names n1, (SELECT n1.id) n2);
-                                            ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT n2.id FROM names n1, (SELECT n1.id) n2);
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: CUSTOMERS
-Error with syntax near (line 1, column 15):
-
-SELECT * FROM customers c, (SELECT c.customer_id) c2;
-              ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM customers c, (SELECT c.customer_id) c2;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: CUSTOMERS
-Error with syntax near (line 1, column 15):
-
-SELECT * FROM customers c inner join (SELECT c.customer_id) c2 ON c2.customer_id = c.customer_id;
-              ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM customers c inner join (SELECT c.customer_id) c2 ON c2.customer_id = c.customer_id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N3
-Error with syntax near (line 1, column 23):
-
-SELECT * FROM (SELECT n3.id) n3;
-                      ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM (SELECT n3.id) n3;
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
+LINE 1: ...CT * FROM (SELECT n1.id FROM names n1 WHERE n1.id = n2.id) n2);
+                                                               ^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N4
+LINE 1: ...CT n1.id FROM names n1 WHERE n4.id = n5.id) n2) n3) n4) FROM na...
+                                        ^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N3
+LINE 1: ...CT n1.id FROM names n1 WHERE n3.id = n5.id) n2) n3) n4) FROM na...
+                                        ^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
+LINE 1: ...CT n1.id FROM names n1 WHERE n2.id = n5.id) n2) n3) n4) FROM na...
+                                        ^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N3
+LINE 1: ...CT n1.id FROM names n1 WHERE n3.id = n4.id) n2) n3) n4) FROM na...
+                                        ^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N4
+LINE 1: ...d FROM names n1 WHERE n3.id = n4.id) n2) n3) n4) FROM names n5;
+                                         ^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
+LINE 1: ...CT n1.id FROM names n1 WHERE n2.id = n4.id) n2) n3) n4) FROM na...
+                                        ^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N4
+LINE 1: ...d FROM names n1 WHERE n2.id = n4.id) n2) n3) n4) FROM names n5;
+                                         ^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N4
+LINE 1: ...d FROM names n1 WHERE n1.id = n4.id) n2) n3) n4) FROM names n5;
+                                         ^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
+LINE 1: ...CT n1.id FROM names n1 WHERE n2.id = n3.id) n2) n3) n4) FROM na...
+                                        ^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N3
+LINE 1: ...d FROM names n1 WHERE n2.id = n3.id) n2) n3) n4) FROM names n5;
+                                         ^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N3
+LINE 1: ...d FROM names n1 WHERE n1.id = n3.id) n2) n3) n4) FROM names n5;
+                                         ^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
+LINE 1: ...d FROM names n1 WHERE n1.id = n2.id) n2) n3) n4) FROM names n5;
+                                         ^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: ...ECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FRO...
+                                        ^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: ...M names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n...
+                                     ^^^^^^^^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: ...ames n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2;
+                                               ^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: N1
+LINE 1: SELECT * FROM names n1, (SELECT * FROM n1) n2;
+                                               ^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
+LINE 1: SELECT * FROM (SELECT n2.id) n1, names n2;
+                              ^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: SELECT * FROM names n1, (SELECT n1.id) n2;
+                                        ^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: ...ECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FRO...
+                                        ^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: ...M names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n...
+                                     ^^^^^^^^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: ... n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2) n3;
+                                           ^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: N1
+LINE 1: ...ELECT * FROM (SELECT * FROM names n1, (SELECT * FROM n1) n2) n3;
+                                                                ^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
+LINE 1: SELECT * FROM (SELECT * FROM (SELECT n2.id) n1, names n2) n3;
+                                             ^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id) n2) n3;
+                                                       ^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N0
+LINE 1: ... FROM names n0, (SELECT * FROM names n1, (SELECT n0.id) n2) n3;
+                                                            ^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N0
+LINE 1: ...FROM names n0, (SELECT * FROM names n1, (SELECT n0.id) n2) n3);
+                                                           ^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: SELECT (SELECT n1.id FROM names n1, (SELECT n1.id) n2);
+                                                    ^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: SELECT (SELECT n1.firstname FROM names n1, (SELECT n1.id) n2);
+                                                           ^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: SELECT (SELECT n2.id FROM names n1, (SELECT n1.id) n2);
+                                                    ^^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: CUSTOMERS
+LINE 1: SELECT * FROM customers c, (SELECT c.customer_id) c2;
+                      ^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: CUSTOMERS
+LINE 1: SELECT * FROM customers c inner join (SELECT c.customer_id) c2 ...
+                      ^^^^^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N3
+LINE 1: SELECT * FROM (SELECT n3.id) n3;
+                              ^^^^^

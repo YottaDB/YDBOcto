@@ -66,212 +66,105 @@ ID|FIRSTNAME|???
 4|Joey|
 5|Zero|
 (12 rows)
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 60):
-
-SELECT id, NULL, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, firstname, NULL from names;
-                                                           ^^
-Error with syntax near (line 1, column 101):
-
-SELECT id, NULL, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, firstname, NULL from names;
-                                                                                                    ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id, NULL, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, firstname, NULL from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 12):
-
-SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, firstname, NULL from names;
-           ^^
-Error with syntax near (line 1, column 101):
-
-SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, firstname, NULL from names;
-                                                                                                    ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, firstname, NULL from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 12):
-
-SELECT id, id, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, NULL, NULL from names;
-           ^^
-Error with syntax near (line 1, column 58):
-
-SELECT id, id, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, NULL, NULL from names;
-                                                         ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id, id, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, NULL, NULL from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 12):
-
-SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, firstname, NULL from names;
-           ^^
-Error with syntax near (line 1, column 144):
-
-SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, firstname, NULL from names;
-                                                                                                                                               ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, firstname, NULL from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 12):
-
-SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, firstname, NULL from names UNION ALL SELECT id, NULL, NULL from names;
-           ^^
-Error with syntax near (line 1, column 101):
-
-SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, firstname, NULL from names UNION ALL SELECT id, NULL, NULL from names;
-                                                                                                    ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, firstname, NULL from names UNION ALL SELECT id, NULL, NULL from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 12):
-
-SELECT id, id, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, NULL, NULL from names;
-           ^^
-Error with syntax near (line 1, column 58):
-
-SELECT id, id, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, NULL, NULL from names;
-                                                         ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id, id, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, NULL, NULL from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 12):
-
-SELECT id, firstname, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, id, NULL from names;
-           ^^^^^^^^^
-Error with syntax near (line 1, column 151):
-
-SELECT id, firstname, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, id, NULL from names;
-                                                                                                                                                      ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id, firstname, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, id, NULL from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 12):
-
-SELECT id, firstname, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, id, NULL from names UNION ALL SELECT id, NULL, NULL from names;
-           ^^^^^^^^^
-Error with syntax near (line 1, column 108):
-
-SELECT id, firstname, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, id, NULL from names UNION ALL SELECT id, NULL, NULL from names;
-                                                                                                           ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id, firstname, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, id, NULL from names UNION ALL SELECT id, NULL, NULL from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 12):
-
-SELECT id, firstname, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, NULL, NULL from names;
-           ^^^^^^^^^
-Error with syntax near (line 1, column 65):
-
-SELECT id, firstname, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, NULL, NULL from names;
-                                                                ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id, firstname, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, NULL, NULL from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 60):
-
-SELECT id, NULL, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, id, NULL from names;
-                                                           ^^^^^^^^^
-Error with syntax near (line 1, column 151):
-
-SELECT id, NULL, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, id, NULL from names;
-                                                                                                                                                      ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id, NULL, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, id, NULL from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 60):
-
-SELECT id, NULL, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, id, NULL from names UNION ALL SELECT id, NULL, NULL from names;
-                                                           ^^^^^^^^^
-Error with syntax near (line 1, column 108):
-
-SELECT id, NULL, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, id, NULL from names UNION ALL SELECT id, NULL, NULL from names;
-                                                                                                           ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id, NULL, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, id, NULL from names UNION ALL SELECT id, NULL, NULL from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 60):
-
-SELECT id, NULL, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, firstname, NULL from names UNION ALL SELECT id, NULL, NULL from names;
-                                                           ^^
-Error with syntax near (line 1, column 101):
-
-SELECT id, NULL, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, firstname, NULL from names UNION ALL SELECT id, NULL, NULL from names;
-                                                                                                    ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id, NULL, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, firstname, NULL from names UNION ALL SELECT id, NULL, NULL from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 60):
-
-SELECT id, NULL, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, firstname, NULL from names;
-                                                           ^^
-Error with syntax near (line 1, column 144):
-
-SELECT id, NULL, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, firstname, NULL from names;
-                                                                                                                                               ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id, NULL, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, firstname, NULL from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 103):
-
-SELECT id, NULL, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, id, NULL from names UNION ALL SELECT id, firstname, NULL from names;
-                                                                                                      ^^
-Error with syntax near (line 1, column 144):
-
-SELECT id, NULL, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, id, NULL from names UNION ALL SELECT id, firstname, NULL from names;
-                                                                                                                                               ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id, NULL, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, id, NULL from names UNION ALL SELECT id, firstname, NULL from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 103):
-
-SELECT id, NULL, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, firstname, NULL from names UNION ALL SELECT id, id, NULL from names;
-                                                                                                      ^^^^^^^^^
-Error with syntax near (line 1, column 151):
-
-SELECT id, NULL, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, firstname, NULL from names UNION ALL SELECT id, id, NULL from names;
-                                                                                                                                                      ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id, NULL, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, firstname, NULL from names UNION ALL SELECT id, id, NULL from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 8):
-
-SELECT * FROM names n1 INNER JOIN names n2 ON n1.id = n2.id
-       ^
-Error with syntax near (line 6, column 45):
-
-SELECT * FROM names n1 INNER JOIN names n2 ON n1.id = n2.id
-UNION ALL
-(
-  SELECT id, firstName, lastName, NULL, NULL, '' FROM names
-  EXCEPT ALL
-  SELECT n1.id, n1.firstName, n1.lastName, ''::text, NULL, NULL FROM names n1 INNER JOIN names n2 ON n1.id = n2.id
-                                            ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names n1 INNER JOIN names n2 ON n1.id = n2.id
-UNION ALL
-(
-  SELECT id, firstName, lastName, NULL, NULL, '' FROM names
-  EXCEPT ALL
-  SELECT n1.id, n1.firstName, n1.lastName, ''::text, NULL, NULL FROM names n1 INNER JOIN names n2 ON n1.id = n2.id
-);
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
+LINE 1: ...ROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SEL...
+                                          ^^
+LINE 1: ...ULL FROM names UNION ALL SELECT id, firstname, NULL from names;
+                                               ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
+LINE 1: SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, N...
+                   ^^
+LINE 1: ...ULL FROM names UNION ALL SELECT id, firstname, NULL from names;
+                                               ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
+LINE 1: SELECT id, id, firstname FROM names UNION ALL SELECT id, firstna...
+                   ^^
+LINE 1: ...names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL...
+                                      ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
+LINE 1: SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, N...
+                   ^^
+LINE 1: ...ULL from names UNION ALL SELECT id, firstname, NULL from names;
+                                               ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
+LINE 1: SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, N...
+                   ^^
+LINE 1: ...names UNION ALL SELECT id, firstname, NULL from names UNION ALL...
+                                      ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
+LINE 1: SELECT id, id, firstname FROM names UNION ALL SELECT id, firstna...
+                   ^^
+LINE 1: ...names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL...
+                                      ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
+LINE 1: SELECT id, firstname, firstname FROM names UNION ALL SELECT id,...
+                   ^^^^^^^^^
+LINE 1: ... NULL, NULL from names UNION ALL SELECT id, id, NULL from names;
+                                                       ^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
+LINE 1: SELECT id, firstname, firstname FROM names UNION ALL SELECT id,...
+                   ^^^^^^^^^
+LINE 1: ...ROM names UNION ALL SELECT id, id, NULL from names UNION ALL SEL...
+                                          ^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
+LINE 1: SELECT id, firstname, firstname FROM names UNION ALL SELECT id,...
+                   ^^^^^^^^^
+LINE 1: ...ROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SEL...
+                                          ^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
+LINE 1: ...names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL...
+                                      ^^^^^^^^^
+LINE 1: ... NULL, NULL from names UNION ALL SELECT id, id, NULL from names;
+                                                       ^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
+LINE 1: ...names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL...
+                                      ^^^^^^^^^
+LINE 1: ...ROM names UNION ALL SELECT id, id, NULL from names UNION ALL SEL...
+                                          ^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
+LINE 1: ...ROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SEL...
+                                          ^^
+LINE 1: ...names UNION ALL SELECT id, firstname, NULL from names UNION ALL...
+                                      ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
+LINE 1: ...ROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SEL...
+                                          ^^
+LINE 1: ...ULL from names UNION ALL SELECT id, firstname, NULL from names;
+                                               ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
+LINE 1: ...ROM names UNION ALL SELECT id, id, NULL from names UNION ALL SEL...
+                                          ^^
+LINE 1: ...ULL from names UNION ALL SELECT id, firstname, NULL from names;
+                                               ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
+LINE 1: ...names UNION ALL SELECT id, firstname, NULL from names UNION ALL...
+                                      ^^^^^^^^^
+LINE 1: ...tname, NULL from names UNION ALL SELECT id, id, NULL from names;
+                                                       ^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
+LINE 1: SELECT * FROM names n1 INNER JOIN names n2 ON n1.id = n2.id
+               ^
+LINE 6: ...n1.firstName, n1.lastName, ''::text, NULL, NULL FROM names n1 I...
+                                       ^^^^^^^
 PRICE
 18
 (1 row)
 PRICE
 19
 (1 row)
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION types NUMERIC and VARCHAR cannot be matched
-Error with syntax near (line 1, column 8):
-
-SELECT Price FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
-       ^^^^^
-Error with syntax near (line 1, column 41):
-
-SELECT Price FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types NUMERIC and VARCHAR cannot be matched
+LINE 1: SELECT Price FROM Products UNION SELECT ProductName FROM Produc...
+               ^^^^^
+LINE 1: ...e FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
                                         ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT Price FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for arithmetic operations
-Error with syntax near (line 1, column 16):
-
-SELECT Price + ProductName FROM Products LIMIT 1;
-               ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT Price + ProductName FROM Products LIMIT 1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 8):
-
-SELECT ProductID FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
-       ^^^^^^^^^
-Error with syntax near (line 1, column 45):
-
-SELECT ProductID FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
-                                            ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT ProductID FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for arithmetic operations
-Error with syntax near (line 1, column 20):
-
-SELECT ProductID + ProductName FROM Products LIMIT 1;
-                   ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT ProductID + ProductName FROM Products LIMIT 1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 1: SELECT Price + ProductName FROM Products LIMIT 1;
+                       ^^^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types INTEGER and VARCHAR cannot be matched
+LINE 1: SELECT ProductID FROM Products UNION SELECT ProductName FROM Pr...
+               ^^^^^^^^^
+LINE 1: ...D FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
+                                        ^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 1: SELECT ProductID + ProductName FROM Products LIMIT 1;
+                           ^^^^^^^^^^^

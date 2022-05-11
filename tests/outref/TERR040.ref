@@ -1,0 +1,11 @@
+
+-- TERR040 : OCTO793 : Test syntax highlighting correct when preceding comment includes inline comment
+
+SELECT NULL FROM names GROUP BY NULL; -- non integer constants in GroupBy are not allowed
+SELECT NULL FROM names GROUP BY NULL HAVING NULL!='hello'; -- non integer constants in GroupBy are not allowed
+[ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
+LINE 1: ...LECT NULL FROM names GROUP BY NULL; -- non integer constants in ...
+                                         ^^^^
+[ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
+LINE 2: ...LECT NULL FROM names GROUP BY NULL HAVING NULL!='hello'; -- non ...
+                                         ^^^^

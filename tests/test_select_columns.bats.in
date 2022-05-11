@@ -363,12 +363,12 @@ CAT_EOF
 }
 
 @test "TSC18 : Test of tabs in readline input" {
-  inputfile="TSC18.sql"
-  cp @PROJECT_SOURCE_DIR@/tests/fixtures/$inputfile ${inputfile}.orig
-  grep -vE '^-- |^#|^$' ${inputfile}.orig > $inputfile # Filter out comment lines as they otherwise clutter the parse error output
-  grep -v '^#' $inputfile > output.txt	# Filter out copyright from output
-  octo -vv < $inputfile  2>&1 | tee output.txt
-  verify_output TSC18 output.txt
+	inputfile="TSC18.sql"
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/$inputfile ${inputfile}.orig
+	grep -vE '^-- |^#|^$' ${inputfile}.orig > $inputfile # Filter out comment lines as they otherwise clutter the parse error output
+	grep -v '^#' $inputfile > output.txt	# Filter out copyright from output
+	octo -vv < $inputfile  2>&1 | tee output.txt
+	verify_output TSC18 output.txt
 }
 
 # Note: Any subtest that wishes to use `run_query_in_octo_and_postgres_and_crosscheck_multiple_queries` needs to be

@@ -24,17 +24,12 @@ select firstname from names where (NOT firstname);
 
 -- Boolean operations should issue error if one operand is not boolean type
 select n2.id and EXISTS (select * from names n1) from names n2;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for || operator
-Error with syntax near (line 1, column 8):
-
-select true || false;
-       ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for || operator
-Error with syntax near (line 1, column 16):
-
-select true || false;
-               ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select true || false;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for || operator
+LINE 1: select true || false;
+               ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for || operator
+LINE 1: select true || false;
+                       ^^^^^
 ID|ID
 0|0
 1|0
@@ -59,96 +54,51 @@ ID|ID
 4|false
 5|false
 (6 rows)
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for arithmetic operations
-Error with syntax near (line 1, column 12):
-
-select id+(id=2) from names;
-           ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id+(id=2) from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for arithmetic operations
-Error with syntax near (line 1, column 12):
-
-select id-(id=2) from names;
-           ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id-(id=2) from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for arithmetic operations
-Error with syntax near (line 1, column 12):
-
-select id*(id=2) from names;
-           ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id*(id=2) from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for arithmetic operations
-Error with syntax near (line 1, column 12):
-
-select id/(id=2) from names;
-           ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id/(id=2) from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for arithmetic operations
-Error with syntax near (line 1, column 12):
-
-select id%(id=2) from names;
-           ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id%(id=2) from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
-Error with syntax near (line 1, column 29):
-
-select id from names where (id OR id);
-                            ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
-Error with syntax near (line 1, column 35):
-
-select id from names where (id OR id);
-                                  ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id from names where (id OR id);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
-Error with syntax near (line 1, column 29):
-
-select id from names where (id AND id);
-                            ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
-Error with syntax near (line 1, column 36):
-
-select id from names where (id AND id);
-                                   ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id from names where (id AND id);
-[ERROR] PATH:LINENUM DATE TIME : ERR_NOT_OPERATION_TYPE_MISMATCH : INTEGER type operand is incorrect for NOT operation. Need a boolean operand.
-Error with syntax near (line 1, column 33):
-
-select id from names where (NOT id);
-                                ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id from names where (NOT id);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for boolean operations
-Error with syntax near (line 1, column 36):
-
-select firstname from names where (firstname OR firstname);
-                                   ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for boolean operations
-Error with syntax near (line 1, column 49):
-
-select firstname from names where (firstname OR firstname);
-                                                ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select firstname from names where (firstname OR firstname);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for boolean operations
-Error with syntax near (line 1, column 36):
-
-select firstname from names where (firstname AND firstname);
-                                   ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for boolean operations
-Error with syntax near (line 1, column 50):
-
-select firstname from names where (firstname AND firstname);
-                                                 ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select firstname from names where (firstname AND firstname);
-[ERROR] PATH:LINENUM DATE TIME : ERR_NOT_OPERATION_TYPE_MISMATCH : VARCHAR type operand is incorrect for NOT operation. Need a boolean operand.
-Error with syntax near (line 1, column 40):
-
-select firstname from names where (NOT firstname);
-                                       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select firstname from names where (NOT firstname);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
-Error with syntax near (line 1, column 8):
-
-select n2.id and EXISTS (select * from names n1) from names n2;
-       ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n2.id and EXISTS (select * from names n1) from names n2;
-
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for arithmetic operations
+LINE 1: select id+(id=2) from names;
+                   ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for arithmetic operations
+LINE 1: select id-(id=2) from names;
+                   ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for arithmetic operations
+LINE 1: select id*(id=2) from names;
+                   ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for arithmetic operations
+LINE 1: select id/(id=2) from names;
+                   ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for arithmetic operations
+LINE 1: select id%(id=2) from names;
+                   ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
+LINE 1: select id from names where (id OR id);
+                                    ^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
+LINE 1: select id from names where (id OR id);
+                                          ^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
+LINE 1: select id from names where (id AND id);
+                                    ^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
+LINE 1: select id from names where (id AND id);
+                                           ^^
+[ERROR]: ERR_NOT_OPERATION_TYPE_MISMATCH: INTEGER type operand is incorrect for NOT operation. Need a boolean operand.
+LINE 1: select id from names where (NOT id);
+                                        ^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
+LINE 1: select firstname from names where (firstname OR firstname);
+                                           ^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
+LINE 1: select firstname from names where (firstname OR firstname);
+                                                        ^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
+LINE 1: select firstname from names where (firstname AND firstname);
+                                           ^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
+LINE 1: select firstname from names where (firstname AND firstname);
+                                                         ^^^^^^^^^
+[ERROR]: ERR_NOT_OPERATION_TYPE_MISMATCH: VARCHAR type operand is incorrect for NOT operation. Need a boolean operand.
+LINE 1: select firstname from names where (NOT firstname);
+                                               ^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
+LINE 1: select n2.id and EXISTS (select * from names n1) from names n2;
+               ^^^^^

@@ -336,3 +336,23 @@ OCTO
 	load_fixture TERR036.sql subtest novv "-e MYSQL"
 	verify_output TERR036 output.txt
 }
+
+@test "TERR037 : OCTO600 : Test query string abbreviation in syntax errors for single-line queries" {
+	load_fixture TERR037.sql subtest novv
+	verify_output TERR037 output.txt
+}
+
+@test "TERR038 : OCTO600 : Test syntax highlighting omitted when whole excerpt or query is highlighted" {
+	load_fixture TERR038.sql subtest novv
+	verify_output TERR038 output.txt
+}
+
+@test "TERR039 : OCTO600 : Test syntax highlighting correct when highlight length exceeds excerpt length" {
+	load_fixture TERR039.sql subtest novv
+	verify_output TERR039 output.txt
+}
+
+@test "TERR040 : OCTO793 : Test syntax highlighting correct when preceding comment includes inline comment" {
+	load_fixture TERR040.sql subtest novv
+	verify_output TERR040 output.txt
+}

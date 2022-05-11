@@ -133,110 +133,55 @@ select (select 1 union select 2) < n1.* from (VALUES('test1') ,('test2') ,('test
 select (VALUES(1.0), (2.0)) > n1.* from (VALUES('test1') ,('test2') ,('test3')) n1;
 select (select 1) >= n1.* from (VALUES('test1') ,('test2') ,('test3')) n1;
 select (select * from (select 1)n2) <= n1.* from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH : Table asterisk column type mismatch: left INTEGER, right NUMERIC
-Error with syntax near (line 1, column 15):
-
-select n1.* = n2.* from (VALUES(1) ,(2) ,(1)) n1 JOIN (VALUES(1.0) ,(2.0) ,(1.0)) n2 on (n1.column1=2);
-              ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* = n2.* from (VALUES(1) ,(2) ,(1)) n1 JOIN (VALUES(1.0) ,(2.0) ,(1.0)) n2 on (n1.column1=2);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH : Table asterisk column type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 15):
-
-select n1.* = n2.* from (select 'test' union select 'num' union select 'numtest') n1, (select 1 union select 2) n2;
-              ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* = n2.* from (select 'test' union select 'num' union select 'numtest') n1, (select 1 union select 2) n2;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH : Table asterisk column type mismatch: left INTEGER, right NUMERIC
-Error with syntax near (line 1, column 17):
-
-select n1.* in (n2.*,n1.*) from (VALUES(1) ,(2) ,(1)) n1 JOIN (VALUES(1.0) ,(2.0) ,(1.0)) n2 on (n1.column1=2);
-                ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* in (n2.*,n1.*) from (VALUES(1) ,(2) ,(1)) n1 JOIN (VALUES(1.0) ,(2.0) ,(1.0)) n2 on (n1.column1=2);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right NUMERIC
-Error with syntax near (line 1, column 8):
-
-select n1.* in (select n2.*) from (VALUES(1) ,(2) ,(1)) n1 JOIN (VALUES(1.0) ,(2.0) ,(1.0)) n2 on (n1.column1=2);
-       ^^
-Error with syntax near (line 1, column 17):
-
-select n1.* in (select n2.*) from (VALUES(1) ,(2) ,(1)) n1 JOIN (VALUES(1.0) ,(2.0) ,(1.0)) n2 on (n1.column1=2);
-                ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* in (select n2.*) from (VALUES(1) ,(2) ,(1)) n1 JOIN (VALUES(1.0) ,(2.0) ,(1.0)) n2 on (n1.column1=2);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right BOOLEAN
-Error with syntax near (line 1, column 8):
-
-select n2.* in (n2.* in (n2.*)) from (VALUES(1) ,(2) ,(1)) n1 JOIN (VALUES(1.0) ,(2.0) ,(1.0)) n2 on (n1.column1=2);
-       ^^
-Error with syntax near (line 1, column 17):
-
-select n2.* in (n2.* in (n2.*)) from (VALUES(1) ,(2) ,(1)) n1 JOIN (VALUES(1.0) ,(2.0) ,(1.0)) n2 on (n1.column1=2);
-                ^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n2.* in (n2.* in (n2.*)) from (VALUES(1) ,(2) ,(1)) n1 JOIN (VALUES(1.0) ,(2.0) ,(1.0)) n2 on (n1.column1=2);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_ASTERISK_COLUMN_COUNT_MISMATCH : Table asterisk column count mismatch: left 2, right 1
-Error with syntax near (line 1, column 15):
-
-select n1.* = n2.* from (VALUES(1,1) ,(2,2) ,(1,2)) n1 JOIN (select (1) union select (2) union select (1)) n2 on (n1.column1=2);
-              ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* = n2.* from (VALUES(1,1) ,(2,2) ,(1,2)) n1 JOIN (select (1) union select (2) union select (1)) n2 on (n1.column1=2);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_ASTERISK_COLUMN_COUNT_MISMATCH : Table asterisk column count mismatch: left 1, right 2
-Error with syntax near (line 1, column 15):
-
-select n1.* = n2.* from (VALUES(1) ,(2) ,(1)) n1 JOIN (select 1,1 union select 2,2 union select 3,3) n2 on (n1.column1=2);
-              ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* = n2.* from (VALUES(1) ,(2) ,(1)) n1 JOIN (select 1,1 union select 2,2 union select 3,3) n2 on (n1.column1=2);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_ASTERISK_COLUMN_COUNT_MISMATCH : Table asterisk column count mismatch: left 1, right 2
-Error with syntax near (line 1, column 27):
-
-select n1.* in (n2.*,n1.*,n3.*) from (VALUES(1) ,(2) ,(1)) n1 JOIN (VALUES(2) ,(3) ,(4)) n2 on (n1.column1=2) JOIN (VALUES(1,1), (2,2), (1,3)) n3 on (n1.column1=2); -- works in Postgres as n1.* matches with n1.* but since we don't do type validations at later stages of Octo we had to error this out at populate_data_type() itself.
-                          ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* in (n2.*,n1.*,n3.*) from (VALUES(1) ,(2) ,(1)) n1 JOIN (VALUES(2) ,(3) ,(4)) n2 on (n1.column1=2) JOIN (VALUES(1,1), (2,2), (1,3)) n3 on (n1.column1=2);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_ASTERISK_COLUMN_COUNT_MISMATCH : Table asterisk column count mismatch: left 1, right 2
-Error with syntax near (line 2, column 22):
-
-select n1.* in (n2.*,n1.*,n3.*) from (VALUES(1) ,(2) ,(1)) n1 JOIN (VALUES(2) ,(3) ,(4)) n2 on (n1.column1=2) JOIN (VALUES(1,1), (2,2), (1,3)) n3 on (n1.column1=2); -- works in Postgres as n1.* matches with n1.* but since we don't do type validations at later stages of Octo we had to error this out at populate_data_type() itself.
-select n1.* in (n2.*,n3.*,n1.*) from (VALUES(1) ,(2) ,(1)) n1 JOIN (VALUES(2) ,(3) ,(4)) n2 on (n1.column1=2) JOIN (VALUES(1,1), (2,2), (1,3)) n3 on (n1.column1=2); -- similar to the above query but this demonstrates that such queries error out in postgres as well.
-                     ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- works in Postgres as n1.* matches with n1.* but since we don't do type validations at later stages of Octo we had to error this out at populate_data_type() itself.
-select n1.* in (n2.*,n3.*,n1.*) from (VALUES(1) ,(2) ,(1)) n1 JOIN (VALUES(2) ,(3) ,(4)) n2 on (n1.column1=2) JOIN (VALUES(1,1), (2,2), (1,3)) n3 on (n1.column1=2);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_ASTERISK_COLUMN_COUNT_MISMATCH : Table asterisk column count mismatch: left 3, right 1
-Error with syntax near (line 3, column 17):
-
-select n1.* in (n2.*,n3.*,n1.*) from (VALUES(1) ,(2) ,(1)) n1 JOIN (VALUES(2) ,(3) ,(4)) n2 on (n1.column1=2) JOIN (VALUES(1,1), (2,2), (1,3)) n3 on (n1.column1=2); -- similar to the above query but this demonstrates that such queries error out in postgres as well.
-
-SELECT t1.* in (t2.*)  FROM names t1 LEFT JOIN (SELECT lastName FROM names) AS t2 ON (t1.firstName <= 'Acid') WHERE t1.id <= 1 and t2.lastName IS NULL;
-                ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- similar to the above query but this demonstrates that such queries error out in postgres as well.
-
-SELECT t1.* in (t2.*)  FROM names t1 LEFT JOIN (SELECT lastName FROM names) AS t2 ON (t1.firstName <= 'Acid') WHERE t1.id <= 1 and t2.lastName IS NULL;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH : Table asterisk column type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 17):
-
-select n1.* in (n2.*) from (select 'test' union select 'num' union select 'numtest') n1, (select 1 union select 2) n2;
-                ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* in (n2.*) from (select 'test' union select 'num' union select 'numtest') n1, (select 1 union select 2) n2;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH : Table asterisk column type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 17):
-
-select n1.* in (n2.*) from (select 'test' union select 'num' union select 'numtest') n1, (select 1 union select 2) n2;
-                ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* in (n2.*) from (select 'test' union select 'num' union select 'numtest') n1, (select 1 union select 2) n2;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH : Table asterisk column type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 17):
-
-select n1.* in (n2.*) from (select 'test' union select NULL union select 'numtest') n1, (select 1 union select NULL) n2 group by n1.*,n2.* order by n1.*;
-                ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* in (n2.*) from (select 'test' union select NULL union select 'numtest') n1, (select 1 union select NULL) n2 group by n1.*,n2.* order by n1.*;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH : Table asterisk column type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 15):
-
-select n1.* = n2.* from (VALUES(1::VARCHAR) ,(2::VARCHAR) ,(1::VARCHAR)) n1 JOIN (VALUES(1) ,(2) ,(1)) n2 on (n1.column1='1');
-              ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* = n2.* from (VALUES(1::VARCHAR) ,(2::VARCHAR) ,(1::VARCHAR)) n1 JOIN (VALUES(1) ,(2) ,(1)) n2 on (n1.column1='1');
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH : Table asterisk column type mismatch: left NUMERIC, right INTEGER
-Error with syntax near (line 1, column 15):
-
-select n1.* = n2.* from (VALUES(1::NUMERIC) ,(2::NUMERIC) ,(1::NUMERIC)) n1 JOIN (VALUES(1.0::INTEGER) ,(2.0::INTEGER) ,(1.0::INTEGER)) n2 on (n1.column1=2);
-              ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* = n2.* from (VALUES(1::NUMERIC) ,(2::NUMERIC) ,(1::NUMERIC)) n1 JOIN (VALUES(1.0::INTEGER) ,(2.0::INTEGER) ,(1.0::INTEGER)) n2 on (n1.column1=2);
+[ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left INTEGER, right NUMERIC
+LINE 1: select n1.* = n2.* from (VALUES(1) ,(2) ,(1)) n1 JOIN (VALUES(1....
+                      ^^
+[ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left VARCHAR, right INTEGER
+LINE 1: select n1.* = n2.* from (select 'test' union select 'num' union ...
+                      ^^
+[ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left INTEGER, right NUMERIC
+LINE 1: select n1.* in (n2.*,n1.*) from (VALUES(1) ,(2) ,(1)) n1 JOIN (V...
+                        ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right NUMERIC
+LINE 1: select n1.* in (select n2.*) from (VALUES(1) ,(2) ,(1)) n1 JOIN ...
+               ^^
+LINE 1: select n1.* in (select n2.*) from (VALUES(1) ,(2) ,(1)) n1 JOIN ...
+                        ^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right BOOLEAN
+LINE 1: select n2.* in (n2.* in (n2.*)) from (VALUES(1) ,(2) ,(1)) n1 JO...
+               ^^
+LINE 1: select n2.* in (n2.* in (n2.*)) from (VALUES(1) ,(2) ,(1)) n1 JO...
+                        ^^^^^^^^^^^^^^
+[ERROR]: ERR_TABLE_ASTERISK_COLUMN_COUNT_MISMATCH: Table asterisk column count mismatch: left 2, right 1
+LINE 1: select n1.* = n2.* from (VALUES(1,1) ,(2,2) ,(1,2)) n1 JOIN (sel...
+                      ^^
+[ERROR]: ERR_TABLE_ASTERISK_COLUMN_COUNT_MISMATCH: Table asterisk column count mismatch: left 1, right 2
+LINE 1: select n1.* = n2.* from (VALUES(1) ,(2) ,(1)) n1 JOIN (select 1,...
+                      ^^
+[ERROR]: ERR_TABLE_ASTERISK_COLUMN_COUNT_MISMATCH: Table asterisk column count mismatch: left 1, right 2
+LINE 1: select n1.* in (n2.*,n1.*,n3.*) from (VALUES(1) ,(2) ,(1)) n1 JO...
+                                  ^^^^
+[ERROR]: ERR_TABLE_ASTERISK_COLUMN_COUNT_MISMATCH: Table asterisk column count mismatch: left 1, right 2
+LINE 2: select n1.* in (n2.*,n3.*,n1.*) from (VALUES(1) ,(2) ,(1)) n1 JO...
+                             ^^^^
+[ERROR]: ERR_TABLE_ASTERISK_COLUMN_COUNT_MISMATCH: Table asterisk column count mismatch: left 3, right 1
+LINE 3: SELECT t1.* in (t2.*)  FROM names t1 LEFT JOIN (SELECT lastName ...
+                        ^^^^
+[ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left VARCHAR, right INTEGER
+LINE 1: select n1.* in (n2.*) from (select 'test' union select 'num' uni...
+                        ^^^^
+[ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left VARCHAR, right INTEGER
+LINE 1: select n1.* in (n2.*) from (select 'test' union select 'num' uni...
+                        ^^^^
+[ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left VARCHAR, right INTEGER
+LINE 1: select n1.* in (n2.*) from (select 'test' union select NULL unio...
+                        ^^^^
+[ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left VARCHAR, right INTEGER
+LINE 1: select n1.* = n2.* from (VALUES(1::VARCHAR) ,(2::VARCHAR) ,(1::V...
+                      ^^
+[ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left NUMERIC, right INTEGER
+LINE 1: select n1.* = n2.* from (VALUES(1::NUMERIC) ,(2::NUMERIC) ,(1::N...
+                      ^^
 ???
 0
 0
@@ -253,280 +198,132 @@ select n1.* = n2.* from (VALUES(1::NUMERIC) ,(2::NUMERIC) ,(1::NUMERIC)) n1 JOIN
 0
 0
 (6 rows)
-Error with syntax near (line 1, column 20):
-
-select n1.* is not n1.* from names n1;
-                   ^^
+LINE 1: select n1.* is not n1.* from names n1;
+                           ^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting UNKNOWN or TRUE_TOKEN or FALSE_TOKEN or NULL_TOKEN
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* is not n1.* from names n1;
-Error with syntax near (line 1, column 16):
-
-select n1.* is n1.* from names n1;
-               ^^
+LINE 1: select n1.* is n1.* from names n1;
+                       ^^
 syntax error, unexpected IDENTIFIER_ALONE
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* is n1.* from names n1;
-Error with syntax near (line 1, column 16):
-
-select NULL is n1.* from names n1;
-               ^^
+LINE 1: select NULL is n1.* from names n1;
+                       ^^
 syntax error, unexpected IDENTIFIER_ALONE
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select NULL is n1.* from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right VARCHAR
-Error with syntax near (line 1, column 8):
-
-select n1.* like 'test' from names n1;
-       ^^
-Error with syntax near (line 1, column 23):
-
-select n1.* like 'test' from names n1;
-                      ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* like 'test' from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for REGEX operation
-Error with syntax near (line 1, column 8):
-
-select n1.* like NULL from names n1;
-       ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* like NULL from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right TABLENAME.*
-Error with syntax near (line 1, column 13):
-
-select 'test' like n1.* from names n1;
-            ^
-Error with syntax near (line 1, column 20):
-
-select 'test' like n1.* from names n1;
-                   ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 'test' like n1.* from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right VARCHAR
-Error with syntax near (line 1, column 8):
-
-select n1.* similar to 'test' from names n1;
-       ^^
-Error with syntax near (line 1, column 29):
-
-select n1.* similar to 'test' from names n1;
-                            ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* similar to 'test' from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for REGEX operation
-Error with syntax near (line 1, column 8):
-
-select n1.* similar to NULL from names n1;
-       ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* similar to NULL from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right TABLENAME.*
-Error with syntax near (line 1, column 13):
-
-select 'test' similar to n1.* from names n1;
-            ^
-Error with syntax near (line 1, column 26):
-
-select 'test' similar to n1.* from names n1;
-                         ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 'test' similar to n1.* from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for REGEX operation
-Error with syntax near (line 1, column 8):
-
-select n1.* LIKE n1.* from names n1;
-       ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* LIKE n1.* from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for REGEX operation
-Error with syntax near (line 1, column 18):
-
-select NULL like n1.* from names n1;
-                 ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select NULL like n1.* from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right TABLENAME.*
-Error with syntax near (line 1, column 13):
-
-select 'test' != n2.* from (VALUES('test') ,('test') ,('test')) n1 JOIN (select ('test') union select ('test') union select ('test')) n2 on (n1.column1='test');
-            ^
-Error with syntax near (line 1, column 18):
-
-select 'test' != n2.* from (VALUES('test') ,('test') ,('test')) n1 JOIN (select ('test') union select ('test') union select ('test')) n2 on (n1.column1='test');
-                 ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 'test' != n2.* from (VALUES('test') ,('test') ,('test')) n1 JOIN (select ('test') union select ('test') union select ('test')) n2 on (n1.column1='test');
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right VARCHAR
-Error with syntax near (line 1, column 8):
-
-select n2.* != 'test' from (VALUES('test') ,('test') ,('test')) n1 JOIN (select ('test') union select ('test') union select ('test')) n2 on (n1.column1='test');
-       ^^
-Error with syntax near (line 1, column 21):
-
-select n2.* != 'test' from (VALUES('test') ,('test') ,('test')) n1 JOIN (select ('test') union select ('test') union select ('test')) n2 on (n1.column1='test');
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
+LINE 1: select n1.* like 'test' from names n1;
+               ^^
+LINE 1: select n1.* like 'test' from names n1;
+                              ^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for REGEX operation
+LINE 1: select n1.* like NULL from names n1;
+               ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
+LINE 1: select 'test' like n1.* from names n1;
                     ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n2.* != 'test' from (VALUES('test') ,('test') ,('test')) n1 JOIN (select ('test') union select ('test') union select ('test')) n2 on (n1.column1='test');
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right TABLENAME.*
-Error with syntax near (line 1, column 13):
-
-select 'test' > n2.* from (VALUES('test') ,('test') ,('test')) n1 JOIN (select ('test') union select ('test') union select ('test')) n2 on (n1.column1='test');
-            ^
-Error with syntax near (line 1, column 17):
-
-select 'test' > n2.* from (VALUES('test') ,('test') ,('test')) n1 JOIN (select ('test') union select ('test') union select ('test')) n2 on (n1.column1='test');
-                ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 'test' > n2.* from (VALUES('test') ,('test') ,('test')) n1 JOIN (select ('test') union select ('test') union select ('test')) n2 on (n1.column1='test');
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right TABLENAME.*
-Error with syntax near (line 1, column 13):
-
-select 'test' < n2.* from (VALUES('test') ,('test') ,('test')) n1 JOIN (select ('test') union select ('test') union select ('test')) n2 on (n1.column1='test');
-            ^
-Error with syntax near (line 1, column 17):
-
-select 'test' < n2.* from (VALUES('test') ,('test') ,('test')) n1 JOIN (select ('test') union select ('test') union select ('test')) n2 on (n1.column1='test');
-                ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 'test' < n2.* from (VALUES('test') ,('test') ,('test')) n1 JOIN (select ('test') union select ('test') union select ('test')) n2 on (n1.column1='test');
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right TABLENAME.*
-Error with syntax near (line 1, column 13):
-
-select 'test' >= n2.* from (VALUES('test') ,('test') ,('test')) n1 JOIN (select ('test') union select ('test') union select ('test')) n2 on (n1.column1='test');
-            ^
-Error with syntax near (line 1, column 18):
-
-select 'test' >= n2.* from (VALUES('test') ,('test') ,('test')) n1 JOIN (select ('test') union select ('test') union select ('test')) n2 on (n1.column1='test');
-                 ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 'test' >= n2.* from (VALUES('test') ,('test') ,('test')) n1 JOIN (select ('test') union select ('test') union select ('test')) n2 on (n1.column1='test');
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right TABLENAME.*
-Error with syntax near (line 1, column 13):
-
-select 'test' <= n2.* from (VALUES('test') ,('test') ,('test')) n1 JOIN (select ('test') union select ('test') union select ('test')) n2 on (n1.column1='test');
-            ^
-Error with syntax near (line 1, column 18):
-
-select 'test' <= n2.* from (VALUES('test') ,('test') ,('test')) n1 JOIN (select ('test') union select ('test') union select ('test')) n2 on (n1.column1='test');
-                 ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 'test' <= n2.* from (VALUES('test') ,('test') ,('test')) n1 JOIN (select ('test') union select ('test') union select ('test')) n2 on (n1.column1='test');
-???
-0
-0
-0
-(3 rows)
-???
-0
-0
-0
-(3 rows)
-???
-0
-0
-0
-(3 rows)
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right BOOLEAN
-Error with syntax near (line 1, column 8):
-
-select n1.* is UNKNOWN from (VALUES(TRUE)) n1;
-       ^^
-Error with syntax near (line 1, column 16):
-
-select n1.* is UNKNOWN from (VALUES(TRUE)) n1;
-               ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* is UNKNOWN from (VALUES(TRUE)) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right BOOLEAN
-Error with syntax near (line 1, column 8):
-
-select n1.* is true from (VALUES(TRUE)) n1;
-       ^^
-Error with syntax near (line 1, column 16):
-
-select n1.* is true from (VALUES(TRUE)) n1;
-               ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* is true from (VALUES(TRUE)) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right BOOLEAN
-Error with syntax near (line 1, column 8):
-
-select n1.* is false from (VALUES(TRUE)) n1;
-       ^^
-Error with syntax near (line 1, column 16):
-
-select n1.* is false from (VALUES(TRUE)) n1;
-               ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* is false from (VALUES(TRUE)) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right BOOLEAN
-Error with syntax near (line 1, column 8):
-
-select n1.* is false from (VALUES(NULL)) n1;
-       ^^
-Error with syntax near (line 1, column 16):
-
-select n1.* is false from (VALUES(NULL)) n1;
-               ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* is false from (VALUES(NULL)) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right BOOLEAN
-Error with syntax near (line 1, column 8):
-
-select n1.* is not UNKNOWN from (VALUES(TRUE)) n1;
-       ^^
-Error with syntax near (line 1, column 20):
-
-select n1.* is not UNKNOWN from (VALUES(TRUE)) n1;
-                   ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* is not UNKNOWN from (VALUES(TRUE)) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right BOOLEAN
-Error with syntax near (line 1, column 8):
-
-select n1.* is not true from (VALUES(TRUE)) n1;
-       ^^
-Error with syntax near (line 1, column 20):
-
-select n1.* is not true from (VALUES(TRUE)) n1;
-                   ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* is not true from (VALUES(TRUE)) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right BOOLEAN
-Error with syntax near (line 1, column 8):
-
-select n1.* is not false from (VALUES(TRUE)) n1;
-       ^^
-Error with syntax near (line 1, column 20):
-
-select n1.* is not false from (VALUES(TRUE)) n1;
-                   ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* is not false from (VALUES(TRUE)) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right BOOLEAN
-Error with syntax near (line 1, column 8):
-
-select n1.* is not false from (VALUES(NULL)) n1;
-       ^^
-Error with syntax near (line 1, column 20):
-
-select n1.* is not false from (VALUES(NULL)) n1;
-                   ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* is not false from (VALUES(NULL)) n1;
-???
-1
-0
-0
-1
-1
-0
-1
-0
-0
-(9 rows)
-???
-0
-0
-0
-1
-1
-0
-1
-0
-0
-(9 rows)
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH : Table asterisk column type mismatch: left NUMERIC, right INTEGER
-Error with syntax near (line 1, column 15):
-
-select n1.* = n2.* from (VALUES(1,'test1',1.0) ,(2,'test2',2.0) ,(1,'test3',3.0)) n1 JOIN (select 1,'test1',1 union select 2, NULL,2 union select 3,'test3',3) n2 on (1=1);
-              ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* = n2.* from (VALUES(1,'test1',1.0) ,(2,'test2',2.0) ,(1,'test3',3.0)) n1 JOIN (select 1,'test1',1 union select 2, NULL,2 union select 3,'test3',3) n2 on (1=1);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH : Table asterisk column type mismatch: left INTEGER, right NUMERIC
-Error with syntax near (line 1, column 16):
-
-select n1.* != n2.* from (VALUES(1,'test1',1) ,(2,'test2',2) ,(1,'test3',3)) n1 JOIN (select 1,'test1',1.0 union select 2, NULL,2.0 union select 3,'test3',3.0) n2 on (1=1);
+LINE 1: select 'test' like n1.* from names n1;
+                           ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
+LINE 1: select n1.* similar to 'test' from names n1;
                ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* != n2.* from (VALUES(1,'test1',1) ,(2,'test2',2) ,(1,'test3',3)) n1 JOIN (select 1,'test1',1.0 union select 2, NULL,2.0 union select 3,'test3',3.0) n2 on (1=1);
+LINE 1: select n1.* similar to 'test' from names n1;
+                                    ^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for REGEX operation
+LINE 1: select n1.* similar to NULL from names n1;
+               ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
+LINE 1: select 'test' similar to n1.* from names n1;
+                    ^
+LINE 1: select 'test' similar to n1.* from names n1;
+                                 ^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for REGEX operation
+LINE 1: select n1.* LIKE n1.* from names n1;
+               ^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for REGEX operation
+LINE 1: select NULL like n1.* from names n1;
+                         ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
+LINE 1: select 'test' != n2.* from (VALUES('test') ,('test') ,('test'))...
+                    ^
+LINE 1: select 'test' != n2.* from (VALUES('test') ,('test') ,('test')) ...
+                         ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
+LINE 1: select n2.* != 'test' from (VALUES('test') ,('test') ,('test')) ...
+               ^^
+LINE 1: select n2.* != 'test' from (VALUES('test') ,('test') ,('test'))...
+                            ^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
+LINE 1: select 'test' > n2.* from (VALUES('test') ,('test') ,('test')) ...
+                    ^
+LINE 1: select 'test' > n2.* from (VALUES('test') ,('test') ,('test')) n...
+                        ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
+LINE 1: select 'test' < n2.* from (VALUES('test') ,('test') ,('test')) ...
+                    ^
+LINE 1: select 'test' < n2.* from (VALUES('test') ,('test') ,('test')) n...
+                        ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
+LINE 1: select 'test' >= n2.* from (VALUES('test') ,('test') ,('test'))...
+                    ^
+LINE 1: select 'test' >= n2.* from (VALUES('test') ,('test') ,('test')) ...
+                         ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
+LINE 1: select 'test' <= n2.* from (VALUES('test') ,('test') ,('test'))...
+                    ^
+LINE 1: select 'test' <= n2.* from (VALUES('test') ,('test') ,('test')) ...
+                         ^^
+???
+0
+0
+0
+(3 rows)
+???
+0
+0
+0
+(3 rows)
+???
+0
+0
+0
+(3 rows)
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right BOOLEAN
+LINE 1: select n1.* is UNKNOWN from (VALUES(TRUE)) n1;
+               ^^
+LINE 1: select n1.* is UNKNOWN from (VALUES(TRUE)) n1;
+                       ^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right BOOLEAN
+LINE 1: select n1.* is true from (VALUES(TRUE)) n1;
+               ^^
+LINE 1: select n1.* is true from (VALUES(TRUE)) n1;
+                       ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right BOOLEAN
+LINE 1: select n1.* is false from (VALUES(TRUE)) n1;
+               ^^
+LINE 1: select n1.* is false from (VALUES(TRUE)) n1;
+                       ^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right BOOLEAN
+LINE 1: select n1.* is false from (VALUES(NULL)) n1;
+               ^^
+LINE 1: select n1.* is false from (VALUES(NULL)) n1;
+                       ^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right BOOLEAN
+LINE 1: select n1.* is not UNKNOWN from (VALUES(TRUE)) n1;
+               ^^
+LINE 1: select n1.* is not UNKNOWN from (VALUES(TRUE)) n1;
+                           ^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right BOOLEAN
+LINE 1: select n1.* is not true from (VALUES(TRUE)) n1;
+               ^^
+LINE 1: select n1.* is not true from (VALUES(TRUE)) n1;
+                           ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right BOOLEAN
+LINE 1: select n1.* is not false from (VALUES(TRUE)) n1;
+               ^^
+LINE 1: select n1.* is not false from (VALUES(TRUE)) n1;
+                           ^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right BOOLEAN
+LINE 1: select n1.* is not false from (VALUES(NULL)) n1;
+               ^^
+LINE 1: select n1.* is not false from (VALUES(NULL)) n1;
+                           ^^^^^
 ???
 1
 0
@@ -538,340 +335,199 @@ select n1.* != n2.* from (VALUES(1,'test1',1) ,(2,'test2',2) ,(1,'test3',3)) n1 
 0
 0
 (9 rows)
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH : Table asterisk column type mismatch: left NUMERIC, right INTEGER
-Error with syntax near (line 1, column 21):
-
-select n1.* NOT IN (n2.*) from (VALUES(1,'test1',1.0) ,(2,'test2',2.0) ,(1,'test3',3.0)) n1 JOIN (select 1,'test1',1 union select 2,NULL,2 union select 3,'test3',3) n2 on (1=1);
-                    ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* NOT IN (n2.*) from (VALUES(1,'test1',1.0) ,(2,'test2',2.0) ,(1,'test3',3.0)) n1 JOIN (select 1,'test1',1 union select 2,NULL,2 union select 3,'test3',3) n2 on (1=1);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_ASTERISK_COLUMN_COUNT_MISMATCH : Table asterisk column count mismatch: left 2, right 1
-Error with syntax near (line 1, column 16):
-
-select n1.* != n2.* from (VALUES(1,'test1') ,(2,'test2') ,(1,'test3')) n1 JOIN (select 1 union select 2 union select 3) n2 on (1=1);
+???
+0
+0
+0
+1
+1
+0
+1
+0
+0
+(9 rows)
+[ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left NUMERIC, right INTEGER
+LINE 1: select n1.* = n2.* from (VALUES(1,'test1',1.0) ,(2,'test2',2.0) ...
+                      ^^
+[ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left INTEGER, right NUMERIC
+LINE 1: select n1.* != n2.* from (VALUES(1,'test1',1) ,(2,'test2',2) ,(1...
+                       ^^
+???
+1
+0
+0
+1
+1
+0
+1
+0
+0
+(9 rows)
+[ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left NUMERIC, right INTEGER
+LINE 1: select n1.* NOT IN (n2.*) from (VALUES(1,'test1',1.0) ,(2,'test2...
+                            ^^^^
+[ERROR]: ERR_TABLE_ASTERISK_COLUMN_COUNT_MISMATCH: Table asterisk column count mismatch: left 2, right 1
+LINE 1: select n1.* != n2.* from (VALUES(1,'test1') ,(2,'test2') ,(1,'te...
+                       ^^
+[ERROR]: ERR_TABLE_ASTERISK_COLUMN_COUNT_MISMATCH: Table asterisk column count mismatch: left 1, right 2
+LINE 1: select n1.* < n2.* from (VALUES(1) ,(2) ,(1)) n1 JOIN (select 1,...
+                      ^^
+[ERROR]: ERR_TABLE_ASTERISK_COLUMN_COUNT_MISMATCH: Table asterisk column count mismatch: left 3, right 2
+LINE 1: select n1.* NOT IN (n2.*) from (VALUES(1,'test1',1.0) ,(2,'test2...
+                            ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 1: select n1.* NOT IN (select NULL union select NULL) from (VALUES(...
+                            ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 1: select n1.* NOT IN (select NULL) from (VALUES('test1') ,('test2'...
+                            ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 1: select n1.* NOT IN (select * from (select NULL)n1) from names n1...
+                            ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 1: select n1.* = (select NULL union select NULL) from (VALUES('test...
+                       ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 1: select n1.* = (select NULL) from (VALUES('test1') ,('test2') ,('...
+                       ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 1: select n1.* = (select * from (select NULL)n1) from names n1;
+                       ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 1: select n1.* < (select NULL union select NULL) from (VALUES('test...
+                       ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 1: select n1.* >= (select NULL) from (VALUES('test1') ,('test2') ,(...
+                        ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 1: select n1.* <= (select * from (select NULL)n1) from names n1;
+                        ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 1: select (select NULL union select NULL) NOT IN (n1.*) from (VALUE...
+                ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 1: select (select NULL) NOT IN (n1.*) from (VALUES('test1') ,('test...
+                ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 1: select (select * from (select NULL)n1) NOT IN (n1.*)from names n...
+                ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 1: select (select NULL union select NULL) = n1.* from (VALUES('test...
+                ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 1: select (select NULL) = n1.* from (VALUES('test1') ,('test2') ,('...
+                ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 1: select (select * from (select NULL)n2) = n1.* from names n1;
+                ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 1: select (select NULL union select NULL) < n1.* from (VALUES('test...
+                ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 1: select (select NULL) >= n1.* from (VALUES('test1') ,('test2') ,(...
+                ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 1: select (select * from (select NULL)n1) <= n1.* from names n1;
+                ^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
+LINE 1: select n1.* NOT IN (select 1 union select 2) from (VALUES('test1...
                ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* != n2.* from (VALUES(1,'test1') ,(2,'test2') ,(1,'test3')) n1 JOIN (select 1 union select 2 union select 3) n2 on (1=1);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_ASTERISK_COLUMN_COUNT_MISMATCH : Table asterisk column count mismatch: left 1, right 2
-Error with syntax near (line 1, column 15):
-
-select n1.* < n2.* from (VALUES(1) ,(2) ,(1)) n1 JOIN (select 1,'test1' union select 2,'test2' union select 3,'test3') n2 on (1=1);
-              ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* < n2.* from (VALUES(1) ,(2) ,(1)) n1 JOIN (select 1,'test1' union select 2,'test2' union select 3,'test3') n2 on (1=1);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_ASTERISK_COLUMN_COUNT_MISMATCH : Table asterisk column count mismatch: left 3, right 2
-Error with syntax near (line 1, column 21):
-
-select n1.* NOT IN (n2.*) from (VALUES(1,'test1',1.0) ,(2,'test2',2.0) ,(1,'test3',3.0)) n1 JOIN (select 1,'test1' union select 2,NULL union select 3,'test3') n2 on (1=1);
-                    ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* NOT IN (n2.*) from (VALUES(1,'test1',1.0) ,(2,'test2',2.0) ,(1,'test3',3.0)) n1 JOIN (select 1,'test1' union select 2,NULL union select 3,'test3') n2 on (1=1);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for NULL type subquery comparison
-Error with syntax near (line 1, column 21):
-
-select n1.* NOT IN (select NULL union select NULL) from (VALUES('test1') ,('test2') ,('test3')) n1;
-                    ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* NOT IN (select NULL union select NULL) from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for NULL type subquery comparison
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* NOT IN (VALUES(NULL), (NULL)) from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for NULL type subquery comparison
-Error with syntax near (line 1, column 21):
-
-select n1.* NOT IN (select NULL) from (VALUES('test1') ,('test2') ,('test3')) n1;
-                    ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* NOT IN (select NULL) from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for NULL type subquery comparison
-Error with syntax near (line 1, column 21):
-
-select n1.* NOT IN (select * from (select NULL)n1) from names n1;
-                    ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* NOT IN (select * from (select NULL)n1) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for NULL type subquery comparison
-Error with syntax near (line 1, column 16):
-
-select n1.* = (select NULL union select NULL) from (VALUES('test1') ,('test2') ,('test3')) n1;
-               ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* = (select NULL union select NULL) from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for NULL type subquery comparison
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* = (VALUES(NULL), (NULL)) from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for NULL type subquery comparison
-Error with syntax near (line 1, column 16):
-
-select n1.* = (select NULL) from (VALUES('test1') ,('test2') ,('test3')) n1;
-               ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* = (select NULL) from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for NULL type subquery comparison
-Error with syntax near (line 1, column 16):
-
-select n1.* = (select * from (select NULL)n1) from names n1;
-               ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* = (select * from (select NULL)n1) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for NULL type subquery comparison
-Error with syntax near (line 1, column 16):
-
-select n1.* < (select NULL union select NULL) from (VALUES('test1') ,('test2') ,('test3')) n1;
-               ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* < (select NULL union select NULL) from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for NULL type subquery comparison
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* > (VALUES(NULL), (NULL)) from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for NULL type subquery comparison
-Error with syntax near (line 1, column 17):
-
-select n1.* >= (select NULL) from (VALUES('test1') ,('test2') ,('test3')) n1;
-                ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* >= (select NULL) from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for NULL type subquery comparison
-Error with syntax near (line 1, column 17):
-
-select n1.* <= (select * from (select NULL)n1) from names n1;
-                ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* <= (select * from (select NULL)n1) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for NULL type subquery comparison
-Error with syntax near (line 1, column 9):
-
-select (select NULL union select NULL) NOT IN (n1.*) from (VALUES('test1') ,('test2') ,('test3')) n1;
-        ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (select NULL union select NULL) NOT IN (n1.*) from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for NULL type subquery comparison
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (VALUES(NULL), (NULL)) NOT IN (n1.*) from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for NULL type subquery comparison
-Error with syntax near (line 1, column 9):
-
-select (select NULL) NOT IN (n1.*) from (VALUES('test1') ,('test2') ,('test3')) n1;
-        ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (select NULL) NOT IN (n1.*) from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for NULL type subquery comparison
-Error with syntax near (line 1, column 9):
-
-select (select * from (select NULL)n1) NOT IN (n1.*)from names n1;
-        ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (select * from (select NULL)n1) NOT IN (n1.*)from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for NULL type subquery comparison
-Error with syntax near (line 1, column 9):
-
-select (select NULL union select NULL) = n1.* from (VALUES('test1') ,('test2') ,('test3')) n1;
-        ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (select NULL union select NULL) = n1.* from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for NULL type subquery comparison
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (VALUES(NULL), (NULL)) = n1.* from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for NULL type subquery comparison
-Error with syntax near (line 1, column 9):
-
-select (select NULL) = n1.* from (VALUES('test1') ,('test2') ,('test3')) n1;
-        ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (select NULL) = n1.* from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for NULL type subquery comparison
-Error with syntax near (line 1, column 9):
-
-select (select * from (select NULL)n2) = n1.* from names n1;
-        ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (select * from (select NULL)n2) = n1.* from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for NULL type subquery comparison
-Error with syntax near (line 1, column 9):
-
-select (select NULL union select NULL) < n1.* from (VALUES('test1') ,('test2') ,('test3')) n1;
-        ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (select NULL union select NULL) < n1.* from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for NULL type subquery comparison
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (VALUES(NULL), (NULL)) > n1.* from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for NULL type subquery comparison
-Error with syntax near (line 1, column 9):
-
-select (select NULL) >= n1.* from (VALUES('test1') ,('test2') ,('test3')) n1;
-        ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (select NULL) >= n1.* from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for NULL type subquery comparison
-Error with syntax near (line 1, column 9):
-
-select (select * from (select NULL)n1) <= n1.* from names n1;
-        ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (select * from (select NULL)n1) <= n1.* from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right INTEGER
-Error with syntax near (line 1, column 8):
-
-select n1.* NOT IN (select 1 union select 2) from (VALUES('test1') ,('test2') ,('test3')) n1;
-       ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* NOT IN (select 1 union select 2) from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right NUMERIC
-Error with syntax near (line 1, column 8):
-
-select n1.* NOT IN (VALUES(1.0), (2.0)) from (VALUES('test1') ,('test2') ,('test3')) n1;
-       ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* NOT IN (VALUES(1.0), (2.0)) from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right INTEGER
-Error with syntax near (line 1, column 8):
-
-select n1.* NOT IN (select 1) from (VALUES('test1') ,('test2') ,('test3')) n1;
-       ^^
-Error with syntax near (line 1, column 21):
-
-select n1.* NOT IN (select 1) from (VALUES('test1') ,('test2') ,('test3')) n1;
-                    ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* NOT IN (select 1) from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right INTEGER
-Error with syntax near (line 1, column 8):
-
-select n1.* NOT IN (select * from (select 1)n1) from names n1;
-       ^^
-Error with syntax near (line 1, column 21):
-
-select n1.* NOT IN (select * from (select 1)n1) from names n1;
-                    ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* NOT IN (select * from (select 1)n1) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right INTEGER
-Error with syntax near (line 1, column 8):
-
-select n1.* = (select 1 union select 2) from (VALUES('test1') ,('test2') ,('test3')) n1;
-       ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* = (select 1 union select 2) from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right NUMERIC
-Error with syntax near (line 1, column 8):
-
-select n1.* = (VALUES(1.0), (2.0)) from (VALUES('test1') ,('test2') ,('test3')) n1;
-       ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* = (VALUES(1.0), (2.0)) from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right INTEGER
-Error with syntax near (line 1, column 8):
-
-select n1.* = (select 1) from (VALUES('test1') ,('test2') ,('test3')) n1;
-       ^^
-Error with syntax near (line 1, column 16):
-
-select n1.* = (select 1) from (VALUES('test1') ,('test2') ,('test3')) n1;
-               ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* = (select 1) from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right INTEGER
-Error with syntax near (line 1, column 8):
-
-select n1.* = (select * from (select 1)n1) from names n1;
-       ^^
-Error with syntax near (line 1, column 16):
-
-select n1.* = (select * from (select 1)n1) from names n1;
-               ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* = (select * from (select 1)n1) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right INTEGER
-Error with syntax near (line 1, column 8):
-
-select n1.* < (select 1 union select 2) from (VALUES('test1') ,('test2') ,('test3')) n1;
-       ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* < (select 1 union select 2) from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right NUMERIC
-Error with syntax near (line 1, column 8):
-
-select n1.* > (VALUES(1.0), (2.0)) from (VALUES('test1') ,('test2') ,('test3')) n1;
-       ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* > (VALUES(1.0), (2.0)) from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right INTEGER
-Error with syntax near (line 1, column 8):
-
-select n1.* >= (select 1) from (VALUES('test1') ,('test2') ,('test3')) n1;
-       ^^
-Error with syntax near (line 1, column 17):
-
-select n1.* >= (select 1) from (VALUES('test1') ,('test2') ,('test3')) n1;
-                ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* >= (select 1) from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right INTEGER
-Error with syntax near (line 1, column 8):
-
-select n1.* <= (select * from (select 1)n1) from names n1;
-       ^^
-Error with syntax near (line 1, column 17):
-
-select n1.* <= (select * from (select 1)n1) from names n1;
-                ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* <= (select * from (select 1)n1) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right TABLENAME.*
-Error with syntax near (line 1, column 42):
-
-select (select 1 union select 2) not in (n1.*) from (VALUES('test1') ,('test2') ,('test3')) n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right NUMERIC
+LINE 1: select n1.* NOT IN (VALUES(1.0), (2.0)) from (VALUES('test1') ,(...
+               ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
+LINE 1: select n1.* NOT IN (select 1) from (VALUES('test1') ,('test2') ,...
+               ^^
+LINE 1: select n1.* NOT IN (select 1) from (VALUES('test1') ,('test2') ,...
+                            ^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
+LINE 1: select n1.* NOT IN (select * from (select 1)n1) from names n1;
+               ^^
+LINE 1: select n1.* NOT IN (select * from (select 1)n1) from names n1;
+                            ^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
+LINE 1: select n1.* = (select 1 union select 2) from (VALUES('test1') ,(...
+               ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right NUMERIC
+LINE 1: select n1.* = (VALUES(1.0), (2.0)) from (VALUES('test1') ,('test...
+               ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
+LINE 1: select n1.* = (select 1) from (VALUES('test1') ,('test2') ,('tes...
+               ^^
+LINE 1: select n1.* = (select 1) from (VALUES('test1') ,('test2') ,('tes...
+                       ^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
+LINE 1: select n1.* = (select * from (select 1)n1) from names n1;
+               ^^
+LINE 1: select n1.* = (select * from (select 1)n1) from names n1;
+                       ^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
+LINE 1: select n1.* < (select 1 union select 2) from (VALUES('test1') ,(...
+               ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right NUMERIC
+LINE 1: select n1.* > (VALUES(1.0), (2.0)) from (VALUES('test1') ,('test...
+               ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
+LINE 1: select n1.* >= (select 1) from (VALUES('test1') ,('test2') ,('te...
+               ^^
+LINE 1: select n1.* >= (select 1) from (VALUES('test1') ,('test2') ,('te...
+                        ^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
+LINE 1: select n1.* <= (select * from (select 1)n1) from names n1;
+               ^^
+LINE 1: select n1.* <= (select * from (select 1)n1) from names n1;
+                        ^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
+LINE 1: ...ect 1 union select 2) not in (n1.*) from (VALUES('test1') ,('tes...
                                          ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (select 1 union select 2) not in (n1.*) from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left NUMERIC, right TABLENAME.*
-Error with syntax near (line 1, column 37):
-
-select (VALUES(1.0), (2.0)) NOT IN (n1.*) from (VALUES('test1') ,('test2') ,('test3')) n1;
-                                    ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (VALUES(1.0), (2.0)) NOT IN (n1.*) from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right TABLENAME.*
-Error with syntax near (line 1, column 9):
-
-select (select 1) IN (n1.*) from (VALUES('test1') ,('test2') ,('test3')) n1;
-        ^^^^^^
-Error with syntax near (line 1, column 23):
-
-select (select 1) IN (n1.*) from (VALUES('test1') ,('test2') ,('test3')) n1;
-                      ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (select 1) IN (n1.*) from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right TABLENAME.*
-Error with syntax near (line 1, column 9):
-
-select (select * from (select 1)n1) IN (n1.*) from names n1;
-        ^^^^^^
-Error with syntax near (line 1, column 41):
-
-select (select * from (select 1)n1) IN (n1.*) from names n1;
-                                        ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (select * from (select 1)n1) IN (n1.*) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right TABLENAME.*
-Error with syntax near (line 1, column 36):
-
-select (select 1 union select 2) = n1.* from (VALUES('test1') ,('test2') ,('test3')) n1;
-                                   ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (select 1 union select 2) = n1.* from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left NUMERIC, right TABLENAME.*
-Error with syntax near (line 1, column 31):
-
-select (VALUES(1.0), (2.0)) = n1.* from (VALUES('test1') ,('test2') ,('test3')) n1;
-                              ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (VALUES(1.0), (2.0)) = n1.* from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right TABLENAME.*
-Error with syntax near (line 1, column 9):
-
-select (select 1) != n1.* from (VALUES('test1') ,('test2') ,('test3')) n1;
-        ^^^^^^
-Error with syntax near (line 1, column 22):
-
-select (select 1) != n1.* from (VALUES('test1') ,('test2') ,('test3')) n1;
-                     ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (select 1) != n1.* from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right TABLENAME.*
-Error with syntax near (line 1, column 9):
-
-select (select * from (select 1)n2) != n1.* from names n1;
-        ^^^^^^
-Error with syntax near (line 1, column 40):
-
-select (select * from (select 1)n2) != n1.* from names n1;
-                                       ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (select * from (select 1)n2) != n1.* from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right TABLENAME.*
-Error with syntax near (line 1, column 36):
-
-select (select 1 union select 2) < n1.* from (VALUES('test1') ,('test2') ,('test3')) n1;
-                                   ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (select 1 union select 2) < n1.* from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left NUMERIC, right TABLENAME.*
-Error with syntax near (line 1, column 31):
-
-select (VALUES(1.0), (2.0)) > n1.* from (VALUES('test1') ,('test2') ,('test3')) n1;
-                              ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (VALUES(1.0), (2.0)) > n1.* from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right TABLENAME.*
-Error with syntax near (line 1, column 9):
-
-select (select 1) >= n1.* from (VALUES('test1') ,('test2') ,('test3')) n1;
-        ^^^^^^
-Error with syntax near (line 1, column 22):
-
-select (select 1) >= n1.* from (VALUES('test1') ,('test2') ,('test3')) n1;
-                     ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (select 1) >= n1.* from (VALUES('test1') ,('test2') ,('test3')) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right TABLENAME.*
-Error with syntax near (line 1, column 9):
-
-select (select * from (select 1)n2) <= n1.* from names n1;
-        ^^^^^^
-Error with syntax near (line 1, column 40):
-
-select (select * from (select 1)n2) <= n1.* from names n1;
-                                       ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (select * from (select 1)n2) <= n1.* from names n1;
-
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left NUMERIC, right TABLENAME.*
+LINE 1: ... (VALUES(1.0), (2.0)) NOT IN (n1.*) from (VALUES('test1') ,('tes...
+                                         ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
+LINE 1: select (select 1) IN (n1.*) from (VALUES('test1') ,('test2') ,('...
+                ^^^^^^
+LINE 1: select (select 1) IN (n1.*) from (VALUES('test1') ,('test2') ,('...
+                              ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
+LINE 1: select (select * from (select 1)n1) IN (n1.*) from names n1;
+                ^^^^^^
+LINE 1: select (select * from (select 1)n1) IN (n1.*) from names n1;
+                                                ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
+LINE 1: ...ct (select 1 union select 2) = n1.* from (VALUES('test1') ,('tes...
+                                          ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left NUMERIC, right TABLENAME.*
+LINE 1: select (VALUES(1.0), (2.0)) = n1.* from (VALUES('test1') ,('test...
+                                      ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
+LINE 1: select (select 1) != n1.* from (VALUES('test1') ,('test2') ,('te...
+                ^^^^^^
+LINE 1: select (select 1) != n1.* from (VALUES('test1') ,('test2') ,('te...
+                             ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
+LINE 1: select (select * from (select 1)n2) != n1.* from names n1;
+                ^^^^^^
+LINE 1: select (select * from (select 1)n2) != n1.* from names n1;
+                                               ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
+LINE 1: ...ct (select 1 union select 2) < n1.* from (VALUES('test1') ,('tes...
+                                          ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left NUMERIC, right TABLENAME.*
+LINE 1: select (VALUES(1.0), (2.0)) > n1.* from (VALUES('test1') ,('test...
+                                      ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
+LINE 1: select (select 1) >= n1.* from (VALUES('test1') ,('test2') ,('te...
+                ^^^^^^
+LINE 1: select (select 1) >= n1.* from (VALUES('test1') ,('test2') ,('te...
+                             ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
+LINE 1: select (select * from (select 1)n2) <= n1.* from names n1;
+                ^^^^^^
+LINE 1: select (select * from (select 1)n2) <= n1.* from names n1;
+                                               ^^

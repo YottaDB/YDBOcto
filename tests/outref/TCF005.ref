@@ -27,8 +27,8 @@ ID|MODULO
 (6 rows)
 DROP FUNCTION
 CREATE FUNCTION
-[ERROR] PATH:LINENUM DATE TIME : ERR_YOTTADB : YottaDB error: 150373978,octoPlan1+14^%ydboctoP*,%YDB-E-ZLINKFILE, Error while zlinking "modulo",%YDB-E-FILENOTFND, File modulo.m not found,%YDB-E-FILENOTFND, File modulo.o not found
+[ERROR]: ERR_YOTTADB: YottaDB error: 150373978,octoPlan1+14^%ydboctoP*,%YDB-E-ZLINKFILE, Error while zlinking "modulo",%YDB-E-FILENOTFND, File modulo.m not found,%YDB-E-FILENOTFND, File modulo.o not found
 DROP FUNCTION
 CREATE FUNCTION
-[ERROR] PATH:LINENUM DATE TIME : ERR_YOTTADB : YottaDB error: 150373978,octoPlan1+14^%ydboctoP*,%YDB-E-ZLINKFILE, Error while zlinking "mOdUlO",%YDB-E-FILENOTFND, File mOdUlO.m not found,%YDB-E-FILENOTFND, File mOdUlO.o not found
+[ERROR]: ERR_YOTTADB: YottaDB error: 150373978,octoPlan1+14^%ydboctoP*,%YDB-E-ZLINKFILE, Error while zlinking "mOdUlO",%YDB-E-FILENOTFND, File mOdUlO.m not found,%YDB-E-FILENOTFND, File mOdUlO.o not found
 DROP FUNCTION

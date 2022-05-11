@@ -10,27 +10,15 @@ SELECT LENGTH(LENGTH(1, 2)) FROM names;
 SELECT LENGTH(LENGTH(LENGTH(1, 2))) FROM names;
 
 CREATE FUNCTION
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'ABS' defined with given parameter types (INTEGER, INTEGER)
-Error with syntax near (line 1, column 12):
-
-SELECT ABS(ABS(1, 2)) FROM names;
-           ^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT ABS(ABS(1, 2)) FROM names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'ABS' defined with given parameter types (INTEGER, INTEGER)
-Error with syntax near (line 1, column 16):
-
-SELECT ABS(ABS(ABS(1, 2))) FROM names;
-               ^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT ABS(ABS(ABS(1, 2))) FROM names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'LENGTH' defined with given parameter types (INTEGER, INTEGER)
-Error with syntax near (line 1, column 15):
-
-SELECT LENGTH(LENGTH(1, 2)) FROM names;
-              ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT LENGTH(LENGTH(1, 2)) FROM names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'LENGTH' defined with given parameter types (INTEGER, INTEGER)
-Error with syntax near (line 1, column 22):
-
-SELECT LENGTH(LENGTH(LENGTH(1, 2))) FROM names;
-                     ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT LENGTH(LENGTH(LENGTH(1, 2))) FROM names;
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'ABS' defined with given parameter types (INTEGER, INTEGER)
+LINE 1: SELECT ABS(ABS(1, 2)) FROM names;
+                   ^^^
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'ABS' defined with given parameter types (INTEGER, INTEGER)
+LINE 1: SELECT ABS(ABS(ABS(1, 2))) FROM names;
+                       ^^^
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'LENGTH' defined with given parameter types (INTEGER, INTEGER)
+LINE 1: SELECT LENGTH(LENGTH(1, 2)) FROM names;
+                      ^^^^^^
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'LENGTH' defined with given parameter types (INTEGER, INTEGER)
+LINE 1: SELECT LENGTH(LENGTH(LENGTH(1, 2))) FROM names;
+                             ^^^^^^

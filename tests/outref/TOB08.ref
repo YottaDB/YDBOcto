@@ -97,18 +97,9 @@ A
 9
 11
 (6 rows)
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: A
-Error with syntax near (line 2, column 58):
-
--- BUT ORDER BY expressions involving alias names are not allowed (and parse errors are issued)
-select 1+id*2 as a from (select id from names) order by -a;
-                                                         ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- BUT ORDER BY expressions involving alias names are not allowed (and parse errors are issued)
-select 1+id*2 as a from (select id from names) order by -a;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: A
-Error with syntax near (line 1, column 59):
-
-select 1+id*2 as a from (select id from names) order by 1+a;
-                                                          ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1+id*2 as a from (select id from names) order by 1+a;
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: A
+LINE 2: select 1+id*2 as a from (select id from names) order by -a;
+                                                                 ^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: A
+LINE 1: select 1+id*2 as a from (select id from names) order by 1+a;
+                                                                  ^

@@ -70,36 +70,21 @@ SELECT firstname::varchar FROM names;
 SELECT firstname::text FROM names;
 SELECT firstname::invalid FROM names;
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for arithmetic operations
-Error with syntax near (line 1, column 13):
-
-SELECT id + firstname FROM names;
-            ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id + firstname FROM names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for arithmetic operations
-Error with syntax near (line 1, column 13):
-
-SELECT id - firstname FROM names;
-            ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id - firstname FROM names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for arithmetic operations
-Error with syntax near (line 1, column 13):
-
-SELECT id * firstname FROM names;
-            ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id * firstname FROM names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for arithmetic operations
-Error with syntax near (line 1, column 13):
-
-SELECT id / firstname FROM names;
-            ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id / firstname FROM names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for arithmetic operations
-Error with syntax near (line 1, column 13):
-
-SELECT id % firstname FROM names;
-            ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id % firstname FROM names;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 1: SELECT id + firstname FROM names;
+                    ^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 1: SELECT id - firstname FROM names;
+                    ^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 1: SELECT id * firstname FROM names;
+                    ^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 1: SELECT id / firstname FROM names;
+                    ^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 1: SELECT id % firstname FROM names;
+                    ^^^^^^^^^
 ID
 0Zero
 1Acid
@@ -108,61 +93,36 @@ ID
 4Joey
 5Zero
 (6 rows)
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for arithmetic operations
-Error with syntax near (line 1, column 8):
-
-SELECT firstname + lastname FROM names;
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for arithmetic operations
-Error with syntax near (line 1, column 20):
-
-SELECT firstname + lastname FROM names;
-                   ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT firstname + lastname FROM names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for arithmetic operations
-Error with syntax near (line 1, column 8):
-
-SELECT firstname - lastname FROM names;
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for arithmetic operations
-Error with syntax near (line 1, column 20):
-
-SELECT firstname - lastname FROM names;
-                   ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT firstname - lastname FROM names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for arithmetic operations
-Error with syntax near (line 1, column 8):
-
-SELECT firstname * lastname FROM names;
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for arithmetic operations
-Error with syntax near (line 1, column 20):
-
-SELECT firstname * lastname FROM names;
-                   ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT firstname * lastname FROM names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for arithmetic operations
-Error with syntax near (line 1, column 8):
-
-SELECT firstname / lastname FROM names;
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for arithmetic operations
-Error with syntax near (line 1, column 20):
-
-SELECT firstname / lastname FROM names;
-                   ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT firstname / lastname FROM names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for arithmetic operations
-Error with syntax near (line 1, column 8):
-
-SELECT firstname % lastname FROM names;
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for arithmetic operations
-Error with syntax near (line 1, column 20):
-
-SELECT firstname % lastname FROM names;
-                   ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT firstname % lastname FROM names;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 1: SELECT firstname + lastname FROM names;
+               ^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 1: SELECT firstname + lastname FROM names;
+                           ^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 1: SELECT firstname - lastname FROM names;
+               ^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 1: SELECT firstname - lastname FROM names;
+                           ^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 1: SELECT firstname * lastname FROM names;
+               ^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 1: SELECT firstname * lastname FROM names;
+                           ^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 1: SELECT firstname / lastname FROM names;
+               ^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 1: SELECT firstname / lastname FROM names;
+                           ^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 1: SELECT firstname % lastname FROM names;
+               ^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 1: SELECT firstname % lastname FROM names;
+                           ^^^^^^^^
 FIRSTNAME
 ZeroCool
 AcidBurn
@@ -203,8 +163,7 @@ ZeroCool
 1
 1
 (6 rows)
-[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_TYPE : Type INVALID does not exist
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT 1::invalid FROM names;
+[ERROR]: ERR_INVALID_TYPE: Type INVALID does not exist
 ???
 -1
 -1
@@ -221,20 +180,13 @@ ZeroCool
 -1.5
 -1.5
 (6 rows)
-[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INPUT_SYNTAX : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
-Error with syntax near (line 1, column 9):
-
-SELECT -1.5::varchar FROM names;
-        ^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT -1.5::varchar FROM names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INPUT_SYNTAX : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
-Error with syntax near (line 1, column 9):
-
-SELECT -1.5::text FROM names;
-        ^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT -1.5::text FROM names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_TYPE : Type INVALID does not exist
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT -1.5::invalid FROM names;
+[ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
+LINE 1: SELECT -1.5::varchar FROM names;
+                ^^^
+[ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
+LINE 1: SELECT -1.5::text FROM names;
+                ^^^
+[ERROR]: ERR_INVALID_TYPE: Type INVALID does not exist
 ???
 -1
 -1
@@ -267,8 +219,7 @@ SELECT -1.5::text FROM names;
 -1.5
 -1.5
 (6 rows)
-[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_TYPE : Type INVALID does not exist
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (-1.5)::invalid FROM names;
+[ERROR]: ERR_INVALID_TYPE: Type INVALID does not exist
 ???
 0
 0
@@ -301,8 +252,7 @@ abcd
 abcd
 abcd
 (6 rows)
-[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_TYPE : Type INVALID does not exist
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT 'abcd'::invalid FROM names;
+[ERROR]: ERR_INVALID_TYPE: Type INVALID does not exist
 ???
 1
 1
@@ -335,8 +285,7 @@ abcd
 4.5abcd
 4.5abcd
 (6 rows)
-[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_TYPE : Type INVALID does not exist
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT '5.5abcd'::invalid FROM names;
+[ERROR]: ERR_INVALID_TYPE: Type INVALID does not exist
 ID
 0
 1
@@ -369,8 +318,7 @@ ID
 4
 5
 (6 rows)
-[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_TYPE : Type INVALID does not exist
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id::invalid FROM names;
+[ERROR]: ERR_INVALID_TYPE: Type INVALID does not exist
 PRICE
 18
 19
@@ -687,8 +635,7 @@ PRICE
 18
 13
 (77 rows)
-[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_TYPE : Type INVALID does not exist
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select Price::invalid from Products;
+[ERROR]: ERR_INVALID_TYPE: Type INVALID does not exist
 FIRSTNAME
 0
 0
@@ -721,5 +668,4 @@ Lord
 Joey
 Zero
 (6 rows)
-[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_TYPE : Type INVALID does not exist
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT firstname::invalid FROM names;
+[ERROR]: ERR_INVALID_TYPE: Type INVALID does not exist

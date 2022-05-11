@@ -6,28 +6,16 @@ select * from names n1 where n1.id =  ALL (select * from names n2 where n1.id > 
 -- Test more than 1 column in sub-query of ALL/ANY/SOME. Should issue error.
 select * from names n1 where n1.firstname =  ALL (select * from names n2 where n1.id > n2.id + 3);
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 30):
-
-select * from names n1 where n1.firstname =  ALL (select n2.id from names n2 where n1.id > n2.id + 3);
-                             ^^^^^^^^^^^^
-Error with syntax near (line 1, column 51):
-
-select * from names n1 where n1.firstname =  ALL (select n2.id from names n2 where n1.id > n2.id + 3);
-                                                  ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names n1 where n1.firstname =  ALL (select n2.id from names n2 where n1.id > n2.id + 3);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
-Error with syntax near (line 1, column 30):
-
-select * from names n1 where n1.id =  ALL (select * from names n2 where n1.id > n2.id + 3);
-                             ^^^^^
-Error with syntax near (line 1, column 44):
-
-select * from names n1 where n1.id =  ALL (select * from names n2 where n1.id > n2.id + 3);
-                                           ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names n1 where n1.id =  ALL (select * from names n2 where n1.id > n2.id + 3);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_ONE_COLUMN : Subquery must return only one column
-Error with syntax near (line 1, column 51):
-
-select * from names n1 where n1.firstname =  ALL (select * from names n2 where n1.id > n2.id + 3);
-                                                  ^^^^^^
+[ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: ...ect * from names n1 where n1.firstname =  ALL (select n2.id from...
+                                     ^^^^^^^^^^^^
+LINE 1: ...1 where n1.firstname =  ALL (select n2.id from names n2 where n1...
+                                        ^^^^^^
+[ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 1: select * from names n1 where n1.id =  ALL (select * from names ...
+                                     ^^^^^
+LINE 1: ...names n1 where n1.id =  ALL (select * from names n2 where n1.id ...
+                                        ^^^^^^
+[ERROR] PATH:LINENUM DATE TIME: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
+LINE 1: ...1 where n1.firstname =  ALL (select * from names n2 where n1.id ...
+                                        ^^^^^^

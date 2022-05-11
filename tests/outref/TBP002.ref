@@ -1,97 +1,39 @@
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: MYTABLE
-Error with syntax near (line 1, column 14):
-
-SELECT * FROM myTable;
-              ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM myTable;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: HELLOTABLE
-Error with syntax near (line 1, column 28):
-
-SELECT "Hello world!" FROM helloTable;
-                           ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT "Hello world!" FROM helloTable;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: PEOPLE
-Error with syntax near (line 2, column 6):
-
-SELECT toppings.name
-FROM people
-     ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT toppings.name
-FROM people
-INNER JOIN people_toppings
-ON (people.id = people_toppings.people_id)
-INNER JOIN toppings
-ON (toppings.id = people_toppings.toppings_id)
-WHERE people.name IN ("Christopher", "Charles", "Bhaskar",
-  "Narayanan", "Steve", "Ran")
-GROUP BY toppings.name
-HAVING COUNT(people.id) > 5;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: TABLEA
-Error with syntax near (line 1, column 15):
-
-SELECT * FROM tableA
-              ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM tableA
-INNER JOIN (SELECT personId as id
-  FROM tableB WHERE AGE < 15) as tableC
-ON (tableA.id = tableC.id);
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: EMPLOYEE
-Error with syntax near (line 2, column 29):
-
--- Many of these examples were from http://www.complexsql.com/complex-sql-queries-examples-with-answers/
-Select distinct Salary from Employee e1 where 2=(Select count(distinct Salary) from Employee e2 where e1.salary<=e2.salary);
-                            ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Many of these examples were from http://www.complexsql.com/complex-sql-queries-examples-with-answers/
-Select distinct Salary from Employee e1 where 2=(Select count(distinct Salary) from Employee e2 where e1.salary<=e2.salary);
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: EMPLOYEE
-Error with syntax near (line 1, column 15):
-
-Select * from Employee a where rowid <>( select max(rowid) from Employee b where a.Employee_num=b.Employee_num);
-              ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: Select * from Employee a where rowid <>( select max(rowid) from Employee b where a.Employee_num=b.Employee_num);
-Error with syntax near (line 1, column 50):
-
-Select Employee_name,Salary/12 as `Monthly Salary` from employee;
-                                                 ^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: MYTABLE
+LINE 1: SELECT * FROM myTable;
+                      ^^^^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: HELLOTABLE
+LINE 1: SELECT "Hello world!" FROM helloTable;
+                                   ^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: PEOPLE
+LINE 2: FROM people
+             ^^^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: TABLEA
+LINE 1: SELECT * FROM tableA
+                      ^^^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EMPLOYEE
+LINE 2: Select distinct Salary from Employee e1 where 2=(Select count(di...
+                                    ^^^^^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EMPLOYEE
+LINE 1: Select * from Employee a where rowid <>( select max(rowid) from ...
+                      ^^^^^^^^
+LINE 1: ...lect Employee_name,Salary/12 as `Monthly Salary` from employee;
+                                                          ^
 syntax error, unexpected IDENTIFIER_BACK_TICK, expecting IDENTIFIER_ALONE or LITERAL
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: Select Employee_name,Salary/12 as `Monthly Salary` from employee;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: EMPLOYEE
-Error with syntax near (line 1, column 15):
-
-Select * from Employee where Rownum =1;
-              ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: Select * from Employee where Rownum =1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: EMPLOYEE
-Error with syntax near (line 1, column 15):
-
-Select * from Employee where Rowid=(select max(Rowid) from Employee);
-              ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: Select * from Employee where Rowid=(select max(Rowid) from Employee);
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: EMPLOYEE
-Error with syntax near (line 1, column 15):
-
-Select * from Employee where Rownum <= 5;
-              ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: Select * from Employee where Rownum <= 5;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: EMPLOYEE
-Error with syntax near (line 1, column 29):
-
-select distinct salary from employee a where 3 >= (select count(distinct salary) from employee b where a.salary <= b.salary) order by a.salary desc;
-                            ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select distinct salary from employee a where 3 >= (select count(distinct salary) from employee b where a.salary <= b.salary) order by a.salary desc;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: EMP
-Error with syntax near (line 1, column 52):
-
-select min(salary)from(select distinct salary from emp order by salary desc)where rownum<=3;
-                                                   ^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select min(salary)from(select distinct salary from emp order by salary desc)where rownum<=3;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: A
-Error with syntax near (line 2, column 19):
-
--- Some examples using UNION should be added after it is supported
-SELECT 5+5/5 FROM A;
-                  ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Some examples using UNION should be added after it is supported
-SELECT 5+5/5 FROM A;
-
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EMPLOYEE
+LINE 1: Select * from Employee where Rownum =1;
+                      ^^^^^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EMPLOYEE
+LINE 1: Select * from Employee where Rowid=(select max(Rowid) from Emplo...
+                      ^^^^^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EMPLOYEE
+LINE 1: Select * from Employee where Rownum <= 5;
+                      ^^^^^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EMPLOYEE
+LINE 1: select distinct salary from employee a where 3 >= (select count(...
+                                    ^^^^^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EMP
+LINE 1: ...m(select distinct salary from emp order by salary desc)where ro...
+                                         ^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: A
+LINE 2: SELECT 5+5/5 FROM A;
+                          ^

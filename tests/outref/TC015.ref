@@ -24,7 +24,6 @@
 # Wait for OCTO> prompt to appear in OCTO2
 # Run <SELECT * FROM names;> in OCTO1. Should display table does not exist error since DROP TABLE has finished
 # Wait for OCTO> prompt to appear in OCTO1
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: NAMES
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names;
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: NAMES
 # Exit from process OCTO1
 # Exit from process OCTO2

@@ -1,1 +1,1 @@
-[ERROR] PATH:LINENUM DATE TIME : ERR_BAD_ZROUTINES : Error no valid source directory found in octo_zroutines config or $zroutines ISV
+[ERROR]: ERR_BAD_ZROUTINES: Error no valid source directory found in octo_zroutines config or $zroutines ISV

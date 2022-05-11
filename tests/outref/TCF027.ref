@@ -1,10 +1,10 @@
 # Run 8 random queries with more than 32 function parameters.
 # Expect ERR_TOO_MANY_FUNCTION_ARGUMENTS errors in final output
-[ERROR] PATH:LINENUM DATE TIME : ERR_TOO_MANY_FUNCTION_ARGUMENTS : Too many arguments passed for function INVALIDFUNC (max: 32)
-[ERROR] PATH:LINENUM DATE TIME : ERR_TOO_MANY_FUNCTION_ARGUMENTS : Too many arguments passed for function INVALIDFUNC (max: 32)
-[ERROR] PATH:LINENUM DATE TIME : ERR_TOO_MANY_FUNCTION_ARGUMENTS : Too many arguments passed for function INVALIDFUNC (max: 32)
-[ERROR] PATH:LINENUM DATE TIME : ERR_TOO_MANY_FUNCTION_ARGUMENTS : Too many arguments passed for function INVALIDFUNC (max: 32)
-[ERROR] PATH:LINENUM DATE TIME : ERR_TOO_MANY_FUNCTION_ARGUMENTS : Too many arguments passed for function INVALIDFUNC (max: 32)
-[ERROR] PATH:LINENUM DATE TIME : ERR_TOO_MANY_FUNCTION_ARGUMENTS : Too many arguments passed for function INVALIDFUNC (max: 32)
-[ERROR] PATH:LINENUM DATE TIME : ERR_TOO_MANY_FUNCTION_ARGUMENTS : Too many arguments passed for function INVALIDFUNC (max: 32)
-[ERROR] PATH:LINENUM DATE TIME : ERR_TOO_MANY_FUNCTION_ARGUMENTS : Too many arguments passed for function INVALIDFUNC (max: 32)
+[ERROR]: ERR_TOO_MANY_FUNCTION_ARGUMENTS: Too many arguments passed for function INVALIDFUNC (max: 32)
+[ERROR]: ERR_TOO_MANY_FUNCTION_ARGUMENTS: Too many arguments passed for function INVALIDFUNC (max: 32)
+[ERROR]: ERR_TOO_MANY_FUNCTION_ARGUMENTS: Too many arguments passed for function INVALIDFUNC (max: 32)
+[ERROR]: ERR_TOO_MANY_FUNCTION_ARGUMENTS: Too many arguments passed for function INVALIDFUNC (max: 32)
+[ERROR]: ERR_TOO_MANY_FUNCTION_ARGUMENTS: Too many arguments passed for function INVALIDFUNC (max: 32)
+[ERROR]: ERR_TOO_MANY_FUNCTION_ARGUMENTS: Too many arguments passed for function INVALIDFUNC (max: 32)
+[ERROR]: ERR_TOO_MANY_FUNCTION_ARGUMENTS: Too many arguments passed for function INVALIDFUNC (max: 32)
+[ERROR]: ERR_TOO_MANY_FUNCTION_ARGUMENTS: Too many arguments passed for function INVALIDFUNC (max: 32)

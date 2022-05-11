@@ -23,12 +23,9 @@ SUCCESS
 SUCCESS
 (6 rows)
 DROP FUNCTION
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'PARMLESSFUNC' defined with given parameter types (none)
-Error with syntax near (line 1, column 8):
-
-SELECT PARMLESSFUNC() FROM names;
-       ^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT PARMLESSFUNC() FROM names;
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'PARMLESSFUNC' defined with given parameter types (none)
+LINE 1: SELECT PARMLESSFUNC() FROM names;
+               ^^^^^^^^^^^^
 CREATE FUNCTION
 PARMLESSFUNC
 SUCCESS
@@ -39,11 +36,8 @@ SUCCESS
 SUCCESS
 (6 rows)
 DROP FUNCTION
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'PARMLESSFUNC' defined with given parameter types (none)
-Error with syntax near (line 1, column 8):
-
-SELECT PARMLESSFUNC() FROM names;
-       ^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT PARMLESSFUNC() FROM names;
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'PARMLESSFUNC' defined with given parameter types (none)
+LINE 1: SELECT PARMLESSFUNC() FROM names;
+               ^^^^^^^^^^^^
 Remaining function definitions (hashes):
 Successfully deleted function "PARMLESSFUNC" from pg_catalog.pg_proc

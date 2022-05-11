@@ -1,9 +1,4 @@
 SELECT * FROM names n1 LEFT JOIN (SELECT * FROM names WHERE firstName < 'Zero') n2;
-Error with syntax near (line 1, column 82):
-
-SELECT * FROM names n1 LEFT JOIN (SELECT * FROM names WHERE firstName < 'Zero') n2;
-                                                                                  ^
+LINE 1: ...n1 LEFT JOIN (SELECT * FROM names WHERE firstName < 'Zero') n2;
+                                                                         ^
 syntax error, unexpected SEMICOLON
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names n1 LEFT JOIN (SELECT * FROM names WHERE firstName < 'Zero') n2;
-

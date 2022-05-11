@@ -176,36 +176,18 @@ CREATE TABLE
 DROP TABLE
 CREATE TABLE
 DROP TABLE
-Error with syntax near (line 1, column 71):
-
-CREATE TABLE DATETIME (id INTEGER PRIMARY KEY, date1 DATE, time1 TIME(-1)) READONLY;
-                                                                      ^
+LINE 1: ... (id INTEGER PRIMARY KEY, date1 DATE, time1 TIME(-1)) READONLY;
+                                                            ^
 syntax error, unexpected MINUS, expecting LITERAL
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE DATETIME (id INTEGER PRIMARY KEY, date1 DATE, time1 TIME(-1)) READONLY;
-Error with syntax near (line 1, column 71):
-
-CREATE TABLE DATETIME (id INTEGER PRIMARY KEY, date1 DATE, time1 TIME(-1.5)) READONLY;
-                                                                      ^
+LINE 1: ...id INTEGER PRIMARY KEY, date1 DATE, time1 TIME(-1.5)) READONLY;
+                                                          ^
 syntax error, unexpected MINUS, expecting LITERAL
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE DATETIME (id INTEGER PRIMARY KEY, date1 DATE, time1 TIME(-1.5)) READONLY;
-[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INTEGER_SYNTAX : Invalid input syntax for type integer: '15.8'
-Error with syntax near (line 1, column 71):
-
-CREATE TABLE DATETIME (id INTEGER PRIMARY KEY, date1 DATE, time1 TIME(15.8)) READONLY;
-                                                                      ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE DATETIME (id INTEGER PRIMARY KEY, date1 DATE, time1 TIME(15.8)) READONLY;
-[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INTEGER_SYNTAX : Invalid input syntax for type integer: 'abcd'
-Error with syntax near (line 1, column 76):
-
-CREATE TABLE DATETIME (id INTEGER PRIMARY KEY, date1 DATE, time1 TIME('abcd')) READONLY;
-                                                                           ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE DATETIME (id INTEGER PRIMARY KEY, date1 DATE, time1 TIME('abcd')) READONLY;
-Error with syntax near (line 1, column 71):
-
-CREATE TABLE DATETIME (id INTEGER PRIMARY KEY, date1 DATE, time1 TIME(abcd)) READONLY;
-                                                                      ^^^^
+[ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: '15.8'
+LINE 1: ...(id INTEGER PRIMARY KEY, date1 DATE, time1 TIME(15.8)) READONLY;
+                                                           ^^^^
+[ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: 'abcd'
+LINE 1: ... INTEGER PRIMARY KEY, date1 DATE, time1 TIME('abcd')) READONLY;
+                                                             ^
+LINE 1: ...(id INTEGER PRIMARY KEY, date1 DATE, time1 TIME(abcd)) READONLY;
+                                                           ^^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE DATETIME (id INTEGER PRIMARY KEY, date1 DATE, time1 TIME(abcd)) READONLY;

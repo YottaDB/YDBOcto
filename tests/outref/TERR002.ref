@@ -1,4 +1,4 @@
-[ERROR] PATH:LINENUM DATE TIME : ERR_YOTTADB : YottaDB error: 150373210,octoPlan1+10^%ydboctoP*,%YDB-E-DIVZERO, Attempt to divide by zero
+[ERROR]: ERR_YOTTADB: YottaDB error: 150373210,octoPlan1+10^%ydboctoP*,%YDB-E-DIVZERO, Attempt to divide by zero
 ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 1|Acid|Burn

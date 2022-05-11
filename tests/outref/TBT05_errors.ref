@@ -8,41 +8,21 @@ SELECT COUNT(*) from names GROUP BY id HAVING id;
 SELECT * from names n1 INNER JOIN names n2 ON n2.firstname;
 SELECT * from names n1 INNER JOIN names n2 ON n2.id
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for boolean operations
-Error with syntax near (line 1, column 27):
-
-SELECT * from names WHERE firstname;
-                          ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * from names WHERE firstname;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
-Error with syntax near (line 1, column 27):
-
-SELECT * from names WHERE id;
-                          ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * from names WHERE id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for boolean operations
-Error with syntax near (line 1, column 54):
-
-SELECT COUNT(*) from names GROUP BY firstname HAVING firstname;
-                                                     ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COUNT(*) from names GROUP BY firstname HAVING firstname;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
-Error with syntax near (line 1, column 47):
-
-SELECT COUNT(*) from names GROUP BY id HAVING id;
-                                              ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COUNT(*) from names GROUP BY id HAVING id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for boolean operations
-Error with syntax near (line 1, column 47):
-
-SELECT * from names n1 INNER JOIN names n2 ON n2.firstname;
-                                              ^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * from names n1 INNER JOIN names n2 ON n2.firstname;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
-Error with syntax near (line 1, column 47):
-
-SELECT * from names n1 INNER JOIN names n2 ON n2.id
-                                              ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * from names n1 INNER JOIN names n2 ON n2.id
-
-
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
+LINE 1: SELECT * from names WHERE firstname;
+                                  ^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
+LINE 1: SELECT * from names WHERE id;
+                                  ^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
+LINE 1: SELECT COUNT(*) from names GROUP BY firstname HAVING firstname;
+                                                             ^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
+LINE 1: SELECT COUNT(*) from names GROUP BY id HAVING id;
+                                                      ^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
+LINE 1: SELECT * from names n1 INNER JOIN names n2 ON n2.firstname;
+                                                      ^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
+LINE 1: SELECT * from names n1 INNER JOIN names n2 ON n2.id
+                                                      ^^^^^

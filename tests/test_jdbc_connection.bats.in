@@ -185,7 +185,7 @@ teardown() {
 	test_port=$(start_rocto 1344 quiet)
         run_java TJC018 $test_port "" usesimple &> output.txt
 	# Confirm the target error message was issued
-        [[ $(grep -Ec "ERROR.*handle_query.*ERR_ROCTO_QUERY_TOO_LONG" rocto.log) -eq 1 ]]
+        [[ $(grep -Ec "ERR_ROCTO_QUERY_TOO_LONG" rocto.log) -eq 1 ]]
 	verify_output TJC018 output.txt
 }
 

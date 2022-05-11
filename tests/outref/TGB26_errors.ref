@@ -138,856 +138,327 @@ CREATE FUNCTION
 CREATE FUNCTION
 CREATE FUNCTION
 CREATE FUNCTION
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 1, column 65):
-
-select samevalue(id) from names group by samevalue(id) having 1=id; -- Postgres error id in having not in GroupBy
-                                                                ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select samevalue(id) from names group by samevalue(id) having 1=id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 88):
-
-select samevalue(id) from names group by samevalue(id) having 1=id; -- Postgres error id in having not in GroupBy
-select samevalue(id) from names group by samevalue(id) having 1=samevalue(id) order by id; -- Postgres error id in order by not in GroupBy
-                                                                                       ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id in having not in GroupBy
-select samevalue(id) from names group by samevalue(id) having 1=samevalue(id) order by id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 53):
-
-select samevalue(id) from names group by samevalue(id) having 1=samevalue(id) order by id; -- Postgres error id in order by not in GroupBy
-select 1 from names group by samevalue(id) having 1=id; -- Postgres error id in having not in GroupBy
-                                                    ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id in order by not in GroupBy
-select 1 from names group by samevalue(id) having 1=id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 76):
-
-select 1 from names group by samevalue(id) having 1=id; -- Postgres error id in having not in GroupBy
-select 1 from names group by samevalue(id) having 1=samevalue(id) order by id; -- Postgres error id in order by not in GroupBy
-                                                                           ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id in having not in GroupBy
-select 1 from names group by samevalue(id) having 1=samevalue(id) order by id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 18):
-
-select 1 from names group by samevalue(id) having 1=samevalue(id) order by id; -- Postgres error id in order by not in GroupBy
-select samevalue(firstname) from names group by samevalue(id) having 1=samevalue(id) order by samevalue(id); -- Postgres error firstname in select not in GroupBY
-                 ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id in order by not in GroupBy
-select samevalue(firstname) from names group by samevalue(id) having 1=samevalue(id) order by samevalue(id);
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 1: ...roup by samevalue(id) having 1=id; -- Postgres error id in havin...
+                                          ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...aving 1=samevalue(id) order by id; -- Postgres error id in order...
+                                          ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...roup by samevalue(id) having 1=id; -- Postgres error id in havin...
+                                          ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...aving 1=samevalue(id) order by id; -- Postgres error id in order...
+                                          ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: select samevalue(firstname) from names group by samevalue(id) h...
+                         ^^^^^^^^^
 SAMEVALUE
 Acid
 (1 row)
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_POSITION_INVALID : GROUP BY position 2 is not in select list
-Error with syntax near (line 1, column 42):
-
-select samevalue(id) from names group by 2; -- Postgres error case incorrect location
-                                         ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select samevalue(id) from names group by 2;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 63):
-
-select samevalue(id) from names group by 2; -- Postgres error case incorrect location
-select samevalue(id) from names group by 1 order by samevalue(firstname); -- Postgres error firstname in Order by not in GroupBy
-                                                              ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error case incorrect location
-select samevalue(id) from names group by 1 order by samevalue(firstname);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 64):
-
-select samevalue(id) from names group by 1 order by samevalue(firstname); -- Postgres error firstname in Order by not in GroupBy
-select samevalue(id) from names group by 1 having 1!=samevalue(firstname) order by 1; -- Postgres error firstname in Having not in GroupBy
-                                                               ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in Order by not in GroupBy
-select samevalue(id) from names group by 1 having 1!=samevalue(firstname) order by 1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 8):
-
-select samevalue(id) from names group by 1 having 1!=samevalue(firstname) order by 1; -- Postgres error firstname in Having not in GroupBy
-select id from names group by samevalue(id);
-       ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in Having not in GroupBy
-select id from names group by samevalue(id);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 1, column 77):
-
-select samevalue(lastname) from names group by samevalue(lastname) having 1=id; -- Postgres error id in having not in GroupBy
-                                                                            ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select samevalue(lastname) from names group by samevalue(lastname) having 1=id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 112):
-
-select samevalue(lastname) from names group by samevalue(lastname) having 1=id; -- Postgres error id in having not in GroupBy
-select samevalue(lastname) from names group by samevalue(lastname) having 'Cool'!=samevalue(lastname) order by id; -- Postgres error id in order by not in GroupBy
-                                                                                                               ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id in having not in GroupBy
-select samevalue(lastname) from names group by samevalue(lastname) having 'Cool'!=samevalue(lastname) order by id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 59):
-
-select samevalue(lastname) from names group by samevalue(lastname) having 'Cool'!=samevalue(lastname) order by id; -- Postgres error id in order by not in GroupBy
-select 1 from names group by samevalue(lastname) having 1=id; -- Postgres error id in having not in GroupBy
-                                                          ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id in order by not in GroupBy
-select 1 from names group by samevalue(lastname) having 1=id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 94):
-
-select 1 from names group by samevalue(lastname) having 1=id; -- Postgres error id in having not in GroupBy
-select 1 from names group by samevalue(lastname) having 'Cool'!=samevalue(lastname) order by id; -- Postgres error id in order by not in GroupBy
-                                                                                             ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id in having not in GroupBy
-select 1 from names group by samevalue(lastname) having 'Cool'!=samevalue(lastname) order by id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 18):
-
-select 1 from names group by samevalue(lastname) having 'Cool'!=samevalue(lastname) order by id; -- Postgres error id in order by not in GroupBy
-select samevalue(firstname) from names group by samevalue(lastname) having 'Cool'!=samevalue(lastname) order by samevalue(lastname); -- Postgres error firstname in select not in GroupBY
-                 ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id in order by not in GroupBy
-select samevalue(firstname) from names group by samevalue(lastname) having 'Cool'!=samevalue(lastname) order by samevalue(lastname);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_POSITION_INVALID : GROUP BY position 2 is not in select list
-Error with syntax near (line 2, column 48):
-
-select samevalue(firstname) from names group by samevalue(lastname) having 'Cool'!=samevalue(lastname) order by samevalue(lastname); -- Postgres error firstname in select not in GroupBY
-select samevalue(lastname) from names group by 2; -- Postgres error case incorrect location
-                                               ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in select not in GroupBY
-select samevalue(lastname) from names group by 2;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 69):
-
-select samevalue(lastname) from names group by 2; -- Postgres error case incorrect location
-select samevalue(lastname) from names group by 1 order by samevalue(firstname); -- Postgres error firstname in Order by not in GroupBy
-                                                                    ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error case incorrect location
-select samevalue(lastname) from names group by 1 order by samevalue(firstname);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 59):
-
-select samevalue(lastname) from names group by 1 order by samevalue(firstname); -- Postgres error firstname in Order by not in GroupBy
-select samevalue(lastname) from names group by 1 order by firstname; -- Postgres error firstname in Order by not in GroupBy
-                                                          ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in Order by not in GroupBy
-select samevalue(lastname) from names group by 1 order by firstname;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 75):
-
-select samevalue(lastname) from names group by 1 order by firstname; -- Postgres error firstname in Order by not in GroupBy
-select samevalue(lastname) from names group by 1 having 'Zero'!=samevalue(firstname) order by 1; -- Postgres error firstname in Having not in GroupBy
-                                                                          ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in Order by not in GroupBy
-select samevalue(lastname) from names group by 1 having 'Zero'!=samevalue(firstname) order by 1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 65):
-
-select samevalue(lastname) from names group by 1 having 'Zero'!=samevalue(firstname) order by 1; -- Postgres error firstname in Having not in GroupBy
-select samevalue(lastname) from names group by 1 having 'Zero'!=firstname order by 1; -- Postgres error firstname in Having not in GroupBy
-                                                                ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in Having not in GroupBy
-select samevalue(lastname) from names group by 1 having 'Zero'!=firstname order by 1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 8):
-
-select samevalue(lastname) from names group by 1 having 'Zero'!=firstname order by 1; -- Postgres error firstname in Having not in GroupBy
-select firstname from names group by samevalue(firstname);
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in Having not in GroupBy
-select firstname from names group by samevalue(firstname);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 1, column 93):
-
-select 'test'||samevalue(lastname) from names group by 'test'||samevalue(lastname) having 1=id; -- Postgres error id in having not in GroupBy
-                                                                                            ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 'test'||samevalue(lastname) from names group by 'test'||samevalue(lastname) having 1=id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 140):
-
-select 'test'||samevalue(lastname) from names group by 'test'||samevalue(lastname) having 1=id; -- Postgres error id in having not in GroupBy
-select 'test'||samevalue(lastname) from names group by 'test'||samevalue(lastname) having 'testCool'!='test'||samevalue(lastname) order by id; -- Postgres error id in order by not in GroupBy
-                                                                                                                                           ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id in having not in GroupBy
-select 'test'||samevalue(lastname) from names group by 'test'||samevalue(lastname) having 'testCool'!='test'||samevalue(lastname) order by id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 67):
-
-select 'test'||samevalue(lastname) from names group by 'test'||samevalue(lastname) having 'testCool'!='test'||samevalue(lastname) order by id; -- Postgres error id in order by not in GroupBy
-select 1 from names group by 'test'||samevalue(lastname) having 1=id; -- Postgres error id in having not in GroupBy
-                                                                  ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id in order by not in GroupBy
-select 1 from names group by 'test'||samevalue(lastname) having 1=id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 114):
-
-select 1 from names group by 'test'||samevalue(lastname) having 1=id; -- Postgres error id in having not in GroupBy
-select 1 from names group by 'test'||samevalue(lastname) having 'testCool'!='test'||samevalue(lastname) order by id; -- Postgres error id in order by not in GroupBy
-                                                                                                                 ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id in having not in GroupBy
-select 1 from names group by 'test'||samevalue(lastname) having 'testCool'!='test'||samevalue(lastname) order by id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 18):
-
-select 1 from names group by 'test'||samevalue(lastname) having 'testCool'!='test'||samevalue(lastname) order by id; -- Postgres error id in order by not in GroupBy
-select samevalue(firstname) from names group by 'test'||samevalue(lastname) having 'testCool'!='test'||samevalue(lastname) order by 'test'||samevalue(lastname); -- Postgres error firstname in select not in GroupBY
-                 ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id in order by not in GroupBy
-select samevalue(firstname) from names group by 'test'||samevalue(lastname) having 'testCool'!='test'||samevalue(lastname) order by 'test'||samevalue(lastname);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_POSITION_INVALID : GROUP BY position 2 is not in select list
-Error with syntax near (line 2, column 56):
-
-select samevalue(firstname) from names group by 'test'||samevalue(lastname) having 'testCool'!='test'||samevalue(lastname) order by 'test'||samevalue(lastname); -- Postgres error firstname in select not in GroupBY
-select 'test'||samevalue(lastname) from names group by 2; -- Postgres error case incorrect location
-                                                       ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in select not in GroupBY
-select 'test'||samevalue(lastname) from names group by 2;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 77):
-
-select 'test'||samevalue(lastname) from names group by 2; -- Postgres error case incorrect location
-select 'test'||samevalue(lastname) from names group by 1 order by samevalue(firstname); -- Postgres error firstname in Order by not in GroupBy
-                                                                            ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error case incorrect location
-select 'test'||samevalue(lastname) from names group by 1 order by samevalue(firstname);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 85):
-
-select 'test'||samevalue(lastname) from names group by 1 order by samevalue(firstname); -- Postgres error firstname in Order by not in GroupBy
-select 'test'||samevalue(lastname) from names group by 1 order by 'test'||samevalue(firstname); -- Postgres error firstname in Order by not in GroupBy
-                                                                                    ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in Order by not in GroupBy
-select 'test'||samevalue(lastname) from names group by 1 order by 'test'||samevalue(firstname);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 67):
-
-select 'test'||samevalue(lastname) from names group by 1 order by 'test'||samevalue(firstname); -- Postgres error firstname in Order by not in GroupBy
-select 'test'||samevalue(lastname) from names group by 1 order by firstname; -- Postgres error firstname in Order by not in GroupBy
-                                                                  ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in Order by not in GroupBy
-select 'test'||samevalue(lastname) from names group by 1 order by firstname;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 83):
-
-select 'test'||samevalue(lastname) from names group by 1 order by firstname; -- Postgres error firstname in Order by not in GroupBy
-select 'test'||samevalue(lastname) from names group by 1 having 'Zero'!=samevalue(firstname) order by 1; -- Postgres error firstname in Having not in GroupBy
-                                                                                  ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in Order by not in GroupBy
-select 'test'||samevalue(lastname) from names group by 1 having 'Zero'!=samevalue(firstname) order by 1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 73):
-
-select 'test'||samevalue(lastname) from names group by 1 having 'Zero'!=samevalue(firstname) order by 1; -- Postgres error firstname in Having not in GroupBy
-select 'test'||samevalue(lastname) from names group by 1 having 'Zero'!=firstname order by 1; -- Postgres error firstname in Having not in GroupBy
-                                                                        ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in Having not in GroupBy
-select 'test'||samevalue(lastname) from names group by 1 having 'Zero'!=firstname order by 1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 18):
-
-select 'test'||samevalue(lastname) from names group by 1 having 'Zero'!=firstname order by 1; -- Postgres error firstname in Having not in GroupBy
-select samevalue(id) from names group by 1!=samevalue(id);
-                 ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in Having not in GroupBy
-select samevalue(id) from names group by 1!=samevalue(id);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 1, column 21):
-
-select 1!=samevalue(id) from names group by samevalue(firstname);
-                    ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1!=samevalue(id) from names group by samevalue(firstname);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 1, column 21):
-
-select 1!=samevalue(id) from names group by not 1!=samevalue(id);
-                    ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1!=samevalue(id) from names group by not 1!=samevalue(id);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 1, column 25):
-
-select not 1!=samevalue(id) from names group by not id;
-                        ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select not 1!=samevalue(id) from names group by not id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 1, column 99):
-
-select samevalue(NOT 'test'=lastname) from names group by samevalue(NOT 'test'=lastname) having 1=id; -- Postgres error id in having not in GroupBy
-                                                                                                  ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select samevalue(NOT 'test'=lastname) from names group by samevalue(NOT 'test'=lastname) having 1=id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 144):
-
-select samevalue(NOT 'test'=lastname) from names group by samevalue(NOT 'test'=lastname) having 1=id; -- Postgres error id in having not in GroupBy
-select samevalue(NOT 'test'=lastname) from names group by samevalue(NOT 'test'=lastname) having FALSE!=samevalue(NOT 'test'=lastname) order by id; -- Postgres error id in order by not in GroupBy
-                                                                                                                                               ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id in having not in GroupBy
-select samevalue(NOT 'test'=lastname) from names group by samevalue(NOT 'test'=lastname) having FALSE!=samevalue(NOT 'test'=lastname) order by id;
-Error with syntax near (line 2, column 104):
-
-select samevalue(NOT 'test'=lastname) from names group by samevalue(NOT 'test'=lastname) having FALSE!=samevalue(NOT 'test'=lastname) order by id; -- Postgres error id in order by not in GroupBy
-select samevalue(NOT 'test'=lastname) from names group by samevalue(NOT 'test'=lastname) having FALSE!=NOT 'test'=lastname; -- Postgres error lastname in having not in GroupBy
-                                                                                                       ^^^
+[ERROR]: ERR_GROUP_BY_POSITION_INVALID: GROUP BY position 2 is not in select list
+LINE 1: ...evalue(id) from names group by 2; -- Postgres error case incorr...
+                                          ^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...up by 1 order by samevalue(firstname); -- Postgres error firstn...
+                                      ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...p by 1 having 1!=samevalue(firstname) order by 1; -- Postgres e...
+                                      ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: select id from names group by samevalue(id);
+               ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 1: ...y samevalue(lastname) having 1=id; -- Postgres error id in havin...
+                                          ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...!=samevalue(lastname) order by id; -- Postgres error id in order...
+                                          ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...y samevalue(lastname) having 1=id; -- Postgres error id in havin...
+                                          ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...!=samevalue(lastname) order by id; -- Postgres error id in order...
+                                          ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: select samevalue(firstname) from names group by samevalue(lastn...
+                         ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_POSITION_INVALID: GROUP BY position 2 is not in select list
+LINE 2: ...(lastname) from names group by 2; -- Postgres error case incorr...
+                                          ^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...up by 1 order by samevalue(firstname); -- Postgres error firstn...
+                                      ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ... names group by 1 order by firstname; -- Postgres error firstna...
+                                      ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...1 having 'Zero'!=samevalue(firstname) order by 1; -- Postgres e...
+                                      ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ... group by 1 having 'Zero'!=firstname order by 1; -- Postgres er...
+                                      ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: select firstname from names group by samevalue(firstname);
+               ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 1: ...||samevalue(lastname) having 1=id; -- Postgres error id in havin...
+                                          ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...||samevalue(lastname) order by id; -- Postgres error id in order...
+                                          ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...||samevalue(lastname) having 1=id; -- Postgres error id in havin...
+                                          ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...||samevalue(lastname) order by id; -- Postgres error id in order...
+                                          ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: select samevalue(firstname) from names group by 'test'||sameval...
+                         ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_POSITION_INVALID: GROUP BY position 2 is not in select list
+LINE 2: ...(lastname) from names group by 2; -- Postgres error case incorr...
+                                          ^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...up by 1 order by samevalue(firstname); -- Postgres error firstn...
+                                      ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...order by 'test'||samevalue(firstname); -- Postgres error firstn...
+                                      ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ... names group by 1 order by firstname; -- Postgres error firstna...
+                                      ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...1 having 'Zero'!=samevalue(firstname) order by 1; -- Postgres e...
+                                      ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ... group by 1 having 'Zero'!=firstname order by 1; -- Postgres er...
+                                      ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: select samevalue(id) from names group by 1!=samevalue(id);
+                         ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 1: select 1!=samevalue(id) from names group by samevalue(firstname)...
+                            ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 1: select 1!=samevalue(id) from names group by not 1!=samevalue(id)...
+                            ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 1: select not 1!=samevalue(id) from names group by not id;
+                                ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 1: ...(NOT 'test'=lastname) having 1=id; -- Postgres error id in havin...
+                                          ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...(NOT 'test'=lastname) order by id; -- Postgres error id in order...
+                                          ^^
+LINE 2: ...test'=lastname) having FALSE!=NOT 'test'=lastname; -- Postgres ...
+                                         ^^^
 syntax error, unexpected NOT
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id in order by not in GroupBy
-select samevalue(NOT 'test'=lastname) from names group by samevalue(NOT 'test'=lastname) having FALSE!=NOT 'test'=lastname;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 70):
-
-select samevalue(NOT 'test'=lastname) from names group by samevalue(NOT 'test'=lastname) having FALSE!=NOT 'test'=lastname; -- Postgres error lastname in having not in GroupBy
-select 1 from names group by samevalue(NOT 'test'=lastname) having 1=id; -- Postgres error id in having not in GroupBy
-                                                                     ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error lastname in having not in GroupBy
-select 1 from names group by samevalue(NOT 'test'=lastname) having 1=id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 115):
-
-select 1 from names group by samevalue(NOT 'test'=lastname) having 1=id; -- Postgres error id in having not in GroupBy
-select 1 from names group by samevalue(NOT 'test'=lastname) having FALSE!=samevalue(NOT 'test'=lastname) order by id; -- Postgres error id in order by not in GroupBy
-                                                                                                                  ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id in having not in GroupBy
-select 1 from names group by samevalue(NOT 'test'=lastname) having FALSE!=samevalue(NOT 'test'=lastname) order by id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 18):
-
-select 1 from names group by samevalue(NOT 'test'=lastname) having FALSE!=samevalue(NOT 'test'=lastname) order by id; -- Postgres error id in order by not in GroupBy
-select samevalue(firstname) from names group by samevalue(NOT 'test'=lastname) having FALSE!=samevalue(NOT 'test'=lastname) order by samevalue(NOT 'test'=lastname); -- Postgres error firstname in select not in GroupBY
-                 ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id in order by not in GroupBy
-select samevalue(firstname) from names group by samevalue(NOT 'test'=lastname) having FALSE!=samevalue(NOT 'test'=lastname) order by samevalue(NOT 'test'=lastname);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_POSITION_INVALID : GROUP BY position 2 is not in select list
-Error with syntax near (line 2, column 59):
-
-select samevalue(firstname) from names group by samevalue(NOT 'test'=lastname) having FALSE!=samevalue(NOT 'test'=lastname) order by samevalue(NOT 'test'=lastname); -- Postgres error firstname in select not in GroupBY
-select samevalue(NOT 'test'=lastname) from names group by 2; -- Postgres error case incorrect location
-                                                          ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in select not in GroupBY
-select samevalue(NOT 'test'=lastname) from names group by 2;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 80):
-
-select samevalue(NOT 'test'=lastname) from names group by 2; -- Postgres error case incorrect location
-select samevalue(NOT 'test'=lastname) from names group by 1 order by samevalue(firstname); -- Postgres error firstname in Order by not in GroupBy
-                                                                               ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error case incorrect location
-select samevalue(NOT 'test'=lastname) from names group by 1 order by samevalue(firstname);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 88):
-
-select samevalue(NOT 'test'=lastname) from names group by 1 order by samevalue(firstname); -- Postgres error firstname in Order by not in GroupBy
-select samevalue(NOT 'test'=lastname) from names group by 1 order by 'test'||samevalue(firstname); -- Postgres error firstname in Order by not in GroupBy
-                                                                                       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in Order by not in GroupBy
-select samevalue(NOT 'test'=lastname) from names group by 1 order by 'test'||samevalue(firstname);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 70):
-
-select samevalue(NOT 'test'=lastname) from names group by 1 order by 'test'||samevalue(firstname); -- Postgres error firstname in Order by not in GroupBy
-select samevalue(NOT 'test'=lastname) from names group by 1 order by firstname; -- Postgres error firstname in Order by not in GroupBy
-                                                                     ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in Order by not in GroupBy
-select samevalue(NOT 'test'=lastname) from names group by 1 order by firstname;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 86):
-
-select samevalue(NOT 'test'=lastname) from names group by 1 order by firstname; -- Postgres error firstname in Order by not in GroupBy
-select samevalue(NOT 'test'=lastname) from names group by 1 having 'Zero'!=samevalue(firstname) order by 1; -- Postgres error firstname in Having not in GroupBy
-                                                                                     ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in Order by not in GroupBy
-select samevalue(NOT 'test'=lastname) from names group by 1 having 'Zero'!=samevalue(firstname) order by 1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 76):
-
-select samevalue(NOT 'test'=lastname) from names group by 1 having 'Zero'!=samevalue(firstname) order by 1; -- Postgres error firstname in Having not in GroupBy
-select samevalue(NOT 'test'=lastname) from names group by 1 having 'Zero'!=firstname order by 1; -- Postgres error firstname in Having not in GroupBy
-                                                                           ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in Having not in GroupBy
-select samevalue(NOT 'test'=lastname) from names group by 1 having 'Zero'!=firstname order by 1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 4, column 68):
-
-select samevalue(NOT 'test'=lastname) from names group by 1 having 'Zero'!=firstname order by 1; -- Postgres error firstname in Having not in GroupBy
-
-
-select parmlessfunc() from names group by 1 having parmlessfunc()!=id; -- Postgres error id must be in Group by
-                                                                   ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in Having not in GroupBy
-
-
-select parmlessfunc() from names group by 1 having parmlessfunc()!=id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 70):
-
-select parmlessfunc() from names group by 1 having parmlessfunc()!=id; -- Postgres error id must be in Group by
-select parmlessfunc() from names group by 1 order by parmlessfunc()!=id; -- Postgres error id must be in Group BY
-                                                                     ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id must be in Group by
-select parmlessfunc() from names group by 1 order by parmlessfunc()!=id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 62):
-
-select parmlessfunc() from names group by 1 order by parmlessfunc()!=id; -- Postgres error id must be in Group BY
-select 1 from names group by lastname having parmlessfunc()!=id; -- Postgres error id must apear in group by
-                                                             ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id must be in Group BY
-select 1 from names group by lastname having parmlessfunc()!=id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 24):
-
-select 1 from names group by lastname having parmlessfunc()!=id; -- Postgres error id must apear in group by
-select parmlessfunc()!=firstname from names group by parmlessfunc()!='Success';
-                       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id must apear in group by
-select parmlessfunc()!=firstname from names group by parmlessfunc()!='Success';
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 1, column 17):
-
-select ('Zero'!=lastname)!=(parmlessfunc()!=firstname) from names group by firstname;
-                ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select ('Zero'!=lastname)!=(parmlessfunc()!=firstname) from names group by firstname;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 1, column 17):
-
-select ('Zero'!=lastname)!=(parmlessfunc()!=firstname) from names group by parmlessfunc()!=firstname;
-                ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select ('Zero'!=lastname)!=(parmlessfunc()!=firstname) from names group by parmlessfunc()!=firstname;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
-Error with syntax near (line 1, column 61):
-
-select samevalue(id) from names group by 1,firstname having 1!=samevalue(firstname) order by 1; -- TYPE MISMATCH ERROR
-                                                            ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select samevalue(id) from names group by 1,firstname having 1!=samevalue(firstname) order by 1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right BOOLEAN
-Error with syntax near (line 3, column 73):
-
-select samevalue(id) from names group by 1,firstname having 1!=samevalue(firstname) order by 1; -- TYPE MISMATCH ERROR
-
-select samevalue(NOT 'test'=lastname) from names group by 1 having 'Zero'!=samevalue(NOT 'test'=lastname) order by 'Zero'!=samevalue(NOT 'test'=lastname); -- TYPE MYSMATCH
-                                                                        ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- TYPE MISMATCH ERROR
-
-select samevalue(NOT 'test'=lastname) from names group by 1 having 'Zero'!=samevalue(NOT 'test'=lastname) order by 'Zero'!=samevalue(NOT 'test'=lastname);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right BOOLEAN
-Error with syntax near (line 2, column 73):
-
-select samevalue(NOT 'test'=lastname) from names group by 1 having 'Zero'!=samevalue(NOT 'test'=lastname) order by 'Zero'!=samevalue(NOT 'test'=lastname); -- TYPE MYSMATCH
-select samevalue(NOT 'test'=lastname) from names group by 1 having 'Zero'!=samevalue(NOT 'test'=lastname) order by 1; -- TYPE MYSMATCH
-                                                                        ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- TYPE MYSMATCH
-select samevalue(NOT 'test'=lastname) from names group by 1 having 'Zero'!=samevalue(NOT 'test'=lastname) order by 1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 2, column 71):
-
-select samevalue(NOT 'test'=lastname) from names group by 1 having 'Zero'!=samevalue(NOT 'test'=lastname) order by 1; -- TYPE MYSMATCH
-select parmlessfunc() from names group by 1,id having parmlessfunc()!=id; -- TYPE MISMATCH
-                                                                      ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- TYPE MYSMATCH
-select parmlessfunc() from names group by 1,id having parmlessfunc()!=id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 2, column 68):
-
-select parmlessfunc() from names group by 1,id having parmlessfunc()!=id; -- TYPE MISMATCH
-select parmlessfunc() from names group by 1 having parmlessfunc()!=1; -- TYPE MISMATCH
-                                                                   ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- TYPE MISMATCH
-select parmlessfunc() from names group by 1 having parmlessfunc()!=1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 2, column 70):
-
-select parmlessfunc() from names group by 1 having parmlessfunc()!=1; -- TYPE MISMATCH
-select parmlessfunc() from names group by 1 order by parmlessfunc()!=1; -- TYPE MISMATCH
-                                                                     ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- TYPE MISMATCH
-select parmlessfunc() from names group by 1 order by parmlessfunc()!=1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
-Error with syntax near (line 2, column 55):
-
-select parmlessfunc() from names group by 1 order by parmlessfunc()!=1; -- TYPE MISMATCH
-select parmlessfunc() from names group by id order by id!=parmlessfunc(); -- TYPE MISTMATCH
-                                                      ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- TYPE MISMATCH
-select parmlessfunc() from names group by id order by id!=parmlessfunc();
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 2, column 56):
-
-select parmlessfunc() from names group by id order by id!=parmlessfunc(); -- TYPE MISTMATCH
-select 1 from names group by id having parmlessfunc()!=id; -- TYPE MISMATCH
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...(NOT 'test'=lastname) having 1=id; -- Postgres error id in havin...
+                                          ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...(NOT 'test'=lastname) order by id; -- Postgres error id in order...
+                                          ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: select samevalue(firstname) from names group by samevalue(NOT '...
+                         ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_POSITION_INVALID: GROUP BY position 2 is not in select list
+LINE 2: ...=lastname) from names group by 2; -- Postgres error case incorr...
+                                          ^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...up by 1 order by samevalue(firstname); -- Postgres error firstn...
+                                      ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...order by 'test'||samevalue(firstname); -- Postgres error firstn...
+                                      ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ... names group by 1 order by firstname; -- Postgres error firstna...
+                                      ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...1 having 'Zero'!=samevalue(firstname) order by 1; -- Postgres e...
+                                      ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ... group by 1 having 'Zero'!=firstname order by 1; -- Postgres er...
+                                      ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 4: ...up by 1 having parmlessfunc()!=id; -- Postgres error id must be ...
+                                          ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ... by 1 order by parmlessfunc()!=id; -- Postgres error id must be ...
+                                          ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...astname having parmlessfunc()!=id; -- Postgres error id must ape...
+                                          ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: select parmlessfunc()!=firstname from names group by parmlessfu...
+                               ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 1: select ('Zero'!=lastname)!=(parmlessfunc()!=firstname) from name...
+                        ^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 1: select ('Zero'!=lastname)!=(parmlessfunc()!=firstname) from name...
+                        ^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 1: ...es group by 1,firstname having 1!=samevalue(firstname) order by...
+                                          ^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right BOOLEAN
+LINE 3: ...m names group by 1 having 'Zero'!=samevalue(NOT 'test'=lastname...
+                                          ^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right BOOLEAN
+LINE 2: ...m names group by 1 having 'Zero'!=samevalue(NOT 'test'=lastname...
+                                          ^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 2: ... names group by 1,id having parmlessfunc()!=id; -- TYPE MISMATCH
                                                        ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- TYPE MISTMATCH
-select 1 from names group by id having parmlessfunc()!=id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 57):
-
-select 1 from names group by id having parmlessfunc()!=id; -- TYPE MISMATCH
-select 1 from names group by id having paramlessfunc()!=lastname order by parmlessfunc(); -- lastname not in group by
-                                                        ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- TYPE MISMATCH
-select 1 from names group by id having paramlessfunc()!=lastname order by parmlessfunc();
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 3, column 23):
-
-select 1 from names group by id having paramlessfunc()!=lastname order by parmlessfunc(); -- lastname not in group by
-
-select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS INTEGER)); -- Postgres error saying id must be in GroupBy
-                      ^^
-Error with syntax near (line 3, column 18):
-
-select 1 from names group by id having paramlessfunc()!=lastname order by parmlessfunc(); -- lastname not in group by
-
-select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS INTEGER)); -- Postgres error saying id must be in GroupBy
-                 ^^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- lastname not in group by
-
-select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS INTEGER));
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 23):
-
-select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS INTEGER)); -- Postgres error saying id must be in GroupBy
-select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS INTEGER)), samevalue(id); -- Postgres error saying id must be in GroupBy
-                      ^^
-Error with syntax near (line 2, column 18):
-
-select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS INTEGER)); -- Postgres error saying id must be in GroupBy
-select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS INTEGER)), samevalue(id); -- Postgres error saying id must be in GroupBy
-                 ^^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error saying id must be in GroupBy
-select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS INTEGER)), samevalue(id);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 114):
-
-select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS INTEGER)), samevalue(id); -- Postgres error saying id must be in GroupBy
-select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS NUMERIC)) having 1=samevalue(CAST(id AS INTEGER)); -- Postgres error saying id must be in GroupBY
-                                                                                                                 ^^
-Error with syntax near (line 2, column 109):
-
-select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS INTEGER)), samevalue(id); -- Postgres error saying id must be in GroupBy
-select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS NUMERIC)) having 1=samevalue(CAST(id AS INTEGER)); -- Postgres error saying id must be in GroupBY
-                                                                                                            ^^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error saying id must be in GroupBy
-select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS NUMERIC)) having 1=samevalue(CAST(id AS INTEGER));
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 154):
-
-select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS NUMERIC)) having 1=samevalue(CAST(id AS INTEGER)); -- Postgres error saying id must be in GroupBY
-select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS NUMERIC)) having 1=samevalue(CAST(id AS NUMERIC)) order by samevalue(CAST(id AS INTEGER)); -- Postgres error saying id must be in GroupBy
-                                                                                                                                                         ^^
-Error with syntax near (line 2, column 149):
-
-select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS NUMERIC)) having 1=samevalue(CAST(id AS INTEGER)); -- Postgres error saying id must be in GroupBY
-select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS NUMERIC)) having 1=samevalue(CAST(id AS NUMERIC)) order by samevalue(CAST(id AS INTEGER)); -- Postgres error saying id must be in GroupBy
-                                                                                                                                                    ^^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error saying id must be in GroupBY
-select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS NUMERIC)) having 1=samevalue(CAST(id AS NUMERIC)) order by samevalue(CAST(id AS INTEGER));
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 99):
-
-select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS NUMERIC)) having 1=samevalue(CAST(id AS NUMERIC)) order by samevalue(CAST(id AS INTEGER)); -- Postgres error saying id must be in GroupBy
-select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS NUMERIC)) having 1=id; -- Postgres error id in having not in GroupBy
-                                                                                                  ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error saying id must be in GroupBy
-select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS NUMERIC)) having 1=id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 139):
-
-select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS NUMERIC)) having 1=id; -- Postgres error id in having not in GroupBy
-select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS NUMERIC)) having 1=samevalue(CAST(id AS NUMERIC)) order by id; -- Postgres error id in order by not in GroupBy
-                                                                                                                                          ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id in having not in GroupBy
-select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS NUMERIC)) having 1=samevalue(CAST(id AS NUMERIC)) order by id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 70):
-
-select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS NUMERIC)) having 1=samevalue(CAST(id AS NUMERIC)) order by id; -- Postgres error id in order by not in GroupBy
-select 1 from names group by samevalue(CAST(id AS NUMERIC)) having 1=id; -- Postgres error id in having not in GroupBy
-                                                                     ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id in order by not in GroupBy
-select 1 from names group by samevalue(CAST(id AS NUMERIC)) having 1=id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 110):
-
-select 1 from names group by samevalue(CAST(id AS NUMERIC)) having 1=id; -- Postgres error id in having not in GroupBy
-select 1 from names group by samevalue(CAST(id AS NUMERIC)) having 1=samevalue(CAST(id AS NUMERIC)) order by id; -- Postgres error id in order by not in GroupBy
-                                                                                                             ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id in having not in GroupBy
-select 1 from names group by samevalue(CAST(id AS NUMERIC)) having 1=samevalue(CAST(id AS NUMERIC)) order by id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 18):
-
-select 1 from names group by samevalue(CAST(id AS NUMERIC)) having 1=samevalue(CAST(id AS NUMERIC)) order by id; -- Postgres error id in order by not in GroupBy
-select samevalue(firstname) from names group by samevalue(CAST(id AS NUMERIC)) having 1=samevalue(CAST(id AS NUMERIC)) order by samevalue(CAST(id AS NUMERIC)); -- Postgres error firstname in select not in GroupBY
-                 ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id in order by not in GroupBy
-select samevalue(firstname) from names group by samevalue(CAST(id AS NUMERIC)) having 1=samevalue(CAST(id AS NUMERIC)) order by samevalue(CAST(id AS NUMERIC));
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_POSITION_INVALID : GROUP BY position 2 is not in select list
-Error with syntax near (line 2, column 59):
-
-select samevalue(firstname) from names group by samevalue(CAST(id AS NUMERIC)) having 1=samevalue(CAST(id AS NUMERIC)) order by samevalue(CAST(id AS NUMERIC)); -- Postgres error firstname in select not in GroupBY
-select samevalue(CAST(id AS NUMERIC)) from names group by 2; -- Postgres error case incorrect location
-                                                          ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in select not in GroupBY
-select samevalue(CAST(id AS NUMERIC)) from names group by 2;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 85):
-
-select samevalue(CAST(id AS NUMERIC)) from names group by 2; -- Postgres error case incorrect location
-select samevalue(CAST(id AS NUMERIC)) from names group by 1 order by samevalue(CAST(id AS INTEGER)); -- Postgres error id not in GroupBy
-                                                                                    ^^
-Error with syntax near (line 2, column 80):
-
-select samevalue(CAST(id AS NUMERIC)) from names group by 2; -- Postgres error case incorrect location
-select samevalue(CAST(id AS NUMERIC)) from names group by 1 order by samevalue(CAST(id AS INTEGER)); -- Postgres error id not in GroupBy
-                                                                               ^^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error case incorrect location
-select samevalue(CAST(id AS NUMERIC)) from names group by 1 order by samevalue(CAST(id AS INTEGER));
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 80):
-
-select samevalue(CAST(id AS NUMERIC)) from names group by 1 order by samevalue(CAST(id AS INTEGER)); -- Postgres error id not in GroupBy
-select samevalue(CAST(id AS NUMERIC)) from names group by 1 order by samevalue(firstname); -- Postgres error firstname in Order by not in GroupBy
-                                                                               ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id not in GroupBy
-select samevalue(CAST(id AS NUMERIC)) from names group by 1 order by samevalue(firstname);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 81):
-
-select samevalue(CAST(id AS NUMERIC)) from names group by 1 order by samevalue(firstname); -- Postgres error firstname in Order by not in GroupBy
-select samevalue(CAST(id AS NUMERIC)) from names group by 1 having 1!=samevalue(firstname) order by 1; -- Postgres error firstname in Having not in GroupBy
-                                                                                ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in Order by not in GroupBy
-select samevalue(CAST(id AS NUMERIC)) from names group by 1 having 1!=samevalue(firstname) order by 1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
-Error with syntax near (line 2, column 78):
-
-select samevalue(CAST(id AS NUMERIC)) from names group by 1 having 1!=samevalue(firstname) order by 1; -- Postgres error firstname in Having not in GroupBy
-select samevalue(CAST(id AS NUMERIC)) from names group by 1,firstname having 1!=samevalue(firstname) order by 1; -- TYPE mismatch
-                                                                             ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in Having not in GroupBy
-select samevalue(CAST(id AS NUMERIC)) from names group by 1,firstname having 1!=samevalue(firstname) order by 1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 3, column 18):
-
-select samevalue(CAST(id AS NUMERIC)) from names group by 1,firstname having 1!=samevalue(firstname) order by 1; -- TYPE mismatch
-
-select samevalue(id::NUMERIC) from names group by samevalue(id::INTEGER); -- Postgres error saying id must be in GroupBy
-                 ^^
-Error with syntax near (line 3, column 18):
-
-select samevalue(CAST(id AS NUMERIC)) from names group by 1,firstname having 1!=samevalue(firstname) order by 1; -- TYPE mismatch
-
-select samevalue(id::NUMERIC) from names group by samevalue(id::INTEGER); -- Postgres error saying id must be in GroupBy
-                 ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- TYPE mismatch
-
-select samevalue(id::NUMERIC) from names group by samevalue(id::INTEGER);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 18):
-
-select samevalue(id::NUMERIC) from names group by samevalue(id::INTEGER); -- Postgres error saying id must be in GroupBy
-select samevalue(id::NUMERIC) from names group by samevalue(id::INTEGER), samevalue(id); -- Postgres error saying id must be in GroupBy
-                 ^^
-Error with syntax near (line 2, column 18):
-
-select samevalue(id::NUMERIC) from names group by samevalue(id::INTEGER); -- Postgres error saying id must be in GroupBy
-select samevalue(id::NUMERIC) from names group by samevalue(id::INTEGER), samevalue(id); -- Postgres error saying id must be in GroupBy
-                 ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error saying id must be in GroupBy
-select samevalue(id::NUMERIC) from names group by samevalue(id::INTEGER), samevalue(id);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 93):
-
-select samevalue(id::NUMERIC) from names group by samevalue(id::INTEGER), samevalue(id); -- Postgres error saying id must be in GroupBy
-select samevalue(id::NUMERIC) from names group by samevalue(id::NUMERIC) having 1=samevalue(id::INTEGER); -- Postgres error saying id must be in GroupBY
-                                                                                            ^^
-Error with syntax near (line 2, column 93):
-
-select samevalue(id::NUMERIC) from names group by samevalue(id::INTEGER), samevalue(id); -- Postgres error saying id must be in GroupBy
-select samevalue(id::NUMERIC) from names group by samevalue(id::NUMERIC) having 1=samevalue(id::INTEGER); -- Postgres error saying id must be in GroupBY
-                                                                                            ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error saying id must be in GroupBy
-select samevalue(id::NUMERIC) from names group by samevalue(id::NUMERIC) having 1=samevalue(id::INTEGER);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 125):
-
-select samevalue(id::NUMERIC) from names group by samevalue(id::NUMERIC) having 1=samevalue(id::INTEGER); -- Postgres error saying id must be in GroupBY
-select samevalue(id::NUMERIC) from names group by samevalue(id::NUMERIC) having 1=samevalue(id::NUMERIC) order by samevalue(id::INTEGER); -- Postgres error saying id must be in GroupBy
-                                                                                                                            ^^
-Error with syntax near (line 2, column 125):
-
-select samevalue(id::NUMERIC) from names group by samevalue(id::NUMERIC) having 1=samevalue(id::INTEGER); -- Postgres error saying id must be in GroupBY
-select samevalue(id::NUMERIC) from names group by samevalue(id::NUMERIC) having 1=samevalue(id::NUMERIC) order by samevalue(id::INTEGER); -- Postgres error saying id must be in GroupBy
-                                                                                                                            ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error saying id must be in GroupBY
-select samevalue(id::NUMERIC) from names group by samevalue(id::NUMERIC) having 1=samevalue(id::NUMERIC) order by samevalue(id::INTEGER);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 83):
-
-select samevalue(id::NUMERIC) from names group by samevalue(id::NUMERIC) having 1=samevalue(id::NUMERIC) order by samevalue(id::INTEGER); -- Postgres error saying id must be in GroupBy
-select samevalue(id::NUMERIC) from names group by samevalue(id::NUMERIC) having 1=id; -- Postgres error id in having not in GroupBy
-                                                                                  ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error saying id must be in GroupBy
-select samevalue(id::NUMERIC) from names group by samevalue(id::NUMERIC) having 1=id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 115):
-
-select samevalue(id::NUMERIC) from names group by samevalue(id::NUMERIC) having 1=id; -- Postgres error id in having not in GroupBy
-select samevalue(id::NUMERIC) from names group by samevalue(id::NUMERIC) having 1=samevalue(id::NUMERIC) order by id; -- Postgres error id in order by not in GroupBy
-                                                                                                                  ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id in having not in GroupBy
-select samevalue(id::NUMERIC) from names group by samevalue(id::NUMERIC) having 1=samevalue(id::NUMERIC) order by id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 62):
-
-select samevalue(id::NUMERIC) from names group by samevalue(id::NUMERIC) having 1=samevalue(id::NUMERIC) order by id; -- Postgres error id in order by not in GroupBy
-select 1 from names group by samevalue(id::NUMERIC) having 1=id; -- Postgres error id in having not in GroupBy
-                                                             ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id in order by not in GroupBy
-select 1 from names group by samevalue(id::NUMERIC) having 1=id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 94):
-
-select 1 from names group by samevalue(id::NUMERIC) having 1=id; -- Postgres error id in having not in GroupBy
-select 1 from names group by samevalue(id::NUMERIC) having 1=samevalue(id::NUMERIC) order by id; -- Postgres error id in order by not in GroupBy
-                                                                                             ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id in having not in GroupBy
-select 1 from names group by samevalue(id::NUMERIC) having 1=samevalue(id::NUMERIC) order by id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 18):
-
-select 1 from names group by samevalue(id::NUMERIC) having 1=samevalue(id::NUMERIC) order by id; -- Postgres error id in order by not in GroupBy
-select samevalue(firstname) from names group by samevalue(id::NUMERIC) having 1=samevalue(id::NUMERIC) order by samevalue(id::NUMERIC); -- Postgres error firstname in select not in GroupBY
-                 ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id in order by not in GroupBy
-select samevalue(firstname) from names group by samevalue(id::NUMERIC) having 1=samevalue(id::NUMERIC) order by samevalue(id::NUMERIC);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_POSITION_INVALID : GROUP BY position 2 is not in select list
-Error with syntax near (line 2, column 51):
-
-select samevalue(firstname) from names group by samevalue(id::NUMERIC) having 1=samevalue(id::NUMERIC) order by samevalue(id::NUMERIC); -- Postgres error firstname in select not in GroupBY
-select samevalue(id::NUMERIC) from names group by 2; -- Postgres error case incorrect location
-                                                  ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in select not in GroupBY
-select samevalue(id::NUMERIC) from names group by 2;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 72):
-
-select samevalue(id::NUMERIC) from names group by 2; -- Postgres error case incorrect location
-select samevalue(id::NUMERIC) from names group by 1 order by samevalue(id::INTEGER); -- Postgres error id not in GroupBy
-                                                                       ^^
-Error with syntax near (line 2, column 72):
-
-select samevalue(id::NUMERIC) from names group by 2; -- Postgres error case incorrect location
-select samevalue(id::NUMERIC) from names group by 1 order by samevalue(id::INTEGER); -- Postgres error id not in GroupBy
-                                                                       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error case incorrect location
-select samevalue(id::NUMERIC) from names group by 1 order by samevalue(id::INTEGER);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 72):
-
-select samevalue(id::NUMERIC) from names group by 1 order by samevalue(id::INTEGER); -- Postgres error id not in GroupBy
-select samevalue(id::NUMERIC) from names group by 1 order by samevalue(firstname); -- Postgres error firstname in Order by not in GroupBy
-                                                                       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id not in GroupBy
-select samevalue(id::NUMERIC) from names group by 1 order by samevalue(firstname);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 73):
-
-select samevalue(id::NUMERIC) from names group by 1 order by samevalue(firstname); -- Postgres error firstname in Order by not in GroupBy
-select samevalue(id::NUMERIC) from names group by 1 having 1!=samevalue(firstname) order by 1; -- Postgres error firstname in Having not in GroupBy
-                                                                        ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in Order by not in GroupBy
-select samevalue(id::NUMERIC) from names group by 1 having 1!=samevalue(firstname) order by 1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
-Error with syntax near (line 2, column 70):
-
-select samevalue(id::NUMERIC) from names group by 1 having 1!=samevalue(firstname) order by 1; -- Postgres error firstname in Having not in GroupBy
-select samevalue(id::NUMERIC) from names group by 1,firstname having 1!=samevalue(firstname) order by 1; -- Type mismatch error
-                                                                     ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in Having not in GroupBy
-select samevalue(id::NUMERIC) from names group by 1,firstname having 1!=samevalue(firstname) order by 1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 3, column 18):
-
-select samevalue(id::NUMERIC) from names group by 1,firstname having 1!=samevalue(firstname) order by 1; -- Type mismatch error
-
-select samevalue(firstname) from names group by CAST(id AS NUMERIC) having 1=CAST(id AS NUMERIC) order by CAST(id AS NUMERIC); -- Postgres error firstname in select not in GroupBY
-                 ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Type mismatch error
-
-select samevalue(firstname) from names group by CAST(id AS NUMERIC) having 1=CAST(id AS NUMERIC) order by CAST(id AS NUMERIC);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 69):
-
-select samevalue(firstname) from names group by CAST(id AS NUMERIC) having 1=CAST(id AS NUMERIC) order by CAST(id AS NUMERIC); -- Postgres error firstname in select not in GroupBY
-select CAST(id AS NUMERIC) from names group by 1 order by samevalue(firstname); -- Postgres error firstname in Order by not in GroupBy
-                                                                    ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in select not in GroupBY
-select CAST(id AS NUMERIC) from names group by 1 order by samevalue(firstname);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 70):
-
-select CAST(id AS NUMERIC) from names group by 1 order by samevalue(firstname); -- Postgres error firstname in Order by not in GroupBy
-select CAST(id AS NUMERIC) from names group by 1 having 1!=samevalue(firstname) order by 1; -- Postgres error firstname in Having not in GroupBy
-                                                                     ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in Order by not in GroupBy
-select CAST(id AS NUMERIC) from names group by 1 having 1!=samevalue(firstname) order by 1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 3, column 18):
-
-select CAST(id AS NUMERIC) from names group by 1 having 1!=samevalue(firstname) order by 1; -- Postgres error firstname in Having not in GroupBy
-
-select samevalue(firstname) from names group by id::NUMERIC having 1=id::NUMERIC order by id::NUMERIC; -- Postgres error firstname in select not in GroupBY
-                 ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in Having not in GroupBy
-
-select samevalue(firstname) from names group by id::NUMERIC having 1=id::NUMERIC order by id::NUMERIC;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 61):
-
-select samevalue(firstname) from names group by id::NUMERIC having 1=id::NUMERIC order by id::NUMERIC; -- Postgres error firstname in select not in GroupBY
-select id::NUMERIC from names group by 1 order by samevalue(firstname); -- Postgres error firstname in Order by not in GroupBy
-                                                            ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in select not in GroupBY
-select id::NUMERIC from names group by 1 order by samevalue(firstname);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 62):
-
-select id::NUMERIC from names group by 1 order by samevalue(firstname); -- Postgres error firstname in Order by not in GroupBy
-select id::NUMERIC from names group by 1 having 1!=samevalue(firstname) order by 1; -- Postgres error firstname in Having not in GroupBy
-                                                             ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in Order by not in GroupBy
-select id::NUMERIC from names group by 1 having 1!=samevalue(firstname) order by 1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 3, column 20):
-
-select id::NUMERIC from names group by 1 having 1!=samevalue(firstname) order by 1; -- Postgres error firstname in Having not in GroupBy
-
-select 1+samevalue(id)::INTEGER from names group by 1+samevalue(id)::NUMERIC; -- Postgres error id not in GroupBY
-                   ^^
-Error with syntax near (line 3, column 10):
-
-select id::NUMERIC from names group by 1 having 1!=samevalue(firstname) order by 1; -- Postgres error firstname in Having not in GroupBy
-
-select 1+samevalue(id)::INTEGER from names group by 1+samevalue(id)::NUMERIC; -- Postgres error id not in GroupBY
-         ^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error firstname in Having not in GroupBy
-
-select 1+samevalue(id)::INTEGER from names group by 1+samevalue(id)::NUMERIC;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 74):
-
-select 1+samevalue(id)::INTEGER from names group by 1+samevalue(id)::NUMERIC; -- Postgres error id not in GroupBY
-select 1+samevalue(id)::INTEGER from names group by 1 having 1+samevalue(id)::NUMERIC != 2; -- Postgres error id not in GroupBy
-                                                                         ^^
-Error with syntax near (line 2, column 64):
-
-select 1+samevalue(id)::INTEGER from names group by 1+samevalue(id)::NUMERIC; -- Postgres error id not in GroupBY
-select 1+samevalue(id)::INTEGER from names group by 1 having 1+samevalue(id)::NUMERIC != 2; -- Postgres error id not in GroupBy
-                                                               ^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id not in GroupBY
-select 1+samevalue(id)::INTEGER from names group by 1 having 1+samevalue(id)::NUMERIC != 2;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 2, column 25):
-
-select 1+samevalue(id)::INTEGER from names group by 1 having 1+samevalue(id)::NUMERIC != 2; -- Postgres error id not in GroupBy
-select 1+CAST(samevalue(id) as INTEGER) from names group by 1+CAST(samevalue(id) as NUMERIC); -- Postgres error id not in Groupby
-                        ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres error id not in GroupBy
-select 1+CAST(samevalue(id) as INTEGER) from names group by 1+CAST(samevalue(id) as NUMERIC);
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 2: ...rom names group by 1 having parmlessfunc()!=1; -- TYPE MISMATCH
+                                                       ^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 2: ...m names group by 1 order by parmlessfunc()!=1; -- TYPE MISMATCH
+                                                       ^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 2: ...rom names group by id order by id!=parmlessfunc(); -- TYPE MISTM...
+                                          ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 2: ...om names group by id having parmlessfunc()!=id; -- TYPE MISMATCH
+                                                       ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ... id having paramlessfunc()!=lastname order by parmlessfunc(); --...
+                                       ^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 3: select samevalue(CAST(id AS NUMERIC)) from names group by sameva...
+                              ^^
+LINE 3: select samevalue(CAST(id AS NUMERIC)) from names group by samev...
+                         ^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: select samevalue(CAST(id AS NUMERIC)) from names group by sameva...
+                              ^^
+LINE 2: select samevalue(CAST(id AS NUMERIC)) from names group by samev...
+                         ^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...ERIC)) having 1=samevalue(CAST(id AS INTEGER)); -- Postgres erro...
+                                          ^^
+LINE 2: ...)) having 1=samevalue(CAST(id AS INTEGER)); -- Postgres error s...
+                                 ^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...ERIC)) order by samevalue(CAST(id AS INTEGER)); -- Postgres erro...
+                                          ^^
+LINE 2: ...)) order by samevalue(CAST(id AS INTEGER)); -- Postgres error s...
+                                 ^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...(CAST(id AS NUMERIC)) having 1=id; -- Postgres error id in havin...
+                                          ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...(CAST(id AS NUMERIC)) order by id; -- Postgres error id in order...
+                                          ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...(CAST(id AS NUMERIC)) having 1=id; -- Postgres error id in havin...
+                                          ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...(CAST(id AS NUMERIC)) order by id; -- Postgres error id in order...
+                                          ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: select samevalue(firstname) from names group by samevalue(CAST(...
+                         ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_POSITION_INVALID: GROUP BY position 2 is not in select list
+LINE 2: ... NUMERIC)) from names group by 2; -- Postgres error case incorr...
+                                          ^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...p by 1 order by samevalue(CAST(id AS INTEGER)); -- Postgres erro...
+                                          ^^
+LINE 2: ... 1 order by samevalue(CAST(id AS INTEGER)); -- Postgres error i...
+                                 ^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...up by 1 order by samevalue(firstname); -- Postgres error firstn...
+                                      ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...p by 1 having 1!=samevalue(firstname) order by 1; -- Postgres e...
+                                      ^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 2: ...es group by 1,firstname having 1!=samevalue(firstname) order by...
+                                          ^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 3: select samevalue(id::NUMERIC) from names group by samevalue(id::...
+                         ^^
+LINE 3: select samevalue(id::NUMERIC) from names group by samevalue(id:...
+                         ^^^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: select samevalue(id::NUMERIC) from names group by samevalue(id::...
+                         ^^
+LINE 2: select samevalue(id::NUMERIC) from names group by samevalue(id:...
+                         ^^^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...d::NUMERIC) having 1=samevalue(id::INTEGER); -- Postgres error s...
+                                          ^^
+LINE 2: ...MERIC) having 1=samevalue(id::INTEGER); -- Postgres error sayin...
+                                     ^^^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...d::NUMERIC) order by samevalue(id::INTEGER); -- Postgres error s...
+                                          ^^
+LINE 2: ...MERIC) order by samevalue(id::INTEGER); -- Postgres error sayin...
+                                     ^^^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...amevalue(id::NUMERIC) having 1=id; -- Postgres error id in havin...
+                                          ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...amevalue(id::NUMERIC) order by id; -- Postgres error id in order...
+                                          ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...amevalue(id::NUMERIC) having 1=id; -- Postgres error id in havin...
+                                          ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...amevalue(id::NUMERIC) order by id; -- Postgres error id in order...
+                                          ^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: select samevalue(firstname) from names group by samevalue(id::N...
+                         ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_POSITION_INVALID: GROUP BY position 2 is not in select list
+LINE 2: ...::NUMERIC) from names group by 2; -- Postgres error case incorr...
+                                          ^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ... group by 1 order by samevalue(id::INTEGER); -- Postgres error i...
+                                          ^^
+LINE 2: ...p by 1 order by samevalue(id::INTEGER); -- Postgres error id no...
+                                     ^^^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...up by 1 order by samevalue(firstname); -- Postgres error firstn...
+                                      ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...p by 1 having 1!=samevalue(firstname) order by 1; -- Postgres e...
+                                      ^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 2: ...es group by 1,firstname having 1!=samevalue(firstname) order by...
+                                          ^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 3: select samevalue(firstname) from names group by CAST(id AS NUME...
+                         ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...up by 1 order by samevalue(firstname); -- Postgres error firstn...
+                                      ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...p by 1 having 1!=samevalue(firstname) order by 1; -- Postgres e...
+                                      ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 3: select samevalue(firstname) from names group by id::NUMERIC hav...
+                         ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...up by 1 order by samevalue(firstname); -- Postgres error firstn...
+                                      ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...p by 1 having 1!=samevalue(firstname) order by 1; -- Postgres e...
+                                      ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 3: select 1+samevalue(id)::INTEGER from names group by 1+samevalue(...
+                           ^^
+LINE 3: select 1+samevalue(id)::INTEGER from names group by 1+samevalue...
+                 ^^^^^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ... group by 1 having 1+samevalue(id)::NUMERIC != 2; -- Postgres er...
+                                          ^^
+LINE 2: ...ames group by 1 having 1+samevalue(id)::NUMERIC != 2; -- Postgr...
+                                    ^^^^^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: select 1+CAST(samevalue(id) as INTEGER) from names group by 1+CA...
+                                ^^

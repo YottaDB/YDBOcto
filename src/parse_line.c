@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -39,11 +39,8 @@ SqlStatement *parse_line(ParseContext *parse_context) {
 	config->plan_id = 1; /* Start valid unique_id for tables at 1 (relied upon by "hash_canonical_query"
 			      * when referencing "tbl_and_col_id" field in SqlColumnListAlias)
 			      */
-	int status = yyparse(scanner, &result, &config->plan_id, parse_context);
+	yyparse(scanner, &result, &config->plan_id, parse_context);
 	yylex_destroy(scanner);
-	if (status) {
-		ERROR(ERR_PARSING_COMMAND, cur_input_index - old_input_index, input_buffer_combined + old_input_index);
-	}
 	YDB_FREE_BUFFER(&lex_buffer);
 	/* Remove newline at end of query line if present.
 	 * It will be present for octo but not necessarily for rocto in case query comes in from a client.

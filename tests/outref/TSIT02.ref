@@ -1,17 +1,3 @@
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 5, column 19):
-
-SELECT *
-FROM names n1
-INNER JOIN (SELECT *
-            FROM names n2
-            WHERE n1.id = n2.id
-                  ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT *
-FROM names n1
-INNER JOIN (SELECT *
-            FROM names n2
-            WHERE n1.id = n2.id
-           ) as n3
-ON n3.id = n1.id;
-
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 5:             WHERE n1.id = n2.id
+                          ^^^^^

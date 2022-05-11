@@ -10,33 +10,18 @@ select NOT (3 >= customers.customer_id) from customers group by NOT (3 >= custom
 
 -- Below query validates that GroupBy expression forms the smallest expression element which having clause can use in the presence of GroupBy
 SELECT id+1 from names group by id+1 having id=1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 1, column 113):
-
-select NOT (3 >= customers.customer_id) from customers group by NOT (3 >= customers.customer_id) order by (3 >= customers.customer_id);
-                                                                                                                ^^^^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select NOT (3 >= customers.customer_id) from customers group by NOT (3 >= customers.customer_id) order by (3 >= customers.customer_id);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 1, column 110):
-
-select NOT (3 >= customers.customer_id) from customers group by NOT (3 >= customers.customer_id) having (3>= customers.customer_id);
-                                                                                                             ^^^^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select NOT (3 >= customers.customer_id) from customers group by NOT (3 >= customers.customer_id) having (3>= customers.customer_id);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 1, column 110):
-
-select NOT (3 >= customers.customer_id) from customers group by NOT (3 >= customers.customer_id) having (3>= customers.customer_id) order by (3 >= customers.customer_id);
-                                                                                                             ^^^^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 1, column 148):
-
-select NOT (3 >= customers.customer_id) from customers group by NOT (3 >= customers.customer_id) having (3>= customers.customer_id) order by (3 >= customers.customer_id);
-                                                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select NOT (3 >= customers.customer_id) from customers group by NOT (3 >= customers.customer_id) having (3>= customers.customer_id) order by (3 >= customers.customer_id);
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 1, column 45):
-
-SELECT id+1 from names group by id+1 having id=1;
-                                            ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id+1 from names group by id+1 having id=1;
-
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 1: ...= customers.customer_id) order by (3 >= customers.customer_id);
+                                                   ^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 1: ...3 >= customers.customer_id) having (3>= customers.customer_id);
+                                                   ^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 1: ...omer_id) having (3>= customers.customer_id) order by (3 >= cust...
+                                ^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 1: ...= customers.customer_id) order by (3 >= customers.customer_id);
+                                                   ^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 1: SELECT id+1 from names group by id+1 having id=1;
+                                                    ^^

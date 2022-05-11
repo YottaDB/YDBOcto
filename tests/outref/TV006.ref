@@ -4,9 +4,9 @@ select * from nonexistanttable;
 INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""id""))";
 
 select * from names;
-[ INFO] PATH:LINENUM DATE TIME : INFO_LOADED_CONFIG : Loaded config from $PWD/octo.conf
-[ INFO] PATH:LINENUM DATE TIME : INFO_RECORDING_ENV_VARS : # Recording pertinent ydb_* env var values at process startup
-[TRACE] PATH:LINENUM DATE TIME : INFO_OCTO_STARTED : Octo started
+[ INFO] PATH:LINENUM DATE TIME: INFO_LOADED_CONFIG: Loaded config from $PWD/octo.conf
+[ INFO] PATH:LINENUM DATE TIME: INFO_RECORDING_ENV_VARS: # Recording pertinent ydb_* env var values at process startup
+[TRACE] PATH:LINENUM DATE TIME: INFO_OCTO_STARTED: Octo started
 Starting parse
 Entering state sss
 Next token is token SELECT (: )
@@ -65,12 +65,10 @@ Entering state sss
 Next token is token SEMICOLON (: )
 Reducing stack by rule rrr (line lll):
    $1 = nterm column_name (: )
-[TRACE] PATH:LINENUM DATE TIME : INFO_TABLE_SEARCH : Searching for table NONEXISTANTTABLE
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: NONEXISTANTTABLE
-Error with syntax near (line 1, column 15):
-
-select * from nonexistanttable;
-              ^^^^^^^^^^^^^^^^
+[TRACE] PATH:LINENUM DATE TIME: INFO_TABLE_SEARCH: Searching for table NONEXISTANTTABLE
+[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE: Unknown table: NONEXISTANTTABLE
+LINE 1: select * from nonexistanttable;
+                      ^^^^^^^^^^^^^^^^
 Error: popping token FROM (: )
 Error: popping nterm select_list (: )
 Error: popping nterm set_quantifier (: )
@@ -87,9 +85,8 @@ Entering state sss
 Reducing stack by rule rrr (line lll):
    $1 = token error (: )
    $2 = nterm semicolon_or_eof (: )
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from nonexistanttable;
-[ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command [select * from nonexistanttable;]
-[ INFO] PATH:LINENUM DATE TIME : INFO_RETURNING_FAILURE : Returning failure from run_query
+[ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [select * from nonexistanttable;]
+[ INFO] PATH:LINENUM DATE TIME: INFO_RETURNING_FAILURE: Returning failure from run_query
 Starting parse
 Entering state sss
 Next token is token INDEX (: )
@@ -137,7 +134,7 @@ Reducing stack by rule rrr (line lll):
    $1 = token INDEX (: )
    $2 = nterm index_name (: )
    $3 = nterm literal_value (: )
-[ WARN] PATH:LINENUM DATE TIME : ERR_FEATURE_NOT_IMPLEMENTED : Feature not implemented: INDEX statements
+[ WARN] PATH:LINENUM DATE TIME: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: INDEX statements
 -> $$ = nterm index_definition (: )
 Entering state sss
 Reducing stack by rule rrr (line lll):
@@ -158,8 +155,8 @@ Entering state sss
 Reducing stack by rule rrr (line lll):
    $1 = nterm sql_schema_statement (: )
    $2 = nterm semicolon_or_eof (: )
-[ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command [INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""id""))";]
-[ INFO] PATH:LINENUM DATE TIME : INFO_CURSOR : Generating SQL for CURSOR_NUM
+[ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""id""))";]
+[ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
 Starting parse
 Entering state sss
 Next token is token SELECT (: )
@@ -218,7 +215,7 @@ Entering state sss
 Next token is token SEMICOLON (: )
 Reducing stack by rule rrr (line lll):
    $1 = nterm column_name (: )
-[TRACE] PATH:LINENUM DATE TIME : INFO_TABLE_SEARCH : Searching for table NAMES
+[TRACE] PATH:LINENUM DATE TIME: INFO_TABLE_SEARCH: Searching for table NAMES
 -> $$ = nterm table_reference (: )
 Entering state sss
 Next token is token SEMICOLON (: )
@@ -306,12 +303,12 @@ Entering state sss
 Reducing stack by rule rrr (line lll):
    $1 = nterm query_expression (: )
    $2 = nterm semicolon_or_eof (: )
-[ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command [select * from names;]
-[ INFO] PATH:LINENUM DATE TIME : INFO_CURSOR : Generating SQL for CURSOR_NUM
-[TRACE] PATH:LINENUM DATE TIME : INFO_ENTERING_FUNCTION : Entering hash_canonical_query
-[ INFO] PATH:LINENUM DATE TIME : INFO_M_PLAN : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
-[TRACE] PATH:LINENUM DATE TIME : INFO_ENTERING_FUNCTION : Entering emit_sql_statement
-[DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
+[ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [select * from names;]
+[ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
+[TRACE] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering hash_canonical_query
+[ INFO] PATH:LINENUM DATE TIME: INFO_M_PLAN: Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[TRACE] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering emit_sql_statement
+[DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
 LP_SELECT_QUERY: 
   LP_PROJECT: 
     LP_COLUMN_LIST: 
@@ -348,7 +345,7 @@ LP_SELECT_QUERY:
     - xref_key: false
     - uses_xref_key: false
 
-[DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN AFTER optimize_logical_plan() follows 
+[DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN AFTER optimize_logical_plan() follows 
 LP_SELECT_QUERY: 
   LP_PROJECT: 
     LP_COLUMN_LIST: 
@@ -392,7 +389,7 @@ LP_SELECT_QUERY:
     - xref_key: false
     - uses_xref_key: false
 
-[ INFO] PATH:LINENUM DATE TIME : INFO_ENTERING_FUNCTION : Entering print_temporary_table
+[ INFO] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering print_temporary_table
 ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 1|Acid|Burn
@@ -412,4 +409,4 @@ Reducing stack by rule rrr (line lll):
 Entering state sss
 Reducing stack by rule rrr (line lll):
    $1 = nterm semicolon_or_eof (: )
-[ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command []
+[ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command []

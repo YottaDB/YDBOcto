@@ -1,7 +1,3 @@
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: NAMES.HACKNAME
-Error with syntax near (line 1, column 7):
-
-select names.hackName from names;
-       ^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select names.hackName from names;
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: NAMES.HACKNAME
+LINE 1: select names.hackName from names;
+               ^^^^^^^^^^^^^^

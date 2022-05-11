@@ -23,57 +23,30 @@ SELECT * FROM names WHERE $$a('b');
 -- Attempt to use inline extrinsic function in HAVING clause
 SELECT id FROM names GROUP BY id HAVING $$a(id);
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_M_CALL : Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
-Error with syntax near (line 1, column 32):
-
-SELECT * FROM names WHERE id = $$ABS^%ydboctosqlfunctions(-2);
-                               ^^^^^^^^^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names WHERE id = $$ABS^%ydboctosqlfunctions(-2);
-[ERROR] PATH:LINENUM DATE TIME : ERR_M_CALL : Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
-Error with syntax near (line 1, column 8):
-
-SELECT $ZWRITE(firstname) FROM names;
-       ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT $ZWRITE(firstname) FROM names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_M_CALL : Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
-Error with syntax near (line 1, column 32):
-
-SELECT * FROM names WHERE id = $$^%("some value");
-                               ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names WHERE id = $$^%("some value");
-[ERROR] PATH:LINENUM DATE TIME : ERR_M_CALL : Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
-Error with syntax near (line 1, column 32):
-
-SELECT * FROM names WHERE id = $$%^%("some value");
-                               ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names WHERE id = $$%^%("some value");
-[ERROR] PATH:LINENUM DATE TIME : ERR_M_CALL : Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
-Error with syntax near (line 1, column 32):
-
-SELECT * FROM names WHERE id = $$%ABS^someroutine(-2);
-                               ^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names WHERE id = $$%ABS^someroutine(-2);
-[ERROR] PATH:LINENUM DATE TIME : ERR_M_CALL : Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
-Error with syntax near (line 1, column 32):
-
-SELECT * FROM names WHERE id = $$ABS^%someroutine(-2);
-                               ^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names WHERE id = $$ABS^%someroutine(-2);
-[ERROR] PATH:LINENUM DATE TIME : ERR_M_CALL : Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
-Error with syntax near (line 1, column 8):
-
-SELECT $$a('b');
-       ^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT $$a('b');
-[ERROR] PATH:LINENUM DATE TIME : ERR_M_CALL : Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
-Error with syntax near (line 1, column 27):
-
-SELECT * FROM names WHERE $$a('b');
-                          ^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names WHERE $$a('b');
-[ERROR] PATH:LINENUM DATE TIME : ERR_M_CALL : Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
-Error with syntax near (line 1, column 41):
-
-SELECT id FROM names GROUP BY id HAVING $$a(id);
-                                        ^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id FROM names GROUP BY id HAVING $$a(id);
+[ERROR]: ERR_M_CALL: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
+LINE 1: SELECT * FROM names WHERE id = $$ABS^%ydboctosqlfunctions(-2);
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_M_CALL: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
+LINE 1: SELECT $ZWRITE(firstname) FROM names;
+               ^^^^^^^
+[ERROR]: ERR_M_CALL: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
+LINE 1: SELECT * FROM names WHERE id = $$^%("some value");
+                                       ^^^^
+[ERROR]: ERR_M_CALL: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
+LINE 1: SELECT * FROM names WHERE id = $$%^%("some value");
+                                       ^^^^^
+[ERROR]: ERR_M_CALL: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
+LINE 1: SELECT * FROM names WHERE id = $$%ABS^someroutine(-2);
+                                       ^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_M_CALL: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
+LINE 1: SELECT * FROM names WHERE id = $$ABS^%someroutine(-2);
+                                       ^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_M_CALL: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
+LINE 1: SELECT $$a('b');
+               ^^^
+[ERROR]: ERR_M_CALL: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
+LINE 1: SELECT * FROM names WHERE $$a('b');
+                                  ^^^
+[ERROR]: ERR_M_CALL: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
+LINE 1: SELECT id FROM names GROUP BY id HAVING $$a(id);
+                                                ^^^

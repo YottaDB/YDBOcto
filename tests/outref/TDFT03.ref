@@ -49,56 +49,36 @@ delete from names where lastname = id; -- a modified version of this query (with
 ???
 -- Test of ERR_UNKNOWN_COLUMN_NAME
 (1 row)
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: ABCD
-Error with syntax near (line 1, column 25):
-
-delete from names where abcd = 2;
-                        ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from names where abcd = 2;
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ABCD
+LINE 1: delete from names where abcd = 2;
+                                ^^^^
 ???
 -- Test of ERR_MISSING_FROM_ENTRY
 (1 row)
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : NAMES
-Error with syntax near (line 1, column 28):
-
-delete from names n1 where names.id = 2;
-                           ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from names n1 where names.id = 2;
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : NAMES
+LINE 1: delete from names n1 where names.id = 2;
+                                   ^^^^^^^^
 ???
 -- Test of ERR_TABLE_READONLY error against various catalog tables
 (1 row)
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from octoOneRowTable;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from pg_catalog.pg_namespace where NULL != NULL;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from pg_catalog.pg_type;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from pg_catalog.pg_class;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from pg_catalog.pg_description;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from information_schema.tables where NULL = NULL;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from pg_catalog.pg_proc;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from pg_catalog.pg_attribute;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from pg_catalog.pg_attrdef;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from pg_catalog.pg_settings;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from pg_catalog.pg_database;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from pg_catalog.pg_roles;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from pg_catalog.pg_user;
+[ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
 ???
 -- Test of ERR_TABLE_READONLY error in a table created with READONLY
 (1 row)
 CREATE TABLE
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from test1;
+[ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
 DROP TABLE
 ???
 -- Test same table created with READWRITE works fine with DELETE FROM
@@ -110,37 +90,25 @@ DROP TABLE
 -- Test of ERR_TABLE_READONLY error in a table created with READONLY implicitly assumed
 (1 row)
 CREATE TABLE
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_READONLY : DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from test1;
+[ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY tables. Only allowed on READWRITE tables.
 DROP TABLE
 ???
 -- Test of ERR_UNKNOWN_TABLE error
 (1 row)
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: ABCD
-Error with syntax near (line 1, column 13):
-
-delete from abcd;
-            ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from abcd;
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: ABCD
+LINE 1: delete from abcd;
+                    ^^^^
 ???
 -- Test of ERR_TYPE_NOT_COMPATIBLE error
 (1 row)
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for boolean operations
-Error with syntax near (line 1, column 25):
-
-delete from names where firstname;
-                        ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from names where firstname;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
+LINE 1: delete from names where firstname;
+                                ^^^^^^^^^
 ???
 -- Test of ERR_TYPE_MISMATCH error
 (1 row)
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 25):
-
-delete from names where lastname = id; -- a modified version of this query (with a type cast operator) is tested in TDFT01.sql
-                        ^^^^^^^^
-Error with syntax near (line 1, column 36):
-
-delete from names where lastname = id; -- a modified version of this query (with a type cast operator) is tested in TDFT01.sql
-                                   ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from names where lastname = id;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: delete from names where lastname = id; -- a modified version of ...
+                                ^^^^^^^^
+LINE 1: ...te from names where lastname = id; -- a modified version of this...
+                                          ^^

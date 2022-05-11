@@ -21,69 +21,33 @@ CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName
 CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (ABS(-1)) GLOBAL "^delimnames(keys(""id""))";
 CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, ABS(-1)) GLOBAL "^delimnames(keys(""id""))";
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for column DELIM specification
-Error with syntax near (line 1, column 147):
-
-CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM ("hello") GLOBAL "^delimnames(keys(""id""))";
-                                                                                                                                                  ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM ("hello") GLOBAL "^delimnames(keys(""id""))";
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for column DELIM specification
-Error with syntax near (line 1, column 150):
-
-CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, "world") GLOBAL "^delimnames(keys(""id""))";
-                                                                                                                                                     ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, "world") GLOBAL "^delimnames(keys(""id""))";
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for column DELIM specification
-Error with syntax near (line 1, column 141):
-
-CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (3.14) GLOBAL "^delimnames(keys(""id""))";
-                                                                                                                                            ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (3.14) GLOBAL "^delimnames(keys(""id""))";
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for column DELIM specification
-Error with syntax near (line 1, column 144):
-
-CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, 3.14) GLOBAL "^delimnames(keys(""id""))";
-                                                                                                                                               ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, 3.14) GLOBAL "^delimnames(keys(""id""))";
-Error with syntax near (line 1, column 141):
-
-CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (true) GLOBAL "^delimnames(keys(""id""))";
-                                                                                                                                            ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for column DELIM specification
+LINE 1: ...(1), age INTEGER) DELIM ("hello") GLOBAL "^delimnames(keys(""id...
+                                          ^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for column DELIM specification
+LINE 1: ..., age INTEGER) DELIM (9, "world") GLOBAL "^delimnames(keys(""id...
+                                          ^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for column DELIM specification
+LINE 1: ...RCHAR(1), age INTEGER) DELIM (3.14) GLOBAL "^delimnames(keys(""i...
+                                         ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for column DELIM specification
+LINE 1: ...AR(1), age INTEGER) DELIM (9, 3.14) GLOBAL "^delimnames(keys(""i...
+                                         ^^^^
+LINE 1: ...RCHAR(1), age INTEGER) DELIM (true) GLOBAL "^delimnames(keys(""i...
+                                         ^^^^
 syntax error, unexpected TRUE_TOKEN, expecting LITERAL
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (true) GLOBAL "^delimnames(keys(""id""))";
-Error with syntax near (line 1, column 144):
-
-CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, true) GLOBAL "^delimnames(keys(""id""))";
-                                                                                                                                               ^^^^
+LINE 1: ...AR(1), age INTEGER) DELIM (9, true) GLOBAL "^delimnames(keys(""i...
+                                         ^^^^
 syntax error, unexpected TRUE_TOKEN, expecting LITERAL
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, true) GLOBAL "^delimnames(keys(""id""))";
-Error with syntax near (line 1, column 141):
-
-CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (hello) GLOBAL "^delimnames(keys(""id""))";
-                                                                                                                                            ^^^^^
+LINE 1: ...CHAR(1), age INTEGER) DELIM (hello) GLOBAL "^delimnames(keys(""...
+                                        ^^^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (hello) GLOBAL "^delimnames(keys(""id""))";
-Error with syntax near (line 1, column 144):
-
-CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, hello) GLOBAL "^delimnames(keys(""id""))";
-                                                                                                                                               ^^^^^
+LINE 1: ...R(1), age INTEGER) DELIM (9, hello) GLOBAL "^delimnames(keys(""...
+                                        ^^^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, hello) GLOBAL "^delimnames(keys(""id""))";
-Error with syntax near (line 1, column 141):
-
-CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (ABS(-1)) GLOBAL "^delimnames(keys(""id""))";
-                                                                                                                                            ^^^
+LINE 1: ...RCHAR(1), age INTEGER) DELIM (ABS(-1)) GLOBAL "^delimnames(keys...
+                                         ^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (ABS(-1)) GLOBAL "^delimnames(keys(""id""))";
-Error with syntax near (line 1, column 144):
-
-CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, ABS(-1)) GLOBAL "^delimnames(keys(""id""))";
-                                                                                                                                               ^^^
+LINE 1: ...AR(1), age INTEGER) DELIM (9, ABS(-1)) GLOBAL "^delimnames(keys...
+                                         ^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, ABS(-1)) GLOBAL "^delimnames(keys(""id""))";

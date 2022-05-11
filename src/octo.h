@@ -738,7 +738,6 @@ typedef enum RegexType {
 		ret = function_definition(IDENTIFIER_START, FUNCTION_PARAMETER_TYPE_LIST, DATA_TYPE, M_FUNCTION, \
 					  IF_NOT_EXISTS_SPECIFIED);                                              \
 		if (NULL == ret) {                                                                               \
-			yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);                                           \
 			YYABORT;                                                                                 \
 		}                                                                                                \
 		STMT = ret;                                                                                      \

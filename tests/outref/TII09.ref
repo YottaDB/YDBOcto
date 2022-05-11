@@ -64,30 +64,18 @@ ID|FIRSTNAME
 1234|First
 1234|First
 (4 rows)
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: %YO_KEYCOL
-Error with syntax near (line 1, column 19):
-
-SELECT `%yo_keycol` FROM tmp1;
-                  ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT `%yo_keycol` FROM tmp1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: %YO_KEYCOL
-Error with syntax near (line 1, column 19):
-
-SELECT `%YO_KEYCOL` FROM tmp1;
-                  ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT `%YO_KEYCOL` FROM tmp1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_UNKNOWN_COLUMN_NAME : Column '%YO_KEYCOL' of table 'TMP1' does not exist
-Error with syntax near (line 1, column 29):
-
-INSERT INTO tmp1(`%yo_keycol`, id) SELECT id, id from tmp1;
-                            ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO tmp1(`%yo_keycol`, id) SELECT id, id from tmp1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_UNKNOWN_COLUMN_NAME : Column '%YO_KEYCOL' of table 'TMP1' does not exist
-Error with syntax near (line 1, column 33):
-
-INSERT INTO tmp1(id, `%yo_keycol`) SELECT id, id from tmp1;
-                                ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO tmp1(id, `%yo_keycol`) SELECT id, id from tmp1;
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: %YO_KEYCOL
+LINE 1: SELECT `%yo_keycol` FROM tmp1;
+                          ^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: %YO_KEYCOL
+LINE 1: SELECT `%YO_KEYCOL` FROM tmp1;
+                          ^
+[ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column '%YO_KEYCOL' of table 'TMP1' does not exist
+LINE 1: INSERT INTO tmp1(`%yo_keycol`, id) SELECT id, id from tmp1;
+                                    ^
+[ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column '%YO_KEYCOL' of table 'TMP1' does not exist
+LINE 1: INSERT INTO tmp1(id, `%yo_keycol`) SELECT id, id from tmp1;
+                                        ^
 CREATE TABLE
 %YO_KEYCOL
 1

@@ -36,7 +36,7 @@ setup() {
   verify_output TR02-2 octo_history
   # Check the verbose output saying that there is history now to look at.
   (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_verbose.exp > expect2.out) &> expect2.dbg
-  grep "INFO_READLINE_NOTIFY_LOAD_COUNT : Reading 1 history entries" octo.log
+  grep "INFO_READLINE_NOTIFY_LOAD_COUNT: Reading 1 history entries" octo.log
 }
 
 # This test is kind of complicated. We start one session, run a long query
@@ -106,7 +106,7 @@ setup() {
 @test "TR101 : Override history to bad wordexp location (/procoo|) (test for wordexp code)" {
   echo 'octo_history = "/procoo|"' > octo.conf
   (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_verbose.exp > expect.out) &> expect.dbg
-  grep 'WARN_READLINE_LOAD_FAIL : Failed to load history file /procoo|' octo.log
+  grep 'WARN_READLINE_LOAD_FAIL: Failed to load history file /procoo|' octo.log
 }
 
 @test "TR11 : Override history to /dev/null" {
@@ -122,7 +122,7 @@ setup() {
   # Both reading and saving will fail
   echo 'octo_history = "/proc/foo/boo/coo"' > octo.conf
   (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_verbose.exp > expect.out) &> expect.dbg
-  grep 'INFO_READLINE_NOTIFY_HIST_LOCATION : History located at /proc/foo/boo/coo' octo.log
+  grep 'INFO_READLINE_NOTIFY_HIST_LOCATION: History located at /proc/foo/boo/coo' octo.log
   grep WARN_READLINE_LOAD_FAIL octo.log
   grep WARN_READLINE_SAVE_FAIL octo.log
 }
@@ -130,16 +130,16 @@ setup() {
 @test "TR13 : Set Maximum number of entries no limit" {
   (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_5_queries.exp > expect.out) &> expect.dbg
   [ $(wc -l < octo_history) -eq 5 ]
-  grep 'INFO_READLINE_NOTIFY_HIST_COUNT : History limited to 500 entries' octo.log
-  grep 'INFO_READLINE_NOTIFY_SAVE_COUNT : Saving 5 additional' octo.log
+  grep 'INFO_READLINE_NOTIFY_HIST_COUNT: History limited to 500 entries' octo.log
+  grep 'INFO_READLINE_NOTIFY_SAVE_COUNT: Saving 5 additional' octo.log
 }
 
 @test "TR14 : Set Maximum number of entries to 2" {
   echo 'octo_history_max_length = 2' >> octo.conf
   (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_5_queries.exp > expect.out) &> expect.dbg
   [ $(wc -l < octo_history) -eq 2 ]
-  grep 'INFO_READLINE_NOTIFY_HIST_COUNT : History limited to 2 entries' octo.log
-  grep 'INFO_READLINE_NOTIFY_SAVE_COUNT : Saving 2 additional' octo.log
+  grep 'INFO_READLINE_NOTIFY_HIST_COUNT: History limited to 2 entries' octo.log
+  grep 'INFO_READLINE_NOTIFY_SAVE_COUNT: Saving 2 additional' octo.log
   verify_output TR14 octo_history
 }
 
@@ -147,26 +147,26 @@ setup() {
   echo 'octo_history_max_length = 0' >> octo.conf
   (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_5_queries.exp > expect.out) &> expect.dbg
   [ ! -f octo_history ]
-  grep 'INFO_READLINE_NOTIFY_HIST_COUNT : History limited to 0 entries' octo.log
+  grep 'INFO_READLINE_NOTIFY_HIST_COUNT: History limited to 0 entries' octo.log
 }
 
 @test "TR151 : Set Maximum number of entries to -5 should clamp to zero" {
   echo 'octo_history_max_length = -5' >> octo.conf
   (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_5_queries.exp > expect.out) &> expect.dbg
   [ ! -f octo_history ]
-  grep 'INFO_READLINE_NOTIFY_HIST_COUNT : History limited to 0 entries' octo.log
+  grep 'INFO_READLINE_NOTIFY_HIST_COUNT: History limited to 0 entries' octo.log
 }
 
 @test "TR16 : Test truncation of history" {
   (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_5_queries.exp > expect1.out) &> expect1.dbg
   [ $(wc -l < octo_history) -eq 5 ]
-  grep 'INFO_READLINE_NOTIFY_HIST_COUNT : History limited to 500 entries' octo.log
-  grep 'INFO_READLINE_NOTIFY_SAVE_COUNT : Saving 5 additional' octo.log
+  grep 'INFO_READLINE_NOTIFY_HIST_COUNT: History limited to 500 entries' octo.log
+  grep 'INFO_READLINE_NOTIFY_SAVE_COUNT: Saving 5 additional' octo.log
 
   echo 'octo_history_max_length = 2' >> octo.conf
 
   (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_5_queries.exp > expect2.out) &> expect2.dbg
-  grep 'INFO_READLINE_NOTIFY_TRUNCATE : Truncating history 5 entries to max entries 2' octo.log
+  grep 'INFO_READLINE_NOTIFY_TRUNCATE: Truncating history 5 entries to max entries 2' octo.log
   [ $(wc -l < octo_history) -eq 2 ]
   verify_output TR14 octo_history
 }
@@ -220,22 +220,22 @@ setup() {
 
   # No octo.conf files
   (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_verbose.exp > expect.out) &> expect.dbg
-  grep 'INFO_READLINE_NOTIFY_HIST_COUNT : History limited to 500 entries' octo.log
+  grep 'INFO_READLINE_NOTIFY_HIST_COUNT: History limited to 500 entries' octo.log
 
   # octo.conf on home directory, but only containing history_location
   echo 'octo_history = "$PWD/octo_history"' > ~/octo.conf
   (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_verbose.exp > expect.out) &> expect.dbg
-  grep 'INFO_READLINE_NOTIFY_HIST_COUNT : History limited to 500 entries' octo.log
+  grep 'INFO_READLINE_NOTIFY_HIST_COUNT: History limited to 500 entries' octo.log
 
   # Append length entry to ~/octo.conf
   echo 'octo_history_max_length = 2' >> ~/octo.conf
   (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_verbose.exp > expect.out) &> expect.dbg
-  grep 'INFO_READLINE_NOTIFY_HIST_COUNT : History limited to 2 entries' octo.log
+  grep 'INFO_READLINE_NOTIFY_HIST_COUNT: History limited to 2 entries' octo.log
 
   # Create $PWD/octo.conf, and override length entry
   echo 'octo_history_max_length = 5' >> octo.conf
   (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_verbose.exp > expect.out) &> expect.dbg
-  grep 'INFO_READLINE_NOTIFY_HIST_COUNT : History limited to 5 entries' octo.log
+  grep 'INFO_READLINE_NOTIFY_HIST_COUNT: History limited to 5 entries' octo.log
 
   # Clean-up after yourselves
   rm ~/octo.conf ./octo.conf

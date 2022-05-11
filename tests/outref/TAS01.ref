@@ -3,10 +3,6 @@
 
 SELECT ARRAY();
 
-Error with syntax near (line 1, column 14):
-
-SELECT ARRAY();
-             ^
+LINE 1: SELECT ARRAY();
+                     ^
 syntax error, unexpected RIGHT_PAREN
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT ARRAY();

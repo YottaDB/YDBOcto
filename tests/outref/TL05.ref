@@ -28,31 +28,15 @@ ID|FIRSTNAME|LASTNAME|ID|FIRSTNAME|LASTNAME
 ID|FIRSTNAME|LASTNAME|ID|FIRSTNAME|LASTNAME
 0|Zero|Cool|0|Zero|Cool
 (1 row)
-Error with syntax near (line 1, column 27):
-
-select * from names limit .;
-                          ^
+LINE 1: select * from names limit .;
+                                  ^
 syntax error, unexpected PERIOD, expecting LITERAL
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names limit .;
-Error with syntax near (line 1, column 26):
-
-select * from names limit;
-                         ^
+LINE 1: select * from names limit;
+                                 ^
 syntax error, unexpected SEMICOLON, expecting LITERAL
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names limit;
-[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INPUT_SYNTAX : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
-Error with syntax near (line 1, column 32):
-
-select * from names limit 'abcd';
-                               ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names limit 'abcd';
-Error with syntax near (line 1, column 27):
-
-select * from names limit -3;
-                          ^
+[ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
+LINE 1: select * from names limit 'abcd';
+                                       ^
+LINE 1: select * from names limit -3;
+                                  ^
 syntax error, unexpected MINUS, expecting LITERAL
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names limit -3;
-

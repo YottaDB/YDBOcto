@@ -3,13 +3,8 @@
 -- Also tests : OCTO780 : ERR_TYPE_MISMATCH error in NULLIF function parameters incorrectly continues with query execution
 SELECT NULLIF(1, '1');
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
-Error with syntax near (line 1, column 15):
-
-SELECT NULLIF(1, '1');
-              ^
-Error with syntax near (line 1, column 20):
-
-SELECT NULLIF(1, '1');
-                   ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT NULLIF(1, '1');
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 1: SELECT NULLIF(1, '1');
+                      ^
+LINE 1: SELECT NULLIF(1, '1');
+                           ^

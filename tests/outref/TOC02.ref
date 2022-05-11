@@ -1,10 +1,10 @@
 # Test that [emulate = "MYSQL"] does not issue error
 # Test that [emulate = "POSTGRES"] does not issue error
 # Test that [emulate = "readonly"] issues error
-[ERROR] PATH:LINENUM DATE TIME : ERR_BAD_CONFIG : Bad config setting in $PWD/octo.conf: 'emulate' can only take on string values 'POSTGRES' and 'MYSQL'
+[ERROR]: ERR_BAD_CONFIG: Bad config setting in $PWD/octo.conf: 'emulate' can only take on string values 'POSTGRES' and 'MYSQL'
 # Test that [emulate = "mysql"] issues error
-[ERROR] PATH:LINENUM DATE TIME : ERR_BAD_CONFIG : Bad config setting in $PWD/octo.conf: 'emulate' can only take on string values 'POSTGRES' and 'MYSQL'
+[ERROR]: ERR_BAD_CONFIG: Bad config setting in $PWD/octo.conf: 'emulate' can only take on string values 'POSTGRES' and 'MYSQL'
 # Test that [emulate = "anyothervalue"] issues error
-[ERROR] PATH:LINENUM DATE TIME : ERR_BAD_CONFIG : Bad config setting in $PWD/octo.conf: 'emulate' can only take on string values 'POSTGRES' and 'MYSQL'
+[ERROR]: ERR_BAD_CONFIG: Bad config setting in $PWD/octo.conf: 'emulate' can only take on string values 'POSTGRES' and 'MYSQL'
 # Test that [tabletype = 1] (any integer value) issues error
-[ERROR] PATH:LINENUM DATE TIME : ERR_BAD_CONFIG : Bad config setting in $PWD/octo.conf: tabletype can only take on string values (not integer values)
+[ERROR]: ERR_BAD_CONFIG: Bad config setting in $PWD/octo.conf: tabletype can only take on string values (not integer values)

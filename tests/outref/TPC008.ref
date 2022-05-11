@@ -1,1 +1,1 @@
-[IP_UNSET:PORT_UNSET] [ERROR] PATH:LINENUM DATE TIME : ERR_BAD_CONFIG : Bad config setting in $PWD/octo.conf: rocto.ssl_required set, but rocto.ssl_on is disabled
+[IP_UNSET:PORT_UNSET] [ERROR]: ERR_BAD_CONFIG: Bad config setting in $PWD/octo.conf: rocto.ssl_required set, but rocto.ssl_on is disabled

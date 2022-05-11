@@ -4,5 +4,5 @@
 CREATE FUNCTION ABS(INTEGER) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;
 CREATE FUNCTION ABS(NUMERIC) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_CREATE_FUNCTION : Function 'ABS(INTEGER)' already exists with same argument types
-[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_CREATE_FUNCTION : Function 'ABS(NUMERIC)' already exists with same argument types
+[ERROR]: ERR_CANNOT_CREATE_FUNCTION: Function 'ABS(INTEGER)' already exists with same argument types
+[ERROR]: ERR_CANNOT_CREATE_FUNCTION: Function 'ABS(NUMERIC)' already exists with same argument types

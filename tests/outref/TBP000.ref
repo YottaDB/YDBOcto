@@ -1,27 +1,9 @@
-[ERROR] PATH:LINENUM DATE TIME : ERR_DDL_LITERAL : Invalid literal in DDL specification: only integer literals accepted for this keyword.
-Error with syntax near (line 1, column 56):
-
-CREATE TABLE abc (id INTEGER PRIMARY KEY PIECE "keys(0)");
-                                                       ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE abc (id INTEGER PRIMARY KEY PIECE "keys(0)");
-[ERROR] PATH:LINENUM DATE TIME : ERR_DDL_LITERAL : Invalid literal in DDL specification: only integer literals accepted for this keyword.
-Error with syntax near (line 1, column 56):
-
-CREATE TABLE abc (id INTEGER PRIMARY KEY PIECE "keys(0)" GLOBAL "^aDifferentVar(keys(0))");
-                                                       ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE abc (id INTEGER PRIMARY KEY PIECE "keys(0)" GLOBAL "^aDifferentVar(keys(0))");
-[ERROR] PATH:LINENUM DATE TIME : ERR_DDL_LITERAL : Invalid literal in DDL specification: only integer literals accepted for this keyword.
-Error with syntax near (line 4, column 11):
-
-CREATE TABLE abc (
-  id INTEGER PRIMARY KEY EXTRACT "abc"
-  GLOBAL "someGLobal"
-  PIECE "0"
-          ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE abc (
-  id INTEGER PRIMARY KEY EXTRACT "abc"
-  GLOBAL "someGLobal"
-  PIECE "0"
-  DELIM "|"
-) DELIM "|"
-END "keys(0)" GLOBAL "someGLobal";
+[ERROR]: ERR_DDL_LITERAL: Invalid literal in DDL specification: only integer literals accepted for this keyword.
+LINE 1: CREATE TABLE abc (id INTEGER PRIMARY KEY PIECE "keys(0)");
+                                                               ^
+[ERROR]: ERR_DDL_LITERAL: Invalid literal in DDL specification: only integer literals accepted for this keyword.
+LINE 1: ...EGER PRIMARY KEY PIECE "keys(0)" GLOBAL "^aDifferentVar(keys(0)...
+                                          ^
+[ERROR]: ERR_DDL_LITERAL: Invalid literal in DDL specification: only integer literals accepted for this keyword.
+LINE 4:   PIECE "0"
+                  ^

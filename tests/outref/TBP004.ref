@@ -1,17 +1,6 @@
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: MYTABLE
-Error with syntax near (line 1, column 7):
-
-UPDATE myTable
-       ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: UPDATE myTable
-SET id = 3, name = "Orion"
-WHERE breed = "Black Lab";
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: TABLEOFDOGS
-Error with syntax near (line 2, column 30):
-
-UPDATE myTable
-SET name = (SELECT name FROM tableOfDogs WHERE breed = "Black lab");
-                             ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: UPDATE myTable
-SET name = (SELECT name FROM tableOfDogs WHERE breed = "Black lab");
-
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: MYTABLE
+LINE 1: UPDATE myTable
+               ^^^^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: TABLEOFDOGS
+LINE 2: ... name = (SELECT name FROM tableOfDogs WHERE breed = "Black lab"...
+                                     ^^^^^^^^^^^

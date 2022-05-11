@@ -277,66 +277,35 @@ SAMEVALUE
 SAMEVALUE
 1
 (1 row)
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'SAMEVALUE' defined with given parameter types (NUMERIC)
-Error with syntax near (line 2, column 8):
-
-SELECT samevalue(1); -- Call $$a1^TCF031: return 1
-SELECT samevalue(1.0); -- Error: Unknown function
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Call $$a1^TCF031: return 1
-SELECT samevalue(1.0);
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'SAMEVALUE' defined with given parameter types (VARCHAR)
-Error with syntax near (line 2, column 8):
-
-SELECT samevalue(1.0); -- Error: Unknown function
-SELECT samevalue('1'); -- Error: Unknown function
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Unknown function
-SELECT samevalue('1');
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'SAMEVALUE' defined with given parameter types (BOOLEAN)
-Error with syntax near (line 2, column 8):
-
-SELECT samevalue('1'); -- Error: Unknown function
-SELECT samevalue(true); -- Error: Unknown function
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Unknown function
-SELECT samevalue(true);
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'SAMEVALUE' defined with given parameter types (NUMERIC)
+LINE 2: SELECT samevalue(1.0); -- Error: Unknown function
+               ^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'SAMEVALUE' defined with given parameter types (VARCHAR)
+LINE 2: SELECT samevalue('1'); -- Error: Unknown function
+               ^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'SAMEVALUE' defined with given parameter types (BOOLEAN)
+LINE 2: SELECT samevalue(true); -- Error: Unknown function
+               ^^^^^^^^^
 CREATE FUNCTION
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'SAMEVALUE(NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 1, column 8):
-
-SELECT samevalue(NULL); -- Error: Function not unique
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT samevalue(NULL);
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SAMEVALUE(NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 1: SELECT samevalue(NULL); -- Error: Function not unique
+               ^^^^^^^^^
 SAMEVALUE
 1
 (1 row)
 SAMEVALUE
 2
 (1 row)
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'SAMEVALUE' defined with given parameter types (VARCHAR)
-Error with syntax near (line 2, column 8):
-
-SELECT samevalue(1.0); -- Call $$a2^TCF031: return 2
-SELECT samevalue('1'); -- Error: Unknown function
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Call $$a2^TCF031: return 2
-SELECT samevalue('1');
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'SAMEVALUE' defined with given parameter types (BOOLEAN)
-Error with syntax near (line 2, column 8):
-
-SELECT samevalue('1'); -- Error: Unknown function
-SELECT samevalue(true); -- Error: Unknown function
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Unknown function
-SELECT samevalue(true);
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'SAMEVALUE' defined with given parameter types (VARCHAR)
+LINE 2: SELECT samevalue('1'); -- Error: Unknown function
+               ^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'SAMEVALUE' defined with given parameter types (BOOLEAN)
+LINE 2: SELECT samevalue(true); -- Error: Unknown function
+               ^^^^^^^^^
 CREATE FUNCTION
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'SAMEVALUE(NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 1, column 8):
-
-SELECT samevalue(NULL); -- Error: Function not unique
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT samevalue(NULL);
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SAMEVALUE(NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 1: SELECT samevalue(NULL); -- Error: Function not unique
+               ^^^^^^^^^
 SAMEVALUE
 1
 (1 row)
@@ -346,21 +315,13 @@ SAMEVALUE
 SAMEVALUE
 3
 (1 row)
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'SAMEVALUE' defined with given parameter types (BOOLEAN)
-Error with syntax near (line 2, column 8):
-
-SELECT samevalue('1'); -- Call $$a2^TCF031: return 3
-SELECT samevalue(true); -- Error: Unknown function
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Call $$a2^TCF031: return 3
-SELECT samevalue(true);
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'SAMEVALUE' defined with given parameter types (BOOLEAN)
+LINE 2: SELECT samevalue(true); -- Error: Unknown function
+               ^^^^^^^^^
 CREATE FUNCTION
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'SAMEVALUE(NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 1, column 8):
-
-SELECT samevalue(NULL); -- Error: Function not unique
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT samevalue(NULL);
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SAMEVALUE(NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 1: SELECT samevalue(NULL); -- Error: Function not unique
+               ^^^^^^^^^
 SAMEVALUE
 1
 (1 row)
@@ -386,37 +347,19 @@ SECONDVALUE
 SECONDVALUE
 1
 (1 row)
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'SECONDVALUE' defined with given parameter types (NUMERIC, INTEGER)
-Error with syntax near (line 2, column 8):
-
-SELECT secondvalue(1, 1); -- Call $$b1^TCF031: return 1
-SELECT secondvalue(1.0, 1); -- Error: Unknown function
-       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Call $$b1^TCF031: return 1
-SELECT secondvalue(1.0, 1);
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'SECONDVALUE' defined with given parameter types (NUMERIC, INTEGER)
+LINE 2: SELECT secondvalue(1.0, 1); -- Error: Unknown function
+               ^^^^^^^^^^^
 CREATE FUNCTION
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'SECONDVALUE(NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 1, column 8):
-
-SELECT secondvalue(NULL, NULL); -- Error: Function not unique
-       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT secondvalue(NULL, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'SECONDVALUE(INTEGER, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT secondvalue(NULL, NULL); -- Error: Function not unique
-SELECT secondvalue(1, NULL); --  Error: Function not unique
-       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT secondvalue(1, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'SECONDVALUE' defined with given parameter types (NUMERIC, INTEGER)
-Error with syntax near (line 2, column 8):
-
-SELECT secondvalue(1, NULL); --  Error: Function not unique
-SELECT secondvalue(1.0, 1); -- Error: Unknown function
-       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --  Error: Function not unique
-SELECT secondvalue(1.0, 1);
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SECONDVALUE(NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 1: SELECT secondvalue(NULL, NULL); -- Error: Function not unique
+               ^^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SECONDVALUE(INTEGER, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT secondvalue(1, NULL); --  Error: Function not unique
+               ^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'SECONDVALUE' defined with given parameter types (NUMERIC, INTEGER)
+LINE 2: SELECT secondvalue(1.0, 1); -- Error: Unknown function
+               ^^^^^^^^^^^
 SECONDVALUE
 1
 (1 row)
@@ -424,28 +367,15 @@ SECONDVALUE
 2
 (1 row)
 CREATE FUNCTION
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'SECONDVALUE(NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 1, column 8):
-
-SELECT secondvalue(NULL, NULL); -- Error: Function not unique
-       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT secondvalue(NULL, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'SECONDVALUE(INTEGER, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT secondvalue(NULL, NULL); -- Error: Function not unique
-SELECT secondvalue(1, NULL); --  Error: Function not unique
-       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT secondvalue(1, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'SECONDVALUE' defined with given parameter types (VARCHAR, INTEGER)
-Error with syntax near (line 2, column 8):
-
-SELECT secondvalue(1, NULL); --  Error: Function not unique
-SELECT secondvalue('1', 1); -- Error: Unknown function
-       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --  Error: Function not unique
-SELECT secondvalue('1', 1);
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SECONDVALUE(NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 1: SELECT secondvalue(NULL, NULL); -- Error: Function not unique
+               ^^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SECONDVALUE(INTEGER, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT secondvalue(1, NULL); --  Error: Function not unique
+               ^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'SECONDVALUE' defined with given parameter types (VARCHAR, INTEGER)
+LINE 2: SELECT secondvalue('1', 1); -- Error: Unknown function
+               ^^^^^^^^^^^
 SECONDVALUE
 1
 (1 row)
@@ -459,28 +389,15 @@ SECONDVALUE
 3
 (1 row)
 CREATE FUNCTION
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'SECONDVALUE(NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 1, column 8):
-
-SELECT secondvalue(NULL, NULL); -- Error: Function not unique
-       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT secondvalue(NULL, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'SECONDVALUE(INTEGER, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT secondvalue(NULL, NULL); -- Error: Function not unique
-SELECT secondvalue(1, NULL); --  Error: Function not unique
-       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT secondvalue(1, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'SECONDVALUE' defined with given parameter types (BOOLEAN, INTEGER)
-Error with syntax near (line 2, column 8):
-
-SELECT secondvalue(1, NULL); --  Error: Function not unique
-SELECT secondvalue(true, 1); -- Error: Unknown function
-       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --  Error: Function not unique
-SELECT secondvalue(true, 1);
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SECONDVALUE(NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 1: SELECT secondvalue(NULL, NULL); -- Error: Function not unique
+               ^^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SECONDVALUE(INTEGER, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT secondvalue(1, NULL); --  Error: Function not unique
+               ^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'SECONDVALUE' defined with given parameter types (BOOLEAN, INTEGER)
+LINE 2: SELECT secondvalue(true, 1); -- Error: Unknown function
+               ^^^^^^^^^^^
 SECONDVALUE
 1
 (1 row)
@@ -497,20 +414,12 @@ SECONDVALUE
 4
 (1 row)
 CREATE FUNCTION
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'SECONDVALUE(NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 1, column 8):
-
-SELECT secondvalue(NULL, NULL); -- Error: Function not unique
-       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT secondvalue(NULL, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'SECONDVALUE(NULL, INTEGER)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT secondvalue(NULL, NULL); -- Error: Function not unique
-SELECT secondvalue(NULL, 1); --  Error: Function not unique
-       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT secondvalue(NULL, 1);
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SECONDVALUE(NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 1: SELECT secondvalue(NULL, NULL); -- Error: Function not unique
+               ^^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SECONDVALUE(NULL, INTEGER)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT secondvalue(NULL, 1); --  Error: Function not unique
+               ^^^^^^^^^^^
 SECONDVALUE
 1
 (1 row)
@@ -533,28 +442,15 @@ SECONDVALUE
 5
 (1 row)
 CREATE FUNCTION
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'SECONDVALUE(NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 1, column 8):
-
-SELECT secondvalue(NULL, NULL); -- Error: Function not unique
-       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT secondvalue(NULL, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'SECONDVALUE(NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT secondvalue(NULL, NULL); -- Error: Function not unique
-SELECT secondvalue(NULL, '1'); --  Error: Function not unique
-       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT secondvalue(NULL, '1');
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'SECONDVALUE(VARCHAR, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT secondvalue(NULL, '1'); --  Error: Function not unique
-SELECT secondvalue('1', NULL); --  Error: Function not unique
-       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --  Error: Function not unique
-SELECT secondvalue('1', NULL);
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SECONDVALUE(NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 1: SELECT secondvalue(NULL, NULL); -- Error: Function not unique
+               ^^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SECONDVALUE(NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT secondvalue(NULL, '1'); --  Error: Function not unique
+               ^^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SECONDVALUE(VARCHAR, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT secondvalue('1', NULL); --  Error: Function not unique
+               ^^^^^^^^^^^
 SECONDVALUE
 1
 (1 row)
@@ -601,45 +497,22 @@ THIRDVALUE
 THIRDVALUE
 1
 (1 row)
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'THIRDVALUE' defined with given parameter types (NULL, INTEGER, NULL)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(1, true, 1); -- Call $$c1^TCF031: return 1
-SELECT thirdvalue(NULL, 1, NULL); -- Error: Unknown function
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Call $$c1^TCF031: return 1
-SELECT thirdvalue(NULL, 1, NULL);
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'THIRDVALUE' defined with given parameter types (NULL, INTEGER, NULL)
+LINE 2: SELECT thirdvalue(NULL, 1, NULL); -- Error: Unknown function
+               ^^^^^^^^^^
 CREATE FUNCTION
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 1, column 8):
-
-SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT thirdvalue(NULL, NULL, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not unique
-SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(1, NULL, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
-SELECT thirdvalue(NULL, true, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(NULL, true, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(INTEGER, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(NULL, true, NULL); -- Error: Function not unique
-SELECT thirdvalue(1, true, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(1, true, NULL);
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 1: SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not uniq...
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(NULL, true, NULL); -- Error: Function not uniq...
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(1, true, NULL); -- Error: Function not unique
+               ^^^^^^^^^^
 THIRDVALUE
 1
 (1 row)
@@ -665,28 +538,15 @@ THIRDVALUE
 2
 (1 row)
 CREATE FUNCTION
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 1, column 8):
-
-SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT thirdvalue(NULL, NULL, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not unique
-SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(1, NULL, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
-SELECT thirdvalue(NULL, true, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(NULL, true, NULL);
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 1: SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not uniq...
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(NULL, true, NULL); -- Error: Function not uniq...
+               ^^^^^^^^^^
 THIRDVALUE
 1
 (1 row)
@@ -712,44 +572,21 @@ THIRDVALUE
 3
 (1 row)
 CREATE FUNCTION
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 1, column 8):
-
-SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT thirdvalue(NULL, NULL, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not unique
-SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(1, NULL, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(INTEGER, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
-SELECT thirdvalue(1, true, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(1, true, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(1, true, NULL); -- Error: Function not unique
-SELECT thirdvalue(NULL, NULL, '1'); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(NULL, NULL, '1');
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(INTEGER, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(NULL, NULL, '1'); -- Error: Function not unique
-SELECT thirdvalue(1, NULL, '1'); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(1, NULL, '1');
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 1: SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not uniq...
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(1, true, NULL); -- Error: Function not unique
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(NULL, NULL, '1'); -- Error: Function not uniqu...
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(1, NULL, '1'); -- Error: Function not unique
+               ^^^^^^^^^^
 THIRDVALUE
 1
 (1 row)
@@ -769,36 +606,18 @@ THIRDVALUE
 4
 (1 row)
 CREATE FUNCTION
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 1, column 8):
-
-SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT thirdvalue(NULL, NULL, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not unique
-SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(1, NULL, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
-SELECT thirdvalue(NULL, true, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(NULL, true, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(INTEGER, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(NULL, true, NULL); -- Error: Function not unique
-SELECT thirdvalue(1, true, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(1, true, NULL);
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 1: SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not uniq...
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(NULL, true, NULL); -- Error: Function not uniq...
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(1, true, NULL); -- Error: Function not unique
+               ^^^^^^^^^^
 THIRDVALUE
 1
 (1 row)
@@ -818,44 +637,21 @@ THIRDVALUE
 5
 (1 row)
 CREATE FUNCTION
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 1, column 8):
-
-SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT thirdvalue(NULL, NULL, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not unique
-SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(1, NULL, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, NUMERIC, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
-SELECT thirdvalue(NULL, 1.0, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(NULL, 1.0, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(INTEGER, NUMERIC, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(NULL, 1.0, NULL); -- Error: Function not unique
-SELECT thirdvalue(1, 1.0, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(1, 1.0, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(INTEGER, NULL, INTEGER)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(1, 1.0, NULL); -- Error: Function not unique
-SELECT thirdvalue(1, NULL, 1); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(1, NULL, 1);
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 1: SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not uniq...
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NUMERIC, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(NULL, 1.0, NULL); -- Error: Function not uniqu...
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NUMERIC, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(1, 1.0, NULL); -- Error: Function not unique
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, INTEGER)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(1, NULL, 1); -- Error: Function not unique
+               ^^^^^^^^^^
 THIRDVALUE
 1
 (1 row)
@@ -878,44 +674,21 @@ THIRDVALUE
 6
 (1 row)
 CREATE FUNCTION
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 1, column 8):
-
-SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT thirdvalue(NULL, NULL, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not unique
-SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(1, NULL, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, NUMERIC, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
-SELECT thirdvalue(NULL, 1.0, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(NULL, 1.0, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(INTEGER, NUMERIC, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(NULL, 1.0, NULL); -- Error: Function not unique
-SELECT thirdvalue(1, 1.0, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(1, 1.0, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(INTEGER, NULL, NUMERIC)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(1, 1.0, NULL); -- Error: Function not unique
-SELECT thirdvalue(1, NULL, 1.0); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(1, NULL, 1.0);
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 1: SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not uniq...
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NUMERIC, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(NULL, 1.0, NULL); -- Error: Function not uniqu...
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NUMERIC, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(1, 1.0, NULL); -- Error: Function not unique
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, NUMERIC)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(1, NULL, 1.0); -- Error: Function not unique
+               ^^^^^^^^^^
 THIRDVALUE
 1
 (1 row)
@@ -941,36 +714,18 @@ THIRDVALUE
 7
 (1 row)
 CREATE FUNCTION
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 1, column 8):
-
-SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT thirdvalue(NULL, NULL, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not unique
-SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(1, NULL, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, NULL, NUMERIC)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
-SELECT thirdvalue(NULL, NULL, 1.0); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(NULL, NULL, 1.0);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(INTEGER, NULL, NUMERIC)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(NULL, NULL, 1.0); -- Error: Function not unique
-SELECT thirdvalue(1, NULL, 1.0); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(1, NULL, 1.0);
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 1: SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not uniq...
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, NUMERIC)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(NULL, NULL, 1.0); -- Error: Function not uniqu...
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, NUMERIC)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(1, NULL, 1.0); -- Error: Function not unique
+               ^^^^^^^^^^
 THIRDVALUE
 1
 (1 row)
@@ -1005,44 +760,21 @@ THIRDVALUE
 8
 (1 row)
 CREATE FUNCTION
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 1, column 8):
-
-SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT thirdvalue(NULL, NULL, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not unique
-SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(1, NULL, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, NULL, BOOLEAN)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
-SELECT thirdvalue(NULL, NULL, true); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(NULL, NULL, true);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(INTEGER, NULL, BOOLEAN)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(NULL, NULL, true); -- Error: Function not unique
-SELECT thirdvalue(1, NULL, true); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(1, NULL, true);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(INTEGER, NUMERIC, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(1, NULL, true); -- Error: Function not unique
-SELECT thirdvalue(1, 1.0, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(1, 1.0, NULL);
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 1: SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not uniq...
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, BOOLEAN)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(NULL, NULL, true); -- Error: Function not uniq...
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, BOOLEAN)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(1, NULL, true); -- Error: Function not unique
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NUMERIC, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(1, 1.0, NULL); -- Error: Function not unique
+               ^^^^^^^^^^
 THIRDVALUE
 1
 (1 row)
@@ -1074,52 +806,24 @@ THIRDVALUE
 9
 (1 row)
 CREATE FUNCTION
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 1, column 8):
-
-SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT thirdvalue(NULL, NULL, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not unique
-SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(1, NULL, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
-SELECT thirdvalue(NULL, NULL, '1'); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(NULL, NULL, '1');
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(INTEGER, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(NULL, NULL, '1'); -- Error: Function not unique
-SELECT thirdvalue(1, NULL, '1'); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(1, NULL, '1');
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(INTEGER, VARCHAR, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(1, NULL, '1'); -- Error: Function not unique
-SELECT thirdvalue(1, '1', NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(1, '1', NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, VARCHAR, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(1, '1', NULL); -- Error: Function not unique
-SELECT thirdvalue(NULL, '1', NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(NULL, '1', NULL);
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 1: SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not uniq...
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(NULL, NULL, '1'); -- Error: Function not uniqu...
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(1, NULL, '1'); -- Error: Function not unique
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, VARCHAR, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(1, '1', NULL); -- Error: Function not unique
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, VARCHAR, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(NULL, '1', NULL); -- Error: Function not uniqu...
+               ^^^^^^^^^^
 THIRDVALUE
 1
 (1 row)
@@ -1154,28 +858,15 @@ THIRDVALUE
 10
 (1 row)
 CREATE FUNCTION
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 1, column 8):
-
-SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT thirdvalue(NULL, NULL, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not unique
-SELECT thirdvalue(NULL, NULL, '1'); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(NULL, NULL, '1');
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, VARCHAR, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(NULL, NULL, '1'); -- Error: Function not unique
-SELECT thirdvalue(NULL, '1', '1'); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(NULL, '1', '1');
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 1: SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not uniq...
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(NULL, NULL, '1'); -- Error: Function not uniqu...
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, VARCHAR, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(NULL, '1', '1'); -- Error: Function not unique
+               ^^^^^^^^^^
 THIRDVALUE
 1
 (1 row)
@@ -1219,36 +910,18 @@ THIRDVALUE
 11
 (1 row)
 CREATE FUNCTION
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 1, column 8):
-
-SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT thirdvalue(NULL, NULL, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not unique
-SELECT thirdvalue(NULL, true, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(NULL, true, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(NULL, true, NULL); -- Error: Function not unique
-SELECT thirdvalue(NULL, NULL, '1'); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(NULL, NULL, '1');
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, BOOLEAN, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(NULL, NULL, '1'); -- Error: Function not unique
-SELECT thirdvalue(NULL, true, '1'); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(NULL, true, '1');
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 1: SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not uniq...
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(NULL, true, NULL); -- Error: Function not uniq...
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(NULL, NULL, '1'); -- Error: Function not uniqu...
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, BOOLEAN, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(NULL, true, '1'); -- Error: Function not uniqu...
+               ^^^^^^^^^^
 THIRDVALUE
 1
 (1 row)
@@ -1298,44 +971,21 @@ THIRDVALUE
 12
 (1 row)
 CREATE FUNCTION
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 1, column 8):
-
-SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT thirdvalue(NULL, NULL, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(VARCHAR, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not unique
-SELECT thirdvalue('1', NULL, NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue('1', NULL, NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, VARCHAR, NULL)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue('1', NULL, NULL); -- Error: Function not unique
-SELECT thirdvalue(NULL, '1', NULL); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(NULL, '1', NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(NULL, VARCHAR, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(NULL, '1', NULL); -- Error: Function not unique
-SELECT thirdvalue(NULL, '1', '1'); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue(NULL, '1', '1');
-[ERROR] PATH:LINENUM DATE TIME : ERR_FUNCTION_NOT_UNIQUE : Function 'THIRDVALUE(VARCHAR, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
-Error with syntax near (line 2, column 8):
-
-SELECT thirdvalue(NULL, '1', '1'); -- Error: Function not unique
-SELECT thirdvalue('1', NULL, '1'); -- Error: Function not unique
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Error: Function not unique
-SELECT thirdvalue('1', NULL, '1');
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 1: SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not uniq...
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(VARCHAR, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue('1', NULL, NULL); -- Error: Function not uniqu...
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, VARCHAR, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(NULL, '1', NULL); -- Error: Function not uniqu...
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, VARCHAR, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue(NULL, '1', '1'); -- Error: Function not unique
+               ^^^^^^^^^^
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(VARCHAR, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
+LINE 2: SELECT thirdvalue('1', NULL, '1'); -- Error: Function not unique
+               ^^^^^^^^^^
 THIRDVALUE
 1
 (1 row)

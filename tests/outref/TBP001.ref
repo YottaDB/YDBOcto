@@ -1,25 +1,12 @@
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: MYTABLE
-Error with syntax near (line 1, column 12):
-
-DELETE FROM myTable WHERE id = 1;
-            ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: DELETE FROM myTable WHERE id = 1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: ABC
-Error with syntax near (line 1, column 13):
-
-delete from abc where id in (1, 2, 3, 4);
-            ^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from abc where id in (1, 2, 3, 4);
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: ABC
-Error with syntax near (line 1, column 13):
-
-DELETE FROM abc WHERE abc.value = 5+5/5;
-            ^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: DELETE FROM abc WHERE abc.value = 5+5/5;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: THING
-Error with syntax near (line 1, column 13):
-
-DELETE FROM thing where mixedCase = 1;
-            ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: DELETE FROM thing where mixedCase = 1;
-
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: MYTABLE
+LINE 1: DELETE FROM myTable WHERE id = 1;
+                    ^^^^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: ABC
+LINE 1: delete from abc where id in (1, 2, 3, 4);
+                    ^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: ABC
+LINE 1: DELETE FROM abc WHERE abc.value = 5+5/5;
+                    ^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: THING
+LINE 1: DELETE FROM thing where mixedCase = 1;
+                    ^^^^^

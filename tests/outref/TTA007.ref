@@ -43,292 +43,147 @@ select case n1.*=NULL when n1.*=NULL then n1.* else n1.* end from names n1;
 
 select +n1.* from names n1;
 select -n1.* from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for least operation
-Error with syntax near (line 1, column 14):
-
-select least(n1.*) from names n1;
-             ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select least(n1.*) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right INTEGER
-Error with syntax near (line 1, column 14):
-
-select least(n1.*,n1.id) from names n1;
-             ^^^^
-Error with syntax near (line 1, column 19):
-
-select least(n1.*,n1.id) from names n1;
-                  ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select least(n1.*,n1.id) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for least operation
-Error with syntax near (line 1, column 14):
-
-select least(n1.*,NULL) from names n1;
-             ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select least(n1.*,NULL) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right INTEGER
-Error with syntax near (line 1, column 17):
-
-select greatest(n1.*,n1.id) from names n1;
-                ^^^^
-Error with syntax near (line 1, column 22):
-
-select greatest(n1.*,n1.id) from names n1;
-                     ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select greatest(n1.*,n1.id) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for greatest operation
-Error with syntax near (line 1, column 17):
-
-select greatest(n1.*,NULL) from names n1;
-                ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select greatest(n1.*,NULL) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for greatest operation
-Error with syntax near (line 1, column 17):
-
-select greatest(n1.*) from names n1;
-                ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select greatest(n1.*) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right INTEGER
-Error with syntax near (line 1, column 17):
-
-select coalesce(n1.*,n1.id) from names n1;
-                ^^^^
-Error with syntax near (line 1, column 22):
-
-select coalesce(n1.*,n1.id) from names n1;
-                     ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select coalesce(n1.*,n1.id) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for coalesce operation
-Error with syntax near (line 1, column 17):
-
-select coalesce(n1.*,NULL) from names n1;
-                ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select coalesce(n1.*,NULL) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for coalesce operation
-Error with syntax near (line 1, column 17):
-
-select coalesce(n1.*) from names n1;
-                ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select coalesce(n1.*) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for nullif operation
-Error with syntax near (line 1, column 15):
-
-select nullif(n1.*,n1.*) from names n1;
-              ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select nullif(n1.*,n1.*) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for nullif operation
-Error with syntax near (line 1, column 15):
-
-select nullif(n1.*,NULL) from names n1;
-              ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select nullif(n1.*,NULL) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left TABLENAME.*, right INTEGER
-Error with syntax near (line 1, column 15):
-
-select nullif(n1.*,n1.id) from names n1;
-              ^^^^
-Error with syntax near (line 1, column 20):
-
-select nullif(n1.*,n1.id) from names n1;
-                   ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select nullif(n1.*,n1.id) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for nullif operation
-Error with syntax near (line 1, column 15):
-
-select nullif(NULL,n1.*) from names n1;
-              ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select nullif(NULL,n1.*) from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for coalesce operation
-Error with syntax near (line 1, column 42):
-
-select 1 from names n1 order by coalesce(n1.*);
-                                         ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 order by coalesce(n1.*);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right TABLENAME.*
-Error with syntax near (line 1, column 42):
-
-select 1 from names n1 order by coalesce(n1.id, n1.*);
-                                         ^^^^^
-Error with syntax near (line 1, column 49):
-
-select 1 from names n1 order by coalesce(n1.id, n1.*);
-                                                ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 order by coalesce(n1.id, n1.*);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for coalesce operation
-Error with syntax near (line 1, column 42):
-
-select 1 from names n1 order by coalesce(NULL, n1.*);
-                                         ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 order by coalesce(NULL, n1.*);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for greatest operation
-Error with syntax near (line 1, column 42):
-
-select 1 from names n1 order by greatest(n1.*);
-                                         ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 order by greatest(n1.*);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right TABLENAME.*
-Error with syntax near (line 1, column 42):
-
-select 1 from names n1 order by greatest(n1.id, n1.*);
-                                         ^^^^^
-Error with syntax near (line 1, column 49):
-
-select 1 from names n1 order by greatest(n1.id, n1.*);
-                                                ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 order by greatest(n1.id, n1.*);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for greatest operation
-Error with syntax near (line 1, column 42):
-
-select 1 from names n1 order by greatest(NULL, n1.*);
-                                         ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 order by greatest(NULL, n1.*);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right TABLENAME.*
-Error with syntax near (line 1, column 40):
-
-select 1 from names n1 order by nullif(n1.id, n1.*);
-                                       ^^^^^
-Error with syntax near (line 1, column 47):
-
-select 1 from names n1 order by nullif(n1.id, n1.*);
-                                              ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 order by nullif(n1.id, n1.*);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for nullif operation
-Error with syntax near (line 1, column 40):
-
-select 1 from names n1 order by nullif(NULL, n1.*);
-                                       ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 order by nullif(NULL, n1.*);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for nullif operation
-Error with syntax near (line 1, column 40):
-
-select 1 from names n1 order by nullif(n1.*, n1.*);
-                                       ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 order by nullif(n1.*, n1.*);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for coalesce operation
-Error with syntax near (line 1, column 39):
-
-select 1 from names n1 where coalesce(n1.*)=NULL;
-                                      ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 where coalesce(n1.*)=NULL;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for greatest operation
-Error with syntax near (line 1, column 39):
-
-select 1 from names n1 where greatest(n1.*)=NULL;
-                                      ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 where greatest(n1.*)=NULL;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for least operation
-Error with syntax near (line 1, column 36):
-
-select 1 from names n1 where least(n1.*)=NULL;
-                                   ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 where least(n1.*)=NULL;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for nullif operation
-Error with syntax near (line 1, column 37):
-
-select 1 from names n1 where nullif(n1.*,NULL)=NULL;
-                                    ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 where nullif(n1.*,NULL)=NULL;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for nullif operation
-Error with syntax near (line 1, column 37):
-
-select 1 from names n1 where nullif(NULL,n1.*)=NULL;
-                                    ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 where nullif(NULL,n1.*)=NULL;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for nullif operation
-Error with syntax near (line 1, column 37):
-
-select 1 from names n1 where nullif(n1.*,n1.*)=NULL;
-                                    ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 where nullif(n1.*,n1.*)=NULL;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for coalesce operation
-Error with syntax near (line 1, column 54):
-
-select 1 from names n1 group by n1.* having coalesce(n1.*)=NULL;
-                                                     ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 group by n1.* having coalesce(n1.*)=NULL;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for greatest operation
-Error with syntax near (line 1, column 54):
-
-select 1 from names n1 group by n1.* having greatest(n1.*)=NULL;
-                                                     ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 group by n1.* having greatest(n1.*)=NULL;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for least operation
-Error with syntax near (line 1, column 51):
-
-select 1 from names n1 group by n1.* having least(n1.*)=NULL;
-                                                  ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 group by n1.* having least(n1.*)=NULL;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for nullif operation
-Error with syntax near (line 1, column 52):
-
-select 1 from names n1 group by n1.* having nullif(n1.*,NULL)=NULL;
-                                                   ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 group by n1.* having nullif(n1.*,NULL)=NULL;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for nullif operation
-Error with syntax near (line 1, column 52):
-
-select 1 from names n1 group by n1.* having nullif(n1.*,n1.*)=NULL;
-                                                   ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 group by n1.* having nullif(n1.*,n1.*)=NULL;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for case operation
-Error with syntax near (line 1, column 55):
-
-select 1 from names n1 where case NULL when NULL then n1.* else n1.* end;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for least operation
+LINE 1: select least(n1.*) from names n1;
+                     ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
+LINE 1: select least(n1.*,n1.id) from names n1;
+                     ^^^^
+LINE 1: select least(n1.*,n1.id) from names n1;
+                          ^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for least operation
+LINE 1: select least(n1.*,NULL) from names n1;
+                     ^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
+LINE 1: select greatest(n1.*,n1.id) from names n1;
+                        ^^^^
+LINE 1: select greatest(n1.*,n1.id) from names n1;
+                             ^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for greatest operation
+LINE 1: select greatest(n1.*,NULL) from names n1;
+                        ^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for greatest operation
+LINE 1: select greatest(n1.*) from names n1;
+                        ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
+LINE 1: select coalesce(n1.*,n1.id) from names n1;
+                        ^^^^
+LINE 1: select coalesce(n1.*,n1.id) from names n1;
+                             ^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for coalesce operation
+LINE 1: select coalesce(n1.*,NULL) from names n1;
+                        ^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for coalesce operation
+LINE 1: select coalesce(n1.*) from names n1;
+                        ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for nullif operation
+LINE 1: select nullif(n1.*,n1.*) from names n1;
+                      ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for nullif operation
+LINE 1: select nullif(n1.*,NULL) from names n1;
+                      ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
+LINE 1: select nullif(n1.*,n1.id) from names n1;
+                      ^^^^
+LINE 1: select nullif(n1.*,n1.id) from names n1;
+                           ^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for nullif operation
+LINE 1: select nullif(NULL,n1.*) from names n1;
+                      ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for coalesce operation
+LINE 1: select 1 from names n1 order by coalesce(n1.*);
+                                                 ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
+LINE 1: select 1 from names n1 order by coalesce(n1.id, n1.*);
+                                                 ^^^^^
+LINE 1: select 1 from names n1 order by coalesce(n1.id, n1.*);
+                                                        ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for coalesce operation
+LINE 1: select 1 from names n1 order by coalesce(NULL, n1.*);
+                                                 ^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for greatest operation
+LINE 1: select 1 from names n1 order by greatest(n1.*);
+                                                 ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
+LINE 1: select 1 from names n1 order by greatest(n1.id, n1.*);
+                                                 ^^^^^
+LINE 1: select 1 from names n1 order by greatest(n1.id, n1.*);
+                                                        ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for greatest operation
+LINE 1: select 1 from names n1 order by greatest(NULL, n1.*);
+                                                 ^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
+LINE 1: select 1 from names n1 order by nullif(n1.id, n1.*);
+                                               ^^^^^
+LINE 1: select 1 from names n1 order by nullif(n1.id, n1.*);
                                                       ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 where case NULL when NULL then n1.* else n1.* end;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for case operation
-Error with syntax near (line 1, column 58):
-
-select 1 from names n1 order by case NULL when NULL then n1.* else n1.* end;
-                                                         ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 order by case NULL when NULL then n1.* else n1.* end;
-[ERROR] PATH:LINENUM DATE TIME : ERR_CASE_BRANCH_TYPE_MISMATCH : CASE branch type mismatch: left INTEGER, right TABLENAME.*
-Error with syntax near (line 1, column 58):
-
-select 1 from names n1 order by case NULL when NULL then n1.id else n1.* end;
-                                                         ^^^^^
-Error with syntax near (line 1, column 69):
-
-select 1 from names n1 order by case NULL when NULL then n1.id else n1.* end;
-                                                                    ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 order by case NULL when NULL then n1.id else n1.* end;
-[ERROR] PATH:LINENUM DATE TIME : ERR_CASE_BRANCH_TYPE_MISMATCH : CASE branch type mismatch: left INTEGER, right TABLENAME.*
-Error with syntax near (line 1, column 33):
-
-select case NULL when NULL then n1.id else n1.* end from names n1;
-                                ^^^^^
-Error with syntax near (line 1, column 44):
-
-select case NULL when NULL then n1.id else n1.* end from names n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for nullif operation
+LINE 1: select 1 from names n1 order by nullif(NULL, n1.*);
+                                               ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for nullif operation
+LINE 1: select 1 from names n1 order by nullif(n1.*, n1.*);
+                                               ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for coalesce operation
+LINE 1: select 1 from names n1 where coalesce(n1.*)=NULL;
+                                              ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for greatest operation
+LINE 1: select 1 from names n1 where greatest(n1.*)=NULL;
+                                              ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for least operation
+LINE 1: select 1 from names n1 where least(n1.*)=NULL;
                                            ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select case NULL when NULL then n1.id else n1.* end from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for case operation
-Error with syntax near (line 1, column 33):
-
-select case NULL when NULL then n1.* else n1.* end from names n1;
-                                ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select case NULL when NULL then n1.* else n1.* end from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_CASE_VALUE_TYPE_MISMATCH : WHEN argument is of type TABLENAME.* but is used in a context that expects a BOOLEAN type
-Error with syntax near (line 1, column 28):
-
-select case n1.*=NULL when n1.* then n1.* else n1.* end from names n1;
-                           ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select case n1.*=NULL when n1.* then n1.* else n1.* end from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for case operation
-Error with syntax near (line 1, column 43):
-
-select case n1.*=NULL when n1.*=NULL then n1.* else n1.* end from names n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for nullif operation
+LINE 1: select 1 from names n1 where nullif(n1.*,NULL)=NULL;
+                                            ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for nullif operation
+LINE 1: select 1 from names n1 where nullif(NULL,n1.*)=NULL;
+                                            ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for nullif operation
+LINE 1: select 1 from names n1 where nullif(n1.*,n1.*)=NULL;
+                                            ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for coalesce operation
+LINE 1: select 1 from names n1 group by n1.* having coalesce(n1.*)=NULL;
+                                                             ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for greatest operation
+LINE 1: select 1 from names n1 group by n1.* having greatest(n1.*)=NULL;
+                                                             ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for least operation
+LINE 1: select 1 from names n1 group by n1.* having least(n1.*)=NULL;
+                                                          ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for nullif operation
+LINE 1: ...ect 1 from names n1 group by n1.* having nullif(n1.*,NULL)=NULL;
+                                                           ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for nullif operation
+LINE 1: ...ect 1 from names n1 group by n1.* having nullif(n1.*,n1.*)=NULL;
+                                                           ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for case operation
+LINE 1: ...from names n1 where case NULL when NULL then n1.* else n1.* end;
+                                                        ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for case operation
+LINE 1: ...m names n1 order by case NULL when NULL then n1.* else n1.* end;
+                                                        ^^^^
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left INTEGER, right TABLENAME.*
+LINE 1: ...names n1 order by case NULL when NULL then n1.id else n1.* end;
+                                                      ^^^^^
+LINE 1: ... names n1 order by case NULL when NULL then n1.id else n1.* end;
+                                                                  ^^^^
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left INTEGER, right TABLENAME.*
+LINE 1: ...ect case NULL when NULL then n1.id else n1.* end from names n1;
+                                        ^^^^^
+LINE 1: ...lect case NULL when NULL then n1.id else n1.* end from names n1;
+                                                    ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for case operation
+LINE 1: ...elect case NULL when NULL then n1.* else n1.* end from names n1;
                                           ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select case n1.*=NULL when n1.*=NULL then n1.* else n1.* end from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for + or - operation
-Error with syntax near (line 1, column 9):
-
-select +n1.* from names n1;
-        ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select +n1.* from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for + or - operation
-Error with syntax near (line 1, column 9):
-
-select -n1.* from names n1;
-        ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select -n1.* from names n1;
-
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TABLENAME.* but is used in a context that expects a BOOLEAN type
+LINE 1: select case n1.*=NULL when n1.* then n1.* else n1.* end from nam...
+                                   ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for case operation
+LINE 1: ... n1.*=NULL when n1.*=NULL then n1.* else n1.* end from names n1;
+                                          ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for + or - operation
+LINE 1: select +n1.* from names n1;
+                ^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for + or - operation
+LINE 1: select -n1.* from names n1;
+                ^^

@@ -13,46 +13,24 @@ select avg(n2.*) from (select n1.firstname from names n1) n2;
 select sum(n2.*) from (select n1.firstname from names n1) n2;
 select avg(DISTINCT n2.*) from (select n1.firstname from names n1) n2;
 select sum(DISTINCT n2.*) from (select n1.firstname from names n1) n2;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 23):
-
-select count(DISTINCT n1.*) from names1col n11;
-                      ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select count(DISTINCT n1.*) from names1col n11;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: N1.FIRSTNAME
-Error with syntax near (line 1, column 15):
-
-select n1.* = n1.firstname from names1col n1;
-              ^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* = n1.firstname from names1col n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : NAMES1COL
-Error with syntax near (line 1, column 38):
-
-select id from names1col n1 group by names1col.*;
-                                     ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id from names1col n1 group by names1col.*;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION_TABLE_ASTERISK : Function AVG cannot be invoked with a parameter of type TABLENAME.*
-Error with syntax near (line 1, column 8):
-
-select avg(n2.*) from (select n1.firstname from names n1) n2;
-       ^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select avg(n2.*) from (select n1.firstname from names n1) n2;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION_TABLE_ASTERISK : Function SUM cannot be invoked with a parameter of type TABLENAME.*
-Error with syntax near (line 1, column 8):
-
-select sum(n2.*) from (select n1.firstname from names n1) n2;
-       ^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select sum(n2.*) from (select n1.firstname from names n1) n2;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION_TABLE_ASTERISK : Function AVG cannot be invoked with a parameter of type TABLENAME.*
-Error with syntax near (line 1, column 8):
-
-select avg(DISTINCT n2.*) from (select n1.firstname from names n1) n2;
-       ^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select avg(DISTINCT n2.*) from (select n1.firstname from names n1) n2;
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION_TABLE_ASTERISK : Function SUM cannot be invoked with a parameter of type TABLENAME.*
-Error with syntax near (line 1, column 8):
-
-select sum(DISTINCT n2.*) from (select n1.firstname from names n1) n2;
-       ^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select sum(DISTINCT n2.*) from (select n1.firstname from names n1) n2;
-
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: select count(DISTINCT n1.*) from names1col n11;
+                              ^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N1.FIRSTNAME
+LINE 1: select n1.* = n1.firstname from names1col n1;
+                      ^^^^^^^^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : NAMES1COL
+LINE 1: select id from names1col n1 group by names1col.*;
+                                             ^^^^^^^^^^^
+[ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function AVG cannot be invoked with a parameter of type TABLENAME.*
+LINE 1: select avg(n2.*) from (select n1.firstname from names n1) n2;
+               ^^^
+[ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function SUM cannot be invoked with a parameter of type TABLENAME.*
+LINE 1: select sum(n2.*) from (select n1.firstname from names n1) n2;
+               ^^^
+[ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function AVG cannot be invoked with a parameter of type TABLENAME.*
+LINE 1: select avg(DISTINCT n2.*) from (select n1.firstname from names ...
+               ^^^
+[ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function SUM cannot be invoked with a parameter of type TABLENAME.*
+LINE 1: select sum(DISTINCT n2.*) from (select n1.firstname from names ...
+               ^^^

@@ -1,0 +1,15 @@
+
+-- TERR039 : OCTO600 : Test syntax highlighting omitted when whole excerpt or query is highlighted
+
+-- Single line query
+SELECT qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnm from names;
+-- Multiline query
+SELECT firstname,
+	lastname, qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnm
+from names;
+[ERROR]: ERR_IDENT_LENGTH: Identifier length 78 exceeds max (63)
+LINE 1: ...qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopas...
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_IDENT_LENGTH: Identifier length 78 exceeds max (63)
+LINE 2: ...qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopas...
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

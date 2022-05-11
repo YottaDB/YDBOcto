@@ -66,43 +66,27 @@ Zero
 
 Running query file query7.sql : [select * from (select invalid from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID
-Error with syntax near (line 1, column 22):
-
-select * from (select invalid from names) as n1;
-                      ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from (select invalid from names) as n1;
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID
+LINE 1: select * from (select invalid from names) as n1;
+                              ^^^^^^^
 
 Running query file query8.sql : [select * from (select invalid from names);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID
-Error with syntax near (line 1, column 22):
-
-select * from (select invalid from names);
-                      ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from (select invalid from names);
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID
+LINE 1: select * from (select invalid from names);
+                              ^^^^^^^
 
 Running query file query9.sql : [select * from (select n1.firstname from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 22):
-
-select * from (select n1.firstname from names) as n1;
-                      ^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from (select n1.firstname from names) as n1;
-
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: select * from (select n1.firstname from names) as n1;
+                              ^^^^^^^^^^^^
 
 Running query file query10.sql : [select * from (select n1.invalid from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 22):
-
-select * from (select n1.invalid from names) as n1;
-                      ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from (select n1.invalid from names) as n1;
-
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: select * from (select n1.invalid from names) as n1;
+                              ^^^^^^^^^^
 
 Running query file query11.sql : [select * from (select n2.firstname from names as n2) as n1;]
 -------------------------------------------------
@@ -128,23 +112,15 @@ Zero
 
 Running query file query13.sql : [select * from (select n2.invalid from names as n2) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: N2.INVALID
-Error with syntax near (line 1, column 22):
-
-select * from (select n2.invalid from names as n2) as n1;
-                      ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from (select n2.invalid from names as n2) as n1;
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N2.INVALID
+LINE 1: select * from (select n2.invalid from names as n2) as n1;
+                              ^^^^^^^^^^
 
 Running query file query14.sql : [select * from (select n2.invalid from names as n2);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: N2.INVALID
-Error with syntax near (line 1, column 22):
-
-select * from (select n2.invalid from names as n2);
-                      ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from (select n2.invalid from names as n2);
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N2.INVALID
+LINE 1: select * from (select n2.invalid from names as n2);
+                              ^^^^^^^^^^
 
 Running query file query15.sql : [select firstname from (select * from names as n2) as n1;]
 -------------------------------------------------
@@ -214,78 +190,48 @@ Zero
 
 Running query file query21.sql : [select firstname from (select invalid from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID
-Error with syntax near (line 1, column 30):
-
-select firstname from (select invalid from names) as n1;
-                              ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: FIRSTNAME
-Error with syntax near (line 1, column 7):
-
-select firstname from (select invalid from names) as n1;
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select firstname from (select invalid from names) as n1;
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID
+LINE 1: select firstname from (select invalid from names) as n1;
+                                      ^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FIRSTNAME
+LINE 1: select firstname from (select invalid from names) as n1;
+               ^^^^^^^^^
 
 Running query file query22.sql : [select firstname from (select invalid from names);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID
-Error with syntax near (line 1, column 30):
-
-select firstname from (select invalid from names);
-                              ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: FIRSTNAME
-Error with syntax near (line 1, column 7):
-
-select firstname from (select invalid from names);
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select firstname from (select invalid from names);
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID
+LINE 1: select firstname from (select invalid from names);
+                                      ^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FIRSTNAME
+LINE 1: select firstname from (select invalid from names);
+               ^^^^^^^^^
 
 Running query file query23.sql : [select firstname from (select lastname from names as n2) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: FIRSTNAME
-Error with syntax near (line 1, column 7):
-
-select firstname from (select lastname from names as n2) as n1;
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select firstname from (select lastname from names as n2) as n1;
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FIRSTNAME
+LINE 1: select firstname from (select lastname from names as n2) as n1;
+               ^^^^^^^^^
 
 Running query file query24.sql : [select firstname from (select lastname from names);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: FIRSTNAME
-Error with syntax near (line 1, column 7):
-
-select firstname from (select lastname from names);
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select firstname from (select lastname from names);
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FIRSTNAME
+LINE 1: select firstname from (select lastname from names);
+               ^^^^^^^^^
 
 Running query file query25.sql : [select firstname from (select n1.firstname from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 30):
-
-select firstname from (select n1.firstname from names) as n1;
-                              ^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select firstname from (select n1.firstname from names) as n1;
-
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: select firstname from (select n1.firstname from names) as n1;
+                                      ^^^^^^^^^^^^
 
 Running query file query26.sql : [select firstname from (select n1.invalid from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 30):
-
-select firstname from (select n1.invalid from names) as n1;
-                              ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: FIRSTNAME
-Error with syntax near (line 1, column 7):
-
-select firstname from (select n1.invalid from names) as n1;
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select firstname from (select n1.invalid from names) as n1;
-
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: select firstname from (select n1.invalid from names) as n1;
+                                      ^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FIRSTNAME
+LINE 1: select firstname from (select n1.invalid from names) as n1;
+               ^^^^^^^^^
 
 Running query file query27.sql : [select firstname from (select n2.firstname from names as n2);]
 -------------------------------------------------
@@ -300,263 +246,159 @@ Zero
 
 Running query file query28.sql : [select firstname from (select n2.invalid from names as n2);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: N2.INVALID
-Error with syntax near (line 1, column 30):
-
-select firstname from (select n2.invalid from names as n2);
-                              ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: FIRSTNAME
-Error with syntax near (line 1, column 7):
-
-select firstname from (select n2.invalid from names as n2);
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select firstname from (select n2.invalid from names as n2);
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N2.INVALID
+LINE 1: select firstname from (select n2.invalid from names as n2);
+                                      ^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FIRSTNAME
+LINE 1: select firstname from (select n2.invalid from names as n2);
+               ^^^^^^^^^
 
 Running query file query29.sql : [select invalid from (select * from names as n2) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID
-Error with syntax near (line 1, column 7):
-
-select invalid from (select * from names as n2) as n1;
-       ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select invalid from (select * from names as n2) as n1;
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID
+LINE 1: select invalid from (select * from names as n2) as n1;
+               ^^^^^^^
 
 Running query file query30.sql : [select invalid from (select * from names as n2);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID
-Error with syntax near (line 1, column 7):
-
-select invalid from (select * from names as n2);
-       ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select invalid from (select * from names as n2);
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID
+LINE 1: select invalid from (select * from names as n2);
+               ^^^^^^^
 
 Running query file query31.sql : [select invalid from (select * from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID
-Error with syntax near (line 1, column 7):
-
-select invalid from (select * from names) as n1;
-       ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select invalid from (select * from names) as n1;
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID
+LINE 1: select invalid from (select * from names) as n1;
+               ^^^^^^^
 
 Running query file query32.sql : [select invalid from (select * from names);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID
-Error with syntax near (line 1, column 7):
-
-select invalid from (select * from names);
-       ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select invalid from (select * from names);
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID
+LINE 1: select invalid from (select * from names);
+               ^^^^^^^
 
 Running query file query33.sql : [select invalid from (select firstname from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID
-Error with syntax near (line 1, column 7):
-
-select invalid from (select firstname from names) as n1;
-       ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select invalid from (select firstname from names) as n1;
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID
+LINE 1: select invalid from (select firstname from names) as n1;
+               ^^^^^^^
 
 Running query file query34.sql : [select invalid from (select firstname from names);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID
-Error with syntax near (line 1, column 7):
-
-select invalid from (select firstname from names);
-       ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select invalid from (select firstname from names);
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID
+LINE 1: select invalid from (select firstname from names);
+               ^^^^^^^
 
 Running query file query35.sql : [select invalid from (select invalid from names as n2) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID
-Error with syntax near (line 1, column 28):
-
-select invalid from (select invalid from names as n2) as n1;
-                            ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select invalid from (select invalid from names as n2) as n1;
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID
+LINE 1: select invalid from (select invalid from names as n2) as n1;
+                                    ^^^^^^^
 
 Running query file query36.sql : [select invalid from (select invalid from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID
-Error with syntax near (line 1, column 28):
-
-select invalid from (select invalid from names) as n1;
-                            ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select invalid from (select invalid from names) as n1;
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID
+LINE 1: select invalid from (select invalid from names) as n1;
+                                    ^^^^^^^
 
 Running query file query37.sql : [select invalid from (select invalid from names);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID
-Error with syntax near (line 1, column 28):
-
-select invalid from (select invalid from names);
-                            ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select invalid from (select invalid from names);
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID
+LINE 1: select invalid from (select invalid from names);
+                                    ^^^^^^^
 
 Running query file query38.sql : [select invalid from (select n1.firstname from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 28):
-
-select invalid from (select n1.firstname from names) as n1;
-                            ^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID
-Error with syntax near (line 1, column 7):
-
-select invalid from (select n1.firstname from names) as n1;
-       ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select invalid from (select n1.firstname from names) as n1;
-
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: select invalid from (select n1.firstname from names) as n1;
+                                    ^^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID
+LINE 1: select invalid from (select n1.firstname from names) as n1;
+               ^^^^^^^
 
 Running query file query39.sql : [select invalid from (select n1.invalid from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 28):
-
-select invalid from (select n1.invalid from names) as n1;
-                            ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select invalid from (select n1.invalid from names) as n1;
-
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: select invalid from (select n1.invalid from names) as n1;
+                                    ^^^^^^^^^^
 
 Running query file query40.sql : [select invalid from (select n2.firstname from names as n2);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID
-Error with syntax near (line 1, column 7):
-
-select invalid from (select n2.firstname from names as n2);
-       ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select invalid from (select n2.firstname from names as n2);
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID
+LINE 1: select invalid from (select n2.firstname from names as n2);
+               ^^^^^^^
 
 Running query file query41.sql : [select invalid from (select n2.invalid from names as n2);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: N2.INVALID
-Error with syntax near (line 1, column 28):
-
-select invalid from (select n2.invalid from names as n2);
-                            ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select invalid from (select n2.invalid from names as n2);
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N2.INVALID
+LINE 1: select invalid from (select n2.invalid from names as n2);
+                                    ^^^^^^^^^^
 
 Running query file query42.sql : [select invalid as invalid1 from (select invalid from names);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID
-Error with syntax near (line 1, column 40):
-
-select invalid as invalid1 from (select invalid from names);
-                                        ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select invalid as invalid1 from (select invalid from names);
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID
+LINE 1: select invalid as invalid1 from (select invalid from names);
+                                                ^^^^^^^
 
 Running query file query43.sql : [select invalid as invalid from names;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID
-Error with syntax near (line 1, column 7):
-
-select invalid as invalid from names;
-       ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select invalid as invalid from names;
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID
+LINE 1: select invalid as invalid from names;
+               ^^^^^^^
 
 Running query file query44.sql : [select invalid1 as invalid from names;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID1
-Error with syntax near (line 1, column 7):
-
-select invalid1 as invalid from names;
-       ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select invalid1 as invalid from names;
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID1
+LINE 1: select invalid1 as invalid from names;
+               ^^^^^^^^
 
 Running query file query45.sql : [select invalid as invalid1 from names;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID
-Error with syntax near (line 1, column 7):
-
-select invalid as invalid1 from names;
-       ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select invalid as invalid1 from names;
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID
+LINE 1: select invalid as invalid1 from names;
+               ^^^^^^^
 
 Running query file query46.sql : [select invalid1 from (select invalid2 from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID2
-Error with syntax near (line 1, column 29):
-
-select invalid1 from (select invalid2 from names) as n1;
-                             ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID1
-Error with syntax near (line 1, column 7):
-
-select invalid1 from (select invalid2 from names) as n1;
-       ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select invalid1 from (select invalid2 from names) as n1;
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID2
+LINE 1: select invalid1 from (select invalid2 from names) as n1;
+                                     ^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID1
+LINE 1: select invalid1 from (select invalid2 from names) as n1;
+               ^^^^^^^^
 
 Running query file query47.sql : [select invalid1 from (select invalid2 from names);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID2
-Error with syntax near (line 1, column 29):
-
-select invalid1 from (select invalid2 from names);
-                             ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID1
-Error with syntax near (line 1, column 7):
-
-select invalid1 from (select invalid2 from names);
-       ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select invalid1 from (select invalid2 from names);
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID2
+LINE 1: select invalid1 from (select invalid2 from names);
+                                     ^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID1
+LINE 1: select invalid1 from (select invalid2 from names);
+               ^^^^^^^^
 
 Running query file query48.sql : [select invalid1 from (select n1.invalid2 from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 29):
-
-select invalid1 from (select n1.invalid2 from names) as n1;
-                             ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID1
-Error with syntax near (line 1, column 7):
-
-select invalid1 from (select n1.invalid2 from names) as n1;
-       ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select invalid1 from (select n1.invalid2 from names) as n1;
-
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: select invalid1 from (select n1.invalid2 from names) as n1;
+                                     ^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID1
+LINE 1: select invalid1 from (select n1.invalid2 from names) as n1;
+               ^^^^^^^^
 
 Running query file query49.sql : [select invalid1 from (select n2.invalid2 from names as n2);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: N2.INVALID2
-Error with syntax near (line 1, column 29):
-
-select invalid1 from (select n2.invalid2 from names as n2);
-                             ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID1
-Error with syntax near (line 1, column 7):
-
-select invalid1 from (select n2.invalid2 from names as n2);
-       ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select invalid1 from (select n2.invalid2 from names as n2);
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N2.INVALID2
+LINE 1: select invalid1 from (select n2.invalid2 from names as n2);
+                                     ^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID1
+LINE 1: select invalid1 from (select n2.invalid2 from names as n2);
+               ^^^^^^^^
 
 Running query file query50.sql : [select invalid1 from (select invalid as invalid1 from names);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID
-Error with syntax near (line 1, column 29):
-
-select invalid1 from (select invalid as invalid1 from names);
-                             ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select invalid1 from (select invalid as invalid1 from names);
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID
+LINE 1: select invalid1 from (select invalid as invalid1 from names);
+                                     ^^^^^^^
 
 Running query file query51.sql : [select n1.firstname from (select * from names as n2) as n1;]
 -------------------------------------------------
@@ -582,28 +424,18 @@ Zero
 
 Running query file query53.sql : [select n1.firstname from (select n1.firstname from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 33):
-
-select n1.firstname from (select n1.firstname from names) as n1;
-                                 ^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.firstname from (select n1.firstname from names) as n1;
-
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: select n1.firstname from (select n1.firstname from names) as n1;
+                                         ^^^^^^^^^^^^
 
 Running query file query54.sql : [select n1.firstname from (select n1.invalid from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 33):
-
-select n1.firstname from (select n1.invalid from names) as n1;
-                                 ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: N1.FIRSTNAME
-Error with syntax near (line 1, column 7):
-
-select n1.firstname from (select n1.invalid from names) as n1;
-       ^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.firstname from (select n1.invalid from names) as n1;
-
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: select n1.firstname from (select n1.invalid from names) as n1;
+                                         ^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N1.FIRSTNAME
+LINE 1: select n1.firstname from (select n1.invalid from names) as n1;
+               ^^^^^^^^^^^^
 
 Running query file query55.sql : [select n1.firstname from (select n2.firstname from names as n2) as n1;]
 -------------------------------------------------
@@ -618,198 +450,120 @@ Zero
 
 Running query file query56.sql : [select n1.firstname from (select n2.invalid from names as n2) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: N2.INVALID
-Error with syntax near (line 1, column 33):
-
-select n1.firstname from (select n2.invalid from names as n2) as n1;
-                                 ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: N1.FIRSTNAME
-Error with syntax near (line 1, column 7):
-
-select n1.firstname from (select n2.invalid from names as n2) as n1;
-       ^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.firstname from (select n2.invalid from names as n2) as n1;
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N2.INVALID
+LINE 1: ...ct n1.firstname from (select n2.invalid from names as n2) as n1;
+                                        ^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N1.FIRSTNAME
+LINE 1: select n1.firstname from (select n2.invalid from names as n2) as...
+               ^^^^^^^^^^^^
 
 Running query file query57.sql : [select n1.invalid from (select * from names as n2) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: N1.INVALID
-Error with syntax near (line 1, column 7):
-
-select n1.invalid from (select * from names as n2) as n1;
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.invalid from (select * from names as n2) as n1;
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N1.INVALID
+LINE 1: select n1.invalid from (select * from names as n2) as n1;
+               ^^^^^^^^^^
 
 Running query file query58.sql : [select n1.invalid from (select * from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: N1.INVALID
-Error with syntax near (line 1, column 7):
-
-select n1.invalid from (select * from names) as n1;
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.invalid from (select * from names) as n1;
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N1.INVALID
+LINE 1: select n1.invalid from (select * from names) as n1;
+               ^^^^^^^^^^
 
 Running query file query59.sql : [select n1.invalid from (select n1.firstname from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 31):
-
-select n1.invalid from (select n1.firstname from names) as n1;
-                               ^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: N1.INVALID
-Error with syntax near (line 1, column 7):
-
-select n1.invalid from (select n1.firstname from names) as n1;
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.invalid from (select n1.firstname from names) as n1;
-
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: select n1.invalid from (select n1.firstname from names) as n1;
+                                       ^^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N1.INVALID
+LINE 1: select n1.invalid from (select n1.firstname from names) as n1;
+               ^^^^^^^^^^
 
 Running query file query60.sql : [select n1.invalid from (select n1.invalid from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 31):
-
-select n1.invalid from (select n1.invalid from names) as n1;
-                               ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.invalid from (select n1.invalid from names) as n1;
-
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: select n1.invalid from (select n1.invalid from names) as n1;
+                                       ^^^^^^^^^^
 
 Running query file query61.sql : [select n1.invalid from (select n2.firstname from names as n2) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: N1.INVALID
-Error with syntax near (line 1, column 7):
-
-select n1.invalid from (select n2.firstname from names as n2) as n1;
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.invalid from (select n2.firstname from names as n2) as n1;
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N1.INVALID
+LINE 1: select n1.invalid from (select n2.firstname from names as n2) as...
+               ^^^^^^^^^^
 
 Running query file query62.sql : [select n1.invalid from (select n2.invalid from names as n2) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: N2.INVALID
-Error with syntax near (line 1, column 31):
-
-select n1.invalid from (select n2.invalid from names as n2) as n1;
-                               ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.invalid from (select n2.invalid from names as n2) as n1;
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N2.INVALID
+LINE 1: ...lect n1.invalid from (select n2.invalid from names as n2) as n1;
+                                        ^^^^^^^^^^
 
 Running query file query63.sql : [select n1.invalid1 from (select n1.invalid2 from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 32):
-
-select n1.invalid1 from (select n1.invalid2 from names) as n1;
-                                ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: N1.INVALID1
-Error with syntax near (line 1, column 7):
-
-select n1.invalid1 from (select n1.invalid2 from names) as n1;
-       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.invalid1 from (select n1.invalid2 from names) as n1;
-
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: select n1.invalid1 from (select n1.invalid2 from names) as n1;
+                                        ^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N1.INVALID1
+LINE 1: select n1.invalid1 from (select n1.invalid2 from names) as n1;
+               ^^^^^^^^^^^
 
 Running query file query64.sql : [select n1.invalid1 from (select n2.invalid2 from names as n2) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: N2.INVALID2
-Error with syntax near (line 1, column 32):
-
-select n1.invalid1 from (select n2.invalid2 from names as n2) as n1;
-                                ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: N1.INVALID1
-Error with syntax near (line 1, column 7):
-
-select n1.invalid1 from (select n2.invalid2 from names as n2) as n1;
-       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.invalid1 from (select n2.invalid2 from names as n2) as n1;
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N2.INVALID2
+LINE 1: ...t n1.invalid1 from (select n2.invalid2 from names as n2) as n1;
+                                      ^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N1.INVALID1
+LINE 1: select n1.invalid1 from (select n2.invalid2 from names as n2) a...
+               ^^^^^^^^^^^
 
 Running query file query65.sql : [select n2.firstname from (select * from names as n2);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N2
-Error with syntax near (line 1, column 7):
-
-select n2.firstname from (select * from names as n2);
-       ^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n2.firstname from (select * from names as n2);
-
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
+LINE 1: select n2.firstname from (select * from names as n2);
+               ^^^^^^^^^^^^
 
 Running query file query66.sql : [select n2.firstname from (select n2.firstname from names as n2);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N2
-Error with syntax near (line 1, column 7):
-
-select n2.firstname from (select n2.firstname from names as n2);
-       ^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n2.firstname from (select n2.firstname from names as n2);
-
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
+LINE 1: select n2.firstname from (select n2.firstname from names as n2);
+               ^^^^^^^^^^^^
 
 Running query file query67.sql : [select n2.firstname from (select n2.invalid from names as n2);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: N2.INVALID
-Error with syntax near (line 1, column 33):
-
-select n2.firstname from (select n2.invalid from names as n2);
-                                 ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N2
-Error with syntax near (line 1, column 7):
-
-select n2.firstname from (select n2.invalid from names as n2);
-       ^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n2.firstname from (select n2.invalid from names as n2);
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N2.INVALID
+LINE 1: select n2.firstname from (select n2.invalid from names as n2);
+                                         ^^^^^^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
+LINE 1: select n2.firstname from (select n2.invalid from names as n2);
+               ^^^^^^^^^^^^
 
 Running query file query68.sql : [select n2.invalid from (select * from names as n2);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N2
-Error with syntax near (line 1, column 7):
-
-select n2.invalid from (select * from names as n2);
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n2.invalid from (select * from names as n2);
-
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
+LINE 1: select n2.invalid from (select * from names as n2);
+               ^^^^^^^^^^
 
 Running query file query69.sql : [select n2.invalid from (select n2.firstname from names as n2);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N2
-Error with syntax near (line 1, column 7):
-
-select n2.invalid from (select n2.firstname from names as n2);
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n2.invalid from (select n2.firstname from names as n2);
-
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
+LINE 1: select n2.invalid from (select n2.firstname from names as n2);
+               ^^^^^^^^^^
 
 Running query file query70.sql : [select n2.invalid from (select n2.invalid from names as n2);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: N2.INVALID
-Error with syntax near (line 1, column 31):
-
-select n2.invalid from (select n2.invalid from names as n2);
-                               ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N2
-Error with syntax near (line 1, column 7):
-
-select n2.invalid from (select n2.invalid from names as n2);
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n2.invalid from (select n2.invalid from names as n2);
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N2.INVALID
+LINE 1: select n2.invalid from (select n2.invalid from names as n2);
+                                       ^^^^^^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
+LINE 1: select n2.invalid from (select n2.invalid from names as n2);
+               ^^^^^^^^^^
 
 Running query file query71.sql : [select n2.invalid1 from (select n2.invalid2 from names as n2);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: N2.INVALID2
-Error with syntax near (line 1, column 32):
-
-select n2.invalid1 from (select n2.invalid2 from names as n2);
-                                ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N2
-Error with syntax near (line 1, column 7):
-
-select n2.invalid1 from (select n2.invalid2 from names as n2);
-       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n2.invalid1 from (select n2.invalid2 from names as n2);
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N2.INVALID2
+LINE 1: select n2.invalid1 from (select n2.invalid2 from names as n2);
+                                        ^^^^^^^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
+LINE 1: select n2.invalid1 from (select n2.invalid2 from names as n2);
+               ^^^^^^^^^^^
 
 Running query file query72.sql : [select NULL as a from names order by a;]
 -------------------------------------------------

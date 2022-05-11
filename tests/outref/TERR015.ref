@@ -1,7 +1,3 @@
-[ERROR] PATH:LINENUM DATE TIME : ERR_DOLLAR_SYNTAX : Prepared statement dollar syntax (e.g. $1, $2, etc.) only supported in Rocto using the Extended Query Protocol
-Error with syntax near (line 1, column 8):
-
-	select $1 from names;
-	       ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select $1 from names;
-
+[ERROR]: ERR_DOLLAR_SYNTAX: Prepared statement dollar syntax (e.g. $1, $2, etc.) only supported in Rocto using the Extended Query Protocol
+LINE 1: 	select $1 from names;
+	               ^^

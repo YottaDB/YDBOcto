@@ -3,10 +3,6 @@
 
 INSERT INTO names VALUES 7;
 
-Error with syntax near (line 1, column 26):
-
-INSERT INTO names VALUES 7;
-                         ^
+LINE 1: INSERT INTO names VALUES 7;
+                                 ^
 syntax error, unexpected LITERAL, expecting LEFT_PAREN
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names VALUES 7;

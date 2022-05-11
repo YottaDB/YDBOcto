@@ -1,16 +1,6 @@
 CREATE TABLE
 CREATE TABLE
 CREATE TABLE
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: ORDER1
-Error with syntax near (line 1, column 8):
-
-SELECT order1
-       ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT order1
-FROM   order1 A
-       inner join orderorderactions B
-               ON A.current_action = B.order_order_actions_id
-       inner join orderstatus C
-               ON A.status = C.order_status_id
-WHERE  B.action = "NW";
-
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ORDER1
+LINE 1: SELECT order1
+               ^^^^^^

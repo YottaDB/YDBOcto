@@ -3,32 +3,15 @@ select lastname from names order by lastname limit 1, firstname limit 1;
 select lastname from names order by lastname limit 1, firstname, id limit 1;
 select lastname from names order by lastname, firstname limit 1, id limit 1;
 select * from names order by lastname limit 1, firstname;
-Error with syntax near (line 1, column 53):
-
-select lastname from names order by lastname limit 1, firstname limit 1;
-                                                    ^
+LINE 1: ...stname from names order by lastname limit 1, firstname limit 1;
+                                                      ^
 syntax error, unexpected COMMA, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select lastname from names order by lastname limit 1, firstname limit 1;
-Error with syntax near (line 1, column 53):
-
-select lastname from names order by lastname limit 1, firstname, id limit 1;
-                                                    ^
+LINE 1: ...me from names order by lastname limit 1, firstname, id limit 1;
+                                                  ^
 syntax error, unexpected COMMA, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select lastname from names order by lastname limit 1, firstname, id limit 1;
-Error with syntax near (line 1, column 64):
-
-select lastname from names order by lastname, firstname limit 1, id limit 1;
-                                                               ^
+LINE 1: ...me from names order by lastname, firstname limit 1, id limit 1;
+                                                             ^
 syntax error, unexpected COMMA, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select lastname from names order by lastname, firstname limit 1, id limit 1;
-Error with syntax near (line 1, column 46):
-
-select * from names order by lastname limit 1, firstname;
-                                             ^
+LINE 1: select * from names order by lastname limit 1, firstname;
+                                                     ^
 syntax error, unexpected COMMA, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names order by lastname limit 1, firstname;
-

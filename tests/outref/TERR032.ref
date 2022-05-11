@@ -39,36 +39,14 @@ CREATE TABLE abcd (id INTEGER, firstname VARCHAR DELIM "a");
 -- key column initially and cannot easily change that to READONLY later) and so we test that here.
 CREATE TABLE abcd (id INTEGER, firstname VARCHAR DELIM "", lastname VARCHAR DELIM "");
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_READWRITE_DISALLOWED : READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE abcd (id INTEGER) GLOBAL "^names(keys(""id""),1)" READWRITE;
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_READWRITE_DISALLOWED : READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE abcd (id INTEGER PRIMARY KEY, datetime INTEGER EXTRACT "$ZHOROLOG") READWRITE;
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_READWRITE_DISALLOWED : READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE abcd (id INTEGER, firstname VARCHAR(20) PIECE 3) READWRITE;
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_READWRITE_DISALLOWED : READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE abcd (id INTEGER, firstname VARCHAR(20) GLOBAL "^names(keys(""id""))") READWRITE;
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_READWRITE_DISALLOWED : READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE abcd (id INTEGER, firstname VARCHAR(20) DELIM "#") READWRITE;
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_READWRITE_DISALLOWED : READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE abcd (id INTEGER START 0) READWRITE;
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_READWRITE_DISALLOWED : READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE abcd (id INTEGER STARTINCLUDE) READWRITE;
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_READWRITE_DISALLOWED : READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE abcd (id INTEGER END 100) READWRITE;
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_READWRITE_DISALLOWED : READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE abcd (id INTEGER, firstname VARCHAR DELIM "a") READWRITE;
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_READWRITE_DISALLOWED : READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE abcd (id INTEGER, firstname VARCHAR DELIM "a");
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_READWRITE_DISALLOWED : READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE abcd (id INTEGER, firstname VARCHAR DELIM "", lastname VARCHAR DELIM "");
-
+[ERROR]: ERR_READWRITE_DISALLOWED: READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
+[ERROR]: ERR_READWRITE_DISALLOWED: READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
+[ERROR]: ERR_READWRITE_DISALLOWED: READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
+[ERROR]: ERR_READWRITE_DISALLOWED: READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
+[ERROR]: ERR_READWRITE_DISALLOWED: READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
+[ERROR]: ERR_READWRITE_DISALLOWED: READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
+[ERROR]: ERR_READWRITE_DISALLOWED: READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
+[ERROR]: ERR_READWRITE_DISALLOWED: READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
+[ERROR]: ERR_READWRITE_DISALLOWED: READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
+[ERROR]: ERR_READWRITE_DISALLOWED: READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
+[ERROR]: ERR_READWRITE_DISALLOWED: READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword

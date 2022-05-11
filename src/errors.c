@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -74,8 +74,10 @@ const int err_code_map[] = {
 #undef ERROR_DEF
 #undef ERROR_END
 
-const char *log_prefix = "[%5s] %s:%d %04d-%02d-%02d %02d:%02d:%02d : %s : ";
-const char *rocto_log_prefix = "[%s:%s] [%5s] %s:%d %04d-%02d-%02d %02d:%02d:%02d : %s : ";
+const char *terse_log_prefix = "[%5s]: %s: ";
+const char *terse_rocto_log_prefix = "[%s:%s] [%5s]: %s: ";
+const char *verbose_log_prefix = "[%5s] %s:%d %04d-%02d-%02d %02d:%02d:%02d: %s: ";
+const char *verbose_rocto_log_prefix = "[%s:%s] [%5s] %s:%d %04d-%02d-%02d %02d:%02d:%02d: %s: ";
 
 #define MAX_ERR_PREFIX_LEN 1024
 
@@ -171,9 +173,18 @@ void octo_log(int line, char *file, enum VERBOSITY_LEVEL level, enum SEVERITY_LE
 	int	       err_level;
 	ErrorResponse *err;
 
-	copied = snprintf(err_prefix, MAX_ERR_PREFIX_LEN, rocto_log_prefix, rocto_session.ip, rocto_session.port, type, file, line,
-			  local_time.tm_year + 1900, local_time.tm_mon + 1, local_time.tm_mday, local_time.tm_hour,
-			  local_time.tm_min, local_time.tm_sec, err_name_str[error]);
+	if (ERROR == level) {
+		// Verbosity is set to the default/minimum. In that case, omit C code line number, date, and time information.
+		copied = snprintf(err_prefix, MAX_ERR_PREFIX_LEN, terse_rocto_log_prefix, rocto_session.ip, rocto_session.port,
+				  type, err_name_str[error]);
+	} else {
+		/* A verbosity level greater than the default was specified. In that case, output also C code line number, date, and
+		 * time information.
+		 */
+		copied = snprintf(err_prefix, MAX_ERR_PREFIX_LEN, verbose_rocto_log_prefix, rocto_session.ip, rocto_session.port,
+				  type, file, line, local_time.tm_year + 1900, local_time.tm_mon + 1, local_time.tm_mday,
+				  local_time.tm_hour, local_time.tm_min, local_time.tm_sec, err_name_str[error]);
+	}
 	assert(MAX_ERR_PREFIX_LEN > copied);
 	if (MAX_ERR_PREFIX_LEN <= copied) {
 		err_prefix[MAX_ERR_PREFIX_LEN] = '\0';
@@ -225,9 +236,17 @@ void octo_log(int line, char *file, enum VERBOSITY_LEVEL level, enum SEVERITY_LE
 		}
 	}
 #else
-	copied = snprintf(err_prefix, MAX_ERR_PREFIX_LEN, log_prefix, type, file, line, local_time.tm_year + 1900,
-			  local_time.tm_mon + 1, local_time.tm_mday, local_time.tm_hour, local_time.tm_min, local_time.tm_sec,
-			  err_name_str[error]);
+	if (ERROR == level) {
+		// Verbosity is set to the default/minimum. In that case, omit C code line number, date, and time information.
+		copied = snprintf(err_prefix, MAX_ERR_PREFIX_LEN, terse_log_prefix, type, err_name_str[error]);
+	} else {
+		/* A verbosity level greater than the default was specified. In that case, output also C code line number, date, and
+		 * time information.
+		 */
+		copied = snprintf(err_prefix, MAX_ERR_PREFIX_LEN, verbose_log_prefix, type, file, line, local_time.tm_year + 1900,
+				  local_time.tm_mon + 1, local_time.tm_mday, local_time.tm_hour, local_time.tm_min,
+				  local_time.tm_sec, err_name_str[error]);
+	}
 	assert(MAX_ERR_PREFIX_LEN > copied);
 	if (MAX_ERR_PREFIX_LEN <= copied) {
 		err_prefix[MAX_ERR_PREFIX_LEN] = '\0';

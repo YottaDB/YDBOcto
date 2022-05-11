@@ -4,15 +4,9 @@
 SELECT (SELECT * FROM (SELECT n3.id) n3);
 SELECT (SELECT * FROM names n1, (SELECT n1.id) n2);
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N3
-Error with syntax near (line 1, column 31):
-
-SELECT (SELECT * FROM (SELECT n3.id) n3);
-                              ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT * FROM (SELECT n3.id) n3);
-[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
-Error with syntax near (line 1, column 41):
-
-SELECT (SELECT * FROM names n1, (SELECT n1.id) n2);
-                                        ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT * FROM names n1, (SELECT n1.id) n2);
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N3
+LINE 1: SELECT (SELECT * FROM (SELECT n3.id) n3);
+                                      ^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 1: SELECT (SELECT * FROM names n1, (SELECT n1.id) n2);
+                                                ^^^^^

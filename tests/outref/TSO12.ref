@@ -201,16 +201,11 @@ ID
 5
 6
 (7 rows)
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select id        from names) union (select firstname from names);
-        ^^
-Error with syntax near (line 1, column 45):
-
-(select id        from names) union (select firstname from names);
-                                            ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id        from names) union (select firstname from names);
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types INTEGER and VARCHAR cannot be matched
+LINE 1: (select id        from names) union (select firstname from names...
+                ^^
+LINE 1: ...lect id        from names) union (select firstname from names);
+                                                    ^^^^^^^^^
 ID
 1
 2
@@ -220,1282 +215,674 @@ ID
 6
 0
 (7 rows)
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select 1+id      from names) union (select firstname from names);
-        ^^^^
-Error with syntax near (line 1, column 45):
-
-(select 1+id      from names) union (select firstname from names);
-                                            ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id      from names) union (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) union (select id        from names);
-        ^^^^^^^^^
-Error with syntax near (line 1, column 45):
-
-(select firstname from names) union (select id        from names);
-                                            ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) union (select id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) union (select 1+id      from names);
-        ^^^^^^^^^
-Error with syntax near (line 1, column 45):
-
-(select firstname from names) union (select 1+id      from names);
-                                            ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) union (select 1+id      from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION query must have same number of columns
-Error with syntax near (line 1, column 48):
-
-(select id        from names) union (select id,1+id        from names);
-                                               ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id        from names) union (select id,1+id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION query must have same number of columns
-Error with syntax near (line 1, column 48):
-
-(select 1+id      from names) union (select id,firstname   from names);
-                                               ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id      from names) union (select id,firstname   from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION query must have same number of columns
-Error with syntax near (line 1, column 50):
-
-(select firstname from names) union (select 1+id,id        from names);
-                                                 ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) union (select 1+id,id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION query must have same number of columns
-Error with syntax near (line 1, column 50):
-
-(select id        from names) union (select 1+id,firstname from names);
-                                                 ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id        from names) union (select 1+id,firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION query must have same number of columns
-Error with syntax near (line 1, column 55):
-
-(select 1+id      from names) union (select firstname,id   from names);
-                                                      ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id      from names) union (select firstname,id   from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION query must have same number of columns
-Error with syntax near (line 1, column 55):
-
-(select firstname from names) union (select firstname,1+id from names);
-                                                      ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) union (select firstname,1+id from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION query must have same number of columns
-Error with syntax near (line 1, column 55):
-
-(select id        from names) union (select firstname,lastname,id from names);
-                                                      ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id        from names) union (select firstname,lastname,id from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION query must have same number of columns
-Error with syntax near (line 1, column 54):
-
-(select 1+id      from names) union (select lastname,id,firstname from names);
-                                                     ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id      from names) union (select lastname,id,firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION query must have same number of columns
-Error with syntax near (line 1, column 45):
-
-(select firstname from names) union (select *                     from names);
-                                            ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) union (select *                     from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION query must have same number of columns
-Error with syntax near (line 1, column 12):
-
-(select id,1+id        from names) union (select id        from names);
-           ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id,1+id        from names) union (select id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION query must have same number of columns
-Error with syntax near (line 1, column 12):
-
-(select id,firstname   from names) union (select 1+id      from names);
-           ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id,firstname   from names) union (select 1+id      from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION query must have same number of columns
-Error with syntax near (line 1, column 14):
-
-(select 1+id,id        from names) union (select firstname from names);
-             ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id,id        from names) union (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION query must have same number of columns
-Error with syntax near (line 1, column 14):
-
-(select 1+id,firstname from names) union (select id        from names);
-             ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id,firstname from names) union (select id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION query must have same number of columns
-Error with syntax near (line 1, column 19):
-
-(select firstname,id   from names) union (select 1+id      from names);
-                  ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname,id   from names) union (select 1+id      from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION query must have same number of columns
-Error with syntax near (line 1, column 19):
-
-(select firstname,1+id from names) union (select firstname from names);
-                  ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname,1+id from names) union (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 19):
-
-(select firstname,lastname from names) union (select firstname,1+id from names);
-                  ^^^^^^^^
-Error with syntax near (line 1, column 64):
-
-(select firstname,lastname from names) union (select firstname,1+id from names);
-                                                               ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname,lastname from names) union (select firstname,1+id from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select * from (select 1+id from names))                                               union (select firstname from names);
-        ^
-Error with syntax near (line 1, column 102):
-
-(select * from (select 1+id from names))                                               union (select firstname from names);
-                                                                                                     ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select * from (select 1+id from names))                                               union (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select newid from (select 1+id as newid from names))                                  union (select firstname from names);
-        ^^^^^
-Error with syntax near (line 1, column 102):
-
-(select newid from (select 1+id as newid from names))                                  union (select firstname from names);
-                                                                                                     ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select newid from (select 1+id as newid from names))                                  union (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select new2id from (select newid+2 as new2id from (select 1+id as newid from names))) union (select firstname from names);
-        ^^^^^^
-Error with syntax near (line 1, column 102):
-
-(select new2id from (select newid+2 as new2id from (select 1+id as newid from names))) union (select firstname from names);
-                                                                                                     ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select new2id from (select newid+2 as new2id from (select 1+id as newid from names))) union (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) union (select * from (select 1+id from names))                                              ;
-        ^^^^^^^^^
-Error with syntax near (line 1, column 45):
-
-(select firstname from names) union (select * from (select 1+id from names))                                              ;
-                                            ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) union (select * from (select 1+id from names))                                              ;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) union (select newid from (select 1+id as newid from names))                                 ;
-        ^^^^^^^^^
-Error with syntax near (line 1, column 45):
-
-(select firstname from names) union (select newid from (select 1+id as newid from names))                                 ;
-                                            ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) union (select newid from (select 1+id as newid from names))                                 ;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) union (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
-        ^^^^^^^^^
-Error with syntax near (line 1, column 45):
-
-(select firstname from names) union (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
-                                            ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) union (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
-ID
-0
-1
-2
-3
-4
-5
-1
-2
-3
-4
-5
-6
-(12 rows)
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select id        from names) union all (select firstname from names);
-        ^^
-Error with syntax near (line 1, column 49):
-
-(select id        from names) union all (select firstname from names);
-                                                ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id        from names) union all (select firstname from names);
-ID
-1
-2
-3
-4
-5
-6
-0
-1
-2
-3
-4
-5
-(12 rows)
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select 1+id      from names) union all (select firstname from names);
-        ^^^^
-Error with syntax near (line 1, column 49):
-
-(select 1+id      from names) union all (select firstname from names);
-                                                ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id      from names) union all (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) union all (select id        from names);
-        ^^^^^^^^^
-Error with syntax near (line 1, column 49):
-
-(select firstname from names) union all (select id        from names);
-                                                ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) union all (select id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) union all (select 1+id      from names);
-        ^^^^^^^^^
-Error with syntax near (line 1, column 49):
-
-(select firstname from names) union all (select 1+id      from names);
-                                                ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) union all (select 1+id      from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION ALL query must have same number of columns
-Error with syntax near (line 1, column 52):
-
-(select id        from names) union all (select id,1+id        from names);
-                                                   ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id        from names) union all (select id,1+id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION ALL query must have same number of columns
-Error with syntax near (line 1, column 52):
-
-(select 1+id      from names) union all (select id,firstname   from names);
-                                                   ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id      from names) union all (select id,firstname   from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION ALL query must have same number of columns
-Error with syntax near (line 1, column 54):
-
-(select firstname from names) union all (select 1+id,id        from names);
-                                                     ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) union all (select 1+id,id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION ALL query must have same number of columns
-Error with syntax near (line 1, column 54):
-
-(select id        from names) union all (select 1+id,firstname from names);
-                                                     ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id        from names) union all (select 1+id,firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION ALL query must have same number of columns
-Error with syntax near (line 1, column 59):
-
-(select 1+id      from names) union all (select firstname,id   from names);
-                                                          ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id      from names) union all (select firstname,id   from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION ALL query must have same number of columns
-Error with syntax near (line 1, column 59):
-
-(select firstname from names) union all (select firstname,1+id from names);
-                                                          ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) union all (select firstname,1+id from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION ALL query must have same number of columns
-Error with syntax near (line 1, column 59):
-
-(select id        from names) union all (select firstname,lastname,id from names);
-                                                          ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id        from names) union all (select firstname,lastname,id from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION ALL query must have same number of columns
-Error with syntax near (line 1, column 58):
-
-(select 1+id      from names) union all (select lastname,id,firstname from names);
-                                                         ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id      from names) union all (select lastname,id,firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION ALL query must have same number of columns
-Error with syntax near (line 1, column 49):
-
-(select firstname from names) union all (select *                     from names);
-                                                ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) union all (select *                     from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION ALL query must have same number of columns
-Error with syntax near (line 1, column 12):
-
-(select id,1+id        from names) union all (select id        from names);
-           ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id,1+id        from names) union all (select id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION ALL query must have same number of columns
-Error with syntax near (line 1, column 12):
-
-(select id,firstname   from names) union all (select 1+id      from names);
-           ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id,firstname   from names) union all (select 1+id      from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION ALL query must have same number of columns
-Error with syntax near (line 1, column 14):
-
-(select 1+id,id        from names) union all (select firstname from names);
-             ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id,id        from names) union all (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION ALL query must have same number of columns
-Error with syntax near (line 1, column 14):
-
-(select 1+id,firstname from names) union all (select id        from names);
-             ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id,firstname from names) union all (select id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION ALL query must have same number of columns
-Error with syntax near (line 1, column 19):
-
-(select firstname,id   from names) union all (select 1+id      from names);
-                  ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname,id   from names) union all (select 1+id      from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION ALL query must have same number of columns
-Error with syntax near (line 1, column 19):
-
-(select firstname,1+id from names) union all (select firstname from names);
-                  ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname,1+id from names) union all (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 19):
-
-(select firstname,lastname from names) union all (select firstname,1+id from names);
-                  ^^^^^^^^
-Error with syntax near (line 1, column 68):
-
-(select firstname,lastname from names) union all (select firstname,1+id from names);
-                                                                   ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname,lastname from names) union all (select firstname,1+id from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select * from (select 1+id from names))                                               union all (select firstname from names);
-        ^
-Error with syntax near (line 1, column 106):
-
-(select * from (select 1+id from names))                                               union all (select firstname from names);
-                                                                                                         ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select * from (select 1+id from names))                                               union all (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select newid from (select 1+id as newid from names))                                  union all (select firstname from names);
-        ^^^^^
-Error with syntax near (line 1, column 106):
-
-(select newid from (select 1+id as newid from names))                                  union all (select firstname from names);
-                                                                                                         ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select newid from (select 1+id as newid from names))                                  union all (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select new2id from (select newid+2 as new2id from (select 1+id as newid from names))) union all (select firstname from names);
-        ^^^^^^
-Error with syntax near (line 1, column 106):
-
-(select new2id from (select newid+2 as new2id from (select 1+id as newid from names))) union all (select firstname from names);
-                                                                                                         ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select new2id from (select newid+2 as new2id from (select 1+id as newid from names))) union all (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) union all (select * from (select 1+id from names))                                              ;
-        ^^^^^^^^^
-Error with syntax near (line 1, column 49):
-
-(select firstname from names) union all (select * from (select 1+id from names))                                              ;
-                                                ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) union all (select * from (select 1+id from names))                                              ;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) union all (select newid from (select 1+id as newid from names))                                 ;
-        ^^^^^^^^^
-Error with syntax near (line 1, column 49):
-
-(select firstname from names) union all (select newid from (select 1+id as newid from names))                                 ;
-                                                ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) union all (select newid from (select 1+id as newid from names))                                 ;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) union all (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
-        ^^^^^^^^^
-Error with syntax near (line 1, column 49):
-
-(select firstname from names) union all (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
-                                                ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) union all (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
-ID
-1
-2
-3
-4
-5
-(5 rows)
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : INTERSECT types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select id        from names) intersect (select firstname from names);
-        ^^
-Error with syntax near (line 1, column 49):
-
-(select id        from names) intersect (select firstname from names);
-                                                ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id        from names) intersect (select firstname from names);
-ID
-1
-2
-3
-4
-5
-(5 rows)
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : INTERSECT types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select 1+id      from names) intersect (select firstname from names);
-        ^^^^
-Error with syntax near (line 1, column 49):
-
-(select 1+id      from names) intersect (select firstname from names);
-                                                ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id      from names) intersect (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : INTERSECT types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) intersect (select id        from names);
-        ^^^^^^^^^
-Error with syntax near (line 1, column 49):
-
-(select firstname from names) intersect (select id        from names);
-                                                ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) intersect (select id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : INTERSECT types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) intersect (select 1+id      from names);
-        ^^^^^^^^^
-Error with syntax near (line 1, column 49):
-
-(select firstname from names) intersect (select 1+id      from names);
-                                                ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) intersect (select 1+id      from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT query must have same number of columns
-Error with syntax near (line 1, column 52):
-
-(select id        from names) intersect (select id,1+id        from names);
-                                                   ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id        from names) intersect (select id,1+id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT query must have same number of columns
-Error with syntax near (line 1, column 52):
-
-(select 1+id      from names) intersect (select id,firstname   from names);
-                                                   ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id      from names) intersect (select id,firstname   from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT query must have same number of columns
-Error with syntax near (line 1, column 54):
-
-(select firstname from names) intersect (select 1+id,id        from names);
-                                                     ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) intersect (select 1+id,id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT query must have same number of columns
-Error with syntax near (line 1, column 54):
-
-(select id        from names) intersect (select 1+id,firstname from names);
-                                                     ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id        from names) intersect (select 1+id,firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT query must have same number of columns
-Error with syntax near (line 1, column 59):
-
-(select 1+id      from names) intersect (select firstname,id   from names);
-                                                          ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id      from names) intersect (select firstname,id   from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT query must have same number of columns
-Error with syntax near (line 1, column 59):
-
-(select firstname from names) intersect (select firstname,1+id from names);
-                                                          ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) intersect (select firstname,1+id from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT query must have same number of columns
-Error with syntax near (line 1, column 59):
-
-(select id        from names) intersect (select firstname,lastname,id from names);
-                                                          ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id        from names) intersect (select firstname,lastname,id from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT query must have same number of columns
-Error with syntax near (line 1, column 58):
-
-(select 1+id      from names) intersect (select lastname,id,firstname from names);
-                                                         ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id      from names) intersect (select lastname,id,firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT query must have same number of columns
-Error with syntax near (line 1, column 49):
-
-(select firstname from names) intersect (select *                     from names);
-                                                ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) intersect (select *                     from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT query must have same number of columns
-Error with syntax near (line 1, column 12):
-
-(select id,1+id        from names) intersect (select id        from names);
-           ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id,1+id        from names) intersect (select id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT query must have same number of columns
-Error with syntax near (line 1, column 12):
-
-(select id,firstname   from names) intersect (select 1+id      from names);
-           ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id,firstname   from names) intersect (select 1+id      from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT query must have same number of columns
-Error with syntax near (line 1, column 14):
-
-(select 1+id,id        from names) intersect (select firstname from names);
-             ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id,id        from names) intersect (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT query must have same number of columns
-Error with syntax near (line 1, column 14):
-
-(select 1+id,firstname from names) intersect (select id        from names);
-             ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id,firstname from names) intersect (select id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT query must have same number of columns
-Error with syntax near (line 1, column 19):
-
-(select firstname,id   from names) intersect (select 1+id      from names);
-                  ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname,id   from names) intersect (select 1+id      from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT query must have same number of columns
-Error with syntax near (line 1, column 19):
-
-(select firstname,1+id from names) intersect (select firstname from names);
-                  ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname,1+id from names) intersect (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : INTERSECT types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 19):
-
-(select firstname,lastname from names) intersect (select firstname,1+id from names);
-                  ^^^^^^^^
-Error with syntax near (line 1, column 68):
-
-(select firstname,lastname from names) intersect (select firstname,1+id from names);
-                                                                   ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname,lastname from names) intersect (select firstname,1+id from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : INTERSECT types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select * from (select 1+id from names))                                               intersect (select firstname from names);
-        ^
-Error with syntax near (line 1, column 106):
-
-(select * from (select 1+id from names))                                               intersect (select firstname from names);
-                                                                                                         ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select * from (select 1+id from names))                                               intersect (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : INTERSECT types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select newid from (select 1+id as newid from names))                                  intersect (select firstname from names);
-        ^^^^^
-Error with syntax near (line 1, column 106):
-
-(select newid from (select 1+id as newid from names))                                  intersect (select firstname from names);
-                                                                                                         ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select newid from (select 1+id as newid from names))                                  intersect (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : INTERSECT types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select new2id from (select newid+2 as new2id from (select 1+id as newid from names))) intersect (select firstname from names);
-        ^^^^^^
-Error with syntax near (line 1, column 106):
-
-(select new2id from (select newid+2 as new2id from (select 1+id as newid from names))) intersect (select firstname from names);
-                                                                                                         ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select new2id from (select newid+2 as new2id from (select 1+id as newid from names))) intersect (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : INTERSECT types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) intersect (select * from (select 1+id from names))                                              ;
-        ^^^^^^^^^
-Error with syntax near (line 1, column 49):
-
-(select firstname from names) intersect (select * from (select 1+id from names))                                              ;
-                                                ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) intersect (select * from (select 1+id from names))                                              ;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : INTERSECT types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) intersect (select newid from (select 1+id as newid from names))                                 ;
-        ^^^^^^^^^
-Error with syntax near (line 1, column 49):
-
-(select firstname from names) intersect (select newid from (select 1+id as newid from names))                                 ;
-                                                ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) intersect (select newid from (select 1+id as newid from names))                                 ;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : INTERSECT types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) intersect (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
-        ^^^^^^^^^
-Error with syntax near (line 1, column 49):
-
-(select firstname from names) intersect (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
-                                                ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) intersect (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
-ID
-1
-2
-3
-4
-5
-(5 rows)
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : INTERSECT ALL types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select id        from names) intersect all (select firstname from names);
-        ^^
-Error with syntax near (line 1, column 53):
-
-(select id        from names) intersect all (select firstname from names);
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types INTEGER and VARCHAR cannot be matched
+LINE 1: (select 1+id      from names) union (select firstname from names...
+                ^^^^
+LINE 1: ...lect 1+id      from names) union (select firstname from names);
                                                     ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id        from names) intersect all (select firstname from names);
-ID
-1
-2
-3
-4
-5
-(5 rows)
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : INTERSECT ALL types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select 1+id      from names) intersect all (select firstname from names);
-        ^^^^
-Error with syntax near (line 1, column 53):
-
-(select 1+id      from names) intersect all (select firstname from names);
-                                                    ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id      from names) intersect all (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : INTERSECT ALL types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) intersect all (select id        from names);
-        ^^^^^^^^^
-Error with syntax near (line 1, column 53):
-
-(select firstname from names) intersect all (select id        from names);
-                                                    ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) intersect all (select id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : INTERSECT ALL types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) intersect all (select 1+id      from names);
-        ^^^^^^^^^
-Error with syntax near (line 1, column 53):
-
-(select firstname from names) intersect all (select 1+id      from names);
-                                                    ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) intersect all (select 1+id      from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT ALL query must have same number of columns
-Error with syntax near (line 1, column 56):
-
-(select id        from names) intersect all (select id,1+id        from names);
-                                                       ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id        from names) intersect all (select id,1+id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT ALL query must have same number of columns
-Error with syntax near (line 1, column 56):
-
-(select 1+id      from names) intersect all (select id,firstname   from names);
-                                                       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id      from names) intersect all (select id,firstname   from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT ALL query must have same number of columns
-Error with syntax near (line 1, column 58):
-
-(select firstname from names) intersect all (select 1+id,id        from names);
-                                                         ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) intersect all (select 1+id,id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT ALL query must have same number of columns
-Error with syntax near (line 1, column 58):
-
-(select id        from names) intersect all (select 1+id,firstname from names);
-                                                         ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id        from names) intersect all (select 1+id,firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT ALL query must have same number of columns
-Error with syntax near (line 1, column 63):
-
-(select 1+id      from names) intersect all (select firstname,id   from names);
-                                                              ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id      from names) intersect all (select firstname,id   from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT ALL query must have same number of columns
-Error with syntax near (line 1, column 63):
-
-(select firstname from names) intersect all (select firstname,1+id from names);
-                                                              ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) intersect all (select firstname,1+id from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT ALL query must have same number of columns
-Error with syntax near (line 1, column 63):
-
-(select id        from names) intersect all (select firstname,lastname,id from names);
-                                                              ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id        from names) intersect all (select firstname,lastname,id from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT ALL query must have same number of columns
-Error with syntax near (line 1, column 62):
-
-(select 1+id      from names) intersect all (select lastname,id,firstname from names);
-                                                             ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id      from names) intersect all (select lastname,id,firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT ALL query must have same number of columns
-Error with syntax near (line 1, column 53):
-
-(select firstname from names) intersect all (select *                     from names);
-                                                    ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) intersect all (select *                     from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT ALL query must have same number of columns
-Error with syntax near (line 1, column 12):
-
-(select id,1+id        from names) intersect all (select id        from names);
-           ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id,1+id        from names) intersect all (select id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT ALL query must have same number of columns
-Error with syntax near (line 1, column 12):
-
-(select id,firstname   from names) intersect all (select 1+id      from names);
-           ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id,firstname   from names) intersect all (select 1+id      from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT ALL query must have same number of columns
-Error with syntax near (line 1, column 14):
-
-(select 1+id,id        from names) intersect all (select firstname from names);
-             ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id,id        from names) intersect all (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT ALL query must have same number of columns
-Error with syntax near (line 1, column 14):
-
-(select 1+id,firstname from names) intersect all (select id        from names);
-             ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id,firstname from names) intersect all (select id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT ALL query must have same number of columns
-Error with syntax near (line 1, column 19):
-
-(select firstname,id   from names) intersect all (select 1+id      from names);
-                  ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname,id   from names) intersect all (select 1+id      from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each INTERSECT ALL query must have same number of columns
-Error with syntax near (line 1, column 19):
-
-(select firstname,1+id from names) intersect all (select firstname from names);
-                  ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname,1+id from names) intersect all (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : INTERSECT ALL types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 19):
-
-(select firstname,lastname from names) intersect all (select firstname,1+id from names);
-                  ^^^^^^^^
-Error with syntax near (line 1, column 72):
-
-(select firstname,lastname from names) intersect all (select firstname,1+id from names);
-                                                                       ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname,lastname from names) intersect all (select firstname,1+id from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : INTERSECT ALL types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select * from (select 1+id from names))                                               intersect all (select firstname from names);
-        ^
-Error with syntax near (line 1, column 110):
-
-(select * from (select 1+id from names))                                               intersect all (select firstname from names);
-                                                                                                             ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select * from (select 1+id from names))                                               intersect all (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : INTERSECT ALL types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select newid from (select 1+id as newid from names))                                  intersect all (select firstname from names);
-        ^^^^^
-Error with syntax near (line 1, column 110):
-
-(select newid from (select 1+id as newid from names))                                  intersect all (select firstname from names);
-                                                                                                             ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select newid from (select 1+id as newid from names))                                  intersect all (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : INTERSECT ALL types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select new2id from (select newid+2 as new2id from (select 1+id as newid from names))) intersect all (select firstname from names);
-        ^^^^^^
-Error with syntax near (line 1, column 110):
-
-(select new2id from (select newid+2 as new2id from (select 1+id as newid from names))) intersect all (select firstname from names);
-                                                                                                             ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select new2id from (select newid+2 as new2id from (select 1+id as newid from names))) intersect all (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : INTERSECT ALL types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) intersect all (select * from (select 1+id from names))                                              ;
-        ^^^^^^^^^
-Error with syntax near (line 1, column 53):
-
-(select firstname from names) intersect all (select * from (select 1+id from names))                                              ;
-                                                    ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) intersect all (select * from (select 1+id from names))                                              ;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : INTERSECT ALL types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) intersect all (select newid from (select 1+id as newid from names))                                 ;
-        ^^^^^^^^^
-Error with syntax near (line 1, column 53):
-
-(select firstname from names) intersect all (select newid from (select 1+id as newid from names))                                 ;
-                                                    ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) intersect all (select newid from (select 1+id as newid from names))                                 ;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : INTERSECT ALL types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) intersect all (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
-        ^^^^^^^^^
-Error with syntax near (line 1, column 53):
-
-(select firstname from names) intersect all (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
-                                                    ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) intersect all (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
-ID
-0
-(1 row)
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : EXCEPT types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select id        from names) except (select firstname from names);
-        ^^
-Error with syntax near (line 1, column 46):
-
-(select id        from names) except (select firstname from names);
-                                             ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id        from names) except (select firstname from names);
-ID
-6
-(1 row)
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : EXCEPT types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select 1+id      from names) except (select firstname from names);
-        ^^^^
-Error with syntax near (line 1, column 46):
-
-(select 1+id      from names) except (select firstname from names);
-                                             ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id      from names) except (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : EXCEPT types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) except (select id        from names);
-        ^^^^^^^^^
-Error with syntax near (line 1, column 46):
-
-(select firstname from names) except (select id        from names);
-                                             ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) except (select id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : EXCEPT types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) except (select 1+id      from names);
-        ^^^^^^^^^
-Error with syntax near (line 1, column 46):
-
-(select firstname from names) except (select 1+id      from names);
-                                             ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) except (select 1+id      from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT query must have same number of columns
-Error with syntax near (line 1, column 49):
-
-(select id        from names) except (select id,1+id        from names);
-                                                ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id        from names) except (select id,1+id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT query must have same number of columns
-Error with syntax near (line 1, column 49):
-
-(select 1+id      from names) except (select id,firstname   from names);
-                                                ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id      from names) except (select id,firstname   from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT query must have same number of columns
-Error with syntax near (line 1, column 51):
-
-(select firstname from names) except (select 1+id,id        from names);
-                                                  ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) except (select 1+id,id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT query must have same number of columns
-Error with syntax near (line 1, column 51):
-
-(select id        from names) except (select 1+id,firstname from names);
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) union (select id        from name...
+                ^^^^^^^^^
+LINE 1: ...elect firstname from names) union (select id        from names);
+                                                     ^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) union (select 1+id      from name...
+                ^^^^^^^^^
+LINE 1: ...elect firstname from names) union (select 1+id      from names);
+                                                     ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
+LINE 1: ... id        from names) union (select id,1+id        from names);
+                                                   ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
+LINE 1: ...1+id      from names) union (select id,firstname   from names);
                                                   ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id        from names) except (select 1+id,firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT query must have same number of columns
-Error with syntax near (line 1, column 56):
-
-(select 1+id      from names) except (select firstname,id   from names);
-                                                       ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id      from names) except (select firstname,id   from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT query must have same number of columns
-Error with syntax near (line 1, column 56):
-
-(select firstname from names) except (select firstname,1+id from names);
-                                                       ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) except (select firstname,1+id from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT query must have same number of columns
-Error with syntax near (line 1, column 56):
-
-(select id        from names) except (select firstname,lastname,id from names);
-                                                       ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id        from names) except (select firstname,lastname,id from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT query must have same number of columns
-Error with syntax near (line 1, column 55):
-
-(select 1+id      from names) except (select lastname,id,firstname from names);
-                                                      ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id      from names) except (select lastname,id,firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT query must have same number of columns
-Error with syntax near (line 1, column 46):
-
-(select firstname from names) except (select *                     from names);
-                                             ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) except (select *                     from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT query must have same number of columns
-Error with syntax near (line 1, column 12):
-
-(select id,1+id        from names) except (select id        from names);
-           ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id,1+id        from names) except (select id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT query must have same number of columns
-Error with syntax near (line 1, column 12):
-
-(select id,firstname   from names) except (select 1+id      from names);
-           ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id,firstname   from names) except (select 1+id      from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT query must have same number of columns
-Error with syntax near (line 1, column 14):
-
-(select 1+id,id        from names) except (select firstname from names);
-             ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id,id        from names) except (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT query must have same number of columns
-Error with syntax near (line 1, column 14):
-
-(select 1+id,firstname from names) except (select id        from names);
-             ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id,firstname from names) except (select id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT query must have same number of columns
-Error with syntax near (line 1, column 19):
-
-(select firstname,id   from names) except (select 1+id      from names);
-                  ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname,id   from names) except (select 1+id      from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT query must have same number of columns
-Error with syntax near (line 1, column 19):
-
-(select firstname,1+id from names) except (select firstname from names);
-                  ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname,1+id from names) except (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : EXCEPT types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 19):
-
-(select firstname,lastname from names) except (select firstname,1+id from names);
-                  ^^^^^^^^
-Error with syntax near (line 1, column 65):
-
-(select firstname,lastname from names) except (select firstname,1+id from names);
-                                                                ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname,lastname from names) except (select firstname,1+id from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : EXCEPT types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select * from (select 1+id from names))                                               except (select firstname from names);
-        ^
-Error with syntax near (line 1, column 103):
-
-(select * from (select 1+id from names))                                               except (select firstname from names);
-                                                                                                      ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select * from (select 1+id from names))                                               except (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : EXCEPT types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select newid from (select 1+id as newid from names))                                  except (select firstname from names);
-        ^^^^^
-Error with syntax near (line 1, column 103):
-
-(select newid from (select 1+id as newid from names))                                  except (select firstname from names);
-                                                                                                      ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select newid from (select 1+id as newid from names))                                  except (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : EXCEPT types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select new2id from (select newid+2 as new2id from (select 1+id as newid from names))) except (select firstname from names);
-        ^^^^^^
-Error with syntax near (line 1, column 103):
-
-(select new2id from (select newid+2 as new2id from (select 1+id as newid from names))) except (select firstname from names);
-                                                                                                      ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select new2id from (select newid+2 as new2id from (select 1+id as newid from names))) except (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : EXCEPT types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) except (select * from (select 1+id from names))                                              ;
-        ^^^^^^^^^
-Error with syntax near (line 1, column 46):
-
-(select firstname from names) except (select * from (select 1+id from names))                                              ;
-                                             ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) except (select * from (select 1+id from names))                                              ;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : EXCEPT types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) except (select newid from (select 1+id as newid from names))                                 ;
-        ^^^^^^^^^
-Error with syntax near (line 1, column 46):
-
-(select firstname from names) except (select newid from (select 1+id as newid from names))                                 ;
-                                             ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) except (select newid from (select 1+id as newid from names))                                 ;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : EXCEPT types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) except (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
-        ^^^^^^^^^
-Error with syntax near (line 1, column 46):
-
-(select firstname from names) except (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
-                                             ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) except (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
+LINE 1: ... firstname from names) union (select 1+id,id        from names);
+                                                     ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
+LINE 1: ...id        from names) union (select 1+id,firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
+LINE 1: ... 1+id      from names) union (select firstname,id   from names);
+                                                          ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
+LINE 1: ... firstname from names) union (select firstname,1+id from names);
+                                                          ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
+LINE 1: ...    from names) union (select firstname,lastname,id from names);
+                                                   ^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
+LINE 1: ...    from names) union (select lastname,id,firstname from names);
+                                                  ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
+LINE 1: ...name from names) union (select *                     from names...
+                                          ^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
+LINE 1: (select id,1+id        from names) union (select id        from ...
+                   ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
+LINE 1: (select id,firstname   from names) union (select 1+id      from...
+                   ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
+LINE 1: (select 1+id,id        from names) union (select firstname from ...
+                     ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
+LINE 1: (select 1+id,firstname from names) union (select id        from...
+                     ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
+LINE 1: (select firstname,id   from names) union (select 1+id      from ...
+                          ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
+LINE 1: (select firstname,1+id from names) union (select firstname from ...
+                          ^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname,lastname from names) union (select firstname,1...
+                          ^^^^^^^^
+LINE 1: ...e,lastname from names) union (select firstname,1+id from names);
+                                                          ^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types INTEGER and VARCHAR cannot be matched
+LINE 1: (select * from (select 1+id from names))                       ...
+                ^
+LINE 1: ...                           union (select firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types INTEGER and VARCHAR cannot be matched
+LINE 1: (select newid from (select 1+id as newid from names))          ...
+                ^^^^^
+LINE 1: ...                           union (select firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types INTEGER and VARCHAR cannot be matched
+LINE 1: (select new2id from (select newid+2 as new2id from (select 1+id ...
+                ^^^^^^
+LINE 1: ...+id as newid from names))) union (select firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) union (select * from (select 1+id...
+                ^^^^^^^^^
+LINE 1: ...name from names) union (select * from (select 1+id from names))...
+                                          ^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) union (select newid from (select ...
+                ^^^^^^^^^
+LINE 1: ...me from names) union (select newid from (select 1+id as newid f...
+                                        ^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) union (select new2id from (select...
+                ^^^^^^^^^
+LINE 1: ...me from names) union (select new2id from (select newid+2 as new2...
+                                        ^^^^^^
+ID
+0
+1
+2
+3
+4
+5
+1
+2
+3
+4
+5
+6
+(12 rows)
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
+LINE 1: (select id        from names) union all (select firstname from n...
+                ^^
+LINE 1: ... id        from names) union all (select firstname from names);
+                                                    ^^^^^^^^^
+ID
+1
+2
+3
+4
+5
+6
+0
+1
+2
+3
+4
+5
+(12 rows)
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
+LINE 1: (select 1+id      from names) union all (select firstname from n...
+                ^^^^
+LINE 1: ... 1+id      from names) union all (select firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) union all (select id        from ...
+                ^^^^^^^^^
+LINE 1: ...t firstname from names) union all (select id        from names);
+                                                     ^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) union all (select 1+id      from ...
+                ^^^^^^^^^
+LINE 1: ...t firstname from names) union all (select 1+id      from names);
+                                                     ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 1: ...       from names) union all (select id,1+id        from names);
+                                                   ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 1: ...      from names) union all (select id,firstname   from names);
+                                                  ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 1: ...stname from names) union all (select 1+id,id        from names);
+                                                     ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 1: ...      from names) union all (select 1+id,firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 1: ...d      from names) union all (select firstname,id   from names);
+                                                          ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 1: ...stname from names) union all (select firstname,1+id from names);
+                                                          ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 1: ...from names) union all (select firstname,lastname,id from names);
+                                                   ^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 1: ...from names) union all (select lastname,id,firstname from names);
+                                                  ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 1: ... from names) union all (select *                     from names...
+                                          ^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 1: (select id,1+id        from names) union all (select id        f...
+                   ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 1: (select id,firstname   from names) union all (select 1+id      ...
+                   ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 1: (select 1+id,id        from names) union all (select firstname f...
+                     ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 1: (select 1+id,firstname from names) union all (select id        ...
+                     ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 1: (select firstname,id   from names) union all (select 1+id      f...
+                          ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 1: (select firstname,1+id from names) union all (select firstname f...
+                          ^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname,lastname from names) union all (select firstna...
+                          ^^^^^^^^
+LINE 1: ...stname from names) union all (select firstname,1+id from names);
+                                                          ^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
+LINE 1: (select * from (select 1+id from names))                       ...
+                ^
+LINE 1: ...                       union all (select firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
+LINE 1: (select newid from (select 1+id as newid from names))          ...
+                ^^^^^
+LINE 1: ...                       union all (select firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
+LINE 1: (select new2id from (select newid+2 as new2id from (select 1+id ...
+                ^^^^^^
+LINE 1: ...as newid from names))) union all (select firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) union all (select * from (select ...
+                ^^^^^^^^^
+LINE 1: ... from names) union all (select * from (select 1+id from names))...
+                                          ^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) union all (select newid from (sel...
+                ^^^^^^^^^
+LINE 1: ...rom names) union all (select newid from (select 1+id as newid f...
+                                        ^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) union all (select new2id from (se...
+                ^^^^^^^^^
+LINE 1: ...rom names) union all (select new2id from (select newid+2 as new2...
+                                        ^^^^^^
+ID
+1
+2
+3
+4
+5
+(5 rows)
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT types INTEGER and VARCHAR cannot be matched
+LINE 1: (select id        from names) intersect (select firstname from n...
+                ^^
+LINE 1: ... id        from names) intersect (select firstname from names);
+                                                    ^^^^^^^^^
+ID
+1
+2
+3
+4
+5
+(5 rows)
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT types INTEGER and VARCHAR cannot be matched
+LINE 1: (select 1+id      from names) intersect (select firstname from n...
+                ^^^^
+LINE 1: ... 1+id      from names) intersect (select firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) intersect (select id        from ...
+                ^^^^^^^^^
+LINE 1: ...t firstname from names) intersect (select id        from names);
+                                                     ^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) intersect (select 1+id      from ...
+                ^^^^^^^^^
+LINE 1: ...t firstname from names) intersect (select 1+id      from names);
+                                                     ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 1: ...       from names) intersect (select id,1+id        from names);
+                                                   ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 1: ...      from names) intersect (select id,firstname   from names);
+                                                  ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 1: ...stname from names) intersect (select 1+id,id        from names);
+                                                     ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 1: ...      from names) intersect (select 1+id,firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 1: ...d      from names) intersect (select firstname,id   from names);
+                                                          ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 1: ...stname from names) intersect (select firstname,1+id from names);
+                                                          ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 1: ...from names) intersect (select firstname,lastname,id from names);
+                                                   ^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 1: ...from names) intersect (select lastname,id,firstname from names);
+                                                  ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 1: ... from names) intersect (select *                     from names...
+                                          ^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 1: (select id,1+id        from names) intersect (select id        f...
+                   ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 1: (select id,firstname   from names) intersect (select 1+id      ...
+                   ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 1: (select 1+id,id        from names) intersect (select firstname f...
+                     ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 1: (select 1+id,firstname from names) intersect (select id        ...
+                     ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 1: (select firstname,id   from names) intersect (select 1+id      f...
+                          ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 1: (select firstname,1+id from names) intersect (select firstname f...
+                          ^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname,lastname from names) intersect (select firstna...
+                          ^^^^^^^^
+LINE 1: ...stname from names) intersect (select firstname,1+id from names);
+                                                          ^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT types INTEGER and VARCHAR cannot be matched
+LINE 1: (select * from (select 1+id from names))                       ...
+                ^
+LINE 1: ...                       intersect (select firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT types INTEGER and VARCHAR cannot be matched
+LINE 1: (select newid from (select 1+id as newid from names))          ...
+                ^^^^^
+LINE 1: ...                       intersect (select firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT types INTEGER and VARCHAR cannot be matched
+LINE 1: (select new2id from (select newid+2 as new2id from (select 1+id ...
+                ^^^^^^
+LINE 1: ...as newid from names))) intersect (select firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) intersect (select * from (select ...
+                ^^^^^^^^^
+LINE 1: ... from names) intersect (select * from (select 1+id from names))...
+                                          ^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) intersect (select newid from (sel...
+                ^^^^^^^^^
+LINE 1: ...rom names) intersect (select newid from (select 1+id as newid f...
+                                        ^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) intersect (select new2id from (se...
+                ^^^^^^^^^
+LINE 1: ...rom names) intersect (select new2id from (select newid+2 as new2...
+                                        ^^^^^^
+ID
+1
+2
+3
+4
+5
+(5 rows)
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT ALL types INTEGER and VARCHAR cannot be matched
+LINE 1: (select id        from names) intersect all (select firstname fr...
+                ^^
+LINE 1: ...       from names) intersect all (select firstname from names);
+                                                    ^^^^^^^^^
+ID
+1
+2
+3
+4
+5
+(5 rows)
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT ALL types INTEGER and VARCHAR cannot be matched
+LINE 1: (select 1+id      from names) intersect all (select firstname fr...
+                ^^^^
+LINE 1: ...d      from names) intersect all (select firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT ALL types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) intersect all (select id        f...
+                ^^^^^^^^^
+LINE 1: ...rstname from names) intersect all (select id        from names);
+                                                     ^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT ALL types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) intersect all (select 1+id      f...
+                ^^^^^^^^^
+LINE 1: ...rstname from names) intersect all (select 1+id      from names);
+                                                     ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 1: ...   from names) intersect all (select id,1+id        from names);
+                                                   ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 1: ...  from names) intersect all (select id,firstname   from names);
+                                                  ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 1: ...me from names) intersect all (select 1+id,id        from names);
+                                                     ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 1: ...  from names) intersect all (select 1+id,firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 1: ...   from names) intersect all (select firstname,id   from names);
+                                                          ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 1: ...me from names) intersect all (select firstname,1+id from names);
+                                                          ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 1: ... names) intersect all (select firstname,lastname,id from names);
+                                                   ^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 1: ... names) intersect all (select lastname,id,firstname from names);
+                                                  ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 1: ...m names) intersect all (select *                     from names...
+                                          ^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 1: (select id,1+id        from names) intersect all (select id     ...
+                   ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 1: (select id,firstname   from names) intersect all (select 1+id  ...
+                   ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 1: (select 1+id,id        from names) intersect all (select firstna...
+                     ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 1: (select 1+id,firstname from names) intersect all (select id    ...
+                     ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 1: (select firstname,id   from names) intersect all (select 1+id   ...
+                          ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 1: (select firstname,1+id from names) intersect all (select firstna...
+                          ^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT ALL types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname,lastname from names) intersect all (select fir...
+                          ^^^^^^^^
+LINE 1: ...me from names) intersect all (select firstname,1+id from names);
+                                                          ^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT ALL types INTEGER and VARCHAR cannot be matched
+LINE 1: (select * from (select 1+id from names))                       ...
+                ^
+LINE 1: ...                   intersect all (select firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT ALL types INTEGER and VARCHAR cannot be matched
+LINE 1: (select newid from (select 1+id as newid from names))          ...
+                ^^^^^
+LINE 1: ...                   intersect all (select firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT ALL types INTEGER and VARCHAR cannot be matched
+LINE 1: (select new2id from (select newid+2 as new2id from (select 1+id ...
+                ^^^^^^
+LINE 1: ...ewid from names))) intersect all (select firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT ALL types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) intersect all (select * from (sel...
+                ^^^^^^^^^
+LINE 1: ...m names) intersect all (select * from (select 1+id from names))...
+                                          ^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT ALL types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) intersect all (select newid from ...
+                ^^^^^^^^^
+LINE 1: ...names) intersect all (select newid from (select 1+id as newid f...
+                                        ^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT ALL types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) intersect all (select new2id from...
+                ^^^^^^^^^
+LINE 1: ...names) intersect all (select new2id from (select newid+2 as new2...
+                                        ^^^^^^
 ID
 0
 (1 row)
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : EXCEPT ALL types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select id        from names) except all (select firstname from names);
-        ^^
-Error with syntax near (line 1, column 50):
-
-(select id        from names) except all (select firstname from names);
-                                                 ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id        from names) except all (select firstname from names);
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT types INTEGER and VARCHAR cannot be matched
+LINE 1: (select id        from names) except (select firstname from name...
+                ^^
+LINE 1: ...ect id        from names) except (select firstname from names);
+                                                    ^^^^^^^^^
 ID
 6
 (1 row)
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : EXCEPT ALL types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select 1+id      from names) except all (select firstname from names);
-        ^^^^
-Error with syntax near (line 1, column 50):
-
-(select 1+id      from names) except all (select firstname from names);
-                                                 ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id      from names) except all (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : EXCEPT ALL types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) except all (select id        from names);
-        ^^^^^^^^^
-Error with syntax near (line 1, column 50):
-
-(select firstname from names) except all (select id        from names);
-                                                 ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) except all (select id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : EXCEPT ALL types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) except all (select 1+id      from names);
-        ^^^^^^^^^
-Error with syntax near (line 1, column 50):
-
-(select firstname from names) except all (select 1+id      from names);
-                                                 ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) except all (select 1+id      from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT ALL query must have same number of columns
-Error with syntax near (line 1, column 53):
-
-(select id        from names) except all (select id,1+id        from names);
-                                                    ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id        from names) except all (select id,1+id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT ALL query must have same number of columns
-Error with syntax near (line 1, column 53):
-
-(select 1+id      from names) except all (select id,firstname   from names);
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT types INTEGER and VARCHAR cannot be matched
+LINE 1: (select 1+id      from names) except (select firstname from name...
+                ^^^^
+LINE 1: ...ect 1+id      from names) except (select firstname from names);
                                                     ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id      from names) except all (select id,firstname   from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT ALL query must have same number of columns
-Error with syntax near (line 1, column 55):
-
-(select firstname from names) except all (select 1+id,id        from names);
-                                                      ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) except all (select 1+id,id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT ALL query must have same number of columns
-Error with syntax near (line 1, column 55):
-
-(select id        from names) except all (select 1+id,firstname from names);
-                                                      ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id        from names) except all (select 1+id,firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT ALL query must have same number of columns
-Error with syntax near (line 1, column 60):
-
-(select 1+id      from names) except all (select firstname,id   from names);
-                                                           ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id      from names) except all (select firstname,id   from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT ALL query must have same number of columns
-Error with syntax near (line 1, column 60):
-
-(select firstname from names) except all (select firstname,1+id from names);
-                                                           ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) except all (select firstname,1+id from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT ALL query must have same number of columns
-Error with syntax near (line 1, column 60):
-
-(select id        from names) except all (select firstname,lastname,id from names);
-                                                           ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id        from names) except all (select firstname,lastname,id from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT ALL query must have same number of columns
-Error with syntax near (line 1, column 59):
-
-(select 1+id      from names) except all (select lastname,id,firstname from names);
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) except (select id        from nam...
+                ^^^^^^^^^
+LINE 1: ...lect firstname from names) except (select id        from names);
+                                                     ^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) except (select 1+id      from nam...
+                ^^^^^^^^^
+LINE 1: ...lect firstname from names) except (select 1+id      from names);
+                                                     ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
+LINE 1: ...id        from names) except (select id,1+id        from names);
+                                                   ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
+LINE 1: ...+id      from names) except (select id,firstname   from names);
+                                                  ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
+LINE 1: ...firstname from names) except (select 1+id,id        from names);
+                                                     ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
+LINE 1: ...d        from names) except (select 1+id,firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
+LINE 1: ...1+id      from names) except (select firstname,id   from names);
                                                           ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id      from names) except all (select lastname,id,firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT ALL query must have same number of columns
-Error with syntax near (line 1, column 50):
-
-(select firstname from names) except all (select *                     from names);
-                                                 ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) except all (select *                     from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT ALL query must have same number of columns
-Error with syntax near (line 1, column 12):
-
-(select id,1+id        from names) except all (select id        from names);
-           ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id,1+id        from names) except all (select id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT ALL query must have same number of columns
-Error with syntax near (line 1, column 12):
-
-(select id,firstname   from names) except all (select 1+id      from names);
-           ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select id,firstname   from names) except all (select 1+id      from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT ALL query must have same number of columns
-Error with syntax near (line 1, column 14):
-
-(select 1+id,id        from names) except all (select firstname from names);
-             ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id,id        from names) except all (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT ALL query must have same number of columns
-Error with syntax near (line 1, column 14):
-
-(select 1+id,firstname from names) except all (select id        from names);
-             ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select 1+id,firstname from names) except all (select id        from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT ALL query must have same number of columns
-Error with syntax near (line 1, column 19):
-
-(select firstname,id   from names) except all (select 1+id      from names);
-                  ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname,id   from names) except all (select 1+id      from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each EXCEPT ALL query must have same number of columns
-Error with syntax near (line 1, column 19):
-
-(select firstname,1+id from names) except all (select firstname from names);
-                  ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname,1+id from names) except all (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : EXCEPT ALL types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 19):
-
-(select firstname,lastname from names) except all (select firstname,1+id from names);
-                  ^^^^^^^^
-Error with syntax near (line 1, column 69):
-
-(select firstname,lastname from names) except all (select firstname,1+id from names);
-                                                                    ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname,lastname from names) except all (select firstname,1+id from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : EXCEPT ALL types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select * from (select 1+id from names))                                               except all (select firstname from names);
-        ^
-Error with syntax near (line 1, column 107):
-
-(select * from (select 1+id from names))                                               except all (select firstname from names);
-                                                                                                          ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select * from (select 1+id from names))                                               except all (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : EXCEPT ALL types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select newid from (select 1+id as newid from names))                                  except all (select firstname from names);
-        ^^^^^
-Error with syntax near (line 1, column 107):
-
-(select newid from (select 1+id as newid from names))                                  except all (select firstname from names);
-                                                                                                          ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select newid from (select 1+id as newid from names))                                  except all (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : EXCEPT ALL types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select new2id from (select newid+2 as new2id from (select 1+id as newid from names))) except all (select firstname from names);
-        ^^^^^^
-Error with syntax near (line 1, column 107):
-
-(select new2id from (select newid+2 as new2id from (select 1+id as newid from names))) except all (select firstname from names);
-                                                                                                          ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select new2id from (select newid+2 as new2id from (select 1+id as newid from names))) except all (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : EXCEPT ALL types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) except all (select * from (select 1+id from names))                                              ;
-        ^^^^^^^^^
-Error with syntax near (line 1, column 50):
-
-(select firstname from names) except all (select * from (select 1+id from names))                                              ;
-                                                 ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) except all (select * from (select 1+id from names))                                              ;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : EXCEPT ALL types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) except all (select newid from (select 1+id as newid from names))                                 ;
-        ^^^^^^^^^
-Error with syntax near (line 1, column 50):
-
-(select firstname from names) except all (select newid from (select 1+id as newid from names))                                 ;
-                                                 ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) except all (select newid from (select 1+id as newid from names))                                 ;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : EXCEPT ALL types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select firstname from names) except all (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
-        ^^^^^^^^^
-Error with syntax near (line 1, column 50):
-
-(select firstname from names) except all (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
-                                                 ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: (select firstname from names) except all (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION types INTEGER and VARCHAR cannot be matched
-Error with syntax near (line 1, column 22):
-
-SELECT a.id as A_id, b.id as B_id
-                     ^^^^^^^^^^^^
-Error with syntax near (line 4, column 21):
-
-SELECT a.id as A_id, b.id as B_id
-FROM names a INNER JOIN names b ON a.firstName = b.firstName
-UNION
-SELECT id as A_id, "" AS B_id
-                    ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT a.id as A_id, b.id as B_id
-FROM names a INNER JOIN names b ON a.firstName = b.firstName
-UNION
-SELECT id as A_id, "" AS B_id
-FROM names a
-WHERE a.firstName NOT IN (SELECT b.firstName FROM names b);
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
+LINE 1: ...firstname from names) except (select firstname,1+id from names);
+                                                          ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
+LINE 1: ...   from names) except (select firstname,lastname,id from names);
+                                                   ^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
+LINE 1: ...   from names) except (select lastname,id,firstname from names);
+                                                  ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
+LINE 1: ...ame from names) except (select *                     from names...
+                                          ^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
+LINE 1: (select id,1+id        from names) except (select id        from...
+                   ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
+LINE 1: (select id,firstname   from names) except (select 1+id      fro...
+                   ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
+LINE 1: (select 1+id,id        from names) except (select firstname from...
+                     ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
+LINE 1: (select 1+id,firstname from names) except (select id        fro...
+                     ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
+LINE 1: (select firstname,id   from names) except (select 1+id      from...
+                          ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
+LINE 1: (select firstname,1+id from names) except (select firstname from...
+                          ^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname,lastname from names) except (select firstname,...
+                          ^^^^^^^^
+LINE 1: ...,lastname from names) except (select firstname,1+id from names);
+                                                          ^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT types INTEGER and VARCHAR cannot be matched
+LINE 1: (select * from (select 1+id from names))                       ...
+                ^
+LINE 1: ...                          except (select firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT types INTEGER and VARCHAR cannot be matched
+LINE 1: (select newid from (select 1+id as newid from names))          ...
+                ^^^^^
+LINE 1: ...                          except (select firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT types INTEGER and VARCHAR cannot be matched
+LINE 1: (select new2id from (select newid+2 as new2id from (select 1+id ...
+                ^^^^^^
+LINE 1: ...id as newid from names))) except (select firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) except (select * from (select 1+i...
+                ^^^^^^^^^
+LINE 1: ...ame from names) except (select * from (select 1+id from names))...
+                                          ^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) except (select newid from (select...
+                ^^^^^^^^^
+LINE 1: ...e from names) except (select newid from (select 1+id as newid f...
+                                        ^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) except (select new2id from (selec...
+                ^^^^^^^^^
+LINE 1: ...e from names) except (select new2id from (select newid+2 as new2...
+                                        ^^^^^^
+ID
+0
+(1 row)
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT ALL types INTEGER and VARCHAR cannot be matched
+LINE 1: (select id        from names) except all (select firstname from ...
+                ^^
+LINE 1: ...id        from names) except all (select firstname from names);
+                                                    ^^^^^^^^^
+ID
+6
+(1 row)
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT ALL types INTEGER and VARCHAR cannot be matched
+LINE 1: (select 1+id      from names) except all (select firstname from ...
+                ^^^^
+LINE 1: ...1+id      from names) except all (select firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT ALL types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) except all (select id        from...
+                ^^^^^^^^^
+LINE 1: ... firstname from names) except all (select id        from names);
+                                                     ^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT ALL types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) except all (select 1+id      from...
+                ^^^^^^^^^
+LINE 1: ... firstname from names) except all (select 1+id      from names);
+                                                     ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
+LINE 1: ...      from names) except all (select id,1+id        from names);
+                                                   ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
+LINE 1: ...     from names) except all (select id,firstname   from names);
+                                                  ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
+LINE 1: ...tname from names) except all (select 1+id,id        from names);
+                                                     ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
+LINE 1: ...     from names) except all (select 1+id,firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
+LINE 1: ...      from names) except all (select firstname,id   from names);
+                                                          ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
+LINE 1: ...tname from names) except all (select firstname,1+id from names);
+                                                          ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
+LINE 1: ...rom names) except all (select firstname,lastname,id from names);
+                                                   ^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
+LINE 1: ...rom names) except all (select lastname,id,firstname from names);
+                                                  ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
+LINE 1: ...from names) except all (select *                     from names...
+                                          ^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
+LINE 1: (select id,1+id        from names) except all (select id        ...
+                   ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
+LINE 1: (select id,firstname   from names) except all (select 1+id     ...
+                   ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
+LINE 1: (select 1+id,id        from names) except all (select firstname ...
+                     ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
+LINE 1: (select 1+id,firstname from names) except all (select id       ...
+                     ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
+LINE 1: (select firstname,id   from names) except all (select 1+id      ...
+                          ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
+LINE 1: (select firstname,1+id from names) except all (select firstname ...
+                          ^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT ALL types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname,lastname from names) except all (select firstn...
+                          ^^^^^^^^
+LINE 1: ...tname from names) except all (select firstname,1+id from names);
+                                                          ^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT ALL types INTEGER and VARCHAR cannot be matched
+LINE 1: (select * from (select 1+id from names))                       ...
+                ^
+LINE 1: ...                      except all (select firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT ALL types INTEGER and VARCHAR cannot be matched
+LINE 1: (select newid from (select 1+id as newid from names))          ...
+                ^^^^^
+LINE 1: ...                      except all (select firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT ALL types INTEGER and VARCHAR cannot be matched
+LINE 1: (select new2id from (select newid+2 as new2id from (select 1+id ...
+                ^^^^^^
+LINE 1: ...s newid from names))) except all (select firstname from names);
+                                                    ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT ALL types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) except all (select * from (select...
+                ^^^^^^^^^
+LINE 1: ...from names) except all (select * from (select 1+id from names))...
+                                          ^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT ALL types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) except all (select newid from (se...
+                ^^^^^^^^^
+LINE 1: ...om names) except all (select newid from (select 1+id as newid f...
+                                        ^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT ALL types VARCHAR and INTEGER cannot be matched
+LINE 1: (select firstname from names) except all (select new2id from (s...
+                ^^^^^^^^^
+LINE 1: ...om names) except all (select new2id from (select newid+2 as new2...
+                                        ^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types INTEGER and VARCHAR cannot be matched
+LINE 1: SELECT a.id as A_id, b.id as B_id
+                             ^^^^^^^^^^^^
+LINE 4: SELECT id as A_id, "" AS B_id
+                            ^^^^^^^^^
 ID|FIRSTNAME|LASTNAME|???|???|???
 0|Zero|Cool|0|Zero|Cool
 1|Acid|Burn|1|Acid|Burn

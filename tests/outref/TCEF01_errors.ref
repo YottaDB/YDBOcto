@@ -11,47 +11,24 @@ SELECT COALESCE(invalid_column) FROM names;
 SELECT COALESCE(NULL, 'a', 1.2);
 SELECT COALESCE('a', 1.2, 1);
 SELECT COALESCE(NULL, 1, 'a');
-Error with syntax near (line 1, column 17):
-
-SELECT COALESCE();
-                ^
+LINE 1: SELECT COALESCE();
+                        ^
 syntax error, unexpected RIGHT_PAREN
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COALESCE();
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALID_COLUMN
-Error with syntax near (line 1, column 17):
-
-SELECT COALESCE(invalid_column) FROM names;
-                ^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COALESCE(invalid_column) FROM names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right NUMERIC
-Error with syntax near (line 1, column 17):
-
-SELECT COALESCE(NULL, 'a', 1.2);
-                ^^^^
-Error with syntax near (line 1, column 28):
-
-SELECT COALESCE(NULL, 'a', 1.2);
-                           ^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COALESCE(NULL, 'a', 1.2);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right NUMERIC
-Error with syntax near (line 1, column 19):
-
-SELECT COALESCE('a', 1.2, 1);
-                  ^
-Error with syntax near (line 1, column 22):
-
-SELECT COALESCE('a', 1.2, 1);
-                     ^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COALESCE('a', 1.2, 1);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
-Error with syntax near (line 1, column 17):
-
-SELECT COALESCE(NULL, 1, 'a');
-                ^^^^
-Error with syntax near (line 1, column 28):
-
-SELECT COALESCE(NULL, 1, 'a');
-                           ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COALESCE(NULL, 1, 'a');
-
+[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID_COLUMN
+LINE 1: SELECT COALESCE(invalid_column) FROM names;
+                        ^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right NUMERIC
+LINE 1: SELECT COALESCE(NULL, 'a', 1.2);
+                        ^^^^
+LINE 1: SELECT COALESCE(NULL, 'a', 1.2);
+                                   ^^^
+[ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right NUMERIC
+LINE 1: SELECT COALESCE('a', 1.2, 1);
+                          ^
+LINE 1: SELECT COALESCE('a', 1.2, 1);
+                             ^^^
+[ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 1: SELECT COALESCE(NULL, 1, 'a');
+                        ^^^^
+LINE 1: SELECT COALESCE(NULL, 1, 'a');
+                                   ^

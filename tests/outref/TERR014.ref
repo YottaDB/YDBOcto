@@ -17,32 +17,15 @@ select * from aaaa;
 select * from
 
 aaaa;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: AAAA
-Error with syntax near (line 1, column 15):
-
-select * from aaaa;
-              ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from aaaa;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: AAAA
-Error with syntax near (line 1, column 15):
-
-select * from aaaa;
-              ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from aaaa;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: AAAA
-Error with syntax near (line 1, column 15):
-
-select * from aaaa;
-              ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from aaaa;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: AAAA
-Error with syntax near (line 3, column 1):
-
-select * from
-
-aaaa;
-^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from
-
-aaaa;
-
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: AAAA
+LINE 1: select * from aaaa;
+                      ^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: AAAA
+LINE 1: select * from aaaa;
+                      ^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: AAAA
+LINE 1: select * from aaaa;
+                      ^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: AAAA
+LINE 3: aaaa;
+        ^^^^

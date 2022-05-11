@@ -5,34 +5,18 @@ select NOT 'test' from names n1;
 select NOT n1.* from names n1;;
 -- Test that a boolean typed operand (`id = 1`) is still not accepted by NOT if it is in table.* format
 select NOT n1.* from (select id = 1 from names) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_NOT_OPERATION_TYPE_MISMATCH : VARCHAR type operand is incorrect for NOT operation. Need a boolean operand.
-Error with syntax near (line 1, column 12):
-
-select NOT n1.lastname from names n1;
-           ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select NOT n1.lastname from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_NOT_OPERATION_TYPE_MISMATCH : INTEGER type operand is incorrect for NOT operation. Need a boolean operand.
-Error with syntax near (line 1, column 12):
-
-select NOT 1 from names n1;
-           ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select NOT 1 from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INPUT_SYNTAX_BOOL : Invalid input syntax for type boolean: 'VARCHAR' is not a valid boolean value
-Error with syntax near (line 1, column 17):
-
-select NOT 'test' from names n1;
-                ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select NOT 'test' from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_NOT_OPERATION_TYPE_MISMATCH : TABLENAME.* type operand is incorrect for NOT operation. Need a boolean operand.
-Error with syntax near (line 1, column 12):
-
-select NOT n1.* from names n1;;
-           ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select NOT n1.* from names n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_NOT_OPERATION_TYPE_MISMATCH : TABLENAME.* type operand is incorrect for NOT operation. Need a boolean operand.
-Error with syntax near (line 1, column 12):
-
-select NOT n1.* from (select id = 1 from names) n1;
-           ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select NOT n1.* from (select id = 1 from names) n1;
-
+[ERROR]: ERR_NOT_OPERATION_TYPE_MISMATCH: VARCHAR type operand is incorrect for NOT operation. Need a boolean operand.
+LINE 1: select NOT n1.lastname from names n1;
+                   ^^^^^^^^^^^
+[ERROR]: ERR_NOT_OPERATION_TYPE_MISMATCH: INTEGER type operand is incorrect for NOT operation. Need a boolean operand.
+LINE 1: select NOT 1 from names n1;
+                   ^
+[ERROR]: ERR_INVALID_INPUT_SYNTAX_BOOL: Invalid input syntax for type boolean: 'VARCHAR' is not a valid boolean value
+LINE 1: select NOT 'test' from names n1;
+                        ^
+[ERROR]: ERR_NOT_OPERATION_TYPE_MISMATCH: TABLENAME.* type operand is incorrect for NOT operation. Need a boolean operand.
+LINE 1: select NOT n1.* from names n1;;
+                   ^^^^
+[ERROR]: ERR_NOT_OPERATION_TYPE_MISMATCH: TABLENAME.* type operand is incorrect for NOT operation. Need a boolean operand.
+LINE 1: select NOT n1.* from (select id = 1 from names) n1;
+                   ^^^^

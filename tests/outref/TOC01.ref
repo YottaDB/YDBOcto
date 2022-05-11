@@ -1,10 +1,10 @@
 # Test that [tabletype = "READONLY"] does not issue error
 # Test that [tabletype = "READWRITE"] does not issue error
 # Test that [tabletype = "readonly"] issues error
-[ERROR] PATH:LINENUM DATE TIME : ERR_BAD_CONFIG : Bad config setting in $PWD/octo.conf: tabletype can only take on string values READONLY or READWRITE
+[ERROR]: ERR_BAD_CONFIG: Bad config setting in $PWD/octo.conf: tabletype can only take on string values READONLY or READWRITE
 # Test that [tabletype = "readwrite"] issues error
-[ERROR] PATH:LINENUM DATE TIME : ERR_BAD_CONFIG : Bad config setting in $PWD/octo.conf: tabletype can only take on string values READONLY or READWRITE
+[ERROR]: ERR_BAD_CONFIG: Bad config setting in $PWD/octo.conf: tabletype can only take on string values READONLY or READWRITE
 # Test that [tabletype = "anyothervalue"] issues error
-[ERROR] PATH:LINENUM DATE TIME : ERR_BAD_CONFIG : Bad config setting in $PWD/octo.conf: tabletype can only take on string values READONLY or READWRITE
+[ERROR]: ERR_BAD_CONFIG: Bad config setting in $PWD/octo.conf: tabletype can only take on string values READONLY or READWRITE
 # Test that [tabletype = 1] (any integer value) issues error
-[ERROR] PATH:LINENUM DATE TIME : ERR_BAD_CONFIG : Bad config setting in $PWD/octo.conf: tabletype can only take on string values (not integer values)
+[ERROR]: ERR_BAD_CONFIG: Bad config setting in $PWD/octo.conf: tabletype can only take on string values (not integer values)

@@ -69,70 +69,36 @@ ID|FIRSTNAME|LASTNAME|ID|FIRSTNAME|LASTNAME
 5|Zero|Cool|4|Joey|
 5|Zero|Cool|5|Zero|Cool
 (36 rows)
-[ERROR] PATH:LINENUM DATE TIME : ERR_AMBIGUOUS_COLUMN_NAME : Ambiguous column name 'FIRSTNAME': qualify name for safe execution
-Error with syntax near (line 1, column 16):
-
-SELECT * FROM (SELECT * FROM names n1, names n2) n3 WHERE firstName = 'Zero';
-               ^^^^^^
-Error with syntax near (line 1, column 59):
-
-SELECT * FROM (SELECT * FROM names n1, names n2) n3 WHERE firstName = 'Zero';
-                                                          ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM (SELECT * FROM names n1, names n2) n3 WHERE firstName = 'Zero';
-[ERROR] PATH:LINENUM DATE TIME : ERR_AMBIGUOUS_COLUMN_NAME : Ambiguous column name 'FIRSTNAME': qualify name for safe execution
-Error with syntax near (line 1, column 50):
-
-SELECT * FROM (SELECT * FROM names n1, names n2) n3 WHERE n3.firstName = 'Zero';
-                                                 ^^
-Error with syntax near (line 1, column 59):
-
-SELECT * FROM (SELECT * FROM names n1, names n2) n3 WHERE n3.firstName = 'Zero';
-                                                          ^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM (SELECT * FROM names n1, names n2) n3 WHERE n3.firstName = 'Zero';
-[ERROR] PATH:LINENUM DATE TIME : ERR_COMMON_COLUMN : Common column name 'ID' appears more than once in left side of NATURAL JOIN
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4;
-[ERROR] PATH:LINENUM DATE TIME : ERR_COMMON_COLUMN : Common column name 'ID' appears more than once in left side of NATURAL JOIN
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4 WHERE n4.firstName = 'Zero';
-[ERROR] PATH:LINENUM DATE TIME : ERR_COMMON_COLUMN : Common column name 'ID' appears more than once in right side of NATURAL JOIN
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n4;
-[ERROR] PATH:LINENUM DATE TIME : ERR_COMMON_COLUMN : Common column name 'ID' appears more than once in right side of NATURAL JOIN
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n4 WHERE n4.firstName = 'Zero';
-[ERROR] PATH:LINENUM DATE TIME : ERR_JOIN_ALIAS_DUPLICATE : table name 'N3' specified more than once
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --	as well as a duplicate table alias name (n3)
-SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n3;
-[ERROR] PATH:LINENUM DATE TIME : ERR_JOIN_ALIAS_DUPLICATE : table name 'N3' specified more than once
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n3 WHERE n3.firstName = 'Zero';
-[ERROR] PATH:LINENUM DATE TIME : ERR_JOIN_ALIAS_DUPLICATE : table name 'N3' specified more than once
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n3;
-[ERROR] PATH:LINENUM DATE TIME : ERR_JOIN_ALIAS_DUPLICATE : table name 'N3' specified more than once
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n3 WHERE n3.firstName = 'Zero';
-[ERROR] PATH:LINENUM DATE TIME : ERR_AMBIGUOUS_COLUMN_NAME : Ambiguous column name 'COL': qualify name for safe execution
-Error with syntax near (line 1, column 56):
-
-SELECT id AS col, firstname AS col from names ORDER BY col;
-                                                       ^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id AS col, firstname AS col from names ORDER BY col;
-[ERROR] PATH:LINENUM DATE TIME : ERR_AMBIGUOUS_COLUMN_NAME : Ambiguous column name 'ID': qualify name for safe execution
-Error with syntax near (line 1, column 54):
-
-SELECT id AS id, firstname AS id from names ORDER BY id;
-                                                     ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id AS id, firstname AS id from names ORDER BY id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_AMBIGUOUS_COLUMN_NAME : Ambiguous column name 'ID': qualify name for safe execution
-Error with syntax near (line 1, column 8):
-
-SELECT id FROM names n1 INNER JOIN names n2 ON n1.id < n2.id;
-       ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id FROM names n1 INNER JOIN names n2 ON n1.id < n2.id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_AMBIGUOUS_COLUMN_NAME : Ambiguous column name 'ID': qualify name for safe execution
-Error with syntax near (line 1, column 67):
-
-SELECT n1.id FROM names n1 INNER JOIN names n2 ON n1.id = (SELECT id);
-                                                                  ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT n1.id FROM names n1 INNER JOIN names n2 ON n1.id = (SELECT id);
-[ERROR] PATH:LINENUM DATE TIME : ERR_AMBIGUOUS_COLUMN_NAME : Ambiguous column name 'ID': qualify name for safe execution
-Error with syntax near (line 1, column 53):
-
-SELECT a.lastname FROM names a LEFT JOIN names b ON id = 3;
-                                                    ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT a.lastname FROM names a LEFT JOIN names b ON id = 3;
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name 'FIRSTNAME': qualify name for safe execution
+LINE 1: SELECT * FROM (SELECT * FROM names n1, names n2) n3 WHERE firstN...
+                       ^^^^^^
+LINE 1: ...(SELECT * FROM names n1, names n2) n3 WHERE firstName = 'Zero';
+                                                       ^^^^^^^^^
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name 'FIRSTNAME': qualify name for safe execution
+LINE 1: ...ELECT * FROM names n1, names n2) n3 WHERE n3.firstName = 'Zero';
+                                            ^^
+LINE 1: ...ELECT * FROM names n1, names n2) n3 WHERE n3.firstName = 'Zero';
+                                                     ^^^^^^^^^^^^
+[ERROR]: ERR_COMMON_COLUMN: Common column name 'ID' appears more than once in left side of NATURAL JOIN
+[ERROR]: ERR_COMMON_COLUMN: Common column name 'ID' appears more than once in left side of NATURAL JOIN
+[ERROR]: ERR_COMMON_COLUMN: Common column name 'ID' appears more than once in right side of NATURAL JOIN
+[ERROR]: ERR_COMMON_COLUMN: Common column name 'ID' appears more than once in right side of NATURAL JOIN
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'N3' specified more than once
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'N3' specified more than once
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'N3' specified more than once
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'N3' specified more than once
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name 'COL': qualify name for safe execution
+LINE 1: SELECT id AS col, firstname AS col from names ORDER BY col;
+                                                               ^^^
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name 'ID': qualify name for safe execution
+LINE 1: SELECT id AS id, firstname AS id from names ORDER BY id;
+                                                             ^^
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name 'ID': qualify name for safe execution
+LINE 1: SELECT id FROM names n1 INNER JOIN names n2 ON n1.id < n2.id;
+               ^^
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name 'ID': qualify name for safe execution
+LINE 1: ... n1.id FROM names n1 INNER JOIN names n2 ON n1.id = (SELECT id);
+                                                                       ^^
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name 'ID': qualify name for safe execution
+LINE 1: SELECT a.lastname FROM names a LEFT JOIN names b ON id = 3;
+                                                            ^^

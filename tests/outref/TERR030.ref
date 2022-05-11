@@ -30,95 +30,50 @@ SELECT firstname,lastname,id FROM names UNION ALL (VALUES (0, 'Zero', 'Cool'), (
 -- Test of ERR_SUBQUERY_ONE_COLUMN
 SELECT * FROM NAMES WHERE id IN (values (3,4,6,7));
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_VALUES_LENGTH : VALUES lists must all be the same length
-Error with syntax near (line 1, column 23):
-
-SELECT * FROM (VALUES (1), (2,3)) AS MyTable;
-                      ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM (VALUES (1), (2,3)) AS MyTable;
-[ERROR] PATH:LINENUM DATE TIME : ERR_VALUES_LENGTH : VALUES lists must all be the same length
-Error with syntax near (line 1, column 33):
-
-SELECT * FROM (VALUES (1), (2), (3), (2,3)) AS MyTable;
-                                ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM (VALUES (1), (2), (3), (2,3)) AS MyTable;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
-Error with syntax near (line 1, column 24):
-
-SELECT * FROM (VALUES (1), ('abcd')) AS abcd;
-                       ^
-Error with syntax near (line 1, column 34):
-
-SELECT * FROM (VALUES (1), ('abcd')) AS abcd;
-                                 ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM (VALUES (1), ('abcd')) AS abcd;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left NUMERIC, right BOOLEAN
-Error with syntax near (line 1, column 24):
-
-SELECT * FROM (VALUES (1), (1.5), (true)) AS abcd;
-                       ^
-Error with syntax near (line 1, column 36):
-
-SELECT * FROM (VALUES (1), (1.5), (true)) AS abcd;
-                                   ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM (VALUES (1), (1.5), (true)) AS abcd;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
-Error with syntax near (line 1, column 82):
-
-SELECT id FROM names WHERE id = (SELECT * FROM (VALUES (NULL),('abcd')) n1 WHERE column1 = 1);
-                                                                                 ^^^^^^^
-Error with syntax near (line 1, column 92):
-
-SELECT id FROM names WHERE id = (SELECT * FROM (VALUES (NULL),('abcd')) n1 WHERE column1 = 1);
-                                                                                           ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id FROM names WHERE id = (SELECT * FROM (VALUES (NULL),('abcd')) n1 WHERE column1 = 1);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
-Error with syntax near (line 1, column 28):
-
-SELECT id FROM names WHERE id = (SELECT * FROM (VALUES (NULL),('abcd')) n1 WHERE column1 IS NOT NULL);
-                           ^^
-Error with syntax near (line 1, column 34):
-
-SELECT id FROM names WHERE id = (SELECT * FROM (VALUES (NULL),('abcd')) n1 WHERE column1 IS NOT NULL);
-                                 ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id FROM names WHERE id = (SELECT * FROM (VALUES (NULL),('abcd')) n1 WHERE column1 IS NOT NULL);
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: A
-Error with syntax near (line 1, column 8):
-
-SELECT a, b FROM (VALUES (1, 2), (3, 4), (5, 6), (7, 8), (9, 10) ) AS MyTable;
-       ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: B
-Error with syntax near (line 1, column 11):
-
-SELECT a, b FROM (VALUES (1, 2), (3, 4), (5, 6), (7, 8), (9, 10) ) AS MyTable;
-          ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT a, b FROM (VALUES (1, 2), (3, 4), (5, 6), (7, 8), (9, 10) ) AS MyTable;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: COL1
-Error with syntax near (line 1, column 8):
-
-SELECT col1 FROM (VALUES (1)) as MyTable;
-       ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT col1 FROM (VALUES (1)) as MyTable;
-Error with syntax near (line 1, column 9):
-
-VALUES (VALUES (1));
-        ^^^^^^
+[ERROR]: ERR_VALUES_LENGTH: VALUES lists must all be the same length
+LINE 1: SELECT * FROM (VALUES (1), (2,3)) AS MyTable;
+                              ^^^^^^^^^^
+[ERROR]: ERR_VALUES_LENGTH: VALUES lists must all be the same length
+LINE 1: SELECT * FROM (VALUES (1), (2), (3), (2,3)) AS MyTable;
+                                        ^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 1: SELECT * FROM (VALUES (1), ('abcd')) AS abcd;
+                               ^
+LINE 1: SELECT * FROM (VALUES (1), ('abcd')) AS abcd;
+                                         ^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left NUMERIC, right BOOLEAN
+LINE 1: SELECT * FROM (VALUES (1), (1.5), (true)) AS abcd;
+                               ^
+LINE 1: SELECT * FROM (VALUES (1), (1.5), (true)) AS abcd;
+                                           ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: ... (SELECT * FROM (VALUES (NULL),('abcd')) n1 WHERE column1 = 1);
+                                                             ^^^^^^^
+LINE 1: ... (SELECT * FROM (VALUES (NULL),('abcd')) n1 WHERE column1 = 1);
+                                                                       ^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 1: SELECT id FROM names WHERE id = (SELECT * FROM (VALUES (NULL),('...
+                                   ^^
+LINE 1: ...CT id FROM names WHERE id = (SELECT * FROM (VALUES (NULL),('abcd...
+                                        ^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: A
+LINE 1: SELECT a, b FROM (VALUES (1, 2), (3, 4), (5, 6), (7, 8), (9, 10...
+               ^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: B
+LINE 1: SELECT a, b FROM (VALUES (1, 2), (3, 4), (5, 6), (7, 8), (9, 10...
+                  ^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: COL1
+LINE 1: SELECT col1 FROM (VALUES (1)) as MyTable;
+               ^^^^
+LINE 1: VALUES (VALUES (1));
+                ^^^^^^
 syntax error, unexpected VALUES
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: VALUES (VALUES (1));
-Error with syntax near (line 1, column 27):
-
-SELECT * FROM (VALUES (1, SELECT 1)) AS abcd;
-                          ^^^^^^
+LINE 1: SELECT * FROM (VALUES (1, SELECT 1)) AS abcd;
+                                  ^^^^^^
 syntax error, unexpected SELECT
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM (VALUES (1, SELECT 1)) AS abcd;
-[ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_MULTIPLE_ROWS : More than one row returned by a subquery used as an expression
-[ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_MULTIPLE_ROWS : More than one row returned by a subquery used as an expression
-[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION ALL types VARCHAR and INTEGER cannot be matched
-Error with syntax near (line 1, column 8):
-
-SELECT firstname,lastname,id FROM names UNION ALL (VALUES (0, 'Zero', 'Cool'), (1, 'Acid', 'Burn'), (2, 'Cereal', 'Killer'), (3, 'Lord', 'Nikon'), (4, 'Joey', ''), (5, 'Zero', 'Cool'));
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT firstname,lastname,id FROM names UNION ALL (VALUES (0, 'Zero', 'Cool'), (1, 'Acid', 'Burn'), (2, 'Cereal', 'Killer'), (3, 'Lord', 'Nikon'), (4, 'Joey', ''), (5, 'Zero', 'Cool'));
-[ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_ONE_COLUMN : Subquery must return only one column
+[ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
+[ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
+LINE 1: SELECT firstname,lastname,id FROM names UNION ALL (VALUES (0, '...
+               ^^^^^^^^^
+[ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column

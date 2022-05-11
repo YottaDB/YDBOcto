@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -55,8 +55,8 @@ void ydb_error_check(int status, char *file, int line);
 #define INFO(err, ...) \
 	INFO >= config->verbosity_level ? octo_log(__LINE__, __FILE__, INFO, INFO_Severity, err, ##__VA_ARGS__) : (void)0;
 // WARNING, ERROR and FATAL severity errors should always be reported, so don't bother checking the verbosity level
-#define WARNING(err, ...) octo_log(__LINE__, __FILE__, ERROR, WARNING_Severity, err, ##__VA_ARGS__);
-#define ERROR(err, ...)	  octo_log(__LINE__, __FILE__, ERROR, ERROR_Severity, err, ##__VA_ARGS__);
-#define FATAL(err, ...)	  octo_log(__LINE__, __FILE__, ERROR, FATAL_Severity, err, ##__VA_ARGS__);
+#define WARNING(err, ...) octo_log(__LINE__, __FILE__, config->verbosity_level, WARNING_Severity, err, ##__VA_ARGS__);
+#define ERROR(err, ...)	  octo_log(__LINE__, __FILE__, config->verbosity_level, ERROR_Severity, err, ##__VA_ARGS__);
+#define FATAL(err, ...)	  octo_log(__LINE__, __FILE__, config->verbosity_level, FATAL_Severity, err, ##__VA_ARGS__);
 
 #endif

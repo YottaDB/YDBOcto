@@ -14,12 +14,9 @@ ABS
 1
 (6 rows)
 DROP FUNCTION
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'ABS' defined with given parameter types (INTEGER)
-Error with syntax near (line 1, column 8):
-
-SELECT ABS(-1) FROM names;
-       ^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT ABS(-1) FROM names;
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'ABS' defined with given parameter types (INTEGER)
+LINE 1: SELECT ABS(-1) FROM names;
+               ^^^
 Remaining function definitions (hashes):
 --> Found: ^%ydboctoocto("functions","ABS","%ydboctoF0BXSKYtCkTUXzFwpivpB68")
 Successfully deleted function "ABS" from pg_catalog.pg_proc

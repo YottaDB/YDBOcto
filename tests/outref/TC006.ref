@@ -1,10 +1,4 @@
-[ERROR] PATH:LINENUM DATE TIME : ERR_MULTIPLE_ZERO_KEYS : Multiple 1 keys found for table T1
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: create table t1 (a int primary key, b int key num 1, c int key num 1);
-
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: T1
-Error with syntax near (line 1, column 15):
-
-select * from t1;
-              ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from t1;
-
+[ERROR]: ERR_MULTIPLE_ZERO_KEYS: Multiple 1 keys found for table T1
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: T1
+LINE 1: select * from t1;
+                      ^^

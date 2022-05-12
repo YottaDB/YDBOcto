@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -46,6 +46,17 @@ int auto_load_octo_seed_if_needed(void) {
 	boolean_t    auto_load_needed, release_ddl_lock;
 	ydb_buffer_t locksub;
 	boolean_t    save_allow_schema_changes;
+
+	/* We have had instances where YDBOCTO_GIT_COMMIT_VERSION does not get generated properly (GIT-NOTFOUND)
+	 * rather than the proper 40 hex digit SHA1 hash. If this happens, and we are getting data from
+	 * ^%ydboctoocto(OCTOLIT_SEEDFMT), we will fail with this error:
+	 *
+	 * YDB-E-INVSTRLEN, Invalid string length 40: max 13
+	 *
+	 * ... because the size of fmt_buff (now = "GIT-NOTFOUND") is not large enough to get the 40 characters
+	 * originally stored in YottaDB. As a precaution, assert that the hash is 40 characters long + 1 NULL.
+	 */
+	assert(sizeof(fmt_buff) == 41);
 
 	/* Check if binary definitions (tables or functions) need to be auto upgraded. They need to be if
 	 * ^%ydboctoocto(OCTOLIT_SEEDFMT) is different from YDBOCTO_GIT_COMMIT_VERSION.

@@ -1,0 +1,12 @@
+select count(*) from `SORT_TEMP_S_F_D_R_J_F_DATA`;
+select count(*) from `SORT_TEMP_S_F_D_R_J_F_DATA` where `RELATIONAL_START_FILE_NO` is NULL;
+select count(*) from `SORT_TEMP_S_F_D_R_J_F_DATA` where `RELATIONAL_START_FILE_NO` is not NULL;
+COUNT(*)
+105
+(1 row)
+COUNT(*)
+12
+(1 row)
+COUNT(*)
+93
+(1 row)

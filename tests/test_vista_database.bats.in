@@ -187,3 +187,8 @@ setup() {
 	load_fixture TVD0007.sql subtest novv
 	verify_output TVD0007 output.txt
 }
+
+@test "TVD0008 : AIM#60 VistA test case (non-Fileman compliant data)" {
+	load_fixture TVD0008.sql subtest novv
+	verify_output TVD0008 output.txt
+}

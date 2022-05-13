@@ -937,7 +937,10 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 			# Note that "run_multiple_query_files.java" produces output even for DML/DDL commands (e.g. INSERT INTO)
 			# and not just for "SELECT" so it is safe to assume that the *.psql.out and *.octo.out files exist.
 			# Postgres displays boolean values as t/f whereas Octo displays them as 1/0 so fix that before the diff.
-			cat $nocomment_query_file.psql.out | sed 's/\<t\>/1/g;s/\<f\>/0/g;' >& $nocomment_query_file.ref
+			# cat $nocomment_query_file.psql.out | sed 's/\<t\>/1/g;s/\<f\>/0/g;' >& $nocomment_query_file.ref
+			mv $nocomment_query_file.octo.out $nocomment_query_file.octo.out.tmp
+			cat $nocomment_query_file.octo.out.tmp | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' >& $nocomment_query_file.octo.out
+			cat $nocomment_query_file.psql.out | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' >& $nocomment_query_file.ref
 			query_num=`echo $nocomment_query_file | sed 's/.*_nocomment-//g'`
 			query_file="$fname"_comment-"$query_num"
 			# Distinction between commented and non-commented query file is required
@@ -962,13 +965,17 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 		# most of the times (sometimes they might match, but be in different case etc.). Note that SET operations might
 		# start with "(SELECT ...) UNION (...)" therefore you need to also check for "(select" below.
 		# For all other queries like DROP TABLE, CREATE TABLE, INSERT INTO, DELETE FROM, no need to do this trimming.
+
+		# To get the consecutive `f`'s replacement accurate different placement variations are considered and double
+		# invocation of `sed` is performed. Refer https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/977#note_732139543
+		# for more details.
 		querytype=`awk 'NR==1 {print tolower($1);}' $query_file`
 		if [[ "select" == $querytype || "(select" == $querytype || "values" == $querytype ]]; then
-			tail -n +2 $fname.octo.out.tmp | sed 's/\<t\>/1/g;s/\<f\>/0/g;' &> $fname.octo.out
-			tail -n +2 $fname.psql.out | sed 's/\<t\>/1/g;s/\<f\>/0/g;' &> $fname.ref
+			tail -n +2 $fname.octo.out.tmp | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' &> $fname.octo.out
+			tail -n +2 $fname.psql.out | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' &> $fname.ref
 		else
-			sed 's/\<t\>/1/g;s/\<f\>/0/g;' $fname.octo.out.tmp &> $fname.octo.out
-			sed 's/\<t\>/1/g;s/\<f\>/0/g;' $fname.psql.out >& $fname.ref
+			sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' $fname.octo.out.tmp | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' &> $fname.octo.out
+			sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' $fname.psql.out | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' >& $fname.ref
 		fi
 		run_query_verify $query_file $fname
 	fi

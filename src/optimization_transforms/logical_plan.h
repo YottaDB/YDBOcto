@@ -113,6 +113,10 @@ typedef struct LpPieceNumber {
 
 typedef struct LpDefault {
 	struct LogicalPlan *operand[2];
+	/* Following field is set by lp_generate_where using group_by_fields_t data gathered from qualify_statement() calls. */
+	int group_by_column_num; /* Used to indicate that a GROUP BY computation for this node exists fetch results
+				  * from it using this value as index.
+				  */
 } LpDefault;
 
 /* Extra fields needed by LP_TABLE_JOIN */

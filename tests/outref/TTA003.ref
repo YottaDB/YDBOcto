@@ -92,15 +92,15 @@ SELECT lastname FROM names GROUP BY names.* ORDER BY firstname;
 [ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names GROUP BY names.*;
 [ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 1, column 46):
-
-SELECT id FROM names GROUP BY names.* HAVING id < 1;
-                                             ^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 1, column 8):
 
 SELECT id FROM names GROUP BY names.* HAVING id < 1;
        ^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 1, column 46):
+
+SELECT id FROM names GROUP BY names.* HAVING id < 1;
+                                             ^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id FROM names GROUP BY names.* HAVING id < 1;
 [ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 1, column 53):

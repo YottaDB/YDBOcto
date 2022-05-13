@@ -10,7 +10,7 @@
 #								#
 #################################################################
 
--- TGB19 : OCTO767 : Issue ERR_GROUP_BY_OR_AGGREGATE_FUNCTION error even if GROUP BY in sub query uses outer query columns
-
-SELECT id,firstname FROM names n1 WHERE id IN (SELECT n2.id FROM names n2 group by n1.id);
-SELECT id,firstname FROM names n1 HAVING 1 IN (SELECT n2.id FROM names n2 group by n1.id);
+select distinct greatest('soml','loms','mosl') FROM names ORDER BY greatest('soml','loms','mosl');
+select distinct least('soml','loms','mosl') FROM names ORDER BY least('soml','loms','mosl');
+select distinct nullif('soml','loms') FROM names ORDER BY nullif('soml','loms');
+select distinct coalesce('soml','loms','mosl') FROM names ORDER BY coalesce('soml','loms','mosl');

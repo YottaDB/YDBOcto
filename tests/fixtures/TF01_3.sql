@@ -10,4 +10,7 @@
 #								#
 #################################################################
 
-select TRUE,FALSE,FALSE,FALSE,TRUE,TRUE,FALSE,'abcd$f%a','abcd$f%a',FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,'abcd$f%a',FALSE,FALSE,FALSE,FALSE,FALSE;
+select id from names order by lastname; -- sort-needed-check
+-- select * from names; -- sort-needed-check
+select lastname from names order by firstname;
+select * from names;

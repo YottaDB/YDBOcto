@@ -10,4 +10,8 @@
 #								#
 #################################################################
 
-select TRUE,FALSE,FALSE,FALSE,TRUE,TRUE,FALSE,'abcd$f%a','abcd$f%a',FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,'abcd$f%a',FALSE,FALSE,FALSE,FALSE,FALSE;
+SELECT ALL ('__#6$_' || 'q%_H_') || ('%Z_' || 'A##') || ('G' || 'k%f$y'),COUNT(alias1.*) FROM nullnamesb  NATURAL JOIN nullnames AS alias1 WHERE nullnamesb.exempt = FALSE GROUP BY alias1.*;
+
+select '%f$' from nullnames;
+
+select 'f' from nullnames;

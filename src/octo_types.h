@@ -464,6 +464,16 @@ typedef struct SqlColumn {
 	dqcreate(SqlColumn);
 } SqlColumn;
 
+/*
+ * GROUP BY related structure to store different GROUP BY information for various expression nodes in parse tree.
+ * This information is used during qualification to perform GROUP BY expression matching and validation.
+ * Also, its used to forward `group_by_column_num` of an expression to its corresponding logical plan in lp_generate_where().
+ * This information is later used to emit GROUP BY related M code in physical plan.
+ */
+typedef struct group_by_fields_t {
+	int group_by_column_num; /* Indicates which GROUP BY list node the SQL ELEMENT matches */
+} group_by_fields_t;
+
 typedef struct SqlColumnAlias {
 	// SqlColumn or SqlColumnListAlias
 	struct SqlStatement *column;
@@ -478,7 +488,7 @@ typedef struct SqlColumnAlias {
 						      */
 } SqlColumnAlias;
 
-/**
+/*
  * Represents a SQL table
  */
 typedef struct SqlTable {
@@ -506,12 +516,15 @@ typedef struct SqlRowValue {
 /* Various stages of qualify_query.
  * Currently only a few stages are needed. For example, there is no "QualifyQuery_WHERE" or "QualifyQuery_HAVING".
  * More can be added at a later stage as and when necessary.
+ * `QualifyQuery_GROUP_BY_EXPRESSION` is used to inform qualify_statement() that an expression is being qualified
+ * , do not update `group_by_column_number` and `group_by_column_count` for any COLUMN REFERENCE in the expression.
  */
 typedef enum {
 	QualifyQuery_NONE,
 	QualifyQuery_SELECT_COLUMN_LIST,
 	QualifyQuery_ORDER_BY,
 	QualifyQuery_WHERE,
+	QualifyQuery_GROUP_BY_EXPRESSION,
 } QualifyQueryStage;
 
 /* The below is used as a bitmask to form the "aggregate_function_or_group_by_or_having_specified" field below */
@@ -528,8 +541,9 @@ typedef struct SqlTableAlias {
 	// Below fields are used for GROUP BY validation and/or to track Aggregate function use
 	int group_by_column_count;
 	int aggregate_depth;					/* Non-zero and Positive if currently inside an aggregate function.
-								 * Non-zero and Negative if currently inside a FROM or WHERE or GROUP BY clause.
-								 * Used while qualifying a query for error checking in both the above cases.
+								 * Non-zero and Negative if currently inside a FROM or WHERE or
+								 * GROUP BY clause. Used while qualifying a query for error
+								 * checking in both the above cases.
 								 */
 	int aggregate_function_or_group_by_or_having_specified; /* bitmask of flags (e.g. GROUP_BY_SPECIFIED etc.)
 								 * based on whether a GROUP BY, HAVING, and/or
@@ -672,6 +686,7 @@ typedef struct SqlArray {
 typedef struct SqlUnaryOperation {
 	enum UnaryOperations operation; // '+', '-'
 	struct SqlStatement *operand;
+	group_by_fields_t    group_by_fields;
 } SqlUnaryOperation;
 
 /*
@@ -680,6 +695,7 @@ typedef struct SqlUnaryOperation {
 typedef struct SqlBinaryOperation {
 	enum BinaryOperations operation; // '+', '-', '*', '/'
 	struct SqlStatement * operands[2];
+	group_by_fields_t     group_by_fields;
 } SqlBinaryOperation;
 
 typedef struct SqlAggregateFunction {
@@ -748,6 +764,7 @@ typedef struct SqlValue {
 	enum SqlValueType type;
 	SqlDataTypeStruct coerced_type;	    /* initialized/usable only if `type` is COERCE_TYPE */
 	enum SqlValueType pre_coerced_type; /* initialized/usable only if `type` is COERCE_TYPE */
+	group_by_fields_t group_by_fields;  /* Used in case of COERCE_TYPE and CALCULATED_VALUE */
 	int		  parameter_index;
 	union {
 		char *string_literal;
@@ -841,6 +858,7 @@ typedef struct SqlCaseStatement {
 	struct SqlStatement *branches;
 	// SqlValue
 	struct SqlStatement *optional_else;
+	group_by_fields_t    group_by_fields;
 } SqlCaseStatement;
 
 typedef struct SqlCaseBranchStatement {

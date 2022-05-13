@@ -12,10 +12,6 @@
 
 -- TGB01 : OCTO55 : GROUP BY and AGGREGATE FUNCTIONS
 
---> Below queries should error out because GROUP BY is supported only with columns (not with constants or expressions)
-SELECT * FROM names GROUP BY 1;
-SELECT * FROM names GROUP BY id,firstname,1+id;
-
 --> Below query should error out because aggregate functions are not allowed in GROUP BY
 SELECT COUNT(CustomerID),Country FROM Customers GROUP BY Country,COUNT(CustomerID);
 

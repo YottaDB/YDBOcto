@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -24,14 +24,45 @@ SqlStatement *grouping_column_reference(SqlStatement *derived_column_expression,
 
 	assert(NULL == collate_clause); /* below code needs to be fixed to handle collate_clause if/when it becomes non-NULL */
 	UNUSED(collate_clause);
-	/* If it is a value check if it is a column name. Otherwise return NULL so caller (select.y) can issue an error.
-	 * If it is not a value then it is some kind of expression so return NULL so caller (select.y) can issue an error.
-	 */
-	if (value_STATEMENT == derived_column_expression->type) {
+	switch (derived_column_expression->type) {
+	case value_STATEMENT:
 		UNPACK_SQL_STATEMENT(value, derived_column_expression, value);
-		invalid_syntax = ((COLUMN_REFERENCE != value->type) && (TABLE_ASTERISK != value->type));
-	} else {
+		switch (value->type) {
+		case INTEGER_LITERAL:
+		case COLUMN_REFERENCE:
+		case TABLE_ASTERISK:
+		case BOOLEAN_VALUE:
+		case COERCE_TYPE:
+			invalid_syntax = FALSE;
+			break;
+		case CALCULATED_VALUE:;
+			SqlStatement *calculated_value = value->v.calculated;
+			switch (calculated_value->type) {
+			case function_call_STATEMENT:
+			case coalesce_STATEMENT:
+			case null_if_STATEMENT:
+			case greatest_STATEMENT:
+			case least_STATEMENT:
+				invalid_syntax = FALSE;
+				break;
+			default:
+				invalid_syntax = TRUE;
+				break;
+			}
+			break;
+		default:
+			invalid_syntax = TRUE;
+			break;
+		}
+		break;
+	case binary_STATEMENT:
+	case unary_STATEMENT:
+	case cas_STATEMENT:
+		invalid_syntax = FALSE;
+		break;
+	default:
 		invalid_syntax = TRUE;
+		break;
 	}
 	if (invalid_syntax)
 		return NULL;

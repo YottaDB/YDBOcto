@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,7 +10,7 @@
 #								#
 #################################################################
 
-select id from names order by lastname; -- sort-needed-check
--- select * from names; -- sort-needed-check
+select id from names order by lastname;
+-- select * from names;
 select lastname from names order by firstname;
 select * from names;

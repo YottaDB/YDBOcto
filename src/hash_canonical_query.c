@@ -25,8 +25,7 @@
 #include "mmrhash.h" // YottaDB hash functions
 
 /* 0 OR negative values of "*status" are considered normal. Positive values are considered abnormal. */
-#define HASH_LITERAL_VALUES -1
-#define ABNORMAL_STATUS	    1
+#define ABNORMAL_STATUS 1
 
 #define ADD_DATA_TYPE_HASH(STATE, DATA_TYPE_STRUCT)                                        \
 	{                                                                                  \
@@ -39,9 +38,23 @@
 		}                                                                          \
 	}
 
-// Helper function that is invoked when we have to traverse a "column_list_alias_STATEMENT".
-// Caller passes "do_loop" variable set to TRUE  if they want us to traverse the linked list.
-//                              and set to FALSE if they want us to traverse only the first element in the linked list.
+#define ADD_NON_ZERO_GROUP_BY_NUM_TO_HASH(STATE, GROUP_BY_COLUMN_NUM)                                                            \
+	{                                                                                                                        \
+		/* We want to add `group_by_column_num` value to the hash to avoid mismatch between code generated and the hash. \
+		 * This can happen when the following two queries are executed one after the other.                              \
+		 * 1. `SELECT nullif('test','test') FROM names GROUP BY nullif('test','test');`                                  \
+		 * 2. `SELECT nullif('soml','loms') FROM names GROUP BY nullif('test','test');`                                  \
+		 * Without the addition of `group_by_column_num` the second query would end up using                             \
+		 * first query's M routine which is incorrect.                                                                   \
+		 */                                                                                                              \
+		if (0 < GROUP_BY_COLUMN_NUM) {                                                                                   \
+			ADD_INT_HASH(state, GROUP_BY_COLUMN_NUM);                                                                \
+		}                                                                                                                \
+	}
+/* Helper function that is invoked when we have to traverse a "column_list_alias_STATEMENT".
+ * Caller passes "do_loop" variable set to TRUE  if they want us to traverse the linked list.
+ *                              and set to FALSE if they want us to traverse only the first element in the linked list.
+ */
 void hash_canonical_query_column_list_alias(hash128_state_t *state, SqlStatement *stmt, int *status, boolean_t do_loop) {
 	SqlColumnListAlias *start_cla, *cur_cla;
 
@@ -86,9 +99,10 @@ void hash_canonical_query_column_list_alias(hash128_state_t *state, SqlStatement
 	return;
 }
 
-// Helper function that is invoked when we have to traverse a "column_list_STATEMENT".
-// Caller passes "do_loop" variable set to TRUE  if they want us to traverse the linked list.
-//                              and set to FALSE if they want us to traverse only the first element in the linked list.
+/* Helper function that is invoked when we have to traverse a "column_list_STATEMENT".
+ * Caller passes "do_loop" variable set to TRUE  if they want us to traverse the linked list.
+ *                              and set to FALSE if they want us to traverse only the first element in the linked list.
+ */
 void hash_canonical_query_column_list(hash128_state_t *state, SqlStatement *stmt, int *status, boolean_t do_loop) {
 	SqlColumnList *column_list, *cur_column_list;
 
@@ -171,14 +185,16 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 	SqlColumn *    start_column, *cur_column;
 	SqlTableAlias *table_alias;
 
-	// Note: The below switch statement and the flow mirrors that in populate_data_type.c.
-	//       Any change here or there needs to also be done in the other module.
+	/* Note: The below switch statement and the flow mirrors that in populate_data_type.c.
+	 *       Any change here or there needs to also be done in the other module.
+	 */
 	switch (stmt->type) {
 	case cas_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */
 		SqlCaseStatement *cas;
 
 		UNPACK_SQL_STATEMENT(cas, stmt, cas);
 		ADD_INT_HASH(state, cas_STATEMENT);
+		ADD_NON_ZERO_GROUP_BY_NUM_TO_HASH(state, cas->group_by_fields.group_by_column_num);
 		// SqlValue
 		hash_canonical_query(state, cas->value, status);
 		// SqlCaseBranchStatement
@@ -345,6 +361,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		ADD_INT_HASH(state, value->type);
 		switch (value->type) {
 		case CALCULATED_VALUE:
+			ADD_NON_ZERO_GROUP_BY_NUM_TO_HASH(state, value->group_by_fields.group_by_column_num);
 			hash_canonical_query(state, value->v.calculated, status);
 			break;
 		case PARAMETER_VALUE:
@@ -376,6 +393,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 			 * want in this case. Hence the simple hash of just the data type ("NUMERIC" in the example case).
 			 */
 			ADD_INT_HASH(state, value->coerced_type.data_type);
+			ADD_NON_ZERO_GROUP_BY_NUM_TO_HASH(state, value->group_by_fields.group_by_column_num);
 			/* We want to generate different plans for two queries where one specifies a SIZE/PRECISION and/or
 			 * SCALE and one does not. For example, "SELECT 1::NUMERIC(1);" vs "SELECT 1::NUMERIC(1,0);".
 			 * Hence the additional hash below in the unspecified case. In the unspecified case, we skip this
@@ -548,6 +566,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 
 		UNPACK_SQL_STATEMENT(binary, stmt, binary);
 		ADD_INT_HASH(state, binary_STATEMENT);
+		ADD_NON_ZERO_GROUP_BY_NUM_TO_HASH(state, binary->group_by_fields.group_by_column_num);
 		// BinaryOperations
 		binary_operation = binary->operation;
 		ADD_INT_HASH(state, binary_operation);
@@ -577,6 +596,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 
 		UNPACK_SQL_STATEMENT(unary, stmt, unary);
 		ADD_INT_HASH(state, unary_STATEMENT);
+		ADD_NON_ZERO_GROUP_BY_NUM_TO_HASH(state, unary->group_by_fields.group_by_column_num);
 		// UnaryOperations
 		ADD_INT_HASH(state, unary->operation);
 		// SqlStatement (?)

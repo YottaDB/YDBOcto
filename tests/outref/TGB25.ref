@@ -1,0 +1,294 @@
+
+-- So far have discovered 3 types
+-- 1) Constant sub query without from clause
+-- 	Ex: (select 1)
+-- 2) Variable sub query without from clause
+--	Ex: (select firstname)
+-- 3) Complete sub query with from clause and limit 1
+--	Ex: (select 1 from names limit 1)
+--	Ex: (select firstname from names limit 1)
+
+-- Below queries test GroupBy in sub-queries using expression having one or more columns from outer queries
+-- Both will end up having an empty GroupBy list. Octo will consider it as if GroupBy was never used.
+-- This deviates from Postgres behavior as it still considers GroupBy exists and issues GroupBy related error
+SELECT id,firstname FROM names n1 WHERE id IN (SELECT n2.id FROM names n2 group by n1.id=0);
+SELECT id,firstname FROM names n1 WHERE id IN (SELECT n2.id=0 FROM names n2 group by n1.id=0);
+
+-- Below queries generate error saying subqueries are not allowed in GROUP BY
+select (select id from names limit 1) from names group by 1;
+select (select id from names) from names group by 1;
+-- The following query where limit is not used in the subquery of GroupBy should work in Octo with the latest expression changes as we invoke sub_query_check() in generate_physical_plan() for GroupBy as well.
+-- But need to test how it would work with other clauses. Will it work equivalent to `firstname` usage instead of `(select firstname)`?
+select (select 2) from names group by (select firstname);
+select (select 2), count(firstname) from names group by (select 3);
+select (select 1) from names group by (select firstname); -- Should work
+select (select 2) from names group by 1; -- Should work
+select (select firstname) from names group by (select firstname); -- Should work
+select (select lastname) from names group by (select firstname); -- ungrouped names.lastname error
+select (select firstname) from names group by (select 1 from names limit 1); -- ungrouped names.firstname error
+select (select firstname) from names group by (select 1 from names limit 1),firstname; -- ungrouped names.firstname error
+select (select firstname) from names group by (select 1 from names); -- ungrouped names.firstname error
+select (select 1 from names) from names group by (select 1 from names); -- multiple rowed subquery error
+-- Having
+select (select firstname) from names group by (select firstname) having (select firstname)!='Zero'; -- Should work
+select (select firstname) from names group by (select firstname) having firstname !='Zero'; -- names.firstname of having clause must appear in GroupBy error
+select (select firstname) from names group by (select firstname) having (select lastname) !='Zero'; -- subquery uses ungrouped names.lastname from outer query error
+select firstname from names group by (select firstname);
+select 1 from names group by firstname!=(select firstname from names);
+select 1 from names group by not (select firstname from names);
+
+-- All queries with subqueries in GroupBy will generate ERR_GROUP_BY_SUB_QUERY
+-- Following queries use cast operation in subquery and this used to generate assert failure
+-- during qualify_statement's call to hash_canonical_query.
+select 1 from names n1 group by n1.id NOT IN (select 1 union select NULL::integer union select 2);
+select n1.id from names n1 group by n1.id NOT IN (select 1 union select NULL::integer union select 2);
+select n1.id NOT IN (1,2) from names n1 group by n1.id NOT IN (select 1 union select NULL::integer union select 2);
+select n1.id NOT IN (select 1 union select NULL::integer union select 2) from names n1 group by n1.id NOT IN (select 1 union select NULL::integer union select 2);
+
+-- Following use unary operation by `exists` usage. As subqueries are not enabled in GroupBy the query fails with ERR_GROUP_BY_SUB_QUERY error.
+select 1 from names group by exists(select id from names);
+select 1,count(firstname) from names group by exists(select id from names);
+select exists(select firstname from names),count(firstname) from names group by exists(select firstname from names);
+select firstname,count(firstname) from names group by exists(select firstname from names);
+
+-- Following queries use NOT IN operation with subquery usage
+select 1 from names n1 group by n1.id NOT IN (select 1 union select 3 union select 2);
+select n1.id from names n1 group by n1.id NOT IN (select 1 union select 3 union select 2); -- error case
+select n1.id NOT IN (1,2,3) from names n1 group by n1.id NOT IN (select 1 union select 3 union select 2); -- error case
+select n1.id NOT IN (select 1 union select 3 union select 2) from names n1 group by n1.id NOT IN (select 1 union select 3 union select 2);
+
+-- misc
+select lastname in (select 'Cool') from names group by lastname in (select 'Cool') having lastname in (select 'Cool');
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 5, column 55):
+
+--	Ex: (select firstname)
+--	Ex: (select 1 from names limit 1)
+--	Ex: (select firstname from names limit 1)
+
+SELECT id,firstname FROM names n1 WHERE id IN (SELECT n2.id FROM names n2 group by n1.id=0);
+                                                      ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --	Ex: (select firstname)
+--	Ex: (select 1 from names limit 1)
+--	Ex: (select firstname from names limit 1)
+
+SELECT id,firstname FROM names n1 WHERE id IN (SELECT n2.id FROM names n2 group by n1.id=0);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 1, column 55):
+
+SELECT id,firstname FROM names n1 WHERE id IN (SELECT n2.id=0 FROM names n2 group by n1.id=0);
+                                                      ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT id,firstname FROM names n1 WHERE id IN (SELECT n2.id=0 FROM names n2 group by n1.id=0);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_SUB_QUERY : Subqueries are not supported in GROUP BY
+Error with syntax near (line 1, column 8):
+
+select (select id from names limit 1) from names group by 1;
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (select id from names limit 1) from names group by 1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_SUB_QUERY : Subqueries are not supported in GROUP BY
+Error with syntax near (line 1, column 8):
+
+select (select id from names) from names group by 1;
+       ^^^^^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (select id from names) from names group by 1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_INVALID_USAGE : Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
+Error with syntax near (line 1, column 39):
+
+select (select 2) from names group by (select firstname);
+                                      ^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (select 2) from names group by (select firstname);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_INVALID_USAGE : Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
+Error with syntax near (line 1, column 57):
+
+select (select 2), count(firstname) from names group by (select 3);
+                                                        ^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (select 2), count(firstname) from names group by (select 3);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_INVALID_USAGE : Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
+Error with syntax near (line 1, column 39):
+
+select (select 1) from names group by (select firstname); -- Should work
+                                      ^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (select 1) from names group by (select firstname);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_SUB_QUERY : Subqueries are not supported in GROUP BY
+Error with syntax near (line 2, column 8):
+
+select (select 1) from names group by (select firstname); -- Should work
+select (select 2) from names group by 1; -- Should work
+       ^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Should work
+select (select 2) from names group by 1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_INVALID_USAGE : Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
+Error with syntax near (line 2, column 47):
+
+select (select 2) from names group by 1; -- Should work
+select (select firstname) from names group by (select firstname); -- Should work
+                                              ^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Should work
+select (select firstname) from names group by (select firstname);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_INVALID_USAGE : Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
+Error with syntax near (line 2, column 46):
+
+select (select firstname) from names group by (select firstname); -- Should work
+select (select lastname) from names group by (select firstname); -- ungrouped names.lastname error
+                                             ^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Should work
+select (select lastname) from names group by (select firstname);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_INVALID_USAGE : Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
+Error with syntax near (line 2, column 47):
+
+select (select lastname) from names group by (select firstname); -- ungrouped names.lastname error
+select (select firstname) from names group by (select 1 from names limit 1); -- ungrouped names.firstname error
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- ungrouped names.lastname error
+select (select firstname) from names group by (select 1 from names limit 1);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_INVALID_USAGE : Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
+Error with syntax near (line 2, column 47):
+
+select (select firstname) from names group by (select 1 from names limit 1); -- ungrouped names.firstname error
+select (select firstname) from names group by (select 1 from names limit 1),firstname; -- ungrouped names.firstname error
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- ungrouped names.firstname error
+select (select firstname) from names group by (select 1 from names limit 1),firstname;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_INVALID_USAGE : Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
+Error with syntax near (line 2, column 47):
+
+select (select firstname) from names group by (select 1 from names limit 1),firstname; -- ungrouped names.firstname error
+select (select firstname) from names group by (select 1 from names); -- ungrouped names.firstname error
+                                              ^^^^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- ungrouped names.firstname error
+select (select firstname) from names group by (select 1 from names);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_INVALID_USAGE : Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
+Error with syntax near (line 2, column 50):
+
+select (select firstname) from names group by (select 1 from names); -- ungrouped names.firstname error
+select (select 1 from names) from names group by (select 1 from names); -- multiple rowed subquery error
+                                                 ^^^^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- ungrouped names.firstname error
+select (select 1 from names) from names group by (select 1 from names);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_INVALID_USAGE : Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
+Error with syntax near (line 2, column 47):
+
+select (select 1 from names) from names group by (select 1 from names); -- multiple rowed subquery error
+select (select firstname) from names group by (select firstname) having (select firstname)!='Zero'; -- Should work
+                                              ^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- multiple rowed subquery error
+select (select firstname) from names group by (select firstname) having (select firstname)!='Zero';
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_INVALID_USAGE : Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
+Error with syntax near (line 2, column 47):
+
+select (select firstname) from names group by (select firstname) having (select firstname)!='Zero'; -- Should work
+select (select firstname) from names group by (select firstname) having firstname !='Zero'; -- names.firstname of having clause must appear in GroupBy error
+                                              ^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Should work
+select (select firstname) from names group by (select firstname) having firstname !='Zero';
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_INVALID_USAGE : Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
+Error with syntax near (line 2, column 47):
+
+select (select firstname) from names group by (select firstname) having firstname !='Zero'; -- names.firstname of having clause must appear in GroupBy error
+select (select firstname) from names group by (select firstname) having (select lastname) !='Zero'; -- subquery uses ungrouped names.lastname from outer query error
+                                              ^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- names.firstname of having clause must appear in GroupBy error
+select (select firstname) from names group by (select firstname) having (select lastname) !='Zero';
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_INVALID_USAGE : Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
+Error with syntax near (line 2, column 38):
+
+select (select firstname) from names group by (select firstname) having (select lastname) !='Zero'; -- subquery uses ungrouped names.lastname from outer query error
+select firstname from names group by (select firstname);
+                                     ^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- subquery uses ungrouped names.lastname from outer query error
+select firstname from names group by (select firstname);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_SUB_QUERY : Subqueries are not supported in GROUP BY
+Error with syntax near (line 1, column 42):
+
+select 1 from names group by firstname!=(select firstname from names);
+                                         ^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names group by firstname!=(select firstname from names);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_SUB_QUERY : Subqueries are not supported in GROUP BY
+Error with syntax near (line 1, column 34):
+
+select 1 from names group by not (select firstname from names);
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names group by not (select firstname from names);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_SUB_QUERY : Subqueries are not supported in GROUP BY
+Error with syntax near (line 1, column 47):
+
+select 1 from names n1 group by n1.id NOT IN (select 1 union select NULL::integer union select 2);
+                                              ^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 group by n1.id NOT IN (select 1 union select NULL::integer union select 2);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_SUB_QUERY : Subqueries are not supported in GROUP BY
+Error with syntax near (line 1, column 51):
+
+select n1.id from names n1 group by n1.id NOT IN (select 1 union select NULL::integer union select 2);
+                                                  ^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.id from names n1 group by n1.id NOT IN (select 1 union select NULL::integer union select 2);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_SUB_QUERY : Subqueries are not supported in GROUP BY
+Error with syntax near (line 1, column 64):
+
+select n1.id NOT IN (1,2) from names n1 group by n1.id NOT IN (select 1 union select NULL::integer union select 2);
+                                                               ^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.id NOT IN (1,2) from names n1 group by n1.id NOT IN (select 1 union select NULL::integer union select 2);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_SUB_QUERY : Subqueries are not supported in GROUP BY
+Error with syntax near (line 1, column 111):
+
+select n1.id NOT IN (select 1 union select NULL::integer union select 2) from names n1 group by n1.id NOT IN (select 1 union select NULL::integer union select 2);
+                                                                                                              ^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.id NOT IN (select 1 union select NULL::integer union select 2) from names n1 group by n1.id NOT IN (select 1 union select NULL::integer union select 2);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_SUB_QUERY : Subqueries are not supported in GROUP BY
+Error with syntax near (line 1, column 37):
+
+select 1 from names group by exists(select id from names);
+                                    ^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names group by exists(select id from names);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_SUB_QUERY : Subqueries are not supported in GROUP BY
+Error with syntax near (line 1, column 54):
+
+select 1,count(firstname) from names group by exists(select id from names);
+                                                     ^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1,count(firstname) from names group by exists(select id from names);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_SUB_QUERY : Subqueries are not supported in GROUP BY
+Error with syntax near (line 1, column 88):
+
+select exists(select firstname from names),count(firstname) from names group by exists(select firstname from names);
+                                                                                       ^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select exists(select firstname from names),count(firstname) from names group by exists(select firstname from names);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_SUB_QUERY : Subqueries are not supported in GROUP BY
+Error with syntax near (line 1, column 62):
+
+select firstname,count(firstname) from names group by exists(select firstname from names);
+                                                             ^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select firstname,count(firstname) from names group by exists(select firstname from names);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_SUB_QUERY : Subqueries are not supported in GROUP BY
+Error with syntax near (line 1, column 47):
+
+select 1 from names n1 group by n1.id NOT IN (select 1 union select 3 union select 2);
+                                              ^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 group by n1.id NOT IN (select 1 union select 3 union select 2);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_SUB_QUERY : Subqueries are not supported in GROUP BY
+Error with syntax near (line 1, column 51):
+
+select n1.id from names n1 group by n1.id NOT IN (select 1 union select 3 union select 2); -- error case
+                                                  ^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.id from names n1 group by n1.id NOT IN (select 1 union select 3 union select 2);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_SUB_QUERY : Subqueries are not supported in GROUP BY
+Error with syntax near (line 2, column 66):
+
+select n1.id from names n1 group by n1.id NOT IN (select 1 union select 3 union select 2); -- error case
+select n1.id NOT IN (1,2,3) from names n1 group by n1.id NOT IN (select 1 union select 3 union select 2); -- error case
+                                                                 ^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- error case
+select n1.id NOT IN (1,2,3) from names n1 group by n1.id NOT IN (select 1 union select 3 union select 2);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_SUB_QUERY : Subqueries are not supported in GROUP BY
+Error with syntax near (line 2, column 99):
+
+select n1.id NOT IN (1,2,3) from names n1 group by n1.id NOT IN (select 1 union select 3 union select 2); -- error case
+select n1.id NOT IN (select 1 union select 3 union select 2) from names n1 group by n1.id NOT IN (select 1 union select 3 union select 2);
+                                                                                                  ^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- error case
+select n1.id NOT IN (select 1 union select 3 union select 2) from names n1 group by n1.id NOT IN (select 1 union select 3 union select 2);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_SUB_QUERY : Subqueries are not supported in GROUP BY
+Error with syntax near (line 1, column 69):
+
+select lastname in (select 'Cool') from names group by lastname in (select 'Cool') having lastname in (select 'Cool');
+                                                                    ^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select lastname in (select 'Cool') from names group by lastname in (select 'Cool') having lastname in (select 'Cool');
+

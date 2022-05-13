@@ -75,3 +75,12 @@ teardown() {
 	load_fixture TTA007.sql subtest novv
 	verify_output TTA007 output.txt
 }
+
+@test "TTA008 : OCTO386/OCTO797/OCTO798/OCTO799 : TABLENAME.ASTERISK doesn't cause assert failures with greatest/least/nullif/coalesce/CASE/IN/BETWEEN usages" {
+	# The test should be enabled after OCTO797/OCTO798/OCTO799 is implemented
+	skip
+	load_fixture names.sql
+	load_fixture names.zwr
+	load_fixture TTA008.sql subtest novv
+	verify_output TTA008 output.txt
+}

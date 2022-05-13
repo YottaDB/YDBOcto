@@ -49,6 +49,20 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	m_operator = NULL;
 	coerce_to_numeric = FALSE;
 	plan_type = plan->type;
+
+	if (pplan->tablejoin_body_group_by_done) {
+		int 	  group_by_column_num;
+		group_by_column_num = plan->v.lp_default.group_by_column_num;
+		/* If GROUP BY computation has already happened for this physical plan, and the current expression is part of a
+		 * GROUP BY column, use the computed value from the matching column number in GROUP BY as the value of the
+		 * current expression.
+		 */
+		if (0 < group_by_column_num) {
+			TMPL(tmpl_print_expression_group_by_computation, group_by_column_num, dot_count);
+			return;
+		}
+	}
+
 	switch (plan_type) {
 	case LP_WHERE:
 		TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);

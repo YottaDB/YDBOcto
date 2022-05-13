@@ -34,6 +34,7 @@
 	set initDone("setQuantifier")=0
 	set initDone("arithmeticOperator")=0
 	set initDone("comparisonOperators")=0
+	set initDone("comparisonOperatorsAlone")=0
 	set initDone("booleanOperator")=0
 	set initDone("joinTypes")=0
 	set initDone("tf")=0
@@ -96,8 +97,9 @@
 	. set aliasNum=0
 	. set fromNum=1
 	. ; The following variables need to be reset to their default values for each, seperate query.
-	. set orderByExists=0,limitExists=0,asteriskExists=0,tableAsteriskExists=0
-	. set existsInHavingExists="FALSE"  set caseFunctionExists="FALSE"
+	. set orderByExists=0,limitExists=0,asteriskExists=0,tableAsteriskExists=0,tableAsteriskAggregateExists=0,outerJoinExists=0,selectNodePosition=0
+	. set orderByListLessThanSelectList=0
+	. set existsInHavingExists="FALSE",caseFunctionExists="FALSE",outerSelectList=""
 	. kill columns			; refresh columns array for next query (remove any temporary tables created in prior query)
 	. merge columns=savecolumns
 	.
@@ -111,16 +113,19 @@
 	.
 	. open file:(append)
 	. use file
-	. ; Add a line to generated query file given LIMIT exists, and ORDER BY does not in the query
-	. ; This forces the crosscheck function to only count lines as having a LIMIT clause without an
+	. ; Add a line to generated query file given LIMIT exists, and ORDER BY does not or is not having all
+	. ;   the columns in select in the query.
+	. ; This forces the crosscheck function to only count lines as having a LIMIT clause without a correct
 	. ; ORDER BY clause can cause different results to be returned by the database
 	. if (limitExists&('orderByExists))  write query," ","-- rowcount-only-check",!
+	. else  if (limitExists&(orderByListLessThanSelectList))  write query," ","-- rowcount-only-check",!
 	. else  if (orderByExists&(asteriskExists))  write query," ","-- sort-needed-check",!
+	. else  if (orderByExists&(orderByListLessThanSelectList))  write query," ","--sort-needed-check",!
 	. else  write query,!
 	. close file
 	. ; The following LVNs exist for each individual query,
 	. ; thus they need to be KILLED after each query is created
-	. kill tableColumn,selectListLVN,subQuerySelectedTables,innerQuerySLLVN
+	. kill tableColumn,selectListLVN,subQuerySelectedTables,innerQuerySLLVN,groupByListLVN,groupByColumnLVN,selectedExprGroupBy,groupByComparisonExpressionExists
 
 	quit
 
@@ -279,7 +284,7 @@ setQuantifier(curDepth)
 ; This value is continously lowered until it reaches 0, thus ending the recursive loop.
 ; It stores every value added into the SELECT LIST into a LVN called selectListLVN.
 selectList(queryDepth,curDepth)
-	new randInt,result,toBeAdded,okToSelectStar
+	new randInt,result,toBeAdded,okToSelectStar,constExpr
 	set toBeAdded=""
 	; This function serves the same purpose as select sublist in the grammar rules for SQL.
 	; Choose "*" in the select column list 12.5% of the time AND if no other columns have been already added to it.
@@ -293,18 +298,20 @@ selectList(queryDepth,curDepth)
 	. set toBeAdded="*"
 	. set asteriskExists=1
 	. set selectListLVN(queryDepth,toBeAdded)="star"
+	. if ($increment(selectNodePosition))
+	. set selectListLVN(queryDepth,toBeAdded,1)=selectNodePosition
 	. ; Disallow GROUP BY and HAVING if * is in select column list as it gets complicated
 	. set allowGBH("alias"_queryDepth)="FALSE"
 
 	if (toBeAdded'="*") do
 	. ; Choose DerivedColumn or Qualifier
 	. set randInt=$random(100)
-	. ; #FUTURE_TODO: Allow randInt=3 possibility when $$returnCaseFunction infinite-loop/malformed-query issues are resolved
-	. ; For now, choose randInt=0 80% of time, randInt=1 10% of time, randInt=2 10% of time
+	. ; #FUTURE_TODO: Allow randInt=5 possibility when $$returnCaseFunction infinite-loop/malformed-query issues are resolved
+	. ; For now, choose randInt=0 70% of time, randInt=1 10% of time, randInt=2 10% of time, randInt=3 10% of time
 	. ; If enableSubQuery is FALSE, do not choose randInt=1
 	. set okToSelectTableStarOrderBy=(quantifierLVN("alias"_queryDepth)'="DISTINCT ")
 	. set:'okToSelectTableStarOrderBy randInt=$select(('enableSubQuery!(80>randInt)):0,1:1)
-	. set:okToSelectTableStarOrderBy randInt=$select(('enableSubQuery!(80>randInt)):0,((90>randInt)&(80<randInt)):2,1:1)
+	. set:okToSelectTableStarOrderBy randInt=$select(('enableSubQuery!(70>randInt)):0,((80>randInt)&(70<randInt)):3,((90>randInt)&(80<randInt)):2,1:1)
 	else  set randInt=-1
 
 	; To avoid ambiquity warnings, this is commented out
@@ -320,14 +327,18 @@ selectList(queryDepth,curDepth)
 	. set table=$$chooseTableFromTableColumn()
 	. set toBeAdded=table_"."_$$chooseColumn(table)
 	. set selectListLVN(queryDepth,toBeAdded)="table.column"
+	. if ($increment(selectNodePosition))
+	. set selectListLVN(queryDepth,toBeAdded,1)=selectNodePosition
 
 	if (randInt=1) do
 	. set aliasNum1More=aliasNum+1
 	. set alias="alias"_aliasNum1More
 	. set toBeAdded="("_$$generateSubQuery(queryDepth,"limited","")_") AS "_alias
 	. set selectListLVN(queryDepth,alias)="subquery"
+	. if ($increment(selectNodePosition))
+	. set selectListLVN(queryDepth,alias,1)=selectNodePosition
 
-	; Qualifier notation (table.*) or (count(table.*)) is to be used
+	; Qualifier notation (table.*) to be used
 	if (randInt=2) do
 	. set table=$$chooseTableFromTableColumn()
 	. set toBeAdded=table_".*"
@@ -337,13 +348,99 @@ selectList(queryDepth,curDepth)
 	. ; Because of this reason we will not be able to enable this case as we compare the result with postgres.
 	. ; More details -> https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/816#note_550782933
 	. set allowGBH("alias"_queryDepth)="FALSE"
+	. set tableAsteriskExists=1
+	. if ($increment(selectNodePosition))
+	. set selectListLVN(queryDepth,toBeAdded,1)=selectNodePosition
 
 	if (randInt=3) do
+	. new tmpRand
+	. set tmpRand=$random(3)
+	. if (0=tmpRand) do
+	. . ; Binary expression
+	. . set table=$$chooseTableFromTableColumn()
+	. . set toBeAdded=$$returnBinaryExpression(queryDepth,table,.constExpr)
+	. . write "selectList(): Is constExpr: "_constExpr_" BinaryExpression - "_toBeAdded,!
+	. . set selectListLVN(queryDepth,toBeAdded)="binary_expression"
+	. else  if (1=tmpRand) do
+	. . ; Unary expression
+	. . ; - simple unary expression
+	. . set table=$$chooseTableFromTableColumn()
+	. . set toBeAdded=$$returnUnaryExpression(queryDepth,table,.constExpr)
+	. . set selectListLVN(queryDepth,toBeAdded)="unary_expression"
+	. . write "selectList(): Is constExpr: "_constExpr_" UnaryExpression - "_toBeAdded,!
+	. else  do
+	. . ; coalesce/greatest/least/nullif
+	. . new op,leftOpnd,rightOpnd
+	. . new column,tblCol,columnTypes,expType
+	. . set tmpRand=$random(4)
+	. . set constExpr=0
+	. . set op=$select((0=tmpRand):"GREATEST",(1=tmpRand):"LEAST",(2=tmpRand):"COALESCE",(3=tmpRand):"NULLIF")
+	. . ; get a column
+	. . set table=$$chooseTableFromTableColumn()
+	. . set columnTypes=$$getTableColumnTypes(table)
+	. . set num=$random(2)
+	. . if (columnTypes="VARCHAR") set expType="VARCHAR"
+	. . else  if (columnTypes="INTEGER") set expType="INTEGER"
+	. . else  if (columnTypes="BOTH") set expType=$select((num=0):"VARCHAR",(num=1):"INTEGER")
+	. . if "NONE"'=columnTypes do
+	. . . new secondColumn,lclGroupByColumnLVN
+	. . . ; get first column
+	. . . set column=table_"."_$$getColumnOfType(table,expType)
+	. . . ; get second column
+	. . . set secondColumn=table_"."_$$getColumnOfType(table,expType)
+	. . . ; assign left and right operand
+	. . . set:(num) leftOpnd=secondColumn,rightOpnd=column
+	. . . set:('num) rightOpnd=secondColumn,leftOpnd=column
+	. . . set toBeAdded=op_"("_leftOpnd_","_rightOpnd_")"
+	. . . if ($increment(lclGroupByColumnLVN(queryDepth,column)))
+	. . . if ($increment(lclGroupByColumnLVN(queryDepth,secondColumn)))
+	. . . set isVariableGroupBy=1
+	. . . new innerHolder
+	. . . set innerHolder="" for  set innerHolder=$order(lclGroupByColumnLVN(queryDepth,innerHolder))  quit:innerHolder=""  do
+	. . . . if ($increment(groupByColumnLVN(queryDepth,toBeAdded,innerHolder)))
+	. . . if ($DATA(groupByColumnLVN)) zwr groupByColumnLVN
+	. . . kill lclGroupByColumnLVN
+	. . else  do
+	. . . set constExpr=1
+	. . . if (0=num) do
+	. . . . ; - constant expressions (INT)
+	. . . . set leftOpnd=$$getRandInt,rightOpnd=$$getRandInt
+	. . . else  if (1=num) do
+	. . . . ; - constant expressions (String)
+	. . . . set leftOpnd=$$getRandStr,rightOpnd=$$getRandStr
+	. . . set toBeAdded=op_"("_leftOpnd_","_rightOpnd_")"
+	. . set groupByComparisonExpressionExists(queryDepth,toBeAdded)=0
+	. . set selectListLVN(queryDepth,toBeAdded)="conditional_expression"
+	. . if ($increment(groupByListLVN(queryDepth,toBeAdded)))
+	. . write "selectList(): "_toBeAdded,!
+	. if ($increment(selectNodePosition))
+	. set selectListLVN(queryDepth,toBeAdded,1)=selectNodePosition
+
+	if (randInt=5) do
 	. set toCompare=$random(4)+1
 	. set toBeAdded=$$returnCaseFunction("SELECT LIST","randomNumbers","numbers","FALSE",toCompare)
 	. set selectListLVN(queryDepth,"alias"_aliasNum)="case_statement"
 
-	if (enableGroupByHavingClause&(allowGBH("alias"_queryDepth)="TRUE"))  do
+
+	if (randInt=3) do
+	. new typeStr
+	. if ("binary_expression"=selectListLVN(queryDepth,toBeAdded)) set typeStr="binary"
+	. else  if ("unary_expression"=selectListLVN(queryDepth,toBeAdded)) set typeStr="unary"
+	. else  set typeStr="conditional"
+	. ; If GroupBy exists atall we need the binary and unary expressions in it if they are not constants.
+	. ; If constant then they may or may not be in GroupBy.
+	. ; `constExpr` value indicates whether the expression is constant or not.
+	. ; Change the selectListLVN value to `constant_binary_expression` or `constant_unary_expression`
+	. ;   when the expression is constant so that groupByClause can identify and ignore it 50% of the time.
+	. set:(constExpr) selectListLVN(queryDepth,toBeAdded)=typeStr_"_constant_expression"
+	. write "selectList(): expression type - "_selectListLVN(queryDepth,toBeAdded),!
+
+	; #FUTURE_TODO: Remove `((3'=randInt)!(constExpr))`
+	;   If aggregate function element gets added to select list from the below block
+	;   all columns in the list need to be included in GroupBy. With expressions this is difficult as mainly its randomely formed
+	;   and we are not storing any information about the columns used in the expression at this time.
+	;   When expression creation is enhanced to store info on columns used in them we can implement this TODO.
+	if (((3'=randInt)!(constExpr))&(enableGroupByHavingClause&(allowGBH("alias"_queryDepth)="TRUE")))  do
 	. new table,chosenColumn,agg,chosenColumn2,tc
 	. ; #FUTURE_TODO: Remove following line when issues (both in Octo and in test_helpers)
 	. ;               pertaining to aggregate functions are resolved
@@ -355,7 +452,9 @@ selectList(queryDepth,curDepth)
 	. . set agg="COUNT("_table_".*)"
 	. . set selectListLVN(queryDepth,agg)="aggregate_function_t_asterisk"
 	. . set toBeAdded=toBeAdded_","_agg
-	. . set tableAsteriskExists=1
+	. . set tableAsteriskAggregateExists=1
+	. . if ($increment(selectNodePosition))
+	. . set selectListLVN(queryDepth,agg,1)=selectNodePosition
 	. else  do
 	. . set chosenColumn=$$chooseColumn(table)
 	. . ; #FUTURE_TODO: Add more than one column in SELECT column list that uses aggregate functions
@@ -364,14 +463,18 @@ selectList(queryDepth,curDepth)
 	. . ; Refer description of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/829
 	. . set:(enableOrderByClause&(agg["AVG")) agg="ROUND("_agg_",10)"
 	. . set selectListLVN(queryDepth,agg)="aggregate_function"
+	. . if ($increment(selectNodePosition))
+	. . set selectListLVN(queryDepth,agg,1)=selectNodePosition
 	. . new i
 	. . for i=1:1:8 set chosenColumn2=$$chooseColumn(table) quit:(chosenColumn'=chosenColumn2)
 	. . set tc=$select((8'=i):table_"."_chosenColumn2,1:"")
 	. . set toBeAdded=toBeAdded_", "_agg_$select(""'=tc:", "_tc,1:"")
-	. . set:(""'=tc) selectListLVN(queryDepth,tc)="table.column"
+	. . if (""'=tc) do
+	. . . set selectListLVN(queryDepth,tc)="table.column"
+	. . . if ($increment(selectNodePosition))
+	. . . set selectListLVN(queryDepth,tc,1)=selectNodePosition
 
 	set result=toBeAdded
-
 	if curDepth>0 do
 	. if $increment(curDepth,-1) ; to drop down a "level" in depth
 	. if (curDepth'=0) set result=result_", "_$$selectList(queryDepth,curDepth)
@@ -728,36 +831,73 @@ whereClause(queryDepth)
 ; This function returns the GROUP BY clause. It pulls the necessary values from the selectListLVN.
 groupbyClause(queryDepth)
 	do assert(enableGroupByHavingClause)
-	new result,randInt,i,holder,firstholder,anotherholder
+	new result,randInt,i,holder,firstholder,anotherholder,anotherholderType,chooseSelectNumber
 	set result=""
+	set chooseSelectNumber=0
 	zwrite tableAlias,tableColumn,selectListLVN
 
 	set firstholder=1
-	new i,j
+	new i,j,selectNodeNumber
 	for j=queryDepth:-1:0 do
+	. set selectNodeNumber=0
 	. set holder=""
 	. for i=1:1 set holder=$order(selectListLVN(j,holder)) quit:(holder="")  do  do assert(i<16)
 	. . set anotherholder=""
 	. . ; Skip columns in select list with "*" OR aggregate function OR subquery.
 	. . write "groupbyClause() : selectListLVN(",j,",",$zwrite(holder),")=",selectListLVN(j,holder),!
-	. . if (selectListLVN(j,holder)="aggregate_function_t_asterisk")  do
-	. . . ; Using anotherholder here because replacing holder itself will cause error
-	. . . ; as selectListLVN(j,holder) will not be defined.
-	. . . ; This can only occur if selectList() call chooses to include count(tablename.*) with GROUPBY
-	. . . set anotherholder=$piece($piece(holder,"(",2),")",1)
-	. . . write "groupbyClause() : holder without aggregate function:",$zwrite(anotherholder),!
-	. . . ; # FUTURE_TODO: We want to randomize selection of table.* for group by
-	. . . ; Because this will lead to the testing of 2 cases
-	. . . ; 1. COUNT(table.*) with group by having table.* and 2. COUNT(table.*) with group by not having table.*
-	. . . ; Both are valid usages
-	. . . ;quit:(1=$random(2))
 	. . quit:selectListLVN(j,holder)="aggregate_function"
 	. . quit:selectListLVN(j,holder)="subquery"
 	. . quit:selectListLVN(j,holder)="star"
 	. . ; table.* must be skipped as adding this to group by when select list hasn't enclosed table.* with COUNT is an invalid case
 	. . quit:selectListLVN(j,holder)="table.*"
-	. . set:anotherholder'="" result=result_$select(firstholder:"",1:", ")_anotherholder,firstholder=0
-	. . set:anotherholder="" result=result_$select(firstholder:"",1:", ")_holder,firstholder=0
+	. . ; Skip binary/unary constant expressions 50% of the time
+	. . quit:((selectListLVN(j,holder)["_constant_expression")&(1=$random(2)))
+	. . if (selectListLVN(j,holder)="aggregate_function_t_asterisk")  do
+	. . . ; Using anotherholder here because replacing holder itself will cause error
+	. . . ; as selectListLVN(j,holder) will not be defined.
+	. . . ; This can only occur if selectList() call chooses to include count(tablename.*) with GROUPBY
+	. . . set anotherholder=$piece($piece(holder,"(",2),")",1)
+	. . . ; # FUTURE_TODO: We want to randomize selection of table.* for group by
+	. . . ; Because this will lead to the testing of 2 cases
+	. . . ; 1. COUNT(table.*) with group by having table.* and 2. COUNT(table.*) with group by not having table.*
+	. . . ; Both are valid usages
+	. . . ;quit:(1=$random(2))
+	. . else  if (("binary_expression"=selectListLVN(j,holder))!("unary_expression"=selectListLVN(j,holder))!("conditional_expression"=selectListLVN(j,holder))) do
+	. . . ; Expression or columns used to form it can be used in GroupBy.
+	. . . ; If column is to be added select all columns involved in expression.
+	. . . new innerHolder,columnSubExpr,subExpr,count,done
+	. . . set count=0
+	. . . set (columnSubExpr,subExpr,anotherholderType)=""
+	. . . write "groupbyClause(): expression in GroupBy, listing expression and columns to be selected from",!
+	. . . if ($DATA(groupByColumnLVN)) zwrite groupByColumnLVN
+	. . . zwrite groupByListLVN
+	. . . ; Choose either the expression or just the columns
+	. . . if (1=$random(2)) do
+	. . . . ; Form the holder using just the columns
+	. . . . ; #FUTURE_TODO: In this case find the columns in select list and form a string having its corresponding
+	. . . . ;   node number list seperated by ',' to be used later when chooseSelectNumber is 1
+	. . . . set innerHolder="" for  set innerHolder=$order(groupByColumnLVN(j,holder,innerHolder))  quit:innerHolder=""  do
+	. . . . . if columnSubExpr="" set columnSubExpr=innerHolder
+	. . . . . else  set columnSubExpr=columnSubExpr_", "_innerHolder
+	. . . . set anotherholder=columnSubExpr
+	. . . . set anotherholderType="column"
+	. . . else  do
+	. . . . ; Form the holder using the entire expression
+	. . . . set innerHolder=holder
+	. . . . ; set innerHolder="" set innerHolder=$order(groupByListLVN(j,innerHolder))
+	. . . . if (innerHolder'="") do
+	. . . . . set anotherholder=innerHolder
+	. . . . . set anotherholderType="expression"
+	. . . . else  quit
+	. . . set selectedExprGroupBy(j,anotherholder)=anotherholderType
+	. . . set selectedExprGroupBy(j,anotherholder,1)=holder ; Only used in Having clause expression 'column' usage
+	. . . zwr selectedExprGroupBy
+	. . if (((selectListLVN(j,holder)["_expression")&("column"'=$get(anotherholderType,"")))&(0'=$get(selectListLVN(j,holder,1),0))&(j=queryDepth)) do
+	. . . set selectNodeNumber=selectListLVN(j,holder,1) ; Possible when we come across subqueries
+	. . . set:(((selectListLVN(j,holder)="table.column")!(selectListLVN(j,holder)["_expression"))&(1=$random(2))) chooseSelectNumber=1
+	. . set:anotherholder'="" result=result_$select(firstholder:"",1:", ")_$select(chooseSelectNumber:selectNodeNumber,1:anotherholder),firstholder=0
+	. . set:anotherholder="" result=result_$select(firstholder:"",1:", ")_$select(chooseSelectNumber:selectNodeNumber,1:holder),firstholder=0
+	. . set:chooseSelectNumber chooseSelectNumber=0
 	write "groupbyClause() : result = ",result,!
 	quit $select(""=result:" ",1:" GROUP BY "_result)
 
@@ -774,48 +914,108 @@ havingClause(queryDepth,clauseType)
 	set result=" HAVING "
 
 	set count=-1
-	new i,j
+	new i,j,isContantExpression,expressionExists
+	set (isConstantExpression,expressionExists)=0
 	for j=queryDepth:-1:0 do
 	. set holder=""
 	. for i=1:1 do  quit:(holder="")  do assert(i<16)
 	. . set holder=$order(selectListLVN(j,holder))
+	. . set:((""'=holder)&(selectListLVN(j,holder)["_constant_expression")) isConstantExpression=1
+	. . set:((""'=holder)&(("binary_expression"=selectListLVN(j,holder))!("unary_expression"=selectListLVN(j,holder))!("conditional_expression"=selectListLVN(j,holder)))) expressionExists=1
 	. . if (""=holder)!("subquery"'=selectListLVN(j,holder)) if $increment(count)
+
+	; #FUTURE_TODO: Enable constant expressions in having clause by removing the following quit statement
+	quit:isConstantExpression ""; skip generating Having clause when constant expressions are present
 
 	do assert(0<count)
 	; #FUTURE_TODO: Increase below to 8 when $$returnCaseFunction infinite loop and malformed query issues are resolved
 	set randInt=$random(6) ; 0-5
 
+
 	; If enableSubQuery is FALSE, randInt=1 and randInt=5 cannot be allowed as they invoke "generateSubQuery"
 	; So in those cases, set randInt=0 instead.
 	set:('enableSubQuery)&((randInt=1)!(randInt=5)) randInt=0
 
-	; If table.asterisk is present allow randInt=2 and randInt=3 case as others are complicated
+	; If table.asterisk is present in GroupBy allow randInt=2 and randInt=3 case as others are complicated
 	; #FUTURE_TODO: Enhance othercases to use table.asterisk
 	set randIntTA=$random(2)
-	set:((tableAsteriskExists)&((randInt'=2)!(randInt'=3))) randInt=(2+randIntTA)
+	set:((tableAsteriskAggregateExists)&((randInt'=2)!(randInt'=3))) randInt=(2+randIntTA)
+
+	set:expressionExists randInt=0
+	; #FUTURE_TODO: Remove below line of code and enable having clause with table.* and expressions
+	quit:(expressionExists&tableAsteriskAggregateExists) ""
 
 	write "havingClause() : randInt = ",randInt,!
 
 	if (randInt=0) do
 	. new loopCount,opened,i,leftSide,rightSide,rightRand,leftRand
+	. new loopCount,opened,i,leftSide,rightSide,notString,rightRand,leftRand
+	. set (leftRand,rightRand)=0
 	. set loopCount=$random(3)+1 ; 1-3
 	. set opened="FALSE"
 	. for i=1:1:loopCount do
-	. . set chosenColumn=$$havingChooseColumn(queryDepth,.table,.isAggrFuncColumn,count)
-	. . ; If chosen column is used with aggregate functions in the select column list, use it with an aggregate function
-	. . ; in the having clause too (i.e. ensure leftRand and rightRand never get set to 2).
-	. . set max=$select(""'=isAggrFuncColumn:1,1:3)
-	. . set leftRand=$random(max),rightRand=$random(max)
-	. . if (leftRand=0)  set leftSide=$$chooseEntry(table,chosenColumn)
-	. . if (leftRand=1) set leftSide=$$havingGetTblCol(isAggrFuncColumn,table,chosenColumn)
-	. . if (leftRand=2)  set leftSide=table_"."_chosenColumn
-	. .
-	. . if (rightRand=0)  set rightSide=$$chooseEntry(table,chosenColumn)
-	. . if (rightRand=1) set rightSide=$$havingGetTblCol(isAggrFuncColumn,table,chosenColumn)
-	. . if (rightRand=2)  set rightSide=table_"."_chosenColumn
-	. . ; If COUNT got chosen as an aggregate function on one side, ensure the other side is a count and not a chooseEntry
-	. . if (leftRand=0)&(rightRand=1)&("COUNT"=isAggrFuncColumn) set leftSide=$$chooseCount
-	. . if (leftRand=1)&(rightRand=0)&("COUNT"=isAggrFuncColumn) set rightSide=$$chooseCount
+	. . new isExpression,selectedQueryDepth
+	. . set (isExpression,selectedQueryDepth)=0
+	. . set chosenColumn=$$havingChooseColumn(queryDepth,.table,.isAggrFuncColumn,count,.isExpression,.selectedQueryDepth)
+	. . if isExpression do
+	. . . new innerHolder,tmp,count,lcli
+	. . . set count=0
+	. . . ; Iterate over the selectedExprGroupBy LVN and note down the count
+	. . . set innerHolder=""
+	. . . for lcli=1:1 set innerHolder=$order(selectedExprGroupBy(selectedQueryDepth,innerHolder)) quit:(innerHolder="")  do  do assert(i<16)
+	. . . . if ($increment(count))
+	. . . do assert(count)
+	. . . write "Number of GroupBy elements"_count,!
+	. . . set count=$random(count)+1 ; As $random returns 0 to (count-1) we add 1 to reflect the correct node
+	. . . write "Node seleced for having clause"_count,!
+	. . . set tmp=""
+	. . . for lcli=1:1:count do
+	. . . . set tmp=$order(selectedExprGroupBy(selectedQueryDepth,tmp))
+	. . . zwr selectedExprGroupBy
+	. . . if "column"=selectedExprGroupBy(selectedQueryDepth,tmp) do
+	. . . . new num,count,done
+	. . . . set (done,count)=0
+	. . . . ; groupByColumnLVN has all the columns used to form the expression use it to form having clause
+	. . . . set innerHolder="" for  set innerHolder=$order(groupByColumnLVN(selectedQueryDepth,selectedExprGroupBy(selectedQueryDepth,tmp,1),innerHolder))  quit:(innerHolder="")  do
+	. . . . . if ($increment(count))
+	. . . . set num=$random(count)+1
+	. . . . set innerHolder="" for  set innerHolder=$order(groupByColumnLVN(selectedQueryDepth,selectedExprGroupBy(selectedQueryDepth,tmp,1),innerHolder)) quit:(done)  do
+	. . . . . quit:innerHolder=""
+	. . . . . if ($increment(count,-1))
+	. . . . . set:count<=0 done=1,leftSide=innerHolder
+	. . . . set table=$piece(leftSide,".",1)
+	. . . . set rightSide=$$chooseEntry(table,$piece(leftSide,".",2))
+	. . . else  do
+	. . . . ; This is an expression, use groupByColumnLVN to obtain constants to form the correct operand
+	. . . . set tmpExpr=tmp
+	. . . . set leftSide="("_tmpExpr_")"	; This is an expression
+	. . . . write "expression is choosen in having clause, get right from groupByColumnLVN",!
+	. . . . zwr groupByColumnLVN
+	. . . . set tmp="" set cl=$order(groupByColumnLVN(selectedQueryDepth,tmpExpr,tmp))
+	. . . . set table=$piece(cl,".",1)
+	. . . . if (groupByComparisonExpressionExists(selectedQueryDepth,tmpExpr)) set rightSide=$$getRandBoolean
+	. . . . else  set rightSide=$$chooseEntry(table,$piece(cl,".",2))
+	. . else  do
+	. . . ; If chosen column is used with aggregate functions in the select column list, use it with an aggregate function
+	. . . ; in the having clause too (i.e. ensure leftRand and rightRand never get set to 2).
+	. . . ; #FUTURE_TODO: un-comment below code to enable table.* usage in this case
+	. . . ; if (isAggrFuncColumn&(chosenColumn="*")) do
+	. . . ; . set (leftRand,rightRand)=1
+	. . . ; else  do
+	. . . ; . set max=$select(""'=isAggrFuncColumn:1,1:3)
+	. . . ; . set leftRand=$random(max),rightRand=$random(max)
+	. . . set max=$select(""'=isAggrFuncColumn:1,1:3)
+	. . . set leftRand=$random(max),rightRand=$random(max)
+	. . . if (leftRand=0)  set leftSide=$$chooseEntry(table,chosenColumn)
+	. . . if (leftRand=1) set leftSide=$$havingGetTblCol(isAggrFuncColumn,table,chosenColumn)
+	. . . if (leftRand=2)  set leftSide=table_"."_chosenColumn
+	. . .
+	. . . if (rightRand=0)  set rightSide=$$chooseEntry(table,chosenColumn)
+	. . . if (rightRand=1) set rightSide=$$havingGetTblCol(isAggrFuncColumn,table,chosenColumn)
+	. . . if (rightRand=2)  set rightSide=table_"."_chosenColumn
+	. . . ; If COUNT got chosen as an aggregate function on one side, ensure the other side is a count and not a chooseEntry
+	. . . if (leftRand=0)&(rightRand=1)&("COUNT"=isAggrFuncColumn) set leftSide=$$chooseCount
+	. . . if (leftRand=1)&(rightRand=0)&("COUNT"=isAggrFuncColumn) set rightSide=$$chooseCount
 	. . zwrite leftRand,rightRand,leftSide,rightSide
 	. .
 	. . ; First portion of WHERE, no AND or OR
@@ -960,8 +1160,8 @@ havingGetTblCol(isAggrFuncColumn,table,chosenColumn)
 ; If the ORDER BY Clause is to appear within a subquery run with "SUBQUERY"
 orderbyClause(queryDepth,aNum,location)
 	do assert(queryDepth!enableOrderByClause)
-	new result,holder
-	set result=""
+	new result,holder,orderByListSize
+	set result="",orderByListSize=0
 	; Following if statement checks for DISTINCT in the parent query as the
 	; presence of a DISTINCT qualifier requires the ORDER BY to contain only
 	; things that also occur in the SELECT LIST
@@ -977,7 +1177,9 @@ orderbyClause(queryDepth,aNum,location)
 	. . ; Only choose select column list columns at query depth "queryDepth" for ORDER BY due to SELECT DISTINCT usage.
 	. . set holder="" for  set holder=$order(selectListLVN(queryDepth,holder))  quit:holder=""  do
 	. . . write "orderbyClause() : holder = ",holder,!
-	. . . if (holder'="*")  set result=result_$select(firstholder:"",1:", ")_holder,firstholder=0
+	. . . if (holder'="*")  do
+	. . . . set result=result_$select(firstholder:"",1:", ")_holder,firstholder=0
+	. . . . if ($increment(orderByListSize))
 	. else  do
 	. . ; #FUTURE_TODO: There is no basis for determining whether an ORDER BY occurs within a subquery
 	. . ;               or not, so eventually add the fourth parameter to the below call to
@@ -991,6 +1193,8 @@ orderbyClause(queryDepth,aNum,location)
 	. . . set toCompare="alias"_aNum_"."_$$chooseColumn(subqueryTable)
 	. . . set result=result_$$returnCaseFunction("ORDER BY","randomNumbers","columns","TRUE",toCompare)
 	else  set result=""
+	if (""'=result)  zwr orderByListSize
+	if (""'=result) do checkIfOrderByLessThanSelectList(queryDepth,location,orderByListSize)
 	quit $select(""=result:"",1:" ORDER BY "_result)
 
 ; This function returns a LIMIT Clause, with a number between 0 and 31
@@ -1265,9 +1469,10 @@ chooseColumn(table)
 
 ; This function is designed for the HAVING clause.
 ; It will randomly select a table from the selectListLVN, which is required for the HAVING clause.
-havingChooseColumn(queryDepth,table,isAggrFuncColumn,count)
+havingChooseColumn(queryDepth,table,isAggrFuncColumn,count,isExpression,selectedQueryDepth)
 	new randValue,holderMinusAggrFunc,chosenColumn
 	set randValue=$random(count)+1
+
 	new i,j,holder,done
 	set i=randValue
 	set done=0
@@ -1277,6 +1482,15 @@ havingChooseColumn(queryDepth,table,isAggrFuncColumn,count)
 	. . quit:"subquery"=selectListLVN(j,holder) 	; skip columns that are subqueries
 	. . if i=0 set done=1  quit
 	. . set i=i-1
+
+	; Check if boolean expression is choosen
+	; If so return back and indicate to the caller as such and let caller use selectedExprGroupBy value to form the having expression
+	if (("unary_expression"=selectListLVN(j,holder))!("binary_expression"=selectListLVN(j,holder))!("conditional_expression"=selectListLVN(j,holder))) do  quit ""
+	. write "havingChooseColumn(): expression is selected",!
+	. set isExpression=1
+	. set selectedQueryDepth=j
+	. quit
+
 	; Remove any aggregate function usage
 	; (i.e. COUNT(x.y) should yield x.y; COUNT(ALL x.y) should yield x.y; ROUND(AVG(x.y)) should yield x.y;)
 	if $find(holder,"ROUND(AVG(") do
@@ -1421,6 +1635,20 @@ comparisonOperators(leftSide,rightSide)
 	set toBeReturned=comparisonOperators($random(comparisonOperators))
 	set:compareRand=2 rightSide="NULL"			; Test "column = NULL", "column < NULL" etc.
 	quit "("_leftSide_" "_toBeReturned_" "_rightSide_")"	; Test "column1 = column2", "column1 != value1" etc.
+
+getComparisonOperatorAlone()
+	if (initDone("comparisonOperatorsAlone")=0) do
+	. set initDone("comparisonOperatorsAlone")=1
+	. set comparisonOperatorsAlone=-1
+	. set comparisonOperatorsAlone($increment(comparisonOperatorsAlone))="="
+	. set comparisonOperatorsAlone($increment(comparisonOperatorsAlone))="!="
+	. set comparisonOperatorsAlone($increment(comparisonOperatorsAlone))="<"
+	. set comparisonOperatorsAlone($increment(comparisonOperatorsAlone))=">"
+	. set comparisonOperatorsAlone($increment(comparisonOperatorsAlone))="<="
+	. set comparisonOperatorsAlone($increment(comparisonOperatorsAlone))=">="
+	. if $increment(comparisonOperatorsAlone)
+	set toBeReturned=comparisonOperatorsAlone($random(comparisonOperatorsAlone))
+	quit toBeReturned
 
 arithmeticOperator()
 	if (initDone("arithmeticOperator")=0) do
@@ -1637,7 +1865,8 @@ generateQuery(queryDepth,joinCount)
 	; In that case, it would be a sub-query. So give it a name in the outer query using the AS keyword.
 	set:(sqlFile="names.sql") fc=fc_" AS names"
 	set joinclause="" for i=1:1:joinCount  set joinclause=joinclause_$$joinClause(queryDepth,joinCount)  if $increment(aliasNum)
-	set query=query_$$selectList(queryDepth,selectListDepth)
+	set outerSelectList=$$selectList(queryDepth,selectListDepth)
+	set query=query_outerSelectList
 	set query=query_" "_fc_" "_joinclause
 	set query=query_$$tableExpression(queryDepth)
 	; If testing with the "names" database, randomly (1/8 chance) replace occurrences of "names" table with the VALUES clause.
@@ -1658,7 +1887,7 @@ generateQuery(queryDepth,joinCount)
 generateSubQuery(queryDepth,subQueryType,joinType)
 	do assert(enableSubQuery)
 	new innerFC,alias,innerQuery
-	new tableColumnSave,selectListLVNSave,tableAliasSave
+	new tableColumnSave,selectListLVNSave,tableAliasSave,groupByListLVNSave,groupByColumnLVNSave,selectedExprGroupBySave,groupByComparisonExpressionExistsSave
 	if $increment(aliasNum)
 	set alias="alias"_aliasNum
 
@@ -1675,7 +1904,10 @@ generateSubQuery(queryDepth,subQueryType,joinType)
 	merge tableColumnSave=tableColumn
 	merge selectListLVNSave=selectListLVN
 	merge tableAliasSave=tableAlias
-
+	merge groupByListLVNSave=groupByListLVN
+	merge groupByColumnLVNSave=groupByColumnLVN
+	merge selectedExprGroupBySave=selectedExprGroupBy
+	merge groupByComparisonExpressionExistsSave=groupByComparisonExpressionExists
 	set innerQuery="SELECT "
 	set innerQuery=innerQuery_$$setQuantifier
 	set innerFC=$$fromClause ; fromClause needs to run before selectList
@@ -1689,10 +1921,14 @@ generateSubQuery(queryDepth,subQueryType,joinType)
 	set innerQuery=innerQuery_$$innerTableExpression(queryDepth,subQueryType)
 
 	; And restore outer query global state
-	kill tableColumn,selectListLVN,tableAlias
+	kill tableColumn,selectListLVN,tableAlias,groupByListLVN,groupByColumnLVN,selectedExprGroupBy,groupByComparisonExpressionExists
 	merge tableColumn=tableColumnSave
 	merge selectListLVN=selectListLVNSave
 	merge tableAlias=tableAliasSave
+	merge groupByListLVN=groupByListLVNSave
+	merge groupByColumnLVN=groupByColumnLVNSave
+	merge selectedExprGroupBy=selectedExprGroupBySave
+	merge groupByComparisonExpressionExists=groupByComparisonExpressionExistsSave
 
 	w "generateSubQuery() innerQuery=",innerQuery,!
 	quit innerQuery
@@ -2146,6 +2382,290 @@ valuesClause()
 	new valueClause,ret
 	set valueClause="(values (0, 'Zero', 'Cool'), (1, 'Acid', 'Burn'), (2, 'Cereal', 'Killer'), (3, 'Lord', 'Nikon'), (4, 'Joey', NULL), (5, 'Zero', 'Cool'))"
 	set ret="(select * from "_valueClause_" as names(id,firstname,lastname))"
+	quit ret
+
+getRandInt()
+	new ret
+	set ret=$random(100)
+	set:(ret=0) ret=1	; Just to avoid divide by zero errors
+	quit $random(100)
+
+getRandStr()
+	new string,i,randInt,desiredStringLength
+	set string=""
+	set desiredStringLength=$random(7)+1 ; 1-7
+	for i=1:1:desiredStringLength do
+	. set randInt=$random(9) ; 0-8
+	. if ((randInt=0)!(randInt=1)) set string=string_$char($random(27)+64) ; @,A-Z
+	. if ((randInt=2)!(randInt=3)) set string=string_$char($random(26)+97) ; a-z
+	. if (randInt=4) set string=string_$random(10) ; 0-9
+	. if (randInt=5) set string=string_"#"
+	. if (randInt=6) set string=string_"$"
+	. if (randInt=7) set string=string_"%"
+	. if (randInt=8) set string=string_"_"
+	quit "'"_string_"'"
+
+getRandBoolean()
+	quit $select(($random(2)=0):"TRUE",1:"FALSE")
+
+; The below routine only executes if the outer most query OrderBy is being processed.
+; If OrderBy list doesn't have all nodes from select list `orderByListLessThanSelectList` is set
+;   1. In the below query although we do not have all nodes from Select List in OrderBy list we do not need
+;      to set `orderByListLessThanSelectList` as the ordering will not differ because duplicate nodes don't effect ordering
+;	  `SELECT NOT (Suppliers.Country > 'Denmark'), Suppliers.ContactName, COUNT(ALL Suppliers.City), Suppliers.ContactName ..
+;	   .. ORDER BY COUNT(ALL Suppliers.City), NOT (Suppliers.Country > 'Denmark'), Suppliers.ContactName;`
+;   2. The set `orderByListLessThanSelectList` is later used to determine if `--sort-needed-check` is required to be added to
+;   query or not.
+checkIfOrderByLessThanSelectList(queryDepth,location,orderByListSize)
+	quit:((0'=queryDepth)!("QUERY"'=location))	; We only need to set orderByListLessThanSelectList for outer query OrderBy
+	new innerHolder,selectListCounter
+	set innerHolder="",selectListCounter=0 for  set innerHolder=$order(selectListLVN(queryDepth,innerHolder)) quit:""=innerHolder  do
+	. if ("table.*"=selectListLVN(queryDepth,innerHolder)) do
+	. . new tblStr,totalCol
+	. . set tblStr=$piece(innerHolder,".",1)
+	. . ; Check how many columns in table
+	. . set totalCol=$$columnCounter(tblStr)
+	. . ; Add it to counter
+	. . if ($increment(selectListCounter,totalCol))
+	. else  do
+	. . if ($increment(selectListCounter))
+	zwr selectListCounter
+	set:(selectListCounter>orderByListSize) orderByListLessThanSelectList=1
+	quit
+
+; At present the following routine only checks from INTEGER and VARCHAR
+getTableColumnTypes(table)
+	new i,origTable,maxcols,ret,varcharColumns,intColumns,availcols,col
+	set (varcharColumns,intColumns)=0
+	set origTable=table,table=$$getRealTable(table)
+	set maxcols=tableColumnCounts(table),availcols=0
+	for i=1:1:maxcols set col=$order(columns(table,i,"")) quit:""=col  do
+	. if columns(table,i,col)="VARCHAR" if $incr(varcharColumns)
+	. if columns(table,i,col)="INTEGER" if $incr(intColumns)
+	if ((0<varcharColumns)&(0<intColumns)) set ret="BOTH"
+	else  if (0<varcharColumns) set ret="VARCHAR"
+	else  if (0<intColumns) set ret="INTEGER"
+	else  set ret="NONE"
+	quit ret
+
+returnUnaryExpression(queryDepth,table,constExpr)
+	new randInt,ret,lclGroupByColumnLVN,lclgroupByComparisonExpressionExists
+	set lclgroupByComparisonExpressionExists=0
+	set ret=""
+	set randInt=$random(3)
+
+	if (0=randInt) do
+	. ; NOT boolean expression
+	. set ret="NOT"_" "_$$getSimpleBinaryExpression(queryDepth,table,.constExpr,1,"BOTH_COMPARISON",.lclGroupByColumnLVN,.lclgroupByComparisonExpressionExists)
+
+	if (1=randInt) do
+	. ; The following is does not lead to creation of a unary_STATEMENT but since NULL is constant and only the first argument
+	. ; for this expression can be a variable part we included its generation under this routine itself.
+	. ; IS NULL or IS NOT NULL
+	. new str
+	. if (1=$random(2)) set str="IS NULL"
+	. else  set str="IS NOT NULL"
+	. set ret="("_$$getSimpleBinaryExpression(queryDepth,table,.constExpr,1,"BOTH",.lclGroupByColumnLVN,.lclgroupByComparisonExpressionExists)_")"_" "_str
+	. set lclgroupByComparisonExpressionExists=1 ; As both operation results in a boolean value
+
+	if (2=randInt) do
+	. ; + or -
+	. new str
+	. if (1=$random(2)) set str="+"
+	. else  set str="-"
+	. set ret=str_"("_$$getSimpleBinaryExpression(queryDepth,table,.constExpr,1,"INTEGER",.lclGroupByColumnLVN,.lclgroupByComparisonExpressionExists)_")"
+
+	if ($increment(groupByListLVN(queryDepth,ret)))
+	set groupByComparisonExpressionExists(queryDepth,ret)=lclgroupByComparisonExpressionExists
+	new innerHolder
+	set innerHolder="" for  set innerHolder=$order(lclGroupByColumnLVN(queryDepth,innerHolder))  quit:innerHolder=""  do
+	. if ($increment(groupByColumnLVN(queryDepth,ret,innerHolder)))
+	kill lclGroupByColumnLVN
+	quit ret
+
+getSimpleBinaryExpression(queryDepth,table,constExpr,sizeOfExpression,dataType,lclGroupByColumnLVN,lclgroupByComparisonExpressionExists)
+	new randInt,ret,selectComp,columnTypes,expType,toBeAdded,isVariableGroupBy
+	set isVariableGroupBy=0
+	set ret=""
+	set toBeAdded=""
+	set (constExpr,selectComp)=0
+	; If dataType is specified then this invocation is from returnUnaryExpression,
+	;   select comparison operator only if the value is "BOTH_COMPARISON".
+	; Otherwise, randomly select COMPARISON so that comparison operators is used.
+	; Since comparison operators apply to BOOLEAN, VARCHAR and INTEGER, it can safely
+	;   replace any later expType selection done in the following loop.
+	if ("BOTH_COMPARISON"=$get(dataType,"")) set (selectComp,lclgroupByComparisonExpressionExists)=1
+	else  set:((""=$get(dataType,""))&(0=$random(2))) (selectComp,lclgroupByComparisonExpressionExists)=1
+
+	set randInt=$random(6)
+	set columnTypes=$$getTableColumnTypes(table)
+	set:("NONE"=columnTypes) randInt=2+$random(3)	; 2,3,4
+	if ((randInt=0)!(randInt=1)!(randInt=5)) do
+	. ; Set expType here so that all expression elements are of the same type.
+	. ;   i.e. we do not want to form below type of expressions when columnTypes is `BOTH`
+	. ;   `(samevalue(alias5.order_date) || '07/04/1776') + (samevalue(alias5.customer_id) * 3)`
+	. ; Other cases do not rely on columnTypes so no need to set expType for them here.
+	. new num
+	. set num=$random(2)
+	. if (columnTypes="VARCHAR") set expType="VARCHAR"
+	. else  if (columnTypes="INTEGER") set expType="INTEGER"
+	. else  if (columnTypes="BOTH") set expType=$select((num=0):"VARCHAR",(num=1):"INTEGER")
+	. ; If dataType is set then this call is from getUnaryExpression
+	. ; Try to get an expression having data type same as dataType value
+	. if (""'=$get(dataType,"")) do
+	. . ; `BOTH_COMPARISON` - operator needs to be COMPARISON with operands being of VARCHAR or INTEGER type
+	. . ; `BOTH` - let operator be what is already set in the previous IF block
+	. . ; `dataType=expType` - the selected operand type is same as expected
+	. . ; If none of the above is true - the selected type and expected is different
+	. . if ("BOTH_COMPARISON"=dataType) set (selectComp,lclgroupByComparisonExpressionExists)=1
+	. . else  if ("BOTH"=dataType) ; do nothing
+	. . else  if (dataType=expType) ; do nothing
+	. . else  do
+	. . . ; `expType` chosen is different from the expected type
+	. . . if (columnTypes="BOTH") set expType=dataType	; Column of required type is in table so direct assignment is ok
+	. . . else  do
+	. . . . ; Select a constant expression because we do not have a column of expected type in the table
+	. . . . set expType=dataType
+	. . . . set:("VARCHAR"=dataType) randInt=3
+	. . . . set:("INTEGER"=dataType) randInt=2
+
+	if ((randInt=2)!(randInt=3)!(randInt=4)) do
+	. if (dataType="INTEGER") set randInt=2	; Only possible for unary operation using + or - operators
+
+	for i=1:1:sizeOfExpression do
+	. new leftOpnd,rightOpnd,op,column,const,num,expr
+	. if (0=randInt) do
+	. . ; - single column expression
+	. . new tblCol
+	. . ; get a column
+	. . set column=$$getColumnOfType(table,expType)
+	. . set tblCol=table_"."_column
+	. . ; get a constant based on expression type
+	. . set const=$$chooseEntry(table,column)
+	. . ; assign left and right operand
+	. . set num=$random(2)
+	. . set:(num) leftOpnd=const,rightOpnd=tblCol
+	. . set:('num) rightOpnd=const,leftOpnd=tblCol
+	. . if ($increment(lclGroupByColumnLVN(queryDepth,tblCol)))
+	. . set isVariableGroupBy=1
+	.
+	. if (1=randInt) do
+	. . ; - double column
+	. . ; #FUTURE_TODO: Enhance this case to have having expressions of double column
+	. . ;   For ex: (id!=1)AND(firstname='Cool')
+	. . ;   At present the expression formed is similar to: (firstname!=lastname)
+	. . new secondColumn
+	. . ; get first column
+	. . set column=table_"."_$$getColumnOfType(table,expType)
+	. . ; get second column
+	. . set secondColumn=table_"."_$$getColumnOfType(table,expType)
+	. . ; assign left and right operand
+	. . set num=$random(2)
+	. . set:(num) leftOpnd=secondColumn,rightOpnd=column
+	. . set:('num) rightOpnd=secondColumn,leftOpnd=column
+	. . if ($increment(lclGroupByColumnLVN(queryDepth,column)))
+	. . if ($increment(lclGroupByColumnLVN(queryDepth,secondColumn)))
+	. . set isVariableGroupBy=1
+	.
+	. if (2=randInt) do
+	. . ; - constant expressions (INT)
+	. . set expType="INTEGER"
+	. . set leftOpnd=$$getRandInt,rightOpnd=$$getRandInt
+	. . set constExpr=1
+	.
+	. if (3=randInt) do
+	. . ; - constant expressions (String)
+	. . set expType="VARCHAR"
+	. . set leftOpnd=$$getRandStr,rightOpnd=$$getRandStr
+	. . set constExpr=1
+	.
+	. if (4=randInt) do
+	. . ; - boolean constant expression (TRUE/FALSE)
+	. . set expType="BOOLEAN"
+	. . set leftOpnd=$$getRandBoolean
+	. . set rightOpnd=$$getRandBoolean
+	. . set constExpr=1
+	.
+	. if (5=randInt) do
+	. . ; - with functions
+	. . ; #FUTURE_TODO: Include paramless functions
+	. . new func,tblCol
+	. . ; get a column
+	. . set column=$$getColumnOfType(table,expType)
+	. . set tblCol=table_"."_column
+	. . ; get a function based on type
+	. . set func=$select((expType="VARCHAR"):$$getRandFuncStr(tblCol),(expType="INTEGER"):$$getRandFuncInt(tblCol))
+	. . if ($increment(lclGroupByColumnLVN(queryDepth,tblCol)))
+	. . set isVariableGroupBy=1
+	. . if (0=$random(2)) set column=$$chooseEntry(table,column)
+	. . else  do
+	. . . set column=tblCol
+	. . . if ($increment(lclGroupByColumnLVN(queryDepth,column)))
+	. . . set isVariableGroupBy=1
+	. . ; assign left and right operand
+	. . set num=$random(2)
+	. . set:(num) leftOpnd=func,rightOpnd=column
+	. . set:('num) rightOpnd=func,leftOpnd=column
+	.
+	. ; #FUTURE_TODO: Include NULL based expressions
+	. ; if (6=randInt) do
+	. ; . ; - constant expressions (NULL)
+	. ; . set constExpr=1
+	.
+	. ; Get an operator based on expression type (expType) and selectComp value
+	. if (selectComp) set op=$$getComparisonOperatorAlone
+	. else  if ("INTEGER"=expType) do
+	. . new arithmeticOp
+	. . set arithmeticOp=$$arithmeticOperator
+	. . ; Avoid / and % operators as its hard to avoid divide by 0 in case of randomly formed expressions
+	. . ;   involving columns and constants.
+	. . set:(("/"=arithmeticOp)!("%"=arithmeticOp)) arithmeticOp="+"
+	. . set op=arithmeticOp
+	. else  set op=$select(("BOOLEAN"=expType):$$booleanOperator,("VARCHAR"=expType):"||")
+	. ; combine left operand, operator and right operand
+	. set expr=leftOpnd_" "_op_" "_rightOpnd
+	.
+	. ; Combine expressions if sizeOfExpression is > 1
+	. if (""'=ret) do
+	. . ; Get a new operator to combine previous and new expression.
+	. . ; If the operands are having comparison operator then combine them using boolean/comparison operator.
+	. . if (selectComp) do
+	. . . if (sizeOfExpression<=2) do
+	. . . . if (1=$random(2)) set op=$$booleanOperator
+	. . . . else  set op=$$getComparisonOperatorAlone
+	. . . else  do
+	. . . . ; Comparison operator for a 3 operand or more operand expression doesn't work
+	. . . . ;   For ex:`select ('%9_#_U#' > '$uc#') != ('$N' != 'w0j') = ('t##8#' < '5Y#um$');` gives an error.
+	. . . . ;   So use boolean operators to combine such expressions
+	. . . . set op=$$booleanOperator
+	. . else  if ("INTEGER"=expType) do
+	. . . new arithmeticOp
+	. . . set arithmeticOp=$$arithmeticOperator
+	. . . ; Avoid / and % operators as its hard to avoid divide by 0 in case of randomly formed expressions
+	. . . ; Also, avoid * operaion as its hard to avoid reaching `integer out of range` error case
+	. . . ;   involving columns and constants.
+	. . . if (("/"=arithmeticOp)!("%"=arithmeticOp)!("*"=arithmeticOp)) do
+	. . . . if (1=$random(2)) set arithmeticOp="+"
+	. . . . else  set arithmeticOp="-"
+	. . . set op=arithmeticOp
+	. . else  set op=$select(("BOOLEAN"=expType):$$booleanOperator,("VARCHAR"=expType):"||")
+	. . set ret=ret_" "_op_" ("_expr_")"
+	. else  do
+	. . set ret="("_expr_")"
+	quit ret
+
+returnBinaryExpression(queryDepth,table,constExpr)
+	new ret,noOfExpr,lclGroupByColumnLVN,lclgroupByComparisonExpressionExists
+	set lclgroupByComparisonExpressionExists=0
+	; - Boolean expressions
+	set noOfExpr=1+$random(8)	; Avoiding 0 value for noOfExpr
+	set ret=$$getSimpleBinaryExpression(queryDepth,table,.constExpr,noOfExpr,"",.lclGroupByColumnLVN,.lclgroupByComparisonExpressionExists)
+	if ($increment(groupByListLVN(queryDepth,ret)))
+	set groupByComparisonExpressionExists(queryDepth,ret)=lclgroupByComparisonExpressionExists
+	new innerHolder
+	set innerHolder="" for  set innerHolder=$order(lclGroupByColumnLVN(queryDepth,innerHolder))  quit:innerHolder=""  do
+	. if ($increment(groupByColumnLVN(queryDepth,ret,innerHolder)))
+	kill lclGroupByColumnLVN
 	quit ret
 
 assert(cond)	;

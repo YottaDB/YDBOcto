@@ -659,7 +659,7 @@ This clause represents a condition under which columns are selected. If the **se
 GROUP BY
 +++++++++++
 
-The GROUP BY clause provides for result rows to be grouped together based on the specified **grouping_column**. **grouping_column** can be :code:`table_name.*` as well in which case all columns of the table are considered for processing.
+The GROUP BY clause provides for result rows to be grouped together based on the specified **grouping_column**. **grouping_column** can be :code:`table_name.*` or SELECT list column number or an expression. In case of :code:`table_name.*` all columns of the table are considered for processing.
 
 ++++++++++
 HAVING

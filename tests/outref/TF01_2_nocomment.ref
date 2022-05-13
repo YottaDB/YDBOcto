@@ -1,6 +1,6 @@
-TF02_nocomment-0.sql
+TF01_2_nocomment-0.sql
 select id from names order by lastname;
-TF02_nocomment-1.sql
+TF01_2_nocomment-1.sql
 select lastname from names order by firstname;
-TF02_nocomment-2.sql
+TF01_2_nocomment-2.sql
 select * from names;

@@ -261,98 +261,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		/* Note: Inherit ret.max_unique_id from caller (could be parent/outer query in case this is a sub-query) as is */
 	}
 	result |= qualify_statement(select->where_expression, start_join, table_alias_stmt, 0, ret);
-	table_alias->qualify_query_stage = QualifyQuery_NONE; /* Initialize before any other "qualify_statement" calls
-							       * using "table_alias_stmt" as the 3rd parameter.
-							       */
-	// Qualify GROUP BY clause next
-	group_by_expression = select->group_by_expression;
-	/* Note that while table_alias->aggregate_function_or_group_by_or_having_specified will mostly be FALSE at this point, it is
-	 * possible for it to be TRUE in some cases (see YDBOcto#457 for example query) if this `qualify_query()` invocation
-	 * corresponds to a sub-query in say the HAVING clause of an outer query. In that case, `qualify_query()` for the
-	 * sub-query would be invoked twice by the `qualify_query()` of the outer query (see `table_alias->do_group_by_checks`
-	 * `for` loop later in this function). If so, we can skip the GROUP BY expression processing for the sub-query the
-	 * second time. Hence the `&& !table_alias->aggregate_function_or_group_by_or_having_specified)` in the `if` check below.
-	 */
-	if ((NULL != group_by_expression) && !table_alias->aggregate_function_or_group_by_or_having_specified) {
-		int group_by_column_count;
-
-		table_alias->aggregate_depth = AGGREGATE_DEPTH_GROUP_BY_CLAUSE;
-		assert(0 == table_alias->group_by_column_count);
-		result |= qualify_statement(group_by_expression, start_join, table_alias_stmt, 0, ret);
-		/* Note: table_alias->group_by_column_count can still be 0 if GROUP BY was done on a parent query column */
-		/* But irrespective of whether current level query columns or parent level query columns were specified
-		 * in the GROUP BY, the fact that one was specified means we need to do GROUP BY related checks. Therefore
-		 * set "table_alias->aggregate_function_or_group_by_or_having_specified" to TRUE.
-		 */
-		table_alias->aggregate_function_or_group_by_or_having_specified |= GROUP_BY_SPECIFIED;
-		/* Traverse the GROUP BY list to see what columns belong to this table_alias. Include only those in the
-		 * GROUP BY list. Exclude any other columns (e.g. columns belonging to outer query) from the list
-		 * as they are constant as far as this sub-query is concerned.
-		 */
-		SqlColumnListAlias *start_cla, *cur_cla;
-		SqlColumnList *	    col_list;
-
-		UNPACK_SQL_STATEMENT(start_cla, group_by_expression, column_list_alias);
-		group_by_column_count = 0;
-		cur_cla = start_cla;
-		do {
-			UNPACK_SQL_STATEMENT(col_list, cur_cla->column_list, column_list);
-			if (column_alias_STATEMENT == col_list->value->type) {
-				SqlColumnAlias *column_alias;
-				SqlTableAlias * group_by_table_alias;
-
-				UNPACK_SQL_STATEMENT(column_alias, col_list->value, column_alias);
-				UNPACK_SQL_STATEMENT(group_by_table_alias, column_alias->table_alias_stmt, table_alias);
-				if (group_by_table_alias->parent_table_alias != table_alias) {
-					/* Column belongs to an outer query. Discard it from the GROUP BY list. */
-					SqlColumnListAlias *prev, *next;
-
-					prev = cur_cla->prev;
-					next = cur_cla->next;
-					prev->next = next;
-					next->prev = prev;
-					if ((cur_cla == start_cla) && (next != cur_cla)) {
-						start_cla = cur_cla = next;
-						continue;
-					}
-				} else {
-					if (0 == group_by_column_count) {
-						group_by_expression->v.column_list_alias = cur_cla;
-					}
-					group_by_column_count++;
-				}
-			} else {
-				/* This is a case of an invalid column name specified in the GROUP BY clause.
-				 * An "Unknown column" error would have already been issued about this (i.e. result would be 1).
-				 * Assert both these conditions.
-				 */
-				assert(result);
-				assert((value_STATEMENT == col_list->value->type)
-				       && ((COLUMN_REFERENCE == col_list->value->v.value->type)
-					   || (TABLE_ASTERISK == col_list->value->v.value->type)));
-			}
-			cur_cla = cur_cla->next;
-			if (cur_cla == start_cla) {
-				/* Note: Cannot move the negation of the above check to the `while(TRUE)` done below
-				 * because there is a `continue` code path above which should go through without any checks.
-				 */
-				break;
-			}
-		} while (TRUE);
-		/* The "|| result" case below is to account for query errors (e.g. "Unknown column" error, see comment above) */
-		assert((group_by_column_count == table_alias->group_by_column_count) || result);
-		if (!group_by_column_count) {
-			select->group_by_expression = NULL;
-		}
-	}
-
-	/* Qualify HAVING clause */
-	if (NULL != select->having_expression) {
-		table_alias->aggregate_depth = AGGREGATE_DEPTH_HAVING_CLAUSE;
-		result |= qualify_statement(select->having_expression, start_join, table_alias_stmt, 0, ret);
-		table_alias->aggregate_function_or_group_by_or_having_specified |= HAVING_SPECIFIED;
-	}
-
+	table_alias->aggregate_depth = 0;
 	/* Expand "*" usage in SELECT column list here. This was not done in "query_specification.c" when the "*" usage was
 	 * first encountered because the FROM/JOIN list of that query could in turn contain a "TABLENAME.*" usage that refers
 	 * to a parent query table. In that case "query_specification.c" does not have access to the parent query context.
@@ -416,19 +325,183 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	 */
 	lcl_ret.ret_cla = &ret_cla;
 	lcl_ret.max_unique_id = ((NULL != ret) ? ret->max_unique_id : NULL);
-	table_alias->aggregate_depth = 0;
-	/* We qualify SELECT and ORDER BY clauses TWICE below. Hence the "for" loop. This is because we want to
-	 * check if any aggregate functions were used anywhere even if a GROUP BY was not used. In that case, we want to
-	 * ensure there are no non-grouped column references in the remainder of the query. See comment where
-	 * "do_group_by_checks" member is defined in the "SqlTableAlias" structure in "octo_types.h" for more details.
+	/* We qualify SELECT, HAVING and ORDER BY clauses TWICE below. Hence the "for" loop.
+	 * This is because
+	 * 1) In case of SELECT, HAVING and ORDER BY we want to check if any aggregate functions were used anywhere even if a
+	 *    GROUP BY was not used. In that case, we want to ensure there are no non-grouped column references in the remainder of
+	 *    the query. See comment where "do_group_by_checks" member is defined in the "SqlTableAlias" structure in
+	 *    "octo_types.h".
+	 * 2) With implementation of GROUP BY column numbers and expressions
+	 *    * GROUP BY qualification will happen after qualification of SELECT in the first iteration of the `for` loop
+	 *      This is because column number references can only be qualified after SELECT qualification is complete
+	 *    * Because GROUP BY qualification is completed only after first iteration we need another iteration to perform
+	 *      expression matching in SELECT, HAVING and ORDER BY
+	 * 3) Additionally, in case of HAVING the following two conditions are neccessary to go through qualify twice.
+	 *    * Expression matching happens root first
+	 *    * In this case if we try to match HAVING clause columns in the first iteration itself, we will be
+	 *      comparing a GROUP BY column which is formed out of fully qualified `stmt` and a column formed out of
+	 *      unqualified HAVING clause stmt. This is incorrect.
+	 *    * To avoid the above scenario we qualify HAVING in first iteration and then make use of the second
+	 *      to perform expression matching.
 	 */
 	for (;;) {
+		// First iteration:
+		//	Qualify each clause
+		//	Qualify each element
+		//	Replace column number usages in GROUP BY and ORDER BY
+		//	Assign GROUP BY column numbers to column references
+		//	Issue GROUP BY subquery usage error if any
+		// Second iteration:
+		//	Assign GROUP BY column numbers to expressions
+		//	Issue error on GROUP BY validation failure
 		assert(0 == table_alias->aggregate_depth);
-		// Qualify SELECT column list next
+		// Qualify SELECT column list first
 		table_alias->qualify_query_stage = QualifyQuery_SELECT_COLUMN_LIST;
 		result |= qualify_statement(select->select_list, start_join, table_alias_stmt, 0, ret);
+		// Qualify GROUP BY clause next
+		/* 1. Deferred till this point as we want select list to be qualified before GroupBy as we want to refer to the
+		 *    qualified select list through GroupBy column numbers.
+		 * 2. GROUP BY qualification is only done once even though it is inside the `for` loop. Error reporting and
+		 *    column number replacement for GROUP BY is taken care in the first iteration itelf.
+		 */
+		group_by_expression = select->group_by_expression;
+		table_alias->qualify_query_stage = QualifyQuery_NONE;
+		if (!table_alias->do_group_by_checks) {
+			/* Note that while `GROUP_BY_SPECIFIED` bit of
+			 * `table_alias->aggregate_function_or_group_by_or_having_specified` will mostly be 0 at this point, it
+			 * is possible for it to be 1 in some cases (see YDBOcto#457 for example query) if this `qualify_query()`
+			 * invocation corresponds to a sub-query in say the HAVING clause of an outer query. In that case,
+			 * `qualify_query()` for the sub-query would be invoked twice by the `qualify_query()` of the outer query
+			 * because of the current `for` loop. If so, we can skip the GROUP BY expression processing for the
+			 * sub-query the second time. Hence the
+			 * `&& !(GROUP_BY_SPECIFIED & table_alias->aggregate_function_or_group_by_or_having_specified)`
+			 * condition in the `if` check below.
+			 */
+			if ((NULL != group_by_expression)
+			    && !(GROUP_BY_SPECIFIED & table_alias->aggregate_function_or_group_by_or_having_specified)) {
+				int group_by_column_count, gb_result;
+
+				table_alias->aggregate_depth = AGGREGATE_DEPTH_GROUP_BY_CLAUSE;
+				/* Rely on only GROUP BY errors to break from this block, not on earlier failures.
+				 * Without it we will allow other clause to influence the `break` later on in this block.
+				 * For example the following query is expected to error out twice for the reasons mentioned below
+				 * but without `gb_result` we will break on result being set by other block thus not generating
+				 * the second error which outerwise gets generated in the second iteration of `for` loop.
+				 *  60 --> Below should error out because of two errors.
+				 *  61 -->     a) aggregate function (COUNT(c.CustomerID) above) cannot be inside JOIN conditions
+				 *  62 -->     b) o.OrderID should appear in GROUP BY or used in an aggregate function
+				 *  63 SELECT c.CustomerID,o.OrderID FROM Customers c LEFT JOIN Orders o ON COUNT(c.CustomerID) =
+				 * o.CustomerID GROUP BY c.CustomerID;
+				 */
+				gb_result = 0;
+				gb_result |= qualify_statement(group_by_expression, start_join, table_alias_stmt, 0, ret);
+				// Ensure error is forwarded to result as that is the one returned at the end of this function
+				result |= gb_result;
+				/* After GROUP BY qualification `table_alias->group_by_column_count` can still be 0 if GROUP BY was
+				 * done on a parent query column. Even in this case, since GROUP BY was specified, we need to do
+				 * GROUP BY related checks. Setting GROUP_BY_SPECIFIED value to the below field ensures the checks
+				 * happen.
+				 */
+				table_alias->aggregate_function_or_group_by_or_having_specified |= GROUP_BY_SPECIFIED;
+
+				/* Traverse the GROUP BY list to see what columns belong to this table_alias. Include only those in
+				 * the GROUP BY list. Exclude any other columns (e.g. columns belonging to outer query) from the
+				 * list as they are constant as far as this sub-query is concerned.
+				 *
+				 * Do not clear `GROUP_BY_SPECIFIED` bit in `aggregate_function_or_group_by_or_having_specified`
+				 * even if all columns are excluded as we want to perform GROUP BY validations even if the column
+				 * list is empty.
+				 */
+				SqlColumnListAlias *start_cla, *cur_cla;
+				SqlColumnList *	    col_list;
+
+				UNPACK_SQL_STATEMENT(start_cla, group_by_expression, column_list_alias);
+				group_by_column_count = 0;
+				cur_cla = start_cla;
+				do {
+					UNPACK_SQL_STATEMENT(col_list, cur_cla->column_list, column_list);
+					if (column_alias_STATEMENT == col_list->value->type) {
+						SqlColumnAlias *column_alias;
+						SqlTableAlias * group_by_table_alias;
+
+						UNPACK_SQL_STATEMENT(column_alias, col_list->value, column_alias);
+						UNPACK_SQL_STATEMENT(group_by_table_alias, column_alias->table_alias_stmt,
+								     table_alias);
+						if (group_by_table_alias->parent_table_alias != table_alias) {
+							/* Column belongs to an outer query. Discard it from the GROUP BY list. */
+							SqlColumnListAlias *prev, *next;
+
+							prev = cur_cla->prev;
+							next = cur_cla->next;
+							prev->next = next;
+							next->prev = prev;
+							if ((cur_cla == start_cla) && (next != cur_cla)) {
+								start_cla = cur_cla = next;
+								continue;
+							}
+						} else {
+							if (0 == group_by_column_count) {
+								group_by_expression->v.column_list_alias = cur_cla;
+							}
+							group_by_column_count++;
+						}
+					} else if (!gb_result) {
+						/* We have come across an expression usage. Any error at this point is already
+						 * issued.
+						 * Note: we do not remove an expression even when it refers to columns from outer
+						 * query, this is to avoid parameter numbering difference which occurs if constants
+						 * are part of the expression and they are removed. If such a case is allowed the
+						 * constants which were parameterized later in this expression will refer to the
+						 * wrong parameter number.
+						 */
+						if (0 == group_by_column_count) {
+							group_by_expression->v.column_list_alias = cur_cla;
+						}
+						group_by_column_count++;
+					} else {
+						/* This is a case of an invalid GROUP BY clause.
+						 * An error would have already been issued about this (i.e. result
+						 * would be 1). Return as we do not want further processing at this point.
+						 */
+						break;
+					}
+					cur_cla = cur_cla->next;
+					if (cur_cla == start_cla) {
+						/* Note: Cannot move the negation of the above check to the `while(TRUE)` done below
+						 * because there is a `continue` code path above which should go through without any
+						 * checks.
+						 */
+						break;
+					}
+				} while (TRUE);
+				/* The "|| gb_result" case below is to account for query errors (e.g. "Unknown column" error, see
+				 * comment above) */
+				assert((group_by_column_count == table_alias->group_by_column_count) || gb_result);
+				if (gb_result) {
+					/* An error has occured break the `for` loop so that parent join can
+					 * be removed. Returning without removal of parent_join will result in incorrect processing
+					 * when the present `table_alias` goes through another qualify_query() invocation. An
+					 * example query which generate an assert failure while processing join of the subquery if
+					 * returned instead of a break is:
+					 * `SELECT names.lastName FROM names GROUP BY names.lastName HAVING EXISTS
+					 *   (SELECT alias1.lastName FROM names alias1 GROUP BY 1+(select 1));`
+					 */
+					break;
+				}
+				if (!group_by_column_count) {
+					select->group_by_expression = NULL;
+				}
+			}
+		}
+		if (NULL != select->having_expression) {
+			table_alias->qualify_query_stage = QualifyQuery_NONE;
+			table_alias->aggregate_depth = AGGREGATE_DEPTH_HAVING_CLAUSE;
+			result |= qualify_statement(select->having_expression, start_join, table_alias_stmt, 0, ret);
+			table_alias->aggregate_function_or_group_by_or_having_specified |= HAVING_SPECIFIED;
+		}
 		// Qualify ORDER BY clause next (see comment above for why "&lcl_ret" is passed only for ORDER BY).
 		table_alias->qualify_query_stage = QualifyQuery_ORDER_BY;
+		table_alias->aggregate_depth = 0;
 		result |= qualify_statement(select->order_by_expression, start_join, table_alias_stmt, 0, &lcl_ret);
 		table_alias->qualify_query_stage = QualifyQuery_NONE;
 		if (!table_alias->aggregate_function_or_group_by_or_having_specified) {
@@ -442,11 +515,11 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 			 */
 			break;
 		}
-		/* GROUP BY or AGGREGATE function or HAVING was used in the query. Do GROUP BY validation checks by doing
-		 * a second iteration in this for loop.
-		 */
+		/* GROUP BY or AGGREGATE function or HAVING was used in the query. Assign GROUP BY number and validate */
 		table_alias->do_group_by_checks = TRUE;
 	}
+	table_alias->do_group_by_checks = FALSE;
+
 	/* Make sure to reset parent query only AFTER WHERE clause, ORDER BY clause etc. are processed.
 	 * This is because it is possible columns from the current level query can be used in sub-queries
 	 * inside the WHERE clause etc. And those column references need the parent query to stay in the

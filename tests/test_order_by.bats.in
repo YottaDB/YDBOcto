@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -190,5 +190,10 @@ OCTO
 
 @test "TOB14 : OCTO643 : ORDER BY returns incorrect results when used on a value returned by the ROUND function" {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOB14.sql
+}
+
+@test "TOB15 : OCTO700 : ORDER BY greatest/least/null_if/coalesce with select distinct works" {
+  # More details: https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/977#note_932757088
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOB15.sql
 }
 

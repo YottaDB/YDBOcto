@@ -33,7 +33,7 @@ select count(DISTINCT n1.*) from names n11;
 select a,b,c from (select n1.* from names n1) as abcd(a,b,c,d);
 [ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column NAME must appear in the GROUP BY clause or be used in an aggregate function
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select count(n1.id),n1.* from ((select 1 as id, 'test' as name) union (select 2 as id, 'test' as name)) as n1 group by n1.id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_ONLY_COLUMN_NAME : Only column names are valid in GROUP BY (not expressions or constants)
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_INVALID_USAGE : Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
 Error with syntax near (line 1, column 114):
 
 select count(n1.*) from ((select 1 as id, 'test' as name) union (select 2 as id, 'test' as name)) as n1 group by count(n1.*);
@@ -99,11 +99,6 @@ Error with syntax near (line 1, column 41):
 
 select firstname from names n1 group by names.*;
                                         ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 1, column 8):
-
-select firstname from names n1 group by names.*;
-       ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select firstname from names n1 group by names.*;
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 8):
@@ -116,11 +111,6 @@ Error with syntax near (line 1, column 38):
 
 select firstname from names group by n2.*;
                                      ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-Error with syntax near (line 1, column 8):
-
-select firstname from names group by n2.*;
-       ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select firstname from names group by n2.*;
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N2
 Error with syntax near (line 1, column 14):

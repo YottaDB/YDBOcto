@@ -21,9 +21,11 @@ SELECT DISTINCT 2+id,firstname || 'abcd' AS col2,lastname FROM names ORDER BY 3,
 SELECT DISTINCT id,(SELECT n1.lastname FROM names n1 LIMIT 1),firstname FROM names ORDER BY id,(SELECT DISTINCT n2.lastname FROM names n2 LIMIT 1),firstname;
 SELECT DISTINCT id,(SELECT n1.lastname FROM names n1 LIMIT 1),firstname FROM names ORDER BY id,(SELECT n2.lastname FROM names n2 ORDER BY n2.lastname LIMIT 1),firstname;
 
--- The below query actually works in Octo but errors out in Postgres so is placed in this file instead of TSD04_noerrors.sql (as cross-check will fail)
+-- Test that (SELECT n1.lastname FROM names n1 LIMIT 1) is not same as (SELECT n2.lastname FROM names n2 LIMIT 1)
 SELECT DISTINCT id,(SELECT n1.lastname FROM names n1 LIMIT 1),firstname FROM names ORDER BY id,(SELECT n2.lastname FROM names n2 LIMIT 1),firstname;
 
+-- Test that alias difference does result in an error
+select distinct n1.id from names n1 JOIN names n2 on (n1.id=n2.id)  order by n2.id;
 [ERROR] PATH:LINENUM DATE TIME : ERR_ORDER_BY_SELECT_DISTINCT : For SELECT DISTINCT, ORDER BY expressions must appear in select list
 Error with syntax near (line 1, column 47):
 
@@ -90,11 +92,16 @@ Error with syntax near (line 1, column 96):
 SELECT DISTINCT id,(SELECT n1.lastname FROM names n1 LIMIT 1),firstname FROM names ORDER BY id,(SELECT n2.lastname FROM names n2 ORDER BY n2.lastname LIMIT 1),firstname;
                                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT DISTINCT id,(SELECT n1.lastname FROM names n1 LIMIT 1),firstname FROM names ORDER BY id,(SELECT n2.lastname FROM names n2 ORDER BY n2.lastname LIMIT 1),firstname;
-ID|LASTNAME|FIRSTNAME
-0|Cool|Zero
-1|Cool|Acid
-2|Cool|Cereal
-3|Cool|Lord
-4|Cool|Joey
-5|Cool|Zero
-(6 rows)
+[ERROR] PATH:LINENUM DATE TIME : ERR_ORDER_BY_SELECT_DISTINCT : For SELECT DISTINCT, ORDER BY expressions must appear in select list
+Error with syntax near (line 1, column 96):
+
+SELECT DISTINCT id,(SELECT n1.lastname FROM names n1 LIMIT 1),firstname FROM names ORDER BY id,(SELECT n2.lastname FROM names n2 LIMIT 1),firstname;
+                                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT DISTINCT id,(SELECT n1.lastname FROM names n1 LIMIT 1),firstname FROM names ORDER BY id,(SELECT n2.lastname FROM names n2 LIMIT 1),firstname;
+[ERROR] PATH:LINENUM DATE TIME : ERR_ORDER_BY_SELECT_DISTINCT : For SELECT DISTINCT, ORDER BY expressions must appear in select list
+Error with syntax near (line 1, column 78):
+
+select distinct n1.id from names n1 JOIN names n2 on (n1.id=n2.id)  order by n2.id;
+                                                                             ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select distinct n1.id from names n1 JOIN names n2 on (n1.id=n2.id)  order by n2.id;
+

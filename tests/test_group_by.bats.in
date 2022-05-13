@@ -89,7 +89,7 @@ setup() {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TGB13.sql
 }
 
-@test "TGB14: OCTO766 : Test HAVING clause of sub query using GROUP BY column of outer query" {
+@test "TGB14 : OCTO766 : Test HAVING clause of sub query using GROUP BY column of outer query" {
 	load_fixture customers.sql
 	load_fixture customers.zwr
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TGB14.sql
@@ -126,3 +126,70 @@ setup() {
 	load_fixture TGB19_errors.sql subtest novv
 	verify_output TGB19_errors output.txt
 }
+
+@test "TGB20 : OCTO700/OCTO566 : Validate GroupBy column number and expression usage" {
+	# TGB20_names.sql has 850+ queries so run only a fraction (10%) of them to cut down test runtime.
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB20_names.sql 0.10 "trim_trailing_zeroes"
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TGB20_customers.sql
+	load_fixture nullnames.sql
+	load_fixture nullnames.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TGB20_nullnames.sql
+}
+
+@test "TGB21 : OCTO700/OCTO566 : Validate GroupBy column number and expression usage error cases" {
+	load_fixture TGB21_errors.sql subtest novv
+	verify_output TGB21_errors output.txt
+	mv output.txt output_names.txt
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	load_fixture TGB21_errors_customers.sql subtest novv
+	verify_output TGB21_errors_customers output.txt
+}
+
+@test "TGB22 : OCTO700/OCTO566 : Validate GroupBy column number and expression usage with functions" {
+	load_fixture TGB22.sql subtest novv
+	verify_output TGB22 output.txt
+}
+
+@test "TGB23 : OCTO632 : Validate GroupBy expressions with multiple argument function usage query from #632" {
+	# Routine from Q6F.m is used in this subtest
+	load_fixture TGB23.sql subtest novv
+	verify_output TGB23 output.txt
+}
+
+@test "TGB24 : OCTO632 : Validate GroupBy expressions with multiple argument function usage returning multiple rows" {
+	# Routines from Q6F.m is used in this subtest
+	load_fixture TGB24.sql subtest novv
+	verify_output TGB24 output.txt
+}
+
+@test "TGB25 : OCTO700/OCTO566 : Validate GroupBy expressions with subquery usage" {
+	# Use the queries in this test when implementing subqueries in GroupBy
+	load_fixture TGB25.sql subtest novv
+	verify_output TGB25 output.txt
+}
+
+@test "TGB26 : OCTO700/OCTO566 : Validate group by expression and column number usages working with FUNCTIONS error cases." {
+	load_fixture TGB26_errors.sql subtest novv
+	verify_output TGB26_errors output.txt
+}
+
+@test "TGB27 : OCTO767 : Validate group by expression and column usage with outer query columns usages in inner query" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB27.sql "trim_trailing_zeros"
+	load_fixture TGB27_errors.sql subtest novv
+	verify_output TGB27_errors output.txt
+}
+
+@test "TGB28 : OCTO700/OCTO566 : Validate GroupBy column number and expression usage in northwind database" {
+	load_fixture northwind.sql
+	load_fixture northwind.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TGB28.sql
+}
+
+@test "TGB29 : OCTO700/OCTO566 : Test whether consecutive executions of literal based GROUP BY queries create different routines based on group_by_column_num value or not" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB29.sql
+}
+
+

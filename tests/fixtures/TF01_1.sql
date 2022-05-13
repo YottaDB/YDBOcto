@@ -10,4 +10,6 @@
 #								#
 #################################################################
 
-select TRUE,FALSE,FALSE,FALSE,TRUE,TRUE,FALSE,'abcd$f%a','abcd$f%a',FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,'abcd$f%a',FALSE,FALSE,FALSE,FALSE,FALSE;
+select firstname from names limit 1;
+-- select lastname from names limit 1;
+select id from names limit 1;

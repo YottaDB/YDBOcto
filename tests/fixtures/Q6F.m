@@ -10,7 +10,12 @@
 ;								;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; Helper functions used by bats tests
+; Helper functions used by bats tests TGB17
 
-samevalue(param)	; Returns input parameter as output (used by a few bats tests)
-	quit param
+ZEXT(s,p1,p2)
+ q $E($g(s),p1,p2)
+
+XecuteMCode(mcode)
+	; Implements the XECUTE_M_CODE SQL-level function defined in TGB24.sql
+	XECUTE mcode
+	quit 0

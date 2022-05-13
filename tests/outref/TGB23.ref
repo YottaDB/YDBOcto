@@ -1,0 +1,19 @@
+
+-- creating a function for cutting "year" from datelabel
+CREATE FUNCTION ZEXT(VARCHAR,INTEGER,INTEGER) RETURNS VARCHAR AS $$ZEXT^Q6F;
+
+-- A shortened table to show the usecase
+CREATE TABLE QAUDITCEVENT (
+ID VARCHAR PRIMARY KEY,
+DATELABEL VARCHAR GLOBAL "^qAuditC(keys(""ID""),""EventDescr"",""DateLabel"")" PIECE 1,
+EVENTNAME VARCHAR GLOBAL "^qAuditC(keys(""ID""),""EventDescr"",""EventName"")" PIECE 1
+)
+ GLOBAL "^qAuditC(keys(""ID""),""EventDescr"")";
+
+-- making an sql expression with grouping by year:
+select ZEXT(DATELABEL, 1, 4), count (*) from QAUDITCEVENT group by ZEXT(DATELABEL, 1,4);
+
+CREATE FUNCTION
+CREATE TABLE
+ZEXT|COUNT(*)
+(0 rows)

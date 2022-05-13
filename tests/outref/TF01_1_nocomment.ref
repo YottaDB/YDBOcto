@@ -1,4 +1,4 @@
-TF01_nocomment-0.sql
+TF01_1_nocomment-0.sql
 select firstname from names limit 1;
-TF01_nocomment-1.sql
+TF01_1_nocomment-1.sql
 select id from names limit 1;

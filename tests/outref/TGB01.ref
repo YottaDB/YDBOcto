@@ -1,10 +1,6 @@
 
 -- TGB01 : OCTO55 : GROUP BY and AGGREGATE FUNCTIONS
 
---> Below queries should error out because GROUP BY is supported only with columns (not with constants or expressions)
-SELECT * FROM names GROUP BY 1;
-SELECT * FROM names GROUP BY id,firstname,1+id;
-
 --> Below query should error out because aggregate functions are not allowed in GROUP BY
 SELECT COUNT(CustomerID),Country FROM Customers GROUP BY Country,COUNT(CustomerID);
 
@@ -112,21 +108,7 @@ SELECT COUNT(firstname) FROM names n1 HAVING EXISTS (select n1.firstname);
 -- Below is a slightly fancier version of the previous query using deeper sub-queries.
 SELECT COUNT(firstname) FROM names n1 HAVING EXISTS (SELECT COUNT(firstname) FROM names n2 WHERE 'Zero' IN (select n1.firstname));
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_ONLY_COLUMN_NAME : Only column names are valid in GROUP BY (not expressions or constants)
-Error with syntax near (line 2, column 30):
-
---> Below queries should error out because GROUP BY is supported only with columns (not with constants or expressions)
-SELECT * FROM names GROUP BY 1;
-                             ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below queries should error out because GROUP BY is supported only with columns (not with constants or expressions)
-SELECT * FROM names GROUP BY 1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_ONLY_COLUMN_NAME : Only column names are valid in GROUP BY (not expressions or constants)
-Error with syntax near (line 1, column 43):
-
-SELECT * FROM names GROUP BY id,firstname,1+id;
-                                          ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names GROUP BY id,firstname,1+id;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_ONLY_COLUMN_NAME : Only column names are valid in GROUP BY (not expressions or constants)
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_INVALID_USAGE : Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
 Error with syntax near (line 2, column 66):
 
 --> Below query should error out because aggregate functions are not allowed in GROUP BY
@@ -397,6 +379,12 @@ SELECT COUNT(OrderID),MAX(OrderID) as maxo,MIN(OrderID) as mino,MAX(CustomerID) 
                                                                                                                                                                                                                     ^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below should error out because HAVING clause cannot use column aliases defined in the SELECT column list
 SELECT COUNT(OrderID),MAX(OrderID) as maxo,MIN(OrderID) as mino,MAX(CustomerID) as maxc,MIN(CustomerID) as minc,EmployeeID FROM Orders WHERE EmployeeID BETWEEN 0 AND 7 GROUP BY EmployeeID HAVING maxo > 10400 AND mino < 10275;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column EMPLOYEEID must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 2, column 108):
+
+--> Below should error out because GROUP BY is needed for EmployeeID if used in the HAVING clause without aggregate function
+SELECT COUNT(OrderID),CustomerID FROM Orders GROUP BY CustomerID HAVING COUNT(OrderID) BETWEEN 3 AND 6 AND EmployeeID BETWEEN 2 and 5 ORDER BY COUNT(OrderID) desc, CustomerID;
+                                                                                                           ^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column EMPLOYEEID must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 2, column 108):
 

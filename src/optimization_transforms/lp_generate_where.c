@@ -45,12 +45,18 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt) {
 		switch (value->type) {
 		case CALCULATED_VALUE:
 			LP_GENERATE_WHERE(value->v.calculated, stmt, ret, error_encountered);
+			if (NULL != ret) {
+				ret->v.lp_default.group_by_column_num = value->group_by_fields.group_by_column_num;
+			} else {
+				assert((NULL == value->v.calculated) || (error_encountered));
+			}
 			break;
 		case COERCE_TYPE:
 			MALLOC_LP_2ARGS(ret, LP_COERCE_TYPE);
 			ret->extra_detail.lp_coerce_type.coerce_type = value->coerced_type;
 			ret->extra_detail.lp_coerce_type.pre_coerce_type = value->pre_coerced_type;
 			LP_GENERATE_WHERE(value->v.coerce_target, stmt, ret->v.lp_default.operand[0], error_encountered);
+			ret->v.lp_default.group_by_column_num = value->group_by_fields.group_by_column_num;
 			break;
 		default:
 			MALLOC_LP_2ARGS(ret, LP_VALUE);
@@ -78,6 +84,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt) {
 			LP_GENERATE_WHERE(binary->operands[0], stmt, ret->v.lp_default.operand[0], error_encountered);
 			LP_GENERATE_WHERE(binary->operands[1], stmt, ret->v.lp_default.operand[1], error_encountered);
 		}
+		ret->v.lp_default.group_by_column_num = binary->group_by_fields.group_by_column_num;
 		break;
 	case unary_STATEMENT:
 		UNPACK_SQL_STATEMENT(unary, stmt, unary);
@@ -85,6 +92,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt) {
 		type = unary->operation + LP_FORCE_NUM;
 		MALLOC_LP_2ARGS(ret, type);
 		LP_GENERATE_WHERE(unary->operand, stmt, ret->v.lp_default.operand[0], error_encountered);
+		ret->v.lp_default.group_by_column_num = unary->group_by_fields.group_by_column_num;
 		break;
 	case array_STATEMENT:
 		UNPACK_SQL_STATEMENT(array, stmt, array);
@@ -259,6 +267,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt) {
 				cur_lp = cur_lp->v.lp_default.operand[1];
 			}
 		} while (cur_branch != cas_branch);
+		ret->v.lp_default.group_by_column_num = cas->group_by_fields.group_by_column_num;
 		break;
 	case set_operation_STATEMENT:
 	case table_alias_STATEMENT:

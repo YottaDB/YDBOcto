@@ -373,12 +373,12 @@ Text: Generating helper cross reference M file [xxx] for table [xxx] and column 
 Description/Action: This message indicates that a cross reference is being generated for the given table and column as an optimization. PSQL Error Code: XX000
 
 ++++++++++++++++++++++++++++++
-ERR_GROUP_BY_ONLY_COLUMN_NAME
+ERR_GROUP_BY_INVALID_USAGE
 ++++++++++++++++++++++++++++++
 
-Text: Only column names are valid in GROUP BY (not expressions or constants)
+Text: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
 
-Description/Action: This error is generated when expressions or constants are used in :code:`GROUP BY`. Please use only valid column names. PSQL Error Code: 42803
+Description/Action: This error is generated when values referring to subqueries or aggregate functions are used in :code:`GROUP BY`. Please use only valid column number, column name, expressions and constants. PSQL Error Code: 42803
 
 ++++++++++++++++++++++++++++++++++++
 ERR_GROUP_BY_OR_AGGREGATE_FUNCTION
@@ -387,6 +387,22 @@ ERR_GROUP_BY_OR_AGGREGATE_FUNCTION
 Text: Column xxx must appear in the GROUP BY clause or be used in an aggregate function
 
 Description/Action: This error is generated when a column is :code:`SELECT` ed, but does not appear in a :code:`GROUP BY` clause or isn't used in an aggregate function. PSQL Error Code: 42803
+
+++++++++++++++++++++++++++++++
+ERR_GROUP_BY_POSITION_INVALID
+++++++++++++++++++++++++++++++
+
+Text: GROUP BY position xxxxxx is not in select list
+
+Description/Action: This error is generated when the column number of :code:`SELECT` column list referenced in :code:`GROUP BY` is incorrect. PSQL Error Code: 42P10
+
+++++++++++++++++++++++++++++++
+ERR_GROUP_BY_SUB_QUERY
+++++++++++++++++++++++++++++++
+
+Text: Subqueries are not supported in GROUP BY
+
+Description/Action: This error is generated when a subquery is present in :code:`GROUP BY`. PSQL Error Code: 42803
 
 +++++++++++++++++
 ERR_IDENT_LENGTH
@@ -714,7 +730,7 @@ ERR_ORDER_BY_POSITION_INVALID
 
 Text: ORDER BY position xxxxxx is not in select list
 
-Description/Action: This error is generated when an ORDER BY clause is incorrectly placed within a SQL query. PSQL Error Code: 42P10
+Description/Action: This error is generated when the column number of the :code:`SELECT` column list referenced in :code:`ORDER BY` is incorrect. PSQL Error Code: 42P10
 
 ++++++++++++++++++++++++++++++++++
 ERR_ORDER_BY_POSITION_NOT_INTEGER

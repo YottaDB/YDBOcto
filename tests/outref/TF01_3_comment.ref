@@ -1,6 +1,6 @@
-TF03_comment-0.sql
+TF01_3_comment-0.sql
 select id from names order by lastname; -- sort-needed-check
-TF03_comment-1.sql
+TF01_3_comment-1.sql
 select lastname from names order by firstname;
-TF03_comment-2.sql
+TF01_3_comment-2.sql
 select * from names;

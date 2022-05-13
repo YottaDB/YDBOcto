@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,6 +10,5 @@
 #								#
 #################################################################
 
-select firstname from names limit 1;
--- select lastname from names limit 1;
-select id from names limit 1;
+SELECT id,firstname FROM names n1 HAVING 1 IN (SELECT n2.id FROM names n2 group by n1.id);
+SELECT id,firstname FROM names n1 WHERE id IN (SELECT n2.id FROM names n2 group by n1.id+1);

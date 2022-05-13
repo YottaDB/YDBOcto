@@ -18,16 +18,30 @@
 #include "octo.h"
 #include "octo_types.h"
 
-#define ISSUE_GROUP_BY_OR_AGGREGATE_FUNCTION_ERROR(COLUMN_ALIAS_STMT)               \
-	{                                                                           \
-		SqlStatement *column_name;                                          \
-		SqlValue *    value;                                                \
-                                                                                    \
-		column_name = find_column_alias_name(COLUMN_ALIAS_STMT);            \
-		assert(NULL != column_name);                                        \
-		UNPACK_SQL_STATEMENT(value, column_name, value);                    \
-		ERROR(ERR_GROUP_BY_OR_AGGREGATE_FUNCTION, value->v.string_literal); \
-		yyerror(NULL, NULL, &COLUMN_ALIAS_STMT, NULL, NULL, NULL);          \
+/* Following macro sets GROUP BY column number to expression when its matched with GROUP BY column.
+ * Also, it `break`s when no additional processing is required.
+ */
+#define SET_GROUP_BY_EXPRESSION_COLUMN_NUMBER_AND_BREAK(SQL_STMT, TABLE_ALIAS)                                                     \
+	{                                                                                                                          \
+		/* We only need to qualify expressions when `table_alias->do_group_by_checks` is TRUE and GROUP BY exists. */      \
+		/* Also, use `aggregate_depth` to identify and process columns of only `SELECT`, `HAVING` and `ORDER BY` clause */ \
+		if ((GROUP_BY_SPECIFIED & TABLE_ALIAS->aggregate_function_or_group_by_or_having_specified)                         \
+		    && TABLE_ALIAS->do_group_by_checks                                                                             \
+		    && ((0 == TABLE_ALIAS->aggregate_depth) || (AGGREGATE_DEPTH_HAVING_CLAUSE == TABLE_ALIAS->aggregate_depth))) { \
+			group_by_fields_t *gb_fields = get_group_by_fields(SQL_STMT);                                              \
+			if (NULL != gb_fields) {                                                                                   \
+				int column_number = get_group_by_column_number(TABLE_ALIAS, SQL_STMT);                             \
+				if (-1 != column_number) {                                                                         \
+					gb_fields->group_by_column_num = column_number;                                            \
+					/* This expression is part of GROUP BY. GROUP BY has already gone through                  \
+					 * qualify_statement() for this expression till its leaf nodes and any errors in it has    \
+					 * already been reported. Hence we prevent further qualify_statement() calls by doing a    \
+					 * break here. */                                                                          \
+					break;                                                                                     \
+				} /* else drill down to deeper level in the expression sub-tree for GROUP BY expression matching   \
+				   */                                                                                              \
+			}                                                                                                          \
+		}                                                                                                                  \
 	}
 
 /* Note: The code in "qualify_check_constraint.c" is modeled on the below so it is possible changes here might need to be
@@ -79,20 +93,36 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		UNPACK_SQL_STATEMENT(new_column_alias, stmt, column_alias);
 		UNPACK_SQL_STATEMENT(column_table_alias, new_column_alias->table_alias_stmt, table_alias);
 		parent_table_alias = column_table_alias->parent_table_alias;
-		/* Assert that if we are doing GROUP BY related checks ("do_group_by_checks" is TRUE), then the
+		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
+		/* Assert that if we are doing GROUP BY related checks ("do_group_by_checks" is set to DO_GROUP_BY_CHECKS), then the
 		 * "aggregate_function_or_group_by_or_having_specified" field is also TRUE.
 		 */
 		assert(!parent_table_alias->do_group_by_checks
 		       || parent_table_alias->aggregate_function_or_group_by_or_having_specified);
-		if (parent_table_alias->do_group_by_checks && (0 == parent_table_alias->aggregate_depth)
+		/*
+		 * This block is used in two cases
+		 * 1. GroupBy is used and we need to validate column_alias usages
+		 * 2. In case GroupBy is not present but HAVING clause is present. We still want to generate an error on
+		 *    column_alias usages as they are not grouped. To allow such condition check this case is used to perform the
+		 *    necessary validation.
+		 */
+		// 1. Column Reference check
+		if ((parent_table_alias->do_group_by_checks)
+		    && ((0 == parent_table_alias->aggregate_depth)
+			|| (AGGREGATE_DEPTH_HAVING_CLAUSE == parent_table_alias->aggregate_depth))
 		    && !new_column_alias->group_by_column_number) {
-			/* 1) We are doing GROUP BY related validation of column references in the query (and because
-			 *    of the above assert implies that the query has GROUP BY or aggregate function usages) AND
-			 * 2) The current column reference is not inside an aggregate function AND
+			/* 1) We are doing GROUP BY related validation of column references in the query
+			 * 2) The current column reference is not inside an aggregate function
 			 * 3) The current column reference is not in the GROUP BY clause.
 			 * Issue an error.
 			 */
-			ISSUE_GROUP_BY_OR_AGGREGATE_FUNCTION_ERROR(stmt);
+			SqlStatement *column_name;
+			SqlValue *    value;
+			column_name = find_column_alias_name(stmt);
+			assert(NULL != column_name);
+			UNPACK_SQL_STATEMENT(value, column_name, value);
+			ERROR(ERR_GROUP_BY_OR_AGGREGATE_FUNCTION, value->v.string_literal);
+			yyerror(NULL, NULL, &stmt, NULL, NULL, NULL);
 			result = 1;
 		}
 		break;
@@ -153,17 +183,18 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 							       & parent_table_alias
 								     ->aggregate_function_or_group_by_or_having_specified);
 						} else if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE == aggregate_depth) {
-							/* Update `group_by_column_count` and `group_by_column_number` */
-							new_column_alias->group_by_column_number
-							    = ++parent_table_alias->group_by_column_count;
-						} else if (AGGREGATE_DEPTH_HAVING_CLAUSE == aggregate_depth) {
-							if (!new_column_alias->group_by_column_number) {
-								/* We are inside a HAVING clause while making a non-grouped
-								 * column reference outside of an aggregate function. Issue
-								 * error.
+							if (QualifyQuery_GROUP_BY_EXPRESSION != table_alias->qualify_query_stage) {
+								/* Update `group_by_column_count` and `group_by_column_number` */
+								new_column_alias->group_by_column_number
+								    = ++parent_table_alias->group_by_column_count;
+							} else {
+								/* 1. This column alias is part of an expression in GroupBy.
+								 * 2. Do not update `group_by_column_number` here as
+								 *    get_group_by_column_num() takes care of it later.
+								 * 3. Do not update `group_by_column_count` here as we want to
+								 *    increment this value by one for the entire expression. This
+								 *    is taken care at the end of `column_list_alias_STATEMENT`.
 								 */
-								ISSUE_GROUP_BY_OR_AGGREGATE_FUNCTION_ERROR(stmt);
-								result = 1;
 							}
 						} else {
 							/* We are inside a WHERE or FROM/JOIN clause where  aggregate
@@ -171,7 +202,8 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 							 * to GROUP BY.
 							 */
 							assert((AGGREGATE_DEPTH_WHERE_CLAUSE == aggregate_depth)
-							       || (AGGREGATE_DEPTH_FROM_CLAUSE == aggregate_depth));
+							       || (AGGREGATE_DEPTH_FROM_CLAUSE == aggregate_depth)
+							       || (AGGREGATE_DEPTH_HAVING_CLAUSE));
 						}
 					}
 				} else {
@@ -185,6 +217,8 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 			}
 			break;
 		case CALCULATED_VALUE:
+			UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
+			SET_GROUP_BY_EXPRESSION_COLUMN_NUMBER_AND_BREAK(stmt, table_alias);
 			result |= qualify_statement(value->v.calculated, tables, table_alias_stmt, depth + 1, ret);
 			break;
 		case FUNCTION_NAME:
@@ -195,9 +229,12 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 			 */
 			break;
 		case COERCE_TYPE:
+			UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
+			SET_GROUP_BY_EXPRESSION_COLUMN_NUMBER_AND_BREAK(stmt, table_alias);
 			result |= qualify_statement(value->v.coerce_target, tables, table_alias_stmt, depth + 1, ret);
 			if (result) {
 				yyerror(NULL, NULL, &stmt, NULL, NULL, NULL);
+				break;
 			}
 			break;
 		case BOOLEAN_VALUE:
@@ -206,6 +243,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		case STRING_LITERAL:
 		case NUL_VALUE:
 		case PARAMETER_VALUE:
+			assert(0 == value->group_by_fields.group_by_column_num);
 			break;
 		case FUNCTION_HASH:
 		case DELIM_VALUE:
@@ -220,18 +258,23 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		}
 		break;
 	case binary_STATEMENT:
+		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		UNPACK_SQL_STATEMENT(binary, stmt, binary);
+		SET_GROUP_BY_EXPRESSION_COLUMN_NUMBER_AND_BREAK(stmt, table_alias);
 		for (i = 0; i < 2; i++) {
 			result |= qualify_statement(binary->operands[i], tables, table_alias_stmt, depth + 1, ret);
 		}
 		break;
 	case unary_STATEMENT:
+		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		UNPACK_SQL_STATEMENT(unary, stmt, unary);
+		SET_GROUP_BY_EXPRESSION_COLUMN_NUMBER_AND_BREAK(stmt, table_alias);
 		result |= qualify_statement(unary->operand, tables, table_alias_stmt, depth + 1, ret);
 		break;
 	case array_STATEMENT:
 		UNPACK_SQL_STATEMENT(array, stmt, array);
 		result |= qualify_statement(array->argument, tables, table_alias_stmt, depth + 1, ret);
+		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		break;
 	case function_call_STATEMENT:
 		UNPACK_SQL_STATEMENT(fc, stmt, function_call);
@@ -263,8 +306,24 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		depth_adjusted = FALSE;
 		if (table_alias->aggregate_depth) {
+			if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE == table_alias->aggregate_depth) {
+				/* 1. We can reach this block if an aggregate function from select list is referenced
+				 *    using column number. Ex: `select count(n1.*) from names group by 1;`
+				 * 2. We only get to know of this usage during second qualify_statement() call which happens
+				 *    after GROUP BY column number is replaced with the SELECT list column in
+				 *    `column_list_alias_STATEMENT` case block, so we need this check.
+				 * 3. GROUP BY specified uses an aggregate function. Issue error as this usage is not
+				 *    valid.
+				 */
+				ERROR(ERR_GROUP_BY_INVALID_USAGE, "");
+				yyerror(NULL, NULL, &af->parameter, NULL, NULL, NULL);
+				result = 1;
+				break;
+			}
 			if (table_alias->do_group_by_checks) {
-				/* This is the second pass. Any appropriate error has already been issued so skip this. */
+				/* This is the second pass. Any appropriate error other than the one in IF block
+				 * has already been issued so skip this.
+				 */
 				break;
 			}
 			if (0 < table_alias->aggregate_depth) {
@@ -276,8 +335,11 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 				 *       case as the parser for GROUP BY would have issued an error if ever GROUP BY is
 				 *       used without just a plain column name.
 				 */
-				assert(AGGREGATE_DEPTH_GROUP_BY_CLAUSE != table_alias->aggregate_depth);
-				if (AGGREGATE_DEPTH_WHERE_CLAUSE == table_alias->aggregate_depth) {
+				if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE == table_alias->aggregate_depth) {
+					/* GROUP BY specified using an aggregate function. Issue error as this usage is not valid.
+					 */
+					ERROR(ERR_GROUP_BY_INVALID_USAGE, "");
+				} else if (AGGREGATE_DEPTH_WHERE_CLAUSE == table_alias->aggregate_depth) {
 					/* Aggregate functions are not allowed inside a WHERE clause */
 					ERROR(ERR_AGGREGATE_FUNCTION_WHERE, "");
 					result = 1;
@@ -326,12 +388,15 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		}
 		break;
 	case cas_STATEMENT:
+		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		UNPACK_SQL_STATEMENT(cas, stmt, cas);
+		SET_GROUP_BY_EXPRESSION_COLUMN_NUMBER_AND_BREAK(stmt, table_alias);
 		result |= qualify_statement(cas->value, tables, table_alias_stmt, depth + 1, ret);
 		result |= qualify_statement(cas->branches, tables, table_alias_stmt, depth + 1, ret);
 		result |= qualify_statement(cas->optional_else, tables, table_alias_stmt, depth + 1, ret);
 		break;
 	case cas_branch_STATEMENT:
+		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		UNPACK_SQL_STATEMENT(cas_branch, stmt, cas_branch);
 		cur_branch = cas_branch;
 		do {
@@ -341,7 +406,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		} while (cur_branch != cas_branch);
 		break;
 	case column_list_STATEMENT:
-		// This is a result of a value-list
+		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		UNPACK_SQL_STATEMENT(start_cl, stmt, column_list);
 		cur_cl = start_cl;
 		do {
@@ -352,9 +417,16 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 	case table_alias_STATEMENT:
 	case set_operation_STATEMENT:
 		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
+		if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE == table_alias->aggregate_depth) {
+			ERROR(ERR_GROUP_BY_SUB_QUERY, "");
+			yyerror(NULL, NULL, &stmt, NULL, NULL, NULL);
+			result = 1;
+			break;
+		}
 		result |= qualify_query(stmt, tables, table_alias, ret);
 		break;
-	case column_list_alias_STATEMENT:
+	case column_list_alias_STATEMENT:;
+		boolean_t function_expression = FALSE;
 		UNPACK_SQL_STATEMENT(start_cla, stmt, column_list_alias);
 		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		cur_cla = start_cla;
@@ -362,9 +434,36 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 			ret_cla = ((NULL == ret) ? NULL : ret->ret_cla);
 			assert(depth || (NULL == ret_cla)
 			       || (NULL == *ret_cla)); /* assert that caller has initialized "*ret_cla" */
+			UNPACK_SQL_STATEMENT(cur_cl, cur_cla->column_list, column_list);
+			if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE == table_alias->aggregate_depth) {
+				/* Set QualifyQuery_GROUP_BY_EXPRESSION here so that all qualify_statement() calls
+				 * for `cur_cl->value` can know that an expression is being qualified.
+				 */
+				if (value_STATEMENT == cur_cl->value->type) {
+					UNPACK_SQL_STATEMENT(value, cur_cl->value, value);
+					if ((COLUMN_REFERENCE != value->type) && (TABLE_ASTERISK != value->type)) {
+						table_alias->qualify_query_stage = QualifyQuery_GROUP_BY_EXPRESSION;
+						function_expression = TRUE;
+					}
+				} else if (column_alias_STATEMENT != cur_cl->value->type) {
+					/* This is an expression, following assignment prevents updation
+					 * to `group_by_column_count` of `table_alias` for every column
+					 * reference in the expression. The field is updated once at the end
+					 * of this case block.
+					 */
+					table_alias->qualify_query_stage = QualifyQuery_GROUP_BY_EXPRESSION;
+					function_expression = TRUE;
+				} /* else column_alias_STATEMENT is possible when subquery GROUP BY references outer query
+				   * column. If the outer query column is already qualified then we can get this value.
+				   * Since this is a column reference no need to updated `qualify_query_stage`.
+				   */
+			}
 			result |= qualify_statement(cur_cla->column_list, tables, table_alias_stmt, depth + 1, ret);
+			if (function_expression) {
+				function_expression = FALSE;
+				table_alias->qualify_query_stage = QualifyQuery_NONE;
+			}
 			if (0 == result) {
-				UNPACK_SQL_STATEMENT(cur_cl, cur_cla->column_list, column_list);
 				if (column_alias_STATEMENT == cur_cl->value->type) {
 					UNPACK_SQL_STATEMENT(new_column_alias, cur_cl->value, column_alias);
 					if (is_stmt_table_asterisk(new_column_alias->column)) {
@@ -373,7 +472,9 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 					}
 				}
 			}
-			if ((NULL != ret_cla) && (0 == depth)) {
+			/* Check if its an OrderBy or GroupBy invocation */
+			if (((NULL != ret_cla) || (AGGREGATE_DEPTH_GROUP_BY_CLAUSE == table_alias->aggregate_depth)) && (0 == depth)
+			    && (!table_alias->do_group_by_checks)) {
 				SqlColumnListAlias *qualified_cla;
 				int		    column_number;
 				char *		    str;
@@ -384,7 +485,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 				 * (i.e. not a cla corresponding to an inner evaluation in the ORDER BY expression).
 				 * There are 3 cases to handle.
 				 */
-				if (NULL != *ret_cla) {
+				if ((NULL != ret_cla) && (NULL != *ret_cla)) {
 					/* Case (1) : If "*ret_cla" is non-NULL, it is a case of ORDER BY using an alias name */
 
 					order_by_alias = TRUE;
@@ -397,7 +498,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 					qualified_cla = *ret_cla;
 					*ret_cla = NULL; /* initialize for next call to "qualify_statement" */
 				} else {
-					/* Case (2) : If "*ret_cla" is NULL, check if this is a case of ORDER BY column-number.
+					/* Case (2) : Check if this is a case of column-number usage.
 					 * If so, point "cur_cla" to corresponding cla from the SELECT column list.
 					 */
 					SqlColumnList *col_list;
@@ -476,8 +577,14 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 								qualified_cla = NULL;
 							}
 							if (NULL == qualified_cla) {
-								ERROR(ERR_ORDER_BY_POSITION_INVALID,
-								      is_negative_numeric_literal ? "-" : "", str);
+								if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE
+								    == table_alias->aggregate_depth) {
+									ERROR(ERR_GROUP_BY_POSITION_INVALID,
+									      is_negative_numeric_literal ? "-" : "", str);
+								} else {
+									ERROR(ERR_ORDER_BY_POSITION_INVALID,
+									      is_negative_numeric_literal ? "-" : "", str);
+								}
 								yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL);
 								error_encountered = 1;
 							}
@@ -492,7 +599,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 				}
 				/* Actual repointing to SELECT column list cla happens here (above code set things up for here) */
 				if (NULL != qualified_cla) {
-					/* Case (2) : Case of ORDER BY column-number */
+					/* Case (2) : Case of column-number */
 					cur_cla->column_list = qualified_cla->column_list;
 					assert(NULL == cur_cla->alias);
 					/* Note: It is not necessary to copy " qualified_cla->alias" into "cur_cla->alias" */
@@ -514,25 +621,132 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 						cur_cla->tbl_and_col_id.column_number = column_number;
 					}
 					assert(cur_cla->tbl_and_col_id.column_number);
-				} else {
-					/* Case (3) : Case of ORDER BY column expression */
-					SqlSelectStatement *select;
-					SqlOptionalKeyword *keywords, *keyword;
+					if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE == table_alias->aggregate_depth) {
+						// call qualify_statement again so that GROUP BY is validated
+						result |= qualify_statement(cur_cla->column_list, tables, table_alias_stmt,
+									    depth + 1, ret);
 
-					/* Check if SELECT DISTINCT was specified */
-					UNPACK_SQL_STATEMENT(select, table_alias->table, select);
-					UNPACK_SQL_STATEMENT(keywords, select->optional_words, keyword);
-					keyword = get_keyword_from_keywords(keywords, OPTIONAL_DISTINCT);
-					if (NULL != keyword) {
-						/* SELECT DISTINCT was specified. Check if the ORDER BY column expression matches
-						 * some column specification in the SELECT column list. If so that is good.
-						 * If not issue an error (see YDBOcto#461 for details).
+						SqlColumnAlias *new_column_alias = NULL;
+						SqlStatement *	tmp_stmt = cur_cla->column_list->v.column_list->value;
+						column_table_alias = NULL;
+						if (value_STATEMENT == tmp_stmt->type) {
+							SqlValue *inner_value;
+							UNPACK_SQL_STATEMENT(inner_value, tmp_stmt, value);
+							if (COERCE_TYPE == inner_value->type) {
+								if (column_alias_STATEMENT == inner_value->v.coerce_target->type) {
+									new_column_alias
+									    = inner_value->v.coerce_target->v.column_alias;
+									UNPACK_SQL_STATEMENT(column_table_alias,
+											     new_column_alias->table_alias_stmt,
+											     table_alias);
+								}
+							}
+						} else if (tmp_stmt->type == column_alias_STATEMENT) {
+							new_column_alias
+							    = cur_cla->column_list->v.column_list->value->v.column_alias;
+							UNPACK_SQL_STATEMENT(column_table_alias, new_column_alias->table_alias_stmt,
+									     table_alias);
+						} else if (table_alias_STATEMENT == tmp_stmt->type) {
+							UNPACK_SQL_STATEMENT(column_table_alias, tmp_stmt, table_alias);
+						}
+						if (column_table_alias) {
+							parent_table_alias = column_table_alias->parent_table_alias;
+							if (parent_table_alias == table_alias) {
+								if (0 < parent_table_alias->aggregate_depth) {
+									parent_table_alias
+									    ->aggregate_function_or_group_by_or_having_specified
+									    |= GROUP_BY_SPECIFIED;
+								} else if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE
+									   == parent_table_alias->aggregate_depth) {
+									SqlValue *value;
+									if ((NULL != new_column_alias)
+									    && ((NULL != new_column_alias->column)
+										&& (value_STATEMENT
+										    == new_column_alias->column->type))) {
+										UNPACK_SQL_STATEMENT(
+										    value, new_column_alias->column, value);
+									} else {
+										value = NULL;
+									}
+									/* `group_by_column_count` and `group_by_column_number` in
+									 * case of TABLE_ASTERISK is updated by
+									 * `process_table_asterisk_cla()` invocation so no need to
+									 * do it here.
+									 */
+									if (tmp_stmt->type == table_alias_STATEMENT) {
+										++parent_table_alias->group_by_column_count;
+									} else if ((NULL == value)
+										   || (TABLE_ASTERISK != value->type)) {
+										new_column_alias->group_by_column_number
+										    = ++parent_table_alias->group_by_column_count;
+									}
+								}
+							}
+						} else {
+							/* Case of the column_list_alias node not being either a table_alias or
+							 * column_alias We are sure that this node belongs to the present query So
+							 * go ahead and update the current table_alias
+							 */
+							/* Ex: select 1+1 from names group by 1;
+							 * an expression is replacing 1
+							 * An expression can be constant or one with a column
+							 * If column is involved then based on whether it belongs to
+							 * inner query or not needs to be used to update
+							 * `table_alias->group_by_column_count`
+							 */
+							if (0 < table_alias->aggregate_depth)
+								table_alias->aggregate_function_or_group_by_or_having_specified
+								    |= GROUP_BY_SPECIFIED;
+							SqlStatement *tmp = cur_cla->column_list->v.column_list->value;
+							if ((tmp->type == value_STATEMENT)
+							    && (tmp->v.value->type != CALCULATED_VALUE))
+								table_alias->group_by_column_count++;
+							else {
+
+								table_alias->group_by_column_count++;
+							}
+						}
+					}
+				} else {
+					if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE != table_alias->aggregate_depth) {
+
+						/* Case (3) : Case of ORDER BY column expression */
+						SqlSelectStatement *select;
+						SqlOptionalKeyword *keywords, *keyword;
+
+						/* Check if SELECT DISTINCT was specified */
+						UNPACK_SQL_STATEMENT(select, table_alias->table, select);
+						UNPACK_SQL_STATEMENT(keywords, select->optional_words, keyword);
+						keyword = get_keyword_from_keywords(keywords, OPTIONAL_DISTINCT);
+						if (NULL != keyword) {
+							/* SELECT DISTINCT was specified. Check if the ORDER BY column expression
+							 * matches some column specification in the SELECT column list. If so that
+							 * is good. If not issue an error (see YDBOcto#461 for details).
+							 */
+							if (!match_column_list_alias_in_select_column_list(cur_cla,
+													   select->select_list)) {
+								ERROR(ERR_ORDER_BY_SELECT_DISTINCT, "");
+								yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL);
+								result = 1;
+								break;
+							}
+						}
+					} else {
+						assert(AGGREGATE_DEPTH_GROUP_BY_CLAUSE == table_alias->aggregate_depth);
+						UNPACK_SQL_STATEMENT(cur_cl, cur_cla->column_list, column_list);
+						/* 1. If this is a column reference `group_by_column_count` and
+						 * `group_by_column_number` is set in COLUMN_REFERENCE case block under
+						 * value_STATEMENT so don't update here.
+						 * 2. If is not a column reference this is an expression, increment
+						 * `group_by_column_count`.
+						 * 3. In case of an expression we do not update its `group_by_column_num` because
+						 * this value doesn't get propogated to the same expression in other clauses. We
+						 * rely on expression matching logic which happens in the second iteration of
+						 *    qualify_statement() calls from qualify_query() `for` loop to update this
+						 * field.
 						 */
-						if (!match_column_list_alias_in_select_column_list(cur_cla, select->select_list)) {
-							ERROR(ERR_ORDER_BY_SELECT_DISTINCT, "");
-							yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL);
-							result = 1;
-							break;
+						if (column_alias_STATEMENT != cur_cl->value->type) {
+							table_alias->group_by_column_count++;
 						}
 					}
 				}

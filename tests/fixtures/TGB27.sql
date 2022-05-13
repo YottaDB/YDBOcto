@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,4 +10,4 @@
 #								#
 #################################################################
 
-select TRUE,FALSE,FALSE,FALSE,TRUE,TRUE,FALSE,'abcd$f%a','abcd$f%a',FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,'abcd$f%a',FALSE,FALSE,FALSE,FALSE,FALSE;
+SELECT id,firstname FROM names n1 WHERE id IN (SELECT 1 FROM names n2 group by n1.id+1);

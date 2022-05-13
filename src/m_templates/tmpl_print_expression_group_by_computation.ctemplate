@@ -1,0 +1,41 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include <assert.h>
+
+#include "logical_plan.h"
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+TEMPLATE(tmpl_print_expression_group_by_computation, int group_by_column_num, int dot_count) {
+
+	/* This expression was specified in the GroupBy clause and GroupBy related processing already
+	 * happened and wrote the records (based on the FROM/WHERE clauses) into the lvn subtree under
+	 * PP_GROUP_BY. Retrieve the value from there.
+	 */
+	assert(0 < group_by_column_num);
+	if (dot_count) {
+		TMPL(tmpl_print_dots, dot_count);
+		%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+		%{}$$mval2str^%%ydboctoplanhelpers({}%
+		%{}$$mvalPiece^%%ydboctoplanhelpers({{ PP_YDB_OCTO_G }},{{ group_by_column_num|%d }}){}%
+		%{}){}%
+		%{}`n{{ PLAN_LINE_START }}{}%
+	} else {
+		%{}$$mval2str^%%ydboctoplanhelpers({}%
+		%{}$$mvalPiece^%%ydboctoplanhelpers({{ PP_YDB_OCTO_G }},{{ group_by_column_num|%d }}){}%
+		%{}){}%
+	}
+	return;
+}
+%{}

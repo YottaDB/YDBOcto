@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/OR its subsidiaries.	#
+# Copyright (c) 2020-2022 YottaDB LLC and/OR its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -32,6 +32,8 @@ SELECT DISTINCT 2+id,firstname || 'abcd' AS col2,lastname FROM names ORDER BY 3,
 SELECT DISTINCT id,(SELECT n1.lastname FROM names n1 LIMIT 1),firstname FROM names ORDER BY id,(SELECT DISTINCT n2.lastname FROM names n2 LIMIT 1),firstname;
 SELECT DISTINCT id,(SELECT n1.lastname FROM names n1 LIMIT 1),firstname FROM names ORDER BY id,(SELECT n2.lastname FROM names n2 ORDER BY n2.lastname LIMIT 1),firstname;
 
--- The below query actually works in Octo but errors out in Postgres so is placed in this file instead of TSD04_noerrors.sql (as cross-check will fail)
+-- Test that (SELECT n1.lastname FROM names n1 LIMIT 1) is not same as (SELECT n2.lastname FROM names n2 LIMIT 1)
 SELECT DISTINCT id,(SELECT n1.lastname FROM names n1 LIMIT 1),firstname FROM names ORDER BY id,(SELECT n2.lastname FROM names n2 LIMIT 1),firstname;
 
+-- Test that alias difference does result in an error
+select distinct n1.id from names n1 JOIN names n2 on (n1.id=n2.id)  order by n2.id;

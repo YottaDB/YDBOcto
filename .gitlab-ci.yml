@@ -55,7 +55,7 @@ before_script:
 
 .rocky:
   before_script:
-    - yum --enablerepo=powertools install -y libcmocka-devel gcc make clang clang-tools-extra cmake bison flex python3-pip readline-devel git libconfig-devel openssl-devel postgresql postgresql-server libgcrypt-devel gpgme-devel openssl expect java-11-openjdk-devel unzip valgrind unixODBC postgresql-odbc diffutils pkg-config libicu-devel glibc-langpack-en wget vim mysql-server
+    - yum --enablerepo=powertools install -y libcmocka-devel gcc make clang clang-tools-extra cmake bison flex python3-pip readline-devel git libconfig-devel openssl-devel postgresql postgresql-server libgcrypt-devel gpgme-devel openssl expect java-11-openjdk-devel unzip valgrind unixODBC postgresql-odbc diffutils pkg-config libicu-devel glibc-langpack-en wget vim mysql-server xz
     # Ninja is not available from the default repositories on Rocky Linux.
     # On Rocky Linux it is not available at all without going through third-party repositories.
     # Rather than setting that up, just install ninja from the GitHub releases page directly.

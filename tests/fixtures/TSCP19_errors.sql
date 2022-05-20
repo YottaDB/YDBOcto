@@ -42,6 +42,14 @@ select n1.* in (n1.id,n1.*) from names n1;
 select n1.* in (n1.*,n1.id) from names n1;
 select n1.* in (n1.lastname,n1.*) from names n1;
 select n1.* in (n1.*,n1.lastname) from names n1;
+select n1.* in (n1.lastname,NULL) from names n1;
+select n1.* in (NULL,n1.lastname) from names n1;
+select n1.* in (n1.lastname) from names n1;
+select n1.lastname in (n1.*) from names n1;
+select n1.* in (n1.id) from names n1;
+select n1.id in (n1.*) from names n1;
+
+
 
 -- NOT IN
 -- literals
@@ -73,3 +81,9 @@ select n1.* not in (n1.id,n1.*) from names n1;
 select n1.* not in (n1.*,n1.id) from names n1;
 select n1.* not in (n1.lastname,n1.*) from names n1;
 select n1.* not in (n1.*,n1.lastname) from names n1;
+select n1.* not in (n1.lastname,NULL) from names n1;
+select n1.* not in (NULL,n1.lastname) from names n1;
+select n1.* not in (n1.lastname) from names n1;
+select n1.lastname not in (n1.*) from names n1;
+select n1.* not in (n1.id) from names n1;
+select n1.id not in (n1.*) from names n1;

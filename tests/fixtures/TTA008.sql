@@ -132,25 +132,3 @@ select NULL not between n1.* AND NULL from names n1 group by 1 order by 1;
 select NULL not between n1.* AND NULL from names n1 group by 1 having NULL not between n1.* AND NULL;
 select NULL not between n1.* AND NULL from names n1 group by 1 having NULL not between NULL AND n1.*; -- Postgres error n1.* must be in groupby
 select NULL not between n1.* AND NULL from names n1 group by 1 having NULL between n1.* AND NULL; -- Postgres error n1.* must be in groupby
-
-
-select n1.* in (NULL,NULL) from names n1;
-select n1.* in (NULL,NULL) from names n1 group by n1.* in (NULL,NULL);
-select n1.* in (NULL,NULL) from names n1 group by n1.* in (NULL,NULL) having n1.* in (NULL,NULL);
-select n1.* in (NULL,NULL) from names n1 group by n1.* in (NULL,NULL) order by n1.* in (NULL,NULL);
-select n1.* in (NULL,NULL) from names n1 group by n1.* order by n1.* in (NULL,NULL);
-select n1.* in (NULL,NULL) from names n1 group by n1.* in (NULL,NULL) order by 1;
-select n1.* in (NULL,NULL) from names n1 group by 1;
-select n1.* in (NULL,NULL) from names n1 group by 1 having n1.* in (NULL,NULL);
-select n1.* in (NULL,NULL) from names n1 group by 1 order by n1.* in (NULL,NULL);
-select n1.* in (NULL,NULL) from names n1 group by 1 order by 1;
-select NULL in (n1.*) from names n1;
-select NULL in (n1.*) from names n1 group by NULL in (n1.*);
-select NULL in (n1.*) from names n1 group by n1.*;
-select NULL in (n1.*) from names n1 group by NULL in (n1.*) having n1.* in (NULL,NULL); -- Postgres error n1.* ont in group by
-select NULL in (n1.*) from names n1 group by NULL in (n1.*) order by NULL in (n1.*);
-select NULL in (n1.*) from names n1 group by 1;
-select NULL in (n1.*) from names n1 group by 1 having n1.* in (NULL,NULL); -- Postgres error n1.* ont in group by
-select NULL in (n1.*) from names n1 group by 1 order by NULL in (n1.*);
-select NULL in (n1.*) from names n1 group by 1 order by 1;
-select n1.* in (firstname,NULL) from names n1; -- Postgres error character varying

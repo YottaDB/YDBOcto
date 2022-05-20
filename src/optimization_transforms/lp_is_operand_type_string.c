@@ -75,15 +75,24 @@ boolean_t lp_is_operand_type_string(LogicalPlan *plan, boolean_t *is_null) {
 			column_alias = ((LP_COLUMN_ALIAS == cur_plan->type)
 					    ? cur_plan->v.lp_column_alias.column_alias
 					    : cur_plan->extra_detail.lp_derived_column.subquery_column_alias);
-			if (column_alias->column->type == column_STATEMENT) {
-				if (STRING_TYPE == column_alias->column->v.column->data_type_struct.data_type) {
-					ret = TRUE;
-				}
-			} else {
-				assert(column_alias->column->type == column_list_alias_STATEMENT);
+			switch (column_alias->column->type) {
+			case value_STATEMENT:
+				assert(TABLE_ASTERISK == column_alias->column->v.value->type);
+				// Treat table.* as a string.
+				ret = TRUE;
+				break;
+			case column_list_alias_STATEMENT:
 				if (STRING_LITERAL == column_alias->column->v.column_list_alias->type) {
 					ret = TRUE;
 				}
+				break;
+			case column_STATEMENT:
+				if (STRING_TYPE == column_alias->column->v.column->data_type_struct.data_type) {
+					ret = TRUE;
+				}
+				break;
+			default:
+				assert(FALSE);
 			}
 			loop_done = TRUE;
 			break;

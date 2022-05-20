@@ -526,6 +526,9 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			 * LP_BOOLEAN_AND/LP_BOOLEAN_OR in terms of "dot_count" handling.
 			 */
 			assert(LP_COLUMN_LIST == second_operand->type);
+			/* lp_is_operand_type_string() returns TRUE if the plan is a string or table.*.
+			 * Skip coerce_to_numeric conversion in these cases.
+			 */
 			coerce_to_numeric = !lp_is_operand_type_string(plan, NULL);
 			plan2 = second_operand;
 			if (dot_count) {

@@ -1,0 +1,16 @@
+
+select NULL in (n1.*) from names n1 group by NULL in (n1.*) having n1.* in (NULL,NULL);
+select NULL in (n1.*) from names n1 group by 1 having n1.* in (NULL,NULL);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column N1.* must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 1, column 68):
+
+select NULL in (n1.*) from names n1 group by NULL in (n1.*) having n1.* in (NULL,NULL);
+                                                                   ^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select NULL in (n1.*) from names n1 group by NULL in (n1.*) having n1.* in (NULL,NULL);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column N1.* must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 1, column 55):
+
+select NULL in (n1.*) from names n1 group by 1 having n1.* in (NULL,NULL);
+                                                      ^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select NULL in (n1.*) from names n1 group by 1 having n1.* in (NULL,NULL);
+

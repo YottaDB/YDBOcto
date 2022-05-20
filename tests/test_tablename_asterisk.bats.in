@@ -69,7 +69,7 @@ teardown() {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TTA006.sql "trim_trailing_zeroes"
 }
 
-@test "TTA007 : OCTO386/OCTO797/OCTO798 : TABLENAME.ASTERISK doesn't cause assert failures" {
+@test "TTA007 : OCTO386/OCTO797/OCTO798/OCTO799 : TABLENAME.ASTERISK doesn't cause assert failures" {
 	load_fixture names.sql
 	load_fixture names.zwr
 	load_fixture TTA007.sql subtest novv
@@ -83,4 +83,18 @@ teardown() {
 	load_fixture names.zwr
 	load_fixture TTA008.sql subtest novv
 	verify_output TTA008 output.txt
+}
+
+@test "TTA009 : OCTO799 : TABLENAME.ASTERISK works with IN/NOT IN operation" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TTA009.sql
+	load_fixture TTA009_errors.sql subtest novv
+	verify_output TTA009_errors output.txt
+}
+
+@test "TTA010 : OCTO799 : TABLENAME.ASTERISK works with binary operation" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TTA010.sql
 }

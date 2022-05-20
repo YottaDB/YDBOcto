@@ -162,3 +162,8 @@ setup() {
 @test "TSCP18 : OCTO288 : Test functions now(), lpad(), localtimestamp(), localtime(), current_timestamp(), current_time()" {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP18.sql
 }
+
+@test "TSCP19: OCTO831 : Generate an error when the IN and NOT IN list has different types" {
+	load_fixture TSCP19_errors.sql subtest novv
+	verify_output TSCP19_errors output.txt
+}

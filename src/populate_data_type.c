@@ -785,7 +785,8 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		}
 		if (((BOOLEAN_IN == binary->operation) || (BOOLEAN_NOT_IN == binary->operation))
 		    && (column_list_STATEMENT == binary->operands[1]->type)) { // SqlColumnList
-			result |= populate_data_type_column_list(binary->operands[1], &child_type[1], TRUE, NULL, parse_context);
+			result |= populate_data_type_column_list(binary->operands[1], &child_type[1], TRUE, ensure_same_type,
+								 parse_context);
 		} else {
 			// SqlStatement (?)
 			result |= populate_data_type(binary->operands[1], &child_type[1], parse_context);

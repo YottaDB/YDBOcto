@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -51,3 +51,6 @@ select case NULL when NULL then n1.id else n1.* end from names n1;
 select case NULL when NULL then n1.* else n1.* end from names n1;
 select case n1.*=NULL when n1.* then n1.* else n1.* end from names n1;
 select case n1.*=NULL when n1.*=NULL then n1.* else n1.* end from names n1;
+
+select +n1.* from names n1;
+select -n1.* from names n1;

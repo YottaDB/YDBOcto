@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -25,5 +25,14 @@ setup() {
 	grep -v '^#' @PROJECT_SOURCE_DIR@/tests/fixtures/TNO01.sql > TNO01.sql
 	octo < TNO01.sql > output.txt
 	verify_output TNO01 output.txt
+}
+
+@test "TNO02: OCTO799 : Validate that an error is issued when non-boolean operand is given to NOT operation" {
+	load_fixture TNO02.sql subtest novv
+	verify_output TNO02 output.txt noinfo nodebug
+}
+
+@test "TNO03: OCTO799 : Validate NOT operation on NULL operand" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TNO03.sql "trim_trailing_zeroes"
 }
 

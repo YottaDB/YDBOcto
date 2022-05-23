@@ -117,6 +117,7 @@ ERROR_DEF(ERR_TABLE_READONLY, "%s not allowed on READONLY tables. Only allowed o
 ERROR_DEF(ERR_TABLE_UNKNOWN_COLUMN_NAME, "Column '%s' of table '%s' does not exist", PSQL_Code_Undefined_Column)
 ERROR_DEF(ERR_TYPE_CAST_TABLE_ASTERISK, "Cannot cast type %s to type %s", PSQL_Code_Cannot_Coerce)
 ERROR_DEF(ERR_TYPE_MISMATCH, "Type mismatch: left %s, right %s", PSQL_Code_Datatype_Mismatch)
+ERROR_DEF(ERR_NOT_OPERATION_TYPE_MISMATCH, "%s type operand is incorrect for NOT operation. Need a boolean operand.", PSQL_Code_Datatype_Mismatch)
 ERROR_DEF(ERR_TYPE_NOT_COMPATIBLE, "Type %s not compatible for %s", PSQL_Code_Undefined_Function)
 ERROR_DEF(ERR_UNKNOWN_COLUMN_NAME, "Unknown column: %s", PSQL_Code_Undefined_Column)
 ERROR_DEF(ERR_UNKNOWN_FUNCTION, "No function '%s' defined with given parameter types (%s)", PSQL_Code_Undefined_Function)

@@ -692,6 +692,14 @@ Text: Multiple xxx keys found for table xxx
 
 Description/Action: This error indicates that the table has multiple :code:`KEY NUM` elements with the same number, and that the source schema needs to be corrected. PSQL Error Code: 42P08
 
++++++++++++++++++++++++++++++++
+ERR_NOT_OPERATION_TYPE_MISMATCH
++++++++++++++++++++++++++++++++
+
+Text: xxx type operand is incorrect for NOT operation. Need a boolean operand.
+
+Description/Action: This error is generated when :code:`NOT` operation is applied on a non boolean operand. PSQL Error Code: 42804
+
 ++++++++++++++++++++
 ERR_NULL_KEY_VALUE
 ++++++++++++++++++++

@@ -40,6 +40,9 @@ select case NULL when NULL then n1.id else n1.* end from names n1;
 select case NULL when NULL then n1.* else n1.* end from names n1;
 select case n1.*=NULL when n1.* then n1.* else n1.* end from names n1;
 select case n1.*=NULL when n1.*=NULL then n1.* else n1.* end from names n1;
+
+select +n1.* from names n1;
+select -n1.* from names n1;
 [ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for least operation
 Error with syntax near (line 1, column 14):
 
@@ -316,4 +319,16 @@ Error with syntax near (line 1, column 43):
 select case n1.*=NULL when n1.*=NULL then n1.* else n1.* end from names n1;
                                           ^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select case n1.*=NULL when n1.*=NULL then n1.* else n1.* end from names n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for + or - operation
+Error with syntax near (line 1, column 9):
+
+select +n1.* from names n1;
+        ^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select +n1.* from names n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type TABLENAME.* not compatible for + or - operation
+Error with syntax near (line 1, column 9):
+
+select -n1.* from names n1;
+        ^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select -n1.* from names n1;
 

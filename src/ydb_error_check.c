@@ -292,9 +292,11 @@ void ydb_error_check(int status, char *file, int line) {
 		YDB_LITERAL_TO_BUFFER("$ECODE", &varname);
 		ydb_set_s(&varname, 0, NULL, NULL); /* M equivalent is : SET $ECODE="" */
 	} else {
-		/* Assert that the error code falls in the range of a valid YDB error code */
-		assert(YDB_MIN_YDBERR <= positive_status);
-		assert(YDB_MAX_YDBERR > positive_status);
+		/* Assert that the error code falls in the range of a valid system or YDB error codes.
+		 * See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/898#note_956961989 for why we need to include
+		 * system codes
+		 */
+		assert((256 > positive_status) || ((YDB_MIN_YDBERR <= positive_status) && (YDB_MAX_YDBERR > positive_status)));
 		/* Use ydb_status instead of ydb_get_s to preserve the original error message in $ZSTATUS
 		 * in case the buffer needs to be resized, i.e. the call returns YDB_ERR_INVSTRLEN
 		 */

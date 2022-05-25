@@ -201,10 +201,12 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 	case display_relation_STATEMENT:
 		UNPACK_SQL_STATEMENT(display_relation, result, display_relation);
 		if (DISPLAY_TABLE_RELATION == display_relation->type) {
-			ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "display relation table");
+			/* "\d tablename" : Describe/Display a specific relation/table */
+			status = describe_tablename(display_relation->table_name);
 			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
-			return 1;
+			return status;
 		}
+		/* "\d" : Describe/Display all relations/tables */
 		assert(DISPLAY_ALL_RELATION == display_relation->type);
 		result = get_display_relation_query_stmt(parse_context);
 		assert(table_alias_STATEMENT == result->type);

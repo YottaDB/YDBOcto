@@ -74,7 +74,8 @@
 // Length of M extrinsic function prefix, i.e. "$$"
 #define EXTRINSIC_PREFIX_LEN 2
 
-#define IS_KEY_COLUMN(COLUMN) ((NULL != get_keyword(COLUMN, PRIMARY_KEY)) || (NULL != get_keyword(COLUMN, OPTIONAL_KEY_NUM)))
+#define IS_KEY_COLUMN(COLUMN)	   ((NULL != get_keyword(COLUMN, PRIMARY_KEY)) || (NULL != get_keyword(COLUMN, OPTIONAL_KEY_NUM)))
+#define IS_COLUMN_NOT_NULL(COLUMN) (IS_KEY_COLUMN(COLUMN) || (NULL != get_keyword(COLUMN, NOT_NULL)))
 
 /* Maximum query string length for all Octo queries. Currently set to YDB_MAX_STR (the maximum size of a GVN/LVN value) since query
  * strings are stored in LVNs during processing and so are constrained the size limit for LVN values. Should users require a greater
@@ -831,6 +832,9 @@ typedef enum RegexType {
 		}                                                                                                  \
 	}
 
+/* Define macro to hold the maximum possible length for a user defined type (e.g. NUMERIC(25,3)) */
+#define MAX_USER_VISIBLE_TYPE_STRING_LEN (MAX_TYPE_NAME_LEN + sizeof("(,)") + 2 * INT32_TO_STRING_MAX)
+
 // Convenience type definition for run_query callback function
 typedef int (*callback_fnptr_t)(SqlStatement *, ydb_long_t, void *, char *, PSQL_MessageTypeT);
 
@@ -895,9 +899,13 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 char *	      get_aggregate_func_name(SqlAggregateType type);
 char *	      get_set_operation_string(SqlSetOperationType type);
 char *	      get_user_visible_binary_operator_string(enum BinaryOperations operation);
+int	      get_user_visible_data_type_string(SqlDataTypeStruct *data_type_ptr, char *ret_buff, int ret_buff_size);
 char *	      get_user_visible_type_string(SqlValueType type);
 char *	      get_user_visible_unary_operator_string(enum UnaryOperations operation);
 SqlStatement *get_display_relation_query_stmt(ParseContext *parse_context);
+
+// Implements the "\d tablename" command at the OCTO> prompt
+int describe_tablename(SqlStatement *table_name);
 
 // GROUP BY expression support functions
 int		   get_group_by_column_number(SqlTableAlias *table_alias, SqlStatement *hash_to_match);

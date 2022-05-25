@@ -154,6 +154,7 @@ add_library(libocto OBJECT
   ${PROJECT_BINARY_DIR}/default_octo_conf.h
   delete_table_from_pg_class.c
   delete_function_from_pg_proc.c
+  describe_tablename.c
   drill_to_table_alias.c
   drop_schema_from_local_cache.c
   emit_check_constraint.c
@@ -195,6 +196,7 @@ add_library(libocto OBJECT
   get_sqlvaluetype_from_psql_type.c
   get_sqlvaluetype_from_sqldatatype.c
   get_user_visible_binary_operator_string.c
+  get_user_visible_data_type_string.c
   get_user_visible_type_string.c
   get_user_visible_unary_operator_string.c
   get_display_relation_query_stmt.c

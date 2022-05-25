@@ -29,6 +29,7 @@ int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_co
 	char **		    buff_ptr, *bufp;
 	char *		    buffer2;
 	int		    buffer2_size;
+	char		    data_type_string[MAX_USER_VISIBLE_TYPE_STRING_LEN];
 
 	DEBUG_ONLY(boolean_t piece_seen = FALSE);
 	DEBUG_ONLY(boolean_t empty_delim_seen = FALSE);
@@ -43,65 +44,16 @@ int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_co
 	}
 	if (NULL != cur_column->columnName) {
 		/* Column name is NOT NULL. This means it is a real column in the table (not a table-level constraint) */
-		/* This is a column specification */
 		UNPACK_SQL_STATEMENT(value, cur_column->columnName, value);
-		INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "`%s`", value->v.reference);
-		switch (cur_column->data_type_struct.data_type) {
-		case BOOLEAN_TYPE:
-			/* For BOOLEAN, neither PRECISION nor SCALE apply. Assert that. */
-			assert(SIZE_OR_PRECISION_UNSPECIFIED == cur_column->data_type_struct.size_or_precision);
-			assert(SCALE_UNSPECIFIED == cur_column->data_type_struct.scale);
-			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " BOOLEAN");
-			break;
-		case INTEGER_TYPE:
-			/* For INTEGER, only PRECISION may apply. Assert that. */
-			assert(SCALE_UNSPECIFIED == cur_column->data_type_struct.scale);
-			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " INTEGER");
-			if (SIZE_OR_PRECISION_UNSPECIFIED != cur_column->data_type_struct.size_or_precision) {
-				/* SIZE was specified (e.g. INTEGER(8)). In that case, write out the "8" here */
-				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "(%d)",
-									    cur_column->data_type_struct.size_or_precision);
-			}
-			break;
-		case NUMERIC_TYPE:
-			/* For NUMERIC, both PRECISION and SCALE may apply. Check both. */
-			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " NUMERIC");
-			if (SIZE_OR_PRECISION_UNSPECIFIED != cur_column->data_type_struct.size_or_precision) {
-				if (SCALE_UNSPECIFIED != cur_column->data_type_struct.scale) {
-					/* PRECISION and SCALE were both specified (e.g. NUMERIC(8,4)).
-					 * In that case, write out the "(8,4)" here.
-					 */
-					INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "(%d,%d)",
-										    cur_column->data_type_struct.size_or_precision,
-										    cur_column->data_type_struct.scale);
-				} else {
-					/* Only PRECISION was specified (e.g. NUMERIC(8)).
-					 * In that case, write out the "(8)" here.
-					 */
-					INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "(%d)",
-										    cur_column->data_type_struct.size_or_precision);
-				}
-			} else {
-				assert(SCALE_UNSPECIFIED == cur_column->data_type_struct.scale);
-				/* Neither PRECISION nor SCALE were specified. No need to write anything more. */
-			}
-			break;
-		case STRING_TYPE:
-			/* For STRING, only SIZE may apply. Assert that. */
-			assert(SCALE_UNSPECIFIED == cur_column->data_type_struct.scale);
-			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " VARCHAR");
-			if (SIZE_OR_PRECISION_UNSPECIFIED != cur_column->data_type_struct.size_or_precision) {
-				/* SIZE was specified (e.g. VARCHAR(30)). In that case, write out the "30" here */
-				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "(%d)",
-									    cur_column->data_type_struct.size_or_precision);
-			}
-			break;
-		default:
-			ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
+		INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "`%s` ", value->v.reference);
+
+		int ret;
+		ret = get_user_visible_data_type_string(&cur_column->data_type_struct, data_type_string, sizeof(data_type_string));
+		if (0 > ret) {
 			assert(FALSE);
 			return -1;
-			break;
 		}
+		INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "%s", data_type_string);
 	}
 	UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
 	cur_keyword = start_keyword;

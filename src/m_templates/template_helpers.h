@@ -86,9 +86,6 @@
 
 #define PLAN_LINE_START "    " /* 4 spaces start an M line in the generated plan */
 
-/* This macro is currently unused but preserved in the hope that it might be needed in the near future */
-#define IS_COLUMN_NOT_NULL(COLUMN) (IS_KEY_COLUMN(COLUMN) || (NULL != get_keyword(COLUMN, NOT_NULL)))
-
 /* Sets output parameters "DELIM" and "IS_DOLLAR_CHAR" based on input parameters "TABLE" "COLUMN" and "IS_TRIGGER" */
 #define SET_DELIM_AND_IS_DOLLAR_CHAR(TABLE, COLUMN, IS_TRIGGER, DELIM, IS_DOLLAR_CHAR)      \
 	{                                                                                   \

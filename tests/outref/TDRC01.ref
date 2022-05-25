@@ -5,7 +5,7 @@ select n1.firstname from names n1 limit 2;
 \d;
 
 --Test \d command with semicolon works fine
-\d tablename;
+\d names;
 
 -- The following query is just to check that the \d command works fine between regular queries
 select n1.firstname from names n1 limit 2;
@@ -14,7 +14,7 @@ select n1.firstname from names n1 limit 2;
 \d
 
 --Test that the \d command without semicolon works fine
-\d tablename
+\d names
 FIRSTNAME
 Zero
 Acid
@@ -47,7 +47,11 @@ public|PG_SETTINGS|table|octo
 public|PG_TYPE|table|octo
 public|PG_USER|table|octo
 (26 rows)
-[ERROR] PATH:LINENUM DATE TIME : ERR_FEATURE_NOT_IMPLEMENTED : Feature not implemented: display relation table
+Table "NAMES"
+Column|Type|Collation|Nullable|Default
+ID|INTEGER||NOT NULL|
+FIRSTNAME|VARCHAR(30)|||
+LASTNAME|VARCHAR(30)|||
 FIRSTNAME
 Zero
 Acid
@@ -80,4 +84,8 @@ public|PG_SETTINGS|table|octo
 public|PG_TYPE|table|octo
 public|PG_USER|table|octo
 (26 rows)
-[ERROR] PATH:LINENUM DATE TIME : ERR_FEATURE_NOT_IMPLEMENTED : Feature not implemented: display relation table
+Table "NAMES"
+Column|Type|Collation|Nullable|Default
+ID|INTEGER||NOT NULL|
+FIRSTNAME|VARCHAR(30)|||
+LASTNAME|VARCHAR(30)|||

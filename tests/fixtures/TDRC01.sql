@@ -16,7 +16,7 @@ select n1.firstname from names n1 limit 2;
 \d;
 
 --Test \d command with semicolon works fine
-\d tablename;
+\d names;
 
 -- The following query is just to check that the \d command works fine between regular queries
 select n1.firstname from names n1 limit 2;
@@ -25,4 +25,4 @@ select n1.firstname from names n1 limit 2;
 \d
 
 --Test that the \d command without semicolon works fine
-\d tablename
+\d names

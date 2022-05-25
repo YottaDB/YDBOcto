@@ -933,6 +933,9 @@ ydb_string_t *populate_sql_time_format(ydb_string_t *time_format, struct tm *tm,
 	return ret;
 }
 
+/* Implements the MySQL DATE_FORMAT() function. If the MySQL WEEK() function is implemented (#840), some logic may be duplicated. If
+ * so, duplicate logic should be abstracted into a common module.
+ */
 ydb_string_t *ydboctoDateFormatC(int count, ydb_string_t *date, ydb_string_t *format) {
 	ydb_string_t *intermediate_format, *ret;
 	char *	      date_str, *result;

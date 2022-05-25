@@ -41,7 +41,6 @@ optional_query_words
   : /* Empty */ {
       $$ = alloc_no_keyword();
     }
-  | COMMA optional_query_words { $$ = $COMMA; }
   ;
 
 optional_query_word_element
@@ -73,21 +72,6 @@ optional_query_word_element
         YYABORT;
       }
     }
-/*  | UNION ALL sql_select_statement {
-      SQL_STATEMENT($$, keyword_STATEMENT);
-      OCTO_CMALLOC_STRUCT(($$)->v.keyword, SqlOptionalKeyword);
-      ($$)->v.keyword->keyword = OPTIONAL_UNION_ALL;
-      ($$)->v.keyword->v = $sql_select_statement;
-      dqinit(($$)->v.keyword);
-  }
-  | UNION sql_select_statement {
-      SQL_STATEMENT($$, keyword_STATEMENT);
-      OCTO_CMALLOC_STRUCT(($$)->v.keyword, SqlOptionalKeyword);
-      ($$)->v.keyword->keyword = OPTIONAL_UNION;
-      ($$)->v.keyword->v = $sql_select_statement;
-      dqinit(($$)->v.keyword);
-      }*/
-  ;
 
 sort_specification_list
   : sort_specification sort_specification_list_tail {

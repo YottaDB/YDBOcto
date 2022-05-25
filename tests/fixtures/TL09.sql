@@ -1,6 +1,6 @@
 #################################################################
 #                                                               #
-# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.       #
+# Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.       #
 # All rights reserved.                                          #
 #                                                               #
 #       This source code contains the intellectual property     #
@@ -10,5 +10,7 @@
 #                                                               #
 #################################################################
 
-select * from names limit 2;
-select id from names limit 2;
+select lastname from names order by lastname limit 1, firstname limit 1;
+select lastname from names order by lastname limit 1, firstname, id limit 1;
+select lastname from names order by lastname, firstname limit 1, id limit 1;
+select * from names order by lastname limit 1, firstname;

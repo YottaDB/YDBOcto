@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -83,3 +83,7 @@ CAT
   [[ $(ls -l _ydboctoP*.m | wc -l) -eq 2 ]]
 }
 
+@test "TL09 : Verify that Limit usage at a column other than the last one of ORDER BY doesn't generate a segmentation fault" {
+ load_fixture TL09.sql subtest novv
+ verify_output TL09 output.txt
+}

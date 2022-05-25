@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -16,14 +16,12 @@ setup_file() {
 	# This sets-up a temporary directory so that we can download and generate files there.
 	setup_bats_env
 
-	# Remove Octo environment (except $ydb_dist); disrupts VistA
-	old_ydb_dist=$ydb_dist
+	# Remove Current Octo environment (when invoked locally; pipeline env is clean); disrupts VistA
 	for e in `env | grep -E '^(ydb|gtm)' | cut -d= -f1`; do unset $e; done
 
-	# Restore $ydb_dist (override what's in @TEST_VISTA_ENV_FILE@), source VistA environment, and add $ydb_routines for Octo,
-	export ydb_dist=$old_ydb_dist
-	export gtm_dist=$ydb_dist
+	# Source VistA environment, and add $ydb_routines for Octo,
 	source @TEST_VISTA_ENV_FILE@
+	export ydb_dist=$gtm_dist
 	[[ -z ${ydb_routines} ]] && export ydb_routines=$gtmroutines
 
 	# Add Posix plugin call-out file
@@ -59,7 +57,8 @@ setup_file() {
 		# MAPALL^%YDBOCTOVISTAM Main code that creates the SQL mapping file
 		$ydb_dist/yottadb -r %XCMD 'S DUZ=.5,DIQUIET=1,DUZ(0)="@" D DT^DICRW,MAPALL^%YDBOCTOVISTAM("@PROJECT_BINARY_DIR@/vista.sql")'
 	else
-		cp "$test_vista_input_sql" "@PROJECT_BINARY_DIR@"
+		# We want the destination file to be named vista.sql irrespective of the name of the source file as that is relied upon in later stages
+		cp "$test_vista_input_sql" "@PROJECT_BINARY_DIR@"/vista.sql
 	fi
 
 	# Get VistA functions routine %YDBOCTOVISTAF

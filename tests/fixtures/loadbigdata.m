@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -40,4 +40,26 @@ verify	;
 
 init	;
 	set numrows=1000000
+	quit
+
+mangle	;
+	; ---------------------------------------------------
+	; Change the data around so that triggers get rebuilt
+	; ---------------------------------------------------
+	do init
+	for i=1:4:numrows set ^names(i)="B|A"
+	for i=2:4:numrows set ^names(i)="B|C"
+	for i=3:4:numrows set ^names(i)="C|A"
+	for i=4:4:numrows set ^names(i)="A|B"
+	quit
+	;
+reset	;
+	; ---------------------------------
+	; Reset data back to original state
+	; ---------------------------------
+	do init
+	for i=1:4:numrows set ^names(i)="A|B"
+	for i=2:4:numrows set ^names(i)="C|B"
+	for i=3:4:numrows set ^names(i)="A|C"
+	for i=4:4:numrows set ^names(i)="B|A"
 	quit

@@ -1,6 +1,6 @@
 #################################################################
 #                                                               #
-# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.       #
+# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.       #
 # All rights reserved.                                          #
 #                                                               #
 #       This source code contains the intellectual property     #
@@ -104,6 +104,20 @@ setup_file() {
 
 @test "TSPEED003-3 : select where #3" {
   load_fixture TSPEED003.sql subtest novv
+}
+
+# The next tests are somewhat different: We set data into the
+# million nodes of the names global. All that we are doing is seeing how
+# fast the triggers used by the xref actually run.
+#
+@test "TSPEED003-4 : Names update triggers speed #1" {
+  # The rows that say A|B become B|A
+  $ydb_dist/yottadb -run mangle^loadbigdata
+}
+
+@test "TSPEED003-5 : Names update triggers speed #2" {
+  # Reset back to the original data
+  $ydb_dist/yottadb -run reset^loadbigdata
 }
 
 @test "TSPEED004-1 : Northwind database Squirrel SQL Column Listing" {

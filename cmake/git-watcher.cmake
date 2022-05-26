@@ -23,7 +23,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.
+# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.
 # All rights reserved.
 #
 #	This source code contains the intellectual property
@@ -202,12 +202,10 @@ endfunction()
 #              check the state of git before every build. If the state has
 #              changed, then a file is configured.
 function(SetupGitMonitoring)
-    execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --git-dir OUTPUT_VARIABLE GIT_DIR)
-    # strip trailing newline
-    string(STRIP ${GIT_DIR} GIT_DIR)
-    add_custom_command(
-        OUTPUT ${POST_CONFIGURE_FILE}
-        DEPENDS ${PRE_CONFIGURE_FILE} ${GIT_DIR}/index
+    add_custom_target(check_git_repository
+        ALL
+        DEPENDS ${PRE_CONFIGURE_FILE}
+        BYPRODUCTS ${POST_CONFIGURE_FILE}
         COMMENT "Checking the git repository for changes..."
         COMMAND
             ${CMAKE_COMMAND}

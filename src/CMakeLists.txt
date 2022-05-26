@@ -137,6 +137,7 @@ add_library(libhelpers OBJECT
   helpers/make_buffers.c
   ${POST_CONFIGURE_FILE}
 )
+add_dependencies(libhelpers check_git_repository)
 
 # Load the default config from src/aux/octo.conf
 ADD_CUSTOM_COMMAND(
@@ -335,6 +336,7 @@ add_library(libocto OBJECT
   ${FLEX_OctoLexer_OUTPUTS}
   ${POST_CONFIGURE_FILE}
 )
+add_dependencies(libocto check_git_repository)
 
 add_executable(octo
   octo.c
@@ -344,7 +346,7 @@ add_executable(octo
   $<TARGET_OBJECTS:libhelpers>
   ${POST_CONFIGURE_FILE}
 )
-add_dependencies(octo _ydbocto)
+add_dependencies(octo check_git_repository _ydbocto)
 
 if(${YDB_TLS_AVAILABLE})
   add_library(ydbtls SHARED IMPORTED GLOBAL)
@@ -421,6 +423,7 @@ add_library(librocto OBJECT
   rocto_helper_waitpid.c
   ${POST_CONFIGURE_FILE}
 )
+add_dependencies(librocto check_git_repository)
 
 add_executable(rocto
   rocto.c
@@ -431,6 +434,7 @@ add_executable(rocto
   $<TARGET_OBJECTS:libhelpers>
   ${POST_CONFIGURE_FILE}
 )
+add_dependencies(rocto check_git_repository)
 
 add_executable(pparser
   ${PROJECT_BINARY_DIR}/default_octo_conf.h
@@ -441,6 +445,7 @@ add_executable(pparser
   ${FLEX_PhysicalLexer_OUTPUTS}
   ${POST_CONFIGURE_FILE}
 )
+add_dependencies(pparser check_git_repository)
 
 add_library(libcocto SHARED
 	aux/ydboctodateformat.c

@@ -857,13 +857,15 @@ Launching Options
 Useful Commands at OCTO>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-+------------------------+---------------------------------------------+
-| Command                | Information                                 |
-+========================+=============================================+
-| :code:`\q`             | Exits the prompt                            |
-+------------------------+---------------------------------------------+
-| :code:`\d`             | Displays all relations                      |
-+------------------------+---------------------------------------------+
++------------------------+-------------------------------------------------------+
+| Command                | Information                                           | 
++========================+=======================================================+
+| :code:`\q`             | Exits the prompt                                      |
++------------------------+-------------------------------------------------------+
+| :code:`\d`             | Displays all relations                                |
++------------------------+-------------------------------------------------------+
+| :code:`\d tablename`   | Displays information about columns of specified table |
++------------------------+-------------------------------------------------------+
 
     Relation shown will be similar to the following:
 
@@ -899,4 +901,12 @@ Useful Commands at OCTO>
 	public|PG_USER|table|octo
 	(26 rows)
 
+    .. code-block:: bash
 
+       OCTO> \d NAMES
+       Table "NAMES"
+       Column|Type|Collation|Nullable|Default
+       ID|INTEGER||NOT NULL|
+       FIRSTNAME|VARCHAR(30)|||
+       LASTNAME|VARCHAR(30)|||
+       OCTO>

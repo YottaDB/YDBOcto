@@ -45,7 +45,10 @@ int describe_tablename(SqlStatement *table_name) {
 		return -1;
 	}
 	UNPACK_SQL_STATEMENT(value, table->tableName, value);
-	/* The below output is more or less the same as what \d tablename outputs at the psql prompt */
+
+	/* Note: The below output is more or less the same as what \d tablename outputs at the psql prompt */
+
+	/* First output Column names, types etc. */
 	fprintf(stdout, "Table \"%s\"\n", value->v.reference);
 	fprintf(stdout, "Column|Type|Collation|Nullable|Default\n");
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
@@ -75,6 +78,52 @@ int describe_tablename(SqlStatement *table_name) {
 			/* fprintf(stdout, ""); "Default" column is empty till YDBOcto#555 is implemented hence commented */
 			fprintf(stdout, "\n");
 		}
+		cur_column = cur_column->next;
+	} while (cur_column != start_column);
+
+	/* Next output constraints (if any) */
+	boolean_t first_check_constraint;
+	char *	  buffer, *buffer_orig, **buff_ptr;
+	int	  buffer_size, status;
+
+	first_check_constraint = TRUE;
+	cur_column = start_column;
+	do {
+		SqlOptionalKeyword *cur_keyword, *start_keyword;
+
+		UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
+		cur_keyword = start_keyword;
+		do {
+			switch (cur_keyword->keyword) {
+			case OPTIONAL_CHECK_CONSTRAINT:;
+				if (first_check_constraint) {
+					fprintf(stdout, "Check constraints:\n");
+					buffer_size = OCTO_INIT_BUFFER_LEN;
+					buffer = (char *)malloc(sizeof(char) * buffer_size);
+					buffer_orig = buffer;
+					first_check_constraint = FALSE;
+				}
+
+				SqlConstraint *constraint;
+				SqlValue *     value;
+				UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
+				UNPACK_SQL_STATEMENT(value, constraint->name, value);
+				fprintf(stdout, "    \"%s\" CHECK (", value->v.string_literal);
+				buffer = buffer_orig;
+				buff_ptr = &buffer;
+				status = emit_check_constraint(&buffer, &buffer_size, buff_ptr, constraint->definition);
+				if (0 > status) {
+					assert(FALSE);
+					free(buffer);
+					return -1;
+				}
+				fprintf(stdout, "%s)\n", buffer_orig);
+				break;
+			default:
+				break;
+			}
+			cur_keyword = cur_keyword->next;
+		} while (cur_keyword != start_keyword);
 		cur_column = cur_column->next;
 	} while (cur_column != start_column);
 	return 0;

@@ -57,3 +57,16 @@ create table tmp28 (id integer, check(id not in (2,3)));
 -- -- create table tmp39 (id integer, check(id <= all (2,3)));
 -- -- create table tmp40 (id integer, check(id >= all (2,3)));
 
+-- Test CHECK column constraint using a column ("price" below) that is going to be defined in the table in a later line
+create table tmp29 (product_no integer CHECK (price > product_no), name text, price numeric);
+
+-- Test that CONSTRAINT name is accepted but ignored for NOT NULL (proved below because same constraint name is accepted
+-- for a different constraint without errors like it normally would if it was a real constraint name collision).
+create table tmp30 (id integer unique, name varchar constraint name1 not null, firstname varchar constraint name1 check (firstname is not NULL));
+
+-- Test that \d tablename in Octo matches that in Postgres for the below test case
+-- This is a case where the constraint name is derived from an empty column name.
+-- At one point, Octo used to create a constraint named PRODUCTS__CHECK whereas we expect it to be PRODUCTS_CHECK
+-- (i.e. no double underscore).
+create table tmp31 (id integer, check (1 + 2 = 3), check (2 + 3 = 5));
+

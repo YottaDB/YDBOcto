@@ -60,14 +60,22 @@ setup() {
 	skip	# TODO : YDBOcto#772 : Remove this line once CHECK CONSTRAINT functionality is fully supported
 	testname="TCTC005"
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/$testname.sql .
-	grep '^create table' $testname.sql | awk '{printf "select * from %s;\n", $3}' >> select.sql
-	echo "# Run lots of CREATE TABLE commands that test various syntax for CHECK constraints"
+	echo "# Run CREATE TABLE commands in $testname.sql that tests various types of CHECK constraints" >> output.txt
 	load_fixture $testname.sql subtest novv
-	echo "# Execute SELECT * queries for all the tables created above"
+	echo "# Generate and Run query file select.sql that does a SELECT * of all tables created in $testname.sql" >> output.txt
+	grep '^create table' $testname.sql | awk '{printf "select * from %s;\n", $3}' >> select.sql
 	octo -f select.sql >> output.txt
-	echo "# Verify CHECK constraints are correctly stored in the CREATE TABLE text definition (in global variable nodes)"
+	echo "# Verify CHECK constraints are correctly stored in the CREATE TABLE text definition (in global variable nodes)" >> output.txt
 	$ydb_dist/mupip extract $testname.ext
 	grep -w "text" $testname.ext | grep TMP | sed 's/ GLOBAL .*//g;s/.*CREATE TABLE //g;' >> output.txt
+	echo "# Generate and Run query file slashd.sql that does a \d of all tables created in $testname.sql" >> output.txt
+	echo "# Also verify that constraint names are created correctly" >> output.txt
+	echo "# 1) Constraints that use only one column in the table end up as column-level constraints" >> output.txt
+	echo "#    and have that column name in their name." >> output.txt
+	echo "# 2) Constraints that use 0 or more than 1 column in the table end up as table-level constraints" >> output.txt
+	echo "#    and have no column name in their name." >> output.txt
+	grep '^create table' $testname.sql | awk '{printf "\\d %s;\n", $3}' >> slashd.sql
+	octo -f slashd.sql >> output.txt
 	verify_output $testname output.txt
 }
 

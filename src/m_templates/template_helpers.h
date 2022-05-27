@@ -165,6 +165,7 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 TEMPLATE(tmpl_duplication_check, PhysicalPlan *pplan);
 TEMPLATE(tmpl_set_duplication_check, PhysicalPlan *pplan, int dot_count);
 TEMPLATE(tmpl_order_by_key, int num_cols);
+TEMPLATE(tmpl_order_by_sort, PhysicalPlan *pplan, boolean_t is_desc, int num_cols, SqlOptionalKeyword *limit_keyword);
 TEMPLATE(tmpl_populate_output_key, PhysicalPlan *pplan, int dot_count);
 TEMPLATE(tmpl_limit_check, SqlOptionalKeyword *limit_keyword, char *prefix, char *suffix);
 TEMPLATE(tmpl_where_or_having_or_on, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count);

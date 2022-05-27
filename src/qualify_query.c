@@ -351,6 +351,10 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		//	Replace column number usages in GROUP BY and ORDER BY
 		//	Assign GROUP BY column numbers to column references
 		//	Issue GROUP BY subquery usage error if any
+		//	Issue SELECT DISTINCT related error in ORDER BY
+		//	Expand table.* in SELECT
+		//	Expand table.* in ORDER BY if `aggregate_function_or_group_by_or_having_specified` is 0 at the end
+		//		of first iteration.
 		// Second iteration:
 		//	Assign GROUP BY column numbers to expressions
 		//	Issue error on GROUP BY validation failure
@@ -503,6 +507,52 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		table_alias->qualify_query_stage = QualifyQuery_ORDER_BY;
 		table_alias->aggregate_depth = 0;
 		result |= qualify_statement(select->order_by_expression, start_join, table_alias_stmt, 0, &lcl_ret);
+		/* Expansion of table.* in ORDER BY is done here so that expansion can be skipped when GROUP BY/HAVING/Aggregate
+		 * exists. At this point we can safely rely on `aggregate_function_or_group_by_or_having_specified` to indicate if
+		 * the entire query has any form of grouping or not.
+		 * More details : https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1109#note_961299737.
+		 */
+		SqlOptionalKeyword *keywords, *keyword;
+		UNPACK_SQL_STATEMENT(keywords, select->optional_words, keyword);
+		keyword = get_keyword_from_keywords(keywords, OPTIONAL_DISTINCT);
+		if ((0 == result) && !table_alias->do_group_by_checks && (NULL != select->order_by_expression)) {
+			SqlColumnListAlias *start_cla, *cur_cla;
+			UNPACK_SQL_STATEMENT(start_cla, select->order_by_expression, column_list_alias);
+			cur_cla = start_cla;
+			do {
+				SqlColumnList *cur_cl;
+				UNPACK_SQL_STATEMENT(cur_cl, cur_cla->column_list, column_list);
+				if (column_alias_STATEMENT == cur_cl->value->type) {
+					SqlColumnAlias *column_alias;
+					UNPACK_SQL_STATEMENT(column_alias, cur_cl->value, column_alias);
+
+					SqlTableAlias *cur_table_alias;
+					UNPACK_SQL_STATEMENT(cur_table_alias, column_alias->table_alias_stmt, table_alias);
+					if ((0
+					     == cur_table_alias->parent_table_alias
+						    ->aggregate_function_or_group_by_or_having_specified)
+					    && is_stmt_table_asterisk(column_alias->column)) {
+						// Expand table.* in ORDER BY as there is no grouping done in the query
+						process_table_asterisk_cla(select->order_by_expression, &cur_cla, &start_cla,
+									   table_alias->qualify_query_stage);
+					}
+				}
+				/* Check if SELECT DISTINCT was specified */
+				if (NULL != keyword) {
+					/* SELECT DISTINCT was specified. Check if the ORDER BY column expression
+					 * matches some column specification in the SELECT column list. If so that
+					 * is good. If not issue an error (see YDBOcto#461 for details).
+					 */
+					if (!match_column_list_alias_in_select_column_list(cur_cla, select->select_list)) {
+						ERROR(ERR_ORDER_BY_SELECT_DISTINCT, "");
+						yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL);
+						result = 1;
+						break;
+					}
+				}
+				cur_cla = cur_cla->next;
+			} while (cur_cla != start_cla);
+		}
 		table_alias->qualify_query_stage = QualifyQuery_NONE;
 		if (!table_alias->aggregate_function_or_group_by_or_having_specified) {
 			/* GROUP BY or AGGREGATE function or HAVING was never used in the query.

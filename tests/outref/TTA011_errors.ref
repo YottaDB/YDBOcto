@@ -1,0 +1,90 @@
+
+select 1 from names n1 group by n1.* order by n1.*, n1.firstname; -- Both Octo and Postgres issue error saying `n1.firstname` is not in GroupBy
+select 1 from names n1 group by n1.firstname,n1.lastname order by n1.*; -- column n1.* not in group by
+select 1 from names n1 group by n1.id,n1.firstname,n1.lastname order by n1.*; -- will work in postgres but not in Octo because of #675
+select 1 from (select firstname,lastname from names) n1 group by n1.firstname,n1.lastname order by n1.*; -- demonstrates that without #675 the error seen in Octo is same as Postgres
+select count(1) from names n1 order by n1.*; -- n1.* not in GROUP BY
+select 1 from names n1 having 1<1 order by n1.*; -- n1.* not in GROUP BY
+
+-- Following queries test SELECT DISTINCT behavior with Table.*
+select distinct n1.* from names n1 order by n1.lastname,n1.*;
+select distinct n1.* from names n1 order by n1.*;
+
+-- Following queries validate that both queries only issue `ERR_GROUP_BY_OR_AGGREGATE_FUNCTION` error on n1.* column and not an expanded list of columns.
+select 1 from names n1 order by count(*),n1.*;
+select 1 from names n1 order by n1.*,count(*);
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 1, column 53):
+
+select 1 from names n1 group by n1.* order by n1.*, n1.firstname; -- Both Octo and Postgres issue error saying `n1.firstname` is not in GroupBy
+                                                    ^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 group by n1.* order by n1.*, n1.firstname;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column N1.* must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 2, column 67):
+
+select 1 from names n1 group by n1.* order by n1.*, n1.firstname; -- Both Octo and Postgres issue error saying `n1.firstname` is not in GroupBy
+select 1 from names n1 group by n1.firstname,n1.lastname order by n1.*; -- column n1.* not in group by
+                                                                  ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Both Octo and Postgres issue error saying `n1.firstname` is not in GroupBy
+select 1 from names n1 group by n1.firstname,n1.lastname order by n1.*;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column N1.* must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 2, column 73):
+
+select 1 from names n1 group by n1.firstname,n1.lastname order by n1.*; -- column n1.* not in group by
+select 1 from names n1 group by n1.id,n1.firstname,n1.lastname order by n1.*; -- will work in postgres but not in Octo because of #675
+                                                                        ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- column n1.* not in group by
+select 1 from names n1 group by n1.id,n1.firstname,n1.lastname order by n1.*;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column N1.* must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 2, column 100):
+
+select 1 from names n1 group by n1.id,n1.firstname,n1.lastname order by n1.*; -- will work in postgres but not in Octo because of #675
+select 1 from (select firstname,lastname from names) n1 group by n1.firstname,n1.lastname order by n1.*; -- demonstrates that without #675 the error seen in Octo is same as Postgres
+                                                                                                   ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- will work in postgres but not in Octo because of #675
+select 1 from (select firstname,lastname from names) n1 group by n1.firstname,n1.lastname order by n1.*;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column N1.* must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 2, column 40):
+
+select 1 from (select firstname,lastname from names) n1 group by n1.firstname,n1.lastname order by n1.*; -- demonstrates that without #675 the error seen in Octo is same as Postgres
+select count(1) from names n1 order by n1.*; -- n1.* not in GROUP BY
+                                       ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- demonstrates that without #675 the error seen in Octo is same as Postgres
+select count(1) from names n1 order by n1.*;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column N1.* must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 2, column 44):
+
+select count(1) from names n1 order by n1.*; -- n1.* not in GROUP BY
+select 1 from names n1 having 1<1 order by n1.*; -- n1.* not in GROUP BY
+                                           ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- n1.* not in GROUP BY
+select 1 from names n1 having 1<1 order by n1.*;
+[ERROR] PATH:LINENUM DATE TIME : ERR_ORDER_BY_SELECT_DISTINCT : For SELECT DISTINCT, ORDER BY expressions must appear in select list
+Error with syntax near (line 3, column 57):
+
+select 1 from names n1 having 1<1 order by n1.*; -- n1.* not in GROUP BY
+
+select distinct n1.* from names n1 order by n1.lastname,n1.*;
+                                                        ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- n1.* not in GROUP BY
+
+select distinct n1.* from names n1 order by n1.lastname,n1.*;
+[ERROR] PATH:LINENUM DATE TIME : ERR_ORDER_BY_SELECT_DISTINCT : For SELECT DISTINCT, ORDER BY expressions must appear in select list
+Error with syntax near (line 1, column 45):
+
+select distinct n1.* from names n1 order by n1.*;
+                                            ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select distinct n1.* from names n1 order by n1.*;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column N1.* must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 1, column 42):
+
+select 1 from names n1 order by count(*),n1.*;
+                                         ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 order by count(*),n1.*;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column N1.* must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 1, column 33):
+
+select 1 from names n1 order by n1.*,count(*);
+                                ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select 1 from names n1 order by n1.*,count(*);
+

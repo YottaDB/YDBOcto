@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -19,12 +19,13 @@
 /* This function is invoked by "qualify_statement.c" for processing TABLENAME.ASTERISK usage.
  *
  * TABLENAME.ASTERISK usages are processed as follows (YDBOcto#759).
- * 1) In WHERE, GROUP BY and HAVING are not expanded.
- * 2) In SELECT column list is replaced with the list of columns making up the table.
- * 3) In ORDER BY clause is left untouched but an expanded list of columns making up the table is appended.
- *    The untouched table.* column list alias helps with later ORDER BY processing in ordering ROW(NULL) ahead of Composite NULL
- *    (see https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/759#note_736104049 for more details).
+ * 1) In WHERE, GROUP BY and HAVING no expansion.
+ * 2) In SELECT column list, is replaced with the list of columns making up the table.
+ * 3) In ORDER BY clause (when no GROUP BY clause), is left untouched but an expanded list of columns making up the table is
+ *    appended. The untouched table.* column list alias helps with later ORDER BY processing in ordering ROW(NULL) ahead of
+ *    Composite NULL (see https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/759#note_736104049 for more details).
  *    This ORDER BY processing happens in "tmpl_column_list_combine.ctemplate" (see "is_order_by_table_asterisk" variable).
+ * 4) In ORDER BY clause (when GROUP BY clause exists) no expansion as grouped value will be used by physical plan.
  *
  * Input parameters
  * ----------------
@@ -64,15 +65,22 @@ void process_table_asterisk_cla(SqlStatement *specification_list, SqlColumnListA
 	UNPACK_SQL_STATEMENT(cur_table_alias, cur_table_alias_stmt, table_alias);
 	/* Update the list with new nodes */
 	UNPACK_SQL_STATEMENT(cla, cur_table_alias->column_list, column_list_alias);
-	result = copy_column_list_alias_list(cla, cur_table_alias_stmt, cla_cur->keywords);
 	if (QualifyQuery_SELECT_COLUMN_LIST == qualify_query_stage) {
+		SqlColumnListAlias *tmp;
+		result = copy_column_list_alias_list(cla, cur_table_alias_stmt, cla_cur->keywords);
+		tmp = result->prev;
 		/* Replace TABLENAME.ASTERISK cla with a linked list of clas corresponding to columns of table */
 		REPLACE_COLUMNLISTALIAS(cla_cur, result, cla_head, specification_list);
-		*c_cla_cur = cla_cur;
+		*c_cla_cur = tmp;
 		*c_cla_head = cla_head;
 	} else {
-		/* Append linked list of clas corresponding to columns of table after untouched TABLENAME.ASTERISK cla */
 		assert(QualifyQuery_ORDER_BY == qualify_query_stage);
+		assert(0 == cur_table_alias->parent_table_alias->aggregate_function_or_group_by_or_having_specified);
+		result = copy_column_list_alias_list(cla, cur_table_alias_stmt, cla_cur->keywords);
+		/* Append linked list of clas corresponding to columns of table after untouched TABLENAME.ASTERISK
+		 * cla. Do not update c_cla_cur as in case SELECT DISTINCT is used we want to match ORDER BY column
+		 * with SELECT column.
+		 */
 		cla_cur = cla_cur->next;
 		dqappend(cla_cur, result);
 	}

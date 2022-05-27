@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -15,7 +15,6 @@
 
 #include "physical_plan.h"
 #include "template_helpers.h"
-
 
 TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim, boolean_t str2mval, int dot_count,
 	 boolean_t is_asterisk) {
@@ -37,7 +36,6 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 	int	depth;
 	depth = 0;
 	while (NULL != plan) {
-		LogicalPlan	*expr_plan;
 		boolean_t	need_closing_paren;
 
 		assert((is_asterisk
@@ -98,17 +96,14 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 			assert(!str2mval);
 		}
 		if (!is_order_by_table_asterisk) {
-			expr_plan = (((!is_lp_table_value) && (!is_asterisk))
+			// Not table.* ORDER BY usage
+			LogicalPlan *expr_plan = (((!is_lp_table_value) && (!is_asterisk))
 						? plan->v.lp_default.operand[0]->v.lp_default.operand[0]
 						: plan->v.lp_default.operand[0]);
 			assert(!str2mval || dot_count);
 			TMPL(tmpl_print_expression, expr_plan, pplan, dot_count, depth);
 		} else {
-			/* It is a TABLENAME.ASTERISK usage. Need to order a Composite NULL last (even after ROW(NULL))
-			 * (see https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/759#note_736104049 for more details).
-			 * This is the reason why "process_table_asterisk_cla()" kept this node intact.
-			 * Achieve this ordering by using "$ZYSQLNULL" in case of a Composite NULL and "0" otherwise.
-			 */
+			// A table.* column in ORDER BY
 			LogicalPlan	*tmpPlan;
 			tmpPlan = plan->v.lp_default.operand[0];
 			assert(LP_COLUMN_LIST == tmpPlan->type);
@@ -116,19 +111,104 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 			assert(LP_WHERE == tmpPlan->type);
 			tmpPlan = tmpPlan->v.lp_default.operand[0];
 			assert(IS_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(tmpPlan));
-#			ifndef NDEBUG
+
 			SqlColumnAlias	*column_alias;
 			GET_COLUMN_ALIAS_FROM_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(tmpPlan, column_alias);
 			assert(is_stmt_table_asterisk(column_alias->column));
-#			endif
 
-			int	unique_id;
-			unique_id = lp_get_unique_id_from_lp_column_alias_or_lp_derived_column(tmpPlan);
-			if (pplan->treat_key_as_null[unique_id]) {
-				/* Composite NULL */
-				%{}$ZYSQLNULL{}%
+			int unique_id = lp_get_unique_id_from_lp_column_alias_or_lp_derived_column(tmpPlan);
+			boolean_t	is_col_cur_pplan;
+			// Check if the column's unique_id is part of pplan
+			is_col_cur_pplan = is_unique_id_a_key_of_pplan(pplan, unique_id);
+			if (is_col_cur_pplan && pplan->tablejoin_body_group_by_done) {
+				/* Current query table.* in ORDER BY in the presence of a GROUP BY.
+				 * When GROUP BY also exists in the query, ORDER BY is processed only after GROUP BY computation
+				 * is complete and `tablejoin_body_group_by_done` is set. In this case we expect any table.*
+				 * usage to be valid because we assume qualify functions have validated this usage.
+				 */
+				assert(column_alias->group_by_column_number);
+				/* It is a TABLENAME.ASTERISK usage in ORDER BY and the same node is in GROUP BY.
+				 * Process this node by considering its grouping information.
+				 * Cannot call `tmpl_print_expression.ctemplate` as the information of whether this column is in
+				 * an ORDER BY or not is not easily derivable after this point.
+				 */
+				if (dot_count) {
+					TMPL(tmpl_print_dots, dot_count);
+					%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+				}
+				/* This is a `table.*` column present in both ORDER BY and GROUP BY.
+				 * Fetch grouped table.* value and place each column as ORDER BY subscript.
+				 */
+				SqlTableAlias *table_alias;
+				UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
+
+				// Get the column list
+				SqlColumnListAlias *cur_cla,*start_cla;
+				UNPACK_SQL_STATEMENT(start_cla, table_alias->column_list, column_list_alias);
+				cur_cla = start_cla;
+
+				/* Need to order a Composite NULL last (even after ROW(NULL))
+				 * (see https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/759#note_736104049
+				 * for more details).
+				 * Achieve this ordering by using "$ZYSQLNULL" in case of a Composite NULL and "0"
+				 * otherwise. This will be an additional node which gets added as a subscript to
+				 * ORDER BY variable.
+				 *
+				 * Place each column of GROUP BY `table.*` as a separate subscript.
+				 * But first differentiate the composite null and row null.
+				 */
+				int i=1;
+				%{}$SELECT($ZYISSQLNULL($$mval2str^%%ydboctoplanhelpers({}%
+				%{}$$mvalPiece^%%ydboctoplanhelpers({{ PP_YDB_OCTO_G }}{}%
+				%{},{{ column_alias->group_by_column_number|%d }}))):$ZYSQLNULL,1:0){}%
+				%{},{}%
+				do {
+					%{}$$mval2str^%%ydboctoplanhelpers({}%
+					%{}$$mvalPiece^%%ydboctoplanhelpers({}%
+					%{}$$mval2str^%%ydboctoplanhelpers({}%
+					%{}$$mvalPiece^%%ydboctoplanhelpers({}%
+					%{}{{ PP_YDB_OCTO_G }},{{ column_alias->group_by_column_number|%d }}{}%
+					%{}){}% /* closing paren for mvalPiece call above */
+					%{}){}% /* closing paren for mval2str call above */
+					%{},{{ i|%d }}{}%
+					%{}){}% /* closing paren for mvalPiece call above */
+					%{}){}% /* closing paren for mval2str call above */
+					i++;
+					cur_cla = cur_cla->next;
+					if (cur_cla != start_cla) {
+						%{},{}%
+					}
+				} while (cur_cla != start_cla);
+				if (dot_count) {
+					%{}`n{{ PLAN_LINE_START }}{}%
+				}
 			} else {
-				%{}0{}%
+				/* This ORDER BY table.* doesn't belong to the current query or `tablejoin_body_group_by_done`
+				 * is not set.
+				 * 1. If it belongs to the current query and `tablejoin_body_group_by_done` is not set we
+				 *    expect an expanded list of table.* of the form (table.*,table.col1,table.col2 ..), the
+				 *    below code adds composite NULL related subscript and continues on to process the rest of
+				 *    the list. The composite NULL subscript is needed to order a Composite NULL last (even after
+				 *    ROW(NULL)) ( seehttps://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/759#note_736104049 for more
+				 *    details). This is the reason why "process_table_asterisk_cla()" kept this node intact.
+				 *    Achieve this ordering by using "$ZYSQLNULL" in case of a Composite NULL and "0" otherwise.
+				 * 2. If it doesn't belong to the current query
+				 *    a. If the outer query `tablejoin_body_group_by_done` is set we need to consider grouped data
+				 *       from outer query pplan.
+				 *    b. If the outer query `tablejoin_body_group_by_done` is not set we expect the table.* is
+				 *       expanded and is in the form (table.*,table.col1,table.col2 ..). In this case we need
+				 *       consider the composite NULL related subscript (explained in `1` above) inclusion based
+				 *       on the outer query pplan's `treat_key_as_null` field.
+				 * NOTE: `a` and `b` are not handled at present and hence these usecases will lead to unexpected
+				 *       result. This issue and similar issues of referring to outer query pplan and grouped
+				 *       data are tracked by #775.
+				 */
+				if (pplan->treat_key_as_null[unique_id]) {
+					/* Composite NULL */
+					%{}$ZYSQLNULL{}%
+				} else {
+					%{}0{}%
+				}
 			}
 		}
 		if (need_closing_paren) {

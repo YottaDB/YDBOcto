@@ -1,0 +1,42 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+TEMPLATE(tmpl_order_by_sort, PhysicalPlan *pplan, boolean_t is_desc, int num_cols, SqlOptionalKeyword *limit_keyword) {
+	char *direction;
+	direction = (is_desc ? "-1" : "1");
+	if (is_desc) {
+		%{}FOR  SET {{ PP_YDB_OCTO_I }}({{ num_cols|%d }})=$ORDER({}%
+		TMPL(tmpl_key, pplan->outputKey); (*buffer_index)--;
+		TMPL(tmpl_order_by_key, num_cols);
+		%{}),{{ direction }})  QUIT:$DATA({}%
+		TMPL(tmpl_key, pplan->outputKey); (*buffer_index)--;
+		TMPL(tmpl_order_by_key, num_cols);
+		%{}))=0  DO  QUIT:({{ PP_YDB_OCTO_I }}({{ num_cols|%d }})=""){}%
+	} else {
+		%{}FOR  DO:$DATA({}%
+		TMPL(tmpl_key, pplan->outputKey); (*buffer_index)--;
+		TMPL(tmpl_order_by_key, num_cols);
+		%{}))  SET {{ PP_YDB_OCTO_I }}({{ num_cols|%d }})=$ORDER({}%
+		TMPL(tmpl_key, pplan->outputKey); (*buffer_index)--;
+		TMPL(tmpl_order_by_key, num_cols);
+		%{}),{{ direction }})  QUIT:({{ PP_YDB_OCTO_I }}({{ num_cols|%d }})=""){}%
+	}
+	if (NULL != limit_keyword) {
+		TMPL(tmpl_limit_check, limit_keyword, "!", "<%ydboctoi(0)");
+	}
+	%{}`n{{ PLAN_LINE_START }}{}%
+}
+%{}

@@ -463,10 +463,12 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 				function_expression = FALSE;
 				table_alias->qualify_query_stage = QualifyQuery_NONE;
 			}
-			if (0 == result) {
+			if ((0 == result) && !table_alias->do_group_by_checks
+			    && (QualifyQuery_SELECT_COLUMN_LIST == table_alias->qualify_query_stage)) {
 				if (column_alias_STATEMENT == cur_cl->value->type) {
 					UNPACK_SQL_STATEMENT(new_column_alias, cur_cl->value, column_alias);
 					if (is_stmt_table_asterisk(new_column_alias->column)) {
+						// Expand table.* in SELECT list
 						process_table_asterisk_cla(stmt, &cur_cla, &start_cla,
 									   table_alias->qualify_query_stage);
 					}
@@ -708,31 +710,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 						}
 					}
 				} else {
-					if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE != table_alias->aggregate_depth) {
-
-						/* Case (3) : Case of ORDER BY column expression */
-						SqlSelectStatement *select;
-						SqlOptionalKeyword *keywords, *keyword;
-
-						/* Check if SELECT DISTINCT was specified */
-						UNPACK_SQL_STATEMENT(select, table_alias->table, select);
-						UNPACK_SQL_STATEMENT(keywords, select->optional_words, keyword);
-						keyword = get_keyword_from_keywords(keywords, OPTIONAL_DISTINCT);
-						if (NULL != keyword) {
-							/* SELECT DISTINCT was specified. Check if the ORDER BY column expression
-							 * matches some column specification in the SELECT column list. If so that
-							 * is good. If not issue an error (see YDBOcto#461 for details).
-							 */
-							if (!match_column_list_alias_in_select_column_list(cur_cla,
-													   select->select_list)) {
-								ERROR(ERR_ORDER_BY_SELECT_DISTINCT, "");
-								yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL);
-								result = 1;
-								break;
-							}
-						}
-					} else {
-						assert(AGGREGATE_DEPTH_GROUP_BY_CLAUSE == table_alias->aggregate_depth);
+					if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE == table_alias->aggregate_depth) {
 						UNPACK_SQL_STATEMENT(cur_cl, cur_cla->column_list, column_list);
 						/* 1. If this is a column reference `group_by_column_count` and
 						 * `group_by_column_number` is set in COLUMN_REFERENCE case block under

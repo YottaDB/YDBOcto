@@ -7567,16 +7567,8 @@ Error with syntax near (line 2, column 47):
 SELECT n1.* FROM names n1 GROUP BY 1; --Octo issues an error cause of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/675 -- Postgres Works fine
 SELECT n1.* FROM names n1 GROUP BY 1 ORDER BY n1.*; --Octo issues an error cause of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/675 -- Postgres Works fine
                                               ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --Octo issues an error cause of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/675 -- Postgres Works fine
 SELECT n1.* FROM names n1 GROUP BY 1 ORDER BY n1.*;
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
 [ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
 [ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
 [ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
@@ -7626,8 +7618,6 @@ Error with syntax near (line 2, column 71):
 SELECT n1.* FROM names n1 GROUP BY 1 HAVING n1.* is not null; --Octo issues an error cause of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/675 -- Postgres Works fine
 SELECT n1.* FROM names n1 GROUP BY 1 HAVING n1.* is not null ORDER BY n1.*; --Octo issues an error cause of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/675 -- Postgres Works fine
                                                                       ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --Octo issues an error cause of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/675 -- Postgres Works fine
 SELECT n1.* FROM names n1 GROUP BY 1 HAVING n1.* is not null ORDER BY n1.*;
 [ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
@@ -7701,8 +7691,6 @@ Error with syntax near (line 2, column 74):
 SELECT n1.* FROM names n1 GROUP BY 1 HAVING n1.lastname!='Zero' ORDER BY n1.firstname; --Octo issues an error cause of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/675 -- Postgres Works fine
 SELECT n1.* FROM names n1 GROUP BY 1 HAVING n1.lastname!='Zero' ORDER BY n1.*; --Octo issues an error cause of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/675 -- Postgres Works fine
                                                                          ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --Octo issues an error cause of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/675 -- Postgres Works fine
 SELECT n1.* FROM names n1 GROUP BY 1 HAVING n1.lastname!='Zero' ORDER BY n1.*;
 [ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
@@ -7731,12 +7719,6 @@ Error with syntax near (line 2, column 48):
 SELECT n1.* FROM names n1 GROUP BY n1.* HAVING n1.lastname!='Zero' ORDER BY n1.firstname; -- Postgres ERROR saying n1.id in SELECT list not in GroupBy
 SELECT n1.* FROM names n1 GROUP BY n1.* HAVING n1.lastname!='Zero' ORDER BY n1.*; -- Postgres ERROR saying n1.id in SELECT list not in GroupBy
                                                ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Postgres ERROR saying n1.id in SELECT list not in GroupBy
 SELECT n1.* FROM names n1 GROUP BY n1.* HAVING n1.lastname!='Zero' ORDER BY n1.*;
 [ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function

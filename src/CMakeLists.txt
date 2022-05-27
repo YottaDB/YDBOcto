@@ -305,6 +305,7 @@ add_library(libocto OBJECT
   physical/get_physical_plan_from_unique_id.c
   physical/get_physical_plan_and_key_for_unique_id.c
   physical/get_setoper_mlabref.c
+  physical/is_unique_id_a_key_of_pplan.c
   populate_data_type.c
   print_result_row.c
   print_temporary_table.c
@@ -476,6 +477,7 @@ set(template_files
   ${template_dir}/tmpl_key_start.ctemplate
   ${template_dir}/tmpl_limit_check.ctemplate
   ${template_dir}/tmpl_order_by_key.ctemplate
+  ${template_dir}/tmpl_order_by_sort.ctemplate
   ${template_dir}/tmpl_physical_plan.ctemplate
   ${template_dir}/tmpl_populate_output_key.ctemplate
   ${template_dir}/tmpl_print_dots.ctemplate

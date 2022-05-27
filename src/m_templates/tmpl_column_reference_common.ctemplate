@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -27,19 +27,9 @@
 TEMPLATE(tmpl_column_reference_common, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t is_trigger, int dot_count,
 		int depth, SqlKey *sql_key, int unique_id, boolean_t *done) {
 	if (pplan->tablejoin_body_group_by_done) {
-		boolean_t	is_col_cur_pplan = FALSE;
-		unsigned int	i;
-
-		// Check if the column belongs to the current pplan
-		for (i = 0; i < pplan->total_iter_keys; i++) {
-			SqlKey	*key;
-
-			key = pplan->iterKeys[i];
-			if (key->unique_id == unique_id) {
-				is_col_cur_pplan = TRUE;
-				break;
-			}
-		}
+		boolean_t	is_col_cur_pplan;
+		// Check if the column's unique_id is part of pplan
+		is_col_cur_pplan = is_unique_id_a_key_of_pplan(pplan, unique_id);
 		if (is_col_cur_pplan) {
 			if (column_alias->group_by_column_number) {
 				/* This column reference was specified in the GROUP BY clause and GROUP BY related processing

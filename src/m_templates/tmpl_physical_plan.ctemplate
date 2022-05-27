@@ -366,7 +366,6 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 		// If we have a lot of plans each of which have the same output key and order by, then do this step
 		// only for the last plan in that set.
 		if ((NULL != pplan->order_by) && (NULL == pplan->dnf_next)) {
-			char			*direction;
 			LogicalPlan		*order_by;
 			int			num_cols;
 
@@ -381,35 +380,61 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 				boolean_t	is_desc;
 
 				assert(LP_ORDER_BY == order_by->type);
-				TMPL(tmpl_print_dots, num_cols);
-				num_cols++;
-				%{}SET {{ PP_YDB_OCTO_I }}({{ num_cols|%d }})="" {}%
 				is_desc = (OPTIONAL_DESC == order_by->extra_detail.lp_order_by.direction);
-				direction = (is_desc ? "-1" : "1");
-				/* In case of ASCENDING order, we want an empty string subscript (if any) to show up first
-				 * whereas for DESCENDING order, we want it to show up last. Handle it accordingly below.
-				 */
-				if (is_desc) {
-					%{}FOR  SET {{ PP_YDB_OCTO_I }}({{ num_cols|%d }})=$ORDER({}%
-					TMPL(tmpl_key, pplan->outputKey); (*buffer_index)--;
-					TMPL(tmpl_order_by_key, num_cols);
-					%{}),{{ direction }})  QUIT:$DATA({}%
-					TMPL(tmpl_key, pplan->outputKey); (*buffer_index)--;
-					TMPL(tmpl_order_by_key, num_cols);
-					%{}))=0  DO  QUIT:({{ PP_YDB_OCTO_I }}({{ num_cols|%d }})=""){}%
+				boolean_t is_table_asterisk_and_in_group_by = FALSE;
+				SqlColumnAlias  *tbl_asterisk_column_alias;
+				// check column table_asterisk
+				if (pplan->tablejoin_body_group_by_done) {
+					LogicalPlan     *tmpPlan;
+					tmpPlan = order_by->v.lp_default.operand[0];
+					assert(LP_COLUMN_LIST == tmpPlan->type);
+					tmpPlan = tmpPlan->v.lp_default.operand[0];
+					assert(LP_WHERE == tmpPlan->type);
+					tmpPlan = tmpPlan->v.lp_default.operand[0];
+					if (IS_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(tmpPlan)) {
+						GET_COLUMN_ALIAS_FROM_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(tmpPlan, tbl_asterisk_column_alias);
+						if (is_stmt_table_asterisk(tbl_asterisk_column_alias->column) && (0 < tbl_asterisk_column_alias->group_by_column_number)) {
+							is_table_asterisk_and_in_group_by = TRUE;
+						}
+					}
+				}
+				if (is_table_asterisk_and_in_group_by) {
+					// Get table column list
+					SqlStatement *cur_table_alias_stmt = tbl_asterisk_column_alias->table_alias_stmt;
+					assert(NULL != cur_table_alias_stmt);
+					SqlTableAlias *cur_table_alias;
+					UNPACK_SQL_STATEMENT(cur_table_alias, cur_table_alias_stmt, table_alias);
+
+					/* Need to order a Composite NULL last (even after ROW(NULL))
+					 * (see https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/759#note_736104049 for more details).
+					 * Achieve this ordering by using "$ZYSQLNULL" in case of a Composite NULL and "0" otherwise.
+					 * We expect in this case to have the first node to be either 0 or "$ZYSQLNULL". So include that first
+					 * before continuing with other columns.
+					 */
+					TMPL(tmpl_print_dots, num_cols);
+					num_cols++;
+					%{}SET {{ PP_YDB_OCTO_I }}({{ num_cols|%d }})="" {}%
+					TMPL(tmpl_order_by_sort, pplan, is_desc, num_cols, limit_keyword);
+
+					/* Traverse the column list to sort table.* ORDER BY value as we added each
+					 * column of table.* individually by seperating the GROUP BY table.* value
+					 */
+					SqlColumnListAlias *start_cla, *cur_cla;
+					UNPACK_SQL_STATEMENT(start_cla, cur_table_alias->column_list, column_list_alias);
+					cur_cla = start_cla;
+					do {
+						TMPL(tmpl_print_dots, num_cols);
+						num_cols++;
+						%{}SET {{ PP_YDB_OCTO_I }}({{ num_cols|%d }})="" {}%
+						TMPL(tmpl_order_by_sort, pplan, is_desc, num_cols, limit_keyword);
+						cur_cla = cur_cla->next;
+					} while (cur_cla != start_cla);
 				} else {
-					%{}FOR  DO:$DATA({}%
-					TMPL(tmpl_key, pplan->outputKey); (*buffer_index)--;
-					TMPL(tmpl_order_by_key, num_cols);
-					%{}))  SET {{ PP_YDB_OCTO_I }}({{ num_cols|%d }})=$ORDER({}%
-					TMPL(tmpl_key, pplan->outputKey); (*buffer_index)--;
-					TMPL(tmpl_order_by_key, num_cols);
-					%{}),{{ direction }})  QUIT:({{ PP_YDB_OCTO_I }}({{ num_cols|%d }})=""){}%
+					TMPL(tmpl_print_dots, num_cols);
+					num_cols++;
+					%{}SET {{ PP_YDB_OCTO_I }}({{ num_cols|%d }})="" {}%
+					TMPL(tmpl_order_by_sort, pplan, is_desc, num_cols, limit_keyword);
 				}
-				if (NULL != limit_keyword) {
-					TMPL(tmpl_limit_check, limit_keyword, "!", "<%ydboctoi(0)");
-				}
-				%{}`n{{ PLAN_LINE_START }}{}%
 				order_by = order_by->v.lp_default.operand[1];
 			} while (NULL != order_by);
 			TMPL(tmpl_print_dots, num_cols);

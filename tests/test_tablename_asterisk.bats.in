@@ -98,3 +98,11 @@ teardown() {
 	load_fixture names.zwr
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TTA010.sql
 }
+
+@test "TTA011 : OCTO830 : Edge case with TABLENAME.ASTERISK in GROUP BY and ORDER BY" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TTA011.sql "trim_trailing_zeroes"
+	load_fixture TTA011_errors.sql subtest novv
+	verify_output TTA011_errors output.txt
+}

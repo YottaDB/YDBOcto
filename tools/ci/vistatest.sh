@@ -39,13 +39,7 @@ echo "Current directory is: $PWD"
 echo "# Compiling Octo"
 mkdir build && cd build
 # TEST_VISTA_ENV_FILE contains all the environment variables ($gtm*, $ydb*) needed to run VistA.
-#cmake3 -D TEST_VISTA=ON -D TEST_VISTA_ENV_FILE="~vehu/etc/env" ..
-# TEMPORARY - REMOVE AFTER BOTH AIM BRANCHES (OCTO AND DDL) ARE MERGED
-# https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/898 & https://gitlab.com/YottaDB/DBMS/YDBOctoVistA/-/merge_requests/26
-# Above line is the original line
-wget https://gitlab.com/shabiel/YDBOctoVistA/-/raw/ddl24-aimmetadatatype/_YDBOCTOVISTAM.m
-cmake3 -D TEST_VISTA=ON -D TEST_VISTA_ENV_FILE="~vehu/etc/env" -D TEST_VISTA_INPUT_M="$PWD/_YDBOCTOVISTAM.m" ..
-# END TEMPORARY
+cmake3 -D TEST_VISTA=ON -D TEST_VISTA_ENV_FILE="~vehu/etc/env" ..
 make -j $(getconf _NPROCESSORS_ONLN) install
 
 set +e

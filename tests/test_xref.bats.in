@@ -125,3 +125,17 @@ OCTO
 	grep '%YDBAIM' _ydboctoX* | tee -a output.txt
 	verify_output TX06 output.txt
 }
+
+@test "TX07 : OCTO740 : IS NULL xrefs are correctly maintained by triggers even after initial xref scan" {
+	load_fixture xecutemcode.sql
+	for fname in TX07a TX07b
+	do
+		cp @PROJECT_SOURCE_DIR@/tests/fixtures/$fname.sql .
+		echo "#######################################################" >> output.txt
+		echo "# Running [octo -f $fname.sql]" >> output.txt
+		echo "#######################################################" >> output.txt
+		octo -f $fname.sql 2>&1 | tee -a output.txt
+	done
+	verify_output TX07 output.txt
+}
+

@@ -10,8 +10,8 @@
 ;								;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; Helper functions used by bats tests TGB17
-
-ZEXT(s,p1,p2)
- q $E($g(s),p1,p2)
+XecuteMCode(mcode)
+	; Implements the XECUTE_M_CODE SQL-level function defined in xecutemcode.sql
+	XECUTE mcode
+	quit 0
 

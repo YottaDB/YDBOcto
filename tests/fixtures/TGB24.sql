@@ -10,10 +10,6 @@
 #								#
 #################################################################
 
--- helper function
-DROP FUNCTION IF EXISTS XECUTE_M_CODE(VARCHAR);
-CREATE FUNCTION XECUTE_M_CODE(VARCHAR) RETURNS INTEGER AS $$XecuteMCode^Q6F;
-
 -- creating a function for cutting "year" from datelabel
 DROP FUNCTION IF EXISTS ZEXT(VARCHAR,INTEGER,INTEGER);
 CREATE FUNCTION ZEXT(VARCHAR,INTEGER,INTEGER) RETURNS VARCHAR AS $$ZEXT^Q6F;

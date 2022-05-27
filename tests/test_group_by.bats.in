@@ -160,6 +160,7 @@ setup() {
 }
 
 @test "TGB24 : OCTO632 : Validate GroupBy expressions with multiple argument function usage returning multiple rows" {
+	load_fixture xecutemcode.sql	# to define the XECUTE_M_CODE SQL function
 	# Routines from Q6F.m is used in this subtest
 	load_fixture TGB24.sql subtest novv
 	verify_output TGB24 output.txt

@@ -306,6 +306,9 @@ Install Octo
 
       .. code-block:: bash
 
+         # Tell git that this repo is safe to run git in as root
+         # Don't forget the -E with sudo; otherwise the git config command has no effect
+         git config --global --add safe.directory $(git rev-parse --show-toplevel)
          sudo -E make install
 
       Redefine environment variables to include newly installed files:
@@ -858,7 +861,7 @@ Useful Commands at OCTO>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 +------------------------+-------------------------------------------------------+
-| Command                | Information                                           | 
+| Command                | Information                                           |
 +========================+=======================================================+
 | :code:`\q`             | Exits the prompt                                      |
 +------------------------+-------------------------------------------------------+

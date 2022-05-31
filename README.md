@@ -279,6 +279,9 @@ The Octo plugin can be installed by using the `--octo` option when installing Yo
    Install Octo:
 
    ```sh
+   # Tell git that this repo is safe to run git in as root
+   # Don't forget the -E with sudo; otherwise the git config command has no effect
+   git config --global --add safe.directory $(git rev-parse --show-toplevel)
    sudo -E make install
    ```
 

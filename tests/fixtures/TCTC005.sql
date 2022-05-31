@@ -70,3 +70,6 @@ create table tmp30 (id integer unique, name varchar constraint name1 not null, f
 -- (i.e. no double underscore).
 create table tmp31 (id integer, check (1 + 2 = 3), check (2 + 3 = 5));
 
+-- Test that constraint name of length 63 bytes is allowed
+create table tmp32 (id integer CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu CHECK (id < 2));
+

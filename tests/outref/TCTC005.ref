@@ -60,6 +60,10 @@ create table tmp30 (id integer unique, name varchar constraint name1 not null, f
 -- (i.e. no double underscore).
 create table tmp31 (id integer, check (1 + 2 = 3), check (2 + 3 = 5));
 
+-- Test that constraint name of length 63 bytes is allowed
+create table tmp32 (id integer CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu CHECK (id < 2));
+
+CREATE TABLE
 CREATE TABLE
 CREATE TABLE
 CREATE TABLE
@@ -154,6 +158,8 @@ ID|NAME|FIRSTNAME
 (0 rows)
 ID
 (0 rows)
+ID
+(0 rows)
 # Verify CHECK constraints are correctly stored in the CREATE TABLE text definition (in global variable nodes)
 `TMP01` (`ID` INTEGER DELIM """",  CONSTRAINT TMP01_CHECK CHECK (((TRUE IS UNKNOWN) AND (FALSE IS NULL))))
 `TMP02` (`ID` INTEGER CONSTRAINT TMP02_ID_CHECK CHECK (((('abcd' != 'efgh') AND (1 <= ID)) AND (1.5 > ABS((- 2.35))))) DELIM """")
@@ -186,6 +192,7 @@ ID
 `TMP29` (`PRODUCT_NO` INTEGER PIECE 1, `NAME` VARCHAR PIECE 2, `PRICE` NUMERIC PIECE 3,  CONSTRAINT TMP29_CHECK CHECK ((PRICE > PRODUCT_NO)))
 `TMP30` (`ID` INTEGER UNIQUE PIECE 1, `NAME` VARCHAR NOT NULL PIECE 2, `FIRSTNAME` VARCHAR CONSTRAINT NAME1 CHECK ((FIRSTNAME IS NOT NULL)) PIECE 3)
 `TMP31` (`ID` INTEGER DELIM """",  CONSTRAINT TMP31_CHECK CHECK (((1 + 2) = 3)),  CONSTRAINT TMP31_CHECK1 CHECK (((2 + 3) = 5)))
+`TMP32` (`ID` INTEGER CONSTRAINT TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU CHECK ((ID < 2)) DELIM """")
 # Generate and Run query file slashd.sql that does a \d of all tables created in TCTC005.sql
 # Also verify that constraint names are created correctly
 # 1) Constraints that use only one column in the table end up as column-level constraints
@@ -357,3 +364,8 @@ ID|INTEGER|||
 Check constraints:
     "TMP31_CHECK" CHECK (((1 + 2) = 3))
     "TMP31_CHECK1" CHECK (((2 + 3) = 5))
+Table "TMP32"
+Column|Type|Collation|Nullable|Default
+ID|INTEGER|||
+Check constraints:
+    "TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU" CHECK ((ID < 2))

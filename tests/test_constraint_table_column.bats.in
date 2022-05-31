@@ -79,3 +79,9 @@ setup() {
 	verify_output $testname output.txt
 }
 
+@test "TCTC006 : OCTO772 : Test \d tablename with too long table and/or column names resulting in too long CHECK constraint names" {
+	skip	# TODO : YDBOcto#772 : Remove this line once CHECK CONSTRAINT functionality is fully supported
+	load_fixture TCTC006.sql subtest novv
+	verify_output TCTC006 output.txt
+}
+

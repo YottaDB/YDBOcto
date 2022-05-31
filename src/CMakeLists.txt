@@ -161,6 +161,7 @@ add_library(libocto OBJECT
   cleanup_tables.c
   columns_to_column_list_alias.c
   compress_statement.c
+  constraint_name_auto_generate.c
   copy_column_list_alias_list.c
   copy_sql_statement.c
   create_cursor.c

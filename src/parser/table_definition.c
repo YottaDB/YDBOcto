@@ -93,6 +93,7 @@
 		}                                                                                         \
 		dqdel(CUR_COLUMN); /* Delete column */                                                    \
 	}
+
 /* Function invoked by the rule named "table_definition" in src/parser.y (parses the CREATE TABLE command).
  * Returns
  *	non-NULL pointer to SqlStatement structure on success
@@ -424,29 +425,9 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 					 */
 					int num = 0;
 					do {
-						/* TODO : YDBOcto#772. Check return value of snprintf below and handle error
-						 * if space is not enough by truncating the column name and/or table name
-						 * parts of the generated name so we have space for the numeric part at the end.
-						 * Choose a random 8 byte sub string for auto assigning if the total length of
-						 * the name becomes more than 63.
-						 */
-						if (!num) {
-							if (NULL == column_name) {
-								snprintf(constraint_name, sizeof(constraint_name), "%s_%s",
-									 table_name, OCTOLIT_CHECK);
-							} else {
-								snprintf(constraint_name, sizeof(constraint_name), "%s_%s_%s",
-									 table_name, column_name, OCTOLIT_CHECK);
-							}
-						} else {
-							if (NULL == column_name) {
-								snprintf(constraint_name, sizeof(constraint_name), "%s_%s%d",
-									 table_name, OCTOLIT_CHECK, num);
-							} else {
-								snprintf(constraint_name, sizeof(constraint_name), "%s_%s_%s%d",
-									 table_name, column_name, OCTOLIT_CHECK, num);
-							}
-						}
+						/* The below call will fill "constraint_name" with an auto generated name */
+						constraint_name_auto_generate(OPTIONAL_CHECK_CONSTRAINT, table_name, column_name,
+									      num, constraint_name, sizeof(constraint_name));
 						/* Check if generated name exists. If so, try next number suffix. */
 						YDB_STRING_TO_BUFFER(constraint_name, &subs[1]);
 						status = ydb_data_s(&ydboctoTblConstraint, 2, &subs[0], &ret_value);

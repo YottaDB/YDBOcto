@@ -997,6 +997,9 @@ SqlStatement *function_definition(SqlStatement *identifier_start, SqlStatement *
 SqlStatement *drop_function(SqlStatement *identifier_start, SqlStatement *function_parameter_type_list,
 			    boolean_t if_exists_specified);
 
+void constraint_name_auto_generate(OptionalKeyword constraint_type, char *table_name, char *column_name, int numeric_suffix,
+				   char *name_buf, int buf_size);
+
 // Updates a runtime parameter value in `pg_catalog.pg_settings`. Executed for SQL SET commands.
 int set_parameter_in_pg_settings(char *variable, char *value);
 // Displays a runtime parameter value in `pg_catalog.pg_settings`. Executed for SQL SHOW commands.

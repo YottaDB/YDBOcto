@@ -128,6 +128,8 @@ make-tls-rocky:
 test-force-upgrade:
   # This job tests auto upgrade functionality of binary table/function definitions by forcing an auto upgrade
   image: yottadb/yottadb-base:latest-master
+  services:
+    - mysql:8.0
   extends:
     - .make
     - .ubuntu
@@ -138,6 +140,8 @@ test-auto-upgrade:
   # This job tests that auto upgrade functionality of binary table/function definitions and plan definitions (physical plans,
   # xref plans, triggers etc.) works fine relative to a random older commit
   image: yottadb/yottadb-base:latest-master
+  services:
+    - mysql:8.0
   extends:
     - .make
     - .ubuntu

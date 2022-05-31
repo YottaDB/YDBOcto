@@ -165,6 +165,12 @@ CREATE TABLE products (
 	     name text,
 	     price numeric CONSTRAINT products_product_no_check CHECK (price > 5)
 	 );
+-- Test name collision between implicitly assigned constraint name and explicitly specified constraint name in same column
+CREATE TABLE products (
+	     product_no integer,
+	     name text,
+	     price numeric CHECK (price > 0) CHECK (price > 5) CONSTRAINT products_price_check1 CHECK (price < 10)
+	 );
 -- Test name collision among multiple 63-byte user specified column-level constraint names (longest allowed name length)
 CREATE TABLE products (
 	     product_no integer

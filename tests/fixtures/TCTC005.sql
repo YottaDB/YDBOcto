@@ -73,3 +73,47 @@ create table tmp31 (id integer, check (1 + 2 = 3), check (2 + 3 = 5));
 -- Test that constraint name of length 63 bytes is allowed
 create table tmp32 (id integer CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu CHECK (id < 2));
 
+-- Test that when an auto assigned name would collide with a user specified constraint name, the auto assigned name
+-- would move on to the next number and try that until it finds a non-colliding name. In the below, the (price < 10)
+-- check constraint would normally have gotten the name tmp33_price_check but since that name already exists it
+-- would move on and then try tmp33_price_check1 but it finds that one taken as well and so moves on and then
+-- assigns tmp33_price_check2 as the constraint name.
+create table tmp33 (
+	      product_no integer,
+	      name text,
+	      price numeric CONSTRAINT tmp33_price_check CHECK (price > 0) CONSTRAINT tmp33_price_check1 CHECK (price > 5)
+	       CHECK (price < 10)
+	  );
+
+-- Test CHECK column constraint using another (but valid) column name automatically becomes a table level constraint
+-- (indicated by the constraint name having just the table name and not any column name in it).
+create table tmp34 (
+	      product_no integer,
+	      name text,
+	      price numeric CHECK (price > product_no)
+	  );
+
+-- Test CHECK column constraint using a column that is not yet defined in the table but will be in a later line.
+-- This should also become a table level constraint (indicated by the constraint name having just the table name
+-- and not any column name in it).
+create table tmp35 (
+	      product_no integer CHECK (price > product_no),
+	      name text,
+	      price numeric
+	  );
+
+-- Test CHECK column constraint using a different column in its boolean condition expression.
+-- It should be named after that column and not the current column (i.e. it should become that column's CHECK constraint).
+-- In the below, the CHECK constraint is specified under the "name" column but uses "id" only. Therefore it becomes a column
+-- level constraint of the "id" column as evidenced by the constraint named as "tmp36_id_check" (and not "tmp36_name_check").
+create table tmp36 (id integer, name varchar check (id > 0));
+
+-- Test a table definition that defines lots of column constraints but some correspond to a different column level constraint
+-- and some correspond to a table level constraint. In the end, constraint names should be set correctly.
+create table tmp37 (id integer, name varchar check (id > 0) check (name is not null) check ((name || id) = 'Zero2'));
+
+-- Test that column level constraint that does not use any columns becomes a table level constraint.
+-- Notice the (2 > 0) expression gets named as "tmp38_check" (and not "tmp38_name_check") because
+-- it does not use "name" in the expression at all.
+create table tmp38 (id integer, name varchar check (2 > 0) check (name is not null));
+

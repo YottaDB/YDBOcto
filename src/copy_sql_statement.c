@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -84,12 +84,12 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		value = stmt->v.value;
 		MALLOC_STATEMENT(ret, value, SqlValue);
 		ret->v.value->type = value->type;
+		ret->v.value->parameter_index = value->parameter_index;
 		if (COERCE_TYPE == value->type) {
 			ret->v.value->pre_coerced_type = value->pre_coerced_type;
 			ret->v.value->coerced_type = value->coerced_type;
-		}
-		ret->v.value->parameter_index = value->parameter_index;
-		if (CALCULATED_VALUE == value->type) {
+			ret->v.value->v.coerce_target = copy_sql_statement(value->v.coerce_target);
+		} else if (CALCULATED_VALUE == value->type) {
 			ret->v.value->v.calculated = copy_sql_statement(value->v.calculated);
 		} else if (NUL_VALUE == value->type) {
 			// Don't copy a null value
@@ -253,5 +253,6 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 		break;
 	}
+	ret->loc = stmt->loc;
 	return ret;
 }

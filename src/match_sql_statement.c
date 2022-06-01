@@ -119,6 +119,8 @@ boolean_t match_sql_statement(SqlStatement *stmt, SqlStatement *match_stmt) {
 		ret = (value->type == match_value->type);
 		if (!ret)
 			break;
+		/* Same literals could have different parameter index so do not compare the parameter_index */
+		/* ret = (value->parameter_index == match_value->parameter_index); if (!ret) break; */
 		if (COERCE_TYPE == value->type) {
 			ret = (value->pre_coerced_type == match_value->pre_coerced_type);
 			if (!ret)
@@ -129,10 +131,7 @@ boolean_t match_sql_statement(SqlStatement *stmt, SqlStatement *match_stmt) {
 			ret = match_sql_statement(value->v.coerce_target, match_value->v.coerce_target);
 			if (!ret)
 				break;
-		}
-		/* Same literals could have different parameter index so do not compare the parameter_index */
-		/* ret = (value->parameter_index == match_value->parameter_index); if (!ret) break; */
-		if (CALCULATED_VALUE == value->type) {
+		} else if (CALCULATED_VALUE == value->type) {
 			ret = match_sql_statement(value->v.calculated, match_value->v.calculated);
 			if (!ret)
 				break;

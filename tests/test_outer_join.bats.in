@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -23,14 +23,9 @@ teardown() {
 }
 
 @test "TOJ01 : Various OUTER JOIN queries (including OCTO363)" {
-  load_fixture names.sql
-  load_fixture names.zwr
-  cp @PROJECT_SOURCE_DIR@/tests/fixtures/TOJ01.sql .
-  yottadb -run genqueryfiles TOJ01.sql	# this generates query files of the form TOJ01_01.sql, TOJ01_02.sql ...
-  for file in TOJ01_*.sql
-  do
-    run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names $file
-  done
+	load_fixture names.sql
+	load_fixture names.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOJ01.sql
 }
 
 @test "TOJ02 : LEFT/RIGHT/FULL JOIN on various queries from pastas database" {
@@ -60,13 +55,13 @@ teardown() {
 }
 
 @test "TOJ04 : outer join with no ON condition specified" {
-  load_fixture names.sql
-  load_fixture names.zwr
-  cp @PROJECT_SOURCE_DIR@/tests/fixtures/TOJ04.sql .	# contains only one query
-  yottadb -run genqueryfiles TOJ04.sql	# this generates the query file TOJ04_01.sql (only one)
-  cat TOJ04_*.sql > output.txt
-  run_octo_allow_error TOJ04_*.sql output.txt
-  verify_output TOJ04 output.txt
+	load_fixture names.sql
+	load_fixture names.zwr
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TOJ04.sql .	# contains only one query
+	yottadb -run genqueryfiles TOJ04.sql	# this generates the query file TOJ04_01.sql (only one)
+	cat TOJ04_*.sql > output.txt
+	run_octo_allow_error TOJ04_*.sql output.txt
+	verify_output TOJ04 output.txt
 }
 
 @test "TOJ05 : OCTO312 : Use WHERE clause to optimize LEFT JOIN (just like INNER JOIN)" {

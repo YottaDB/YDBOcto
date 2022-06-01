@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -38,3 +38,10 @@ select * from names n1 where n1.id > 2  AND n1.id BETWEEN 1 and 4;
 select * from names n1 where n1.id > 2  AND n1.id NOT BETWEEN 1 and 4;
 select * from (select * from (select * from names n1 where EXISTS (select n2.id from names n2 where n2.id BETWEEN n1.id and n1.id + 2)) n3) n4;
 select * from (select * from (select * from names n1 where EXISTS (select n2.id from names n2 where n2.id NOT BETWEEN n1.id and n1.id + 2)) n3) n4;
+
+-- OCTO843 : Below tests https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/843#note_967932702 (produces zero output though)
+select n1.firstname,n2.lastname from names n1 inner join names n2 on (n1.firstname = n2.lastname) where n2.lastname between 'a' and 'b';
+
+-- OCTO843 : Below also tests YDBOcto#843 (but produces some non-zero output)
+ select n1.firstname,n2.lastname from names n1 inner join names n2 on (n1.firstname < n2.lastname) where n2.lastname between 'Cereal' and 'Joey';
+

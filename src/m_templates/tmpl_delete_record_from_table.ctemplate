@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -29,6 +29,10 @@ TEMPLATE(tmpl_delete_record_from_table, PhysicalPlan *pplan, int dot_count) {
 	%{}`n{{ PLAN_LINE_START }}{}%
 	dot_count++;
 	TMPL(tmpl_print_dots, dot_count);
+	/* Unlike INSERT INTO or UPDATE queries, a DELETE FROM query does not need to worry about CHECK constraint enforcement.
+	 * This is because the entire row is removed and all CHECK constraints operate only at a row level (not across rows).
+	 * Removing a row can never cause a CHECK constraint violation.
+	 */
 	table_join = lp_get_table_join(lp_delete_from);
 	if (LP_SELECT_QUERY == table_join->v.lp_default.operand[0]->type) {
 		/* This is a case where the LP_TABLE got overwritten by a LP_TABLE_JOIN as part of "lp_generate_xref_plan"

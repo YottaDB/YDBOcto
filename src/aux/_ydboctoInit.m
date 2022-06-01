@@ -38,6 +38,7 @@
 	SET %ydboctoerror("NULLKEYVALUE")=$incr(%ydboctoerrcode) ; signaled by `NullKeyValue` in `_ydboctoplanhelpers.m`
 	; signaled by `MySQL` labels in various `_ydboctof*.m` routines, e.g. `_ydboctofLPAD.m`.
 	SET %ydboctoerror("UNKNOWNFUNCTION")=$incr(%ydboctoerrcode)
+	SET %ydboctoerror("CHECKCONSTRAINTVIOLATION")=$incr(%ydboctoerrcode)
 	; Any additions of error codes needs to happen before the following line (%ydboctoerrcodemax)
 	; Changes need to also happen in `ydb_error_check.c` and likely in `_ydboctoplanhelpers.m`
 	SET %ydboctoerrcodemax=$incr(%ydboctoerrcode)

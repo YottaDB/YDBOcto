@@ -46,15 +46,15 @@
  * and go deep). This is so outermost caller knows to issue an error at logical plan stage and not proceed with physical plan
  * even if one error is seen anywhere in a recursive function call.
  */
-#define LP_GENERATE_WHERE(STMT, PARENT_STMT, RET, ERROR_ENCOUNTERED) \
-	{                                                            \
-		if (NULL != STMT) {                                  \
-			RET = lp_generate_where(STMT, PARENT_STMT);  \
-			if (NULL == RET)                             \
-				ERROR_ENCOUNTERED = TRUE;            \
-		} else {                                             \
-			RET = NULL;                                  \
-		}                                                    \
+#define LP_GENERATE_WHERE(STMT, PARENT_STMT, ROOT_STMT, RET, ERROR_ENCOUNTERED) \
+	{                                                                       \
+		if (NULL != STMT) {                                             \
+			RET = lp_generate_where(STMT, PARENT_STMT, ROOT_STMT);  \
+			if (NULL == RET)                                        \
+				ERROR_ENCOUNTERED = TRUE;                       \
+		} else {                                                        \
+			RET = NULL;                                             \
+		}                                                               \
 	}
 
 // Forward declarations
@@ -110,6 +110,10 @@ typedef struct LpKeywords {
 typedef struct LpPieceNumber {
 	int piece_number;
 } LpPieceNumber;
+
+typedef struct LpInsertIntoCol {
+	SqlColumnAlias *column_alias;
+} LpInsertIntoCol;
 
 typedef struct LpDefault {
 	struct LogicalPlan *operand[2];
@@ -221,6 +225,10 @@ typedef struct LpExtraSetOperation {
 	boolean_t	     to_array;	    /* Indicates the result of this LP_SET_OPERATION should be converted to a SQL array */
 } LpExtraSetOperation;
 
+typedef struct LpExtraCheckConstraint {
+	SqlConstraint *constraint; /* the underlying parser-level constraint structure */
+} LpExtraCheckConstraint;
+
 /* We use yet another triple type here so we can easily traverse the tree to replace tables and WHEREs.
  * Specifically, the WHERE can have complete trees under it, and it would be awkward to overload void pointers.
  */
@@ -238,6 +246,7 @@ typedef struct LogicalPlan {
 		LpKey		  lp_key;		// To be used if type == LP_KEY
 		LpKeywords	  lp_keywords;		// To be used if type == LP_KEYWORDS
 		LpPieceNumber	  lp_piece_number;	// To be used if type == LP_PIECE_NUMBER
+		LpInsertIntoCol	  lp_insert_into_col;	// To be used if type == LP_INSERT_INTO_COL
 		LpDefault	  lp_default;		// To be used for all other LP_* types
 	} v;
 	union {
@@ -253,6 +262,7 @@ typedef struct LogicalPlan {
 		LpExtraFunctionCall	 lp_function_call;	// To be used if type == LP_FUNCTION_CALL
 		LpExtraTable		 lp_table;		// To be used if type == LP_TABLE
 		LpExtraSetOperation	 lp_set_operation;	// To be used if type == LP_SET_OPERATION
+		LpExtraCheckConstraint	 lp_check_constraint;	// To be used if type == LP_CHECK_CONSTRAINT
 	} extra_detail;
 } LogicalPlan;
 
@@ -355,7 +365,7 @@ boolean_t lp_is_operand_type_string(LogicalPlan *plan, boolean_t *is_null);
 // Returns LP_WHERE with an AND of the two wheres
 LogicalPlan *lp_join_where(LogicalPlan *where1, LogicalPlan *where2);
 // Returns a new logical plan representing the boolean structure from stmt
-LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt);
+LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt, SqlStatement *root_stmt);
 // Given a column and a table, generates a cross reference plan and returns it
 LogicalPlan *lp_generate_xref_plan(SqlTable *table, SqlColumn *column, int unique_id);
 /**
@@ -415,11 +425,13 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
  * Walk through the column list, converting each right side value as appropriate.
  * "ret" is an output parameter. This function sets `*ret` to the first (in linked list) LP_COLUMN_LIST on return.
  * "parent_stmt" points to parent SqlStatement structure and is used only in rare cases (EXISTS operator etc.).
+ * "root_stmt" points to the outermost parent (root) SqlStatement structure
  * "start_columns" points to the start of the column list.
  * Returns whether an error was encountered. 0 if no error was encountered. 1 if an error was encountered.
  * This function can only be used for column lists with at least one column.
  */
-boolean_t lp_generate_column_list(LogicalPlan **ret, SqlStatement *parent_stmt, SqlColumnList *start_columns);
+boolean_t lp_generate_column_list(LogicalPlan **ret, SqlStatement *parent_stmt, SqlStatement *root_stmt,
+				  SqlColumnList *start_columns);
 
 /* Generates a LP_TABLE_VALUE table plan corresponding to a VALUES() clause specification and returns it */
 LogicalPlan *lp_generate_table_value(SqlStatement *stmt, boolean_t *caller_error_encountered);

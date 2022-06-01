@@ -33,6 +33,7 @@ ERROR_DEF(PSQL_Invalid_Escape_Sequence, "22025")
 // Class 23 - Integrity Constraint Violation
 ERROR_DEF(PSQL_Code_Not_Null_Violation, "23502")
 ERROR_DEF(PSQL_Code_Unique_Violation, "23505")
+ERROR_DEF(PSQL_Code_Check_Violation, "23514")
 // Class 26 - Invalid SQL Statement Name
 ERROR_DEF(PSQL_Code_Invalid_Sql_Statement_Name, "26000")
 // Class 28 - Invalid Authorization Specification

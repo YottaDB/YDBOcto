@@ -248,11 +248,12 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		/* A physical plan for the destination table of the INSERT INTO has been generated above.
 		 * Now generate a separate physical plan for source table/query of the INSERT INTO.
 		 */
-		LogicalPlan *lp_insert_into_options;
+		LogicalPlan *lp_insert_into_options, *lp_insert_into_more_options;
 		GET_LP(lp_insert_into_options, plan, 1, LP_INSERT_INTO_OPTIONS);
+		GET_LP(lp_insert_into_more_options, lp_insert_into_options, 1, LP_INSERT_INTO_MORE_OPTIONS);
 
 		PhysicalPlan *src;
-		src = generate_physical_plan(lp_insert_into_options->v.lp_default.operand[1], &plan_options);
+		src = generate_physical_plan(lp_insert_into_more_options->v.lp_default.operand[0], &plan_options);
 		if (NULL == src) {
 			return NULL;
 		}

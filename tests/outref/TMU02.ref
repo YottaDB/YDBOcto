@@ -1,9 +1,12 @@
-%ydboctoerrcodemax=1073741833
-%ydboctoerrcodemax=1073741833
-%ydboctoerrcodemax=1073741833
+%ydboctoerrcodemax=1073741834
+%ydboctoerrcodemax=1073741834
+%ydboctoerrcodemax=1073741834
 %ydboctoerrcodemin=1073741824
 %ydboctoerrcodemin=1073741824
 %ydboctoerrcodemin=1073741824
+%ydboctoerror("CHECKCONSTRAINTVIOLATION")=1073741833
+%ydboctoerror("CHECKCONSTRAINTVIOLATION")=1073741833
+%ydboctoerror("CHECKCONSTRAINTVIOLATION")=1073741833
 %ydboctoerror("DUPLICATEKEYVALUE")=1073741830
 %ydboctoerror("DUPLICATEKEYVALUE")=1073741830
 %ydboctoerror("DUPLICATEKEYVALUE")=1073741830

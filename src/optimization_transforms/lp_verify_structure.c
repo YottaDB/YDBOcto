@@ -67,9 +67,13 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 		break;
 	case LP_INSERT_INTO_OPTIONS:
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COLUMN_LIST);
-		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_SELECT_QUERY)
-		       | lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_SET_OPERATION)
-		       | lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_TABLE_VALUE);
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_INSERT_INTO_MORE_OPTIONS);
+		break;
+	case LP_INSERT_INTO_MORE_OPTIONS:
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_SELECT_QUERY)
+		       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_SET_OPERATION)
+		       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_TABLE_VALUE);
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_CHECK_CONSTRAINT);
 		break;
 	case LP_DELETE_FROM:
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_PROJECT);
@@ -304,6 +308,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_CASE)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_CONCAT)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_COLUMN_ALIAS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_INSERT_INTO_COL)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_FUNCTION_CALL)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_ARRAY)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_COALESCE_CALL)
@@ -389,6 +394,10 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COLUMN);
 		ret &= lp_verify_value(plan->v.lp_default.operand[1], options);
 		break;
+	case LP_CHECK_CONSTRAINT:
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_WHERE);
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_CHECK_CONSTRAINT);
+		break;
 	case LP_COLUMN_LIST:
 		/* To avoid a large recursion stack in case of thousands of columns, walk the column list iteratively */
 		while (NULL != plan) {
@@ -398,7 +407,8 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 			 */
 			ret &= lp_verify_value(plan->v.lp_default.operand[0], options)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COLUMN)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_UPD_COL_VALUE);
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_UPD_COL_VALUE)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_CHECK_CONSTRAINT);
 			assert(ret);
 			plan = plan->v.lp_default.operand[1];
 		}
@@ -406,6 +416,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 	case LP_VALUE:
 	case LP_COLUMN_ALIAS:
 	case LP_DERIVED_COLUMN:
+	case LP_INSERT_INTO_COL:
 	case LP_PIECE_NUMBER:
 	case LP_COLUMN_LIST_ALIAS:
 	case LP_COLUMN:
@@ -535,8 +546,9 @@ boolean_t lp_verify_value(LogicalPlan *plan, PhysicalPlanOptions *options) {
 	       | lp_verify_structure_helper(plan, options, LP_DIVISION) | lp_verify_structure_helper(plan, options, LP_MODULO)
 	       | lp_verify_structure_helper(plan, options, LP_NEGATIVE) | lp_verify_structure_helper(plan, options, LP_FORCE_NUM)
 	       | lp_verify_structure_helper(plan, options, LP_CONCAT) | lp_verify_structure_helper(plan, options, LP_COLUMN_ALIAS)
-	       | lp_verify_structure_helper(plan, options, LP_CASE) | lp_verify_structure_helper(plan, options, LP_FUNCTION_CALL)
-	       | lp_verify_structure_helper(plan, options, LP_ARRAY) | lp_verify_structure_helper(plan, options, LP_COALESCE_CALL)
+	       | lp_verify_structure_helper(plan, options, LP_INSERT_INTO_COL) | lp_verify_structure_helper(plan, options, LP_CASE)
+	       | lp_verify_structure_helper(plan, options, LP_FUNCTION_CALL) | lp_verify_structure_helper(plan, options, LP_ARRAY)
+	       | lp_verify_structure_helper(plan, options, LP_COALESCE_CALL)
 	       | lp_verify_structure_helper(plan, options, LP_GREATEST) | lp_verify_structure_helper(plan, options, LP_LEAST)
 	       | lp_verify_structure_helper(plan, options, LP_NULL_IF)
 	       | lp_verify_structure_helper(plan, options, LP_AGGREGATE_FUNCTION_COUNT_ASTERISK)

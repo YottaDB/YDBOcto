@@ -24,7 +24,6 @@
  */
 LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 	SqlSelectStatement *select_stmt;
-	SqlTableAlias *	    table_alias;
 	LogicalPlan *	    select_query, *project, *select, *dst, *dst_key;
 	LogicalPlan *	    criteria, *where, *order_by;
 	LogicalPlan *	    select_options, *select_more_options, *aggregate_options;
@@ -36,6 +35,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 	int		    num_outer_joins;
 	enum SqlJoinType    cur_join_type;
 	boolean_t	    error_encountered;
+	SqlTableAlias *	    table_alias;
 
 	error_encountered = FALSE;
 	// Set operations should be handled in a different function
@@ -43,37 +43,76 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		return lp_generate_set_logical_plan(stmt);
 	} else if (insert_STATEMENT == stmt->type) {
 		SqlInsertStatement *insert;
-		LogicalPlan *	    lp_insert_into, *lp_insert_into_options;
+		LogicalPlan *	    lp_insert_into, *lp_insert_into_options, *lp_insert_into_more_options;
 		LogicalPlan *	    lp_table;
 		LogicalPlan *	    lp_select_query;
+		SqlTable *	    table;
 
 		UNPACK_SQL_STATEMENT(insert, stmt, insert);
 		MALLOC_LP_2ARGS(lp_insert_into, LP_INSERT_INTO);
 		MALLOC_LP(lp_table, lp_insert_into->v.lp_default.operand[0], LP_TABLE);
-		UNPACK_SQL_STATEMENT(lp_table->v.lp_table.table_alias, insert->dst_table_alias_stmt, table_alias);
+		UNPACK_SQL_STATEMENT(table_alias, insert->dst_table_alias_stmt, table_alias);
+		lp_table->v.lp_table.table_alias = table_alias;
 		MALLOC_LP(lp_insert_into_options, lp_insert_into->v.lp_default.operand[1], LP_INSERT_INTO_OPTIONS);
 		lp_select_query = generate_logical_plan(insert->src_table_alias_stmt);
 		if (NULL == lp_select_query) {
 			return NULL;
 		}
-		lp_insert_into_options->v.lp_default.operand[1] = lp_select_query;
+		MALLOC_LP(lp_insert_into_more_options, lp_insert_into_options->v.lp_default.operand[1],
+			  LP_INSERT_INTO_MORE_OPTIONS);
+		lp_insert_into_more_options->v.lp_default.operand[0] = lp_select_query;
 		if (NULL != insert->columns) {
 			SqlColumnList *start_cl;
 
 			UNPACK_SQL_STATEMENT(start_cl, insert->columns, column_list);
 			error_encountered
-			    |= lp_generate_column_list(&lp_insert_into_options->v.lp_default.operand[0], NULL, start_cl);
+			    |= lp_generate_column_list(&lp_insert_into_options->v.lp_default.operand[0], NULL, NULL, start_cl);
 		} else {
 			lp_insert_into_options->v.lp_default.operand[0] = NULL;
 		}
+		/* Check if there are any table-level and/or column-level constraints.
+		 * If so, convert them into LP_CHECK_CONSTRAINT logical plans.
+		 */
+		UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
+
+		SqlColumn *   cur_column, *start_column;
+		LogicalPlan **lp_constraint_ptr, *ret;
+
+		lp_constraint_ptr = &lp_insert_into_more_options->v.lp_default.operand[1];
+		UNPACK_SQL_STATEMENT(start_column, table->columns, column);
+		cur_column = start_column;
+		do {
+			SqlOptionalKeyword *cur_keyword, *start_keyword;
+
+			UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
+			cur_keyword = start_keyword;
+			do {
+				cur_keyword = cur_keyword->next;
+				if (OPTIONAL_CHECK_CONSTRAINT == cur_keyword->keyword) {
+					SqlConstraint *constraint;
+					LogicalPlan *  lp_constraint, *lp_where;
+
+					MALLOC_LP_2ARGS(lp_constraint, LP_CHECK_CONSTRAINT);
+					MALLOC_LP(lp_where, lp_constraint->v.lp_default.operand[0], LP_WHERE);
+					UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
+					lp_constraint->extra_detail.lp_check_constraint.constraint = constraint;
+					LP_GENERATE_WHERE(constraint->definition, stmt, stmt, ret, error_encountered);
+					lp_where->v.lp_default.operand[0] = ret;
+					*lp_constraint_ptr = lp_constraint;
+					if (NULL != ret) {
+						lp_constraint_ptr = &lp_constraint->v.lp_default.operand[1];
+					}
+				}
+			} while (cur_keyword != start_keyword);
+			cur_column = cur_column->next;
+		} while (cur_column != start_column);
 		return (error_encountered ? NULL : lp_insert_into);
 	} else if (delete_from_STATEMENT == stmt->type) {
 		SqlDeleteFromStatement *delete;
-		LogicalPlan *  lp_delete_from;
-		LogicalPlan *  lp_table;
-		LogicalPlan *  lp_where;
-		SqlJoin *      join;
-		SqlTableAlias *table_alias;
+		LogicalPlan *lp_delete_from;
+		LogicalPlan *lp_table;
+		LogicalPlan *lp_where;
+		SqlJoin *    join;
 
 		UNPACK_SQL_STATEMENT(delete, stmt, delete_from);
 		MALLOC_LP_2ARGS(lp_delete_from, LP_DELETE_FROM);
@@ -94,7 +133,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		UNPACK_SQL_STATEMENT(table_alias, join->value, table_alias);
 		lp_table->v.lp_table.table_alias = table_alias;
 		MALLOC_LP(lp_where, select_options->v.lp_default.operand[0], LP_WHERE);
-		LP_GENERATE_WHERE(delete->where_clause, stmt, lp_where->v.lp_default.operand[0], error_encountered);
+		LP_GENERATE_WHERE(delete->where_clause, stmt, NULL, lp_where->v.lp_default.operand[0], error_encountered);
 		MALLOC_LP(select_more_options, select_options->v.lp_default.operand[1], LP_SELECT_MORE_OPTIONS);
 		MALLOC_LP(keywords, select_more_options->v.lp_default.operand[1], LP_KEYWORDS);
 		UNPACK_SQL_STATEMENT(keywords->v.lp_keywords.keywords, alloc_no_keyword(), keyword);
@@ -105,7 +144,6 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		LogicalPlan *	    lp_table;
 		LogicalPlan *	    lp_where;
 		SqlJoin *	    join;
-		SqlTableAlias *	    table_alias;
 
 		MALLOC_LP_2ARGS(lp_update, LP_UPDATE);
 		/* Note: Just like the LP_DELETE_FROM logical plan subtree, LP_UPDATE logical plan subtree
@@ -126,7 +164,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		UNPACK_SQL_STATEMENT(table_alias, join->value, table_alias);
 		lp_table->v.lp_table.table_alias = table_alias;
 		MALLOC_LP(lp_where, select_options->v.lp_default.operand[0], LP_WHERE);
-		LP_GENERATE_WHERE(update->where_clause, stmt, lp_where->v.lp_default.operand[0], error_encountered);
+		LP_GENERATE_WHERE(update->where_clause, stmt, NULL, lp_where->v.lp_default.operand[0], error_encountered);
 		MALLOC_LP(select_more_options, select_options->v.lp_default.operand[1], LP_SELECT_MORE_OPTIONS);
 		MALLOC_LP(keywords, select_more_options->v.lp_default.operand[1], LP_KEYWORDS);
 		UNPACK_SQL_STATEMENT(keywords->v.lp_keywords.keywords, alloc_no_keyword(), keyword);
@@ -141,8 +179,8 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		ucv_head = update->col_value_list;
 		ucv = ucv_head;
 		do {
-			LP_GENERATE_WHERE(ucv->col_name, NULL, lp_upd_col_value->v.lp_default.operand[0], error_encountered);
-			LP_GENERATE_WHERE(ucv->col_value, stmt, lp_upd_col_value->v.lp_default.operand[1], error_encountered);
+			LP_GENERATE_WHERE(ucv->col_name, NULL, NULL, lp_upd_col_value->v.lp_default.operand[0], error_encountered);
+			LP_GENERATE_WHERE(ucv->col_value, stmt, NULL, lp_upd_col_value->v.lp_default.operand[1], error_encountered);
 			ucv = ucv->next;
 			if (ucv == ucv_head) {
 				assert(NULL == lp_column_list->v.lp_default.operand[1]);
@@ -180,7 +218,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 	MALLOC_LP_2ARGS(criteria->v.lp_default.operand[0], LP_KEYS);
 	MALLOC_LP(select_options, criteria->v.lp_default.operand[1], LP_SELECT_OPTIONS);
 	MALLOC_LP(where, select_options->v.lp_default.operand[0], LP_WHERE);
-	LP_GENERATE_WHERE(select_stmt->where_expression, stmt, where->v.lp_default.operand[0], error_encountered);
+	LP_GENERATE_WHERE(select_stmt->where_expression, stmt, NULL, where->v.lp_default.operand[0], error_encountered);
 	MALLOC_LP(dst, select_query->v.lp_default.operand[1], LP_OUTPUT);
 	MALLOC_LP(dst_key, dst->v.lp_default.operand[0], LP_KEY);
 	OCTO_CMALLOC_STRUCT(dst_key->v.lp_key.key, SqlKey);
@@ -243,7 +281,8 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		join_right->extra_detail.lp_table_join.cur_join_type = cur_join_type;
 		if (cur_join->condition) {
 			MALLOC_LP_2ARGS(t_join_condition, LP_WHERE);
-			LP_GENERATE_WHERE(cur_join->condition, stmt, t_join_condition->v.lp_default.operand[0], error_encountered);
+			LP_GENERATE_WHERE(cur_join->condition, stmt, NULL, t_join_condition->v.lp_default.operand[0],
+					  error_encountered);
 			join_right->extra_detail.lp_table_join.join_on_condition = t_join_condition;
 		}
 		cur_join = cur_join->next;
@@ -336,7 +375,8 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 
 			MALLOC_LP(having, aggregate_options->v.lp_default.operand[1], LP_HAVING);
 			MALLOC_LP(where, having->v.lp_default.operand[0], LP_WHERE);
-			LP_GENERATE_WHERE(select_stmt->having_expression, stmt, where->v.lp_default.operand[0], error_encountered);
+			LP_GENERATE_WHERE(select_stmt->having_expression, stmt, NULL, where->v.lp_default.operand[0],
+					  error_encountered);
 		}
 	}
 	// Handle factoring in derived columns

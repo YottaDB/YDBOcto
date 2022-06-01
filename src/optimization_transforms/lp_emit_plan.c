@@ -140,7 +140,7 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 	 * LP_COLUMN_LIST of the child plan. This eliminates redundant output and lets the emitted plan contain
 	 * just the actual list (minus the LP_COLUMN_LIST plans at each level which are an implementation overhead
 	 * and is best not seen by the user). The variable "skip_emit" helps track this.
-	 * The same reasoning applies to an LP_ROW_VALUE too.
+	 * The same reasoning applies to a LP_ROW_VALUE type plan too.
 	 */
 	if ((NULL == parent_plan) || !IS_PLAN_TYPE_A_LIST(parent_plan->type) || !IS_PLAN_TYPE_A_LIST(plan->type)
 	    || (parent_plan->type != plan->type)) {
@@ -183,6 +183,15 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		break;
 	case LP_COLUMN_LIST:
 	case LP_ROW_VALUE:
+	case LP_CHECK_CONSTRAINT:
+		if (LP_CHECK_CONSTRAINT == plan->type) {
+			SqlConstraint *constraint;
+			SqlValue *     value;
+
+			constraint = plan->extra_detail.lp_check_constraint.constraint;
+			UNPACK_SQL_STATEMENT(value, constraint->name, value);
+			EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%s", value->v.string_literal);
+		}
 		if (!skip_emit) {
 			EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");
 		}
@@ -190,7 +199,7 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		    += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 2, plan->v.lp_default.operand[0], plan);
 		/* For "case LP_COLUMN_LIST", operand[1] is a sibling LP_COLUMN_LIST and should be treated at the same level as
 		 * the parent LP_COLUMN_LIST hence using "depth" instead of "depth + 2" like was done for operand[0].
-		 * The same reasoning as above applies to "LP_ROW_VALUE" too.
+		 * The same reasoning as above applies to "LP_ROW_VALUE" and "LP_CHECK_CONSTRAINT" too.
 		 */
 		buff_ptr
 		    += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth, plan->v.lp_default.operand[1], plan);
@@ -207,8 +216,14 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		UNPACK_SQL_STATEMENT(value, plan->v.lp_column.column->columnName, value);
 		EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%s\n", value->v.string_literal);
 		break;
+	case LP_INSERT_INTO_COL:
+		/* In this case, the only member that we have is a column_alias so fall through to the below code */
 	case LP_COLUMN_ALIAS:
-		column_alias = plan->v.lp_column_alias.column_alias;
+		if (LP_COLUMN_ALIAS == plan->type) {
+			column_alias = plan->v.lp_column_alias.column_alias;
+		} else {
+			column_alias = plan->v.lp_insert_into_col.column_alias;
+		}
 		column = column_alias->column;
 		if (column_STATEMENT == column->type) {
 			UNPACK_SQL_STATEMENT(value, column->v.column->columnName, value);

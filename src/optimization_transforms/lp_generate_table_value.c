@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -43,7 +43,8 @@ LogicalPlan *lp_generate_table_value(SqlStatement *stmt, boolean_t *caller_error
 
 		MALLOC_LP(lp_row_value, lp_row_value_next->v.lp_default.operand[1], LP_ROW_VALUE);
 		UNPACK_SQL_STATEMENT(column_list, row_value->value_list, column_list);
-		*caller_error_encountered |= lp_generate_column_list(&lp_row_value->v.lp_default.operand[0], stmt, column_list);
+		*caller_error_encountered
+		    |= lp_generate_column_list(&lp_row_value->v.lp_default.operand[0], stmt, NULL, column_list);
 		lp_row_value_next = lp_row_value;
 		row_value = row_value->next;
 	} while (row_value != start_row_value);

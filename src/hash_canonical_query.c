@@ -626,13 +626,17 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 				// OptionalKeyword
 				ADD_INT_HASH(state, cur_keyword->keyword);
 				/* SqlValue or SqlSelectStatement.
-				 * Literals in "value_STATEMENT" are in general not hashed but in this case, we could have keywords
-				 * like "OPTIONAL_PIECE" which hold the column piece # information. We do want that hashed or else
-				 * we could have different queries hashing to the same plan. Hence the set of "*status" to
-				 * "HASH_LITERAL_VALUES" so "hash_canonical_query()" knows that keyword literals need to be hashed.
-				 * An exception is "OPTIONAL_LIMIT" keyword where we we want multiple queries that differ only in
-				 * the LIMIT value (e.g. SELECT * from names LIMIT 1 vs SELECT * from names LIMIT 2) to hash to the
-				 * same plan. So skip the HASH_LITERAL_VALUES set for this case.
+				 * 1) Literals in "value_STATEMENT" are in general not hashed but in this case, we could have
+				 *    keywords like "OPTIONAL_PIECE" which hold the column piece # information. We do want that
+				 *    hashed or else we could have different queries hashing to the same plan. Hence the set of
+				 *    "*status" to "HASH_LITERAL_VALUES" so "hash_canonical_query()" knows that keyword literals
+				 *    need to be hashed.
+				 * 2) In addition, keywords like "OPTIONAL_CHECK_CONSTRAINT" point to boolean expressions, not
+				 *    just literals. But literals inside those boolean expressions should be hashed that way
+				 *    different check constraints that differ only in literal values end up with different hashes.
+				 * 3) An exception is "OPTIONAL_LIMIT" keyword where we we want multiple queries that differ only
+				 *    in the LIMIT value (e.g. "SELECT * from names LIMIT 1" vs "SELECT * from names LIMIT 2")
+				 *    to hash to the same plan. So skip the HASH_LITERAL_VALUES set for this case.
 				 */
 				save_status = *status;
 				if (OPTIONAL_LIMIT != cur_keyword->keyword) {

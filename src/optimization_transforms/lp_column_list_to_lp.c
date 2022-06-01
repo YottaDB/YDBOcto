@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -35,7 +35,11 @@ LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, boolean_t *caller_er
 		MALLOC_LP(where, column_list->v.lp_default.operand[0], LP_WHERE);
 		column_stmt = cur_cla->column_list;
 		UNPACK_SQL_STATEMENT(t_column_list, column_stmt, column_list);
-		LP_GENERATE_WHERE(t_column_list->value, column_stmt, where->v.lp_default.operand[0], error_encountered);
+		/* "lp_column_list_to_lp()" is currently only invoked for SELECT column list (in "generate_logical_plan.c")
+		 * and VALUES clause (in "lp_generate_table_value.c"). Both of these use cases are not possible in CHECK
+		 * constraints. And therefore, it is safe to pass NULL as the 3rd parameter ("root_stmt") below.
+		 */
+		LP_GENERATE_WHERE(t_column_list->value, column_stmt, NULL, where->v.lp_default.operand[0], error_encountered);
 		MALLOC_LP(column_list_alias, where->v.lp_default.operand[1], LP_COLUMN_LIST_ALIAS);
 		column_list_alias->v.lp_column_list_alias.column_list_alias = cur_cla;
 		cur_cla = cur_cla->next;

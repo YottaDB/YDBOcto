@@ -188,6 +188,14 @@ Text: WHEN argument is of type xxx but is used in a context that expects a xxx t
 
 Description/Action: This error is generated when there is a type mismatch between :code:`CASE value` and :code:`WHEN condition` type in :code:`Case` statement. PSQL Error Code: 42804
 
++++++++++++++++++++++++++++++++
+ERR_CHECK_CONSTRAINT_VIOLATION
++++++++++++++++++++++++++++++++
+
+Text: New row for table xxx violates CHECK constraint xxx
+
+Description/Action: This error is generated when the :code:`UPDATE` or :code:`INSERT INTO` command tries to add a row that violates a :code:`CHECK` constraint defined on the table. The name of the table, the name of the constraint along with the column values of the violating row are included in the error detail. PSQL Error Code: 23514
+
 ++++++++++++++++++++++
 INFO_CLIENT_CONNECTED
 ++++++++++++++++++++++

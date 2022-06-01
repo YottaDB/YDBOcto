@@ -283,6 +283,41 @@ void ydb_error_check(int status, char *file, int line) {
 			octo_log(line, file, ERROR, ERROR_Severity, ERR_UNKNOWN_FUNCTION_EMULATION, numparm_buff, funcname_buff,
 				 emulation_buff);
 		}
+		/* Check if %ydboctoerror("CHECKCONSTRAINTVIOLATION")	*/
+		ydboctoerrcode++;
+		if (positive_status == ydboctoerrcode) {
+			ydb_buffer_t subs[2];
+			char	     table_name_buff[OCTO_MAX_IDENT + 1];
+			ydb_buffer_t table_name;
+
+			/* M code would have passed the actual string involved in M nodes. Get that before printing error. */
+			YDB_LITERAL_TO_BUFFER("%ydboctoerror", &varname);
+			YDB_LITERAL_TO_BUFFER("CHECKCONSTRAINTVIOLATION", &subs[0]);
+			/* Get 1st parameter of ERR_CHECK_CONSTRAINT_VIOLATION error */
+			YDB_LITERAL_TO_BUFFER("1", &subs[1]);
+			table_name.len_alloc = sizeof(table_name_buff);
+			table_name.len_used = 0;
+			table_name.buf_addr = table_name_buff;
+			status = ydb_get_s(&varname, 2, subs, &table_name);
+			assert(YDB_OK == status);
+			UNUSED(status); // Prevent 'value never read' compiler warning in Release builds
+			table_name.buf_addr[table_name.len_used] = '\0';
+			ydb_delete_s(&varname, 2, subs, YDB_DEL_NODE); /* Now that we have got the value, delete the M node */
+			/* Get 2nd parameter of ERR_CHECK_CONSTRAINT_VIOLATION error */
+			YDB_LITERAL_TO_BUFFER("2", &subs[1]);
+			status = ydb_get_s(&varname, 2, subs, &ret_value);
+			if (YDB_ERR_INVSTRLEN == status) {
+				EXPAND_YDB_BUFFER_T_ALLOCATION(ret_value);
+				status = ydb_get_s(&varname, 2, subs, &ret_value);
+				assert(YDB_OK == status);
+				UNUSED(status); // Prevent 'value never read' compiler warning
+			}
+			ret_value.buf_addr[ret_value.len_used] = '\0';
+			ydb_delete_s(&varname, 2, subs, YDB_DEL_NODE); /* Now that we have got the value, delete the M node */
+			/* Issue error */
+			octo_log(line, file, ERROR, ERROR_Severity, ERR_CHECK_CONSTRAINT_VIOLATION, table_name.buf_addr,
+				 ret_value.buf_addr);
+		}
 		/* Not an Octo internal error */
 		ydboctoerrcode++;
 		assert(ydboctoerrcode == ydboctoerrcodemax);

@@ -724,7 +724,6 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		boolean_t	    delim_is_empty, remove_piece_keyword, is_extract;
 		SqlOptionalKeyword *keyword, *piece_keyword;
 
-		column_number++;
 		cur_column->table = table_stmt;
 
 		// Handle DELIM
@@ -763,6 +762,9 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		piece_keyword = get_keyword(cur_column, OPTIONAL_PIECE);
 		remove_piece_keyword = FALSE;
 		if (NULL != cur_column->columnName) {
+			if (!cur_column->is_hidden_keycol) {
+				column_number++;
+			}
 			if (!IS_KEY_COLUMN(cur_column)) {
 				/* Add PIECE keyword only if DELIM is not "" and column isn't an EXTRACT field */
 				if (NULL == piece_keyword) {
@@ -788,6 +790,9 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				/* PIECE numbers (if specified) are not applicable for primary key columns so remove it */
 				remove_piece_keyword = TRUE;
 			}
+			cur_column->column_number = column_number;
+		} else {
+			cur_column->column_number = 0;
 		}
 		if (remove_piece_keyword) {
 			SqlOptionalKeyword *next;
@@ -799,7 +804,6 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				cur_column->keywords->v.keyword = next;
 			}
 		}
-		cur_column->column_number = column_number;
 		cur_column = cur_column->next;
 	} while (cur_column != start_column);
 	/**************************************************************************************************************

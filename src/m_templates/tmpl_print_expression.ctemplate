@@ -79,12 +79,31 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		value = plan->v.lp_value.value;
 		switch(value->type) {
 		case PARAMETER_VALUE:
+			assert(0 < value->parameter_index);
 		case BOOLEAN_VALUE:
 		case INTEGER_LITERAL:
 		case NUMERIC_LITERAL:
 		case STRING_LITERAL:
-			assert(value->parameter_index);
-			%{}$GET({{ config->global_names.cursor }}(cursorId,{{ PP_PARAMETERS }},{{ value->parameter_index|%d }})){}%
+			/* Note that "value->parameter_index" is guaranteed to be non-zero in most cases.
+			 * The only exception that we know of currently is CHECK constraints where literals in the
+			 * constraint will have a 0 parameter_index. This is because they can then be used in SELECT queries
+			 * which in turn will have its own set of literals with their own "parameter_index" values and we do
+			 * not want to mix the two up (CHECK constraint literals will get their "parameter_index" value as
+			 * part of the CREATE TABLE command whereas SELECT query literals will get their values as part of the
+			 * SELECT query). Therefore, use the "parameter_index" only if it is non-zero.
+			 */
+			if (value->parameter_index) {
+				/* Literals inside SELECT queries */
+				%{}$GET({{ config->global_names.cursor }}(cursorId,{{ PP_PARAMETERS }}{}%
+				%{},{{ value->parameter_index|%d }})){}%
+			} else {
+				/* Literals inside CHECK constraints */
+				if (STRING_LITERAL == value->type) {
+					%{}"{{ value->v.string_literal }}"{}%
+				} else {
+					%{}{{ value->v.string_literal }}{}%
+				}
+			}
 			break;
 		case FUNCTION_NAME:
 			/* Check whether the specified function is internal to Octo or is user-defined
@@ -1282,6 +1301,22 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			} else {
 				%{}1:$ZYSQLNULL){}%
 			}
+		}
+		break;
+	case LP_INSERT_INTO_COL:;
+		SqlColumnAlias	*column_alias;
+		SqlColumn	*column;
+
+		if (dot_count) {
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+		}
+		column_alias = plan->v.lp_insert_into_col.column_alias;
+		UNPACK_SQL_STATEMENT(column, column_alias->column, column);
+		assert(column->column_number);
+		%{}{{ PP_COL }}({{ column->column_number|%d }}){}%
+		if (dot_count) {
+			%{}`n{{ PLAN_LINE_START }}{}%
 		}
 		break;
 	default:

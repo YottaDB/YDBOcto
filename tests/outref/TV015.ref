@@ -9,85 +9,86 @@ LP_INSERT_INTO:
     LP_COLUMN_LIST: 
       LP_COLUMN: LASTNAME
       LP_COLUMN: ID
-    LP_SET_OPERATION: 
-      LP_SET_OPTION: 
-        LP_SET_UNION: 
-        LP_OUTPUT: 
-          LP_KEY: 
-          - table_name: 
-          - column_name: 
-          - unique_id: 6
-          - method: LP_KEY_ADVANCE
-          - xref_key: false
-          - uses_xref_key: false
-      LP_PLANS: 
-        LP_SELECT_QUERY: 
-          LP_PROJECT: 
-            LP_COLUMN_LIST: 
-              LP_WHERE: 
-                LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
-                LP_COLUMN_LIST_ALIAS: 
-                - type: STRING_LITERAL
-                - alias: FIRSTNAME
-              LP_WHERE: 
-                LP_ADDITION: 
-                  LP_COLUMN_ALIAS: NAMES(1).ID
-                  LP_VALUE: '10'
-                LP_COLUMN_LIST_ALIAS: 
-                - type: INTEGER_LITERAL
-                - alias: ID
-            LP_SELECT: 
-              LP_TABLE_JOIN: 
-                LP_TABLE: NAMES
-              LP_CRITERIA: 
-                LP_KEYS: 
-                LP_SELECT_OPTIONS: 
-                  LP_WHERE: 
-                    LP_BOOLEAN_OR: 
-                      LP_BOOLEAN_EQUALS: 
-                        LP_COLUMN_ALIAS: NAMES(1).ID
-                        LP_VALUE: '4'
-                      LP_BOOLEAN_EQUALS: 
-                        LP_COLUMN_ALIAS: NAMES(1).ID
-                        LP_VALUE: '5'
-                  LP_SELECT_MORE_OPTIONS: 
-                    LP_KEYWORDS: 
+    LP_INSERT_INTO_MORE_OPTIONS: 
+      LP_SET_OPERATION: 
+        LP_SET_OPTION: 
+          LP_SET_UNION: 
           LP_OUTPUT: 
             LP_KEY: 
             - table_name: 
             - column_name: 
-            - unique_id: 5
+            - unique_id: 6
             - method: LP_KEY_ADVANCE
             - xref_key: false
             - uses_xref_key: false
-        LP_TABLE_VALUE: 
-          LP_TABLE_DATA: 
-            LP_COLUMN_LIST: 
-              LP_WHERE: 
-                LP_COLUMN_ALIAS: (3).COLUMN1
-                LP_COLUMN_LIST_ALIAS: 
-                - type: STRING_LITERAL
-                - alias: COLUMN1
-              LP_WHERE: 
-                LP_COLUMN_ALIAS: (3).COLUMN2
-                LP_COLUMN_LIST_ALIAS: 
-                - type: INTEGER_LITERAL
-                - alias: COLUMN2
-            LP_ROW_VALUE: 
+        LP_PLANS: 
+          LP_SELECT_QUERY: 
+            LP_PROJECT: 
               LP_COLUMN_LIST: 
-                LP_VALUE: 'Lastname100'
-                LP_VALUE: '100'
+                LP_WHERE: 
+                  LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+                  LP_COLUMN_LIST_ALIAS: 
+                  - type: STRING_LITERAL
+                  - alias: FIRSTNAME
+                LP_WHERE: 
+                  LP_ADDITION: 
+                    LP_COLUMN_ALIAS: NAMES(1).ID
+                    LP_VALUE: '10'
+                  LP_COLUMN_LIST_ALIAS: 
+                  - type: INTEGER_LITERAL
+                  - alias: ID
+              LP_SELECT: 
+                LP_TABLE_JOIN: 
+                  LP_TABLE: NAMES
+                LP_CRITERIA: 
+                  LP_KEYS: 
+                  LP_SELECT_OPTIONS: 
+                    LP_WHERE: 
+                      LP_BOOLEAN_OR: 
+                        LP_BOOLEAN_EQUALS: 
+                          LP_COLUMN_ALIAS: NAMES(1).ID
+                          LP_VALUE: '4'
+                        LP_BOOLEAN_EQUALS: 
+                          LP_COLUMN_ALIAS: NAMES(1).ID
+                          LP_VALUE: '5'
+                    LP_SELECT_MORE_OPTIONS: 
+                      LP_KEYWORDS: 
+            LP_OUTPUT: 
+              LP_KEY: 
+              - table_name: 
+              - column_name: 
+              - unique_id: 5
+              - method: LP_KEY_ADVANCE
+              - xref_key: false
+              - uses_xref_key: false
+          LP_TABLE_VALUE: 
+            LP_TABLE_DATA: 
               LP_COLUMN_LIST: 
-                LP_VALUE: ''
-                LP_VALUE: '200'
-          LP_OUTPUT: 
-            LP_KEY: 
-            - table_name: 
-            - column_name: 
-            - unique_id: 3
-            - method: LP_KEY_ADVANCE
-            - xref_key: false
-            - uses_xref_key: false
+                LP_WHERE: 
+                  LP_COLUMN_ALIAS: (3).COLUMN1
+                  LP_COLUMN_LIST_ALIAS: 
+                  - type: STRING_LITERAL
+                  - alias: COLUMN1
+                LP_WHERE: 
+                  LP_COLUMN_ALIAS: (3).COLUMN2
+                  LP_COLUMN_LIST_ALIAS: 
+                  - type: INTEGER_LITERAL
+                  - alias: COLUMN2
+              LP_ROW_VALUE: 
+                LP_COLUMN_LIST: 
+                  LP_VALUE: 'Lastname100'
+                  LP_VALUE: '100'
+                LP_COLUMN_LIST: 
+                  LP_VALUE: ''
+                  LP_VALUE: '200'
+            LP_OUTPUT: 
+              LP_KEY: 
+              - table_name: 
+              - column_name: 
+              - unique_id: 3
+              - method: LP_KEY_ADVANCE
+              - xref_key: false
+              - uses_xref_key: false
 
 [DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN AFTER optimize_logical_plan() follows 
 LP_INSERT_INTO: 
@@ -96,132 +97,133 @@ LP_INSERT_INTO:
     LP_COLUMN_LIST: 
       LP_COLUMN: LASTNAME
       LP_COLUMN: ID
-    LP_SET_OPERATION: 
-      LP_SET_OPTION: 
-        LP_SET_UNION: 
-        LP_OUTPUT: 
-          LP_KEY: 
-          - table_name: 
-          - column_name: 
-          - unique_id: 6
-          - method: LP_KEY_ADVANCE
-          - xref_key: false
-          - uses_xref_key: false
-      LP_PLANS: 
-        LP_SET_OPERATION: 
-          LP_SET_OPTION: 
-            LP_SET_DNF: 
-          LP_PLANS: 
-            LP_SELECT_QUERY: 
-              LP_PROJECT: 
-                LP_COLUMN_LIST: 
-                  LP_WHERE: 
-                    LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
-                    LP_COLUMN_LIST_ALIAS: 
-                    - type: STRING_LITERAL
-                    - alias: FIRSTNAME
-                  LP_WHERE: 
-                    LP_ADDITION: 
-                      LP_COLUMN_ALIAS: NAMES(1).ID
-                      LP_VALUE: '10'
-                    LP_COLUMN_LIST_ALIAS: 
-                    - type: INTEGER_LITERAL
-                    - alias: ID
-                LP_SELECT: 
-                  LP_TABLE_JOIN: 
-                    LP_TABLE: NAMES
-                  LP_CRITERIA: 
-                    LP_KEYS: 
-                      LP_KEY: 
-                      - table_name: NAMES
-                      - column_name: ID
-                      - unique_id: 1
-                      - method: LP_KEY_FIX
-                      - xref_key: false
-                      - uses_xref_key: false
-                      - value:
-                          LP_VALUE: '4'
-                    LP_SELECT_OPTIONS: 
-                      LP_WHERE: 
-                      LP_SELECT_MORE_OPTIONS: 
-                        LP_KEYWORDS:  BOOLEAN_EXPANSION;
-              LP_OUTPUT: 
-                LP_KEY: 
-                - table_name: 
-                - column_name: 
-                - unique_id: 5
-                - method: LP_KEY_ADVANCE
-                - xref_key: false
-                - uses_xref_key: false
-            LP_SELECT_QUERY: 
-              LP_PROJECT: 
-                LP_COLUMN_LIST: 
-                  LP_WHERE: 
-                    LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
-                    LP_COLUMN_LIST_ALIAS: 
-                    - type: STRING_LITERAL
-                    - alias: FIRSTNAME
-                  LP_WHERE: 
-                    LP_ADDITION: 
-                      LP_COLUMN_ALIAS: NAMES(1).ID
-                      LP_VALUE: '10'
-                    LP_COLUMN_LIST_ALIAS: 
-                    - type: INTEGER_LITERAL
-                    - alias: ID
-                LP_SELECT: 
-                  LP_TABLE_JOIN: 
-                    LP_TABLE: NAMES
-                  LP_CRITERIA: 
-                    LP_KEYS: 
-                      LP_KEY: 
-                      - table_name: NAMES
-                      - column_name: ID
-                      - unique_id: 1
-                      - method: LP_KEY_FIX
-                      - xref_key: false
-                      - uses_xref_key: false
-                      - value:
-                          LP_VALUE: '5'
-                    LP_SELECT_OPTIONS: 
-                      LP_WHERE: 
-                      LP_SELECT_MORE_OPTIONS: 
-                        LP_KEYWORDS:  BOOLEAN_EXPANSION;
-              LP_OUTPUT: 
-                LP_KEY: 
-                - table_name: 
-                - column_name: 
-                - unique_id: 5
-                - method: LP_KEY_ADVANCE
-                - xref_key: false
-                - uses_xref_key: false
-        LP_TABLE_VALUE: 
-          LP_TABLE_DATA: 
-            LP_COLUMN_LIST: 
-              LP_WHERE: 
-                LP_COLUMN_ALIAS: (3).COLUMN1
-                LP_COLUMN_LIST_ALIAS: 
-                - type: STRING_LITERAL
-                - alias: COLUMN1
-              LP_WHERE: 
-                LP_COLUMN_ALIAS: (3).COLUMN2
-                LP_COLUMN_LIST_ALIAS: 
-                - type: INTEGER_LITERAL
-                - alias: COLUMN2
-            LP_ROW_VALUE: 
-              LP_COLUMN_LIST: 
-                LP_VALUE: 'Lastname100'
-                LP_VALUE: '100'
-              LP_COLUMN_LIST: 
-                LP_VALUE: ''
-                LP_VALUE: '200'
+    LP_INSERT_INTO_MORE_OPTIONS: 
+      LP_SET_OPERATION: 
+        LP_SET_OPTION: 
+          LP_SET_UNION: 
           LP_OUTPUT: 
             LP_KEY: 
             - table_name: 
             - column_name: 
-            - unique_id: 3
+            - unique_id: 6
             - method: LP_KEY_ADVANCE
             - xref_key: false
             - uses_xref_key: false
+        LP_PLANS: 
+          LP_SET_OPERATION: 
+            LP_SET_OPTION: 
+              LP_SET_DNF: 
+            LP_PLANS: 
+              LP_SELECT_QUERY: 
+                LP_PROJECT: 
+                  LP_COLUMN_LIST: 
+                    LP_WHERE: 
+                      LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+                      LP_COLUMN_LIST_ALIAS: 
+                      - type: STRING_LITERAL
+                      - alias: FIRSTNAME
+                    LP_WHERE: 
+                      LP_ADDITION: 
+                        LP_COLUMN_ALIAS: NAMES(1).ID
+                        LP_VALUE: '10'
+                      LP_COLUMN_LIST_ALIAS: 
+                      - type: INTEGER_LITERAL
+                      - alias: ID
+                  LP_SELECT: 
+                    LP_TABLE_JOIN: 
+                      LP_TABLE: NAMES
+                    LP_CRITERIA: 
+                      LP_KEYS: 
+                        LP_KEY: 
+                        - table_name: NAMES
+                        - column_name: ID
+                        - unique_id: 1
+                        - method: LP_KEY_FIX
+                        - xref_key: false
+                        - uses_xref_key: false
+                        - value:
+                            LP_VALUE: '4'
+                      LP_SELECT_OPTIONS: 
+                        LP_WHERE: 
+                        LP_SELECT_MORE_OPTIONS: 
+                          LP_KEYWORDS:  BOOLEAN_EXPANSION;
+                LP_OUTPUT: 
+                  LP_KEY: 
+                  - table_name: 
+                  - column_name: 
+                  - unique_id: 5
+                  - method: LP_KEY_ADVANCE
+                  - xref_key: false
+                  - uses_xref_key: false
+              LP_SELECT_QUERY: 
+                LP_PROJECT: 
+                  LP_COLUMN_LIST: 
+                    LP_WHERE: 
+                      LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+                      LP_COLUMN_LIST_ALIAS: 
+                      - type: STRING_LITERAL
+                      - alias: FIRSTNAME
+                    LP_WHERE: 
+                      LP_ADDITION: 
+                        LP_COLUMN_ALIAS: NAMES(1).ID
+                        LP_VALUE: '10'
+                      LP_COLUMN_LIST_ALIAS: 
+                      - type: INTEGER_LITERAL
+                      - alias: ID
+                  LP_SELECT: 
+                    LP_TABLE_JOIN: 
+                      LP_TABLE: NAMES
+                    LP_CRITERIA: 
+                      LP_KEYS: 
+                        LP_KEY: 
+                        - table_name: NAMES
+                        - column_name: ID
+                        - unique_id: 1
+                        - method: LP_KEY_FIX
+                        - xref_key: false
+                        - uses_xref_key: false
+                        - value:
+                            LP_VALUE: '5'
+                      LP_SELECT_OPTIONS: 
+                        LP_WHERE: 
+                        LP_SELECT_MORE_OPTIONS: 
+                          LP_KEYWORDS:  BOOLEAN_EXPANSION;
+                LP_OUTPUT: 
+                  LP_KEY: 
+                  - table_name: 
+                  - column_name: 
+                  - unique_id: 5
+                  - method: LP_KEY_ADVANCE
+                  - xref_key: false
+                  - uses_xref_key: false
+          LP_TABLE_VALUE: 
+            LP_TABLE_DATA: 
+              LP_COLUMN_LIST: 
+                LP_WHERE: 
+                  LP_COLUMN_ALIAS: (3).COLUMN1
+                  LP_COLUMN_LIST_ALIAS: 
+                  - type: STRING_LITERAL
+                  - alias: COLUMN1
+                LP_WHERE: 
+                  LP_COLUMN_ALIAS: (3).COLUMN2
+                  LP_COLUMN_LIST_ALIAS: 
+                  - type: INTEGER_LITERAL
+                  - alias: COLUMN2
+              LP_ROW_VALUE: 
+                LP_COLUMN_LIST: 
+                  LP_VALUE: 'Lastname100'
+                  LP_VALUE: '100'
+                LP_COLUMN_LIST: 
+                  LP_VALUE: ''
+                  LP_VALUE: '200'
+            LP_OUTPUT: 
+              LP_KEY: 
+              - table_name: 
+              - column_name: 
+              - unique_id: 3
+              - method: LP_KEY_ADVANCE
+              - xref_key: false
+              - uses_xref_key: false
 
 [ INFO] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering print_temporary_table
 INSERT 0 4

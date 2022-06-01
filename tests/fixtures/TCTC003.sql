@@ -29,19 +29,19 @@ create table products (id integer constraint prikey primary key, name varchar pr
 create table products (id integer constraint prikey primary key, name varchar, primary key (id, name));
 
 -- Test of ERR_AGGREGATE_FUNCTION_CHECK error
-create table products (id integer, name text check (COUNT(*) is NULL));
-create table products (id integer, name text check (COUNT(name) is NULL));
-create table products (id integer, name text check (MIN(name) is NULL));
-create table products (id integer, name text check (MAX(name) is NULL));
-create table products (id integer, name text check (AVG(name) is NULL));
-create table products (id integer, name text check (SUM(name) is NULL));
+create table products (id integer, name text CHECK (COUNT(*) is NULL));
+create table products (id integer, name text CHECK (COUNT(name) is NULL));
+create table products (id integer, name text CHECK (MIN(name) is NULL));
+create table products (id integer, name text CHECK (MAX(name) is NULL));
+create table products (id integer, name text CHECK (AVG(name) is NULL));
+create table products (id integer, name text CHECK (SUM(name) is NULL));
 
 -- Test of ERR_SUBQUERY_CHECK error
 create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < (select 1000)));
 create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < (select * from names)));
 
 -- Test of ERR_AGGREGATE_FUNCTION_CHECK error (ERR_SUBQUERY_CHECK error exists too but will not show since it is 2nd error)
-create table products (id integer, name text check (COUNT(*) = (SELECT 1000)));
+create table products (id integer, name text CHECK (COUNT(*) = (SELECT 1000)));
 
 -- Test of ERR_UNKNOWN_TABLE error in CHECK constraint
 create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < (select * from invalid)));
@@ -58,7 +58,7 @@ create table products (product_no integer, name text, price numeric CONSTRAINT n
 -- Test existing table name "names"
 create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < names.id));
 -- Test non-existent table name "x"
-create table products (id integer, name varchar check (2 > 0) check (x.name is not null));
+create table products (id integer, name varchar CHECK (2 > 0) CHECK (x.name is not null));
 
 -- Test of ERR_UNKNOWN_COLUMN_NAME error in CHECK constraint
 create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < invalid));
@@ -189,6 +189,136 @@ CREATE TABLE products (
 	product_no integer CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstuv CHECK (product_no < 2));
 
 -- Test of ERR_TABLE_MUST_HAVE_A_VISIBLE_COLUMN error
-CREATE TABLE products (check (1 > 0));
-CREATE TABLE products (check (1 > 0), check (2 > 1));
+CREATE TABLE products (CHECK (1 > 0));
+CREATE TABLE products (CHECK (1 > 0), CHECK (2 > 1));
+
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION error
+-- Test of 1 CHECK column constraint on non-key column
+CREATE TABLE products (product_no integer, name text, price numeric CHECK (price > 0));
+INSERT INTO products VALUES (1, 'abcd', 5);
+INSERT INTO products VALUES (2, 'efgh', -1);
+SELECT * from products;
+DROP TABLE products;
+
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION error
+-- Test of multiple CHECK column constraints on non-key column
+CREATE TABLE products (product_no integer, name text, price numeric CHECK (price > 0) CHECK (price > 5));
+INSERT INTO products VALUES (1, 'abcd', 6);
+INSERT INTO products VALUES (2, 'efgh', 5);
+SELECT * from products;
+DROP TABLE products;
+
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION error
+-- Test of 1 CHECK column constraint on primary key column
+CREATE TABLE products (product_no integer PRIMARY KEY CHECK (product_no > 2), name text);
+INSERT INTO products VALUES (3, 'abcd');
+INSERT INTO products VALUES (2, 'efgh');
+SELECT * from products;
+DROP TABLE products;
+
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION error
+-- Test of multiple CHECK column constraints on primary key column
+CREATE TABLE products (product_no integer PRIMARY KEY CHECK (product_no > 2) CHECK (product_no < 10), name text);
+INSERT INTO products VALUES (5, 'abcd');
+INSERT INTO products VALUES (10, 'efgh');
+SELECT * from products;
+DROP TABLE products;
+
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION error
+-- Test of complex column-level CHECK constraint
+CREATE TABLE products (
+	     product_no integer,
+	     name text,
+	     price numeric CONSTRAINT name1
+		CHECK (((price > 5) AND (price < 8)) OR (price = 0) OR (price is NULL) OR (price * price < 100))
+	);
+INSERT INTO products VALUES (1, 'abcd', 9);
+INSERT INTO products VALUES (2, 'efgh', 10);
+INSERT INTO products VALUES (3, 'ijkl', NULL);
+SELECT * from products;
+DROP TABLE products;
+
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION error
+-- Test of complex table-level CHECK constraint
+CREATE TABLE products (
+	     product_no integer,
+	     name text,
+	     price numeric,
+	     CHECK ((price is NULL) OR (product_no is NULL) OR ((price * product_no) <= 2000))
+	);
+INSERT INTO products VALUES (1, 'abcd', 2000);
+INSERT INTO products VALUES (2, 'efgh', 1001);
+INSERT INTO products VALUES (3, 'ijkl', NULL);
+SELECT * from products;
+DROP TABLE products;
+
+-- Test that check constraint is satisfied if it evalutes to NULL (not just TRUE)
+CREATE TABLE products (product_no integer, name text CHECK (product_no < 5));
+INSERT INTO products VALUES (4, 'abcd');
+INSERT INTO products VALUES (5, 'efgh');
+INSERT INTO products VALUES (NULL, 'ijkl');
+SELECT * from products;
+DROP TABLE products;
+
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION error
+-- Test of multiple CHECK column constraints on key and non-key columns
+-- Also test that table-level constraints can be in between column-level constraints (i.e. order does not matter).
+CREATE TABLE products (
+		product_no integer PRIMARY KEY CHECK (product_no > 2) CHECK (product_no < 10),
+		CHECK ((name || product_no) < 'Lord8'),
+		name text CHECK (name > 'Cereal') CHECK (name < 'Zero')
+	);
+INSERT INTO products VALUES (2, 'Str2');
+INSERT INTO products VALUES (9, 'Lord3');
+INSERT INTO products VALUES (10, 'Str10');
+INSERT INTO products VALUES (4, 'Cereal');
+INSERT INTO products VALUES (5, 'Zero');
+INSERT INTO products VALUES (6, 'Joey');
+INSERT INTO products VALUES (8, 'Lord');
+SELECT * from products;
+DROP TABLE products;
+
+-- Test CONSTRAINT treates '' usages as NULL (Octo is like Oracle and differs from Postgres and MySQL in this regard)
+-- and so `!= ''` checks do not work as intended (Test (a) below) and need to be `IS NOT NULL` instead (Test (b) below).
+-- See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1134#note_1016095301 for more details
+
+-- Test (a) : That `!= ''` does not work as intended. A ERR_CHECK_CONSTRAINT_VIOLATION error is expected but does not show up.
+CREATE TABLE users(
+    id              integer primary key,
+    first_name      varchar(50)        ,
+    last_name       varchar(50)        ,
+    nick_name       varchar(100)       ,
+    email           varchar(255)       ,
+    password_digest text               ,
+    created_at      integer            ,
+    updated_at      integer            ,
+    CONSTRAINT validate_name CHECK((first_name != '' AND last_name != '') OR nick_name != '')
+);
+INSERT INTO users(id, first_name, last_name, nick_name, email, password_digest)
+VALUES
+(1, 'Ms.', 'Winter', 'ms..winter', 'ms..winter@mailinator.com', 'c75029a15cbf675cf06b98ce7defeaa3'),
+(2, 'Sebastian', 'Batz', 'sebastian.batz', 'sebastian.batz@mailinator.com', '2518b96a5669f2fc884c8be0f7668feb'),
+(3, '', '', '', 'ms..winter@mailinator.com', 'c75029a15cbf675cf06b98ce7defeaa3'),
+(4, '', '', '', 'sebastian.batz@mailinator.com', '2518b96a5669f2fc884c8be0f7668feb');
+DROP TABLE IF EXISTS users;
+
+-- Test (b) : That `IS NOT NULL` works as intended. A ERR_CHECK_CONSTRAINT_VIOLATION error is expected and does show up.
+CREATE TABLE users(
+    id              integer primary key,
+    first_name      varchar(50)        ,
+    last_name       varchar(50)        ,
+    nick_name       varchar(100)       ,
+    email           varchar(255)       ,
+    password_digest text               ,
+    created_at      integer            ,
+    updated_at      integer            ,
+    CONSTRAINT validate_name CHECK((first_name IS NOT NULL AND last_name IS NOT NULL) OR nick_name IS NOT NULL)
+);
+INSERT INTO users(id, first_name, last_name, nick_name, email, password_digest)
+VALUES
+(1, 'Ms.', 'Winter', 'ms..winter', 'ms..winter@mailinator.com', 'c75029a15cbf675cf06b98ce7defeaa3'),
+(2, 'Sebastian', 'Batz', 'sebastian.batz', 'sebastian.batz@mailinator.com', '2518b96a5669f2fc884c8be0f7668feb'),
+(3, '', '', '', 'ms..winter@mailinator.com', 'c75029a15cbf675cf06b98ce7defeaa3'),
+(4, '', '', '', 'sebastian.batz@mailinator.com', '2518b96a5669f2fc884c8be0f7668feb');
+DROP TABLE IF EXISTS users;
 

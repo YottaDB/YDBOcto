@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -138,15 +138,16 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 		return plan;
 		break;
 	case LP_INSERT_INTO:; /* semicolon for empty statement so we can declare variables in case block */
-		LogicalPlan *lp_insert_into_options, *lp_ret;
+		LogicalPlan *lp_insert_into_options, *lp_insert_into_more_options, *lp_ret;
 
 		/* For an INSERT INTO, we only need to optimize the SELECT query (source of the INSERT INTO) */
 		GET_LP(lp_insert_into_options, plan, 1, LP_INSERT_INTO_OPTIONS);
-		lp_ret = optimize_logical_plan(lp_insert_into_options->v.lp_default.operand[1]);
+		GET_LP(lp_insert_into_more_options, lp_insert_into_options, 1, LP_INSERT_INTO_MORE_OPTIONS);
+		lp_ret = optimize_logical_plan(lp_insert_into_more_options->v.lp_default.operand[0]);
 		if (NULL == lp_ret) {
 			return NULL;
 		}
-		lp_insert_into_options->v.lp_default.operand[1] = lp_ret;
+		lp_insert_into_more_options->v.lp_default.operand[0] = lp_ret;
 		return plan;
 		break;
 	case LP_TABLE_VALUE:

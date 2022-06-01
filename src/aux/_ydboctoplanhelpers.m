@@ -937,6 +937,19 @@ NullKeyValue(colname)
 	ZMESSAGE %ydboctoerror("NULLKEYVALUE")
 	QUIT
 
+CheckConstraintViolation(tablename,constraintname,numcols)
+	; This function is invoked to signal a CHECK constraint violation error.
+	; "tablename" has the table name
+	; "constraintname" has the constraint name
+	; "numcols" is the number of columns in the table (used to derive the column values of the violating row)
+	NEW i,parm2
+	SET %ydboctoerror("CHECKCONSTRAINTVIOLATION",1)=tablename ; pass parameter to `src/ydb_error_check.c`
+	SET parm2=constraintname_" : Failing row contains ("
+	FOR i=1:1:numcols SET parm2=parm2_$SELECT($ZYISSQLNULL(col(i)):"NULL",1:col(i))_$SELECT(i=numcols:")",1:", ")
+	SET %ydboctoerror("CHECKCONSTRAINTVIOLATION",2)=parm2
+	ZMESSAGE %ydboctoerror("CHECKCONSTRAINTVIOLATION")
+	QUIT
+
 InvokeOctoPlan(planName)
 	; Given a comma-separated list of plan names in "planName" (e.g. "octoPlan2,octoPlan3") this function invokes each of
 	;   those plans and finally returns a value of 0. This is needed in cases where we want to invoke the plan (using

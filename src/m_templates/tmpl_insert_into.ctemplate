@@ -18,6 +18,7 @@
 
 TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 	LogicalPlan		*lp_insert_into, *lp_insert_into_options, *lp_select_query, *lp_key, *lp_table, *lp_col_list;
+	LogicalPlan		*lp_insert_into_more_options;
 	SqlKey			*outputKey;
 	SqlTable		*table;
 	SqlStatement		*table_stmt;
@@ -30,11 +31,13 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 	SqlColumnListAlias	*src_start_cla, *src_cur_cla;
 	int			src_colnum;
 	int			dot_count;
+	int			num_cols;
 
 	lp_insert_into = pplan->lp_select_query;
 	lp_insert_into_options = lp_insert_into->v.lp_default.operand[1];
+	lp_insert_into_more_options = lp_insert_into_options->v.lp_default.operand[1];
 	lp_col_list = lp_insert_into_options->v.lp_default.operand[0];
-	lp_select_query = lp_insert_into_options->v.lp_default.operand[1];
+	lp_select_query = lp_insert_into_more_options->v.lp_default.operand[0];
 	lp_key = lp_get_output_key(lp_select_query);
 	outputKey = lp_key->v.lp_key.key;
 	%{}SET {}%
@@ -75,6 +78,7 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 	UNPACK_SQL_STATEMENT(src_start_cla, src_table_alias->column_list, column_list_alias);
 	src_cur_cla = src_start_cla;
 	src_colnum = 0;
+	num_cols = 0;
 	do {
 		boolean_t	col_is_specified;
 
@@ -83,12 +87,15 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {{ PP_COL }}({{ cur_column->column_number|%d }})={}%
 			if (cur_column->is_hidden_keycol) {
+				assert((0 == num_cols) && (0 == cur_column->column_number));
 				/* Column is a hidden key column. Generate a unique counter for it using the top level table gvn */
 				%{}$INCREMENT({}%
 				TMPL(tmpl_emit_source, table, value->v.string_literal, NULL, 0, MAX_KEY_COUNT, \
 					EmitSourceForm_NoKeyCol);
 				%{}){}%
 			} else {
+				assert((num_cols + 1) == cur_column->column_number);
+				num_cols = cur_column->column_number;
 				if (NULL == lp_col_list) {
 					/* No comma-separated list of target columns was specified */
 					col_is_specified = (NULL != src_cur_cla);
@@ -212,6 +219,39 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 	TMPL(tmpl_emit_source, table, value->v.string_literal, NULL, 0, MAX_KEY_COUNT, EmitSourceForm_Insert);
 	%{})){}%
 	%{}`n{{ PLAN_LINE_START }}{}%
+	/* Check that CHECK constraints are honored as part of the INSERT INTO */
+	LogicalPlan	*lp_constraint;
+
+	lp_constraint = lp_insert_into_more_options->v.lp_default.operand[1];
+	assert((NULL == lp_constraint) || (LP_CHECK_CONSTRAINT == lp_constraint->type));
+	for ( ; NULL != lp_constraint; ) {
+		LogicalPlan	*lp_where;
+		GET_LP(lp_where, lp_constraint, 0, LP_WHERE);
+		TMPL(tmpl_print_expression, lp_where->v.lp_default.operand[0], pplan, dot_count, 0);
+			/* variable PP_YDB_OCTO_EXPR holds the result */
+		TMPL(tmpl_print_dots, dot_count);
+		/* Note that a CHECK constraint is considered as accepted if it returns TRUE or NULL.
+		 * Only if it returns FALSE is it considered as not accepted (i.e. violated).
+		 * Hence the "'" check done in the emitted M code.
+		 */
+		%{}DO:'{{ PP_YDB_OCTO_EXPR }} CheckConstraintViolation^%%ydboctoplanhelpers({}%
+
+		/* Pass 1st parameter to CheckConstraintViolation^%ydboctoplanhelpers */
+		%{}"{{ tableName }}",{}%
+
+		/* Pass 2nd parameter to CheckConstraintViolation^%ydboctoplanhelpers */
+		SqlConstraint	*constraint;
+		SqlValue	*value;
+		constraint = lp_constraint->extra_detail.lp_check_constraint.constraint;
+		UNPACK_SQL_STATEMENT(value, constraint->name, value);
+		%{}"{{ value->v.string_literal }}",{}%
+
+		/* Pass 3rd parameter to CheckConstraintViolation^%ydboctoplanhelpers */
+		%{}{{ num_cols|%d }}){}%
+
+		%{}`n{{ PLAN_LINE_START }}{}%
+		lp_constraint = lp_constraint->v.lp_default.operand[1];
+	}
 	/* Generate global reference */
 	TMPL(tmpl_print_dots, dot_count);
 	%{}SET {}%

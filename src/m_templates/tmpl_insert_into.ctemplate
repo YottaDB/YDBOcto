@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -78,111 +78,120 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 	do {
 		boolean_t	col_is_specified;
 
-		TMPL(tmpl_print_dots, dot_count);
-		%{}SET {{ PP_COL }}({{ cur_column->column_number|%d }})={}%
-		if (cur_column->is_hidden_keycol) {
-			/* Column is a hidden key column. Generate a unique counter for it using the top level table gvn */
-			%{}$INCREMENT({}%
-			TMPL(tmpl_emit_source, table, value->v.string_literal, NULL, 0, MAX_KEY_COUNT, EmitSourceForm_NoKeyCol);
-			%{}){}%
-		} else {
-			if (NULL == lp_col_list) {
-				/* No comma-separated list of target columns was specified */
-				col_is_specified = (NULL != src_cur_cla);
-				/* Go to the next column in the source query of the INSERT INTO for the next iteration.
-				 * If we have run out of columns in the source query before we run out of columns in the
-				 * target table, then set "src_cur_cla" to NULL.
-				 */
-				if (NULL != src_cur_cla) {
-					src_cur_cla = src_cur_cla->next;
-					src_colnum++;
-					if (src_start_cla == src_cur_cla) {
-						src_cur_cla = NULL;
-					}
-				}
+		if (NULL != cur_column->columnName) {
+			/* Is NOT a table-level constraint */
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_COL }}({{ cur_column->column_number|%d }})={}%
+			if (cur_column->is_hidden_keycol) {
+				/* Column is a hidden key column. Generate a unique counter for it using the top level table gvn */
+				%{}$INCREMENT({}%
+				TMPL(tmpl_emit_source, table, value->v.string_literal, NULL, 0, MAX_KEY_COUNT, \
+					EmitSourceForm_NoKeyCol);
+				%{}){}%
 			} else {
-				/* A comma-separated list of target columns was specified. Check if this column is in that list. */
-				LogicalPlan	*cur_lp_col_list;
+				if (NULL == lp_col_list) {
+					/* No comma-separated list of target columns was specified */
+					col_is_specified = (NULL != src_cur_cla);
+					/* Go to the next column in the source query of the INSERT INTO for the next iteration.
+					 * If we have run out of columns in the source query before we run out of columns in the
+					 * target table, then set "src_cur_cla" to NULL.
+					 */
+					if (NULL != src_cur_cla) {
+						src_cur_cla = src_cur_cla->next;
+						src_colnum++;
+						if (src_start_cla == src_cur_cla) {
+							src_cur_cla = NULL;
+						}
+					}
+				} else {
+					/* A comma-separated list of target columns was specified.
+					 * Check if this column is in that list.
+					 */
+					LogicalPlan	*cur_lp_col_list;
 
-				col_is_specified = FALSE;
-				cur_lp_col_list = lp_col_list;
-				src_colnum = 1;
-				do {
-					LogicalPlan	*lp_column;
+					col_is_specified = FALSE;
+					cur_lp_col_list = lp_col_list;
+					src_colnum = 1;
+					do {
+						LogicalPlan	*lp_column;
 
-					assert(LP_COLUMN_LIST == cur_lp_col_list->type);
-					GET_LP(lp_column, cur_lp_col_list, 0, LP_COLUMN);
-					if (cur_column == lp_column->v.lp_column.column) {
-						/* Column is specified */
-						col_is_specified = TRUE;
+						assert(LP_COLUMN_LIST == cur_lp_col_list->type);
+						GET_LP(lp_column, cur_lp_col_list, 0, LP_COLUMN);
+						if (cur_column == lp_column->v.lp_column.column) {
+							/* Column is specified */
+							col_is_specified = TRUE;
+							break;
+						}
+						cur_lp_col_list = cur_lp_col_list->v.lp_default.operand[1];
+						src_colnum++;
+					} while (NULL != cur_lp_col_list);
+				}
+				if (col_is_specified) {
+					%{}$$mval2str^%%ydboctoplanhelpers($$mvalPiece^%%ydboctoplanhelpers({{ PP_VAL }},{}%
+					%{}{{ src_colnum|%d }})){}%
+					/* Check if the column has size/precision/scale specified. If so, do checks/conversions as
+					 * appropriate. Currently the only 2 types that honor the size/precision/scale are
+					 * STRING_TYPE and NUMERIC_TYPE. So check for those below.
+					 */
+					switch(cur_column->data_type_struct.data_type) {
+					case NUMERIC_TYPE:
+					case STRING_TYPE:
+						if (SIZE_OR_PRECISION_UNSPECIFIED
+								!= cur_column->data_type_struct.size_or_precision) {
+							%{}`n{{ PLAN_LINE_START }}{}%
+							TMPL(tmpl_print_dots, dot_count);
+							%{}SET {{ PP_COL }}({{ cur_column->column_number|%d }})={}%
+							if (NUMERIC_TYPE == cur_column->data_type_struct.data_type) {
+								%{}$$Cast2NUMERIC^%%ydboctoplanhelpers{}%
+							} else {
+								%{}$$SizeCheckVARCHAR^%%ydboctoplanhelpers{}%
+							}
+							%{}({{ PP_COL }}({{ cur_column->column_number|%d }}){}%
+							%{},{{ cur_column->data_type_struct.size_or_precision|%d }}{}%
+							if (SCALE_UNSPECIFIED != cur_column->data_type_struct.scale) {
+								assert(NUMERIC_TYPE == cur_column->data_type_struct.data_type);
+								%{},{{ cur_column->data_type_struct.scale|%d }}{}%
+							}
+							%{}){}%
+						}
+						break;
+					case INTEGER_TYPE:
+					case NUL_TYPE:
+					case BOOLEAN_TYPE:
+						/* No checks are currently done/deemed-necessary for these types.
+						 * Will add them as the need arises.
+						 */
+						break;
+					default:
+						assert(FALSE);
 						break;
 					}
-					cur_lp_col_list = cur_lp_col_list->v.lp_default.operand[1];
-					src_colnum++;
-				} while (NULL != cur_lp_col_list);
-			}
-			if (col_is_specified) {
-				%{}$$mval2str^%%ydboctoplanhelpers($$mvalPiece^%%ydboctoplanhelpers({{ PP_VAL }},{}%
-				%{}{{ src_colnum|%d }})){}%
-				/* Check if the column has size/precision/scale specified. If so, do checks/conversions as
-				 * appropriate. Currently the only 2 types that honor the size/precision/scale are STRING_TYPE
-				 * and NUMERIC_TYPE. So check for those below.
-				 */
-				switch(cur_column->data_type_struct.data_type) {
-				case NUMERIC_TYPE:
-				case STRING_TYPE:
-					if (SIZE_OR_PRECISION_UNSPECIFIED != cur_column->data_type_struct.size_or_precision) {
-						%{}`n{{ PLAN_LINE_START }}{}%
-						TMPL(tmpl_print_dots, dot_count);
-						%{}SET {{ PP_COL }}({{ cur_column->column_number|%d }})={}%
-						if (NUMERIC_TYPE == cur_column->data_type_struct.data_type) {
-							%{}$$Cast2NUMERIC^%%ydboctoplanhelpers{}%
-						} else {
-							%{}$$SizeCheckVARCHAR^%%ydboctoplanhelpers{}%
-						}
-						%{}({{ PP_COL }}({{ cur_column->column_number|%d }}){}%
-						%{},{{ cur_column->data_type_struct.size_or_precision|%d }}{}%
-						if (SCALE_UNSPECIFIED != cur_column->data_type_struct.scale) {
-							assert(NUMERIC_TYPE == cur_column->data_type_struct.data_type);
-							%{},{{ cur_column->data_type_struct.scale|%d }}{}%
-						}
-						%{}){}%
-					}
-					break;
-				case INTEGER_TYPE:
-				case NUL_TYPE:
-				case BOOLEAN_TYPE:
-					/* No checks are currently done/deemed-necessary for these types.
-					 * Will add them as the need arises.
+				} else {
+					/* This needed target table column is not available in the source query select column list.
+					 * For now, treat it as NULL. Later when support for DEFAULT is added, we should set
+					 * this to that DEFAULT value if one is defined for this column.
+					 * TODO: YDBOcto#555.
 					 */
-					break;
-				default:
-					assert(FALSE);
-					break;
+					%{}$ZYSQLNULL{}%
 				}
-			} else {
-				/* This needed target table column is not available in the source query select column list.
-				 * For now, treat it as NULL. Later when support for DEFAULT is added, we should set
-				 * this to that DEFAULT value if one is defined for this column.
-				 * TODO: YDBOcto#555.
-				 */
-				%{}$ZYSQLNULL{}%
-			}
-			if (IS_KEY_COLUMN(cur_column)) {
-				/* Check if key column value is NULL. If so issue an error */
-				%{}`n{{ PLAN_LINE_START }}{}%
-				TMPL(tmpl_print_dots, dot_count);
-				%{}DO:$ZYISSQLNULL({{ PP_COL }}({{ cur_column->column_number|%d }})){}%
+				if (IS_KEY_COLUMN(cur_column)) {
+					/* Check if key column value is NULL. If so issue an error */
+					%{}`n{{ PLAN_LINE_START }}{}%
+					TMPL(tmpl_print_dots, dot_count);
+					%{}DO:$ZYISSQLNULL({{ PP_COL }}({{ cur_column->column_number|%d }})){}%
 
-				SqlValue	*colname_value;
-				UNPACK_SQL_STATEMENT (colname_value, cur_column->columnName, value);
+					SqlValue	*colname_value;
+					UNPACK_SQL_STATEMENT (colname_value, cur_column->columnName, value);
 
-				char		*columnName;
-				columnName = colname_value->v.reference;
-				%{} NullKeyValue^%%ydboctoplanhelpers("{{ columnName }}"){}%
+					char		*columnName;
+					columnName = colname_value->v.reference;
+					%{} NullKeyValue^%%ydboctoplanhelpers("{{ columnName }}"){}%
+				}
 			}
+			%{}`n{{ PLAN_LINE_START }}{}%
+		} else {
+			/* This column is a table-level constraint. Don't do anything now. Process it few lines later. */
 		}
-		%{}`n{{ PLAN_LINE_START }}{}%
 		cur_column = cur_column->next;
 	} while (cur_column != start_column);
 	/* Check if the to be inserted row's key values match an existing row's key values. If so issue error. */
@@ -219,7 +228,7 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 	}
 	first_nonkey_column = TRUE;
 	do {
-		if (!IS_KEY_COLUMN(cur_column)) {
+		if ((NULL != cur_column->columnName) && !IS_KEY_COLUMN(cur_column)) {
 			if (!first_nonkey_column) {
 				char	ch;
 
@@ -253,7 +262,10 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 			%{}$$colvalue2piecevalue^%%ydboctoplanhelpers({{ PP_COL }}({{ cur_column->column_number|%d }})){}%
 			first_nonkey_column = FALSE;
 		}
-		/* else: It is a key column and code has already been generated by "tmpl_emit_source()" above */
+		/* else:
+		 *   a) It is a key column and code has already been emitted by "tmpl_emit_source()" above OR
+		 *   b) It is a table-level constraint and needed code has already been emitted above.
+		 */
 		cur_column = cur_column->next;
 	} while (cur_column != start_column);
 	if (first_nonkey_column) {

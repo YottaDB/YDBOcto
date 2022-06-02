@@ -350,13 +350,19 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	 * Now that CHECK constraint reordering has happened (if needed), do scan/processing of all column-level keywords.
 	 * And auto assign constraint names if not specified by the user.
 	 */
+	int num_user_visible_columns;
+
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 	cur_column = start_column;
 	/* Set up first-level subscript as OCTOLIT_NAME for CHECK constraint auto name generation.
 	 * Second-level subscript is actual constraint name.
 	 */
 	YDB_LITERAL_TO_BUFFER(OCTOLIT_NAME, &subs[0]);
+	num_user_visible_columns = 0;
 	do {
+		if (NULL != cur_column->columnName) {
+			num_user_visible_columns++;
+		}
 		UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
 		cur_keyword = start_keyword;
 		do {
@@ -495,6 +501,12 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	assert(YDB_OK == status);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
+		return NULL;
+	}
+
+	if (0 == num_user_visible_columns) {
+		UNPACK_SQL_STATEMENT(value, table->tableName, value);
+		ERROR(ERR_TABLE_MUST_HAVE_A_VISIBLE_COLUMN, value->v.reference);
 		return NULL;
 	}
 

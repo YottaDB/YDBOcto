@@ -1102,6 +1102,14 @@ Text: Multiple primary keys for table 'xxx' are not allowed
 
 Description/Action: This error is generated when a :code:`CREATE TABLE` command specifies more than one column level or table level :code:`PRIMARY KEY` constraint. PSQL Error Code: 42P10
 
++++++++++++++++++++++++++++++++++++++
+ERR_TABLE_MUST_HAVE_A_VISIBLE_COLUMN
++++++++++++++++++++++++++++++++++++++
+
+Text: Table 'xxx' must have at least one visible column
+
+Description/Action: This error is generated when a :code:`CREATE TABLE` command does not specify any user visible columns (possible for example if the command only specifies table level :code:`CHECK` constraint). PSQL Error Code: 42P10
+
 +++++++++++++++++++
 ERR_TABLE_READONLY
 +++++++++++++++++++

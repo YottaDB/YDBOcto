@@ -177,6 +177,10 @@ CREATE TABLE products (
 CREATE TABLE products (
 	product_no integer CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstuv CHECK (product_no < 2));
 
+-- Test of ERR_TABLE_MUST_HAVE_A_VISIBLE_COLUMN error
+CREATE TABLE products (check (1 > 0));
+CREATE TABLE products (check (1 > 0), check (2 > 1));
+
 Error with syntax near (line 1, column 53):
 
 create table products (first varchar, last varchar, not null);
@@ -842,3 +846,9 @@ CREATE TABLE products (
 	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE products (
 	product_no integer CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstuv CHECK (product_no < 2));
+[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_MUST_HAVE_A_VISIBLE_COLUMN : Table 'PRODUCTS' must have at least one visible column
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE products (check (1 > 0));
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_MUST_HAVE_A_VISIBLE_COLUMN : Table 'PRODUCTS' must have at least one visible column
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE products (check (1 > 0), check (2 > 1));
+

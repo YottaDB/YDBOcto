@@ -188,3 +188,7 @@ CREATE TABLE products (
 CREATE TABLE products (
 	product_no integer CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstuv CHECK (product_no < 2));
 
+-- Test of ERR_TABLE_MUST_HAVE_A_VISIBLE_COLUMN error
+CREATE TABLE products (check (1 > 0));
+CREATE TABLE products (check (1 > 0), check (2 > 1));
+

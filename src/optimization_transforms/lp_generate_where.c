@@ -58,6 +58,9 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt) {
 			LP_GENERATE_WHERE(value->v.coerce_target, stmt, ret->v.lp_default.operand[0], error_encountered);
 			ret->v.lp_default.group_by_column_num = value->group_by_fields.group_by_column_num;
 			break;
+		case COLUMN_REFERENCE:
+			assert(FALSE); /* We should only pass column_alias_STATEMENT to this function. Not a COLUMN_REFERENCE */
+			break;
 		default:
 			MALLOC_LP_2ARGS(ret, LP_VALUE);
 			ret->v.lp_value.value = value;

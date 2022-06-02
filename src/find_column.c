@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -25,10 +25,13 @@ SqlColumn *find_column(char *column_name, SqlTable *table) {
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 	cur_column = start_column;
 	do {
-		UNPACK_SQL_STATEMENT(value, cur_column->columnName, value);
-		if (!strcmp(column_name, value->v.reference)) {
-			return cur_column;
+		if (NULL != cur_column->columnName) {
+			UNPACK_SQL_STATEMENT(value, cur_column->columnName, value);
+			if (!strcmp(column_name, value->v.reference)) {
+				return cur_column;
+			}
 		}
+		/* else: It is a table-level constraint. Not a user-visible column. Skip it. */
 		cur_column = cur_column->next;
 	} while (cur_column != start_column);
 	return NULL;

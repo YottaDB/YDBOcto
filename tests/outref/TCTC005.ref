@@ -107,6 +107,12 @@ create table tmp37 (id integer, name varchar check (id > 0) check (name is not n
 -- it does not use "name" in the expression at all.
 create table tmp38 (id integer, name varchar check (2 > 0) check (name is not null));
 
+-- Test CREATE TABLE commands with a mix of table-level and column-level CHECK constraints.
+-- This used to SIG-11/Assert-fail in a prior version of the code.
+create table products (check (1 > 0), firstname varchar check (firstname > 'abcd'));
+create table products (check (1 > 0), check (2 > 1), firstname varchar check (firstname > 'abcd'));
+create table products (id integer, check (1 > 0), firstname varchar check (firstname > 'abcd'));
+
 CREATE TABLE
 CREATE TABLE
 CREATE TABLE
@@ -145,6 +151,9 @@ CREATE TABLE
 CREATE TABLE
 CREATE TABLE
 CREATE TABLE
+CREATE TABLE
+[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_CREATE_TABLE : Table 'PRODUCTS' already exists
+[ERROR] PATH:LINENUM DATE TIME : ERR_CANNOT_CREATE_TABLE : Table 'PRODUCTS' already exists
 # Generate and Run query file select.sql that does a SELECT * of all tables created in TCTC005.sql
 ID
 (0 rows)
@@ -221,6 +230,12 @@ ID|NAME
 ID|NAME
 (0 rows)
 ID|NAME
+(0 rows)
+FIRSTNAME
+(0 rows)
+FIRSTNAME
+(0 rows)
+FIRSTNAME
 (0 rows)
 # Verify CHECK constraints are correctly stored in the CREATE TABLE text definition (in global variable nodes)
 `TMP01` (`ID` INTEGER DELIM """",  CONSTRAINT TMP01_CHECK CHECK (((TRUE IS UNKNOWN) AND (FALSE IS NULL))))
@@ -481,3 +496,21 @@ NAME|VARCHAR|||
 Check constraints:
     "TMP38_NAME_CHECK" CHECK ((NAME IS NOT NULL))
     "TMP38_CHECK" CHECK ((2 > 0))
+Table "PRODUCTS"
+Column|Type|Collation|Nullable|Default
+FIRSTNAME|VARCHAR|||
+Check constraints:
+    "PRODUCTS_CHECK" CHECK ((1 > 0))
+    "PRODUCTS_FIRSTNAME_CHECK" CHECK ((FIRSTNAME > 'abcd'))
+Table "PRODUCTS"
+Column|Type|Collation|Nullable|Default
+FIRSTNAME|VARCHAR|||
+Check constraints:
+    "PRODUCTS_CHECK" CHECK ((1 > 0))
+    "PRODUCTS_FIRSTNAME_CHECK" CHECK ((FIRSTNAME > 'abcd'))
+Table "PRODUCTS"
+Column|Type|Collation|Nullable|Default
+FIRSTNAME|VARCHAR|||
+Check constraints:
+    "PRODUCTS_CHECK" CHECK ((1 > 0))
+    "PRODUCTS_FIRSTNAME_CHECK" CHECK ((FIRSTNAME > 'abcd'))

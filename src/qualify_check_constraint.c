@@ -177,23 +177,10 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 				break;
 			}
 			/* Now that we validated the table name (if specified), validate/qualify the column name */
-			boolean_t  column_valid;
-			SqlColumn *cur_column, *start_column;
+			SqlColumn *match_column;
 
-			UNPACK_SQL_STATEMENT(start_column, table->columns, column);
-			cur_column = start_column;
-			column_valid = FALSE;
-			do {
-				SqlValue *colName;
-
-				UNPACK_SQL_STATEMENT(colName, cur_column->columnName, value);
-				if (!strcmp(colName->v.string_literal, column_name)) {
-					column_valid = TRUE;
-					break;
-				}
-				cur_column = cur_column->next;
-			} while (cur_column != start_column);
-			if (!column_valid) {
+			match_column = find_column(column_name, table);
+			if (NULL == match_column) {
 				ERROR(ERR_UNKNOWN_COLUMN_NAME, column_name);
 				yyerror(&stmt->loc, NULL, NULL, NULL, NULL, NULL);
 				result = 1;
@@ -213,7 +200,7 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 					result = 1;
 				} else {
 					/* Now that column qualification is successful, do data type population for caller */
-					*type = get_sqlvaluetype_from_sqldatatype(cur_column->data_type_struct.data_type, FALSE);
+					*type = get_sqlvaluetype_from_sqldatatype(match_column->data_type_struct.data_type, FALSE);
 				}
 			}
 			break;

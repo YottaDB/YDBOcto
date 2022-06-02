@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -50,7 +50,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		UNPACK_SQL_STATEMENT(insert, stmt, insert);
 		MALLOC_LP_2ARGS(lp_insert_into, LP_INSERT_INTO);
 		MALLOC_LP(lp_table, lp_insert_into->v.lp_default.operand[0], LP_TABLE);
-		lp_table->v.lp_table.table_alias = insert->dst_table_alias;
+		UNPACK_SQL_STATEMENT(lp_table->v.lp_table.table_alias, insert->dst_table_alias_stmt, table_alias);
 		MALLOC_LP(lp_insert_into_options, lp_insert_into->v.lp_default.operand[1], LP_INSERT_INTO_OPTIONS);
 		lp_select_query = generate_logical_plan(insert->src_table_alias_stmt);
 		if (NULL == lp_select_query) {

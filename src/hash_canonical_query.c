@@ -219,13 +219,13 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		break;
 	case insert_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */
 		SqlInsertStatement *insert;
+		SqlTableAlias *	    dst_table_alias;
 
 		UNPACK_SQL_STATEMENT(insert, stmt, insert);
 		ADD_INT_HASH(state, insert_STATEMENT);
-		/* Note: We care only about the "SqlTable" structure (i.e. "dst_table_alias->table"). No other fields
-		 * inside "dst_table_alias" are used (even in the later logical plan stage). Hence the below invocation.
-		 */
-		hash_canonical_query(state, insert->dst_table_alias->table, status);	// SqlTable
+		/* Note: We care only about the "SqlTable" structure (i.e. "dst_table_alias->table"). Hence the below invocation. */
+		UNPACK_SQL_STATEMENT(dst_table_alias, insert->dst_table_alias_stmt, table_alias);
+		hash_canonical_query(state, dst_table_alias->table, status);		// SqlTable
 		hash_canonical_query_column_list(state, insert->columns, status, TRUE); // SqlColumnList
 		/* TRUE as last parameter above indicates "traverse entire linked list", not just "first element" */
 		hash_canonical_query(state, insert->src_table_alias_stmt, status); // SqlTableAlias

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -68,7 +68,10 @@ int check_column_lists_for_type_match(SqlStatement *stmt) {
 		UNPACK_SQL_STATEMENT(src_table_alias, src_table_alias_stmt2, table_alias);
 		UNPACK_SQL_STATEMENT(start_cla[0], src_table_alias->column_list, column_list_alias);
 		if (NULL == insert->columns) {
-			UNPACK_SQL_STATEMENT(start_cla[1], insert->dst_table_alias->column_list, column_list_alias);
+			SqlTableAlias *dst_table_alias;
+
+			UNPACK_SQL_STATEMENT(dst_table_alias, insert->dst_table_alias_stmt, table_alias);
+			UNPACK_SQL_STATEMENT(start_cla[1], dst_table_alias->column_list, column_list_alias);
 			cla1_is_of_type_cl = FALSE;
 		} else {
 			SqlStatement * cl1_stmt;

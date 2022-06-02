@@ -645,12 +645,7 @@ typedef struct SqlSelectStatement {
 } SqlSelectStatement;
 
 typedef struct SqlInsertStatement {
-	SqlTableAlias *dst_table_alias;		   /* SqlTableAlias. Note that all we need here is the destination "SqlTable"
-						    * but we need a "table_alias" corresponding to that "SqlTable" in order to
-						    * later store this as a LP_TABLE logical plan. Hence storing "dst_table_alias"
-						    * instead of just "dst_table". We don't use any pieces of the "table_alias"
-						    * structure other than "table_alias->table".
-						    */
+	struct SqlStatement *dst_table_alias_stmt; /* SqlTableAlias */
 	struct SqlStatement *columns;		   /* SqlColumnList */
 	struct SqlStatement *src_table_alias_stmt; /* SqlTableAlias */
 } SqlInsertStatement;

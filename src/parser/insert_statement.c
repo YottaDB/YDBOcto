@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -88,7 +88,7 @@ SqlStatement *insert_statement(SqlStatement *table_name, SqlStatement *column_na
 	/* All we want here is "table_alias->table" but we need "table_alias" in order to later store this as a LP_TABLE
 	 * logical plan. Hence the call to "table_reference()" above. Otherwise a call to "find_table()" would have sufficed.
 	 */
-	insert->dst_table_alias = table_alias;
+	insert->dst_table_alias_stmt = join->value;
 	insert->columns = column_name_list;
 	insert->src_table_alias_stmt = query_expression;
 	validated_query_expression = validate_query_expression(ret, parse_context, insert_STATEMENT);

@@ -88,7 +88,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 				return 1;
 			}
 		}
-		/* There is nothing to qualify in "insert->dst_table_alias" and nothing more to qualify in "insert->columns".
+		/* There is nothing to qualify in "insert->dst_table_alias_stmt" and nothing more to qualify in "insert->columns".
 		 * Qualification of column names in "insert->columns" happened already as part of the "find_column()" call in
 		 * "src/parser/insert_statement.c".
 		 */

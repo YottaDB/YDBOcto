@@ -17,14 +17,15 @@
  *	a) "tmpl_column_reference.ctemplate" for the LP_COLUMN_ALIAS case
  *	a) "tmpl_print_expression.ctemplate" for the LP_DERIVED_COLUMN case
  * It does a lot of things common to both the cases (helps avoid code duplication).
- *
+ * Argument of `in_where_clause` indicates that the column reference is part of a WHERE clause and
+ * this information is used to determine whether to fetch grouped data or not.
  * Output
  * ------
  * "*done" is set to TRUE if all the needed work to generate M code for the column reference (derived column or not)
  * got done here and caller does not need to do anything more. It is set to FALSE otherwise in which case caller will
  * have to do additional work to generate appropriate M code.
  */
-TEMPLATE(tmpl_column_reference_common, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t is_trigger, int dot_count,
+TEMPLATE(tmpl_column_reference_common, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t in_where_clause, boolean_t is_trigger, int dot_count,
 		int depth, SqlKey *sql_key, int unique_id, boolean_t *done) {
 	if (pplan->tablejoin_body_group_by_done) {
 		boolean_t	is_col_cur_pplan;
@@ -47,8 +48,17 @@ TEMPLATE(tmpl_column_reference_common, PhysicalPlan *pplan, SqlColumnAlias *colu
 				*done = TRUE;
 				return;
 			}
-		} else {
-			// The column belongs to parent pplan drop through to the code below to fetch the correct column
+		}
+	}
+	if (!in_where_clause) {
+		boolean_t lcl_done = FALSE;
+		TMPL(tmpl_print_group_by_column_reference_if_exists, pplan->parent_plan, column_alias, unique_id, &lcl_done);
+		if (lcl_done) {
+			/* The column reference was specified in GROUP BY clause of parent plan
+			 * and the above call retrieved the value from parent GROUP BY using the column's unique_id.
+			 */
+			*done = TRUE;
+			return;
 		}
 	}
 	if (pplan->treat_key_as_null[unique_id]) {	/* Treat all columns in the table as NULL (used for OUTER JOINs) */
@@ -125,7 +135,7 @@ TEMPLATE(tmpl_column_reference_common, PhysicalPlan *pplan, SqlColumnAlias *colu
 				if (!dot_count) {
 					%{}$$str2mval^%%ydboctoplanhelpers({}%
 				}
-				TMPL(tmpl_column_reference, pplan, column_alias, is_trigger, dot_count, depth);
+				TMPL(tmpl_column_reference, pplan, column_alias, in_where_clause, is_trigger, dot_count, depth);
 				if (!dot_count) {
 					%{}){}%
 				}

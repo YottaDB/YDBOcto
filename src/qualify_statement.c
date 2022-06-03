@@ -29,6 +29,27 @@
 		yyerror(NULL, NULL, (COLUMN_LIST_PTR), NULL, NULL, NULL);                                       \
 	}
 
+/* Following macro saves the `AGGREGATE_DEPTH` in `SAVED_AGGREGATE_DEPTH` and sets `AGGREGATE_DEPTH` to 0 */
+#define SAVE_AND_RESET_AGGREGATE_DEPTH(AGGREGATE_DEPTH, IS_DEPTH_ADJUSTED, SAVED_AGGREGATE_DEPTH) \
+	{                                                                                         \
+		(IS_DEPTH_ADJUSTED) = TRUE;                                                       \
+		(SAVED_AGGREGATE_DEPTH) = (AGGREGATE_DEPTH);                                      \
+		(AGGREGATE_DEPTH) = 0;                                                            \
+	}
+
+/* Following macro issues a `ERR_GROUP_BY_OR_AGGREGATE_FUNCTION` error on the column reference in `STMT` and sets `RESULT` to 1. */
+#define ISSUE_GROUP_BY_OR_AGGREGATE_FUNCTION_ERROR(STMT, RESULT)                    \
+	{                                                                           \
+		SqlStatement *column_name;                                          \
+		SqlValue *    value;                                                \
+		column_name = find_column_alias_name(STMT);                         \
+		assert(NULL != column_name);                                        \
+		UNPACK_SQL_STATEMENT(value, column_name, value);                    \
+		ERROR(ERR_GROUP_BY_OR_AGGREGATE_FUNCTION, value->v.string_literal); \
+		yyerror(NULL, NULL, &STMT, NULL, NULL, NULL);                       \
+		RESULT = 1;                                                         \
+	}
+
 /* Following macro sets GROUP BY column number to expression when its matched with GROUP BY column.
  * Also, it `break`s when no additional processing is required.
  */
@@ -101,6 +122,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 	}
 	switch (stmt->type) {
 	case column_alias_STATEMENT:
+		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		UNPACK_SQL_STATEMENT(new_column_alias, stmt, column_alias);
 		UNPACK_SQL_STATEMENT(column_table_alias, new_column_alias->table_alias_stmt, table_alias);
 		parent_table_alias = column_table_alias->parent_table_alias;
@@ -117,6 +139,38 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		 *    column_alias usages as they are not grouped. To allow such condition check this case is used to perform the
 		 *    necessary validation.
 		 */
+		if (0 < table_alias->aggregate_depth) {
+			if (QualifyQuery_WHERE == parent_table_alias->qualify_query_stage) {
+				/* Need to handle WHERE clause here because if we have more than one layer of queries then the outer
+				 * one will call the inner one twice in the presence of grouping and WHERE clause is qualified at
+				 * the first call but the second call can result in reaching this part of the code as column
+				 * references are converted to column aliases in the first call. In such a case we do not need to
+				 * validate anything.
+				 */
+				break;
+			}
+			if ((ret != NULL) && (0 != ret->aggr_unique_id)) {
+				// Processing an aggregate function parameter column
+				if (ret->aggr_unique_id != parent_table_alias->unique_id) {
+					/* Column belongs to an outer query which is different from
+					 * the deepest column_alias query present in the aggregate function.
+					 */
+					if (new_column_alias->group_by_column_number) {
+						// Valid query as the outer query column is in GROUP BY of the outer query
+					} else if (parent_table_alias->do_group_by_checks) {
+						/* The column is not part of outer query GROUP BY clause and we are performing GROUP
+						 * BY validations. Issue `ERR_GROUP_BY_OR_AGGREGATE_FUNCTION` error as this is not a
+						 * valid usage.
+						 */
+						ISSUE_GROUP_BY_OR_AGGREGATE_FUNCTION_ERROR(stmt, result);
+					} // else, nothing to do here as we do not yet have GROUP BY information of the outer query
+					break;
+				}
+			} /* else, This is a single column aggregate function usage, no need to perform GROUP BY validation on it
+			   * as its already in an aggregate function.
+			   */
+			break;
+		}
 		// 1. Column Reference check
 		if ((parent_table_alias->do_group_by_checks)
 		    && ((0 == parent_table_alias->aggregate_depth)
@@ -127,14 +181,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 			 * 3) The current column reference is not in the GROUP BY clause.
 			 * Issue an error.
 			 */
-			SqlStatement *column_name;
-			SqlValue *    value;
-			column_name = find_column_alias_name(stmt);
-			assert(NULL != column_name);
-			UNPACK_SQL_STATEMENT(value, column_name, value);
-			ERROR(ERR_GROUP_BY_OR_AGGREGATE_FUNCTION, value->v.string_literal);
-			yyerror(NULL, NULL, &stmt, NULL, NULL, NULL);
-			result = 1;
+			ISSUE_GROUP_BY_OR_AGGREGATE_FUNCTION_ERROR(stmt, result);
 		}
 		break;
 	case value_STATEMENT:
@@ -172,49 +219,88 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 						}
 					}
 					parent_table_alias = column_table_alias->parent_table_alias;
-					if ((NULL != parent_table_alias) && (parent_table_alias->aggregate_depth)) {
-						if ((0 < table_alias->aggregate_depth)
-						    && (QualifyQuery_WHERE == parent_table_alias->qualify_query_stage)) {
-							/* `aggregate_function_STATEMENT` case itself throws error when current
-							 * table_alias is executing a WHERE clause. Because of that we are sure we
-							 * wont reach this block of code when `table_alias == parent_table_alias`.
+					if (NULL != parent_table_alias) {
+						if ((0 < table_alias->aggregate_depth) && (NULL != ret)) {
+							/* Perform `deepest_column_alias_stmt` computation as this is the basis on
+							 * which aggregate association with the correct query (current or outer) is
+							 * done and GROUP BY validations are preformed.
+							 * Example:
+							 * 1.
+							 *   `SELECT ALL 1 FROM customers c GROUP BY last_name HAVING EXISTS
+							 *    (SELECT 1 FROM customers n1 GROUP BY n1.first_name having
+							 *    count(c.first_name=n1.first_name)=2);`
+							 *   Since `n1.first_name` is the deepest column reference in COUNT,
+							 *   the aggregate should be associated to the inner query and
+							 *   `c.first_name` should be in GROUP BY of its parent query.
+							 * 2.
+							 *   `SELECT ALL 1 FROM customers c GROUP BY last_name HAVING EXISTS
+							 *    (SELECT 1 FROM customers n1 GROUP BY n1.first_name having
+							 *    count(c.first_name=c.last_name)=2);`
+							 *   Both columns in COUNT belong to the same outer query, the COUNT is
+							 *   associated with the parent query of the columns. Note that there in
+							 *   such a case there is no need for the columns to be in GROUP BY clause
+							 *   as they are already in an aggregate.
 							 */
-							assert(table_alias != parent_table_alias);
-							/* Aggregate functions in a sub query is referencing outer query
-							 * column. Also, the sub query is inside WHERE clause of the outer
-							 * query. This usage is not allowed. Issue an ERROR.
-							 */
-							ERROR(ERR_AGGREGATE_FUNCTION_WHERE, "");
-							result = 1;
-							yyerror(NULL, NULL, &stmt, NULL, NULL, NULL);
-						}
-						int aggregate_depth = parent_table_alias->aggregate_depth;
-						if (0 < aggregate_depth) {
-							assert(AGGREGATE_FUNCTION_SPECIFIED
-							       & parent_table_alias
-								     ->aggregate_function_or_group_by_or_having_specified);
-						} else if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE == aggregate_depth) {
-							if (QualifyQuery_GROUP_BY_EXPRESSION != table_alias->qualify_query_stage) {
-								/* Update `group_by_column_count` and `group_by_column_number` */
-								new_column_alias->group_by_column_number
-								    = ++parent_table_alias->group_by_column_count;
-							} else {
-								/* 1. This column alias is part of an expression in GroupBy.
-								 * 2. Do not update `group_by_column_number` here as
-								 *    get_group_by_column_num() takes care of it later.
-								 * 3. Do not update `group_by_column_count` here as we want to
-								 *    increment this value by one for the entire expression. This
-								 *    is taken care at the end of `column_list_alias_STATEMENT`.
+							if (table_alias == parent_table_alias) {
+								ret->deepest_column_alias_stmt = stmt;
+								/* No check needed as it belongs to the current query and
+								 * its always the deepest.
 								 */
+							} else {
+								// This is an aggregate of parent query table.
+								if (NULL == ret->deepest_column_alias_stmt) {
+									ret->deepest_column_alias_stmt = stmt;
+								} else if (ret->deepest_column_alias_stmt->v.column_alias
+									       ->table_alias_stmt->v.table_alias->parent_table_alias
+									   == parent_table_alias) {
+									/* The column is at the same level as the deepest column in
+									 * the aggregate. No need to update
+									 * `deepest_column_alias_stmt` in this case.
+									 */
+								} else {
+									/* Find the deepest column reference.
+									 * The function returns second parameter
+									 * value if both the `column_alias`s being
+									 * given as arguments are at the same query level. Since
+									 * we want to retain the original deepest_column_alias_stmt
+									 * in such a case, pass the second argument as
+									 * `ret->deepest_column_alias_stmt`.
+									 */
+									ret->deepest_column_alias_stmt
+									    = get_deepest_column_alias_stmt(
+										stmt, ret->deepest_column_alias_stmt);
+								}
 							}
-						} else {
-							/* We are inside a WHERE or FROM/JOIN clause where  aggregate
-							 * function use is disallowed so no need to record anything related
-							 * to GROUP BY.
-							 */
-							assert((AGGREGATE_DEPTH_WHERE_CLAUSE == aggregate_depth)
-							       || (AGGREGATE_DEPTH_FROM_CLAUSE == aggregate_depth)
-							       || (AGGREGATE_DEPTH_HAVING_CLAUSE));
+						} else if (parent_table_alias->aggregate_depth) {
+							int aggregate_depth = parent_table_alias->aggregate_depth;
+							if (0 < aggregate_depth) {
+								/* Nothing to be done here as we take care of the
+								 * `aggregate_function_or_group_by_or_having_specified` assignment
+								 * in aggregate_function_STATEMENT case after knowing the deepest
+								 * aggregate column.
+								 */
+							} else if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE == aggregate_depth) {
+								if (QualifyQuery_GROUP_BY_EXPRESSION
+								    != table_alias->qualify_query_stage) {
+									/* Update `group_by_column_count` and
+									 * `group_by_column_number` */
+									new_column_alias->group_by_column_number
+									    = ++parent_table_alias->group_by_column_count;
+								} else {
+									/* 1. This column alias is part of an expression in GroupBy.
+									 * 2. Do not update `group_by_column_number` here as
+									 *    get_group_by_column_num() takes care of it later.
+									 * 3. Do not update `group_by_column_count` here as we want
+									 * to increment this value by one for the entire expression.
+									 * This is taken care at the end of
+									 * `column_list_alias_STATEMENT`.
+									 */
+								}
+							} /* else we can be in FROM or HAVING or WHERE clause.
+							   * Any aggregate in HAVING or WHERE is handled by
+							   * aggregate_function_STATEMENT case and we do not expect an aggregate in
+							   * FROM clause.
+							   */
 						}
 					}
 				} else {
@@ -312,10 +398,12 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 	case aggregate_function_STATEMENT:;
 		SqlAggregateFunction *af;
 		boolean_t	      depth_adjusted;
+		int		      aggregate_depth_saved;
 
 		UNPACK_SQL_STATEMENT(af, stmt, aggregate_function);
 		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		depth_adjusted = FALSE;
+		aggregate_depth_saved = table_alias->aggregate_depth; // To avoid compiler warning [-Wmaybe-uninitialized]
 		if (table_alias->aggregate_depth) {
 			if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE == table_alias->aggregate_depth) {
 				/* 1. We can reach this block if an aggregate function from select list is referenced
@@ -351,9 +439,19 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 					 */
 					ERROR(ERR_GROUP_BY_INVALID_USAGE, "");
 				} else if (AGGREGATE_DEPTH_WHERE_CLAUSE == table_alias->aggregate_depth) {
-					/* Aggregate functions are not allowed inside a WHERE clause */
-					ERROR(ERR_AGGREGATE_FUNCTION_WHERE, "");
-					result = 1;
+					if (AGGREGATE_COUNT_ASTERISK == af->type) {
+						/* Aggregate functions of current query columns are not allowed inside a WHERE
+						 * clause */
+						ERROR(ERR_AGGREGATE_FUNCTION_WHERE, "");
+						result = 1;
+					} else {
+						/* Need to issue error for this usage only if all columns of the aggregate belong
+						 * to current query. We can only know this information when the column is
+						 * qualified. So allow further calls.
+						 */
+						SAVE_AND_RESET_AGGREGATE_DEPTH(table_alias->aggregate_depth, depth_adjusted,
+									       aggregate_depth_saved);
+					}
 				} else if (AGGREGATE_DEPTH_FROM_CLAUSE == table_alias->aggregate_depth) {
 					/* Aggregate functions are not allowed inside a FROM clause.
 					 * Since the only way to use aggregate functions inside a FROM clause is through
@@ -365,8 +463,8 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 					/* Aggregate functions are allowed inside a HAVING clause.
 					 * Temporarily reset depth to 0 before going inside the aggregate function call.
 					 */
-					table_alias->aggregate_depth = 0;
-					depth_adjusted = TRUE;
+					SAVE_AND_RESET_AGGREGATE_DEPTH(table_alias->aggregate_depth, depth_adjusted,
+								       aggregate_depth_saved);
 				} else {
 					assert(FALSE);
 				}
@@ -377,9 +475,93 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		}
 		if (!result) {
 			assert(!table_alias->do_group_by_checks || table_alias->aggregate_function_or_group_by_or_having_specified);
-			table_alias->aggregate_function_or_group_by_or_having_specified |= AGGREGATE_FUNCTION_SPECIFIED;
 			table_alias->aggregate_depth++;
+			int save_aggr_unique_id;
+			if (NULL == ret) {
+				assert(FALSE);
+				save_aggr_unique_id = 0;
+			} else {
+				ret->deepest_column_alias_stmt = NULL;
+				/* If `af` was already qualified during first qualify_query() `for` loop iteration.
+				 * We will have a valid `af->unique_id`, let further qualify_statement() make use of this
+				 * value by setting it to `ret->aggr_unique_id`.
+				 * This value is used to perform GROUP BY validation on an aggregate function parameters. Even
+				 * though we skip aggregate's processing when `do_group_by_check` is `TRUE`, it is possible that we
+				 * are in the first iteration of qualify_query() `for` loop for the present query but in the second
+				 * iteration of qualify_query() `for` loop for the outer query. In such a case, the column
+				 * references in `parameter` are validated to check if its present in GROUP BY of outer query. Refer
+				 * to aggregate related `if` block in `column_alias_STATEMENT` case for more details on what
+				 * conditions are being considered.
+				 */
+				save_aggr_unique_id = ret->aggr_unique_id;
+				ret->aggr_unique_id = af->unique_id;
+			}
 			result |= qualify_statement(af->parameter, tables, table_alias_stmt, depth + 1, ret);
+			if ((!result && af->unique_id)
+			    && ((save_aggr_unique_id != 0) && (table_alias->unique_id != af->unique_id))) {
+				/* This aggregate belongs to an outer query. And since save_aggr_unique_id is set
+				 * to a non-zero value this aggregate is a nested usage. Issue error.
+				 */
+				ERROR(ERR_AGGREGATE_FUNCTION_NESTED, "");
+				result = 1;
+				yyerror(&af->parameter->loc, NULL, NULL, NULL, NULL, NULL);
+				if (depth_adjusted) {
+					table_alias->aggregate_depth = aggregate_depth_saved;
+				}
+				break;
+			}
+			/* Since `af` instance is created using octo_cmalloc() we are sure that `af->unique_id` won't have garbage
+			 * value. It will either be 0 or an assigned value.
+			 */
+			if (!result && !af->unique_id) {
+				assert(!table_alias->do_group_by_checks);
+				assert(NULL != ret);
+				/* The condition (NULL != ret) is used below to avoid clang-tidy_warning
+				 * [clang-analyzer-core.NullDereference] but we are sure that its not NULL by above assert.
+				 */
+				if ((NULL != ret) && (NULL != ret->deepest_column_alias_stmt)) {
+					/* Now that we know the deepest column_alias, set
+					 * `aggregate_function_or_group_by_or_having_specified` of the parent table_alias
+					 * and set the `af->unique_id` with the `unique_id` of the table to which this aggregate
+					 * needs to be associated with.
+					 */
+					SqlTableAlias * aggr_table_alias, *aggr_parent_table_alias;
+					SqlColumnAlias *aggr_deepest_column_alias;
+					UNPACK_SQL_STATEMENT(aggr_deepest_column_alias, ret->deepest_column_alias_stmt,
+							     column_alias);
+					UNPACK_SQL_STATEMENT(aggr_table_alias, aggr_deepest_column_alias->table_alias_stmt,
+							     table_alias);
+					aggr_parent_table_alias = aggr_table_alias->parent_table_alias;
+					af->unique_id = aggr_parent_table_alias->unique_id;
+					aggr_parent_table_alias->aggregate_function_or_group_by_or_having_specified
+					    |= AGGREGATE_FUNCTION_SPECIFIED;
+					/* Now that we know to which table the aggregate belongs to check if the aggregate is in
+					 * the WHERE clause.
+					 */
+					if (QualifyQuery_WHERE == aggr_parent_table_alias->qualify_query_stage) {
+						/* Issue ERROR as aggregates are not allowed in WHERE clause */
+						ERROR(ERR_AGGREGATE_FUNCTION_WHERE, "");
+						result = 1;
+						yyerror(NULL, NULL, &ret->deepest_column_alias_stmt, NULL, NULL, NULL);
+						table_alias->aggregate_depth--;
+						if (depth_adjusted) {
+							table_alias->aggregate_depth = aggregate_depth_saved;
+						}
+						break;
+					}
+					ret->deepest_column_alias_stmt = NULL;
+				} else {
+					/* No column found in the aggregate or it has a subquery init. In both cases
+					 * associate the aggregate to the current query.
+					 */
+					af->unique_id = table_alias->unique_id;
+					table_alias->aggregate_function_or_group_by_or_having_specified
+					    |= AGGREGATE_FUNCTION_SPECIFIED;
+				}
+			}
+			if (NULL != ret) {
+				ret->aggr_unique_id = 0;
+			}
 			if (0 == result) {
 				UNPACK_SQL_STATEMENT(cur_cl, af->parameter, column_list);
 				assert((AGGREGATE_COUNT_ASTERISK == af->type) || (NULL != cur_cl->value));
@@ -389,13 +571,15 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 					if (is_stmt_table_asterisk(new_column_alias->column)) {
 						process_aggregate_function_table_asterisk(af);
 					}
+				} else if (AGGREGATE_COUNT_ASTERISK == af->type) {
+					af->unique_id = table_alias->unique_id;
 				}
 			}
 			table_alias->aggregate_depth--;
 		}
 		if (depth_adjusted) {
 			/* Undo temporary reset of depth now that we have finished qualifying the aggregate function call */
-			table_alias->aggregate_depth = AGGREGATE_DEPTH_HAVING_CLAUSE;
+			table_alias->aggregate_depth = aggregate_depth_saved;
 		}
 		break;
 	case cas_STATEMENT:

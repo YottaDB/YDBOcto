@@ -293,6 +293,8 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt, Sq
 		if (NULL != cur_cl->value) {
 			error_encountered |= lp_generate_column_list(&ret->v.lp_default.operand[0], stmt, root_stmt, cur_cl);
 		}
+		// Set `lp_aggregate_function.unique_id` so that the aggregate can be attached later on to the correct physical plan
+		ret->extra_detail.lp_aggregate_function.unique_id = aggregate_function->unique_id;
 		break;
 	case column_STATEMENT:
 		/* Currently this is reachable only if called for the target columns of an INSERT INTO or UPDATE.

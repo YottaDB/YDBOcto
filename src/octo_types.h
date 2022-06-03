@@ -730,6 +730,11 @@ typedef struct SqlAggregateFunction {
 				      */
 	// SqlColumnList
 	struct SqlStatement *parameter;
+	int unique_id; /* Used to convey the `unique_id` of the table_alias to which this aggregate should be attached to by copying
+			* this value to `unique_id` of LpExtraAggregateFunction in lp_generate_where(), which later is referred by
+			* lp_verify_structure() to attach the aggregate to the correct physical plan during physical plan
+			* generation.
+			*/
 } SqlAggregateFunction;
 
 typedef struct SqlFunctionCall {
@@ -998,6 +1003,15 @@ typedef struct SqlStatement {
 typedef struct {
 	SqlColumnListAlias **ret_cla;
 	int *		     max_unique_id;
+	SqlStatement *	     deepest_column_alias_stmt; /* Used by COLUMN_REFERENCE case of qualify_statement() to communicate
+							 * the deepest `column_alias` in the aggregate parameter to
+							 * aggregate_function_STATEMENT case.
+							 */
+	int aggr_unique_id; /* Used by aggregate_function_STATEMENT case to convey the `unique_id` of the deepest `column_alias`
+			     * present in it to column_alias_STATEMENT case of qualify_statement() so that GROUP BY validations can
+			     * be performed on the column reference present in aggregate function. This value is only valid for the
+			     * duration of time qualify_statement is processing an aggregate and its parameter.
+			     */
 } QualifyStatementParms;
 
 #endif

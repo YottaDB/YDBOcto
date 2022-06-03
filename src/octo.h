@@ -315,7 +315,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_PLAN_DEFINITION 15
+#define FMT_PLAN_DEFINITION 16
 
 /* Used by `hash_canonical_query()` */
 #define HASH_LITERAL_VALUES -1
@@ -877,6 +877,7 @@ SqlValueType  get_sqlvaluetype_from_sqldatatype(SqlDataType type, boolean_t is_u
 SqlValueType  get_sqlvaluetype_from_psql_type(PSQL_TypeOid type);
 PSQL_TypeOid  get_psql_type_from_sqlvaluetype(SqlValueType type);
 PSQL_TypeSize get_type_size_from_psql_type(PSQL_TypeOid type);
+SqlStatement *get_deepest_column_alias_stmt(SqlStatement *new_column_alias_stmt, SqlStatement *column_alias_to_cmp_stmt);
 SqlTable *    find_table(const char *table_name);
 SqlFunction * find_function(const char *function_name, const char *function_hash);
 void	      get_function_name_and_parmtypes(char *ret_buff, int ret_buff_len, char *function_name, SqlStatement *parm_list_stmt);

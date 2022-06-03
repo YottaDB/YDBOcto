@@ -41,7 +41,5 @@ PhysicalPlan *get_physical_plan_and_key_for_unique_id(PhysicalPlan *pplan, int u
 		}
 		cur_plan = next_plan;
 	} while (NULL != cur_plan);
-	assert(NULL != matching_plan);
-	assert(NULL != *matching_key);
 	return matching_plan;
 }

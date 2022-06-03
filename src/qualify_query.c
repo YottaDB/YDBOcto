@@ -325,7 +325,10 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	 */
 	lcl_ret.ret_cla = &ret_cla;
 	lcl_ret.max_unique_id = ((NULL != ret) ? ret->max_unique_id : NULL);
+	lcl_ret.aggr_unique_id = ((NULL != ret) ? ret->aggr_unique_id : 0);
 	lcl_ret_ptr = &lcl_ret;
+
+	int *save_max_unique_id = NULL;
 	/* We qualify SELECT, HAVING and ORDER BY clauses TWICE below. Hence the "for" loop.
 	 * This is because
 	 * 1) In case of SELECT, HAVING and ORDER BY we want to check if any aggregate functions were used anywhere even if a
@@ -573,14 +576,21 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		 * in the 2nd iteration of this for loop as that takes some shortcuts using the
 		 * SET_GROUP_BY_EXPRESSION_COLUMN_NUMBER_AND_BREAK macro in "qualify_statement.c" and that could result
 		 * in incorrect values of "*ret->max_unique_id" which would then break the "move_where_clause_to_on_clause()"
-		 * optimization and cause incorrect move of WHERE clause conditions to the ON clause. This is achieved by
-		 * setting the below 2 variables (the only choices possible as the last parameter to "qualify_statement()"
-		 * calls in this for loop) to NULL (YDBOcto#850).
+		 * optimization and cause incorrect move of WHERE clause conditions to the ON clause (YDBOcto#850). This is achieved
+		 * by setting `ret->max_unique_id` and `lcl_ret.max_unique_id` to NULL. Note that `ret` and `lcl_ret` itself is not
+		 * set to NULL because these values are used for aggregate processing (YDBOcto#755).
 		 */
-		lcl_ret_ptr = NULL;
-		ret = NULL;
+		if ((NULL != ret) && (NULL != ret->max_unique_id)) {
+			save_max_unique_id = ret->max_unique_id;
+			ret->max_unique_id = NULL;
+			lcl_ret.max_unique_id = NULL;
+		}
 	}
 	table_alias->do_group_by_checks = FALSE;
+	if (NULL != save_max_unique_id) {
+		assert(NULL != ret);
+		ret->max_unique_id = save_max_unique_id;
+	}
 
 	/* Make sure to reset parent query only AFTER WHERE clause, ORDER BY clause etc. are processed.
 	 * This is because it is possible columns from the current level query can be used in sub-queries

@@ -199,7 +199,29 @@ setup() {
 	verify_output TGB30_errors output.txt
 }
 
-@test "TGB31 : OCTO850 : Test query with any JOIN being done in a subquery of HAVING clause returns correct results" {
+@test "TGB31 : OCTO850/OCTO870 : Test query with any JOIN being done in a subquery of HAVING clause returns correct results" {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB31.sql
 }
 
+@test "TGB32 : OCTO775/OCTO806/OCTO819/OCTO870 : Test grouped columns of outer query being referenced in inner query" {
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TGB32_customers.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB32_names.sql
+	load_fixture TGB32_errors.sql subtest novv
+	verify_output TGB32_errors output.txt
+}
+
+@test "TGB33 : OCTO807/OCTO819 : Test grouped columns of outer query being referenced in inner query" {
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TGB33_customers.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB33_names.sql
+	load_fixture TGB33_errors.sql subtest novv
+	verify_output TGB33_errors output.txt
+}
+
+@test "TGB34 : OCTO775/OCTO806/OCTO807/OCTO819/OCTO820/OCTO870 : Validate grouped/ungrouped outer query column values in inner queries by auto generated random queries" {
+	yottadb -run TGB34 > TGB34_names.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB34_names.sql
+}

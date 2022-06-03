@@ -148,14 +148,17 @@ LINE 2: SELECT 1+2*AVG(AVG(id)) FROM names;
 LINE 1: SELECT 1+COUNT(1+COUNT(id)) FROM names;
                          ^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
-LINE 2: ...CustomerID FROM Orders WHERE COUNT(OrderID)>10 GROUP BY Custome...
-                                        ^^^^^
+LINE 2: ...rID FROM Orders WHERE COUNT(OrderID)>10 GROUP BY CustomerID ORD...
+                                       ^^^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 1: SELECT * FROM names where firstname = count(*);
                                               ^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 2: ...firstname FROM names n2 where n2.firstname = MAX(n2.lastname));
-                                                        ^^^
+                                                            ^^^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 2: ...E n1.firstName IN (SELECT n2.firstname FROM names n2 where n2.fi...
+                                     ^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column COUNTRY must appear in the GROUP BY clause or be used in an aggregate function
 LINE 2: SELECT COUNT(CustomerID),Country FROM Customers;
                                  ^^^^^^^
@@ -234,17 +237,12 @@ LINE 2: ...derID) BETWEEN 3 AND 6 AND EmployeeID BETWEEN 2 and 5 ORDER BY C...
 LINE 3: ...G MAX(OrderID) BETWEEN 10250 AND 10500 ORDER BY EmployeeID desc;
                                                            ^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
-LINE 2: SELECT (SELECT n3.id FROM names n3 ORDER BY COUNT(n1.id)),(SELE...
-                       ^^^^^
+LINE 2: ...(SELECT n2.id FROM names n2 WHERE n2.id = n1.id) FROM names n1;
+                                                     ^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...WHERE n3.id = n1.id),(SELECT n2.id FROM names n2 ORDER BY COUNT...
+LINE 1: ... FROM names n3 WHERE n3.id = n1.id),(SELECT n2.id FROM names n2...
                                         ^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...WHERE n3.id = n1.id),(SELECT n2.id FROM names n2 ORDER BY COUNT...
-                                        ^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...WHERE n3.id = n1.id),(SELECT n2.id FROM names n2 ORDER BY COUNT...
-                                        ^^^^^
+[ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
 LINE 2: select 1 from names n1 having n1.firstname = 'Acid';
                                       ^^^^^^^^^^^^

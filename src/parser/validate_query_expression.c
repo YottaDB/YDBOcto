@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -37,6 +37,7 @@ SqlStatement *validate_query_expression(SqlStatement *query_expression, ParseCon
 	ret = query_expression;
 	ret_parms.ret_cla = NULL;
 	ret_parms.max_unique_id = &max_unique_id;
+	ret_parms.aggr_unique_id = 0;
 	max_unique_id = 0; /* Need to initialize this to avoid garbage values from being read in "qualify_statement" */
 	if (qualify_query(ret, NULL, NULL, &ret_parms)) {
 		return NULL;

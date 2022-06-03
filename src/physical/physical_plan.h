@@ -93,6 +93,14 @@ typedef struct PhysicalPlan {
 						   * generate multiple physical plans for the same logical plan i.e. allowing us
 						   * to have a 1-1 mapping between physical and logical plans.
 						   */
+	boolean_t in_where_clause;		  /* Used by generate_physical_plan() to convey to
+						   * sub_query_check_and_generate_physical_plan() that this particular
+						   * physical plan is currently processing a WHERE clause. Its set in
+						   * generate_physical_plan() before processing WHERE clause and
+						   * reset after processing it. We cannot use PhysicalPlanOptions to convey
+						   * this information because we need to specifically identify if a
+						   * particular physical plan is executing a WHERE clause or not.
+						   */
 } PhysicalPlan;
 
 /* Below macro returns TRUE if GROUP BY or HAVING have been specified and/or Aggregate functions have been used in plan */
@@ -115,6 +123,13 @@ typedef struct PhysicalPlanOptions {
 					  */
 	LogicalPlan **function;		 /* Helps maintain a linked list of LP_FUNCTION_CALL plans across entire query */
 	LogicalPlan **table;		 /* Helps maintain a linked list of LP_TABLE plans across entire query */
+	LogicalPlan * lp_select_query;	 /* Used by lp_verify_structure() call from generate_physical_plan() to know the
+					  * LogicalPlan of the select query which invoked the function. The intention here
+					  * is to access the address of pplan associated with this logical plan such that
+					  * after generate_physical_plan() the pplan is initialized and it can be used by
+					  * tmpl_print_expression.ctemplate to directly use it to fetch data associated with
+					  * its unique_id.
+					  */
 } PhysicalPlanOptions;
 
 PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *options);

@@ -153,9 +153,10 @@ TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key, enum EmitSourceForm 
 TEMPLATE(tmpl_key_source_aim, char *tableName, char *columnName);
 TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count, int depth);
 TEMPLATE(tmpl_print_expression_assignment, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count, int depth);
-TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t is_trigger, int dot_count, int depth);
-TEMPLATE(tmpl_column_reference_common, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t is_trigger, int dot_count,
-	 int depth, SqlKey *key, int unique_id, boolean_t *done);
+TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t in_where_clause, boolean_t is_trigger,
+	 int dot_count, int depth);
+TEMPLATE(tmpl_column_reference_common, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t in_where_clause,
+	 boolean_t is_trigger, int dot_count, int depth, SqlKey *key, int unique_id, boolean_t *done);
 TEMPLATE(tmpl_print_expression_group_by_computation, int group_by_column_num, int dot_count);
 TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim, boolean_t str2mval, int dot_count,
 	 boolean_t is_asterisk);
@@ -170,5 +171,7 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *pplan, int dot_count);
 TEMPLATE(tmpl_limit_check, SqlOptionalKeyword *limit_keyword, char *prefix, char *suffix);
 TEMPLATE(tmpl_where_or_having_or_on, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count);
 TEMPLATE(tmpl_xref_key_columns, int num_key_cols);
+TEMPLATE(tmpl_print_group_by_column_reference_if_exists, PhysicalPlan *pplan, SqlColumnAlias *column_alias, int unique_id,
+	 boolean_t *done);
 
 #endif

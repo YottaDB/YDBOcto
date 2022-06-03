@@ -504,10 +504,43 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 	case LP_AGGREGATE_FUNCTION_COUNT_DISTINCT_TABLE_ASTERISK:
 	case LP_AGGREGATE_FUNCTION_COUNT_TABLE_ASTERISK:
 		if (NULL != options) {
+			DEBUG_ONLY(boolean_t is_cur_plan = FALSE);
+			boolean_t     is_parent_pplan = FALSE;
+			PhysicalPlan *cur = NULL;
+			// Following `unique_id` will be of the parent_table_alias
+			int unique_id = plan->extra_detail.lp_aggregate_function.unique_id;
+			/* Check if the current select query logical plan belongs to the query which is associated with this
+			 * aggregate.
+			 */
+			assert(LP_SELECT_QUERY == options->lp_select_query->type);
+			if (options->lp_select_query->extra_detail.lp_select_query.root_table_alias->unique_id == unique_id) {
+				DEBUG_ONLY(is_cur_plan = TRUE);
+			} else {
+				// Check if parent pplan has the matching `unique_id`
+				cur = options->parent;
+				while (NULL != cur) {
+					int physical_plan_unique_id
+					    = cur->lp_select_query->extra_detail.lp_select_query.root_table_alias->unique_id;
+					if (unique_id == physical_plan_unique_id) {
+						DEBUG_ONLY(is_cur_plan = TRUE);
+						is_parent_pplan = TRUE;
+						break;
+					}
+					cur = cur->parent_plan;
+				}
+			}
+			/* Following assert ensures that a valid PhysicalPlan is found by the above code so that the code below can
+			 * fetch the correct aggregate list.
+			 */
+			DEBUG_ONLY(assert(TRUE == is_cur_plan));
+
 			int	     prev_aggregate_cnt;
 			LogicalPlan *prev_aggregate;
-
-			prev_aggregate = *options->aggregate;
+			if (!is_parent_pplan) {
+				prev_aggregate = *options->aggregate;
+			} else {
+				prev_aggregate = cur->lp_select_query->extra_detail.lp_select_query.first_aggregate;
+			}
 			assert(prev_aggregate != plan); /* otherwise we would end up in an infinite loop later during
 							 * template file generation (see YDBOcto#456 for example).
 							 */
@@ -516,7 +549,11 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 			prev_aggregate_cnt
 			    = ((NULL == prev_aggregate) ? 0 : prev_aggregate->extra_detail.lp_aggregate_function.aggregate_cnt);
 			plan->extra_detail.lp_aggregate_function.aggregate_cnt = prev_aggregate_cnt + 1;
-			*options->aggregate = plan;
+			if (!is_parent_pplan) {
+				*options->aggregate = plan;
+			} else {
+				cur->lp_select_query->extra_detail.lp_select_query.first_aggregate = plan;
+			}
 		}
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COLUMN_LIST);
 		/* In case count(DISTINCT table.*) usage we can expect operand[1] to have another LP_COLUMN_LIST */

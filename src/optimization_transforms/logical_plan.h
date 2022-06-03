@@ -85,6 +85,13 @@ typedef struct LpColumn {
 
 typedef struct LpColumnAlias {
 	SqlColumnAlias *column_alias;
+	boolean_t	in_where_clause; /* This information is used by tmp_column_reference_common.ctemplate to know
+					  * whether the current column_alias is in a WHERE clause or not. If it is in
+					  * a WHERE clause the column data is directly fetched from its table otherwise
+					  * grouped data is used. Also, the field is set in generate_physical_plan()
+					  * itself before the emission of physical plan because this information is
+					  * lost at the time of physical plan emission.
+					  */
 } LpColumnAlias;
 
 typedef struct LpColumnListAlias {
@@ -173,6 +180,7 @@ typedef struct LpExtraDerivedColumn {
 						* the type of the original (and in turn the LP_DERIVED_COLUMN) column.
 						* Also needed to determine the GROUP BY column number.
 						*/
+	boolean_t in_where_clause;	       /* Refer to comments on similar field of LpColumnAlias structure */
 } LpExtraDerivedColumn;
 
 typedef struct LpExtraAggregateFunction {
@@ -181,6 +189,9 @@ typedef struct LpExtraAggregateFunction {
 	SqlValueType	    param_type; /* Data type (STRING_LITERAL, NUMERIC_LITERAL etc.) of function parameter.
 					 * Initialized/Needed only for LP_AGGREGATE_FUNCTION_MIN/LP_AGGREGATE_FUNCTION_MAX
 					 * Inherited from corresponding `SqlAggregateFunction->type`.
+					 */
+	int unique_id;			/* This field is set by lp_generate_where() to convey to lp_verify_structure() invocation
+					 * from generate_physical_plan() that the aggregate belongs to the table with this `id`.
 					 */
 } LpExtraAggregateFunction;
 

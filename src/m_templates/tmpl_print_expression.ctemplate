@@ -270,7 +270,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		unique_id = sql_key->unique_id;
 		assert(unique_id == lp_get_unique_id_from_lp_column_alias_or_lp_derived_column(plan));
 		subquery_column_alias = plan->extra_detail.lp_derived_column.subquery_column_alias;
-		TMPL(tmpl_column_reference_common, pplan, subquery_column_alias, FALSE, dot_count, depth,
+		TMPL(tmpl_column_reference_common, pplan, subquery_column_alias, plan->extra_detail.lp_derived_column.in_where_clause, FALSE, dot_count, depth,
 			sql_key, unique_id, &done);
 		if (done) {
 			if (dot_count) {
@@ -326,7 +326,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				TMPL(tmpl_print_dots, dot_count);
 				%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
 			}
-			TMPL(tmpl_column_reference, pplan, plan->v.lp_column_alias.column_alias, FALSE, dot_count, depth);
+			TMPL(tmpl_column_reference, pplan, plan->v.lp_column_alias.column_alias, plan->v.lp_column_alias.in_where_clause, FALSE, dot_count, depth);
 			if (dot_count) {
 				%{}`n{{ PLAN_LINE_START }}{}%
 			}
@@ -1125,7 +1125,24 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	case LP_AGGREGATE_FUNCTION_COUNT_DISTINCT_TABLE_ASTERISK:
 	case LP_AGGREGATE_FUNCTION_SUM_DISTINCT:
 	case LP_AGGREGATE_FUNCTION_AVG:
-	case LP_AGGREGATE_FUNCTION_AVG_DISTINCT:
+	case LP_AGGREGATE_FUNCTION_AVG_DISTINCT:;
+		int aggr_unique_id = plan->extra_detail.lp_aggregate_function.unique_id;
+		PhysicalPlan *cur_pplan = pplan;
+		 if (aggr_unique_id != pplan->lp_select_query->extra_detail.lp_select_query.root_table_alias->unique_id) {
+			// The column belongs to parent pplan. Fetch the correct physical plan
+			PhysicalPlan *tmp_cur_pplan = pplan->parent_plan;
+			while (NULL != tmp_cur_pplan) {
+				int physical_plan_unique_id = tmp_cur_pplan->lp_select_query->extra_detail.lp_select_query.root_table_alias->unique_id;
+				if (aggr_unique_id == physical_plan_unique_id) {
+					// Found the pplan for aggregate_function unique_id
+					cur_pplan = tmp_cur_pplan;
+					break;
+				}
+				tmp_cur_pplan = tmp_cur_pplan->parent_plan;
+			}
+		}
+		// Following assert ensures that the above code fetched a valid cur_pplan
+		assert(aggr_unique_id == cur_pplan->lp_select_query->extra_detail.lp_select_query.root_table_alias->unique_id);
 		if (dot_count) {
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
@@ -1134,7 +1151,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		 * Hence the need for $GET.
 		 */
 		%{}$GET({}%
-		TMPL(tmpl_key, pplan->outputKey);
+		TMPL(tmpl_key, cur_pplan->outputKey);
 		(*buffer_index)--;
 		assert(plan->extra_detail.lp_aggregate_function.aggregate_cnt);
 		aggregate_cnt = plan->extra_detail.lp_aggregate_function.aggregate_cnt;
@@ -1149,7 +1166,10 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			 */
 			aggregate_cnt = - aggregate_cnt;
 		}
-		%{},{{ PP_GROUP_BY }},{{ PP_YDB_OCTO_G }},{{ aggregate_cnt|%d }}{}%
+		%{},{{ PP_GROUP_BY }},{}%
+		TMPL(tmpl_key, cur_pplan->outputKey); (*buffer_index)--;
+		%{},{{ PP_GROUP_BY }}),{}%
+		%{}{{ aggregate_cnt|%d }}{}%
 		if (is_avg) {
 			%{},"SUM"{}%
 		}
@@ -1179,9 +1199,12 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		if (is_avg) {
 			%{}/{}%
 			%{}$GET({}%
-			TMPL(tmpl_key, pplan->outputKey);
+			TMPL(tmpl_key, cur_pplan->outputKey);
 			(*buffer_index)--;
-			%{},{{ PP_GROUP_BY }},{{ PP_YDB_OCTO_G }},{{ aggregate_cnt|%d }},"COUNT"){}%
+			%{},{{ PP_GROUP_BY }},{}%
+			TMPL(tmpl_key, cur_pplan->outputKey); (*buffer_index)--;
+			%{},{{ PP_GROUP_BY }}),{}%
+			%{}{{ aggregate_cnt|%d }},"COUNT"){}%
 			%{},1){}%
 		}
 		if (dot_count) {

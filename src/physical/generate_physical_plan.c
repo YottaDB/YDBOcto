@@ -236,6 +236,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	 */
 	assert(NULL == plan->extra_detail.lp_select_query.first_aggregate);
 	plan_options.aggregate = &plan->extra_detail.lp_select_query.first_aggregate;
+	plan_options.lp_select_query = plan;
 	/* Note: plan_options.table would have been set by caller if it is "emit_sql_statement" */
 	/* Note: plan_options.function would have been set by caller if it is "emit_sql_statement" */
 	if (FALSE == lp_verify_structure(plan, &plan_options)) {
@@ -347,7 +348,9 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		 * comment above "lp_get_select_where()" function call in "lp_optimize_where_multi_equals_ands_helper()").
 		 * The below call takes care of that too.
 		 */
+		out->in_where_clause = TRUE;
 		out->where = sub_query_check_and_generate_physical_plan(&plan_options, where, NULL);
+		out->in_where_clause = FALSE;
 		out->keywords = lp_get_select_keywords(plan)->v.lp_keywords.keywords;
 		switch (plan->type) {
 		case LP_DELETE_FROM:
@@ -517,22 +520,25 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 			}
 			break;
 		case LP_DERIVED_COLUMN:
-		case LP_COLUMN_ALIAS:
+		case LP_COLUMN_ALIAS:;
 			/* Check if this value is a parent reference; if so, mark this physical plan as deferred.
 			 * Note that this physical plan might already be marked as deferred from a previous parent query
 			 * column reference. In that case, compare the two to see which physical plan is the closest ancestor
 			 * to the current physical plan and set that to be the deferred plan for this physical plan.
 			 */
+			boolean_t *in_where_clause;
 			if (LP_COLUMN_ALIAS == stmt->type) {
 				column_alias = stmt->v.lp_column_alias.column_alias;
 				UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
 				unique_id = table_alias->unique_id;
+				in_where_clause = &stmt->v.lp_column_alias.in_where_clause;
 			} else {
 				LogicalPlan *output_key;
 
 				assert(LP_DERIVED_COLUMN == stmt->type);
 				GET_LP(output_key, stmt, 0, LP_KEY);
 				unique_id = output_key->v.lp_key.key->unique_id;
+				in_where_clause = &stmt->extra_detail.lp_derived_column.in_where_clause;
 			}
 			cur = options->parent;
 			child_plan = cur;
@@ -542,6 +548,8 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 
 				for (iter_key_index = 0; iter_key_index < cur->total_iter_keys; iter_key_index++) {
 					if (cur->iterKeys[iter_key_index]->unique_id == unique_id) {
+						/* Note down if WHERE clause is being processed */
+						*in_where_clause = cur->in_where_clause;
 						break;
 					}
 				}

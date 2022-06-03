@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -47,6 +47,14 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *pplan, int dot_count) {
 	TMPL(tmpl_key, pplan->outputKey);
 	(*buffer_index)--;
 	%{},{{ PP_GROUP_BY }},{{ PP_YDB_OCTO_G }})=""{}%
+	/* SET PP_GROUP_BY variable with PP_YDB_OCTO_G value such that any aggregate which has a column reference
+	 * to a grouped column can make use of the value.
+	 */
+	%{}`n{{ PLAN_LINE_START }}{}%
+	TMPL(tmpl_print_dots, dot_count);
+	%{}SET {}%
+	TMPL(tmpl_key, pplan->outputKey); (*buffer_index)--;
+	%{},{{ PP_GROUP_BY }})={{ PP_YDB_OCTO_G }}{}%
 	assert(LP_SELECT_QUERY == pplan->lp_select_query->type);
 	first_aggregate = pplan->lp_select_query->extra_detail.lp_select_query.first_aggregate;
 	for (af = first_aggregate; NULL != af; af = af->extra_detail.lp_aggregate_function.next_aggregate) {

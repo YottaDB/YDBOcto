@@ -12,9 +12,10 @@
 
 -- Below test queries are from https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/850#description
 SELECT 1 FROM names x HAVING EXISTS(SELECT t1.id, MAX(t1.lastName) FROM names t1 LEFT JOIN (SELECT lastName FROM names group by lastname) AS t2 ON (t1.firstName <= 'Acid') WHERE t1.id <= 1 and t2.lastName IS NULL GROUP BY t2.*, t1.id having 2 IN (SELECT t1.id FROM names y ORDER BY t2.*,t1.id limit 1));
--- Below 2 queries are commented out because they need YDBOcto#870 to also be fixed (not just YDBOcto#850).
--- SELECT 1 FROM names x HAVING EXISTS(SELECT t1.id, MAX(t1.lastName) FROM names t1 LEFT JOIN (SELECT lastName FROM names group by lastname) AS t2 ON (t1.firstName <= 'Acid') WHERE t1.id <= 1 and t2.lastName IS NULL GROUP BY t2.*, t1.id having 0 IN (SELECT t1.id FROM names y ORDER BY t2.*,t1.id limit 1));
--- SELECT 1 FROM names x HAVING EXISTS(SELECT t1.id, MAX(t1.lastName) FROM names t1 LEFT JOIN (SELECT lastName FROM names group by lastname) AS t2 ON (t1.firstName <= 'Acid') WHERE t1.id <= 1 and t2.lastName IS NULL GROUP BY t2.*, t1.id having 1 IN (SELECT t1.id FROM names y ORDER BY t2.*,t1.id limit 1));
+
+-- Below queries test YDBOcto#870 along with YDBOcto#850
+SELECT 1 FROM names x HAVING EXISTS(SELECT t1.id, MAX(t1.lastName) FROM names t1 LEFT JOIN (SELECT lastName FROM names group by lastname) AS t2 ON (t1.firstName <= 'Acid') WHERE t1.id <= 1 and t2.lastName IS NULL GROUP BY t2.*, t1.id having 0 IN (SELECT t1.id FROM names y ORDER BY t2.*,t1.id limit 1));
+SELECT 1 FROM names x HAVING EXISTS(SELECT t1.id, MAX(t1.lastName) FROM names t1 LEFT JOIN (SELECT lastName FROM names group by lastname) AS t2 ON (t1.firstName <= 'Acid') WHERE t1.id <= 1 and t2.lastName IS NULL GROUP BY t2.*, t1.id having 1 IN (SELECT t1.id FROM names y ORDER BY t2.*,t1.id limit 1));
 
 -- Below test queries are simplified versions of the above (from https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/850#description)
 SELECT 1 FROM names x HAVING EXISTS(SELECT 1 FROM names t1 LEFT JOIN (SELECT lastName FROM names group by lastname) AS t2 ON (t1.firstName <= 'Acid') WHERE t2.lastName IS NULL);

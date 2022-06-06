@@ -379,3 +379,21 @@ CREATE FUNCTION PG_IS_XLOG_REPLAY_PAUSED() RETURNS BOOLEAN AS $$pgIsXlogReplayPa
 /* Since Octo currently does not implement privileges, the following always return TRUE */
 CREATE FUNCTION HAS_DATABASE_PRIVILEGE(INTEGER, VARCHAR) RETURNS BOOLEAN AS $$pgHasDatabasePrivilege^%ydboctopgfunctions;
 CREATE FUNCTION HAS_DATABASE_PRIVILEGE(VARCHAR, VARCHAR, VARCHAR) RETURNS BOOLEAN AS $$pgHasDatabasePrivilege^%ydboctopgfunctions;
+
+/* Stores PostgreSQL range types */
+CREATE TABLE pg_catalog.pg_range (
+	rngsubtype INTEGER,
+	rngcollation INTEGER,
+	rngsubopc INTEGER,
+	rngcanonical INTEGER,
+	rngsubdiff INTEGER,
+	rngtypid INTEGER primary key
+) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_range"",keys(""rngtypid"")" READONLY;
+
+/* Stores PostgreSQL enum types */
+CREATE TABLE pg_catalog.pg_enum (
+	enumtypid INTEGER,
+	enumsortorder NUMERIC,
+	enumlabel VARCHAR,
+	oid INTEGER primary key
+) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_enum"",keys(""oid"")" READONLY;

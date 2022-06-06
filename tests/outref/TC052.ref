@@ -1,0 +1,8 @@
+
+-- TC052 : OCTO837 : pg_enum and pg_range are minimally supported (empty)
+select * from pg_range;
+select * from pg_enum;
+RNGSUBTYPE|RNGCOLLATION|RNGSUBOPC|RNGCANONICAL|RNGSUBDIFF|RNGTYPID
+(0 rows)
+ENUMTYPID|ENUMSORTORDER|ENUMLABEL|OID
+(0 rows)

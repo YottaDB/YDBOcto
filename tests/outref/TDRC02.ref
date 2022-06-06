@@ -14,8 +14,10 @@ public|PG_CATALOG.PG_ATTRIBUTE|table|octo
 public|PG_CATALOG.PG_CLASS|table|octo
 public|PG_CATALOG.PG_DATABASE|table|octo
 public|PG_CATALOG.PG_DESCRIPTION|table|octo
+public|PG_CATALOG.PG_ENUM|table|octo
 public|PG_CATALOG.PG_NAMESPACE|table|octo
 public|PG_CATALOG.PG_PROC|table|octo
+public|PG_CATALOG.PG_RANGE|table|octo
 public|PG_CATALOG.PG_ROLES|table|octo
 public|PG_CATALOG.PG_SETTINGS|table|octo
 public|PG_CATALOG.PG_TYPE|table|octo
@@ -23,13 +25,15 @@ public|PG_CATALOG.PG_USER|table|octo
 public|PG_CLASS|table|octo
 public|PG_DATABASE|table|octo
 public|PG_DESCRIPTION|table|octo
+public|PG_ENUM|table|octo
 public|PG_NAMESPACE|table|octo
 public|PG_PROC|table|octo
+public|PG_RANGE|table|octo
 public|PG_ROLES|table|octo
 public|PG_SETTINGS|table|octo
 public|PG_TYPE|table|octo
 public|PG_USER|table|octo
-(26 rows)
+(30 rows)
 Table "NAMES"
 Column|Type|Collation|Nullable|Default
 ID|INTEGER||NOT NULL|
@@ -51,8 +55,10 @@ public|PG_CATALOG.PG_ATTRIBUTE|table|octo
 public|PG_CATALOG.PG_CLASS|table|octo
 public|PG_CATALOG.PG_DATABASE|table|octo
 public|PG_CATALOG.PG_DESCRIPTION|table|octo
+public|PG_CATALOG.PG_ENUM|table|octo
 public|PG_CATALOG.PG_NAMESPACE|table|octo
 public|PG_CATALOG.PG_PROC|table|octo
+public|PG_CATALOG.PG_RANGE|table|octo
 public|PG_CATALOG.PG_ROLES|table|octo
 public|PG_CATALOG.PG_SETTINGS|table|octo
 public|PG_CATALOG.PG_TYPE|table|octo
@@ -60,13 +66,15 @@ public|PG_CATALOG.PG_USER|table|octo
 public|PG_CLASS|table|octo
 public|PG_DATABASE|table|octo
 public|PG_DESCRIPTION|table|octo
+public|PG_ENUM|table|octo
 public|PG_NAMESPACE|table|octo
 public|PG_PROC|table|octo
+public|PG_RANGE|table|octo
 public|PG_ROLES|table|octo
 public|PG_SETTINGS|table|octo
 public|PG_TYPE|table|octo
 public|PG_USER|table|octo
-(26 rows)
+(30 rows)
 Table "NAMES"
 Column|Type|Collation|Nullable|Default
 ID|INTEGER||NOT NULL|

@@ -253,10 +253,10 @@ else
 	utf8_supported="no"
 fi
 echo -n "----> Installing Octo C shared libraries... "
-install -D -m 644 plugin/o/libcocto.so $ydb_dist/plugin/o
+install -D -m 644 plugin/libcocto.so $ydb_dist/plugin
 if [[ $? -eq 0 ]]; then
 	echo "OK."
-	cleanup_files="$cleanup_files $ydb_dist/plugin/o/libcocto.so"
+	cleanup_files="$cleanup_files $ydb_dist/plugin/libcocto.so"
 else
 	error_exit "$LINENO: Failed to install Octo C shared libraries."
 fi

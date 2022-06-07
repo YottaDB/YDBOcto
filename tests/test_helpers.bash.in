@@ -44,7 +44,7 @@ save_env_variables() {
 set_ydb_xc_octo() {
 	# Set the ydb_xc_octo environment variable to allow M callouts to C functions needed in some tests
 	if [[ @DISABLE_INSTALL@ == "ON" ]]; then
-		# ydbocto.xc specifies the callout library as $ydb_dist/plugin/o/libcocto.so by default.
+		# ydbocto.xc specifies the callout library as $ydb_dist/plugin/libcocto.so by default.
 		# However, if installation is disabled, this file won't exist at this location. So,
 		# create a new .xc file that specifies the location of libcocto.so. Note that a new
 		# file is created to avoid needing to revert ydbocto.xc to the default libcocto.so

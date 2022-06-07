@@ -135,7 +135,7 @@ After you update your environment file re-source it. Confirm the new :code:`gtmr
 .. code-block:: bash
 
    echo $gtmroutines
-   /home/vehu/p/r1.34_x86_64*(/home/vehu/p) /home/vehu/s/r1.34_x86_64*(/home/vehu/s) /home/vehu/r/r1.34_x86_64*(/home/vehu/r) /usr/local/lib/yottadb/r134/plugin/o/_ydbaim.so /usr/local/lib/yottadb/r134/plugin/o/_ydbocto.so /usr/local/lib/yottadb/r134/plugin/o/_ydbposix.so /usr/local/lib/yottadb/r134/plugin/o/libcocto.so /usr/local/lib/yottadb/r134/libyottadbutil.so
+   /home/vehu/p/r1.34_x86_64*(/home/vehu/p) /home/vehu/s/r1.34_x86_64*(/home/vehu/s) /home/vehu/r/r1.34_x86_64*(/home/vehu/r) /usr/local/lib/yottadb/r134/plugin/o/_ydbaim.so /usr/local/lib/yottadb/r134/plugin/o/_ydbocto.so /usr/local/lib/yottadb/r134/plugin/o/_ydbposix.so /usr/local/lib/yottadb/r134/libyottadbutil.so
 
 Confirm that the routines and globals work correctly by running :code:`SILENT^%RSEL` and :code:`^%GD`.
 

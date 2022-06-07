@@ -429,7 +429,7 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 		echo "# Copy Octo binaries and libraries for later access by [octo]install.sh"
 		cp src/octo src/rocto $tarball_name/plugin/octo/bin
 		cp src/_ydbocto.so $tarball_name/plugin/o
-		cp src/libcocto.so $tarball_name/plugin/o
+		cp src/libcocto.so $tarball_name/plugin
 		cp src/utf8/_ydbocto.so $tarball_name/plugin/o/utf8
 		echo "# Copy .dbg files for debugging RelWithDebInfo builds"
 		if [[ -f src/octo.dbg && -f src/rocto.dbg ]]; then

@@ -9,5 +9,5 @@
 //	the license, please stop and do not read further.	//
 //								//
 //////////////////////////////////////////////////////////////////
-$ydb_dist/plugin/o/libcocto.so
+$ydb_dist/plugin/libcocto.so
 ydboctoDateFormatM: ydb_string_t* ydboctoDateFormatC(I:ydb_string_t*, I:ydb_string_t*)

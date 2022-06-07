@@ -17,7 +17,50 @@
 
 #define IS_ROCTO
 
+/* OpenSSL 3.0 officially deprecates the MD5() function used in various
+ * rocto components. To avoid compiler warnings about this deprecation, it is
+ * necessary to use the currently suggested OpenSSL functions for using the MD5
+ * hashing algorithm.
+ *
+ * So, in versions that support these suggested functions, i.e. >= 1.1, use them.
+ * If only an older version of OpenSSL is available, then these functions will be
+ * undefined, leading to compiler errors. In that case, we can and should use the
+ * MD5() function, as it will be defined and produce no warnings.
+ *
+ * To reduce duplication and avoid many #ifdefs, we define the following macro to
+ * distinguish between OpenSSL versions and define a macro with the proper underlying
+ * API calls for use in the relevant rocto modules.
+ *
+ * See
+ */
+#include <openssl/opensslv.h> // Includes OPENSSL_VERSION_NUMBER.
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+
+#include <openssl/evp.h>
+/* Define a macro that implements the interface of the OpenSSL MD5() function. */
+/* This will serve as a drop-in replacement for the deprecated function of the same name. */
+#define MD5(MESSAGE, LEN, DIGEST)                                                                                                \
+	{                                                                                                                        \
+		EVP_MD_CTX *  evp_context;                                                                                       \
+		const EVP_MD *digest_algorithm;                                                                                  \
+		unsigned int  digest_len;                                                                                        \
+                                                                                                                                 \
+		/* We assume all callers of this macro will put the digest back into the same buffer that contained the message. \
+		 */                                                                                                              \
+		/* So, assert that here. */                                                                                      \
+		assert((char *)MESSAGE == (char *)DIGEST);                                                                       \
+		digest_len = LEN; /* Store LEN in a variable, so that we can get an int* to pass to EVP_DigestFinal_ex(). */     \
+		digest_algorithm = EVP_get_digestbyname("md5");                                                                  \
+		evp_context = EVP_MD_CTX_new();                                                                                  \
+		EVP_DigestInit_ex(evp_context, digest_algorithm, NULL);                                                          \
+		EVP_DigestUpdate(evp_context, MESSAGE, LEN);                                                                     \
+		EVP_DigestFinal_ex(evp_context, DIGEST, &digest_len);                                                            \
+		EVP_MD_CTX_free(evp_context);                                                                                    \
+	}
+#define MD5_DIGEST_LENGTH 16 /* Defined with deprecated functions in `openssl/md5.h`, but still used by rocto. So define here. */
+#else
 #include <openssl/md5.h>
+#endif
 
 #include "errors.h"
 #include "physical_plan.h"

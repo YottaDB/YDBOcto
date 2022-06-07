@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -24,8 +24,6 @@
 
 // Used to convert between network and host endian
 #include <arpa/inet.h>
-
-#include <openssl/md5.h>
 
 #include "octo.h"
 #include "rocto.h"
@@ -125,10 +123,11 @@ static PasswordMessage *make_password_message(char *user, char *password, char *
 #define HEX_HASH_LEN MD5_DIGEST_LENGTH * 2 + 1
 /* Add "md5" prefix to hex hash */
 #define MD5_PASSWORD_LEN HEX_HASH_LEN + 3
+#define SALT_LEN	 4
 
 	PasswordMessage *ret;
 	int32_t		 length = 0, result;
-	unsigned char	 hash_buf[MD5_HEX_LEN + 4]; // +4 For salt
+	unsigned char	 hash_buf[MD5_HEX_LEN + SALT_LEN];
 	char		 hex_hash[HEX_HASH_LEN];
 
 	// Rather than have special logic for the NULL, just use an empty string
@@ -150,7 +149,7 @@ static PasswordMessage *make_password_message(char *user, char *password, char *
 	}
 
 	// Concatenate password/user hash with salt
-	result = snprintf((char *)hash_buf, HEX_HASH_LEN + 4, "%s%s", hex_hash, salt); // Exclude "md5" prefix
+	result = snprintf((char *)hash_buf, HEX_HASH_LEN + SALT_LEN, "%s%s", hex_hash, salt); // Exclude "md5" prefix
 	if (0 > result) {
 		return NULL;
 	}

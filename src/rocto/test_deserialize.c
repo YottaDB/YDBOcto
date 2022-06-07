@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,8 +23,6 @@
 
 // Used to convert between network and host endian
 #include <arpa/inet.h>
-
-#include <openssl/md5.h>
 
 #include "octo.h"
 #include "rocto.h"
@@ -188,19 +186,19 @@ static void test_bin_to_uuid(void **state) {
 static void test_md5_to_hex(void **state) {
 	const uint32_t md5_len = 33;
 	char	       hex_buf[md5_len];
-	char *	       message = "bluemonday";	      // md5 hash: 1865f47f47b0ccc5c69178ecbbcbf645
-	unsigned char  digest[MD5_DIGEST_LENGTH + 1]; // count null
+	char	       hash_buf[md5_len];
 
-	MD5((const unsigned char *)message, strlen(message), digest);
-	digest[MD5_DIGEST_LENGTH] = '\0';
+	snprintf(hash_buf, md5_len, "bluemonday"); // md5 hash: 1865f47f47b0ccc5c69178ecbbcbf645
+	MD5((const unsigned char *)hash_buf, strlen(hash_buf), (unsigned char *)hash_buf);
+	hash_buf[MD5_DIGEST_LENGTH] = '\0';
 
 	// Check with valid input
-	int32_t result = md5_to_hex(digest, hex_buf, md5_len);
+	int32_t result = md5_to_hex((unsigned char *)hash_buf, hex_buf, md5_len);
 	assert_int_equal(result, 0);
 	assert_string_equal(hex_buf, "1865f47f47b0ccc5c69178ecbbcbf645");
 
 	// Check with bad length
-	result = md5_to_hex(digest, hex_buf, 0);
+	result = md5_to_hex((unsigned char *)hash_buf, hex_buf, 0);
 	assert_int_equal(result, 1);
 }
 

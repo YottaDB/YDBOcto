@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -13,8 +13,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-
-#include <openssl/md5.h>
 
 #include <libyottadb.h>
 

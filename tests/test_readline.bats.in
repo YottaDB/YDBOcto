@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -239,4 +239,9 @@ setup() {
 
   # Clean-up after yourselves
   rm ~/octo.conf ./octo.conf
+}
+
+@test "TR21 : OCTO832 : Test that readline_get_more() succeeds without ERR_SYSCALL in the case of EINTR" {
+	$ydb_dist/yottadb -run octo832 &> output.txt
+	verify_output TR21 output.txt
 }

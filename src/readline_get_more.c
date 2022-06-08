@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -64,26 +64,31 @@ int readline_get_more() {
 		/* if query spans the entire buffer then our query is larger than the current buffer
 		 * so double it (plus 1 for \0) and read in to the new space
 		 */
-		if ((0 == old_input_index) && (cur_input_index == cur_input_max)) {
-			char *tmp = malloc(cur_input_max * 2 + 1);
-			memmove(tmp, input_buffer_combined, cur_input_max);
-			free(input_buffer_combined);
-			input_buffer_combined = tmp;
-			data_read = read(fileno(inputFile), input_buffer_combined + cur_input_max, cur_input_max);
-			cur_input_max *= 2;
-			/* if just the cur_input_index is the max then we probably have a dangling query
-			 * copy everything from the old index to the end to the start of the buffer
-			 * shift the index over and read more
-			 */
-		} else if (cur_input_index == cur_input_max) {
-			memcpy(input_buffer_combined, input_buffer_combined + old_input_index, cur_input_index - old_input_index);
-			cur_input_index -= old_input_index;
-			old_input_index = 0;
-			data_read
-			    = read(fileno(inputFile), input_buffer_combined + cur_input_index, cur_input_max - cur_input_index);
-		} else {
-			data_read = read(fileno(inputFile), input_buffer_combined, cur_input_max);
-		}
+		do {
+			// Reset errno to ensure that the loop terminates so long as `EINTR` is not raised by `read()`
+			errno = 0;
+			if ((0 == old_input_index) && (cur_input_index == cur_input_max)) {
+				char *tmp = malloc(cur_input_max * 2 + 1);
+				memmove(tmp, input_buffer_combined, cur_input_max);
+				free(input_buffer_combined);
+				input_buffer_combined = tmp;
+				data_read = read(fileno(inputFile), input_buffer_combined + cur_input_max, cur_input_max);
+				cur_input_max *= 2;
+				/* if just the cur_input_index is the max then we probably have a dangling query
+				 * copy everything from the old index to the end to the start of the buffer
+				 * shift the index over and read more
+				 */
+			} else if (cur_input_index == cur_input_max) {
+				memcpy(input_buffer_combined, input_buffer_combined + old_input_index,
+				       cur_input_index - old_input_index);
+				cur_input_index -= old_input_index;
+				old_input_index = 0;
+				data_read = read(fileno(inputFile), input_buffer_combined + cur_input_index,
+						 cur_input_max - cur_input_index);
+			} else {
+				data_read = read(fileno(inputFile), input_buffer_combined, cur_input_max);
+			}
+		} while (EINTR == errno);
 
 		// Detecting the EOF is handled by the lexer and this should never be true at this stage
 		assert(EOF_NONE == eof_hit);

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -21,8 +21,15 @@
  */
 int binary_operation_data_type_check(SqlBinaryOperation *binary, SqlValueType child_type[2], SqlValueType *type,
 				     ParseContext *parse_context) {
-	int result;
+	/* CAST_AMBIGUOUS_TYPES() call below casts NUL_VALUE type to TABLE_ASTERISK type if one of the operands
+	 * is of type TABLE_ASTERISK. Save the original type in such cases as some operations between TABLE_ASTERISK and NULL are
+	 * valid and we want to ensure no error is issued for such usages.
+	 */
+	SqlValueType orig_child_type[2];
+	orig_child_type[0] = child_type[0];
+	orig_child_type[1] = child_type[1];
 
+	int result;
 	result = 0;
 	CAST_AMBIGUOUS_TYPES(child_type[0], child_type[1], result, parse_context);
 	switch (binary->operation) {
@@ -52,7 +59,10 @@ int binary_operation_data_type_check(SqlBinaryOperation *binary, SqlValueType ch
 		 * Otherwise it issues an error. Do the same in Octo for compatibility.
 		 */
 		if (!IS_STRING_TYPE(child_type[0]) && !IS_STRING_TYPE(child_type[1])) {
-			if (!result) {
+			if (((TABLE_ASTERISK == child_type[0]) && (TABLE_ASTERISK == child_type[1]))
+			    && ((NUL_VALUE == orig_child_type[0]) || (NUL_VALUE == orig_child_type[1]))) {
+				// Concatanation between NUL_VALUE and TABLE_ASTERISK is valid, allow this usage
+			} else if (!result) {
 				int i;
 
 				for (i = 0; i < 2; i++) {
@@ -111,7 +121,41 @@ int binary_operation_data_type_check(SqlBinaryOperation *binary, SqlValueType ch
 		}
 		*type = BOOLEAN_VALUE;
 		break;
-	default:
+	case BOOLEAN_IS:
+	case BOOLEAN_IS_NOT:
+	case BOOLEAN_EQUALS:
+	case BOOLEAN_NOT_EQUALS:
+	case BOOLEAN_LESS_THAN:
+	case BOOLEAN_GREATER_THAN:
+	case BOOLEAN_LESS_THAN_OR_EQUALS:
+	case BOOLEAN_GREATER_THAN_OR_EQUALS:
+	case BOOLEAN_REGEX_SENSITIVE:
+	case BOOLEAN_REGEX_INSENSITIVE:
+	case BOOLEAN_REGEX_SENSITIVE_LIKE:
+	case BOOLEAN_REGEX_INSENSITIVE_LIKE:
+	case BOOLEAN_REGEX_SENSITIVE_SIMILARTO:
+	case BOOLEAN_REGEX_INSENSITIVE_SIMILARTO:
+	case BOOLEAN_IN:
+	case BOOLEAN_NOT_IN:
+	case BOOLEAN_ANY_EQUALS:
+	case BOOLEAN_ANY_NOT_EQUALS:
+	case BOOLEAN_ANY_LESS_THAN:
+	case BOOLEAN_ANY_GREATER_THAN:
+	case BOOLEAN_ANY_LESS_THAN_OR_EQUALS:
+	case BOOLEAN_ANY_GREATER_THAN_OR_EQUALS:
+	case BOOLEAN_ALL_EQUALS:
+	case BOOLEAN_ALL_NOT_EQUALS:
+	case BOOLEAN_ALL_LESS_THAN:
+	case BOOLEAN_ALL_GREATER_THAN:
+	case BOOLEAN_ALL_LESS_THAN_OR_EQUALS:
+	case BOOLEAN_ALL_GREATER_THAN_OR_EQUALS:
+		// Comparison operation, if types are TABLE_ASTERISK make sure their tables are compatible
+		if (!result && ((TABLE_ASTERISK == child_type[0]) && (TABLE_ASTERISK == child_type[1]))) {
+			result = validate_table_asterisk_binary_operation(binary, orig_child_type, parse_context);
+			if (result) {
+				break;
+			}
+		}
 		*type = BOOLEAN_VALUE;
 		break;
 	}

@@ -543,7 +543,7 @@ typedef enum RegexType {
 /* Below macro assumes VALUE_STMT->type is value_STATEMENT */
 #define IS_LITERAL_PARAMETER(VALUE_TYPE)                                                                     \
 	((NUMERIC_LITERAL == VALUE_TYPE) || (INTEGER_LITERAL == VALUE_TYPE) || (BOOLEAN_VALUE == VALUE_TYPE) \
-	 || (STRING_LITERAL == VALUE_TYPE) || (TABLE_ASTERISK == VALUE_TYPE))
+	 || (STRING_LITERAL == VALUE_TYPE))
 
 #define IS_NULL_FIXED_VALUE(FIX_VALUE) \
 	((NULL != FIX_VALUE) && (LP_VALUE == FIX_VALUE->type) && (IS_NULL_LITERAL == FIX_VALUE->v.lp_value.value->type))
@@ -999,6 +999,10 @@ SqlStatement *drop_function(SqlStatement *identifier_start, SqlStatement *functi
 
 void constraint_name_auto_generate(OptionalKeyword constraint_type, char *table_name, char *column_name, int numeric_suffix,
 				   char *name_buf, int buf_size);
+int  compare_column_count_and_column_type_of_tables(SqlTableAlias *first_table_alias, SqlTableAlias *second_table_alias,
+						    ParseContext *parse_context);
+int  validate_table_asterisk_binary_operation(SqlBinaryOperation *binary, SqlValueType orig_child_type[2],
+					      ParseContext *parse_context);
 
 // Updates a runtime parameter value in `pg_catalog.pg_settings`. Executed for SQL SET commands.
 int set_parameter_in_pg_settings(char *variable, char *value);

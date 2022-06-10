@@ -106,3 +106,12 @@ teardown() {
 	load_fixture TTA011_errors.sql subtest novv
 	verify_output TTA011_errors output.txt
 }
+
+@test "TTA012 : OCTO833 : Validate binary operation working with TABLENAME.ASTERISK operand" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TTA012.sql "trim_trailing_zeroes"
+	# Following validates that `table.*` binary operation error cases
+	load_fixture TTA012_errors.sql subtest novv
+	verify_output TTA012_errors output.txt
+}

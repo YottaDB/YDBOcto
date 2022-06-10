@@ -72,7 +72,7 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 			assert(LP_COLUMN_LIST_ALIAS == tmpPlan->type);
 			order_by_expr_type = tmpPlan->v.lp_column_list_alias.column_list_alias->type;
 			assert(IS_NULL_LITERAL != order_by_expr_type);
-			assert(IS_LITERAL_PARAMETER(order_by_expr_type) || (NUL_VALUE == order_by_expr_type));
+			assert(IS_LITERAL_PARAMETER(order_by_expr_type) || (NUL_VALUE == order_by_expr_type) || (TABLE_ASTERISK == order_by_expr_type));
 			switch(order_by_expr_type) {
 			case STRING_LITERAL:
 				%{}"Z"_{}%

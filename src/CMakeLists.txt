@@ -160,6 +160,7 @@ add_library(libocto OBJECT
   check_column_lists_for_type_match.c
   cleanup_tables.c
   columns_to_column_list_alias.c
+  compare_column_count_and_column_type_of_tables.c
   compress_statement.c
   constraint_name_auto_generate.c
   copy_column_list_alias_list.c
@@ -331,6 +332,7 @@ add_library(libocto OBJECT
   store_table_in_pg_class.c
   traverse_where_clause.c
   unary_operation_data_type_check.c
+  validate_table_asterisk_binary_operation.c
   ydb_error_check.c
   ydb_hash_to_string.c
   yyerror.c

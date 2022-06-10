@@ -1086,6 +1086,22 @@ Text: Table 'xxx' already exists, skipping
 
 Description/Action: This message lets the user know that Octo is skipping the action since the specified table already exists. PSQL Error Code: 42P07
 
++++++++++++++++++++++++++++++++++++++++++
+ERR_TABLE_ASTERISK_COLUMN_COUNT_MISMATCH
++++++++++++++++++++++++++++++++++++++++++
+
+Text: Table asterisk column count mismatch: left xxx, right xxx
+
+Description/Action: This error is generated when the comparison between two :code:`table.*` usages cannot be made as their number of columns do not match. PSQL Error Code: 42804
+
+++++++++++++++++++++++++++++++++++++++++
+ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH
+++++++++++++++++++++++++++++++++++++++++
+
+Text: Table asterisk column type mismatch: left xxx, right xxx
+
+Description/Action: This error is generated when the comparison between two :code:`table.*` usages cannot be made as their column types do not match. PSQL Error Code: 42804
+
 ++++++++++++++++++++++++++++++
 ERR_TABLE_DEFINITION_TOO_LONG
 ++++++++++++++++++++++++++++++

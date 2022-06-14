@@ -319,9 +319,9 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	SqlColumnListAlias *  ret_cla;
 	QualifyStatementParms lcl_ret;
 	ret_cla = NULL;
-	/* Initialize "lcl_ret->ret_cla" to a non-NULL value (&ret_cla) and pass "&lcl_ret" in case of qualifying ORDER BY.
-	 * This allows columns specified in an ORDER BY to be qualified against any column names specified till now (including
-	 * aliases specified after an AS) without any strict checking.
+	/* Initialize "lcl_ret->ret_cla" to a non-NULL value (&ret_cla) and pass "&lcl_ret" in case of qualifying ORDER BY and GROUP
+	 * BY. This allows columns specified in an these clauses to be qualified against any column names specified till now
+	 * (including aliases specified after an AS) without any strict checking.
 	 */
 	lcl_ret.ret_cla = &ret_cla;
 	lcl_ret.max_unique_id = ((NULL != ret) ? ret->max_unique_id : NULL);
@@ -398,7 +398,8 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 				 * o.CustomerID GROUP BY c.CustomerID;
 				 */
 				gb_result = 0;
-				gb_result |= qualify_statement(group_by_expression, start_join, table_alias_stmt, 0, ret);
+				gb_result |= qualify_statement(group_by_expression, start_join, table_alias_stmt, 0, &lcl_ret);
+				ret_cla = NULL; // Re-set the variable so that ORDER BY can re-use it
 				// Ensure error is forwarded to result as that is the one returned at the end of this function
 				result |= gb_result;
 				/* After GROUP BY qualification `table_alias->group_by_column_count` can still be 0 if GROUP BY was
@@ -503,7 +504,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 			result |= qualify_statement(select->having_expression, start_join, table_alias_stmt, 0, ret);
 			table_alias->aggregate_function_or_group_by_or_having_specified |= HAVING_SPECIFIED;
 		}
-		// Qualify ORDER BY clause next (see comment above for why "&lcl_ret" is passed only for ORDER BY).
+		// Qualify ORDER BY clause next (see comment above for why "&lcl_ret" is passed for ORDER BY).
 		table_alias->qualify_query_stage = QualifyQuery_ORDER_BY;
 		table_alias->aggregate_depth = 0;
 		result |= qualify_statement(select->order_by_expression, start_join, table_alias_stmt, 0, &lcl_ret);

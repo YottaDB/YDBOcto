@@ -18,6 +18,17 @@
 #include "octo.h"
 #include "octo_types.h"
 
+/* Following macro is called from column_list_alias_STATEMENT case to issue error when a column value in ORDER BY or GROUP BY isn't
+ * a valid INTEGER. AGGR_DEPTH is used to determine whether an ORDER BY or GROUP BY error needs to be issued.
+ */
+#define ISSUE_ORDER_BY_OR_GROUP_BY_POSITION_NOT_INTEGER_ERROR(AGGR_DEPTH, IS_NEG_NUM_LIT, STR, COLUMN_LIST_PTR) \
+	{                                                                                                       \
+		ERROR((AGGREGATE_DEPTH_GROUP_BY_CLAUSE != (AGGR_DEPTH)) ? ERR_ORDER_BY_POSITION_NOT_INTEGER     \
+									: ERR_GROUP_BY_POSITION_NOT_INTEGER,    \
+		      (IS_NEG_NUM_LIT) ? "-" : "", (STR));                                                      \
+		yyerror(NULL, NULL, (COLUMN_LIST_PTR), NULL, NULL, NULL);                                       \
+	}
+
 /* Following macro sets GROUP BY column number to expression when its matched with GROUP BY column.
  * Also, it `break`s when no additional processing is required.
  */
@@ -474,23 +485,23 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 					}
 				}
 			}
-			/* Check if its an OrderBy or GroupBy invocation */
+			// Check if its an ORDER BY or GROUP BY invocation
 			if (((NULL != ret_cla) || (AGGREGATE_DEPTH_GROUP_BY_CLAUSE == table_alias->aggregate_depth)) && (0 == depth)
 			    && (!table_alias->do_group_by_checks)) {
 				SqlColumnListAlias *qualified_cla;
 				int		    column_number;
 				char *		    str;
-				boolean_t	    order_by_alias;
+				boolean_t	    order_by_or_group_by_alias;
 
-				/* "ret_cla" is non-NULL implies this call is for an ORDER BY column list.
-				 * "depth" == 0 implies "cur_cla" is one of the ORDER BY columns
-				 * (i.e. not a cla corresponding to an inner evaluation in the ORDER BY expression).
+				/* `ret_cla` is non-NULL, it can be a member of GROUP BY or ORDER BY.
+				 * `depth` is 0 implies its one of the GROUP BY or ORDER BY columns (i.e. not a cla corresponding
+				 * to an inner evaluation in the ORDER BY or GROUP BY expression).
 				 * There are 3 cases to handle.
 				 */
 				if ((NULL != ret_cla) && (NULL != *ret_cla)) {
-					/* Case (1) : If "*ret_cla" is non-NULL, it is a case of ORDER BY using an alias name */
+					/* Case (1) : If "*ret_cla" is non-NULL, it is a case of an alias name usage */
 
-					order_by_alias = TRUE;
+					order_by_or_group_by_alias = TRUE;
 					/* "QUALIFY_COLUMN_REFERENCE" : This code block finishes the column name validation
 					 * that was not finished in the "qualify_column_name" call done in the
 					 * "case COLUMN_REFERENCE:" code block above. We found another existing cla that is
@@ -507,7 +518,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 					boolean_t      error_encountered = FALSE;
 					boolean_t      is_positive_numeric_literal, is_negative_numeric_literal;
 
-					order_by_alias = FALSE;
+					order_by_or_group_by_alias = FALSE;
 					UNPACK_SQL_STATEMENT(col_list, cur_cla->column_list, column_list);
 					/* Check for positive numeric literal */
 					is_positive_numeric_literal = ((value_STATEMENT == col_list->value->type)
@@ -536,16 +547,16 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 						/* Check if numeric literal is an integer. We are guaranteed by the
 						 * lexer that this numeric literal only contains digits [0-9] and
 						 * optionally a '.'. Check if the '.' is present. If so issue error
-						 * as decimal column numbers are disallowed in ORDER BY.
+						 * as decimal column numbers are disallowed in ORDER BY and GROUP BY.
 						 */
 						char *	 ptr, *ptr_top;
 						long int retval;
 
 						for (ptr = str, ptr_top = str + strlen(str); ptr < ptr_top; ptr++) {
 							if ('.' == *ptr) {
-								ERROR(ERR_ORDER_BY_POSITION_NOT_INTEGER,
-								      is_negative_numeric_literal ? "-" : "", str);
-								yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL);
+								ISSUE_ORDER_BY_OR_GROUP_BY_POSITION_NOT_INTEGER_ERROR(
+								    table_alias->aggregate_depth, is_negative_numeric_literal, str,
+								    &cur_cla->column_list);
 								error_encountered = 1;
 								break;
 							}
@@ -557,9 +568,9 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 							 */
 							retval = strtol(str, NULL, 10);
 							if ((LONG_MIN == retval) || (LONG_MAX == retval)) {
-								ERROR(ERR_ORDER_BY_POSITION_NOT_INTEGER,
-								      is_negative_numeric_literal ? "-" : "", str);
-								yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL);
+								ISSUE_ORDER_BY_OR_GROUP_BY_POSITION_NOT_INTEGER_ERROR(
+								    table_alias->aggregate_depth, is_negative_numeric_literal, str,
+								    &cur_cla->column_list);
 								error_encountered = 1;
 							}
 						}
@@ -579,14 +590,11 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 								qualified_cla = NULL;
 							}
 							if (NULL == qualified_cla) {
-								if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE
-								    == table_alias->aggregate_depth) {
-									ERROR(ERR_GROUP_BY_POSITION_INVALID,
-									      is_negative_numeric_literal ? "-" : "", str);
-								} else {
-									ERROR(ERR_ORDER_BY_POSITION_INVALID,
-									      is_negative_numeric_literal ? "-" : "", str);
-								}
+								ERROR((AGGREGATE_DEPTH_GROUP_BY_CLAUSE
+								       == table_alias->aggregate_depth)
+									  ? ERR_GROUP_BY_POSITION_INVALID
+									  : ERR_ORDER_BY_POSITION_INVALID,
+								      is_negative_numeric_literal ? "-" : "", str);
 								yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL);
 								error_encountered = 1;
 							}
@@ -614,7 +622,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 					 */
 					cur_cla->tbl_and_col_id.unique_id = table_alias->unique_id;
 					assert(cur_cla->tbl_and_col_id.unique_id);
-					if (order_by_alias) {
+					if (order_by_or_group_by_alias) {
 						/* Find the column number from the matched cla */
 						cur_cla->tbl_and_col_id.column_number
 						    = get_column_number_from_column_list_alias(qualified_cla, table_alias);
@@ -629,23 +637,25 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 									    depth + 1, ret);
 
 						SqlColumnAlias *new_column_alias = NULL;
-						SqlStatement *	tmp_stmt = cur_cla->column_list->v.column_list->value;
+						SqlColumnList * tmp_column_list;
+						UNPACK_SQL_STATEMENT(tmp_column_list, cur_cla->column_list, column_list);
+						SqlStatement *tmp_stmt = tmp_column_list->value;
 						column_table_alias = NULL;
 						if (value_STATEMENT == tmp_stmt->type) {
 							SqlValue *inner_value;
 							UNPACK_SQL_STATEMENT(inner_value, tmp_stmt, value);
 							if (COERCE_TYPE == inner_value->type) {
 								if (column_alias_STATEMENT == inner_value->v.coerce_target->type) {
-									new_column_alias
-									    = inner_value->v.coerce_target->v.column_alias;
+									UNPACK_SQL_STATEMENT(new_column_alias,
+											     inner_value->v.coerce_target,
+											     column_alias);
 									UNPACK_SQL_STATEMENT(column_table_alias,
 											     new_column_alias->table_alias_stmt,
 											     table_alias);
 								}
 							}
 						} else if (tmp_stmt->type == column_alias_STATEMENT) {
-							new_column_alias
-							    = cur_cla->column_list->v.column_list->value->v.column_alias;
+							UNPACK_SQL_STATEMENT(new_column_alias, tmp_stmt, column_alias);
 							UNPACK_SQL_STATEMENT(column_table_alias, new_column_alias->table_alias_stmt,
 									     table_alias);
 						} else if (table_alias_STATEMENT == tmp_stmt->type) {
@@ -699,12 +709,10 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 							if (0 < table_alias->aggregate_depth)
 								table_alias->aggregate_function_or_group_by_or_having_specified
 								    |= GROUP_BY_SPECIFIED;
-							SqlStatement *tmp = cur_cla->column_list->v.column_list->value;
-							if ((tmp->type == value_STATEMENT)
-							    && (tmp->v.value->type != CALCULATED_VALUE))
+							if ((tmp_stmt->type == value_STATEMENT)
+							    && (tmp_stmt->v.value->type != CALCULATED_VALUE)) {
 								table_alias->group_by_column_count++;
-							else {
-
+							} else {
 								table_alias->group_by_column_count++;
 							}
 						}

@@ -874,3 +874,8 @@ select lastname, EXISTS (SELECT alias1.lastName FROM names alias1 GROUP BY (sele
 SELECT names.lastName FROM names GROUP BY names.lastName HAVING EXISTS (SELECT alias1.lastName FROM names alias1 GROUP BY 1+(select 1));
 -- Ensure GROUP BY validation happen when constants are in GROUP BY
 SELECT id from names group by 1+1;
+
+-- A non integer constant used in GROUP BY
+select id from names group by 11111111111111111111111111111;
+
+

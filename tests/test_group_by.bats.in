@@ -193,4 +193,10 @@ setup() {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB29.sql
 }
 
+@test "TGB30 : OCTO828 : Validate column alias usage in GROUP BY" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB30.sql
+	load_fixture TGB30_errors.sql subtest novv
+	verify_output TGB30_errors output.txt
+}
+
 

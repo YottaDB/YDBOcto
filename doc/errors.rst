@@ -412,6 +412,14 @@ Text: GROUP BY position xxxxxx is not in select list
 
 Description/Action: This error is generated when the column number of :code:`SELECT` column list referenced in :code:`GROUP BY` is incorrect. PSQL Error Code: 42P10
 
+++++++++++++++++++++++++++++++++++
+ERR_GROUP_BY_POSITION_NOT_INTEGER
+++++++++++++++++++++++++++++++++++
+
+Text: Non integer constant xxxxxx in GROUP BY
+
+Description/Action: Description/Action: This error is generated when the GROUP BY position is a non-integer. PSQL Error Code: 42601
+
 ++++++++++++++++++++++++++++++
 ERR_GROUP_BY_SUB_QUERY
 ++++++++++++++++++++++++++++++

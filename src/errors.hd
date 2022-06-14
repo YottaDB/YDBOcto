@@ -75,6 +75,7 @@ ERROR_DEF(ERR_DOLLAR_SYNTAX, "Prepared statement dollar syntax (e.g. $1, $2, etc
 ERROR_DEF(ERR_DUPLICATE_COLUMN, "Column '%s' specified more than once", PSQL_Code_Duplicate_Column)
 ERROR_DEF(ERR_GROUP_BY_INVALID_USAGE, "Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)", PSQL_Code_Grouping_Error)
 ERROR_DEF(ERR_GROUP_BY_OR_AGGREGATE_FUNCTION, "Column %s must appear in the GROUP BY clause or be used in an aggregate function", PSQL_Code_Grouping_Error)
+ERROR_DEF(ERR_GROUP_BY_POSITION_NOT_INTEGER, "Non integer constant %s%s in GROUP BY", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_GROUP_BY_POSITION_INVALID, "GROUP BY position %s%s is not in select list", PSQL_Code_Invalid_Column_Reference)
 ERROR_DEF(ERR_GROUP_BY_SUB_QUERY, "Subqueries are not supported in GROUP BY", PSQL_Code_Grouping_Error)
 ERROR_DEF(ERR_IDENT_LENGTH, "%s length %d exceeds max (%d)", PSQL_Code_Syntax_Error)

@@ -863,6 +863,11 @@ select lastname, EXISTS (SELECT alias1.lastName FROM names alias1 GROUP BY (sele
 SELECT names.lastName FROM names GROUP BY names.lastName HAVING EXISTS (SELECT alias1.lastName FROM names alias1 GROUP BY 1+(select 1));
 -- Ensure GROUP BY validation happen when constants are in GROUP BY
 SELECT id from names group by 1+1;
+
+-- A non integer constant used in GROUP BY
+select id from names group by 11111111111111111111111111111;
+
+
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
@@ -1059,16 +1064,16 @@ syntax error, unexpected RIGHT_PAREN, expecting COMMA
 LINE 2: SELECT nullif(NULL,5,4) FROM names GROUP BY 1; -- Postgres error
                             ^
 syntax error, unexpected COMMA, expecting RIGHT_PAREN
-[ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
+[ERROR]: ERR_GROUP_BY_POSITION_NOT_INTEGER: Non integer constant 1.2 in GROUP BY
 LINE 3: ...ELECT 1.2 FROM names GROUP BY 1.2; -- non-integer constants in ...
                                          ^^^
-[ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
+[ERROR]: ERR_GROUP_BY_POSITION_NOT_INTEGER: Non integer constant 1.2 in GROUP BY
 LINE 2: ...ELECT 1.2 FROM names GROUP BY 1.2 HAVING 1.2=1.2; -- non-intege...
                                          ^^^
-[ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
+[ERROR]: ERR_GROUP_BY_POSITION_NOT_INTEGER: Non integer constant 1.2 in GROUP BY
 LINE 2: ...ELECT 1.2 FROM names GROUP BY 1.2 ORDER BY 1.2; -- non-integer ...
                                          ^^^
-[ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
+[ERROR]: ERR_GROUP_BY_POSITION_NOT_INTEGER: Non integer constant 1.2 in GROUP BY
 LINE 2: ...ELECT 1.2 FROM names GROUP BY 1.2 HAVING 1.2=1.2 ORDER BY 1.2; ...
                                          ^^^
 [ERROR]: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant 1.2 in ORDER BY
@@ -3722,3 +3727,6 @@ LINE 1: ...e HAVING EXISTS (SELECT alias1.lastName FROM names alias1 GROUP...
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
 LINE 1: SELECT id from names group by 1+1;
                ^^
+[ERROR]: ERR_GROUP_BY_POSITION_NOT_INTEGER: Non integer constant 11111111111111111111111111111 in GROUP BY
+LINE 1: select id from names group by 11111111111111111111111111111;
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

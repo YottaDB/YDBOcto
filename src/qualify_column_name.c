@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -35,12 +35,13 @@
  */
 SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, SqlStatement *table_alias_stmt, int depth,
 				    SqlColumnListAlias **ret_cla) {
-	SqlColumnListAlias *start_cla, *cur_cla, *col_cla, *t_col_cla;
+	SqlColumnListAlias *start_cla, *cur_cla, *col_cla, *t_col_cla, *group_by_alias_cla;
 	SqlJoin *	    cur_join, *start_join;
 	SqlStatement *	    matching_alias_stmt;
 	SqlValue *	    value;
 	char *		    table_name, *column_name, *c, *first_delim;
 	int		    table_name_len, column_name_len;
+	boolean_t	    group_by_alias_ambiguous;
 
 	matching_alias_stmt = NULL;
 	// If the value is not a column_reference or TABLE_ASTERISK, we should not be here
@@ -81,10 +82,12 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 	}
 	col_cla = NULL;
 	assert(NULL != table_alias_stmt);
-	/* Check if ret_cla is non-NULL. If so, this means we are matching a column reference in the ORDER BY clause.
+	group_by_alias_cla = NULL;
+	group_by_alias_ambiguous = FALSE;
+	/* Check if ret_cla is non-NULL. If so, this means we are matching a column reference in the ORDER BY or GROUP BY clause.
 	 * In this case, we should first check if any alias name specified explicitly by the user in the SELECT column list
 	 * matches the column name. If so match that. If not, we then later try to match this column name against an input
-	 * column name in the JOIN list of tables. Also check if the column reference in the ORDER BY clause has a table
+	 * column name in the JOIN list of tables. Also check if the column reference in the ORDER BY or GROUP BY clause has a table
 	 * name specified. If it does, then we cannot match it against the SELECT column list so skip this "if" block.
 	 */
 	if ((NULL != ret_cla) && (NULL == table_name)) {
@@ -104,8 +107,23 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 				if (((int)strlen(value->v.reference) == column_name_len)
 				    && (0 == memcmp(value->v.reference, column_name, column_name_len))) {
 					if (NULL != col_cla) {
-						ERROR(ERR_AMBIGUOUS_COLUMN_NAME, column_name);
-						return NULL;
+						/* GROUP BY and ORDER BY ambiguity resolution is handled differently. Hence the
+						 * below `if` check.
+						 * In case of GROUP BY column alias usage:
+						 * 1) If an input column exists with the same name as select column alias, choose
+						 * the former. 2) If an input column doesn't exist and there is ambiguity between
+						 * select column aliases, issue error. Refer to
+						 * https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1140#note_1003010368 for
+						 * more details.
+						 */
+						if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE == table_alias->aggregate_depth) {
+							// We want to issue this error later if no input column matches the alias
+							group_by_alias_ambiguous = TRUE;
+							break;
+						} else {
+							ERROR(ERR_AMBIGUOUS_COLUMN_NAME, column_name);
+							return NULL;
+						}
 					}
 					col_cla = cur_cla;
 					matching_alias_stmt = table_alias_stmt;
@@ -127,11 +145,22 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 			 */
 			assert(3 <= depth);
 			if (3 >= depth) {
-				/* Set the matched SqlColumnListAlias structure pointer in "*ret_cla". But function return
-				 * value will stay NULL. Caller knows to check "*ret_cla" in this case.
-				 */
-				*ret_cla = col_cla;
-				return NULL;
+				if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE == table_alias->aggregate_depth) {
+					/* Continue on to the rest of the code which checks for an input column matching
+					 * the column name we are looking for. If one is found use that instead of the
+					 * found select list column alias corresponding cla as we want to solve such
+					 * ambiguity by choosing the input column over select list column in case of GROUP
+					 * BY.
+					 */
+					group_by_alias_cla = col_cla;
+					col_cla = NULL;
+				} else {
+					/* Set the matched SqlColumnListAlias structure pointer in "*ret_cla". But function return
+					 * value will stay NULL. Caller knows to check "*ret_cla" in this case.
+					 */
+					*ret_cla = col_cla;
+					return NULL;
+				}
 			} else {
 				/* Treat the match as a no-match since the alias name ended up inside an expression.
 				 * Fall through to code that will issue ERR_UNKNOWN_COLUMN_NAME error below.
@@ -257,6 +286,22 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 			} while (cur_join != start_join);
 		}
 		if (NULL == col_cla) {
+			if (NULL != group_by_alias_cla) {
+				/* This is a GROUP BY alias usage and the alias is matched with select list column.
+				 * Check if any ambiguity existed.
+				 */
+				if (group_by_alias_ambiguous) {
+					ERROR(ERR_AMBIGUOUS_COLUMN_NAME, column_name);
+					return NULL;
+				} else {
+					/* Return NULL and set `ret_cla` so that GROUP BY column list alias is updated with the node
+					 * found. By waiting this till point in case of ambiguity, GROUP BY name will be interpreted
+					 * as an input-column name rather than an output column name.
+					 */
+					*ret_cla = group_by_alias_cla;
+					return NULL;
+				}
+			} /* else no cla was found issue appropriate error by going through the below code */
 			if (NULL == table_name) {
 				ERROR(ERR_UNKNOWN_COLUMN_NAME, column_name);
 			} else if (NULL != matching_alias_stmt) {

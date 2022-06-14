@@ -29,6 +29,10 @@ SqlStatement *grouping_column_reference(SqlStatement *derived_column_expression,
 		UNPACK_SQL_STATEMENT(value, derived_column_expression, value);
 		switch (value->type) {
 		case INTEGER_LITERAL:
+		case NUMERIC_LITERAL:
+			/* NUMERIC_LITERAL is not allowed in GROUP BY, but, to maintain consistency between ORDER BY
+			 * and GROUP BY error reporting let qualify_statement() issue the error.
+			 */
 		case COLUMN_REFERENCE:
 		case TABLE_ASTERISK:
 		case BOOLEAN_VALUE:

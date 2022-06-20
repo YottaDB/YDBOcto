@@ -66,7 +66,6 @@ int readline_get_more() {
 		 */
 		do {
 			// Reset errno to ensure that the loop terminates so long as `EINTR` is not raised by `read()`
-			errno = 0;
 			if ((0 == old_input_index) && (cur_input_index == cur_input_max)) {
 				char *tmp = malloc(cur_input_max * 2 + 1);
 				memmove(tmp, input_buffer_combined, cur_input_max);
@@ -88,7 +87,7 @@ int readline_get_more() {
 			} else {
 				data_read = read(fileno(inputFile), input_buffer_combined, cur_input_max);
 			}
-		} while (EINTR == errno);
+		} while ((-1 == data_read) && (EINTR == errno));
 
 		// Detecting the EOF is handled by the lexer and this should never be true at this stage
 		assert(EOF_NONE == eof_hit);

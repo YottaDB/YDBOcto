@@ -45,6 +45,7 @@ typedef void *yyscan_t;
 
 #define UNPACK_SQL_STATEMENT(result, item, StatementType)          \
 	{                                                          \
+		assert(NULL != item);                              \
 		assert((item)->type == StatementType##_STATEMENT); \
 		(result) = (item)->v.StatementType;                \
 	}
@@ -518,13 +519,14 @@ typedef struct SqlColumnAlias {
 			     * whereas this lets one go through ALL SELECT queries involved in the SET Operation.
 			     * Will be non-NULL only in case of a column alias corresponding to a SET operation.
 			     */
-	int group_by_column_number; /* 0 if this column name was not specified in a GROUP BY.
-				     * Holds a non-zero index # if column name was specified in GROUP BY
-				     * (e.g. in query `SELECT 1+id FROM names GROUP BY id,firstname`,
-				     *  this field would be 1 for the SqlColumnAlias corresponding to
-				     *  `id` and 2 for the SqlColumnAlias corresponding to `firstname`
-				     *  and 0 for the SqlColumnAlias corresponding to `lastname`).
-				     */
+	struct LogicalPlan *extract_lp; // A logical plan representing an `EXTRACT` DDL specification referencing a SQL function
+	int		    group_by_column_number; /* 0 if this column name was not specified in a GROUP BY.
+						     * Holds a non-zero index # if column name was specified in GROUP BY
+						     * (e.g. in query `SELECT 1+id FROM names GROUP BY id,firstname`,
+						     *  this field would be 1 for the SqlColumnAlias corresponding to
+						     *  `id` and 2 for the SqlColumnAlias corresponding to `firstname`
+						     *  and 0 for the SqlColumnAlias corresponding to `lastname`).
+						     */
 } SqlColumnAlias;
 
 /*
@@ -837,7 +839,9 @@ typedef struct SqlValue {
  * `function_call_STATEMENT` branch of `populate_data_type`.
  */
 typedef struct SqlColumnList {
-	struct SqlStatement *value; /* SqlValue, SqlColumnAlias, SqlUnaryOperation or SqlColumn */
+	struct SqlStatement *value;			     /* SqlValue, SqlColumnAlias, SqlUnaryOperation or SqlColumn */
+	uint64_t	     qualify_extract_function_cycle; /* Track recursion/dependency cycles in EXTRACT function argument lists
+							      */
 	dqcreate(SqlColumnList);
 } SqlColumnList;
 

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -31,13 +31,16 @@ void describe_tablename_global(SqlTable *table) {
 	boolean_t table_has_hidden_key_column;
 	table_has_hidden_key_column = table_has_hidden_column(table);
 	while ('\0' != *source_ptr) {
-		char column[OCTO_MAX_IDENT + 1]; // Null terminator
-		int  t;
-		t = match_keys_expression(source_ptr, column, sizeof(column));
-		assert(-1 != t);
-		if (0 < t) {
+		char		    column[OCTO_MAX_IDENT + 1]; // Null terminator
+		int		    expr_len;
+		ExpressionMatchType match;
+
+		match = match_expression(source_ptr, column, &expr_len, sizeof(column),
+					 ((value->v.string_literal == source_ptr) ? *source_ptr : *(char *)(source_ptr - 1)));
+		assert(MatchExpressionOFlow != match);
+		if (NoMatchExpression < match) {
 			fprintf(stdout, "%s", column);
-			source_ptr += t;
+			source_ptr += expr_len;
 		} else {
 			if (table_has_hidden_key_column && ('(' == *source_ptr)) {
 				/* Table has a HIDDEN key column. In that case, stop at printing the global name.

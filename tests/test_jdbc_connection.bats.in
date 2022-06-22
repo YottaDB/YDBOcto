@@ -213,3 +213,10 @@ teardown() {
         run_java TJC019 $test_port "" useextended &> output.txt
 	verify_output TJC019 output.txt
 }
+
+@test "TJC020 : Syntax error when Extended Query parameter used in EXTRACT function " {
+	load_fixture names.sql
+	load_fixture names.zwr
+	run_java TJC020 $test_port &> output.txt
+	verify_output TJC020 output.txt
+}

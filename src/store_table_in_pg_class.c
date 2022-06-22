@@ -189,118 +189,12 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 	if (YDB_OK != status) {
 		return 1;
 	}
-	/* Store list of functions (hash and name) in gvns so a later DROP FUNCTION can issue an error if an existing
-	 * table constraint relies on the function that is about to be dropped. We already store this list in an lvn
-	 * so all we need to do is to move the lvn data into the gvn here.
-	 *
-	 * Below is an example layout of the input lvn nodes (where 8-byte-constraint-pointer = "&constraint->definition"
-	 * and ,"%ydboctoFN0uUSDY6E7G9VcjaOGNP9G" is the function hash and "SAMEVALUE" is the function name)
-	 *	%ydboctoTblConstraint("functions")=8-byte-constraint-pointer
-	 *	%ydboctoTblConstraint("functions",8-byte-constraint-pointer,"%ydboctoFN0uUSDY6E7G9VcjaOGNP9G")="SAMEVALUE"
-	 *	%ydboctoTblConstraint("functions_map",8-byte-constraint-pointer)="NAME1"
-	 *
-	 * And below is the desired layout of the output gvn nodes (where "NAMES" is the table name)
-	 *	^%ydboctoocto("functions","SAMEVALUE","%ydboctoFN0uUSDY6E7G9VcjaOGNP9G","check_constraint","NAMES","NAME1")=""
-	 *	^%ydboctoocto("tableconstraint","NAMES","NAME1","SAMEVALUE","%ydboctoFN0uUSDY6E7G9VcjaOGNP9G")=""
-	 */
-	ydb_buffer_t ydboctoTblConstraint;
-	YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTOTBLCONSTRAINT, &ydboctoTblConstraint);
-
-	ydb_buffer_t subs[3];
-	char	     function_hash_buff[MAX_ROUTINE_LEN + 1];
-	subs[2].buf_addr = function_hash_buff;
-	subs[2].len_alloc = sizeof(function_hash_buff) - 1; /* reserve 1 byte for null terminator */
-
-	ydb_buffer_t function_name;
-	char	     function_name_buff[OCTO_MAX_IDENT + 1];
-	function_name.buf_addr = function_name_buff;
-	function_name.len_alloc = sizeof(function_name_buff) - 1; /* reserve 1 byte for null terminator */
-
-	ydb_buffer_t constraint_name;
-	char	     constraint_name_buff[OCTO_MAX_IDENT + 1];
-	constraint_name.buf_addr = constraint_name_buff;
-	constraint_name.len_alloc = sizeof(constraint_name_buff) - 1; /* reserve 1 byte for null terminator */
-
-	char pointer_buff[sizeof(void *)];
-	subs[1].buf_addr = pointer_buff;
-	subs[1].len_alloc = sizeof(pointer_buff);
-	subs[1].len_used = 0;
-	while (TRUE) {
-		YDB_LITERAL_TO_BUFFER(OCTOLIT_FUNCTIONS, &subs[0]);
-		status = ydb_subscript_next_s(&ydboctoTblConstraint, 2, &subs[0], &subs[1]);
-		if (YDB_ERR_NODEEND == status) {
-			break;
-		}
-		YDB_ERROR_CHECK(status);
-		if (YDB_OK != status) {
-			assert(FALSE);
-			return 1;
-		}
-		/* Note: "subs[1]" now contains the 8-byte-constraint-pointer */
-		subs[2].len_used = 0;
-		status = ydb_subscript_next_s(&ydboctoTblConstraint, 3, &subs[0], &subs[2]);
-		YDB_ERROR_CHECK(status);
-		if (YDB_OK != status) {
-			assert(FALSE);
-			return 1;
-		}
-		/* Note: "subs[2]" now contains the function-hash */
-		status = ydb_get_s(&ydboctoTblConstraint, 3, &subs[0], &function_name);
-		YDB_ERROR_CHECK(status);
-		if (YDB_OK != status) {
-			assert(FALSE);
-			return 1;
-		}
-		/* Note: "function_name" now contains the function-name */
-		YDB_LITERAL_TO_BUFFER(OCTOLIT_FUNCTIONS_MAP, &subs[0]);
-		status = ydb_get_s(&ydboctoTblConstraint, 2, &subs[0], &constraint_name);
-		YDB_ERROR_CHECK(status);
-		if (YDB_OK != status) {
-			assert(FALSE);
-			return 1;
-		}
-		/* Note: "constraint_name" now contains the constraint name */
-		/* Now that we got all the needed information from the lvn node, store it in the gvns */
-
-		/* Store the gvn node
-		 * ^%ydboctoocto("functions","SAMEVALUE","%ydboctoFN0uUSDY6E7G9VcjaOGNP9G","check_constraint","NAMES","NAME1")=""
-		 */
-		ydb_buffer_t gvn_subs[7];
-		YDB_STRING_TO_BUFFER(config->global_names.octo, &gvn_subs[0]);
-		YDB_LITERAL_TO_BUFFER(OCTOLIT_FUNCTIONS, &gvn_subs[1]);
-		gvn_subs[2] = function_name;
-		gvn_subs[3] = subs[2];
-		YDB_LITERAL_TO_BUFFER(OCTOLIT_CHECK_CONSTRAINT, &gvn_subs[4]);
-		YDB_STRING_TO_BUFFER(table_name, &gvn_subs[5]);
-		gvn_subs[6] = constraint_name;
-		status = ydb_set_s(&gvn_subs[0], 6, &gvn_subs[1], NULL);
-		YDB_ERROR_CHECK(status);
-		if (YDB_OK != status) {
-			assert(FALSE);
-			return 1;
-		}
-		/* Store the gvn node
-		 * ^%ydboctoocto("tableconstraint","NAMES","NAME1","SAMEVALUE","%ydboctoFN0uUSDY6E7G9VcjaOGNP9G")=""
-		 */
-		YDB_LITERAL_TO_BUFFER(OCTOLIT_TABLECONSTRAINT, &gvn_subs[1]);
-		YDB_STRING_TO_BUFFER(table_name, &gvn_subs[2]);
-		gvn_subs[3] = constraint_name;
-		gvn_subs[4] = function_name;
-		gvn_subs[5] = subs[2];
-		status = ydb_set_s(&gvn_subs[0], 5, &gvn_subs[1], NULL);
-		YDB_ERROR_CHECK(status);
-		if (YDB_OK != status) {
-			assert(FALSE);
-			return 1;
-		}
+	status = store_function_dependencies(table_name, DDL_CheckConstraint);
+	if (status) {
+		return 1;
 	}
-	/* Now that we have copied over the lvn nodes tracking function names/hashes in a check constraint into a gvn,
-	 * delete the lvn data. See comment in "src/parser/table_definition.c" (search for OCTOLIT_FUNCTIONS) for details.
-	 */
-	status = ydb_delete_s(&ydboctoTblConstraint, 0, NULL, YDB_DEL_TREE);
-	YDB_ERROR_CHECK(status);
-	if (YDB_OK != status) {
-		assert(FALSE);
+	status = store_function_dependencies(table_name, DDL_ExtractFunction);
+	if (status) {
 		return 1;
 	}
 	/* Store the PRIMARY KEY constraint name for this table in a global so we can ensure unique PRIMARY KEY

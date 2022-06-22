@@ -1,0 +1,93 @@
+
+-- TERR049 : OCTO633 : Various EXTRACT error cases
+
+DROP TABLE IF EXISTS extractnames;
+
+-- Test aggregate functions disallowed in EXTRACT columns
+CREATE TABLE extractnames (
+    id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER,
+    fullname VARCHAR EXTRACT SUM(id)
+) GLOBAL "^names(keys(""ID""))";
+
+-- Test subqueries disallowed in EXTRACT columns
+CREATE TABLE extractnames (
+    id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER,
+    fullname VARCHAR EXTRACT (select * from names;)
+) GLOBAL "^names(keys(""ID""))";
+
+-- Test ERR_MISSING_FROM_ENTRY (EXTRACT function can only reference columns in table being created, not columns in other tables)
+CREATE TABLE extractnames (
+    id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER,
+    fullname VARCHAR EXTRACT CONCAT(firstname, names.lastname)
+) GLOBAL "^names(keys(""ID""))";
+
+-- Test ERR_UNKNOWN_COLUMN_NAME
+CREATE TABLE extractnames (
+    id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER,
+    fullname VARCHAR EXTRACT CONCAT(firstname, noname)
+) GLOBAL "^names(keys(""ID""))";
+
+-- Test TABLENAME.* not permitted as EXTRACT function arguments
+CREATE TABLE extractnames (
+    id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER,
+    fullname VARCHAR EXTRACT CONCAT(extractnames.*, lastname)
+) GLOBAL "^names(keys(""ID""))";
+
+-- Test UNKNOWN function when incorrect type is passed, both with and without type coercion
+CREATE TABLE extractnames (
+    id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER,
+    fullname VARCHAR EXTRACT CONCAT(1, lastname)
+) GLOBAL "^names(keys(""ID""))";
+CREATE TABLE extractnames (
+    id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER,
+    fullname VARCHAR EXTRACT CONCAT(firstname::integer, lastname)
+) GLOBAL "^names(keys(""ID""))";
+
+-- Error issued when column type doesn't match function call return type
+drop table if exists tmp;
+create table tmp (id integer primary key, fullname varchar extract abs(id));
+select * from tmp;  -- Error: table `tmp` doesn't exist
+
+-- Error issued when SQL expressions are used in EXTRACT function calls
+drop table if exists tmp;
+create table tmp (id varchar primary key, fullname1 varchar extract concat(id, id || 'abcd'));
+select * from tmp;
+DROP TABLE
+LINE 7:3:     fullname VARCHAR EXTRACT SUM(id)
+                                       ^^^
+syntax error, unexpected SUM
+LINE 12:3:     fullname VARCHAR EXTRACT (select * from names;)
+                                        ^
+syntax error, unexpected LEFT_PAREN
+LINE 12:1: )
+            ^
+syntax error, unexpected RIGHT_PAREN
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : NAMES
+LINE 17:3:     fullname VARCHAR EXTRACT CONCAT(firstname, names.lastname)
+                                                          ^^^^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: NONAME
+LINE 22:3:     fullname VARCHAR EXTRACT CONCAT(firstname, noname)
+                                                          ^^^^^^
+LINE 27:3:     fullname VARCHAR EXTRACT CONCAT(extractnames.*, lastname)
+                                                            ^
+syntax error, unexpected ASTERISK
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function CONCAT defined with given parameter types (INTEGER, VARCHAR)
+LINE 32:3:     fullname VARCHAR EXTRACT CONCAT(1, lastname)
+                                        ^^^^^^
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function CONCAT defined with given parameter types (INTEGER, VARCHAR)
+LINE 36:3:     fullname VARCHAR EXTRACT CONCAT(firstname::integer, lastname...
+                                        ^^^^^^
+DROP TABLE
+[ERROR]: ERR_EXTRACT_TYPE_MISMATCH: EXTRACT column of type VARCHAR, but function call returns type INTEGER
+LINE 40:1: ...tmp (id integer primary key, fullname varchar extract abs(id));
+                                                            ^^^^^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: TMP
+LINE 41:1: select * from tmp;  -- Error: table `tmp` doesn't exist
+                         ^^^
+DROP TABLE
+LINE 44:1: ...imary key, fullname1 varchar extract concat(id, id || 'abcd'));
+                                                                 ^
+syntax error, unexpected PIPE, expecting RIGHT_PAREN
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: TMP
+LINE 45:1: select * from tmp;
+                         ^^^

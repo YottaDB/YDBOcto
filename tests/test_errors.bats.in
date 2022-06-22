@@ -410,3 +410,8 @@ OCTO
 	load_fixture TERR048.sql subtest novv
 	verify_output TERR048 output.txt
 }
+
+@test "TERR049 : OCTO633 : Various EXTRACT error cases" {
+	load_fixture TERR049.sql subtest novv
+	verify_output TERR049 output.txt
+}

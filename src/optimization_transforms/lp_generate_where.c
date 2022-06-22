@@ -35,12 +35,15 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *root_stmt) {
 	SqlNullIf *		null_if;
 	SqlFunctionCall *	function_call;
 	SqlAggregateFunction *	aggregate_function;
+	SqlColumnAlias *	column_alias;
+	SqlColumn *		column;
 	SqlColumnList *		cur_cl, *start_cl;
 	SqlCaseStatement *	cas;
 	SqlCaseBranchStatement *cas_branch, *cur_branch;
 	SqlStatement *		ret_type, *sql_function_name, *sql_function_hash;
 	boolean_t		error_encountered = FALSE;
 	SqlDataType		data_type;
+	SqlOptionalKeyword *	keyword;
 
 	assert(NULL != stmt);
 	assert((NULL == root_stmt) || (insert_STATEMENT == root_stmt->type) || (update_STATEMENT == root_stmt->type));
@@ -297,6 +300,38 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *root_stmt) {
 		UNPACK_SQL_STATEMENT(ret->v.lp_column.column, stmt, column);
 		break;
 	case column_alias_STATEMENT:
+		// Check whether the given column is a calculated (`EXTRACT`) column referencing a SQL function
+		UNPACK_SQL_STATEMENT(column_alias, stmt, column_alias);
+		if ((column_STATEMENT == column_alias->column->type) && (NULL != column_alias->column->v.column->keywords)) {
+			UNPACK_SQL_STATEMENT(column, column_alias->column, column);
+			keyword = get_keyword(column, OPTIONAL_EXTRACT);
+			if ((NULL != keyword) && (CALCULATED_VALUE == keyword->v->v.value->type)) {
+				/* This column is an `EXTRACT` column referencing a SQL function. In that case, we need to generate
+				 * a logical plan for the SQL function call (`SqlFunctionCall`) that can later be passed to
+				 * `tmpl_print_expression()` during physical plan generation.
+				 *
+				 * So, do that here and store the pointer to this logical plan in the column alias for later
+				 * reference. Otherwise, this pointer will be NULL to signal to `tmpl_column_reference()` that there
+				 * is no SQL function call to emit.
+				 *
+				 * In that case, assuming there is an `EXTRACT` keyword at all, `tmpl_emit_source()` will be called
+				 * with a simple string containing M code, instead of calling `tmpl_print_expression()`) with a
+				 * logical plan.
+				 */
+				SqlValueType   type;
+				SqlStatement * extract_stmt;
+				SqlColumnList *dependencies;
+
+				extract_stmt = copy_sql_statement(keyword->v);
+				dependencies = NULL;
+				qualify_extract_function(
+				    extract_stmt, column_alias->table_alias_stmt->v.table_alias->table->v.create_table, &type,
+				    FALSE, column_alias->table_alias_stmt->v.table_alias, NULL, &dependencies);
+				column_alias->extract_lp = lp_generate_where(extract_stmt, NULL);
+			}
+		} else {
+			column_alias->extract_lp = NULL;
+		}
 		MALLOC_LP_2ARGS(ret, LP_COLUMN_ALIAS);
 		UNPACK_SQL_STATEMENT(ret->v.lp_column_alias.column_alias, stmt, column_alias);
 		break;

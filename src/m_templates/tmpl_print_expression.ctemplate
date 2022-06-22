@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -134,12 +134,29 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				%{}$GET({{ config->global_names.cursor }}(cursorId,{{ PP_PARAMETERS }}{}%
 				%{},{{ value->parameter_index|%d }})){}%
 			} else {
-				/* Literals inside CHECK constraints */
-				if (STRING_LITERAL == value->type) {
-					%{}"{{ value->v.string_literal }}"{}%
-				} else {
-					%{}{{ value->v.string_literal }}{}%
-				}
+				/* Literals inside CHECK constraints or EXTRACT SQL function calls */
+				int status;
+				ydb_buffer_t str, zwr;
+
+				// Convert string to ZWRITE format to prevent broken M code in case of embedded double-quotes
+				YDB_STRING_TO_BUFFER(value->v.string_literal, &str);
+				zwr.len_alloc = OCTO_INIT_BUFFER_LEN;
+				while (TRUE) {
+					OCTO_MALLOC_NULL_TERMINATED_BUFFER(&zwr, zwr.len_alloc);
+					status = ydb_str2zwr_s(&str, &zwr);
+					if (YDB_ERR_INVSTRLEN == status) {
+						free(zwr.buf_addr);
+						zwr.len_alloc *= 2;
+						continue;
+					}
+					YDB_ERROR_CHECK(status);
+					if (YDB_OK == status) {
+						zwr.buf_addr[zwr.len_used] = '\0';
+						break;
+					}
+				};
+				%{}{{ zwr.buf_addr }}{}%
+				free(zwr.buf_addr);
 			}
 			break;
 		case FUNCTION_NAME:

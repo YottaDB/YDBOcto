@@ -87,20 +87,22 @@ discardTable(tableName,tableGVNAME)	;
 	. KILL:(""'=tableGVNAME) @tableGVNAME
 	. ; Now that we know we are in the middle of a DROP TABLE and this table is going away, remove global variable nodes
 	. ; that record which functions this table's CHECK constraints depend on.
-	. NEW gvn
-	. SET gvn="^%ydboctoocto(""tableconstraint"",tableName)"
-	. ; Note that these global variable nodes need not exist in case of a DROP TABLE IF EXISTS hence the $DATA check below.
-	. DO:$DATA(@gvn)
-	. . FOR  SET gvn=$QUERY(@gvn)  QUIT:$QSUBSCRIPT(gvn,2)'=tableName  DO
-	. . . ; gvn would be like ^%ydboctoocto("tableconstraint","NAMES","NAME1","SAMEVALUE","%ydboctoFN0uUSDY6E7G9VcjaOGNP9G")=""
-	. . . NEW constraintName,functionName,functionHash
-	. . . SET constraintName=$QSUBSCRIPT(gvn,3)
-	. . . SET functionName=$QSUBSCRIPT(gvn,4)
-	. . . SET functionHash=$QSUBSCRIPT(gvn,5)
-	. . . KILL @gvn
-	. . . ; Need to also kill the following gvn which is maintained in sync with the above
-	. . . ; ^%ydboctoocto("functions","SAMEVALUE","%ydboctoFN0uUSDY6E7G9VcjaOGNP9G","check_constraint","NAMES","NAME1")=""
-	. . . KILL ^%ydboctoocto("functions",functionName,functionHash,"check_constraint",tableName,constraintName)
+	. NEW gvn,i
+	. FOR i=1:1:2  DO
+	. . SET gvn=$SELECT(1=i:"^%ydboctoocto(""tableconstraint"",tableName)",2=i:"^%ydboctoocto(""extractfunction"",tableName)")
+	. . ; Note that these global variable nodes need not exist in case of a DROP TABLE IF EXISTS hence the $DATA check below.
+	. . DO:$DATA(@gvn)
+	. . . FOR  SET gvn=$QUERY(@gvn)  QUIT:$QSUBSCRIPT(gvn,2)'=tableName  DO
+	. . . . ; gvn would be like ^%ydboctoocto("tableconstraint","NAMES","NAME1","SAMEVALUE","%ydboctoFN0uUSDY6E7G9VcjaOGNP9G")=""
+	. . . . NEW constraintName,functionName,functionHash
+	. . . . SET constraintName=$QSUBSCRIPT(gvn,3)
+	. . . . SET functionName=$QSUBSCRIPT(gvn,4)
+	. . . . SET functionHash=$QSUBSCRIPT(gvn,5)
+	. . . . KILL @gvn
+	. . . . ; Need to also kill the following gvn which is maintained in sync with the above
+	. . . . ; ^%ydboctoocto("functions","SAMEVALUE","%ydboctoFN0uUSDY6E7G9VcjaOGNP9G","check_constraint","NAMES","NAME1")=""
+	. . . . SET gvn=$SELECT(1=i:"^%ydboctoocto(""functions"","""_functionName_""","""_functionHash_""",""check_constraint"","""_tableName_""","""_constraintName_""")",2=i:"^%ydboctoocto(""functions"","""_functionName_""","""_functionHash_""",""extractfunction"","""_tableName_""","""_constraintName_""")")
+	. . . . KILL @gvn
 	. ;
 	. ; Remove global nodes that help maintain uniqueness of PRIMARY KEY constraint name across all tables
 	. ; Note that these global variable nodes need not exist in case of a DROP TABLE IF EXISTS hence the $DATA check below.

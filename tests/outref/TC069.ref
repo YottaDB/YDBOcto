@@ -1,0 +1,7 @@
+
+-- TC069 : OCTO633 : Double-quotes accepted in EXTRACT function arguments
+
+drop table if exists tmp;
+create table tmp (name varchar primary key, namequote varchar extract concat (name, '"'));
+DROP TABLE
+CREATE TABLE

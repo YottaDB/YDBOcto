@@ -149,9 +149,12 @@
 #define OCTOLIT_BOUND		     "bound"
 #define OCTOLIT_CHECK		     "CHECK"
 #define OCTOLIT_CHUNK		     "chunk"
+#define OCTOLIT_COLUMN		     "column"
 #define OCTOLIT_COLUMNS		     "columns"
 #define OCTOLIT_COLUMN_ID	     "column_id"
+#define OCTOLIT_CONSTRAINT	     "constraint"
 #define OCTOLIT_CHECK_CONSTRAINT     "check_constraint"
+#define OCTOLIT_EXTRACTFUNCTION	     "extractfunction"
 #define OCTOLIT_DATA_TYPE	     "data_type"
 #define OCTOLIT_DATA_TYPE_SIZE	     "data_type_size"
 #define OCTOLIT_DDL		     "ddl"
@@ -206,6 +209,7 @@
 #define OCTOLIT_YDBOCTOSECRETKEYLIST "%ydboctoSecretKeyList"
 #define OCTOLIT_YDBOCTOTBLCONSTRAINT "%ydboctoTblConstraint"
 #define OCTOLIT_YDBOCTOSCHEMA	     "^%ydboctoschema"
+#define OCTOLIT_YDBOCTOTBLEXTRACT    "%ydboctoTblExtract"
 
 #define OCTOLIT_AIM_OCTO_CACHE	   "^%ydbAIMOctoCache"
 #define OCTOLIT_AIM_SUB_COMPLETED  "completed?"
@@ -321,7 +325,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_BINARY_DEFINITION 15
+#define FMT_BINARY_DEFINITION 16
 
 /* The below macro needs to be manually bumped if at least one of the following changes.
  *	1) Generated physical plan (_ydboctoP*.m) file name OR contents
@@ -536,6 +540,18 @@ typedef enum RegexType {
 	REGEX_SIMILARTO,
 	REGEX_TILDE,
 } RegexType;
+
+typedef enum ExpressionMatchType {
+	MatchExpressionOFlow,
+	NoMatchExpression,
+	KeysExpression,
+	ValuesExpression,
+} ExpressionMatchType;
+
+typedef enum DDLDependencyType {
+	DDL_CheckConstraint,
+	DDL_ExtractFunction,
+} DDLDependencyType;
 
 #define INVOKE_QUERY_SPECIFICATION(Q_SPEC, SET_QT, SELECT_LIST, TABLE_EXPR, SORT_SPEC_LIST, PLAN_ID)    \
 	{                                                                                               \
@@ -1019,11 +1035,13 @@ SqlStatement *traverse_where_clause(SqlStatement *binary_stmt, SqlJoin *start_jo
 SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, SqlStatement *table_alias_stmt, int depth,
 				    SqlColumnListAlias **ret_cla);
 int		qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *type);
+int		qualify_extract_function(SqlStatement *stmt, SqlTable *table, SqlValueType *type, boolean_t is_first_pass,
+					 SqlTableAlias *table_alias, SqlStatement *column_name, SqlColumnList **dependencies);
 int		qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTableAlias *parent_table_alias,
 			      QualifyStatementParms *ret);
 int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_alias_stmt, int depth, QualifyStatementParms *ret);
 
-int match_keys_expression(char *start, char *column, int column_size);
+ExpressionMatchType match_expression(char *start, char *column, int *expr_len, int max_column_len, char prev);
 
 SqlColumnListAlias *match_column_in_table(SqlTableAlias *table, char *column_name, int column_name_len, boolean_t *ambiguous,
 					  boolean_t issue_error);
@@ -1094,6 +1112,7 @@ SqlStatement *decompress_statement(char *buffer, int out_length);
 int  store_table_definition(ydb_buffer_t *table_name_buff, char *table_defn, int table_defn_length, boolean_t is_text);
 int  store_function_definition(ydb_buffer_t *function_name_buffers, char *function_defn, int function_defn_length,
 			       boolean_t is_text);
+int  store_function_dependencies(char *table_name, DDLDependencyType dtype);
 int  store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer);
 int  delete_table_from_pg_class(ydb_buffer_t *table_name_buffer);
 void cleanup_tables();
@@ -1195,17 +1214,18 @@ void readline_setup(void);
 void add_single_history_item(char *input_buffer_combined, int old_input_index);
 
 /* Globals */
-extern uint64_t hash_canonical_query_cycle; // incremented before every outermost call to "hash_canonical_query"
-extern int	cur_input_index;	    // Current index of input_buffer_combined the parser should read from,
-					    // and readlines should write to. Effectively marks the end of the
-					    // current query.
-extern int old_input_index;		    // The previous value of cur_input_index before the parser modifies it.
-					    // Effectively marks the start of the current query.
-extern int   old_input_line_num;	    // The line number pointed to by old_input_index
-extern int   prev_input_line_num;	    // The line number pointed to by the previous value of old_input_index
-extern char *old_input_line_begin;	    // Pointer to the beginning of the line pointed to by old_input_index
-extern int   leading_spaces;		    // leading spaces in the current query it needs to be stored somewhere
-					    // accessible but should be ignored, except by the lexer and yyerror
+extern uint64_t hash_canonical_query_cycle;	// incremented before every outermost call to "hash_canonical_query"
+extern uint64_t qualify_extract_function_cycle; // incremented before every outermost call to "qualify_extract_function"
+extern int	cur_input_index;		// Current index of input_buffer_combined the parser should read from,
+						// and readlines should write to. Effectively marks the end of the
+						// current query.
+extern int old_input_index;			// The previous value of cur_input_index before the parser modifies it.
+						// Effectively marks the start of the current query.
+extern int   old_input_line_num;		// The line number pointed to by old_input_index
+extern int   prev_input_line_num;		// The line number pointed to by the previous value of old_input_index
+extern char *old_input_line_begin;		// Pointer to the beginning of the line pointed to by old_input_index
+extern int   leading_spaces;			// leading spaces in the current query it needs to be stored somewhere
+						// accessible but should be ignored, except by the lexer and yyerror
 extern int   cur_input_max;
 extern int   eof_hit;
 extern FILE *inputFile;

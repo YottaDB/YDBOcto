@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -21,7 +21,7 @@
 /* If we are given something like ^myTable(keys("id")), we should
  *  transform this to ^myTable({{ config->global_names.cursor }}(cursorId,PP_KEYS,###,"myTable","id"))
  *
- * We use a helper function "match_keys_expression()" for this purpose.
+ * We use a helper function "match_expression()" for this purpose.
  */
 
 /**
@@ -33,25 +33,42 @@
  *	It is      NULL             when "form" is EmitSourceForm_Insert or EmitSourceForm_NoKeyCol
  */
 TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int unique_id, int num_vars_to_match, enum EmitSourceForm form) {
+	char prev;
 	char		*source_ptr;
 	char		column[OCTO_MAX_IDENT + 1]; // Null terminator
-	int		t, matched_vars = 0;
+	int		expr_len, matched_vars = 0;
 	int		key_count;
 	int		paren_count = 0;
 	boolean_t	is_currently_inside_quotes = false;
+	ExpressionMatchType match;
 
 	source_ptr = source;
 	key_count = 0;
 	assert(num_vars_to_match);
-	// TODO: how does this handle globals that have things like "abc"_keys("id")?
 	while (('\0' != *source_ptr) && (matched_vars < num_vars_to_match)) {
-		t = match_keys_expression(source_ptr, column, sizeof(column));
-		assert(-1 != t);
-		if (0 < t) {
+		if (source == source_ptr) {
+			/* If the first character of the source string is 'k' or 'v', then it may be a `keys()` or `values()`
+			 * expression. However, the string was received without the preceding character, and so we cannot check for
+			 * '(' or ',' here (see comment in `match_expression.c` for more details).
+			 *
+			 * Accordingly, we explicitly set the previous character to '(' in this case to signal the possible
+			 * expression to `match_expression()`. This is safe in this case because we know that `source` is NOT a
+			 * substring of another variable name, but a string that stands on its own. So, we don't need to explicitly
+			 * check whether it is a substring, i.e. by checking the previous character for '(' or ','.
+			 */
+			prev = ((('k' == *source) || ('v' == *source)) ? '(' : *source);
+		} else {
+			prev = *(char *)(source_ptr - 1);
+		}
+		match = match_expression(source_ptr, column, &expr_len, sizeof(column), prev);
+		assert(MatchExpressionOFlow != match);
+		if (NoMatchExpression < match) {
 			SqlColumn	*sql_column;
 
+			assert(0 < expr_len);
 			/* Find the SqlColumn structure. */
 			sql_column = find_column(column, table);
+			// This assert will fail if the user passes a non-existent column to `keys(...)`
 			assert(NULL != sql_column);
 
 			if (EmitSourceForm_NoKeyCol == form) {
@@ -88,12 +105,85 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 			case EmitSourceForm_Value:;
 				/* Caller wants M global source form that is usable in a SELECT/DELETE FROM query. */
 				char	*table_name;
+				SqlOptionalKeyword	*keyword;
 
 				table_name = parm1;
 				assert(NULL != table_name);
 				assert(unique_id);
-				%{}{{ config->global_names.cursor }}{}%
-				%{}(cursorId,{{ PP_KEYS }},{{ unique_id|%d }},"{{ table_name }}","{{ column }}"){}%
+				if (KeysExpression == match) {
+					%{}{{ config->global_names.cursor }}{}%
+					%{}(cursorId,{{ PP_KEYS }},{{ unique_id|%d }},"{{ table_name }}","{{ column }}"){}%
+				} else {
+					keyword = get_keyword(sql_column, PRIMARY_KEY);
+					if ((NULL != keyword) || sql_column->is_hidden_keycol) {
+						/* A key column was passed to a `values(...)` expression, which is prohibited. Since
+						 * we cannot issue a proper error from within `.ctemplate` files, instead force an
+						 * M-level error to prevent erroneous results from being returned until YDBOcto#918
+						 * is resolved.
+						 */
+						%{}{{ "ydboctoInvalidExpression" }}{}%
+						break;
+					}
+					char *source_global;
+					char *placeholder;
+					char *delim;
+
+					assert(ValuesExpression == match);
+					if (NULL == sql_column->delim) {
+						delim = table->delim->v.keyword->v->v.value->v.string_literal;
+					} else {
+						delim = sql_column->delim->v.value->v.string_literal;
+					}
+
+					int num_keys;
+					SqlColumn *start_column, *cur_column, *key_column;
+
+					UNPACK_SQL_STATEMENT(start_column, table->columns, column);
+					cur_column = start_column;
+					num_keys = 0;
+					key_column = NULL;
+					placeholder = NULL;
+					do {
+						if (IS_KEY_COLUMN(cur_column)) {
+							num_keys++;
+							key_column = cur_column;
+						}
+						cur_column = cur_column->next;
+					} while (cur_column != start_column);
+
+					source_global = table->source->v.keyword->v->v.value->v.string_literal;
+					keyword = get_keyword(sql_column, PRIMARY_KEY);
+					%{}$PIECE($GET({}%
+					if (1 < num_keys) {
+						// There are multiple key columns, so expand them programmatically
+						TMPL(tmpl_emit_source, table, source_global, table_name, unique_id, MAX_KEY_COUNT, form);
+					} else {
+						assert(1 == num_keys);
+						assert(NULL != key_column);
+						// There is only one key column, so simply construct the node reference here
+						placeholder = strstr(source_global, "(");
+						*placeholder = '\0';
+						%{}{{ source_global }}({{ config->global_names.cursor }}(cursorId,{{ PP_KEYS }},{{ unique_id|%d }}{}%
+						%{},"{{ table_name }}"{}%
+						%{},"{{ key_column->columnName->v.value->v.string_literal }}")){}%
+					}
+					%{}){}%
+					if (DELIM_IS_LITERAL == delim[0]) {
+						%{},"{{ &delim[1] }}"{}%
+					} else {
+						// Omit quotation marks to allow calls to $CHAR
+						%{},{{ &delim[1] }}{}%
+					}
+					keyword = get_keyword(sql_column, OPTIONAL_PIECE);
+					if (NULL == keyword) {
+						%{},{{ sql_column->column_number-1|%d }}){}%
+					} else {
+						%{},{{ keyword->v->v.value->v.string_literal }}){}%
+					}
+					if (NULL != placeholder) {
+						*placeholder = '(';
+					}
+				}
 				break;
 			case EmitSourceForm_Insert:
 				/* Caller wants M global source form that is usable in an INSERT INTO query. */
@@ -206,7 +296,7 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 				FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 				break;
 			}
-			source_ptr += t;
+			source_ptr += expr_len;
 			matched_vars += 1;
 		} else {
 			if ((EmitSourceForm_Trigger == form) && ('"' == *source_ptr)) {

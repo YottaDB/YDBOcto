@@ -137,6 +137,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	int		    column_number;
 	SqlOptionalKeyword *cur_keyword, *start_keyword;
 	SqlColumn *	    cur_column, *start_column, *next_column, *first_non_key_column;
+	SqlColumnList *	    dependencies;
 	SqlStatement *	    statement;
 	SqlValue *	    value;
 	size_t		    str_len;
@@ -161,6 +162,8 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	 * Override this later based on whether READWRITE or READONLY keywords have been specified in the CREATE TABLE.
 	 */
 	table_type = config->default_tabletype;
+	// Reset the qualify_extract_function() cycle
+	qualify_extract_function_cycle = 0;
 
 	/* Define the local variable name under which we will
 	 * a) Store constraint names as we process the CREATE TABLE. This will help us identify duplicate constraint names.
@@ -169,10 +172,18 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	 */
 	ydb_buffer_t ydboctoTblConstraint;
 	YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTOTBLCONSTRAINT, &ydboctoTblConstraint);
+	ydb_buffer_t ydboctoTblExtract;
+	YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTOTBLEXTRACT, &ydboctoTblExtract);
 
 	/* Remove any leftover lvn nodes from prior CREATE TABLE query runs just in case */
 	int status;
 	status = ydb_delete_s(&ydboctoTblConstraint, 0, NULL, YDB_DEL_TREE);
+	YDB_ERROR_CHECK(status);
+	if (YDB_OK != status) {
+		assert(FALSE);
+		return NULL;
+	}
+	status = ydb_delete_s(&ydboctoTblExtract, 0, NULL, YDB_DEL_TREE);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
 		assert(FALSE);
@@ -1400,6 +1411,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	cur_column = start_column;
 	column_number = 0;
 	piece_number = 1;
+	dependencies = NULL;
 	do {
 		boolean_t	    delim_is_empty, remove_piece_keyword, is_extract;
 		SqlOptionalKeyword *keyword, *piece_keyword;
@@ -1430,7 +1442,69 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		// Handle EXTRACT
 		keyword = get_keyword(cur_column, OPTIONAL_EXTRACT);
 		if (NULL != keyword) {
+			SqlValueType type;
+
 			is_extract = TRUE;
+			if ((value_STATEMENT == keyword->v->type) && (CALCULATED_VALUE == keyword->v->v.value->type)) {
+				SqlValueType col_type;
+
+				/* Check function call return type against column type and
+				 * issue error if mismatch.
+				 */
+				UNPACK_SQL_STATEMENT(value, keyword->v, value);
+				status = function_call_data_type_check(value->v.calculated, &type, NULL, table);
+				if (status) {
+					// Error issued by function_call_data_type_check
+					return NULL;
+				}
+				col_type = get_sqlvaluetype_from_sqldatatype(cur_column->data_type_struct.data_type, TRUE);
+				if (col_type != type) {
+					ERROR(ERR_EXTRACT_TYPE_MISMATCH, get_user_visible_type_string(col_type),
+					      get_user_visible_type_string(type));
+					yyerror(&keyword->v->loc, NULL, NULL, NULL, NULL, NULL);
+					return NULL;
+				}
+
+				// Store pointer to SqlStatement containing EXTRACT specification
+				ydb_buffer_t func_subs[2];
+				YDB_LITERAL_TO_BUFFER(OCTOLIT_FUNCTIONS, &func_subs[0]);
+				func_subs[1].buf_addr = (char *)&keyword->v;
+				func_subs[1].len_used = func_subs[1].len_alloc = sizeof(void *);
+				status = ydb_set_s(&ydboctoTblExtract, 1, &func_subs[0], &func_subs[1]);
+				YDB_ERROR_CHECK(status);
+				if (YDB_OK != status) {
+					assert(FALSE);
+					return NULL;
+				}
+				/* Note down the mapping between an EXTRACT function call (the 8-byte pointer) and its name.
+				 * This is needed later in "store_table_in_pg_class.c" to know which EXTRACT function uses which
+				 * function names/hashes.
+				 */
+				ydb_buffer_t map_subs[2];
+				YDB_LITERAL_TO_BUFFER(OCTOLIT_FUNCTIONS_MAP, &map_subs[0]);
+				YDB_STRING_TO_BUFFER(cur_column->columnName->v.value->v.string_literal, &subs[1]);
+				map_subs[1].buf_addr = (char *)&keyword->v;
+				map_subs[1].len_used = map_subs[1].len_alloc = sizeof(void *);
+				/* Note: subs[1] contains the column name */
+				status = ydb_set_s(&ydboctoTblExtract, 2, &map_subs[0], &subs[1]);
+				YDB_ERROR_CHECK(status);
+				if (YDB_OK != status) {
+					assert(FALSE);
+					return NULL;
+				}
+				qualify_extract_function_cycle++;
+				if (qualify_extract_function(keyword->v, table, &type, TRUE, NULL, cur_column->columnName,
+							     &dependencies)) {
+					ydb_buffer_t ydboctoTblExtract;
+					YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTOTBLEXTRACT, &ydboctoTblExtract);
+
+					// Cleanup any nodes created by `qualify_extract_function()`
+					status = ydb_delete_s(&ydboctoTblExtract, 1, &subs[0], YDB_DEL_TREE);
+					assert(YDB_OK == status);
+					YDB_ERROR_CHECK(status);
+					return NULL; /* EXTRACT function qualification failed */
+				}
+			}
 		} else {
 			is_extract = FALSE;
 		}

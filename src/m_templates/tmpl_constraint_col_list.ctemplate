@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -55,11 +55,14 @@ TEMPLATE(tmpl_constraint_col_list, PhysicalPlan *pplan, SqlConstraint *constrain
 			source_ptr = value->v.string_literal;
 
 			while ('\0' != *source_ptr) {
-				char column[OCTO_MAX_IDENT + 1]; // Null terminator
-				int  t;
-				t = match_keys_expression(source_ptr, column, sizeof(column));
-				assert(-1 != t);
-				if (0 < t) {
+				char		    column[OCTO_MAX_IDENT + 1]; // Null terminator
+				int		    expr_len;
+				ExpressionMatchType match;
+
+				match = match_expression(source_ptr, column, &expr_len, sizeof(column),
+					((value->v.string_literal == source_ptr) ? *source_ptr : *(char *)(source_ptr - 1)));
+				assert(MatchExpressionOFlow != match);
+				if (NoMatchExpression < match) {
 					SqlColumn	*cur_column;
 					cur_column = find_column(column, table);
 
@@ -98,7 +101,7 @@ TEMPLATE(tmpl_constraint_col_list, PhysicalPlan *pplan, SqlConstraint *constrain
 						/* A PP_COL(i) lvn for this column has been initialized. So use that. */
 						%{}{{ PP_COL }}({{ column_number|%d }}){}%
 					}
-					source_ptr += t;
+					source_ptr += expr_len;
 				} else {
 					%{}{{ *source_ptr|%c }}{}%
 					source_ptr++;

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -100,7 +100,10 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 
 		int status;
 		status = ydb_get_s(&octo_global, 4, &function_subs[0], &ret);
-		assert(YDB_OK == status);
+		/* Either the function exists, or the EXTRACT column was a string literal, in which case there
+		 * will be no SQL function dependency.
+		 */
+		assert((YDB_OK == status) || (YDB_ERR_GVUNDEF == status));
 #endif
 		break;
 	case parameter_type_list_STATEMENT:

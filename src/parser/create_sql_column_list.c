@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -27,6 +27,7 @@ SqlStatement *create_sql_column_list(SqlStatement *elem, SqlStatement *tail, YYL
 		ret->loc = *llocp;
 	}
 	column_list->value = elem;
+	assert(0 == column_list->qualify_extract_function_cycle);
 	dqinit(column_list);
 	if (NULL != tail) {
 		UNPACK_SQL_STATEMENT(cl_tail, tail, column_list);

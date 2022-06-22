@@ -30,6 +30,7 @@ typedef void* yyscan_t;
 
 #include "octo.h"
 #include "octo_types.h"
+#include "octo_type_check.h"
 #include "parser.h"
 #include "helpers.h"
 #include "rocto_common.h"
@@ -650,6 +651,32 @@ table_subquery
   : subquery { $$ = $subquery; }	%prec PREC1
   ;
 
+extract_parm_list
+  : /* Empty */ {
+      $$ = create_sql_column_list(NULL, NULL, &yyloc);
+    }
+  | extract_parm_list_term extract_parm_list_tail {
+      $$ = create_sql_column_list($extract_parm_list_term, $extract_parm_list_tail, &yyloc);
+    }
+  ;
+
+extract_parm_list_term
+  : literal_value { $$ = $literal_value; }
+  | qualified_name { $$ = $qualified_name; }
+  | qualified_name cast_specification {
+      $$ = cast_specification($cast_specification, $1);
+      if (NULL == $$) {
+        YYERROR;
+      }
+      $$->loc = @1;
+    }
+  ;
+
+extract_parm_list_tail
+  : /* Empty */ { $$ = NULL; }
+  | COMMA extract_parm_list { $$ = $extract_parm_list; }
+  ;
+
 in_value_list_allow_empty
   : /* Empty */ {
       $$ = create_sql_column_list(NULL, NULL, &yyloc);
@@ -1096,6 +1123,29 @@ generic_function_call
   | parenless_function { $$ = $parenless_function; }
   ;
 
+extract_function_call
+  : function_name LEFT_PAREN extract_parm_list RIGHT_PAREN {
+      SQL_STATEMENT($$, value_STATEMENT);
+      MALLOC_STATEMENT($$, value, SqlValue);
+      SqlStatement *fc_statement;
+      SqlFunctionCall *fc;
+      SqlValue *value;
+      UNPACK_SQL_STATEMENT(value, $$, value);
+
+      value->type = CALCULATED_VALUE;
+      SQL_STATEMENT(fc_statement, function_call_STATEMENT);
+      MALLOC_STATEMENT(fc_statement, function_call, SqlFunctionCall);
+      UNPACK_SQL_STATEMENT(fc, fc_statement, function_call);
+      fc->function_name = $function_name;
+      fc->parameters = $extract_parm_list;
+      value->v.calculated = fc_statement;
+
+      // Change the function name value to be a string literal rather than column reference
+      UNPACK_SQL_STATEMENT(value, $function_name, value);
+      value->type = FUNCTION_NAME;
+    }
+  | parenless_function { $$ = $parenless_function; }
+  ;
 function_name
   : qualified_identifier { $$ = $qualified_identifier; }
   ;
@@ -1635,6 +1685,20 @@ column_definition_tail
        SqlOptionalKeyword *keyword;
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
        dqappend(keyword, ($$)->v.keyword);
+       ($$)->v.keyword->v->loc = yyloc;
+    }
+  | EXTRACT extract_function_call column_definition_tail {
+
+       SQL_STATEMENT($$, keyword_STATEMENT);
+       MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
+       ($$)->v.keyword->keyword = OPTIONAL_EXTRACT;
+       ($$)->v.keyword->v = $extract_function_call;
+       dqinit(($$)->v.keyword);
+
+       SqlOptionalKeyword *keyword;
+       UNPACK_SQL_STATEMENT(keyword, $3, keyword);
+       dqappend(keyword, ($$)->v.keyword);
+       ($$)->v.keyword->v->loc = yyloc;
     }
   | PIECE ddl_int_literal_value column_definition_tail {
        SqlOptionalKeyword *keyword;
@@ -1646,7 +1710,25 @@ column_definition_tail
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
        dqappend(keyword, ($$)->v.keyword);
     }
-  | delim_specification column_definition_tail { $$ = $delim_specification; }
+  | delim_specification column_definition_tail {
+       $$ = $delim_specification;
+
+       SqlOptionalKeyword *keyword;
+       SqlValue *value;
+       UNPACK_SQL_STATEMENT(keyword, $delim_specification, keyword);
+       if (NULL != keyword->v) {
+	       UNPACK_SQL_STATEMENT(value, keyword->v, value);
+	       if ((DELIM_IS_LITERAL != value->v.string_literal[0]) || (0 < strlen(&value->v.string_literal[1]))) {
+		 /* Append the DELIM to the keyword list in `column_definition_tail) so that the correct $PIECE number is used in M
+		  * plans. However, this should only be done when the DELIM is not an empty string literal, i.e. not `""`.
+		  *
+		  * In that case, do not append the DELIM to the keyword list, so that the column level DELIM invalidates
+		  * any $PIECE specified and fetches entire node.
+		  */
+		 dqappend(($2)->v.keyword, ($$)->v.keyword);
+	       }
+	}
+    }
   | GLOBAL ddl_str_literal_value column_definition_tail {
        MALLOC_KEYWORD_STMT($$, OPTIONAL_SOURCE);
        ($$)->v.keyword->v = $ddl_str_literal_value;

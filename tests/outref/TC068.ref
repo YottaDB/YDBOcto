@@ -1,0 +1,24 @@
+
+-- TC068 : OCTO633 : EXTRACT containing values() works after manual additional of rows to table
+
+drop table if exists tmp;
+create table tmp (id1 integer primary key, id2 integer, id3 integer extract "$extract(values(""ID2""),1,99)*10") READONLY GLOBAL "^x";
+select * from tmp;
+DROP TABLE
+CREATE TABLE
+ID1|ID2|ID3
+(0 rows)
+
+select * from tmp;
+ID1|ID2|ID3
+(0 rows)
+
+drop table if exists tmp;
+create table tmp (id1 integer primary key, id2 integer key num 1, id3 integer, id4 integer extract "$extract(values(""ID3""),1,99)*10") READONLY GLOBAL "^x";
+select * from tmp;
+DROP TABLE
+CREATE TABLE
+ID1|ID2|ID3|ID4
+1|5|10|100
+2|10|20|200
+(2 rows)

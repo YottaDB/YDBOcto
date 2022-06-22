@@ -1090,3 +1090,6 @@ DROP TABLE tmp5;
 
 -- Issue syntax error for qualified column names in CONSTRAINTs, i.e. for `x.y` syntax
 create table tmp (id integer, unique (tmp.id));
+
+-- Confirm user-friendly error message for ERR_TYPE_NOT_COMPATIBLE issued for CHECK constraints
+create table tmp (id integer CHECK ((id+'abcd')::varchar > 1::varchar));

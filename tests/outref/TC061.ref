@@ -1,0 +1,80 @@
+
+-- TC061 : OCTO633 : EXTRACT accepts non-key columns
+
+-- Table with literal delimiter (default '|')
+CREATE TABLE extractnames (
+	id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER,
+	fullname VARCHAR EXTRACT "$$^FULLNAME(values(""FIRSTNAME""),values(""LASTNAME""))"
+) GLOBAL "^names(keys(""ID""))";
+
+select * from extractnames;
+select fullname from extractnames;
+
+-- Table with non-literal delimiter at table level
+CREATE TABLE delimnames (
+	id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  middleInitial VARCHAR(1), age INTEGER,
+	fullname VARCHAR EXTRACT "$$^FULLNAME(values(""FIRSTNAME""),values(""LASTNAME""))"
+) DELIM (123, 9, 124, 9, 125) GLOBAL "^delimnames(keys(""ID""))";
+
+select * from extractnames;
+select fullname from delimnames;
+
+-- Table with non-literal delimiter at column level
+CREATE TABLE delimnamescol (
+	id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30) DELIM (13), middleInitial VARCHAR(1), age INTEGER,
+	fullname VARCHAR EXTRACT "$$^FULLNAME(values(""FIRSTNAME""),values(""LASTNAME""))"
+) GLOBAL "^delimnamescol(keys(""ID""))";
+
+select * from extractnames;
+select fullname from delimnamescol;
+CREATE TABLE
+ID|FIRSTNAME|LASTNAME|AGE|FULLNAME
+0|Zero|Cool||Zero Cool
+1|Acid|Burn||Acid Burn
+2|Cereal|Killer||Cereal Killer
+3|Lord|Nikon||Lord Nikon
+4|Joey|||Joey 
+5|Zero|Cool||Zero Cool
+(6 rows)
+FULLNAME
+Zero Cool
+Acid Burn
+Cereal Killer
+Lord Nikon
+Joey 
+Zero Cool
+(6 rows)
+CREATE TABLE
+ID|FIRSTNAME|LASTNAME|AGE|FULLNAME
+0|Zero|Cool||Zero Cool
+1|Acid|Burn||Acid Burn
+2|Cereal|Killer||Cereal Killer
+3|Lord|Nikon||Lord Nikon
+4|Joey|||Joey 
+5|Zero|Cool||Zero Cool
+(6 rows)
+FULLNAME
+Zero Cool
+Acid Burn
+Cereal Killer
+Lord Nikon
+Joey 
+Zero Cool
+(6 rows)
+CREATE TABLE
+ID|FIRSTNAME|LASTNAME|AGE|FULLNAME
+0|Zero|Cool||Zero Cool
+1|Acid|Burn||Acid Burn
+2|Cereal|Killer||Cereal Killer
+3|Lord|Nikon||Lord Nikon
+4|Joey|||Joey 
+5|Zero|Cool||Zero Cool
+(6 rows)
+FULLNAME
+Zero B|25
+Acid I|22
+Cereal A|59
+Lord O|
+Joey |42
+Zero B|25
+(6 rows)

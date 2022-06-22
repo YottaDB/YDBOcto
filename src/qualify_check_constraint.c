@@ -135,8 +135,13 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 			/* No need to do any qualification or type checking in this case */
 			break;
 		case TABLE_ASTERISK:
+			ERROR(ERR_INVALID_CONSTRAINT_EXPRESSION, "TABLENAME.*")
+			yyerror(&stmt->loc, NULL, NULL, NULL, NULL, NULL);
+			result = 1;
+			break;
 		case PARAMETER_VALUE:
 			/* These usages are not supported inside CHECK constraints. Issue syntax error. */
+			ERROR(ERR_INVALID_CONSTRAINT_EXPRESSION, "Prepared statement")
 			yyerror(&stmt->loc, NULL, NULL, NULL, NULL, NULL);
 			result = 1;
 			break;
@@ -217,7 +222,8 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 		case COERCE_TYPE:
 			result |= qualify_check_constraint(value->v.coerce_target, table, &value->pre_coerced_type);
 			if (result) {
-				yyerror(NULL, NULL, &stmt, NULL, NULL, NULL);
+				// Any errors would have already been issued by the qualify_check_constraint() call immediately
+				// above
 			} else {
 				/* This code is similar to that in "populate_data_type.c" */
 				*type = get_sqlvaluetype_from_sqldatatype(value->coerced_type.data_type, FALSE);

@@ -1,0 +1,36 @@
+
+-- TC064 : OCTO633 : Correct text table definitions are generated for DDLs with EXTRACT column and > 2 non-key columns
+
+drop table if exists delimnamescol;
+CREATE TABLE delimnamescol (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30) DELIM (13), middleInitial VARCHAR(1), age INTEGER, fullName VARCHAR EXTRACT "$$^FULLNAME(values(""FIRSTNAME""),values(""LASTNAME""))") GLOBAL "^delimnamescol(keys(""ID""))";
+select * from delimnamescol;
+DROP TABLE
+CREATE TABLE
+ID|FIRSTNAME|LASTNAME|MIDDLEINITIAL|AGE|FULLNAME
+0|Zero|B|25|25||Zero B|25
+1|Acid|I|22|22||Acid I|22
+2|Cereal|A|59|59||Cereal A|59
+3|Lord|O||||Lord O|
+4|Joey||42|42||Joey |42
+5|Zero|B|25|25||Zero B|25
+(6 rows)
+
+-- TC064 : OCTO633 : Correct text table definitions are generated for DDLs with EXTRACT column and > 2 non-key columns
+
+drop table if exists delimnamescol;
+DROP TABLE
+CREATE TABLE
+
+-- TC064 : OCTO633 : Correct text table definitions are generated for DDLs with EXTRACT column and > 2 non-key columns
+
+select * from delimnamescol;
+ID|FIRSTNAME|LASTNAME|MIDDLEINITIAL|AGE|FULLNAME
+0|Zero|B|25|25||Zero B|25
+1|Acid|I|22|22||Acid I|22
+2|Cereal|A|59|59||Cereal A|59
+3|Lord|O||||Lord O|
+4|Joey||42|42||Joey |42
+5|Zero|B|25|25||Zero B|25
+(6 rows)
+CREATE TABLE `DELIMNAMESCOL` (`ID` INTEGER CONSTRAINT "DELIMNAMESCOL_PKEY" PRIMARY KEY, `FIRSTNAME` VARCHAR(30) PIECE 1, `LASTNAME` VARCHAR(30) DELIM (13) PIECE 2, `MIDDLEINITIAL` VARCHAR(1) PIECE 3, `AGE` INTEGER PIECE 4, `FULLNAME` VARCHAR EXTRACT "$$^FULLNAME(values(""FIRSTNAME""),values(""LASTNAME""))") GLOBAL "^delimnamescol(keys(""ID""))" DELIM "|" READONLY;
+CREATE TABLE `DELIMNAMESCOL` (`ID` INTEGER CONSTRAINT "DELIMNAMESCOL_PKEY" PRIMARY KEY, `FIRSTNAME` VARCHAR(30) PIECE 1, `LASTNAME` VARCHAR(30) DELIM (13) PIECE 2, `MIDDLEINITIAL` VARCHAR(1) PIECE 3, `AGE` INTEGER PIECE 4, `FULLNAME` VARCHAR EXTRACT "$$^FULLNAME(values(""FIRSTNAME""),values(""LASTNAME""))") GLOBAL "^delimnamescol(keys(""ID""))" DELIM "|" READONLY;

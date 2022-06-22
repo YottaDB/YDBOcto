@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -24,7 +24,7 @@
  * @returns the number of characters written
  */
 int generate_key_name(char **buffer, int *buffer_size, int target_key_num, SqlTable *table, SqlColumn **key_columns) {
-	char *		    buffer_ptr, *columnName, *temp;
+	char *		    buffer_ptr, *columnName;
 	int		    written;
 	SqlValue *	    value;
 	SqlOptionalKeyword *keyword;
@@ -36,16 +36,10 @@ int generate_key_name(char **buffer, int *buffer_size, int target_key_num, SqlTa
 	}
 	keyword = get_keyword(key_columns[target_key_num], OPTIONAL_EXTRACT);
 	if (NULL != keyword) {
-		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		temp = m_unescape_string(value->v.string_literal);
-		written = snprintf(*buffer, *buffer_size, "%s", temp);
-		if (written >= *buffer_size) {
-			*buffer_size = written + 1; // Null terminator
-			free(*buffer);
-			*buffer = (char *)malloc(sizeof(char) * *buffer_size);
-			written = snprintf(*buffer, *buffer_size, "%s", temp);
-		}
-		return written;
+		/* EXTRACT columns cannot be key columns, so no key name is necessary in that case.
+		 * So, just return without populating the buffer with a key name here.
+		 */
+		return 0;
 	}
 	UNPACK_SQL_STATEMENT(value, key_columns[target_key_num]->columnName, value);
 	columnName = value->v.reference;

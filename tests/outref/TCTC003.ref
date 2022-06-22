@@ -1079,6 +1079,9 @@ DROP TABLE tmp5;
 
 -- Issue syntax error for qualified column names in CONSTRAINTs, i.e. for `x.y` syntax
 create table tmp (id integer, unique (tmp.id));
+
+-- Confirm user-friendly error message for ERR_TYPE_NOT_COMPATIBLE issued for CHECK constraints
+create table tmp (id integer CHECK ((id+'abcd')::varchar > 1::varchar));
 LINE 3:1: create table products (first varchar, last varchar, not null);
                                                               ^^^
 syntax error, unexpected NOT, expecting CHECK or PRIMARY or UNIQUE
@@ -1151,8 +1154,10 @@ LINE 34:1: ...eric CONSTRAINT name1 CHECK (price < (select * from invalid)));
 LINE 36:1: ..., name text, price numeric CONSTRAINT name1 CHECK (price < *));
                                                                          ^
 syntax error, unexpected ASTERISK
+[ERROR]: ERR_INVALID_CONSTRAINT_EXPRESSION: TABLENAME.* expressions not accepted within CHECK constraints 
 LINE 37:1: ...name text, price numeric CONSTRAINT name1 CHECK (price < t.*));
                                                                        ^
+[ERROR]: ERR_INVALID_CONSTRAINT_EXPRESSION: TABLENAME.* expressions not accepted within CHECK constraints 
 LINE 38:1: ...ext, price numeric CONSTRAINT name1 CHECK (price < products.*));
                                                                  ^^^^^^^^
 LINE 39:1: ...xt, price numeric CONSTRAINT name1 CHECK (price in products.*));
@@ -1161,6 +1166,7 @@ syntax error, unexpected IDENTIFIER_ALONE, expecting LEFT_PAREN
 LINE 40:1: ...text, price numeric CONSTRAINT name1 CHECK (price in names.*));
                                                                    ^^^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting LEFT_PAREN
+[ERROR]: ERR_INVALID_CONSTRAINT_EXPRESSION: TABLENAME.* expressions not accepted within CHECK constraints 
 LINE 41:1: ... text, price numeric CONSTRAINT name1 CHECK (price < names.*));
                                                                    ^^^^^
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : NAMES
@@ -2200,3 +2206,6 @@ DROP TABLE
 LINE 855:1: create table tmp (id integer, unique (tmp.id));
                                                      ^
 syntax error, unexpected PERIOD, expecting RIGHT_PAREN
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 857:1: ...able tmp (id integer CHECK ((id+'abcd')::varchar > 1::varchar));
+                                               ^^^^^^

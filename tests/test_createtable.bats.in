@@ -785,48 +785,67 @@ OCTO
 }
 
 @test "TC061 : OCTO633 : EXTRACT accepts non-key columns" {
-	# Skip will be removed by MR!1246
-	skip
+	load_fixture names.zwr
+	load_fixture TC061.zwr
+	load_fixture TC061.sql subtest novv
+	verify_output TC061 output.txt
 }
 
 @test "TC062 : OCTO633 : EXTRACT doesn't parse names of global variables as key or value specifications" {
-	# Skip will be removed by MR!1246
-	skip
+	load_fixture TC062.sql subtest novv
+	verify_output TC062 output.txt
 }
 
 @test "TC063 : OCTO633 : EXTRACT accepts SQL function calls" {
-	# Skip will be removed by MR!1246
-	skip
+	load_fixture names.zwr
+	load_fixture TC063.sql subtest novv
+	verify_output TC063 output.txt
 }
 
 @test "TC064 : OCTO633 : Correct text table definitions are generated for DDLs with EXTRACT column and > 2 non-key columns" {
-	# Skip will be removed by MR!1246
-	skip
+	load_fixture names.zwr
+	load_fixture TC061.zwr
+	load_fixture TC064a.sql subtest novv
+
+	$ydb_dist/yottadb -r WRITESCHEMA DELIMNAMESCOL
+	$ydb_dist/yottadb -r WRITESCHEMA DELIMNAMESCOL &> schema.txt
+	load_fixture TC064b.sql subtest novv
+	octo -f schema.txt 2>&1 | tee -a output.txt
+	$ydb_dist/yottadb -r WRITESCHEMA DELIMNAMESCOL >> schema.txt
+	load_fixture TC064c.sql subtest novv
+	cat schema.txt >> output.txt
+	verify_output TC064 output.txt
 }
 
 @test "TC065 : OCTO633 : String literals in EXTRACT SQL function calls can contain only a double-quote character" {
-	# Skip will be removed by MR!1246
-	skip
+	load_fixture names.zwr
+	load_fixture TC065.sql subtest novv
+	verify_output TC065 output.txt
 }
 
 @test "TC066 : OCTO633 : EXTRACT containing values() expression works when there are single or multiple key columns" {
-	# Skip will be removed by MR!1246
-	skip
+	$ydb_dist/yottadb -run %XCMD 'kill ^x for i=1:1:2 set ^x(i,i*5)=i*10'
+	$ydb_dist/yottadb -run %XCMD 'for i=1:1:2 set ^x(i)=i'
+	load_fixture TC066.sql subtest novv
+	verify_output TC066 output.txt
 }
 
 @test "TC067 : OCTO633 : Circular dependencies in/across EXTRACT columns is prohibited" {
-	# Skip will be removed by MR!1246
-	skip
+	load_fixture TC067.sql subtest novv
+	verify_output TC067 output.txt
 }
 
 @test "TC068 : OCTO633 : EXTRACT containing values() works after manual addition of rows to table" {
-	# Skip will be removed by MR!1246
-	skip
+	load_fixture TC068.sql subtest novv
+	load_fixture TC068b.sql subtest novv
+	$ydb_dist/yottadb -run %XCMD 'kill ^x for i=1:1:2 set ^x(i,i*5)=i*10'
+	load_fixture TC068c.sql subtest novv
+	verify_output TC068 output.txt
 }
 
 @test "TC069 : OCTO633 : Double-quotes accepted in EXTRACT function arguments" {
-	# Skip will be removed by MR!1246
-	skip
+	load_fixture TC069.sql subtest novv
+	verify_output TC069 output.txt
 }
 
 @test "TC070 : OCTO583 : Validate that identity columns have NOT NULL constraint implicitly" {

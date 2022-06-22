@@ -226,6 +226,14 @@ ERR_CHECK_CONSTRAINT_VIOLATION
 
   Description/Action: This error is generated when the :code:`UPDATE` or :code:`INSERT INTO` command tries to add a row that violates a :code:`CHECK` constraint defined on the table. The name of the table, the name of the constraint along with the column values of the violating row are included in the error detail. PSQL Error Code: 23514
 
++++++++++++++++++++++++++++++++
+ERR_CIRCULAR_EXTRACT_DEFINITION
++++++++++++++++++++++++++++++++
+
+Text: Definition for EXTRACT column "xxx" contains circular dependency starting from EXTRACT column "xxx"
+
+Description/Action: This error is generated when a :code:`CREATE TABLE` statement contains an code:`EXTRACT` column definition that references another :code:`EXTRACT` column that is the same as the referring column or eventually references the referring column, creating a circular dependency. Resolve this error by revising at least one of the :code:`EXTRACT` columns to not reference the other. PSQL Error Code: 42P10
+
 ++++++++++++++++++++++
 INFO_CLIENT_CONNECTED
 ++++++++++++++++++++++
@@ -294,7 +302,7 @@ ERR_DOLLAR_SYNTAX
 ERR_DROP_FUNCTION_DEPENDS
 +++++++++++++++++++++++++
 
-  Text: Cannot DROP function xxx because other objects (constraint "xxx" on table "xxx") depend on it
+  Text: Cannot DROP function xxx because other objects (xxx "xxx" on table "xxx") depend on it
 
   Description/Action: This error indicates an attempt to drop a function that is still being relied upon by at least one CHECK constraint in a table. This function cannot be removed until all tables whose CHECK constraints rely on this function are dropped. PSQL Error Code: 2BP01
 
@@ -345,6 +353,14 @@ INFO_ENV_VAR
   Text: # xxx='xxx'
 
   Description/Action: This message reports the current value of a YottaDB environment variable. PSQL Error Code: 00000
+
+++++++++++++++++++++++++++++++
+ERR_EXTRACT_TYPE_MISMATCH
+++++++++++++++++++++++++++++++
+
+  Text: EXTRACT column of type xxx, but function call returns type xxx
+
+  Description/Action: This error is generated when there is a type mismatch between the type of an :code:`EXTRACT` column and the return type of the function call it references. This error may be resolved by defining the column with same type as the return type of the function specified for the :code:`EXTRACT` column. PSQL Error Code: 42804
 
 ++++++++++++++++++++++++++++
 ERR_FAILED_TO_OPTIMIZE_PLAN
@@ -537,6 +553,16 @@ ERR_INVALID_CLI_OPTION
   Text: Invalid value specified for option xxx
 
   Description/Action: This error is issued when a user attempts to use an unacceptable command line option value. PSQL Error Code: 22P02
+
++++++++++++++++++++++++++++++++++
+ERR_INVALID_CONSTRAINT_EXPRESSION
++++++++++++++++++++++++++++++++++
+
+Text: xxx expressions not accepted within CHECK constraints 
+
+  Text: xxx expressions not accepted within CHECK constraints
+
+  Description/Action: This error is issued when a user attempts to use an unacceptable expression in a :code:`CHECK` constraint. PSQL Error Code: 22P02
 
 +++++++++++++++++++++++++++
 ERR_INVALID_ESCAPE_PATTERN

@@ -1,0 +1,34 @@
+
+-- TC067 : OCTO633 : Circular dependencies in/across EXTRACT columns is prohibited
+
+drop table if exists tmp;
+create table tmp (id integer primary key, firstname varchar, lastname varchar, fullname1 varchar extract concat(firstname, fullname2), fullname2 varchar extract concat(fullname3, lastname), fullname3 varchar extract concat(fullname1, firstname)) GLOBAL "^names";
+select * from tmp;
+
+drop table if exists tmp;
+create table tmp (id integer primary key, firstname varchar, lastname varchar, fullname1 varchar extract concat(firstname, fullname2), fullname2 varchar extract concat(fullname3, lastname), fullname3 varchar extract concat(fullname4, lastname), fullname4 varchar extract concat(fullname1, firstname)) GLOBAL "^names";
+select * from tmp;
+
+drop table if exists tmp;
+create table tmp (id integer primary key, firstname varchar, lastname varchar, fullname1 varchar extract concat(firstname, fullname1)) GLOBAL "^names";
+select * from tmp;
+
+drop table if exists tmp;
+create table tmp (id integer primary key, firstname varchar, lastname varchar, id2 integer extract abs(id2)) GLOBAL "^names";
+DROP TABLE
+[ERROR]: ERR_CIRCULAR_EXTRACT_DEFINITION: Definition for EXTRACT column "FULLNAME1" contains circular dependency starting from EXTRACT column "FULLNAME2"
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: TMP
+LINE 5:1: select * from tmp;
+                        ^^^
+DROP TABLE
+[ERROR]: ERR_CIRCULAR_EXTRACT_DEFINITION: Definition for EXTRACT column "FULLNAME1" contains circular dependency starting from EXTRACT column "FULLNAME2"
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: TMP
+LINE 9:1: select * from tmp;
+                        ^^^
+DROP TABLE
+[ERROR]: ERR_CIRCULAR_EXTRACT_DEFINITION: Definition for EXTRACT column "FULLNAME1" contains circular dependency starting from EXTRACT column "FULLNAME1"
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: TMP
+LINE 13:1: select * from tmp;
+                         ^^^
+DROP TABLE
+[ERROR]: ERR_CIRCULAR_EXTRACT_DEFINITION: Definition for EXTRACT column "ID2" contains circular dependency starting from EXTRACT column "ID2"

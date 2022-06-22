@@ -37,6 +37,8 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 	depth = 0;
 	while (NULL != plan) {
 		boolean_t	need_closing_paren;
+		SqlColumnAlias  *column_alias;
+		int		unique_id;
 
 		assert((is_asterisk
 			&& ((LP_COLUMN_LIST == plan->type)
@@ -94,6 +96,35 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 			 *       Caller should have set `str2mval` appropriately. Assert that.
 			 */
 			assert(!str2mval);
+			/* If this is a column reference, assert that it belongs to the present pplan. If it belongs to
+			 * outer query pplan then:
+			 *    a. If the outer query `tablejoin_body_group_by_done` is set we need to consider grouped data
+			 *       from outer query pplan.
+			 *    b. If the outer query `tablejoin_body_group_by_done` is not set and this is a table.* then it
+			 *       will be in the form (table.*,table.col1,table.col2 ..), the code below should add
+			 *       composite NULL related subscript and continues on to process the rest of the list by invoking
+			 *       tmpl_print_expression on the columns.
+			 * NOTE: 1. Since #842 is implemented, outer query columns are removed from ORDER BY list in
+			 *          qualify_query() and as a result we don't need to handle `a` and `b` type of columns as
+			 *	    they are not expected at this point. Following assert makes sure of that.
+			 *	 2. Expressions can still have outer query column references. #775 and #807 handle this
+			 *	    usecase.
+			 */
+			tmpPlan = plan->v.lp_default.operand[0];
+			assert(LP_COLUMN_LIST == tmpPlan->type);
+			tmpPlan = tmpPlan->v.lp_default.operand[0];
+			assert(LP_WHERE == tmpPlan->type);
+			tmpPlan = tmpPlan->v.lp_default.operand[0];
+			if (IS_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(tmpPlan)) {
+				GET_COLUMN_ALIAS_FROM_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(tmpPlan, column_alias);
+
+				unique_id = lp_get_unique_id_from_lp_column_alias_or_lp_derived_column(tmpPlan);
+				// Check if the column's unique_id is part of pplan
+				assert(is_unique_id_a_key_of_pplan(pplan, unique_id));
+			} else {
+				unique_id = 0;
+				column_alias = NULL;
+			}
 		}
 		if (!is_order_by_table_asterisk) {
 			// Not table.* ORDER BY usage
@@ -104,23 +135,8 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 			TMPL(tmpl_print_expression, expr_plan, pplan, dot_count, depth);
 		} else {
 			// A table.* column in ORDER BY
-			LogicalPlan	*tmpPlan;
-			tmpPlan = plan->v.lp_default.operand[0];
-			assert(LP_COLUMN_LIST == tmpPlan->type);
-			tmpPlan = tmpPlan->v.lp_default.operand[0];
-			assert(LP_WHERE == tmpPlan->type);
-			tmpPlan = tmpPlan->v.lp_default.operand[0];
-			assert(IS_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(tmpPlan));
-
-			SqlColumnAlias	*column_alias;
-			GET_COLUMN_ALIAS_FROM_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(tmpPlan, column_alias);
-			assert(is_stmt_table_asterisk(column_alias->column));
-
-			int unique_id = lp_get_unique_id_from_lp_column_alias_or_lp_derived_column(tmpPlan);
-			boolean_t	is_col_cur_pplan;
-			// Check if the column's unique_id is part of pplan
-			is_col_cur_pplan = is_unique_id_a_key_of_pplan(pplan, unique_id);
-			if (is_col_cur_pplan && pplan->tablejoin_body_group_by_done) {
+			assert(column_alias && is_stmt_table_asterisk(column_alias->column));
+			if (pplan->tablejoin_body_group_by_done) {
 				/* Current query table.* in ORDER BY in the presence of a GROUP BY.
 				 * When GROUP BY also exists in the query, ORDER BY is processed only after GROUP BY computation
 				 * is complete and `tablejoin_body_group_by_done` is set. In this case we expect any table.*
@@ -183,25 +199,13 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 					%{}`n{{ PLAN_LINE_START }}{}%
 				}
 			} else {
-				/* This ORDER BY table.* doesn't belong to the current query or `tablejoin_body_group_by_done`
-				 * is not set.
-				 * 1. If it belongs to the current query and `tablejoin_body_group_by_done` is not set we
-				 *    expect an expanded list of table.* of the form (table.*,table.col1,table.col2 ..), the
-				 *    below code adds composite NULL related subscript and continues on to process the rest of
-				 *    the list. The composite NULL subscript is needed to order a Composite NULL last (even after
-				 *    ROW(NULL)) ( seehttps://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/759#note_736104049 for more
-				 *    details). This is the reason why "process_table_asterisk_cla()" kept this node intact.
-				 *    Achieve this ordering by using "$ZYSQLNULL" in case of a Composite NULL and "0" otherwise.
-				 * 2. If it doesn't belong to the current query
-				 *    a. If the outer query `tablejoin_body_group_by_done` is set we need to consider grouped data
-				 *       from outer query pplan.
-				 *    b. If the outer query `tablejoin_body_group_by_done` is not set we expect the table.* is
-				 *       expanded and is in the form (table.*,table.col1,table.col2 ..). In this case we need
-				 *       consider the composite NULL related subscript (explained in `1` above) inclusion based
-				 *       on the outer query pplan's `treat_key_as_null` field.
-				 * NOTE: `a` and `b` are not handled at present and hence these usecases will lead to unexpected
-				 *       result. This issue and similar issues of referring to outer query pplan and grouped
-				 *       data are tracked by #775.
+				/* It belongs to the current query and `tablejoin_body_group_by_done` is not set we
+				 * expect an expanded list of table.* of the form (table.*,table.col1,table.col2 ..), the
+				 * below code adds composite NULL related subscript and continues on to process the rest of
+				 * the list. The composite NULL subscript is needed to order a Composite NULL last (even after
+				 * ROW(NULL)) ( seehttps://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/759#note_736104049 for more
+				 * details). This is the reason why "process_table_asterisk_cla()" kept this node intact.
+				 * Achieve this ordering by using "$ZYSQLNULL" in case of a Composite NULL and "0" otherwise.
 				 */
 				if (pplan->treat_key_as_null[unique_id]) {
 					/* Composite NULL */

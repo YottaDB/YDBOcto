@@ -1,0 +1,10 @@
+
+select distinct n2.* from names n1, names n2 order by n2.*;
+
+select (select id from names n2 ORDER BY n1.id LIMIT 1),count(n1.id) from names n1;
+[ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_SELECT_DISTINCT: For SELECT DISTINCT, ORDER BY expressions must appear in select list
+LINE 1: select distinct n2.* from names n1, names n2 order by n2.*;
+                                                              ^^^^
+[ERROR] PATH:LINENUM DATE TIME: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+LINE 1: ...ct id from names n2 ORDER BY n1.id LIMIT 1),count(n1.id) from n...
+                                        ^^^^^

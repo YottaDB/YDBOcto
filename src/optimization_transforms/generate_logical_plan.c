@@ -301,16 +301,40 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 	 * would have different unique_id values generated one for the SELECT column list and one for the ORDER BY COLUMN NUM
 	 * reference which would cause incorrect results).
 	 */
+	LogicalPlan **prev_order_by;
 	if (NULL != select_stmt->order_by_expression) {
 		SqlColumnListAlias *cur_cla, *start_cla;
 
+		prev_order_by = &(dst->v.lp_default.operand[1]);
 		MALLOC_LP(order_by, dst->v.lp_default.operand[1], LP_ORDER_BY);
 		UNPACK_SQL_STATEMENT(list, select_stmt->order_by_expression, column_list_alias);
 		cur_cla = start_cla = list;
 		do {
 			SqlColumnListAlias *save_next;
 			SqlOptionalKeyword *keyword;
-
+			if (column_alias_STATEMENT == cur_cla->column_list->v.column_list->value->type) {
+				SqlColumnAlias *column_alias = cur_cla->column_list->v.column_list->value->v.column_alias;
+				if (select_query->extra_detail.lp_select_query.root_table_alias
+				    != column_alias->table_alias_stmt->v.table_alias->parent_table_alias) {
+					// Skip the current node
+					cur_cla = cur_cla->next;
+					// Check if the skipped node was the last node
+					if (cur_cla == start_cla) {
+						/* This is the end of list.
+						 * Set the previously allocated order_by to NULL
+						 * as it is an outer query and we do not want to create
+						 * a logical plan for it.
+						 */
+						*prev_order_by = NULL;
+					}
+					continue;
+				}
+			}
+			/* else this is an expression and expressions with outer query column references are not removed because
+			 * literals present in expression will have a parameter number and mapping for further literals will get out
+			 * of sync when the expression is removed. For more details refer to the reasoning mentioned for not
+			 * removing expression in https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1142#note_1019537378.
+			 */
 			if (cur_cla->tbl_and_col_id.unique_id) {
 				LogicalPlan *column_list, *select_column_list;
 
@@ -344,6 +368,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 			/* ASCENDING order is default direction for ORDER BY */
 			cur_cla = cur_cla->next;
 			if (cur_cla != start_cla) {
+				prev_order_by = &(order_by->v.lp_default.operand[1]);
 				MALLOC_LP_2ARGS(order_by->v.lp_default.operand[1], LP_ORDER_BY);
 				order_by = order_by->v.lp_default.operand[1];
 			}

@@ -197,3 +197,8 @@ OCTO
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOB15.sql
 }
 
+@test "TOB16 : OCTO842 : Validate that removal of ORDER BY columns belonging to outer query does not affect the result" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOB16.sql
+  load_fixture TOB16_errors.sql subtest
+  verify_output TOB16_errors output.txt noinfo nodebug
+}

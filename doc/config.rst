@@ -34,7 +34,6 @@ The following environment variables must be set:
 * ydb_dist
 * ydb_gbldir
 * ydb_routines
-* ydb_xc_ydbposix
 
 The environment variables `ydb_dist`, `ydb_gbldir`, and `ydb_routines` can initially be set by sourcing `ydb_env_set` in your YottaDB installation directory.
 
@@ -44,7 +43,6 @@ Example setting of the environment variables (assuming default paths):
 
     source /usr/local/lib/yottadb/r1.28/ydb_env_set
     export ydb_routines=". $ydb_routines"
-    export ydb_xc_ydbposix=$ydb_dist/plugin/ydbposix.xc
 
 --------------------------------
 Global Variables
@@ -54,16 +52,18 @@ All Octo related globals are prefixed with :code:`^%ydbocto`. Using normal globa
 
 * :code:`NULL_SUBSCRIPTS` must be set to :code:`ALWAYS`.
 
-  Example: :code:`$ydb_dist/mupip set -null_subscripts=true -region 'OCTO'`
-
 * :code:`KEY_SIZE` must be tuned to your data - this can be set to the maximum allowed by YottaDB - "1019"
-
-   Example: :code:`$ydb_dist/mupip set -key_size=1019 -region 'OCTO'`
 
 * :code:`RECORD_SIZE` must be tuned to your data/queries - a reasonable starting value is "300000"
 
-  Example: :code:`$ydb_dist/mupip set -record_size=300000 -region 'OCTO'`
+Example:
 
+.. code-block:: bash
+
+   GDE> add -segment OCTO -access_method=BG -file_name="$ydb_dir/$ydb_rel/g/octo.dat"
+   GDE> add -region OCTO -dynamic=OCTO -null_subscripts=ALWAYS -key_size=1019 -record_size=300000
+   GDE> add -name %ydbocto* -region=OCTO
+   
 Some of the globals used in Octo are:
 
 * :code:`^%ydboctoocto`: This global can refer to various functions, variables, octo "read only" table values (postgres mappings, oneRowTable, etc.), and some counts. It needs to persist between sessions.
@@ -108,7 +108,7 @@ The :code:`octo_zroutines` configuration setting allows one to prefix :code:`ydb
 
 .. note::
 
-   The :code:`source $(pkg-config --variable=prefix yottadb)/ydb_env_set` command sets these up automatically for environments with the default structure under :code:`$ydb_dir` (defaulting to :code:`$HOME/.yottadb`). For UTF-8, set the environment variable :code:`ydb_chset` to :code:`UTF-8`, e.g., :code:`export ydb_chset=UTF-8` before sourcing :code:`ydb_env_set`.
+   The :code:`source $(pkg-config --variable=prefix yottadb)/ydb_env_set` command sets these up automatically for environments with the default structure under :code:`$ydb_dir` (defaulting to :code:`$HOME/.yottadb`).
 
 ~~~~~~~~~~~~~
 tabletype

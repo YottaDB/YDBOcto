@@ -52,7 +52,7 @@ Setup
 
   YottaDB r1.34 or greater is required for successful installation of Octo.
 
-  Installing and configuring YottaDB is described on its own `documentation page <https://docs.yottadb.com/AdminOpsGuide/installydb.html>`__. With the :code:`--octo`, :code:`--posix`, :code:`--aim` options of YottaDB's `ydbinstall.sh <https://gitlab.com/YottaDB/DB/YDB/-/blob/master/sr_unix/ydbinstall.sh>`_ script, you can install YottaDB and Octo with one command.
+  Installing and configuring YottaDB is described on its own `documentation page <https://docs.yottadb.com/AdminOpsGuide/installydb.html>`__. With the :code:`--octo` option of YottaDB's `ydbinstall.sh <https://gitlab.com/YottaDB/DB/YDB/-/blob/master/sr_unix/ydbinstall.sh>`_ script, you can install YottaDB and Octo with one command.
 
   .. note::
     Octo is a YottaDB application, not an application that runs on the upstream GT.M for which YottaDB is a drop-in upward-compatible replacement. Octo requires :code:`ydb*` environment variables to be defined, and does not recognize the :code:`gtm*` environment variables. Specifically, it requires :code:`ydb_dist` to be defined.
@@ -61,52 +61,15 @@ Setup
 Quickstart
 -------------
 
-~~~~~~~~~~~~~~~~~~~~~~
+++++++++++++++++++++++
 Install Prerequisites
-~~~~~~~~~~~~~~~~~~~~~~
+++++++++++++++++++++++
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  Install YottaDB POSIX plugin
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~
+  Install Plugins
+~~~~~~~~~~~~~~~~~~~
 
-  The YottaDB POSIX plugin can be installed using the :code:`--posix` option when installing YottaDB with the :code:`ydbinstall` script:
-
-   .. code-block:: bash
-
-      ./ydbinstall --posix
-
-  Alternatively, users can build the POSIX plugin from source:
-
-   .. code-block:: bash
-
-      #In a temporary directory perform the following commands
-      git clone https://gitlab.com/YottaDB/Util/YDBPosix.git YDBPosix-master
-      cd YDBPosix-master
-      mkdir build && cd build
-      # Make sure that you have YottaDB environment variables in your shell before continuing
-      cmake ..
-      make -j `grep -c ^processor /proc/cpuinfo` && sudo make install
-
-  More detailed instructions are on the `YottaDB POSIX plugin page <https://gitlab.com/YottaDB/Util/YDBPosix>`_.
-
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  Install YottaDB AIM plugin
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-  If you did not install the YottaDB AIM plugin (when installing YottaDB) using the :code:`--aim` option of :code:`ydbinstall`, build the AIM plugin from source:
-
-   .. code-block:: bash
-
-      # In a temporary directory perform the following commands
-      git clone https://gitlab.com/YottaDB/Util/YDBAIM
-      cd YDBAIM
-      sudo ./install.sh
-
-  More detailed instructions are on the `YottaDB AIM plugin page <https://gitlab.com/YottaDB/Util/YDBAIM>`_.
-
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  *(Optional)* Install YottaDB encryption plugin
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  The YottaDB POSIX and AIM plugins are now installed when the :code:`--octo` option is used with the :code:`ydbinstall` script.
 
   Installing the YottaDB encryption plugin enables TLS support (Recommended for production installations). You will need to make sure TLS/SSL is enabled for the driver in the client software chosen.
 
@@ -116,25 +79,19 @@ Install Prerequisites
 
      ./ydbinstall --encplugin
 
-  Alternatively, users can build the encryption plugin from source:
+.. note::
 
-  .. code-block:: bash
-
-     # In a temporary directory perform the following commands
-     sudo tar -xf $ydb_dist/plugin/gtmcrypt/source.tar
-     # Make sure that you have YottaDB environment variables in your shell before continuing
-     sudo ydb_dist=$ydb_dist make -j `grep -c ^processor /proc/cpuinfo`
-     sudo ydb_dist=$ydb_dist make install
-
-~~~~~~~~~~~~
+   If YottaDB has already been installed, use the --plugins-only option with the ydbinstall.sh script to install the plugins.
+   
+++++++++++++
 Install Octo
-~~~~~~~~~~~~
+++++++++++++
 
   Octo is a continuously updated YottaDB plugin that is distributed as source code. A CI (Continuous Integration) pipeline runs a considerable number of unit and system tests before allowing any source code to be merged. This ensures that the master branch is always current with the latest production-ready source code. Octo can be installed by using the :code:`--octo` option when installing YottaDB with the :code:`ydbinstall` script. Alternatively, you can build it from source.
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      Install Prerequisite Packages
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
      .. code-block:: bash
 
@@ -146,9 +103,9 @@ Install Octo
         sudo yum install epel-release
         sudo yum install cmake3 bison flex readline-devel vim-common libconfig-devel openssl-devel
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    *(Optional)* Prerequisites for Automated Regression Testing
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      .. note::
 
 	As we run the automated regression tests on every Octo source code update, install and run BATS only if you are an advanced user who wants to contribute to Octo or run on a Linux distribution on which YottaDB is Supportable but not Supported.
@@ -267,9 +224,9 @@ Install Octo
 	   # CentOS Linux or RedHat Linux
 	   sudo yum install perl
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      Clone the Octo source code repository
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
       .. code-block:: bash
 
@@ -277,9 +234,9 @@ Install Octo
          git clone https://gitlab.com/YottaDB/DBMS/YDBOcto.git YDBOcto-master
          cd YDBOcto-master
 
-^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~
      Compile Octo
-^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~
 
       .. code-block:: bash
 
@@ -298,9 +255,9 @@ Install Octo
 
       To show the output of failed tests, export the environment variable :code:`CTEST_OUTPUT_ON_FAILURE=TRUE`. Alternatively, you can show output for only a single run by passing the argument to make: :code:`make CTEST_OUTPUT_ON_FAILURE=TRUE test`.
 
-^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~
      Install Octo
-^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~
 
       Install Octo:
 
@@ -322,13 +279,13 @@ Install Octo
 
 	 New Octo installations include a default :code:`octo.conf` configuration file at :code:`$ydb_dist/plugin/octo/octo.conf`, which may be modified post-install. Re-installing Octo will *not* overwrite an existing :code:`octo.conf` in this location, so modifications to this file will be preserved across installations.
 
-~~~~~~~~~~~~~~~~
+++++++++++++++++
 Configure Octo
-~~~~~~~~~~~~~~~~
+++++++++++++++++
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Setup environment variables
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   The following environment variables must be set for Octo to operate properly:
 
@@ -336,7 +293,6 @@ Configure Octo
       * :code:`ydb_gbldir`
       * :code:`ydb_routines`
       * :code:`ydb_xc_octo`
-      * :code:`ydb_xc_ydbposix`
 
   The environment variables :code:`ydb_dist`, :code:`ydb_gbldir`, and :code:`ydb_routines` can initially be set by sourcing :code:`ydb_env_set` in your YottaDB installation directory. Additional modifications to ydb_routines may be needed due to configuration in :code:`octo.conf` described later in this manual.
 
@@ -346,12 +302,11 @@ Configure Octo
 
      source /usr/local/lib/yottadb/r1.28/ydb_env_set
      export ydb_routines="$ydb_dist/plugin/octo/o/_ydbocto.so $ydb_routines"
-     export ydb_xc_ydbposix=$ydb_dist/plugin/ydbposix.xc
      export ydb_xc_octo=$ydb_dist/plugin/octo/ydbocto.xc  # Allow usage of some SQL functions, e.g. DATE_FORMAT()
 
-^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~
   Setup Database
-^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~
 
   Octo uses several global variables for its operation, which start with :code:`%ydbocto` and :code:`%ydbAIM`. The :code:`%ydbAIM` globals are intended to be ephemeral and are not recommended to be journaled; we also recommend that you use a memory mapped region with 2K blocks. Use `GDE <https://docs.yottadb.net/AdminOpsGuide/gde.html>`_ to map :code:`%ydbocto*` and :code:`%ydbAIM` global variables to a separate region. Global variables used by Octo and AIM must have `NULL_SUBSCRIPTS=ALWAYS <https://docs.yottadb.net/AdminOpsGuide/gde.html#no-n-ull-ubscripts-always-never-existing>`_.
 
@@ -371,7 +326,7 @@ Configure Octo
      GDE> add -region OCTO -dynamic=OCTO -null_subscripts=ALWAYS -key_size=1019 -record_size=300000 -journal=(before,file="$ydb_dir/$ydb_rel/g/octo.mjl")
      GDE> add -name %ydbocto* -region=OCTO
      GDE> add -segment AIM -access_method=MM -allocation=20000 -block_size=2048 -extension_count=20000 -file_name="$ydb_dir/$ydb_rel/g/aim.dat"
-     GDE> add -region AIM -dynamic=AIM -null_subscripts=true -key_size=992 -record_size=1008
+     GDE> add -region AIM -dynamic=AIM -null_subscripts=ALWAYS -key_size=992 -record_size=1008
      GDE> add -name %ydbAIM* -region=AIM
      GDE> verify
      %GDE-I-VERIFY, Verification OK
@@ -401,7 +356,7 @@ Configure Octo
      add -region OCTO -dynamic=OCTO -null_subscripts=ALWAYS -key_size=1019 -record_size=300000 -journal=(before,file="$ydb_dir/$ydb_rel/g/octo.mjl")
      add -name %ydbocto* -region=OCTO
      add -segment AIM -access_method=MM -allocation=20000 -block_size=1024 -extension_count=20000 -file_name="$ydb_dir/$ydb_rel/g/aim.dat"
-     add -region AIM -dynamic=AIM -null_subscripts=true -key_size=992 -record_size=1008
+     add -region AIM -dynamic=AIM -null_subscripts=ALWAYS -key_size=992 -record_size=1008
      add -name %ydbAIM* -region=AIM
      verify
      exit
@@ -409,9 +364,9 @@ Configure Octo
      $ydb_dist/mupip create -region=AIM
      $ydb_dist/mupip set -journal=before,enable,on -region OCTO
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   *(Optional)* Test with dummy data using Octo
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   You can use the `Northwind <https://docs.yottadb.com/Octo/grammar.html#northwind-ddl-example>`_ sample database to get started. The dummy data set can be found in the :code:`tests/fixtures` subdirectory of the YDBOcto repository created by :code:`git clone https://gitlab.com/YottaDB/DBMS/YDBOcto.git YDBOcto-master`.
 
@@ -421,7 +376,6 @@ Configure Octo
 
       # Unset all ydb_*, gtm* and GTM* environment variables:
       unset `env | grep -Ei ^\(\(gtm\)\|\(ydb\)\) | cut -d= -f 1`
-      export ydb_chset=UTF-8
       # Source ydb_* variables:
       source $(pkg-config --variable=prefix yottadb)/ydb_env_set
       # ydb_dir can optionally be set to use a location other than $HOME/.yottadb for the working environment.
@@ -431,9 +385,9 @@ Configure Octo
 
   Once loaded, you can run `octo` to start the Octo interactive shell and use `SELECT <https://docs.yottadb.com/Octo/grammar.html#select>`_ queries to access the data.
 
-""""""""""""""""""
+^^^^^^^^^^^^^^
 Sample Queries
-""""""""""""""""""
+^^^^^^^^^^^^^^
 
     Given below are some sample queries that can be run in Octo once the :code:`northwind` data set has been loaded.
 
@@ -589,9 +543,9 @@ Sample Queries
      Chocolade|Confections|Zaanse Snoepfabriek
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~
++++++++++++++++++++++++
 Use a Docker Container
-~~~~~~~~~~~~~~~~~~~~~~~~~
++++++++++++++++++++++++
 
   A Docker image is available on `docker hub <https://hub.docker.com/r/yottadb/octo>`_. This image is built with the following assumptions about the host environment and automatically starts :code:`rocto` when run by Docker using the commands below.
 
@@ -608,9 +562,9 @@ Use a Docker Container
     * a :code:`r` directory which contains the source M code
   * The octo default configuration is used in :code:`/opt/yottadb/current/plugin/octo/octo.conf`
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Starting the Docker Container
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     To start the Docker container and make rocto available on the host's network on the default port 1337 (unless octo.conf within the container is configured otherwise):
 
@@ -638,18 +592,19 @@ Starting the Docker Container
 
     The logs can then be retrieved using the :code:`docker logs` command with the container name or ID as an argument.
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Getting access to the container
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^
 PostgreSQL wire protocol
-""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^
+
     The rocto server is listening on port 1337 and all of the directions in the above documentation apply.
 
-"""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^
 Command-line access
-"""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^
 
     You can use the :code:`docker exec` command to get access to the container for more troubleshooting. Example:
 
@@ -657,9 +612,9 @@ Command-line access
 
        docker exec -it {nameOfContainer/IDOfContainer} /bin/bash
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++++++++++++++++++++++++++++++++++
 Test with dummy data using Rocto
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++++++++++++++++++++++++++++++++++
 
   The :code:`northwind` data set can also be queried using Rocto (Remote Octo server).
   :code:`SQuirreL SQL` needs to be configured in order to use Rocto.
@@ -706,9 +661,9 @@ Test with dummy data using Rocto
 
   Complete documentation of SQuirreL set-up can be found in the `ROcto Documentation <rocto.html>`_.
 
-~~~~~~~~~~~~~~~~~
+++++++
 Usage
-~~~~~~~~~~~~~~~~~
+++++++
 
   Before running Octo/Rocto make sure that the required YottaDB variables are set either by creating your own script or run :code:`source $ydb_dist/ydb_env_set`.
 
@@ -720,17 +675,17 @@ Usage
   default in :code:`~/.octo_history`. More information is provided in the
   :doc:`history` document.
 
-~~~~~~~~~~~~~~~~~~~
+++++++++++++++++++
 Launching Options
-~~~~~~~~~~~~~~~~~~~
+++++++++++++++++++
 
   Octo has a few options that can be specified when it is launched.
 
 .. _verbose-option:
 
-^^^^^^^^^^^
+~~~~~~~~~
   Verbose
-^^^^^^^^^^^
+~~~~~~~~~
 
     The verbose option specifies the amount of additional information that is provided to the user when commands are run in Octo.
 
@@ -789,9 +744,9 @@ Launching Options
        [ INFO] YDBOcto-master/src/run_query.c:83 2019-04-10 10:18:00 : Done!
        [ INFO] YDBOcto-master/src/run_query.c:89 2019-04-10 10:18:00 : Returning failure from run_query
 
-^^^^^^^^^^^
+~~~~~~~~~
   Dry-run
-^^^^^^^^^^^
+~~~~~~~~~
 
     The dry-run option runs the parser, and performs checks and verifications on data types and syntax, but does not execute the SQL statements. The database is not altered when Octo is run with the :code:`--dry-run` option.
 
@@ -811,9 +766,9 @@ Launching Options
 
        octo --dry-run
 
-^^^^^^^^^^^^^^
+~~~~~~~~~
   Emulate
-^^^^^^^^^^^^^^
+~~~~~~~~~  
 
     The emulate option allows the user to specify which SQL database Octo should emulate. Database names should be in all caps. Currently supported emulations are MYSQL and POSTGRES.
 
@@ -833,9 +788,9 @@ Launching Options
 
        octo --emulate=MYSQL
 
-^^^^^^^^^^^^^^
+~~~~~~~~~~~~
   Input-file
-^^^^^^^^^^^^^^
+~~~~~~~~~~~~
 
     The input-file option takes a file as input to Octo, that commands are then read from.
 
@@ -856,9 +811,9 @@ Launching Options
        octo --input-file=files/commands.txt
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
++++++++++++++++++++++++++
 Useful Commands at OCTO>
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
++++++++++++++++++++++++++
 
 +------------------------+-------------------------------------------------------+
 | Command                | Information                                           |

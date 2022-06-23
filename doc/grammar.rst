@@ -258,13 +258,20 @@ In the table above:
 * table_name and cursor_name are variables representing the names of the table and the cursor being used.
 * keys is a special variable in Octo that contains all of the columns that are identified as keys in the DDL (either via the "PRIMARY KEY" or "KEY NUM X" set of keywords).
 
-If the same :code:`CREATE TABLE` command specifies :code:`READONLY` and :code:`READWRITE`, the keyword that is specified last (in left to right order of parsing the command) prevails.
+If the same :code:`CREATE TABLE` command specifies :code:`READONLY` and :code:`READWRITE`, the keyword that is specified last (in left to right order of parsing the command) prevails. If neither of these two options are specified and :code:`octo.conf` does not specify :code:`tabletype = "READONLY"`, the table will be implicitly assumed to be :code:`READWRITE`.
+
+A table will become :code:`READONLY` under the following conditions:
+
+* If END, ENDPOINT, EXTRACT, SOURCE, START, or STARTINCLUDE keywords are used in the CREATE statement
+* If the DELIM keyword is specified in the first non-key column and has a value other than :code:`""`
+* If the PIECE number is not the same as the column number (first column is 1, second column is 2, etc.)
+* If the GLOBAL keyword is specified with subscripts that are not in a format compatible with READWRITE
 
 If a :code:`DELIM ""` is specified for a column, any :code:`PIECE` keyword specified for that column is ignored and is treated as if the keyword was not specified.
 
 For :code:`ENDPOINT`, you can specify literals, M style $CHAR data, or a space. Note that to specify a space, you need to say :code:`'" "'`. For $CHAR(n), say :code:`'$CHAR(n)'`. Note that if you specify an empty string (:code:`'""'`), you will get no records. In this case you should just omit :code:`ENDPOINT`.
 
-You can combine :code:`END` and :code:`ENDPOINT` together. If you do so, both conditions are evaulated; however, the END condition is evaluated before the ENDPOINT condition.
+You can combine :code:`END` and :code:`ENDPOINT` together. If you do so, both conditions are evaluated; however, the END condition is evaluated before the ENDPOINT condition.
 
 ~~~~~~~~~~~
 Examples

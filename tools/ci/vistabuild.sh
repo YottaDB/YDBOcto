@@ -1,7 +1,7 @@
 #!/bin/sh -v
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -13,7 +13,7 @@
 set -e
 
 cd ..
-git clone https://github.com/OSEHRA/docker-vista.git
+git clone https://github.com/ChristopherEdwards/docker-vista.git
 cd docker-vista
 docker ps -a
 
@@ -26,4 +26,5 @@ docker ps -a
 # -q Install Octo
 # -d Create development directories
 # -a Alternate VistA version (VEHU)
-docker build --pull --build-arg flags="-o -f -b -s -q -d -a https://github.com/OSEHRA-Sandbox/VistA-VEHU-M/archive/master.zip" --build-arg instance="vehu" -t yottadb/octo-vehu:latest-master .
+# -n Install YottaDB GUI
+docker build --pull --build-arg flags="-o -f -b -s -q -d -n -a https://github.com/OSEHRA-Sandbox/VistA-VEHU-M/archive/master.zip" --build-arg instance="vehu" -t yottadb/octo-vehu:latest-master .

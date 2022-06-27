@@ -4,6 +4,9 @@ ID|FIRSTNAME|LASTNAME
 (1 row)
 _ydboctoX*.m
 ^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5="^names2"
+^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5("")="2"
+^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5("","Burn")="1"
+^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5("","Cool")="1"
 ^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(0)="*YottaDB*"
 ^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(0,"Burn",1,"Acid")=""
 ^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(0,"Cool",0,"Zero")=""
@@ -12,10 +15,11 @@ _ydboctoX*.m
 ^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(3)=""
 ^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(4)=""
 ^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(5)=""
-^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(6)="+^names2(sub1=*,sub2=*) -command=set -name=%ydbEoh7G9LAJbLJWs2VI0VHG5S -xecute=""zkill ^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(0,$ztoldval,sub1,sub2) set ^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(0,$ztvalue,sub1,sub2)="""""""""""
+^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(6)="+^names2(sub1=*,sub2=*) -command=set -name=%ydbEoh7G9LAJbLJWs2VI0VHG5S -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" if $data(^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(0,$ztoldval,sub1,sub2))#10 zkill ^(sub2) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5("""",$ztoldval),-1) zkill ^($ztoldval) zkill:1>$increment(^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(""""),-1) ^("""")"_$C(10)_" if '$data(^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(0,$ztvalue,sub1,sub2)) set ^(sub2)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5("""",$ztvalue))),$increment(^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(""""))"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
 ^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(7)="+^names2(sub1=*,sub2=*) -command=kill -name=%ydbEoh7G9LAJbLJWs2VI0VHG5K -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
-^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(8)="+^names2(sub1=*,sub2=*) -command=zkill -name=%ydbEoh7G9LAJbLJWs2VI0VHG5Z -xecute=""zkill ^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(0,$ztoldval,sub1,sub2)"""
+^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(8)="+^names2(sub1=*,sub2=*) -command=zkill -name=%ydbEoh7G9LAJbLJWs2VI0VHG5Z -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" if $data(^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(0,$ztoldval,sub1,sub2))#10 zkill ^(sub2) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5("""",$ztoldval),-1) zkill ^($ztoldval) if 1>$increment(^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(""""),-1) zkill ^("""")"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
 ^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(9)="1"
-^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(10)="0"
+^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(10)="2"
+^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(11)="2"
 ^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5("comment-0")="xref for table NAMES2 column LASTNAME"
 ^%ydbAIMDxref("^names2","^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5")=""

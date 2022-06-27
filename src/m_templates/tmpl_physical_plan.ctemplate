@@ -134,7 +134,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}; XREFDATA parameters: global, subscripts, delimiter, piece, nmonly (0 here), zpiece (always 0), omitfix (always 1),{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
-			%{};   stat (0 for now until AIM#42 is implemented), AIM Metadata Type (depending if the table has it specified or not){}%
+			%{};   stat (always 2), AIM Metadata Type (depending if the table has it specified or not){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}NEW aimglobal SET aimglobal=$$XREFDATA^%%YDBAIM(base,.subs,{}%
 			if (is_dollar_char) {
@@ -147,7 +147,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			} else {
 				%{},{{piece}}{}%
 			}
-			%{},0,0,1,0,{{aim_type|%d}}){}%
+			%{},0,0,1,2,{{aim_type|%d}}){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}; Now that xref building is complete, cleanup saved cancel related state information{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
@@ -189,7 +189,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}; XREFDATA parameters: global, subscripts, delimiter, piece, nmonly (1 here), zpiece (always 0), omitfix (always 1),{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
-			%{};   stat (0 for now until AIM#42 is implemented), AIM Metadata Type (depending if the table has it specified or not){}%
+			%{};   stat (always 2), AIM Metadata Type (depending if the table has it specified or not){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}NEW aimglobal SET aimglobal=$$XREFDATA^%%YDBAIM(base,.subs{}%
 			if (is_dollar_char) {
@@ -202,7 +202,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			} else {
 			%{},{{piece}}{}%
 			}
-			%{},1,0,1,0,{{aim_type|%d}}){}%
+			%{},1,0,1,2,{{aim_type|%d}}){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 			if (NULL == piece) {
 				%{}SET {{OCTOLIT_AIM_OCTO_CACHE}}("{{tableName}}","{{columnName}}","{{OCTOLIT_AIM_SUB_LOCATION}}")=$name(@aimglobal@(0)){}%

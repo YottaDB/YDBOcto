@@ -1,6 +1,18 @@
 # Run IS NULL query using Octo and Postgres and verify same output (should see no message below)
 # Verify ^%ydbAIMD* got built and has correct contents
 ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6="^names"
+^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(-2)=5
+^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(-2,"")=1
+^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(-2,"Burn")=1
+^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(-2,"Cool")=2
+^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(-2,"Killer")=1
+^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(-2,"Nikon")=1
+^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(-1)=5
+^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(-1,"Acid")=1
+^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(-1,"Cereal")=1
+^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(-1,"Joey")=1
+^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(-1,"Lord")=1
+^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(-1,"Zero")=2
 ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(0)="*YottaDB*"
 ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1)=1
 ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,"Acid",1)=""
@@ -19,11 +31,12 @@
 ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(3)="#11"
 ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(4)="#11"
 ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(5)=""
-^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(6)="+^names(sub1=*) -command=set -name=%ydbXtoXI8zgdGIqUuCoYeqwF6S -xecute=<<"_$C(10)_" for i=1,2 set p=$piece($ztoldval,""|"",i),q=$piece($ztvalue,""|"",i) do"_$C(10)_" . if p'=q zkill ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(i,p,sub1) set ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(i,q,sub1)="""""_$C(10)_" . else  set:'$zlength(q) ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(i,"""",sub1)="""""_$C(10)
+^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(6)="+^names(sub1=*) -command=set -name=%ydbXtoXI8zgdGIqUuCoYeqwF6S -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" for i=1,2 set p=$piece($ztoldval,""|"",i),q=$piece($ztvalue,""|"",i),j=-i do"_$C(10)_" . if p'=q do"_$C(10)_" . . if $data(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(i,p,sub1))#10 zkill ^(sub1) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(j,p),-1) zkill ^(p) if 1>$increment(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(j),-1) zkill ^(j)"_$C(10)_" . . if '($data(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(i,q,sub1))#10) set ^(sub1)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(j,q))),$increment(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(j))"_$C(10)_" . else  if '$zlength(q),'($data(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(i,"""",sub1))#10) set ^(sub1)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(j,""""))),$increment(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(j))"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
 ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(7)="+^names(sub1=*) -command=kill -name=%ydbXtoXI8zgdGIqUuCoYeqwF6K -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
-^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(8)="+^names(sub1=*) -command=zkill -name=%ydbXtoXI8zgdGIqUuCoYeqwF6Z -xecute=""for i=1,2 zkill ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(i,$piece($ztoldval,""""|"""",i),sub1)"""
+^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(8)="+^names(sub1=*) -command=zkill -name=%ydbXtoXI8zgdGIqUuCoYeqwF6Z -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" for i=1,2 set j=-i,p=$piece($ztoldval,""|"",i) if $data(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(i,p,sub1)) zkill ^(sub1) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(j,p),-1) zkill ^(p) zkill:1>$increment(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(j),-1) ^(j)"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
 ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(9)=1
-^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(10)=0
+^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(10)=2
+^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(11)=0
 ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(12)="+^names -command=kill -name=%ydbXtoXI8zgdGIqUuCoYeqwF60 -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
 ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6("comment-1")="xref for table NAMES column FIRSTNAME"
 ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6("comment-2")="xref for table NAMES column LASTNAME"

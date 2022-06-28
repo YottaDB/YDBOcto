@@ -495,14 +495,21 @@ typedef struct SqlColumnAlias {
 	// SqlColumn or SqlColumnListAlias
 	struct SqlStatement *column;
 	// SqlTableAlias
-	struct SqlStatement *table_alias_stmt;
-	int		     group_by_column_number; /* 0 if this column name was not specified in a GROUP BY.
-						      * Holds a non-zero index # if column name was specified in GROUP BY
-						      * (e.g. in query `SELECT 1+id FROM names GROUP BY id,firstname`,
-						      *  this field would be 1 for the SqlColumnAlias corresponding to
-						      *  `id` and 2 for the SqlColumnAlias corresponding to `firstname`
-						      *  and 0 for the SqlColumnAlias corresponding to `lastname`).
-						      */
+	struct SqlStatement *table_alias_stmt; /* In case of SET Operation, this field will point to the SqlTableAlias
+						* corresponding to the leftmost SELECT query in the SET operation.
+						*/
+	struct SqlStatement
+	    *set_oper_stmt; /* This field is needed as `table_alias_stmt` does not give the entire picture for SET Operations
+			     * whereas this lets one go through ALL SELECT queries involved in the SET Operation.
+			     * Will be non-NULL only in case of a column alias corresponding to a SET operation.
+			     */
+	int group_by_column_number; /* 0 if this column name was not specified in a GROUP BY.
+				     * Holds a non-zero index # if column name was specified in GROUP BY
+				     * (e.g. in query `SELECT 1+id FROM names GROUP BY id,firstname`,
+				     *  this field would be 1 for the SqlColumnAlias corresponding to
+				     *  `id` and 2 for the SqlColumnAlias corresponding to `firstname`
+				     *  and 0 for the SqlColumnAlias corresponding to `lastname`).
+				     */
 } SqlColumnAlias;
 
 /*

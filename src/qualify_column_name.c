@@ -173,6 +173,7 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 	 * by a user-specified column alias in the SELECT column list. If so, use that as the match and move on. No need to
 	 * go into the "if" block below in that case.
 	 */
+	SqlStatement *set_oper_stmt = NULL;
 	if (NULL == col_cla) {
 		if (NULL != tables) {
 			cur_join = start_join = tables;
@@ -213,6 +214,9 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 								} else {
 									ret = cur_table_alias->table_asterisk_column_alias;
 								}
+								if (set_operation_STATEMENT == cur_join->value->type) {
+									ret->set_oper_stmt = cur_join->value;
+								}
 								return ret;
 							}
 							col_cla = match_column_in_table(cur_table_alias, column_name,
@@ -226,6 +230,9 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 								 */
 								yyerror(NULL, NULL, &cur_table_alias->alias, NULL, NULL, NULL);
 								return NULL;
+							}
+							if (set_operation_STATEMENT == cur_join->value->type) {
+								set_oper_stmt = cur_join->value;
 							}
 							break;
 						}
@@ -280,6 +287,9 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 						}
 						matching_alias_stmt = sql_stmt;
 						col_cla = t_col_cla;
+						if (set_operation_STATEMENT == cur_join->value->type) {
+							set_oper_stmt = cur_join->value;
+						}
 					}
 				}
 				cur_join = cur_join->next;
@@ -324,5 +334,9 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 			return NULL;
 		}
 	}
-	return get_column_alias_for_column_list_alias(col_cla, matching_alias_stmt);
+	SqlColumnAlias *column_alias = get_column_alias_for_column_list_alias(col_cla, matching_alias_stmt);
+	if (NULL != set_oper_stmt) {
+		column_alias->set_oper_stmt = set_oper_stmt;
+	}
+	return column_alias;
 }

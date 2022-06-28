@@ -122,6 +122,7 @@ ERROR_DEF(ERR_TYPE_MISMATCH, "Type mismatch: left %s, right %s", PSQL_Code_Datat
 ERROR_DEF(ERR_NOT_OPERATION_TYPE_MISMATCH, "%s type operand is incorrect for NOT operation. Need a boolean operand.", PSQL_Code_Datatype_Mismatch)
 ERROR_DEF(ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH, "Table asterisk column type mismatch: left %s, right %s", PSQL_Code_Datatype_Mismatch)
 ERROR_DEF(ERR_TABLE_ASTERISK_COLUMN_COUNT_MISMATCH, "Table asterisk column count mismatch: left %d, right %d", PSQL_Code_Datatype_Mismatch)
+ERROR_DEF(ERR_TABLE_ASTERISK_SCALAR_COMPARISON, "Table asterisk cannot be compared against column reference", PSQL_Code_Datatype_Mismatch)
 ERROR_DEF(ERR_TYPE_NOT_COMPATIBLE, "Type %s not compatible for %s", PSQL_Code_Undefined_Function)
 ERROR_DEF(ERR_UNKNOWN_COLUMN_NAME, "Unknown column: %s", PSQL_Code_Undefined_Column)
 ERROR_DEF(ERR_UNKNOWN_FUNCTION, "No function '%s' defined with given parameter types (%s)", PSQL_Code_Undefined_Function)

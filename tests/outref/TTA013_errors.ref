@@ -1,0 +1,134 @@
+
+select n1.column1 = n2.column1 from (select 1,'test' as column1 union select NULL,'test') n1, (select NULL as column1,'test' union select 1,'test') n2;
+select n1.column1 IN (n2.column1) from (select 1,'test' as column1 union select NULL,'test') n1, (select NULL as column1,'test' union select 1,'test') n2;
+
+select n1.* in (n2.*) from (select 1 union select NULL union select NULL) n1, (select NULL union select 'test') n2 group by n1.*,n2.* order by n1.*;
+
+select n1.* = n2.* from (select 1 union select NULL union select NULL) n1, (select NULL union select 'test') n2 group by n1.*,n2.* order by n1.*;
+
+select n1.column1 in (n2.column1) from (select 1 as column1 union select NULL) n1, (select NULL as column1 union select 'test') n2;
+select n1.column1 = n2.column1 from (select 1 as column1 union select NULL) n1, (select NULL as column1 union select 'test') n2;
+select n1.column1 > n2.column1 from (select 1 as column1 union select NULL) n1, (select NULL as column1 union select 'test') n2;
+select n1.column1 < n2.column1 from (select 1 as column1 union select NULL) n1, (select NULL as column1 union select 'test') n2;
+select n1.column1 <= n2.column1 from (select 1 as column1 union select NULL) n1, (select NULL as column1 union select 'test') n2;
+select n1.column1 >= n2.column1 from (select 1 as column1 union select NULL) n1, (select NULL as column1 union select 'test') n2;
+
+select n2.column1 >= 1 from (select 1 as column1 union select NULL) n1, (select NULL as column1 union select 'test') n2;
+
+select n2.* >= 'test' from (select 1 as column1 union select NULL) n1, (select NULL as column1 union select 'test') n2;
+select 'test' >= n2.* from (select 1 as column1 union select NULL) n1, (select NULL as column1 union select 'test') n2;
+select 1 >= n2.* from (select 1 as column1 union select NULL) n1, (select NULL as column1 union select 'test') n2;
+select n2.column1 >= n2.* from (select 1 as column1 union select NULL) n1, (select NULL as column1 union select 'test') n2;
+select n2.* >= n2.column1 from (select 1 as column1 union select NULL) n1, (select NULL as column1 union select 'test') n2;
+select n1.column1 >= n2.* from (select 1 as column1 union select NULL) n1, (select NULL as column1 union select 'test') n2;
+select n1.* in (NULL, NULL,n2.*,NULL, NULL) from (select 1 union select NULL union select NULL) n1, (select NULL union select 'test') n2 group by n1.*,n2.* order by n1.*;
+
+--Misc queries which ensure set_operation change doesn't break the other query types
+select n2.column1 >= n2.* from (select NULL as column1) n2;
+select n2.column1 >= n2.* from (select 1 as column1) n2;
+select n2.column1 >= n2.* from (select 'test' as column1) n2;
+select n2.* >= n2.column1 from (select 'test' as column1) n2;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: select n1.column1 = n2.column1 from (select 1,'test' as column1 ...
+               ^^^^^^^^^^
+LINE 1: select n1.column1 = n2.column1 from (select 1,'test' as column1 ...
+                            ^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: select n1.column1 IN (n2.column1) from (select 1,'test' as colum...
+               ^^^^^^^^^^
+LINE 1: select n1.column1 IN (n2.column1) from (select 1,'test' as colum...
+                              ^^^^^^^^^^
+[ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left INTEGER, right VARCHAR
+LINE 1: select n1.* in (n2.*) from (select 1 union select NULL union sel...
+                        ^^^^
+[ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left INTEGER, right VARCHAR
+LINE 1: select n1.* = n2.* from (select 1 union select NULL union select...
+                      ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 1: select n1.column1 in (n2.column1) from (select 1 as column1 unio...
+               ^^^^^^^^^^
+LINE 1: select n1.column1 in (n2.column1) from (select 1 as column1 unio...
+                              ^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 1: select n1.column1 = n2.column1 from (select 1 as column1 union s...
+               ^^^^^^^^^^
+LINE 1: select n1.column1 = n2.column1 from (select 1 as column1 union s...
+                            ^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 1: select n1.column1 > n2.column1 from (select 1 as column1 union s...
+               ^^^^^^^^^^
+LINE 1: select n1.column1 > n2.column1 from (select 1 as column1 union s...
+                            ^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 1: select n1.column1 < n2.column1 from (select 1 as column1 union s...
+               ^^^^^^^^^^
+LINE 1: select n1.column1 < n2.column1 from (select 1 as column1 union s...
+                            ^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 1: select n1.column1 <= n2.column1 from (select 1 as column1 union ...
+               ^^^^^^^^^^
+LINE 1: select n1.column1 <= n2.column1 from (select 1 as column1 union ...
+                             ^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 1: select n1.column1 >= n2.column1 from (select 1 as column1 union ...
+               ^^^^^^^^^^
+LINE 1: select n1.column1 >= n2.column1 from (select 1 as column1 union ...
+                             ^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 1: select n2.column1 >= 1 from (select 1 as column1 union select NU...
+               ^^^^^^^^^^
+LINE 1: select n2.column1 >= 1 from (select 1 as column1 union select N...
+                             ^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
+LINE 1: select n2.* >= 'test' from (select 1 as column1 union select NUL...
+               ^^
+LINE 1: select n2.* >= 'test' from (select 1 as column1 union select NU...
+                            ^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
+LINE 1: select 'test' >= n2.* from (select 1 as column1 union select NU...
+                    ^
+LINE 1: select 'test' >= n2.* from (select 1 as column1 union select NUL...
+                         ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
+LINE 1: select 1 >= n2.* from (select 1 as column1 union select NULL) n...
+               ^
+LINE 1: select 1 >= n2.* from (select 1 as column1 union select NULL) n1...
+                    ^^
+[ERROR]: ERR_TABLE_ASTERISK_SCALAR_COMPARISON: Table asterisk cannot be compared against column reference
+LINE 1: select n2.column1 >= n2.* from (select 1 as column1 union select...
+               ^^^^^^^^^^
+LINE 1: select n2.column1 >= n2.* from (select 1 as column1 union select...
+                             ^^
+[ERROR]: ERR_TABLE_ASTERISK_SCALAR_COMPARISON: Table asterisk cannot be compared against column reference
+LINE 1: select n2.* >= n2.column1 from (select 1 as column1 union select...
+               ^^
+LINE 1: select n2.* >= n2.column1 from (select 1 as column1 union select...
+                       ^^^^^^^^^^
+[ERROR]: ERR_TABLE_ASTERISK_SCALAR_COMPARISON: Table asterisk cannot be compared against column reference
+LINE 1: select n1.column1 >= n2.* from (select 1 as column1 union select...
+               ^^^^^^^^^^
+LINE 1: select n1.column1 >= n2.* from (select 1 as column1 union select...
+                             ^^
+[ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left INTEGER, right VARCHAR
+LINE 1: select n1.* in (NULL, NULL,n2.*,NULL, NULL) from (select 1 union...
+                                   ^^^^
+[ERROR]: ERR_TABLE_ASTERISK_SCALAR_COMPARISON: Table asterisk cannot be compared against column reference
+LINE 2: select n2.column1 >= n2.* from (select NULL as column1) n2;
+               ^^^^^^^^^^
+LINE 2: select n2.column1 >= n2.* from (select NULL as column1) n2;
+                             ^^
+[ERROR]: ERR_TABLE_ASTERISK_SCALAR_COMPARISON: Table asterisk cannot be compared against column reference
+LINE 1: select n2.column1 >= n2.* from (select 1 as column1) n2;
+               ^^^^^^^^^^
+LINE 1: select n2.column1 >= n2.* from (select 1 as column1) n2;
+                             ^^
+[ERROR]: ERR_TABLE_ASTERISK_SCALAR_COMPARISON: Table asterisk cannot be compared against column reference
+LINE 1: select n2.column1 >= n2.* from (select 'test' as column1) n2;
+               ^^^^^^^^^^
+LINE 1: select n2.column1 >= n2.* from (select 'test' as column1) n2;
+                             ^^
+[ERROR]: ERR_TABLE_ASTERISK_SCALAR_COMPARISON: Table asterisk cannot be compared against column reference
+LINE 1: select n2.* >= n2.column1 from (select 'test' as column1) n2;
+               ^^
+LINE 1: select n2.* >= n2.column1 from (select 'test' as column1) n2;
+                       ^^^^^^^^^^

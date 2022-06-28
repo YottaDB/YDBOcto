@@ -1118,6 +1118,14 @@ Text: Table asterisk column type mismatch: left xxx, right xxx
 
 Description/Action: This error is generated when the comparison between two :code:`table.*` usages cannot be made as their column types do not match. PSQL Error Code: 42804
 
++++++++++++++++++++++++++++++++++++++
+ERR_TABLE_ASTERISK_SCALAR_COMPARISON
++++++++++++++++++++++++++++++++++++++
+
+Text: Table asterisk cannot be compared against column reference
+
+Description/Action: This error is generated when the comparison is done between a :code:`table.*` and regular column reference, as its an invalid usage. PSQL Error Code: 42804
+
 ++++++++++++++++++++++++++++++
 ERR_TABLE_DEFINITION_TOO_LONG
 ++++++++++++++++++++++++++++++

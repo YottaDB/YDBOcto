@@ -914,6 +914,7 @@ int  get_mval_len(unsigned char *buff, int *data_len);
 int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type, ParseContext *parse_context);
 
 char *	      get_aggregate_func_name(SqlAggregateType type);
+SqlValueType  get_set_operation_column_alias_type(SqlStatement *ca_stmt);
 char *	      get_set_operation_string(SqlSetOperationType type);
 char *	      get_user_visible_binary_operator_string(enum BinaryOperations operation);
 int	      get_user_visible_data_type_string(SqlDataTypeStruct *data_type_ptr, char *ret_buff, int ret_buff_size);
@@ -1008,7 +1009,7 @@ SqlStatement *drop_function(SqlStatement *identifier_start, SqlStatement *functi
 
 void constraint_name_auto_generate(OptionalKeyword constraint_type, char *table_name, char *column_name, int numeric_suffix,
 				   char *name_buf, int buf_size);
-int  compare_column_count_and_column_type_of_tables(SqlTableAlias *first_table_alias, SqlTableAlias *second_table_alias,
+int  compare_column_count_and_column_type_of_tables(SqlColumnAlias *first_column_alias, SqlColumnAlias *second_column_alias,
 						    ParseContext *parse_context);
 int  validate_table_asterisk_binary_operation(SqlBinaryOperation *binary, SqlValueType orig_child_type[2],
 					      ParseContext *parse_context);

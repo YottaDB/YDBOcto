@@ -73,10 +73,6 @@ int validate_table_asterisk_binary_operation(SqlBinaryOperation *binary, SqlValu
 		if ((NUL_VALUE != orig_child_type[0]) && (NUL_VALUE != orig_child_type[1])) {
 			SqlColumnAlias *first_column_alias;
 			UNPACK_SQL_STATEMENT(first_column_alias, first_operand, column_alias);
-
-			SqlTableAlias *first_table_alias;
-			UNPACK_SQL_STATEMENT(first_table_alias, first_column_alias->table_alias_stmt, table_alias);
-
 			assert(is_stmt_table_asterisk(first_operand));
 			assert(column_list_STATEMENT == second_operand->type);
 			SqlColumnList *start_column_list, *cur_column_list;
@@ -102,13 +98,8 @@ int validate_table_asterisk_binary_operation(SqlBinaryOperation *binary, SqlValu
 				} else {
 					SqlColumnAlias *second_column_alias;
 					UNPACK_SQL_STATEMENT(second_column_alias, cur_column_list->value, column_alias);
-
-					SqlTableAlias *second_table_alias;
-					UNPACK_SQL_STATEMENT(second_table_alias, second_column_alias->table_alias_stmt,
-							     table_alias);
-
-					result = compare_column_count_and_column_type_of_tables(first_table_alias,
-												second_table_alias, parse_context);
+					result = compare_column_count_and_column_type_of_tables(first_column_alias,
+												second_column_alias, parse_context);
 					if (result) {
 						yyerror(&cur_column_list->value->loc, NULL, NULL, NULL, NULL, NULL);
 						break;
@@ -143,20 +134,36 @@ int validate_table_asterisk_binary_operation(SqlBinaryOperation *binary, SqlValu
 			SqlColumnAlias *first_column_alias;
 			UNPACK_SQL_STATEMENT(first_column_alias, first_operand, column_alias);
 
-			SqlTableAlias *first_table_alias;
-			UNPACK_SQL_STATEMENT(first_table_alias, first_column_alias->table_alias_stmt, table_alias);
-
 			assert(is_stmt_table_asterisk(first_operand) && is_stmt_table_asterisk(second_operand));
 			SqlColumnAlias *second_column_alias;
 			UNPACK_SQL_STATEMENT(second_column_alias, second_operand, column_alias);
 
-			SqlTableAlias *second_table_alias;
-			UNPACK_SQL_STATEMENT(second_table_alias, second_column_alias->table_alias_stmt, table_alias);
-
-			result
-			    = compare_column_count_and_column_type_of_tables(first_table_alias, second_table_alias, parse_context);
+			result = compare_column_count_and_column_type_of_tables(first_column_alias, second_column_alias,
+										parse_context);
 			if (result) {
 				yyerror(&second_operand->loc, NULL, NULL, NULL, NULL, NULL);
+			}
+		} else {
+			/* One of the operands is a column alias with a NULL value or a LITERAL with a NULL_VALUE.
+			 * If that operand is a set_operation column alias then consider its type from
+			 * `col_type_list` as it has information of column type from all queries comprising the set_operation.
+			 */
+			int index;
+			if (is_stmt_table_asterisk(first_operand)) {
+				// First operand is `table.*` check the other operand by setting index to right operand
+				index = 1;
+			} else {
+				// Second operand is `table.*` check the other operand by setting index to left operand
+				index = 0;
+			}
+			if (column_alias_STATEMENT == binary->operands[index]->type) {
+				// This is a column alias and its being compared with a `table.*`
+				// Issue error as this is not allowed. Postgres treats this is as value_type comparison with record.
+				ERROR(ERR_TABLE_ASTERISK_SCALAR_COMPARISON, "");
+				for (int i = 0; i < 2; i++) {
+					yyerror(&binary->operands[i]->loc, NULL, NULL, NULL, NULL, NULL);
+				}
+				result = 1;
 			}
 		}
 		break;

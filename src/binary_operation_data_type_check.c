@@ -155,6 +155,97 @@ int binary_operation_data_type_check(SqlBinaryOperation *binary, SqlValueType ch
 			if (result) {
 				break;
 			}
+		} else if (!result) {
+			if ((BOOLEAN_IN == binary->operation) || (BOOLEAN_NOT_IN == binary->operation)) {
+				if (TABLE_ASTERISK == child_type[0]) {
+					/* TABLE_ASTERISK IN TABLE_ASTERISK is taken care above.
+					 * This is a TABLE_ASTERISK IN non_TABLE_ASTERISK comparison.
+					 * The types will missmatch, `break` as code after this will issue the error.
+					 */
+					break;
+				}
+				// Check if the left operand is a reference and if its a set_operation
+				if ((column_alias_STATEMENT == binary->operands[0]->type)
+				    && (NULL != binary->operands[0]->v.column_alias->set_oper_stmt)) {
+					child_type[0] = get_set_operation_column_alias_type(binary->operands[0]);
+				}
+				// Look at each item in the list and break when there is a missmatch
+				if (column_list_STATEMENT == binary->operands[1]->type) {
+					SqlColumnList *in_cl_list, *in_cl_list_cur;
+					UNPACK_SQL_STATEMENT(in_cl_list, binary->operands[1], column_list);
+					in_cl_list_cur = in_cl_list;
+					do {
+						SqlStatement *right_stmt = in_cl_list_cur->value;
+						if ((column_alias_STATEMENT == right_stmt->type)
+						    && (NULL != right_stmt->v.column_alias->set_oper_stmt)) {
+							child_type[1] = get_set_operation_column_alias_type(right_stmt);
+							if (child_type[0] != child_type[1]) {
+								/* Type missmatch.
+								 * Cast the types and let code at the end take care of error issue
+								 * if any.
+								 */
+								CAST_AMBIGUOUS_TYPES(child_type[0], child_type[1], result,
+										     parse_context);
+								break;
+							}
+						}
+						in_cl_list_cur = in_cl_list_cur->next;
+					} while (in_cl_list_cur != in_cl_list);
+				}
+			} else if (((column_alias_STATEMENT == binary->operands[0]->type)
+				    && (column_alias_STATEMENT == binary->operands[1]->type))
+				   || ((column_alias_STATEMENT == binary->operands[0]->type)
+				       || (column_alias_STATEMENT == binary->operands[1]->type))) {
+				// Either both operand is a column alias or one of them is. Update child_type for the column alias.
+				int index, count;
+				if ((column_alias_STATEMENT == binary->operands[0]->type)
+				    && (column_alias_STATEMENT == binary->operands[1]->type)) {
+					boolean_t left_is_table_asterisk, right_is_table_asterisk;
+					left_is_table_asterisk = (TABLE_ASTERISK == child_type[0]) ? TRUE : FALSE;
+					right_is_table_asterisk = (TABLE_ASTERISK == child_type[1]) ? TRUE : FALSE;
+					/* The first if block in this chain handles comparison between two `table.*` values, do not
+					 * expect such usage to reach this code block. Assert that both are not `table.*`.
+					 */
+					assert(!((TRUE == left_is_table_asterisk) && (TRUE == right_is_table_asterisk)));
+					if (left_is_table_asterisk || right_is_table_asterisk) {
+						/* This is a comparion between table.* and a regular column.
+						 * Issue error as its an invalid usage.
+						 */
+						ERROR(ERR_TABLE_ASTERISK_SCALAR_COMPARISON, "");
+						for (int i = 0; i < 2; i++) {
+							yyerror(&binary->operands[i]->loc, NULL, NULL, NULL, NULL, NULL);
+						}
+						return 1;
+					} else {
+						index = 0;
+						count = 2;
+					}
+				} else {
+					if (column_alias_STATEMENT == binary->operands[0]->type) {
+						index = 0;
+						count = 1;
+					} else {
+						index = 1;
+						count = 2;
+					}
+				}
+				SqlColumnAlias *ca;
+				for (int i = index; i < count; i++) {
+					UNPACK_SQL_STATEMENT(ca, binary->operands[i], column_alias);
+					if (NULL != ca->set_oper_stmt) {
+						if (is_stmt_table_asterisk(ca->column)) {
+							/* `table.*`, in this case we want the TABLE_ASTERISK as the type which is
+							 * already set so nothing to do.
+							 */
+							continue;
+						} else {
+							child_type[i] = get_set_operation_column_alias_type(binary->operands[i]);
+						}
+					}
+				}
+				// Cast the new types set and let code at the end take care of error issue if any
+				CAST_AMBIGUOUS_TYPES(child_type[0], child_type[1], result, parse_context);
+			}
 		}
 		*type = BOOLEAN_VALUE;
 		break;

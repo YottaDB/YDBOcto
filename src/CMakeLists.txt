@@ -209,6 +209,7 @@ add_library(libocto OBJECT
   get_group_by_fields.c
   get_row_count_from_cursorId.c
   get_psql_type_from_sqlvaluetype.c
+  get_set_operation_column_alias_type.c
   get_set_operation_string.c
   get_sqldatatype_from_sqlvaluetype.c
   get_sqlvaluetype_from_psql_type.c

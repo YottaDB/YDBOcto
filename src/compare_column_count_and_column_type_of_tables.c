@@ -17,11 +17,21 @@
 
 /* The following function compares the tables passed to it based on column count and column type.
  * This is a helper function for validate_table_asterisk_comparison() to perform the actual validation.
- * Issues error if any of the comparisons fail and returns 1.
- * returns 0 on success.
+ * Parameters:
+ * - `first_column_alias` is the column_alias value of the first operand in the expression
+ * - `second_column_alias` is the column_alias value of the second operand in the expression
+ * NOTE: If `set_oper_stmt` of the column_alias is not NULL then `col_type_list` value of the set_operation is used to perform type
+ * comparison. This value is only needed for type comparison. The column count in all cases is done by checking the table_alias of
+ * the operands as column count in case of set_operation or select or VALUES can be determined by the table_alias itself. Return:
+ * - Issues error if any of the comparisons fail and returns 1.
+ * - returns 0 on success.
  */
-int compare_column_count_and_column_type_of_tables(SqlTableAlias *first_table_alias, SqlTableAlias *second_table_alias,
+int compare_column_count_and_column_type_of_tables(SqlColumnAlias *first_column_alias, SqlColumnAlias *second_column_alias,
 						   ParseContext *parse_context) {
+	SqlTableAlias *first_table_alias, *second_table_alias;
+	UNPACK_SQL_STATEMENT(first_table_alias, first_column_alias->table_alias_stmt, table_alias);
+	UNPACK_SQL_STATEMENT(second_table_alias, second_column_alias->table_alias_stmt, table_alias);
+
 	// Ensure number of columns are the same
 	int first_columns_count, second_columns_count;
 	first_columns_count = get_num_cols_in_table_alias(first_table_alias);
@@ -34,14 +44,24 @@ int compare_column_count_and_column_type_of_tables(SqlTableAlias *first_table_al
 	// Ensure column type match between the tables
 	SqlColumnListAlias *first_cla, *cur_first_cla;
 	SqlColumnListAlias *second_cla, *cur_second_cla;
-	UNPACK_SQL_STATEMENT(first_cla, first_table_alias->column_list, column_list_alias);
-	UNPACK_SQL_STATEMENT(second_cla, second_table_alias->column_list, column_list_alias);
+	if (NULL != first_column_alias->set_oper_stmt) {
+		SqlSetOperation *set_oper;
+		UNPACK_SQL_STATEMENT(set_oper, first_column_alias->set_oper_stmt, set_operation);
+		first_cla = set_oper->col_type_list;
+	} else {
+		UNPACK_SQL_STATEMENT(first_cla, first_table_alias->column_list, column_list_alias);
+	}
+	if (NULL != second_column_alias->set_oper_stmt) {
+		SqlSetOperation *set_oper;
+		UNPACK_SQL_STATEMENT(set_oper, second_column_alias->set_oper_stmt, set_operation);
+		second_cla = set_oper->col_type_list;
+		;
+	} else {
+		UNPACK_SQL_STATEMENT(second_cla, second_table_alias->column_list, column_list_alias);
+	}
 	cur_first_cla = first_cla;
 	cur_second_cla = second_cla;
 	do {
-		/* Do not use CAST_AMBIGUOUS_TYPES() on the table columns types as we want to be able to
-		 * selectively allow only STRING and NULL type comparison. All other types are not allowed to be compared with NULL.
-		 */
 		SqlValueType left_type = cur_first_cla->type;
 		SqlValueType right_type = cur_second_cla->type;
 		int	     result = 0;
@@ -49,8 +69,9 @@ int compare_column_count_and_column_type_of_tables(SqlTableAlias *first_table_al
 		if (result) {
 			return result;
 		}
-		// Check if this is a comparison between NUMERIC and INTEGER explicitely because CAST_AMBIGUOUS_TYPES() treats them
-		// as same
+		/* Check if this is a comparison between NUMERIC and INTEGER explicitely because CAST_AMBIGUOUS_TYPES() treats them
+		 * as same.
+		 */
 		if ((((NUMERIC_LITERAL == cur_first_cla->type) && (INTEGER_LITERAL == cur_second_cla->type))
 		     || ((INTEGER_LITERAL == cur_first_cla->type) && (NUMERIC_LITERAL == cur_second_cla->type)))
 		    || (left_type != right_type)) {

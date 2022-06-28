@@ -1,0 +1,65 @@
+
+-- TT02 : OCTO609 : TRUNCATE does not delete data from READONLY tables
+
+-- All rows present in `names`, `pg_type`, and `customers` tables
+select firstname, lastname from names;
+select typname from pg_type;
+select first_name, last_name from customers;
+
+-- Single table case
+-- All rows present in `pg_type` table
+truncate pg_type;  -- ERR_TABLE_READONLY
+-- All rows present in `pg_type` table
+select typname from pg_type;
+
+-- Multiple table case
+truncate names, pg_type, customers;  -- ERR_TABLE_READONLY for `pg_type`
+-- All rows present in `pg_type`, but deleted from `names` and `customers` tables
+select firstname, lastname from names;
+select typname from pg_type;
+select first_name, last_name from customers;
+FIRSTNAME|LASTNAME
+Zero|Cool
+Acid|Burn
+Cereal|Killer
+Lord|Nikon
+Joey|
+Zero|Cool
+(6 rows)
+TYPNAME
+bool
+int4
+name
+numeric
+unknown
+varchar
+(6 rows)
+FIRST_NAME|LAST_NAME
+George|Washington
+John|Adams
+Thomas|Jefferson
+James|Madison
+James|Monroe
+(5 rows)
+[ERROR]: ERR_TABLE_READONLY: TRUNCATE not allowed on READONLY table 'PG_TYPE'. Only allowed on READWRITE tables.
+TYPNAME
+bool
+int4
+name
+numeric
+unknown
+varchar
+(6 rows)
+[ERROR]: ERR_TABLE_READONLY: TRUNCATE not allowed on READONLY table 'PG_TYPE'. Only allowed on READWRITE tables.
+FIRSTNAME|LASTNAME
+(0 rows)
+TYPNAME
+bool
+int4
+name
+numeric
+unknown
+varchar
+(6 rows)
+FIRST_NAME|LAST_NAME
+(0 rows)

@@ -208,6 +208,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token THEN
 %token TIME
 %token TO
+%token TRUNCATE
 %token UNION
 %token UNIQUE
 %token UNKNOWN
@@ -346,6 +347,7 @@ display_relation_command
 %include "parser/drop.y"
 %include "parser/discard.y"
 %include "parser/set.y"
+%include "parser/truncate.y"
 
 sql_data_statement
   : sql_data_change_statement {
@@ -1037,7 +1039,7 @@ set_function_type
   ;
 
 generic_function_call
-  : column_name LEFT_PAREN in_value_list_allow_empty RIGHT_PAREN {
+  : function_name LEFT_PAREN in_value_list_allow_empty RIGHT_PAREN {
       SQL_STATEMENT($$, value_STATEMENT);
       MALLOC_STATEMENT($$, value, SqlValue);
       SqlStatement *fc_statement;
@@ -1049,15 +1051,20 @@ generic_function_call
       SQL_STATEMENT(fc_statement, function_call_STATEMENT);
       MALLOC_STATEMENT(fc_statement, function_call, SqlFunctionCall);
       UNPACK_SQL_STATEMENT(fc, fc_statement, function_call);
-      fc->function_name = $column_name;
+      fc->function_name = $function_name;
       fc->parameters = $in_value_list_allow_empty;
       value->v.calculated = fc_statement;
 
       // Change the function name value to be a string literal rather than column reference
-      UNPACK_SQL_STATEMENT(value, $column_name, value);
+      UNPACK_SQL_STATEMENT(value, $function_name, value);
       value->type = FUNCTION_NAME;
     }
   | parenless_function { $$ = $parenless_function; }
+  ;
+
+function_name
+  : column_name { $$ = $column_name; }
+  | sql_keyword { $$ = $sql_keyword; }
   ;
 
 parenless_function
@@ -1301,6 +1308,7 @@ sql_schema_manipulation_statement
   : drop_table_statement { $$ = $drop_table_statement; parse_context->command_tag = drop_table_STATEMENT; }
   | drop_function_statement { $$ = $drop_function_statement; parse_context->command_tag = drop_function_STATEMENT; }
   | discard_all_statement { $$ = $discard_all_statement; parse_context->command_tag = discard_all_STATEMENT; }
+  | truncate_table_statement { $$ = $truncate_table_statement; parse_context->command_tag = truncate_table_STATEMENT; }
   ;
 
 sql_schema_definition_statement
@@ -2155,12 +2163,30 @@ function_definition
   : CREATE FUNCTION identifier_start LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
 	INVOKE_FUNCTION_DEFINITION($$, $identifier_start, $function_parameter_type_list, $data_type, $m_function, FALSE);
       }
+  | CREATE FUNCTION sql_keyword LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
+	INVOKE_FUNCTION_DEFINITION($$, $sql_keyword, $function_parameter_type_list, $data_type, $m_function, FALSE);
+      }
   | CREATE FUNCTION PARENLESS_FUNCTION LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
 	INVOKE_FUNCTION_DEFINITION($$, $PARENLESS_FUNCTION, $function_parameter_type_list, $data_type, $m_function, FALSE);
       }
   | CREATE FUNCTION IF NOT EXISTS identifier_start LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
 	INVOKE_FUNCTION_DEFINITION($$, $identifier_start, $function_parameter_type_list, $data_type, $m_function, TRUE);
       }
+  ;
+
+/* Some SQL keywords may also be valid SQL function names. So, we must distinguish
+ * between the cases where the keyword is intended as a keyword, and where it is intended
+ * as the name of a function.
+ *
+ * To do this, we explictly allow such keywords to be accepted as function names via the following
+ * rule, which prevents syntax errors due to an unexpected keyword appearing in the function_definition
+ * rule.
+ */
+sql_keyword
+  : TRUNCATE {
+      SQL_VALUE_STATEMENT($$, STRING_LITERAL, "TRUNCATE");
+      $$->loc = yyloc;
+    }
   ;
 
 function_parameter_type_list

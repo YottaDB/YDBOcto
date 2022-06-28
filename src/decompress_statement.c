@@ -268,6 +268,7 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 	case insert_STATEMENT:
 	case drop_table_STATEMENT:
 	case drop_function_STATEMENT:
+	case truncate_table_STATEMENT:
 	case aggregate_function_STATEMENT:
 	case join_STATEMENT:
 	case column_list_alias_STATEMENT:

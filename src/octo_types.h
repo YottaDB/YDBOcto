@@ -97,6 +97,16 @@ typedef void *yyscan_t;
 		DEST = lcl_ret;                                                   \
 	}
 
+#define SQL_COLUMN_LIST_STATEMENT(DEST)                                \
+	{                                                              \
+		SqlStatement *lcl_ret;                                 \
+                                                                       \
+		SQL_STATEMENT(lcl_ret, column_list_STATEMENT);         \
+		MALLOC_STATEMENT(lcl_ret, column_list, SqlColumnList); \
+		dqinit(lcl_ret->v.column_list);                        \
+		DEST = lcl_ret;                                        \
+	}
+
 /* Shamelessly stolen from mlkdef.h in YottaDB */
 /* convert relative pointer to absolute pointer */
 #define R2A(X) (void *)(((unsigned char *)&(X)) + ((size_t)X))
@@ -165,6 +175,7 @@ typedef enum SqlStatementType {
 	delete_from_STATEMENT,
 	update_STATEMENT,
 	display_relation_STATEMENT,
+	truncate_table_STATEMENT,
 	invalid_STATEMENT, // Keep invalid_STATEMENT at the end
 } SqlStatementType;
 
@@ -678,6 +689,11 @@ typedef struct SqlDropTableStatement {
 	boolean_t	     if_exists_specified;
 } SqlDropTableStatement;
 
+typedef struct SqlTruncateTableStatement {
+	// SqlValue
+	struct SqlStatement *tables; // SqlColumnListAlias
+} SqlTruncateTableStatement;
+
 typedef struct SqlArray {
 	struct SqlStatement *argument;
 } SqlArray;
@@ -912,6 +928,7 @@ typedef struct SqlStatement {
 		struct SqlInsertStatement *	  insert;
 		struct SqlDropTableStatement *	  drop_table;
 		struct SqlDropFunctionStatement * drop_function;
+		struct SqlTruncateTableStatement *truncate_table;
 		struct SqlValue *		  value;
 		struct SqlFunctionCall *	  function_call;
 		struct SqlCoalesceCall *	  coalesce;

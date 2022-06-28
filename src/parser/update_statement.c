@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -36,7 +36,7 @@ SqlStatement *update_statement(SqlStatement *table_name, SqlStatement *alias_nam
 	UNPACK_SQL_STATEMENT(table_alias, join->value, table_alias);
 	UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
 	if (!table->readwrite) {
-		ERROR(ERR_TABLE_READONLY, "UPDATE");
+		ERROR(ERR_TABLE_READONLY, "UPDATE", table_name->v.value->v.reference);
 		return NULL;
 	}
 	table_alias->alias = ((NULL != alias_name) ? alias_name : table->tableName);

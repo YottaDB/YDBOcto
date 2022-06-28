@@ -147,6 +147,7 @@ if("${FULL_TEST_SUITE}")
 	ADD_BATS_TEST(test_constraint_table_column)
 	ADD_BATS_TEST_DML(test_tablename_asterisk)
 	ADD_BATS_TEST(test_display_relation_commands)
+	ADD_BATS_TEST(test_truncate)
 
 	# The following tests require PostgreSQL
 	ADD_BATS_TEST(test_psql_connection)

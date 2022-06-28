@@ -1146,7 +1146,7 @@ Description/Action: This error is generated when a :code:`CREATE TABLE` command 
 ERR_TABLE_READONLY
 +++++++++++++++++++
 
-Text: xxx not allowed on READONLY tables. Only allowed on READWRITE tables.
+Text: xxx not allowed on READONLY table 'xxx'. Only allowed on READWRITE tables.
 
 Description/Action: Queries that modify tables (e.g. INSERT INTO, DELETE, ALTER etc.) are not allowed on tables that have been created as READONLY. They are only allowed on READWRITE tables. PSQL Error Code: 42601
 

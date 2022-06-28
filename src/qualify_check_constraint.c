@@ -413,6 +413,7 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 	case create_function_STATEMENT:
 	case drop_table_STATEMENT:
 	case drop_function_STATEMENT:
+	case truncate_table_STATEMENT:
 	case column_STATEMENT:
 	case parameter_type_list_STATEMENT:
 	case constraint_STATEMENT:

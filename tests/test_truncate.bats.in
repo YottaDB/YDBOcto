@@ -1,0 +1,39 @@
+#################################################################
+#								#
+# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+	load_fixture names.sql
+	load_fixture names.zwr
+	load_fixture customers.sql
+	load_fixture customers.zwr
+}
+
+@test "TT01 : OCTO609 : TRUNCATE deletes all row data for given tables" {
+	load_fixture TT01.sql subtest
+	verify_output TT01 output.txt noinfo nodebug
+	[[ $(grep "INFO_TABLE_DOES_NOT_EXIST" output.txt | wc -l) -eq 3 ]]
+}
+
+@test "TT02 : OCTO609 : TRUNCATE does not delete data from READONLY tables" {
+	load_fixture TT02.sql subtest novv
+	verify_output TT02 output.txt noinfo nodebug
+}
+
+@test "TT03 : OCTO609 : TRUNCATE works with TABLE keyword added" {
+	load_fixture TT03.sql subtest
+	verify_output TT03 output.txt noinfo nodebug
+	[[ $(grep "INFO_TABLE_DOES_NOT_EXIST" output.txt | wc -l) -eq 3 ]]
+}

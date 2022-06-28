@@ -38,7 +38,7 @@ SqlStatement *insert_statement(SqlStatement *table_name, SqlStatement *column_na
 	UNPACK_SQL_STATEMENT(table_alias, join->value, table_alias);
 	UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
 	if (!table->readwrite) {
-		ERROR(ERR_TABLE_READONLY, "INSERT");
+		ERROR(ERR_TABLE_READONLY, "INSERT", table_name->v.value->v.reference);
 		return NULL;
 	}
 	if (NULL != column_name_list) {

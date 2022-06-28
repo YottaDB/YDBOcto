@@ -558,6 +558,26 @@ Error Case
 .. note::
    A DROP FUNCTION waits for all other concurrently running queries(SELECT or CREATE TABLE or DROP TABLE) to finish so it can safely make DDL changes. It waits for an exclusive lock with a timeout of 10 seconds. If it fails due to a timeout, the user needs to stop all concurrently running queries and reattempt the DROP FUNCTION statement.
 
+--------------
+TRUNCATE TABLE
+--------------
+
+.. code-block:: SQL
+
+   TRUNCATE [TABLE] table_name[, ...];
+
+The TRUNCATE TABLE statement is used to delete all row data from one or more tables in the database, leaving the table definition(s), metadata, and execution plans intact.
+
+The keyword TRUNCATE, optionally followed by the keyword TABLE, is followed by the name of one or more tables whose rows are desired to be deleted.
+
+Example:
+
+.. code-block:: SQL
+
+   TRUNCATE TABLE Employee, Customer;
+
+This command will delete all of the rows in the :code:`Employee` and :code:`Customer` tables, but retain the definitions of both tables along with supporting metadata and execution plans.
+
 -----------
 SELECT
 -----------

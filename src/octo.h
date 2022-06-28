@@ -805,6 +805,16 @@ typedef enum RegexType {
 		STMT = ret;                                              \
 	}
 
+/* Below parses a truncate_table_statement SQL grammar component  */
+#define INVOKE_TRUNCATE_TABLE_STATEMENT(STMT, TABLES)                                  \
+	{                                                                              \
+		SqlStatement *ret;                                                     \
+		SQL_STATEMENT(ret, truncate_table_STATEMENT);                          \
+		OCTO_CMALLOC_STRUCT(ret->v.truncate_table, SqlTruncateTableStatement); \
+		ret->v.truncate_table->tables = TABLES;                                \
+		STMT = ret;                                                            \
+	}
+
 #ifndef NDEBUG
 #define NDEBUG_ONLY(X)
 #define DEBUG_ONLY(X) X

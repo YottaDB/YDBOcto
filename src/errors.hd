@@ -114,7 +114,7 @@ ERROR_DEF(ERR_SUBQUERY_CHECK, "Cannot use subquery in CHECK constraint", PSQL_Co
 ERROR_DEF(ERR_TABLE_DEFINITION_TOO_LONG, "Table definition for %s too long; max size is %d, table length is %d", PSQL_Code_Invalid_Table_Definition)
 ERROR_DEF(ERR_TABLE_MULTIPLE_PRIMARY_KEYS, "Multiple primary keys for table '%s' are not allowed", PSQL_Code_Invalid_Table_Definition)
 ERROR_DEF(ERR_TABLE_MUST_HAVE_A_VISIBLE_COLUMN, "Table '%s' must have at least one visible column", PSQL_Code_Invalid_Table_Definition)
-ERROR_DEF(ERR_TABLE_READONLY, "%s not allowed on READONLY tables. Only allowed on READWRITE tables.", PSQL_Code_Syntax_Error)
+ERROR_DEF(ERR_TABLE_READONLY, "%s not allowed on READONLY table '%s'. Only allowed on READWRITE tables.", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_TABLE_UNKNOWN_COLUMN_NAME, "Column '%s' of table '%s' does not exist", PSQL_Code_Undefined_Column)
 ERROR_DEF(ERR_TYPE_CAST_TABLE_ASTERISK, "Cannot cast type %s to type %s", PSQL_Code_Cannot_Coerce)
 ERROR_DEF(ERR_TYPE_MISMATCH, "Type mismatch: left %s, right %s", PSQL_Code_Datatype_Mismatch)

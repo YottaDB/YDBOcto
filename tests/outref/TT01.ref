@@ -1,0 +1,50 @@
+
+-- TT01 : OCTO609 : TRUNCATE deletes all row data for given tables
+
+-- Single table case
+-- All rows present in `names` table
+select * from names;
+truncate names;
+-- No rows present in `names` table, but table still exists
+select * from names;
+
+-- Multiple table case
+-- All rows present in `customers` and `orders` tables
+select * from customers;
+select * from orders;
+truncate customers, orders;
+-- No rows present in `customers` or `orders` tables, but tables still exist
+select * from customers;
+select * from orders;
+
+-- Non-existent tables case
+truncate badtable, notgoodtable, missingtable;
+ID|FIRSTNAME|LASTNAME
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+(6 rows)
+ID|FIRSTNAME|LASTNAME
+(0 rows)
+CUSTOMER_ID|FIRST_NAME|LAST_NAME|EMAIL|ADDRESS|CITY|STATE|ZIPCODE
+1|George|Washington|gwashington@usa.gov|3200 Mt Vernon Hwy|Mount Vernon|VA|22121
+2|John|Adams|jadams@usa.gov|1250 Hancock St|Quincy|MA|02169
+3|Thomas|Jefferson|tjefferson@usa.gov|931 Thomas Jefferson Pkwy|Charlottesville|VA|22902
+4|James|Madison|jmadison@usa.gov|11350 Constitution Hwy|Orange|VA|22960
+5|James|Monroe|jmonroe@usa.gov|2050 James Monroe Parkway|Charlottesville|VA|22902
+(5 rows)
+ORDER_ID|ORDER_DATE|ORDER_AMOUNT|CUSTOMER_ID
+1|07/04/1776|$234.56|1
+2|03/14/1760|$78.50|3
+3|05/23/1784|$124.00|2
+4|09/03/1790|$65.50|3
+5|07/21/1795|$25.50|10
+6|11/27/1787|$14.40|9
+(6 rows)
+CUSTOMER_ID|FIRST_NAME|LAST_NAME|EMAIL|ADDRESS|CITY|STATE|ZIPCODE
+(0 rows)
+ORDER_ID|ORDER_DATE|ORDER_AMOUNT|CUSTOMER_ID
+(0 rows)

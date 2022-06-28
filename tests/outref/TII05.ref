@@ -296,24 +296,24 @@ ID|FIRSTNAME|LASTNAME
 ???
 -- Test of ERR_TABLE_READONLY error against various catalog tables
 (1 row)
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY tables. Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY tables. Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY tables. Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY tables. Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY tables. Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY tables. Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY tables. Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY tables. Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY tables. Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY tables. Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY tables. Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY tables. Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'OCTOONEROWTABLE'. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'PG_CATALOG.PG_NAMESPACE'. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'PG_CATALOG.PG_TYPE'. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'PG_CATALOG.PG_CLASS'. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'PG_CATALOG.PG_DESCRIPTION'. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'INFORMATION_SCHEMA.TABLES'. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'PG_CATALOG.PG_PROC'. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'PG_CATALOG.PG_ATTRIBUTE'. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'PG_CATALOG.PG_ATTRDEF'. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'PG_CATALOG.PG_SETTINGS'. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'PG_CATALOG.PG_DATABASE'. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'PG_CATALOG.PG_ROLES'. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'PG_CATALOG.PG_USER'. Only allowed on READWRITE tables.
 ???
 -- Test of ERR_TABLE_READONLY error in a table created with READONLY
 (1 row)
 CREATE TABLE
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'TEST1'. Only allowed on READWRITE tables.
 DROP TABLE
 ???
 -- Test same table created with READWRITE works fine with INSERT INTO
@@ -328,7 +328,7 @@ DROP TABLE
 -- Test of ERR_TABLE_READONLY error in a table created with READONLY implicitly assumed
 (1 row)
 CREATE TABLE
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY tables. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'TEST1'. Only allowed on READWRITE tables.
 DROP TABLE
 ???
 -- Test of ERR_UNKNOWN_TABLE error

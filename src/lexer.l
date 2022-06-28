@@ -213,6 +213,7 @@ int copied_so_far;
 (?i:THEN) { return THEN; }
 (?i:TIME) { return TIME; }
 (?i:TO) { return TO; }
+(?i:TRUNCATE) { return TRUNCATE; }
 (?i:UNION) { return UNION; }
 (?i:UNIQUE) { return UNIQUE; }
 (?i:UNKNOWN) { return UNKNOWN; }

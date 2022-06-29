@@ -356,3 +356,8 @@ OCTO
 	load_fixture TERR040.sql subtest novv
 	verify_output TERR040 output.txt
 }
+
+@test "TERR041 : OCTO738 : Test ydb_error_check assert succeeds when M code calls ZHALT" {
+	load_fixture TERR041.sql subtest novv
+	verify_output TERR041 output.txt
+}

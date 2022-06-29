@@ -1,0 +1,7 @@
+
+-- TERR041 : OCTO738 : Test ydb_error_check assert succeeds when M code calls ZHALT
+drop function if exists XECUTE_M_CODE(VARCHAR);
+create function XECUTE_M_CODE(VARCHAR) returns integer as $$octo738^octo738;
+select XECUTE_M_CODE("zhalt 1");
+DROP FUNCTION
+CREATE FUNCTION

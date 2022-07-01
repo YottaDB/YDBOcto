@@ -12,7 +12,7 @@
  ****************************************************************/
 
 #include <ctype.h>
-
+#include <stdbool.h>
 #include <assert.h>
 
 #include "physical_plan.h"
@@ -43,6 +43,7 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 	int		t, matched_vars = 0;
 	int		key_count;
 	int		paren_count = 0;
+	boolean_t	is_currently_inside_quotes = false;
 
 	source_ptr = source;
 	key_count = 0;
@@ -232,11 +233,21 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 			} else {
 				%{}{{ *source_ptr|%c }}{}%
 			}
-			if ('(' == *source_ptr) {
-				paren_count++;
+			/* An Extract field that contains a parens in quotes throws off the parser
+			 * E.g. `TEST INTEGER EXTRACT "$$pgTableIsVisible^%ydboctopgfunctions(""("")"`
+			 * The is_currently_inside_quotes is set/unset on quotes so it won't count parens
+			 * inside of quotes.
+			 */
+			if ('"' == *source_ptr) {
+				is_currently_inside_quotes = !is_currently_inside_quotes;
 			}
-			if (')' == *source_ptr) {
-				paren_count--;
+			if (!is_currently_inside_quotes) {
+				if ('(' == *source_ptr) {
+					paren_count++;
+				}
+				if (')' == *source_ptr) {
+					paren_count--;
+				}
 			}
 			source_ptr++;
 		}

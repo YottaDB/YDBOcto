@@ -687,3 +687,8 @@ OCTO
 	load_fixture TC052.sql subtest novv
 	verify_output TC052 output.txt
 }
+
+@test "TC053 : OCTO863 : Parens in EXTRACT fields do not affect generated M code parens" {
+	load_fixture TC053.sql subtest novv
+	verify_output TC053 output.txt
+}

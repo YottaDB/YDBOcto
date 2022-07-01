@@ -628,9 +628,14 @@ in_value_list_allow_empty
   ;
 
 in_value_list_nonempty
-  : value_expression in_value_list_tail {
-      $$ = create_sql_column_list($value_expression, $in_value_list_tail, &yyloc);
+  : in_value_list_non_empty_term in_value_list_tail {
+      $$ = create_sql_column_list($in_value_list_non_empty_term, $in_value_list_tail, &yyloc);
     }
+  ;
+
+in_value_list_non_empty_term
+  : value_expression { $$ = $value_expression; }
+  | query_expression { $$ = $query_expression; }
   ;
 
 in_value_list_tail

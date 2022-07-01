@@ -171,3 +171,9 @@ setup() {
 @test "TSCP20 : OCTO500 : Support SELECT without FROM when WHERE is present" {
        run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP20.sql
 }
+
+@test "TSCP21 : OCTO854 : Support subquery in in-list " {
+       run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP21.sql
+       load_fixture TSCP21_errors.sql subtest novv
+       verify_output TSCP21_errors output.txt
+}

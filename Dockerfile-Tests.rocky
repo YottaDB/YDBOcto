@@ -12,6 +12,14 @@
 # This file mirrors the pipeline set-up, but is not used by the
 # pipeline. It lets you run the pipeline tests locally.
 # If you change .gitlab-ci.yml, update this as well.
+#
+# NB: Currently, tests involving postgres and MySQL don't work
+# Tracked in https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/823
+#
+# Insturctions:
+# docker build -f Dockerfile-Tests.rocky -t tests-rocky .
+# docker run -it --rm tests-rocky
+# No autoupgrade command example here as we don't fully support it with Rocky Linux
 
 FROM yottadb/yottadb-rocky-base:latest-master
 
@@ -42,4 +50,5 @@ ENV JDBC_VERSION=42.2.6
 ADD . /builds/YDBDBMS/
 WORKDIR /builds/YDBDBMS
 
-RUN tools/ci/build.sh "make-rocky" "none"
+ENTRYPOINT ["tools/ci/build.sh"]
+CMD ["make-rocky", "none"]

@@ -12,6 +12,8 @@
 # This file mirrors the pipeline set-up for the test-vista job, but is not used
 # by the pipeline. It lets you run the pipeline tests locally.  If you change
 # .gitlab-ci.yml, update this as well.
+#
+# Usage: docker build -f Dockerfile-Tests.vista -t tests-vista .
 
 FROM yottadb/octo-vehu:latest-master
 ENTRYPOINT [""]

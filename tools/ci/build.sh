@@ -17,6 +17,8 @@ set -x
 
 jobname=$1	# could be "make-rocky", "make-ubuntu", "make-tls-rocky", "make-tls-rocky" or "test-auto-upgrade"
 subtaskname=$2 # Could be "force" or "none" in case jobname is "test-auto-upgrade"
+autoupgrade_old_commit=$3 # Git hash
+autoupgrade_test_to_troubleshoot=$4 # specific CMake test name to troubleshoot
 
 # Determine if we are running on Ubuntu or Rocky Linux (Centos 8 successor)
 . /etc/os-release
@@ -234,91 +236,120 @@ echo " -> full_test = $full_test"
 echo " -> disable_install = $disable_install"
 
 if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
-	if [[ $CI_COMMIT_BRANCH == "" ]]; then
-		# This is possible if the pipeline runs for example when a new tag is created on a pre-existing commit.
-		# (for example when the r1.0.0 tag was created). In this case, treat this job as a success.
-		echo "INFO : CI_COMMIT_BRANCH env var is empty"
-		echo "INFO : Cannot run the test-auto-upgrade test in this case. Exiting with success."
-		exit 0
-	fi
-	# Record git log --all output in a file just in case it helps later. Not used by this script.
-	git log --graph --all --oneline --pretty=format:'%h%d; %ai; %an; %s' > gitlogall.txt
-	# Checkout a random prior commit to test if auto-upgrade of plans/xrefs/triggers/binary-table-definitions etc.
-	# from that commit to the current/latest commit works fine in Octo.
-	git checkout -B $CI_COMMIT_BRANCH HEAD
-	# Copy M program that is needed for later before we switch to an older git branch.
-	cp ../tools/ci/testAutoUpgrade.m .
-	# Do not go prior to the hard stop commit (SHA pasted below) as an AUTO_UPGRADE error is issued otherwise.
-	hardstopcommit=e2a016b21a1f7d9f2dc55b0655942ab7b8cdd92e
-	#############################################################################################
-	# First verify requirements for this test to succeed. If any of those are not met, just return success right away
-	# as the auto upgrade test is not possible.
-	#############################################################################################
-	# Find common ancestor of upstream/master and HEAD. That is where we stop the search for a random commit
-	upstream_URL=https://gitlab.com/YottaDB/DBMS/YDBOcto
-	if ! git remote | grep -q upstream_repo; then
-		git remote add upstream_repo "$upstream_URL"
-		git fetch upstream_repo
-	fi
-	stopcommit=$(git merge-base HEAD upstream_repo/master)
-	# Find HEAD commit to verify its not the same as $stopcommit
-	HEAD_COMMIT_ID=$(git rev-list HEAD~1..HEAD)
-	if [[ "$stopcommit" == "$HEAD_COMMIT_ID" ]]; then
-		echo "INFO : HEAD commit and stopcommit is the same. No in between commits to choose from."
-		echo "INFO : Back off stopcommit by 1 commit"
-		stopcommit=$(git rev-list HEAD~2..HEAD~1)
-	fi
-	# Find common ancestor of $hardstopcommit and $stopcommit. Verify it is $hardstopcommit. If not, we cannot test.
-	startcommit=$(git merge-base $hardstopcommit $stopcommit)
-	if [[ "$startcommit" != "$hardstopcommit" ]]; then
-		echo "INFO : Ancestor commit of $hardstopcommit and $stopcommit was not the former but instead is [$startcommit]"
-		echo "INFO : Cannot run the test-auto-upgrade test in this case. Exiting with success."
-		exit 0
-	fi
-	#############################################################################################
-	# Now that we verified that requirements for this test are met, go ahead with the actual test.
-	#############################################################################################
-	git log --graph --oneline $startcommit~1..$stopcommit > gitlogmaster.txt
-	# Note: The awk usage below is needed to only skip commits that branch off an otherwise linear commit history.
-	awk '($1 == "*") && ($2 != "|") {print $0;}' gitlogmaster.txt > commit_history.txt
-	numcommits=$(wc -l commit_history.txt | awk '{print $1}')
-	while true;
-	do
-		commitnumber=$(shuf -i 1-$numcommits -n 1)
-		commitsha=$(head -$commitnumber commit_history.txt | tail -1 | awk '{print $2}')
-		if [[ "3d03de63" == "$commitsha" ]]; then
-			# This commit has a known issue in `tests/fixtures/TOJ03.m` that can cause the TJC001 subtest to time out
-			# (see https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1035/pipelines for failure details).
-			# This is fixed in the immediately next commit (e748ab3f) so do not choose this particular commit
-			# as otherwise the "test-auto-upgrade" pipeline job (the current job) will also timeout (see
-			# https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/977#note_923383570 for description of failure).
-			echo "# Skipping $commitsha as it has a known issue that can cause job to timeout"
-			continue
+	# Note that a lot of code is duplicated in the "debug" portion below
+	# In the future, move common lines together with the else branch
+	if [[ "debug" == $subtaskname ]]; then
+		cp ../tools/ci/testAutoUpgrade.m .
+		if [ -n "$autoupgrade_test_to_troubleshoot" ]; then
+			echo " ;;$autoupgrade_test_to_troubleshoot" >> testAutoUpgrade.m
 		fi
-		# Now that we are here, the chosen random older commit has no known issue. So break out of the while loop.
-		break
-	done
-	echo $commitsha > commit_picked.txt
-	# BEGIN For Developers Troubleshooting Autoupgrade pipelines: Set old commit here
-	# commitsha=cc515a49
-	# END For Developers Troubleshooting Autoupgrade pipelines
-	echo "# Random older commit picked = $commitsha"
-	echo "# Checkout the older commit"
-	git checkout $commitsha
-	# Due to https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/712 and # https://gitlab.com/YottaDB/DB/YDB/-/issues/661, ensure
-	# that test framework files corresponding to an older commit are updated minimally enough so they will work with a
-	# later/newer version of ydb_env_set.
-	git checkout 8587b12086666c88ea2c8a19b55a736629269907 -- ../tools/get_ydb_release.sh
-	sed -i 's/unset ydb_chset/export ydb_chset=M/' ../tests/test_helpers.bash.in
-	# Run only a random fraction of the bats tests as we will be running an auto upgrade test on the same queries
-	# once more a little later.
-	cp ../cmake/bats-tests.cmake bats-tests.cmake.orig
-	# Temporarily switch ydb_routines for running M program (testAutoUpgrade.m)
-	saveydbroutines="$ydb_routines"
-	export ydb_routines="."	# so testAutoUpgrade.o gets created in current directory
-	$ydb_dist/yottadb -run batsTestsChooseRandom^testAutoUpgrade < bats-tests.cmake.orig > bats-tests.cmake.new
-	export ydb_routines="$saveydbroutines"	# Switch back to original ydb_routines
-	cp bats-tests.cmake.new ../cmake/bats-tests.cmake
+		commitsha=$autoupgrade_old_commit
+		echo "# Random older commit picked = $autoupgrade_old_commit"
+		echo "# Checkout the older commit"
+		git checkout $autoupgrade_old_commit
+		# Due to https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/712 and # https://gitlab.com/YottaDB/DB/YDB/-/issues/661, ensure
+		# that test framework files corresponding to an older commit are updated minimally enough so they will work with a
+		# later/newer version of ydb_env_set.
+		git checkout 8587b12086666c88ea2c8a19b55a736629269907 -- ../tools/get_ydb_release.sh
+		sed -i 's/unset ydb_chset/export ydb_chset=M/' ../tests/test_helpers.bash.in
+		# Run only a random fraction of the bats tests as we will be running an auto upgrade test on the same queries
+		# once more a little later.
+		cp ../cmake/bats-tests.cmake bats-tests.cmake.orig
+		# Temporarily switch ydb_routines for running M program (testAutoUpgrade.m)
+		saveydbroutines="$ydb_routines"
+		export ydb_routines="."	# so testAutoUpgrade.o gets created in current directory
+		cat testAutoUpgrade.m
+		$ydb_dist/yottadb -run batsTestsChooseRandom^testAutoUpgrade < bats-tests.cmake.orig > bats-tests.cmake.new
+		cat bats-tests.cmake.new
+		export ydb_routines="$saveydbroutines"	# Switch back to original ydb_routines
+		cp bats-tests.cmake.new ../cmake/bats-tests.cmake
+	else
+		if [[ $CI_COMMIT_BRANCH == "" ]]; then
+			# This is possible if the pipeline runs for example when a new tag is created on a pre-existing commit.
+			# (for example when the r1.0.0 tag was created). In this case, treat this job as a success.
+			echo "INFO : CI_COMMIT_BRANCH env var is empty"
+			echo "INFO : Cannot run the test-auto-upgrade test in this case. Exiting with success."
+			exit 0
+		fi
+		# Record git log --all output in a file just in case it helps later. Not used by this script.
+		git log --graph --all --oneline --pretty=format:'%h%d; %ai; %an; %s' > gitlogall.txt
+		# Checkout a random prior commit to test if auto-upgrade of plans/xrefs/triggers/binary-table-definitions etc.
+		# from that commit to the current/latest commit works fine in Octo.
+		git checkout -B $CI_COMMIT_BRANCH HEAD
+		# Copy M program that is needed for later before we switch to an older git branch.
+		cp ../tools/ci/testAutoUpgrade.m .
+		# Do not go prior to the hard stop commit (SHA pasted below) as an AUTO_UPGRADE error is issued otherwise.
+		hardstopcommit=e2a016b21a1f7d9f2dc55b0655942ab7b8cdd92e
+		#############################################################################################
+		# First verify requirements for this test to succeed. If any of those are not met, just return success right away
+		# as the auto upgrade test is not possible.
+		#############################################################################################
+		# Find common ancestor of upstream/master and HEAD. That is where we stop the search for a random commit
+		upstream_URL=https://gitlab.com/YottaDB/DBMS/YDBOcto
+		if ! git remote | grep -q upstream_repo; then
+			git remote add upstream_repo "$upstream_URL"
+			git fetch upstream_repo
+		fi
+		stopcommit=$(git merge-base HEAD upstream_repo/master)
+		# Find HEAD commit to verify its not the same as $stopcommit
+		HEAD_COMMIT_ID=$(git rev-list HEAD~1..HEAD)
+		if [[ "$stopcommit" == "$HEAD_COMMIT_ID" ]]; then
+			echo "INFO : HEAD commit and stopcommit is the same. No in between commits to choose from."
+			echo "INFO : Back off stopcommit by 1 commit"
+			stopcommit=$(git rev-list HEAD~2..HEAD~1)
+		fi
+		# Find common ancestor of $hardstopcommit and $stopcommit. Verify it is $hardstopcommit. If not, we cannot test.
+		startcommit=$(git merge-base $hardstopcommit $stopcommit)
+		if [[ "$startcommit" != "$hardstopcommit" ]]; then
+			echo "INFO : Ancestor commit of $hardstopcommit and $stopcommit was not the former but instead is [$startcommit]"
+			echo "INFO : Cannot run the test-auto-upgrade test in this case. Exiting with success."
+			exit 0
+		fi
+		#############################################################################################
+		# Now that we verified that requirements for this test are met, go ahead with the actual test.
+		#############################################################################################
+		git log --graph --oneline $startcommit~1..$stopcommit > gitlogmaster.txt
+		# Note: The awk usage below is needed to only skip commits that branch off an otherwise linear commit history.
+		awk '($1 == "*") && ($2 != "|") {print $0;}' gitlogmaster.txt > commit_history.txt
+		numcommits=$(wc -l commit_history.txt | awk '{print $1}')
+		while true;
+		do
+			commitnumber=$(shuf -i 1-$numcommits -n 1)
+			commitsha=$(head -$commitnumber commit_history.txt | tail -1 | awk '{print $2}')
+			if [[ "3d03de63" == "$commitsha" ]]; then
+				# This commit has a known issue in `tests/fixtures/TOJ03.m` that can cause the TJC001 subtest to time out
+				# (see https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1035/pipelines for failure details).
+				# This is fixed in the immediately next commit (e748ab3f) so do not choose this particular commit
+				# as otherwise the "test-auto-upgrade" pipeline job (the current job) will also timeout (see
+				# https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/977#note_923383570 for description of failure).
+				echo "# Skipping $commitsha as it has a known issue that can cause job to timeout"
+				continue
+			fi
+			# Now that we are here, the chosen random older commit has no known issue. So break out of the while loop.
+			break
+		done
+		echo $commitsha > commit_picked.txt
+		# BEGIN For Developers Troubleshooting Autoupgrade pipelines: Set old commit here
+		# commitsha=cc515a49
+		# END For Developers Troubleshooting Autoupgrade pipelines
+		echo "# Random older commit picked = $commitsha"
+		echo "# Checkout the older commit"
+		git checkout $commitsha
+		# Due to https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/712 and # https://gitlab.com/YottaDB/DB/YDB/-/issues/661, ensure
+		# that test framework files corresponding to an older commit are updated minimally enough so they will work with a
+		# later/newer version of ydb_env_set.
+		git checkout 8587b12086666c88ea2c8a19b55a736629269907 -- ../tools/get_ydb_release.sh
+		sed -i 's/unset ydb_chset/export ydb_chset=M/' ../tests/test_helpers.bash.in
+		# Run only a random fraction of the bats tests as we will be running an auto upgrade test on the same queries
+		# once more a little later.
+		cp ../cmake/bats-tests.cmake bats-tests.cmake.orig
+		# Temporarily switch ydb_routines for running M program (testAutoUpgrade.m)
+		saveydbroutines="$ydb_routines"
+		export ydb_routines="."	# so testAutoUpgrade.o gets created in current directory
+		$ydb_dist/yottadb -run batsTestsChooseRandom^testAutoUpgrade < bats-tests.cmake.orig > bats-tests.cmake.new
+		export ydb_routines="$saveydbroutines"	# Switch back to original ydb_routines
+		cp bats-tests.cmake.new ../cmake/bats-tests.cmake
+	fi
 else
 	# If a "test-auto-upgrade" job and an old commit was chosen, we could see rare failures.
 	# Don't want that to pollute the output.
@@ -649,13 +680,19 @@ else
 	mv src oldsrc
 	echo '# Delete cmake/make artifacts of older Octo build to make way for newer Octo build'
 	rm -rf CMakeCache.txt CMakeFiles
-	if [[ "force" != $subtaskname ]]; then
+	if [[ "debug" == $subtaskname ]]; then
+		echo '# Reset git repo to before old commit'
+		git checkout -
+		git reset --hard HEAD
+		echo '# Rebuild Octo using the latest commit branch for the auto-upgrade test'
+		cmakeflags="-DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin"
+	elif [[ "force" == $subtaskname ]]; then
+		cmakeflags="-DFORCE_BINARY_DEFINITION_AUTO_UPGRADE=ON"	# Force auto upgrade
+	else
 		echo '# Reset git repo to latest commit branch'
 		git reset --hard $CI_COMMIT_BRANCH
 		echo '# Rebuild Octo using the latest commit branch for the auto-upgrade test'
 		cmakeflags="-DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin"
-	else
-		cmakeflags="-DFORCE_BINARY_DEFINITION_AUTO_UPGRADE=ON"	# Force auto upgrade
 	fi
 	cmakeflags="$cmakeflags -DCMAKE_BUILD_TYPE=$build_type -DFULL_TEST_SUITE=$full_test"
 	cmakeflags="$cmakeflags -DDISABLE_INSTALL=$disable_install"

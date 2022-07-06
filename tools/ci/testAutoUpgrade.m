@@ -21,7 +21,8 @@ batsTestsChooseRandom
 	; This reduces the runtime of the pipeline test as only a fraction of the bats tests get run.
 	; The randomness ensures multiple pipeline job runs cover all tests eventually.
 	;
-	NEW i,line,nLines,include,batsTestName
+	NEW i,line,nLines,include,batsTestName,mustIncludes,skipEverythingElse
+	set skipEverythingElse=0
         FOR  READ line($increment(nLines)) QUIT:$zeof
 	KILL line(nLines) if $increment(nLines,-1)
 	; Make a list of tests that we never want to exclude
@@ -31,6 +32,11 @@ batsTestsChooseRandom
 	; hello_db didn't exist yet.
 	SET include("hello_db")=""
 	SET include("hello_psql")=""
+	;
+	; mustInclude logic is here to look at a ;;text table at the end of this routine, which is contstructed in build.sh
+	; It is only used when debuggging a failing auto-upgrade pipeline
+	FOR i=1:1 set line=$text(mustInclude+i) quit:line=""  set include($p(line,";;",2))="",mustIncludes($p(line,";;",2))=""
+	IF $DATA(mustIncludes) set skipEverythingElse=1
 	;
 	SET include("test_query_generator")=""
 	FOR i=1:1:nLines DO
@@ -48,10 +54,15 @@ batsTestsChooseRandom
 	.	.	IF (line(i)?@(".E1"_$zwrite(macro)_"1A.E")) DO  QUIT:skip
 	.	.	.	SET batsTestName=$PIECE($PIECE(line(i),macro,2),")",1)
 	.	.	.	QUIT:$DATA(include(batsTestName))  ; check if test cannot be excluded
+	.	.	.	; We are debugging a pipeline in the next line, so we don't want any other tests included
+	.	.	.	IF skipEverythingElse SET skip=1
 	.	.	.	; We pick only 10% of the bats tests. This is because we have seen that picking 25% resulted in
 	.	.	.	; the `test-auto-upgrade` pipeline job sometime running for as high as 45 minutes which is more
 	.	.	.	; than the main jobs (`make-ubuntu` etc.). Hence reduced it to 10% since with enough number of
 	.	.	.	; pipeline runs, we will see good coverage eventually and keep each pipeline run reasonably short.
-	.	.	.	SET skip=$RANDOM(10) ; Include 10% of the tests, Skip 90% of the tests
+	.	.	.	ELSE  SET skip=$RANDOM(10) ; Include 10% of the tests, Skip 90% of the tests
 	.	WRITE:'skip line(i),!
 	QUIT
+	;
+	; This tag is used to include tests for debugging purposes and is used by the build.sh script
+mustInclude

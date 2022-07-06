@@ -12,6 +12,14 @@
 # This file mirrors the pipeline set-up, but is not used by the
 # pipeline. It lets you run the pipeline tests locally.
 # If you change .gitlab-ci.yml, update this as well.
+#
+# NB: Currently, tests involving postgres and MySQL don't work
+# Tracked in https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/823
+#
+# Insturctions:
+# docker build -f Dockerfile-Tests.ubuntu -t tests-ubuntu .
+# docker run -it --rm tests-ubuntu
+# docker run -it --rm tests-ubuntu "test-auto-upgrade" "debug" "52ba5a43" "test_display_relation_commands"
 
 FROM yottadb/yottadb-base:latest-master
 
@@ -37,4 +45,5 @@ RUN go version
 ADD . /builds/YDBDBMS/
 WORKDIR /builds/YDBDBMS
 
-RUN tools/ci/build.sh "make-ubuntu" "none"
+ENTRYPOINT ["tools/ci/build.sh"]
+CMD ["make-ubuntu", "none"]

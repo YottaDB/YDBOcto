@@ -17,7 +17,7 @@ Developer's Documentation
 .. contents::
    :depth: 3
 
--------------	   
+-------------
 Contributing
 -------------
 
@@ -26,13 +26,13 @@ To contribute or help with further development, `fork <https://docs.gitlab.com/e
 Please also set up the pre-commit script to automatically enforce some coding conventions. Creating a symbolic link to YDBOcto/pre-commit will be enough for the setup. Assuming you are in the top-level directory of your local copy, the following will work:
 
 .. code-block:: bash
-		
+
    ln -s ../../pre-commit .git/hooks
 
 Note that this script will require :code:`tcsh` and :code:`clang-format-9` or a later release.
 
 .. code-block:: bash
-		
+
    # Ubuntu 20.04
    sudo apt install --no-install-recommends clang-format-9
    # Any Debian-like distro; see also https://apt.llvm.org/
@@ -47,7 +47,7 @@ clang-tidy
 The CI pipeline will run the `clang-tidy <https://clang.llvm.org/extra/clang-tidy/>`_ tool to catch common errors. You can replicate its behavior locally as follows:
 
 .. code-block:: bash
-		
+
    # Ubuntu 20.04
    sudo apt install --no-install-recommends clang-tidy
    # Any Debian-like distro
@@ -71,6 +71,20 @@ Octo uses the upstream `YDBCMake <https://gitlab.com/YottaDB/Tools/YDBCMake>`_ r
 Once the changes are upstreamed, you can merge them into Octo using:
 
 .. code-block:: bash
-		
+
    git pull --no-rebase git@gitlab.com:YottaDB/Tools/YDBCMake.git
 
++++++++++++
+Dockerfiles
++++++++++++
+There are 4 Dockerfiles at the top of the source tree:
+
+- :code:`Dockerfile`
+- :code:`Dockerfile-Tests.rocky`
+- :code:`Dockerfile-Tests.ubuntu`
+- :code:`Dockerfile-Tests.vista`
+
+:code:`Dockerfile` builds a docker container suitable for use for using Octo in
+a testing capacity. The other files are all testing related, and are used to
+replicate the Gitlab pipelines. There are instructions at the top of each file
+for usage as well as current limitations.

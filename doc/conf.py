@@ -64,7 +64,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'YDBDBMS'
-copyright = u'2018-2020, YottaDB LLC'
+copyright = u'2018-2022, YottaDB LLC'
 author = u'YottaDB Team'
 
 # The version info for the project you're documenting, acts as replacement for

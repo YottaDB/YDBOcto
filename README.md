@@ -98,3 +98,5 @@ To clean up after a documentation build, use:
 cd doc/
 make clean
 ```
+
+*NOTE: Octo<sup>®</sup> is a registered trademark of YottaDB LLC.*

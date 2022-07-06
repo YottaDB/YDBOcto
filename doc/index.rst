@@ -30,3 +30,4 @@ Octo Documentation
    config
    history
    pitfalls
+   developer_doc

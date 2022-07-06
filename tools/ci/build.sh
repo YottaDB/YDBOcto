@@ -718,6 +718,19 @@ else
 		# Re-enable "set -e" now that "git merge-base" invocation is done.
 		set -e
 
+		# Note down if older commit is prior to the full implementation of #509
+		# It was partially implemented in 74f64658ca9f7da60e9c85a58626a4ac6aef7667
+		# Then finished in bc0780f0556969d010767d1b2ed4bdb735e3dddf
+		# The TDRC01,TDRC02 sql files fail with the partial implementation, so we can't run them in autoupgrade as they will error out
+		pre_octo509_commit="c3137a6c367ce6e987607511358a057446ee2e5c"   # 1 commit before full #509 implementation
+		# Disable the "set -e" setting temporarily as the "git merge-base" can return exit status 0 or 1
+		set +e
+		git merge-base --is-ancestor $commitsha $pre_octo509_commit
+		is_post_octo509_commit=$?
+		# Re-enable "set -e" now that "git merge-base" invocation is done.
+		set -e
+
+
 		# Point src to newsrc
 		ln -s newsrc src
 		for tstdir in bats-test.*
@@ -772,6 +785,8 @@ else
 			#    process to get "Killed" in the gitlab pipelines (likely the OOM killer kicks in) so skip this.
 			#    Note though that as part of YDBOcto#649, this query was reduced 10x and so we need to skip only
 			#    if the random prior commit is older than the #649 commit.
+			# 8) The TDRC01,TDRC02 sql files fail with the partial implementation of Octo#509, so we can't run them
+			#    in an autoupgrade as they will error out
 			# ----------------------------------------------------------------------------
 			if [[ ($subtest =~ "TC011 : ") || ($subtest =~ "TPC019 : ")                    \
 					|| (($subtest =~ ^"TQG") && (0 == $is_post_octo275_commit))    \
@@ -782,7 +797,10 @@ else
 					|| (($subtest =~ ^"TC027") && (0 == $is_post_octo275_commit))  \
 					|| (($subtest =~ ^"TC033") && (0 == $is_post_octo275_commit))  \
 					|| (($subtest =~ ^"TC034") && (0 == $is_post_octo275_commit))  \
-					|| (($subtest =~ ^"TLQ02") && (0 == $is_post_octo649_commit)) ]]; then
+					|| (($subtest =~ ^"TLQ02") && (0 == $is_post_octo649_commit))  \
+					|| (($subtest =~ ^"TDRC01") && (0 == $is_post_octo509_commit)) \
+					|| (($subtest =~ ^"TDRC02") && (0 == $is_post_octo509_commit)) \
+				]]; then
 				echo "SKIPPED : $tstdir : [subtest : $subtest]" >> ../bats_test.txt
 				cd ..
 				rm -rf $tstdir

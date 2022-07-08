@@ -45,7 +45,8 @@ SqlStatement *parse_line(ParseContext *parse_context) {
 	/* Remove newline at end of query line if present.
 	 * It will be present for octo but not necessarily for rocto in case query comes in from a client.
 	 */
-	if ((0 < cur_input_index) && ('\n' == input_buffer_combined[cur_input_index - 1]))
+	if ((0 < cur_input_index) && ('\n' == input_buffer_combined[cur_input_index - 1])) {
 		cur_input_index--;
+	}
 	return result;
 }

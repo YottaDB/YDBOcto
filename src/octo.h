@@ -678,6 +678,8 @@ typedef enum RegexType {
 		/* See INIT_INPUT_BUFFER and COPY_QUERY_TO_INPUT_BUFFER macros for why the below assert is valid */ \
 		assert((INIT_QUERY_SIZE - 1) <= cur_input_max);                                                     \
 		memset(input_buffer_combined, 0, cur_input_max + 1);                                                \
+		/* Needed to avoid incorrect syntax highlighting in error messages (YDBOcto!1157) */                \
+		leading_spaces = 0;                                                                                 \
 	}
 
 #define DELETE_QUERY_PARAMETER_CURSOR_LVN(CURSOR_YDB_BUFF)                                 \

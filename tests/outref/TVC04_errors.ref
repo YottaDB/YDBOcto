@@ -1,0 +1,3 @@
+
+select n1.column1 = (VALUES(NULL), (NULL)) from (VALUES('test1') ,('test2') ,('test3')) n1;
+[ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression

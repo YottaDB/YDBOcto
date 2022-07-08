@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -51,3 +51,8 @@ setup() {
 	verify_output TVC03 output.txt
 }
 
+@test "TVC04 : OCTO853 : Validate that SIG-11 is not seen with VALUES clause usage when FROM clause has a subquery" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TVC04.sql
+	load_fixture TVC04_errors.sql subtest novv
+	verify_output TVC04_errors output.txt
+}

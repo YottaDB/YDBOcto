@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -139,6 +139,9 @@ LogicalPlan *lp_replace_helper(LogicalPlan *plan, SqlTableAlias *table_alias, Sq
 		lp_replace_helper(set_plans->v.lp_default.operand[0], table_alias, key);
 		lp_replace_helper(set_plans->v.lp_default.operand[1], table_alias, key);
 		break;
+	case LP_TABLE_VALUE:
+		lp_replace_helper(plan->v.lp_default.operand[0], table_alias, key);
+		break;
 	case LP_FUNCTION_CALL:
 		assert(LP_VALUE == ret->v.lp_default.operand[0]->type);
 		ret->v.lp_default.operand[0] = lp_replace_helper(plan->v.lp_default.operand[0], table_alias, key);
@@ -150,8 +153,7 @@ LogicalPlan *lp_replace_helper(LogicalPlan *plan, SqlTableAlias *table_alias, Sq
 		// Nothing to do
 		break;
 	default:
-		assert(LP_TABLE_VALUE != plan->type);
-		assert(LP_FUNCTION_CALL <= plan->type);
+		assert((LP_FUNCTION_CALL <= plan->type) || ((LP_ROW_VALUE == plan->type) || (LP_TABLE_DATA == plan->type)));
 		ret->v.lp_default.operand[0] = lp_replace_helper(plan->v.lp_default.operand[0], table_alias, key);
 		ret->v.lp_default.operand[1] = lp_replace_helper(plan->v.lp_default.operand[1], table_alias, key);
 		break;

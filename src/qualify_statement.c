@@ -554,6 +554,11 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 
 						for (ptr = str, ptr_top = str + strlen(str); ptr < ptr_top; ptr++) {
 							if ('.' == *ptr) {
+								/* It might be better to move this error issue logic into parser.
+								 * Refer to
+								 * `https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1140#note_1021067413`
+								 * for more details.
+								 */
 								ISSUE_ORDER_BY_OR_GROUP_BY_POSITION_NOT_INTEGER_ERROR(
 								    table_alias->aggregate_depth, is_negative_numeric_literal, str,
 								    &cur_cla->column_list);

@@ -993,19 +993,15 @@ LINE 2: ...test' FROM names GROUP BY 'test' HAVING 'test'!='hello'; -- non...
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
 LINE 2: ...test' FROM names GROUP BY 'test' ORDER BY 'test'; -- non intege...
                                           ^
-???
-test
-(1 row)
-???
-test
-(1 row)
-???
-test
-test
-test
-test
-test
-(5 rows)
+[ERROR]: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant test in ORDER BY
+LINE 2: ...names GROUP BY 1 ORDER BY 'test'; -- non integer constants in O...
+                                          ^
+[ERROR]: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant test in ORDER BY
+LINE 2: ... 'test'!='hello' ORDER BY 'test'; -- non integer constants in O...
+                                          ^
+[ERROR]: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant test in ORDER BY
+LINE 2: ... 'test'!='hello' ORDER BY 'test'; -- non integer constants in O...
+                                          ^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
 LINE 2: ...G 'test'!='hello' ORDER BY firstname; -- errors out saying firs...
                                       ^^^^^^^^^
@@ -1018,13 +1014,15 @@ LINE 2: ...LECT NULL FROM names GROUP BY NULL HAVING NULL!='hello'; -- non ...
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
 LINE 2: ...LECT NULL FROM names GROUP BY NULL ORDER BY NULL; -- non integer...
                                          ^^^^
-???
-
-(1 row)
-???
-(0 rows)
-???
-(0 rows)
+[ERROR]: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant  in ORDER BY
+LINE 2: ...ROM names GROUP BY 1 ORDER BY NULL; -- non integer constants in ...
+                                         ^^^^
+[ERROR]: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant  in ORDER BY
+LINE 2: ...HAVING NULL!='hello' ORDER BY NULL; -- non integer constants in ...
+                                         ^^^^
+[ERROR]: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant  in ORDER BY
+LINE 2: ...HAVING NULL!='hello' ORDER BY NULL; -- non integer constants in ...
+                                         ^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
 LINE 2: ...ING NULL!='hello' ORDER BY firstname; -- errors out saying firs...
                                       ^^^^^^^^^
@@ -1102,6 +1100,9 @@ LINE 1: SELECT 1 FROM names GROUP BY $1;
 LINE 1: SELECT 1 FROM names GROUP BY $1;
                                      ^^
 [ERROR]: ERR_DOLLAR_SYNTAX: Prepared statement dollar syntax (e.g. $1, $2, etc.) only supported in Rocto using the Extended Query Protocol
+LINE 1: SELECT 1 FROM names GROUP BY 1 ORDER BY $1;
+                                                ^^
+[ERROR]: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant $1 in ORDER BY
 LINE 1: SELECT 1 FROM names GROUP BY 1 ORDER BY $1;
                                                 ^^
 [ERROR]: ERR_DOLLAR_SYNTAX: Prepared statement dollar syntax (e.g. $1, $2, etc.) only supported in Rocto using the Extended Query Protocol
@@ -3400,22 +3401,18 @@ LINE 1: SELECT "test" FROM names GROUP BY "test" ORDER BY "test";
 ???
 test
 (1 row)
+[ERROR]: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant test in ORDER BY
+LINE 1: SELECT "test" FROM names GROUP BY 1 ORDER BY "test";
+                                                          ^
+[ERROR]: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant test in ORDER BY
+LINE 1: ..." FROM names GROUP BY 1 HAVING "test"!="hello" ORDER BY "test";
+                                                                        ^
 ???
 test
 (1 row)
-???
-test
-(1 row)
-???
-test
-(1 row)
-???
-test
-test
-test
-test
-test
-(5 rows)
+[ERROR]: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant test in ORDER BY
+LINE 1: ...ames GROUP BY firstname HAVING "test"!="hello" ORDER BY "test";
+                                                                        ^
 ???
 test
 test

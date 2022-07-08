@@ -202,3 +202,9 @@ OCTO
   load_fixture TOB16_errors.sql subtest
   verify_output TOB16_errors output.txt noinfo nodebug
 }
+
+@test "TOB17 : OCTO828 : Validate non-integer constants result in an error" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOB17.sql
+  load_fixture TOB17_errors.sql subtest
+  verify_output TOB17_errors output.txt noinfo nodebug
+}

@@ -1,0 +1,25 @@
+
+select 1 from names order by 1.0;
+select 1 from names order by 111111111111111111111111111111111;
+select 1 from names order by -1;
+select 1 from names order by 'test';
+select 1 from names order by "test";
+select 1 from names order by NULL;
+[ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant 1.0 in ORDER BY
+LINE 1: select 1 from names order by 1.0;
+                                     ^^^
+[ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant 111111111111111111111111111111111 in ORDER BY
+LINE 1: select 1 from names order by 111111111111111111111111111111111;
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_POSITION_INVALID: ORDER BY position -1 is not in select list
+LINE 1: select 1 from names order by -1;
+                                     ^^
+[ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant test in ORDER BY
+LINE 1: select 1 from names order by 'test';
+                                          ^
+[ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant test in ORDER BY
+LINE 1: select 1 from names order by "test";
+                                          ^
+[ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant  in ORDER BY
+LINE 1: select 1 from names order by NULL;
+                                     ^^^^

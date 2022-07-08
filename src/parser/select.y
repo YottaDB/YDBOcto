@@ -96,8 +96,20 @@ sort_specification_list_tail
   ;
 
 sort_specification
-  : sort_key { $$ = sort_specification($sort_key, NULL); }
-  | sort_key ordering_specification { $$ = sort_specification($sort_key, $ordering_specification); }
+  : sort_key {
+	SqlStatement *result = sort_specification($sort_key, NULL);
+	if (NULL == result) {
+		YYERROR;
+	}
+	$$ = result;
+    }
+  | sort_key ordering_specification {
+	SqlStatement *result = sort_specification($sort_key, $ordering_specification);
+	if (NULL == result) {
+		YYERROR;
+	}
+	$$ = result;
+    }
   ;
 
 sort_key

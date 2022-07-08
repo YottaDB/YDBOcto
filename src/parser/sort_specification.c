@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,6 +23,42 @@ SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *ordering_
 
 	SQL_COLUMN_LIST_ALIAS_STATEMENT(ret);
 	UNPACK_SQL_STATEMENT(alias, ret, column_list_alias);
+	switch (sort_key->type) {
+	case value_STATEMENT:;
+		SqlValue *value;
+		UNPACK_SQL_STATEMENT(value, sort_key, value);
+		switch (value->type) {
+		case INTEGER_LITERAL:
+		case NUMERIC_LITERAL:
+		case TABLE_ASTERISK:
+		case COLUMN_REFERENCE:
+		case BOOLEAN_VALUE:
+		case COERCE_TYPE:
+		case CALCULATED_VALUE:
+			// No error
+			break;
+		case STRING_LITERAL:
+		case NUL_VALUE:
+		case PARAMETER_VALUE:
+			/* Handle `PARAMETER_VALUE` type here as `$1` in the following type of usages can reach this code.
+			 * `SELECT 1 FROM names GROUP BY 1 ORDER BY $1;`
+			 * This usage is not allowed. Issue error.
+			 */
+			ERROR(ERR_ORDER_BY_POSITION_NOT_INTEGER, "", value->v.reference)
+			yyerror(NULL, NULL, &(sort_key), NULL, NULL, NULL);
+			return NULL;
+		case FUNCTION_NAME:
+		case FUNCTION_HASH:
+		case DELIM_VALUE:
+		case IS_NULL_LITERAL:
+		case INVALID_SqlValueType:
+		case UNKNOWN_SqlValueType:
+			assert(FALSE);
+			break;
+		}
+	default:
+		break;
+	}
 	alias->column_list = create_sql_column_list(sort_key, NULL, &sort_key->loc);
 	// Add a keyword for ASC or DESC. Default to ASC if not explicitly specified.
 	SQL_STATEMENT(order_spec, keyword_STATEMENT);

@@ -15,9 +15,11 @@ run(cursorId,routine,wrapInTp)
   ;   where the generated M file name is "_ydboctoPOyAkV0dwqVINYJD702SbAA.m".
   ;   We need to prefix a "^" to it before invoking the M program using "DO" with entryref indirection.
   ; * "wrapInTp" is 0 or 1. If 1, the query execution (excluding building any cross references) is wrapped in a TP transaction.
-  NEW rtn
-  SET rtn="^"_routine
+  NEW rtn,zcmpl
+  SET rtn="^"_routine,zcmpl=$ZCOMPILE
+  SET:'$ZFIND($ZCONVERT($zcompile,"l"),"-noline_entry") $ZCOMPILE=$ZCOMPILE_" -noline_entry"
   DO @rtn@(cursorId,wrapInTp)
+  SET $ZCOMPILE=zcmpl
   QUIT
   ;
 xrefMetadata(routine) ; Octo entry point to get AIM xref metadata before creating xref
@@ -28,4 +30,3 @@ xrefMetadata(routine) ; Octo entry point to get AIM xref metadata before creatin
   ;   where the generated M file name is "_ydboctoXOyAkV0dwqVINYJD702SbAA.m".
   DO xrefMetadata^@routine
   QUIT
-

@@ -27,5 +27,5 @@ octoPlan1+11^%ydboctoPIrPH1v94oPrpC5JNuykMGI
 octoPlan1+5^%ydboctoPIrPH1v94oPrpC5JNuykMGI
 octoPlan1+3^%ydboctoPIrPH1v94oPrpC5JNuykMGI
 octoPlan0+3^%ydboctoPIrPH1v94oPrpC5JNuykMGI
-run+7^%ydboctoselect
+run+8^%ydboctoselect
 # Verify M variable ZINTRSET got set IF ydb_zinterrupt env var (randomly) drove the zinterrupt

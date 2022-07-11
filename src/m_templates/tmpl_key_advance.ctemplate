@@ -79,12 +79,20 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 		}
 		%{}){}%
 	} else {
+		SqlKey	*plan_key;
+
 		assert(NULL != table->source);
 		iter_key_index = 0;
-		while ((pplan->iterKeys[iter_key_index] != key) && (iter_key_index < pplan->total_iter_keys)) {
-			if (pplan->iterKeys[iter_key_index]->unique_id == key->unique_id)
+		for (iter_key_index = 0; iter_key_index < pplan->total_iter_keys; iter_key_index++) {
+			plan_key = pplan->iterKeys[iter_key_index];
+			if (plan_key == key) {
+				break;
+			}
+			if (plan_key->is_cross_reference_key) {
+				continue;
+			}
+			if (plan_key->unique_id == key->unique_id)
 				keys_to_match++;
-			iter_key_index++;
 		}
 		keys_to_match++;
 		UNPACK_SQL_STATEMENT(keyword, table->source, keyword);

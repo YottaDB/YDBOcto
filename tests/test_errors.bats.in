@@ -363,23 +363,12 @@ OCTO
 }
 
 @test "TERR042 : OCTO600 : Test syntax highlighting correct after auto-upgrade runs" {
-	rm -f yottadb.gld yottadb.dat
-	export ydb_gbldir=yottadb.gld
-	if [[ $ydb_chset == "UTF-8" ]]; then
-		export ydb_routines=". @PROJECT_BINARY_DIR@/src/utf8/_ydbocto.so $ydb_dist $ydb_dist/plugin/o/_ydbposix.so $ydb_routines"
-	else
-		export ydb_routines=". @PROJECT_BINARY_DIR@/src/_ydbocto.so $ydb_dist $ydb_dist/plugin/o/_ydbposix.so $ydb_routines"
-	fi
-	cat > tmp.com << CAT_EOF
-change -segment DEFAULT -file=yottadb.dat
-change -segment DEFAULT -block_size=4096
-change -region DEFAULT -record_size=1000000
-change -region DEFAULT -key_size=1000
-CAT_EOF
-	$ydb_dist/yottadb -run GDE @tmp.com
-	$ydb_dist/mupip create
-	$ydb_dist/dse change -file -null=true
 	echo "# Test of: https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1113#note_1018283916" &> output.txt
+	# Do not use database created by "init_test" as auto upgrade would have already happened on it
+	# (due to the "load_fixture" calls). Therefore call "createdb" again here to create an empty database file
+	# that will require auto upgrade when "octo" is invoked next (and test YDBOcto#600).
+	rm -f *.gld *.dat
+	createdb
 	octo <<OCTO 2>&1 | tee -a output.txt
 select abcd;
 OCTO

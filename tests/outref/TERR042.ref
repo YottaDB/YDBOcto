@@ -1,5 +1,4 @@
 # Test of: https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1113#note_1018283916
-[ WARN] Global ^%ydboctoxref maps to default region DEFAULT. Recommended mapping for ^%ydbocto* is to a separate region
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ABCD
 LINE 1: select abcd;
                ^^^^

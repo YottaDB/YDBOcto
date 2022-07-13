@@ -199,4 +199,7 @@ setup() {
 	verify_output TGB30_errors output.txt
 }
 
+@test "TGB31 : OCTO850 : Test query with any JOIN being done in a subquery of HAVING clause returns correct results" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB31.sql
+}
 

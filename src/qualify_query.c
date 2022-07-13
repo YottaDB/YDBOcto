@@ -317,14 +317,15 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	} while (cla_cur != cla_head);
 
 	SqlColumnListAlias *  ret_cla;
-	QualifyStatementParms lcl_ret;
+	QualifyStatementParms lcl_ret, *lcl_ret_ptr;
 	ret_cla = NULL;
-	/* Initialize "lcl_ret->ret_cla" to a non-NULL value (&ret_cla) and pass "&lcl_ret" in case of qualifying ORDER BY and GROUP
-	 * BY. This allows columns specified in an these clauses to be qualified against any column names specified till now
-	 * (including aliases specified after an AS) without any strict checking.
+	/* Initialize "lcl_ret->ret_cla" to a non-NULL value (&ret_cla) and pass "&lcl_ret" (through the "lcl_ret_ptr" variable)
+	 * in case of qualifying ORDER BY and GROUP BY. This allows columns specified in an these clauses to be qualified against
+	 * any column names specified till now (including aliases specified after an AS) without any strict checking.
 	 */
 	lcl_ret.ret_cla = &ret_cla;
 	lcl_ret.max_unique_id = ((NULL != ret) ? ret->max_unique_id : NULL);
+	lcl_ret_ptr = &lcl_ret;
 	/* We qualify SELECT, HAVING and ORDER BY clauses TWICE below. Hence the "for" loop.
 	 * This is because
 	 * 1) In case of SELECT, HAVING and ORDER BY we want to check if any aggregate functions were used anywhere even if a
@@ -398,7 +399,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 				 * o.CustomerID GROUP BY c.CustomerID;
 				 */
 				gb_result = 0;
-				gb_result |= qualify_statement(group_by_expression, start_join, table_alias_stmt, 0, &lcl_ret);
+				gb_result |= qualify_statement(group_by_expression, start_join, table_alias_stmt, 0, lcl_ret_ptr);
 				ret_cla = NULL; // Re-set the variable so that ORDER BY can re-use it
 				// Ensure error is forwarded to result as that is the one returned at the end of this function
 				result |= gb_result;
@@ -504,10 +505,10 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 			result |= qualify_statement(select->having_expression, start_join, table_alias_stmt, 0, ret);
 			table_alias->aggregate_function_or_group_by_or_having_specified |= HAVING_SPECIFIED;
 		}
-		// Qualify ORDER BY clause next (see comment above for why "&lcl_ret" is passed for ORDER BY).
+		// Qualify ORDER BY clause next (see comment above for why "lcl_ret_ptr" is passed for ORDER BY).
 		table_alias->qualify_query_stage = QualifyQuery_ORDER_BY;
 		table_alias->aggregate_depth = 0;
-		result |= qualify_statement(select->order_by_expression, start_join, table_alias_stmt, 0, &lcl_ret);
+		result |= qualify_statement(select->order_by_expression, start_join, table_alias_stmt, 0, lcl_ret_ptr);
 		/* Expansion of table.* in ORDER BY is done here so that expansion can be skipped when GROUP BY/HAVING/Aggregate
 		 * exists. At this point we can safely rely on `aggregate_function_or_group_by_or_having_specified` to indicate if
 		 * the entire query has any form of grouping or not.
@@ -568,6 +569,16 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		}
 		/* GROUP BY or AGGREGATE function or HAVING was used in the query. Assign GROUP BY number and validate */
 		table_alias->do_group_by_checks = TRUE;
+		/* Disable "max_unique_id" computation (using "stmt->hash_canonical_query_cycle") in "qualify_statement()"
+		 * in the 2nd iteration of this for loop as that takes some shortcuts using the
+		 * SET_GROUP_BY_EXPRESSION_COLUMN_NUMBER_AND_BREAK macro in "qualify_statement.c" and that could result
+		 * in incorrect values of "*ret->max_unique_id" which would then break the "move_where_clause_to_on_clause()"
+		 * optimization and cause incorrect move of WHERE clause conditions to the ON clause. This is achieved by
+		 * setting the below 2 variables (the only choices possible as the last parameter to "qualify_statement()"
+		 * calls in this for loop) to NULL (YDBOcto#850).
+		 */
+		lcl_ret_ptr = NULL;
+		ret = NULL;
 	}
 	table_alias->do_group_by_checks = FALSE;
 

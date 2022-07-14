@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -41,8 +41,9 @@ set(CMAKE_M_CREATE_STATIC_LIBRARY "")
 
 # Option to suppress mumps compiler warnings
 option(M_NOWARNING "Disable warnings and ignore status code from M compiler")
-option(M_EMBED_SOURCE "Embed source code in generated shared object" ON)
+option(M_EMBED_SOURCE "Embed source code in generated shared object" OFF)
 option(M_DYNAMIC_LITERALS "Enable dynamic loading of source code literals" OFF)
+option(M_NOLINE_ENTRY "Compile M code without access to label offsets" OFF)
 
 set(CMAKE_M_COMPILE_OBJECT "LC_ALL=\"${LC_ALL}\" ydb_chset=\"${ydb_chset}\" ydb_icu_version=\"${icu_version}\" <CMAKE_M_COMPILER> -object=<OBJECT>")
 
@@ -52,6 +53,10 @@ endif()
 
 if(M_DYNAMIC_LITERALS)
   set(CMAKE_M_COMPILE_OBJECT "${CMAKE_M_COMPILE_OBJECT} -dynamic_literals")
+endif()
+
+if(M_NOLINE_ENTRY)
+  set (CMAKE_M_COMPILE_OBJECT "${CMAKE_M_COMPILE_OBJECT} -noline_entry")
 endif()
 
 if(M_NOWARNING)

@@ -40,11 +40,13 @@ Features
 
   Octo includes a full set of standard, relational features. These include:
 
-  * The ability to define data structures, especially database schemas. (Data Definition Language, or DDL).
-  * The ability to retrieve data. (Data Query Language, or DQL).
-
+  * The ability to define data structures, especially database schemas (Data Definition Language, or DDL).
+  * The ability to retrieve data (Data Query Language, or DQL).
+  * The ability to insert/update data (Data Manipulation Language, or DML).
+    
   .. note::
-    At the time of the release of this document, the features to manipulate data (Data Manipulation Language, or DML), manage transactions in the database (Transaction Control Language, or TCL), and control access to data stored in a database (Data Control Language, or DCL) are yet to be implemented.
+
+     At the time of the release of this document, the features that manage transactions in the database (Transaction Control Language, or TCL), and control access to data stored in a database (Data Control Language, or DCL) are yet to be implemented.
 
 --------------------
 Setup
@@ -55,7 +57,7 @@ Setup
   Installing and configuring YottaDB is described on its own `documentation page <https://docs.yottadb.com/AdminOpsGuide/installydb.html>`__. With the :code:`--octo` option of YottaDB's `ydbinstall.sh <https://gitlab.com/YottaDB/DB/YDB/-/blob/master/sr_unix/ydbinstall.sh>`_ script, you can install YottaDB and Octo with one command.
 
   .. note::
-    Octo is a YottaDB application, not an application that runs on the upstream GT.M for which YottaDB is a drop-in upward-compatible replacement. Octo requires :code:`ydb*` environment variables to be defined, and does not recognize the :code:`gtm*` environment variables. Specifically, it requires :code:`ydb_dist` to be defined.
+    Octo is a YottaDB application, not an application that runs on the upstream GT.M for which YottaDB is a drop-in upward-compatible replacement.
 
 -------------
 Quickstart
@@ -73,7 +75,7 @@ Install Prerequisites
 
   Installing the YottaDB encryption plugin enables TLS support (Recommended for production installations). You will need to make sure TLS/SSL is enabled for the driver in the client software chosen.
 
-  The YottDB encryption plugin can be installed by adding the :code:`--encplugin` option when installing YottaDB with the :code:`ydbinstall` script:
+  The YottaDB encryption plugin can be installed by adding the :code:`--encplugin` option when installing YottaDB with the :code:`ydbinstall` script:
 
   .. code-block:: bash
 
@@ -81,7 +83,7 @@ Install Prerequisites
 
 .. note::
 
-   If YottaDB has already been installed, use the --plugins-only option with the ydbinstall.sh script to install the plugins.
+   If YottaDB has already been installed, use the :code:`--plugins-only` option with the ydbinstall.sh script to install the plugins.
 
 ++++++++++++
 Install Octo
@@ -96,133 +98,16 @@ Install Octo
      .. code-block:: bash
 
         # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
-        sudo apt-get install --no-install-recommends build-essential cmake bison flex xxd libreadline-dev libssl-dev
+        sudo apt-get install --no-install-recommends build-essential cmake bison flex xxd libreadline-dev libssl-dev wget ca-certificates file libelf-dev curl git pkg-config libicu-dev libconfig-dev
 
-        # CentOS Linux OR RedHat Linux
-        # Note: epel-release has to be installed before cmake3 is installed
-        sudo yum install epel-release
-        sudo yum install cmake3 bison flex readline-devel vim-common libconfig-devel openssl-devel
+        # RHEL 8/Rocky Linux
+        yum --enablerepo=powertools install -y gcc make cmake bison flex readline-devel git libconfig-devel pkg-config libicu-devel wget vim findutils procps file openssl-devel postgresql
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    *(Optional)* Prerequisites for Automated Regression Testing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     .. note::
 
-	As we run the automated regression tests on every Octo source code update, install and run BATS only if you are an advanced user who wants to contribute to Octo or run on a Linux distribution on which YottaDB is Supportable but not Supported.
-
-     1. Octo uses BATS for automated integration and regression testing. To use BATS to run tests on Octo, BATS version 1.1+ must be installed:
-
-        .. code-block:: bash
-
-	   git clone https://github.com/bats-core/bats-core.git
-	   cd bats-core
-	   sudo ./install.sh /usr
-
-        This will install BATS to /usr/bin. Note that installing to /usr may require root access or use of :code:`sudo`. To specify an alternative path change the argument to your preferred location, e.g. "/usr/local" to install to /usr/local/bin.
-
-
-        Details available in the `BATS source repo <https://github.com/bats-core/bats-core>`_.
-
-        Some bats tests also require go, java and expect. To run these, the appropriate libraries must be installed:
-
-        .. code-block:: bash
-
-	   # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
-	   sudo apt-get install --no-install-recommends default-jdk expect golang-go
-
-	   #CentOS Linux or RedHat Linux
-	   sudo yum install java-latest-openjdk expect golang
-
-        Additionally, some tests requires a JDBC driver. The JDBC driver must be downloaded to the build directory and JDBC_VERSION must be set in the environment. Versions starting with 42.2.6 are tested, but earlier versions may work. For example, 42.2.12 is the latest release at the time of writing:
-
-        .. code-block:: none
-
-	   export JDBC_VERSION=42.2.12
-	   wget https://jdbc.postgresql.org/download/postgresql-$JDBC_VERSION.jar
-
-     2.  Install the en_US.utf8 locale
-
-         Octo tests should be run with the en_US.utf8 locale due to collation order differences in other locales that cause some test outputs to not match reference outputs.
-
-        .. code-block:: bash
-
-           # Debian
-           locale -a
-           # if "en_US.utf8" does not appear among the available locales listed by the above command, proceed to the steps below:
-           sudo vi /etc/locale.gen # or use your preferred text editor
-           # Uncomment the line in /etc/locale.gen that reads "en_US.UTF-8 UTF-8", then save and exit
-           sudo locale-gen
-
-     3. *(Optional)* Install cmocka unit testing framework
-
-        Octo uses cmocka for automated unit testing. To build and run Octo's unit tests, cmocka must be installed:
-
-        .. code-block:: bash
-
-	   # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
-	   sudo apt-get install --no-install-recommends libcmocka-dev
-
-	   # CentOS Linux OR RedHat Linux
-	   sudo yum install libcmocka-devel
-
-     4. *(Optional)* Install PostgreSQL client (psql)
-
-        Octo uses the psql PostgreSQL for some integration/regression tests. To build and run these tests, psql must be installed:
-
-        .. code-block:: bash
-
-	   # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
-	   sudo apt-get install --no-install-recommends postgresql-client
-
-	   # CentOS Linux OR RedHat Linux
-	   sudo yum install postgresql
-
-
-     5. *(Optional)* Install PostgreSQL server
-
-        Octo uses the PostgreSQL server for some integration/regression tests. To build and run these tests, PostgreSQL must be installed:
-
-        .. code-block:: bash
-
-	   # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
-	   sudo apt-get install --no-install-recommends postgresql
-
-	   # CentOS Linux OR RedHat Linux
-	   sudo yum install postgresql
-
-        Additionally, PostgreSQL must be set up for the user who will be running the tests:
-
-        .. code-block:: bash
-
-	   sudo -u postgres createuser [username]
-	   sudo -u postgres psql <<PSQL
-	   alter user [username] createdb;
-	   PSQL
-
-
-     6. *(Optional)* Install UnixODBC and the Postgres ODBC Shared Library
-
-        Octo runs ODBC driver tests if the UnixODBC package is installed. To build and run these tests, you need to do the following:
-
-        .. code-block:: bash
-
-	   # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
-	   sudo apt-get install unixodbc odbc-postgresql
-
-	   # CentOS 8 Linux OR RedHat 8 Linux (names on 7 differ slightly)
-	   sudo yum install unixODBC postgresql-odbc
-
-
-     7. *(Optional - CentOS/RHEL7 only)* Install Perl
-
-	On CentOS 7 and RHEL7, Octo test queries sometimes produce output with superfluous escape sequences. These escape sequences are removed by a Perl script, making Perl a dependency for Octo testing on these platforms.
-
-	To install Perl on CentOS 7 or RHEL7:
-
-	.. code-block:: bash
-
-	   # CentOS Linux or RedHat Linux
-	   sudo yum install perl
+  Refer to the `Developer's Documentation <../developer_doc.html>`_ for information on setting up and running automated regression testing.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      Clone the Octo source code repository
@@ -231,8 +116,8 @@ Install Octo
       .. code-block:: bash
 
          # In a temporary directory perform the following commands
-         git clone https://gitlab.com/YottaDB/DBMS/YDBOcto.git YDBOcto-master
-         cd YDBOcto-master
+         git clone https://gitlab.com/YottaDB/DBMS/YDBOcto.git
+         cd YDBOcto
 
 ~~~~~~~~~~~~~~~~~
      Compile Octo
@@ -241,19 +126,10 @@ Install Octo
       .. code-block:: bash
 
          mkdir build ; cd build
-         cmake -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin .. # for CentOS/RedHat use cmake3 instead
-         make -j `grep -c ^processor /proc/cpuinfo`
+         cmake ..
+         make -j `getconf _NPROCESSORS_ONLN`
 
       Most users proceed to the *Install Octo* step below. The instructions here are for those wishing to contribute to Octo, or building it on Supportable but not Supported platforms.
-
-      To generate a Debug build instead of a Release build (the default), add :code:`-DCMAKE_BUILD_TYPE=Debug` to the CMake line above.
-
-      To additionally disable the generation of installation rules for the :code:`make install`, add :code:`-DDISABLE_INSTALL=ON`. This can be useful when doing testing in a temporary build directory only.
-
-
-      To build the full test suite rather than a subset of it, the :code:`FULL_TEST_SUITE` option needs to be set to :code:`ON`, e.g. :code:`cmake -D FULL_TEST_SUITE=ON ..`. In addition, there is a speed test that can be enabled by :code:`cmake -D TEST_SPEED=ON`. The speed test is intended for use in benchmarking and needs to be run separately from the full test suite. Run it with :code:`bats -T bats_tests/test_speed.bats` or with the equivalent command :code:`ctest -V -R test_speed`.
-
-      To show the output of failed tests, export the environment variable :code:`CTEST_OUTPUT_ON_FAILURE=TRUE`. Alternatively, you can show output for only a single run by passing the argument to make: :code:`make CTEST_OUTPUT_ON_FAILURE=TRUE test`.
 
 ~~~~~~~~~~~~~~~~~
      Install Octo
@@ -267,13 +143,6 @@ Install Octo
          # Don't forget the -E with sudo; otherwise the git config command has no effect
          git config --global --add safe.directory $(git rev-parse --show-toplevel)
          sudo -E make install
-
-      Redefine environment variables to include newly installed files:
-
-      .. code-block:: bash
-
-   	 source $ydb_dist/ydb_env_unset
- 	 source $(pkg-config --variable=prefix yottadb)/ydb_env_set
 
       .. note::
 
@@ -292,22 +161,27 @@ Configure Octo
       * :code:`ydb_dist`
       * :code:`ydb_gbldir`
       * :code:`ydb_routines`
+      * :code:`ydb_xc_ydbposix`
       * :code:`ydb_xc_octo`
+      
 
-  The environment variables :code:`ydb_dist`, :code:`ydb_gbldir`, and :code:`ydb_routines` can initially be set by sourcing :code:`ydb_env_set` in your YottaDB installation directory. Additional modifications to ydb_routines may be needed due to configuration in :code:`octo.conf` described later in this manual.
+  The environment variables :code:`ydb_dist`, :code:`ydb_gbldir`, :code:`ydb_routines`, and :code:`ydb_xc_ydbposix` can initially be set by sourcing :code:`ydb_env_set` in your YottaDB installation directory.
 
   Example setting of the environment variables (assuming default paths):
 
   .. code-block:: bash
 
-     source /usr/local/lib/yottadb/r1.28/ydb_env_set
-     export ydb_routines="$ydb_dist/plugin/octo/o/_ydbocto.so $ydb_routines"
+     source /usr/local/lib/yottadb/r1.34/ydb_env_set
      export ydb_xc_octo=$ydb_dist/plugin/octo/ydbocto.xc  # Allow usage of some SQL functions, e.g. DATE_FORMAT()
 
 ~~~~~~~~~~~~~~~~
   Setup Database
 ~~~~~~~~~~~~~~~~
 
+.. note::
+
+   There is no need to create databases manually if :code:`ydb_env_set` has been sourced.
+   
   Octo uses several global variables for its operation, which start with :code:`%ydbocto` and :code:`%ydbAIM`. The :code:`%ydbAIM` globals are intended to be ephemeral and are not recommended to be journaled; we also recommend that you use a memory mapped region with 2K blocks. Use `GDE <https://docs.yottadb.net/AdminOpsGuide/gde.html>`_ to map :code:`%ydbocto*` and :code:`%ydbAIM` global variables to a separate region. Global variables used by Octo and AIM must have `NULL_SUBSCRIPTS=ALWAYS <https://docs.yottadb.net/AdminOpsGuide/gde.html#no-n-ull-ubscripts-always-never-existing>`_.
 
   The following example creates an OCTO database region with the recommended setting in the :code:`$ydb_dir/$ydb_rel/g` directory and assumes an existing application global directory at :code:`$ydb_dir/$ydb_rel/g/yottadb.gld`. For more information on setting up a database in YottaDB, refer to the `Administration and Operations Guide <https://docs.yottadb.com/AdminOpsGuide/index.html>`_, and the `YottaDB Acculturation Guide <https://docs.yottadb.com/AcculturationGuide/>`_ for self-paced exercises on YottaDB DevOps.
@@ -368,20 +242,18 @@ Configure Octo
   *(Optional)* Test with dummy data using Octo
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  You can use the `Northwind <https://docs.yottadb.com/Octo/grammar.html#northwind-ddl-example>`_ sample database to get started. The dummy data set can be found in the :code:`tests/fixtures` subdirectory of the YDBOcto repository created by :code:`git clone https://gitlab.com/YottaDB/DBMS/YDBOcto.git YDBOcto-master`.
+  You can use the `Northwind <https://docs.yottadb.com/Octo/grammar.html#northwind-ddl-example>`_ sample database to get started. The dummy data set can be found in the :code:`tests/fixtures` subdirectory of the YDBOcto repository created by :code:`git clone https://gitlab.com/YottaDB/DBMS/YDBOcto.git`.
 
-  A dummy data set consists of a :code:`.zwr` file and a :code:`.sql` file. The former contains the actual data to be stored in YottaDB, while the latter contains a schema that maps relational SQL structures (tables and columns) to the NoSQL data contained in YottaDB. Assuming that :code:`/tmp/YDBOcto-master` is the directory from the :code:`git clone https://gitlab.com/YottaDB/DBMS/YDBOcto.git YDBOcto-master` command :
+  A dummy data set consists of a :code:`.zwr` file and a :code:`.sql` file. The former contains the actual data to be stored in YottaDB, while the latter contains a schema that maps relational SQL structures (tables and columns) to the NoSQL data contained in YottaDB. Assuming that :code:`/tmp/YDBOcto` is the directory from the :code:`git clone https://gitlab.com/YottaDB/DBMS/YDBOcto.git` command :
 
    .. code-block:: bash
 
-      # Unset all ydb_*, gtm* and GTM* environment variables:
-      unset `env | grep -Ei ^\(\(gtm\)\|\(ydb\)\) | cut -d= -f 1`
       # Source ydb_* variables:
       source $(pkg-config --variable=prefix yottadb)/ydb_env_set
       # ydb_dir can optionally be set to use a location other than $HOME/.yottadb for the working environment.
 
-      mupip load /tmp/YDBOcto-master/build/tests/fixtures/northwind.zwr
-      octo -f /tmp/YDBOcto-master/build/tests/fixtures/northwind.sql
+      mupip load /tmp/YDBOcto/build/tests/fixtures/northwind.zwr
+      octo -f /tmp/YDBOcto/build/tests/fixtures/northwind.sql
 
   Once loaded, you can run `octo` to start the Octo interactive shell and use `SELECT <https://docs.yottadb.com/Octo/grammar.html#select>`_ queries to access the data.
 
@@ -660,10 +532,10 @@ Launching Options
 
     .. code-block:: bash
 
-       OCTO> YDBOcto-master/build $ ./src/octo -vvv
-       [TRACE] YDBOcto-master/src/octo.c:50 2019-04-10 10:17:57 : Octo started
-       [ INFO] YDBOcto-master/src/run_query.c:79 2019-04-10 10:17:57 : Generating SQL for cursor 45
-       [ INFO] YDBOcto-master/src/run_query.c:81 2019-04-10 10:17:57 : Parsing SQL command
+       OCTO> YDBOcto/build $ ./src/octo -vvv
+       [TRACE] YDBOcto/src/octo.c:50 2019-04-10 10:17:57 : Octo started
+       [ INFO] YDBOcto/src/run_query.c:79 2019-04-10 10:17:57 : Generating SQL for cursor 45
+       [ INFO] YDBOcto/src/run_query.c:81 2019-04-10 10:17:57 : Parsing SQL command
        Starting parse
        Entering state 0
        Reading a token: OCTO> Next token is token ENDOFFILE (: )
@@ -672,8 +544,8 @@ Launching Options
        Reducing stack by rule 8 (line 182):
           $1 = token ENDOFFILE (: )
        Stack now 0
-       [ INFO] YDBOcto-master/src/run_query.c:83 2019-04-10 10:18:00 : Done!
-       [ INFO] YDBOcto-master/src/run_query.c:89 2019-04-10 10:18:00 : Returning failure from run_query
+       [ INFO] YDBOcto/src/run_query.c:83 2019-04-10 10:18:00 : Done!
+       [ INFO] YDBOcto/src/run_query.c:89 2019-04-10 10:18:00 : Returning failure from run_query
 
 ~~~~~~~~~
   Dry-run
@@ -746,15 +618,17 @@ Launching Options
 Useful Commands at OCTO>
 +++++++++++++++++++++++++
 
-+------------------------+-------------------------------------------------------+
-| Command                | Information                                           |
-+========================+=======================================================+
-| :code:`\q`             | Exits the prompt                                      |
-+------------------------+-------------------------------------------------------+
-| :code:`\d`             | Displays all relations                                |
-+------------------------+-------------------------------------------------------+
-| :code:`\d tablename`   | Displays information about columns of specified table |
-+------------------------+-------------------------------------------------------+
++-------------------------+-------------------------------------------------------+
+| Command                 | Information                                           |
++=========================+=======================================================+
+| :code:`\\q`             | Exits the prompt                                      |
++-------------------------+-------------------------------------------------------+
+| :code:`\\d`             | Displays all relations                                |
++-------------------------+-------------------------------------------------------+
+| :code:`\\d tablename`   | Displays information about columns of specified table |
++-------------------------+-------------------------------------------------------+
+| :code:`\\s`             | Displays Octo command history                         |
++-------------------------+-------------------------------------------------------+
 
     Relation shown will be similar to the following:
 

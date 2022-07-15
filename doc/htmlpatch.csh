@@ -56,16 +56,31 @@ echo "--> Step 2 complete"
 echo ""
 
 echo '# Step 3: Make the following change in the index.html file:'
-echo '# After the line that contains: <script type="text/javascript" src="_static/js/theme.js"></script>'
-echo '# Add the line:'
+echo '# After the line that contains: <script src="_static/js/theme.js"></script>'
+echo '# Add the lines:'
+echo '# <script type="text/javascript" src="_static/searchtools.js"></script>'
 echo '# <script type="text/javascript" src="searchindex.js"></script>'
 
 set filelist = `ls -1 _build/html/index.html`
-set from = '<script type="text\/javascript" src="_static\/js\/theme.js"><\/script>'
-set to1 = '<script type="text\/javascript" src="searchindex.js"><\/script>'
-set to = "$from${to1}"
+set from = '<script src="_static\/js\/theme.js"><\/script>'
+set to1 = '<script type="text\/javascript" src="_static\/searchtools.js"><\/script>'
+set to2 = '<script type="text\/javascript" src="searchindex.js"><\/script>'
+set to = "$from${to1}${to2}"
 perl -p -i -e "s/$from/$to/g" $filelist
 echo ""
 echo "--> Step 3 complete"
 echo ""
 
+echo '# Step 4 : Make the following change in the search.html file:'
+echo '# After the line that contains: <script src="_static/js/theme.js"></script>'
+echo '# Add the line:'
+echo '# <script type="text/javascript" src="_static/language_data.js"></script>'
+
+set filelist = `ls -1 _build/html/search.html`
+set from = '<script src="_static\/js\/theme.js"><\/script>'
+set to1 = '<script type="text\/javascript" src="_static\/language_data.js"><\/script>'
+set to = "$from${to1}"
+perl -p -i -e "s/$from/$to/g" $filelist
+echo ""
+echo "--> Step 4 complete"
+echo ""

@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -33,16 +33,16 @@
  * keep adding one more row at the end to the $ORDER loop).
  *
  * If it is FALSE, the emitted code will generate subscripts matching post-update values of any key columns. For example,
- * for the "ID" column in the names table, the post-update value will be stored in the local variable `%ydboctoUPD("ID")`.
+ * for the "ID" column in the names table, the post-update value will be stored in the local variable `col(1)`.
  * Example emitted code in the case of "ID" column of the "names" table would be like the below.
- *	%ydboctoUPD(%ydboctoUPD("ID"))
+ *	%ydboctoUPD(col(1))
  * This value of FALSE is passed from one caller ("tmpl_update_record_in_table.ctemplate") where as part of processing one
  * row and creating a new output row in the UPDATE command, we note down the output row related key column values.
  *
  * In the case of a table with multiple key columns, it is possible only a subset of the key columns are specified in the
- * SET clause. In that case, if "pre_update" is FALSE, then we will emit code to use `%ydboctoUPD("ID")` like syntax
+ * SET clause. In that case, if "pre_update" is FALSE, then we will emit code to use `col(1)` like syntax
  * only for those columns that are specified in the SET clause (as only those will have post-update values maintained in
- * the `%ydboctoUPD` local variable). Other primary key columns that are not specified in the SET clause will have the
+ * the `col` local variable). Other primary key columns that are not specified in the SET clause will have the
  * same pre-update and post-update value so we will use "tmpl_key()" to generate them in either case.
  */
 TEMPLATE(tmpl_update_key_source, PhysicalPlan *pplan, boolean_t pre_update) {
@@ -60,8 +60,8 @@ TEMPLATE(tmpl_update_key_source, PhysicalPlan *pplan, boolean_t pre_update) {
 
 		plan_key = pplan->iterKeys[iter_key_index];
 		if (!plan_key->is_cross_reference_key) {
-			LogicalPlan	*lp_column_list;
-			GET_LP(lp_column_list, lp_update, 1, LP_COLUMN_LIST);
+			LogicalPlan *lp_column_list;
+			lp_column_list = lp_get_update_column_list(lp_update);
 
 			boolean_t	is_a_key_col;
 			is_a_key_col = FALSE;
@@ -88,12 +88,7 @@ TEMPLATE(tmpl_update_key_source, PhysicalPlan *pplan, boolean_t pre_update) {
 			is_first_col = FALSE;
 			/* See last paragraph of comment at start of this function to see why the below "if" check is needed */
 			if (is_a_key_col && !pre_update) {
-				char		*columnName;
-				SqlValue	*colname_value;
-
-				UNPACK_SQL_STATEMENT (colname_value, plan_key->column->columnName, value);
-				columnName = colname_value->v.reference;
-				%{}{{ PP_YDB_OCTO_UPD }}("{{ columnName }}"){}%
+				%{}{{ PP_COL }}({{ plan_key->column->column_number|%d }}){}%
 			} else {
 				TMPL(tmpl_key, plan_key);
 			}

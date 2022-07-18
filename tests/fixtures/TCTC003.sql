@@ -197,6 +197,10 @@ CREATE TABLE products (CHECK (1 > 0), CHECK (2 > 1));
 CREATE TABLE products (product_no integer, name text, price numeric CHECK (price > 0));
 INSERT INTO products VALUES (1, 'abcd', 5);
 INSERT INTO products VALUES (2, 'efgh', -1);
+INSERT INTO products VALUES (3, NULL, 6);
+UPDATE products SET price = -1;
+-- Also test NULL column values (NULL value in "name" column) get displayed correctly in ERR_CHECK_CONSTRAINT_VIOLATION error
+UPDATE products SET price = -1 WHERE product_no = 3;
 SELECT * from products;
 DROP TABLE products;
 
@@ -205,6 +209,7 @@ DROP TABLE products;
 CREATE TABLE products (product_no integer, name text, price numeric CHECK (price > 0) CHECK (price > 5));
 INSERT INTO products VALUES (1, 'abcd', 6);
 INSERT INTO products VALUES (2, 'efgh', 5);
+UPDATE products SET price = 5;
 SELECT * from products;
 DROP TABLE products;
 
@@ -213,6 +218,7 @@ DROP TABLE products;
 CREATE TABLE products (product_no integer PRIMARY KEY CHECK (product_no > 2), name text);
 INSERT INTO products VALUES (3, 'abcd');
 INSERT INTO products VALUES (2, 'efgh');
+UPDATE products SET product_no = 2;
 SELECT * from products;
 DROP TABLE products;
 
@@ -221,34 +227,37 @@ DROP TABLE products;
 CREATE TABLE products (product_no integer PRIMARY KEY CHECK (product_no > 2) CHECK (product_no < 10), name text);
 INSERT INTO products VALUES (5, 'abcd');
 INSERT INTO products VALUES (10, 'efgh');
+UPDATE products SET product_no = 10;
 SELECT * from products;
 DROP TABLE products;
 
 -- Test of ERR_CHECK_CONSTRAINT_VIOLATION error
 -- Test of complex column-level CHECK constraint
 CREATE TABLE products (
-	     product_no integer,
-	     name text,
-	     price numeric CONSTRAINT name1
-		CHECK (((price > 5) AND (price < 8)) OR (price = 0) OR (price is NULL) OR (price * price < 100))
-	);
+             product_no integer,
+             name text,
+             price numeric CONSTRAINT name1
+                CHECK (((price > 5) AND (price < 8)) OR (price = 0) OR (price is NULL) OR (price * price < 100))
+        );
 INSERT INTO products VALUES (1, 'abcd', 9);
 INSERT INTO products VALUES (2, 'efgh', 10);
 INSERT INTO products VALUES (3, 'ijkl', NULL);
+UPDATE products SET price = 10;
 SELECT * from products;
 DROP TABLE products;
 
 -- Test of ERR_CHECK_CONSTRAINT_VIOLATION error
 -- Test of complex table-level CHECK constraint
 CREATE TABLE products (
-	     product_no integer,
-	     name text,
-	     price numeric,
-	     CHECK ((price is NULL) OR (product_no is NULL) OR ((price * product_no) <= 2000))
-	);
+             product_no integer,
+             name text,
+             price numeric,
+             CHECK ((price is NULL) OR (product_no is NULL) OR ((price * product_no) <= 2000))
+        );
 INSERT INTO products VALUES (1, 'abcd', 2000);
 INSERT INTO products VALUES (2, 'efgh', 1001);
 INSERT INTO products VALUES (3, 'ijkl', NULL);
+UPDATE products SET price = 1001;
 SELECT * from products;
 DROP TABLE products;
 
@@ -257,6 +266,7 @@ CREATE TABLE products (product_no integer, name text CHECK (product_no < 5));
 INSERT INTO products VALUES (4, 'abcd');
 INSERT INTO products VALUES (5, 'efgh');
 INSERT INTO products VALUES (NULL, 'ijkl');
+UPDATE products SET product_no = NULL;
 SELECT * from products;
 DROP TABLE products;
 
@@ -264,10 +274,10 @@ DROP TABLE products;
 -- Test of multiple CHECK column constraints on key and non-key columns
 -- Also test that table-level constraints can be in between column-level constraints (i.e. order does not matter).
 CREATE TABLE products (
-		product_no integer PRIMARY KEY CHECK (product_no > 2) CHECK (product_no < 10),
-		CHECK ((name || product_no) < 'Lord8'),
-		name text CHECK (name > 'Cereal') CHECK (name < 'Zero')
-	);
+                product_no integer PRIMARY KEY CHECK (product_no > 2) CHECK (product_no < 10),
+                CHECK ((name || product_no) < 'Lord8'),
+                name text CHECK (name > 'Cereal') CHECK (name < 'Zero')
+        );
 INSERT INTO products VALUES (2, 'Str2');
 INSERT INTO products VALUES (9, 'Lord3');
 INSERT INTO products VALUES (10, 'Str10');
@@ -275,6 +285,11 @@ INSERT INTO products VALUES (4, 'Cereal');
 INSERT INTO products VALUES (5, 'Zero');
 INSERT INTO products VALUES (6, 'Joey');
 INSERT INTO products VALUES (8, 'Lord');
+UPDATE products SET name = 'Str2';
+UPDATE products SET name = 'Str10';
+UPDATE products SET name = 'Cereal';
+UPDATE products SET name = 'Zero';
+UPDATE products SET name = 'Lord';
 SELECT * from products;
 DROP TABLE products;
 
@@ -320,5 +335,82 @@ VALUES
 (2, 'Sebastian', 'Batz', 'sebastian.batz', 'sebastian.batz@mailinator.com', '2518b96a5669f2fc884c8be0f7668feb'),
 (3, '', '', '', 'ms..winter@mailinator.com', 'c75029a15cbf675cf06b98ce7defeaa3'),
 (4, '', '', '', 'sebastian.batz@mailinator.com', '2518b96a5669f2fc884c8be0f7668feb');
+INSERT INTO users(id, first_name, last_name, nick_name, email, password_digest)
+VALUES
+(1, 'Ms.', 'Winter', 'ms..winter', 'ms..winter@mailinator.com', 'c75029a15cbf675cf06b98ce7defeaa3'),
+(2, 'Sebastian', 'Batz', 'sebastian.batz', 'sebastian.batz@mailinator.com', '2518b96a5669f2fc884c8be0f7668feb');
+UPDATE users SET first_name = NULL, nick_name = NULL;
+UPDATE users SET last_name = NULL, nick_name = NULL;
+UPDATE users SET first_name = NULL, last_name = NULL, nick_name = NULL;
 DROP TABLE IF EXISTS users;
+
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION error
+-- Simple test of UPDATE enforcing CHECK constraints
+CREATE TABLE tbl (id integer PRIMARY KEY CHECK (age < 20), age INTEGER);
+INSERT INTO tbl VALUES (1, 12);
+INSERT INTO tbl VALUES (2, 15);
+SELECT * from tbl;
+UPDATE tbl SET age = age + 100;
+SELECT * from tbl;
+DROP TABLE tbl;
+
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION error
+-- Slightly more exhaustive test of UPDATE enforcing CHECK constraints
+CREATE TABLE products ( product_no integer PRIMARY KEY CHECK (product_no > 2) CHECK (product_no < 10), CHECK ((name || product_no) < 'Lord8'), name text CHECK (name > 'Cereal') CHECK (name < 'Zero'));
+INSERT INTO products VALUES (3, 'Lord');
+UPDATE products SET product_no = 1;
+UPDATE products SET product_no = 15;
+UPDATE products SET product_no = 8;
+UPDATE products SET product_no = 7, name = 'Cereal';
+UPDATE products SET product_no = 7, name = 'Zero';
+SELECT * from products;
+DROP TABLE products;
+
+-- Test that UPDATE does not issue ERR_CHECK_CONSTRAINT_VIOLATION error when not expected
+CREATE TABLE products ( product_no integer PRIMARY KEY CHECK (product_no > 2) CHECK (product_no < 10), CHECK ((name || product_no) < 'Lord8'), name text CHECK (name > 'Cereal') CHECK (name < 'Zero'));
+INSERT INTO products VALUES (3, 'Lord');
+SELECT * from products;
+UPDATE products SET product_no = 9, name = 'Dummy';
+SELECT * from products;
+UPDATE products SET product_no = 8, name = 'Lorc';
+SELECT * from products;
+UPDATE products SET product_no = 7, name = 'Lord';
+SELECT * from products;
+DROP TABLE products;
+
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION in UPDATE with a WHERE clause using = (i.e. key-fixing optimization)
+-- Also test CHECK constraint that uses a column which is IN the UPDATE SET list of columns
+CREATE TABLE products (product_no integer PRIMARY KEY CHECK ((product_no > 2) and (name2 > 'abcd')) CHECK ((product_no > 2) and (name2 > 'abcd')), name1 text, name2 text);
+-- CREATE TABLE products (product_no integer PRIMARY KEY, name1 text, name2 text);
+INSERT INTO products VALUES (3, 'abcd', 'xyz');
+SELECT * from products;
+UPDATE products SET product_no = 2, name1 = 'mno' WHERE name2 = 'xyz';
+SELECT * from products;
+DROP TABLE products;
+
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION in UPDATE with a WHERE clause using = (i.e. key-fixing optimization)
+-- This is similar to the previous test but in this case, "name1" column is not used in SET clause or CHECK constraint
+CREATE TABLE products (product_no integer PRIMARY KEY CHECK ((product_no > 2) and (name2 > 'abcd')) CHECK ((product_no > 2) and (name2 > 'abcd')), name1 text, name2 text);
+INSERT INTO products VALUES (3, 'abcd', 'xyz');
+SELECT * from products;
+UPDATE products SET product_no = 2 WHERE name2 = 'xyz';
+SELECT * from products;
+DROP TABLE products;
+
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION in UPDATE with a WHERE clause using != (i.e. NO key-fixing optimization)
+CREATE TABLE products (product_no integer PRIMARY KEY CHECK ((product_no > 2) and (name2 > 'abcd')) CHECK ((product_no > 2) and (name2 > 'abcd')), name1 text, name2 text);
+INSERT INTO products VALUES (3, 'abcd', 'xyz');
+SELECT * from products;
+UPDATE products SET product_no = 2, name1 = 'mno' WHERE name2 != 'mno';
+SELECT * from products;
+DROP TABLE IF EXISTS products;
+
+-- Test CHECK constraint that uses a column which is NOT IN the UPDATE SET list of columns
+-- In the below case, we don't expect any error.
+CREATE TABLE products (product_no integer PRIMARY KEY CHECK (name2 > 'abcd'), name1 text, name2 text);
+INSERT INTO products VALUES (3, 'abcd', 'xyz');
+SELECT * from products;
+UPDATE products SET product_no = 2, name1 = 'mno' WHERE name2 = 'xyz';
+SELECT * from products;
+DROP TABLE IF EXISTS products;
 

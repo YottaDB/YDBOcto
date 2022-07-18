@@ -122,6 +122,10 @@ typedef struct LpInsertIntoCol {
 	SqlColumnAlias *column_alias;
 } LpInsertIntoCol;
 
+typedef struct LpUpdateCol {
+	SqlColumnAlias *column_alias;
+} LpUpdateCol;
+
 typedef struct LpDefault {
 	struct LogicalPlan *operand[2];
 	/* Following field is set by lp_generate_where using group_by_fields_t data gathered from qualify_statement() calls. */
@@ -151,13 +155,17 @@ typedef struct LpExtraWhere {
 	int num_outer_joins;
 } LpExtraWhere;
 
-/* Extra fields needed by LP_SELECT_QUERY or LP_TABLE_VALUE */
+/* Extra fields needed by LP_SELECT_QUERY or LP_TABLE_VALUE or LP_UPDATE */
 typedef struct LpExtraInsert {
 	SqlTableAlias *root_table_alias;      /* If LP_SELECT_QUERY, this field points to the outer most SqlTableAlias structure
-					       * corresponding to this logical plan. Needed to forward this to the
-					       * PhysicalPlan structure.
+					       *   corresponding to this logical plan. Needed to forward this to the
+					       *   PhysicalPlan structure.
 					       * If LP_TABLE_VALUE, this field points to the SqlTableAlias structure
-					       * at this level (not outer level) corresponding to this logical plan.
+					       *   at this level (not outer level) corresponding to this logical plan.
+					       * If LP_UPDATE, this field points to the SqlTableAlias structure
+					       *   corresponding to source table of the UPDATE.
+					       * If LP_INSERT_INTO, this is currently NULL
+					       * If LP_DELETE_FROM, this is currently NULL
 					       */
 	struct LogicalPlan * first_aggregate; /* Used only in case of LP_SELECT_QUERY. Not used if LP_TABLE_VALUE */
 	struct PhysicalPlan *physical_plan;   /* Pointer to corresponding physical plan. Note that there is only ONE physical
@@ -237,7 +245,10 @@ typedef struct LpExtraSetOperation {
 } LpExtraSetOperation;
 
 typedef struct LpExtraCheckConstraint {
-	SqlConstraint *constraint; /* the underlying parser-level constraint structure */
+	SqlConstraint *constraint;  /* the underlying parser-level constraint structure */
+	boolean_t      emit_m_code; /* TRUE if M code needs to be emitted for this constraint. FALSE otherwise.
+				     * Used in "tmpl_check_constraint.ctemplate".
+				     */
 } LpExtraCheckConstraint;
 
 /* We use yet another triple type here so we can easily traverse the tree to replace tables and WHEREs.
@@ -258,6 +269,7 @@ typedef struct LogicalPlan {
 		LpKeywords	  lp_keywords;		// To be used if type == LP_KEYWORDS
 		LpPieceNumber	  lp_piece_number;	// To be used if type == LP_PIECE_NUMBER
 		LpInsertIntoCol	  lp_insert_into_col;	// To be used if type == LP_INSERT_INTO_COL
+		LpUpdateCol	  lp_update_col;	// To be used if type == LP_UPDATE_COL
 		LpDefault	  lp_default;		// To be used for all other LP_* types
 	} v;
 	union {
@@ -369,8 +381,12 @@ char *lp_get_aggregate_plan_helper_func_name(LPActionType type);
 // Returns "unique_id" given a LP_COLUMN_ALIAS or LP_DERIVED_COLUMN logical plan
 int lp_get_unique_id_from_lp_column_alias_or_lp_derived_column(LogicalPlan *plan);
 
+// Returns the LP_COLUMN_LIST inside a LP_UPDATE plan
+LogicalPlan *lp_get_update_column_list(LogicalPlan *lp_update);
+
 // Inserts a key at the end of the plans keys
 void lp_insert_key(LogicalPlan *plan, LogicalPlan *key);
+
 // Returns if either operand of a boolean operation logical plan (e.g. LP_BOOLEAN_LESS_THAN) is of type STRING
 boolean_t lp_is_operand_type_string(LogicalPlan *plan, boolean_t *is_null);
 // Returns LP_WHERE with an AND of the two wheres
@@ -443,6 +459,9 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
  */
 boolean_t lp_generate_column_list(LogicalPlan **ret, SqlStatement *parent_stmt, SqlStatement *root_stmt,
 				  SqlColumnList *start_columns);
+
+/* Generates a LP_CHECK_CONSTRAINT logical plan list */
+boolean_t lp_generate_check_constraint(LogicalPlan **lp_constraint_ptr, SqlStatement *stmt, SqlTableAlias *table_alias);
 
 /* Generates a LP_TABLE_VALUE table plan corresponding to a VALUES() clause specification and returns it */
 LogicalPlan *lp_generate_table_value(SqlStatement *stmt, boolean_t *caller_error_encountered);

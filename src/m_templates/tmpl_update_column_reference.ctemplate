@@ -1,0 +1,43 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "logical_plan.h"
+#include "template_helpers.h"
+
+/* Generates M code to get the post-update value of an input column ("cur_column") in the UPDATE command.
+ * For columns that are in the SET clause of the UPDATE command, this gets the post-update value.
+ * For columns that are NOT in the SET clause of the UPDATE command, this gets the pre-update value which
+ * is the same as the post-update value (since this column value is not being modified by the UPDATE).
+ * It derives the corresponding "column_alias" for the input column and then calls "tmpl_column_reference"
+ * to do the real work of generating the M code.
+ */
+TEMPLATE(tmpl_update_column_reference, PhysicalPlan *pplan, SqlColumn *cur_column, int dot_count) {
+	LogicalPlan	*lp_update;
+	lp_update = pplan->lp_select_query;
+	assert(LP_UPDATE == lp_update->type);
+
+	SqlTableAlias	*src_table_alias;
+	src_table_alias = lp_update->extra_detail.lp_select_query.root_table_alias;
+
+	SqlValue	*colname_value;
+	UNPACK_SQL_STATEMENT (colname_value, cur_column->columnName, value);
+
+	char		*column_name;
+	column_name = colname_value->v.reference;
+
+	SqlColumnAlias	*column_alias;
+	column_alias = get_column_alias_from_column_name(column_name, src_table_alias);
+
+	TMPL(tmpl_column_reference, pplan, column_alias, FALSE, dot_count, 0);
+}
+%{}

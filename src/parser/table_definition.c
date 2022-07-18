@@ -229,6 +229,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			case OPTIONAL_CHECK_CONSTRAINT:;
 				SqlConstraint *constraint;
 				SqlValueType   type;
+				int	       num_cols;
 
 				noted_column = NULL;
 				UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
@@ -252,6 +253,16 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				 * Use that to determine if this constraint has to be moved to another column or a table-level one.
 				 */
 				subs[1].len_used = 0;
+				num_cols = 0;
+				SqlColumnList *start_col;
+				/* It is possible that "constraint->columns" is non-NULL at this point if this was previously
+				 * a column level constraint that got moved to a table level constraint (a later column in the
+				 * list of columns encountered while processing the table). In that case, the below processing
+				 * would end up adding the same set of columns again into "constraint->columns". Avoid that
+				 * by resetting "constraint->columns" to NULL.
+				 */
+				constraint->columns = NULL;
+				start_col = NULL; /* to avoid false [-Wmaybe-uninitialized] warnings from compiler */
 				while (TRUE) {
 					status = ydb_subscript_next_s(&ydboctoTblConstraint, 2, &subs[0], &subs[1]);
 					if (YDB_ERR_NODEEND == status) {
@@ -262,17 +273,40 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 						assert(FALSE);
 						return NULL;
 					}
-					if (NULL != noted_column) {
-						/* A column was already noted. This means the current CHECK constraint
-						 * references at least 2 columns. It has to be made a table-level constraint.
-						 * No need to scan any more.
-						 */
-						noted_column = NULL;
-						break;
-					}
+					num_cols++;
 					subs[1].buf_addr[subs[1].len_used] = '\0';
 					noted_column = find_column(subs[1].buf_addr, table);
 					assert(NULL != noted_column);
+
+					SqlStatement * col_list_stmt;
+					SqlColumnList *cur_col;
+					SQL_STATEMENT(col_list_stmt, column_list_STATEMENT);
+					OCTO_CMALLOC_STRUCT(col_list_stmt->v.column_list, SqlColumnList);
+					UNPACK_SQL_STATEMENT(cur_col, col_list_stmt, column_list);
+					dqinit(cur_col);
+
+					SqlStatement *colname_stmt;
+					SQL_STATEMENT(colname_stmt, value_STATEMENT);
+					OCTO_CMALLOC_STRUCT(colname_stmt->v.value, SqlValue);
+					colname_stmt->v.value->type = COLUMN_REFERENCE;
+					/* Note: sizeof of a string literal will include null terminator so that too gets copied in
+					 * memcpy below */
+					colname_stmt->v.value->v.string_literal = octo_cmalloc(memory_chunks, subs[1].len_used + 1);
+					memcpy(colname_stmt->v.value->v.string_literal, subs[1].buf_addr, subs[1].len_used + 1);
+					cur_col->value = colname_stmt;
+					if (NULL == constraint->columns) {
+						constraint->columns = col_list_stmt;
+						start_col = cur_col;
+					} else {
+						dqappend(cur_col, start_col);
+					}
+				}
+				if (1 < num_cols) {
+					/* The current CHECK constraint references at least 2 columns. It has to be made a
+					 * table-level constraint. Setting "noted_column" to NULL lets this constraint be
+					 * treated the same way as a constraint that referenced 0 columns.
+					 */
+					noted_column = NULL;
 				}
 				/* Remove lvn nodes (if any) that track list of column names referenced in the current
 				 * CHECK constraint so we start the next CHECK constraint with a clean state.
@@ -284,6 +318,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 					return NULL;
 				}
 				if (NULL == noted_column) {
+					assert(1 != num_cols);
 					if (NULL != cur_column->columnName) {
 						/* The current column-level CHECK constraint references either 0 columns or more
 						 * than 1 column from the table and so has to be moved to a table-level constraint

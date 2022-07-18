@@ -145,6 +145,10 @@ int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_co
 				return -1;
 			}
 			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, ")");
+			/* Note that "constraint->columns" is a list of referenced columns (in case of a CHECK constraint)
+			 * and is information derived from "constraint->definition" and so is not stored in the text
+			 * table definition. Hence no processing for that done here.
+			 */
 			break;
 		default:
 			ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");

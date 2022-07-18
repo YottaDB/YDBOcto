@@ -163,7 +163,7 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 					/* Key column whose value is modified in the SET clause. In this case, the
 					 * modified value of this column is stored in a different lvn. Emit that lvn out.
 					 */
-					%{}{{ PP_YDB_OCTO_UPD }}({{ column }}){}%
+					%{}{{ PP_COL }}({{ sql_column->column_number|%d }}){}%
 				} else {
 					/* Now that we know this is not a key column that is being modified, we can generate
 					 * exactly the same code that we would have for the "EmitSourceForm_Value" case.

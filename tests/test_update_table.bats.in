@@ -46,7 +46,7 @@ teardown() {
 	psql names -c 'drop table if exists TUT002; drop table if exists TUT002B' >& postgres.drop_table_TUT002.out
 	# Now do various verifications of Octo plans
 	echo "# Include key parts of generated M plans in reference file" >> output.txt
-	grep -P '(?i)INSERT INTO|DELETE FROM|UPDATE|VALUES|SELECT(?-i)|maintains cross reference|^octoPlan|RowCount|FOR|SET \%ydboctocursor|SET \$PIECE|SET \%ydboctoUPD|SET val|------' _ydbocto*.m >> output.txt
+	grep -P '(?i)INSERT INTO|DELETE FROM|UPDATE|VALUES|SELECT(?-i)|maintains cross reference|^octoPlan|RowCount|FOR|SET \%ydboctocursor|SET \$PIECE|SET \%ydboctoUPD|SET col\(|SET val|------' _ydbocto*.m >> output.txt
 	echo "# Test [DROP TABLE names] removes all plans using names table for UPDATE queries" >> output.txt
 	echo "DROP TABLE names" | octo
 	echo "# Below are plans that remain after [DROP TABLE names]" >> output.txt

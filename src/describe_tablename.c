@@ -118,6 +118,10 @@ int describe_tablename(SqlStatement *table_name) {
 					return -1;
 				}
 				fprintf(stdout, "%s)\n", buffer_orig);
+				/* Note that "constraint->columns" is a list of referenced columns (in case of a CHECK constraint)
+				 * and is information derived from "constraint->definition" and is not relevant to the user so
+				 * is not displayed here. Hence no processing for that done here.
+				 */
 				break;
 			default:
 				break;

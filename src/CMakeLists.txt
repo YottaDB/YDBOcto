@@ -190,6 +190,7 @@ add_library(libocto OBJECT
   generate_routine_name.c
   get_aggregate_func_name.c
   get_column_alias_for_column_list_alias.c
+  get_column_alias_from_column_name.c
   get_column_list_alias_n_from_table_alias.c
   get_column_number_from_column_list_alias.c
   get_column_piece_number.c
@@ -241,6 +242,7 @@ add_library(libocto OBJECT
   optimization_transforms/lp_copy_plan.c
   optimization_transforms/lp_drill_to_insert.c
   optimization_transforms/lp_emit_plan.c
+  optimization_transforms/lp_generate_check_constraint.c
   optimization_transforms/lp_generate_column_list.c
   optimization_transforms/lp_generate_set_logical_plan.c
   optimization_transforms/lp_generate_table_value.c
@@ -262,6 +264,7 @@ add_library(libocto OBJECT
   optimization_transforms/lp_get_table_join.c
   optimization_transforms/lp_get_tablejoin_unique_id.c
   optimization_transforms/lp_get_unique_id_from_lp_column_alias_or_lp_derived_column.c
+  optimization_transforms/lp_get_update_column_list.c
   optimization_transforms/lp_insert_key.c
   optimization_transforms/lp_is_operand_type_string.c
   optimization_transforms/lp_join_where.c
@@ -463,6 +466,7 @@ set_target_properties(libcocto PROPERTIES PREFIX "")
 # Generate C files from templates
 set(template_dir ${PROJECT_SOURCE_DIR}/src/m_templates)
 set(template_files
+  ${template_dir}/tmpl_check_constraint.ctemplate
   ${template_dir}/tmpl_column_list_combine.ctemplate
   ${template_dir}/tmpl_column_reference.ctemplate
   ${template_dir}/tmpl_column_reference_common.ctemplate
@@ -498,6 +502,7 @@ set(template_files
   ${template_dir}/tmpl_tablejoin_body.ctemplate
   ${template_dir}/tmpl_tablejoin_body_group_by.ctemplate
   ${template_dir}/tmpl_tablejoin_on_condition.ctemplate
+  ${template_dir}/tmpl_update_column_reference.ctemplate
   ${template_dir}/tmpl_update_key_source.ctemplate
   ${template_dir}/tmpl_update_record_in_table.ctemplate
   ${template_dir}/tmpl_update_table.ctemplate

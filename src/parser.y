@@ -81,6 +81,7 @@ typedef void* yyscan_t;
 	dqinit(keyword);									\
 	UNPACK_SQL_STATEMENT(constraint, keyword->v, constraint);				\
 	constraint->definition = DEFINITION;							\
+	/* Note: constraint->columns is initialized later in "table_definition.c" */		\
         constraint->name = NAME;								\
 }
 

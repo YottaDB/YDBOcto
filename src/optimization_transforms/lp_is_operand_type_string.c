@@ -73,6 +73,7 @@ boolean_t lp_is_operand_type_string(LogicalPlan *plan, boolean_t *is_null) {
 		case LP_COLUMN_ALIAS:
 		case LP_DERIVED_COLUMN:
 		case LP_INSERT_INTO_COL:
+		case LP_UPDATE_COL:
 			switch (cur_plan->type) {
 			case LP_COLUMN_ALIAS:
 				column_alias = cur_plan->v.lp_column_alias.column_alias;
@@ -80,9 +81,12 @@ boolean_t lp_is_operand_type_string(LogicalPlan *plan, boolean_t *is_null) {
 			case LP_DERIVED_COLUMN:
 				column_alias = cur_plan->extra_detail.lp_derived_column.subquery_column_alias;
 				break;
-			default:
-				assert(LP_INSERT_INTO_COL == cur_plan->type);
+			case LP_INSERT_INTO_COL:
 				column_alias = cur_plan->v.lp_insert_into_col.column_alias;
+				break;
+			default:
+				assert(LP_UPDATE_COL == cur_plan->type);
+				column_alias = cur_plan->v.lp_update_col.column_alias;
 				break;
 			}
 			switch (column_alias->column->type) {

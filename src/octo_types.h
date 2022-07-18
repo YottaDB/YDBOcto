@@ -920,6 +920,9 @@ typedef struct SqlConstraint {
 					  * e.g. For OPTIONAL_CHECK_CONSTRAINT, this will point to the CHECK condition
 					  *      that needs to be satisfied.
 					  */
+	struct SqlStatement *columns;	 /* Currently non-NULL only for a OPTIONAL_CHECK_CONSTRAINT. In that case it points to
+					  * a "SqlColumnList". This is the list of columns referenced in this CHECK constraint.
+					  */
 } SqlConstraint;
 
 typedef struct SqlDisplayRelation {

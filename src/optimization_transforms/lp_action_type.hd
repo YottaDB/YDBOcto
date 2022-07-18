@@ -19,6 +19,8 @@ LP_ACTION_TYPE(LP_CHECK_CONSTRAINT)	// Used to denote a CHECK constraint
 LP_ACTION_TYPE(LP_INSERT_INTO_COL)	// Used to denote a column reference inside a CHECK constraint in an INSERT INTO command
 LP_ACTION_TYPE(LP_DELETE_FROM)		// Used to DELETE data from a table
 LP_ACTION_TYPE(LP_UPDATE)		// Used to UPDATE data in a table
+LP_ACTION_TYPE(LP_UPDATE_OPTIONS)	// Used to store more UPDATE related information in logical plan
+LP_ACTION_TYPE(LP_UPDATE_COL)		// Used to denote a column reference inside a CHECK constraint in an UPDATE command
 LP_ACTION_TYPE(LP_SET_OPERATION)	// Used to perform SET operations on logical plans
 LP_ACTION_TYPE(LP_TABLE)
 LP_ACTION_TYPE(LP_TABLE_JOIN)

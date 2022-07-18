@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -149,6 +149,20 @@ select * from test1;
 drop table test1;
 select '-- Test that valid queries work fine after an UPDATE query that had an error midway';
 select * from names where id = 4;
+
+select '-- Test of ERR_VARCHAR_TOO_LONG error on a PRIMARY KEY column';
+select '-- Test of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/579#note_1031134291';
+select '-- Test that VARCHAR(4) does not allow 5 character strings to be stored';
+drop table if exists products;
+create table products (name VARCHAR(4) PRIMARY KEY);
+select '-- Expect NO error from INSERT INTO when inserting 4-character string';
+insert into products values ('abcd');
+select '-- Expect ERR_VARCHAR_TOO_LONG error from INSERT INTO when inserting 5-character string';
+insert into products values ('abcde');
+select '-- Expect ERR_VARCHAR_TOO_LONG error from UPDATE when updating 4-character string to a 5-character string';
+update products set name = 'abcde' where name = 'abcd';
+select '-- Expect only 1 row from SELECT * containing 4-character string; Should not see 5-character string';
+select * from products;
 
 select '-- Test of ERR_DUPLICATE_KEY_VALUE on names database';
 update names set id = id + 1;

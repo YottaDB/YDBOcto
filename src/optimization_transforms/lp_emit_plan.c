@@ -219,12 +219,20 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%s\n", value->v.string_literal);
 		break;
 	case LP_INSERT_INTO_COL:
+	case LP_UPDATE_COL:
 		/* In this case, the only member that we have is a column_alias so fall through to the below code */
 	case LP_COLUMN_ALIAS:
-		if (LP_COLUMN_ALIAS == plan->type) {
+		switch (plan->type) {
+		case LP_COLUMN_ALIAS:
 			column_alias = plan->v.lp_column_alias.column_alias;
-		} else {
+			break;
+		case LP_INSERT_INTO_COL:
 			column_alias = plan->v.lp_insert_into_col.column_alias;
+			break;
+		default:
+			assert(LP_UPDATE_COL == plan->type);
+			column_alias = plan->v.lp_update_col.column_alias;
+			break;
 		}
 		column = column_alias->column;
 		if (column_STATEMENT == column->type) {

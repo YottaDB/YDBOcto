@@ -85,3 +85,15 @@ setup() {
 	verify_output TCTC006 output.txt
 }
 
+@test "TCTC007 : OCTO772 : Test col(i) usages are optimized in generated M code for CHECK constraint (in UPDATE command)" {
+	skip	# TODO : YDBOcto#772 : Remove this line once CHECK CONSTRAINT functionality is fully supported
+	# The goal of this test is to ensure that "SET col(i)" usages happen in the generated code only as needed.
+	# If say "col(1)" is already initialized, later constraint code should not reinitialize this lvn again.
+	# If an error handler needs to be invoked due to a CHECK constraint violation, it should initialize only those
+	# "col(i)" nodes that have not yet been initialized. The "grep" done below verifies the right "col(i)" lvns
+	# are SET at various points in the generated code.
+	load_fixture TCTC007.sql subtest novv
+	grep -E "SET col\(|; CHECK constraints|CheckConstraintViolation" _ydboctoP*.m > output.txt
+	verify_output TCTC007 output.txt
+}
+

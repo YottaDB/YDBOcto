@@ -46,7 +46,6 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		LogicalPlan *	    lp_insert_into, *lp_insert_into_options, *lp_insert_into_more_options;
 		LogicalPlan *	    lp_table;
 		LogicalPlan *	    lp_select_query;
-		SqlTable *	    table;
 
 		UNPACK_SQL_STATEMENT(insert, stmt, insert);
 		MALLOC_LP_2ARGS(lp_insert_into, LP_INSERT_INTO);
@@ -70,42 +69,10 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		} else {
 			lp_insert_into_options->v.lp_default.operand[0] = NULL;
 		}
-		/* Check if there are any table-level and/or column-level constraints.
-		 * If so, convert them into LP_CHECK_CONSTRAINT logical plans.
-		 */
-		UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
 
-		SqlColumn *   cur_column, *start_column;
-		LogicalPlan **lp_constraint_ptr, *ret;
-
+		LogicalPlan **lp_constraint_ptr;
 		lp_constraint_ptr = &lp_insert_into_more_options->v.lp_default.operand[1];
-		UNPACK_SQL_STATEMENT(start_column, table->columns, column);
-		cur_column = start_column;
-		do {
-			SqlOptionalKeyword *cur_keyword, *start_keyword;
-
-			UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
-			cur_keyword = start_keyword;
-			do {
-				cur_keyword = cur_keyword->next;
-				if (OPTIONAL_CHECK_CONSTRAINT == cur_keyword->keyword) {
-					SqlConstraint *constraint;
-					LogicalPlan *  lp_constraint, *lp_where;
-
-					MALLOC_LP_2ARGS(lp_constraint, LP_CHECK_CONSTRAINT);
-					MALLOC_LP(lp_where, lp_constraint->v.lp_default.operand[0], LP_WHERE);
-					UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
-					lp_constraint->extra_detail.lp_check_constraint.constraint = constraint;
-					LP_GENERATE_WHERE(constraint->definition, stmt, stmt, ret, error_encountered);
-					lp_where->v.lp_default.operand[0] = ret;
-					*lp_constraint_ptr = lp_constraint;
-					if (NULL != ret) {
-						lp_constraint_ptr = &lp_constraint->v.lp_default.operand[1];
-					}
-				}
-			} while (cur_keyword != start_keyword);
-			cur_column = cur_column->next;
-		} while (cur_column != start_column);
+		error_encountered |= lp_generate_check_constraint(lp_constraint_ptr, stmt, table_alias);
 		return (error_encountered ? NULL : lp_insert_into);
 	} else if (delete_from_STATEMENT == stmt->type) {
 		SqlDeleteFromStatement *delete;
@@ -140,7 +107,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		return (error_encountered ? NULL : lp_delete_from);
 	} else if (update_STATEMENT == stmt->type) {
 		SqlUpdateStatement *update;
-		LogicalPlan *	    lp_update;
+		LogicalPlan *	    lp_update, *lp_update_options;
 		LogicalPlan *	    lp_table;
 		LogicalPlan *	    lp_where;
 		SqlJoin *	    join;
@@ -168,11 +135,12 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		MALLOC_LP(select_more_options, select_options->v.lp_default.operand[1], LP_SELECT_MORE_OPTIONS);
 		MALLOC_LP(keywords, select_more_options->v.lp_default.operand[1], LP_KEYWORDS);
 		UNPACK_SQL_STATEMENT(keywords->v.lp_keywords.keywords, alloc_no_keyword(), keyword);
+		MALLOC_LP(lp_update_options, lp_update->v.lp_default.operand[1], LP_UPDATE_OPTIONS);
 		/* Store the SET clause contents (list of column names and corresponding values to assign to) inside
 		 * a LP_WHERE plan under a sequence of LP_COLUMN_LIST/LP_UPD_COL_VALUE plans.
 		 */
 		LogicalPlan *lp_column_list, *lp_upd_col_value, *next_lp_column_list;
-		MALLOC_LP(lp_column_list, lp_update->v.lp_default.operand[1], LP_COLUMN_LIST);
+		MALLOC_LP(lp_column_list, lp_update_options->v.lp_default.operand[0], LP_COLUMN_LIST);
 		MALLOC_LP(lp_upd_col_value, lp_column_list->v.lp_default.operand[0], LP_UPD_COL_VALUE);
 
 		SqlUpdateColumnValue *ucv, *ucv_head;
@@ -191,6 +159,11 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 			lp_column_list = next_lp_column_list;
 			MALLOC_LP(lp_upd_col_value, lp_column_list->v.lp_default.operand[0], LP_UPD_COL_VALUE);
 		} while (TRUE);
+
+		LogicalPlan **lp_constraint_ptr;
+		lp_constraint_ptr = &lp_update_options->v.lp_default.operand[1];
+		error_encountered |= lp_generate_check_constraint(lp_constraint_ptr, stmt, table_alias);
+		lp_update->extra_detail.lp_select_query.root_table_alias = table_alias; /* Note down source table_alias for later */
 		return (error_encountered ? NULL : lp_update);
 	}
 	UNPACK_SQL_STATEMENT(table_alias, stmt, table_alias);

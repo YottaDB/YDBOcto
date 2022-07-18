@@ -672,6 +672,11 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		ADD_INT_HASH(state, constraint_STATEMENT);
 		hash_canonical_query(state, constraint->name, status);
 		hash_canonical_query(state, constraint->definition, status);
+		/* "constraint->columns" is a list of referenced columns (in case of a CHECK constraint).
+		 * This information is derived from "constraint->definition" and so no need to run the below.
+		 *
+		 * hash_canonical_query(state, constraint->columns, status);
+		 */
 		break;
 	default:
 		assert(FALSE);

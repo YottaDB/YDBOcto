@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -32,8 +32,8 @@ int get_num_key_cols_in_set_clause(PhysicalPlan *pplan) {
 		plan_key = pplan->iterKeys[iter_key_index];
 		if (!plan_key->is_cross_reference_key) {
 			LogicalPlan *lp_column_list;
+			lp_column_list = lp_get_update_column_list(lp_update);
 
-			GET_LP(lp_column_list, lp_update, 1, LP_COLUMN_LIST);
 			do {
 				LogicalPlan *lp_upd_col_value, *lp_column;
 				SqlColumn *  cur_column;

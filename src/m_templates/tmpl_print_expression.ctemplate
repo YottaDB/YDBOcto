@@ -1367,7 +1367,8 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			}
 		}
 		break;
-	case LP_INSERT_INTO_COL:;
+	case LP_INSERT_INTO_COL:
+	case LP_UPDATE_COL:;
 		SqlColumnAlias	*column_alias;
 		SqlColumn	*column;
 

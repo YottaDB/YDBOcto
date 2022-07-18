@@ -233,6 +233,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 		*out_length += sizeof(SqlConstraint);
 		CALL_COMPRESS_HELPER(r, constraint->name, new_constraint->name, out, out_length);
 		CALL_COMPRESS_HELPER(r, constraint->definition, new_constraint->definition, out, out_length);
+		CALL_COMPRESS_HELPER(r, constraint->columns, new_constraint->columns, out, out_length);
 		break;
 	case unary_STATEMENT:;
 		SqlUnaryOperation *unary, *new_unary;

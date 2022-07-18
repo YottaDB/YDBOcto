@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -100,4 +100,14 @@ create table TUT002B (id INTEGER PRIMARY KEY, firstName VARCHAR(30));
 insert into TUT002B (select id, firstname FROM names);
 update TUT002B set firstname = firstname || '#';
 select * from TUT002;
+
+-- Test of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/579#note_1031578433
+create table TUT002C (t2 varchar primary key);
+insert into TUT002C values ('M1');
+insert into TUT002C values ('T2');
+insert into TUT002C values ('Z3');
+select * from TUT002C;
+update TUT002C set t2 = t2 || 'a';
+select * from TUT002C;
+drop table TUT002C;
 

@@ -37,7 +37,6 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	LPActionType	    set_oper_type, type;
 	PhysicalPlanOptions plan_options;
 	boolean_t	    is_set_dnf;
-	SqlTableAlias *	    root_table_alias;
 
 	plan_options = *options;
 	// If this is a union plan, construct physical plans for the two children
@@ -260,13 +259,14 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		}
 		return out;
 	}
-	root_table_alias = plan->extra_detail.lp_select_query.root_table_alias;
-	/* Note: root_table_alias can be NULL for xref plans (which do not correspond to any actual user-specified query) */
-	out->aggregate_function_or_group_by_or_having_specified
-	    = ((NULL == root_table_alias) ? FALSE : root_table_alias->aggregate_function_or_group_by_or_having_specified);
 	if ((LP_SELECT_QUERY == plan->type) || (LP_TABLE_VALUE == plan->type)) {
-		LogicalPlan *output;
+		SqlTableAlias *root_table_alias;
+		root_table_alias = plan->extra_detail.lp_select_query.root_table_alias;
+		/* Note: root_table_alias can be NULL for xref plans (which do not correspond to any actual user-specified query) */
+		out->aggregate_function_or_group_by_or_having_specified
+		    = ((NULL == root_table_alias) ? FALSE : root_table_alias->aggregate_function_or_group_by_or_having_specified);
 
+		LogicalPlan *output;
 		// Set my output key
 		GET_LP(output, plan, 1, LP_OUTPUT);
 		if (LP_KEY == output->v.lp_default.operand[0]->type) {
@@ -284,6 +284,8 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 			GET_LP(out->order_by, output, 1, LP_ORDER_BY);
 		}
 		out->projection = lp_get_projection_columns(plan);
+	} else {
+		out->aggregate_function_or_group_by_or_having_specified = FALSE;
 	}
 	if (LP_TABLE_VALUE != plan->type) {
 		// See if there are any tables we rely on in the SELECT tablejoin list. If so, add them as prev records in physical
@@ -358,7 +360,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		case LP_UPDATE:; /* semicolon for empty statement so we can declare variables in case block */
 			LogicalPlan *lp_column_list;
 
-			GET_LP(lp_column_list, plan, 1, LP_COLUMN_LIST);
+			lp_column_list = lp_get_update_column_list(plan);
 			sub_query_check_and_generate_physical_plan(&plan_options, lp_column_list, NULL);
 			break;
 		default:

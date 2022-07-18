@@ -69,32 +69,33 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt, Sq
 		case COLUMN_REFERENCE:
 			assert(NULL != root_stmt);
 			switch (root_stmt->type) {
-			case insert_STATEMENT:;
+			case insert_STATEMENT:
+			case update_STATEMENT:;
 				SqlInsertStatement *insert;
+				SqlUpdateStatement *update;
+				SqlJoin *	    join;
 				SqlTableAlias *	    table_alias;
-				SqlTable *	    table;
-				SqlColumn *	    tbl_col;
-				SqlColumnListAlias *cla;
-				SqlColumnList *	    cl;
 
-				/* A COLUMN_REFERENCE implies we are currently inside a CHECK constraint.
-				 * Replace the column reference with a LP_INSERT_INTO_COL in the logical plan.
-				 * This is needed to know later in "tmpl_insert_into.ctemplate" that this is a
-				 * column reference inside a CHECK constraint for an INSERT INTO command and so
-				 * will help emit appropriate M code to reference this column value.
-				 */
-				UNPACK_SQL_STATEMENT(insert, root_stmt, insert);
-				UNPACK_SQL_STATEMENT(table_alias, insert->dst_table_alias_stmt, table_alias);
-				UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
-				tbl_col = find_column(value->v.string_literal, table);
-				assert(NULL != tbl_col);
-				cla = get_column_list_alias_n_from_table_alias(table_alias, tbl_col->column_number);
-				UNPACK_SQL_STATEMENT(cl, cla->column_list, column_list);
-				MALLOC_LP_2ARGS(ret, LP_INSERT_INTO_COL);
-				UNPACK_SQL_STATEMENT(ret->v.lp_insert_into_col.column_alias, cl->value, column_alias);
+				if (insert_STATEMENT == root_stmt->type) {
+					UNPACK_SQL_STATEMENT(insert, root_stmt, insert);
+					UNPACK_SQL_STATEMENT(table_alias, insert->dst_table_alias_stmt, table_alias);
+				} else {
+					UNPACK_SQL_STATEMENT(update, root_stmt, update);
+					UNPACK_SQL_STATEMENT(join, update->src_join, join);
+					UNPACK_SQL_STATEMENT(table_alias, join->value, table_alias);
+				}
+
+				SqlColumnAlias *column_alias;
+				column_alias = get_column_alias_from_column_name(value->v.string_literal, table_alias);
+				if (insert_STATEMENT == root_stmt->type) {
+					MALLOC_LP_2ARGS(ret, LP_INSERT_INTO_COL);
+					ret->v.lp_insert_into_col.column_alias = column_alias;
+				} else {
+					MALLOC_LP_2ARGS(ret, LP_UPDATE_COL);
+					ret->v.lp_update_col.column_alias = column_alias;
+				}
 				break;
 			case delete_from_STATEMENT:
-			case update_STATEMENT:
 			default:
 				assert(table_alias_STATEMENT == root_stmt->type);
 				assert(FALSE); /* We should only pass column_alias_STATEMENT to this function in
@@ -111,16 +112,6 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt, Sq
 			case INTEGER_LITERAL:
 			case NUMERIC_LITERAL:
 			case STRING_LITERAL:
-				if ((NULL != root_stmt) && (insert_STATEMENT == root_stmt->type)) {
-					/* This means we are inside a CHECK constraint. All literals inside the constraint
-					 * need to have their parameter index reset to 0 so "tmpl_print_expression.ctemplate"
-					 * can generate appropriate M code for constraints (see comment there for more details).
-					 * Note though that it is possible for the parameter index to be already reset if
-					 * this constraint has already been used in a prior INSERT INTO query for the same process.
-					 * Therefore we cannot assert that "value->parameter_index" is non-zero at this point.
-					 */
-					value->parameter_index = 0;
-				}
 				break;
 			default:
 				break;

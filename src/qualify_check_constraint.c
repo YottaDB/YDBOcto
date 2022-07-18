@@ -120,6 +120,16 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 		case STRING_LITERAL:
 		case NUL_VALUE:
 			*type = value->type;
+			/* This is a literal inside a CHECK constraint. All literals inside the constraint
+			 * need to have their parameter index reset to 0 so "tmpl_print_expression.ctemplate"
+			 * can generate appropriate M code for constraints (see comment there for more details).
+			 * Note though that it is possible for the parameter index to be already reset if
+			 * this constraint had already been processed (due to moving table-level constraints to
+			 * the end of the linked list, it is possible for "table_definition()" to call
+			 * "qualify_check_constraint()" on the same constraint more than once. Therefore we
+			 * cannot assert that "value->parameter_index" is non-zero at this point.
+			 */
+			value->parameter_index = 0;
 			break;
 		case FUNCTION_NAME:
 			/* No need to do any qualification or type checking in this case */

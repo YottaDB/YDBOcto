@@ -108,6 +108,43 @@
 		}                                                                           \
 	}
 
+/* Macro to set a lvn to track which column numbers have had their "PP_COL(i)" fields initialized in generated M code.
+ * Sets the "lvName(colNum)" lvn to "" based on input parameters "lvName" and "colNum".
+ * Currently used by UPDATE command template M code generation logic.
+ */
+#define SET_TBL_CONSTRAINT_LVN(lvName, colNum)                                                          \
+	{                                                                                               \
+		ydb_buffer_t sub;                                                                       \
+		char	     numbuf[INT32_TO_STRING_MAX + 1];                                           \
+                                                                                                        \
+		sub.buf_addr = numbuf;                                                                  \
+		sub.len_alloc = sizeof(numbuf);                                                         \
+		sub.len_used = snprintf(sub.buf_addr, sub.len_alloc, "%d", colNum);                     \
+                                                                                                        \
+		int status;                                                                             \
+		status = ydb_set_s(lvName, 1, &sub, NULL);                                              \
+		assert(YDB_OK == status);                                                               \
+		UNUSED(status); /* needed to avoid [-Wunused-but-set-variable] warning from compiler */ \
+	}
+
+/* Given a "lvName" and "colNum", this macro sets "isLvnSet" to a non-zero value if "lvName(colNum)" is a defined lvn
+ * (by a prior call to SET_TBL_CONSTRAINT_LVN) and 0 otherwise. Currently used by UPDATE command template M code generation logic.
+ */
+#define IS_TBL_CONSTRAINT_LVN_SET(lvName, colNum, isLvnSet)                                             \
+	{                                                                                               \
+		ydb_buffer_t sub;                                                                       \
+		char	     numbuf[INT32_TO_STRING_MAX + 1];                                           \
+                                                                                                        \
+		sub.buf_addr = numbuf;                                                                  \
+		sub.len_alloc = sizeof(numbuf);                                                         \
+		sub.len_used = snprintf(sub.buf_addr, sub.len_alloc, "%d", colNum);                     \
+                                                                                                        \
+		int status;                                                                             \
+		status = ydb_data_s(lvName, 1, &sub, &isLvnSet);                                        \
+		assert(YDB_OK == status);                                                               \
+		UNUSED(status); /* needed to avoid [-Wunused-but-set-variable] warning from compiler */ \
+	}
+
 enum EmitSourceForm {
 	EmitSourceForm_Value,
 	EmitSourceForm_Trigger,
@@ -172,5 +209,7 @@ TEMPLATE(tmpl_where_or_having_or_on, LogicalPlan *plan, PhysicalPlan *pplan, int
 TEMPLATE(tmpl_xref_key_columns, int num_key_cols);
 TEMPLATE(tmpl_print_group_by_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t in_where_clause,
 	 int unique_id, int dot_count, boolean_t *done);
+TEMPLATE(tmpl_check_constraint, PhysicalPlan *pplan, LogicalPlan *lp_constraint, SqlTable *table, int dot_count);
+TEMPLATE(tmpl_update_column_reference, PhysicalPlan *pplan, SqlColumn *cur_column, int dot_count);
 
 #endif

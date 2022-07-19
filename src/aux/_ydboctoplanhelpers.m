@@ -1028,3 +1028,134 @@ RowIsNotNull(mval,numCols)
 	. SET:$ZYISSQLNULL(str) isNotNull=0
 	QUIT isNotNull
 
+TableAsteriskCompare(firstOperand,secondOperand,operator,numColumns,colTypeList)
+	; Input
+	;   "firstOperand" and "secondOperand" is table.* values in the form col1val_col2val_.._colnval or
+	;      $ZYSQLNULL in case of a composite NULL row.
+	;   "numColumns" represents the number of columns present in table.
+	;   "colTypeList" is a list of comma separated values representing column types.
+	;      `'t'` represents a NUL_VALUE type or STRING_LITERAL type column. `'f'` represents
+	;      all other types of columns. This is required to be able to apply $$ForceNumeric if the type is non-string.
+	;   "operator" is a value representing any of the following characters `<`, `>`, `<=`, `>=`, `'=` and `=`.
+	;      It is converted appropriately to an m operator by considering the operand type.
+	; Returns
+	;   1 or 0 based on comparison result
+	;   $ZYSQLNULL if any of the operands have a $ZYSQLNULL value
+	; Implementation Details
+	;   This function performs the comparison as noted below:
+	;   1. `=` : Returns on first FALSE comparison. If none exist the return value is TRUE.
+	;   2. `'=`: Returns on first TRUE comparison. If none exist the return value is FALSE.
+	;   3. `<` : If both operands are equal result is FALSE, continue to the next operand comparison. If first
+	;            operand `<` second then exit with the result TRUE. If first operand `>` second then exit with the result FALSE.
+	;   4. `<=`: Same as `<` but if both operands are equal result is TRUE.
+	;   5. `>` : If both operands are equal result is FALSE, continue to the next operand comparison. If first
+	;            operand `>` second then exit with the result TRUE. If first operand `<` second then exit with the result FALSE.
+	;   6. `>=`: Same as `>` but if both operands are equal result is TRUE.
+	; Note
+	;   - Operator is in the form `<`,`>`,`<=`,`>=`,`'=` and `=`. Its converted appropriately to an m operator
+	;       based on the operand type. For example `<` is `]` for a string operation where as for a numeric
+	;       operation it is `<` itself.
+	;   - In case of string operation the following operators `<`, `>`, `<=` and `>=` are handled by ] and ']. The operands
+	;       are swapped in case of `<` and `>=` in order to achieve the correct operation. Look at `LP_BOOLEAN_LESS_THAN` case
+	;       in `tmpl_print_expressions` for more details.
+	;   - Since all `table.*` operands are treated as strings the operands are swapped in case of `<` and `>=` operations
+	;       irrespective of whether the column type is a string or not. This function handles non-string type comparison by
+	;       swapping the operands back before performing a comparison.
+	;   - Additionally, for all types, a comparison involving $ZYSQLNULL values should be compared without changing the
+	;       operand position as this results in incorrect output. Hence we swap the operands before performing a ZYSQLNULL
+	;       comparison.
+	;   - If either one of the operand is a $ZYSQLNULL then that operand is a composite NULL, return without any additional
+	;       processing. $ZYSQLNULL result is expected in this case.
+	QUIT:(($ZYISSQLNULL(firstOperand))!($ZYISSQLNULL(secondOperand))) $ZYSQLNULL
+	NEW result,curResult,limitingCompareReached,limitingCompareResult
+	SET (curResult,result)=1
+	SET limitingCompareReached=0 ; Used to quit out of the FOR loop below if comparison result is found mid-way
+	FOR i=1:1:numColumns DO  QUIT:(1=limitingCompareReached)
+	. NEW firstCol,secondCol,firstColVal,secondColVal,type,isEquals
+	. ; Get the mval piece which corresponds to the column number i
+	. SET firstCol=$$mvalPiece(firstOperand,i)
+	. SET secondCol=$$mvalPiece(secondOperand,i)
+	. SET isEquals=0
+	. ; Get the value of the mval piece i.e. value of the column
+	. SET firstColVal=$$mval2str(firstCol)
+	. SET secondColVal=$$mval2str(secondCol)
+	. ; get i'th colTypeList value
+	. SET type=$PIECE(colTypeList,",",i)
+	. ; Apply ForceNumeric if the operands are non-string or `NULL`
+	. if ("f"=type)  do
+	. . ; Get the numeric value of the columns
+	. . SET firstColVal=$$ForceNumeric(firstColVal)
+	. . SET secondColVal=$$ForceNumeric(secondColVal)
+	. ; Save original operand values
+	. NEW tmpFirstColVal,tmpSecondColVal
+	. SET tmpFirstColVal=firstColVal
+	. SET tmpSecondColVal=secondColVal
+	. IF ((("<"=operator)!(">="=operator))) DO
+	. . ; The below swap is done because table.* are treated as strings by tmpl_print_expression and this results in the
+	. . ; operands being swapped at the comparison cases in tmpl_print_expression and this swap results in incorrect comparison
+	. . ; when $ZYSQLNULL and numeric data is involved. Because of that we perform a swap below. In case it turns out to be a
+	. . ; pure string comparison we swap back at the string comparison code below so that the reasoning behind
+	. . ; tmpl_print_expression swap still applies for this operation.
+	. . NEW tmpColVal
+	. . SET tmpColVal=firstColVal
+	. . SET firstColVal=secondColVal
+	. . SET secondColVal=tmpColVal
+	. IF (($ZYISSQLNULL(firstColVal))&($ZYISSQLNULL(secondColVal))) DO
+	. . ; Two NULL values are considered equal
+	. . SET curResult=$SELECT(">"=operator:0,"'="=operator:0,"<="=operator:1,">="=operator:1,"<"=operator:0,"="=operator:1,1:1)
+	. . ; Unconditionally set `isEquals` as it is needed only for `<`,`<=`,`>` and `>=` than operation and code at the end
+	. . ; selectively ignores its value for `=` and `!=` operation.
+	. . SET isEquals=1
+	. ELSE  IF ($ZYISSQLNULL(firstColVal)) DO
+	. . ; NULL is considered > non-NULL
+	. . SET curResult=$SELECT(">"=operator:1,"'="=operator:1,"<="=operator:0,">="=operator:1,"<"=operator:0,"="=operator:0,1:1)
+	. ELSE  IF $ZYISSQLNULL(secondColVal) DO
+	. . ; NULL is considered > non-NULL
+	. . SET curResult=$SELECT(">"=operator:0,"'="=operator:1,"<="=operator:1,">="=operator:0,"<"=operator:1,"="=operator:0,1:1)
+	. ELSE  IF ((("<"=operator)!(">"=operator)!(">="=operator)!("<="=operator))&(firstColVal=secondColVal))  DO
+	. . ; Both operand values are equal
+	. . ; Set `curResult` to `0` in case of `<` and `>` operation and allow the loop to compare other column values by setting
+	. . ;   `isEquals` to 1.
+	. . SET:(("<"=operator)!(">"=operator)) curResult=0,isEquals=1
+	. . ; Set `curResult` to `1` in case of `>=` and `<=` operation and allow the loop to compare other column values by
+	. . ;   setting `isEquals` to 1.
+	. . SET:(("<="=operator)!(">="=operator)) curResult=1,isEquals=1
+	. ELSE  DO
+	. . ; Non-NULL operands and they are not equal. Compare based on column types.
+	. . IF "t"=type DO
+	. . . ; STRING_LITERAL or NUL_VALUE TYPE
+	. . . ; There is a swap that is done before this IF block chain to handle $ZYSQLNULL case
+	. . . ;   re-swap it so that we operate on the original passed operands.
+	. . . IF (("<"=operator)!(">="=operator)) DO
+	. . . . ; Re-swap only in these two operation cases as these are the only ones which require the reverse positioning of
+	. . . . ;   operands.
+	. . . . SET firstColVal=tmpFirstColVal
+	. . . . SET secondColVal=tmpSecondColVal
+	. . . IF (">"=operator) SET curResult=(firstColVal]secondColVal)
+	. . . ELSE  IF ("'="=operator) SET curResult=(firstColVal'=secondColVal)
+	. . . ELSE  IF ("<="=operator) SET curResult=(firstColVal']secondColVal)
+	. . . ELSE  IF (">="=operator) SET curResult=(firstColVal']secondColVal)
+	. . . ELSE  IF ("<"=operator) SET curResult=(firstColVal]secondColVal)
+	. . . ELSE  SET curResult=(firstColVal=secondColVal) ; "="=operator
+	. . ELSE  DO
+	. . . ; 'f'= type. Choose operators accordingly.
+	. . . IF (">"=operator) SET curResult=(firstColVal>secondColVal)
+	. . . ELSE  IF ("'="=operator) SET curResult=(firstColVal'=secondColVal)
+	. . . ELSE  IF ("<="=operator) SET curResult=(firstColVal<=secondColVal)
+	. . . ELSE  IF (">="=operator) SET curResult=(firstColVal>=secondColVal)
+	. . . ELSE  IF ("<"=operator) SET curResult=(firstColVal<secondColVal)
+	. . . ELSE  SET curResult=(firstColVal=secondColVal) ; "="=operator
+	. IF (("="=operator)&(0=curResult)) DO
+	. . set limitingCompareReached=1
+	. . QUIT
+	. ELSE  IF (("'="=operator)&(1=curResult)) DO
+	. . set limitingCompareReached=1
+	. . QUIT
+	. ELSE  IF (("<"=operator)!(">"=operator)!("<="=operator)!(">="=operator)) DO
+	. . QUIT:(1=isEquals)  ; Both values are equal, QUIT right here so that next column values get compared
+	. . ; We only reach the following code if the operands are not equal
+	. . ;  so exit the loop as we found our comparison result.
+	. . set limitingCompareReached=1
+	. . QUIT
+	set result=curResult
+	QUIT result

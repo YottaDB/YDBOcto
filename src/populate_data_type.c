@@ -483,6 +483,9 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 				}
 				yyerror(NULL, NULL, &aggregate_function->parameter, NULL, NULL, NULL);
 				result = 1;
+			} else if ((AGGREGATE_AVG == aggregate_function->type)
+				   || (AGGREGATE_AVG_DISTINCT == aggregate_function->type)) {
+				*type = NUMERIC_LITERAL;
 			}
 			break;
 		case AGGREGATE_MIN:

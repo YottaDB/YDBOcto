@@ -832,8 +832,8 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				 *
 				 * a) IS NULL on a record/row returns TRUE only if ALL fields/columns of the record/row are NULL.
 				 *    And returns FALSE otherwise.
-				 * b) IS NOT NULL on a record/row returns TRUE only when ALL fields/columns of the record/row are NOT NULL.
-				 *    And returns FALSE otherwise.
+				 * b) IS NOT NULL on a record/row returns TRUE only when ALL fields/columns of the record/row are
+				 *    NOT NULL. And returns FALSE otherwise.
 				 */
 				SqlColumnAlias	*column_alias;
 
@@ -990,7 +990,9 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				 */
 				cur_plan = cur_plan->v.lp_default.operand[1];
 			} else {
-				/* Operand is not NULL. Therefore its type is determined for sure. No need to check any more operands. */
+				/* Operand is not NULL. Therefore its type is determined for sure. No need to check any more
+				 * operands.
+				 */
 				break;
 			}
 		} while (NULL != cur_plan);
@@ -1095,15 +1097,15 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		int	numargs;	/* Number of arguments in the function call */
 
 		/* As noted in lp_generate_where.c, the first_operand here is the SQL function name and the second is the function
-		 * hash used to determine which function interface should be used for the call, neither of which is not needed during
-		 * physical planning. Hence, we skip both of these nodes in the tree and use the node after second_operand,
+		 * hash used to determine which function interface should be used for the call, neither of which is not needed
+		 * during physical planning. Hence, we skip both of these nodes in the tree and use the node after second_operand,
 		 * which is the node containing the relevant extrinsic function call.
 		 */
 		assert(NULL != second_operand->v.lp_default.operand[1]);
 		second_operand = second_operand->v.lp_default.operand[1];
 		/* The SqlFunctionCall argument list begins after the return type, which occurs after the extrinsic function node.
-		 * Accordingly, initialize cur_plan for iteration starting from the return type node instead of the parent extrinsic
-		 * function node, using t_operand to store this for convenience.
+		 * Accordingly, initialize cur_plan for iteration starting from the return type node instead of the parent
+		 * extrinsic function node, using t_operand to store this for convenience.
 		 */
 		t_operand = second_operand->v.lp_default.operand[1];
 		cur_plan = t_operand;
@@ -1386,51 +1388,177 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 	}
 	if (m_operator) {
-		if (dot_count) {
-			/* Evaluate left hand side of binary/boolean operator */
-			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
-			TMPL(tmpl_print_dots, dot_count);
-			/* Move result into temporary variable (using recursion "depth" to avoid interference from M code generated
-			 * by next "tmpl_print_expression" call which evaluates right side of binary/boolean operator.
-			 */
-			%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }})={}%
-			if (coerce_to_numeric) {
-				%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
+		boolean_t done = FALSE;
+		if (IS_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(first_operand)
+		    && IS_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(second_operand)) {
+			// Get the column alias
+			SqlColumnAlias *first_operand_ca,*second_operand_ca;
+			GET_COLUMN_ALIAS_FROM_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(first_operand, first_operand_ca);
+			GET_COLUMN_ALIAS_FROM_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(second_operand, second_operand_ca);
+
+			// Check if the operands are `table.*` values
+			if (is_stmt_table_asterisk(first_operand_ca->column)
+			    && is_stmt_table_asterisk(second_operand_ca->column)) {
+				// Only in case of comparison operation generate the following code
+				switch(plan_type) {
+				case LP_BOOLEAN_EQUALS:
+				case LP_BOOLEAN_NOT_EQUALS:
+				case LP_BOOLEAN_LESS_THAN:
+				case LP_BOOLEAN_GREATER_THAN:
+				case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
+				case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:;
+					/* Generate `table.*` comparison M code which compares the two `table.*` values by
+					 * column-wise comparison. Get the underlying table_alias to get the column_list but first
+					 * check if its a set_operation column. If it is then get col_type_list from set_oper_stmt
+					 * for the type (#849). Note, we only bother about the first table columns type. This is
+					 * because binary_operation_data_type_check() issues error and stops further execution for
+					 * comparison between dissimilar type operands, as a result we do not expect any missmatch
+					 * between first and second operand at this point. Also, NULL and non-NULL comparison is
+					 * handled internally by `TableAsteriskCompare`, so even if first operand has NUL_VALUE
+					 * type column and second operand has non-NUL_VALUE type column no additional handling
+					 * is required here.
+					 */
+					SqlColumnListAlias *first_cla;
+					if (NULL != first_operand_ca->set_oper_stmt) {
+						SqlSetOperation *first_set_oper;
+						UNPACK_SQL_STATEMENT(first_set_oper, first_operand_ca->set_oper_stmt,
+								     set_operation);
+						first_cla = first_set_oper->col_type_list;
+					} else {
+						SqlTableAlias *first_table_alias;//, *second_table_alias;
+						UNPACK_SQL_STATEMENT(first_table_alias, first_operand_ca->table_alias_stmt,
+								     table_alias);
+						UNPACK_SQL_STATEMENT(first_cla, first_table_alias->column_list, column_list_alias);
+					}
+					// Beginning code
+					if (dot_count) {
+						// set YDB_OCTO_EXPR
+						TMPL(tmpl_print_dots, dot_count);
+						%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+					} else {
+						// This is an ORDER BY usage nothing to do here
+					}
+					/* Pass operation type using `<` or `>` and let `TableAsteriskCompare` decide whether to
+					 * use string operation or numeric operation. We do this because a table can have different
+					 * types of columns and current `m_operator` value considers the operand as only strings.
+					 * This will not help when looking into individual column values. Note in case of a
+					 * string operation, `<` or `>` both correspond to ] but the operands are switched earlier
+					 * in this file because of that using `]` in both cases leads to a correct result.
+					 */
+					char *op;
+					if (LP_BOOLEAN_EQUALS == plan_type) {
+						op = "=";
+					} else if (LP_BOOLEAN_NOT_EQUALS == plan_type) {
+						op = "'=";
+					} else if (LP_BOOLEAN_LESS_THAN == plan_type) {
+						op = "<";
+					} else if (LP_BOOLEAN_GREATER_THAN == plan_type) {
+						op = ">";
+					} else if (LP_BOOLEAN_LESS_THAN_OR_EQUALS == plan_type) {
+						op = "<=";
+					} else {
+						assert(LP_BOOLEAN_GREATER_THAN_OR_EQUALS == plan_type);
+						op = ">=";
+					}
+					%{}$$TableAsteriskCompare^%%ydboctoplanhelpers({}%
+					TMPL(tmpl_print_expression, first_operand, pplan, 0, depth);
+					%{},{}%
+					TMPL(tmpl_print_expression, second_operand, pplan, 0, depth);
+					%{},"{{ op }}",{}%
+
+					SqlTableAlias *first_table_alias;
+					UNPACK_SQL_STATEMENT(first_table_alias, first_operand_ca->table_alias_stmt, table_alias);
+					int num_cols = get_num_cols_in_table_alias(first_table_alias);
+					%{}{{ num_cols |%d }},"{}%
+
+					SqlColumnListAlias *cur_first_cla;
+					cur_first_cla = first_cla;
+					do {
+						// Get type of the column
+						SqlValueType first_type;
+						first_type = cur_first_cla->type;
+						if (STRING_LITERAL == first_type) {
+							%{}t{}%
+						} else if (NUL_VALUE == first_type) {
+							/* `TableAsteriskCompare` takes care of $ZYSQLNULL case
+							 * so no need to worry about it here. Treat it as a
+							 * STRING_LITERAL.
+							 */
+							%{}t{}%
+						} else {
+							%{}f{}%
+						}
+						if (cur_first_cla->next != first_cla) {
+							%{},{}%
+						} else {
+							%{}"{}%
+						}
+						cur_first_cla = cur_first_cla->next;
+					} while (cur_first_cla != first_cla);
+					%{}){}%
+					// Ending code
+					if (dot_count) {
+						%{}`n{{ PLAN_LINE_START }}{}%
+					} else {
+						// This is an ORDER BY usage nothing to do here
+					}
+					done = TRUE;
+					break;
+				default:
+					// Nothing to do here
+					done = FALSE;
+					break;
+				}
 			}
-			%{}{{ PP_YDB_OCTO_EXPR }}{}%
-			if (coerce_to_numeric) {
-				%{}){}%
-			}
-			/* Evaluate right hand side of boolean AND or OR */
-			%{}`n{{ PLAN_LINE_START }}{}%
-			TMPL(tmpl_print_expression, second_operand, pplan, dot_count, depth);
-			if (coerce_to_numeric) {
+		}
+		if (!done) {
+			if (dot_count) {
+				/* Evaluate left hand side of binary/boolean operator */
+				TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
 				TMPL(tmpl_print_dots, dot_count);
-				%{}SET {{ PP_YDB_OCTO_EXPR }}=$$ForceNumeric^%%ydboctoplanhelpers({{ PP_YDB_OCTO_EXPR }}){}%
+				/* Move result into temporary variable (using recursion "depth" to avoid interference from M code
+				 * generated by next "tmpl_print_expression" call which evaluates right side of binary/boolean
+				 * operator.
+				 */
+				%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }})={}%
+				if (coerce_to_numeric) {
+					%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
+				}
+				%{}{{ PP_YDB_OCTO_EXPR }}{}%
+				if (coerce_to_numeric) {
+					%{}){}%
+				}
+				/* Evaluate right hand side of boolean AND or OR */
 				%{}`n{{ PLAN_LINE_START }}{}%
-			}
-			/* Evaluate result of binary/boolean operator */
-			TMPL(tmpl_print_dots, dot_count);
-			%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_EXPR }}({{ depth|%d }}){{ m_operator }}{{ PP_YDB_OCTO_EXPR }}{}%
-			%{}`n{{ PLAN_LINE_START }}{}%
-		} else {
-			%{}({}%
-			if (coerce_to_numeric) {
-				%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
-			}
-			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
-			if (coerce_to_numeric) {
+				TMPL(tmpl_print_expression, second_operand, pplan, dot_count, depth);
+				if (coerce_to_numeric) {
+					TMPL(tmpl_print_dots, dot_count);
+					%{}SET {{ PP_YDB_OCTO_EXPR }}=$$ForceNumeric^%%ydboctoplanhelpers({{ PP_YDB_OCTO_EXPR }}){}%
+					%{}`n{{ PLAN_LINE_START }}{}%
+				}
+				/* Evaluate result of binary/boolean operator */
+				TMPL(tmpl_print_dots, dot_count);
+				%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_EXPR }}({{ depth|%d }}){{ m_operator }}{{ PP_YDB_OCTO_EXPR }}{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+			} else {
+				%{}({}%
+				if (coerce_to_numeric) {
+					%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
+				}
+				TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+				if (coerce_to_numeric) {
+					%{}){}%
+				}
+				%{}{{ m_operator }}{}%
+				if (coerce_to_numeric) {
+					%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
+				}
+				TMPL(tmpl_print_expression, second_operand, pplan, dot_count, depth);
+				if (coerce_to_numeric) {
+					%{}){}%
+				}
 				%{}){}%
 			}
-			%{}{{ m_operator }}{}%
-			if (coerce_to_numeric) {
-				%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
-			}
-			TMPL(tmpl_print_expression, second_operand, pplan, dot_count, depth);
-			if (coerce_to_numeric) {
-				%{}){}%
-			}
-			%{}){}%
 		}
 	}
 	return;

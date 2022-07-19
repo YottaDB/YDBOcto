@@ -65,10 +65,6 @@ select n1.* is not true from (VALUES(TRUE)) n1;
 select n1.* is not false from (VALUES(TRUE)) n1;
 select n1.* is not false from (VALUES(NULL)) n1;
 
--- Result of the following two queries are not as expected. They are related to #851 and needs to be moved to TTA012.sql after its implementation. There output are exected to match Postgres output.
-select n1.* >= n2.* from (VALUES(1,'test1',1) ,(2,'test2',2) ,(1,'test3',3)) n1 JOIN (select 1,'test1',1 union select 2, NULL,2 union select 3,'test3',3) n2 on (1=1);
-select n1.* > n2.* from (VALUES(1,'test1',1) ,(2,'test2',2) ,(1,'test3',3)) n1 JOIN (select 1,'test1',1 union select 2, NULL,2 union select 3,'test3',3) n2 on (1=1);
-
 -- Mismatch among column type
 select n1.* = n2.* from (VALUES(1,'test1',1.0) ,(2,'test2',2.0) ,(1,'test3',3.0)) n1 JOIN (select 1,'test1',1 union select 2, NULL,2 union select 3,'test3',3) n2 on (1=1);
 select n1.* != n2.* from (VALUES(1,'test1',1) ,(2,'test2',2) ,(1,'test3',3)) n1 JOIN (select 1,'test1',1.0 union select 2, NULL,2.0 union select 3,'test3',3.0) n2 on (1=1);

@@ -195,6 +195,12 @@ int validate_table_asterisk_binary_operation(SqlBinaryOperation *binary, SqlValu
 	case BOOLEAN_ALL_GREATER_THAN:
 	case BOOLEAN_ALL_LESS_THAN_OR_EQUALS:
 	case BOOLEAN_ALL_GREATER_THAN_OR_EQUALS:
+		/* Queries like the following can reach this code. Issue error in such cases.
+		 * `select n1.column1 from (VALUES('testa')) n1 where n1.* < ANY (select NULL);`
+		 */
+		CHECK_AND_ISSUE_TABLE_ASTERISK_NULL_SUBQUERY_INCOMPATIBILITY_ERROR(first_operand, second_operand, result);
+		assert(result);
+		break;
 	case ADDITION:
 	case SUBTRACTION:
 	case DIVISION:

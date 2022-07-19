@@ -2036,6 +2036,9 @@ The value expression can contain an unsigned value, a column reference, a set fu
 * Apart from COUNT other set functions can have :code:`table_name.*` only when the table has a single column and if its type is compatible with the function.
 * When :code:`COUNT( [set_quantifier] table_name.* )` is used as a column in SELECT, other columns have to either be present in GROUP BY or should be part of a :code:`set_function` otherwise error is raised for the column not following this condition
 * When :code:`table_name.*` is used with COUNT, all columns of the table are considered for processing. In case a row exists where all columns have artificial NULL values, :code:`COUNT(tablename.*)` or :code:`COUNT(DISTINCT tablename.*)` will not include the row in its result. We can end up with such a row when an outer join is used and there is no match for the right table, in this case the rows of the right table in the join will have only artificial NULL values.
+* Comparison between two dissimilar `table_name.*` values are not allowed
+* Comparison operations such as `<`, `>`, `>=`, `<=`, `=` and `!=` between two `table_name.*` are carried out column-wise with the condition that NULL values are equal to NULL values and NULL values are greater than non-NULL values. Result of this type of operation is always a boolean value. In case of an outer join resulting in an entire row being NULL for one or both of the `table_name.*` operands then the comparison operation described previously will result in a NULL result. Such NULL values are sorted last by ORDER BY.
+* Comparison between a `table_name.*` and a NULL literal results in a NULL value. Comparison of `table_name.*` with any other literal type is invalid and an error is issued.
 
 general_set_function refers to functions on sets like AVG, SUM, MIN, MAX etc. A set function can also contain the keyword COUNT, to count the number of resulting columns or rows that result from the query.
 

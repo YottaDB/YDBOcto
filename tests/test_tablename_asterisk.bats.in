@@ -123,3 +123,14 @@ teardown() {
 	load_fixture TTA013_errors.sql subtest novv
 	verify_output TTA013_errors output.txt
 }
+
+@test "TTA014 : OCTO851 : Validate column wise comparison on table.* operands" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TTA014.sql "trim_trailing_zeroes"
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TTA014_customers.sql "trim_trailing_zeroes"
+	load_fixture TTA014_errors.sql subtest novv
+	verify_output TTA014_errors output.txt
+}

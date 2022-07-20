@@ -1180,8 +1180,9 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			 * If READONLY incompatible column-level keyword has been specified, assume READWRITE.
 			 * If not, assume value based on octo.conf "tabletype" setting.
 			 */
-			table->readwrite
-			    = (readwrite_disallowed ? FALSE : readonly_disallowed ? TRUE : (TABLETYPE_READWRITE == table_type));
+			table->readwrite = (readwrite_disallowed  ? FALSE
+					    : readonly_disallowed ? TRUE
+								  : (TABLETYPE_READWRITE == table_type));
 		}
 	} else {
 		table->readwrite = (TABLETYPE_READWRITE == table_type);

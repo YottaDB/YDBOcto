@@ -29,12 +29,12 @@ Please also set up the pre-commit script to automatically enforce some coding co
 
    ln -s ../../pre-commit .git/hooks
 
-Note that this script will require :code:`tcsh` and :code:`clang-format-9` or a later release.
+Note that this script will require :code:`tcsh` and :code:`clang-format-11` or a later release.
 
 .. code-block:: bash
 
    # Ubuntu 20.04
-   sudo apt install --no-install-recommends clang-format-9
+   sudo apt install --no-install-recommends clang-format-11
    # Any Debian-like distro; see also https://apt.llvm.org/
    bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
    # CentOS 8

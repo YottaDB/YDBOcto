@@ -103,8 +103,8 @@ end
 # ---------------------------------------------------------------------------
 # 3) Runs clang-format on all files and make sure there were no differences.
 # ---------------------------------------------------------------------------
-# We require at least clang-format-9 (for `AlignConsecutiveMacros`)
-set CLANG_FORMAT="`tools/ci/find-llvm-tool.sh clang-format 9`"
+# We require at least clang-format-11
+set CLANG_FORMAT="`tools/ci/find-llvm-tool.sh clang-format 11`"
 if ($status) then
 	echo "warning: missing a recent version of clang-format, not running format checks"
 	echo "note: this could happen either if clang-format is not installed or if it's not a recent enough version"

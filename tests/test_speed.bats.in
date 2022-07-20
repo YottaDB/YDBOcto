@@ -187,3 +187,7 @@ setup_file() {
 @test "TSPEED009-3 : VistA Dispersed .5 million records where clause" {
   load_fixture TSPEED009.sql subtest novv
 }
+
+@test "TSPEED010 : Test speed with RegEx Pattern Matching" {
+  load_fixture TSPEED010.sql subtest novv
+}

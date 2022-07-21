@@ -208,3 +208,9 @@ OCTO
   load_fixture TOB17_errors.sql subtest
   verify_output TOB17_errors output.txt noinfo nodebug
 }
+
+@test "TOB18 : OCTO868 : Validate that ORDER BY ambiguity error is thrown considering non-user specified select list column alias as well" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOB18.sql
+	load_fixture TOB18_errors.sql subtest
+	verify_output TOB18_errors output.txt noinfo nodebug
+}

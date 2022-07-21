@@ -85,22 +85,23 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 	group_by_alias_cla = NULL;
 	group_by_alias_ambiguous = FALSE;
 	/* Check if ret_cla is non-NULL. If so, this means we are matching a column reference in the ORDER BY or GROUP BY clause.
-	 * In this case, we should first check if any alias name specified explicitly by the user in the SELECT column list
-	 * matches the column name. If so match that. If not, we then later try to match this column name against an input
-	 * column name in the JOIN list of tables. Also check if the column reference in the ORDER BY or GROUP BY clause has a table
-	 * name specified. If it does, then we cannot match it against the SELECT column list so skip this "if" block.
+	 * In this case, we should first check if any alias name specified explicitly by the user in the SELECT column list, or a
+	 * column reference name in the SELECT column list matches the column name. If so match that. If not, we then later try to
+	 * match this column name against an input column name in the JOIN list of tables. Also check if the column reference in the
+	 * ORDER BY or GROUP BY clause has a table name specified. If it does, then we cannot match it against the SELECT column
+	 * list so skip this "if" block.
 	 */
 	if ((NULL != ret_cla) && (NULL == table_name)) {
 		SqlTableAlias *table_alias;
+		SqlColumnList *column_list;
 
 		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		UNPACK_SQL_STATEMENT(start_cla, table_alias->column_list, column_list_alias);
 		cur_cla = start_cla;
 		do {
-			if ((NULL != cur_cla->alias) && cur_cla->user_specified_alias) {
-				DEBUG_ONLY(SqlColumnList * column_list);
-
-				DEBUG_ONLY(UNPACK_SQL_STATEMENT(column_list, cur_cla->column_list, column_list));
+			UNPACK_SQL_STATEMENT(column_list, cur_cla->column_list, column_list);
+			if ((NULL != cur_cla->alias)
+			    && (cur_cla->user_specified_alias || (column_alias_STATEMENT == column_list->value->type))) {
 				DEBUG_ONLY(assert(column_list == column_list->next));
 				DEBUG_ONLY(assert(column_list == column_list->prev));
 				UNPACK_SQL_STATEMENT(value, cur_cla->alias, value);
@@ -111,8 +112,9 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 						 * below `if` check.
 						 * In case of GROUP BY column alias usage:
 						 * 1) If an input column exists with the same name as select column alias, choose
-						 * the former. 2) If an input column doesn't exist and there is ambiguity between
-						 * select column aliases, issue error. Refer to
+						 *    the former.
+						 * 2) If an input column doesn't exist and there is ambiguity between select column
+						 *    aliases, issue error. Refer to
 						 * https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1140#note_1003010368 for
 						 * more details.
 						 */

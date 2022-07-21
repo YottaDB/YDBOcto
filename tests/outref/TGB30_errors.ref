@@ -29,6 +29,12 @@ select firstname || 'test' as conct, lastname from names group by conct;
 select max(lastname) as alias, firstname as alias, max(id) as alias from names group by alias;
 select 'test'||firstname as alias, firstname as alias, 'last' || firstname as alias from names group by alias;
 
+-- Test alias name ambiguity in FROM/JOIN column list
+select 1, 2 from names n1, names n2 group by firstname;
+
+-- Test column name ambiguity in SELECT column list
+select 1 as ambiguous, 2 as ambiguous from names group by ambiguous;
+
 -- Misc
 select (select lastname from names group by fn), firstname as fn from names;
 select firstname as fn from names n1 order by exists (select lastname from names n2 group by n1.fn);
@@ -70,6 +76,12 @@ LINE 1: ...firstname as alias, max(id) as alias from names group by alias;
 [ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name 'ALIAS': qualify name for safe execution
 LINE 1: ... alias, 'last' || firstname as alias from names group by alias;
                                                                     ^^^^^
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name 'FIRSTNAME': qualify name for safe execution
+LINE 1: select 1, 2 from names n1, names n2 group by firstname;
+                                                     ^^^^^^^^^
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name 'AMBIGUOUS': qualify name for safe execution
+LINE 1: ...t 1 as ambiguous, 2 as ambiguous from names group by ambiguous;
+                                                                ^^^^^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FN
 LINE 1: ...ct lastname from names group by fn), firstname as fn from names;
                                            ^^

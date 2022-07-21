@@ -192,6 +192,7 @@ LP_SELECT_QUERY:
               LP_COLUMN_ALIAS: A(3).ATTNUM
               LP_COLUMN_LIST_ALIAS: 
               - type: INTEGER_LITERAL
+              - alias: ATTNUM
 
 [DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN AFTER optimize_logical_plan() follows 
 LP_SELECT_QUERY: 
@@ -527,6 +528,7 @@ LP_SELECT_QUERY:
               LP_COLUMN_ALIAS: A(3).ATTNUM
               LP_COLUMN_LIST_ALIAS: 
               - type: INTEGER_LITERAL
+              - alias: ATTNUM
 
 [ INFO] PATH:LINENUM DATE TIME: INFO_GENERATING_XREF: Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_ATTRDEF] and column [ADRELID]
 [ INFO] PATH:LINENUM DATE TIME: INFO_GENERATING_XREF: Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_CATALOG.PG_TYPE] and column [OID]

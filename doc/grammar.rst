@@ -695,6 +695,12 @@ GROUP BY
 
 The GROUP BY clause provides for result rows to be grouped together based on the specified **grouping_column**. **grouping_column** can be :code:`table_name.*` or SELECT list column number or an expression. In case of :code:`table_name.*` all columns of the table are considered for processing.
 
+Integers in GROUP BY can be used to refer to SELECT list columns. The starting column in the SELECT list corresponds to 1.
+
+If a column name in GROUP BY matches both SELECT list column name and input column name (FROM list), the latter is considered for grouping.
+
+Sub-queries are at present not allowed in GROUP BY.
+
 ++++++++++
 HAVING
 ++++++++++
@@ -725,7 +731,7 @@ To sort rows or columns in the database, you need to have one of the following *
 
    sort_key [COLLATE collation_name] [ASC | DESC];
 
-The **sort_key** can be a :code:`column reference`, :code:`literal` or the shorthand :code:`table_name.*`.
+The **sort_key** can be a :code:`column reference`, expression, :code:`literal` or the shorthand :code:`table_name.*`.
 
 The sort key can be followed by a collate clause, ordering specification or both.
 
@@ -745,6 +751,21 @@ Example:
    FROM Employee
    WHERE ID > 100
    ORDER BY ID DESC;
+
+Integers in ORDER BY can be used to refer to SELECT list columns. The starting column in the SELECT list corresponds to 1.
+
+If a column name in ORDER BY matches both SELECT list column name and input column name (FROM list), the former is considered for ordering.
+
+~~~~~~~~~~~~~
+Error Case
+~~~~~~~~~~~~~
+
+If a column name in ORDER BY matches a user specified alias in SELECT list and a :code:`column reference` in SELECT list, an ambiguity error is issued.
+
+.. code-block:: bash
+
+   SELECT 'Zero' != 'Zero' AS firstname,firstname FROM names ORDER BY firstname;
+   [ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name 'FIRSTNAME': qualify name for safe execution
 
 +++++++
 LIMIT

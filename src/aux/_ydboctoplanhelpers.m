@@ -844,12 +844,10 @@ regexmatch(str,regexstr,regextype,regexflags)
 	SET pvrs=$GET(%ydboctoregex("result"))
 	SET pvpln=$GET(%ydboctoregex("plan"))
 	IF ((regexstr=pvstr)&(regextype=pvpln)) DO  QUIT ret
-	. IF ("error"=pvrs) DO throwregexerr(regexstr) QUIT
-	. IF (".*"=pvrs) SET ret=1 QUIT
-	. ;
-	. IF (0=$DATA(regexflags)) SET ret=$$regmatch^%ydbposix(str,pvrs) IF 1
+	. IF ("error"=pvrs) DO throwregexerr(regexstr)
+	. ELSE  IF (".*"=pvrs) SET ret=1
+	. ELSE  IF (0=$DATA(regexflags)) SET ret=$$regmatch^%ydbposix(str,pvrs)
 	. ELSE  SET ret=$$regmatch^%ydbposix(str,pvrs,regexflags)
-	. IF ret>=0 DO regfree(pvrs,.regexflags) ; Negative values means pattern didn't compile, no memory to free
 	SET %ydboctoregex("regexstr")=regexstr
 	SET %ydboctoregex("plan")=regextype
 	DO regexinit
@@ -868,14 +866,9 @@ regexmatch(str,regexstr,regextype,regexflags)
 	. IF (".*"=result) SET %ydboctoregex("result")=result,ret=1
 	QUIT:1=ret 1
 	SET %ydboctoregex("result")=result
-	IF (0=$DATA(regexflags)) SET ret=$$regmatch^%ydbposix(str,result) IF 1
+	IF (0=$DATA(regexflags)) SET ret=$$regmatch^%ydbposix(str,result)
 	ELSE  SET ret=$$regmatch^%ydbposix(str,result,regexflags)
-	IF ret>=0 DO regfree(result,.regexflags) ; Negative values means pattern didn't compile, no memory to free
 	QUIT ret
-
-regfree:(regex,regexflags) ; Private call to free RegEx memory
-	DO regfree^%ydbposix($NAME(%ydbposix("regmatch",regex,$GET(regexflags,0))))
-	QUIT
 
 Cast2VARCHAR(string,size)
 	; This function helps implement the typecast operator where the target type is VARCHAR

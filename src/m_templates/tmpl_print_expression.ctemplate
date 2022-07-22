@@ -17,6 +17,7 @@
 #include "physical_plan.h"
 #include "template_helpers.h"
 
+
 /* Note on input parameters:
  * a) If the input parameter `dot_count` is non-zero, it implies the caller wants the M code generation to split each
  *    leaf level expression into a separate M line (to avoid generating all of them in one M line and exceeding the
@@ -49,8 +50,46 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	m_operator = NULL;
 	coerce_to_numeric = FALSE;
 	plan_type = plan->type;
+	// Before trying to print the column reference or an expression see if grouped data can be made use of
+	if ((LP_COLUMN_ALIAS == plan_type) || (LP_DERIVED_COLUMN == plan_type)) {
+		if ((LP_COLUMN_ALIAS == plan_type) && (NULL != plan->extra_detail.lp_column_alias.derived_column)) {
+			derived_column = plan->extra_detail.lp_column_alias.derived_column;
+		} else if (LP_DERIVED_COLUMN == plan_type) {
+			derived_column = plan;
+		} else {
+			derived_column = NULL;
+		}
+		SqlColumnAlias *column_alias;
+		boolean_t 	in_where_clause;
+		int 		unique_id;
+		if (NULL != derived_column) {
+			LogicalPlan *key;
+			GET_LP(key, derived_column, 0, LP_KEY);
 
-	if (pplan->tablejoin_body_group_by_done) {
+			SqlKey *sql_key = key->v.lp_key.key;
+
+			unique_id = sql_key->unique_id;
+			assert(unique_id == lp_get_unique_id_from_lp_column_alias_or_lp_derived_column(derived_column));
+
+			column_alias = derived_column->extra_detail.lp_derived_column.subquery_column_alias;
+			in_where_clause = derived_column->extra_detail.lp_derived_column.in_where_clause;
+		} else {
+			assert(LP_COLUMN_ALIAS == plan_type);
+
+			column_alias = plan->v.lp_column_alias.column_alias;
+
+			SqlTableAlias *table_alias;
+			UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
+
+			unique_id = table_alias->unique_id;
+			in_where_clause = plan->v.lp_column_alias.in_where_clause;
+		}
+		boolean_t done = FALSE;
+		TMPL(tmpl_print_group_by_column_reference, pplan, column_alias, in_where_clause, unique_id, dot_count, &done);
+		if (done) {
+			return;
+		}
+	} else if (pplan->tablejoin_body_group_by_done) {
 		int 	  group_by_column_num;
 		group_by_column_num = plan->v.lp_default.group_by_column_num;
 		/* If GROUP BY computation has already happened for this physical plan, and the current expression is part of a
@@ -270,7 +309,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		unique_id = sql_key->unique_id;
 		assert(unique_id == lp_get_unique_id_from_lp_column_alias_or_lp_derived_column(plan));
 		subquery_column_alias = plan->extra_detail.lp_derived_column.subquery_column_alias;
-		TMPL(tmpl_column_reference_common, pplan, subquery_column_alias, plan->extra_detail.lp_derived_column.in_where_clause, FALSE, dot_count, depth,
+		TMPL(tmpl_column_reference_common, pplan, subquery_column_alias, FALSE, dot_count, depth,
 			sql_key, unique_id, &done);
 		if (done) {
 			if (dot_count) {
@@ -326,7 +365,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				TMPL(tmpl_print_dots, dot_count);
 				%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
 			}
-			TMPL(tmpl_column_reference, pplan, plan->v.lp_column_alias.column_alias, plan->v.lp_column_alias.in_where_clause, FALSE, dot_count, depth);
+			TMPL(tmpl_column_reference, pplan, plan->v.lp_column_alias.column_alias, FALSE, dot_count, depth);
 			if (dot_count) {
 				%{}`n{{ PLAN_LINE_START }}{}%
 			}

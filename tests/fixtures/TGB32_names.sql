@@ -10,6 +10,9 @@
 #								#
 #################################################################
 
+-- #775
+SELECT firstname,COUNT(firstname) FROM (select * from names n1) n3 GROUP BY firstname;
+
 -- #819
 select n1.lastname,count(n1.firstname) from names n1 group by n1.lastname HAVING 'Zero' in (select n2.firstname from names n2 where 1 = count(n1.firstname));
 select 1 from names n1 having exists (select 1 from names n2 where count(n1.firstname)=1);

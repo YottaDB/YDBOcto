@@ -17,50 +17,14 @@
  *	a) "tmpl_column_reference.ctemplate" for the LP_COLUMN_ALIAS case
  *	a) "tmpl_print_expression.ctemplate" for the LP_DERIVED_COLUMN case
  * It does a lot of things common to both the cases (helps avoid code duplication).
- * Argument of `in_where_clause` indicates that the column reference is part of a WHERE clause and
- * this information is used to determine whether to fetch grouped data or not.
  * Output
  * ------
  * "*done" is set to TRUE if all the needed work to generate M code for the column reference (derived column or not)
  * got done here and caller does not need to do anything more. It is set to FALSE otherwise in which case caller will
  * have to do additional work to generate appropriate M code.
  */
-TEMPLATE(tmpl_column_reference_common, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t in_where_clause, boolean_t is_trigger, int dot_count,
+TEMPLATE(tmpl_column_reference_common, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t is_trigger, int dot_count,
 		int depth, SqlKey *sql_key, int unique_id, boolean_t *done) {
-	if (pplan->tablejoin_body_group_by_done) {
-		boolean_t	is_col_cur_pplan;
-		// Check if the column's unique_id is part of pplan
-		is_col_cur_pplan = is_unique_id_a_key_of_pplan(pplan, unique_id);
-		if (is_col_cur_pplan) {
-			if (column_alias->group_by_column_number) {
-				/* This column reference was specified in the GROUP BY clause and GROUP BY related processing
-				 * already happened and wrote the records (based on the FROM/WHERE clauses) into the lvn subtree
-				 * under PP_GROUP_BY. Now the same column is being referenced in the SELECT column list.
-				 * Retrieve the column value from the lvn. That is easily done using PP_YDB_OCTO_G since that
-				 * lvn already holds the needed value of the entire GROUP BY expression. We then retrieve the
-				 * Nth piece of that expression assuming this column reference is the Nth column in the GROUP BY.
-				 */
-				%{}$$mval2str^%%ydboctoplanhelpers({}%
-				%{}$$mvalPiece^%%ydboctoplanhelpers({}%
-				%{}{{ PP_YDB_OCTO_G }},{{ column_alias->group_by_column_number|%d }}{}%
-				%{}){}%	/* closing paren for mvalPiece call above */
-				%{}){}% /* closing paren for mval2str call above */
-				*done = TRUE;
-				return;
-			}
-		}
-	}
-	if (!in_where_clause) {
-		boolean_t lcl_done = FALSE;
-		TMPL(tmpl_print_group_by_column_reference_if_exists, pplan->parent_plan, column_alias, unique_id, &lcl_done);
-		if (lcl_done) {
-			/* The column reference was specified in GROUP BY clause of parent plan
-			 * and the above call retrieved the value from parent GROUP BY using the column's unique_id.
-			 */
-			*done = TRUE;
-			return;
-		}
-	}
 	if (pplan->treat_key_as_null[unique_id]) {	/* Treat all columns in the table as NULL (used for OUTER JOINs) */
 		/* Note that even in the case "column_alias" corresponds to a TABLENAME.ASTERISK, we treat all the columns
 		 * together as one NULL value here. This is necessary for YDBOcto#759.
@@ -135,7 +99,7 @@ TEMPLATE(tmpl_column_reference_common, PhysicalPlan *pplan, SqlColumnAlias *colu
 				if (!dot_count) {
 					%{}$$str2mval^%%ydboctoplanhelpers({}%
 				}
-				TMPL(tmpl_column_reference, pplan, column_alias, in_where_clause, is_trigger, dot_count, depth);
+				TMPL(tmpl_column_reference, pplan, column_alias, is_trigger, dot_count, depth);
 				if (!dot_count) {
 					%{}){}%
 				}

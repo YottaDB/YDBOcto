@@ -67,7 +67,6 @@ SqlStatement *get_deepest_column_alias_stmt(SqlStatement *first_column_alias_stm
 #endif
 
 	} else {
-		assert(first_table_alias->parent_table_alias->unique_id < second_table_alias->parent_table_alias->unique_id);
 		deepest_column_alias_stmt = first_column_alias_stmt;
 #ifndef NDEBUG
 		has_common_ancestor(deepest_column_alias_stmt, second_column_alias_stmt);

@@ -23,11 +23,8 @@
  * If this is zero though, it does not necessarily reflect the real dot count of the currently generated M line.
  *	In that case, it just says we are in the midst of generating an expression and hence all of our generation
  *	in this function has to happen as one expression (i.e. cannot generate new M commands or start a new M line).
- * Parameter `in_where_clause` is primarily used by tmpl_column_reference_common.ctemplate to determine
- * whether grouped data needs to be fetched or not, since we call the template here we forward this information using
- * `in_where_clause` below.
  */
-TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t in_where_clause, boolean_t is_trigger, int dot_count, int depth) {
+TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t is_trigger, int dot_count, int depth) {
 	SqlColumn		*column = NULL;
 	SqlTable		*table;
 	SqlValue		*value;
@@ -61,7 +58,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	/* Note: Need "++depth" below to prevent intersection of M temporary variables (e.g. %ydboctoexpr(0))
 	 * used inside the below call and the caller ("tmpl_print_expression").
 	 */
-	TMPL(tmpl_column_reference_common, pplan, column_alias, in_where_clause, is_trigger, dot_count, ++depth, NULL, unique_id, &done);
+	TMPL(tmpl_column_reference_common, pplan, column_alias, is_trigger, dot_count, ++depth, NULL, unique_id, &done);
 	if (done) {
 		return;
 	}

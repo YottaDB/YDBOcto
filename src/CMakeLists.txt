@@ -470,7 +470,6 @@ set(template_files
   ${template_dir}/tmpl_delete_record_from_table.ctemplate
   ${template_dir}/tmpl_duplication_check.ctemplate
   ${template_dir}/tmpl_emit_source.ctemplate
-  ${template_dir}/tmpl_print_group_by_column_reference_if_exists.ctemplate
   ${template_dir}/tmpl_group_by.ctemplate
   ${template_dir}/tmpl_insert_into.ctemplate
   ${template_dir}/tmpl_invoke_deferred_plan.ctemplate
@@ -492,6 +491,7 @@ set(template_files
   ${template_dir}/tmpl_print_expression.ctemplate
   ${template_dir}/tmpl_print_expression_assignment.ctemplate
   ${template_dir}/tmpl_print_expression_group_by_computation.ctemplate
+  ${template_dir}/tmpl_print_group_by_column_reference.ctemplate
   ${template_dir}/tmpl_rightjoin_key.ctemplate
   ${template_dir}/tmpl_set_duplication_check.ctemplate
   ${template_dir}/tmpl_tablejoin.ctemplate

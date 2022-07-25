@@ -192,3 +192,26 @@ setup() {
 	load_fixture TVD0008.sql subtest novv
 	verify_output TVD0008 output.txt
 }
+
+@test "TVD0009 : YDBOctoVistA#28 Externally Formatted Dates" {
+	# Generate External Dates DDL for INSTALL file (File 9.7) and PROBLEM file (File 9000011)
+	# INSTALL file contains dates with times
+	# SDEC APPOINTMENT file contains dates with .24 (midnight)
+	# PROBLEM file contains inexact dates
+	# This is an interactive call to map one file, and thus that's why there is an "Enter" achieved with an emtpy here-string (<<<)
+	$ydb_dist/yottadb -r %XCMD 'S DUZ=.5,DIQUIET=1,DUZ(0)="@",O("ExternalDates")=1 D DT^DICRW,MAPONE^%YDBOCTOVISTAM("vista9.7.sql",9.7,.O)' <<< ""
+	$ydb_dist/yottadb -r %XCMD 'S DUZ=.5,DIQUIET=1,DUZ(0)="@",O("ExternalDates")=1 D DT^DICRW,MAPONE^%YDBOCTOVISTAM("vista409.84.sql",409.84,.O)' <<< ""
+	$ydb_dist/yottadb -r %XCMD 'S DUZ=.5,DIQUIET=1,DUZ(0)="@",O("ExternalDates")=1 D DT^DICRW,MAPONE^%YDBOCTOVISTAM("vista9000011.sql",9000011,.O)' <<< ""
+
+	# Load file into Octo
+	octo -f vista9.7.sql
+	octo -f vista409.84.sql
+	octo -f vista9000011.sql
+
+	# Run query
+	load_fixture TVD0009.sql subtest novv
+
+	# Don't use verify output, as that strips out the dates, which is the EXACT point of this test
+	copy_test_files outref/TVD0009.ref
+	diff outref/TVD0009.ref output.txt
+}

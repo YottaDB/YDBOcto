@@ -790,7 +790,7 @@ typedef enum RegexType {
 		OCTO_CMALLOC_STRUCT(ret->v.drop_table, SqlDropTableStatement);                                  \
 		ret->v.drop_table->table_name = COLUMN_NAME;                                                    \
 		ret->v.drop_table->optional_keyword = DROP_BEHAVIOR;                                            \
-		ret->v.drop_table->drop_data_retention = (enum OptionalKeyword)DROP_DATA_RETENTION;             \
+		ret->v.drop_table->drop_data_retention = (enum OptionalKeyword)(uintptr_t)DROP_DATA_RETENTION;  \
 		ret->v.drop_table->if_exists_specified = IF_EXISTS_SPECIFIED;                                   \
 		STMT = ret;                                                                                     \
 	}

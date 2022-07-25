@@ -133,7 +133,7 @@ query_specification
   : SELECT set_quantifier select_list table_expression optional_order_by {
      SqlStatement *ret;
 
-      INVOKE_QUERY_SPECIFICATION(ret, (OptionalKeyword)$set_quantifier, $select_list, $table_expression,
+      INVOKE_QUERY_SPECIFICATION(ret, (OptionalKeyword)(uintptr_t)$set_quantifier, $select_list, $table_expression,
       									$optional_order_by, plan_id);
       $$ = ret;
       $$->loc = @SELECT;	/* useful for error reporting to know lexical start of query */
@@ -179,7 +179,7 @@ query_specification
       select->where_expression = $where_clause;
       select->group_by_expression = $group_by_clause;
       select->having_expression = $having_clause;
-      INVOKE_QUERY_SPECIFICATION(ret, (OptionalKeyword)$set_quantifier, select_list, t_stmt, NULL, plan_id);
+      INVOKE_QUERY_SPECIFICATION(ret, (OptionalKeyword)(uintptr_t)$set_quantifier, select_list, t_stmt, NULL, plan_id);
       $$ = ret;
       $$->loc = @SELECT;	/* useful for error reporting to know lexical start of query */
     }

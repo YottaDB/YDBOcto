@@ -473,7 +473,7 @@ comparison_predicate
   | row_value_constructor comp_op row_value_constructor {
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
-      ($$)->v.binary->operation = (BinaryOperations)$comp_op;	/* Note: "comp_op" rule returns "BinaryOperations" type */
+      ($$)->v.binary->operation = (BinaryOperations)(uintptr_t)$comp_op; /* Note: "comp_op" rule returns "BinaryOperations" type */
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
       ($$)->loc = @1; /* note down the location for later use in populate_data_type (for error reporting) */
@@ -667,8 +667,8 @@ quantified_comparison_predicate
 	assert((BOOLEAN_ALL_EQUALS - BOOLEAN_EQUALS) == (BOOLEAN_ALL_GREATER_THAN_OR_EQUALS - BOOLEAN_GREATER_THAN_OR_EQUALS));
 	/* Note: "comp_op" rule returns "BinaryOperations" type as a "SqlStatement *" so directly typecast it */
 	ret->v.binary->operation = (((SqlStatement *)ALL == $quantifier)
-					? (BinaryOperations)$comp_op + (BOOLEAN_ALL_EQUALS - BOOLEAN_EQUALS)
-					: (BinaryOperations)$comp_op + (BOOLEAN_ANY_EQUALS - BOOLEAN_EQUALS));
+					? (BinaryOperations)(uintptr_t)$comp_op + (BOOLEAN_ALL_EQUALS - BOOLEAN_EQUALS)
+					: (BinaryOperations)(uintptr_t)$comp_op + (BOOLEAN_ANY_EQUALS - BOOLEAN_EQUALS));
 	$$ = ret;
     }
   ;
@@ -1016,7 +1016,7 @@ set_function_specification
         YYLTYPE	tmploc;
 
         tmploc = @COUNT;	/* pass location of "COUNT" token below for later useful error reporting */
-        $$ = aggregate_function(AGGREGATE_COUNT, (OptionalKeyword)$set_quantifier, $value_expression, &tmploc);
+        $$ = aggregate_function(AGGREGATE_COUNT, (OptionalKeyword)(uintptr_t)$set_quantifier, $value_expression, &tmploc);
     }
   | general_set_function { $$ = $general_set_function; }
   | generic_function_call { $$ = $generic_function_call; }
@@ -1027,7 +1027,7 @@ general_set_function
         YYLTYPE	tmploc;
 
         tmploc = @set_function_type;	/* pass location of "set_function_type" token below for later useful error reporting */
-        $$ = aggregate_function((SqlAggregateType)$set_function_type, (OptionalKeyword)$set_quantifier, $value_expression, &tmploc);
+        $$ = aggregate_function((SqlAggregateType)(uintptr_t)$set_function_type, (OptionalKeyword)(uintptr_t)$set_quantifier, $value_expression, &tmploc);
     }
   ;
 

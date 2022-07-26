@@ -101,3 +101,14 @@ OCTO
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries composite TCK04.sql
 }
 
+@test "TCK05 : OCTO877 : Incorrect results if WHERE clause references multiple columns of composite table" {
+	# The query in the YDBOcto#877 issue description can be tested against Octo and Postgres and so
+	# is run through the crosscheck script below (from TCK05.sql).
+	load_fixture composite.sql
+	load_fixture composite.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries composite TCK05.sql
+	# The query at https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/877#note_1039304146 can only run
+	# on Octo (it uses the `KEY NUM 1` syntax which won't work with Postgres) and so is tested separately below.
+	load_fixture TCK05_octo.sql subtest novv
+	verify_output TCK05_octo output.txt
+}

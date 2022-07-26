@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -26,7 +26,6 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 	SqlKey *	key, *primary_key;
 	int		key_id, search_id, join_table_id, join_table_num;
 	LogicalPlan *	cur_key, *lp_key;
-	boolean_t	first_matching_key;
 
 	column_alias = lp_column_alias->v.lp_column_alias.column_alias;
 	UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
@@ -42,7 +41,6 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 	cur_key = lp_get_keys(plan);
 
 	primary_key = NULL;
-	first_matching_key = TRUE;
 	join_table_num = 0;
 	join_table_id = -1;
 	search_id = table_alias->unique_id;
@@ -57,20 +55,17 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 		do {
 			if (key_id != search_id)
 				break;
-			/* If the table has a composite key and we found some of those columns already
-			 * fixed (LP_KEY_FIX) but found one column that is not so then we need to not
-			 * consider the primary key for this table as fixed (i.e. all columns corresponding
-			 * to the primary key need to be fixed in order to not generate an xref key for
-			 * a non-primary-key column). But if this table is not the first in a sequence of tables
-			 * that are joined, then even in this case of not all columns being fixed, it is better
-			 * (for performance reasons) to let some primary key column stay fixed instead of
-			 * generating a cross-reference.
+			/* If the table has a composite key and we find at least one of those key columns already
+			 * fixed (LP_KEY_FIX) we need to consider the keys for this table as fixed even though
+			 * there might be other key columns in the composite key that are not fixed. Hence set
+			 * "primary_key" to a non-NULL value in that case which would ensure we return a non-NULL
+			 * value from this function at the end (which would cause the caller to not generate an xref
+			 * plan for this boolean condition). Not doing so could cause multiple key columns to be
+			 * fixed in multiple calls to this function resulting in incorrect removal of boolean
+			 * conditions from the WHERE clause ending up in incorrect query results (YDBOcto#877).
 			 */
-			if ((NULL != primary_key) && (LP_KEY_FIX != key->type) && (1 >= join_table_num))
-				primary_key = NULL;
-			if (first_matching_key && (LP_KEY_FIX == key->type))
+			if (LP_KEY_FIX == key->type)
 				primary_key = key;
-			first_matching_key = FALSE;
 			/// TODO: the only way something has a name of NULL is if it's an output key
 			// Which means we're looking for the key in a derived table; we don't currently
 			// support this

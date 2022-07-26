@@ -1,7 +1,7 @@
 #!/bin/bash -v
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -12,13 +12,6 @@
 #################################################################
 
 set -e
-
-source /opt/yottadb/current/ydb_env_set
-
-# Download, Compile, and Install the YottaDB POSIX plugin
-# Install the YottaDB POSIX plugin
-./tools/ci/install_posix.sh cmake
-
 cd doc
 
 if [ -e Makefile ]; then

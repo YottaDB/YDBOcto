@@ -55,7 +55,11 @@ setup_file() {
 		# DIQUIET Don't print new lines during DT^DICRW
 		# DT^DICRW Set-up minimum Fileman Environment
 		# MAPALL^%YDBOCTOVISTAM Main code that creates the SQL mapping file
-		$ydb_dist/yottadb -r %XCMD 'S DUZ=.5,DIQUIET=1,DUZ(0)="@" D DT^DICRW,MAPALL^%YDBOCTOVISTAM("@PROJECT_BINARY_DIR@/vista.sql")'
+		#
+		# This step takes a long time. Don't do it again if we have a vista.sql file in the binary directory already
+		if [ ! -f "@PROJECT_BINARY_DIR@/vista.sql" ]; then
+			$ydb_dist/yottadb -r %XCMD 'S DUZ=.5,DIQUIET=1,DUZ(0)="@" D DT^DICRW,MAPALL^%YDBOCTOVISTAM("@PROJECT_BINARY_DIR@/vista.sql")'
+		fi
 	else
 		# We want the destination file to be named vista.sql irrespective of the name of the source file as that is relied upon in later stages
 		cp "$test_vista_input_sql" "@PROJECT_BINARY_DIR@"/vista.sql
@@ -214,4 +218,9 @@ setup() {
 	# Don't use verify output, as that strips out the dates, which is the EXACT point of this test
 	copy_test_files outref/TVD0009.ref
 	diff outref/TVD0009.ref output.txt
+}
+
+@test "TVD0010 : YDBOctoVistA#3 Break out Variable Pointer field into separate columns" {
+	load_fixture TVD0010.sql subtest novv
+	verify_output TVD0010 output.txt
 }

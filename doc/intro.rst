@@ -107,7 +107,7 @@ Install Octo
    *(Optional)* Prerequisites for Automated Regression Testing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  Refer to the `Developer's Documentation <../developer_doc.html>`_ for information on setting up and running automated regression testing.
+  Refer to the `Developer's Documentation <./developer_doc.html>`_ for information on setting up and running automated regression testing.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      Clone the Octo source code repository

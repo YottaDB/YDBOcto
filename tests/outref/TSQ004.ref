@@ -109,15 +109,15 @@ LP_SELECT_QUERY:
         - alias: SPECIFIC_NAME
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: N
+        LP_TABLE: N(1)
         LP_TABLE_JOIN: CROSS_JOIN: 
-          LP_TABLE: P
+          LP_TABLE: P(2)
           LP_TABLE_JOIN: LEFT_JOIN: 
             LP_WHERE: 
               LP_BOOLEAN_EQUALS: 
                 LP_COLUMN_ALIAS: P(2).OID
                 LP_COLUMN_ALIAS: D(3).OBJOID
-            LP_TABLE: D
+            LP_TABLE: D(3)
             LP_TABLE_JOIN: LEFT_JOIN: 
               LP_WHERE: 
                 LP_BOOLEAN_AND: 
@@ -127,7 +127,7 @@ LP_SELECT_QUERY:
                   LP_BOOLEAN_EQUALS: 
                     LP_COLUMN_ALIAS: C(4).RELNAME
                     LP_VALUE: 'pg_proc'
-              LP_TABLE: C
+              LP_TABLE: C(4)
               LP_TABLE_JOIN: LEFT_JOIN: 
                 LP_WHERE: 
                   LP_BOOLEAN_AND: 
@@ -137,7 +137,7 @@ LP_SELECT_QUERY:
                     LP_BOOLEAN_EQUALS: 
                       LP_COLUMN_ALIAS: PN(5).NSPNAME
                       LP_VALUE: 'pg_catalog'
-                LP_TABLE: PN
+                LP_TABLE: PN(5)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
@@ -232,7 +232,7 @@ LP_SELECT_QUERY:
         - alias: SPECIFIC_NAME
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: N
+        LP_TABLE: N(1)
         LP_TABLE_JOIN: CROSS_JOIN: 
           LP_SELECT_QUERY: 
             LP_PROJECT: 
@@ -243,7 +243,7 @@ LP_SELECT_QUERY:
                   LP_COLUMN_ALIAS: PG_CATALOG.PG_PROC(9).OID
               LP_SELECT: 
                 LP_TABLE_JOIN: 
-                  LP_TABLE: PG_CATALOG.PG_PROC
+                  LP_TABLE: PG_CATALOG.PG_PROC(9)
                 LP_CRITERIA: 
                   LP_KEYS: 
                     LP_KEY: 
@@ -276,7 +276,7 @@ LP_SELECT_QUERY:
                     LP_COLUMN_ALIAS: PG_CATALOG.PG_DESCRIPTION(8).OID
                 LP_SELECT: 
                   LP_TABLE_JOIN: 
-                    LP_TABLE: PG_CATALOG.PG_DESCRIPTION
+                    LP_TABLE: PG_CATALOG.PG_DESCRIPTION(8)
                   LP_CRITERIA: 
                     LP_KEYS: 
                       LP_KEY: 
@@ -303,13 +303,13 @@ LP_SELECT_QUERY:
                 LP_BOOLEAN_EQUALS: 
                   LP_COLUMN_ALIAS: C(4).RELNAME
                   LP_VALUE: 'pg_proc'
-              LP_TABLE: C
+              LP_TABLE: C(4)
               LP_TABLE_JOIN: LEFT_JOIN: 
                 LP_WHERE: 
                   LP_BOOLEAN_EQUALS: 
                     LP_COLUMN_ALIAS: PN(5).NSPNAME
                     LP_VALUE: 'pg_catalog'
-                LP_TABLE: PN
+                LP_TABLE: PN(5)
       LP_CRITERIA: 
         LP_KEYS: 
           LP_KEY: 

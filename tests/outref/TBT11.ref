@@ -28,7 +28,7 @@ LP_SELECT_QUERY:
         - alias: LASTNAME
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: NAMES
+        LP_TABLE: NAMES(1)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
@@ -77,7 +77,7 @@ LP_SELECT_QUERY:
                 LP_COLUMN_ALIAS: NAMES(4).ID
             LP_SELECT: 
               LP_TABLE_JOIN: 
-                LP_TABLE: NAMES
+                LP_TABLE: NAMES(4)
               LP_CRITERIA: 
                 LP_KEYS: 
                   LP_KEY: 

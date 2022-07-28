@@ -35,7 +35,7 @@ LP_SELECT_QUERY:
         - alias: FIRSTNAME
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: N1
+        LP_TABLE: N1(1)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
@@ -58,7 +58,7 @@ LP_SELECT_QUERY:
                       - alias: MAX
                   LP_SELECT: 
                     LP_TABLE_JOIN: 
-                      LP_TABLE: N2
+                      LP_TABLE: N2(2)
                     LP_CRITERIA: 
                       LP_KEYS: 
                         LP_KEY: 
@@ -147,7 +147,7 @@ LP_SELECT_QUERY:
         - alias: FIRSTNAME
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: N1
+        LP_TABLE: N1(1)
       LP_CRITERIA: 
         LP_KEYS: 
           LP_KEY: 
@@ -177,7 +177,7 @@ LP_SELECT_QUERY:
                       - alias: MAX
                   LP_SELECT: 
                     LP_TABLE_JOIN: 
-                      LP_TABLE: N2
+                      LP_TABLE: N2(2)
                     LP_CRITERIA: 
                       LP_KEYS: 
                         LP_KEY: 
@@ -272,7 +272,7 @@ LP_SELECT_QUERY:
         - alias: COUNT
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: NAMES
+        LP_TABLE: NAMES(1)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
@@ -330,7 +330,7 @@ LP_SELECT_QUERY:
         - alias: COUNT
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: NAMES
+        LP_TABLE: NAMES(1)
       LP_CRITERIA: 
         LP_KEYS: 
           LP_KEY: 

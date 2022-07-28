@@ -142,13 +142,13 @@ LP_SELECT_QUERY:
                 LP_VALUE: '$$pgTableIsVisible^%ydboctopgfunctions'
                 LP_VALUE: 'BOOLEAN'
                 LP_COLUMN_ALIAS: C(1).OID
-        LP_TABLE: C
+        LP_TABLE: C(1)
         LP_TABLE_JOIN: LEFT_JOIN: 
           LP_WHERE: 
             LP_BOOLEAN_EQUALS: 
               LP_COLUMN_ALIAS: N(2).OID
               LP_COLUMN_ALIAS: C(1).RELNAMESPACE
-          LP_TABLE: N
+          LP_TABLE: N(2)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
@@ -296,7 +296,7 @@ LP_SELECT_QUERY:
                 LP_COLUMN_ALIAS: PG_CATALOG.PG_CLASS(5).OID
             LP_SELECT: 
               LP_TABLE_JOIN: 
-                LP_TABLE: PG_CATALOG.PG_CLASS
+                LP_TABLE: PG_CATALOG.PG_CLASS(5)
               LP_CRITERIA: 
                 LP_KEYS: 
                   LP_KEY: 
@@ -320,7 +320,7 @@ LP_SELECT_QUERY:
             - uses_xref_key: false
         LP_TABLE_JOIN: LEFT_JOIN: 
           LP_WHERE: 
-          LP_TABLE: N
+          LP_TABLE: N(2)
       LP_CRITERIA: 
         LP_KEYS: 
           LP_KEY: 

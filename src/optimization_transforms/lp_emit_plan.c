@@ -208,9 +208,11 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		value = plan->v.lp_value.value;
 		EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "'%s'\n", value->v.string_literal);
 		break;
-	case LP_TABLE:
-		UNPACK_SQL_STATEMENT(value, plan->v.lp_table.table_alias->alias, value);
-		EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%s\n", value->v.string_literal);
+	case LP_TABLE:;
+		SqlTableAlias *table_alias;
+		table_alias = plan->v.lp_table.table_alias;
+		UNPACK_SQL_STATEMENT(value, table_alias->alias, value);
+		EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%s(%d)\n", value->v.string_literal, table_alias->unique_id);
 		break;
 	case LP_COLUMN:
 		UNPACK_SQL_STATEMENT(value, plan->v.lp_column.column->columnName, value);

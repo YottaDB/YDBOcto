@@ -114,7 +114,7 @@ LP_SELECT_QUERY:
         - alias: RELHASSUBCLASS
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: C
+        LP_TABLE: C(1)
         LP_TABLE_JOIN: INNER_JOIN: 
           LP_WHERE: 
             LP_BOOLEAN_AND: 
@@ -128,7 +128,7 @@ LP_SELECT_QUERY:
               LP_BOOLEAN_EQUALS: 
                 LP_COLUMN_ALIAS: N(2).NSPNAME
                 LP_VALUE: 'public'
-          LP_TABLE: N
+          LP_TABLE: N(2)
           LP_TABLE_JOIN: INNER_JOIN: 
             LP_WHERE: 
               LP_BOOLEAN_AND: 
@@ -141,13 +141,13 @@ LP_SELECT_QUERY:
                 LP_BOOLEAN_EQUALS: 
                   LP_COLUMN_ALIAS: A(3).ATTRELID
                   LP_COLUMN_ALIAS: C(1).OID
-            LP_TABLE: A
+            LP_TABLE: A(3)
             LP_TABLE_JOIN: INNER_JOIN: 
               LP_WHERE: 
                 LP_BOOLEAN_EQUALS: 
                   LP_COLUMN_ALIAS: T(4).OID
                   LP_COLUMN_ALIAS: A(3).ATTTYPID
-              LP_TABLE: T
+              LP_TABLE: T(4)
               LP_TABLE_JOIN: LEFT_JOIN: 
                 LP_WHERE: 
                   LP_BOOLEAN_AND: 
@@ -159,7 +159,7 @@ LP_SELECT_QUERY:
                     LP_BOOLEAN_EQUALS: 
                       LP_COLUMN_ALIAS: D(5).ADNUM
                       LP_COLUMN_ALIAS: A(3).ATTNUM
-                LP_TABLE: D
+                LP_TABLE: D(5)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
@@ -303,7 +303,7 @@ LP_SELECT_QUERY:
         - alias: RELHASSUBCLASS
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: C
+        LP_TABLE: C(1)
         LP_TABLE_JOIN: INNER_JOIN: 
           LP_WHERE: 
             LP_BOOLEAN_AND: 
@@ -313,7 +313,7 @@ LP_SELECT_QUERY:
               LP_BOOLEAN_EQUALS: 
                 LP_COLUMN_ALIAS: N(2).NSPNAME
                 LP_VALUE: 'public'
-          LP_TABLE: N
+          LP_TABLE: N(2)
           LP_TABLE_JOIN: INNER_JOIN: 
             LP_WHERE: 
               LP_BOOLEAN_AND: 
@@ -331,7 +331,7 @@ LP_SELECT_QUERY:
                     LP_COLUMN_ALIAS: PG_CATALOG.PG_ATTRIBUTE(8).OID
                 LP_SELECT: 
                   LP_TABLE_JOIN: 
-                    LP_TABLE: PG_CATALOG.PG_ATTRIBUTE
+                    LP_TABLE: PG_CATALOG.PG_ATTRIBUTE(8)
                   LP_CRITERIA: 
                     LP_KEYS: 
                       LP_KEY: 
@@ -364,7 +364,7 @@ LP_SELECT_QUERY:
                       LP_COLUMN_ALIAS: PG_CATALOG.PG_TYPE(9).TYPNAME
                   LP_SELECT: 
                     LP_TABLE_JOIN: 
-                      LP_TABLE: PG_CATALOG.PG_TYPE
+                      LP_TABLE: PG_CATALOG.PG_TYPE(9)
                     LP_CRITERIA: 
                       LP_KEYS: 
                         LP_KEY: 
@@ -402,7 +402,7 @@ LP_SELECT_QUERY:
                         LP_COLUMN_ALIAS: PG_ATTRDEF(10).OID
                     LP_SELECT: 
                       LP_TABLE_JOIN: 
-                        LP_TABLE: PG_ATTRDEF
+                        LP_TABLE: PG_ATTRDEF(10)
                       LP_CRITERIA: 
                         LP_KEYS: 
                           LP_KEY: 

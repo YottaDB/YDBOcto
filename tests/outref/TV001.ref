@@ -103,7 +103,7 @@ LP_SELECT_QUERY:
         - alias: LASTNAME
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: NAMES
+        LP_TABLE: NAMES(1)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
@@ -140,7 +140,7 @@ LP_SELECT_QUERY:
         - alias: LASTNAME
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: NAMES
+        LP_TABLE: NAMES(1)
       LP_CRITERIA: 
         LP_KEYS: 
           LP_KEY: 
@@ -509,7 +509,7 @@ LP_SELECT_QUERY:
         - alias: LASTNAME
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: NAMES
+        LP_TABLE: NAMES(1)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
@@ -546,7 +546,7 @@ LP_SELECT_QUERY:
         - alias: LASTNAME
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: NAMES
+        LP_TABLE: NAMES(1)
       LP_CRITERIA: 
         LP_KEYS: 
           LP_KEY: 

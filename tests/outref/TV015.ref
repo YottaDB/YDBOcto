@@ -4,7 +4,7 @@
 [ INFO] PATH:LINENUM DATE TIME: INFO_M_PLAN: Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 [DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
 LP_INSERT_INTO: 
-  LP_TABLE: NAMES
+  LP_TABLE: NAMES(4)
   LP_INSERT_INTO_OPTIONS: 
     LP_COLUMN_LIST: 
       LP_COLUMN: LASTNAME
@@ -39,7 +39,7 @@ LP_INSERT_INTO:
                   - alias: ID
               LP_SELECT: 
                 LP_TABLE_JOIN: 
-                  LP_TABLE: NAMES
+                  LP_TABLE: NAMES(1)
                 LP_CRITERIA: 
                   LP_KEYS: 
                   LP_SELECT_OPTIONS: 
@@ -92,7 +92,7 @@ LP_INSERT_INTO:
 
 [DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN AFTER optimize_logical_plan() follows 
 LP_INSERT_INTO: 
-  LP_TABLE: NAMES
+  LP_TABLE: NAMES(4)
   LP_INSERT_INTO_OPTIONS: 
     LP_COLUMN_LIST: 
       LP_COLUMN: LASTNAME
@@ -131,7 +131,7 @@ LP_INSERT_INTO:
                       - alias: ID
                   LP_SELECT: 
                     LP_TABLE_JOIN: 
-                      LP_TABLE: NAMES
+                      LP_TABLE: NAMES(1)
                     LP_CRITERIA: 
                       LP_KEYS: 
                         LP_KEY: 
@@ -172,7 +172,7 @@ LP_INSERT_INTO:
                       - alias: ID
                   LP_SELECT: 
                     LP_TABLE_JOIN: 
-                      LP_TABLE: NAMES
+                      LP_TABLE: NAMES(1)
                     LP_CRITERIA: 
                       LP_KEYS: 
                         LP_KEY: 

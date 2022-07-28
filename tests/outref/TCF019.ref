@@ -20,7 +20,7 @@ LP_SELECT_QUERY:
         - alias: CURRENT_SCHEMA
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: OCTOONEROWTABLE
+        LP_TABLE: OCTOONEROWTABLE(1)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
@@ -52,7 +52,7 @@ LP_SELECT_QUERY:
         - alias: CURRENT_SCHEMA
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: OCTOONEROWTABLE
+        LP_TABLE: OCTOONEROWTABLE(1)
       LP_CRITERIA: 
         LP_KEYS: 
           LP_KEY: 
@@ -98,7 +98,7 @@ LP_SELECT_QUERY:
         - alias: ABS
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: NAMES
+        LP_TABLE: NAMES(1)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
@@ -134,7 +134,7 @@ LP_SELECT_QUERY:
         - alias: ABS
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: NAMES
+        LP_TABLE: NAMES(1)
       LP_CRITERIA: 
         LP_KEYS: 
           LP_KEY: 
@@ -186,7 +186,7 @@ LP_SELECT_QUERY:
         - alias: REPLACE
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: OCTOONEROWTABLE
+        LP_TABLE: OCTOONEROWTABLE(1)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
@@ -223,7 +223,7 @@ LP_SELECT_QUERY:
         - alias: REPLACE
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: OCTOONEROWTABLE
+        LP_TABLE: OCTOONEROWTABLE(1)
       LP_CRITERIA: 
         LP_KEYS: 
           LP_KEY: 

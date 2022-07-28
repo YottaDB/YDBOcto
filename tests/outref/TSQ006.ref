@@ -20,7 +20,7 @@ LP_SELECT_QUERY:
         - alias: VERSION
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: OCTOONEROWTABLE
+        LP_TABLE: OCTOONEROWTABLE(1)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
@@ -52,7 +52,7 @@ LP_SELECT_QUERY:
         - alias: VERSION
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: OCTOONEROWTABLE
+        LP_TABLE: OCTOONEROWTABLE(1)
       LP_CRITERIA: 
         LP_KEYS: 
           LP_KEY: 

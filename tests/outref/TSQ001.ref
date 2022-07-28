@@ -33,13 +33,13 @@ LP_SELECT_QUERY:
         - alias: OID
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: T
+        LP_TABLE: T(1)
         LP_TABLE_JOIN: INNER_JOIN: 
           LP_WHERE: 
             LP_BOOLEAN_EQUALS: 
               LP_COLUMN_ALIAS: T(1).TYPNAMESPACE
               LP_COLUMN_ALIAS: N(2).OID
-          LP_TABLE: N
+          LP_TABLE: N(2)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
@@ -64,7 +64,7 @@ LP_SELECT_QUERY:
                         - alias: RELKIND
                     LP_SELECT: 
                       LP_TABLE_JOIN: 
-                        LP_TABLE: C
+                        LP_TABLE: C(3)
                       LP_CRITERIA: 
                         LP_KEYS: 
                           LP_KEY: 
@@ -131,7 +131,7 @@ LP_SET_OPERATION:
                     LP_COLUMN_ALIAS: PG_CATALOG.PG_TYPE(8).TYPNAME
                 LP_SELECT: 
                   LP_TABLE_JOIN: 
-                    LP_TABLE: PG_CATALOG.PG_TYPE
+                    LP_TABLE: PG_CATALOG.PG_TYPE(8)
                   LP_CRITERIA: 
                     LP_KEYS: 
                       LP_KEY: 
@@ -155,7 +155,7 @@ LP_SET_OPERATION:
                 - uses_xref_key: false
             LP_TABLE_JOIN: INNER_JOIN: 
               LP_WHERE: 
-              LP_TABLE: N
+              LP_TABLE: N(2)
           LP_CRITERIA: 
             LP_KEYS: 
               LP_KEY: 
@@ -215,10 +215,10 @@ LP_SET_OPERATION:
             - alias: OID
         LP_SELECT: 
           LP_TABLE_JOIN: 
-            LP_TABLE: T
+            LP_TABLE: T(1)
             LP_TABLE_JOIN: INNER_JOIN: 
               LP_WHERE: 
-              LP_TABLE: N
+              LP_TABLE: N(2)
           LP_CRITERIA: 
             LP_KEYS: 
               LP_KEY: 
@@ -256,7 +256,7 @@ LP_SET_OPERATION:
                           - alias: RELKIND
                       LP_SELECT: 
                         LP_TABLE_JOIN: 
-                          LP_TABLE: C
+                          LP_TABLE: C(3)
                         LP_CRITERIA: 
                           LP_KEYS: 
                             LP_KEY: 

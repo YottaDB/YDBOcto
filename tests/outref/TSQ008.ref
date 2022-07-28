@@ -22,9 +22,9 @@ LP_SELECT_QUERY:
         - alias: OID
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: N
+        LP_TABLE: N(1)
         LP_TABLE_JOIN: CROSS_JOIN: 
-          LP_TABLE: C
+          LP_TABLE: C(2)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
@@ -59,7 +59,7 @@ LP_SELECT_QUERY:
         - alias: OID
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: N
+        LP_TABLE: N(1)
         LP_TABLE_JOIN: CROSS_JOIN: 
           LP_SELECT_QUERY: 
             LP_PROJECT: 
@@ -70,7 +70,7 @@ LP_SELECT_QUERY:
                   LP_COLUMN_ALIAS: PG_CATALOG.PG_CLASS(5).OID
               LP_SELECT: 
                 LP_TABLE_JOIN: 
-                  LP_TABLE: PG_CATALOG.PG_CLASS
+                  LP_TABLE: PG_CATALOG.PG_CLASS(5)
                 LP_CRITERIA: 
                   LP_KEYS: 
                     LP_KEY: 

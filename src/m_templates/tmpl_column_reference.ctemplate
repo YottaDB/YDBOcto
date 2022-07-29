@@ -58,12 +58,14 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	/* Note: Need "++depth" below to prevent intersection of M temporary variables (e.g. %ydboctoexpr(0))
 	 * used inside the below call and the caller ("tmpl_print_expression").
 	 */
-	TMPL(tmpl_column_reference_common, pplan, column_alias, is_trigger, dot_count, ++depth, NULL, unique_id, &done);
+	TMPL(tmpl_column_reference_common, pplan, column_alias, is_trigger, dot_count, ++depth, unique_id, &done);
 	if (done) {
 		return;
 	}
-	/* "column_alias" is a COLUMN reference (TABLENAME.ASTERISK would have returned above). Fetch it from the database. */
-	assert(column_STATEMENT == column_alias->column->type);
+	/* "column_alias" is a COLUMN reference (TABLENAME.ASTERISK would have returned above (verified by the following assert)).
+	 * Fetch it from the database.
+	 */
+	assert((column_STATEMENT == column_alias->column->type) && !is_stmt_table_asterisk(column_alias->column));
 	UNPACK_SQL_STATEMENT(column, column_alias->column, column);
 	// Find the columns in the table so we can look at the correct keywords
 	UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);

@@ -24,7 +24,7 @@
  * have to do additional work to generate appropriate M code.
  */
 TEMPLATE(tmpl_column_reference_common, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t is_trigger, int dot_count,
-		int depth, SqlKey *sql_key, int unique_id, boolean_t *done) {
+		int depth, int unique_id, boolean_t *done) {
 	if (pplan->treat_key_as_null[unique_id]) {	/* Treat all columns in the table as NULL (used for OUTER JOINs) */
 		/* Note that even in the case "column_alias" corresponds to a TABLENAME.ASTERISK, we treat all the columns
 		 * together as one NULL value here. This is necessary for YDBOcto#759.
@@ -52,21 +52,12 @@ TEMPLATE(tmpl_column_reference_common, PhysicalPlan *pplan, SqlColumnAlias *colu
 		SqlStatementType	table_type;
 		table_type = table_alias->table->type;
 		if (create_table_STATEMENT != table_type) {
-			/* This is a case of a sub-query. The values of all columns of the sub-query have already gone through
-			 * the "str2mval" transformation and concatenated in a form that is readily usable. So use that.
+			/* This is a derived_column i.e. a case of subquery. Let tmpl_print_expression.ctemplate LP_DERIVED_COLUMN
+			 * handle M code generation, that way all similar handling is at one place.
 			 */
-			assert((select_STATEMENT == table_type) || (table_value_STATEMENT == table_type));
-			assert(NULL != sql_key);
-			assert(unique_id == sql_key->unique_id);
-			TMPL(tmpl_key, sql_key);
-			(*buffer_index)--;
-			%{},{}%
-			TMPL(tmpl_key, sql_key);
-			%{}){}%
-			*done = TRUE;
+			*done = FALSE;
 			return;
 		}
-		assert(NULL == sql_key);
 
 		int		save_group_by_column_number;
 		boolean_t	left_concat_needed;

@@ -134,3 +134,9 @@ teardown() {
 	load_fixture TTA014_errors.sql subtest novv
 	verify_output TTA014_errors output.txt
 }
+
+@test "TTA015 : OCTO880 : %YDB-E-LVUNDEF error is not seen with queries involving LEFT JOIN and table.* reference" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TTA015.sql "trim_trailing_zeroes"
+}

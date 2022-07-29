@@ -138,13 +138,12 @@ query_specification
       $$ = ret;
       $$->loc = @SELECT;	/* useful for error reporting to know lexical start of query */
     }
-  | SELECT set_quantifier select_list where_clause group_by_clause having_clause {
+  | SELECT set_quantifier select_list where_clause group_by_clause having_clause optional_order_by {
       // We're going to run against a secret table with one row so the list gets found
       SqlJoin			*join;
       SqlTable			*table;
-      SqlStatement		*join_statement, *t_stmt, *select_list, *ret;
+      SqlStatement		*join_statement, *select_list, *ret;
       SqlTableAlias		*alias;
-      SqlSelectStatement	*select;
       char			*table_name = "OCTOONEROWTABLE";
 
       select_list = $select_list;
@@ -153,9 +152,6 @@ query_specification
         yyerror(NULL, NULL, &select_list, NULL, NULL, NULL);
         YYERROR;
       }
-      SQL_STATEMENT(t_stmt, select_STATEMENT);
-      MALLOC_STATEMENT(t_stmt, select, SqlSelectStatement);
-      UNPACK_SQL_STATEMENT(select, t_stmt, select);
       SQL_STATEMENT(join_statement, join_STATEMENT);
       MALLOC_STATEMENT(join_statement, join, SqlJoin);
       UNPACK_SQL_STATEMENT(join, join_statement, join);
@@ -175,11 +171,9 @@ query_specification
       // We can probably put a variable in the bison local for this
       alias->unique_id = *plan_id;
       (*plan_id)++;
-      select->table_list = join_statement;
-      select->where_expression = $where_clause;
-      select->group_by_expression = $group_by_clause;
-      select->having_expression = $having_clause;
-      INVOKE_QUERY_SPECIFICATION(ret, (OptionalKeyword)(uintptr_t)$set_quantifier, select_list, t_stmt, NULL, plan_id);
+
+      SqlStatement *t_stmt = table_expression(join_statement, $where_clause, $group_by_clause, $having_clause);
+      INVOKE_QUERY_SPECIFICATION(ret, (OptionalKeyword)(uintptr_t)$set_quantifier, select_list, t_stmt, $optional_order_by, plan_id);
       $$ = ret;
       $$->loc = @SELECT;	/* useful for error reporting to know lexical start of query */
     }

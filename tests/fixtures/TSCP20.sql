@@ -21,3 +21,12 @@ select 'abcd' group by 1;
 select 1 having 'abcd' = 'efgh';
 select id from names n1 where firstname in (select n1.firstname having n1.firstname != 'Zero');
 select id from names n1 where firstname in (select n1.firstname group by n1.id having n1.firstname = 'Zero');
+
+-- OCTO879 : Query with only SELECT and ORDER BY should not issue a syntax error
+select 1 order by 1;
+select 'ok' as alias order by alias;
+select 'ok' order by 1;
+select id from names n1 where firstname in (select n1.firstname group by n1.id having n1.firstname = 'Zero' order by 1);
+select 1 as id where 1 != 2 group by id having 1 != 2 order by 2::integer;
+select 1 as id where 1 != 2 group by id having 1 != 2 order by id;
+select 1 as id where 1 != 2 group by id having 1 != 2 order by 1;

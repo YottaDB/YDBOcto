@@ -977,7 +977,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 					/* User-specified constraint name is NULL. Auto generate a constraint name */
 					char *table_name;
 					char *column_name;
-					char  constraint_name[OCTO_MAX_IDENT + 1];
+					char  constraint_name[OCTO_MAX_IDENT + 1]; /* +1 for null terminator */
 
 					UNPACK_SQL_STATEMENT(value, table->tableName, value);
 					table_name = value->v.reference;
@@ -1046,6 +1046,10 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 					malloc_space = octo_cmalloc(memory_chunks, len + 1);
 					strncpy(malloc_space, constraint_name, len + 1);
 					SQL_VALUE_STATEMENT(name_stmt, STRING_LITERAL, malloc_space);
+					/* Set the constraint name to always be double-quoted when handling by other modules,
+					 * e.g. `emit_column_specification.c` and `describe_tablename.c`.
+					 */
+					name_stmt->v.value->is_double_quoted = TRUE;
 					constraint->name = name_stmt;
 					YDB_STRING_TO_BUFFER(malloc_space, &subs[1]); /* for use in "ydb_set_s()" call below */
 				} else {
@@ -1056,6 +1060,10 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 					 * there are duplicates. If so, issue error.
 					 */
 					UNPACK_SQL_STATEMENT(value, constraint->name, value);
+					/* Set the constraint name to always be double-quoted when handling by other modules,
+					 * e.g. `emit_column_specification.c` and `describe_tablename.c`.
+					 */
+					value->is_double_quoted = TRUE;
 					constraint_name = value->v.string_literal;
 					YDB_STRING_TO_BUFFER(constraint_name, &subs[1]);
 					status = ydb_data_s(&ydboctoTblConstraint, 2, &subs[0], &ret_value);

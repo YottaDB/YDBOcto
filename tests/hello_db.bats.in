@@ -76,71 +76,76 @@ teardown() {
 			if postgres_database_exists "nullnames"; then
 				psql nullnames -c 'DROP TABLE IF EXISTS nullnamesTQG06;' >& postgres.drop_table_TQG06.out
 			fi
+			if postgres_database_exists "quotenames"; then
+				psql quotenames -c 'DROP TABLE IF EXISTS "quote nameTQG03";' >& postgres.drop_table_TQG03_4.out
+			fi
 			echo "\d" > listdb.sql
 		fi
 
 		for schema in $schema_list
 		do
+			if [[ "mysql" == $db && "quotenames" == "$schema" ]]; then
+				# MySQL does not support double-quoted identifiers, but rather treats double-quoted strings as
+				# string literals. This behavior diverges from both Octo and PostgreSQL behavior, and so it cannot
+				# be crosschecked against them. So, skip the `quotenames` database when running against MySQL.
+				continue
+			fi
 			# If the database and/or table already exists, the `create_{mysql,postgres}_database` or
 			# `load_{mysql,postgres}_fixture` function invocations might return with a non-zero exit status due to the
 			# database being created by a different userid (implying current userid does not have permissions to run
 			# CREATE DATABASE) OR due to `\set ON_ERROR_STOP on` usage in the .sql script used by the
 			# `load_{mysql,postgres}_fixture` function etc.. Do not consider these as real errors hence the use of the `run`
 			# command below to avoid bats from treating this as an error.
-			create_${db}_database $schema &> $schema.${db}.create || true
-			load_${db}_fixture $schema ${db}-$schema.sql $schema.${db}.load || true
+			create_${db}_database "$schema" &> "$schema".${db}.create || true
+			load_${db}_fixture "$schema" ${db}-"$schema".sql "$schema".${db}.load || true
 			# Do minimal check of database contents after {mysql,postgres} load
 			# First find list of table names in this database/schema
 			if [[ "mysql" == $db ]]; then
-				run_mysql $schema listdb.sql | grep -v Tables_in | sort >& tables_$schema.txt
+				run_mysql "$schema" listdb.sql | grep -v Tables_in | sort >& tables_"$schema".txt
 			else
-				psql $schema -f listdb.sql | grep public | awk '{print $3}' >& tables_$schema.txt
+				psql --no-align "$schema" -f listdb.sql | grep public | awk -F'|' '{print $2;}' >& tables_"$schema".txt
 			fi
 			declare -a tablearray
-			readarray -t tablearray < tables_$schema.txt
+			readarray -t tablearray < tables_"$schema".txt
 			i=0
 			while (( ${#tablearray[@]} > i )); do
 				tablename=${tablearray[i++]}
 				inputfile="input_${schema}_${tablename}.sql"
 				outputfile="output_${schema}_${tablename}.txt"
 				if [[ "mysql" == $db ]]; then
-					if [[ $schema == "sqllogic4" && $tablename == "t1" ]]; then
+					if [[ "$schema" == "sqllogic4" && "$tablename" == "t1" ]]; then
 						echo "select * from $tablename order by id;" > $inputfile
 					else
 						echo "select * from $tablename;" > $inputfile
 					fi
-					run_mysql $schema $inputfile >& $outputfile
+					run_mysql "$schema" "$inputfile" >& "$outputfile"
 					# Replace NULL with empty string to match Postgres behavior
-					sed -i 's/NULL//g;' $outputfile
+					sed -i 's/NULL//g;' "$outputfile"
 				else
-					echo "select * from $tablename;" > $inputfile
-					psql --no-align $schema -f $inputfile >& $outputfile
+					echo 'select * from "'$tablename'";'  > "$inputfile"
+					psql --no-align "$schema" -f "$inputfile" >& "$outputfile"
 				fi
 				echo "#######################################################################" >> output.txt
-				if [[ "mysql" == $db ]]; then
-					echo "# Listing first 3 lines and last 3 lines of [SCHEMA : $schema] [TABLE : $(echo $tablename | tr '[:upper:]' '[:lower:]')]" >> output.txt
-				else
-					echo "# Listing first 3 lines and last 3 lines of [SCHEMA : $schema] [TABLE : $tablename]" >> output.txt
-				fi
+				echo "# Listing first 3 lines and last 3 lines of [SCHEMA : "$schema"] [TABLE : "$tablename"]" >> output.txt
 				echo "#######################################################################" >> output.txt
-				head -1 $outputfile | tr '[:upper:]' '[:lower:]' >> output.txt 2>&1
-				sed -n '2,4p' $outputfile | sort >> output.txt 2>&1
+				head -1 "$outputfile" | tr '[:upper:]' '[:lower:]' >> output.txt 2>&1
+				sed -n '2,4p' "$outputfile" | sort >> output.txt 2>&1
 				echo "..." >> output.txt
 				echo "..." >> output.txt
 				if [[ "mysql" == $db ]]; then
-					if [[ $tablename == "Shippers" ]]; then
+					if [[ "$tablename" == "Shippers" ]]; then
 						# Since there are only 3 rows in this table, taking `tail -4`
 						# yields the 3 rows plus the column headings at the end,
 						# thereby duplicating those taken by `head -1` above.
-						tail -3 $outputfile | sort >> output.txt 2>&1
+						tail -3 "$outputfile" | sort >> output.txt 2>&1
 					else
-						tail -4 $outputfile | sort >> output.txt 2>&1
+						tail -4 "$outputfile" | sort >> output.txt 2>&1
 					fi
 				else
 					if [[ $tablename == "shippers" ]]; then
-						tail -4 $outputfile | grep -v rows | sort >> output.txt 2>&1
+						tail -4 "$outputfile" | grep -v rows | sort >> output.txt 2>&1
 					else
-						tail -5 $outputfile | grep -v rows | sort >> output.txt 2>&1
+						tail -5 "$outputfile" | grep -v rows | sort >> output.txt 2>&1
 					fi
 				fi
 			done
@@ -161,6 +166,6 @@ teardown() {
 			sed -i 's/|f$/|0/g;' output.txt
 		fi
 		mv output.txt output-$db.txt
-		verify_output HDB01 output-$db.txt
+		verify_output HDB01-$db output-$db.txt # HDB01-postgres.ref or HDB01-mysql.ref
 	done
 }

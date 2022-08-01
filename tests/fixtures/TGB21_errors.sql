@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -777,16 +777,16 @@ select firstname from names group by lastname in (select lastname from names),fi
 
 -- Following double quote queries have valid use cases as well but are not co-herent with postgres to test using cross check interface
 -- so adding them here.
-SELECT "test" FROM names GROUP BY "test";
-SELECT "test" FROM names GROUP BY "test" HAVING "test"!="hello";
-SELECT "test" FROM names GROUP BY "test" ORDER BY "test";
-SELECT "test" FROM names GROUP BY 1;
-SELECT "test" FROM names GROUP BY 1 ORDER BY "test";
-SELECT "test" FROM names GROUP BY 1 HAVING "test"!="hello" ORDER BY "test";
-SELECT "test" FROM names GROUP BY 1 HAVING "test"!="hello";
-SELECT "test" FROM names GROUP BY firstname HAVING "test"!="hello" ORDER BY "test";
-SELECT "test" FROM names GROUP BY firstname HAVING "test"!="hello" ORDER BY 1;
-SELECT "test" FROM names GROUP BY 1 HAVING "test"!="hello" ORDER BY firstname; -- errors out saying firstname in ORDER BY must be in GROUP BY
+SELECT 'test' FROM names GROUP BY 'test';
+SELECT 'test' FROM names GROUP BY 'test' HAVING 'test'!='hello';
+SELECT 'test' FROM names GROUP BY 'test' ORDER BY 'test';
+SELECT 'test' FROM names GROUP BY 1;
+SELECT 'test' FROM names GROUP BY 1 ORDER BY 'test';
+SELECT 'test' FROM names GROUP BY 1 HAVING 'test'!='hello' ORDER BY 'test';
+SELECT 'test' FROM names GROUP BY 1 HAVING 'test'!='hello';
+SELECT 'test' FROM names GROUP BY firstname HAVING 'test'!='hello' ORDER BY 'test';
+SELECT 'test' FROM names GROUP BY firstname HAVING 'test'!='hello' ORDER BY 1;
+SELECT 'test' FROM names GROUP BY 1 HAVING 'test'!='hello' ORDER BY firstname; -- errors out saying firstname in ORDER BY must be in GROUP BY
 
 SELECT CAST('12' AS INTEGER) FROM names GROUP BY 1 HAVING CAST('12' AS INTEGER)=12 ORDER BY firstname; -- errors out saying firstname in ORDER BY must be in GROUP BY
 SELECT CAST(id AS NUMERIC) FROM names GROUP BY firstname HAVING CAST(id AS NUMERIC)=3.0 ORDER BY 1; -- Octo expression error -- Postgres Error as id not in group by

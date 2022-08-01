@@ -90,6 +90,6 @@ LINE 23:1: select firstname from names having n1.*;
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
 LINE 25:1: select count(DISTINCT n1.*) from names n11;
                                  ^^^^
-[ERROR]: ERR_AS_MORE_COLUMNS: Table name 'ABCD' has 3 columns available but 4 columns specified
+[ERROR]: ERR_AS_MORE_COLUMNS: Table name "ABCD" has 3 columns available but 4 columns specified
 LINE 27:1: select a,b,c from (select n1.* from names n1) as abcd(a,b,c,d);
                                                             ^^^^

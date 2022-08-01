@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -1088,3 +1088,5 @@ DROP TABLE tmp2;
 DROP TABLE tmp3;
 DROP TABLE tmp5;
 
+-- Issue syntax error for qualified column names in CONSTRAINTs, i.e. for `x.y` syntax
+create table tmp (id integer, unique (tmp.id));

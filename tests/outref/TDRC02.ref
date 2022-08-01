@@ -2,7 +2,7 @@ FIRSTNAME
 Zero
 Acid
 (2 rows)
-SCHEMA|NAME|TYPE|OWNER
+Schema|Name|Type|Owner
 public|INFORMATION_SCHEMA.TABLES|table|octo
 public|NAMES|table|octo
 public|NAMESWITHAGES|table|octo
@@ -52,7 +52,7 @@ FIRSTNAME|VARCHAR(30)|||
 LASTNAME|VARCHAR(30)|||
 Indexes:
     "NAMES_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^names(ID)
-SCHEMA|NAME|TYPE|OWNER
+Schema|Name|Type|Owner
 public|INFORMATION_SCHEMA.TABLES|table|octo
 public|NAMES|table|octo
 public|NAMESWITHAGES|table|octo
@@ -87,7 +87,7 @@ public|PG_USER|table|octo
 LINE 31:1: 1;
             ^
 syntax error, unexpected LITERAL
-SCHEMA|NAME|TYPE|OWNER
+Schema|Name|Type|Owner
 public|INFORMATION_SCHEMA.TABLES|table|octo
 public|NAMES|table|octo
 public|NAMESWITHAGES|table|octo

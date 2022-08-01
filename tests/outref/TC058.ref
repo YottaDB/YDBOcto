@@ -1,0 +1,93 @@
+
+-- TC058 : OCTO519 : Case-sensitivity of double-quoted table names is preserved in constraint names
+
+drop table if exists "T";
+drop table if exists "t";
+drop table if exists tmp;
+drop table if exists tmp2;
+drop table if exists tmp3;
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+
+-- TC058 : OCTO519 : Case-sensitivity of double-quoted table names is preserved in constraint names
+
+create table "id ABcd" ("col Tmp" integer CHECK ("col Tmp" > 2), "col TMP" integer CHECK ("col TMP" > 2));
+\d "id ABcd";
+
+create table "T" (id integer primary key);
+create table "t" (id integer primary key);
+\d "T";
+\d "t";
+
+create table tmp ("id 1" integer, "id 2" integer, unique("id 2", "id 1"), constraint "c 3" CHECK ("id 1" < "id 2"));
+create table tmp2 (id1 integer, id2 integer, unique(id2, id1), constraint c3 CHECK (id1 < id2));
+create table tmp3 ("id%1" integer);
+\d tmp;
+\d tmp2;
+\d tmp3;
+select * from tmp3;
+CREATE TABLE
+Table "id ABcd" stored in Global: ^%ydboctoDcDIbAT8CSUSJHpSnmukH6G : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+col Tmp|INTEGER|||
+col TMP|INTEGER|||
+Check constraints:
+    "id ABcd_col Tmp_CHECK" CHECK (("col Tmp" > 2))
+    "id ABcd_col TMP_CHECK" CHECK (("col TMP" > 2))
+CREATE TABLE
+CREATE TABLE
+Table "T" stored in Global: ^%ydboctoD2Z07aRHRvjuY8EuqHV12C5(ID) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID|INTEGER||NOT NULL|
+Indexes:
+    "T_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^%ydboctoD2Z07aRHRvjuY8EuqHV12C5(ID)
+Table "t" stored in Global: ^%ydboctoD8oRR7qRYjLs241efCry582(ID) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID|INTEGER||NOT NULL|
+Indexes:
+    "t_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^%ydboctoD8oRR7qRYjLs241efCry582(ID)
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+Table "TMP" stored in Global: ^%ydboctoDK8x9V2YiyPMRxcDYOMpB0K : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+id 1|INTEGER|||
+id 2|INTEGER|||
+Indexes:
+    "TMP_id 2_id 1_KEY" UNIQUE CONSTRAINT, Column(s) ("id 2", "id 1"), Global ^%ydboctoU3veJdiCY8Gh2JhmSeVZQ64
+Check constraints:
+    "c 3" CHECK (("id 1" < "id 2"))
+Table "TMP2" stored in Global: ^%ydboctoDhi9FWYfTwmiairk1dyhrGC : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1|INTEGER|||
+ID2|INTEGER|||
+Indexes:
+    "TMP2_ID2_ID1_KEY" UNIQUE CONSTRAINT, Column(s) (ID2, ID1), Global ^%ydboctoUwGtRZZgkvtnMZZl0zONUAK
+Check constraints:
+    "C3" CHECK ((ID1 < ID2))
+Table "TMP3" stored in Global: ^%ydboctoDvt9jqaQAeaH6MtsF2mzhG9 : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+id%1|INTEGER|||
+id%1
+(0 rows)
+
+-- TC058 : OCTO519 : Case-sensitivity of double-quoted table names is preserved in constraint names
+
+drop table if exists "T";
+drop table if exists "t";
+drop table if exists tmp;
+drop table if exists tmp2;
+drop table if exists tmp3;
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE

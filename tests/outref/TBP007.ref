@@ -1,0 +1,20 @@
+
+-- TBP007 : OCTO519 : Test qualified identifers accepted for SELECT, INSERT INTO, UPDATE, DELETE FROM, and TRUNCATE
+
+-- Syntax should be accepted, but table or column may not exist
+SELECT * FROM names n1, names n2 where N1.FIRSTNAME = 2;
+INSERT INTO test.names SELECT * from names;
+DELETE FROM test.names where lastname = 'Cool';
+UPDATE test.names SET id = 3, name = "Sunny" WHERE temperature = "warm";
+TRUNCATE test.names;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 3:1: SELECT * FROM names n1, names n2 where N1.FIRSTNAME = 2;
+                                                 ^^^^^^^^^^^^
+LINE 3:1: SELECT * FROM names n1, names n2 where N1.FIRSTNAME = 2;
+                                                                ^
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "NAMES_PKEY" : Key (ID)=(0) already exists
+DELETE 2
+[ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "NAME" of table "NAMES" does not exist
+LINE 6:1: UPDATE test.names SET id = 3, name = "Sunny" WHERE temperature =...
+                                        ^^^^
+TRUNCATE TABLE

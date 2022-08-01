@@ -25,7 +25,7 @@ teardown() {
 
 @test "TW00 :where with string limits return values" {
   run octo <<OCTO
-select * from names where firstName = "Zero";
+select * from names where firstName = 'Zero';
 OCTO
   [[ "$output" =~ "Zero|Cool" ]]
   ! [[ "$output" =~ "Joey" ]]
@@ -51,7 +51,7 @@ OCTO
 
 @test "TW03 :where does not equal" {
   run octo <<OCTO
-select * from names where firstName <> "Cereal";
+select * from names where firstName <> 'Cereal';
 OCTO
   [[ "$output" =~ "Joey" ]]
   ! [[ "$output" =~ "Cereal|Killer" ]]
@@ -92,7 +92,7 @@ SELECT CASE firstName
   END as firstName,
   lastName
 FROM names
-WHERE firstName = "Zero";
+WHERE firstName = 'Zero';
 OCTO
   [[ "$(grep -c "|" output.txt)" == "3" ]]
 }
@@ -101,7 +101,7 @@ OCTO
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names
-WHERE firstName < "Zero";
+WHERE firstName < 'Zero';
 OCTO
   [[ "$(grep -c "Zero" output.txt)" == "0" ]]
   [[ "$(grep -c "|" output.txt)" != "1" ]]
@@ -111,14 +111,14 @@ OCTO
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names
-WHERE firstName < "G";
+WHERE firstName < 'G';
 OCTO
   # Expected response is Acid Burn and Cereal Killer
   [[ "$(grep -c "|" output.txt)" == "3" ]]
   octo <<OCTO &> output2.txt
 SELECT *
 FROM names
-WHERE firstName > "G";
+WHERE firstName > 'G';
 OCTO
   # Expected response is Zero Cool (twice), Lord Nikon, and Joey
   [[ "$(grep -c "|" output2.txt)" == "5" ]]
@@ -129,7 +129,7 @@ OCTO
 CREATE FUNCTION MPIECE(VARCHAR, VARCHAR, INTEGER) RETURNS VARCHAR AS \$PIECE;
 SELECT *
 FROM names
-WHERE MPIECE(firstName, "e", 1) = "Z"
+WHERE MPIECE(firstName, 'e', 1) = 'Z'
 OCTO
   [[ "$(grep -c "|" output.txt)" == "3" ]]
 }
@@ -138,7 +138,7 @@ OCTO
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names
-WHERE firstName ~ "^Z";
+WHERE firstName ~ '^Z';
 OCTO
   [[ "$(grep -c "|" output.txt)" == "3" ]]
 }
@@ -147,7 +147,7 @@ OCTO
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names
-WHERE firstName ~ "^z";
+WHERE firstName ~ '^z';
 OCTO
   [[ "$(grep -c "|" output.txt)" == "1" ]]
 }
@@ -156,7 +156,7 @@ OCTO
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names
-WHERE firstName ~* "^z";
+WHERE firstName ~* '^z';
 OCTO
   [[ "$(grep -c "|" output.txt)" == "3" ]]
 }
@@ -165,7 +165,7 @@ OCTO
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names
-WHERE firstName IN ("Zero", "Acid");
+WHERE firstName IN ('Zero', 'Acid');
 OCTO
   [[ "$(grep -c "|" output.txt)" == "4" ]]
 }
@@ -174,7 +174,7 @@ OCTO
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names
-WHERE firstName NOT IN ("Zero", "Acid");
+WHERE firstName NOT IN ('Zero', 'Acid');
 OCTO
   [[ "$(grep -c "|" output.txt)" == "4" ]]
   [[ "$(grep -c "Zero|" output.txt)" == "0" ]]
@@ -184,7 +184,7 @@ OCTO
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names
-WHERE firstName !~ "^Z";
+WHERE firstName !~ '^Z';
 OCTO
   [[ "$(grep -c "|Z" output.txt)" == "0" ]]
 }
@@ -193,7 +193,7 @@ OCTO
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names
-WHERE firstName !~ "^z";
+WHERE firstName !~ '^z';
 OCTO
   [[ "$(grep -c "|Z" output.txt)" == "2" ]]
 }
@@ -202,7 +202,7 @@ OCTO
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names
-WHERE firstName !~* "^z";
+WHERE firstName !~* '^z';
 OCTO
   [[ "$(grep -c "|Z" output.txt)" == "0" ]]
 }

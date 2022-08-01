@@ -11,5 +11,5 @@ LINE 2:1: select 1 order by 2;
 LINE 4:1: ...lect 1 as id where 1 != 2 group by id having 1 != 2 order by 2;
                                                                           ^
 [ERROR]: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant abcd in ORDER BY
-LINE 5:1: ...1 as id where 1 != 2 group by id having 1 != 2 order by 'abcd';
-                                                                          ^
+LINE 5:1: ... 1 as id where 1 != 2 group by id having 1 != 2 order by 'abcd';
+                                                                      ^^^^^^

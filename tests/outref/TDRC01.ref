@@ -11,7 +11,7 @@ select n1.firstname from names n1 limit 2;
 select n1.firstname from names n1 limit 2;
 
 --Test that the \d tablename without semicolon works fine
-\d names
+\d names;
 
 -- Test that the \d command without semicolon issues error which is evident when the keyword 'select'
 -- from the following query ("select 1;") gets treated as the table name and gets a confused parse output.
@@ -27,7 +27,7 @@ FIRSTNAME
 Zero
 Acid
 (2 rows)
-SCHEMA|NAME|TYPE|OWNER
+Schema|Name|Type|Owner
 public|INFORMATION_SCHEMA.TABLES|table|octo
 public|NAMES|table|octo
 public|NAMESWITHAGES|table|octo
@@ -77,7 +77,7 @@ FIRSTNAME|VARCHAR(30)|||
 LASTNAME|VARCHAR(30)|||
 Indexes:
     "NAMES_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^names(ID)
-SCHEMA|NAME|TYPE|OWNER
+Schema|Name|Type|Owner
 public|INFORMATION_SCHEMA.TABLES|table|octo
 public|NAMES|table|octo
 public|NAMESWITHAGES|table|octo
@@ -112,7 +112,7 @@ public|PG_USER|table|octo
 LINE 16:1: 1;
             ^
 syntax error, unexpected LITERAL
-SCHEMA|NAME|TYPE|OWNER
+Schema|Name|Type|Owner
 public|INFORMATION_SCHEMA.TABLES|table|octo
 public|NAMES|table|octo
 public|NAMESWITHAGES|table|octo

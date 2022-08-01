@@ -103,7 +103,7 @@ id|name
 14|Name4
 15|Name5
 #######################################################################
-# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : categories]
+# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : Categories]
 #######################################################################
 categoryid|categoryname|description
 1|Beverages|Soft drinks, coffees, teas, beers, and ales
@@ -116,7 +116,7 @@ categoryid|categoryname|description
 7|Produce|Dried fruit and bean curd
 8|Seafood|Seaweed and fish
 #######################################################################
-# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : customers]
+# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : Customers]
 #######################################################################
 customerid|customername|contactname|address|city|postalcode|country
 1|Alfreds Futterkiste|Maria Anders|Obere Str. 57|Berlin|12209|Germany
@@ -129,7 +129,7 @@ customerid|customername|contactname|address|city|postalcode|country
 90|Wilman Kala|Matti Karttunen|Keskuskatu 45|Helsinki|21240|Finland
 91|Wolski|Zbyszek|ul. Filtrowa 68|Walla|01-012|Poland
 #######################################################################
-# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : employees]
+# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : Employees]
 #######################################################################
 employeeid|lastname|firstname|birthdate|photo|notes
 1|Davolio|Nancy|DATE|EmpID1.pic|Education includes a BA in psychology from Colorado State University. She also completed (The Art of the Cold Call). Nancy is a member of 'Toastmasters International'.
@@ -142,7 +142,7 @@ employeeid|lastname|firstname|birthdate|photo|notes
 8|Callahan|Laura|DATE|EmpID8.pic|Laura received a BA in psychology from the University of Washington. She has also completed a course in business French. She reads and writes French.
 9|Dodsworth|Anne|DATE|EmpID9.pic|Anne has a BA degree in English from St. Lawrence College. She is fluent in French and German.
 #######################################################################
-# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : orderdetails]
+# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : OrderDetails]
 #######################################################################
 orderdetailid|orderid|productid|quantity
 1|10248|11|12
@@ -155,7 +155,7 @@ orderdetailid|orderid|productid|quantity
 517|10443|11|6
 518|10443|28|12
 #######################################################################
-# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : orders]
+# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : Orders]
 #######################################################################
 orderid|customerid|employeeid|orderdate|shipperid
 10248|90|5|DATE|3
@@ -168,7 +168,7 @@ orderid|customerid|employeeid|orderdate|shipperid
 10442|20|3|DATE|2
 10443|66|8|DATE|1
 #######################################################################
-# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : products]
+# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : Products]
 #######################################################################
 productid|productname|supplierid|categoryid|unit|price
 1|Chais|1|1|10 boxes x 20 bags|18
@@ -181,7 +181,7 @@ productid|productname|supplierid|categoryid|unit|price
 76|Lakkalikööri|23|1|500 ml |18
 77|Original Frankfurter grüne Soße|12|2|12 boxes|13
 #######################################################################
-# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : shippers]
+# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : Shippers]
 #######################################################################
 shipperid|shippername|phone
 1|Speedy Express|(503) 555-9831
@@ -193,7 +193,7 @@ shipperid|shippername|phone
 2|United Package|(503) 555-3199
 3|Federal Shipping|(503) 555-9931
 #######################################################################
-# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : suppliers]
+# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : Suppliers]
 #######################################################################
 supplierid|suppliername|contactname|address|city|postalcode|country|phone
 1|Exotic Liquid|Charlotte Cooper|49 Gilbert St.|Londona|EC1 4SD|UK|(171) 555-2222

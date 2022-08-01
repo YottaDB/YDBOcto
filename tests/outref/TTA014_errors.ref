@@ -66,12 +66,12 @@ LINE 11:1: select n1.* < 1 from (VALUES(1)) n1;
 LINE 12:1: select n1.* < 'test' from (VALUES(NULL)) n1;
                   ^^
 LINE 12:1: select n1.* < 'test' from (VALUES(NULL)) n1;
-                              ^
+                         ^^^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
 LINE 13:1: select n1.* < 'test' from (VALUES('test')) n1;
                   ^^
 LINE 13:1: select n1.* < 'test' from (VALUES('test')) n1;
-                              ^
+                         ^^^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
 LINE 15:1: select n1.* > (select 'test') from (VALUES(NULL)) n1;
                   ^^

@@ -18,8 +18,10 @@ setup() {
 }
 
 teardown() {
-	# Even though rocto is not started for all tests it is helpful to have stop_rocto here as we want it to execute even when the
-	# subtest which do use rocto fail.
+	# Stop rocto for all tests. This is needed because `stop_rocto` will not run when it is included in a test case
+	# but that test case fails before reaching this call. Automatically doing it with `teardown` avoids this issue.
+	# Also, note that `stop_rocto` checks for the `rocto.pid` file created by `start_rocto` and only attempts to stop
+	# rocto if it finds this file. Hence, it is safe to call `stop_rocto` even if `start_rocto` was not run.
 	stop_rocto
 	corecheck
 }
@@ -46,9 +48,9 @@ OCTO
   octo <<OCTO 2>&1 | tee output.txt
 CREATE TABLE namesE(
   id INTEGER PRIMARY KEY,
-  firstName VARCHAR EXTRACT "^names(keys(""id""))",
+  firstName VARCHAR EXTRACT "^names(keys(""ID""))",
   lastName VARCHAR
-) GLOBAL "^names(keys(""id""))";
+) GLOBAL "^names(keys(""ID""))";
 OCTO
   run octo <<OCTO
 SELECT * FROM namesE;
@@ -124,7 +126,7 @@ OCTO
 	fi
 	yottadb -run %XCMD 'kill ^T1 set ^T1(1,2.2,3.3)="1.1|2|3"'
 	octo <<OCTO 2>&1 | tee output.txt
-	create table t1 (a int primary key, b int, c numeric, d numeric key num 1, e int, f int key num 2) global "^T1(keys(""a""),keys(""d""),keys(""f""))";
+	create table t1 (a int primary key, b int, c numeric, d numeric key num 1, e int, f int key num 2) global "^T1(keys(""A""),keys(""D""),keys(""F""))";
 	select * from t1;
 	drop table t1;
 OCTO
@@ -143,7 +145,7 @@ OCTO
 	fi
 	yottadb -run %XCMD 'kill ^T1 set ^T1("hello")="world"'
 	octo <<OCTO 2>&1 | tee output.txt
-	create table t1(a int primary key, b numeric) global "^T1(keys(""a""))";
+	create table t1(a int primary key, b numeric) global "^T1(keys(""A""))";
 	select * from t1;
 	drop table t1;
 OCTO
@@ -737,6 +739,15 @@ OCTO
 }
 
 @test "TC052 : OCTO837 : pg_enum and pg_range are minimally supported (empty)" {
+	if [ ! -z "$CI_JOB_NAME" ] ; then
+		if [ "asan-ubuntu" == "$CI_JOB_NAME" ] && [ "UTF-8" == $ydb_chset ] ; then
+			# We have seen this subtest fail occasionally with a LeakSanitizer SIG-11 when run in the "asan-ubuntu"
+			# pipeline job. All the failure runs so far have happened when ydb_chset was randomly set to "UTF-8".
+			# Therefore we skip this subtest if both conditions are met. See the following for more details.
+			#	https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/892#note_1280024442
+			skip
+		fi
+	fi
 	load_fixture TC052.sql subtest novv
 	verify_output TC052 output.txt
 }
@@ -751,7 +762,7 @@ OCTO
 	verify_output TC054 output.txt
 }
 
-@test "TC055 : OCTO583 : Validate IDENTIY constraint on columns" {
+@test "TC055 : OCTO583 : Validate IDENTITY constraint on columns" {
 	load_fixture names.sql
 	load_fixture names.zwr
 	test_port=$(start_rocto 1400 -aw) # --read write and --allow schema changes required for this test
@@ -775,18 +786,29 @@ OCTO
 }
 
 @test "TC058 : OCTO519 : Case-sensitivity of double-quoted table names is preserved in constraint names" {
-	# Skip will be removed by MR!1182
-	skip
+	load_fixture TC058_drop.sql subtest novv
+	load_fixture TC058.sql subtest novv
+	$ydb_dist/yottadb -run %XCMD write '^%ydboctoschema("T","text",0),!' >> recreate.sql
+	$ydb_dist/yottadb -run %XCMD write '^%ydboctoschema("t","text",0),!' >> recreate.sql
+	$ydb_dist/yottadb -run %XCMD write '^%ydboctoschema("TMP","text",0),!' >> recreate.sql
+	$ydb_dist/yottadb -run %XCMD write '^%ydboctoschema("TMP2","text",0),!' >> recreate.sql
+	$ydb_dist/yottadb -run %XCMD write '^%ydboctoschema("TMP3","text",0),!' >> recreate.sql
+	load_fixture TC058_drop.sql subtest novv
+	octo -f recreate.sql 2>&1 | tee -a output.txt
+	verify_output TC058 output.txt
 }
 
 @test "TC059 : OCTO519 : Double-quoted strings are treated as case sensitive identifiers in CREATE/DROP TABLE statements" {
-	# Skip will be removed by MR!1182
-	skip
+	load_fixture TC059.sql subtest novv
+	verify_output TC059 output.txt
 }
 
 @test "TC060 : OCTO519 : Column names differing only in case yield correct constraint names" {
-	# Skip will be removed by MR!1182
-	skip
+	load_fixture TC060.sql subtest novv
+	$ydb_dist/yottadb -run %XCMD write '^%ydboctoschema("TMP","text",0),!' >> recreate.sql
+	load_fixture TC060_drop.sql subtest novv
+	octo -f recreate.sql 2>&1 | tee -a output.txt
+	verify_output TC060 output.txt
 }
 
 @test "TC061 : OCTO633 : EXTRACT accepts non-key columns" {
@@ -845,6 +867,11 @@ OCTO
 	verify_output TC071 output.txt
 }
 
+@test "TC072 : OCTO519 : Test x.y column name syntax" {
+	load_fixture names.zwr
+	load_fixture TC072.sql subtest novv
+	verify_output TC072 output.txt
+}
 
 @test "TC073 : OCTO940 : Check auto load doesn't result in SIG-11 when there is a dependency from non octo-seed table to octo-seed function" {
 	# Run only if build is of type "Debug", `seedreload` config is only available in "Debug" build

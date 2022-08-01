@@ -33,7 +33,7 @@ IDB
 4
 5
 (6 rows)
-STRLIT1
+strlit1
 0
 1
 2
@@ -41,7 +41,7 @@ STRLIT1
 4
 5
 (6 rows)
-STRLIT2
+strlit2
 0
 1
 2

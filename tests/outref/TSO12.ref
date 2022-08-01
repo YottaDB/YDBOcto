@@ -173,7 +173,7 @@
 SELECT a.id as A_id, b.id as B_id
 FROM names a INNER JOIN names b ON a.firstName = b.firstName
 UNION
-SELECT id as A_id, "" AS B_id
+SELECT id as A_id, 'a' AS B_id
 FROM names a
 WHERE a.firstName NOT IN (SELECT b.firstName FROM names b);
 
@@ -881,8 +881,8 @@ LINE 170:1: ...om names) except all (select new2id from (select newid+2 as new2.
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types INTEGER and VARCHAR cannot be matched
 LINE 172:1: SELECT a.id as A_id, b.id as B_id
                                  ^^^^^^^^^^^^
-LINE 175:4: SELECT id as A_id, "" AS B_id
-                                ^^^^^^^^^
+LINE 175:4: SELECT id as A_id, 'a' AS B_id
+                               ^^^^^^^^^^^
 ID|FIRSTNAME|LASTNAME|???|???|???
 0|Zero|Cool|0|Zero|Cool
 1|Acid|Burn|1|Acid|Burn

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -11,29 +11,23 @@
  ****************************************************************/
 
 drop_table_statement
-  : DROP TABLE column_name drop_behavior drop_data_retention {
-      INVOKE_DROP_TABLE_STATEMENT($$, $column_name, $drop_behavior, $drop_data_retention, FALSE);
+  : DROP TABLE qualified_identifier drop_behavior drop_data_retention {
+      INVOKE_DROP_TABLE_STATEMENT($$, $qualified_identifier, $drop_behavior, $drop_data_retention, FALSE);
     }
-  | DROP TABLE IF EXISTS column_name drop_behavior drop_data_retention {
-      INVOKE_DROP_TABLE_STATEMENT($$, $column_name, $drop_behavior, $drop_data_retention, TRUE);
+  | DROP TABLE IF EXISTS qualified_identifier drop_behavior drop_data_retention {
+      INVOKE_DROP_TABLE_STATEMENT($$, $qualified_identifier, $drop_behavior, $drop_data_retention, TRUE);
     }
   ;
 
 drop_function_statement
-  : DROP FUNCTION identifier optional_function_parameter_type_list {
-	INVOKE_DROP_FUNCTION($$, $identifier, $optional_function_parameter_type_list, FALSE);
-    }
-  | DROP FUNCTION sql_keyword optional_function_parameter_type_list {
-	INVOKE_DROP_FUNCTION($$, $sql_keyword, $optional_function_parameter_type_list, FALSE);
+  : DROP FUNCTION column_name optional_function_parameter_type_list {
+	INVOKE_DROP_FUNCTION($$, $column_name, $optional_function_parameter_type_list, FALSE);
     }
   | DROP FUNCTION PARENLESS_FUNCTION optional_function_parameter_type_list {
 	INVOKE_DROP_FUNCTION($$, $PARENLESS_FUNCTION, $optional_function_parameter_type_list, FALSE);
     }
-  | DROP FUNCTION IF EXISTS identifier optional_function_parameter_type_list {
-	INVOKE_DROP_FUNCTION($$, $identifier, $optional_function_parameter_type_list, TRUE);
-    }
-  | DROP FUNCTION IF EXISTS sql_keyword optional_function_parameter_type_list {
-	INVOKE_DROP_FUNCTION($$, $sql_keyword, $optional_function_parameter_type_list, TRUE);
+  | DROP FUNCTION IF EXISTS column_name optional_function_parameter_type_list {
+	INVOKE_DROP_FUNCTION($$, $column_name, $optional_function_parameter_type_list, TRUE);
     }
   | DROP FUNCTION IF EXISTS PARENLESS_FUNCTION optional_function_parameter_type_list {
 	INVOKE_DROP_FUNCTION($$, $PARENLESS_FUNCTION, $optional_function_parameter_type_list, TRUE);

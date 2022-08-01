@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -12,7 +12,7 @@
 
 /* Has exactly one row, and is used to allow SELECT without a FROM clause
  */
-CREATE TABLE octoOneRowTable (id INTEGER primary key) GLOBAL "^%ydboctoocto(""tables"",""octoOneRow"",keys(""id""))" READONLY;
+CREATE TABLE octoOneRowTable (id INTEGER primary key) GLOBAL "^%ydboctoocto(""tables"",""octoOneRow"",keys(""ID""))" READONLY;
 
 /* Used to store a list of 'namespaces'; basically everything we do should
  * fit in one of: public, pg_catalog, or information_schema
@@ -22,7 +22,7 @@ CREATE TABLE pg_catalog.pg_namespace (
   nspowner INTEGER,
   nspacl VARCHAR,
   oid INTEGER primary key
-) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_namespace"",keys(""oid""))" READONLY;
+) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_namespace"",keys(""OID""))" READONLY;
 
 -- Note: Above GLOBAL is populated in `tests/fixtures/octo-seed.zwr` using the following query
 --	select *,oid from pg_catalog.pg_type where typname in ('bool','int4','numeric','varchar','name');
@@ -62,7 +62,7 @@ CREATE TABLE pg_catalog.pg_type (
   typdefault VARCHAR(25),
   typacl VARCHAR(25),
   oid INTEGER
-) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_type"",keys(""typname""))" READONLY;
+) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_type"",keys(""TYPNAME""))" READONLY;
 
 /* Stores any table-like relations in the database
  */
@@ -101,7 +101,7 @@ CREATE TABLE pg_catalog.pg_class (
   reloptions VARCHAR,
   relpartbound VARCHAR,
   oid INTEGER PRIMARY KEY
-) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_class"",keys(""oid"")" READONLY;
+) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_class"",keys(""OID"")" READONLY;
 
 /* Populated via special DDL arguments */
 CREATE TABLE pg_catalog.pg_description (
@@ -110,7 +110,7 @@ CREATE TABLE pg_catalog.pg_description (
   objsubid INTEGER,
   description VARCHAR,
   oid INTEGER PRIMARY KEY
-) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_description"",keys(""oid"")" READONLY;
+) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_description"",keys(""OID"")" READONLY;
 
 
 CREATE TABLE information_schema.tables (
@@ -127,7 +127,7 @@ CREATE TABLE information_schema.tables (
   is_insertable_into VARCHAR,
   is_typed VARCHAR,
   commit_action VARCHAR
-) GLOBAL "^%ydboctoocto(""tables"",""information_schema"",""tables"",keys(""oid"")" READONLY;
+) GLOBAL "^%ydboctoocto(""tables"",""information_schema"",""tables"",keys(""OID"")" READONLY;
 
 
 CREATE TABLE pg_catalog.pg_proc (
@@ -160,7 +160,7 @@ CREATE TABLE pg_catalog.pg_proc (
   proconfig VARCHAR,
   proacl VARCHAR,
   oid INTEGER primary key
-) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_proc"",keys(""oid"")" READONLY;
+) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_proc"",keys(""OID"")" READONLY;
 
 /* Stores column descriptions for tables */
 CREATE TABLE pg_catalog.pg_attribute (
@@ -189,7 +189,7 @@ CREATE TABLE pg_catalog.pg_attribute (
   attfdwoptions VARCHAR,
   attmissingval VARCHAR,
   oid INTEGER primary key
-) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_attribute"",keys(""oid"")" READONLY;
+) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_attribute"",keys(""OID"")" READONLY;
 
 /* Stores default values for columns */
 CREATE TABLE pg_catalog.pg_attrdef (
@@ -198,7 +198,7 @@ CREATE TABLE pg_catalog.pg_attrdef (
  adbin VARCHAR,
  adsrc VARCHAR,
  oid INTEGER primary key
-) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_attrdef"",keys(""oid"")" READONLY;
+) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_attrdef"",keys(""OID"")" READONLY;
 
 /* Stores information on run-time parameters. Acts as an alternative interface for SET and SHOW commands
  * Derived from https://www.postgresql.org/docs/11/view-pg-settings.html
@@ -223,7 +223,7 @@ CREATE TABLE pg_catalog.pg_settings (
  sourcefile VARCHAR,
  sourceline INTEGER,
  pending_restart BOOLEAN
-) GLOBAL "%ydboctoocto(""settings"",""pg_settings"",keys(""name"")";
+) GLOBAL "%ydboctoocto(""settings"",""pg_settings"",keys(""NAME"")";
 
 /* Note that this table definition is just a stub, principally for preventing syntax errors, and so remains
  * to be fully implemented/supported (YDBOcto#588).
@@ -243,7 +243,7 @@ CREATE TABLE pg_catalog.pg_database (
  dattablespace INTEGER,
  datacl INTEGER,
  oid INTEGER primary key
-) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_database"",keys(""oid"")" READONLY;
+) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_database"",keys(""OID"")" READONLY;
 
 /* TODO: This table definition is just a stub, principally for preventing syntax errors, and so remains
  * to be fully implemented/supported per YDBOcto#661.
@@ -262,7 +262,7 @@ CREATE TABLE pg_catalog.pg_roles (
 	rolbypassrls BOOLEAN,
 	rolconfig VARCHAR,
 	oid INTEGER PRIMARY KEY
-) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_roles"",keys(""oid"")" READONLY;
+) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_roles"",keys(""OID"")" READONLY;
 
 /* TODO: This table definition is just a stub, principally for preventing syntax errors, and so remains
  * to be fully implemented/supported per YDBOcto#662.
@@ -277,7 +277,7 @@ CREATE TABLE pg_catalog.pg_user (
 	passwd VARCHAR,
 	valuntil VARCHAR,
 	userconfig VARCHAR
-) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_user"",keys(""usersysid"")" READONLY;
+) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_user"",keys(""USERSYSID"")" READONLY;
 
 /* Add standard SQL functions and internal Octo functions to the database and catalog
  * Note that some catalog functions do NOT use the types specified for them in PostgreSQL,
@@ -388,7 +388,7 @@ CREATE TABLE pg_catalog.pg_range (
 	rngcanonical INTEGER,
 	rngsubdiff INTEGER,
 	rngtypid INTEGER primary key
-) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_range"",keys(""rngtypid"")" READONLY;
+) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_range"",keys(""RNGTYPID"")" READONLY;
 
 /* Stores PostgreSQL enum types */
 CREATE TABLE pg_catalog.pg_enum (
@@ -396,4 +396,4 @@ CREATE TABLE pg_catalog.pg_enum (
 	enumsortorder NUMERIC,
 	enumlabel VARCHAR,
 	oid INTEGER primary key
-) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_enum"",keys(""oid"")" READONLY;
+) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_enum"",keys(""OID"")" READONLY;

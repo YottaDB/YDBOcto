@@ -11,26 +11,26 @@
  ****************************************************************/
 
 update_statement_searched
-  : UPDATE column_name SET set_clause_list {
-      $$ = update_statement($column_name, NULL, $set_clause_list, NULL, plan_id, parse_context);
+  : UPDATE qualified_identifier SET set_clause_list {
+      $$ = update_statement($qualified_identifier, NULL, $set_clause_list, NULL, plan_id, parse_context);
       if (NULL == $$) {
         YYERROR;
       }
     }
-  | UPDATE column_name optional_as as_name SET set_clause_list {
-      $$ = update_statement($column_name, $as_name, $set_clause_list, NULL, plan_id, parse_context);
+  | UPDATE qualified_identifier optional_as as_name SET set_clause_list {
+      $$ = update_statement($qualified_identifier, $as_name, $set_clause_list, NULL, plan_id, parse_context);
       if (NULL == $$) {
         YYERROR;
       }
     }
-  | UPDATE column_name SET set_clause_list WHERE search_condition {
-      $$ = update_statement($column_name, NULL, $set_clause_list, $search_condition, plan_id, parse_context);
+  | UPDATE qualified_identifier SET set_clause_list WHERE search_condition {
+      $$ = update_statement($qualified_identifier, NULL, $set_clause_list, $search_condition, plan_id, parse_context);
       if (NULL == $$) {
         YYERROR;
       }
     }
-  | UPDATE column_name optional_as as_name SET set_clause_list WHERE search_condition {
-      $$ = update_statement($column_name, $as_name, $set_clause_list, $search_condition, plan_id, parse_context);
+  | UPDATE qualified_identifier optional_as as_name SET set_clause_list WHERE search_condition {
+      $$ = update_statement($qualified_identifier, $as_name, $set_clause_list, $search_condition, plan_id, parse_context);
       if (NULL == $$) {
         YYERROR;
       }

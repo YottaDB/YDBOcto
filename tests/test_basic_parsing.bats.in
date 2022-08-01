@@ -64,3 +64,7 @@ teardown() {
 	verify_output TBP006 output.txt
 }
 
+@test "TBP007 : OCTO519 : Test qualified identifers accepted for INSERT INTO, UPDATE, DELETE FROM, and TRUNCATE" {
+	load_fixture TBP007.sql subtest novv
+	verify_output TBP007 output.txt
+}

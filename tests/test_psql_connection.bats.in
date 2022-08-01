@@ -70,7 +70,7 @@ OCTO
 
 @test "TPC00F : ensure correct columns are sent using xref" {
   run_psql $test_port <<OCTO 2>&1 | tee output.txt
-SELECT * FROM names WHERE firstName = "Zero";
+SELECT * FROM names WHERE firstName = 'Zero';
 OCTO
   [[ "$(grep -c -E "0.+Zero.+Cool" output.txt)" == "1" ]]
 }
@@ -83,7 +83,7 @@ OCTO
   fi
   test_portA=$(start_rocto $test_port)
   run_psql $test_portA <<OCTO 2>&1 | tee output.txt
-SELECT * FROM names WHERE firstName = "Zero";
+SELECT * FROM names WHERE firstName = 'Zero';
 OCTO
   [[ $(grep -c "127.0.0.1" rocto.log) -ge 1 ]]
 }
@@ -96,7 +96,7 @@ OCTO
   fi
   test_portB=$(start_rocto $test_port)
   run_psql $test_portB <<OCTO 2>&1 | tee output.txt
-SELECT * FROM names WHERE firstName = "Zero";
+SELECT * FROM names WHERE firstName = 'Zero';
 OCTO
   [[ $(grep -c "localhost" rocto.log) -ge 1 ]]
 }
@@ -192,7 +192,7 @@ OCTO
   test_portD=$(start_rocto $test_port -aw)
   cat >> in.sql <<OCTO
 select * from t1;
-create table t1(a int, b int) global "^T1(keys(""a""),keys(""b""))";
+create table t1(a int, b int) global "^T1(keys(""A""),keys(""B""))";
 select * from t1;
 drop table t1;
 select * from t1;
@@ -208,7 +208,7 @@ OCTO
   test_portE=$(start_rocto $test_port -aw)
   cat >> in.sql <<OCTO
 select * from t1;
-create table t1(a int, b int) global "^T1(keys(""a""),keys(""b""))";
+create table t1(a int, b int) global "^T1(keys(""A""),keys(""B""))";
 select * from t1;
 drop table t1;
 select * from t1;

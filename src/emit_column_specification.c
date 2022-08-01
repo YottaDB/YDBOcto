@@ -45,7 +45,11 @@ int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_co
 	if (NULL != cur_column->columnName) {
 		/* Column name is NOT NULL. This means it is a real column in the table (not a table-level constraint) */
 		UNPACK_SQL_STATEMENT(value, cur_column->columnName, value);
-		INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "`%s` ", value->v.reference);
+		if (value->is_double_quoted) {
+			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "\"%s\" ", value->v.reference);
+		} else {
+			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "`%s` ", value->v.reference);
+		}
 
 		int ret;
 		ret = get_user_visible_data_type_string(&cur_column->data_type_struct, data_type_string, sizeof(data_type_string));
@@ -144,7 +148,9 @@ int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_co
 			assert(cur_keyword->keyword == constraint->type);
 			assert(NULL != constraint->name);
 			UNPACK_SQL_STATEMENT(value, constraint->name, value);
-			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " CONSTRAINT %s %s",
+
+			assert(value->is_double_quoted);
+			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " CONSTRAINT \"%s\" %s",
 								    value->v.string_literal,
 								    ((UNIQUE_CONSTRAINT == cur_keyword->keyword) ? "UNIQUE"
 								     : (PRIMARY_KEY == cur_keyword->keyword)	 ? "PRIMARY KEY"

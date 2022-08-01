@@ -84,7 +84,16 @@ typedef void *yyscan_t;
 		UNPACK_SQL_STATEMENT(lcl_value, lcl_ret, value); \
 		lcl_value->type = TYPE;                          \
 		lcl_value->v.string_literal = STRING_LITERAL;    \
+		assert(FALSE == lcl_value->is_double_quoted);    \
 		DEST = lcl_ret;                                  \
+	}
+
+#define SQL_VALUE_MALLOC_STATEMENT(DEST, TYPE, COPIED)                            \
+	{                                                                         \
+		char *string_literal;                                             \
+                                                                                  \
+		string_literal = (char *)octo_cmalloc(memory_chunks, COPIED + 1); \
+		SQL_VALUE_STATEMENT(DEST, TYPE, string_literal);                  \
 	}
 
 #define SQL_COLUMN_LIST_ALIAS_STATEMENT(DEST)                                     \
@@ -809,6 +818,7 @@ typedef struct SqlValue {
 	enum SqlValueType pre_coerced_type; /* initialized/usable only if `type` is COERCE_TYPE */
 	group_by_fields_t group_by_fields;  /* Used in case of COERCE_TYPE and CALCULATED_VALUE */
 	int		  parameter_index;
+	boolean_t	  is_double_quoted;
 	union {
 		char *string_literal;
 		char *reference;

@@ -106,7 +106,7 @@ OCTO
 
 @test "TOB02 : order by with OR and AND in boolean expression" {
   octo <<OCTO 2>&1 | tee output.txt
-SELECT id,firstname FROM names WHERE (firstname = "Zero" AND lastname = "Cool") OR (id = 2) ORDER BY firstname;
+SELECT id,firstname FROM names WHERE (firstname = 'Zero' AND lastname = 'Cool') OR (id = 2) ORDER BY firstname;
 OCTO
   verify_output TOB02 output.txt noinfo nodebug
 }

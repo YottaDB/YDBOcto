@@ -395,3 +395,18 @@ OCTO
 	(expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_errors_multiquery_line.exp > expect.out) &> expect.dbg
 	verify_output TERR045 expect.out noinfo nodebug noexpect stripreturns
 }
+
+@test "TERR046 : OCTO519 : Test identifier length limits enforced on alias names" {
+	load_fixture TERR046.sql subtest novv
+	verify_output TERR046 output.txt
+}
+
+@test "TERR047 : OCTO519 : Various unknown column error scenarios" {
+	load_fixture TERR047.sql subtest novv
+	verify_output TERR047 output.txt
+}
+
+@test "TERR048 : Attempts to use USING syntax produce ERR_FEATURE_NOT_IMPLEMENTED error" {
+	load_fixture TERR048.sql subtest novv
+	verify_output TERR048 output.txt
+}

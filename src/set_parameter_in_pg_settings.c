@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -43,6 +43,8 @@ int set_parameter_in_pg_settings(char *variable, char *value) {
 
 	// SET a runtime variable to a specified value by updating the appropriate session LVN
 	assert((NULL != variable) && (NULL != value));
+	// Uppercase the variable name to enforce case insensitivity
+	TOUPPER_STR(variable);
 
 	/* Initialize session LVN subscripts
 	 *

@@ -62,7 +62,7 @@ OCTO
 
 @test "TSC00F : select with a semicolon in string" {
   octo <<OCTO 2>&1 | tee output.txt
-select * from names where firstName = "; hello world";
+select * from names where firstName = '; hello world';
 OCTO
   run cat output.txt
   ! [[ "$output" =~ "ERROR" ]]
@@ -140,9 +140,9 @@ OCTO
 SELECT
   firstName
   , CASE firstName
-    WHEN "Zero" THEN "Zero Cool"
-    WHEN "Acid" THEN "Acid Burn"
-    WHEN "Cereal" THEN "Cereal Killer"
+    WHEN 'Zero' THEN 'Zero Cool'
+    WHEN 'Acid' THEN 'Acid Burn'
+    WHEN 'Cereal' THEN 'Cereal Killer'
     ELSE firstName
     END
 FROM names;
@@ -184,7 +184,7 @@ OCTO
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names
-WHERE (id :: text) = "0";
+WHERE (id :: text) = '0';
 OCTO
   [[ "$(grep -c "|" output.txt)" == "2" ]]
 }
@@ -282,7 +282,7 @@ FROM   order1 A
                ON A.current_action = B.order_order_actions_id
        inner join orderstatus C
                ON A.status = C.order_status_id
-WHERE  B.action = "NW";
+WHERE  B.action = 'NW';
 OCTO
   verify_output TSC08 output.txt
 }
@@ -297,9 +297,9 @@ OCTO
 
 @test "TSC11 : test that multiline strings are inserted in to generated code correctly" {
   octo <<OCTO 2>&1 | tee output.txt
-select """
+select '"
  set ^TSC11(1)=1
-;"
+;'
 from names;
 OCTO
   yottadb -run %XCMD 'write:$get(^TSC11(1))="" "PASS: ^TSC11(1) is unset",! write:$get(^TSC11(1))=1 "FAIL: set ^TSC11(1)=1 was run when it should not have been",!' | tee -a output.txt

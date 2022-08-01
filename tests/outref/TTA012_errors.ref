@@ -207,26 +207,26 @@ syntax error, unexpected IDENTIFIER_ALONE
 LINE 26:1: select n1.* like 'test' from names n1;
                   ^^
 LINE 26:1: select n1.* like 'test' from names n1;
-                                 ^
+                            ^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for REGEX operation
 LINE 27:1: select n1.* like NULL from names n1;
                   ^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
 LINE 28:1: select 'test' like n1.* from names n1;
-                       ^
+                  ^^^^^^
 LINE 28:1: select 'test' like n1.* from names n1;
                               ^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
 LINE 29:1: select n1.* similar to 'test' from names n1;
                   ^^
 LINE 29:1: select n1.* similar to 'test' from names n1;
-                                       ^
+                                  ^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for REGEX operation
 LINE 30:1: select n1.* similar to NULL from names n1;
                   ^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
 LINE 31:1: select 'test' similar to n1.* from names n1;
-                       ^
+                  ^^^^^^
 LINE 31:1: select 'test' similar to n1.* from names n1;
                                     ^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for REGEX operation
@@ -236,33 +236,33 @@ LINE 32:1: select n1.* LIKE n1.* from names n1;
 LINE 33:1: select NULL like n1.* from names n1;
                             ^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
-LINE 34:1: select 'test' != n2.* from (VALUES('test') ,('test') ,('test'))...
-                       ^
+LINE 34:1: select 'test' != n2.* from (VALUES('test') ,('test') ,('test')) ...
+                  ^^^^^^
 LINE 34:1: select 'test' != n2.* from (VALUES('test') ,('test') ,('test')) ...
                             ^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
 LINE 35:1: select n2.* != 'test' from (VALUES('test') ,('test') ,('test')) ...
                   ^^
-LINE 35:1: select n2.* != 'test' from (VALUES('test') ,('test') ,('test'))...
-                               ^
+LINE 35:1: select n2.* != 'test' from (VALUES('test') ,('test') ,('test')) ...
+                          ^^^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
-LINE 36:1: select 'test' > n2.* from (VALUES('test') ,('test') ,('test')) ...
-                       ^
+LINE 36:1: select 'test' > n2.* from (VALUES('test') ,('test') ,('test')) n...
+                  ^^^^^^
 LINE 36:1: select 'test' > n2.* from (VALUES('test') ,('test') ,('test')) n...
                            ^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
-LINE 37:1: select 'test' < n2.* from (VALUES('test') ,('test') ,('test')) ...
-                       ^
+LINE 37:1: select 'test' < n2.* from (VALUES('test') ,('test') ,('test')) n...
+                  ^^^^^^
 LINE 37:1: select 'test' < n2.* from (VALUES('test') ,('test') ,('test')) n...
                            ^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
-LINE 38:1: select 'test' >= n2.* from (VALUES('test') ,('test') ,('test'))...
-                       ^
+LINE 38:1: select 'test' >= n2.* from (VALUES('test') ,('test') ,('test')) ...
+                  ^^^^^^
 LINE 38:1: select 'test' >= n2.* from (VALUES('test') ,('test') ,('test')) ...
                             ^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
-LINE 39:1: select 'test' <= n2.* from (VALUES('test') ,('test') ,('test'))...
-                       ^
+LINE 39:1: select 'test' <= n2.* from (VALUES('test') ,('test') ,('test')) ...
+                  ^^^^^^
 LINE 39:1: select 'test' <= n2.* from (VALUES('test') ,('test') ,('test')) ...
                             ^^
 ???

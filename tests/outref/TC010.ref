@@ -166,8 +166,8 @@ syntax error, unexpected MINUS, expecting LITERAL
 LINE 44:1: ...(id INTEGER PRIMARY KEY, date1 DATE, time1 TIME(15.8)) READONLY;
                                                               ^^^^
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: 'abcd'
-LINE 45:1: ... INTEGER PRIMARY KEY, date1 DATE, time1 TIME('abcd')) READONLY;
-                                                                ^
+LINE 45:1: ...d INTEGER PRIMARY KEY, date1 DATE, time1 TIME('abcd')) READONLY;
+                                                            ^^^^^^
 LINE 46:1: ...(id INTEGER PRIMARY KEY, date1 DATE, time1 TIME(abcd)) READONLY;
                                                               ^^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL

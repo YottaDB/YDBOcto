@@ -128,7 +128,7 @@ init_test() {
 	# so this does not impact pipeline times in any significant way.
 	export PYTHONDONTWRITEBYTECODE=1
 	# Set env var to maintain list of common schemas to create across different database emulations, e.g. Postgres and MySQL
-	export schema_list="names names1col nameslastname customers pastas easynames northwind $(echo sqllogic{1,2,3,4,5}) boolean nullnames nullcharnames composite "
+	export schema_list="names names1col nameslastname customers pastas easynames northwind $(echo sqllogic{1,2,3,4,5}) boolean nullnames nullcharnames composite quotenames"
 
 	# ASAN Options if ASAN is enabled
 	if [[ @ENABLE_ASAN@ == "ON" ]]; then

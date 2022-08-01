@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -14,4 +14,4 @@
 
 -- Currently only tested with LPAD, as this is the only function that requires an M-level
 -- error to be issued. However, other functions are likely to issue similar errors in the future.
-select lpad("dfdf", 5);
+select lpad('dfdf', 5);

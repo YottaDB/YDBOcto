@@ -70,78 +70,93 @@ select n2.id from names n1;
 select idb from (select 8 "ida");
 select idb from (select 8 'ida');
 select idb from (select 8 ida);
-[ERROR]: ERR_INVALID_AS_SYNTAX: Invalid AS value type: INTEGER
 LINE 2:1: select id as 123 from names;
                        ^^^
-[ERROR]: ERR_INVALID_AS_SYNTAX: Invalid AS value type: PARAMETER
+syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
 LINE 3:1: select id as $1 from names;
                        ^^
-LINE 5:1: select id as `backtick` from names;
-                                ^
-syntax error, unexpected IDENTIFIER_BACK_TICK, expecting IDENTIFIER_ALONE or LITERAL
+syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+BACKTICK
+0
+1
+2
+3
+4
+5
+(6 rows)
 LINE 6:1: select id as lit.lit from names;
-                       ^^^^^^^
-syntax error, unexpected IDENTIFIER_PERIOD_IDENTIFIER, expecting IDENTIFIER_ALONE or LITERAL
-LINE 7:1: select id as 'quote'.'quote' from names;
-                              ^
+                          ^
 syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+LINE 7:1: select id as 'quote'.'quote' from names;
+                       ^^^^^^^
+syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
 LINE 8:1: select id as "quote"."quote" from names;
                               ^
 syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 9:1: select id as $$dummyextrinsicfunction^something from names;
                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-syntax error, unexpected EXTRINSIC_FUNCTION, expecting IDENTIFIER_ALONE or LITERAL
+syntax error, unexpected EXTRINSIC_FUNCTION, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: IDB
 LINE 11:1: select idb from (select 8 as "ida");
                   ^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: IDB
 LINE 12:1: select idb from (select 8 as 'ida');
-                  ^^^
+                                        ^^^^^
+syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: IDB
 LINE 13:1: select idb from (select 8 as ida);
                   ^^^
-[ERROR]: ERR_INVALID_AS_SYNTAX: Invalid AS value type: INTEGER
 LINE 15:1: select id from names as 123;
                                    ^^^
-[ERROR]: ERR_INVALID_AS_SYNTAX: Invalid AS value type: PARAMETER
+syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
 LINE 16:1: select id from names as $1;
                                    ^^
-LINE 18:1: select id from names as `backtick`;
-                                            ^
-syntax error, unexpected IDENTIFIER_BACK_TICK, expecting IDENTIFIER_ALONE or LITERAL
+syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+ID
+0
+1
+2
+3
+4
+5
+(6 rows)
 LINE 19:1: select id from names as lit.lit;
-                                   ^^^^^^^
-syntax error, unexpected IDENTIFIER_PERIOD_IDENTIFIER, expecting IDENTIFIER_ALONE or LITERAL
-LINE 20:1: select id from names as 'quote'.'quote';
-                                          ^
+                                      ^
 syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+LINE 20:1: select id from names as 'quote'.'quote';
+                                   ^^^^^^^
+syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
 LINE 21:1: select id from names as "quote"."quote";
                                           ^
 syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 22:1: select id from names as $$dummyextrinsicfunction^something;
                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-syntax error, unexpected EXTRINSIC_FUNCTION, expecting IDENTIFIER_ALONE or LITERAL
+syntax error, unexpected EXTRINSIC_FUNCTION, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
 LINE 24:1: select n2.id from names as "n1";
                   ^^^^^
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
 LINE 25:1: select n2.id from names as n1;
                   ^^^^^
-[ERROR]: ERR_INVALID_AS_SYNTAX: Invalid AS value type: INTEGER
 LINE 27:1: select id 123 from names;
                      ^^^
-[ERROR]: ERR_INVALID_AS_SYNTAX: Invalid AS value type: PARAMETER
+syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 28:1: select id $1 from names;
                      ^^
-LINE 30:1: select id `backtick` from names;
-                              ^
-syntax error, unexpected IDENTIFIER_BACK_TICK, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+BACKTICK
+0
+1
+2
+3
+4
+5
+(6 rows)
 LINE 31:1: select id lit.lit from names;
-                     ^^^^^^^
-syntax error, unexpected IDENTIFIER_PERIOD_IDENTIFIER, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
-LINE 32:1: select id 'quote'.'quote' from names;
-                            ^
+                        ^
 syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+LINE 32:1: select id 'quote'.'quote' from names;
+                     ^^^^^^^
+syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 33:1: select id "quote"."quote" from names;
                             ^
 syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
@@ -151,27 +166,32 @@ syntax error, unexpected EXTRINSIC_FUNCTION, expecting EXCEPT or UNION or SEMICO
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: IDB
 LINE 36:1: select idb from (select 8 "ida") n1;
                   ^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: IDB
 LINE 37:1: select idb from (select 8 'ida') n1;
-                  ^^^
+                                     ^^^^^
+syntax error, unexpected LITERAL, expecting EXCEPT or UNION or RIGHT_PAREN
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: IDB
 LINE 38:1: select idb from (select 8 ida) n1;
                   ^^^
-[ERROR]: ERR_INVALID_AS_SYNTAX: Invalid AS value type: INTEGER
 LINE 40:1: select id from names 123;
                                 ^^^
-[ERROR]: ERR_INVALID_AS_SYNTAX: Invalid AS value type: PARAMETER
+syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 41:1: select id from names $1;
                                 ^^
-LINE 43:1: select id from names `backtick`;
-                                         ^
-syntax error, unexpected IDENTIFIER_BACK_TICK, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+ID
+0
+1
+2
+3
+4
+5
+(6 rows)
 LINE 44:1: select id from names lit.lit;
-                                ^^^^^^^
-syntax error, unexpected IDENTIFIER_PERIOD_IDENTIFIER, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
-LINE 45:1: select id from names 'quote'.'quote';
-                                       ^
+                                   ^
 syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+LINE 45:1: select id from names 'quote'.'quote';
+                                ^^^^^^^
+syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 46:1: select id from names "quote"."quote";
                                        ^
 syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
@@ -187,9 +207,9 @@ LINE 50:1: select n2.id from names n1;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: IDB
 LINE 52:1: select idb from (select 8 "ida");
                   ^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: IDB
 LINE 53:1: select idb from (select 8 'ida');
-                  ^^^
+                                     ^^^^^
+syntax error, unexpected LITERAL, expecting EXCEPT or UNION or RIGHT_PAREN
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: IDB
 LINE 54:1: select idb from (select 8 ida);
                   ^^^

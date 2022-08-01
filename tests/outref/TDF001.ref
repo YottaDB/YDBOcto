@@ -16,7 +16,7 @@ DOLLARZWRITE
 "Zero"
 (6 rows)
 DROP FUNCTION
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'DOLLARZWRITE' defined with given parameter types (VARCHAR)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function DOLLARZWRITE defined with given parameter types (VARCHAR)
 LINE 6:1: select DOLLARZWRITE(firstname) from names;
                  ^^^^^^^^^^^^
 Remaining function definitions (hashes):

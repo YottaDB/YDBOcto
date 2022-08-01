@@ -1,0 +1,285 @@
+
+-- TC059 : OCTO519 : Double-quoted strings are treated as case sensitive identifiers in CREATE/DROP TABLE statements
+
+-- Identifiers as column names
+create table abcd ("id" integer);
+select * from abcd;
+select "id" from abcd;
+select id from abcd; -- Error: Unknown column 'ID'
+select "ID" from abcd; -- Error: Unknown column 'ID'
+select ID from abcd; -- Error: Unknown column 'ID'
+drop table abcd;
+
+create table abcd ("ID" integer);
+select * from abcd;
+select "id" from abcd; -- Error: Unknown column 'id'
+select id from abcd; -- Error: Unknown column 'id'
+select "ID" from abcd;
+select ID from abcd;
+drop table "abcd"; -- Error: Unknown table 'abcd'
+drop table "ABCD";
+
+create table abcd (id integer);
+select * from abcd;
+select "id" from abcd; -- Error: Unknown column 'id'
+select id from abcd;
+select "ID" from abcd;
+select ID from abcd;
+drop table ABCD;
+
+create table abcd (ID integer);
+select * from abcd;
+select "id" from abcd; -- Error: Unknown column 'id'
+select id from abcd;
+select "ID" from abcd;
+select ID from abcd;
+select abcd.ID from abcd;
+select abcd."ID" from abcd;
+select abcd."id" from abcd; -- Error: Unknown column
+select abcd.id from abcd;
+select "abcd".ID from abcd; -- Error: Missing FROM clause
+select abcd.ID from abcd;
+select "ABCD".ID from abcd;
+select ABCD.ID from abcd;
+drop table "abcd"; -- Error: Unknown table
+drop table abcd; -- Table dropped successfully
+
+-- Identifiers as table names
+create table "efgh" ("id" integer);
+select * from "efgh";
+select * from efgh; -- Error: Unknown table
+select * from "EFGH"; -- Error: Unknown table
+select * from EFGH; -- Error: Unknown table
+select * from "efgh" where "efgh"."id" = 0;
+select * from "Efgh" where "efgh"."id" = 0; -- Error: Unknown table
+select * from "efgh" where "efgh"."Id" = 0; -- Error: Unknown column
+select * from "efgh" where efgh.id = 0; -- Error: Missing FROM-clause
+drop table efgh; -- Error: Unknown table
+drop table EFGH; -- Error: Unknown table
+drop table "EFGH"; -- Error: Unknown table
+drop table "efgh"; -- Table dropped successfully
+
+create table "EFGH" (id integer);
+select * from "efgh"; -- Error: Unknown table
+select * from efgh;
+select * from "EFGH";
+select * from EFGH;
+drop table "efgh"; -- Error: Unknown table
+drop table "EFGH"; -- Table dropped successfully
+
+create table efgh ("ID" integer);
+select * from "efgh"; -- Error: Unknown table
+select * from efgh;
+select * from "EFGH";
+select * from EFGH;
+drop table "efgh"; -- Error: Unknown table
+drop table EFGH; -- Table dropped successfully
+
+create table EFGH (ID integer);
+select * from "efgh"; -- Error: Unknown table
+select * from efgh;
+select * from "EFGH";
+select * from EFGH;
+drop table "efgh";
+drop table EFGH; -- Table dropped successfully
+
+-- Identifiers and literals as alias names
+-- select 1 as ID;
+-- select 1 as 'id';
+-- select 1 as 'ID';
+-- select 1 as "ID";
+-- select 1 as "id";
+
+-- Correct handling of double quotes in GROUP BY
+drop table if exists tmp;
+create table tmp ("id1" integer, "id2" integer);
+select "id1" from tmp group by "id2";
+
+-- Correct handling of double quotes in NATURAL JOIN
+drop table if exists tmp;
+create table tmp (id1 integer, id2 integer) READWRITE;
+insert into tmp values (1,2);
+insert into tmp values (2,1);
+select * from (select id1 as "id" from tmp) n1 natural join (select id2 as "id" from tmp) n2;
+select n2."id", n1."id" from (select id1 as "id" from tmp) n1 natural join (select id2 as "id" from tmp) n2;
+select n2.id, n1.id from (select id1 as "id" from tmp) n1 natural join (select id2 as "id" from tmp) n2; -- Error: Unknown column
+
+-- Correct handling of column names that differ only in case sensitivity
+drop table if exists tbl;
+create table tbl (col integer, "col" integer, primary key(col, "col"));
+select * from tbl;
+drop table if exists tbl;
+create table tbl (col integer, "col" integer, primary key(col, "col")) GLOBAL "^tbl(keys(""COL""),keys(""col""))";
+select * from tbl;
+-- LVUNDEF failure for mismatch between `keys(..)` expression and column name, e.g. `COL` to `keys(""col"")`
+drop table if exists tbl;
+create table tbl (col integer, "col" integer, primary key(col, "col")) GLOBAL "^tbl(keys(""col""),keys(""col""))";
+select * from tbl;
+CREATE TABLE
+id
+(0 rows)
+id
+(0 rows)
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
+LINE 6:1: select id from abcd; -- Error: Unknown column 'ID'
+                 ^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
+LINE 7:2: select "ID" from abcd; -- Error: Unknown column 'ID'
+                 ^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
+LINE 8:2: select ID from abcd; -- Error: Unknown column 'ID'
+                 ^^
+DROP TABLE
+CREATE TABLE
+ID
+(0 rows)
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: id
+LINE 13:1: select "id" from abcd; -- Error: Unknown column 'id'
+                  ^^^^
+ID
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+[ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "abcd" as it does not exist
+DROP TABLE
+CREATE TABLE
+ID
+(0 rows)
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: id
+LINE 22:1: select "id" from abcd; -- Error: Unknown column 'id'
+                  ^^^^
+ID
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+DROP TABLE
+CREATE TABLE
+ID
+(0 rows)
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: id
+LINE 30:1: select "id" from abcd; -- Error: Unknown column 'id'
+                  ^^^^
+ID
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ABCD.id
+LINE 36:1: select abcd."id" from abcd; -- Error: Unknown column
+                  ^^^^^^^^^
+ID
+(0 rows)
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : abcd
+LINE 38:1: select "abcd".ID from abcd; -- Error: Missing FROM clause
+                  ^^^^^^^^^
+ID
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+[ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "abcd" as it does not exist
+DROP TABLE
+CREATE TABLE
+id
+(0 rows)
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EFGH
+LINE 47:1: select * from efgh; -- Error: Unknown table
+                         ^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EFGH
+LINE 48:2: select * from "EFGH"; -- Error: Unknown table
+                         ^^^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EFGH
+LINE 49:2: select * from EFGH; -- Error: Unknown table
+                         ^^^^
+id
+(0 rows)
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: Efgh
+LINE 51:1: select * from "Efgh" where "efgh"."id" = 0; -- Error: Unknown ta...
+                         ^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: efgh.Id
+LINE 52:2: ...elect * from "efgh" where "efgh"."Id" = 0; -- Error: Unknown co...
+                                        ^^^^^^^^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : EFGH
+LINE 53:2: select * from "efgh" where efgh.id = 0; -- Error: Missing FROM-...
+                                      ^^^^^^^
+[ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "EFGH" as it does not exist
+[ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "EFGH" as it does not exist
+[ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "EFGH" as it does not exist
+DROP TABLE
+CREATE TABLE
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: efgh
+LINE 60:1: select * from "efgh"; -- Error: Unknown table
+                         ^^^^^^
+ID
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+[ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "efgh" as it does not exist
+DROP TABLE
+CREATE TABLE
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: efgh
+LINE 68:1: select * from "efgh"; -- Error: Unknown table
+                         ^^^^^^
+ID
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+[ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "efgh" as it does not exist
+DROP TABLE
+CREATE TABLE
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: efgh
+LINE 76:1: select * from "efgh"; -- Error: Unknown table
+                         ^^^^^^
+ID
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+[ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "efgh" as it does not exist
+DROP TABLE
+DROP TABLE
+CREATE TABLE
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column id1 must appear in the GROUP BY clause or be used in an aggregate function
+LINE 86:1: select "id1" from tmp group by "id2";
+                  ^^^^^
+DROP TABLE
+CREATE TABLE
+INSERT 0 1
+INSERT 0 1
+id
+1
+2
+(2 rows)
+id|id
+1|1
+2|2
+(2 rows)
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N2.ID
+LINE 94:1: select n2.id, n1.id from (select id1 as "id" from tmp) n1 natur...
+                  ^^^^^
+DROP TABLE
+CREATE TABLE
+COL|col
+(0 rows)
+DROP TABLE
+CREATE TABLE
+COL|col
+(0 rows)
+DROP TABLE
+CREATE TABLE
+[ERROR]: ERR_YOTTADB: YottaDB error: 150373850,octoPlan1+3^%ydboctoP*,%YDB-E-LVUNDEF, Undefined local variable: %ydboctocursor(173,"keys",1,"TBL","col")

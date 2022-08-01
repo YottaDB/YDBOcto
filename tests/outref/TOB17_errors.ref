@@ -16,10 +16,10 @@ LINE 4:1: select 1 from names order by -1;
                                        ^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant test in ORDER BY
 LINE 5:1: select 1 from names order by 'test';
-                                            ^
-[ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant test in ORDER BY
+                                       ^^^^^^
+[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_COLUMN_NAME: Unknown column: test
 LINE 6:1: select 1 from names order by "test";
-                                            ^
+                                       ^^^^^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant  in ORDER BY
 LINE 7:1: select 1 from names order by NULL;
                                        ^^^^

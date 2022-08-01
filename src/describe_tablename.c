@@ -136,6 +136,7 @@ int describe_tablename(SqlStatement *table_name) {
 				assert(NULL != constraint->name);
 
 				UNPACK_SQL_STATEMENT(value, constraint->name, value);
+				assert(value->is_double_quoted);
 				fprintf(stdout, "\"%s\" ", value->v.string_literal);
 
 				fprintf(stdout, "%s CONSTRAINT, Column(s) ",
@@ -204,6 +205,7 @@ int describe_tablename(SqlStatement *table_name) {
 				UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
 				assert(OPTIONAL_CHECK_CONSTRAINT == constraint->type);
 				UNPACK_SQL_STATEMENT(value, constraint->name, value);
+				assert(value->is_double_quoted);
 				fprintf(stdout, "    \"%s\" CHECK (", value->v.string_literal);
 				buffer = buffer_orig;
 				buff_ptr = &buffer;

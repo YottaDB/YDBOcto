@@ -3,7 +3,7 @@
 
 select firstName, lastName from names
 except all
-select firstName, lastName from names where firstName = "Zero" and id = 0;
+select firstName, lastName from names where firstName = 'Zero' and id = 0;
 
 FIRSTNAME|LASTNAME
 Acid|Burn

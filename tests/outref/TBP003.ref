@@ -10,4 +10,4 @@ LINE 3:1: INSERT INTO myTable (id, name) VALUES
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: MYTABLE3
 LINE 9:2: SELECT * from myTable3;
                         ^^^^^^^^
-[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: INSERT INTO column_name DEFAULT VALUES
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: INSERT INTO qualified_identifier DEFAULT VALUES

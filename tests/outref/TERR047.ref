@@ -1,0 +1,30 @@
+
+-- TERR047 : OCTO519 : Various unknown column error scenarios
+
+-- Test ERR_UNKNOWN_COLUMN instead of SIG-11 for former lexer tokens, similar to commit 1937f49c (#935)
+select IDENTIFIER_PERIOD_IDENTIFIER;
+select IDENTIFIER_BACKTICK;
+select IDENTIFIER_ALONE;
+select PARENLESS_FUNCTION;
+
+-- Test backtick and double quoted identifiers
+SELECT `abcd` FROM names;
+SELECT "abcd" FROM names;
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: IDENTIFIER_PERIOD_IDENTIFIER
+LINE 3:1: select IDENTIFIER_PERIOD_IDENTIFIER;
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: IDENTIFIER_BACKTICK
+LINE 4:1: select IDENTIFIER_BACKTICK;
+                 ^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: IDENTIFIER_ALONE
+LINE 5:1: select IDENTIFIER_ALONE;
+                 ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: PARENLESS_FUNCTION
+LINE 6:1: select PARENLESS_FUNCTION;
+                 ^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ABCD
+LINE 8:1: SELECT `abcd` FROM names;
+                 ^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: abcd
+LINE 9:1: SELECT "abcd" FROM names;
+                 ^^^^^^

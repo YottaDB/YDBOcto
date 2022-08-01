@@ -194,3 +194,11 @@ teardown() {
 	load_fixture TSCP22_errors.sql subtest novv
 	verify_output TSCP22_errors output.txt
 }
+
+@test "TSCP23 : OCTO519 : Support use of double quotes for referencing SQL identifiers" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP23.sql
+	load_fixture quotenames.sql
+	load_fixture quotenames.zwr
+	load_fixture TSCP23_errors.sql subtest novv
+	verify_output TSCP23_errors output.txt
+}

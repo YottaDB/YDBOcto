@@ -387,7 +387,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			}
 			ok_to_drop = TRUE;
 		} else {
-			drop_table = NULL; /* to avoid false [-Wmaybe-uninitialized] warning */
+			drop_table = NULL; /* To avoid false [-Wmaybe-uninitialized] warning */
 			UNPACK_SQL_STATEMENT(table, result, create_table);
 			UNPACK_SQL_STATEMENT(value, table->tableName, value);
 			tablename = value->v.reference;

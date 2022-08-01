@@ -31,14 +31,14 @@ teardown() {
 	run_query_generator pastas TQG02
 }
 
-@test "TQG03 : Test Query Generator against names OR nullcharnames or nameslastname database" {
+@test "TQG03 : Test Query Generator against names OR nullcharnames OR nameslastname OR quotenames database" {
 	if $is_rhel7; then
 		# On RHEL7 systems, Postgres version is 9.2.2 which has a different output for various queries in this test
 		# compared to newer Postgres versions on other Linux distributions (which is what Octo output matches).
 		# Therefore skip this test on RHEL7.
 		skip
 	fi
-	randInt=$(($RANDOM % 3))
+	randInt=$(($RANDOM % 4))
 	case $randInt in
 	   0)
 	   database="names"
@@ -50,6 +50,10 @@ teardown() {
 
 	   2)
 	   database="nameslastname"
+	   ;;
+
+	   3)
+	   database="quotenames"
 	   ;;
 	esac
 	run_query_generator $database TQG03

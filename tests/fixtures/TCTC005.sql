@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -352,3 +352,5 @@ create table tmp120 (id2 integer constraint tmp120_id1_key CHECK (id2 > 1), id3 
 -- Test auto generated CHECK constraint name collision with another named PRIMARY KEY and UNIQUE constraint name
 create table tmp121 (id1 integer constraint tmp121_id3_check primary key, id2 integer constraint tmp121_id3_check1 unique, id3 integer CHECK (id3 > 1));
 
+-- Test constraints are double-quoted and do not fail any asserts, see https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1182#note_1290235104 for details
+create table tmp122 (id integer constraint c CHECK (id > 1));

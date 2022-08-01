@@ -1,0 +1,109 @@
+
+-- TC072 : OCTO519 : Test x.y column name syntax
+CREATE TABLE `X.Y` (`ID` INTEGER CONSTRAINT XY_PKEY PRIMARY KEY) GLOBAL "^xy(keys(""ID""))" DELIM "|" READWRITE;
+SELECT * FROM x.y;
+\d x.y;
+
+DROP TABLE IF EXISTS X.Y;
+CREATE TABLE X.Y (id INTEGER CONSTRAINT XY_PKEY PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30)) GLOBAL "^names";
+SELECT * FROM x.y;
+\d x.y;
+
+INSERT INTO x.y VALUES (12, 'First12', 'Last12'), (13, 'First13', 'Last13');
+SELECT * FROM x.y;
+SELECT * FROM x.y x1, x.y x2 where X1.id = 2;
+DELETE FROM x.y where lastname = 'Cool';
+UPDATE x.y SET id = 7, firstname = 'Sunny' WHERE lastname = 'Cool';
+TRUNCATE x.y;
+
+select x.y.z from octoonerowtable as n1(x.y.z); -- Error: x.y.z format not accepted for aliases
+select x.y from octoonerowtable as n1(x.y); -- Error: x.y format not accepted for aliases
+select x from octoonerowtable as n1(x);
+
+create table a.b.c (id integer);
+\d a.b.c;
+
+truncate x.y.z; -- Error: x.y.z format not accepted for TRUNCATE
+create table x (id integer constraint x.y.z primary key);  -- Error: x.y.z format not accepted for CONSTRAINTs
+create table x (id integer constraint x.y primary key);  -- Error: x.y format not accepted for CONSTRAINTs
+
+insert into tmp (tmp.id) values (1); -- Error: x.y format not accepted for aliases
+update tmp set tmp.id = 1; -- Error: x.y format not accepted in UPDATE columns
+CREATE TABLE
+ID
+(0 rows)
+Table "X.Y" stored in Global: ^xy(ID) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID|INTEGER||NOT NULL|
+Indexes:
+    "XY_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^xy(ID)
+DROP TABLE
+CREATE TABLE
+ID|FIRSTNAME|LASTNAME
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+(6 rows)
+Table "X.Y" stored in Global: ^names(ID) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID|INTEGER||NOT NULL|
+FIRSTNAME|VARCHAR(30)|||
+LASTNAME|VARCHAR(30)|||
+Indexes:
+    "XY_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^names(ID)
+INSERT 0 2
+ID|FIRSTNAME|LASTNAME
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+12|First12|Last12
+13|First13|Last13
+(8 rows)
+ID|FIRSTNAME|LASTNAME|ID|FIRSTNAME|LASTNAME
+2|Cereal|Killer|0|Zero|Cool
+2|Cereal|Killer|1|Acid|Burn
+2|Cereal|Killer|2|Cereal|Killer
+2|Cereal|Killer|3|Lord|Nikon
+2|Cereal|Killer|4|Joey|
+2|Cereal|Killer|5|Zero|Cool
+2|Cereal|Killer|12|First12|Last12
+2|Cereal|Killer|13|First13|Last13
+(8 rows)
+DELETE 2
+UPDATE 0
+TRUNCATE TABLE
+LINE 18:1: ....z from octoonerowtable as n1(x.y.z); -- Error: x.y.z format no...
+                                             ^
+syntax error, unexpected PERIOD, expecting RIGHT_PAREN
+LINE 19:2: ....y from octoonerowtable as n1(x.y); -- Error: x.y format not ac...
+                                             ^
+syntax error, unexpected PERIOD, expecting RIGHT_PAREN
+X
+1
+(1 row)
+LINE 22:1: create table a.b.c (id integer);
+                           ^
+syntax error, unexpected PERIOD, expecting LEFT_PAREN
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: A.B
+LINE 23:1: c;
+           ^
+syntax error, unexpected IDENTIFIER_ALONE
+LINE 25:1: truncate x.y.z; -- Error: x.y.z format not accepted for TRUNCATE
+                       ^
+syntax error, unexpected PERIOD, expecting SEMICOLON or ENDOFFILE
+LINE 26:2: ...le x (id integer constraint x.y.z primary key);  -- Error: x.y....
+                                             ^
+syntax error, unexpected PERIOD
+CREATE TABLE
+LINE 29:3: insert into tmp (tmp.id) values (1); -- Error: x.y format not a...
+                               ^
+syntax error, unexpected PERIOD, expecting RIGHT_PAREN
+LINE 30:2: update tmp set tmp.id = 1; -- Error: x.y format not accepted in...
+                             ^
+syntax error, unexpected PERIOD, expecting EQUALS

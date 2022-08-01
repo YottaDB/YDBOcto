@@ -21,14 +21,14 @@ SELECT * from (SELECT id from names) n1 NATURAL JOIN (SELECT firstname AS id FRO
 SELECT * FROM names n1 NATURAL JOIN names n2 FULL  JOIN names n3 ON n1.id = n2.id;
 SELECT n1.id,n2.id,n3.id FROM names n1 NATURAL JOIN names n2 FULL  JOIN names n3 ON n2.id < n3.id;
 
-[ERROR]: ERR_COMMON_COLUMN: Common column name 'ID' appears more than once in left side of NATURAL JOIN
-[ERROR]: ERR_COMMON_COLUMN: Common column name 'ID' appears more than once in right side of NATURAL JOIN
-[ERROR]: ERR_COMMON_COLUMN: Common column name 'ID' appears more than once in left side of NATURAL JOIN
-[ERROR]: ERR_COMMON_COLUMN: Common column name 'ID' appears more than once in left side of NATURAL JOIN
-[ERROR]: ERR_COMMON_COLUMN: Common column name 'ID' appears more than once in left side of NATURAL JOIN
-[ERROR]: ERR_COMMON_COLUMN: Common column name 'ID' appears more than once in right side of NATURAL JOIN
-[ERROR]: ERR_COMMON_COLUMN: Common column name 'ID' appears more than once in right side of NATURAL JOIN
-[ERROR]: ERR_COMMON_COLUMN: Common column name 'CUSTOMER_ID' appears more than once in left side of NATURAL JOIN
+[ERROR]: ERR_COMMON_COLUMN: Common column name "ID" appears more than once in left side of NATURAL JOIN
+[ERROR]: ERR_COMMON_COLUMN: Common column name "ID" appears more than once in right side of NATURAL JOIN
+[ERROR]: ERR_COMMON_COLUMN: Common column name "ID" appears more than once in left side of NATURAL JOIN
+[ERROR]: ERR_COMMON_COLUMN: Common column name "ID" appears more than once in left side of NATURAL JOIN
+[ERROR]: ERR_COMMON_COLUMN: Common column name "ID" appears more than once in left side of NATURAL JOIN
+[ERROR]: ERR_COMMON_COLUMN: Common column name "ID" appears more than once in right side of NATURAL JOIN
+[ERROR]: ERR_COMMON_COLUMN: Common column name "ID" appears more than once in right side of NATURAL JOIN
+[ERROR]: ERR_COMMON_COLUMN: Common column name "CUSTOMER_ID" appears more than once in left side of NATURAL JOIN
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 ID|FIRSTNAME|LASTNAME|ID|FIRSTNAME|LASTNAME
 0|Zero|Cool|0|Zero|Cool

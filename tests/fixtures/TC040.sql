@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -17,7 +17,7 @@ CREATE TABLE namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw (
         id INTEGER PRIMARY KEY,
         firstName VARCHAR(30),
         lastName TEXT(30)
-) GLOBAL "^names(keys(""id""))";
+) GLOBAL "^names(keys(""ID""))";
 
 SELECT * from namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw;
 
@@ -26,16 +26,73 @@ CREATE TABLE namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv (
         id INTEGER PRIMARY KEY,
         firstName VARCHAR(30),
         lastName TEXT(30)
-) GLOBAL "^names(keys(""id""))";
+) GLOBAL "^names(keys(""ID""))";
 
 SELECT * from namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv;
 
--- 64-byte table name using '.' to force 'LITERAL PERIOD LITERAL' parser code path (exceeds 63-byte limit and so should fail)
-CREATE TABLE namesLongString.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw (
+-- 63-byte compound table name (meets 63-byte limit and so should succeed)
+CREATE TABLE x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrst (
         id INTEGER PRIMARY KEY,
         firstName VARCHAR(30),
         lastName TEXT(30)
-) GLOBAL "^names(keys(""id""))";
+) GLOBAL "^names(keys(""ID""))";
 
-SELECT * from namesLongString.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv;
+SELECT * from x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrst;
 
+-- Compound table name containing 62-byte identifier following '.', should fail after concatenation of both sides of '.'
+DROP TABLE IF EXISTS namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv;
+CREATE TABLE x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu (
+        id INTEGER PRIMARY KEY,
+        firstName VARCHAR(30),
+        lastName TEXT(30)
+) GLOBAL "^names(keys(""ID""))";
+
+SELECT * from x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu;
+
+-- Compound table name containing 62-byte identifier preceding '.', should fail after concatenation of both sides of '.'
+DROP TABLE IF EXISTS namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv;
+CREATE TABLE namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu.x (
+        id INTEGER PRIMARY KEY,
+        firstName VARCHAR(30),
+        lastName TEXT(30)
+) GLOBAL "^names(keys(""ID""))";
+
+SELECT * from namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu.x;
+
+-- Compound table name containing 63-byte identifier following '.', should fail after concatenation of both sides of '.'
+DROP TABLE IF EXISTS namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv;
+CREATE TABLE x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv (
+        id INTEGER PRIMARY KEY,
+        firstName VARCHAR(30),
+        lastName TEXT(30)
+) GLOBAL "^names(keys(""ID""))";
+
+SELECT * from x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv;
+
+-- Compound table name containing 63-byte identifier preceding '.', should fail after concatenation of both sides of '.'
+DROP TABLE IF EXISTS namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv;
+CREATE TABLE namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv.x (
+        id INTEGER PRIMARY KEY,
+        firstName VARCHAR(30),
+        lastName TEXT(30)
+) GLOBAL "^names(keys(""ID""))";
+
+SELECT * from namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv.x;
+
+-- Compound table name containing 64-byte identifier following '.', should fail before concatenation of both sides of '.'
+CREATE TABLE x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw (
+        id INTEGER PRIMARY KEY,
+        firstName VARCHAR(30),
+        lastName TEXT(30)
+) GLOBAL "^names(keys(""ID""))";
+
+SELECT * from x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw;
+
+-- Compound table name containing 64-byte identifier preceding '.', should fail before concatenation of both sides of '.'
+CREATE TABLE namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw.x (
+        id INTEGER PRIMARY KEY,
+        firstName VARCHAR(30),
+        lastName TEXT(30)
+) GLOBAL "^names(keys(""ID""))";
+
+SELECT * from x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw;

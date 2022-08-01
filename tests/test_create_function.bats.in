@@ -247,3 +247,8 @@ teardown() {
 	cp @PROJECT_SOURCE_DIR@/tests/outref/TCF035_ext.ref .
 	diff TCF035_ext.ref TCF035.ext
 }
+
+@test "TCF036 : OCTO519 : Functions with double-quoted identifiers" {
+	load_fixture TCF036.sql subtest novv
+	verify_output TCF036 output.txt noinfo nodebug
+}

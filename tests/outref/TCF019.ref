@@ -3,7 +3,7 @@
 
 select current_schema();
 select abs(-2*id) from names;
-select replace("abcd" || "efgh", "efgh", "abcd");
+select replace('abcd' || 'efgh', 'efgh', 'abcd');
 [DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
 LP_SELECT_QUERY: 
   LP_PROJECT: 

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -17,25 +17,25 @@ CREATE TABLE objecttypes (
 	  objecttype VARCHAR(255),
 	  CONSTRAINT idx_objecttypes_objecttype UNIQUE (objecttype)
 );
-\d objecttypes
-SELECT XECUTE_M_CODE("zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D");
+\d objecttypes;
+SELECT XECUTE_M_CODE('zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D');
 INSERT INTO objecttypes values (1, 'aaa');
 SELECT * FROM objecttypes;
-SELECT XECUTE_M_CODE("zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D");
+SELECT XECUTE_M_CODE('zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D');
 -- This will fail
 INSERT INTO objecttypes values (2, 'bbb'), (3, 'aaa');
 SELECT * FROM objecttypes;
 -- This will succeed
 INSERT INTO objecttypes values (2, 'bbb');
 SELECT * FROM objecttypes;
-SELECT XECUTE_M_CODE("zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D");
+SELECT XECUTE_M_CODE('zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D');
 -- This will fail
 UPDATE objecttypes SET objecttype = 'aaa' WHERE id = 2;
 SELECT * FROM objecttypes;
 DELETE FROM objecttypes where id = 2;
 SELECT * FROM objecttypes;
-SELECT XECUTE_M_CODE("zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D");
+SELECT XECUTE_M_CODE('zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D');
 DELETE FROM objecttypes where id = 1;
 SELECT * FROM objecttypes;
-SELECT XECUTE_M_CODE("zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D");
+SELECT XECUTE_M_CODE('zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D');
 DROP TABLE IF EXISTS objecttypes;

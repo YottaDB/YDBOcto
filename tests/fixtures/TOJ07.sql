@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -25,8 +25,8 @@ WHERE
    A.PATIENT_ID>0
    and A.CURRENT_ACTION>0
    AND A.STATUS in (5,6,15)
-   AND ( A.STOP_DATE>=CURR_TIMESTAMP("V")::NUMERIC OR A.STOP_DATE IS NULL )
-   AND E.NAME NOT LIKE "ZZ%"
+   AND ( A.STOP_DATE>=CURR_TIMESTAMP('V')::NUMERIC OR A.STOP_DATE IS NULL )
+   AND E.NAME NOT LIKE 'ZZ%'
    AND E.CURRENT_MOVEMENT>0
 );
 

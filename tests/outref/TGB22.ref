@@ -248,6 +248,10 @@ select parmlessfunc() from names group by CAST(parmlessfunc() as VARCHAR) having
 select parmlessfunc() from names group by 1 having 'FAIL'!=CAST(parmlessfunc() as VARCHAR);
 select parmlessfunc() from names group by 1 having 'FAIL'!=CAST(parmlessfunc() as VARCHAR);
 
+-- Using string literals
+SELECT 'test' FROM names GROUP BY 1;
+SELECT 'test' FROM names GROUP BY 1 HAVING 'test'!='hello';
+SELECT 'test' FROM names GROUP BY firstname HAVING 'test'!='hello' ORDER BY 1;
 CREATE FUNCTION
 CREATE FUNCTION
 CREATE FUNCTION
@@ -1369,3 +1373,16 @@ SUCCESS
 PARMLESSFUNC
 SUCCESS
 (1 row)
+???
+test
+(1 row)
+???
+test
+(1 row)
+???
+test
+test
+test
+test
+test
+(5 rows)

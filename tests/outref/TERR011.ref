@@ -24,27 +24,27 @@ select * from (((select * from names union select * from names) union (select * 
 -- Test that table name is no longer usable once an alias has been assigned to it
 select * from names n1 left join nameswithages names on n1.id = names.id;
 
-[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'NAMES' specified more than once
-[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'N1' specified more than once
-[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'N1' specified more than once
-[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'N1' specified more than once
-[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'N1' specified more than once
-[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'N1' specified more than once
-[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'N1' specified more than once
-[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'N1' specified more than once
-[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'N1' specified more than once
-[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'N2' specified more than once
-[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'N2' specified more than once
-[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'N2' specified more than once
-[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'N2' specified more than once
-[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'NAMES' specified more than once
-[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'N1' specified more than once
-[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'N2' specified more than once
-[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'N1' specified more than once
-[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'NAMES' specified more than once
-[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'NAMES' specified more than once
-[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'N1' specified more than once
-[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'N1' specified more than once
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name "NAMES" specified more than once
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name "N1" specified more than once
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name "N1" specified more than once
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name "N1" specified more than once
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name "N1" specified more than once
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name "N1" specified more than once
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name "N1" specified more than once
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name "N1" specified more than once
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name "N1" specified more than once
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name "N2" specified more than once
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name "N2" specified more than once
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name "N2" specified more than once
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name "N2" specified more than once
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name "NAMES" specified more than once
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name "N1" specified more than once
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name "N2" specified more than once
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name "N1" specified more than once
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name "NAMES" specified more than once
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name "NAMES" specified more than once
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name "N1" specified more than once
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name "N1" specified more than once
 ID|FIRSTNAME|LASTNAME|ID|FIRSTNAME|LASTNAME|AGE|DATETIME
 0|Zero|Cool|0|Zero|Cool||DATE TIME
 1|Acid|Burn|1|Acid|Burn||DATE TIME

@@ -30,7 +30,7 @@ FROM   order1 A
                ON (A.order1_id = B.order1_id)
        inner join new_person D
                ON (B.signed_by = D.new_person_id )
-WHERE  (B.action = "NW");
+WHERE  (B.action = 'NW');
 OCTO
   # Verify the FOR loops and the corresponding key in the generated M code
   grep FOR _ydboctoP*.m | sed 's/=.*//g' >> output.txt
@@ -44,9 +44,9 @@ SELECT A.order1_id,
        C.name                                 AS STATUS_NAME,
        D.name                                 AS SIGNEDBY,
        E.name                                 AS PATIENT_NAME,
-       Dateformat(B.date_time_signed, "5ZSP") AS SIGNED_DATE,
-       Dateformat(A.start_date, "5ZSP")       AS STARTDATE,
-       Dateformat (A.stop_date, "5ZSP")       AS STOPDATE,
+       Dateformat(B.date_time_signed, '5ZSP') AS SIGNED_DATE,
+       Dateformat(A.start_date, '5ZSP')       AS STARTDATE,
+       Dateformat (A.stop_date, '5ZSP')       AS STOPDATE,
        A.current_action,
        B.action,
        F.name                                 AS ORDER_TYPE,
@@ -74,9 +74,9 @@ WHERE  ( ( A.patient_id IS NOT NULL
          AND a.status IN ( 5, 6 )
          AND A.start_date IS NOT NULL
          AND ( A.stop_date > 1 OR A.stop_date IS NULL )
-         AND E.name NOT LIKE "ZZ%"
+         AND E.name NOT LIKE 'ZZ%'
          AND E.current_movement IS NOT NULL )
-/* TODO this line should be "ORDER  BY A.order_id :: INTEGER;" pending on issue #304 */
+/* TODO this line should be 'ORDER  BY A.order_id :: INTEGER;' pending on issue #304 */
 ORDER  BY A.order1_id;
 OCTO
   # Verify that 4 plans are created for the boolean expression and each one has just one FOR loop (that too inside a DO)
@@ -92,7 +92,7 @@ OCTO
 SELECT c1.name FROM composite c1
 INNER JOIN composite c2 ON c2.name = c1.name
 INNER JOIN composite c3 ON c3.name = c1.name
-WHERE (c1.name LIKE "Name%") OR (c1.id1 < 10);
+WHERE (c1.name LIKE 'Name%') OR (c1.id1 < 10);
 OCTO
   # Include generated M code in reference file to verify all optimizations there
   cat _ydboctoP*.m >> output.txt

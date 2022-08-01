@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -24,6 +24,7 @@
 
 SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlation_specification, int *plan_id) {
 	SqlStatement * ret, *tableName;
+	SqlValue *     value;
 	SqlJoin *      join;
 	SqlTable *     table;
 	SqlColumn *    column;
@@ -32,9 +33,10 @@ SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlati
 	switch (column_name->type) {
 	case value_STATEMENT:
 		/* column_name holds the name of the desired table */
-		table = find_table(column_name->v.value->v.reference);
+		UNPACK_SQL_STATEMENT(value, column_name, value);
+		table = find_table(value->v.reference);
 		if (NULL == table) {
-			ERROR(ERR_UNKNOWN_TABLE, column_name->v.value->v.reference);
+			ERROR(ERR_UNKNOWN_TABLE, value->v.reference);
 			yyerror(NULL, NULL, &column_name, NULL, NULL, NULL);
 			return NULL;
 		}

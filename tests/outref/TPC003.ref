@@ -1,5 +1,5 @@
 select * from t1;
-create table t1(a int, b int) global "^T1(keys(""a""),keys(""b""))";
+create table t1(a int, b int) global "^T1(keys(""A""),keys(""B""))";
 select * from t1;
 drop table t1;
 select * from t1;

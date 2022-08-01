@@ -136,39 +136,43 @@ INSERT INTO composite VALUES (1,2,3,4,5,NULL,8,7,NULL);
 SELECT '-- Test of ERR_NULL_COL_VALUE on composite database where ID3 column is implicitly specified as NULL';
 INSERT INTO composite(id0,id1,id2,id4,id5,id6,id7) VALUES (1,2,3,5,6,8,7);
 
+SELECT '-- Test of syntax error for qualified column names (i.e. `x.y` syntax) in select list';
+INSERT INTO names(names.id,names.firstname,names.lastname) SELECT * FROM names;
+INSERT INTO names(id,names.firstname,names.lastname) SELECT * FROM names;
+INSERT INTO names(id,firstname,names.lastname) SELECT * FROM names;
 ???
 -- Test ERR_INSERT_TYPE_MISMATCH error
 (1 row)
-[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column 'ID' is of type INTEGER but expression is of type VARCHAR
+[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "ID" is of type INTEGER but expression is of type VARCHAR
 LINE 4:1: INSERT INTO names SELECT firstname FROM names;
                                    ^^^^^^^^^
-[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column 'ID' is of type INTEGER but expression is of type VARCHAR
+[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "ID" is of type INTEGER but expression is of type VARCHAR
 LINE 5:1: INSERT INTO names SELECT lastname FROM names;
                                    ^^^^^^^^
-[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column 'ID' is of type INTEGER but expression is of type VARCHAR
+[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "ID" is of type INTEGER but expression is of type VARCHAR
 LINE 6:1: INSERT INTO names SELECT firstname,id+6 FROM names;
                                    ^^^^^^^^^
-[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column 'ID' is of type INTEGER but expression is of type VARCHAR
+[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "ID" is of type INTEGER but expression is of type VARCHAR
 LINE 7:1: INSERT INTO names SELECT firstname,firstname,lastname FROM name...
                                    ^^^^^^^^^
-[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column 'FIRSTNAME' is of type VARCHAR but expression is of type INTEGER
+[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "FIRSTNAME" is of type VARCHAR but expression is of type INTEGER
 LINE 8:1: INSERT INTO names SELECT id+6,id,lastname FROM names;
                                         ^^
-[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column 'LASTNAME' is of type VARCHAR but expression is of type BOOLEAN
+[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "LASTNAME" is of type VARCHAR but expression is of type BOOLEAN
 LINE 9:1: INSERT INTO names SELECT id+6,firstname,TRUE from names;
                                                   ^^^^
-[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column 'ID' is of type INTEGER but expression is of type BOOLEAN
+[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "ID" is of type INTEGER but expression is of type BOOLEAN
 LINE 10:1: ...NSERT INTO names SELECT (id+6)::BOOLEAN,firstname,lastname from...
                                       ^^^^^^^^^^^^^^^
-[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column 'ID' is of type INTEGER but expression is of type BOOLEAN
+[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "ID" is of type INTEGER but expression is of type BOOLEAN
 LINE 11:1: INSERT INTO names SELECT id::BOOLEAN,firstname,lastname from na...
                                     ^^^^^^^^^^^
-[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column 'FIRSTNAME' is of type VARCHAR but expression is of type INTEGER
+[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "FIRSTNAME" is of type VARCHAR but expression is of type INTEGER
 LINE 12:1: INSERT INTO names(firstname,id) SELECT id,firstname FROM names;
                              ^^^^^^^^^
 LINE 12:1: INSERT INTO names(firstname,id) SELECT id,firstname FROM names;
                                                   ^^
-[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column 'FIRSTNAME' is of type VARCHAR but expression is of type INTEGER
+[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "FIRSTNAME" is of type VARCHAR but expression is of type INTEGER
 LINE 13:1: INSERT INTO names(firstname,id,lastname) SELECT * FROM names;
                              ^^^^^^^^^
 LINE 13:1: INSERT INTO names(firstname,id,lastname) SELECT * FROM names;
@@ -200,31 +204,31 @@ LINE 23:1: INSERT INTO names(id,firstname) SELECT id FROM names;
 ???
 -- Test ERR_TABLE_UNKNOWN_COLUMN_NAME error
 (1 row)
-[ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column 'INVALID' of table 'NAMES' does not exist
+[ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "INVALID" of table "NAMES" does not exist
 LINE 26:1: INSERT INTO names(invalid) SELECT * FROM names;
                              ^^^^^^^
-[ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column 'INVALID' of table 'NAMES' does not exist
+[ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "INVALID" of table "NAMES" does not exist
 LINE 27:1: INSERT INTO names(firstname,invalid) SELECT * FROM names;
                                        ^^^^^^^
-[ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column 'INVALID' of table 'NAMES' does not exist
+[ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "INVALID" of table "NAMES" does not exist
 LINE 28:1: INSERT INTO names(id,lastname,invalid) SELECT * FROM names;
                                          ^^^^^^^
 ???
 -- Test that only ERR_TABLE_UNKNOWN_COLUMN_NAME error is issued if ERR_DUPLICATE_COLUMN error also exists
 (1 row)
-[ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column 'INVALID' of table 'NAMES' does not exist
+[ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "INVALID" of table "NAMES" does not exist
 LINE 31:1: INSERT INTO names(invalid,invalid) SELECT * FROM names;
                              ^^^^^^^
 ???
 -- Test ERR_DUPLICATE_COLUMN error
 (1 row)
-[ERROR]: ERR_DUPLICATE_COLUMN: Column 'ID' specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column "ID" specified more than once
 LINE 34:1: INSERT INTO names(id,invalid,id) SELECT * FROM names;
                                         ^^
-[ERROR]: ERR_DUPLICATE_COLUMN: Column 'FIRSTNAME' specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column "FIRSTNAME" specified more than once
 LINE 35:1: ...RT INTO names(id,firstname,firstname,lastname) SELECT * FROM na...
                                          ^^^^^^^^^
-[ERROR]: ERR_DUPLICATE_COLUMN: Column 'FIRSTNAME' specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column "FIRSTNAME" specified more than once
 LINE 36:1: ...RT INTO names(id,firstname,firstname,firstname,lastname) SELECT...
                                          ^^^^^^^^^
 ???
@@ -296,24 +300,24 @@ ID|FIRSTNAME|LASTNAME
 ???
 -- Test of ERR_TABLE_READONLY error against various catalog tables
 (1 row)
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'OCTOONEROWTABLE'. Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'PG_CATALOG.PG_NAMESPACE'. Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'PG_CATALOG.PG_TYPE'. Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'PG_CATALOG.PG_CLASS'. Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'PG_CATALOG.PG_DESCRIPTION'. Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'INFORMATION_SCHEMA.TABLES'. Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'PG_CATALOG.PG_PROC'. Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'PG_CATALOG.PG_ATTRIBUTE'. Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'PG_CATALOG.PG_ATTRDEF'. Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'PG_CATALOG.PG_SETTINGS'. Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'PG_CATALOG.PG_DATABASE'. Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'PG_CATALOG.PG_ROLES'. Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'PG_CATALOG.PG_USER'. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table "OCTOONEROWTABLE". Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table "PG_CATALOG.PG_NAMESPACE". Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table "PG_CATALOG.PG_TYPE". Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table "PG_CATALOG.PG_CLASS". Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table "PG_CATALOG.PG_DESCRIPTION". Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table "INFORMATION_SCHEMA.TABLES". Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table "PG_CATALOG.PG_PROC". Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table "PG_CATALOG.PG_ATTRIBUTE". Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table "PG_CATALOG.PG_ATTRDEF". Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table "PG_CATALOG.PG_SETTINGS". Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table "PG_CATALOG.PG_DATABASE". Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table "PG_CATALOG.PG_ROLES". Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table "PG_CATALOG.PG_USER". Only allowed on READWRITE tables.
 ???
 -- Test of ERR_TABLE_READONLY error in a table created with READONLY
 (1 row)
 CREATE TABLE
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'TEST1'. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table "TEST1". Only allowed on READWRITE tables.
 DROP TABLE
 ???
 -- Test same table created with READWRITE works fine with INSERT INTO
@@ -328,7 +332,7 @@ DROP TABLE
 -- Test of ERR_TABLE_READONLY error in a table created with READONLY implicitly assumed
 (1 row)
 CREATE TABLE
-[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table 'TEST1'. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table "TEST1". Only allowed on READWRITE tables.
 DROP TABLE
 ???
 -- Test of ERR_UNKNOWN_TABLE error
@@ -339,12 +343,12 @@ LINE 115:1: INSERT INTO abcd VALUES (1);
 ???
 -- Test of ERR_DUPLICATE_KEY_VALUE on names database
 (1 row)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint NAMES_PKEY : Key (ID)=(4) already exists
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint NAMES_PKEY : Key (ID)=(3) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "NAMES_PKEY" : Key (ID)=(4) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "NAMES_PKEY" : Key (ID)=(3) already exists
 ???
 -- Test of ERR_DUPLICATE_KEY_VALUE on composite database
 (1 row)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint COMPOSITE_PKEY : Key (ID0, ID1, ID2, ID3, ID4, ID5, ID6, ID7)=(1, 2, 3, 4, 5, 6, 8, 7) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "COMPOSITE_PKEY" : Key (ID0, ID1, ID2, ID3, ID4, ID5, ID6, ID7)=(1, 2, 3, 4, 5, 6, 8, 7) already exists
 ???
 -- Test of ERR_NULL_COL_VALUE on names database where ID column is explicitly specified as NULL
 (1 row)
@@ -361,3 +365,15 @@ LINE 115:1: INSERT INTO abcd VALUES (1);
 -- Test of ERR_NULL_COL_VALUE on composite database where ID3 column is implicitly specified as NULL
 (1 row)
 [ERROR]: ERR_NULL_COL_VALUE: NULL value in column ID3 violates NOT NULL constraint
+???
+-- Test of syntax error for qualified column names (i.e. `x.y` syntax) in select list
+(1 row)
+LINE 137:1: INSERT INTO names(names.id,names.firstname,names.lastname) SELE...
+                                   ^
+syntax error, unexpected PERIOD, expecting RIGHT_PAREN
+LINE 138:1: INSERT INTO names(id,names.firstname,names.lastname) SELECT * F...
+                                      ^
+syntax error, unexpected PERIOD, expecting RIGHT_PAREN
+LINE 139:1: ...RT INTO names(id,firstname,names.lastname) SELECT * FROM names;
+                                               ^
+syntax error, unexpected PERIOD, expecting RIGHT_PAREN

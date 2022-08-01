@@ -321,7 +321,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_BINARY_DEFINITION 14
+#define FMT_BINARY_DEFINITION 15
 
 /* The below macro needs to be manually bumped if at least one of the following changes.
  *	1) Generated physical plan (_ydboctoP*.m) file name OR contents
@@ -402,14 +402,16 @@
 	}
 
 // Convert a string to uppercase in place
-#define TOUPPER_STR(STR)                         \
-	{                                        \
-		size_t len;                      \
-		char * end;                      \
-                                                 \
-		len = strlen(STR);               \
-		end = STR + len;                 \
-		TOUPPER(STR, end + 1, STR, end); \
+#define TOUPPER_STR(STR)                             \
+	{                                            \
+		size_t len;                          \
+		char * end;                          \
+		char * begin;                        \
+                                                     \
+		begin = STR;                         \
+		len = strlen(begin);                 \
+		end = begin + len;                   \
+		TOUPPER(begin, end + 1, begin, end); \
 	}
 
 // Convert a string to lowercase in place
@@ -1101,7 +1103,6 @@ int  regex_has_no_special_characters(SqlStatement *op1, enum RegexType regex_typ
 int  store_plandirs_gvn(char *plan_filename);
 
 /* Parse related functions invoked from the .y files (parser.y, select.y etc.) */
-void	      as_name(SqlStatement *as_name);
 SqlStatement *sql_set_statement(SqlStatement *variable, SqlStatement *value, ParseContext *parse_context);
 SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeyword set_quantifier, SqlStatement *value_expression,
 				 YYLTYPE *loc);

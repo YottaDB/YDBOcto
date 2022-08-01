@@ -225,3 +225,8 @@ teardown() {
 	load_fixture TCTC015.sql subtest novv
 	verify_output TCTC015 output.txt
 }
+
+@test "TCTC016 : OCTO519 : Test 63-character constraint names plus double-quotes are accepted without truncation" {
+	load_fixture TCTC016.sql subtest novv
+	verify_output TCTC016 output.txt
+}

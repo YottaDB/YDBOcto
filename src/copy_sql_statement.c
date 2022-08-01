@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -85,6 +85,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		MALLOC_STATEMENT(ret, value, SqlValue);
 		ret->v.value->type = value->type;
 		ret->v.value->parameter_index = value->parameter_index;
+		ret->v.value->is_double_quoted = value->is_double_quoted;
 		if (COERCE_TYPE == value->type) {
 			ret->v.value->pre_coerced_type = value->pre_coerced_type;
 			ret->v.value->coerced_type = value->coerced_type;

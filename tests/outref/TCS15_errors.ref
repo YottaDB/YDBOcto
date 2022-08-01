@@ -23,15 +23,15 @@ select case 1 when 1.5 then 'abcd' else 'efgh' end;
 select case when 12 then 'MyZero' end from names;
 select case 'll' when 12 then 'MyZero' end from names;
 select case when 12.33 then 'MyZero' end from names;
-select case "asdf" when 12.33 then 'MyZero' end from names;
-select case "asdf" when NULL then 'MyZero' end from names;
+select case 'asdf' when 12.33 then 'MyZero' end from names;
+select case 'asdf' when NULL then 'MyZero' end from names;
 select case 112 when NULL then 'MyZero' end from names;
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type BOOLEAN but is used in a context that expects a VARCHAR type
 LINE 2:1: ...ct case firstname when firstname = 'Zero' then 'MyZero' else fir...
                                     ^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type VARCHAR but is used in a context that expects a BOOLEAN type
-LINE 3:1: select case when 'Zero' then 'MyZero' else firstname end from n...
-                                ^
+LINE 3:1: select case when 'Zero' then 'MyZero' else firstname end from na...
+                           ^^^^^^
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type BOOLEAN but is used in a context that expects a INTEGER type
 LINE 4:1: select case id when firstname='Zero' then 'MyZero' else firstnam...
                               ^^^^^^^^^^^^^^^^
@@ -46,7 +46,7 @@ LINE 7:1: select case 'Zero' when then 'MyZero' else firstname end from na...
 syntax error, unexpected THEN
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type VARCHAR but is used in a context that expects a BOOLEAN type
 LINE 8:1: select case when 'Zero' then 'MyZero' else 1 end from names;
-                                ^
+                           ^^^^^^
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type INTEGER but is used in a context that expects a BOOLEAN type
 LINE 9:1: select case 1 = 1 when 0 then 1 end;
                                  ^
@@ -78,7 +78,7 @@ LINE 20:1: select case 'll' when 12 then 'MyZero' end from names;
 LINE 21:1: select case when 12.33 then 'MyZero' end from names;
                             ^^^^^
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type NUMERIC but is used in a context that expects a VARCHAR type
-LINE 22:1: select case "asdf" when 12.33 then 'MyZero' end from names;
+LINE 22:1: select case 'asdf' when 12.33 then 'MyZero' end from names;
                                    ^^^^^
 CASE
 

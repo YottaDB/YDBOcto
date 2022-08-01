@@ -77,7 +77,7 @@ FROM   ORDER1 A
                ON ( A.order1_id = B.order1_id
                     AND A.current_action = B.order_order_actions_id )
 INNER JOIN NEW_PERSON D ON (B.signed_by = D.new_person_id)
-WHERE  C.name <> "pending";
+WHERE  C.name <> 'pending';
 OCTO
   count_for_loops ./_ydboctoP*.m 1
 }

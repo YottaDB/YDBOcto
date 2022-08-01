@@ -16,9 +16,9 @@ LINE 18:2: Select distinct Salary from Employee e1 where 2=(Select count(di...
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EMPLOYEE
 LINE 19:1: Select * from Employee a where rowid <>( select max(rowid) from ...
                          ^^^^^^^^
-LINE 20:1: ...lect Employee_name,Salary/12 as `Monthly Salary` from employee;
-                                                             ^
-syntax error, unexpected IDENTIFIER_BACK_TICK, expecting IDENTIFIER_ALONE or LITERAL
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EMPLOYEE
+LINE 20:1: ...elect Employee_name,Salary/12 as `Monthly Salary` from employee;
+                                                                     ^^^^^^^^
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EMPLOYEE
 LINE 21:1: Select * from Employee where Rownum =1;
                          ^^^^^^^^

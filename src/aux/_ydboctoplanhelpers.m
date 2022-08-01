@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -1012,7 +1012,7 @@ DuplicateKeyValue(name,detail)
 	; This function is invoked to signal a UNIQUE constraint violation error.
 	; "name" has the constraint name.
 	; "detail" has additional detail on the actual values of the affected columns for the user.
-	SET %ydboctoerror("DUPLICATEKEYVALUE",1)=name_" : "_detail_" already exists" ; pass parameter to `src/ydb_error_check.c`
+	SET %ydboctoerror("DUPLICATEKEYVALUE",1)=""""_name_""" : "_detail_" already exists" ; pass parameter to `src/ydb_error_check.c`
 	ZMESSAGE %ydboctoerror("DUPLICATEKEYVALUE")
 	QUIT
 

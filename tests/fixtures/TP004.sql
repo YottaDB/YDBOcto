@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -16,7 +16,7 @@
 drop table if exists TP004;
 create table TP004 (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30));
 -- Table modifications allowed (readwrite)
-insert into names values (6, "Mr.", "Numbers");
+insert into names values (6, 'Mr.', 'Numbers');
 select * from names;
 update names set firstname = lastname, lastname = firstname where lastname != 'Cool';
 select * from names;

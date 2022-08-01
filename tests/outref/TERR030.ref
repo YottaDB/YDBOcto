@@ -40,7 +40,7 @@ LINE 5:1: SELECT * FROM (VALUES (1), (2), (3), (2,3)) AS MyTable;
 LINE 7:1: SELECT * FROM (VALUES (1), ('abcd')) AS abcd;
                                  ^
 LINE 7:1: SELECT * FROM (VALUES (1), ('abcd')) AS abcd;
-                                           ^
+                                      ^^^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left NUMERIC, right BOOLEAN
 LINE 8:1: SELECT * FROM (VALUES (1), (1.5), (true)) AS abcd;
                                  ^

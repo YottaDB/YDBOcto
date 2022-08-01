@@ -5,7 +5,7 @@ ID|FIRSTNAME|LASTNAME
 (3 rows)
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
-;  select * from names where id = 2 or firstName = "Zero";
+;  select * from names where id = 2 or firstName = 'Zero';
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)

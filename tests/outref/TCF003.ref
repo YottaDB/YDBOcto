@@ -18,21 +18,21 @@ select VERSION('should be no args here') as extraarg from names;
 
 -- Test detection of multiple extra function arguments on parameterless function
 select VERSION('should', 'be', 'no', 'args', 'here') as extraargs from names;
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'ABS' defined with given parameter types (none)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function ABS defined with given parameter types (none)
 LINE 3:1: select ABS() as missingarg from names;
                  ^^^
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'REPLACE' defined with given parameter types (VARCHAR)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function REPLACE defined with given parameter types (VARCHAR)
 LINE 5:1: select REPLACE('balloons') as missingargs from names;
                  ^^^^^^^
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'PG_CATALOG.PG_GET_EXPR' defined with given parameter types (VARCHAR, INTEGER, VARCHAR)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function PG_CATALOG.PG_GET_EXPR defined with given parameter types (VARCHAR, INTEGER, VARCHAR)
 LINE 7:1: select PG_CATALOG.PG_GET_EXPR('balloons', 11, 'bananas') as extr...
                  ^^^^^^^^^^^^^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'ABS' defined with given parameter types (INTEGER, VARCHAR, VARCHAR, VARCHAR, VARCHAR)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function ABS defined with given parameter types (INTEGER, VARCHAR, VARCHAR, VARCHAR, VARCHAR)
 LINE 9:1: select ABS(12, 'lots', 'of', 'extra', 'args') as extraargs from...
                  ^^^
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'VERSION' defined with given parameter types (VARCHAR)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function VERSION defined with given parameter types (VARCHAR)
 LINE 11:1: select VERSION('should be no args here') as extraarg from names;
                   ^^^^^^^
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'VERSION' defined with given parameter types (VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function VERSION defined with given parameter types (VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR)
 LINE 13:1: select VERSION('should', 'be', 'no', 'args', 'here') as extraar...
                   ^^^^^^^

@@ -21,10 +21,7 @@
 			if ((NULL == OPTIONAL_WORDS)                                                                \
 			    || (OPTIONAL_OVERRIDING_SYSTEM_VALUE != OPTIONAL_WORDS->v.keyword->keyword)) {          \
 				/* Issue an error as inserting into a GENERATED_ALWAYS_IDENTITY column is invalid*/ \
-				SqlValue *tbl_name;                                                                 \
-				UNPACK_SQL_STATEMENT(tbl_name, TABLE->tableName, value);                            \
-				ERROR(ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY, tbl_name->v.string_literal,          \
-				      COL_NAME->v.string_literal);                                                  \
+				ERROR(ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY, COL_NAME->v.string_literal);         \
 				if (NULL != LOC) {                                                                  \
 					yyerror(NULL, NULL, &LOC, NULL, NULL, NULL);                                \
 				}                                                                                   \

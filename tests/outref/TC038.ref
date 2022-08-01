@@ -14,11 +14,11 @@ CREATE TABLE tmp (id INTEGER, firstname VARCHAR, lastname VARCHAR, firstname INT
 -- and READWRITE is specified).
 CREATE TABLE tmp (firstName VARCHAR, lastName VARCHAR, `%yo_keycol` INTEGER) READWRITE;
 
-[ERROR]: ERR_DUPLICATE_COLUMN: Column 'ID' specified more than once
-[ERROR]: ERR_DUPLICATE_COLUMN: Column 'FIRSTNAME' specified more than once
-[ERROR]: ERR_DUPLICATE_COLUMN: Column 'ID' specified more than once
-[ERROR]: ERR_DUPLICATE_COLUMN: Column 'ID' specified more than once
-[ERROR]: ERR_DUPLICATE_COLUMN: Column 'FIRSTNAME' specified more than once
-[ERROR]: ERR_DUPLICATE_COLUMN: Column 'FIRSTNAME' specified more than once
-[ERROR]: ERR_DUPLICATE_COLUMN: Column 'FIRSTNAME' specified more than once
-[ERROR]: ERR_DUPLICATE_COLUMN: Column '%YO_KEYCOL' specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column "ID" specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column "FIRSTNAME" specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column "ID" specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column "ID" specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column "FIRSTNAME" specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column "FIRSTNAME" specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column "FIRSTNAME" specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column "%YO_KEYCOL" specified more than once

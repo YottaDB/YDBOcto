@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -34,3 +34,5 @@ SELECT * FROM names WHERE $$a('b');
 -- Attempt to use inline extrinsic function in HAVING clause
 SELECT id FROM names GROUP BY id HAVING $$a(id);
 
+-- Attempt to use inline extrinsic function in alias name
+select id as $$dummyextrinsicfunction^something from names;

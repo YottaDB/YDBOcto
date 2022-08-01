@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -54,6 +54,9 @@ char *get_parameter_from_pg_settings(char **variable, ydb_buffer_t *out) {
 	boolean_t    check_ro = FALSE; // For tracking whether a read-only variable check is necessary
 
 	assert(NULL != variable);
+
+	// Uppercase the variable name to enforce case insensitivity
+	TOUPPER_STR(*variable);
 	/* Initialize session LVN subscripts
 	 *
 	 * Use global_names.raw_octo to access table LVN, i.e. "%ydboctoocto" instead of "^%ydboctoocto":

@@ -8,19 +8,19 @@ CREATE TABLE user1 (
 	     pass varchar(64) NOT NULL
 );
 -- These two will succeed
-SELECT XECUTE_M_CODE("zwrite ^%ydboctoU2tuomEAySubezrd0DoxaEI");
+SELECT XECUTE_M_CODE('zwrite ^%ydboctoU2tuomEAySubezrd0DoxaEI');
 INSERT INTO user1 VALUES(1,'sam','sam@zzz.com','catdog.33');
 INSERT INTO user1 VALUES(3,'bam','bam@zzz.com','catdog.33');
 -- The following two will fail
 INSERT INTO user1 VALUES(2,'sam','sam@zzz.com','catdog.33');
 INSERT INTO user1 VALUES(4,'sam','','');
 SELECT * FROM user1;
-SELECT XECUTE_M_CODE("zwrite ^%ydboctoU2tuomEAySubezrd0DoxaEI");
+SELECT XECUTE_M_CODE('zwrite ^%ydboctoU2tuomEAySubezrd0DoxaEI');
 UPDATE user1 SET email = 'sam@zzz.com' where id = 3;
-SELECT XECUTE_M_CODE("zwrite ^%ydboctoU2tuomEAySubezrd0DoxaEI");
+SELECT XECUTE_M_CODE('zwrite ^%ydboctoU2tuomEAySubezrd0DoxaEI');
 DELETE FROM user1 WHERE id = 3;
-SELECT XECUTE_M_CODE("zwrite ^%ydboctoU2tuomEAySubezrd0DoxaEI");
-\d user1
+SELECT XECUTE_M_CODE('zwrite ^%ydboctoU2tuomEAySubezrd0DoxaEI');
+\d user1;
 DROP TABLE user1;
 
 DROP TABLE
@@ -28,7 +28,7 @@ CREATE TABLE
 [ERROR]: ERR_YOTTADB: YottaDB error: 150372994,XecuteMCode+2^xecutemcode,%YDB-E-GVUNDEF, Global variable undefined: ^%ydboctoU2tuomEAySubezrd0DoxaEI
 INSERT 0 1
 INSERT 0 1
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint USER1_USERNAME_KEY : Key (USERNAME)=(sam) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "USER1_USERNAME_KEY" : Key (USERNAME)=(sam) already exists
 [ERROR]: ERR_NULL_COL_VALUE: NULL value in column EMAIL violates NOT NULL constraint
 ID|USERNAME|EMAIL|PASS
 1|sam|sam@zzz.com|catdog.33
@@ -39,7 +39,7 @@ ID|USERNAME|EMAIL|PASS
 XECUTE_M_CODE
 0
 (1 row)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint USER1_EMAIL_KEY : Key (EMAIL)=(sam@zzz.com) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "USER1_EMAIL_KEY" : Key (EMAIL)=(sam@zzz.com) already exists
 ^%ydboctoU2tuomEAySubezrd0DoxaEI("bam@zzz.com")=""
 ^%ydboctoU2tuomEAySubezrd0DoxaEI("sam@zzz.com")=""
 XECUTE_M_CODE
@@ -72,17 +72,17 @@ CREATE TABLE subscriptions (
 	   --CONSTRAINT pk_subscriptions PRIMARY KEY (uid),
 	   CONSTRAINT unique_subscriptions UNIQUE (user_id, service_id, url)
 );
-SELECT XECUTE_M_CODE("zwrite ^%ydboctoUAmZMXJ5Co5UNpwPQfk5TL5");
+SELECT XECUTE_M_CODE('zwrite ^%ydboctoUAmZMXJ5Co5UNpwPQfk5TL5');
 INSERT INTO subscriptions VALUES
 (1, 1, 'aa', 'http://foo.com'),
 (3, 1, 'cc', 'http://foo.com');
 SELECT * FROM subscriptions;
-SELECT XECUTE_M_CODE("zwrite ^%ydboctoUAmZMXJ5Co5UNpwPQfk5TL5");
+SELECT XECUTE_M_CODE('zwrite ^%ydboctoUAmZMXJ5Co5UNpwPQfk5TL5');
 -- These two will fail
 INSERT INTO subscriptions VALUES (2, 1, 'aa', 'http://foo.com');
 UPDATE subscriptions SET service_id = 'aa' WHERE uid = 3;
 SELECT * FROM subscriptions;
-SELECT XECUTE_M_CODE("zwrite ^%ydboctoUAmZMXJ5Co5UNpwPQfk5TL5");
+SELECT XECUTE_M_CODE('zwrite ^%ydboctoUAmZMXJ5Co5UNpwPQfk5TL5');
 \d subscriptions;
 DROP TABLE IF EXISTS subscriptions;
 DROP TABLE
@@ -98,8 +98,8 @@ UID|USER_ID|SERVICE_ID|URL
 XECUTE_M_CODE
 0
 (1 row)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint UNIQUE_SUBSCRIPTIONS : Key (USER_ID, SERVICE_ID, URL)=(1, aa, http://foo.com) already exists
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint UNIQUE_SUBSCRIPTIONS : Key (USER_ID, SERVICE_ID, URL)=(1, aa, http://foo.com) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "UNIQUE_SUBSCRIPTIONS" : Key (USER_ID, SERVICE_ID, URL)=(1, aa, http://foo.com) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "UNIQUE_SUBSCRIPTIONS" : Key (USER_ID, SERVICE_ID, URL)=(1, aa, http://foo.com) already exists
 UID|USER_ID|SERVICE_ID|URL
 1|1|aa|http://foo.com
 3|1|cc|http://foo.com
@@ -127,27 +127,27 @@ CREATE TABLE objecttypes (
 	  objecttype VARCHAR(255),
 	  CONSTRAINT idx_objecttypes_objecttype UNIQUE (objecttype)
 );
-\d objecttypes
-SELECT XECUTE_M_CODE("zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D");
+\d objecttypes;
+SELECT XECUTE_M_CODE('zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D');
 INSERT INTO objecttypes values (1, 'aaa');
 SELECT * FROM objecttypes;
-SELECT XECUTE_M_CODE("zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D");
+SELECT XECUTE_M_CODE('zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D');
 -- This will fail
 INSERT INTO objecttypes values (2, 'bbb'), (3, 'aaa');
 SELECT * FROM objecttypes;
 -- This will succeed
 INSERT INTO objecttypes values (2, 'bbb');
 SELECT * FROM objecttypes;
-SELECT XECUTE_M_CODE("zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D");
+SELECT XECUTE_M_CODE('zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D');
 -- This will fail
 UPDATE objecttypes SET objecttype = 'aaa' WHERE id = 2;
 SELECT * FROM objecttypes;
 DELETE FROM objecttypes where id = 2;
 SELECT * FROM objecttypes;
-SELECT XECUTE_M_CODE("zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D");
+SELECT XECUTE_M_CODE('zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D');
 DELETE FROM objecttypes where id = 1;
 SELECT * FROM objecttypes;
-SELECT XECUTE_M_CODE("zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D");
+SELECT XECUTE_M_CODE('zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D');
 DROP TABLE IF EXISTS objecttypes;
 DROP TABLE
 CREATE TABLE
@@ -166,7 +166,7 @@ ID|OBJECTTYPE
 XECUTE_M_CODE
 0
 (1 row)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint IDX_OBJECTTYPES_OBJECTTYPE : Key (OBJECTTYPE)=(aaa) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "IDX_OBJECTTYPES_OBJECTTYPE" : Key (OBJECTTYPE)=(aaa) already exists
 ID|OBJECTTYPE
 1|aaa
 (1 row)
@@ -180,7 +180,7 @@ ID|OBJECTTYPE
 XECUTE_M_CODE
 0
 (1 row)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint IDX_OBJECTTYPES_OBJECTTYPE : Key (OBJECTTYPE)=(aaa) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "IDX_OBJECTTYPES_OBJECTTYPE" : Key (OBJECTTYPE)=(aaa) already exists
 ID|OBJECTTYPE
 1|aaa
 2|bbb
@@ -225,8 +225,8 @@ ID|NAME|EMAILADDRESS
 1|aaa|a@example.com
 2|bbb|b@example.com
 (2 rows)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint UNQ_CUSTOMER_EMAIL : Key (EMAILADDRESS)=(a@example.com) already exists
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint UNQ_CUSTOMER_EMAIL : Key (EMAILADDRESS)=(a@example.com) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "UNQ_CUSTOMER_EMAIL" : Key (EMAILADDRESS)=(a@example.com) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "UNQ_CUSTOMER_EMAIL" : Key (EMAILADDRESS)=(a@example.com) already exists
 ID|NAME|EMAILADDRESS
 1|aaa|a@example.com
 2|bbb|b@example.com
@@ -259,8 +259,8 @@ ID|FIRSTNAM|LASTNAME|EMAIL
 1|a|b|a@example.com
 2|a|b|b@example.com
 (2 rows)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint USER2_EMAIL_KEY : Key (EMAIL)=(a@example.com) already exists
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint USER2_EMAIL_KEY : Key (EMAIL)=(a@example.com) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "USER2_EMAIL_KEY" : Key (EMAIL)=(a@example.com) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "USER2_EMAIL_KEY" : Key (EMAIL)=(a@example.com) already exists
 ID|FIRSTNAM|LASTNAME|EMAIL
 1|a|b|a@example.com
 2|a|b|b@example.com
@@ -303,8 +303,8 @@ DISTRIBUTION_ID|ADDRESS|USD_BALANCE|DETAILS
 1|aaa|22.3355|foo
 2|aaa|22.5566|
 (2 rows)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint BALANCES_DISTRIBUTION_ID_ADDRESS_KEY : Key (DISTRIBUTION_ID, ADDRESS)=(1, aaa) already exists
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint BALANCES_DISTRIBUTION_ID_ADDRESS_KEY : Key (DISTRIBUTION_ID, ADDRESS)=(1, aaa) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "BALANCES_DISTRIBUTION_ID_ADDRESS_KEY" : Key (DISTRIBUTION_ID, ADDRESS)=(1, aaa) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "BALANCES_DISTRIBUTION_ID_ADDRESS_KEY" : Key (DISTRIBUTION_ID, ADDRESS)=(1, aaa) already exists
 DISTRIBUTION_ID|ADDRESS|USD_BALANCE|DETAILS
 1|aaa|22.3355|foo
 2|aaa|22.5566|

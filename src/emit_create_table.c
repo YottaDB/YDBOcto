@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -40,7 +40,11 @@ int emit_create_table(FILE *output, struct SqlStatement *stmt) {
 	assert(table->tableName);
 	assert(table->columns);
 	UNPACK_SQL_STATEMENT(value, table->tableName, value);
-	defn_len += fprintf(output, "CREATE TABLE `%s` (", value->v.reference);
+	if (value->is_double_quoted) {
+		defn_len += fprintf(output, "CREATE TABLE \"%s\" (", value->v.reference);
+	} else {
+		defn_len += fprintf(output, "CREATE TABLE `%s` (", value->v.reference);
+	}
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 	cur_column = start_column;
 	do {

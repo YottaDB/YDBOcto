@@ -11,7 +11,7 @@ CREATE TABLE names1 (
 	id INTEGER PRIMARY KEY,
 	firstName VARCHAR(30) DELIM "",
 	lastName TEXT(30)
-) GLOBAL "^names(keys(""id""))";
+) GLOBAL "^names(keys(""ID""))";
 
 SELECT * FROM names1;
 
@@ -20,7 +20,7 @@ CREATE TABLE names2 (
 	id INTEGER PRIMARY KEY,
 	firstName VARCHAR(30) DELIM "" PIECE 2,
 	lastName TEXT(30)
-) GLOBAL "^names(keys(""id""))";
+) GLOBAL "^names(keys(""ID""))";
 
 SELECT * FROM names2;
 
@@ -30,7 +30,7 @@ SELECT * FROM names2;
 CREATE TABLE names3 (
 	id INTEGER PRIMARY KEY,
 	firstName VARCHAR DELIM ""
-) GLOBAL "^names3(keys(""id""))";
+) GLOBAL "^names3(keys(""ID""))";
 
 SELECT * from names3;
 SELECT * from names3 WHERE firstname = 'first|1';
@@ -66,9 +66,9 @@ ID|FIRSTNAME
 2|second|2
 (1 row)
 # Verify generated plans (including xref plans) do not have $PIECE for FIRSTNAME column
-_ydboctoP*.m:    . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES1","ID"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
 _ydboctoP*.m:    . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES2","ID"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES1","ID"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
 # Verify text table definition does not have PIECE specified for FIRSTNAME column
-^%ydboctoschema("NAMES1","text",0)="CREATE TABLE `NAMES1` (`ID` INTEGER CONSTRAINT NAMES1_PKEY PRIMARY KEY, `FIRSTNAME` VARCHAR(30) DELIM """", `LASTNAME` VARCHAR(30) PIECE 2) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"" READONLY;"
-^%ydboctoschema("NAMES2","text",0)="CREATE TABLE `NAMES2` (`ID` INTEGER CONSTRAINT NAMES2_PKEY PRIMARY KEY, `FIRSTNAME` VARCHAR(30) DELIM """", `LASTNAME` VARCHAR(30) PIECE 2) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"" READONLY;"
-^%ydboctoschema("NAMES3","text",0)="CREATE TABLE `NAMES3` (`ID` INTEGER CONSTRAINT NAMES3_PKEY PRIMARY KEY, `FIRSTNAME` VARCHAR DELIM """") GLOBAL ""^names3(keys(""""id""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("NAMES1","text",0)="CREATE TABLE `NAMES1` (`ID` INTEGER CONSTRAINT ""NAMES1_PKEY"" PRIMARY KEY, `FIRSTNAME` VARCHAR(30) DELIM """", `LASTNAME` VARCHAR(30) PIECE 2) GLOBAL ""^names(keys(""""ID""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("NAMES2","text",0)="CREATE TABLE `NAMES2` (`ID` INTEGER CONSTRAINT ""NAMES2_PKEY"" PRIMARY KEY, `FIRSTNAME` VARCHAR(30) DELIM """", `LASTNAME` VARCHAR(30) PIECE 2) GLOBAL ""^names(keys(""""ID""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("NAMES3","text",0)="CREATE TABLE `NAMES3` (`ID` INTEGER CONSTRAINT ""NAMES3_PKEY"" PRIMARY KEY, `FIRSTNAME` VARCHAR DELIM """") GLOBAL ""^names3(keys(""""ID""""))"" DELIM ""|"" READONLY;"

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -12,5 +12,5 @@
 
 -- TWI01 : where with basic in statement
 
-select * from names where firstName in (select firstName from names where firstName="zero" or firstName="Zero");
+select * from names where firstName in (select firstName from names where firstName='zero' or firstName='Zero');
 

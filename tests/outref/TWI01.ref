@@ -1,7 +1,7 @@
 
 -- TWI01 : where with basic in statement
 
-select * from names where firstName in (select firstName from names where firstName="zero" or firstName="Zero");
+select * from names where firstName in (select firstName from names where firstName='zero' or firstName='Zero');
 
 ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
@@ -9,7 +9,7 @@ ID|FIRSTNAME|LASTNAME
 (2 rows)
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
-;  select * from names where firstName in (select firstName from names where firstName="zero" or firstName="Zero");
+;  select * from names where firstName in (select firstName from names where firstName='zero' or firstName='Zero');
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)

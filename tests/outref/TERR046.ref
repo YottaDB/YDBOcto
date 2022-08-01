@@ -1,0 +1,11 @@
+
+-- TERR046 : OCTO519 : Test identifier length limits enforced on alias names
+
+select id as abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl from names;
+select id as "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl" from names;
+[ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
+LINE 3:1: ...abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl...
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
+LINE 4:1: ..."abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijk...
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

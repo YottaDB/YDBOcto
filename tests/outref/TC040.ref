@@ -6,7 +6,7 @@ CREATE TABLE namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw (
         id INTEGER PRIMARY KEY,
         firstName VARCHAR(30),
         lastName TEXT(30)
-) GLOBAL "^names(keys(""id""))";
+) GLOBAL "^names(keys(""ID""))";
 
 SELECT * from namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw;
 
@@ -15,19 +15,76 @@ CREATE TABLE namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv (
         id INTEGER PRIMARY KEY,
         firstName VARCHAR(30),
         lastName TEXT(30)
-) GLOBAL "^names(keys(""id""))";
+) GLOBAL "^names(keys(""ID""))";
 
 SELECT * from namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv;
 
--- 64-byte table name using '.' to force 'LITERAL PERIOD LITERAL' parser code path (exceeds 63-byte limit and so should fail)
-CREATE TABLE namesLongString.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw (
+-- 63-byte compound table name (meets 63-byte limit and so should succeed)
+CREATE TABLE x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrst (
         id INTEGER PRIMARY KEY,
         firstName VARCHAR(30),
         lastName TEXT(30)
-) GLOBAL "^names(keys(""id""))";
+) GLOBAL "^names(keys(""ID""))";
 
-SELECT * from namesLongString.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv;
+SELECT * from x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrst;
 
+-- Compound table name containing 62-byte identifier following '.', should fail after concatenation of both sides of '.'
+DROP TABLE IF EXISTS namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv;
+CREATE TABLE x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu (
+        id INTEGER PRIMARY KEY,
+        firstName VARCHAR(30),
+        lastName TEXT(30)
+) GLOBAL "^names(keys(""ID""))";
+
+SELECT * from x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu;
+
+-- Compound table name containing 62-byte identifier preceding '.', should fail after concatenation of both sides of '.'
+DROP TABLE IF EXISTS namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv;
+CREATE TABLE namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu.x (
+        id INTEGER PRIMARY KEY,
+        firstName VARCHAR(30),
+        lastName TEXT(30)
+) GLOBAL "^names(keys(""ID""))";
+
+SELECT * from namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu.x;
+
+-- Compound table name containing 63-byte identifier following '.', should fail after concatenation of both sides of '.'
+DROP TABLE IF EXISTS namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv;
+CREATE TABLE x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv (
+        id INTEGER PRIMARY KEY,
+        firstName VARCHAR(30),
+        lastName TEXT(30)
+) GLOBAL "^names(keys(""ID""))";
+
+SELECT * from x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv;
+
+-- Compound table name containing 63-byte identifier preceding '.', should fail after concatenation of both sides of '.'
+DROP TABLE IF EXISTS namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv;
+CREATE TABLE namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv.x (
+        id INTEGER PRIMARY KEY,
+        firstName VARCHAR(30),
+        lastName TEXT(30)
+) GLOBAL "^names(keys(""ID""))";
+
+SELECT * from namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv.x;
+
+-- Compound table name containing 64-byte identifier following '.', should fail before concatenation of both sides of '.'
+CREATE TABLE x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw (
+        id INTEGER PRIMARY KEY,
+        firstName VARCHAR(30),
+        lastName TEXT(30)
+) GLOBAL "^names(keys(""ID""))";
+
+SELECT * from x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw;
+
+-- Compound table name containing 64-byte identifier preceding '.', should fail before concatenation of both sides of '.'
+CREATE TABLE namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw.x (
+        id INTEGER PRIMARY KEY,
+        firstName VARCHAR(30),
+        lastName TEXT(30)
+) GLOBAL "^names(keys(""ID""))";
+
+SELECT * from x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw;
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
 LINE 3:1: ...namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw...
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -43,9 +100,52 @@ ID|FIRSTNAME|LASTNAME
 4|Joey|
 5|Zero|Cool
 (6 rows)
-[ERROR]: ERR_IDENT_LENGTH: Identifier length 65 exceeds max (63)
-LINE 19:1: ...namesLongString.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv...
+CREATE TABLE
+ID|FIRSTNAME|LASTNAME
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+(6 rows)
+DROP TABLE
+[ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
+LINE 28:1: ...x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu...
               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
-LINE 25:1: ...namesLongString.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv...
+LINE 34:1: ...x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu...
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+DROP TABLE
+[ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
+LINE 37:1: ...namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu.x...
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
+LINE 43:1: ...namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu.x...
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+DROP TABLE
+[ERROR]: ERR_IDENT_LENGTH: Identifier length 65 exceeds max (63)
+LINE 46:1: ...x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu...
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_IDENT_LENGTH: Identifier length 65 exceeds max (63)
+LINE 52:1: ...x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu...
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+DROP TABLE
+[ERROR]: ERR_IDENT_LENGTH: Identifier length 65 exceeds max (63)
+LINE 55:1: ...namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv....
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_IDENT_LENGTH: Identifier length 65 exceeds max (63)
+LINE 61:1: ...namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv....
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
+LINE 63:1: ...namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw...
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
+LINE 69:1: ...namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw...
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
+LINE 71:1: ...namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw...
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
+LINE 77:1: ...namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw...
               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

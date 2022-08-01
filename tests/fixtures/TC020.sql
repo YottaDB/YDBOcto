@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -12,7 +12,7 @@
 
 -- TC020 : OCTO483 : CREATE TABLE works with multiple characters as DELIM qualifier, including non-printable characters and validate xrefs
 
-CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (123, 9, 124, 9, 125) GLOBAL "^delimnames(keys(""id""))";
+CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (123, 9, 124, 9, 125) GLOBAL "^delimnames(keys(""ID""))";
 
 SELECT * FROM delimnames;
 SELECT * FROM delimnames WHERE firstname = 'Zero';

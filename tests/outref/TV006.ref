@@ -1,7 +1,7 @@
 
 select * from nonexistanttable;
 
-INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""id""))";
+INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""ID""))";
 
 select * from names;
 [ INFO] PATH:LINENUM DATE TIME: INFO_LOADED_CONFIG: Loaded config from $PWD/octo.conf
@@ -65,6 +65,11 @@ Entering state sss
 Next token is token SEMICOLON (: )
 Reducing stack by rule rrr (line lll):
    $1 = nterm column_name (: )
+-> $$ = nterm qualified_identifier (: )
+Entering state sss
+Next token is token SEMICOLON (: )
+Reducing stack by rule rrr (line lll):
+   $1 = nterm qualified_identifier (: )
 [TRACE] PATH:LINENUM DATE TIME: INFO_TABLE_SEARCH: Searching for table NONEXISTANTTABLE
 [ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE: Unknown table: NONEXISTANTTABLE
 LINE 2:1: select * from nonexistanttable;
@@ -123,17 +128,17 @@ Reducing stack by rule rrr (line lll):
    $1 = nterm column_name (: )
 -> $$ = nterm index_name (: )
 Entering state sss
-Next token is token LITERAL (: )
-Shifting token LITERAL (: )
+Next token is token DOUBLE_QUOTE_LITERAL (: )
+Shifting token DOUBLE_QUOTE_LITERAL (: )
 Entering state sss
 Reducing stack by rule rrr (line lll):
-   $1 = token LITERAL (: )
--> $$ = nterm literal_value (: )
+   $1 = token DOUBLE_QUOTE_LITERAL (: )
+-> $$ = nterm ddl_str_literal_value (: )
 Entering state sss
 Reducing stack by rule rrr (line lll):
    $1 = token INDEX (: )
    $2 = nterm index_name (: )
-   $3 = nterm literal_value (: )
+   $3 = nterm ddl_str_literal_value (: )
 [ WARN] PATH:LINENUM DATE TIME: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: INDEX statements
 -> $$ = nterm index_definition (: )
 Entering state sss
@@ -155,7 +160,7 @@ Entering state sss
 Reducing stack by rule rrr (line lll):
    $1 = nterm sql_schema_statement (: )
    $2 = nterm semicolon_or_eof (: )
-[ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""id""))";]
+[ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""ID""))";]
 [ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
 Starting parse
 Entering state sss
@@ -215,6 +220,11 @@ Entering state sss
 Next token is token SEMICOLON (: )
 Reducing stack by rule rrr (line lll):
    $1 = nterm column_name (: )
+-> $$ = nterm qualified_identifier (: )
+Entering state sss
+Next token is token SEMICOLON (: )
+Reducing stack by rule rrr (line lll):
+   $1 = nterm qualified_identifier (: )
 [TRACE] PATH:LINENUM DATE TIME: INFO_TABLE_SEARCH: Searching for table NAMES
 -> $$ = nterm table_reference (: )
 Entering state sss

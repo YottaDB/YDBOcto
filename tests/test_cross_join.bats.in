@@ -35,7 +35,7 @@ OCTO
 
 @test "TCJ02 : cross join with where statement in table 1" {
   octo -vvv <<OCTO 2>&1 | tee output.txt
-select * from names cross join names2 where names.firstName = "Zero";
+select * from names cross join names2 where names.firstName = 'Zero';
 OCTO
   run cat output.txt
   [[ "$output" =~ "0|Zero|Cool|0|Zero|Cool" ]]
@@ -44,7 +44,7 @@ OCTO
 
 @test "TCJ03 : cross join with where statement in table 2" {
   octo -vvv <<OCTO 2>&1 | tee output.txt
-select * from names cross join names2 where names2.firstName = "Zero";
+select * from names cross join names2 where names2.firstName = 'Zero';
 OCTO
   run cat output.txt
   [[ "$output" =~ "0|Zero|Cool|0|Zero|Cool" ]]
@@ -53,7 +53,7 @@ OCTO
 
 @test "TCJ04 : cross join with where statement in table 1 and table 2" {
   octo -vvv <<OCTO 2>&1 | tee output.txt
-select * from names cross join names2 where names.firstName = "Zero" AND names2.firstName = "Acid";
+select * from names cross join names2 where names.firstName = 'Zero' AND names2.firstName = 'Acid';
 OCTO
   run cat output.txt
   ! [[ "$output" =~ "0|Zero|Cool|0|Zero|Cool" ]]
@@ -97,7 +97,7 @@ OCTO
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names n1, names n2
-WHERE n1.firstName = "Zero";
+WHERE n1.firstName = 'Zero';
 OCTO
   [[ "$(grep -c "|" output.txt)" == "13" ]]
 }

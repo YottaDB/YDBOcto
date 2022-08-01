@@ -287,7 +287,6 @@ add_library(libocto OBJECT
   parse_tree_optimize.c
   parser/aggregate_function.c
   parser/alloc_no_keyword.c
-  parser/as_name.c
   parser/between_predicate.c
   parser/cast_specification.c
   parser/copy_correlation_specification_aliases.c

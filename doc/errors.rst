@@ -118,7 +118,7 @@ ERR_AGGREGATE_FUNCTION_WHERE
 ERR_AMBIGUOUS_COLUMN_NAME
 ++++++++++++++++++++++++++++
 
-  Text: Ambiguous column name 'xxx': qualify name for safe execution
+  Text: Ambiguous column name "xxx": qualify name for safe execution
 
   Description/Action: This error is generated when two or more columns from different tables of the same name are given in a single query without qualifying them with their respective table names. PSQL Error Code: 42702
 
@@ -126,7 +126,7 @@ ERR_AMBIGUOUS_COLUMN_NAME
 ERR_AS_MORE_COLUMNS
 ++++++++++++++++++++++++++++++++
 
-  Text: Table name 'xxx' has xxx columns available but xxx columns specified
+  Text: Table name "xxx" has xxx columns available but xxx columns specified
 
   Description/Action: This error is generated when the :code:`AS` keyword specifies a list of column names that is more than the available number of columns. PSQL Error Code: 42P10
 
@@ -174,7 +174,7 @@ INFO_CALLING_M_ROUTINE
 ERR_CANNOT_CREATE_FUNCTION
 ++++++++++++++++++++++++++++
 
-  Text: Function 'xxx' already exists with same argument types
+  Text: Function "xxx" already exists with same argument types
 
   Description/Action: This error indicates an attempt to create an already existing function. PSQL Error Code: 42723
 
@@ -182,7 +182,7 @@ ERR_CANNOT_CREATE_FUNCTION
 ERR_CANNOT_CREATE_TABLE
 ++++++++++++++++++++++++++++
 
-  Text: Table 'xxx' already exists
+  Text: Table "xxx" already exists
 
   Description/Action: This error indicates an attempt to create an already existing table. PSQL Error Code: 42P07
 
@@ -190,7 +190,7 @@ ERR_CANNOT_CREATE_TABLE
 ERR_CANNOT_DROP_FUNCTION
 +++++++++++++++++++++++++
 
-  Text: Cannot DROP function 'xxx': no function defined with given name and parameter types
+  Text: Cannot DROP function xxx: no function defined with given name and parameter types
 
   Description/Action: This error indicates an attempt to drop a non-existent function. PSQL Error Code: 42883
 
@@ -198,7 +198,7 @@ ERR_CANNOT_DROP_FUNCTION
 ERR_CANNOT_DROP_TABLE
 +++++++++++++++++++++++++
 
-  Text: Cannot DROP table 'xxx' as it does not exist
+  Text: Cannot DROP table "xxx" as it does not exist
 
   Description/Action: This error indicates an attempt to drop a non-existent table. PSQL Error Code: 42P01
 
@@ -238,7 +238,7 @@ INFO_CLIENT_CONNECTED
 ERR_COMMON_COLUMN
 ++++++++++++++++++
 
-  Text: Common column name 'xxx' appears more than once in xxx side of NATURAL JOIN
+  Text: Common column name "xxx" appears more than once in xxx side of NATURAL JOIN
 
   Description/Action: This message is emitted when a user attempts a :code:`NATURAL JOIN` using a table containing multiple columns of the same name, introducing an ambiguity into the join. PSQL Error Code: 42702
 
@@ -294,7 +294,7 @@ ERR_DOLLAR_SYNTAX
 ERR_DROP_FUNCTION_DEPENDS
 +++++++++++++++++++++++++
 
-  Text: Cannot DROP function 'xxx' because other objects (constraint xxx on table xxx) depend on it
+  Text: Cannot DROP function xxx because other objects (constraint "xxx" on table "xxx") depend on it
 
   Description/Action: This error indicates an attempt to drop a function that is still being relied upon by at least one CHECK constraint in a table. This function cannot be removed until all tables whose CHECK constraints rely on this function are dropped. PSQL Error Code: 2BP01
 
@@ -302,7 +302,7 @@ ERR_DROP_FUNCTION_DEPENDS
 ERR_DUPLICATE_COLUMN
 ++++++++++++++++++++++
 
-  Text: Column 'xxx' specified more than once
+  Text: Column "xxx" specified more than once
 
   Description/Action: This error is generated when the :code:`CREATE TABLE` or :code:`INSERT INTO` command specifies more than one column with the same column name. Additionally, this error is generated if a :code:`CREATE TABLE` command specifies no columns with the :code:`PRIMARY KEY` or :code:`KEY NUM` keywords and specifies at least one column with the special name :code:`%YO_KEYCOL` which would then collide with the name of the hidden primary key column that Octo internally creates. PSQL Error Code: 42701
 
@@ -310,7 +310,7 @@ ERR_DUPLICATE_COLUMN
 ERR_DUPLICATE_CONSTRAINT
 ++++++++++++++++++++++++
 
-  Text: Constraint name 'xxx' already exists
+  Text: Constraint name "xxx" already exists
 
   Description/Action: This error is generated when a :code:`CREATE TABLE` specifies multiple constraints with the same name. Every constraint within a table must have a uniquely specified name. PSQL Error Code: 42710
 
@@ -326,7 +326,7 @@ ERR_DUPLICATE_KEY_VALUE
 ERR_DUPLICATE_PRIMARY_KEY_CONSTRAINT
 +++++++++++++++++++++++++++++++++++++
 
-  Text: PRIMARY KEY constraint name 'xxx' already exists in table 'xxx'
+  Text: PRIMARY KEY constraint name "xxx" already exists in table "xxx"
 
   Description/Action: This error is generated when a :code:`CREATE TABLE` specifies a PRIMARY KEY constraint with a name that conflicts with the PRIMARY KEY constraint name of an already existing table. The user specified PRIMARY KEY constraint name needs to be unique across all tables in Octo. PSQL Error Code: 42710
 
@@ -398,7 +398,7 @@ ERR_FUNCTION_NOT_UNIQUE
 INFO_FUNCTION_ALREADY_EXISTS
 +++++++++++++++++++++++++++++
 
-  Text: Function 'xxx' already exists, skipping
+  Text: Function xxx already exists, skipping
 
   Description/Action: This message lets the user know that Octo is skipping the action since the specified function already exists. PSQL Error Code: 42723
 
@@ -406,7 +406,7 @@ INFO_FUNCTION_ALREADY_EXISTS
 INFO_FUNCTION_DOES_NOT_EXIST
 +++++++++++++++++++++++++++++
 
-  Text: Function 'xxx' does not exist, skipping
+  Text: Function xxx does not exist, skipping
 
   Description/Action: This message lets the user know that Octo is skipping the action since the specified function does not exist. PSQL Error Code: 00000
 
@@ -494,7 +494,7 @@ ERR_INIT_SCANNER
 ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY
 ++++++++++++++++++++++++++++++++++++++++
 
-  Text: Cannot INSERT into GENERATED ALWAYS identity column 'xxx.xxx'. Use OVERRIDING SYSTEM VALUE to override.
+  Text: Cannot INSERT into GENERATED ALWAYS identity column "xxx". Use OVERRIDING SYSTEM VALUE to override.
 
   Description/Action: This error is generated when the :code:`INSERT INTO` command is done on an ALWAYS GENERATED identity column. See :code:`OVERRIDING SYSTEM VALUE` in `IDENTITY <https://docs.yottadb.com/Octo/grammar.html#identity>`_ to know how to override this check.  PSQL Error Code: 428C9
 
@@ -518,17 +518,9 @@ ERR_INSERT_TOO_MANY_EXPRESSIONS
 ERR_INSERT_TYPE_MISMATCH
 ++++++++++++++++++++++++++++++
 
-  Text: Column 'xxx' is of type xxx but expression is of type xxx
+  Text: Column "xxx" is of type xxx but expression is of type xxx
 
   Description/Action: This error is generated when the :code:`INSERT INTO` command specifies a target column whose type is different from the corresponding source column expression. PSQL Error Code: 42804
-
-+++++++++++++++++++++
-ERR_INVALID_AS_SYNTAX
-+++++++++++++++++++++
-
-  Text: Invalid AS value type: xxx
-
-  Description/Action: This error is issued when a user attempts to use an unacceptable type for an :code:`AS` value. PSQL Error Code: 22P02
 
 ++++++++++++++++++++++++++++++
 ERR_INVALID_BOOLEAN_SYNTAX
@@ -606,7 +598,7 @@ ERR_INVALID_READ_SIZE
 ERR_INVALID_RUNTIME_PARAMETER
 +++++++++++++++++++++++++++++
 
-  Text: Unrecognized runtime configuration parameter 'xxx'
+  Text: Unrecognized runtime configuration parameter "xxx"
 
   Description/Action: This error indicates an attempt to access a run-time configuration parameter that does not exist. For a full list of accepted run-time parameters and related information, issue the following query: `SELECT * FROM pg_settings`. PSQL Error Code: 22023
 
@@ -630,7 +622,7 @@ ERR_INVALID_WRITE_SIZE
 ERR_JOIN_ALIAS_DUPLICATE
 +++++++++++++++++++++++++
 
-  Text: table name 'xxx' specified more than once
+  Text: table name "xxx" specified more than once
 
   Description/Action: This error is generated when a table name has been specified more than once. PSQL Error Code: 42712
 
@@ -862,7 +854,7 @@ INFO_OCTO_STARTED
 ERR_PARM_CANNOT_BE_CHANGED
 ++++++++++++++++++++++++++
 
-  Text: Runtime parameter 'xxx' cannot be changed
+  Text: Runtime parameter "xxx" cannot be changed
 
   Description/Action: This message indicates an attempt to modify a read-only runtime parameter. PSQL Error Code: 55P02
 
@@ -934,7 +926,7 @@ ERR_PLAN_OWNER
 ERR_PRIMARY_KEY_NOT_FOUND
 ++++++++++++++++++++++++++
 
-  Text: No primary key specified when creating table 'xxx'. Please consult the documentation for more information.
+  Text: No primary key specified when creating table "xxx". Please consult the documentation for more information.
 
   Description/Action: This error is generated when a table was created without specifying a primary key. PSQL Error Code: 42601
 
@@ -1152,7 +1144,7 @@ ERR_SYSCALL_WITH_ARG
 INFO_TABLE_ALREADY_EXISTS
 ++++++++++++++++++++++++++
 
-  Text: Table 'xxx' already exists, skipping
+  Text: Table "xxx" already exists, skipping
 
   Description/Action: This message lets the user know that Octo is skipping the action since the specified table already exists. PSQL Error Code: 42P07
 
@@ -1192,7 +1184,7 @@ ERR_TABLE_DEFINITION_TOO_LONG
 INFO_TABLE_DOES_NOT_EXIST
 ++++++++++++++++++++++++++
 
-  Text: Table 'xxx' does not exist, skipping
+  Text: Table "xxx" does not exist, skipping
 
   Description/Action: This message lets the user know that Octo is skipping the action since the specified table does not exist. PSQL Error Code: 00000
 
@@ -1200,7 +1192,7 @@ INFO_TABLE_DOES_NOT_EXIST
 ERR_TABLE_KEY_NUM
 ++++++++++++++++++
 
-  Text: CREATE TABLE for table 'xxx' cannot use table-level PRIMARY KEY constraint and KEY NUM at same time
+  Text: CREATE TABLE for table "xxx" cannot use table-level PRIMARY KEY constraint and KEY NUM at same time
 
   Description/Action: This error is generated when a :code:`CREATE TABLE` command specifies a table-level :code:`PRIMARY KEY` constraint (i.e. a PRIMARY KEY keyword followed by a parenthesized list of column names) and a :code:`KEY NUM` keywords in the same command. To specify multiple key columns in the table, use only a table-level :code:`PRIMARY KEY` constraint. No need for any KEY NUM keywords (which are still supported only for historical reasons). PSQL Error Code: 42P10
 
@@ -1208,7 +1200,7 @@ ERR_TABLE_KEY_NUM
 ERR_TABLE_MULTIPLE_IDENTITY
 ++++++++++++++++++++++++++++++++
 
-  Text: Multiple identity specified for column 'xxx' of table 'xxx'
+  Text: Multiple identity specified for column "xxx" of table "xxx"
 
   Description/Action: This error is generated when a :code:`CREATE TABLE` command specifies more than one column level :code:`IDENTITY` specifications. PSQL Error Code: 42601
 
@@ -1216,7 +1208,7 @@ ERR_TABLE_MULTIPLE_IDENTITY
 ERR_TABLE_MULTIPLE_PRIMARY_KEYS
 ++++++++++++++++++++++++++++++++
 
-  Text: Multiple primary keys for table 'xxx' are not allowed
+  Text: Multiple primary keys for table "xxx" are not allowed
 
   Description/Action: This error is generated when a :code:`CREATE TABLE` command specifies more than one column level or table level :code:`PRIMARY KEY` constraint. PSQL Error Code: 42P10
 
@@ -1224,7 +1216,7 @@ ERR_TABLE_MULTIPLE_PRIMARY_KEYS
 ERR_TABLE_MUST_HAVE_A_VISIBLE_COLUMN
 +++++++++++++++++++++++++++++++++++++
 
-  Text: Table 'xxx' must have at least one visible column
+  Text: Table "xxx" must have at least one visible column
 
   Description/Action: This error is generated when a :code:`CREATE TABLE` command does not specify any user visible columns (possible for example if the command only specifies table level :code:`CHECK` constraint). PSQL Error Code: 42P10
 
@@ -1232,7 +1224,7 @@ ERR_TABLE_MUST_HAVE_A_VISIBLE_COLUMN
 ERR_TABLE_READONLY
 +++++++++++++++++++
 
-  Text: xxx not allowed on READONLY table 'xxx'. Only allowed on READWRITE tables.
+  Text: xxx not allowed on READONLY table "xxx". Only allowed on READWRITE tables.
 
   Description/Action: Queries that modify tables (e.g. INSERT INTO, DELETE, ALTER etc.) are not allowed on tables that have been created as READONLY. They are only allowed on READWRITE tables. PSQL Error Code: 42601
 
@@ -1248,7 +1240,7 @@ INFO_TABLE_SEARCH
 ERR_TABLE_UNKNOWN_COLUMN_NAME
 ++++++++++++++++++++++++++++++
 
-  Text: Column 'xxx' of table 'xxx' does not exist
+  Text: Column "xxx" of table "xxx" does not exist
 
   Description/Action: This error is generated when the specified column name is not a valid column in the specified table. PSQL Error Code: 42703
 
@@ -1320,7 +1312,7 @@ ERR_UNKNOWN_COLUMN_NAME
 ERR_UNKNOWN_FUNCTION
 ++++++++++++++++++++++++++
 
-  Text: No function 'xxx' defined with given parameter types (xxx)
+  Text: No function xxx defined with given parameter types (xxx)
 
   Description/Action: This error is generated when the function referenced does not exist or is unknown. PSQL Error Code: 42883
 
@@ -1328,7 +1320,7 @@ ERR_UNKNOWN_FUNCTION
 ERR_UNKNOWN_FUNCTION_EMULATION
 ++++++++++++++++++++++++++++++
 
-  Text: No xxx-parameter function 'xxx' defined for the current database emulation mode (xxx)
+  Text: No xxx-parameter function xxx() defined for the current database emulation mode (xxx)
 
   Description/Action: This error is generated when there is no function defined with the given number of arguments for the currently active database emulation mode. PSQL Error Code: 42883
 
@@ -1360,7 +1352,7 @@ ERR_UNKNOWN_TABLE
 ERR_UPDATE_OF_GENERATED_ALWAYS_IDENTITY
 +++++++++++++++++++++++++++++++++++++++
 
-  Text: Updating a GENERATED ALWAYS IDENTITY column 'xxx.xxx' to a non-DEFAULT value is invalid.
+  Text: Updating a GENERATED ALWAYS IDENTITY column "xxx" to a non-DEFAULT value is invalid.
 
   Description/Action: This error is genererated when a GENERATED ALWAYS AS IDENTITY column is being updated with a non-DEFAULT value. This is invalid. PSQL Error Code: 428C9
 
@@ -1387,6 +1379,14 @@ ERR_YOTTADB
   Text: YottaDB error: xxx
 
   Description/Action: Octo encountered an error generated by YottaDB. Consult the `Administration and Operations Guide <https://docs.yottadb.com/AdminOpsGuide/index.html>`_ or the `Messages and Recovery Procedures Manual <https://docs.yottadb.com/MessageRecovery/index.html>`_ for more information.
+
++++++++++++++++++++++
+ERR_ZERO_LENGTH_IDENT
++++++++++++++++++++++
+
+  Text: Zero-length identifier
+
+  Description/Action: Octo encountered an attempt to use the empty string as a SQL identifier, e.g. a table or column name. This error may be resolved by only referencing identifiers containing at least one character. PSQL Error Code: 22003
 
 -------------------------
 Rocto Specific Errors
@@ -1545,14 +1545,6 @@ ERR_ROCTO_INVALID_VERSION
   Text: xxx: invalid version xxx: must be xxx
 
   Description/Action: This error indicates an invalid version has been given as input. PSQL Error Code: 08P01
-
-+++++++++++++++++
-ERR_M_CALL
-+++++++++++++++++
-
-  Text: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
-
-  Description/Action: This error is issued when a user attempts to call an M extrinsic function via Rocto. PSQL Error Code: XX000
 
 ++++++++++++++++++++++++
 ERR_ROCTO_MISSING_DATA

@@ -27,7 +27,7 @@ expect -re ".*Password for user ydb: "
 send "ydbrocks\r"
 expect -re ".*ydb=. "
 # Run a long time AND generate cross references
-send "select firstname from names where firstname = \"abcd\";\r"
+send "select firstname from names where firstname = 'abcd';\r"
 # get back to small timeout since we want the below to timeout so we can continue with canceling the query
 set timeout 2
 expect timeout

@@ -1,0 +1,1273 @@
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : names] [TABLE : names]
+#######################################################################
+id|firstname|lastname
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+...
+...
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : names1col] [TABLE : names1col]
+#######################################################################
+id
+0
+1
+2
+...
+...
+1
+2
+3
+4
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : nameslastname] [TABLE : nameslastname]
+#######################################################################
+lastname
+Burn
+Cool
+Killer
+...
+...
+
+Cool
+Killer
+Nikon
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : customers] [TABLE : customers]
+#######################################################################
+customer_id|first_name|last_name|email|address|city|state|zipcode
+1|George|Washington|gwashington@usa.gov|3200 Mt Vernon Hwy|Mount Vernon|VA|22121
+2|John|Adams|jadams@usa.gov|1250 Hancock St|Quincy|MA|02169
+3|Thomas|Jefferson|tjefferson@usa.gov|931 Thomas Jefferson Pkwy|Charlottesville|VA|22902
+...
+...
+2|John|Adams|jadams@usa.gov|1250 Hancock St|Quincy|MA|02169
+3|Thomas|Jefferson|tjefferson@usa.gov|931 Thomas Jefferson Pkwy|Charlottesville|VA|22902
+4|James|Madison|jmadison@usa.gov|11350 Constitution Hwy|Orange|VA|22960
+5|James|Monroe|jmonroe@usa.gov|2050 James Monroe Parkway|Charlottesville|VA|22902
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : customers] [TABLE : orders]
+#######################################################################
+order_id|order_date|order_amount|customer_id
+1|07/04/1776|$234.56|1
+2|03/14/1760|$78.50|3
+3|05/23/1784|$124.00|2
+...
+...
+3|05/23/1784|$124.00|2
+4|09/03/1790|$65.50|3
+5|07/21/1795|$25.50|10
+6|11/27/1787|$14.40|9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : pastas] [TABLE : names4]
+#######################################################################
+id|firstname|lastname|favoritepasta
+0|Zero|Cool|Pappardelle
+1|Acid|Burn|Cavatelli
+2|Cereal|Killer|Penne
+...
+...
+10|Carol||
+7|Acid|House|Orechiette
+8|Zero|Day|Rotini
+9|Betty|Buttons|Cavatelli
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : pastas] [TABLE : pastas]
+#######################################################################
+id|pastaname
+0|Fettucine
+1|Cavatelli
+2|Shells
+...
+...
+6|Penne
+7|Orechiette
+8|Lasagna
+9|Pappardelle
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : easynames] [TABLE : easynames]
+#######################################################################
+id|name
+0|Name0
+1|Name1
+2|Name2
+...
+...
+12|Name2
+13|Name3
+14|Name4
+15|Name5
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : categories]
+#######################################################################
+categoryid|categoryname|description
+1|Beverages|Soft drinks, coffees, teas, beers, and ales
+2|Condiments|Sweet and savory sauces, relishes, spreads, and seasonings
+3|Confections|Desserts, candies, and sweet breads
+...
+...
+5|Grains/Cereals|Breads, crackers, pasta, and cereal
+6|Meat/Poultry|Prepared meats
+7|Produce|Dried fruit and bean curd
+8|Seafood|Seaweed and fish
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : customers]
+#######################################################################
+customerid|customername|contactname|address|city|postalcode|country
+1|Alfreds Futterkiste|Maria Anders|Obere Str. 57|Berlin|12209|Germany
+2|Ana Trujillo Emparedados y helados|Ana Trujillo|Avda. de la Constitución 2222|México D.F.|05021|Mexico
+3|Antonio Moreno Taquería|Antonio Moreno|Mataderos 2312|México D.F.|05023|Mexico
+...
+...
+88|Wellington Importadora|Paula Parente|Rua do Mercado, 12|Resende|08737-363|Brazil
+89|White Clover Markets|Karl Jablonski|305 - 14th Ave. S. Suite 3B|Seattle|98128|USA
+90|Wilman Kala|Matti Karttunen|Keskuskatu 45|Helsinki|21240|Finland
+91|Wolski|Zbyszek|ul. Filtrowa 68|Walla|01-012|Poland
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : employees]
+#######################################################################
+employeeid|lastname|firstname|birthdate|photo|notes
+1|Davolio|Nancy|DATE|EmpID1.pic|Education includes a BA in psychology from Colorado State University. She also completed (The Art of the Cold Call). Nancy is a member of 'Toastmasters International'.
+2|Fuller|Andrew|DATE|EmpID2.pic|Andrew received his BTS commercial and a Ph.D. in international marketing from the University of Dallas. He is fluent in French and Italian and reads German. He joined the company as a sales representative, was promoted to sales manager and was then named vice president of sales. Andrew is a member of the Sales Management Roundtable, the Seattle Chamber of Commerce, and the Pacific Rim Importers Association.
+3|Leverling|Janet|DATE|EmpID3.pic|Janet has a BS degree in chemistry from Boston College). She has also completed a certificate program in food retailing management. Janet was hired as a sales associate and was promoted to sales representative.
+...
+...
+10|West|Adam|DATE|EmpID10.pic|An old chum.
+7|King|Robert|DATE|EmpID7.pic|Robert King served in the Peace Corps and traveled extensively before completing his degree in English at the University of Michigan and then joining the company. After completing a course entitled 'Selling in Europe', he was transferred to the London office.
+8|Callahan|Laura|DATE|EmpID8.pic|Laura received a BA in psychology from the University of Washington. She has also completed a course in business French. She reads and writes French.
+9|Dodsworth|Anne|DATE|EmpID9.pic|Anne has a BA degree in English from St. Lawrence College. She is fluent in French and German.
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : orderdetails]
+#######################################################################
+orderdetailid|orderid|productid|quantity
+1|10248|11|12
+2|10248|42|10
+3|10248|72|5
+...
+...
+515|10442|54|80
+516|10442|66|60
+517|10443|11|6
+518|10443|28|12
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : orders]
+#######################################################################
+orderid|customerid|employeeid|orderdate|shipperid
+10248|90|5|DATE|3
+10249|81|6|DATE|1
+10250|34|4|DATE|2
+...
+...
+10440|71|4|DATE|2
+10441|55|3|DATE|2
+10442|20|3|DATE|2
+10443|66|8|DATE|1
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : products]
+#######################################################################
+productid|productname|supplierid|categoryid|unit|price
+1|Chais|1|1|10 boxes x 20 bags|18
+2|Chang|1|1|24 - 12 oz bottles|19
+3|Aniseed Syrup|1|2|12 - 550 ml bottles|10
+...
+...
+74|Longlife Tofu|4|7|5 kg pkg.|10
+75|Rhönbräu Klosterbier|12|1|24 - 0.5 l bottles|7.75
+76|Lakkalikööri|23|1|500 ml |18
+77|Original Frankfurter grüne Soße|12|2|12 boxes|13
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : shippers]
+#######################################################################
+shipperid|shippername|phone
+1|Speedy Express|(503) 555-9831
+2|United Package|(503) 555-3199
+3|Federal Shipping|(503) 555-9931
+...
+...
+1|Speedy Express|(503) 555-9831
+2|United Package|(503) 555-3199
+3|Federal Shipping|(503) 555-9931
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : suppliers]
+#######################################################################
+supplierid|suppliername|contactname|address|city|postalcode|country|phone
+1|Exotic Liquid|Charlotte Cooper|49 Gilbert St.|Londona|EC1 4SD|UK|(171) 555-2222
+2|New Orleans Cajun Delights|Shelley Burke|P.O. Box 78934|New Orleans|70117|USA|(100) 555-4822
+3|Grandma Kelly's Homestead|Regina Murphy|707 Oxford Rd.|Ann Arbor|48104|USA|(313) 555-5735
+...
+...
+26|Pasta Buttini s.r.l.|Giovanni Giudici|Via dei Gelsomini, 153|Salerno|84100|Italy|(089) 6547665
+27|Escargots Nouveaux|Marie Delamare|22, rue H. Voiron|Montceau|71300|France|85.57.00.07
+28|Gai pâturage|Eliane Noz|Bat. B 3, rue des Alpes|Annecy|74000|France|38.76.98.06
+29|Forêts d'érables|Chantal Goulet|148 rue Chasseur|Ste-Hyacinthe|J2S 7S8|Canada|(514) 555-2955
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic1] [TABLE : t1]
+#######################################################################
+a|b|c|d|e
+104|100|102|101|103
+107|105|106|108|109
+111|112|113|114|110
+...
+...
+234|232|231|233|230
+239|236|235|238|237
+243|240|244|241|242
+245|249|247|248|246
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic2] [TABLE : t1]
+#######################################################################
+id|a|b|c|d|e
+0|104||102|101|
+1|107|105|106|108|109
+2||112|113|114|110
+...
+...
+26|234|232|231|233|230
+27|239|236||238|237
+28|243|240|244||
+29|245|249|247|248|246
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic3] [TABLE : t1]
+#######################################################################
+id|a|b|c|d|e
+0|104||102|101|
+1|107|105|106|108|109
+2||112|113|114|110
+...
+...
+26|234|232|231|233|230
+27|239|236||238|237
+28|243|240|244||
+29|245|249|247|248|246
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic4] [TABLE : t1]
+#######################################################################
+id|a1|b1|c1|d1|e1|x1
+0|382|414|67|992|483|table tn1 row 1
+10|810|355|805|274|858|table tn1 row 3
+8|231|468|97|414|795|table tn1 row 2
+...
+...
+973|76|802|420|35|504|table tn1 row 125
+982|640|779|852|481|896|table tn1 row 126
+996|552|310|629|254|931|table tn1 row 127
+999|996|297|177|577|602|table tn1 row 128
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic4] [TABLE : t2]
+#######################################################################
+id|a2|b2|c2|d2|e2|x2
+16|35|729|197|292|769|table tn2 row 1
+17|308|60|557|416|115|table tn2 row 2
+19|522|640|988|577|679|table tn2 row 3
+...
+...
+965|851|755|244|887|940|table tn2 row 110
+967|457|932|346|663|560|table tn2 row 111
+983|382|313|869|454|217|table tn2 row 112
+994|262|628|45|643|655|table tn2 row 113
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic4] [TABLE : t3]
+#######################################################################
+id|a3|b3|c3|d3|e3|x3
+14|244|376|806|314|774|table tn3 row 2
+15|995|632|600|508|833|table tn3 row 3
+9|777|827|486|368|602|table tn3 row 1
+...
+...
+974|197|70|800|170|303|table tn3 row 126
+977|865|584|887|425|333|table tn3 row 127
+980|275|226|991|260|310|table tn3 row 128
+987|303|779|647|81|272|table tn3 row 129
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic4] [TABLE : t4]
+#######################################################################
+id|a4|b4|c4|d4|e4|x4
+3|637|907|293|264|377|table tn4 row 1
+40|756|749|840|249|217|table tn4 row 2
+48|662|884|586|364|405|table tn4 row 3
+...
+...
+968|210|407|694|60|565|table tn4 row 108
+975|746|733|791|770|805|table tn4 row 109
+976|793|289|274|166|790|table tn4 row 110
+981|661|114|119|713|132|table tn4 row 111
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic4] [TABLE : t5]
+#######################################################################
+id|a5|b5|c5|d5|e5|x5
+2|832|186|734|114|697|table tn5 row 1
+4|9|998|12|841|851|table tn5 row 2
+5|53|975|196|856|144|table tn5 row 3
+...
+...
+956|55|716|140|977|656|table tn5 row 107
+984|749|847|210|42|718|table tn5 row 108
+989|796|159|527|344|802|table tn5 row 109
+995|740|605|696|443|390|table tn5 row 110
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic4] [TABLE : t6]
+#######################################################################
+id|a6|b6|c6|d6|e6|x6
+34|384|92|928|192|840|table tn6 row 1
+43|718|989|534|147|469|table tn6 row 2
+51|211|463|768|500|67|table tn6 row 3
+...
+...
+894|518|427|454|852|40|table tn6 row 89
+942|801|782|258|767|969|table tn6 row 90
+946|680|210|677|428|466|table tn6 row 91
+961|270|681|267|223|324|table tn6 row 92
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic4] [TABLE : t7]
+#######################################################################
+id|a7|b7|c7|d7|e7|x7
+1|31|30|931|886|590|table tn7 row 1
+18|958|892|135|996|27|table tn7 row 2
+20|361|913|529|916|282|table tn7 row 3
+...
+...
+979|757|514|575|924|553|table tn7 row 107
+985|722|562|145|346|638|table tn7 row 108
+991|290|257|375|315|422|table tn7 row 109
+992|356|660|954|575|918|table tn7 row 110
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic4] [TABLE : t8]
+#######################################################################
+id|a8|b8|c8|d8|e8|x8
+13|239|725|431|116|223|table tn8 row 2
+30|406|934|160|815|431|table tn8 row 3
+6|728|984|183|499|469|table tn8 row 1
+...
+...
+950|12|790|544|50|383|table tn8 row 106
+966|894|952|93|484|682|table tn8 row 107
+986|620|704|973|60|864|table tn8 row 108
+988|312|862|321|945|56|table tn8 row 109
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic4] [TABLE : t9]
+#######################################################################
+id|a9|b9|c9|d9|e9|x9
+11|776|680|834|960|704|table tn9 row 2
+25|685|63|151|23|418|table tn9 row 3
+7|450|95|973|389|679|table tn9 row 1
+...
+...
+990|457|152|547|668|750|table tn9 row 95
+993|548|832|711|420|792|table tn9 row 96
+997|240|149|476|987|713|table tn9 row 97
+998|907|251|60|164|245|table tn9 row 98
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t1]
+#######################################################################
+a1|b1|x1
+1|1|table t1 row 1
+2|9|table t1 row 2
+3|8|table t1 row 3
+...
+...
+10|5|table t1 row 10
+7|6|table t1 row 7
+8|7|table t1 row 8
+9|10|table t1 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t10]
+#######################################################################
+a10|b10|x10
+1|8|table t10 row 1
+2|10|table t10 row 2
+3|7|table t10 row 3
+...
+...
+10|2|table t10 row 10
+7|3|table t10 row 7
+8|9|table t10 row 8
+9|6|table t10 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t11]
+#######################################################################
+a11|b11|x11
+1|5|table t11 row 1
+2|8|table t11 row 2
+3|3|table t11 row 3
+...
+...
+10|10|table t11 row 10
+7|6|table t11 row 7
+8|9|table t11 row 8
+9|2|table t11 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t12]
+#######################################################################
+a12|b12|x12
+1|4|table t12 row 1
+2|2|table t12 row 2
+3|5|table t12 row 3
+...
+...
+10|3|table t12 row 10
+7|10|table t12 row 7
+8|1|table t12 row 8
+9|8|table t12 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t13]
+#######################################################################
+a13|b13|x13
+1|10|table t13 row 1
+2|7|table t13 row 2
+3|6|table t13 row 3
+...
+...
+10|5|table t13 row 10
+7|1|table t13 row 7
+8|9|table t13 row 8
+9|3|table t13 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t14]
+#######################################################################
+a14|b14|x14
+1|5|table t14 row 1
+2|3|table t14 row 2
+3|9|table t14 row 3
+...
+...
+10|6|table t14 row 10
+7|8|table t14 row 7
+8|2|table t14 row 8
+9|10|table t14 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t15]
+#######################################################################
+a15|b15|x15
+1|7|table t15 row 1
+2|1|table t15 row 2
+3|5|table t15 row 3
+...
+...
+10|8|table t15 row 10
+7|3|table t15 row 7
+8|10|table t15 row 8
+9|9|table t15 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t16]
+#######################################################################
+a16|b16|x16
+1|5|table t16 row 1
+2|3|table t16 row 2
+3|4|table t16 row 3
+...
+...
+10|1|table t16 row 10
+7|2|table t16 row 7
+8|10|table t16 row 8
+9|8|table t16 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t17]
+#######################################################################
+a17|b17|x17
+1|7|table t17 row 1
+2|2|table t17 row 2
+3|3|table t17 row 3
+...
+...
+10|10|table t17 row 10
+7|8|table t17 row 7
+8|9|table t17 row 8
+9|6|table t17 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t18]
+#######################################################################
+a18|b18|x18
+1|1|table t18 row 1
+2|8|table t18 row 2
+3|3|table t18 row 3
+...
+...
+10|4|table t18 row 10
+7|9|table t18 row 7
+8|7|table t18 row 8
+9|2|table t18 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t19]
+#######################################################################
+a19|b19|x19
+1|4|table t19 row 1
+2|7|table t19 row 2
+3|2|table t19 row 3
+...
+...
+10|3|table t19 row 10
+7|1|table t19 row 7
+8|5|table t19 row 8
+9|8|table t19 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t2]
+#######################################################################
+a2|b2|x2
+1|7|table t2 row 1
+2|5|table t2 row 2
+3|9|table t2 row 3
+...
+...
+10|1|table t2 row 10
+7|8|table t2 row 7
+8|6|table t2 row 8
+9|4|table t2 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t20]
+#######################################################################
+a20|b20|x20
+1|10|table t20 row 1
+2|9|table t20 row 2
+3|3|table t20 row 3
+...
+...
+10|8|table t20 row 10
+7|1|table t20 row 7
+8|4|table t20 row 8
+9|5|table t20 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t21]
+#######################################################################
+a21|b21|x21
+1|7|table t21 row 1
+2|9|table t21 row 2
+3|6|table t21 row 3
+...
+...
+10|2|table t21 row 10
+7|1|table t21 row 7
+8|10|table t21 row 8
+9|8|table t21 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t22]
+#######################################################################
+a22|b22|x22
+1|7|table t22 row 1
+2|3|table t22 row 2
+3|6|table t22 row 3
+...
+...
+10|1|table t22 row 10
+7|9|table t22 row 7
+8|10|table t22 row 8
+9|5|table t22 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t23]
+#######################################################################
+a23|b23|x23
+1|9|table t23 row 1
+2|4|table t23 row 2
+3|2|table t23 row 3
+...
+...
+10|1|table t23 row 10
+7|7|table t23 row 7
+8|5|table t23 row 8
+9|10|table t23 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t24]
+#######################################################################
+a24|b24|x24
+1|10|table t24 row 1
+2|3|table t24 row 2
+3|8|table t24 row 3
+...
+...
+10|7|table t24 row 10
+7|6|table t24 row 7
+8|9|table t24 row 8
+9|1|table t24 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t25]
+#######################################################################
+a25|b25|x25
+1|7|table t25 row 1
+2|6|table t25 row 2
+3|5|table t25 row 3
+...
+...
+10|10|table t25 row 10
+7|3|table t25 row 7
+8|2|table t25 row 8
+9|4|table t25 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t26]
+#######################################################################
+a26|b26|x26
+1|2|table t26 row 1
+2|7|table t26 row 2
+3|5|table t26 row 3
+...
+...
+10|10|table t26 row 10
+7|4|table t26 row 7
+8|9|table t26 row 8
+9|3|table t26 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t27]
+#######################################################################
+a27|b27|x27
+1|8|table t27 row 1
+2|3|table t27 row 2
+3|6|table t27 row 3
+...
+...
+10|1|table t27 row 10
+7|10|table t27 row 7
+8|9|table t27 row 8
+9|5|table t27 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t28]
+#######################################################################
+a28|b28|x28
+1|6|table t28 row 1
+2|10|table t28 row 2
+3|2|table t28 row 3
+...
+...
+10|1|table t28 row 10
+7|3|table t28 row 7
+8|8|table t28 row 8
+9|7|table t28 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t29]
+#######################################################################
+a29|b29|x29
+1|4|table t29 row 1
+2|2|table t29 row 2
+3|9|table t29 row 3
+...
+...
+10|1|table t29 row 10
+7|7|table t29 row 7
+8|6|table t29 row 8
+9|5|table t29 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t3]
+#######################################################################
+a3|b3|x3
+1|6|table t3 row 1
+2|8|table t3 row 2
+3|3|table t3 row 3
+...
+...
+10|7|table t3 row 10
+7|9|table t3 row 7
+8|10|table t3 row 8
+9|1|table t3 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t30]
+#######################################################################
+a30|b30|x30
+1|5|table t30 row 1
+2|6|table t30 row 2
+3|10|table t30 row 3
+...
+...
+10|1|table t30 row 10
+7|9|table t30 row 7
+8|8|table t30 row 8
+9|2|table t30 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t31]
+#######################################################################
+a31|b31|x31
+1|1|table t31 row 1
+2|6|table t31 row 2
+3|4|table t31 row 3
+...
+...
+10|10|table t31 row 10
+7|7|table t31 row 7
+8|3|table t31 row 8
+9|5|table t31 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t32]
+#######################################################################
+a32|b32|x32
+1|10|table t32 row 1
+2|2|table t32 row 2
+3|6|table t32 row 3
+...
+...
+10|8|table t32 row 10
+7|7|table t32 row 7
+8|5|table t32 row 8
+9|9|table t32 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t33]
+#######################################################################
+a33|b33|x33
+1|8|table t33 row 1
+2|4|table t33 row 2
+3|5|table t33 row 3
+...
+...
+10|9|table t33 row 10
+7|3|table t33 row 7
+8|6|table t33 row 8
+9|7|table t33 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t34]
+#######################################################################
+a34|b34|x34
+1|10|table t34 row 1
+2|1|table t34 row 2
+3|6|table t34 row 3
+...
+...
+10|7|table t34 row 10
+7|2|table t34 row 7
+8|4|table t34 row 8
+9|3|table t34 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t35]
+#######################################################################
+a35|b35|x35
+1|3|table t35 row 1
+2|7|table t35 row 2
+3|6|table t35 row 3
+...
+...
+10|9|table t35 row 10
+7|2|table t35 row 7
+8|10|table t35 row 8
+9|8|table t35 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t36]
+#######################################################################
+a36|b36|x36
+1|7|table t36 row 1
+2|8|table t36 row 2
+3|6|table t36 row 3
+...
+...
+10|10|table t36 row 10
+7|2|table t36 row 7
+8|3|table t36 row 8
+9|5|table t36 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t37]
+#######################################################################
+a37|b37|x37
+1|1|table t37 row 1
+2|9|table t37 row 2
+3|7|table t37 row 3
+...
+...
+10|4|table t37 row 10
+7|5|table t37 row 7
+8|2|table t37 row 8
+9|10|table t37 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t38]
+#######################################################################
+a38|b38|x38
+1|2|table t38 row 1
+2|10|table t38 row 2
+3|5|table t38 row 3
+...
+...
+10|3|table t38 row 10
+7|7|table t38 row 7
+8|8|table t38 row 8
+9|9|table t38 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t39]
+#######################################################################
+a39|b39|x39
+1|9|table t39 row 1
+2|2|table t39 row 2
+3|3|table t39 row 3
+...
+...
+10|8|table t39 row 10
+7|6|table t39 row 7
+8|5|table t39 row 8
+9|1|table t39 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t4]
+#######################################################################
+a4|b4|x4
+1|2|table t4 row 1
+2|6|table t4 row 2
+3|10|table t4 row 3
+...
+...
+10|9|table t4 row 10
+7|7|table t4 row 7
+8|5|table t4 row 8
+9|3|table t4 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t40]
+#######################################################################
+a40|b40|x40
+1|4|table t40 row 1
+2|3|table t40 row 2
+3|10|table t40 row 3
+...
+...
+10|1|table t40 row 10
+7|6|table t40 row 7
+8|2|table t40 row 8
+9|9|table t40 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t41]
+#######################################################################
+a41|b41|x41
+1|6|table t41 row 1
+2|1|table t41 row 2
+3|3|table t41 row 3
+...
+...
+10|4|table t41 row 10
+7|8|table t41 row 7
+8|7|table t41 row 8
+9|10|table t41 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t42]
+#######################################################################
+a42|b42|x42
+1|10|table t42 row 1
+2|3|table t42 row 2
+3|7|table t42 row 3
+...
+...
+10|4|table t42 row 10
+7|5|table t42 row 7
+8|9|table t42 row 8
+9|1|table t42 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t43]
+#######################################################################
+a43|b43|x43
+1|2|table t43 row 1
+2|3|table t43 row 2
+3|8|table t43 row 3
+...
+...
+10|7|table t43 row 10
+7|4|table t43 row 7
+8|1|table t43 row 8
+9|9|table t43 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t44]
+#######################################################################
+a44|b44|x44
+1|8|table t44 row 1
+2|10|table t44 row 2
+3|5|table t44 row 3
+...
+...
+10|4|table t44 row 10
+7|2|table t44 row 7
+8|7|table t44 row 8
+9|1|table t44 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t45]
+#######################################################################
+a45|b45|x45
+1|2|table t45 row 1
+2|4|table t45 row 2
+3|10|table t45 row 3
+...
+...
+10|6|table t45 row 10
+7|3|table t45 row 7
+8|5|table t45 row 8
+9|1|table t45 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t46]
+#######################################################################
+a46|b46|x46
+1|1|table t46 row 1
+2|8|table t46 row 2
+3|7|table t46 row 3
+...
+...
+10|3|table t46 row 10
+7|2|table t46 row 7
+8|10|table t46 row 8
+9|6|table t46 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t47]
+#######################################################################
+a47|b47|x47
+1|10|table t47 row 1
+2|7|table t47 row 2
+3|6|table t47 row 3
+...
+...
+10|8|table t47 row 10
+7|2|table t47 row 7
+8|3|table t47 row 8
+9|5|table t47 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t48]
+#######################################################################
+a48|b48|x48
+1|5|table t48 row 1
+2|9|table t48 row 2
+3|3|table t48 row 3
+...
+...
+10|4|table t48 row 10
+7|7|table t48 row 7
+8|8|table t48 row 8
+9|10|table t48 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t49]
+#######################################################################
+a49|b49|x49
+1|9|table t49 row 1
+2|10|table t49 row 2
+3|4|table t49 row 3
+...
+...
+10|7|table t49 row 10
+7|3|table t49 row 7
+8|1|table t49 row 8
+9|8|table t49 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t5]
+#######################################################################
+a5|b5|x5
+1|9|table t5 row 1
+2|5|table t5 row 2
+3|10|table t5 row 3
+...
+...
+10|6|table t5 row 10
+7|1|table t5 row 7
+8|8|table t5 row 8
+9|3|table t5 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t50]
+#######################################################################
+a50|b50|x50
+1|8|table t50 row 1
+2|4|table t50 row 2
+3|6|table t50 row 3
+...
+...
+10|10|table t50 row 10
+7|1|table t50 row 7
+8|3|table t50 row 8
+9|5|table t50 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t51]
+#######################################################################
+a51|b51|x51
+1|5|table t51 row 1
+2|3|table t51 row 2
+3|10|table t51 row 3
+...
+...
+10|1|table t51 row 10
+7|9|table t51 row 7
+8|4|table t51 row 8
+9|8|table t51 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t52]
+#######################################################################
+a52|b52|x52
+1|5|table t52 row 1
+2|8|table t52 row 2
+3|6|table t52 row 3
+...
+...
+10|2|table t52 row 10
+7|7|table t52 row 7
+8|1|table t52 row 8
+9|9|table t52 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t53]
+#######################################################################
+a53|b53|x53
+1|8|table t53 row 1
+2|9|table t53 row 2
+3|5|table t53 row 3
+...
+...
+10|4|table t53 row 10
+7|10|table t53 row 7
+8|3|table t53 row 8
+9|7|table t53 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t54]
+#######################################################################
+a54|b54|x54
+1|6|table t54 row 1
+2|7|table t54 row 2
+3|2|table t54 row 3
+...
+...
+10|3|table t54 row 10
+7|4|table t54 row 7
+8|1|table t54 row 8
+9|10|table t54 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t55]
+#######################################################################
+a55|b55|x55
+1|1|table t55 row 1
+2|3|table t55 row 2
+3|7|table t55 row 3
+...
+...
+10|2|table t55 row 10
+7|10|table t55 row 7
+8|8|table t55 row 8
+9|6|table t55 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t56]
+#######################################################################
+a56|b56|x56
+1|7|table t56 row 1
+2|3|table t56 row 2
+3|6|table t56 row 3
+...
+...
+10|4|table t56 row 10
+7|5|table t56 row 7
+8|1|table t56 row 8
+9|10|table t56 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t57]
+#######################################################################
+a57|b57|x57
+1|9|table t57 row 1
+2|5|table t57 row 2
+3|4|table t57 row 3
+...
+...
+10|6|table t57 row 10
+7|10|table t57 row 7
+8|7|table t57 row 8
+9|1|table t57 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t58]
+#######################################################################
+a58|b58|x58
+1|10|table t58 row 1
+2|3|table t58 row 2
+3|2|table t58 row 3
+...
+...
+10|9|table t58 row 10
+7|5|table t58 row 7
+8|6|table t58 row 8
+9|7|table t58 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t59]
+#######################################################################
+a59|b59|x59
+1|9|table t59 row 1
+2|10|table t59 row 2
+3|4|table t59 row 3
+...
+...
+10|6|table t59 row 10
+7|7|table t59 row 7
+8|5|table t59 row 8
+9|8|table t59 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t6]
+#######################################################################
+a6|b6|x6
+1|2|table t6 row 1
+2|5|table t6 row 2
+3|9|table t6 row 3
+...
+...
+10|7|table t6 row 10
+7|10|table t6 row 7
+8|6|table t6 row 8
+9|4|table t6 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t60]
+#######################################################################
+a60|b60|x60
+1|8|table t60 row 1
+2|10|table t60 row 2
+3|1|table t60 row 3
+...
+...
+10|4|table t60 row 10
+7|3|table t60 row 7
+8|2|table t60 row 8
+9|6|table t60 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t61]
+#######################################################################
+a61|b61|x61
+1|9|table t61 row 1
+2|1|table t61 row 2
+3|7|table t61 row 3
+...
+...
+10|6|table t61 row 10
+7|8|table t61 row 7
+8|10|table t61 row 8
+9|3|table t61 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t62]
+#######################################################################
+a62|b62|x62
+1|10|table t62 row 1
+2|1|table t62 row 2
+3|2|table t62 row 3
+...
+...
+10|4|table t62 row 10
+7|8|table t62 row 7
+8|6|table t62 row 8
+9|9|table t62 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t63]
+#######################################################################
+a63|b63|x63
+1|4|table t63 row 1
+2|5|table t63 row 2
+3|1|table t63 row 3
+...
+...
+10|7|table t63 row 10
+7|10|table t63 row 7
+8|8|table t63 row 8
+9|3|table t63 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t64]
+#######################################################################
+a64|b64|x64
+1|4|table t64 row 1
+2|2|table t64 row 2
+3|6|table t64 row 3
+...
+...
+10|3|table t64 row 10
+7|5|table t64 row 7
+8|7|table t64 row 8
+9|8|table t64 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t7]
+#######################################################################
+a7|b7|x7
+1|1|table t7 row 1
+2|5|table t7 row 2
+3|3|table t7 row 3
+...
+...
+10|7|table t7 row 10
+7|2|table t7 row 7
+8|10|table t7 row 8
+9|6|table t7 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t8]
+#######################################################################
+a8|b8|x8
+1|3|table t8 row 1
+2|10|table t8 row 2
+3|8|table t8 row 3
+...
+...
+10|1|table t8 row 10
+7|2|table t8 row 7
+8|9|table t8 row 8
+9|5|table t8 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic5] [TABLE : t9]
+#######################################################################
+a9|b9|x9
+1|3|table t9 row 1
+2|4|table t9 row 2
+3|6|table t9 row 3
+...
+...
+10|8|table t9 row 10
+7|2|table t9 row 7
+8|1|table t9 row 8
+9|10|table t9 row 9
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : boolean] [TABLE : stock_availability]
+#######################################################################
+product_id|available
+100|1
+200|0
+300|1
+...
+...
+500|1
+600|1
+700|0
+800|0
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : nullnames] [TABLE : nullnames]
+#######################################################################
+id|firstname|lastname|salary|exempt|yearstenured
+0|Zero|Cool|25000.01|1|10
+1|Acid|Burn|62530.56|0|5
+2|Cereal|Killer|0.00|0|
+...
+...
+2|Cereal|Killer|0.00|0|
+3|Lord|Nikon|2000567.49|1|2
+4|Joey||0.00|0|
+5|Zero|Cool|25000.01|1|10
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : nullnames] [TABLE : nullnamesb]
+#######################################################################
+id|firstname|lastname|salary|exempt|yearstenured
+0|Zero|Cool|25000.01|0|20
+1|Acid|Burn|62530.56|0|5
+2|Cereal|Killer|0.00|1|0
+...
+...
+2|Cereal|Killer|0.00|1|0
+3|Lord|Nikon|2000567.49|0|2
+4|Joey||0.00|0|0
+5|Zero|Cool|25000.01|0|20
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : nullcharnames] [TABLE : nullcharnames]
+#######################################################################
+id|firstname|lastname
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+...
+...
+5|Zero|Cool
+6||
+7||
+8|Suzy|
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : composite] [TABLE : composite]
+#######################################################################
+id0|id1|id2|id3|id4|id5|id6|id7|name
+0|1|2|3|4|5|6|7|Name1
+0|1|2|3|4|5|6|8|Name2
+0|1|2|3|4|5|7|7|Name3
+...
+...
+0|1|2|4|5|6|8|7|Name7
+0|1|3|4|5|6|8|7|Name8
+0|2|3|4|5|6|8|7|Name9
+1|2|3|4|5|6|8|7|Name10
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : quotenames] [TABLE : quote names]
+#######################################################################
+id|first name|last%name
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+...
+...
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool

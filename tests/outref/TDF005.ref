@@ -8,7 +8,7 @@ DROP FUNCTION ABS (VARCHAR);
 -- One definition, i.e. ABS (NUMERIC),  should remain afterward, per CREATE FUNCTION calls in octo-seed.sql.
 DROP FUNCTION ABS (INTEGER);
 
-[ERROR]: ERR_CANNOT_DROP_FUNCTION: Cannot DROP function 'ABS(VARCHAR)': no function defined with given name and parameter types
+[ERROR]: ERR_CANNOT_DROP_FUNCTION: Cannot DROP function ABS(VARCHAR): no function defined with given name and parameter types
 DROP FUNCTION
 Remaining function definitions (hashes):
 --> Found: ^%ydboctoocto("functions","ABS","%ydboctoF0BXSKYtCkTUXzFwpivpB68")

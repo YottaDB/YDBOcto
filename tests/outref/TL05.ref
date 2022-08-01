@@ -36,7 +36,7 @@ LINE 11:1: select * from names limit;
 syntax error, unexpected SEMICOLON, expecting LITERAL
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
 LINE 12:1: select * from names limit 'abcd';
-                                          ^
+                                     ^^^^^^
 LINE 13:1: select * from names limit -3;
                                      ^
 syntax error, unexpected MINUS, expecting LITERAL

@@ -34,7 +34,7 @@ OCTO
 
 @test "TWO02 : cases that contain OR or AND do not allow optimization to occur" {
   octo >& output.txt <<OCTO
-select * from names where id = 2 or firstName = "Zero";
+select * from names where id = 2 or firstName = 'Zero';
 OCTO
   # Include generated M code in reference file to verify all optimizations there
   cat _ydboctoP*.m >> output.txt

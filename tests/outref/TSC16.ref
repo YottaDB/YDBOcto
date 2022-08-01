@@ -11,7 +11,7 @@ select abs(id+1) from names limit 1;            	-- LP_ADDITION
 select abs(id-1) from names limit 1;                    -- LP_SUBTRACTION
 select abs(id*1) from names limit 1;                    -- LP_MULTIPLICATION
 select abs(id/1) from names limit 1;                    -- LP_DIVISION
-select replace("abcd" || "efgh", "efgh", "abcd");   -- LP_CONCAT
+select replace('abcd' || 'efgh', 'efgh', 'abcd');   -- LP_CONCAT
 select replace('a' || 'b' || 'c', 'c', 'd');        -- LP_CONCAT whose first operand is LP_CONCAT : Test of #370
 select abs(-id) from names limit 1;                     -- LP_NEGATIVE
 select abs(id) from (select * from names) limit 1;      -- LP_DERIVED_COLUMN

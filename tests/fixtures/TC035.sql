@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -12,7 +12,7 @@
 
 -- TC035 : OCTO483 : CREATE TABLE allows column-level DELIM qualifier
 
-CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30) DELIM (9), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) GLOBAL "^delimnames(keys(""id""))";
+CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30) DELIM (9), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) GLOBAL "^delimnames(keys(""ID""))";
 
 SELECT * FROM delimnames;
 SELECT * FROM delimnames WHERE firstname = 'Zero';

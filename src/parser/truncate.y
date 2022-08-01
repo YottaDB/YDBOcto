@@ -11,11 +11,11 @@
  ****************************************************************/
 
 truncate_table_statement
-  : TRUNCATE column_name_list {
-      INVOKE_TRUNCATE_TABLE_STATEMENT($$, $column_name_list);
+  : TRUNCATE qualified_table_name_list {
+      INVOKE_TRUNCATE_TABLE_STATEMENT($$, $qualified_table_name_list);
     }
-  | TRUNCATE TABLE column_name_list {
-      INVOKE_TRUNCATE_TABLE_STATEMENT($$, $column_name_list);
+  | TRUNCATE TABLE qualified_table_name_list {
+      INVOKE_TRUNCATE_TABLE_STATEMENT($$, $qualified_table_name_list);
     }
   ;
 

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -173,7 +173,7 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 				UNPACK_SQL_STATEMENT(tblName, table->tableName, value);
 				tblNameLen = strlen(tblName->v.reference);
 				if ((tblNameLen != table_name_len) || memcmp(tblName->v.reference, table_name, table_name_len)) {
-					/* Only the currently being created table name is allowed in column references inside
+					/* Only the name of the table currently being created is allowed in column references inside
 					 * CHECK constraints. Issue error otherwise.
 					 */
 					ERROR(ERR_MISSING_FROM_ENTRY, table_name_len, table_name);

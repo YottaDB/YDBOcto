@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -19,18 +19,18 @@ CREATE TABLE user1 (
 	     pass varchar(64) NOT NULL
 );
 -- These two will succeed
-SELECT XECUTE_M_CODE("zwrite ^%ydboctoU2tuomEAySubezrd0DoxaEI");
+SELECT XECUTE_M_CODE('zwrite ^%ydboctoU2tuomEAySubezrd0DoxaEI');
 INSERT INTO user1 VALUES(1,'sam','sam@zzz.com','catdog.33');
 INSERT INTO user1 VALUES(3,'bam','bam@zzz.com','catdog.33');
 -- The following two will fail
 INSERT INTO user1 VALUES(2,'sam','sam@zzz.com','catdog.33');
 INSERT INTO user1 VALUES(4,'sam','','');
 SELECT * FROM user1;
-SELECT XECUTE_M_CODE("zwrite ^%ydboctoU2tuomEAySubezrd0DoxaEI");
+SELECT XECUTE_M_CODE('zwrite ^%ydboctoU2tuomEAySubezrd0DoxaEI');
 UPDATE user1 SET email = 'sam@zzz.com' where id = 3;
-SELECT XECUTE_M_CODE("zwrite ^%ydboctoU2tuomEAySubezrd0DoxaEI");
+SELECT XECUTE_M_CODE('zwrite ^%ydboctoU2tuomEAySubezrd0DoxaEI');
 DELETE FROM user1 WHERE id = 3;
-SELECT XECUTE_M_CODE("zwrite ^%ydboctoU2tuomEAySubezrd0DoxaEI");
-\d user1
+SELECT XECUTE_M_CODE('zwrite ^%ydboctoU2tuomEAySubezrd0DoxaEI');
+\d user1;
 DROP TABLE user1;
 

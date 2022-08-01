@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -66,7 +66,8 @@ int match_keys_expression(char *start, char *column, int column_size) {
 
 		char *d = column;
 		char *c2 = column_start;
-		TOUPPER(d, &column[column_size], c2, c);
+		memcpy(d, c2, c - c2);
+		d[c - c2] = '\0';
 		assert('"' != column[0]);
 		assert('"' == *c);
 		assert(!(column[0] == '"' && column[1] == '"'));

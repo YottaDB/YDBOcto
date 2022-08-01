@@ -23,7 +23,7 @@ SUCCESS
 SUCCESS
 (6 rows)
 DROP FUNCTION
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'PARMLESSFUNC' defined with given parameter types (none)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function PARMLESSFUNC defined with given parameter types (none)
 LINE 6:1: SELECT PARMLESSFUNC() FROM names;
                  ^^^^^^^^^^^^
 CREATE FUNCTION
@@ -36,7 +36,7 @@ SUCCESS
 SUCCESS
 (6 rows)
 DROP FUNCTION
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'PARMLESSFUNC' defined with given parameter types (none)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function PARMLESSFUNC defined with given parameter types (none)
 LINE 11:1: SELECT PARMLESSFUNC() FROM names;
                   ^^^^^^^^^^^^
 Remaining function definitions (hashes):

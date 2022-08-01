@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -19,7 +19,7 @@ insert into tbl values (2, 'a2', '');
 insert into tbl values (3, '', 'b3');
 select * from tbl where firstname IS NULL;
 select * from tbl where lastname IS NULL;
-select XECUTE_M_CODE("set ^tbl(4)=""""");
+select XECUTE_M_CODE('set ^tbl(4)=""');
 select '# Expect row with primary key 4 to show up in the two sets of output below';
 select * from tbl where firstname IS NULL;
 select * from tbl where lastname IS NULL;

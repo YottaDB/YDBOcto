@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -184,7 +184,7 @@
 SELECT a.id as A_id, b.id as B_id
 FROM names a INNER JOIN names b ON a.firstName = b.firstName
 UNION
-SELECT id as A_id, "" AS B_id
+SELECT id as A_id, 'a' AS B_id
 FROM names a
 WHERE a.firstName NOT IN (SELECT b.firstName FROM names b);
 

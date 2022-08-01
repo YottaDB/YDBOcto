@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -147,3 +147,7 @@ INSERT INTO composite VALUES (1,2,3,4,5,NULL,8,7,NULL);
 SELECT '-- Test of ERR_NULL_COL_VALUE on composite database where ID3 column is implicitly specified as NULL';
 INSERT INTO composite(id0,id1,id2,id4,id5,id6,id7) VALUES (1,2,3,5,6,8,7);
 
+SELECT '-- Test of syntax error for qualified column names (i.e. `x.y` syntax) in select list';
+INSERT INTO names(names.id,names.firstname,names.lastname) SELECT * FROM names;
+INSERT INTO names(id,names.firstname,names.lastname) SELECT * FROM names;
+INSERT INTO names(id,firstname,names.lastname) SELECT * FROM names;

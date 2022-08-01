@@ -61,12 +61,12 @@ LP_SELECT_QUERY:
         LP_COLUMN_ALIAS: N(2).NSPNAME
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: SCHEMA
+        - alias: Schema
       LP_WHERE: 
         LP_COLUMN_ALIAS: C(1).RELNAME
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: NAME
+        - alias: Name
       LP_WHERE: 
         LP_CASE: 
           LP_CASE_STATEMENT: 
@@ -109,7 +109,7 @@ LP_SELECT_QUERY:
                               LP_VALUE: 'index'
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: TYPE
+        - alias: Type
       LP_WHERE: 
         LP_FUNCTION_CALL: 
           LP_VALUE: 'PG_CATALOG.PG_GET_USERBYID'
@@ -120,7 +120,7 @@ LP_SELECT_QUERY:
             LP_COLUMN_ALIAS: C(1).RELOWNER
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: OWNER
+        - alias: Owner
     LP_SELECT: 
       LP_TABLE_JOIN: 
         LP_WHERE: 
@@ -200,14 +200,14 @@ LP_SELECT_QUERY:
           LP_COLUMN_ALIAS: N(2).NSPNAME
           LP_COLUMN_LIST_ALIAS: 
           - type: STRING_LITERAL
-          - alias: SCHEMA
+          - alias: Schema
       LP_ORDER_BY: ORDER BY ASC: 
         LP_COLUMN_LIST: 
           LP_WHERE: 
             LP_COLUMN_ALIAS: C(1).RELNAME
             LP_COLUMN_LIST_ALIAS: 
             - type: STRING_LITERAL
-            - alias: NAME
+            - alias: Name
 
 [DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN AFTER optimize_logical_plan() follows 
 LP_SELECT_QUERY: 
@@ -217,12 +217,12 @@ LP_SELECT_QUERY:
         LP_COLUMN_ALIAS: N(2).NSPNAME
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: SCHEMA
+        - alias: Schema
       LP_WHERE: 
         LP_COLUMN_ALIAS: C(1).RELNAME
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: NAME
+        - alias: Name
       LP_WHERE: 
         LP_CASE: 
           LP_CASE_STATEMENT: 
@@ -265,7 +265,7 @@ LP_SELECT_QUERY:
                               LP_VALUE: 'index'
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: TYPE
+        - alias: Type
       LP_WHERE: 
         LP_FUNCTION_CALL: 
           LP_VALUE: 'PG_CATALOG.PG_GET_USERBYID'
@@ -276,7 +276,7 @@ LP_SELECT_QUERY:
             LP_COLUMN_ALIAS: C(1).RELOWNER
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: OWNER
+        - alias: Owner
     LP_SELECT: 
       LP_TABLE_JOIN: 
         LP_WHERE: 
@@ -406,18 +406,18 @@ LP_SELECT_QUERY:
           LP_COLUMN_ALIAS: N(2).NSPNAME
           LP_COLUMN_LIST_ALIAS: 
           - type: STRING_LITERAL
-          - alias: SCHEMA
+          - alias: Schema
       LP_ORDER_BY: ORDER BY ASC: 
         LP_COLUMN_LIST: 
           LP_WHERE: 
             LP_COLUMN_ALIAS: C(1).RELNAME
             LP_COLUMN_LIST_ALIAS: 
             - type: STRING_LITERAL
-            - alias: NAME
+            - alias: Name
 
 [ INFO] PATH:LINENUM DATE TIME: INFO_GENERATING_XREF: Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_CATALOG.PG_CLASS] and column [RELKIND]
 [ INFO] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering print_temporary_table
-SCHEMA|NAME|TYPE|OWNER
+Schema|Name|Type|Owner
 public|INFORMATION_SCHEMA.TABLES|table|octo
 public|NAMES|table|octo
 public|NAMESWITHAGES|table|octo

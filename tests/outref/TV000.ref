@@ -1,7 +1,7 @@
 
 select * from nonexistanttable;
 
-INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""id""))";
+INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""ID""))";
 
 select * from names;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: NONEXISTANTTABLE

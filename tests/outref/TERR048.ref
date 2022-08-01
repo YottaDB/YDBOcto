@@ -1,0 +1,5 @@
+
+-- TERR048 : Attempts to use USING syntax produce ERR_FEATURE_NOT_IMPLEMENTED error
+
+ select * from names n1 inner join names n2 using (id);
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: USING clause

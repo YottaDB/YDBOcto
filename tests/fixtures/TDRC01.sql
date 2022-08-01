@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -22,7 +22,7 @@ select n1.firstname from names n1 limit 2;
 select n1.firstname from names n1 limit 2;
 
 --Test that the \d tablename without semicolon works fine
-\d names
+\d names;
 
 -- Test that the \d command without semicolon issues error which is evident when the keyword 'select'
 -- from the following query ("select 1;") gets treated as the table name and gets a confused parse output.

@@ -277,13 +277,13 @@ SAMEVALUE
 SAMEVALUE
 1
 (1 row)
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'SAMEVALUE' defined with given parameter types (NUMERIC)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function SAMEVALUE defined with given parameter types (NUMERIC)
 LINE 6:2: SELECT samevalue(1.0); -- Error: Unknown function
                  ^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'SAMEVALUE' defined with given parameter types (VARCHAR)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function SAMEVALUE defined with given parameter types (VARCHAR)
 LINE 7:2: SELECT samevalue('1'); -- Error: Unknown function
                  ^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'SAMEVALUE' defined with given parameter types (BOOLEAN)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function SAMEVALUE defined with given parameter types (BOOLEAN)
 LINE 8:2: SELECT samevalue(true); -- Error: Unknown function
                  ^^^^^^^^^
 CREATE FUNCTION
@@ -296,10 +296,10 @@ SAMEVALUE
 SAMEVALUE
 2
 (1 row)
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'SAMEVALUE' defined with given parameter types (VARCHAR)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function SAMEVALUE defined with given parameter types (VARCHAR)
 LINE 13:2: SELECT samevalue('1'); -- Error: Unknown function
                   ^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'SAMEVALUE' defined with given parameter types (BOOLEAN)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function SAMEVALUE defined with given parameter types (BOOLEAN)
 LINE 14:2: SELECT samevalue(true); -- Error: Unknown function
                   ^^^^^^^^^
 CREATE FUNCTION
@@ -315,7 +315,7 @@ SAMEVALUE
 SAMEVALUE
 3
 (1 row)
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'SAMEVALUE' defined with given parameter types (BOOLEAN)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function SAMEVALUE defined with given parameter types (BOOLEAN)
 LINE 20:2: SELECT samevalue(true); -- Error: Unknown function
                   ^^^^^^^^^
 CREATE FUNCTION
@@ -347,7 +347,7 @@ SECONDVALUE
 SECONDVALUE
 1
 (1 row)
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'SECONDVALUE' defined with given parameter types (NUMERIC, INTEGER)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function SECONDVALUE defined with given parameter types (NUMERIC, INTEGER)
 LINE 33:2: SELECT secondvalue(1.0, 1); -- Error: Unknown function
                   ^^^^^^^^^^^
 CREATE FUNCTION
@@ -357,7 +357,7 @@ LINE 35:1: SELECT secondvalue(NULL, NULL); -- Error: Function not unique
 [ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SECONDVALUE(INTEGER, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 36:2: SELECT secondvalue(1, NULL); --  Error: Function not unique
                   ^^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'SECONDVALUE' defined with given parameter types (NUMERIC, INTEGER)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function SECONDVALUE defined with given parameter types (NUMERIC, INTEGER)
 LINE 37:2: SELECT secondvalue(1.0, 1); -- Error: Unknown function
                   ^^^^^^^^^^^
 SECONDVALUE
@@ -373,7 +373,7 @@ LINE 41:1: SELECT secondvalue(NULL, NULL); -- Error: Function not unique
 [ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SECONDVALUE(INTEGER, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 42:2: SELECT secondvalue(1, NULL); --  Error: Function not unique
                   ^^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'SECONDVALUE' defined with given parameter types (VARCHAR, INTEGER)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function SECONDVALUE defined with given parameter types (VARCHAR, INTEGER)
 LINE 43:2: SELECT secondvalue('1', 1); -- Error: Unknown function
                   ^^^^^^^^^^^
 SECONDVALUE
@@ -395,7 +395,7 @@ LINE 49:1: SELECT secondvalue(NULL, NULL); -- Error: Function not unique
 [ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SECONDVALUE(INTEGER, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 50:2: SELECT secondvalue(1, NULL); --  Error: Function not unique
                   ^^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'SECONDVALUE' defined with given parameter types (BOOLEAN, INTEGER)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function SECONDVALUE defined with given parameter types (BOOLEAN, INTEGER)
 LINE 51:2: SELECT secondvalue(true, 1); -- Error: Unknown function
                   ^^^^^^^^^^^
 SECONDVALUE
@@ -497,7 +497,7 @@ THIRDVALUE
 THIRDVALUE
 1
 (1 row)
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'THIRDVALUE' defined with given parameter types (NULL, INTEGER, NULL)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function THIRDVALUE defined with given parameter types (NULL, INTEGER, NULL)
 LINE 88:2: SELECT thirdvalue(NULL, 1, NULL); -- Error: Unknown function
                   ^^^^^^^^^^
 CREATE FUNCTION

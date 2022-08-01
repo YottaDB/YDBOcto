@@ -46,10 +46,10 @@ select (select id from names n2 limit 1) as sub from names group by sub;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: X
 LINE 2:1: select n1.* as x from names n1 group by x;
                                                   ^
-[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name 'ID1': qualify name for safe execution
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "ID1": qualify name for safe execution
 LINE 4:1: select id as id1, firstname as id1 from names order by id1;
                                                                  ^^^
-[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name 'ID1': qualify name for safe execution
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "ID1": qualify name for safe execution
 LINE 6:1: select id as id1, id as id1 from names group by id1;
                                                           ^^^
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: CUSTOMERS
@@ -70,16 +70,16 @@ LINE 16:1: select firstname || 'test', lastname as conct from names group ...
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
 LINE 17:1: ...irstname || 'test' as conct, lastname from names group by conct;
                                            ^^^^^^^^
-[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name 'ALIAS': qualify name for safe execution
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "ALIAS": qualify name for safe execution
 LINE 19:1: ...firstname as alias, max(id) as alias from names group by alias;
                                                                        ^^^^^
-[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name 'ALIAS': qualify name for safe execution
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "ALIAS": qualify name for safe execution
 LINE 20:1: ... alias, 'last' || firstname as alias from names group by alias;
                                                                        ^^^^^
-[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name 'FIRSTNAME': qualify name for safe execution
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "FIRSTNAME": qualify name for safe execution
 LINE 22:1: select 1, 2 from names n1, names n2 group by firstname;
                                                         ^^^^^^^^^
-[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name 'AMBIGUOUS': qualify name for safe execution
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "AMBIGUOUS": qualify name for safe execution
 LINE 24:1: ...t 1 as ambiguous, 2 as ambiguous from names group by ambiguous;
                                                                    ^^^^^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FN

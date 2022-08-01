@@ -39,7 +39,7 @@ OCTO
   # create a global for a table that can be selected from
   yottadb -run %XCMD 'set ^T1(1)="2|3|4"'
   octo <<OCTO 2>&1 | tee output.txt
-create table t1 (a int primary key, b int, c int, d int) GLOBAL "^T1(keys(""a""))";
+create table t1 (a int primary key, b int, c int, d int) GLOBAL "^T1(keys(""A""))";
 OCTO
   octo <<OCTO 2>&1 | tee output.txt
 select * from t1;

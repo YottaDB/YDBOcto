@@ -155,9 +155,6 @@ int copied_so_far;
 (?i:GREATEST) { return GREATEST; }
 (?i:GROUP) { return GROUP; }
 (?i:HAVING) { return HAVING; }
-(?i:IDENTIFIER_ALONE) { return IDENTIFIER_ALONE; }
-(?i:IDENTIFIER_BACK_TICK) { return IDENTIFIER_BACK_TICK; }
-(?i:IDENTIFIER_PERIOD_IDENTIFIER) { return IDENTIFIER_PERIOD_IDENTIFIER; }
 (?i:IF) { return IF; }
 (?i:ILIKE) { return ILIKE; }
 (?i:IN) { return IN; }
@@ -194,7 +191,6 @@ int copied_so_far;
 (?i:OVERRIDING[ \t\n]+SYSTEM[ \t\n]+VALUE) { return OVERRIDING_SYSTEM_VALUE; }
 (?i:OVERRIDING[ \t\n]+USER[ \t\n]+VALUE) { return OVERRIDING_USER_VALUE; }
 (?i:PACK) { return PACK; }
-(?i:PARENLESS_FUNCTION) { return PARENLESS_FUNCTION; }
 (?i:PARTITION) { return PARTITION; }
 (?i:PIECE) { return PIECE; }
 (?i:PRIMARY) { return PRIMARY; }
@@ -275,10 +271,7 @@ int copied_so_far;
                 copied_so_far = 0;
                 char *yptr = yytext;
                 COPY_STRING((&lex_buffer), yptr, copied_so_far);
-                SQL_STATEMENT(*yylval_param, value_STATEMENT);
-                OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
-                (*yylval_param)->v.value->type = NUMERIC_LITERAL;
-                (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
+		SQL_VALUE_MALLOC_STATEMENT(*yylval_param, NUMERIC_LITERAL, copied_so_far);
                 strncpy((*yylval_param)->v.value->v.string_literal, lex_buffer.buf_addr, copied_so_far+1);
 		RESET_BUFFER(lex_buffer);
                 return LITERAL;
@@ -287,10 +280,7 @@ int copied_so_far;
                 copied_so_far = 0;
                 char *yptr = yytext;
                 COPY_STRING((&lex_buffer), yptr, copied_so_far);
-                SQL_STATEMENT(*yylval_param, value_STATEMENT);
-                OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
-                (*yylval_param)->v.value->type = INTEGER_LITERAL;
-                (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
+		SQL_VALUE_MALLOC_STATEMENT(*yylval_param, INTEGER_LITERAL, copied_so_far);
                 strncpy((*yylval_param)->v.value->v.string_literal, lex_buffer.buf_addr, copied_so_far+1);
 		RESET_BUFFER(lex_buffer);
                 return LITERAL;
@@ -303,10 +293,7 @@ int copied_so_far;
                 copied_so_far = 0;
                 char *yptr = yytext;
                 COPY_STRING((&lex_buffer), yptr, copied_so_far);
-                SQL_STATEMENT(*yylval_param, value_STATEMENT);
-                OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
-                (*yylval_param)->v.value->type = COLUMN_REFERENCE;
-                (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
+		SQL_VALUE_MALLOC_STATEMENT(*yylval_param, COLUMN_REFERENCE, copied_so_far);
                 char *d = (*yylval_param)->v.value->v.string_literal;
                 char *c = lex_buffer.buf_addr;
                 while(*c != '\0') {
@@ -320,10 +307,7 @@ int copied_so_far;
                 copied_so_far = 0;
                 char *yptr = yytext;
                 COPY_STRING((&lex_buffer), yptr, copied_so_far);
-                SQL_STATEMENT(*yylval_param, value_STATEMENT);
-                OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
-                (*yylval_param)->v.value->type = PARAMETER_VALUE;
-                (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
+		SQL_VALUE_MALLOC_STATEMENT(*yylval_param, PARAMETER_VALUE, copied_so_far);
                 char *d = (*yylval_param)->v.value->v.string_literal;
 		TOUPPER(d, d+copied_so_far+1, lex_buffer.buf_addr, &lex_buffer.buf_addr[lex_buffer.len_used]);
 		RESET_BUFFER(lex_buffer);
@@ -333,10 +317,7 @@ int copied_so_far;
                 copied_so_far = 0;
                 char *yptr = yytext;
                 COPY_STRING((&lex_buffer), yptr, copied_so_far);
-                SQL_STATEMENT(*yylval_param, value_STATEMENT);
-                OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
-                (*yylval_param)->v.value->type = COLUMN_REFERENCE;
-                (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
+		SQL_VALUE_MALLOC_STATEMENT(*yylval_param, COLUMN_REFERENCE, copied_so_far);
                 char *d = (*yylval_param)->v.value->v.string_literal;
 		TOUPPER(d, d+copied_so_far+1, lex_buffer.buf_addr, &lex_buffer.buf_addr[lex_buffer.len_used]);
 		RESET_BUFFER(lex_buffer);
@@ -349,10 +330,7 @@ int copied_so_far;
                 copied_so_far = 0;
                 char *yptr = yytext;
                 COPY_STRING((&lex_buffer), yptr, copied_so_far);
-                SQL_STATEMENT(*yylval_param, value_STATEMENT);
-                OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
-                (*yylval_param)->v.value->type = COLUMN_REFERENCE;
-                (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
+		SQL_VALUE_MALLOC_STATEMENT(*yylval_param, COLUMN_REFERENCE, copied_so_far);
                 char *d = (*yylval_param)->v.value->v.string_literal;
 		TOUPPER(d, d+copied_so_far+1, lex_buffer.buf_addr, &lex_buffer.buf_addr[lex_buffer.len_used]);
 		RESET_BUFFER(lex_buffer);
@@ -362,27 +340,10 @@ int copied_so_far;
                 copied_so_far = 0;
                 char *yptr = yytext;
                 COPY_STRING((&lex_buffer), yptr, copied_so_far);
-                SQL_STATEMENT(*yylval_param, value_STATEMENT);
-                OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
-                (*yylval_param)->v.value->type = COLUMN_REFERENCE;
-                (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
-                char *d = (*yylval_param)->v.value->v.string_literal;
-		TOUPPER(d, d+copied_so_far+1, lex_buffer.buf_addr, &lex_buffer.buf_addr[lex_buffer.len_used]);
+		SQL_VALUE_MALLOC_STATEMENT(*yylval_param, COLUMN_REFERENCE, copied_so_far);
+		strncpy((*yylval_param)->v.value->v.string_literal, lex_buffer.buf_addr, copied_so_far+1);
 		RESET_BUFFER(lex_buffer);
                 return IDENTIFIER_ALONE;
-              }
-[a-zA-Z][a-zA-Z0-9_]*\.[a-zA-Z][a-zA-Z0-9_]* {
-                copied_so_far = 0;
-                char *yptr = yytext;
-                COPY_STRING((&lex_buffer), yptr, copied_so_far);
-                SQL_STATEMENT(*yylval_param, value_STATEMENT);
-                OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
-                (*yylval_param)->v.value->type = COLUMN_REFERENCE;
-                (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
-                char *d = (*yylval_param)->v.value->v.string_literal;
-		TOUPPER(d, d+copied_so_far+1, lex_buffer.buf_addr, &lex_buffer.buf_addr[lex_buffer.len_used]);
-		RESET_BUFFER(lex_buffer);
-                return IDENTIFIER_PERIOD_IDENTIFIER;
               }
 -- { BEGIN(COMMENT); }
 # { BEGIN(COMMENT); }
@@ -398,11 +359,12 @@ int copied_so_far;
 
 		if (copied_so_far) {
 			/* We have read at least one byte between the starting and ending single-quote */
-			SQL_STATEMENT(*yylval_param, value_STATEMENT);
-			OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
-			(*yylval_param)->v.value->type = STRING_LITERAL;
-			(*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
+			SQL_VALUE_MALLOC_STATEMENT(*yylval_param, STRING_LITERAL, copied_so_far);
 			strncpy((*yylval_param)->v.value->v.string_literal, lex_buffer.buf_addr, copied_so_far+1);
+			/* Reset the start of the lexer token to the opening quote to allow correct syntax highlighting in case of
+			 * error. If this step is omitted, then the syntax highlighting will only begin at the closing quote.
+			 */
+			yylloc->first_column = yylloc->last_column - copied_so_far - 2; // -2 for opening and closing quotes
 			retval = LITERAL;
 		} else {
 			/* We saw no bytes in between the starting and ending single-quote.
@@ -415,33 +377,37 @@ int copied_so_far;
 		return retval;
             }
 
-
-
 \" { copied_so_far = 0; BEGIN(STRING); }
 <STRING>\"\" { char *yptr = yytext + 1; COPY_STRING((&lex_buffer), yptr, copied_so_far); }
 <STRING>[^\"]* { char *yptr = yytext; COPY_STRING((&lex_buffer), yptr, copied_so_far); }
 <STRING>\" {
-		SQL_STATEMENT(*yylval_param, value_STATEMENT);
-		OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
-		(*yylval_param)->v.value->type = STRING_LITERAL;
-		(*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
+
+		SQL_VALUE_MALLOC_STATEMENT(*yylval_param, STRING_LITERAL, copied_so_far);
 		strncpy((*yylval_param)->v.value->v.string_literal, lex_buffer.buf_addr, copied_so_far+1);
+		/* Double quoted literals may be identifiers or string literals, depending on context.
+		 * In either case, they are case sensitive, so signal that here.
+		 */
+		(*yylval_param)->v.value->is_double_quoted = TRUE;
 		RESET_BUFFER(lex_buffer);
 		BEGIN(INITIAL);
-		return LITERAL;
+		/* Reset the start of the lexer token to the opening quote to allow correct syntax highlighting in case of
+		 * error. If this step is omitted, then the syntax highlighting will only begin at the closing quote.
+		 */
+		yylloc->first_column = yylloc->last_column - copied_so_far - 2; // -2 for opening and closing quotes
+		return DOUBLE_QUOTE_LITERAL;
             }
 
 ` { copied_so_far = 0; BEGIN(IDENTIFIER); }
 <IDENTIFIER>[^(``)]* { char *yptr = yytext; COPY_STRING((&lex_buffer), yptr, copied_so_far); }
 <IDENTIFIER>` {
 		BEGIN(INITIAL);
-                SQL_STATEMENT(*yylval_param, value_STATEMENT);
-                OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
-                (*yylval_param)->v.value->type = COLUMN_REFERENCE;
-                (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
-                char *d = (*yylval_param)->v.value->v.string_literal;
-		TOUPPER(d, d+copied_so_far+1, lex_buffer.buf_addr, &lex_buffer.buf_addr[lex_buffer.len_used]);
+		SQL_VALUE_MALLOC_STATEMENT(*yylval_param, COLUMN_REFERENCE, copied_so_far);
+		strncpy((*yylval_param)->v.value->v.string_literal, lex_buffer.buf_addr, copied_so_far+1);
                 BEGIN(INITIAL);
+		/* Reset the start of the lexer token to the opening quote to allow correct syntax highlighting in case of
+		 * error. If this step is omitted, then the syntax highlighting will only begin at the closing quote.
+		 */
+		yylloc->first_column = yylloc->last_column - copied_so_far - 2; // -2 for opening and closing quotes
 		RESET_BUFFER(lex_buffer);
                 return IDENTIFIER_BACK_TICK;
               }

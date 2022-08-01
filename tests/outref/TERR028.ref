@@ -23,30 +23,35 @@ SELECT * FROM names WHERE $$a('b');
 -- Attempt to use inline extrinsic function in HAVING clause
 SELECT id FROM names GROUP BY id HAVING $$a(id);
 
-[ERROR]: ERR_M_CALL: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
+-- Attempt to use inline extrinsic function in alias name
+select id as $$dummyextrinsicfunction^something from names;
 LINE 3:1: SELECT * FROM names WHERE id = $$ABS^%ydboctosqlfunctions(-2);
                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
-[ERROR]: ERR_M_CALL: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
+syntax error, unexpected EXTRINSIC_FUNCTION
 LINE 5:1: SELECT $ZWRITE(firstname) FROM names;
                  ^^^^^^^
-[ERROR]: ERR_M_CALL: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
+syntax error, unexpected INTRINSIC_FUNCTION
 LINE 7:1: SELECT * FROM names WHERE id = $$^%("some value");
                                          ^^^^
-[ERROR]: ERR_M_CALL: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
+syntax error, unexpected EXTRINSIC_FUNCTION
 LINE 8:1: SELECT * FROM names WHERE id = $$%^%("some value");
                                          ^^^^^
-[ERROR]: ERR_M_CALL: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
+syntax error, unexpected EXTRINSIC_FUNCTION
 LINE 9:1: SELECT * FROM names WHERE id = $$%ABS^someroutine(-2);
                                          ^^^^^^^^^^^^^^^^^^
-[ERROR]: ERR_M_CALL: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
+syntax error, unexpected EXTRINSIC_FUNCTION
 LINE 10:1: SELECT * FROM names WHERE id = $$ABS^%someroutine(-2);
                                           ^^^^^^^^^^^^^^^^^^
-[ERROR]: ERR_M_CALL: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
+syntax error, unexpected EXTRINSIC_FUNCTION
 LINE 12:1: SELECT $$a('b');
                   ^^^
-[ERROR]: ERR_M_CALL: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
+syntax error, unexpected EXTRINSIC_FUNCTION
 LINE 14:1: SELECT * FROM names WHERE $$a('b');
                                      ^^^
-[ERROR]: ERR_M_CALL: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
+syntax error, unexpected EXTRINSIC_FUNCTION
 LINE 16:1: SELECT id FROM names GROUP BY id HAVING $$a(id);
                                                    ^^^
+syntax error, unexpected EXTRINSIC_FUNCTION
+LINE 18:1: select id as $$dummyextrinsicfunction^something from names;
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+syntax error, unexpected EXTRINSIC_FUNCTION, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL

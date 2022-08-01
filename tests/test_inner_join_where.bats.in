@@ -27,7 +27,7 @@ teardown() {
   octo <<OCTO &> output.txt
 select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
-where lastName = "Buttons";
+where lastName = 'Buttons';
 OCTO
   verify_output TIJW01 output.txt noinfo nodebug
 }
@@ -36,7 +36,7 @@ OCTO
   octo <<OCTO &> output.txt
 select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
-where firstName = "Zero";
+where firstName = 'Zero';
 OCTO
   verify_output TIJW02 output.txt noinfo nodebug
 }
@@ -45,7 +45,7 @@ OCTO
   octo <<OCTO &> output.txt
 select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
-where firstName = "Zero" and names4.favoritePasta = "Lasagna";
+where firstName = 'Zero' and names4.favoritePasta = 'Lasagna';
 OCTO
   verify_output TIJW03 output.txt noinfo nodebug
 }
@@ -54,7 +54,7 @@ OCTO
   octo <<OCTO &> output.txt
 select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
-where names4.favoritePasta = "Penne";
+where names4.favoritePasta = 'Penne';
 OCTO
   verify_output TIJW04 output.txt noinfo nodebug
 }
@@ -63,7 +63,7 @@ OCTO
   octo <<OCTO &> output.txt
 select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
-where names4.favoritePasta = "Spaghetti";
+where names4.favoritePasta = 'Spaghetti';
 OCTO
   verify_output TIJW05 output.txt noinfo nodebug
 }
@@ -72,9 +72,9 @@ OCTO
   octo <<OCTO &> output.txt
 select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
-where names4.favoritePasta = "Cavatelli"
-and lastName = "Buttons"
-and firstName = "Bobby";
+where names4.favoritePasta = 'Cavatelli'
+and lastName = 'Buttons'
+and firstName = 'Bobby';
 OCTO
   verify_output TIJW06 output.txt noinfo nodebug
 }
@@ -83,7 +83,7 @@ OCTO
   octo <<OCTO &> output.txt
 select distinct pastas.id, favoritePasta from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
-where names4.favoritePasta = "Cavatelli";
+where names4.favoritePasta = 'Cavatelli';
 OCTO
   verify_output TIJW07 output.txt noinfo nodebug
 }

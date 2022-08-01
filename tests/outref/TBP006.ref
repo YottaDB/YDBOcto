@@ -35,7 +35,7 @@ LINE 10:1: IDENTIFIER_ALONE;
 syntax error, unexpected IDENTIFIER_ALONE
 LINE 11:1: IDENTIFIER_BACK_TICK;
            ^^^^^^^^^^^^^^^^^^^^
-syntax error, unexpected IDENTIFIER_BACK_TICK
+syntax error, unexpected IDENTIFIER_ALONE
 LINE 12:1: IDENTIFIER_PERIOD_IDENTIFIER;
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-syntax error, unexpected IDENTIFIER_PERIOD_IDENTIFIER
+syntax error, unexpected IDENTIFIER_ALONE

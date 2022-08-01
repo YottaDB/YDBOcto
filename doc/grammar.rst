@@ -343,6 +343,8 @@ CREATE TABLE
 
   Here, two TAB characters (ASCII value 9) act as the internal delimiter of an Octo table. Note, however, that these delimiters are not applied to Octo output, which retains the default pipe :code:`|` delimiter. The reason for this is that tables may be joined that have different delimiters, so one common delimiter needs to be chosen anyway. Thus, the default is used.
 
+  Note that table and column names may be specified as either unquoted identifiers, e.g. :code:`id` or :code:`mytable`, or as double-quoted identifiers, e.g. :code:`"id"` or :code: `"mytable"`. Unquoted identifiers are *case insensitive* and internally cast to uppercase, while double-quoted identifiers are *case sensitive*. Additionally, double-quoted identifiers may contain spaces and/or SQL keywords.
+
 .. _mapexisting:
 
 +++++++++++++++++++++++++++++++++++++++++++++
@@ -386,16 +388,18 @@ Mapping to existing YottaDB global variables
   | GLOBAL       | Literal            | Table, Column | Represents the "source" location for a table. It consists of a global name     | table/default GLOBAL setting | :code:`^%ydboctoD_$zysuffix(TABLENAME)(keys("COLNAME"))`  |
   |              |                    |               | followed by an optional list of subscripts. One may refer to a key column in   |                              | where :code:`TABLENAME` is the table name and             |
   |              |                    |               | the subscript by specifying :code:`keys("COLNAME")` where :code:`COLNAME`      |                              | :code:`COLNAME` is the name of the primary key column.    |
-  |              |                    |               | is the name of the key column. Note that in the case of a :code:`READONLY`     |                              | If more than one key column exists, they will form more   |
-  |              |                    |               | table, if no key columns are specified, all columns in the order specified     |                              | subscripts. For example, if :code:`KEYCOL` is a column    |
-  |              |                    |               | are automatically assumed to be key columns. In case of a :code:`READWRITE`    |                              | that is specified with a :code:`PRIMARY KEY` keyword and  |
-  |              |                    |               | table, if no key columns are specified, a hidden key column is created by Octo |                              | :code:`KEYCOL2` is an additional column specified with a  |
-  |              |                    |               | with the name :code:`%YO_KEYCOL`. See examples in this document for how you    |                              | :code:`KEY NUM 1` keyword, then the default value would   |
-  |              |                    |               | can construct the GLOBAL keyword. If the Table-level GLOBAL keyword specifies  |                              | be :code:`^%ydboctoD...(keys("KEYCOL"),keys("KEYCOL2"))`  |
-  |              |                    |               | a global name with no subscripts, Octo adds subscripts to it one for every     |                              |                                                           |
-  |              |                    |               | key column that is explicitly specified or automatically assumed/generated     |                              |                                                           |
-  |              |                    |               | but if the Column-level GLOBAL keyword specifies a global name with no         |                              |                                                           |
-  |              |                    |               | subscripts no such automatic subscript addition takes place.                   |                              |                                                           |
+  |              |                    |               | is the name of the key column. Note that key column names in :code:`keys(..)`  |                              | If more than one key column exists, they will form more   |
+  |              |                    |               | are case sensitive, regardless of whether the key column name itself is case   |                              | subscripts. For example, if :code:`KEYCOL` is a column    |
+  |              |                    |               | sensitive. Note also that in the case of a :code:`READONLY` table, if no key   |                              | that is specified with a :code:`PRIMARY KEY` keyword and  |
+  |              |                    |               | columns are specified, all columns in the order specified are automatically    |                              | :code:`KEYCOL2` is an additional column specified with a  |
+  |              |                    |               | assumed to be key columns. In case of a :code:`READWRITE` table, if no key     |                              | :code:`KEY NUM 1` keyword, then the default value would   |
+  |              |                    |               | columns are specified, a hidden key column is created by Octo with the name    |                              | be :code:`^%ydboctoD...(keys("KEYCOL"),keys("KEYCOL2"))`  |
+  |              |                    |               | :code:`%YO_KEYCOL`. See examples in this document for how you can construct    |                              |                                                           |
+  |              |                    |               | the GLOBAL keyword. If the Table-level GLOBAL keyword specifiesa global name   |                              |                                                           |
+  |              |                    |               | with no subscripts, Octo adds subscripts to it one for every key column that   |                              |                                                           |
+  |              |                    |               | is explicitly specified or automatically assumed/generated but if the          |                              |                                                           |
+  |              |                    |               | Column-level GLOBAL keyword specifies a global name with no subscripts no such |                              |                                                           |
+  |              |                    |               | automatic subscript addition takes place.                                      |                              |                                                           |
   +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
   | KEY NUM      | Integer Literal    | Column        | Specifies an integer indicating this column as part of a composite key.        | Not applicable               | Not applicable                                            |
   |              |                    |               | The :code:`PRIMARY KEY` column correponds to :code:`KEY NUM 0`.                |                              |                                                           |
@@ -609,6 +613,8 @@ CREATE FUNCTION
 
   The CREATE FUNCTION statement is used to create SQL functions that map to extrinsic M functions and store these mappings in the database. The keywords CREATE FUNCTION are followed by the name of the SQL function to be created, the data types of its parameters, its return type, and the fully-qualified extrinsic M function name.
 
+  The name of the SQL function may be specified as either unquoted identifiers, e.g. :code:`id` or :code:`mytable`, or as double-quoted identifiers, e.g. :code:`"id"` or :code: `"mytable"`. Unquoted identifiers are *case insensitive* and cast internally to uppercase, while double-quoted identifiers are *case sensitive*. Additionally, double-quoted identifiers may contain spaces and/or SQL keywords.
+
   If IF NOT EXISTS is supplied for a CREATE FUNCTION statement and a function exists, the result is a no-op with no errors. In this case, error type INFO_FUNCTION_ALREADY_EXISTS is emitted at INFO log severity level.
 
   Note that Octo reserves the M routine prefix :code:`^%ydbocto` for internal functions defined by Octo itself. Moreover, Octo assumes that any YottaDB extrinsic function name that includes this prefix but omits a label will have its own :code:`_ydbocto*.m` file containing emulation label mappings for :code:`PostgreSQL` and :code:`MySQL`. Accordingly, extrinsic function names like `$$^ydboctoxyz` will prompt Octo to look for a :code:`_ydboctoxyz.m` file containing two labels, :code:`PostgreSQL` and :code:`MySQL`. If these labels are absent, a `LABELMISSING` will be issued by YottaDB. For this reason, it is advised that users do not use the :code:`^%ydbocto` prefix in extrinsic function names to avoid conflicts and complications with Octo internal M routines.
@@ -775,6 +781,10 @@ SELECT
 -----------
 
   The SELECT statement is used to select rows from the database by specifying a query, and optionally sorting the resulting rows.
+
+Table and column names may be specified as either unquoted identifiers, e.g. :code:`id` or :code:`mytable`, or as double-quoted identifiers, e.g. :code:`"id"` or :code: `"mytable"`. Unquoted identifiers are *case insensitive* and cast internally to uppercase, while double-quoted identifiers are *case sensitive*. Additionally, double-quoted identifiers may contain spaces and/or SQL keywords.
+
+Note also that Octo converts all unquoted identifiers to *upper case* internally, such that double-quoted identifiers referring to tables or columns created by a :code:`CREATE TABLE` statement that did not specify these names using double-quoted identifiers must be in upper case in order to avoid unknown table or unknown column errors.
 
   .. code-block:: PSQL
 
@@ -1256,6 +1266,10 @@ Functions
   Octo supports the following built-in functions. Each of these functions comes pre-defined with Octo, and can be used straightaway without the need for the user to define them.
 
   Note that function prototypes that appear both with and without parentheses indicate that the given function may be called both with and without parentheses. For example, :code:`CURRENT_CATALOG()` may be called as either :code:`CURRENT_CATALOG()` or :code:`CURRENT_CATALOG`.
+
+  Function names may be specified as either unquoted identifiers, e.g. :code:`abs` or :code:`concat`, or as double-quoted identifiers, e.g. :code:`"abs"` or :code: `"concat"`. Unquoted identifiers are *case insensitive* and will be internally cast to uppercase, while double-quoted identifiers are *case sensitive*. Additionally, double-quoted identifiers may contain spaces and/or SQL keywords.
+
+  Note that when calling functions using double-quoted identifiers, only the *function name* should be double quoted and not the parentheses or arguments.
 
 +++++
 ABS
@@ -1750,7 +1764,7 @@ Operators
 Alias
 ------------------------
 
-  Double quotes, single quotes and non quoted identifiers can be used to represent alias names.
+  Double quotes and non-quoted identifiers can be used to represent alias names. Note, however, that double-quoted identifiers are *case sensitive*, while unquoted identifiers are not. Additionally, double-quoted identifiers may contain spaces and/or SQL keywords.
 
 ++++++++++++++
 Column Alias

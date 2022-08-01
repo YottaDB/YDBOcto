@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -14,5 +14,5 @@
 
 select firstName, lastName from names
 except
-select firstName, lastName from names where firstName = "Zero";
+select firstName, lastName from names where firstName = 'Zero';
 

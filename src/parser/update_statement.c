@@ -91,10 +91,7 @@ SqlStatement *update_statement(SqlStatement *table_name, SqlStatement *alias_nam
 			if (is_default_column) {
 				// Column value can be set to DEFAULT when the column is defined as an IDENTITY
 			} else {
-				SqlValue *tbl_name;
-				UNPACK_SQL_STATEMENT(tbl_name, table->tableName, value);
-				ERROR(ERR_UPDATE_OF_GENERATED_ALWAYS_IDENTITY, tbl_name->v.string_literal,
-				      col_name->v.string_literal);
+				ERROR(ERR_UPDATE_OF_GENERATED_ALWAYS_IDENTITY, col_name->v.string_literal);
 				yyerror(NULL, NULL, &ucv->col_name, NULL, NULL, NULL);
 				return NULL;
 			}

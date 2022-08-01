@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2018-2022 YottaDB LLC and/or its subsidiaries.  #
+.. # Copyright (c) 2018-2023 YottaDB LLC and/or its subsidiaries.  #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -642,7 +642,7 @@ Useful Commands at OCTO>
 
     .. note::
 
-       :code:`\\d` requires a semi-colon before a newline, but :code:`\\d tablename` does not. As :code:`\\d tablename` accepts semi-colon, it is recommended to use the semi-colon in both commands for consistency.
+       Both :code:`\\d` and :code:`\\d tablename` require a semi-colon to terminate the query. Newlines will *not* terminate :code:`\\d` queries.
 
 
     Relation shown will be similar to the following:

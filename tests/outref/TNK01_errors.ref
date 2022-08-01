@@ -78,28 +78,28 @@ LINE 14:1: SELECT * FROM names WHERE NOT 2 AND NOT 1=1;
                                          ^
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
 LINE 16:1: SELECT * FROM names WHERE 'abcd';
-                                          ^
+                                     ^^^^^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
 LINE 17:1: SELECT * FROM names WHERE 'abcd' OR 1=1;
-                                          ^
+                                     ^^^^^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
 LINE 18:1: SELECT * FROM names WHERE 'abcd' AND 1=1;
-                                          ^
+                                     ^^^^^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
 LINE 19:1: SELECT * FROM names WHERE 'abcd' AND NOT 1=1;
-                                          ^
+                                     ^^^^^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'VARCHAR' is not a valid boolean value
 LINE 20:1: SELECT * FROM names WHERE NOT 'abcd';
-                                              ^
+                                         ^^^^^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'VARCHAR' is not a valid boolean value
 LINE 21:1: SELECT * FROM names WHERE NOT 'abcd' OR 1=1;
-                                              ^
+                                         ^^^^^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'VARCHAR' is not a valid boolean value
 LINE 22:1: SELECT * FROM names WHERE NOT 'abcd' AND 1=1;
-                                              ^
+                                         ^^^^^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'VARCHAR' is not a valid boolean value
 LINE 23:1: SELECT * FROM names WHERE NOT 'abcd' AND NOT 1=1;
-                                              ^
+                                         ^^^^^^
 [ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
 [ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
 [ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'abcd' is not a valid boolean value

@@ -1,7 +1,7 @@
 
 #################################################################
 #								#
-# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -19,7 +19,7 @@ CREATE TABLE MYTBL1 (id INTEGER PRIMARY KEY) READONLY READONLY READWRITE;
 CREATE TABLE MYTBL2 (id INTEGER PRIMARY KEY) READONLY READONLY READWRITE READWRITE READONLY;
 
 -- Test multiple GLOBAL keyword specification. Latest keyword should prevail.
-CREATE TABLE MYTBL3 (id INTEGER PRIMARY KEY) GLOBAL "^MYTBL31(keys(""id""))" GLOBAL "^MYTBL32(keys(""id""))" ;
+CREATE TABLE MYTBL3 (id INTEGER PRIMARY KEY) GLOBAL "^MYTBL31(keys(""ID""))" GLOBAL "^MYTBL32(keys(""ID""))" ;
 
 -- Test multiple DELIM keyword specification. Latest keyword should prevail.
 CREATE TABLE MYTBL4 (id INTEGER PRIMARY KEY) DELIM "@" DELIM "#";

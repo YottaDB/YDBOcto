@@ -59,10 +59,10 @@ LINE 7:1: select * from names where '23' = 2 || (+3);
                                                  ^^
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
 LINE 8:1: select * from names where firstname = +'abcd';
-                                                      ^
+                                                 ^^^^^^
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
 LINE 9:1: select * from names where firstname = +'Zero';
-                                                      ^
+                                                 ^^^^^^
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
 LINE 10:1: select * from names where firstname = +lastname;
                                                   ^^^^^^^^
@@ -102,7 +102,7 @@ LINE 25:1: ...ect * from names where firstname = 'Zero' or lastname::integer;
                                                            ^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
 LINE 26:1: select * from names where firstname = 'Zero' or 'abcd'::integer;
-                                                                ^^^^^^^^^^
+                                                           ^^^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
 LINE 27:1: select * from names where firstname = 'Zero' or ''::integer;
                                                             ^^^^^^^^^^

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -17,7 +17,7 @@ CREATE TABLE names1 (
 	id INTEGER PRIMARY KEY,
 	firstName VARCHAR(30) DELIM "",
 	lastName TEXT(30)
-) GLOBAL "^names(keys(""id""))";
+) GLOBAL "^names(keys(""ID""))";
 
 SELECT * FROM names1;
 
@@ -26,7 +26,7 @@ CREATE TABLE names2 (
 	id INTEGER PRIMARY KEY,
 	firstName VARCHAR(30) DELIM "" PIECE 2,
 	lastName TEXT(30)
-) GLOBAL "^names(keys(""id""))";
+) GLOBAL "^names(keys(""ID""))";
 
 SELECT * FROM names2;
 
@@ -36,7 +36,7 @@ SELECT * FROM names2;
 CREATE TABLE names3 (
 	id INTEGER PRIMARY KEY,
 	firstName VARCHAR DELIM ""
-) GLOBAL "^names3(keys(""id""))";
+) GLOBAL "^names3(keys(""ID""))";
 
 SELECT * from names3;
 SELECT * from names3 WHERE firstname = 'first|1';

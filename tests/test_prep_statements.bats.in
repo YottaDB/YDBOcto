@@ -25,15 +25,15 @@ teardown() {
 
 @test "TPS000: simple where on firstname generates single plan" {
   octo <<OCTO 2>&1 | tee output.txt
-select * from names where firstName = "Zero";
-select * from names where firstName = "Acid";
+select * from names where firstName = 'Zero';
+select * from names where firstName = 'Acid';
 OCTO
   [[ $(ls -l _ydboctoP*.m | wc -l) -eq 1 ]]
 }
 
 @test "TPS001: simple where on two different columns generates two plans" {
   octo <<OCTO 2>&1 | tee output.txt
-select * from names where firstName = "Zero";
+select * from names where firstName = 'Zero';
 select * from names where id = 0;
 OCTO
   [[ $(ls -l _ydboctoP*.m | wc -l) -eq 2 ]]
@@ -41,24 +41,24 @@ OCTO
 
 @test "TPS002: simple literal selects generates one plan" {
   octo <<OCTO 2>&1 | tee output.txt
-select "Zero" from names;
-select "Acid" from names;
+select 'Zero' from names;
+select 'Acid' from names;
 OCTO
   [[ $(ls -l _ydboctoP*.m | wc -l) -eq 1 ]]
 }
 
 @test "TPS003: simple like on firstname generates single plan" {
   octo <<OCTO 2>&1 | tee output.txt
-select * from names where firstName like "Z%";
-select * from names where firstName like "A%";
+select * from names where firstName like 'Z%';
+select * from names where firstName like 'A%';
 OCTO
   [[ $(ls -l _ydboctoP*.m | wc -l) -eq 1 ]]
 }
 
 @test "TPS004: simple like on two different columns generates two plans" {
   octo <<OCTO 2>&1 | tee output.txt
-select * from names where firstName like "Z%";
-select * from names where lastname like "B%";
+select * from names where firstName like 'Z%';
+select * from names where lastname like 'B%';
 OCTO
   [[ $(ls -l _ydboctoP*.m | wc -l) -eq 2 ]]
 }

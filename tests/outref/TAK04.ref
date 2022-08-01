@@ -3,7 +3,7 @@ select id as "abc" from names;
 select id as "cba" from names;
 select id as 'lmo' from names;
 select id as 'klm' from names;
-ABC
+abc
 0
 1
 2
@@ -11,7 +11,7 @@ ABC
 4
 5
 (6 rows)
-CBA
+cba
 0
 1
 2
@@ -19,19 +19,9 @@ CBA
 4
 5
 (6 rows)
-LMO
-0
-1
-2
-3
-4
-5
-(6 rows)
-KLM
-0
-1
-2
-3
-4
-5
-(6 rows)
+LINE 4:1: select id as 'lmo' from names;
+                       ^^^^^
+syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+LINE 5:1: select id as 'klm' from names;
+                       ^^^^^
+syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL

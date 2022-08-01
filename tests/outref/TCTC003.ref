@@ -1077,6 +1077,8 @@ DROP TABLE tmp2;
 DROP TABLE tmp3;
 DROP TABLE tmp5;
 
+-- Issue syntax error for qualified column names in CONSTRAINTs, i.e. for `x.y` syntax
+create table tmp (id integer, unique (tmp.id));
 LINE 3:1: create table products (first varchar, last varchar, not null);
                                                               ^^^
 syntax error, unexpected NOT, expecting CHECK or PRIMARY or UNIQUE
@@ -1086,35 +1088,35 @@ syntax error, unexpected LEFT_PAREN
 LINE 6:1: ...te table products (id integer, name varchar unique (id, name));
                                                                 ^
 syntax error, unexpected LEFT_PAREN
-[ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table 'PRODUCTS' are not allowed
+[ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table "PRODUCTS" are not allowed
 LINE 8:1: ...roducts (id integer constraint prikey primary key primary key);
                                                                ^^^^^^^^^^^
-[ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table 'PRODUCTS' are not allowed
+[ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table "PRODUCTS" are not allowed
 LINE 9:1: ...r constraint prikey primary key constraint seckey primary key);
                                                                ^^^^^^^^^^^
-[ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table 'PRODUCTS' are not allowed
+[ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table "PRODUCTS" are not allowed
 LINE 10:1: ...teger constraint prikey primary key, name varchar primary key);
                                                                 ^^^^^^^^^^^
-[ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table 'PRODUCTS' are not allowed
+[ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table "PRODUCTS" are not allowed
 LINE 11:1: ...raint prikey primary key, name varchar, primary key (id, name));
                                                       ^^^^^^^^^^^^^^^^^^^^^^
-[ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table 'PRODUCTS' are not allowed
+[ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table "PRODUCTS" are not allowed
 LINE 12:1: ...ger primary key, id2 integer key num 1, primary key (id1, id2));
                                                       ^^^^^^^^^^^^^^^^^^^^^^
-[ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table 'PRODUCTS' are not allowed
+[ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table "PRODUCTS" are not allowed
 LINE 13:1: ...r, id2 integer, primary key (id1, id2), primary key (id2, id1));
                                                       ^^^^^^^^^^^^^^^^^^^^^^
-[ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table 'TMP103' are not allowed
+[ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table "TMP103" are not allowed
 LINE 14:1: ...int pkey103 primary key (id1), primary key (id1), id1 integer);
                                              ^^^^^^^^^^^^^^^^^
-[ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table 'TMP104' are not allowed
+[ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table "TMP104" are not allowed
 LINE 15:1: ...eger, constraint pkey104 primary key (id1), primary key (id1));
                                                           ^^^^^^^^^^^^^^^^^
-[ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table 'TMP105' are not allowed
+[ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table "TMP105" are not allowed
 LINE 16:1: ...int pkey105 primary key (id1), id1 integer, primary key (id1));
                                                           ^^^^^^^^^^^^^^^^^
 CREATE TABLE
-[ERROR]: ERR_DUPLICATE_PRIMARY_KEY_CONSTRAINT: PRIMARY KEY constraint name 'TMP_PKEY' already exists in table 'TMP1'
+[ERROR]: ERR_DUPLICATE_PRIMARY_KEY_CONSTRAINT: PRIMARY KEY constraint name "TMP_PKEY" already exists in table "TMP1"
 DROP TABLE
 [ERROR]: ERR_AGGREGATE_FUNCTION_CHECK: Aggregate functions are not allowed in CHECK constraints
 LINE 22:1: ...able products (id integer, name text CHECK (COUNT(*) is NULL));
@@ -1253,8 +1255,8 @@ LINE 74:1: ...cts (id integer CHECK (firstname IN (1, 2)), firstname varchar);
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 75:1: ...ucts (id integer CHECK (id IN (1, 'abcd')), firstname varchar);
                                              ^
-LINE 75:1: ...ucts (id integer CHECK (id IN (1, 'abcd')), firstname varchar);
-                                                     ^
+LINE 75:1: ...ducts (id integer CHECK (id IN (1, 'abcd')), firstname varchar);
+                                                 ^^^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right NUMERIC
 LINE 76:1: ...s (id integer CHECK (COALESCE(NULL, 'a', 1.2)), firstname varcha...
                                             ^^^^
@@ -1287,7 +1289,7 @@ LINE 81:1: ...integer CHECK (LEAST(id, NULL, firstname)), firstname varchar);
                                              ^^^^^^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right NUMERIC
 LINE 82:1: ...ducts (id integer CHECK (NULLIF('a', 1.2)), firstname varchar);
-                                                ^
+                                              ^^^
 LINE 82:1: ...ducts (id integer CHECK (NULLIF('a', 1.2)), firstname varchar);
                                                    ^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
@@ -1305,72 +1307,72 @@ LINE 86:1: create table products (id integer CHECK (-id::boolean));
 LINE 87:1: create table products (id integer CHECK (-id::varchar));
                                                      ^^
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
-LINE 88:1: ...ts (id integer, firstname varchar CHECK (firstname = +'Zero'));
-                                                                         ^
+LINE 88:1: ...cts (id integer, firstname varchar CHECK (firstname = +'Zero'));
+                                                                     ^^^^^^
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
-LINE 89:1: ...eger, firstname varchar CHECK (firstname = 'Zero' || +'Zero'));
-                                                                         ^
+LINE 89:1: ...teger, firstname varchar CHECK (firstname = 'Zero' || +'Zero'));
+                                                                     ^^^^^^
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
-LINE 90:1: ...eger, firstname varchar CHECK (firstname = 'Zero' || -'Zero'));
-                                                                         ^
+LINE 90:1: ...teger, firstname varchar CHECK (firstname = 'Zero' || -'Zero'));
+                                                                     ^^^^^^
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type NULL
 LINE 91:1: ...integer, firstname varchar CHECK (firstname = 'Zero' || +NULL));
                                                                        ^^^^
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type NULL
 LINE 92:1: ...integer, firstname varchar CHECK (firstname = 'Zero' || -NULL));
                                                                        ^^^^
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'ABS' defined with given parameter types (VARCHAR)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function ABS defined with given parameter types (VARCHAR)
 LINE 94:1: ..., name text, price numeric CONSTRAINT name1 CHECK (ABS(name)));
                                                                  ^^^
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'INVALIDFUNC' defined with given parameter types (VARCHAR)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function INVALIDFUNC defined with given parameter types (VARCHAR)
 LINE 95:1: ...ext, price numeric CONSTRAINT name1 CHECK (INVALIDFUNC(name)));
                                                          ^^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function 'SAMEVALUE' defined with given parameter types (INTEGER)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function SAMEVALUE defined with given parameter types (INTEGER)
 LINE 96:1: ...CONSTRAINT name1 CHECK (price * samevalue(product_no) < 1000));
                                               ^^^^^^^^^
 [ERROR]: ERR_TOO_MANY_FUNCTION_ARGUMENTS: Too many arguments passed for function INVALIDFUNC (max: 32)
 [ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left INTEGER, right VARCHAR
 LINE 100:1: ...T name1 CHECK (case when 1=1 then 2 when 2=2 then 'abcd' end));
                                                  ^
-LINE 100:1: ...T name1 CHECK (case when 1=1 then 2 when 2=2 then 'abcd' end));
-                                                                      ^
+LINE 100:1: ...NT name1 CHECK (case when 1=1 then 2 when 2=2 then 'abcd' end));
+                                                                  ^^^^^^
 [ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left INTEGER, right VARCHAR
 LINE 101:1: ...CONSTRAINT name1 CHECK (case when 1=1 then 2 else 'abcd' end));
                                                           ^
-LINE 101:1: ...CONSTRAINT name1 CHECK (case when 1=1 then 2 else 'abcd' end));
-                                                                      ^
+LINE 101:1: ... CONSTRAINT name1 CHECK (case when 1=1 then 2 else 'abcd' end));
+                                                                  ^^^^^^
 [ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left VARCHAR, right INTEGER
-LINE 102:1: ...T name1 CHECK (case id when 1 then 'abcd' when 2 then id end));
-                                                       ^
+LINE 102:1: ...NT name1 CHECK (case id when 1 then 'abcd' when 2 then id end));
+                                                   ^^^^^^
 LINE 102:1: ...NT name1 CHECK (case id when 1 then 'abcd' when 2 then id end));
                                                                       ^^
 [ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left VARCHAR, right INTEGER
-LINE 103:1: ...NSTRAINT name1 CHECK (case id when 1 then 'abcd' else id end));
-                                                              ^
+LINE 103:1: ...ONSTRAINT name1 CHECK (case id when 1 then 'abcd' else id end));
+                                                          ^^^^^^
 LINE 103:1: ...ONSTRAINT name1 CHECK (case id when 1 then 'abcd' else id end));
                                                                       ^^
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type INTEGER but is used in a context that expects a BOOLEAN type
 LINE 105:1: ...s (id integer CONSTRAINT name1 CHECK (case when id then 2 end));
                                                                ^^
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type VARCHAR but is used in a context that expects a INTEGER type
-LINE 106:1: ...teger CONSTRAINT name1 CHECK (case id when 'abcd' then 2 end));
-                                                               ^
-[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name 'NAME1' already exists
-[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name 'NAME2' already exists
-[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name 'NAME3' already exists
-[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name 'NAME3' already exists
-[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name 'PRODUCTS_PRODUCT_NO_CHECK' already exists
-[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name 'PRODUCTS_PRICE_CHECK1' already exists
-[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name 'TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU' already exists
-[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name 'TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU' already exists
+LINE 106:1: ...nteger CONSTRAINT name1 CHECK (case id when 'abcd' then 2 end));
+                                                           ^^^^^^
+[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "NAME1" already exists
+[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "NAME2" already exists
+[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "NAME3" already exists
+[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "NAME3" already exists
+[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "PRODUCTS_PRODUCT_NO_CHECK" already exists
+[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "PRODUCTS_PRICE_CHECK1" already exists
+[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU" already exists
+[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU" already exists
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
 LINE 153:2: ...toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstuv...
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
 LINE 155:1: ...toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstuv...
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-[ERROR]: ERR_TABLE_MUST_HAVE_A_VISIBLE_COLUMN: Table 'PRODUCTS' must have at least one visible column
-[ERROR]: ERR_TABLE_MUST_HAVE_A_VISIBLE_COLUMN: Table 'PRODUCTS' must have at least one visible column
+[ERROR]: ERR_TABLE_MUST_HAVE_A_VISIBLE_COLUMN: Table "PRODUCTS" must have at least one visible column
+[ERROR]: ERR_TABLE_MUST_HAVE_A_VISIBLE_COLUMN: Table "PRODUCTS" must have at least one visible column
 CREATE TABLE
 INSERT 0 1
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table PRODUCTS violates CHECK constraint PRODUCTS_PRICE_CHECK : Failing row contains (2, efgh, -1)
@@ -1553,7 +1555,7 @@ CREATE TABLE
 ???
 -- Expect ERR_DROP_FUNCTION_DEPENDS error in a DROP FUNCTION AFTER 1 CREATE TABLE and 0 DROP TABLE
 (1 row)
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function 'SAMEVALUE(INTEGER)' because other objects (constraint NAME1 on table PRODUCTS) depend on it
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function SAMEVALUE(INTEGER) because other objects (constraint "NAME1" on table "PRODUCTS") depend on it
 DROP TABLE
 ???
 -- Expect NO ERR_DROP_FUNCTION_DEPENDS error in a DROP FUNCTION AFTER 1 CREATE TABLE and 1 DROP TABLE
@@ -1565,17 +1567,17 @@ CREATE TABLE
 ???
 -- Expect ERR_DROP_FUNCTION_DEPENDS error (constraint NAME1) in a DROP FUNCTION AFTER 1 CREATE TABLE and 0 DROP TABLE
 (1 row)
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function 'SAMEVALUE(INTEGER)' because other objects (constraint NAME1 on table PRODUCTS1) depend on it
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function SAMEVALUE(INTEGER) because other objects (constraint "NAME1" on table "PRODUCTS1") depend on it
 CREATE TABLE
 ???
 -- Expect ERR_DROP_FUNCTION_DEPENDS error (constraint NAME1) in a DROP FUNCTION AFTER 2 CREATE TABLE and 0 DROP TABLE
 (1 row)
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function 'SAMEVALUE(INTEGER)' because other objects (constraint NAME1 on table PRODUCTS1) depend on it
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function SAMEVALUE(INTEGER) because other objects (constraint "NAME1" on table "PRODUCTS1") depend on it
 DROP TABLE
 ???
 -- Expect ERR_DROP_FUNCTION_DEPENDS error (constraint NAME2) in a DROP FUNCTION AFTER 2 CREATE TABLE and 1 DROP TABLE
 (1 row)
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function 'SAMEVALUE(INTEGER)' because other objects (constraint NAME2 on table PRODUCTS2) depend on it
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function SAMEVALUE(INTEGER) because other objects (constraint "NAME2" on table "PRODUCTS2") depend on it
 DROP TABLE
 ???
 -- Expect ERR_DROP_FUNCTION_DEPENDS error (constraint NAME2) in a DROP FUNCTION AFTER 2 CREATE TABLE and 2 DROP TABLE
@@ -1608,7 +1610,7 @@ ID|ZIP
 1|11228
 2|11225
 (2 rows)
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function 'LENGTH(VARCHAR)' because other objects (constraint ZIP_LENGTH on table CLIENTS) depend on it
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function LENGTH(VARCHAR) because other objects (constraint "ZIP_LENGTH" on table "CLIENTS") depend on it
 DROP TABLE
 DROP FUNCTION
 DROP TABLE
@@ -1727,7 +1729,7 @@ LINE 536:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (3));
                                                     ^
 syntax error, unexpected LITERAL
 LINE 537:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE ('abcd'));
-                                                         ^
+                                                    ^^^^^^
 syntax error, unexpected LITERAL
 LINE 539:1: CREATE TABLE abcd (id1 INTEGER, id2 INTEGER UNIQUE (id1));
                                                                ^
@@ -1747,39 +1749,39 @@ syntax error, unexpected UNIQUE, expecting RIGHT_PAREN
 LINE 548:1: CREATE TABLE abcd (id1 INTEGER, CHECK (id1 > 2) UNIQUE (id1));
                                                             ^^^^^^
 syntax error, unexpected UNIQUE, expecting RIGHT_PAREN
-[ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column 'ID2' of table 'ABCD' does not exist
+[ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "ID2" of table "ABCD" does not exist
 LINE 550:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id2));
                                                     ^^^
-[ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column 'ID2' of table 'ABCD' does not exist
+[ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "ID2" of table "ABCD" does not exist
 LINE 551:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1, id2));
                                                          ^^^
-[ERROR]: ERR_DUPLICATE_COLUMN: Column 'ID1' specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column "ID1" specified more than once
 LINE 553:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1, id1));
                                                          ^^^
-[ERROR]: ERR_DUPLICATE_COLUMN: Column 'ID1' specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column "ID1" specified more than once
 LINE 554:1: ... TABLE abcd (id1 INTEGER, id2 INTEGER, UNIQUE (id1, id2, id1));
                                                                         ^^^
 LINE 556:1: ...TABLE abcd (id1 INTEGER, id2 INTEGER, UNIQUE (id1 + id2, id1));
                                                                  ^
 syntax error, unexpected PLUS, expecting RIGHT_PAREN
-[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name 'UNIQ1' already exists
-[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name 'UNIQ2' already exists
-[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name 'UNIQ3' already exists
-[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name 'ABCD_ID1_KEY' already exists
-[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name 'TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU' already exists
-[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name 'TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU' already exists
-[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name 'ABCD_ID1_KEY' already exists
-[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name 'ABCD_ID1_CHECK' already exists
+[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "UNIQ1" already exists
+[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "UNIQ2" already exists
+[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "UNIQ3" already exists
+[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "ABCD_ID1_KEY" already exists
+[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU" already exists
+[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU" already exists
+[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "ABCD_ID1_KEY" already exists
+[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "ABCD_ID1_CHECK" already exists
 CREATE TABLE
 INSERT 0 1
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint TMP_ID1_ID2_KEY : Key (ID1, ID2)=(3, 4) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "TMP_ID1_ID2_KEY" : Key (ID1, ID2)=(3, 4) already exists
 ID1|ID2
 3|4
 (1 row)
 DROP TABLE
 CREATE TABLE
 INSERT 0 1
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint TMP_ID1_ID2_KEY : Key (ID1, ID2)=(abcd efgh, ijkl mnop) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "TMP_ID1_ID2_KEY" : Key (ID1, ID2)=(abcd efgh, ijkl mnop) already exists
 ID1|ID2
 abcd efgh|ijkl mnop
 (1 row)
@@ -1795,7 +1797,7 @@ DROP TABLE
 CREATE TABLE
 INSERT 0 1
 INSERT 0 1
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint TMP_ID2_ID3_KEY : Key (ID2, ID3)=(2, 3) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "TMP_ID2_ID3_KEY" : Key (ID2, ID3)=(2, 3) already exists
 INSERT 0 1
 ID1|ID2|ID3
 1|2|3
@@ -1814,7 +1816,7 @@ ID1|ID2|ID3
 |3|3
 |3|
 (4 rows)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint TMP_ID1_ID3_KEY : Key (ID1, ID3)=(2, 3) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "TMP_ID1_ID3_KEY" : Key (ID1, ID3)=(2, 3) already exists
 ID1|ID2|ID3
 1|2|3
 2|3|3
@@ -1905,7 +1907,7 @@ ID1|ID2
 4|4
 5|3
 (3 rows)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint TMP_ID1_ID2_KEY : Key (ID1, ID2)=(5, 3) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "TMP_ID1_ID2_KEY" : Key (ID1, ID2)=(5, 3) already exists
 ID1|ID2
 3|5
 4|4
@@ -1919,7 +1921,7 @@ ID1|ID2
 3|2
 3|5
 (2 rows)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint TMP_ID1_ID2_KEY : Key (ID1, ID2)=(3, 4) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "TMP_ID1_ID2_KEY" : Key (ID1, ID2)=(3, 4) already exists
 ID1|ID2
 3|2
 3|5
@@ -1930,20 +1932,20 @@ INSERT 0 1
 INSERT 0 1
 INSERT 0 1
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TMP violates CHECK constraint TMP_ID1_CHECK : Failing row contains (1, 2, 3)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint TMP_ID1_ID2_KEY : Key (ID1, ID2)=(4, 4) already exists
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint TMP_ID2_ID3_KEY : Key (ID2, ID3)=(5, 1) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "TMP_ID1_ID2_KEY" : Key (ID1, ID2)=(4, 4) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "TMP_ID2_ID3_KEY" : Key (ID2, ID3)=(5, 1) already exists
 ID1|ID2|ID3
 3|4|2
 4|3|4
 5|4|5
 (3 rows)
 DROP TABLE
-[ERROR]: ERR_TABLE_KEY_NUM: CREATE TABLE for table 'PRODUCTS' cannot use table-level PRIMARY KEY constraint and KEY NUM at same time
-[ERROR]: ERR_TABLE_KEY_NUM: CREATE TABLE for table 'PRODUCTS' cannot use table-level PRIMARY KEY constraint and KEY NUM at same time
-[ERROR]: ERR_TABLE_KEY_NUM: CREATE TABLE for table 'PRODUCTS' cannot use table-level PRIMARY KEY constraint and KEY NUM at same time
-[ERROR]: ERR_TABLE_KEY_NUM: CREATE TABLE for table 'PRODUCTS' cannot use table-level PRIMARY KEY constraint and KEY NUM at same time
-[ERROR]: ERR_TABLE_KEY_NUM: CREATE TABLE for table 'PRODUCTS' cannot use table-level PRIMARY KEY constraint and KEY NUM at same time
-[ERROR]: ERR_TABLE_KEY_NUM: CREATE TABLE for table 'TMP' cannot use table-level PRIMARY KEY constraint and KEY NUM at same time
+[ERROR]: ERR_TABLE_KEY_NUM: CREATE TABLE for table "PRODUCTS" cannot use table-level PRIMARY KEY constraint and KEY NUM at same time
+[ERROR]: ERR_TABLE_KEY_NUM: CREATE TABLE for table "PRODUCTS" cannot use table-level PRIMARY KEY constraint and KEY NUM at same time
+[ERROR]: ERR_TABLE_KEY_NUM: CREATE TABLE for table "PRODUCTS" cannot use table-level PRIMARY KEY constraint and KEY NUM at same time
+[ERROR]: ERR_TABLE_KEY_NUM: CREATE TABLE for table "PRODUCTS" cannot use table-level PRIMARY KEY constraint and KEY NUM at same time
+[ERROR]: ERR_TABLE_KEY_NUM: CREATE TABLE for table "PRODUCTS" cannot use table-level PRIMARY KEY constraint and KEY NUM at same time
+[ERROR]: ERR_TABLE_KEY_NUM: CREATE TABLE for table "TMP" cannot use table-level PRIMARY KEY constraint and KEY NUM at same time
 LINE 686:1: ...cts (id integer, constraint prikey primary key (id) key num 0);
                                                                    ^^^
 syntax error, unexpected KEY, expecting RIGHT_PAREN
@@ -1956,7 +1958,7 @@ LINE 695:3: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (3));
                                                          ^
 syntax error, unexpected LITERAL
 LINE 696:1: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY ('abcd'));
-                                                              ^
+                                                         ^^^^^^
 syntax error, unexpected LITERAL
 LINE 698:1: CREATE TABLE abcd (id1 INTEGER, id2 INTEGER PRIMARY KEY (id1));
                                                                     ^
@@ -1979,34 +1981,34 @@ syntax error, unexpected PRIMARY, expecting RIGHT_PAREN
 LINE 709:1: ...d (id1 INTEGER, CHECK (id1 > 2) UNIQUE (id1) PRIMARY KEY (id1));
                                                ^^^^^^
 syntax error, unexpected UNIQUE, expecting RIGHT_PAREN
-[ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column 'ID2' of table 'ABCD' does not exist
+[ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "ID2" of table "ABCD" does not exist
 LINE 711:1: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (id2));
                                                          ^^^
-[ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column 'ID2' of table 'ABCD' does not exist
+[ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "ID2" of table "ABCD" does not exist
 LINE 712:1: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (id1, id2));
                                                               ^^^
-[ERROR]: ERR_DUPLICATE_COLUMN: Column 'ID1' specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column "ID1" specified more than once
 LINE 714:1: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (id1, id1));
                                                               ^^^
-[ERROR]: ERR_DUPLICATE_COLUMN: Column 'ID1' specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column "ID1" specified more than once
 LINE 715:1: ...E abcd (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id1, id2, id1));
                                                                         ^^^
 LINE 717:1: ... abcd (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id1 + id2, id1));
                                                                  ^
 syntax error, unexpected PLUS, expecting RIGHT_PAREN
 CREATE TABLE
-[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name 'ABCD_ID1_CHECK' already exists
-[ERROR]: ERR_CANNOT_CREATE_TABLE: Table 'ABCD' already exists
-[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name 'ABCD_ID1_KEY' already exists
+[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "ABCD_ID1_CHECK" already exists
+[ERROR]: ERR_CANNOT_CREATE_TABLE: Table "ABCD" already exists
+[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "ABCD_ID1_KEY" already exists
 DROP TABLE
 CREATE TABLE
 INSERT 0 2
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint PK_ID : Key (ID)=(2) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "PK_ID" : Key (ID)=(2) already exists
 DROP TABLE
 DROP TABLE
 CREATE TABLE
 INSERT 0 2
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint EMPLOYEES_PKEY : Key (ID)=(2) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "EMPLOYEES_PKEY" : Key (ID)=(2) already exists
 ID|AGE
 1|22
 2|25
@@ -2014,14 +2016,14 @@ ID|AGE
 DROP TABLE
 CREATE TABLE
 INSERT 0 1
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint TMP_PKEY : Key (ID1, ID2)=(3, 4) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "TMP_PKEY" : Key (ID1, ID2)=(3, 4) already exists
 ID1|ID2
 3|4
 (1 row)
 DROP TABLE
 CREATE TABLE
 INSERT 0 1
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint TMP_PKEY : Key (ID1, ID2)=(abcd efgh, ijkl mnop) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "TMP_PKEY" : Key (ID1, ID2)=(abcd efgh, ijkl mnop) already exists
 ID1|ID2
 abcd efgh|ijkl mnop
 (1 row)
@@ -2038,7 +2040,7 @@ DROP TABLE
 CREATE TABLE
 INSERT 0 1
 INSERT 0 1
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint TMP_PKEY : Key (ID2, ID3)=(2, 3) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "TMP_PKEY" : Key (ID2, ID3)=(2, 3) already exists
 ID1|ID2|ID3
 1|2|3
 2|2|5
@@ -2051,7 +2053,7 @@ ID1|ID2|ID3
 1|2|3
 2|3|3
 (2 rows)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint TMP_PKEY : Key (ID1, ID3)=(2, 3) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "TMP_PKEY" : Key (ID1, ID3)=(2, 3) already exists
 ID1|ID2|ID3
 1|2|3
 2|3|3
@@ -2120,7 +2122,7 @@ ID1|ID2
 4|4
 5|3
 (3 rows)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint TMP_PKEY : Key (ID1, ID2)=(5, 3) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "TMP_PKEY" : Key (ID1, ID2)=(5, 3) already exists
 ID1|ID2
 3|5
 4|4
@@ -2134,7 +2136,7 @@ ID1|ID2
 3|2
 3|5
 (2 rows)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint TMP_PKEY : Key (ID1, ID2)=(3, 4) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "TMP_PKEY" : Key (ID1, ID2)=(3, 4) already exists
 ID1|ID2
 3|2
 3|5
@@ -2146,10 +2148,10 @@ INSERT 0 1
 INSERT 0 1
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TMP violates CHECK constraint TMP_ID1_CHECK : Failing row contains (1, 2, 3)
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TMP violates CHECK constraint TMP_ID1_CHECK : Failing row contains (1, 4, 2)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint TMP_PKEY : Key (ID1, ID2)=(5, 4) already exists
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint TMP_ID2_ID3_KEY : Key (ID2, ID3)=(3, 4) already exists
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint TMP_PKEY : Key (ID1, ID2)=(4, 4) already exists
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint TMP_ID2_ID3_KEY : Key (ID2, ID3)=(5, 1) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "TMP_PKEY" : Key (ID1, ID2)=(5, 4) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "TMP_ID2_ID3_KEY" : Key (ID2, ID3)=(3, 4) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "TMP_PKEY" : Key (ID1, ID2)=(4, 4) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "TMP_ID2_ID3_KEY" : Key (ID2, ID3)=(5, 1) already exists
 ID1|ID2|ID3
 3|4|2
 4|3|4
@@ -2159,7 +2161,7 @@ DROP TABLE
 CREATE TABLE
 CREATE TABLE
 CREATE TABLE
-[ERROR]: ERR_DUPLICATE_PRIMARY_KEY_CONSTRAINT: PRIMARY KEY constraint name 'TMP_PRIMARY_KEY' already exists in table 'TMP1'
+[ERROR]: ERR_DUPLICATE_PRIMARY_KEY_CONSTRAINT: PRIMARY KEY constraint name "TMP_PRIMARY_KEY" already exists in table "TMP1"
 CREATE TABLE
 Table "TMP1" stored in Global: ^%ydboctoDAgeMzpAgs346YlVTTNcBB6(ID1) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
@@ -2195,3 +2197,6 @@ DROP TABLE
 DROP TABLE
 DROP TABLE
 DROP TABLE
+LINE 855:1: create table tmp (id integer, unique (tmp.id));
+                                                     ^
+syntax error, unexpected PERIOD, expecting RIGHT_PAREN

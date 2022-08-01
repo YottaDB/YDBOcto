@@ -292,11 +292,11 @@ table_reference_list
   ;
 // Just consider these a list of values for all intents and purposes
 table_reference
-  : column_name {
-	INVOKE_TABLE_REFERENCE($$, $column_name, NULL, plan_id);
+  : qualified_identifier {
+	INVOKE_TABLE_REFERENCE($$, $qualified_identifier, NULL, plan_id);
     }
-  | column_name correlation_specification {
-	INVOKE_TABLE_REFERENCE($$, $column_name, $correlation_specification, plan_id);
+  | qualified_identifier correlation_specification {
+	INVOKE_TABLE_REFERENCE($$, $qualified_identifier, $correlation_specification, plan_id);
     }
   | derived_table {
 	$$ = $derived_table;
@@ -332,26 +332,19 @@ optional_as
   ;
 
 as_name
-  : IDENTIFIER_ALONE {
+  : identifier {
   	SqlStatement	*ret;
 
-	ret = $IDENTIFIER_ALONE;
+	ret = $identifier;
 	ret->loc = yyloc;
-	as_name(ret);
+	assert(value_STATEMENT == ret->type);
+	assert(OCTO_MAX_IDENT >= strlen(ret->v.value->v.string_literal));
+	/* SqlValue type of "as_name" is set to "STRING_LITERAL" in order to prevent multiple plan generation
+	 * for queries differing only by alias name or LITERAL value.
+	 */
+	ret->v.value->type = STRING_LITERAL;
 	$$ = ret;
       }
-  | LITERAL {
-	SqlStatement *ret;
-
-	ret = $LITERAL;
-	if ((NUMERIC_LITERAL == ret->v.value->type) || (INTEGER_LITERAL == ret->v.value->type) || (PARAMETER_VALUE == ret->v.value->type)) {
-		ERROR(ERR_INVALID_AS_SYNTAX, get_user_visible_type_string(ret->v.value->type));
-		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
-		YYERROR;
-	} else {
-		as_name(ret);
-	}
-    }
   ;
 
 joined_table
@@ -416,7 +409,7 @@ join_specification
   ;
 
 named_column_joins
-  : USING LEFT_PAREN join_column_list RIGHT_PAREN
+  : USING LEFT_PAREN join_column_list RIGHT_PAREN { ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "USING clause"); YYABORT; }
   ;
 
 join_column_list

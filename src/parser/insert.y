@@ -11,36 +11,36 @@
  ****************************************************************/
 
 insert_statement
-  : INSERT INTO column_name query_expression {
-	$$ = insert_statement($column_name, NULL, NULL, $query_expression, plan_id, parse_context);
+  : INSERT INTO qualified_identifier query_expression {
+	$$ = insert_statement($qualified_identifier, NULL, NULL, $query_expression, plan_id, parse_context);
 	if (NULL == $$) {
 		YYERROR;
 	}
     }
 
-  | INSERT INTO column_name optional_insert_words query_expression {
-	$$ = insert_statement($column_name, NULL, $optional_insert_words, $query_expression, plan_id, parse_context);
+  | INSERT INTO qualified_identifier optional_insert_words query_expression {
+	$$ = insert_statement($qualified_identifier, NULL, $optional_insert_words, $query_expression, plan_id, parse_context);
 	if (NULL == $$) {
 		YYERROR;
 	}
     }
-  | INSERT INTO column_name LEFT_PAREN column_name_list RIGHT_PAREN query_expression {
-	$$ = insert_statement($column_name, $column_name_list, NULL, $query_expression, plan_id, parse_context);
+  | INSERT INTO qualified_identifier LEFT_PAREN column_name_list RIGHT_PAREN query_expression {
+	$$ = insert_statement($qualified_identifier, $column_name_list, NULL, $query_expression, plan_id, parse_context);
 	if (NULL == $$) {
 		YYERROR;
 	}
     }
-  | INSERT INTO column_name LEFT_PAREN column_name_list RIGHT_PAREN optional_insert_words query_expression {
-	$$ = insert_statement($column_name, $column_name_list, $optional_insert_words, $query_expression, plan_id, parse_context);
+  | INSERT INTO qualified_identifier LEFT_PAREN column_name_list RIGHT_PAREN optional_insert_words query_expression {
+	$$ = insert_statement($qualified_identifier, $column_name_list, $optional_insert_words, $query_expression, plan_id, parse_context);
 	if (NULL == $$) {
 		YYERROR;
 	}
     }
-  | INSERT INTO column_name DEFAULT VALUES {
- 	ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "INSERT INTO column_name DEFAULT VALUES");
+  | INSERT INTO qualified_identifier DEFAULT VALUES {
+ 	ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "INSERT INTO qualified_identifier DEFAULT VALUES");
 	YYABORT;
 	/* TODO: YDBOcto#555 : Uncomment below when "INSERT INTO table DEFAULT VALUES" functionality is implemented.
-	$$ = insert_statement($column_name, NULL, NULL, plan_id, parse_context);
+	$$ = insert_statement($qualified_identifier, NULL, NULL, plan_id, parse_context);
 	if (NULL == $$) {
 		YYERROR;
 	}

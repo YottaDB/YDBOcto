@@ -69,36 +69,36 @@ ID|FIRSTNAME|LASTNAME|ID|FIRSTNAME|LASTNAME
 5|Zero|Cool|4|Joey|
 5|Zero|Cool|5|Zero|Cool
 (36 rows)
-[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name 'FIRSTNAME': qualify name for safe execution
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "FIRSTNAME": qualify name for safe execution
 LINE 6:1: SELECT * FROM (SELECT * FROM names n1, names n2) n3 WHERE firstN...
                          ^^^^^^
 LINE 6:1: ...(SELECT * FROM names n1, names n2) n3 WHERE firstName = 'Zero';
                                                          ^^^^^^^^^
-[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name 'FIRSTNAME': qualify name for safe execution
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "FIRSTNAME": qualify name for safe execution
 LINE 7:1: ...ELECT * FROM names n1, names n2) n3 WHERE n3.firstName = 'Zero';
                                               ^^
 LINE 7:1: ...ELECT * FROM names n1, names n2) n3 WHERE n3.firstName = 'Zero';
                                                        ^^^^^^^^^^^^
-[ERROR]: ERR_COMMON_COLUMN: Common column name 'ID' appears more than once in left side of NATURAL JOIN
-[ERROR]: ERR_COMMON_COLUMN: Common column name 'ID' appears more than once in left side of NATURAL JOIN
-[ERROR]: ERR_COMMON_COLUMN: Common column name 'ID' appears more than once in right side of NATURAL JOIN
-[ERROR]: ERR_COMMON_COLUMN: Common column name 'ID' appears more than once in right side of NATURAL JOIN
-[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'N3' specified more than once
-[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'N3' specified more than once
-[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'N3' specified more than once
-[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name 'N3' specified more than once
-[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name 'COL': qualify name for safe execution
+[ERROR]: ERR_COMMON_COLUMN: Common column name "ID" appears more than once in left side of NATURAL JOIN
+[ERROR]: ERR_COMMON_COLUMN: Common column name "ID" appears more than once in left side of NATURAL JOIN
+[ERROR]: ERR_COMMON_COLUMN: Common column name "ID" appears more than once in right side of NATURAL JOIN
+[ERROR]: ERR_COMMON_COLUMN: Common column name "ID" appears more than once in right side of NATURAL JOIN
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name "N3" specified more than once
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name "N3" specified more than once
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name "N3" specified more than once
+[ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name "N3" specified more than once
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "COL": qualify name for safe execution
 LINE 21:1: SELECT id AS col, firstname AS col from names ORDER BY col;
                                                                   ^^^
-[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name 'ID': qualify name for safe execution
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "ID": qualify name for safe execution
 LINE 22:1: SELECT id AS id, firstname AS id from names ORDER BY id;
                                                                 ^^
-[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name 'ID': qualify name for safe execution
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "ID": qualify name for safe execution
 LINE 23:1: SELECT id FROM names n1 INNER JOIN names n2 ON n1.id < n2.id;
                   ^^
-[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name 'ID': qualify name for safe execution
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "ID": qualify name for safe execution
 LINE 24:1: ... n1.id FROM names n1 INNER JOIN names n2 ON n1.id = (SELECT id);
                                                                           ^^
-[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name 'ID': qualify name for safe execution
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "ID": qualify name for safe execution
 LINE 25:1: SELECT a.lastname FROM names a LEFT JOIN names b ON id = 3;
                                                                ^^

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -259,3 +259,7 @@ select parmlessfunc() from names group by CAST(parmlessfunc() as VARCHAR) having
 select parmlessfunc() from names group by 1 having 'FAIL'!=CAST(parmlessfunc() as VARCHAR);
 select parmlessfunc() from names group by 1 having 'FAIL'!=CAST(parmlessfunc() as VARCHAR);
 
+-- Using string literals
+SELECT 'test' FROM names GROUP BY 1;
+SELECT 'test' FROM names GROUP BY 1 HAVING 'test'!='hello';
+SELECT 'test' FROM names GROUP BY firstname HAVING 'test'!='hello' ORDER BY 1;

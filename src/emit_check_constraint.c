@@ -105,7 +105,14 @@ int emit_check_constraint(char **buffer, int *buffer_size, char **buff_ptr, stru
 		case INTEGER_LITERAL:
 		case FUNCTION_NAME:
 		case COLUMN_REFERENCE:
-			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "%s", value->v.string_literal);
+			if (value->is_double_quoted) {
+				assert((FUNCTION_NAME == value->type) || (COLUMN_REFERENCE == value->type));
+				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "\"%s\"",
+									    value->v.reference);
+			} else {
+				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "%s",
+									    value->v.reference);
+			}
 			break;
 		case NUL_VALUE:
 			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "NULL");

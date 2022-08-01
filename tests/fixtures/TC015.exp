@@ -52,7 +52,7 @@ expect -i octo2 "OCTO>"
 puts "# Run <DROP TABLE names followed by CREATE TABLE names with only id column> in OCTO2"
 send -i octo2 -- "DROP TABLE names;\r"
 expect -i octo2 "OCTO>"
-send -i octo2 -- "CREATE TABLE names (id INTEGER PRIMARY KEY) GLOBAL \"^names(keys(\"\"id\"\"))\";\r"
+send -i octo2 -- "CREATE TABLE names (id INTEGER PRIMARY KEY) GLOBAL \"^names(keys(\"\"ID\"\"))\";\r"
 
 puts "# Wait for OCTO> prompt to appear in OCTO2. This signals that the CREATE TABLE query in OCTO2 ran to completion"
 expect -i octo2 "OCTO>"

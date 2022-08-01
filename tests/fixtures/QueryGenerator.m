@@ -201,13 +201,27 @@ writeTableDefinition(inputSqlFile,outputSqlFile,subtestName)
 	. if (($extract(line(i),1)'="#")&($extract(line(i),1)'="")&($extract(line(i),1,2)'="--"))&($find(line(i)," EXTRACT ")=0) do  quit:(1=exitLoop)
 	. . if ($find(line(i),"CREATE TABLE")'=0) do
 	. . . set queryComplete=0
-	. . . set tableNameStart=$find(line(i),"CREATE TABLE ")
-	. . . set tableNameEnd=$find(line(i)," ",tableNameStart)
+	. . . set tableNameStart=$find(line(i),"CREATE TABLE """)
+	. . . if (0'=tableNameStart) do
+	. . . . ; The table name is enclosed in double-quotes, and therefore may contain spaces. In this case, set the start of the
+	. . . . ; table name to its opening quote, and its end to the character before the closing quote. The end is set before the
+	. . . . ; closing quote to allow the subtest name to be appended below.
+	. . . . set tableNameEnd=$find(line(i),""" ",tableNameStart)-1
+	. . . . set tableNameStart=tableNameStart-1 ; Back up the start index to the opening double quote
+	. . . else  do
+	. . . . set tableNameStart=$find(line(i),"CREATE TABLE ")
+	. . . . set tableNameEnd=$find(line(i)," ",tableNameStart)
 	. . . set restOfTheQueryStart=$find(line(i),"",tableNameEnd)
 	. . . set tableName=$extract(line(i),tableNameStart,tableNameEnd-2)
 	. . . ; Following code is used for table definition in boolean.sql
 	. . . set:($extract(tableName,0,1)="`") tableName=$extract(tableName,2,$length(tableName)-1)
-	. . . set dupTableName=tableName_subtestName
+	. . . ; Add closing quote for double-quoted table names
+	. . . if (0'=$find(tableName,"""")) do
+	. . . . set dupTableName=tableName_subtestName_""""
+	. . . . set tableName=tableName_""""
+	. . . . set tableNameEnd=tableNameEnd+1 ; Set the end of the table name to the space following the closing double quote
+	. . . else  do
+	. . . . set dupTableName=tableName_subtestName
 	. . . ; Check if tableNameEnd is at the end of current line.
 	. . . ; If it is then reset the value such that next line is processed from the beginning.
 	. . . ; Mainly used for processing composite table definition.
@@ -220,15 +234,24 @@ writeTableDefinition(inputSqlFile,outputSqlFile,subtestName)
 	. . . . . ; This line has an ending "," which we can use to identify columns.
 	. . . . . ; Shift columnNameStart over 1 to remove leading " " and "(". Shift columnNameEnd over 2 to remove trailing ",".
 	. . . . . set columnNameAndType=$extract(line(i),columnNameAndTypeStart+1,columnNameAndTypeEnd-2)
-	. . . . . set columnName=$piece(columnNameAndType," ")
-	. . . . . if (0'=$find(columnNameAndType,"NUMERIC(")) do
-	. . . . . . set columnType="NUMERIC"
-	. . . . . . set columnNameAndTypeEnd=$find(line(i),"NUMERIC(",columnNameAndTypeStart)
-	. . . . . . set columnNameAndTypeEnd=$find(line(i),")",columnNameAndTypeEnd)
-	. . . . . . set columnNameAndTypeEnd=$find(line(i),",",columnNameAndTypeEnd)
-	. . . . . . set columnNameAndType=$extract(line(i),columnNameAndTypeStart+1,columnNameAndTypeEnd-2)
+	. . . . . if 0=$find(columnNameAndType,"""") do
+	. . . . . . set columnName=$piece(columnNameAndType," ")
+	. . . . . . if (0'=$find(columnNameAndType,"NUMERIC(")) do
+	. . . . . . . ; This is a NUMERIC(precision,scale) usage, need to set columnNameAndTypeEnd correctly
+	. . . . . . . set columnType="NUMERIC"
+	. . . . . . . set columnNameAndTypeEnd=$find(line(i),"NUMERIC(",columnNameAndTypeStart)
+	. . . . . . . set columnNameAndTypeEnd=$find(line(i),")",columnNameAndTypeEnd)
+	. . . . . . . set columnNameAndTypeEnd=$find(line(i),",",columnNameAndTypeEnd)
+	. . . . . . . set columnNameAndType=$extract(line(i),columnNameAndTypeStart+1,columnNameAndTypeEnd-2)
+	. . . . . . else  do
+	. . . . . . . set columnType=$piece(columnNameAndType," ",2)
 	. . . . . else  do
-	. . . . . . set columnType=$piece(columnNameAndType," ",2)
+	. . . . . . ; In the case of double-quoted column names, we cannot simply use $PIECE to extract the column name, since the
+	. . . . . . ; column name can contain non-alphanumeric characters, and so might contain the $PIECE delimiter. In that case,
+	. . . . . . ; use $EXTRACT to extract the double-quoted column name, and any subsequent type information.
+	. . . . . . ; Note that we don't check for NUMERIC here since the `quotenames` fixture doesn't contain this SQL datatype.
+	. . . . . . set columnName=$extract(columnNameAndType,1,$find(columnNameAndType,"""",2)-1)
+	. . . . . . set columnType=$extract(columnNameAndType,$find(columnNameAndType,"""",2)+1,$length(columnNameAndType))
 	. . . . . set columnNameAndType=$$addConstraint(columnNameAndType,columnName,columnType,dupTableName,outputSqlFile)
 	. . . . . set restOfTheQuery=$select(firstColumn=1:"",1:restOfTheQuery_",")_columnNameAndType
 	. . . . . ; Column definition is added above, try to add table constraint and then proceed to add other column definitions
@@ -359,6 +382,7 @@ getCheckConstraint(tableName,columnName,columnType,constraintColumns)
 	else  do
 	. set randCase=$random(4) ; 0,1,2,3
 	set exprOrder=$random(2) ; 0 - col on left of the boolean expression, 1- col on the right
+	set:("INTEGER PRIMARY KEY"=columnType) randCase=2 ; Don't allow a left hand NULL when comparing against a primary key
 	if (1=randCase) do
 	. ; Case 1 - CHECK(col comp_op NULL)
 	. set leftSide=columnName,rightSide="NULL"
@@ -366,7 +390,7 @@ getCheckConstraint(tableName,columnName,columnType,constraintColumns)
 	. ; Case 2 (Integer/VARCHAR/Numeric) - CHECK(col comp_op 0)/CHECK(col comp_op "")/..
 	. set expr=columnName_$$getComparisonOperatorAlone()
 	. new entry
-	. if ("INTEGER"=columnType) set entry="0"
+	. if ("INTEGER"=columnType)!("INTEGER PRIMARY KEY"=columnType) set entry="0"
 	. else  if ("NUMERIC"=columnType) set entry="0.0"
 	. else  if (columnType["VARCHAR") do
 	. . ; Following set value was originally "''". But "''" and "NULL" is treated the same by Octo
@@ -547,16 +571,36 @@ genInsertQuery()
 	. ;	    allowed
 	. ;	* Cannot have a select query for query_expression when primary-column exists as no control over what gets inserted
 	. ;	    to the primary key column by the select query. Duplicate values result in error.
-	. new insertColumns,i
+	. new insertColumns,i,count,columnCount
+	. new prevColName,lclColName,lclColNameType,lclIsKey,primIndex,firstColumn
+	. set columnCount=$$columnCounter(tableName)
+	. set count=1,firstColumn=1
+	. set lclColName="",prevColName=""
+	. ; Iterate over the columns in the table to see if there are any PRIMARY KEY columns. If so, any such column must be
+	. ; included in the INSERT INTO statement constructed below.
+	. for  set lclColName=$order(sqlInfo(tableName,count,lclColName)) do  quit:(count=columnCount)!("INTEGER PRIMARY KEY"=lclColNameType)
+	. . set lclColNameType=$$getColumnType(tableName,lclColName)
+	. . if ("INTEGER PRIMARY KEY"=lclColNameType) do
+	. . . ; This table contains a primary key column, so include it here per condition noted in long comment above.
+	. . . set insertColumns(tableName,1,lclColName,lclColNameType)=""
+	. . . set insertQuery=insertQuery_" ("_lclColName
+	. . . set firstColumn=0 ; The PRIMARY KEY column will be first, so any subsequent columns will NOT be the first column
+	. . . set prevColName=lclColName
+	. . . set lclIsKey=$select((0'=$GET(primaryKeyColumn(tableName,lclColName),0)):1,1:0)
+	. . . set insertColumns(tableName,1,lclColName,lclColNameType,lclIsKey)=""
+	. . set lclColName=""
+	. . if $increment(count)
 	. set randInt=$random($$columnCounter(tableName)-1)+1 ; randInt -> random number between 1 to total column count
-	. ; Avoid multiple columns being specified more than once as the column which shows up in the
-	. ; `column specified more than once` error is implementation dependant.
-	. ; Reducing the number of columns included in this insert to two avoids this problem.
 	. set:(randInt>2) randInt=2
-	. new lclColName,lclColNameType,lclIsKey,primIndex,firstColumn
-	. set insertQuery=insertQuery_" (",firstColumn=1
-	. for i=1:1:randInt do
-	. . set lclColName=$$chooseColumn(tableName)
+	. ; The first column has already been assigned, so subtract 1 from the columns remaining to be assigned
+	. set:(0=firstColumn) i=2
+	. ; The first column has not yet been assigned, so add an opening paren for the start of the column list
+	. set:(1=firstColumn) insertQuery=insertQuery_" (",i=1
+	. for i=i:1:randInt do
+	. . ; Avoid multiple columns being specified more than once as the column which shows up in the
+	. . ; `column specified more than once` error is implementation dependent.
+	. . for  do  quit:lclColName'=prevColName
+	. . . set lclColName=$$chooseColumn(tableName)
 	. . set lclColNameType=columns(tableName,$$returnColumnIndex(tableName,lclColName),lclColName)
 	. . set insertColumns(tableName,i,lclColName,lclColNameType)=""
 	. . if (0=firstColumn) do
@@ -564,6 +608,7 @@ genInsertQuery()
 	. . else  do
 	. . . set firstColumn=0
 	. . set insertQuery=insertQuery_lclColName
+	. . set prevColName=lclColName
 	. set insertQuery=insertQuery_") "_$$insertValuesClause(randInt)
 	set insertQuery=insertQuery_";"
 	open file:(append)
@@ -577,7 +622,7 @@ insertValuesClause(numCols)
 	; Returns `VALUES()` with one more more columns and one or more rows
 	; Refer to insertColumns to identify the expected column, its type and additional key related information
 	; based on these details create the values clause.
-	; This routine is dependant on `insertColumns` and `insertColumns` is of the form
+	; This routine is dependent on `insertColumns` and `insertColumns` is of the form
 	;   `insertColumns(tableName,ColName,ColNameType,IsKey).
 	new valuesClause,numCases,curCase,numRows,i
 	set valuesClause="(VALUES"
@@ -803,14 +848,24 @@ readSQL(file)
 	. . ;TABLE NAMES
 	. . if ($find(line(i),"CREATE TABLE")'=0) do
 	. . . set tableNameStart=$find(line(i),"CREATE TABLE ")
-	. . . set tableNameEnd=$find(line(i)," ",tableNameStart)
-	. . . set tableName=$extract(line(i),tableNameStart,tableNameEnd-2)
+	. . . if tableNameStart+1=$find(line(i),"""",tableNameStart) do
+	. . . . ; The table name is double-quoted, and so may contain spaces.
+	. . . . set tableNameEnd=$find(line(i),"""",tableNameStart+1)
+	. . . . set tableName=$extract(line(i),tableNameStart,tableNameEnd-1)
+	. . . . set tableNameEnd=tableNameEnd+1 ; Remove leading "("
+	. . . else  do
+	. . . . set tableNameEnd=$find(line(i)," ",tableNameStart)
+	. . . . set tableName=$extract(line(i),tableNameStart,tableNameEnd-2)
 	. . . if ($extract(tableName,0,1)="`")  set tableName=$extract(tableName,2,$length(tableName)-1)
 	. . . if $increment(GLOBALtotalTables)
 	. . . ; Change tableName based on the mode QueryGenerator is in.
 	. . . ; In read-write mode, change tableName to tableName_prefix.
 	. . . ; In read-only mode, tableName can stay as it is.
-	. . . set:(1=isReadWriteMode) tableName=tableName_prefix
+	. . . if (1=isReadWriteMode) do
+	. . . . if (0'=$find(tableName,"""")) do
+	. . . . . set tableName=$extract(line(i),tableNameStart,tableNameEnd-3)_prefix_""""
+	. . . . else  do
+	. . . . . set tableName=tableName_prefix
 	. .
 	. . ;set i2=1
 	. . ;COLUMN NAMES
@@ -821,15 +876,23 @@ readSQL(file)
 	. . . . if ($extract(line(i),columnNameAndTypeStart,columnNameAndTypeEnd)'="") do
 	. . . . . ; shifted columnNameStart over 1 to remove leading " " and "(" shifted columnNameEnd over 2 to remove trailing ", "
 	. . . . . set columnNameAndType=$extract(line(i),columnNameAndTypeStart+1,columnNameAndTypeEnd-2)
-	. . . . . set columnName=$piece(columnNameAndType," ")
-	. . . . . if (0'=$find(columnNameAndType,"NUMERIC(")) do
-	. . . . . . ; This is a NUMERIC(precision,scale) usage, need to set columnNameAndTypeEnd correctly
-	. . . . . . set columnType="NUMERIC"
-	. . . . . . set columnNameAndTypeEnd=$find(line(i),"NUMERIC(",columnNameAndTypeStart)
-	. . . . . . set columnNameAndTypeEnd=$find(line(i),")",columnNameAndTypeEnd)
-	. . . . . . set columnNameAndTypeEnd=$find(line(i),",",columnNameAndTypeEnd)
+	. . . . . if 0=$find(columnNameAndType,"""") do
+	. . . . . . set columnName=$piece(columnNameAndType," ")
+	. . . . . . if (0'=$find(columnNameAndType,"NUMERIC(")) do
+	. . . . . . . ; This is a NUMERIC(precision,scale) usage, need to set columnNameAndTypeEnd correctly
+	. . . . . . . set columnType="NUMERIC"
+	. . . . . . . set columnNameAndTypeEnd=$find(line(i),"NUMERIC(",columnNameAndTypeStart)
+	. . . . . . . set columnNameAndTypeEnd=$find(line(i),")",columnNameAndTypeEnd)
+	. . . . . . . set columnNameAndTypeEnd=$find(line(i),",",columnNameAndTypeEnd)
+	. . . . . . else  do
+	. . . . . . . set columnType=$piece(columnNameAndType," ",2)
 	. . . . . else  do
-	. . . . . . set columnType=$piece(columnNameAndType," ",2)
+	. . . . . . ; In the case of double-quoted column names, we cannot simply use $PIECE to extract the column name, since the
+	. . . . . . ; column name can contain non-alphanumeric characters, and so might contain the $PIECE delimiter. In that case,
+	. . . . . . ; use $EXTRACT to extract the double-quoted column name, and any subsequent type information.
+	. . . . . . ; Note that we don't check for NUMERIC here since the `quotenames` fixture doesn't contain this SQL datatype.
+	. . . . . . set columnName=$extract(columnNameAndType,1,$find(columnNameAndType,"""",2)-1)
+	. . . . . . set columnType=$extract(columnNameAndType,$find(columnNameAndType,"""",2)+1,$length(columnNameAndType))
 	. . . . . set sqlInfo(tableName,i2,columnName,columnType)=""
 	. . . . . set:($find(columnNameAndType,"KEY")'=0) primaryKeyColumn(tableName,columnName)=columnType
 	. . . . set tableNameEnd=columnNameAndTypeEnd
@@ -1204,7 +1267,7 @@ selectList(queryDepth,curDepth)
 	. if ("binary_expression"=selectListLVN(queryDepth,toBeAdded)) set typeStr="binary"
 	. else  if ("unary_expression"=selectListLVN(queryDepth,toBeAdded)) set typeStr="unary"
 	. else  set typeStr="conditional"
-	. ; If GroupBy exists atall we need the binary and unary expressions in it if they are not constants.
+	. ; If GroupBy exists at all we need the binary and unary expressions in it if they are not constants.
 	. ; If constant then they may or may not be in GroupBy.
 	. ; `constExpr` value indicates whether the expression is constant or not.
 	. ; Change the selectListLVN value to `constant_binary_expression` or `constant_unary_expression`
@@ -1486,14 +1549,16 @@ whereExpressionHelper(queryDepth,table,innerTable,randInt,result,whereType)
 	. set aliasNum1More=aliasNum+1
 	. set rightSide="("_$$generateSubQuery(queryDepth,"limited","")_")"
 	. set aliasDotColumn=""
-	. for i=1:1  do  quit:($find(aliasDotColumn,"alias"_aliasNum1More)'=0)  do assert(i<16)
-	. . set aliasDotColumn=$piece(rightSide," ",i)
+	. do extractQuotedColumnAlias(.aliasDotColumn,"alias"_aliasNum1More,rightSide)
 	. set rightColumn=$piece($piece(aliasDotColumn,".",2),",",1)
 	.
 	. set holder=""
 	. for i=1:1  do  quit:($find(holder,"FROM")'=0)  do assert(i<16)
 	. . set holder=$piece(rightSide," ",i)
-	. set rightTable=$piece(rightSide," ",i+1)
+	. if (0=$find(rightSide,"""")) do
+	. . set rightTable=$piece(rightSide," ",i+1)
+	. else  do
+	. . set rightTable=$$extractTableFromClause(rightSide,i+1)
 	.
 	. set rightType=$$returnColumnType(rightTable,rightColumn)
 	.
@@ -1515,11 +1580,19 @@ whereExpressionHelper(queryDepth,table,innerTable,randInt,result,whereType)
 	; then set randInt to a different value.
 	; WHERE clause type 10 is just "WHERE boolean-type-column"
 	if (randInt=10)  do
-	. set x="sqlInfo("""_table_""")"
+	. if 0'=$find(table,"""") do
+	. . ; The table name is already wrapped in double quotes, so no need to add more here.
+	. . set x="sqlInfo("_table_")"
+	. else  do
+	. . set x="sqlInfo("""_table_""")"
 	. set result=result_table_"."_$$getColumnOfType(table,"BOOLEAN")
 
 	if ((11<=randInt)&(randInt<=13)) do
-	. set x="sqlInfo("""_table_""")"
+	. if 0'=$find(table,"""") do
+	. . ; The table name is already wrapped in double quotes, so no need to add more here.
+	. . set x="sqlInfo("_table_")"
+	. else  do
+	. . set x="sqlInfo("""_table_""")"
 	. set chosenColumn=table_"."_$$getColumnOfType(table,"BOOLEAN")
 	. set:11=randInt result=result_$$notString_chosenColumn
 	. set:12=randInt result=result_chosenColumn_" = TRUE"
@@ -1582,7 +1655,7 @@ whereClause(queryDepth,tableName)
 	set randInt=$random(15) ; 0-14 ; Increase this range as new versions of WHERE clauses are added
 
 	if (0=isReadWriteMode) do
-	. set table=$piece(fc," ",2)
+	. set table=$$extractTableFromClause(fc,2)
 	else  do
 	. set table=tableName
 
@@ -1607,12 +1680,20 @@ whereClause(queryDepth,tableName)
 	; WHERE clause type 10 is boolean-type-column
 	; WHERE clause type 11-14 are boolean operations
 	if ((10<=randInt)&(randInt<=14)) do
-	. set x="sqlInfo("""_table_""")"
+	. if 0'=$find(table,"""") do
+	. . ; The table name is already wrapped in double quotes, so no need to add more here.
+	. . set x="sqlInfo("_table_")"
+	. else  do
+	. . set x="sqlInfo("""_table_""")"
 	. for i=1:1:15  do  quit:(($find(type,"BOOLEAN")'=0)!(x=""))
 	. . set x=$query(@x)
 	. . if (x'="")  set type=$qsubscript(x,4)
 	. . if ((x'="")&($qsubscript(x,1)'=table))  set randInt=0
 	. set:((i=15)!(x="")) randInt=0
+
+	; Don't use a random generator that requires a BOOLEAN type column if it's not present
+	; WHERE clause type 10 is boolean-type-column
+	; WHERE clause type 11-14 are boolean operations
 
 	; If enableSubQuery is FALSE, randInt=5 and randInt=9 cannot be allowed as they invoke "generateSubQuery"
 	; So in those cases, set randInt=0 instead.
@@ -1884,19 +1965,21 @@ havingClause(queryDepth,clauseType)
 	. . set randInt=$select(enableSubQuery:5,1:6)
 
 	if (randInt=5) do
-	. new randInt,word,leftSide,rightSide,chosenColumn,entryList,limit,rightType,i,holder,aliasNum1More
+	. new randInt,word,leftSide,rightSide,chosenColumn,entryList,limit,rightType,i,holder,aliasNum1More,openQuote
 	. set word=$$anyAllSome
 	. set aliasNum1More=aliasNum+1
 	. set rightSide="("_$$generateSubQuery(queryDepth,"limited","")_")"
 	. set aliasDotColumn=""
-	. for i=1:1  do  quit:($find(aliasDotColumn,"alias"_aliasNum1More)'=0)  do assert(i<16)
-	. . set aliasDotColumn=$piece(rightSide," ",i)
+	. do extractQuotedColumnAlias(.aliasDotColumn,"alias"_aliasNum1More,rightSide)
 	. set rightColumn=$piece($piece(aliasDotColumn,".",2),",",1)
 	.
 	. set holder=""
 	. for i=1:1  do  quit:($find(holder,"FROM")'=0)  do assert(i<16)
 	. . set holder=$piece(rightSide," ",i)
-	. set rightTable=$piece(rightSide," ",i+1)
+	. if (0=$find(rightSide,"""")) do
+	. . set rightTable=$piece(rightSide," ",i+1)
+	. else  do
+	. . set rightTable=$$extractTableFromClause(rightSide,i+1)
 	. set rightType=$$returnColumnType(rightTable,rightColumn)
 	.
 	. for i=1:1:15  do  quit:(leftType=rightType)&(("COUNT"'=isAggrFuncColumn)!(("VARCHAR"'=leftType)&("BOOLEAN"'=leftType)))
@@ -2112,19 +2195,34 @@ joinClause(queryDepth,joinCount)
 	. . . . set tableInResult=""
 	. . . . for tableI=1:1  do  quit:(tableInResult="JOIN")
 	. . . . . set tableInResult=$piece(result," ",tableI)
-	. . . . set tableInResult=$piece(result," ",tableI+1)
+	. . . . if (0'=$find(result,"""")) do
+	. . . . . set tableInResult=$piece(result," ",tableI+1)
+	. . . . . set:(0'=$find(tableInResult,"""")) tableInResult=tableInResult_" "_$piece(result," ",tableI+2)
+	. . . . else  do
+	. . . . . set tableInResult=$$extractTableFromClause(result,tableI+1)
+	. . . . . ; Below check assumes that there is a space within a double-quoted table name, i.e. `"quote names"`
 	. . . . set chosenColumn2=$$chooseColumn(tableInResult)
 	. . . . set rightSide=alias_"."_chosenColumn2
 	. . . . set rightType=$$returnColumnType(tableInResult,chosenColumn2)
 	. . . if (randInt=1) do
-	. . . . for rightSideI=1:1  do  quit:(($find(rightSide,alias)'=0)&($find(rightSide,")")=0))
-	. . . . . set rightSide=$piece(result," ",rightSideI)
+	. . . . if (0=$find(result,"""")) do
+	. . . . . for rightSideI=1:1  do  quit:(($find(rightSide,alias)'=0)&($find(rightSide,")")=0))
+	. . . . . . set rightSide=$piece(result," ",rightSideI)
+	. . . . else  do extractQuotedColumnAlias(.rightSide,alias,result)
 	. . . . if ($extract(rightSide,$length(rightSide))=",")  set rightSide=$piece(rightSide,",",1)
+	. . . . set rightSide=$$extractFromAggrFunc(rightSide)
+	. . . . set rightSide=$$trimTrailingChar(rightSide)
 	. . . . set tableInResult=""
 	. . . . for tableI=1:1  do  quit:(tableInResult="FROM")
 	. . . . . set tableInResult=$piece(result," ",tableI)
-	. . . . set tableInResult=$piece(result," ",tableI+1)
-	. . . . set columnModified=$piece(rightSide,".",2)
+	. . . . if (0=$find(result,"""")) do
+	. . . . . set tableInResult=$piece(result," ",tableI+1)
+	. . . . . set columnModified=$piece(rightSide,".",2)
+	. . . . else  do
+	. . . . . set tableInResult=$$extractTableFromClause(result,tableI+1)
+	. . . . . set columnModified=$$trimTrailingChar($piece(rightSide,".",2))
+	. . . . zwrite tableInResult
+	. . . . zwrite columnModified
 	. . . . if ($find(columnModified,",")'=0)  set columnModified=$extract(columnModified,0,$length(columnModified)-1)
 	. . . .
 	. . . . set rightType=$$returnColumnType(tableInResult,columnModified)
@@ -2136,23 +2234,25 @@ joinClause(queryDepth,joinCount)
 	. . . set:j=15 resetOnClause=1	; we could not find a column with a compatible type so reset ON clause
 	. . .
 	. . . set leftSide=chosenTable1_"."_leftSide
+	. . if ((rightRand=1)&(chosenEntry2'=""))  zwrite chosenEntry2
 	. . if ((rightRand=1)&(chosenEntry2'=""))  set rightSide=chosenEntry2
 	. . if (rightRand=2) do
-	. . . new aliasNum2More
+	. . . new aliasNum2More,openQuote
 	. . . set aliasNum2More=aliasNum+1
 	. . . set rightSide=$$anyAllSome_" ("_$$generateSubQuery(queryDepth,"limited","")_")"
 	. . .
 	. . . set aliasDotColumn=""
-	. . . for j=1:1:20  do  quit:($find(aliasDotColumn,"alias"_aliasNum2More)'=0)
-	. . . . set aliasDotColumn=$piece(rightSide," ",j)
-	. . . do assert(20>j)
+	. . . do extractQuotedColumnAlias(.aliasDotColumn,"alias"_aliasNum2More,rightSide)
 	. . . set rightColumn=$piece($piece(aliasDotColumn,".",2),",",1)
 	. . .
 	. . . new rightI
 	. . . set holder=""
 	. . . for rightI=1:1  do  quit:($find(holder,"FROM")'=0)
 	. . . . set holder=$piece(rightSide," ",rightI)
-	. . . set rightTable=$piece(rightSide," ",rightI+1)
+	. . . if (0=$find(result,"""")) do
+	. . . . set rightTable=$piece(rightSide," ",rightI+1)
+	. . . else  do
+	. . . . set rightTable=$$extractTableFromClause(rightSide,rightI+1)
 	. . . set rightType=$$returnColumnType(rightTable,rightColumn)
 	. . .
 	. . . set leftType=""
@@ -2257,6 +2357,7 @@ chooseTable()
 chooseColumn(table)
 	new CC,selectedColumn,aliastable
 	set aliastable=table,table=$$getRealTable(aliastable)
+	set:(0'=$find(table," AS")) table=$piece(table," AS",1)
 	set CC=$SELECT($data(tableColumnCounts(table))=0:$$columnCounter(table),1:tableColumnCounts(table))
 	set selectedColumn=$order(columns(table,$random(CC-1)+1,""))
 	quit selectedColumn
@@ -2293,7 +2394,10 @@ havingChooseColumn(queryDepth,table,isAggrFuncColumn,count,isExpression,selected
 	. ; So fetch the 3rd piece this should give us the complete value within AVG()
 	. set holderMinusAggrFunc=$piece($piece(holder,"(",3),")")
 	. ; Remove ALL or DISTINCT and if they are not present retain just table.column value
-	. set tmpHolder=$piece(holderMinusAggrFunc," ",2)
+	. if 0=$find(holderMinusAggrFunc,"""") do
+	. . set tmpHolder=$piece(holderMinusAggrFunc," ",2)
+	. else  do
+	. . set tmpHolder=$$extractFromAggrFunc(holderMinusAggrFunc)
 	. ; if tmpHolder is not empty - ALL or DISTINCT was used and tmpHolder now has table.column. Copy it to holderMinusAggrFunc.
 	. set:(tmpHolder'="") holderMinusAggrFunc=tmpHolder
 	. ; else holderMinusAggrFunc has table.column nothing else to be done
@@ -2303,8 +2407,8 @@ havingChooseColumn(queryDepth,table,isAggrFuncColumn,count,isExpression,selected
 	. . ; Account for BOOLEAN type coercion on result of COUNT done in returnAggregateFunction for BOOLEAN column types
 	. . set holder=$piece(holder," >",1)
 	. set holderMinusAggrFunc=$piece($piece(holder,"(",2),")",1)
-	. if $find(holderMinusAggrFunc," ") do
-	. . set holderMinusAggrFunc=$piece(holderMinusAggrFunc," ",2)
+	. if ($find(holderMinusAggrFunc," ")&(0=$find(holderMinusAggrFunc,"""")))!($find(holderMinusAggrFunc,"""")>$find(holderMinusAggrFunc," ")) do
+	. . set holderMinusAggrFunc=$extract(holderMinusAggrFunc,$find(holderMinusAggrFunc," "),$length(holderMinusAggrFunc))
 	. set isAggrFuncColumn=$piece(holder,"(",1)
 	else  do
 	. set holderMinusAggrFunc=holder
@@ -2710,7 +2814,7 @@ generateSubQuery(queryDepth,subQueryType,joinType)
 	set innerQuery=innerQuery_$$setQuantifier
 	set innerFC=$$fromClause ; fromClause needs to run before selectList
 	; Need to add this to tableAlias array as later calls (e.g. $$innerSelectList etc.) rely on this
-	set tableAlias(alias)=$piece(innerFC," ",2)
+	set tableAlias(alias)=$$extractTableFromClause(innerFC,2)
 	write "generateSubQuery : set tableAlias(",alias,")=",tableAlias(alias),!
 	if (subQueryType="full")  set innerQuery=innerQuery_$$innerSelectList(queryDepth,subQueryType,$random(3)+1,alias)
 	if (subQueryType="limited")  set innerQuery=innerQuery_$$innerSelectList(queryDepth,subQueryType,0,alias)
@@ -2749,7 +2853,7 @@ innerSelectList(queryDepth,subQueryType,curDepth,alias)
 	do assert(0'=+queryDepth)
 	set result=""
 
-	set aliastable=$piece(innerFC," ",2)
+	set aliastable=$$extractTableFromClause(innerFC,2)
 	; Qualifier notation (table.column), with the value of the alias variable instead of a table
 	set toBeAdded=alias_"."_$$chooseColumn(aliastable)
 
@@ -2781,7 +2885,7 @@ innerSelectList(queryDepth,subQueryType,curDepth,alias)
 	. . ; Example: `SELECT MIN(alias1.lastname) as lastname,..`
 	. . set agg=$$returnAggregateFunction(queryDepth,table,chosenColumn)
 	. . set selectListLVN(queryDepth,agg)="aggregate_function"
-	. . do addToInnerQuerySLLVN(table,chosenColumn,$piece(innerFC," ",2))
+	. . do addToInnerQuerySLLVN(table,chosenColumn,$$extractTableFromClause(innerFC,2))
 	. . set toBeAdded=agg_" as "_chosenColumn_", "
 	. . set result=result_toBeAdded
 	.
@@ -2810,7 +2914,7 @@ innerSelectList(queryDepth,subQueryType,curDepth,alias)
 	. if $data(setColumn) do
 	. . set tc=table_"."_chosenColumn2
 	. . set selectListLVN(queryDepth,tc)="table.column"
-	. . do addToInnerQuerySLLVN($piece(tc,"."),$piece(tc,".",2),$piece(innerFC," ",2))
+	. . do addToInnerQuerySLLVN($piece(tc,"."),$piece(tc,".",2),$$extractTableFromClause(innerFC,2))
 	. . set result=result_tc
 
 	; #FUTURE_TODO: Move the recursion logic down here
@@ -2862,7 +2966,11 @@ innerTableExpression(queryDepth,subQueryType)
 checkAndChangeCaseIfColumnTypeAbsent(table,columnType,randInt)
 	new x,type
 	set type=""
-	set x="sqlInfo("""_table_""")"
+	if 0'=$find(table,"""") do
+	. ; The table name is already wrapped in double quotes, so no need to add more here.
+	. set x="sqlInfo("""""_table_""""")"
+	else  do
+	. set x="sqlInfo("""_table_""")"
 	set x=$query(@x)
 	for i=1:1  do  quit:(($find(type,columnType)'=0)!(x=""))  do assert(i<16)
 	. set type=$qsubscript(x,4)
@@ -2890,7 +2998,7 @@ innerWhereClause(queryDepth)
 	; So in those cases, set randInt=0 instead.
 	set:('enableSubQuery)&((randInt=5)!(randInt=9)) randInt=0
 
-	set innerTable=$piece(innerFC," ",2)
+	set innerTable=$$extractTableFromClause(innerFC,2)
 	; When randInt=1 or 3 or 4 a INTEGER type column is necessary in the selected table,
 	; this code block ensures that this requirement is satisfied, and if it isn't
 	; then set randInt to a different value.
@@ -2912,7 +3020,11 @@ innerWhereClause(queryDepth)
 	; WHERE clause type 12 is boolean-type-column
 	; WHERE clause type 13-16 are boolean operations
 	if ((12<=randInt)&(randInt<=16)) do
-	. set x="sqlInfo("""_table_""")"
+	. if 0'=$find(table,"""") do
+	. . ; The table name is already wrapped in double quotes, so no need to add more here.
+	. . set x="sqlInfo("_table_")"
+	. else  do
+	. . set x="sqlInfo("""_table_""")"
 	. for i=1:1:15  do  quit:(($find(type,"BOOLEAN")'=0)!(x=""))
 	. . set x=$query(@x)
 	. . if (x'="")  set type=$qsubscript(x,4)
@@ -2927,7 +3039,7 @@ getColumnOfType(table,neededType)
 	set origTable=table,table=$$getRealTable(table)
 	set maxcols=tableColumnCounts(table),availcols=0
 	for i=1:1:maxcols set col=$order(columns(table,i,"")) quit:""=col  do
-	. if columns(table,i,col)=neededType set availcols(availcols)=col if $incr(availcols)
+	. if 0'=$find(columns(table,i,col),neededType) set availcols(availcols)=col if $incr(availcols)
 	do assert(0<availcols)
 	quit availcols($random(availcols))
 
@@ -2948,6 +3060,7 @@ getType(typestr)
 
 getRealTable(table,column)
 	new realTable
+
 	if $data(column)&$data(columnAlias(table,column)) set realTable=columnAlias(table,column)
 	else  set realTable=$select($data(tableAlias(table)):tableAlias(table),1:table)
 	quit realTable
@@ -3275,3 +3388,68 @@ addToInnerQuerySLLVN(table,column,alias)
 	. if $increment(innerQuerySLLVN)
 	quit
 
+; Extract a double-quoted column alias from a string of the form: tablename.columnname
+extractQuotedColumnAlias(aliasDotColumn,aliasName,rightSide)
+	new i,openQuote
+	for i=1:1  do  quit:($find(aliasDotColumn,aliasName)'=0)&($find(aliasDotColumn,")")=0)  do assert(i<16)
+	. set aliasDotColumn=$piece(rightSide," ",i)
+	. set openQuote=$find(aliasDotColumn,"""")
+	. if 0'=openQuote do
+	. . ; In the case of double-quoted column names, we cannot simply use $PIECE to extract the column alias, since the
+	. . ; column name can contain non-alphanumeric characters, and so might contain the $PIECE delimiter, i.e. " ".
+	. . ;
+	. . ; In that case, we must incrementally construct the column alias `aliasDotColumn` by concatenating each piece
+	. . ; contained between the double-quotes of a double-quoted alias. To do this, we loop through each " " delimited
+	. . ; piece until we hit another double-quote, adding each piece to `aliasDotColumn` and incrementing the
+	. . ; loop-control variable and piece number `i` as we go.
+	. . ;
+	. . ; If the double-quoted alias does not contain any whitespaces, then we skip the piece concatenation and leave
+	. . ; `aliasDotColumn` as is.
+	. . for i=i+1:1  do  quit:(0'=$find(aliasDotColumn,"""",openQuote))
+	. . . set:(0=$find(aliasDotColumn,"""",openQuote)) aliasDotColumn=$$trimTrailingChar(aliasDotColumn_" "_$piece(rightSide," ",i))
+	quit
+
+extractTableFromClause(clause,piecenum)
+	new openQuote,table,endFrom
+	; In some cases, `clause` will be an entire subquery. In that case, we just need the table name specified in the `FROM`
+	; clause of that query. So, check for a `FROM` and, if found, shift the start of `clause` to after this `FROM`. This will
+	; prevent the erroneous detection of double-quotes from columns in the `SELECT` list of the received query, when we are
+	; seeking a table name from a `FROM` clause
+	set endFrom=$find(clause,"FROM")
+	set:0'=endFrom clause=$extract(clause,endFrom,$length(clause))
+	set openQuote=$find(clause,"""")
+	if 0'=openQuote do
+	. ; The table name is double-quoted, and so may contain spaces.
+	. set table=$extract(clause,openQuote-1,$find(clause,"""",openQuote+1))
+	else  do
+	. set table=$piece(clause," ",piecenum)
+	quit $$trimTrailingChar(table)
+
+; Trims trailing ',', ' ', or ')' from given string argument
+trimTrailingChar(string)
+	new result
+	if (0'=$find(string,"COUNT(")) do
+	. set result=string
+	else  if (0'=$find(string,",",$length(string)-1))!(0'=$find(string," ",$length(string)-1))!(0'=$find(string,")",$length(string)-1)) do
+	. set result=$extract(string,0,$length(string)-1)
+	else  do
+	. set result=string
+	quit result
+
+; Extracts an argument passed to an aggregate function (MIN or MAX)
+extractFromAggrFunc(string)
+	new result
+	set result=string
+	if (0'=$find(result,"MIN(")) do
+	. set result=$piece($piece(result,"MIN(",2),")",1)
+	else  if (0'=$find(result,"MAX(")) do
+	. set result=$piece($piece(result,"MAX(",2),")",1)
+	else  if (0'=$find(result,"AVG(")) do
+	. set result=$piece($piece(result,"AVG(",2),")",1)
+	else  if (0'=$find(result,"COUNT(")) do
+	. set result=$piece($piece(result,"COUNT(",2),")",1)
+	else  if (0'=$find(result,"ALL ")) do
+	. set result=$piece(result,"ALL ",2)
+	else  if (0'=$find(result,"DISTINCT ")) do
+	. set result=$piece(result,"DISTINCT ",2)
+	quit result

@@ -11,4 +11,4 @@ ID
 1
 2
 (2 rows)
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function 'ABS(INTEGER)' because other objects (constraint TEST_ID_CHECK on table TEST) depend on it
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function ABS(INTEGER) because other objects (constraint "TEST_ID_CHECK" on table "TEST") depend on it

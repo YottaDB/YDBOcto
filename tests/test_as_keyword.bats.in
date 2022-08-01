@@ -27,7 +27,7 @@ teardown() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAK01.sql
 }
 
-@test "TAK02 : Tests verify alias behavior in single quotes form" {
+@test "TAK02 : Tests verify errors issued for aliases using single quotes" {
   # Can't use run_query_in_octo_and_postgres_and_crosscheck_multiple_queries as postgres doesn't support single quoted alias
   load_fixture TAK02.sql subtest novv
   verify_output TAK02 output.txt
@@ -43,7 +43,8 @@ teardown() {
   # Can't use run_query_in_octo_and_postgres_and_crosscheck_multiple_queries as postgres doesn't support single quoted alias
   load_fixture TAK04.sql subtest novv
   verify_output TAK04 output.txt
-  [[ $(ls -l _ydboctoP*.m | wc -l) -eq 4 ]]
+  # Two of the queries in `TAK04.sql` yield errors, so we check only for two M plans below
+  [[ $(ls -l _ydboctoP*.m | wc -l) -eq 2 ]]
 }
 
 @test "TAK05 : Tests verify that one plan is generated for queries differing only by quoted table alias values" {

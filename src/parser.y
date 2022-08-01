@@ -155,7 +155,6 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token HAVING
 %token IDENTIFIER_ALONE
 %token IDENTIFIER_BACK_TICK
-%token IDENTIFIER_PERIOD_IDENTIFIER
 %token IF
 %token ILIKE
 %token IN
@@ -253,6 +252,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token COLON
 
 %token LITERAL
+%token DOUBLE_QUOTE_LITERAL
 %token FAKE_TOKEN
 %token INVALID_TOKEN
 
@@ -362,7 +362,7 @@ display_relation_command
 
 display_parms
   : /* Empty */ { $$ = NULL; }
-  | column_name { $$ = $column_name; }
+  | qualified_identifier { $$ = $qualified_identifier; }
   ;
 
 %include "parser/select.y"
@@ -1094,8 +1094,7 @@ generic_function_call
   ;
 
 function_name
-  : column_name { $$ = $column_name; }
-  | sql_keyword { $$ = $sql_keyword; }
+  : qualified_identifier { $$ = $qualified_identifier; }
   ;
 
 parenless_function
@@ -1132,31 +1131,12 @@ parenless_function_tail
   ;
 
 column_reference
-  : qualifier PERIOD column_name {
-      SqlValue *qual, *col_name;
-      char *new_string, *c;
-      int len_qual, len_col_name;
-      UNPACK_SQL_STATEMENT(qual, $qualifier, value);
-      UNPACK_SQL_STATEMENT(col_name, $column_name, value);
-      len_qual = strlen(qual->v.string_literal);
-      len_col_name = strlen(qual->v.string_literal);
-      // +1 for null, +1 for '.'
-      new_string = octo_cmalloc(memory_chunks, len_qual + len_col_name + 2);
-      c = new_string;
-      memcpy(c, qual->v.string_literal, len_qual);
-      c += len_qual;
-      *c++ = '.';
-      memcpy(c, col_name->v.string_literal, len_col_name);
-      c += len_col_name;
-      *c++ = '\0';
-      qual->v.string_literal = new_string;
-      $$ = $qualifier;
-    }
-  | qualifier PERIOD ASTERISK {
+  : qualified_name { $$ = $qualified_name; }
+  | column_name PERIOD ASTERISK {
       SqlValue *qual;
       char *new_string, *c;
       int len_qual;
-      UNPACK_SQL_STATEMENT(qual, $qualifier, value);
+      UNPACK_SQL_STATEMENT(qual, $column_name, value);
       len_qual = strlen(qual->v.string_literal);
       // +1 for null, +1 for '.'
       new_string = octo_cmalloc(memory_chunks, len_qual + 1 + 2);
@@ -1168,14 +1148,11 @@ column_reference
       *c++ = '\0';
       qual->v.string_literal = new_string;
       qual->type = TABLE_ASTERISK;
-      $$ = $qualifier;
+      $$ = $column_name;
     }
-  | column_name { $$ = $column_name; }
   ;
 
-qualifier
-  : column_name { $$ = $column_name; }
-  ;
+
 
 subquery
   : LEFT_PAREN query_expression RIGHT_PAREN { $$ = $query_expression; }
@@ -1224,6 +1201,17 @@ column_name_list
 column_name_list_tail
   : /* Empty */ { $$ = NULL; }
   | COMMA column_name_list { $$ = $column_name_list; }
+  ;
+
+qualified_table_name_list
+  : qualified_identifier qualified_table_name_list_tail {
+	$$ = create_sql_column_list($qualified_identifier, $qualified_table_name_list_tail, &yyloc);
+    }
+  ;
+
+qualified_table_name_list_tail
+  : /* Empty */ { $$ = NULL; }
+  | COMMA qualified_table_name_list { $$ = $qualified_table_name_list; }
   ;
 
 query_term
@@ -1346,21 +1334,21 @@ sql_schema_definition_statement
 
 /// TODO: not complete
 table_definition
-  : CREATE TABLE column_name LEFT_PAREN table_element_list RIGHT_PAREN table_definition_tail {
+  : CREATE TABLE qualified_identifier LEFT_PAREN table_element_list RIGHT_PAREN table_definition_tail {
 	SqlStatement	*ret;
 	boolean_t	if_not_exists_specified = FALSE;
 
-	ret = table_definition($column_name, $table_element_list, $table_definition_tail, if_not_exists_specified);
+	ret = table_definition($qualified_identifier, $table_element_list, $table_definition_tail, if_not_exists_specified);
 	if (NULL == ret) {
 		YYABORT;
 	}
 	$$ = ret;
       }
-  | CREATE TABLE IF NOT EXISTS column_name LEFT_PAREN table_element_list RIGHT_PAREN table_definition_tail {
+  | CREATE TABLE IF NOT EXISTS qualified_identifier LEFT_PAREN table_element_list RIGHT_PAREN table_definition_tail {
 	SqlStatement	*ret;
 	boolean_t	if_not_exists_specified = TRUE;
 
-	ret = table_definition($column_name, $table_element_list, $table_definition_tail, if_not_exists_specified);
+	ret = table_definition($qualified_identifier, $table_element_list, $table_definition_tail, if_not_exists_specified);
 	if (NULL == ret) {
 		YYABORT;
 	}
@@ -1385,9 +1373,9 @@ optional_keyword
   ;
 
 optional_keyword_element
-  : GLOBAL literal_value {
+  : GLOBAL ddl_str_literal_value {
       MALLOC_KEYWORD_STMT($$, OPTIONAL_SOURCE);
-      ($$)->v.keyword->v = $literal_value;
+      ($$)->v.keyword->v = $ddl_str_literal_value;
     }
   | delim_specification { $$ = $delim_specification; }
   | READONLY {
@@ -1403,12 +1391,12 @@ optional_keyword_element
   ;
 
 delim_specification
-  : DELIM literal_value {
+  : DELIM ddl_str_literal_value {
 	char	*with_flag_byte, *str_lit;
 	size_t	length;
 
 	MALLOC_KEYWORD_STMT($$, OPTIONAL_DELIM);
-	($$)->v.keyword->v = $literal_value;
+	($$)->v.keyword->v = $ddl_str_literal_value;
 	str_lit = ($$)->v.keyword->v->v.value->v.string_literal;
 	length = strlen(str_lit) + 2;	// "is_dollar_char" byte and a null terminator
 	with_flag_byte = octo_cmalloc(memory_chunks, length);
@@ -1482,28 +1470,20 @@ delim_specification
   ;
 
 delim_char_list
-  : literal_value delim_char_list_tail {
+  : ddl_int_literal_value delim_char_list_tail {
 	SqlDelimiterCharacterList	*delim_char_list;
 	SqlStatement			*literal;
-	SqlValueType			type;
 	long				delim_int;
 	char				*end_ptr, *str_lit;
 
-	literal = $literal_value;
-	type = literal->v.value->type;
+	literal = $ddl_int_literal_value;
 	str_lit = literal->v.value->v.string_literal;
-	/* We should only accept integer arguments for subsequent call to $CHAR. To account for this,
-	 * we confirm INTEGER here, then check the result of strtol below to confirm that
-	 * the value was in fact an integer in the allowed range.
+	/* We should only accept integer arguments for subsequent call to $CHAR, hence we match on the
+	 * ddl_int_literal_value parser rule above. Additionally, we check the result of strtol below
+	 * to confirm that the value was in fact an integer in the allowed range.
 	 *
 	 * TODO: Add support for hexadecimal arguments.
 	 */
-	if (INTEGER_LITERAL != type) {
-		ERROR(ERR_TYPE_NOT_COMPATIBLE, get_user_visible_type_string(type), "column DELIM specification");
-		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
-		YYERROR;
-	}
-
 	SQL_STATEMENT($$, delim_char_list_STATEMENT);
 	MALLOC_STATEMENT($$, delim_char_list, SqlDelimiterCharacterList);
 	UNPACK_SQL_STATEMENT(delim_char_list, $$, delim_char_list);
@@ -1562,7 +1542,10 @@ table_element_list_tail
   ;
 
 table_element
-  : column_definition { $$ = $column_definition; }
+  : column_definition {
+      $$ = $column_definition;
+      assert($$->type == column_STATEMENT);
+    }
   | table_constraint_definition {
 	/* Return the table level constraint inside a dummy SqlColumn structure to be in sync with the type
 	 * returned by the previous grammar rule ("column_definition").
@@ -1584,6 +1567,7 @@ table_constraint_definition
 	UNPACK_SQL_STATEMENT(keyword, ret, keyword);
 	UNPACK_SQL_STATEMENT(constraint, keyword->v, constraint);
 	constraint->name = $constraint_name_definition;
+	assert((NULL == constraint->name) || (value_STATEMENT == constraint->name->type));
 	assert(NULL == $constraint_check_time);	/* TODO: "constraint_check_time" is currently ignored (i.e. unsupported) */
 	$$ = ret;
     }
@@ -1633,6 +1617,7 @@ column_definition
 
 column_name
   : identifier { $$ = $identifier; }
+  | sql_keyword { $$ = $sql_keyword; }
   ;
 
 column_definition_tail
@@ -1757,7 +1742,7 @@ constraint_name_definition
   ;
 
 constraint_name
-  : qualified_name { $$ = $qualified_name; }
+  : qualified_identifier { $$ = $qualified_identifier; }
   ;
 
 column_constraint
@@ -1816,7 +1801,7 @@ constraint_check_time
 
 // TODO: Implement indexes. For now, create a dummy struct to ignore them in run_query.
 index_definition
-	: INDEX index_name literal_value {
+	: INDEX index_name ddl_str_literal_value {
 		WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "INDEX statements");
 		SQL_STATEMENT($$, index_STATEMENT);
 		MALLOC_STATEMENT($$, index, SqlIndex);
@@ -1829,23 +1814,108 @@ index_name
 
 qualified_name
   : qualified_identifier { $$ = $qualified_identifier; }
-//  | schema_name period qualified_identifier
+  | column_name PERIOD column_name PERIOD column_name {
+      SqlValue *qual, *col_name1, *col_name2;
+      char *new_string, *c;
+      int len_qual, len_col_name1, len_col_name2;
+      size_t ident_len;
+
+      // Used for schema_name.table_name.column_name constructions
+      UNPACK_SQL_STATEMENT(qual, $1, value);
+      UNPACK_SQL_STATEMENT(col_name1, $3, value);
+      UNPACK_SQL_STATEMENT(col_name2, $5, value);
+      len_qual = strlen(qual->v.string_literal);
+      len_col_name1 = strlen(col_name1->v.string_literal);
+      len_col_name2 = strlen(col_name2->v.string_literal);
+      // +1 for null, +2 for 2x '.'
+      new_string = octo_cmalloc(memory_chunks, len_qual + len_col_name1 + len_col_name2 + 3);
+      c = new_string;
+      memcpy(c, qual->v.string_literal, len_qual);
+      c += len_qual;
+      *c++ = '.';
+      memcpy(c, col_name1->v.string_literal, len_col_name1);
+      c += len_col_name1;
+      *c++ = '.';
+      memcpy(c, col_name2->v.string_literal, len_col_name2);
+      c += len_col_name2;
+      *c++ = '\0';
+
+      ident_len = strlen(new_string);
+      if (OCTO_MAX_IDENT < ident_len) {
+        ERROR(ERR_IDENT_LENGTH, "Identifier", ident_len, OCTO_MAX_IDENT);
+        yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+        YYERROR;
+      }
+      qual->v.string_literal = new_string;
+
+      // For accurate error messages, set the end of syntax higlighting to end of the full rule, not just the first token of it
+      $1->loc.last_column = ($5)->loc.last_column;
+      $$ = $1;
+    }
+
   ;
 
 qualified_identifier
-  : identifier { $$ = $identifier; }
+  : column_name PERIOD column_name {
+      SqlValue *qual, *col_name;
+      char *new_string, *c;
+      int len_qual, len_col_name;
+      size_t ident_len;
+
+      UNPACK_SQL_STATEMENT(qual, $1, value);
+      UNPACK_SQL_STATEMENT(col_name, $3, value);
+      len_qual = strlen(qual->v.string_literal);
+      len_col_name = strlen(col_name->v.string_literal);
+      // +1 for null, +1 for '.'
+      new_string = octo_cmalloc(memory_chunks, len_qual + len_col_name + 2);
+      c = new_string;
+      memcpy(c, qual->v.string_literal, len_qual);
+      c += len_qual;
+      *c++ = '.';
+      memcpy(c, col_name->v.string_literal, len_col_name);
+      c += len_col_name;
+      *c++ = '\0';
+
+      ident_len = strlen(new_string);
+      if (OCTO_MAX_IDENT < ident_len) {
+        ERROR(ERR_IDENT_LENGTH, "Identifier", ident_len, OCTO_MAX_IDENT);
+        yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+        YYERROR;
+      }
+      qual->v.string_literal = new_string;
+
+      // For accurate error messages, set the end of syntax higlighting to end of the full rule, not just the first token of it
+      $1->loc.last_column = $3->loc.last_column;
+      $$ = $1;
+    }
+  | column_name { $$ = $column_name; }
   ;
 
 identifier
   : actual_identifier {
+        SqlValue *value;
 	size_t ident_len;
 
 	$$ = $actual_identifier;
-	ident_len = strlen(($$)->v.value->v.string_literal);
+        UNPACK_SQL_STATEMENT(value, $$, value);
+	ident_len = strlen(value->v.string_literal);
 	if (OCTO_MAX_IDENT < ident_len) {
 		ERROR(ERR_IDENT_LENGTH, "Identifier", ident_len, OCTO_MAX_IDENT);
 		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
 		YYERROR;
+	}
+        if (0 == ident_len) {
+          ERROR(ERR_ZERO_LENGTH_IDENT, value->v.string_literal);
+	  yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+	  YYERROR;
+        }
+        /* Enforce the default identifier case (uppercase) for most identifiers, but preserve
+         * case sensitivity when signaled by the lexer through the is_double_quoted field of
+         * the SqlValue.
+         */
+	if (!value->is_double_quoted) {
+		/* Render identifier string case insensitive by converting to upper case */
+		TOUPPER_STR(value->v.string_literal);
 	}
   }
 //  | introducer character_set_specification actual_identifier
@@ -1862,25 +1932,22 @@ regular_identifier
 
 identifier_body
   : identifier_start { $$ = $identifier_start; ($$)->loc = yyloc; }
-  | m_function {
-	/* Disallow invoking arbitary M code (e.g. `SELECT $$^MCODE()`). Only M code defined
-	 * in the DDL (through a CREATE FUNCTION statement) is allowed to be invoked through an SQL function.
-	 */
-	ERROR(ERR_M_CALL, NULL);
-	/* We issue a parser error here so that parsing for this token finish
-	 * rather than using YYABORT to exit prematurely.
-	 */
-	yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
-	YYERROR;
-    }
 //  | identifier_start underscore
 //  | identifier_start identifier_part
   ;
 
 identifier_start
   : IDENTIFIER_BACK_TICK { $$ = $IDENTIFIER_BACK_TICK; }
-  | IDENTIFIER_PERIOD_IDENTIFIER { $$ = $IDENTIFIER_PERIOD_IDENTIFIER; }
   | IDENTIFIER_ALONE { $$ = $IDENTIFIER_ALONE; }
+  | DOUBLE_QUOTE_LITERAL {
+      /* This is a double-quoted string literal that we want to treat as a SQL identifier.
+       * To do so, change the SqlValueType from STRING_LITERAL to COLUMN_REFERENCE and
+       * convert the value of the string to all uppercase to conform to the conventional
+       * formatting used for identifier names in Octo.
+       */
+      $$ = $DOUBLE_QUOTE_LITERAL;
+      ($$)->v.value->type = COLUMN_REFERENCE;
+  }
   ;
 
 data_type
@@ -2081,6 +2148,25 @@ ddl_str_literal_value
 	}
 	$$ = ret;
     }
+  | DOUBLE_QUOTE_LITERAL {
+	SqlStatement *ret = $DOUBLE_QUOTE_LITERAL;
+	ret->loc = yyloc;
+	/* Currently ALL DDL literal values are expected to be double-quoted strings so check that and issue error otherwise. */
+	if (value_STATEMENT != ret->type) {
+		assert(FALSE);
+		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+		YYERROR;
+	}
+	if ((NUMERIC_LITERAL == ret->v.value->type) || (INTEGER_LITERAL == ret->v.value->type)) {
+		/* Convert numeric inputs into string type as that is what is expected here */
+		ret->v.value->type = STRING_LITERAL;
+	} else if (STRING_LITERAL != ret->v.value->type) {
+		ERROR(ERR_DDL_LITERAL, "string");
+		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+		YYERROR;
+	}
+	$$ = ret;
+    }
 
 /* A "int_literal_value" rule is different from the "ddl_int_literal_value" rule in that we do want to do the
  * INVOKE_PARSE_LITERAL_TO_PARAMETER call (i.e. we do not want multiple plans to be generated for different values
@@ -2113,23 +2199,15 @@ optional_order_by
   ;
 
 function_definition
-  : CREATE FUNCTION identifier LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
-	INVOKE_FUNCTION_DEFINITION($$, $identifier, $function_parameter_type_list, $data_type, $m_function, FALSE);
-      }
-  | CREATE FUNCTION sql_keyword LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
-	/* This rule is necessary because `sql_keyword` is not a subset of identifier. */
-	INVOKE_FUNCTION_DEFINITION($$, $sql_keyword, $function_parameter_type_list, $data_type, $m_function, FALSE);
+  : CREATE FUNCTION qualified_identifier LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
+	INVOKE_FUNCTION_DEFINITION($$, $qualified_identifier, $function_parameter_type_list, $data_type, $m_function, FALSE);
       }
   | CREATE FUNCTION PARENLESS_FUNCTION LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
 	/* This rule is necessary because `PARENLESS_FUNCTION` is not a subset of identifier. */
 	INVOKE_FUNCTION_DEFINITION($$, $PARENLESS_FUNCTION, $function_parameter_type_list, $data_type, $m_function, FALSE);
       }
-  | CREATE FUNCTION IF NOT EXISTS identifier LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
-	INVOKE_FUNCTION_DEFINITION($$, $identifier, $function_parameter_type_list, $data_type, $m_function, TRUE);
-      }
-  | CREATE FUNCTION IF NOT EXISTS sql_keyword LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
-	/* This rule is necessary because `sql_keyword` is not a subset of identifier. */
-	INVOKE_FUNCTION_DEFINITION($$, $sql_keyword, $function_parameter_type_list, $data_type, $m_function, TRUE);
+  | CREATE FUNCTION IF NOT EXISTS qualified_identifier LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
+	INVOKE_FUNCTION_DEFINITION($$, $qualified_identifier, $function_parameter_type_list, $data_type, $m_function, TRUE);
       }
   | CREATE FUNCTION IF NOT EXISTS PARENLESS_FUNCTION LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
 	/* This rule is necessary because `PARENLESS_FUNCTION` is not a subset of identifier. */
@@ -2148,6 +2226,10 @@ function_definition
 sql_keyword
   : TRUNCATE {
       SQL_VALUE_STATEMENT($$, STRING_LITERAL, "TRUNCATE");
+      $$->loc = yyloc;
+    }
+  | TO {
+      SQL_VALUE_STATEMENT($$, STRING_LITERAL, "TO");
       $$->loc = yyloc;
     }
   ;

@@ -1,0 +1,18 @@
+
+-- TCTC016 : OCTO519 : Test 63-character constraint names plus double-quotes are accepted without truncation
+
+drop table if exists products;
+CREATE TABLE products (product_no integer CONSTRAINT "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz12345678901" PRIMARY KEY, name text CONSTRAINT c2 UNIQUE CONSTRAINT c3 NOT NULL);
+\d products;
+select * from products;
+DROP TABLE
+CREATE TABLE
+Table "PRODUCTS" stored in Global: ^%ydboctoDFTZ1TylADeWHpGzdXFFgD0(PRODUCT_NO) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+PRODUCT_NO|INTEGER||NOT NULL|
+NAME|VARCHAR||NOT NULL|
+Indexes:
+    "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz12345678901" PRIMARY KEY CONSTRAINT, Column(s) (PRODUCT_NO), Global: ^%ydboctoDFTZ1TylADeWHpGzdXFFgD0(PRODUCT_NO)
+    "C2" UNIQUE CONSTRAINT, Column(s) (NAME), Global ^%ydboctoU7yjxbUdAkzrKOMsTYl5R6J
+PRODUCT_NO|NAME
+(0 rows)

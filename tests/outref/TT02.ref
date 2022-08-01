@@ -48,7 +48,7 @@ Thomas|Jefferson
 James|Madison
 James|Monroe
 (5 rows)
-[ERROR]: ERR_TABLE_READONLY: TRUNCATE not allowed on READONLY table 'PG_TYPE'. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: TRUNCATE not allowed on READONLY table "PG_TYPE". Only allowed on READWRITE tables.
 TYPNAME
 bool
 int4
@@ -57,7 +57,7 @@ numeric
 unknown
 varchar
 (6 rows)
-[ERROR]: ERR_TABLE_READONLY: TRUNCATE not allowed on READONLY table 'PG_TYPE'. Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: TRUNCATE not allowed on READONLY table "PG_TYPE". Only allowed on READWRITE tables.
 FIRSTNAME|LASTNAME
 Zero|Cool
 Acid|Burn

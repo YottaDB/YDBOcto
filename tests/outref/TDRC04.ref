@@ -10,7 +10,7 @@ select * from asdf;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: ASDF
 LINE 2:1: select * from asdf;
                         ^^^^
-SCHEMA|NAME|TYPE|OWNER
+Schema|Name|Type|Owner
 public|INFORMATION_SCHEMA.TABLES|table|octo
 public|NAMES|table|octo
 public|NAMESWITHAGES|table|octo

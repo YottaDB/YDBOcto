@@ -1,4 +1,4 @@
-select * from names where firstName = "Zero";
+select * from names where firstName = 'Zero';
 ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 5|Zero|Cool

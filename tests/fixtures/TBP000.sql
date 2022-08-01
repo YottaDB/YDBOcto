@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -31,4 +31,14 @@ CREATE TABLE abc (
   DELIM "|"
 ) DELIM "|"
 END "keys(0)" GLOBAL "someGLobal";
+create table abc (id integer primary key, oid integer key num 1, name varchar(30), oid2 integer key num 2);
+CREATE TABLE abc (id INTEGER PRIMARY KEY PIECE 'keys(0)');
+CREATE TABLE abc (id INTEGER PRIMARY KEY PIECE 'keys(0)' GLOBAL "^aDifferentVar(keys(0))");
+CREATE TABLE abc (
+  id INTEGER PRIMARY KEY EXTRACT 'abc'
+  GLOBAL "someGLobal"
+  PIECE '0'
+  DELIM '|'
+) DELIM '|'
+END 'keys(0)' GLOBAL "someGLobal";
 create table abc (id integer primary key, oid integer key num 1, name varchar(30), oid2 integer key num 2);

@@ -766,16 +766,16 @@ select firstname from names group by lastname in (select lastname from names),fi
 
 -- Following double quote queries have valid use cases as well but are not co-herent with postgres to test using cross check interface
 -- so adding them here.
-SELECT "test" FROM names GROUP BY "test";
-SELECT "test" FROM names GROUP BY "test" HAVING "test"!="hello";
-SELECT "test" FROM names GROUP BY "test" ORDER BY "test";
-SELECT "test" FROM names GROUP BY 1;
-SELECT "test" FROM names GROUP BY 1 ORDER BY "test";
-SELECT "test" FROM names GROUP BY 1 HAVING "test"!="hello" ORDER BY "test";
-SELECT "test" FROM names GROUP BY 1 HAVING "test"!="hello";
-SELECT "test" FROM names GROUP BY firstname HAVING "test"!="hello" ORDER BY "test";
-SELECT "test" FROM names GROUP BY firstname HAVING "test"!="hello" ORDER BY 1;
-SELECT "test" FROM names GROUP BY 1 HAVING "test"!="hello" ORDER BY firstname; -- errors out saying firstname in ORDER BY must be in GROUP BY
+SELECT 'test' FROM names GROUP BY 'test';
+SELECT 'test' FROM names GROUP BY 'test' HAVING 'test'!='hello';
+SELECT 'test' FROM names GROUP BY 'test' ORDER BY 'test';
+SELECT 'test' FROM names GROUP BY 1;
+SELECT 'test' FROM names GROUP BY 1 ORDER BY 'test';
+SELECT 'test' FROM names GROUP BY 1 HAVING 'test'!='hello' ORDER BY 'test';
+SELECT 'test' FROM names GROUP BY 1 HAVING 'test'!='hello';
+SELECT 'test' FROM names GROUP BY firstname HAVING 'test'!='hello' ORDER BY 'test';
+SELECT 'test' FROM names GROUP BY firstname HAVING 'test'!='hello' ORDER BY 1;
+SELECT 'test' FROM names GROUP BY 1 HAVING 'test'!='hello' ORDER BY firstname; -- errors out saying firstname in ORDER BY must be in GROUP BY
 
 SELECT CAST('12' AS INTEGER) FROM names GROUP BY 1 HAVING CAST('12' AS INTEGER)=12 ORDER BY firstname; -- errors out saying firstname in ORDER BY must be in GROUP BY
 SELECT CAST(id AS NUMERIC) FROM names GROUP BY firstname HAVING CAST(id AS NUMERIC)=3.0 ORDER BY 1; -- Octo expression error -- Postgres Error as id not in group by
@@ -888,10 +888,10 @@ LINE 10:1: select firstname from names group by firstname!='Cool';
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
 LINE 14:1: select 1 + 0 from names group by 'Zero';
-                                                 ^
+                                            ^^^^^^
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
 LINE 15:1: select 'Zero' from names group by 'Zero';
-                                                  ^
+                                             ^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
 LINE 17:1: select firstname = 'Zero', count(firstname) from names group by...
                   ^^^^^^^^^
@@ -974,23 +974,23 @@ LINE 47:1: ...m names n1 group by 1 having CASE n1.id+1 WHEN 2 THEN TRUE END;
 LINE 48:1: ...d+1 WHEN 2 THEN 1 END having CASE n1.id+1 WHEN 2 THEN TRUE END;
                                                 ^^^^^
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
-LINE 50:1: ...test' FROM names GROUP BY 'test'; -- non integer constants in G...
-                                             ^
+LINE 50:1: ...T 'test' FROM names GROUP BY 'test'; -- non integer constants in...
+                                           ^^^^^^
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
-LINE 51:2: ...test' FROM names GROUP BY 'test' HAVING 'test'!='hello'; -- non...
-                                             ^
+LINE 51:2: ...T 'test' FROM names GROUP BY 'test' HAVING 'test'!='hello'; -- n...
+                                           ^^^^^^
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
-LINE 52:2: ...test' FROM names GROUP BY 'test' ORDER BY 'test'; -- non intege...
-                                             ^
+LINE 52:2: ...T 'test' FROM names GROUP BY 'test' ORDER BY 'test'; -- non inte...
+                                           ^^^^^^
 [ERROR]: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant test in ORDER BY
-LINE 53:2: ...names GROUP BY 1 ORDER BY 'test'; -- non integer constants in O...
-                                             ^
+LINE 53:2: ...OM names GROUP BY 1 ORDER BY 'test'; -- non integer constants in...
+                                           ^^^^^^
 [ERROR]: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant test in ORDER BY
-LINE 54:2: ... 'test'!='hello' ORDER BY 'test'; -- non integer constants in O...
-                                             ^
+LINE 54:2: ...ING 'test'!='hello' ORDER BY 'test'; -- non integer constants in...
+                                           ^^^^^^
 [ERROR]: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant test in ORDER BY
-LINE 55:2: ... 'test'!='hello' ORDER BY 'test'; -- non integer constants in O...
-                                             ^
+LINE 55:2: ...ING 'test'!='hello' ORDER BY 'test'; -- non integer constants in...
+                                           ^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
 LINE 56:2: ...G 'test'!='hello' ORDER BY firstname; -- errors out saying firs...
                                          ^^^^^^^^^
@@ -1070,13 +1070,13 @@ LINE 86:2: ... BY 1 HAVING 1.2=1.2 ORDER BY 1.2;  -- non-integer constants in...
 LINE 87:2: ... 1 HAVING 1.2=1.2 ORDER BY firstname; -- errors out saying firs...
                                          ^^^^^^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
-LINE 89:3: ...M names GROUP BY greatest('test',4) ORDER BY 1; -- Postgres err...
-                                             ^
+LINE 89:3: ...FROM names GROUP BY greatest('test',4) ORDER BY 1; -- Postgres e...
+                                           ^^^^^^
 LINE 89:3: ...names GROUP BY greatest('test',4) ORDER BY 1; -- Postgres error...
                                              ^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
-LINE 91:3: ...FROM names GROUP BY least('test',4) ORDER BY 1; -- Postgres err...
-                                             ^
+LINE 91:3: ...3) FROM names GROUP BY least('test',4) ORDER BY 1; -- Postgres e...
+                                           ^^^^^^
 LINE 91:3: ...OM names GROUP BY least('test',4) ORDER BY 1; -- Postgres error...
                                              ^
 [ERROR]: ERR_DOLLAR_SYNTAX: Prepared statement dollar syntax (e.g. $1, $2, etc.) only supported in Rocto using the Extended Query Protocol
@@ -1469,20 +1469,20 @@ LINE 227:2: ...M names n1 GROUP BY 1 ORDER BY 2; -- ERROR ORDER BY position is..
 LINE 228:2: ...rstname FROM names n1 GROUP BY 2 ORDER BY 2; -- ERROR ORDER BY ...
                                               ^
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type VARCHAR but is used in a context that expects a BOOLEAN type
-LINE 230:3: SELECT CASE WHEN 'te'||'st' THEN 'one' end; -- Postgres error `...
-                                ^^^^^^^
+LINE 230:3: SELECT CASE WHEN 'te'||'st' THEN 'one' end; -- Postgres error `a...
+                             ^^^^^^^^^^
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type VARCHAR but is used in a context that expects a BOOLEAN type
-LINE 231:2: ...names GROUP BY CASE WHEN 'te'||'st' THEN 'one' end; -- Postgres...
-                                           ^^^^^^^
+LINE 231:2: ...M names GROUP BY CASE WHEN 'te'||'st' THEN 'one' end; -- Postgre...
+                                          ^^^^^^^^^^
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type VARCHAR but is used in a context that expects a BOOLEAN type
-LINE 232:2: ...names GROUP BY CASE WHEN 'te'||'st' THEN 'one' end ORDER BY CAS...
-                                           ^^^^^^^
+LINE 232:2: ...M names GROUP BY CASE WHEN 'te'||'st' THEN 'one' end ORDER BY CA...
+                                          ^^^^^^^^^^
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type VARCHAR but is used in a context that expects a BOOLEAN type
-LINE 233:2: ... BY 1 HAVING 1=CASE WHEN 'te'||'st' THEN 'one' end ORDER BY 1; ...
-                                           ^^^^^^^
+LINE 233:2: ...UP BY 1 HAVING 1=CASE WHEN 'te'||'st' THEN 'one' end ORDER BY 1;...
+                                          ^^^^^^^^^^
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type VARCHAR but is used in a context that expects a BOOLEAN type
-LINE 234:2: ... BY 1 HAVING 1=CASE WHEN 'te'||'st' THEN 'one' end ORDER BY CAS...
-                                           ^^^^^^^
+LINE 234:2: ...UP BY 1 HAVING 1=CASE WHEN 'te'||'st' THEN 'one' end ORDER BY CA...
+                                          ^^^^^^^^^^
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type INTEGER but is used in a context that expects a BOOLEAN type
 LINE 236:3: SELECT CASE WHEN 3-1 THEN 1 end; -- Postgres error `argument of...
                              ^^^
@@ -2821,29 +2821,29 @@ LINE 707:1: ... names group by lastname in (select lastname from names),lastnam.
 LINE 708:1: ... names group by lastname in (select lastname from names),firstna...
                                             ^^^^^^
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
-LINE 710:1: SELECT "test" FROM names GROUP BY "test";
-                                                   ^
+LINE 710:1: SELECT 'test' FROM names GROUP BY 'test';
+                                              ^^^^^^
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
-LINE 711:1: SELECT "test" FROM names GROUP BY "test" HAVING "test"!="hello";
-                                                   ^
+LINE 711:1: SELECT 'test' FROM names GROUP BY 'test' HAVING 'test'!='hello';
+                                              ^^^^^^
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
-LINE 712:1: SELECT "test" FROM names GROUP BY "test" ORDER BY "test";
-                                                   ^
+LINE 712:1: SELECT 'test' FROM names GROUP BY 'test' ORDER BY 'test';
+                                              ^^^^^^
 ???
 test
 (1 row)
 [ERROR]: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant test in ORDER BY
-LINE 714:1: SELECT "test" FROM names GROUP BY 1 ORDER BY "test";
-                                                              ^
+LINE 714:1: SELECT 'test' FROM names GROUP BY 1 ORDER BY 'test';
+                                                         ^^^^^^
 [ERROR]: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant test in ORDER BY
-LINE 715:1: ..." FROM names GROUP BY 1 HAVING "test"!="hello" ORDER BY "test";
-                                                                            ^
+LINE 715:1: ...t' FROM names GROUP BY 1 HAVING 'test'!='hello' ORDER BY 'test';
+                                                                        ^^^^^^
 ???
 test
 (1 row)
 [ERROR]: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant test in ORDER BY
-LINE 717:1: ...ames GROUP BY firstname HAVING "test"!="hello" ORDER BY "test";
-                                                                            ^
+LINE 717:1: ...names GROUP BY firstname HAVING 'test'!='hello' ORDER BY 'test';
+                                                                        ^^^^^^
 ???
 test
 test
@@ -2852,7 +2852,7 @@ test
 test
 (5 rows)
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 719:1: ...G "test"!="hello" ORDER BY firstname; -- errors out saying firs...
+LINE 719:1: ...G 'test'!='hello' ORDER BY firstname; -- errors out saying firs...
                                           ^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
 LINE 721:3: ...2' AS INTEGER)=12 ORDER BY firstname; -- errors out saying firs...

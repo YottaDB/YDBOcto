@@ -5,7 +5,7 @@ SELECT *
 FROM names n1
 WHERE n1.firstName IN (SELECT n2.firstName
   FROM names n2
-  WHERE n1.firstName = "Acid"
+  WHERE n1.firstName = 'Acid'
 );
 
 ID|FIRSTNAME|LASTNAME
@@ -17,7 +17,7 @@ ID|FIRSTNAME|LASTNAME
 ;  FROM names n1
 ;  WHERE n1.firstName IN (SELECT n2.firstName
 ;    FROM names n2
-;    WHERE n1.firstName = "Acid"
+;    WHERE n1.firstName = 'Acid'
 ;  );
 ;; ---------------------------------------------------------
 

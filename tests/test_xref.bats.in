@@ -26,7 +26,7 @@ teardown() {
 @test "TX01 : xref top level count is maintained correctly if mapped global nodes are deleted" {
   # Run SQL query that generates xref
   octo <<OCTO 2>&1 | tee output.txt
-SELECT * FROM names WHERE firstName = "Zero";
+SELECT * FROM names WHERE firstName = 'Zero';
 OCTO
   # Verify xref is generated
   echo " --> ZWRITE ^names,^%ydbAIMD*" >> output.txt

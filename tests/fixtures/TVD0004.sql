@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
 # Copyright (c) 2021 Chris Combs
 # All rights reserved.						#
 #								#
@@ -34,8 +34,8 @@ LEFT JOIN DISPLAY_GROUP F ON (A.TO=F.DISPLAY_GROUP_ID)
 WHERE
    A.CURRENT_ACTION is not null
    AND A.STATUS in (3,4,5,6,8,9,11,15)
-   AND (A.STOP_DATE>=CURRTIMESTAMP("V") OR A.STOP_DATE IS NULL)
-   AND (A.OBJECT_OF_ORDER is not null and E.CURRENT_MOVEMENT is not null AND E.NAME NOT LIKE "ZZ%")
-   AND C.NAME="ACTIVE"
+   AND (A.STOP_DATE>=CURRTIMESTAMP('V') OR A.STOP_DATE IS NULL)
+   AND (A.OBJECT_OF_ORDER is not null and E.CURRENT_MOVEMENT is not null AND E.NAME NOT LIKE 'ZZ%')
+   AND C.NAME='ACTIVE'
 order by e.patient_id,a.order1_id,G.ORDER_ORDER_ACT_ORDER_TEXT_ID
 

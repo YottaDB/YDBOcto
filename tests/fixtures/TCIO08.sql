@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -13,4 +13,4 @@ SELECT *
 FROM names n1
 INNER JOIN names n2
 ON n1.id = n2.id
-WHERE n2.firstName = "Zero";
+WHERE n2.firstName = 'Zero';

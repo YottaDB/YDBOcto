@@ -53,6 +53,10 @@ Character Data Types
 
   As required by the SQL standard, if one explicitly casts a value to :code:`VARCHAR(n)`, then an over-length value will be truncated to :code:`n` characters without raising an error.
 
+  In general, Octo treats all single-quoted string literals (for example, :code:`'str'`) as having a :code:`VARCHAR` data type.
+
+  As an exception, Octo treats a special set of single-quoted string literals (for example :code:`'f'`, :code:`'t'` etc.) as :code:`BOOLEAN` data type (and not :code:`VARCHAR`) if used in a context that expects a boolean value. Note though that if the very same special literal is not used in a context that expects a boolean value, it is treated as having a :code:`VARCHAR` data type. See :ref:`boolean-data-type` section below for more information.
+
 ++++++++++++++++++++
 Numeric Data Types
 ++++++++++++++++++++
@@ -77,6 +81,8 @@ Numeric Data Types
   .. note::
      The specified precision values are ignored when queries are executed.
 
+.. _boolean-data-type:
+
 ++++++++++++++++++++
 Boolean Data Type
 ++++++++++++++++++++
@@ -89,9 +95,31 @@ Boolean Data Type
      FROM names
      WHERE true;
 
-  .. note::
+  In addition to accepting :code:`false` and :code:`true` as boolean literals, Octo also treats the single-quoted string literals in the following table as having a :code:`BOOLEAN` data type (and not :code:`VARCHAR` data type) if used in a context that expects a boolean value. Note though that if the same special literal are not used in a context that expects a boolean value, it is treated as having a :code:`VARCHAR` data type (the default data type for single-quoted string literals).
 
-     Octo doesn't support :code:`t/f` like PostgreSQL does.
+  +----------------+---------------+
+  | String Literal | Boolean value |
+  +================+===============+
+  | 'f'            | false         |
+  +----------------+---------------+
+  | 'false'        | false         |
+  +----------------+---------------+
+  | 'n'            | false         |
+  +----------------+---------------+
+  | 'no'           | false         |
+  +----------------+---------------+
+  | '0'            | false         |
+  +----------------+---------------+
+  | 't'            | true          |
+  +----------------+---------------+
+  | 'true'         | true          |
+  +----------------+---------------+
+  | 'y'            | true          |
+  +----------------+---------------+
+  | 'yes'          | true          |
+  +----------------+---------------+
+  | '1'            | true          |
+  +----------------+---------------+
 
 --------------
 Constraints

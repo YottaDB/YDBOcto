@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -57,13 +57,14 @@ group_by_fields_t *get_group_by_fields(SqlStatement *stmt) {
 		case COLUMN_REFERENCE:
 		case TABLE_ASTERISK:
 			/* We do not expect get_group_by_fields() call for these types
-			 * as the expectation is that they would have been converted to SqlColumnAlias during the invocation of this
-			 * function.
+			 * as the expectation is that they would have been converted to
+			 * SqlColumnAlias during the invocation of this function.
 			 */
 		case BOOLEAN_VALUE:
 		case NUMERIC_LITERAL:
 		case INTEGER_LITERAL:
 		case STRING_LITERAL:
+		case BOOLEAN_OR_STRING_LITERAL:
 		case NUL_VALUE:
 		case PARAMETER_VALUE:
 		case FUNCTION_NAME:

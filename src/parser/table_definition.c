@@ -276,12 +276,22 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 					assert(FALSE);
 					return NULL;
 				}
-
-				if (qualify_check_constraint(constraint->definition, table, &type)) {
+				if (qualify_check_constraint(constraint->definition, table, &type, NULL)) {
 					status = ydb_delete_s(&ydboctoTblConstraint, 1, &subs[0], YDB_DEL_TREE);
 					assert(YDB_OK == status);
 					YDB_ERROR_CHECK(status);
 					return NULL; /* CHECK constraint qualification failed */
+				}
+				if (BOOLEAN_OR_STRING_LITERAL == type) {
+					SqlValueType fix_type;
+					int	     result;
+
+					fix_type = BOOLEAN_VALUE;
+					result = qualify_check_constraint(constraint->definition, table, &type, &fix_type);
+					assert(!result); /* type fixing call of "populate_data_type" should never fail as it is 2nd
+							    call */
+					UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
+					assert(fix_type == type);
 				}
 				if (!IS_BOOLEAN_TYPE(type)) {
 					int result;

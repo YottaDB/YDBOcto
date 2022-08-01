@@ -148,8 +148,15 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 		case COLUMN_REFERENCE:
 			value->v.string_literal = R2A(value->v.string_literal);
 			break;
+		case BOOLEAN_OR_STRING_LITERAL:
+			/* All literals with this type should have been fixed to either STRING_LITERAL or BOOLEAN_VALUE type
+			 * by the time the binary table definition was created in "compress_statement()". So this should be
+			 * an impossible value.
+			 */
 		default:
 			assert(FALSE);
+			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
+			return NULL;
 			break;
 		}
 		break;

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -42,7 +42,7 @@ SqlStatement *validate_query_expression(SqlStatement *query_expression, ParseCon
 	if (qualify_query(ret, NULL, NULL, &ret_parms)) {
 		return NULL;
 	}
-	if (populate_data_type(ret, &type, NULL, parse_context)) {
+	if (populate_data_type(ret, &type, NULL, parse_context, NULL)) {
 		return NULL;
 	}
 	return ret;

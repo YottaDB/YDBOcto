@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -17,6 +17,6 @@
 -- through the crosscheck function and expects Octo and Postgres output to be identical).
 
 -- Below queries used to assert fail due to no column alias defined for a CASE statement column in SELECT column list
-SELECT CASE 1 in (1) when 't' then 2 end;
+SELECT CASE 1 in (1) when 'g' then 2 end;
 SELECT CASE 1 in (1) when 1 then 2 end;
 SELECT CASE 1 in (1) when 3 then 2 end;

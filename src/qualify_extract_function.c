@@ -171,8 +171,8 @@ int qualify_extract_function(SqlStatement *stmt, SqlTable *table, SqlValueType *
 							   extract_column, dependencies);
 			break;
 		case BOOLEAN_VALUE:
-		case NUMERIC_LITERAL:
 		case INTEGER_LITERAL:
+		case NUMERIC_LITERAL:
 		case STRING_LITERAL:
 		case NUL_VALUE:
 			*type = value->type;
@@ -278,7 +278,7 @@ int qualify_extract_function(SqlStatement *stmt, SqlTable *table, SqlValueType *
 				yyerror(NULL, NULL, &stmt, NULL, NULL, NULL);
 			} else {
 				/* This code is similar to that in "populate_data_type.c" */
-				*type = get_sqlvaluetype_from_sqldatatype(value->coerced_type.data_type, FALSE);
+				*type = get_sqlvaluetype_from_sqldatatype(value->u.coerce_type.coerced_type.data_type, FALSE);
 			}
 			break;
 		case FUNCTION_HASH:
@@ -287,6 +287,12 @@ int qualify_extract_function(SqlStatement *stmt, SqlTable *table, SqlValueType *
 		case INVALID_SqlValueType:
 		case PARAMETER_VALUE:
 		case TABLE_ASTERISK:
+		case BOOLEAN_OR_STRING_LITERAL:
+			/* Even though a literal like 'f' or 't' is specified as a function parameter, it would be
+			 * converted to a STRING_LITERAL as part of the 2nd call to "qualify_check_constraint()" in
+			 * "function_call_data_type_check()" (see BOOLEAN_OR_STRING_LITERAL handling there). Therefore,
+			 * we should never see a BOOLEAN_OR_STRING_LITERAL type of literal here.
+			 */
 		case UNKNOWN_SqlValueType:
 			/* These usages should not be possible inside EXTRACT FUNCTIONs. Assert accordingly. */
 			assert(FALSE);

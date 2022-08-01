@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -16,7 +16,7 @@
 #include "octo_type_check.h"
 
 /* The following macro is used by validate_table_asterisk_binary_operation() to check if any of the operands are
- * of type subquery and issue an error. Note we can reach here only if the type of the subquery is `NUL_VALUE`.
+ * of type subquery and issue an error. Note we can reach here only if the type of the subquery is NUL_VALUE.
  * This macro is called for processing BOOLEAN_IN/BOOLEAN_NOT_IN or =,!=,<,>,>=,<= operation. We are sure that
  * the FIRST_OPERAND is `table.*` in the former case but we are not sure of this for the latter case, hence the
  * if check to determine which operand is a `table.*`.
@@ -30,10 +30,9 @@
 			operand = &FIRST_OPERAND;                                                                         \
 		}                                                                                                         \
 		if ((table_alias_STATEMENT == (*operand)->type) || (set_operation_STATEMENT == (*operand)->type)) {       \
-			/* This is a subquery.                                                                            \
-			 * The only usage which can lead us here is a subquery returning a data of type `NUL_VALUE`       \
-			 * is used as `table.*` comparison operand. Comparison between a `table.*` and NULL is not        \
-			 * allowed in such a case.                                                                        \
+			/* This is a subquery. The only usage which can lead us here is a subquery returning ata of type  \
+			 * NUL_VALUE is used as `table.*` comparison operand. Comparison between a `table.*`              \
+			 * and NULL is not allowed in such a case.                                                        \
 			 */                                                                                               \
 			ISSUE_TYPE_COMPATIBILITY_ERROR(TABLE_ASTERISK, "NULL type subquery comparison", operand, RESULT); \
 		}                                                                                                         \
@@ -64,13 +63,13 @@ int validate_table_asterisk_binary_operation(SqlBinaryOperation *binary, SqlValu
 		if (result) {
 			break;
 		}
-		/* Validate only if the operand is not of type `NUL_VALUE` because the following code does column count and
-		 * column type check on two tables, if `NUL_VALUE` is one of the operand then there is nothing there to
-		 * compare. Note in case of IN operation on an in-list, even if `orig_child_type` is `TABLE_ASTERISK` its
+		/* Validate only if the operand is not of type `NUL_VALUE` because the following code does column count
+		 * and column type check on two tables, if `NUL_VALUE` is one of the operand then there is nothing there
+		 * to compare. Note in case of IN operation on an in-list, even if `orig_child_type` is `TABLE_ASTERISK` its
 		 * possible that the underlying value is actually a `NULL` (The reasoning of why this is as such is
 		 * mentioned in the if block specific to `NUL_VALUE` type value_STATEMENT below).
 		 */
-		if ((NUL_VALUE != orig_child_type[0]) && (NUL_VALUE != orig_child_type[1])) {
+		if (!IS_NUL_VALUE(orig_child_type[0]) && !IS_NUL_VALUE(orig_child_type[1])) {
 			SqlColumnAlias *first_column_alias;
 			UNPACK_SQL_STATEMENT(first_column_alias, first_operand, column_alias);
 			assert(is_stmt_table_asterisk(first_operand));
@@ -81,7 +80,7 @@ int validate_table_asterisk_binary_operation(SqlBinaryOperation *binary, SqlValu
 			do {
 				assert(is_stmt_table_asterisk(cur_column_list->value)
 				       || ((value_STATEMENT == cur_column_list->value->type)
-					   && (NUL_VALUE == cur_column_list->value->v.value->type)));
+					   && IS_NUL_VALUE(cur_column_list->value->v.value->type)));
 				if (value_STATEMENT == cur_column_list->value->type) {
 					/* This is a valid usage
 					 * Example: `n1.* not in (NULL,n1.*)`
@@ -111,8 +110,8 @@ int validate_table_asterisk_binary_operation(SqlBinaryOperation *binary, SqlValu
 		break;
 	case BOOLEAN_IS:
 	case BOOLEAN_IS_NOT:
-		// This operation is allowed with `table.*` and we are sure that the second operand is of type `NUL_VALUE`
-		assert(NUL_VALUE == orig_child_type[1]);
+		/* This operation is allowed with `table.*` and we are sure that the second operand is of type `NUL_VALUE` */
+		assert(IS_NUL_VALUE(orig_child_type[1]));
 		break;
 	case BOOLEAN_EQUALS:
 	case BOOLEAN_NOT_EQUALS:
@@ -120,17 +119,18 @@ int validate_table_asterisk_binary_operation(SqlBinaryOperation *binary, SqlValu
 	case BOOLEAN_GREATER_THAN:
 	case BOOLEAN_LESS_THAN_OR_EQUALS:
 	case BOOLEAN_GREATER_THAN_OR_EQUALS:
-		assert((is_stmt_table_asterisk(first_operand) || (NUL_VALUE == orig_child_type[0]))
-		       && (is_stmt_table_asterisk(second_operand) || (NUL_VALUE == orig_child_type[1])));
+		assert((is_stmt_table_asterisk(first_operand) || IS_NUL_VALUE(orig_child_type[0]))
+		       && (is_stmt_table_asterisk(second_operand) || IS_NUL_VALUE(orig_child_type[1])));
 		CHECK_AND_ISSUE_TABLE_ASTERISK_NULL_SUBQUERY_INCOMPATIBILITY_ERROR(first_operand, second_operand, result);
 		if (result) {
 			break;
 		}
-		/* Validate only if the operand is not of type `NUL_VALUE` because the following code does column count and column
-		 * type check on two tables, if `NUL_VALUE` is one of the operand then there is nothing there to compare. Note in
-		 * this case we expect the underlying operand type to be same as `orig_child_type` unlike IN operation case above.
+		/* Validate only if the operand is not of type NUL_VALUE because the following code does column count
+		 * and column type check on two tables, if NUL_VALUE is one of the operand then there is nothing there
+		 * to compare. Note in this case we expect the underlying operand type to be same as `orig_child_type` unlike IN
+		 * operation case above.
 		 */
-		if ((NUL_VALUE != orig_child_type[0]) && (NUL_VALUE != orig_child_type[1])) {
+		if (!IS_NUL_VALUE(orig_child_type[0]) && !IS_NUL_VALUE(orig_child_type[1])) {
 			SqlColumnAlias *first_column_alias;
 			UNPACK_SQL_STATEMENT(first_column_alias, first_operand, column_alias);
 
@@ -173,8 +173,8 @@ int validate_table_asterisk_binary_operation(SqlBinaryOperation *binary, SqlValu
 	case BOOLEAN_REGEX_INSENSITIVE_LIKE:
 	case BOOLEAN_REGEX_SENSITIVE_SIMILARTO:
 	case BOOLEAN_REGEX_INSENSITIVE_SIMILARTO:;
-		assert((is_stmt_table_asterisk(first_operand) || (NUL_VALUE == orig_child_type[0]))
-		       && (is_stmt_table_asterisk(second_operand) || (NUL_VALUE == orig_child_type[1])));
+		assert((is_stmt_table_asterisk(first_operand) || IS_NUL_VALUE(orig_child_type[0]))
+		       && (is_stmt_table_asterisk(second_operand) || IS_NUL_VALUE(orig_child_type[1])));
 		SqlStatement **operand;
 		if (is_stmt_table_asterisk(first_operand)) {
 			operand = &first_operand;

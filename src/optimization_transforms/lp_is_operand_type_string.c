@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -18,7 +18,7 @@
 
 /* When `is_null` is NULL this function can only be used for expressions where operand[0] is non-NULL.
  * Additionally, if operand[1] is non-null, it must have the same type as operand[0].
- * When `is_null` is not NULL then the plan is traversed and if its leaf node has a NUL_VALUE `*is_null`
+ * When `is_null` is not NULL then the plan is traversed and if its leaf node has a NUL_VALUE, `*is_null`
  * will be set to TRUE. At present Call with `is_null` arguement is done only from tmpl_print_expression.ctemplate
  * LP_GREATEST/LP_LEAST case.
  */
@@ -57,9 +57,10 @@ boolean_t lp_is_operand_type_string(LogicalPlan *plan, boolean_t *is_null) {
 	for (loop_done = FALSE; !loop_done;) {
 		switch (cur_plan->type) {
 		case LP_VALUE:
+			assert(BOOLEAN_OR_STRING_LITERAL != cur_plan->v.lp_value.value->type);
 			if (STRING_LITERAL == cur_plan->v.lp_value.value->type) {
 				ret = TRUE;
-			} else if ((NULL != is_null) && (NUL_VALUE == cur_plan->v.lp_value.value->type)) {
+			} else if ((NULL != is_null) && IS_NUL_VALUE(cur_plan->v.lp_value.value->type)) {
 				*is_null = TRUE;
 			}
 			loop_done = TRUE;
@@ -96,6 +97,7 @@ boolean_t lp_is_operand_type_string(LogicalPlan *plan, boolean_t *is_null) {
 				ret = TRUE;
 				break;
 			case column_list_alias_STATEMENT:
+				assert(BOOLEAN_OR_STRING_LITERAL != column_alias->column->v.column_list_alias->type);
 				if (STRING_LITERAL == column_alias->column->v.column_list_alias->type) {
 					ret = TRUE;
 				}
@@ -116,10 +118,11 @@ boolean_t lp_is_operand_type_string(LogicalPlan *plan, boolean_t *is_null) {
 			 */
 			ret_type_plan = cur_plan->v.lp_default.operand[1]->v.lp_default.operand[1]->v.lp_default.operand[1];
 			return_type = ret_type_plan->v.lp_default.operand[0]->v.lp_value.value->type;
+			assert(BOOLEAN_OR_STRING_LITERAL != return_type);
 			if (STRING_LITERAL == return_type) {
 				ret = TRUE;
 			}
-			assert(NUL_VALUE != return_type);
+			assert(!IS_NUL_VALUE(return_type));
 			loop_done = TRUE;
 			break;
 		case LP_COLUMN_LIST_ALIAS:

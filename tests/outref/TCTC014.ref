@@ -11,16 +11,16 @@ _ydboctoP*.m:    . . . . . DO:$DATA(^%ydboctoDK8x9V2YiyPMRxcDYOMpB0K(col(1),col(
 _ydboctoP*.m:    . . . . KILL ^%ydboctoDK8x9V2YiyPMRxcDYOMpB0K(%ydboctocursor(cursorId,"keys",1,"TMP","ID1"),%ydboctocursor(cursorId,"keys",1,"TMP","ID2"))
 _ydboctoP*.m:    . . . . SET ^%ydboctoDK8x9V2YiyPMRxcDYOMpB0K(%ydboctocursor(cursorId,"keys",1,"TMP","ID1"),col(2))=%ydboctoUPD
 _ydboctoP*.m:;; ---------------------------------------------------------
-_ydboctoP*.m:;  DELETE FROM TMP;
-_ydboctoP*.m:;; ---------------------------------------------------------
-_ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"TMP","ID1")=$ORDER(^%ydboctoDK8x9V2YiyPMRxcDYOMpB0K(%ydboctocursor(cursorId,"keys",1,"TMP","ID1"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TMP","ID1")="")  DO
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"TMP","ID2")=$ORDER(^%ydboctoDK8x9V2YiyPMRxcDYOMpB0K(%ydboctocursor(cursorId,"keys",1,"TMP","ID1"),%ydboctocursor(cursorId,"keys",1,"TMP","ID2"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TMP","ID2")="")  DO
-_ydboctoP*.m:    . . . . KILL ^%ydboctoUQ8buQ87BO5l9CJk7uNqm9E(col(2))
-_ydboctoP*.m:    . . . KILL ^%ydboctoDK8x9V2YiyPMRxcDYOMpB0K(%ydboctocursor(cursorId,"keys",1,"TMP","ID1"),%ydboctocursor(cursorId,"keys",1,"TMP","ID2"))
-_ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:;  INSERT INTO tmp VALUES (3, 2);
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:    . . DO:$DATA(^%ydboctoUQ8buQ87BO5l9CJk7uNqm9E(col(2)))
 _ydboctoP*.m:    . . SET ^%ydboctoUQ8buQ87BO5l9CJk7uNqm9E(col(2))=""
 _ydboctoP*.m:    . DO:$DATA(^%ydboctoDK8x9V2YiyPMRxcDYOMpB0K(col(1),col(2)))
 _ydboctoP*.m:    . SET ^%ydboctoDK8x9V2YiyPMRxcDYOMpB0K(col(1),col(2))=""
+_ydboctoP*.m:;; ---------------------------------------------------------
+_ydboctoP*.m:;  DELETE FROM TMP;
+_ydboctoP*.m:;; ---------------------------------------------------------
+_ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"TMP","ID1")=$ORDER(^%ydboctoDK8x9V2YiyPMRxcDYOMpB0K(%ydboctocursor(cursorId,"keys",1,"TMP","ID1"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TMP","ID1")="")  DO
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"TMP","ID2")=$ORDER(^%ydboctoDK8x9V2YiyPMRxcDYOMpB0K(%ydboctocursor(cursorId,"keys",1,"TMP","ID1"),%ydboctocursor(cursorId,"keys",1,"TMP","ID2"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"TMP","ID2")="")  DO
+_ydboctoP*.m:    . . . . KILL ^%ydboctoUQ8buQ87BO5l9CJk7uNqm9E(col(2))
+_ydboctoP*.m:    . . . KILL ^%ydboctoDK8x9V2YiyPMRxcDYOMpB0K(%ydboctocursor(cursorId,"keys",1,"TMP","ID1"),%ydboctocursor(cursorId,"keys",1,"TMP","ID2"))

@@ -4,14 +4,18 @@ public|INFORMATION_SCHEMA.TABLES|table|octo
 public|NAMES|table|octo
 public|NAMESWITHAGES|table|octo
 public|OCTOONEROWTABLE|table|octo
+public|PG_AM|table|octo
 public|PG_ATTRDEF|table|octo
 public|PG_ATTRIBUTE|table|octo
+public|PG_CATALOG.PG_AM|table|octo
 public|PG_CATALOG.PG_ATTRDEF|table|octo
 public|PG_CATALOG.PG_ATTRIBUTE|table|octo
 public|PG_CATALOG.PG_CLASS|table|octo
+public|PG_CATALOG.PG_CONSTRAINT|table|octo
 public|PG_CATALOG.PG_DATABASE|table|octo
 public|PG_CATALOG.PG_DESCRIPTION|table|octo
 public|PG_CATALOG.PG_ENUM|table|octo
+public|PG_CATALOG.PG_INDEX|table|octo
 public|PG_CATALOG.PG_NAMESPACE|table|octo
 public|PG_CATALOG.PG_PROC|table|octo
 public|PG_CATALOG.PG_RANGE|table|octo
@@ -20,9 +24,11 @@ public|PG_CATALOG.PG_SETTINGS|table|octo
 public|PG_CATALOG.PG_TYPE|table|octo
 public|PG_CATALOG.PG_USER|table|octo
 public|PG_CLASS|table|octo
+public|PG_CONSTRAINT|table|octo
 public|PG_DATABASE|table|octo
 public|PG_DESCRIPTION|table|octo
 public|PG_ENUM|table|octo
+public|PG_INDEX|table|octo
 public|PG_NAMESPACE|table|octo
 public|PG_PROC|table|octo
 public|PG_RANGE|table|octo
@@ -30,7 +36,7 @@ public|PG_ROLES|table|octo
 public|PG_SETTINGS|table|octo
 public|PG_TYPE|table|octo
 public|PG_USER|table|octo
-(30 rows)
+(36 rows)
 # Do a \d <tablename> for each <tablename> identified in the above [\d] output.
 # We expect to see the [Global:] line for each table show a gvn with a terminating right paren.
 # We include the entire output in the reference file just in case it helps identify other regressions
@@ -72,6 +78,14 @@ Column|Type|Collation|Nullable|Default
 ID|INTEGER||NOT NULL|
 Indexes:
     "OCTOONEROWTABLE_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^%ydboctoocto("tables","octoOneRow",ID)
+Table "PG_AM" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_am",OID : Type = READONLY
+Column|Type|Collation|Nullable|Default
+AMNAME|VARCHAR|||
+AMHANDLER|VARCHAR|||
+AMTYPE|VARCHAR|||
+OID|INTEGER||NOT NULL|
+Indexes:
+    "PG_AM_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_am",OID
 Table "PG_ATTRDEF" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_attrdef",OID) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 ADRELID|INTEGER|||
@@ -110,6 +124,14 @@ ATTMISSINGVAL|VARCHAR|||
 OID|INTEGER||NOT NULL|
 Indexes:
     "PG_ATTRIBUTE_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_attribute",OID)
+Table "PG_CATALOG.PG_AM" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_am",OID : Type = READONLY
+Column|Type|Collation|Nullable|Default
+AMNAME|VARCHAR|||
+AMHANDLER|VARCHAR|||
+AMTYPE|VARCHAR|||
+OID|INTEGER||NOT NULL|
+Indexes:
+    "PG_CATALOG.PG_AM_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_am",OID
 Table "PG_CATALOG.PG_ATTRDEF" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_attrdef",OID) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 ADRELID|INTEGER|||
@@ -186,6 +208,35 @@ RELPARTBOUND|VARCHAR|||
 OID|INTEGER||NOT NULL|
 Indexes:
     "PG_CATALOG.PG_CLASS_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_class",OID)
+Table "PG_CATALOG.PG_CONSTRAINT" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_constraint",OID : Type = READONLY
+Column|Type|Collation|Nullable|Default
+CONNAME|VARCHAR|||
+CONNAMESPACE|INTEGER|||
+CONTYPE|VARCHAR|||
+CONDEFERRABLE|BOOLEAN|||
+CONDEFERRED|BOOLEAN|||
+CONVALIDATED|BOOLEAN|||
+CONRELID|INTEGER|||
+CONTYPID|INTEGER|||
+CONINDID|INTEGER|||
+CONFRELID|INTEGER|||
+CONFUPDTYPE|VARCHAR|||
+CONFDELTYPE|VARCHAR|||
+CONFMATCHTYPE|VARCHAR|||
+CONISLOCAL|BOOLEAN|||
+CONINHCOUNT|INTEGER|||
+CONNOINHERIT|BOOLEAN|||
+CONKEY|INTEGER|||
+CONFKEY|INTEGER|||
+CONPFEQOP|INTEGER|||
+CONPPEQOP|INTEGER|||
+CONFFEQOP|INTEGER|||
+CONEXCLOP|INTEGER|||
+CONBIN|VARCHAR|||
+CONSRC|VARCHAR|||
+OID|INTEGER||NOT NULL|
+Indexes:
+    "PG_CATALOG.PG_CONSTRAINT_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_constraint",OID
 Table "PG_CATALOG.PG_DATABASE" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_database",OID) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 DATNAME|VARCHAR|||
@@ -221,6 +272,30 @@ ENUMLABEL|VARCHAR|||
 OID|INTEGER||NOT NULL|
 Indexes:
     "PG_CATALOG.PG_ENUM_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_enum",OID)
+Table "PG_CATALOG.PG_INDEX" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_index",OID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+INDEXRELID|INTEGER|||
+INDRELID|INTEGER|||
+INDNATTS|INTEGER|||
+INDISUNIQUE|BOOLEAN|||
+INDISPRIMARY|BOOLEAN|||
+INDISEXCLUSION|BOOLEAN|||
+INDIMMEDIATE|BOOLEAN|||
+INDISCLUSTERED|BOOLEAN|||
+INDISVALID|BOOLEAN|||
+INDCHECKXMIN|BOOLEAN|||
+INDISREADY|BOOLEAN|||
+INDISLIVE|BOOLEAN|||
+INDISREPLIDENT|BOOLEAN|||
+INDKEY|INTEGER|||
+INDCOLLATION|INTEGER|||
+INDCLASS|INTEGER|||
+INDOPTION|INTEGER|||
+INDEXPRS|VARCHAR|||
+INDPRED|VARCHAR|||
+OID|INTEGER||NOT NULL|
+Indexes:
+    "PG_CATALOG.PG_INDEX_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_index",OID)
 Table "PG_CATALOG.PG_NAMESPACE" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_namespace",OID) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 NSPNAME|VARCHAR|||
@@ -395,6 +470,35 @@ RELPARTBOUND|VARCHAR|||
 OID|INTEGER||NOT NULL|
 Indexes:
     "PG_CLASS_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_class",OID)
+Table "PG_CONSTRAINT" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_constraint",OID : Type = READONLY
+Column|Type|Collation|Nullable|Default
+CONNAME|VARCHAR|||
+CONNAMESPACE|INTEGER|||
+CONTYPE|VARCHAR|||
+CONDEFERRABLE|BOOLEAN|||
+CONDEFERRED|BOOLEAN|||
+CONVALIDATED|BOOLEAN|||
+CONRELID|INTEGER|||
+CONTYPID|INTEGER|||
+CONINDID|INTEGER|||
+CONFRELID|INTEGER|||
+CONFUPDTYPE|VARCHAR|||
+CONFDELTYPE|VARCHAR|||
+CONFMATCHTYPE|VARCHAR|||
+CONISLOCAL|BOOLEAN|||
+CONINHCOUNT|INTEGER|||
+CONNOINHERIT|BOOLEAN|||
+CONKEY|INTEGER|||
+CONFKEY|INTEGER|||
+CONPFEQOP|INTEGER|||
+CONPPEQOP|INTEGER|||
+CONFFEQOP|INTEGER|||
+CONEXCLOP|INTEGER|||
+CONBIN|VARCHAR|||
+CONSRC|VARCHAR|||
+OID|INTEGER||NOT NULL|
+Indexes:
+    "PG_CONSTRAINT_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_constraint",OID
 Table "PG_DATABASE" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_database",OID) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 DATNAME|VARCHAR|||
@@ -430,6 +534,30 @@ ENUMLABEL|VARCHAR|||
 OID|INTEGER||NOT NULL|
 Indexes:
     "PG_ENUM_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_enum",OID)
+Table "PG_INDEX" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_index",OID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+INDEXRELID|INTEGER|||
+INDRELID|INTEGER|||
+INDNATTS|INTEGER|||
+INDISUNIQUE|BOOLEAN|||
+INDISPRIMARY|BOOLEAN|||
+INDISEXCLUSION|BOOLEAN|||
+INDIMMEDIATE|BOOLEAN|||
+INDISCLUSTERED|BOOLEAN|||
+INDISVALID|BOOLEAN|||
+INDCHECKXMIN|BOOLEAN|||
+INDISREADY|BOOLEAN|||
+INDISLIVE|BOOLEAN|||
+INDISREPLIDENT|BOOLEAN|||
+INDKEY|INTEGER|||
+INDCOLLATION|INTEGER|||
+INDCLASS|INTEGER|||
+INDOPTION|INTEGER|||
+INDEXPRS|VARCHAR|||
+INDPRED|VARCHAR|||
+OID|INTEGER||NOT NULL|
+Indexes:
+    "PG_INDEX_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_index",OID)
 Table "PG_NAMESPACE" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_namespace",OID) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 NSPNAME|VARCHAR|||

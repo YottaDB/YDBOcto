@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -29,8 +29,8 @@ SqlStatement *cast_specification(SqlStatement *cast_specification, SqlStatement 
 		UNPACK_SQL_STATEMENT(value, ret, value);
 		value->type = COERCE_TYPE;
 		assert(data_type_struct_STATEMENT == cast_specification->type);
-		value->coerced_type = cast_specification->v.data_type_struct;
-		/* value->pre_coerced_type will be initialized in populate_data_type */
+		value->u.coerce_type.coerced_type = cast_specification->v.data_type_struct;
+		/* value->u.coerce_type.pre_coerced_type will be initialized in populate_data_type */
 		value->v.coerce_target = source;
 	}
 	return ret;

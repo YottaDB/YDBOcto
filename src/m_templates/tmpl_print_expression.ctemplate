@@ -209,10 +209,11 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		}
 		coerce_data_type = plan->extra_detail.lp_coerce_type.coerce_type.data_type;
 		pre_coerce_type = plan->extra_detail.lp_coerce_type.pre_coerce_type;
+		assert(BOOLEAN_OR_STRING_LITERAL != pre_coerce_type);
 		switch(coerce_data_type) {
 		case BOOLEAN_TYPE:
-			assert((BOOLEAN_VALUE == pre_coerce_type) || (INTEGER_LITERAL == pre_coerce_type) ||
-				(STRING_LITERAL == pre_coerce_type) || (NUL_VALUE == pre_coerce_type));
+			assert((BOOLEAN_VALUE == pre_coerce_type) || (INTEGER_LITERAL == pre_coerce_type)
+				|| (STRING_LITERAL == pre_coerce_type) || IS_NUL_VALUE(pre_coerce_type));
 			switch(pre_coerce_type) {
 			case BOOLEAN_VALUE:
 				break;
@@ -228,13 +229,15 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			case NUL_VALUE:
 				break;
 			default:
+				assert(FALSE);
+				FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 				break;
 			}
 			break;
 		case INTEGER_TYPE:
-			assert((BOOLEAN_VALUE == pre_coerce_type) || (INTEGER_LITERAL == pre_coerce_type) ||
-				(NUMERIC_LITERAL == pre_coerce_type) || (STRING_LITERAL == pre_coerce_type) ||
-				(NUL_VALUE == pre_coerce_type));
+			assert((BOOLEAN_VALUE == pre_coerce_type) || (INTEGER_LITERAL == pre_coerce_type)
+				|| (NUMERIC_LITERAL == pre_coerce_type) || (STRING_LITERAL == pre_coerce_type)
+				|| IS_NUL_VALUE(pre_coerce_type));
 			/* Note: We ignore "precision" (if specified).
 			 * See comment under "integer_type_tail" rule in "src/parser.y" for more context.
 			 */
@@ -247,8 +250,8 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			}
 			break;
 		case NUMERIC_TYPE:
-			assert((INTEGER_LITERAL == pre_coerce_type) || (NUMERIC_LITERAL == pre_coerce_type) ||
-				(STRING_LITERAL == pre_coerce_type) || (NUL_VALUE == pre_coerce_type));
+			assert((INTEGER_LITERAL == pre_coerce_type) || (NUMERIC_LITERAL == pre_coerce_type)
+				|| (STRING_LITERAL == pre_coerce_type) || IS_NUL_VALUE(pre_coerce_type));
 			if (SIZE_OR_PRECISION_UNSPECIFIED != plan->extra_detail.lp_coerce_type.coerce_type.size_or_precision) {
 				if (STRING_LITERAL == pre_coerce_type) {
 					%{}$$String2NUMERIC^%%ydboctoplanhelpers({}%
@@ -264,9 +267,9 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			}
 			break;
 		case STRING_TYPE:
-			assert((BOOLEAN_VALUE == pre_coerce_type) || (INTEGER_LITERAL == pre_coerce_type) ||
-				(NUMERIC_LITERAL == pre_coerce_type) ||	(STRING_LITERAL == pre_coerce_type) ||
-				(NUL_VALUE == pre_coerce_type));
+			assert((BOOLEAN_VALUE == pre_coerce_type) || (INTEGER_LITERAL == pre_coerce_type)
+				|| (NUMERIC_LITERAL == pre_coerce_type) || (STRING_LITERAL == pre_coerce_type)
+				|| IS_NUL_VALUE(pre_coerce_type));
 			if (SIZE_OR_PRECISION_UNSPECIFIED != plan->extra_detail.lp_coerce_type.coerce_type.size_or_precision) {
 				%{}$$Cast2VARCHAR^%%ydboctoplanhelpers({}%
 			}
@@ -276,6 +279,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			break;
 		default:
 			assert(FALSE);
+			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 			break;
 		}
 		%{}({}%
@@ -292,7 +296,13 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			case NUMERIC_LITERAL:
 			case STRING_LITERAL:
 				%{}){}%
+				break;
+			case NUL_VALUE:
+			case BOOLEAN_VALUE:
+				break;
 			default:
+				assert(FALSE);
+				FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 				break;
 			}
 			break;
@@ -329,6 +339,8 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			}
 			break;
 		default:
+			assert(FALSE);
+			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 			break;
 		}
 		if (dot_count) {
@@ -893,7 +905,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		 * `$ZYISSQLNULL()` check instead of a direct `=`/`'=` comparison to ensure a result of true or false (1 or 0).
 		 */
 		assert(LP_VALUE == second_operand->type);
-		is_null = (NUL_VALUE == second_operand->v.lp_value.value->type); // Value is SQL NULL
+		is_null = IS_NUL_VALUE(second_operand->v.lp_value.value->type); // Value is SQL NULL.
 		if (is_null) {
 			if (IS_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(first_operand)) {
 				/* Check if this is a TABLE_ASTERISK type column alias. If so, the NULL or NOT NULL check has to
@@ -1486,9 +1498,9 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 					 * because binary_operation_data_type_check() issues error and stops further execution for
 					 * comparison between dissimilar type operands, as a result we do not expect any missmatch
 					 * between first and second operand at this point. Also, NULL and non-NULL comparison is
-					 * handled internally by `TableAsteriskCompare`, so even if first operand has NUL_VALUE
-					 * type column and second operand has non-NUL_VALUE type column no additional handling
-					 * is required here.
+					 * handled internally by `TableAsteriskCompare`, so even if first operand has
+					 * NUL_VALUE type column and second operand has non-NUL_VALUE type
+					 * column no additional handling is required here.
 					 */
 					SqlColumnListAlias *first_cla;
 					if (NULL != first_operand_ca->set_oper_stmt) {
@@ -1549,11 +1561,12 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 						// Get type of the column
 						SqlValueType first_type;
 						first_type = cur_first_cla->type;
+						assert(BOOLEAN_OR_STRING_LITERAL != first_type);
 						if (STRING_LITERAL == first_type) {
 							%{}t{}%
 						} else {
 							/* Note that `TableAsteriskCompare` takes care of $ZYSQLNULL case
-							 * so no need to worry specially about NUL_VALUE/NUL_UNKNOWN here.
+							 * so no need to worry specially about NUL_VALUE here.
 							 * It is ok if it is treated as a non-string-literal.
 							 */
 							%{}f{}%
@@ -1608,7 +1621,8 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				}
 				/* Evaluate result of binary/boolean operator */
 				TMPL(tmpl_print_dots, dot_count);
-				%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_EXPR }}({{ depth|%d }}){{ m_operator }}{{ PP_YDB_OCTO_EXPR }}{}%
+				%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_EXPR }}({{ depth|%d }}){{ m_operator }}{}%
+				%{}{{ PP_YDB_OCTO_EXPR }}{}%
 				%{}`n{{ PLAN_LINE_START }}{}%
 			} else {
 				%{}({}%

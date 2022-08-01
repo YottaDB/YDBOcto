@@ -42,4 +42,4 @@ WHERE db.oid > 0::OID
 ORDER BY datname;
 LINE 11:9: SELECT array_to_string(defaclacl::text[], ', ')
                                                   ^
-syntax error, unexpected RIGHT_BRACKET, expecting LITERAL
+syntax error, unexpected RIGHT_BRACKET

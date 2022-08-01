@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -92,7 +92,7 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	 */
 	if ((LP_BOOLEAN_IS == type) || (LP_BOOLEAN_IS_NOT == type)) {
 		assert(LP_VALUE == right->type);
-		is_null = (NUL_VALUE == right->v.lp_value.value->type);
+		is_null = IS_NUL_VALUE(right->v.lp_value.value->type);
 	} else {
 		is_null = FALSE;
 	}

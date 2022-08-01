@@ -87,12 +87,12 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		ret->v.value->parameter_index = value->parameter_index;
 		ret->v.value->is_double_quoted = value->is_double_quoted;
 		if (COERCE_TYPE == value->type) {
-			ret->v.value->pre_coerced_type = value->pre_coerced_type;
-			ret->v.value->coerced_type = value->coerced_type;
+			ret->v.value->u.coerce_type.pre_coerced_type = value->u.coerce_type.pre_coerced_type;
+			ret->v.value->u.coerce_type.coerced_type = value->u.coerce_type.coerced_type;
 			ret->v.value->v.coerce_target = copy_sql_statement(value->v.coerce_target);
 		} else if (CALCULATED_VALUE == value->type) {
 			ret->v.value->v.calculated = copy_sql_statement(value->v.calculated);
-		} else if (NUL_VALUE == value->type) {
+		} else if (IS_NUL_VALUE(value->type)) {
 			// Don't copy a null value
 		} else {
 			len = strlen(value->v.reference) + 1;

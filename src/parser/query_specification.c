@@ -27,7 +27,7 @@ SqlStatement *query_specification(OptionalKeyword set_quantifier, SqlStatement *
 	SQL_STATEMENT(ret, table_alias_STATEMENT);
 	MALLOC_STATEMENT(ret, table_alias, SqlTableAlias);
 	UNPACK_SQL_STATEMENT(this_table_alias, ret, table_alias);
-	SQL_VALUE_STATEMENT(this_table_alias->alias, NUL_VALUE, "");
+	SQL_VALUE_STATEMENT(this_table_alias->alias, STRING_LITERAL, "");
 	assert(select_STATEMENT == table_expression->type);
 	this_table_alias->table = table_expression;
 	this_table_alias->unique_id = (*plan_id)++;

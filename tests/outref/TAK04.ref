@@ -21,7 +21,7 @@ cba
 (6 rows)
 LINE 4:1: select id as 'lmo' from names;
                        ^^^^^
-syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+syntax error, unexpected LITERAL
 LINE 5:1: select id as 'klm' from names;
                        ^^^^^
-syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+syntax error, unexpected LITERAL

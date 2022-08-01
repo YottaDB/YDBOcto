@@ -1,4 +1,0 @@
-[SOCKET] [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
-[SOCKET] [ERROR] PATH:LINENUM DATE TIME: CUSTOM_ERROR: LINE 1:1: select ABS(-id)+(select firstname from names limit 1) as absid f...
-[SOCKET] [ERROR] PATH:LINENUM DATE TIME: CUSTOM_ERROR:                            ^^^^^^
-[SOCKET] [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression

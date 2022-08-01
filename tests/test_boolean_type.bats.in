@@ -106,3 +106,31 @@ teardown() {
 	load_fixture TBT11.sql subtest
 	verify_output TBT11 output.txt
 }
+
+@test "TBT12 : OCTO867 : Test that t/f literals are treated as BOOLEAN or VARCHAR depending on context" {
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TBT12.sql .
+	# Randomly replace 't'/'f' references in TBT12.sql with a random choice of 't','true','yes','y','1'/'f','false','no','n','0'
+	falselit=$(yottadb -run false^TBT12)
+	echo "$falselit" > falselit.txt
+	truelit=$(yottadb -run true^TBT12)
+	echo "$truelit" > truelit.txt
+	sed -i "s/'f'/$falselit/g;s/'t'/$truelit/g;" TBT12.sql
+	# Now that the random replacement is done, run the test (test output should be no different due to random replacement)
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TBT12.sql roctoflags="-aw"
+	echo "# Check that plans for [select * from names where $truelit = $falselit;] and [select * from names where 'a' = 'b';]"
+	echo "# are identical and do not have any $$ForceNumeric^%ydboctoplanhelpers calls which they had in an interim"
+	echo "# version of the code."
+	plan1=$(grep -l "select \* from names where $truelit = $falselit" _ydboctoP*.m)
+	plan2=$(grep -l "select \* from names where 'a' = 'b'" _ydboctoP*.m || true)
+	echo "# Expect plan1 file name to be non-empty : Actual = [$plan1]" >> output.txt
+	echo "# Expect plan2 file name to be empty : Actual - [$plan2]" >> output.txt
+	echo "# Check that there are NO ForceNumeric calls in the M plan [$plan1]" >> output.txt
+	grep ForceNumeric $plan1 >> output.txt || true
+	verify_output TBT12 output.txt
+}
+
+@test "TBT13 : OCTO867 : Test error scenarios when t/f literals are used" {
+	load_fixture TBT13.sql subtest novv
+	verify_output TBT13 output.txt
+}
+

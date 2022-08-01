@@ -380,6 +380,16 @@ CREATE FUNCTION PG_IS_XLOG_REPLAY_PAUSED() RETURNS BOOLEAN AS $$pgIsXlogReplayPa
 CREATE FUNCTION HAS_DATABASE_PRIVILEGE(INTEGER, VARCHAR) RETURNS BOOLEAN AS $$pgHasDatabasePrivilege^%ydboctopgfunctions;
 CREATE FUNCTION HAS_DATABASE_PRIVILEGE(VARCHAR, VARCHAR, VARCHAR) RETURNS BOOLEAN AS $$pgHasDatabasePrivilege^%ydboctopgfunctions;
 
+CREATE FUNCTION ARRAY_LOWER(INTEGER, INT) RETURNS INT AS $$pgArrayLower^%ydboctopgfunctions;
+CREATE FUNCTION ARRAY_LOWER(NUMERIC, INT) RETURNS INT AS $$pgArrayLower^%ydboctopgfunctions;
+CREATE FUNCTION ARRAY_LOWER(VARCHAR, INT) RETURNS INT AS $$pgArrayLower^%ydboctopgfunctions;
+CREATE FUNCTION ARRAY_LOWER(BOOLEAN, INT) RETURNS INT AS $$pgArrayLower^%ydboctopgfunctions;
+CREATE FUNCTION ARRAY_UPPER(INTEGER, INT) RETURNS INT AS $$pgArrayLower^%ydboctopgfunctions;
+CREATE FUNCTION ARRAY_UPPER(NUMERIC, INT) RETURNS INT AS $$pgArrayLower^%ydboctopgfunctions;
+CREATE FUNCTION ARRAY_UPPER(VARCHAR, INT) RETURNS INT AS $$pgArrayLower^%ydboctopgfunctions;
+CREATE FUNCTION ARRAY_UPPER(BOOLEAN, INT) RETURNS INT AS $$pgArrayLower^%ydboctopgfunctions;
+CREATE FUNCTION GENERATE_SERIES(INT, INT) RETURNS INT AS $$pgGenerateSeries^%ydboctopgfunctions;
+
 /* Stores PostgreSQL range types */
 CREATE TABLE pg_catalog.pg_range (
 	rngsubtype INTEGER,
@@ -397,3 +407,68 @@ CREATE TABLE pg_catalog.pg_enum (
 	enumlabel VARCHAR,
 	oid INTEGER primary key
 ) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_enum"",keys(""OID""))" READONLY;
+
+/* Stores PostgreSQL index information */
+CREATE TABLE pg_catalog.pg_index (
+	indexrelid INTEGER,		-- Related to `pg_class.oid`: The OID of the `pg_class` entry for this index
+	indrelid INTEGER,		-- Related to `pg_class.oid`: The OID of the `pg_class` entry for the table this index is for
+	indnatts INTEGER,
+	indisunique	BOOLEAN,
+	indisprimary BOOLEAN,
+	indisexclusion BOOLEAN,
+	indimmediate BOOLEAN,
+	indisclustered BOOLEAN,
+	indisvalid BOOLEAN,
+	indcheckxmin BOOLEAN,
+	indisready BOOLEAN,
+	indislive BOOLEAN,
+	indisreplident BOOLEAN,
+	indkey INTEGER,			-- This is an array field (int2vector type)
+	indcollation INTEGER,		-- This is an array field (oidvector type)
+	indclass INTEGER,		-- This is an array field (oidvector type)
+	indoption INTEGER,		-- This is an array field (int2vector type)
+	indexprs VARCHAR,	 	-- This is an `expression tree` field (pg_node_tree type)
+	indpred	VARCHAR,	 	-- This is an `expression tree` field (pg_node_tree type)
+	oid INTEGER primary key
+) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_index"",keys(""OID""))" READONLY;
+
+/* Stores PostgreSQL constraint information.
+ * See https://www.postgresql.org/docs/9.6/catalog-pg-constraint.html for more information.
+ */
+CREATE TABLE pg_catalog.pg_constraint (
+	conname	NAME,
+	connamespace INTEGER,	-- Relates to pg_namespace.oid
+	contype	CHAR,
+	condeferrable BOOLEAN,
+	condeferred	BOOLEAN,
+	convalidated BOOLEAN,
+	conrelid INTEGER,		-- Relates to pg_class.oid	The table this constraint is on; 0 if not a table constraint
+	contypid INTEGER,		-- Relates to pg_type.oid	The domain this constraint is on; 0 if not a domain constraint
+	conindid INTEGER,		-- Relates to pg_class.oid	The index supporting this constraint, if it's a unique, primary key, foreign key, or exclusion constraint; else 0
+	confrelid INTEGER,		-- Relates to pg_class.oid	If a foreign key, the referenced table; else 0
+	confupdtype	CHAR,
+	confdeltype	CHAR,
+	confmatchtype CHAR,
+	conislocal BOOLEAN,
+	coninhcount	INTEGER,
+	connoinherit BOOLEAN,
+	conkey INTEGER,			-- Relates to pg_attribute.attnum. This is an array field (smallint[] type)
+	confkey INTEGER,		-- Relates to pg_attribute.attnum. This is an array field (smallint[] type)
+	conpfeqop INTEGER,		-- Relates to pg_operator.oid. This is an array field (oid[] type)
+	conppeqop INTEGER,		-- Relates to pg_operator.oid. This is an array field (oid[] type)
+	conffeqop INTEGER,		-- Relates to pg_operator.oid. This is an array field (oid[] type)
+	conexclop INTEGER,		-- Relates to pg_operator.oid. This is an array field (oid[] type)
+	conbin	VARCHAR,		-- This is an `expression tree` field (pg_node_tree type)
+	consrc	VARCHAR,
+	oid INTEGER primary key
+) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_constraint"",keys(""OID"")" READONLY;
+
+/* Stores information about PostgreSQL access methods.
+ * See https://www.postgresql.org/docs/current/catalog-pg-am.html for more information.
+ */
+CREATE TABLE pg_catalog.pg_am (
+	amname	NAME,
+	amhandler	VARCHAR,	-- An OID alias of type `regproc` in PostgreSQL
+	amtype	VARCHAR,
+	oid INTEGER primary key
+) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_am"",keys(""OID"")" READONLY;

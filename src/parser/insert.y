@@ -17,7 +17,6 @@ insert_statement
 		YYERROR;
 	}
     }
-
   | INSERT INTO qualified_identifier optional_insert_words query_expression {
 	$$ = insert_statement($qualified_identifier, NULL, $optional_insert_words, $query_expression, plan_id, parse_context);
 	if (NULL == $$) {

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -14,6 +14,7 @@
 
 #include "octo.h"
 #include "octo_types.h"
+#include "octo_type_check.h"
 
 /* Checks 2 column lists for type match and does a few other things depending on input type.
  * Issues error as appropriate if column list's type or number of columns does not match.
@@ -24,7 +25,7 @@
  *	0 if success.
  *	1 if failure.
  */
-int check_column_lists_for_type_match(SqlStatement *stmt) {
+int check_column_lists_for_type_match(SqlStatement *stmt, ParseContext *parse_context) {
 	SqlTableAlias *	    table_alias[2];
 	SqlColumnListAlias *cur_cla[2], *start_cla[2];
 	SqlStatement *	    sql_stmt;
@@ -35,7 +36,7 @@ int check_column_lists_for_type_match(SqlStatement *stmt) {
 	int		    i;
 	SqlInsertStatement *insert;
 	SqlSetOperation *   set_operation;
-	boolean_t	    is_set_operation, cla1_is_of_type_cl;
+	boolean_t	    is_set_operation, cla1_is_of_type_cl, fixed_type;
 	int		    result;
 
 	if (set_operation_STATEMENT == stmt->type) {
@@ -91,6 +92,7 @@ int check_column_lists_for_type_match(SqlStatement *stmt) {
 		assert(NULL != start_cla[i]);
 		cur_cla[i] = start_cla[i];
 	}
+	fixed_type = FALSE;
 	do {
 		SqlValueType left_type, right_type;
 		boolean_t    is_type_mismatch;
@@ -109,30 +111,71 @@ int check_column_lists_for_type_match(SqlStatement *stmt) {
 			UNPACK_SQL_STATEMENT(col1, cl1->value, column);
 			right_type = get_sqlvaluetype_from_sqldatatype(col1->data_type_struct.data_type, FALSE);
 		}
-		/* Assert all possible valid types. This is used to simplify the `if` checks below
-		 * that determine the value of `is_type_mismatch`.
+		/* Assert all possible valid types for "right_type". This is used to simplify the `if` checks below
+		 * that determine the value of `is_type_mismatch`. Similar assert for "left_type" is done in the
+		 * "default:" switch/case branch below.
 		 */
-		assert(IS_LITERAL_PARAMETER(left_type) || (NUL_VALUE == left_type));
-		assert(IS_LITERAL_PARAMETER(right_type) || (NUL_VALUE == right_type));
+		assert((INTEGER_LITERAL == right_type) || (NUMERIC_LITERAL == right_type) || (STRING_LITERAL == right_type)
+		       || (BOOLEAN_VALUE == right_type) || (BOOLEAN_OR_STRING_LITERAL == right_type) || IS_NUL_VALUE(right_type));
 		/* If not yet found any type mismatch, check for one. If already found one, keep just that.
 		 * In general, all types are compatible with only themselves.
 		 * Exception is that
 		 *	a) NUMERIC and INTEGER are compatible with each other and no other type.
 		 *	b) NULL is compatible with any type.
+		 *	c) BOOLEAN_OR_STRING_LITERAL is compatible with BOOLEAN_VALUE and STRING_LITERAL.
 		 * This code is similar to that in "CAST_AMBIGUOUS_TYPES" macro (in "src/populate_data_type.c").
 		 */
 		if (NULL == type_mismatch_cla[0]) {
 			switch (left_type) {
 			case BOOLEAN_VALUE:
 				is_type_mismatch = !IS_BOOLEAN_TYPE(right_type);
+				if (BOOLEAN_OR_STRING_LITERAL == right_type) {
+					assert(is_set_operation);
+					FIX_TYPE_TO_BOOLEAN_VALUE(cur_cla[1]->type);
+					fixed_type = TRUE;
+				}
 				break;
 			case INTEGER_LITERAL:
 			case NUMERIC_LITERAL:
-				is_type_mismatch = ((NUL_VALUE != right_type) && (INTEGER_LITERAL != right_type)
+				is_type_mismatch = (!IS_NUL_VALUE(right_type) && (INTEGER_LITERAL != right_type)
 						    && (NUMERIC_LITERAL != right_type));
+				if (BOOLEAN_OR_STRING_LITERAL == right_type) {
+					assert(is_set_operation);
+					FIX_TYPE_TO_BOOLEAN_VALUE(cur_cla[1]->type);
+					fixed_type = TRUE;
+				}
 				break;
 			case STRING_LITERAL:
-				is_type_mismatch = ((NUL_VALUE != right_type) && (STRING_LITERAL != right_type));
+				is_type_mismatch = !IS_STRING_TYPE(right_type);
+				if (BOOLEAN_OR_STRING_LITERAL == right_type) {
+					assert(is_set_operation);
+					FIX_TYPE_TO_STRING_LITERAL(cur_cla[1]->type);
+					fixed_type = TRUE;
+				}
+				break;
+			case BOOLEAN_OR_STRING_LITERAL:
+				switch (right_type) {
+				case BOOLEAN_VALUE:
+				case STRING_LITERAL:
+					is_type_mismatch = FALSE;
+					if (BOOLEAN_VALUE == right_type) {
+						FIX_TYPE_TO_BOOLEAN_VALUE(cur_cla[0]->type);
+					} else {
+						FIX_TYPE_TO_STRING_LITERAL(cur_cla[0]->type);
+					}
+					fixed_type = TRUE;
+					break;
+				case BOOLEAN_OR_STRING_LITERAL:
+					assert(is_set_operation);
+					/* Note: Below comment is needed to avoid gcc [-Wimplicit-fallthrough=] warning */
+					/* fall through */
+				case NUL_VALUE:
+					is_type_mismatch = FALSE;
+					break;
+				default:
+					is_type_mismatch = TRUE;
+					break;
+				}
 				break;
 			case NUL_VALUE:
 				is_type_mismatch = FALSE;
@@ -155,7 +198,7 @@ int check_column_lists_for_type_match(SqlStatement *stmt) {
 		if (is_set_operation) {
 			/* Construct `column_list` for `set_operation` (needed by caller `populate_data_type`) */
 			OCTO_CMALLOC_STRUCT(cur_set_cla, SqlColumnListAlias);
-			if (NUL_VALUE != left_type) {
+			if (!IS_NUL_VALUE(left_type)) {
 				/* Left side column is not NULL, inherit that type for outer SET operation */
 				*cur_set_cla = *cur_cla[0];
 			} else {
@@ -254,6 +297,19 @@ int check_column_lists_for_type_match(SqlStatement *stmt) {
 	if (is_set_operation) {
 		assert(NULL != start_set_cla);
 		set_operation->col_type_list = start_set_cla;
+	}
+	if (!result && fixed_type) {
+		/* Type checking of column lists ran without errors and there was at least one BOOLEAN_OR_STRING_LITERAL
+		 * type in a cla that was fixed to a BOOLEAN_VALUE or a STRING_LITERAL. Retraverse the original structure
+		 * so we fix the types of the underlying column lists from the cla which is now accurate.
+		 */
+		if (is_set_operation) {
+			SqlColumnListAlias *fix_type_cla;
+
+			fix_type_cla = set_operation->col_type_list;
+			result = populate_data_type_cla_fix(stmt, parse_context, fix_type_cla);
+			assert(!result); /* type fixing call of "populate_data_type" should never fail as it is 2nd call */
+		}
 	}
 	return result;
 }

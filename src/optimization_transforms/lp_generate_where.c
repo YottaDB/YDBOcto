@@ -61,8 +61,8 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *root_stmt) {
 			break;
 		case COERCE_TYPE:
 			MALLOC_LP_2ARGS(ret, LP_COERCE_TYPE);
-			ret->extra_detail.lp_coerce_type.coerce_type = value->coerced_type;
-			ret->extra_detail.lp_coerce_type.pre_coerce_type = value->pre_coerced_type;
+			ret->extra_detail.lp_coerce_type.coerce_type = value->u.coerce_type.coerced_type;
+			ret->extra_detail.lp_coerce_type.pre_coerce_type = value->u.coerce_type.pre_coerced_type;
 			LP_GENERATE_WHERE(value->v.coerce_target, root_stmt, ret->v.lp_default.operand[0], error_encountered);
 			ret->v.lp_default.group_by_column_num = value->group_by_fields.group_by_column_num;
 			break;
@@ -120,8 +120,14 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *root_stmt) {
 			case INTEGER_LITERAL:
 			case NUMERIC_LITERAL:
 			case STRING_LITERAL:
+			case NUL_VALUE:
+			case FUNCTION_HASH:
+			case FUNCTION_NAME:
+			case COLUMN_REFERENCE:
+			case PARAMETER_VALUE:
 				break;
 			default:
+				assert(FALSE);
 				break;
 			}
 			break;

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -32,6 +32,11 @@ int binary_operation_data_type_check(SqlBinaryOperation *binary, SqlValueType ch
 	int result;
 	result = 0;
 	CAST_AMBIGUOUS_TYPES(child_type[0], child_type[1], result, parse_context);
+	/* Note: The below "switch" is mirrored in a switch in "populate_data_type.c" under "case binary_STATEMENT:".
+	 * Any additions to binary operations will involve a new "case" block below since there is
+	 * no "default:" case block (intentionally not there so compiler warns about new missing cases
+	 * instead of hiding subtle bugs by going through default: code path).
+	 */
 	switch (binary->operation) {
 	case ADDITION:
 	case SUBTRACTION:
@@ -60,8 +65,8 @@ int binary_operation_data_type_check(SqlBinaryOperation *binary, SqlValueType ch
 		 */
 		if (!IS_STRING_TYPE(child_type[0]) && !IS_STRING_TYPE(child_type[1])) {
 			if (((TABLE_ASTERISK == child_type[0]) && (TABLE_ASTERISK == child_type[1]))
-			    && ((NUL_VALUE == orig_child_type[0]) || (NUL_VALUE == orig_child_type[1]))) {
-				// Concatanation between NUL_VALUE and TABLE_ASTERISK is valid, allow this usage
+			    && (IS_NUL_VALUE(orig_child_type[0]) || IS_NUL_VALUE(orig_child_type[1]))) {
+				// Concatenation between NUL_VALUE and TABLE_ASTERISK is valid, allow this usage
 			} else if (!result) {
 				int i;
 
@@ -95,12 +100,13 @@ int binary_operation_data_type_check(SqlBinaryOperation *binary, SqlValueType ch
 				MALLOC_STATEMENT(sql_stmt, value, SqlValue);
 				UNPACK_SQL_STATEMENT(value, sql_stmt, value);
 				value->type = COERCE_TYPE;
-				value->coerced_type.data_type = STRING_TYPE;
-				value->coerced_type.size_or_precision = SIZE_OR_PRECISION_UNSPECIFIED;
-				value->coerced_type.scale = SCALE_UNSPECIFIED;
-				value->coerced_type.size_or_precision_parameter_index = 0;
-				value->coerced_type.scale_parameter_index = 0;
-				value->pre_coerced_type = tmp_type;
+				value->u.coerce_type.coerced_type.data_type = STRING_TYPE;
+				value->u.coerce_type.coerced_type.size_or_precision = SIZE_OR_PRECISION_UNSPECIFIED;
+				value->u.coerce_type.coerced_type.scale = SCALE_UNSPECIFIED;
+				value->u.coerce_type.coerced_type.size_or_precision_parameter_index = 0;
+				value->u.coerce_type.coerced_type.scale_parameter_index = 0;
+				value->u.coerce_type.pre_coerced_type = tmp_type;
+				assert(BOOLEAN_OR_STRING_LITERAL != value->u.coerce_type.pre_coerced_type);
 				value->v.coerce_target = *target;
 				*target = sql_stmt;
 			}

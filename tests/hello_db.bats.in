@@ -75,9 +75,10 @@ teardown() {
 			fi
 			if postgres_database_exists "nullnames"; then
 				psql nullnames -c 'DROP TABLE IF EXISTS nullnamesTQG06;' >& postgres.drop_table_TQG06.out
+				psql nullnames -c 'DROP TABLE IF EXISTS nullnamesbTQG06;' >& postgres.drop_table_TQG06.out
 			fi
 			if postgres_database_exists "quotenames"; then
-				psql quotenames -c 'DROP TABLE IF EXISTS "quote nameTQG03";' >& postgres.drop_table_TQG03_4.out
+				psql quotenames -c 'DROP TABLE IF EXISTS "quote namesTQG03";' >& postgres.drop_table_TQG03_4.out
 			fi
 			echo "\d" > listdb.sql
 		fi

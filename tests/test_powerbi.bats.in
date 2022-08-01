@@ -1,0 +1,51 @@
+#################################################################
+#								#
+# Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+	load_fixture names.sql
+	load_fixture names.zwr
+}
+
+@test "TPBI001 : PowerBI : Startup queries" {
+	load_fixture northwind.sql
+	load_fixture northwind.zwr
+	load_fixture TPBI001.sql subtest novv
+	verify_output TPBI001 output.txt noinfo nodebug
+}
+
+@test "TPBI002 : OCTO867 : Subqueries are accepted in table join list (PowerBI-style syntax)" {
+	load_fixture TPBI002.sql subtest novv
+	verify_output TPBI002 output.txt noinfo nodebug
+}
+
+@test "TPBI003 : OCTO867 : Test atttypmod column maintenance in pg_attribute table mirrors Postgres behavior" {
+	echo "# Run [yottadb -run TPBI003 0 > postgres.sql] to generate queries that are compatible with Postgres" >> output.txt
+	yottadb -run TPBI003 0 > postgres.sql
+	echo "# Run [yottadb -run TPBI003 1 > octo.sql] to generate queries that are compatible with Octo" >> output.txt
+	yottadb -run TPBI003 1 > octo.sql
+	echo "# Run [psql --no-align names -f postgres.sql > postgres.out] to get Postgres output" >> output.txt
+	psql --no-align names -f postgres.sql > postgres.out
+	echo "# Run [octo -f octo.sql > octo.out] to get Octo output" >> output.txt
+	octo -f octo.sql > octo.out
+	echo "# Filter out essential query output from postgres.out into postgres.out2" >> output.txt
+	grep "^[0-9-]" postgres.out > postgres.out2
+	echo "# Filter out essential query output from octo.out into octo.out2" >> output.txt
+	grep "^[0-9-]" octo.out > octo.out2
+	echo "# Run [diff postgres.out2 octo.out2]. Expect no diff output below" >> output.txt
+	diff postgres.out2 octo.out2
+	verify_output TPBI003 output.txt noinfo nodebug
+}
+

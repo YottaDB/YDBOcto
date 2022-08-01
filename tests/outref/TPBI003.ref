@@ -1,0 +1,7 @@
+# Run [yottadb -run TPBI003 0 > postgres.sql] to generate queries that are compatible with Postgres
+# Run [yottadb -run TPBI003 1 > octo.sql] to generate queries that are compatible with Octo
+# Run [psql --no-align names -f postgres.sql > postgres.out] to get Postgres output
+# Run [octo -f octo.sql > octo.out] to get Octo output
+# Filter out essential query output from postgres.out into postgres.out2
+# Filter out essential query output from octo.out into octo.out2
+# Run [diff postgres.out2 octo.out2]. Expect no diff output below

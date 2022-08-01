@@ -7,3 +7,13 @@ ERROR:                                           ^^^^^^^
 ERROR:  Integer value 111206500 given for delimiter character is not a valid ASCII (0-127) character
 ERROR:  LINE 1:1: ...AR(1), age INTEGER) DELIM (111206500) GLOBAL "^delimnames(keys(...
 ERROR:                                          ^^^^^^^^^
+ERROR:  Type mismatch: left VARCHAR, right INTEGER
+ERROR:  LINE 1:1: select firstname = abs(id) from names;
+ERROR:                   ^^^^^^^^^
+ERROR:  LINE 1:1: select firstname = abs(id) from names;
+ERROR:                               ^^^^^^^
+ERROR:  Type mismatch: left INTEGER, right VARCHAR
+ERROR:  LINE 1:1: select id = current_user from names;
+ERROR:                   ^^
+ERROR:  LINE 1:1: select id = current_user from names;
+ERROR:                        ^^^^^^^^^^^^

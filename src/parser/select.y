@@ -256,14 +256,16 @@ from_clause
 		stmt = drill_to_table_alias(cmp_join->value);
 		UNPACK_SQL_STATEMENT(alias, stmt, table_alias);
 		UNPACK_SQL_STATEMENT(value, alias->alias, value);
-		assert((COLUMN_REFERENCE == value->type) || (NUL_VALUE == value->type) || (STRING_LITERAL == value->type));
+		assert((COLUMN_REFERENCE == value->type) || IS_NUL_VALUE(value->type)
+			 || (STRING_LITERAL == value->type));
 		cmp_name = value->v.string_literal;
 		cur_join = cmp_join->next;
 		while (cur_join != start_join) {
 			stmt = drill_to_table_alias(cur_join->value);
 			UNPACK_SQL_STATEMENT(alias, stmt, table_alias);
 			UNPACK_SQL_STATEMENT(value, alias->alias, value);
-			assert((COLUMN_REFERENCE == value->type) || (NUL_VALUE == value->type) || (STRING_LITERAL == value->type));
+			assert((COLUMN_REFERENCE == value->type) || IS_NUL_VALUE(value->type)
+				|| (STRING_LITERAL == value->type));
 			cur_name = value->v.string_literal;
 			if (0 == strcmp(cmp_name, cur_name)) {
 				ERROR(ERR_JOIN_ALIAS_DUPLICATE, cmp_name);
@@ -292,11 +294,11 @@ table_reference_list
   ;
 // Just consider these a list of values for all intents and purposes
 table_reference
-  : qualified_identifier {
-	INVOKE_TABLE_REFERENCE($$, $qualified_identifier, NULL, plan_id);
+  : qualified_name {
+	INVOKE_TABLE_REFERENCE($$, $qualified_name, NULL, plan_id);
     }
-  | qualified_identifier correlation_specification {
-	INVOKE_TABLE_REFERENCE($$, $qualified_identifier, $correlation_specification, plan_id);
+  | qualified_name correlation_specification {
+	INVOKE_TABLE_REFERENCE($$, $qualified_name, $correlation_specification, plan_id);
     }
   | derived_table {
 	$$ = $derived_table;
@@ -332,10 +334,10 @@ optional_as
   ;
 
 as_name
-  : identifier {
+  : column_name {
   	SqlStatement	*ret;
 
-	ret = $identifier;
+	ret = $column_name;
 	ret->loc = yyloc;
 	assert(value_STATEMENT == ret->type);
 	assert(OCTO_MAX_IDENT >= strlen(ret->v.value->v.string_literal));

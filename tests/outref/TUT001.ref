@@ -264,7 +264,7 @@ LINE 53:1: update names set firstname = (select id from names);
 (1 row)
 LINE 56:1: update names where lastname = firstname;
                         ^^^^^
-syntax error, unexpected WHERE, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+syntax error, unexpected WHERE
 LINE 57:1: update names set firstname != 'abcd' ;
                                       ^^
 syntax error, unexpected NOT_EQUALS, expecting EQUALS

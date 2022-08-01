@@ -303,25 +303,41 @@ LINE 68:1: select ('Zero'!=lastname)!=(parmlessfunc()!=firstname) from name...
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 71:1: ...es group by 1,firstname having 1!=samevalue(firstname) order by...
                                              ^
+LINE 71:1: ...1,firstname having 1!=samevalue(firstname) order by 1; -- TYPE M...
+                                    ^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right BOOLEAN
 LINE 73:3: ...from names group by 1 having 'Zero'!=samevalue(NOT 'test'=lastna...
                                            ^^^^^^
+LINE 73:3: ...1 having 'Zero'!=samevalue(NOT 'test'=lastname) order by 'Zero'!...
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right BOOLEAN
 LINE 74:2: ...from names group by 1 having 'Zero'!=samevalue(NOT 'test'=lastna...
                                            ^^^^^^
+LINE 74:2: ...1 having 'Zero'!=samevalue(NOT 'test'=lastname) order by 1; -- T...
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 75:2: ... names group by 1,id having parmlessfunc()!=id; -- TYPE MISMATCH
+                                          ^^^^^^^^^^^^^^
 LINE 75:2: ... names group by 1,id having parmlessfunc()!=id; -- TYPE MISMATCH
                                                           ^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 76:2: ...from names group by 1 having parmlessfunc()!=1; -- TYPE MISMATCH
+                                           ^^^^^^^^^^^^^^
 LINE 76:2: ...rom names group by 1 having parmlessfunc()!=1; -- TYPE MISMATCH
                                                           ^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 77:2: ...om names group by 1 order by parmlessfunc()!=1; -- TYPE MISMATCH
+                                           ^^^^^^^^^^^^^^
 LINE 77:2: ...m names group by 1 order by parmlessfunc()!=1; -- TYPE MISMATCH
                                                           ^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 78:2: ...rom names group by id order by id!=parmlessfunc(); -- TYPE MISTM...
                                              ^^
+LINE 78:2: ...names group by id order by id!=parmlessfunc(); -- TYPE MISTMATCH
+                                             ^^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 79:2: ...om names group by id having parmlessfunc()!=id; -- TYPE MISMATCH
+                                          ^^^^^^^^^^^^^^
 LINE 79:2: ...om names group by id having parmlessfunc()!=id; -- TYPE MISMATCH
                                                           ^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
@@ -369,6 +385,8 @@ LINE 94:2: ...p by 1 having 1!=samevalue(firstname) order by 1; -- Postgres e...
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 95:2: ...es group by 1,firstname having 1!=samevalue(firstname) order by...
                                              ^
+LINE 95:2: ...1,firstname having 1!=samevalue(firstname) order by 1; -- TYPE m...
+                                    ^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
 LINE 97:3: select samevalue(id::NUMERIC) from names group by samevalue(id::...
                             ^^
@@ -411,6 +429,8 @@ LINE 109:2: ...p by 1 having 1!=samevalue(firstname) order by 1; -- Postgres e..
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 110:2: ...es group by 1,firstname having 1!=samevalue(firstname) order by...
                                               ^
+LINE 110:2: ...1,firstname having 1!=samevalue(firstname) order by 1; -- Type m...
+                                     ^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
 LINE 112:3: select samevalue(firstname) from names group by CAST(id AS NUME...
                              ^^^^^^^^^

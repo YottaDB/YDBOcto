@@ -72,10 +72,10 @@ select idb from (select 8 'ida');
 select idb from (select 8 ida);
 LINE 2:1: select id as 123 from names;
                        ^^^
-syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+syntax error, unexpected LITERAL
 LINE 3:1: select id as $1 from names;
                        ^^
-syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+syntax error, unexpected LITERAL
 BACKTICK
 0
 1
@@ -89,28 +89,28 @@ LINE 6:1: select id as lit.lit from names;
 syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 7:1: select id as 'quote'.'quote' from names;
                        ^^^^^^^
-syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+syntax error, unexpected LITERAL
 LINE 8:1: select id as "quote"."quote" from names;
                               ^
 syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 9:1: select id as $$dummyextrinsicfunction^something from names;
                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-syntax error, unexpected EXTRINSIC_FUNCTION, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+syntax error, unexpected EXTRINSIC_FUNCTION
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: IDB
 LINE 11:1: select idb from (select 8 as "ida");
                   ^^^
 LINE 12:1: select idb from (select 8 as 'ida');
                                         ^^^^^
-syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+syntax error, unexpected LITERAL
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: IDB
 LINE 13:1: select idb from (select 8 as ida);
                   ^^^
 LINE 15:1: select id from names as 123;
                                    ^^^
-syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+syntax error, unexpected LITERAL
 LINE 16:1: select id from names as $1;
                                    ^^
-syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+syntax error, unexpected LITERAL
 ID
 0
 1
@@ -124,13 +124,13 @@ LINE 19:1: select id from names as lit.lit;
 syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 20:1: select id from names as 'quote'.'quote';
                                    ^^^^^^^
-syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+syntax error, unexpected LITERAL
 LINE 21:1: select id from names as "quote"."quote";
                                           ^
 syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 22:1: select id from names as $$dummyextrinsicfunction^something;
                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-syntax error, unexpected EXTRINSIC_FUNCTION, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+syntax error, unexpected EXTRINSIC_FUNCTION
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
 LINE 24:1: select n2.id from names as "n1";
                   ^^^^^

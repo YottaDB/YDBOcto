@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -28,6 +28,13 @@ char *get_user_visible_type_string(SqlValueType type) {
 	case INTEGER_LITERAL:
 		ret = "INTEGER";
 		break;
+	case BOOLEAN_OR_STRING_LITERAL:
+		assert(FALSE); /* I don't think it is possible for any query to reach here. Hence the assert.
+				* But not sure if it is possible to reach here in an edge case so in Release builds
+				* we handle this by treating this as if it was a STRING_LITERAL. Hence falling through.
+				*/
+			       /* Note: Below comment is needed to avoid gcc [-Wimplicit-fallthrough=] warning */
+			       /* fall through */
 	case STRING_LITERAL:
 		ret = "VARCHAR"; /* VARCHAR (not STRING) is the externally visible type name in SQL */
 		break;

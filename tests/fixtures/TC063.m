@@ -13,9 +13,6 @@
 TC063	;
 	quit
 
-myfunc1(firstname,id,lastname)
-	quit firstname_id_lastname
-
-myfunc2(firstname,boolean,lastname)
-	quit firstname_boolean_lastname
+myfunc(firstname,parm,lastname)
+	quit firstname_parm_lastname
 

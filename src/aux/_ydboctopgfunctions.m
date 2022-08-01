@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -9,6 +9,12 @@
 ;	the license, please stop and do not read further.	;
 ;								;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+pgArrayLower(array,dimension) ; TODO this is just a placeholder
+	QUIT 0
+
+pgArrayUpper(array,dimension) ; TODO this is just a placeholder
+	QUIT 0
 
 pgBackendPid()
 	QUIT ""
@@ -25,6 +31,9 @@ pgCurrentSchema() ; TODO this is just a placeholder
 
 pgCurrentSchemas(implicit) ; TODO this is just a placeholder
 	QUIT ""
+
+pgGenerateSeries(start,stop) ; TODO this is just a placeholder
+	QUIT 0
 
 pgGetUserById(a) ; TODO this is just a placeholder
 	; Returns a role's name given its OID.

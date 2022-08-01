@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -122,10 +122,11 @@ boolean_t match_sql_statement(SqlStatement *stmt, SqlStatement *match_stmt) {
 		/* Same literals could have different parameter index so do not compare the parameter_index */
 		/* ret = (value->parameter_index == match_value->parameter_index); if (!ret) break; */
 		if (COERCE_TYPE == value->type) {
-			ret = (value->pre_coerced_type == match_value->pre_coerced_type);
+			ret = (value->u.coerce_type.pre_coerced_type == match_value->u.coerce_type.pre_coerced_type);
 			if (!ret)
 				break;
-			ret = !memcmp(&value->coerced_type, &match_value->coerced_type, sizeof(match_value->coerced_type));
+			ret = !memcmp(&value->u.coerce_type.coerced_type, &match_value->u.coerce_type.coerced_type,
+				      sizeof(match_value->u.coerce_type.coerced_type));
 			if (!ret)
 				break;
 			ret = match_sql_statement(value->v.coerce_target, match_value->v.coerce_target);
@@ -135,7 +136,7 @@ boolean_t match_sql_statement(SqlStatement *stmt, SqlStatement *match_stmt) {
 			ret = match_sql_statement(value->v.calculated, match_value->v.calculated);
 			if (!ret)
 				break;
-		} else if (NUL_VALUE == value->type) {
+		} else if (IS_NUL_VALUE(value->type)) {
 			// No need to match any more for NULL value
 		} else {
 			ret = !strcmp(value->v.reference, match_value->v.reference);

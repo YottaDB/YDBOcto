@@ -37,11 +37,56 @@
 
 #define BUFFER_SIZE 1024
 
+/* The length of a column of the given type, in bytes.
+ * A value of -1 signifies a variable length attribute.
+ *
+ * Documented in the pg_type PostgreSQL table:
+ *   select oid, typname, typlen from pg_type;
+ */
+typedef enum PG_AttributeLength {
+	bool_AttributeLength = 1,
+	int4_AttributeLength = 4,
+	varchar_AttributeLength = -1,
+	numeric_AttributeLength = -1,
+} PG_AttributeLength;
+
+/* The type id of each supported PostgreSQL type, as documented in the
+ * pg_type PostgreSQL table:
+ *   select oid, typname, typlen from pg_type;
+ */
+typedef enum PG_AttributeTypeId {
+	bool_AttributeTypeId = 16,
+	int4_AttributeTypeId = 23,
+	varchar_AttributeTypeId = 1043,
+	numeric_AttributeTypeId = 1700,
+} PG_AttributeTypeId;
+
+typedef enum PG_AttributeByVal {
+	bool_AttributeByVal = TRUE,
+	int4_AttributeByVal = TRUE,
+	varchar_AttributeByVal = FALSE,
+	numeric_AttributeByVal = FALSE,
+} PG_AttributeByVal;
+
+typedef enum PG_AttributeStorage {
+	bool_AttributeStorage = 'p',
+	int4_AttributeStorage = 'p',
+	varchar_AttributeStorage = 'x',
+	numeric_AttributeStorage = 'm',
+} PG_AttributeStorage;
+
+typedef enum PG_AttributeAlign {
+	bool_AttributeAlign = 'c',
+	int4_AttributeAlign = 'i',
+	varchar_AttributeAlign = 'i',
+	numeric_AttributeAlign = 'i',
+} PG_AttributeAlign;
+
 /* Attempts to store a row in pg_catalog.pg_class for this table.
  * Note that this function is similar to store_function_in_pg_proc.
  */
 int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
-	int		  status;
+	int		  status, attnum;
 	SqlValue *	  value;
 	SqlColumn *	  start_column;
 	SqlColumn *	  cur_column;
@@ -112,26 +157,86 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 	pg_attribute_schema[1] = pg_attribute[3];
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 	cur_column = start_column;
+	/* The column number of the given column, indexed from 1.
+	 * Implemented per the following description of `attnum`:
+	 *	"The number of the column. Ordinary columns are numbered from 1 up."
+	 *
+	 * This description was quoted from:
+	 *	https://www.postgresql.org/docs/9.6/catalog-pg-attribute.html
+	 */
+	attnum = 1;
 	do {
+		/* `atttypmod` is for storing type-specific information about the given column, per the PostgreSQL docs:
+		 *
+		 * "atttypmod records type-specific data supplied at table creation time
+		 * (for example, the maximum length of a varchar column). It is passed to
+		 * type-specific input functions and length coercion functions. The value
+		 * will generally be -1 for types that do not need atttypmod."
+		 *
+		 * Source: https://www.postgresql.org/docs/9.6/catalog-pg-attribute.html
+		 */
+		int   attnotnull;
+		char  attalign;
+		char  attstorage;
+		int   attbyval;
+		int   atttypmod;
 		int   atttypid;
+		int   attlen;
 		char *column_name;
 
+		attnotnull = IS_COLUMN_NOT_NULL(cur_column);
+		atttypmod = -1; // The default value for the atttypmod column
 		if (NULL != cur_column->columnName) {
 			switch (cur_column->data_type_struct.data_type) {
 			/* Below atttypid values were obtained from Postgres using the below query.
 			 *	`select typname,oid from pg_type where typname in ('numeric','int4','varchar','bool');`
 			 */
 			case BOOLEAN_TYPE:
-				atttypid = 16;
+				atttypid = bool_AttributeTypeId;
+				attlen = bool_AttributeLength;
+				attbyval = bool_AttributeByVal;
+				attstorage = bool_AttributeStorage;
+				attalign = bool_AttributeAlign;
 				break;
 			case INTEGER_TYPE:
-				atttypid = 23;
+				atttypid = int4_AttributeTypeId;
+				attlen = int4_AttributeLength;
+				attbyval = int4_AttributeByVal;
+				attstorage = int4_AttributeStorage;
+				attalign = int4_AttributeAlign;
 				break;
 			case STRING_TYPE:
-				atttypid = 1043;
+				atttypid = varchar_AttributeTypeId;
+				attlen = varchar_AttributeLength;
+				if (SIZE_OR_PRECISION_UNSPECIFIED != cur_column->data_type_struct.size_or_precision) {
+					/* The + 4 below is done to match Postgres output (I guess it needs this space
+					 * to store a 4-byte integer internally).
+					 */
+					atttypmod = cur_column->data_type_struct.size_or_precision + 4;
+				}
+				attbyval = varchar_AttributeByVal;
+				attstorage = varchar_AttributeStorage;
+				attalign = varchar_AttributeAlign;
 				break;
 			case NUMERIC_TYPE:
-				atttypid = 1700;
+				atttypid = numeric_AttributeTypeId;
+				attlen = numeric_AttributeLength;
+				if (SIZE_OR_PRECISION_UNSPECIFIED != cur_column->data_type_struct.size_or_precision) {
+					if (SCALE_UNSPECIFIED == cur_column->data_type_struct.scale) {
+						atttypmod = 0;
+					} else {
+						atttypmod = cur_column->data_type_struct.scale;
+					}
+					/* The + 4 below is done to match Postgres output (I guess it needs this space
+					 * to store a 4-byte integer internally).
+					 */
+					atttypmod += 4;
+					/* The << 16 below is also done to match Postgres output */
+					atttypmod += (cur_column->data_type_struct.size_or_precision << 16);
+				}
+				attbyval = numeric_AttributeByVal;
+				attstorage = numeric_AttributeStorage;
+				attalign = numeric_AttributeAlign;
 				break;
 			default:
 				assert(FALSE);
@@ -144,13 +249,29 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 			}
 			UNPACK_SQL_STATEMENT(value, cur_column->columnName, value);
 			column_name = value->v.string_literal;
-			/* Store table oid, column name, type,
-			 * These are hard-coded magic values related to the Postgres catalog
+			/* Store table attribute information in `pg_catalog.pg_attribute`.
+			 *
 			 * Columns of `pg_catalog.pg_attribute` table in `tests/fixtures/postgres.sql`.
 			 * Any changes to that table definition will require changes here too.
+			 *
+			 * Most columns contain values that are not respected or enforced by Octo,
+			 * but are nonetheless requested by some SQL clients. So, we here try to
+			 * give the best/most coherent value for these columns given Octo's incomplete
+			 * PostgreSQL feature set.
+			 *
+			 * Note also that the atttypid, atttypmod, attbyval, and attstorage columns ought to contain values
+			 * reflected in `pg_type`, though Octo doesn't use any of these values itself. Similarly,
+			 * `attcollation` and `attrelid` (`column_name` below) relate to the `pg_collation` and `pg_class`
+			 * tables, respectively.
+			 *
+			 * For the most part, we expect these intra-catalog relations to not affect clients, but if a client
+			 * attempts to utilize these relations in queries, e.g. through JOIN conditions, it could cause issues
+			 * if these various related tables are out of sync. That said, there are no known cases of such issues
+			 * as of this writing.
 			 */
-			copied = snprintf(buffer, sizeof(buffer), "%lld|%s|%d|-1|-1|2|0|-1|-1|0|x|i|0|0|0|\"\"|0|1|0|100||||",
-					  class_oid, column_name, atttypid);
+			copied = snprintf(buffer, sizeof(buffer), "%lld|%s|%d|-1|%d|%d|0|-1|%d|%d|%c|%c|%d|0|0|1|0|0|0|||||",
+					  class_oid, column_name, atttypid, attlen, attnum, atttypmod, attbyval, attstorage,
+					  attalign, attnotnull);
 			assert(sizeof(buffer) > copied);
 			UNUSED(copied);
 			/* Get a unique oid COLUMNOID for each column in the table.
@@ -181,6 +302,7 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 			}
 		}
 		cur_column = cur_column->next;
+		attnum++;
 	} while (cur_column != start_column);
 	YDB_FREE_BUFFER(&pg_class[4]);
 	free(oid_buffer);

@@ -18,7 +18,7 @@
 /* Helper function that is very similar to "populate_data_type_column_list" in "populate_data_type.c".
  * Cannot use that since this one needs to invoke "qualify_check_constraint()" instead of "populate_data_type()".
  */
-int qualify_check_constraint_column_list(SqlStatement *v, SqlTable *table, SqlValueType *type, boolean_t do_loop,
+int qualify_check_constraint_column_list(SqlStatement *v, SqlTable *table, SqlValueType *type, SqlValueType *fix_type,
 					 DataTypeCallback callback) {
 	SqlColumnList *column_list, *cur_column_list;
 	SqlValueType   current_type;
@@ -28,17 +28,22 @@ int qualify_check_constraint_column_list(SqlStatement *v, SqlTable *table, SqlVa
 	*type = UNKNOWN_SqlValueType;
 	if (NULL != v) {
 		SqlStatement *first_value;
+		boolean_t     saw_boolean_or_string_literal;
 
 		// SqlColumnList
 		UNPACK_SQL_STATEMENT(column_list, v, column_list);
 		cur_column_list = column_list;
 		first_value = NULL; /* needed to appease static code checkers from false warnings */
+		saw_boolean_or_string_literal = FALSE;
 		do {
 			// SqlValue or SqlColumnAlias
 			current_type = UNKNOWN_SqlValueType;
-			result |= qualify_check_constraint(cur_column_list->value, table, &current_type);
+			result |= qualify_check_constraint(cur_column_list->value, table, &current_type, fix_type);
 			if (result) {
 				break;
+			}
+			if (BOOLEAN_OR_STRING_LITERAL == current_type) {
+				saw_boolean_or_string_literal = TRUE;
 			}
 			if (UNKNOWN_SqlValueType != *type) {
 				if (NULL != callback) {
@@ -52,7 +57,22 @@ int qualify_check_constraint_column_list(SqlStatement *v, SqlTable *table, SqlVa
 			}
 			cur_column_list = cur_column_list->next;
 			*type = current_type;
-		} while (do_loop && (cur_column_list != column_list));
+		} while (cur_column_list != column_list);
+		if (!result && saw_boolean_or_string_literal && (BOOLEAN_OR_STRING_LITERAL != current_type)) {
+			SqlValueType fix_type2;
+
+			assert(current_type == *type);
+			assert((BOOLEAN_VALUE == current_type) || (STRING_LITERAL == current_type));
+			fix_type2 = current_type;
+			cur_column_list = column_list;
+			do {
+				result = qualify_check_constraint(cur_column_list->value, table, &current_type, &fix_type2);
+				assert(!result); /* type fixing call of "qualify_check_constraint" should never fail as it is 2nd
+						    call */
+				UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
+				cur_column_list = cur_column_list->next;
+			} while (cur_column_list != column_list);
+		}
 	}
 	return result;
 }
@@ -81,7 +101,7 @@ int qualify_check_constraint_column_list(SqlStatement *v, SqlTable *table, SqlVa
  *       by invoking another function for the actual type check (e.g. "binary_operation_data_type_check()" etc.) that is also
  *       invoked by "populate_data_type.c".
  */
-int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *type) {
+int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *type, SqlValueType *fix_type) {
 	int	     result;
 	SqlValueType child_type[2];
 
@@ -112,8 +132,20 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 		switch (value->type) {
 		case CALCULATED_VALUE:
 			/* This is a function call */
-			result |= qualify_check_constraint(value->v.calculated, table, type);
+			result |= qualify_check_constraint(value->v.calculated, table, type, NULL);
 			break;
+		case BOOLEAN_OR_STRING_LITERAL:
+			if (NULL != fix_type) {
+				if (BOOLEAN_VALUE == *fix_type) {
+					FIX_TYPE_TO_BOOLEAN_VALUE(value->type);
+					value->v.string_literal = (value->u.bool_or_str.truth_value ? "1" : "0");
+				} else {
+					assert(STRING_LITERAL == *fix_type);
+					FIX_TYPE_TO_STRING_LITERAL(value->type);
+				}
+			}
+			/* Note: Below comment is needed to avoid gcc [-Wimplicit-fallthrough=] warning */
+			/* fall through */
 		case BOOLEAN_VALUE:
 		case NUMERIC_LITERAL:
 		case INTEGER_LITERAL:
@@ -220,13 +252,17 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 			}
 			break;
 		case COERCE_TYPE:
-			result |= qualify_check_constraint(value->v.coerce_target, table, &value->pre_coerced_type);
+			result |= qualify_check_constraint(value->v.coerce_target, table, &value->u.coerce_type.pre_coerced_type,
+							   NULL);
+			if (BOOLEAN_OR_STRING_LITERAL == value->u.coerce_type.pre_coerced_type) {
+				value->u.coerce_type.pre_coerced_type = STRING_LITERAL;
+			}
 			if (result) {
 				// Any errors would have already been issued by the qualify_check_constraint() call immediately
 				// above
 			} else {
 				/* This code is similar to that in "populate_data_type.c" */
-				*type = get_sqlvaluetype_from_sqldatatype(value->coerced_type.data_type, FALSE);
+				*type = get_sqlvaluetype_from_sqldatatype(value->u.coerce_type.coerced_type.data_type, FALSE);
 			}
 			break;
 		case FUNCTION_HASH:
@@ -246,42 +282,124 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 		break;
 	case binary_STATEMENT:;
 		SqlBinaryOperation *binary;
+		boolean_t	    is_in_column_list;
 
 		/* Note: The below code is similar to that in populate_data_type.c. Any changes here might need to be done there. */
 		UNPACK_SQL_STATEMENT(binary, stmt, binary);
-		result |= qualify_check_constraint(binary->operands[0], table, &child_type[0]);
+		result |= qualify_check_constraint(binary->operands[0], table, &child_type[0], NULL);
 		if (result) {
 			break;
 		}
 		if (((BOOLEAN_IN == binary->operation) || (BOOLEAN_NOT_IN == binary->operation))
 		    && (column_list_STATEMENT == binary->operands[1]->type)) {
 			// SqlColumnList
-			result |= qualify_check_constraint_column_list(binary->operands[1], table, &child_type[1], TRUE,
+			result |= qualify_check_constraint_column_list(binary->operands[1], table, &child_type[1], NULL,
 								       ensure_same_type);
+			is_in_column_list = TRUE;
 		} else {
 			// SqlStatement (?)
-			result |= qualify_check_constraint(binary->operands[1], table, &child_type[1]);
+			result |= qualify_check_constraint(binary->operands[1], table, &child_type[1], NULL);
+			is_in_column_list = FALSE;
 		}
 		if (result) {
 			break;
 		}
+		if (BOOLEAN_OR_STRING_LITERAL == child_type[0]) {
+			SqlValueType fix_type2;
+
+			if (BOOLEAN_OR_STRING_LITERAL == child_type[1]) {
+				/* Note: The intention was to model the below "if" as a "switch" just like it is in
+				 * "populate_data_type.c" under the "case binary_STATEMENT" block.
+				 * But doing so causes pre-commit hook failure in tools/ci/check_code_base_assertions.sh
+				 * as this file needs to have similar layout of "case" blocks with qualify_statement.c
+				 * Therefore we do an "if" check below (and not a "switch/case").
+				 */
+				if ((BOOLEAN_OR == binary->operation) || (BOOLEAN_AND == binary->operation)
+				    || (BOOLEAN_IS == binary->operation) || (BOOLEAN_IS_NOT == binary->operation)) {
+					fix_type2 = BOOLEAN_VALUE;
+				} else {
+					fix_type2 = STRING_LITERAL;
+				}
+				result |= qualify_check_constraint(binary->operands[0], table, &child_type[0], &fix_type2);
+				assert(!result); /* type fixing call of "qualify_check_constraint" should never fail as it is 2nd
+						    call */
+				UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
+				assert(fix_type2 == child_type[0]);
+				if (is_in_column_list) {
+					result |= qualify_check_constraint_column_list(binary->operands[1], table, &child_type[1],
+										       &fix_type2, NULL);
+				} else {
+					result |= qualify_check_constraint(binary->operands[1], table, &child_type[1], &fix_type2);
+				}
+				assert(!result); /* type fixing call of "qualify_check_constraint" should never fail as it is 2nd
+						    call */
+				UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
+				assert(fix_type2 == child_type[1]);
+			} else {
+				if (BOOLEAN_VALUE == child_type[1]) {
+					fix_type2 = BOOLEAN_VALUE;
+				} else {
+					fix_type2 = STRING_LITERAL;
+				}
+				result |= qualify_check_constraint(binary->operands[0], table, &child_type[0], &fix_type2);
+				assert(!result); /* type fixing call of "qualify_check_constraint" should never fail as it is 2nd
+						    call */
+				UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
+				assert(fix_type2 == child_type[0]);
+			}
+		} else if (BOOLEAN_OR_STRING_LITERAL == child_type[1]) {
+			SqlValueType fix_type2;
+
+			if (BOOLEAN_VALUE == child_type[0]) {
+				fix_type2 = BOOLEAN_VALUE;
+			} else {
+				fix_type2 = STRING_LITERAL;
+			}
+			if (is_in_column_list) {
+				result |= qualify_check_constraint_column_list(binary->operands[1], table, &child_type[1],
+									       &fix_type2, NULL);
+			} else {
+				result |= qualify_check_constraint(binary->operands[1], table, &child_type[1], &fix_type2);
+			}
+			assert(!result); /* type fixing call of "qualify_check_constraint" should never fail as it is 2nd call */
+			UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
+			/* Note that if binary->operands[1] points to a sub-query, then the above would have fixed the
+			 * BOOLEAN_OR_STRING_LITERAL type to be STRING_LITERAL irrespective of what "fix_type2" was.
+			 * Hence the below assert.
+			 */
+			assert((fix_type2 == child_type[1]) || (STRING_LITERAL == child_type[1]));
+		}
+		assert(BOOLEAN_OR_STRING_LITERAL != child_type[0]);
+		assert(BOOLEAN_OR_STRING_LITERAL != child_type[1]);
 		result = binary_operation_data_type_check(binary, child_type, type, NULL);
 		break;
 	case unary_STATEMENT:;
 		SqlUnaryOperation *unary;
+		boolean_t	   is_boolean_or_string_literal;
 
 		UNPACK_SQL_STATEMENT(unary, stmt, unary);
-		result |= qualify_check_constraint(unary->operand, table, &child_type[0]); /* Sets child_type[0] */
+		result |= qualify_check_constraint(unary->operand, table, &child_type[0], NULL); /* Sets child_type[0] */
 		if (result) {
 			break;
 		}
+		is_boolean_or_string_literal = (BOOLEAN_OR_STRING_LITERAL == child_type[0]);
 		result = unary_operation_data_type_check(unary, child_type, type); /* Sets "*type" */
+		assert(BOOLEAN_OR_STRING_LITERAL != *type);
+		if (is_boolean_or_string_literal) {
+			/* The call to "unary_operation_data_type_check()" fixed BOOLEAN_OR_STRING_LITERAL type to BOOLEAN_VALUE
+			 * for the BOOLEAN_NOT case. Reinvoke "qualify_check_constraint()" to fix the unary operand type.
+			 */
+			assert(BOOLEAN_VALUE == *type);
+			result |= qualify_check_constraint(unary->operand, table, &child_type[0], type); /* Sets child_type[0] */
+			assert(!result); /* type fixing call of "qualify_check_constraint" should never fail as it is 2nd call */
+			UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
+		}
 		break;
 	case array_STATEMENT:;
 		SqlArray *array;
 
 		UNPACK_SQL_STATEMENT(array, stmt, array);
-		result |= qualify_check_constraint(array->argument, table, type);
+		result |= qualify_check_constraint(array->argument, table, type, fix_type);
 		/* Currently only ARRAY(single_column_subquery) is supported. In this case, "array->argument" points to a
 		 * table_alias_STATEMENT type structure. And so any errors will show up in the above call. No additional
 		 * errors possible in the "array" structure. This might change once more features of ARRAY() are supported
@@ -292,7 +410,7 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 		SqlFunctionCall *fc;
 
 		UNPACK_SQL_STATEMENT(fc, stmt, function_call);
-		result |= qualify_check_constraint(fc->function_name, table, type);
+		result |= qualify_check_constraint(fc->function_name, table, type, NULL);
 		if (result) {
 			break;
 		}
@@ -339,32 +457,64 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 		SqlCoalesceCall *coalesce_call;
 
 		UNPACK_SQL_STATEMENT(coalesce_call, stmt, coalesce);
-		result |= qualify_check_constraint_column_list(coalesce_call->arguments, table, type, TRUE, ensure_same_type);
+		result |= qualify_check_constraint_column_list(coalesce_call->arguments, table, type, NULL, ensure_same_type);
 		break;
 	case greatest_STATEMENT:;
 		SqlGreatest *greatest_call;
 
 		UNPACK_SQL_STATEMENT(greatest_call, stmt, greatest);
-		result |= qualify_check_constraint_column_list(greatest_call->arguments, table, type, TRUE, ensure_same_type);
+		result |= qualify_check_constraint_column_list(greatest_call->arguments, table, type, NULL, ensure_same_type);
 		break;
 	case least_STATEMENT:;
 		SqlLeast *least_call;
 
 		UNPACK_SQL_STATEMENT(least_call, stmt, least);
-		result |= qualify_check_constraint_column_list(least_call->arguments, table, type, TRUE, ensure_same_type);
+		result |= qualify_check_constraint_column_list(least_call->arguments, table, type, NULL, ensure_same_type);
 		break;
 	case null_if_STATEMENT:;
 		SqlNullIf *  null_if;
 		SqlValueType tmpType;
 
 		UNPACK_SQL_STATEMENT(null_if, stmt, null_if);
-		result |= qualify_check_constraint(null_if->left, table, type);
+		result |= qualify_check_constraint(null_if->left, table, type, NULL);
 		if (result) {
 			break;
 		}
-		result |= qualify_check_constraint(null_if->right, table, &tmpType);
+		result |= qualify_check_constraint(null_if->right, table, &tmpType, NULL);
 		if (result) {
 			break;
+		}
+		if (BOOLEAN_OR_STRING_LITERAL == *type) {
+			SqlValueType fix_type2;
+
+			if (BOOLEAN_OR_STRING_LITERAL == tmpType) {
+				fix_type2 = STRING_LITERAL;
+				result |= qualify_check_constraint(null_if->right, table, &tmpType, &fix_type2);
+				assert(!result); /* type fixing call of "qualify_check_constraint" should never fail as it is 2nd
+						    call */
+				UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
+				assert(fix_type2 == tmpType);
+			} else if (BOOLEAN_VALUE == tmpType) {
+				fix_type2 = BOOLEAN_VALUE;
+			} else {
+				fix_type2 = STRING_LITERAL;
+			}
+			result |= qualify_check_constraint(null_if->left, table, type, &fix_type2);
+			assert(!result); /* type fixing call of "qualify_check_constraint" should never fail as it is 2nd call */
+			UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
+			assert(fix_type2 == *type);
+		} else if (BOOLEAN_OR_STRING_LITERAL == tmpType) {
+			SqlValueType fix_type2;
+
+			if (BOOLEAN_VALUE == *type) {
+				fix_type2 = BOOLEAN_VALUE;
+			} else {
+				fix_type2 = STRING_LITERAL;
+			}
+			result |= qualify_check_constraint(null_if->right, table, &tmpType, &fix_type2);
+			assert(!result); /* type fixing call of "qualify_check_constraint" should never fail as it is 2nd call */
+			UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
+			assert(fix_type2 == tmpType);
 		}
 		result |= ensure_same_type(type, &tmpType, null_if->left, null_if->right, NULL);
 		break;
@@ -376,20 +526,30 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 		 */
 		UNPACK_SQL_STATEMENT(cas, stmt, cas);
 		if (NULL != cas->value) {
-			result |= qualify_check_constraint(cas->value, table, type);
+			result |= qualify_check_constraint(cas->value, table, type, NULL);
 			if (result) {
 				break;
+			}
+			if (BOOLEAN_OR_STRING_LITERAL == *type) {
+				SqlValueType fix_type2;
+
+				fix_type2 = STRING_LITERAL;
+				result |= qualify_check_constraint(cas->value, table, type, &fix_type2);
+				assert(!result); /* type fixing call of "qualify_check_constraint" should never fail as it is 2nd
+						    call */
+				UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
+				assert(STRING_LITERAL == *type);
 			}
 		} else {
 			*type = BOOLEAN_VALUE;
 		}
 		assert(NULL != cas->branches);
-		result |= qualify_check_constraint(cas->branches, table, type);
+		result |= qualify_check_constraint(cas->branches, table, type, NULL);
 		if (result) {
 			break;
 		}
 		if (NULL != cas->optional_else) {
-			result |= qualify_check_constraint(cas->optional_else, table, &child_type[0]);
+			result |= qualify_check_constraint(cas->optional_else, table, &child_type[0], NULL);
 			if (result) {
 				break;
 			}
@@ -404,6 +564,30 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 			}
 		}
 		assert(TABLE_ASTERISK != *type);
+		if (BOOLEAN_OR_STRING_LITERAL == *type) {
+			SqlCaseBranchStatement *cas_branch, *cur_branch;
+			SqlValueType		fix_type2;
+
+			FIX_TYPE_TO_STRING_LITERAL(*type);
+			fix_type2 = STRING_LITERAL;
+			UNPACK_SQL_STATEMENT(cas_branch, cas->branches, cas_branch);
+			cur_branch = cas_branch;
+			do {
+				result |= qualify_check_constraint(cur_branch->value, table, &child_type[0], &fix_type2);
+				assert(!result); /* type fixing call of "qualify_check_constraint" should never fail as it is 2nd
+						    call */
+				UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
+				assert((fix_type2 == *type) || IS_NUL_VALUE(*type));
+				cur_branch = cur_branch->next;
+			} while (cur_branch != cas_branch);
+			if (NULL != cas->optional_else) {
+				result |= qualify_check_constraint(cas->optional_else, table, &child_type[0], &fix_type2);
+				assert(!result); /* type fixing call of "qualify_check_constraint" should never fail as it is 2nd
+						    call */
+				UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
+				assert((fix_type2 == *type) || IS_NUL_VALUE(*type));
+			}
+		}
 		break;
 	case cas_branch_STATEMENT:;
 		SqlCaseBranchStatement *cas_branch, *cur_branch;
@@ -414,16 +598,36 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 		assert(UNKNOWN_SqlValueType != *type); /* "*type" stores the expected type of "cur_branch->condition" */
 		UNPACK_SQL_STATEMENT(cas_branch, stmt, cas_branch);
 		cur_branch = cas_branch;
-		result |= qualify_check_constraint(cur_branch->value, table, &child_type[0]);
+		result |= qualify_check_constraint(cur_branch->value, table, &child_type[0], NULL);
 		if (result) {
 			break;
 		}
 		do {
-			result |= qualify_check_constraint(cur_branch->condition, table, &child_type[1]);
+			result |= qualify_check_constraint(cur_branch->condition, table, &child_type[1], NULL);
 			if (result) {
 				break;
 			}
 			assert(UNKNOWN_SqlValueType != child_type[1]);
+			if (BOOLEAN_OR_STRING_LITERAL == child_type[1]) {
+				SqlValueType fix_type2;
+
+				/* Check if expected type is BOOLEAN or STRING. If so, fix child_type[1] accordingly. */
+				if (BOOLEAN_VALUE == *type) {
+					fix_type2 = BOOLEAN_VALUE;
+				} else if (STRING_LITERAL == *type) {
+					fix_type2 = STRING_LITERAL;
+				} else {
+					fix_type2 = UNKNOWN_SqlValueType;
+				}
+				if (UNKNOWN_SqlValueType != fix_type2) {
+					result
+					    |= qualify_check_constraint(cur_branch->condition, table, &child_type[1], &fix_type2);
+					assert(!result); /* type fixing call of "qualify_check_constraint" should never fail as it
+							    is 2nd call */
+					UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
+					assert(fix_type2 == child_type[1]);
+				}
+			}
 			CAST_AMBIGUOUS_TYPES(*type, child_type[1], result, ((ParseContext *)NULL));
 			if (result) {
 				break;
@@ -431,8 +635,9 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 			CHECK_TYPE_AND_BREAK_ON_MISMATCH(child_type[1], *type, ERR_CASE_VALUE_TYPE_MISMATCH, &cur_branch->condition,
 							 NULL, result);
 			assert(!result); /* because the above macro would have done a "break" otherwise */
+			UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
 			if (cas_branch != cur_branch->next) {
-				result |= qualify_check_constraint(cur_branch->next->value, table, &child_type[1]);
+				result |= qualify_check_constraint(cur_branch->next->value, table, &child_type[1], NULL);
 				if (result) {
 					break;
 				}
@@ -443,6 +648,7 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 				CHECK_TYPE_AND_BREAK_ON_MISMATCH(child_type[0], child_type[1], ERR_CASE_BRANCH_TYPE_MISMATCH,
 								 &cur_branch->value, &cur_branch->next->value, result);
 				assert(!result); /* because the above macro would have done a "break" otherwise */
+				UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
 				assert(child_type[0] == child_type[1]);
 			}
 			cur_branch = cur_branch->next;

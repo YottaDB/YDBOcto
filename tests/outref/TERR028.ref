@@ -54,4 +54,4 @@ LINE 16:1: SELECT id FROM names GROUP BY id HAVING $$a(id);
 syntax error, unexpected EXTRINSIC_FUNCTION
 LINE 18:1: select id as $$dummyextrinsicfunction^something from names;
                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-syntax error, unexpected EXTRINSIC_FUNCTION, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+syntax error, unexpected EXTRINSIC_FUNCTION

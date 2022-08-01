@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -37,6 +37,10 @@ int unary_operation_data_type_check(SqlUnaryOperation *unary, SqlValueType child
 		case TABLE_ASTERISK:
 			ISSUE_TYPE_COMPATIBILITY_ERROR(child_type[0], "+ or - operation", &unary->operand, result);
 			break;
+		case BOOLEAN_OR_STRING_LITERAL:
+			FIX_TYPE_TO_STRING_LITERAL(child_type[0]);
+			/* Note: Below comment is needed to avoid gcc [-Wimplicit-fallthrough=] warning */
+			/* fall through */
 		case STRING_LITERAL:
 		case COLUMN_REFERENCE:
 		case CALCULATED_VALUE:
@@ -87,8 +91,12 @@ int unary_operation_data_type_check(SqlUnaryOperation *unary, SqlValueType child
 			ISSUE_ERROR(&unary->operand, ERR_NOT_OPERATION_TYPE_MISMATCH, get_user_visible_type_string(child_type[0]),
 				    result);
 			break;
-		case NUL_VALUE:
+		case BOOLEAN_OR_STRING_LITERAL:
+			FIX_TYPE_TO_BOOLEAN_VALUE(child_type[0]);
+			/* Note: Below comment is needed to avoid gcc [-Wimplicit-fallthrough=] warning */
+			/* fall through */
 		case BOOLEAN_VALUE:
+		case NUL_VALUE:
 			*type = child_type[0];
 			break;
 		}

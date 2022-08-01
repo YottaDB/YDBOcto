@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -130,7 +130,8 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 			LogicalPlan	*fixed_to_value;
 
 			fixed_to_value = key->fixed_to_value;
-			if ((LP_VALUE != fixed_to_value->type) || (NUL_VALUE != fixed_to_value->v.lp_value.value->type)) {
+			if ((LP_VALUE != fixed_to_value->type)
+					|| !IS_NUL_VALUE(fixed_to_value->v.lp_value.value->type)) {
 				int		in_value_list_id;
 				boolean_t	is_key_column;
 
@@ -143,9 +144,11 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 					/* This is a list of values on the right hand side of an IN operator */
 					TMPL(tmpl_print_dots, dot_count);
 					%{}SET {{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}="" FOR  {}%
-					%{}DO:$DATA({{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}({{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}))  {}%
+					%{}DO:$DATA({{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}{}%
+					%{}({{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}))  {}%
 					%{}SET {{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}={}%
-					%{}$ORDER({{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}({{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }})) {}%
+					%{}$ORDER({{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}{}%
+					%{}({{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }})) {}%
 					%{}QUIT:""={{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}{}%
 					%{}`n{{ PLAN_LINE_START }}{}%
 					dot_count++;

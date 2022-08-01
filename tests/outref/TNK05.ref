@@ -71,6 +71,31 @@ VALUES (0, 'Zero', 'Cool'), (1, 'Acid', 'Burn'), (2, 'Cereal', 'Killer'), (3, 'L
 VALUES (0, 'Zero', 'Cool'), (1, 'Acid', 'Burn'), (2, 'Cereal', 'Killer'), (3, 'Lord', 'Nikon'), (4, 'Joey', ''), (5, 'Zero', 'Cool') INTERSECT SELECT * FROM names where id < 4;
 VALUES (0, 'Zero', 'Cool'), (1, 'Acid', 'Burn'), (2, 'Cereal', 'Killer'), (3, 'Lord', 'Nikon'), (4, 'Joey', ''), (5, 'Zero', 'Cool') EXCEPT SELECT * FROM names where id < 4;
 
+-- Test that IS '' and IS NOT '' are disallowed at the parser level even though '' is same as NULL in Octo
+-- and IS NULL and IS NOT NULL are allowed.
+select * from names where lastname is '';
+select * from names where lastname is NOT '';
+
+-- Test of various '' (i.e. empty string) handling code paths (Octo treats it as NULL whereas Postgres does not)
+-- These queries were good test cases during an interim version of the PowerBI changes (YDBOcto#867) when NULL and ''
+-- were distinguished by the types NUL_VALUE and NUL_UNKNOWN and there were bugs in the NUL_UNKNOWN handling. Since then,
+-- NUL_UNKNOWN has been removed and merged into NUL_VALUE and so these tests are no longer relevant in the current code
+-- but since having these tests does not hurt, we keep them.
+select '' from names order by 1;
+select t1.* = '' from names t1;
+select '' = t1.* from names t1;
+select t1.* = (select '') from names t1;
+select (select '') = t1.* from names t1;
+select n1.* > (select '') from names n1;
+select n1.* < ANY (select '') from names n1;
+select n1.* < ANY (select '' union select NULL) from names n1;
+select n1.* < ANY (select NULL union select '') from names n1;
+select n1.* NOT IN (select '' union select '') from names n1;
+select n1.* similar to '' from names n1;
+select '' similar to n1.* from names n1;
+select greatest('','10','2');
+select max('') from names;
+
 FIRSTNAME
 (0 rows)
 FIRSTNAME
@@ -368,3 +393,66 @@ ID|FIRSTNAME|LASTNAME
 4|Joey|
 5|Zero|Cool
 (2 rows)
+LINE 62:1: select * from names where lastname is '';
+                                                  ^
+syntax error, unexpected EMPTY_STRING
+LINE 63:1: select * from names where lastname is NOT '';
+                                                      ^
+syntax error, unexpected EMPTY_STRING, expecting UNKNOWN or TRUE_TOKEN or FALSE_TOKEN or NULL_TOKEN
+???
+
+
+
+
+
+
+(6 rows)
+???
+
+
+
+
+
+
+(6 rows)
+???
+
+
+
+
+
+
+(6 rows)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 68:1: select t1.* = (select '') from names t1;
+                          ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 69:1: select (select '') = t1.* from names t1;
+                   ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 70:1: select n1.* > (select '') from names n1;
+                          ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 71:1: select n1.* < ANY (select '') from names n1;
+                              ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 72:1: select n1.* < ANY (select '' union select NULL) from names n1;
+                              ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 73:1: select n1.* < ANY (select NULL union select '') from names n1;
+                              ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 74:1: select n1.* NOT IN (select '' union select '') from names n1;
+                               ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for REGEX operation
+LINE 75:1: select n1.* similar to '' from names n1;
+                  ^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for REGEX operation
+LINE 76:1: select '' similar to n1.* from names n1;
+                                ^^
+GREATEST
+2
+(1 row)
+MAX
+
+(1 row)

@@ -34,34 +34,34 @@ select ida from (select 1 as "ida");
 select ida from (select 1 as 'IDA');
 LINE 2:1: select id as 'quoted' from names;
                        ^^^^^^^^
-syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+syntax error, unexpected LITERAL
 LINE 3:1: select id as 'ali.co' from names;
                        ^^^^^^^^
-syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+syntax error, unexpected LITERAL
 LINE 4:1: select id as 'ab12_' from names;
                        ^^^^^^^
-syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+syntax error, unexpected LITERAL
 LINE 5:1: select id as 'ab12_.asdf' from names;
                        ^^^^^^^^^^^^
-syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+syntax error, unexpected LITERAL
 LINE 6:1: select ida from (select 8 as 'IDA','ey' as firstname, '' as las...
                                        ^^^^^
-syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+syntax error, unexpected LITERAL
 LINE 8:1: select id from names as 'N1';
                                   ^^^^
-syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+syntax error, unexpected LITERAL
 LINE 9:1: select n1.id from names as 'N1';
                                      ^^^^
-syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+syntax error, unexpected LITERAL
 LINE 10:1: ...lias1.lastName from names as 'ALIAS1' group by alias1.lastName);
                                            ^^^^^^^^
-syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+syntax error, unexpected LITERAL
 LINE 11:1: select * from names n1 natural join names as 'longeralias';
                                                         ^^^^^^^^^^^^^
-syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+syntax error, unexpected LITERAL
 LINE 12:1: select 1 from names as 'N1' inner join (select n2.id from names ...
                                   ^^^^
-syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+syntax error, unexpected LITERAL
 LINE 14:1: select id 'quoted' from names;
                      ^^^^^^^^
 syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
@@ -85,7 +85,7 @@ LINE 21:1: select 1 from names 'N1' inner join (select n2.id from names 'N2...
 syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 23:1: select 1 from names as 'N1' inner join (select n2.id from names ...
                                   ^^^^
-syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+syntax error, unexpected LITERAL
 ID
 1
 (1 row)
@@ -94,4 +94,4 @@ LINE 26:1: select ida from (select 1 as "ida");
                   ^^^
 LINE 27:1: select ida from (select 1 as 'IDA');
                                         ^^^^^
-syntax error, unexpected LITERAL, expecting IDENTIFIER_ALONE or IDENTIFIER_BACK_TICK or DOUBLE_QUOTE_LITERAL
+syntax error, unexpected LITERAL

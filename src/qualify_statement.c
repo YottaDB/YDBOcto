@@ -334,6 +334,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		case NUMERIC_LITERAL:
 		case INTEGER_LITERAL:
 		case STRING_LITERAL:
+		case BOOLEAN_OR_STRING_LITERAL:
 		case NUL_VALUE:
 		case PARAMETER_VALUE:
 			assert(0 == value->group_by_fields.group_by_column_num);

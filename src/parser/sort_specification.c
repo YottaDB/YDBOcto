@@ -38,6 +38,7 @@ SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *ordering_
 			// No error
 			break;
 		case STRING_LITERAL:
+		case BOOLEAN_OR_STRING_LITERAL:
 		case NUL_VALUE:
 		case PARAMETER_VALUE:
 			/* Handle `PARAMETER_VALUE` type here as `$1` in the following type of usages can reach this code.

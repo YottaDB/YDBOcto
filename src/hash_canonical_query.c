@@ -17,6 +17,7 @@
 
 #include "octo.h"
 #include "octo_types.h"
+#include "octo_type_check.h"
 
 #include "logical_plan.h"
 #include "physical_plan.h"
@@ -81,6 +82,10 @@ void hash_canonical_query_column_list_alias(hash128_state_t *state, SqlStatement
 		// SqlOptionalKeyword
 		hash_canonical_query(state, cur_cla->keywords, status);
 		// SqlValueType
+		if (BOOLEAN_OR_STRING_LITERAL == cur_cla->type) {
+			/* See comments in later use of this macro in this file for why this type fixing is needed */
+			FIX_TYPE_TO_STRING_LITERAL(cur_cla->type);
+		}
 		ADD_INT_HASH(state, cur_cla->type);
 		// boolean_t
 		ADD_INT_HASH(state, cur_cla->user_specified_alias);
@@ -330,6 +335,13 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 
 		UNPACK_SQL_STATEMENT(value, stmt, value);
 		ADD_INT_HASH(state, value_STATEMENT);
+		if (BOOLEAN_OR_STRING_LITERAL == value->type) {
+			/* All literals with this type that have not already been cast to a BOOLEAN_VALUE type
+			 * should default back to a STRING_LITERAL. This is because later stages (e.g. logical plan etc.
+			 * rely on never seeing BOOLEAN_OR_STRING_LITERAL type.
+			 */
+			FIX_TYPE_TO_STRING_LITERAL(value->type);
+		}
 		// SqlValueType
 		ADD_INT_HASH(state, value->type);
 		switch (value->type) {
@@ -365,22 +377,23 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 			 * The ADD_DATA_TYPE_HASH macro hashes the size/precision and/or scale values too which we do not
 			 * want in this case. Hence the simple hash of just the data type ("NUMERIC" in the example case).
 			 */
-			ADD_INT_HASH(state, value->coerced_type.data_type);
+			ADD_INT_HASH(state, value->u.coerce_type.coerced_type.data_type);
 			ADD_NON_ZERO_GROUP_BY_NUM_TO_HASH(state, value->group_by_fields.group_by_column_num);
 			/* We want to generate different plans for two queries where one specifies a SIZE/PRECISION and/or
 			 * SCALE and one does not. For example, "SELECT 1::NUMERIC(1);" vs "SELECT 1::NUMERIC(1,0);".
 			 * Hence the additional hash below in the unspecified case. In the unspecified case, we skip this
 			 * hash and that will ensure a different plan gets created.
 			 */
-			if (SIZE_OR_PRECISION_UNSPECIFIED != value->coerced_type.size_or_precision) {
+			if (SIZE_OR_PRECISION_UNSPECIFIED != value->u.coerce_type.coerced_type.size_or_precision) {
 				ADD_INT_HASH(state, SIZE_OR_PRECISION_UNSPECIFIED);
 			}
-			if (SCALE_UNSPECIFIED != value->coerced_type.scale) {
-				assert(SIZE_OR_PRECISION_UNSPECIFIED != value->coerced_type.size_or_precision);
+			if (SCALE_UNSPECIFIED != value->u.coerce_type.coerced_type.scale) {
+				assert(SIZE_OR_PRECISION_UNSPECIFIED != value->u.coerce_type.coerced_type.size_or_precision);
 				ADD_INT_HASH(state, SCALE_UNSPECIFIED);
 			}
-			assert(IS_LITERAL_PARAMETER(value->pre_coerced_type) || (NUL_VALUE == value->pre_coerced_type));
-			ADD_INT_HASH(state, value->pre_coerced_type);
+			assert(IS_LITERAL_PARAMETER(value->u.coerce_type.pre_coerced_type)
+			       || IS_NUL_VALUE(value->u.coerce_type.pre_coerced_type));
+			ADD_INT_HASH(state, value->u.coerce_type.pre_coerced_type);
 			hash_canonical_query(state, value->v.coerce_target, status);
 			break;
 		default:

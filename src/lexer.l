@@ -179,6 +179,12 @@ int copied_so_far;
 (?i:MAX) { return MAX; }
 (?i:MIN) { return MIN; }
 (?i:NATURAL) { return NATURAL; }
+(?i:NAME) { return NAME; }			/* A NAME is a VARCHAR representing an internal system name. Since Octo doesn't
+						 * distinguish between "system" strings and regular strings, we can just treat this
+						 * as a regular VARCHAR.
+						 *
+						 * For more background, see: https://www.postgresql.org/docs/9.6/datatype-character.html
+						 */
 (?i:NOT) { return NOT; }
 (?i:NUM) { return NUM; }
 (?i:NULLIF) { return NULLIF; }
@@ -368,9 +374,13 @@ int copied_so_far;
 			retval = LITERAL;
 		} else {
 			/* We saw no bytes in between the starting and ending single-quote.
-			 * That is, it is an empty string. Treat it as if a NULL keyword was specified.
+			 * That is, it is an empty string. Treat it as if a NULL keyword was specified,
+			 * but since "IS NULL" and "IS ''" are treated differently (former is allowed, but latter
+			 * should issue a syntax error), return a different lexical token in this case than what
+			 * would have been returned for NULL (i.e. NULL_TOKEN). The parser will take care of issuing
+			 * an error for the "IS ''" case and otherwise merge these two tokens into one type (NUL_VALUE).
 			 */
-			retval = NULL_TOKEN;
+			retval = EMPTY_STRING;
 		}
 		RESET_BUFFER(lex_buffer);
 		BEGIN(INITIAL);

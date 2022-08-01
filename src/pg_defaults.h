@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -21,7 +21,7 @@
 #define DEFAULT_INTEGER_DATETIMES	    "on"
 #define DEFAULT_INTERVALSTYLE		    "postgres"
 #define DEFAULT_SERVER_ENCODING		    "SQL_ASCII"
-#define DEFAULT_SERVER_VERSION		    "9.6.5"
+#define DEFAULT_SERVER_VERSION		    "13.0.0"
 #define DEFAULT_STANDARD_CONFORMING_STRINGS "on"
 #define DEFAULT_TIMEZONE		    "UTC"
 /* Note that the following parameters can be SHOWn but not SET in PostgreSQL and are omitted from `pg_settings`.
@@ -56,7 +56,9 @@
 #define DEFAULT_SERVER_ENCODING_ROW                                                                      \
 	"||Client Connection Defaults / Locale and Formatting|Sets the server (database) character set " \
 	"encoding.||internal|string|override||||SQL_ASCII|SQL_ASCII|||f"
-#define DEFAULT_SERVER_VERSION_ROW "||Preset Options|Shows the server version.||internal|string|default||||9.6.5|9.6.5|||f"
+#define DEFAULT_SERVER_VERSION_ROW                                                                       \
+	"||Preset Options|Shows the server version.||internal|string|default||||" DEFAULT_SERVER_VERSION \
+	"|" DEFAULT_SERVER_VERSION "|||f"
 /* This is an empty row for storing arbitrary runtime parameter values. Since users can specify runtime parameters that have no
  * actual meaning via SET, there may be no valid values for the various columns of pg_settings in that case. Users who wish to
  * specify row values in pg_settings will need to do so explicitly using INSERT or UPDATE.

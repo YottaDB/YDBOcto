@@ -22,39 +22,6 @@ select 1.5::integer+2.5::numeric+'1'::integer from names;
 (6 rows)
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
-;  select 1.5::integer+2.5::numeric+'1'::numeric from names;
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctop,%ydboctoexpr
-    TSTART:wrapInTp ():(serial)
-    DO octoPlan1(cursorId)
-    TCOMMIT:wrapInTp
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
-    . SET %ydboctoexpr=1
-    . DO:%ydboctoexpr
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
-    . . SET %ydboctoexpr=($$ROUND^%ydboctosqlfunctions((%ydboctoexpr),0))
-    . . SET %ydboctoexpr(2)=%ydboctoexpr
-    . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",2))
-    . . SET %ydboctoexpr=($$Cast2NUMERICWithoutPrecision^%ydboctoplanhelpers(%ydboctoexpr))
-    . . SET %ydboctoexpr=%ydboctoexpr(2)+%ydboctoexpr
-    . . SET %ydboctoexpr(1)=%ydboctoexpr
-    . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",3))
-    . . SET %ydboctoexpr=($$String2NUMERIC^%ydboctoplanhelpers(%ydboctoexpr))
-    . . SET %ydboctoexpr=%ydboctoexpr(1)+%ydboctoexpr
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
-    ZKILL %ydboctocursor(cursorId,"keys",1,"NAMES","ID")
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
 ;  select 1.5::integer+2.5::numeric+'1'::integer from names;
 ;; ---------------------------------------------------------
 
@@ -81,6 +48,39 @@ octoPlan1(cursorId)
     . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",3))
     . . SET %ydboctoexpr=($$String2Integer^%ydboctoplanhelpers(%ydboctoexpr))
+    . . SET %ydboctoexpr=%ydboctoexpr(1)+%ydboctoexpr
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"NAMES","ID")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select 1.5::integer+2.5::numeric+'1'::numeric from names;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
+    . . SET %ydboctoexpr=($$ROUND^%ydboctosqlfunctions((%ydboctoexpr),0))
+    . . SET %ydboctoexpr(2)=%ydboctoexpr
+    . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",2))
+    . . SET %ydboctoexpr=($$Cast2NUMERICWithoutPrecision^%ydboctoplanhelpers(%ydboctoexpr))
+    . . SET %ydboctoexpr=%ydboctoexpr(2)+%ydboctoexpr
+    . . SET %ydboctoexpr(1)=%ydboctoexpr
+    . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",3))
+    . . SET %ydboctoexpr=($$String2NUMERIC^%ydboctoplanhelpers(%ydboctoexpr))
     . . SET %ydboctoexpr=%ydboctoexpr(1)+%ydboctoexpr
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr

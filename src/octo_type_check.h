@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -48,7 +48,7 @@
 		}                                                                                                                 \
 	}
 
-/* Coverts ambiguous SqlValueTypes to determinate types.
+/* Converts ambiguous SqlValueTypes to determinate types.
  * Specifically:
  *	1. Uses DDL-specified types for prepared statement parameter types if not specified by client
  *	2. Converts INTEGER_LITERALs to NUMERIC_LITERALs, as they are equivalent internally within Octo
@@ -56,14 +56,48 @@
  * from "qualify_check_constraint.c". The MAP_TYPE_TO_PARAMETER_VALUE macro handles that (see comment there).
  */
 #define CAST_AMBIGUOUS_TYPES(TYPE1, TYPE2, RESULT, PARSE_CONTEXT)                 \
-	if ((PARAMETER_VALUE == TYPE1) || (NUL_VALUE == TYPE1)) {                 \
+	if ((PARAMETER_VALUE == TYPE1) || IS_NUL_VALUE(TYPE1)) {                  \
 		MAP_TYPE_TO_PARAMETER_VALUE(TYPE1, TYPE2, RESULT, PARSE_CONTEXT); \
-	} else if ((PARAMETER_VALUE == TYPE2) || (NUL_VALUE == TYPE2)) {          \
+	} else if ((PARAMETER_VALUE == TYPE2) || IS_NUL_VALUE(TYPE2)) {           \
 		MAP_TYPE_TO_PARAMETER_VALUE(TYPE2, TYPE1, RESULT, PARSE_CONTEXT); \
 	} else if ((INTEGER_LITERAL == TYPE1) && (NUMERIC_LITERAL == TYPE2)) {    \
 		TYPE1 = TYPE2;                                                    \
 	} else if ((INTEGER_LITERAL == TYPE2) && (NUMERIC_LITERAL == TYPE1)) {    \
 		TYPE2 = TYPE1;                                                    \
+	} else if (BOOLEAN_OR_STRING_LITERAL == TYPE1) {                          \
+		switch (TYPE2) {                                                  \
+		case BOOLEAN_VALUE:                                               \
+			FIX_TYPE_TO_BOOLEAN_VALUE(TYPE1);                         \
+			break;                                                    \
+		case STRING_LITERAL:                                              \
+			FIX_TYPE_TO_STRING_LITERAL(TYPE1);                        \
+			break;                                                    \
+		default:                                                          \
+			break;                                                    \
+		}                                                                 \
+	} else if (BOOLEAN_OR_STRING_LITERAL == TYPE2) {                          \
+		switch (TYPE1) {                                                  \
+		case BOOLEAN_VALUE:                                               \
+			FIX_TYPE_TO_BOOLEAN_VALUE(TYPE2);                         \
+			break;                                                    \
+		case STRING_LITERAL:                                              \
+			FIX_TYPE_TO_STRING_LITERAL(TYPE2);                        \
+			break;                                                    \
+		default:                                                          \
+			break;                                                    \
+		}                                                                 \
+	}
+
+#define FIX_TYPE_TO_BOOLEAN_VALUE(TYPE)                    \
+	{                                                  \
+		assert(BOOLEAN_OR_STRING_LITERAL == TYPE); \
+		TYPE = BOOLEAN_VALUE;                      \
+	}
+
+#define FIX_TYPE_TO_STRING_LITERAL(TYPE)                   \
+	{                                                  \
+		assert(BOOLEAN_OR_STRING_LITERAL == TYPE); \
+		TYPE = STRING_LITERAL;                     \
 	}
 
 #define ISSUE_TYPE_COMPATIBILITY_ERROR(CHILD_TYPE, OPERATION, OPERAND, RESULT)                       \
@@ -77,6 +111,15 @@
 #define CHECK_TYPE_AND_BREAK_ON_MISMATCH(TYPE1, TYPE2, ERR_TYPE, CUR_BRANCH_VALUE, NEXT_BRANCH_VALUE, RESULT)            \
 	{                                                                                                                \
 		if ((TYPE1) != (TYPE2)) {                                                                                \
+			/* If it possible one of the types is BOOLEAN_OR_STRING_LITERAL. In that case, the user visible  \
+			 * type is STRING and so modify the type before calling "get_user_visible_type_string()" below.  \
+			 */                                                                                              \
+			if (BOOLEAN_OR_STRING_LITERAL == TYPE1) {                                                        \
+				TYPE1 = STRING_LITERAL;                                                                  \
+			}                                                                                                \
+			if (BOOLEAN_OR_STRING_LITERAL == TYPE2) {                                                        \
+				TYPE2 = STRING_LITERAL;                                                                  \
+			}                                                                                                \
 			ERROR((ERR_TYPE), get_user_visible_type_string((TYPE1)), get_user_visible_type_string((TYPE2))); \
 			yyerror(NULL, NULL, (CUR_BRANCH_VALUE), NULL, NULL, NULL);                                       \
 			if (NULL != (NEXT_BRANCH_VALUE)) {                                                               \

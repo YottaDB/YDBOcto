@@ -282,4 +282,4 @@ COL|col
 (0 rows)
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_YOTTADB: YottaDB error: 150373850,octoPlan1+3^%ydboctoP*,%YDB-E-LVUNDEF, Undefined local variable: %ydboctocursor(173,"keys",1,"TBL","col")
+[ERROR]: ERR_YOTTADB: YottaDB error: 150373850,octoPlan1+3^%ydboctoP*,%YDB-E-LVUNDEF, Undefined local variable: %ydboctocursor(188,"keys",1,"TBL","col")

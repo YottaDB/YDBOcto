@@ -334,11 +334,11 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_PLAN_DEFINITION 23
+#define FMT_PLAN_DEFINITION 24
 
 /* The below macro needs to be manually bumped if there is a non-cosmetic change to octo-seed.sql.
  */
-#define FMT_SEED_DEFINITION 4
+#define FMT_SEED_DEFINITION 5
 
 /* Used by `hash_canonical_query()` */
 #define HASH_LITERAL_VALUES -1
@@ -585,11 +585,14 @@ typedef enum DDLDependencyType {
 #define IS_NULL_FIXED_VALUE(FIX_VALUE) \
 	((NULL != FIX_VALUE) && (LP_VALUE == FIX_VALUE->type) && (IS_NULL_LITERAL == FIX_VALUE->v.lp_value.value->type))
 
+#define IS_NUL_VALUE(TYPE) (NUL_VALUE == TYPE)
+
 /* A NULL is also considered compatible with BOOLEAN, STRING, INTEGER, NUMERIC etc.
+ * A 't'/'f' literal is considered compatible with BOOLEAN and STRING.
  * Below macros take that into account.
  */
-#define IS_BOOLEAN_TYPE(TYPE) ((BOOLEAN_VALUE == TYPE) || (NUL_VALUE == TYPE))
-#define IS_STRING_TYPE(TYPE)  ((STRING_LITERAL == TYPE) || (NUL_VALUE == TYPE))
+#define IS_BOOLEAN_TYPE(TYPE) ((BOOLEAN_VALUE == TYPE) || (BOOLEAN_OR_STRING_LITERAL == TYPE) || IS_NUL_VALUE(TYPE))
+#define IS_STRING_TYPE(TYPE)  ((STRING_LITERAL == TYPE) || (BOOLEAN_OR_STRING_LITERAL == TYPE) || IS_NUL_VALUE(TYPE))
 
 // Initialize a stack-allocated ydb_buffer_t to point to a stack-allocated buffer (char [])
 #define OCTO_SET_BUFFER(BUFFER, STRING)                                                                                     \
@@ -1014,12 +1017,17 @@ char *m_unescape_string(const char *string);
 int	      readline_get_more();
 SqlStatement *parse_line(ParseContext *parse_context);
 
-int	      check_column_lists_for_type_match(SqlStatement *v); /* v->type is set_operation_STATEMENT or insert_STATEMENT */
-int	      populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent_stmt, ParseContext *parse_context);
-SqlDataType   get_sqldatatype_from_sqlvaluetype(SqlValueType type);
-SqlValueType  get_sqlvaluetype_from_sqldatatype(SqlDataType type, boolean_t is_unknown_type_okay);
-SqlValueType  get_sqlvaluetype_from_psql_type(PSQL_TypeOid type);
-PSQL_TypeOid  get_psql_type_from_sqlvaluetype(SqlValueType type);
+int	     check_column_lists_for_type_match(SqlStatement *v,
+					       ParseContext *parse_context); /* v->type is set_operation_STATEMENT or insert_STATEMENT */
+int	     populate_data_type_column_list_alias(SqlStatement *v, SqlValueType *type, SqlStatement *parent_stmt, boolean_t do_loop,
+						  ParseContext *parse_context, SqlColumnListAlias *fix_type);
+int	     populate_data_type_cla_fix(SqlStatement *v, ParseContext *parse_context, SqlColumnListAlias *fix_type_cla);
+int	     populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent_stmt, ParseContext *parse_context,
+				SqlValueType *fix_type);
+SqlDataType  get_sqldatatype_from_sqlvaluetype(SqlValueType type);
+SqlValueType get_sqlvaluetype_from_sqldatatype(SqlDataType type, boolean_t is_unknown_type_okay);
+SqlValueType get_sqlvaluetype_from_psql_type(PSQL_TypeOid type);
+PSQL_TypeOid get_psql_type_from_sqlvaluetype(SqlValueType type);
 PSQL_TypeSize get_type_size_from_psql_type(PSQL_TypeOid type);
 SqlStatement *get_deepest_column_alias_stmt(SqlStatement *new_column_alias_stmt, SqlStatement *column_alias_to_cmp_stmt);
 SqlTable *    find_table(const char *table_name);
@@ -1034,7 +1042,7 @@ SqlStatement *traverse_where_clause(SqlStatement *binary_stmt, SqlJoin *start_jo
 
 SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, SqlStatement *table_alias_stmt, int depth,
 				    SqlColumnListAlias **ret_cla);
-int		qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *type);
+int		qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *type, SqlValueType *fix_type);
 int		qualify_extract_function(SqlStatement *stmt, SqlTable *table, SqlValueType *type, boolean_t is_first_pass,
 					 SqlTableAlias *table_alias, SqlStatement *column_name, SqlColumnList **dependencies);
 int		qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTableAlias *parent_table_alias,

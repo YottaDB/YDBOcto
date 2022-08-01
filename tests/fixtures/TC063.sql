@@ -105,14 +105,13 @@ drop function concat(varchar, varchar, varchar);
 -- Test that EXTRACT function parameters can be of different types.
 -- This used to previously incorrectly issue a ERR_TYPE_MISMATCH error.
 -- See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/633#note_1348911984 for details.
-create function myfunc1(varchar, integer, varchar) returns varchar as $$myfunc1^TC063;
+create function myfunc1(varchar, integer, varchar) returns varchar as $$myfunc^TC063;
 create table tmp (id INTEGER PRIMARY KEY, firstName VARCHAR, lastName VARCHAR, fullname VARCHAR EXTRACT myfunc1(firstName, id, lastName)) GLOBAL "^names" readonly;
 select * from tmp;
 drop table tmp;
-drop function myfunc1(varchar, integer, varchar);
 
 -- Test that BOOLEAN literals are accepted as an EXTRACT function parameter
-create function myfunc2(varchar, boolean, varchar) returns varchar as $$myfunc2^TC063;
+create function myfunc2(varchar, boolean, varchar) returns varchar as $$myfunc^TC063;
 create table tmp (id INTEGER PRIMARY KEY, firstName VARCHAR, lastName VARCHAR, fullname VARCHAR EXTRACT myfunc2(firstName, false, lastName)) GLOBAL "^names" readonly;
 select * from tmp;
 drop table tmp;
@@ -121,5 +120,54 @@ drop table tmp;
 create table tmp (id INTEGER PRIMARY KEY, firstName VARCHAR, lastName VARCHAR, fullname VARCHAR EXTRACT myfunc2(firstName, id::boolean, lastName)) GLOBAL "^names" readonly;
 select * from tmp;
 drop table tmp;
+
+-- Test integer literals are accepted as an EXTRACT function parameter ("case INTEGER_LITERAL" in qualify_extract_function.c)
+create function myfunc3(varchar, integer, varchar) returns varchar as $$myfunc^TC063;
+create table tmp (
+        id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),
+        fullname VARCHAR EXTRACT myfunc3(firstName, 99, lastName)
+) GLOBAL "^names" READONLY;
+select fullname from tmp;
+drop table if exists tmp;
+
+-- Test numeric literals are accepted as an EXTRACT function parameter ("case NUMERIC_LITERAL" in qualify_extract_function.c)
+create function myfunc4(varchar, numeric, varchar) returns varchar as $$myfunc^TC063;
+create table tmp (
+        id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),
+        fullname VARCHAR EXTRACT myfunc4(firstName, 23.34, lastName)
+) GLOBAL "^names" READONLY;
+select fullname from tmp;
+drop table if exists tmp;
+
+-- Test NULL is accepted as an EXTRACT function parameter ("case NUL_VALUE" in qualify_extract_function.c)
+create table tmp (
+        id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),
+        fullname VARCHAR EXTRACT myfunc4(firstName, NULL, lastName)
+) GLOBAL "^names" READONLY;
+select fullname from tmp;
+drop table if exists tmp;
+
+-- Test empty single-quoted string is accepted as an EXTRACT function parameter ("case NUL_VALUE" in qualify_extract_function.c)
+create table tmp (
+        id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),
+        fullname VARCHAR EXTRACT myfunc4(firstName, '', lastName)
+) GLOBAL "^names" READONLY;
+select fullname from tmp;
+drop table if exists tmp;
+
+drop function myfunc1(varchar, integer, varchar);
 drop function myfunc2(varchar, boolean, varchar);
+drop function myfunc3(varchar, integer, varchar);
+drop function myfunc4(varchar, numeric, varchar);
+
+-- Test boolean string literal (e.g. 'f') is accepted as an EXTRACT function parameter
+-- See comment in "case BOOLEAN_OR_STRING_LITERAL" in qualify_extract_function.c for how this is treated as a string literal
+-- and not as a boolean literal.
+create function concat(VARCHAR, VARCHAR, VARCHAR) RETURNS VARCHAR AS $$^%ydboctofCONCAT; -- Recreate dropped function for use in below queries
+create table fullnames (
+        id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),
+        fullname VARCHAR EXTRACT CONCAT(firstName, 'f', lastName)
+) GLOBAL "^names" READONLY;
+select fullname from fullnames;
+drop table if exists fullnames;
 

@@ -643,7 +643,7 @@ String2Boolean(boolstr)	;
 	QUIT:$ZYISSQLNULL(boolstr) $ZYSQLNULL
 	IF '$DATA(%ydboctoStr2Bool) DO
 	.	; Below are list of string literals which are accepted for boolean conversion
-	.	; Anything else is treated as the boolean value 0 (false).
+	.	; A similar list is maintained in a switch/case block in the "literal_value" rule definition in src/parser.y
 	.	SET %ydboctoStr2Bool("true")=1
 	.	SET %ydboctoStr2Bool("t")=1
 	.	SET %ydboctoStr2Bool("yes")=1

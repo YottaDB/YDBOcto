@@ -66,8 +66,8 @@ ID|FIRSTNAME
 2|second|2
 (1 row)
 # Verify generated plans (including xref plans) do not have $PIECE for FIRSTNAME column
-_ydboctoP*.m:    . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES2","ID"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
 _ydboctoP*.m:    . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES1","ID"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES2","ID"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
 # Verify text table definition does not have PIECE specified for FIRSTNAME column
 ^%ydboctoschema("NAMES1","text",0)="CREATE TABLE `NAMES1` (`ID` INTEGER CONSTRAINT ""NAMES1_PKEY"" PRIMARY KEY, `FIRSTNAME` VARCHAR(30) DELIM """", `LASTNAME` VARCHAR(30) PIECE 2) GLOBAL ""^names(keys(""""ID""""))"" DELIM ""|"" READONLY;"
 ^%ydboctoschema("NAMES2","text",0)="CREATE TABLE `NAMES2` (`ID` INTEGER CONSTRAINT ""NAMES2_PKEY"" PRIMARY KEY, `FIRSTNAME` VARCHAR(30) DELIM """", `LASTNAME` VARCHAR(30) PIECE 2) GLOBAL ""^names(keys(""""ID""""))"" DELIM ""|"" READONLY;"

@@ -16,6 +16,7 @@
 
 #include "octo.h"
 #include "octo_types.h"
+#include "octo_type_check.h"
 
 /* Input/Output parameters
  * -----------------------
@@ -62,18 +63,18 @@ int emit_check_constraint(char **buffer, int *buffer_size, char **buff_ptr, stru
 			if (0 > ret) {
 				return ret;
 			}
-			data_type = value->coerced_type.data_type;
+			data_type = value->u.coerce_type.coerced_type.data_type;
 			type_name = get_user_visible_type_string(get_sqlvaluetype_from_sqldatatype(data_type, FALSE));
 			if ('\0' == *type_name) {
 				return -1; /* Data type was corrupt */
 			}
 			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "::%s", type_name);
-			if (SIZE_OR_PRECISION_UNSPECIFIED != value->coerced_type.size_or_precision) {
+			if (SIZE_OR_PRECISION_UNSPECIFIED != value->u.coerce_type.coerced_type.size_or_precision) {
 				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "(%d",
-									    value->coerced_type.size_or_precision);
-				if (SCALE_UNSPECIFIED != value->coerced_type.scale) {
+									    value->u.coerce_type.coerced_type.size_or_precision);
+				if (SCALE_UNSPECIFIED != value->u.coerce_type.coerced_type.scale) {
 					INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, ",%d",
-										    value->coerced_type.scale);
+										    value->u.coerce_type.coerced_type.scale);
 				}
 				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, ")");
 			}
@@ -98,6 +99,13 @@ int emit_check_constraint(char **buffer, int *buffer_size, char **buff_ptr, stru
 			}
 			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "%s", boolean_string);
 			break;
+		case BOOLEAN_OR_STRING_LITERAL:
+			/* All literals with this type that have not already been cast to a BOOLEAN_VALUE type
+			 * should default back to a STRING_LITERAL.
+			 */
+			FIX_TYPE_TO_STRING_LITERAL(value->type);
+			/* Note: Below comment is needed to avoid gcc [-Wimplicit-fallthrough=] warning */
+			/* fall through */
 		case STRING_LITERAL:
 			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "'%s'", value->v.string_literal);
 			break;

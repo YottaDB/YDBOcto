@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -78,14 +78,29 @@ int function_call_data_type_check(SqlStatement *fc_stmt, SqlValueType *type, Par
 			// Get type for current function argument
 			if (NULL == table) {
 				/* Called from "populate_data_type.c" */
-				result |= populate_data_type(cur_column_list->value, type, fc_stmt, parse_context);
+				result |= populate_data_type(cur_column_list->value, type, fc_stmt, parse_context, NULL);
 			} else {
-				result |= qualify_check_constraint(cur_column_list->value, table, type);
+				result |= qualify_check_constraint(cur_column_list->value, table, type, NULL);
 			}
 			if (result) {
 				break;
 			}
-			if (NUL_VALUE == *type) {
+			if (BOOLEAN_OR_STRING_LITERAL == *type) {
+				SqlValueType fix_type;
+
+				fix_type = STRING_LITERAL;
+				if (NULL == table) {
+					result
+					    |= populate_data_type(cur_column_list->value, type, fc_stmt, parse_context, &fix_type);
+				} else {
+					result |= qualify_check_constraint(cur_column_list->value, table, type, &fix_type);
+				}
+				assert(!result); /* type fixing call of "populate_data_type" or "qualify_check_constraint"
+						  * should never fail as it is 2nd call */
+				UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
+				assert(fix_type == *type);
+			}
+			if (IS_NUL_VALUE(*type)) {
 				/* Note down this parameter as a NULL parameter by setting a flag for it in the
 				 * fc_context.null_args array.
 				 */

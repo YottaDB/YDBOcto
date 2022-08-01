@@ -1,0 +1,13 @@
+
+-- TERR010 : Rocto prefixes query errors in its log
+
+select ABS(-id)+(select firstname from names limit 1) as absid from names;
+SELECT A.id,A.firstName,B.id,B.firstName,(SELECT C.firstName FROM NAMES AS C WHERE C.firstName = B.firstName) FROM NAMES A INNER JOIN NAMES B on (A.firstName = B.firstName);
+ERROR:  Type VARCHAR not compatible for arithmetic operations
+ERROR:  LINE 1:1: select ABS(-id)+(select firstname from names limit 1) as absid f...
+ERROR:                             ^^^^^^
+ERROR:  More than one row returned by a subquery used as an expression
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME: CUSTOM_ERROR: LINE 1:1: select ABS(-id)+(select firstname from names limit 1) as absid f...
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME: CUSTOM_ERROR:                            ^^^^^^
+[SOCKET] [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression

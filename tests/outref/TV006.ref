@@ -67,9 +67,13 @@ Reducing stack by rule rrr (line lll):
    $1 = nterm column_name (: )
 -> $$ = nterm qualified_identifier (: )
 Entering state sss
-Next token is token SEMICOLON (: )
 Reducing stack by rule rrr (line lll):
    $1 = nterm qualified_identifier (: )
+-> $$ = nterm qualified_name (: )
+Entering state sss
+Next token is token SEMICOLON (: )
+Reducing stack by rule rrr (line lll):
+   $1 = nterm qualified_name (: )
 [TRACE] PATH:LINENUM DATE TIME: INFO_TABLE_SEARCH: Searching for table NONEXISTANTTABLE
 [ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE: Unknown table: NONEXISTANTTABLE
 LINE 2:1: select * from nonexistanttable;
@@ -223,9 +227,13 @@ Reducing stack by rule rrr (line lll):
    $1 = nterm column_name (: )
 -> $$ = nterm qualified_identifier (: )
 Entering state sss
-Next token is token SEMICOLON (: )
 Reducing stack by rule rrr (line lll):
    $1 = nterm qualified_identifier (: )
+-> $$ = nterm qualified_name (: )
+Entering state sss
+Next token is token SEMICOLON (: )
+Reducing stack by rule rrr (line lll):
+   $1 = nterm qualified_name (: )
 [TRACE] PATH:LINENUM DATE TIME: INFO_TABLE_SEARCH: Searching for table NAMES
 -> $$ = nterm table_reference (: )
 Entering state sss

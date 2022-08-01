@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -29,6 +29,12 @@ int ensure_same_type(SqlValueType *left_type, SqlValueType *right_type, SqlState
 		return result;
 	}
 	if (*left_type != *right_type) {
+		if (BOOLEAN_OR_STRING_LITERAL == *left_type) {
+			FIX_TYPE_TO_STRING_LITERAL(*left_type);
+		}
+		if (BOOLEAN_OR_STRING_LITERAL == *right_type) {
+			FIX_TYPE_TO_STRING_LITERAL(*right_type);
+		}
 		ERROR(ERR_TYPE_MISMATCH, get_user_visible_type_string(*left_type), get_user_visible_type_string(*right_type));
 		yyerror(&left_stmt->loc, NULL, NULL, NULL, parse_context, NULL);
 		yyerror(&right_stmt->loc, NULL, NULL, NULL, parse_context, NULL);

@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -34,7 +34,7 @@ ROUND(num,precision)
 	quit $select(precision<0:$fnumber(num/pow,"",0)*pow,1:$fnumber(num,"",precision))
 
 VERSION()
-	quit "PostgreSQL 9.6.5 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 7.1.1 20170630, 64-bit"
+	quit "PostgreSQL 13.0.0 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 7.1.1 20170630, 64-bit"
 
 DAY(date)
 	quit:$ZYISSQLNULL(date) $ZYSQLNULL

@@ -218,6 +218,21 @@ load_fixture() {
 	fi
 }
 
+load_rocto_fixture() {
+	fixture_name=$1
+	rocto_port=$2
+	echo "Loading fixture $fixture_name"
+	if [[ $fixture_name == *.sql ]]; then
+		cp @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name $fixture_name
+		grep -v '^#' $fixture_name 2>&1 | tee -a output.txt	   # Filter out copyright from output
+		grep -vE '^-- |^#' $fixture_name > input.sql || [ $? = 1 ] # Filter out comment lines as they otherwise clutter the parse error output (if any)
+		run_psql $rocto_port < input.sql 2>&1 | tee -a output.txt
+	else
+		echo "Unrecognized file extension: $fixture_name"
+		exit 1
+	fi
+}
+
 create_postgres_database() {
 	psql postgres <<PSQL &> $1.setup.out
 	-- Need to use LC_COLLATE='C' to ensure string comparison of 'Z' < 'a' returns TRUE (default is en_US.UTF8)
@@ -888,6 +903,9 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 		if [[ $i == "write" ]]; then
 			enableErrorCheck=1
 		fi
+		if [[ $i =~ ^roctoflags= ]]; then
+			roctoflags=`echo $i | sed 's/^roctoflags=//g'`
+		fi
 	done
 	if [[ ($usejdbc == "usejdbc") && ("$jdbcprotocol" == "") ]]; then
 		# User specified "usejdbc" but did not explicitly specify "usesimple" or "useextended"
@@ -917,7 +935,7 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 			# in test framework to invoke "stop_rocto" on test completion or failure (that way the
 			# caller test script (which invokes "run_query_in_octo_and_postgres_and_crosscheck_multiple_queries")
 			# sees "rocto" shut down after the call just like it was before the call.
-			test_port=$(start_rocto 1339)
+			test_port=$(start_rocto 1339 "$roctoflags")
 			isnotexternal=1
 		fi
 	fi

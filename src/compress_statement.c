@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -13,6 +13,7 @@
 #include <assert.h>
 #include "octo.h"
 #include "octo_types.h"
+#include "octo_type_check.h"
 
 #define CALL_COMPRESS_HELPER(temp, value, new_value, out, out_length)             \
 	{                                                                         \
@@ -176,8 +177,11 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 			}
 			*out_length += 1;
 			break;
+		case BOOLEAN_OR_STRING_LITERAL:
 		default:
 			assert(FALSE);
+			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
+			return NULL;
 			break;
 		}
 		break;

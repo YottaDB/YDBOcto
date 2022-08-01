@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -25,6 +25,13 @@ PSQL_TypeOid get_psql_type_from_sqlvaluetype(SqlValueType type) {
 	case NUMERIC_LITERAL:
 		return PSQL_TypeOid_numeric;
 		break;
+	case BOOLEAN_OR_STRING_LITERAL:
+		/* Not sure this code is reachable hence the below assert. But in Release builds, we want to treat this
+		 * the same as STRING_LITERAL so we fall through.
+		 */
+		assert(FALSE);
+		/* Note: Below comment is needed to avoid gcc [-Wimplicit-fallthrough=] warning */
+		/* fall through */
 	case STRING_LITERAL:
 		return PSQL_TypeOid_varchar;
 		break;
@@ -32,7 +39,7 @@ PSQL_TypeOid get_psql_type_from_sqlvaluetype(SqlValueType type) {
 		/* Needed for extended query case where we generate a plan without knowing the type of one or more literal
 		 * parameters. Since these are inferred at Bind time rather than at Parse time (when the plan is generated), we
 		 * cannot specify a concrete type. However, we also don't want plan generation to fail for this reason, so simply
-		 * specify that the type is unknown until it is latter inferred from concrete values.
+		 * specify that the type is unknown until it is later inferred from concrete values.
 		 */
 		return PSQL_TypeOid_unknown;
 		break;

@@ -250,7 +250,7 @@ typedef enum SqlValueType {
 	FUNCTION_NAME,
 	FUNCTION_HASH,
 	PARAMETER_VALUE,
-	NUL_VALUE,
+	NUL_VALUE, /* NULL SQL keyword or '' (empty string) */
 	COERCE_TYPE,
 	DELIM_VALUE,
 	IS_NULL_LITERAL, /* Special type to correspond to value of NULL as part of an IS NULL.
@@ -258,6 +258,11 @@ typedef enum SqlValueType {
 			  * the context. This duality is why it is different from a NUL_VALUE type.
 			  */
 	TABLE_ASTERISK,
+	BOOLEAN_OR_STRING_LITERAL, /* Strings like 't'/'f' are BOOLEAN or STRINGs depending on the context.
+				    * They start with this state and are later reset to BOOLEAN_VALUE if the
+				    * context makes them a boolean value and if not they are reset to STRING_LITERAL.
+				    * So this is a temporary state that is only there for a short time during parsing.
+				    */
 	INVALID_SqlValueType
 } SqlValueType;
 
@@ -345,7 +350,7 @@ typedef enum SqlDisplayRelationType { DISPLAY_ALL_RELATION, DISPLAY_TABLE_RELATI
 // only include types Octo currently supports.
 // Typename to OID mappings can be acquired by running the following
 // query against an existing PostgreSQL database:
-//	select typname,oid from pg_catalog.pg_type
+//	select typname,oid from pg_catalog.pg_type;
 typedef enum {
 	PSQL_TypeOid_bool = 16,
 	PSQL_TypeOid_int4 = 23,
@@ -358,7 +363,7 @@ typedef enum {
 // only include types Octo currently supports.
 // Typename to type size mappings can be acquired by running the following
 // query against an existing PostgreSQL database:
-//	select oid,typname,typlen from pg_catalog.pg_type
+//	select oid,typname,typlen from pg_catalog.pg_type;
 typedef enum {
 	PSQL_TypeSize_unknown = TYPLEN_CSTRING,
 	PSQL_TypeSize_numeric = TYPLEN_VARLENA,
@@ -816,9 +821,16 @@ typedef struct SqlParameterTypeList {
 
 typedef struct SqlValue {
 	enum SqlValueType type;
-	SqlDataTypeStruct coerced_type;	    /* initialized/usable only if `type` is COERCE_TYPE */
-	enum SqlValueType pre_coerced_type; /* initialized/usable only if `type` is COERCE_TYPE */
-	group_by_fields_t group_by_fields;  /* Used in case of COERCE_TYPE and CALCULATED_VALUE */
+	union {
+		struct {
+			SqlDataTypeStruct coerced_type;	    /* initialized/usable only if `type` is COERCE_TYPE */
+			enum SqlValueType pre_coerced_type; /* initialized/usable only if `type` is COERCE_TYPE */
+		} coerce_type;
+		union {
+			boolean_t truth_value; /* initialized/usable only if `type` is BOOLEAN_OR_STRING_LITERAL */
+		} bool_or_str;
+	} u;
+	group_by_fields_t group_by_fields; /* Used in case of COERCE_TYPE and CALCULATED_VALUE */
 	int		  parameter_index;
 	boolean_t	  is_double_quoted;
 	union {
@@ -888,11 +900,12 @@ typedef struct SqlSetOperation {
 	SqlColumnListAlias * col_type_list; /* List of available columns with type information indicating the union of
 					     * the types of the two operands of the SET operation. For example if this is
 					     * an INTERSECT SET operation and the left operand has a column of type
-					     * NUL_VALUE and the right operand has the same column of type INTEGER_LITERAL,
-					     * then the SET operation would store INTEGER_LITERAL as the type (since NUL_VALUE
-					     * can be matched with any other type, the other type should be inherited as the
-					     * type of this column as the result of this SET operation). Used only by
-					     * `populate_data_type` for type check of columns involved in the SET operation.
+					     * NUL_VALUE and the right operand has the same column of type
+					     * INTEGER_LITERAL, then the SET operation would store INTEGER_LITERAL as the
+					     * type (since NUL_VALUE can be matched with any other type, the
+					     * other type should be inherited as the type of this column as the result of
+					     * this SET operation). Used only by `populate_data_type` for type check of
+					     * columns involved in the SET operation.
 					     */
 } SqlSetOperation;
 

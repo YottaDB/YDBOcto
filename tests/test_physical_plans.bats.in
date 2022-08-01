@@ -129,3 +129,9 @@ teardown() {
 	verify_output TPP09 output.txt
 }
 
+@test "TPP10 : OCTO867 : Verify [= NULL] and [= ''] in WHERE clause generate same physical plan with key fixing optimization" {
+	load_fixture TPP10.sql subtest novv
+	# Verify that [= NULL] and [= ''] generate the same _ydboctoP*.m plan
+	[[ 1 -eq $(ls _ydboctoP*.m | wc -l) ]]
+}
+

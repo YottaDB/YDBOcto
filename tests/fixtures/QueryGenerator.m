@@ -2602,6 +2602,16 @@ tf()
 	. set tf=-1
 	. set tf($increment(tf))="TRUE"
 	. set tf($increment(tf))="FALSE"
+	. set tf($increment(tf))="'t'"
+	. set tf($increment(tf))="'f'"
+	. set tf($increment(tf))="'true'"
+	. set tf($increment(tf))="'false'"
+	. set tf($increment(tf))="'y'"
+	. set tf($increment(tf))="'n'"
+	. set tf($increment(tf))="'yes'"
+	. set tf($increment(tf))="'no'"
+	. set tf($increment(tf))="'1'"
+	. set tf($increment(tf))="'0'"
 	. if $increment(tf)
 	quit tf($random(tf))
 

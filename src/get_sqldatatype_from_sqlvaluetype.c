@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -26,6 +26,13 @@ SqlDataType get_sqldatatype_from_sqlvaluetype(SqlValueType type) {
 	case NUMERIC_LITERAL:
 		return NUMERIC_TYPE;
 		break;
+	case BOOLEAN_OR_STRING_LITERAL:
+		/* Not sure this code is reachable hence the below assert. But in Release builds, we want to treat this
+		 * the same as STRING_LITERAL so we fall through.
+		 */
+		assert(FALSE);
+		/* Note: Below comment is needed to avoid gcc [-Wimplicit-fallthrough=] warning */
+		/* fall through */
 	case STRING_LITERAL:
 		return STRING_TYPE;
 		break;

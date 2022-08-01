@@ -179,6 +179,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token LIMIT
 %token MAX
 %token MIN
+%token NAME
 %token NATURAL
 %token NOT
 %token NULLIF
@@ -229,6 +230,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token TRUE_TOKEN
 %token FALSE_TOKEN
 %token NULL_TOKEN
+%token EMPTY_STRING
 %token COMMA
 %token LEFT_PAREN
 %token RIGHT_PAREN
@@ -451,26 +453,27 @@ boolean_test
       $$ = $predicate;
       $$->loc = yyloc;
     }
-  | predicate IS boolean_primary {
+  | predicate IS boolean_primary_minus_empty_string {
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_IS;
       ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($boolean_primary);
+      ($$)->v.binary->operands[1] = ($boolean_primary_minus_empty_string);
       $$->loc = @1;
     }
-  | predicate IS NOT boolean_primary {
+  | predicate IS NOT boolean_primary_minus_empty_string {
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_IS_NOT;
       ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($boolean_primary);
+      ($$)->v.binary->operands[1] = ($boolean_primary_minus_empty_string);
       $$->loc = @1;
     }
   // TODO: IS DISTINCT FROM(#557)
   ;
 
-boolean_primary
+/* Note: This rule does not include "empty_string" (i.e. '' empty string which is otherwise treated as NULL in Octo) */
+boolean_primary_minus_empty_string
   : TRUE_TOKEN {
       SQL_VALUE_STATEMENT($$, BOOLEAN_VALUE, "1");
       INVOKE_PARSE_LITERAL_TO_PARAMETER(parse_context, ($$)->v.value, FALSE);
@@ -481,12 +484,24 @@ boolean_primary
       INVOKE_PARSE_LITERAL_TO_PARAMETER(parse_context, ($$)->v.value, FALSE);
       $$->loc = yyloc;
     }
-  | null_specification { $$ = $null_specification; }
+  | null_token { $$ = $null_token; }	/* Note: IS NULL is allowed, but IS '' is not allowed hence using
+					 * "null_token" and not "null_specification" in this sub-rule.
+					 */
   | UNKNOWN {
       SQL_VALUE_STATEMENT($$, BOOLEAN_VALUE, "");
       INVOKE_PARSE_LITERAL_TO_PARAMETER(parse_context, ($$)->v.value, FALSE);
       $$->loc = yyloc;
   }
+  ;
+
+/* Note: This rule includes "empty_string" (i.e. '' empty string which is otherwise treated as NULL in Octo) */
+boolean_primary
+  : boolean_primary_minus_empty_string {
+      $$ = $boolean_primary_minus_empty_string;
+    }
+  | empty_string {
+      $$ = $empty_string;
+    }
   ;
 
 predicate
@@ -830,10 +845,26 @@ value_expression
   ;
 
 null_specification
+  : null_token {
+	$$ = $null_token;
+    }
+  | empty_string {
+	$$ = $empty_string;
+    }
+  ;
+
+null_token
   : NULL_TOKEN {
 	SQL_VALUE_STATEMENT($$, NUL_VALUE, "");
 	$$->loc = yyloc;
-    }
+  }
+  ;
+
+empty_string
+  : EMPTY_STRING {
+	SQL_VALUE_STATEMENT($$, NUL_VALUE, "");
+	$$->loc = yyloc;
+  }
   ;
 
 default_specification
@@ -945,7 +976,18 @@ numeric_primary
   : value_expression_primary {
     $$ = $value_expression_primary;
   }
-  | numeric_primary LEFT_BRACKET literal_value RIGHT_BRACKET {
+  /* Octo doesn't yet support SQL arrays. However, some SQL clients attempt to access
+   * SQL arrays during client startup. So, to accomodate these clients, we need to, at minimum,
+   * not issue an error for these array access attempts.
+   *
+   * To do this without implementing true SQL array support, we simply accept the array access
+   * syntax and return the same literal value no matter the name or expected contents of the
+   * array the client is trying to access. That is, we just return `0` for all SQL array accesses.
+   *
+   * This is sufficient to prevent syntax errors from Octo, but may not satisfy clients who expect
+   * real values from their array accesses. At present, no such cases are known.
+   */
+  | numeric_primary LEFT_BRACKET value_expression RIGHT_BRACKET {
       // We use WARNING and not ERROR below because we want this to pass for fetching schema information
       WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "arrays");
       $$ = $1;
@@ -1120,6 +1162,7 @@ generic_function_call
       // Change the function name value to be a string literal rather than column reference
       UNPACK_SQL_STATEMENT(value, $function_name, value);
       value->type = FUNCTION_NAME;
+      $$->loc = yyloc;
     }
   | parenless_function { $$ = $parenless_function; }
   ;
@@ -1177,6 +1220,7 @@ parenless_function
       // Change the function name value to be a string literal rather than column reference
       UNPACK_SQL_STATEMENT(value, $PARENLESS_FUNCTION, value);
       value->type = FUNCTION_NAME;
+      ($$)->loc = yyloc;
   }
 
 parenless_function_tail
@@ -1205,8 +1249,6 @@ column_reference
       $$ = $column_name;
     }
   ;
-
-
 
 subquery
   : LEFT_PAREN query_expression RIGHT_PAREN { $$ = $query_expression; }
@@ -1326,7 +1368,7 @@ table_value_constructor
 	/* Reuse the table_alias_STATEMENT that was already allocated in "table_reference" */
 	table_alias_stmt = join->value;
 	UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
-	SQL_VALUE_STATEMENT(table_alias->alias, NUL_VALUE, "");
+	SQL_VALUE_STATEMENT(table_alias->alias, STRING_LITERAL, "");
 	assert(NULL != table_alias->column_list);
 	assert(NULL != table_alias->table);
 	assert(table_alias->unique_id);
@@ -2066,6 +2108,7 @@ character_string_type
   | CHARACTER VARYING character_string_type_char_tail { $$ = $character_string_type_char_tail; }
   | CHAR VARYING character_string_type_char_tail { $$ = $character_string_type_char_tail; }
   | VARCHAR character_string_type_char_tail { $$ = $character_string_type_char_tail; }
+  | NAME { $$ = NULL; }
   ;
 
 character_string_type_char_tail
@@ -2155,9 +2198,71 @@ literal_value
 	SqlStatement *ret = $LITERAL;
 	ret->loc = yyloc;
 	if (value_STATEMENT == ret->type) {
-		if (IS_LITERAL_PARAMETER(ret->v.value->type)) {
+		SqlValue	*value;
+
+		UNPACK_SQL_STATEMENT(value, ret, value);
+		switch(value->type) {
+		case STRING_LITERAL:;
+			/* Accept "t"/"f"/"yes"/"no" etc. not just as STRING literal but as potential BOOLEAN literals too (the
+			 * list of literals that are accepted as BOOLEAN literals is also maintained at String2Boolean label in
+			 * "src/aux/_ydboctoplanhelpers.m").
+			 * The type will be later deduced from the query context by "populate_data_type()".
+			 * So set the type to allow for EITHER choice right now.
+			 */
+			size_t		len;
+			char		*ptr;
+
+			ptr = value->v.string_literal;
+			len = strlen(ptr);
+			switch(len) {
+			case 1:
+				switch(*ptr) {
+				case '0':
+				case 'n':
+				case 'f':
+					value->u.bool_or_str.truth_value = FALSE;
+					value->type = BOOLEAN_OR_STRING_LITERAL;
+					break;
+				case '1':
+				case 'y':
+				case 't':
+					value->u.bool_or_str.truth_value = TRUE;
+					value->type = BOOLEAN_OR_STRING_LITERAL;
+					break;
+				}
+				break;
+			case 2:
+				if (0 == strcmp(ptr, "no")) {
+					value->u.bool_or_str.truth_value = FALSE;
+					value->type = BOOLEAN_OR_STRING_LITERAL;
+				}
+				break;
+			case 3:
+				if (0 == strcmp(ptr, "yes")) {
+					value->u.bool_or_str.truth_value = TRUE;
+					value->type = BOOLEAN_OR_STRING_LITERAL;
+				}
+				break;
+			case 4:
+				if (0 == strcmp(ptr, "true")) {
+					value->u.bool_or_str.truth_value = TRUE;
+					value->type = BOOLEAN_OR_STRING_LITERAL;
+				}
+				break;
+			case 5:
+				if (0 == strcmp(ptr, "false")) {
+					value->u.bool_or_str.truth_value = FALSE;
+					value->type = BOOLEAN_OR_STRING_LITERAL;
+				}
+				break;
+			}
+			/* Note: Below comment is needed to avoid gcc [-Wimplicit-fallthrough=] warning */
+			/* fall through */
+		case INTEGER_LITERAL:
+		case NUMERIC_LITERAL:
 			INVOKE_PARSE_LITERAL_TO_PARAMETER(parse_context, ret->v.value, FALSE);
-		} else if (PARAMETER_VALUE == ret->v.value->type) {
+			break;
+		case PARAMETER_VALUE:
 			// ROCTO ONLY: Populate ParseContext to handle prepared statements in extended query protocol
 			if (config->is_rocto && (TRUE == parse_context->is_extended_query)) {
 				if (0 <= parse_context->num_bind_parms) {
@@ -2190,10 +2295,15 @@ literal_value
 				ERROR(ERR_DOLLAR_SYNTAX, "");
 				yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
 			}
+			break;
+		default:
+			assert(FALSE);
+			break;
 		}
 	}
 	$$ = ret;
     }
+  ;
 
 /* A "ddl_int_literal_value" rule is different from the "literal_value" rule in that we do not want to do the
  * INVOKE_PARSE_LITERAL_TO_PARAMETER call. This is because the actual value of the literal matters in DDL statements
@@ -2295,13 +2405,13 @@ function_definition
       }
   ;
 
-/* Some SQL keywords may also be valid SQL function names. So, we must distinguish
+/* Some SQL keywords may also be valid SQL column or function names. So, we must distinguish
  * between the cases where the keyword is intended as a keyword, and where it is intended
- * as the name of a function.
+ * as the name of a column or function.
  *
- * To do this, we explictly allow such keywords to be accepted as function names via the following
- * rule, which prevents syntax errors due to an unexpected keyword appearing in the function_definition
- * rule.
+ * To do this, we explictly allow such keywords to be accepted as column or function names via the following
+ * rule, which prevents syntax errors due to an unexpected keyword appearing in the column_definition or
+ * function_definition rules.
  */
 sql_keyword
   : TRUNCATE {
@@ -2310,6 +2420,10 @@ sql_keyword
     }
   | TO {
       SQL_VALUE_STATEMENT($$, STRING_LITERAL, "TO");
+      $$->loc = yyloc;
+    }
+  | NAME {
+      SQL_VALUE_STATEMENT($$, COLUMN_REFERENCE, "NAME");
       $$->loc = yyloc;
     }
   ;

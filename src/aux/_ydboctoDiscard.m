@@ -76,8 +76,23 @@ discardTable(tableName,tableGVNAME)	;
 	. .  SET aimgbl=$QSUBSCRIPT(^%ydbAIMOctoCache(tableName,column,"location"),0)
 	. .  DO UNXREFDATA^%YDBAIM(aimgbl)
 	. .  KILL ^%ydbAIMOctoCache(tableName,column)
-	; If tableGVNAME is not "", it points to an gvn whose subtree needs to be KILLed as part of the DROP TABLE
-	KILL:$data(tableGVNAME)&(""'=tableGVNAME) @tableGVNAME
+	IF $data(tableGVNAME)&(""'=tableGVNAME) DO
+	. ; If tableGVNAME is not "", it points to an gvn whose subtree needs to be KILLed as part of the DROP TABLE
+	. KILL @tableGVNAME
+	. ; Now that we know we are in the middle of a DROP TABLE and this table is going away, remove global variable nodes
+	. ; that record which functions this table's CHECK constraints depend on.
+	. NEW gvn
+	. SET gvn="^%ydboctoocto(""tableconstraint"",tableName)"
+	. FOR  SET gvn=$query(@gvn)  QUIT:$QSUBSCRIPT(gvn,2)'=tableName  DO
+	. . ; gvn would be like ^%ydboctoocto("tableconstraint","NAMES","NAME1","SAMEVALUE","%ydboctoFN0uUSDY6E7G9VcjaOGNP9G")=""
+	. . NEW constraintName,functionName,functionHash
+	. . SET constraintName=$QSUBSCRIPT(gvn,3)
+	. . SET functionName=$QSUBSCRIPT(gvn,4)
+	. . SET functionHash=$QSUBSCRIPT(gvn,5)
+	. . KILL @gvn
+	. . ; Need to also kill the following gvn which is maintained in sync with the above
+	. . ; ^%ydboctoocto("functions","SAMEVALUE","%ydboctoFN0uUSDY6E7G9VcjaOGNP9G","check_constraint","NAMES","NAME1")=""
+	. . KILL ^%ydboctoocto("functions",functionName,functionHash,"check_constraint",tableName,constraintName)
 	QUIT
 
 discardFunction(functionName,functionHash)	;

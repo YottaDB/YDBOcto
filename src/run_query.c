@@ -645,6 +645,57 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 					CLEANUP_AND_RETURN_WITH_SUCCESS(memory_chunks, buffer, spcfc_buffer, query_lock,
 									&cursor_ydb_buff);
 				}
+			} else {
+				/* Check if a table CHECK constraint relies on this function. If so, disallow the DROP FUNCTION.
+				 * If a CHECK constraint relies on this function, we would see gvn nodes of the following form
+				 * exist in the database.
+				 *	^%ydboctoocto("functions","SAMEVALUE","%ydboctoFN0uUSDY6E7G9VcjaOGNP9G",
+				 *						"check_constraint","NAMES","NAME1")=""
+				 * where
+				 *	"SAMEVALUE" = User visible SQL function name
+				 *	"%ydboctoFN0uUSDY6E7G9VcjaOGNP9G" = Function hash (includes input/result parameter types)
+				 *	"NAMES" = Table Name
+				 *	"NAME1" = CHECK Constraint name
+				 *
+				 * Therefore check if ^%ydboctoocto("functions",function_name,function_hash,"check_constraint",*)
+				 * nodes exist and if so issue an error.
+				 */
+				ydb_buffer_t gvn_subs[7];
+				YDB_STRING_TO_BUFFER(config->global_names.octo, &gvn_subs[0]);
+				YDB_LITERAL_TO_BUFFER(OCTOLIT_FUNCTIONS, &gvn_subs[1]);
+				gvn_subs[2] = *function_name_buffer;
+				gvn_subs[3] = *function_hash_buffer;
+				YDB_LITERAL_TO_BUFFER(OCTOLIT_CHECK_CONSTRAINT, &gvn_subs[4]);
+
+				char table_name_buff[OCTO_MAX_IDENT + 1];
+				gvn_subs[5].buf_addr = table_name_buff;
+				gvn_subs[5].len_alloc = sizeof(table_name_buff) - 1; /* reserve 1 byte for null terminator */
+
+				char constraint_name_buff[OCTO_MAX_IDENT + 1];
+				gvn_subs[6].buf_addr = constraint_name_buff;
+				gvn_subs[6].len_alloc = sizeof(constraint_name_buff) - 1; /* reserve 1 byte for null terminator */
+
+				gvn_subs[5].len_used = 0;
+				status = ydb_subscript_next_s(&gvn_subs[0], 5, &gvn_subs[1], &gvn_subs[5]);
+				if (YDB_ERR_NODEEND != status) {
+					/* There is at least one constraint which relies on this function. Issue error. */
+					YDB_ERROR_CHECK(status);
+					if (YDB_OK != status) {
+						CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock,
+									      &cursor_ydb_buff);
+					}
+					gvn_subs[6].len_used = 0;
+					status = ydb_subscript_next_s(&gvn_subs[0], 6, &gvn_subs[1], &gvn_subs[6]);
+
+					char fn_name[1024];
+					get_function_name_and_parmtypes(fn_name, sizeof(fn_name), function_name,
+									drop_function->parameter_type_list);
+					gvn_subs[5].buf_addr[gvn_subs[5].len_used] = '\0'; /* null terminate table name */
+					gvn_subs[6].buf_addr[gvn_subs[6].len_used] = '\0'; /* null terminate constraint name */
+					ERROR(ERR_DROP_FUNCTION_DEPENDS, fn_name, gvn_subs[6].buf_addr, gvn_subs[5].buf_addr);
+					CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock,
+								      &cursor_ydb_buff);
+				}
 			}
 			ok_to_drop = TRUE;
 		} else {

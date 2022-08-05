@@ -81,6 +81,27 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 		CALL_DECOMPRESS_HELPER(function->return_type, out, out_length);
 		CALL_DECOMPRESS_HELPER(function->extrinsic_function, out, out_length);
 		CALL_DECOMPRESS_HELPER(function->function_hash, out, out_length);
+#ifndef NDEBUG
+		/* Validate that the function oid noted at compress_statement.c time still exists.
+		 * (i.e. the function did not get deleted in between because a CHECK constraint relied on it).
+		 * A DROP FUNCTION on that function in the meantime should have errored out.
+		 */
+		ydb_buffer_t octo_global, function_subs[4];
+		YDB_STRING_TO_BUFFER(config->global_names.octo, &octo_global);
+		YDB_STRING_TO_BUFFER(OCTOLIT_FUNCTIONS, &function_subs[0]);
+		YDB_STRING_TO_BUFFER(function->function_name->v.value->v.string_literal, &function_subs[1]);
+		YDB_STRING_TO_BUFFER(function->function_hash->v.value->v.string_literal, &function_subs[2]);
+		YDB_STRING_TO_BUFFER(OCTOLIT_OID, &function_subs[3]);
+
+		ydb_buffer_t ret;
+		char	     oid_buff[INT32_TO_STRING_MAX];
+		ret.buf_addr = &oid_buff[0];
+		ret.len_alloc = sizeof(oid_buff);
+
+		int status;
+		status = ydb_get_s(&octo_global, 4, &function_subs[0], &ret);
+		assert(YDB_OK == status);
+#endif
 		break;
 	case parameter_type_list_STATEMENT:
 		UNPACK_SQL_STATEMENT(cur_parameter_type_list, stmt, parameter_type_list);
@@ -192,10 +213,6 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 		CALL_DECOMPRESS_HELPER(function_call->function_name, out, out_length);
 		CALL_DECOMPRESS_HELPER(function_call->function_schema, out, out_length);
 		CALL_DECOMPRESS_HELPER(function_call->parameters, out, out_length);
-		/* YDBOcto#772 TODO : Validate that the function oid noted at compress_statement.c time still exists.
-		 * (i.e. the function did not get deleted in between because a CHECK constraint relied on it).
-		 * DROP FUNCTION on that function in the meantime should have errored out.
-		 */
 		break;
 	case coalesce_STATEMENT:;
 		SqlCoalesceCall *coalesce_call;

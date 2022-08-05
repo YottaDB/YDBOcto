@@ -173,8 +173,10 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	boolean_t primary_key_constraint_seen;
 	primary_key_constraint_seen = FALSE;
 
-	/* Define the local variable name under which we will store constraint names as we process the CREATE TABLE.
-	 * This will help us identify duplicate constraint names.
+	/* Define the local variable name under which we will
+	 * a) Store constraint names as we process the CREATE TABLE. This will help us identify duplicate constraint names.
+	 * b) Store function names/hashes as we process the CREATE TABLE. This will help us ensure a DROP FUNCTION issues an
+	 *    error if a table constraint relies on that function definition.
 	 */
 	ydb_buffer_t ydboctoTblConstraint;
 	YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTOTBLCONSTRAINT, &ydboctoTblConstraint);
@@ -182,9 +184,9 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	/* Remove any leftover lvn nodes from prior CREATE TABLE query runs just in case */
 	int status;
 	status = ydb_delete_s(&ydboctoTblConstraint, 0, NULL, YDB_DEL_TREE);
-	assert(YDB_OK == status);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
+		assert(FALSE);
 		return NULL;
 	}
 
@@ -233,6 +235,22 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 
 				noted_column = NULL;
 				UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
+				/* Note down which constraint we are currently processing. Needed inside "qualify_check_constraint"
+				 * to note down function names/hashes used in this constraint. Note that we still have not
+				 * assigned a unique name to this constraint (that happens in the later for loop) so we cannot
+				 * use the constraint name. Therefore, we use the "constraint" pointer as the subscript/index.
+				 */
+				ydb_buffer_t func_subs[2];
+				YDB_LITERAL_TO_BUFFER(OCTOLIT_FUNCTIONS, &func_subs[0]);
+				func_subs[1].buf_addr = (char *)&constraint->definition;
+				func_subs[1].len_used = func_subs[1].len_alloc = sizeof(void *);
+				status = ydb_set_s(&ydboctoTblConstraint, 1, &func_subs[0], &func_subs[1]);
+				YDB_ERROR_CHECK(status);
+				if (YDB_OK != status) {
+					assert(FALSE);
+					return NULL;
+				}
+
 				if (qualify_check_constraint(constraint->definition, table, &type)) {
 					status = ydb_delete_s(&ydboctoTblConstraint, 1, &subs[0], YDB_DEL_TREE);
 					assert(YDB_OK == status);
@@ -312,9 +330,9 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				 * CHECK constraint so we start the next CHECK constraint with a clean state.
 				 */
 				status = ydb_delete_s(&ydboctoTblConstraint, 1, &subs[0], YDB_DEL_TREE);
-				assert(YDB_OK == status);
 				YDB_ERROR_CHECK(status);
 				if (YDB_OK != status) {
+					assert(FALSE);
 					return NULL;
 				}
 				if (NULL == noted_column) {
@@ -472,9 +490,9 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 						/* Check if generated name exists. If so, try next number suffix. */
 						YDB_STRING_TO_BUFFER(constraint_name, &subs[1]);
 						status = ydb_data_s(&ydboctoTblConstraint, 2, &subs[0], &ret_value);
-						assert(YDB_OK == status);
 						YDB_ERROR_CHECK(status);
 						if (YDB_OK != status) {
+							assert(FALSE);
 							return NULL;
 						}
 						if (!ret_value) {
@@ -504,9 +522,9 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 					constraint_name = value->v.string_literal;
 					YDB_STRING_TO_BUFFER(constraint_name, &subs[1]);
 					status = ydb_data_s(&ydboctoTblConstraint, 2, &subs[0], &ret_value);
-					assert(YDB_OK == status);
 					YDB_ERROR_CHECK(status);
 					if (YDB_OK != status) {
+						assert(FALSE);
 						return NULL;
 					}
 					if (ret_value) {
@@ -517,9 +535,24 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				}
 				/* Now that we know this is not a duplicate, add it to list of known constraint names */
 				status = ydb_set_s(&ydboctoTblConstraint, 2, &subs[0], NULL);
-				assert(YDB_OK == status);
 				YDB_ERROR_CHECK(status);
 				if (YDB_OK != status) {
+					assert(FALSE);
+					return NULL;
+				}
+				/* Note down the mapping between a constraint definition (the 8-byte pointer) and its name.
+				 * This is needed later in "store_table_in_pg_class.c" to know which constraint uses which
+				 * function names/hashes.
+				 */
+				ydb_buffer_t map_subs[2];
+				YDB_LITERAL_TO_BUFFER(OCTOLIT_FUNCTIONS_MAP, &map_subs[0]);
+				map_subs[1].buf_addr = (char *)&constraint->definition;
+				map_subs[1].len_used = map_subs[1].len_alloc = sizeof(void *);
+				/* Note: subs[1] contains the constraint name */
+				status = ydb_set_s(&ydboctoTblConstraint, 2, &map_subs[0], &subs[1]);
+				YDB_ERROR_CHECK(status);
+				if (YDB_OK != status) {
+					assert(FALSE);
 					return NULL;
 				}
 				break;
@@ -531,13 +564,10 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		cur_column = cur_column->next;
 	} while (cur_column != start_column);
 
-	/* Remove lvn nodes, if any, from tracking constraint names */
-	status = ydb_delete_s(&ydboctoTblConstraint, 0, NULL, YDB_DEL_TREE);
-	assert(YDB_OK == status);
-	YDB_ERROR_CHECK(status);
-	if (YDB_OK != status) {
-		return NULL;
-	}
+	/* Note that we no longer need lvn nodes that help track constraint names (subs[0] = OCTOLIT_COLUMNS)
+	 * but we still need lvn nodes that help track function names/hashes (subs[0] = OCTOLIT_FUNCTIONS) until
+	 * "store_table_in_pg_class()" time so we will not remove these nodes until then.
+	 */
 
 	if (0 == num_user_visible_columns) {
 		UNPACK_SQL_STATEMENT(value, table->tableName, value);

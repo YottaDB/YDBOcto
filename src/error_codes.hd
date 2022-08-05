@@ -39,6 +39,8 @@ ERROR_DEF(PSQL_Code_Invalid_Sql_Statement_Name, "26000")
 // Class 28 - Invalid Authorization Specification
 ERROR_DEF(PSQL_Code_Invalid_Authorization_Specification, "28000")
 ERROR_DEF(PSQL_Code_Invalid_Password, "28P01")
+// Class 2B - Dependent Privilege Descriptors Still Exist
+ERROR_DEF(PSQL_Dependent_Objects_Still_Exist, "2BP01")
 // Class 42 - Syntax Error or Access Rule Violation
 ERROR_DEF(PSQL_Code_Syntax_Error, "42601")
 ERROR_DEF(PSQL_Code_Duplicate_Column, "42701")

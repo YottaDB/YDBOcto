@@ -72,6 +72,7 @@ ERROR_DEF(ERR_CASE_VALUE_TYPE_MISMATCH, "WHEN argument is of type %s but is used
 ERROR_DEF(ERR_COMMON_COLUMN, "Common column name '%s' appears more than once in %s side of NATURAL JOIN", PSQL_Code_Ambiguous_Column)
 ERROR_DEF(ERR_DDL_LITERAL, "Invalid literal in DDL specification: only %s literals accepted for this keyword.", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_DOLLAR_SYNTAX, "Prepared statement dollar syntax (e.g. $1, $2, etc.) only supported in Rocto using the Extended Query Protocol", PSQL_Code_Syntax_Error)
+ERROR_DEF(ERR_DROP_FUNCTION_DEPENDS, "Cannot DROP function '%s' because other objects (constraint %s on table %s) depend on it", PSQL_Dependent_Objects_Still_Exist)
 ERROR_DEF(ERR_DUPLICATE_COLUMN, "Column '%s' specified more than once", PSQL_Code_Duplicate_Column)
 ERROR_DEF(ERR_GROUP_BY_INVALID_USAGE, "Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)", PSQL_Code_Grouping_Error)
 ERROR_DEF(ERR_GROUP_BY_OR_AGGREGATE_FUNCTION, "Column %s must appear in the GROUP BY clause or be used in an aggregate function", PSQL_Code_Grouping_Error)

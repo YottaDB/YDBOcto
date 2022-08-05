@@ -291,6 +291,42 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 			break;
 		}
 		result = function_call_data_type_check(fc, type, NULL, table); /* Note: "fc->parameters" also gets qualified here */
+		if (result) {
+			break;
+		}
+		/* Note down the function name and hash as encountered in this CHECK constraint.
+		 * Needed later to store the list of functions that this CREATE TABLE command depends on.
+		 * This way a DROP FUNCTION can check if there are any table CHECK constraints relying on it and if so error out.
+		 */
+		SqlFunction *function;
+		UNPACK_SQL_STATEMENT(function, fc->function_schema, create_function);
+
+		ydb_buffer_t function_name;
+		YDB_STRING_TO_BUFFER(function->function_name->v.value->v.string_literal, &function_name);
+
+		ydb_buffer_t ydboctoTblConstraint;
+		YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTOTBLCONSTRAINT, &ydboctoTblConstraint);
+
+		ydb_buffer_t subs[3];
+		char	     subs1_buff[sizeof(void *)];
+		YDB_LITERAL_TO_BUFFER(OCTOLIT_FUNCTIONS, &subs[0]);
+		subs[1].buf_addr = subs1_buff;
+		subs[1].len_alloc = sizeof(subs1_buff);
+
+		int status;
+		status = ydb_get_s(&ydboctoTblConstraint, 1, &subs[0], &subs[1]);
+		assert(YDB_OK == status);
+		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status) {
+			result = 1;
+		}
+		YDB_STRING_TO_BUFFER(function->function_hash->v.value->v.string_literal, &subs[2]);
+		status = ydb_set_s(&ydboctoTblConstraint, 3, &subs[0], &function_name);
+		assert(YDB_OK == status);
+		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status) {
+			result = 1;
+		}
 		break;
 	case coalesce_STATEMENT:;
 		SqlCoalesceCall *coalesce_call;

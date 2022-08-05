@@ -260,6 +260,14 @@ Text: Prepared statement dollar syntax (e.g. $1, $2, etc.) only supported in Roc
 
 Description/Action: This error indicates that user has tried to use a dollar symbol ($) in Octo. Prepared statement dollar syntax is only supported in Rocto using the PostgreSQL Extended Query Protocol. PSQL Error Code: 42601
 
++++++++++++++++++++++++++
+ERR_DROP_FUNCTION_DEPENDS
++++++++++++++++++++++++++
+
+Text: Cannot DROP function 'xxx' because other objects (constraint xxx on table xxx) depend on it
+
+Description/Action: This error indicates an attempt to drop a function that is still being relied upon by at least one CHECK constraint in a table. This function cannot be removed until all tables whose CHECK constraints rely on this function are dropped. PSQL Error Code: 2BP01
+
 ++++++++++++++++++++++
 ERR_DUPLICATE_COLUMN
 ++++++++++++++++++++++

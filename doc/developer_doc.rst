@@ -159,7 +159,7 @@ Running the tests
 
 .. note::
 
-   Make sure that YDB and YDBAIM are up to date and installed.
+   Make sure that `YottaDB <https://docs.yottadb.com/AdminOpsGuide/installydb.html#installing-yottadb>`_, :ref:`Octo <install-octo>`, and `YDBAIM <https://docs.yottadb.com/Plugins/ydbaim.html#installation>`_ are installed and up to date before running the tests.
 
 To generate a Debug build instead of a Release build (the default), add :code:`-DCMAKE_BUILD_TYPE=Debug` to the CMake line.
 

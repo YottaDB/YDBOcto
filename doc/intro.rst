@@ -85,6 +85,8 @@ Install Prerequisites
 
    If YottaDB has already been installed, use the :code:`--plugins-only` option with the ydbinstall.sh script to install the plugins.
 
+.. _install-octo:
+
 ++++++++++++
 Install Octo
 ++++++++++++

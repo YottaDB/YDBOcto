@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,11 +20,23 @@ drop_table_statement
   ;
 
 drop_function_statement
-  : DROP FUNCTION identifier_start optional_function_parameter_type_list {
-	INVOKE_DROP_FUNCTION($$, $identifier_start, $optional_function_parameter_type_list, FALSE);
+  : DROP FUNCTION identifier optional_function_parameter_type_list {
+	INVOKE_DROP_FUNCTION($$, $identifier, $optional_function_parameter_type_list, FALSE);
     }
-  | DROP FUNCTION IF EXISTS identifier_start optional_function_parameter_type_list {
-	INVOKE_DROP_FUNCTION($$, $identifier_start, $optional_function_parameter_type_list, TRUE);
+  | DROP FUNCTION sql_keyword optional_function_parameter_type_list {
+	INVOKE_DROP_FUNCTION($$, $sql_keyword, $optional_function_parameter_type_list, FALSE);
+    }
+  | DROP FUNCTION PARENLESS_FUNCTION optional_function_parameter_type_list {
+	INVOKE_DROP_FUNCTION($$, $PARENLESS_FUNCTION, $optional_function_parameter_type_list, FALSE);
+    }
+  | DROP FUNCTION IF EXISTS identifier optional_function_parameter_type_list {
+	INVOKE_DROP_FUNCTION($$, $identifier, $optional_function_parameter_type_list, TRUE);
+    }
+  | DROP FUNCTION IF EXISTS sql_keyword optional_function_parameter_type_list {
+	INVOKE_DROP_FUNCTION($$, $sql_keyword, $optional_function_parameter_type_list, TRUE);
+    }
+  | DROP FUNCTION IF EXISTS PARENLESS_FUNCTION optional_function_parameter_type_list {
+	INVOKE_DROP_FUNCTION($$, $PARENLESS_FUNCTION, $optional_function_parameter_type_list, TRUE);
     }
   ;
 

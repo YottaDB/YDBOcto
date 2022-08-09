@@ -222,3 +222,13 @@ setup() {
 	load_fixture TCF032.sql subtest novv
 	verify_output TCF032 output.txt noinfo nodebug
 }
+
+@test "TCF033 : OCTO884 : Octo issues 'ERR_IDENT_LENGTH' if function name is too long" {
+	load_fixture TCF033.sql subtest novv
+	verify_output TCF033 output.txt noinfo nodebug
+}
+
+@test "TCF034 : OCTO884 : Octo supports SQL keywords and parenless function names in CREATE/DROP FUNCTION statements" {
+	load_fixture TCF034.sql subtest novv
+	verify_output TCF034 output.txt noinfo nodebug
+}

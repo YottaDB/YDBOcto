@@ -1624,17 +1624,7 @@ column_definition
   ;
 
 column_name
-  : identifier {
-	size_t ident_len;
-
-	$$ = $identifier;
-	ident_len = strlen(($$)->v.value->v.string_literal);
-	if (OCTO_MAX_IDENT < ident_len) {
-		ERROR(ERR_IDENT_LENGTH, "Identifier", ident_len, OCTO_MAX_IDENT);
-		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
-		YYERROR;
-	}
-  }
+  : identifier { $$ = $identifier; }
   | LITERAL PERIOD LITERAL {
       char	*c, *d;
       SqlValue	*table_name, *column_name;
@@ -1806,17 +1796,7 @@ column_constraint_definition
 
 constraint_name_definition
   : /* Empty */ { $$ = NULL; }
-  | CONSTRAINT constraint_name {
-        $$ = $constraint_name;
-
-	size_t ident_len;
-	ident_len = strlen(($$)->v.value->v.string_literal);
-	if (OCTO_MAX_IDENT < ident_len) {
-		ERROR(ERR_IDENT_LENGTH, "Constraint name", ident_len, OCTO_MAX_IDENT);
-		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
-		YYERROR;
-	}
-    }
+  | CONSTRAINT constraint_name { $$ = $constraint_name; }
   ;
 
 constraint_name
@@ -1889,7 +1869,17 @@ qualified_identifier
   ;
 
 identifier
-  : actual_identifier { $$ = $actual_identifier; }
+  : actual_identifier {
+	size_t ident_len;
+
+	$$ = $actual_identifier;
+	ident_len = strlen(($$)->v.value->v.string_literal);
+	if (OCTO_MAX_IDENT < ident_len) {
+		ERROR(ERR_IDENT_LENGTH, "Identifier", ident_len, OCTO_MAX_IDENT);
+		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+		YYERROR;
+	}
+  }
 //  | introducer character_set_specification actual_identifier
   ;
 
@@ -2155,17 +2145,27 @@ optional_order_by
   ;
 
 function_definition
-  : CREATE FUNCTION identifier_start LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
-	INVOKE_FUNCTION_DEFINITION($$, $identifier_start, $function_parameter_type_list, $data_type, $m_function, FALSE);
+  : CREATE FUNCTION identifier LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
+	INVOKE_FUNCTION_DEFINITION($$, $identifier, $function_parameter_type_list, $data_type, $m_function, FALSE);
       }
   | CREATE FUNCTION sql_keyword LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
+	/* This rule is necessary because `sql_keyword` is not a subset of identifier. */
 	INVOKE_FUNCTION_DEFINITION($$, $sql_keyword, $function_parameter_type_list, $data_type, $m_function, FALSE);
       }
   | CREATE FUNCTION PARENLESS_FUNCTION LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
+	/* This rule is necessary because `PARENLESS_FUNCTION` is not a subset of identifier. */
 	INVOKE_FUNCTION_DEFINITION($$, $PARENLESS_FUNCTION, $function_parameter_type_list, $data_type, $m_function, FALSE);
       }
-  | CREATE FUNCTION IF NOT EXISTS identifier_start LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
-	INVOKE_FUNCTION_DEFINITION($$, $identifier_start, $function_parameter_type_list, $data_type, $m_function, TRUE);
+  | CREATE FUNCTION IF NOT EXISTS identifier LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
+	INVOKE_FUNCTION_DEFINITION($$, $identifier, $function_parameter_type_list, $data_type, $m_function, TRUE);
+      }
+  | CREATE FUNCTION IF NOT EXISTS sql_keyword LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
+	/* This rule is necessary because `sql_keyword` is not a subset of identifier. */
+	INVOKE_FUNCTION_DEFINITION($$, $sql_keyword, $function_parameter_type_list, $data_type, $m_function, TRUE);
+      }
+  | CREATE FUNCTION IF NOT EXISTS PARENLESS_FUNCTION LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
+	/* This rule is necessary because `PARENLESS_FUNCTION` is not a subset of identifier. */
+	INVOKE_FUNCTION_DEFINITION($$, $PARENLESS_FUNCTION, $function_parameter_type_list, $data_type, $m_function, TRUE);
       }
   ;
 

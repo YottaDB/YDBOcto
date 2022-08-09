@@ -20,15 +20,15 @@
  *	non-NULL pointer to SqlStatement structure on success
  *	NULL on failure
  */
-SqlStatement *function_definition(SqlStatement *identifier_start, SqlStatement *function_parameter_type_list,
-				  SqlStatement *data_type, SqlStatement *m_function, boolean_t if_not_exists_specified) {
+SqlStatement *function_definition(SqlStatement *identifier, SqlStatement *function_parameter_type_list, SqlStatement *data_type,
+				  SqlStatement *m_function, boolean_t if_not_exists_specified) {
 	SqlStatement *ret;
 	SQL_STATEMENT(ret, create_function_STATEMENT);
 	MALLOC_STATEMENT(ret, create_function, SqlFunction);
 
 	SqlFunction *function;
 	UNPACK_SQL_STATEMENT(function, ret, create_function);
-	function->function_name = identifier_start;
+	function->function_name = identifier;
 	function->parameter_type_list = function_parameter_type_list;
 	function->if_not_exists_specified = if_not_exists_specified;
 	/* For FUNCTION return type, ignore any size specifications (i.e. if VARCHAR(30) is specified, ignore the 30).

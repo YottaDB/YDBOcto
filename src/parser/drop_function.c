@@ -1,6 +1,6 @@
 /****************************************************************
  *                                                              *
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.      *
+ * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.      *
  * All rights reserved.                                         *
  *                                                              *
  *      This source code contains the intellectual property     *
@@ -24,15 +24,14 @@
  *	non-NULL pointer to SqlStatement structure on success
  *	NULL on failure
  */
-SqlStatement *drop_function(SqlStatement *identifier_start, SqlStatement *function_parameter_type_list,
-			    boolean_t if_exists_specified) {
+SqlStatement *drop_function(SqlStatement *identifier, SqlStatement *function_parameter_type_list, boolean_t if_exists_specified) {
 	SqlStatement *ret;
 	SQL_STATEMENT(ret, drop_function_STATEMENT);
 	MALLOC_STATEMENT(ret, drop_function, SqlDropFunctionStatement);
 
 	SqlDropFunctionStatement *drop_function;
 	UNPACK_SQL_STATEMENT(drop_function, ret, drop_function)
-	drop_function->function_name = identifier_start;
+	drop_function->function_name = identifier;
 	drop_function->parameter_type_list = function_parameter_type_list;
 	drop_function->if_exists_specified = if_exists_specified;
 

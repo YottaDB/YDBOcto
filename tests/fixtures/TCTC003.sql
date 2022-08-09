@@ -441,3 +441,14 @@ DROP TABLE products2;
 SELECT '-- Expect ERR_DROP_FUNCTION_DEPENDS error (constraint NAME2) in a DROP FUNCTION AFTER 2 CREATE TABLE and 2 DROP TABLE';
 DROP FUNCTION SAMEVALUE(INTEGER);
 
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION in INSERT INTO and UPDATE in a table containing MULTIPLE primary key columns
+DROP TABLE IF EXISTS products;
+CREATE TABLE products (id0 INTEGER primary key, id1 INTEGER KEY NUM 1, name VARCHAR, CHECK (id1 > 0), CHECK (name < 'mnop'));
+INSERT INTO products VALUES (1, 2, 'abcd');
+INSERT INTO products VALUES (2, 3, 'efgh');
+INSERT INTO products VALUES (2, 0, 'ijkl');
+INSERT INTO products VALUES (3, -1, 'ijkl');
+INSERT INTO products VALUES (4, 2, 'mnop');
+UPDATE products SET id1 = id1 - 2;
+UPDATE products SET name = 'mnop' where id0 = 1;
+

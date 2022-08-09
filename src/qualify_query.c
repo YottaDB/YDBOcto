@@ -49,7 +49,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		assert(NULL == parent_join);
 		assert(NULL == parent_table_alias);
 		assert(NULL == ret->ret_cla);
-		result |= qualify_query(insert->src_table_alias_stmt, NULL, NULL, ret);
+		CALL_QUALIFY_QUERY_AND_RETURN_ON_ERROR(insert->src_table_alias_stmt, NULL, NULL, ret, result);
 		/* Some error checks happened already in "insert_statement.c". Do some more here.
 		 * If "insert->columns" is non-NULL, check if "insert->columns" and "src_table_alias_stmt" has same number of
 		 * columns and issue error otherwise.
@@ -106,8 +106,8 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		UNPACK_SQL_STATEMENT(join, delete->src_join, join);
 		assert(join == join->next);
 		assert(NULL == join->condition);
-		result |= qualify_query(join->value, parent_join, parent_table_alias, ret);
-		result |= qualify_statement(delete->where_clause, join, join->value, 0, ret);
+		CALL_QUALIFY_QUERY_AND_RETURN_ON_ERROR(join->value, parent_join, parent_table_alias, ret, result);
+		CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(delete->where_clause, join, join->value, 0, ret, result);
 		return result;
 		break;
 	case update_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */
@@ -122,8 +122,8 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		UNPACK_SQL_STATEMENT(join, update->src_join, join);
 		assert(join == join->next);
 		assert(NULL == join->condition);
-		result |= qualify_query(join->value, parent_join, parent_table_alias, ret);
-		result |= qualify_statement(update->where_clause, join, join->value, 0, ret);
+		CALL_QUALIFY_QUERY_AND_RETURN_ON_ERROR(join->value, parent_join, parent_table_alias, ret, result);
+		CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(update->where_clause, join, join->value, 0, ret, result);
 
 		SqlUpdateColumnValue *ucv, *ucv_head;
 		ucv_head = update->col_value_list;
@@ -132,7 +132,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 			/* Qualifying "ucv->col_name" happened already as part of the "find_column()"
 			 * call in "src/parser/update_statement.c". So skip qualifying that here.
 			 */
-			result |= qualify_statement(ucv->col_value, join, join->value, 0, ret);
+			CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(ucv->col_value, join, join->value, 0, ret, result);
 			ucv = ucv->next;
 		} while (ucv != ucv_head);
 		return result;
@@ -141,8 +141,8 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		SqlSetOperation *set_opr;
 
 		UNPACK_SQL_STATEMENT(set_opr, table_alias_stmt, set_operation);
-		result |= qualify_query(set_opr->operand[0], parent_join, parent_table_alias, ret);
-		result |= qualify_query(set_opr->operand[1], parent_join, parent_table_alias, ret);
+		CALL_QUALIFY_QUERY_AND_RETURN_ON_ERROR(set_opr->operand[0], parent_join, parent_table_alias, ret, result);
+		CALL_QUALIFY_QUERY_AND_RETURN_ON_ERROR(set_opr->operand[1], parent_join, parent_table_alias, ret, result);
 		return result;
 		break;
 	default:
@@ -168,7 +168,8 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		UNPACK_SQL_STATEMENT(row_value, table_value->row_value_stmt, row_value);
 		start_row_value = row_value;
 		do {
-			result |= qualify_statement(row_value->value_list, parent_join, table_alias_stmt, 0, ret);
+			CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(row_value->value_list, parent_join, table_alias_stmt, 0, ret,
+								   result);
 			row_value = row_value->next;
 		} while (row_value != start_row_value);
 		return result;
@@ -194,7 +195,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		/* Qualify sub-queries involved in the join. Note that it is possible a `table` is involved in the join instead
 		 * of a `sub-query` in which case the below `qualify_query` call will return right away.
 		 */
-		result |= qualify_query(stmt, parent_join, table_alias, ret);
+		CALL_QUALIFY_QUERY_AND_RETURN_ON_ERROR(stmt, parent_join, table_alias, ret, result);
 		/* The following code block needs to be after above call to qualify_query() because we need any asterisk usage
 		 * in "stmt" to be expanded and qualified for the later natural_join_condition() to work correctly.
 		 */
@@ -249,7 +250,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		 */
 		cur_join->next = ((NULL != parent_join) ? parent_join : start_join); /* stop join list at current join */
 		table_alias->aggregate_depth = AGGREGATE_DEPTH_FROM_CLAUSE;
-		result |= qualify_statement(cur_join->condition, start_join, table_alias_stmt, 0, ret);
+		CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(cur_join->condition, start_join, table_alias_stmt, 0, ret, result);
 		cur_join->next = next_join; /* restore join list to original */
 		cur_join = next_join;
 	} while ((cur_join != start_join) && (cur_join != parent_join));
@@ -260,7 +261,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		ret->ret_cla = NULL;
 		/* Note: Inherit ret.max_unique_id from caller (could be parent/outer query in case this is a sub-query) as is */
 	}
-	result |= qualify_statement(select->where_expression, start_join, table_alias_stmt, 0, ret);
+	CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(select->where_expression, start_join, table_alias_stmt, 0, ret, result);
 	table_alias->aggregate_depth = 0;
 	/* Expand "*" usage in SELECT column list here. This was not done in "query_specification.c" when the "*" usage was
 	 * first encountered because the FROM/JOIN list of that query could in turn contain a "TABLENAME.*" usage that refers
@@ -283,7 +284,8 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 
 				if (prev_end != start_join->prev) {
 					/* Parent join exists. Remove them temporarily so process_asterisk() expands
-					 * * to only all current query level columns and not parent query columns */
+					 * to only all current query level columns and not parent query columns
+					 */
 					next_join = prev_end->next;
 					start_join->prev->next = next_join;
 					next_join->prev = start_join->prev;
@@ -365,7 +367,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		assert(0 == table_alias->aggregate_depth);
 		// Qualify SELECT column list first
 		table_alias->qualify_query_stage = QualifyQuery_SELECT_COLUMN_LIST;
-		result |= qualify_statement(select->select_list, start_join, table_alias_stmt, 0, ret);
+		CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(select->select_list, start_join, table_alias_stmt, 0, ret, result);
 		// Qualify GROUP BY clause next
 		/* 1. Deferred till this point as we want select list to be qualified before GroupBy as we want to refer to the
 		 *    qualified select list through GroupBy column numbers.
@@ -387,25 +389,12 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 			 */
 			if ((NULL != group_by_expression)
 			    && !(GROUP_BY_SPECIFIED & table_alias->aggregate_function_or_group_by_or_having_specified)) {
-				int group_by_column_count, gb_result;
+				int group_by_column_count;
 
 				table_alias->aggregate_depth = AGGREGATE_DEPTH_GROUP_BY_CLAUSE;
-				/* Rely on only GROUP BY errors to break from this block, not on earlier failures.
-				 * Without it we will allow other clause to influence the `break` later on in this block.
-				 * For example the following query is expected to error out twice for the reasons mentioned below
-				 * but without `gb_result` we will break on result being set by other block thus not generating
-				 * the second error which outerwise gets generated in the second iteration of `for` loop.
-				 *  60 --> Below should error out because of two errors.
-				 *  61 -->     a) aggregate function (COUNT(c.CustomerID) above) cannot be inside JOIN conditions
-				 *  62 -->     b) o.OrderID should appear in GROUP BY or used in an aggregate function
-				 *  63 SELECT c.CustomerID,o.OrderID FROM Customers c LEFT JOIN Orders o ON COUNT(c.CustomerID) =
-				 * o.CustomerID GROUP BY c.CustomerID;
-				 */
-				gb_result = 0;
-				gb_result |= qualify_statement(group_by_expression, start_join, table_alias_stmt, 0, lcl_ret_ptr);
+				CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(group_by_expression, start_join, table_alias_stmt, 0,
+									   lcl_ret_ptr, result);
 				ret_cla = NULL; // Re-set the variable so that ORDER BY can re-use it
-				// Ensure error is forwarded to result as that is the one returned at the end of this function
-				result |= gb_result;
 				/* After GROUP BY qualification `table_alias->group_by_column_count` can still be 0 if GROUP BY was
 				 * done on a parent query column. Even in this case, since GROUP BY was specified, we need to do
 				 * GROUP BY related checks. Setting GROUP_BY_SPECIFIED value to the below field ensures the checks
@@ -454,9 +443,13 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 							}
 							group_by_column_count++;
 						}
-					} else if (!gb_result) {
-						/* We have come across an expression usage. Any error at this point is already
-						 * issued.
+					} else {
+						/* If an error existed we would have
+						 * not reached this code as we return immediately after qualify_statement() call
+						 * when `result` is `1`.
+						 */
+						assert(!result);
+						/* We have come across an expression usage.
 						 * Note: we do not remove an expression even when it refers to columns from outer
 						 * query, this is to avoid parameter numbering difference which occurs if constants
 						 * are part of the expression and they are removed. If such a case is allowed the
@@ -467,12 +460,6 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 							group_by_expression->v.column_list_alias = cur_cla;
 						}
 						group_by_column_count++;
-					} else {
-						/* This is a case of an invalid GROUP BY clause.
-						 * An error would have already been issued about this (i.e. result
-						 * would be 1). Return as we do not want further processing at this point.
-						 */
-						break;
 					}
 					cur_cla = cur_cla->next;
 					if (cur_cla == start_cla) {
@@ -483,20 +470,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 						break;
 					}
 				} while (TRUE);
-				/* The "|| gb_result" case below is to account for query errors (e.g. "Unknown column" error, see
-				 * comment above) */
-				assert((group_by_column_count == table_alias->group_by_column_count) || gb_result);
-				if (gb_result) {
-					/* An error has occured break the `for` loop so that parent join can
-					 * be removed. Returning without removal of parent_join will result in incorrect processing
-					 * when the present `table_alias` goes through another qualify_query() invocation. An
-					 * example query which generate an assert failure while processing join of the subquery if
-					 * returned instead of a break is:
-					 * `SELECT names.lastName FROM names GROUP BY names.lastName HAVING EXISTS
-					 *   (SELECT alias1.lastName FROM names alias1 GROUP BY 1+(select 1));`
-					 */
-					break;
-				}
+				assert(group_by_column_count == table_alias->group_by_column_count);
 				if (!group_by_column_count) {
 					select->group_by_expression = NULL;
 				}
@@ -505,13 +479,15 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		if (NULL != select->having_expression) {
 			table_alias->qualify_query_stage = QualifyQuery_NONE;
 			table_alias->aggregate_depth = AGGREGATE_DEPTH_HAVING_CLAUSE;
-			result |= qualify_statement(select->having_expression, start_join, table_alias_stmt, 0, ret);
+			CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(select->having_expression, start_join, table_alias_stmt, 0, ret,
+								   result);
 			table_alias->aggregate_function_or_group_by_or_having_specified |= HAVING_SPECIFIED;
 		}
 		// Qualify ORDER BY clause next (see comment above for why "lcl_ret_ptr" is passed for ORDER BY).
 		table_alias->qualify_query_stage = QualifyQuery_ORDER_BY;
 		table_alias->aggregate_depth = 0;
-		result |= qualify_statement(select->order_by_expression, start_join, table_alias_stmt, 0, lcl_ret_ptr);
+		CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(select->order_by_expression, start_join, table_alias_stmt, 0,
+							   lcl_ret_ptr, result);
 		/* Expansion of table.* in ORDER BY is done here so that expansion can be skipped when GROUP BY/HAVING/Aggregate
 		 * exists. At this point we can safely rely on `aggregate_function_or_group_by_or_having_specified` to indicate if
 		 * the entire query has any form of grouping or not.
@@ -551,8 +527,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 					if (!match_column_list_alias_in_select_column_list(cur_cla, select->select_list)) {
 						ERROR(ERR_ORDER_BY_SELECT_DISTINCT, "");
 						yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL);
-						result = 1;
-						break;
+						return 1;
 					}
 				}
 				cur_cla = cur_cla->next;

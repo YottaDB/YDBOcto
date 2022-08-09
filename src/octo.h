@@ -857,6 +857,30 @@ typedef enum RegexType {
 /* Define macro to hold the maximum possible length for a user defined type (e.g. NUMERIC(25,3)) */
 #define MAX_USER_VISIBLE_TYPE_STRING_LEN (MAX_TYPE_NAME_LEN + sizeof("(,)") + 2 * INT32_TO_STRING_MAX)
 
+/* Following macro is a caller for qualify_statement() which takes care of returning immediately with 1 if the call to
+ * qualify_statement() resulted in an error. `RESULT` value is used to know if the call resulted in an error.
+ * This helps to issue single error per query.
+ */
+#define CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(STMT, TABLES, TABLE_ALIAS_STMT, DEPTH, RET, RESULT) \
+	{                                                                                              \
+		RESULT |= qualify_statement((STMT), (TABLES), (TABLE_ALIAS_STMT), (DEPTH), (RET));     \
+		if (RESULT) {                                                                          \
+			return 1;                                                                      \
+		}                                                                                      \
+	}
+
+/* Following macro is a caller for qualify_query() which takes care of returning immediately with 1 if the call to qualify_query()
+ * resulted in an error. `RESULT` value is used to know if the call resulted in an error.
+ * This helps to issue single error per query.
+ */
+#define CALL_QUALIFY_QUERY_AND_RETURN_ON_ERROR(TABLE_ALIAS_STMT, PARENT_JOIN, PARENT_TABLE_ALIAS, RET, RESULT) \
+	{                                                                                                      \
+		RESULT |= qualify_query((TABLE_ALIAS_STMT), (PARENT_JOIN), (PARENT_TABLE_ALIAS), (RET));       \
+		if (RESULT) {                                                                                  \
+			return 1;                                                                              \
+		}                                                                                              \
+	}
+
 // Convenience type definition for run_query callback function
 typedef int (*callback_fnptr_t)(SqlStatement *, ydb_long_t, void *, char *, PSQL_MessageTypeT);
 

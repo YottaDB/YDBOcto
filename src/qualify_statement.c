@@ -37,8 +37,10 @@
 		(AGGREGATE_DEPTH) = 0;                                                            \
 	}
 
-/* Following macro issues a `ERR_GROUP_BY_OR_AGGREGATE_FUNCTION` error on the column reference in `STMT` and sets `RESULT` to 1. */
-#define ISSUE_GROUP_BY_OR_AGGREGATE_FUNCTION_ERROR(STMT, RESULT)                    \
+/* Following macro issues a `ERR_GROUP_BY_OR_AGGREGATE_FUNCTION` error on the column reference in `STMT` and returns with the value
+ * 1.
+ */
+#define ISSUE_GROUP_BY_OR_AGGREGATE_FUNCTION_ERROR_AND_RETURN(STMT)                 \
 	{                                                                           \
 		SqlStatement *column_name;                                          \
 		SqlValue *    value;                                                \
@@ -47,7 +49,7 @@
 		UNPACK_SQL_STATEMENT(value, column_name, value);                    \
 		ERROR(ERR_GROUP_BY_OR_AGGREGATE_FUNCTION, value->v.string_literal); \
 		yyerror(NULL, NULL, &STMT, NULL, NULL, NULL);                       \
-		RESULT = 1;                                                         \
+		return 1;                                                           \
 	}
 
 /* Following macro sets GROUP BY column number to expression when its matched with GROUP BY column.
@@ -162,7 +164,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 						 * BY validations. Issue `ERR_GROUP_BY_OR_AGGREGATE_FUNCTION` error as this is not a
 						 * valid usage.
 						 */
-						ISSUE_GROUP_BY_OR_AGGREGATE_FUNCTION_ERROR(stmt, result);
+						ISSUE_GROUP_BY_OR_AGGREGATE_FUNCTION_ERROR_AND_RETURN(stmt);
 					} // else, nothing to do here as we do not yet have GROUP BY information of the outer query
 					break;
 				}
@@ -181,7 +183,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 			 * 3) The current column reference is not in the GROUP BY clause.
 			 * Issue an error.
 			 */
-			ISSUE_GROUP_BY_OR_AGGREGATE_FUNCTION_ERROR(stmt, result);
+			ISSUE_GROUP_BY_OR_AGGREGATE_FUNCTION_ERROR_AND_RETURN(stmt);
 		}
 		break;
 	case value_STATEMENT:
@@ -194,15 +196,16 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 			 */
 		case COLUMN_REFERENCE:
 			UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
-			if (table_alias->do_group_by_checks) {
-				/* This is the second pass. Any appropriate error has already been issued so skip this. */
-				break;
-			}
+			/* We do not expect to reach this code if we are in GROUP BY validation pass (second pass).
+			 * Assert such that we are sure that we never reach this code in such a case.
+			 */
+			assert(!table_alias->do_group_by_checks);
 			ret_cla = ((NULL == ret) ? NULL : ret->ret_cla);
 			new_column_alias = qualify_column_name(value, tables, table_alias_stmt, depth + 1, ret_cla);
 			result = ((NULL == new_column_alias) && ((NULL == ret_cla) || (NULL == *ret_cla)));
 			if (result) {
 				yyerror(NULL, NULL, &stmt, NULL, NULL, NULL);
+				return 1;
 			} else {
 				if ((NULL == ret_cla) || (NULL == *ret_cla)) {
 					// Convert this statement to a qualified one by changing the "type".
@@ -316,7 +319,8 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		case CALCULATED_VALUE:
 			UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 			SET_GROUP_BY_EXPRESSION_COLUMN_NUMBER_AND_BREAK(stmt, table_alias);
-			result |= qualify_statement(value->v.calculated, tables, table_alias_stmt, depth + 1, ret);
+			CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(value->v.calculated, tables, table_alias_stmt, depth + 1, ret,
+								   result);
 			break;
 		case FUNCTION_NAME:
 			/* Cannot validate the function using a "find_function()" call here (like we did "find_table()" for
@@ -328,11 +332,8 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		case COERCE_TYPE:
 			UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 			SET_GROUP_BY_EXPRESSION_COLUMN_NUMBER_AND_BREAK(stmt, table_alias);
-			result |= qualify_statement(value->v.coerce_target, tables, table_alias_stmt, depth + 1, ret);
-			if (result) {
-				yyerror(NULL, NULL, &stmt, NULL, NULL, NULL);
-				break;
-			}
+			CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(value->v.coerce_target, tables, table_alias_stmt, depth + 1, ret,
+								   result);
 			break;
 		case BOOLEAN_VALUE:
 		case NUMERIC_LITERAL:
@@ -359,41 +360,44 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		UNPACK_SQL_STATEMENT(binary, stmt, binary);
 		SET_GROUP_BY_EXPRESSION_COLUMN_NUMBER_AND_BREAK(stmt, table_alias);
 		for (i = 0; i < 2; i++) {
-			result |= qualify_statement(binary->operands[i], tables, table_alias_stmt, depth + 1, ret);
+			CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(binary->operands[i], tables, table_alias_stmt, depth + 1, ret,
+								   result);
 		}
 		break;
 	case unary_STATEMENT:
 		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		UNPACK_SQL_STATEMENT(unary, stmt, unary);
 		SET_GROUP_BY_EXPRESSION_COLUMN_NUMBER_AND_BREAK(stmt, table_alias);
-		result |= qualify_statement(unary->operand, tables, table_alias_stmt, depth + 1, ret);
+		CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(unary->operand, tables, table_alias_stmt, depth + 1, ret, result);
 		break;
 	case array_STATEMENT:
 		UNPACK_SQL_STATEMENT(array, stmt, array);
-		result |= qualify_statement(array->argument, tables, table_alias_stmt, depth + 1, ret);
+		CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(array->argument, tables, table_alias_stmt, depth + 1, ret, result);
 		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		break;
 	case function_call_STATEMENT:
 		UNPACK_SQL_STATEMENT(fc, stmt, function_call);
-		result |= qualify_statement(fc->function_name, tables, table_alias_stmt, depth + 1, ret);
-		result |= qualify_statement(fc->parameters, tables, table_alias_stmt, depth + 1, ret);
+		CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(fc->function_name, tables, table_alias_stmt, depth + 1, ret, result);
+		CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(fc->parameters, tables, table_alias_stmt, depth + 1, ret, result);
 		break;
 	case coalesce_STATEMENT:
 		UNPACK_SQL_STATEMENT(coalesce_call, stmt, coalesce);
-		result |= qualify_statement(coalesce_call->arguments, tables, table_alias_stmt, depth + 1, ret);
+		CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(coalesce_call->arguments, tables, table_alias_stmt, depth + 1, ret,
+							   result);
 		break;
 	case greatest_STATEMENT:
 		UNPACK_SQL_STATEMENT(greatest_call, stmt, greatest);
-		result |= qualify_statement(greatest_call->arguments, tables, table_alias_stmt, depth + 1, ret);
+		CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(greatest_call->arguments, tables, table_alias_stmt, depth + 1, ret,
+							   result);
 		break;
 	case least_STATEMENT:
 		UNPACK_SQL_STATEMENT(least_call, stmt, least);
-		result |= qualify_statement(least_call->arguments, tables, table_alias_stmt, depth + 1, ret);
+		CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(least_call->arguments, tables, table_alias_stmt, depth + 1, ret, result);
 		break;
 	case null_if_STATEMENT:
 		UNPACK_SQL_STATEMENT(null_if, stmt, null_if);
-		result |= qualify_statement(null_if->left, tables, table_alias_stmt, depth + 1, ret);
-		result |= qualify_statement(null_if->right, tables, table_alias_stmt, depth + 1, ret);
+		CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(null_if->left, tables, table_alias_stmt, depth + 1, ret, result);
+		CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(null_if->right, tables, table_alias_stmt, depth + 1, ret, result);
 		break;
 	case aggregate_function_STATEMENT:;
 		SqlAggregateFunction *af;
@@ -416,8 +420,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 				 */
 				ERROR(ERR_GROUP_BY_INVALID_USAGE, "");
 				yyerror(NULL, NULL, &af->parameter, NULL, NULL, NULL);
-				result = 1;
-				break;
+				return 1;
 			}
 			if (table_alias->do_group_by_checks) {
 				/* This is the second pass. Any appropriate error other than the one in IF block
@@ -471,6 +474,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 			}
 			if (result) {
 				yyerror(&af->parameter->loc, NULL, NULL, NULL, NULL, NULL);
+				return 1;
 			}
 		}
 		if (!result) {
@@ -496,24 +500,22 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 				save_aggr_unique_id = ret->aggr_unique_id;
 				ret->aggr_unique_id = af->unique_id;
 			}
-			result |= qualify_statement(af->parameter, tables, table_alias_stmt, depth + 1, ret);
-			if ((!result && af->unique_id)
-			    && ((save_aggr_unique_id != 0) && (table_alias->unique_id != af->unique_id))) {
+			CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(af->parameter, tables, table_alias_stmt, depth + 1, ret, result);
+			if ((af->unique_id) && ((save_aggr_unique_id != 0) && (table_alias->unique_id != af->unique_id))) {
 				/* This aggregate belongs to an outer query. And since save_aggr_unique_id is set
 				 * to a non-zero value this aggregate is a nested usage. Issue error.
 				 */
 				ERROR(ERR_AGGREGATE_FUNCTION_NESTED, "");
-				result = 1;
 				yyerror(&af->parameter->loc, NULL, NULL, NULL, NULL, NULL);
 				if (depth_adjusted) {
 					table_alias->aggregate_depth = aggregate_depth_saved;
 				}
-				break;
+				return 1;
 			}
 			/* Since `af` instance is created using octo_cmalloc() we are sure that `af->unique_id` won't have garbage
 			 * value. It will either be 0 or an assigned value.
 			 */
-			if (!result && !af->unique_id) {
+			if (!af->unique_id) {
 				assert(!table_alias->do_group_by_checks);
 				assert(NULL != ret);
 				/* The condition (NULL != ret) is used below to avoid clang-tidy_warning
@@ -541,13 +543,12 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 					if (QualifyQuery_WHERE == aggr_parent_table_alias->qualify_query_stage) {
 						/* Issue ERROR as aggregates are not allowed in WHERE clause */
 						ERROR(ERR_AGGREGATE_FUNCTION_WHERE, "");
-						result = 1;
 						yyerror(NULL, NULL, &ret->deepest_column_alias_stmt, NULL, NULL, NULL);
 						table_alias->aggregate_depth--;
 						if (depth_adjusted) {
 							table_alias->aggregate_depth = aggregate_depth_saved;
 						}
-						break;
+						return 1;
 					}
 					ret->deepest_column_alias_stmt = NULL;
 				} else {
@@ -562,18 +563,16 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 			if (NULL != ret) {
 				ret->aggr_unique_id = 0;
 			}
-			if (0 == result) {
-				UNPACK_SQL_STATEMENT(cur_cl, af->parameter, column_list);
-				assert((AGGREGATE_COUNT_ASTERISK == af->type) || (NULL != cur_cl->value));
-				assert((AGGREGATE_COUNT_ASTERISK != af->type) || (NULL == cur_cl->value));
-				if ((NULL != cur_cl->value) && (column_alias_STATEMENT == cur_cl->value->type)) {
-					UNPACK_SQL_STATEMENT(new_column_alias, cur_cl->value, column_alias);
-					if (is_stmt_table_asterisk(new_column_alias->column)) {
-						process_aggregate_function_table_asterisk(af);
-					}
-				} else if (AGGREGATE_COUNT_ASTERISK == af->type) {
-					af->unique_id = table_alias->unique_id;
+			UNPACK_SQL_STATEMENT(cur_cl, af->parameter, column_list);
+			assert((AGGREGATE_COUNT_ASTERISK == af->type) || (NULL != cur_cl->value));
+			assert((AGGREGATE_COUNT_ASTERISK != af->type) || (NULL == cur_cl->value));
+			if ((NULL != cur_cl->value) && (column_alias_STATEMENT == cur_cl->value->type)) {
+				UNPACK_SQL_STATEMENT(new_column_alias, cur_cl->value, column_alias);
+				if (is_stmt_table_asterisk(new_column_alias->column)) {
+					process_aggregate_function_table_asterisk(af);
 				}
+			} else if (AGGREGATE_COUNT_ASTERISK == af->type) {
+				af->unique_id = table_alias->unique_id;
 			}
 			table_alias->aggregate_depth--;
 		}
@@ -586,17 +585,19 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		UNPACK_SQL_STATEMENT(cas, stmt, cas);
 		SET_GROUP_BY_EXPRESSION_COLUMN_NUMBER_AND_BREAK(stmt, table_alias);
-		result |= qualify_statement(cas->value, tables, table_alias_stmt, depth + 1, ret);
-		result |= qualify_statement(cas->branches, tables, table_alias_stmt, depth + 1, ret);
-		result |= qualify_statement(cas->optional_else, tables, table_alias_stmt, depth + 1, ret);
+		CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(cas->value, tables, table_alias_stmt, depth + 1, ret, result);
+		CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(cas->branches, tables, table_alias_stmt, depth + 1, ret, result);
+		CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(cas->optional_else, tables, table_alias_stmt, depth + 1, ret, result);
 		break;
 	case cas_branch_STATEMENT:
 		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		UNPACK_SQL_STATEMENT(cas_branch, stmt, cas_branch);
 		cur_branch = cas_branch;
 		do {
-			result |= qualify_statement(cur_branch->condition, tables, table_alias_stmt, depth + 1, ret);
-			result |= qualify_statement(cur_branch->value, tables, table_alias_stmt, depth + 1, ret);
+			CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(cur_branch->condition, tables, table_alias_stmt, depth + 1, ret,
+								   result);
+			CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(cur_branch->value, tables, table_alias_stmt, depth + 1, ret,
+								   result);
 			cur_branch = cur_branch->next;
 		} while (cur_branch != cas_branch);
 		break;
@@ -605,7 +606,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		UNPACK_SQL_STATEMENT(start_cl, stmt, column_list);
 		cur_cl = start_cl;
 		do {
-			result |= qualify_statement(cur_cl->value, tables, table_alias_stmt, depth + 1, ret);
+			CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(cur_cl->value, tables, table_alias_stmt, depth + 1, ret, result);
 			cur_cl = cur_cl->next;
 		} while (cur_cl != start_cl);
 		break;
@@ -615,10 +616,9 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE == table_alias->aggregate_depth) {
 			ERROR(ERR_GROUP_BY_SUB_QUERY, "");
 			yyerror(NULL, NULL, &stmt, NULL, NULL, NULL);
-			result = 1;
-			break;
+			return 1;
 		}
-		result |= qualify_query(stmt, tables, table_alias, ret);
+		CALL_QUALIFY_QUERY_AND_RETURN_ON_ERROR(stmt, tables, table_alias, ret, result);
 		break;
 	case column_list_alias_STATEMENT:;
 		boolean_t function_expression = FALSE;
@@ -653,7 +653,8 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 				   * Since this is a column reference no need to updated `qualify_query_stage`.
 				   */
 			}
-			result |= qualify_statement(cur_cla->column_list, tables, table_alias_stmt, depth + 1, ret);
+			CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(cur_cla->column_list, tables, table_alias_stmt, depth + 1, ret,
+								   result);
 			if (function_expression) {
 				function_expression = FALSE;
 				table_alias->qualify_query_stage = QualifyQuery_NONE;
@@ -789,8 +790,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 							}
 						}
 						if (error_encountered) {
-							result = 1;
-							break;
+							return 1;
 						}
 					} else {
 						qualified_cla = NULL;
@@ -822,8 +822,8 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 					assert(cur_cla->tbl_and_col_id.column_number);
 					if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE == table_alias->aggregate_depth) {
 						// call qualify_statement again so that GROUP BY is validated
-						result |= qualify_statement(cur_cla->column_list, tables, table_alias_stmt,
-									    depth + 1, ret);
+						CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(
+						    cur_cla->column_list, tables, table_alias_stmt, depth + 1, ret, result);
 
 						SqlColumnAlias *new_column_alias = NULL;
 						SqlColumnList * tmp_column_list;
@@ -963,7 +963,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		 */
 		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
 		assert(FALSE);
-		result = 1;
+		return 1;
 		break;
 	}
 	if ((NULL != ret) && (NULL != ret->max_unique_id)) {

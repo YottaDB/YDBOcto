@@ -193,18 +193,12 @@ Running query file query21.sql : [select firstname from (select invalid from nam
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID
 LINE 1: select firstname from (select invalid from names) as n1;
                                       ^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FIRSTNAME
-LINE 1: select firstname from (select invalid from names) as n1;
-               ^^^^^^^^^
 
 Running query file query22.sql : [select firstname from (select invalid from names);]
 -------------------------------------------------
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID
 LINE 1: select firstname from (select invalid from names);
                                       ^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FIRSTNAME
-LINE 1: select firstname from (select invalid from names);
-               ^^^^^^^^^
 
 Running query file query23.sql : [select firstname from (select lastname from names as n2) as n1;]
 -------------------------------------------------
@@ -229,9 +223,6 @@ Running query file query26.sql : [select firstname from (select n1.invalid from 
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
 LINE 1: select firstname from (select n1.invalid from names) as n1;
                                       ^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FIRSTNAME
-LINE 1: select firstname from (select n1.invalid from names) as n1;
-               ^^^^^^^^^
 
 Running query file query27.sql : [select firstname from (select n2.firstname from names as n2);]
 -------------------------------------------------
@@ -249,9 +240,6 @@ Running query file query28.sql : [select firstname from (select n2.invalid from 
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N2.INVALID
 LINE 1: select firstname from (select n2.invalid from names as n2);
                                       ^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FIRSTNAME
-LINE 1: select firstname from (select n2.invalid from names as n2);
-               ^^^^^^^^^
 
 Running query file query29.sql : [select invalid from (select * from names as n2) as n1;]
 -------------------------------------------------
@@ -312,9 +300,6 @@ Running query file query38.sql : [select invalid from (select n1.firstname from 
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
 LINE 1: select invalid from (select n1.firstname from names) as n1;
                                     ^^^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID
-LINE 1: select invalid from (select n1.firstname from names) as n1;
-               ^^^^^^^
 
 Running query file query39.sql : [select invalid from (select n1.invalid from names) as n1;]
 -------------------------------------------------
@@ -363,36 +348,24 @@ Running query file query46.sql : [select invalid1 from (select invalid2 from nam
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID2
 LINE 1: select invalid1 from (select invalid2 from names) as n1;
                                      ^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID1
-LINE 1: select invalid1 from (select invalid2 from names) as n1;
-               ^^^^^^^^
 
 Running query file query47.sql : [select invalid1 from (select invalid2 from names);]
 -------------------------------------------------
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID2
 LINE 1: select invalid1 from (select invalid2 from names);
                                      ^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID1
-LINE 1: select invalid1 from (select invalid2 from names);
-               ^^^^^^^^
 
 Running query file query48.sql : [select invalid1 from (select n1.invalid2 from names) as n1;]
 -------------------------------------------------
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
 LINE 1: select invalid1 from (select n1.invalid2 from names) as n1;
                                      ^^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID1
-LINE 1: select invalid1 from (select n1.invalid2 from names) as n1;
-               ^^^^^^^^
 
 Running query file query49.sql : [select invalid1 from (select n2.invalid2 from names as n2);]
 -------------------------------------------------
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N2.INVALID2
 LINE 1: select invalid1 from (select n2.invalid2 from names as n2);
                                      ^^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID1
-LINE 1: select invalid1 from (select n2.invalid2 from names as n2);
-               ^^^^^^^^
 
 Running query file query50.sql : [select invalid1 from (select invalid as invalid1 from names);]
 -------------------------------------------------
@@ -433,9 +406,6 @@ Running query file query54.sql : [select n1.firstname from (select n1.invalid fr
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
 LINE 1: select n1.firstname from (select n1.invalid from names) as n1;
                                          ^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N1.FIRSTNAME
-LINE 1: select n1.firstname from (select n1.invalid from names) as n1;
-               ^^^^^^^^^^^^
 
 Running query file query55.sql : [select n1.firstname from (select n2.firstname from names as n2) as n1;]
 -------------------------------------------------
@@ -453,9 +423,6 @@ Running query file query56.sql : [select n1.firstname from (select n2.invalid fr
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N2.INVALID
 LINE 1: ...ct n1.firstname from (select n2.invalid from names as n2) as n1;
                                         ^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N1.FIRSTNAME
-LINE 1: select n1.firstname from (select n2.invalid from names as n2) as...
-               ^^^^^^^^^^^^
 
 Running query file query57.sql : [select n1.invalid from (select * from names as n2) as n1;]
 -------------------------------------------------
@@ -474,9 +441,6 @@ Running query file query59.sql : [select n1.invalid from (select n1.firstname fr
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
 LINE 1: select n1.invalid from (select n1.firstname from names) as n1;
                                        ^^^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N1.INVALID
-LINE 1: select n1.invalid from (select n1.firstname from names) as n1;
-               ^^^^^^^^^^
 
 Running query file query60.sql : [select n1.invalid from (select n1.invalid from names) as n1;]
 -------------------------------------------------
@@ -501,18 +465,12 @@ Running query file query63.sql : [select n1.invalid1 from (select n1.invalid2 fr
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
 LINE 1: select n1.invalid1 from (select n1.invalid2 from names) as n1;
                                         ^^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N1.INVALID1
-LINE 1: select n1.invalid1 from (select n1.invalid2 from names) as n1;
-               ^^^^^^^^^^^
 
 Running query file query64.sql : [select n1.invalid1 from (select n2.invalid2 from names as n2) as n1;]
 -------------------------------------------------
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N2.INVALID2
 LINE 1: ...t n1.invalid1 from (select n2.invalid2 from names as n2) as n1;
                                       ^^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N1.INVALID1
-LINE 1: select n1.invalid1 from (select n2.invalid2 from names as n2) a...
-               ^^^^^^^^^^^
 
 Running query file query65.sql : [select n2.firstname from (select * from names as n2);]
 -------------------------------------------------
@@ -531,9 +489,6 @@ Running query file query67.sql : [select n2.firstname from (select n2.invalid fr
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N2.INVALID
 LINE 1: select n2.firstname from (select n2.invalid from names as n2);
                                          ^^^^^^^^^^
-[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
-LINE 1: select n2.firstname from (select n2.invalid from names as n2);
-               ^^^^^^^^^^^^
 
 Running query file query68.sql : [select n2.invalid from (select * from names as n2);]
 -------------------------------------------------
@@ -552,18 +507,12 @@ Running query file query70.sql : [select n2.invalid from (select n2.invalid from
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N2.INVALID
 LINE 1: select n2.invalid from (select n2.invalid from names as n2);
                                        ^^^^^^^^^^
-[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
-LINE 1: select n2.invalid from (select n2.invalid from names as n2);
-               ^^^^^^^^^^
 
 Running query file query71.sql : [select n2.invalid1 from (select n2.invalid2 from names as n2);]
 -------------------------------------------------
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N2.INVALID2
 LINE 1: select n2.invalid1 from (select n2.invalid2 from names as n2);
                                         ^^^^^^^^^^^
-[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
-LINE 1: select n2.invalid1 from (select n2.invalid2 from names as n2);
-               ^^^^^^^^^^^
 
 Running query file query72.sql : [select NULL as a from names order by a;]
 -------------------------------------------------

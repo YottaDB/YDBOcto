@@ -84,15 +84,9 @@ LINE 1: select firstname from names order by count(n1.*);
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
 LINE 1: select firstname from names having count(n1.*);
                                                  ^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: select firstname from names having count(n1.*);
-               ^^^^^^^^^
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
 LINE 1: select firstname from names having n1.*;
                                            ^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: select firstname from names having n1.*;
-               ^^^^^^^^^
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
 LINE 1: select count(DISTINCT n1.*) from names n11;
                               ^^^^

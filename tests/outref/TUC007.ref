@@ -1,18 +1,3 @@
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: C.INVALIDE
 LINE 4: on c.invalidE = o.invalidF
            ^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: O.INVALIDF
-LINE 4: on c.invalidE = o.invalidF
-                        ^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALIDA
-LINE 1: select invalidA, invalidB, invalidC, invalidD
-               ^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALIDB
-LINE 1: select invalidA, invalidB, invalidC, invalidD
-                         ^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALIDC
-LINE 1: select invalidA, invalidB, invalidC, invalidD
-                                   ^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALIDD
-LINE 1: select invalidA, invalidB, invalidC, invalidD
-                                             ^^^^^^^^

@@ -50,24 +50,15 @@ LINE 1: ...CT n1.id FROM names n1 WHERE n2.id = n5.id) n2) n3) n4) FROM na...
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N3
 LINE 1: ...CT n1.id FROM names n1 WHERE n3.id = n4.id) n2) n3) n4) FROM na...
                                         ^^^^^
-[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N4
-LINE 1: ...d FROM names n1 WHERE n3.id = n4.id) n2) n3) n4) FROM names n5;
-                                         ^^^^^
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
 LINE 1: ...CT n1.id FROM names n1 WHERE n2.id = n4.id) n2) n3) n4) FROM na...
                                         ^^^^^
-[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N4
-LINE 1: ...d FROM names n1 WHERE n2.id = n4.id) n2) n3) n4) FROM names n5;
-                                         ^^^^^
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N4
 LINE 1: ...d FROM names n1 WHERE n1.id = n4.id) n2) n3) n4) FROM names n5;
                                          ^^^^^
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
 LINE 1: ...CT n1.id FROM names n1 WHERE n2.id = n3.id) n2) n3) n4) FROM na...
                                         ^^^^^
-[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N3
-LINE 1: ...d FROM names n1 WHERE n2.id = n3.id) n2) n3) n4) FROM names n5;
-                                         ^^^^^
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N3
 LINE 1: ...d FROM names n1 WHERE n1.id = n3.id) n2) n3) n4) FROM names n5;
                                          ^^^^^
@@ -77,12 +68,6 @@ LINE 1: ...d FROM names n1 WHERE n1.id = n2.id) n2) n3) n4) FROM names n5;
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
 LINE 1: ...ECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FRO...
                                         ^^^^^
-[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
-LINE 1: ...M names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n...
-                                     ^^^^^^^^^^^^
-[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
-LINE 1: ...ames n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2;
-                                               ^^^^^^^^^^^
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: N1
 LINE 1: SELECT * FROM names n1, (SELECT * FROM n1) n2;
                                                ^^
@@ -95,12 +80,6 @@ LINE 1: SELECT * FROM names n1, (SELECT n1.id) n2;
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
 LINE 1: ...ECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FRO...
                                         ^^^^^
-[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
-LINE 1: ...M names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n...
-                                     ^^^^^^^^^^^^
-[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
-LINE 1: ... n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2) n3;
-                                           ^^^^^^^^^^^
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: N1
 LINE 1: ...ELECT * FROM (SELECT * FROM names n1, (SELECT * FROM n1) n2) n3;
                                                                 ^^

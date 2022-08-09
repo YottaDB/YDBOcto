@@ -9,42 +9,21 @@ select 1 from names n0 group by firstname having EXISTS (select firstname from n
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 1: ...re EXISTS (select 1 from names n2 order by count(n1.firstname));
                                                             ^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: select firstname from names n1 where EXISTS (select 1 from name...
-               ^^^^^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 1: ...ct firstname from names n1 where count(firstname||lastname) < 1;
                                                              ^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: select firstname from names n1 where count(firstname||lastname)...
-               ^^^^^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 1: ...by exists(select 1 from names n2 order by count(n1.firstname)));
                                                            ^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: select firstname from names n1 where EXISTS (select 1 from name...
-               ^^^^^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 1: ...lect 1 from names n2 order by count(n1.firstname||n1.lastname));
                                                ^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: select firstname from names n1 where EXISTS (select 1 from name...
-               ^^^^^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 1: ...ect 1 from names n2 order by count(n1.firstname||n1.lastname)));
                                               ^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: select firstname from names n1 where EXISTS (select 1 from name...
-               ^^^^^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 1: ...m names n2 group by n2.id having count(c.id) > 2) GROUP BY c.id;
                                                   ^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 1: ...e EXISTS (select 1 from names n2 order by count(n1.firstname)));
                                                            ^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...name having EXISTS (select firstname from names n1 where EXISTS...
-                                      ^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...name having EXISTS (select firstname from names n1 where EXISTS...
-                                      ^^^^^^^^^

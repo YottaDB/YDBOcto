@@ -53,15 +53,6 @@ SELECT ALL first_name FROM customers c GROUP BY first_name HAVING EXISTS (SELECT
 LINE 1: ... FROM customers n1 ORDER BY count(c.first_name=n1.last_name)=1);
                                              ^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ... FROM customers n1 ORDER BY count(c.first_name=n1.last_name)=1);
-                                             ^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ... FROM customers n1 ORDER BY count(n1.last_name=c.first_name)=1);
-                                                          ^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ... FROM customers n1 ORDER BY count(n1.last_name=c.first_name)=1);
-                                                          ^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
 LINE 1: ... FROM customers n1 ORDER BY count(n1.last_name=c.first_name)=1);
                                                           ^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
@@ -70,12 +61,6 @@ LINE 1: ... FROM customers n1 ORDER BY count(n1.last_name=c.first_name)=1);
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column LAST_NAME must appear in the GROUP BY clause or be used in an aggregate function
 LINE 1: ...FROM customers n1 ORDER BY count(c.last_name=n1.first_name)=1);
                                             ^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column LAST_NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...FROM customers n1 ORDER BY count(c.last_name=n1.first_name)=1);
-                                            ^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ... FROM customers n1 ORDER BY count(c.first_name=n1.last_name)=1);
-                                             ^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
 LINE 1: ... FROM customers n1 ORDER BY count(c.first_name=n1.last_name)=1);
                                              ^^^^^^^^^^^^
@@ -85,21 +70,9 @@ LINE 1: ... FROM customers n1 ORDER BY count(n1.last_name=c.first_name)=1);
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
 LINE 1: ... FROM customers n1 ORDER BY count(n1.last_name=c.first_name)=1);
                                                           ^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ... FROM customers n1 ORDER BY count(n1.last_name=c.first_name)=1);
-                                                          ^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ... FROM customers n1 ORDER BY count(n1.last_name=c.first_name)=1);
-                                                          ^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column LAST_NAME must appear in the GROUP BY clause or be used in an aggregate function
 LINE 1: ...FROM customers n1 ORDER BY count(c.last_name=n1.first_name)=1);
                                             ^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column LAST_NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...FROM customers n1 ORDER BY count(c.last_name=n1.first_name)=1);
-                                            ^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...stomers n1 ORDER BY count(c.first_name=n1.last_name)=1) FROM cus...
-                                     ^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
 LINE 1: ...stomers n1 ORDER BY count(c.first_name=n1.last_name)=1) FROM cus...
                                      ^^^^^^^^^^^^
@@ -109,15 +82,6 @@ LINE 1: ...DER BY count(n1.last_name=c.first_name)=1) FROM customers c GROU...
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
 LINE 1: ...DER BY count(n1.last_name=c.first_name)=1) FROM customers c GROU...
                                      ^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...DER BY count(n1.last_name=c.first_name)=1) FROM customers c GROU...
-                                     ^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...DER BY count(n1.last_name=c.first_name)=1) FROM customers c GROU...
-                                     ^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column LAST_NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...stomers n1 ORDER BY count(c.last_name=n1.first_name)=1) FROM cu...
-                                     ^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column LAST_NAME must appear in the GROUP BY clause or be used in an aggregate function
 LINE 1: ...stomers n1 ORDER BY count(c.last_name=n1.first_name)=1) FROM cu...
                                      ^^^^^^^^^^^
@@ -127,24 +91,12 @@ LINE 1: ...OUP BY n1.last_name having count(c.first_name=n1.first_name)=1);
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
 LINE 1: ...P BY n1.last_name order by count(c.first_name=n1.first_name)=1);
                                             ^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...P BY n1.last_name order by count(c.first_name=n1.first_name)=1);
-                                            ^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column LAST_NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...aving count((c.first_name=n1.last_name)=(n2.order_date='test'))=...
-                                     ^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column LAST_NAME must appear in the GROUP BY clause or be used in an aggregate function
 LINE 1: ...aving count((c.first_name=n1.last_name)=(n2.order_date='test'))=...
                                      ^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
 LINE 1: SELECT ALL first_name FROM customers c HAVING EXISTS (SELECT 1 F...
                    ^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...oup by n2.order_id having count(c.first_name=n1.first_name)=1));
-                                           ^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...oup by n2.order_id having count(c.first_name=n1.first_name)=1));
-                                           ^^^^^^^^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 1: ...where count(c.first_name=n1.first_name)=1 GROUP BY n1.last_name...
                                     ^^^^^^^^^^^^^
@@ -161,16 +113,10 @@ LINE 1: ...ROUP BY n1.last_name having count(c.first_name=n1.last_name)=1);
 LINE 1: ...d having count((c.first_name||n1.first_name)=order_amount)=1));
                                          ^^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...d having count((c.first_name||n1.first_name)=order_amount)=1));
-                                         ^^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
 LINE 1: ...OUP BY n1.last_name having count(c.first_name=n1.first_name)=1);
                                             ^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
 LINE 1: ...ROUP BY n1.last_name having count(c.first_name=n1.last_name)=1);
-                                             ^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...UP BY n1.last_name ORDER BY count(c.first_name=n1.last_name)=1);
                                              ^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
 LINE 1: ...UP BY n1.last_name ORDER BY count(c.first_name=n1.last_name)=1);
@@ -188,32 +134,14 @@ LINE 1: SELECT ALL last_name FROM customers c ORDER BY EXISTS (SELECT l...
 LINE 1: ...P BY n1.first_name having (c.first_name||'test')=n1.first_name);
                                       ^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...P BY n1.first_name having (c.first_name||'test')=n1.first_name);
-                                      ^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
 LINE 1: ....first_name having count((c.first_name||'test')=n1.first_name)=2...
                                      ^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
 LINE 1: ...mers n1 GROUP BY n1.first_name order by (c.first_name||'test'));
                                                     ^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...mers n1 GROUP BY n1.first_name order by (c.first_name||'test'));
-                                                    ^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
 LINE 1: ...s n1 GROUP BY n1.first_name order by c.first_name||c.last_name);
                                                 ^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column LAST_NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ... n1 GROUP BY n1.first_name order by c.first_name||c.last_name);
-                                                             ^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...s n1 GROUP BY n1.first_name order by c.first_name||c.last_name);
-                                                ^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column LAST_NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ... n1 GROUP BY n1.first_name order by c.first_name||c.last_name);
-                                                             ^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column C.* must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ... n2 group by n2.order_id having count((c.* = n1.*) = TRUE)=1));
-                                                  ^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column C.* must appear in the GROUP BY clause or be used in an aggregate function
 LINE 1: ... n2 group by n2.order_id having count((c.* = n1.*) = TRUE)=1));
                                                   ^

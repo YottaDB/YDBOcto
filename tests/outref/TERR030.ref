@@ -59,9 +59,6 @@ LINE 1: ...CT id FROM names WHERE id = (SELECT * FROM (VALUES (NULL),('abcd...
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: A
 LINE 1: SELECT a, b FROM (VALUES (1, 2), (3, 4), (5, 6), (7, 8), (9, 10...
                ^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: B
-LINE 1: SELECT a, b FROM (VALUES (1, 2), (3, 4), (5, 6), (7, 8), (9, 10...
-                  ^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: COL1
 LINE 1: SELECT col1 FROM (VALUES (1)) as MyTable;
                ^^^^

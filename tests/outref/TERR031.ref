@@ -31,12 +31,6 @@ LINE 1: SELECT col1 FROM (SELECT 1 AS col1) AS tbl(a,b);
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
 LINE 1: SELECT id,firstname,lastname FROM names AS abcd(a,b,c);
                ^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FIRSTNAME
-LINE 1: SELECT id,firstname,lastname FROM names AS abcd(a,b,c);
-                  ^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: LASTNAME
-LINE 1: SELECT id,firstname,lastname FROM names AS abcd(a,b,c);
-                            ^^^^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: LASTNAME
 LINE 1: SELECT a,lastname,c FROM (SELECT * FROM names) AS abcd(a,b,c);
                  ^^^^^^^^

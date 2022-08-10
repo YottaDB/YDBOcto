@@ -452,3 +452,160 @@ INSERT INTO products VALUES (4, 2, 'mnop');
 UPDATE products SET id1 = id1 - 2;
 UPDATE products SET name = 'mnop' where id0 = 1;
 
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION with functions and casting
+CREATE FUNCTION IF NOT EXISTS length(VARCHAR) RETURNS INTEGER AS $L;
+DROP TABLE IF EXISTS clients;
+CREATE TABLE clients (
+    id            NUMERIC      CONSTRAINT clients PRIMARY KEY,
+    zip           CHAR(5)      CONSTRAINT zip_length CHECK (length(zip) = 5)
+);
+INSERT INTO clients
+VALUES
+(1, '11223'),
+(2, '11225');
+SELECT * FROM clients;
+UPDATE clients SET zip = '11228' WHERE id = 1;
+SELECT * FROM clients;
+UPDATE clients SET zip = (zip::numeric - 10000)::varchar;
+SELECT * FROM clients;
+-- Now try to drop function when it's still being used; should fail
+DROP FUNCTION IF EXISTS length(VARCHAR);
+-- Now drop table then function
+DROP TABLE clients;
+DROP FUNCTION length(VARCHAR);
+
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION with IN
+DROP TABLE IF EXISTS product_details;
+CREATE TABLE product_details(
+    agency_code VARCHAR(10) NOT NULL,
+    product_code VARCHAR(40) NOT NULL,
+    distribution_channel VARCHAR(15) NOT NULL ,
+    claim VARCHAR(5) NOT NULL CHECK(CLAIM IN ('No','Yes'))
+);
+INSERT INTO product_details(agency_code,product_code,distribution_channel,claim)
+VALUES ('AA','BB','CC','Yes');
+SELECT * FROM product_details;
+UPDATE product_details SET claim = 'No';
+SELECT * FROM product_details;
+UPDATE product_details SET claim = 'foo';
+DROP TABLE product_details;
+
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION with RegEx using LIKE
+DROP TABLE IF EXISTS users;
+CREATE TABLE users(
+    username VARCHAR(30) CONSTRAINT user_name_pk PRIMARY KEY,
+    password VARCHAR(60) CONSTRAINT user_password_nn NOT NULL,
+    email VARCHAR(60) CONSTRAINT user_email_nn NOT NULL,
+    CONSTRAINT user_email_chk CHECK(email LIKE '%@%.%')
+);
+INSERT INTO users(username, password, email)
+VALUES
+('sam','catdog.33','sam@zzz.com'),
+('nars','fatdog.44','nars@zzz.com');
+SELECT * FROM users;
+update users set email = 'sam@yyy.com' where username = 'sam';
+select * from users;
+update users set email = 'foocoo' where username = 'nars';
+DROP TABLE users;
+
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION with RegEx using SIMILAR TO
+CREATE TABLE users(
+username VARCHAR(30) CONSTRAINT user_name_pk PRIMARY KEY,
+password VARCHAR(60) CONSTRAINT user_password_nn NOT NULL,
+email VARCHAR(60) CONSTRAINT user_email_nn NOT NULL,
+phone VARCHAR(10) CONSTRAINT phone_check CHECK(phone SIMILAR TO '[[:digit:]]{10}')
+);
+INSERT into USERS
+VALUES
+('sam','nnnnnn.33','foo@boo.com','8888888888'),
+('bam','nnnnnn.33','','9999999999');
+SELECT * FROM users;
+UPDATE users SET phone = '906222' WHERE username = 'sam';
+DROP TABLE users;
+
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION with BETWEEN
+DROP TABLE IF EXISTS domains;
+CREATE TABLE domains (
+  domain_id INTEGER PRIMARY KEY,
+  domain VARCHAR(255) UNIQUE NOT NULL,
+  uid INT NOT NULL CHECK(uid BETWEEN 1 AND 65535),
+  gid INT NOT NULL CHECK(gid BETWEEN 1 AND 65535)
+);
+INSERT INTO domains(domain_id, domain, uid, gid) VALUES
+(1,'foo doo koo',22,22),
+(2,'foo doo boo',23,23);
+SELECT * FROM domains;
+UPDATE domains SET domain = 'foo noo roo' WHERE domain_id = 1;
+SELECT * FROM domains;
+UPDATE domains SET uid = 25, gid = 25 WHERE uid = 22;
+SELECT * FROM domains;
+UPDATE domains SET uid = 250000, gid = 25 WHERE uid = 25;
+DROP TABLE domains;
+
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION with OR with casting
+-- Test updating a NUMERIC field to NULL works (previously errored with %YDB-E-ZYSQLNULLNOTVALID)
+DROP TABLE IF EXISTS country;
+CREATE TABLE country (
+	    code CHARACTER(3) NOT NULL,
+	    name TEXT NOT NULL,
+	    continent TEXT NOT NULL,
+	    region TEXT NOT NULL,
+	    surfacearea NUMERIC NOT NULL,
+	    indepyear SMALLINT,
+	    population INTEGER NOT NULL,
+	    lifeexpectancy NUMERIC,
+	    gnp NUMERIC(10,2),
+	    gnpold NUMERIC(10,2),
+	    localname TEXT NOT NULL,
+	    governmentform TEXT NOT NULL,
+	    headofstate TEXT,
+	    capital INTEGER,
+	    code2 CHARACTER(2) NOT NULL,
+	    CONSTRAINT country_continent_check CHECK (((((((continent = 'Asia'::text) OR (continent = 'Europe'::text)) OR (continent = 'North America'::text)) OR (continent = 'Africa'::text)) OR (continent = 'Australia'::text)) OR (continent = 'Antarctica'::text)) OR (continent = 'South America'::text))
+);
+INSERT INTO country VALUES ('FRA', 'France', 'Europe', 'Western Europe', 551500, 843, 59225700, 78.800003, 1424285.00, 1392448.00, 'France', 'Republic', 'Emmanuel Macron', 2974, 'FR');
+SELECT * FROM country;
+UPDATE country SET continent = 'Europa';
+UPDATE country SET gnp = NULL;
+DROP TABLE country;
+
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION with dates
+DROP TABLE IF EXISTS Course_Enrollment_Session;
+CREATE TABLE Course_Enrollment_Session (
+ ID INT PRIMARY KEY,
+ Year INT NOT NULL,
+ Start_Registration_Date DATE NOT NULL,
+ End_Registration_Date DATE CHECK(End_Registration_Date > Start_Registration_Date)
+);
+INSERT INTO Course_Enrollment_Session
+VALUES
+(1,2020,'2020-02-11','2020-02-12'),
+(2,2021,'2021-02-11','2021-02-12')
+;
+SELECT * FROM Course_Enrollment_Session;
+UPDATE Course_Enrollment_Session SET End_Registration_Date = '2019-02-12' WHERE ID = 1;
+SELECT * FROM Course_Enrollment_Session;
+UPDATE Course_Enrollment_Session SET End_Registration_Date = '2022-02-12' WHERE ID = 2;
+SELECT * FROM Course_Enrollment_Session;
+UPDATE Course_Enrollment_Session SET End_Registration_Date = NULL WHERE ID = 2;
+SELECT * FROM Course_Enrollment_Session;
+DROP TABLE Course_Enrollment_Session;
+
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION with COALESCE function
+DROP TABLE IF EXISTS concepts;
+CREATE TABLE concepts(
+	concept_id INTEGER PRIMARY KEY,
+	standard_concept VARCHAR(1),
+	CONSTRAINT chk_c_standard_concept CHECK (COALESCE(standard_concept,'C') IN ('C','S'))
+);
+INSERT INTO concepts
+VALUES
+(1,'S'),
+(2,NULL),
+(3,'C'),
+(4,NULL);
+SELECT * FROM concepts;
+UPDATE concepts SET standard_concept = NULL;
+SELECT * FROM concepts;
+UPDATE concepts SET standard_concept = 'Q';
+DROP TABLE concepts;

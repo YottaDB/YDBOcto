@@ -441,6 +441,163 @@ INSERT INTO products VALUES (4, 2, 'mnop');
 UPDATE products SET id1 = id1 - 2;
 UPDATE products SET name = 'mnop' where id0 = 1;
 
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION with functions and casting
+CREATE FUNCTION IF NOT EXISTS length(VARCHAR) RETURNS INTEGER AS $L;
+DROP TABLE IF EXISTS clients;
+CREATE TABLE clients (
+    id            NUMERIC      CONSTRAINT clients PRIMARY KEY,
+    zip           CHAR(5)      CONSTRAINT zip_length CHECK (length(zip) = 5)
+);
+INSERT INTO clients
+VALUES
+(1, '11223'),
+(2, '11225');
+SELECT * FROM clients;
+UPDATE clients SET zip = '11228' WHERE id = 1;
+SELECT * FROM clients;
+UPDATE clients SET zip = (zip::numeric - 10000)::varchar;
+SELECT * FROM clients;
+-- Now try to drop function when it's still being used; should fail
+DROP FUNCTION IF EXISTS length(VARCHAR);
+-- Now drop table then function
+DROP TABLE clients;
+DROP FUNCTION length(VARCHAR);
+
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION with IN
+DROP TABLE IF EXISTS product_details;
+CREATE TABLE product_details(
+    agency_code VARCHAR(10) NOT NULL,
+    product_code VARCHAR(40) NOT NULL,
+    distribution_channel VARCHAR(15) NOT NULL ,
+    claim VARCHAR(5) NOT NULL CHECK(CLAIM IN ('No','Yes'))
+);
+INSERT INTO product_details(agency_code,product_code,distribution_channel,claim)
+VALUES ('AA','BB','CC','Yes');
+SELECT * FROM product_details;
+UPDATE product_details SET claim = 'No';
+SELECT * FROM product_details;
+UPDATE product_details SET claim = 'foo';
+DROP TABLE product_details;
+
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION with RegEx using LIKE
+DROP TABLE IF EXISTS users;
+CREATE TABLE users(
+    username VARCHAR(30) CONSTRAINT user_name_pk PRIMARY KEY,
+    password VARCHAR(60) CONSTRAINT user_password_nn NOT NULL,
+    email VARCHAR(60) CONSTRAINT user_email_nn NOT NULL,
+    CONSTRAINT user_email_chk CHECK(email LIKE '%@%.%')
+);
+INSERT INTO users(username, password, email)
+VALUES
+('sam','catdog.33','sam@zzz.com'),
+('nars','fatdog.44','nars@zzz.com');
+SELECT * FROM users;
+update users set email = 'sam@yyy.com' where username = 'sam';
+select * from users;
+update users set email = 'foocoo' where username = 'nars';
+DROP TABLE users;
+
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION with RegEx using SIMILAR TO
+CREATE TABLE users(
+username VARCHAR(30) CONSTRAINT user_name_pk PRIMARY KEY,
+password VARCHAR(60) CONSTRAINT user_password_nn NOT NULL,
+email VARCHAR(60) CONSTRAINT user_email_nn NOT NULL,
+phone VARCHAR(10) CONSTRAINT phone_check CHECK(phone SIMILAR TO '[[:digit:]]{10}')
+);
+INSERT into USERS
+VALUES
+('sam','nnnnnn.33','foo@boo.com','8888888888'),
+('bam','nnnnnn.33','','9999999999');
+SELECT * FROM users;
+UPDATE users SET phone = '906222' WHERE username = 'sam';
+DROP TABLE users;
+
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION with BETWEEN
+DROP TABLE IF EXISTS domains;
+CREATE TABLE domains (
+  domain_id INTEGER PRIMARY KEY,
+  domain VARCHAR(255) UNIQUE NOT NULL,
+  uid INT NOT NULL CHECK(uid BETWEEN 1 AND 65535),
+  gid INT NOT NULL CHECK(gid BETWEEN 1 AND 65535)
+);
+INSERT INTO domains(domain_id, domain, uid, gid) VALUES
+(1,'foo doo koo',22,22),
+(2,'foo doo boo',23,23);
+SELECT * FROM domains;
+UPDATE domains SET domain = 'foo noo roo' WHERE domain_id = 1;
+SELECT * FROM domains;
+UPDATE domains SET uid = 25, gid = 25 WHERE uid = 22;
+SELECT * FROM domains;
+UPDATE domains SET uid = 250000, gid = 25 WHERE uid = 25;
+DROP TABLE domains;
+
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION with OR with casting
+-- Test updating a NUMERIC field to NULL works (previously errored with %YDB-E-ZYSQLNULLNOTVALID)
+DROP TABLE IF EXISTS country;
+CREATE TABLE country (
+	    code CHARACTER(3) NOT NULL,
+	    name TEXT NOT NULL,
+	    continent TEXT NOT NULL,
+	    region TEXT NOT NULL,
+	    surfacearea NUMERIC NOT NULL,
+	    indepyear SMALLINT,
+	    population INTEGER NOT NULL,
+	    lifeexpectancy NUMERIC,
+	    gnp NUMERIC(10,2),
+	    gnpold NUMERIC(10,2),
+	    localname TEXT NOT NULL,
+	    governmentform TEXT NOT NULL,
+	    headofstate TEXT,
+	    capital INTEGER,
+	    code2 CHARACTER(2) NOT NULL,
+	    CONSTRAINT country_continent_check CHECK (((((((continent = 'Asia'::text) OR (continent = 'Europe'::text)) OR (continent = 'North America'::text)) OR (continent = 'Africa'::text)) OR (continent = 'Australia'::text)) OR (continent = 'Antarctica'::text)) OR (continent = 'South America'::text))
+);
+INSERT INTO country VALUES ('FRA', 'France', 'Europe', 'Western Europe', 551500, 843, 59225700, 78.800003, 1424285.00, 1392448.00, 'France', 'Republic', 'Emmanuel Macron', 2974, 'FR');
+SELECT * FROM country;
+UPDATE country SET continent = 'Europa';
+UPDATE country SET gnp = NULL;
+DROP TABLE country;
+
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION with dates
+DROP TABLE IF EXISTS Course_Enrollment_Session;
+CREATE TABLE Course_Enrollment_Session (
+ ID INT PRIMARY KEY,
+ Year INT NOT NULL,
+ Start_Registration_Date DATE NOT NULL,
+ End_Registration_Date DATE CHECK(End_Registration_Date > Start_Registration_Date)
+);
+INSERT INTO Course_Enrollment_Session
+VALUES
+(1,2020,'DATE','DATE'),
+(2,2021,'DATE','DATE')
+;
+SELECT * FROM Course_Enrollment_Session;
+UPDATE Course_Enrollment_Session SET End_Registration_Date = 'DATE' WHERE ID = 1;
+SELECT * FROM Course_Enrollment_Session;
+UPDATE Course_Enrollment_Session SET End_Registration_Date = 'DATE' WHERE ID = 2;
+SELECT * FROM Course_Enrollment_Session;
+UPDATE Course_Enrollment_Session SET End_Registration_Date = NULL WHERE ID = 2;
+SELECT * FROM Course_Enrollment_Session;
+DROP TABLE Course_Enrollment_Session;
+
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION with COALESCE function
+DROP TABLE IF EXISTS concepts;
+CREATE TABLE concepts(
+	concept_id INTEGER PRIMARY KEY,
+	standard_concept VARCHAR(1),
+	CONSTRAINT chk_c_standard_concept CHECK (COALESCE(standard_concept,'C') IN ('C','S'))
+);
+INSERT INTO concepts
+VALUES
+(1,'S'),
+(2,NULL),
+(3,'C'),
+(4,NULL);
+SELECT * FROM concepts;
+UPDATE concepts SET standard_concept = NULL;
+SELECT * FROM concepts;
+UPDATE concepts SET standard_concept = 'Q';
+DROP TABLE concepts;
 LINE 1: create table products (first varchar, last varchar, not null);
                                                             ^^^
 syntax error, unexpected NOT, expecting CHECK
@@ -933,3 +1090,127 @@ INSERT 0 1
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table PRODUCTS violates CHECK constraint PRODUCTS_NAME_CHECK : Failing row contains (4, 2, mnop)
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table PRODUCTS violates CHECK constraint PRODUCTS_ID1_CHECK : Failing row contains (1, 0, abcd)
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table PRODUCTS violates CHECK constraint PRODUCTS_NAME_CHECK : Failing row contains (1, 2, mnop)
+CREATE FUNCTION
+DROP TABLE
+CREATE TABLE
+INSERT 0 2
+ID|ZIP
+1|11223
+2|11225
+(2 rows)
+UPDATE 1
+ID|ZIP
+1|11228
+2|11225
+(2 rows)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table CLIENTS violates CHECK constraint ZIP_LENGTH : Failing row contains (1, 1228)
+ID|ZIP
+1|11228
+2|11225
+(2 rows)
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function 'LENGTH(VARCHAR)' because other objects (constraint ZIP_LENGTH on table CLIENTS) depend on it
+DROP TABLE
+DROP FUNCTION
+DROP TABLE
+CREATE TABLE
+INSERT 0 1
+AGENCY_CODE|PRODUCT_CODE|DISTRIBUTION_CHANNEL|CLAIM
+AA|BB|CC|Yes
+(1 row)
+UPDATE 1
+AGENCY_CODE|PRODUCT_CODE|DISTRIBUTION_CHANNEL|CLAIM
+AA|BB|CC|No
+(1 row)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table PRODUCT_DETAILS violates CHECK constraint PRODUCT_DETAILS_CLAIM_CHECK : Failing row contains (AA, BB, CC, foo)
+DROP TABLE
+DROP TABLE
+CREATE TABLE
+INSERT 0 2
+USERNAME|PASSWORD|EMAIL
+nars|fatdog.44|nars@zzz.com
+sam|catdog.33|sam@zzz.com
+(2 rows)
+UPDATE 1
+USERNAME|PASSWORD|EMAIL
+nars|fatdog.44|nars@zzz.com
+sam|catdog.33|sam@yyy.com
+(2 rows)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table USERS violates CHECK constraint USER_EMAIL_CHK : Failing row contains (nars, fatdog.44, foocoo)
+DROP TABLE
+CREATE TABLE
+INSERT 0 2
+USERNAME|PASSWORD|EMAIL|PHONE
+bam|nnnnnn.33||9999999999
+sam|nnnnnn.33|foo@boo.com|8888888888
+(2 rows)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table USERS violates CHECK constraint PHONE_CHECK : Failing row contains (sam, nnnnnn.33, foo@boo.com, 906222)
+DROP TABLE
+DROP TABLE
+CREATE TABLE
+INSERT 0 2
+DOMAIN_ID|DOMAIN|UID|GID
+1|foo doo koo|22|22
+2|foo doo boo|23|23
+(2 rows)
+UPDATE 1
+DOMAIN_ID|DOMAIN|UID|GID
+1|foo noo roo|22|22
+2|foo doo boo|23|23
+(2 rows)
+UPDATE 1
+DOMAIN_ID|DOMAIN|UID|GID
+1|foo noo roo|25|25
+2|foo doo boo|23|23
+(2 rows)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table DOMAINS violates CHECK constraint DOMAINS_UID_CHECK : Failing row contains (1, foo noo roo, 250000, 25)
+DROP TABLE
+DROP TABLE
+CREATE TABLE
+INSERT 0 1
+CODE|NAME|CONTINENT|REGION|SURFACEAREA|INDEPYEAR|POPULATION|LIFEEXPECTANCY|GNP|GNPOLD|LOCALNAME|GOVERNMENTFORM|HEADOFSTATE|CAPITAL|CODE2
+FRA|France|Europe|Western Europe|551500|843|59225700|78.800003|1424285.00|1392448.00|France|Republic|Emmanuel Macron|2974|FR
+(1 row)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table COUNTRY violates CHECK constraint COUNTRY_CONTINENT_CHECK : Failing row contains (FRA, France, Europa, Western Europe, 551500, 843, 59225700, 78.800003, 1424285.00, 1392448.00, France, Republic, Emmanuel Macron, 2974, FR)
+[ERROR]: ERR_YOTTADB: YottaDB error: 151027986,Cast2NUMERIC+12^%ydboctoplanhelpers,%YDB-E-ZYSQLNULLNOTVALID, $ZYSQLNULL cannot be used as an integer, numeric, gvn subscript/value or lock subscript
+DROP TABLE
+DROP TABLE
+CREATE TABLE
+INSERT 0 2
+ID|YEAR|START_REGISTRATION_DATE|END_REGISTRATION_DATE
+1|2020|DATE|DATE
+2|2021|DATE|DATE
+(2 rows)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table COURSE_ENROLLMENT_SESSION violates CHECK constraint COURSE_ENROLLMENT_SESSION_CHECK : Failing row contains (1, 2020, DATE, DATE)
+ID|YEAR|START_REGISTRATION_DATE|END_REGISTRATION_DATE
+1|2020|DATE|DATE
+2|2021|DATE|DATE
+(2 rows)
+UPDATE 1
+ID|YEAR|START_REGISTRATION_DATE|END_REGISTRATION_DATE
+1|2020|DATE|DATE
+2|2021|DATE|DATE
+(2 rows)
+UPDATE 1
+ID|YEAR|START_REGISTRATION_DATE|END_REGISTRATION_DATE
+1|2020|DATE|DATE
+2|2021|DATE|
+(2 rows)
+DROP TABLE
+DROP TABLE
+CREATE TABLE
+INSERT 0 4
+CONCEPT_ID|STANDARD_CONCEPT
+1|S
+2|
+3|C
+4|
+(4 rows)
+UPDATE 4
+CONCEPT_ID|STANDARD_CONCEPT
+1|
+2|
+3|
+4|
+(4 rows)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table CONCEPTS violates CHECK constraint CHK_C_STANDARD_CONCEPT : Failing row contains (1, Q)
+DROP TABLE

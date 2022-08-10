@@ -609,3 +609,14 @@ UPDATE concepts SET standard_concept = NULL;
 SELECT * FROM concepts;
 UPDATE concepts SET standard_concept = 'Q';
 DROP TABLE concepts;
+
+-- Test of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1179#note_1057367513
+DROP TABLE IF EXISTS country;
+CREATE TABLE country (gnp numeric(4,2));
+INSERT INTO country VALUES (1.25);
+-- The below used to previously issue a `%YDB-E-ZYSQLNULLNOTVALID` error.
+INSERT INTO country VALUES (NULL);
+-- The below used to previously issue a `%YDB-E-ZYSQLNULLNOTVALID` error.
+UPDATE country SET gnp = NULL;
+SELECT gnp is NULL from country;
+

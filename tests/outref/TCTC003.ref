@@ -598,6 +598,17 @@ UPDATE concepts SET standard_concept = NULL;
 SELECT * FROM concepts;
 UPDATE concepts SET standard_concept = 'Q';
 DROP TABLE concepts;
+
+-- Test of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1179#note_1057367513
+DROP TABLE IF EXISTS country;
+CREATE TABLE country (gnp numeric(4,2));
+INSERT INTO country VALUES (1.25);
+-- The below used to previously issue a `%YDB-E-ZYSQLNULLNOTVALID` error.
+INSERT INTO country VALUES (NULL);
+-- The below used to previously issue a `%YDB-E-ZYSQLNULLNOTVALID` error.
+UPDATE country SET gnp = NULL;
+SELECT gnp is NULL from country;
+
 LINE 1: create table products (first varchar, last varchar, not null);
                                                             ^^^
 syntax error, unexpected NOT, expecting CHECK
@@ -1171,7 +1182,7 @@ CODE|NAME|CONTINENT|REGION|SURFACEAREA|INDEPYEAR|POPULATION|LIFEEXPECTANCY|GNP|G
 FRA|France|Europe|Western Europe|551500|843|59225700|78.800003|1424285.00|1392448.00|France|Republic|Emmanuel Macron|2974|FR
 (1 row)
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table COUNTRY violates CHECK constraint COUNTRY_CONTINENT_CHECK : Failing row contains (FRA, France, Europa, Western Europe, 551500, 843, 59225700, 78.800003, 1424285.00, 1392448.00, France, Republic, Emmanuel Macron, 2974, FR)
-[ERROR]: ERR_YOTTADB: YottaDB error: 151027986,Cast2NUMERIC+12^%ydboctoplanhelpers,%YDB-E-ZYSQLNULLNOTVALID, $ZYSQLNULL cannot be used as an integer, numeric, gvn subscript/value or lock subscript
+UPDATE 1
 DROP TABLE
 DROP TABLE
 CREATE TABLE
@@ -1214,3 +1225,12 @@ CONCEPT_ID|STANDARD_CONCEPT
 (4 rows)
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table CONCEPTS violates CHECK constraint CHK_C_STANDARD_CONCEPT : Failing row contains (1, Q)
 DROP TABLE
+DROP TABLE
+CREATE TABLE
+INSERT 0 1
+INSERT 0 1
+UPDATE 2
+GNP
+1
+1
+(2 rows)

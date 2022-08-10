@@ -875,9 +875,11 @@ Cast2VARCHAR(string,size)
 	; "string" is the input string that needs to be type cast.
 	; "size" is the maximum character length (not byte length) of the target string.
 	; e.g. 'abcd'::VARCHAR(2) should return 'ab'
+	QUIT:$ZYISSQLNULL(string) $ZYSQLNULL
 	QUIT $EXTRACT(string,1,size)
 
 Cast2NUMERIC(number,precision,scale)
+	QUIT:$ZYISSQLNULL(number) $ZYSQLNULL
 	; This function helps implement the typecast operator where the target type is NUMERIC
 	; "number" is the input number that needs to be type cast.
 	; "precision" is the maximum precision (i.e. total count of significant digits on either side of the decimal point)

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -47,4 +47,7 @@ SELECT -1.49::NUMERIC(3,2);
 SELECT -15.54::NUMERIC(4,1);
 SELECT -15.54::NUMERIC(3,0);
 SELECT -15.54::NUMERIC(3,1);
+
+-- Test https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/636#note_1057433821
+SELECT NULL::NUMERIC(10,2);
 

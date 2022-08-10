@@ -9,10 +9,21 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
+cmake_minimum_required(VERSION 3.14)
+include(FetchContent)
+# The tag is at the time of writing the latest tag in YDBCMake.
+# The tag is fixed at that point to ensure reproducible builds.
+# If YDBCMake is updated, and the update is material to Octo, the tag needs to
+# be updated.
+FetchContent_Declare(YDBCMake
+	GIT_REPOSITORY	https://gitlab.com/YottaDB/Tools/YDBCMake.git
+	GIT_TAG		84c5180d1f184a892f5cc52367ce51f9bc2eac7e
+)
+# The following sets ydbcmake_SOURCE_DIR
+FetchContent_MakeAvailable(YDBCMake)
+message(STATUS "YDBCMake Source Directory: ${ydbcmake_SOURCE_DIR}")
 
-cmake_minimum_required (VERSION 3.0)
-
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/;${CMAKE_SOURCE_DIR}/ydbcmake/")
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/;${ydbcmake_SOURCE_DIR}/ydbcmake/")
 
 # Find YottaDB
 find_package(YOTTADB REQUIRED)

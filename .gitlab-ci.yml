@@ -76,6 +76,31 @@ commit-verify:
     - chmod +x commit_verify.sh
     - ./commit_verify.sh tools/ci/needs_copyright.sh https://gitlab.com/YottaDB/DBMS/YDBOcto
 
+release-ubuntu:
+  image: yottadb/yottadb-base:latest
+  # Run Release job only if this is a scheduled pipeline
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  services:
+    - mysql:8.0
+  extends:
+    - .make
+    - .ubuntu
+  script:
+    - ./tools/ci/build.sh "make-ubuntu" "none"
+
+release-rocky:
+  image: yottadb/yottadb-rocky-base:latest
+  # Run Release job only if this is a scheduled pipeline
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  services:
+    - mysql:8.0
+  extends:
+    - .make
+    - .rocky
+  script: ./tools/ci/build.sh "make-rocky" "none"
+
 make-ubuntu:
   image: yottadb/yottadb-base:latest-master
   services:
@@ -228,7 +253,7 @@ deadlinks:
     - wget https://github.com/deadlinks/cargo-deadlinks/releases/download/$DEADLINKS_VERSION/deadlinks-linux -O deadlinks
     - chmod +x ./deadlinks
     - ./deadlinks -v public
-    
+
 pages:
   image: yottadb/yottadb-base:latest-master
   stage: docs
@@ -251,4 +276,3 @@ docs.yottadb.net:
       - master
     changes:
       - doc/**/*
-      

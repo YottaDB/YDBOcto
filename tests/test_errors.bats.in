@@ -44,6 +44,12 @@ OCTO
   # Therefore filter that out even when not run in the pipeline.
   # The syslog message has a "generated from" text that uniquely identifies so grep for that.
   grep -v "generated from" output1.txt > output.txt
+  # The error number for ZGBLDIRACC changed from 150374122 to 418809578 when the GT.M V6.3-012 changes
+  # were incorporated into YottaDB, causing a discrepancy in output for this test
+  # depending on which version of YottaDB is being used. So, perform that conversion here
+  # in case the test is being run against a version of YottaDB that omits this change.
+  # See https://gitlab.com/YottaDB/Lang/YDBPython/-/merge_requests/39 for more information.
+  sed -i 's/150374122/418809578/' output.txt
   verify_output TERR001 output.txt noinfo nodebug
 }
 

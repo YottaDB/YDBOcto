@@ -21,117 +21,73 @@ Developer's Documentation
 Setting up Automated Regression Testing for Octo
 --------------------------------------------------
 
-.. note::
+  .. note::
 
-   Automated regression tests are run on every Octo source code update and install.
-   Run BATS only if you are an advanced user who wants to contribute to Octo or run on a Linux distribution on which YottaDB is Supportable but not Supported.
-   
+     Automated regression tests are run on every Octo source code update and install.
+     Run BATS only if you are an advanced user who wants to contribute to Octo or run on a Linux distribution on which YottaDB is Supportable but not Supported.
+
++++++++++++++++++++
+Installing YottaDB
++++++++++++++++++++
+
+ Testing Octo requires YottaDB r1.34 or greater to be installed in UTF-8 mode, with AIM and POSIX plugins.
+
+  .. code-block:: bash
+
+     # Install prerequisite packages
+     # Ubuntu/Debian
+     apt update && apt install wget file procps libelf1 libicu70 libicu-dev curl cmake make gcc pkg-config sudo git
+
+     # Rocky Linux/RHEL
+     yum install wget file procps-ng binutils findutils elfutils-libelf libicu libicu-devel curl cmake make gcc pkg-config sudo git nano gzip
+
+     # Install YottaDB
+     mkdir /tmp/tmp ; wget -P /tmp/tmp https://gitlab.com/YottaDB/DB/YDB/raw/master/sr_unix/ydbinstall.sh
+     cd /tmp/tmp ; chmod +x ydbinstall.sh
+     ./ydbinstall.sh --overwrite-existing --utf8 default --aim --posix
+     
 ++++++++++++++++++++++++++++++++++++++++++++++++
 Prerequisites for Automated Regression Testing
 ++++++++++++++++++++++++++++++++++++++++++++++++
 
-1. Octo uses BATS for automated integration and regression testing. To use BATS to run tests on Octo, BATS version 1.1+ must be installed:
+~~~~~~~~~~~~~~
+Ubuntu/Debian
+~~~~~~~~~~~~~~
+
+ Run the following commands to install all of the prerequisites needed for testing Octo on Ubuntu or Debian Linux.
 
   .. code-block:: bash
 
-     git clone https://github.com/bats-core/bats-core.git
-     cd bats-core
-     sudo ./install.sh /usr
+    git clone https://github.com/bats-core/bats-core.git && cd bats-core && sudo ./install.sh /usr
+    apt-get install default-jdk expect golang-go locales libcmocka-dev postgresql-client postgresql mysql-client mysql-server unixodbc odbc-postgresql bison flex libreadline-dev libconfig-dev libssl-dev python3
+    locale-gen en_US.UTF-8
 
-  This will install BATS to /usr/bin. Note that installing to /usr may require root access or use of :code:`sudo`. To specify an alternative path change the argument to your preferred location, e.g. "/usr/local" to install to /usr/local/bin.
+~~~~~~~~~~~~~~~~~
+Rocky Linux/RHEL
+~~~~~~~~~~~~~~~~~
 
-  Details available in the `BATS source repo <https://github.com/bats-core/bats-core>`_.
-
-  Some bats tests also require go, java and expect.
-  The appropriate libraries must installed:
-
-  .. code-block:: bash
-
-     # Ubuntu Linux/Debian Linux
-     sudo apt-get install --no-install-recommends default-jdk expect golang-go
-
-     # RHEL 8/Rocky Linux
-     sudo yum install java-latest-openjdk expect golang
-
-  Additionally, some tests require a JDBC driver. The JDBC driver must be downloaded to the build directory and JDBC_VERSION must be set in the environment. Versions starting with 42.2.6 are tested, but earlier versions may work. For example, using 42.2.12 version:
+ Run the following commands to install and setup all of the prerequisites needed for testing Octo on Rocky Linux or RHEL.
 
   .. code-block:: bash
-		
-     export JDBC_VERSION=42.2.12
-     wget https://jdbc.postgresql.org/download/postgresql-$JDBC_VERSION.jar
 
-2. *(Debian/Ubuntu only)* Install the en_US.utf8 locale
+    git clone https://github.com/bats-core/bats-core.git && cd bats-core && sudo ./install.sh /usr
+    yum --enablerepo=powertools install java-11-openjdk-devel expect golang glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC postgresql-odbc bison flex readline-devel libconfig-devel openssl-devel python3 vim passwd
 
-  Octo tests should be run with the en_US.utf8 locale due to collation order differences in other locales that cause some test outputs to not match reference outputs.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Configure PostgreSQL and MySQL
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ PostgreSQL must be set up for the user who will be running the tests:
 
   .. code-block:: bash
 		
-     # Debian
-     locale -a
-     # if "en_US.utf8" does not appear among the available locales listed by the above command, proceed to the steps below:
-     sudo vi /etc/locale.gen # or use your preferred text editor
-     # Uncomment the line in /etc/locale.gen that reads "en_US.UTF-8 UTF-8", then save and exit
-     sudo locale-gen
-
-3. Install cmocka unit testing framework
-
-  Octo uses cmocka for automated unit testing. To build and run Octo's unit tests, cmocka must be installed:
-
-  .. code-block:: bash
-		
-     # Ubuntu Linux/Debian Linux
-     sudo apt-get install --no-install-recommends libcmocka-dev
-
-     # RHEL 8/Rocky Linux
-     sudo yum install libcmocka-devel
-
-4. Install PostgreSQL client (psql)
-
-  Octo uses the psql PostgreSQL for some integration/regression tests. To build and run these tests, psql must be installed:
-
-  .. code-block:: bash
-		
-     # Ubuntu Linux/Debian Linux
-     sudo apt-get install --no-install-recommends postgresql-client
-
-     # RHEL 8/Rocky Linux
-     sudo yum install postgresql
-
-5. Install PostgreSQL server
-
-  Octo uses the PostgreSQL server for some integration/regression tests. To build and run these tests, PostgreSQL must be installed:
-
-  .. code-block:: bash
-		
-     # Ubuntu Linux/Debian Linux
-     sudo apt-get install --no-install-recommends postgresql
-
-     # RHEL 8/Rocky Linux
-     sudo yum install postgresql
-
-  Additionally, PostgreSQL must be set up for the user who will be running the tests:
-
-  .. code-block:: bash
-		
-     sudo -u postgres createuser [username]
+     sudo -u postgres createuser $USER
      sudo -u postgres psql <<PSQL
-     alter user [username] createdb;
-     create database [username] LC_COLLATE='C' template=template0;
+     alter user $USER createdb;
+     create database $USER LC_COLLATE='C' template=template0;
      PSQL
-
-6. Install MySQL server and client (mysql)
-
-  Octo uses the MySQL server for some integration/regression tests. To build and run these tests, MySQL must be installed:
-
-  .. code-block:: bash
-		
-     # Ubuntu Linux/Debian Linux
-     sudo apt-get install mysql-server mysql-client
-
-     # RHEL 8/Rocky Linux
-     yum install -y mysql-server
-
-  Additionally, MySQL must be set up for the user who will be running the tests, using a password of 'ydbrocks'. Assuming a :code:`bash` shell, the following can be run as a single command to do the necessary setup:
+     
+ Additionally, MySQL must be set up for the user who will be running the tests, using a password of 'ydbrocks'. Assuming a :code:`bash` shell, the following can be run as a single command to do the necessary setup:
 
   .. code-block:: bash
 		
@@ -140,108 +96,200 @@ Prerequisites for Automated Regression Testing
      GRANT CREATE, ALTER, DROP, INSERT, UPDATE, DELETE, SELECT, REFERENCES, RELOAD on *.* TO '$USER'@'localhost' WITH GRANT OPTION;
      FLUSH PRIVILEGES;
      MYSQL
+     
++++++++++++++++
+Download Octo
++++++++++++++++
 
-7. Install UnixODBC and the Postgres ODBC Shared Library
-
-  Octo runs ODBC driver tests if the UnixODBC package is installed. To build and run these tests, you need to do the following:
+ Clone the Octo source code repository in a temporary directory using the following commands:
 
   .. code-block:: bash
+
+     mkdir tmp && cd tmp
+     git clone https://gitlab.com/YottaDB/DBMS/YDBOcto.git
+     cd YDBOcto
+     mkdir build && cd build
+     
+++++++++++++++
+Compile Octo
+++++++++++++++
+
+~~~~~~~~~~~~~
+CMake Flags
+~~~~~~~~~~~~~
+
+ * Use :code:`DISABLE_INSTALL=ON` to disable the generation of installation rules for the :code:`make install` command.
+ * Use :code:`FULL_TEST_SUITE=ON` to build the full test suite for Octo.
+ * In addition, there is a speed test that can be enabled by :code:`TEST_SPEED=ON`. The speed test is intended for use in benchmarking and needs to be run separately from the full test suite. Run it with :code:`bats -T bats_tests/test_speed.bats` or with the equivalent command :code:`ctest -V -R test_speed`.
+
+ A typical developer would use the following command:
+
+  .. code-block:: bash
+
+     cmake -D DISABLE_INSTALL=ON -D FULL_TEST_SUITE=ON ..
+   
+~~~~~~~~~
+Compile
+~~~~~~~~~
+
+ Run the following command to compile Octo:
+
+  .. code-block:: bash
+
+     make -j `getconf _NPROCESSORS_ONLN`
+
+ Set JDBC_VERSION in the environment and download the JDBC driver into the build directory. Versions starting with 42.2.6 are tested, but earlier versions may work. For example, using 42.2.12 version:
+
+  .. code-block:: bash
+
+     export JDBC_VERSION=42.2.12
+     wget https://jdbc.postgresql.org/download/postgresql-$JDBC_VERSION.jar
+   
+~~~~~~~~~
+Install
+~~~~~~~~~
+
+ For testing purposes, Octo installation is not necessary. However, the following command can be used to install Octo:
+
+  .. code-block:: bash
+
+     sudo -E make install
+   
++++++++++++++++
+Sanity Checks
++++++++++++++++
+
+ Use the :ref:`Northwind <northwind-ddl-ex>` database to check if Octo has been setup properly. The dummy data set can be found in the :code:`tests/fixtures` subdirectory of the YDBOcto repository created by :code:`git clone https://gitlab.com/YottaDB/DBMS/YDBOcto.git`.
+
+ Assuming that :code:`/tmp/YDBOcto` is the directory from the git clone :code:`https://gitlab.com/YottaDB/DBMS/YDBOcto.git` command:
+
+  .. code-block:: bash
+
+     # Set ydb_routines
+     export ydb_routines=". src/utf8/_ydbocto.so"
+     # Source ydb_* variables
+     source $(pkg-config --variable=prefix yottadb)/ydb_env_set
+     # ydb_dir can optionally be set to use a location other than $HOME/.yottadb for the working environment.
+
+     mupip load ../tests/fixtures/northwind.zwr
+     src/octo -f ../tests/fixtures/northwind.sql
+
+ Once loaded, start the Octo interactive shell and run the following SELECT command:
+
+  .. code-block:: none
 		
-     # Ubuntu Linux/Debian Linux
-     sudo apt-get install unixodbc odbc-postgresql
+     src/octo
+     OCTO> SELECT * FROM Suppliers;
+     SUPPLIERID|SUPPLIERNAME|CONTACTNAME|ADDRESS|CITY|POSTALCODE|COUNTRY|PHONE
+     1|Exotic Liquid|Charlotte Cooper|49 Gilbert St.|Londona|EC1 4SD|UK|(171) 555-2222
+     2|New Orleans Cajun Delights|Shelley Burke|P.O. Box 78934|New Orleans|70117|USA|(100) 555-4822
+     3|Grandma Kelly's Homestead|Regina Murphy|707 Oxford Rd.|Ann Arbor|48104|USA|(313) 555-5735
+     4|Tokyo Traders|Yoshi Nagase|9-8 Sekimai Musashino-shi|Tokyo|100|Japan|(03) 3555-5011
+     5|Cooperativa de Quesos 'Las Cabras'|Antonio del Valle Saavedra |Calle del Rosal 4|Oviedo|33007|Spain|(98) 598 76 54
+     6|Mayumi's|Mayumi Ohno|92 Setsuko Chuo-ku|Osaka|545|Japan|(06) 431-7877
+     7|Pavlova, Ltd.|Ian Devling|74 Rose St. Moonie Ponds|Melbourne|3058|Australia|(03) 444-2343
+     8|Specialty Biscuits, Ltd.|Peter Wilson|29 King's Way|Manchester|M14 GSD|UK|(161) 555-4448
+     9|PB Knäckebröd AB|Lars Peterson|Kaloadagatan 13|Göteborg|S-345 67|Sweden |031-987 65 43
+     10|Refrescos Americanas LTDA|Carlos Diaz|Av. das Americanas 12.890|Săo Paulo|5442|Brazil|(11) 555 4640
+     11|Heli Süßwaren GmbH & Co. KG|Petra Winkler|Tiergartenstraße 5|Berlin|10785|Germany|(010) 9984510
+     12|Plutzer Lebensmittelgroßmärkte AG|Martin Bein|Bogenallee 51|Frankfurt|60439|Germany|(069) 992755
+     13|Nord-Ost-Fisch Handelsgesellschaft mbH|Sven Petersen|Frahmredder 112a|Cuxhaven|27478|Germany|(04721) 8713
+     14|Formaggi Fortini s.r.l.|Elio Rossi|Viale Dante, 75|Ravenna|48100|Italy|(0544) 60323
+     15|Norske Meierier|Beate Vileid|Hatlevegen 5|Sandvika|1320|Norway|(0)2-953010
+     16|Bigfoot Breweries|Cheryl Saylor|3400 - 8th Avenue Suite 210|Bend|97101|USA|(503) 555-9931
+     17|Svensk Sjöföda AB|Michael Björn|Brovallavägen 231|Stockholm|S-123 45|Sweden|08-123 45 67
+     18|Aux joyeux ecclésiastiques|Guylène Nodier|203, Rue des Francs-Bourgeois|Paris|75004|France|(1) 03.83.00.68
+     19|New England Seafood Cannery|Robb Merchant|Order Processing Dept. 2100 Paul Revere Blvd.|Boston|02134|USA|(617) 555-3267
+     20|Leka Trading|Chandra Leka|471 Serangoon Loop, Suite #402|Singapore|0512|Singapore|555-8787
+     21|Lyngbysild|Niels Petersen|Lyngbysild Fiskebakken 10|Lyngby|2800|Denmark|43844108
+     22|Zaanse Snoepfabriek|Dirk Luchte|Verkoop Rijnweg 22|Zaandam|9999 ZZ|Netherlands|(12345) 1212
+     23|Karkki Oy|Anne Heikkonen|Valtakatu 12|Lappeenranta|53120|Finland|(953) 10956
+     24|G'day, Mate|Wendy Mackenzie|170 Prince Edward Parade Hunter's Hill|Sydney|2042|Australia|(02) 555-5914
+     25|Ma Maison|Jean-Guy Lauzon|2960 Rue St. Laurent|Montréal|H1J 1C3|Canada|(514) 555-9022
+     26|Pasta Buttini s.r.l.|Giovanni Giudici|Via dei Gelsomini, 153|Salerno|84100|Italy|(089) 6547665
+     27|Escargots Nouveaux|Marie Delamare|22, rue H. Voiron|Montceau|71300|France|85.57.00.07
+     28|Gai pâturage|Eliane Noz|Bat. B 3, rue des Alpes|Annecy|74000|France|38.76.98.06
+     29|Forêts d'érables|Chantal Goulet|148 rue Chasseur|Ste-Hyacinthe|J2S 7S8|Canada|(514) 555-2955
+     (29 rows)
+     OCTO>
 
-     # RHEL 8/Rocky Linux
-     sudo yum install unixODBC postgresql-odbc
+ Run the following sample tests to check if test prerequisites have been satisfied:
 
-+++++++++++++++++++
-Running the tests
-+++++++++++++++++++
+  .. code-block:: bash
 
-.. note::
+     bats bats_tests/hello_bats.bats
+     bats bats_tests/hello_db.bats
+   
++++++++++++++++++++++++
+Running all the tests
++++++++++++++++++++++++
 
-   Make sure that `YottaDB <https://docs.yottadb.com/AdminOpsGuide/installydb.html#installing-yottadb>`_, :ref:`Octo <install-octo>`, and `YDBAIM <https://docs.yottadb.com/Plugins/ydbaim.html#installation>`_ are installed and up to date before running the tests.
+ To show the output of failed tests, export the environment variable :code:`CTEST_OUTPUT_ON_FAILURE=TRUE`. Alternatively, you can show output for only a single run by passing the argument to make, :code:`make CTEST_OUTPUT_ON_FAILURE=TRUE test`.
 
-To generate a Debug build instead of a Release build (the default), add :code:`-DCMAKE_BUILD_TYPE=Debug` to the CMake line.
+ For example, run the following command to run the full test suite:
 
-To additionally disable the generation of installation rules for the :code:`make install`, add :code:`-DDISABLE_INSTALL=ON`. This can be useful when doing testing in a temporary build directory only.
+  .. code-block:: bash
 
-To build the full test suite rather than a subset of it, the :code:`FULL_TEST_SUITE` option needs to be set to :code:`ON`, e.g. :code:`cmake -D FULL_TEST_SUITE=ON ..`. In addition, there is a speed test that can be enabled by :code:`cmake -D TEST_SPEED=ON`. The speed test is intended for use in benchmarking and needs to be run separately from the full test suite. Run it with :code:`bats -T bats_tests/test_speed.bats` or with the equivalent command :code:`ctest -V -R test_speed`.
+     ctest -j `getconf _NPROCESSORS_ONLN`
+     ...
+     100% tests passed, 0 tests failed out of 137
 
-To show the output of failed tests, export the environment variable :code:`CTEST_OUTPUT_ON_FAILURE=TRUE`. Alternatively, you can show output for only a single run by passing the argument to make: :code:`make CTEST_OUTPUT_ON_FAILURE=TRUE test`.
-
-For example, run the following commands to build and test the full test suite:
-
-.. code-block:: bash
-
-   ydbuser@ydbdev:~/YDBOcto/build$ cmake -D FULL_TEST_SUITE=ON ..
-   ...
-   ydbuser@ydbdev:~/YDBOcto/build$ make -j `getconf _NPROCESSORS_ONLN`
-   ...
-   ydbuser@ydbdev:~/YDBOcto/build$ sudo make install
-   ...
-   ydbuser@ydbdev:~/YDBOcto/build$ ctest -j `getconf _NPROCESSORS_ONLN`
-   ...
-   100% tests passed, 0 tests failed out of 137
-
-   Total Test time (real) = 1111.17 sec
+     Total Test time (real) = 1111.17 sec
    
 -------------
 Contributing
 -------------
 
-To contribute or help with further development, `fork <https://docs.gitlab.com/ee/gitlab-basics/fork-project.html>`_ the `YDBOcto repository <https://gitlab.com/YottaDB/DBMS/YDBOcto>`_, clone your fork to a local copy and begin contributing!
+ To contribute or help with further development, `fork <https://docs.gitlab.com/ee/gitlab-basics/fork-project.html>`_ the `YDBOcto repository <https://gitlab.com/YottaDB/DBMS/YDBOcto>`_, clone your fork to a local copy and begin contributing!
 
-Please also set up the pre-commit script to automatically enforce some coding conventions. Creating a symbolic link to YDBOcto/pre-commit will be enough for the setup. Assuming you are in the top-level directory of your local copy, the following will work:
+ Please also set up the pre-commit script to automatically enforce some coding conventions. Creating a symbolic link to YDBOcto/pre-commit will be enough for the setup. Assuming you are in the top-level directory of your local copy, the following will work:
 
-.. code-block:: bash
+  .. code-block:: bash
 
-   ln -s ../../pre-commit .git/hooks
+     ln -s ../../pre-commit .git/hooks
 
-Note that this script will require :code:`tcsh` and :code:`clang-format-11` or a later release.
+ Note that this script will require :code:`tcsh` and :code:`clang-format-11` or a later release.
 
-.. code-block:: bash
+  .. code-block:: bash
 
-   # Ubuntu 20.04
-   sudo apt install --no-install-recommends clang-format-11
-   # Any Debian-like distro; see also https://apt.llvm.org/
-   bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
-   # RHEL 8/Rocky Linux
-   sudo yum install clang-tools-extra
+     # Ubuntu 20.04
+     sudo apt install --no-install-recommends clang-format-11
+     # Any Debian-like distro; see also https://apt.llvm.org/
+     bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
+     # RHEL 8/Rocky Linux
+     sudo yum install clang-tools-extra
 
 +++++++++++
 clang-tidy
 +++++++++++
 
-The CI pipeline will run the `clang-tidy <https://clang.llvm.org/extra/clang-tidy/>`_ tool to catch common errors. You can replicate its behavior locally as follows:
+ The CI pipeline will run the `clang-tidy <https://clang.llvm.org/extra/clang-tidy/>`_ tool to catch common errors. You can replicate its behavior locally as follows:
 
-.. code-block:: bash
+  .. code-block:: bash
 
-   # Ubuntu 20.04
-   sudo apt install --no-install-recommends clang-tidy
-   # Any Debian-like distro
-   bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
-   # RHEL 8/Rocky Linux
-   sudo yum install clang-tools-extra
+     # Ubuntu 20.04
+     sudo apt install --no-install-recommends clang-tidy
+     # Any Debian-like distro
+     bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
+     # RHEL 8/Rocky Linux
+     sudo yum install clang-tools-extra
 
-   mkdir build
-   cd build
-   cmake -D CMAKE_EXPORT_COMPILE_COMMANDS=ON ..
-   clang-tidy ../src/octo_init.c  # replace octo_init.c with the file you want to check
+     mkdir build
+     cd build
+     cmake -D CMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+     clang-tidy ../src/octo_init.c  # replace octo_init.c with the file you want to check
 
-:code:`clang-tidy-8` and later are supported.
+ :code:`clang-tidy-8` and later are supported.
 
 +++++++++++
 Dockerfiles
 +++++++++++
 
-There are 4 Dockerfiles at the top of the source tree:
+ There are 4 Dockerfiles at the top of the source tree:
 
-- :code:`Dockerfile`
-- :code:`Dockerfile-Tests.rocky`
-- :code:`Dockerfile-Tests.ubuntu`
-- :code:`Dockerfile-Tests.vista`
+  - :code:`Dockerfile`
+  - :code:`Dockerfile-Tests.rocky`
+  - :code:`Dockerfile-Tests.ubuntu`
+  - :code:`Dockerfile-Tests.vista`
 
-:code:`Dockerfile` builds a docker container suitable for use for using Octo in
-a testing capacity. The other files are all testing related, and are used to
-replicate the Gitlab pipelines. There are instructions at the top of each file
-for usage as well as current limitations.
+ :code:`Dockerfile` builds a docker container suitable for use for using Octo in a testing capacity. The other files are all testing related, and are used to replicate the Gitlab pipelines. There are instructions at the top of each file for usage as well as current limitations.

@@ -52,11 +52,15 @@ where(depth)	;
 groupby(depth)	;
 	quit:'$random(2) ""
 	new query
-	set groupby(depth)=""
-	; # TODO: Below line can only be uncommented when YDBOcto#874 is fixed. Or else we would see an incorrect error.
-	; set query=" group by n"_($random(depth)+1)_".firstname"
-	; # Once the above line has been uncommented, the below line can be removed.
-	set query=" group by n"_depth_".firstname"
+	new lclDepth
+	set lclDepth=$random(depth)+1
+	if (1=$data(groupby(lclDepth))) do
+	. set query=" group by n"_(lclDepth)_".firstname"
+	else  do
+	. ; Since $$groupby already skips execution 50% of the time avoid skipping it even more
+	. ; by having this else block, it ensures that group by exists 50% of the time.
+	. set query=" group by n"_depth_".firstname"
+	. set groupby(depth)=""
 	quit query
 
 having(depth)	;

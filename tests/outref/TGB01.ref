@@ -177,19 +177,19 @@ LINE 4: ...mers c LEFT JOIN Orders o ON COUNT(c.CustomerID) = o.CustomerID...
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column CUSTOMERID must appear in the GROUP BY clause or be used in an aggregate function
 LINE 2: SELECT COUNT(CustomerID),CustomerID FROM Customers;
                                  ^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column ID from outer query
 LINE 2: ...(SELECT n2.id FROM names n2 WHERE n2.id = n1.id) FROM names n1;
                                                      ^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column ID from outer query
 LINE 1: ...ELECT id FROM names n1 WHERE n2.id = 2),COUNT(n2.id) FROM names...
                                         ^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column ID from outer query
 LINE 1: ...EFT JOIN names n4 ON n4.id = n1.id ORDER BY n1.id),COUNT(n1.id)...
                                         ^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column ID from outer query
 LINE 1: ...EFT JOIN names n4 ON n4.id = n1.id ORDER BY n1.id),COUNT(n1.id)...
                                         ^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column ID from outer query
 LINE 1: ...ect n2.id FROM names n2 WHERE n2.id = n1.id) n3) FROM names n1;
                                                  ^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
@@ -211,10 +211,10 @@ LINE 2: ...derID) BETWEEN 3 AND 6 AND EmployeeID BETWEEN 2 and 5 ORDER BY C...
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column EMPLOYEEID must appear in the GROUP BY clause or be used in an aggregate function
 LINE 3: ...G MAX(OrderID) BETWEEN 10250 AND 10500 ORDER BY EmployeeID desc;
                                                            ^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column ID from outer query
 LINE 2: ...(SELECT n2.id FROM names n2 WHERE n2.id = n1.id) FROM names n1;
                                                      ^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column ID from outer query
 LINE 1: ... FROM names n3 WHERE n3.id = n1.id),(SELECT n2.id FROM names n2...
                                         ^^^^^
 [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
@@ -227,9 +227,9 @@ LINE 1: select 1 from names n1 having n1.id is null;
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column N1.* must appear in the GROUP BY clause or be used in an aggregate function
 LINE 1: select 1 from names n1 having n1.* is null;
                                       ^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRSTNAME from outer query
 LINE 1: ...NT(firstname) FROM names n1 HAVING EXISTS (select n1.firstname);
                                                              ^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRSTNAME from outer query
 LINE 1: ...firstname) FROM names n2 WHERE 'Zero' IN (select n1.firstname));
                                                             ^^^^^^^^^^^^

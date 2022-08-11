@@ -13,4 +13,4 @@
 -- TGB19 : OCTO767 : Issue ERR_GROUP_BY_OR_AGGREGATE_FUNCTION error even if GROUP BY in sub query uses outer query columns
 
 SELECT id,firstname FROM names n1 WHERE id IN (SELECT n2.id FROM names n2 group by n1.id);
-SELECT id,firstname FROM names n1 HAVING 1 IN (SELECT n2.id FROM names n2 group by n1.id);
+SELECT id,firstname FROM names n1 GROUP BY id HAVING 1 IN (SELECT n2.id FROM names n2 group by n1.id);

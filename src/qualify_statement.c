@@ -37,19 +37,17 @@
 		(AGGREGATE_DEPTH) = 0;                                                            \
 	}
 
-/* Following macro issues a `ERR_GROUP_BY_OR_AGGREGATE_FUNCTION` error on the column reference in `STMT` and returns with the value
- * 1.
- */
-#define ISSUE_GROUP_BY_OR_AGGREGATE_FUNCTION_ERROR_AND_RETURN(STMT)                 \
-	{                                                                           \
-		SqlStatement *column_name;                                          \
-		SqlValue *    value;                                                \
-		column_name = find_column_alias_name(STMT);                         \
-		assert(NULL != column_name);                                        \
-		UNPACK_SQL_STATEMENT(value, column_name, value);                    \
-		ERROR(ERR_GROUP_BY_OR_AGGREGATE_FUNCTION, value->v.string_literal); \
-		yyerror(NULL, NULL, &STMT, NULL, NULL, NULL);                       \
-		return 1;                                                           \
+/* Following macro issues `GB_ERR` error on the column reference in `STMT` and returns with the value 1 */
+#define ISSUE_GROUP_BY_ERROR_AND_RETURN(STMT, GB_ERR)            \
+	{                                                        \
+		SqlStatement *column_name;                       \
+		SqlValue *    value;                             \
+		column_name = find_column_alias_name(STMT);      \
+		assert(NULL != column_name);                     \
+		UNPACK_SQL_STATEMENT(value, column_name, value); \
+		ERROR(GB_ERR, value->v.string_literal);          \
+		yyerror(NULL, NULL, &STMT, NULL, NULL, NULL);    \
+		return 1;                                        \
 	}
 
 /* Following macro sets GROUP BY column number to expression when its matched with GROUP BY column.
@@ -134,23 +132,22 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		 */
 		assert(!parent_table_alias->do_group_by_checks
 		       || parent_table_alias->aggregate_function_or_group_by_or_having_specified);
-		/*
-		 * This block is used in two cases
-		 * 1. GroupBy is used and we need to validate column_alias usages
-		 * 2. In case GroupBy is not present but HAVING clause is present. We still want to generate an error on
-		 *    column_alias usages as they are not grouped. To allow such condition check this case is used to perform the
-		 *    necessary validation.
-		 */
+		// This block is used to validate a column reference in an aggregate function
 		if (0 < table_alias->aggregate_depth) {
-			if (QualifyQuery_WHERE == parent_table_alias->qualify_query_stage) {
-				/* Need to handle WHERE clause here because if we have more than one layer of queries then the outer
-				 * one will call the inner one twice in the presence of grouping and WHERE clause is qualified at
-				 * the first call but the second call can result in reaching this part of the code as column
-				 * references are converted to column aliases in the first call. In such a case we do not need to
-				 * validate anything.
-				 */
-				break;
-			}
+			/* Note:
+			 * 1) In the below query, `n1.firstname` column in the aggregate function can reach this code block
+			 *    when QualifyQuery_WHERE == parent_table_alias->qualify_query_stage. We do not want to perform
+			 *    any kind of GROUP BY validation on this column as the query to which the column belongs to
+			 *    is still executing its WHERE clause. As the below code depends on `do_group_checks` being set to
+			 *    perform GROUP BY validations, `n1.firstname` doesn't go through any validation as
+			 *    `parent_table_alias->do_group_by_checks` will not be set for the column. Note that in this case the
+			 *    aggregate itself is not in a WHERE clause of the subquery. If it was, then, that is an invalid case
+			 *    and code in aggregate_function_STATEMENT case would have taken care to issue an error and return.
+			 *    Query:  `select firstname from names n1 where EXISTS
+			 *               (select 1 from names n2 order by count(n1.firstname||n2.lastname));`
+			 * 2) Because of the reasons mentioned in 1, no additional handling is required for WHERE clause, just
+			 *    following through will do the needful.
+			 */
 			if ((ret != NULL) && (0 != ret->aggr_unique_id)) {
 				// Processing an aggregate function parameter column
 				if (ret->aggr_unique_id != parent_table_alias->unique_id) {
@@ -161,29 +158,29 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 						// Valid query as the outer query column is in GROUP BY of the outer query
 					} else if (parent_table_alias->do_group_by_checks) {
 						/* The column is not part of outer query GROUP BY clause and we are performing GROUP
-						 * BY validations. Issue `ERR_GROUP_BY_OR_AGGREGATE_FUNCTION` error as this is not a
+						 * BY validations. Issue `ERR_UNGROUPED_OUTER_QUERY_COLUMN` error as this is not a
 						 * valid usage.
 						 */
-						ISSUE_GROUP_BY_OR_AGGREGATE_FUNCTION_ERROR_AND_RETURN(stmt);
+						ISSUE_GROUP_BY_ERROR_AND_RETURN(stmt, ERR_UNGROUPED_OUTER_QUERY_COLUMN);
 					} // else, nothing to do here as we do not yet have GROUP BY information of the outer query
-					break;
 				}
 			} /* else, This is a single column aggregate function usage, no need to perform GROUP BY validation on it
 			   * as its already in an aggregate function.
 			   */
-			break;
-		}
-		// 1. Column Reference check
-		if ((parent_table_alias->do_group_by_checks)
-		    && ((0 == parent_table_alias->aggregate_depth)
-			|| (AGGREGATE_DEPTH_HAVING_CLAUSE == parent_table_alias->aggregate_depth))
-		    && !new_column_alias->group_by_column_number) {
+		} else if ((parent_table_alias->do_group_by_checks)
+			   && ((0 == parent_table_alias->aggregate_depth)
+			       || (AGGREGATE_DEPTH_HAVING_CLAUSE == parent_table_alias->aggregate_depth))
+			   && !new_column_alias->group_by_column_number) {
 			/* 1) We are doing GROUP BY related validation of column references in the query
 			 * 2) The current column reference is not inside an aggregate function
 			 * 3) The current column reference is not in the GROUP BY clause.
 			 * Issue an error.
 			 */
-			ISSUE_GROUP_BY_OR_AGGREGATE_FUNCTION_ERROR_AND_RETURN(stmt);
+			if (parent_table_alias == table_alias) {
+				ISSUE_GROUP_BY_ERROR_AND_RETURN(stmt, ERR_GROUP_BY_OR_AGGREGATE_FUNCTION);
+			} else {
+				ISSUE_GROUP_BY_ERROR_AND_RETURN(stmt, ERR_UNGROUPED_OUTER_QUERY_COLUMN);
+			}
 		}
 		break;
 	case value_STATEMENT:
@@ -907,7 +904,14 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 						}
 					}
 				} else {
-					if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE == table_alias->aggregate_depth) {
+					/* The second condition i.e. `!(GROUP_BY_SPECIFIED &
+					 * table_alias->aggregate_function_or_group_by_or_having_specified)` helps to avoid updating
+					 * `group_by_column_count` during GROUP BY validation iteration of the qualify_query() FOR
+					 * loop.
+					 */
+					if ((AGGREGATE_DEPTH_GROUP_BY_CLAUSE == table_alias->aggregate_depth)
+					    && !(GROUP_BY_SPECIFIED
+						 & table_alias->aggregate_function_or_group_by_or_having_specified)) {
 						UNPACK_SQL_STATEMENT(cur_cl, cur_cla->column_list, column_list);
 						/* 1. If this is a column reference `group_by_column_count` and
 						 * `group_by_column_number` is set in COLUMN_REFERENCE case block under

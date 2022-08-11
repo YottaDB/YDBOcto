@@ -363,10 +363,58 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		MALLOC_LP(aggregate_options, select_more_options->v.lp_default.operand[0], LP_AGGREGATE_OPTIONS);
 		if (NULL != select_stmt->group_by_expression) {
 			LogicalPlan *group_by;
-
 			MALLOC_LP(group_by, aggregate_options->v.lp_default.operand[0], LP_GROUP_BY);
 			UNPACK_SQL_STATEMENT(list, select_stmt->group_by_expression, column_list_alias);
-			group_by->v.lp_default.operand[0] = lp_column_list_to_lp(list, &error_encountered);
+
+			LogicalPlan **lp_column_list;
+			lp_column_list = &(group_by->v.lp_default.operand[0]);
+
+			SqlColumnListAlias *cur_cla, *start_cla;
+			cur_cla = start_cla = list;
+			do {
+				SqlColumnList *column_list;
+				UNPACK_SQL_STATEMENT(column_list, cur_cla->column_list, column_list);
+				if (column_alias_STATEMENT == column_list->value->type) {
+					SqlColumnAlias *column_alias;
+					UNPACK_SQL_STATEMENT(column_alias, column_list->value, column_alias);
+
+					SqlTableAlias *table_alias;
+					UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
+					if (select_query->extra_detail.lp_select_query.root_table_alias
+					    != table_alias->parent_table_alias) {
+						// Skip the current node
+						cur_cla = cur_cla->next;
+						/* if (cur_cla == start_cla) then this is the end of the list.
+						 * We allocate a `LP_COLUMN_LIST` only when we call
+						 * lp_column_list_to_lp() and since it is not yet called
+						 * for the node skipped no additional processing is required.
+						 * `continue` such that the WHILE condition fails and we exit the loop.
+						 */
+						continue;
+					}
+				}
+				/* else this is an expression and expressions with outer query column references are not removed
+				 * because literals present in expression will have a parameter number and mapping for further
+				 * literals will get out of sync when the expression is removed. For more details refer to the
+				 * reasoning mentioned for not removing expression in
+				 * https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1142#note_1019537378.
+				 */
+				SqlColumnListAlias *save_next;
+				save_next = cur_cla->next;
+				cur_cla->next = cur_cla; /* set "next" to self so below call processes only one column instead of
+							  * multiple columns in table corresponding to the desired column.
+							  */
+				*lp_column_list = lp_column_list_to_lp(cur_cla, &error_encountered);
+				cur_cla->next = save_next;
+				cur_cla = save_next;
+				assert(LP_COLUMN_LIST == (*lp_column_list)->type);
+				lp_column_list = &((*lp_column_list)->v.lp_default.operand[1]);
+			} while (cur_cla != start_cla);
+			// Check if LP_COLUMN_LIST tree for GROUP BY was not created (because of skipping outer query columns)
+			if (NULL == group_by->v.lp_default.operand[0]) {
+				// No LP_COLUMN_LIST tree, set GROUP BY node to NULL
+				aggregate_options->v.lp_default.operand[0] = NULL;
+			}
 		}
 		if (NULL != select_stmt->having_expression) {
 			LogicalPlan *having;

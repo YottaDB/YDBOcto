@@ -382,13 +382,12 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 			 * is possible for it to be 1 in some cases (see YDBOcto#457 for example query) if this `qualify_query()`
 			 * invocation corresponds to a sub-query in say the HAVING clause of an outer query. In that case,
 			 * `qualify_query()` for the sub-query would be invoked twice by the `qualify_query()` of the outer query
-			 * because of the current `for` loop. If so, we can skip the GROUP BY expression processing for the
-			 * sub-query the second time. Hence the
-			 * `&& !(GROUP_BY_SPECIFIED & table_alias->aggregate_function_or_group_by_or_having_specified)`
-			 * condition in the `if` check below.
+			 * because of the current `for` loop. If so, GROUP BY expression processing for the sub-query happens
+			 * for the second time. This second time processing will perform GROUP BY validations on the GROUP BY
+			 * clause. This is necessary as we need to ensure ungrouped outer query column references are identified
+			 * and an error is issued for such usages.
 			 */
-			if ((NULL != group_by_expression)
-			    && !(GROUP_BY_SPECIFIED & table_alias->aggregate_function_or_group_by_or_having_specified)) {
+			if (NULL != group_by_expression) {
 				int group_by_column_count;
 
 				table_alias->aggregate_depth = AGGREGATE_DEPTH_GROUP_BY_CLAUSE;
@@ -425,22 +424,14 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 						UNPACK_SQL_STATEMENT(column_alias, col_list->value, column_alias);
 						UNPACK_SQL_STATEMENT(group_by_table_alias, column_alias->table_alias_stmt,
 								     table_alias);
+						if (0 == group_by_column_count) {
+							group_by_expression->v.column_list_alias = cur_cla;
+						}
 						if (group_by_table_alias->parent_table_alias != table_alias) {
-							/* Column belongs to an outer query. Discard it from the GROUP BY list. */
-							SqlColumnListAlias *prev, *next;
-
-							prev = cur_cla->prev;
-							next = cur_cla->next;
-							prev->next = next;
-							next->prev = prev;
-							if ((cur_cla == start_cla) && (next != cur_cla)) {
-								start_cla = cur_cla = next;
-								continue;
-							}
+							/* Column belongs to an outer query. Do not increment
+							 * current query's `group_by_column_count`.
+							 */
 						} else {
-							if (0 == group_by_column_count) {
-								group_by_expression->v.column_list_alias = cur_cla;
-							}
 							group_by_column_count++;
 						}
 					} else {
@@ -471,9 +462,6 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 					}
 				} while (TRUE);
 				assert(group_by_column_count == table_alias->group_by_column_count);
-				if (!group_by_column_count) {
-					select->group_by_expression = NULL;
-				}
 			}
 		}
 		if (NULL != select->having_expression) {

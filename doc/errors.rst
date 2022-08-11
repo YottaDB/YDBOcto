@@ -1238,6 +1238,14 @@ Text: Type xxx not compatible for xxx
 
 Description/Action: This error is generated when a type is not compatible with a parameter. PSQL Error Code: 42883
 
++++++++++++++++++++++++++++++++++
+ERR_UNGROUPED_OUTER_QUERY_COLUMN
++++++++++++++++++++++++++++++++++
+
+Text: subquery uses ungrouped column xxx from outer query
+
+Description/Action: This error is generated when an un-grouped outer query column is used in inner query. PSQL Error Code: 42803
+
 +++++++++++++++++++++++
 ERR_UNKNOWN_COLUMN_NAME
 +++++++++++++++++++++++

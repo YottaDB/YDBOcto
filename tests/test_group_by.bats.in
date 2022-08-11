@@ -122,7 +122,7 @@ setup() {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB18.sql
 }
 
-@test "TGB19: OCTO767 : Test that in an inner query Group By of outer query column results in an error when select list has a inner query column usage" {
+@test "TGB19: OCTO767 : Test that in an inner query, Group By of outer query column results in an error when select list has a inner query column usage" {
 	load_fixture TGB19_errors.sql subtest novv
 	verify_output TGB19_errors output.txt
 }
@@ -177,7 +177,7 @@ setup() {
 	verify_output TGB26_errors output.txt
 }
 
-@test "TGB27 : OCTO767 : Validate group by expression and column usage with outer query columns usages in inner query" {
+@test "TGB27 : OCTO767 : Validate group by expression and column usage with outer query column usages in inner query" {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB27.sql "trim_trailing_zeros"
 	load_fixture TGB27_errors.sql subtest novv
 	verify_output TGB27_errors output.txt
@@ -224,4 +224,10 @@ setup() {
 @test "TGB34 : OCTO775/OCTO806/OCTO807/OCTO819/OCTO820/OCTO870 : Validate grouped/ungrouped outer query column values in inner queries by auto generated random queries" {
 	yottadb -run TGB34 > TGB34_names.sql
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB34_names.sql
+}
+
+@test "TGB35 : OCTO874 : Validate that ungrouped outer query column reference usages in inner query's GROUP BY issue error, and, the change doesn't result in regression for outer query column usages in inner query GROUP BY when outer query doesn't have any form of grouping or if the outer query column used in inner query's GROUP BY is part of outer query's GROUP BY" {
+	load_fixture TGB35_errors.sql subtest novv
+	verify_output TGB35_errors output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB35.sql
 }

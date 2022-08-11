@@ -1,0 +1,50 @@
+
+-- Queries from issue description
+select 1 from names n1 having exists(select 1 from names n2 group by n1.firstname);
+select 1 from names n1 having exists(select 1 from names n2 group by n1.firstname||'test');
+
+-- Following queries validate #874 in the context of GROUP BY column numbers
+select 1 from names n1 having exists(select n1.firstname from names n2 group by 1);
+select 1 from names n1 GROUP BY n1.firstname||'test' having exists(select n1.firstname||'test' from names n2 group by 1);
+select 1 from names n1 having exists(select n1.firstname||'test' from names n2 group by 1);
+
+-- Misc
+select 1 from names n1 having exists(select 1 from names n2 group by 'test'||n2.firstname,n1.firstname||('test'||n2.firstname));
+select 1 from names n1 GROUP BY n1.firstname||'test' having exists(select 1 from names n2 group by n1.firstname||n2.firstname);
+select 1 from names n1 GROUP BY n1.firstname||'test' having exists(select 1 from names n2 group by n1.firstname||'test');
+select 1 = (select count(n1.firstname || 'abcd') from names n2 group by n1.firstname || 'abcd') from names n1 group by n1.firstname || 'abcd';
+select count(n1.firstname) from names n1 order by exists(select count(n1.firstname) from names n2 group by n1.firstname);
+select 1 from names n1 order by exists(select count(n1.firstname) from names n2 group by n1.firstname);
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRSTNAME from outer query
+LINE 1: ... n1 having exists(select 1 from names n2 group by n1.firstname);
+                                                             ^^^^^^^^^^^^
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRSTNAME from outer query
+LINE 1: ...ng exists(select 1 from names n2 group by n1.firstname||'test');
+                                                     ^^^^^^^^^^^^
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRSTNAME from outer query
+LINE 1: ...s n1 having exists(select n1.firstname from names n2 group by 1)...
+                                     ^^^^^^^^^^^^
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRSTNAME from outer query
+LINE 1: ...est' having exists(select n1.firstname||'test' from names n2 gro...
+                                     ^^^^^^^^^^^^
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRSTNAME from outer query
+LINE 1: ...s n1 having exists(select n1.firstname||'test' from names n2 gro...
+                                     ^^^^^^^^^^^^
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRSTNAME from outer query
+LINE 1: ...p by 'test'||n2.firstname,n1.firstname||('test'||n2.firstname));
+                                     ^^^^^^^^^^^^
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRSTNAME from outer query
+LINE 1: ...sts(select 1 from names n2 group by n1.firstname||n2.firstname);
+                                               ^^^^^^^^^^^^
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRSTNAME from outer query
+LINE 1: ...ng exists(select 1 from names n2 group by n1.firstname||'test');
+                                                     ^^^^^^^^^^^^
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRSTNAME from outer query
+LINE 1: ...') from names n2 group by n1.firstname || 'abcd') from names n1 ...
+                                     ^^^^^^^^^^^^
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRSTNAME from outer query
+LINE 1: ...select count(n1.firstname) from names n2 group by n1.firstname);
+                                                             ^^^^^^^^^^^^
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRSTNAME from outer query
+LINE 1: ...select count(n1.firstname) from names n2 group by n1.firstname);
+                                                             ^^^^^^^^^^^^

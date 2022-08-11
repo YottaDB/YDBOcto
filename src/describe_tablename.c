@@ -86,6 +86,7 @@ int describe_tablename(SqlStatement *table_name) {
 	char *	  buffer, *buffer_orig, **buff_ptr;
 	int	  buffer_size, status;
 
+	buffer_orig = NULL;
 	first_check_constraint = TRUE;
 	cur_column = start_column;
 	do {
@@ -130,5 +131,8 @@ int describe_tablename(SqlStatement *table_name) {
 		} while (cur_keyword != start_keyword);
 		cur_column = cur_column->next;
 	} while (cur_column != start_column);
+	if (NULL != buffer_orig) {
+		free(buffer_orig);
+	}
 	return 0;
 }

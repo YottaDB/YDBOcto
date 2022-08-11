@@ -1790,7 +1790,7 @@ LIKE pattern cannot end with an escape character. This results in an error.
 .. code-block:: bash
 
    'abc' LIKE 'abc\'
-   [ERROR] PATH:LINENUM DATE TIME : Cannot end pattern with escape character: abc\
+   [ERROR]: ERR_INVALID_ESCAPE_PATTERN: Cannot end pattern with escape character: abc\
 
    'abc\' LIKE 'abc\\' -> TRUE
 

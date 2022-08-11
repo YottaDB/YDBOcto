@@ -100,11 +100,13 @@ CREATE TABLE
 
 .. code-block:: SQL
 
-   CREATE TABLE table_name
+   CREATE TABLE [IF NOT EXISTS] table_name
    (column_name data_type [constraints][, ... column_name data_type [constraints]])
    [optional_keyword];
 
 The CREATE TABLE statement is used to create tables in the database. The keywords CREATE TABLE are used followed by the name of the table to be created.
+
+If IF NOT EXISTS is supplied for a CREATE TABLE statement and a table exists, the result is a no-op with no errors. In this case, error type INFO_TABLE_ALREADY_EXISTS is emitted at INFO log severity level.
 
 The names of columns to be created in the database and their datatypes are then specified in a list, along with any constraints that might need to apply (such as denoting a PRIMARY KEY, UNIQUE KEY, FOREIGN KEY or NOT NULL). If none of the columns are specified as keys (PRIMARY KEY or KEY NUM not specified in any column) then the primary key for the table is assumed to be the set of all columns in the order given.
 
@@ -153,8 +155,6 @@ Note that CREATE TABLE statements can also accept a list of ASCII integer values
    DELIM (9, 9) GLOBAL "^delimnames(keys(""id""))";
 
 Here, two TAB characters (ASCII value 9) act as the internal delimiter of an Octo table. Note, however, that these delimiters are not applied to Octo output, which retains the default pipe :code:`|` delimiter. The reason for this is that tables may be joined that have different delimiters, so one common delimiter needs to be chosen anyway. Thus, the default is used.
-
-If IF NOT EXISTS is supplied for a CREATE TABLE statement and a table exists, the result is a no-op with no errors. In this case, error type INFO_TABLE_ALREADY_EXISTS is emitted at INFO log severity level.
 
 .. _mapexisting:
 
@@ -413,11 +413,13 @@ CREATE FUNCTION
 
 .. code-block:: SQL
 
-   CREATE FUNCTION function_name
+   CREATE FUNCTION [IF NOT EXISTS] function_name
    ([data_type[, data_type[, ...]]])
    RETURNS data_type AS extrinsic_function_name;
 
 The CREATE FUNCTION statement is used to create SQL functions that map to extrinsic M functions and store these mappings in the database. The keywords CREATE FUNCTION are followed by the name of the SQL function to be created, the data types of its parameters, its return type, and the fully-qualified extrinsic M function name.
+
+If IF NOT EXISTS is supplied for a CREATE FUNCTION statement and a function exists, the result is a no-op with no errors. In this case, error type INFO_FUNCTION_ALREADY_EXISTS is emitted at INFO log severity level.
 
 Note that Octo reserves the M routine prefix :code:`^%ydbocto` for internal functions defined by Octo itself. Moreover, Octo assumes that any YottaDB extrinsic function name that includes this prefix but omits a label will have its own :code:`_ydbocto*.m` file containing emulation label mappings for :code:`PostgreSQL` and :code:`MySQL`. Accordingly, extrinsic function names like `$$^ydboctoxyz` will prompt Octo to look for a :code:`_ydboctoxyz.m` file containing two labels, :code:`PostgreSQL` and :code:`MySQL`. If these labels are absent, a `LABELMISSING` will be issued by YottaDB. For this reason, it is advised that users do not use the :code:`^%ydbocto` prefix in extrinsic function names to avoid conflicts and complications with Octo internal M routines.
 
@@ -470,8 +472,6 @@ Example:
    CREATE FUNCTION userfunc()
    RETURNS int AS $$userfunc^myextrinsicfunction;
 
-If IF NOT EXISTS is supplied for a CREATE FUNCTION statement and a function exists, the result is a no-op with no errors. In this case, error type INFO_FUNCTION_ALREADY_EXISTS is emitted at INFO log severity level.
-
 +++++++++++++
 Error Case
 +++++++++++++
@@ -501,6 +501,8 @@ DROP TABLE
 
 The DROP TABLE statement is used to remove tables from the database. The keywords DROP TABLE are followed by the name of the table desired to be dropped.
 
+If :code:`IF EXISTS` is supplied for a :code:`DROP TABLE` statement and a table does not exist, the result is a no-op with no errors. In this case, error type :code:`INFO_TABLE_DOES_NOT_EXIST` is emitted at :code:`INFO` log severity level.
+
 .. Optional parameters include CASCADE and RESTRICT.
 .. The CASCADE parameter is used to specify that all objects depending on the table will also be dropped.
 .. The RESTRICT parameter is used to specify that the table referred to by table_name will not be dropped if there are existing objects depending on it.
@@ -510,8 +512,6 @@ Example:
 .. code-block:: SQL
 
    DROP TABLE Employee;
-
-If :code:`IF EXISTS` is supplied for a :code:`DROP TABLE` statement and a table does not exist, the result is a no-op with no errors. In this case, error type :code:`INFO_TABLE_DOES_NOT_EXIST` is emitted at :code:`INFO` log severity level.
 
 By default, a :code:`DROP TABLE` statement for a :code:`READWRITE` table drops the table and also kills all underlying global nodes that stored the table data. The optional parameter :code:`KEEPDATA` overrides this behavior, preserving the underlying global nodes regardless of table writability type. :code:`DROP TABLE` statements for :code:`READONLY` tables always preserve the underlying global nodes whether :code:`KEEPDATA` is explicitly specified or not.
 
@@ -528,9 +528,11 @@ DROP FUNCTION
 
 .. code-block:: SQL
 
-   DROP FUNCTION function_name [(arg_type [, ...])];
+   DROP FUNCTION [IF EXISTS] function_name [(arg_type [, ...])];
 
 The DROP FUNCTION statement is used to remove functions from the database. The keywords DROP FUNCTION are followed by the name of the function desired to be dropped and a list of the parameter types expected by the function. These types, if any, must be included as multiple functions may exist with the same name, but must have different parameter type lists.
+
+If IF EXISTS is supplied for a DROP FUNCTION statement and a function does not exist, the result is a no-op with no errors. In this case, error type INFO_FUNCTION_DOES_NOT_EXIST is emitted at INFO log severity level.
 
 Note also that the function name provided should be the name of the user-defined SQL function name, not the M label or routine name.
 
@@ -548,8 +550,6 @@ This example demonstrates dropping a function with parameters of types VARCHAR a
 .. code-block:: SQL
 
    DROP FUNCTION userfuncwithargs (VARCHAR, INTEGER);
-
-If IF EXISTS is supplied for a DROP FUNCTION statement and a function does not exist, the result is a no-op with no errors. In this case, error type INFO_FUNCTION_DOES_NOT_EXIST is emitted at INFO log severity level.
 
 +++++++++++++
 Error Case

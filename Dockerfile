@@ -20,7 +20,6 @@ ADD cmake /tmp/octo/cmake
 ADD src /tmp/octo/src
 ADD tests /tmp/octo/tests
 ADD tools /tmp/octo/tools
-ADD ydbcmake /tmp/octo/ydbcmake
 ADD .git /tmp/octo/.git
 
 ENV DEBIAN_FRONTEND=noninteractive

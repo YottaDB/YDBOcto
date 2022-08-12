@@ -1,0 +1,15 @@
+# We expect 4 lines below, one corresponding to each of the 4 UNIQUE constraints in TCTC010.sql
+    . . SET ^%ydboctoUQ8VlKUurTigWHQAF0V9DEL(col(1))=""
+    . . SET ^%ydboctoUQ8buQ87BO5l9CJk7uNqm9E(col(2))=""
+    . . SET ^%ydboctoUmYz4vsZ5oFgqyxbnfcvR8H(col(1),col(2))=""
+    . . SET ^%ydboctoU8i8zccV3vIXn3Wiis3L2K5(col(2),col(1))=""
+# Verify globals corresponding to UNIQUE constraint have data in them
+# Expect to see some global variable nodes containing ^%ydboctoU below
+^%ydboctoU8i8zccV3vIXn3Wiis3L2K5(4,3)=""
+^%ydboctoUQ8VlKUurTigWHQAF0V9DEL(3)=""
+^%ydboctoUQ8buQ87BO5l9CJk7uNqm9E(4)=""
+^%ydboctoUmYz4vsZ5oFgqyxbnfcvR8H(3,4)=""
+# Run a DROP TABLE
+DROP TABLE
+# And verify that all the UNIQUE constraint global data is removed as part of the DROP TABLE
+# Expect to see NO global variable nodes containing ^%ydboctoU below

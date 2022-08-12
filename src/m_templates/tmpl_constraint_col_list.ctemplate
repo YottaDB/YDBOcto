@@ -1,0 +1,138 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "octo_types.h"
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+/* This function processes the list of columns corresponding to a UNIQUE constraint and emits M code as appropriate based on
+ * the "list_type" input parameter. It is a helper function used by "tmpl_constraint.ctemplate".
+ */
+TEMPLATE(tmpl_constraint_col_list, PhysicalPlan *pplan, SqlConstraint *constraint, SqlTable *table,
+			ConstraintColListType list_type, int dot_count, UniqueConstraintLoopType loop_type) {
+	ydb_buffer_t ydboctoTblConstraint;
+	YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTOTBLCONSTRAINT, &ydboctoTblConstraint);
+
+	LogicalPlan	*lp_root;
+	lp_root = pplan->lp_select_query;
+
+	LPActionType type;
+	type = lp_root->type;
+	assert((LP_INSERT_INTO == type) || (LP_UPDATE == type) || (LP_DELETE_FROM == type));
+	assert(UNIQUE_CONSTRAINT == constraint->type);
+
+	SqlColumnList *start_cl, *cur_cl;
+	UNPACK_SQL_STATEMENT(start_cl, constraint->definition, column_list);
+	cur_cl = start_cl;
+	do {
+		SqlValue *col_name;
+		UNPACK_SQL_STATEMENT(col_name, cur_cl->value, value);
+
+		boolean_t	emit_col_i;
+		emit_col_i = TRUE;
+		switch(list_type) {
+		case ConstraintColNameList:
+			%{}"{{ col_name->v.string_literal }}"{}%
+			break;
+		case ConstraintColIList:
+		case ConstraintColNullList:
+		case ConstraintColValList:
+		case ConstraintSetColIList:;
+			SqlColumn	*cur_column;
+			cur_column = find_column(col_name->v.string_literal, table);
+			assert(NULL != cur_column);
+
+			int	column_number;
+			column_number = cur_column->column_number;
+			if ((LP_UPDATE == type) && (UniqueConstraintLoopUpdate != loop_type)
+					&& lp_is_col_in_update_column_list(lp_root, cur_column)) {
+				/* Use PP_COL(-i) to store pre-UPDATE column values. PP_COL(i) stores post-UPDATE column values.
+				 * This means we will use negative indices only for columns that are in the SET column list of
+				 * the UPDATE command. Other columns will always use positive indices since the pre-UPDATE
+				 * and post-UPDATE column value are the same.
+				 */
+				column_number = -column_number;
+			}
+
+			switch(list_type) {
+			case ConstraintColNullList:
+				%{}'$ZYISSQLNULL({}%
+				break;
+			case ConstraintSetColIList:;
+				unsigned int	is_lvn_set;
+				IS_TBL_CONSTRAINT_LVN_SET(&ydboctoTblConstraint, column_number, is_lvn_set);
+				if (0 == is_lvn_set) {
+					/* A PP_COL(i) lvn for this column has not yet been initialized. Do that now. */
+					%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+					assert((LP_DELETE_FROM == type) || (LP_UPDATE == type));
+					SqlTableAlias	*src_table_alias;
+					src_table_alias = lp_root->extra_detail.lp_select_query.root_table_alias;
+
+					SqlColumnAlias	*column_alias;
+					column_alias = get_column_alias_from_column_name(col_name->v.string_literal,
+													src_table_alias);
+					TMPL(tmpl_column_reference, pplan, column_alias, FALSE, dot_count, 0);
+					%{}`n{{ PLAN_LINE_START }}{}%
+					TMPL(tmpl_print_dots, dot_count);
+					/* Now that we are about to generate M code to set the lvn, record this for later use. */
+					SET_TBL_CONSTRAINT_LVN(&ydboctoTblConstraint, column_number);
+					%{}SET {}%
+				} else {
+					/* PP_COL(i) lvn is already SET by a previous constraint. So skip setting it. */
+					emit_col_i = FALSE;
+				}
+				break;
+			default:
+				break;
+			}
+			if (emit_col_i) {
+				%{}{{ PP_COL }}({{ column_number|%d }}){}%
+			}
+			switch(list_type) {
+			case ConstraintColNullList:
+				%{}){}%
+				break;
+			case ConstraintSetColIList:
+				if (emit_col_i) {
+					%{}={{ PP_YDB_OCTO_EXPR }}{}%
+					%{}`n{{ PLAN_LINE_START }}{}%
+					TMPL(tmpl_print_dots, dot_count);
+				}
+				break;
+			default:
+				break;
+			}
+			break;
+		}
+		cur_cl = cur_cl->next;
+		if (cur_cl == start_cl) {
+			break;
+		}
+		switch(list_type) {
+		case ConstraintColNameList:
+		case ConstraintColValList:
+			%{}_", "_{}%
+			break;
+		case ConstraintColIList:
+			%{},{}%
+			break;
+		case ConstraintColNullList:
+			%{}&{}%
+			break;
+		case ConstraintSetColIList:
+			break;
+		}
+	} while (TRUE);
+}
+%{}

@@ -15,6 +15,8 @@
 -- Test of ERR_READONLY_DISALLOWED error
 -- Test of CHECK constraint with READONLY explicitly specified
 CREATE TABLE abcd (id INTEGER CHECK (id < 10)) READONLY;
+-- Test of UNIQUE constraint with READONLY explicitly specified
+CREATE TABLE abcd (id INTEGER UNIQUE) READONLY;
 
 -- Test of ERR_READONLY_AND_READWRITE_DISALLOWED error
 -- Test of CHECK constraint with READONLY implicitly assumed (due to the column-level EXTRACT keyword)

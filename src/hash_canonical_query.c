@@ -638,12 +638,20 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 
 		UNPACK_SQL_STATEMENT(constraint, stmt, constraint);
 		ADD_INT_HASH(state, constraint_STATEMENT);
+		/* No need to hash the constraint type as it would have been already hashed as part of
+		 * processing the SqlKeyword structure that contained this constraint. That has a "keyword" member
+		 * which is identical to "constraint->type".
+		 *	hash_canonical_query(state, constraint->type, status);
+		 */
 		hash_canonical_query(state, constraint->name, status);
 		hash_canonical_query(state, constraint->definition, status);
-		/* "constraint->columns" is a list of referenced columns (in case of a CHECK constraint).
-		 * This information is derived from "constraint->definition" and so no need to run the below.
+		/* "constraint->v.check_columns" and "constraint->v.uniq_gblname" is information derived from
+		 * "constraint->definition" and so no need to run the below.
 		 *
-		 * hash_canonical_query(state, constraint->columns, status);
+		 * When OPTIONAL_CHECK_CONSTRAINT == constraint->type
+		 *	hash_canonical_query(state, constraint->v.check_columns, status);
+		 * When UNIQUE_CONSTRAINT == constraint->type
+		 *	hash_canonical_query(state, constraint->v.uniq_gblname, status);
 		 */
 		break;
 	default:

@@ -10,7 +10,7 @@
 #								#
 #################################################################
 
--- TCTC003 : OCTO772 : Test various errors in CONSTRAINTS
+-- TCTC003 : OCTO772 : Test various errors in CONSTRAINTS as well as a few valid (i.e. non-error) cases
 
 -- Test table level NOT NULL constraint issues SYNTAX ERROR
 create table products (first varchar, last varchar, not null);
@@ -184,9 +184,12 @@ CREATE TABLE products (
 	     CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu CHECK (product_no > 0)
 	);
 
--- Test of ERR_IDENT_LENGTH error on constraint name by specifying a 64-byte name (max allowed is 63 bytes)
+-- Test of ERR_IDENT_LENGTH error on CHECK constraint name by specifying a 64-byte name (max allowed is 63 bytes)
 CREATE TABLE products (
 	product_no integer CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstuv CHECK (product_no < 2));
+
+-- Test of ERR_IDENT_LENGTH error on UNIQUE constraint name by specifying a 64-byte name (max allowed is 63 bytes)
+CREATE TABLE products (product_no integer CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstuv UNIQUE);
 
 -- Test of ERR_TABLE_MUST_HAVE_A_VISIBLE_COLUMN error
 CREATE TABLE products (CHECK (1 > 0));
@@ -619,4 +622,203 @@ INSERT INTO country VALUES (NULL);
 -- The below used to previously issue a `%YDB-E-ZYSQLNULLNOTVALID` error.
 UPDATE country SET gnp = NULL;
 SELECT gnp is NULL from country;
+
+-- Test numeric/string literals where column name is expected in UNIQUE constraint issues syntax error
+CREATE TABLE abcd (id1 INTEGER, UNIQUE (3));
+CREATE TABLE abcd (id1 INTEGER, UNIQUE ('abcd'));
+
+-- Test that specifying a table level UNIQUE constraint (i.e. a UNIQUE constraint with a list of columns)
+-- as a column level UNIQUE constraint issues a syntax error
+CREATE TABLE abcd (id1 INTEGER, id2 INTEGER UNIQUE (id1));
+CREATE TABLE abcd (id1 INTEGER, id2 INTEGER UNIQUE (id1, id2));
+
+-- Test that specifying a column-level UNIQUE constraint where a table-level UNIQUE constraint is expected issues a syntax error.
+CREATE TABLE tmp (id INTEGER, UNIQUE);
+
+-- Test that specifying multiple CHECK constraints in one table level constraint issues a syntax error
+CREATE TABLE abcd (id1 INTEGER, CHECK (id1 > 2) CHECK (id1 > 3));
+
+-- Test that specifying multiple UNIQUE constraints in one table level constraint issues a syntax error
+CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1) UNIQUE (id1));
+
+-- Test that mixing UNIQUE and CHECK constraints in one table level constraint issues a syntax error
+CREATE TABLE abcd (id1 INTEGER, CHECK (id1 > 2) UNIQUE (id1));
+
+-- Test of ERR_UNKNOWN_COLUMN_NAME error in UNIQUE constraint
+CREATE TABLE abcd (id1 INTEGER, UNIQUE (id2));
+CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1, id2));
+
+-- Test of ERR_DUPLICATE_COLUMN error in UNIQUE constraint
+CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1, id1));
+CREATE TABLE abcd (id1 INTEGER, id2 INTEGER, UNIQUE (id1, id2, id1));
+
+-- Test that table-level UNIQUE constraint specifying a list of expressions issues a syntax error
+CREATE TABLE abcd (id1 INTEGER, id2 INTEGER, UNIQUE (id1 + id2, id1));
+
+-- Test of ERR_DUPLICATE_CONSTRAINT error within multiple UNIQUE constraints
+-- Test of explicitly specified constraint name collision between 2 column-level UNIQUE constraints
+CREATE TABLE abcd (id INTEGER CONSTRAINT uniq1 UNIQUE, name VARCHAR CONSTRAINT uniq1 UNIQUE);
+-- Test of explicitly specified constraint name collision between 2 table-level UNIQUE constraints
+CREATE TABLE abcd (id1 INTEGER, id2 INTEGER, CONSTRAINT uniq2 UNIQUE (id1, id2), CONSTRAINT uniq2 UNIQUE (id2, id1));
+-- Test of explicitly specified constraint name collision between 1 column-level and 1 table-level UNIQUE constraint
+CREATE TABLE abcd (id1 INTEGER, CONSTRAINT uniq3 UNIQUE (id1, id2), id2 integer CONSTRAINT uniq3 UNIQUE);
+-- Test explicitly specified UNIQUE constraint name that collides with a previously specified auto generated UNIQUE constraint
+CREATE TABLE abcd (id1 INTEGER UNIQUE, id2 INTEGER CONSTRAINT abcd_id1_key UNIQUE);
+-- Test name collision among multiple 63-byte user specified column-level constraint names (longest allowed name length)
+CREATE TABLE abcd (
+	     id1 integer CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu UNIQUE,
+	     id2 integer CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu UNIQUE
+	);
+-- Test name collision among multiple 63-byte user specified table-level constraint names (longest allowed name length)
+CREATE TABLE abcd (
+	     id1 integer,
+	     id2 integer,
+	     CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu UNIQUE (id1, id2),
+	     CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu UNIQUE (id2, id1)
+	);
+-- Test explicitly specified CHECK constraint name that collides with a previously specified auto generated UNIQUE constraint name
+CREATE TABLE abcd (id1 INTEGER UNIQUE, id2 INTEGER CONSTRAINT abcd_id1_key CHECK (id2 > 1));
+-- Test explicitly specified UNIQUE constraint name that collides with a previously specified auto generated CHECK constraint name
+CREATE TABLE abcd (id1 INTEGER CHECK (id1 > 1), id2 INTEGER CONSTRAINT abcd_id1_check UNIQUE);
+
+-- Test ERR_DUPLICATE_KEY_VALUE error for a UNIQUE constraint on an INSERT INTO of numeric data
+CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, UNIQUE(id1, id2));
+INSERT INTO tmp VALUES (3, 4);
+INSERT INTO tmp VALUES (3, 4);
+SELECT * FROM tmp;
+DROP TABLE tmp;
+
+-- Test ERR_DUPLICATE_KEY_VALUE error for a UNIQUE constraint on an INSERT INTO of string data
+CREATE TABLE tmp (id1 VARCHAR, id2 VARCHAR, UNIQUE(id1, id2));
+INSERT INTO tmp VALUES ('abcd efgh', 'ijkl mnop');
+INSERT INTO tmp VALUES ('abcd efgh', 'ijkl mnop');
+SELECT * FROM tmp;
+DROP TABLE tmp;
+
+-- Test NO ERR_DUPLICATE_KEY_VALUE error for a UNIQUE constraint on an INSERT INTO of NULL data
+CREATE TABLE tmp (id1 VARCHAR, id2 VARCHAR, UNIQUE(id1, id2));
+INSERT INTO tmp VALUES (NULL, NULL);
+INSERT INTO tmp VALUES (NULL, NULL);
+SELECT * FROM tmp;
+DROP TABLE tmp;
+
+-- Fancier test of ERR_DUPLICATE_KEY_VALUE error for a UNIQUE constraint on an INSERT INTO of numeric data
+CREATE TABLE TMP (id1 INTEGER, id2 INTEGER, id3 INTEGER, UNIQUE (id1, id2), UNIQUE(id2, id3));
+INSERT INTO tmp VALUES (1, 2, 3);
+INSERT INTO tmp VALUES (2, 2, 5);
+-- The below query should issue a ERR_DUPLICATE_KEY_VALUE error due to UNIQUE(id2, id3) constraint violation
+INSERT INTO tmp VALUES (3, 2, 3);
+-- The below query would have normally issued a ERR_DUPLICATE_KEY_VALUE error due to UNIQUE(id1, id2) constraint violation
+-- but since the previous row did not get inserted, this should not issue any error. Test that.
+INSERT INTO tmp VALUES (3, 2, 4);
+SELECT * FROM tmp;
+DROP TABLE tmp;
+
+-- Test that DELETE works with INSERT INTO to maintain/enforce the UNIQUE constraint
+CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, id3 INTEGER, UNIQUE(id1, id3));
+INSERT INTO tmp VALUES (1,2,3);
+INSERT INTO tmp VALUES (2,3,3);
+INSERT INTO tmp VALUES (NULL,3,3);
+INSERT INTO tmp VALUES (NULL,3,NULL);
+SELECT * FROM tmp;
+-- The below query should issue a ERR_DUPLICATE_KEY_VALUE error due to UNIQUE(id1, id3) constraint violation
+INSERT INTO tmp VALUES (2,5,3);
+SELECT * FROM tmp;
+-- The below DELETE should delete the three rows (2,3,3), (NULL,3,3), (NULL,3,NULL)
+DELETE FROM tmp WHERE id2 = 3;
+SELECT * FROM tmp;
+-- The below query should no longer issue a ERR_DUPLICATE_KEY_VALUE error now that (2,3,3) has been deleted
+-- This tests that the above DELETE must have done something with the UNIQUE constraint maintenance to enable
+-- a row with an id2 value of 4 to henceforth be allowed.
+-- Additionally, this also tests that DELETE works fine with deleting NULL values of columns that are part of
+-- UNIQUE constraints (since the deleted rows above include NULL values for the id1 and id3 columns).
+INSERT INTO tmp VALUES (2,3,3);
+SELECT * FROM tmp;
+DROP TABLE tmp;
+
+---------------------------------------------------------------------------
+-- Test that UPDATE works fine when UNIQUE constraint is not violated
+---------------------------------------------------------------------------
+-- Test where one column is updated based on other column value
+-- The rows (3,5), (4,4), (5,3) will become (6,5), (5,4), (4,3) and so there are no constraint violations.
+CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, UNIQUE(id1, id2));
+INSERT INTO tmp VALUES (3, 5);
+INSERT INTO tmp VALUES (4, 4);
+INSERT INTO tmp VALUES (5, 3);
+SELECT * FROM tmp;
+UPDATE TMP SET id1 = id2 + 1;
+SELECT * FROM tmp;
+DROP TABLE tmp;
+
+-- Test to swap column values
+-- The rows (3,4), (5,3) will become (4,3), (3,5) and so there are no constraint violations.
+CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, UNIQUE(id1, id2));
+INSERT INTO tmp VALUES (3, 4);
+INSERT INTO tmp VALUES (5, 3);
+SELECT * FROM tmp;
+UPDATE TMP SET id1 = id2, id2 = id1;
+SELECT * FROM tmp;
+DROP TABLE tmp;
+
+-- Test that NULL does not cause UNIQUE constraint violations
+CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, UNIQUE(id2));
+INSERT INTO tmp VALUES (3, 5);
+INSERT INTO tmp VALUES (4, 4);
+INSERT INTO tmp VALUES (5, 3);
+SELECT * FROM tmp;
+-- Test non-NULL to NULL transition
+UPDATE TMP SET id2 = NULL;
+SELECT * FROM tmp;
+-- Test that we are able to re-insert the original 3 rows after the NULL update without violating any UNIQUE constraints
+INSERT INTO tmp VALUES (3, 5);
+INSERT INTO tmp VALUES (4, 4);
+INSERT INTO tmp VALUES (5, 3);
+SELECT * FROM tmp;
+-- Test NULL to non-NULL transition
+UPDATE TMP SET id2 = id1 - 3 where id2 is NULL;
+SELECT * FROM tmp;
+DROP TABLE tmp;
+
+---------------------------------------------------------------------------
+-- Test of ERR_DUPLICATE_KEY_VALUE error from UPDATE
+---------------------------------------------------------------------------
+-- Test where both columns are updated based on other column value
+-- The rows (3,5), (4,4), (5,3) will become (6,2), (5,3), (4,4)
+-- Even though the new 3 rows are unique amongst themselves, the new second row (5,3) conflicts
+-- with the pre-existing 3rd row (5,3) and so we expect an error (this matches Postgres behavior).
+CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, UNIQUE(id1, id2));
+INSERT INTO tmp VALUES (3, 5);
+INSERT INTO tmp VALUES (4, 4);
+INSERT INTO tmp VALUES (5, 3);
+SELECT * FROM tmp;
+UPDATE TMP SET id1 = id2 + 1, id2 = id1 - 1;
+SELECT * FROM tmp;
+DROP TABLE tmp;
+
+-- The rows (3,2), (3,5) will become (3,4), (3,4) resulting in a UNIQUE constraint violation
+-- So we expect an error.
+CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, UNIQUE(id1, id2));
+INSERT INTO tmp VALUES (3, 2);
+INSERT INTO tmp VALUES (3, 5);
+SELECT * FROM tmp;
+UPDATE TMP SET id2 = 4;
+SELECT * FROM tmp;
+DROP TABLE tmp;
+
+---------------------------------------------------------------------------
+-- Test UPDATE when UNIQUE and CHECK constraints are used
+---------------------------------------------------------------------------
+CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, id3 INTEGER, UNIQUE(id1, id2), UNIQUE(id2, id3), CHECK (id1 > 2));
+-- Expect no error for below command
+INSERT INTO tmp VALUES (3, 4, 2);
+INSERT INTO tmp VALUES (4, 3, 4);
+INSERT INTO tmp VALUES (5, 4, 5);
+-- Expect a ERR_CHECK_CONSTRAINT_VIOLATION error for below command
+INSERT INTO tmp VALUES (1, 2, 3);
+-- Expect a ERR_DUPLICATE_KEY_VALUE error for UNIQUE(id1, id2) constraint for below command
+UPDATE tmp SET id1 = 4 WHERE id2 > 2;
+-- Expect a ERR_DUPLICATE_KEY_VALUE error for UNIQUE(id2, id3) constraint for below command
+UPDATE tmp SET id3 = id3 - id2, id2 = 5 WHERE id2 > 2;
+SELECT * FROM tmp;
+DROP TABLE tmp;
 

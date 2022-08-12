@@ -52,7 +52,7 @@ setup() {
 	verify_output TCTC004 output.txt
 }
 
-@test "TCTC005 : OCTO772 : Test CHECK constraint shows up correctly in CREATE TABLE text definition" {
+@test "TCTC005 : OCTO772 : Test CHECK/UNIQUE constraint shows up correctly in \d tablename and CREATE TABLE text definition" {
 	testname="TCTC005"
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/$testname.sql .
 	echo "# Run CREATE TABLE commands in $testname.sql that tests various types of CHECK constraints" >> output.txt
@@ -108,4 +108,51 @@ setup() {
 @test "TCTC008D : OCTO581 : Test that multiple NOT NULL constraints can be specified" {
 	load_fixture TCTC008D.sql subtest novv
 	verify_output TCTC008D output.txt
+}
+
+@test "TCTC009 : OCTO582 : Test LP_INSERT_INTO/LP_UPDATE/LP_DELETE/LP_CHECK_CONSTRAINT/LP_UNIQUE_CONSTRAINT logical plan output" {
+	load_fixture TCTC009.sql subtest
+	mv output.txt orig_output.txt
+	echo "# Verifying LP_INSERT_INTO logical plan output contains LP_CHECK_CONSTRAINT/LP_UNIQUE_CONSTRAINT" >> output.txt
+	grep -m 1 -A 39 ^LP_INSERT_INTO orig_output.txt >> output.txt
+	echo "# Verifying LP_UPDATE logical plan output contains LP_CHECK_CONSTRAINT/LP_UNIQUE_CONSTRAINT" >> output.txt
+	grep -m 1 -A 29 ^LP_UPDATE orig_output.txt >> output.txt
+	echo "# Verifying LP_DELETE logical plan output does not contain LP_CHECK_CONSTRAINT/LP_UNIQUE_CONSTRAINT" >> output.txt
+	grep -m 1 -A 19 ^LP_DELETE orig_output.txt >> output.txt
+	verify_output TCTC009 output.txt
+}
+
+@test "TCTC010 : OCTO582 : Test UNIQUE(id1, id2) and UNIQUE(id2, id1) constraint each go into a separate global name" {
+	load_fixture TCTC010.sql subtest novv
+	echo "# Filter out global corresponding to each UNIQUE constraint from the generated M plan" > output.txt
+	echo "# We expect 4 lines below, one corresponding to each of the 4 UNIQUE constraints in TCTC010.sql" > output.txt
+	grep 'SET ^%ydboctoU' _ydboctoP*.m >> output.txt
+	echo "# Verify globals corresponding to UNIQUE constraint have data in them" >> output.txt
+	echo "# Expect to see some global variable nodes containing ^%ydboctoU below" >> output.txt
+	$ydb_dist/mupip extract uniq.ext > uniq.out 2>&1
+	grep '^\^%ydboctoU' uniq.ext >> output.txt
+	echo "# Run a DROP TABLE" >> output.txt
+	grep '^create table' TCTC010.sql | awk '{printf "drop table %s;\n", $3}' >> droptable.sql
+	octo -f droptable.sql >> output.txt 2>&1
+	echo "# And verify that all the UNIQUE constraint global data is removed as part of the DROP TABLE" >> output.txt
+	echo "# Expect to see NO global variable nodes containing ^%ydboctoU below" >> output.txt
+	$ydb_dist/mupip extract uniq2.ext > uniq2.out 2>&1
+	grep '^\^%ydboctoU' uniq2.ext >> output.txt || true
+	verify_output TCTC010 output.txt
+}
+
+@test "TCTC011 : OCTO582 : Test col(i) usages are optimized in generated M code for UNIQUE constraint in UPDATE/DELETE commands" {
+	# The goal of this test is to ensure that "SET col(i)" usages happen in the generated code only as needed.
+	# If say "col(1)" is already initialized, later constraint code should not reinitialize this lvn again.
+	# The "grep" done below verifies the right "col(i)" lvns are SET at various points in the generated code.
+	# The "grep" also verifies that $ZYISSQLNULL checks happen on the column values before trying to use them
+	# as subscripts in a global variable.
+	load_fixture TCTC011_delete.sql subtest novv	# This tests DELETE command
+	echo "# Verify col(i) usages in M code for DELETE command" > final_output.txt
+	grep -E "\<col\>\(|ZYISSQLNULL" _ydboctoP*.m >> final_output.txt
+	rm _ydboctoP*.m
+	load_fixture TCTC011_update.sql subtest novv	# This tests UPDATE command
+	echo "# Verify col(i) usages in M code for UPDATE command" >> final_output.txt
+	grep -E "\<col\>\(|ZYISSQLNULL" _ydboctoP*.m >> final_output.txt
+	verify_output TCTC011 final_output.txt
 }

@@ -189,7 +189,12 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 		UNPACK_SQL_STATEMENT(constraint, stmt, constraint);
 		CALL_DECOMPRESS_HELPER(constraint->name, out, out_length);
 		CALL_DECOMPRESS_HELPER(constraint->definition, out, out_length);
-		CALL_DECOMPRESS_HELPER(constraint->columns, out, out_length);
+		if (OPTIONAL_CHECK_CONSTRAINT == constraint->type) {
+			CALL_DECOMPRESS_HELPER(constraint->v.check_columns, out, out_length);
+		} else {
+			assert(UNIQUE_CONSTRAINT == constraint->type);
+			CALL_DECOMPRESS_HELPER(constraint->v.uniq_gblname, out, out_length);
+		}
 		break;
 	case unary_STATEMENT:;
 		SqlUnaryOperation *unary;

@@ -179,7 +179,7 @@ int emit_check_constraint(char **buffer, int *buffer_size, char **buff_ptr, stru
 			}
 			cur_column_list = cur_column_list->next;
 			if (cur_column_list != start_column_list) {
-				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, ",");
+				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, ", ");
 			}
 		} while (cur_column_list != start_column_list);
 		INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, ")");

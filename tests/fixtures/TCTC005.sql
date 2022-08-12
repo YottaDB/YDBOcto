@@ -123,3 +123,105 @@ create table tmp39 (check (1 > 0), firstname varchar check (firstname > 'abcd'))
 create table tmp40 (check (1 > 0), check (2 > 1), firstname varchar check (firstname > 'abcd'));
 create table tmp41 (id integer, check (1 > 0), firstname varchar check (firstname > 'abcd'));
 
+-- YDBOcto#582 : Test that UNIQUE constraint shows up correctly in CREATE TABLE text definition for all below queries
+-- Additionally test the individual case described in comments before each query below
+
+-- Test that column-level UNIQUE constraint can now specify a constraint name. And it shows in \d tablename.
+create table tmp42 (id integer constraint uniq1 unique);
+
+-- Test that table-level UNIQUE constraint can now specify a constraint name. And it shows in \d tablename.
+-- Also test that table level UNIQUE constraint that specifies only one column is treated as a column level UNIQUE constraint
+-- (i.e. UNIQUE shows up inside the "id" column in the table text definition)
+create table tmp43 (id integer, constraint uniq1 unique (id));
+
+-- Test table level UNIQUE constraint works if more than 1 column is specified
+create table tmp44 (id1 integer, id2 integer, constraint uniq1 unique (id1, id2));
+
+-- Test that \d tablename works even if table has a mix of CHECK and UNIQUE constraints
+create table tmp45 (id1 integer, id2 integer, UNIQUE(id1, id2), CHECK (id1 > 2));
+
+-- Test that only the first of multiple table-level unique constraints that correspond to the same set of columns gets
+-- picked and the rest ignored. In the below example, the unique constraint "u2" gets ignored and "u1" gets picked.
+create table tmp46 (id1 integer, constraint u1 unique (id1), constraint u2 unique (id1));
+
+-- Test that if a mix of unnamed and named UNIQUE constraints are specified within one column, the first named constraint gets
+-- picked and others get discarded.
+create table tmp47 (id integer unique constraint uniq2 unique, name varchar constraint uniq1 unique);
+create table tmp48 (id integer unique constraint uniq2 unique constraint uniq3 unique, name varchar constraint uniq1 unique);
+
+-- Test that order of column names in UNIQUE constraint matters. That is (id1,id2) is different from (id2, id1).
+-- The below example should create 2 UNIQUE constraints (instead of 1 which is what one would expect considering
+-- the order of the columns should ideally not matter). Octo follows Postgres in this regard.
+create table tmp49 (id1 integer, id2 integer, constraint u1 unique (id1, id2), constraint u2 unique (id2, id1));
+
+-- Test that duplicate constraints get trimmed out even if multiple columns are involved in each constraint
+create table tmp50 (id1 integer, id2 integer, constraint u1 unique (id1, id2), constraint u2 unique (id1, id2));
+
+-- Test that if multiple table-level constraints are identical, the first NAMED table level constraint gets chosen.
+-- In the below, the named constraint u2 gets chosen even though it is second after the first unnamed constraint.
+-- Also u2 gets chosen ahead of u3 since both are named constraints and u2 is encountered first during the parse.
+create table tmp51 (id1 integer, id2 integer, unique (id1, id2), constraint u2 unique (id1, id2), constraint u3 unique (id1, id2));
+
+-- Test similar example as above except that this is with a table-level constraint that gets moved to a column-level constraint
+-- because only 1 column is specified.
+create table tmp52 (id1 integer, id2 integer, unique (id1), constraint u2 unique (id1), constraint u3 unique (id1));
+
+-- Test that table-level UNIQUE constraint, using a column that will be defined later in the same CREATE TABLE, works fine
+create table tmp53 (constraint uniq unique (id1), id1 integer);
+create table tmp54 (id1 integer, constraint uniq unique (id2), id2 integer);
+create table tmp55 (id1 integer, constraint uniq unique (id1, id2), id2 integer);
+
+-- Test that multiple named UNIQUE constraints within one column cause the first one to be kept and remaining ones to be discarded.
+-- In the below example, uniq2 named constraint in "id" column gets discarded because "uniq1" named constraint is already specified
+-- and so there is no issue creating a constraint with that same name in "name" column.
+create table tmp56 (id integer constraint uniq1 unique constraint uniq2 unique, name varchar constraint uniq2 unique);
+
+-- Test that automatically assigned constraint name for UNIQUE is table_column1_column2_..._key.
+create table tmp57 (id1 integer, id2 integer, unique (id1, id2), unique (id2, id1));
+
+-- Test that UNIQUE constraints do NOT get trimmed out if one column list is a prefix of another column list.
+-- In the below case `unique (id1, id2)` automatically implies `unique (id1, id2, id3)` so the second unique constraint
+-- can be removed. But Postgres keeps both of them so Octo will also keep both of them.
+create table tmp58 (id1 integer, id2 integer, id3 integer, unique (id1, id2), unique (id1, id2, id3));
+
+-- Test auto generation of UNIQUE constraint name truncates table and/or column names as needed
+-- Table name is short, Column name is long
+create table tmp59 (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu integer unique);
+-- Table name is long, Column name is short
+create table tmp60toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopq (id integer unique);
+-- Table name is long, Column name is long
+create table tmp61toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopq (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu integer unique);
+-- Table name is short, Column1 name is long, Column2 name is short
+create table tmp62 (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, id2 integer, unique (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr, id2));
+-- Table name is short, Column1 name is long, Column2 name is long
+create table tmp63 (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, unique (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr));
+-- Table name is long, Column1 name is short, Column2 name is short
+create table tmp64toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopq (id1 integer, id2 integer, unique (id1, id2));
+-- Table name is long, Column1 name is short, Column2 name is long
+create table tmp65toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopq (id1 integer, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, unique (id1, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr));
+-- Table name is long, Column1 name is long, Column2 name is short
+create table tmp66toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopq (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, id2 integer, unique (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr, id2));
+-- Table name is long, Column1 name is long, Column2 name is long
+create table tmp67toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopq (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, unique (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr));
+-- Table name is long, Column1 name is long, Column2 name is long : Multiple UNIQUE constraints with conflicts in auto generated name
+create table tmp68toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopq (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid1 integer, toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid2 integer, unique (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid1, toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid2), unique (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid2, toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid1));
+-- Table name is short, Column1 name is half long, Column2 name is half long
+-- The last column name gets shortened as much as needed to get the unique name (i.e. `z2` became `z` in `...xyz_key`).
+create table tmp69 (abcdefghijklmnopqrstuvwxyz1 integer, abcdefghijklmnopqrstuvwxyz2 integer, unique (abcdefghijklmnopqrstuvwxyz1, abcdefghijklmnopqrstuvwxyz2));
+
+-- Test that when auto generated name already exists, new names are generated using "_key1", "_key2" syntax
+create table tmp70 (abcdefghijklmnopqrstuvwxyz1 integer, abcdefghijklmnopqrstuvwxyz2 integer, abcdefghijklmnopqrstuvwxyz3 integer, unique (abcdefghijklmnopqrstuvwxyz1, abcdefghijklmnopqrstuvwxyz2), unique (abcdefghijklmnopqrstuvwxyz1, abcdefghijklmnopqrstuvwxyz3));
+create table tmp71 (abcdefghijklmnopqrstuvwxyz1 integer, abcdefghijklmnopqrstuvwxyz2 integer, abcdefghijklmnopqrstuvwxyz3 integer, abcdefghijklmnopqrstuvwxyz4 integer, unique (abcdefghijklmnopqrstuvwxyz1, abcdefghijklmnopqrstuvwxyz2), unique (abcdefghijklmnopqrstuvwxyz1, abcdefghijklmnopqrstuvwxyz2, abcdefghijklmnopqrstuvwxyz3), unique (abcdefghijklmnopqrstuvwxyz1, abcdefghijklmnopqrstuvwxyz4, abcdefghijklmnopqrstuvwxyz2, abcdefghijklmnopqrstuvwxyz3));
+
+-- Test auto generated UNIQUE constraint name collision with another named UNIQUE constraint name
+create table tmp72 (id1 integer constraint tmp72_id2_key unique, id2 integer unique);
+
+-- Test auto generated UNIQUE constraint name collision with another named CHECK constraint name
+create table tmp73 (id1 integer constraint tmp73_id2_key CHECK (id1 > 1), id2 integer unique);
+
+-- Test auto generated CHECK constraint name collision with another named UNIQUE constraint name
+create table tmp74 (id1 integer constraint tmp74_id2_check unique, id2 integer CHECK (id2 > 1));
+
+-- Test auto generated UNIQUE constraint name collision with CHECK constraint causes it to use "_key2"
+create table tmp75toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopq (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid1 integer, toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid2 integer, constraint tmp75toolongabcdefghijklmnopq_toolong1abcdefghijklmnopqrst_key1 CHECK (1 > 1), unique (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid1, toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid2), unique (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid2, toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid1));
+

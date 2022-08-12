@@ -1,6 +1,6 @@
     . . . SET col(1)=$GET(%ydboctocursor(cursorId,"parameters",1))
     . . . SET col(4)=$GET(%ydboctocursor(cursorId,"parameters",2))
-    . . . ; CHECK constraints enforcement section BEGIN
+    . . . ; CHECK constraints enforcement section
     . . . IF '%ydboctoexpr DO  DO CheckConstraintViolation^%ydboctoplanhelpers("TMP","TMP_ID4_CHECK",5)
     . . . . SET col(2)=%ydboctoexpr
     . . . . SET col(3)=%ydboctoexpr
@@ -12,4 +12,3 @@
     . . . SET col(5)=$PIECE(^%ydboctoDK8x9V2YiyPMRxcDYOMpB0K(%ydboctocursor(cursorId,"keys",1,"TMP","ID1")),"|",4) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . . IF '%ydboctoexpr DO  DO CheckConstraintViolation^%ydboctoplanhelpers("TMP","TMP_CHECK1",5)
     . . . . SET col(3)=%ydboctoexpr
-    . . . ; CHECK constraints enforcement section END

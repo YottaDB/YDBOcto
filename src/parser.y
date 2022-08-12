@@ -80,9 +80,12 @@ typedef void* yyscan_t;
 	keyword->v->loc = yyloc; /* note down location for later use in error reporting */	\
 	dqinit(keyword);									\
 	UNPACK_SQL_STATEMENT(constraint, keyword->v, constraint);				\
+	constraint->type = TYPE;								\
+	constraint->name = NAME;								\
 	constraint->definition = DEFINITION;							\
-	/* Note: constraint->columns is initialized later in "table_definition.c" */		\
-        constraint->name = NAME;								\
+	/* Note: "constraint->v.check_columns" or "constraint->v.uniq_gblname" is initialized	\
+	 * later in "table_definition.c".							\
+	 */											\
 }
 
 extern int yylex(YYSTYPE * yylval_param, YYLTYPE *llocp, yyscan_t yyscanner);
@@ -1582,20 +1585,22 @@ table_constraint_definition
 
 table_constraint
    : check_constraint_definition { $$ = $check_constraint_definition; }
-//   <unique constraint definition>		TODO: Uncomment as part of YDBOcto#582 UNIQUE constraint support
-//   <unique constraint definition>		TODO: Uncomment as part of YDBOcto#770 PRIMARY KEY constraint support
+   | unique_constraint_definition { $$ = $unique_constraint_definition; }
 // | <referential constraint definition>	TODO: Uncomment as part of YDBOcto#773 FOREIGN KEY constraint support
    ;
 
-/* ------------------------------------------------------------------------------------
- * TODO: Uncomment below grammar rules as part of YDBOcto#582 UNIQUE constraint support
- * TODO: Uncomment below grammar rules as part of YDBOcto#770 PRIMARY KEY constraint support
- * ------------------------------------------------------------------------------------
- * <unique constraint definition>    ::=   <unique specification> <left paren> <unique column list> <right paren>
- * <unique specification>    ::=   UNIQUE | PRIMARY KEY
- * <unique column list>    ::=   <column name list>
- * ------------------------------------------------------------------------------------
- */
+unique_constraint_definition
+  // TODO: Uncomment below line as part of YDBOcto#770 PRIMARY KEY constraint support
+  // : unique_specifications LEFT_PAREN unique_column_list RIGHT_PAREN {
+  // TODO: Comment below rule as part of YDBOcto#770 PRIMARY KEY constraint support
+  : UNIQUE LEFT_PAREN unique_column_list RIGHT_PAREN {
+	MALLOC_KEYWORD_CONSTRAINT_STATEMENT($$, UNIQUE_CONSTRAINT, NULL, $unique_column_list);
+    }
+  ;
+
+unique_column_list
+  : column_name_list { $$ = $column_name_list; }
+  ;
 
 /* ------------------------------------------------------------------------------------
  * TODO: Uncomment below grammar rules as part of YDBOcto#773 FOREIGN KEY constraint support
@@ -1803,13 +1808,12 @@ constraint_name
   : qualified_name { $$ = $qualified_name; }
   ;
 
-/// TODO: not complete
 column_constraint
   : NOT NULL_TOKEN {
       MALLOC_KEYWORD_CONSTRAINT_STATEMENT($$, NOT_NULL, NULL, NULL);
     }
   | unique_specifications { $$ = $unique_specifications; }
-//  | reference_specifications
+//  | reference_specifications		TODO: Uncomment as part of YDBOcto#773 FOREIGN KEY constraint support
   | check_constraint_definition { $$ = $check_constraint_definition; }
   ;
 

@@ -164,8 +164,9 @@ typedef struct LpExtraInsert {
 					       *   at this level (not outer level) corresponding to this logical plan.
 					       * If LP_UPDATE, this field points to the SqlTableAlias structure
 					       *   corresponding to source table of the UPDATE.
+					       * If LP_DELETE_FROM, this field points to the SqlTableAlias structure
+					       *   corresponding to source table of the DELETE FROM.
 					       * If LP_INSERT_INTO, this is currently NULL
-					       * If LP_DELETE_FROM, this is currently NULL
 					       */
 	struct LogicalPlan * first_aggregate; /* Used only in case of LP_SELECT_QUERY. Not used if LP_TABLE_VALUE */
 	struct PhysicalPlan *physical_plan;   /* Pointer to corresponding physical plan. Note that there is only ONE physical
@@ -244,12 +245,12 @@ typedef struct LpExtraSetOperation {
 	boolean_t	     to_array;	    /* Indicates the result of this LP_SET_OPERATION should be converted to a SQL array */
 } LpExtraSetOperation;
 
-typedef struct LpExtraCheckConstraint {
+typedef struct LpExtraConstraint {
 	SqlConstraint *constraint;  /* the underlying parser-level constraint structure */
 	boolean_t      emit_m_code; /* TRUE if M code needs to be emitted for this constraint. FALSE otherwise.
-				     * Used in "tmpl_check_constraint.ctemplate".
+				     * Used in "tmpl_constraint.ctemplate".
 				     */
-} LpExtraCheckConstraint;
+} LpExtraConstraint;
 
 /* We use yet another triple type here so we can easily traverse the tree to replace tables and WHEREs.
  * Specifically, the WHERE can have complete trees under it, and it would be awkward to overload void pointers.
@@ -285,7 +286,8 @@ typedef struct LogicalPlan {
 		LpExtraFunctionCall	 lp_function_call;	// To be used if type == LP_FUNCTION_CALL
 		LpExtraTable		 lp_table;		// To be used if type == LP_TABLE
 		LpExtraSetOperation	 lp_set_operation;	// To be used if type == LP_SET_OPERATION
-		LpExtraCheckConstraint	 lp_check_constraint;	// To be used if type == LP_CHECK_CONSTRAINT
+		LpExtraConstraint	 lp_constraint;		// To be used if type == LP_CHECK_CONSTRAINT
+								//	or LP_UNIQUE_CONSTRAINT
 	} extra_detail;
 } LogicalPlan;
 
@@ -388,6 +390,12 @@ void lp_insert_key(LogicalPlan *plan, LogicalPlan *key);
 
 // Returns if either operand of a boolean operation logical plan (e.g. LP_BOOLEAN_LESS_THAN) is of type STRING
 boolean_t lp_is_operand_type_string(LogicalPlan *plan, boolean_t *is_null);
+
+/* Given a LP_UPDATE logical plan and a search column, this function checks if the column is found in the
+ * SET clause of the UPDATE command. Returns TRUE if yes, and FALSE otherwise.
+ */
+boolean_t lp_is_col_in_update_column_list(LogicalPlan *lp_update, SqlColumn *srch_column);
+
 // Returns LP_WHERE with an AND of the two wheres
 LogicalPlan *lp_join_where(LogicalPlan *where1, LogicalPlan *where2);
 // Returns a new logical plan representing the boolean structure from stmt
@@ -457,8 +465,8 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
  */
 boolean_t lp_generate_column_list(LogicalPlan **ret, SqlStatement *root_stmt, SqlColumnList *start_columns);
 
-/* Generates a LP_CHECK_CONSTRAINT logical plan list */
-boolean_t lp_generate_check_constraint(LogicalPlan **lp_constraint_ptr, SqlStatement *stmt, SqlTableAlias *table_alias);
+/* Generates a LP_CHECK_CONSTRAINT/LP_UNIQUE_CONSTRAINT etc. logical plan list */
+boolean_t lp_generate_constraint(LogicalPlan **lp_constraint_ptr, SqlStatement *stmt, SqlTableAlias *table_alias);
 
 /* Generates a LP_TABLE_VALUE table plan corresponding to a VALUES() clause specification and returns it */
 LogicalPlan *lp_generate_table_value(SqlStatement *stmt, boolean_t *caller_error_encountered);

@@ -1,0 +1,93 @@
+# Verifying LP_INSERT_INTO logical plan output contains LP_CHECK_CONSTRAINT/LP_UNIQUE_CONSTRAINT
+LP_INSERT_INTO: 
+  LP_TABLE: TMP(2)
+  LP_INSERT_INTO_OPTIONS: 
+    LP_INSERT_INTO_MORE_OPTIONS: 
+      LP_TABLE_VALUE: 
+        LP_TABLE_DATA: 
+          LP_COLUMN_LIST: 
+            LP_WHERE: 
+              LP_COLUMN_ALIAS: (1).COLUMN1
+              LP_COLUMN_LIST_ALIAS: 
+              - type: INTEGER_LITERAL
+              - alias: COLUMN1
+            LP_WHERE: 
+              LP_COLUMN_ALIAS: (1).COLUMN2
+              LP_COLUMN_LIST_ALIAS: 
+              - type: INTEGER_LITERAL
+              - alias: COLUMN2
+          LP_ROW_VALUE: 
+            LP_COLUMN_LIST: 
+              LP_VALUE: '3'
+              LP_VALUE: '4'
+        LP_OUTPUT: 
+          LP_KEY: 
+          - table_name: 
+          - column_name: 
+          - unique_id: 1
+          - method: LP_KEY_ADVANCE
+          - xref_key: false
+          - uses_xref_key: false
+      LP_CONSTRAINT: 
+        LP_CHECK_CONSTRAINT: TMP_ID1_CHECK
+          LP_WHERE: 
+            LP_BOOLEAN_GREATER_THAN: 
+              LP_INSERT_INTO_COL: TMP(2).ID1
+              LP_VALUE: '2'
+        LP_UNIQUE_CONSTRAINT: TMP_ID1_ID2_KEY
+          LP_COLUMN_LIST: 
+            LP_VALUE: 'ID1'
+            LP_VALUE: 'ID2'
+
+# Verifying LP_UPDATE logical plan output contains LP_CHECK_CONSTRAINT/LP_UNIQUE_CONSTRAINT
+LP_UPDATE: 
+  LP_PROJECT: 
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_TABLE: TMP(1)
+      LP_CRITERIA: 
+        LP_KEYS: 
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+            LP_BOOLEAN_EQUALS: 
+              LP_COLUMN_ALIAS: TMP(1).ID2
+              LP_VALUE: '4'
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
+  LP_UPDATE_OPTIONS: 
+    LP_COLUMN_LIST: 
+      LP_UPD_COL_VALUE: 
+        LP_COLUMN: ID1
+        LP_VALUE: '4'
+    LP_CONSTRAINT: 
+      LP_CHECK_CONSTRAINT: TMP_ID1_CHECK
+        LP_WHERE: 
+          LP_BOOLEAN_GREATER_THAN: 
+            LP_UPDATE_COL: TMP(1).ID1
+            LP_VALUE: '2'
+      LP_UNIQUE_CONSTRAINT: TMP_ID1_ID2_KEY
+        LP_COLUMN_LIST: 
+          LP_VALUE: 'ID1'
+          LP_VALUE: 'ID2'
+
+# Verifying LP_DELETE logical plan output does not contain LP_CHECK_CONSTRAINT/LP_UNIQUE_CONSTRAINT
+LP_DELETE_FROM: 
+  LP_PROJECT: 
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_TABLE: TMP(1)
+      LP_CRITERIA: 
+        LP_KEYS: 
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+            LP_BOOLEAN_EQUALS: 
+              LP_COLUMN_ALIAS: TMP(1).ID2
+              LP_VALUE: '4'
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
+  LP_CONSTRAINT: 
+    LP_UNIQUE_CONSTRAINT: TMP_ID1_ID2_KEY
+      LP_COLUMN_LIST: 
+        LP_VALUE: 'ID1'
+        LP_VALUE: 'ID2'
+

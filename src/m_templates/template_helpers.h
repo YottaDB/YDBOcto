@@ -162,6 +162,20 @@ typedef enum {
 	InvokeDeferredPlan_TABLEJOIN,
 } InvokeDeferredPlanType;
 
+typedef enum {
+	ConstraintColIList,
+	ConstraintColNameList,
+	ConstraintColNullList,
+	ConstraintColValList,
+	ConstraintSetColIList,
+} ConstraintColListType;
+
+typedef enum {
+	UniqueConstraintLoopNotUpdate,
+	UniqueConstraintLoopUpdate,
+	UniqueConstraintLoopMax,
+} UniqueConstraintLoopType;
+
 void resize_tmpl_buffer(char **global_buffer, int *buffer_len, int *buffer_index);
 
 TEMPLATE(tmpl_print_dots, int dots);
@@ -209,7 +223,9 @@ TEMPLATE(tmpl_where_or_having_or_on, LogicalPlan *plan, PhysicalPlan *pplan, int
 TEMPLATE(tmpl_xref_key_columns, int num_key_cols);
 TEMPLATE(tmpl_print_group_by_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t in_where_clause,
 	 int unique_id, int dot_count, boolean_t *done);
-TEMPLATE(tmpl_check_constraint, PhysicalPlan *pplan, LogicalPlan *lp_constraint, SqlTable *table, int dot_count);
+TEMPLATE(tmpl_constraint, PhysicalPlan *pplan, LogicalPlan *lp_constraint, SqlTable *table, int dot_count);
+TEMPLATE(tmpl_constraint_col_list, PhysicalPlan *pplan, SqlConstraint *constraint, SqlTable *table, ConstraintColListType list_type,
+	 int dot_count, UniqueConstraintLoopType loop_type);
 TEMPLATE(tmpl_update_column_reference, PhysicalPlan *pplan, SqlColumn *cur_column, int dot_count);
 
 #endif

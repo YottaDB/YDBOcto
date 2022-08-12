@@ -121,7 +121,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		ydb_mmrhash_128_ingest(&state, (void *)tableName, strlen(tableName));
 		ydb_mmrhash_128_ingest(&state, (void *)columnName, strlen(columnName));
 		routine_name = octo_cmalloc(memory_chunks, MAX_ROUTINE_LEN + 1); // + 1 needed for null terminator
-		generate_routine_name(&state, routine_name, MAX_ROUTINE_LEN, CrossReference);
+		generate_name_type(CrossReference, &state, 0, routine_name, MAX_ROUTINE_LEN + 1);
 		// Copy routine name (starts with %)
 		key->cross_reference_filename = routine_name;
 		/* The below call updates "filename" to be the full path including "routine_name" at the end */

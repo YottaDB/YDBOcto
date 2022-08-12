@@ -72,7 +72,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 
 		LogicalPlan **lp_constraint_ptr;
 		lp_constraint_ptr = &lp_insert_into_more_options->v.lp_default.operand[1];
-		error_encountered |= lp_generate_check_constraint(lp_constraint_ptr, stmt, table_alias);
+		error_encountered |= lp_generate_constraint(lp_constraint_ptr, stmt, table_alias);
 		return (error_encountered ? NULL : lp_insert_into);
 	} else if (delete_from_STATEMENT == stmt->type) {
 		SqlDeleteFromStatement *delete;
@@ -104,6 +104,15 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		MALLOC_LP(select_more_options, select_options->v.lp_default.operand[1], LP_SELECT_MORE_OPTIONS);
 		MALLOC_LP(keywords, select_more_options->v.lp_default.operand[1], LP_KEYWORDS);
 		UNPACK_SQL_STATEMENT(keywords->v.lp_keywords.keywords, alloc_no_keyword(), keyword);
+
+		LogicalPlan **lp_constraint_ptr;
+		lp_constraint_ptr = &lp_delete_from->v.lp_default.operand[1];
+		error_encountered |= lp_generate_constraint(lp_constraint_ptr, stmt, table_alias);
+		/* Note down source table_alias for later. Note that we also noted this in "lp_table->v.lp_table.table_alias"
+		 * a few lines above but that could get replaced in case of a key-fixing optimization in which case we would
+		 * lose that hence the need for the below.
+		 */
+		lp_delete_from->extra_detail.lp_select_query.root_table_alias = table_alias;
 		return (error_encountered ? NULL : lp_delete_from);
 	} else if (update_STATEMENT == stmt->type) {
 		SqlUpdateStatement *update;
@@ -162,7 +171,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 
 		LogicalPlan **lp_constraint_ptr;
 		lp_constraint_ptr = &lp_update_options->v.lp_default.operand[1];
-		error_encountered |= lp_generate_check_constraint(lp_constraint_ptr, stmt, table_alias);
+		error_encountered |= lp_generate_constraint(lp_constraint_ptr, stmt, table_alias);
 		lp_update->extra_detail.lp_select_query.root_table_alias = table_alias; /* Note down source table_alias for later */
 		return (error_encountered ? NULL : lp_update);
 	}

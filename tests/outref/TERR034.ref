@@ -4,12 +4,15 @@
 -- Test of ERR_READONLY_DISALLOWED error
 -- Test of CHECK constraint with READONLY explicitly specified
 CREATE TABLE abcd (id INTEGER CHECK (id < 10)) READONLY;
+-- Test of UNIQUE constraint with READONLY explicitly specified
+CREATE TABLE abcd (id INTEGER UNIQUE) READONLY;
 
 -- Test of ERR_READONLY_AND_READWRITE_DISALLOWED error
 -- Test of CHECK constraint with READONLY implicitly assumed (due to the column-level EXTRACT keyword)
 CREATE TABLE abcd (id INTEGER PRIMARY KEY CHECK (id < 10), datetime INTEGER EXTRACT "$ZHOROLOG");
 CREATE TABLE abcd (id INTEGER PRIMARY KEY, datetime INTEGER EXTRACT "$ZHOROLOG" CHECK (datetime < id));
 
+[ERROR]: ERR_READONLY_DISALLOWED: READONLY keyword in CREATE TABLE is disallowed due to an incompatible keyword
 [ERROR]: ERR_READONLY_DISALLOWED: READONLY keyword in CREATE TABLE is disallowed due to an incompatible keyword
 [ERROR]: ERR_READONLY_AND_READWRITE_DISALLOWED: CREATE TABLE specifies keywords that make it incompatible with both READONLY and READWRITE keywords
 [ERROR]: ERR_READONLY_AND_READWRITE_DISALLOWED: CREATE TABLE specifies keywords that make it incompatible with both READONLY and READWRITE keywords

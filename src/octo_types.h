@@ -120,12 +120,13 @@ typedef long long unsigned int uint8;
 
 typedef int boolean_t;
 
-typedef enum FileType {
-	CrossReference,
-	OutputPlan,
-	YDBTrigger,
-	FunctionHash,
-} FileType;
+typedef enum NameType {
+	CrossReference, /* The name of the cross reference plan M file (_ydboctoX....m) */
+	OutputPlan,	/* The name of the output plan M file (_ydboctoP...m) */
+	FunctionHash,	/* The name for a CREATE FUNCTION definition (_ydboctoF...) */
+	TableGlobal,	/* The global name that stores CREATE TABLE data if GLOBAL keyword is not specified (_ydboctoD...) */
+	UniqueGlobal,	/* The global name that stores UNIQUE constraint enforcement (_ydboctoU...) */
+} NameType;
 
 /* Note: The order of the statement types listed below is the same as the order of fields listed under
  * the union inside "typedef struct SqlStatement" in a different section of this same file ("octo_types.h").
@@ -915,14 +916,27 @@ typedef struct SqlNoDataStatement {
 } SqlNoDataStatement;
 
 typedef struct SqlConstraint {
+	enum OptionalKeyword type;	 /* The constraint type. Current valid values are
+					  *	UNIQUE_CONSTRAINT
+					  *	OPTIONAL_CHECK_CONSTRAINT
+					  */
 	struct SqlStatement *name;	 /* Name of constraint (user specified or automatically assigned) */
 	struct SqlStatement *definition; /* Constraint specific content.
-					  * e.g. For OPTIONAL_CHECK_CONSTRAINT, this will point to the CHECK condition
+					  * For OPTIONAL_CHECK_CONSTRAINT, this will point to the CHECK condition
 					  *      that needs to be satisfied.
+					  * For UNIQUE_CONSTRAINT, this will point to the list of column names that
+					  *	 comprise the UNIQUE constraint.
 					  */
-	struct SqlStatement *columns;	 /* Currently non-NULL only for a OPTIONAL_CHECK_CONSTRAINT. In that case it points to
-					  * a "SqlColumnList". This is the list of columns referenced in this CHECK constraint.
-					  */
+	union {
+		struct SqlStatement *check_columns; /* Currently non-NULL only for a OPTIONAL_CHECK_CONSTRAINT. In that case
+						     * it points to a "SqlColumnList". This is the list of names of columns
+						     * referenced in this CHECK constraint.
+						     */
+		struct SqlStatement *uniq_gblname;  /* Non-NULL only for a UNIQUE_CONSTRAINT. In that case it points to a
+						     * "SqlValue" that holds the global variable name which helps enforce
+						     * the UNIQUE constraint.
+						     */
+	} v;
 } SqlConstraint;
 
 typedef struct SqlDisplayRelation {

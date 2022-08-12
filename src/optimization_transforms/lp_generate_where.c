@@ -64,43 +64,51 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *root_stmt) {
 			ret->v.lp_default.group_by_column_num = value->group_by_fields.group_by_column_num;
 			break;
 		case COLUMN_REFERENCE:
-			assert(NULL != root_stmt);
-			switch (root_stmt->type) {
-			case insert_STATEMENT:
-			case update_STATEMENT:;
-				SqlInsertStatement *insert;
-				SqlUpdateStatement *update;
-				SqlJoin *	    join;
-				SqlTableAlias *	    table_alias;
+			/* If "root_stmt" is NULL, the caller is "lp_generate_constraint()" where a INSERT INTO or UPDATE
+			 * is generating a logical plan for the UNIQUE constraint column list. In that case, we should not
+			 * treat that as a column reference, but instead treat it as a string literal and so we generate
+			 * a LP_VALUE plan by falling through to the "default:" case block below.
+			 */
+			if (NULL != root_stmt) {
+				switch (root_stmt->type) {
+				case insert_STATEMENT:
+				case update_STATEMENT:;
+					SqlInsertStatement *insert;
+					SqlUpdateStatement *update;
+					SqlJoin *	    join;
+					SqlTableAlias *	    table_alias;
 
-				if (insert_STATEMENT == root_stmt->type) {
-					UNPACK_SQL_STATEMENT(insert, root_stmt, insert);
-					UNPACK_SQL_STATEMENT(table_alias, insert->dst_table_alias_stmt, table_alias);
-				} else {
-					UNPACK_SQL_STATEMENT(update, root_stmt, update);
-					UNPACK_SQL_STATEMENT(join, update->src_join, join);
-					UNPACK_SQL_STATEMENT(table_alias, join->value, table_alias);
-				}
+					if (insert_STATEMENT == root_stmt->type) {
+						UNPACK_SQL_STATEMENT(insert, root_stmt, insert);
+						UNPACK_SQL_STATEMENT(table_alias, insert->dst_table_alias_stmt, table_alias);
+					} else {
+						UNPACK_SQL_STATEMENT(update, root_stmt, update);
+						UNPACK_SQL_STATEMENT(join, update->src_join, join);
+						UNPACK_SQL_STATEMENT(table_alias, join->value, table_alias);
+					}
 
-				SqlColumnAlias *column_alias;
-				column_alias = get_column_alias_from_column_name(value->v.string_literal, table_alias);
-				if (insert_STATEMENT == root_stmt->type) {
-					MALLOC_LP_2ARGS(ret, LP_INSERT_INTO_COL);
-					ret->v.lp_insert_into_col.column_alias = column_alias;
-				} else {
-					MALLOC_LP_2ARGS(ret, LP_UPDATE_COL);
-					ret->v.lp_update_col.column_alias = column_alias;
+					SqlColumnAlias *column_alias;
+					column_alias = get_column_alias_from_column_name(value->v.string_literal, table_alias);
+					if (insert_STATEMENT == root_stmt->type) {
+						MALLOC_LP_2ARGS(ret, LP_INSERT_INTO_COL);
+						ret->v.lp_insert_into_col.column_alias = column_alias;
+					} else {
+						MALLOC_LP_2ARGS(ret, LP_UPDATE_COL);
+						ret->v.lp_update_col.column_alias = column_alias;
+					}
+					break;
+				case delete_from_STATEMENT:
+				default:
+					assert(table_alias_STATEMENT == root_stmt->type);
+					assert(FALSE); /* We should only pass column_alias_STATEMENT to this function in
+							* the table_alias_STATEMENT case. Not a COLUMN_REFERENCE. Assert that.
+							*/
+					break;
 				}
-				break;
-			case delete_from_STATEMENT:
-			default:
-				assert(table_alias_STATEMENT == root_stmt->type);
-				assert(FALSE); /* We should only pass column_alias_STATEMENT to this function in
-						* the table_alias_STATEMENT case. Not a COLUMN_REFERENCE. Assert that.
-						*/
 				break;
 			}
-			break;
+			/* Note: Below comment is needed to avoid gcc [-Wimplicit-fallthrough=] warning */
+			/* fall through */
 		default:
 			MALLOC_LP_2ARGS(ret, LP_VALUE);
 			ret->v.lp_value.value = value;

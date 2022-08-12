@@ -61,13 +61,12 @@ int emit_create_table(FILE *output, struct SqlStatement *stmt) {
 		}
 	} while (start_column != cur_column);
 	defn_len += fprintf(output, ")");
-	if (table->source) {
-		UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
-		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		m_escape_string2(&buffer, &buffer_size, value->v.reference);
-		defn_len += fprintf(output, " GLOBAL \"%s\"", buffer);
-	}
-	if (table->delim) {
+	assert(NULL != table->source);
+	UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
+	UNPACK_SQL_STATEMENT(value, keyword->v, value);
+	m_escape_string2(&buffer, &buffer_size, value->v.reference);
+	defn_len += fprintf(output, " GLOBAL \"%s\"", buffer);
+	if (NULL != table->delim) {
 		char ch, *delim;
 
 		defn_len += fprintf(output, " DELIM ");

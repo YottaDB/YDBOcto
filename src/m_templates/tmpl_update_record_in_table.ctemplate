@@ -196,8 +196,6 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 			/* This is a key column. Column value is already available in the desired lvn. Do some checks. */
 			num_key_cols_in_set_clause++;
 			/* Check if key column value changed. Since it is a key column  */
-			%{}`n{{ PLAN_LINE_START }}{}%
-			TMPL(tmpl_print_dots, dot_count);
 			if (1 == num_key_cols_in_set_clause) {
 				%{}SET {{ PP_YDB_OCTO_KEYCHNGD }}={}%
 			} else {
@@ -222,7 +220,7 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 	LogicalPlan	*lp_constraint, *lp_update_options;
 	GET_LP(lp_update_options, lp_update, 1, LP_UPDATE_OPTIONS);
 	lp_constraint = lp_update_options->v.lp_default.operand[1];
-	TMPL(tmpl_check_constraint, pplan, lp_constraint, table, dot_count);
+	TMPL(tmpl_constraint, pplan, lp_constraint, table, dot_count);
 	status = ydb_delete_s(&ydboctoTblConstraint, 0, NULL, YDB_DEL_TREE); /* Remove lvn nodes that tracked PP_COL(i) */
 	assert(YDB_OK == status);
 	UNUSED(status);	/* needed to avoid [-Wunused-but-set-variable] warning from compiler */
@@ -237,15 +235,18 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 		TMPL(tmpl_key_source, pplan, key, EmitSourceForm_UpdateKeyCol);
 		%{}) DuplicateKeyValue^%%ydboctoplanhelpers({}%
 		/* If a new row with duplicate primary keys is being created, issue error.
-		 * TODO: Currently we don't support the UNIQUE constraint feature (YDBOcto#582).
+		 * TODO: Currently we don't support the PRIMARY KEY constraint feature (YDBOcto#770).
 		 * When it is supported, duplicate primary keys will be just one type of UNIQUE constraint.
 		 * At that point in time, the below logic will need to be reworked/generalized.
-		 * For now, we issue an error as if a UNIQUE constraint got violated.
-		 * The constraint name is obtained by using the table name and adding a "pkey" suffix to it like Postgres does.
+		 * For now, we issue an error as if a PRIMARY KEY constraint got violated.
+		 * The constraint name is obtained by using the table name and adding a "pkey" suffix to it like Postgres does
+		 * but has issues (e.g. in case the table name is 60 character or more as adding "_pkey" suffix would then
+		 * cause the constraint name to be more than 63/OCTO_MAX_IDENT characters). This needs to be fixed when this
+		 * code gets revisited as part of YDBOcto#770.
 		 * The constraint related error detail is obtained by displaying the M node corresponding to the duplicate row.
 		 */
 		%{}"{{ tableName }}_pkey",{}%
-		%{}$NAME({}%
+		%{}"Node "_$NAME({}%
 		TMPL(tmpl_key_source, pplan, key, EmitSourceForm_UpdateKeyCol);
 		%{})){}%
 		if (!node_value_fetched) {

@@ -249,8 +249,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
 			return 1;
 		}
-		// - 1 don't include null terminator in size
-		generate_routine_name(&state, routine_name, sizeof(routine_name) - 1, OutputPlan);
+		generate_name_type(OutputPlan, &state, 0, routine_name, sizeof(routine_name));
 		/* The below call updates "filename" to be the full path including "routine_name" at the end */
 		// - 1 don't include null terminator in size
 		status = get_full_path_of_generated_m_file(filename, sizeof(filename) - 1, &routine_name[1]);
@@ -423,6 +422,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			}
 			ok_to_drop = TRUE;
 		} else {
+			drop_table = NULL; /* to avoid false [-Wmaybe-uninitialized] warning */
 			UNPACK_SQL_STATEMENT(table, result, create_table);
 			UNPACK_SQL_STATEMENT(value, table->tableName, value);
 			tablename = value->v.reference;
@@ -432,6 +432,34 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		YDB_STRING_TO_BUFFER(tablename, table_name_buffer);
 		if (ok_to_drop) {
 			/* DROP TABLE */
+			/* Delete globals that maintained UNIQUE constraints (if any) for this table */
+			SqlColumn *start_column, *cur_column;
+			UNPACK_SQL_STATEMENT(start_column, table->columns, column);
+			cur_column = start_column;
+			do {
+				SqlOptionalKeyword *start_keyword, *cur_keyword;
+				UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
+				cur_keyword = start_keyword;
+				do {
+					switch (cur_keyword->keyword) {
+					case UNIQUE_CONSTRAINT:;
+						SqlConstraint *constraint;
+						UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
+						UNPACK_SQL_STATEMENT(value, constraint->v.uniq_gblname, value);
+
+						ydb_buffer_t uniq_gblname;
+						YDB_STRING_TO_BUFFER(value->v.string_literal, &uniq_gblname);
+						status = ydb_delete_s(&uniq_gblname, 0, NULL, YDB_DEL_TREE);
+						CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer,
+										 query_lock, &cursor_ydb_buff);
+						break;
+					default:
+						break;
+					}
+					cur_keyword = cur_keyword->next;
+				} while (cur_keyword != start_keyword);
+				cur_column = cur_column->next;
+			} while (cur_column != start_column);
 
 			/* Check if OIDs were created for this table.
 			 * If so, delete those nodes from the catalog now that this table is going away.
@@ -596,8 +624,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		if (0 != status) {
 			CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 		}
-		// - 1: don't include null terminator in size calculations
-		generate_routine_name(&state, function_hash, sizeof(function_hash) - 1, FunctionHash);
+		generate_name_type(FunctionHash, &state, 0, function_hash, sizeof(function_hash));
 		function_hash_buffer = &function_name_buffers[2];
 		YDB_STRING_TO_BUFFER(function_hash, function_hash_buffer);
 		// Add function hash to parse tree for later addition to logical plan

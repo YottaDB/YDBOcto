@@ -17,46 +17,65 @@
 #include "template_helpers.h"
 
 TEMPLATE(tmpl_delete_record_from_table, PhysicalPlan *pplan, int dot_count) {
-	LogicalPlan		*lp_delete_from, *table_join, *lp_table, *lp_select_query;
-	SqlStatement		*table_stmt;
-	SqlTable		*table;
-	SqlOptionalKeyword	*keyword;
-	SqlValue		*value;
-	char			*tableName;
 
+	LogicalPlan	*lp_delete_from;
 	lp_delete_from = pplan->lp_select_query;
 	assert(LP_DELETE_FROM == lp_delete_from->type);
-	%{}`n{{ PLAN_LINE_START }}{}%
+
+	SqlTableAlias	*src_table_alias;
+	src_table_alias = lp_delete_from->extra_detail.lp_select_query.root_table_alias;
+
+	SqlStatement	*table_stmt;
+	table_stmt = src_table_alias->table;
+
+	SqlTable	*table;
+	UNPACK_SQL_STATEMENT(table, table_stmt, create_table);
 	dot_count++;
-	TMPL(tmpl_print_dots, dot_count);
+	%{}`n{{ PLAN_LINE_START }}{}%
+
 	/* Unlike INSERT INTO or UPDATE queries, a DELETE FROM query does not need to worry about CHECK constraint enforcement.
 	 * This is because the entire row is removed and all CHECK constraints operate only at a row level (not across rows).
-	 * Removing a row can never cause a CHECK constraint violation.
+	 * Removing a row can never cause a CHECK constraint violation. But it does need to help with UNIQUE constraint
+	 * enforcement (to remove global nodes from the UNIQUE index corresponding to the deleted rows). Hence the call to
+	 * "tmpl_constraint()" below.
 	 */
-	table_join = lp_get_table_join(lp_delete_from);
-	if (LP_SELECT_QUERY == table_join->v.lp_default.operand[0]->type) {
-		/* This is a case where the LP_TABLE got overwritten by a LP_TABLE_JOIN as part of "lp_generate_xref_plan"
-		 * (which can happen if the WHERE clause in the DELETE FROM query had a key fix condition).
-		 * In that case, find the original LP_TABLE by drilling down one level further.
-		 * An example query that exercises this code path is the following.
-		 *	DELETE FROM names WHERE firstname = 'Wrongname';
+	LogicalPlan	*lp_constraint;
+	lp_constraint = lp_delete_from->v.lp_default.operand[1];
+	if (NULL != lp_constraint) {
+		/* Define the local variable name under which we will store column numbers that have PP_COL(i) initialized.
+		 * This will help us (inside "tmpl_constraint()") determine the list of remaining table columns whose
+		 * PP_COL(i) has not been initialized.
 		 */
-		GET_LP(lp_select_query, table_join, 0, LP_SELECT_QUERY);
-		table_join = lp_get_table_join(lp_select_query);
+		ydb_buffer_t ydboctoTblConstraint;
+		YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTOTBLCONSTRAINT, &ydboctoTblConstraint);
+
+		int status;
+		status = ydb_delete_s(&ydboctoTblConstraint, 0, NULL, YDB_DEL_TREE);/* Remove any leftover lvn nodes just in case */
+		assert(YDB_OK == status);
+		UNUSED(status);	/* needed to avoid [-Wunused-but-set-variable] warning from compiler */
+
+		TMPL(tmpl_constraint, pplan, lp_constraint, table, dot_count);
+
+		/* Now that the "tmpl_constraint()" call is done, remove lvn nodes that tracked PP_COL(i) */
+		status = ydb_delete_s(&ydboctoTblConstraint, 0, NULL, YDB_DEL_TREE);
+		assert(YDB_OK == status);
 	}
-	GET_LP(lp_table, table_join, 0, LP_TABLE);
-	table_stmt = lp_table->v.lp_table.table_alias->table;
-	UNPACK_SQL_STATEMENT(table, table_stmt, create_table);
+
+	SqlValue	*value;
 	UNPACK_SQL_STATEMENT(value, table->tableName, value);
+
+	char		*tableName;
 	tableName = value->v.reference;
+
+	SqlOptionalKeyword	*keyword;
 	UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
 	UNPACK_SQL_STATEMENT(value, keyword->v, value);
+	TMPL(tmpl_print_dots, dot_count);
 	%{}KILL {}%
 
 	SqlKey		*key;
 	int		total_keys;
 	int		iter_key_index = 0;
-
 	total_keys = pplan->total_iter_keys;
 	iter_key_index = 0;
 	key = pplan->iterKeys[0];

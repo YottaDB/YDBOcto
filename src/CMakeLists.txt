@@ -184,7 +184,7 @@ add_library(libocto OBJECT
   function_call_data_type_check.c
   function_definition_lookup.c
   generate_key_name.c
-  generate_routine_name.c
+  generate_name_type.c
   get_aggregate_func_name.c
   get_column_alias_for_column_list_alias.c
   get_column_alias_from_column_name.c
@@ -239,7 +239,7 @@ add_library(libocto OBJECT
   optimization_transforms/lp_copy_plan.c
   optimization_transforms/lp_drill_to_insert.c
   optimization_transforms/lp_emit_plan.c
-  optimization_transforms/lp_generate_check_constraint.c
+  optimization_transforms/lp_generate_constraint.c
   optimization_transforms/lp_generate_column_list.c
   optimization_transforms/lp_generate_set_logical_plan.c
   optimization_transforms/lp_generate_table_value.c
@@ -263,6 +263,7 @@ add_library(libocto OBJECT
   optimization_transforms/lp_get_unique_id_from_lp_column_alias_or_lp_derived_column.c
   optimization_transforms/lp_get_update_column_list.c
   optimization_transforms/lp_insert_key.c
+  optimization_transforms/lp_is_col_in_update_column_list.c
   optimization_transforms/lp_is_operand_type_string.c
   optimization_transforms/lp_join_where.c
   optimization_transforms/lp_make_key.c
@@ -468,7 +469,8 @@ add_library(cocto SHARED
 # Generate C files from templates
 set(template_dir ${PROJECT_SOURCE_DIR}/src/m_templates)
 set(template_files
-  ${template_dir}/tmpl_check_constraint.ctemplate
+  ${template_dir}/tmpl_constraint.ctemplate
+  ${template_dir}/tmpl_constraint_col_list.ctemplate
   ${template_dir}/tmpl_column_list_combine.ctemplate
   ${template_dir}/tmpl_column_reference.ctemplate
   ${template_dir}/tmpl_column_reference_common.ctemplate

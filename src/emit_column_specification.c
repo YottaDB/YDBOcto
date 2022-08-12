@@ -67,9 +67,6 @@ int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_co
 		case NOT_NULL:
 			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " NOT NULL");
 			break;
-		case UNIQUE_CONSTRAINT:
-			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " UNIQUE");
-			break;
 		case OPTIONAL_EXTRACT:
 			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
 			m_escape_string2(&buffer2, &buffer2_size, value->v.reference);
@@ -130,24 +127,31 @@ int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_co
 			m_escape_string2(&buffer2, &buffer2_size, value->v.reference);
 			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " ENDPOINT \"%s\"", buffer2);
 			break;
-		case OPTIONAL_CHECK_CONSTRAINT:;
+		case OPTIONAL_CHECK_CONSTRAINT:
+		case UNIQUE_CONSTRAINT:;
 			int	       status;
 			SqlConstraint *constraint;
 			SqlValue *     value;
 
 			UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
+			assert(cur_keyword->keyword == constraint->type);
+			assert(NULL != constraint->name);
 			UNPACK_SQL_STATEMENT(value, constraint->name, value);
-			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " CONSTRAINT %s CHECK (",
-								    value->v.string_literal);
+			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(
+			    buffer, buffer_size, buff_ptr, " CONSTRAINT %s %s", value->v.string_literal,
+			    ((UNIQUE_CONSTRAINT == cur_keyword->keyword) ? "UNIQUE " : "CHECK ("));
+			/* Note: "emit_check_constraint()" does the needed emitting even for a UNIQUE constraint */
 			status = emit_check_constraint(buffer, buffer_size, buff_ptr, constraint->definition);
 			if (0 > status) {
 				free(buffer2);
 				return -1;
 			}
-			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, ")");
-			/* Note that "constraint->columns" is a list of referenced columns (in case of a CHECK constraint)
-			 * and is information derived from "constraint->definition" and so is not stored in the text
-			 * table definition. Hence no processing for that done here.
+			if (OPTIONAL_CHECK_CONSTRAINT == cur_keyword->keyword) {
+				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, ")");
+			}
+			/* Note that "constraint->v.check_columns" and "constraint->v.uniq_gblname" is information derived
+			 * from "constraint->definition" and so is not stored in the text table definition. Hence no processing
+			 * for that done here.
 			 */
 			break;
 		default:

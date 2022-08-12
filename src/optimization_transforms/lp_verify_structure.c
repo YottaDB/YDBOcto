@@ -73,11 +73,11 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_SELECT_QUERY)
 		       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_SET_OPERATION)
 		       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_TABLE_VALUE);
-		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_CHECK_CONSTRAINT);
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_CONSTRAINT);
 		break;
 	case LP_DELETE_FROM:
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_PROJECT);
-		ret &= (NULL == plan->v.lp_default.operand[1]);
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_CONSTRAINT);
 		break;
 	case LP_UPDATE:
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_PROJECT);
@@ -85,7 +85,11 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 		break;
 	case LP_UPDATE_OPTIONS:
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COLUMN_LIST);
-		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_CHECK_CONSTRAINT);
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_CONSTRAINT);
+		break;
+	case LP_CONSTRAINT:
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_CHECK_CONSTRAINT);
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_UNIQUE_CONSTRAINT);
 		break;
 	case LP_OUTPUT:
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_KEY);
@@ -402,6 +406,10 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 	case LP_CHECK_CONSTRAINT:
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_WHERE);
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_CHECK_CONSTRAINT);
+		break;
+	case LP_UNIQUE_CONSTRAINT:
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COLUMN_LIST);
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_UNIQUE_CONSTRAINT);
 		break;
 	case LP_COLUMN_LIST:
 		/* To avoid a large recursion stack in case of thousands of columns, walk the column list iteratively */

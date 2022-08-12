@@ -156,6 +156,7 @@
 #define OCTOLIT_FUNCTIONS	     "functions"
 #define OCTOLIT_FUNCTIONS_MAP	     "functions_map"
 #define OCTOLIT_FORMAT_CODE	     "format_code"
+#define OCTOLIT_KEY		     "KEY"
 #define OCTOLIT_LENGTH		     "length"
 #define OCTOLIT_TEXT_LENGTH	     "text_length"
 #define OCTOLIT_MYSQL		     "MySQL"
@@ -222,11 +223,11 @@
 #define MAX_PLAN_NAME_LEN sizeof(OCTOPLAN_LIT) + INT32_TO_STRING_MAX
 
 /* Macros for various prefixes. All of them having the same length. */
-#define TABLE_GLOBAL_NAME_PREFIX  "%ydboctoD"
-#define FUNCTION_NAME_PREFIX	  "%ydboctoF"
-#define PHYSICAL_PLAN_NAME_PREFIX "%ydboctoP"
-#define TRIGGER_NAME_PREFIX	  "%ydboctoT"
-#define XREF_PLAN_NAME_PREFIX	  "%ydboctoX"
+#define TABLE_GLOBAL_NAME_PREFIX  "%ydboctoD" /* corresponds to NameType = "TableGlobal"    in octo_types.h */
+#define FUNCTION_NAME_PREFIX	  "%ydboctoF" /* corresponds to NameType = "FunctionHash"   in octo_types.h */
+#define PHYSICAL_PLAN_NAME_PREFIX "%ydboctoP" /* corresponds to NameType = "OutputPlan"     in octo_types.h */
+#define UNIQUE_GLOBAL_NAME_PREFIX "%ydboctoU" /* corresponds to NameType = "UniqueGlobal"   in octo_types.h */
+#define XREF_PLAN_NAME_PREFIX	  "%ydboctoX" /* corresponds to NameType = "CrossReference" in octo_types.h */
 
 /* Below macro defines the name of the hidden primary key column that is added by Octo in a READWRITE table
  * which has no primary key columns specified by the user in the CREATE TABLE command. For a READONLY table
@@ -959,7 +960,7 @@ int		   get_group_by_column_number(SqlTableAlias *table_alias, SqlStatement *has
 group_by_fields_t *get_group_by_fields(SqlStatement *stmt);
 
 /* Hashing support functions */
-void generate_routine_name(hash128_state_t *state, char *routine_name, int routine_len, FileType file_type);
+void generate_name_type(NameType file_type, hash128_state_t *state, int len, char *routine_name, int routine_len);
 void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *status);
 void ydb_hash_to_string(ydb_uint16 *hash, char *buffer, const unsigned int buf_len);
 
@@ -1036,7 +1037,7 @@ SqlStatement *function_definition(SqlStatement *identifier, SqlStatement *functi
 				  SqlStatement *m_function, boolean_t if_not_exists_specified);
 SqlStatement *drop_function(SqlStatement *identifier, SqlStatement *function_parameter_type_list, boolean_t if_exists_specified);
 
-void constraint_name_auto_generate(OptionalKeyword constraint_type, char *table_name, char *column_name, int numeric_suffix,
+void constraint_name_auto_generate(SqlOptionalKeyword *cur_keyword, char *table_name, char *column_name, int numeric_suffix,
 				   char *name_buf, int buf_size);
 int  compare_column_count_and_column_type_of_tables(SqlColumnAlias *first_column_alias, SqlColumnAlias *second_column_alias,
 						    ParseContext *parse_context);

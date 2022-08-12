@@ -205,7 +205,7 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 	%{}DO:$DATA({}%
 	TMPL(tmpl_emit_source, table, value->v.string_literal, NULL, 0, MAX_KEY_COUNT, EmitSourceForm_Insert);
 	%{}) DuplicateKeyValue^%%ydboctoplanhelpers({}%
-	/* TODO: Currently we don't support the UNIQUE constraint feature (YDBOcto#582).
+	/* TODO: Currently we don't support the PRIMARY KEY constraint feature (YDBOcto#770).
 	 * When we do this code needs to be reworked/generalized.
 	 * See similar comment in "tmpl_update_record_in_table.ctemplate" for more details.
 	 */
@@ -214,14 +214,14 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 	UNPACK_SQL_STATEMENT(tbl_name_value, table->tableName, value);
 	tableName = tbl_name_value->v.reference;
 	%{}"{{ tableName }}_pkey",{}%
-	%{}$NAME({}%
+	%{}"Node "_$NAME({}%
 	TMPL(tmpl_emit_source, table, value->v.string_literal, NULL, 0, MAX_KEY_COUNT, EmitSourceForm_Insert);
 	%{})){}%
 	%{}`n{{ PLAN_LINE_START }}{}%
 
 	LogicalPlan	*lp_constraint;
 	lp_constraint = lp_insert_into_more_options->v.lp_default.operand[1];
-	TMPL(tmpl_check_constraint, pplan, lp_constraint, table, dot_count);
+	TMPL(tmpl_constraint, pplan, lp_constraint, table, dot_count);
 
 	/* Generate global reference */
 	TMPL(tmpl_print_dots, dot_count);

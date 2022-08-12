@@ -20,11 +20,6 @@
 #define READONLY  (1 << 2)
 #define READWRITE (1 << 3)
 
-/* The size of this must match $ZYSUFFIX exactly, which is 22.
- * This mirrors the design of generate_routine_name function.
- */
-#define OCTO_HASH_LEN (YDB_MAX_IDENT - LIT_LEN(TABLE_GLOBAL_NAME_PREFIX))
-
 /* We SNPRINTF and resize buffers multiple times, so this is a convenience
  * macro that contains all the necessary operations */
 #define SNPRINTF_TO_BUFFER(ARG, BUFFER, BUFF_PTR, BUFFER_SIZE, TOTAL_COPIED)                       \
@@ -83,12 +78,7 @@
 			START_COLUMN_CHANGED = TRUE;                                                      \
 			/* Column to be deleted is first in list. Update start pointer of linked list. */ \
 			START_COLUMN = CUR_COLUMN->next;                                                  \
-			if (START_COLUMN == CUR_COLUMN) {                                                 \
-				/* The only column in the linked list is going to be deleted.             \
-				 * Reset the start of linked list to NULL.                                \
-				 */                                                                       \
-				START_COLUMN = NULL;                                                      \
-			}                                                                                 \
+			assert(START_COLUMN != CUR_COLUMN);                                               \
 			COLUMN_STMT->v.column = START_COLUMN;                                             \
 		}                                                                                         \
 		dqdel(CUR_COLUMN); /* Delete column */                                                    \
@@ -134,20 +124,6 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	 */
 	table_type = config->default_tabletype;
 
-	/* TODO : YDBOcto#582 : UNIQUE
-	 *
-	 * If specified as a column-level constraint, there is no way multiple columns can be specified there so
-	 * it stays a column-level constraint (no table-level constraint possible).
-	 *
-	 * For each column-level constraint,
-	 * 1) Go through each column and combine all UNIQUE constraints into ONE keyword structure
-	 * 2) Maintain only the first named unique structure. If nothing is named, pick the first unnamed structure.
-	 *    Discard all remaining UNIQUE keyword structures.
-	 *
-	 * For each table-level constraint,
-	 * 1) Maintain a linked list of UNIQUE keyword structures. Possible to have more than one UNIQUE table-level constraints.
-	 *
-	 */
 	/* TODO : YDBOcto#770 : PRIMARY KEY
 	 * If specified as a column-level constraint, there is no way multiple columns can be specified there so
 	 * it stays a column-level constraint (no table-level constraint possible).
@@ -197,6 +173,17 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	 * This needs to be done first as the automatic name assignment of a CHECK constraint (that happens in a later do/while
 	 * loop) is based on which column (if it is a column-level constraint) or table name (if it is a table-level constraint)
 	 * it is a part of.
+	 *
+	 * Similarly, scan column-level keywords for UNIQUE constraint.
+	 * a) If specified as a column-level constraint, there is no way multiple columns can be specified there (a syntax
+	 *    error would have been issued in that case) so it stays a column-level constraint (i.e. no need to worry about
+	 *    moving a column-level constraint to a table-level constraint).
+	 * b) For each table-level constraint, check if it specifies only ONE column. If so, move this to be a column-level
+	 *    UNIQUE constraint for the specified column name.
+	 * This needs to be done first as the automatic name assignment of a CHECK constraint (that happens in a later do/while
+	 * loop) is based on which column (if it is a column-level constraint) or table name (if it is a table-level constraint)
+	 * it is a part of.
+	 *
 	 */
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 	cur_column = start_column;
@@ -214,17 +201,18 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		do {
 			SqlOptionalKeyword *next_keyword;
 			SqlColumn *	    noted_column;
+			SqlConstraint *	    constraint;
 
 			start_keyword_changed = FALSE;
 			next_keyword = cur_keyword->next;
 			switch (cur_keyword->keyword) {
 			case OPTIONAL_CHECK_CONSTRAINT:;
-				SqlConstraint *constraint;
-				SqlValueType   type;
-				int	       num_cols;
+				SqlValueType type;
+				int	     num_cols;
 
 				noted_column = NULL;
 				UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
+				assert(OPTIONAL_CHECK_CONSTRAINT == constraint->type);
 				/* Note down which constraint we are currently processing. Needed inside "qualify_check_constraint"
 				 * to note down function names/hashes used in this constraint. Note that we still have not
 				 * assigned a unique name to this constraint (that happens in the later for loop) so we cannot
@@ -263,13 +251,13 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				subs[1].len_used = 0;
 				num_cols = 0;
 				SqlColumnList *start_col;
-				/* It is possible that "constraint->columns" is non-NULL at this point if this was previously
-				 * a column level constraint that got moved to a table level constraint (a later column in the
-				 * list of columns encountered while processing the table). In that case, the below processing
-				 * would end up adding the same set of columns again into "constraint->columns". Avoid that
-				 * by resetting "constraint->columns" to NULL.
+				/* It is possible that "constraint->v.check_columns" is non-NULL at this point if this was
+				 * previously a column level constraint that got moved to a table level constraint (a later column
+				 * in the list of columns encountered while processing the table). In that case, the below
+				 * processing would end up adding the same set of columns again into "constraint->v.check_columns".
+				 * Avoid that by resetting "constraint->check_columns" to NULL.
 				 */
-				constraint->columns = NULL;
+				constraint->v.check_columns = NULL;
 				start_col = NULL; /* to avoid false [-Wmaybe-uninitialized] warnings from compiler */
 				while (TRUE) {
 					status = ydb_subscript_next_s(&ydboctoTblConstraint, 2, &subs[0], &subs[1]);
@@ -285,13 +273,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 					subs[1].buf_addr[subs[1].len_used] = '\0';
 					noted_column = find_column(subs[1].buf_addr, table);
 					assert(NULL != noted_column);
-
-					SqlStatement * col_list_stmt;
-					SqlColumnList *cur_col;
-					SQL_STATEMENT(col_list_stmt, column_list_STATEMENT);
-					OCTO_CMALLOC_STRUCT(col_list_stmt->v.column_list, SqlColumnList);
-					UNPACK_SQL_STATEMENT(cur_col, col_list_stmt, column_list);
-					dqinit(cur_col);
+					assert(!noted_column->is_hidden_keycol);
 
 					SqlStatement *colname_stmt;
 					SQL_STATEMENT(colname_stmt, value_STATEMENT);
@@ -301,9 +283,15 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 					 * memcpy below */
 					colname_stmt->v.value->v.string_literal = octo_cmalloc(memory_chunks, subs[1].len_used + 1);
 					memcpy(colname_stmt->v.value->v.string_literal, subs[1].buf_addr, subs[1].len_used + 1);
-					cur_col->value = colname_stmt;
-					if (NULL == constraint->columns) {
-						constraint->columns = col_list_stmt;
+
+					SqlStatement *col_list_stmt;
+					col_list_stmt = create_sql_column_list(colname_stmt, NULL, NULL);
+
+					SqlColumnList *cur_col;
+					UNPACK_SQL_STATEMENT(cur_col, col_list_stmt, column_list);
+
+					if (NULL == constraint->v.check_columns) {
+						constraint->v.check_columns = col_list_stmt;
 						start_col = cur_col;
 					} else {
 						dqappend(cur_col, start_col);
@@ -376,6 +364,84 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 					 */
 				}
 				break;
+			case UNIQUE_CONSTRAINT:;
+				UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
+
+				SqlStatement *column_name_list;
+				column_name_list = constraint->definition;
+				if (NULL != column_name_list) {
+					/* Note: Since only table level UNIQUE constraint can have a list of columns, one might
+					 * be tempted to assert the following.
+					 *    assert(NULL == cur_column->columnName);
+					 * But this can fail in case this column level UNIQUE constraint was moved from a
+					 * table level UNIQUE constraint in a previous iteration of the containing "do/while"
+					 * loop ("cur_column" is loop variable). Hence the above assert is commented out.
+					 */
+					SqlColumnList *start_cl, *cur_cl;
+					UNPACK_SQL_STATEMENT(start_cl, column_name_list, column_list);
+					cur_cl = start_cl;
+
+					SqlColumn *noted_column;
+					noted_column = NULL;
+					do {
+						SqlValue *col_name;
+						UNPACK_SQL_STATEMENT(col_name, cur_cl->value, value);
+
+						noted_column = find_column(col_name->v.string_literal, table);
+						assert((NULL == noted_column) || !noted_column->is_hidden_keycol);
+						if (NULL == noted_column) {
+							/* User specified an unknown column name in the UNIQUE constraint list.
+							 * Issue error.
+							 */
+							SqlValue *tbl_name;
+
+							UNPACK_SQL_STATEMENT(tbl_name, tableName, value);
+							ERROR(ERR_TABLE_UNKNOWN_COLUMN_NAME, col_name->v.string_literal,
+							      tbl_name->v.string_literal);
+							yyerror(NULL, NULL, &cur_cl->value, NULL, NULL, NULL);
+							return NULL;
+						}
+						cur_cl = cur_cl->next;
+						/* Check if duplicate column names are specified. If so, issue error. */
+						SqlColumnList *cur_cl2;
+						for (cur_cl2 = cur_cl; start_cl != cur_cl2; cur_cl2 = cur_cl2->next) {
+							SqlValue *col_name2;
+
+							UNPACK_SQL_STATEMENT(col_name2, cur_cl2->value, value);
+							if (!strcmp(col_name->v.string_literal, col_name2->v.string_literal)) {
+								ERROR(ERR_DUPLICATE_COLUMN, col_name->v.string_literal);
+								yyerror(NULL, NULL, &cur_cl2->value, NULL, NULL, NULL);
+								return NULL;
+							}
+						}
+					} while (cur_cl != start_cl);
+					assert(NULL != noted_column);
+					if ((start_cl->next == start_cl) && (cur_column != noted_column)) {
+						/* Table level UNIQUE constraint only specifies one column. But that column
+						 * does not correspond to the current column. Therefore move the constraint from
+						 * the current column to the referenced/noted column.
+						 */
+						/* Delete UNIQUE constraint keyword from current column's keyword linked list */
+						DQDELKEYWORD(cur_keyword, start_keyword, start_keyword_changed,
+							     cur_column->keywords);
+						/* Move this keyword to the referenced column */
+						if (NULL == noted_column->keywords->v.keyword) {
+							noted_column->keywords->v.keyword = cur_keyword;
+						} else {
+							dqappend(noted_column->keywords->v.keyword, cur_keyword);
+						}
+						/* This UNIQUE constraint is part of a table-level constraint. Now that it has
+						 * been moved to a column-level UNIQUE constraint, remove this column as its
+						 * only purpose was to store the table-level constraint.
+						 */
+						DQDELCOLUMN(cur_column, start_column, start_column_changed, table->columns);
+					}
+				} else {
+					/* This is a column-level UNIQUE constraint. Add current column to column list */
+					assert(NULL != cur_column->columnName);
+					constraint->definition = create_sql_column_list(cur_column->columnName, NULL, NULL);
+				}
+				break;
 			default:
 				break;
 			}
@@ -390,14 +456,144 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		}
 	} while (TRUE);
 	/* ==============================================================================================================
+	 * Scan column-level keywords for UNIQUE constraint.
+	 * For each column-level constraint,
+	 *   1) Go through each column and combine multiple UNIQUE constraint keywords into just ONE keyword.
+	 *   2) Maintain only the first named UNIQUE keyword structure. If nothing is named, pick the first unnamed structure.
+	 *      Discard all remaining UNIQUE keyword structures.
+	 * Note: Note that this could possibly be done in the previous do/while loop thereby avoiding an extra do/while loop.
+	 * But that code is expected to be harder to read/maintain hence chose the current (separate do/while loop) approach.
+	 */
+	assert(table->columns->v.column == start_column);
+	cur_column = start_column;
+	do {
+		SqlOptionalKeyword *unique_keyword;
+		unique_keyword = NULL;
+
+		UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
+		cur_keyword = start_keyword;
+		do {
+			SqlOptionalKeyword *next_keyword;
+
+			next_keyword = cur_keyword->next;
+			switch (cur_keyword->keyword) {
+			case UNIQUE_CONSTRAINT:
+				if (NULL != cur_column->columnName) {
+					/* It is a column-level UNIQUE constraint */
+					if (NULL == unique_keyword) {
+						unique_keyword = cur_keyword;
+					} else {
+						/* We found 2 UNIQUE keywords. Check if the first one is named. If so,
+						 * we can ignore the second one. If not, check if the second one is named.
+						 * If so, pick the second one. If not, ignore the second one.
+						 */
+						SqlConstraint *constraint1, *constraint2;
+						UNPACK_SQL_STATEMENT(constraint1, unique_keyword->v, constraint);
+						UNPACK_SQL_STATEMENT(constraint2, cur_keyword->v, constraint);
+						assert(NULL != constraint1->definition);
+						assert(NULL != constraint2->definition);
+						if ((NULL == constraint1->name) && (NULL != constraint2->name)) {
+							/* Copy over the name from the second to the first constraint.
+							 * And then discard the second constraint.
+							 */
+							constraint1->name = constraint2->name;
+						}
+						assert(start_keyword != cur_keyword);
+						assert(next_keyword != cur_keyword);
+						dqdel(cur_keyword);
+					}
+				} else {
+					/* It is a table-level UNIQUE constraint.
+					 * Check if it is duplicated across multiple table-level UNIQUE constraints.
+					 * If so, trim that down too.
+					 */
+					SqlConstraint *constraint1;
+					UNPACK_SQL_STATEMENT(constraint1, cur_keyword->v, constraint);
+					assert(NULL != constraint1->definition);
+
+					SqlColumn *cur_col2, *next_col2;
+					for (cur_col2 = cur_column->next; start_column != cur_col2; cur_col2 = next_col2) {
+						next_col2 = cur_col2->next;
+						if (NULL != cur_col2->columnName) {
+							/* It is a column-level constraint. No need to check for duplication
+							 * between a table-level constraint and a column-level constraint.
+							 */
+							continue;
+						}
+
+						boolean_t del_col2;
+						del_col2 = FALSE;
+
+						/* Check if two table-level UNIQUE constraints are identical by comparing
+						 * the column list in the two constraint definitions.
+						 */
+						SqlOptionalKeyword *start_keyword2, *cur_keyword2;
+						UNPACK_SQL_STATEMENT(start_keyword2, cur_col2->keywords, keyword);
+						cur_keyword2 = start_keyword2;
+						do {
+							switch (cur_keyword2->keyword) {
+							case UNIQUE_CONSTRAINT:;
+								SqlConstraint *constraint2;
+								UNPACK_SQL_STATEMENT(constraint2, cur_keyword2->v, constraint);
+								assert(NULL != constraint2->definition);
+								if (match_sql_statement(constraint1->definition,
+											constraint2->definition)) {
+									if ((NULL == constraint1->name)
+									    && (NULL != constraint2->name)) {
+										/* Copy over the name from the second to the first
+										 * constraint. And then discard the second
+										 * constraint.
+										 */
+										constraint1->name = constraint2->name;
+									}
+									del_col2 = TRUE;
+								}
+								break;
+							default:
+								break;
+							}
+							if (del_col2) {
+								break;
+							}
+							cur_keyword2 = cur_keyword2->next;
+						} while (cur_keyword2 != start_keyword2);
+						if (del_col2) {
+							/* This duplicate UNIQUE constraint can be removed. */
+							assert(start_column != cur_col2);
+							assert(cur_column != cur_col2);
+							dqdel(cur_col2);
+						}
+					}
+				}
+				break;
+			default:
+				break;
+			}
+			cur_keyword = next_keyword;
+		} while (cur_keyword != start_keyword);
+		cur_column = cur_column->next;
+	} while (cur_column != start_column);
+	/* ==============================================================================================================
+	 * Scan column-level keywords for NOT NULL constraint.
+	 * For each column-level constraint,
+	 *   1) Keep the first NOT NULL column-level constraint keyword and discard all remaining NOT NULL constraint keywords
+	 *      in the same column.
+	 *
+	 * Scan column-level keywords for CHECK constraint.
 	 * Now that CHECK constraint reordering has happened (if needed), do scan/processing of all column-level keywords.
-	 * And auto assign constraint names if not specified by the user.
+	 *   And auto assign constraint names if not specified by the user.
+	 *
+	 * Scan column-level keywords for UNIQUE constraint.
+	 * Now that UNIQUE constraint trimming down of multiple keywords as well as reordering has happened,
+	 *   check if the UNIQUE constraint has a name. If not, auto generate a name for that constraint.
+	 * Use this opportunity to also fill in "constraint->v.uniq_gblname" for the UNIQUE constraint now that
+	 *   "constraint->definition" is stable.
 	 */
 	int num_user_visible_columns;
 
-	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
+	assert(table->columns->v.column == start_column);
 	cur_column = start_column;
-	/* Set up first-level subscript as OCTOLIT_NAME for CHECK constraint auto name generation.
+	/* Set up first-level subscript as OCTOLIT_NAME for CHECK/UNIQUE constraint auto name generation.
 	 * Second-level subscript is actual constraint name.
 	 */
 	YDB_LITERAL_TO_BUFFER(OCTOLIT_NAME, &subs[0]);
@@ -454,22 +650,12 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				cur_keyword->v = NULL; /* TODO: YDBOcto#770: Temporarily set this to get tests to pass */
 				break;
 			case UNIQUE_CONSTRAINT:
-				/* TODO : YDBOcto#582 : Auto assign name for UNIQUE constraint.
-				 * 1) Take this opportunity to check if any of the constraint names have already been used
-				 *    (i.e. if there is a collision between a user-specified constraint name and an auto
-				 *    assigned name and if so issue error).
-				 * 2) When auto assigning names, check against currently used names for collision and if
-				 *    so issue error.
-				 * 3) Choose a random 8 byte sub string for auto assigning if the total length of
-				 *    the name becomes more than 63.
-				 */
-				cur_keyword->v = NULL; /* TODO: YDBOcto#582: Temporarily set this to get tests to pass */
-				break;
 			case OPTIONAL_CHECK_CONSTRAINT:;
 				SqlConstraint *constraint;
 				unsigned int   ret_value;
 
 				UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
+				assert(constraint->type == cur_keyword->keyword);
 				if (NULL == constraint->name) {
 					/* User-specified constraint name is NULL. Auto generate a constraint name */
 					char *table_name;
@@ -492,8 +678,8 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 					int num = 0;
 					do {
 						/* The below call will fill "constraint_name" with an auto generated name */
-						constraint_name_auto_generate(OPTIONAL_CHECK_CONSTRAINT, table_name, column_name,
-									      num, constraint_name, sizeof(constraint_name));
+						constraint_name_auto_generate(cur_keyword, table_name, column_name, num,
+									      constraint_name, sizeof(constraint_name));
 						/* Check if generated name exists. If so, try next number suffix. */
 						YDB_STRING_TO_BUFFER(constraint_name, &subs[1]);
 						status = ydb_data_s(&ydboctoTblConstraint, 2, &subs[0], &ret_value);
@@ -547,20 +733,69 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 					assert(FALSE);
 					return NULL;
 				}
-				/* Note down the mapping between a constraint definition (the 8-byte pointer) and its name.
-				 * This is needed later in "store_table_in_pg_class.c" to know which constraint uses which
-				 * function names/hashes.
-				 */
-				ydb_buffer_t map_subs[2];
-				YDB_LITERAL_TO_BUFFER(OCTOLIT_FUNCTIONS_MAP, &map_subs[0]);
-				map_subs[1].buf_addr = (char *)&constraint->definition;
-				map_subs[1].len_used = map_subs[1].len_alloc = sizeof(void *);
-				/* Note: subs[1] contains the constraint name */
-				status = ydb_set_s(&ydboctoTblConstraint, 2, &map_subs[0], &subs[1]);
-				YDB_ERROR_CHECK(status);
-				if (YDB_OK != status) {
-					assert(FALSE);
-					return NULL;
+				if (OPTIONAL_CHECK_CONSTRAINT == constraint->type) {
+					/* Note down the mapping between a constraint definition (the 8-byte pointer) and its name.
+					 * This is needed later in "store_table_in_pg_class.c" to know which constraint uses which
+					 * function names/hashes. Note that functions are only possible in CHECK constraints. Not
+					 * UNIQUE constraints.
+					 */
+					ydb_buffer_t map_subs[2];
+					YDB_LITERAL_TO_BUFFER(OCTOLIT_FUNCTIONS_MAP, &map_subs[0]);
+					map_subs[1].buf_addr = (char *)&constraint->definition;
+					map_subs[1].len_used = map_subs[1].len_alloc = sizeof(void *);
+					/* Note: subs[1] contains the constraint name */
+					status = ydb_set_s(&ydboctoTblConstraint, 2, &map_subs[0], &subs[1]);
+					YDB_ERROR_CHECK(status);
+					if (YDB_OK != status) {
+						assert(FALSE);
+						return NULL;
+					}
+				} else {
+					assert(UNIQUE_CONSTRAINT == constraint->type);
+					/* Initialize "constraint->v.uniq_gblname" for the UNIQUE constraint (based on the
+					 * table name and list of column names that form the UNIQUE constraint) now that
+					 * "constraint->definition" is stable.
+					 */
+					UNPACK_SQL_STATEMENT(value, table->tableName, value);
+
+					hash128_state_t state;
+					HASH128_STATE_INIT(state, 0);
+					ydb_mmrhash_128_ingest(&state, (void *)value->v.reference, strlen(value->v.reference));
+
+					SqlColumnList *start_cl, *cur_cl;
+					UNPACK_SQL_STATEMENT(start_cl, constraint->definition, column_list);
+					cur_cl = start_cl;
+					do {
+						SqlValue *col_name;
+						UNPACK_SQL_STATEMENT(col_name, cur_cl->value, value);
+						ydb_mmrhash_128_ingest(&state, (void *)col_name->v.string_literal,
+								       strlen(col_name->v.string_literal));
+						cur_cl = cur_cl->next;
+					} while (cur_cl != start_cl);
+
+					char *buf;
+					buf = octo_cmalloc(memory_chunks, MAX_ROUTINE_LEN + 2);
+					/* + 2 below is because : 1 byte for '^' global prefix, 1 byte for null terminator */
+					generate_name_type(UniqueGlobal, &state, 0, buf, MAX_ROUTINE_LEN + 2);
+
+					SqlStatement *uniq_gblname;
+					SQL_STATEMENT(uniq_gblname, value_STATEMENT);
+					MALLOC_STATEMENT(uniq_gblname, value, SqlValue);
+					uniq_gblname->v.value->type = STRING_LITERAL;
+					uniq_gblname->v.value->v.string_literal = buf;
+					constraint->v.uniq_gblname = uniq_gblname;
+
+					/* TODO: Currently we only use the table name and column names in the UNIQUE constraint
+					 *   to generate this hash. But we need to use the schema name (YDBOcto#99) and database
+					 *   name (YDBOcto#417) when support for those are added.
+					 *
+					 * TODO: Additionally we might need to migrate data from the old global names that used to
+					 *   previously maintain the UNIQUE constraint to the new global names when YDBOcto#99 and
+					 *   YDBOcto#417 are each implemented. Maybe as part of the auto-upgrade logic or so.
+					 *   An alternative to avoid data migration is to skip including the database and/or
+					 *   schema name in the hash when the defaults are in use. See below comment for details.
+					 *	https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/417#note_1072666858
+					 */
 				}
 				break;
 			default:
@@ -1091,12 +1326,10 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	 *    other incompatibilities, no need to do any checks of the specified GLOBAL keyword.
 	 */
 	if (!(options & SOURCE) || !readwrite_disallowed) {
-		int	   i, total_copied;
-		int	   buffer_size, buffer2_size;
-		char *	   buffer, *buffer2, *buff_ptr;
-		ydb_uint16 mmr_table_hash;
-		char	   table_hash[OCTO_HASH_LEN + 1]; // +1 for null terminator
-		char *	   start, *next;
+		int   i, total_copied;
+		int   buffer_size, buffer2_size;
+		char *buffer, *buffer2, *buff_ptr;
+		char *start, *next;
 
 		buffer_size = buffer2_size = OCTO_INIT_BUFFER_LEN;
 		buffer = (char *)malloc(sizeof(char) * buffer_size);
@@ -1119,21 +1352,22 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				 *	https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/417#note_1072589179
 				 *
 				 * TODO: Additionally we might need to migrate data from the old global names that used to
-				 *   previously maintain the UNIQUE constraint to the new global names when YDBOcto#99 and
+				 *   previously maintain the user data to the new global names when YDBOcto#99 and
 				 *   YDBOcto#417 are each implemented. Maybe as part of the auto-upgrade logic or so.
-				 *   An alternative to avoid data migration is to skip the database and/or schema name when
-				 *   the defaults are in use. See below comment for details.
+				 *   An alternative to avoid data migration is to skip including the database and/or
+				 *   schema name in the hash when the defaults are in use. See below comment for details.
 				 *	https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/417#note_1072666858
 				 */
-				ydb_mmrhash_128(value->v.reference, strlen(value->v.reference), 0, &mmr_table_hash);
-				ydb_hash_to_string(&mmr_table_hash, table_hash, OCTO_HASH_LEN);
-				table_hash[OCTO_HASH_LEN] = '\0';
-				assert(strlen(table_hash) == 22);
+				hash128_state_t state;
+				HASH128_STATE_INIT(state, 0);
 
-				/* Add ^TABLE_GLOBAL_NAME_PREFIX to table name, then add table hash to table name after prefix */
-				SNPRINTF_TO_BUFFER("^", buffer, buff_ptr, buffer_size, total_copied);
-				SNPRINTF_TO_BUFFER(TABLE_GLOBAL_NAME_PREFIX, buffer, buff_ptr, buffer_size, total_copied);
-				SNPRINTF_TO_BUFFER(table_hash, buffer, buff_ptr, buffer_size, total_copied);
+				int len;
+				len = strlen(value->v.reference);
+				ydb_mmrhash_128_ingest(&state, (void *)value->v.reference, len);
+
+				char table_global[MAX_ROUTINE_LEN + 2];
+				generate_name_type(TableGlobal, &state, len, table_global, sizeof(table_global));
+				SNPRINTF_TO_BUFFER(table_global, buffer, buff_ptr, buffer_size, total_copied);
 			}
 			next = NULL; /* to avoid false [-Wmaybe-uninitialized] warnings from compiler */
 		} else {

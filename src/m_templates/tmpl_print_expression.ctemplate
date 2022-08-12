@@ -1395,15 +1395,16 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		}
 		break;
 	case LP_INSERT_INTO_COL:
-	case LP_UPDATE_COL:;
-		SqlColumnAlias	*column_alias;
-		SqlColumn	*column;
-
+	case LP_UPDATE_COL:
 		if (dot_count) {
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
 		}
+
+		SqlColumnAlias	*column_alias;
 		column_alias = plan->v.lp_insert_into_col.column_alias;
+
+		SqlColumn	*column;
 		UNPACK_SQL_STATEMENT(column, column_alias->column, column);
 		assert(column->column_number);
 		%{}{{ PP_COL }}({{ column->column_number|%d }}){}%

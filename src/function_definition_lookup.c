@@ -65,8 +65,7 @@ void function_definition_lookup(FunctionCallContext *fc_context, FunctionMatchCo
 	for (i = 0; i < fc_context->num_args; i++) {
 		ADD_INT_HASH(&state, fc_context->arg_types[i]);
 	}
-	// - 1 don't include null terminator in size
-	generate_routine_name(&state, function_hash, sizeof(function_hash) - 1, FunctionHash);
+	generate_name_type(FunctionHash, &state, 0, function_hash, sizeof(function_hash));
 	// Retrieve the DDL for the given function
 	if (NULL == fc->function_schema) {
 		// Only allocate a new function schema when there isn't one already.

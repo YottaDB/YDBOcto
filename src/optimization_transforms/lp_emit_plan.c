@@ -184,11 +184,12 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 	case LP_COLUMN_LIST:
 	case LP_ROW_VALUE:
 	case LP_CHECK_CONSTRAINT:
-		if (LP_CHECK_CONSTRAINT == plan->type) {
+	case LP_UNIQUE_CONSTRAINT:
+		if ((LP_CHECK_CONSTRAINT == plan->type) || (LP_UNIQUE_CONSTRAINT == plan->type)) {
 			SqlConstraint *constraint;
 			SqlValue *     value;
 
-			constraint = plan->extra_detail.lp_check_constraint.constraint;
+			constraint = plan->extra_detail.lp_constraint.constraint;
 			UNPACK_SQL_STATEMENT(value, constraint->name, value);
 			EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%s", value->v.string_literal);
 		}
@@ -199,7 +200,7 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		    += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 2, plan->v.lp_default.operand[0], plan);
 		/* For "case LP_COLUMN_LIST", operand[1] is a sibling LP_COLUMN_LIST and should be treated at the same level as
 		 * the parent LP_COLUMN_LIST hence using "depth" instead of "depth + 2" like was done for operand[0].
-		 * The same reasoning as above applies to "LP_ROW_VALUE" and "LP_CHECK_CONSTRAINT" too.
+		 * The same reasoning as above applies to "LP_ROW_VALUE", "LP_CHECK_CONSTRAINT" and "LP_UNIQUE_CONSTRAINT" too.
 		 */
 		buff_ptr
 		    += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth, plan->v.lp_default.operand[1], plan);

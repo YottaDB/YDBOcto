@@ -81,12 +81,76 @@ int describe_tablename(SqlStatement *table_name) {
 		cur_column = cur_column->next;
 	} while (cur_column != start_column);
 
-	/* Next output constraints (if any) */
-	boolean_t first_check_constraint;
+	/* Next output UNIQUE constraints (if any) */
+	boolean_t first_unique_constraint;
 	char *	  buffer, *buffer_orig, **buff_ptr;
 	int	  buffer_size, status;
 
 	buffer_orig = NULL;
+	first_unique_constraint = TRUE;
+	cur_column = start_column;
+	do {
+		SqlOptionalKeyword *cur_keyword, *start_keyword;
+
+		UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
+		cur_keyword = start_keyword;
+		do {
+			switch (cur_keyword->keyword) {
+			case UNIQUE_CONSTRAINT:;
+				if (first_unique_constraint) {
+					fprintf(stdout, "Indexes:\n");
+					buffer_size = OCTO_INIT_BUFFER_LEN;
+					buffer = (char *)malloc(sizeof(char) * buffer_size);
+					buffer_orig = buffer;
+					first_unique_constraint = FALSE;
+				}
+
+				SqlConstraint *constraint;
+				UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
+				assert(UNIQUE_CONSTRAINT == constraint->type);
+				fprintf(stdout, "    ");
+				assert(NULL != constraint->name);
+
+				SqlValue *value;
+				UNPACK_SQL_STATEMENT(value, constraint->name, value);
+				fprintf(stdout, "\"%s\" ", value->v.string_literal);
+
+				fprintf(stdout, "UNIQUE CONSTRAINT, Column(s) ");
+				buffer = buffer_orig;
+				buff_ptr = &buffer;
+				/* Although we are emitting a UNIQUE constraint, all we need to emit at this point is a list
+				 * of column names and we have a "column_list_STATEMENT" type (asserted below). That can be
+				 * emitted by "emit_check_constraint()" so we use that function even though it is a CHECK
+				 * constraint specific function.
+				 */
+				assert(column_list_STATEMENT == constraint->definition->type);
+				status = emit_check_constraint(&buffer, &buffer_size, buff_ptr, constraint->definition);
+				if (0 > status) {
+					assert(FALSE);
+					free(buffer);
+					return -1;
+				}
+				fprintf(stdout, "%s", buffer_orig);
+				fprintf(stdout, ", Global ");
+				UNPACK_SQL_STATEMENT(value, constraint->v.uniq_gblname, value);
+				fprintf(stdout, "%s\n", value->v.string_literal);
+				break;
+			default:
+				break;
+			}
+			cur_keyword = cur_keyword->next;
+		} while (cur_keyword != start_keyword);
+		cur_column = cur_column->next;
+	} while (cur_column != start_column);
+	if (NULL != buffer_orig) {
+		free(buffer_orig);
+		buffer_orig = NULL;
+	}
+
+	/* Next output CHECK constraints (if any) */
+	boolean_t first_check_constraint;
+
+	assert(NULL == buffer_orig);
 	first_check_constraint = TRUE;
 	cur_column = start_column;
 	do {
@@ -108,6 +172,7 @@ int describe_tablename(SqlStatement *table_name) {
 				SqlConstraint *constraint;
 				SqlValue *     value;
 				UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
+				assert(OPTIONAL_CHECK_CONSTRAINT == constraint->type);
 				UNPACK_SQL_STATEMENT(value, constraint->name, value);
 				fprintf(stdout, "    \"%s\" CHECK (", value->v.string_literal);
 				buffer = buffer_orig;
@@ -119,9 +184,8 @@ int describe_tablename(SqlStatement *table_name) {
 					return -1;
 				}
 				fprintf(stdout, "%s)\n", buffer_orig);
-				/* Note that "constraint->columns" is a list of referenced columns (in case of a CHECK constraint)
-				 * and is information derived from "constraint->definition" and is not relevant to the user so
-				 * is not displayed here. Hence no processing for that done here.
+				/* Note that "constraint->v.check_columns" is information derived from "constraint->definition"
+				 * and is not relevant to the user so is not displayed here. Hence no processing for that done here.
 				 */
 				break;
 			default:
@@ -134,5 +198,6 @@ int describe_tablename(SqlStatement *table_name) {
 	if (NULL != buffer_orig) {
 		free(buffer_orig);
 	}
+
 	return 0;
 }

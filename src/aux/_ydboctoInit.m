@@ -35,7 +35,7 @@
 	SET %ydboctoerror("NUMERICOVERFLOW")=$incr(%ydboctoerrcode) ; signaled by `Cast2NUMERIC` in `_ydboctoplanhelpers.m`
 	SET %ydboctoerror("VARCHARTOOLONG")=$incr(%ydboctoerrcode) ; signaled by `SizeCheckVARCHAR` in `_ydboctoplanhelpers.m`
 	SET %ydboctoerror("DUPLICATEKEYVALUE")=$incr(%ydboctoerrcode) ; signaled by `DuplicateKeyValue` in `_ydboctoplanhelpers.m`
-	SET %ydboctoerror("NULLKEYVALUE")=$incr(%ydboctoerrcode) ; signaled by `NullKeyValue` in `_ydboctoplanhelpers.m`
+	SET %ydboctoerror("NULLCOLVALUE")=$incr(%ydboctoerrcode) ; signaled by `NullColValue` in `_ydboctoplanhelpers.m`
 	; signaled by `MySQL` labels in various `_ydboctof*.m` routines, e.g. `_ydboctofLPAD.m`.
 	SET %ydboctoerror("UNKNOWNFUNCTION")=$incr(%ydboctoerrcode)
 	SET %ydboctoerror("CHECKCONSTRAINTVIOLATION")=$incr(%ydboctoerrcode)

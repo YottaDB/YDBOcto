@@ -733,7 +733,7 @@ Text: xxx type operand is incorrect for NOT operation. Need a boolean operand.
 Description/Action: This error is generated when :code:`NOT` operation is applied on a non boolean operand. PSQL Error Code: 42804
 
 ++++++++++++++++++++
-ERR_NULL_KEY_VALUE
+ERR_NULL_COL_VALUE
 ++++++++++++++++++++
 
 Text: NULL value in column xxx violates NOT NULL constraint

@@ -164,11 +164,11 @@ select * from names;
 select '-- Test of ERR_DUPLICATE_KEY_VALUE on composite database';
 update composite set id0 = 1 where name = 'Name9';
 
-select '-- Test of ERR_NULL_KEY_VALUE on names database';
+select '-- Test of ERR_NULL_COL_VALUE on names database';
 update names set id = NULL;
 update names set id = NULL where id = 5;
 
-select '-- Test of ERR_NULL_KEY_VALUE on composite database';
+select '-- Test of ERR_NULL_COL_VALUE on composite database';
 update composite set id0 = NULL;
 update composite set id3 = id3, id7 = NULL, id0 = id0;
 
@@ -473,12 +473,12 @@ ID|FIRSTNAME|LASTNAME
 (1 row)
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint COMPOSITE_pkey : Node ^composite(1,2,3,4,5,6,8,7) already exists
 ???
--- Test of ERR_NULL_KEY_VALUE on names database
+-- Test of ERR_NULL_COL_VALUE on names database
 (1 row)
-[ERROR]: ERR_NULL_KEY_VALUE: NULL value in column ID violates NOT NULL constraint
-[ERROR]: ERR_NULL_KEY_VALUE: NULL value in column ID violates NOT NULL constraint
+[ERROR]: ERR_NULL_COL_VALUE: NULL value in column ID violates NOT NULL constraint
+[ERROR]: ERR_NULL_COL_VALUE: NULL value in column ID violates NOT NULL constraint
 ???
--- Test of ERR_NULL_KEY_VALUE on composite database
+-- Test of ERR_NULL_COL_VALUE on composite database
 (1 row)
-[ERROR]: ERR_NULL_KEY_VALUE: NULL value in column ID0 violates NOT NULL constraint
-[ERROR]: ERR_NULL_KEY_VALUE: NULL value in column ID7 violates NOT NULL constraint
+[ERROR]: ERR_NULL_COL_VALUE: NULL value in column ID0 violates NOT NULL constraint
+[ERROR]: ERR_NULL_COL_VALUE: NULL value in column ID7 violates NOT NULL constraint

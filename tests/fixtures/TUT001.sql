@@ -175,11 +175,11 @@ select * from names;
 select '-- Test of ERR_DUPLICATE_KEY_VALUE on composite database';
 update composite set id0 = 1 where name = 'Name9';
 
-select '-- Test of ERR_NULL_KEY_VALUE on names database';
+select '-- Test of ERR_NULL_COL_VALUE on names database';
 update names set id = NULL;
 update names set id = NULL where id = 5;
 
-select '-- Test of ERR_NULL_KEY_VALUE on composite database';
+select '-- Test of ERR_NULL_COL_VALUE on composite database';
 update composite set id0 = NULL;
 update composite set id3 = id3, id7 = NULL, id0 = id0;
 

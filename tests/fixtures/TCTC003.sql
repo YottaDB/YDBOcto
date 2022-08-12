@@ -518,7 +518,7 @@ phone VARCHAR(10) CONSTRAINT phone_check CHECK(phone SIMILAR TO '[[:digit:]]{10}
 INSERT into USERS
 VALUES
 ('sam','nnnnnn.33','foo@boo.com','8888888888'),
-('bam','nnnnnn.33','','9999999999');
+('bam','nnnnnn.33','bam@boo.com','9999999999');
 SELECT * FROM users;
 UPDATE users SET phone = '906222' WHERE username = 'sam';
 DROP TABLE users;

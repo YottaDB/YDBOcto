@@ -148,16 +148,6 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	 * 1) Maintain a linked list of UNIQUE keyword structures. Possible to have more than one UNIQUE table-level constraints.
 	 *
 	 */
-	/* TODO : YDBOcto#581 : NOT NULL
-	 *
-	 * For each column-level constraint,
-	 * 1) Go through each column and combine all NOT NULL constraints into ONE keyword structure
-	 * 2) Take just the first structure. Discard all the rest. Also discard constraint name for this.
-	 *
-	 * For each table-level constraint,
-	 * 1) Not possible as a table-level constraint.
-	 *
-	 */
 	/* TODO : YDBOcto#770 : PRIMARY KEY
 	 * If specified as a column-level constraint, there is no way multiple columns can be specified there so
 	 * it stays a column-level constraint (no table-level constraint possible).
@@ -412,20 +402,37 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	 */
 	YDB_LITERAL_TO_BUFFER(OCTOLIT_NAME, &subs[0]);
 	num_user_visible_columns = 0;
+
 	do {
+		boolean_t not_null_constraint_seen_for_this_column;
+		not_null_constraint_seen_for_this_column = FALSE;
+
 		if (NULL != cur_column->columnName) {
 			num_user_visible_columns++;
 		}
 		UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
 		cur_keyword = start_keyword;
 		do {
+			SqlOptionalKeyword *next_keyword;
+
+			next_keyword = cur_keyword->next;
 			switch (cur_keyword->keyword) {
 			case NOT_NULL:
-				/* For NOT NULL, Postgres ignores the constraint name. So Octo will do the same.
-				 * Discard the SqlStatement and SqlConstraint structures that were malloced.
-				 */
-				assert(NULL != cur_keyword->v);
-				cur_keyword->v = NULL;
+				if (not_null_constraint_seen_for_this_column) {
+					/* More than one NOT NULL constraints exist for this column.
+					 * Ignore all but the first one in the keyword linked list for this column.
+					 */
+					assert(start_keyword != cur_keyword);
+					assert(next_keyword != cur_keyword);
+					dqdel(cur_keyword);
+				} else {
+					not_null_constraint_seen_for_this_column = TRUE;
+					/* For NOT NULL, Postgres ignores the constraint name. So Octo will do the same.
+					 * Discard the SqlStatement and SqlConstraint structures that were malloced.
+					 */
+					assert(NULL != cur_keyword->v);
+					cur_keyword->v = NULL;
+				}
 				break;
 			case PRIMARY_KEY:
 				if (primary_key_constraint_seen) {
@@ -559,7 +566,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			default:
 				break;
 			}
-			cur_keyword = cur_keyword->next;
+			cur_keyword = next_keyword;
 		} while (cur_keyword != start_keyword);
 		cur_column = cur_column->next;
 	} while (cur_column != start_column);

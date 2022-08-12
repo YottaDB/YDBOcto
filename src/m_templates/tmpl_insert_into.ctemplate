@@ -177,8 +177,11 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 					 */
 					%{}$ZYSQLNULL{}%
 				}
-				if (IS_KEY_COLUMN(cur_column)) {
-					/* Check if key column value is NULL. If so issue an error */
+				if (IS_COLUMN_NOT_NULL(cur_column)) {
+					/* Check if a NOT NULL column is set to NULL. If so issue an error.
+					 * Note that key columns (PRIMARY KEY or KEY NUM keyword) automatically have the
+					 * NOT NULL constraint added so they also get handled in this same "if" block.
+					 */
 					%{}`n{{ PLAN_LINE_START }}{}%
 					TMPL(tmpl_print_dots, dot_count);
 					%{}DO:$ZYISSQLNULL({{ PP_COL }}({{ cur_column->column_number|%d }})){}%
@@ -188,7 +191,7 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 
 					char		*columnName;
 					columnName = colname_value->v.reference;
-					%{} NullKeyValue^%%ydboctoplanhelpers("{{ columnName }}"){}%
+					%{} NullColValue^%%ydboctoplanhelpers("{{ columnName }}"){}%
 				}
 			}
 			%{}`n{{ PLAN_LINE_START }}{}%

@@ -129,6 +129,13 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 		SET_TBL_CONSTRAINT_LVN(&ydboctoTblConstraint, cur_column->column_number); /* Note down that this PP_COL(i)
 											   * has been initialized.
 											   */
+		/* Check if column value is NULL and has a NOT NULL constraint. If so issue an error */
+		if (IS_COLUMN_NOT_NULL(cur_column)) {
+			%{}`n{{ PLAN_LINE_START }}{}%
+			TMPL(tmpl_print_dots, dot_count);
+			%{}DO:$ZYISSQLNULL({{ PP_COL }}({{ cur_column->column_number|%d }})){}%
+			%{} NullColValue^%%ydboctoplanhelpers("{{ columnName }}"){}%
+		}
 		/* ------------------------------------------------------------------------------------
 		 * Do additional processing of the post-update value (check various constraints etc.)
 		 */
@@ -188,9 +195,6 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 		} else {
 			/* This is a key column. Column value is already available in the desired lvn. Do some checks. */
 			num_key_cols_in_set_clause++;
-			/* Check if key column value is NULL. If so issue an error */
-			%{}DO:$ZYISSQLNULL({{ PP_COL }}({{ cur_column->column_number|%d }})){}%
-			%{} NullKeyValue^%%ydboctoplanhelpers("{{ columnName }}"){}%
 			/* Check if key column value changed. Since it is a key column  */
 			%{}`n{{ PLAN_LINE_START }}{}%
 			TMPL(tmpl_print_dots, dot_count);

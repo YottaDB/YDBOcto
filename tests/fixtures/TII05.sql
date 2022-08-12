@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -135,15 +135,15 @@ INSERT INTO names VALUES (6, 'First6', 'Last6'), (3, 'First3', 'Last3'), (5, 'Fi
 SELECT '-- Test of ERR_DUPLICATE_KEY_VALUE on composite database';
 INSERT INTO composite VALUES (1,2,3,4,5,6,8,7,NULL);
 
-SELECT '-- Test of ERR_NULL_KEY_VALUE on names database where ID column is explicitly specified as NULL';
+SELECT '-- Test of ERR_NULL_COL_VALUE on names database where ID column is explicitly specified as NULL';
 INSERT INTO names VALUES (NULL, 'FirstNULL', 'LastNULL');
 
-SELECT '-- Test of ERR_NULL_KEY_VALUE on names database where ID column is implicitly specified as NULL';
+SELECT '-- Test of ERR_NULL_COL_VALUE on names database where ID column is implicitly specified as NULL';
 INSERT INTO names(firstname) VALUES ('FirstName');
 
-SELECT '-- Test of ERR_NULL_KEY_VALUE on composite database where ID5 column is explicitly specified as NULL';
+SELECT '-- Test of ERR_NULL_COL_VALUE on composite database where ID5 column is explicitly specified as NULL';
 INSERT INTO composite VALUES (1,2,3,4,5,NULL,8,7,NULL);
 
-SELECT '-- Test of ERR_NULL_KEY_VALUE on composite database where ID3 column is implicitly specified as NULL';
+SELECT '-- Test of ERR_NULL_COL_VALUE on composite database where ID3 column is implicitly specified as NULL';
 INSERT INTO composite(id0,id1,id2,id4,id5,id6,id7) VALUES (1,2,3,5,6,8,7);
 

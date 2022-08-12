@@ -932,11 +932,11 @@ DuplicateKeyValue(name,detail)
 	ZMESSAGE %ydboctoerror("DUPLICATEKEYVALUE")
 	QUIT
 
-NullKeyValue(colname)
+NullColValue(colname)
 	; This function is invoked to signal a NOT NULL constraint violation error.
 	; "colname" has the column name.
-	SET %ydboctoerror("NULLKEYVALUE",1)=colname	; pass parameter to `src/ydb_error_check.c`
-	ZMESSAGE %ydboctoerror("NULLKEYVALUE")
+	SET %ydboctoerror("NULLCOLVALUE",1)=colname	; pass parameter to `src/ydb_error_check.c`
+	ZMESSAGE %ydboctoerror("NULLCOLVALUE")
 	QUIT
 
 CheckConstraintViolation(tablename,constraintname,numcols)

@@ -21,6 +21,9 @@ leak:iorm_use
 # Leak from YottaDB by mupip_main->mu_extract->mu_extr_gblout
 leak:mu_extr_gblout
 
+# Leak from YottaDB by mupip_main->mupip_recover->mur_open_files->mur_fopen
+leak:mur_fopen
+
 # Leak from YottaDB by op_fngvget->gvcst_get->op_tcommit
 leak:op_tcommit
 

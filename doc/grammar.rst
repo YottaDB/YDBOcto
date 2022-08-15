@@ -1568,24 +1568,31 @@ A column alias can be used in two different ways:
      .. code-block:: SQL
 
         OCTO> select firstname as "quoted" from names limit 1;
+	QUOTED
         Zero
 
         OCTO> select firstname as 'quoted' from names limit 1;
+	QUOTED
         Zero
 
         OCTO> select firstname as ida from names limit 1;
+	IDA
         Zero
 
         OCTO> select ida from (select 8 as "ida") n1;
+	IDA
         8
 
         OCTO> select ida from (select 8 as 'ida') n1;
+	IDA
         8
 
         OCTO> select ida from (select 8 as ida) n1;
+	IDA
         8
 
         OCTO> select ida from (select 8 as ida) as n1;
+	IDA
         8
 
      Column aliases are supported in short form i.e without AS keyword
@@ -1593,6 +1600,7 @@ A column alias can be used in two different ways:
      .. code-block:: SQL
 
         OCTO> select ida from (select 8 ida) n1;
+	IDA
         8
 
   #. **As part of FROM**
@@ -1608,6 +1616,7 @@ A column alias can be used in two different ways:
      .. code-block:: SQL
 
 	OCTO> SELECT * FROM names AS tblalias(colalias1, colalias2, colalias3) WHERE tblalias.colalias1 = 1;
+	COLALIAS1|COLALIAS2|COLALIAS3
         1|Acid|Burn
 
 .. _sql-table-alias:
@@ -1627,21 +1636,26 @@ Examples:
 .. code-block:: SQL
 
    OCTO> select n1.firstname from names as "n1" limit 1;
+   FIRSTNAME
    Zero
 
    OCTO> select n1.firstname from names as 'n1' limit 1;
+   FIRSTNAME
    Zero
 
    OCTO> select n1.firstname from names as n1 limit 1;
+   FIRSTNAME
    Zero
 
-   OCTO> select 1 from names as n1 inner join (select n2.id from names as n2 LIMIT 3) as alias2 ON (n1.id = alias2.id );
+   OCTO> select 1 as output from names as n1 inner join (select n2.id from names as n2 LIMIT 3) as alias2 ON (n1.id = alias2.id );
+   OUTPUT
    1
    1
    1
 
    /* The select subquery uses aliases for the table as well as columns. This query selects one row from the names table aliased as tblalias, where the value of the colalias1 is one(1). */
    OCTO> SELECT * FROM (SELECT * FROM names) as tblalias(colalias1, colalias2, colalias3) WHERE tblalias.colalias1 = 1;
+   COLALIAS1|COLALIAS2|COLALIAS3
    1|Acid|Burn
 
 Table aliases are supported in short form i.e without AS
@@ -1649,6 +1663,7 @@ Table aliases are supported in short form i.e without AS
 .. code-block:: SQL
 
    OCTO> select n1.firstname from names "n1" limit 1;
+   FIRSTNAME
    Zero
 
 .. note::

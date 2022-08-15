@@ -1,0 +1,13 @@
+
+-- TCTC008C : Test NOT NULL constraint is checked ahead of CHECK constraint
+DROP TABLE IF EXISTS domains;
+CREATE TABLE domains (
+  domain_id integer PRIMARY KEY,
+  domain varchar(255) UNIQUE NOT NULL,
+  uid int NOT NULL CHECK(uid BETWEEN 1 AND 65535),
+  gid int NOT NULL CHECK(gid BETWEEN 1 AND 65535)
+);
+INSERT INTO domains VALUES (1,NULL,99999,99999);
+DROP TABLE
+CREATE TABLE
+[ERROR]: ERR_NULL_COL_VALUE: NULL value in column DOMAIN violates NOT NULL constraint

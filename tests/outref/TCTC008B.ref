@@ -1,0 +1,55 @@
+
+-- TCTC008B : Test NOT NULL constraint is allowed and enforced on a READWRITE type table + various NULL behavior tests
+
+-- Test that NOT NULL constraint is allowed on a READWRITE type table
+-- Test that NOT NULL constraint can specify a name
+DROP TABLE IF EXISTS articles;
+CREATE TABLE articles(
+article_id INTEGER CONSTRAINT article_id_pk PRIMARY KEY,
+category_id INTEGER CONSTRAINT article_category_nn NOT NULL
+); -- implicitly READWRITE
+
+-- Test that \d tablename does NOT display constraint names for NOT NULL but
+-- instead just displays whether the column has "not null" specified or not.
+-- Just like Postgres \d tablename does.
+\d articles;
+
+-- Populate some data for UPDATE
+INSERT INTO articles
+VALUES
+(3,5),
+(8,10);
+SELECT * FROM articles;
+
+-- Test that NOT NULL constraint is enforced on a READWRITE type table
+-- Test INSERT INTO where column is explicitly specified and takes on a NULL value
+INSERT INTO articles(article_id, category_id)
+VALUES
+(6,NULL);
+
+-- Test INSERT INTO where column is not explicitly specified but takes on a NULL value
+INSERT INTO articles(article_id)
+VALUES
+(6);
+
+-- Test UPDATE where column is explicitly specified and takes on a NULL value
+UPDATE articles SET category_id = NULL WHERE article_id = 3;
+SELECT * FROM articles;
+DROP TABLE
+CREATE TABLE
+Table "ARTICLES"
+Column|Type|Collation|Nullable|Default
+ARTICLE_ID|INTEGER||NOT NULL|
+CATEGORY_ID|INTEGER||NOT NULL|
+INSERT 0 2
+ARTICLE_ID|CATEGORY_ID
+3|5
+8|10
+(2 rows)
+[ERROR]: ERR_NULL_COL_VALUE: NULL value in column CATEGORY_ID violates NOT NULL constraint
+[ERROR]: ERR_NULL_COL_VALUE: NULL value in column CATEGORY_ID violates NOT NULL constraint
+[ERROR]: ERR_NULL_COL_VALUE: NULL value in column CATEGORY_ID violates NOT NULL constraint
+ARTICLE_ID|CATEGORY_ID
+3|5
+8|10
+(2 rows)

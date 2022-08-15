@@ -90,3 +90,22 @@ setup() {
 	verify_output TCTC007 output.txt
 }
 
+@test "TCTC008A : OCTO581 : Test NOT NULL constraint is allowed on a READONLY table" {
+	load_fixture vista-file-129_2.sql subtest novv
+	verify_output TCTC008A output.txt
+}
+
+@test "TCTC008B : OCTO581 : Test NOT NULL constraint is allowed and enforced on a READWRITE type table + various NULL behavior tests" {
+	load_fixture TCTC008B.sql subtest novv
+	verify_output TCTC008B output.txt
+}
+
+@test "TCTC008C : OCTO581 : Test NOT NULL constraint is checked ahead of CHECK constraint" {
+	load_fixture TCTC008C.sql subtest novv
+	verify_output TCTC008C output.txt
+}
+
+@test "TCTC008D : OCTO581 : Test that multiple NOT NULL constraints can be specified" {
+	load_fixture TCTC008D.sql subtest novv
+	verify_output TCTC008D output.txt
+}

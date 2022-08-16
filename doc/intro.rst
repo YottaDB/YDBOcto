@@ -486,6 +486,10 @@ Launching Options
 
   Octo has a few options that can be specified when it is launched.
 
+.. note::
+   
+   Refer to :ref:`this <rocto-cmd-flags>` for launching options of ROcto.
+
 .. _verbose-option:
 
 ~~~~~~~~~
@@ -616,6 +620,12 @@ Launching Options
        octo --input-file=files/commands.txt
 
 
+~~~~~~~~~~~~~
+Exit status
+~~~~~~~~~~~~~
+
+    :code:`octo -f` exits with a non-zero status if at least one query it ran encountered an error. :code:`octo` invocation without :code:`-f` or :code:`rocto` are not affected.
+	  
 +++++++++++++++++++++++++
 Useful Commands at OCTO>
 +++++++++++++++++++++++++

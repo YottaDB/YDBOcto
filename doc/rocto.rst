@@ -31,6 +31,8 @@ You can start Rocto by simply typing :code:`rocto`.
 
 To terminate the Rocto instance, you may use :code:`CTRL+C`. Note that the rocto instance may not exit immediately upon sending :code:`CTRL+C` if there are still active client connections. In that case, rocto will gracefully exit once all client connections are closed.
 
+.. _rocto-cmd-flags:
+
 ++++++++++++++++++
 Command Line Flags
 ++++++++++++++++++

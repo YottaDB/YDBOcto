@@ -685,3 +685,19 @@ Useful Commands at OCTO>
        FIRSTNAME|VARCHAR(30)|||
        LASTNAME|VARCHAR(30)|||
        OCTO>
+
+:code:`\\d tablename` displays CHECK constraints, if defined.
+
+Example:
+
+.. code-block:: bash
+
+   OCTO> \d EMPLOYEE
+   Table "EMPLOYEE"
+   Column|Type|Collation|Nullable|Default
+   ID|INTEGER||NOT NULL|
+   FIRSTNAME|VARCHAR(30)|||
+   LASTNAME|VARCHAR(30)|||
+   AGE|INTEGER|||
+   Check constraints:
+       "EMPLOYEE_AGE_CHECK" CHECK ((AGE >= 18))

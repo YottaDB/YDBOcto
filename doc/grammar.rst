@@ -93,6 +93,60 @@ Octo uses :code:`0` and :code:`1` internally to represent boolean :code:`false` 
 
    Octo doesn't support :code:`t/f` like PostgreSQL does.
 
+--------------
+Constraints
+--------------
+
+++++++++++++++++++
+CHECK constraint
+++++++++++++++++++
+
+A check constraint enforces that each value in the column must satisfy the given Boolean expression. It consists of the keyword CHECK followed by the expression in parentheses.
+
+Example:
+
+.. code-block:: SQL
+
+   CREATE TABLE Products
+   (ID int PRIMARY KEY,
+   Name char(20) NOT NULL,
+   Price int CHECK (Price > 0));
+
+The above example CREATEs a table named :code:`Products` where the CHECK constraint is applied to the :code:`Price` column, enforcing the check that every products price must be greater than 0.
+
+The constraint can also be given a separate name, for example:
+
+.. code-block:: SQL
+
+   CREATE TABLE Products
+   (ID int PRIMARY KEY,
+   Name char(20) NOT NULL,
+   Price int CONSTRAINT price_check CHECK (Price > 0));
+
+A check constraint can also combine or refer to several columns. For example:
+
+.. code-block:: SQL
+
+   CREATE TABLE Products
+   (ID int PRIMARY KEY,
+   Name char(20) NOT NULL,
+   Price int CHECK (Price > 0),
+   Discounted_price int CHECK (Discounted_price>0),
+   CHECK (Price > Discounted_price));
+
+The above example CREATEs a table named :code:`Products` where a CHECK constraint is applied to the :code:`Price` column and the :code:`Discounted_price` column separately, and on both the columns together as well. The constraints in the example above that are part of the column definition are referred to as column constraints; constraints that are written separately from any column definition, (e.g., :code:`CHECK (Price > Discounted_price)`) are referred to as table constraints.
+
+.. note::
+
+   A column constraint can be written as a table constraint while the reverse is not possible.
+
+NOT NULL is also considered a constraint. A CHECK syntax and a constraint name can be applied to NOT NULL, but both those uses are discouraged.
+
++++++++++++++++++++++++++
+Maintaining Consistency
++++++++++++++++++++++++++
+
+Data in YottaDB, the datastore for Octo, can be updated both by SQL INSERT, UPDATE, and DELETE statements as well as directly in YottaDB outside Octo. If your application does both, then it must ensure that the latter direct updates respect the constraints of Octo CREATE TABLE statements.
 
 ---------------
 CREATE TABLE
@@ -108,7 +162,7 @@ The CREATE TABLE statement is used to create tables in the database. The keyword
 
 If IF NOT EXISTS is supplied for a CREATE TABLE statement and a table exists, the result is a no-op with no errors. In this case, error type INFO_TABLE_ALREADY_EXISTS is emitted at INFO log severity level.
 
-The names of columns to be created in the database and their datatypes are then specified in a list, along with any constraints that might need to apply (such as denoting a PRIMARY KEY, UNIQUE KEY, FOREIGN KEY or NOT NULL). If none of the columns are specified as keys (PRIMARY KEY or KEY NUM not specified in any column) then the primary key for the table is assumed to be the set of all columns in the order given.
+The names of columns to be created in the database and their datatypes are then specified in a list, along with any constraints that might need to apply (such as denoting a PRIMARY KEY, UNIQUE KEY, FOREIGN KEY, NOT NULL or CHECK). If none of the columns are specified as keys (PRIMARY KEY or KEY NUM not specified in any column) then the primary key for the table is assumed to be the set of all columns in the order given.
 
 Example:
 
@@ -798,11 +852,6 @@ Example:
 
    SELECT (1 * 2) + 3;
 
-.. note::
-
-   WHERE is currently not supported for SELECT statements without a FROM clause.
-   This is known issue tracked at `YDBOcto#500 <https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/500>`_.
-
 --------------
 INSERT
 --------------
@@ -811,14 +860,14 @@ INSERT
 
    INSERT INTO table_name ( column name [, column name ...]) [ VALUES ... | (SELECT ...)];
 
-The INSERT statement allows you to insert values into a table. These can either be provided values or values specified as a result of a SELECT statement.
+The INSERT statement allows you to insert values into a table. These can either be provided values or values specified as a result of a SELECT statement. INSERT enforces CHECK constraints.
 
 Example:
 
 .. code-block:: SQL
 
    INSERT INTO Employee (ID , FirstName, LastName) VALUES (220, 'Jon', 'Doe'), (383, 'Another', 'Name');
-
+   
 --------------
 UPDATE
 --------------
@@ -827,14 +876,14 @@ UPDATE
 
    UPDATE table_name [[AS] alias_name] SET column1 = expression [, column2 = expression ...] [WHERE search_condition];
 
-:code:`table_name` specifies the name of the table to be updated followed by a list of comma-separated statements that are used to update existing columns in the table with specified values. Only those columns in :code:`table_name` that require change need to be mentioned in the :code:`SET` clause. The remaining columns retain their previous values. The optional WHERE condition allows you to update columns only on those rows of the table that satisfy the specified :code:`search_condition`.
+The UPDATE statement allows you to change existing records in the table. :code:`table_name` specifies the name of the table to be updated followed by a list of comma-separated statements that are used to update existing columns in the table with specified values. Only those columns in :code:`table_name` that require change need to be mentioned in the :code:`SET` clause. The remaining columns retain their previous values. The optional WHERE condition allows you to update columns only on those rows of the table that satisfy the specified :code:`search_condition`. UPDATE enforces CHECK constraints.
 
 Example:
 
 .. code-block:: SQL
 
    UPDATE Employee SET FirstName = 'John' WHERE ID = 220;
-
+   
 ------------
 DELETE
 ------------
@@ -1506,9 +1555,9 @@ The precision must be no less than -43.
 Constructors
 --------------
 
------
+++++++
 ARRAY
------
+++++++
 
 .. code-block:: SQL
 

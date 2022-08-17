@@ -488,7 +488,7 @@ Launching Options
 
 .. note::
    
-   Refer to :ref:`this <rocto-cmd-flags>` for launching options of ROcto.
+   Refer to :ref:`this <rocto-cmd-flags>` for information on launching options of ROcto.
 
 .. _verbose-option:
 
@@ -624,7 +624,7 @@ Launching Options
 Exit status
 ~~~~~~~~~~~~~
 
-    :code:`octo -f` exits with a non-zero status if at least one query it ran encountered an error. :code:`octo` invocation without :code:`-f` or :code:`rocto` are not affected.
+    :code:`octo -f/--input-file` exits with a non-zero status if at least one query it ran encountered an error. :code:`octo` invocation without :code:`-f`/:code:`--input-file` or :code:`rocto` are not affected.
 	  
 +++++++++++++++++++++++++
 Useful Commands at OCTO>

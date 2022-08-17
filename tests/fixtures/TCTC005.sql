@@ -119,7 +119,7 @@ create table tmp38 (id integer, name varchar check (2 > 0) check (name is not nu
 
 -- Test CREATE TABLE commands with a mix of table-level and column-level CHECK constraints.
 -- This used to SIG-11/Assert-fail in a prior version of the code.
-create table products (check (1 > 0), firstname varchar check (firstname > 'abcd'));
-create table products (check (1 > 0), check (2 > 1), firstname varchar check (firstname > 'abcd'));
-create table products (id integer, check (1 > 0), firstname varchar check (firstname > 'abcd'));
+create table tmp39 (check (1 > 0), firstname varchar check (firstname > 'abcd'));
+create table tmp40 (check (1 > 0), check (2 > 1), firstname varchar check (firstname > 'abcd'));
+create table tmp41 (id integer, check (1 > 0), firstname varchar check (firstname > 'abcd'));
 

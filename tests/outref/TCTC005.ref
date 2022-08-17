@@ -109,9 +109,9 @@ create table tmp38 (id integer, name varchar check (2 > 0) check (name is not nu
 
 -- Test CREATE TABLE commands with a mix of table-level and column-level CHECK constraints.
 -- This used to SIG-11/Assert-fail in a prior version of the code.
-create table products (check (1 > 0), firstname varchar check (firstname > 'abcd'));
-create table products (check (1 > 0), check (2 > 1), firstname varchar check (firstname > 'abcd'));
-create table products (id integer, check (1 > 0), firstname varchar check (firstname > 'abcd'));
+create table tmp39 (check (1 > 0), firstname varchar check (firstname > 'abcd'));
+create table tmp40 (check (1 > 0), check (2 > 1), firstname varchar check (firstname > 'abcd'));
+create table tmp41 (id integer, check (1 > 0), firstname varchar check (firstname > 'abcd'));
 
 CREATE TABLE
 CREATE TABLE
@@ -152,8 +152,8 @@ CREATE TABLE
 CREATE TABLE
 CREATE TABLE
 CREATE TABLE
-[ERROR]: ERR_CANNOT_CREATE_TABLE: Table 'PRODUCTS' already exists
-[ERROR]: ERR_CANNOT_CREATE_TABLE: Table 'PRODUCTS' already exists
+CREATE TABLE
+CREATE TABLE
 # Generate and Run query file select.sql that does a SELECT * of all tables created in TCTC005.sql
 ID
 (0 rows)
@@ -235,7 +235,7 @@ FIRSTNAME
 (0 rows)
 FIRSTNAME
 (0 rows)
-FIRSTNAME
+ID|FIRSTNAME
 (0 rows)
 # Verify CHECK constraints are correctly stored in the CREATE TABLE text definition (in global variable nodes)
 `TMP01` (`ID` INTEGER DELIM """",  CONSTRAINT TMP01_CHECK CHECK (((TRUE IS UNKNOWN) AND (FALSE IS NULL))))
@@ -276,6 +276,9 @@ FIRSTNAME
 `TMP36` (`ID` INTEGER CONSTRAINT TMP36_ID_CHECK CHECK ((ID > 0)) PIECE 1, `NAME` VARCHAR PIECE 2)
 `TMP37` (`ID` INTEGER CONSTRAINT TMP37_ID_CHECK CHECK ((ID > 0)) PIECE 1, `NAME` VARCHAR CONSTRAINT TMP37_NAME_CHECK CHECK ((NAME IS NOT NULL)) PIECE 2,  CONSTRAINT TMP37_CHECK CHECK (((NAME || ID) = 'Zero2')))
 `TMP38` (`ID` INTEGER PIECE 1, `NAME` VARCHAR CONSTRAINT TMP38_NAME_CHECK CHECK ((NAME IS NOT NULL)) PIECE 2,  CONSTRAINT TMP38_CHECK CHECK ((2 > 0)))
+`TMP39` ( CONSTRAINT TMP39_CHECK CHECK ((1 > 0)), `FIRSTNAME` VARCHAR CONSTRAINT TMP39_FIRSTNAME_CHECK CHECK ((FIRSTNAME > 'abcd')) DELIM """")
+`TMP40` ( CONSTRAINT TMP40_CHECK CHECK ((1 > 0)),  CONSTRAINT TMP40_CHECK1 CHECK ((2 > 1)), `FIRSTNAME` VARCHAR CONSTRAINT TMP40_FIRSTNAME_CHECK CHECK ((FIRSTNAME > 'abcd')) DELIM """")
+`TMP41` (`ID` INTEGER PIECE 1,  CONSTRAINT TMP41_CHECK CHECK ((1 > 0)), `FIRSTNAME` VARCHAR CONSTRAINT TMP41_FIRSTNAME_CHECK CHECK ((FIRSTNAME > 'abcd')) PIECE 2)
 # Generate and Run query file slashd.sql that does a \d of all tables created in TCTC005.sql
 # Also verify that constraint names are created correctly
 # 1) Constraints that use only one column in the table end up as column-level constraints
@@ -496,21 +499,23 @@ NAME|VARCHAR|||
 Check constraints:
     "TMP38_NAME_CHECK" CHECK ((NAME IS NOT NULL))
     "TMP38_CHECK" CHECK ((2 > 0))
-Table "PRODUCTS"
+Table "TMP39"
 Column|Type|Collation|Nullable|Default
 FIRSTNAME|VARCHAR|||
 Check constraints:
-    "PRODUCTS_CHECK" CHECK ((1 > 0))
-    "PRODUCTS_FIRSTNAME_CHECK" CHECK ((FIRSTNAME > 'abcd'))
-Table "PRODUCTS"
+    "TMP39_CHECK" CHECK ((1 > 0))
+    "TMP39_FIRSTNAME_CHECK" CHECK ((FIRSTNAME > 'abcd'))
+Table "TMP40"
 Column|Type|Collation|Nullable|Default
 FIRSTNAME|VARCHAR|||
 Check constraints:
-    "PRODUCTS_CHECK" CHECK ((1 > 0))
-    "PRODUCTS_FIRSTNAME_CHECK" CHECK ((FIRSTNAME > 'abcd'))
-Table "PRODUCTS"
+    "TMP40_CHECK" CHECK ((1 > 0))
+    "TMP40_CHECK1" CHECK ((2 > 1))
+    "TMP40_FIRSTNAME_CHECK" CHECK ((FIRSTNAME > 'abcd'))
+Table "TMP41"
 Column|Type|Collation|Nullable|Default
+ID|INTEGER|||
 FIRSTNAME|VARCHAR|||
 Check constraints:
-    "PRODUCTS_CHECK" CHECK ((1 > 0))
-    "PRODUCTS_FIRSTNAME_CHECK" CHECK ((FIRSTNAME > 'abcd'))
+    "TMP41_CHECK" CHECK ((1 > 0))
+    "TMP41_FIRSTNAME_CHECK" CHECK ((FIRSTNAME > 'abcd'))

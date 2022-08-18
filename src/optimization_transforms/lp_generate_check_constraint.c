@@ -41,7 +41,7 @@ boolean_t lp_generate_check_constraint(LogicalPlan **lp_constraint_ptr, SqlState
 				MALLOC_LP(lp_where, lp_constraint->v.lp_default.operand[0], LP_WHERE);
 				UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
 				lp_constraint->extra_detail.lp_check_constraint.constraint = constraint;
-				LP_GENERATE_WHERE(constraint->definition, stmt, stmt, ret, error_encountered);
+				LP_GENERATE_WHERE(constraint->definition, stmt, ret, error_encountered);
 				lp_where->v.lp_default.operand[0] = ret;
 				*lp_constraint_ptr = lp_constraint;
 				if (NULL != ret) {

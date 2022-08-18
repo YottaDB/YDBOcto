@@ -46,15 +46,15 @@
  * and go deep). This is so outermost caller knows to issue an error at logical plan stage and not proceed with physical plan
  * even if one error is seen anywhere in a recursive function call.
  */
-#define LP_GENERATE_WHERE(STMT, PARENT_STMT, ROOT_STMT, RET, ERROR_ENCOUNTERED) \
-	{                                                                       \
-		if (NULL != STMT) {                                             \
-			RET = lp_generate_where(STMT, PARENT_STMT, ROOT_STMT);  \
-			if (NULL == RET)                                        \
-				ERROR_ENCOUNTERED = TRUE;                       \
-		} else {                                                        \
-			RET = NULL;                                             \
-		}                                                               \
+#define LP_GENERATE_WHERE(STMT, ROOT_STMT, RET, ERROR_ENCOUNTERED) \
+	{                                                          \
+		if (NULL != STMT) {                                \
+			RET = lp_generate_where(STMT, ROOT_STMT);  \
+			if (NULL == RET)                           \
+				ERROR_ENCOUNTERED = TRUE;          \
+		} else {                                           \
+			RET = NULL;                                \
+		}                                                  \
 	}
 
 // Forward declarations
@@ -374,7 +374,6 @@ LogicalPlan *lp_get_output_key(LogicalPlan *plan);
 int lp_get_num_cols_in_select_column_list(LogicalPlan *plan);
 // Returns the 'n'th LP_COLUMN_LIST in the SELECT column list for a given plan
 LogicalPlan *lp_get_col_num_n_in_select_column_list(LogicalPlan *column_list, int n);
-int	     lp_get_num_cols_in_select_column_list(LogicalPlan *plan);
 // Returns the M function name in _ydboctoplanhelpers.m corresponding to the aggregate function type (input parameter `type`)
 char *lp_get_aggregate_plan_helper_func_name(LPActionType type);
 
@@ -392,7 +391,7 @@ boolean_t lp_is_operand_type_string(LogicalPlan *plan, boolean_t *is_null);
 // Returns LP_WHERE with an AND of the two wheres
 LogicalPlan *lp_join_where(LogicalPlan *where1, LogicalPlan *where2);
 // Returns a new logical plan representing the boolean structure from stmt
-LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt, SqlStatement *root_stmt);
+LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *root_stmt);
 // Given a column and a table, generates a cross reference plan and returns it
 LogicalPlan *lp_generate_xref_plan(SqlTable *table, SqlColumn *column, int unique_id);
 /**
@@ -451,14 +450,12 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 /**
  * Walk through the column list, converting each right side value as appropriate.
  * "ret" is an output parameter. This function sets `*ret` to the first (in linked list) LP_COLUMN_LIST on return.
- * "parent_stmt" points to parent SqlStatement structure and is used only in rare cases (EXISTS operator etc.).
  * "root_stmt" points to the outermost parent (root) SqlStatement structure
  * "start_columns" points to the start of the column list.
  * Returns whether an error was encountered. 0 if no error was encountered. 1 if an error was encountered.
  * This function can only be used for column lists with at least one column.
  */
-boolean_t lp_generate_column_list(LogicalPlan **ret, SqlStatement *parent_stmt, SqlStatement *root_stmt,
-				  SqlColumnList *start_columns);
+boolean_t lp_generate_column_list(LogicalPlan **ret, SqlStatement *root_stmt, SqlColumnList *start_columns);
 
 /* Generates a LP_CHECK_CONSTRAINT logical plan list */
 boolean_t lp_generate_check_constraint(LogicalPlan **lp_constraint_ptr, SqlStatement *stmt, SqlTableAlias *table_alias);

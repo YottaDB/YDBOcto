@@ -25,15 +25,18 @@
  */
 #define MAX_FUNC_TYPES_LEN (YDB_MAX_PARMS * (MAX_TYPE_NAME_LEN + (int)sizeof(FUNC_PARM_SEPARATOR)))
 
-/* This function does type checking of the input function call "fc" and issues errors as appropriate.
+/* This function does type checking of the input function call statement "fc_stmt" and issues errors as appropriate.
  * At function return, the output parameter "type" holds the type of the result of the function call.
  * The input parameter "parse_context" is NULL in case of a call from "qualify_check_constraint.c" and
  * is non-NULL in case of a call from "populate_data_type.c". The input parameter "table" is non-NULL
  * in case of a call from "qualify_check_constraint.c" and NULL if called from "populate_data_type.c".
  */
-int function_call_data_type_check(SqlFunctionCall *fc, SqlValueType *type, ParseContext *parse_context, SqlTable *table) {
-	int result;
+int function_call_data_type_check(SqlStatement *fc_stmt, SqlValueType *type, ParseContext *parse_context, SqlTable *table) {
 
+	SqlFunctionCall *fc;
+	UNPACK_SQL_STATEMENT(fc, fc_stmt, function_call);
+
+	int result;
 	assert(NULL != type);
 	assert(((NULL != table) && (NULL == parse_context)) || ((NULL == table) && (NULL != parse_context)));
 	result = 0;
@@ -75,7 +78,7 @@ int function_call_data_type_check(SqlFunctionCall *fc, SqlValueType *type, Parse
 			// Get type for current function argument
 			if (NULL == table) {
 				/* Called from "populate_data_type.c" */
-				result |= populate_data_type(cur_column_list->value, type, parse_context);
+				result |= populate_data_type(cur_column_list->value, type, fc_stmt, parse_context);
 			} else {
 				result |= qualify_check_constraint(cur_column_list->value, table, type);
 			}

@@ -65,7 +65,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 
 			UNPACK_SQL_STATEMENT(start_cl, insert->columns, column_list);
 			error_encountered
-			    |= lp_generate_column_list(&lp_insert_into_options->v.lp_default.operand[0], NULL, NULL, start_cl);
+			    |= lp_generate_column_list(&lp_insert_into_options->v.lp_default.operand[0], NULL, start_cl);
 		} else {
 			lp_insert_into_options->v.lp_default.operand[0] = NULL;
 		}
@@ -100,7 +100,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		UNPACK_SQL_STATEMENT(table_alias, join->value, table_alias);
 		lp_table->v.lp_table.table_alias = table_alias;
 		MALLOC_LP(lp_where, select_options->v.lp_default.operand[0], LP_WHERE);
-		LP_GENERATE_WHERE(delete->where_clause, stmt, NULL, lp_where->v.lp_default.operand[0], error_encountered);
+		LP_GENERATE_WHERE(delete->where_clause, NULL, lp_where->v.lp_default.operand[0], error_encountered);
 		MALLOC_LP(select_more_options, select_options->v.lp_default.operand[1], LP_SELECT_MORE_OPTIONS);
 		MALLOC_LP(keywords, select_more_options->v.lp_default.operand[1], LP_KEYWORDS);
 		UNPACK_SQL_STATEMENT(keywords->v.lp_keywords.keywords, alloc_no_keyword(), keyword);
@@ -131,7 +131,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		UNPACK_SQL_STATEMENT(table_alias, join->value, table_alias);
 		lp_table->v.lp_table.table_alias = table_alias;
 		MALLOC_LP(lp_where, select_options->v.lp_default.operand[0], LP_WHERE);
-		LP_GENERATE_WHERE(update->where_clause, stmt, NULL, lp_where->v.lp_default.operand[0], error_encountered);
+		LP_GENERATE_WHERE(update->where_clause, NULL, lp_where->v.lp_default.operand[0], error_encountered);
 		MALLOC_LP(select_more_options, select_options->v.lp_default.operand[1], LP_SELECT_MORE_OPTIONS);
 		MALLOC_LP(keywords, select_more_options->v.lp_default.operand[1], LP_KEYWORDS);
 		UNPACK_SQL_STATEMENT(keywords->v.lp_keywords.keywords, alloc_no_keyword(), keyword);
@@ -147,8 +147,8 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		ucv_head = update->col_value_list;
 		ucv = ucv_head;
 		do {
-			LP_GENERATE_WHERE(ucv->col_name, NULL, NULL, lp_upd_col_value->v.lp_default.operand[0], error_encountered);
-			LP_GENERATE_WHERE(ucv->col_value, stmt, NULL, lp_upd_col_value->v.lp_default.operand[1], error_encountered);
+			LP_GENERATE_WHERE(ucv->col_name, NULL, lp_upd_col_value->v.lp_default.operand[0], error_encountered);
+			LP_GENERATE_WHERE(ucv->col_value, NULL, lp_upd_col_value->v.lp_default.operand[1], error_encountered);
 			ucv = ucv->next;
 			if (ucv == ucv_head) {
 				assert(NULL == lp_column_list->v.lp_default.operand[1]);
@@ -191,7 +191,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 	MALLOC_LP_2ARGS(criteria->v.lp_default.operand[0], LP_KEYS);
 	MALLOC_LP(select_options, criteria->v.lp_default.operand[1], LP_SELECT_OPTIONS);
 	MALLOC_LP(where, select_options->v.lp_default.operand[0], LP_WHERE);
-	LP_GENERATE_WHERE(select_stmt->where_expression, stmt, NULL, where->v.lp_default.operand[0], error_encountered);
+	LP_GENERATE_WHERE(select_stmt->where_expression, NULL, where->v.lp_default.operand[0], error_encountered);
 	MALLOC_LP(dst, select_query->v.lp_default.operand[1], LP_OUTPUT);
 	MALLOC_LP(dst_key, dst->v.lp_default.operand[0], LP_KEY);
 	OCTO_CMALLOC_STRUCT(dst_key->v.lp_key.key, SqlKey);
@@ -254,8 +254,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		join_right->extra_detail.lp_table_join.cur_join_type = cur_join_type;
 		if (cur_join->condition) {
 			MALLOC_LP_2ARGS(t_join_condition, LP_WHERE);
-			LP_GENERATE_WHERE(cur_join->condition, stmt, NULL, t_join_condition->v.lp_default.operand[0],
-					  error_encountered);
+			LP_GENERATE_WHERE(cur_join->condition, NULL, t_join_condition->v.lp_default.operand[0], error_encountered);
 			join_right->extra_detail.lp_table_join.join_on_condition = t_join_condition;
 		}
 		cur_join = cur_join->next;
@@ -421,8 +420,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 
 			MALLOC_LP(having, aggregate_options->v.lp_default.operand[1], LP_HAVING);
 			MALLOC_LP(where, having->v.lp_default.operand[0], LP_WHERE);
-			LP_GENERATE_WHERE(select_stmt->having_expression, stmt, NULL, where->v.lp_default.operand[0],
-					  error_encountered);
+			LP_GENERATE_WHERE(select_stmt->having_expression, NULL, where->v.lp_default.operand[0], error_encountered);
 		}
 	}
 	// Handle factoring in derived columns

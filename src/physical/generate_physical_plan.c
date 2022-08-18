@@ -596,7 +596,8 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 				plan_options.stash_columns_in_keys = FALSE;
 			} else {
 				/* Otherwise, we are guaranteed only 1 column in sub-query so stash it in a key (due to the
-				 * check done in "src/optimization_transforms/lp_generate_where.c" (search for BOOLEAN_EXISTS).
+				 * check done in "src/populate_data_type.c" (search for
+				 * ISSUE_ERR_AND_BREAK_IF_SUBQUERY_HAS_MULTIPLE_COLUMNS usage).
 				 */
 				assert(1 == lp_get_num_cols_in_select_column_list(stmt));
 				plan_options.stash_columns_in_keys = TRUE;

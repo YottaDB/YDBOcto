@@ -39,7 +39,7 @@ LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, boolean_t *caller_er
 		 * and VALUES clause (in "lp_generate_table_value.c"). Both of these use cases are not possible in CHECK
 		 * constraints. And therefore, it is safe to pass NULL as the 3rd parameter ("root_stmt") below.
 		 */
-		LP_GENERATE_WHERE(t_column_list->value, column_stmt, NULL, where->v.lp_default.operand[0], error_encountered);
+		LP_GENERATE_WHERE(t_column_list->value, NULL, where->v.lp_default.operand[0], error_encountered);
 		MALLOC_LP(column_list_alias, where->v.lp_default.operand[1], LP_COLUMN_LIST_ALIAS);
 		column_list_alias->v.lp_column_list_alias.column_list_alias = cur_cla;
 		cur_cla = cur_cla->next;

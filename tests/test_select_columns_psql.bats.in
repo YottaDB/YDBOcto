@@ -179,3 +179,8 @@ setup() {
        load_fixture TSCP21_errors.sql subtest novv
        verify_output TSCP21_errors output.txt
 }
+
+@test "TSCP22 : OCTO889 : Validate that subquery operand of an IN operation issues an error when the subquery has more than 1 column " {
+	load_fixture TSCP22_errors.sql subtest novv
+	verify_output TSCP22_errors output.txt
+}

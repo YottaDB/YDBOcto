@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -16,7 +16,10 @@
 #include "octo_types.h"
 #include "logical_plan.h"
 
-/* Finds the number of columns in the SELECT column list for a given plan */
+/* Finds the number of columns in the SELECT column list for a given plan.
+ * This function/file is currently used only in one assert and so is not used in Release builds but is not removed in case it is
+ * found necessary in the future.
+ */
 int lp_get_num_cols_in_select_column_list(LogicalPlan *plan) {
 	int	     num_cols;
 	LogicalPlan *column_list;

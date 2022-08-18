@@ -13,8 +13,7 @@
 #include "octo_types.h"
 #include "logical_plan.h"
 
-boolean_t lp_generate_column_list(LogicalPlan **ret, SqlStatement *parent_stmt, SqlStatement *root_stmt,
-				  SqlColumnList *start_columns) {
+boolean_t lp_generate_column_list(LogicalPlan **ret, SqlStatement *root_stmt, SqlColumnList *start_columns) {
 	LogicalPlan *  prev, *next;
 	SqlColumnList *cur_cl;
 	boolean_t      error_encountered = FALSE;
@@ -30,7 +29,7 @@ boolean_t lp_generate_column_list(LogicalPlan **ret, SqlStatement *parent_stmt, 
 	// There must be at least one column
 	do {
 		assert(NULL != next);
-		LP_GENERATE_WHERE(cur_cl->value, parent_stmt, root_stmt, next->v.lp_default.operand[0], error_encountered);
+		LP_GENERATE_WHERE(cur_cl->value, root_stmt, next->v.lp_default.operand[0], error_encountered);
 		prev = next;
 		cur_cl = cur_cl->next;
 		MALLOC_LP_2ARGS(next, LP_COLUMN_LIST);

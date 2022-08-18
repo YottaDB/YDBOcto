@@ -290,7 +290,8 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 		if (result) {
 			break;
 		}
-		result = function_call_data_type_check(fc, type, NULL, table); /* Note: "fc->parameters" also gets qualified here */
+		result
+		    = function_call_data_type_check(stmt, type, NULL, table); /* Note: "fc->parameters" also gets qualified here */
 		if (result) {
 			break;
 		}

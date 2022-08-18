@@ -19,12 +19,10 @@
 #include "logical_plan.h"
 
 /* Returns a logical plan structure corresponding to the parse-tree structure "stmt".
- * 1) "parent_stmt" is an input parameter which is the immediate parent of "stmt" in the parse tree and is used for EXISTS
- *    processing. It is modified in recursive invocations.
- * 2) "root_stmt" is the top level parent of "stmt" in the parse tree. It is mostly NULL. Currently non-NULL only in case of
+ * 1) "root_stmt" is the top level parent of "stmt" in the parse tree. It is mostly NULL. Currently non-NULL only in case of
  *    CHECK constraints to indicate special processing. This parameter stays the same across recursive invocations.
  */
-LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt, SqlStatement *root_stmt) {
+LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *root_stmt) {
 	LogicalPlan *		ret = NULL, *cur_lp;
 	LPActionType		type;
 	SqlArray *		array;
@@ -45,14 +43,13 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt, Sq
 	SqlDataType		data_type;
 
 	assert(NULL != stmt);
-	assert((NULL != parent_stmt) || (NULL == root_stmt));
 	assert((NULL == root_stmt) || (insert_STATEMENT == root_stmt->type) || (update_STATEMENT == root_stmt->type));
 	switch (stmt->type) {
 	case value_STATEMENT:
 		UNPACK_SQL_STATEMENT(value, stmt, value);
 		switch (value->type) {
 		case CALCULATED_VALUE:
-			LP_GENERATE_WHERE(value->v.calculated, stmt, root_stmt, ret, error_encountered);
+			LP_GENERATE_WHERE(value->v.calculated, root_stmt, ret, error_encountered);
 			if (NULL != ret) {
 				ret->v.lp_default.group_by_column_num = value->group_by_fields.group_by_column_num;
 			} else {
@@ -63,7 +60,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt, Sq
 			MALLOC_LP_2ARGS(ret, LP_COERCE_TYPE);
 			ret->extra_detail.lp_coerce_type.coerce_type = value->coerced_type;
 			ret->extra_detail.lp_coerce_type.pre_coerce_type = value->pre_coerced_type;
-			LP_GENERATE_WHERE(value->v.coerce_target, stmt, root_stmt, ret->v.lp_default.operand[0], error_encountered);
+			LP_GENERATE_WHERE(value->v.coerce_target, root_stmt, ret->v.lp_default.operand[0], error_encountered);
 			ret->v.lp_default.group_by_column_num = value->group_by_fields.group_by_column_num;
 			break;
 		case COLUMN_REFERENCE:
@@ -130,14 +127,14 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt, Sq
 
 			/* Walk through the column list, converting each right side value as appropriate. */
 			UNPACK_SQL_STATEMENT(start_cl, binary->operands[1], column_list);
-			LP_GENERATE_WHERE(binary->operands[0], stmt, root_stmt, t, error_encountered);
+			LP_GENERATE_WHERE(binary->operands[0], root_stmt, t, error_encountered);
 			MALLOC_LP_2ARGS(ret, type);
 			ret->v.lp_default.operand[0] = t;
-			error_encountered |= lp_generate_column_list(&ret->v.lp_default.operand[1], stmt, root_stmt, start_cl);
+			error_encountered |= lp_generate_column_list(&ret->v.lp_default.operand[1], root_stmt, start_cl);
 		} else {
 			MALLOC_LP_2ARGS(ret, type);
-			LP_GENERATE_WHERE(binary->operands[0], stmt, root_stmt, ret->v.lp_default.operand[0], error_encountered);
-			LP_GENERATE_WHERE(binary->operands[1], stmt, root_stmt, ret->v.lp_default.operand[1], error_encountered);
+			LP_GENERATE_WHERE(binary->operands[0], root_stmt, ret->v.lp_default.operand[0], error_encountered);
+			LP_GENERATE_WHERE(binary->operands[1], root_stmt, ret->v.lp_default.operand[1], error_encountered);
 		}
 		ret->v.lp_default.group_by_column_num = binary->group_by_fields.group_by_column_num;
 		break;
@@ -146,14 +143,14 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt, Sq
 		// WARNING: We simply add the enum offset to find the type
 		type = unary->operation + LP_FORCE_NUM;
 		MALLOC_LP_2ARGS(ret, type);
-		LP_GENERATE_WHERE(unary->operand, stmt, root_stmt, ret->v.lp_default.operand[0], error_encountered);
+		LP_GENERATE_WHERE(unary->operand, root_stmt, ret->v.lp_default.operand[0], error_encountered);
 		ret->v.lp_default.group_by_column_num = unary->group_by_fields.group_by_column_num;
 		break;
 	case array_STATEMENT:
 		UNPACK_SQL_STATEMENT(array, stmt, array);
 		MALLOC_LP_2ARGS(ret, LP_ARRAY);
 		assert(NULL != array->argument);
-		LP_GENERATE_WHERE(array->argument, stmt, root_stmt, ret->v.lp_default.operand[0], error_encountered);
+		LP_GENERATE_WHERE(array->argument, root_stmt, ret->v.lp_default.operand[0], error_encountered);
 		/* Note: the if check is needed in case of an error code path (e.g. ERR_SUBQUERY_ONE_COLUMN) */
 		if (NULL != ret->v.lp_default.operand[0]) {
 			/* ARRAY() syntax is used to convert single column'd return rows from a subquery to a SQL array.
@@ -179,27 +176,27 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt, Sq
 		UNPACK_SQL_STATEMENT(start_cl, coalesce_call->arguments, column_list);
 		MALLOC_LP_2ARGS(ret, LP_COALESCE_CALL);
 		/* Walk through the column list, converting each right side value as appropriate. */
-		error_encountered |= lp_generate_column_list(&ret->v.lp_default.operand[0], stmt, root_stmt, start_cl);
+		error_encountered |= lp_generate_column_list(&ret->v.lp_default.operand[0], root_stmt, start_cl);
 		break;
 	case greatest_STATEMENT:
 		UNPACK_SQL_STATEMENT(greatest_call, stmt, greatest);
 		UNPACK_SQL_STATEMENT(start_cl, greatest_call->arguments, column_list);
 		MALLOC_LP_2ARGS(ret, LP_GREATEST);
 		/* Walk through the column list, converting each right side value as appropriate. */
-		error_encountered |= lp_generate_column_list(&ret->v.lp_default.operand[0], stmt, root_stmt, start_cl);
+		error_encountered |= lp_generate_column_list(&ret->v.lp_default.operand[0], root_stmt, start_cl);
 		break;
 	case least_STATEMENT:
 		UNPACK_SQL_STATEMENT(least_call, stmt, least);
 		UNPACK_SQL_STATEMENT(start_cl, least_call->arguments, column_list);
 		MALLOC_LP_2ARGS(ret, LP_LEAST);
 		/* Walk through the column list, converting each right side value as appropriate. */
-		error_encountered |= lp_generate_column_list(&ret->v.lp_default.operand[0], stmt, root_stmt, start_cl);
+		error_encountered |= lp_generate_column_list(&ret->v.lp_default.operand[0], root_stmt, start_cl);
 		break;
 	case null_if_STATEMENT:
 		UNPACK_SQL_STATEMENT(null_if, stmt, null_if);
 		MALLOC_LP_2ARGS(ret, LP_NULL_IF);
-		LP_GENERATE_WHERE(null_if->left, stmt, root_stmt, ret->v.lp_default.operand[0], error_encountered);
-		LP_GENERATE_WHERE(null_if->right, stmt, root_stmt, ret->v.lp_default.operand[1], error_encountered);
+		LP_GENERATE_WHERE(null_if->left, root_stmt, ret->v.lp_default.operand[0], error_encountered);
+		LP_GENERATE_WHERE(null_if->right, root_stmt, ret->v.lp_default.operand[1], error_encountered);
 		break;
 	case function_call_STATEMENT:
 		UNPACK_SQL_STATEMENT(function_call, stmt, function_call);
@@ -213,7 +210,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt, Sq
 		sql_function_name->v.value->type = STRING_LITERAL;
 		sql_function_name->v.value->v.string_literal
 		    = function_call->function_schema->v.create_function->function_name->v.value->v.string_literal;
-		LP_GENERATE_WHERE(sql_function_name, stmt, root_stmt, ret->v.lp_default.operand[0], error_encountered);
+		LP_GENERATE_WHERE(sql_function_name, root_stmt, ret->v.lp_default.operand[0], error_encountered);
 
 		/* Use an LP_COLUMN_LIST to store the LP_VALUEs used for the function's return type, extrinsic function name, and
 		 * identifying hash.
@@ -226,12 +223,12 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt, Sq
 		sql_function_hash->v.value->v.string_literal
 		    = function_call->function_schema->v.create_function->function_hash->v.value->v.string_literal;
 		// Add the function's hash identified to the plan
-		LP_GENERATE_WHERE(function_call->function_schema->v.create_function->function_hash, stmt, root_stmt,
+		LP_GENERATE_WHERE(function_call->function_schema->v.create_function->function_hash, root_stmt,
 				  cur_lp->v.lp_default.operand[0], error_encountered);
 		MALLOC_LP_2ARGS(cur_lp->v.lp_default.operand[1], LP_COLUMN_LIST);
 		cur_lp = cur_lp->v.lp_default.operand[1];
 		// Add the function's extrinsic function name to the plan
-		LP_GENERATE_WHERE(function_call->function_schema->v.create_function->extrinsic_function, stmt, root_stmt,
+		LP_GENERATE_WHERE(function_call->function_schema->v.create_function->extrinsic_function, root_stmt,
 				  cur_lp->v.lp_default.operand[0], error_encountered);
 		// Add the function's return type to the plan
 		MALLOC_LP_2ARGS(cur_lp->v.lp_default.operand[1], LP_COLUMN_LIST);
@@ -241,12 +238,12 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt, Sq
 		data_type = function_call->function_schema->v.create_function->return_type->v.data_type_struct.data_type;
 		ret_type->v.value->type = get_sqlvaluetype_from_sqldatatype(data_type, FALSE);
 		ret_type->v.value->v.string_literal = get_user_visible_type_string(ret_type->v.value->type);
-		LP_GENERATE_WHERE(ret_type, stmt, root_stmt, cur_lp->v.lp_default.operand[0], error_encountered);
+		LP_GENERATE_WHERE(ret_type, root_stmt, cur_lp->v.lp_default.operand[0], error_encountered);
 
 		UNPACK_SQL_STATEMENT(start_cl, function_call->parameters, column_list);
 		// if there are no parameters, no need to walk the list
 		if (NULL != start_cl->value) {
-			error_encountered |= lp_generate_column_list(&cur_lp->v.lp_default.operand[1], stmt, root_stmt, start_cl);
+			error_encountered |= lp_generate_column_list(&cur_lp->v.lp_default.operand[1], root_stmt, start_cl);
 		}
 		break;
 	case aggregate_function_STATEMENT:
@@ -282,17 +279,12 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt, Sq
 		assert((NULL != cur_cl->value) || (LP_AGGREGATE_FUNCTION_COUNT_ASTERISK == type));
 		assert((NULL == cur_cl->value) || (LP_AGGREGATE_FUNCTION_COUNT_ASTERISK != type));
 		if (NULL != cur_cl->value) {
-			error_encountered |= lp_generate_column_list(&ret->v.lp_default.operand[0], stmt, root_stmt, cur_cl);
+			error_encountered |= lp_generate_column_list(&ret->v.lp_default.operand[0], root_stmt, cur_cl);
 		}
 		// Set `lp_aggregate_function.unique_id` so that the aggregate can be attached later on to the correct physical plan
 		ret->extra_detail.lp_aggregate_function.unique_id = aggregate_function->unique_id;
 		break;
 	case column_STATEMENT:
-		/* Currently this is reachable only if called for the target columns of an INSERT INTO or UPDATE.
-		 * In that case, "generate_logical_plan()" would have passed in "NULL" as the "parent_stmt" parameter.
-		 * Assert that.
-		 */
-		assert(NULL == parent_stmt);
 		MALLOC_LP_2ARGS(ret, LP_COLUMN);
 		UNPACK_SQL_STATEMENT(ret->v.lp_column.column, stmt, column);
 		break;
@@ -305,9 +297,9 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt, Sq
 		UNPACK_SQL_STATEMENT(cas, stmt, cas);
 		// First put in the default branch, if needed, and value
 		MALLOC_LP(cur_lp, ret->v.lp_default.operand[0], LP_CASE_STATEMENT);
-		LP_GENERATE_WHERE(cas->value, stmt, root_stmt, cur_lp->v.lp_default.operand[0], error_encountered);
+		LP_GENERATE_WHERE(cas->value, root_stmt, cur_lp->v.lp_default.operand[0], error_encountered);
 		if (NULL != cas->optional_else) {
-			LP_GENERATE_WHERE(cas->optional_else, stmt, root_stmt, cur_lp->v.lp_default.operand[1], error_encountered);
+			LP_GENERATE_WHERE(cas->optional_else, root_stmt, cur_lp->v.lp_default.operand[1], error_encountered);
 		}
 		UNPACK_SQL_STATEMENT(cas_branch, cas->branches, cas_branch);
 		cur_branch = cas_branch;
@@ -316,8 +308,8 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt, Sq
 			LogicalPlan *t;
 
 			MALLOC_LP(t, cur_lp->v.lp_default.operand[0], LP_CASE_BRANCH_STATEMENT);
-			LP_GENERATE_WHERE(cur_branch->condition, stmt, root_stmt, t->v.lp_default.operand[0], error_encountered);
-			LP_GENERATE_WHERE(cur_branch->value, stmt, root_stmt, t->v.lp_default.operand[1], error_encountered);
+			LP_GENERATE_WHERE(cur_branch->condition, root_stmt, t->v.lp_default.operand[0], error_encountered);
+			LP_GENERATE_WHERE(cur_branch->value, root_stmt, t->v.lp_default.operand[1], error_encountered);
 			cur_branch = cur_branch->next;
 			if (cur_branch != cas_branch) {
 				MALLOC_LP_2ARGS(cur_lp->v.lp_default.operand[1], LP_CASE_BRANCH);
@@ -329,28 +321,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt, Sq
 	case set_operation_STATEMENT:
 	case table_alias_STATEMENT:
 		ret = generate_logical_plan(stmt);
-		if (NULL != ret) { /* A sub-query inside of a WHERE expression can return only one column in most cases.
-				    * The only exception to it is if the "parent_stmt" is an EXISTS operator. Check accordingly.
-				    */
-			boolean_t do_num_cols_check;
-			int	  num_cols;
-
-			do_num_cols_check
-			    = ((unary_STATEMENT != parent_stmt->type) || (BOOLEAN_EXISTS != parent_stmt->v.unary->operation));
-			if (do_num_cols_check) {
-				num_cols = lp_get_num_cols_in_select_column_list(ret);
-				assert(0 < num_cols);
-			}
-			if (do_num_cols_check && (1 < num_cols)) {
-				// Sub query inside of a WHERE expression can only return one column
-				ERROR(ERR_SUBQUERY_ONE_COLUMN, "");
-				// Print error context
-				yyerror(NULL, NULL, &stmt, NULL, NULL, NULL);
-				ret = NULL;
-			} else {
-				ret = optimize_logical_plan(ret);
-			}
-		}
+		ret = optimize_logical_plan(ret);
 		break;
 	case select_STATEMENT:
 		// This should never happen, as all select statements are now wrapped in a table_alias

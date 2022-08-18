@@ -19,10 +19,42 @@
 #include "octo_types.h"
 #include "octo_type_check.h"
 
+#define ISSUE_ERR_AND_BREAK_IF_SUBQUERY_HAS_MULTIPLE_COLUMNS(V, PARENT_STMT, RESULT)                                           \
+	{                                                                                                                      \
+		assert((NULL == PARENT_STMT)                                                                                   \
+		       || ((column_alias_STATEMENT != PARENT_STMT->type) && (column_list_alias_STATEMENT != PARENT_STMT->type) \
+			   && (column_list_STATEMENT != PARENT_STMT->type) && (table_alias_STATEMENT != PARENT_STMT->type)     \
+			   && (set_operation_STATEMENT != PARENT_STMT->type)));                                                \
+                                                                                                                               \
+		boolean_t do_num_cols_check;                                                                                   \
+		do_num_cols_check                                                                                              \
+		    = ((NULL != PARENT_STMT)                                                                                   \
+		       && ((unary_STATEMENT != PARENT_STMT->type) || (BOOLEAN_EXISTS != PARENT_STMT->v.unary->operation)));    \
+		if (do_num_cols_check) {                                                                                       \
+			assert((table_alias_STATEMENT == V->type) || (set_operation_STATEMENT == V->type));                    \
+                                                                                                                               \
+			SqlStatement *table_alias_stmt;                                                                        \
+			table_alias_stmt = drill_to_table_alias(V);                                                            \
+                                                                                                                               \
+			SqlTableAlias *table_alias;                                                                            \
+			UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);                                      \
+			int num_of_columns = get_num_cols_in_table_alias(table_alias);                                         \
+			if (1 < num_of_columns) {                                                                              \
+				ERROR(ERR_SUBQUERY_ONE_COLUMN, "");                                                            \
+				yyerror(NULL, NULL, &V, NULL, NULL, NULL);                                                     \
+				RESULT = 1;                                                                                    \
+			}                                                                                                      \
+			if (RESULT) {                                                                                          \
+				break;                                                                                         \
+			}                                                                                                      \
+		}                                                                                                              \
+	}
+
 // Helper function that is invoked when we have to traverse a "column_list_alias_STATEMENT".
 // Caller passes "do_loop" variable set to TRUE  if they want us to traverse the linked list.
 //                              and set to FALSE if they want us to traverse only the first element in the linked list.
-int populate_data_type_column_list_alias(SqlStatement *v, SqlValueType *type, boolean_t do_loop, ParseContext *parse_context) {
+int populate_data_type_column_list_alias(SqlStatement *v, SqlValueType *type, SqlStatement *parent_stmt, boolean_t do_loop,
+					 ParseContext *parse_context) {
 	SqlColumnListAlias *column_list_alias, *cur_column_list_alias;
 	SqlValueType	    child_type;
 	int		    result;
@@ -36,7 +68,7 @@ int populate_data_type_column_list_alias(SqlStatement *v, SqlValueType *type, bo
 		do {
 			child_type = UNKNOWN_SqlValueType;
 			// SqlColumnList
-			result |= populate_data_type(cur_column_list_alias->column_list, &child_type, parse_context);
+			result |= populate_data_type(cur_column_list_alias->column_list, &child_type, parent_stmt, parse_context);
 			if (UNKNOWN_SqlValueType == cur_column_list_alias->type) {
 				cur_column_list_alias->type = child_type;
 			} else if (cur_column_list_alias->type != child_type) {
@@ -57,8 +89,8 @@ int populate_data_type_column_list_alias(SqlStatement *v, SqlValueType *type, bo
 // Caller passes "do_loop" variable set to TRUE  if they want us to traverse the linked list.
 //                              and set to FALSE if they want us to traverse only the first element in the linked list.
 // If `do_loop` is set and `callback` is not NULL, it will be called for each type in the list.
-int populate_data_type_column_list(SqlStatement *v, SqlValueType *type, boolean_t do_loop, DataTypeCallback callback,
-				   ParseContext *parse_context) {
+int populate_data_type_column_list(SqlStatement *v, SqlValueType *type, SqlStatement *parent_stmt, boolean_t do_loop,
+				   DataTypeCallback callback, ParseContext *parse_context) {
 	SqlColumnList *column_list, *cur_column_list;
 	SqlValueType   current_type;
 	int	       result;
@@ -75,7 +107,7 @@ int populate_data_type_column_list(SqlStatement *v, SqlValueType *type, boolean_
 		do {
 			// SqlValue or SqlColumnAlias
 			current_type = UNKNOWN_SqlValueType;
-			result |= populate_data_type(cur_column_list->value, &current_type, parse_context);
+			result |= populate_data_type(cur_column_list->value, &current_type, parent_stmt, parse_context);
 			if (result) {
 				break;
 			}
@@ -96,7 +128,18 @@ int populate_data_type_column_list(SqlStatement *v, SqlValueType *type, boolean_
 	return result;
 }
 
-int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_context) {
+/*
+ * `parent_stmt` is an input parameter which informs the current invocation what the holding `stmt` is in the parse tree. This
+ * information is used by ISSUE_ERR_AND_BREAK_IF_SUBQUERY_HAS_MULTIPLE_COLUMNS() invocation in `table_alias_STATEMENT` and
+ * `set_operation_STATEMENT` to determine if multiple columns are allowed or not for the current `stmt` being processed. Note that
+ * the value of `parent_stmt` is not always the immediate parent, for example in case of `column_list_STATEMENT` and
+ * `column_list_alias_STATEMENT` which represents a list, we are interested to know who holds the list to determine if multiple
+ * columns are allowed or not. In such cases the `parent_stmt` will represent the grand-parent holding the list. Also, note that in
+ * some cases like the insert_STATEMENT, join_STATEMENT etc, NULL is passed as argument of `parent_stmt`. This is because we wan't
+ * to allow multiple columns in subqueries for such statement types, ISSUE_ERR_AND_BREAK_IF_SUBQUERY_HAS_MULTIPLE_COLUMNS sees that
+ * the value of `parent_stmt` is NULL and in such case no additional processing is done.
+ */
+int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent_stmt, ParseContext *parse_context) {
 	SqlCaseBranchStatement *cas_branch, *cur_branch;
 	SqlCaseStatement *	cas;
 	SqlColumn *		column, *start_column;
@@ -152,7 +195,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			 * That is, "case_value" is specified. Note down its type in "*type".
 			 * This is later used as the expected type of the WHEN arguments that follow.
 			 */
-			result |= populate_data_type(cas->value, type, parse_context);
+			result |= populate_data_type(cas->value, type, v, parse_context);
 			if (result) {
 				break;
 			}
@@ -167,14 +210,14 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		/* Compare "*type" (type of "case_value") against type of WHEN argument ("when_value") in the below call.
 		 * Issue error if they don't match.
 		 */
-		result |= populate_data_type(cas->branches, type, parse_context);
+		result |= populate_data_type(cas->branches, type, v, parse_context);
 		if (result) {
 			break;
 		}
 		/* "*type" at this point stores the type of the THEN argument ("statement_list") */
 		if (NULL != cas->optional_else) {
 			/* ELSE is present. Check that type of ELSE argument matches with type of THEN arguments till now */
-			result |= populate_data_type(cas->optional_else, &child_type[0], parse_context);
+			result |= populate_data_type(cas->optional_else, &child_type[0], v, parse_context);
 			if (result) {
 				break;
 			}
@@ -200,12 +243,12 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		assert(UNKNOWN_SqlValueType != *type); /* "*type" stores the expected type of "cur_branch->condition" */
 		UNPACK_SQL_STATEMENT(cas_branch, v, cas_branch);
 		cur_branch = cas_branch;
-		result |= populate_data_type(cur_branch->value, &child_type[0], parse_context);
+		result |= populate_data_type(cur_branch->value, &child_type[0], v, parse_context);
 		if (result) {
 			break;
 		}
 		do {
-			result |= populate_data_type(cur_branch->condition, &child_type[1], parse_context);
+			result |= populate_data_type(cur_branch->condition, &child_type[1], v, parse_context);
 			if (result) {
 				break;
 			}
@@ -222,7 +265,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 							 NULL, result);
 			assert(!result); /* because the above macro would have done a "break" otherwise */
 			if (cas_branch != cur_branch->next) {
-				result |= populate_data_type(cur_branch->next->value, &child_type[1], parse_context);
+				result |= populate_data_type(cur_branch->next->value, &child_type[1], v, parse_context);
 				if (result) {
 					break;
 				}
@@ -246,7 +289,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		break;
 	case insert_STATEMENT:
 		UNPACK_SQL_STATEMENT(insert, v, insert);
-		result |= populate_data_type(insert->src_table_alias_stmt, &child_type[0], parse_context);
+		result |= populate_data_type(insert->src_table_alias_stmt, &child_type[0], NULL, parse_context);
 		if (result) {
 			break;
 		}
@@ -256,12 +299,12 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		SqlDeleteFromStatement *delete;
 
 		UNPACK_SQL_STATEMENT(delete, v, delete_from);
-		result |= populate_data_type(delete->src_join, type, parse_context);
+		result |= populate_data_type(delete->src_join, type, NULL, parse_context);
 		if (result) {
 			break;
 		}
 		if (NULL != delete->where_clause) {
-			result |= populate_data_type(delete->where_clause, &child_type[0], parse_context);
+			result |= populate_data_type(delete->where_clause, &child_type[0], NULL, parse_context);
 			if (result) {
 				break;
 			}
@@ -277,12 +320,12 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		SqlUpdateStatement *update;
 
 		UNPACK_SQL_STATEMENT(update, v, update);
-		result |= populate_data_type(update->src_join, type, parse_context);
+		result |= populate_data_type(update->src_join, type, NULL, parse_context);
 		if (result) {
 			break;
 		}
 		if (NULL != update->where_clause) {
-			result |= populate_data_type(update->where_clause, &child_type[0], parse_context);
+			result |= populate_data_type(update->where_clause, &child_type[0], NULL, parse_context);
 			if (result) {
 				break;
 			}
@@ -300,7 +343,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		do {
 			UNPACK_SQL_STATEMENT(column, ucv->col_name, column);
 			child_type[0] = get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type, FALSE);
-			result |= populate_data_type(ucv->col_value, &child_type[1], parse_context);
+			result |= populate_data_type(ucv->col_value, &child_type[1], v, parse_context);
 			if (result) {
 				break;
 			}
@@ -325,19 +368,19 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	case select_STATEMENT:
 		UNPACK_SQL_STATEMENT(select, v, select);
 		// SqlJoin
-		result |= populate_data_type(select->table_list, &child_type[0], parse_context);
+		result |= populate_data_type(select->table_list, &child_type[0], NULL, parse_context);
 		if (result) {
 			break;
 		}
 		// SqlColumnListAlias that is a linked list
-		result |= populate_data_type_column_list_alias(select->select_list, &child_type[0], TRUE, parse_context);
+		result |= populate_data_type_column_list_alias(select->select_list, &child_type[0], v, TRUE, parse_context);
 		if (result) {
 			break;
 		}
 		*type = child_type[0];
 		// SqlValue (?)
 		if (NULL != select->where_expression) {
-			result |= populate_data_type(select->where_expression, &child_type[0], parse_context);
+			result |= populate_data_type(select->where_expression, &child_type[0], v, parse_context);
 			if (result) {
 				break;
 			}
@@ -350,13 +393,13 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			}
 		}
 		// SqlColumnListAlias that is a linked list
-		result |= populate_data_type_column_list_alias(select->group_by_expression, &child_type[0], TRUE, parse_context);
+		result |= populate_data_type_column_list_alias(select->group_by_expression, &child_type[0], v, TRUE, parse_context);
 		if (result) {
 			break;
 		}
 		// SqlValue (?)
 		if (NULL != select->having_expression) {
-			result |= populate_data_type(select->having_expression, &child_type[0], parse_context);
+			result |= populate_data_type(select->having_expression, &child_type[0], v, parse_context);
 			if (result) {
 				break;
 			}
@@ -369,7 +412,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			}
 		}
 		// SqlColumnListAlias that is a linked list
-		result |= populate_data_type_column_list_alias(select->order_by_expression, &child_type[0], TRUE, parse_context);
+		result |= populate_data_type_column_list_alias(select->order_by_expression, &child_type[0], v, TRUE, parse_context);
 		if (result) {
 			break;
 		}
@@ -380,13 +423,11 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		parse_tree_optimize(select);
 		break;
 	case function_call_STATEMENT:;
-		SqlFunctionCall *function_call;
-		UNPACK_SQL_STATEMENT(function_call, v, function_call);
-		result = function_call_data_type_check(function_call, type, parse_context, NULL);
+		result = function_call_data_type_check(v, type, parse_context, NULL);
 		break;
 	case array_STATEMENT:
 		UNPACK_SQL_STATEMENT(array, v, array);
-		result |= populate_data_type(array->argument, type, parse_context);
+		result |= populate_data_type(array->argument, type, v, parse_context);
 		/* Currently only ARRAY(single_column_subquery) is supported. In this case, "array->argument" points to a
 		 * table_alias_STATEMENT type structure. And so any errors will show up in the above call. No additional
 		 * errors possible in the "array" structure. This might change once more features of ARRAY() are supported
@@ -396,7 +437,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	case coalesce_STATEMENT:
 		UNPACK_SQL_STATEMENT(coalesce_call, v, coalesce);
 		// SqlColumnList
-		result |= populate_data_type_column_list(coalesce_call->arguments, type, TRUE, ensure_same_type, parse_context);
+		result |= populate_data_type_column_list(coalesce_call->arguments, type, v, TRUE, ensure_same_type, parse_context);
 		if ((!result) && (TABLE_ASTERISK == *type)) {
 			assert(coalesce_call->arguments);
 			ISSUE_TYPE_COMPATIBILITY_ERROR(*type, "coalesce operation", &coalesce_call->arguments, result);
@@ -405,7 +446,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	case greatest_STATEMENT:
 		UNPACK_SQL_STATEMENT(greatest_call, v, greatest);
 		// SqlColumnList
-		result |= populate_data_type_column_list(greatest_call->arguments, type, TRUE, ensure_same_type, parse_context);
+		result |= populate_data_type_column_list(greatest_call->arguments, type, v, TRUE, ensure_same_type, parse_context);
 		if ((!result) && (TABLE_ASTERISK == *type)) {
 			ISSUE_TYPE_COMPATIBILITY_ERROR(*type, "greatest operation", &greatest_call->arguments, result);
 		}
@@ -413,7 +454,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	case least_STATEMENT:
 		UNPACK_SQL_STATEMENT(least_call, v, least);
 		// SqlColumnList
-		result |= populate_data_type_column_list(least_call->arguments, type, TRUE, ensure_same_type, parse_context);
+		result |= populate_data_type_column_list(least_call->arguments, type, v, TRUE, ensure_same_type, parse_context);
 		if ((!result) && (TABLE_ASTERISK == *type)) {
 			ISSUE_TYPE_COMPATIBILITY_ERROR(*type, "least operation", &least_call->arguments, result);
 		}
@@ -423,11 +464,11 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 
 		UNPACK_SQL_STATEMENT(null_if, v, null_if);
 		// SqlColumnList
-		result |= populate_data_type(null_if->left, type, parse_context);
+		result |= populate_data_type(null_if->left, type, v, parse_context);
 		if (result) {
 			break;
 		}
-		result |= populate_data_type(null_if->right, &tmp, parse_context);
+		result |= populate_data_type(null_if->right, &tmp, v, parse_context);
 		if (result) {
 			break;
 		}
@@ -441,7 +482,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 
 		UNPACK_SQL_STATEMENT(aggregate_function, v, aggregate_function);
 		// SqlColumnList : table.* usage will have more than one node so loop through
-		result |= populate_data_type_column_list(aggregate_function->parameter, type, TRUE, NULL, parse_context);
+		result |= populate_data_type_column_list(aggregate_function->parameter, type, v, TRUE, NULL, parse_context);
 		if (result) {
 			break;
 		}
@@ -521,12 +562,12 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		UNPACK_SQL_STATEMENT(start_join, v, join);
 		cur_join = start_join;
 		do {
-			result |= populate_data_type(cur_join->value, type, parse_context);
+			result |= populate_data_type(cur_join->value, type, NULL, parse_context);
 			if (result) {
 				break;
 			}
 			if (NULL != cur_join->condition) {
-				result |= populate_data_type(cur_join->condition, type, parse_context);
+				result |= populate_data_type(cur_join->condition, type, v, parse_context);
 				if (result) {
 					break;
 				}
@@ -544,7 +585,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		UNPACK_SQL_STATEMENT(value, v, value);
 		switch (value->type) {
 		case CALCULATED_VALUE:
-			result |= populate_data_type(value->v.calculated, &child_type[0], parse_context);
+			result |= populate_data_type(value->v.calculated, &child_type[0], v, parse_context);
 			if (result) {
 				break;
 			}
@@ -615,7 +656,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		case COERCE_TYPE:;
 			SqlValueType source_type, target_type;
 
-			result |= populate_data_type(value->v.coerce_target, &source_type, parse_context);
+			result |= populate_data_type(value->v.coerce_target, &source_type, v, parse_context);
 			if (result) {
 				break;
 			}
@@ -661,7 +702,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			 */
 			*type = TABLE_ASTERISK;
 		} else if (column_list_alias_STATEMENT == v->v.column_alias->column->type) {
-			result |= populate_data_type(v->v.column_alias->column, type, parse_context);
+			result |= populate_data_type(v->v.column_alias->column, type, v, parse_context);
 			if (result) {
 				break;
 			}
@@ -671,12 +712,18 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		}
 		break;
 	case column_list_STATEMENT:
-		// Note: We do not loop through the list (just like is done in "hash_canonical_query")
-		result |= populate_data_type_column_list(v, type, FALSE, NULL, parse_context);
+		/* Note: We do not loop through the list (just like is done in "hash_canonical_query")
+		 * Pass `parent_stmt` itself as the third argument as column_list_STATEMENT represents a list and we are interested
+		 * to know who holds the list
+		 */
+		result |= populate_data_type_column_list(v, type, parent_stmt, FALSE, NULL, parse_context);
 		break;
 	case column_list_alias_STATEMENT:
-		// Note: We do not loop through the list (just like is done in "hash_canonical_query")
-		result |= populate_data_type_column_list_alias(v, type, FALSE, parse_context);
+		/* Note: We do not loop through the list (just like is done in "hash_canonical_query")
+		 * Pass `parent_stmt` itself as the third argument as column_list_STATEMENT represents a list and we are interested
+		 * to know who holds the list
+		 */
+		result |= populate_data_type_column_list_alias(v, type, parent_stmt, FALSE, parse_context);
 		break;
 	case create_table_STATEMENT:
 		// Do nothing; we got here through a table_alias
@@ -705,7 +752,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 				SqlValueType current_type;
 
 				// SqlValue or SqlColumnAlias
-				result |= populate_data_type(cur_column_list->value, &current_type, parse_context);
+				result |= populate_data_type(cur_column_list->value, &current_type, v, parse_context);
 				if (result) {
 					break;
 				}
@@ -761,8 +808,9 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		free(first_value);
 		break;
 	case table_alias_STATEMENT:
+		ISSUE_ERR_AND_BREAK_IF_SUBQUERY_HAS_MULTIPLE_COLUMNS(v, parent_stmt, result);
 		UNPACK_SQL_STATEMENT(table_alias, v, table_alias);
-		result |= populate_data_type(table_alias->table, type, parse_context);
+		result |= populate_data_type(table_alias->table, type, parent_stmt, parse_context);
 		assert((select_STATEMENT != table_alias->table->type)
 		       || (table_alias->table->v.select->select_list == table_alias->column_list));
 		if (result) {
@@ -774,25 +822,25 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			 * data supplied. That will then need to be propagated to the associated "SqlColumnListAlias" structures
 			 * in the below call.
 			 */
-			result
-			    |= populate_data_type_column_list_alias(table_alias->column_list, &child_type[0], TRUE, parse_context);
+			result |= populate_data_type_column_list_alias(table_alias->column_list, &child_type[0], parent_stmt, TRUE,
+								       parse_context);
 		}
 		break;
 	case binary_STATEMENT:;
 		SqlBinaryOperation *binary;
 
 		UNPACK_SQL_STATEMENT(binary, v, binary);
-		result |= populate_data_type(binary->operands[0], &child_type[0], parse_context);
+		result |= populate_data_type(binary->operands[0], &child_type[0], v, parse_context);
 		if (result) {
 			break;
 		}
 		if (((BOOLEAN_IN == binary->operation) || (BOOLEAN_NOT_IN == binary->operation))
 		    && (column_list_STATEMENT == binary->operands[1]->type)) { // SqlColumnList
-			result |= populate_data_type_column_list(binary->operands[1], &child_type[1], TRUE, ensure_same_type,
+			result |= populate_data_type_column_list(binary->operands[1], &child_type[1], v, TRUE, ensure_same_type,
 								 parse_context);
 		} else {
 			// SqlStatement (?)
-			result |= populate_data_type(binary->operands[1], &child_type[1], parse_context);
+			result |= populate_data_type(binary->operands[1], &child_type[1], v, parse_context);
 		}
 		if (result) {
 			break;
@@ -800,13 +848,14 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		result = binary_operation_data_type_check(binary, child_type, type, parse_context);
 		break;
 	case set_operation_STATEMENT:
+		ISSUE_ERR_AND_BREAK_IF_SUBQUERY_HAS_MULTIPLE_COLUMNS(v, parent_stmt, result);
 		UNPACK_SQL_STATEMENT(set_operation, v, set_operation);
-		result |= populate_data_type(set_operation->operand[0], &child_type[0], parse_context);
+		result |= populate_data_type(set_operation->operand[0], &child_type[0], parent_stmt, parse_context);
 		if (result) {
 			break;
 		}
 		*type = child_type[0];
-		result |= populate_data_type(set_operation->operand[1], &child_type[1], parse_context);
+		result |= populate_data_type(set_operation->operand[1], &child_type[1], parent_stmt, parse_context);
 		if (result) {
 			break;
 		}
@@ -819,7 +868,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		SqlUnaryOperation *unary;
 
 		UNPACK_SQL_STATEMENT(unary, v, unary);
-		result |= populate_data_type(unary->operand, &child_type[0], parse_context);
+		result |= populate_data_type(unary->operand, &child_type[0], v, parse_context);
 		if (result) {
 			break;
 		}

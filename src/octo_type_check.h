@@ -94,4 +94,4 @@ int ensure_same_type(SqlValueType *left_type, SqlValueType *right_type, SqlState
 int binary_operation_data_type_check(SqlBinaryOperation *binary, SqlValueType child_type[2], SqlValueType *type,
 				     ParseContext *parse_context);
 int unary_operation_data_type_check(SqlUnaryOperation *unary, SqlValueType child_type[2], SqlValueType *type);
-int function_call_data_type_check(SqlFunctionCall *function_call, SqlValueType *type, ParseContext *parse_context, SqlTable *table);
+int function_call_data_type_check(SqlStatement *fc_stmt, SqlValueType *type, ParseContext *parse_context, SqlTable *table);

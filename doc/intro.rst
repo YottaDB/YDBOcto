@@ -244,7 +244,7 @@ Configure Octo
   *(Optional)* Test with dummy data using Octo
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  You can use the `Northwind <https://docs.yottadb.com/Octo/grammar.html#northwind-ddl-example>`_ sample database to get started. The dummy data set can be found in the :code:`tests/fixtures` subdirectory of the YDBOcto repository created by :code:`git clone https://gitlab.com/YottaDB/DBMS/YDBOcto.git`.
+  You can use the :ref:`Northwind <northwind-ddl-ex>` sample database to get started. The dummy data set can be found in the :code:`tests/fixtures` subdirectory of the YDBOcto repository created by :code:`git clone https://gitlab.com/YottaDB/DBMS/YDBOcto.git`.
 
   A dummy data set consists of a :code:`.zwr` file and a :code:`.sql` file. The former contains the actual data to be stored in YottaDB, while the latter contains a schema that maps relational SQL structures (tables and columns) to the NoSQL data contained in YottaDB. Assuming that :code:`/tmp/YDBOcto` is the directory from the :code:`git clone https://gitlab.com/YottaDB/DBMS/YDBOcto.git` command :
 
@@ -254,10 +254,10 @@ Configure Octo
       source $(pkg-config --variable=prefix yottadb)/ydb_env_set
       # ydb_dir can optionally be set to use a location other than $HOME/.yottadb for the working environment.
 
-      mupip load /tmp/YDBOcto/build/tests/fixtures/northwind.zwr
-      octo -f /tmp/YDBOcto/build/tests/fixtures/northwind.sql
+      mupip load /tmp/YDBOcto/tests/fixtures/northwind.zwr
+      octo -f /tmp/YDBOcto/tests/fixtures/northwind.sql
 
-  Once loaded, you can run `octo` to start the Octo interactive shell and use `SELECT <https://docs.yottadb.com/Octo/grammar.html#select>`_ queries to access the data.
+  Once loaded, you can run `octo` to start the Octo interactive shell and use :ref:`octo-select` queries to access the data.
 
 ^^^^^^^^^^^^^^
 Sample Queries

@@ -578,6 +578,8 @@ Example:
 
 This command will delete all of the rows in the :code:`Employee` and :code:`Customer` tables, but retain the definitions of both tables along with supporting metadata and execution plans.
 
+.. _octo-select:
+
 -----------
 SELECT
 -----------

@@ -13,7 +13,7 @@
 set -e
 
 cd ..
-git clone https://github.com/ChristopherEdwards/docker-vista.git
+git clone https://github.com/WorldVistA/docker-vista.git
 cd docker-vista
 docker ps -a
 
@@ -27,4 +27,4 @@ docker ps -a
 # -d Create development directories
 # -a Alternate VistA version (VEHU)
 # -n Install YottaDB GUI
-docker build --pull --build-arg flags="-o -f -b -s -q -d -n -a https://github.com/OSEHRA-Sandbox/VistA-VEHU-M/archive/master.zip" --build-arg instance="vehu" -t yottadb/octo-vehu:latest-master .
+docker build --pull --build-arg flags="-o -f -b -s -q -d -n -a https://github.com/WorldVistA/VistA-VEHU-M/archive/master.zip" --build-arg instance="vehu" -t yottadb/octo-vehu:latest-master .

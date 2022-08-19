@@ -1,7 +1,7 @@
 #!/bin/bash
 #################################################################
 #								#
-# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -13,17 +13,12 @@
 set -e
 
 # Download, Compile, and Install the YottaDB POSIX plugin
-# This
-if [[ ! $1 =~ "cmake" ]]; then
-	echo "Please specify a CMake command, i.e. 'cmake' or 'cmake3' (CentOS)."
-	exit 1
-fi
 pushd /root
 git clone https://gitlab.com/YottaDB/Util/YDBPosix.git
 cd YDBPosix
 mkdir build
 cd build
-${1} ..
+cmake ..
 make
 make install
 popd

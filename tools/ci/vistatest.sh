@@ -34,12 +34,11 @@ cd bats-core
 ./install.sh /usr/local
 popd
 
-# The VistA Image is CentOS 7, so use cmake3
 echo "Current directory is: $PWD"
 echo "# Compiling Octo"
 mkdir build && cd build
 # TEST_VISTA_ENV_FILE contains all the environment variables ($gtm*, $ydb*) needed to run VistA.
-cmake3 -D TEST_VISTA=ON -D TEST_VISTA_ENV_FILE="~vehu/etc/env" ..
+cmake -D TEST_VISTA=ON -D TEST_VISTA_ENV_FILE="~vehu/etc/env" ..
 make -j $(getconf _NPROCESSORS_ONLN) install
 
 set +e

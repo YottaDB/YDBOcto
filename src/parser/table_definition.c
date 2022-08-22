@@ -1112,6 +1112,19 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				UNPACK_SQL_STATEMENT(value, table->tableName, value);
 
 				/* Hashed table name (which matches $ZYSUFFIX) */
+				/* TODO: Currently we only use the table name to generate this hash. But we need to use the
+				 *   schema name (YDBOcto#99) and database name (YDBOcto#417) when support for those are added.
+				 *   See below comments for details.
+				 *	https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/99#note_1072582652
+				 *	https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/417#note_1072589179
+				 *
+				 * TODO: Additionally we might need to migrate data from the old global names that used to
+				 *   previously maintain the UNIQUE constraint to the new global names when YDBOcto#99 and
+				 *   YDBOcto#417 are each implemented. Maybe as part of the auto-upgrade logic or so.
+				 *   An alternative to avoid data migration is to skip the database and/or schema name when
+				 *   the defaults are in use. See below comment for details.
+				 *	https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/417#note_1072666858
+				 */
 				ydb_mmrhash_128(value->v.reference, strlen(value->v.reference), 0, &mmr_table_hash);
 				ydb_hash_to_string(&mmr_table_hash, table_hash, OCTO_HASH_LEN);
 				table_hash[OCTO_HASH_LEN] = '\0';

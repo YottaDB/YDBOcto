@@ -252,6 +252,9 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 		# later/newer version of ydb_env_set.
 		git checkout 8587b12086666c88ea2c8a19b55a736629269907 -- ../tools/get_ydb_release.sh
 		sed -i 's/unset ydb_chset/export ydb_chset=M/' ../tests/test_helpers.bash.in
+		# Add line to verify_output helper function to remove `..` from test output when Octo is built with Ninja
+		# See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/861 for more details.
+		sed -i "s,# Filter rule #s and line #s printed by flex in TRACE verbosity level output,sed -i 's/\\\.\\\.PATH/PATH/' clean_output\.txt," ../tests/test_helpers.bash.in
 		# Run only a random fraction of the bats tests as we will be running an auto upgrade test on the same queries
 		# once more a little later.
 		cp ../cmake/bats-tests.cmake bats-tests.cmake.orig
@@ -340,6 +343,9 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 		# later/newer version of ydb_env_set.
 		git checkout 8587b12086666c88ea2c8a19b55a736629269907 -- ../tools/get_ydb_release.sh
 		sed -i 's/unset ydb_chset/export ydb_chset=M/' ../tests/test_helpers.bash.in
+		# Add line to verify_output helper function to remove `..` from test output when Octo is built with Ninja
+		# See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/861 for more details.
+		sed -i "s,# Filter rule #s and line #s printed by flex in TRACE verbosity level output,sed -i 's/\\\.\\\.PATH/PATH/' clean_output\.txt," ../tests/test_helpers.bash.in
 		# Run only a random fraction of the bats tests as we will be running an auto upgrade test on the same queries
 		# once more a little later.
 		cp ../cmake/bats-tests.cmake bats-tests.cmake.orig
@@ -560,7 +566,14 @@ PSQL
 	# We do not want any failures in "ctest" to exit the script (need to do some cleanup so the artifacts
 	# are not that huge etc.). So disable the "set -e" setting temporarily for this step.
 	set +e
-	ctest -j $(grep -c ^processor /proc/cpuinfo)
+	if [[ ("test-auto-upgrade" != $jobname) ]]; then
+		ctest -j $(grep -c ^processor /proc/cpuinfo)
+	else
+		# Ensure that `hello*` tests, e.g. `hello_psql.bats` and `hello_db.bats`, run before tests that depend on them in
+		# order to prevent failures when parallelizing test execution in test-auto-upgrade jobs, which use older commits.
+		ctest -j $(grep -c ^processor /proc/cpuinfo) -R "hello"
+		ctest -j $(grep -c ^processor /proc/cpuinfo) -R "test"
+	fi
 	exit_status=$?
 	echo " -> exit_status from ctest = $exit_status"
 
@@ -661,8 +674,8 @@ else
 	rm -rf CMakeCache.txt CMakeFiles
 	if [[ "debug" == $subtaskname ]]; then
 		echo '# Reset git repo to before old commit'
-		git checkout -
 		git reset --hard HEAD
+		git checkout -
 		echo '# Rebuild Octo using the latest commit branch for the auto-upgrade test'
 		cmakeflags="-DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin"
 	elif [[ "force" == $subtaskname ]]; then

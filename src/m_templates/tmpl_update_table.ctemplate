@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -37,7 +37,8 @@ TEMPLATE(tmpl_update_table, PhysicalPlan *pplan) {
 	/* Note: The purpose of the unsubscripted local variable PP_YDB_OCTO_UPD is to act as a temporary variable that stores
 	 * interim values of columns that are changed by the SET clause of the UPDATE command. The subscripted PP_YDB_OCTO_UPD
 	 * variable serves a more important purpose and that is to check if an input row is actually an output row from a previous
-	 * iteration of the table being updated. If so, we skip processing this row (happens in "tmpl_tablejoin.ctemplate").
+	 * iteration of the table being updated. If so, we skip processing this row (happens in "tmpl_tablejoin.ctemplate")
+	 * as otherwise each output row would keep adding one more row at the end to the $ORDER loop resulting in an infinite loop).
 	 * Also note that in the case of an UPDATE command that has an OR operator in the WHERE clause, multiple DNF plans might
 	 * be created and PP_YDB_OCTO_ZDUPLICATE local variable would be used in the generated plan to avoid processing the
 	 * same input row multiple times as part of different DNF plans. It might seem that the two variables, PP_YDB_OCTO_UPD and

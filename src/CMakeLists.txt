@@ -26,10 +26,7 @@ set_property(DIRECTORY PROPERTY ADDITIONAL_MAKE_CLEAN_FILES "${PROJECT_BINARY_DI
 
 # Detect if YDB is also installed in UTF-8 mode
 if($ENV{ydb_dist} MATCHES "utf8" OR EXISTS $ENV{ydb_dist}/utf8)
-	set(ydb_chsets "" "UTF-8")
 	set(utf8_installed 1)
-else()
-	set(ydb_chsets "")
 endif()
 
 if(EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/o/_ydbposix.so")
@@ -357,7 +354,12 @@ add_executable(octo
   $<TARGET_OBJECTS:libhelpers>
   ${POST_CONFIGURE_FILE}
 )
-add_dependencies(octo check_git _ydbocto)
+
+# This compiles the M files
+include(aux/build_m_files.cmake)
+
+# _ydboctoM and _ydboctoutf8 are the objects from the M files compilation
+add_dependencies(octo check_git _ydboctoM _ydboctoutf8)
 
 if(${YDB_TLS_AVAILABLE})
   add_library(ydbtls SHARED IMPORTED GLOBAL)
@@ -458,10 +460,10 @@ add_executable(pparser
 )
 add_dependencies(pparser check_git)
 
-add_library(libcocto SHARED
+# Installed as libcocto
+add_library(cocto SHARED
 	aux/ydboctodateformat.c
 )
-set_target_properties(libcocto PROPERTIES PREFIX "")
 
 # Generate C files from templates
 set(template_dir ${PROJECT_SOURCE_DIR}/src/m_templates)
@@ -518,40 +520,9 @@ foreach(template ${template_files})
   target_sources(libocto PUBLIC ${PROJECT_BINARY_DIR}/src/${fileName}.c)
 endforeach()
 
-# Create a shared library of M routines
-set(aux_files
-  aux/_ydboctoAdmin.m
-  aux/_ydboctoCleanup.m
-  aux/_ydboctoDiscard.m
-  aux/_ydboctofCONCAT.m
-  aux/_ydboctofCURRENTTIME.m
-  aux/_ydboctofCURRENTTIMESTAMP.m
-  aux/_ydboctofDATEFORMAT.m
-  aux/_ydboctofLOCALTIME.m
-  aux/_ydboctofLPAD.m
-  aux/_ydboctofTRUNCATE.m
-  aux/_ydboctoInit.m
-  aux/_ydboctoUtils.m
-  aux/_ydboctopgfunctions.m
-  aux/_ydboctoZinterrupt.m
-  aux/_ydboctoplanhelpers.m
-  aux/_ydboctoselect.m
-  aux/_ydboctosqlfunctions.m
-  aux/_ydboctoxrefupdate.m
-)
-add_library(_ydbocto SHARED ${aux_files})
-set_target_properties(_ydbocto PROPERTIES PREFIX "")
-
 # manually place Call-In/Call-Out files in build directory for use in the DISABLE_INSTALL=ON case
 configure_file("${PROJECT_SOURCE_DIR}/src/aux/ydbocto.ci" ${PROJECT_BINARY_DIR}/src/ydbocto.ci COPYONLY)
 configure_file("${PROJECT_SOURCE_DIR}/src/aux/ydbocto.xc" ${PROJECT_BINARY_DIR}/src/ydbocto.xc COPYONLY)
-
-set_property(TARGET libocto PROPERTY C_STANDARD 11)
-set_property(TARGET librocto PROPERTY C_STANDARD 11)
-set_property(TARGET libcocto PROPERTY C_STANDARD 11)
-set_property(TARGET pparser PROPERTY C_STANDARD 11)
-set_property(TARGET octo PROPERTY C_STANDARD 11)
-set_property(TARGET rocto PROPERTY C_STANDARD 11)
 
 # Set C compiler flags for all Octo targets
 set(CC_COMPILE_FLAGS "-Wall -Wextra -pedantic")
@@ -638,99 +609,6 @@ if(BATS_FOUND)
   include(${PROJECT_SOURCE_DIR}/cmake/bats-tests.cmake)
 endif()
 
-# Create separate object files and libraries for M and UTF-8 mode, if supported
-set(LC_ALL_TEMP ${LC_ALL})
-set(ICU_TEMP ${ydb_icu_version})
-foreach(ydb_chset ${ydb_chsets})
-	list(FIND ydb_chset "UTF-8" utf8_chset)
-	if(0 GREATER_EQUAL ${utf8_chset})
-		find_program(PKGCONFIG NAMES pkg-config)
-		if(PKGCONFIG)
-			execute_process(
-				COMMAND ${PKGCONFIG} --modversion icu-io
-				OUTPUT_VARIABLE icu_version
-				RESULT_VARIABLE icu_failed
-				OUTPUT_STRIP_TRAILING_WHITESPACE
-				)
-			if(icu_failed)
-				message(FATAL_ERROR "Command\n ${PKGCONFIG} --modversion icu-io\nfailed (${icu_failed}).")
-			elseif("${icu_version}" MATCHES "([0-9]+\\.[0-9]+)")
-				set(ydb_icu_version "${icu_version}")
-			else()
-				message(FATAL_ERROR "Command\n ${PKGCONFIG} --modversion icu-io\nproduced unrecognized output:\n ${icu_version}")
-			endif()
-		else()
-			message(FATAL_ERROR "Unable to find 'pkg-config'.  Set PKGCONFIG in CMake cache.")
-		endif()
-
-		find_program(LOCALECFG NAMES locale)
-		if(LOCALECFG)
-			execute_process(
-				COMMAND ${LOCALECFG} -a
-				OUTPUT_VARIABLE locale_list
-				RESULT_VARIABLE locale_failed
-				OUTPUT_STRIP_TRAILING_WHITESPACE
-				)
-			if(locale_failed)
-				message(FATAL_ERROR "Command\n ${LOCALECFG} -a\nfailed (${locale_failed}).")
-			endif()
-			STRING(REGEX REPLACE "\n" ";" locale_list "${locale_list}")
-			foreach(lc ${locale_list})
-				string(TOLOWER "${lc}" lc_lower)
-				if("x${lc_lower}" MATCHES "^x[a-zA-Z_]+\\.?utf-?8")
-					set(LC_ALL ${lc})
-					message("-- Setting locale to ${LC_ALL}")
-					break()
-				endif()
-			endforeach(lc)
-			if("${LC_ALL}" STREQUAL "")
-				message("Locale undefined. Expect to see NONUTF8LOCALE during MUMPS routine compilation: ${locale_list}\n")
-			endif()
-		else()
-			message(FATAL_ERROR "Unable to find 'locale'.  Set LOCALECFG in CMake cache.")
-		endif()
-		if (NOT EXISTS "${PROJECT_BINARY_DIR}/src/utf8")
-			file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/src/utf8")
-		endif()
-		set(WORKING_DIR "${PROJECT_BINARY_DIR}/src/utf8")
-	else()
-		set(LC_ALL ${LC_ALL_TEMP})
-		set(ydb_icu_version ${ICU_TEMP})
-		set(WORKING_DIR "${PROJECT_BINARY_DIR}/src")
-	endif()
-
-	foreach(in ${aux_files})
-		set(infile ${PROJECT_SOURCE_DIR}/src/${in})
-		string(REPLACE "aux/" "" mfiles "${in}")
-		string(REPLACE ".m" ".o" out "${mfiles}")
-		add_custom_command(TARGET octo rocto POST_BUILD
-			COMMAND ${CMAKE_COMMAND}
-			  -D ydb_routines=.
-			  -D ydb_chset=${ydb_chset}
-			  -D LC_ALL=${LC_ALL}
-			  -D mumps=$ENV{ydb_dist}/yottadb
-			  -D ydb_icu_version=${ydb_icu_version}
-			  -D args=${infile}
-			  -P ${CMAKE_SOURCE_DIR}/cmake/mumps.cmake
-			  WORKING_DIRECTORY ${WORKING_DIR}
-			DEPENDS ${infile}
-			VERBATIM
-			)
-		if(ydb_chset MATCHES "UTF-8")
-			list(APPEND utf8_objects ${WORKING_DIR}/${out})
-		else()
-			list(APPEND m_mode_objects ${WORKING_DIR}/${out})
-		endif()
-	endforeach()
-endforeach()
-if(utf8_installed)
-	add_custom_command(TARGET octo rocto POST_BUILD
-		COMMAND /usr/bin/cc -shared -o _ydbocto.so ${utf8_objects}
-		DEPENDS ${utf8_objects}
-		WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/src/utf8)
-endif()
-set(LC_ALL ${LC_ALL_TEMP})
-
 # Caution: The below cmake compile time flag is used by the `test-auto-upgrade` pipeline job to force an auto upgrade
 # every time Octo is built. This flag should be only enabled for those test builds and not for regular builds of Octo.
 if (DEFINED FORCE_BINARY_DEFINITION_AUTO_UPGRADE)
@@ -745,7 +623,7 @@ endif()
 # as `make install` cannot be straightforwardly used during Docker image creation
 # in the build pipeline.
 
-if (DISABLE_INSTALL MATCHES "OFF")
+if (NOT ${DISABLE_INSTALL})
 	# Binaries
 	install(TARGETS octo
 			DESTINATION octo/bin)
@@ -760,16 +638,6 @@ if (DISABLE_INSTALL MATCHES "OFF")
 	INSTALL(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_INSTALL_PREFIX}/octo/bin/octo ${CMAKE_INSTALL_PREFIX}/bin/octo)")
 	INSTALL(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_INSTALL_PREFIX}/octo/bin/rocto ${CMAKE_INSTALL_PREFIX}/bin/rocto)")
 
-	# M Routines
-	# Source Code
-	install(FILES ${aux_files}
-			DESTINATION r)
-
-	if(utf8_installed)
-		install(FILES ${PROJECT_BINARY_DIR}/src/utf8/_ydbocto.so
-			DESTINATION ${CMAKE_INSTALL_PREFIX}/o/utf8)
-	endif()
-
 	# Configuration file
 	if(NOT EXISTS ${CMAKE_INSTALL_PREFIX}/octo/octo.conf)
 		install(FILES aux/octo.conf.default
@@ -782,10 +650,7 @@ if (DISABLE_INSTALL MATCHES "OFF")
 	install(FILES ${PROJECT_SOURCE_DIR}/src/aux/ydbocto.xc
 			DESTINATION octo)
 
-	install(TARGETS _ydbocto
-		DESTINATION ${CMAKE_INSTALL_PREFIX}/o)
-
-	install(TARGETS libcocto
+	install(TARGETS cocto
 		DESTINATION ${CMAKE_INSTALL_PREFIX}/)
 
 	install(FILES ${PROJECT_BINARY_DIR}/src/octo-seed.sql
@@ -793,23 +658,10 @@ if (DISABLE_INSTALL MATCHES "OFF")
 	install(FILES ${PROJECT_BINARY_DIR}/src/octo-seed.zwr
 		DESTINATION ${CMAKE_INSTALL_PREFIX}/octo)
 
-	# Add tests to make install target, if tests are supported. Only the limited test suite should be run at
-	# install time so skip this rule for when the full test suite is requested.
-	if(BATS_FOUND AND "${FULL_TEST_SUITE}" MATCHES "OFF" AND "${ENABLE_INSTALL_TESTS}" MATCHES "ON")
-		install(CODE "execute_process(COMMAND make test WORKING_DIRECTORY ${PROJECT_BINARY_DIR} RESULT_VARIABLE retcode)
-			if(NOT \${retcode} EQUAL \"0\")
-				MESSAGE( FATAL_ERROR \"Limited test suite failed with error code \${retcode}\")
-			endif()")
-	endif()
-
-	# This line can be used when all supported platforms use CMake version 3.12 or above
-	# add_compile_definitions(DISABLE_INSTALL=0)
-	add_definitions(-DDISABLE_INSTALL=0)
+	add_compile_definitions(DISABLE_INSTALL=0)
 else()
 	install(CODE "MESSAGE(STATUS \"Installation disabled. No files were installed.\")")
-	# This line can be used when all supported platforms use CMake version 3.12 or above
-	# add_compile_definitions(DISABLE_INSTALL=1)
-	add_definitions(-DDISABLE_INSTALL=1)
+	add_compile_definitions(DISABLE_INSTALL=1)
 endif()
 
 # Seed Data

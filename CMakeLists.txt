@@ -17,7 +17,7 @@ include(FetchContent)
 # be updated.
 FetchContent_Declare(YDBCMake
 	GIT_REPOSITORY	https://gitlab.com/YottaDB/Tools/YDBCMake.git
-	GIT_TAG		84c5180d1f184a892f5cc52367ce51f9bc2eac7e
+	GIT_TAG		dcbc86f236f2b60e23f50997a23a8192ecdcf727
 )
 # The following sets ydbcmake_SOURCE_DIR
 FetchContent_MakeAvailable(YDBCMake)
@@ -35,6 +35,7 @@ set(ENV{ydb_dist} ${YOTTADB_INCLUDE_DIRS})
 message(STATUS "$ydb_dist: $ENV{ydb_dist}")
 
 project(YDBOcto C M)
+set(CMAKE_C_STANDARD 11)
 set(YDBOCTO_MAJOR_VERSION 1)
 set(YDBOCTO_MINOR_VERSION 1)
 set(YDBOCTO_PATCH_VERSION 0)
@@ -100,16 +101,10 @@ if(NOT ${DISABLE_INSTALL})
 	message(STATUS "Install destination: ${CMAKE_INSTALL_PREFIX}")
 endif()
 
-set(OCTO_TOOLS_DIR "${CMAKE_SOURCE_DIR}/tools/")
+# This has to be here, as cmake/bats-tests.cmake is invoked from `src`, and
+# thus will have a CMAKE_CURRENT_BINARY_DIR which is build/src/. We usually
+# want it just as build.
 set(TEST_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}")
-
-if(NOT MAX_EXPRESSION_LENGTH)
-	set(MAX_EXPRESSION_LENGTH 8192)
-endif()
-
-if(NOT MAX_KEY_COUNT)
-	set(MAX_KEY_COUNT 255)
-endif()
 
 include(CTest)
 add_subdirectory(src)

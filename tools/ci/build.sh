@@ -88,18 +88,19 @@ else
 	build_tool=ninja
 fi
 
-echo "# Install the YottaDB POSIX plugin"
-pushd $start_dir
-./tools/ci/install_posix.sh "cmake"
-./tools/ci/install_ydbaim.sh
+echo "# Install the YottaDB POSIX and AIM plugins"
+pushd /tmp/
+wget https://gitlab.com/YottaDB/DB/YDB/raw/master/sr_unix/ydbinstall.sh
+chmod +x ydbinstall.sh
+./ydbinstall.sh --plugins-only --aim --posix
 popd
 
-echo "# Source the ENV script again to YottaDB environment variables after installing POSIX plugin"
+echo "# Source the ENV script again to YottaDB environment variables after installing plugins"
 set +u # Temporarily disable detection of uninitialized variables since ydb_env_set relies on them.
 source /opt/yottadb/current/ydb_env_unset
 source /opt/yottadb/current/ydb_env_set
 set -u # Re-enable detection of uninitialized variables
-echo " -> Done setting up POSIX plugin"
+echo " -> Done setting up plugins"
 echo " -> ydb_routines: $ydb_routines"
 
 echo "# Download and Install BATS testing framework"

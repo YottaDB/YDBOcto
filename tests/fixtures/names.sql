@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,7 +10,7 @@
 #								#
 #################################################################
 
-CREATE TABLE names (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names";
+CREATE TABLE names (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30)) GLOBAL "^names";
 
 CREATE TABLE namesWithAges (
  id INTEGER PRIMARY KEY,

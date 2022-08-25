@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -95,30 +95,35 @@ public class run_multiple_query_files {
 						// return value decide whether a result set was returned or not. See below url
 						// https://docs.oracle.com/javase/8/docs/api/java/sql/PreparedStatement.html#execute--
 						// for more details.
-						if (preparedStatement.execute()) {
-							// It is a SELECT query
-							resultSet = preparedStatement.getResultSet();
-							// Fetch query execution results
-							resultSetMetaData = resultSet.getMetaData();
-							columnCount = resultSetMetaData.getColumnCount();
-							while (resultSet.next()) {
-								for (int i = 1; i <= columnCount; i++) {
-									printWriter.printf("%s",resultSet.getString(i));
-									if (i != columnCount)
-										printWriter.printf("|");
+						try {
+							if (preparedStatement.execute()) {
+								// It is a SELECT query
+								resultSet = preparedStatement.getResultSet();
+								// Fetch query execution results
+								resultSetMetaData = resultSet.getMetaData();
+								columnCount = resultSetMetaData.getColumnCount();
+								while (resultSet.next()) {
+									for (int i = 1; i <= columnCount; i++) {
+										printWriter.printf("%s",resultSet.getString(i));
+										if (i != columnCount)
+											printWriter.printf("|");
+									}
+									printWriter.printf("%n");
 								}
-								printWriter.printf("%n");
+							} else {
+								// It is a DML or DDL command. Produce some output even in this case
+								// run_query_in_octo_and_postgres_and_crosscheck() in test_helpers.bash.in
+								// relies on that. In the case of INSERT INTO and DELETE FROM, the output
+								// will also contain the number of rows updated which is good to cross
+								// check between Postgres and Octo.
+								int numRows = preparedStatement.getUpdateCount();
+								printWriter.printf("# Note that the below would be 0 for CREATE/DROP commands\n");
+								printWriter.printf("# It would be non-zero only for INSERT INTO, DELETE FROM etc.\n");
+								printWriter.printf("Number of rows updated = %d\n", numRows);
 							}
-						} else {
-							// It is a DML or DDL command. Produce some output even in this case
-							// run_query_in_octo_and_postgres_and_crosscheck() in test_helpers.bash.in
-							// relies on that. In the case of INSERT INTO and DELETE FROM, the output
-							// will also contain the number of rows updated which is good to cross
-							// check between Postgres and Octo.
-							int numRows = preparedStatement.getUpdateCount();
-							printWriter.printf("# Note that the below would be 0 for CREATE/DROP commands\n");
-							printWriter.printf("# It would be non-zero only for INSERT INTO, DELETE FROM etc.\n");
-							printWriter.printf("Number of rows updated = %d\n", numRows);
+						} catch (SQLException e) {
+							// Do not exit the loop just add the exception to the output file and move on
+							printWriter.printf("SQL State: %s\n%s\n", e.getSQLState(), e.getMessage());
 						}
 						// Close reader and writer objects to get a
 						// clean state for next query file execution.

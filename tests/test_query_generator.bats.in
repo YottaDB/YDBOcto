@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -15,7 +15,7 @@ load test_helpers
 setup() {
 	init_test
 	createdb
-	test_port=$(start_rocto 1344 --allowschemachanges)
+	test_port=$(start_rocto 1344 quiet -aw)
 }
 
 teardown() {
@@ -23,11 +23,11 @@ teardown() {
 }
 
 @test "TQG01 : Test Query Generator against customers database" {
-	run_query_generator customers TQG01-
+	run_query_generator customers TQG01
 }
 
 @test "TQG02 : Test Query Generator against pastas database" {
-	run_query_generator pastas TQG02-
+	run_query_generator pastas TQG02
 }
 
 @test "TQG03 : Test Query Generator against names OR nullcharnames database" {
@@ -45,21 +45,21 @@ teardown() {
 	   database="nameslastname"
 	   ;;
 	esac
-	run_query_generator $database TQG03-
+	run_query_generator $database TQG03
 }
 
 @test "TQG04 : Test Query Generator against northwind database" {
-	run_query_generator northwind TQG04-
+	run_query_generator northwind TQG04
 }
 
 @test "TQG05 : Test Query Generator against boolean database" {
-	run_query_generator boolean TQG05-
+	run_query_generator boolean TQG05
 }
 
 @test "TQG06 : Test Query Generator against nullnames database" {
-	run_query_generator nullnames TQG06-
+	run_query_generator nullnames TQG06
 }
 
 @test "TQG07 : Test Query Generator against compositekey database" {
-	run_query_generator composite TQG07-
+	run_query_generator composite TQG07
 }

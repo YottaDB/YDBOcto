@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,5 +10,5 @@
 #								#
 #################################################################
 
-CREATE TABLE customers (customer_id INTEGER PRIMARY KEY, first_name VARCHAR(30), last_name TEXT, email VARCHAR(64), address VARCHAR(128), city VARCHAR(32), state VARCHAR(2), zipcode VARCHAR(10)) GLOBAL "^customers";
-CREATE TABLE orders (order_id INTEGER PRIMARY KEY, order_date VARCHAR(30), order_amount VARCHAR(30), customer_id INTEGER) GLOBAL "^orders";
+CREATE TABLE customers (customer_id INTEGER PRIMARY KEY, first_name VARCHAR(8), last_name VARCHAR(10), email VARCHAR(20), address VARCHAR(26), city VARCHAR(16), state VARCHAR(2), zipcode VARCHAR(5)) GLOBAL "^customers";
+CREATE TABLE orders (order_id INTEGER PRIMARY KEY, order_date VARCHAR(10), order_amount VARCHAR(7), customer_id INTEGER) GLOBAL "^orders";

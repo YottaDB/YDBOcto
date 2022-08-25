@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -851,6 +851,8 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 		psql_cmd="psql -v ON_ERROR_STOP=1"
 		num_clients=3
 	fi
+	# Setting the following variable to 1 results in error output formatting and comparison
+	enableErrorCheck=0
 	# Process parameters
 	for i in "$@"; do
 		if [[ $i == "trim_trailing_zeroes" ]]; then
@@ -868,6 +870,9 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 		fi
 		if [[ $i == "useocto" ]]; then
 			randclientstr="OCTO"
+		fi
+		if [[ $i == "write" ]]; then
+			enableErrorCheck=1
 		fi
 	done
 	if [[ ($usejdbc == "usejdbc") && ("$jdbcprotocol" == "") ]]; then
@@ -958,10 +963,15 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 			# Note that "run_multiple_query_files.java" produces output even for DML/DDL commands (e.g. INSERT INTO)
 			# and not just for "SELECT" so it is safe to assume that the *.psql.out and *.octo.out files exist.
 			# Postgres displays boolean values as t/f whereas Octo displays them as 1/0 so fix that before the diff.
-			# cat $nocomment_query_file.psql.out | sed 's/\<t\>/1/g;s/\<f\>/0/g;' >& $nocomment_query_file.ref
 			mv $nocomment_query_file.octo.out $nocomment_query_file.octo.out.tmp
-			cat $nocomment_query_file.octo.out.tmp | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' >& $nocomment_query_file.octo.out
-			cat $nocomment_query_file.psql.out | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' >& $nocomment_query_file.ref
+			querytype=`awk 'NR==1 {print tolower($1);}' $nocomment_query_file`
+			if [[ 1 -eq $enableErrorCheck ]] && [[ "insert" == $querytype || "update" == $querytype ]]; then
+				sed 's/ : \(Failing.*\)//;s/ : \(Key .*\)//;/WARN/d;s/\(Duplicate Key Value violates UNIQUE constraint\).*/\1/;s/ERROR: New row for table \(.*\) violates CHECK constraint.*/ERROR: New row for table \U\1\E violates check constraint/;' $nocomment_query_file.octo.out.tmp >& $nocomment_query_file.octo.out
+				sed 's/.*new row for relation \"\(.*\)\" violates check constraint.*/ERROR: New row for table \U\1\E violates check constraint/;s/.*duplicate key value violates unique constraint.*/ERROR: Duplicate Key Value violates UNIQUE constraint/;s/\<id\([0-9]\)\>/ID\1/g;s/^DETAIL:  //;/Detail:/d;/NOTICE/d;/^Key /d;/^Failing row contains/d;s/ERROR: null value in column \"\(.*\)\" \(of relation .*\)*violates not-null constraint/ERROR: NULL value in column \U\1\E violates NOT NULL constraint/;s/^ERROR: column \"\(.*\)\" specified more than once/ERROR: Column '\''\U\1\E'\'' specified more than once/;/Position:/d' $nocomment_query_file.psql.out >& $nocomment_query_file.ref
+			else
+				cat $nocomment_query_file.octo.out.tmp | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' >& $nocomment_query_file.octo.out
+				cat $nocomment_query_file.psql.out | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' >& $nocomment_query_file.ref
+			fi
 			query_num=`echo $nocomment_query_file | sed 's/.*_nocomment-//g'`
 			query_file="$fname"_comment-"$query_num"
 			# Distinction between commented and non-commented query file is required
@@ -973,13 +983,16 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 		local fname=`echo $query_file | sed 's/\..*//g'`
 		# Additionally, DROP TABLE IF EXISTS queries issue a NOTICE that the table does not exist. We do not want this
 		# as it makes comparing Postgres vs Octo output harder so disable that using the PGOPTIONS variable below.
-		PGOPTIONS='--client-min-messages=warning' $psql_cmd --no-align $database -f $query_file >& $fname.psql.out
+		PGOPTIONS='--client-min-messages=warning' $psql_cmd --no-align $database -f $query_file >& $fname.psql.out || true
 		# Postgres displays boolean values as t and f whereas Octo displays them as 1 and 0 so fix that before the diff.
 		if [[ $randclientstr == "PSQL" ]]; then
-			run_psql $test_port $query_file --no-align > $fname.octo.out.tmp 2> $fname.octo.out.err
+			# Following invocation result need to be captures in a way ERROR messages are also included in the final result verification in case of INSERT/UPDATE
+			# Error information is written to $fname.octo.out.err. This file will also have INFO related messages so only copy lines starting with ERROR to $fname.octo.out.tmp
+			run_psql $test_port $query_file --no-align 1> $fname.octo.out.tmp 2> $fname.octo.out.err || true
+			sed '/^ERROR/!d' $fname.octo.out.err >> $fname.octo.out.tmp
 		else
 			# OCTO
-			octo -f $query_file >& $fname.octo.out.tmp
+			octo -f $query_file >& $fname.octo.out.tmp || true
 		fi
 		# If it is a SELECT or VALUES query, then trim header information from Postgres and Octo output for effective
 		# comparison. This is because the column names in the select column list might not match between Octo and Postgres
@@ -991,7 +1004,19 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 		# invocation of `sed` is performed. Refer https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/977#note_732139543
 		# for more details.
 		querytype=`awk 'NR==1 {print tolower($1);}' $query_file`
-		if [[ "select" == $querytype || "(select" == $querytype || "values" == $querytype ]]; then
+		if [[ 1 -eq $enableErrorCheck ]] && [[ "insert" == $querytype || "update" == $querytype ]]; then
+			if [[ $randclientstr == "PSQL" ]]; then
+				# Two spaces after ERROR for CHECK CONSTRAINT
+				sed 's/ : \(Failing.*\)//;s/ : \(Key .*\)//;/WARN/d;s/\(Duplicate Key Value violates UNIQUE constraint\).*/\1/;s/^ERROR:  New row for table \(.*\) violates CHECK constraint.*/ERROR:  New row for table \U\1\E violates check constraint/;/LINE/d;/\^/d;' $fname.octo.out.tmp &> $fname.octo.out
+				# When the client is PSQL Octo would not have generated [ERROR\]: ERR_DUPLICATE_KEY_VALUE. In order to adhere to Octo's output in this case the below pattern is used.
+				# This pattern is different from the pattern of sed command in else block. This difference needs to be removed once both clients have the same output.
+				# two spaces after ERROR for CHECK CONSTRAINT
+				sed 's/^psql.*new row for relation \"\(.*\)\" violates check constraint.*/ERROR:  New row for table \U\1\E violates check constraint/;s/^psql.*duplicate key value violates unique constraint.*/ERROR:  Duplicate Key Value violates UNIQUE constraint/;s/\<id\([0-9]\)\>/ID\1/g;s/^DETAIL:  //;/NOTICE/d;/^Key /d;/^Failing row contains/d;s/^psql.*ERROR:  null value in column \"\(.*\)\" \(of relation .*\)*violates not-null constraint/ERROR:  NULL value in column \U\1\E violates NOT NULL constraint/;s/^psql.*ERROR:  column \"\(.*\)\" specified more than once/ERROR:  Column '\''\U\1\E'\'' specified more than once/;/LINE/d;/\^/d' $fname.psql.out &> $fname.ref
+			else
+				sed 's/ : \(Failing.*\)//;s/ : \(Key .*\)//;/WARN/d;s/\(Duplicate Key Value violates UNIQUE constraint\).*/\1/;s/^\[ERROR\]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table \(.*\) violates CHECK constraint.*/\[ERROR\]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table \U\1\E violates check constraint/;/LINE/d;/\^/d;' $fname.octo.out.tmp &> $fname.octo.out
+				sed 's/^psql.*new row for relation \"\(.*\)\" violates check constraint.*/\[ERROR\]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table \U\1\E violates check constraint/;s/^psql.*duplicate key value violates unique constraint.*/\[ERROR\]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint/;s/\<id\([0-9]\)\>/ID\1/g;s/^DETAIL:  //;/NOTICE/d;/^Key /d;/^Failing row contains/d;s/.*null value in column \"\(.*\)\" \(of relation .*\)*violates not-null constraint/\[ERROR\]: ERR_NULL_COL_VALUE: NULL value in column \U\1\E violates NOT NULL constraint/;s/^psql.*ERROR:  column \"\(.*\)\" specified more than once/\[ERROR\]: ERR_DUPLICATE_COLUMN: Column '\''\U\1\E'\'' specified more than once/;/LINE/d;/\^/d' $fname.psql.out &> $fname.ref
+			fi
+		elif [[ "select" == $querytype || "(select" == $querytype || "values" == $querytype ]]; then
 			tail -n +2 $fname.octo.out.tmp | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' &> $fname.octo.out
 			tail -n +2 $fname.psql.out | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' &> $fname.ref
 		else
@@ -1120,12 +1145,41 @@ run_query_generator() {
   fi
   load_fixture "QueryGenerator.sql"
   load_postgres_fixture $databaseName postgres-QueryGenerator.sql
-  $ydb_dist/yottadb -run -noignore QueryGenerator $databaseSqlFileName "$databaseName.zwr" "$numQueries" "$prefix"
+  # 80% of the time select read-only mode and 20% of the time select read-write mode
+  isReadWriteMode=$(($RANDOM % 100))
+  if [[ 80 -gt $isReadWriteMode ]]; then
+	isReadWriteMode=""
+  else
+	isReadWriteMode="write"
+ fi
+  $ydb_dist/yottadb -run -noignore QueryGenerator $databaseSqlFileName "$databaseName.zwr" "$numQueries" "$prefix" $isReadWriteMode 2> "QG_stderr.txt" 1> "QG_stdout.txt"
 
-  count=0
-  queryfile=$prefix$count
-  queryfile+=".sql"
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries $databaseName $queryfile "trim_trailing_zeroes" $usejdbcoption $useextended
+  queryfile="$prefix.sql"
+  if [[ -f "tabledefinition-$queryfile" ]]; then
+	# QueryGenerator.m has generated table definition files that has to be run in Octo and Postgres.
+	# Run them here such that the cross check call below can work on the new table definition.
+	@PROJECT_SOURCE_DIR@/tests/fixtures/sqllogic/split_queries.py  "tabledefinition-$queryfile"
+	for splitfile in  tabledefinition-$prefix-*.sql
+	do
+		octo -f "$splitfile" >> "octo-tabledefinition-$prefix.out" 2>>"octo-tabledefinition-$prefix-err.out" || true
+	done
+	postgres_version="$(psql --command='show server_version;' --no-align --tuples-only postgres)"
+	local psql_cmd
+	if [ "$(echo "$postgres_version" | cut -d . -f 1)" -lt 10 ]; then
+		psql_cmd=psql
+	else
+		psql_cmd="psql -v ON_ERROR_STOP=1"
+	fi
+	for splitfile in tabledefinition-$prefix-*.sql
+	do
+		PGOPTIONS='--client-min-messages=warning' $psql_cmd --no-align $databaseName -f "$splitfile" >> "postgres-tabledefinition-$prefix.out" 2>>"postgres-tabledefinition-$prefix-err.out" || true
+	done
+  fi
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries $databaseName $queryfile "trim_trailing_zeroes" $usejdbcoption $useextended $isReadWriteMode
+  if [[ -f "tabledefinition-$queryfile" ]]; then
+	octo -f "drop-tabledefinition-$queryfile" >& "octo-drop-tabledefinition-$prefix.out"
+	PGOPTIONS='--client-min-messages=warning' $psql_cmd --no-align $databaseName -f "drop-tabledefinition-$queryfile" >& "postgres-drop-tabledefinition-$prefix.out"
+  fi
 }
 
 run_query_in_octo_and_mysql_and_crosscheck_multiple_queries() {

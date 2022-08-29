@@ -37,7 +37,7 @@ UPDATE articles SET category_id = NULL WHERE article_id = 3;
 SELECT * FROM articles;
 DROP TABLE
 CREATE TABLE
-Table "ARTICLES"
+Table "ARTICLES" stored in Global: ^%ydboctoD2jeRghq9AAWKMCeP0h9N6B(ARTICLE_ID)
 Column|Type|Collation|Nullable|Default
 ARTICLE_ID|INTEGER||NOT NULL|
 CATEGORY_ID|INTEGER||NOT NULL|

@@ -922,6 +922,8 @@ int		qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTabl
 			      QualifyStatementParms *ret);
 int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_alias_stmt, int depth, QualifyStatementParms *ret);
 
+int match_keys_expression(char *start, char *column, int column_size);
+
 SqlColumnListAlias *match_column_in_table(SqlTableAlias *table, char *column_name, int column_name_len, boolean_t *ambiguous,
 					  boolean_t issue_error);
 boolean_t	    match_column_list_alias_in_select_column_list(SqlColumnListAlias *match_cla, SqlStatement *cla_stmt);
@@ -1043,6 +1045,8 @@ int  compare_column_count_and_column_type_of_tables(SqlColumnAlias *first_column
 						    ParseContext *parse_context);
 int  validate_table_asterisk_binary_operation(SqlBinaryOperation *binary, SqlValueType orig_child_type[2],
 					      ParseContext *parse_context);
+
+boolean_t table_has_hidden_column(SqlTable *table);
 
 // Updates a runtime parameter value in `pg_catalog.pg_settings`. Executed for SQL SET commands.
 int set_parameter_in_pg_settings(char *variable, char *value);

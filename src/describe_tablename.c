@@ -49,7 +49,42 @@ int describe_tablename(SqlStatement *table_name) {
 	/* Note: The below output is more or less the same as what \d tablename outputs at the psql prompt */
 
 	/* First output Column names, types etc. */
-	fprintf(stdout, "Table \"%s\"\n", value->v.reference);
+	fprintf(stdout, "Table \"%s\" stored in ", value->v.reference);
+
+	/* Next output GLOBAL (could be subscripted) that holds the table records */
+	SqlOptionalKeyword *keyword;
+	UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
+	fprintf(stdout, "Global: ");
+	UNPACK_SQL_STATEMENT(value, keyword->v, value);
+	/* The below code is similar to that in "tmpl_emit_source.ctemplate" */
+	char *source_ptr;
+	source_ptr = value->v.string_literal;
+
+	boolean_t table_has_hidden_key_column;
+	table_has_hidden_key_column = table_has_hidden_column(table);
+	while ('\0' != *source_ptr) {
+		char column[OCTO_MAX_IDENT + 1]; // Null terminator
+		int  t;
+		t = match_keys_expression(source_ptr, column, sizeof(column));
+		assert(-1 != t);
+		if (0 < t) {
+			fprintf(stdout, "%s", column);
+			source_ptr += t;
+		} else {
+			if (table_has_hidden_key_column && ('(' == *source_ptr)) {
+				/* Table has a HIDDEN key column. In that case, stop at printing the global name.
+				 * No need of any subscripts as the only subscript is the hidden key column name
+				 * which the user has no clue about.
+				 */
+				break;
+			}
+			fprintf(stdout, "%c", *source_ptr);
+			source_ptr++;
+		}
+	}
+	fprintf(stdout, "\n");
+
+	/* Next output the table columns */
 	fprintf(stdout, "Column|Type|Collation|Nullable|Default\n");
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 	cur_column = start_column;
@@ -111,7 +146,6 @@ int describe_tablename(SqlStatement *table_name) {
 				fprintf(stdout, "    ");
 				assert(NULL != constraint->name);
 
-				SqlValue *value;
 				UNPACK_SQL_STATEMENT(value, constraint->name, value);
 				fprintf(stdout, "\"%s\" ", value->v.string_literal);
 
@@ -170,7 +204,6 @@ int describe_tablename(SqlStatement *table_name) {
 				}
 
 				SqlConstraint *constraint;
-				SqlValue *     value;
 				UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
 				assert(OPTIONAL_CHECK_CONSTRAINT == constraint->type);
 				UNPACK_SQL_STATEMENT(value, constraint->name, value);

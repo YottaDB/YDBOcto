@@ -227,6 +227,7 @@ add_library(libocto OBJECT
   m_templates/resize_tmpl_buffer.c
   match_column_in_table.c
   match_column_list_alias_in_select_column_list.c
+  match_keys_expression.c
   match_sql_statement.c
   memory_chunk.c
   move_where_clause_to_on_clause.c
@@ -334,6 +335,7 @@ add_library(libocto OBJECT
   store_plandirs_gvn.c
   store_table_definition.c
   store_table_in_pg_class.c
+  table_has_hidden_column.c
   traverse_where_clause.c
   unary_operation_data_type_check.c
   validate_table_asterisk_binary_operation.c

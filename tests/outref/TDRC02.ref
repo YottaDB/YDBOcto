@@ -34,7 +34,7 @@ public|PG_SETTINGS|table|octo
 public|PG_TYPE|table|octo
 public|PG_USER|table|octo
 (30 rows)
-Table "NAMES"
+Table "NAMES" stored in Global: ^names(ID)
 Column|Type|Collation|Nullable|Default
 ID|INTEGER||NOT NULL|
 FIRSTNAME|VARCHAR(30)|||
@@ -75,7 +75,7 @@ public|PG_SETTINGS|table|octo
 public|PG_TYPE|table|octo
 public|PG_USER|table|octo
 (30 rows)
-Table "NAMES"
+Table "NAMES" stored in Global: ^names(ID)
 Column|Type|Collation|Nullable|Default
 ID|INTEGER||NOT NULL|
 FIRSTNAME|VARCHAR(30)|||

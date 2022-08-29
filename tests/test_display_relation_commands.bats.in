@@ -31,3 +31,11 @@ setup() {
 	octo -f TDRC01.sql >> output.txt 2>&1 || true
 	verify_output TDRC02 output.txt
 }
+
+@test "TDRC03 : OCTO582 : Verify Global name in \d output with composite and vista-mini datasets" {
+	load_fixture composite.sql
+	load_fixture vista-mini.sql
+	load_fixture TDRC03.sql subtest novv
+	verify_output TDRC03 output.txt
+}
+

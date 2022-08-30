@@ -156,3 +156,26 @@ setup() {
 	grep -E "\<col\>\(|ZYISSQLNULL" _ydboctoP*.m >> final_output.txt
 	verify_output TCTC011 final_output.txt
 }
+
+@test "TCTC012 : OCTO582 : Various User Level UNIQUE Tests" {
+	load_fixture xecutemcode.sql
+	# A: Column UNIQUE unnamed constraint NOT NULL Test (most common on Github)
+	load_fixture TCTC012A.sql subtest novv
+	echo "-------------------------" | tee -a output.txt
+	# B: Table UNIQUE named constrint on multiple NOT NULL fields
+	load_fixture TCTC012B.sql subtest novv
+	echo "-------------------------" | tee -a output.txt
+	# C: Table UNIQUE named constraint on a single NULLABLE field
+	load_fixture TCTC012C.sql subtest novv
+	echo "-------------------------" | tee -a output.txt
+	# D: Table UNIQUE named constraint on a NOT NULL field
+	load_fixture TCTC012D.sql subtest novv
+	echo "-------------------------" | tee -a output.txt
+	# E: Table UNIQUE unnamed constraint on a NOT NULL field
+	load_fixture TCTC012E.sql subtest novv
+	echo "-------------------------" | tee -a output.txt
+	# F: Table UNIQUE unnamed constraint on multiple NOT NULL fields (like B, except unnamed)
+	load_fixture TCTC012F.sql subtest novv
+	echo "-------------------------" | tee -a output.txt
+	verify_output TCTC012 output.txt
+}

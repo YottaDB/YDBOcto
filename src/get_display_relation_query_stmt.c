@@ -56,6 +56,13 @@ SqlStatement *get_display_relation_query_stmt(ParseContext *parse_context) {
 	assert(cur_input_more == &readline_get_more);
 	save_cur_input_more = cur_input_more;
 
+	/* It is possible "eof_hit" is set to a value other than EOF_NONE in case `\d` was the last query
+	 * when octo is reading input from a file. In that case, we want to process the query in
+	 * "display_all_relation_query_str" without getting affected by "eof_hit" hence the save/restore below.
+	 */
+	int save_eof_hit = eof_hit;
+	eof_hit = EOF_NONE;
+
 	// Set new parse_line parameters
 	config->is_tty = 0;
 	cur_input_index = 0;
@@ -72,6 +79,7 @@ SqlStatement *get_display_relation_query_stmt(ParseContext *parse_context) {
 	old_input_index = save_old_input_index;
 	input_buffer_combined = save_input_buffer_combined;
 	cur_input_more = save_cur_input_more;
+	eof_hit = save_eof_hit;
 
 	return result;
 }

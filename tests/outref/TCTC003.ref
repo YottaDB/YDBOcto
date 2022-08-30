@@ -1440,11 +1440,11 @@ GNP
 1
 (2 rows)
 LINE 1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (3));
-                                                 ^
-syntax error, unexpected RIGHT_PAREN, expecting PERIOD
+                                                ^
+syntax error, unexpected LITERAL
 LINE 1: CREATE TABLE abcd (id1 INTEGER, UNIQUE ('abcd'));
-                                                      ^
-syntax error, unexpected RIGHT_PAREN, expecting PERIOD
+                                                     ^
+syntax error, unexpected LITERAL
 LINE 1: CREATE TABLE abcd (id1 INTEGER, id2 INTEGER UNIQUE (id1));
                                                            ^
 syntax error, unexpected LEFT_PAREN, expecting CHECK or NOT or PRIMARY or UNIQUE

@@ -341,7 +341,26 @@ history_command
   ;
 
 display_relation_command
-  : DISPLAY { $$ = $DISPLAY; }
+  : DISPLAY display_parms {
+	SqlStatement *ret;
+	SqlDisplayRelation *display_relation;
+
+	SQL_STATEMENT(ret, display_relation_STATEMENT);
+	MALLOC_STATEMENT(ret, display_relation, SqlDisplayRelation);
+	UNPACK_SQL_STATEMENT(display_relation, ret, display_relation);
+	if (NULL == $display_parms) {
+		display_relation->type = DISPLAY_ALL_RELATION;
+	} else {
+		display_relation->type = DISPLAY_TABLE_RELATION;
+		display_relation->table_name = $display_parms;
+	}
+	$$ = ret;
+    }
+  ;
+
+display_parms
+  : /* Empty */ { $$ = NULL; }
+  | column_name { $$ = $column_name; }
   ;
 
 %include "parser/select.y"
@@ -1630,39 +1649,6 @@ column_definition
 
 column_name
   : identifier { $$ = $identifier; }
-  | LITERAL PERIOD LITERAL {
-      char	*c, *d;
-      SqlValue	*table_name, *column_name;
-      int	table_name_len, column_name_len, len;
-
-      UNPACK_SQL_STATEMENT(table_name, $1, value);
-      UNPACK_SQL_STATEMENT(column_name, $3, value);
-      table_name_len = strlen(table_name->v.string_literal);
-      if (OCTO_MAX_IDENT < table_name_len) {
-          ERROR(ERR_IDENT_LENGTH, "Table name", table_name_len, OCTO_MAX_IDENT);
-          yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
-          YYERROR;
-      }
-      column_name_len = strlen(column_name->v.string_literal);
-      if (OCTO_MAX_IDENT < column_name_len) {
-          ERROR(ERR_IDENT_LENGTH, "Column name", column_name_len, OCTO_MAX_IDENT);
-          yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
-          YYERROR;
-      }
-      // table + column + period + null
-      len = table_name_len + column_name_len + 2;
-      c = octo_cmalloc(memory_chunks, len);
-      SQL_VALUE_STATEMENT($$, COLUMN_REFERENCE, c);
-      $$->loc = @1;
-      d = table_name->v.string_literal;
-      // Convert to caps as we copy
-      TOUPPER(c, &c[table_name_len+1], d, &d[strlen(d)]);
-      c--; // Back pointer up before the null terminator added by TOUPPER for this special case
-      *c = '.';
-      c++;
-      d = column_name->v.string_literal;
-      TOUPPER(c, &c[column_name_len+1], d, &d[strlen(d)]);
-    }
   ;
 
 column_definition_tail

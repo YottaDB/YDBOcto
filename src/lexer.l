@@ -256,39 +256,7 @@ int copied_so_far;
 \: { return COLON; }
 \\q { return QUIT; }
 \\s { return HISTORY; }
-
-\\d([\  ][a-zA-Z][a-zA-Z0-9_$^]*)? {
-		/* Details as to why most of the processing is done at the lexer than at the parser level
-		 * can be found in https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/989#note_865358208
-		 */
-		SqlStatement *ret;
-		SqlDisplayRelation *display_relation;
-
-		SQL_STATEMENT(ret, display_relation_STATEMENT);
-		MALLOC_STATEMENT(ret, display_relation, SqlDisplayRelation);
-		UNPACK_SQL_STATEMENT(display_relation, ret, display_relation);
-		if (' ' == *(yytext+2)) {
-			// We are processing \d table_name
-			display_relation->type = DISPLAY_TABLE_RELATION;
-		        copied_so_far = 0;
-			char *yptr = yytext+3;
-
-			COPY_STRING((&lex_buffer), yptr, copied_so_far);
-			SQL_STATEMENT(display_relation->table_name, value_STATEMENT);
-			OCTO_CMALLOC_STRUCT(display_relation->table_name->v.value, SqlValue);
-			display_relation->table_name->v.value->type = COLUMN_REFERENCE;
-			display_relation->table_name->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
-
-			char *d = display_relation->table_name->v.value->v.string_literal;
-			TOUPPER(d, d+copied_so_far+1, lex_buffer.buf_addr, &lex_buffer.buf_addr[lex_buffer.len_used]);
-			RESET_BUFFER(lex_buffer);
-		} else {
-			// We are processing \d
-			display_relation->type = DISPLAY_ALL_RELATION;
-		}
-		*yylval_param = ret;
-		return DISPLAY;
-        }
+\\d { return DISPLAY; }
 
 ^[ \t\r\n]* { /* skip leading whitespace */
 		if (0 == yylloc->first_line) {
@@ -482,7 +450,6 @@ int copied_so_far;
 <COMMENT_CSTYLE>[\n\r] { /* Ignore multi-line C-style comments */ }
 
 <<EOF>> { eof_hit = EOF_CTRLD; return ENDOFFILE; }
-
 
 . { return INVALID_TOKEN; }
 

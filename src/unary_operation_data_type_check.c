@@ -63,7 +63,7 @@ int unary_operation_data_type_check(SqlUnaryOperation *unary, SqlValueType child
 		switch (child_type[0]) {
 		case STRING_LITERAL:
 			if ((value_STATEMENT == unary->operand->type) && (STRING_LITERAL == unary->operand->v.value->type)) {
-				ISSUE_ERROR(&unary->operand, ERR_INVALID_INPUT_SYNTAX_BOOL,
+				ISSUE_ERROR(&unary->operand, ERR_INVALID_BOOLEAN_SYNTAX,
 					    get_user_visible_type_string(child_type[0]), result);
 			} else {
 				ISSUE_ERROR(&unary->operand, ERR_NOT_OPERATION_TYPE_MISMATCH,

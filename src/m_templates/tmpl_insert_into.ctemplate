@@ -145,7 +145,7 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 							TMPL(tmpl_print_dots, dot_count);
 							%{}SET {{ PP_COL }}({{ cur_column->column_number|%d }})={}%
 							if (NUMERIC_TYPE == cur_column->data_type_struct.data_type) {
-								%{}$$Cast2NUMERIC^%%ydboctoplanhelpers{}%
+								%{}$$Cast2NUMERICWithPrecision^%%ydboctoplanhelpers{}%
 							} else {
 								%{}$$SizeCheckVARCHAR^%%ydboctoplanhelpers{}%
 							}

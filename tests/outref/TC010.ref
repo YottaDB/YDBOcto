@@ -79,18 +79,8 @@ ID
 3
 4
 (4 rows)
-DATE1
-2020
-1998
-2005
-1975
-(4 rows)
-DATE1
-2020
-1998
-2005
-1975
-(4 rows)
+[ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: '2020-01-04'
+[ERROR]: ERR_INVALID_NUMERIC_SYNTAX: Invalid input syntax for type numeric: '2020-01-04'
 DATE1
 2020-01-04
 1998-11-13
@@ -123,18 +113,8 @@ TIME1
 13:23:09
 15:15:22
 (4 rows)
-TIME1
-14
-14
-13
-15
-(4 rows)
-TIME1
-14
-14
-13
-15
-(4 rows)
+[ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: '14:01:10'
+[ERROR]: ERR_INVALID_NUMERIC_SYNTAX: Invalid input syntax for type numeric: '14:01:10'
 TIME1
 14:01:10
 14:12:59

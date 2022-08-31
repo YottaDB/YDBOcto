@@ -321,7 +321,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_PLAN_DEFINITION 20
+#define FMT_PLAN_DEFINITION 21
 
 /* Used by `hash_canonical_query()` */
 #define HASH_LITERAL_VALUES -1

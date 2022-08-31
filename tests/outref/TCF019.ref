@@ -88,13 +88,13 @@ LP_SELECT_QUERY:
           LP_COLUMN_LIST: 
             LP_VALUE: '%ydboctoFXjpLNKLu1sElo0JiZVgdDG'
             LP_VALUE: '$$ABS^%ydboctosqlfunctions'
-            LP_VALUE: 'NUMERIC'
+            LP_VALUE: 'INTEGER'
             LP_MULTIPLICATION: 
               LP_NEGATIVE: 
                 LP_VALUE: '2'
               LP_COLUMN_ALIAS: NAMES(1).ID
         LP_COLUMN_LIST_ALIAS: 
-        - type: NUMERIC_LITERAL
+        - type: INTEGER_LITERAL
         - alias: ABS
     LP_SELECT: 
       LP_TABLE_JOIN: 
@@ -124,13 +124,13 @@ LP_SELECT_QUERY:
           LP_COLUMN_LIST: 
             LP_VALUE: '%ydboctoFXjpLNKLu1sElo0JiZVgdDG'
             LP_VALUE: '$$ABS^%ydboctosqlfunctions'
-            LP_VALUE: 'NUMERIC'
+            LP_VALUE: 'INTEGER'
             LP_MULTIPLICATION: 
               LP_NEGATIVE: 
                 LP_VALUE: '2'
               LP_COLUMN_ALIAS: NAMES(1).ID
         LP_COLUMN_LIST_ALIAS: 
-        - type: NUMERIC_LITERAL
+        - type: INTEGER_LITERAL
         - alias: ABS
     LP_SELECT: 
       LP_TABLE_JOIN: 

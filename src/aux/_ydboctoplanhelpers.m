@@ -401,6 +401,75 @@ Compare(value1,compOp,value2,isString)
 ForceNumeric(value)
 	QUIT +value
 
+; The following routine is only used by ValidateInputAndGetTrimdVal to issue INVALIDINTEGERSYNTAX or INVALIDNUMERICSYNTAX error
+; `type` is used to choose the error to be issued
+IssueInvalidInputSyntaxError(value,type)
+	NEW errorStr
+	IF ("integer"=type) set errorStr="INVALIDINTEGERSYNTAX"
+	else  set errorStr="INVALIDNUMERICSYNTAX" ; ("numeric"=type)
+	SET %ydboctoerror(errorStr,1)=value       ; pass parameter to `src/ydb_error_check.c`
+	ZMESSAGE %ydboctoerror(errorStr)
+	QUIT
+
+; Following routine validates the passed `value` and returns the casted value
+String2Integer(value)
+	set value=$$ValidateInputAndGetTrimdVal(value,"integer")
+	QUIT value\1
+
+; Input:
+;	value : string with the value to be casted
+;	type : the type to which value needs to be casted to. It is expected to have just "integer"/"numeric"
+; Output:
+;	returns passed input value but without leading white spaces
+; The function checks whether the passed `value` is compatible for an INTEGER/NUMERIC cast or not.
+; If the input `value` is found to be invalid, IssueInvalidInputSyntaxError is invoked to issue type specific error.
+; `type` is expected to determine the conditions to find invalidity.
+;  The following conditions are ensured to be TRUE by the routine
+; 1. Input doesn't have only '+' or '-' alone in input string i.e. '+', '+  '  +',..
+; 2. Input doesn't have period alone in the input string i.e. '.', '.  ',' .',..
+; 3. Input doesn't have just white spaces i.e. '            '
+; 4. Input doesn't have non integer or numeric characters in the input string i.e. 'abc','1.abc','1. 1',..
+; 5. Input doesn't have period when the conversion is to an integer
+; 6. Input doesn't have '+' or '-' where it is not expected i.e. '123+','12+2',..
+ValidateInputAndGetTrimdVal(value,type)
+	QUIT:$ZYISSQLNULL(value) $ZYSQLNULL	; Possible with an input of the form `(NULL::varchar)::integer`
+	NEW length,i,curChar,startIndex,firstSpaceAfterValidChar,firstMinusPlusReached,firstIntegerReached
+	SET (firstDotReached,firstSpaceAfterValidChar,firstMinusPlusReached,firstIntegerReached,startIndex)=0
+	; Note startIndex is set to the first validchar index in the below FOR loop
+	SET length=$ZLENGTH(value)
+	FOR i=1:1:length DO
+	. SET curChar=$ZEXTRACT(value,i)
+	. ; Skip all leading white space
+	. QUIT:('startIndex&(curChar=" "))
+	. IF ('startIndex) DO
+	. . ; Following condition check if the character is a
+	. . ; 1. '+' or '-' sign
+	. . ; 2. '.' usage
+	. . ; 3. integer value between 0-9
+	. . IF (("numeric"=type)&("."=curChar)) SET firstDotReached=1,startIndex=i	; first '.' usage
+	. . ELSE  IF (("+"=curChar)!("-"=curChar)) SET firstMinusPlusReached=1,startIndex=i
+	. . ELSE  IF (("0"']curChar)&(curChar']"9")) SET firstIntegerReached=1,startIndex=i
+	. . ELSE  DO IssueInvalidInputSyntaxError(value,type)
+	. ELSE  DO
+	. . ; Following takes care of trailing white spaces. We set `firstSpaceAfterValidChar` to 1 when we encounter a space after
+	. . ; a valid character is seen in the string. This value is used in the else block to skip trailing white spaces and issue
+	. . ; error if trailing white space is inbetween valid chars.
+	. . IF ((" "=curChar)&(0=firstSpaceAfterValidChar)) SET firstSpaceAfterValidChar=1
+	. . ELSE  DO
+	. . . IF ((" "=curChar)&(1=firstSpaceAfterValidChar)) QUIT  ; Nothing to do as this may be trailing white space
+	. . . ELSE  IF (1=firstSpaceAfterValidChar) DO
+	. . . . ; White space found in between (eg: '12 12'). This is invalid issue an error.
+	. . . . DO IssueInvalidInputSyntaxError(value,type)
+	. . . ELSE  IF '(("0"']curChar)&(curChar']"9")) do
+	. . . . ; Value is not 0-9
+	. . . . IF ((("numeric"=type)&("."=curChar))&('firstDotReached)) SET firstDotReached=1 ; first '.' usage
+	. . . . ELSE  DO IssueInvalidInputSyntaxError(value,type)
+	. . . ELSE  SET:(0=firstIntegerReached) firstIntegerReached=1
+	; All white spaces or only . or only + or only - exists without an integer following it
+	; This is invalid issue an error
+	DO:(('startIndex)!((firstMinusPlusReached!firstDotReached)&'firstIntegerReached)) IssueInvalidInputSyntaxError(value,type)
+	QUIT $SELECT((1=startIndex):value,1:$ZEXTRACT(value,startIndex,length))
+
 CountAsterisk(keyId,groupBySubs,aggrIndex,curValue)
 	; Helper M function to implement the COUNT(*) aggregate function in SQL.
 	; Input:
@@ -586,8 +655,8 @@ String2Boolean(boolstr)	;
 	.	SET %ydboctoStr2Bool("n")=0
 	.	SET %ydboctoStr2Bool("0")=0
 	IF '$DATA(%ydboctoStr2Bool(boolstr))  DO
-	.	SET %ydboctoerror("INVALIDINPUTSYNTAXBOOL",1)=boolstr	; pass parameter to `src/ydb_error_check.c`
-	.	ZMESSAGE %ydboctoerror("INVALIDINPUTSYNTAXBOOL")
+	.	SET %ydboctoerror("INVALIDBOOLEANSYNTAX",1)=boolstr	; pass parameter to `src/ydb_error_check.c`
+	.	ZMESSAGE %ydboctoerror("INVALIDBOOLEANSYNTAX")
 	QUIT %ydboctoStr2Bool(boolstr)
 
 str2mval(str)
@@ -878,7 +947,18 @@ Cast2VARCHAR(string,size)
 	QUIT:$ZYISSQLNULL(string) $ZYSQLNULL
 	QUIT $EXTRACT(string,1,size)
 
-Cast2NUMERIC(number,precision,scale)
+String2NUMERIC(number,precision,scale)
+	new result
+	set number=$$ValidateInputAndGetTrimdVal(number,"numeric")
+	if ($DATA(precision)) do
+	. if ($DATA(scale)) do
+	. . set result=$$Cast2NUMERICWithPrecision(number,precision,scale)
+	. else  set result=$$Cast2NUMERICWithPrecision(number,precision)
+	else  do
+	. set result=$$Cast2NUMERICWithoutPrecision(number)
+	QUIT result
+
+Cast2NUMERICWithPrecision(number,precision,scale)
 	QUIT:$ZYISSQLNULL(number) $ZYSQLNULL
 	; This function helps implement the typecast operator where the target type is NUMERIC
 	; "number" is the input number that needs to be type cast.
@@ -903,6 +983,9 @@ Cast2NUMERIC(number,precision,scale)
 	.	SET %ydboctoerror("NUMERICOVERFLOW",3)=tmpprecision	; pass parameter to `src/ydb_error_check.c`
 	.	ZMESSAGE %ydboctoerror("NUMERICOVERFLOW")
 	QUIT number
+
+Cast2NUMERICWithoutPrecision(number)
+	QUIT $SELECT($ZYISSQLNULL(number):$ZYSQLNULL,1:$$ForceNumeric(number))
 
 SizeCheckVARCHAR(string,size)
 	; This function is different from "Cast2VARCHAR" in that it issues an error if the "string" parameter does not fit

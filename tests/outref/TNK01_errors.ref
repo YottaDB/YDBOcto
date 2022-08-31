@@ -88,26 +88,26 @@ LINE 1: SELECT * FROM names WHERE 'abcd' AND 1=1;
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
 LINE 1: SELECT * FROM names WHERE 'abcd' AND NOT 1=1;
                                        ^
-[ERROR] PATH:LINENUM DATE TIME: ERR_INVALID_INPUT_SYNTAX_BOOL: Invalid input syntax for type boolean: 'VARCHAR' is not a valid boolean value
+[ERROR] PATH:LINENUM DATE TIME: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'VARCHAR' is not a valid boolean value
 LINE 1: SELECT * FROM names WHERE NOT 'abcd';
                                            ^
-[ERROR] PATH:LINENUM DATE TIME: ERR_INVALID_INPUT_SYNTAX_BOOL: Invalid input syntax for type boolean: 'VARCHAR' is not a valid boolean value
+[ERROR] PATH:LINENUM DATE TIME: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'VARCHAR' is not a valid boolean value
 LINE 1: SELECT * FROM names WHERE NOT 'abcd' OR 1=1;
                                            ^
-[ERROR] PATH:LINENUM DATE TIME: ERR_INVALID_INPUT_SYNTAX_BOOL: Invalid input syntax for type boolean: 'VARCHAR' is not a valid boolean value
+[ERROR] PATH:LINENUM DATE TIME: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'VARCHAR' is not a valid boolean value
 LINE 1: SELECT * FROM names WHERE NOT 'abcd' AND 1=1;
                                            ^
-[ERROR] PATH:LINENUM DATE TIME: ERR_INVALID_INPUT_SYNTAX_BOOL: Invalid input syntax for type boolean: 'VARCHAR' is not a valid boolean value
+[ERROR] PATH:LINENUM DATE TIME: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'VARCHAR' is not a valid boolean value
 LINE 1: SELECT * FROM names WHERE NOT 'abcd' AND NOT 1=1;
                                            ^
-[ERROR]: ERR_INVALID_INPUT_SYNTAX_BOOL: Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
-[ERROR]: ERR_INVALID_INPUT_SYNTAX_BOOL: Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
-[ERROR]: ERR_INVALID_INPUT_SYNTAX_BOOL: Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
-[ERROR]: ERR_INVALID_INPUT_SYNTAX_BOOL: Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
-[ERROR]: ERR_INVALID_INPUT_SYNTAX_BOOL: Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
-[ERROR]: ERR_INVALID_INPUT_SYNTAX_BOOL: Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
-[ERROR]: ERR_INVALID_INPUT_SYNTAX_BOOL: Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
-[ERROR]: ERR_INVALID_INPUT_SYNTAX_BOOL: Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
+[ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
+[ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
+[ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
+[ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
+[ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
+[ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
+[ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
+[ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
 ???
 
 

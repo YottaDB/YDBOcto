@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -12,6 +12,6 @@
 
 -- TCT003: coerce string to NUMERIC
 
-select "hello"::numeric from names limit 1;
-select * from names where "hello"::numeric = names.id
+select 'hello'::numeric from names limit 1;
+select * from names where 'hello'::numeric = names.id
 

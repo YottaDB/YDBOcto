@@ -201,22 +201,8 @@ LINE 1: SELECT -1.5::text FROM names;
 -1.5
 (6 rows)
 [ERROR]: ERR_INVALID_TYPE: Type INVALID does not exist
-???
-0
-0
-0
-0
-0
-0
-(6 rows)
-???
-0
-0
-0
-0
-0
-0
-(6 rows)
+[ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: 'abcd'
+[ERROR]: ERR_INVALID_NUMERIC_SYNTAX: Invalid input syntax for type numeric: 'abcd'
 ???
 abcd
 abcd
@@ -234,22 +220,8 @@ abcd
 abcd
 (6 rows)
 [ERROR]: ERR_INVALID_TYPE: Type INVALID does not exist
-???
-1
-1
-1
-1
-1
-1
-(6 rows)
-???
-2.5
-2.5
-2.5
-2.5
-2.5
-2.5
-(6 rows)
+[ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: '1.5abcd'
+[ERROR]: ERR_INVALID_NUMERIC_SYNTAX: Invalid input syntax for type numeric: '2.5abcd'
 ???
 3.5abcd
 3.5abcd
@@ -538,22 +510,8 @@ PRICE
 13
 (77 rows)
 [ERROR]: ERR_INVALID_TYPE: Type INVALID does not exist
-FIRSTNAME
-0
-0
-0
-0
-0
-0
-(6 rows)
-FIRSTNAME
-0
-0
-0
-0
-0
-0
-(6 rows)
+[ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: 'Zero'
+[ERROR]: ERR_INVALID_NUMERIC_SYNTAX: Invalid input syntax for type numeric: 'Zero'
 FIRSTNAME
 Zero
 Acid

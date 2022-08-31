@@ -286,7 +286,7 @@ CREATE TABLE pg_catalog.pg_user (
  * parameter types, e.g. accept both `NUMERIC` and `INTEGER` types for the `ABS` function.
  */
 CREATE FUNCTION ABS(NUMERIC) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;
-CREATE FUNCTION ABS(INTEGER) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;
+CREATE FUNCTION ABS(INTEGER) RETURNS INTEGER AS $$ABS^%ydboctosqlfunctions;
 /* Note that PostgreSQL CONCAT accepts a variable number of arguments. Since Octo doesn't support this,
  * just use the number currently required by clients (i.e. BeeKeeper).
  */

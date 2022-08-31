@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -12,5 +12,7 @@
 
 -- TCT000 : coerce string to INTEGER
 
-select "hello"::integer from names limit 1;
-select * from names where "hello"::integer = names.id
+select '1'::integer from names limit 1;
+select * from names where '1'::integer = names.id;
+select 'hello'::integer from names limit 1;
+select * from names where 'hello'::integer = names.id;

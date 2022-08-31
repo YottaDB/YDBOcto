@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -53,7 +53,7 @@ SELECT n1.* FROM names1col AS n1 GROUP BY n1.*;
 -- Below is from https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/759#note_738472680
 SELECT 1 FROM names n1 GROUP BY n1.firstname HAVING n1.* IS NOT NULL;
 
--- Test of ERR_TYPE_CAST_TABLE_ASTERISK error
+-- Test of ERR_TYPE_CAST error
 SELECT SUM(n1.*::INTEGER) FROM (SELECT id FROM names) n1;
 SELECT AVG(n1.*::INTEGER) FROM (SELECT id FROM names) n1;
 SELECT MAX(n1.*::INTEGER) FROM (SELECT id FROM names) n1;

@@ -45,8 +45,7 @@ teardown() {
 }
 
 @test "TCT004 : coerce canonical number string to NUMERIC" {
-  load_fixture TCT004.sql subtest novv
-  verify_output TCT004 output.txt
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCT004.sql
 }
 
 @test "TCT005 : coerce INTEGER type to INTEGER" {
@@ -170,4 +169,10 @@ teardown() {
 	load_fixture northwind.sql
 	load_fixture northwind.zwr
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TCT021_northwind.sql
+}
+
+@test "TCT022 : OCTO881 : Check that error is issued based on operand value at runtime" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCT022.sql
+	load_fixture TCT022_errors.sql subtest novv
+	verify_output TCT022_errors output.txt
 }

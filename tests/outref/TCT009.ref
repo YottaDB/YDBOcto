@@ -93,10 +93,8 @@ LINE 1: select * from names where firstname = 'Zero' || +lastname;
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
 LINE 1: select * from names where firstname = 'Zero' || -lastname;
                                                          ^^^^^^^^
-ID|FIRSTNAME|LASTNAME
-(0 rows)
-ID|FIRSTNAME|LASTNAME
-(0 rows)
+[ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: 'Cool'
+[ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: 'abcd'
 ID|FIRSTNAME|LASTNAME
 (0 rows)
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations

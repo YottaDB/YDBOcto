@@ -500,6 +500,14 @@ Text: Invalid AS value type: xxx
 
 Description/Action: This error is issued when a user attempts to use an unacceptable type for an :code:`AS` value. PSQL Error Code: 22P02
 
+++++++++++++++++++++++++++++++
+ERR_INVALID_BOOLEAN_SYNTAX
+++++++++++++++++++++++++++++++
+
+Text: Invalid input syntax for type boolean: 'xxx' is not a valid boolean value
+
+Description/Action: This error is generated when the user attempts to assign a non-boolean value to a boolean variable. PSQL Error Code: 22P02
+
 ++++++++++++++++++++++
 ERR_INVALID_CLI_OPTION
 ++++++++++++++++++++++
@@ -524,14 +532,6 @@ Text: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type xxx
 
 Description/Action: This error is issued when a user attempts to use a unary '+' or '-' on a field of non-numeric type. PSQL Error Code: 22P02
 
-++++++++++++++++++++++++++++++
-ERR_INVALID_INPUT_SYNTAX_BOOL
-++++++++++++++++++++++++++++++
-
-Text: Invalid input syntax for type boolean: 'xxx' is not a valid boolean value
-
-Description/Action: This error is generated when the user attempts to assign a non-boolean value to a boolean variable. PSQL Error Code: 22P02
-
 +++++++++++++++++++++++++++++
 ERR_INVALID_INTEGER_SYNTAX
 +++++++++++++++++++++++++++++
@@ -539,6 +539,14 @@ ERR_INVALID_INTEGER_SYNTAX
 Text: Invalid input syntax for type integer: 'xxx'
 
 Description/Action: This error indicates that an integer was expected in this context, but a non-integer value was specified. PSQL Error Code: 22P02
+
++++++++++++++++++++++++++++++
+ERR_INVALID_NUMERIC_SYNTAX
++++++++++++++++++++++++++++++
+
+Text: Invalid input syntax for type numeric: 'xxx'
+
+Description/Action: This error indicates that an numeric was expected in this context, but a non-numeric value was specified. PSQL Error Code: 22P02
 
 +++++++++++++++++++++++++
 ERR_INVALID_KEYWORD_CHAR
@@ -1239,7 +1247,7 @@ Text: Too many arguments passed for function xxx (max: xxx)
 Description/Action: This error indicates an attempt to create a function with more arguments than the maximum allowed. PSQL Error Code: 22003
 
 +++++++++++++++++++++++++++++
-ERR_TYPE_CAST_TABLE_ASTERISK
+ERR_TYPE_CAST
 +++++++++++++++++++++++++++++
 
 Text: Cannot cast type xxx to type xxx

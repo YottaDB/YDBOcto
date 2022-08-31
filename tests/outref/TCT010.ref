@@ -77,7 +77,7 @@ octoPlan1(cursorId)
     . DO:%ydboctoexpr
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
-    . . SET %ydboctoexpr=($$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr))
+    . . SET %ydboctoexpr=($$Cast2NUMERICWithoutPrecision^%ydboctoplanhelpers(%ydboctoexpr))
     . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
     . . SET %ydboctoexpr=%ydboctoexpr(1)/%ydboctoexpr

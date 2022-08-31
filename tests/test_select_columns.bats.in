@@ -197,7 +197,7 @@ OCTO
 
 @test "TSC01 : cast a string to an integer" {
   octo <<OCTO 2>&1 | tee output.txt
-SELECT firstName :: integer + 5 FROM names;
+SELECT column1 :: integer + 5 FROM (VALUES('1'),('2'));
 OCTO
   verify_output TSC01 output.txt noinfo nodebug
 }

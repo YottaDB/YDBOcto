@@ -1242,7 +1242,7 @@ LINE 1: ...roducts (id integer CHECK (firstname AND id::boolean), firstnam...
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
 LINE 1: ...ducts (id integer CHECK (id::boolean OR id), firstname varchar);
                                                    ^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for boolean operations
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
 LINE 2: ... text, price numeric CONSTRAINT name1 CHECK (ABS(product_no)));
                                                         ^^^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER

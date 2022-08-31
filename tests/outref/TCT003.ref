@@ -1,12 +1,8 @@
 
 -- TCT003: coerce string to NUMERIC
 
-select "hello"::numeric from names limit 1;
-select * from names where "hello"::numeric = names.id
+select 'hello'::numeric from names limit 1;
+select * from names where 'hello'::numeric = names.id
 
-???
-0
-(1 row)
-ID|FIRSTNAME|LASTNAME
-0|Zero|Cool
-(1 row)
+[ERROR]: ERR_INVALID_NUMERIC_SYNTAX: Invalid input syntax for type numeric: 'hello'
+[ERROR]: ERR_INVALID_NUMERIC_SYNTAX: Invalid input syntax for type numeric: 'hello'

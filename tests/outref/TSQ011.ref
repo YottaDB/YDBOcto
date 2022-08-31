@@ -4,7 +4,7 @@
 select proname,typname from pg_catalog.pg_proc inner join pg_catalog.pg_type on pg_catalog.pg_proc.prorettype = pg_catalog.pg_type.oid;
 PRONAME|TYPNAME
 ABS|numeric
-ABS|numeric
+ABS|int4
 CONCAT|varchar
 CONCAT|varchar
 ROUND|numeric

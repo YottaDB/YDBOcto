@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -12,6 +12,6 @@
 
 -- TCT012 : OCTO300 : Octo uses right most type in calculated columns rather than highest precision type
 
-select 1.5::integer+2.5::numeric+"1abcd"::numeric from names;
-select 1.5::integer+2.5::numeric+"1abcd"::integer from names;
+select 1.5::integer+2.5::numeric+'1'::numeric from names;
+select 1.5::integer+2.5::numeric+'1'::integer from names;
 

@@ -95,14 +95,14 @@ void ydb_error_check(int status, char *file, int line) {
 		if (positive_status == ydboctoerrcode) {
 			octo_log(line, file, ERROR, ERROR_Severity, ERR_SUBQUERY_MULTIPLE_ROWS, NULL);
 		}
-		/* Check if %ydboctoerror("INVALIDINPUTSYNTAXBOOL")	*/
+		/* Check if %ydboctoerror("INVALIDBOOLEANSYNTAX")	*/
 		ydboctoerrcode++;
 		if (positive_status == ydboctoerrcode) {
 			ydb_buffer_t subs[2];
 
 			/* M code would have passed the actual string involved in an M node. Get that before printing error. */
 			YDB_LITERAL_TO_BUFFER("%ydboctoerror", &varname);
-			YDB_LITERAL_TO_BUFFER("INVALIDINPUTSYNTAXBOOL", &subs[0]);
+			YDB_LITERAL_TO_BUFFER("INVALIDBOOLEANSYNTAX", &subs[0]);
 			YDB_LITERAL_TO_BUFFER("1", &subs[1]);
 			status = ydb_get_s(&varname, 2, subs, &ret_value);
 			if (YDB_ERR_INVSTRLEN == status) {
@@ -112,7 +112,49 @@ void ydb_error_check(int status, char *file, int line) {
 				UNUSED(status); // Prevent 'value never read' compiler warning
 			}
 			ret_value.buf_addr[ret_value.len_used] = '\0';
-			octo_log(line, file, ERROR, ERROR_Severity, ERR_INVALID_INPUT_SYNTAX_BOOL, ret_value.buf_addr);
+			octo_log(line, file, ERROR, ERROR_Severity, ERR_INVALID_BOOLEAN_SYNTAX, ret_value.buf_addr);
+			/* Now that we have got the value, delete the M node */
+			ydb_delete_s(&varname, 2, subs, YDB_DEL_NODE);
+		}
+		/* Check if %ydboctoerror("INVALIDINTEGERSYNTAX")	*/
+		ydboctoerrcode++;
+		if (positive_status == ydboctoerrcode) {
+			ydb_buffer_t subs[2];
+
+			/* M code would have passed the actual string involved in an M node. Get that before printing error. */
+			YDB_LITERAL_TO_BUFFER("%ydboctoerror", &varname);
+			YDB_LITERAL_TO_BUFFER("INVALIDINTEGERSYNTAX", &subs[0]);
+			YDB_LITERAL_TO_BUFFER("1", &subs[1]);
+			status = ydb_get_s(&varname, 2, subs, &ret_value);
+			if (YDB_ERR_INVSTRLEN == status) {
+				EXPAND_YDB_BUFFER_T_ALLOCATION(ret_value);
+				status = ydb_get_s(&varname, 2, subs, &ret_value);
+				assert(YDB_OK == status);
+				UNUSED(status); // Prevent 'value never read' compiler warning
+			}
+			ret_value.buf_addr[ret_value.len_used] = '\0';
+			octo_log(line, file, ERROR, ERROR_Severity, ERR_INVALID_INTEGER_SYNTAX, ret_value.buf_addr);
+			/* Now that we have got the value, delete the M node */
+			ydb_delete_s(&varname, 2, subs, YDB_DEL_NODE);
+		}
+		/* Check if %ydboctoerror("INVALIDNUMERICSYNTAX")	*/
+		ydboctoerrcode++;
+		if (positive_status == ydboctoerrcode) {
+			ydb_buffer_t subs[2];
+
+			/* M code would have passed the actual string involved in an M node. Get that before printing error. */
+			YDB_LITERAL_TO_BUFFER("%ydboctoerror", &varname);
+			YDB_LITERAL_TO_BUFFER("INVALIDNUMERICSYNTAX", &subs[0]);
+			YDB_LITERAL_TO_BUFFER("1", &subs[1]);
+			status = ydb_get_s(&varname, 2, subs, &ret_value);
+			if (YDB_ERR_INVSTRLEN == status) {
+				EXPAND_YDB_BUFFER_T_ALLOCATION(ret_value);
+				status = ydb_get_s(&varname, 2, subs, &ret_value);
+				assert(YDB_OK == status);
+				UNUSED(status); // Prevent 'value never read' compiler warning
+			}
+			ret_value.buf_addr[ret_value.len_used] = '\0';
+			octo_log(line, file, ERROR, ERROR_Severity, ERR_INVALID_NUMERIC_SYNTAX, ret_value.buf_addr);
 			/* Now that we have got the value, delete the M node */
 			ydb_delete_s(&varname, 2, subs, YDB_DEL_NODE);
 		}

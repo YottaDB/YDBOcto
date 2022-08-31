@@ -6,8 +6,7 @@ CREATE FUNCTION DOLLARZWRITE(INTEGER) RETURNS VARCHAR AS $ZWRITE;
 select +id::boolean from names;
 select -id::boolean from names;
 
--- Test that numeric type cast to boolean does not issue error (northwind database)
--- Note: Postgres issues an error for this but Octo does not since in M numeric and integer are the same.
+-- Test that numeric type cast to boolean issues an error (northwind database)
 select Price::boolean from Products;
 
 -- Test that string type cast to boolean issues error
@@ -33,87 +32,11 @@ LINE 1: select +id::boolean from names;
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type BOOLEAN
 LINE 1: select -id::boolean from names;
                 ^^
-PRICE
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-(77 rows)
-[ERROR]: ERR_INVALID_INPUT_SYNTAX_BOOL: Invalid input syntax for type boolean: 'Zero' is not a valid boolean value
-[ERROR]: ERR_INVALID_INPUT_SYNTAX_BOOL: Invalid input syntax for type boolean: '2' is not a valid boolean value
+[ERROR]: ERR_TYPE_CAST: Cannot cast type NUMERIC to type BOOLEAN
+LINE 1: select Price::boolean from Products;
+               ^^^^^^^^^^^^^^
+[ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'Zero' is not a valid boolean value
+[ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: '2' is not a valid boolean value
 [ERROR]: ERR_MISTYPED_FUNCTION: Function MIN cannot be invoked with a parameter of type BOOLEAN
 LINE 1: select min(mybool) from (select id=2 as mybool from names) n1;
                ^^^

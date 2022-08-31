@@ -1,5 +1,5 @@
 ABS|1|1700|1700|null|null|null
-ABS|1|1700|23|null|null|null
+ABS|1|23|23|null|null|null
 CONCAT|2|1043|1043 1043|null|null|null
 CONCAT|3|1043|1043 1043 1043|null|null|null
 ROUND|2|1700|1700 23|null|null|null

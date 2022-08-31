@@ -85,7 +85,7 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 		case STRING_TYPE:
 			if (SIZE_OR_PRECISION_UNSPECIFIED != cur_column->data_type_struct.size_or_precision) {
 				if (NUMERIC_TYPE == cur_column->data_type_struct.data_type) {
-					%{}$$Cast2NUMERIC^%%ydboctoplanhelpers({}%
+					%{}$$Cast2NUMERICWithPrecision^%%ydboctoplanhelpers({}%
 				} else {
 					%{}$$SizeCheckVARCHAR^%%ydboctoplanhelpers({}%
 				}

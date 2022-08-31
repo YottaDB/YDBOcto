@@ -1,8 +1,8 @@
 
 -- TCT012 : OCTO300 : Octo uses right most type in calculated columns rather than highest precision type
 
-select 1.5::integer+2.5::numeric+"1abcd"::numeric from names;
-select 1.5::integer+2.5::numeric+"1abcd"::integer from names;
+select 1.5::integer+2.5::numeric+'1'::numeric from names;
+select 1.5::integer+2.5::numeric+'1'::integer from names;
 
 ???
 5.5
@@ -22,7 +22,7 @@ select 1.5::integer+2.5::numeric+"1abcd"::integer from names;
 (6 rows)
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
-;  select 1.5::integer+2.5::numeric+"1abcd"::numeric from names;
+;  select 1.5::integer+2.5::numeric+'1'::numeric from names;
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
@@ -43,11 +43,11 @@ octoPlan1(cursorId)
     . . SET %ydboctoexpr=($$ROUND^%ydboctosqlfunctions((%ydboctoexpr),0))
     . . SET %ydboctoexpr(2)=%ydboctoexpr
     . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",2))
-    . . SET %ydboctoexpr=($$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr))
+    . . SET %ydboctoexpr=($$Cast2NUMERICWithoutPrecision^%ydboctoplanhelpers(%ydboctoexpr))
     . . SET %ydboctoexpr=%ydboctoexpr(2)+%ydboctoexpr
     . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",3))
-    . . SET %ydboctoexpr=($$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr))
+    . . SET %ydboctoexpr=($$String2NUMERIC^%ydboctoplanhelpers(%ydboctoexpr))
     . . SET %ydboctoexpr=%ydboctoexpr(1)+%ydboctoexpr
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
@@ -55,7 +55,7 @@ octoPlan1(cursorId)
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
-;  select 1.5::integer+2.5::numeric+"1abcd"::integer from names;
+;  select 1.5::integer+2.5::numeric+'1'::integer from names;
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
@@ -76,11 +76,11 @@ octoPlan1(cursorId)
     . . SET %ydboctoexpr=($$ROUND^%ydboctosqlfunctions((%ydboctoexpr),0))
     . . SET %ydboctoexpr(2)=%ydboctoexpr
     . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",2))
-    . . SET %ydboctoexpr=($$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr))
+    . . SET %ydboctoexpr=($$Cast2NUMERICWithoutPrecision^%ydboctoplanhelpers(%ydboctoexpr))
     . . SET %ydboctoexpr=%ydboctoexpr(2)+%ydboctoexpr
     . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",3))
-    . . SET %ydboctoexpr=((%ydboctoexpr)\1)
+    . . SET %ydboctoexpr=($$String2Integer^%ydboctoplanhelpers(%ydboctoexpr))
     . . SET %ydboctoexpr=%ydboctoexpr(1)+%ydboctoexpr
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr

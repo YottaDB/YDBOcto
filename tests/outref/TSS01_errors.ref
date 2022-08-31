@@ -60,7 +60,7 @@ LINE 1: select id and id from names;
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
 LINE 1: select id and id from names;
                       ^^
-[ERROR]: ERR_INVALID_INPUT_SYNTAX_BOOL: Invalid input syntax for type boolean: 'Zero' is not a valid boolean value
+[ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'Zero' is not a valid boolean value
 COL1
 
 

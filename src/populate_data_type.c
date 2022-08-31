@@ -665,20 +665,29 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 				/* Type cast of TABLE.* syntax is not allowed as it does not make sense to type cast
 				 * what is a record into a scalar type. Issue error.
 				 */
-				ERROR(ERR_TYPE_CAST_TABLE_ASTERISK, get_user_visible_type_string(source_type),
+				ERROR(ERR_TYPE_CAST, get_user_visible_type_string(source_type),
 				      get_user_visible_type_string(target_type));
 				yyerror(NULL, NULL, &v, NULL, NULL, NULL);
 				result = 1;
 				break;
 			}
-			/* At this time (Nov 2021), we allow any type to be coerced to any other type at parser time (the only
-			 * exception being TABLE_ASTERISK in which case we would have already issued an error above).
+			/* At this time (Sept 2022), we allow any type to be coerced to any other type at parser time (the
+			 * exception being TABLE_ASTERISK in which case we would have already issued an error above and
+			 * the other is conversion between NUMERIC and BOOLEAN in which case we issue an error below).
 			 * Errors in type conversion, if any, should show up at run-time based on the actual values.
-			 * But since our run-time is M and we currently only allow INTEGER/NUMERIC/STRING types,
-			 * M will allow for converting between either of these types without any errors which is
-			 * different from Postgres (where `'Zero'::integer` will cause an error). We will deal with
-			 * this if users complain about this incompatibility with Postgres.
+			 * src/aux/_ydboctoplanhelpers.m -> ValidateInputAndGetTrimdVal() is invoked in M at run-time to
+			 * validate STRING to INTEGER and STRING to NUMERIC conversions and this routine issues a run-time
+			 * error if the coercion is invalid.
 			 */
+			if (((BOOLEAN_VALUE == target_type) && (NUMERIC_LITERAL == source_type))
+			    || ((NUMERIC_LITERAL == target_type) && (BOOLEAN_VALUE == source_type))) {
+				// Issue error as this is invalid
+				ERROR(ERR_TYPE_CAST, get_user_visible_type_string(source_type),
+				      get_user_visible_type_string(target_type));
+				yyerror(NULL, NULL, &v, NULL, NULL, NULL);
+				result = 1;
+				break;
+			}
 			/* Note down type of target before coerce */
 			value->pre_coerced_type = source_type;
 			*type = target_type;

@@ -236,16 +236,17 @@ select 1+samevalue(id)::INTEGER from names group by 1;
 select 1+samevalue(id)::INTEGER from names group by 1 having 1+samevalue(id)::INTEGER != 2;
 select 1+CAST(samevalue(id) as INTEGER) from names group by 1+CAST(samevalue(id) as INTEGER);
 
-select parmlessfunc() from names group by parmlessfunc()::NUMERIC;
-select parmlessfunc() from names group by parmlessfunc()::NUMERIC having 1!=parmlessfunc()::NUMERIC;
-select parmlessfunc() from names group by parmlessfunc()::NUMERIC having 1!=parmlessfunc()::INTEGER;
-select parmlessfunc() from names group by 1 having 1!=parmlessfunc()::INTEGER;
-select parmlessfunc() from names group by 1 having 1!=parmlessfunc()::NUMERIC;
-select parmlessfunc() from names group by CAST(parmlessfunc() as NUMERIC);
-select parmlessfunc() from names group by CAST(parmlessfunc() as NUMERIC) having 1!=CAST(parmlessfunc() as NUMERIC);
-select parmlessfunc() from names group by CAST(parmlessfunc() as NUMERIC) having 1!=CAST(parmlessfunc() as INTEGER);
-select parmlessfunc() from names group by 1 having 1!=CAST(parmlessfunc() as INTEGER);
-select parmlessfunc() from names group by 1 having 1!=CAST(parmlessfunc() as NUMERIC);
+-- PARMLESSFUNC() returns "SUCCESS"
+select parmlessfunc() from names group by parmlessfunc()::VARCHAR;
+select parmlessfunc() from names group by parmlessfunc()::VARCHAR having 'FAIL'!=parmlessfunc()::VARCHAR;
+select parmlessfunc() from names group by parmlessfunc()::VARCHAR having 'FAIL'!=parmlessfunc()::VARCHAR;
+select parmlessfunc() from names group by 1 having 'FAIL'!=parmlessfunc()::VARCHAR;
+select parmlessfunc() from names group by 1 having 'FAIL'!=parmlessfunc()::VARCHAR;
+select parmlessfunc() from names group by CAST(parmlessfunc() as VARCHAR);
+select parmlessfunc() from names group by CAST(parmlessfunc() as VARCHAR) having 'FAIL'!=CAST(parmlessfunc() as VARCHAR);
+select parmlessfunc() from names group by CAST(parmlessfunc() as VARCHAR) having 'FAIL'!=CAST(parmlessfunc() as VARCHAR);
+select parmlessfunc() from names group by 1 having 'FAIL'!=CAST(parmlessfunc() as VARCHAR);
+select parmlessfunc() from names group by 1 having 'FAIL'!=CAST(parmlessfunc() as VARCHAR);
 
 CREATE FUNCTION
 CREATE FUNCTION

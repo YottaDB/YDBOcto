@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -12,7 +12,7 @@
 
 -- TCT001: coerce canonical number string to INTEGER
 
-select "1"::integer from names limit 1;
-select "1.1"::integer from names limit 1;
-select * from names where "1"::integer = names.id;
-select * from names where "1.1"::integer = names.id;
+select '1'::integer from names limit 1;
+select '1.1'::integer from names limit 1;
+select * from names where '1'::integer = names.id;
+select * from names where '1.1'::integer = names.id;

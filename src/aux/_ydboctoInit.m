@@ -30,9 +30,13 @@
 	SET %ydboctoerrcode=%ydboctoerrcodemin
 	; Below is the list of possible Octo internal errors (relied upon by `src/ydb_error_check.c`).
 	SET %ydboctoerror("SUBQUERYMULTIPLEROWS")=$incr(%ydboctoerrcode) ; signaled by `GetScalar` in `_ydboctoplanhelpers.m`
-	SET %ydboctoerror("INVALIDINPUTSYNTAXBOOL")=$incr(%ydboctoerrcode) ; signaled by `String2Boolean` in `_ydboctoplanhelpers.m`
+	SET %ydboctoerror("INVALIDBOOLEANSYNTAX")=$incr(%ydboctoerrcode) ; signaled by `String2Boolean` in `_ydboctoplanhelpers.m`
+	; Below two errors are signaled by `IssueInvalidInputSyntaxError` in `_ydboctoplanhelpers.m`
+	SET %ydboctoerror("INVALIDINTEGERSYNTAX")=$incr(%ydboctoerrcode)
+	SET %ydboctoerror("INVALIDNUMERICSYNTAX")=$incr(%ydboctoerrcode)
 	SET %ydboctoerror("INVALIDESCAPEPATTERN")=$incr(%ydboctoerrcode) ; signaled by `regexmatch` in `_ydboctoplanhelpers.m`
-	SET %ydboctoerror("NUMERICOVERFLOW")=$incr(%ydboctoerrcode) ; signaled by `Cast2NUMERIC` in `_ydboctoplanhelpers.m`
+	; Below error is signaled by `Cast2NUMERICWithPrecision` in `_ydboctoplanhelpers.m`
+	SET %ydboctoerror("NUMERICOVERFLOW")=$incr(%ydboctoerrcode)
 	SET %ydboctoerror("VARCHARTOOLONG")=$incr(%ydboctoerrcode) ; signaled by `SizeCheckVARCHAR` in `_ydboctoplanhelpers.m`
 	SET %ydboctoerror("DUPLICATEKEYVALUE")=$incr(%ydboctoerrcode) ; signaled by `DuplicateKeyValue` in `_ydboctoplanhelpers.m`
 	SET %ydboctoerror("NULLCOLVALUE")=$incr(%ydboctoerrcode) ; signaled by `NullColValue` in `_ydboctoplanhelpers.m`

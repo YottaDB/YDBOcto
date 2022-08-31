@@ -1,15 +1,12 @@
 
 select 1 order by 2;
--- Following query doesn't generate an error because of #881. It should after the issue is implemented.
 select 1 as id where 1 != 2 group by id having 1 != 2 order by 'abcd'::integer;
 select 1 as id where 1 != 2 group by id having 1 != 2 order by 2;
 select 1 as id where 1 != 2 group by id having 1 != 2 order by 'abcd';
 [ERROR]: ERR_ORDER_BY_POSITION_INVALID: ORDER BY position 2 is not in select list
 LINE 1: select 1 order by 2;
                           ^
-ID
-1
-(1 row)
+[ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: 'abcd'
 [ERROR]: ERR_ORDER_BY_POSITION_INVALID: ORDER BY position 2 is not in select list
 LINE 1: ...lect 1 as id where 1 != 2 group by id having 1 != 2 order by 2;
                                                                         ^

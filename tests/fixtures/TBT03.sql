@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -17,8 +17,7 @@ CREATE FUNCTION DOLLARZWRITE(INTEGER) RETURNS VARCHAR AS $ZWRITE;
 select +id::boolean from names;
 select -id::boolean from names;
 
--- Test that numeric type cast to boolean does not issue error (northwind database)
--- Note: Postgres issues an error for this but Octo does not since in M numeric and integer are the same.
+-- Test that numeric type cast to boolean issues an error (northwind database)
 select Price::boolean from Products;
 
 -- Test that string type cast to boolean issues error

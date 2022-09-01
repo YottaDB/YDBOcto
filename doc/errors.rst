@@ -300,6 +300,14 @@ Text: Duplicate Key Value violates UNIQUE constraint xxx
 
 Description/Action: This error is generated when the :code:`UPDATE` or :code:`INSERT INTO` command tries to add a row that violates a :code:`UNIQUE` constraint defined on the table. The name of the constraint along with the affected list of columns and their corresponding values are included in the error detail. PSQL Error Code: 23505
 
++++++++++++++++++++++++++++++++++++++
+ERR_DUPLICATE_PRIMARY_KEY_CONSTRAINT
++++++++++++++++++++++++++++++++++++++
+
+Text: PRIMARY KEY constraint name 'xxx' already exists in table 'xxx'
+
+Description/Action: This error is generated when a :code:`CREATE TABLE` specifies a PRIMARY KEY constraint with a name that conflicts with the PRIMARY KEY constraint name of an already existing table. The user specified PRIMARY KEY constraint name needs to be unique across all tables in Octo. PSQL Error Code: 42710
+
 +++++++++++++++++++++++++
 INFO_ENTERING_FUNCTION
 +++++++++++++++++++++++++
@@ -1157,6 +1165,14 @@ INFO_TABLE_DOES_NOT_EXIST
 Text: Table 'xxx' does not exist, skipping
 
 Description/Action: This message lets the user know that Octo is skipping the action since the specified table does not exist. PSQL Error Code: 00000
+
+++++++++++++++++++
+ERR_TABLE_KEY_NUM
+++++++++++++++++++
+
+Text: CREATE TABLE for table 'xxx' cannot use table-level PRIMARY KEY constraint and KEY NUM at same time
+
+Description/Action: This error is generated when a :code:`CREATE TABLE` command specifies a table-level :code:`PRIMARY KEY` constraint (i.e. a PRIMARY KEY keyword followed by a parenthesized list of column names) and a :code:`KEY NUM` keywords in the same command. To specify multiple key columns in the table, use only a table-level :code:`PRIMARY KEY` constraint. No need for any KEY NUM keywords (which are still supported only for historical reasons). PSQL Error Code: 42P10
 
 ++++++++++++++++++++++++++++++++
 ERR_TABLE_MULTIPLE_PRIMARY_KEYS

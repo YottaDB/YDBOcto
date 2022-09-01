@@ -61,9 +61,6 @@ int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_co
 	buffer2 = (char *)malloc(sizeof(char) * buffer2_size);
 	do {
 		switch (cur_keyword->keyword) {
-		case PRIMARY_KEY:
-			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " PRIMARY KEY");
-			break;
 		case NOT_NULL:
 			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " NOT NULL");
 			break;
@@ -103,9 +100,11 @@ int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_co
 			}
 			break;
 		case OPTIONAL_KEY_NUM:
-			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
-			m_escape_string2(&buffer2, &buffer2_size, value->v.reference);
-			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " KEY NUM %s", buffer2);
+			/* KEY NUM is an internal representation for the PRIMARY KEY constraint.
+			 * For example 2 columns with KEY NUM 0 and KEY NUM 1 each would translate to a 2-column PRIMARY KEY
+			 * constraint. So do not display the KEY NUM keyword. Only display the PRIMARY KEY constraint when
+			 * it is encountered.
+			 */
 			break;
 		case NO_KEYWORD:
 			break;
@@ -127,6 +126,7 @@ int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_co
 			m_escape_string2(&buffer2, &buffer2_size, value->v.reference);
 			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " ENDPOINT \"%s\"", buffer2);
 			break;
+		case PRIMARY_KEY:
 		case OPTIONAL_CHECK_CONSTRAINT:
 		case UNIQUE_CONSTRAINT:;
 			int	       status;
@@ -137,16 +137,20 @@ int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_co
 			assert(cur_keyword->keyword == constraint->type);
 			assert(NULL != constraint->name);
 			UNPACK_SQL_STATEMENT(value, constraint->name, value);
-			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(
-			    buffer, buffer_size, buff_ptr, " CONSTRAINT %s %s", value->v.string_literal,
-			    ((UNIQUE_CONSTRAINT == cur_keyword->keyword) ? "UNIQUE" : "CHECK ("));
+			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " CONSTRAINT %s %s",
+								    value->v.string_literal,
+								    ((UNIQUE_CONSTRAINT == cur_keyword->keyword) ? "UNIQUE"
+								     : (PRIMARY_KEY == cur_keyword->keyword)	 ? "PRIMARY KEY"
+														 : "CHECK ("));
 			/* Note: "emit_check_constraint()" does the needed emitting not just for a CHECK constraint but
-			 * also for a UNIQUE constraint. That said, we want to emit the list of columns for the UNIQUE
-			 * constraint only if there is more than one column in the list as otherwise it would lead to
-			 * a parse error if the generated CREATE TABLE command is used to recreate the table.
+			 * also for a UNIQUE or PRIMARY KEY constraint. That said, we want to emit the list of columns
+			 * for the UNIQUE or PRIMARY KEY constraint only if there is more than one column in the list
+			 * as otherwise it would lead to a parse error if the generated CREATE TABLE command is used to
+			 * recreate the table.
 			 */
 			boolean_t do_emit_check_constraint;
 			switch (cur_keyword->keyword) {
+			case PRIMARY_KEY:
 			case UNIQUE_CONSTRAINT:;
 				SqlStatement *column_name_list;
 				column_name_list = constraint->definition;

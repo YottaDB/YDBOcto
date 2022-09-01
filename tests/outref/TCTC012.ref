@@ -50,7 +50,7 @@ DELETE 1
 XECUTE_M_CODE
 0
 (1 row)
-Table "USER1" stored in Global: ^%ydboctoDv8yauF7PYxPvMTz51FOUCL
+Table "USER1" stored in Global: ^%ydboctoDv8yauF7PYxPvMTz51FOUCL : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 USERNAME|VARCHAR(20)||NOT NULL|
@@ -109,7 +109,7 @@ UID|USER_ID|SERVICE_ID|URL
 XECUTE_M_CODE
 0
 (1 row)
-Table "SUBSCRIPTIONS" stored in Global: ^%ydboctoDAdZEy8LbVwsexV3QyZU735
+Table "SUBSCRIPTIONS" stored in Global: ^%ydboctoDAdZEy8LbVwsexV3QyZU735 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 UID|INTEGER||NOT NULL|
 USER_ID|INTEGER||NOT NULL|
@@ -152,7 +152,7 @@ DROP TABLE IF EXISTS objecttypes;
 DROP TABLE
 CREATE TABLE
 [ERROR]: ERR_YOTTADB: YottaDB error: 150372994,XecuteMCode+2^xecutemcode,%YDB-E-GVUNDEF, Global variable undefined: ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D
-Table "OBJECTTYPES" stored in Global: ^%ydboctoDfBlMaZYthyS9AJM9ueg123
+Table "OBJECTTYPES" stored in Global: ^%ydboctoDfBlMaZYthyS9AJM9ueg123 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER||NOT NULL|
 OBJECTTYPE|VARCHAR(255)|||
@@ -265,13 +265,14 @@ ID|FIRSTNAM|LASTNAME|EMAIL
 1|a|b|a@example.com
 2|a|b|b@example.com
 (2 rows)
-Table "USER2" stored in Global: ^%ydboctoDyHjlEKcT4QFTSglSXEfYGL(ID)
+Table "USER2" stored in Global: ^%ydboctoDyHjlEKcT4QFTSglSXEfYGL(ID) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER||NOT NULL|
 FIRSTNAM|VARCHAR(255)||NOT NULL|
 LASTNAME|VARCHAR(255)||NOT NULL|
 EMAIL|VARCHAR(255)||NOT NULL|
 Indexes:
+    "USER2_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^%ydboctoDyHjlEKcT4QFTSglSXEfYGL(ID)
     "USER2_EMAIL_KEY" UNIQUE CONSTRAINT, Column(s) (EMAIL), Global ^%ydboctoU18NCO2s7YjbSa2sU8Lqq5B
 DROP TABLE
 -------------------------

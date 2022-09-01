@@ -588,8 +588,11 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		do {
 			int save_status;
 
-			/* Skip hashing NO_KEYWORD (as it creates different physical plans for otherwise identical queries) */
-			if (NO_KEYWORD != cur_keyword->keyword) {
+			/* Skip hashing NO_KEYWORD (as it creates different physical plans for otherwise identical queries).
+			 * Skip hashing OPTIONAL_KEY_NUM keyword as it is only used internally (PRIMARY KEY constraint
+			 * is exposed to the user externally in the CREATE TABLE command instead).
+			 */
+			if ((NO_KEYWORD != cur_keyword->keyword) && (OPTIONAL_KEY_NUM != cur_keyword->keyword)) {
 				ADD_INT_HASH(state, keyword_STATEMENT);
 				// OptionalKeyword
 				ADD_INT_HASH(state, cur_keyword->keyword);
@@ -652,6 +655,8 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		 *	hash_canonical_query(state, constraint->v.check_columns, status);
 		 * When UNIQUE_CONSTRAINT == constraint->type
 		 *	hash_canonical_query(state, constraint->v.uniq_gblname, status);
+		 * When PRIMARY_KEY == constraint->type
+		 *	Nothing to hash
 		 */
 		break;
 	default:

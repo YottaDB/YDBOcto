@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -91,8 +91,8 @@ GLOBAL "^ORD(100.01,keys(""ORDER_STATUS_ID""))"
 DELIM "^";
 
 CREATE TABLE `ORDER_ORDER_ACTIONS`(
- `ORDER1_ID` INTEGER PRIMARY KEY START 0 END "'(keys(""ORDER1_ID""))!(keys(""ORDER1_ID"")="""")",
- `ORDER_ORDER_ACTIONS_ID` INTEGER KEY NUM 1 START 0 END "'(keys(""ORDER_ORDER_ACTIONS_ID""))!(keys(""ORDER_ORDER_ACTIONS_ID"")="""")",
+ `ORDER1_ID` INTEGER START 0 END "'(keys(""ORDER1_ID""))!(keys(""ORDER1_ID"")="""")",
+ `ORDER_ORDER_ACTIONS_ID` INTEGER START 0 END "'(keys(""ORDER_ORDER_ACTIONS_ID""))!(keys(""ORDER_ORDER_ACTIONS_ID"")="""")",
  `DATE_TIME_ORDERED` INTEGER NOT NULL GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 1,
  `REASON_FOR_ACTION_REJECT` CHARACTER(240) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),1)" PIECE 1,
  `ACTION` CHARACTER(12) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 2,
@@ -133,7 +133,8 @@ CREATE TABLE `ORDER_ORDER_ACTIONS`(
  `CHART_COPY_PRINTED_WHEN` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),7)" PIECE 2,
  `CHART_COPY_PRINTED_BY` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),7)" PIECE 3,
  `CHART_COPY_PRINTER` CHARACTER(50) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),7)" PIECE 4,
- `ADMIN_RELEASED_BY_POLICY` CHARACTER(3) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),8)" PIECE 1
+ `ADMIN_RELEASED_BY_POLICY` CHARACTER(3) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),8)" PIECE 1,
+ PRIMARY KEY (`ORDER1_ID`, `ORDER_ORDER_ACTIONS_ID`)
 )
 GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""))"
 DELIM "^";
@@ -809,7 +810,7 @@ CREATE TABLE `PATIENT`(
  `MHV_AUTH_DECLINED_REASON` INTEGER GLOBAL "^DPT(keys(""PATIENT_ID""),2)" PIECE 8,
  `MHV_MSG_DECLINED_REASON` INTEGER GLOBAL "^DPT(keys(""PATIENT_ID""),2)" PIECE 9
 )
-GLOBAL "^DPT(keys(""PATIENT_ID""))"
+GLOBAL "^DPT"
 DELIM "^";
 
 -- Various functions used by VistA. Commented functions are currently unused in the test system and are undefined.

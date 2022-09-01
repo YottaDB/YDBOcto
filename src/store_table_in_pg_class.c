@@ -303,7 +303,6 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 			return 1;
 		}
 	}
-
 	/* Now that we have copied over the lvn nodes tracking function names/hashes in a check constraint into a gvn,
 	 * delete the lvn data. See comment in "src/parser/table_definition.c" (search for OCTOLIT_FUNCTIONS) for details.
 	 */
@@ -313,5 +312,69 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 		assert(FALSE);
 		return 1;
 	}
+	/* Store the PRIMARY KEY constraint name for this table in a global so we can ensure unique PRIMARY KEY
+	 * constraint names across all tables in Octo. Note that this will change once schema support is added.
+	 * See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/770#note_1095422448 for more details.
+	 * Below is an example gvn node (where "NAMES" is the table name)
+	 *	^%ydboctoocto("primary_key_name","NAMES_ID_PKEY")="NAMES"
+	 */
+	ydb_buffer_t pkey_subs[4];
+	YDB_STRING_TO_BUFFER(config->global_names.octo, &pkey_subs[0]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_PRIMARY_KEY_NAME, &pkey_subs[1]);
+
+	/* Find the PRIMARY KEY constraint in this table */
+	char *primary_key_constraint_name;
+	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
+	cur_column = start_column;
+	primary_key_constraint_name = NULL;
+	do {
+		SqlOptionalKeyword *cur_keyword, *start_keyword;
+		UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
+		cur_keyword = start_keyword;
+		do {
+			if (PRIMARY_KEY == cur_keyword->keyword) {
+				SqlConstraint *constraint;
+				UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
+
+				SqlValue *value;
+				UNPACK_SQL_STATEMENT(value, constraint->name, value);
+				primary_key_constraint_name = value->v.string_literal;
+				break;
+			}
+			cur_keyword = cur_keyword->next;
+		} while (cur_keyword != start_keyword);
+		if (NULL != primary_key_constraint_name) {
+			break;
+		}
+		cur_column = cur_column->next;
+	} while (cur_column != start_column);
+	if (NULL != primary_key_constraint_name) {
+		/* A PRIMARY KEY constraint keyword exists in the table (must be the only one keyword) */
+		YDB_STRING_TO_BUFFER(primary_key_constraint_name, &pkey_subs[2]);
+		YDB_STRING_TO_BUFFER(table_name, &pkey_subs[3]);
+		status = ydb_set_s(&pkey_subs[0], 2, &pkey_subs[1], &pkey_subs[3]);
+		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status) {
+			assert(FALSE);
+			return 1;
+		}
+		/* Store cross reference to the above gvn node so it is easy for DROP TABLE to know which node to remove.
+		 * Below is an example gvn node (where "NAMES" is the table name)
+		 *	^%ydboctoschema("NAMES","primary_key_name")="NAMES_ID_PKEY"
+		 */
+		YDB_STRING_TO_BUFFER(config->global_names.schema, &pkey_subs[0]);
+		YDB_STRING_TO_BUFFER(table_name, &pkey_subs[1]);
+		YDB_STRING_TO_BUFFER(OCTOLIT_PRIMARY_KEY_NAME, &pkey_subs[2]);
+		YDB_STRING_TO_BUFFER(primary_key_constraint_name, &pkey_subs[3]);
+		status = ydb_set_s(&pkey_subs[0], 2, &pkey_subs[1], &pkey_subs[3]);
+		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status) {
+			assert(FALSE);
+			return 1;
+		}
+	}
+	/* else: It is possible no PRIMARY KEY constraint keyword exists in case the user did not specify one.
+	 * In that case, we don't need to store anything about PRIMARY KEY names for this table in gvn nodes.
+	 */
 	return 0;
 }

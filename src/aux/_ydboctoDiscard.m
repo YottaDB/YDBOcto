@@ -51,6 +51,9 @@ discardTable(tableName,tableGVNAME)	;
 	; Discards all generated xrefs, plans and triggers associated with a table.
 	; Also KILLs the M global name associated with a table in case "tableGVNAME" parameter is set to a non-empty string.
 	; ----------------------------------------------------------------------------
+	; The second parameter "tableGVNAME ", if defined, indicates this is a call from DROP TABLE. Whereas if it is a
+	; call from DISCARD TABLE or DISCARD ALL, the second parameter would be undefined.
+	; ----------------------------------------------------------------------------
 	; Delete all _ydboctoP*.m and _ydboctoX*.m plans associated with "tableName".
 	; Also delete those database nodes that correspond to the plan metadata of these deleted plans.
 	;
@@ -76,23 +79,36 @@ discardTable(tableName,tableGVNAME)	;
 	. .  SET aimgbl=$QSUBSCRIPT(^%ydbAIMOctoCache(tableName,column,"location"),0)
 	. .  DO UNXREFDATA^%YDBAIM(aimgbl)
 	. .  KILL ^%ydbAIMOctoCache(tableName,column)
-	IF $data(tableGVNAME)&(""'=tableGVNAME) DO
+	DO:$DATA(tableGVNAME)
+	. ; ----------------------
+	. ; tableGVNAME is defined. This means it is a call from DROP TABLE. Do additional cleanup.
+	. ; ----------------------
 	. ; If tableGVNAME is not "", it points to an gvn whose subtree needs to be KILLed as part of the DROP TABLE
-	. KILL @tableGVNAME
+	. KILL:(""'=tableGVNAME) @tableGVNAME
 	. ; Now that we know we are in the middle of a DROP TABLE and this table is going away, remove global variable nodes
 	. ; that record which functions this table's CHECK constraints depend on.
 	. NEW gvn
 	. SET gvn="^%ydboctoocto(""tableconstraint"",tableName)"
-	. FOR  SET gvn=$query(@gvn)  QUIT:$QSUBSCRIPT(gvn,2)'=tableName  DO
-	. . ; gvn would be like ^%ydboctoocto("tableconstraint","NAMES","NAME1","SAMEVALUE","%ydboctoFN0uUSDY6E7G9VcjaOGNP9G")=""
-	. . NEW constraintName,functionName,functionHash
-	. . SET constraintName=$QSUBSCRIPT(gvn,3)
-	. . SET functionName=$QSUBSCRIPT(gvn,4)
-	. . SET functionHash=$QSUBSCRIPT(gvn,5)
-	. . KILL @gvn
-	. . ; Need to also kill the following gvn which is maintained in sync with the above
-	. . ; ^%ydboctoocto("functions","SAMEVALUE","%ydboctoFN0uUSDY6E7G9VcjaOGNP9G","check_constraint","NAMES","NAME1")=""
-	. . KILL ^%ydboctoocto("functions",functionName,functionHash,"check_constraint",tableName,constraintName)
+	. ; Note that these global variable nodes need not exist in case of a DROP TABLE IF EXISTS hence the $DATA check below.
+	. DO:$DATA(@gvn)
+	. . FOR  SET gvn=$QUERY(@gvn)  QUIT:$QSUBSCRIPT(gvn,2)'=tableName  DO
+	. . . ; gvn would be like ^%ydboctoocto("tableconstraint","NAMES","NAME1","SAMEVALUE","%ydboctoFN0uUSDY6E7G9VcjaOGNP9G")=""
+	. . . NEW constraintName,functionName,functionHash
+	. . . SET constraintName=$QSUBSCRIPT(gvn,3)
+	. . . SET functionName=$QSUBSCRIPT(gvn,4)
+	. . . SET functionHash=$QSUBSCRIPT(gvn,5)
+	. . . KILL @gvn
+	. . . ; Need to also kill the following gvn which is maintained in sync with the above
+	. . . ; ^%ydboctoocto("functions","SAMEVALUE","%ydboctoFN0uUSDY6E7G9VcjaOGNP9G","check_constraint","NAMES","NAME1")=""
+	. . . KILL ^%ydboctoocto("functions",functionName,functionHash,"check_constraint",tableName,constraintName)
+	. ;
+	. ; Remove global nodes that help maintain uniqueness of PRIMARY KEY constraint name across all tables
+	. ; Note that these global variable nodes need not exist in case of a DROP TABLE IF EXISTS hence the $DATA check below.
+	. DO:$DATA(^%ydboctoschema(tableName,"primary_key_name"))
+	. . NEW primaryKeyConstraintName
+	. . SET primaryKeyConstraintName=^%ydboctoschema(tableName,"primary_key_name")
+	. . KILL ^%ydboctoocto("primary_key_name",primaryKeyConstraintName)
+	. . KILL ^%ydboctoschema(tableName,"primary_key_name")
 	QUIT
 
 discardFunction(functionName,functionHash)	;

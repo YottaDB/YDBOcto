@@ -191,8 +191,7 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 		CALL_DECOMPRESS_HELPER(constraint->definition, out, out_length);
 		if (OPTIONAL_CHECK_CONSTRAINT == constraint->type) {
 			CALL_DECOMPRESS_HELPER(constraint->v.check_columns, out, out_length);
-		} else {
-			assert(UNIQUE_CONSTRAINT == constraint->type);
+		} else if (UNIQUE_CONSTRAINT == constraint->type) {
 			CALL_DECOMPRESS_HELPER(constraint->v.uniq_gblname, out, out_length);
 		}
 		break;

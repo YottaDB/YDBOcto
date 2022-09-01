@@ -76,7 +76,6 @@
 #define PP_YDB_OCTO_G	       "%ydboctog"
 #define PP_YDB_OCTO_I	       "%ydboctoi"
 #define PP_YDB_OCTO_IN	       "%ydboctoin"
-#define PP_YDB_OCTO_KEYCHNGD   "%ydboctokeychngd"
 #define PP_YDB_OCTO_P	       "%ydboctop"
 #define PP_YDB_OCTO_UPD	       "%ydboctoUPD" /* see comment in tmpl_update_table.ctemplate for its purpose */
 #define PP_YDB_OCTO_Z	       "%ydboctoz"
@@ -168,6 +167,7 @@ typedef enum {
 	ConstraintColNullList,
 	ConstraintColValList,
 	ConstraintSetColIList,
+	ConstraintColChangedList,
 } ConstraintColListType;
 
 typedef enum {

@@ -1,0 +1,6 @@
+# Generate random sets of queries/commands in file TCTC013.sql
+# Run TCTC013.sql against Postgres
+# Run TCTC013.sql against Octo
+# Verify Octo output matches Postgres output
+# Sanitize Postgres and Octo output to remove parts that are known to be different
+# Running [diff psql.out.xform octo.out.xform]. Expect no output below.

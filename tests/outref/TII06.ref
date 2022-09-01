@@ -56,23 +56,23 @@ ID|FIRSTNAME|LASTNAME
 200||
 (8 rows)
 # Verify target table columns that don't have a corresponding source column are set to NULL in generated M plan
-_ydboctoP*.m:;  INSERT INTO names SELECT id+6 FROM names ORDER BY id DESC LIMIT 2;
-_ydboctoP*.m:    . SET col(1)=$$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(val,1))
-_ydboctoP*.m:    . SET col(2)=$ZYSQLNULL
-_ydboctoP*.m:    . SET col(3)=$ZYSQLNULL
 _ydboctoP*.m:;  INSERT INTO names(firstname,id) SELECT firstname,id+12 FROM names LIMIT 2;
 _ydboctoP*.m:    . SET col(1)=$$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(val,2))
 _ydboctoP*.m:    . SET col(2)=$$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(val,1))
 _ydboctoP*.m:    . SET col(2)=$$SizeCheckVARCHAR^%ydboctoplanhelpers(col(2),30)
 _ydboctoP*.m:    . SET col(3)=$ZYSQLNULL
+_ydboctoP*.m:;  INSERT INTO names(lastname, id) SELECT firstname, id+10 FROM names WHERE id = 4 OR id = 5 UNION VALUES ('Lastname100', 100), ('', 200);
+_ydboctoP*.m:    . SET col(1)=$$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(val,2))
+_ydboctoP*.m:    . SET col(2)=$ZYSQLNULL
+_ydboctoP*.m:    . SET col(3)=$$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(val,1))
+_ydboctoP*.m:    . SET col(3)=$$SizeCheckVARCHAR^%ydboctoplanhelpers(col(3),30)
 _ydboctoP*.m:;  INSERT INTO names SELECT id+24,NULL,NULL FROM names LIMIT 2;
 _ydboctoP*.m:    . SET col(1)=$$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(val,1))
 _ydboctoP*.m:    . SET col(2)=$$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(val,2))
 _ydboctoP*.m:    . SET col(2)=$$SizeCheckVARCHAR^%ydboctoplanhelpers(col(2),30)
 _ydboctoP*.m:    . SET col(3)=$$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(val,3))
 _ydboctoP*.m:    . SET col(3)=$$SizeCheckVARCHAR^%ydboctoplanhelpers(col(3),30)
-_ydboctoP*.m:;  INSERT INTO names(lastname, id) SELECT firstname, id+10 FROM names WHERE id = 4 OR id = 5 UNION VALUES ('Lastname100', 100), ('', 200);
-_ydboctoP*.m:    . SET col(1)=$$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(val,2))
+_ydboctoP*.m:;  INSERT INTO names SELECT id+6 FROM names ORDER BY id DESC LIMIT 2;
+_ydboctoP*.m:    . SET col(1)=$$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(val,1))
 _ydboctoP*.m:    . SET col(2)=$ZYSQLNULL
-_ydboctoP*.m:    . SET col(3)=$$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(val,1))
-_ydboctoP*.m:    . SET col(3)=$$SizeCheckVARCHAR^%ydboctoplanhelpers(col(3),30)
+_ydboctoP*.m:    . SET col(3)=$ZYSQLNULL

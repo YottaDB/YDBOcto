@@ -91,7 +91,7 @@ teardown() {
 @test "TDFT05 : OCTO54 : Test that DELETE FROM builds cross references outside TSTART/TCOMMIT" {
 	load_fixture TDFT05.sql subtest novv
 	echo "# Verify that ^%ydboctoX... invocation happens BEFORE the TSTART in the generated M plan" >> output.txt
-	grep -E "DELETE|----|ydboctoX|octoPlan|TSTART|TCOMMIT" _ydboctoP*.m >> output.txt
+	grep -E "DELETE|;; ----|ydboctoX|octoPlan|TSTART|TCOMMIT" _ydboctoP*.m >> output.txt
 	verify_output TDFT05 output.txt
 }
 

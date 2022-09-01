@@ -15,9 +15,9 @@ LP_ACTION_TYPE(LP_SELECT_QUERY)		// Used to select data from a table; including 
 LP_ACTION_TYPE(LP_INSERT_INTO)		// Used to insert data into a table
 LP_ACTION_TYPE(LP_INSERT_INTO_OPTIONS)	// Used to store more INSERT related information in logical plan
 LP_ACTION_TYPE(LP_INSERT_INTO_MORE_OPTIONS)	// Used to store some more INSERT related information in logical plan
-LP_ACTION_TYPE(LP_CONSTRAINT)	        // Used to maintain a generic constraint (CHECK/UNIQUE etc.)
+LP_ACTION_TYPE(LP_CONSTRAINT)	        // Used to maintain a generic constraint (CHECK/UNIQUE/PRIMARY KEY etc.)
 LP_ACTION_TYPE(LP_CHECK_CONSTRAINT)	// Used to denote a CHECK constraint
-LP_ACTION_TYPE(LP_UNIQUE_CONSTRAINT)	// Used to denote a UNIQUE constraint
+LP_ACTION_TYPE(LP_UNIQUE_CONSTRAINT)	// Used to denote a UNIQUE or PRIMARY KEY constraint
 LP_ACTION_TYPE(LP_INSERT_INTO_COL)	// Used to denote a column reference inside a CHECK constraint in an INSERT INTO command
 LP_ACTION_TYPE(LP_DELETE_FROM)		// Used to DELETE data from a table
 LP_ACTION_TYPE(LP_UPDATE)		// Used to UPDATE data in a table

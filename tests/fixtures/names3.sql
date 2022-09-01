@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,4 +10,4 @@
 #								#
 #################################################################
 
-CREATE TABLE names3 (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30)) GLOBAL "^names3(keys(""id""))";
+CREATE TABLE names3 (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30)) GLOBAL "^names3";

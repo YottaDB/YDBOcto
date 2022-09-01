@@ -16,8 +16,8 @@
 #include "physical_plan.h"
 #include "template_helpers.h"
 
-/* This function processes the list of columns corresponding to a UNIQUE constraint and emits M code as appropriate based on
- * the "list_type" input parameter. It is a helper function used by "tmpl_constraint.ctemplate".
+/* This function processes the list of columns corresponding to a UNIQUE or PRIMARY KEY constraint and emits M code as
+ * appropriate based on the "list_type" input parameter. It is a helper function used by "tmpl_constraint.ctemplate".
  */
 TEMPLATE(tmpl_constraint_col_list, PhysicalPlan *pplan, SqlConstraint *constraint, SqlTable *table,
 			ConstraintColListType list_type, int dot_count, UniqueConstraintLoopType loop_type) {
@@ -30,9 +30,86 @@ TEMPLATE(tmpl_constraint_col_list, PhysicalPlan *pplan, SqlConstraint *constrain
 	LPActionType type;
 	type = lp_root->type;
 	assert((LP_INSERT_INTO == type) || (LP_UPDATE == type) || (LP_DELETE_FROM == type));
-	assert(UNIQUE_CONSTRAINT == constraint->type);
+	assert((UNIQUE_CONSTRAINT == constraint->type) || (PRIMARY_KEY == constraint->type));
 
+	if (ConstraintColIList == list_type) {
+		if (UNIQUE_CONSTRAINT == constraint->type) {
+			SqlValue	*value;
+			UNPACK_SQL_STATEMENT(value, constraint->v.uniq_gblname, value);
+
+			char		*gblname;
+			gblname = value->v.string_literal;
+			%{}{{ gblname }}({}%
+		} else {
+			assert(PRIMARY_KEY == constraint->type);
+			assert(!table_has_hidden_column(table));
+			/* Note: The below code is similar to that in "describe_tablename.c" */
+
+			SqlOptionalKeyword *keyword;
+			UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
+
+			SqlValue	*value;
+			UNPACK_SQL_STATEMENT(value, keyword->v, value);
+
+			char *source_ptr;
+			source_ptr = value->v.string_literal;
+
+			while ('\0' != *source_ptr) {
+				char column[OCTO_MAX_IDENT + 1]; // Null terminator
+				int  t;
+				t = match_keys_expression(source_ptr, column, sizeof(column));
+				assert(-1 != t);
+				if (0 < t) {
+					SqlColumn	*cur_column;
+					cur_column = find_column(column, table);
+
+					int	column_number;
+					column_number = cur_column->column_number;
+					if ((LP_UPDATE == type) && (UniqueConstraintLoopUpdate != loop_type)
+							&& lp_is_col_in_update_column_list(lp_root, cur_column)) {
+						/* See similar code further down in this file for why the negation is needed */
+						column_number = -column_number;
+					}
+
+					unsigned int	is_lvn_set;
+					if (LP_INSERT_INTO == type) {
+						is_lvn_set = 1;	/* For INSERT, all PP_COL(i) are set */
+					} else {
+						IS_TBL_CONSTRAINT_LVN_SET(&ydboctoTblConstraint, column_number, is_lvn_set);
+					}
+					if (0 == is_lvn_set) {
+						/* A PP_COL(i) lvn for this column has not yet been initialized.
+						 * We cannot do that now so we generate alternate M code that has the
+						 * value of that column even though it might not be optimal with
+						 * multiple references to that column.
+						 */
+						assert(0 <= column_number);	/* If column_number is negative, we should
+										 * never see "is_lvn_set" set to a non-zero value.
+										 */
+
+						SqlTableAlias	*src_table_alias;
+						assert((LP_DELETE_FROM == type) || (LP_UPDATE == type));
+						src_table_alias = lp_root->extra_detail.lp_select_query.root_table_alias;
+
+						SqlColumnAlias	*column_alias;
+						column_alias = get_column_alias_from_column_name(column, src_table_alias);
+						TMPL(tmpl_column_reference, pplan, column_alias, FALSE, dot_count, 0);
+					} else {
+						/* A PP_COL(i) lvn for this column has been initialized. So use that. */
+						%{}{{ PP_COL }}({{ column_number|%d }}){}%
+					}
+					source_ptr += t;
+				} else {
+					%{}{{ *source_ptr|%c }}{}%
+					source_ptr++;
+				}
+			}
+			return;
+		}
+	}
 	SqlColumnList *start_cl, *cur_cl;
+	boolean_t	col_changed_list_started;
+	col_changed_list_started = FALSE;
 	UNPACK_SQL_STATEMENT(start_cl, constraint->definition, column_list);
 	cur_cl = start_cl;
 	do {
@@ -47,6 +124,7 @@ TEMPLATE(tmpl_constraint_col_list, PhysicalPlan *pplan, SqlConstraint *constrain
 			break;
 		case ConstraintColIList:
 		case ConstraintColNullList:
+		case ConstraintColChangedList:
 		case ConstraintColValList:
 		case ConstraintSetColIList:;
 			SqlColumn	*cur_column;
@@ -68,6 +146,19 @@ TEMPLATE(tmpl_constraint_col_list, PhysicalPlan *pplan, SqlConstraint *constrain
 			switch(list_type) {
 			case ConstraintColNullList:
 				%{}'$ZYISSQLNULL({}%
+				break;
+			case ConstraintColChangedList:
+				assert((PRIMARY_KEY == constraint->type) && (LP_UPDATE == type)
+							&& (UniqueConstraintLoopUpdate == loop_type));
+				if (lp_is_col_in_update_column_list(lp_root, cur_column)) {
+					if (col_changed_list_started) {
+						%{}!{}%
+					}
+					col_changed_list_started = TRUE;
+					%{}({{ PP_COL }}(-{{ column_number|%d }})'={}%
+					%{}{{ PP_COL }}({{ column_number|%d }})){}%
+				}
+				emit_col_i = FALSE;
 				break;
 			case ConstraintSetColIList:;
 				unsigned int	is_lvn_set;
@@ -130,9 +221,13 @@ TEMPLATE(tmpl_constraint_col_list, PhysicalPlan *pplan, SqlConstraint *constrain
 		case ConstraintColNullList:
 			%{}&{}%
 			break;
+		case ConstraintColChangedList:
 		case ConstraintSetColIList:
 			break;
 		}
 	} while (TRUE);
+	if (ConstraintColIList == list_type) {
+		%{}){}%
+	}
 }
 %{}

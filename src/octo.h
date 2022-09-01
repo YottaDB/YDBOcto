@@ -76,7 +76,7 @@
 // Length of M extrinsic function prefix, i.e. "$$"
 #define EXTRINSIC_PREFIX_LEN 2
 
-#define IS_KEY_COLUMN(COLUMN)	   ((NULL != get_keyword(COLUMN, PRIMARY_KEY)) || (NULL != get_keyword(COLUMN, OPTIONAL_KEY_NUM)))
+#define IS_KEY_COLUMN(COLUMN)	   (NULL != get_keyword(COLUMN, OPTIONAL_KEY_NUM))
 #define IS_COLUMN_NOT_NULL(COLUMN) (IS_KEY_COLUMN(COLUMN) || (NULL != get_keyword(COLUMN, NOT_NULL)))
 
 /* Maximum query string length for all Octo queries. Currently set to YDB_MAX_STR (the maximum size of a GVN/LVN value) since query
@@ -157,6 +157,7 @@
 #define OCTOLIT_FUNCTIONS_MAP	     "functions_map"
 #define OCTOLIT_FORMAT_CODE	     "format_code"
 #define OCTOLIT_KEY		     "KEY"
+#define OCTOLIT_PKEY		     "PKEY"
 #define OCTOLIT_LENGTH		     "length"
 #define OCTOLIT_TEXT_LENGTH	     "text_length"
 #define OCTOLIT_MYSQL		     "MySQL"
@@ -177,6 +178,7 @@
 #define OCTOLIT_PLAN_METADATA	     "plan_metadata"
 #define OCTOLIT_POSTGRESQL	     "PostgreSQL"
 #define OCTOLIT_PREPARED	     "prepared"
+#define OCTOLIT_PRIMARY_KEY_NAME     "primary_key_name"
 #define OCTOLIT_READ_ONLY	     "read-only"
 #define OCTOLIT_ROUTINE		     "routine"
 #define OCTOLIT_SEEDFMT		     "seedfmt"
@@ -319,7 +321,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_PLAN_DEFINITION 19
+#define FMT_PLAN_DEFINITION 20
 
 /* Used by `hash_canonical_query()` */
 #define HASH_LITERAL_VALUES -1
@@ -957,6 +959,9 @@ SqlStatement *get_display_relation_query_stmt(ParseContext *parse_context);
 
 // Implements the "\d tablename" command at the OCTO> prompt
 int describe_tablename(SqlStatement *table_name);
+
+/* Displays the GLOBAL that holds the table's records. */
+void describe_tablename_global(SqlTable *table);
 
 // GROUP BY expression support functions
 int		   get_group_by_column_number(SqlTableAlias *table_alias, SqlStatement *hash_to_match);

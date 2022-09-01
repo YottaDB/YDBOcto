@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -13,8 +13,9 @@
 -- TII02 : INSERT INTO a xfer table
 
 CREATE TABLE namesLastNameXref (
-  lastName VARCHAR(30) PRIMARY KEY,
-  id INTEGER KEY NUM 1
+  lastName VARCHAR(30),
+  id INTEGER,
+  PRIMARY KEY (lastName, id)
 );
 INSERT INTO namesLastNameXref (SELECT lastName, id FROM NAMES WHERE lastName IS NOT NULL);
 SELECT * FROM namesLastNameXref;

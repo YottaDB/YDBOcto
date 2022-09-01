@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,5 +10,5 @@
 #								#
 #################################################################
 
-CREATE TABLE `stock_availability` (product_id INT PRIMARY KEY, available BOOLEAN) GLOBAL "^stockAvailable(keys(""product_id"")";
+CREATE TABLE `stock_availability` (product_id INT PRIMARY KEY, available BOOLEAN) GLOBAL "^stockAvailable";
 

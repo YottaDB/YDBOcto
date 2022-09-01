@@ -53,6 +53,7 @@ setup() {
 }
 
 @test "TCTC005 : OCTO772 : Test CHECK/UNIQUE constraint shows up correctly in \d tablename and CREATE TABLE text definition" {
+	load_fixture names.zwr
 	testname="TCTC005"
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/$testname.sql .
 	echo "# Run CREATE TABLE commands in $testname.sql that tests various types of CHECK constraints" >> output.txt
@@ -114,11 +115,11 @@ setup() {
 	load_fixture TCTC009.sql subtest
 	mv output.txt orig_output.txt
 	echo "# Verifying LP_INSERT_INTO logical plan output contains LP_CHECK_CONSTRAINT/LP_UNIQUE_CONSTRAINT" >> output.txt
-	grep -m 1 -A 39 ^LP_INSERT_INTO orig_output.txt >> output.txt
+	grep -m 1 -A 42 ^LP_INSERT_INTO orig_output.txt >> output.txt
 	echo "# Verifying LP_UPDATE logical plan output contains LP_CHECK_CONSTRAINT/LP_UNIQUE_CONSTRAINT" >> output.txt
-	grep -m 1 -A 29 ^LP_UPDATE orig_output.txt >> output.txt
+	grep -m 1 -A 32 ^LP_UPDATE orig_output.txt >> output.txt
 	echo "# Verifying LP_DELETE logical plan output does not contain LP_CHECK_CONSTRAINT/LP_UNIQUE_CONSTRAINT" >> output.txt
-	grep -m 1 -A 19 ^LP_DELETE orig_output.txt >> output.txt
+	grep -m 1 -A 22 ^LP_DELETE orig_output.txt >> output.txt
 	verify_output TCTC009 output.txt
 }
 
@@ -179,3 +180,34 @@ setup() {
 	echo "-------------------------" | tee -a output.txt
 	verify_output TCTC012 output.txt
 }
+
+@test "TCTC013 : OCTO770 : Test of PRIMARY KEY, UNIQUE and CHECK constraints in randomly generated queries" {
+	echo "# Generate random sets of queries/commands in file TCTC013.sql" >> output.txt
+	yottadb -run TCTC013 > TCTC013.sql
+	echo "# Run TCTC013.sql against Postgres" >> output.txt
+	psql names --no-align -f TCTC013.sql >& psql.out
+	echo "# Run TCTC013.sql against Octo" >> output.txt
+	# || true needed below since octo can return non-zero exit status in case of constraint violation errors.
+	octo -f TCTC013.sql >& octo.out || true
+	echo "# Verify Octo output matches Postgres output" >> output.txt
+	echo "# Sanitize Postgres and Octo output to remove parts that are known to be different" >> output.txt
+	# It is possible that multiple constraints get violated as part of an INSERT/UPDATE/DELETE.
+	# In that case, which constraint gets reported as being violated first could differ between Postgres and Octo.
+	# Additionally, constraint names and select column list output differs in case (lower case vs upper case) so
+	# that is also taken care of below. Hence the complicated sed expression below.
+	sed 's/^psql.*new row for relation/\[ERROR\]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table/;s/^psql.*duplicate key value violates unique constraint.*/\[ERROR\]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint/;s/\"tmp\"/TMP/;s/\"tmp\([a-z_0-9]*check[0-9]*\)\"/TMP\U\1\E/;s/check constraint/CHECK constraint/;s/\<id\([0-9]\)\>/ID\1/g;s/^DETAIL:  //;/NOTICE/d;/^Key /d;/^Failing row contains/d' psql.out > psql.out.xform
+	sed 's/ : \(Failing.*\)//;s/ : \(Key .*\)//;/WARN/d;s/\(Duplicate Key Value violates UNIQUE constraint\).*/\1/;' octo.out > octo.out.xform
+	echo "# Running [diff psql.out.xform octo.out.xform]. Expect no output below." >> output.txt
+	diff psql.out.xform octo.out.xform >> output.txt || true
+	verify_output TCTC013 output.txt
+}
+
+@test "TCTC014 : OCTO770 : Test minimal use of gvns in M plans for UNIQUE/PRIMARY KEY constraints in INSERT/UPDATE/DELETE" {
+	# The goal of this test is to ensure that global variable usages in the generated code happen only as needed.
+	# The PRIMARY KEY constraint uses one global name and the UNIQUE constraint uses a different global name.
+	# So we search for both these global names below. Previously there used to be redundant SET/KILL of these gvns.
+	load_fixture TCTC014.sql subtest
+	grep -E ";; --|INSERT INTO|DELETE|UPDATE|ydboctoDK8x9V2YiyPMRxcDYOMpB0K|ydboctoUQ8buQ87BO5l9CJk7uNqm9E" _ydbocto*.m > output.txt
+	verify_output TCTC014 output.txt
+}
+

@@ -37,10 +37,12 @@ UPDATE articles SET category_id = NULL WHERE article_id = 3;
 SELECT * FROM articles;
 DROP TABLE
 CREATE TABLE
-Table "ARTICLES" stored in Global: ^%ydboctoD2jeRghq9AAWKMCeP0h9N6B(ARTICLE_ID)
+Table "ARTICLES" stored in Global: ^%ydboctoD2jeRghq9AAWKMCeP0h9N6B(ARTICLE_ID) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ARTICLE_ID|INTEGER||NOT NULL|
 CATEGORY_ID|INTEGER||NOT NULL|
+Indexes:
+    "ARTICLE_ID_PK" PRIMARY KEY CONSTRAINT, Column(s) (ARTICLE_ID), Global: ^%ydboctoD2jeRghq9AAWKMCeP0h9N6B(ARTICLE_ID)
 INSERT 0 2
 ARTICLE_ID|CATEGORY_ID
 3|5

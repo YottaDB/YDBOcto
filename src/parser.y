@@ -74,13 +74,13 @@ typedef void* yyscan_t;
 	SQL_STATEMENT(RET, keyword_STATEMENT);							\
 	MALLOC_STATEMENT(RET, keyword, SqlOptionalKeyword);					\
 	UNPACK_SQL_STATEMENT(keyword, RET, keyword);						\
-	keyword->keyword = TYPE;								\
+	keyword->keyword = (OptionalKeyword)TYPE;						\
 	SQL_STATEMENT(keyword->v, constraint_STATEMENT);					\
 	MALLOC_STATEMENT(keyword->v, constraint, SqlConstraint);				\
 	keyword->v->loc = yyloc; /* note down location for later use in error reporting */	\
 	dqinit(keyword);									\
 	UNPACK_SQL_STATEMENT(constraint, keyword->v, constraint);				\
-	constraint->type = TYPE;								\
+	constraint->type = (OptionalKeyword)TYPE;						\
 	constraint->name = NAME;								\
 	constraint->definition = DEFINITION;							\
 	/* Note: "constraint->v.check_columns" or "constraint->v.uniq_gblname" is initialized	\
@@ -1609,11 +1609,8 @@ table_constraint
    ;
 
 unique_constraint_definition
-  // TODO: Uncomment below line as part of YDBOcto#770 PRIMARY KEY constraint support
-  // : unique_specifications LEFT_PAREN unique_column_list RIGHT_PAREN {
-  // TODO: Comment below rule as part of YDBOcto#770 PRIMARY KEY constraint support
-  : UNIQUE LEFT_PAREN unique_column_list RIGHT_PAREN {
-	MALLOC_KEYWORD_CONSTRAINT_STATEMENT($$, UNIQUE_CONSTRAINT, NULL, $unique_column_list);
+  : unique_specifications LEFT_PAREN unique_column_list RIGHT_PAREN {
+	MALLOC_KEYWORD_CONSTRAINT_STATEMENT($$, $unique_specifications, NULL, $unique_column_list);
     }
   ;
 
@@ -1809,17 +1806,19 @@ column_constraint
   : NOT NULL_TOKEN {
       MALLOC_KEYWORD_CONSTRAINT_STATEMENT($$, NOT_NULL, NULL, NULL);
     }
-  | unique_specifications { $$ = $unique_specifications; }
+  | unique_specifications {
+	MALLOC_KEYWORD_CONSTRAINT_STATEMENT($$, $unique_specifications, NULL, NULL);
+    }
 //  | reference_specifications		TODO: Uncomment as part of YDBOcto#773 FOREIGN KEY constraint support
   | check_constraint_definition { $$ = $check_constraint_definition; }
   ;
 
 unique_specifications
   : UNIQUE {
-      MALLOC_KEYWORD_CONSTRAINT_STATEMENT($$, UNIQUE_CONSTRAINT, NULL, NULL);
+      $$ = (SqlStatement *)UNIQUE_CONSTRAINT;
     }
   | PRIMARY KEY {
-      MALLOC_KEYWORD_CONSTRAINT_STATEMENT($$, PRIMARY_KEY, NULL, NULL);
+      $$ = (SqlStatement *)PRIMARY_KEY;
     }
   ;
 

@@ -37,12 +37,19 @@ void constraint_name_auto_generate(SqlOptionalKeyword *cur_keyword, char *table_
 
 	switch (cur_keyword->keyword) {
 	case OPTIONAL_CHECK_CONSTRAINT:
+	case PRIMARY_KEY:
 	case UNIQUE_CONSTRAINT:;
 		char  col_list_buf[OCTO_MAX_IDENT + 1]; /* + 1 for null terminator */
 		char *suffix;
 
 		if (OPTIONAL_CHECK_CONSTRAINT == cur_keyword->keyword) {
 			suffix = OCTOLIT_CHECK;
+		} else if (PRIMARY_KEY == cur_keyword->keyword) {
+			/* For PRIMARY KEY constraint, we only use the table name. No column names are involved.
+			 * Hence the reset of "column_name" to NULL below.
+			 */
+			column_name = NULL;
+			suffix = OCTOLIT_PKEY;
 		} else {
 			assert(UNIQUE_CONSTRAINT == cur_keyword->keyword);
 
@@ -81,8 +88,8 @@ void constraint_name_auto_generate(SqlOptionalKeyword *cur_keyword, char *table_
 				buf_len -= len;
 				cur_cl = cur_cl->next;
 			} while (cur_cl != start_cl);
-			/* Note: The concatenated list of column names of the UNIQUE constraint becomes the "column_name"
-			 * for the logic below. Hence the re-assignment of the "column_name" variable.
+			/* Note: The concatenated list of column names of the UNIQUE constraint becomes the
+			 * "column_name" for the logic below. Hence the re-assignment of the "column_name" variable.
 			 */
 			column_name = col_list_buf;
 			assert(NULL != column_name);
@@ -118,12 +125,12 @@ void constraint_name_auto_generate(SqlOptionalKeyword *cur_keyword, char *table_
 			reserved += snprintf(ret_buf, ret_buf_size, "%d", numeric_suffix);
 		}
 		if (NULL == column_name) {
-			/* It is a table-level CHECK constraint */
+			/* It is a table-level CHECK constraint or a PRIMARY KEY constraint */
 			table_name_len = ret_buf_size - reserved;
 			if (0 == numeric_suffix) {
-				len = snprintf(ret_buf, ret_buf_size, "%.*s_%s", table_name_len, table_name, OCTOLIT_CHECK);
+				len = snprintf(ret_buf, ret_buf_size, "%.*s_%s", table_name_len, table_name, suffix);
 			} else {
-				len = snprintf(ret_buf, ret_buf_size, "%.*s_%s%d", table_name_len, table_name, OCTOLIT_CHECK,
+				len = snprintf(ret_buf, ret_buf_size, "%.*s_%s%d", table_name_len, table_name, suffix,
 					       numeric_suffix);
 			}
 		} else {

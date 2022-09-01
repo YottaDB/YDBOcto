@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -119,6 +119,8 @@ SqlFunction *find_function(const char *function_name, const char *function_hash)
 	// Get the length in bytes of the binary function definition
 	YDB_STRING_TO_BUFFER(OCTOLIT_LENGTH, &function_subs[3]);
 	function_subs[4].buf_addr = len_str;
+	function_subs[4].len_used = 0; /* needed to avoid false [clang-analyzer-core.uninitialized.ArraySubscript] warning when we
+					  use function_subs[4].len_used later below */
 	function_subs[4].len_alloc = sizeof(len_str);
 	status = ydb_get_s(&octo_global, 4, &function_subs[0], &function_subs[4]);
 	if (YDB_ERR_GVUNDEF == status) {

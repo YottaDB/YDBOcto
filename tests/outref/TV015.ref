@@ -89,6 +89,10 @@ LP_INSERT_INTO:
               - method: LP_KEY_ADVANCE
               - xref_key: false
               - uses_xref_key: false
+      LP_CONSTRAINT: 
+        LP_UNIQUE_CONSTRAINT: NAMES_PKEY
+          LP_COLUMN_LIST: 
+            LP_VALUE: 'ID'
 
 [DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN AFTER optimize_logical_plan() follows 
 LP_INSERT_INTO: 
@@ -224,6 +228,10 @@ LP_INSERT_INTO:
               - method: LP_KEY_ADVANCE
               - xref_key: false
               - uses_xref_key: false
+      LP_CONSTRAINT: 
+        LP_UNIQUE_CONSTRAINT: NAMES_PKEY
+          LP_COLUMN_LIST: 
+            LP_VALUE: 'ID'
 
 [ INFO] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering print_temporary_table
 INSERT 0 4

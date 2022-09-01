@@ -215,6 +215,133 @@ create table tmp74 (id1 integer constraint tmp74_id2_check unique, id2 integer C
 -- Test auto generated UNIQUE constraint name collision with CHECK constraint causes it to use "_key2"
 create table tmp75toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopq (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid1 integer, toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid2 integer, constraint tmp75toolongabcdefghijklmnopq_toolong1abcdefghijklmnopqrst_key1 CHECK (1 > 1), unique (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid1, toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid2), unique (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid2, toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid1));
 
+-- YDBOcto#770 : Test that PRIMARY KEY constraint shows up correctly in CREATE TABLE text definition for all below queries
+-- Additionally test the individual case described in comments before each query below
+
+-- Test unnamed PRIMARY KEY column constraint works with READONLY keyword
+create table tmp76 (id integer PRIMARY KEY, firstname varchar, lastname varchar) READONLY GLOBAL "^names";
+select count(*) from tmp76;
+
+-- Test named PRIMARY KEY column constraint works with READONLY keyword
+-- Also test that column level PRIMARY KEY constraint is now able to specify a constraint name.
+create table tmp77 (id integer CONSTRAINT myPrimaryKey77 PRIMARY KEY, firstname varchar, lastname varchar) READONLY GLOBAL "^names";
+select count(*) from tmp77;
+
+-- Test unnamed PRIMARY KEY table constraint works with READONLY keyword
+create table tmp78 (id integer, firstname varchar, lastname varchar, PRIMARY KEY (id)) READONLY GLOBAL "^names";
+select count(*) from tmp78;
+
+-- Test named PRIMARY KEY table constraint works with READONLY keyword
+-- Also test that table level PRIMARY KEY constraint is now able to specify a constraint name.
+create table tmp79 (id integer, firstname varchar, lastname varchar, CONSTRAINT myPrimaryKey79 PRIMARY KEY (id)) READONLY GLOBAL "^names";
+select count(*) from tmp79;
+
+-- Test \d lists a table-level PRIMARY KEY constraint in both cases below
+create table tmp80 (id1 integer key num 0, id2 integer key num 1);
+create table tmp81 (id1 integer, id2 integer, PRIMARY KEY (id1, id2));
+
+-- Test column level PRIMARY KEY constraint and column level UNIQUE constraint specified for same column.
+-- There should be just one PRIMARY KEY and no UNIQUE constraint in the \d output.
+create table tmp82 (id integer primary key unique);
+
+-- Test table level PRIMARY KEY constraint and table level UNIQUE constraint specified for same list of columns in same order.
+-- There should be just one PRIMARY KEY and no UNIQUE constraint in the \d output.
+create table tmp83 (id integer, primary key (id), unique (id));
+create table tmp84 (id1 integer, id2 integer, primary key (id1, id2), unique (id1, id2));
+
+-- Test table level PRIMARY KEY constraint and table level UNIQUE constraint specified for same list of columns but in
+-- different order. There should be one PRIMARY KEY and one UNIQUE constraint in the \d output.
+create table tmp85 (id1 integer, id2 integer, primary key (id1), unique (id2));
+create table tmp86 (id1 integer, id2 integer, primary key (id1, id2), unique (id2, id1));
+
+-- Test that if UNIQUE constraint is discarded because it is a duplicate of PRIMARY KEY constraint, any explicitly specified
+-- name in the UNIQUE constraint is inherited by the PRIMARY KEY constraint if it does not have any explicitly specified name.
+create table tmp87 (id integer primary key constraint uniq unique);
+create table tmp88 (id integer constraint primkey88 primary key constraint abcd unique);
+create table tmp89 (id integer, constraint primkey89 primary key (id), constraint uniq unique (id));
+create table tmp90 (id integer, primary key (id), constraint uniq90 unique (id));
+create table tmp91 (id1 integer, id2 integer, constraint primkey91 primary key (id1, id2), constraint uniq unique (id1, id2));
+create table tmp92 (id1 integer, id2 integer, primary key (id1, id2), constraint uniq92 unique (id1, id2));
+
+-- Test table-level UNIQUE constraint specified BEFORE table-level PRIMARY KEY constraint
+create table tmp93 (unique (id2, id3), id1 integer, id2 integer, id3 integer, primary key (id2, id3));
+create table tmp94 (constraint uniq94 unique (id2, id3), id1 integer, id2 integer, id3 integer, primary key (id2, id3));
+create table tmp95 (unique (id2), id1 integer, id2 integer, primary key (id2));
+create table tmp96 (constraint uniq96 unique (id2), id1 integer, id2 integer, primary key (id2));
+
+-- Test that column-level PRIMARY KEY constraint can now specify a constraint name. And it shows in \d tablename.
+create table tmp97 (id integer constraint pkey97 primary key);
+
+-- Test that table-level PRIMARY KEY constraint can now specify a constraint name. And it shows in \d tablename.
+-- Also test that table level PRIMARY KEY constraint that specifies only one column is treated as a column level PRIMARY KEY constraint
+-- (i.e. PRIMARY KEY shows up inside the "id" column in the table text definition)
+create table tmp98 (id integer, constraint pkey98 primary key (id));
+
+-- Test table level PRIMARY KEY constraint works if more than 1 column is specified
+create table tmp99 (id1 integer, id2 integer, constraint pkey99 primary key (id1, id2));
+
+-- Test that \d tablename works even if table has a mix of CHECK, UNIQUE and PRIMARY KEY constraints
+create table tmp100 (id1 integer, id2 integer, UNIQUE(id1, id2), CHECK (id1 > 2), constraint pkay100 primary key (id2));
+
+-- Test that table-level PRIMARY KEY constraint, using a column that will be defined later in the same CREATE TABLE, works fine
+create table tmp101 (constraint pkey101 primary key (id1), id1 integer);
+create table tmp102 (id1 integer, constraint pkey102 primary key (id2), id2 integer);
+create table tmp103 (id1 integer, constraint pkey103 primary key (id1, id2), id2 integer);
+
+-- Test that automatically assigned constraint name for PRIMARY KEY is table_column1_column2_..._pkey.
+create table tmp104 (id1 integer, id2 integer, primary key (id1, id2));
+
+-- Test that automatically assigned constraint name for PRIMARY KEY ensures uniqueness across ALL existing tables in Octo
+-- The table names in the below 3 lines are 63-bytes long and differ only in the last letter. And the column names are identical.
+-- In that case, auto assigning a PRIMARY KEY constraint name by appending "_key" to the table and column names is bound to
+-- generate the same constraint name for all the below tables IF the auto generation logic did not take this into account.
+-- But it does take this into account and so we expect \d to show 3 different constraint names, the first one with a "_PKEY"
+-- suffix and the second one with a "_PKEY1" suffix and the third one with a "_PKEY2" suffix.
+create table tmp105toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnop (id integer primary key);
+create table tmp105toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnoq (id integer primary key);
+create table tmp105toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnor (id integer primary key);
+
+-- Test auto generation of PRIMARY KEY constraint name truncates table and/or column names as needed
+-- Table name is short, Column name is long
+create table tmp106 (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu integer primary key);
+-- Table name is long, Column name is short
+create table tmp107toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnop (id integer primary key);
+-- Table name is long, Column name is long
+create table tmp108toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnop (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu integer primary key);
+-- Table name is short, Column1 name is long, Column2 name is short
+create table tmp109 (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, id2 integer, primary key (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr, id2));
+-- Table name is short, Column1 name is long, Column2 name is long
+create table tmp110 (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, primary key (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr));
+-- Table name is long, Column1 name is short, Column2 name is short
+create table tmp111toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnop (id1 integer, id2 integer, primary key (id1, id2));
+-- Table name is long, Column1 name is short, Column2 name is long
+create table tmp112toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnop (id1 integer, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, primary key (id1, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr));
+-- Table name is long, Column1 name is long, Column2 name is short
+create table tmp113toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnop (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, id2 integer, primary key (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr, id2));
+-- Table name is long, Column1 name is long, Column2 name is long
+create table tmp114toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnop (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, primary key (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr));
+
+-- Test auto generated PRIMARY KEY constraint name collision with another named UNIQUE constraint name
+create table tmp115 (id1 integer constraint tmp115_pkey unique, id2 integer primary key);
+
+-- Test auto generated UNIQUE KEY constraint name collision with another named PRIMARY KEY constraint name
+create table tmp116 (id1 integer constraint tmp116_id2_key primary key, id2 integer unique);
+
+-- Test auto generated PRIMARY KEY constraint name collision with another named CHECK constraint name
+create table tmp117 (id1 integer constraint tmp117_pkey CHECK (id1 > 1), id2 integer primary key);
+
+-- Test auto generated CHECK constraint name collision with another named PRIMARY KEY constraint name
+create table tmp118 (id1 integer constraint tmp118_id1_check primary key, id2 integer CHECK (id1 > 1));
+
+-- Test auto generated PRIMARY KEY constraint name collision with another named UNIQUE and CHECK constraint name
+create table tmp119 (id2 integer constraint tmp119_pkey CHECK (id2 > 1), id3 integer constraint tmp119_pkey1 unique, id1 integer primary key);
+
+-- Test auto generated UNIQUE constraint name collision with another named PRIMARY KEY and CHECK constraint name
+create table tmp120 (id2 integer constraint tmp120_id1_key CHECK (id2 > 1), id3 integer constraint tmp120_id1_key1 primary key, id1 integer unique);
+
+-- Test auto generated CHECK constraint name collision with another named PRIMARY KEY and UNIQUE constraint name
+create table tmp121 (id1 integer constraint tmp121_id3_check primary key, id2 integer constraint tmp121_id3_check1 unique, id3 integer CHECK (id3 > 1));
+
 CREATE TABLE
 CREATE TABLE
 CREATE TABLE
@@ -246,6 +373,66 @@ CREATE TABLE
 CREATE TABLE
 CREATE TABLE
 CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+COUNT(*)
+6
+(1 row)
+CREATE TABLE
+COUNT(*)
+6
+(1 row)
+CREATE TABLE
+COUNT(*)
+6
+(1 row)
+CREATE TABLE
+COUNT(*)
+6
+(1 row)
 CREATE TABLE
 CREATE TABLE
 CREATE TABLE
@@ -441,6 +628,126 @@ ID1|ID2
 (0 rows)
 TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRID1|TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRID2
 (0 rows)
+ID|FIRSTNAME|LASTNAME
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+(6 rows)
+ID|FIRSTNAME|LASTNAME
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+(6 rows)
+ID|FIRSTNAME|LASTNAME
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+(6 rows)
+ID|FIRSTNAME|LASTNAME
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+(6 rows)
+ID1|ID2
+(0 rows)
+ID1|ID2
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+ID1|ID2
+(0 rows)
+ID1|ID2
+(0 rows)
+ID1|ID2
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+ID1|ID2
+(0 rows)
+ID1|ID2
+(0 rows)
+ID1|ID2|ID3
+(0 rows)
+ID1|ID2|ID3
+(0 rows)
+ID1|ID2
+(0 rows)
+ID1|ID2
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+ID1|ID2
+(0 rows)
+ID1|ID2
+(0 rows)
+ID1
+(0 rows)
+ID1|ID2
+(0 rows)
+ID1|ID2
+(0 rows)
+ID1|ID2
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+ID
+(0 rows)
+TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU
+(0 rows)
+ID
+(0 rows)
+TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU
+(0 rows)
+ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR|ID2
+(0 rows)
+ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR|ID2TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR
+(0 rows)
+ID1|ID2
+(0 rows)
+ID1|ID2TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR
+(0 rows)
+ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR|ID2
+(0 rows)
+ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR|ID2TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR
+(0 rows)
+ID1|ID2
+(0 rows)
+ID1|ID2
+(0 rows)
+ID1|ID2
+(0 rows)
+ID1|ID2
+(0 rows)
+ID2|ID3|ID1
+(0 rows)
+ID2|ID3|ID1
+(0 rows)
+ID1|ID2|ID3
+(0 rows)
 # Verify CHECK constraints are correctly stored in the CREATE TABLE text definition (in global variable nodes)
 `TMP01` (`ID` INTEGER DELIM """",  CONSTRAINT TMP01_CHECK CHECK (((TRUE IS UNKNOWN) AND (FALSE IS NULL))))
 `TMP02` (`ID` INTEGER CONSTRAINT TMP02_ID_CHECK CHECK (((('abcd' != 'efgh') AND (1 <= ID)) AND (1.5 > ABS((- 2.35))))) DELIM """")
@@ -452,8 +759,32 @@ TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRID1|TOOLONG1ABCDEFGH
 `TMP08` (`ID` INTEGER CONSTRAINT TMP08_ID_CHECK CHECK (CASE ID WHEN 2 THEN TRUE END) DELIM """")
 `TMP09` (`ID` INTEGER CONSTRAINT TMP09_ID_CHECK CHECK (CASE ID WHEN 2 THEN TRUE ELSE FALSE END) DELIM """")
 `TMP10` (`ID` INTEGER CONSTRAINT TMP10_ID_CHECK CHECK (CASE WHEN (ID IS NULL) THEN TRUE END) DELIM """")
+`TMP100` (`ID1` INTEGER CONSTRAINT TMP100_ID1_CHECK CHECK ((ID1 > 2)) DELIM """", `ID2` INTEGER CONSTRAINT PKAY100 PRIMARY KEY,  CONSTRAINT TMP100_ID1_ID2_KEY UNIQUE (ID1, ID2))
+`TMP101` (`ID1` INTEGER CONSTRAINT PKEY101 PRIMARY KEY)
+`TMP102` (`ID1` INTEGER DELIM """", `ID2` INTEGER CONSTRAINT PKEY102 PRIMARY KEY)
+`TMP103` (`ID1` INTEGER, `ID2` INTEGER,  CONSTRAINT PKEY103 PRIMARY KEY (ID1, ID2))
+`TMP104` (`ID1` INTEGER, `ID2` INTEGER,  CONSTRAINT TMP104_PKEY PRIMARY KEY (ID1, ID2))
+`TMP105TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOP` (`ID` INTEGER CONSTRAINT TMP105TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJK_PKEY PRIMARY KEY)
+`TMP105TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOQ` (`ID` INTEGER CONSTRAINT TMP105TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJ_PKEY1 PRIMARY KEY)
+`TMP105TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOR` (`ID` INTEGER CONSTRAINT TMP105TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJ_PKEY2 PRIMARY KEY)
+`TMP106` (`TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU` INTEGER CONSTRAINT TMP106_PKEY PRIMARY KEY)
+`TMP107TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOP` (`ID` INTEGER CONSTRAINT TMP107TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJK_PKEY PRIMARY KEY)
+`TMP108TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOP` (`TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU` INTEGER CONSTRAINT TMP108TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJK_PKEY PRIMARY KEY)
+`TMP109` (`ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR` INTEGER, `ID2` INTEGER,  CONSTRAINT TMP109_PKEY PRIMARY KEY (ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR, ID2))
 `TMP11` (`ID` INTEGER CONSTRAINT TMP11_ID_CHECK CHECK (CASE WHEN (ID IS NULL) THEN TRUE ELSE FALSE END) DELIM """")
+`TMP110` (`ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR` INTEGER, `ID2TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR` INTEGER,  CONSTRAINT TMP110_PKEY PRIMARY KEY (ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR, ID2TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR))
+`TMP111TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOP` (`ID1` INTEGER, `ID2` INTEGER,  CONSTRAINT TMP111TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJK_PKEY PRIMARY KEY (ID1, ID2))
+`TMP112TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOP` (`ID1` INTEGER, `ID2TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR` INTEGER,  CONSTRAINT TMP112TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJK_PKEY PRIMARY KEY (ID1, ID2TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR))
+`TMP113TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOP` (`ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR` INTEGER, `ID2` INTEGER,  CONSTRAINT TMP113TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJK_PKEY PRIMARY KEY (ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR, ID2))
+`TMP114TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOP` (`ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR` INTEGER, `ID2TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR` INTEGER,  CONSTRAINT TMP114TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJK_PKEY PRIMARY KEY (ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR, ID2TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR))
+`TMP115` (`ID1` INTEGER CONSTRAINT TMP115_PKEY UNIQUE DELIM """", `ID2` INTEGER CONSTRAINT TMP115_PKEY1 PRIMARY KEY)
+`TMP116` (`ID1` INTEGER CONSTRAINT TMP116_ID2_KEY PRIMARY KEY, `ID2` INTEGER CONSTRAINT TMP116_ID2_KEY1 UNIQUE DELIM """")
+`TMP117` (`ID1` INTEGER CONSTRAINT TMP117_PKEY CHECK ((ID1 > 1)) DELIM """", `ID2` INTEGER CONSTRAINT TMP117_PKEY1 PRIMARY KEY)
+`TMP118` (`ID1` INTEGER CONSTRAINT TMP118_ID1_CHECK PRIMARY KEY CONSTRAINT TMP118_ID1_CHECK1 CHECK ((ID1 > 1)), `ID2` INTEGER DELIM """")
+`TMP119` (`ID2` INTEGER CONSTRAINT TMP119_PKEY CHECK ((ID2 > 1)) PIECE 1, `ID3` INTEGER CONSTRAINT TMP119_PKEY1 UNIQUE PIECE 2, `ID1` INTEGER CONSTRAINT TMP119_PKEY2 PRIMARY KEY)
 `TMP12` (`ID` INTEGER CONSTRAINT TMP12_ID_CHECK CHECK (ID::BOOLEAN) DELIM """")
+`TMP120` (`ID2` INTEGER CONSTRAINT TMP120_ID1_KEY CHECK ((ID2 > 1)) PIECE 1, `ID3` INTEGER CONSTRAINT TMP120_ID1_KEY1 PRIMARY KEY, `ID1` INTEGER CONSTRAINT TMP120_ID1_KEY2 UNIQUE PIECE 2)
+`TMP121` (`ID1` INTEGER CONSTRAINT TMP121_ID3_CHECK PRIMARY KEY, `ID2` INTEGER CONSTRAINT TMP121_ID3_CHECK1 UNIQUE PIECE 1, `ID3` INTEGER CONSTRAINT TMP121_ID3_CHECK2 CHECK ((ID3 > 1)) PIECE 2)
 `TMP13` (`ID` INTEGER CONSTRAINT TMP13_ID_CHECK CHECK ((ID::NUMERIC(3) = 3.0)) DELIM """")
 `TMP14` (`ID` INTEGER CONSTRAINT TMP14_ID_CHECK CHECK ((ID::NUMERIC(4,1) != 4.5)) DELIM """")
 `TMP15` (`ID` INTEGER CONSTRAINT TMP15_ID_CHECK CHECK ((ID::INTEGER < 4)) DELIM """")
@@ -517,165 +848,189 @@ TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRID1|TOOLONG1ABCDEFGH
 `TMP73` (`ID1` INTEGER CONSTRAINT TMP73_ID2_KEY CHECK ((ID1 > 1)) PIECE 1, `ID2` INTEGER CONSTRAINT TMP73_ID2_KEY1 UNIQUE PIECE 2)
 `TMP74` (`ID1` INTEGER CONSTRAINT TMP74_ID2_CHECK UNIQUE PIECE 1, `ID2` INTEGER CONSTRAINT TMP74_ID2_CHECK1 CHECK ((ID2 > 1)) PIECE 2)
 `TMP75TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQ` (`TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRID1` INTEGER PIECE 1, `TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRID2` INTEGER PIECE 2,  CONSTRAINT TMP75TOOLONGABCDEFGHIJKLMNOPQ_TOOLONG1ABCDEFGHIJKLMNOPQRST_KEY1 CHECK ((1 > 1)),  CONSTRAINT TMP75TOOLONGABCDEFGHIJKLMNOPQ_TOOLONG1ABCDEFGHIJKLMNOPQRSTU_KEY UNIQUE (TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRID1, TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRID2),  CONSTRAINT TMP75TOOLONGABCDEFGHIJKLMNOPQ_TOOLONG1ABCDEFGHIJKLMNOPQRST_KEY2 UNIQUE (TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRID2, TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRID1))
+`TMP76` (`ID` INTEGER CONSTRAINT TMP76_PKEY PRIMARY KEY, `FIRSTNAME` VARCHAR PIECE 1, `LASTNAME` VARCHAR PIECE 2)
+`TMP77` (`ID` INTEGER CONSTRAINT MYPRIMARYKEY77 PRIMARY KEY, `FIRSTNAME` VARCHAR PIECE 1, `LASTNAME` VARCHAR PIECE 2)
+`TMP78` (`ID` INTEGER CONSTRAINT TMP78_PKEY PRIMARY KEY, `FIRSTNAME` VARCHAR PIECE 1, `LASTNAME` VARCHAR PIECE 2)
+`TMP79` (`ID` INTEGER CONSTRAINT MYPRIMARYKEY79 PRIMARY KEY, `FIRSTNAME` VARCHAR PIECE 1, `LASTNAME` VARCHAR PIECE 2)
+`TMP80` (`ID1` INTEGER, `ID2` INTEGER,  CONSTRAINT TMP80_PKEY PRIMARY KEY (ID1, ID2))
+`TMP81` (`ID1` INTEGER, `ID2` INTEGER,  CONSTRAINT TMP81_PKEY PRIMARY KEY (ID1, ID2))
+`TMP82` (`ID` INTEGER CONSTRAINT TMP82_PKEY PRIMARY KEY)
+`TMP83` (`ID` INTEGER CONSTRAINT TMP83_PKEY PRIMARY KEY)
+`TMP84` (`ID1` INTEGER, `ID2` INTEGER,  CONSTRAINT TMP84_PKEY PRIMARY KEY (ID1, ID2))
+`TMP85` (`ID1` INTEGER CONSTRAINT TMP85_PKEY PRIMARY KEY, `ID2` INTEGER CONSTRAINT TMP85_ID2_KEY UNIQUE DELIM """")
+`TMP86` (`ID1` INTEGER, `ID2` INTEGER,  CONSTRAINT TMP86_PKEY PRIMARY KEY (ID1, ID2),  CONSTRAINT TMP86_ID2_ID1_KEY UNIQUE (ID2, ID1))
+`TMP87` (`ID` INTEGER CONSTRAINT UNIQ PRIMARY KEY)
+`TMP88` (`ID` INTEGER CONSTRAINT PRIMKEY88 PRIMARY KEY)
+`TMP89` (`ID` INTEGER CONSTRAINT PRIMKEY89 PRIMARY KEY)
+`TMP90` (`ID` INTEGER CONSTRAINT UNIQ90 PRIMARY KEY)
+`TMP91` (`ID1` INTEGER, `ID2` INTEGER,  CONSTRAINT PRIMKEY91 PRIMARY KEY (ID1, ID2))
+`TMP92` (`ID1` INTEGER, `ID2` INTEGER,  CONSTRAINT UNIQ92 PRIMARY KEY (ID1, ID2))
+`TMP93` (`ID1` INTEGER DELIM """", `ID2` INTEGER, `ID3` INTEGER,  CONSTRAINT TMP93_PKEY PRIMARY KEY (ID2, ID3))
+`TMP94` (`ID1` INTEGER DELIM """", `ID2` INTEGER, `ID3` INTEGER,  CONSTRAINT UNIQ94 PRIMARY KEY (ID2, ID3))
+`TMP95` (`ID1` INTEGER DELIM """", `ID2` INTEGER CONSTRAINT TMP95_PKEY PRIMARY KEY)
+`TMP96` (`ID1` INTEGER DELIM """", `ID2` INTEGER CONSTRAINT UNIQ96 PRIMARY KEY)
+`TMP97` (`ID` INTEGER CONSTRAINT PKEY97 PRIMARY KEY)
+`TMP98` (`ID` INTEGER CONSTRAINT PKEY98 PRIMARY KEY)
+`TMP99` (`ID1` INTEGER, `ID2` INTEGER,  CONSTRAINT PKEY99 PRIMARY KEY (ID1, ID2))
 # Generate and Run query file slashd.sql that does a \d of all tables created in TCTC005.sql
 # Also verify that constraint names are created correctly
 # 1) Constraints that use only one column in the table end up as column-level constraints
 #    and have that column name in their name.
 # 2) Constraints that use 0 or more than 1 column in the table end up as table-level constraints
 #    and have no column name in their name.
-Table "TMP01" stored in Global: ^%ydboctoDQmXuZ0ZhXXnogY33Yp3q34
+Table "TMP01" stored in Global: ^%ydboctoDQmXuZ0ZhXXnogY33Yp3q34 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 Check constraints:
     "TMP01_CHECK" CHECK (((TRUE IS UNKNOWN) AND (FALSE IS NULL)))
-Table "TMP02" stored in Global: ^%ydboctoDqWif6wHKMWPlTwmB7GKf7B
+Table "TMP02" stored in Global: ^%ydboctoDqWif6wHKMWPlTwmB7GKf7B : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 Check constraints:
     "TMP02_ID_CHECK" CHECK (((('abcd' != 'efgh') AND (1 <= ID)) AND (1.5 > ABS((- 2.35)))))
-Table "TMP03" stored in Global: ^%ydboctoDE9WvrlrreoHZnLdDC6Jt7A
+Table "TMP03" stored in Global: ^%ydboctoDE9WvrlrreoHZnLdDC6Jt7A : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 Check constraints:
     "TMP03_CHECK" CHECK ((NOT (NULLIF(1.0,1) IS NOT NULL)))
-Table "TMP04" stored in Global: ^%ydboctoDyW56dvwoACfnnhXg4IFm2J
+Table "TMP04" stored in Global: ^%ydboctoDyW56dvwoACfnnhXg4IFm2J : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 FIRSTNAME|VARCHAR|||
 Check constraints:
     "TMP04_FIRSTNAME_CHECK" CHECK ((GREATEST(FIRSTNAME, 'abcd', NULL, 'zzz') IS NULL))
-Table "TMP05" stored in Global: ^%ydboctoDWwRJlJwMkGqjDWD51YrRK7
+Table "TMP05" stored in Global: ^%ydboctoDWwRJlJwMkGqjDWD51YrRK7 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 FIRSTNAME|VARCHAR|||
 LASTNAME|VARCHAR|||
 Check constraints:
     "TMP05_CHECK" CHECK ((LEAST((FIRSTNAME || 'efgh'), LASTNAME, (FIRSTNAME || LASTNAME)) IS NULL))
-Table "TMP06" stored in Global: ^%ydboctoDG5UUAQM4Ai5IsSBjAF0H15
+Table "TMP06" stored in Global: ^%ydboctoDG5UUAQM4Ai5IsSBjAF0H15 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 LASTNAME|VARCHAR|||
 Check constraints:
     "TMP06_LASTNAME_CHECK" CHECK ((COALESCE(NULL, LASTNAME) IS NULL))
-Table "TMP07" stored in Global: ^%ydboctoDYABuKFTqQ2Imp5bE72Vb12
+Table "TMP07" stored in Global: ^%ydboctoDYABuKFTqQ2Imp5bE72Vb12 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 LASTNAME|VARCHAR|||
 Check constraints:
     "TMP07_CHECK" CHECK ((NULLIF(NULL,2) IS NULL))
-Table "TMP08" stored in Global: ^%ydboctoDZwB968K3LgUM4Km4V8yk0K
+Table "TMP08" stored in Global: ^%ydboctoDZwB968K3LgUM4Km4V8yk0K : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 Check constraints:
     "TMP08_ID_CHECK" CHECK (CASE ID WHEN 2 THEN TRUE END)
-Table "TMP09" stored in Global: ^%ydboctoDYnD3qJGcM5i7701mZlhHC1
+Table "TMP09" stored in Global: ^%ydboctoDYnD3qJGcM5i7701mZlhHC1 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 Check constraints:
     "TMP09_ID_CHECK" CHECK (CASE ID WHEN 2 THEN TRUE ELSE FALSE END)
-Table "TMP10" stored in Global: ^%ydboctoDsB9o7K9SdzhnoZdZHB3G79
+Table "TMP10" stored in Global: ^%ydboctoDsB9o7K9SdzhnoZdZHB3G79 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 Check constraints:
     "TMP10_ID_CHECK" CHECK (CASE WHEN (ID IS NULL) THEN TRUE END)
-Table "TMP11" stored in Global: ^%ydboctoDePHJ8U1ic9ZmpfbO1jBcCI
+Table "TMP11" stored in Global: ^%ydboctoDePHJ8U1ic9ZmpfbO1jBcCI : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 Check constraints:
     "TMP11_ID_CHECK" CHECK (CASE WHEN (ID IS NULL) THEN TRUE ELSE FALSE END)
-Table "TMP12" stored in Global: ^%ydboctoDuqP3PRpIuwuoFIfKqHrsBF
+Table "TMP12" stored in Global: ^%ydboctoDuqP3PRpIuwuoFIfKqHrsBF : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 Check constraints:
     "TMP12_ID_CHECK" CHECK (ID::BOOLEAN)
-Table "TMP13" stored in Global: ^%ydboctoDoMQoH61fSwIQ3JWq41AHBI
+Table "TMP13" stored in Global: ^%ydboctoDoMQoH61fSwIQ3JWq41AHBI : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 Check constraints:
     "TMP13_ID_CHECK" CHECK ((ID::NUMERIC(3) = 3.0))
-Table "TMP14" stored in Global: ^%ydboctoDl98Mecj8NkjLdib9rTvbHB
+Table "TMP14" stored in Global: ^%ydboctoDl98Mecj8NkjLdib9rTvbHB : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 Check constraints:
     "TMP14_ID_CHECK" CHECK ((ID::NUMERIC(4,1) != 4.5))
-Table "TMP15" stored in Global: ^%ydboctoDHiGzd8PSa1IoUJDIX3ky4C
+Table "TMP15" stored in Global: ^%ydboctoDHiGzd8PSa1IoUJDIX3ky4C : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 Check constraints:
     "TMP15_ID_CHECK" CHECK ((ID::INTEGER < 4))
-Table "TMP16" stored in Global: ^%ydboctoDa2DKCUZKYWHh1leGdHqFC7
+Table "TMP16" stored in Global: ^%ydboctoDa2DKCUZKYWHh1leGdHqFC7 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 Check constraints:
     "TMP16_ID_CHECK" CHECK ((ID::VARCHAR(10) > 'abcd'))
-Table "TMP17" stored in Global: ^%ydboctoDrGMwHc1f2FW5EH2TZlpBCI
+Table "TMP17" stored in Global: ^%ydboctoDrGMwHc1f2FW5EH2TZlpBCI : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 Check constraints:
     "TMP17_ID_CHECK" CHECK (((+ ID) >= (- 2)))
-Table "TMP18" stored in Global: ^%ydboctoD7TKkBrXRXgVontkJw7lnF9
+Table "TMP18" stored in Global: ^%ydboctoD7TKkBrXRXgVontkJw7lnF9 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 Check constraints:
     "TMP18_ID_CHECK" CHECK ((NOT ID::BOOLEAN))
-Table "TMP19" stored in Global: ^%ydboctoDWQUquMmwZzNl2xLkfyTrJ4
+Table "TMP19" stored in Global: ^%ydboctoDWQUquMmwZzNl2xLkfyTrJ4 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 Check constraints:
     "TMP19_ID_CHECK" CHECK ((((ID + (ID % 3)) - (ID * 2)) <= (ID / 20)))
-Table "TMP20" stored in Global: ^%ydboctoDmc0cfWZ8eVqFFEQZsSxc94
+Table "TMP20" stored in Global: ^%ydboctoDmc0cfWZ8eVqFFEQZsSxc94 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 Check constraints:
     "TMP20_ID_CHECK" CHECK ((ID::BOOLEAN OR (NOT ID::BOOLEAN)))
-Table "TMP21" stored in Global: ^%ydboctoDKTOqCmhsHpvjRIbaDcPK5D
+Table "TMP21" stored in Global: ^%ydboctoDKTOqCmhsHpvjRIbaDcPK5D : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 Check constraints:
     "TMP21_ID_CHECK" CHECK ((ID::BOOLEAN AND (NOT ID::BOOLEAN)))
-Table "TMP22" stored in Global: ^%ydboctoDrMa5ZppyPAU1guMtwytpF7
+Table "TMP22" stored in Global: ^%ydboctoDrMa5ZppyPAU1guMtwytpF7 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 LASTNAME|VARCHAR|||
 Check constraints:
     "TMP22_LASTNAME_CHECK" CHECK ((LASTNAME ~ 'abcd'))
-Table "TMP23" stored in Global: ^%ydboctoD38b31KcX3xmef68bHU1OJJ
+Table "TMP23" stored in Global: ^%ydboctoD38b31KcX3xmef68bHU1OJJ : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 LASTNAME|VARCHAR|||
 Check constraints:
     "TMP23_LASTNAME_CHECK" CHECK ((LASTNAME ~* 'abcd'))
-Table "TMP24" stored in Global: ^%ydboctoD6q5EN4gpq4TVu1pDBs4gF7
+Table "TMP24" stored in Global: ^%ydboctoD6q5EN4gpq4TVu1pDBs4gF7 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 LASTNAME|VARCHAR|||
 Check constraints:
     "TMP24_LASTNAME_CHECK" CHECK (((LASTNAME LIKE 'abcd%') OR (NOT (LASTNAME LIKE 'abcd%'))))
-Table "TMP25" stored in Global: ^%ydboctoDnScgPBXMUPw3CF2uAm4K79
+Table "TMP25" stored in Global: ^%ydboctoDnScgPBXMUPw3CF2uAm4K79 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 LASTNAME|VARCHAR|||
 Check constraints:
     "TMP25_LASTNAME_CHECK" CHECK (((LASTNAME ILIKE 'ab%cd') OR (NOT (LASTNAME ILIKE 'ab%cd'))))
-Table "TMP26" stored in Global: ^%ydboctoD2GzyprwzrOC9fhEZe18x1D
+Table "TMP26" stored in Global: ^%ydboctoD2GzyprwzrOC9fhEZe18x1D : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 LASTNAME|VARCHAR|||
 Check constraints:
     "TMP26_LASTNAME_CHECK" CHECK (((LASTNAME SIMILAR TO 'ab%cd') AND (NOT (LASTNAME SIMILAR TO 'ab%cd'))))
-Table "TMP27" stored in Global: ^%ydboctoDRF0bjzkA7Vt7YEFPlg1yJ1
+Table "TMP27" stored in Global: ^%ydboctoDRF0bjzkA7Vt7YEFPlg1yJ1 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 Check constraints:
     "TMP27_ID_CHECK" CHECK ((ID IN (2, 3)))
-Table "TMP28" stored in Global: ^%ydboctoDgis2ceFzmGYL9N7m17IOE6
+Table "TMP28" stored in Global: ^%ydboctoDgis2ceFzmGYL9N7m17IOE6 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 Check constraints:
     "TMP28_ID_CHECK" CHECK ((ID NOT IN (2, 3)))
-Table "TMP29" stored in Global: ^%ydboctoDqAlD285yusTp7hFPDnw6HK
+Table "TMP29" stored in Global: ^%ydboctoDqAlD285yusTp7hFPDnw6HK : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 PRODUCT_NO|INTEGER|||
 NAME|VARCHAR|||
 PRICE|NUMERIC|||
 Check constraints:
     "TMP29_CHECK" CHECK ((PRICE > PRODUCT_NO))
-Table "TMP30" stored in Global: ^%ydboctoDng1fk24YdpuoN2wSE2S388
+Table "TMP30" stored in Global: ^%ydboctoDng1fk24YdpuoN2wSE2S388 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 NAME|VARCHAR||NOT NULL|
@@ -684,18 +1039,18 @@ Indexes:
     "TMP30_ID_KEY" UNIQUE CONSTRAINT, Column(s) (ID), Global ^%ydboctoUkUJh60m5ogKUKCHm1geTB6
 Check constraints:
     "NAME1" CHECK ((FIRSTNAME IS NOT NULL))
-Table "TMP31" stored in Global: ^%ydboctoDZjm1TG01SPrHokEnBGZmE6
+Table "TMP31" stored in Global: ^%ydboctoDZjm1TG01SPrHokEnBGZmE6 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 Check constraints:
     "TMP31_CHECK" CHECK (((1 + 2) = 3))
     "TMP31_CHECK1" CHECK (((2 + 3) = 5))
-Table "TMP32" stored in Global: ^%ydboctoDXLF0Tgu3y0Xs2HcDxzqg1B
+Table "TMP32" stored in Global: ^%ydboctoDXLF0Tgu3y0Xs2HcDxzqg1B : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 Check constraints:
     "TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU" CHECK ((ID < 2))
-Table "TMP33" stored in Global: ^%ydboctoDLkY5Rovedt81jvEdO3dY41
+Table "TMP33" stored in Global: ^%ydboctoDLkY5Rovedt81jvEdO3dY41 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 PRODUCT_NO|INTEGER|||
 NAME|VARCHAR|||
@@ -704,27 +1059,27 @@ Check constraints:
     "TMP33_PRICE_CHECK" CHECK ((PRICE > 0))
     "TMP33_PRICE_CHECK1" CHECK ((PRICE > 5))
     "TMP33_PRICE_CHECK2" CHECK ((PRICE < 10))
-Table "TMP34" stored in Global: ^%ydboctoDYIVBdmvNQV4KWXkSEJTF2F
+Table "TMP34" stored in Global: ^%ydboctoDYIVBdmvNQV4KWXkSEJTF2F : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 PRODUCT_NO|INTEGER|||
 NAME|VARCHAR|||
 PRICE|NUMERIC|||
 Check constraints:
     "TMP34_CHECK" CHECK ((PRICE > PRODUCT_NO))
-Table "TMP35" stored in Global: ^%ydboctoDJk8vaQo21o9AKH7BPtER6G
+Table "TMP35" stored in Global: ^%ydboctoDJk8vaQo21o9AKH7BPtER6G : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 PRODUCT_NO|INTEGER|||
 NAME|VARCHAR|||
 PRICE|NUMERIC|||
 Check constraints:
     "TMP35_CHECK" CHECK ((PRICE > PRODUCT_NO))
-Table "TMP36" stored in Global: ^%ydboctoDQZtA4nt6vFk0JTzw9eUqEE
+Table "TMP36" stored in Global: ^%ydboctoDQZtA4nt6vFk0JTzw9eUqEE : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 NAME|VARCHAR|||
 Check constraints:
     "TMP36_ID_CHECK" CHECK ((ID > 0))
-Table "TMP37" stored in Global: ^%ydboctoDSfl6pGJHvOJsSFNWeZ9cI8
+Table "TMP37" stored in Global: ^%ydboctoDSfl6pGJHvOJsSFNWeZ9cI8 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 NAME|VARCHAR|||
@@ -732,50 +1087,50 @@ Check constraints:
     "TMP37_ID_CHECK" CHECK ((ID > 0))
     "TMP37_NAME_CHECK" CHECK ((NAME IS NOT NULL))
     "TMP37_CHECK" CHECK (((NAME || ID) = 'Zero2'))
-Table "TMP38" stored in Global: ^%ydboctoDolISbGNJJV4N71nDQe0l7A
+Table "TMP38" stored in Global: ^%ydboctoDolISbGNJJV4N71nDQe0l7A : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 NAME|VARCHAR|||
 Check constraints:
     "TMP38_NAME_CHECK" CHECK ((NAME IS NOT NULL))
     "TMP38_CHECK" CHECK ((2 > 0))
-Table "TMP39" stored in Global: ^%ydboctoDFMYiNJ1X4rWL0DqL2e4oAI
+Table "TMP39" stored in Global: ^%ydboctoDFMYiNJ1X4rWL0DqL2e4oAI : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 FIRSTNAME|VARCHAR|||
 Check constraints:
     "TMP39_CHECK" CHECK ((1 > 0))
     "TMP39_FIRSTNAME_CHECK" CHECK ((FIRSTNAME > 'abcd'))
-Table "TMP40" stored in Global: ^%ydboctoD4eHCNF7wv5GqioVHSXpDJ0
+Table "TMP40" stored in Global: ^%ydboctoD4eHCNF7wv5GqioVHSXpDJ0 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 FIRSTNAME|VARCHAR|||
 Check constraints:
     "TMP40_CHECK" CHECK ((1 > 0))
     "TMP40_CHECK1" CHECK ((2 > 1))
     "TMP40_FIRSTNAME_CHECK" CHECK ((FIRSTNAME > 'abcd'))
-Table "TMP41" stored in Global: ^%ydboctoDUuUOQQSpxbOogPa3qD93JL
+Table "TMP41" stored in Global: ^%ydboctoDUuUOQQSpxbOogPa3qD93JL : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 FIRSTNAME|VARCHAR|||
 Check constraints:
     "TMP41_CHECK" CHECK ((1 > 0))
     "TMP41_FIRSTNAME_CHECK" CHECK ((FIRSTNAME > 'abcd'))
-Table "TMP42" stored in Global: ^%ydboctoDyHkIain830pZNbh9OfPiD9
+Table "TMP42" stored in Global: ^%ydboctoDyHkIain830pZNbh9OfPiD9 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 Indexes:
     "UNIQ1" UNIQUE CONSTRAINT, Column(s) (ID), Global ^%ydboctoU2BIiBPQiuuCJq3kHWdL01D
-Table "TMP43" stored in Global: ^%ydboctoD2jrTPMuugsLtHEGzuHQVEL
+Table "TMP43" stored in Global: ^%ydboctoD2jrTPMuugsLtHEGzuHQVEL : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 Indexes:
     "UNIQ1" UNIQUE CONSTRAINT, Column(s) (ID), Global ^%ydboctoU69KUyxVlcvsJqm1X1WpjDK
-Table "TMP44" stored in Global: ^%ydboctoDS8fJus40eBmKfRARUsLhKF
+Table "TMP44" stored in Global: ^%ydboctoDS8fJus40eBmKfRARUsLhKF : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID1|INTEGER|||
 ID2|INTEGER|||
 Indexes:
     "UNIQ1" UNIQUE CONSTRAINT, Column(s) (ID1, ID2), Global ^%ydboctoUbdEbGW5g5OacP5JHoyStIL
-Table "TMP45" stored in Global: ^%ydboctoD47cwyRSDqqpIRLVCnYYKFA
+Table "TMP45" stored in Global: ^%ydboctoD47cwyRSDqqpIRLVCnYYKFA : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID1|INTEGER|||
 ID2|INTEGER|||
@@ -783,82 +1138,82 @@ Indexes:
     "TMP45_ID1_ID2_KEY" UNIQUE CONSTRAINT, Column(s) (ID1, ID2), Global ^%ydboctoUsxVBUiXJxFAxqECAUJeR3K
 Check constraints:
     "TMP45_ID1_CHECK" CHECK ((ID1 > 2))
-Table "TMP46" stored in Global: ^%ydboctoDotxjYlgFcME3lvkhIKCw6L
+Table "TMP46" stored in Global: ^%ydboctoDotxjYlgFcME3lvkhIKCw6L : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID1|INTEGER|||
 Indexes:
     "U1" UNIQUE CONSTRAINT, Column(s) (ID1), Global ^%ydboctoUCfvb6WNyVhDoVSxIMiL193
-Table "TMP47" stored in Global: ^%ydboctoDpPBJpez3d0AtkAI2FEVxI4
+Table "TMP47" stored in Global: ^%ydboctoDpPBJpez3d0AtkAI2FEVxI4 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 NAME|VARCHAR|||
 Indexes:
     "UNIQ2" UNIQUE CONSTRAINT, Column(s) (ID), Global ^%ydboctoUCASuuiDF20vsLEHmPGMYIG
     "UNIQ1" UNIQUE CONSTRAINT, Column(s) (NAME), Global ^%ydboctoU3CKj6KyThQ76ycneOaX26C
-Table "TMP48" stored in Global: ^%ydboctoDon7iGajRdrASMnTNgFA3JD
+Table "TMP48" stored in Global: ^%ydboctoDon7iGajRdrASMnTNgFA3JD : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 NAME|VARCHAR|||
 Indexes:
     "UNIQ2" UNIQUE CONSTRAINT, Column(s) (ID), Global ^%ydboctoUOpVCqUnXp9YpGJPpt9rKK9
     "UNIQ1" UNIQUE CONSTRAINT, Column(s) (NAME), Global ^%ydboctoUz1AlU2XJOBtB21dVyHEe3B
-Table "TMP49" stored in Global: ^%ydboctoDmAcmKV2omwL3C9rwmss722
+Table "TMP49" stored in Global: ^%ydboctoDmAcmKV2omwL3C9rwmss722 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID1|INTEGER|||
 ID2|INTEGER|||
 Indexes:
     "U1" UNIQUE CONSTRAINT, Column(s) (ID1, ID2), Global ^%ydboctoUI4e1vxbtrQd2L0o5XohO20
     "U2" UNIQUE CONSTRAINT, Column(s) (ID2, ID1), Global ^%ydboctoU37krKzq9aFPAh9dPeMLkA6
-Table "TMP50" stored in Global: ^%ydboctoDShHfHsyqiAATDUVMzru3BB
+Table "TMP50" stored in Global: ^%ydboctoDShHfHsyqiAATDUVMzru3BB : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID1|INTEGER|||
 ID2|INTEGER|||
 Indexes:
     "U1" UNIQUE CONSTRAINT, Column(s) (ID1, ID2), Global ^%ydboctoUKmxuxZS5EIpFxXQzkW3v2F
-Table "TMP51" stored in Global: ^%ydboctoDhU1BsHiBeW3BB1amYgtd8K
+Table "TMP51" stored in Global: ^%ydboctoDhU1BsHiBeW3BB1amYgtd8K : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID1|INTEGER|||
 ID2|INTEGER|||
 Indexes:
     "U2" UNIQUE CONSTRAINT, Column(s) (ID1, ID2), Global ^%ydboctoUljITRbYPU1bjwNqfzqgt2G
-Table "TMP52" stored in Global: ^%ydboctoDRX77t3PYczbmVhhtZxYSHI
+Table "TMP52" stored in Global: ^%ydboctoDRX77t3PYczbmVhhtZxYSHI : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID1|INTEGER|||
 ID2|INTEGER|||
 Indexes:
     "U2" UNIQUE CONSTRAINT, Column(s) (ID1), Global ^%ydboctoUQVEZ6VDE2VSfkKUb2ioi70
-Table "TMP53" stored in Global: ^%ydboctoDhZwc8lu5JTzF14PD70oF1E
+Table "TMP53" stored in Global: ^%ydboctoDhZwc8lu5JTzF14PD70oF1E : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID1|INTEGER|||
 Indexes:
     "UNIQ" UNIQUE CONSTRAINT, Column(s) (ID1), Global ^%ydboctoUi4IxZq0Vzy9j11Q8pFCJCI
-Table "TMP54" stored in Global: ^%ydboctoD72ylbReGS2dtN6WtTAPbH3
+Table "TMP54" stored in Global: ^%ydboctoD72ylbReGS2dtN6WtTAPbH3 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID1|INTEGER|||
 ID2|INTEGER|||
 Indexes:
     "UNIQ" UNIQUE CONSTRAINT, Column(s) (ID2), Global ^%ydboctoUm2Eacmm5KSFrzB1ua1ZsEA
-Table "TMP55" stored in Global: ^%ydboctoDjYhIsdn9QRxh2aPuf2nL08
+Table "TMP55" stored in Global: ^%ydboctoDjYhIsdn9QRxh2aPuf2nL08 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID1|INTEGER|||
 ID2|INTEGER|||
 Indexes:
     "UNIQ" UNIQUE CONSTRAINT, Column(s) (ID1, ID2), Global ^%ydboctoUIAc6gjR0keHXrfu0f38w0B
-Table "TMP56" stored in Global: ^%ydboctoDpCPVAhveA3Lik4IM6a4hLD
+Table "TMP56" stored in Global: ^%ydboctoDpCPVAhveA3Lik4IM6a4hLD : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 NAME|VARCHAR|||
 Indexes:
     "UNIQ1" UNIQUE CONSTRAINT, Column(s) (ID), Global ^%ydboctoUoqFez7TJvRRg2qIZmVIw1C
     "UNIQ2" UNIQUE CONSTRAINT, Column(s) (NAME), Global ^%ydboctoUuh4SpcsnWyytsWItm1WMCJ
-Table "TMP57" stored in Global: ^%ydboctoDVHZk3XXw6EyDdJussqz6E1
+Table "TMP57" stored in Global: ^%ydboctoDVHZk3XXw6EyDdJussqz6E1 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID1|INTEGER|||
 ID2|INTEGER|||
 Indexes:
     "TMP57_ID1_ID2_KEY" UNIQUE CONSTRAINT, Column(s) (ID1, ID2), Global ^%ydboctoUjSIsqpojHJPnhSj42MWU82
     "TMP57_ID2_ID1_KEY" UNIQUE CONSTRAINT, Column(s) (ID2, ID1), Global ^%ydboctoUtl25Ueq3Qng4q8yaMH4DCL
-Table "TMP58" stored in Global: ^%ydboctoDdhisDkHG2kiXEYpFlfXrL0
+Table "TMP58" stored in Global: ^%ydboctoDdhisDkHG2kiXEYpFlfXrL0 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID1|INTEGER|||
 ID2|INTEGER|||
@@ -866,71 +1221,71 @@ ID3|INTEGER|||
 Indexes:
     "TMP58_ID1_ID2_KEY" UNIQUE CONSTRAINT, Column(s) (ID1, ID2), Global ^%ydboctoUb1D4fT7hrOufsqHgmZYo73
     "TMP58_ID1_ID2_ID3_KEY" UNIQUE CONSTRAINT, Column(s) (ID1, ID2, ID3), Global ^%ydboctoU7dlPXw4iEQwcjAkhxkmEJI
-Table "TMP59" stored in Global: ^%ydboctoDO9cXd4xl7Al9HrCWJLplA2
+Table "TMP59" stored in Global: ^%ydboctoDO9cXd4xl7Al9HrCWJLplA2 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU|INTEGER|||
 Indexes:
     "TMP59_TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJK_KEY" UNIQUE CONSTRAINT, Column(s) (TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU), Global ^%ydboctoUyCpLqWN0cy8flwctbJ0gE7
-Table "TMP60TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQ" stored in Global: ^%ydboctoDTSTnRDBZQOg8DEUAdRzo7F
+Table "TMP60TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQ" stored in Global: ^%ydboctoDTSTnRDBZQOg8DEUAdRzo7F : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER|||
 Indexes:
     "TMP60TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJ_ID_KEY" UNIQUE CONSTRAINT, Column(s) (ID), Global ^%ydboctoU9PD6mmQRQCAzF4KZ5qjm45
-Table "TMP61TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQ" stored in Global: ^%ydboctoDQfatBFD2DRmGq2MnIZxn7G
+Table "TMP61TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQ" stored in Global: ^%ydboctoDQfatBFD2DRmGq2MnIZxn7G : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU|INTEGER|||
 Indexes:
     "TMP61TOOLONGABCDEFGHIJKLMNOPQ_TOOLONG1ABCDEFGHIJKLMNOPQRSTU_KEY" UNIQUE CONSTRAINT, Column(s) (TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU), Global ^%ydboctoUL8Fmz9joirrnHX69PjpCHK
-Table "TMP62" stored in Global: ^%ydboctoD1ToCbK6BOjD9O1pzxNllDB
+Table "TMP62" stored in Global: ^%ydboctoD1ToCbK6BOjD9O1pzxNllDB : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR|INTEGER|||
 ID2|INTEGER|||
 Indexes:
     "TMP62_ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGH_KEY" UNIQUE CONSTRAINT, Column(s) (ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR, ID2), Global ^%ydboctoUbFuaWSbrWVLVL8wbdrW69J
-Table "TMP63" stored in Global: ^%ydboctoDwy9zKil0yO3GVAblTgh4K9
+Table "TMP63" stored in Global: ^%ydboctoDwy9zKil0yO3GVAblTgh4K9 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR|INTEGER|||
 ID2TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR|INTEGER|||
 Indexes:
     "TMP63_ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGH_KEY" UNIQUE CONSTRAINT, Column(s) (ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR, ID2TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR), Global ^%ydboctoUgs5a8ySsbRLlJTLl5x4pBK
-Table "TMP64TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQ" stored in Global: ^%ydboctoDlu4mNvKwkGhDRgJG47viB9
+Table "TMP64TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQ" stored in Global: ^%ydboctoDlu4mNvKwkGhDRgJG47viB9 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID1|INTEGER|||
 ID2|INTEGER|||
 Indexes:
     "TMP64TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDE_ID1_ID2_KEY" UNIQUE CONSTRAINT, Column(s) (ID1, ID2), Global ^%ydboctoUfNuu8mBIVHFHHTpFoOut96
-Table "TMP65TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQ" stored in Global: ^%ydboctoDWYDnaKrMdU8GWt6Lqi324I
+Table "TMP65TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQ" stored in Global: ^%ydboctoDWYDnaKrMdU8GWt6Lqi324I : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID1|INTEGER|||
 ID2TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR|INTEGER|||
 Indexes:
     "TMP65TOOLONGABCDEFGHIJKLMNOPQ_ID1_ID2TOOLONG1ABCDEFGHIJKLMN_KEY" UNIQUE CONSTRAINT, Column(s) (ID1, ID2TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR), Global ^%ydboctoU91EsgOCkIintfiV9UiG093
-Table "TMP66TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQ" stored in Global: ^%ydboctoDsnq6rI9eAa36QntRX6qj3A
+Table "TMP66TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQ" stored in Global: ^%ydboctoDsnq6rI9eAa36QntRX6qj3A : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR|INTEGER|||
 ID2|INTEGER|||
 Indexes:
     "TMP66TOOLONGABCDEFGHIJKLMNOPQ_ID1TOOLONG1ABCDEFGHIJKLMNOPQR_KEY" UNIQUE CONSTRAINT, Column(s) (ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR, ID2), Global ^%ydboctoUE8PIe6hDLpGjTjjAWSSk96
-Table "TMP67TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQ" stored in Global: ^%ydboctoDSAxHDcsn1gwKs5AxmROkIF
+Table "TMP67TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQ" stored in Global: ^%ydboctoDSAxHDcsn1gwKs5AxmROkIF : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR|INTEGER|||
 ID2TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR|INTEGER|||
 Indexes:
     "TMP67TOOLONGABCDEFGHIJKLMNOPQ_ID1TOOLONG1ABCDEFGHIJKLMNOPQR_KEY" UNIQUE CONSTRAINT, Column(s) (ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR, ID2TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR), Global ^%ydboctoUAwT2KVloPvCihWSbhxQsE1
-Table "TMP68TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQ" stored in Global: ^%ydboctoDouDhmoHRHw0JQiDNbn32L9
+Table "TMP68TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQ" stored in Global: ^%ydboctoDouDhmoHRHw0JQiDNbn32L9 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRID1|INTEGER|||
 TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRID2|INTEGER|||
 Indexes:
     "TMP68TOOLONGABCDEFGHIJKLMNOPQ_TOOLONG1ABCDEFGHIJKLMNOPQRSTU_KEY" UNIQUE CONSTRAINT, Column(s) (TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRID1, TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRID2), Global ^%ydboctoUJj8AadutVRP9hCKEeUSK17
     "TMP68TOOLONGABCDEFGHIJKLMNOPQ_TOOLONG1ABCDEFGHIJKLMNOPQRST_KEY1" UNIQUE CONSTRAINT, Column(s) (TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRID2, TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRID1), Global ^%ydboctoUVvUjhvSbJUPaoqaXu3rj83
-Table "TMP69" stored in Global: ^%ydboctoDVRDKWLTi6is2Btk535MNJB
+Table "TMP69" stored in Global: ^%ydboctoDVRDKWLTi6is2Btk535MNJB : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ABCDEFGHIJKLMNOPQRSTUVWXYZ1|INTEGER|||
 ABCDEFGHIJKLMNOPQRSTUVWXYZ2|INTEGER|||
 Indexes:
     "TMP69_ABCDEFGHIJKLMNOPQRSTUVWXYZ1_ABCDEFGHIJKLMNOPQRSTUVWXY_KEY" UNIQUE CONSTRAINT, Column(s) (ABCDEFGHIJKLMNOPQRSTUVWXYZ1, ABCDEFGHIJKLMNOPQRSTUVWXYZ2), Global ^%ydboctoUfjOtYJk5OeNP3yAKGKHE9K
-Table "TMP70" stored in Global: ^%ydboctoDrbOwimMdsiyNQlvVrmFFD9
+Table "TMP70" stored in Global: ^%ydboctoDrbOwimMdsiyNQlvVrmFFD9 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ABCDEFGHIJKLMNOPQRSTUVWXYZ1|INTEGER|||
 ABCDEFGHIJKLMNOPQRSTUVWXYZ2|INTEGER|||
@@ -938,7 +1293,7 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZ3|INTEGER|||
 Indexes:
     "TMP70_ABCDEFGHIJKLMNOPQRSTUVWXYZ1_ABCDEFGHIJKLMNOPQRSTUVWXY_KEY" UNIQUE CONSTRAINT, Column(s) (ABCDEFGHIJKLMNOPQRSTUVWXYZ1, ABCDEFGHIJKLMNOPQRSTUVWXYZ2), Global ^%ydboctoUwFfbUzZcYqsCgOYkjKb88J
     "TMP70_ABCDEFGHIJKLMNOPQRSTUVWXYZ1_ABCDEFGHIJKLMNOPQRSTUVWX_KEY1" UNIQUE CONSTRAINT, Column(s) (ABCDEFGHIJKLMNOPQRSTUVWXYZ1, ABCDEFGHIJKLMNOPQRSTUVWXYZ3), Global ^%ydboctoU2kRNP79ufYY7CvtxZpEd21
-Table "TMP71" stored in Global: ^%ydboctoDgCmZ843khZGf631zfaSTF7
+Table "TMP71" stored in Global: ^%ydboctoDgCmZ843khZGf631zfaSTF7 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ABCDEFGHIJKLMNOPQRSTUVWXYZ1|INTEGER|||
 ABCDEFGHIJKLMNOPQRSTUVWXYZ2|INTEGER|||
@@ -948,14 +1303,14 @@ Indexes:
     "TMP71_ABCDEFGHIJKLMNOPQRSTUVWXYZ1_ABCDEFGHIJKLMNOPQRSTUVWXY_KEY" UNIQUE CONSTRAINT, Column(s) (ABCDEFGHIJKLMNOPQRSTUVWXYZ1, ABCDEFGHIJKLMNOPQRSTUVWXYZ2), Global ^%ydboctoUrHbinjK5KZlzsBed2RKh4A
     "TMP71_ABCDEFGHIJKLMNOPQRSTUVWXYZ1_ABCDEFGHIJKLMNOPQRSTUVWX_KEY1" UNIQUE CONSTRAINT, Column(s) (ABCDEFGHIJKLMNOPQRSTUVWXYZ1, ABCDEFGHIJKLMNOPQRSTUVWXYZ2, ABCDEFGHIJKLMNOPQRSTUVWXYZ3), Global ^%ydboctoUU6thiREF7U2rUGuBYtc8C1
     "TMP71_ABCDEFGHIJKLMNOPQRSTUVWXYZ1_ABCDEFGHIJKLMNOPQRSTUVWX_KEY2" UNIQUE CONSTRAINT, Column(s) (ABCDEFGHIJKLMNOPQRSTUVWXYZ1, ABCDEFGHIJKLMNOPQRSTUVWXYZ4, ABCDEFGHIJKLMNOPQRSTUVWXYZ2, ABCDEFGHIJKLMNOPQRSTUVWXYZ3), Global ^%ydboctoUqyxUDCFIbpAkiT1UUJXqH3
-Table "TMP72" stored in Global: ^%ydboctoDAEKaNRAOYHbMNfTsgV7v38
+Table "TMP72" stored in Global: ^%ydboctoDAEKaNRAOYHbMNfTsgV7v38 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID1|INTEGER|||
 ID2|INTEGER|||
 Indexes:
     "TMP72_ID2_KEY" UNIQUE CONSTRAINT, Column(s) (ID1), Global ^%ydboctoU0sURjSLRS8urzhIJGYVl81
     "TMP72_ID2_KEY1" UNIQUE CONSTRAINT, Column(s) (ID2), Global ^%ydboctoUiwSuGFcLtnGOeBS3RKCJEA
-Table "TMP73" stored in Global: ^%ydboctoDMlDZ20anMaEyfpfmd4bu50
+Table "TMP73" stored in Global: ^%ydboctoDMlDZ20anMaEyfpfmd4bu50 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID1|INTEGER|||
 ID2|INTEGER|||
@@ -963,7 +1318,7 @@ Indexes:
     "TMP73_ID2_KEY1" UNIQUE CONSTRAINT, Column(s) (ID2), Global ^%ydboctoUgOLFbGVg89j5uaCfjFLXIG
 Check constraints:
     "TMP73_ID2_KEY" CHECK ((ID1 > 1))
-Table "TMP74" stored in Global: ^%ydboctoDBovtZGL6EZJvCoLhXYCg57
+Table "TMP74" stored in Global: ^%ydboctoDBovtZGL6EZJvCoLhXYCg57 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID1|INTEGER|||
 ID2|INTEGER|||
@@ -971,7 +1326,7 @@ Indexes:
     "TMP74_ID2_CHECK" UNIQUE CONSTRAINT, Column(s) (ID1), Global ^%ydboctoU0ko9r1ORsiThGJJBKJ9kH3
 Check constraints:
     "TMP74_ID2_CHECK1" CHECK ((ID2 > 1))
-Table "TMP75TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQ" stored in Global: ^%ydboctoDS4KvXvnZSoHSW51W1S2D81
+Table "TMP75TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQ" stored in Global: ^%ydboctoDS4KvXvnZSoHSW51W1S2D81 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRID1|INTEGER|||
 TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRID2|INTEGER|||
@@ -980,3 +1335,305 @@ Indexes:
     "TMP75TOOLONGABCDEFGHIJKLMNOPQ_TOOLONG1ABCDEFGHIJKLMNOPQRST_KEY2" UNIQUE CONSTRAINT, Column(s) (TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRID2, TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRID1), Global ^%ydboctoUiYU0iFru9b4G6jEvgDxWCH
 Check constraints:
     "TMP75TOOLONGABCDEFGHIJKLMNOPQ_TOOLONG1ABCDEFGHIJKLMNOPQRST_KEY1" CHECK ((1 > 1))
+Table "TMP76" stored in Global: ^names(ID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+ID|INTEGER||NOT NULL|
+FIRSTNAME|VARCHAR|||
+LASTNAME|VARCHAR|||
+Indexes:
+    "TMP76_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^names(ID)
+Table "TMP77" stored in Global: ^names(ID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+ID|INTEGER||NOT NULL|
+FIRSTNAME|VARCHAR|||
+LASTNAME|VARCHAR|||
+Indexes:
+    "MYPRIMARYKEY77" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^names(ID)
+Table "TMP78" stored in Global: ^names(ID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+ID|INTEGER||NOT NULL|
+FIRSTNAME|VARCHAR|||
+LASTNAME|VARCHAR|||
+Indexes:
+    "TMP78_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^names(ID)
+Table "TMP79" stored in Global: ^names(ID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+ID|INTEGER||NOT NULL|
+FIRSTNAME|VARCHAR|||
+LASTNAME|VARCHAR|||
+Indexes:
+    "MYPRIMARYKEY79" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^names(ID)
+Table "TMP80" stored in Global: ^%ydboctoDO8NOdUHct9TRMJm2U6Wa0H(ID1,ID2) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1|INTEGER||NOT NULL|
+ID2|INTEGER||NOT NULL|
+Indexes:
+    "TMP80_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID1, ID2), Global: ^%ydboctoDO8NOdUHct9TRMJm2U6Wa0H(ID1,ID2)
+Table "TMP81" stored in Global: ^%ydboctoD6NdbJySwplRRMiS8vWmJFJ(ID1,ID2) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1|INTEGER||NOT NULL|
+ID2|INTEGER||NOT NULL|
+Indexes:
+    "TMP81_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID1, ID2), Global: ^%ydboctoD6NdbJySwplRRMiS8vWmJFJ(ID1,ID2)
+Table "TMP82" stored in Global: ^%ydboctoDZceNoog5SKlWoWGzr3KdAK(ID) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID|INTEGER||NOT NULL|
+Indexes:
+    "TMP82_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^%ydboctoDZceNoog5SKlWoWGzr3KdAK(ID)
+Table "TMP83" stored in Global: ^%ydboctoDh1WfJxoLIAUqj8B8GouhK7(ID) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID|INTEGER||NOT NULL|
+Indexes:
+    "TMP83_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^%ydboctoDh1WfJxoLIAUqj8B8GouhK7(ID)
+Table "TMP84" stored in Global: ^%ydboctoDp2C7MxWCmNp5JeERTYKi6C(ID1,ID2) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1|INTEGER||NOT NULL|
+ID2|INTEGER||NOT NULL|
+Indexes:
+    "TMP84_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID1, ID2), Global: ^%ydboctoDp2C7MxWCmNp5JeERTYKi6C(ID1,ID2)
+Table "TMP85" stored in Global: ^%ydboctoDJmWTcbA1WAJb8w5ANpl9JL(ID1) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1|INTEGER||NOT NULL|
+ID2|INTEGER|||
+Indexes:
+    "TMP85_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID1), Global: ^%ydboctoDJmWTcbA1WAJb8w5ANpl9JL(ID1)
+    "TMP85_ID2_KEY" UNIQUE CONSTRAINT, Column(s) (ID2), Global ^%ydboctoUmXr1tDWDh07gZ3Q0loi582
+Table "TMP86" stored in Global: ^%ydboctoD3PDcWFxxcoq3Dk7wO3EmKE(ID1,ID2) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1|INTEGER||NOT NULL|
+ID2|INTEGER||NOT NULL|
+Indexes:
+    "TMP86_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID1, ID2), Global: ^%ydboctoD3PDcWFxxcoq3Dk7wO3EmKE(ID1,ID2)
+    "TMP86_ID2_ID1_KEY" UNIQUE CONSTRAINT, Column(s) (ID2, ID1), Global ^%ydboctoU3mytNMEYZkvvKRBVkxAJ5D
+Table "TMP87" stored in Global: ^%ydboctoDle0uii9BcdlXzr7sxpb64F(ID) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID|INTEGER||NOT NULL|
+Indexes:
+    "UNIQ" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^%ydboctoDle0uii9BcdlXzr7sxpb64F(ID)
+Table "TMP88" stored in Global: ^%ydboctoDRKbtFOmk6tck5sR2yJkGDE(ID) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID|INTEGER||NOT NULL|
+Indexes:
+    "PRIMKEY88" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^%ydboctoDRKbtFOmk6tck5sR2yJkGDE(ID)
+Table "TMP89" stored in Global: ^%ydboctoDzGEY9G99XU2fTssbqQl65A(ID) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID|INTEGER||NOT NULL|
+Indexes:
+    "PRIMKEY89" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^%ydboctoDzGEY9G99XU2fTssbqQl65A(ID)
+Table "TMP90" stored in Global: ^%ydboctoDuCB0N2jjt2JVhIKHHsT218(ID) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID|INTEGER||NOT NULL|
+Indexes:
+    "UNIQ90" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^%ydboctoDuCB0N2jjt2JVhIKHHsT218(ID)
+Table "TMP91" stored in Global: ^%ydboctoD8a6MvdpIPExMOT0WoV4rD1(ID1,ID2) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1|INTEGER||NOT NULL|
+ID2|INTEGER||NOT NULL|
+Indexes:
+    "PRIMKEY91" PRIMARY KEY CONSTRAINT, Column(s) (ID1, ID2), Global: ^%ydboctoD8a6MvdpIPExMOT0WoV4rD1(ID1,ID2)
+Table "TMP92" stored in Global: ^%ydboctoDvjIrXBDRGZTSYtHvCPXo32(ID1,ID2) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1|INTEGER||NOT NULL|
+ID2|INTEGER||NOT NULL|
+Indexes:
+    "UNIQ92" PRIMARY KEY CONSTRAINT, Column(s) (ID1, ID2), Global: ^%ydboctoDvjIrXBDRGZTSYtHvCPXo32(ID1,ID2)
+Table "TMP93" stored in Global: ^%ydboctoDK93G5HNyU01a6Jlc7wfn61(ID2,ID3) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1|INTEGER|||
+ID2|INTEGER||NOT NULL|
+ID3|INTEGER||NOT NULL|
+Indexes:
+    "TMP93_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID2, ID3), Global: ^%ydboctoDK93G5HNyU01a6Jlc7wfn61(ID2,ID3)
+Table "TMP94" stored in Global: ^%ydboctoDYWiA5whuuURaLCjesXjzED(ID2,ID3) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1|INTEGER|||
+ID2|INTEGER||NOT NULL|
+ID3|INTEGER||NOT NULL|
+Indexes:
+    "UNIQ94" PRIMARY KEY CONSTRAINT, Column(s) (ID2, ID3), Global: ^%ydboctoDYWiA5whuuURaLCjesXjzED(ID2,ID3)
+Table "TMP95" stored in Global: ^%ydboctoDCZt3Vbgs3OnPCuZ2vCX10K(ID2) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1|INTEGER|||
+ID2|INTEGER||NOT NULL|
+Indexes:
+    "TMP95_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID2), Global: ^%ydboctoDCZt3Vbgs3OnPCuZ2vCX10K(ID2)
+Table "TMP96" stored in Global: ^%ydboctoD2Y2nu5o8nbkP8QNGwZueKL(ID2) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1|INTEGER|||
+ID2|INTEGER||NOT NULL|
+Indexes:
+    "UNIQ96" PRIMARY KEY CONSTRAINT, Column(s) (ID2), Global: ^%ydboctoD2Y2nu5o8nbkP8QNGwZueKL(ID2)
+Table "TMP97" stored in Global: ^%ydboctoD4j93XOLFKEr6blDGKqvHBK(ID) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID|INTEGER||NOT NULL|
+Indexes:
+    "PKEY97" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^%ydboctoD4j93XOLFKEr6blDGKqvHBK(ID)
+Table "TMP98" stored in Global: ^%ydboctoDzjaeWlRhl7aT1DWE7Rlq8L(ID) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID|INTEGER||NOT NULL|
+Indexes:
+    "PKEY98" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^%ydboctoDzjaeWlRhl7aT1DWE7Rlq8L(ID)
+Table "TMP99" stored in Global: ^%ydboctoDZwc5l67KNw7fVo7WlZ4iA4(ID1,ID2) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1|INTEGER||NOT NULL|
+ID2|INTEGER||NOT NULL|
+Indexes:
+    "PKEY99" PRIMARY KEY CONSTRAINT, Column(s) (ID1, ID2), Global: ^%ydboctoDZwc5l67KNw7fVo7WlZ4iA4(ID1,ID2)
+Table "TMP100" stored in Global: ^%ydboctoDda12OVYSvhIcplfXvpbNDD(ID2) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1|INTEGER|||
+ID2|INTEGER||NOT NULL|
+Indexes:
+    "PKAY100" PRIMARY KEY CONSTRAINT, Column(s) (ID2), Global: ^%ydboctoDda12OVYSvhIcplfXvpbNDD(ID2)
+    "TMP100_ID1_ID2_KEY" UNIQUE CONSTRAINT, Column(s) (ID1, ID2), Global ^%ydboctoUkl0Qcc0H7zaO3PxqtX2pG0
+Check constraints:
+    "TMP100_ID1_CHECK" CHECK ((ID1 > 2))
+Table "TMP101" stored in Global: ^%ydboctoDLuWqgh99nxsem9XkpXOI17(ID1) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1|INTEGER||NOT NULL|
+Indexes:
+    "PKEY101" PRIMARY KEY CONSTRAINT, Column(s) (ID1), Global: ^%ydboctoDLuWqgh99nxsem9XkpXOI17(ID1)
+Table "TMP102" stored in Global: ^%ydboctoDfsjADq5gez2JFVsz6xW7JF(ID2) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1|INTEGER|||
+ID2|INTEGER||NOT NULL|
+Indexes:
+    "PKEY102" PRIMARY KEY CONSTRAINT, Column(s) (ID2), Global: ^%ydboctoDfsjADq5gez2JFVsz6xW7JF(ID2)
+Table "TMP103" stored in Global: ^%ydboctoDZk79jC60UpkFkuSjxOxpHK(ID1,ID2) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1|INTEGER||NOT NULL|
+ID2|INTEGER||NOT NULL|
+Indexes:
+    "PKEY103" PRIMARY KEY CONSTRAINT, Column(s) (ID1, ID2), Global: ^%ydboctoDZk79jC60UpkFkuSjxOxpHK(ID1,ID2)
+Table "TMP104" stored in Global: ^%ydboctoDstWN3dcve6IdowQqa1E9D3(ID1,ID2) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1|INTEGER||NOT NULL|
+ID2|INTEGER||NOT NULL|
+Indexes:
+    "TMP104_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID1, ID2), Global: ^%ydboctoDstWN3dcve6IdowQqa1E9D3(ID1,ID2)
+Table "TMP105TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOP" stored in Global: ^%ydboctoDRY0GseA9zetuNi9OanFe96(ID) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID|INTEGER||NOT NULL|
+Indexes:
+    "TMP105TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJK_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^%ydboctoDRY0GseA9zetuNi9OanFe96(ID)
+Table "TMP105TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOQ" stored in Global: ^%ydboctoDoQQXrt2FFlnpaHndbE4rDE(ID) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID|INTEGER||NOT NULL|
+Indexes:
+    "TMP105TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJ_PKEY1" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^%ydboctoDoQQXrt2FFlnpaHndbE4rDE(ID)
+Table "TMP105TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOR" stored in Global: ^%ydboctoDwO8HpwS32o7ytcw8MoBPDA(ID) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID|INTEGER||NOT NULL|
+Indexes:
+    "TMP105TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJ_PKEY2" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^%ydboctoDwO8HpwS32o7ytcw8MoBPDA(ID)
+Table "TMP106" stored in Global: ^%ydboctoDG6jsXyAdzQ3VUqzvXMc8F1(TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU|INTEGER||NOT NULL|
+Indexes:
+    "TMP106_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU), Global: ^%ydboctoDG6jsXyAdzQ3VUqzvXMc8F1(TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU)
+Table "TMP107TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOP" stored in Global: ^%ydboctoDaSFfFK4NlLk5eWfUgeQ07F(ID) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID|INTEGER||NOT NULL|
+Indexes:
+    "TMP107TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJK_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^%ydboctoDaSFfFK4NlLk5eWfUgeQ07F(ID)
+Table "TMP108TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOP" stored in Global: ^%ydboctoDHgotixX2jEYmFbsZOg5n63(TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU|INTEGER||NOT NULL|
+Indexes:
+    "TMP108TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJK_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU), Global: ^%ydboctoDHgotixX2jEYmFbsZOg5n63(TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU)
+Table "TMP109" stored in Global: ^%ydboctoDXVSOYDUfkpuZiBOLd95DLA(ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR,ID2) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR|INTEGER||NOT NULL|
+ID2|INTEGER||NOT NULL|
+Indexes:
+    "TMP109_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR, ID2), Global: ^%ydboctoDXVSOYDUfkpuZiBOLd95DLA(ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR,ID2)
+Table "TMP110" stored in Global: ^%ydboctoDCOE1iL8UwwzQC6MY9mT3J9(ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR,ID2TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR|INTEGER||NOT NULL|
+ID2TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR|INTEGER||NOT NULL|
+Indexes:
+    "TMP110_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR, ID2TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR), Global: ^%ydboctoDCOE1iL8UwwzQC6MY9mT3J9(ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR,ID2TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR)
+Table "TMP111TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOP" stored in Global: ^%ydboctoDBX6Wj8LQRPRJBhw7TUPfI9(ID1,ID2) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1|INTEGER||NOT NULL|
+ID2|INTEGER||NOT NULL|
+Indexes:
+    "TMP111TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJK_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID1, ID2), Global: ^%ydboctoDBX6Wj8LQRPRJBhw7TUPfI9(ID1,ID2)
+Table "TMP112TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOP" stored in Global: ^%ydboctoDQzETqkoAVv8ore5iGzYWB0(ID1,ID2TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1|INTEGER||NOT NULL|
+ID2TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR|INTEGER||NOT NULL|
+Indexes:
+    "TMP112TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJK_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID1, ID2TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR), Global: ^%ydboctoDQzETqkoAVv8ore5iGzYWB0(ID1,ID2TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR)
+Table "TMP113TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOP" stored in Global: ^%ydboctoDA6AqYKIHUL41hPHFnxlj98(ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR,ID2) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR|INTEGER||NOT NULL|
+ID2|INTEGER||NOT NULL|
+Indexes:
+    "TMP113TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJK_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR, ID2), Global: ^%ydboctoDA6AqYKIHUL41hPHFnxlj98(ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR,ID2)
+Table "TMP114TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOP" stored in Global: ^%ydboctoDqC4klclZe2uLkAohJOnX6G(ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR,ID2TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR|INTEGER||NOT NULL|
+ID2TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR|INTEGER||NOT NULL|
+Indexes:
+    "TMP114TOOLONGABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJK_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR, ID2TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR), Global: ^%ydboctoDqC4klclZe2uLkAohJOnX6G(ID1TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR,ID2TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQR)
+Table "TMP115" stored in Global: ^%ydboctoDcU20htGLgbzNoJXOiFPiH8(ID2) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1|INTEGER|||
+ID2|INTEGER||NOT NULL|
+Indexes:
+    "TMP115_PKEY" UNIQUE CONSTRAINT, Column(s) (ID1), Global ^%ydboctoUZaMGhqt2RyNjJkXDMSnG8H
+    "TMP115_PKEY1" PRIMARY KEY CONSTRAINT, Column(s) (ID2), Global: ^%ydboctoDcU20htGLgbzNoJXOiFPiH8(ID2)
+Table "TMP116" stored in Global: ^%ydboctoDrbMUHbl8kHUTKU5ClfEDH2(ID1) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1|INTEGER||NOT NULL|
+ID2|INTEGER|||
+Indexes:
+    "TMP116_ID2_KEY" PRIMARY KEY CONSTRAINT, Column(s) (ID1), Global: ^%ydboctoDrbMUHbl8kHUTKU5ClfEDH2(ID1)
+    "TMP116_ID2_KEY1" UNIQUE CONSTRAINT, Column(s) (ID2), Global ^%ydboctoU211XN7PIlUjD1AYHzKIH91
+Table "TMP117" stored in Global: ^%ydboctoDM6jmYqkqJgyYYxp8VOqMF4(ID2) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1|INTEGER|||
+ID2|INTEGER||NOT NULL|
+Indexes:
+    "TMP117_PKEY1" PRIMARY KEY CONSTRAINT, Column(s) (ID2), Global: ^%ydboctoDM6jmYqkqJgyYYxp8VOqMF4(ID2)
+Check constraints:
+    "TMP117_PKEY" CHECK ((ID1 > 1))
+Table "TMP118" stored in Global: ^%ydboctoDQx5ygTq9r30GLFa5FXC282(ID1) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1|INTEGER||NOT NULL|
+ID2|INTEGER|||
+Indexes:
+    "TMP118_ID1_CHECK" PRIMARY KEY CONSTRAINT, Column(s) (ID1), Global: ^%ydboctoDQx5ygTq9r30GLFa5FXC282(ID1)
+Check constraints:
+    "TMP118_ID1_CHECK1" CHECK ((ID1 > 1))
+Table "TMP119" stored in Global: ^%ydboctoDUPsyjwomZHYSjvWnjSu7D9(ID1) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID2|INTEGER|||
+ID3|INTEGER|||
+ID1|INTEGER||NOT NULL|
+Indexes:
+    "TMP119_PKEY1" UNIQUE CONSTRAINT, Column(s) (ID3), Global ^%ydboctoUvORljxVkrKP5XU3BKvOMH3
+    "TMP119_PKEY2" PRIMARY KEY CONSTRAINT, Column(s) (ID1), Global: ^%ydboctoDUPsyjwomZHYSjvWnjSu7D9(ID1)
+Check constraints:
+    "TMP119_PKEY" CHECK ((ID2 > 1))
+Table "TMP120" stored in Global: ^%ydboctoDjVS0tKmDOFsKQIamqlziFE(ID3) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID2|INTEGER|||
+ID3|INTEGER||NOT NULL|
+ID1|INTEGER|||
+Indexes:
+    "TMP120_ID1_KEY1" PRIMARY KEY CONSTRAINT, Column(s) (ID3), Global: ^%ydboctoDjVS0tKmDOFsKQIamqlziFE(ID3)
+    "TMP120_ID1_KEY2" UNIQUE CONSTRAINT, Column(s) (ID1), Global ^%ydboctoUXIvNcS1cDeR3V6v9nI4RAF
+Check constraints:
+    "TMP120_ID1_KEY" CHECK ((ID2 > 1))
+Table "TMP121" stored in Global: ^%ydboctoDSGHNeZ7GkeVGxTxMZJ3z88(ID1) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID1|INTEGER||NOT NULL|
+ID2|INTEGER|||
+ID3|INTEGER|||
+Indexes:
+    "TMP121_ID3_CHECK" PRIMARY KEY CONSTRAINT, Column(s) (ID1), Global: ^%ydboctoDSGHNeZ7GkeVGxTxMZJ3z88(ID1)
+    "TMP121_ID3_CHECK1" UNIQUE CONSTRAINT, Column(s) (ID2), Global ^%ydboctoU9nHRKTPxW5W7krYJd9TCDB
+Check constraints:
+    "TMP121_ID3_CHECK2" CHECK ((ID3 > 1))

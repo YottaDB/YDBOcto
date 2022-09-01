@@ -1,4 +1,4 @@
--- Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.
+-- Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.
 -- All rights reserved.
 --
 -- This source code contains the intellectual property
@@ -14,7 +14,7 @@ CREATE TABLE t1(
   d1 INTEGER,
   e1 INTEGER,
   x1 VARCHAR(30)
-) GLOBAL "^t1(keys(""id""))";
+) GLOBAL "^t1";
 CREATE TABLE t2(
   id INTEGER PRIMARY KEY,
   a2 INTEGER,
@@ -23,7 +23,7 @@ CREATE TABLE t2(
   d2 INTEGER,
   e2 INTEGER,
   x2 VARCHAR(30)
-) GLOBAL "^t2(keys(""id""))";
+) GLOBAL "^t2";
 CREATE TABLE t3(
   id INTEGER PRIMARY KEY,
   a3 INTEGER,
@@ -32,7 +32,7 @@ CREATE TABLE t3(
   d3 INTEGER,
   e3 INTEGER,
   x3 VARCHAR(30)
-) GLOBAL "^t3(keys(""id""))";
+) GLOBAL "^t3";
 CREATE TABLE t4(
   id INTEGER PRIMARY KEY,
   a4 INTEGER,
@@ -41,7 +41,7 @@ CREATE TABLE t4(
   d4 INTEGER,
   e4 INTEGER,
   x4 VARCHAR(30)
-) GLOBAL "^t4(keys(""id""))";
+) GLOBAL "^t4";
 CREATE TABLE t5(
   id INTEGER PRIMARY KEY,
   a5 INTEGER,
@@ -50,7 +50,7 @@ CREATE TABLE t5(
   d5 INTEGER,
   e5 INTEGER,
   x5 VARCHAR(30)
-) GLOBAL "^t5(keys(""id""))";
+) GLOBAL "^t5";
 CREATE TABLE t6(
   id INTEGER PRIMARY KEY,
   a6 INTEGER,
@@ -59,7 +59,7 @@ CREATE TABLE t6(
   d6 INTEGER,
   e6 INTEGER,
   x6 VARCHAR(30)
-) GLOBAL "^t6(keys(""id""))";
+) GLOBAL "^t6";
 CREATE TABLE t7(
   id INTEGER PRIMARY KEY,
   a7 INTEGER,
@@ -68,7 +68,7 @@ CREATE TABLE t7(
   d7 INTEGER,
   e7 INTEGER,
   x7 VARCHAR(30)
-) GLOBAL "^t7(keys(""id""))";
+) GLOBAL "^t7";
 CREATE TABLE t8(
   id INTEGER PRIMARY KEY,
   a8 INTEGER,
@@ -77,7 +77,7 @@ CREATE TABLE t8(
   d8 INTEGER,
   e8 INTEGER,
   x8 VARCHAR(30)
-) GLOBAL "^t8(keys(""id""))";
+) GLOBAL "^t8";
 CREATE TABLE t9(
   id INTEGER PRIMARY KEY,
   a9 INTEGER,
@@ -86,4 +86,4 @@ CREATE TABLE t9(
   d9 INTEGER,
   e9 INTEGER,
   x9 VARCHAR(30)
-) GLOBAL "^t9(keys(""id""))";
+) GLOBAL "^t9";

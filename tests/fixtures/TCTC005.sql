@@ -225,3 +225,130 @@ create table tmp74 (id1 integer constraint tmp74_id2_check unique, id2 integer C
 -- Test auto generated UNIQUE constraint name collision with CHECK constraint causes it to use "_key2"
 create table tmp75toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopq (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid1 integer, toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid2 integer, constraint tmp75toolongabcdefghijklmnopq_toolong1abcdefghijklmnopqrst_key1 CHECK (1 > 1), unique (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid1, toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid2), unique (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid2, toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid1));
 
+-- YDBOcto#770 : Test that PRIMARY KEY constraint shows up correctly in CREATE TABLE text definition for all below queries
+-- Additionally test the individual case described in comments before each query below
+
+-- Test unnamed PRIMARY KEY column constraint works with READONLY keyword
+create table tmp76 (id integer PRIMARY KEY, firstname varchar, lastname varchar) READONLY GLOBAL "^names";
+select count(*) from tmp76;
+
+-- Test named PRIMARY KEY column constraint works with READONLY keyword
+-- Also test that column level PRIMARY KEY constraint is now able to specify a constraint name.
+create table tmp77 (id integer CONSTRAINT myPrimaryKey77 PRIMARY KEY, firstname varchar, lastname varchar) READONLY GLOBAL "^names";
+select count(*) from tmp77;
+
+-- Test unnamed PRIMARY KEY table constraint works with READONLY keyword
+create table tmp78 (id integer, firstname varchar, lastname varchar, PRIMARY KEY (id)) READONLY GLOBAL "^names";
+select count(*) from tmp78;
+
+-- Test named PRIMARY KEY table constraint works with READONLY keyword
+-- Also test that table level PRIMARY KEY constraint is now able to specify a constraint name.
+create table tmp79 (id integer, firstname varchar, lastname varchar, CONSTRAINT myPrimaryKey79 PRIMARY KEY (id)) READONLY GLOBAL "^names";
+select count(*) from tmp79;
+
+-- Test \d lists a table-level PRIMARY KEY constraint in both cases below
+create table tmp80 (id1 integer key num 0, id2 integer key num 1);
+create table tmp81 (id1 integer, id2 integer, PRIMARY KEY (id1, id2));
+
+-- Test column level PRIMARY KEY constraint and column level UNIQUE constraint specified for same column.
+-- There should be just one PRIMARY KEY and no UNIQUE constraint in the \d output.
+create table tmp82 (id integer primary key unique);
+
+-- Test table level PRIMARY KEY constraint and table level UNIQUE constraint specified for same list of columns in same order.
+-- There should be just one PRIMARY KEY and no UNIQUE constraint in the \d output.
+create table tmp83 (id integer, primary key (id), unique (id));
+create table tmp84 (id1 integer, id2 integer, primary key (id1, id2), unique (id1, id2));
+
+-- Test table level PRIMARY KEY constraint and table level UNIQUE constraint specified for same list of columns but in
+-- different order. There should be one PRIMARY KEY and one UNIQUE constraint in the \d output.
+create table tmp85 (id1 integer, id2 integer, primary key (id1), unique (id2));
+create table tmp86 (id1 integer, id2 integer, primary key (id1, id2), unique (id2, id1));
+
+-- Test that if UNIQUE constraint is discarded because it is a duplicate of PRIMARY KEY constraint, any explicitly specified
+-- name in the UNIQUE constraint is inherited by the PRIMARY KEY constraint if it does not have any explicitly specified name.
+create table tmp87 (id integer primary key constraint uniq unique);
+create table tmp88 (id integer constraint primkey88 primary key constraint abcd unique);
+create table tmp89 (id integer, constraint primkey89 primary key (id), constraint uniq unique (id));
+create table tmp90 (id integer, primary key (id), constraint uniq90 unique (id));
+create table tmp91 (id1 integer, id2 integer, constraint primkey91 primary key (id1, id2), constraint uniq unique (id1, id2));
+create table tmp92 (id1 integer, id2 integer, primary key (id1, id2), constraint uniq92 unique (id1, id2));
+
+-- Test table-level UNIQUE constraint specified BEFORE table-level PRIMARY KEY constraint
+create table tmp93 (unique (id2, id3), id1 integer, id2 integer, id3 integer, primary key (id2, id3));
+create table tmp94 (constraint uniq94 unique (id2, id3), id1 integer, id2 integer, id3 integer, primary key (id2, id3));
+create table tmp95 (unique (id2), id1 integer, id2 integer, primary key (id2));
+create table tmp96 (constraint uniq96 unique (id2), id1 integer, id2 integer, primary key (id2));
+
+-- Test that column-level PRIMARY KEY constraint can now specify a constraint name. And it shows in \d tablename.
+create table tmp97 (id integer constraint pkey97 primary key);
+
+-- Test that table-level PRIMARY KEY constraint can now specify a constraint name. And it shows in \d tablename.
+-- Also test that table level PRIMARY KEY constraint that specifies only one column is treated as a column level PRIMARY KEY constraint
+-- (i.e. PRIMARY KEY shows up inside the "id" column in the table text definition)
+create table tmp98 (id integer, constraint pkey98 primary key (id));
+
+-- Test table level PRIMARY KEY constraint works if more than 1 column is specified
+create table tmp99 (id1 integer, id2 integer, constraint pkey99 primary key (id1, id2));
+
+-- Test that \d tablename works even if table has a mix of CHECK, UNIQUE and PRIMARY KEY constraints
+create table tmp100 (id1 integer, id2 integer, UNIQUE(id1, id2), CHECK (id1 > 2), constraint pkay100 primary key (id2));
+
+-- Test that table-level PRIMARY KEY constraint, using a column that will be defined later in the same CREATE TABLE, works fine
+create table tmp101 (constraint pkey101 primary key (id1), id1 integer);
+create table tmp102 (id1 integer, constraint pkey102 primary key (id2), id2 integer);
+create table tmp103 (id1 integer, constraint pkey103 primary key (id1, id2), id2 integer);
+
+-- Test that automatically assigned constraint name for PRIMARY KEY is table_column1_column2_..._pkey.
+create table tmp104 (id1 integer, id2 integer, primary key (id1, id2));
+
+-- Test that automatically assigned constraint name for PRIMARY KEY ensures uniqueness across ALL existing tables in Octo
+-- The table names in the below 3 lines are 63-bytes long and differ only in the last letter. And the column names are identical.
+-- In that case, auto assigning a PRIMARY KEY constraint name by appending "_key" to the table and column names is bound to
+-- generate the same constraint name for all the below tables IF the auto generation logic did not take this into account.
+-- But it does take this into account and so we expect \d to show 3 different constraint names, the first one with a "_PKEY"
+-- suffix and the second one with a "_PKEY1" suffix and the third one with a "_PKEY2" suffix.
+create table tmp105toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnop (id integer primary key);
+create table tmp105toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnoq (id integer primary key);
+create table tmp105toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnor (id integer primary key);
+
+-- Test auto generation of PRIMARY KEY constraint name truncates table and/or column names as needed
+-- Table name is short, Column name is long
+create table tmp106 (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu integer primary key);
+-- Table name is long, Column name is short
+create table tmp107toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnop (id integer primary key);
+-- Table name is long, Column name is long
+create table tmp108toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnop (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu integer primary key);
+-- Table name is short, Column1 name is long, Column2 name is short
+create table tmp109 (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, id2 integer, primary key (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr, id2));
+-- Table name is short, Column1 name is long, Column2 name is long
+create table tmp110 (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, primary key (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr));
+-- Table name is long, Column1 name is short, Column2 name is short
+create table tmp111toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnop (id1 integer, id2 integer, primary key (id1, id2));
+-- Table name is long, Column1 name is short, Column2 name is long
+create table tmp112toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnop (id1 integer, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, primary key (id1, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr));
+-- Table name is long, Column1 name is long, Column2 name is short
+create table tmp113toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnop (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, id2 integer, primary key (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr, id2));
+-- Table name is long, Column1 name is long, Column2 name is long
+create table tmp114toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnop (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, primary key (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr));
+
+-- Test auto generated PRIMARY KEY constraint name collision with another named UNIQUE constraint name
+create table tmp115 (id1 integer constraint tmp115_pkey unique, id2 integer primary key);
+
+-- Test auto generated UNIQUE KEY constraint name collision with another named PRIMARY KEY constraint name
+create table tmp116 (id1 integer constraint tmp116_id2_key primary key, id2 integer unique);
+
+-- Test auto generated PRIMARY KEY constraint name collision with another named CHECK constraint name
+create table tmp117 (id1 integer constraint tmp117_pkey CHECK (id1 > 1), id2 integer primary key);
+
+-- Test auto generated CHECK constraint name collision with another named PRIMARY KEY constraint name
+create table tmp118 (id1 integer constraint tmp118_id1_check primary key, id2 integer CHECK (id1 > 1));
+
+-- Test auto generated PRIMARY KEY constraint name collision with another named UNIQUE and CHECK constraint name
+create table tmp119 (id2 integer constraint tmp119_pkey CHECK (id2 > 1), id3 integer constraint tmp119_pkey1 unique, id1 integer primary key);
+
+-- Test auto generated UNIQUE constraint name collision with another named PRIMARY KEY and CHECK constraint name
+create table tmp120 (id2 integer constraint tmp120_id1_key CHECK (id2 > 1), id3 integer constraint tmp120_id1_key1 primary key, id1 integer unique);
+
+-- Test auto generated CHECK constraint name collision with another named PRIMARY KEY and UNIQUE constraint name
+create table tmp121 (id1 integer constraint tmp121_id3_check primary key, id2 integer constraint tmp121_id3_check1 unique, id3 integer CHECK (id3 > 1));
+

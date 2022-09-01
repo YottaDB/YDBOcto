@@ -29,11 +29,6 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 	table_stmt = src_table_alias->table;
 	UNPACK_SQL_STATEMENT(table, table_stmt, create_table);
 
-	char		*tableName;
-	SqlValue	*value;
-	UNPACK_SQL_STATEMENT(value, table->tableName, value);
-	tableName = value->v.reference;
-
 	SqlKey		*key;
 	assert(0 < pplan->total_iter_keys);
 	key = pplan->iterKeys[pplan->total_iter_keys - 1];
@@ -139,9 +134,9 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 		/* ------------------------------------------------------------------------------------
 		 * Do additional processing of the post-update value (check various constraints etc.)
 		 */
-		%{}`n{{ PLAN_LINE_START }}{}%
-		TMPL(tmpl_print_dots, dot_count);
 		if (!IS_KEY_COLUMN(cur_column)) {
+			%{}`n{{ PLAN_LINE_START }}{}%
+			TMPL(tmpl_print_dots, dot_count);
 			/* This is a non-key column */
 			%{}SET {}%
 			/* Check PIECE number of column (could be missing in non-key columns that have DELIM of "") */
@@ -193,26 +188,31 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 			%{}{{ PP_COL }}({{ cur_column->column_number|%d }}){}%
 			%{}){}%	/* closing paren for $$colvalue2piecevalue^%ydboctoplanhelpers invocation above */
 		} else {
-			/* This is a key column. Column value is already available in the desired lvn. Do some checks. */
+			/* This is a key column. Column value is already available in the desired lvn. */
 			num_key_cols_in_set_clause++;
-			/* Check if key column value changed. Since it is a key column  */
-			if (1 == num_key_cols_in_set_clause) {
-				%{}SET {{ PP_YDB_OCTO_KEYCHNGD }}={}%
-			} else {
-				assert(1 < num_key_cols_in_set_clause);
-				%{}SET:{}%
-			}
-			%{}({{ PP_COL }}({{ cur_column->column_number|%d }})'={}%
-			%{}{{ config->global_names.cursor }}(cursorId,{{ PP_KEYS }},{{ key->unique_id|%d }},{}%
-			%{}"{{ tableName }}","{{ columnName }}")){}%
-			if (1 < num_key_cols_in_set_clause) {
-				%{} {{ PP_YDB_OCTO_KEYCHNGD }}=1{}%
-			}
 		}
 		lp_column_list = lp_column_list->v.lp_default.operand[1];
 		assert((NULL == lp_column_list) || (LP_COLUMN_LIST == lp_column_list->type));
 	} while (NULL != lp_column_list);
 
+	if (num_key_cols_in_set_clause) {
+		/* UPDATE is modifying at least one key column */
+		if (!node_value_fetched) {
+			/* Node value is not yet fetched into unsubscripted local variable. So fetch pre-update node value from
+			 * global. Needed to set the post-update value of the node. Since this code path is reachable only if
+			 * no non-key columns are updated in the SET clause, the pre-update and post-update node values are not
+			 * going to be any different so the fetched value is going to be fed directly into the SET command
+			 * a few steps later to set the global variable node corresponding to the output row.
+			 * See comment in similar block above for why "$GET" is not needed before the "tmpl_key_source" call.
+			 */
+			%{}`n{{ PLAN_LINE_START }}{}%
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_UPD }}=$GET({}%
+			TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Value);
+			%{}){}%
+			node_value_fetched = TRUE;
+		}
+	}
 	/* ------------------------------------------------------------------------------------
 	 * If any CHECK constraints are defined for the table, generate code to verify they are met. If not issue error.
 	 */
@@ -227,43 +227,7 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 
 	assert(num_key_cols_in_set_clause == get_num_key_cols_in_set_clause(pplan));
 	if (num_key_cols_in_set_clause) {
-		/* UPDATE is modifying at least one key column.
-		 * Check if the updated row's key values match an existing row's key values. If so issue error.
-		 */
-		TMPL(tmpl_print_dots, dot_count);
-		%{}DO:({{ PP_YDB_OCTO_KEYCHNGD }})&$DATA({}%
-		TMPL(tmpl_key_source, pplan, key, EmitSourceForm_UpdateKeyCol);
-		%{}) DuplicateKeyValue^%%ydboctoplanhelpers({}%
-		/* If a new row with duplicate primary keys is being created, issue error.
-		 * TODO: Currently we don't support the PRIMARY KEY constraint feature (YDBOcto#770).
-		 * When it is supported, duplicate primary keys will be just one type of UNIQUE constraint.
-		 * At that point in time, the below logic will need to be reworked/generalized.
-		 * For now, we issue an error as if a PRIMARY KEY constraint got violated.
-		 * The constraint name is obtained by using the table name and adding a "pkey" suffix to it like Postgres does
-		 * but has issues (e.g. in case the table name is 60 character or more as adding "_pkey" suffix would then
-		 * cause the constraint name to be more than 63/OCTO_MAX_IDENT characters). This needs to be fixed when this
-		 * code gets revisited as part of YDBOcto#770.
-		 * The constraint related error detail is obtained by displaying the M node corresponding to the duplicate row.
-		 */
-		%{}"{{ tableName }}_pkey",{}%
-		%{}"Node "_$NAME({}%
-		TMPL(tmpl_key_source, pplan, key, EmitSourceForm_UpdateKeyCol);
-		%{})){}%
-		if (!node_value_fetched) {
-			/* Node value is not yet fetched into unsubscripted local variable. So fetch pre-update node value from
-			 * global. Needed to set the post-update value of the node. Since this code path is reachable only if
-			 * no non-key columns are updated in the SET clause, the pre-update and post-update node values are not
-			 * going to be any different so the fetched value is going to be fed directly into the SET command
-			 * a few steps later to set the global variable node corresponding to the output row.
-			 * See comment in similar block above for why "$GET" is not needed before the "tmpl_key_source" call.
-			 */
-			%{}`n{{ PLAN_LINE_START }}{}%
-			TMPL(tmpl_print_dots, dot_count);
-			%{}SET {{ PP_YDB_OCTO_UPD }}=$GET({}%
-			TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Value);
-			%{}){}%
-		}
-		%{}`n{{ PLAN_LINE_START }}{}%
+		/* UPDATE is modifying at least one key column */
 		TMPL(tmpl_print_dots, dot_count);
 		%{}KILL {}%
 		TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Value);

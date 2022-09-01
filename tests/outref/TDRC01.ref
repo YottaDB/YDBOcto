@@ -59,20 +59,24 @@ public|PG_SETTINGS|table|octo
 public|PG_TYPE|table|octo
 public|PG_USER|table|octo
 (30 rows)
-Table "NAMES" stored in Global: ^names(ID)
+Table "NAMES" stored in Global: ^names(ID) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER||NOT NULL|
 FIRSTNAME|VARCHAR(30)|||
 LASTNAME|VARCHAR(30)|||
+Indexes:
+    "NAMES_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^names(ID)
 FIRSTNAME
 Zero
 Acid
 (2 rows)
-Table "NAMES" stored in Global: ^names(ID)
+Table "NAMES" stored in Global: ^names(ID) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER||NOT NULL|
 FIRSTNAME|VARCHAR(30)|||
 LASTNAME|VARCHAR(30)|||
+Indexes:
+    "NAMES_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^names(ID)
 SCHEMA|NAME|TYPE|OWNER
 public|INFORMATION_SCHEMA.TABLES|table|octo
 public|NAMES|table|octo

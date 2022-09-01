@@ -24,9 +24,19 @@ create table products (id integer, name varchar unique (id, name));
 create table products (id integer constraint prikey primary key primary key);
 create table products (id integer constraint prikey primary key constraint seckey primary key);
 create table products (id integer constraint prikey primary key, name varchar primary key);
--- Note: The below produces a syntax error currently
--- but will produce a ERR_TABLE_MULTIPLE_PRIMARY_KEYS error once YDBOcto#770 is implemented.
 create table products (id integer constraint prikey primary key, name varchar, primary key (id, name));
+create table products (id1 integer primary key, id2 integer key num 1, primary key (id1, id2));
+create table products (id1 integer, id2 integer, primary key (id1, id2), primary key (id2, id1));
+-- Tests of ERR_TABLE_MULTIPLE_PRIMARY_KEYS error that demonstrate the need for "primary_key_constraint_keyword" variable
+-- in "src/parser/table_definition.c" (i.e. just "primary_key_constraint_col" is not enough).
+create table tmp103 (constraint pkey103 primary key (id1), primary key (id1), id1 integer);
+create table tmp104 (id1 integer, constraint pkey104 primary key (id1), primary key (id1));
+create table tmp105 (constraint pkey105 primary key (id1), id1 integer, primary key (id1));
+
+-- Test of ERR_DUPLICATE_PRIMARY_KEY_CONSTRAINT error
+create table tmp1 (id1 integer constraint tmp_pkey primary key);
+create table tmp2 (id2 integer constraint tmp_pkey primary key);
+drop table tmp1;
 
 -- Test of ERR_AGGREGATE_FUNCTION_CHECK error
 create table products (id integer, name text CHECK (COUNT(*) is NULL));
@@ -722,7 +732,7 @@ INSERT INTO tmp VALUES (NULL,3,3);
 INSERT INTO tmp VALUES (NULL,3,NULL);
 SELECT * FROM tmp;
 -- The below query should issue a ERR_DUPLICATE_KEY_VALUE error due to UNIQUE(id1, id3) constraint violation
-INSERT INTO tmp VALUES (2,5,3);
+INSERT INTO tmp VALUES (2,4,3);
 SELECT * FROM tmp;
 -- The below DELETE should delete the three rows (2,3,3), (NULL,3,3), (NULL,3,NULL)
 DELETE FROM tmp WHERE id2 = 3;
@@ -732,7 +742,7 @@ SELECT * FROM tmp;
 -- a row with an id2 value of 4 to henceforth be allowed.
 -- Additionally, this also tests that DELETE works fine with deleting NULL values of columns that are part of
 -- UNIQUE constraints (since the deleted rows above include NULL values for the id1 and id3 columns).
-INSERT INTO tmp VALUES (2,3,3);
+INSERT INTO tmp VALUES (2,4,3);
 SELECT * FROM tmp;
 DROP TABLE tmp;
 
@@ -821,4 +831,260 @@ UPDATE tmp SET id1 = 4 WHERE id2 > 2;
 UPDATE tmp SET id3 = id3 - id2, id2 = 5 WHERE id2 > 2;
 SELECT * FROM tmp;
 DROP TABLE tmp;
+
+-- Test of ERR_TABLE_KEY_NUM error
+-- Test that table level PRIMARY KEY 1-column constraint and KEY NUM usage issues ERR_TABLE_KEY_NUM error
+create table products (id integer key num 0, primary key (id));
+create table products (id integer key num 0, constraint prikey primary key (id));
+-- Test that table level PRIMARY KEY 2-column constraint and KEY NUM usage issues ERR_TABLE_KEY_NUM error
+create table products (id1 integer, id2 integer key num 1, constraint prikey primary key (id1, id2));
+-- Test that table level PRIMARY KEY 2-column constraint and KEY NUM usage issues ERR_TABLE_KEY_NUM error
+-- even though the KEY NUM is in sync with the PRIMARY KEY usage (i.e. id1 is KEY NUM 0 and id2 is KEY NUM 1
+-- just like the order the columns are defined in the PRIMARY KEY constraint).
+create table products (id1 integer key num 0, id2 integer key num 1, constraint prikey primary key (id1, id2));
+-- Test that table level PRIMARY KEY 2-column constraint and duplicate KEY NUM 1 usage issues ERR_TABLE_KEY_NUM error
+create table products (id1 integer key num 1, id2 integer key num 1, primary key (id1, id2));
+-- One more test of ERR_TABLE_KEY_NUM error. This used to assert fail before in an interim version of the code.
+create table tmp (id1 integer KEY NUM 2, id2 integer, id3 integer, PRIMARY KEY (id2, id1, id3));
+-- Test that table level PRIMARY KEY constraint does not accept KEY NUM keywords (issues a syntax error)
+create table products (id integer, constraint prikey primary key (id) key num 0);
+-- Test that column level PRIMARY KEY constraint accepts KEY NUM usage without error as long as it is valid
+create table tmp (id integer primary key key num 0);
+drop table tmp;
+create table tmp (id integer key num 0 primary key);
+drop table tmp;
+-- Test that column level PRIMARY KEY constraint does not accept KEY NUM usage without error when latter number is invalid
+-- Test of ERR_MISSING_KEY error
+create table tmp (id integer primary key key num 1);
+
+---------------------------------------------------------------------------
+-- Below tests are very similar to those done for UNIQUE constraints in this same file in a previous section
+---------------------------------------------------------------------------
+-- Test numeric/string literals where column name is expected in PRIMARY KEY constraint issues syntax error
+CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (3));
+CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY ('abcd'));
+
+-- Test that specifying a table level PRIMARY KEY constraint (i.e. a PRIMARY KEY constraint with a list of columns)
+-- as a column level PRIMARY KEY constraint issues a syntax error
+CREATE TABLE abcd (id1 INTEGER, id2 INTEGER PRIMARY KEY (id1));
+CREATE TABLE abcd (id1 INTEGER, id2 INTEGER PRIMARY KEY (id1, id2));
+
+-- Test that specifying a column-level PRIMARY KEY constraint where a table-level PRIMARY KEY constraint is expected issues a syntax error.
+CREATE TABLE tmp (id INTEGER, PRIMARY KEY);
+
+-- Test that specifying multiple PRIMARY KEY constraints in one table level constraint issues a syntax error
+CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (id1) PRIMARY KEY (id1));
+
+-- Test that mixing PRIMARY KEY and CHECK constraints in one table level constraint issues a syntax error
+CREATE TABLE abcd (id1 INTEGER, CHECK (id1 > 2) PRIMARY KEY (id1));
+
+-- Test that mixing PRIMARY KEY and UNIQUE constraints in one table level constraint issues a syntax error
+CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1) PRIMARY KEY (id1));
+
+-- Test that mixing PRIMARY KEY, UNIQUE and CHECK constraints in one table level constraint issues a syntax error
+CREATE TABLE abcd (id1 INTEGER, CHECK (id1 > 2) UNIQUE (id1) PRIMARY KEY (id1));
+
+-- Test of ERR_UNKNOWN_COLUMN_NAME error in PRIMARY KEY constraint
+CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (id2));
+CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (id1, id2));
+
+-- Test of ERR_DUPLICATE_COLUMN error in PRIMARY KEY constraint
+CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (id1, id1));
+CREATE TABLE abcd (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id1, id2, id1));
+
+-- Test that table-level PRIMARY KEY constraint specifying a list of expressions issues a syntax error
+CREATE TABLE abcd (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id1 + id2, id1));
+
+-- Test explicitly specified CHECK constraint name that collides with a previously specified auto generated PRIMARY KEY constraint name
+CREATE TABLE abcd (id1 INTEGER PRIMARY KEY, id2 INTEGER CONSTRAINT abcd_id1_key CHECK (id2 > 1));
+
+-- Test explicitly specified PRIMARY KEY constraint name that collides with a previously specified auto generated CHECK constraint name
+CREATE TABLE abcd (id1 INTEGER CHECK (id1 > 1), id2 INTEGER CONSTRAINT abcd_id1_check PRIMARY KEY);
+
+-- Test explicitly specified UNIQUE constraint name that collides with a previously specified auto generated PRIMARY KEY constraint name
+CREATE TABLE abcd (id1 INTEGER PRIMARY KEY, id2 INTEGER CONSTRAINT abcd_id1_key UNIQUE);
+
+-- Test explicitly specified PRIMARY KEY constraint name that collides with a previously specified auto generated UNIQUE constraint name
+CREATE TABLE abcd (id1 INTEGER UNIQUE, id2 INTEGER CONSTRAINT abcd_id1_key PRIMARY KEY);
+
+-- Test ERR_DUPLICATE_KEY_VALUE error
+-- Test case from https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/582#note_1054688708
+DROP TABLE IF EXISTS employees;
+CREATE TABLE employees(ID INTEGER CONSTRAINT PK_ID PRIMARY KEY, AGE INTEGER);
+INSERT INTO employees(ID,AGE) VALUES (1,22), (2,25);
+UPDATE employees set id = 2 where age = 22;
+DROP TABLE employees;
+
+-- Test ERR_DUPLICATE_KEY_VALUE error
+-- Test case from https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/770#note_1072505608
+DROP TABLE IF EXISTS employees;
+CREATE TABLE employees(ID INTEGER PRIMARY KEY, AGE INTEGER);
+INSERT INTO employees(ID,AGE) VALUES (1,22), (2,25);
+UPDATE employees set id = 2 where age = 22;
+SELECT * FROM employees;
+DROP TABLE employees;
+
+-- Test ERR_DUPLICATE_KEY_VALUE error for a PRIMARY KEY constraint on an INSERT INTO of numeric data
+CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id1, id2));
+INSERT INTO tmp VALUES (3, 4);
+INSERT INTO tmp VALUES (3, 4);
+SELECT * FROM tmp;
+DROP TABLE tmp;
+
+-- Test ERR_DUPLICATE_KEY_VALUE error for a PRIMARY KEY constraint on an INSERT INTO of string data
+CREATE TABLE tmp (id1 VARCHAR, id2 VARCHAR, PRIMARY KEY(id1, id2));
+INSERT INTO tmp VALUES ('abcd efgh', 'ijkl mnop');
+INSERT INTO tmp VALUES ('abcd efgh', 'ijkl mnop');
+SELECT * FROM tmp;
+DROP TABLE tmp;
+
+-- Test ERR_NULL_COL_VALUE error for a PRIMARY KEY constraint on an INSERT INTO of NULL data
+CREATE TABLE tmp (id1 VARCHAR, id2 VARCHAR, PRIMARY KEY(id1, id2));
+INSERT INTO tmp VALUES (NULL, 'efgh');
+INSERT INTO tmp VALUES ('abcd', NULL);
+INSERT INTO tmp VALUES (NULL, NULL);
+INSERT INTO tmp VALUES ('abcd', 'efgh');
+SELECT * FROM tmp;
+DROP TABLE tmp;
+
+-- Fancier test of ERR_DUPLICATE_KEY_VALUE error for a PRIMARY KEY constraint on an INSERT INTO of numeric data
+CREATE TABLE TMP (id1 INTEGER, id2 INTEGER, id3 INTEGER, PRIMARY KEY (id2, id3));
+INSERT INTO tmp VALUES (1, 2, 3);
+INSERT INTO tmp VALUES (2, 2, 5);
+-- The below query should issue a ERR_DUPLICATE_KEY_VALUE error due to PRIMARY KEY(id2, id3) constraint violation
+INSERT INTO tmp VALUES (3, 2, 3);
+SELECT * FROM tmp;
+DROP TABLE tmp;
+
+-- Test that DELETE works with INSERT INTO to maintain/enforce the PRIMARY KEY constraint
+CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, id3 INTEGER, PRIMARY KEY(id1, id3));
+INSERT INTO tmp VALUES (1,2,3);
+INSERT INTO tmp VALUES (2,3,3);
+SELECT * FROM tmp;
+-- The below query should issue a ERR_DUPLICATE_KEY_VALUE error due to PRIMARY KEY(id1, id3) constraint violation
+INSERT INTO tmp VALUES (2,4,3);
+SELECT * FROM tmp;
+-- The below DELETE should delete the row (2,3,3)
+DELETE FROM tmp WHERE id2 = 3;
+SELECT * FROM tmp;
+-- The below query should no longer issue a ERR_DUPLICATE_KEY_VALUE error now that (2,3,3) has been deleted
+-- This tests that the above DELETE must have done something with the PRIMARY KEY constraint maintenance to enable
+-- a row with an id2 value of 4 to henceforth be allowed.
+INSERT INTO tmp VALUES (2,4,3);
+SELECT * FROM tmp;
+DROP TABLE tmp;
+
+---------------------------------------------------------------------------
+-- Test that UPDATE works fine when PRIMARY KEY constraint is not violated
+---------------------------------------------------------------------------
+-- Test where one column is updated based on other column value
+-- The rows (3,5), (4,4), (5,3) will become (6,5), (5,4), (4,3) and so there are no constraint violations.
+CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, PRIMARY KEY(id1, id2));
+INSERT INTO tmp VALUES (3, 5);
+INSERT INTO tmp VALUES (4, 4);
+INSERT INTO tmp VALUES (5, 3);
+SELECT * FROM tmp;
+UPDATE TMP SET id1 = id2 + 1;
+SELECT * FROM tmp;
+DROP TABLE tmp;
+
+-- Test to swap column values
+-- The rows (3,4), (5,3) will become (4,3), (3,5) and so there are no constraint violations.
+CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, PRIMARY KEY(id1, id2));
+INSERT INTO tmp VALUES (3, 4);
+INSERT INTO tmp VALUES (5, 3);
+SELECT * FROM tmp;
+UPDATE TMP SET id1 = id2, id2 = id1;
+SELECT * FROM tmp;
+DROP TABLE tmp;
+
+-- Test that NULL does cause PRIMARY KEY constraint violations
+CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, PRIMARY KEY(id2));
+INSERT INTO tmp VALUES (3, 5);
+INSERT INTO tmp VALUES (4, 4);
+INSERT INTO tmp VALUES (5, 3);
+SELECT * FROM tmp;
+-- Test non-NULL to NULL transition. Should issue ERR_NULL_COL_VALUE error
+UPDATE TMP SET id2 = NULL;
+SELECT * FROM tmp;
+DROP TABLE tmp;
+
+---------------------------------------------------------------------------
+-- Test of ERR_DUPLICATE_KEY_VALUE error from UPDATE
+---------------------------------------------------------------------------
+-- Test where both columns are updated based on other column value
+-- The rows (3,5), (4,4), (5,3) will become (6,2), (5,3), (4,4)
+-- Even though the new 3 rows are unique amongst themselves, the new second row (5,3) conflicts
+-- with the pre-existing 3rd row (5,3) and so we expect an error (this matches Postgres behavior).
+CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, PRIMARY KEY(id1, id2));
+INSERT INTO tmp VALUES (3, 5);
+INSERT INTO tmp VALUES (4, 4);
+INSERT INTO tmp VALUES (5, 3);
+SELECT * FROM tmp;
+UPDATE TMP SET id1 = id2 + 1, id2 = id1 - 1;
+SELECT * FROM tmp;
+DROP TABLE tmp;
+
+-- The rows (3,2), (3,5) will become (3,4), (3,4) resulting in a PRIMARY KEY constraint violation
+-- So we expect an error.
+CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, PRIMARY KEY(id1, id2));
+INSERT INTO tmp VALUES (3, 2);
+INSERT INTO tmp VALUES (3, 5);
+SELECT * FROM tmp;
+UPDATE TMP SET id2 = 4;
+SELECT * FROM tmp;
+DROP TABLE tmp;
+
+---------------------------------------------------------------------------
+-- Test UPDATE when PRIMARY KEY, UNIQUE and CHECK constraints are used
+---------------------------------------------------------------------------
+CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, id3 INTEGER, PRIMARY KEY(id1, id2), UNIQUE(id2, id3), CHECK (id1 > 2));
+-- Expect no error for below command
+INSERT INTO tmp VALUES (3, 4, 2);
+INSERT INTO tmp VALUES (4, 3, 4);
+INSERT INTO tmp VALUES (5, 4, 5);
+-- Test ERR_CHECK_CONSTRAINT_VIOLATION error from INSERT INTO
+INSERT INTO tmp VALUES (1, 2, 3);
+-- Test ERR_CHECK_CONSTRAINT_VIOLATION error from UPDATE
+UPDATE tmp SET id1 = 1 WHERE id2 > 2;
+-- Test ERR_DUPLICATE_KEY_VALUE error from INSERT INTO for PRIMARY KEY constraint
+INSERT INTO tmp VALUES (5, 4, 6);
+-- Test ERR_DUPLICATE_KEY_VALUE error from INSERT INTO for UNIQUE constraint
+INSERT INTO tmp VALUES (6, 3, 4);
+-- Test ERR_DUPLICATE_KEY_VALUE error from UPDATE for PRIMARY KEY constraint
+UPDATE tmp SET id1 = 4 WHERE id2 > 2;
+-- Test ERR_DUPLICATE_KEY_VALUE error from UPDATE for UNIQUE constraint
+UPDATE tmp SET id3 = id3 - id2, id2 = 5 WHERE id2 > 2;
+SELECT * FROM tmp;
+DROP TABLE tmp;
+
+-- Test that PRIMARY KEY constraint name in one table can be the same as a CHECK or UNIQUE constraint in another table.
+-- It is only PRIMARY KEY constraint names across all tables that need to be unique.
+-- Note that Postgres does not allow PRIMARY KEY constraint name in one table to be the same as a UNIQUE constraint name in
+-- another table. It does allow the PRIMARY KEY constraint name in one table to be the same as a CHECK constraint name in
+-- another table. Most likely because the underlying B-tree storage for the PRIMARY KEY and UNIQUE constraints in Postgres
+-- is tied to the constraint name and therefore needs to be unique to distinguish the two. Octo differs from Postgres
+-- in this regard. Since the UNIQUE constraint global named is derived from the table name and the list of column names
+-- forming the constraint, Octo does not need this restriction.
+CREATE TABLE tmp1 (id1 INTEGER CONSTRAINT tmp_primary_key PRIMARY KEY, id2 INTEGER CONSTRAINT tmp_unique UNIQUE, id3 INTEGER CONSTRAINT tmp_check CHECK (id3 > 1));
+-- Test that creating a PRIMARY KEY constraint name in one table that matches the UNIQUE constraint name in another table
+-- does not issue any error.
+CREATE TABLE tmp2 (id1 INTEGER CONSTRAINT tmp_unique PRIMARY KEY);
+-- Test that creating a PRIMARY KEY constraint name in one table that matches the CHECK constraint name in another table
+-- does not issue any error.
+CREATE TABLE tmp3 (id1 INTEGER CONSTRAINT tmp_check PRIMARY KEY);
+-- Test that creating a PRIMARY KEY constraint name in one table that matches the PRIMARY KEY constraint name in another table
+-- issues a ERR_DUPLICATE_PRIMARY_KEY_CONSTRAINT error.
+CREATE TABLE tmp4 (id1 INTEGER CONSTRAINT tmp_primary_key PRIMARY KEY);
+-- Test that creating a CHECK and UNIQUE constraint name in one table that matches the CHECK and UNIQUE constraint names
+-- in another table does not issue any error.
+CREATE TABLE tmp5 (id1 INTEGER PRIMARY KEY, id2 INTEGER CONSTRAINT tmp_unique UNIQUE, id3 INTEGER CONSTRAINT tmp_check CHECK (id3 > 1));
+\d tmp1;
+\d tmp2;
+\d tmp3;
+\d tmp5;
+DROP TABLE tmp1;
+DROP TABLE tmp2;
+DROP TABLE tmp3;
+DROP TABLE tmp5;
 

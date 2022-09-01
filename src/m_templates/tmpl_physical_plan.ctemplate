@@ -198,7 +198,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 				%{},"{{delim}}"{}%
 			}
 			if (NULL == piece) {
-			%{},{}%
+			%{},""{}%
 			} else {
 			%{},{{piece}}{}%
 			}

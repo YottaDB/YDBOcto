@@ -16,7 +16,10 @@
 #include "physical_plan.h"
 #include "template_helpers.h"
 
-/* Generate M code that enforces CHECK/UNIQUE etc. constraints. Currently called for INSERT INTO or UPDATE or DELETE FROM. */
+/* Generate M code that enforces CHECK/UNIQUE etc. constraints. Currently called for INSERT INTO or UPDATE or DELETE FROM.
+ * Note that a PRIMARY KEY constraint is treated as a UNIQUE constraint below so whenever UNIQUE is mentioned below,
+ * we mean a UNIQUE or PRIMARY KEY constraint.
+ */
 TEMPLATE(tmpl_constraint, PhysicalPlan *pplan, LogicalPlan *lp_constraint, SqlTable *table, int dot_count) {
 	if (NULL == lp_constraint) {
 		return;	/* No CHECK/UNIQUE etc. constraints in this table. So nothing to do here. */
@@ -94,7 +97,15 @@ TEMPLATE(tmpl_constraint, PhysicalPlan *pplan, LogicalPlan *lp_constraint, SqlTa
 			constraint = lp_constraint->extra_detail.lp_constraint.constraint;
 
 			SqlStatement	*col_list_stmt;
-			if (UNIQUE_CONSTRAINT == constraint->type) {
+			if ((PRIMARY_KEY == constraint->type) && (LP_DELETE_FROM == type)) {
+				/* This is a DELETE command and a PRIMARY KEY constraint.
+				 * Maintenance of the global corresponding to the deleted table rows already happens in
+				 * "tmpl_delete_record_from_table.ctemplate" so no need to process PRIMARY KEY constraints
+				 * in case of DELETE.
+				 */
+				continue;
+			}
+			if ((UNIQUE_CONSTRAINT == constraint->type) || (PRIMARY_KEY == constraint->type)) {
 				assert(1 == i);
 				col_list_stmt = constraint->definition;
 				assert(NULL != col_list_stmt);	/* UNIQUE constraint should have a non-empty list of columns */
@@ -294,9 +305,17 @@ TEMPLATE(tmpl_constraint, PhysicalPlan *pplan, LogicalPlan *lp_constraint, SqlTa
 			}
 			%{}`n{{ PLAN_LINE_START }}{}%
 		}
+		if (0 != num_emits[1]) {
+			/* If there are UNIQUE constraints to be emitted, then signal end of CHECK constraint section.
+			 * Otherwise, the UNIQUE constraint emitting would signal its beginning thus also signaling
+			 * the end of the CHECK constraint section.
+			 */
+			TMPL(tmpl_print_dots, dot_count);
+			%{}; END of CHECK constraint enforcement section{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+		}
 	}
 	/* ==================== Emit UNIQUE constraints if it is non-zero ======== */
-	lp_constraint = lp_constraint_orig->v.lp_default.operand[1];
 	if (0 != num_emits[1]) {
 		TMPL(tmpl_print_dots, dot_count);
 		%{}; --------------------------------------{}%
@@ -307,7 +326,9 @@ TEMPLATE(tmpl_constraint, PhysicalPlan *pplan, LogicalPlan *lp_constraint, SqlTa
 		TMPL(tmpl_print_dots, dot_count);
 		%{}; --------------------------------------{}%
 		%{}`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, dot_count);
 
+		lp_constraint = lp_constraint_orig->v.lp_default.operand[1];
 		for ( ; NULL != lp_constraint; lp_constraint = lp_constraint->v.lp_default.operand[1]) {
 			assert(LP_UNIQUE_CONSTRAINT == lp_constraint->type);
 
@@ -317,19 +338,22 @@ TEMPLATE(tmpl_constraint, PhysicalPlan *pplan, LogicalPlan *lp_constraint, SqlTa
 
 			SqlConstraint	*constraint;
 			constraint = lp_constraint->extra_detail.lp_constraint.constraint;
-			assert(UNIQUE_CONSTRAINT == constraint->type);
+			assert((UNIQUE_CONSTRAINT == constraint->type) || (PRIMARY_KEY == constraint->type));
+			assert((LP_DELETE_FROM != type) || (PRIMARY_KEY != constraint->type));
 			UNPACK_SQL_STATEMENT(value, constraint->name, value);
 
-			char		*constraint_name;
+			char	*constraint_name;
 			constraint_name = value->v.string_literal;
-			UNPACK_SQL_STATEMENT(value, constraint->v.uniq_gblname, value);
 
-			char	*gblname;
-			gblname = value->v.string_literal;
-
-			TMPL(tmpl_print_dots, dot_count);
-			%{}; Emit code for UNIQUE constraint {{ constraint_name }}{}%
+			%{}; Emit code for {}%
+			if (UNIQUE_CONSTRAINT == constraint->type) {
+				%{}UNIQUE{}%
+			} else {
+				%{}PRIMARY KEY{}%
+			}
+			%{} constraint {{ constraint_name }}{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
+			TMPL(tmpl_print_dots, dot_count);
 
 			UniqueConstraintLoopType loop_type;
 			for (loop_type = UniqueConstraintLoopNotUpdate; loop_type < UniqueConstraintLoopMax; loop_type++) {
@@ -340,24 +364,43 @@ TEMPLATE(tmpl_constraint, PhysicalPlan *pplan, LogicalPlan *lp_constraint, SqlTa
 						&& ((LP_INSERT_INTO == type) || (LP_DELETE_FROM == type))) {
 					break;
 				}
-				TMPL(tmpl_print_dots, dot_count);
 				/* For INSERT INTO, PP_COL(i) lvns are already set hence the below "if" check */
 				if ((LP_DELETE_FROM == type) || (LP_UPDATE == type)) {
 					TMPL(tmpl_constraint_col_list, pplan, constraint, table, ConstraintSetColIList,	\
 						dot_count, loop_type);
 				}
-				%{}DO:{}%
-				TMPL(tmpl_constraint_col_list, pplan, constraint, table, ConstraintColNullList,		\
-												dot_count, loop_type);
-				%{}`n{{ PLAN_LINE_START }}{}%
-				dot_count++;
-				TMPL(tmpl_print_dots, dot_count);
+				if (UNIQUE_CONSTRAINT == constraint->type) {
+					/* In case of a PRIMARY KEY constraint, we would have already emitted M code
+					 * to check if they are NULL and if so issue an error. Therefore, we can skip the
+					 * "ConstraintColNullList" call in that case. But in the case of a UNIQUE constraint,
+					 * we do need to do that check. Hence the "ConstraintColNullList" call below in that case.
+					 */
+					%{}DO:{}%
+					TMPL(tmpl_constraint_col_list, pplan, constraint, table, ConstraintColNullList,	\
+											dot_count, loop_type);
+					%{}`n{{ PLAN_LINE_START }}{}%
+					dot_count++;
+					TMPL(tmpl_print_dots, dot_count);
+				} else if ((LP_UPDATE == type) && (UniqueConstraintLoopUpdate == loop_type)) {
+					/* This is a PRIMARY KEY constraint and UPDATE command. We do not do a KILL of the gvn
+					 * (as it is done after processing all UNIQUE constraints). Therefore, we need to
+					 * additionally check if at least one key column changed in value. And only then do
+					 * the "DuplicateKeyValue" check as otherwise we would issue an incorrect duplicate key
+					 * error. Hence the "ConstraintColChangedList" call below in that case.
+					 */
+					%{}DO:{}%
+					TMPL(tmpl_constraint_col_list, pplan, constraint, table, ConstraintColChangedList,	\
+											dot_count, loop_type);
+					%{}`n{{ PLAN_LINE_START }}{}%
+					dot_count++;
+					TMPL(tmpl_print_dots, dot_count);
+				}
 				if ((LP_INSERT_INTO == type) || ((UniqueConstraintLoopUpdate == loop_type)
 						&& (LP_UPDATE == type))) {
-					%{}DO:$DATA({{ gblname }}({}%
+					%{}DO:$DATA({}%
 					TMPL(tmpl_constraint_col_list, pplan, constraint, table, ConstraintColIList,	\
 												dot_count, loop_type);
-					%{})){}%
+					%{}){}%
 					%{}`n{{ PLAN_LINE_START }}{}%
 					dot_count++;
 					TMPL(tmpl_print_dots, dot_count);
@@ -373,23 +416,40 @@ TEMPLATE(tmpl_constraint, PhysicalPlan *pplan, LogicalPlan *lp_constraint, SqlTa
 					dot_count--;
 					TMPL(tmpl_print_dots, dot_count);
 				}
-				if ((LP_INSERT_INTO == type)
-						|| ((UniqueConstraintLoopUpdate == loop_type) && (LP_UPDATE == type))) {
-					%{}SET{}%
-				} else {
-					%{}KILL{}%
+				/* In the case of a PRIMARY KEY constraint, the SET/KILL is taken care of in the caller after
+				 * emitting all constraints. Therefore the below step can be skipped. Note that it is also
+				 * necessary since if we do a KILL of the global node as part of processing the PRIMARY KEY
+				 * constraint, we could end up with a GVUNDEF error while processing a later UNIQUE constraint
+				 * that wants to look at that global node for extracting some column value.
+				 */
+				if (UNIQUE_CONSTRAINT == constraint->type) {
+					if ((LP_INSERT_INTO == type)
+							|| ((UniqueConstraintLoopUpdate == loop_type) && (LP_UPDATE == type))) {
+						%{}SET {}%
+					} else {
+						%{}KILL {}%
+					}
+					TMPL(tmpl_constraint_col_list, pplan, constraint, table, ConstraintColIList,	\
+						dot_count, loop_type);
+					if ((LP_INSERT_INTO == type)
+							|| ((UniqueConstraintLoopUpdate == loop_type) && (LP_UPDATE == type))) {
+						%{}=""{}%
+					}
+					%{}`n{{ PLAN_LINE_START }}{}%
+					dot_count--;
+					TMPL(tmpl_print_dots, dot_count);
+				} else if ((LP_UPDATE == type) && (UniqueConstraintLoopUpdate == loop_type)) {
+					/* We would have emitted a sequence of dots 1 more than needed.
+					 * Undo the last dot with space.
+					 */
+					(*buffer_index)--;	/* Go back one, removing space */
+					(*buffer_index)--;	/* Go back one, removing . */
+					dot_count--;
 				}
-				%{} {{ gblname }}({}%
-				TMPL(tmpl_constraint_col_list, pplan, constraint, table, ConstraintColIList, dot_count, loop_type);
-				%{}){}%
-				if ((LP_INSERT_INTO == type)
-						|| ((UniqueConstraintLoopUpdate == loop_type) && (LP_UPDATE == type))) {
-					%{}=""{}%
-				}
-				%{}`n{{ PLAN_LINE_START }}{}%
-				dot_count--;
 			}
 		}
+		%{}; END of UNIQUE constraint enforcement section{}%
+		%{}`n{{ PLAN_LINE_START }}{}%
 	}
 }
 %{}

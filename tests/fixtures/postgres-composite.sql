@@ -20,7 +20,7 @@ CREATE TABLE composite (
 	id6 INTEGER,
 	id7 INTEGER,
 	name VARCHAR(20),
-	UNIQUE(id0, id1, id2, id3, id4, id5, id6, id7)
+	PRIMARY KEY (id0, id1, id2, id3, id4, id5, id6, id7)
 );
 
 INSERT INTO composite VALUES (0,1,2,3,4,5,6,7,'Name1');

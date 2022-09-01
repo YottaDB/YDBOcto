@@ -52,37 +52,8 @@ int describe_tablename(SqlStatement *table_name) {
 	fprintf(stdout, "Table \"%s\" stored in ", value->v.reference);
 
 	/* Next output GLOBAL (could be subscripted) that holds the table records */
-	SqlOptionalKeyword *keyword;
-	UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
-	fprintf(stdout, "Global: ");
-	UNPACK_SQL_STATEMENT(value, keyword->v, value);
-	/* The below code is similar to that in "tmpl_emit_source.ctemplate" */
-	char *source_ptr;
-	source_ptr = value->v.string_literal;
-
-	boolean_t table_has_hidden_key_column;
-	table_has_hidden_key_column = table_has_hidden_column(table);
-	while ('\0' != *source_ptr) {
-		char column[OCTO_MAX_IDENT + 1]; // Null terminator
-		int  t;
-		t = match_keys_expression(source_ptr, column, sizeof(column));
-		assert(-1 != t);
-		if (0 < t) {
-			fprintf(stdout, "%s", column);
-			source_ptr += t;
-		} else {
-			if (table_has_hidden_key_column && ('(' == *source_ptr)) {
-				/* Table has a HIDDEN key column. In that case, stop at printing the global name.
-				 * No need of any subscripts as the only subscript is the hidden key column name
-				 * which the user has no clue about.
-				 */
-				break;
-			}
-			fprintf(stdout, "%c", *source_ptr);
-			source_ptr++;
-		}
-	}
-	fprintf(stdout, "\n");
+	describe_tablename_global(table);
+	fprintf(stdout, " : Type = %s\n", (table->readwrite ? "READWRITE" : "READONLY"));
 
 	/* Next output the table columns */
 	fprintf(stdout, "Column|Type|Collation|Nullable|Default\n");
@@ -131,6 +102,16 @@ int describe_tablename(SqlStatement *table_name) {
 		cur_keyword = start_keyword;
 		do {
 			switch (cur_keyword->keyword) {
+			case PRIMARY_KEY:
+				/* Note: A READONLY table uses the PRIMARY KEY constraint for SELECT queries to know the key
+				 * columns but it does not actively maintain any indexes. But since it helps to know the
+				 * primary key constraint name for READONLY tables too (for example, such a constraint name
+				 * could prevent the same PRIMARY KEY constraint name from being specified for a different
+				 * READWRITE type table and result in a ERR_DUPLICATE_PRIMARY_KEY_CONSTRAINT error) we display
+				 * the PRIMARY KEY in the "Indexes" list below even though they are not actively maintained.
+				 */
+				/* Note: Below comment is needed to avoid gcc [-Wimplicit-fallthrough=] warning */
+				/* fall through */
 			case UNIQUE_CONSTRAINT:;
 				if (first_unique_constraint) {
 					fprintf(stdout, "Indexes:\n");
@@ -142,20 +123,21 @@ int describe_tablename(SqlStatement *table_name) {
 
 				SqlConstraint *constraint;
 				UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
-				assert(UNIQUE_CONSTRAINT == constraint->type);
+				assert(cur_keyword->keyword == constraint->type);
 				fprintf(stdout, "    ");
 				assert(NULL != constraint->name);
 
 				UNPACK_SQL_STATEMENT(value, constraint->name, value);
 				fprintf(stdout, "\"%s\" ", value->v.string_literal);
 
-				fprintf(stdout, "UNIQUE CONSTRAINT, Column(s) ");
+				fprintf(stdout, "%s CONSTRAINT, Column(s) ",
+					(UNIQUE_CONSTRAINT == constraint->type) ? "UNIQUE" : "PRIMARY KEY");
 				buffer = buffer_orig;
 				buff_ptr = &buffer;
-				/* Although we are emitting a UNIQUE constraint, all we need to emit at this point is a list
-				 * of column names and we have a "column_list_STATEMENT" type (asserted below). That can be
-				 * emitted by "emit_check_constraint()" so we use that function even though it is a CHECK
-				 * constraint specific function.
+				/* Although we are emitting a UNIQUE or PRIMARY KEY constraint, all we need to emit at this
+				 * point is a list of column names and we have a "column_list_STATEMENT" type (asserted below).
+				 * That can be emitted by "emit_check_constraint()" so we use that function even though it is
+				 * a CHECK constraint specific function.
 				 */
 				assert(column_list_STATEMENT == constraint->definition->type);
 				status = emit_check_constraint(&buffer_orig, &buffer_size, buff_ptr, constraint->definition);
@@ -165,9 +147,16 @@ int describe_tablename(SqlStatement *table_name) {
 					return -1;
 				}
 				fprintf(stdout, "%s", buffer_orig);
-				fprintf(stdout, ", Global ");
-				UNPACK_SQL_STATEMENT(value, constraint->v.uniq_gblname, value);
-				fprintf(stdout, "%s\n", value->v.string_literal);
+				fprintf(stdout, ", ");
+				if (UNIQUE_CONSTRAINT == constraint->type) {
+					fprintf(stdout, "Global ");
+					UNPACK_SQL_STATEMENT(value, constraint->v.uniq_gblname, value);
+					fprintf(stdout, "%s\n", value->v.string_literal);
+				} else {
+					assert(PRIMARY_KEY == constraint->type);
+					describe_tablename_global(table);
+					fprintf(stdout, "\n");
+				}
 				break;
 			default:
 				break;

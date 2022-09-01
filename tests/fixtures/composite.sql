@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -11,15 +11,16 @@
 #################################################################
 
 CREATE TABLE composite (
-	id0 INTEGER PRIMARY KEY,
-	id1 INTEGER KEY NUM 1,
-	id2 INTEGER KEY NUM 2,
-	id3 INTEGER KEY NUM 3,
-	id4 INTEGER KEY NUM 4,
-	id5 INTEGER KEY NUM 5,
-	id6 INTEGER KEY NUM 6,
-	id7 INTEGER KEY NUM 7,
-	name VARCHAR(20)
+	id0 INTEGER,
+	id1 INTEGER,
+	id2 INTEGER,
+	id3 INTEGER,
+	id4 INTEGER,
+	id5 INTEGER,
+	id6 INTEGER,
+	id7 INTEGER,
+	name VARCHAR(20),
+	PRIMARY KEY (id0, id1, id2, id3, id4, id5, id6, id7)
 	)
-GLOBAL "^composite(keys(""id0""),keys(""id1""),keys(""id2""),keys(""id3""),keys(""id4""),keys(""id5""),keys(""id6""),keys(""id7""))";
+GLOBAL "^composite";
 

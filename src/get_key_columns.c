@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -36,29 +36,24 @@ int get_key_columns(SqlTable *table, SqlColumn **key_columns) {
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 	cur_column = start_column;
 	do {
-		keyword = get_keyword(cur_column, PRIMARY_KEY);
-		if (NULL != keyword) {
-			if (NULL != key_columns[0]) {
-				UNPACK_SQL_STATEMENT(value, table->tableName, value);
-				ERROR(ERR_MULTIPLE_ZERO_KEYS, 0, value->v.reference);
-				return -2;
-			}
-			key_columns[0] = cur_column;
-			max_key = 0;
-		}
-		keyword = get_keyword(cur_column, OPTIONAL_KEY_NUM);
-		if (NULL != keyword) {
-			UNPACK_SQL_STATEMENT(value, keyword->v, value);
-			key_num = atoi(value->v.string_literal);
-			assert(MAX_KEY_COUNT > key_num);
-			if (NULL != key_columns[key_num]) {
-				UNPACK_SQL_STATEMENT(value, table->tableName, value);
-				ERROR(ERR_MULTIPLE_ZERO_KEYS, key_num, value->v.reference);
-				return -2;
-			}
-			key_columns[key_num] = cur_column;
-			if (key_num > max_key) {
-				max_key = key_num;
+		/* Ignore table-level constraints as a table-level PRIMARY KEY constraint would have already added the needed
+		 * KEY NUM keywords to the respective columns. Hence the "NULL" check on "columnName" below.
+		 */
+		if (NULL != cur_column->columnName) {
+			keyword = get_keyword(cur_column, OPTIONAL_KEY_NUM);
+			if (NULL != keyword) {
+				UNPACK_SQL_STATEMENT(value, keyword->v, value);
+				key_num = atoi(value->v.string_literal);
+				assert(MAX_KEY_COUNT > key_num);
+				if (NULL != key_columns[key_num]) {
+					UNPACK_SQL_STATEMENT(value, table->tableName, value);
+					ERROR(ERR_MULTIPLE_ZERO_KEYS, key_num, value->v.reference);
+					return -2;
+				}
+				key_columns[key_num] = cur_column;
+				if (key_num > max_key) {
+					max_key = key_num;
+				}
 			}
 		}
 		cur_column = cur_column->next;

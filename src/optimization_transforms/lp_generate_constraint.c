@@ -39,6 +39,7 @@ boolean_t lp_generate_constraint(LogicalPlan **lp_constraint_ptr, SqlStatement *
 			cur_keyword = cur_keyword->next;
 			switch (cur_keyword->keyword) {
 			case OPTIONAL_CHECK_CONSTRAINT:
+			case PRIMARY_KEY:
 			case UNIQUE_CONSTRAINT:;
 				SqlConstraint *constraint;
 				UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
@@ -65,7 +66,8 @@ boolean_t lp_generate_constraint(LogicalPlan **lp_constraint_ptr, SqlStatement *
 						lp_check_constraint_ptr = &lp_check_constraint->v.lp_default.operand[1];
 					}
 				} else {
-					assert(UNIQUE_CONSTRAINT == cur_keyword->keyword);
+					assert((UNIQUE_CONSTRAINT == cur_keyword->keyword)
+					       || (PRIMARY_KEY == cur_keyword->keyword));
 
 					LogicalPlan *lp_unique_constraint;
 					MALLOC_LP_2ARGS(lp_unique_constraint, LP_UNIQUE_CONSTRAINT);

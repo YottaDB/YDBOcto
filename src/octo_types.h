@@ -918,6 +918,7 @@ typedef struct SqlNoDataStatement {
 
 typedef struct SqlConstraint {
 	enum OptionalKeyword type;	 /* The constraint type. Current valid values are
+					  *     PRIMARY_KEY
 					  *	UNIQUE_CONSTRAINT
 					  *	OPTIONAL_CHECK_CONSTRAINT
 					  */

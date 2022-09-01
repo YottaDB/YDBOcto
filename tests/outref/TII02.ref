@@ -2,8 +2,9 @@
 -- TII02 : INSERT INTO a xfer table
 
 CREATE TABLE namesLastNameXref (
-  lastName VARCHAR(30) PRIMARY KEY,
-  id INTEGER KEY NUM 1
+  lastName VARCHAR(30),
+  id INTEGER,
+  PRIMARY KEY (lastName, id)
 );
 INSERT INTO namesLastNameXref (SELECT lastName, id FROM NAMES WHERE lastName IS NOT NULL);
 SELECT * FROM namesLastNameXref;

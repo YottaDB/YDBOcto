@@ -1,6 +1,6 @@
 -- ######################################################################
 -- #                                                                   #
--- # Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.           #
+-- # Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.           #
 -- # All rights reserved.                                              #
 -- #                                                                   #
 -- #   This source code contains the intellectual property             #
@@ -21,319 +21,319 @@ CREATE TABLE t1(
   a1 INTEGER PRIMARY KEY,
   b1 INTEGER,
   x1 VARCHAR(40)
-) GLOBAL "^t1(keys(""a1""))";
+) GLOBAL "^t1";
 CREATE TABLE t2(
   a2 INTEGER PRIMARY KEY,
   b2 INTEGER,
   x2 VARCHAR(40)
-) GLOBAL "^t2(keys(""a2""))";
+) GLOBAL "^t2";
 CREATE TABLE t3(
   a3 INTEGER PRIMARY KEY,
   b3 INTEGER,
   x3 VARCHAR(40)
-) GLOBAL "^t3(keys(""a3""))";
+) GLOBAL "^t3";
 CREATE TABLE t4(
   a4 INTEGER PRIMARY KEY,
   b4 INTEGER,
   x4 VARCHAR(40)
-) GLOBAL "^t4(keys(""a4""))";
+) GLOBAL "^t4";
 CREATE TABLE t5(
   a5 INTEGER PRIMARY KEY,
   b5 INTEGER,
   x5 VARCHAR(40)
-) GLOBAL "^t5(keys(""a5""))";
+) GLOBAL "^t5";
 CREATE TABLE t6(
   a6 INTEGER PRIMARY KEY,
   b6 INTEGER,
   x6 VARCHAR(40)
-) GLOBAL "^t6(keys(""a6""))";
+) GLOBAL "^t6";
 CREATE TABLE t7(
   a7 INTEGER PRIMARY KEY,
   b7 INTEGER,
   x7 VARCHAR(40)
-) GLOBAL "^t7(keys(""a7""))";
+) GLOBAL "^t7";
 CREATE TABLE t8(
   a8 INTEGER PRIMARY KEY,
   b8 INTEGER,
   x8 VARCHAR(40)
-) GLOBAL "^t8(keys(""a8""))";
+) GLOBAL "^t8";
 CREATE TABLE t9(
   a9 INTEGER PRIMARY KEY,
   b9 INTEGER,
   x9 VARCHAR(40)
-) GLOBAL "^t9(keys(""a9""))";
+) GLOBAL "^t9";
 CREATE TABLE t10(
   a10 INTEGER PRIMARY KEY,
   b10 INTEGER,
   x10 VARCHAR(40)
-) GLOBAL "^t10(keys(""a10""))";
+) GLOBAL "^t10";
 CREATE TABLE t11(
   a11 INTEGER PRIMARY KEY,
   b11 INTEGER,
   x11 VARCHAR(40)
-) GLOBAL "^t11(keys(""a11""))";
+) GLOBAL "^t11";
 CREATE TABLE t12(
   a12 INTEGER PRIMARY KEY,
   b12 INTEGER,
   x12 VARCHAR(40)
-) GLOBAL "^t12(keys(""a12""))";
+) GLOBAL "^t12";
 CREATE TABLE t13(
   a13 INTEGER PRIMARY KEY,
   b13 INTEGER,
   x13 VARCHAR(40)
-) GLOBAL "^t13(keys(""a13""))";
+) GLOBAL "^t13";
 CREATE TABLE t14(
   a14 INTEGER PRIMARY KEY,
   b14 INTEGER,
   x14 VARCHAR(40)
-) GLOBAL "^t14(keys(""a14""))";
+) GLOBAL "^t14";
 CREATE TABLE t15(
   a15 INTEGER PRIMARY KEY,
   b15 INTEGER,
   x15 VARCHAR(40)
-) GLOBAL "^t15(keys(""a15""))";
+) GLOBAL "^t15";
 CREATE TABLE t16(
   a16 INTEGER PRIMARY KEY,
   b16 INTEGER,
   x16 VARCHAR(40)
-) GLOBAL "^t16(keys(""a16""))";
+) GLOBAL "^t16";
 CREATE TABLE t17(
   a17 INTEGER PRIMARY KEY,
   b17 INTEGER,
   x17 VARCHAR(40)
-) GLOBAL "^t17(keys(""a17""))";
+) GLOBAL "^t17";
 CREATE TABLE t18(
   a18 INTEGER PRIMARY KEY,
   b18 INTEGER,
   x18 VARCHAR(40)
-) GLOBAL "^t18(keys(""a18""))";
+) GLOBAL "^t18";
 CREATE TABLE t19(
   a19 INTEGER PRIMARY KEY,
   b19 INTEGER,
   x19 VARCHAR(40)
-) GLOBAL "^t19(keys(""a19""))";
+) GLOBAL "^t19";
 CREATE TABLE t20(
   a20 INTEGER PRIMARY KEY,
   b20 INTEGER,
   x20 VARCHAR(40)
-) GLOBAL "^t20(keys(""a20""))";
+) GLOBAL "^t20";
 CREATE TABLE t21(
   a21 INTEGER PRIMARY KEY,
   b21 INTEGER,
   x21 VARCHAR(40)
-) GLOBAL "^t21(keys(""a21""))";
+) GLOBAL "^t21";
 CREATE TABLE t22(
   a22 INTEGER PRIMARY KEY,
   b22 INTEGER,
   x22 VARCHAR(40)
-) GLOBAL "^t22(keys(""a22""))";
+) GLOBAL "^t22";
 CREATE TABLE t23(
   a23 INTEGER PRIMARY KEY,
   b23 INTEGER,
   x23 VARCHAR(40)
-) GLOBAL "^t23(keys(""a23""))";
+) GLOBAL "^t23";
 CREATE TABLE t24(
   a24 INTEGER PRIMARY KEY,
   b24 INTEGER,
   x24 VARCHAR(40)
-) GLOBAL "^t24(keys(""a24""))";
+) GLOBAL "^t24";
 CREATE TABLE t25(
   a25 INTEGER PRIMARY KEY,
   b25 INTEGER,
   x25 VARCHAR(40)
-) GLOBAL "^t25(keys(""a25""))";
+) GLOBAL "^t25";
 CREATE TABLE t26(
   a26 INTEGER PRIMARY KEY,
   b26 INTEGER,
   x26 VARCHAR(40)
-) GLOBAL "^t26(keys(""a26""))";
+) GLOBAL "^t26";
 CREATE TABLE t27(
   a27 INTEGER PRIMARY KEY,
   b27 INTEGER,
   x27 VARCHAR(40)
-) GLOBAL "^t27(keys(""a27""))";
+) GLOBAL "^t27";
 CREATE TABLE t28(
   a28 INTEGER PRIMARY KEY,
   b28 INTEGER,
   x28 VARCHAR(40)
-) GLOBAL "^t28(keys(""a28""))";
+) GLOBAL "^t28";
 CREATE TABLE t29(
   a29 INTEGER PRIMARY KEY,
   b29 INTEGER,
   x29 VARCHAR(40)
-) GLOBAL "^t29(keys(""a29""))";
+) GLOBAL "^t29";
 CREATE TABLE t30(
   a30 INTEGER PRIMARY KEY,
   b30 INTEGER,
   x30 VARCHAR(40)
-) GLOBAL "^t30(keys(""a30""))";
+) GLOBAL "^t30";
 CREATE TABLE t31(
   a31 INTEGER PRIMARY KEY,
   b31 INTEGER,
   x31 VARCHAR(40)
-) GLOBAL "^t31(keys(""a31""))";
+) GLOBAL "^t31";
 CREATE TABLE t32(
   a32 INTEGER PRIMARY KEY,
   b32 INTEGER,
   x32 VARCHAR(40)
-) GLOBAL "^t32(keys(""a32""))";
+) GLOBAL "^t32";
 CREATE TABLE t33(
   a33 INTEGER PRIMARY KEY,
   b33 INTEGER,
   x33 VARCHAR(40)
-) GLOBAL "^t33(keys(""a33""))";
+) GLOBAL "^t33";
 CREATE TABLE t34(
   a34 INTEGER PRIMARY KEY,
   b34 INTEGER,
   x34 VARCHAR(40)
-) GLOBAL "^t34(keys(""a34""))";
+) GLOBAL "^t34";
 CREATE TABLE t35(
   a35 INTEGER PRIMARY KEY,
   b35 INTEGER,
   x35 VARCHAR(40)
-) GLOBAL "^t35(keys(""a35""))";
+) GLOBAL "^t35";
 CREATE TABLE t36(
   a36 INTEGER PRIMARY KEY,
   b36 INTEGER,
   x36 VARCHAR(40)
-) GLOBAL "^t36(keys(""a36""))";
+) GLOBAL "^t36";
 CREATE TABLE t37(
   a37 INTEGER PRIMARY KEY,
   b37 INTEGER,
   x37 VARCHAR(40)
-) GLOBAL "^t37(keys(""a37""))";
+) GLOBAL "^t37";
 CREATE TABLE t38(
   a38 INTEGER PRIMARY KEY,
   b38 INTEGER,
   x38 VARCHAR(40)
-) GLOBAL "^t38(keys(""a38""))";
+) GLOBAL "^t38";
 CREATE TABLE t39(
   a39 INTEGER PRIMARY KEY,
   b39 INTEGER,
   x39 VARCHAR(40)
-) GLOBAL "^t39(keys(""a39""))";
+) GLOBAL "^t39";
 CREATE TABLE t40(
   a40 INTEGER PRIMARY KEY,
   b40 INTEGER,
   x40 VARCHAR(40)
-) GLOBAL "^t40(keys(""a40""))";
+) GLOBAL "^t40";
 CREATE TABLE t41(
   a41 INTEGER PRIMARY KEY,
   b41 INTEGER,
   x41 VARCHAR(40)
-) GLOBAL "^t41(keys(""a41""))";
+) GLOBAL "^t41";
 CREATE TABLE t42(
   a42 INTEGER PRIMARY KEY,
   b42 INTEGER,
   x42 VARCHAR(40)
-) GLOBAL "^t42(keys(""a42""))";
+) GLOBAL "^t42";
 CREATE TABLE t43(
   a43 INTEGER PRIMARY KEY,
   b43 INTEGER,
   x43 VARCHAR(40)
-) GLOBAL "^t43(keys(""a43""))";
+) GLOBAL "^t43";
 CREATE TABLE t44(
   a44 INTEGER PRIMARY KEY,
   b44 INTEGER,
   x44 VARCHAR(40)
-) GLOBAL "^t44(keys(""a44""))";
+) GLOBAL "^t44";
 CREATE TABLE t45(
   a45 INTEGER PRIMARY KEY,
   b45 INTEGER,
   x45 VARCHAR(40)
-) GLOBAL "^t45(keys(""a45""))";
+) GLOBAL "^t45";
 CREATE TABLE t46(
   a46 INTEGER PRIMARY KEY,
   b46 INTEGER,
   x46 VARCHAR(40)
-) GLOBAL "^t46(keys(""a46""))";
+) GLOBAL "^t46";
 CREATE TABLE t47(
   a47 INTEGER PRIMARY KEY,
   b47 INTEGER,
   x47 VARCHAR(40)
-) GLOBAL "^t47(keys(""a47""))";
+) GLOBAL "^t47";
 CREATE TABLE t48(
   a48 INTEGER PRIMARY KEY,
   b48 INTEGER,
   x48 VARCHAR(40)
-) GLOBAL "^t48(keys(""a48""))";
+) GLOBAL "^t48";
 CREATE TABLE t49(
   a49 INTEGER PRIMARY KEY,
   b49 INTEGER,
   x49 VARCHAR(40)
-) GLOBAL "^t49(keys(""a49""))";
+) GLOBAL "^t49";
 CREATE TABLE t50(
   a50 INTEGER PRIMARY KEY,
   b50 INTEGER,
   x50 VARCHAR(40)
-) GLOBAL "^t50(keys(""a50""))";
+) GLOBAL "^t50";
 CREATE TABLE t51(
   a51 INTEGER PRIMARY KEY,
   b51 INTEGER,
   x51 VARCHAR(40)
-) GLOBAL "^t51(keys(""a51""))";
+) GLOBAL "^t51";
 CREATE TABLE t52(
   a52 INTEGER PRIMARY KEY,
   b52 INTEGER,
   x52 VARCHAR(40)
-) GLOBAL "^t52(keys(""a52""))";
+) GLOBAL "^t52";
 CREATE TABLE t53(
   a53 INTEGER PRIMARY KEY,
   b53 INTEGER,
   x53 VARCHAR(40)
-) GLOBAL "^t53(keys(""a53""))";
+) GLOBAL "^t53";
 CREATE TABLE t54(
   a54 INTEGER PRIMARY KEY,
   b54 INTEGER,
   x54 VARCHAR(40)
-) GLOBAL "^t54(keys(""a54""))";
+) GLOBAL "^t54";
 CREATE TABLE t55(
   a55 INTEGER PRIMARY KEY,
   b55 INTEGER,
   x55 VARCHAR(40)
-) GLOBAL "^t55(keys(""a55""))";
+) GLOBAL "^t55";
 CREATE TABLE t56(
   a56 INTEGER PRIMARY KEY,
   b56 INTEGER,
   x56 VARCHAR(40)
-) GLOBAL "^t56(keys(""a56""))";
+) GLOBAL "^t56";
 CREATE TABLE t57(
   a57 INTEGER PRIMARY KEY,
   b57 INTEGER,
   x57 VARCHAR(40)
-) GLOBAL "^t57(keys(""a57""))";
+) GLOBAL "^t57";
 CREATE TABLE t58(
   a58 INTEGER PRIMARY KEY,
   b58 INTEGER,
   x58 VARCHAR(40)
-) GLOBAL "^t58(keys(""a58""))";
+) GLOBAL "^t58";
 CREATE TABLE t59(
   a59 INTEGER PRIMARY KEY,
   b59 INTEGER,
   x59 VARCHAR(40)
-) GLOBAL "^t59(keys(""a59""))";
+) GLOBAL "^t59";
 CREATE TABLE t60(
   a60 INTEGER PRIMARY KEY,
   b60 INTEGER,
   x60 VARCHAR(40)
-) GLOBAL "^t60(keys(""a60""))";
+) GLOBAL "^t60";
 CREATE TABLE t61(
   a61 INTEGER PRIMARY KEY,
   b61 INTEGER,
   x61 VARCHAR(40)
-) GLOBAL "^t61(keys(""a61""))";
+) GLOBAL "^t61";
 CREATE TABLE t62(
   a62 INTEGER PRIMARY KEY,
   b62 INTEGER,
   x62 VARCHAR(40)
-) GLOBAL "^t62(keys(""a62""))";
+) GLOBAL "^t62";
 CREATE TABLE t63(
   a63 INTEGER PRIMARY KEY,
   b63 INTEGER,
   x63 VARCHAR(40)
-) GLOBAL "^t63(keys(""a63""))";
+) GLOBAL "^t63";
 CREATE TABLE t64(
   a64 INTEGER PRIMARY KEY,
   b64 INTEGER,
   x64 VARCHAR(40)
-) GLOBAL "^t64(keys(""a64""))";
+) GLOBAL "^t64";

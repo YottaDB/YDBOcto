@@ -6,7 +6,7 @@ CREATE TABLE tmp (id INTEGER CONSTRAINT notnull1 NOT NULL NOT NULL CONSTRAINT no
 select * from tmp;
 DROP TABLE
 CREATE TABLE
-Table "TMP" stored in Global: ^%ydboctoDK8x9V2YiyPMRxcDYOMpB0K
+Table "TMP" stored in Global: ^%ydboctoDK8x9V2YiyPMRxcDYOMpB0K : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 ID|INTEGER||NOT NULL|
 ID

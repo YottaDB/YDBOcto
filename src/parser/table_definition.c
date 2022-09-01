@@ -84,6 +84,48 @@
 		dqdel(CUR_COLUMN); /* Delete column */                                                    \
 	}
 
+#define ADD_KEY_NUM_KEYWORD_TO_COLUMN(COLUMN, NUM)                                                  \
+	{                                                                                           \
+                                                                                                    \
+		/* Construct the key num keyword */                                                 \
+		SqlStatement *stmt;                                                                 \
+		SQL_STATEMENT(stmt, keyword_STATEMENT);                                             \
+		MALLOC_STATEMENT(stmt, keyword, SqlOptionalKeyword);                                \
+                                                                                                    \
+		SqlOptionalKeyword *keyword;                                                        \
+		keyword = stmt->v.keyword;                                                          \
+		keyword->keyword = OPTIONAL_KEY_NUM;                                                \
+		/* key num value is index of key in table */                                        \
+                                                                                                    \
+		char key_num_buffer[INT32_TO_STRING_MAX];                                           \
+		int  copied;                                                                        \
+		assert(sizeof(NUM) == sizeof(int));                                                 \
+		copied = snprintf(key_num_buffer, INT32_TO_STRING_MAX, "%d", NUM);                  \
+		assert(INT32_TO_STRING_MAX > copied);                                               \
+		UNUSED(copied); /* Needed to avoid DeadStores warning in non-Debug builds */        \
+                                                                                                    \
+		int len;                                                                            \
+		len = strlen(key_num_buffer);                                                       \
+                                                                                                    \
+		char *outBuff;                                                                      \
+		outBuff = octo_cmalloc(memory_chunks, len + 1);                                     \
+                                                                                                    \
+		strncpy(outBuff, key_num_buffer, len + 1);                                          \
+		SQL_VALUE_STATEMENT(keyword->v, INTEGER_LITERAL, outBuff);                          \
+		dqinit(keyword);                                                                    \
+                                                                                                    \
+		/* Insert "stmt" into column keyword list */                                        \
+		SqlOptionalKeyword *t_keyword;                                                      \
+		if (NULL != COLUMN->keywords) {                                                     \
+			/* List of keywords already exists. Append new keyword to existing list. */ \
+			UNPACK_SQL_STATEMENT(t_keyword, COLUMN->keywords, keyword);                 \
+			dqappend(t_keyword, keyword);                                               \
+		} else {                                                                            \
+			/* No keywords already exist. Make this the only keyword in the list. */    \
+			COLUMN->keywords = stmt;                                                    \
+		}                                                                                   \
+	}
+
 /* Function invoked by the rule named "table_definition" in src/parser.y (parses the CREATE TABLE command).
  * Returns
  *	non-NULL pointer to SqlStatement structure on success
@@ -100,7 +142,6 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	SqlColumn *	    cur_column, *start_column, *next_column, *first_non_key_column;
 	SqlStatement *	    statement;
 	SqlValue *	    value;
-	char *		    out_buffer;
 	size_t		    str_len;
 	int		    len, piece_number, num_non_key_columns;
 	unsigned int	    options;
@@ -123,21 +164,6 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	 * Override this later based on whether READWRITE or READONLY keywords have been specified in the CREATE TABLE.
 	 */
 	table_type = config->default_tabletype;
-
-	/* TODO : YDBOcto#770 : PRIMARY KEY
-	 * If specified as a column-level constraint, there is no way multiple columns can be specified there so
-	 * it stays a column-level constraint (no table-level constraint possible).
-	 *
-	 * For each column-level constraint,
-	 * 1) If more than one specified at a column-level and/or the table-level (across all columns), issue error.
-	 *
-	 * For each table-level constraint,
-	 * 1) If more than one specified at a column-level and/or the table-level (across all columns), issue error.
-	 *
-	 */
-
-	boolean_t primary_key_constraint_seen;
-	primary_key_constraint_seen = FALSE;
 
 	/* Define the local variable name under which we will
 	 * a) Store constraint names as we process the CREATE TABLE. This will help us identify duplicate constraint names.
@@ -174,17 +200,31 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	 * loop) is based on which column (if it is a column-level constraint) or table name (if it is a table-level constraint)
 	 * it is a part of.
 	 *
-	 * Similarly, scan column-level keywords for UNIQUE constraint.
+	 * Similarly, scan column-level keywords for UNIQUE or PRIMARY KEY constraint.
 	 * a) If specified as a column-level constraint, there is no way multiple columns can be specified there (a syntax
 	 *    error would have been issued in that case) so it stays a column-level constraint (i.e. no need to worry about
 	 *    moving a column-level constraint to a table-level constraint).
 	 * b) For each table-level constraint, check if it specifies only ONE column. If so, move this to be a column-level
-	 *    UNIQUE constraint for the specified column name.
-	 * This needs to be done first as the automatic name assignment of a CHECK constraint (that happens in a later do/while
-	 * loop) is based on which column (if it is a column-level constraint) or table name (if it is a table-level constraint)
-	 * it is a part of.
+	 *    UNIQUE or PRIMARY KEY constraint for the specified column name.
 	 *
+	 * Additionally, scan column-level keywords for PRIMARY KEY constraint.
+	 * If any duplicate keywords are found (within a column or across columns), issue error.
 	 */
+	boolean_t key_num_keyword_seen, table_level_primary_key_constraint_seen;
+	key_num_keyword_seen = FALSE;
+	table_level_primary_key_constraint_seen = FALSE;
+
+	SqlColumn *primary_key_constraint_col;
+	primary_key_constraint_col = NULL;
+
+	/* Note: One might think "primary_key_constraint_col" is enough to ensure only one PRIMARY KEY constraint is specified.
+	 * But due to potential moves of table level constraint keywords to column level constraint keywords, we also need
+	 * "primary_key_constraint_keyword". There are a few queries in ERR_TABLE_MULTIPLE_PRIMARY_KEYS which will fail to issue
+	 * an error without this additional variable in the code.
+	 */
+	SqlOptionalKeyword *primary_key_constraint_keyword;
+	primary_key_constraint_keyword = NULL;
+
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 	cur_column = start_column;
 	/* Set up first-level subscript as OCTOLIT_COLUMNS for helping determine which columns are used in the CHECK constraint.
@@ -364,18 +404,33 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 					 */
 				}
 				break;
+			case PRIMARY_KEY:
+				if ((NULL != primary_key_constraint_keyword) && (cur_keyword != primary_key_constraint_keyword)) {
+					UNPACK_SQL_STATEMENT(value, table->tableName, value);
+					ERROR(ERR_TABLE_MULTIPLE_PRIMARY_KEYS, value->v.reference);
+					yyerror(NULL, NULL, &cur_keyword->v, NULL, NULL, NULL);
+					return NULL;
+				}
+				primary_key_constraint_col = cur_column;
+				primary_key_constraint_keyword = cur_keyword;
+				/* Note: Below comment is needed to avoid gcc [-Wimplicit-fallthrough=] warning */
+				/* fall through */
 			case UNIQUE_CONSTRAINT:;
 				UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
 
 				SqlStatement *column_name_list;
 				column_name_list = constraint->definition;
 				if (NULL != column_name_list) {
-					/* Note: Since only table level UNIQUE constraint can have a list of columns, one might
-					 * be tempted to assert the following.
+					if (PRIMARY_KEY == cur_keyword->keyword) {
+						table_level_primary_key_constraint_seen = TRUE;
+					}
+					/* Note: Since only table level UNIQUE or PRIMARY KEY constraint can have a list of columns,
+					 * one might be tempted to assert the following.
 					 *    assert(NULL == cur_column->columnName);
-					 * But this can fail in case this column level UNIQUE constraint was moved from a
-					 * table level UNIQUE constraint in a previous iteration of the containing "do/while"
-					 * loop ("cur_column" is loop variable). Hence the above assert is commented out.
+					 * But this can fail in case this column level UNIQUE or PRIMARY KEY constraint was moved
+					 * from a table level UNIQUE or PRIMARY KEY constraint in a previous iteration of the
+					 * containing "do/while" loop ("cur_column" is loop variable). Hence the above assert is
+					 * commented out.
 					 */
 					SqlColumnList *start_cl, *cur_cl;
 					UNPACK_SQL_STATEMENT(start_cl, column_name_list, column_list);
@@ -390,8 +445,8 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 						noted_column = find_column(col_name->v.string_literal, table);
 						assert((NULL == noted_column) || !noted_column->is_hidden_keycol);
 						if (NULL == noted_column) {
-							/* User specified an unknown column name in the UNIQUE constraint list.
-							 * Issue error.
+							/* User specified an unknown column name in the UNIQUE or PRIMARY KEY
+							 * constraint list. Issue error.
 							 */
 							SqlValue *tbl_name;
 
@@ -417,11 +472,13 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 					} while (cur_cl != start_cl);
 					assert(NULL != noted_column);
 					if ((start_cl->next == start_cl) && (cur_column != noted_column)) {
-						/* Table level UNIQUE constraint only specifies one column. But that column
-						 * does not correspond to the current column. Therefore move the constraint from
-						 * the current column to the referenced/noted column.
+						/* Table level UNIQUE or PRIMARY KEY constraint only specifies one column. But
+						 * that column does not correspond to the current column. Therefore move the
+						 * constraint from the current column to the referenced/noted column.
 						 */
-						/* Delete UNIQUE constraint keyword from current column's keyword linked list */
+						/* Delete UNIQUE or PRIMARY KEY constraint keyword from current column's keyword
+						 * linked list.
+						 */
 						DQDELKEYWORD(cur_keyword, start_keyword, start_keyword_changed,
 							     cur_column->keywords);
 						/* Move this keyword to the referenced column */
@@ -430,17 +487,25 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 						} else {
 							dqappend(noted_column->keywords->v.keyword, cur_keyword);
 						}
-						/* This UNIQUE constraint is part of a table-level constraint. Now that it has
-						 * been moved to a column-level UNIQUE constraint, remove this column as its
-						 * only purpose was to store the table-level constraint.
+						if (PRIMARY_KEY == cur_keyword->keyword) {
+							primary_key_constraint_col = noted_column;
+						}
+						/* This UNIQUE or PRIMARY KEY constraint is part of a table-level constraint.
+						 * Now that it has been moved to a column-level UNIQUE or PRIMARY KEY constraint,
+						 * remove this column as its only purpose was to store the table-level constraint.
 						 */
 						DQDELCOLUMN(cur_column, start_column, start_column_changed, table->columns);
 					}
 				} else {
-					/* This is a column-level UNIQUE constraint. Add current column to column list */
+					/* This is a column-level UNIQUE or PRIMARY KEY constraint.
+					 * Add current column to column list.
+					 */
 					assert(NULL != cur_column->columnName);
 					constraint->definition = create_sql_column_list(cur_column->columnName, NULL, NULL);
 				}
+				break;
+			case OPTIONAL_KEY_NUM:
+				key_num_keyword_seen = TRUE;
 				break;
 			default:
 				break;
@@ -455,20 +520,199 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			break;
 		}
 	} while (TRUE);
+	if (key_num_keyword_seen) {
+		if (table_level_primary_key_constraint_seen) {
+			/* Issue error since a table-level PRIMARY KEY constraint usage (new syntax) is not compatible
+			 * with the KEY NUM syntax (old syntax).
+			 */
+			UNPACK_SQL_STATEMENT(value, table->tableName, value);
+			ERROR(ERR_TABLE_KEY_NUM, value->v.reference);
+			return NULL;
+		} else {
+			/* KEY NUM keyword seen and either a column-level PRIMARY KEY constraint or NO PRIMARY KEY constraint
+			 * was seen. Either ways, we need to create a table-level PRIMARY KEY constraint with all columns
+			 * containing the KEY NUM Keywords.
+			 */
+			if (NULL != primary_key_constraint_col) {
+				/* Column level PRIMARY KEY constraint seen */
+				if (!IS_KEY_COLUMN(primary_key_constraint_col)) {
+					/* KEY NUM keyword is not present in this column whereas PRIMARY KEY keyword is.
+					 * Add KEY NUM 0 keyword to this column so a later call to "get_key_column()" will
+					 * find this as a key column.
+					 */
+					ADD_KEY_NUM_KEYWORD_TO_COLUMN(primary_key_constraint_col, 0);
+				}
+			}
+			/* Determine all columns with KEY NUM keyword and come up with a column-level or table-level
+			 * PRIMARY KEY constraint that takes into account all PRIMARY KEY and KEY NUM columns.
+			 */
+			memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn *));
+			max_key = get_key_columns(table, key_columns);
+			if (-2 == max_key) {
+				/* There was some error during the key column determination */
+				return NULL;
+			}
+			if (0 < max_key) {
+				/* There is more than one key column in this table. Need to create a table level PRIMARY KEY
+				 * constraint (for the multiple columns holding the PRIMARY KEY and KEY NUM keywords in that order)
+				 * if one does not already exist.
+				 */
+				cur_column = key_columns[0];
+				assert(NULL != cur_column);
+				SqlOptionalKeyword *primary_keyword;
+				primary_keyword = get_keyword(cur_column, PRIMARY_KEY);
+				assert((NULL == primary_keyword) || (cur_column == primary_key_constraint_col));
+				assert((NULL != primary_keyword) || (NULL == primary_key_constraint_col));
+
+				if (NULL != primary_keyword) {
+					assert(NULL != cur_column->columnName);
+					/* The first key column has a PRIMARY KEY keyword and that column is not a table-level
+					 * constraint (guaranteed by the above assert). Therefore, the PRIMARY KEY keyword is
+					 * a column-level constraint and needs to be made a table-level constraint.
+					 */
+					/* Remove PRIMARY KEY keyword from current column's keyword linked list */
+					UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
+					DQDELKEYWORD(primary_keyword, start_keyword, start_keyword_changed, cur_column->keywords);
+					assert(NULL != start_keyword); /* There is at least one keyword still left in the column */
+					/* Assert that this column is still a key column because KEY NUM keyword is present */
+					assert(IS_KEY_COLUMN(cur_column));
+				}
+				/* Add a new column with the PRIMARY KEY keyword and the column list */
+				SqlColumn *new_column;
+				OCTO_CMALLOC_STRUCT(new_column, SqlColumn);
+				dqinit(new_column);
+				new_column->columnName = NULL;
+				SQL_STATEMENT(new_column->keywords, keyword_STATEMENT);
+				OCTO_CMALLOC_STRUCT(cur_keyword, SqlOptionalKeyword);
+				cur_keyword->keyword = PRIMARY_KEY;
+				dqinit(cur_keyword);
+				SQL_STATEMENT(cur_keyword->v, constraint_STATEMENT);
+
+				SqlConstraint *constraint;
+				OCTO_CMALLOC_STRUCT(constraint, SqlConstraint);
+				cur_keyword->v->v.constraint = constraint;
+				constraint->type = PRIMARY_KEY;
+
+				/* Initialize constraint->name */
+				if (NULL != primary_keyword) {
+					/* Keep user specified PRIMARY KEY constraint name in new table level constraint */
+					SqlConstraint *primary_constraint;
+					UNPACK_SQL_STATEMENT(primary_constraint, primary_keyword->v, constraint);
+					constraint->name = primary_constraint->name;
+				} else {
+					constraint->name = NULL; /* A name will be auto generated a little later */
+				}
+
+				/* Initialize constraint->definition */
+				SqlColumnList *start_cl;
+				start_cl = NULL;
+				/* Add all key columns to the table-level PRIMARY KEY constraint. */
+				int key_num;
+				for (key_num = 0; key_num <= max_key; key_num++) {
+					SqlColumnList *cur_cl;
+					OCTO_CMALLOC_STRUCT(cur_cl, SqlColumnList);
+					cur_cl->value = copy_sql_statement(key_columns[key_num]->columnName);
+					dqinit(cur_cl);
+					if (NULL == start_cl) {
+						start_cl = cur_cl;
+					} else {
+						dqappend(start_cl, cur_cl);
+					}
+				}
+
+				SqlStatement *column_name_list;
+				SQL_STATEMENT(column_name_list, column_list_STATEMENT);
+				column_name_list->v.column_list = start_cl;
+				constraint->definition = column_name_list;
+				/* Add new table constraint as a column in the table */
+				new_column->keywords->v.keyword = cur_keyword;
+				UNPACK_SQL_STATEMENT(start_column, table->columns, column);
+				dqappend(start_column, new_column);
+				/* Note this new column as the only PRIMARY KEY constraint column */
+				primary_key_constraint_col = new_column;
+			}
+		}
+	}
 	/* ==============================================================================================================
 	 * Scan column-level keywords for UNIQUE constraint.
 	 * For each column-level constraint,
 	 *   1) Go through each column and combine multiple UNIQUE constraint keywords into just ONE keyword.
-	 *   2) Maintain only the first named UNIQUE keyword structure. If nothing is named, pick the first unnamed structure.
-	 *      Discard all remaining UNIQUE keyword structures.
+	 *   2) Maintain only the first named UNIQUE keyword structure. If nothing is named, pick the first
+	 *      unnamed structure. Discard all remaining UNIQUE keyword structures.
+	 * Note that the UNIQUE keyword trimming treats a PRIMARY KEY specification as a UNIQUE keyword too and
+	 * gives the latter the precedence.
+	 *
 	 * Note: Note that this could possibly be done in the previous do/while loop thereby avoiding an extra do/while loop.
 	 * But that code is expected to be harder to read/maintain hence chose the current (separate do/while loop) approach.
+	 *
+	 * Scan column-level keywords for PRIMARY KEY constraint.
+	 * Add KEY NUM keyword to all columns involved in the column or table level PRIMARY KEY constraint.
 	 */
 	assert(table->columns->v.column == start_column);
+
+	/* While checking for duplicate UNIQUE keywords, also consider a PRIMARY KEY constraint as a UNIQUE specification.
+	 * For example, a "CREATE TABLE tmp (id INTEGER PRIMARY KEY UNIQUE);" should remove the "UNIQUE" keyword
+	 * as it is a duplicate of the "PRIMARY KEY" keyword. Hence the "if" check below to set "unique_keyword"
+	 * starting value to any PRIMARY KEY specification. This helps with column-level UNIQUE keyword trimming below.
+	 */
+	if (NULL != primary_key_constraint_col) {
+		/* To help with trimming between a table-level PRIMARY KEY and a table-level UNIQUE constraint, we need to move
+		 * the PRIMARY KEY table-level constraint ahead of all table-level UNIQUE constraints. This is needed so the
+		 * column deletion of duplicate table-level constraints (that happens below) will always delete only the UNIQUE
+		 * constraint and not the PRIMARY KEY constraint.
+		 */
+		if (NULL == primary_key_constraint_col->columnName) {
+			/* The PRIMARY KEY constraint is a table-level constraint. Move it ahead of all other table-level
+			 * constraints (particularly the table-level UNIQUE constraints).
+			 */
+			SqlColumn *start_tbl_constraint, *start_col_constraint, **start_ptr;
+			start_tbl_constraint = NULL; /* Linked list of table-constraint columns */
+			start_col_constraint = NULL; /* Linked list of non-table-constraint columns */
+			cur_column = start_column;
+			do {
+				next_column = cur_column->next;
+				dqdel(cur_column);
+				if (cur_column != primary_key_constraint_col) {
+					start_ptr
+					    = (NULL == cur_column->columnName) ? &start_tbl_constraint : &start_col_constraint;
+					if (NULL == *start_ptr) {
+						*start_ptr = cur_column;
+					} else {
+						dqappend(*start_ptr, cur_column);
+					}
+				}
+				if (next_column == cur_column) {
+					break;
+				}
+				cur_column = next_column;
+			} while (TRUE);
+			/* The below "if" check is needed to avoid a false clang-tidy warning about "start_col_constraint"
+			 * potentially being NULL.
+			 */
+			if (NULL == start_col_constraint) {
+				assert(FALSE);
+				FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
+				return NULL;
+			}
+			/* First insert table-level PRIMARY KEY constraint after all non-table-level constraints */
+			dqappend(start_col_constraint, primary_key_constraint_col);
+			/* Then insert all other table-level constraints (e.g. UNIQUE), if any */
+			if (NULL != start_tbl_constraint) {
+				dqappend(start_col_constraint, start_tbl_constraint);
+			}
+			start_column = start_col_constraint;
+			table->columns->v.column = start_column;
+		}
+	}
 	cur_column = start_column;
 	do {
 		SqlOptionalKeyword *unique_keyword;
-		unique_keyword = NULL;
+		if (cur_column == primary_key_constraint_col) {
+			unique_keyword = get_keyword(primary_key_constraint_col, PRIMARY_KEY);
+			assert(NULL != unique_keyword);
+		} else {
+			unique_keyword = NULL;
+		}
 
 		UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
 		cur_keyword = start_keyword;
@@ -477,15 +721,73 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 
 			next_keyword = cur_keyword->next;
 			switch (cur_keyword->keyword) {
+			case PRIMARY_KEY:;
+				SqlConstraint *constraint;
+				UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
+				assert(NULL != constraint->definition);
+				assert(constraint->type == cur_keyword->keyword);
+
+				SqlColumnList *start_cl, *cur_cl;
+				UNPACK_SQL_STATEMENT(start_cl, constraint->definition, column_list);
+				cur_cl = start_cl;
+
+				int key_col_num;
+				key_col_num = 0;
+				do {
+					SqlValue *col_name;
+					UNPACK_SQL_STATEMENT(col_name, cur_cl->value, value);
+
+					SqlColumn *cur_column;
+					cur_column = find_column(col_name->v.string_literal, table);
+					assert((NULL != cur_column) && !cur_column->is_hidden_keycol);
+
+					/* Check if KEY NUM keyword is present in this column. If so, check if the number
+					 * matches that derived from the PRIMARY KEY constraint column specification order.
+					 * If not, issue an error. If not present, add KEY NUM keyword to this column with
+					 * appropriate number.
+					 */
+					SqlOptionalKeyword *keyword;
+					keyword = get_keyword(cur_column, OPTIONAL_KEY_NUM);
+					if (NULL == keyword) {
+						/* Add KEY NUM keyword */
+						ADD_KEY_NUM_KEYWORD_TO_COLUMN(cur_column, key_col_num);
+					}
+#ifndef NDEBUG
+					if (NULL != keyword) {
+						SqlValue *value;
+						UNPACK_SQL_STATEMENT(value, keyword->v, value);
+
+						int key_num;
+						key_num = atoi(value->v.string_literal);
+						assert(MAX_KEY_COUNT > key_num);
+						assert(key_num == key_col_num);
+					}
+#endif
+					key_col_num++;
+					cur_cl = cur_cl->next;
+				} while (cur_cl != start_cl);
+				if (NULL != cur_column->columnName) {
+					/* PRIMARY KEY is part of a column level constraint. No more processing needed. */
+					break;
+				}
+				/* PRIMARY KEY is part of a table level constraint. Need to fall through to the below logic
+				 * to see if PRIMARY KEY vs UNIQUE keyword trimming needs to happen across table-level constraints.
+				 */
+				/* Note: Below comment is needed to avoid gcc [-Wimplicit-fallthrough=] warning */
+				/* fall through */
 			case UNIQUE_CONSTRAINT:
 				if (NULL != cur_column->columnName) {
+					assert(UNIQUE_CONSTRAINT == cur_keyword->keyword);
 					/* It is a column-level UNIQUE constraint */
 					if (NULL == unique_keyword) {
 						unique_keyword = cur_keyword;
 					} else {
-						/* We found 2 UNIQUE keywords. Check if the first one is named. If so,
-						 * we can ignore the second one. If not, check if the second one is named.
-						 * If so, pick the second one. If not, ignore the second one.
+						/* We found 2 UNIQUE/PRIMARY KEY keywords. Check if the first one is named.
+						 * If so, we can ignore the second one. If not, check if the second one is
+						 * named and the first one is not named. If so, copy the name from the
+						 * second one to the first one and ignore the second one. If a PRIMARY KEY
+						 * keyword is one of the 2 found keywords, it is always treated as the
+						 * 1st keyword so the UNIQUE gets discarded (if any).
 						 */
 						SqlConstraint *constraint1, *constraint2;
 						UNPACK_SQL_STATEMENT(constraint1, unique_keyword->v, constraint);
@@ -503,7 +805,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 						dqdel(cur_keyword);
 					}
 				} else {
-					/* It is a table-level UNIQUE constraint.
+					/* It is a table-level UNIQUE or PRIMARY KEY constraint.
 					 * Check if it is duplicated across multiple table-level UNIQUE constraints.
 					 * If so, trim that down too.
 					 */
@@ -524,8 +826,8 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 						boolean_t del_col2;
 						del_col2 = FALSE;
 
-						/* Check if two table-level UNIQUE constraints are identical by comparing
-						 * the column list in the two constraint definitions.
+						/* Check if two table-level UNIQUE constraints are identical by
+						 * comparing the column list in the two constraint definitions.
 						 */
 						SqlOptionalKeyword *start_keyword2, *cur_keyword2;
 						UNPACK_SQL_STATEMENT(start_keyword2, cur_col2->keywords, keyword);
@@ -588,12 +890,15 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	 *   check if the UNIQUE constraint has a name. If not, auto generate a name for that constraint.
 	 * Use this opportunity to also fill in "constraint->v.uniq_gblname" for the UNIQUE constraint now that
 	 *   "constraint->definition" is stable.
+	 *
+	 * Scan column-level keywords for PRIMARY KEY constraint.
+	 * Check if the PRIMARY KEY constraint has a name. If not, auto generate a name for that constraint.
 	 */
 	int num_user_visible_columns;
 
 	assert(table->columns->v.column == start_column);
 	cur_column = start_column;
-	/* Set up first-level subscript as OCTOLIT_NAME for CHECK/UNIQUE constraint auto name generation.
+	/* Set up first-level subscript as OCTOLIT_NAME for CHECK/UNIQUE/PRIMARY KEY constraint auto name generation.
 	 * Second-level subscript is actual constraint name.
 	 */
 	YDB_LITERAL_TO_BUFFER(OCTOLIT_NAME, &subs[0]);
@@ -610,8 +915,9 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		cur_keyword = start_keyword;
 		do {
 			SqlOptionalKeyword *next_keyword;
-
 			next_keyword = cur_keyword->next;
+
+			SqlConstraint *constraint;
 			switch (cur_keyword->keyword) {
 			case NOT_NULL:
 				if (not_null_constraint_seen_for_this_column) {
@@ -631,28 +937,9 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				}
 				break;
 			case PRIMARY_KEY:
-				if (primary_key_constraint_seen) {
-					UNPACK_SQL_STATEMENT(value, table->tableName, value);
-					ERROR(ERR_TABLE_MULTIPLE_PRIMARY_KEYS, value->v.reference);
-					yyerror(NULL, NULL, &cur_keyword->v, NULL, NULL, NULL);
-					return NULL;
-				}
-				primary_key_constraint_seen = TRUE;
-				/* TODO : YDBOcto#770 : Auto assign name for PRIMARY KEY constraint.
-				 * 1) Take this opportunity to check if any of the constraint names have already been used
-				 *    (i.e. if there is a collision between a user-specified constraint name and an auto
-				 *    assigned name and if so issue error).
-				 * 2) When auto assigning names, check against currently used names for collision and if
-				 *    so issue error.
-				 * 3) Choose a random 8 byte sub string for auto assigning if the total length of
-				 *    the name becomes more than 63.
-				 */
-				cur_keyword->v = NULL; /* TODO: YDBOcto#770: Temporarily set this to get tests to pass */
-				break;
 			case UNIQUE_CONSTRAINT:
 			case OPTIONAL_CHECK_CONSTRAINT:;
-				SqlConstraint *constraint;
-				unsigned int   ret_value;
+				unsigned int ret_value;
 
 				UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
 				assert(constraint->type == cur_keyword->keyword);
@@ -680,7 +967,9 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 						/* The below call will fill "constraint_name" with an auto generated name */
 						constraint_name_auto_generate(cur_keyword, table_name, column_name, num,
 									      constraint_name, sizeof(constraint_name));
-						/* Check if generated name exists. If so, try next number suffix. */
+						/* Check if generated name already exists in this table.
+						 * If so, try next number suffix.
+						 */
 						YDB_STRING_TO_BUFFER(constraint_name, &subs[1]);
 						status = ydb_data_s(&ydboctoTblConstraint, 2, &subs[0], &ret_value);
 						YDB_ERROR_CHECK(status);
@@ -689,8 +978,33 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 							return NULL;
 						}
 						if (!ret_value) {
-							/* Found a name that does not already exist. We are done. */
-							break;
+							/* Found a name that does not already exist. */
+							/* Check if this is a PRIMARY KEY constraint. If so, the name should
+							 * not just be unique within this table, but also across PRIMARY KEY
+							 * constraint names of other tables. If not, try next number suffix.
+							 */
+							if (PRIMARY_KEY == constraint->type) {
+								ydb_buffer_t pkey_subs[3];
+								YDB_STRING_TO_BUFFER(config->global_names.octo, &pkey_subs[0]);
+								YDB_STRING_TO_BUFFER(OCTOLIT_PRIMARY_KEY_NAME, &pkey_subs[1]);
+								YDB_STRING_TO_BUFFER(constraint_name, &pkey_subs[2]);
+								status = ydb_data_s(&pkey_subs[0], 2, &pkey_subs[1], &ret_value);
+								YDB_ERROR_CHECK(status);
+								if (YDB_OK != status) {
+									assert(FALSE);
+									return NULL;
+								}
+								if (!ret_value) {
+									/* Found an auto assigned name for the PRIMARY KEY
+									 * constraint that does not already exist in other
+									 * tables too. We are done.
+									 */
+									break;
+								}
+								/* else: we need to try next number suffix. */
+							} else {
+								break;
+							}
 						}
 						num++;
 					} while (TRUE);
@@ -724,6 +1038,46 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 						/* A constraint with the name already exists. Issue duplicate name error. */
 						ERROR(ERR_DUPLICATE_CONSTRAINT, constraint_name);
 						return NULL;
+					} else if ((PRIMARY_KEY == constraint->type)
+						   && !config->in_auto_upgrade_binary_table_definition) {
+						/* Check if the explicitly specified name for the PRIMARY KEY constraint
+						 * conflicts with any PRIMARY KEY constraint name of other existing tables.
+						 * If so, treat this also as a duplicate constraint issue.
+						 * Note that we do not want to do this check in case of an auto upgrade logic
+						 * where pre-existing tables are being upgraded. In that case, the gvn node
+						 * would already exist indicating a conflict but it is a conflict with the same
+						 * table as we are auto-upgrading right now and so we skip this check in that case.
+						 */
+						ydb_buffer_t pkey_subs[4];
+						YDB_STRING_TO_BUFFER(config->global_names.octo, &pkey_subs[0]);
+						YDB_STRING_TO_BUFFER(OCTOLIT_PRIMARY_KEY_NAME, &pkey_subs[1]);
+						YDB_STRING_TO_BUFFER(constraint_name, &pkey_subs[2]);
+
+						char table_name[OCTO_MAX_IDENT + 1];
+						pkey_subs[3].buf_addr = table_name;
+						pkey_subs[3].len_used
+						    = 0; /* needed to avoid false [clang-analyzer-core.uninitialized.ArraySubscript]
+							    warning when we use pkey_subs[3].len_used later below */
+						pkey_subs[3].len_alloc = sizeof(table_name);
+						status = ydb_get_s(&pkey_subs[0], 2, &pkey_subs[1], &pkey_subs[3]);
+						if (YDB_ERR_GVUNDEF != status) {
+							/* User specified PRIMARY KEY constraint name conflicts with the
+							 * PRIMARY KEY constraint name of another existing table. Issue error.
+							 */
+							YDB_ERROR_CHECK(status);
+							if (YDB_OK != status) {
+								assert(FALSE);
+								return NULL;
+							}
+							assert(pkey_subs[3].len_used < pkey_subs[3].len_alloc);
+							table_name[pkey_subs[3].len_used] = '\0';
+							ERROR(ERR_DUPLICATE_PRIMARY_KEY_CONSTRAINT, constraint_name, table_name);
+							return NULL;
+						}
+						/* else: We know the user specified PRIMARY KEY constraint name does not
+						 * conflict with the PRIMARY KEY constraint names of any other existing table.
+						 * So move on to the next step.
+						 */
 					}
 				}
 				/* Now that we know this is not a duplicate, add it to list of known constraint names */
@@ -750,8 +1104,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 						assert(FALSE);
 						return NULL;
 					}
-				} else {
-					assert(UNIQUE_CONSTRAINT == constraint->type);
+				} else if (UNIQUE_CONSTRAINT == constraint->type) {
 					/* Initialize "constraint->v.uniq_gblname" for the UNIQUE constraint (based on the
 					 * table name and list of column names that form the UNIQUE constraint) now that
 					 * "constraint->definition" is stable.
@@ -923,6 +1276,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		 * columns as one big composite key.
 		 ************************************************************************************************************
 		 */
+		assert(NULL == primary_key_constraint_col);
 		if ((options & SOURCE) && !(options & READWRITE) && !(options & READONLY)) {
 			/* Table-level GLOBAL keyword specified but neither READWRITE nor READONLY specified.
 			 * The GLOBAL keyword specifies a subscripted global name (this is because if an unsubscripted
@@ -933,7 +1287,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			table_type = TABLETYPE_READONLY;
 		}
 		if (TABLETYPE_READWRITE == table_type) {
-			SqlStatement *colname_stmt, *data_type_stmt, *keycol_stmt, *keyword_stmt;
+			SqlStatement *colname_stmt, *data_type_stmt, *keycol_stmt;
 
 			SQL_STATEMENT(colname_stmt, value_STATEMENT);
 			OCTO_CMALLOC_STRUCT(colname_stmt->v.value, SqlValue);
@@ -942,11 +1296,6 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			colname_stmt->v.value->v.string_literal = octo_cmalloc(memory_chunks, sizeof(HIDDEN_KEY_COL_NAME));
 			memcpy(colname_stmt->v.value->v.string_literal, HIDDEN_KEY_COL_NAME, sizeof(HIDDEN_KEY_COL_NAME));
 
-			SQL_STATEMENT(keyword_stmt, keyword_STATEMENT);
-			MALLOC_STATEMENT(keyword_stmt, keyword, SqlOptionalKeyword);
-			keyword_stmt->v.keyword->keyword = PRIMARY_KEY;
-			dqinit(keyword_stmt->v.keyword);
-
 			data_type_stmt = data_type(INTEGER_TYPE, NULL, NULL);
 
 			SQL_STATEMENT(keycol_stmt, column_STATEMENT);
@@ -954,9 +1303,12 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			dqinit(keycol_stmt->v.column);
 			keycol_stmt->v.column->columnName = colname_stmt;
 			keycol_stmt->v.column->data_type_struct = data_type_stmt->v.data_type_struct;
-			keycol_stmt->v.column->keywords = keyword_stmt;
 			keycol_stmt->v.column->delim = NULL;
 			keycol_stmt->v.column->is_hidden_keycol = TRUE;
+
+			/* Note this column as a PRIMARY KEY (i.e. KEY NUM 0) */
+			ADD_KEY_NUM_KEYWORD_TO_COLUMN(keycol_stmt->v.column, 0);
+
 			/* Add the new hidden key column to tail of the linked list */
 			dqappend(table->columns->v.column, keycol_stmt->v.column);
 			/* Make the hidden column the start of the list of columns so it gets assigned "column_number" of 1.
@@ -968,9 +1320,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			assert(0 == max_key); /* Assert that there is 1 primary key column now */
 			hidden_column_added = TRUE;
 		} else {
-			char	   key_num_buffer[INT32_TO_STRING_MAX];
-			int	   i, len;
-			char *	   out_buffer;
+			int	   i;
 			SqlColumn *cur_column, *start_column;
 
 			assert(TABLETYPE_READONLY == table_type);
@@ -978,26 +1328,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			cur_column = start_column;
 			i = 0;
 			do {
-				SqlOptionalKeyword *keyword, *t_keyword;
-				int		    copied;
-
-				// Construct the key num keyword
-				SQL_STATEMENT(statement, keyword_STATEMENT);
-				MALLOC_STATEMENT(statement, keyword, SqlOptionalKeyword);
-				keyword = statement->v.keyword;
-				keyword->keyword = OPTIONAL_KEY_NUM;
-				// key num value is index of key in table
-				copied = snprintf(key_num_buffer, INT32_TO_STRING_MAX, "%d", i);
-				assert(INT32_TO_STRING_MAX > copied);
-				UNUSED(copied); /* Needed to avoid DeadStores warning in non-Debug builds */
-				len = strlen(key_num_buffer);
-				out_buffer = octo_cmalloc(memory_chunks, len + 1);
-				strncpy(out_buffer, key_num_buffer, len + 1);
-				SQL_VALUE_STATEMENT(keyword->v, INTEGER_LITERAL, out_buffer);
-				// Insert statement into column keyword list
-				dqinit(keyword);
-				UNPACK_SQL_STATEMENT(t_keyword, cur_column->keywords, keyword);
-				dqappend(t_keyword, keyword);
+				ADD_KEY_NUM_KEYWORD_TO_COLUMN(cur_column, i);
 				// Walk to next key and increment index
 				cur_column = cur_column->next;
 				i++;
@@ -1167,12 +1498,14 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				/* These column-level keywords are compatible with table-level keyword READONLY or READWRITE */
 				is_key_column = TRUE;
 				/* PRIMARY KEY and KEY NUM are allowed for both READONLY and READWRITE type of tables
-				 * so should not set "readonly_disallowed" to TRUE here.
+				 * so should not set "readonly_disallowed" to TRUE here. In the case of READONLY, we don't
+				 * enforce this constraint since updates to the global happen outside the scope of Octo.
 				 */
 				break;
 			case NOT_NULL:
 				/* NOT NULL is allowed for both READONLY and READWRITE type of tables
-				 * so should not set "readonly_disallowed" to TRUE here.
+				 * so should not set "readonly_disallowed" to TRUE here. In the case of READONLY, we don't
+				 * enforce this constraint since updates to the global happen outside the scope of Octo.
 				 */
 				break;
 			case UNIQUE_CONSTRAINT:
@@ -1302,6 +1635,8 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				delim_keyword->keyword = OPTIONAL_DELIM;
 				str_len = sizeof(EMPTY_DELIMITER) + 1; // + 1 for "is_dollar_char" flag
 				assert(2 == str_len);
+
+				char *out_buffer;
 				out_buffer = octo_cmalloc(memory_chunks, str_len);
 				out_buffer[0] = DELIM_IS_LITERAL;
 				out_buffer[str_len - 1] = '\0';
@@ -1400,6 +1735,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		if (!(options & SOURCE)) {
 			SqlOptionalKeyword *keyword;
 
+			char *out_buffer;
 			out_buffer = octo_cmalloc(memory_chunks, len);
 			memcpy(out_buffer, buffer, len);
 			OCTO_CMALLOC_STRUCT(keyword, SqlOptionalKeyword);
@@ -1428,6 +1764,8 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 
 		assert(2 == sizeof(COLUMN_DELIMITER));	// 2 includes null terminator
 		str_len = sizeof(COLUMN_DELIMITER) + 1; // +1 for "is_dollar_char" flag
+
+		char *out_buffer;
 		out_buffer = octo_cmalloc(memory_chunks, str_len);
 		out_buffer[0] = DELIM_IS_LITERAL;
 		MEMCPY_LIT(&out_buffer[1], COLUMN_DELIMITER);

@@ -1,6 +1,6 @@
 -- ######################################################################
 -- #                                                                   #
--- # Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.           #
+-- # Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.           #
 -- # All rights reserved.                                              #
 -- #                                                                   #
 -- #   This source code contains the intellectual property             #
@@ -19,4 +19,4 @@ $fixtures/sqllogic/insert.py $num
 sed '/^INSERT INTO\|CREATE INDEX\|DROP TABLE/d' $schema.sql > $fixtures/$schema.sql
 */
 CREATE TABLE t1(id INTEGER PRIMARY KEY, a INTEGER, b INTEGER, c INTEGER, d INTEGER, e INTEGER)
- GLOBAL "^t1(keys(""id""))";
+ GLOBAL "^t1";

@@ -169,6 +169,7 @@ add_library(libocto OBJECT
   delete_table_from_pg_class.c
   delete_function_from_pg_proc.c
   describe_tablename.c
+  describe_tablename_global.c
   drill_to_table_alias.c
   drop_schema_from_local_cache.c
   emit_check_constraint.c

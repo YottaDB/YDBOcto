@@ -4,7 +4,7 @@
 # CREATE TABLE NAMES with READONLY tabletype
 # Populate ^names with data for NAMES table
 # Verify NAMES table got created with READONLY or READWRITE tabletype
-CREATE TABLE `NAMES` (`ID` INTEGER PRIMARY KEY, `FIRSTNAME` VARCHAR(30) PIECE 1, `LASTNAME` VARCHAR(30) PIECE 2) GLOBAL "^names(keys(""id""))" DELIM "|" READONLY;
+CREATE TABLE `NAMES` (`ID` INTEGER CONSTRAINT NAMES_PKEY PRIMARY KEY, `FIRSTNAME` VARCHAR(30) PIECE 1, `LASTNAME` VARCHAR(30) PIECE 2) GLOBAL "^names(keys(""ID""))" DELIM "|" READONLY;
 # DROP TABLE names KEEPDATA
 
 -- TDT08 : OCTO735 : DROP TABLE with KEEPDATA keyword does not do a KILL of the underlying GVN storing the table data
@@ -19,7 +19,7 @@ $DATA(^names) = 10
 # CREATE TABLE NAMES with READWRITE tabletype
 # Populate ^names with data for NAMES table
 # Verify NAMES table got created with READONLY or READWRITE tabletype
-CREATE TABLE `NAMES` (`ID` INTEGER PRIMARY KEY, `FIRSTNAME` VARCHAR(30) PIECE 1, `LASTNAME` VARCHAR(30) PIECE 2) GLOBAL "^names(keys(""id""))" DELIM "|" READWRITE;
+CREATE TABLE `NAMES` (`ID` INTEGER CONSTRAINT NAMES_PKEY PRIMARY KEY, `FIRSTNAME` VARCHAR(30) PIECE 1, `LASTNAME` VARCHAR(30) PIECE 2) GLOBAL "^names(keys(""ID""))" DELIM "|" READWRITE;
 # DROP TABLE names KEEPDATA
 
 -- TDT08 : OCTO735 : DROP TABLE with KEEPDATA keyword does not do a KILL of the underlying GVN storing the table data

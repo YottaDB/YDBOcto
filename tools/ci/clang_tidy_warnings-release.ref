@@ -1,7 +1,6 @@
 emit_physical_plan.c:warning: Access to field 'prev' results in a dereference of a null pointer (loaded from variable 'first_plan') [clang-analyzer-core.NullDereference]
 errors.c:warning: Function 'vfprintf' is called with an uninitialized va_list argument [clang-analyzer-valist.Uninitialized]
 errors.c:warning: va_arg() is called on an uninitialized va_list [clang-analyzer-valist.Uninitialized]
-find_function.c:warning: Array subscript is undefined [clang-analyzer-core.uninitialized.ArraySubscript]
 handle_bind.c:warning: Dereference of undefined pointer value [clang-analyzer-core.NullDereference]
 make_buffers.c:warning: va_arg() is called on an uninitialized va_list [clang-analyzer-valist.Uninitialized]
 make_error_response.c:warning: va_arg() is called on an uninitialized va_list [clang-analyzer-valist.Uninitialized]

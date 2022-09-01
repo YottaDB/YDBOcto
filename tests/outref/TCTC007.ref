@@ -12,3 +12,4 @@
     . . . SET col(5)=$PIECE(^%ydboctoDK8x9V2YiyPMRxcDYOMpB0K(%ydboctocursor(cursorId,"keys",1,"TMP","ID1")),"|",4) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . . IF '%ydboctoexpr DO  DO CheckConstraintViolation^%ydboctoplanhelpers("TMP","TMP_CHECK1",5)
     . . . . SET col(3)=%ydboctoexpr
+    . . . SET col(-1)=%ydboctoexpr

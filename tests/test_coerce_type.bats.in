@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -165,3 +165,9 @@ teardown() {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCT020.sql
 }
 
+@test "TCT021 : OCTO901 : Validate that type cast from numeric to integer ROUND's and not truncate the decimal part" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCT021_names.sql
+	load_fixture northwind.sql
+	load_fixture northwind.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TCT021_northwind.sql
+}

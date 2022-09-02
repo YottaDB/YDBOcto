@@ -24,13 +24,11 @@ SELECT 1::text FROM names;
 SELECT 1::invalid FROM names;
 
 -- Test typecast of numeric literals
-SELECT -1.5::integer FROM names;
 SELECT -1.5::numeric FROM names;
 SELECT -1.5::varchar FROM names;
 SELECT -1.5::text FROM names;
 SELECT -1.5::invalid FROM names;
 
-SELECT (-1.5)::integer FROM names;
 SELECT (-1.5)::numeric FROM names;
 SELECT (-1.5)::varchar FROM names;
 SELECT (-1.5)::text FROM names;
@@ -57,7 +55,6 @@ SELECT id::text FROM names;
 SELECT id::invalid FROM names;
 
 -- Test typecast of numeric column references
-select Price::integer from Products;
 select Price::numeric from Products;
 select Price::varchar from Products;
 select Price::text from Products;
@@ -165,14 +162,6 @@ ZeroCool
 (6 rows)
 [ERROR]: ERR_INVALID_TYPE: Type INVALID does not exist
 ???
--1
--1
--1
--1
--1
--1
-(6 rows)
-???
 -1.5
 -1.5
 -1.5
@@ -188,14 +177,6 @@ LINE 1: SELECT -1.5::text FROM names;
                 ^^^
 [ERROR]: ERR_INVALID_TYPE: Type INVALID does not exist
 ???
--1
--1
--1
--1
--1
--1
-(6 rows)
-???
 -1.5
 -1.5
 -1.5
@@ -319,85 +300,6 @@ ID
 5
 (6 rows)
 [ERROR]: ERR_INVALID_TYPE: Type INVALID does not exist
-PRICE
-18
-19
-10
-22
-21
-25
-30
-40
-97
-31
-21
-38
-6
-23
-15
-17
-39
-62
-9
-81
-10
-21
-9
-4
-14
-31
-43
-45
-123
-25
-12
-32
-2
-14
-18
-19
-26
-263
-18
-18
-9
-14
-46
-19
-9
-12
-9
-12
-20
-16
-53
-7
-32
-7
-24
-38
-19
-13
-55
-34
-28
-49
-43
-33
-21
-17
-14
-12
-36
-15
-21
-34
-15
-10
-7
-18
-13
-(77 rows)
 PRICE
 18
 19

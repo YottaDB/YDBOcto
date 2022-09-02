@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -17,7 +17,6 @@ select id::integer,ABS(2) from names;
 select id::integer,(ABS(2)::text || id::text) from names;
 select id::integer,(ABS(2)::numeric + id) from names;
 select id::text || id::text,ABS(2)::numeric * id from names;
-select id from (select * from names UNION select 6.5::integer,'A','B');
 select firstname::integer from names;
 select * from names where firstname::integer = id;
 select id-2*(id/2::integer) from names;

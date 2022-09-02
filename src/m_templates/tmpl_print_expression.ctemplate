@@ -216,7 +216,11 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			/* Note: We ignore "precision" (if specified).
 			 * See comment under "integer_type_tail" rule in "src/parser.y" for more context.
 			 */
-			%{}({}%
+			if (NUMERIC_LITERAL == pre_coerce_type) {
+				%{}($$ROUND^%%ydboctosqlfunctions({}%
+			} else {
+				%{}({}%
+			}
 			break;
 		case NUMERIC_TYPE:
 			if (SIZE_OR_PRECISION_UNSPECIFIED != plan->extra_detail.lp_coerce_type.coerce_type.size_or_precision) {
@@ -260,7 +264,11 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			/* Note: We ignore "precision" (if specified).
 			 * See comment under "integer_type_tail" rule in "src/parser.y" for more context.
 			 */
-			%{}\1){}%
+			if (NUMERIC_LITERAL == pre_coerce_type) {
+				%{},0)){}%
+			} else {
+				%{}\1){}%
+			}
 			break;
 		case NUMERIC_TYPE:
 			%{}){}%

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -35,13 +35,11 @@ SELECT 1::text FROM names;
 SELECT 1::invalid FROM names;
 
 -- Test typecast of numeric literals
-SELECT -1.5::integer FROM names;
 SELECT -1.5::numeric FROM names;
 SELECT -1.5::varchar FROM names;
 SELECT -1.5::text FROM names;
 SELECT -1.5::invalid FROM names;
 
-SELECT (-1.5)::integer FROM names;
 SELECT (-1.5)::numeric FROM names;
 SELECT (-1.5)::varchar FROM names;
 SELECT (-1.5)::text FROM names;
@@ -68,7 +66,6 @@ SELECT id::text FROM names;
 SELECT id::invalid FROM names;
 
 -- Test typecast of numeric column references
-select Price::integer from Products;
 select Price::numeric from Products;
 select Price::varchar from Products;
 select Price::text from Products;

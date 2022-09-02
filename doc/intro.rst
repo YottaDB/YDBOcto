@@ -642,11 +642,16 @@ Useful Commands at OCTO>
 | :code:`\\s`             | Displays Octo command history                         |
 +-------------------------+-------------------------------------------------------+
 
+    .. note::
+
+       :code:`\\d` requires a semi-colon before a newline, but :code:`\\d tablename` does not. As :code:`\\d tablename` accepts semi-colon, it is recommended to use the semi-colon in both commands for consistency.
+
+   
     Relation shown will be similar to the following:
 
     .. code-block:: bash
 
-	OCTO> \d
+	OCTO> \d;
 	SCHEMA|NAME|TYPE|OWNER
 	public|INFORMATION_SCHEMA.TABLES|table|octo
 	public|NAMES|table|octo
@@ -686,18 +691,18 @@ Useful Commands at OCTO>
        LASTNAME|VARCHAR(30)|||
        OCTO>
 
-:code:`\\d tablename` displays CHECK constraints, if defined.
+    :code:`\\d tablename` displays CHECK constraints, if defined.
 
-Example:
+    Example:
 
-.. code-block:: bash
+    .. code-block:: bash
 
-   OCTO> \d EMPLOYEE
-   Table "EMPLOYEE"
-   Column|Type|Collation|Nullable|Default
-   ID|INTEGER||NOT NULL|
-   FIRSTNAME|VARCHAR(30)|||
-   LASTNAME|VARCHAR(30)|||
-   AGE|INTEGER|||
-   Check constraints:
-       "EMPLOYEE_AGE_CHECK" CHECK ((AGE >= 18))
+       OCTO> \d EMPLOYEE
+       Table "EMPLOYEE"
+       Column|Type|Collation|Nullable|Default
+       ID|INTEGER||NOT NULL|
+       FIRSTNAME|VARCHAR(30)|||
+       LASTNAME|VARCHAR(30)|||
+       AGE|INTEGER|||
+       Check constraints:
+           "EMPLOYEE_AGE_CHECK" CHECK ((AGE >= 18))

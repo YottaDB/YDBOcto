@@ -983,9 +983,12 @@ FILE
 	else
 		# Find out all "CREATE TABLE" queries in tests/fixtures/*.sql. Generate one query file for each.
 		# Filter out lines like "\set ON_ERROR_STOP on" that are in tests/fixtures/postgres-*.sql files
-		# as they confuse split_queries.py. Also filter out queries with errors that are in TERR*.sql files
-		# and exclude `mysql-*-.sql` symbolic links from `auto-upgrade` cleanup.
-		grep --exclude=mysql-*.sql -l "CREATE TABLE" ../tests/fixtures/*.sql | grep -v TERR | xargs cat | grep -v ON_ERROR_STOP > create_table.sql
+		#   as they confuse split_queries.py. Also filter out queries with errors that are in TERR*.sql files
+		#   and exclude `mysql-*-.sql` symbolic links from `auto-upgrade` cleanup.
+		# Note that some "CREATE TABLE" queries in tests/fixtures/*.sql can be in lower case i.e. "create table"
+		#   so search for those too. But convert them to upper case before storing them as a later call to
+		#   "split_queries.py" assumes an upper case string "CREATE TABLE".
+		grep --exclude=mysql-*.sql -li "CREATE TABLE" ../tests/fixtures/*.sql | grep -v TERR | xargs cat | sed 's/create table/CREATE TABLE/g' | grep -v ON_ERROR_STOP > create_table.sql
 		../tests/fixtures/sqllogic/split_queries.py create_table.sql "CREATE TABLE"
 		# Create *.gld and *.dat files
 		rm -f ./*.gld ./*.dat || true
@@ -1044,6 +1047,16 @@ FILE
 					echo "ERROR : [octo -f $dir/$queryfile] returned non-zero exit status : $?" | tee -a ../errors.log
 					exit_status=1
 				fi
+				# It is possible that the CREATE TABLE query is expected to error out (e.g. the test where
+				# this query was picked from is testing an error code path). That is why we cannot issue
+				# an error if we see an exit code of 1 from the "octo" invocation above. But we have seen
+				# "%YDB-E-DLLCHSETM" errors previously and those are unexpected in all cases and are indicative
+				# of issues in this script (i.e. "build.sh") because of which real code issues can be masked out.
+				# Therefore check explicitly for that error and if so issue an error from this script.
+				if grep -q "%YDB-E-DLLCHSETM" $queryfile.vv.out; then
+					echo "ERROR : [octo -f $dir/$queryfile] encountered unexpected %YDB-E-DLLCHSETM error" | tee -a ../errors.log
+					exit_status=1
+				fi
 				plan_name=$(grep _ydboctoP $queryfile.vv.out | sed 's/.*_ydboctoP/_ydboctoP/;s/].*//')
 			fi
 			./octo -f $queryfile >& $queryfile.out	# Run without -vv to get actual output (minus INFO/LP_ etc. output)
@@ -1052,7 +1065,7 @@ FILE
 			set -e
 		}
 		cd oldsrc
-		export ydb_routines=". _ydbocto.so $ydb_routines $ydb_dist/libyottadbutil.so"
+		export ydb_routines=". $ydb_routines $ydb_dist/libyottadbutil.so"
 		cp ../*.gld ../{mumps,octo}.dat ../create_table-*.sql .
 		cp ./*.gld {mumps,octo}.dat create_table-*.sql ../newsrc
 		for queryfile in create_table-*.sql

@@ -139,12 +139,36 @@ int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_co
 			UNPACK_SQL_STATEMENT(value, constraint->name, value);
 			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(
 			    buffer, buffer_size, buff_ptr, " CONSTRAINT %s %s", value->v.string_literal,
-			    ((UNIQUE_CONSTRAINT == cur_keyword->keyword) ? "UNIQUE " : "CHECK ("));
-			/* Note: "emit_check_constraint()" does the needed emitting even for a UNIQUE constraint */
-			status = emit_check_constraint(buffer, buffer_size, buff_ptr, constraint->definition);
-			if (0 > status) {
-				free(buffer2);
-				return -1;
+			    ((UNIQUE_CONSTRAINT == cur_keyword->keyword) ? "UNIQUE" : "CHECK ("));
+			/* Note: "emit_check_constraint()" does the needed emitting not just for a CHECK constraint but
+			 * also for a UNIQUE constraint. That said, we want to emit the list of columns for the UNIQUE
+			 * constraint only if there is more than one column in the list as otherwise it would lead to
+			 * a parse error if the generated CREATE TABLE command is used to recreate the table.
+			 */
+			boolean_t do_emit_check_constraint;
+			switch (cur_keyword->keyword) {
+			case UNIQUE_CONSTRAINT:;
+				SqlStatement *column_name_list;
+				column_name_list = constraint->definition;
+
+				SqlColumnList *start_cl;
+				UNPACK_SQL_STATEMENT(start_cl, column_name_list, column_list);
+				do_emit_check_constraint = (start_cl->next != start_cl);
+				if (do_emit_check_constraint) {
+					INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " ");
+				}
+				break;
+			default:
+				assert(OPTIONAL_CHECK_CONSTRAINT == cur_keyword->keyword);
+				do_emit_check_constraint = TRUE;
+				break;
+			}
+			if (do_emit_check_constraint) {
+				status = emit_check_constraint(buffer, buffer_size, buff_ptr, constraint->definition);
+				if (0 > status) {
+					free(buffer2);
+					return -1;
+				}
 			}
 			if (OPTIONAL_CHECK_CONSTRAINT == cur_keyword->keyword) {
 				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, ")");

@@ -1787,7 +1787,18 @@ column_constraint_definition
 
 constraint_name_definition
   : /* Empty */ { $$ = NULL; }
-  | CONSTRAINT constraint_name { $$ = $constraint_name; }
+  | CONSTRAINT constraint_name {
+      /* Lexer would have assigned a COLUMN_REFERENCE type for the constraint name. But this needs to be in sync with
+       * the auto generated constraint name type in "src/parser/table_definition.c" (see below call there).
+       *	SQL_VALUE_STATEMENT(name_stmt, STRING_LITERAL, malloc_space);
+       * Therefore fix the type to be STRING_LITERAL here.
+       */
+      assert(COLUMN_REFERENCE == $constraint_name->v.value->type);
+      $constraint_name->v.value->type = STRING_LITERAL;	/* Type needs to be in sync with auto generated constraint name in
+							 * src/parser/table_definition.c.
+							 */
+      $$ = $constraint_name;
+    }
   ;
 
 constraint_name

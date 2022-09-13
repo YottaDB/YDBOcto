@@ -33,6 +33,16 @@ TEMPLATE(tmpl_update_table, PhysicalPlan *pplan) {
 		%{}{{ config->global_names.cursor }}(cursorId,{{ PP_ROW_COUNT }}){}%
 		%{}=0 ; Initialize count of updated records{}%
 		%{}`n{{ PLAN_LINE_START }}{}%
+		/* Also KILL the PP_YDB_OCTO_UPD lvn (e.g. it was left over from a previous UPDATE command) as otherwise it
+		 * could affect the execution of the current UPDATE command. One might be tempted to instead do this KILL at
+		 * the at the end of this function (inside the "if (NULL == pplan->dnf_next)" check below). But that can
+		 * cause issues in case the previous UPDATE command errors out (e.g. ERR_DUPLICATE_KEY_VALUE error). In that
+		 * case, control will get transferred out of the generated M plan for the previous UPDATE command which would
+		 * mean the KILL never executes leaving the current/next UPDATE command prone to errors due to the leftover
+		 * PP_YDB_OCTO_UPD lvn (https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/579#note_1098951468).
+		 */
+		%{}KILL {{ PP_YDB_OCTO_UPD }}{}%
+		%{}`n{{ PLAN_LINE_START }}{}%
 	}
 	/* Note: The purpose of the unsubscripted local variable PP_YDB_OCTO_UPD is to act as a temporary variable that stores
 	 * interim values of columns that are changed by the SET clause of the UPDATE command. The subscripted PP_YDB_OCTO_UPD
@@ -52,8 +62,6 @@ TEMPLATE(tmpl_update_table, PhysicalPlan *pplan) {
 	assert(FALSE == pplan->tablejoin_body_group_by_done);
 	TMPL(tmpl_tablejoin, pplan, pplan->tablejoin, cur_key, FALSE, dot_count, NULL, NULL);
 	if (NULL == pplan->dnf_next) {
-		%{}`n{{ PLAN_LINE_START }}{}%
-		%{}KILL {{ PP_YDB_OCTO_UPD }}{}%
 		if (pplan->emit_duplication_check) {
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}KILL {{ PP_YDB_OCTO_ZDUPLICATE }}({{ ZERO_OUTPUT_KEY_ID|%d }}){}%

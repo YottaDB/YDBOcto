@@ -163,3 +163,14 @@ teardown() {
 	psql composite -c 'drop table if exists TUT010' >& postgres.drop_table_TUT010.out
 }
 
+
+@test "TUT011 : OCTO579 : Correct results from UPDATE even if previous UPDATE issued a ERR_DUPLICATE_KEY_VALUE error" {
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TUT011.sql .
+	echo "# cat TUT011.sql" > output.txt
+	grep tmp TUT011.sql >> output.txt
+	echo "# Running : octo -f TUT011.sql : Expect ERR_DUPLICATE_KEY_VALUE error from both UPDATE queries" >> output.txt
+	echo "# Previously, we would incorrectly see UPDATE 1 from the second UPDATE indicating 1 row got updated" >> output.txt
+	octo -f TUT011.sql 2>&1 | tee -a output.txt
+	verify_output TUT011 output.txt
+}
+

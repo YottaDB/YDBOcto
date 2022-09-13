@@ -1,0 +1,23 @@
+# cat TUT011.sql
+CREATE TABLE tmp (id1 INTEGER PRIMARY KEY, id2 INTEGER KEY NUM 1);
+INSERT INTO tmp VALUES (3, 2);
+INSERT INTO tmp VALUES (3, 5);
+UPDATE tmp SET id2 = 4;
+DROP TABLE tmp;
+CREATE TABLE tmp (id1 INTEGER PRIMARY KEY, id2 INTEGER KEY NUM 1, CHECK (id1 > 2));
+INSERT INTO tmp VALUES (3, 4);
+INSERT INTO tmp VALUES (5, 4);
+UPDATE tmp SET id1 = 4;
+DROP TABLE tmp;
+# Running : octo -f TUT011.sql : Expect ERR_DUPLICATE_KEY_VALUE error from both UPDATE queries
+# Previously, we would incorrectly see UPDATE 1 from the second UPDATE indicating 1 row got updated
+CREATE TABLE
+INSERT 0 1
+INSERT 0 1
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint TMP_pkey : Node ^%ydboctoDK8x9V2YiyPMRxcDYOMpB0K(3,4) already exists
+DROP TABLE
+CREATE TABLE
+INSERT 0 1
+INSERT 0 1
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint TMP_pkey : Node ^%ydboctoDK8x9V2YiyPMRxcDYOMpB0K(4,4) already exists
+DROP TABLE

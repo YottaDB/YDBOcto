@@ -139,3 +139,13 @@ OCTO
 	verify_output TX07 output.txt
 }
 
+@test "TX08 : OCTO904 : Correct results from using xref plans (_ydboctoX*.m) with same name but different contents" {
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TX08.sql .
+	echo "# cat TX08.sql" > output.txt
+	grep tmp TX08.sql >> output.txt
+	echo "# Running : octo -f TX08.sql : Expect 1 row of output from both SELECT queries" >> output.txt
+	echo "# Before the YDBOcto#904 fixes, we would see 0 rows of output from the second SELECT query" >> output.txt
+	octo -f TX08.sql 2>&1 | tee -a output.txt
+	verify_output TX08 output.txt
+}
+

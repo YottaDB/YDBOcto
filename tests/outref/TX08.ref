@@ -1,0 +1,23 @@
+# cat TX08.sql
+CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR, lastName VARCHAR);
+INSERT INTO tmp VALUES (1, 'Zero', 'Cool');
+SELECT * from tmp where firstName = 'Zero';
+DROP TABLE tmp;
+CREATE TABLE tmp (id INTEGER PRIMARY KEY, lastName VARCHAR, firstName VARCHAR);
+INSERT INTO tmp VALUES (1, 'Cool', 'Zero');
+SELECT * from tmp where firstName = 'Zero';
+DROP TABLE tmp;
+# Running : octo -f TX08.sql : Expect 1 row of output from both SELECT queries
+# Before the YDBOcto#904 fixes, we would see 0 rows of output from the second SELECT query
+CREATE TABLE
+INSERT 0 1
+ID|FIRSTNAME|LASTNAME
+1|Zero|Cool
+(1 row)
+DROP TABLE
+CREATE TABLE
+INSERT 0 1
+ID|LASTNAME|FIRSTNAME
+1|Cool|Zero
+(1 row)
+DROP TABLE

@@ -28,5 +28,16 @@ xrefMetadata(routine) ; Octo entry point to get AIM xref metadata before creatin
   ; The metadata also contains comments, and cancellation information
   ; Note: "routine" variable is of the form "%ydboctoXOyAkV0dwqVINYJD702SbAA"
   ;   where the generated M file name is "_ydboctoXOyAkV0dwqVINYJD702SbAA.m".
+  ;
+  ; The xref routine name is dependent on the names of the table and column corresponding to the xref.
+  ; This means it is possible 2 unrelated tables could have the same table and column name but a completely
+  ; different structure otherwise and end up with the same xref plan name. If we create one such table, run
+  ; a select query that creates the xref M routine and then drop the table and then create the second unrelated
+  ; table and run a selecct query that again uses the xref M routine with the same name (but different contents)
+  ; we would come here again and the DO call below would use the already loaded M routine from the first table
+  ; leading to incorrect query results. Therefore we do an explicit ZLINK to ensure the new M routine contents
+  ; are linked/loaded into the process address space (YDBOcto#904) before the DO call below. Since the routine
+  ; name can at most be 31 characters long, we use that below as YDB_MAX_IDENT macro cannot be used in M code.
+  ZLINK "_"_$ZEXTRACT(routine,2,31)
   DO xrefMetadata^@routine
   QUIT

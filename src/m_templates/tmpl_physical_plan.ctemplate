@@ -381,6 +381,10 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 
 				assert(LP_ORDER_BY == order_by->type);
 				is_desc = (OPTIONAL_DESC == order_by->extra_detail.lp_order_by.direction);
+				/* Check if column is a table.*.
+				 * This check is based on how tmpl_column_list_combine.ctemplate writes the `table.*` of ORDER BY.
+				 * So, any change there will need a change here.
+				 */
 				boolean_t is_table_asterisk_and_in_group_by = FALSE;
 				SqlColumnAlias  *tbl_asterisk_column_alias;
 				// check column table_asterisk
@@ -392,8 +396,10 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 					assert(LP_WHERE == tmpPlan->type);
 					tmpPlan = tmpPlan->v.lp_default.operand[0];
 					if (IS_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(tmpPlan)) {
-						GET_COLUMN_ALIAS_FROM_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(tmpPlan, tbl_asterisk_column_alias);
-						if (is_stmt_table_asterisk(tbl_asterisk_column_alias->column) && (0 < tbl_asterisk_column_alias->group_by_column_number)) {
+						GET_COLUMN_ALIAS_FROM_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(tmpPlan,
+													tbl_asterisk_column_alias);
+						if (is_stmt_table_asterisk(tbl_asterisk_column_alias->column)
+						    && (0 < tbl_asterisk_column_alias->group_by_column_number)) {
 							is_table_asterisk_and_in_group_by = TRUE;
 						}
 					}
@@ -405,11 +411,11 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 					SqlTableAlias *cur_table_alias;
 					UNPACK_SQL_STATEMENT(cur_table_alias, cur_table_alias_stmt, table_alias);
 
-					/* Need to order a Composite NULL last (even after ROW(NULL))
-					 * (see https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/759#note_736104049 for more details).
-					 * Achieve this ordering by using "$ZYSQLNULL" in case of a Composite NULL and "0" otherwise.
-					 * We expect in this case to have the first node to be either 0 or "$ZYSQLNULL". So include that first
-					 * before continuing with other columns.
+					/* Need to order a Composite NULL last (even after ROW(NULL)) (see the following thread for
+					 * more details: https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/759#note_736104049).
+					 * Achieve this ordering by using "$ZYSQLNULL" in case of a Composite NULL and "0"
+					 * otherwise. We expect in this case to have the first node to be either 0 or "$ZYSQLNULL".
+					 * So include that first before continuing with other columns.
 					 */
 					TMPL(tmpl_print_dots, num_cols);
 					num_cols++;

@@ -81,3 +81,6 @@ SELECT ALL 1 FROM customers c having EXISTS (SELECT 1 FROM customers n1 GROUP BY
 SELECT ALL 1 FROM customers c having EXISTS (SELECT 1 FROM customers n1 GROUP BY n1.last_name having count((select count(n3.first_name) from customers n3 limit 1))=1);
 SELECT ALL 1 FROM customers c having EXISTS (SELECT 1 FROM customers n1 GROUP BY n1.last_name having count((select count(n1.last_name||n3.first_name) from customers n3 limit 1))=1);
 SELECT ALL 1 FROM customers c group by last_name having EXISTS (SELECT 1 FROM customers n1 GROUP BY n1.last_name having count((select count(c.last_name||n3.first_name) from customers n3 limit 1))=1);
+
+-- Misc
+SELECT ALL first_name FROM customers c GROUP BY first_name HAVING EXISTS (SELECT 1 FROM customers n1 left join (select last_name from customers c2 group by last_name)c2 on n1.first_name=c2.last_name order by EXISTS(SELECT 1 from orders n2 group by n2.order_id having ((c.first_name=n1.first_name))));

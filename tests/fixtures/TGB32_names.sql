@@ -33,3 +33,4 @@ SELECT t1.id FROM names t1 GROUP BY t1.id HAVING 0 IN (SELECT t1.id);
 -- Misc
 select 1 from (VALUES('te','st')) n1 group by n1.* having TRUE in (select n1.* = n2.* from (select 'tes','t')n2) ;
 select 1 from (VALUES('te','st')) n1 group by n1.* having FALSE in (select n1.* = n2.* from (select 'tes','t')n2) ;
+select 1 from names x order by exists(SELECT t1.id, MAX(t1.lastName) FROM names t1 LEFT JOIN (SELECT lastName FROM names group by lastname) AS t2 ON (t1.firstName <= 'Acid') WHERE t1.id <= 1 and t2.lastName IS NULL GROUP BY t2.*, t1.id ORDER BY exists(select id from names y order by t2.*,t1.id));

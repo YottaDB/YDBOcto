@@ -134,7 +134,11 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 			assert(!str2mval || dot_count);
 			TMPL(tmpl_print_expression, expr_plan, pplan, dot_count, depth);
 		} else {
-			// A table.* column in ORDER BY
+			/* A table.* column in ORDER BY.
+			 * tmpl_physical_plan.ctemplate sorts the ORDER BY table.* based on
+			 * how its written in the below code. So, any change here should be
+			 * reflected there.
+			 */
 			assert(column_alias && is_stmt_table_asterisk(column_alias->column));
 			if (pplan->tablejoin_body_group_by_done) {
 				/* Current query table.* in ORDER BY in the presence of a GROUP BY.

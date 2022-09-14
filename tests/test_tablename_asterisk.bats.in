@@ -140,3 +140,9 @@ teardown() {
 	load_fixture names.zwr
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TTA015.sql "trim_trailing_zeroes"
 }
+
+@test "TTA016 : OCTO890 : Validate that equals comparison on table.* values in a WHERE clause doesn't result in an assert failure" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TTA016.sql "trim_trailing_zeroes"
+}

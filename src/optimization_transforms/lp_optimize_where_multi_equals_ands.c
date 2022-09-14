@@ -165,9 +165,13 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		break;
 	case LP_COLUMN_ALIAS:
 		column_alias = left->v.lp_column_alias.column_alias;
-		UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
-		left_id = table_alias->unique_id;
-		assert(0 < left_id);
+		if (is_stmt_table_asterisk(column_alias->column)) {
+			return where;
+		} else {
+			UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
+			left_id = table_alias->unique_id;
+			assert(0 < left_id);
+		}
 		break;
 	case LP_DERIVED_COLUMN:
 		return where; /* Currently derived columns cannot be fixed. Remove this line when YDBOcto#355 is fixed */
@@ -184,9 +188,14 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		right_id = 0;
 		break;
 	case LP_COLUMN_ALIAS:
-		UNPACK_SQL_STATEMENT(table_alias, right->v.lp_column_alias.column_alias->table_alias_stmt, table_alias);
-		right_id = table_alias->unique_id;
-		assert(0 < right_id);
+		column_alias = right->v.lp_column_alias.column_alias;
+		if (is_stmt_table_asterisk(column_alias->column)) {
+			return where;
+		} else {
+			UNPACK_SQL_STATEMENT(table_alias, right->v.lp_column_alias.column_alias->table_alias_stmt, table_alias);
+			right_id = table_alias->unique_id;
+			assert(0 < right_id);
+		}
 		break;
 	case LP_DERIVED_COLUMN:
 		return where; /* Currently derived columns cannot be fixed. Remove this line when YDBOcto#355 is fixed */

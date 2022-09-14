@@ -34,6 +34,9 @@ cd bats-core
 ./install.sh /usr/local
 popd
 
+# Install en-US locale because Octo tests require it
+yum install -y glibc-langpack-en
+
 echo "Current directory is: $PWD"
 echo "# Compiling Octo"
 mkdir build && cd build

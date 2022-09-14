@@ -148,14 +148,14 @@ LINE 2: SELECT 1+2*AVG(AVG(id)) FROM names;
 LINE 1: SELECT 1+COUNT(1+COUNT(id)) FROM names;
                          ^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
-LINE 2: ...rID FROM Orders WHERE COUNT(OrderID)>10 GROUP BY CustomerID ORD...
-                                       ^^^^^^^
+LINE 2: ...CustomerID FROM Orders WHERE COUNT(OrderID)>10 GROUP BY Custome...
+                                        ^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 1: SELECT * FROM names where firstname = count(*);
                                               ^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 2: ...firstname FROM names n2 where n2.firstname = MAX(n2.lastname));
-                                                            ^^^^^^^^^^^
+                                                        ^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column COUNTRY must appear in the GROUP BY clause or be used in an aggregate function
 LINE 2: SELECT COUNT(CustomerID),Country FROM Customers;
                                  ^^^^^^^

@@ -605,10 +605,11 @@ typedef enum RegexType {
  * first valid depth used in the normal case (e.g. when qualifying the SELECT column list i.e. select->select_list) etc.
  * Some of these negative values indicate clauses where Aggregate functions are disallowed (i.e. FROM and WHERE).
  */
-#define AGGREGATE_DEPTH_FROM_CLAUSE	-1
-#define AGGREGATE_DEPTH_WHERE_CLAUSE	-2
-#define AGGREGATE_DEPTH_GROUP_BY_CLAUSE -3
-#define AGGREGATE_DEPTH_HAVING_CLAUSE	-4
+#define AGGREGATE_DEPTH_FROM_CLAUSE	  -1
+#define AGGREGATE_DEPTH_WHERE_CLAUSE	  -2
+#define AGGREGATE_DEPTH_GROUP_BY_CLAUSE	  -3
+#define AGGREGATE_DEPTH_HAVING_CLAUSE	  -4
+#define AGGREGATE_DEPTH_UPDATE_SET_CLAUSE -5
 
 /* Timeouts used in various ydb_lock_incr_s() function calls */
 #define TIMEOUT_1_SEC		  ((unsigned long long)1000000000)

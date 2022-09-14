@@ -72,6 +72,14 @@ Text: Aggregate function calls cannot be nested
 
 Description/Action: This error is generated when aggregate function calls are nested, which is not allowed. PSQL Error Code: 42803
 
+++++++++++++++++++++++++++++++
+ERR_AGGREGATE_FUNCTION_UPDATE
+++++++++++++++++++++++++++++++
+
+Text: Aggregate functions are not allowed in UPDATE
+
+Description/Action: This error is generated when aggregate functions are used in the SET clause of an UPDATE command, which is not allowed. PSQL Error Code: 42803
+
 ++++++++++++++++++++++++++++
 ERR_AGGREGATE_FUNCTION_WHERE
 ++++++++++++++++++++++++++++

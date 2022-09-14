@@ -59,6 +59,7 @@ ERROR_DEF(INFO_FUNCTION_DOES_NOT_EXIST, "Function '%s' does not exist, skipping"
 // OCTO //
 ERROR_DEF(ERR_AGGREGATE_FUNCTION_JOIN, "Aggregate functions are not allowed in JOIN conditions", PSQL_Code_Grouping_Error)
 ERROR_DEF(ERR_AGGREGATE_FUNCTION_NESTED, "Aggregate function calls cannot be nested", PSQL_Code_Grouping_Error)
+ERROR_DEF(ERR_AGGREGATE_FUNCTION_UPDATE, "Aggregate functions are not allowed in UPDATE", PSQL_Code_Grouping_Error)
 ERROR_DEF(ERR_AGGREGATE_FUNCTION_WHERE, "Aggregate functions are not allowed in WHERE", PSQL_Code_Grouping_Error)
 ERROR_DEF(ERR_AGGREGATE_FUNCTION_CHECK, "Aggregate functions are not allowed in CHECK constraints", PSQL_Code_Grouping_Error)
 ERROR_DEF(ERR_AMBIGUOUS_COLUMN_NAME, "Ambiguous column name '%s': qualify name for safe execution", PSQL_Code_Ambiguous_Column)

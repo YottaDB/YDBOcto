@@ -57,7 +57,7 @@ LINE 1: ...d from orders n2 group by c.first_name) as n2 on (c.customer_id ...
                                      ^^^^^^^^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 1: ...ECT 1 FROM customers alias6 ORDER BY count(alias4.order_date));
-                                                      ^^^^^^^^^^^^^^^^^
+                                                ^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ALIAS4.ORDER_DATE
 LINE 1: ...TS (SELECT 1 FROM customers alias6 ORDER BY alias4.order_date);
                                                        ^^^^^^^^^^^^^^^^^
@@ -92,11 +92,11 @@ LINE 1: ...st_name having count((select count(c.last_name) from customers ...
 LINE 1: ...st_name having count((select count(c.last_name||'abc') from cus...
                                         ^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
-LINE 1: ...m customers c where count(c.first_name)>1 group by c.first_name;
-                                     ^^^^^^^^^^^^
+LINE 1: ...r_id) from customers c where count(c.first_name)>1 group by c.f...
+                                        ^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
-LINE 1: ...T 1 FROM orders where count(order_id) > 1 group by order_id) FRO...
-                                       ^^^^^^^^
+LINE 1: ... (SELECT 1 FROM orders where count(order_id) > 1 group by order...
+                                        ^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
 LINE 1: select firstname from names n1 ORDER BY EXISTS (select count(n1...
                ^^^^^^^^^
@@ -105,31 +105,31 @@ LINE 1: select firstname from names n1 ORDER BY count(n1.firstname);
                ^^^^^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 1: ...ISTS (SELECT 1 FROM customers n1 WHERE count(n1.first_name)=1);
-                                                        ^^^^^^^^^^^^^
+                                                  ^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
-LINE 1: ...EXISTS (SELECT 1 FROM customers n1 WHERE count(n1.last_name)=1);
-                                                          ^^^^^^^^^^^^
+LINE 1: ...XISTS (SELECT 1 FROM customers n1 WHERE count(n1.last_name)=1);
+                                                   ^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
-LINE 1: ...STS (SELECT 1 FROM customers n1 ORDER BY count(c.first_name)=1);
-                                                          ^^^^^^^^^^^^
+LINE 1: ...TS (SELECT 1 FROM customers n1 ORDER BY count(c.first_name)=1);
+                                                   ^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 1: ...STS (SELECT 1 FROM customers n1 ORDER BY count(c.last_name)=1);
-                                                          ^^^^^^^^^^^
+                                                    ^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
-LINE 1: ... 1 FROM customers n1 WHERE count(n1.first_name=n1.last_name)=1);
-                                                          ^^^^^^^^^^^^
+LINE 1: ...CT 1 FROM customers n1 WHERE count(n1.first_name=n1.last_name)=...
+                                        ^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
-LINE 1: ...1 FROM customers n1 WHERE count(n1.last_name=n1.first_name)=1);
-                                                        ^^^^^^^^^^^^^
+LINE 1: ...CT 1 FROM customers n1 WHERE count(n1.last_name=n1.first_name)=...
+                                        ^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
-LINE 1: ...1 FROM customers n1 ORDER BY count(c.first_name=c.last_name)=1);
-                                              ^^^^^^^^^^^^
+LINE 1: ...1 FROM customers n1 ORDER BY count(c.first_name=c.last_name)=1)...
+                                        ^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
-LINE 1: ... FROM customers n1 ORDER BY count(c.last_name=c.first_name)=1);
-                                             ^^^^^^^^^^^
+LINE 1: ...1 FROM customers n1 ORDER BY count(c.last_name=c.first_name)=1)...
+                                        ^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
-LINE 1: ... 1 FROM customers n1 WHERE count(c.last_name=n1.first_name)=1);
-                                                        ^^^^^^^^^^^^^
+LINE 1: ...CT 1 FROM customers n1 WHERE count(c.last_name=n1.first_name)=1...
+                                        ^^^^^
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column LASTNAME from outer query
 LINE 1: select (select lastname) from names group by firstname;
                        ^^^^^^^^

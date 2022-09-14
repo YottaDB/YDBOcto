@@ -18,6 +18,41 @@
 #include "octo.h"
 #include "octo_types.h"
 
+#define SET_PARENT_TABLE_ALIAS_TO_SELF(TABLE_ALIAS)                                                                       \
+	{                                                                                                                 \
+		/* The table alias for a column alias corresponding to a SELECT query has a non-NULL parent table alias   \
+		 * (an extra table alias is created in "src/parser/query_specification.c"). But for INSERT, UPDATE and    \
+		 * DELETE commands, the parent table alias is NULL. But this poses problems when we invoke the            \
+		 * CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR macro as that relies on "parent_table_alias" being non-NULL \
+		 * in various places for aggregate function related processing (issuing ERR_AGGREGATE_FUNCTION_WHERE or   \
+		 * ERR_AGGREGATE_FUNCTION_UPDATE errors etc.). Therefore, we set the parent table alias to be itself.     \
+		 * This does not pose any problems else where and so is safe to do so.                                    \
+		 */                                                                                                       \
+		assert(NULL == TABLE_ALIAS->parent_table_alias);                                                          \
+		TABLE_ALIAS->parent_table_alias = TABLE_ALIAS;                                                            \
+	}
+
+/* Set qualify stage variables (e.g. WHERE clause OR UPDATE SET clause etc.) before the CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR
+ * call in the caller of this macro so errors like ERR_AGGREGATE_FUNCTION_WHERE or ERR_AGGREGATE_FUNCTION_UPDATE etc. in the
+ * caller command are correctly issued.
+ */
+#define SET_QUALIFY_STAGE(TBL_STMT, TBL_ALIAS, AGGR_DEPTH_STAGE, QUALIFY_QUERY_STAGE) \
+	{                                                                             \
+		UNPACK_SQL_STATEMENT(TBL_ALIAS, TBL_STMT, table_alias);               \
+		assert(0 == TBL_ALIAS->aggregate_depth);                              \
+		TBL_ALIAS->aggregate_depth = AGGR_DEPTH_STAGE;                        \
+		assert(QualifyQuery_NONE == TBL_ALIAS->qualify_query_stage);          \
+		TBL_ALIAS->qualify_query_stage = QUALIFY_QUERY_STAGE;                 \
+	}
+
+#define RESET_QUALIFY_STAGE(TBL_ALIAS, AGGR_DEPTH_STAGE, QUALIFY_QUERY_STAGE)  \
+	{                                                                      \
+		assert(AGGR_DEPTH_STAGE == TBL_ALIAS->aggregate_depth);        \
+		TBL_ALIAS->aggregate_depth = 0;                                \
+		assert(QUALIFY_QUERY_STAGE == TBL_ALIAS->qualify_query_stage); \
+		TBL_ALIAS->qualify_query_stage = QualifyQuery_NONE;            \
+	}
+
 /* Returns:
  *	0 if query is successfully qualified.
  *	1 if query had errors during qualification.
@@ -107,7 +142,11 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		assert(join == join->next);
 		assert(NULL == join->condition);
 		CALL_QUALIFY_QUERY_AND_RETURN_ON_ERROR(join->value, parent_join, parent_table_alias, ret, result);
+		SET_QUALIFY_STAGE(join->value, table_alias, AGGREGATE_DEPTH_WHERE_CLAUSE, QualifyQuery_WHERE);
+		SET_PARENT_TABLE_ALIAS_TO_SELF(table_alias);
 		CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(delete->where_clause, join, join->value, 0, ret, result);
+		RESET_QUALIFY_STAGE(table_alias, AGGREGATE_DEPTH_WHERE_CLAUSE, QualifyQuery_WHERE);
+		/* Now that call is done, reset qualify stage variables to what they were before */
 		return result;
 		break;
 	case update_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */
@@ -123,11 +162,15 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		assert(join == join->next);
 		assert(NULL == join->condition);
 		CALL_QUALIFY_QUERY_AND_RETURN_ON_ERROR(join->value, parent_join, parent_table_alias, ret, result);
+		SET_QUALIFY_STAGE(join->value, table_alias, AGGREGATE_DEPTH_WHERE_CLAUSE, QualifyQuery_WHERE);
+		SET_PARENT_TABLE_ALIAS_TO_SELF(table_alias);
 		CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(update->where_clause, join, join->value, 0, ret, result);
+		RESET_QUALIFY_STAGE(table_alias, AGGREGATE_DEPTH_WHERE_CLAUSE, QualifyQuery_WHERE);
 
 		SqlUpdateColumnValue *ucv, *ucv_head;
 		ucv_head = update->col_value_list;
 		ucv = ucv_head;
+		SET_QUALIFY_STAGE(join->value, table_alias, AGGREGATE_DEPTH_UPDATE_SET_CLAUSE, QualifyQuery_UPDATE_SET_CLAUSE);
 		do {
 			/* Qualifying "ucv->col_name" happened already as part of the "find_column()"
 			 * call in "src/parser/update_statement.c". So skip qualifying that here.
@@ -135,6 +178,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 			CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(ucv->col_value, join, join->value, 0, ret, result);
 			ucv = ucv->next;
 		} while (ucv != ucv_head);
+		RESET_QUALIFY_STAGE(table_alias, AGGREGATE_DEPTH_UPDATE_SET_CLAUSE, QualifyQuery_UPDATE_SET_CLAUSE);
 		return result;
 		break;
 	case set_operation_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */
@@ -259,7 +303,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	table_alias->qualify_query_stage = QualifyQuery_WHERE;
 	if (NULL != ret) {
 		ret->ret_cla = NULL;
-		/* Note: Inherit ret.max_unique_id from caller (could be parent/outer query in case this is a sub-query) as is */
+		/* Note: Inherit ret->max_unique_id from caller (could be parent/outer query in case this is a sub-query) as is */
 	}
 	CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(select->where_expression, start_join, table_alias_stmt, 0, ret, result);
 	table_alias->aggregate_depth = 0;
@@ -322,7 +366,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	QualifyStatementParms lcl_ret, *lcl_ret_ptr;
 	ret_cla = NULL;
 	/* Initialize "lcl_ret->ret_cla" to a non-NULL value (&ret_cla) and pass "&lcl_ret" (through the "lcl_ret_ptr" variable)
-	 * in case of qualifying ORDER BY and GROUP BY. This allows columns specified in an these clauses to be qualified against
+	 * in case of qualifying ORDER BY and GROUP BY. This allows columns specified in these clauses to be qualified against
 	 * any column names specified till now (including aliases specified after an AS) without any strict checking.
 	 */
 	lcl_ret.ret_cla = &ret_cla;

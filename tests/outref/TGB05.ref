@@ -2,5 +2,5 @@
 SELECT * FROM names n1 WHERE n1.firstName IN (SELECT n2.firstname FROM names n2 GROUP BY n2.firstname HAVING n2.firstname = MAX(n1.firstname));
 
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
-LINE 1: ... GROUP BY n2.firstname HAVING n2.firstname = MAX(n1.firstname));
-                                                            ^^^^^^^^^^^^
+LINE 1: ...GROUP BY n2.firstname HAVING n2.firstname = MAX(n1.firstname));
+                                                       ^^^

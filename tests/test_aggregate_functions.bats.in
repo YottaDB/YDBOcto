@@ -13,28 +13,34 @@
 load test_helpers
 
 setup() {
-  init_test
-  createdb
-  load_fixture names.sql
-  load_fixture names.zwr
+	init_test
+	createdb
+	load_fixture names.sql
+	load_fixture names.zwr
 }
 
 @test "TAF01 : OCTO455 : AVG/MIN/MAX/SUM on empty table should return the NULL value if GROUP BY clause is absent" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAF01.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAF01.sql
 }
 
 @test "TAF02 : OCTO311 : Test aggregate function handling of NULL" {
-  load_fixture customers.sql
-  load_fixture customers.zwr
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TAF02.sql "trim_trailing_zeroes"
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TAF02.sql "trim_trailing_zeroes"
 }
 
 @test "TAF03 : OCTO517 : HAVING clause with COUNT() function usage returns incorrect results in some cases" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAF03.sql "trim_trailing_zeroes"
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAF03.sql "trim_trailing_zeroes"
 }
 
 @test "TAF04 : OCTO804 : Aggregate function with a column referring to an outer query within an EXISTS clause used in a WHERE clause should result in an error" {
-  load_fixture TAF04_errors.sql subtest novv
-  verify_output TAF04_errors output.txt
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAF04.sql
+	load_fixture TAF04_errors.sql subtest novv
+	verify_output TAF04_errors output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAF04.sql
 }
+
+@test "TAF05 : OCTO579 : Test of various error scenarios with aggregate function usage in UPDATE and DELETE queries" {
+	load_fixture TAF05_errors.sql subtest novv
+	verify_output TAF05_errors output.txt
+}
+

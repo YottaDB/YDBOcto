@@ -1,0 +1,17 @@
+# Test correct results from UPDATE when WHERE clause uses IN with a list of values
+# Test of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/579#note_1095739069
+# grep tmp TUT012.sql
+DROP TABLE IF EXISTS tmp;
+CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR);
+INSERT INTO tmp VALUES (1,'Cereal');
+INSERT INTO tmp VALUES (2,'Lord');
+INSERT INTO tmp VALUES (3,'Joey');
+UPDATE tmp SET firstName='Joey'  WHERE firstName IN ('Lord', 'Joey', 'Cereal');
+# Running : octo -f TUT012.sql : Expect UPDATE 3 output from the UPDATE command
+# Previously, we would incorrectly see UPDATE 4
+DROP TABLE
+CREATE TABLE
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+UPDATE 3

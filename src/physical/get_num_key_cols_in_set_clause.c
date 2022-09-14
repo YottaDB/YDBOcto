@@ -15,6 +15,11 @@
 
 /* Given a physical plan corresponding to an UPDATE query, this function returns the number of key columns
  * specified in the SET clause.
+ *
+ * The code below is very similar to that in "src/physical/is_update_keycol_or_xref.c".
+ *
+ * This function/file is currently used only in one assert (i.e. Debug build only) and so is not used in Release builds
+ * but is not removed in case it is found necessary in the future.
  */
 int get_num_key_cols_in_set_clause(PhysicalPlan *pplan) {
 	LogicalPlan *lp_update;

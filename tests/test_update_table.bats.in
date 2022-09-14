@@ -174,3 +174,15 @@ teardown() {
 	verify_output TUT011 output.txt
 }
 
+@test "TUT012 : OCTO579 : Correct results from UPDATE when WHERE clause uses IN with a list of values" {
+	echo "# Test correct results from UPDATE when WHERE clause uses IN with a list of values" >> output.txt
+	echo "# Test of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/579#note_1095739069" >> output.txt
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TUT012.sql .
+	echo "# grep tmp TUT012.sql" >> output.txt
+	grep tmp TUT012.sql >> output.txt
+	echo "# Running : octo -f TUT012.sql : Expect UPDATE 3 output from the UPDATE command" >> output.txt
+	echo "# Previously, we would incorrectly see UPDATE 4" >> output.txt
+	octo -f TUT012.sql 2>&1 | tee -a output.txt
+	verify_output TUT012 output.txt
+}
+

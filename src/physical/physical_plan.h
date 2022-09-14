@@ -148,6 +148,7 @@ int key_equals_column(SqlKey *key, SqlColumn *column);
 // Returns true if the unique_id is found in pplan
 boolean_t is_unique_id_a_key_of_pplan(PhysicalPlan *pplan, int unique_id);
 
+int	      is_update_keycol_or_xref(PhysicalPlan *pplan);
 int	      get_num_key_cols_in_set_clause(PhysicalPlan *pplan);
 char *	      get_setoper_mlabref(SetOperType *set_oper, PhysicalPlan *pplan);
 PhysicalPlan *get_physical_plan_from_unique_id(PhysicalPlan *pplan, int unique_id);

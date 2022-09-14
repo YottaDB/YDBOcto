@@ -314,14 +314,11 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 		}
 	}
 	if (!nested_call) {
-		/* Check if this is an UPDATE query and if at least one primary key column was specified in the SET clause.
-		 * If so, we need to generate extra code.
+		/* Check if this is an UPDATE query and if at least one primary key column was specified in the SET clause
+		 * OR if a cross reference key was generated. If so, we need to generate extra code to note down which
+		 * rows have been already processed (to avoid duplicate processing).
 		 */
-		if (IS_UPDATE_PHYSICAL_PLAN(pplan) && (0 < get_num_key_cols_in_set_clause(pplan))) {
-			/* Check if the primary key(s) corresponding to the current row was(were) created as part of a
-			 * prior iteration of the current UPDATE query. If so, skip processing this row as it did not
-			 * exist at the time the UPDATE query started.
-			 */
+		if (IS_UPDATE_PHYSICAL_PLAN(pplan) && is_update_keycol_or_xref(pplan)) {
 			TMPL(tmpl_print_dots, dot_count);
 			%{}DO:'$DATA({}%
 			TMPL(tmpl_update_key_source, pplan, TRUE);

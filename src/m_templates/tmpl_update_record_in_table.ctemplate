@@ -278,7 +278,7 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 		TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Value);
 	}
 	%{}={{ PP_YDB_OCTO_UPD }}{}%
-	if (num_key_cols_in_set_clause) {
+	if (is_update_keycol_or_xref(pplan)) {
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET {}%

@@ -314,6 +314,7 @@ add_library(libocto OBJECT
   physical/get_physical_plan_and_key_for_unique_id.c
   physical/get_setoper_mlabref.c
   physical/is_unique_id_a_key_of_pplan.c
+  physical/is_update_keycol_or_xref.c
   populate_data_type.c
   print_result_row.c
   print_temporary_table.c

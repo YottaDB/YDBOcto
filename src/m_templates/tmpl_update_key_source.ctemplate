@@ -50,7 +50,7 @@ TEMPLATE(tmpl_update_key_source, PhysicalPlan *pplan, boolean_t pre_update) {
 	LogicalPlan	*lp_update;
 	unsigned int	iter_key_index, total_keys;
 
-	assert(0 < get_num_key_cols_in_set_clause(pplan));
+	assert(is_update_keycol_or_xref(pplan));
 	is_first_col = TRUE;
 	iter_key_index = 0;
 	total_keys = pplan->total_iter_keys;

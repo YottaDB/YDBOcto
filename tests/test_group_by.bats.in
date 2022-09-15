@@ -231,3 +231,9 @@ setup() {
 	verify_output TGB35_errors output.txt
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB35.sql
 }
+
+@test "TGB36 : OCTO806 : Validate that constant aggregates used inside a WHERE clause issue an ERR_AGGREGATE_FUNCTION_WHERE error" {
+	load_fixture TGB36_errors.sql subtest novv
+	verify_output TGB36_errors output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB36.sql
+}

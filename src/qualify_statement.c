@@ -518,43 +518,53 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 				/* The condition (NULL != ret) is used below to avoid clang-tidy_warning
 				 * [clang-analyzer-core.NullDereference] but we are sure that its not NULL by above assert.
 				 */
-				if ((NULL != ret) && (NULL != ret->deepest_column_alias_stmt)) {
-					/* Now that we know the deepest column_alias, set
-					 * `aggregate_function_or_group_by_or_having_specified` of the parent table_alias
-					 * and set the `af->unique_id` with the `unique_id` of the table to which this aggregate
-					 * needs to be associated with.
+				SqlTableAlias *aggr_parent_table_alias;
+				SqlStatement * aggr_deepest_column_alias_stmt
+				    = ((NULL != ret) && (NULL != ret->deepest_column_alias_stmt)) ? ret->deepest_column_alias_stmt
+												  : NULL;
+				if (NULL != aggr_deepest_column_alias_stmt) {
+					/* Now that we know the deepest column_alias, get the parent table_alias to which the
+					 * aggregate needs to be associated to.
 					 */
-					SqlTableAlias * aggr_table_alias, *aggr_parent_table_alias;
+					SqlTableAlias * aggr_table_alias;
 					SqlColumnAlias *aggr_deepest_column_alias;
-					UNPACK_SQL_STATEMENT(aggr_deepest_column_alias, ret->deepest_column_alias_stmt,
+					UNPACK_SQL_STATEMENT(aggr_deepest_column_alias, aggr_deepest_column_alias_stmt,
 							     column_alias);
 					UNPACK_SQL_STATEMENT(aggr_table_alias, aggr_deepest_column_alias->table_alias_stmt,
 							     table_alias);
 					aggr_parent_table_alias = aggr_table_alias->parent_table_alias;
-					af->unique_id = aggr_parent_table_alias->unique_id;
-					aggr_parent_table_alias->aggregate_function_or_group_by_or_having_specified
-					    |= AGGREGATE_FUNCTION_SPECIFIED;
-					/* Now that we know to which table the aggregate belongs to check if the aggregate is in
-					 * the WHERE clause.
-					 */
-					if (QualifyQuery_WHERE == aggr_parent_table_alias->qualify_query_stage) {
-						/* Issue ERROR as aggregates are not allowed in WHERE clause */
-						ERROR(ERR_AGGREGATE_FUNCTION_WHERE, "");
-						yyerror(NULL, NULL, &ret->deepest_column_alias_stmt, NULL, NULL, NULL);
-						table_alias->aggregate_depth--;
-						if (depth_adjusted) {
-							table_alias->aggregate_depth = aggregate_depth_saved;
-						}
-						return 1;
-					}
-					ret->deepest_column_alias_stmt = NULL;
 				} else {
-					/* No column found in the aggregate or it has a subquery init. In both cases
+					/* No column found in the aggregate or it has a subquery in it. In both cases
 					 * associate the aggregate to the current query.
 					 */
-					af->unique_id = table_alias->unique_id;
-					table_alias->aggregate_function_or_group_by_or_having_specified
-					    |= AGGREGATE_FUNCTION_SPECIFIED;
+					aggr_parent_table_alias = table_alias;
+				}
+				/* Now that we know to which table the aggregate belongs to, check if the aggregate is in
+				 * the WHERE clause.
+				 */
+				if (QualifyQuery_WHERE == aggr_parent_table_alias->qualify_query_stage) {
+					/* Issue ERROR as aggregates are not allowed in WHERE clause */
+					ERROR(ERR_AGGREGATE_FUNCTION_WHERE, "");
+					if (NULL != aggr_deepest_column_alias_stmt) {
+						yyerror(NULL, NULL, &aggr_deepest_column_alias_stmt, NULL, NULL, NULL);
+					} else {
+						yyerror(&af->parameter->loc, NULL, NULL, NULL, NULL, NULL);
+					}
+					table_alias->aggregate_depth--;
+					if (depth_adjusted) {
+						table_alias->aggregate_depth = aggregate_depth_saved;
+					}
+					return 1;
+				}
+				/* set the `af->unique_id` with the `unique_id` of the table to which this aggregate needs to be
+				 * associated with. Also, set `aggregate_function_or_group_by_or_having_specified` of that table
+				 * to note the aggregate usage.
+				 */
+				af->unique_id = aggr_parent_table_alias->unique_id;
+				aggr_parent_table_alias->aggregate_function_or_group_by_or_having_specified
+				    |= AGGREGATE_FUNCTION_SPECIFIED;
+				if (NULL != aggr_deepest_column_alias_stmt) {
+					ret->deepest_column_alias_stmt = NULL;
 				}
 			}
 			if (NULL != ret) {

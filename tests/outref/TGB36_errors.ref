@@ -1,0 +1,29 @@
+
+select 1 from names where count(1) = 1;
+select 1 where count(1) = 1;
+select 1 where max(1) = 1;
+select 1 where max(1+1) = 2;
+select 1 where max(1 - 1 + 1 / 1 * (select 1)) = 1;
+select 1 where max((select id from names limit 1))=1;
+select 1 where max('test'||'testa')='test';
+[ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
+LINE 1: select 1 from names where count(1) = 1;
+                                  ^^^^^
+[ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
+LINE 1: select 1 where count(1) = 1;
+                       ^^^^^
+[ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
+LINE 1: select 1 where max(1) = 1;
+                       ^^^
+[ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
+LINE 1: select 1 where max(1+1) = 2;
+                       ^^^
+[ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
+LINE 1: select 1 where max(1 - 1 + 1 / 1 * (select 1)) = 1;
+                       ^^^
+[ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
+LINE 1: select 1 where max((select id from names limit 1))=1;
+                       ^^^
+[ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
+LINE 1: select 1 where max('test'||'testa')='test';
+                       ^^^

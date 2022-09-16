@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -35,19 +35,21 @@ TEMPLATE(tmpl_delete_from, PhysicalPlan *pplan) {
 		%{}{{ config->global_names.cursor }}(cursorId,{{ PP_ROW_COUNT }}){}%
 		%{}=0 ; Initialize count of deleted records{}%
 		%{}`n{{ PLAN_LINE_START }}{}%
+		/* Note: "emit_duplication_check" is not necessary for LP_DELETE_FROM and is there only for consistency with
+		 * LP_UPDATE (where it is necessary). See comment in "src/physical/generate_physical_plan.c" for more details.
+		 * By the same reasoning as in "tmpl_update_table.ctemplate", we do the KILL of PP_YDB_OCTO_ZDUPLICATE at the
+		 * start of this function instead of at the end of this function.
+		 */
+		if (pplan->emit_duplication_check) {
+			%{}KILL {{ PP_YDB_OCTO_ZDUPLICATE }}({{ ZERO_OUTPUT_KEY_ID|%d }}){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+		}
 	}
 	cur_key = 0;
 	dot_count = 0;
 	assert(FALSE == pplan->tablejoin_body_group_by_done);
 	TMPL(tmpl_tablejoin, pplan, pplan->tablejoin, cur_key, FALSE, dot_count, NULL, NULL);
 	if (NULL == pplan->dnf_next) {
-		/* Note: "emit_duplication_check" is not necessary for LP_DELETE_FROM and is there only for consistency with
-		 * LP_UPDATE (where it is necessary). See comment in "src/physical/generate_physical_plan.c" for more details.
-		 */
-		if (pplan->emit_duplication_check) {
-			%{}`n{{ PLAN_LINE_START }}{}%
-			%{}KILL {{ PP_YDB_OCTO_ZDUPLICATE }}({{ ZERO_OUTPUT_KEY_ID|%d }}){}%
-		}
 		assert(!pplan->distinct_values); /* or else we need to emit PP_YDB_OCTO_ZDISTINCT like in tmpl_physical_plan() */
 	}
 	%{}`n{{ PLAN_LINE_START }}{}%

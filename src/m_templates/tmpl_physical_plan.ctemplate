@@ -343,6 +343,14 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 		if (NULL == pplan->dnf_prev) {
 			%{} KILL {}%
 			TMPL(tmpl_key, pplan->outputKey);
+			/* By the same reasoning as in "tmpl_update_table.ctemplate", we do the KILL of
+			 * PP_YDB_OCTO_ZDUPLICATE at the start of this function instead of at the end of this function.
+			 * In this case, an example runtime error from a prior select is ERR_SUBQUERY_MULTIPLE_ROWS.
+			 */
+			if (pplan->emit_duplication_check) {
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}KILL {{ PP_YDB_OCTO_ZDUPLICATE }}({{ pplan->outputKey->unique_id|%d }}){}%
+			}
 		}
 		%{}`n{{ PLAN_LINE_START }}{}% // Whitespace for MUMPS
 		cur_key = 0;
@@ -484,10 +492,6 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			%{})={{ PP_YDB_OCTO_I }}(0)-1{}%
 		}
 		if (NULL == pplan->dnf_next) {
-			if (pplan->emit_duplication_check) {
-				%{}`n{{ PLAN_LINE_START }}{}%
-				%{}KILL {{ PP_YDB_OCTO_ZDUPLICATE }}({{ pplan->outputKey->unique_id|%d }}){}%
-			}
 			if (NULL != limit_keyword) {
 				%{}`n{{ PLAN_LINE_START }}{}%
 				%{}KILL {{ PP_YDB_OCTO_ZLIMIT }}({{ pplan->outputKey->unique_id|%d }}){}%

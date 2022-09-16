@@ -125,6 +125,7 @@ octoPlan1(cursorId)
 
 octoPlan2(cursorId)
     NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",6,"","")
+    KILL %ydboctozduplicate(6)
     SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
     FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
     . DO:'$DATA(%ydboctozduplicate(6,%ydboctocursor(cursorId,"keys",1,"NAMES","ID")))
@@ -181,7 +182,6 @@ octoPlan3(cursorId)
     . . . SET %ydboctocursor(cursorId,"keys",6,"","",%ydboctocursor(cursorId,"keys",6,"",""))=%ydboctoexpr
     . . . SET %ydboctozduplicate(6,%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))=""
     ZKILL %ydboctocursor(cursorId,"keys",1,"NAMES","ID")
-    KILL %ydboctozduplicate(6)
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
@@ -374,6 +374,7 @@ octoPlan0(cursorId,wrapInTp)
 
 octoPlan1(cursorId)
     NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",6,"","")
+    KILL %ydboctozduplicate(6)
     SET %ydboctocursor(cursorId,"keys",1,"T1","A")=""
     FOR  SET %ydboctocursor(cursorId,"keys",1,"T1","A")=$ORDER(^T1(%ydboctocursor(cursorId,"keys",1,"T1","A"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"T1","A")="")  DO
     . SET %ydboctocursor(cursorId,"keys",1,"T1","B")=""
@@ -529,7 +530,6 @@ octoPlan2(cursorId)
     . . . . IF $INCREMENT(%ydboctoi(0))
     KILL %ydboctocursor(cursorId,"keys",6,"","","OrderBy")
     SET %ydboctocursor(cursorId,"keys",6,"","")=%ydboctoi(0)-1
-    KILL %ydboctozduplicate(6)
     QUIT
 
 octoPlan3(cursorId)
@@ -675,6 +675,7 @@ octoPlan1(cursorId)
 
 octoPlan2(cursorId)
     NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",7,"","")
+    KILL %ydboctozduplicate(7)
     SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
     FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
     . DO:'$DATA(%ydboctozduplicate(7,%ydboctocursor(cursorId,"keys",1,"NAMES","ID")))
@@ -731,7 +732,6 @@ octoPlan3(cursorId)
     . . . SET %ydboctocursor(cursorId,"keys",7,"","",%ydboctocursor(cursorId,"keys",7,"",""))=%ydboctoexpr
     . . . SET %ydboctozduplicate(7,%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))=""
     ZKILL %ydboctocursor(cursorId,"keys",1,"NAMES","ID")
-    KILL %ydboctozduplicate(7)
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
@@ -776,6 +776,7 @@ octoPlan1(cursorId)
 
 octoPlan2(cursorId)
     NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",6,"","")
+    KILL %ydboctozduplicate(6)
     SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
     FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
     . DO:'$DATA(%ydboctozduplicate(6,%ydboctocursor(cursorId,"keys",1,"NAMES","ID")))
@@ -823,5 +824,4 @@ octoPlan3(cursorId)
     . . IF $INCREMENT(%ydboctoi(0))
     KILL %ydboctocursor(cursorId,"keys",6,"","","OrderBy")
     SET %ydboctocursor(cursorId,"keys",6,"","")=%ydboctoi(0)-1
-    KILL %ydboctozduplicate(6)
     QUIT

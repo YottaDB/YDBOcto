@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -13,33 +13,39 @@
 load test_helpers
 
 setup() {
-  init_test
-  createdb
-  load_fixture names.sql
-  load_fixture names.zwr
+	init_test
+	createdb
+	load_fixture names.sql
+	load_fixture names.zwr
 }
 
 @test "TBEE01 : 3-way LEFT JOIN with 20 OR usages in BOOLEAN EXPRESSION should expand to only 27 plans (not 540 plans)" {
-  load_fixture TBEE01.sql subtest novv
-  grep -E 'QUIT$|octoPlan' _ydboctoP*.m > physicalplan.txt
-  verify_output TBEE01p physicalplan.txt
-  verify_output TBEE01 output.txt
+	load_fixture TBEE01.sql subtest novv
+	grep -E 'QUIT$|octoPlan' _ydboctoP*.m > physicalplan.txt
+	verify_output TBEE01p physicalplan.txt
+	verify_output TBEE01 output.txt
 }
 
 @test "TBEE02 : OCTO330 : OR usage processes left operand ahead of right operand" {
-  load_fixture easynames.sql
-  load_fixture easynames.zwr
-  load_fixture TBEE02.sql subtest novv
-  verify_output TBEE02 output.txt
+	load_fixture easynames.sql
+	load_fixture easynames.zwr
+	load_fixture TBEE02.sql subtest novv
+	verify_output TBEE02 output.txt
 }
 
 @test "TBEE03 : OCTO408 : LVUNDEF error when LEFT JOIN is used in the FROM clause and OR operator is used in the WHERE clause" {
-  load_fixture customers.sql
-  load_fixture customers.zwr
-  load_fixture TBEE03.sql subtest novv
-  verify_output TBEE03 output.txt
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	load_fixture TBEE03.sql subtest novv
+	verify_output TBEE03 output.txt
 }
 
 @test "TBEE04 : OCTO427 : Assert failure when sub-query and outer query both have OR conditions with = operator" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TBEE04.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TBEE04.sql
 }
+
+@test "TBEE05 : OCTO579 : Incorrect results from SELECT/UPDATE/DELETE if prior queries with OR conditions errored out" {
+	load_fixture TBEE05.sql subtest novv
+	verify_output TBEE05 output.txt
+}
+

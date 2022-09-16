@@ -24,6 +24,7 @@ octoPlan0(cursorId,wrapInTp)
 
 octoPlan1(cursorId)
     NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",5,"","")
+    KILL %ydboctozduplicate(5)
     DO
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
     SET %ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME")) IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME"))) DO
@@ -54,7 +55,6 @@ octoPlan2(cursorId)
     . . . . SET %ydboctozduplicate(5,%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))=""
     ZKILL %ydboctocursor(cursorId,"keys",2,"NAMES","ID")
     ZKILL %ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME")
-    KILL %ydboctozduplicate(5)
     QUIT
 
 octoPlan3(cursorId)

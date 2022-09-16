@@ -43,6 +43,13 @@ TEMPLATE(tmpl_update_table, PhysicalPlan *pplan) {
 		 */
 		%{}KILL {{ PP_YDB_OCTO_UPD }}{}%
 		%{}`n{{ PLAN_LINE_START }}{}%
+		/* By the same reasoning as PP_YDB_OCTO_UPD, we do the KILL of PP_YDB_OCTO_ZDUPLICATE at the start of this
+		 * function instead of at the end of this function.
+		 */
+		if (pplan->emit_duplication_check) {
+			%{}KILL {{ PP_YDB_OCTO_ZDUPLICATE }}({{ ZERO_OUTPUT_KEY_ID|%d }}){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+		}
 	}
 	/* Note: The purpose of the unsubscripted local variable PP_YDB_OCTO_UPD is to act as a temporary variable that stores
 	 * interim values of columns that are changed by the SET clause of the UPDATE command. The subscripted PP_YDB_OCTO_UPD
@@ -62,10 +69,6 @@ TEMPLATE(tmpl_update_table, PhysicalPlan *pplan) {
 	assert(FALSE == pplan->tablejoin_body_group_by_done);
 	TMPL(tmpl_tablejoin, pplan, pplan->tablejoin, cur_key, FALSE, dot_count, NULL, NULL);
 	if (NULL == pplan->dnf_next) {
-		if (pplan->emit_duplication_check) {
-			%{}`n{{ PLAN_LINE_START }}{}%
-			%{}KILL {{ PP_YDB_OCTO_ZDUPLICATE }}({{ ZERO_OUTPUT_KEY_ID|%d }}){}%
-		}
 		assert(!pplan->distinct_values); /* or else we need to emit PP_YDB_OCTO_ZDISTINCT like in tmpl_physical_plan() */
 	}
 	%{}`n{{ PLAN_LINE_START }}{}%

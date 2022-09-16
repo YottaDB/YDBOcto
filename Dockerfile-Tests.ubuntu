@@ -18,6 +18,8 @@
 # docker build -f Dockerfile-Tests.ubuntu -t tests-ubuntu .
 # docker run -it --link mysql --rm tests-ubuntu
 # OR docker run -it --link mysql --rm tests-ubuntu "test-auto-upgrade" "debug" "52ba5a43" "test_display_relation_commands"
+# OR docker run -it --link mysql --rm tests-ubuntu "test-auto-upgrade" "debug" "52ba5a43" "ALL" (to run all auto-upgrade tests for a specific commit)
+# OR docker run -it --link mysql -v /tmp/myfolder:/octooutput --rm tests-ubuntu "test-auto-upgrade" "debug" "52ba5a43" "ALL" (keeps the tests output in /tmp/myfolder so that it can be examined)
 # docker kill mysql; docker rm mysql
 
 FROM yottadb/yottadb-base:latest-master

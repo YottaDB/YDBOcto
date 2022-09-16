@@ -236,36 +236,15 @@ echo " -> disable_install = $disable_install"
 echo " -> enable_asan = $asan"
 
 if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
-	# Note that a lot of code is duplicated in the "debug" portion below
-	# In the future, move common lines together with the else branch
 	if [[ "debug" == $subtaskname ]]; then
 		cp ../tools/ci/testAutoUpgrade.m .
 		if [ -n "$autoupgrade_test_to_troubleshoot" ]; then
-			echo " ;;$autoupgrade_test_to_troubleshoot" >> testAutoUpgrade.m
+			# ALL is a special value that we use to troublshoot all tests
+			if [[ "ALL" != $autoupgrade_test_to_troubleshoot ]]; then
+				echo " ;;$autoupgrade_test_to_troubleshoot" >> testAutoUpgrade.m
+			fi
 		fi
 		commitsha=$autoupgrade_old_commit
-		echo "# Random older commit picked = $autoupgrade_old_commit"
-		echo "# Checkout the older commit"
-		git checkout $autoupgrade_old_commit
-		# Due to https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/712 and # https://gitlab.com/YottaDB/DB/YDB/-/issues/661, ensure
-		# that test framework files corresponding to an older commit are updated minimally enough so they will work with a
-		# later/newer version of ydb_env_set.
-		git checkout 8587b12086666c88ea2c8a19b55a736629269907 -- ../tools/get_ydb_release.sh
-		sed -i 's/unset ydb_chset/export ydb_chset=M/' ../tests/test_helpers.bash.in
-		# Add line to verify_output helper function to remove `..` from test output when Octo is built with Ninja
-		# See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/861 for more details.
-		sed -i "s,# Filter rule #s and line #s printed by flex in TRACE verbosity level output,sed -i 's/\\\.\\\.PATH/PATH/' clean_output\.txt," ../tests/test_helpers.bash.in
-		# Run only a random fraction of the bats tests as we will be running an auto upgrade test on the same queries
-		# once more a little later.
-		cp ../cmake/bats-tests.cmake bats-tests.cmake.orig
-		# Temporarily switch ydb_routines for running M program (testAutoUpgrade.m)
-		saveydbroutines="$ydb_routines"
-		export ydb_routines="."	# so testAutoUpgrade.o gets created in current directory
-		cat testAutoUpgrade.m
-		$ydb_dist/yottadb -run batsTestsChooseRandom^testAutoUpgrade < bats-tests.cmake.orig > bats-tests.cmake.new
-		cat bats-tests.cmake.new
-		export ydb_routines="$saveydbroutines"	# Switch back to original ydb_routines
-		cp bats-tests.cmake.new ../cmake/bats-tests.cmake
 	else
 		if [[ $CI_COMMIT_BRANCH == "" ]]; then
 			# This is possible if the pipeline runs for example when a new tag is created on a pre-existing commit.
@@ -331,28 +310,31 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 			# Now that we are here, the chosen random older commit has no known issue. So break out of the while loop.
 			break
 		done
-		echo $commitsha > commit_picked.txt
-		# BEGIN For Developers Troubleshooting Autoupgrade pipelines: Set old commit here
-		# commitsha=cc515a49
-		# END For Developers Troubleshooting Autoupgrade pipelines
-		echo "# Random older commit picked = $commitsha"
-		echo "# Checkout the older commit"
-		git checkout $commitsha
-		# Due to https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/712 and # https://gitlab.com/YottaDB/DB/YDB/-/issues/661, ensure
-		# that test framework files corresponding to an older commit are updated minimally enough so they will work with a
-		# later/newer version of ydb_env_set.
-		git checkout 8587b12086666c88ea2c8a19b55a736629269907 -- ../tools/get_ydb_release.sh
-		sed -i 's/unset ydb_chset/export ydb_chset=M/' ../tests/test_helpers.bash.in
-		# Add line to verify_output helper function to remove `..` from test output when Octo is built with Ninja
-		# See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/861 for more details.
-		sed -i "s,# Filter rule #s and line #s printed by flex in TRACE verbosity level output,sed -i 's/\\\.\\\.PATH/PATH/' clean_output\.txt," ../tests/test_helpers.bash.in
+	fi
+	echo $commitsha > commit_picked.txt
+	echo "# Random older commit picked = $commitsha"
+	echo "# Checkout the older commit"
+	git checkout $commitsha
+	# Due to https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/712 and # https://gitlab.com/YottaDB/DB/YDB/-/issues/661, ensure
+	# that test framework files corresponding to an older commit are updated minimally enough so they will work with a
+	# later/newer version of ydb_env_set.
+	git checkout 8587b12086666c88ea2c8a19b55a736629269907 -- ../tools/get_ydb_release.sh
+	sed -i 's/unset ydb_chset/export ydb_chset=M/' ../tests/test_helpers.bash.in
+	# Add line to verify_output helper function to remove `..` from test output when Octo is built with Ninja
+	# See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/861 for more details.
+	sed -i "s,# Filter rule #s and line #s printed by flex in TRACE verbosity level output,sed -i 's/\\\.\\\.PATH/PATH/' clean_output\.txt," ../tests/test_helpers.bash.in
+	if [ "ALL" != "$autoupgrade_test_to_troubleshoot" ]; then
 		# Run only a random fraction of the bats tests as we will be running an auto upgrade test on the same queries
 		# once more a little later.
 		cp ../cmake/bats-tests.cmake bats-tests.cmake.orig
 		# Temporarily switch ydb_routines for running M program (testAutoUpgrade.m)
 		saveydbroutines="$ydb_routines"
 		export ydb_routines="."	# so testAutoUpgrade.o gets created in current directory
+		# cat here to confirm contents
+		cat testAutoUpgrade.m
 		$ydb_dist/yottadb -run batsTestsChooseRandom^testAutoUpgrade < bats-tests.cmake.orig > bats-tests.cmake.new
+		# cat here to confirm contents
+		cat bats-tests.cmake.new
 		export ydb_routines="$saveydbroutines"	# Switch back to original ydb_routines
 		cp bats-tests.cmake.new ../cmake/bats-tests.cmake
 	fi
@@ -370,6 +352,10 @@ cleanup_before_exit() {
 	rm -f postgresql*.jar ./*.cmake || true
 	rm -f src/test_* || true	# these are the unit test case executables (should not be needed otherwise)
 	rm -f src/*.dbg
+	if [ -d /octooutput ]; then
+		rm -rf /octooutput/*
+		cp -r -- * /octooutput
+	fi
 }
 trap cleanup_before_exit EXIT
 

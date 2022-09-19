@@ -19,6 +19,7 @@ variables:
   GOLANG_VERSION: 1.13.1
   MYSQL_ROOT_PASSWORD: ydbrocks
 
+# Shared build config
 .make:
   stage: build
   artifacts:
@@ -26,6 +27,12 @@ variables:
       - build/
     expire_in: 1 month
     when: always
+  interruptible: true
+
+# Shared doc config
+.docs:
+  stage: docs
+  interruptible: true
 
 .ubuntu:
   before_script:
@@ -66,8 +73,9 @@ variables:
     - go version
 
 commit-verify:
-  image: ubuntu:18.04
+  image: ubuntu:22.04
   stage: build
+  interruptible: true
   before_script:
     - apt-get update -qq && apt-get install -y -qq git wget gnupg
   script:
@@ -245,6 +253,8 @@ vista:
 deadlinks:
   stage: docs
   image: bitnami/minideb
+  extends:
+    - .docs
   script:
     - apt-get update && apt-get install -y make python3 python3-pip tcsh wget jq
     - pip3 install sphinxcontrib-fulltoc sphinx sphinx_rtd_theme
@@ -257,7 +267,9 @@ deadlinks:
 pages:
   image: yottadb/yottadb-base:latest-master
   stage: docs
-  extends: .ubuntu
+  extends:
+    - .docs
+    - .ubuntu
   dependencies:
     - make-ubuntu
   script:

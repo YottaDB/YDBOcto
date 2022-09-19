@@ -18,8 +18,8 @@
 #include "octo.h"
 #include "octo_types.h"
 
-/* Following macro is called from column_list_alias_STATEMENT case to issue error when a column value in ORDER BY or GROUP BY isn't
- * a valid INTEGER. AGGR_DEPTH is used to determine whether an ORDER BY or GROUP BY error needs to be issued.
+/* TestFollowing macro is called from column_list_alias_STATEMENT case to issue error when a column value in ORDER BY or GROUP BY
+ * isn't a valid INTEGER. AGGR_DEPTH is used to determine whether an ORDER BY or GROUP BY error needs to be issued.
  */
 #define ISSUE_ORDER_BY_OR_GROUP_BY_POSITION_NOT_INTEGER_ERROR(AGGR_DEPTH, IS_NEG_NUM_LIT, STR, COLUMN_LIST_PTR) \
 	{                                                                                                       \

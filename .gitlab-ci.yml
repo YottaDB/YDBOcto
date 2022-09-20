@@ -84,6 +84,7 @@ commit-verify:
     - chmod +x commit_verify.sh
     - ./commit_verify.sh tools/ci/needs_copyright.sh https://gitlab.com/YottaDB/DBMS/YDBOcto
 
+# This is against the latest released version of YottaDB
 release-ubuntu:
   image: yottadb/yottadb-base:latest
   # Run Release job only if this is a scheduled pipeline
@@ -97,6 +98,7 @@ release-ubuntu:
   script:
     - ./tools/ci/build.sh "make-ubuntu" "none"
 
+# This is against the latest released version of YottaDB
 release-rocky:
   image: yottadb/yottadb-rocky-base:latest
   # Run Release job only if this is a scheduled pipeline
@@ -118,6 +120,8 @@ make-ubuntu:
     - .ubuntu
   script:
     - ./tools/ci/build.sh "make-ubuntu" "none"
+  only:
+    - master@YottaDB/DBMS/YDBOcto
 
 make-rocky:
   image: yottadb/yottadb-rocky-base:latest-master
@@ -127,6 +131,8 @@ make-rocky:
     - .make
     - .rocky
   script: ./tools/ci/build.sh "make-rocky" "none"
+  only:
+    - master@YottaDB/DBMS/YDBOcto
 
 asan-ubuntu:
   image: yottadb/yottadb-base:latest-master
@@ -160,6 +166,7 @@ asan-rocky:
   script:
     - ./tools/ci/build.sh "make-rocky" "asan"
 
+# This job runs for branches and on master
 make-tls-ubuntu:
   image: yottadb/yottadb-base:latest-master
   services:
@@ -181,6 +188,8 @@ make-tls-rocky:
   script:
     - ./tools/ci/install-tls.sh
     - ./tools/ci/build.sh "make-tls-rocky" "none"
+  only:
+    - master@YottaDB/DBMS/YDBOcto
 
 test-force-upgrade:
   # This job tests auto upgrade functionality of binary table/function definitions by forcing an auto upgrade
@@ -192,6 +201,8 @@ test-force-upgrade:
     - .ubuntu
   script:
     - ./tools/ci/build.sh "test-auto-upgrade" "force"
+  only:
+    - master@YottaDB/DBMS/YDBOcto
 
 test-auto-upgrade:
   # This job tests that auto upgrade functionality of binary table/function definitions and plan definitions (physical plans,
@@ -207,6 +218,8 @@ test-auto-upgrade:
     # We previously used netstat, and that's why we install net-tools
     - apt-get install -y -qq --no-install-recommends python2 python-is-python2 net-tools
     - ./tools/ci/build.sh "test-auto-upgrade" "binary"
+  only:
+    - master@YottaDB/DBMS/YDBOcto
 
 test-vista:
   # This job tests that various Octo tests run inside of a VistA instance
@@ -217,6 +230,8 @@ test-vista:
     - .make
   script:
     - ./tools/ci/vistatest.sh
+  only:
+    - master@YottaDB/DBMS/YDBOcto
 
 octo:
   image: docker:latest

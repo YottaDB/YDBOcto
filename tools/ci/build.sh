@@ -200,12 +200,20 @@ fi
 echo " -> build_type = $build_type"
 
 if [[ "test-auto-upgrade" != $jobname ]]; then
-	echo "# Randomly choose whether to use the full test suite or its limited version (prefer full version 3/4 times)"
-	if [[ $(( RANDOM % 4)) -eq 0 ]]; then
-		full_test="OFF"
-	else
+	set +u # Disable Bash's "Treat unset variables as an error" to allow us to try to see if $CI_COMMIT_BRANCH is defined
+	# If this is run outside of a pipeline, or if run on the master branch (post-merge)
+	if [ -z $CI_COMMIT_BRANCH ] || [ "master" == "$CI_COMMIT_BRANCH" ]; then
+		echo "# Randomly choose whether to use the full test suite or its limited version (prefer full version 3/4 times)"
+		if [[ $(( RANDOM % 4)) -eq 0 ]]; then
+			full_test="OFF"
+		else
+			full_test="ON"
+		fi
+	else # We are running on a branch pipeline. Run the full test suite.
+		echo "# On branch pipeline, running full test suite"
 		full_test="ON"
 	fi
+	set -u # Enable back
 	echo "# Randomly choose whether to test from installed directory OR from build directory (prefer install 3/4 times)"
 	if [[ $(( RANDOM % 4)) -eq 0 ]]; then
 		disable_install="ON"

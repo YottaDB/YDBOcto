@@ -43,7 +43,7 @@ Features
   * The ability to define data structures, especially database schemas (Data Definition Language, or DDL).
   * The ability to retrieve data (Data Query Language, or DQL).
   * The ability to insert/update data (Data Manipulation Language, or DML).
-    
+
   .. note::
 
      At the time of the release of this document, the features that manage transactions in the database (Transaction Control Language, or TCL), and control access to data stored in a database (Data Control Language, or DCL) are yet to be implemented.
@@ -165,7 +165,7 @@ Configure Octo
       * :code:`ydb_routines`
       * :code:`ydb_xc_ydbposix`
       * :code:`ydb_xc_octo`
-      
+
 
   The environment variables :code:`ydb_dist`, :code:`ydb_gbldir`, :code:`ydb_routines`, and :code:`ydb_xc_ydbposix` can initially be set by sourcing :code:`ydb_env_set` in your YottaDB installation directory.
 
@@ -183,7 +183,7 @@ Configure Octo
 .. note::
 
    There is no need to create databases manually if :code:`ydb_env_set` has been sourced.
-   
+
   Octo uses several global variables for its operation, which start with :code:`%ydbocto` and :code:`%ydbAIM`. The :code:`%ydbAIM` globals are intended to be ephemeral and are not recommended to be journaled; we also recommend that you use a memory mapped region with 2K blocks. Use `GDE <https://docs.yottadb.net/AdminOpsGuide/gde.html>`_ to map :code:`%ydbocto*` and :code:`%ydbAIM` global variables to a separate region. Global variables used by Octo and AIM must have `NULL_SUBSCRIPTS=ALWAYS <https://docs.yottadb.net/AdminOpsGuide/gde.html#no-n-ull-ubscripts-always-never-existing>`_.
 
   The following example creates an OCTO database region with the recommended setting in the :code:`$ydb_dir/$ydb_rel/g` directory and assumes an existing application global directory at :code:`$ydb_dir/$ydb_rel/g/yottadb.gld`. For more information on setting up a database in YottaDB, refer to the `Administration and Operations Guide <https://docs.yottadb.com/AdminOpsGuide/index.html>`_, and the `YottaDB Acculturation Guide <https://docs.yottadb.com/AcculturationGuide/>`_ for self-paced exercises on YottaDB DevOps.
@@ -487,7 +487,7 @@ Launching Options
   Octo has a few options that can be specified when it is launched.
 
 .. note::
-   
+
    Refer to :ref:`this <rocto-cmd-flags>` for information on launching options of ROcto.
 
 .. _verbose-option:
@@ -579,7 +579,7 @@ Launching Options
   Emulate
 ~~~~~~~~~
 
-    The emulate option allows the user to specify which SQL database Octo should emulate. Database names should be in all caps. Currently supported emulations are MYSQL and POSTGRES.
+    The emulate option allows the user to specify which SQL database Octo should emulate. Database names should be in all caps. Currently supported emulations are MYSQL and POSTGRES. If you wish to emulate MariaDB, choose MYSQL.
 
     .. code-block:: bash
 
@@ -625,7 +625,7 @@ Exit status
 ~~~~~~~~~~~~~
 
     :code:`octo -f/--input-file` exits with a non-zero status if at least one query it ran encountered an error. :code:`octo` invocation without :code:`-f`/:code:`--input-file` or :code:`rocto` are not affected.
-	  
+
 +++++++++++++++++++++++++
 Useful Commands at OCTO>
 +++++++++++++++++++++++++
@@ -646,7 +646,7 @@ Useful Commands at OCTO>
 
        :code:`\\d` requires a semi-colon before a newline, but :code:`\\d tablename` does not. As :code:`\\d tablename` accepts semi-colon, it is recommended to use the semi-colon in both commands for consistency.
 
-   
+
     Relation shown will be similar to the following:
 
     .. code-block:: bash

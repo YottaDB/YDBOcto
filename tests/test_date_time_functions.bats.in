@@ -12,6 +12,19 @@
 
 load test_helpers
 
+setup_file() {
+	if [[ $(mysql --version) == *"MariaDB"* ]]; then
+		mysql_is_mariadb="true"
+	else
+		mysql_is_mariadb="false"
+	fi
+	export mysql_is_mariadb
+}
+
+teardown_file() {
+	unset mysql_is_mariadb
+}
+
 setup() {
 	init_test
 	createdb
@@ -24,6 +37,9 @@ setup() {
 }
 
 @test "TDTF02 : OCTO288 : Support date_format() MySQL function" {
+	if $mysql_is_mariadb; then
+		skip "Skipping since MariaDB output does not exactly match MySQL"
+	fi
 	# Randomly generate 50 dates, and use these to create queries using date_format().
 	# This ensures a wide range of coverage for the behavior of %U/%u/%V/%v/%x/%X formats.
 	for i in {1..20}; do
@@ -91,6 +107,9 @@ setup() {
 }
 
 @test "TDTF04 : OCTO288 : Support dates with 0 for month and/or date in date_format() MySQL function" {
+	if $mysql_is_mariadb; then
+		skip "Skipping since MariaDB output does not exactly match MySQL"
+	fi
 	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TDTF04.sql
 }
 
@@ -99,6 +118,9 @@ setup() {
 }
 
 @test "TDTF06 : OCTO288 : No stack smashing in DATE_FORMAT() if input date string is too long" {
+	if $mysql_is_mariadb; then
+		skip "Skipping since MariaDB output does not exactly match MySQL"
+	fi
 	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TDTF06.sql
 }
 
@@ -107,10 +129,16 @@ setup() {
 }
 
 @test "TDTF08 : OCTO288 : Correct handling of extra hyphens in date string" {
+	if $mysql_is_mariadb; then
+		skip "Skipping since MariaDB output does not exactly match MySQL"
+	fi
 	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TDTF08.sql
 }
 
 @test "TDTF09 : OCTO288 : Correct handling of non-numeric characters between date/time fields" {
+	if $mysql_is_mariadb; then
+		skip "Skipping since MariaDB output does not exactly match MySQL"
+	fi
 	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TDTF09.sql
 }
 
@@ -119,6 +147,9 @@ setup() {
 }
 
 @test "TDTF11 : OCTO288 : Correct handling of 0 month and 0 day dates" {
+	if $mysql_is_mariadb; then
+		skip "Skipping since MariaDB output does not exactly match MySQL"
+	fi
 	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TDTF11.sql
 }
 
@@ -127,6 +158,9 @@ setup() {
 }
 
 @test "TDTF13 : OCTO288 : Correct handling of %j, %W formats" {
+	if $mysql_is_mariadb; then
+		skip "Skipping since MariaDB output does not exactly match MySQL"
+	fi
 	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TDTF13.sql
 }
 

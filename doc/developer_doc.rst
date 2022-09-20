@@ -45,7 +45,7 @@ Installing YottaDB
      mkdir /tmp/tmp ; wget -P /tmp/tmp https://gitlab.com/YottaDB/DB/YDB/raw/master/sr_unix/ydbinstall.sh
      cd /tmp/tmp ; chmod +x ydbinstall.sh
      ./ydbinstall.sh --overwrite-existing --utf8 default --aim --posix
-     
+
 ++++++++++++++++++++++++++++++++++++++++++++++++
 Prerequisites for Automated Regression Testing
 ++++++++++++++++++++++++++++++++++++++++++++++++
@@ -54,7 +54,7 @@ Prerequisites for Automated Regression Testing
 Ubuntu/Debian
 ~~~~~~~~~~~~~~
 
- Run the following commands to install all of the prerequisites needed for testing Octo on Ubuntu or Debian Linux.
+ Run the following commands to install all of the prerequisites needed for testing Octo on Ubuntu or Debian Linux. You can substitute `mariadb-server` and `mariadb-client` instead of `mysql-server` and `mysql-client` packages.
 
   .. code-block:: bash
 
@@ -66,37 +66,37 @@ Ubuntu/Debian
 Rocky Linux/RHEL
 ~~~~~~~~~~~~~~~~~
 
- Run the following commands to install and setup all of the prerequisites needed for testing Octo on Rocky Linux or RHEL.
+ Run the following commands to install and setup all of the prerequisites needed for testing Octo on Rocky Linux or RHEL. You can substitute `mariadb` and `mariadb-server` for `mysql` and `mysql-server`.
 
   .. code-block:: bash
 
     git clone https://github.com/bats-core/bats-core.git && cd bats-core && sudo ./install.sh /usr
     yum --enablerepo=powertools install java-11-openjdk-devel expect golang glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC postgresql-odbc bison flex readline-devel libconfig-devel openssl-devel python3 vim passwd
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Configure PostgreSQL and MySQL
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Configure PostgreSQL and MySQL/MariaDB
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
- PostgreSQL must be set up for the user who will be running the tests:
+PostgreSQL must be set up for the user who will be running the tests:
 
   .. code-block:: bash
-		
+
      sudo -u postgres createuser $USER
      sudo -u postgres psql <<PSQL
      alter user $USER createdb;
      create database $USER LC_COLLATE='C' template=template0;
      PSQL
-     
- Additionally, MySQL must be set up for the user who will be running the tests, using a password of 'ydbrocks'. Assuming a :code:`bash` shell, the following can be run as a single command to do the necessary setup:
+
+MySQL/MariaDB must be set up for the user who will be running the tests, using a password of 'ydbrocks'. Assuming a :code:`bash` shell, the following can be run as a single command to do the necessary setup:
 
   .. code-block:: bash
-		
+
      sudo mysql <<MYSQL
      CREATE USER '$USER'@'localhost' IDENTIFIED BY 'ydbrocks';
      GRANT CREATE, ALTER, DROP, INSERT, UPDATE, DELETE, SELECT, REFERENCES, RELOAD on *.* TO '$USER'@'localhost' WITH GRANT OPTION;
      FLUSH PRIVILEGES;
      MYSQL
-     
+
 +++++++++++++++
 Download Octo
 +++++++++++++++
@@ -109,7 +109,7 @@ Download Octo
      git clone https://gitlab.com/YottaDB/DBMS/YDBOcto.git
      cd YDBOcto
      mkdir build && cd build
-     
+
 ++++++++++++++
 Compile Octo
 ++++++++++++++
@@ -127,7 +127,7 @@ CMake Flags
   .. code-block:: bash
 
      cmake -D DISABLE_INSTALL=ON -D FULL_TEST_SUITE=ON ..
-   
+
 ~~~~~~~~~
 Compile
 ~~~~~~~~~
@@ -144,7 +144,7 @@ Compile
 
      export JDBC_VERSION=42.2.12
      wget https://jdbc.postgresql.org/download/postgresql-$JDBC_VERSION.jar
-   
+
 ~~~~~~~~~
 Install
 ~~~~~~~~~
@@ -154,7 +154,7 @@ Install
   .. code-block:: bash
 
      sudo -E make install
-   
+
 +++++++++++++++
 Sanity Checks
 +++++++++++++++
@@ -177,7 +177,7 @@ Sanity Checks
  Once loaded, start the Octo interactive shell and run the following SELECT command:
 
   .. code-block:: none
-		
+
      src/octo
      OCTO> SELECT * FROM Suppliers;
      SUPPLIERID|SUPPLIERNAME|CONTACTNAME|ADDRESS|CITY|POSTALCODE|COUNTRY|PHONE
@@ -219,7 +219,7 @@ Sanity Checks
 
      bats bats_tests/hello_bats.bats
      bats bats_tests/hello_db.bats
-   
+
 +++++++++++++++++++++++
 Running all the tests
 +++++++++++++++++++++++
@@ -235,7 +235,7 @@ Running all the tests
      100% tests passed, 0 tests failed out of 137
 
      Total Test time (real) = 1111.17 sec
-   
+
 -------------
 Contributing
 -------------

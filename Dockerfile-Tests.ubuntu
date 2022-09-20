@@ -14,7 +14,7 @@
 # If you change .gitlab-ci.yml, update this as well.
 #
 # Insturctions:
-# docker run --name mysql -e MYSQL_ROOT_PASSWORD=ydbrocks -d mysql:8.0
+# docker run --rm --name mysql -e MYSQL_ROOT_PASSWORD=ydbrocks -d mysql:8.0 OR docker run --rm --name mysql -e MARIADB_ROOT_PASSWORD=ydbrocks -d mariadb
 # docker build -f Dockerfile-Tests.ubuntu -t tests-ubuntu .
 # docker run -it --link mysql --rm tests-ubuntu
 # OR docker run -it --link mysql --rm tests-ubuntu "test-auto-upgrade" "debug" "52ba5a43" "test_display_relation_commands"

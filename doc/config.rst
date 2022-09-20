@@ -63,7 +63,7 @@ Example:
    GDE> add -segment OCTO -access_method=BG -file_name="$ydb_dir/$ydb_rel/g/octo.dat"
    GDE> add -region OCTO -dynamic=OCTO -null_subscripts=ALWAYS -key_size=1019 -record_size=300000
    GDE> add -name %ydbocto* -region=OCTO
-   
+
 Some of the globals used in Octo are:
 
 * :code:`^%ydboctoocto`: This global can refer to various functions, variables, octo "read only" table values (postgres mappings, oneRowTable, etc.), and some counts. It needs to persist between sessions.
@@ -96,7 +96,7 @@ A few of the configuration settings are described below.
 emulate
 ~~~~~~~~~~~~~~~
 
-Octo supports partial emulation of multiple SQL database products. The :code:`emulate` configuration option may be used to specify which SQL database Octo will attempt emulate at process initialization time. Currently supported options are: :code:`POSTGRES` and :code:`MYSQL`. The default is :code:`POSTGRES`.
+Octo supports partial emulation of multiple SQL database products. The :code:`emulate` configuration option may be used to specify which SQL database Octo will attempt emulate at process initialization time. Currently supported options are: :code:`POSTGRES` and :code:`MYSQL`. The default is :code:`POSTGRES`. If you wish to emulate MariaDB, choose MYSQL.
 
 ~~~~~~~~~~~~~~~
 octo_zroutines
@@ -130,7 +130,7 @@ verbosity
 The :code:`verbosity` configuration setting controls logging verbosity. It can take on one of the following values.
 
 * :code:`"TRACE"`: A TRACE message is useful to help identify issues in the code. The equivalent verbosity option is :code:`--verbose=3`.
-* :code:`"INFO"`: An INFO message is used to relay information to the user. The equivalent verbosity option is :code:`--verbose=2`. 
+* :code:`"INFO"`: An INFO message is used to relay information to the user. The equivalent verbosity option is :code:`--verbose=2`.
 * :code:`"DEBUG"`: A DEBUG message helps users debug configuration issues. The equivalent verbosity option is :code:`--verbose=1`.
 * :code:`"ERROR"` : An ERROR message informs the user that an error has occurred. The equivalent verbosity option is :code:`--verbose=0`.
 

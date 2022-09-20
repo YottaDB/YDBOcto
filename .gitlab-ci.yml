@@ -12,8 +12,8 @@
 
 stages:
   - build
-  - docker
   - docs
+  - docker
 
 variables:
   GOLANG_VERSION: 1.13.1
@@ -27,11 +27,6 @@ variables:
       - build/
     expire_in: 1 month
     when: always
-  interruptible: true
-
-# Shared doc config
-.docs:
-  stage: docs
   interruptible: true
 
 .ubuntu:
@@ -265,11 +260,10 @@ vista:
   only:
     - master@YottaDB/DBMS/YDBOcto
 
-deadlinks:
+pages:
   stage: docs
   image: bitnami/minideb
-  extends:
-    - .docs
+  interruptible: true
   script:
     - apt-get update && apt-get install -y make python3 python3-pip tcsh wget jq
     - pip3 install sphinxcontrib-fulltoc sphinx sphinx_rtd_theme
@@ -278,17 +272,9 @@ deadlinks:
     - wget https://github.com/deadlinks/cargo-deadlinks/releases/download/$DEADLINKS_VERSION/deadlinks-linux -O deadlinks
     - chmod +x ./deadlinks
     - ./deadlinks -v public
-
-pages:
-  image: yottadb/yottadb-base:latest-master
-  stage: docs
-  extends:
-    - .docs
-    - .ubuntu
-  dependencies:
-    - make-ubuntu
-  script:
-    - ./tools/ci/docs.sh
+  rules:
+    - changes:
+      - doc/**/*
   artifacts:
     paths:
       - public
@@ -298,8 +284,7 @@ pages:
 docs.yottadb.net:
   stage: docs
   trigger: YottaDB/DB/YDBDoc
-  only:
-    refs:
-      - master
-    changes:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+    - changes:
       - doc/**/*

@@ -436,6 +436,8 @@ stop_rocto() {
 	# Wait for rocto listener to die
 	if [[ -e rocto.pid ]]; then
 		listener_pid=$(cat rocto.pid)
+		# Signal listener rocto process to die
+		$ydb_dist/mupip stop $listener_pid
 		# Wait for rocto servers (i.e. children of the listener) to die
 		# The grep is to filter out non-rocto processes that can start with ASAN
 		# With clang, we found that llvm-symbolizer starts as a child process of rocto and won't die on its own
@@ -444,8 +446,7 @@ stop_rocto() {
 			tail --pid=$server_pid -f /dev/null
 		done
 
-		$ydb_dist/mupip stop $listener_pid
-		# Wait for rocto process to actually die
+		# Wait for listener rocto process to actually die
 		tail --pid=$listener_pid -f /dev/null
 		# Release port number held by rocto (stored in the file "rocto.port")
 		local lockfile=@TEST_OUTPUT_DIR@/find_open_port

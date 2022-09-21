@@ -242,8 +242,8 @@ octo:
     # Suppress Docker warning advising against using the --password flag
     - echo -n $HUB_PASSWORD | docker login -u $HUB_USERNAME --password-stdin
     - docker push yottadb/octo:latest
-  only:
-    - master@YottaDB/DBMS/YDBOcto
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "master" && $CI_PROJECT_PATH == "YottaDB/DBMS/YDBOcto"'
 
 vista:
   image: docker:latest
@@ -257,8 +257,8 @@ vista:
     - ./tools/ci/vistabuild.sh
     - docker login -u $HUB_USERNAME -p $HUB_PASSWORD
     - docker push yottadb/octo-vehu:latest-master
-  only:
-    - master@YottaDB/DBMS/YDBOcto
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "master" && $CI_PROJECT_PATH == "YottaDB/DBMS/YDBOcto"'
 
 pages:
   stage: docs
@@ -285,6 +285,6 @@ docs.yottadb.net:
   stage: docs
   trigger: YottaDB/DB/YDBDoc
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "master" && $CI_PROJECT_PATH == "YottaDB/DBMS/YDBOcto"'
     - changes:
       - doc/**/*

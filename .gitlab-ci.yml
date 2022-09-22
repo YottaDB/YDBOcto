@@ -272,9 +272,6 @@ pages:
     - wget https://github.com/deadlinks/cargo-deadlinks/releases/download/$DEADLINKS_VERSION/deadlinks-linux -O deadlinks
     - chmod +x ./deadlinks
     - ./deadlinks -v public
-  rules:
-    - changes:
-      - doc/**/*
   artifacts:
     paths:
       - public
@@ -284,7 +281,8 @@ pages:
 docs.yottadb.net:
   stage: docs
   trigger: YottaDB/DB/YDBDoc
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "master" && $CI_PROJECT_PATH == "YottaDB/DBMS/YDBOcto"'
-    - changes:
+  only:
+    refs:
+      - master@YottaDB/DBMS/YDBOcto
+    changes:
       - doc/**/*

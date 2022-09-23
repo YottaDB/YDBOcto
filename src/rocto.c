@@ -530,9 +530,23 @@ int main(int argc, char **argv) {
 				    * information.
 				    */
 		do {
+			int save_len_used;
+			save_len_used = pg_buffers[3].len_used; /* take a copy before "ydb_subscript_next_s()" modifies it */
+
 			status = ydb_subscript_next_s(&pg_buffers[0], 3, &pg_buffers[1], &pg_buffers[3]);
 			if (YDB_ERR_INVSTRLEN == status) {
-				EXPAND_YDB_BUFFER_T_ALLOCATION(pg_buffers[3]);
+				/* "ydb_subscript_next_s()" would have overwritten "pg_buffers[3].len_used" to say needed space.
+				 * Allocate a new buffer with that space. Then copy old buffer over to new buffer.
+				 * And then free old buffer.
+				 */
+				ydb_buffer_t tmp_buff;
+				tmp_buff = pg_buffers[3];
+				OCTO_MALLOC_NULL_TERMINATED_BUFFER(&pg_buffers[3], tmp_buff.len_used);
+				tmp_buff.len_used = save_len_used; /* restore original "len_used" from saved copy */
+				YDB_COPY_BUFFER_TO_BUFFER(&tmp_buff, &pg_buffers[3], done);
+				assert(done);
+				YDB_FREE_BUFFER(&tmp_buff);
+				/* Now redo the "ydb_subscript_next_s()" */
 				status = ydb_subscript_next_s(&pg_buffers[0], 3, &pg_buffers[1], &pg_buffers[3]);
 				assert(YDB_ERR_INVSTRLEN != status);
 			}
@@ -565,6 +579,10 @@ int main(int argc, char **argv) {
 			 */
 			YDB_COPY_BUFFER_TO_BUFFER(&pg_buffers[3], &variable_buffer, done);
 			if (!done) {
+				/* The copy did not happen because there was not enough space in the destination.
+				 * Adjust "len_used" in the destination and then expand the buffer and then retry the copy.
+				 */
+				variable_buffer.len_used = pg_buffers[3].len_used;
 				EXPAND_YDB_BUFFER_T_ALLOCATION(variable_buffer);
 				YDB_COPY_BUFFER_TO_BUFFER(&pg_buffers[3], &variable_buffer, done);
 				assert(done);

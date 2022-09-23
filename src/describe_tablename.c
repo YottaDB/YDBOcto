@@ -158,7 +158,7 @@ int describe_tablename(SqlStatement *table_name) {
 				 * constraint specific function.
 				 */
 				assert(column_list_STATEMENT == constraint->definition->type);
-				status = emit_check_constraint(&buffer, &buffer_size, buff_ptr, constraint->definition);
+				status = emit_check_constraint(&buffer_orig, &buffer_size, buff_ptr, constraint->definition);
 				if (0 > status) {
 					assert(FALSE);
 					free(buffer);

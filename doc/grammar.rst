@@ -97,6 +97,35 @@ Octo uses :code:`0` and :code:`1` internally to represent boolean :code:`false` 
 Constraints
 --------------
 
+++++++++++++
+PRIMARY KEY
+++++++++++++
+
+A primary key constraint indicates that a column or group of columns can be used as a unique identifier for the rows in the table. The values of the columns that will be specified as the PRIMARY KEY must be both unique and not null.
+
+Example:
+
+.. code-block:: SQL
+
+   CREATE TABLE Products
+   (ID int PRIMARY KEY,
+   Name char(20),
+   Price int);
+
+Primary keys can span more than one column; this is referred to as table-level PRIMARY KEY.
+
+.. code-block:: SQL
+
+   CREATE TABLE Employee
+   (ID int,
+   FirstName char(20),
+   LastName char(30),
+   PRIMARY KEY (ID, FirstName, LastName));
+
+Adding a primary key will enforce the column(s) to be marked NOT NULL.
+
+A table can have at most one primary key. While relational database theory requires the existence of a primary key on each table, Octo does not enforce this rule.
+
 ++++++++++++++++++
 CHECK constraint
 ++++++++++++++++++
@@ -179,9 +208,10 @@ Example:
    LastName char(30));
    /* is equivalent to */
    CREATE TABLE Employee
-   (ID int KEY NUM 0,
-   FirstName char(20) KEY NUM 1,
-   LastName char(30) KEY NUM 2);
+   (ID int,
+   FirstName char(20),
+   LastName char(30),
+   PRIMARY KEY (ID, FirstName, LastName));
 
 By default, a column can have NULL values. The NOT NULL constraint enforces a column to **not** accept NULL values.
 
@@ -271,6 +301,8 @@ The keywords denoted above are M expressions and literals. They are explained in
 |              |                    |               | with an integer value starting at :code:`1` and incrementing by 1 for          |                              |                                                           |
 |              |                    |               | every key column. Such a column is considered a key column and is part of      |                              |                                                           |
 |              |                    |               | the subscript in the global variable node that represents a row of the table.  |                              |                                                           |
+|              |                    |               | KEY NUM is legacy code that is required by VistA. Other users should use       |                              |                                                           |
+|              |                    |               | PRIMARY KEY instead.                                                           |                              |                                                           |
 +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
 | PIECE        | Integer Literal    | Column        | Represents a piece number. Used to obtain the value of a column in a table     | default (column number,      | Not applicable                                            |
 |              |                    |               | by extracting this piece number from the value of the global variable node     | starting at 1 for non-key    |                                                           |
@@ -359,13 +391,14 @@ This example is similar to the last, except that the nodes of :code:`^Orders` ar
 .. code-block:: SQL
 
    CREATE TABLE USPresidents
-   (FirstYear INTEGER PRIMARY KEY,
-    LastYear INTEGER KEY NUM 1,
+   (FirstYear INTEGER,
+    LastYear INTEGER,
     FirstName VARCHAR,
     MiddleName VARCHAR,
     LastName VARCHAR,
     BirthYear INTEGER,
-    DeathYear INTEGER)
+    DeathYear INTEGER,
+    PRIMARY KEY (FirstYear, LastYear))
    GLOBAL "^USPresidents(keys(""FirstYear""),keys(""LastYear""))";
 
 In the above example, ^USPresidents has records like :code:`^USPresidents(1933,1945)="Franklin|Delano|Roosevelt|1882|1945"` and :code:`^USPresidents(2009,2017)="Barack||Obama|1961"`.
@@ -860,7 +893,7 @@ INSERT
 
    INSERT INTO table_name ( column name [, column name ...]) [ VALUES ... | (SELECT ...)];
 
-The INSERT statement allows you to insert values into a table. These can either be provided values or values specified as a result of a SELECT statement. INSERT enforces CHECK constraints.
+The INSERT statement allows you to insert values into a table. These can either be provided values or values specified as a result of a SELECT statement. INSERT enforces PRIMARY KEY and CHECK constraints.
 
 Example:
 
@@ -876,7 +909,7 @@ UPDATE
 
    UPDATE table_name [[AS] alias_name] SET column1 = expression [, column2 = expression ...] [WHERE search_condition];
 
-The UPDATE statement allows you to change existing records in the table. :code:`table_name` specifies the name of the table to be updated followed by a list of comma-separated statements that are used to update existing columns in the table with specified values. Only those columns in :code:`table_name` that require change need to be mentioned in the :code:`SET` clause. The remaining columns retain their previous values. The optional WHERE condition allows you to update columns only on those rows of the table that satisfy the specified :code:`search_condition`. UPDATE enforces CHECK constraints.
+The UPDATE statement allows you to change existing records in the table. :code:`table_name` specifies the name of the table to be updated followed by a list of comma-separated statements that are used to update existing columns in the table with specified values. Only those columns in :code:`table_name` that require change need to be mentioned in the :code:`SET` clause. The remaining columns retain their previous values. The optional WHERE condition allows you to update columns only on those rows of the table that satisfy the specified :code:`search_condition`. UPDATE enforces PRIMARY KEY and CHECK constraints.
 
 Example:
 

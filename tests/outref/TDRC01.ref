@@ -109,8 +109,8 @@ public|PG_SETTINGS|table|octo
 public|PG_TYPE|table|octo
 public|PG_USER|table|octo
 (30 rows)
-LINE 1: 1;
-         ^
+LINE 16:1: 1;
+            ^
 syntax error, unexpected LITERAL
 SCHEMA|NAME|TYPE|OWNER
 public|INFORMATION_SCHEMA.TABLES|table|octo

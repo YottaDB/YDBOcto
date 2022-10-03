@@ -3,5 +3,5 @@ A|B|C|D
 (1 row)
 DROP TABLE
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: T1
-LINE 1: select * from t1;
-                      ^^
+LINE 3:1: select * from t1;
+                        ^^

@@ -5,8 +5,8 @@ INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),ke
 
 select * from names;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: NONEXISTANTTABLE
-LINE 1: select * from nonexistanttable;
-                      ^^^^^^^^^^^^^^^^
+LINE 2:1: select * from nonexistanttable;
+                        ^^^^^^^^^^^^^^^^
 [ WARN]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: INDEX statements
 ID|FIRSTNAME|LASTNAME
 0|Zero|Cool

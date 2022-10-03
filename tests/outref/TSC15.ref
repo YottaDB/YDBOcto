@@ -5,8 +5,8 @@ A|B
 1|2
 (1 row)
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: C
-LINE 1: select a,c from (select 1 as a, 2 as b);
-                 ^
+LINE 2:1: select a,c from (select 1 as a, 2 as b);
+                   ^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: C
-LINE 1: select c,b from (select 1 as a, 2 as b);
-               ^
+LINE 3:1: select c,b from (select 1 as a, 2 as b);
+                 ^

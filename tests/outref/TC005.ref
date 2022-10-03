@@ -1,6 +1,6 @@
 [ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table 'T1' are not allowed
-LINE 1: create table t1 (a int primary key, b int primary key);
-                                                  ^^^^^^^^^^^
+LINE 1:1: create table t1 (a int primary key, b int primary key);
+                                                    ^^^^^^^^^^^
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: T1
-LINE 1: select * from t1;
-                      ^^
+LINE 2:1: select * from t1;
+                        ^^

@@ -1,9 +1,9 @@
 [ERROR]: ERR_DDL_LITERAL: Invalid literal in DDL specification: only integer literals accepted for this keyword.
-LINE 1: CREATE TABLE abc (id INTEGER PRIMARY KEY PIECE "keys(0)");
-                                                               ^
+LINE 13:1: CREATE TABLE abc (id INTEGER PRIMARY KEY PIECE "keys(0)");
+                                                                  ^
 [ERROR]: ERR_DDL_LITERAL: Invalid literal in DDL specification: only integer literals accepted for this keyword.
-LINE 1: ...EGER PRIMARY KEY PIECE "keys(0)" GLOBAL "^aDifferentVar(keys(0)...
-                                          ^
+LINE 14:1: ...EGER PRIMARY KEY PIECE "keys(0)" GLOBAL "^aDifferentVar(keys(0)...
+                                             ^
 [ERROR]: ERR_DDL_LITERAL: Invalid literal in DDL specification: only integer literals accepted for this keyword.
-LINE 4:   PIECE "0"
-                  ^
+LINE 18:4:   PIECE "0"
+                     ^

@@ -14,14 +14,14 @@ SELECT
 	query
 from nonexistenttable;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: NONEXISTENTTABLE
-LINE 1: ...badcolumn, notsogoodcolumn, maybeokcolumn from nonexistenttable;
-                                                          ^^^^^^^^^^^^^^^^
+LINE 3:1: ...badcolumn, notsogoodcolumn, maybeokcolumn from nonexistenttable;
+                                                            ^^^^^^^^^^^^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: MIDDLENAME
-LINE 1: ...ELECT firstname, lastname, middlename from names as extralongnam...
-                                      ^^^^^^^^^^
+LINE 4:1: ...ELECT firstname, lastname, middlename from names as extralongnam...
+                                        ^^^^^^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: MULTILINEQUERY
-LINE 3: 	multilinequery,
-	        ^^^^^^^^^^^^^^
+LINE 7:3: 	multilinequery,
+	          ^^^^^^^^^^^^^^
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: NONEXISTENTTABLE
-LINE 5: from nonexistenttable;
-             ^^^^^^^^^^^^^^^^
+LINE 14:5: from nonexistenttable;
+                ^^^^^^^^^^^^^^^^

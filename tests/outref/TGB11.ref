@@ -20,38 +20,38 @@ SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY n1.id,n2.i
 SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY n1.id,unknowncolumn,n2.id);
 
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: UNKNOWNCOLUMN
-LINE 1: SELECT 1 FROM names GROUP BY unknowncolumn;
-                                     ^^^^^^^^^^^^^
+LINE 3:1: SELECT 1 FROM names GROUP BY unknowncolumn;
+                                       ^^^^^^^^^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: UNKNOWNCOLUMN
-LINE 1: ... n1.id = (SELECT 1 FROM names n2 GROUP BY n1.id,unknowncolumn);
-                                                           ^^^^^^^^^^^^^
+LINE 5:1: ... n1.id = (SELECT 1 FROM names n2 GROUP BY n1.id,unknowncolumn);
+                                                             ^^^^^^^^^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: UNKNOWNCOLUMN
-LINE 1: ... n1.id = (SELECT 1 FROM names n2 GROUP BY unknowncolumn,n1.id);
-                                                     ^^^^^^^^^^^^^
+LINE 6:1: ... n1.id = (SELECT 1 FROM names n2 GROUP BY unknowncolumn,n1.id);
+                                                       ^^^^^^^^^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N1.UNKNOWNCOLUMN
-LINE 1: ...HERE n1.id = (SELECT 1 FROM names n2 GROUP BY n1.unknowncolumn);
-                                                         ^^^^^^^^^^^^^^^^
+LINE 8:1: ...HERE n1.id = (SELECT 1 FROM names n2 GROUP BY n1.unknowncolumn);
+                                                           ^^^^^^^^^^^^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: UNKNOWNCOLUMN
-LINE 1: ... n1.id = (SELECT 1 FROM names n2 GROUP BY n2.id,unknowncolumn);
-                                                           ^^^^^^^^^^^^^
+LINE 9:1: ... n1.id = (SELECT 1 FROM names n2 GROUP BY n2.id,unknowncolumn);
+                                                             ^^^^^^^^^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: UNKNOWNCOLUMN
-LINE 1: ... n1.id = (SELECT 1 FROM names n2 GROUP BY unknowncolumn,n2.id);
-                                                     ^^^^^^^^^^^^^
+LINE 10:1: ... n1.id = (SELECT 1 FROM names n2 GROUP BY unknowncolumn,n2.id);
+                                                        ^^^^^^^^^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: UNKNOWNCOLUMN
-LINE 1: ... = (SELECT 1 FROM names n2 GROUP BY n2.id,n1.id,unknowncolumn);
-                                                           ^^^^^^^^^^^^^
+LINE 11:1: ... = (SELECT 1 FROM names n2 GROUP BY n2.id,n1.id,unknowncolumn);
+                                                              ^^^^^^^^^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: UNKNOWNCOLUMN
-LINE 1: ... = (SELECT 1 FROM names n2 GROUP BY n2.id,unknowncolumn,n1.id);
-                                                     ^^^^^^^^^^^^^
+LINE 12:1: ... = (SELECT 1 FROM names n2 GROUP BY n2.id,unknowncolumn,n1.id);
+                                                        ^^^^^^^^^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: UNKNOWNCOLUMN
-LINE 1: ... = (SELECT 1 FROM names n2 GROUP BY unknowncolumn,n1.id,n2.id);
-                                               ^^^^^^^^^^^^^
+LINE 13:1: ... = (SELECT 1 FROM names n2 GROUP BY unknowncolumn,n1.id,n2.id);
+                                                  ^^^^^^^^^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: UNKNOWNCOLUMN
-LINE 1: ... = (SELECT 1 FROM names n2 GROUP BY unknowncolumn,n2.id,n1.id);
-                                               ^^^^^^^^^^^^^
+LINE 14:1: ... = (SELECT 1 FROM names n2 GROUP BY unknowncolumn,n2.id,n1.id);
+                                                  ^^^^^^^^^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: UNKNOWNCOLUMN
-LINE 1: ... = (SELECT 1 FROM names n2 GROUP BY n1.id,n2.id,unknowncolumn);
-                                                           ^^^^^^^^^^^^^
+LINE 15:1: ... = (SELECT 1 FROM names n2 GROUP BY n1.id,n2.id,unknowncolumn);
+                                                              ^^^^^^^^^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: UNKNOWNCOLUMN
-LINE 1: ... = (SELECT 1 FROM names n2 GROUP BY n1.id,unknowncolumn,n2.id);
-                                                     ^^^^^^^^^^^^^
+LINE 16:1: ... = (SELECT 1 FROM names n2 GROUP BY n1.id,unknowncolumn,n2.id);
+                                                        ^^^^^^^^^^^^^

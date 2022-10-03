@@ -44,146 +44,146 @@ select case n1.*=NULL when n1.*=NULL then n1.* else n1.* end from names n1;
 select +n1.* from names n1;
 select -n1.* from names n1;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for least operation
-LINE 1: select least(n1.*) from names n1;
-                     ^^^^
+LINE 2:1: select least(n1.*) from names n1;
+                       ^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
-LINE 1: select least(n1.*,n1.id) from names n1;
-                     ^^^^
-LINE 1: select least(n1.*,n1.id) from names n1;
-                          ^^^^^
+LINE 3:1: select least(n1.*,n1.id) from names n1;
+                       ^^^^
+LINE 3:1: select least(n1.*,n1.id) from names n1;
+                            ^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for least operation
-LINE 1: select least(n1.*,NULL) from names n1;
-                     ^^^^^^^^^
+LINE 4:1: select least(n1.*,NULL) from names n1;
+                       ^^^^^^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
-LINE 1: select greatest(n1.*,n1.id) from names n1;
-                        ^^^^
-LINE 1: select greatest(n1.*,n1.id) from names n1;
-                             ^^^^^
+LINE 5:1: select greatest(n1.*,n1.id) from names n1;
+                          ^^^^
+LINE 5:1: select greatest(n1.*,n1.id) from names n1;
+                               ^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for greatest operation
-LINE 1: select greatest(n1.*,NULL) from names n1;
-                        ^^^^^^^^^
+LINE 6:1: select greatest(n1.*,NULL) from names n1;
+                          ^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for greatest operation
-LINE 1: select greatest(n1.*) from names n1;
-                        ^^^^
+LINE 7:1: select greatest(n1.*) from names n1;
+                          ^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
-LINE 1: select coalesce(n1.*,n1.id) from names n1;
-                        ^^^^
-LINE 1: select coalesce(n1.*,n1.id) from names n1;
-                             ^^^^^
+LINE 8:1: select coalesce(n1.*,n1.id) from names n1;
+                          ^^^^
+LINE 8:1: select coalesce(n1.*,n1.id) from names n1;
+                               ^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for coalesce operation
-LINE 1: select coalesce(n1.*,NULL) from names n1;
-                        ^^^^^^^^^
+LINE 9:1: select coalesce(n1.*,NULL) from names n1;
+                          ^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for coalesce operation
-LINE 1: select coalesce(n1.*) from names n1;
-                        ^^^^
+LINE 10:1: select coalesce(n1.*) from names n1;
+                           ^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for nullif operation
-LINE 1: select nullif(n1.*,n1.*) from names n1;
-                      ^^^^
+LINE 11:1: select nullif(n1.*,n1.*) from names n1;
+                         ^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for nullif operation
-LINE 1: select nullif(n1.*,NULL) from names n1;
-                      ^^^^
+LINE 12:1: select nullif(n1.*,NULL) from names n1;
+                         ^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
-LINE 1: select nullif(n1.*,n1.id) from names n1;
-                      ^^^^
-LINE 1: select nullif(n1.*,n1.id) from names n1;
-                           ^^^^^
+LINE 13:1: select nullif(n1.*,n1.id) from names n1;
+                         ^^^^
+LINE 13:1: select nullif(n1.*,n1.id) from names n1;
+                              ^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for nullif operation
-LINE 1: select nullif(NULL,n1.*) from names n1;
-                      ^^^^
+LINE 14:1: select nullif(NULL,n1.*) from names n1;
+                         ^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for coalesce operation
-LINE 1: select 1 from names n1 order by coalesce(n1.*);
-                                                 ^^^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
-LINE 1: select 1 from names n1 order by coalesce(n1.id, n1.*);
-                                                 ^^^^^
-LINE 1: select 1 from names n1 order by coalesce(n1.id, n1.*);
-                                                        ^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for coalesce operation
-LINE 1: select 1 from names n1 order by coalesce(NULL, n1.*);
-                                                 ^^^^^^^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for greatest operation
-LINE 1: select 1 from names n1 order by greatest(n1.*);
-                                                 ^^^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
-LINE 1: select 1 from names n1 order by greatest(n1.id, n1.*);
-                                                 ^^^^^
-LINE 1: select 1 from names n1 order by greatest(n1.id, n1.*);
-                                                        ^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for greatest operation
-LINE 1: select 1 from names n1 order by greatest(NULL, n1.*);
-                                                 ^^^^^^^^^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
-LINE 1: select 1 from names n1 order by nullif(n1.id, n1.*);
-                                               ^^^^^
-LINE 1: select 1 from names n1 order by nullif(n1.id, n1.*);
-                                                      ^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for nullif operation
-LINE 1: select 1 from names n1 order by nullif(NULL, n1.*);
-                                               ^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for nullif operation
-LINE 1: select 1 from names n1 order by nullif(n1.*, n1.*);
-                                               ^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for coalesce operation
-LINE 1: select 1 from names n1 where coalesce(n1.*)=NULL;
-                                              ^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for greatest operation
-LINE 1: select 1 from names n1 where greatest(n1.*)=NULL;
-                                              ^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for least operation
-LINE 1: select 1 from names n1 where least(n1.*)=NULL;
-                                           ^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for nullif operation
-LINE 1: select 1 from names n1 where nullif(n1.*,NULL)=NULL;
-                                            ^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for nullif operation
-LINE 1: select 1 from names n1 where nullif(NULL,n1.*)=NULL;
-                                            ^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for nullif operation
-LINE 1: select 1 from names n1 where nullif(n1.*,n1.*)=NULL;
-                                            ^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for coalesce operation
-LINE 1: select 1 from names n1 group by n1.* having coalesce(n1.*)=NULL;
-                                                             ^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for greatest operation
-LINE 1: select 1 from names n1 group by n1.* having greatest(n1.*)=NULL;
-                                                             ^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for least operation
-LINE 1: select 1 from names n1 group by n1.* having least(n1.*)=NULL;
-                                                          ^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for nullif operation
-LINE 1: ...ect 1 from names n1 group by n1.* having nullif(n1.*,NULL)=NULL;
-                                                           ^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for nullif operation
-LINE 1: ...ect 1 from names n1 group by n1.* having nullif(n1.*,n1.*)=NULL;
-                                                           ^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for case operation
-LINE 1: ...from names n1 where case NULL when NULL then n1.* else n1.* end;
-                                                        ^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for case operation
-LINE 1: ...m names n1 order by case NULL when NULL then n1.* else n1.* end;
-                                                        ^^^^
-[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left INTEGER, right TABLENAME.*
-LINE 1: ...names n1 order by case NULL when NULL then n1.id else n1.* end;
-                                                      ^^^^^
-LINE 1: ... names n1 order by case NULL when NULL then n1.id else n1.* end;
-                                                                  ^^^^
-[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left INTEGER, right TABLENAME.*
-LINE 1: ...ect case NULL when NULL then n1.id else n1.* end from names n1;
-                                        ^^^^^
-LINE 1: ...lect case NULL when NULL then n1.id else n1.* end from names n1;
+LINE 15:1: select 1 from names n1 order by coalesce(n1.*);
                                                     ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
+LINE 16:1: select 1 from names n1 order by coalesce(n1.id, n1.*);
+                                                    ^^^^^
+LINE 16:1: select 1 from names n1 order by coalesce(n1.id, n1.*);
+                                                           ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for coalesce operation
+LINE 17:1: select 1 from names n1 order by coalesce(NULL, n1.*);
+                                                    ^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for greatest operation
+LINE 18:1: select 1 from names n1 order by greatest(n1.*);
+                                                    ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
+LINE 19:1: select 1 from names n1 order by greatest(n1.id, n1.*);
+                                                    ^^^^^
+LINE 19:1: select 1 from names n1 order by greatest(n1.id, n1.*);
+                                                           ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for greatest operation
+LINE 20:1: select 1 from names n1 order by greatest(NULL, n1.*);
+                                                    ^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
+LINE 21:1: select 1 from names n1 order by nullif(n1.id, n1.*);
+                                                  ^^^^^
+LINE 21:1: select 1 from names n1 order by nullif(n1.id, n1.*);
+                                                         ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for nullif operation
+LINE 22:1: select 1 from names n1 order by nullif(NULL, n1.*);
+                                                  ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for nullif operation
+LINE 23:1: select 1 from names n1 order by nullif(n1.*, n1.*);
+                                                  ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for coalesce operation
+LINE 24:1: select 1 from names n1 where coalesce(n1.*)=NULL;
+                                                 ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for greatest operation
+LINE 25:1: select 1 from names n1 where greatest(n1.*)=NULL;
+                                                 ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for least operation
+LINE 26:1: select 1 from names n1 where least(n1.*)=NULL;
+                                              ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for nullif operation
+LINE 27:1: select 1 from names n1 where nullif(n1.*,NULL)=NULL;
+                                               ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for nullif operation
+LINE 28:1: select 1 from names n1 where nullif(NULL,n1.*)=NULL;
+                                               ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for nullif operation
+LINE 29:1: select 1 from names n1 where nullif(n1.*,n1.*)=NULL;
+                                               ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for coalesce operation
+LINE 30:1: select 1 from names n1 group by n1.* having coalesce(n1.*)=NULL;
+                                                                ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for greatest operation
+LINE 31:1: select 1 from names n1 group by n1.* having greatest(n1.*)=NULL;
+                                                                ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for least operation
+LINE 32:1: select 1 from names n1 group by n1.* having least(n1.*)=NULL;
+                                                             ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for nullif operation
+LINE 33:1: ...ect 1 from names n1 group by n1.* having nullif(n1.*,NULL)=NULL;
+                                                              ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for nullif operation
+LINE 34:1: ...ect 1 from names n1 group by n1.* having nullif(n1.*,n1.*)=NULL;
+                                                              ^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for case operation
-LINE 1: ...elect case NULL when NULL then n1.* else n1.* end from names n1;
-                                          ^^^^
+LINE 36:1: ...from names n1 where case NULL when NULL then n1.* else n1.* end;
+                                                           ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for case operation
+LINE 37:1: ...m names n1 order by case NULL when NULL then n1.* else n1.* end;
+                                                           ^^^^
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left INTEGER, right TABLENAME.*
+LINE 38:1: ...names n1 order by case NULL when NULL then n1.id else n1.* end;
+                                                         ^^^^^
+LINE 38:1: ... names n1 order by case NULL when NULL then n1.id else n1.* end;
+                                                                     ^^^^
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left INTEGER, right TABLENAME.*
+LINE 39:1: ...ect case NULL when NULL then n1.id else n1.* end from names n1;
+                                           ^^^^^
+LINE 39:1: ...lect case NULL when NULL then n1.id else n1.* end from names n1;
+                                                       ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for case operation
+LINE 40:1: ...elect case NULL when NULL then n1.* else n1.* end from names n1;
+                                             ^^^^
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TABLENAME.* but is used in a context that expects a BOOLEAN type
-LINE 1: select case n1.*=NULL when n1.* then n1.* else n1.* end from nam...
-                                   ^^^^
+LINE 41:1: select case n1.*=NULL when n1.* then n1.* else n1.* end from nam...
+                                      ^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for case operation
-LINE 1: ... n1.*=NULL when n1.*=NULL then n1.* else n1.* end from names n1;
-                                          ^^^^
+LINE 42:1: ... n1.*=NULL when n1.*=NULL then n1.* else n1.* end from names n1;
+                                             ^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for + or - operation
-LINE 1: select +n1.* from names n1;
-                ^^
+LINE 44:1: select +n1.* from names n1;
+                   ^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for + or - operation
-LINE 1: select -n1.* from names n1;
-                ^^
+LINE 45:1: select -n1.* from names n1;
+                   ^^

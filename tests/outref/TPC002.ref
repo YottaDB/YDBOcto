@@ -4,8 +4,8 @@ select * from t1;
 drop table t1;
 select * from t1;
 ERROR:  Unknown table: T1
-ERROR:  LINE 1: select * from t1;
-ERROR:                        ^^
+ERROR:  LINE 1:1: select * from t1;
+ERROR:                          ^^
 CREATE TABLE
   a   |  b   
 ------+------
@@ -16,5 +16,5 @@ CREATE TABLE
 
 DROP TABLE
 ERROR:  Unknown table: T1
-ERROR:  LINE 1: select * from t1;
-ERROR:                        ^^
+ERROR:  LINE 1:1: select * from t1;
+ERROR:                          ^^

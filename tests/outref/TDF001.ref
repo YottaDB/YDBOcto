@@ -17,7 +17,7 @@ DOLLARZWRITE
 (6 rows)
 DROP FUNCTION
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function 'DOLLARZWRITE' defined with given parameter types (VARCHAR)
-LINE 1: select DOLLARZWRITE(firstname) from names;
-               ^^^^^^^^^^^^
+LINE 6:1: select DOLLARZWRITE(firstname) from names;
+                 ^^^^^^^^^^^^
 Remaining function definitions (hashes):
 Successfully deleted function "DOLLARZWRITE" from pg_catalog.pg_proc

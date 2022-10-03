@@ -27,40 +27,40 @@ select Price=2.5 from Products union select Price from Products;
 
 CREATE FUNCTION
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type BOOLEAN
-LINE 1: select +id::boolean from names;
-                ^^
+LINE 4:1: select +id::boolean from names;
+                  ^^
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type BOOLEAN
-LINE 1: select -id::boolean from names;
-                ^^
+LINE 5:1: select -id::boolean from names;
+                  ^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type NUMERIC to type BOOLEAN
-LINE 1: select Price::boolean from Products;
-               ^^^^^^^^^^^^^^
+LINE 7:1: select Price::boolean from Products;
+                 ^^^^^^^^^^^^^^
 [ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'Zero' is not a valid boolean value
 [ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: '2' is not a valid boolean value
 [ERROR]: ERR_MISTYPED_FUNCTION: Function MIN cannot be invoked with a parameter of type BOOLEAN
-LINE 1: select min(mybool) from (select id=2 as mybool from names) n1;
-               ^^^
+LINE 12:1: select min(mybool) from (select id=2 as mybool from names) n1;
+                  ^^^
 [ERROR]: ERR_MISTYPED_FUNCTION: Function MAX cannot be invoked with a parameter of type BOOLEAN
-LINE 1: select max(mybool) from (select id=2 as mybool from names) n1;
-               ^^^
+LINE 13:1: select max(mybool) from (select id=2 as mybool from names) n1;
+                  ^^^
 [ERROR]: ERR_MISTYPED_FUNCTION: Function SUM cannot be invoked with a parameter of type BOOLEAN
-LINE 1: select sum(mybool) from (select id=2 as mybool from names) n1;
-               ^^^
+LINE 14:1: select sum(mybool) from (select id=2 as mybool from names) n1;
+                  ^^^
 [ERROR]: ERR_MISTYPED_FUNCTION: Function AVG cannot be invoked with a parameter of type BOOLEAN
-LINE 1: select avg(mybool) from (select id=2 as mybool from names) n1;
-               ^^^
+LINE 15:1: select avg(mybool) from (select id=2 as mybool from names) n1;
+                  ^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types BOOLEAN and INTEGER cannot be matched
-LINE 1: select id=2 from names union select id from names;
-               ^^^^
-LINE 1: select id=2 from names union select id from names;
-                                            ^^
+LINE 17:1: select id=2 from names union select id from names;
+                  ^^^^
+LINE 17:1: select id=2 from names union select id from names;
+                                               ^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types BOOLEAN and VARCHAR cannot be matched
-LINE 1: select id=2 from names union select firstname from names;
-               ^^^^
-LINE 1: select id=2 from names union select firstname from names;
-                                            ^^^^^^^^^
+LINE 18:1: select id=2 from names union select firstname from names;
+                  ^^^^
+LINE 18:1: select id=2 from names union select firstname from names;
+                                               ^^^^^^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types BOOLEAN and NUMERIC cannot be matched
-LINE 1: select Price=2.5 from Products union select Price from Products;
-               ^^^^^^^^^
-LINE 1: select Price=2.5 from Products union select Price from Products;
-                                                    ^^^^^
+LINE 19:1: select Price=2.5 from Products union select Price from Products;
+                  ^^^^^^^^^
+LINE 19:1: select Price=2.5 from Products union select Price from Products;
+                                                       ^^^^^

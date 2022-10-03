@@ -15,8 +15,8 @@ ABS
 (6 rows)
 DROP FUNCTION
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function 'ABS' defined with given parameter types (INTEGER)
-LINE 1: SELECT ABS(-1) FROM names;
-               ^^^
+LINE 5:1: SELECT ABS(-1) FROM names;
+                 ^^^
 Remaining function definitions (hashes):
 --> Found: ^%ydboctoocto("functions","ABS","%ydboctoF0BXSKYtCkTUXzFwpivpB68")
 Successfully deleted function "ABS" from pg_catalog.pg_proc

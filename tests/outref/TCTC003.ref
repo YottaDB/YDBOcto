@@ -1077,284 +1077,284 @@ DROP TABLE tmp2;
 DROP TABLE tmp3;
 DROP TABLE tmp5;
 
-LINE 1: create table products (first varchar, last varchar, not null);
-                                                            ^^^
+LINE 3:1: create table products (first varchar, last varchar, not null);
+                                                              ^^^
 syntax error, unexpected NOT, expecting CHECK or PRIMARY or UNIQUE
-LINE 1: create table products (id integer, name varchar unique (name));
-                                                               ^
+LINE 5:1: create table products (id integer, name varchar unique (name));
+                                                                 ^
 syntax error, unexpected LEFT_PAREN, expecting CHECK or NOT or PRIMARY or UNIQUE
-LINE 1: ...te table products (id integer, name varchar unique (id, name));
-                                                              ^
+LINE 6:1: ...te table products (id integer, name varchar unique (id, name));
+                                                                ^
 syntax error, unexpected LEFT_PAREN, expecting CHECK or NOT or PRIMARY or UNIQUE
 [ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table 'PRODUCTS' are not allowed
-LINE 1: ...roducts (id integer constraint prikey primary key primary key);
-                                                             ^^^^^^^^^^^
+LINE 8:1: ...roducts (id integer constraint prikey primary key primary key);
+                                                               ^^^^^^^^^^^
 [ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table 'PRODUCTS' are not allowed
-LINE 1: ...r constraint prikey primary key constraint seckey primary key);
-                                                             ^^^^^^^^^^^
+LINE 9:1: ...r constraint prikey primary key constraint seckey primary key);
+                                                               ^^^^^^^^^^^
 [ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table 'PRODUCTS' are not allowed
-LINE 1: ...teger constraint prikey primary key, name varchar primary key);
-                                                             ^^^^^^^^^^^
+LINE 10:1: ...teger constraint prikey primary key, name varchar primary key);
+                                                                ^^^^^^^^^^^
 [ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table 'PRODUCTS' are not allowed
-LINE 1: ...raint prikey primary key, name varchar, primary key (id, name));
-                                                   ^^^^^^^^^^^^^^^^^^^^^^
+LINE 11:1: ...raint prikey primary key, name varchar, primary key (id, name));
+                                                      ^^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table 'PRODUCTS' are not allowed
-LINE 1: ...ger primary key, id2 integer key num 1, primary key (id1, id2));
-                                                   ^^^^^^^^^^^^^^^^^^^^^^
+LINE 12:1: ...ger primary key, id2 integer key num 1, primary key (id1, id2));
+                                                      ^^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table 'PRODUCTS' are not allowed
-LINE 1: ...r, id2 integer, primary key (id1, id2), primary key (id2, id1));
-                                                   ^^^^^^^^^^^^^^^^^^^^^^
+LINE 13:1: ...r, id2 integer, primary key (id1, id2), primary key (id2, id1));
+                                                      ^^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table 'TMP103' are not allowed
-LINE 1: ...int pkey103 primary key (id1), primary key (id1), id1 integer);
-                                          ^^^^^^^^^^^^^^^^^
+LINE 14:1: ...int pkey103 primary key (id1), primary key (id1), id1 integer);
+                                             ^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table 'TMP104' are not allowed
-LINE 1: ...eger, constraint pkey104 primary key (id1), primary key (id1));
-                                                       ^^^^^^^^^^^^^^^^^
+LINE 15:1: ...eger, constraint pkey104 primary key (id1), primary key (id1));
+                                                          ^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table 'TMP105' are not allowed
-LINE 1: ...int pkey105 primary key (id1), id1 integer, primary key (id1));
-                                                       ^^^^^^^^^^^^^^^^^
+LINE 16:1: ...int pkey105 primary key (id1), id1 integer, primary key (id1));
+                                                          ^^^^^^^^^^^^^^^^^
 CREATE TABLE
 [ERROR]: ERR_DUPLICATE_PRIMARY_KEY_CONSTRAINT: PRIMARY KEY constraint name 'TMP_PKEY' already exists in table 'TMP1'
 DROP TABLE
 [ERROR]: ERR_AGGREGATE_FUNCTION_CHECK: Aggregate functions are not allowed in CHECK constraints
-LINE 1: ...able products (id integer, name text CHECK (COUNT(*) is NULL));
+LINE 22:1: ...able products (id integer, name text CHECK (COUNT(*) is NULL));
+                                                          ^^^^^
+[ERROR]: ERR_AGGREGATE_FUNCTION_CHECK: Aggregate functions are not allowed in CHECK constraints
+LINE 23:1: ...e products (id integer, name text CHECK (COUNT(name) is NULL));
                                                        ^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_CHECK: Aggregate functions are not allowed in CHECK constraints
-LINE 1: ...e products (id integer, name text CHECK (COUNT(name) is NULL));
-                                                    ^^^^^
+LINE 24:1: ...ble products (id integer, name text CHECK (MIN(name) is NULL));
+                                                         ^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_CHECK: Aggregate functions are not allowed in CHECK constraints
-LINE 1: ...ble products (id integer, name text CHECK (MIN(name) is NULL));
-                                                      ^^^
+LINE 25:1: ...ble products (id integer, name text CHECK (MAX(name) is NULL));
+                                                         ^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_CHECK: Aggregate functions are not allowed in CHECK constraints
-LINE 1: ...ble products (id integer, name text CHECK (MAX(name) is NULL));
-                                                      ^^^
+LINE 26:1: ...ble products (id integer, name text CHECK (AVG(name) is NULL));
+                                                         ^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_CHECK: Aggregate functions are not allowed in CHECK constraints
-LINE 1: ...ble products (id integer, name text CHECK (AVG(name) is NULL));
-                                                      ^^^
-[ERROR]: ERR_AGGREGATE_FUNCTION_CHECK: Aggregate functions are not allowed in CHECK constraints
-LINE 1: ...ble products (id integer, name text CHECK (SUM(name) is NULL));
-                                                      ^^^
+LINE 27:1: ...ble products (id integer, name text CHECK (SUM(name) is NULL));
+                                                         ^^^
 [ERROR]: ERR_SUBQUERY_CHECK: Cannot use subquery in CHECK constraint
-LINE 1: ..., price numeric CONSTRAINT name1 CHECK (price < (select 1000)));
-                                                            ^^^^^^
+LINE 29:1: ..., price numeric CONSTRAINT name1 CHECK (price < (select 1000)));
+                                                               ^^^^^^
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: NAMES
-LINE 1: ...umeric CONSTRAINT name1 CHECK (price < (select * from names)));
-                                                                 ^^^^^
+LINE 30:1: ...umeric CONSTRAINT name1 CHECK (price < (select * from names)));
+                                                                    ^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_CHECK: Aggregate functions are not allowed in CHECK constraints
-LINE 1: ...ducts (id integer, name text CHECK (COUNT(*) = (SELECT 1000)));
-                                               ^^^^^
+LINE 32:1: ...ducts (id integer, name text CHECK (COUNT(*) = (SELECT 1000)));
+                                                  ^^^^^
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: INVALID
-LINE 1: ...eric CONSTRAINT name1 CHECK (price < (select * from invalid)));
-                                                               ^^^^^^^
-LINE 1: ..., name text, price numeric CONSTRAINT name1 CHECK (price < *));
-                                                                      ^
+LINE 34:1: ...eric CONSTRAINT name1 CHECK (price < (select * from invalid)));
+                                                                  ^^^^^^^
+LINE 36:1: ..., name text, price numeric CONSTRAINT name1 CHECK (price < *));
+                                                                         ^
 syntax error, unexpected ASTERISK
-LINE 1: ...name text, price numeric CONSTRAINT name1 CHECK (price < t.*));
-                                                                    ^
-LINE 1: ...ext, price numeric CONSTRAINT name1 CHECK (price < products.*));
-                                                              ^^^^^^^^
-LINE 1: ...xt, price numeric CONSTRAINT name1 CHECK (price in products.*));
-                                                              ^^^^^^^^
+LINE 37:1: ...name text, price numeric CONSTRAINT name1 CHECK (price < t.*));
+                                                                       ^
+LINE 38:1: ...ext, price numeric CONSTRAINT name1 CHECK (price < products.*));
+                                                                 ^^^^^^^^
+LINE 39:1: ...xt, price numeric CONSTRAINT name1 CHECK (price in products.*));
+                                                                 ^^^^^^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting LEFT_PAREN
-LINE 1: ...text, price numeric CONSTRAINT name1 CHECK (price in names.*));
-                                                                ^^^^^
+LINE 40:1: ...text, price numeric CONSTRAINT name1 CHECK (price in names.*));
+                                                                   ^^^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting LEFT_PAREN
-LINE 1: ... text, price numeric CONSTRAINT name1 CHECK (price < names.*));
-                                                                ^^^^^
+LINE 41:1: ... text, price numeric CONSTRAINT name1 CHECK (price < names.*));
+                                                                   ^^^^^
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : NAMES
-LINE 1: ... text, price numeric CONSTRAINT name1 CHECK (price < names.id));
-                                                                ^^^^^^^^
+LINE 43:1: ... text, price numeric CONSTRAINT name1 CHECK (price < names.id));
+                                                                   ^^^^^^^^
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : X
-LINE 1: ...integer, name varchar CHECK (2 > 0) CHECK (x.name is not null));
-                                                      ^^^^^^
+LINE 44:1: ...integer, name varchar CHECK (2 > 0) CHECK (x.name is not null));
+                                                         ^^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID
-LINE 1: ... text, price numeric CONSTRAINT name1 CHECK (price < invalid));
-                                                                ^^^^^^^
+LINE 46:1: ... text, price numeric CONSTRAINT name1 CHECK (price < invalid));
+                                                                   ^^^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: PRODUCT
-LINE 1: ... text, price numeric CONSTRAINT name1 CHECK (price < product));
-                                                                ^^^^^^^
+LINE 47:1: ... text, price numeric CONSTRAINT name1 CHECK (price < product));
+                                                                   ^^^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: PRODUCT
-LINE 2: ...e numeric CONSTRAINT name1 CHECK (price < samevalue(product)));
-                                                               ^^^^^^^
+LINE 49:2: ...e numeric CONSTRAINT name1 CHECK (price < samevalue(product)));
+                                                                  ^^^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
-LINE 1: ...ger, name text, price numeric CONSTRAINT name1 CHECK (ABS(id)));
-                                                                     ^^
+LINE 50:1: ...ger, name text, price numeric CONSTRAINT name1 CHECK (ABS(id)));
+                                                                        ^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALIDCOL
-LINE 1: ...CONSTRAINT name1 CHECK (price < COALESCE(NULL, 1, invalidcol)));
-                                                             ^^^^^^^^^^
+LINE 51:1: ...CONSTRAINT name1 CHECK (price < COALESCE(NULL, 1, invalidcol)));
+                                                                ^^^^^^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALIDCOL
-LINE 1: ...meric CONSTRAINT name1 CHECK (price < GREATEST(1, invalidcol)));
-                                                             ^^^^^^^^^^
+LINE 52:1: ...meric CONSTRAINT name1 CHECK (price < GREATEST(1, invalidcol)));
+                                                                ^^^^^^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALIDCOL
-LINE 1: ... numeric CONSTRAINT name1 CHECK (price < LEAST(1, invalidcol)));
-                                                             ^^^^^^^^^^
+LINE 53:1: ... numeric CONSTRAINT name1 CHECK (price < LEAST(1, invalidcol)));
+                                                                ^^^^^^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALIDCOL
-LINE 1: ...numeric CONSTRAINT name1 CHECK (price < NULLIF(1, invalidcol)));
-                                                             ^^^^^^^^^^
-LINE 1: ...e numeric CONSTRAINT name1 CHECK (price > 5) AND (price < 10));
-                                                        ^^^
+LINE 54:1: ...numeric CONSTRAINT name1 CHECK (price < NULLIF(1, invalidcol)));
+                                                                ^^^^^^^^^^
+LINE 56:1: ...e numeric CONSTRAINT name1 CHECK (price > 5) AND (price < 10));
+                                                           ^^^
 syntax error, unexpected AND, expecting CHECK or NOT or PRIMARY or UNIQUE
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
-LINE 1: ...roducts (id integer CHECK (id + firstname), firstname varchar);
-                                           ^^^^^^^^^
+LINE 58:1: ...roducts (id integer CHECK (id + firstname), firstname varchar);
+                                              ^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for arithmetic operations
-LINE 1: ...able products (id integer CHECK (id - true), firstname varchar);
-                                                 ^^^^
+LINE 59:1: ...able products (id integer CHECK (id - true), firstname varchar);
+                                                    ^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for arithmetic operations
-LINE 1: ...oducts (id integer CHECK (id * 0::boolean), firstname varchar);
-                                          ^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
-LINE 1: ...oducts (id integer CHECK (id / 1::varchar), firstname varchar);
-                                          ^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for arithmetic operations
-LINE 1: ...able products (id integer CHECK (id % true), firstname varchar);
-                                                 ^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
-LINE 1: ...ble products (id integer CHECK (id || true), firstname varchar);
-                                           ^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for || operator
-LINE 1: ...ble products (id integer CHECK (id || true), firstname varchar);
-                                                 ^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for || operator
-LINE 1: ...le products (id integer CHECK (id || 0::numeric), firstname varc...
-                                          ^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for || operator
-LINE 1: ...ducts (id integer CHECK (id || 0::numeric), firstname varchar);
-                                          ^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for || operator
-LINE 1: ...e products (id integer CHECK (NULL || 0::numeric), firstname var...
-                                         ^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for || operator
-LINE 1: ...cts (id integer CHECK (NULL || 0::numeric), firstname varchar);
-                                          ^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
-LINE 1: ...ble products (id integer CHECK (firstname), firstname varchar);
-                                           ^^^^^^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
-LINE 1: ...oducts (id integer CHECK (firstname || id), firstname varchar);
-                                     ^^^^^^^^^^^^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
-LINE 1: ... (id integer CHECK (id::boolean || firstname), firstname varchar...
-                               ^^^^^^^^^^^^^^^^^^^^^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
-LINE 1: ...roducts (id integer CHECK (firstname AND id::boolean), firstnam...
-                                      ^^^^^^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
-LINE 1: ...ducts (id integer CHECK (id::boolean OR id), firstname varchar);
-                                                   ^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
-LINE 2: ... text, price numeric CONSTRAINT name1 CHECK (ABS(product_no)));
-                                                        ^^^^^^^^^^^^^^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
-LINE 1: ...roducts (id integer CHECK (firstname IN (1, 2)), firstname varc...
-                                      ^^^^^^^^^
-LINE 1: ...cts (id integer CHECK (firstname IN (1, 2)), firstname varchar);
-                                                ^^^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
-LINE 1: ...ucts (id integer CHECK (id IN (1, 'abcd')), firstname varchar);
-                                          ^
-LINE 1: ...ucts (id integer CHECK (id IN (1, 'abcd')), firstname varchar);
-                                                  ^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right NUMERIC
-LINE 1: ...s (id integer CHECK (COALESCE(NULL, 'a', 1.2)), firstname varcha...
-                                         ^^^^
-LINE 1: ...d integer CHECK (COALESCE(NULL, 'a', 1.2)), firstname varchar);
-                                                ^^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
-LINE 1: ...ts (id integer CHECK (COALESCE(id, NULL, firstname)), firstname ...
-                                          ^^
-LINE 1: ...eger CHECK (COALESCE(id, NULL, firstname)), firstname varchar);
-                                          ^^^^^^^^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right NUMERIC
-LINE 1: ...s (id integer CHECK (GREATEST(NULL, 'a', 1.2)), firstname varcha...
-                                         ^^^^
-LINE 1: ...d integer CHECK (GREATEST(NULL, 'a', 1.2)), firstname varchar);
-                                                ^^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
-LINE 1: ...ts (id integer CHECK (GREATEST(id, NULL, firstname)), firstname ...
-                                          ^^
-LINE 1: ...eger CHECK (GREATEST(id, NULL, firstname)), firstname varchar);
-                                          ^^^^^^^^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right NUMERIC
-LINE 1: ...ucts (id integer CHECK (LEAST(NULL, 'a', 1.2)), firstname varcha...
-                                         ^^^^
-LINE 1: ... (id integer CHECK (LEAST(NULL, 'a', 1.2)), firstname varchar);
-                                                ^^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
-LINE 1: ...ducts (id integer CHECK (LEAST(id, NULL, firstname)), firstname ...
-                                          ^^
-LINE 1: ...integer CHECK (LEAST(id, NULL, firstname)), firstname varchar);
-                                          ^^^^^^^^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right NUMERIC
-LINE 1: ...ducts (id integer CHECK (NULLIF('a', 1.2)), firstname varchar);
+LINE 60:1: ...oducts (id integer CHECK (id * 0::boolean), firstname varchar);
                                              ^
-LINE 1: ...ducts (id integer CHECK (NULLIF('a', 1.2)), firstname varchar);
-                                                ^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 61:1: ...oducts (id integer CHECK (id / 1::varchar), firstname varchar);
+                                             ^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for arithmetic operations
+LINE 62:1: ...able products (id integer CHECK (id % true), firstname varchar);
+                                                    ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
+LINE 63:1: ...ble products (id integer CHECK (id || true), firstname varchar);
+                                              ^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for || operator
+LINE 63:1: ...ble products (id integer CHECK (id || true), firstname varchar);
+                                                    ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for || operator
+LINE 64:1: ...le products (id integer CHECK (id || 0::numeric), firstname varc...
+                                             ^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for || operator
+LINE 64:1: ...ducts (id integer CHECK (id || 0::numeric), firstname varchar);
+                                             ^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for || operator
+LINE 65:1: ...e products (id integer CHECK (NULL || 0::numeric), firstname var...
+                                            ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for || operator
+LINE 65:1: ...cts (id integer CHECK (NULL || 0::numeric), firstname varchar);
+                                             ^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
+LINE 66:1: ...ble products (id integer CHECK (firstname), firstname varchar);
+                                              ^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
+LINE 67:1: ...oducts (id integer CHECK (firstname || id), firstname varchar);
+                                        ^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
+LINE 68:1: ... (id integer CHECK (id::boolean || firstname), firstname varchar...
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
+LINE 69:1: ...roducts (id integer CHECK (firstname AND id::boolean), firstnam...
+                                         ^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
+LINE 70:1: ...ducts (id integer CHECK (id::boolean OR id), firstname varchar);
+                                                      ^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
+LINE 72:2: ... text, price numeric CONSTRAINT name1 CHECK (ABS(product_no)));
+                                                           ^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 74:1: ...roducts (id integer CHECK (firstname IN (1, 2)), firstname varc...
+                                         ^^^^^^^^^
+LINE 74:1: ...cts (id integer CHECK (firstname IN (1, 2)), firstname varchar);
+                                                   ^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
-LINE 1: ...ucts (id integer CHECK (NULLIF(id, firstname)), firstname varcha...
-                                          ^^
-LINE 1: ... (id integer CHECK (NULLIF(id, firstname)), firstname varchar);
-                                          ^^^^^^^^^
+LINE 75:1: ...ucts (id integer CHECK (id IN (1, 'abcd')), firstname varchar);
+                                             ^
+LINE 75:1: ...ucts (id integer CHECK (id IN (1, 'abcd')), firstname varchar);
+                                                     ^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right NUMERIC
+LINE 76:1: ...s (id integer CHECK (COALESCE(NULL, 'a', 1.2)), firstname varcha...
+                                            ^^^^
+LINE 76:1: ...d integer CHECK (COALESCE(NULL, 'a', 1.2)), firstname varchar);
+                                                   ^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 77:1: ...ts (id integer CHECK (COALESCE(id, NULL, firstname)), firstname ...
+                                             ^^
+LINE 77:1: ...eger CHECK (COALESCE(id, NULL, firstname)), firstname varchar);
+                                             ^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right NUMERIC
+LINE 78:1: ...s (id integer CHECK (GREATEST(NULL, 'a', 1.2)), firstname varcha...
+                                            ^^^^
+LINE 78:1: ...d integer CHECK (GREATEST(NULL, 'a', 1.2)), firstname varchar);
+                                                   ^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 79:1: ...ts (id integer CHECK (GREATEST(id, NULL, firstname)), firstname ...
+                                             ^^
+LINE 79:1: ...eger CHECK (GREATEST(id, NULL, firstname)), firstname varchar);
+                                             ^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right NUMERIC
+LINE 80:1: ...ucts (id integer CHECK (LEAST(NULL, 'a', 1.2)), firstname varcha...
+                                            ^^^^
+LINE 80:1: ... (id integer CHECK (LEAST(NULL, 'a', 1.2)), firstname varchar);
+                                                   ^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 81:1: ...ducts (id integer CHECK (LEAST(id, NULL, firstname)), firstname ...
+                                             ^^
+LINE 81:1: ...integer CHECK (LEAST(id, NULL, firstname)), firstname varchar);
+                                             ^^^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right NUMERIC
+LINE 82:1: ...ducts (id integer CHECK (NULLIF('a', 1.2)), firstname varchar);
+                                                ^
+LINE 82:1: ...ducts (id integer CHECK (NULLIF('a', 1.2)), firstname varchar);
+                                                   ^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 83:1: ...ucts (id integer CHECK (NULLIF(id, firstname)), firstname varcha...
+                                             ^^
+LINE 83:1: ... (id integer CHECK (NULLIF(id, firstname)), firstname varchar);
+                                             ^^^^^^^^^
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type BOOLEAN
-LINE 1: create table products (id integer CHECK (+id::boolean));
-                                                  ^^
+LINE 85:1: create table products (id integer CHECK (+id::boolean));
+                                                     ^^
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type BOOLEAN
-LINE 1: create table products (id integer CHECK (-id::boolean));
-                                                  ^^
+LINE 86:1: create table products (id integer CHECK (-id::boolean));
+                                                     ^^
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
-LINE 1: create table products (id integer CHECK (-id::varchar));
-                                                  ^^
+LINE 87:1: create table products (id integer CHECK (-id::varchar));
+                                                     ^^
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
-LINE 1: ...ts (id integer, firstname varchar CHECK (firstname = +'Zero'));
-                                                                      ^
+LINE 88:1: ...ts (id integer, firstname varchar CHECK (firstname = +'Zero'));
+                                                                         ^
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
-LINE 1: ...eger, firstname varchar CHECK (firstname = 'Zero' || +'Zero'));
-                                                                      ^
+LINE 89:1: ...eger, firstname varchar CHECK (firstname = 'Zero' || +'Zero'));
+                                                                         ^
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
-LINE 1: ...eger, firstname varchar CHECK (firstname = 'Zero' || -'Zero'));
-                                                                      ^
+LINE 90:1: ...eger, firstname varchar CHECK (firstname = 'Zero' || -'Zero'));
+                                                                         ^
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type NULL
-LINE 1: ...integer, firstname varchar CHECK (firstname = 'Zero' || +NULL));
-                                                                    ^^^^
+LINE 91:1: ...integer, firstname varchar CHECK (firstname = 'Zero' || +NULL));
+                                                                       ^^^^
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type NULL
-LINE 1: ...integer, firstname varchar CHECK (firstname = 'Zero' || -NULL));
-                                                                    ^^^^
+LINE 92:1: ...integer, firstname varchar CHECK (firstname = 'Zero' || -NULL));
+                                                                       ^^^^
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function 'ABS' defined with given parameter types (VARCHAR)
-LINE 1: ..., name text, price numeric CONSTRAINT name1 CHECK (ABS(name)));
-                                                              ^^^
+LINE 94:1: ..., name text, price numeric CONSTRAINT name1 CHECK (ABS(name)));
+                                                                 ^^^
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function 'INVALIDFUNC' defined with given parameter types (VARCHAR)
-LINE 1: ...ext, price numeric CONSTRAINT name1 CHECK (INVALIDFUNC(name)));
-                                                      ^^^^^^^^^^^
+LINE 95:1: ...ext, price numeric CONSTRAINT name1 CHECK (INVALIDFUNC(name)));
+                                                         ^^^^^^^^^^^
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function 'SAMEVALUE' defined with given parameter types (INTEGER)
-LINE 1: ...CONSTRAINT name1 CHECK (price * samevalue(product_no) < 1000));
-                                           ^^^^^^^^^
+LINE 96:1: ...CONSTRAINT name1 CHECK (price * samevalue(product_no) < 1000));
+                                              ^^^^^^^^^
 [ERROR]: ERR_TOO_MANY_FUNCTION_ARGUMENTS: Too many arguments passed for function INVALIDFUNC (max: 32)
 [ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left INTEGER, right VARCHAR
-LINE 1: ...T name1 CHECK (case when 1=1 then 2 when 2=2 then 'abcd' end));
-                                             ^
-LINE 1: ...T name1 CHECK (case when 1=1 then 2 when 2=2 then 'abcd' end));
-                                                                  ^
+LINE 100:1: ...T name1 CHECK (case when 1=1 then 2 when 2=2 then 'abcd' end));
+                                                 ^
+LINE 100:1: ...T name1 CHECK (case when 1=1 then 2 when 2=2 then 'abcd' end));
+                                                                      ^
 [ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left INTEGER, right VARCHAR
-LINE 1: ...CONSTRAINT name1 CHECK (case when 1=1 then 2 else 'abcd' end));
-                                                      ^
-LINE 1: ...CONSTRAINT name1 CHECK (case when 1=1 then 2 else 'abcd' end));
-                                                                  ^
-[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left VARCHAR, right INTEGER
-LINE 1: ...T name1 CHECK (case id when 1 then 'abcd' when 2 then id end));
-                                                   ^
-LINE 1: ...NT name1 CHECK (case id when 1 then 'abcd' when 2 then id end));
-                                                                  ^^
-[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left VARCHAR, right INTEGER
-LINE 1: ...NSTRAINT name1 CHECK (case id when 1 then 'abcd' else id end));
+LINE 101:1: ...CONSTRAINT name1 CHECK (case when 1=1 then 2 else 'abcd' end));
                                                           ^
-LINE 1: ...ONSTRAINT name1 CHECK (case id when 1 then 'abcd' else id end));
-                                                                  ^^
+LINE 101:1: ...CONSTRAINT name1 CHECK (case when 1=1 then 2 else 'abcd' end));
+                                                                      ^
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left VARCHAR, right INTEGER
+LINE 102:1: ...T name1 CHECK (case id when 1 then 'abcd' when 2 then id end));
+                                                       ^
+LINE 102:1: ...NT name1 CHECK (case id when 1 then 'abcd' when 2 then id end));
+                                                                      ^^
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left VARCHAR, right INTEGER
+LINE 103:1: ...NSTRAINT name1 CHECK (case id when 1 then 'abcd' else id end));
+                                                              ^
+LINE 103:1: ...ONSTRAINT name1 CHECK (case id when 1 then 'abcd' else id end));
+                                                                      ^^
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type INTEGER but is used in a context that expects a BOOLEAN type
-LINE 1: ...s (id integer CONSTRAINT name1 CHECK (case when id then 2 end));
-                                                           ^^
+LINE 105:1: ...s (id integer CONSTRAINT name1 CHECK (case when id then 2 end));
+                                                               ^^
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type VARCHAR but is used in a context that expects a INTEGER type
-LINE 1: ...teger CONSTRAINT name1 CHECK (case id when 'abcd' then 2 end));
-                                                           ^
+LINE 106:1: ...teger CONSTRAINT name1 CHECK (case id when 'abcd' then 2 end));
+                                                               ^
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name 'NAME1' already exists
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name 'NAME2' already exists
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name 'NAME3' already exists
@@ -1364,11 +1364,11 @@ LINE 1: ...teger CONSTRAINT name1 CHECK (case id when 'abcd' then 2 end));
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name 'TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU' already exists
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name 'TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU' already exists
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
-LINE 2: ...toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstuv...
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 153:2: ...toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstuv...
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
-LINE 1: ...toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstuv...
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 155:1: ...toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstuv...
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_TABLE_MUST_HAVE_A_VISIBLE_COLUMN: Table 'PRODUCTS' must have at least one visible column
 [ERROR]: ERR_TABLE_MUST_HAVE_A_VISIBLE_COLUMN: Table 'PRODUCTS' must have at least one visible column
 CREATE TABLE
@@ -1723,44 +1723,44 @@ GNP
 1
 1
 (2 rows)
-LINE 1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (3));
+LINE 536:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (3));
+                                                    ^
+syntax error, unexpected LITERAL
+LINE 537:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE ('abcd'));
+                                                         ^
+syntax error, unexpected LITERAL
+LINE 539:1: CREATE TABLE abcd (id1 INTEGER, id2 INTEGER UNIQUE (id1));
+                                                               ^
+syntax error, unexpected LEFT_PAREN, expecting CHECK or NOT or PRIMARY or UNIQUE
+LINE 540:1: CREATE TABLE abcd (id1 INTEGER, id2 INTEGER UNIQUE (id1, id2));
+                                                               ^
+syntax error, unexpected LEFT_PAREN, expecting CHECK or NOT or PRIMARY or UNIQUE
+LINE 542:1: CREATE TABLE tmp (id INTEGER, UNIQUE);
                                                 ^
-syntax error, unexpected LITERAL
-LINE 1: CREATE TABLE abcd (id1 INTEGER, UNIQUE ('abcd'));
-                                                     ^
-syntax error, unexpected LITERAL
-LINE 1: CREATE TABLE abcd (id1 INTEGER, id2 INTEGER UNIQUE (id1));
-                                                           ^
-syntax error, unexpected LEFT_PAREN, expecting CHECK or NOT or PRIMARY or UNIQUE
-LINE 1: CREATE TABLE abcd (id1 INTEGER, id2 INTEGER UNIQUE (id1, id2));
-                                                           ^
-syntax error, unexpected LEFT_PAREN, expecting CHECK or NOT or PRIMARY or UNIQUE
-LINE 1: CREATE TABLE tmp (id INTEGER, UNIQUE);
-                                            ^
 syntax error, unexpected RIGHT_PAREN, expecting LEFT_PAREN
-LINE 1: ...EATE TABLE abcd (id1 INTEGER, CHECK (id1 > 2) CHECK (id1 > 3));
-                                                         ^^^^^
+LINE 544:1: ...EATE TABLE abcd (id1 INTEGER, CHECK (id1 > 2) CHECK (id1 > 3));
+                                                             ^^^^^
 syntax error, unexpected CHECK, expecting RIGHT_PAREN
-LINE 1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1) UNIQUE (id1));
-                                                     ^^^^^^
+LINE 546:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1) UNIQUE (id1));
+                                                         ^^^^^^
 syntax error, unexpected UNIQUE, expecting RIGHT_PAREN
-LINE 1: CREATE TABLE abcd (id1 INTEGER, CHECK (id1 > 2) UNIQUE (id1));
-                                                        ^^^^^^
+LINE 548:1: CREATE TABLE abcd (id1 INTEGER, CHECK (id1 > 2) UNIQUE (id1));
+                                                            ^^^^^^
 syntax error, unexpected UNIQUE, expecting RIGHT_PAREN
 [ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column 'ID2' of table 'ABCD' does not exist
-LINE 1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id2));
-                                                ^^^
+LINE 550:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id2));
+                                                    ^^^
 [ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column 'ID2' of table 'ABCD' does not exist
-LINE 1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1, id2));
-                                                     ^^^
+LINE 551:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1, id2));
+                                                         ^^^
 [ERROR]: ERR_DUPLICATE_COLUMN: Column 'ID1' specified more than once
-LINE 1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1, id1));
-                                                     ^^^
+LINE 553:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1, id1));
+                                                         ^^^
 [ERROR]: ERR_DUPLICATE_COLUMN: Column 'ID1' specified more than once
-LINE 1: ... TABLE abcd (id1 INTEGER, id2 INTEGER, UNIQUE (id1, id2, id1));
-                                                                    ^^^
-LINE 1: ...TABLE abcd (id1 INTEGER, id2 INTEGER, UNIQUE (id1 + id2, id1));
-                                                             ^
+LINE 554:1: ... TABLE abcd (id1 INTEGER, id2 INTEGER, UNIQUE (id1, id2, id1));
+                                                                        ^^^
+LINE 556:1: ...TABLE abcd (id1 INTEGER, id2 INTEGER, UNIQUE (id1 + id2, id1));
+                                                                 ^
 syntax error, unexpected PLUS, expecting RIGHT_PAREN
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name 'UNIQ1' already exists
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name 'UNIQ2' already exists
@@ -1944,55 +1944,55 @@ DROP TABLE
 [ERROR]: ERR_TABLE_KEY_NUM: CREATE TABLE for table 'PRODUCTS' cannot use table-level PRIMARY KEY constraint and KEY NUM at same time
 [ERROR]: ERR_TABLE_KEY_NUM: CREATE TABLE for table 'PRODUCTS' cannot use table-level PRIMARY KEY constraint and KEY NUM at same time
 [ERROR]: ERR_TABLE_KEY_NUM: CREATE TABLE for table 'TMP' cannot use table-level PRIMARY KEY constraint and KEY NUM at same time
-LINE 1: ...cts (id integer, constraint prikey primary key (id) key num 0);
-                                                               ^^^
+LINE 686:1: ...cts (id integer, constraint prikey primary key (id) key num 0);
+                                                                   ^^^
 syntax error, unexpected KEY, expecting RIGHT_PAREN
 CREATE TABLE
 DROP TABLE
 CREATE TABLE
 DROP TABLE
 [ERROR]: ERR_MISSING_KEY: Missing key 0 in table TMP; max key was 1
-LINE 3: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (3));
-                                                     ^
+LINE 695:3: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (3));
+                                                         ^
 syntax error, unexpected LITERAL
-LINE 1: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY ('abcd'));
-                                                          ^
-syntax error, unexpected LITERAL
-LINE 1: CREATE TABLE abcd (id1 INTEGER, id2 INTEGER PRIMARY KEY (id1));
-                                                                ^
-syntax error, unexpected LEFT_PAREN, expecting CHECK or NOT or PRIMARY or UNIQUE
-LINE 1: ...E TABLE abcd (id1 INTEGER, id2 INTEGER PRIMARY KEY (id1, id2));
+LINE 696:1: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY ('abcd'));
                                                               ^
+syntax error, unexpected LITERAL
+LINE 698:1: CREATE TABLE abcd (id1 INTEGER, id2 INTEGER PRIMARY KEY (id1));
+                                                                    ^
 syntax error, unexpected LEFT_PAREN, expecting CHECK or NOT or PRIMARY or UNIQUE
-LINE 1: CREATE TABLE tmp (id INTEGER, PRIMARY KEY);
-                                                 ^
+LINE 699:1: ...E TABLE abcd (id1 INTEGER, id2 INTEGER PRIMARY KEY (id1, id2));
+                                                                  ^
+syntax error, unexpected LEFT_PAREN, expecting CHECK or NOT or PRIMARY or UNIQUE
+LINE 701:1: CREATE TABLE tmp (id INTEGER, PRIMARY KEY);
+                                                     ^
 syntax error, unexpected RIGHT_PAREN, expecting LEFT_PAREN
-LINE 1: ... TABLE abcd (id1 INTEGER, PRIMARY KEY (id1) PRIMARY KEY (id1));
-                                                       ^^^^^^^
+LINE 703:1: ... TABLE abcd (id1 INTEGER, PRIMARY KEY (id1) PRIMARY KEY (id1));
+                                                           ^^^^^^^
 syntax error, unexpected PRIMARY, expecting RIGHT_PAREN
-LINE 1: ...TE TABLE abcd (id1 INTEGER, CHECK (id1 > 2) PRIMARY KEY (id1));
-                                                       ^^^^^^^
+LINE 705:1: ...TE TABLE abcd (id1 INTEGER, CHECK (id1 > 2) PRIMARY KEY (id1));
+                                                           ^^^^^^^
 syntax error, unexpected PRIMARY, expecting RIGHT_PAREN
-LINE 1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1) PRIMARY KEY (id1));
-                                                     ^^^^^^^
+LINE 707:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1) PRIMARY KEY (id1));
+                                                         ^^^^^^^
 syntax error, unexpected PRIMARY, expecting RIGHT_PAREN
-LINE 1: ...d (id1 INTEGER, CHECK (id1 > 2) UNIQUE (id1) PRIMARY KEY (id1));
-                                           ^^^^^^
+LINE 709:1: ...d (id1 INTEGER, CHECK (id1 > 2) UNIQUE (id1) PRIMARY KEY (id1));
+                                               ^^^^^^
 syntax error, unexpected UNIQUE, expecting RIGHT_PAREN
 [ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column 'ID2' of table 'ABCD' does not exist
-LINE 1: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (id2));
-                                                     ^^^
+LINE 711:1: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (id2));
+                                                         ^^^
 [ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column 'ID2' of table 'ABCD' does not exist
-LINE 1: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (id1, id2));
-                                                          ^^^
+LINE 712:1: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (id1, id2));
+                                                              ^^^
 [ERROR]: ERR_DUPLICATE_COLUMN: Column 'ID1' specified more than once
-LINE 1: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (id1, id1));
-                                                          ^^^
+LINE 714:1: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (id1, id1));
+                                                              ^^^
 [ERROR]: ERR_DUPLICATE_COLUMN: Column 'ID1' specified more than once
-LINE 1: ...E abcd (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id1, id2, id1));
-                                                                    ^^^
-LINE 1: ... abcd (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id1 + id2, id1));
-                                                             ^
+LINE 715:1: ...E abcd (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id1, id2, id1));
+                                                                        ^^^
+LINE 717:1: ... abcd (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id1 + id2, id1));
+                                                                 ^
 syntax error, unexpected PLUS, expecting RIGHT_PAREN
 CREATE TABLE
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name 'ABCD_ID1_CHECK' already exists

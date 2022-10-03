@@ -631,6 +631,9 @@ typedef enum RegexType {
 		cur_input_max = INIT_QUERY_SIZE - 1;                                         \
 		input_buffer_combined = calloc(1, INIT_QUERY_SIZE);                          \
 		old_input_index = 0;                                                         \
+		old_input_line_num = 0;                                                      \
+		prev_input_line_num = 0;                                                     \
+		old_input_line_begin = input_buffer_combined;                                \
 		cur_input_index = 0;                                                         \
 		cur_input_more = &no_more;                                                   \
 		leading_spaces = 0;                                                          \
@@ -1104,7 +1107,10 @@ extern int	cur_input_index;	    // Current index of input_buffer_combined the pa
 					    // current query.
 extern int old_input_index;		    // The previous value of cur_input_index before the parser modifies it.
 					    // Effectively marks the start of the current query.
-extern int leading_spaces;		    // leading spaces in the current query it needs to be stored somewhere
+extern int   old_input_line_num;	    // The line number pointed to by old_input_index
+extern int   prev_input_line_num;	    // The line number pointed to by the previous value of old_input_index
+extern char *old_input_line_begin;	    // Pointer to the beginning of the line pointed to by old_input_index
+extern int   leading_spaces;		    // leading spaces in the current query it needs to be stored somewhere
 					    // accessible but should be ignored, except by the lexer and yyerror
 extern int   cur_input_max;
 extern int   eof_hit;

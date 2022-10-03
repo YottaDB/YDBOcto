@@ -31,62 +31,62 @@ select min(DISTINCT n2.*) from (select n1.firstname from names n1) n2;
 select max(DISTINCT n2.*) from (select n1.firstname from names n1) n2;
 
 [ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function SUM cannot be invoked with a parameter of type TABLENAME.*
-LINE 1: select SUM(n1.*) from names1col n1;
-               ^^^
+LINE 4:1: select SUM(n1.*) from names1col n1;
+                 ^^^
 [ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function MIN cannot be invoked with a parameter of type TABLENAME.*
-LINE 1: select MIN(n1.*) from names1col n1;
-               ^^^
+LINE 5:1: select MIN(n1.*) from names1col n1;
+                 ^^^
 [ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function MAX cannot be invoked with a parameter of type TABLENAME.*
-LINE 1: select MAX(n1.*) from names1col n1;
-               ^^^
+LINE 6:1: select MAX(n1.*) from names1col n1;
+                 ^^^
 [ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function AVG cannot be invoked with a parameter of type TABLENAME.*
-LINE 1: select AVG(n1.*) from names1col n1;
-               ^^^
+LINE 7:1: select AVG(n1.*) from names1col n1;
+                 ^^^
 [ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function SUM cannot be invoked with a parameter of type TABLENAME.*
-LINE 1: select SUM(DISTINCT n1.*) from names1col n1;
-               ^^^
+LINE 8:1: select SUM(DISTINCT n1.*) from names1col n1;
+                 ^^^
 [ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function MIN cannot be invoked with a parameter of type TABLENAME.*
-LINE 1: select MIN(DISTINCT n1.*) from names1col n1;
-               ^^^
+LINE 9:1: select MIN(DISTINCT n1.*) from names1col n1;
+                 ^^^
 [ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function MAX cannot be invoked with a parameter of type TABLENAME.*
-LINE 1: select MAX(DISTINCT n1.*) from names1col n1;
-               ^^^
+LINE 10:1: select MAX(DISTINCT n1.*) from names1col n1;
+                  ^^^
 [ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function AVG cannot be invoked with a parameter of type TABLENAME.*
-LINE 1: select AVG(DISTINCT n1.*) from names1col n1;
-               ^^^
+LINE 11:1: select AVG(DISTINCT n1.*) from names1col n1;
+                  ^^^
 [ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function SUM cannot be invoked with a parameter of type TABLENAME.*
-LINE 1: select SUM(n2.*) from (values (1), (2), (NULL)) n2;
-               ^^^
+LINE 13:1: select SUM(n2.*) from (values (1), (2), (NULL)) n2;
+                  ^^^
 [ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function MIN cannot be invoked with a parameter of type TABLENAME.*
-LINE 1: select MIN(n2.*) from (values (1), (2), (NULL)) n2;
-               ^^^
+LINE 14:1: select MIN(n2.*) from (values (1), (2), (NULL)) n2;
+                  ^^^
 [ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function MAX cannot be invoked with a parameter of type TABLENAME.*
-LINE 1: select MAX(n2.*) from (values (1), (2), (NULL)) n2;
-               ^^^
+LINE 15:1: select MAX(n2.*) from (values (1), (2), (NULL)) n2;
+                  ^^^
 [ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function AVG cannot be invoked with a parameter of type TABLENAME.*
-LINE 1: select AVG(n2.*) from (values (1), (2), (NULL)) n2;
-               ^^^
+LINE 16:1: select AVG(n2.*) from (values (1), (2), (NULL)) n2;
+                  ^^^
 [ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function SUM cannot be invoked with a parameter of type TABLENAME.*
-LINE 1: select SUM(DISTINCT n2.*) from (values (1), (2), (NULL)) n2;
-               ^^^
+LINE 17:1: select SUM(DISTINCT n2.*) from (values (1), (2), (NULL)) n2;
+                  ^^^
 [ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function MIN cannot be invoked with a parameter of type TABLENAME.*
-LINE 1: select MIN(DISTINCT n2.*) from (values (1), (2), (NULL)) n2;
-               ^^^
+LINE 18:1: select MIN(DISTINCT n2.*) from (values (1), (2), (NULL)) n2;
+                  ^^^
 [ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function MAX cannot be invoked with a parameter of type TABLENAME.*
-LINE 1: select MAX(DISTINCT n2.*) from (values (1), (2), (NULL)) n2;
-               ^^^
+LINE 19:1: select MAX(DISTINCT n2.*) from (values (1), (2), (NULL)) n2;
+                  ^^^
 [ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function AVG cannot be invoked with a parameter of type TABLENAME.*
-LINE 1: select AVG(DISTINCT n2.*) from (values (1), (2), (NULL)) n2;
-               ^^^
+LINE 20:1: select AVG(DISTINCT n2.*) from (values (1), (2), (NULL)) n2;
+                  ^^^
 [ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function MIN cannot be invoked with a parameter of type TABLENAME.*
-LINE 1: select MIN(n2.*) from (select n1.firstname from names n1) n2;
-               ^^^
+LINE 22:1: select MIN(n2.*) from (select n1.firstname from names n1) n2;
+                  ^^^
 [ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function MAX cannot be invoked with a parameter of type TABLENAME.*
-LINE 1: select MAX(n2.*) from (select n1.firstname from names n1) n2;
-               ^^^
+LINE 23:1: select MAX(n2.*) from (select n1.firstname from names n1) n2;
+                  ^^^
 [ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function MIN cannot be invoked with a parameter of type TABLENAME.*
-LINE 1: select min(DISTINCT n2.*) from (select n1.firstname from names ...
-               ^^^
+LINE 24:1: select min(DISTINCT n2.*) from (select n1.firstname from names ...
+                  ^^^
 [ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function MAX cannot be invoked with a parameter of type TABLENAME.*
-LINE 1: select max(DISTINCT n2.*) from (select n1.firstname from names ...
-               ^^^
+LINE 25:1: select max(DISTINCT n2.*) from (select n1.firstname from names ...
+                  ^^^

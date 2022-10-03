@@ -10,27 +10,27 @@ SELECT * FROM names WHERE id IN (,,);
 SELECT * FROM names WHERE id IN (,,1);
 SELECT * FROM names WHERE id IN (1,,2,);
 
-LINE 1: SELECT * FROM names WHERE id IN ();
-                                         ^
-syntax error, unexpected RIGHT_PAREN
-LINE 1: SELECT * FROM names WHERE id IN (1,);
+LINE 3:1: SELECT * FROM names WHERE id IN ();
                                            ^
 syntax error, unexpected RIGHT_PAREN
-LINE 1: SELECT * FROM names WHERE id IN (1,2,);
+LINE 4:1: SELECT * FROM names WHERE id IN (1,);
                                              ^
 syntax error, unexpected RIGHT_PAREN
-LINE 1: SELECT * FROM names WHERE id IN (,);
-                                         ^
-syntax error, unexpected COMMA
-LINE 1: SELECT * FROM names WHERE id IN (,1,);
-                                         ^
-syntax error, unexpected COMMA
-LINE 1: SELECT * FROM names WHERE id IN (,,);
-                                         ^
-syntax error, unexpected COMMA
-LINE 1: SELECT * FROM names WHERE id IN (,,1);
-                                         ^
-syntax error, unexpected COMMA
-LINE 1: SELECT * FROM names WHERE id IN (1,,2,);
+LINE 5:1: SELECT * FROM names WHERE id IN (1,2,);
+                                               ^
+syntax error, unexpected RIGHT_PAREN
+LINE 6:1: SELECT * FROM names WHERE id IN (,);
                                            ^
+syntax error, unexpected COMMA
+LINE 7:1: SELECT * FROM names WHERE id IN (,1,);
+                                           ^
+syntax error, unexpected COMMA
+LINE 8:1: SELECT * FROM names WHERE id IN (,,);
+                                           ^
+syntax error, unexpected COMMA
+LINE 9:1: SELECT * FROM names WHERE id IN (,,1);
+                                           ^
+syntax error, unexpected COMMA
+LINE 10:1: SELECT * FROM names WHERE id IN (1,,2,);
+                                              ^
 syntax error, unexpected COMMA

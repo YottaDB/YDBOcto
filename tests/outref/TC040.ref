@@ -29,11 +29,11 @@ CREATE TABLE namesLongString.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw (
 SELECT * from namesLongString.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv;
 
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
-LINE 1: ...namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw...
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 3:1: ...namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw...
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
-LINE 1: ...namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw...
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 9:1: ...namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw...
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 CREATE TABLE
 ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
@@ -44,8 +44,8 @@ ID|FIRSTNAME|LASTNAME
 5|Zero|Cool
 (6 rows)
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 65 exceeds max (63)
-LINE 1: ...namesLongString.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv...
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 19:1: ...namesLongString.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv...
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
-LINE 1: ...namesLongString.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv...
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 25:1: ...namesLongString.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv...
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

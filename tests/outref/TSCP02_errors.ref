@@ -3,12 +3,12 @@ SELECT 1 IN (true) FROM names;
 -- TODO: this should give a type error, but currently gives an parse error (#552)
 SELECT true IN (1) FROM names;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right BOOLEAN
-LINE 1: SELECT 1 IN (true) FROM names;
-               ^
-LINE 1: SELECT 1 IN (true) FROM names;
-                     ^^^^
+LINE 1:1: SELECT 1 IN (true) FROM names;
+                 ^
+LINE 1:1: SELECT 1 IN (true) FROM names;
+                       ^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left BOOLEAN, right INTEGER
-LINE 1: SELECT true IN (1) FROM names;
-               ^^^^
-LINE 1: SELECT true IN (1) FROM names;
-                        ^
+LINE 2:1: SELECT true IN (1) FROM names;
+                 ^^^^
+LINE 2:1: SELECT true IN (1) FROM names;
+                          ^

@@ -24,29 +24,29 @@ SELECT * FROM names WHERE $$a('b');
 SELECT id FROM names GROUP BY id HAVING $$a(id);
 
 [ERROR]: ERR_M_CALL: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
-LINE 1: SELECT * FROM names WHERE id = $$ABS^%ydboctosqlfunctions(-2);
-                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 3:1: SELECT * FROM names WHERE id = $$ABS^%ydboctosqlfunctions(-2);
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_M_CALL: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
-LINE 1: SELECT $ZWRITE(firstname) FROM names;
-               ^^^^^^^
+LINE 5:1: SELECT $ZWRITE(firstname) FROM names;
+                 ^^^^^^^
 [ERROR]: ERR_M_CALL: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
-LINE 1: SELECT * FROM names WHERE id = $$^%("some value");
-                                       ^^^^
+LINE 7:1: SELECT * FROM names WHERE id = $$^%("some value");
+                                         ^^^^
 [ERROR]: ERR_M_CALL: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
-LINE 1: SELECT * FROM names WHERE id = $$%^%("some value");
-                                       ^^^^^
+LINE 8:1: SELECT * FROM names WHERE id = $$%^%("some value");
+                                         ^^^^^
 [ERROR]: ERR_M_CALL: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
-LINE 1: SELECT * FROM names WHERE id = $$%ABS^someroutine(-2);
-                                       ^^^^^^^^^^^^^^^^^^
+LINE 9:1: SELECT * FROM names WHERE id = $$%ABS^someroutine(-2);
+                                         ^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_M_CALL: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
-LINE 1: SELECT * FROM names WHERE id = $$ABS^%someroutine(-2);
-                                       ^^^^^^^^^^^^^^^^^^
+LINE 10:1: SELECT * FROM names WHERE id = $$ABS^%someroutine(-2);
+                                          ^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_M_CALL: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
-LINE 1: SELECT $$a('b');
-               ^^^
+LINE 12:1: SELECT $$a('b');
+                  ^^^
 [ERROR]: ERR_M_CALL: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
-LINE 1: SELECT * FROM names WHERE $$a('b');
-                                  ^^^
+LINE 14:1: SELECT * FROM names WHERE $$a('b');
+                                     ^^^
 [ERROR]: ERR_M_CALL: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
-LINE 1: SELECT id FROM names GROUP BY id HAVING $$a(id);
-                                                ^^^
+LINE 16:1: SELECT id FROM names GROUP BY id HAVING $$a(id);
+                                                   ^^^

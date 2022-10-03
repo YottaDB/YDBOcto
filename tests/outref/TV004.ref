@@ -7,8 +7,8 @@ select * from names;
 [ INFO] PATH:LINENUM DATE TIME: INFO_LOADED_CONFIG: Loaded config from $PWD/octo.conf
 [ INFO] PATH:LINENUM DATE TIME: INFO_RECORDING_ENV_VARS: # Recording pertinent ydb_* env var values at process startup
 [ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE: Unknown table: NONEXISTANTTABLE
-LINE 1: select * from nonexistanttable;
-                      ^^^^^^^^^^^^^^^^
+LINE 2:1: select * from nonexistanttable;
+                        ^^^^^^^^^^^^^^^^
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [select * from nonexistanttable;]
 [ INFO] PATH:LINENUM DATE TIME: INFO_RETURNING_FAILURE: Returning failure from run_query
 [ WARN] PATH:LINENUM DATE TIME: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: INDEX statements

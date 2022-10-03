@@ -130,202 +130,202 @@ select (VALUES(1.0), (2.0)) > n1.* from (VALUES('test1') ,('test2') ,('test3')) 
 select (select 1) >= n1.* from (VALUES('test1') ,('test2') ,('test3')) n1;
 select (select * from (select 1)n2) <= n1.* from names n1;
 [ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left INTEGER, right NUMERIC
-LINE 1: select n1.* = n2.* from (VALUES(1) ,(2) ,(1)) n1 JOIN (VALUES(1....
-                      ^^
+LINE 2:1: select n1.* = n2.* from (VALUES(1) ,(2) ,(1)) n1 JOIN (VALUES(1....
+                        ^^
 [ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left VARCHAR, right INTEGER
-LINE 1: select n1.* = n2.* from (select 'test' union select 'num' union ...
-                      ^^
+LINE 3:1: select n1.* = n2.* from (select 'test' union select 'num' union ...
+                        ^^
 [ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left INTEGER, right NUMERIC
-LINE 1: select n1.* in (n2.*,n1.*) from (VALUES(1) ,(2) ,(1)) n1 JOIN (V...
-                        ^^^^
+LINE 4:1: select n1.* in (n2.*,n1.*) from (VALUES(1) ,(2) ,(1)) n1 JOIN (V...
+                          ^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right NUMERIC
-LINE 1: select n1.* in (select n2.*) from (VALUES(1) ,(2) ,(1)) n1 JOIN ...
-               ^^
-LINE 1: select n1.* in (select n2.*) from (VALUES(1) ,(2) ,(1)) n1 JOIN ...
-                        ^^^^^^
+LINE 5:1: select n1.* in (select n2.*) from (VALUES(1) ,(2) ,(1)) n1 JOIN ...
+                 ^^
+LINE 5:1: select n1.* in (select n2.*) from (VALUES(1) ,(2) ,(1)) n1 JOIN ...
+                          ^^^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right BOOLEAN
-LINE 1: select n2.* in (n2.* in (n2.*)) from (VALUES(1) ,(2) ,(1)) n1 JO...
-               ^^
-LINE 1: select n2.* in (n2.* in (n2.*)) from (VALUES(1) ,(2) ,(1)) n1 JO...
-                        ^^^^^^^^^^^^^^
+LINE 6:1: select n2.* in (n2.* in (n2.*)) from (VALUES(1) ,(2) ,(1)) n1 JO...
+                 ^^
+LINE 6:1: select n2.* in (n2.* in (n2.*)) from (VALUES(1) ,(2) ,(1)) n1 JO...
+                          ^^^^^^^^^^^^^^
 [ERROR]: ERR_TABLE_ASTERISK_COLUMN_COUNT_MISMATCH: Table asterisk column count mismatch: left 2, right 1
-LINE 1: select n1.* = n2.* from (VALUES(1,1) ,(2,2) ,(1,2)) n1 JOIN (sel...
-                      ^^
+LINE 7:1: select n1.* = n2.* from (VALUES(1,1) ,(2,2) ,(1,2)) n1 JOIN (sel...
+                        ^^
 [ERROR]: ERR_TABLE_ASTERISK_COLUMN_COUNT_MISMATCH: Table asterisk column count mismatch: left 1, right 2
-LINE 1: select n1.* = n2.* from (VALUES(1) ,(2) ,(1)) n1 JOIN (select 1,...
-                      ^^
+LINE 8:1: select n1.* = n2.* from (VALUES(1) ,(2) ,(1)) n1 JOIN (select 1,...
+                        ^^
 [ERROR]: ERR_TABLE_ASTERISK_COLUMN_COUNT_MISMATCH: Table asterisk column count mismatch: left 1, right 2
-LINE 1: select n1.* in (n2.*,n1.*,n3.*) from (VALUES(1) ,(2) ,(1)) n1 JO...
-                                  ^^^^
+LINE 9:1: select n1.* in (n2.*,n1.*,n3.*) from (VALUES(1) ,(2) ,(1)) n1 JO...
+                                    ^^^^
 [ERROR]: ERR_TABLE_ASTERISK_COLUMN_COUNT_MISMATCH: Table asterisk column count mismatch: left 1, right 2
-LINE 2: select n1.* in (n2.*,n3.*,n1.*) from (VALUES(1) ,(2) ,(1)) n1 JO...
-                             ^^^^
+LINE 10:2: select n1.* in (n2.*,n3.*,n1.*) from (VALUES(1) ,(2) ,(1)) n1 JO...
+                                ^^^^
 [ERROR]: ERR_TABLE_ASTERISK_COLUMN_COUNT_MISMATCH: Table asterisk column count mismatch: left 3, right 1
-LINE 3: SELECT t1.* in (t2.*)  FROM names t1 LEFT JOIN (SELECT lastName ...
-                        ^^^^
-[ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left VARCHAR, right INTEGER
-LINE 1: select n1.* in (n2.*) from (select 'test' union select 'num' uni...
-                        ^^^^
-[ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left VARCHAR, right INTEGER
-LINE 1: select n1.* in (n2.*) from (select 'test' union select 'num' uni...
-                        ^^^^
-[ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left VARCHAR, right INTEGER
-LINE 1: select n1.* in (n2.*) from (select 'test' union select NULL unio...
-                        ^^^^
-[ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left VARCHAR, right INTEGER
-LINE 1: select n1.* = n2.* from (VALUES(1::VARCHAR) ,(2::VARCHAR) ,(1::V...
-                      ^^
-[ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left NUMERIC, right INTEGER
-LINE 1: select n1.* = n2.* from (VALUES(1::NUMERIC) ,(2::NUMERIC) ,(1::N...
-                      ^^
-???
-0
-0
-0
-0
-0
-0
-(6 rows)
-???
-0
-0
-0
-0
-0
-0
-(6 rows)
-LINE 1: select n1.* is not n1.* from names n1;
-                           ^^
-syntax error, unexpected IDENTIFIER_ALONE, expecting UNKNOWN or TRUE_TOKEN or FALSE_TOKEN or NULL_TOKEN
-LINE 1: select n1.* is n1.* from names n1;
-                       ^^
-syntax error, unexpected IDENTIFIER_ALONE
-LINE 1: select NULL is n1.* from names n1;
-                       ^^
-syntax error, unexpected IDENTIFIER_ALONE
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
-LINE 1: select n1.* like 'test' from names n1;
-               ^^
-LINE 1: select n1.* like 'test' from names n1;
-                              ^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for REGEX operation
-LINE 1: select n1.* like NULL from names n1;
-               ^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
-LINE 1: select 'test' like n1.* from names n1;
-                    ^
-LINE 1: select 'test' like n1.* from names n1;
-                           ^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
-LINE 1: select n1.* similar to 'test' from names n1;
-               ^^
-LINE 1: select n1.* similar to 'test' from names n1;
-                                    ^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for REGEX operation
-LINE 1: select n1.* similar to NULL from names n1;
-               ^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
-LINE 1: select 'test' similar to n1.* from names n1;
-                    ^
-LINE 1: select 'test' similar to n1.* from names n1;
-                                 ^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for REGEX operation
-LINE 1: select n1.* LIKE n1.* from names n1;
-               ^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for REGEX operation
-LINE 1: select NULL like n1.* from names n1;
-                         ^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
-LINE 1: select 'test' != n2.* from (VALUES('test') ,('test') ,('test'))...
-                    ^
-LINE 1: select 'test' != n2.* from (VALUES('test') ,('test') ,('test')) ...
-                         ^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
-LINE 1: select n2.* != 'test' from (VALUES('test') ,('test') ,('test')) ...
-               ^^
-LINE 1: select n2.* != 'test' from (VALUES('test') ,('test') ,('test'))...
-                            ^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
-LINE 1: select 'test' > n2.* from (VALUES('test') ,('test') ,('test')) ...
-                    ^
-LINE 1: select 'test' > n2.* from (VALUES('test') ,('test') ,('test')) n...
-                        ^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
-LINE 1: select 'test' < n2.* from (VALUES('test') ,('test') ,('test')) ...
-                    ^
-LINE 1: select 'test' < n2.* from (VALUES('test') ,('test') ,('test')) n...
-                        ^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
-LINE 1: select 'test' >= n2.* from (VALUES('test') ,('test') ,('test'))...
-                    ^
-LINE 1: select 'test' >= n2.* from (VALUES('test') ,('test') ,('test')) ...
-                         ^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
-LINE 1: select 'test' <= n2.* from (VALUES('test') ,('test') ,('test'))...
-                    ^
-LINE 1: select 'test' <= n2.* from (VALUES('test') ,('test') ,('test')) ...
-                         ^^
-???
-0
-0
-0
-(3 rows)
-???
-0
-0
-0
-(3 rows)
-???
-0
-0
-0
-(3 rows)
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right BOOLEAN
-LINE 1: select n1.* is UNKNOWN from (VALUES(TRUE)) n1;
-               ^^
-LINE 1: select n1.* is UNKNOWN from (VALUES(TRUE)) n1;
-                       ^^^^^^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right BOOLEAN
-LINE 1: select n1.* is true from (VALUES(TRUE)) n1;
-               ^^
-LINE 1: select n1.* is true from (VALUES(TRUE)) n1;
-                       ^^^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right BOOLEAN
-LINE 1: select n1.* is false from (VALUES(TRUE)) n1;
-               ^^
-LINE 1: select n1.* is false from (VALUES(TRUE)) n1;
-                       ^^^^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right BOOLEAN
-LINE 1: select n1.* is false from (VALUES(NULL)) n1;
-               ^^
-LINE 1: select n1.* is false from (VALUES(NULL)) n1;
-                       ^^^^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right BOOLEAN
-LINE 1: select n1.* is not UNKNOWN from (VALUES(TRUE)) n1;
-               ^^
-LINE 1: select n1.* is not UNKNOWN from (VALUES(TRUE)) n1;
-                           ^^^^^^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right BOOLEAN
-LINE 1: select n1.* is not true from (VALUES(TRUE)) n1;
-               ^^
-LINE 1: select n1.* is not true from (VALUES(TRUE)) n1;
+LINE 12:3: SELECT t1.* in (t2.*)  FROM names t1 LEFT JOIN (SELECT lastName ...
                            ^^^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right BOOLEAN
-LINE 1: select n1.* is not false from (VALUES(TRUE)) n1;
-               ^^
-LINE 1: select n1.* is not false from (VALUES(TRUE)) n1;
-                           ^^^^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right BOOLEAN
-LINE 1: select n1.* is not false from (VALUES(NULL)) n1;
-               ^^
-LINE 1: select n1.* is not false from (VALUES(NULL)) n1;
-                           ^^^^^
+[ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left VARCHAR, right INTEGER
+LINE 13:1: select n1.* in (n2.*) from (select 'test' union select 'num' uni...
+                           ^^^^
+[ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left VARCHAR, right INTEGER
+LINE 14:1: select n1.* in (n2.*) from (select 'test' union select 'num' uni...
+                           ^^^^
+[ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left VARCHAR, right INTEGER
+LINE 15:1: select n1.* in (n2.*) from (select 'test' union select NULL unio...
+                           ^^^^
+[ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left VARCHAR, right INTEGER
+LINE 17:1: select n1.* = n2.* from (VALUES(1::VARCHAR) ,(2::VARCHAR) ,(1::V...
+                         ^^
 [ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left NUMERIC, right INTEGER
-LINE 1: select n1.* = n2.* from (VALUES(1,'test1',1.0) ,(2,'test2',2.0) ...
-                      ^^
+LINE 18:1: select n1.* = n2.* from (VALUES(1::NUMERIC) ,(2::NUMERIC) ,(1::N...
+                         ^^
+???
+0
+0
+0
+0
+0
+0
+(6 rows)
+???
+0
+0
+0
+0
+0
+0
+(6 rows)
+LINE 23:1: select n1.* is not n1.* from names n1;
+                              ^^
+syntax error, unexpected IDENTIFIER_ALONE, expecting UNKNOWN or TRUE_TOKEN or FALSE_TOKEN or NULL_TOKEN
+LINE 24:1: select n1.* is n1.* from names n1;
+                          ^^
+syntax error, unexpected IDENTIFIER_ALONE
+LINE 25:1: select NULL is n1.* from names n1;
+                          ^^
+syntax error, unexpected IDENTIFIER_ALONE
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
+LINE 26:1: select n1.* like 'test' from names n1;
+                  ^^
+LINE 26:1: select n1.* like 'test' from names n1;
+                                 ^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for REGEX operation
+LINE 27:1: select n1.* like NULL from names n1;
+                  ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
+LINE 28:1: select 'test' like n1.* from names n1;
+                       ^
+LINE 28:1: select 'test' like n1.* from names n1;
+                              ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
+LINE 29:1: select n1.* similar to 'test' from names n1;
+                  ^^
+LINE 29:1: select n1.* similar to 'test' from names n1;
+                                       ^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for REGEX operation
+LINE 30:1: select n1.* similar to NULL from names n1;
+                  ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
+LINE 31:1: select 'test' similar to n1.* from names n1;
+                       ^
+LINE 31:1: select 'test' similar to n1.* from names n1;
+                                    ^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for REGEX operation
+LINE 32:1: select n1.* LIKE n1.* from names n1;
+                  ^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for REGEX operation
+LINE 33:1: select NULL like n1.* from names n1;
+                            ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
+LINE 34:1: select 'test' != n2.* from (VALUES('test') ,('test') ,('test'))...
+                       ^
+LINE 34:1: select 'test' != n2.* from (VALUES('test') ,('test') ,('test')) ...
+                            ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
+LINE 35:1: select n2.* != 'test' from (VALUES('test') ,('test') ,('test')) ...
+                  ^^
+LINE 35:1: select n2.* != 'test' from (VALUES('test') ,('test') ,('test'))...
+                               ^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
+LINE 36:1: select 'test' > n2.* from (VALUES('test') ,('test') ,('test')) ...
+                       ^
+LINE 36:1: select 'test' > n2.* from (VALUES('test') ,('test') ,('test')) n...
+                           ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
+LINE 37:1: select 'test' < n2.* from (VALUES('test') ,('test') ,('test')) ...
+                       ^
+LINE 37:1: select 'test' < n2.* from (VALUES('test') ,('test') ,('test')) n...
+                           ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
+LINE 38:1: select 'test' >= n2.* from (VALUES('test') ,('test') ,('test'))...
+                       ^
+LINE 38:1: select 'test' >= n2.* from (VALUES('test') ,('test') ,('test')) ...
+                            ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
+LINE 39:1: select 'test' <= n2.* from (VALUES('test') ,('test') ,('test'))...
+                       ^
+LINE 39:1: select 'test' <= n2.* from (VALUES('test') ,('test') ,('test')) ...
+                            ^^
+???
+0
+0
+0
+(3 rows)
+???
+0
+0
+0
+(3 rows)
+???
+0
+0
+0
+(3 rows)
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right BOOLEAN
+LINE 45:1: select n1.* is UNKNOWN from (VALUES(TRUE)) n1;
+                  ^^
+LINE 45:1: select n1.* is UNKNOWN from (VALUES(TRUE)) n1;
+                          ^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right BOOLEAN
+LINE 46:1: select n1.* is true from (VALUES(TRUE)) n1;
+                  ^^
+LINE 46:1: select n1.* is true from (VALUES(TRUE)) n1;
+                          ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right BOOLEAN
+LINE 47:1: select n1.* is false from (VALUES(TRUE)) n1;
+                  ^^
+LINE 47:1: select n1.* is false from (VALUES(TRUE)) n1;
+                          ^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right BOOLEAN
+LINE 48:1: select n1.* is false from (VALUES(NULL)) n1;
+                  ^^
+LINE 48:1: select n1.* is false from (VALUES(NULL)) n1;
+                          ^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right BOOLEAN
+LINE 49:1: select n1.* is not UNKNOWN from (VALUES(TRUE)) n1;
+                  ^^
+LINE 49:1: select n1.* is not UNKNOWN from (VALUES(TRUE)) n1;
+                              ^^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right BOOLEAN
+LINE 50:1: select n1.* is not true from (VALUES(TRUE)) n1;
+                  ^^
+LINE 50:1: select n1.* is not true from (VALUES(TRUE)) n1;
+                              ^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right BOOLEAN
+LINE 51:1: select n1.* is not false from (VALUES(TRUE)) n1;
+                  ^^
+LINE 51:1: select n1.* is not false from (VALUES(TRUE)) n1;
+                              ^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right BOOLEAN
+LINE 52:1: select n1.* is not false from (VALUES(NULL)) n1;
+                  ^^
+LINE 52:1: select n1.* is not false from (VALUES(NULL)) n1;
+                              ^^^^^
+[ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left NUMERIC, right INTEGER
+LINE 54:1: select n1.* = n2.* from (VALUES(1,'test1',1.0) ,(2,'test2',2.0) ...
+                         ^^
 [ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left INTEGER, right NUMERIC
-LINE 1: select n1.* != n2.* from (VALUES(1,'test1',1) ,(2,'test2',2) ,(1...
-                       ^^
+LINE 55:1: select n1.* != n2.* from (VALUES(1,'test1',1) ,(2,'test2',2) ,(1...
+                          ^^
 ???
 0
 0
@@ -338,170 +338,170 @@ LINE 1: select n1.* != n2.* from (VALUES(1,'test1',1) ,(2,'test2',2) ,(1...
 0
 (9 rows)
 [ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left NUMERIC, right INTEGER
-LINE 1: select n1.* NOT IN (n2.*) from (VALUES(1,'test1',1.0) ,(2,'test2...
-                            ^^^^
+LINE 57:1: select n1.* NOT IN (n2.*) from (VALUES(1,'test1',1.0) ,(2,'test2...
+                               ^^^^
 [ERROR]: ERR_TABLE_ASTERISK_COLUMN_COUNT_MISMATCH: Table asterisk column count mismatch: left 2, right 1
-LINE 1: select n1.* != n2.* from (VALUES(1,'test1') ,(2,'test2') ,(1,'te...
-                       ^^
+LINE 59:1: select n1.* != n2.* from (VALUES(1,'test1') ,(2,'test2') ,(1,'te...
+                          ^^
 [ERROR]: ERR_TABLE_ASTERISK_COLUMN_COUNT_MISMATCH: Table asterisk column count mismatch: left 1, right 2
-LINE 1: select n1.* < n2.* from (VALUES(1) ,(2) ,(1)) n1 JOIN (select 1,...
-                      ^^
+LINE 60:1: select n1.* < n2.* from (VALUES(1) ,(2) ,(1)) n1 JOIN (select 1,...
+                         ^^
 [ERROR]: ERR_TABLE_ASTERISK_COLUMN_COUNT_MISMATCH: Table asterisk column count mismatch: left 3, right 2
-LINE 1: select n1.* NOT IN (n2.*) from (VALUES(1,'test1',1.0) ,(2,'test2...
-                            ^^^^
+LINE 61:1: select n1.* NOT IN (n2.*) from (VALUES(1,'test1',1.0) ,(2,'test2...
+                               ^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
-LINE 1: select n1.* NOT IN (select NULL union select NULL) from (VALUES(...
-                            ^^^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
-LINE 1: select n1.* NOT IN (select NULL) from (VALUES('test1') ,('test2'...
-                            ^^^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
-LINE 1: select n1.* NOT IN (select * from (select NULL)n1) from names n1...
-                            ^^^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
-LINE 1: select n1.* = (select NULL union select NULL) from (VALUES('test...
-                       ^^^^^^
+LINE 63:1: select n1.* NOT IN (select NULL union select NULL) from (VALUES(...
+                               ^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
-LINE 1: select n1.* = (select NULL) from (VALUES('test1') ,('test2') ,('...
-                       ^^^^^^
+LINE 65:1: select n1.* NOT IN (select NULL) from (VALUES('test1') ,('test2'...
+                               ^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
-LINE 1: select n1.* = (select * from (select NULL)n1) from names n1;
-                       ^^^^^^
+LINE 66:1: select n1.* NOT IN (select * from (select NULL)n1) from names n1...
+                               ^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
-LINE 1: select n1.* < (select NULL union select NULL) from (VALUES('test...
-                       ^^^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
-LINE 1: select n1.* >= (select NULL) from (VALUES('test1') ,('test2') ,(...
-                        ^^^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
-LINE 1: select n1.* <= (select * from (select NULL)n1) from names n1;
-                        ^^^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
-LINE 1: select (select NULL union select NULL) NOT IN (n1.*) from (VALUE...
-                ^^^^^^
+LINE 68:1: select n1.* = (select NULL union select NULL) from (VALUES('test...
+                          ^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
-LINE 1: select (select NULL) NOT IN (n1.*) from (VALUES('test1') ,('test...
-                ^^^^^^
+LINE 70:1: select n1.* = (select NULL) from (VALUES('test1') ,('test2') ,('...
+                          ^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
-LINE 1: select (select * from (select NULL)n1) NOT IN (n1.*)from names n...
-                ^^^^^^
+LINE 71:1: select n1.* = (select * from (select NULL)n1) from names n1;
+                          ^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
-LINE 1: select (select NULL union select NULL) = n1.* from (VALUES('test...
-                ^^^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
-LINE 1: select (select NULL) = n1.* from (VALUES('test1') ,('test2') ,('...
-                ^^^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
-LINE 1: select (select * from (select NULL)n2) = n1.* from names n1;
-                ^^^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
-LINE 1: select (select NULL union select NULL) < n1.* from (VALUES('test...
-                ^^^^^^
+LINE 73:1: select n1.* < (select NULL union select NULL) from (VALUES('test...
+                          ^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
-LINE 1: select (select NULL) >= n1.* from (VALUES('test1') ,('test2') ,(...
-                ^^^^^^
+LINE 75:1: select n1.* >= (select NULL) from (VALUES('test1') ,('test2') ,(...
+                           ^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
-LINE 1: select (select * from (select NULL)n1) <= n1.* from names n1;
-                ^^^^^^
+LINE 76:1: select n1.* <= (select * from (select NULL)n1) from names n1;
+                           ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 78:1: select (select NULL union select NULL) NOT IN (n1.*) from (VALUE...
+                   ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 80:1: select (select NULL) NOT IN (n1.*) from (VALUES('test1') ,('test...
+                   ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 81:1: select (select * from (select NULL)n1) NOT IN (n1.*)from names n...
+                   ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 83:1: select (select NULL union select NULL) = n1.* from (VALUES('test...
+                   ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 85:1: select (select NULL) = n1.* from (VALUES('test1') ,('test2') ,('...
+                   ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 86:1: select (select * from (select NULL)n2) = n1.* from names n1;
+                   ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 88:1: select (select NULL union select NULL) < n1.* from (VALUES('test...
+                   ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 90:1: select (select NULL) >= n1.* from (VALUES('test1') ,('test2') ,(...
+                   ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
+LINE 91:1: select (select * from (select NULL)n1) <= n1.* from names n1;
+                   ^^^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
-LINE 1: select n1.* NOT IN (select 1 union select 2) from (VALUES('test1...
-               ^^
+LINE 93:1: select n1.* NOT IN (select 1 union select 2) from (VALUES('test1...
+                  ^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right NUMERIC
-LINE 1: select n1.* NOT IN (VALUES(1.0), (2.0)) from (VALUES('test1') ,(...
-               ^^
+LINE 94:1: select n1.* NOT IN (VALUES(1.0), (2.0)) from (VALUES('test1') ,(...
+                  ^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
-LINE 1: select n1.* NOT IN (select 1) from (VALUES('test1') ,('test2') ,...
-               ^^
-LINE 1: select n1.* NOT IN (select 1) from (VALUES('test1') ,('test2') ,...
+LINE 95:1: select n1.* NOT IN (select 1) from (VALUES('test1') ,('test2') ,...
+                  ^^
+LINE 95:1: select n1.* NOT IN (select 1) from (VALUES('test1') ,('test2') ,...
+                               ^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
+LINE 96:1: select n1.* NOT IN (select * from (select 1)n1) from names n1;
+                  ^^
+LINE 96:1: select n1.* NOT IN (select * from (select 1)n1) from names n1;
+                               ^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
+LINE 98:1: select n1.* = (select 1 union select 2) from (VALUES('test1') ,(...
+                  ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right NUMERIC
+LINE 99:1: select n1.* = (VALUES(1.0), (2.0)) from (VALUES('test1') ,('test...
+                  ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
+LINE 100:1: select n1.* = (select 1) from (VALUES('test1') ,('test2') ,('tes...
+                   ^^
+LINE 100:1: select n1.* = (select 1) from (VALUES('test1') ,('test2') ,('tes...
+                           ^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
+LINE 101:1: select n1.* = (select * from (select 1)n1) from names n1;
+                   ^^
+LINE 101:1: select n1.* = (select * from (select 1)n1) from names n1;
+                           ^^^^^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
+LINE 103:1: select n1.* < (select 1 union select 2) from (VALUES('test1') ,(...
+                   ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right NUMERIC
+LINE 104:1: select n1.* > (VALUES(1.0), (2.0)) from (VALUES('test1') ,('test...
+                   ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
+LINE 105:1: select n1.* >= (select 1) from (VALUES('test1') ,('test2') ,('te...
+                   ^^
+LINE 105:1: select n1.* >= (select 1) from (VALUES('test1') ,('test2') ,('te...
                             ^^^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
-LINE 1: select n1.* NOT IN (select * from (select 1)n1) from names n1;
-               ^^
-LINE 1: select n1.* NOT IN (select * from (select 1)n1) from names n1;
+LINE 106:1: select n1.* <= (select * from (select 1)n1) from names n1;
+                   ^^
+LINE 106:1: select n1.* <= (select * from (select 1)n1) from names n1;
                             ^^^^^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
-LINE 1: select n1.* = (select 1 union select 2) from (VALUES('test1') ,(...
-               ^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right NUMERIC
-LINE 1: select n1.* = (VALUES(1.0), (2.0)) from (VALUES('test1') ,('test...
-               ^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
-LINE 1: select n1.* = (select 1) from (VALUES('test1') ,('test2') ,('tes...
-               ^^
-LINE 1: select n1.* = (select 1) from (VALUES('test1') ,('test2') ,('tes...
-                       ^^^^^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
-LINE 1: select n1.* = (select * from (select 1)n1) from names n1;
-               ^^
-LINE 1: select n1.* = (select * from (select 1)n1) from names n1;
-                       ^^^^^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
-LINE 1: select n1.* < (select 1 union select 2) from (VALUES('test1') ,(...
-               ^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right NUMERIC
-LINE 1: select n1.* > (VALUES(1.0), (2.0)) from (VALUES('test1') ,('test...
-               ^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
-LINE 1: select n1.* >= (select 1) from (VALUES('test1') ,('test2') ,('te...
-               ^^
-LINE 1: select n1.* >= (select 1) from (VALUES('test1') ,('test2') ,('te...
-                        ^^^^^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
-LINE 1: select n1.* <= (select * from (select 1)n1) from names n1;
-               ^^
-LINE 1: select n1.* <= (select * from (select 1)n1) from names n1;
-                        ^^^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
-LINE 1: ...ect 1 union select 2) not in (n1.*) from (VALUES('test1') ,('tes...
-                                         ^^^^
+LINE 108:1: ...ect 1 union select 2) not in (n1.*) from (VALUES('test1') ,('tes...
+                                             ^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left NUMERIC, right TABLENAME.*
-LINE 1: ... (VALUES(1.0), (2.0)) NOT IN (n1.*) from (VALUES('test1') ,('tes...
-                                         ^^^^
+LINE 109:1: ... (VALUES(1.0), (2.0)) NOT IN (n1.*) from (VALUES('test1') ,('tes...
+                                             ^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
-LINE 1: select (select 1) IN (n1.*) from (VALUES('test1') ,('test2') ,('...
-                ^^^^^^
-LINE 1: select (select 1) IN (n1.*) from (VALUES('test1') ,('test2') ,('...
-                              ^^^^
+LINE 110:1: select (select 1) IN (n1.*) from (VALUES('test1') ,('test2') ,('...
+                    ^^^^^^
+LINE 110:1: select (select 1) IN (n1.*) from (VALUES('test1') ,('test2') ,('...
+                                  ^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
-LINE 1: select (select * from (select 1)n1) IN (n1.*) from names n1;
-                ^^^^^^
-LINE 1: select (select * from (select 1)n1) IN (n1.*) from names n1;
-                                                ^^^^
+LINE 111:1: select (select * from (select 1)n1) IN (n1.*) from names n1;
+                    ^^^^^^
+LINE 111:1: select (select * from (select 1)n1) IN (n1.*) from names n1;
+                                                    ^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
-LINE 1: ...ct (select 1 union select 2) = n1.* from (VALUES('test1') ,('tes...
+LINE 113:1: ...ct (select 1 union select 2) = n1.* from (VALUES('test1') ,('tes...
+                                              ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left NUMERIC, right TABLENAME.*
+LINE 114:1: select (VALUES(1.0), (2.0)) = n1.* from (VALUES('test1') ,('test...
                                           ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
+LINE 115:1: select (select 1) != n1.* from (VALUES('test1') ,('test2') ,('te...
+                    ^^^^^^
+LINE 115:1: select (select 1) != n1.* from (VALUES('test1') ,('test2') ,('te...
+                                 ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
+LINE 116:1: select (select * from (select 1)n2) != n1.* from names n1;
+                    ^^^^^^
+LINE 116:1: select (select * from (select 1)n2) != n1.* from names n1;
+                                                   ^^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
+LINE 118:1: ...ct (select 1 union select 2) < n1.* from (VALUES('test1') ,('tes...
+                                              ^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left NUMERIC, right TABLENAME.*
-LINE 1: select (VALUES(1.0), (2.0)) = n1.* from (VALUES('test1') ,('test...
-                                      ^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
-LINE 1: select (select 1) != n1.* from (VALUES('test1') ,('test2') ,('te...
-                ^^^^^^
-LINE 1: select (select 1) != n1.* from (VALUES('test1') ,('test2') ,('te...
-                             ^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
-LINE 1: select (select * from (select 1)n2) != n1.* from names n1;
-                ^^^^^^
-LINE 1: select (select * from (select 1)n2) != n1.* from names n1;
-                                               ^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
-LINE 1: ...ct (select 1 union select 2) < n1.* from (VALUES('test1') ,('tes...
+LINE 119:1: select (VALUES(1.0), (2.0)) > n1.* from (VALUES('test1') ,('test...
                                           ^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left NUMERIC, right TABLENAME.*
-LINE 1: select (VALUES(1.0), (2.0)) > n1.* from (VALUES('test1') ,('test...
-                                      ^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
-LINE 1: select (select 1) >= n1.* from (VALUES('test1') ,('test2') ,('te...
-                ^^^^^^
-LINE 1: select (select 1) >= n1.* from (VALUES('test1') ,('test2') ,('te...
-                             ^^
+LINE 120:1: select (select 1) >= n1.* from (VALUES('test1') ,('test2') ,('te...
+                    ^^^^^^
+LINE 120:1: select (select 1) >= n1.* from (VALUES('test1') ,('test2') ,('te...
+                                 ^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
-LINE 1: select (select * from (select 1)n2) <= n1.* from names n1;
-                ^^^^^^
-LINE 1: select (select * from (select 1)n2) <= n1.* from names n1;
-                                               ^^
+LINE 121:1: select (select * from (select 1)n2) <= n1.* from names n1;
+                    ^^^^^^
+LINE 121:1: select (select * from (select 1)n2) <= n1.* from names n1;
+                                                   ^^

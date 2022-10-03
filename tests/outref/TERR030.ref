@@ -31,46 +31,46 @@ SELECT firstname,lastname,id FROM names UNION ALL (VALUES (0, 'Zero', 'Cool'), (
 SELECT * FROM NAMES WHERE id IN (values (3,4,6,7));
 
 [ERROR]: ERR_VALUES_LENGTH: VALUES lists must all be the same length
-LINE 1: SELECT * FROM (VALUES (1), (2,3)) AS MyTable;
-                              ^^^^^^^^^^
+LINE 4:1: SELECT * FROM (VALUES (1), (2,3)) AS MyTable;
+                                ^^^^^^^^^^
 [ERROR]: ERR_VALUES_LENGTH: VALUES lists must all be the same length
-LINE 1: SELECT * FROM (VALUES (1), (2), (3), (2,3)) AS MyTable;
-                                        ^^^^^^^^^^
+LINE 5:1: SELECT * FROM (VALUES (1), (2), (3), (2,3)) AS MyTable;
+                                          ^^^^^^^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
-LINE 1: SELECT * FROM (VALUES (1), ('abcd')) AS abcd;
-                               ^
-LINE 1: SELECT * FROM (VALUES (1), ('abcd')) AS abcd;
-                                         ^
+LINE 7:1: SELECT * FROM (VALUES (1), ('abcd')) AS abcd;
+                                 ^
+LINE 7:1: SELECT * FROM (VALUES (1), ('abcd')) AS abcd;
+                                           ^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left NUMERIC, right BOOLEAN
-LINE 1: SELECT * FROM (VALUES (1), (1.5), (true)) AS abcd;
-                               ^
-LINE 1: SELECT * FROM (VALUES (1), (1.5), (true)) AS abcd;
-                                           ^^^^
+LINE 8:1: SELECT * FROM (VALUES (1), (1.5), (true)) AS abcd;
+                                 ^
+LINE 8:1: SELECT * FROM (VALUES (1), (1.5), (true)) AS abcd;
+                                             ^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
-LINE 1: ... (SELECT * FROM (VALUES (NULL),('abcd')) n1 WHERE column1 = 1);
-                                                             ^^^^^^^
-LINE 1: ... (SELECT * FROM (VALUES (NULL),('abcd')) n1 WHERE column1 = 1);
-                                                                       ^
+LINE 9:1: ... (SELECT * FROM (VALUES (NULL),('abcd')) n1 WHERE column1 = 1);
+                                                               ^^^^^^^
+LINE 9:1: ... (SELECT * FROM (VALUES (NULL),('abcd')) n1 WHERE column1 = 1);
+                                                                         ^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
-LINE 1: SELECT id FROM names WHERE id = (SELECT * FROM (VALUES (NULL),('...
-                                   ^^
-LINE 1: ...CT id FROM names WHERE id = (SELECT * FROM (VALUES (NULL),('abcd...
-                                        ^^^^^^
+LINE 10:1: SELECT id FROM names WHERE id = (SELECT * FROM (VALUES (NULL),('...
+                                      ^^
+LINE 10:1: ...CT id FROM names WHERE id = (SELECT * FROM (VALUES (NULL),('abcd...
+                                           ^^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: A
-LINE 1: SELECT a, b FROM (VALUES (1, 2), (3, 4), (5, 6), (7, 8), (9, 10...
-               ^
+LINE 12:1: SELECT a, b FROM (VALUES (1, 2), (3, 4), (5, 6), (7, 8), (9, 10...
+                  ^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: COL1
-LINE 1: SELECT col1 FROM (VALUES (1)) as MyTable;
-               ^^^^
-LINE 1: VALUES (VALUES (1));
-                ^^^^^^
+LINE 13:1: SELECT col1 FROM (VALUES (1)) as MyTable;
+                  ^^^^
+LINE 15:1: VALUES (VALUES (1));
+                   ^^^^^^
 syntax error, unexpected VALUES
-LINE 1: SELECT * FROM (VALUES (1, SELECT 1)) AS abcd;
-                                  ^^^^^^
+LINE 16:1: SELECT * FROM (VALUES (1, SELECT 1)) AS abcd;
+                                     ^^^^^^
 syntax error, unexpected SELECT
 [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
 [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
-LINE 1: SELECT firstname,lastname,id FROM names UNION ALL (VALUES (0, '...
-               ^^^^^^^^^
+LINE 21:1: SELECT firstname,lastname,id FROM names UNION ALL (VALUES (0, '...
+                  ^^^^^^^^^
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column

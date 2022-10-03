@@ -11,14 +11,14 @@ SELECT LENGTH(LENGTH(LENGTH(1, 2))) FROM names;
 
 CREATE FUNCTION
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function 'ABS' defined with given parameter types (INTEGER, INTEGER)
-LINE 1: SELECT ABS(ABS(1, 2)) FROM names;
-                   ^^^
+LINE 5:1: SELECT ABS(ABS(1, 2)) FROM names;
+                     ^^^
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function 'ABS' defined with given parameter types (INTEGER, INTEGER)
-LINE 1: SELECT ABS(ABS(ABS(1, 2))) FROM names;
-                       ^^^
+LINE 6:1: SELECT ABS(ABS(ABS(1, 2))) FROM names;
+                         ^^^
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function 'LENGTH' defined with given parameter types (INTEGER, INTEGER)
-LINE 1: SELECT LENGTH(LENGTH(1, 2)) FROM names;
-                      ^^^^^^
+LINE 8:1: SELECT LENGTH(LENGTH(1, 2)) FROM names;
+                        ^^^^^^
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function 'LENGTH' defined with given parameter types (INTEGER, INTEGER)
-LINE 1: SELECT LENGTH(LENGTH(LENGTH(1, 2))) FROM names;
-                             ^^^^^^
+LINE 9:1: SELECT LENGTH(LENGTH(LENGTH(1, 2))) FROM names;
+                               ^^^^^^

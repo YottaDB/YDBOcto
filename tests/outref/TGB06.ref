@@ -16,8 +16,8 @@ ID|ID
 0|
 (1 row)
 [ERROR]: ERR_AGGREGATE_FUNCTION_JOIN: Aggregate functions are not allowed in JOIN conditions
-LINE 1: ...EFT JOIN names n4 ON n4.id = COUNT(n1.id) ORDER BY COUNT(n1.id)...
-                                        ^^^^^
+LINE 7:1: ...EFT JOIN names n4 ON n4.id = COUNT(n1.id) ORDER BY COUNT(n1.id)...
+                                          ^^^^^
 ID|ID
 |0
 (1 row)

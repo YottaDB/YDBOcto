@@ -63,5 +63,5 @@ OVERLOADEDFUNC
 1
 (6 rows)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right BOOLEAN
-LINE 1: SELECT  * FROM names where firstname = OVERLOADEDFUNC(true);
-                                   ^^^^^^^^^
+LINE 18:1: SELECT  * FROM names where firstname = OVERLOADEDFUNC(true);
+                                      ^^^^^^^^^

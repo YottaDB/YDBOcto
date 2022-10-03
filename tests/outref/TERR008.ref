@@ -1,7 +1,7 @@
 [ INFO] PATH:LINENUM DATE TIME: INFO_RECORDING_ENV_VARS: # Recording pertinent ydb_* env var values at process startup
 [ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_COLUMN_NAME: Unknown column: NOTATHING
-LINE 2: 	notathing  	  from
-	        ^^^^^^^^^
+LINE 2:2: 	notathing  	  from
+	          ^^^^^^^^^
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [select
 	notathing  	  from
 			names

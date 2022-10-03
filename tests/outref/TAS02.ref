@@ -3,5 +3,5 @@
 
 SELECT ARRAY(SELECT * FROM names);
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
-LINE 1: SELECT ARRAY(SELECT * FROM names);
-                     ^^^^^^
+LINE 3:1: SELECT ARRAY(SELECT * FROM names);
+                       ^^^^^^

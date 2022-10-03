@@ -7,7 +7,7 @@ Joey|
 Zero|Cool
 (6 rows)
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: NOTATHING
-LINE 1: select notathing from names; select firstname from names limit ...
+LINE 5:1: select notathing from names; select firstname from names limit ...
 HIGHLIGHT
 FIRSTNAME
 Zero

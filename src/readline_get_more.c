@@ -66,26 +66,24 @@ int readline_get_more() {
 		 */
 		do {
 			// Reset errno to ensure that the loop terminates so long as `EINTR` is not raised by `read()`
-			if ((0 == old_input_index) && (cur_input_index == cur_input_max)) {
-				char *tmp = malloc(cur_input_max * 2 + 1);
+			if (cur_input_index == cur_input_max) {
+				char * tmp;
+				size_t old_begin_index;
+
+				assert(old_input_line_begin >= input_buffer_combined);
+				old_begin_index = old_input_line_begin - input_buffer_combined;
+				tmp = malloc(cur_input_max * 2 + 1);
 				memmove(tmp, input_buffer_combined, cur_input_max);
 				free(input_buffer_combined);
+
 				input_buffer_combined = tmp;
+				old_input_line_begin = &input_buffer_combined[old_begin_index];
 				data_read = read(fileno(inputFile), input_buffer_combined + cur_input_max, cur_input_max);
 				cur_input_max *= 2;
-				/* if just the cur_input_index is the max then we probably have a dangling query
-				 * copy everything from the old index to the end to the start of the buffer
-				 * shift the index over and read more
-				 */
-			} else if (cur_input_index == cur_input_max) {
-				memcpy(input_buffer_combined, input_buffer_combined + old_input_index,
-				       cur_input_index - old_input_index);
-				cur_input_index -= old_input_index;
-				old_input_index = 0;
+			} else {
+				assert(cur_input_max > cur_input_index);
 				data_read = read(fileno(inputFile), input_buffer_combined + cur_input_index,
 						 cur_input_max - cur_input_index);
-			} else {
-				data_read = read(fileno(inputFile), input_buffer_combined, cur_input_max);
 			}
 		} while ((-1 == data_read) && (EINTR == errno));
 

@@ -50,14 +50,14 @@ delete from names where lastname = id; -- a modified version of this query (with
 -- Test of ERR_UNKNOWN_COLUMN_NAME
 (1 row)
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ABCD
-LINE 1: delete from names where abcd = 2;
-                                ^^^^
+LINE 4:1: delete from names where abcd = 2;
+                                  ^^^^
 ???
 -- Test of ERR_MISSING_FROM_ENTRY
 (1 row)
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : NAMES
-LINE 1: delete from names n1 where names.id = 2;
-                                   ^^^^^^^^
+LINE 7:1: delete from names n1 where names.id = 2;
+                                     ^^^^^^^^
 ???
 -- Test of ERR_TABLE_READONLY error against various catalog tables
 (1 row)
@@ -96,19 +96,19 @@ DROP TABLE
 -- Test of ERR_UNKNOWN_TABLE error
 (1 row)
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: ABCD
-LINE 1: delete from abcd;
-                    ^^^^
+LINE 40:1: delete from abcd;
+                       ^^^^
 ???
 -- Test of ERR_TYPE_NOT_COMPATIBLE error
 (1 row)
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
-LINE 1: delete from names where firstname;
-                                ^^^^^^^^^
+LINE 43:1: delete from names where firstname;
+                                   ^^^^^^^^^
 ???
 -- Test of ERR_TYPE_MISMATCH error
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
-LINE 1: delete from names where lastname = id; -- a modified version of ...
-                                ^^^^^^^^
-LINE 1: ...te from names where lastname = id; -- a modified version of this...
-                                          ^^
+LINE 46:1: delete from names where lastname = id; -- a modified version of ...
+                                   ^^^^^^^^
+LINE 46:1: ...te from names where lastname = id; -- a modified version of this...
+                                             ^^

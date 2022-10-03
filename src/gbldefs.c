@@ -30,7 +30,10 @@ int	     cur_input_index;		 // Current index of input_buffer_combined the parser
 					 // current query.
 int old_input_index;			 // The previous value of cur_input_index before the parser modifies it.
 					 // Effectively marks the start of the current query.
-int leading_spaces;			 // leading spaces in the current query it needs to be stored somewhere
+int   old_input_line_num;		 // The line number pointed to by old_input_index
+int   prev_input_line_num;		 // The line number pointed to by the previous value of old_input_index
+char *old_input_line_begin;		 // Pointer to the beginning of the line pointed to by old_input_index
+int   leading_spaces;			 // leading spaces in the current query it needs to be stored somewhere
 					 // accessible but should be ignored, except by the lexer and yyerror
 int   cur_input_max;
 int   eof_hit;

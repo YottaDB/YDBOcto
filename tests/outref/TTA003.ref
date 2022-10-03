@@ -77,15 +77,15 @@ SELECT n1.* AS x, n1.* AS b FROM names n1 ORDER BY a, b;
 SELECT DISTINCT n1.* FROM names n1 ORDER BY n1.*;
 
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: SELECT lastname FROM names GROUP BY names.* ORDER BY firstname;
-               ^^^^^^^^
+LINE 4:1: SELECT lastname FROM names GROUP BY names.* ORDER BY firstname;
+                 ^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: SELECT id FROM names GROUP BY names.* HAVING id < 1;
-               ^^
+LINE 6:1: SELECT id FROM names GROUP BY names.* HAVING id < 1;
+                 ^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: SELECT COUNT(id) FROM names GROUP BY names.* HAVING id < 1;
-                                                            ^^
+LINE 7:1: SELECT COUNT(id) FROM names GROUP BY names.* HAVING id < 1;
+                                                              ^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
@@ -96,107 +96,107 @@ LINE 1: SELECT COUNT(id) FROM names GROUP BY names.* HAVING id < 1;
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: SELECT firstname FROM names GROUP BY names.*;
-               ^^^^^^^^^
+LINE 19:1: SELECT firstname FROM names GROUP BY names.*;
+                  ^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: SELECT COUNT(n1.*),n1.customer_id FROM customers AS n1 GROUP BY ...
-                           ^^^^^^^^^^^^^^
+LINE 20:1: SELECT COUNT(n1.*),n1.customer_id FROM customers AS n1 GROUP BY ...
+                              ^^^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: SELECT n1.customer_id FROM customers AS n1 GROUP BY n1.*;
-               ^^^^^^^^^^^^^^
+LINE 21:1: SELECT n1.customer_id FROM customers AS n1 GROUP BY n1.*;
+                  ^^^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...CT COUNT(n1.customer_id),n1.customer_id FROM customers AS n1 GRO...
-                                    ^^^^^^^^^^^^^^
+LINE 22:1: ...CT COUNT(n1.customer_id),n1.customer_id FROM customers AS n1 GRO...
+                                       ^^^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: SELECT COUNT(n1.*),n1.name FROM ((SELECT 1 AS id, 'test' AS nam...
-                           ^^^^^^^
+LINE 24:1: SELECT COUNT(n1.*),n1.name FROM ((SELECT 1 AS id, 'test' AS nam...
+                              ^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: SELECT COUNT(n1.*),n1.id FROM names1col AS n1 GROUP BY n1.*;
-                           ^^^^^
+LINE 25:1: SELECT COUNT(n1.*),n1.id FROM names1col AS n1 GROUP BY n1.*;
+                              ^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column N1.* must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...T 1 FROM names n1 GROUP BY n1.firstname HAVING n1.* IS NOT NULL;
-                                                          ^^
+LINE 32:1: ...T 1 FROM names n1 GROUP BY n1.firstname HAVING n1.* IS NOT NULL;
+                                                             ^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type TABLENAME.* to type INTEGER
-LINE 1: SELECT SUM(n1.*::INTEGER) FROM (SELECT id FROM names) n1;
-                   ^^^^^^^^^^^^^
+LINE 34:1: SELECT SUM(n1.*::INTEGER) FROM (SELECT id FROM names) n1;
+                      ^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type TABLENAME.* to type INTEGER
-LINE 1: SELECT AVG(n1.*::INTEGER) FROM (SELECT id FROM names) n1;
-                   ^^^^^^^^^^^^^
+LINE 35:1: SELECT AVG(n1.*::INTEGER) FROM (SELECT id FROM names) n1;
+                      ^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type TABLENAME.* to type INTEGER
-LINE 1: SELECT MAX(n1.*::INTEGER) FROM (SELECT id FROM names) n1;
-                   ^^^^^^^^^^^^^
+LINE 36:1: SELECT MAX(n1.*::INTEGER) FROM (SELECT id FROM names) n1;
+                      ^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type TABLENAME.* to type INTEGER
-LINE 1: SELECT MIN(n1.*::INTEGER) FROM (SELECT id FROM names) n1;
-                   ^^^^^^^^^^^^^
+LINE 37:1: SELECT MIN(n1.*::INTEGER) FROM (SELECT id FROM names) n1;
+                      ^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type TABLENAME.* to type INTEGER
-LINE 1: SELECT COUNT(n1.*::INTEGER) FROM (SELECT id FROM names) n1;
-                     ^^^^^^^^^^^^^
+LINE 38:1: SELECT COUNT(n1.*::INTEGER) FROM (SELECT id FROM names) n1;
+                        ^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type TABLENAME.* to type INTEGER
-LINE 1: SELECT COUNT(DISTINCT n1.*::INTEGER) FROM (SELECT id FROM names...
-                              ^^^^^^^^^^^^^
+LINE 39:1: SELECT COUNT(DISTINCT n1.*::INTEGER) FROM (SELECT id FROM names...
+                                 ^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type TABLENAME.* to type NUMERIC
-LINE 1: SELECT SUM(n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
-                   ^^^^^^^^^^^^^
+LINE 40:1: SELECT SUM(n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
+                      ^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type TABLENAME.* to type NUMERIC
-LINE 1: SELECT AVG(n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
-                   ^^^^^^^^^^^^^
+LINE 41:1: SELECT AVG(n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
+                      ^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type TABLENAME.* to type NUMERIC
-LINE 1: SELECT MAX(n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
-                   ^^^^^^^^^^^^^
+LINE 42:1: SELECT MAX(n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
+                      ^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type TABLENAME.* to type NUMERIC
-LINE 1: SELECT MIN(n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
-                   ^^^^^^^^^^^^^
+LINE 43:1: SELECT MIN(n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
+                      ^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type TABLENAME.* to type NUMERIC
-LINE 1: SELECT COUNT(n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
-                     ^^^^^^^^^^^^^
+LINE 44:1: SELECT COUNT(n1.*::NUMERIC) FROM (SELECT id FROM names) n1;
+                        ^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type TABLENAME.* to type NUMERIC
-LINE 1: SELECT COUNT(DISTINCT n1.*::NUMERIC) FROM (SELECT id FROM names...
-                              ^^^^^^^^^^^^^
+LINE 45:1: SELECT COUNT(DISTINCT n1.*::NUMERIC) FROM (SELECT id FROM names...
+                                 ^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type TABLENAME.* to type VARCHAR
-LINE 1: SELECT SUM(n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
-                   ^^^^^^^^^^^^^
+LINE 46:1: SELECT SUM(n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
+                      ^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type TABLENAME.* to type VARCHAR
-LINE 1: SELECT AVG(n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
-                   ^^^^^^^^^^^^^
+LINE 47:1: SELECT AVG(n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
+                      ^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type TABLENAME.* to type VARCHAR
-LINE 1: SELECT MAX(n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
-                   ^^^^^^^^^^^^^
+LINE 48:1: SELECT MAX(n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
+                      ^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type TABLENAME.* to type VARCHAR
-LINE 1: SELECT MIN(n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
-                   ^^^^^^^^^^^^^
+LINE 49:1: SELECT MIN(n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
+                      ^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type TABLENAME.* to type VARCHAR
-LINE 1: SELECT COUNT(n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
-                     ^^^^^^^^^^^^^
+LINE 50:1: SELECT COUNT(n1.*::VARCHAR) FROM (SELECT id FROM names) n1;
+                        ^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type TABLENAME.* to type VARCHAR
-LINE 1: SELECT COUNT(DISTINCT n1.*::VARCHAR) FROM (SELECT id FROM names...
-                              ^^^^^^^^^^^^^
+LINE 51:1: SELECT COUNT(DISTINCT n1.*::VARCHAR) FROM (SELECT id FROM names...
+                                 ^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type TABLENAME.* to type BOOLEAN
-LINE 1: SELECT SUM(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
-                   ^^^^^^^^^^^^^
+LINE 52:1: SELECT SUM(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
+                      ^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type TABLENAME.* to type BOOLEAN
-LINE 1: SELECT AVG(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
-                   ^^^^^^^^^^^^^
+LINE 53:1: SELECT AVG(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
+                      ^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type TABLENAME.* to type BOOLEAN
-LINE 1: SELECT MAX(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
-                   ^^^^^^^^^^^^^
+LINE 54:1: SELECT MAX(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
+                      ^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type TABLENAME.* to type BOOLEAN
-LINE 1: SELECT MIN(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
-                   ^^^^^^^^^^^^^
+LINE 55:1: SELECT MIN(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
+                      ^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type TABLENAME.* to type BOOLEAN
-LINE 1: SELECT COUNT(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
-                     ^^^^^^^^^^^^^
+LINE 56:1: SELECT COUNT(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
+                        ^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type TABLENAME.* to type BOOLEAN
-LINE 1: SELECT COUNT(DISTINCT n1.*::BOOLEAN) FROM (SELECT id FROM names...
-                              ^^^^^^^^^^^^^
+LINE 57:1: SELECT COUNT(DISTINCT n1.*::BOOLEAN) FROM (SELECT id FROM names...
+                                 ^^^^^^^^^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: A
-LINE 1: SELECT n1.* AS x, n1.* AS b FROM names n1 ORDER BY a, b;
-                                                           ^
+LINE 59:1: SELECT n1.* AS x, n1.* AS b FROM names n1 ORDER BY a, b;
+                                                              ^
 [ERROR]: ERR_ORDER_BY_SELECT_DISTINCT: For SELECT DISTINCT, ORDER BY expressions must appear in select list
-LINE 1: SELECT DISTINCT n1.* FROM names n1 ORDER BY n1.*;
-                                                    ^^^^
+LINE 61:1: SELECT DISTINCT n1.* FROM names n1 ORDER BY n1.*;
+                                                       ^^^^

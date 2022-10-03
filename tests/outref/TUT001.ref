@@ -176,22 +176,22 @@ update composite set id3 = id3, id7 = NULL, id0 = id0;
 -- Test of ERR_TABLE_UNKNOWN_COLUMN_NAME error using a regular column
 (1 row)
 [ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column 'ABCD' of table 'NAMES' does not exist
-LINE 1: update names set abcd = 2;
-                         ^^^^
+LINE 4:1: update names set abcd = 2;
+                           ^^^^
 ???
 -- Test of ERR_TABLE_UNKNOWN_COLUMN_NAME error using a hidden key column
 (1 row)
 CREATE TABLE
 [ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column '%YO_KEYCOL' of table 'TMP' does not exist
-LINE 1: update tmp set `%yo_keycol` = 2;
-                                  ^
+LINE 8:1: update tmp set `%yo_keycol` = 2;
+                                    ^
 DROP TABLE
 ???
 -- Test of ERR_MISSING_FROM_ENTRY
 (1 row)
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : NAMES
-LINE 1: update names n1 set firstname = 'abcd' where names.id = 2;
-                                                     ^^^^^^^^
+LINE 12:1: update names n1 set firstname = 'abcd' where names.id = 2;
+                                                        ^^^^^^^^
 ???
 -- Test of ERR_TABLE_READONLY error against various catalog tables
 (1 row)
@@ -234,88 +234,88 @@ DROP TABLE
 -- Test of ERR_TYPE_NOT_COMPATIBLE error
 (1 row)
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
-LINE 1: update names set id = id + 1 where firstname;
-                                           ^^^^^^^^^
+LINE 47:1: update names set id = id + 1 where firstname;
+                                              ^^^^^^^^^
 ???
 -- Test of ERR_TYPE_MISMATCH error
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
-LINE 1: update names set firstname = 2;
-                         ^^^^^^^^^
-LINE 1: update names set firstname = 2;
-                                     ^
+LINE 50:1: update names set firstname = 2;
+                            ^^^^^^^^^
+LINE 50:1: update names set firstname = 2;
+                                        ^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
-LINE 1: update names set firstname = lastname, id = lastname;
-                                               ^^
-LINE 1: update names set firstname = lastname, id = lastname;
-                                                    ^^^^^^^^
+LINE 51:1: update names set firstname = lastname, id = lastname;
+                                                  ^^
+LINE 51:1: update names set firstname = lastname, id = lastname;
+                                                       ^^^^^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
-LINE 1: update names set firstname = lastname, lastname = id;
-                                               ^^^^^^^^
-LINE 1: update names set firstname = lastname, lastname = id;
-                                                          ^^
+LINE 52:1: update names set firstname = lastname, lastname = id;
+                                                  ^^^^^^^^
+LINE 52:1: update names set firstname = lastname, lastname = id;
+                                                             ^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
-LINE 1: update names set firstname = (select id from names);
-                         ^^^^^^^^^
-LINE 1: update names set firstname = (select id from names);
-                                      ^^^^^^
+LINE 53:1: update names set firstname = (select id from names);
+                            ^^^^^^^^^
+LINE 53:1: update names set firstname = (select id from names);
+                                         ^^^^^^
 ???
 -- Test of various syntax errors (SET clause not specified etc.)
 (1 row)
-LINE 1: update names where lastname = firstname;
-                     ^^^^^
+LINE 56:1: update names where lastname = firstname;
+                        ^^^^^
 syntax error, unexpected WHERE, expecting IDENTIFIER_ALONE or LITERAL
-LINE 1: update names set firstname != 'abcd' ;
-                                   ^^
+LINE 57:1: update names set firstname != 'abcd' ;
+                                      ^^
 syntax error, unexpected NOT_EQUALS, expecting EQUALS
-LINE 1: update names set id * 2 = 3;
-                            ^
+LINE 58:1: update names set id * 2 = 3;
+                               ^
 syntax error, unexpected ASTERISK, expecting EQUALS
-LINE 1: update names set where firstname = lastname;
-                         ^^^^^
+LINE 59:1: update names set where firstname = lastname;
+                            ^^^^^
 syntax error, unexpected WHERE
-LINE 1: update names set id = id + where firstname = lastname;
-                                   ^^^^^
+LINE 60:1: update names set id = id + where firstname = lastname;
+                                      ^^^^^
 syntax error, unexpected WHERE
 ???
 -- Test of ERR_UNKNOWN_TABLE error
 (1 row)
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: ABCD
-LINE 1: update abcd set id = 2;
-               ^^^^
+LINE 63:1: update abcd set id = 2;
+                  ^^^^
 ???
 -- Test of ERR_DUPLICATE_COLUMN error
 (1 row)
 [ERROR]: ERR_DUPLICATE_COLUMN: Column 'ID' specified more than once
-LINE 1: update names set id = 2, id = 3;
-                                 ^^
+LINE 66:1: update names set id = 2, id = 3;
+                                    ^^
 [ERROR]: ERR_DUPLICATE_COLUMN: Column 'ID' specified more than once
-LINE 1: update names set id = 2, firstname = 'abcd', id = 3;
-                                                     ^^
+LINE 67:1: update names set id = 2, firstname = 'abcd', id = 3;
+                                                        ^^
 [ERROR]: ERR_DUPLICATE_COLUMN: Column 'FIRSTNAME' specified more than once
-LINE 1: ... = 2, firstname = 'abcd', lastname = 'efgh', firstname = 'xyz';
-                                                        ^^^^^^^^^
+LINE 68:1: ... = 2, firstname = 'abcd', lastname = 'efgh', firstname = 'xyz';
+                                                           ^^^^^^^^^
 [ERROR]: ERR_DUPLICATE_COLUMN: Column 'ID' specified more than once
-LINE 1: ...ames set id = 2, firstname = 'abcd', firstname = 'efgh', id = 5;
-                                                                    ^^
+LINE 69:1: ...ames set id = 2, firstname = 'abcd', firstname = 'efgh', id = 5;
+                                                                       ^^
 ???
 -- Test case where ERR_DUPLICATE_COLUMN error is issued even if ERR_TABLE_UNKNOWN_COLUMN_NAME error also exists
 (1 row)
 [ERROR]: ERR_DUPLICATE_COLUMN: Column 'ID' specified more than once
-LINE 1: update names set id = 2, firstname = 'abcd', abcd = 4, id = 5;
-                                                               ^^
+LINE 72:1: update names set id = 2, firstname = 'abcd', abcd = 4, id = 5;
+                                                                  ^^
 ???
 -- Test case where ERR_TABLE_UNKNOWN_COLUMN_NAME error is issued even if ERR_DUPLICATE_COLUMN error also exists
 (1 row)
 [ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column 'ABCD' of table 'NAMES' does not exist
-LINE 1: update names set firstname = 'abcd', abcd = 4, id = 4, id = 5;
-                                             ^^^^
+LINE 75:1: update names set firstname = 'abcd', abcd = 4, id = 4, id = 5;
+                                                ^^^^
 ???
 -- Test of ERR_SUBQUERY_ONE_COLUMN error
 (1 row)
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
-LINE 1: ...pdate names set firstname = (select firstname,lastname from name...
-                                        ^^^^^^
+LINE 78:1: ...pdate names set firstname = (select firstname,lastname from name...
+                                           ^^^^^^
 ???
 -- Test of ERR_SUBQUERY_MULTIPLE_ROWS error
 (1 row)

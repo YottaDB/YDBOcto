@@ -4,18 +4,18 @@ select 'test' NOT IN (NULL,(select n1.id)) from names n1;
 select 'test' NOT IN (NULL,(select id from names)) from names n1;
 select 'test' NOT IN (NULL,(select firstname from names)) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
-LINE 1: select 'test' NOT IN ((select n1.id),NULL) from names n1;
-                    ^
-LINE 1: select 'test' NOT IN ((select n1.id),NULL) from names n1;
-                              ^^^^^^^^^^^^^^^^^^^
+LINE 2:1: select 'test' NOT IN ((select n1.id),NULL) from names n1;
+                      ^
+LINE 2:1: select 'test' NOT IN ((select n1.id),NULL) from names n1;
+                                ^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
-LINE 1: select 'test' NOT IN (NULL,(select n1.id)) from names n1;
-                    ^
-LINE 1: select 'test' NOT IN (NULL,(select n1.id)) from names n1;
-                              ^^^^^^^^^^^^^^^^^^^
+LINE 3:1: select 'test' NOT IN (NULL,(select n1.id)) from names n1;
+                      ^
+LINE 3:1: select 'test' NOT IN (NULL,(select n1.id)) from names n1;
+                                ^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
-LINE 1: select 'test' NOT IN (NULL,(select id from names)) from names n...
-                    ^
-LINE 1: ...lect 'test' NOT IN (NULL,(select id from names)) from names n1;
-                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 4:1: select 'test' NOT IN (NULL,(select id from names)) from names n...
+                      ^
+LINE 4:1: ...lect 'test' NOT IN (NULL,(select id from names)) from names n1;
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression

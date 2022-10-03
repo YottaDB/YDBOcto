@@ -98,8 +98,8 @@ A
 11
 (6 rows)
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: A
-LINE 2: select 1+id*2 as a from (select id from names) order by -a;
-                                                                 ^
+LINE 27:2: select 1+id*2 as a from (select id from names) order by -a;
+                                                                    ^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: A
-LINE 1: select 1+id*2 as a from (select id from names) order by 1+a;
-                                                                  ^
+LINE 28:1: select 1+id*2 as a from (select id from names) order by 1+a;
+                                                                     ^

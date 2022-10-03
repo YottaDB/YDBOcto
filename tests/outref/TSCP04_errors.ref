@@ -11,9 +11,9 @@ ROUND
 1.01234567890123456000
 (1 row)
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function 'ROUND' defined with given parameter types (INTEGER, NUMERIC)
-LINE 1: SELECT ROUND(155, 1.5);
-               ^^^^^
+LINE 3:1: SELECT ROUND(155, 1.5);
+                 ^^^^^
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function 'ROUND' defined with given parameter types (INTEGER, NUMERIC)
-LINE 1: SELECT ROUND(155, -1.5);
-               ^^^^^
+LINE 4:1: SELECT ROUND(155, -1.5);
+                 ^^^^^
 [ERROR]: ERR_YOTTADB: YottaDB error: 150373506,ROUND+6^%ydboctosqlfunctions,%YDB-E-NUMOFLOW, Numeric overflow

@@ -82,43 +82,43 @@ DOLLARZWRITE
 5
 (6 rows)
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for || operator
-LINE 1: select id::boolean,(ABS(2)::boolean || id::bool) from names;
-                            ^^^^^^
+LINE 14:1: select id::boolean,(ABS(2)::boolean || id::bool) from names;
+                               ^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for || operator
-LINE 1: select id::boolean,(ABS(2)::boolean || id::bool) from names;
-                                               ^^
+LINE 14:1: select id::boolean,(ABS(2)::boolean || id::bool) from names;
+                                                  ^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for arithmetic operations
-LINE 1: select id::boolean,(ABS(2)::bool + id) from names;
-                            ^^^^^^
+LINE 15:1: select id::boolean,(ABS(2)::bool + id) from names;
+                               ^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for || operator
-LINE 1: select id::boolean || id::boolean,ABS(2)::numeric * id from name...
-               ^^
+LINE 16:1: select id::boolean || id::boolean,ABS(2)::numeric * id from name...
+                  ^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for || operator
-LINE 1: select id::boolean || id::boolean,ABS(2)::numeric * id from name...
-                              ^^
+LINE 16:1: select id::boolean || id::boolean,ABS(2)::numeric * id from name...
+                                 ^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for || operator
-LINE 1: select id::boolean || id::boolean,ABS(2)::boolean * id from name...
-               ^^
+LINE 17:1: select id::boolean || id::boolean,ABS(2)::boolean * id from name...
+                  ^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for || operator
-LINE 1: select id::boolean || id::boolean,ABS(2)::boolean * id from name...
-                              ^^
+LINE 17:1: select id::boolean || id::boolean,ABS(2)::boolean * id from name...
+                                 ^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for arithmetic operations
-LINE 1: ...lect id::boolean || id::boolean,ABS(2)::boolean * id from names;
-                                           ^^^^^^
+LINE 17:1: ...lect id::boolean || id::boolean,ABS(2)::boolean * id from names;
+                                              ^^^^^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type NUMERIC to type BOOLEAN
-LINE 1: ...t id from (select * from names UNION select 6.5::bool,'A','B');
-                                                       ^^^^^^^^^
+LINE 18:1: ...t id from (select * from names UNION select 6.5::bool,'A','B');
+                                                          ^^^^^^^^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left BOOLEAN, right INTEGER
-LINE 1: select * from names where firstname::boolean = id;
-                                  ^^^^^^^^^
-LINE 1: select * from names where firstname::boolean = id;
-                                                       ^^
+LINE 19:1: select * from names where firstname::boolean = id;
+                                     ^^^^^^^^^
+LINE 19:1: select * from names where firstname::boolean = id;
+                                                          ^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for arithmetic operations
-LINE 1: select id-2*(id/2::bool) from names;
-                        ^
+LINE 20:1: select id-2*(id/2::bool) from names;
+                           ^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for arithmetic operations
-LINE 1: select id-2*((id/2)::boolean) from names;
-                     ^^^^^^^^^^^^^^^
+LINE 21:1: select id-2*((id/2)::boolean) from names;
+                        ^^^^^^^^^^^^^^^
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  select id::text || id::text,ABS(2)::numeric * id from names;

@@ -60,101 +60,101 @@ select n1.id NOT IN (select 1 union select 3 union select 2) from names n1 group
 -- misc
 select lastname in (select 'Cool') from names group by lastname in (select 'Cool') having lastname in (select 'Cool');
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
-LINE 5: ...names n1 WHERE id IN (SELECT n2.id FROM names n2 group by n1.id...
-                                        ^^^^^
+LINE 6:5: ...names n1 WHERE id IN (SELECT n2.id FROM names n2 group by n1.id...
+                                          ^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...names n1 WHERE id IN (SELECT n2.id=0 FROM names n2 group by n1....
-                                        ^^^^^
+LINE 7:1: ...names n1 WHERE id IN (SELECT n2.id=0 FROM names n2 group by n1....
+                                          ^^^^^
 [ERROR]: ERR_GROUP_BY_SUB_QUERY: Subqueries are not supported in GROUP BY
-LINE 1: select (select id from names limit 1) from names group by 1;
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 9:1: select (select id from names limit 1) from names group by 1;
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_SUB_QUERY: Subqueries are not supported in GROUP BY
-LINE 1: select (select id from names) from names group by 1;
-               ^^^^^^^^^^^^^^^^^^^^^^
+LINE 10:1: select (select id from names) from names group by 1;
+                  ^^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
-LINE 1: select (select 2) from names group by (select firstname);
-                                              ^^^^^^^^^^^^^^^^^^
+LINE 11:1: select (select 2) from names group by (select firstname);
+                                                 ^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
-LINE 1: ...ect (select 2), count(firstname) from names group by (select 3);
-                                                                ^^^^^^^^^^
+LINE 12:1: ...ect (select 2), count(firstname) from names group by (select 3);
+                                                                   ^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
-LINE 1: ...select 1) from names group by (select firstname); -- Should work
-                                         ^^^^^^^^^^^^^^^^^^
+LINE 13:1: ...select 1) from names group by (select firstname); -- Should work
+                                            ^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_SUB_QUERY: Subqueries are not supported in GROUP BY
-LINE 2: select (select 2) from names group by 1; -- Should work
-               ^^^^^^^^^^
+LINE 14:2: select (select 2) from names group by 1; -- Should work
+                  ^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
-LINE 2: ...irstname) from names group by (select firstname); -- Should work
-                                         ^^^^^^^^^^^^^^^^^^
+LINE 15:2: ...irstname) from names group by (select firstname); -- Should work
+                                            ^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
-LINE 2: ...e) from names group by (select firstname); -- ungrouped names.la...
-                                  ^^^^^^^^^^^^^^^^^^
+LINE 16:2: ...e) from names group by (select firstname); -- ungrouped names.la...
+                                     ^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
-LINE 2: ...m names group by (select 1 from names limit 1); -- ungrouped na...
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 17:2: ...m names group by (select 1 from names limit 1); -- ungrouped na...
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
-LINE 2: ...m names group by (select 1 from names limit 1),firstname; -- un...
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 18:2: ...m names group by (select 1 from names limit 1),firstname; -- un...
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
-LINE 2: ... from names group by (select 1 from names); -- ungrouped names....
-                                ^^^^^^^^^^^^^^^^^^^^^
+LINE 19:2: ... from names group by (select 1 from names); -- ungrouped names....
+                                   ^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
-LINE 2: ... from names group by (select 1 from names); -- multiple rowed s...
-                                ^^^^^^^^^^^^^^^^^^^^^
+LINE 20:2: ... from names group by (select 1 from names); -- multiple rowed s...
+                                   ^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
-LINE 2: ...e) from names group by (select firstname) having (select firstna...
-                                  ^^^^^^^^^^^^^^^^^^
+LINE 21:2: ...e) from names group by (select firstname) having (select firstna...
+                                     ^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
-LINE 2: ...e) from names group by (select firstname) having firstname !='Ze...
-                                  ^^^^^^^^^^^^^^^^^^
+LINE 22:2: ...e) from names group by (select firstname) having firstname !='Ze...
+                                     ^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
-LINE 2: ...e) from names group by (select firstname) having (select lastnam...
-                                  ^^^^^^^^^^^^^^^^^^
+LINE 23:2: ...e) from names group by (select firstname) having (select lastnam...
+                                     ^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
-LINE 2: select firstname from names group by (select firstname);
-                                             ^^^^^^^^^^^^^^^^^^
+LINE 24:2: select firstname from names group by (select firstname);
+                                                ^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_SUB_QUERY: Subqueries are not supported in GROUP BY
-LINE 1: ... 1 from names group by firstname!=(select firstname from names);
-                                              ^^^^^^
+LINE 25:1: ... 1 from names group by firstname!=(select firstname from names);
+                                                 ^^^^^^
 [ERROR]: ERR_GROUP_BY_SUB_QUERY: Subqueries are not supported in GROUP BY
-LINE 1: select 1 from names group by not (select firstname from names);
-                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 26:1: select 1 from names group by not (select firstname from names);
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_SUB_QUERY: Subqueries are not supported in GROUP BY
-LINE 1: ...es n1 group by n1.id NOT IN (select 1 union select NULL::integer...
-                                        ^^^^^^
+LINE 28:1: ...es n1 group by n1.id NOT IN (select 1 union select NULL::integer...
+                                           ^^^^^^
 [ERROR]: ERR_GROUP_BY_SUB_QUERY: Subqueries are not supported in GROUP BY
-LINE 1: ...es n1 group by n1.id NOT IN (select 1 union select NULL::integer...
-                                        ^^^^^^
+LINE 29:1: ...es n1 group by n1.id NOT IN (select 1 union select NULL::integer...
+                                           ^^^^^^
 [ERROR]: ERR_GROUP_BY_SUB_QUERY: Subqueries are not supported in GROUP BY
-LINE 1: ...es n1 group by n1.id NOT IN (select 1 union select NULL::integer...
-                                        ^^^^^^
+LINE 30:1: ...es n1 group by n1.id NOT IN (select 1 union select NULL::integer...
+                                           ^^^^^^
 [ERROR]: ERR_GROUP_BY_SUB_QUERY: Subqueries are not supported in GROUP BY
-LINE 1: ...es n1 group by n1.id NOT IN (select 1 union select NULL::integer...
-                                        ^^^^^^
+LINE 31:1: ...es n1 group by n1.id NOT IN (select 1 union select NULL::integer...
+                                           ^^^^^^
 [ERROR]: ERR_GROUP_BY_SUB_QUERY: Subqueries are not supported in GROUP BY
-LINE 1: select 1 from names group by exists(select id from names);
-                                            ^^^^^^
+LINE 33:1: select 1 from names group by exists(select id from names);
+                                               ^^^^^^
 [ERROR]: ERR_GROUP_BY_SUB_QUERY: Subqueries are not supported in GROUP BY
-LINE 1: ...unt(firstname) from names group by exists(select id from names);
-                                                     ^^^^^^
+LINE 34:1: ...unt(firstname) from names group by exists(select id from names);
+                                                        ^^^^^^
 [ERROR]: ERR_GROUP_BY_SUB_QUERY: Subqueries are not supported in GROUP BY
-LINE 1: ...stname) from names group by exists(select firstname from names);
-                                              ^^^^^^
+LINE 35:1: ...stname) from names group by exists(select firstname from names);
+                                                 ^^^^^^
 [ERROR]: ERR_GROUP_BY_SUB_QUERY: Subqueries are not supported in GROUP BY
-LINE 1: ...stname) from names group by exists(select firstname from names);
-                                              ^^^^^^
+LINE 36:1: ...stname) from names group by exists(select firstname from names);
+                                                 ^^^^^^
 [ERROR]: ERR_GROUP_BY_SUB_QUERY: Subqueries are not supported in GROUP BY
-LINE 1: ...es n1 group by n1.id NOT IN (select 1 union select 3 union selec...
-                                        ^^^^^^
+LINE 38:1: ...es n1 group by n1.id NOT IN (select 1 union select 3 union selec...
+                                           ^^^^^^
 [ERROR]: ERR_GROUP_BY_SUB_QUERY: Subqueries are not supported in GROUP BY
-LINE 1: ...es n1 group by n1.id NOT IN (select 1 union select 3 union selec...
-                                        ^^^^^^
+LINE 39:1: ...es n1 group by n1.id NOT IN (select 1 union select 3 union selec...
+                                           ^^^^^^
 [ERROR]: ERR_GROUP_BY_SUB_QUERY: Subqueries are not supported in GROUP BY
-LINE 2: ...es n1 group by n1.id NOT IN (select 1 union select 3 union selec...
-                                        ^^^^^^
+LINE 40:2: ...es n1 group by n1.id NOT IN (select 1 union select 3 union selec...
+                                           ^^^^^^
 [ERROR]: ERR_GROUP_BY_SUB_QUERY: Subqueries are not supported in GROUP BY
-LINE 2: ...es n1 group by n1.id NOT IN (select 1 union select 3 union selec...
-                                        ^^^^^^
+LINE 41:2: ...es n1 group by n1.id NOT IN (select 1 union select 3 union selec...
+                                           ^^^^^^
 [ERROR]: ERR_GROUP_BY_SUB_QUERY: Subqueries are not supported in GROUP BY
-LINE 1: ... names group by lastname in (select 'Cool') having lastname in (...
-                                        ^^^^^^
+LINE 43:1: ... names group by lastname in (select 'Cool') having lastname in (...
+                                           ^^^^^^

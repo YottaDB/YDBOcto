@@ -1,39 +1,39 @@
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: MYTABLE
-LINE 1: SELECT * FROM myTable;
-                      ^^^^^^^
+LINE 1:1: SELECT * FROM myTable;
+                        ^^^^^^^
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: HELLOTABLE
-LINE 1: SELECT "Hello world!" FROM helloTable;
-                                   ^^^^^^^^^^
+LINE 2:1: SELECT "Hello world!" FROM helloTable;
+                                     ^^^^^^^^^^
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: PEOPLE
-LINE 2: FROM people
-             ^^^^^^
+LINE 4:2: FROM people
+               ^^^^^^
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: TABLEA
-LINE 1: SELECT * FROM tableA
-                      ^^^^^^
+LINE 13:1: SELECT * FROM tableA
+                         ^^^^^^
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EMPLOYEE
-LINE 2: Select distinct Salary from Employee e1 where 2=(Select count(di...
-                                    ^^^^^^^^
+LINE 18:2: Select distinct Salary from Employee e1 where 2=(Select count(di...
+                                       ^^^^^^^^
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EMPLOYEE
-LINE 1: Select * from Employee a where rowid <>( select max(rowid) from ...
-                      ^^^^^^^^
-LINE 1: ...lect Employee_name,Salary/12 as `Monthly Salary` from employee;
-                                                          ^
+LINE 19:1: Select * from Employee a where rowid <>( select max(rowid) from ...
+                         ^^^^^^^^
+LINE 20:1: ...lect Employee_name,Salary/12 as `Monthly Salary` from employee;
+                                                             ^
 syntax error, unexpected IDENTIFIER_BACK_TICK, expecting IDENTIFIER_ALONE or LITERAL
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EMPLOYEE
-LINE 1: Select * from Employee where Rownum =1;
-                      ^^^^^^^^
+LINE 21:1: Select * from Employee where Rownum =1;
+                         ^^^^^^^^
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EMPLOYEE
-LINE 1: Select * from Employee where Rowid=(select max(Rowid) from Emplo...
-                      ^^^^^^^^
+LINE 22:1: Select * from Employee where Rowid=(select max(Rowid) from Emplo...
+                         ^^^^^^^^
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EMPLOYEE
-LINE 1: Select * from Employee where Rownum <= 5;
-                      ^^^^^^^^
+LINE 23:1: Select * from Employee where Rownum <= 5;
+                         ^^^^^^^^
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EMPLOYEE
-LINE 1: select distinct salary from employee a where 3 >= (select count(...
-                                    ^^^^^^^^
+LINE 24:1: select distinct salary from employee a where 3 >= (select count(...
+                                       ^^^^^^^^
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EMP
-LINE 1: ...m(select distinct salary from emp order by salary desc)where ro...
-                                         ^^^
+LINE 25:1: ...m(select distinct salary from emp order by salary desc)where ro...
+                                            ^^^
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: A
-LINE 2: SELECT 5+5/5 FROM A;
-                          ^
+LINE 27:2: SELECT 5+5/5 FROM A;
+                             ^

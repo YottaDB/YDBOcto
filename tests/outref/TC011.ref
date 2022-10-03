@@ -302,24 +302,24 @@ CREATE TABLE
 DROP TABLE
 CREATE TABLE
 DROP TABLE
-LINE 1: CREATE TABLE names (id INTEGER(-1) PRIMARY KEY, firstName VARCH...
-                                       ^
+LINE 47:1: CREATE TABLE names (id INTEGER(-1) PRIMARY KEY, firstName VARCH...
+                                          ^
 syntax error, unexpected MINUS, expecting LITERAL
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table 'NAMES' as it does not exist
-LINE 1: CREATE TABLE names (id INTEGER(-1.5) PRIMARY KEY, firstName VAR...
-                                       ^
+LINE 49:1: CREATE TABLE names (id INTEGER(-1.5) PRIMARY KEY, firstName VAR...
+                                          ^
 syntax error, unexpected MINUS, expecting LITERAL
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table 'NAMES' as it does not exist
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: '15.5'
-LINE 1: ...REATE TABLE names (id INTEGER(15.5) PRIMARY KEY, firstName VARCH...
-                                         ^^^^
+LINE 51:1: ...REATE TABLE names (id INTEGER(15.5) PRIMARY KEY, firstName VARCH...
+                                            ^^^^
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table 'NAMES' as it does not exist
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: 'abcd'
-LINE 1: ...E TABLE names (id INTEGER('abcd') PRIMARY KEY, firstName VARCHA...
-                                          ^
+LINE 53:1: ...E TABLE names (id INTEGER('abcd') PRIMARY KEY, firstName VARCHA...
+                                             ^
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table 'NAMES' as it does not exist
-LINE 1: ...REATE TABLE names (id INTEGER(abcd) PRIMARY KEY, firstName VARCH...
-                                         ^^^^
+LINE 55:1: ...REATE TABLE names (id INTEGER(abcd) PRIMARY KEY, firstName VARCH...
+                                            ^^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table 'NAMES' as it does not exist
 CREATE TABLE
@@ -336,24 +336,24 @@ CREATE TABLE
 DROP TABLE
 CREATE TABLE
 DROP TABLE
-LINE 1: CREATE TABLE names (id NUMERIC(-1) PRIMARY KEY, firstName VARCH...
-                                       ^
+LINE 72:1: CREATE TABLE names (id NUMERIC(-1) PRIMARY KEY, firstName VARCH...
+                                          ^
 syntax error, unexpected MINUS, expecting LITERAL
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table 'NAMES' as it does not exist
-LINE 1: CREATE TABLE names (id NUMERIC(-1.5) PRIMARY KEY, firstName VAR...
-                                       ^
+LINE 74:1: CREATE TABLE names (id NUMERIC(-1.5) PRIMARY KEY, firstName VAR...
+                                          ^
 syntax error, unexpected MINUS, expecting LITERAL
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table 'NAMES' as it does not exist
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: '15.5'
-LINE 1: ...REATE TABLE names (id NUMERIC(15.5) PRIMARY KEY, firstName VARCH...
-                                         ^^^^
+LINE 76:1: ...REATE TABLE names (id NUMERIC(15.5) PRIMARY KEY, firstName VARCH...
+                                            ^^^^
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table 'NAMES' as it does not exist
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: 'abcd'
-LINE 1: ...E TABLE names (id NUMERIC('abcd') PRIMARY KEY, firstName VARCHA...
-                                          ^
+LINE 78:1: ...E TABLE names (id NUMERIC('abcd') PRIMARY KEY, firstName VARCHA...
+                                             ^
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table 'NAMES' as it does not exist
-LINE 1: ...REATE TABLE names (id NUMERIC(abcd) PRIMARY KEY, firstName VARCH...
-                                         ^^^^
+LINE 80:1: ...REATE TABLE names (id NUMERIC(abcd) PRIMARY KEY, firstName VARCH...
+                                            ^^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table 'NAMES' as it does not exist
 CREATE TABLE
@@ -361,48 +361,48 @@ DROP TABLE
 CREATE TABLE
 DROP TABLE
 [ERROR]: ERR_NUMERIC_SCALE: Numeric scale 18 must be between zero(0) and precision 16
-LINE 1: ...EATE TABLE names (id NUMERIC(16,18) PRIMARY KEY, firstName VARC...
-                                       ^^^^^^^
+LINE 87:1: ...EATE TABLE names (id NUMERIC(16,18) PRIMARY KEY, firstName VARC...
+                                          ^^^^^^^
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table 'NAMES' as it does not exist
 CREATE TABLE
 DROP TABLE
 [ERROR]: ERR_NUMERIC_SCALE: Numeric scale 2047 must be between zero(0) and precision 64
-LINE 1: ...ATE TABLE names (id NUMERIC(64,2047) PRIMARY KEY, firstName VAR...
-                                      ^^^^^^^^^
+LINE 91:1: ...ATE TABLE names (id NUMERIC(64,2047) PRIMARY KEY, firstName VAR...
+                                         ^^^^^^^^^
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table 'NAMES' as it does not exist
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: '85.5'
-LINE 1: ...E TABLE names (id NUMERIC(127,85.5) PRIMARY KEY, firstName VARCH...
-                                         ^^^^
+LINE 93:1: ...E TABLE names (id NUMERIC(127,85.5) PRIMARY KEY, firstName VARCH...
+                                            ^^^^
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table 'NAMES' as it does not exist
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: '100.87'
-LINE 1: ...TE TABLE names (id NUMERIC(0,100.87) PRIMARY KEY, firstName VARC...
-                                        ^^^^^^
+LINE 95:1: ...TE TABLE names (id NUMERIC(0,100.87) PRIMARY KEY, firstName VARC...
+                                           ^^^^^^
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table 'NAMES' as it does not exist
-LINE 1: CREATE TABLE names (id NUMERIC(-1,20) PRIMARY KEY, firstName VA...
-                                       ^
+LINE 97:1: CREATE TABLE names (id NUMERIC(-1,20) PRIMARY KEY, firstName VA...
+                                          ^
 syntax error, unexpected MINUS, expecting LITERAL
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table 'NAMES' as it does not exist
-LINE 1: CREATE TABLE names (id NUMERIC(-1.5,-2.5) PRIMARY KEY, firstNam...
-                                       ^
+LINE 99:1: CREATE TABLE names (id NUMERIC(-1.5,-2.5) PRIMARY KEY, firstNam...
+                                          ^
 syntax error, unexpected MINUS, expecting LITERAL
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table 'NAMES' as it does not exist
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: '15.5'
-LINE 1: ...REATE TABLE names (id NUMERIC(15.5,20.835) PRIMARY KEY, firstNam...
-                                         ^^^^
+LINE 101:1: ...REATE TABLE names (id NUMERIC(15.5,20.835) PRIMARY KEY, firstNam...
+                                             ^^^^
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table 'NAMES' as it does not exist
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: 'abcd'
-LINE 1: ...E TABLE names (id NUMERIC('abcd',20.835) PRIMARY KEY, firstName...
-                                          ^
+LINE 103:1: ...E TABLE names (id NUMERIC('abcd',20.835) PRIMARY KEY, firstName...
+                                              ^
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table 'NAMES' as it does not exist
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: 'abcd'
-LINE 1: ...E TABLE names (id NUMERIC('abcd','efgh') PRIMARY KEY, firstName...
-                                          ^
+LINE 105:1: ...E TABLE names (id NUMERIC('abcd','efgh') PRIMARY KEY, firstName...
+                                              ^
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table 'NAMES' as it does not exist
-LINE 1: ...REATE TABLE names (id NUMERIC(abcd,'efgh') PRIMARY KEY, firstNam...
-                                         ^^^^
+LINE 107:1: ...REATE TABLE names (id NUMERIC(abcd,'efgh') PRIMARY KEY, firstNam...
+                                             ^^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table 'NAMES' as it does not exist
-LINE 1: ...REATE TABLE names (id NUMERIC(abcd,efgh) PRIMARY KEY, firstName ...
-                                         ^^^^
+LINE 109:1: ...REATE TABLE names (id NUMERIC(abcd,efgh) PRIMARY KEY, firstName ...
+                                             ^^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table 'NAMES' as it does not exist

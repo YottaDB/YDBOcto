@@ -10,16 +10,16 @@
 .. #								   #
 .. #################################################################
 
-==========================
+==============
 Error Messages
-==========================
+==============
 
 .. contents::
    :depth: 4
 
--------------------------
+------------------------
 Error Message Severities
--------------------------
+------------------------
 
   The error message severities are:
 
@@ -39,11 +39,40 @@ Error Message Severities
 
   TRACE and DEBUG are used to get helpful output for debugging. INFO provides potentially helpful, but non-critical information about internal operation. WARNING is similar to INFO, but highlights potentially dangerous or undesirable, though non-critical, behavior. ERROR messages report disruptive but recoverable states. Note that ERRORs encountered while parsing or executing a query will cause it to fail. FATAL messages indicate disruptive, unrecoverable states and cause the program to immediately exit, closing any open network connection.
 
----------------------
+--------------------
 Octo or ROcto Errors
----------------------
+--------------------
 
   Octo or ROcto Errors are of the form :code:`ERR_<error>` or :code:`INFO_<error>` or :code:`WARN_<error>`. These errors can occur in either :code:`octo` or :code:`rocto`. The errors are detailed below, in alphabetical order. Occurrences of "xxx" indicate portions of the error message text that vary depending on the details of the particular error.
+
+Error messages also include line numbers to indicate where in the query input the error occurred. Two line numbers are included:
+1. The line number where the query is located within the full input string, relative to the start of the input or beginning of the input file
+2. The line number where the syntax error occurred within the query itself, relative to the start of the query
+
+For example, given an empty database, if a file with the following contents is passed to :code:`octo`:
+
+.. code-block:: SQL
+
+    UPDATE myTable
+    SET id = 3, name = "Orion"
+    WHERE breed = "Black Lab";
+    UPDATE myTable
+    SET name = (SELECT name FROM tableOfDogs WHERE breed = "Black lab");
+
+Then the following error messages will be issued:
+
+.. code-block:: SQL
+
+    [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: MYTABLE
+    LINE 1:1: UPDATE myTable
+                     ^^^^^^^
+    [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: TABLEOFDOGS
+    LINE 5:2: ... name = (SELECT name FROM tableOfDogs WHERE breed = "Black lab"...
+                                           ^^^^^^^^^^^
+
+Note that the first query specifies line numbers :code:`1:1`, indicating that the syntax error is on the first line of the file and the first line of the query itself.
+
+In contrast, the second query specifies line numbers :code:`4:2`, indicating that the syntax error occurred on the fourth line of the file and the second line of the query itself.
 
 ++++++++++++++++++++++++++++
 ERR_AGGREGATE_FUNCTION_CHECK

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -74,6 +74,11 @@ int main(int argc, char **argv) {
 			 */
 			if ('\0' == input_buffer_combined[cur_input_index + 1]) {
 				cur_input_index = 0;
+				/* `leading_spaces` must be reset here to prevent off-by-one issues with syntax highlighting when
+				 * multi-query lines are submitted in succession. For more information, see the discussion thread at
+				 * https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1237#note_1216819522.
+				 */
+				leading_spaces = 0;
 				input_buffer_combined[cur_input_index] = '\0';
 			}
 			memset(&parse_context, 0, sizeof(parse_context));

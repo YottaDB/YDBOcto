@@ -7,8 +7,8 @@ SELECT ARRAY(SELECT id, id from names UNION SELECT id, id from names);
 
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
-LINE 1: SELECT ARRAY(SELECT id, id from names);
-                     ^^^^^^
+LINE 4:1: SELECT ARRAY(SELECT id, id from names);
+                       ^^^^^^
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
-LINE 1: SELECT ARRAY(SELECT id, id from names UNION SELECT id, id from n...
-                     ^^^^^^
+LINE 5:1: SELECT ARRAY(SELECT id, id from names UNION SELECT id, id from n...
+                       ^^^^^^

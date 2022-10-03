@@ -100,8 +100,8 @@ ID|NEWID2|NEWID3
 3|1|0
 (6 rows)
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: NEWID2
-LINE 2: ...id, id%3 AS newid2, lastname FROM names) n1) n2 ORDER BY newid2;
-                                                                    ^^^^^^
+LINE 32:2: ...id, id%3 AS newid2, lastname FROM names) n1) n2 ORDER BY newid2;
+                                                                       ^^^^^^
 ID|NEWID
 0|0
 2|0
@@ -171,5 +171,5 @@ ID|NEWID2|NEWID3
 3|1|0
 (6 rows)
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: NEWID2
-LINE 1: ...LO(id,3) AS newid2, lastname FROM names) n1) n2 ORDER BY newid2;
-                                                                    ^^^^^^
+LINE 42:1: ...LO(id,3) AS newid2, lastname FROM names) n1) n2 ORDER BY newid2;
+                                                                       ^^^^^^

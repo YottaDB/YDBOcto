@@ -13,52 +13,52 @@ SELECT LEAST('10', 2);
 SELECT LEAST(1, NULL, '2');
 SELECT LEAST(1, NULL, '2', 2.4);
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
-LINE 1: SELECT GREATEST(1, '2');
-                        ^
-LINE 1: SELECT GREATEST(1, '2');
-                             ^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
-LINE 1: SELECT GREATEST(10, '2');
-                        ^^
-LINE 1: SELECT GREATEST(10, '2');
-                              ^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
-LINE 1: SELECT GREATEST('10', 2);
-                           ^
-LINE 1: SELECT GREATEST('10', 2);
-                              ^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
-LINE 1: SELECT GREATEST(1, NULL, '2');
-                        ^
-LINE 1: SELECT GREATEST(1, NULL, '2');
-                                   ^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
-LINE 1: SELECT GREATEST(1, NULL, '2', 2.4);
-                        ^
-LINE 1: SELECT GREATEST(1, NULL, '2', 2.4);
-                                   ^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
-LINE 1: SELECT LEAST(1, '2');
-                     ^
-LINE 1: SELECT LEAST(1, '2');
+LINE 2:1: SELECT GREATEST(1, '2');
                           ^
+LINE 2:1: SELECT GREATEST(1, '2');
+                               ^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
-LINE 1: SELECT LEAST(10, '2');
-                     ^^
-LINE 1: SELECT LEAST(10, '2');
-                           ^
+LINE 3:1: SELECT GREATEST(10, '2');
+                          ^^
+LINE 3:1: SELECT GREATEST(10, '2');
+                                ^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
-LINE 1: SELECT LEAST('10', 2);
-                        ^
-LINE 1: SELECT LEAST('10', 2);
+LINE 4:1: SELECT GREATEST('10', 2);
+                             ^
+LINE 4:1: SELECT GREATEST('10', 2);
+                                ^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 5:1: SELECT GREATEST(1, NULL, '2');
+                          ^
+LINE 5:1: SELECT GREATEST(1, NULL, '2');
+                                     ^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 6:1: SELECT GREATEST(1, NULL, '2', 2.4);
+                          ^
+LINE 6:1: SELECT GREATEST(1, NULL, '2', 2.4);
+                                     ^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 8:1: SELECT LEAST(1, '2');
+                       ^
+LINE 8:1: SELECT LEAST(1, '2');
+                            ^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+LINE 9:1: SELECT LEAST(10, '2');
+                       ^^
+LINE 9:1: SELECT LEAST(10, '2');
+                             ^
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
+LINE 10:1: SELECT LEAST('10', 2);
                            ^
+LINE 10:1: SELECT LEAST('10', 2);
+                              ^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
-LINE 1: SELECT LEAST(1, NULL, '2');
-                     ^
-LINE 1: SELECT LEAST(1, NULL, '2');
-                                ^
+LINE 11:1: SELECT LEAST(1, NULL, '2');
+                        ^
+LINE 11:1: SELECT LEAST(1, NULL, '2');
+                                   ^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
-LINE 1: SELECT LEAST(1, NULL, '2', 2.4);
-                     ^
-LINE 1: SELECT LEAST(1, NULL, '2', 2.4);
-                                ^
+LINE 12:1: SELECT LEAST(1, NULL, '2', 2.4);
+                        ^
+LINE 12:1: SELECT LEAST(1, NULL, '2', 2.4);
+                                   ^

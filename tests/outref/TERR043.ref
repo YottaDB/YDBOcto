@@ -1,0 +1,2 @@
+LINE 2000:1: select * from dummy2000;
+LINE 10000:1: select * from dummy10000;

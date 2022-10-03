@@ -50,98 +50,98 @@ SELECT ALL 1 FROM customers c GROUP BY first_name||last_name HAVING EXISTS (SELE
 -- TableAsterisk query
 SELECT ALL first_name FROM customers c GROUP BY first_name HAVING EXISTS (SELECT 1 FROM customers n1 GROUP BY n1.first_name having EXISTS(SELECT 1 from orders n2 group by n2.order_id having count((c.* = n1.*) = TRUE)=1));
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
-LINE 1: ... FROM customers n1 ORDER BY count(c.first_name=n1.last_name)=1);
-                                             ^^^^^^^^^^^^
+LINE 2:1: ... FROM customers n1 ORDER BY count(c.first_name=n1.last_name)=1);
+                                               ^^^^^^^^^^^^
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
-LINE 1: ... FROM customers n1 ORDER BY count(n1.last_name=c.first_name)=1);
-                                                          ^^^^^^^^^^^^
+LINE 3:1: ... FROM customers n1 ORDER BY count(n1.last_name=c.first_name)=1);
+                                                            ^^^^^^^^^^^^
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
-LINE 1: ... FROM customers n1 ORDER BY count(n1.last_name=c.first_name)=1);
-                                                          ^^^^^^^^^^^^
+LINE 4:1: ... FROM customers n1 ORDER BY count(n1.last_name=c.first_name)=1);
+                                                            ^^^^^^^^^^^^
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column LAST_NAME from outer query
-LINE 1: ...FROM customers n1 ORDER BY count(c.last_name=n1.first_name)=1);
-                                            ^^^^^^^^^^^
+LINE 5:1: ...FROM customers n1 ORDER BY count(c.last_name=n1.first_name)=1);
+                                              ^^^^^^^^^^^
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
-LINE 1: ... FROM customers n1 ORDER BY count(c.first_name=n1.last_name)=1);
-                                             ^^^^^^^^^^^^
+LINE 7:1: ... FROM customers n1 ORDER BY count(c.first_name=n1.last_name)=1);
+                                               ^^^^^^^^^^^^
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
-LINE 1: ... FROM customers n1 ORDER BY count(n1.last_name=c.first_name)=1);
-                                                          ^^^^^^^^^^^^
+LINE 8:1: ... FROM customers n1 ORDER BY count(n1.last_name=c.first_name)=1);
+                                                            ^^^^^^^^^^^^
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
-LINE 1: ... FROM customers n1 ORDER BY count(n1.last_name=c.first_name)=1);
-                                                          ^^^^^^^^^^^^
+LINE 9:1: ... FROM customers n1 ORDER BY count(n1.last_name=c.first_name)=1);
+                                                            ^^^^^^^^^^^^
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column LAST_NAME from outer query
-LINE 1: ...FROM customers n1 ORDER BY count(c.last_name=n1.first_name)=1);
-                                            ^^^^^^^^^^^
+LINE 10:1: ...FROM customers n1 ORDER BY count(c.last_name=n1.first_name)=1);
+                                               ^^^^^^^^^^^
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
-LINE 1: ...stomers n1 ORDER BY count(c.first_name=n1.last_name)=1) FROM cus...
-                                     ^^^^^^^^^^^^
+LINE 12:1: ...stomers n1 ORDER BY count(c.first_name=n1.last_name)=1) FROM cus...
+                                        ^^^^^^^^^^^^
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
-LINE 1: ...DER BY count(n1.last_name=c.first_name)=1) FROM customers c GROU...
-                                     ^^^^^^^^^^^^
+LINE 13:1: ...DER BY count(n1.last_name=c.first_name)=1) FROM customers c GROU...
+                                        ^^^^^^^^^^^^
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
-LINE 1: ...DER BY count(n1.last_name=c.first_name)=1) FROM customers c GROU...
-                                     ^^^^^^^^^^^^
+LINE 14:1: ...DER BY count(n1.last_name=c.first_name)=1) FROM customers c GROU...
+                                        ^^^^^^^^^^^^
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column LAST_NAME from outer query
-LINE 1: ...stomers n1 ORDER BY count(c.last_name=n1.first_name)=1) FROM cu...
-                                     ^^^^^^^^^^^
+LINE 15:1: ...stomers n1 ORDER BY count(c.last_name=n1.first_name)=1) FROM cu...
+                                        ^^^^^^^^^^^
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
-LINE 1: ...OUP BY n1.last_name having count(c.first_name=n1.first_name)=1);
-                                            ^^^^^^^^^^^^
+LINE 17:1: ...OUP BY n1.last_name having count(c.first_name=n1.first_name)=1);
+                                               ^^^^^^^^^^^^
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
-LINE 1: ...P BY n1.last_name order by count(c.first_name=n1.first_name)=1);
-                                            ^^^^^^^^^^^^
+LINE 18:1: ...P BY n1.last_name order by count(c.first_name=n1.first_name)=1);
+                                               ^^^^^^^^^^^^
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column LAST_NAME from outer query
-LINE 1: ...aving count((c.first_name=n1.last_name)=(n2.order_date='test'))=...
-                                     ^^^^^^^^^^^^
+LINE 19:1: ...aving count((c.first_name=n1.last_name)=(n2.order_date='test'))=...
+                                        ^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: SELECT ALL first_name FROM customers c HAVING EXISTS (SELECT 1 F...
-                   ^^^^^^^^^^
+LINE 20:1: SELECT ALL first_name FROM customers c HAVING EXISTS (SELECT 1 F...
+                      ^^^^^^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
-LINE 1: ...CT 1 FROM customers n1 where count(c.first_name=n1.first_name)=...
-                                        ^^^^^
+LINE 22:1: ...CT 1 FROM customers n1 where count(c.first_name=n1.first_name)=...
+                                           ^^^^^
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
-LINE 1: ...UP BY n1.first_name having count(c.first_name=n1.first_name)=1);
-                                            ^^^^^^^^^^^^
+LINE 24:1: ...UP BY n1.first_name having count(c.first_name=n1.first_name)=1);
+                                               ^^^^^^^^^^^^
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
-LINE 1: ...OUP BY n1.last_name having count(c.first_name=n1.first_name)=1);
-                                            ^^^^^^^^^^^^
+LINE 25:1: ...OUP BY n1.last_name having count(c.first_name=n1.first_name)=1);
+                                               ^^^^^^^^^^^^
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
-LINE 1: ...ROUP BY n1.last_name having count(c.first_name=n1.last_name)=1);
-                                             ^^^^^^^^^^^^
-[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
-LINE 1: ...d having count((c.first_name||n1.first_name)=order_amount)=1));
-                                         ^^^^^^^^^^^^^
-[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
-LINE 1: ...OUP BY n1.last_name having count(c.first_name=n1.first_name)=1);
-                                            ^^^^^^^^^^^^
-[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
-LINE 1: ...ROUP BY n1.last_name having count(c.first_name=n1.last_name)=1);
-                                             ^^^^^^^^^^^^
-[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
-LINE 1: ...UP BY n1.last_name ORDER BY count(c.first_name=n1.last_name)=1);
-                                             ^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ... c ORDER BY EXISTS (SELECT first_name FROM customers n1 ORDER BY...
-                                      ^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column LAST_NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: SELECT ALL last_name FROM customers c ORDER BY EXISTS (SELECT f...
-                   ^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column LAST_NAME must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: SELECT ALL last_name FROM customers c ORDER BY EXISTS (SELECT l...
-                   ^^^^^^^^^
-[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
-LINE 1: ...P BY n1.first_name having (c.first_name||'test')=n1.first_name);
-                                      ^^^^^^^^^^^^
-[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
-LINE 1: ....first_name having count((c.first_name||'test')=n1.first_name)=2...
-                                     ^^^^^^^^^^^^
-[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
-LINE 1: ...mers n1 GROUP BY n1.first_name order by (c.first_name||'test'));
-                                                    ^^^^^^^^^^^^
-[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
-LINE 1: ...s n1 GROUP BY n1.first_name order by c.first_name||c.last_name);
+LINE 26:1: ...ROUP BY n1.last_name having count(c.first_name=n1.last_name)=1);
                                                 ^^^^^^^^^^^^
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
+LINE 27:1: ...d having count((c.first_name||n1.first_name)=order_amount)=1));
+                                            ^^^^^^^^^^^^^
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
+LINE 28:1: ...OUP BY n1.last_name having count(c.first_name=n1.first_name)=1);
+                                               ^^^^^^^^^^^^
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
+LINE 29:1: ...ROUP BY n1.last_name having count(c.first_name=n1.last_name)=1);
+                                                ^^^^^^^^^^^^
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
+LINE 31:1: ...UP BY n1.last_name ORDER BY count(c.first_name=n1.last_name)=1);
+                                                ^^^^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRST_NAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 32:1: ... c ORDER BY EXISTS (SELECT first_name FROM customers n1 ORDER BY...
+                                         ^^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column LAST_NAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 33:1: SELECT ALL last_name FROM customers c ORDER BY EXISTS (SELECT f...
+                      ^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column LAST_NAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 34:1: SELECT ALL last_name FROM customers c ORDER BY EXISTS (SELECT l...
+                      ^^^^^^^^^
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
+LINE 36:1: ...P BY n1.first_name having (c.first_name||'test')=n1.first_name);
+                                         ^^^^^^^^^^^^
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
+LINE 37:1: ....first_name having count((c.first_name||'test')=n1.first_name)=2...
+                                        ^^^^^^^^^^^^
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
+LINE 38:1: ...mers n1 GROUP BY n1.first_name order by (c.first_name||'test'));
+                                                       ^^^^^^^^^^^^
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
+LINE 39:1: ...s n1 GROUP BY n1.first_name order by c.first_name||c.last_name);
+                                                   ^^^^^^^^^^^^
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column C.* from outer query
-LINE 1: ... n2 group by n2.order_id having count((c.* = n1.*) = TRUE)=1));
-                                                  ^
+LINE 41:1: ... n2 group by n2.order_id having count((c.* = n1.*) = TRUE)=1));
+                                                     ^

@@ -68,12 +68,12 @@ select 1.1::boolean; -- error
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: 'f'
 [ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'test' is not a valid boolean value
 [ERROR]: ERR_TYPE_CAST: Cannot cast type NUMERIC to type BOOLEAN
-LINE 1: select 2.0::bool;
-               ^^^^^^^^^
+LINE 9:1: select 2.0::bool;
+                 ^^^^^^^^^
 [ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'a' is not a valid boolean value
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type BOOLEAN
-LINE 1: select -1 ::bool;
-                ^
+LINE 11:1: select -1 ::bool;
+                   ^
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: '.1'
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: '1.'
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: '+1.0'
@@ -95,8 +95,8 @@ LINE 1: select -1 ::bool;
 [ERROR]: ERR_INVALID_NUMERIC_SYNTAX: Invalid input syntax for type numeric: '+   '
 [ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'a' is not a valid boolean value
 [ERROR]: ERR_TYPE_CAST: Cannot cast type BOOLEAN to type NUMERIC
-LINE 2: select TRUE::numeric(2);
-               ^^^^^^^^^^^^^^^^
+LINE 32:2: select TRUE::numeric(2);
+                  ^^^^^^^^^^^^^^^^
 [ERROR]: ERR_INVALID_NUMERIC_SYNTAX: Invalid input syntax for type numeric: 'abc'
 [ERROR]: ERR_INVALID_NUMERIC_SYNTAX: Invalid input syntax for type numeric: 'abc'
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: '++1'
@@ -127,8 +127,8 @@ LINE 2: select TRUE::numeric(2);
 1
 (1 row)
 [ERROR]: ERR_TYPE_CAST: Cannot cast type BOOLEAN to type NUMERIC
-LINE 1: select FALSE::numeric; -- error
-               ^^^^^^^^^^^^^^
+LINE 58:1: select FALSE::numeric; -- error
+                  ^^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type NUMERIC to type BOOLEAN
-LINE 2: select 1.1::boolean; -- error
-               ^^^^^^^^^^^^
+LINE 59:2: select 1.1::boolean; -- error
+                  ^^^^^^^^^^^^

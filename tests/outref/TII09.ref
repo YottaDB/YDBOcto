@@ -65,17 +65,17 @@ ID|FIRSTNAME
 1234|First
 (4 rows)
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: %YO_KEYCOL
-LINE 1: SELECT `%yo_keycol` FROM tmp1;
-                          ^
+LINE 9:1: SELECT `%yo_keycol` FROM tmp1;
+                            ^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: %YO_KEYCOL
-LINE 1: SELECT `%YO_KEYCOL` FROM tmp1;
-                          ^
+LINE 10:1: SELECT `%YO_KEYCOL` FROM tmp1;
+                             ^
 [ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column '%YO_KEYCOL' of table 'TMP1' does not exist
-LINE 1: INSERT INTO tmp1(`%yo_keycol`, id) SELECT id, id from tmp1;
-                                    ^
+LINE 12:1: INSERT INTO tmp1(`%yo_keycol`, id) SELECT id, id from tmp1;
+                                       ^
 [ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column '%YO_KEYCOL' of table 'TMP1' does not exist
-LINE 1: INSERT INTO tmp1(id, `%yo_keycol`) SELECT id, id from tmp1;
-                                        ^
+LINE 13:1: INSERT INTO tmp1(id, `%yo_keycol`) SELECT id, id from tmp1;
+                                           ^
 CREATE TABLE
 %YO_KEYCOL
 1

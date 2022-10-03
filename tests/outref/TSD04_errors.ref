@@ -27,41 +27,41 @@ SELECT DISTINCT id,(SELECT n1.lastname FROM names n1 LIMIT 1),firstname FROM nam
 -- Test that alias difference does result in an error
 select distinct n1.id from names n1 JOIN names n2 on (n1.id=n2.id)  order by n2.id;
 [ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_SELECT_DISTINCT: For SELECT DISTINCT, ORDER BY expressions must appear in select list
-LINE 1: SELECT DISTINCT firstname FROM names ORDER BY lastname;
-                                                      ^^^^^^^^
+LINE 4:1: SELECT DISTINCT firstname FROM names ORDER BY lastname;
+                                                        ^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_SELECT_DISTINCT: For SELECT DISTINCT, ORDER BY expressions must appear in select list
-LINE 1: ...CT DISTINCT firstname,lastname FROM names ORDER BY firstname,id;
-                                                                        ^^
+LINE 5:1: ...CT DISTINCT firstname,lastname FROM names ORDER BY firstname,id;
+                                                                          ^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_SELECT_DISTINCT: For SELECT DISTINCT, ORDER BY expressions must appear in select list
-LINE 1: SELECT DISTINCT 2+id,lastname FROM names ORDER BY id;
-                                                          ^^
+LINE 6:1: SELECT DISTINCT 2+id,lastname FROM names ORDER BY id;
+                                                            ^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_SELECT_DISTINCT: For SELECT DISTINCT, ORDER BY expressions must appear in select list
-LINE 1: ...LECT DISTINCT 2+id,lastname FROM names ORDER BY 2+id,firstname;
-                                                                ^^^^^^^^^
+LINE 7:1: ...LECT DISTINCT 2+id,lastname FROM names ORDER BY 2+id,firstname;
+                                                                  ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_SELECT_DISTINCT: For SELECT DISTINCT, ORDER BY expressions must appear in select list
-LINE 1: ...INCT 2+id,lastname FROM names ORDER BY 2+id,firstname,lastname;
-                                                       ^^^^^^^^^
+LINE 8:1: ...INCT 2+id,lastname FROM names ORDER BY 2+id,firstname,lastname;
+                                                         ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_SELECT_DISTINCT: For SELECT DISTINCT, ORDER BY expressions must appear in select list
-LINE 1: ...lastname FROM names ORDER BY 2+id,lastname,firstname || 'abcd';
-                                                      ^^^^^^^^^^^^^^^^^^^
+LINE 9:1: ...lastname FROM names ORDER BY 2+id,lastname,firstname || 'abcd';
+                                                        ^^^^^^^^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_SELECT_DISTINCT: For SELECT DISTINCT, ORDER BY expressions must appear in select list
-LINE 1: ... 2+id,firstname || 'abcd',lastname FROM names ORDER BY 3,3+id,2;
-                                                                    ^^^^
+LINE 10:1: ... 2+id,firstname || 'abcd',lastname FROM names ORDER BY 3,3+id,2;
+                                                                       ^^^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_SELECT_DISTINCT: For SELECT DISTINCT, ORDER BY expressions must appear in select list
-LINE 1: ...ROM names ORDER BY 2+id,firstname || 'abcd',lastname,firstname;
-                                                                ^^^^^^^^^
+LINE 11:1: ...ROM names ORDER BY 2+id,firstname || 'abcd',lastname,firstname;
+                                                                   ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_SELECT_DISTINCT: For SELECT DISTINCT, ORDER BY expressions must appear in select list
-LINE 1: ...rstname || 'abcd' AS col2,lastname FROM names ORDER BY 3,id+2,2;
-                                                                    ^^^^
+LINE 13:1: ...rstname || 'abcd' AS col2,lastname FROM names ORDER BY 3,id+2,2;
+                                                                       ^^^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_SELECT_DISTINCT: For SELECT DISTINCT, ORDER BY expressions must appear in select list
-LINE 1: ...BY id,(SELECT DISTINCT n2.lastname FROM names n2 LIMIT 1),first...
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 15:1: ...BY id,(SELECT DISTINCT n2.lastname FROM names n2 LIMIT 1),first...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_SELECT_DISTINCT: For SELECT DISTINCT, ORDER BY expressions must appear in select list
-LINE 1: ...(SELECT n2.lastname FROM names n2 ORDER BY n2.lastname LIMIT 1)...
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 16:1: ...(SELECT n2.lastname FROM names n2 ORDER BY n2.lastname LIMIT 1)...
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_SELECT_DISTINCT: For SELECT DISTINCT, ORDER BY expressions must appear in select list
-LINE 1: ...RDER BY id,(SELECT n2.lastname FROM names n2 LIMIT 1),firstname;
-                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 18:1: ...RDER BY id,(SELECT n2.lastname FROM names n2 LIMIT 1),firstname;
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_SELECT_DISTINCT: For SELECT DISTINCT, ORDER BY expressions must appear in select list
-LINE 1: ...d from names n1 JOIN names n2 on (n1.id=n2.id)  order by n2.id;
-                                                                    ^^^^^
+LINE 20:1: ...d from names n1 JOIN names n2 on (n1.id=n2.id)  order by n2.id;
+                                                                       ^^^^^

@@ -67,8 +67,8 @@ Reducing stack by rule rrr (line lll):
    $1 = nterm column_name (: )
 [TRACE] PATH:LINENUM DATE TIME: INFO_TABLE_SEARCH: Searching for table NONEXISTANTTABLE
 [ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE: Unknown table: NONEXISTANTTABLE
-LINE 1: select * from nonexistanttable;
-                      ^^^^^^^^^^^^^^^^
+LINE 2:1: select * from nonexistanttable;
+                        ^^^^^^^^^^^^^^^^
 Error: popping token FROM (: )
 Error: popping nterm select_list (: )
 Error: popping nterm set_quantifier (: )

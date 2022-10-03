@@ -53,53 +53,53 @@ select * from names where lastname = (select lastname from names where id = 4 un
 [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
 [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
-LINE 1: SELECT * FROM names WHERE 2;
-                                  ^
+LINE 7:1: SELECT * FROM names WHERE 2;
+                                    ^
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
-LINE 1: SELECT * FROM names WHERE 2 OR 1=1;
-                                  ^
+LINE 8:1: SELECT * FROM names WHERE 2 OR 1=1;
+                                    ^
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
-LINE 1: SELECT * FROM names WHERE 2 AND 1=1;
-                                  ^
+LINE 9:1: SELECT * FROM names WHERE 2 AND 1=1;
+                                    ^
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
-LINE 1: SELECT * FROM names WHERE 2 AND NOT 1=1;
-                                  ^
+LINE 10:1: SELECT * FROM names WHERE 2 AND NOT 1=1;
+                                     ^
 [ERROR] PATH:LINENUM DATE TIME: ERR_NOT_OPERATION_TYPE_MISMATCH: INTEGER type operand is incorrect for NOT operation. Need a boolean operand.
-LINE 1: SELECT * FROM names WHERE NOT 2;
-                                      ^
+LINE 11:1: SELECT * FROM names WHERE NOT 2;
+                                         ^
 [ERROR] PATH:LINENUM DATE TIME: ERR_NOT_OPERATION_TYPE_MISMATCH: INTEGER type operand is incorrect for NOT operation. Need a boolean operand.
-LINE 1: SELECT * FROM names WHERE NOT 2 OR 1=1;
-                                      ^
+LINE 12:1: SELECT * FROM names WHERE NOT 2 OR 1=1;
+                                         ^
 [ERROR] PATH:LINENUM DATE TIME: ERR_NOT_OPERATION_TYPE_MISMATCH: INTEGER type operand is incorrect for NOT operation. Need a boolean operand.
-LINE 1: SELECT * FROM names WHERE NOT 2 AND 1=1;
-                                      ^
+LINE 13:1: SELECT * FROM names WHERE NOT 2 AND 1=1;
+                                         ^
 [ERROR] PATH:LINENUM DATE TIME: ERR_NOT_OPERATION_TYPE_MISMATCH: INTEGER type operand is incorrect for NOT operation. Need a boolean operand.
-LINE 1: SELECT * FROM names WHERE NOT 2 AND NOT 1=1;
-                                      ^
+LINE 14:1: SELECT * FROM names WHERE NOT 2 AND NOT 1=1;
+                                         ^
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
-LINE 1: SELECT * FROM names WHERE 'abcd';
-                                       ^
+LINE 16:1: SELECT * FROM names WHERE 'abcd';
+                                          ^
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
-LINE 1: SELECT * FROM names WHERE 'abcd' OR 1=1;
-                                       ^
+LINE 17:1: SELECT * FROM names WHERE 'abcd' OR 1=1;
+                                          ^
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
-LINE 1: SELECT * FROM names WHERE 'abcd' AND 1=1;
-                                       ^
+LINE 18:1: SELECT * FROM names WHERE 'abcd' AND 1=1;
+                                          ^
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
-LINE 1: SELECT * FROM names WHERE 'abcd' AND NOT 1=1;
-                                       ^
+LINE 19:1: SELECT * FROM names WHERE 'abcd' AND NOT 1=1;
+                                          ^
 [ERROR] PATH:LINENUM DATE TIME: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'VARCHAR' is not a valid boolean value
-LINE 1: SELECT * FROM names WHERE NOT 'abcd';
-                                           ^
+LINE 20:1: SELECT * FROM names WHERE NOT 'abcd';
+                                              ^
 [ERROR] PATH:LINENUM DATE TIME: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'VARCHAR' is not a valid boolean value
-LINE 1: SELECT * FROM names WHERE NOT 'abcd' OR 1=1;
-                                           ^
+LINE 21:1: SELECT * FROM names WHERE NOT 'abcd' OR 1=1;
+                                              ^
 [ERROR] PATH:LINENUM DATE TIME: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'VARCHAR' is not a valid boolean value
-LINE 1: SELECT * FROM names WHERE NOT 'abcd' AND 1=1;
-                                           ^
+LINE 22:1: SELECT * FROM names WHERE NOT 'abcd' AND 1=1;
+                                              ^
 [ERROR] PATH:LINENUM DATE TIME: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'VARCHAR' is not a valid boolean value
-LINE 1: SELECT * FROM names WHERE NOT 'abcd' AND NOT 1=1;
-                                           ^
+LINE 23:1: SELECT * FROM names WHERE NOT 'abcd' AND NOT 1=1;
+                                              ^
 [ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
 [ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
 [ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'abcd' is not a valid boolean value

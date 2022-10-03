@@ -2,8 +2,8 @@
 select NULL in (n1.*) from names n1 group by NULL in (n1.*) having n1.* in (NULL,NULL);
 select NULL in (n1.*) from names n1 group by 1 having n1.* in (NULL,NULL);
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column N1.* must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...rom names n1 group by NULL in (n1.*) having n1.* in (NULL,NULL);
-                                                       ^^
+LINE 2:1: ...rom names n1 group by NULL in (n1.*) having n1.* in (NULL,NULL);
+                                                         ^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column N1.* must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...L in (n1.*) from names n1 group by 1 having n1.* in (NULL,NULL);
-                                                       ^^
+LINE 3:1: ...L in (n1.*) from names n1 group by 1 having n1.* in (NULL,NULL);
+                                                         ^^

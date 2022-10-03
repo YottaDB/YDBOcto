@@ -11,14 +11,14 @@ select NOT (3 >= customers.customer_id) from customers group by NOT (3 >= custom
 -- Below query validates that GroupBy expression forms the smallest expression element which having clause can use in the presence of GroupBy
 SELECT id+1 from names group by id+1 having id=1;
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...= customers.customer_id) order by (3 >= customers.customer_id);
-                                                   ^^^^^^^^^^^^^^^^^^^^^
+LINE 2:1: ...= customers.customer_id) order by (3 >= customers.customer_id);
+                                                     ^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...3 >= customers.customer_id) having (3>= customers.customer_id);
-                                                   ^^^^^^^^^^^^^^^^^^^^^
+LINE 4:1: ...3 >= customers.customer_id) having (3>= customers.customer_id);
+                                                     ^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: ...omer_id) having (3>= customers.customer_id) order by (3 >= cust...
-                                ^^^^^^^^^^^^^^^^^^^^^
+LINE 6:1: ...omer_id) having (3>= customers.customer_id) order by (3 >= cust...
+                                  ^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
-LINE 1: SELECT id+1 from names group by id+1 having id=1;
-                                                    ^^
+LINE 8:1: SELECT id+1 from names group by id+1 having id=1;
+                                                      ^^

@@ -4,7 +4,7 @@
 SELECT NULLIF(1, '1');
 
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
-LINE 1: SELECT NULLIF(1, '1');
-                      ^
-LINE 1: SELECT NULLIF(1, '1');
-                           ^
+LINE 2:1: SELECT NULLIF(1, '1');
+                        ^
+LINE 2:1: SELECT NULLIF(1, '1');
+                             ^

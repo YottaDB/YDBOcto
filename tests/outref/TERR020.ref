@@ -3,5 +3,5 @@
 
 SELECT *;
 [ERROR]: ERR_SELECT_STAR_NO_TABLES: SELECT * with no tables specified is not valid
-LINE 1: SELECT *;
-               ^
+LINE 3:1: SELECT *;
+                 ^

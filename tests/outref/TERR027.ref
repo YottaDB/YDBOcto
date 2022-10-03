@@ -5,8 +5,8 @@ CREATE FUNCTION BADFUNC() RETURNS INTEGER AS $$BAD%FUNC;
 CREATE FUNCTION BADFUNC() RETURNS INTEGER AS $$BAD^FU%NC;
 
 [ERROR]: ERR_PERCENT_IN_EXTRINSIC_FUNCTION_NAME: '%' is only allowed at the beginning of an M label or routine name.
-LINE 1: CREATE FUNCTION BADFUNC() RETURNS INTEGER AS $$BAD%FUNC;
-                                                     ^^^^^^^^^^
-LINE 1: CREATE FUNCTION BADFUNC() RETURNS INTEGER AS $$BAD^FU%NC;
-                                                             ^
+LINE 3:1: CREATE FUNCTION BADFUNC() RETURNS INTEGER AS $$BAD%FUNC;
+                                                       ^^^^^^^^^^
+LINE 4:1: CREATE FUNCTION BADFUNC() RETURNS INTEGER AS $$BAD^FU%NC;
+                                                               ^
 syntax error, unexpected PERCENT, expecting SEMICOLON or ENDOFFILE

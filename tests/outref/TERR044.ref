@@ -1,0 +1,44 @@
+
+-- TERR044 : OCTO913 : Correct syntax highlighting when multiple queries and errors on single line
+
+select id from dummy1; select id from dummy2;
+select id from dummy3;
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: DUMMY1
+LINE 3:1: select id from dummy1; select id from dummy2;
+                         ^^^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: DUMMY2
+LINE 3:1: select id from dummy1; select id from dummy2;
+                                                ^^^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: DUMMY3
+LINE 4:1: select id from dummy3;
+                         ^^^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: DUMMY1
+LINE 1:1: select id from dummy1; select id from dummy2;
+                         ^^^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: DUMMY2
+LINE 1:1: select id from dummy2;
+                         ^^^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: DUMMY3
+LINE 2:1: select id from dummy3;
+                         ^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: NOTATHING
+LINE 3:1: select * from names where notathing = 0; select * from names wh...
+                                    ^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ALSONOTATHING
+LINE 3:1: ...elect * from names where alsonotathing = 1; select * from names...
+                                      ^^^^^^^^^^^^^
+ID|FIRSTNAME|LASTNAME
+0|Zero|Cool
+(1 row)
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: NOTATHING
+LINE 4:1: select * from names where notathing = 0; select * from names wh...
+                                    ^^^^^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ALSONOTATHING
+LINE 4:1: ...elect * from names where alsonotathing = 1; select * from names...
+                                      ^^^^^^^^^^^^^
+ID|FIRSTNAME|LASTNAME
+0|Zero|Cool
+(1 row)
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ASWELLNOTATHING
+LINE 4:1: select * from names where aswellnotathing;
+                                    ^^^^^^^^^^^^^^^

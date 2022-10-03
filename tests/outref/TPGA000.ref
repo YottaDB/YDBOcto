@@ -40,6 +40,6 @@ db.oid=descr.objoid AND descr.classoid='pg_database'::regclass
 )
 WHERE db.oid > 0::OID
 ORDER BY datname;
-LINE 9: SELECT array_to_string(defaclacl::text[], ', ')
-                                               ^
+LINE 11:9: SELECT array_to_string(defaclacl::text[], ', ')
+                                                  ^
 syntax error, unexpected RIGHT_BRACKET, expecting LITERAL

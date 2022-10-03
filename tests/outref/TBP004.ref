@@ -1,6 +1,6 @@
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: MYTABLE
-LINE 1: UPDATE myTable
-               ^^^^^^^
+LINE 1:1: UPDATE myTable
+                 ^^^^^^^
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: TABLEOFDOGS
-LINE 2: ... name = (SELECT name FROM tableOfDogs WHERE breed = "Black lab"...
-                                     ^^^^^^^^^^^
+LINE 5:2: ... name = (SELECT name FROM tableOfDogs WHERE breed = "Black lab"...
+                                       ^^^^^^^^^^^

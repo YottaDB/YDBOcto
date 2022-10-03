@@ -3,6 +3,6 @@
 
 SELECT ARRAY();
 
-LINE 1: SELECT ARRAY();
-                     ^
+LINE 3:1: SELECT ARRAY();
+                       ^
 syntax error, unexpected RIGHT_PAREN

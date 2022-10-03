@@ -1,4 +1,4 @@
 # Test of: https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1113#note_1018283916
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ABCD
-LINE 1: select abcd;
-               ^^^^
+LINE 1:1: select abcd;
+                 ^^^^

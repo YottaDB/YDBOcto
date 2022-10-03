@@ -68,20 +68,20 @@ SELECT firstname::text FROM names;
 SELECT firstname::invalid FROM names;
 
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
-LINE 1: SELECT id + firstname FROM names;
-                    ^^^^^^^^^
+LINE 3:1: SELECT id + firstname FROM names;
+                      ^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
-LINE 1: SELECT id - firstname FROM names;
-                    ^^^^^^^^^
+LINE 4:1: SELECT id - firstname FROM names;
+                      ^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
-LINE 1: SELECT id * firstname FROM names;
-                    ^^^^^^^^^
+LINE 5:1: SELECT id * firstname FROM names;
+                      ^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
-LINE 1: SELECT id / firstname FROM names;
-                    ^^^^^^^^^
+LINE 6:1: SELECT id / firstname FROM names;
+                      ^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
-LINE 1: SELECT id % firstname FROM names;
-                    ^^^^^^^^^
+LINE 7:1: SELECT id % firstname FROM names;
+                      ^^^^^^^^^
 ID
 0Zero
 1Acid
@@ -91,35 +91,35 @@ ID
 5Zero
 (6 rows)
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
-LINE 1: SELECT firstname + lastname FROM names;
-               ^^^^^^^^^
+LINE 9:1: SELECT firstname + lastname FROM names;
+                 ^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
-LINE 1: SELECT firstname + lastname FROM names;
-                           ^^^^^^^^
+LINE 9:1: SELECT firstname + lastname FROM names;
+                             ^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
-LINE 1: SELECT firstname - lastname FROM names;
-               ^^^^^^^^^
+LINE 10:1: SELECT firstname - lastname FROM names;
+                  ^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
-LINE 1: SELECT firstname - lastname FROM names;
-                           ^^^^^^^^
+LINE 10:1: SELECT firstname - lastname FROM names;
+                              ^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
-LINE 1: SELECT firstname * lastname FROM names;
-               ^^^^^^^^^
+LINE 11:1: SELECT firstname * lastname FROM names;
+                  ^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
-LINE 1: SELECT firstname * lastname FROM names;
-                           ^^^^^^^^
+LINE 11:1: SELECT firstname * lastname FROM names;
+                              ^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
-LINE 1: SELECT firstname / lastname FROM names;
-               ^^^^^^^^^
+LINE 12:1: SELECT firstname / lastname FROM names;
+                  ^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
-LINE 1: SELECT firstname / lastname FROM names;
-                           ^^^^^^^^
+LINE 12:1: SELECT firstname / lastname FROM names;
+                              ^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
-LINE 1: SELECT firstname % lastname FROM names;
-               ^^^^^^^^^
+LINE 13:1: SELECT firstname % lastname FROM names;
+                  ^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
-LINE 1: SELECT firstname % lastname FROM names;
-                           ^^^^^^^^
+LINE 13:1: SELECT firstname % lastname FROM names;
+                              ^^^^^^^^
 FIRSTNAME
 ZeroCool
 AcidBurn
@@ -170,11 +170,11 @@ ZeroCool
 -1.5
 (6 rows)
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
-LINE 1: SELECT -1.5::varchar FROM names;
-                ^^^
+LINE 24:1: SELECT -1.5::varchar FROM names;
+                   ^^^
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
-LINE 1: SELECT -1.5::text FROM names;
-                ^^^
+LINE 25:1: SELECT -1.5::text FROM names;
+                   ^^^
 [ERROR]: ERR_INVALID_TYPE: Type INVALID does not exist
 ???
 -1.5

@@ -11,11 +11,11 @@ SELECT 1 FROM names ORDER BY (SELECT 1,2);
 SELECT 1 FROM names WHERE 1 = (SELECT 1,2);
 
 [ERROR] PATH:LINENUM DATE TIME: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
-LINE 1: SELECT (SELECT 1,2);
-               ^^^^^^^^^^^^
+LINE 4:1: SELECT (SELECT 1,2);
+                 ^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
-LINE 1: SELECT 1 FROM names ORDER BY (SELECT 1,2);
-                                     ^^^^^^^^^^^^
+LINE 5:1: SELECT 1 FROM names ORDER BY (SELECT 1,2);
+                                       ^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
-LINE 1: SELECT 1 FROM names WHERE 1 = (SELECT 1,2);
-                                       ^^^^^^
+LINE 7:1: SELECT 1 FROM names WHERE 1 = (SELECT 1,2);
+                                         ^^^^^^

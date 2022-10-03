@@ -25,14 +25,14 @@ select firstname from names where (NOT firstname);
 -- Boolean operations should issue error if one operand is not boolean type
 select n2.id and EXISTS (select * from names n1) from names n2;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for || operator
-LINE 1: select true || false;
-               ^^^^
+LINE 2:1: select true || false;
+                 ^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for || operator
-LINE 1: select true || false;
-                       ^^^^^
+LINE 2:1: select true || false;
+                         ^^^^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type BOOLEAN to type NUMERIC
-LINE 1: select id,(id = 2)::numeric from names;
-                  ^^^^^^^^^^^^^^^^^
+LINE 4:1: select id,(id = 2)::numeric from names;
+                    ^^^^^^^^^^^^^^^^^
 ID|ID
 0|false
 1|false
@@ -50,50 +50,50 @@ ID|ID
 5|false
 (6 rows)
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for arithmetic operations
-LINE 1: select id+(id=2) from names;
-                   ^^^^
+LINE 8:1: select id+(id=2) from names;
+                     ^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for arithmetic operations
-LINE 1: select id-(id=2) from names;
-                   ^^^^
+LINE 9:1: select id-(id=2) from names;
+                     ^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for arithmetic operations
-LINE 1: select id*(id=2) from names;
-                   ^^^^
+LINE 10:1: select id*(id=2) from names;
+                      ^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for arithmetic operations
-LINE 1: select id/(id=2) from names;
-                   ^^^^
+LINE 11:1: select id/(id=2) from names;
+                      ^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for arithmetic operations
-LINE 1: select id%(id=2) from names;
-                   ^^^^
+LINE 12:1: select id%(id=2) from names;
+                      ^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
-LINE 1: select id from names where (id OR id);
-                                    ^^
+LINE 14:1: select id from names where (id OR id);
+                                       ^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
-LINE 1: select id from names where (id OR id);
-                                          ^^
+LINE 14:1: select id from names where (id OR id);
+                                             ^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
-LINE 1: select id from names where (id AND id);
-                                    ^^
+LINE 15:1: select id from names where (id AND id);
+                                       ^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
-LINE 1: select id from names where (id AND id);
-                                           ^^
+LINE 15:1: select id from names where (id AND id);
+                                              ^^
 [ERROR]: ERR_NOT_OPERATION_TYPE_MISMATCH: INTEGER type operand is incorrect for NOT operation. Need a boolean operand.
-LINE 1: select id from names where (NOT id);
-                                        ^^
+LINE 16:1: select id from names where (NOT id);
+                                           ^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
-LINE 1: select firstname from names where (firstname OR firstname);
-                                           ^^^^^^^^^
+LINE 17:1: select firstname from names where (firstname OR firstname);
+                                              ^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
-LINE 1: select firstname from names where (firstname OR firstname);
-                                                        ^^^^^^^^^
+LINE 17:1: select firstname from names where (firstname OR firstname);
+                                                           ^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
-LINE 1: select firstname from names where (firstname AND firstname);
-                                           ^^^^^^^^^
+LINE 18:1: select firstname from names where (firstname AND firstname);
+                                              ^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
-LINE 1: select firstname from names where (firstname AND firstname);
-                                                         ^^^^^^^^^
+LINE 18:1: select firstname from names where (firstname AND firstname);
+                                                            ^^^^^^^^^
 [ERROR]: ERR_NOT_OPERATION_TYPE_MISMATCH: VARCHAR type operand is incorrect for NOT operation. Need a boolean operand.
-LINE 1: select firstname from names where (NOT firstname);
-                                               ^^^^^^^^^
+LINE 19:1: select firstname from names where (NOT firstname);
+                                                  ^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
-LINE 1: select n2.id and EXISTS (select * from names n1) from names n2;
-               ^^^^^
+LINE 21:1: select n2.id and EXISTS (select * from names n1) from names n2;
+                  ^^^^^

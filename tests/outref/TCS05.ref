@@ -1,7 +1,7 @@
 
 SELECT case when id=1 then 'id_is_1' when id=2 then 1 end as caseid FROM names;
 [ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left VARCHAR, right INTEGER
-LINE 1: ...CT case when id=1 then 'id_is_1' when id=2 then 1 end as caseid...
-                                          ^
-LINE 1: ... id=1 then 'id_is_1' when id=2 then 1 end as caseid FROM names;
-                                               ^
+LINE 2:1: ...CT case when id=1 then 'id_is_1' when id=2 then 1 end as caseid...
+                                            ^
+LINE 2:1: ... id=1 then 'id_is_1' when id=2 then 1 end as caseid FROM names;
+                                                 ^

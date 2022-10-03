@@ -202,10 +202,10 @@ ID
 6
 (7 rows)
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types INTEGER and VARCHAR cannot be matched
-LINE 1: (select id        from names) union (select firstname from names...
-                ^^
-LINE 1: ...lect id        from names) union (select firstname from names);
-                                                    ^^^^^^^^^
+LINE 4:1: (select id        from names) union (select firstname from names...
+                  ^^
+LINE 4:1: ...lect id        from names) union (select firstname from names);
+                                                      ^^^^^^^^^
 ID
 1
 2
@@ -216,100 +216,100 @@ ID
 0
 (7 rows)
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types INTEGER and VARCHAR cannot be matched
-LINE 1: (select 1+id      from names) union (select firstname from names...
-                ^^^^
-LINE 1: ...lect 1+id      from names) union (select firstname from names);
-                                                    ^^^^^^^^^
+LINE 6:1: (select 1+id      from names) union (select firstname from names...
+                  ^^^^
+LINE 6:1: ...lect 1+id      from names) union (select firstname from names);
+                                                      ^^^^^^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) union (select id        from name...
-                ^^^^^^^^^
-LINE 1: ...elect firstname from names) union (select id        from names);
-                                                     ^^
+LINE 7:1: (select firstname from names) union (select id        from name...
+                  ^^^^^^^^^
+LINE 7:1: ...elect firstname from names) union (select id        from names);
+                                                       ^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) union (select 1+id      from name...
-                ^^^^^^^^^
-LINE 1: ...elect firstname from names) union (select 1+id      from names);
+LINE 8:1: (select firstname from names) union (select 1+id      from name...
+                  ^^^^^^^^^
+LINE 8:1: ...elect firstname from names) union (select 1+id      from names);
+                                                       ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
+LINE 9:1: ... id        from names) union (select id,1+id        from names);
                                                      ^^^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
-LINE 1: ... id        from names) union (select id,1+id        from names);
-                                                   ^^^^
+LINE 10:1: ...1+id      from names) union (select id,firstname   from names);
+                                                     ^^^^^^^^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
-LINE 1: ...1+id      from names) union (select id,firstname   from names);
-                                                  ^^^^^^^^^
+LINE 11:1: ... firstname from names) union (select 1+id,id        from names);
+                                                        ^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
-LINE 1: ... firstname from names) union (select 1+id,id        from names);
+LINE 12:1: ...id        from names) union (select 1+id,firstname from names);
+                                                       ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
+LINE 13:1: ... 1+id      from names) union (select firstname,id   from names);
+                                                             ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
+LINE 14:1: ... firstname from names) union (select firstname,1+id from names);
+                                                             ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
+LINE 15:1: ...    from names) union (select firstname,lastname,id from names);
+                                                      ^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
+LINE 16:1: ...    from names) union (select lastname,id,firstname from names);
                                                      ^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
-LINE 1: ...id        from names) union (select 1+id,firstname from names);
-                                                    ^^^^^^^^^
+LINE 17:1: ...name from names) union (select *                     from names...
+                                             ^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
-LINE 1: ... 1+id      from names) union (select firstname,id   from names);
-                                                          ^^
+LINE 18:1: (select id,1+id        from names) union (select id        from ...
+                      ^^^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
-LINE 1: ... firstname from names) union (select firstname,1+id from names);
-                                                          ^^^^
+LINE 19:1: (select id,firstname   from names) union (select 1+id      from...
+                      ^^^^^^^^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
-LINE 1: ...    from names) union (select firstname,lastname,id from names);
-                                                   ^^^^^^^^
+LINE 20:1: (select 1+id,id        from names) union (select firstname from ...
+                        ^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
-LINE 1: ...    from names) union (select lastname,id,firstname from names);
-                                                  ^^
+LINE 21:1: (select 1+id,firstname from names) union (select id        from...
+                        ^^^^^^^^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
-LINE 1: ...name from names) union (select *                     from names...
-                                          ^
+LINE 22:1: (select firstname,id   from names) union (select 1+id      from ...
+                             ^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
-LINE 1: (select id,1+id        from names) union (select id        from ...
-                   ^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
-LINE 1: (select id,firstname   from names) union (select 1+id      from...
+LINE 23:1: (select firstname,1+id from names) union (select firstname from ...
+                             ^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types VARCHAR and INTEGER cannot be matched
+LINE 24:1: (select firstname,lastname from names) union (select firstname,1...
+                             ^^^^^^^^
+LINE 24:1: ...e,lastname from names) union (select firstname,1+id from names);
+                                                             ^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types INTEGER and VARCHAR cannot be matched
+LINE 25:1: (select * from (select 1+id from names))                       ...
+                   ^
+LINE 25:1: ...                           union (select firstname from names);
+                                                       ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types INTEGER and VARCHAR cannot be matched
+LINE 26:1: (select newid from (select 1+id as newid from names))          ...
+                   ^^^^^
+LINE 26:1: ...                           union (select firstname from names);
+                                                       ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types INTEGER and VARCHAR cannot be matched
+LINE 27:1: (select new2id from (select newid+2 as new2id from (select 1+id ...
+                   ^^^^^^
+LINE 27:1: ...+id as newid from names))) union (select firstname from names);
+                                                       ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types VARCHAR and INTEGER cannot be matched
+LINE 28:1: (select firstname from names) union (select * from (select 1+id...
                    ^^^^^^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
-LINE 1: (select 1+id,id        from names) union (select firstname from ...
-                     ^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
-LINE 1: (select 1+id,firstname from names) union (select id        from...
-                     ^^^^^^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
-LINE 1: (select firstname,id   from names) union (select 1+id      from ...
-                          ^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION query must have same number of columns
-LINE 1: (select firstname,1+id from names) union (select firstname from ...
-                          ^^^^
+LINE 28:1: ...name from names) union (select * from (select 1+id from names))...
+                                             ^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname,lastname from names) union (select firstname,1...
-                          ^^^^^^^^
-LINE 1: ...e,lastname from names) union (select firstname,1+id from names);
-                                                          ^^^^
-[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types INTEGER and VARCHAR cannot be matched
-LINE 1: (select * from (select 1+id from names))                       ...
-                ^
-LINE 1: ...                           union (select firstname from names);
-                                                    ^^^^^^^^^
-[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types INTEGER and VARCHAR cannot be matched
-LINE 1: (select newid from (select 1+id as newid from names))          ...
-                ^^^^^
-LINE 1: ...                           union (select firstname from names);
-                                                    ^^^^^^^^^
-[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types INTEGER and VARCHAR cannot be matched
-LINE 1: (select new2id from (select newid+2 as new2id from (select 1+id ...
-                ^^^^^^
-LINE 1: ...+id as newid from names))) union (select firstname from names);
-                                                    ^^^^^^^^^
+LINE 29:1: (select firstname from names) union (select newid from (select ...
+                   ^^^^^^^^^
+LINE 29:1: ...me from names) union (select newid from (select 1+id as newid f...
+                                           ^^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) union (select * from (select 1+id...
-                ^^^^^^^^^
-LINE 1: ...name from names) union (select * from (select 1+id from names))...
-                                          ^
-[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) union (select newid from (select ...
-                ^^^^^^^^^
-LINE 1: ...me from names) union (select newid from (select 1+id as newid f...
-                                        ^^^^^
-[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) union (select new2id from (select...
-                ^^^^^^^^^
-LINE 1: ...me from names) union (select new2id from (select newid+2 as new2...
-                                        ^^^^^^
+LINE 30:1: (select firstname from names) union (select new2id from (select...
+                   ^^^^^^^^^
+LINE 30:1: ...me from names) union (select new2id from (select newid+2 as new2...
+                                           ^^^^^^
 ID
 0
 1
@@ -325,10 +325,10 @@ ID
 6
 (12 rows)
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
-LINE 1: (select id        from names) union all (select firstname from n...
-                ^^
-LINE 1: ... id        from names) union all (select firstname from names);
-                                                    ^^^^^^^^^
+LINE 32:1: (select id        from names) union all (select firstname from n...
+                   ^^
+LINE 32:1: ... id        from names) union all (select firstname from names);
+                                                       ^^^^^^^^^
 ID
 1
 2
@@ -344,100 +344,100 @@ ID
 5
 (12 rows)
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
-LINE 1: (select 1+id      from names) union all (select firstname from n...
-                ^^^^
-LINE 1: ... 1+id      from names) union all (select firstname from names);
-                                                    ^^^^^^^^^
-[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) union all (select id        from ...
-                ^^^^^^^^^
-LINE 1: ...t firstname from names) union all (select id        from names);
-                                                     ^^
-[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) union all (select 1+id      from ...
-                ^^^^^^^^^
-LINE 1: ...t firstname from names) union all (select 1+id      from names);
-                                                     ^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
-LINE 1: ...       from names) union all (select id,1+id        from names);
-                                                   ^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
-LINE 1: ...      from names) union all (select id,firstname   from names);
-                                                  ^^^^^^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
-LINE 1: ...stname from names) union all (select 1+id,id        from names);
-                                                     ^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
-LINE 1: ...      from names) union all (select 1+id,firstname from names);
-                                                    ^^^^^^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
-LINE 1: ...d      from names) union all (select firstname,id   from names);
-                                                          ^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
-LINE 1: ...stname from names) union all (select firstname,1+id from names);
-                                                          ^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
-LINE 1: ...from names) union all (select firstname,lastname,id from names);
-                                                   ^^^^^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
-LINE 1: ...from names) union all (select lastname,id,firstname from names);
-                                                  ^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
-LINE 1: ... from names) union all (select *                     from names...
-                                          ^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
-LINE 1: (select id,1+id        from names) union all (select id        f...
+LINE 34:1: (select 1+id      from names) union all (select firstname from n...
                    ^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
-LINE 1: (select id,firstname   from names) union all (select 1+id      ...
+LINE 34:1: ... 1+id      from names) union all (select firstname from names);
+                                                       ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
+LINE 35:1: (select firstname from names) union all (select id        from ...
                    ^^^^^^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
-LINE 1: (select 1+id,id        from names) union all (select firstname f...
-                     ^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
-LINE 1: (select 1+id,firstname from names) union all (select id        ...
-                     ^^^^^^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
-LINE 1: (select firstname,id   from names) union all (select 1+id      f...
-                          ^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
-LINE 1: (select firstname,1+id from names) union all (select firstname f...
-                          ^^^^
+LINE 35:1: ...t firstname from names) union all (select id        from names);
+                                                        ^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname,lastname from names) union all (select firstna...
-                          ^^^^^^^^
-LINE 1: ...stname from names) union all (select firstname,1+id from names);
-                                                          ^^^^
+LINE 36:1: (select firstname from names) union all (select 1+id      from ...
+                   ^^^^^^^^^
+LINE 36:1: ...t firstname from names) union all (select 1+id      from names);
+                                                        ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 37:1: ...       from names) union all (select id,1+id        from names);
+                                                      ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 38:1: ...      from names) union all (select id,firstname   from names);
+                                                     ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 39:1: ...stname from names) union all (select 1+id,id        from names);
+                                                        ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 40:1: ...      from names) union all (select 1+id,firstname from names);
+                                                       ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 41:1: ...d      from names) union all (select firstname,id   from names);
+                                                             ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 42:1: ...stname from names) union all (select firstname,1+id from names);
+                                                             ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 43:1: ...from names) union all (select firstname,lastname,id from names);
+                                                      ^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 44:1: ...from names) union all (select lastname,id,firstname from names);
+                                                     ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 45:1: ... from names) union all (select *                     from names...
+                                             ^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 46:1: (select id,1+id        from names) union all (select id        f...
+                      ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 47:1: (select id,firstname   from names) union all (select 1+id      ...
+                      ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 48:1: (select 1+id,id        from names) union all (select firstname f...
+                        ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 49:1: (select 1+id,firstname from names) union all (select id        ...
+                        ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 50:1: (select firstname,id   from names) union all (select 1+id      f...
+                             ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each UNION ALL query must have same number of columns
+LINE 51:1: (select firstname,1+id from names) union all (select firstname f...
+                             ^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
+LINE 52:1: (select firstname,lastname from names) union all (select firstna...
+                             ^^^^^^^^
+LINE 52:1: ...stname from names) union all (select firstname,1+id from names);
+                                                             ^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
-LINE 1: (select * from (select 1+id from names))                       ...
-                ^
-LINE 1: ...                       union all (select firstname from names);
-                                                    ^^^^^^^^^
+LINE 53:1: (select * from (select 1+id from names))                       ...
+                   ^
+LINE 53:1: ...                       union all (select firstname from names);
+                                                       ^^^^^^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
-LINE 1: (select newid from (select 1+id as newid from names))          ...
-                ^^^^^
-LINE 1: ...                       union all (select firstname from names);
-                                                    ^^^^^^^^^
+LINE 54:1: (select newid from (select 1+id as newid from names))          ...
+                   ^^^^^
+LINE 54:1: ...                       union all (select firstname from names);
+                                                       ^^^^^^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
-LINE 1: (select new2id from (select newid+2 as new2id from (select 1+id ...
-                ^^^^^^
-LINE 1: ...as newid from names))) union all (select firstname from names);
-                                                    ^^^^^^^^^
+LINE 55:1: (select new2id from (select newid+2 as new2id from (select 1+id ...
+                   ^^^^^^
+LINE 55:1: ...as newid from names))) union all (select firstname from names);
+                                                       ^^^^^^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) union all (select * from (select ...
-                ^^^^^^^^^
-LINE 1: ... from names) union all (select * from (select 1+id from names))...
-                                          ^
+LINE 56:1: (select firstname from names) union all (select * from (select ...
+                   ^^^^^^^^^
+LINE 56:1: ... from names) union all (select * from (select 1+id from names))...
+                                             ^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) union all (select newid from (sel...
-                ^^^^^^^^^
-LINE 1: ...rom names) union all (select newid from (select 1+id as newid f...
-                                        ^^^^^
+LINE 57:1: (select firstname from names) union all (select newid from (sel...
+                   ^^^^^^^^^
+LINE 57:1: ...rom names) union all (select newid from (select 1+id as newid f...
+                                           ^^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) union all (select new2id from (se...
-                ^^^^^^^^^
-LINE 1: ...rom names) union all (select new2id from (select newid+2 as new2...
-                                        ^^^^^^
+LINE 58:1: (select firstname from names) union all (select new2id from (se...
+                   ^^^^^^^^^
+LINE 58:1: ...rom names) union all (select new2id from (select newid+2 as new2...
+                                           ^^^^^^
 ID
 1
 2
@@ -446,10 +446,10 @@ ID
 5
 (5 rows)
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT types INTEGER and VARCHAR cannot be matched
-LINE 1: (select id        from names) intersect (select firstname from n...
-                ^^
-LINE 1: ... id        from names) intersect (select firstname from names);
-                                                    ^^^^^^^^^
+LINE 60:1: (select id        from names) intersect (select firstname from n...
+                   ^^
+LINE 60:1: ... id        from names) intersect (select firstname from names);
+                                                       ^^^^^^^^^
 ID
 1
 2
@@ -458,100 +458,100 @@ ID
 5
 (5 rows)
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT types INTEGER and VARCHAR cannot be matched
-LINE 1: (select 1+id      from names) intersect (select firstname from n...
-                ^^^^
-LINE 1: ... 1+id      from names) intersect (select firstname from names);
-                                                    ^^^^^^^^^
-[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) intersect (select id        from ...
-                ^^^^^^^^^
-LINE 1: ...t firstname from names) intersect (select id        from names);
-                                                     ^^
-[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) intersect (select 1+id      from ...
-                ^^^^^^^^^
-LINE 1: ...t firstname from names) intersect (select 1+id      from names);
-                                                     ^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
-LINE 1: ...       from names) intersect (select id,1+id        from names);
-                                                   ^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
-LINE 1: ...      from names) intersect (select id,firstname   from names);
-                                                  ^^^^^^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
-LINE 1: ...stname from names) intersect (select 1+id,id        from names);
-                                                     ^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
-LINE 1: ...      from names) intersect (select 1+id,firstname from names);
-                                                    ^^^^^^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
-LINE 1: ...d      from names) intersect (select firstname,id   from names);
-                                                          ^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
-LINE 1: ...stname from names) intersect (select firstname,1+id from names);
-                                                          ^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
-LINE 1: ...from names) intersect (select firstname,lastname,id from names);
-                                                   ^^^^^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
-LINE 1: ...from names) intersect (select lastname,id,firstname from names);
-                                                  ^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
-LINE 1: ... from names) intersect (select *                     from names...
-                                          ^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
-LINE 1: (select id,1+id        from names) intersect (select id        f...
+LINE 62:1: (select 1+id      from names) intersect (select firstname from n...
                    ^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
-LINE 1: (select id,firstname   from names) intersect (select 1+id      ...
+LINE 62:1: ... 1+id      from names) intersect (select firstname from names);
+                                                       ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT types VARCHAR and INTEGER cannot be matched
+LINE 63:1: (select firstname from names) intersect (select id        from ...
                    ^^^^^^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
-LINE 1: (select 1+id,id        from names) intersect (select firstname f...
-                     ^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
-LINE 1: (select 1+id,firstname from names) intersect (select id        ...
-                     ^^^^^^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
-LINE 1: (select firstname,id   from names) intersect (select 1+id      f...
-                          ^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
-LINE 1: (select firstname,1+id from names) intersect (select firstname f...
-                          ^^^^
+LINE 63:1: ...t firstname from names) intersect (select id        from names);
+                                                        ^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname,lastname from names) intersect (select firstna...
-                          ^^^^^^^^
-LINE 1: ...stname from names) intersect (select firstname,1+id from names);
-                                                          ^^^^
+LINE 64:1: (select firstname from names) intersect (select 1+id      from ...
+                   ^^^^^^^^^
+LINE 64:1: ...t firstname from names) intersect (select 1+id      from names);
+                                                        ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 65:1: ...       from names) intersect (select id,1+id        from names);
+                                                      ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 66:1: ...      from names) intersect (select id,firstname   from names);
+                                                     ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 67:1: ...stname from names) intersect (select 1+id,id        from names);
+                                                        ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 68:1: ...      from names) intersect (select 1+id,firstname from names);
+                                                       ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 69:1: ...d      from names) intersect (select firstname,id   from names);
+                                                             ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 70:1: ...stname from names) intersect (select firstname,1+id from names);
+                                                             ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 71:1: ...from names) intersect (select firstname,lastname,id from names);
+                                                      ^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 72:1: ...from names) intersect (select lastname,id,firstname from names);
+                                                     ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 73:1: ... from names) intersect (select *                     from names...
+                                             ^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 74:1: (select id,1+id        from names) intersect (select id        f...
+                      ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 75:1: (select id,firstname   from names) intersect (select 1+id      ...
+                      ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 76:1: (select 1+id,id        from names) intersect (select firstname f...
+                        ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 77:1: (select 1+id,firstname from names) intersect (select id        ...
+                        ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 78:1: (select firstname,id   from names) intersect (select 1+id      f...
+                             ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT query must have same number of columns
+LINE 79:1: (select firstname,1+id from names) intersect (select firstname f...
+                             ^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT types VARCHAR and INTEGER cannot be matched
+LINE 80:1: (select firstname,lastname from names) intersect (select firstna...
+                             ^^^^^^^^
+LINE 80:1: ...stname from names) intersect (select firstname,1+id from names);
+                                                             ^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT types INTEGER and VARCHAR cannot be matched
-LINE 1: (select * from (select 1+id from names))                       ...
-                ^
-LINE 1: ...                       intersect (select firstname from names);
-                                                    ^^^^^^^^^
+LINE 81:1: (select * from (select 1+id from names))                       ...
+                   ^
+LINE 81:1: ...                       intersect (select firstname from names);
+                                                       ^^^^^^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT types INTEGER and VARCHAR cannot be matched
-LINE 1: (select newid from (select 1+id as newid from names))          ...
-                ^^^^^
-LINE 1: ...                       intersect (select firstname from names);
-                                                    ^^^^^^^^^
+LINE 82:1: (select newid from (select 1+id as newid from names))          ...
+                   ^^^^^
+LINE 82:1: ...                       intersect (select firstname from names);
+                                                       ^^^^^^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT types INTEGER and VARCHAR cannot be matched
-LINE 1: (select new2id from (select newid+2 as new2id from (select 1+id ...
-                ^^^^^^
-LINE 1: ...as newid from names))) intersect (select firstname from names);
-                                                    ^^^^^^^^^
+LINE 83:1: (select new2id from (select newid+2 as new2id from (select 1+id ...
+                   ^^^^^^
+LINE 83:1: ...as newid from names))) intersect (select firstname from names);
+                                                       ^^^^^^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) intersect (select * from (select ...
-                ^^^^^^^^^
-LINE 1: ... from names) intersect (select * from (select 1+id from names))...
-                                          ^
+LINE 84:1: (select firstname from names) intersect (select * from (select ...
+                   ^^^^^^^^^
+LINE 84:1: ... from names) intersect (select * from (select 1+id from names))...
+                                             ^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) intersect (select newid from (sel...
-                ^^^^^^^^^
-LINE 1: ...rom names) intersect (select newid from (select 1+id as newid f...
-                                        ^^^^^
+LINE 85:1: (select firstname from names) intersect (select newid from (sel...
+                   ^^^^^^^^^
+LINE 85:1: ...rom names) intersect (select newid from (select 1+id as newid f...
+                                           ^^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) intersect (select new2id from (se...
-                ^^^^^^^^^
-LINE 1: ...rom names) intersect (select new2id from (select newid+2 as new2...
-                                        ^^^^^^
+LINE 86:1: (select firstname from names) intersect (select new2id from (se...
+                   ^^^^^^^^^
+LINE 86:1: ...rom names) intersect (select new2id from (select newid+2 as new2...
+                                           ^^^^^^
 ID
 1
 2
@@ -560,10 +560,10 @@ ID
 5
 (5 rows)
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT ALL types INTEGER and VARCHAR cannot be matched
-LINE 1: (select id        from names) intersect all (select firstname fr...
-                ^^
-LINE 1: ...       from names) intersect all (select firstname from names);
-                                                    ^^^^^^^^^
+LINE 88:1: (select id        from names) intersect all (select firstname fr...
+                   ^^
+LINE 88:1: ...       from names) intersect all (select firstname from names);
+                                                       ^^^^^^^^^
 ID
 1
 2
@@ -572,317 +572,317 @@ ID
 5
 (5 rows)
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT ALL types INTEGER and VARCHAR cannot be matched
-LINE 1: (select 1+id      from names) intersect all (select firstname fr...
-                ^^^^
-LINE 1: ...d      from names) intersect all (select firstname from names);
-                                                    ^^^^^^^^^
-[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT ALL types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) intersect all (select id        f...
-                ^^^^^^^^^
-LINE 1: ...rstname from names) intersect all (select id        from names);
-                                                     ^^
-[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT ALL types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) intersect all (select 1+id      f...
-                ^^^^^^^^^
-LINE 1: ...rstname from names) intersect all (select 1+id      from names);
-                                                     ^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
-LINE 1: ...   from names) intersect all (select id,1+id        from names);
-                                                   ^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
-LINE 1: ...  from names) intersect all (select id,firstname   from names);
-                                                  ^^^^^^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
-LINE 1: ...me from names) intersect all (select 1+id,id        from names);
-                                                     ^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
-LINE 1: ...  from names) intersect all (select 1+id,firstname from names);
-                                                    ^^^^^^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
-LINE 1: ...   from names) intersect all (select firstname,id   from names);
-                                                          ^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
-LINE 1: ...me from names) intersect all (select firstname,1+id from names);
-                                                          ^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
-LINE 1: ... names) intersect all (select firstname,lastname,id from names);
-                                                   ^^^^^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
-LINE 1: ... names) intersect all (select lastname,id,firstname from names);
-                                                  ^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
-LINE 1: ...m names) intersect all (select *                     from names...
-                                          ^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
-LINE 1: (select id,1+id        from names) intersect all (select id     ...
+LINE 90:1: (select 1+id      from names) intersect all (select firstname fr...
                    ^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
-LINE 1: (select id,firstname   from names) intersect all (select 1+id  ...
+LINE 90:1: ...d      from names) intersect all (select firstname from names);
+                                                       ^^^^^^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT ALL types VARCHAR and INTEGER cannot be matched
+LINE 91:1: (select firstname from names) intersect all (select id        f...
                    ^^^^^^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
-LINE 1: (select 1+id,id        from names) intersect all (select firstna...
-                     ^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
-LINE 1: (select 1+id,firstname from names) intersect all (select id    ...
-                     ^^^^^^^^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
-LINE 1: (select firstname,id   from names) intersect all (select 1+id   ...
-                          ^^
-[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
-LINE 1: (select firstname,1+id from names) intersect all (select firstna...
-                          ^^^^
+LINE 91:1: ...rstname from names) intersect all (select id        from names);
+                                                        ^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT ALL types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname,lastname from names) intersect all (select fir...
-                          ^^^^^^^^
-LINE 1: ...me from names) intersect all (select firstname,1+id from names);
-                                                          ^^^^
+LINE 92:1: (select firstname from names) intersect all (select 1+id      f...
+                   ^^^^^^^^^
+LINE 92:1: ...rstname from names) intersect all (select 1+id      from names);
+                                                        ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 93:1: ...   from names) intersect all (select id,1+id        from names);
+                                                      ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 94:1: ...  from names) intersect all (select id,firstname   from names);
+                                                     ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 95:1: ...me from names) intersect all (select 1+id,id        from names);
+                                                        ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 96:1: ...  from names) intersect all (select 1+id,firstname from names);
+                                                       ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 97:1: ...   from names) intersect all (select firstname,id   from names);
+                                                             ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 98:1: ...me from names) intersect all (select firstname,1+id from names);
+                                                             ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 99:1: ... names) intersect all (select firstname,lastname,id from names);
+                                                      ^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 100:1: ... names) intersect all (select lastname,id,firstname from names);
+                                                      ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 101:1: ...m names) intersect all (select *                     from names...
+                                              ^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 102:1: (select id,1+id        from names) intersect all (select id     ...
+                       ^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 103:1: (select id,firstname   from names) intersect all (select 1+id  ...
+                       ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 104:1: (select 1+id,id        from names) intersect all (select firstna...
+                         ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 105:1: (select 1+id,firstname from names) intersect all (select id    ...
+                         ^^^^^^^^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 106:1: (select firstname,id   from names) intersect all (select 1+id   ...
+                              ^^
+[ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each INTERSECT ALL query must have same number of columns
+LINE 107:1: (select firstname,1+id from names) intersect all (select firstna...
+                              ^^^^
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT ALL types VARCHAR and INTEGER cannot be matched
+LINE 108:1: (select firstname,lastname from names) intersect all (select fir...
+                              ^^^^^^^^
+LINE 108:1: ...me from names) intersect all (select firstname,1+id from names);
+                                                              ^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT ALL types INTEGER and VARCHAR cannot be matched
-LINE 1: (select * from (select 1+id from names))                       ...
-                ^
-LINE 1: ...                   intersect all (select firstname from names);
-                                                    ^^^^^^^^^
+LINE 109:1: (select * from (select 1+id from names))                       ...
+                    ^
+LINE 109:1: ...                   intersect all (select firstname from names);
+                                                        ^^^^^^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT ALL types INTEGER and VARCHAR cannot be matched
-LINE 1: (select newid from (select 1+id as newid from names))          ...
-                ^^^^^
-LINE 1: ...                   intersect all (select firstname from names);
-                                                    ^^^^^^^^^
+LINE 110:1: (select newid from (select 1+id as newid from names))          ...
+                    ^^^^^
+LINE 110:1: ...                   intersect all (select firstname from names);
+                                                        ^^^^^^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT ALL types INTEGER and VARCHAR cannot be matched
-LINE 1: (select new2id from (select newid+2 as new2id from (select 1+id ...
-                ^^^^^^
-LINE 1: ...ewid from names))) intersect all (select firstname from names);
-                                                    ^^^^^^^^^
+LINE 111:1: (select new2id from (select newid+2 as new2id from (select 1+id ...
+                    ^^^^^^
+LINE 111:1: ...ewid from names))) intersect all (select firstname from names);
+                                                        ^^^^^^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT ALL types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) intersect all (select * from (sel...
-                ^^^^^^^^^
-LINE 1: ...m names) intersect all (select * from (select 1+id from names))...
-                                          ^
+LINE 112:1: (select firstname from names) intersect all (select * from (sel...
+                    ^^^^^^^^^
+LINE 112:1: ...m names) intersect all (select * from (select 1+id from names))...
+                                              ^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT ALL types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) intersect all (select newid from ...
-                ^^^^^^^^^
-LINE 1: ...names) intersect all (select newid from (select 1+id as newid f...
-                                        ^^^^^
+LINE 113:1: (select firstname from names) intersect all (select newid from ...
+                    ^^^^^^^^^
+LINE 113:1: ...names) intersect all (select newid from (select 1+id as newid f...
+                                            ^^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: INTERSECT ALL types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) intersect all (select new2id from...
-                ^^^^^^^^^
-LINE 1: ...names) intersect all (select new2id from (select newid+2 as new2...
-                                        ^^^^^^
+LINE 114:1: (select firstname from names) intersect all (select new2id from...
+                    ^^^^^^^^^
+LINE 114:1: ...names) intersect all (select new2id from (select newid+2 as new2...
+                                            ^^^^^^
 ID
 0
 (1 row)
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT types INTEGER and VARCHAR cannot be matched
-LINE 1: (select id        from names) except (select firstname from name...
-                ^^
-LINE 1: ...ect id        from names) except (select firstname from names);
-                                                    ^^^^^^^^^
+LINE 116:1: (select id        from names) except (select firstname from name...
+                    ^^
+LINE 116:1: ...ect id        from names) except (select firstname from names);
+                                                        ^^^^^^^^^
 ID
 6
 (1 row)
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT types INTEGER and VARCHAR cannot be matched
-LINE 1: (select 1+id      from names) except (select firstname from name...
-                ^^^^
-LINE 1: ...ect 1+id      from names) except (select firstname from names);
-                                                    ^^^^^^^^^
+LINE 118:1: (select 1+id      from names) except (select firstname from name...
+                    ^^^^
+LINE 118:1: ...ect 1+id      from names) except (select firstname from names);
+                                                        ^^^^^^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) except (select id        from nam...
-                ^^^^^^^^^
-LINE 1: ...lect firstname from names) except (select id        from names);
-                                                     ^^
+LINE 119:1: (select firstname from names) except (select id        from nam...
+                    ^^^^^^^^^
+LINE 119:1: ...lect firstname from names) except (select id        from names);
+                                                         ^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) except (select 1+id      from nam...
-                ^^^^^^^^^
-LINE 1: ...lect firstname from names) except (select 1+id      from names);
-                                                     ^^^^
+LINE 120:1: (select firstname from names) except (select 1+id      from nam...
+                    ^^^^^^^^^
+LINE 120:1: ...lect firstname from names) except (select 1+id      from names);
+                                                         ^^^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
-LINE 1: ...id        from names) except (select id,1+id        from names);
-                                                   ^^^^
+LINE 121:1: ...id        from names) except (select id,1+id        from names);
+                                                       ^^^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
-LINE 1: ...+id      from names) except (select id,firstname   from names);
-                                                  ^^^^^^^^^
+LINE 122:1: ...+id      from names) except (select id,firstname   from names);
+                                                      ^^^^^^^^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
-LINE 1: ...firstname from names) except (select 1+id,id        from names);
-                                                     ^^
+LINE 123:1: ...firstname from names) except (select 1+id,id        from names);
+                                                         ^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
-LINE 1: ...d        from names) except (select 1+id,firstname from names);
-                                                    ^^^^^^^^^
+LINE 124:1: ...d        from names) except (select 1+id,firstname from names);
+                                                        ^^^^^^^^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
-LINE 1: ...1+id      from names) except (select firstname,id   from names);
-                                                          ^^
+LINE 125:1: ...1+id      from names) except (select firstname,id   from names);
+                                                              ^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
-LINE 1: ...firstname from names) except (select firstname,1+id from names);
-                                                          ^^^^
+LINE 126:1: ...firstname from names) except (select firstname,1+id from names);
+                                                              ^^^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
-LINE 1: ...   from names) except (select firstname,lastname,id from names);
-                                                   ^^^^^^^^
+LINE 127:1: ...   from names) except (select firstname,lastname,id from names);
+                                                       ^^^^^^^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
-LINE 1: ...   from names) except (select lastname,id,firstname from names);
-                                                  ^^
+LINE 128:1: ...   from names) except (select lastname,id,firstname from names);
+                                                      ^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
-LINE 1: ...ame from names) except (select *                     from names...
-                                          ^
+LINE 129:1: ...ame from names) except (select *                     from names...
+                                              ^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
-LINE 1: (select id,1+id        from names) except (select id        from...
-                   ^^^^
+LINE 130:1: (select id,1+id        from names) except (select id        from...
+                       ^^^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
-LINE 1: (select id,firstname   from names) except (select 1+id      fro...
-                   ^^^^^^^^^
+LINE 131:1: (select id,firstname   from names) except (select 1+id      fro...
+                       ^^^^^^^^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
-LINE 1: (select 1+id,id        from names) except (select firstname from...
-                     ^^
+LINE 132:1: (select 1+id,id        from names) except (select firstname from...
+                         ^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
-LINE 1: (select 1+id,firstname from names) except (select id        fro...
-                     ^^^^^^^^^
+LINE 133:1: (select 1+id,firstname from names) except (select id        fro...
+                         ^^^^^^^^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
-LINE 1: (select firstname,id   from names) except (select 1+id      from...
-                          ^^
+LINE 134:1: (select firstname,id   from names) except (select 1+id      from...
+                              ^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT query must have same number of columns
-LINE 1: (select firstname,1+id from names) except (select firstname from...
-                          ^^^^
+LINE 135:1: (select firstname,1+id from names) except (select firstname from...
+                              ^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname,lastname from names) except (select firstname,...
-                          ^^^^^^^^
-LINE 1: ...,lastname from names) except (select firstname,1+id from names);
-                                                          ^^^^
+LINE 136:1: (select firstname,lastname from names) except (select firstname,...
+                              ^^^^^^^^
+LINE 136:1: ...,lastname from names) except (select firstname,1+id from names);
+                                                              ^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT types INTEGER and VARCHAR cannot be matched
-LINE 1: (select * from (select 1+id from names))                       ...
-                ^
-LINE 1: ...                          except (select firstname from names);
-                                                    ^^^^^^^^^
+LINE 137:1: (select * from (select 1+id from names))                       ...
+                    ^
+LINE 137:1: ...                          except (select firstname from names);
+                                                        ^^^^^^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT types INTEGER and VARCHAR cannot be matched
-LINE 1: (select newid from (select 1+id as newid from names))          ...
-                ^^^^^
-LINE 1: ...                          except (select firstname from names);
-                                                    ^^^^^^^^^
+LINE 138:1: (select newid from (select 1+id as newid from names))          ...
+                    ^^^^^
+LINE 138:1: ...                          except (select firstname from names);
+                                                        ^^^^^^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT types INTEGER and VARCHAR cannot be matched
-LINE 1: (select new2id from (select newid+2 as new2id from (select 1+id ...
-                ^^^^^^
-LINE 1: ...id as newid from names))) except (select firstname from names);
-                                                    ^^^^^^^^^
+LINE 139:1: (select new2id from (select newid+2 as new2id from (select 1+id ...
+                    ^^^^^^
+LINE 139:1: ...id as newid from names))) except (select firstname from names);
+                                                        ^^^^^^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) except (select * from (select 1+i...
-                ^^^^^^^^^
-LINE 1: ...ame from names) except (select * from (select 1+id from names))...
-                                          ^
+LINE 140:1: (select firstname from names) except (select * from (select 1+i...
+                    ^^^^^^^^^
+LINE 140:1: ...ame from names) except (select * from (select 1+id from names))...
+                                              ^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) except (select newid from (select...
-                ^^^^^^^^^
-LINE 1: ...e from names) except (select newid from (select 1+id as newid f...
-                                        ^^^^^
+LINE 141:1: (select firstname from names) except (select newid from (select...
+                    ^^^^^^^^^
+LINE 141:1: ...e from names) except (select newid from (select 1+id as newid f...
+                                            ^^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) except (select new2id from (selec...
-                ^^^^^^^^^
-LINE 1: ...e from names) except (select new2id from (select newid+2 as new2...
-                                        ^^^^^^
+LINE 142:1: (select firstname from names) except (select new2id from (selec...
+                    ^^^^^^^^^
+LINE 142:1: ...e from names) except (select new2id from (select newid+2 as new2...
+                                            ^^^^^^
 ID
 0
 (1 row)
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT ALL types INTEGER and VARCHAR cannot be matched
-LINE 1: (select id        from names) except all (select firstname from ...
-                ^^
-LINE 1: ...id        from names) except all (select firstname from names);
-                                                    ^^^^^^^^^
+LINE 144:1: (select id        from names) except all (select firstname from ...
+                    ^^
+LINE 144:1: ...id        from names) except all (select firstname from names);
+                                                        ^^^^^^^^^
 ID
 6
 (1 row)
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT ALL types INTEGER and VARCHAR cannot be matched
-LINE 1: (select 1+id      from names) except all (select firstname from ...
-                ^^^^
-LINE 1: ...1+id      from names) except all (select firstname from names);
-                                                    ^^^^^^^^^
+LINE 146:1: (select 1+id      from names) except all (select firstname from ...
+                    ^^^^
+LINE 146:1: ...1+id      from names) except all (select firstname from names);
+                                                        ^^^^^^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT ALL types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) except all (select id        from...
-                ^^^^^^^^^
-LINE 1: ... firstname from names) except all (select id        from names);
-                                                     ^^
+LINE 147:1: (select firstname from names) except all (select id        from...
+                    ^^^^^^^^^
+LINE 147:1: ... firstname from names) except all (select id        from names);
+                                                         ^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT ALL types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) except all (select 1+id      from...
-                ^^^^^^^^^
-LINE 1: ... firstname from names) except all (select 1+id      from names);
-                                                     ^^^^
+LINE 148:1: (select firstname from names) except all (select 1+id      from...
+                    ^^^^^^^^^
+LINE 148:1: ... firstname from names) except all (select 1+id      from names);
+                                                         ^^^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
-LINE 1: ...      from names) except all (select id,1+id        from names);
-                                                   ^^^^
+LINE 149:1: ...      from names) except all (select id,1+id        from names);
+                                                       ^^^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
-LINE 1: ...     from names) except all (select id,firstname   from names);
-                                                  ^^^^^^^^^
+LINE 150:1: ...     from names) except all (select id,firstname   from names);
+                                                      ^^^^^^^^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
-LINE 1: ...tname from names) except all (select 1+id,id        from names);
-                                                     ^^
+LINE 151:1: ...tname from names) except all (select 1+id,id        from names);
+                                                         ^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
-LINE 1: ...     from names) except all (select 1+id,firstname from names);
-                                                    ^^^^^^^^^
+LINE 152:1: ...     from names) except all (select 1+id,firstname from names);
+                                                        ^^^^^^^^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
-LINE 1: ...      from names) except all (select firstname,id   from names);
-                                                          ^^
+LINE 153:1: ...      from names) except all (select firstname,id   from names);
+                                                              ^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
-LINE 1: ...tname from names) except all (select firstname,1+id from names);
-                                                          ^^^^
+LINE 154:1: ...tname from names) except all (select firstname,1+id from names);
+                                                              ^^^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
-LINE 1: ...rom names) except all (select firstname,lastname,id from names);
-                                                   ^^^^^^^^
+LINE 155:1: ...rom names) except all (select firstname,lastname,id from names);
+                                                       ^^^^^^^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
-LINE 1: ...rom names) except all (select lastname,id,firstname from names);
-                                                  ^^
+LINE 156:1: ...rom names) except all (select lastname,id,firstname from names);
+                                                      ^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
-LINE 1: ...from names) except all (select *                     from names...
-                                          ^
+LINE 157:1: ...from names) except all (select *                     from names...
+                                              ^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
-LINE 1: (select id,1+id        from names) except all (select id        ...
-                   ^^^^
+LINE 158:1: (select id,1+id        from names) except all (select id        ...
+                       ^^^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
-LINE 1: (select id,firstname   from names) except all (select 1+id     ...
-                   ^^^^^^^^^
+LINE 159:1: (select id,firstname   from names) except all (select 1+id     ...
+                       ^^^^^^^^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
-LINE 1: (select 1+id,id        from names) except all (select firstname ...
-                     ^^
+LINE 160:1: (select 1+id,id        from names) except all (select firstname ...
+                         ^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
-LINE 1: (select 1+id,firstname from names) except all (select id       ...
-                     ^^^^^^^^^
+LINE 161:1: (select 1+id,firstname from names) except all (select id       ...
+                         ^^^^^^^^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
-LINE 1: (select firstname,id   from names) except all (select 1+id      ...
-                          ^^
+LINE 162:1: (select firstname,id   from names) except all (select 1+id      ...
+                              ^^
 [ERROR]: ERR_SETOPER_NUMCOLS_MISMATCH: Each EXCEPT ALL query must have same number of columns
-LINE 1: (select firstname,1+id from names) except all (select firstname ...
-                          ^^^^
+LINE 163:1: (select firstname,1+id from names) except all (select firstname ...
+                              ^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT ALL types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname,lastname from names) except all (select firstn...
-                          ^^^^^^^^
-LINE 1: ...tname from names) except all (select firstname,1+id from names);
-                                                          ^^^^
+LINE 164:1: (select firstname,lastname from names) except all (select firstn...
+                              ^^^^^^^^
+LINE 164:1: ...tname from names) except all (select firstname,1+id from names);
+                                                              ^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT ALL types INTEGER and VARCHAR cannot be matched
-LINE 1: (select * from (select 1+id from names))                       ...
-                ^
-LINE 1: ...                      except all (select firstname from names);
-                                                    ^^^^^^^^^
+LINE 165:1: (select * from (select 1+id from names))                       ...
+                    ^
+LINE 165:1: ...                      except all (select firstname from names);
+                                                        ^^^^^^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT ALL types INTEGER and VARCHAR cannot be matched
-LINE 1: (select newid from (select 1+id as newid from names))          ...
-                ^^^^^
-LINE 1: ...                      except all (select firstname from names);
-                                                    ^^^^^^^^^
+LINE 166:1: (select newid from (select 1+id as newid from names))          ...
+                    ^^^^^
+LINE 166:1: ...                      except all (select firstname from names);
+                                                        ^^^^^^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT ALL types INTEGER and VARCHAR cannot be matched
-LINE 1: (select new2id from (select newid+2 as new2id from (select 1+id ...
-                ^^^^^^
-LINE 1: ...s newid from names))) except all (select firstname from names);
-                                                    ^^^^^^^^^
+LINE 167:1: (select new2id from (select newid+2 as new2id from (select 1+id ...
+                    ^^^^^^
+LINE 167:1: ...s newid from names))) except all (select firstname from names);
+                                                        ^^^^^^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT ALL types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) except all (select * from (select...
-                ^^^^^^^^^
-LINE 1: ...from names) except all (select * from (select 1+id from names))...
-                                          ^
+LINE 168:1: (select firstname from names) except all (select * from (select...
+                    ^^^^^^^^^
+LINE 168:1: ...from names) except all (select * from (select 1+id from names))...
+                                              ^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT ALL types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) except all (select newid from (se...
-                ^^^^^^^^^
-LINE 1: ...om names) except all (select newid from (select 1+id as newid f...
-                                        ^^^^^
+LINE 169:1: (select firstname from names) except all (select newid from (se...
+                    ^^^^^^^^^
+LINE 169:1: ...om names) except all (select newid from (select 1+id as newid f...
+                                            ^^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT ALL types VARCHAR and INTEGER cannot be matched
-LINE 1: (select firstname from names) except all (select new2id from (s...
-                ^^^^^^^^^
-LINE 1: ...om names) except all (select new2id from (select newid+2 as new2...
-                                        ^^^^^^
+LINE 170:1: (select firstname from names) except all (select new2id from (s...
+                    ^^^^^^^^^
+LINE 170:1: ...om names) except all (select new2id from (select newid+2 as new2...
+                                            ^^^^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types INTEGER and VARCHAR cannot be matched
-LINE 1: SELECT a.id as A_id, b.id as B_id
-                             ^^^^^^^^^^^^
-LINE 4: SELECT id as A_id, "" AS B_id
-                            ^^^^^^^^^
+LINE 172:1: SELECT a.id as A_id, b.id as B_id
+                                 ^^^^^^^^^^^^
+LINE 175:4: SELECT id as A_id, "" AS B_id
+                                ^^^^^^^^^
 ID|FIRSTNAME|LASTNAME|???|???|???
 0|Zero|Cool|0|Zero|Cool
 1|Acid|Burn|1|Acid|Burn

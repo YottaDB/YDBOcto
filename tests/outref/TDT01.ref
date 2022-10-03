@@ -1,4 +1,4 @@
 DROP TABLE
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: T1
-LINE 1: select * from t1;
-                      ^^
+LINE 2:1: select * from t1;
+                        ^^

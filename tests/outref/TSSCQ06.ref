@@ -8,5 +8,5 @@ ERROR: Unknown table: PG_CATALOG.PG_GET_KEYWORDS
 
 ----- OCTO -----
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: PG_CATALOG.PG_GET_KEYWORDS
-LINE 2: FROM   pg_catalog.Pg_get_keywords()
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 2:2: FROM   pg_catalog.Pg_get_keywords()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^

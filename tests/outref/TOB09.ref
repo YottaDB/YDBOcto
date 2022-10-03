@@ -96,32 +96,32 @@ ID|FIRSTNAME|LASTNAME
 5|Zero|Cool
 (6 rows)
 [ERROR]: ERR_ORDER_BY_POSITION_INVALID: ORDER BY position 4 is not in select list
-LINE 2: select * from names order by 4;
-                                     ^
+LINE 28:2: select * from names order by 4;
+                                        ^
 [ERROR]: ERR_ORDER_BY_POSITION_INVALID: ORDER BY position 0 is not in select list
-LINE 1: select * from names order by 0;
-                                     ^
+LINE 29:1: select * from names order by 0;
+                                        ^
 [ERROR]: ERR_ORDER_BY_POSITION_INVALID: ORDER BY position -1 is not in select list
-LINE 1: select * from names order by -1;
-                                     ^^
+LINE 30:1: select * from names order by -1;
+                                        ^^
 [ERROR]: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant 1.234 in ORDER BY
-LINE 2: select * from names order by 1.234;
-                                     ^^^^^
+LINE 33:2: select * from names order by 1.234;
+                                        ^^^^^
 [ERROR]: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant -1.234 in ORDER BY
-LINE 1: select * from names order by -1.234;
-                                     ^^^^^^
+LINE 34:1: select * from names order by -1.234;
+                                        ^^^^^^
 [ERROR]: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant 12345678901234567890 in ORDER BY
-LINE 2: select * from names order by 12345678901234567890;
-                                     ^^^^^^^^^^^^^^^^^^^^
+LINE 37:2: select * from names order by 12345678901234567890;
+                                        ^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant -12345678901234567890 in ORDER BY
-LINE 1: select * from names order by -12345678901234567890;
-                                     ^^^^^^^^^^^^^^^^^^^^^
+LINE 38:1: select * from names order by -12345678901234567890;
+                                        ^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant 1.235 in ORDER BY
-LINE 2: select * from names order by 1.235,-12345678901234567890;
-                                     ^^^^^
+LINE 41:2: select * from names order by 1.235,-12345678901234567890;
+                                        ^^^^^
 [ERROR]: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant -1.235 in ORDER BY
-LINE 1: select * from names order by -1.235,12345678901234567890;
-                                     ^^^^^^
+LINE 42:1: select * from names order by -1.235,12345678901234567890;
+                                        ^^^^^^
 [ERROR]: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant -12345678901234567890 in ORDER BY
-LINE 1: select * from names order by 1,2,-12345678901234567890;
-                                         ^^^^^^^^^^^^^^^^^^^^^
+LINE 43:1: select * from names order by 1,2,-12345678901234567890;
+                                            ^^^^^^^^^^^^^^^^^^^^^

@@ -30,42 +30,42 @@ select * from names where firstname = 'Zero' or 'abcd'::integer;
 select * from names where firstname = 'Zero' or ''::integer;
 
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
-LINE 1: select * from names where id = 2 || 3;
-                                       ^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
-LINE 1: select * from names where id = 2 || 3;
-                                            ^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
-LINE 1: select * from names where id = 2 || (+3);
-                                       ^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
-LINE 1: select * from names where id = 2 || (+3);
-                                             ^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
-LINE 1: select * from names where '23' = 2 || 3;
+LINE 3:1: select * from names where id = 2 || 3;
                                          ^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
-LINE 1: select * from names where '23' = 2 || 3;
+LINE 3:1: select * from names where id = 2 || 3;
                                               ^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
-LINE 1: select * from names where '2-3' = 2 || -3;
-                                          ^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
-LINE 1: select * from names where '23' = 2 || (+3);
+LINE 4:1: select * from names where id = 2 || (+3);
                                          ^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
-LINE 1: select * from names where '23' = 2 || (+3);
+LINE 4:1: select * from names where id = 2 || (+3);
                                                ^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
+LINE 5:1: select * from names where '23' = 2 || 3;
+                                           ^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
+LINE 5:1: select * from names where '23' = 2 || 3;
+                                                ^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
+LINE 6:1: select * from names where '2-3' = 2 || -3;
+                                            ^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
+LINE 7:1: select * from names where '23' = 2 || (+3);
+                                           ^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
+LINE 7:1: select * from names where '23' = 2 || (+3);
+                                                 ^^
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
-LINE 1: select * from names where firstname = +'abcd';
-                                                    ^
+LINE 8:1: select * from names where firstname = +'abcd';
+                                                      ^
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
-LINE 1: select * from names where firstname = +'Zero';
-                                                    ^
+LINE 9:1: select * from names where firstname = +'Zero';
+                                                      ^
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
-LINE 1: select * from names where firstname = +lastname;
-                                               ^^^^^^^^
+LINE 10:1: select * from names where firstname = +lastname;
+                                                  ^^^^^^^^
 ID|FIRSTNAME|LASTNAME
 3|Lord|Nikon
 (1 row)
@@ -76,33 +76,33 @@ ID|FIRSTNAME|LASTNAME
 5|Zero|Cool
 (1 row)
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type NULL
-LINE 1: select * from names where firstname = 'Zero' || +'';
-                                                          ^
+LINE 14:1: select * from names where firstname = 'Zero' || +'';
+                                                             ^
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type NULL
-LINE 1: select * from names where firstname = 'Zero' || -'';
-                                                          ^
+LINE 15:1: select * from names where firstname = 'Zero' || -'';
+                                                             ^
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type NULL
-LINE 1: select * from names where firstname = 'Zero' || +NULL;
-                                                         ^^^^
+LINE 16:1: select * from names where firstname = 'Zero' || +NULL;
+                                                            ^^^^
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type NULL
-LINE 1: select * from names where firstname = 'Zero' || -NULL;
-                                                         ^^^^
+LINE 17:1: select * from names where firstname = 'Zero' || -NULL;
+                                                            ^^^^
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
-LINE 1: select * from names where firstname = 'Zero' || +lastname;
-                                                         ^^^^^^^^
+LINE 18:1: select * from names where firstname = 'Zero' || +lastname;
+                                                            ^^^^^^^^
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
-LINE 1: select * from names where firstname = 'Zero' || -lastname;
-                                                         ^^^^^^^^
+LINE 19:1: select * from names where firstname = 'Zero' || -lastname;
+                                                            ^^^^^^^^
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: 'Cool'
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: 'abcd'
 ID|FIRSTNAME|LASTNAME
 (0 rows)
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
-LINE 1: ...ect * from names where firstname = 'Zero' or lastname::integer;
-                                                        ^^^^^^^^^^^^^^^^^
+LINE 25:1: ...ect * from names where firstname = 'Zero' or lastname::integer;
+                                                           ^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
-LINE 1: select * from names where firstname = 'Zero' or 'abcd'::integer;
-                                                             ^^^^^^^^^^
+LINE 26:1: select * from names where firstname = 'Zero' or 'abcd'::integer;
+                                                                ^^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
-LINE 1: select * from names where firstname = 'Zero' or ''::integer;
-                                                         ^^^^^^^^^^
+LINE 27:1: select * from names where firstname = 'Zero' or ''::integer;
+                                                            ^^^^^^^^^^

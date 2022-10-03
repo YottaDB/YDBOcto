@@ -369,3 +369,25 @@ select abcd;
 OCTO
 	verify_output TERR042 output.txt
 }
+
+@test "TERR043 : OCTO913 : Test line number output correct for SQL files with thousands of lines" {
+	yottadb -run octo913 2000 | octo |& grep LINE | tail -1 >> output.txt
+	yottadb -run octo913 10000 | octo |& grep LINE | tail -1 >> output.txt
+	verify_output TERR043 output.txt
+}
+
+@test "TERR044 : OCTO913 : Correct syntax highlighting when multiple queries and errors on single line" {
+	load_fixture TERR044.sql subtest novv
+	octo <<OCTO 2>&1 | tee -a output.txt
+select id from dummy1; select id from dummy2;
+select id from dummy3;
+select * from names where notathing = 0; select * from names where alsonotathing = 1; select * from names limit 1;
+select * from names where notathing = 0; select * from names where alsonotathing = 1; select * from names limit 1; select * from names where aswellnotathing;
+OCTO
+	verify_output TERR044 output.txt
+}
+
+@test "TERR045 : OCTO913 : Correct syntax highlighting for multiple multi-query lines in succession" {
+	(expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_errors_multiquery_line.exp > expect.out) &> expect.dbg
+	verify_output TERR045 expect.out noinfo nodebug noexpect stripreturns
+}

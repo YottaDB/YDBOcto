@@ -560,13 +560,14 @@ PSQL
 	# We do not want any failures in "ctest" to exit the script (need to do some cleanup so the artifacts
 	# are not that huge etc.). So disable the "set -e" setting temporarily for this step.
 	set +e
+	# Right now we force single cpu execution (-j 1) as we have issues with tests running concurrently.
 	if [[ ("test-auto-upgrade" != $jobname) ]]; then
-		ctest -j $(grep -c ^processor /proc/cpuinfo)
+		ctest -j 1
 	else
 		# Ensure that `hello*` tests, e.g. `hello_psql.bats` and `hello_db.bats`, run before tests that depend on them in
 		# order to prevent failures when parallelizing test execution in test-auto-upgrade jobs, which use older commits.
-		ctest -j $(grep -c ^processor /proc/cpuinfo) -R "hello"
-		ctest -j $(grep -c ^processor /proc/cpuinfo) -R "test"
+		ctest -j 1 -R "hello"
+		ctest -j 1 -R "test"
 	fi
 	exit_status=$?
 	echo " -> exit_status from ctest = $exit_status"

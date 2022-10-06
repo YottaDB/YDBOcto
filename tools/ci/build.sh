@@ -709,7 +709,8 @@ else
 		octodat="octo.dat"
 		aimdat="aim.dat"
 		touch skip_bats_test.txt gde_change_segment.txt
-		ydb_icu_version=$(pkg-config --modversion icu-io)	# needed for UTF-8 chset in for loop below
+		# Below env var set is needed for UTF-8 chset in for loop further below
+		ydb_icu_version=$(readlink /usr/lib*/libicuio.so /usr/lib*/*/libicuio.so | sed 's/libicuio.so.\([a-z]*\)\([0-9\.]*\)/\2.\1/;s/\.$//;')
 		export ydb_icu_version
 
 		# Note down if older commit is prior to the YDBOcto#275 commit when NULL and empty string began to be

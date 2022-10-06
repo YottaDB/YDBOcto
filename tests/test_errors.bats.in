@@ -235,7 +235,8 @@ OCTO
 
 	# Test of DLLCHSETM error
 	echo "# Test of DLLCHSETM error" >> output.txt
-	ydb_chset=UTF-8 LC_ALL=en_US.UTF8 ydb_icu_version=`pkg-config --modversion icu-io` octo 2>&1 | tee | sed 's/library \/.*\/_ydbocto\.so/library LIBPATH\/_ydbocto.so/' >> output.txt
+	lcl_ydb_icu_version=$(readlink /usr/lib*/libicuio.so /usr/lib*/*/libicuio.so | sed 's/libicuio.so.\([a-z]*\)\([0-9\.]*\)/\2.\1/;s/\.$//;')
+	ydb_chset=UTF-8 LC_ALL=en_US.UTF8 ydb_icu_version=$lcl_ydb_icu_version octo 2>&1 | tee | sed 's/library \/.*\/_ydbocto\.so/library LIBPATH\/_ydbocto.so/' >> output.txt
 	verify_output TERR018 output.txt
 }
 

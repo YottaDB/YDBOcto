@@ -11,13 +11,13 @@
 #################################################################
 cmake_minimum_required(VERSION 3.14)
 include(FetchContent)
-# The tag is at the time of writing the latest tag in YDBCMake.
-# The tag is fixed at that point to ensure reproducible builds.
-# If YDBCMake is updated, and the update is material to Octo, the tag needs to
-# be updated.
+# The GIT_TAG is, at the time of this writing, the latest commit in YDBCMake.
+# It is fixed at that point to ensure reproducible builds.
+# Keep this periodically up to date with future YDBCMake commits.
+# If YDBCMake is updated, and the update is material to Octo, the tag needs to be updated.
 FetchContent_Declare(YDBCMake
 	GIT_REPOSITORY	https://gitlab.com/YottaDB/Tools/YDBCMake.git
-	GIT_TAG		dcbc86f236f2b60e23f50997a23a8192ecdcf727
+	GIT_TAG		f26f194fb30c57c8d3667fbc35f01582242cdaec
 )
 # The following sets ydbcmake_SOURCE_DIR
 FetchContent_MakeAvailable(YDBCMake)

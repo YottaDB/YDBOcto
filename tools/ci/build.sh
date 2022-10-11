@@ -709,8 +709,14 @@ else
 		octodat="octo.dat"
 		aimdat="aim.dat"
 		touch skip_bats_test.txt gde_change_segment.txt
-		# Below env var set is needed for UTF-8 chset in for loop further below
+		# Below set of "ydb_icu_version" env var set is needed for UTF-8 chset in "for" loop further down below.
+		# Disable the "set -e" setting temporarily as the "readlink" invocation below could fail because
+		# one of the wildcards ("/usr/lib*/libicuio.so" or "/usr/lib*/*/libicuio.so") could end up expanding to
+		# a non-existent file name (that would cause bash to treat it as a failure).
+		set +e
 		ydb_icu_version=$(readlink /usr/lib*/libicuio.so /usr/lib*/*/libicuio.so | sed 's/libicuio.so.\([a-z]*\)\([0-9\.]*\)/\2.\1/;s/\.$//;')
+		# Re-enable "set -e" now that "readlink" invocation is done.
+		set -e
 		export ydb_icu_version
 
 		# Note down if older commit is prior to the YDBOcto#275 commit when NULL and empty string began to be

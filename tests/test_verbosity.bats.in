@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -136,18 +136,7 @@ OCTO
 	verify_output TV008 output.txt
 }
 
-@test "TV009 : octo correctly outputs the names of configuration files containing errors" {
-	cat <<OCTO &> ~/octo.conf
-OCTO
-	cat <<OCTO &> octo.conf
-verbosity = "ABCD"
-OCTO
-	octo <<OCTO 2>&1 | tee output.txt
-exit
-OCTO
-	rm -f ~/octo.conf		# Don't pollute the home directory of development/test environment
-	verify_output TV009 output.txt
-}
+# TV009 moved to test_no_parallel_suite.bats.in
 
 @test "TV010 : octo disallows FATAL as verbosity level" {
 	cat <<OCTO &> octo.conf

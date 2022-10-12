@@ -252,19 +252,7 @@ OCTO
   verify_output TERR020 output.txt
 }
 
-@test "TERR021 : error when CI file does not exist" {
-	if [[ @DISABLE_INSTALL@ == "OFF" ]]; then
-		skip 'Skipping test as we cannot move ydbocto.ci from installed location under $ydb_dist'
-	elif ! [[ -v CI_PIPELINE_ID ]]; then
-		skip 'Skipping test as it will cause other parallel tests to fail'
-	fi
-	# Now that we know ydbocto.ci is installed under "src" subdirectory, make it disappear temporarily.
-	mv ../src/ydbocto.ci call-in.bak
-	load_fixture TERR021.sql subtest novv
-	# cleanup before the `verify_output` call as if the latter fails, it will cause other tests to fail
-	mv call-in.bak ../src/ydbocto.ci
-	verify_output TERR021 output.txt
-}
+# TERR021 moved to test_no_parallel_suite.bats.in
 
 @test "TERR022 : OCTO511 : Give an error when file passed with -c is not found" {
   octo -c /does/not/exist > output.txt 2>&1 || true

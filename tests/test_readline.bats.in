@@ -211,35 +211,7 @@ setup() {
   rm ~/.octo_history
 }
 
-@test "TR20 : Test that multiple overrides of the octo.conf file will set octo_history_max_length correctly (pipeline only)" {
-  if ! [[ -v CI_PIPELINE_ID ]]; then
-  	skip 'Skipping test as it corrupts developer environment'
-  fi
-
-  rm -f octo.conf
-
-  # No octo.conf files
-  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_verbose.exp > expect.out) &> expect.dbg
-  grep 'INFO_READLINE_NOTIFY_HIST_COUNT: History limited to 500 entries' octo.log
-
-  # octo.conf on home directory, but only containing history_location
-  echo 'octo_history = "$PWD/octo_history"' > ~/octo.conf
-  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_verbose.exp > expect.out) &> expect.dbg
-  grep 'INFO_READLINE_NOTIFY_HIST_COUNT: History limited to 500 entries' octo.log
-
-  # Append length entry to ~/octo.conf
-  echo 'octo_history_max_length = 2' >> ~/octo.conf
-  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_verbose.exp > expect.out) &> expect.dbg
-  grep 'INFO_READLINE_NOTIFY_HIST_COUNT: History limited to 2 entries' octo.log
-
-  # Create $PWD/octo.conf, and override length entry
-  echo 'octo_history_max_length = 5' >> octo.conf
-  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_verbose.exp > expect.out) &> expect.dbg
-  grep 'INFO_READLINE_NOTIFY_HIST_COUNT: History limited to 5 entries' octo.log
-
-  # Clean-up after yourselves
-  rm ~/octo.conf ./octo.conf
-}
+# TR20 moved to test_no_parallel_suite.bats.in
 
 @test "TR21 : OCTO832 : Test that readline_get_more() succeeds without ERR_SYSCALL in the case of EINTR" {
 	$ydb_dist/yottadb -run octo832 &> output.txt

@@ -131,12 +131,9 @@ make-rocky:
 
 asan-ubuntu:
   image: yottadb/yottadb-base:latest-master
-  # Timeout max for shared runners on Gitlab is 3h
+  # Override default runner timeout
   timeout: 3h
-  # Run ASAN job only if this is a scheduled pipeline or if we are on a ASAN branch
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-    - if: '$CI_COMMIT_BRANCH =~ /asan/'
+  # This ASAN job always runs
   extends:
     - .make
     - .ubuntu
@@ -147,9 +144,9 @@ asan-ubuntu:
 
 asan-rocky:
   image: yottadb/yottadb-rocky-base:latest-master
-  # Timeout max for shared runners on Gitlab is 3h
+  # Override default runner timeout
   timeout: 3h
-  # Run ASAN job only if this is a scheduled pipeline or if we are on a ASAN branch
+  # Run this ASAN job only if this is a scheduled pipeline or if we are on a ASAN branch
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
     - if: '$CI_COMMIT_BRANCH =~ /asan/'
@@ -196,8 +193,6 @@ test-force-upgrade:
     - .ubuntu
   script:
     - ./tools/ci/build.sh "test-auto-upgrade" "force"
-  only:
-    - master@YottaDB/DBMS/YDBOcto
 
 test-auto-upgrade:
   # This job tests that auto upgrade functionality of binary table/function definitions and plan definitions (physical plans,
@@ -213,8 +208,6 @@ test-auto-upgrade:
     # We previously used netstat, and that's why we install net-tools
     - apt-get install -y -qq --no-install-recommends python2 python-is-python2 net-tools
     - ./tools/ci/build.sh "test-auto-upgrade" "binary"
-  only:
-    - master@YottaDB/DBMS/YDBOcto
 
 test-vista:
   # This job tests that various Octo tests run inside of a VistA instance
@@ -225,8 +218,6 @@ test-vista:
     - .make
   script:
     - ./tools/ci/vistatest.sh
-  only:
-    - master@YottaDB/DBMS/YDBOcto
 
 octo:
   image: docker:latest

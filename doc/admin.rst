@@ -27,64 +27,64 @@ User database permissions are set at user-creation time, i.e. via :code:`%ydboct
 ydboctoAdmin
 ----------------
 
-%ydboctoAdmin allows the user to add, delete and view a list of users with show.
+  %ydboctoAdmin allows the user to add, delete and view a list of users with show.
 
-Usage pattern:
+  Usage pattern:
 
- .. code-block:: bash
+   .. code-block:: bash
 
-    yottadb -r %ydboctoAdmin <action> <subAction> <arguments>
+      yottadb -r %ydboctoAdmin <action> <subAction> <arguments>
 
-* <action> is either add, delete or show.
-* <subAction> refers to :code:`user` or :code:`users`.
-* <arguments> would be the specific arguments passed to the command.
+  * <action> is either add, delete or show.
+  * <subAction> refers to :code:`user` or :code:`users`.
+  * <arguments> would be the specific arguments passed to the command.
 
 +++++++++++++
 Add
 +++++++++++++
 
-The following is an example of adding users to the database:
+  The following is an example of adding users to the database:
 
- .. code-block:: bash
+   .. code-block:: bash
 
-    yottadb -r %ydboctoAdmin add user OctoUser
+      yottadb -r %ydboctoAdmin add user OctoUser
 
-This adds OctoUser as a user of the database, after verifying the password for the user. Unless otherwise specified, new users are created with read-only database permissions.
+  This adds OctoUser as a user of the database, after verifying the password for the user. Unless otherwise specified, new users are created with read-only database permissions.
 
-To grant a user read-write permissions (:code:`INSERT`, :code:`UPDATE`, and :code:`DELETE`) use the :code:`-w`/:code:`--readwrite` flag:
+  To grant a user read-write permissions (:code:`INSERT`, :code:`UPDATE`, and :code:`DELETE`) use the :code:`-w`/:code:`--readwrite` flag:
 
- .. code-block:: bash
+   .. code-block:: bash
 
-    yottadb -r %ydboctoAdmin add user OctoUser --readwrite
-    yottadb -r %ydboctoAdmin add user OctoUser -w
+      yottadb -r %ydboctoAdmin add user OctoUser --readwrite
+      yottadb -r %ydboctoAdmin add user OctoUser -w
 
-To grant a user read-write permissions and permission to modify schemas (:code:`CREATE` and :code:`DROP`), use the `-a`/`--allowschemachanges` flag:
+  To grant a user read-write permissions and permission to modify schemas (:code:`CREATE` and :code:`DROP`), use the :code:`-a`/:code:`--allowschemachanges` flag:
 
- .. code-block:: bash
+   .. code-block:: bash
 
-    yottadb -r %ydboctoAdmin add user OctoUser --allowschemachanges
-    yottadb -r %ydboctoAdmin add user OctoUser -a
+      yottadb -r %ydboctoAdmin add user OctoUser --allowschemachanges
+      yottadb -r %ydboctoAdmin add user OctoUser -a
 
 ++++++++++++++
 Delete
 ++++++++++++++
 
-The following is an example of deleting users from the database:
+  The following is an example of deleting users from the database:
 
- .. code-block:: bash
+   .. code-block:: bash
 
-    yottadb -r %ydboctoAdmin delete user OctoUser
+      yottadb -r %ydboctoAdmin delete user OctoUser
 
-This deletes OctoUser from the list of users in the database.
+  This deletes OctoUser from the list of users in the database.
 
 ++++++++++++++
 Show
 ++++++++++++++
 
-The following is an example of the database showing a list of users:
+  The following is an example of the database showing a list of users:
 
- .. code-block:: bash
+   .. code-block:: bash
 
-    yottadb -r %ydboctoAdmin show users
+      yottadb -r %ydboctoAdmin show users
 
-This shows a list of the users of the database.
+  This shows a list of the users of the database.

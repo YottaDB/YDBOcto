@@ -30,9 +30,9 @@ Architecture
 -------------
 
   * Octo uses the PostgreSQL wire protocol, allowing SQL access to YottaDB databases via the PostgreSQL ODBC/JDBC/OLE DB driver.
-  * It uses YottaDB local and global variables to hold mapping data, temporary tables, and cross references to provide an efficient relational schema overlay using an augumented SQL DDL language.
+  * It uses YottaDB local and global variables to hold mapping data, temporary tables, and cross references to provide an efficient relational schema overlay using an augmented SQL DDL language.
   * It uses a 3-phase architecture, consisting of parsing, logical-plan generation and optimization, and physical-plan generation and emission.
-  * Rocto is the Remote Octo Server that can communicate with PostgreSQL Server clients.
+  * ROcto is the Remote Octo Server that can communicate with PostgreSQL Server clients.
 
 -------------------
 Features
@@ -73,7 +73,7 @@ Install Prerequisites
 
   The YottaDB POSIX and AIM plugins are now installed when the :code:`--octo` option is used with the :code:`ydbinstall` script.
 
-  Installing the YottaDB encryption plugin enables TLS support (Recommended for production installations). You will need to make sure TLS/SSL is enabled for the driver in the client software chosen.
+  Installing the YottaDB encryption plugin enables TLS support (recommended for production installations). You will need to make sure TLS/SSL is enabled for the driver in the client software chosen.
 
   The YottaDB encryption plugin can be installed by adding the :code:`--encplugin` option when installing YottaDB with the :code:`ydbinstall` script:
 
@@ -81,9 +81,9 @@ Install Prerequisites
 
      ./ydbinstall --encplugin
 
-.. note::
+  .. note::
 
-   If YottaDB has already been installed, use the :code:`--plugins-only` option with the ydbinstall.sh script to install the plugins.
+     If YottaDB has already been installed, use the :code:`--plugins-only` option with the ydbinstall.sh script to install the plugins.
 
 .. _install-octo:
 
@@ -99,7 +99,7 @@ Install Octo
 
      .. code-block:: bash
 
-        # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
+        # Ubuntu/Debian
         sudo apt-get install --no-install-recommends build-essential cmake bison flex xxd libreadline-dev libssl-dev wget ca-certificates file libelf-dev curl git pkg-config libicu-dev libconfig-dev
 
         # RHEL 8/Rocky Linux
@@ -109,7 +109,7 @@ Install Octo
    *(Optional)* Prerequisites for Automated Regression Testing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  Refer to the `Developer's Documentation <./developer_doc.html>`_ for information on setting up and running automated regression testing.
+  Refer to the :doc:`Developer's Documentation <developer_doc>` for information on setting up and running automated regression testing.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      Clone the Octo source code repository
@@ -421,8 +421,8 @@ Sample Queries
 Test with dummy data using Rocto
 +++++++++++++++++++++++++++++++++
 
-  The :code:`northwind` data set can also be queried using Rocto (Remote Octo server).
-  :code:`SQuirreL SQL` needs to be configured in order to use Rocto.
+  The :code:`northwind` data set can also be queried using ROcto (Remote Octo server).
+  :code:`SQuirreL SQL` needs to be configured in order to use ROcto.
   An alias needs to be created, including the server IP address and port number.
 
   For example:
@@ -449,7 +449,7 @@ Test with dummy data using Rocto
      Successfully added user: "myusername"
 
 
-  In a shell with YottaDB and Octo environment variables set, start Rocto using the following command:
+  In a shell with YottaDB and Octo environment variables set, start ROcto using the following command:
 
   .. code-block:: bash
 
@@ -464,21 +464,19 @@ Test with dummy data using Rocto
 
      Squirrel SQL Sample Screenshot
 
-  Complete documentation of SQuirreL set-up can be found in the `ROcto Documentation <rocto.html>`_.
+  Complete documentation of SQuirreL set-up can be found in the :doc:`ROcto Documentation <rocto>`.
 
 ++++++
 Usage
 ++++++
 
-  Before running Octo/Rocto make sure that the required YottaDB variables are set either by creating your own script or run :code:`source $ydb_dist/ydb_env_set`.
+  Before running Octo/ROcto make sure that the required YottaDB variables are set either by creating your own script or running :code:`source $ydb_dist/ydb_env_set`.
 
-  To use the command-line SQL interpreter run: :code:`$ydb_dist/plugin/bin/octo`.
+  To use the command-line SQL interpreter run :code:`$ydb_dist/plugin/bin/octo`.
 
   To use the PostgreSQL protocol compatible server run :code:`$ydb_dist/plugin/bin/rocto`.
 
-  If you use the :code:`octo` command line interpreter, history is stored by
-  default in :code:`~/.octo_history`. More information is provided in the
-  :doc:`history` document.
+  If you use the :code:`octo` command line interpreter, history is stored by default in :code:`~/.octo_history`. More information is provided in the :doc:`history` document.
 
 ++++++++++++++++++
 Launching Options
@@ -486,9 +484,9 @@ Launching Options
 
   Octo has a few options that can be specified when it is launched.
 
-.. note::
+  .. note::
 
-   Refer to :ref:`this <rocto-cmd-flags>` for information on launching options of ROcto.
+     Refer to :ref:`this <rocto-cmd-flags>` for information on launching options of ROcto.
 
 .. _verbose-option:
 
@@ -510,17 +508,17 @@ Launching Options
 
     The number given to the option corresponds to the following levels:
 
-+-----------------+------------------------+---------------------------------------------+
-| Number          | Level                  | Information                                 |
-+=================+========================+=============================================+
-| 0               | ERROR                  | Information about all errors                |
-+-----------------+------------------------+---------------------------------------------+
-| 1               | INFO                   | Additional information useful to log        |
-+-----------------+------------------------+---------------------------------------------+
-| 2               | DEBUG                  | Includes information useful for debugging   |
-+-----------------+------------------------+---------------------------------------------+
-| 3               | TRACE                  | Information logged stepping through actions |
-+-----------------+------------------------+---------------------------------------------+
+    +-----------------+------------------------+---------------------------------------------+
+    | Number          | Level                  | Information                                 |
+    +=================+========================+=============================================+
+    | 0               | ERROR                  | Information about all errors                |
+    +-----------------+------------------------+---------------------------------------------+
+    | 1               | INFO                   | Additional information useful to log        |
+    +-----------------+------------------------+---------------------------------------------+
+    | 2               | DEBUG                  | Includes information useful for debugging   |
+    +-----------------+------------------------+---------------------------------------------+
+    | 3               | TRACE                  | Information logged stepping through actions |
+    +-----------------+------------------------+---------------------------------------------+
 
     When a number level is specified, the verbose output contains all information corresponding to that level as well as the previous levels.
 
@@ -601,7 +599,7 @@ Launching Options
   Input-file
 ~~~~~~~~~~~~
 
-    The input-file option takes a file as input to Octo, that commands are then read from.
+    The input-file option takes a file as input to Octo, from which commands are read.
 
     .. code-block:: bash
 
@@ -630,17 +628,17 @@ Exit status
 Useful Commands at OCTO>
 +++++++++++++++++++++++++
 
-+-------------------------+-------------------------------------------------------+
-| Command                 | Information                                           |
-+=========================+=======================================================+
-| :code:`\\q`             | Exits the prompt                                      |
-+-------------------------+-------------------------------------------------------+
-| :code:`\\d`             | Displays all relations                                |
-+-------------------------+-------------------------------------------------------+
-| :code:`\\d tablename`   | Displays information about columns of specified table |
-+-------------------------+-------------------------------------------------------+
-| :code:`\\s`             | Displays Octo command history                         |
-+-------------------------+-------------------------------------------------------+
+    +-------------------------+-------------------------------------------------------+
+    | Command                 | Information                                           |
+    +=========================+=======================================================+
+    | :code:`\\q`             | Exits the prompt                                      |
+    +-------------------------+-------------------------------------------------------+
+    | :code:`\\d`             | Displays all relations                                |
+    +-------------------------+-------------------------------------------------------+
+    | :code:`\\d tablename`   | Displays information about columns of specified table |
+    +-------------------------+-------------------------------------------------------+
+    | :code:`\\s`             | Displays Octo command history                         |
+    +-------------------------+-------------------------------------------------------+
 
     .. note::
 

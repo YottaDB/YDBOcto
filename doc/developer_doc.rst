@@ -77,7 +77,7 @@ Rocky Linux/RHEL
 Configure PostgreSQL and MySQL/MariaDB
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PostgreSQL must be set up for the user who will be running the tests:
+ PostgreSQL must be set up for the user who will be running the tests:
 
   .. code-block:: bash
 
@@ -87,7 +87,7 @@ PostgreSQL must be set up for the user who will be running the tests:
      create database $USER LC_COLLATE='C' template=template0;
      PSQL
 
-MySQL/MariaDB must be set up for the user who will be running the tests, using a password of 'ydbrocks'. Assuming a :code:`bash` shell, the following can be run as a single command to do the necessary setup:
+ MySQL/MariaDB must be set up for the user who will be running the tests, using a password of 'ydbrocks'. Assuming a :code:`bash` shell, the following can be run as a single command to do the necessary setup:
 
   .. code-block:: bash
 

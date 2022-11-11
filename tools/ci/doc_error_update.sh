@@ -44,7 +44,7 @@ while read -r line; do
 				missing_messages="$mnemonic\n$missing_messages"
 			fi
 		else
-			format_occurrences=$(grep -cn "^Text: $format_string$" doc/errors.rst || true)
+			format_occurrences=$(grep -cn "^ *Text: $format_string$" doc/errors.rst || true)
 			if [[ $format_occurrences -ne 1 ]]; then
 				if [[ $format_occurrences -eq 0 ]]; then
 					missing_text="$mnemonic\n$missing_text"

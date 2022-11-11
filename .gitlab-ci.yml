@@ -219,7 +219,7 @@ test-vista:
   script:
     - ./tools/ci/vistatest.sh
 
-octo:
+docker-octo-amd64:
   image: docker:latest
   stage: docker
   before_script:
@@ -235,8 +235,11 @@ octo:
     - docker push yottadb/octo:latest
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "master" && $CI_PROJECT_PATH == "YottaDB/DBMS/YDBOcto"'
+  tags:
+    - amd64
+#TODO YDB#931: Add docker-octo-aarch64 when aarch64 runner is online
 
-vista:
+docker-vista-amd64:
   image: docker:latest
   stage: docker
   before_script:
@@ -250,6 +253,9 @@ vista:
     - docker push yottadb/octo-vehu:latest-master
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "master" && $CI_PROJECT_PATH == "YottaDB/DBMS/YDBOcto"'
+  tags:
+    - amd64
+#TODO YDB#931: Add docker-octo-aarch64 when aarch64 runner is online
 
 pages:
   stage: docs

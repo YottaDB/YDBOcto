@@ -1,7 +1,7 @@
 #!/usr/bin/expect
 #################################################################
 #								#
-# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -15,6 +15,7 @@
 
 set timeout 60
 spawn /bin/bash
+expect -re "\[#\$] "
 # Enable long lines to prevent wrapping
 send -- "stty cols 4096\r"
 expect "stty cols 4096\r"

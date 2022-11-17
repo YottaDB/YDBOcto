@@ -1,4 +1,3 @@
-octo
 OCTO> select * from names
 OCTO> 
 ID|FIRSTNAME|LASTNAME

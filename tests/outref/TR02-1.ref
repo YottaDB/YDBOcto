@@ -1,4 +1,3 @@
-octo
 OCTO> select 'a' from names limit 1;
 ???
 a

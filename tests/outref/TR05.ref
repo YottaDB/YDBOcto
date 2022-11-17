@@ -1,4 +1,3 @@
-octo
 OCTO> select 'a'
 OCTO> from names
 OCTO> limit 1;

@@ -1,4 +1,3 @@
-octo
 OCTO> \s
 select * from names;
 select id from names where id = 2;

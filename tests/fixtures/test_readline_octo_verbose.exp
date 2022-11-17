@@ -16,7 +16,7 @@ spawn /bin/bash
 expect -re "\[#\$] "
 # Enable long lines to prevent wrapping
 send -- "stty cols 4096\r"
-expect "stty cols 4096\r"
+expect -re "\[#\$] "
 
 # Start octo
 send -- "octo -v 2>octo.log\r"

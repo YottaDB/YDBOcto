@@ -16,7 +16,7 @@ spawn /bin/bash
 expect -re "\[#\$] "
 # Enable long lines to prevent wrapping
 send -- "stty cols 4096\r"
-expect "stty cols 4096\r"
+expect -re "\[#\$] "
 
 puts "# Start octo process OCTO1"
 spawn octo

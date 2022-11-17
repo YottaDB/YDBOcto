@@ -88,12 +88,17 @@ else
 	build_tool=ninja
 fi
 
-echo "# Install the YottaDB POSIX and AIM plugins"
-pushd /tmp/
-wget https://gitlab.com/YottaDB/DB/YDB/raw/master/sr_unix/ydbinstall.sh
-chmod +x ydbinstall.sh
-./ydbinstall.sh --plugins-only --aim --posix
-popd
+# Install Posix and AIM plug-ins 50% of the time
+# The other 50%, CMake will take care of installing them
+# For Auto-upgrade tests, The CMake installer may not exist; therefore, always install the plugins manually.
+if [[ $(( RANDOM % 2)) -eq 0 || ("test-auto-upgrade" == $jobname) ]]; then
+	echo "# Install the YottaDB POSIX and AIM plugins"
+	pushd /tmp/
+	wget https://gitlab.com/YottaDB/DB/YDB/raw/master/sr_unix/ydbinstall.sh
+	chmod +x ydbinstall.sh
+	./ydbinstall.sh --plugins-only --aim --posix
+	popd
+fi
 
 echo "# Source the ENV script again to YottaDB environment variables after installing plugins"
 set +u # Temporarily disable detection of uninitialized variables since ydb_env_set relies on them.
@@ -423,65 +428,7 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 		compare ../tools/ci/clang_tidy_warnings-release.ref sorted_clang_warnings.txt clang_tidy_warnings.txt
 	fi
 
-	echo "# prepare binary tarball"
-	# Declare the tarball generation logic as a function in case we need to rebuild in release mode
-	create_tarball() {
-		# Gather elements of tarball name format: yottadb_octo_<octo_version>_<os_id><os_version>_<platform_arch>_pro.tar.gz
-		octo_version="$(src/octo --version | grep "Octo version" | cut -f 3 -d ' ')"
-		os_id="$(../tools/get_platform_name.sh)"
-		os_version="$(../tools/get_platform_version.sh)"
-		platform_arch="$(../tools/get_platform_arch.sh)"
-		if [[ -f $ydb_dist/plugin/libgtmtls.so ]]; then
-			tls_support="tls_"
-		else
-			tls_support=""
-		fi
-		tarball_name="yottadb_octo_${octo_version}_${tls_support}${os_id}${os_version}_${platform_arch}_pro"
-
-		# Transfer requisite files into tarball directory and compress
-		echo "# Create plugin directory structure for later reference by [octo]install.sh"
-		mkdir -p $tarball_name/plugin/r $tarball_name/plugin/o/utf8 $tarball_name/plugin/octo/bin
-		echo "# Copy YDBPosix into build directory for later access by [octo]install.sh"
-		cp $ydb_dist/plugin/libydbposix.so $tarball_name/plugin
-		cp $ydb_dist/plugin/ydbposix.xc $tarball_name/plugin
-		cp $ydb_dist/plugin/o/_ydbposix.so $tarball_name/plugin/o
-		cp $ydb_dist/plugin/o/utf8/_ydbposix.so $tarball_name/plugin/o/utf8
-		echo "# Copy Octo-specific dependencies for later access by [octo]install.sh"
-		cp octoinstall.sh $tarball_name
-		cp ../tools/get_ydb_release.sh $tarball_name
-		cp ../tools/get_platform_name.sh $tarball_name
-		cp ../tools/get_platform_version.sh $tarball_name
-		cp ../tools/get_platform_arch.sh $tarball_name
-		cp ../src/aux/*.m $tarball_name/plugin/r
-		cp src/ydbocto.ci $tarball_name/plugin/octo
-		cp src/ydbocto.xc $tarball_name/plugin/octo
-		cp src/octo-seed.* $tarball_name/plugin/octo
-		cp ../src/aux/octo.conf.default $tarball_name/plugin/octo/octo.conf
-		echo "# Copy Octo binaries and libraries for later access by [octo]install.sh"
-		cp src/octo src/rocto $tarball_name/plugin/octo/bin
-		cp src/_ydbocto.so $tarball_name/plugin/o
-		cp src/libcocto.so $tarball_name/plugin
-		cp src/utf8/_ydbocto.so $tarball_name/plugin/o/utf8
-		echo "# Copy .dbg files for debugging RelWithDebInfo builds"
-		if [[ -f src/octo.dbg && -f src/rocto.dbg ]]; then
-			cp src/*.dbg $tarball_name/plugin/octo
-		fi
-
-		echo "# Build binary package"
-		tar -czvf $tarball_name.tar.gz $tarball_name
-	}
-	create_tarball
-
-	echo "# Randomly choose to install from tarball or via make/ninja install"
-	if [[ $(( RANDOM % 2)) -eq 0 ]]; then
-		echo "# install from tarball"
-		cd $tarball_name
-		./octoinstall.sh
-		cd ..
-	else
-		echo "# $build_tool install"
-		$build_tool install
-	fi
+	$build_tool install
 fi
 
 # Skip Postgres setup for the forced auto upgrade job as it does not use psql. All the other jobs use it.
@@ -652,14 +599,6 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 		# Restore verbose output now that for long line of output is done
 		set -v
 		set -x
-	fi
-	if [[ 0 == $exit_status ]]; then
-		if [[ $build_type != "RelWithDebInfo" || $disable_install != "OFF" ]]; then
-			echo "# Rebuild Octo for packaging as it wasn't a RelWithDebInfo build or was built with installation disabled"
-			cmake -G "$generator" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=RelWithDebInfo -DDISABLE_INSTALL=OFF ..
-			$build_tool
-			create_tarball
-		fi
 	fi
 else
 	# If this is the "test-auto-upgrade" job, ignore errors in ctest (possible some tests fail because we are running

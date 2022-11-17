@@ -39,7 +39,12 @@ if(EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/o/_ydbposix.so")
 		endif()
 	endif()
 else()
-	message(FATAL_ERROR "Could NOT find YDBPosix plugin in ${YOTTADB_INCLUDE_DIRS}/o. Please install YDBPosix and rebuild Octo.")
+	message(STATUS "Will install YDBPosix plugin")
+	FetchContent_Declare(YDBPosix
+		GIT_REPOSITORY https://gitlab.com/YottaDB/Util/YDBPosix.git
+		GIT_TAG	       master
+		)
+	FetchContent_MakeAvailable(YDBPosix)
 endif()
 
 if(EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/o/_ydbaim.so")
@@ -52,7 +57,12 @@ if(EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/o/_ydbaim.so")
 		endif()
 	endif()
 else()
-	message(FATAL_ERROR "Could NOT find YDBAIM plugin in ${YOTTADB_INCLUDE_DIRS}/o. Please install YDBAIM and rebuild Octo.")
+	message(STATUS "Will install YDBAIM plugin")
+	FetchContent_Declare(YDBAIM
+		GIT_REPOSITORY https://gitlab.com/YottaDB/Util/YDBAIM.git
+		GIT_TAG	       master
+		)
+	FetchContent_MakeAvailable(YDBAIM)
 endif()
 
 if(EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/libgtmtls.so")
@@ -88,9 +98,6 @@ execute_process(
 message(STATUS "Platform name: ${PLATFORM_NAME}")
 message(STATUS "Platform version: ${PLATFORM_VERSION}")
 message(STATUS "Platform architecture: ${PLATFORM_ARCH}")
-configure_file (
-  "${PROJECT_SOURCE_DIR}/tools/ci/octoinstall.sh.in"
-  "${PROJECT_BINARY_DIR}/octoinstall.sh")
 
 # Generate the physical-parser
 BISON_TARGET(PhysicalParser ${PROJECT_SOURCE_DIR}/src/physical/physical-parser.y

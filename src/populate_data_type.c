@@ -19,35 +19,37 @@
 #include "octo_types.h"
 #include "octo_type_check.h"
 
-#define ISSUE_ERR_AND_BREAK_IF_SUBQUERY_HAS_MULTIPLE_COLUMNS(V, PARENT_STMT, RESULT)                                           \
-	{                                                                                                                      \
-		assert((NULL == PARENT_STMT)                                                                                   \
-		       || ((column_alias_STATEMENT != PARENT_STMT->type) && (column_list_alias_STATEMENT != PARENT_STMT->type) \
-			   && (column_list_STATEMENT != PARENT_STMT->type) && (table_alias_STATEMENT != PARENT_STMT->type)     \
-			   && (set_operation_STATEMENT != PARENT_STMT->type)));                                                \
-                                                                                                                               \
-		boolean_t do_num_cols_check;                                                                                   \
-		do_num_cols_check                                                                                              \
-		    = ((NULL != PARENT_STMT)                                                                                   \
-		       && ((unary_STATEMENT != PARENT_STMT->type) || (BOOLEAN_EXISTS != PARENT_STMT->v.unary->operation)));    \
-		if (do_num_cols_check) {                                                                                       \
-			assert((table_alias_STATEMENT == V->type) || (set_operation_STATEMENT == V->type));                    \
-                                                                                                                               \
-			SqlStatement *table_alias_stmt;                                                                        \
-			table_alias_stmt = drill_to_table_alias(V);                                                            \
-                                                                                                                               \
-			SqlTableAlias *table_alias;                                                                            \
-			UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);                                      \
-			int num_of_columns = get_num_cols_in_table_alias(table_alias);                                         \
-			if (1 < num_of_columns) {                                                                              \
-				ERROR(ERR_SUBQUERY_ONE_COLUMN, "");                                                            \
-				yyerror(NULL, NULL, &V, NULL, NULL, NULL);                                                     \
-				RESULT = 1;                                                                                    \
-			}                                                                                                      \
-			if (RESULT) {                                                                                          \
-				break;                                                                                         \
-			}                                                                                                      \
-		}                                                                                                              \
+#define ISSUE_ERR_AND_BREAK_IF_SUBQUERY_HAS_MULTIPLE_COLUMNS(V, PARENT_STMT, RESULT)                                            \
+	{                                                                                                                       \
+		/* Even column_alias_STATEMENT can reach this code in the case shown below                                      \
+		 * select * from (select ((values(lastname))) from names);                                                      \
+		 */                                                                                                             \
+		assert((NULL == PARENT_STMT)                                                                                    \
+		       || ((column_list_alias_STATEMENT != PARENT_STMT->type) && (column_list_STATEMENT != PARENT_STMT->type)   \
+			   && (table_alias_STATEMENT != PARENT_STMT->type) && (set_operation_STATEMENT != PARENT_STMT->type))); \
+                                                                                                                                \
+		boolean_t do_num_cols_check;                                                                                    \
+		do_num_cols_check                                                                                               \
+		    = ((NULL != PARENT_STMT)                                                                                    \
+		       && ((unary_STATEMENT != PARENT_STMT->type) || (BOOLEAN_EXISTS != PARENT_STMT->v.unary->operation)));     \
+		if (do_num_cols_check) {                                                                                        \
+			assert((table_alias_STATEMENT == V->type) || (set_operation_STATEMENT == V->type));                     \
+                                                                                                                                \
+			SqlStatement *table_alias_stmt;                                                                         \
+			table_alias_stmt = drill_to_table_alias(V);                                                             \
+                                                                                                                                \
+			SqlTableAlias *table_alias;                                                                             \
+			UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);                                       \
+			int num_of_columns = get_num_cols_in_table_alias(table_alias);                                          \
+			if (1 < num_of_columns) {                                                                               \
+				ERROR(ERR_SUBQUERY_ONE_COLUMN, "");                                                             \
+				yyerror(NULL, NULL, &V, NULL, NULL, NULL);                                                      \
+				RESULT = 1;                                                                                     \
+			}                                                                                                       \
+			if (RESULT) {                                                                                           \
+				break;                                                                                          \
+			}                                                                                                       \
+		}                                                                                                               \
 	}
 
 // Helper function that is invoked when we have to traverse a "column_list_alias_STATEMENT".
@@ -738,83 +740,93 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 		// Do nothing; we got here through a table_alias
 		break;
 	case table_value_STATEMENT:
-		/* For a table constructed using the VALUES clause, go through each value specified and determine
-		 * its type. Verify all rows have same type for each column.
-		 */
 		UNPACK_SQL_STATEMENT(table_value, v, table_value);
-		UNPACK_SQL_STATEMENT(row_value, table_value->row_value_stmt, row_value);
-		start_row_value = row_value;
-		num_columns = row_value->num_columns;
-		assert(num_columns);
+		/* It is possible we come across an already processed table_value_STATEMENT while processing the `select *`
+		 * in below type of queries.
+		 *   Example: `select * from (select ((values(lastname))) = 'Burn' from names);`
+		 * In such a case, any errors would have already been issued and the statement column data types would have already
+		 * been set. Skip further processing in such cases.
+		 */
+		if (UNKNOWN_SqlDataType != table_value->column->data_type_struct.data_type) {
+			*type = get_sqlvaluetype_from_sqldatatype(table_value->column->data_type_struct.data_type, FALSE);
+		} else {
+			/* For a table constructed using the VALUES clause, go through each value specified and determine
+			 * its type. Verify all rows have same type for each column.
+			 */
+			UNPACK_SQL_STATEMENT(row_value, table_value->row_value_stmt, row_value);
+			start_row_value = row_value;
+			num_columns = row_value->num_columns;
+			assert(num_columns);
 
-		SqlValueType * type_array;
-		SqlStatement **first_value;
-		type_array = (SqlValueType *)calloc(num_columns, sizeof(SqlValueType));
-		first_value = (SqlStatement **)calloc(num_columns, sizeof(SqlStatement *));
-		do {
-			SqlColumnList *start_column_list, *cur_column_list;
-
-			UNPACK_SQL_STATEMENT(start_column_list, row_value->value_list, column_list);
-			cur_column_list = start_column_list;
-			colno = 0;
+			SqlValueType * type_array;
+			SqlStatement **first_value;
+			type_array = (SqlValueType *)calloc(num_columns, sizeof(SqlValueType));
+			first_value = (SqlStatement **)calloc(num_columns, sizeof(SqlStatement *));
 			do {
-				SqlValueType current_type;
+				SqlColumnList *start_column_list, *cur_column_list;
 
-				// SqlValue or SqlColumnAlias
-				result |= populate_data_type(cur_column_list->value, &current_type, v, parse_context);
-				if (result) {
-					break;
-				}
-				if (start_row_value == row_value) {
-					/* This is the first row. We don't have any type to compare against.
-					 * Just record this type for now.
-					 */
-					assert(UNKNOWN_SqlValueType == type_array[colno]);
-					assert(UNKNOWN_SqlValueType != current_type);
-					type_array[colno] = current_type;
-					first_value[colno] = cur_column_list->value;
-				} else {
-					/* Compare type determined for this row against noted down type from previous row */
-					assert(UNKNOWN_SqlValueType != type_array[colno]);
-					result |= ensure_same_type(&type_array[colno], &current_type, first_value[colno],
-								   cur_column_list->value, parse_context);
+				UNPACK_SQL_STATEMENT(start_column_list, row_value->value_list, column_list);
+				cur_column_list = start_column_list;
+				colno = 0;
+				do {
+					SqlValueType current_type;
+
+					// SqlValue or SqlColumnAlias
+					result |= populate_data_type(cur_column_list->value, &current_type, v, parse_context);
 					if (result) {
 						break;
 					}
+					if (start_row_value == row_value) {
+						/* This is the first row. We don't have any type to compare against.
+						 * Just record this type for now.
+						 */
+						assert(UNKNOWN_SqlValueType == type_array[colno]);
+						assert(UNKNOWN_SqlValueType != current_type);
+						type_array[colno] = current_type;
+						first_value[colno] = cur_column_list->value;
+					} else {
+						/* Compare type determined for this row against noted down type from previous row */
+						assert(UNKNOWN_SqlValueType != type_array[colno]);
+						result |= ensure_same_type(&type_array[colno], &current_type, first_value[colno],
+									   cur_column_list->value, parse_context);
+						if (result) {
+							break;
+						}
+					}
+					colno++;
+					cur_column_list = cur_column_list->next;
+				} while ((cur_column_list != start_column_list));
+				if (result) {
+					break;
 				}
-				colno++;
-				cur_column_list = cur_column_list->next;
-			} while ((cur_column_list != start_column_list));
-			if (result) {
-				break;
+				assert(colno == num_columns); /* every row should have same number of columns as first row */
+				row_value = row_value->next;
+			} while (row_value != start_row_value);
+			/* Note: Cannot "break" if "result" is non-zero like in other places because we need to do some "free()"
+			 * calls */
+			if (!result) {
+				/* Now that we have scanned all rows of the VALUES table, store the final determined column type.
+				 * Note that if one row had a column type of NUL_VALUE and the next row had a type of
+				 * NUMERIC_LITERAL, the final column type would end up being NUMERIC_LITERAL.
+				 */
+				start_column = table_value->column;
+				column = start_column;
+				colno = 0;
+				do {
+					column->data_type_struct.data_type = get_sqldatatype_from_sqlvaluetype(type_array[colno]);
+					column->data_type_struct.size_or_precision = SIZE_OR_PRECISION_UNSPECIFIED;
+					column->data_type_struct.scale = SCALE_UNSPECIFIED;
+					column->data_type_struct.size_or_precision_parameter_index = 0;
+					column->data_type_struct.scale_parameter_index = 0;
+					column = column->next;
+					colno++;
+				} while (column != start_column);
+				assert(colno == num_columns);
+				*type = type_array[0]; /* Return the type of the first column in the VALUES clause */
 			}
-			assert(colno == num_columns); /* every row should have same number of columns as first row */
-			row_value = row_value->next;
-		} while (row_value != start_row_value);
-		/* Note: Cannot "break" if "result" is non-zero like in other places because we need to do some "free()" calls */
-		if (!result) {
-			/* Now that we have scanned all rows of the VALUES table, store the final determined column type.
-			 * Note that if one row had a column type of NUL_VALUE and the next row had a type of NUMERIC_LITERAL,
-			 * the final column type would end up being NUMERIC_LITERAL.
-			 */
-			start_column = table_value->column;
-			column = start_column;
-			colno = 0;
-			do {
-				assert(UNKNOWN_SqlDataType == column->data_type_struct.data_type);
-				column->data_type_struct.data_type = get_sqldatatype_from_sqlvaluetype(type_array[colno]);
-				column->data_type_struct.size_or_precision = SIZE_OR_PRECISION_UNSPECIFIED;
-				column->data_type_struct.scale = SCALE_UNSPECIFIED;
-				column->data_type_struct.size_or_precision_parameter_index = 0;
-				column->data_type_struct.scale_parameter_index = 0;
-				column = column->next;
-				colno++;
-			} while (column != start_column);
-			assert(colno == num_columns);
-			*type = type_array[0]; /* Return the type of the first column in the VALUES clause */
+			free(type_array);
+			free(first_value);
 		}
-		free(type_array);
-		free(first_value);
 		break;
 	case table_alias_STATEMENT:
 		ISSUE_ERR_AND_BREAK_IF_SUBQUERY_HAS_MULTIPLE_COLUMNS(v, parent_stmt, result);

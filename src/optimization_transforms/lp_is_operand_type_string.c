@@ -127,7 +127,6 @@ boolean_t lp_is_operand_type_string(LogicalPlan *plan, boolean_t *is_null) {
 		case LP_KEY:
 		case LP_KEYWORDS:
 		case LP_PIECE_NUMBER:
-		case LP_TABLE_VALUE:
 			/* These cases should never show up inside a boolean expression. Hence the below assert. */
 			assert(FALSE);
 			break;

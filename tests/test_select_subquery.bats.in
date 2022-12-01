@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -154,3 +154,6 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS26.sql
 }
 
+@test "TSS27 : OCTO911 : Validate that SIG-11 is not seen when a subquery in the FROM clause has a select column with another subquery" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS27.sql
+}

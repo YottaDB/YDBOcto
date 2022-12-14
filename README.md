@@ -81,17 +81,20 @@ Kill the ROcto process:
 kill %1
 ```
 
-## Using the Docker Image
-To run the docker image, with the Rocto Daemon running on port 1337:
+## Using the Docker Images
+We provide two docker images, one containing a copy of a Northwind database, and another containing a copy of VistA.
+
+### Northwind
+To run the docker image containing a copy of the Northwind database, with the Rocto Daemon running on port 1337:
 
 ```sh
-docker run -d --rm -p 1337:1337 --name=rocto yottadb/octo
+docker run -d --rm -p 1337:1337 --name=rocto download.yottadb.com/yottadb/octo
 ```
 
 You can pass a directory on your computer to keep the data in, so you won't lose it when you stop the docker container:
 
 ```sh
-docker run -d -v $HOME/mydata:/data --rm -p 1337:1337 --name=rocto yottadb/octo
+docker run -d -v $HOME/mydata:/data --rm -p 1337:1337 --name=rocto download.yottadb.com/yottadb/octo
 ```
 
 To access the data, you can use the Postgres client (or any other compatible client) like this (Username `ydb` password `ydbrocks`):
@@ -119,6 +122,9 @@ To stop the image, simply kill it, as it will autodelete after stopping. Your da
 ```sh
 docker kill rocto
 ```
+
+### VistA
+The VistA image's instructions can be found on DockerHub here: https://hub.docker.com/r/yottadb/octo-vehu
 
 ## Building the documentation
 

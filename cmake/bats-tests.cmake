@@ -117,6 +117,7 @@ if("${FULL_TEST_SUITE}")
 	ADD_BATS_TEST(test_pgadmin)
 	ADD_BATS_TEST(test_display_relation_commands)
 	ADD_BATS_TEST(test_truncate)
+	ADD_BATS_TEST(test_ydbjnlf_in_octo)
 
 	# The following tests only require the psql command line client, not Postgres
 	# (Therefore, we don't need databases set-up for these tests)

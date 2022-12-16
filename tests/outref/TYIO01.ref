@@ -1,0 +1,159 @@
+# Load %YDBJNLF DDL Into Octo
+# Extract journals
+# Run queries on journal files
+-- TYIO01 : Test %YDBJNLF Octo functionality
+
+-- A lot of the tests just do COUNT etc as the contents of the data contains
+--    user ids, machine names, and process ids, which vary.
+
+\d;
+SELECT label, jnlfilename, dbfilename FROM YDBJNLF;
+SELECT COUNT(*) FROM YDBJNLFACTIVE;
+SELECT COUNT(*) FROM YDBJNLFCOMPLETE;
+SELECT * FROM YDBJNLFOPCOUNT WHERE occurs > 0;
+SELECT * FROM YDBJNLFRECTYPE;
+-- This is the most common query that users will perform; rest are sanity checks for other tables
+SELECT op,gvname,gvref,nodeval FROM YDBJNLFTYPE1 WHERE gvname='^pastas';
+SELECT op FROM YDBJNLFTYPE10;
+SELECT op FROM YDBJNLFTYPE4;
+SELECT op FROM YDBJNLFTYPE5;
+SELECT op FROM YDBJNLFTYPE6;
+SCHEMA|NAME|TYPE|OWNER
+public|INFORMATION_SCHEMA.TABLES|table|octo
+public|NAMES|table|octo
+public|NAMES4|table|octo
+public|NAMESWITHAGES|table|octo
+public|OCTOONEROWTABLE|table|octo
+public|PASTAS|table|octo
+public|PG_ATTRDEF|table|octo
+public|PG_ATTRIBUTE|table|octo
+public|PG_CATALOG.PG_ATTRDEF|table|octo
+public|PG_CATALOG.PG_ATTRIBUTE|table|octo
+public|PG_CATALOG.PG_CLASS|table|octo
+public|PG_CATALOG.PG_DATABASE|table|octo
+public|PG_CATALOG.PG_DESCRIPTION|table|octo
+public|PG_CATALOG.PG_ENUM|table|octo
+public|PG_CATALOG.PG_NAMESPACE|table|octo
+public|PG_CATALOG.PG_PROC|table|octo
+public|PG_CATALOG.PG_RANGE|table|octo
+public|PG_CATALOG.PG_ROLES|table|octo
+public|PG_CATALOG.PG_SETTINGS|table|octo
+public|PG_CATALOG.PG_TYPE|table|octo
+public|PG_CATALOG.PG_USER|table|octo
+public|PG_CLASS|table|octo
+public|PG_DATABASE|table|octo
+public|PG_DESCRIPTION|table|octo
+public|PG_ENUM|table|octo
+public|PG_NAMESPACE|table|octo
+public|PG_PROC|table|octo
+public|PG_RANGE|table|octo
+public|PG_ROLES|table|octo
+public|PG_SETTINGS|table|octo
+public|PG_TYPE|table|octo
+public|PG_USER|table|octo
+public|YDBJNLF|table|octo
+public|YDBJNLFACTIVE|table|octo
+public|YDBJNLFCOMPLETE|table|octo
+public|YDBJNLFOPCOUNT|table|octo
+public|YDBJNLFRECTYPE|table|octo
+public|YDBJNLFTYPE1|table|octo
+public|YDBJNLFTYPE10|table|octo
+public|YDBJNLFTYPE11|table|octo
+public|YDBJNLFTYPE12|table|octo
+public|YDBJNLFTYPE13|table|octo
+public|YDBJNLFTYPE14|table|octo
+public|YDBJNLFTYPE2|table|octo
+public|YDBJNLFTYPE3|table|octo
+public|YDBJNLFTYPE4|table|octo
+public|YDBJNLFTYPE5|table|octo
+public|YDBJNLFTYPE6|table|octo
+public|YDBJNLFTYPE7|table|octo
+public|YDBJNLFTYPE8|table|octo
+public|YDBJNLFTYPE9|table|octo
+(51 rows)
+LABEL|JNLFILENAME|DBFILENAME
+default_region_label|$PWD/default.mjl|$PWD/mumps.dat
+(1 row)
+COUNT(*)
+0
+(1 row)
+COUNT(*)
+3
+(1 row)
+LABEL|OPCODE|OCCURS
+default_region_label|EOF|1
+default_region_label|EPOCH|3
+default_region_label|PBLK|4
+default_region_label|PFIN|3
+default_region_label|PINI|3
+default_region_label|SET|27
+(6 rows)
+LABEL|RECTYPE|TBL
+default_region_label|AIMG|TYPE5
+default_region_label|ALIGN|TYPE4
+default_region_label|EOF|TYPE6
+default_region_label|EPOCH|TYPE7
+default_region_label|FKILL|TYPE1
+default_region_label|FSET|TYPE1
+default_region_label|FZKILL|TYPE1
+default_region_label|GKILL|TYPE1
+default_region_label|GSET|TYPE1
+default_region_label|GZKILL|TYPE1
+default_region_label|INCTN|TYPE8
+default_region_label|KILL|TYPE1
+default_region_label|NULL|TYPE9
+default_region_label|PBLK|TYPE5
+default_region_label|PFIN|TYPE4
+default_region_label|PINI|TYPE10
+default_region_label|SET|TYPE1
+default_region_label|TCOM|TYPE11
+default_region_label|TKILL|TYPE1
+default_region_label|TLGTRIG|TYPE3
+default_region_label|TSET|TYPE1
+default_region_label|TSTART|TYPE12
+default_region_label|TZKILL|TYPE1
+default_region_label|TZTRIG|TYPE1
+default_region_label|TZTWORM|TYPE2
+default_region_label|UKILL|TYPE1
+default_region_label|ULGTRIG|TYPE3
+default_region_label|USET|TYPE1
+default_region_label|UZKILL|TYPE1
+default_region_label|UZTRIG|TYPE1
+default_region_label|UZTWORM|TYPE2
+default_region_label|ZKILL|TYPE1
+default_region_label|ZTCOM|TYPE13
+default_region_label|ZTRIG|TYPE1
+default_region_label|ZTSTART|TYPE14
+default_region_label|ZTWORM|TYPE2
+(36 rows)
+OP|GVNAME|GVREF|NODEVAL
+SET|^pastas|^pastas(0)|"Fettucine"
+SET|^pastas|^pastas(1)|"Cavatelli"
+SET|^pastas|^pastas(2)|"Shells"
+SET|^pastas|^pastas(3)|"Linguini"
+SET|^pastas|^pastas(4)|"Spaghetti"
+SET|^pastas|^pastas(5)|"Rotini"
+SET|^pastas|^pastas(6)|"Penne"
+SET|^pastas|^pastas(7)|"Orechiette"
+SET|^pastas|^pastas(8)|"Lasagna"
+SET|^pastas|^pastas(9)|"Pappardelle"
+(10 rows)
+OP
+PINI
+PINI
+PINI
+(3 rows)
+OP
+PFIN
+PFIN
+PFIN
+(3 rows)
+OP
+PBLK
+PBLK
+PBLK
+PBLK
+(4 rows)
+OP
+EOF
+(1 row)

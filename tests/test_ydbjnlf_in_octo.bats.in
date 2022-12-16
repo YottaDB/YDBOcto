@@ -1,0 +1,40 @@
+#################################################################
+#								#
+# Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  $ydb_dist/mupip set -journal="enable,on,f=$test_temp/default.mjl" -reg DEFAULT
+  $ydb_dist/mupip set -journal="enable,on,f=$test_temp/octo.mjl" -reg OCTOREG
+  load_fixture names.sql
+  load_fixture names.zwr
+  load_fixture pastas.sql
+  load_fixture pastas.zwr
+}
+
+@test "TYIO01 : Test %YDBJNLF Octo functionality" {
+	routine_text0=$($ydb_dist/yottadb -run %XCMD 'write $text(+0^%YDBJNLF)')
+	if [ -z "$routine_text0" ]; then
+		skip "^%YDBJNLF is not found in this YottaDB install"
+	fi
+	echo '# Load %YDBJNLF DDL Into Octo' | tee -a output.txt
+	$ydb_dist/yottadb -r OCTODDL^%YDBJNLF | octo
+	echo '# Extract journals' | tee -a output.txt
+	$ydb_dist/yottadb -run %XCMD 'DO INGEST^%YDBJNLF("./default.mjl","default_region_label")'
+	# This currently errors out due to YDB#966
+	# $ydb_dist/yottadb -run %XCMD 'DO INGEST^%YDBJNLF("./octo.mjl","octo_region_label")'
+	echo '# Run queries on journal files' | tee -a output.txt
+	load_fixture TYIO01.sql subtest novv
+	verify_output TYIO01 output.txt
+}

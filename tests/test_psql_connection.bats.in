@@ -502,3 +502,12 @@ OCTO
 	verify_output TPC027 output.txt noinfo nodebug
 }
 
+@test "TPC028 : OCTO928 : Test that when input is just a semicolon no output is seen in the client" {
+	stop_rocto
+	test_port=$(start_rocto $test_port --allowschemachanges)
+	run_psql $test_port TPC028.sql 2>&1 | tee output.txt
+	cp output.txt clean_output.txt
+	sed -i '/\[DEBUG\]\|^DEBUG:/,/^[[:space:]]*$/d' clean_output.txt
+	sed -i '/\[ INFO\]\|^INFO:/d' clean_output.txt
+	[[ ! -s clean_output.txt ]]
+}

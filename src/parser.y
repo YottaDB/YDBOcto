@@ -307,6 +307,7 @@ sql_statement
       YYACCEPT;
     }
   | semicolon_or_eof {
+      parse_context->command_tag = no_data_STATEMENT;
       SQL_STATEMENT(*out, no_data_STATEMENT);
       YYACCEPT;
     }

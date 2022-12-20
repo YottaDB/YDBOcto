@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -382,8 +382,8 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 
 				tmp = (DataRowParm *)malloc(data_row_parms_alloc_len * 2 * sizeof(DataRowParm));
 				memcpy(tmp, data_row_parms, (data_row_parms_alloc_len * sizeof(DataRowParm)));
-				free(data_row_parms);
 				cur_row_parms = tmp + (cur_row_parms - data_row_parms); /* Fix `cur_row_parms` to new base */
+				free(data_row_parms);
 				data_row_parms = tmp;
 				data_row_parms_alloc_len = data_row_parms_alloc_len * 2;
 			}

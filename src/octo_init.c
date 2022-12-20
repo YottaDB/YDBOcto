@@ -773,7 +773,12 @@ int octo_init(int argc, char **argv) {
 			status = 1;
 			break;
 		}
-		free(dir);
+		status = closedir(dir);
+		if (0 != status) {
+			ERROR(ERR_SYSCALL_WITH_ARG, "closedir(config.plan_src_dir)", errno, strerror(errno), config->plan_src_dir);
+			status = 1;
+			break;
+		}
 
 		config->page_size = sysconf(_SC_PAGESIZE);
 		status = populate_global_names();

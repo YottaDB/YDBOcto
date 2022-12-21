@@ -633,6 +633,7 @@ typedef enum RegexType {
 		old_input_index = 0;                                                         \
 		cur_input_index = 0;                                                         \
 		cur_input_more = &no_more;                                                   \
+		leading_spaces = 0;                                                          \
 		eof_hit = EOF_NONE;                                                          \
 	}
 

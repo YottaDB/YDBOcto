@@ -52,6 +52,7 @@ SqlStatement *get_display_relation_query_stmt(ParseContext *parse_context) {
 	int	  save_cur_input_index = cur_input_index;
 	int	  save_old_input_index = old_input_index;
 	char *	  save_input_buffer_combined = input_buffer_combined;
+	int	  save_leading_spaces = leading_spaces;
 	int (*save_cur_input_more)();
 	assert(cur_input_more == &readline_get_more);
 	save_cur_input_more = cur_input_more;
@@ -79,6 +80,7 @@ SqlStatement *get_display_relation_query_stmt(ParseContext *parse_context) {
 	old_input_index = save_old_input_index;
 	input_buffer_combined = save_input_buffer_combined;
 	cur_input_more = save_cur_input_more;
+	leading_spaces = save_leading_spaces;
 	eof_hit = save_eof_hit;
 
 	return result;

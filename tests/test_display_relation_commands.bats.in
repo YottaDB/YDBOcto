@@ -39,3 +39,10 @@ setup() {
 	verify_output TDRC03 output.txt
 }
 
+@test "TDRC04 : OCTO922 : Verify that error highlighting is not broken by \d processing" {
+	# Although the original issue is only possible at Octo prompt, this test
+	# is kept to ensure this behavior is not seen when the same set of queries are
+	# run by using a file
+	load_fixture TDRC04.sql subtest novv
+	verify_output TDRC04 output.txt info nodebug
+}

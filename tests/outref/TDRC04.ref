@@ -1,0 +1,47 @@
+
+-- Error highlighting before \d
+select * from asdf;
+
+-- \d usage
+\d;
+
+-- Error highlighting after \d
+select * from asdf;
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: ASDF
+LINE 1: select * from asdf;
+                      ^^^^
+SCHEMA|NAME|TYPE|OWNER
+public|INFORMATION_SCHEMA.TABLES|table|octo
+public|NAMES|table|octo
+public|NAMESWITHAGES|table|octo
+public|OCTOONEROWTABLE|table|octo
+public|PG_ATTRDEF|table|octo
+public|PG_ATTRIBUTE|table|octo
+public|PG_CATALOG.PG_ATTRDEF|table|octo
+public|PG_CATALOG.PG_ATTRIBUTE|table|octo
+public|PG_CATALOG.PG_CLASS|table|octo
+public|PG_CATALOG.PG_DATABASE|table|octo
+public|PG_CATALOG.PG_DESCRIPTION|table|octo
+public|PG_CATALOG.PG_ENUM|table|octo
+public|PG_CATALOG.PG_NAMESPACE|table|octo
+public|PG_CATALOG.PG_PROC|table|octo
+public|PG_CATALOG.PG_RANGE|table|octo
+public|PG_CATALOG.PG_ROLES|table|octo
+public|PG_CATALOG.PG_SETTINGS|table|octo
+public|PG_CATALOG.PG_TYPE|table|octo
+public|PG_CATALOG.PG_USER|table|octo
+public|PG_CLASS|table|octo
+public|PG_DATABASE|table|octo
+public|PG_DESCRIPTION|table|octo
+public|PG_ENUM|table|octo
+public|PG_NAMESPACE|table|octo
+public|PG_PROC|table|octo
+public|PG_RANGE|table|octo
+public|PG_ROLES|table|octo
+public|PG_SETTINGS|table|octo
+public|PG_TYPE|table|octo
+public|PG_USER|table|octo
+(30 rows)
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: ASDF
+LINE 1: select * from asdf;
+                      ^^^^

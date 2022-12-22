@@ -186,3 +186,8 @@ teardown() {
 	verify_output TUT012 output.txt
 }
 
+@test "TUT013 : OCTO579 : Test ERR_CHECK_CONSTRAINT_VIOLATION is not incorrectly issued by UPDATE" {
+	load_fixture TUT013.sql subtest novv
+	verify_output TUT013 output.txt
+}
+

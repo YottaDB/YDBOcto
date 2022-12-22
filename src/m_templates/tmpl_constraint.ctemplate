@@ -221,8 +221,12 @@ TEMPLATE(tmpl_constraint, PhysicalPlan *pplan, LogicalPlan *lp_constraint, SqlTa
 					if (0 == is_lvn_set) {
 						/* This column has not yet been initialized. Do that now. */
 						TMPL(tmpl_print_dots, dot_count);
-						%{}SET {{ PP_COL }}({{ cur_column->column_number|%d }})={}%
+						%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
 						TMPL(tmpl_update_column_reference, pplan, cur_column, dot_count);
+						%{}`n{{ PLAN_LINE_START }}{}%
+						TMPL(tmpl_print_dots, dot_count);
+						%{}SET {{ PP_COL }}({{ cur_column->column_number|%d }}){}%
+						%{}={{ PP_YDB_OCTO_EXPR }}{}%
 						%{}`n{{ PLAN_LINE_START }}{}%
 						/* Now that we generated M code to set this lvn, record this fact for
 						 * later use.

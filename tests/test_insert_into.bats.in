@@ -114,3 +114,8 @@ teardown() {
 	grep -E -B 1 "SELECT|%ydbAIMD.*" _ydboctoP*.m >> output.txt
 	verify_output TII09 output.txt
 }
+
+@test "TII10 : OCTO502 : Test that INSERT INTO removes unnecessary trailing zeros in NUMERIC(PRECISION,SCALE)" {
+	load_fixture TII10.sql subtest novv
+	verify_output TII10 output.txt
+}

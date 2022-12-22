@@ -964,10 +964,11 @@ Cast2NUMERICWithPrecision(number,precision,scale)
 	; "number" is the input number that needs to be type cast.
 	; "precision" is the maximum precision (i.e. total count of significant digits on either side of the decimal point)
 	;	of the target number.
-	; "scale" is the maximum scale (i.e. count of decimal digits to the right sight of the decimal point) of the target number.
+	; "scale" is the maximum scale (i.e. count of decimal digits to the right side of the decimal point) of the target number.
 	; e.g. 15.54::NUMERIC(3,1) should return '15.5'
 	; e.g. 15.54::NUMERIC(3,0) should return '16'
 	; e.g. 15.54::NUMERIC(4,1) should return '15.5'
+	; e.g. 0::NUMERIC(20,2) should return '0', not '0.00'
 	NEW tmpnumber,tmpprecision
 	SET tmpprecision=precision
 	SET:'$DATA(scale) scale=0
@@ -982,7 +983,7 @@ Cast2NUMERICWithPrecision(number,precision,scale)
 	.	SET %ydboctoerror("NUMERICOVERFLOW",2)=scale		; pass parameter to `src/ydb_error_check.c`
 	.	SET %ydboctoerror("NUMERICOVERFLOW",3)=tmpprecision	; pass parameter to `src/ydb_error_check.c`
 	.	ZMESSAGE %ydboctoerror("NUMERICOVERFLOW")
-	QUIT number
+	QUIT $$ForceNumeric(number)	; this is necessary to remove trailing 0s. e.g. to convert "2.00" to "2"
 
 Cast2NUMERICWithoutPrecision(number)
 	QUIT $SELECT($ZYISSQLNULL(number):$ZYSQLNULL,1:$$ForceNumeric(number))

@@ -32,8 +32,8 @@ octo770	;
 	for ntables=1:1:10 do
 	. set ncols=1+$random(maxcols)
 	. do create(ncols)
-	. new j
-	. for j=1:1:10 do command
+	. new querynum
+	. for querynum=1:1:10 do command
 	. do select(ncols);
 	. write !
 	do drop
@@ -104,15 +104,44 @@ arithexpr(ncols)
 	; The "update" command above results in a ERR_DUPLICATE_KEY_VALUE error in Octo but no error in Postgres.
 	; This is due to Postgres updating rows in the order 1, 4, 3 (the order in which the rows were inserted)
 	; whereas Octo does it in the order 1, 3, 4 (the order in which rows are stored in the global variable tree).
-	; To avoid such rare failures, we add "maxval" to the generated literal.
+	; To avoid such rare failures, we added "maxval" to the generated literal.
 	;
 	; That is, the "update" command changed
 	;	From: update tmp set id1 = id1+1;
 	;	To  : update tmp set id1 = id1+(1+8);
 	;
+	; i.e. the M code was the following.
+	;
+	; set ret=ret_($$literal+maxval)
+	;
+	; But even with this change, we got a rare failure where Postgres issued a ERR_DUPLICATE_KEY_VALUE error but Octo did not.
+	; The following were the set of commands that caused this.
+	;
+	; drop table if exists tmp;
+	; create table tmp (id1 integer, id2 integer, primary key (id1), unique (id1));
+	; insert into tmp values (2, 2);
+	; insert into tmp values (1, 7);
+	; select * from tmp order by id1, id2;
+	; insert into tmp values (4, 5);
+	; insert into tmp values (6, 3);
+	; update tmp set id1 = id2+11, id2 = id2+9;
+	; insert into tmp values (1, 7);
+	; delete from tmp where (id2 in (4, 6)) and (id1 in (3, 2, 1, 2));
+	; select * from tmp;
+	; update tmp set id1 = id2-10 where (id2 > 2) and (id2 != 3) or (id1 in (1, 4));
+	;
+	; The reason for the last "update" command to issue the error in Postgres is that the "13|11" row was BEFORE the
+	; "1|7" row in Postgres whereas it was AFTER in Octo. And so in Postgres the "id2-10" calculation for the
+	; "13|11" row resulted in an "id1" value of "1" which collided with the id1 in the "1|7" later row.
+	;
+	; To avoid such issues, we do the "querynum*maxval" calculation below.
+	;
 	; This is hoped to make it almost impossible to see such rare failures.
 	;
-	set ret=ret_($$literal+maxval)
+	; Note: If rare failures still happen, we might need to disable the random "-" sign and only keep the "+" sign in the
+	;       first uncommented M line above.
+	;
+	set ret=ret_($$literal+(querynum*maxval))
 	quit ret
 
 delete(ncols);

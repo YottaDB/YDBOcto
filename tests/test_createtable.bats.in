@@ -692,3 +692,9 @@ OCTO
 	load_fixture TC053.sql subtest novv
 	verify_output TC053 output.txt
 }
+
+@test "TC054 : OCTO931 : Test no assert failure in CREATE TABLE when multi-column UNIQUE constraint and READONLY is used" {
+	load_fixture TC054.sql subtest novv
+	verify_output TC054 output.txt
+}
+

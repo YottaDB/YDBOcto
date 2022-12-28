@@ -86,7 +86,7 @@
 
 #define ADD_KEY_NUM_KEYWORD_TO_COLUMN(COLUMN, NUM)                                                  \
 	{                                                                                           \
-                                                                                                    \
+		assert(NULL != COLUMN->columnName); /* should be ensured by caller */               \
 		/* Construct the key num keyword */                                                 \
 		SqlStatement *stmt;                                                                 \
 		SQL_STATEMENT(stmt, keyword_STATEMENT);                                             \
@@ -1328,10 +1328,14 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			cur_column = start_column;
 			i = 0;
 			do {
-				ADD_KEY_NUM_KEYWORD_TO_COLUMN(cur_column, i);
-				// Walk to next key and increment index
+				/* If the current column exist only to capture a table-level constraint, do not include
+				 * it in the list of key columns for this table.
+				 */
+				if (NULL != cur_column->columnName) {
+					ADD_KEY_NUM_KEYWORD_TO_COLUMN(cur_column, i);
+					i++;
+				}
 				cur_column = cur_column->next;
-				i++;
 			} while (cur_column != start_column);
 			/* Get the new key columns */
 			max_key = get_key_columns(table, key_columns);

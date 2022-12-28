@@ -35,7 +35,8 @@ cd bats-core
 popd
 
 # Install en-US locale because Octo tests require it
-yum install -y glibc-langpack-en
+# Install diff as it's also required by Octo
+yum install -y glibc-langpack-en diffutils
 
 echo "Current directory is: $PWD"
 echo "# Compiling Octo"

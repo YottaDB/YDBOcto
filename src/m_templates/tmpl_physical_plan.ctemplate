@@ -277,7 +277,20 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 		return;
 	}
 
-	// Not a cross-reference plan
+	/* Not a cross-reference plan. This must be a LP_TABLE_VALUE or LP_SELECT_QUERY plan. Handle both cases separately. */
+	/* New variables that are used in almost every plan. This is needed since deferred plans can be called from
+	 * within another plan (see "XECUTE" in "GetScalarOrArray" entryref in "src/aux/_ydboctoplanhelpers.m")
+	 * and we do not want say "%ydboctoexpr" variable in the deferred plan to affect the variable of the same
+	 * name (but holding a completely different value) in the caller plan.
+	 */
+	%{}NEW {{ PP_YDB_OCTO_Z }},{{ PP_YDB_OCTO_EXPR }}{}%
+	if (IS_GROUP_BY_PLAN(pplan)) {
+		/* If this physical plan uses GROUP BY/HAVING/AGGREGATE FUNCTIONS, make sure to NEW PP_YDB_OCTO_G
+		 * to avoid altering a variable of the same name in a caller physical plan corresponding to an
+		 * outer query (#814)
+		 */
+		%{},{{ PP_YDB_OCTO_G }}{}%
+	}
 	if (LP_TABLE_VALUE == pplan->lp_select_query->type) {
 		LogicalPlan	*lp_table_data, *lp_row_value;
 
@@ -287,7 +300,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 		assert(!pplan->emit_duplication_check);
 		assert(!pplan->distinct_values);
 		assert(!pplan->distinct_values);
-		%{}KILL {}%
+		%{} KILL {}%
 		TMPL(tmpl_key, pplan->outputKey);
 		GET_LP(lp_table_data, pplan->lp_select_query, 0, LP_TABLE_DATA);
 		GET_LP(lp_row_value, lp_table_data, 1, LP_ROW_VALUE);
@@ -323,19 +336,6 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 		} while (NULL != lp_row_value);
 	} else {
 		assert(LP_SELECT_QUERY == pplan->lp_select_query->type);
-		/* New variables that are used in almost every plan. This is needed since deferred plans can be called from
-		 * within another plan (see "XECUTE" in "GetScalarOrArray" entryref in "src/aux/_ydboctoplanhelpers.m")
-		 * and we do not want say "%ydboctoexpr" variable in the deferred plan to affect the variable of the same
-		 * name (but holding a completely different value) in the caller plan.
-		 */
-		%{}NEW {{ PP_YDB_OCTO_Z }},{{ PP_YDB_OCTO_EXPR }}{}%
-		if (IS_GROUP_BY_PLAN(pplan)) {
-			/* If this physical plan uses GROUP BY/HAVING/AGGREGATE FUNCTIONS, make sure to NEW PP_YDB_OCTO_G
-			 * to avoid altering a variable of the same name in a caller physical plan corresponding to an
-			 * outer query (#814)
-			 */
-			%{},{{ PP_YDB_OCTO_G }}{}%
-		}
 		limit_keyword = get_keyword_from_keywords(pplan->keywords, OPTIONAL_LIMIT);
 		if ((NULL != limit_keyword) && (NULL == pplan->dnf_prev)) {
 			%{} SET {{ PP_YDB_OCTO_ZLIMIT }}({{ pplan->outputKey->unique_id|%d }})=0{}%

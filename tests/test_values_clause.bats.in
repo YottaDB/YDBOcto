@@ -56,3 +56,7 @@ setup() {
 	load_fixture TVC04_errors.sql subtest novv
 	verify_output TVC04_errors output.txt
 }
+
+@test "TVC05 : OCTO932 : Test correct results when VALUES clause is used in an expression (in WHERE clause etc.)" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TVC05.sql
+}

@@ -32,8 +32,8 @@ else
 	set tipcommit = "HEAD"
 endif
 foreach macro ("FMT_BINARY_DEFINITION" "FMT_PLAN_DEFINITION")
-	set fmt_mst = `git diff $basecommit..master | grep '^+#define FMT_BINARY_DEFINITION' | awk '{print $3}'`
-	set fmt_brnch = `git diff $basecommit..$tipcommit | grep '^+#define FMT_BINARY_DEFINITION' | awk '{print $3}'`
+	set fmt_mst = `git diff $basecommit..master | grep '^+#define '$macro | awk '{print $3}'`
+	set fmt_brnch = `git diff $basecommit..$tipcommit | grep '^+#define '$macro | awk '{print $3}'`
 	if (("" != "$fmt_brnch") && ("" != "$fmt_mst") && (0 != `expr "$fmt_mst" == "$fmt_brnch"`)) then
 		# This is a case where the macro $macro is being bumped up in the current branch and was bumped up
 		# in the master too concurrently. And both bumps were to the exact same value. In this case,

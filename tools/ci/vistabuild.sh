@@ -13,8 +13,11 @@
 set -e
 
 cd ..
-git clone https://github.com/WorldVistA/docker-vista.git
+if [ ! -d docker-vista ]; then
+	git clone https://github.com/WorldVistA/docker-vista.git
+fi
 cd docker-vista
+git pull
 docker ps -a
 
 # command line args:

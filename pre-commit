@@ -2,7 +2,7 @@
 #
 #################################################################
 #                                                               #
-# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.  #
+# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.  #
 # All rights reserved.                                          #
 #                                                               #
 #       This source code contains the intellectual property     #
@@ -13,15 +13,38 @@
 #################################################################
 #
 # -----------------------------------------------------------------
-# Pre-commit hook that
-#	1) Enforces YottaDB Copyright in changed modules
-#
+# Pre-commit hook
+# -----------------------------------------------------------------
 cd `git rev-parse --show-toplevel`
 set filelist = `git diff --name-only --cached HEAD`
 set fixlist = ""
 set curyear = `date +%Y`
 @ exitstatus = 0
 
+# ------------------------------------------------
+# 1) Check that pre-rebase hook is set up properly
+# ------------------------------------------------
+# The fact that this pre-commit hook got invoked implies it is properly setup in the current repository.
+# Use this opportunity to check that the pre-rebase hook is also setup the same way. If not issue an error.
+set rebase_hook_path = `readlink -f .git/hooks/pre-rebase`
+if ("" != "$rebase_hook_path") then
+	set rebase_hook_actual = `realpath $rebase_hook_path`
+else
+	set rebase_hook_actual = "$rebase_hook_path"
+endif
+set rebase_hook_expect = `realpath ./pre-rebase`
+if ($rebase_hook_expect != $rebase_hook_actual) then
+	echo "  --> Hook $0 returned non-zero status"
+	echo "  --> pre-rebase hook is not properly setup."
+	echo "  --> Expecting [$PWD/.git/hooks/pre-rebase] to point to [../../pre-rebase]. Actual value is [$rebase_hook_actual]."
+	echo "  --> Run [ln -s ../../pre-rebase $PWD/.git/hooks/pre-rebase] to set it up first."
+	@ exitstatus = 1
+	exit $exitstatus
+endif
+
+# -----------------------------------------------------------------
+# 2) Enforce YottaDB Copyright in changed modules
+# -----------------------------------------------------------------
 foreach file ($filelist)
 	tools/ci/needs_copyright.sh $file
 	if ($status != 0) then
@@ -57,7 +80,7 @@ if ("" != "$fixlist") then
 endif
 
 # -----------------------------------------------------------------
-# 2) Removes trailing white space
+# 3) Remove trailing white space
 # -----------------------------------------------------------------
 set nowhitespace_extensions = "ref"	# List of extensions that cannot have trailing white space removed.
 	# .ref -> reference files used by the test cases (e.g. tests/outref/TUF001.ref).
@@ -101,39 +124,38 @@ foreach file ($filelist)
 end
 
 # ---------------------------------------------------------------------------
-# 3) Runs clang-format on all files and make sure there were no differences.
+# 4) Runs clang-format on all files and make sure there were no differences.
 # ---------------------------------------------------------------------------
 # We require at least clang-format-11
 set CLANG_FORMAT="`tools/ci/find-llvm-tool.sh clang-format 11`"
 if ($status) then
 	echo "warning: missing a recent version of clang-format, not running format checks"
 	echo "note: this could happen either if clang-format is not installed or if it's not a recent enough version"
-	exit $exitstatus
+else
+	foreach file ($filelist)
+		if (! -e $file) then
+			continue
+		endif
+		set extension = $file:e
+		set fixlist = ""
+		if ( "c" == "$extension" || "h" == "$extension" ) then
+			"$CLANG_FORMAT" -i "$file"
+			# Check if there are unstaged changes (as opposed to staged and uncommitted)
+			git diff-files --exit-code --name-only -- "$file" >/dev/null
+			if ($status) then
+				git add "$file"
+				set fixlist = "$fixlist $file"
+			endif
+		endif
+		if ("" != "$fixlist") then
+			echo "note: automatically commiting clang-format changes for the following files:"
+			echo "$fixlist"
+		endif
+	end
 endif
 
-foreach file ($filelist)
-	if (! -e $file) then
-		continue
-	endif
-	set extension = $file:e
-	set fixlist = ""
-	if ( "c" == "$extension" || "h" == "$extension" ) then
-		"$CLANG_FORMAT" -i "$file"
-		# Check if there are unstaged changes (as opposed to staged and uncommitted)
-		git diff-files --exit-code --name-only -- "$file" >/dev/null
-		if ($status) then
-			git add "$file"
-			set fixlist = "$fixlist $file"
-		endif
-	endif
-	if ("" != "$fixlist") then
-		echo "note: automatically commiting clang-format changes for the following files:"
-		echo "$fixlist"
-	endif
-end
-
 # ---------------------------------------------------------------------------
-# 4) Verify all error mnemonics and error message text included in errors.rst
+# 5) Verify all error mnemonics and error message text included in errors.rst
 # ---------------------------------------------------------------------------
 
 tools/ci/doc_error_update.sh
@@ -144,7 +166,7 @@ if ($status) then
 endif
 
 # -----------------------------------------------------------
-# 5) Verify all code base related assertions are still valid
+# 6) Verify all code base related assertions are still valid
 # -----------------------------------------------------------
 
 tools/ci/check_code_base_assertions.sh
@@ -155,7 +177,7 @@ if ($status) then
 endif
 
 # -----------------------------------------------------------
-# 6) Verify no UTF characters are present in source code
+# 7) Verify no UTF characters are present in source code
 # -----------------------------------------------------------
 
 foreach file ($filelist)

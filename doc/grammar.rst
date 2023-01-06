@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2018-2022 YottaDB LLC and/or its subsidiaries.  #
+.. # Copyright (c) 2018-2023 YottaDB LLC and/or its subsidiaries.  #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -799,7 +799,7 @@ GROUP BY
      FROM Employee
      WHERE ID > 100
      GROUP BY LastName;
-     
+
 ++++++++++
 HAVING
 ++++++++++
@@ -900,7 +900,7 @@ INSERT
   .. code-block:: SQL
 
      INSERT INTO Employee (ID , FirstName, LastName) VALUES (220, 'Jon', 'Doe'), (383, 'Another', 'Name');
-   
+
 --------------
 UPDATE
 --------------
@@ -916,7 +916,7 @@ UPDATE
   .. code-block:: SQL
 
      UPDATE Employee SET FirstName = 'John' WHERE ID = 220;
-   
+
 ------------
 DELETE
 ------------
@@ -1279,7 +1279,9 @@ CURRENT_USER
      CURRENT_USER
      CURRENT_USER()
 
-  The built-in CURRENT_USER function returns the username of the current ROcto user. Does not work in Octo, since Octo does not implement SQL user authentication and does not distinguish between users.
+  The built-in CURRENT_USER function returns the username of the current Rocto user. Returns an empty string in Octo, since Octo does not implement SQL user authentication and does not distinguish between users.
+
+  Note that :code:`CURRENT_USER()` is a synonym for :code:`USER()`.
 
 +++
 DAY
@@ -1583,6 +1585,19 @@ TRUNC/TRUNCATE
   If the precision is zero, this behaves the same as the mathematical :code:`floor` function.
   If the precision is less than zero, all fractional digits will be truncated and the number will be truncated to :code:`10^precision`.
   The precision must be no less than -43.
+
+++++
+USER
+++++
+
+  .. code-block:: SQL
+
+     USER
+     USER()
+
+  The built-in USER function returns the username of the current Rocto user. Returns an empty string in Octo, since Octo does not implement SQL user authentication and does not distinguish between users.
+
+  Note that :code:`USER()` is a synonym for :code:`CURRENT_USER()`.
 
 --------------
 Constructors

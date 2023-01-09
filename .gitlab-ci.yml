@@ -13,7 +13,8 @@
 stages:
   - build
   - docs
-  - docker
+  - docker-create
+  - docker-manifest
 
 variables:
   MYSQL_ROOT_PASSWORD: ydbrocks
@@ -205,29 +206,42 @@ test-vista:
   script:
     - ./tools/ci/vistatest.sh
 
-docker-octo-amd64:
+############################################################
+
+.docker-octo-common:
   image: docker:latest
-  stage: docker
+  stage: docker-create
   before_script:
     - ""
   services:
     - docker:dind
-  dependencies:
-    - make-ubuntu
   script:
-    - docker build --pull -t yottadb/octo:latest .
+    - docker build --pull -t yottadb/${REPO}:${DOCKERHUBTAG} .
     # Suppress Docker warning advising against using the --password flag
     - echo -n $HUB_PASSWORD | docker login -u $HUB_USERNAME --password-stdin
-    - docker push yottadb/octo:latest
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "master" && $CI_PROJECT_PATH == "YottaDB/DBMS/YDBOcto"'
+    - docker push yottadb/${REPO}:${DOCKERHUBTAG}
+  only:
+    - master@YottaDB/DBMS/YDBOcto
+
+docker-octo-amd64:
+  extends: .docker-octo-common
+  variables:
+    REPO: octo
+    DOCKERHUBTAG: latest-amd64
   tags:
     - amd64
-#TODO YDB#931: Add docker-octo-aarch64 when aarch64 runner is online
 
-docker-vista-amd64:
+docker-octo-aarch64:
+  extends: .docker-octo-common
+  variables:
+    REPO: octo
+    DOCKERHUBTAG: latest-aarch64
+  tags:
+    - aarch64
+
+.docker-vista-common:
   image: docker:latest
-  stage: docker
+  stage: docker-create
   before_script:
     - ""
   services:
@@ -235,13 +249,56 @@ docker-vista-amd64:
   script:
     - apk add git
     - ./tools/ci/vistabuild.sh
-    - docker login -u $HUB_USERNAME -p $HUB_PASSWORD
-    - docker push yottadb/octo-vehu:latest-master
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "master" && $CI_PROJECT_PATH == "YottaDB/DBMS/YDBOcto"'
+    - docker tag yottadb/octo-vehu:latest-master yottadb/${REPO}:${DOCKERHUBTAG}
+    - docker rmi yottadb/octo-vehu:latest-master
+    - echo -n $HUB_PASSWORD | docker login -u $HUB_USERNAME --password-stdin
+    - docker push yottadb/${REPO}:${DOCKERHUBTAG}
+  only:
+    - master@YottaDB/DBMS/YDBOcto
+
+docker-vista-amd64:
+  extends: .docker-vista-common
+  variables:
+    REPO: octo-vehu
+    DOCKERHUBTAG: latest-master-amd64
   tags:
     - amd64
-#TODO YDB#931: Add docker-octo-aarch64 when aarch64 runner is online
+
+docker-vista-aarch64:
+  extends: .docker-vista-common
+  variables:
+    REPO: octo-vehu
+    DOCKERHUBTAG: latest-master-aarch64
+  tags:
+    - aarch64
+
+.docker-manifest-common:
+  stage: docker-manifest
+  services:
+    - docker:dind
+  script:
+    - echo -n $HUB_PASSWORD | docker login -u $HUB_USERNAME --password-stdin
+    - docker pull yottadb/${REPO}:${DOCKERHUBTAG}-amd64
+    - docker pull yottadb/${REPO}:${DOCKERHUBTAG}-aarch64
+    - docker manifest create yottadb/${REPO}:${DOCKERHUBTAG} yottadb/${REPO}:${DOCKERHUBTAG}-amd64 yottadb/${REPO}:${DOCKERHUBTAG}-aarch64
+    - docker manifest inspect yottadb/${REPO}:${DOCKERHUBTAG}
+    - docker manifest push yottadb/${REPO}:${DOCKERHUBTAG}
+  tags:
+    - amd64
+  only:
+    - master@YottaDB/DBMS/YDBOcto
+
+docker-manifest-octo:
+  extends: .docker-manifest-common
+  variables:
+    REPO: octo
+    DOCKERHUBTAG: latest
+
+docker-manifest-vista:
+  extends: .docker-manifest-common
+  variables:
+    REPO: octo-vehu
+    DOCKERHUBTAG: latest-master
 
 pages:
   stage: docs

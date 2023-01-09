@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -216,4 +216,14 @@ setup() {
 @test "TR21 : OCTO832 : Test that readline_get_more() succeeds without ERR_SYSCALL in the case of EINTR" {
 	$ydb_dist/yottadb -run octo832 &> output.txt
 	verify_output TR21 output.txt
+}
+
+@test "TR22 : OCTO936 : Test no garbage text from previous query in error message at OCTO> prompt after Ctrl-D" {
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/TR22.exp > expect.out) &> expect.dbg
+  # Verify Ctrl-D once executes the invalid command/query and prints the appropriate error message
+  # Also verify that Ctrl-D twice quits the Octo process.
+  verify_output TR22-1 expect.out noinfo nodebug noexpect stripreturns
+  # Verify that history does have the first and second commands with a semi-colon substituted at the end of the
+  # second command even though the user did not specify it.
+  verify_output TR22-2 octo_history
 }

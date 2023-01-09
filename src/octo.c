@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -140,6 +140,16 @@ int main(int argc, char **argv) {
 						input_buffer_combined[cur_input_index] = ';';
 						if ((cur_input_index + 1) < cur_input_max) {
 							input_buffer_combined[++cur_input_index] = '\n';
+							if ((cur_input_index + 1) < cur_input_max) {
+								/* It is possible "input_buffer_combined" contains
+								 * non-null content from previous queries at "cur_input_index"
+								 * due to adding '\n' at the end (which would have overwritten
+								 * a '\0' at the end). Therefore add the '\0' back as otherwise
+								 * one would see some prior query content in error messages
+								 * that could be confusing (YDBOcto#936).
+								 */
+								input_buffer_combined[cur_input_index + 1] = '\0';
+							}
 						}
 					}
 				}

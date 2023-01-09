@@ -1,0 +1,58 @@
+#!/usr/bin/expect
+#################################################################
+#								#
+# Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+# Note: This script is modeled on "tests/fixtures/test_readline_query_semicolon_ctrld.exp".
+# The latter tests a valid query that is not terminated by a semicolon and followed by a Ctrl-D.
+# This script tests an invalid query that is not terminated by a semicolon and followed by a Ctrl-D.
+
+set timeout 1
+spawn /bin/bash
+
+# Note "expect_after" needs to be done AFTER spawn or else it won't take effect
+expect_after {
+	timeout { timeout_procedure }
+}
+
+proc timeout_procedure { } {
+	puts "timeout occurred"
+	exit -1
+}
+
+expect -re "\[#\$] "
+# Enable long lines to prevent wrapping
+send -- "stty cols 4096\r"
+expect -re "\[#\$] "
+
+# Start octo
+send -- "octo\r"
+expect "OCTO> "
+
+send -- "select * from names;\r"
+expect "OCTO> "
+
+# Single line invalid query w/o semicolon
+send -- "create\r"
+expect "OCTO> "
+
+# Press CTRL-D once.
+send -- "\x04"
+expect -exact "LINE 1:1: create\r
+           \r
+syntax error, unexpected ENDOFFILE, expecting FUNCTION or TABLE\r
+\r
+OCTO> "
+
+# Press CTRL-D again. Should exit OCTO
+send -- "\x04"
+expect -re "\[#\$] "
+

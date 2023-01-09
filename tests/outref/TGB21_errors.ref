@@ -2245,9 +2245,9 @@ LINE 508:2: ...mes GROUP BY (select firstname from names limit 1); -- Octo inv..
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
 LINE 509:2: ...mes group by (select firstname from names limit 1),lastname hav...
                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: E
 LINE 510:2: e
             ^
+syntax error, unexpected IDENTIFIER_ALONE
 [ERROR]: ERR_GROUP_BY_SUB_QUERY: Subqueries are not supported in GROUP BY
 LINE 512:2: SELECT (select firstname from names limit 1) FROM names GROUP B...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

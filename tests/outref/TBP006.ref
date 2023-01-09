@@ -1,0 +1,41 @@
+
+-- TBP006 : OCTO935 : Test no SIG-11 and/or incorrect ERR_UNKNOWN_TABLE error on an invalid SQL command
+
+-- Queries that start with an invalid table name ("tablename" below) used to previously issue a ERR_UNKNOWN_TABLE error
+-- They are now expected to issue a "syntax error" highlighting the first token (i.e. invalid command).
+tablename;
+tablename aliasname;
+
+-- Queries that start with a valid table name ("names" below) used to previously issue an "unexpected SEMICOLON" error.
+-- They are now expected to issue a "syntax error" highlighting the first token (i.e. invalid command).
+names;
+names aliasname;
+
+
+-- The below queries used to previously SIG-11.
+-- They are now expected to issue a "syntax error" highlighting the first token (i.e. invalid command).
+IDENTIFIER_ALONE;
+IDENTIFIER_BACK_TICK;
+IDENTIFIER_PERIOD_IDENTIFIER;
+
+LINE 3:1: tablename;
+          ^^^^^^^^^
+syntax error, unexpected IDENTIFIER_ALONE
+LINE 4:1: tablename aliasname;
+          ^^^^^^^^^
+syntax error, unexpected IDENTIFIER_ALONE
+LINE 6:1: names;
+          ^^^^^
+syntax error, unexpected IDENTIFIER_ALONE
+LINE 7:1: names aliasname;
+          ^^^^^
+syntax error, unexpected IDENTIFIER_ALONE
+LINE 10:1: IDENTIFIER_ALONE;
+           ^^^^^^^^^^^^^^^^
+syntax error, unexpected IDENTIFIER_ALONE
+LINE 11:1: IDENTIFIER_BACK_TICK;
+           ^^^^^^^^^^^^^^^^^^^^
+syntax error, unexpected IDENTIFIER_BACK_TICK
+LINE 12:1: IDENTIFIER_PERIOD_IDENTIFIER;
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+syntax error, unexpected IDENTIFIER_PERIOD_IDENTIFIER

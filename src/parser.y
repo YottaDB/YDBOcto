@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -1176,7 +1176,6 @@ subquery
 
 query_expression
   : non_join_query_expression { $$ = $non_join_query_expression; }
-  | joined_table { $$ = $joined_table; }
   ;
 
 non_join_query_expression
@@ -1222,7 +1221,6 @@ column_name_list_tail
 
 query_term
   : non_join_query_term { $$ = $non_join_query_term; }
-  | joined_table { $$ = $joined_table; }
   ;
 
 non_join_query_term
@@ -1319,7 +1317,6 @@ explicit_table
 
 query_primary
   : non_join_query_primary { $$ = $non_join_query_primary;}
-  | joined_table { $$ = $joined_table;}
   ;
 
 sql_schema_statement

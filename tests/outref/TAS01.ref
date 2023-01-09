@@ -5,4 +5,4 @@ SELECT ARRAY();
 
 LINE 3:1: SELECT ARRAY();
                        ^
-syntax error, unexpected RIGHT_PAREN
+syntax error, unexpected RIGHT_PAREN, expecting SELECT or TABLE or VALUES or LEFT_PAREN

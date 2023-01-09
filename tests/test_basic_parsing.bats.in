@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -54,3 +54,9 @@ setup() {
 	run_octo_allow_error TBP005.sql output.txt --dry-run
 	verify_output TBP005 output.txt
 }
+
+@test "TBP006 : OCTO935 : Test no SIG-11 and/or incorrect ERR_UNKNOWN_TABLE error on an invalid SQL command" {
+	load_fixture TBP006.sql subtest novv
+	verify_output TBP006 output.txt
+}
+

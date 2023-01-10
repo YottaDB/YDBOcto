@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -35,7 +35,7 @@ static void test_valid_input_all_fields_populated(void **state) {
 	char *	 row = "1|jon|super|inh|crer|cred|canl|repl|bypassrl|conn|password|valid";
 	uint32_t buf_len = BUFFER_SIZE, row_len = 0, pw_len = 0;
 
-	row_len = strnlen(row, BUFFER_SIZE);
+	row_len = strlen(row);
 	uint32_t value_len = get_user_column_value(buffer, buf_len, row, row_len, UserColumn_ROLPASSWORD);
 	pw_len = strlen("password");
 	assert_int_equal(value_len, pw_len);
@@ -47,7 +47,7 @@ static void test_valid_input_one_field_populated(void **state) {
 	char *	 row = "||||||||||password|";
 	uint32_t buf_len = BUFFER_SIZE, row_len = 0, pw_len = 0;
 
-	row_len = strnlen(row, BUFFER_SIZE);
+	row_len = strlen(row);
 	uint32_t value_len = get_user_column_value(buffer, buf_len, row, row_len, UserColumn_ROLPASSWORD);
 	pw_len = strlen("password");
 	assert_int_equal(value_len, pw_len);
@@ -59,7 +59,7 @@ static void test_valid_input_buffer_too_small(void **state) {
 	char *	 row = "1|jon|super|inh|crer|cred|canl|repl|bypassrl|conn|password|valid";
 	uint32_t buf_len = 5, row_len = 0, pw_len = 0;
 
-	row_len = strnlen(row, BUFFER_SIZE);
+	row_len = strlen(row);
 	uint32_t value_len = get_user_column_value(buffer, buf_len, row, row_len, UserColumn_ROLPASSWORD);
 	assert_int_equal(value_len, 0);
 }
@@ -68,7 +68,7 @@ static void test_invalid_input_null_pointers(void **state) {
 	char	 buffer[BUFFER_SIZE + 1]; // Null terminator
 	char *	 row = "||||||||||password|";
 	uint32_t buf_len = BUFFER_SIZE, row_len = 0, pw_len = 0;
-	row_len = strnlen(row, BUFFER_SIZE);
+	row_len = strlen(row);
 
 	// Test for NULL buffer
 	uint32_t value_len = get_user_column_value(NULL, buf_len, row, row_len, UserColumn_ROLPASSWORD);
@@ -83,7 +83,7 @@ static void test_invalid_input_enum_too_large(void **state) {
 	char	 buffer[BUFFER_SIZE + 1]; // Null terminator
 	char *	 row = "||||||||||password|";
 	uint32_t buf_len = BUFFER_SIZE, row_len = 0, pw_len = 0;
-	row_len = strnlen(row, BUFFER_SIZE);
+	row_len = strlen(row);
 
 	uint32_t value_len = get_user_column_value(buffer, buf_len, row, row_len, 500);
 	assert_int_equal(value_len, 0);
@@ -93,7 +93,7 @@ static void test_invalid_input_zero_lengths(void **state) {
 	char	 buffer[BUFFER_SIZE + 1]; // Null terminator
 	char *	 row = "||||||||||password|";
 	uint32_t buf_len = BUFFER_SIZE, row_len = 0, pw_len = 0;
-	row_len = strnlen(row, BUFFER_SIZE);
+	row_len = strlen(row);
 
 	uint32_t value_len = get_user_column_value(buffer, 0, row, row_len, UserColumn_ROLPASSWORD);
 	assert_int_equal(value_len, 0);

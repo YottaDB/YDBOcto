@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -225,7 +225,6 @@ int main(int argc, char **argv) {
 				ERROR(ERR_SYSCALL, "fork()", errno, strerror(errno));
 				break;
 			}
-			INFO(INFO_ROCTO_SERVER_FORKED, child_id);
 			// Create pid buffer
 			snprintf(pid_str, INT32_TO_STRING_MAX, "%u", child_id);
 			YDB_STRING_TO_BUFFER(pid_str, pid_buffer);
@@ -273,6 +272,8 @@ int main(int argc, char **argv) {
 
 		// Reset process_id to point to the child (would be pointing to the parent pid till now)
 		config->process_id = getpid();
+
+		LOG_LOCAL_ONLY(INFO, INFO_ROCTO_SERVER_FORKED, config->process_id); // Record rocto server process
 
 		// First we read the startup message, which has a special format
 		// 2x32-bit ints

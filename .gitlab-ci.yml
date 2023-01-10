@@ -274,8 +274,6 @@ pages:
       - public
     expire_in: 1 month
     when: always
-  tags:
-    - amd64
 
 docs.yottadb.net:
   stage: docs

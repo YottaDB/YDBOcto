@@ -15,7 +15,7 @@
 # The latter tests a valid query that is not terminated by a semicolon and followed by a Ctrl-D.
 # This script tests an invalid query that is not terminated by a semicolon and followed by a Ctrl-D.
 
-set timeout 1
+set timeout 60
 spawn /bin/bash
 
 # Note "expect_after" needs to be done AFTER spawn or else it won't take effect

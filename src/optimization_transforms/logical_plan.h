@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -40,6 +40,15 @@
 		assert((SIDE) < 2);                                                \
 		assert((SOURCE)->v.lp_default.operand[(SIDE)]->type == DEST_TYPE); \
 		(DEST) = (SOURCE)->v.lp_default.operand[(SIDE)];                   \
+	}
+
+#define GET_LP_INSERT_INTO_SELECT_QUERY(LP_INSERT, LP_SELECT_QUERY)                            \
+	{                                                                                      \
+		LogicalPlan *lp_insert_into_options, *lp_insert_into_more_options;             \
+                                                                                               \
+		lp_insert_into_options = LP_INSERT->v.lp_default.operand[1];                   \
+		lp_insert_into_more_options = lp_insert_into_options->v.lp_default.operand[1]; \
+		LP_SELECT_QUERY = lp_insert_into_more_options->v.lp_default.operand[0];        \
 	}
 
 /* The ERROR_ENCOUNTERED parameter is set to TRUE in case we notice errors inside "lp_generate_where()" (it could recurse

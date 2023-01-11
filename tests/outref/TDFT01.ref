@@ -190,7 +190,9 @@ _ydboctoP*.m:;  insert into TDFT01 VALUES((SAMEVALUE(6)), 'First6', 'Last6');
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
 _ydboctoP*.m:octoPlan1(cursorId)
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""))=%ydboctoexpr
+_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""),1)=%ydboctoexpr
+_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""),2)=%ydboctoexpr
+_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""),3)=%ydboctoexpr
 _ydboctoP*.m:octoPlan2(cursorId)
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of inserted records
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"","")=""
@@ -239,7 +241,9 @@ _ydboctoP*.m:;  insert into TDFT01 VALUES(8, SAMEVALUE('First8'), 'Last8');
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
 _ydboctoP*.m:octoPlan1(cursorId)
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""))=%ydboctoexpr
+_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""),1)=%ydboctoexpr
+_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""),2)=%ydboctoexpr
+_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""),3)=%ydboctoexpr
 _ydboctoP*.m:octoPlan2(cursorId)
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of inserted records
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"","")=""
@@ -261,7 +265,9 @@ _ydboctoP*.m:;  insert into TDFT01 VALUES(7, 'First7', 'Last7');
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
 _ydboctoP*.m:octoPlan1(cursorId)
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""))=%ydboctoexpr
+_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""),1)=%ydboctoexpr
+_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""),2)=%ydboctoexpr
+_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""),3)=%ydboctoexpr
 _ydboctoP*.m:octoPlan2(cursorId)
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of inserted records
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"","")=""

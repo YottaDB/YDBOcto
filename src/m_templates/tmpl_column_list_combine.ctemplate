@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -19,6 +19,8 @@
 TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim, boolean_t str2mval, int dot_count,
 	 boolean_t is_asterisk) {
 	boolean_t	is_order_by, is_lp_table_value, left_concat_needed;
+	boolean_t	is_insert_into_values;	/* used for optimization in case of INSERT INTO .. VALUES (YDBOcto#910) */
+	int		col_num;
 
 	assert((',' == *delim) || ('_' == *delim));
 	/* Assert that if delim is ',', we either have a "dot_count" of 0 (which means we cannot generate new M commands
@@ -31,10 +33,24 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 	assert(NULL != plan);
 	is_order_by = (plan == pplan->order_by);
 	is_lp_table_value = (LP_TABLE_VALUE == pplan->lp_select_query->type);
+	is_insert_into_values = FALSE;
+	if (is_lp_table_value) {
+		PhysicalPlan	*parent_pplan;
+
+		parent_pplan = pplan->parent_plan;
+		if ((NULL != parent_pplan) && IS_INSERT_INTO_PHYSICAL_PLAN(parent_pplan)) {
+			LogicalPlan	*lp_insert_into, *lp_select_query;
+
+			lp_insert_into = parent_pplan->lp_select_query;
+			GET_LP_INSERT_INTO_SELECT_QUERY(lp_insert_into, lp_select_query);
+			is_insert_into_values = (LP_TABLE_VALUE == lp_select_query->type);
+		}
+	}
 	left_concat_needed = FALSE;
 
 	int	depth;
 	depth = 0;
+	col_num = 0;
 	while (NULL != plan) {
 		boolean_t	need_closing_paren;
 		SqlColumnAlias  *column_alias;
@@ -222,12 +238,26 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 		if (need_closing_paren) {
 			%{}){}%
 		}
-		if (str2mval) {
+		if (is_insert_into_values) {
+			/* This is a VALUES clause that directly feeds into an INSERT INTO. In that case, avoid "str2mval"
+			 * conversion here and a later "mval2str" conversion in the INSERT INTO (YDBOcto#910).
+			 */
+			assert(str2mval);
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {}%
+			TMPL(tmpl_key, pplan->outputKey); (*buffer_index)--;
+			%{},{}%
+			TMPL(tmpl_key, pplan->outputKey);
+			++col_num;
+			%{},{{ col_num|%d }})={{ PP_YDB_OCTO_EXPR }}{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+		} else if (str2mval) {
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {{ PP_YDB_OCTO_EXPR }}=$$str2mval^%%ydboctoplanhelpers({{ PP_YDB_OCTO_EXPR }}){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 		}
 		if (left_concat_needed) {
+			assert(!is_insert_into_values);
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_EXPR }}({{ depth|%d }})_{{ PP_YDB_OCTO_EXPR }}{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
@@ -235,10 +265,12 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 		plan = plan->v.lp_default.operand[1];
 		if (NULL != plan) {
 			if (dot_count) {
-				TMPL(tmpl_print_dots, dot_count);
-				%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }})={{ PP_YDB_OCTO_EXPR }}{}%
-				%{}`n{{ PLAN_LINE_START }}{}%
-				left_concat_needed = TRUE;
+				if (!is_insert_into_values) {
+					TMPL(tmpl_print_dots, dot_count);
+					%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }})={{ PP_YDB_OCTO_EXPR }}{}%
+					%{}`n{{ PLAN_LINE_START }}{}%
+					left_concat_needed = TRUE;
+				}
 			} else {
 				%{}{{ delim }}{}%
 			}

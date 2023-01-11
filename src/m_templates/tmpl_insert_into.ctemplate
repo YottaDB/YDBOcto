@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -56,14 +56,24 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 	%{}  DO`n{{ PLAN_LINE_START }}{}%
 	dot_count = 1;
 	TMPL(tmpl_print_dots, dot_count);
-	%{}NEW {{ PP_COL }},{{ PP_VAL }}`n{{ PLAN_LINE_START }}{}%
-	TMPL(tmpl_print_dots, dot_count);
-	%{}SET {{ PP_VAL }}={}%
-	TMPL(tmpl_key, outputKey); (*buffer_index)--;
-	%{},{}%
-	TMPL(tmpl_key, outputKey);
-	%{}){}%
+	%{}NEW {{ PP_COL }}{}%
+
+	boolean_t	is_insert_into_values;	/* used for optimization in case of INSERT INTO .. VALUES (YDBOcto#910) */
+
+	is_insert_into_values = (LP_TABLE_VALUE == lp_select_query->type);
+	if (!is_insert_into_values) {
+		%{},{{ PP_VAL }}{}%
+	}
 	%{}`n{{ PLAN_LINE_START }}{}%
+	if (!is_insert_into_values) {
+		TMPL(tmpl_print_dots, dot_count);
+		%{}SET {{ PP_VAL }}={}%
+		TMPL(tmpl_key, outputKey); (*buffer_index)--;
+		%{},{}%
+		TMPL(tmpl_key, outputKey);
+		%{}){}%
+		%{}`n{{ PLAN_LINE_START }}{}%
+	}
 	/* Generate code to extract each column value */
 	lp_table = lp_insert_into->v.lp_default.operand[0];
 	table_stmt = lp_table->v.lp_table.table_alias->table;
@@ -130,8 +140,15 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 					} while (NULL != cur_lp_col_list);
 				}
 				if (col_is_specified) {
-					%{}$$mval2str^%%ydboctoplanhelpers($$mvalPiece^%%ydboctoplanhelpers({{ PP_VAL }},{}%
-					%{}{{ src_colnum|%d }})){}%
+					if (is_insert_into_values) {
+						TMPL(tmpl_key, outputKey); (*buffer_index)--;
+						%{},{}%
+						TMPL(tmpl_key, outputKey);
+						%{},{{ src_colnum|%d }}){}%
+					} else {
+						%{}$$mval2str^%%ydboctoplanhelpers($$mvalPiece^%%ydboctoplanhelpers({{ PP_VAL }},{}%
+						%{}{{ src_colnum|%d }})){}%
+					}
 					/* Check if the column has size/precision/scale specified. If so, do checks/conversions as
 					 * appropriate. Currently the only 2 types that honor the size/precision/scale are
 					 * STRING_TYPE and NUMERIC_TYPE. So check for those below.

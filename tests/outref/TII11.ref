@@ -1,0 +1,16 @@
+
+-- TII11 : OCTO910 : Test INSERT INTO with VALUES as source table avoids unnecessary str2mval()/mval2str() calls
+
+CREATE TABLE tmp (id1 INTEGER PRIMARY KEY, id2 INTEGER, id3 INTEGER);
+INSERT INTO tmp VALUES (1, 2, 3);
+
+CREATE TABLE
+INSERT 0 1
+# Verify no str2mval()/mval2str() calls in generated M code
+# Should see no lines containing "mval" in the below output
+;  INSERT INTO tmp VALUES (1, 2, 3);
+octoPlan0(cursorId,wrapInTp)
+    DO octoPlan1(cursorId)
+    DO octoPlan2(cursorId)
+octoPlan1(cursorId)
+octoPlan2(cursorId)

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -118,4 +118,12 @@ teardown() {
 @test "TII10 : OCTO502 : Test that INSERT INTO removes unnecessary trailing zeros in NUMERIC(PRECISION,SCALE)" {
 	load_fixture TII10.sql subtest novv
 	verify_output TII10 output.txt
+}
+
+@test "TII11 : OCTO910 : Test INSERT INTO with VALUES as source table avoids unnecessary str2mval()/mval2str() calls" {
+	load_fixture TII11.sql subtest novv
+	echo '# Verify no str2mval()/mval2str() calls in generated M code' >> output.txt
+	echo '# Should see no lines containing "mval" in the below output' >> output.txt
+	grep -E "INSERT|octoPlan|mval" _ydboctoP*.m >> output.txt
+	verify_output TII11 output.txt
 }

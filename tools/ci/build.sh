@@ -1,7 +1,7 @@
 #!/bin/bash
 #################################################################
 #								#
-# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -820,12 +820,43 @@ AIM
 			change -segment OCTOSEG -file_name=$octodat
 			change -segment AIMSEG -file_name=$aimdat
 FILE
-
+			tabledefsqlfile=""
+			# Check if this is a test_query_generator test. If so, run table definition queries prior to running
+			# other queries as other queries will depend on the tables created in this definition.
+			if [[ ($subtest =~ ^"TQG") ]]; then
+				qgquery=1
+				# Disable the "set -e" setting temporarily as below command can return exit status 0 or 1
+				set +e
+				tabledefsqlfile=$(compgen -G "tabledefinition-TQG[0-9]*\.sql")
+				set -e
+			elif [[ ($subtest =~ ^TJC00[4-7]) ]]; then
+				qgquery=1
+				# Disable the "set -e" setting temporarily as below command can return exit status 0 or 1
+				set +e
+				tabledefsqlfile=$(compgen -G "tabledefinition-TJC00[4-7]\.sql")
+				set -e
+			else
+				qgquery=0
+			fi
+			if [[ "" != $tabledefsqlfile ]]; then
+				outfile="autoupgrade.$tabledefsqlfile.out"
+				../newsrc/octo -f $tabledefsqlfile > $outfile 2>&1
+			fi
 			# TEST1 and TEST2 below together test that Octo automatically recreates any
 			# binary-definitions/plans/xrefs/triggers as needed thereby testing YDBOcto#90.
 			errors_found=0
 			for sqlfile in *.sql
 			do
+				# .sql files with _comment- are only seen when JDBC client is used and they are not part of test queries
+				if [[ ($sqlfile =~ "_comment-") ]]; then
+					continue
+				fi
+				if [[ (1 -eq $qgquery) ]]; then
+					# .sql files with tabledefintion are run prior to this loop so skip them here
+					if [[ ($sqlfile =~ "tabledefinition") ]]; then
+						continue
+					fi
+				fi
 				# TEST1
 				# We do not want any failures in the "octo" invocation below to exit the script.
 				# So disable the "set -e" setting temporarily for this step.

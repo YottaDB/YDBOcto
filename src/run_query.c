@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -358,7 +358,9 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			tablename = cur_table->value->v.value->v.reference;
 			table = find_table(tablename);
 			if (NULL == table) {
-				INFO(INFO_TABLE_DOES_NOT_EXIST, tablename);
+				ERROR(ERR_UNKNOWN_TABLE, tablename);
+				CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
+				return 1;
 			} else {
 				if (table->readwrite) {
 					char	     tableGVNAME[YDB_MAX_IDENT + 1];
@@ -369,10 +371,13 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 					ydb_delete_s(&gvname_buff, 0, NULL, YDB_DEL_TREE);
 				} else {
 					ERROR(ERR_TABLE_READONLY, "TRUNCATE", tablename);
+					CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
+					return 1;
 				}
 			}
 			cur_table = cur_table->next;
 		} while (cur_table != column_list);
+		PRINT_COMMAND_TAG(TRUNCATE_TABLE_COMMAND_TAG);
 		break;
 	case drop_table_STATEMENT:   /* DROP TABLE */
 	case create_table_STATEMENT: /* CREATE TABLE */

@@ -1,3 +1,6 @@
+# --------------------------------------------
+# Test TRUNCATE in octo
+# --------------------------------------------
 
 -- TT01 : OCTO609 : TRUNCATE deletes all row data for given tables
 
@@ -27,6 +30,7 @@ ID|FIRSTNAME|LASTNAME
 4|Joey|
 5|Zero|Cool
 (6 rows)
+TRUNCATE TABLE
 ID|FIRSTNAME|LASTNAME
 (0 rows)
 CUSTOMER_ID|FIRST_NAME|LAST_NAME|EMAIL|ADDRESS|CITY|STATE|ZIPCODE
@@ -44,7 +48,40 @@ ORDER_ID|ORDER_DATE|ORDER_AMOUNT|CUSTOMER_ID
 5|07/21/1795|$25.50|10
 6|11/27/1787|$14.40|9
 (6 rows)
+TRUNCATE TABLE
 CUSTOMER_ID|FIRST_NAME|LAST_NAME|EMAIL|ADDRESS|CITY|STATE|ZIPCODE
 (0 rows)
 ORDER_ID|ORDER_DATE|ORDER_AMOUNT|CUSTOMER_ID
 (0 rows)
+[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE: Unknown table: BADTABLE
+
+# --------------------------------------------
+# Test TRUNCATE in rocto
+# --------------------------------------------
+ id | firstname | lastname 
+----+-----------+----------
+(0 rows)
+
+TRUNCATE TABLE
+ id | firstname | lastname 
+----+-----------+----------
+(0 rows)
+
+ customer_id | first_name | last_name | email | address | city | state | zipcode 
+-------------+------------+-----------+-------+---------+------+-------+---------
+(0 rows)
+
+ order_id | order_date | order_amount | customer_id 
+----------+------------+--------------+-------------
+(0 rows)
+
+TRUNCATE TABLE
+ customer_id | first_name | last_name | email | address | city | state | zipcode 
+-------------+------------+-----------+-------+---------+------+-------+---------
+(0 rows)
+
+ order_id | order_date | order_amount | customer_id 
+----------+------------+--------------+-------------
+(0 rows)
+
+ERROR:  Unknown table: BADTABLE

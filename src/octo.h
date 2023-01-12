@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -288,6 +288,7 @@
 #define DROP_TABLE_COMMAND_TAG	    "DROP TABLE"
 #define CREATE_FUNCTION_COMMAND_TAG "CREATE FUNCTION"
 #define DROP_FUNCTION_COMMAND_TAG   "DROP FUNCTION"
+#define TRUNCATE_TABLE_COMMAND_TAG  "TRUNCATE TABLE"
 
 #define PRINT_COMMAND_TAG(COMMAND_TAG)                                                                                       \
 	/* Skip printing COMMAND TAG if running auto load of octo-seed.sql as it is internal (not a user driven activity) */ \

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -25,7 +25,7 @@ select typname from pg_type;
 
 -- Multiple table case
 truncate names, pg_type, customers;  -- ERR_TABLE_READONLY for `pg_type`
--- All rows present in `pg_type`, but deleted from `names` and `customers` tables
+-- All rows present in `pg_type` and `customers`, but deleted from `names`
 select firstname, lastname from names;
 select typname from pg_type;
 select first_name, last_name from customers;

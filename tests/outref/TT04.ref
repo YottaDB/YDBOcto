@@ -1,0 +1,35 @@
+
+-- TT04 : OCTO609 : TRUNCATE on value expressions does not cause SIG-11 or misleading errors
+
+-- Test of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/609#note_1237730670
+truncate 2+3;
+truncate 2;
+truncate false;
+
+-- Test of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/609#note_1237733914
+truncate (names);
+truncate (a);
+truncate (((names)));
+truncate (((a)));
+
+LINE 3:1: truncate 2+3;
+                   ^
+syntax error, unexpected LITERAL
+LINE 4:1: truncate 2;
+                   ^
+syntax error, unexpected LITERAL
+LINE 5:1: truncate false;
+                   ^^^^^
+syntax error, unexpected FALSE_TOKEN
+LINE 7:1: truncate (names);
+                   ^
+syntax error, unexpected LEFT_PAREN
+LINE 8:1: truncate (a);
+                   ^
+syntax error, unexpected LEFT_PAREN
+LINE 9:1: truncate (((names)));
+                   ^
+syntax error, unexpected LEFT_PAREN
+LINE 10:1: truncate (((a)));
+                    ^
+syntax error, unexpected LEFT_PAREN

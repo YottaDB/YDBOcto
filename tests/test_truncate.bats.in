@@ -34,7 +34,7 @@ setup() {
 	echo "# --------------------------------------------" >> output.txt
 	echo "# Test TRUNCATE in rocto" >> output.txt
 	echo "# --------------------------------------------" >> output.txt
-	test_port=$(start_rocto 1339 --allowschemachanges)
+	test_port=$(start_rocto 1339 --readwrite)
 	run_psql $test_port TT01.sql "" 2>&1 | tee -a output.txt
 	stop_rocto
 	verify_output TT01 output.txt noinfo nodebug

@@ -13,3 +13,8 @@ ERROR:  Cannot modify table: user 'leibniz' has read-only permissions
 ----+-----------+----------
 (0 rows)
 
+ERROR:  Cannot modify table: user 'leibniz' has read-only permissions
+ id | firstname | lastname 
+----+-----------+----------
+(0 rows)
+

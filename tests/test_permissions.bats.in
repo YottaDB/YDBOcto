@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -30,7 +30,7 @@ teardown() {
 	stop_rocto
 }
 
-@test "TP000 : OCTO656 : INSERT, UPDATE, DELETE prohibited when: table is READONLY, rocto run with -w, and user can readwrite" {
+@test "TP000 : OCTO656/OCTO609 : INSERT, UPDATE, DELETE, TRUNCATE prohibited when: table is READONLY, rocto run with -w, and user can readwrite" {
 	load_fixture TP000a.sql
 	create_user $username $password --readwrite
 	test_port=$(start_rocto 1339)
@@ -39,7 +39,7 @@ teardown() {
 	verify_output TP000 output.txt noinfo nodebug
 }
 
-@test "TP001 : OCTO656 : INSERT, UPDATE, DELETE prohibited if rocto run without -w" {
+@test "TP001 : OCTO656/OCTO609 : INSERT, UPDATE, DELETE, TRUNCATE prohibited if rocto run without -w" {
 	load_fixture TP001a.sql
 	create_user $username $password --readwrite
 	test_port=$(start_rocto 1339)
@@ -48,7 +48,7 @@ teardown() {
 	verify_output TP001 output.txt noinfo nodebug
 }
 
-@test "TP002 : OCTO656 : INSERT, UPDATE, DELETE prohibited if rocto run with -w but user lacks readwrite permissions" {
+@test "TP002 : OCTO656/OCTO609 : INSERT, UPDATE, DELETE, TRUNCATE prohibited if rocto run with -w but user lacks readwrite permissions" {
 	load_fixture TP001a.sql
 	create_user $username $password
 	test_port=$(start_rocto 1339 -w)
@@ -82,7 +82,7 @@ teardown() {
 	verify_output TP005 output.txt noinfo nodebug
 }
 
-@test "TP006 : OCTO656 : INSERT, UPDATE, DELETE prohibited user has allowschemachanges permissions only (lacks readwrite)" {
+@test "TP006 : OCTO656/OCTO609 : INSERT, UPDATE, DELETE, TRUNCATE prohibited if user has allowschemachanges permissions only (lacks readwrite)" {
 	create_user $username $password --allowschemachanges
 	test_port=$(start_rocto 1339 -wa)
 	run_psql_user $test_port TP001a.sql "" $username $password 2>&1 | tee -a output.txt

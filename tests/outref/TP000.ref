@@ -13,3 +13,8 @@ ERROR:  DELETE not allowed on READONLY table 'TP000'. Only allowed on READWRITE 
 ----+-----------+----------
 (0 rows)
 
+ERROR:  Cannot modify table: rocto started in read-only mode
+ id | firstname | lastname 
+----+-----------+----------
+(0 rows)
+

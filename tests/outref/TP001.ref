@@ -13,3 +13,8 @@ ERROR:  Cannot modify table: rocto started in read-only mode
 ----+-----------+----------
 (0 rows)
 
+ERROR:  Cannot modify table: rocto started in read-only mode
+ id | firstname | lastname 
+----+-----------+----------
+(0 rows)
+

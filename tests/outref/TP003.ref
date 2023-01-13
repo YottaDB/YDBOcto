@@ -28,3 +28,8 @@ DELETE 5
   4 | Joey      | 
 (1 row)
 
+TRUNCATE TABLE
+ id | firstname | lastname 
+----+-----------+----------
+(0 rows)
+

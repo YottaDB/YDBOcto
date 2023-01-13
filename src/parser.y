@@ -396,6 +396,7 @@ sql_data_statement
 sql_data_change_statement
   : delete_statement_searched { $$ = $delete_statement_searched; }
 //  | delete_statement_position
+  | truncate_table_statement { $$ = $truncate_table_statement; parse_context->command_tag = truncate_table_STATEMENT; }
   | insert_statement { $$ = $insert_statement; }
 //  | update_statement_positioned
   | update_statement_searched { $$ = $update_statement_searched; }
@@ -1329,7 +1330,6 @@ sql_schema_manipulation_statement
   : drop_table_statement { $$ = $drop_table_statement; parse_context->command_tag = drop_table_STATEMENT; }
   | drop_function_statement { $$ = $drop_function_statement; parse_context->command_tag = drop_function_STATEMENT; }
   | discard_all_statement { $$ = $discard_all_statement; parse_context->command_tag = discard_all_STATEMENT; }
-  | truncate_table_statement { $$ = $truncate_table_statement; parse_context->command_tag = truncate_table_STATEMENT; }
   ;
 
 sql_schema_definition_statement

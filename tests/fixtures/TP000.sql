@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,11 +10,13 @@
 #								#
 #################################################################
 
--- TP000 : OCTO656 : INSERT, UPDATE, DELETE prohibited if table is READONLY, rocto run with -w, and user can readwrite
+-- TP000 : OCTO656/OCTO609 : INSERT, UPDATE, DELETE, TRUNCATE prohibited when: table is READONLY, rocto run with -w, and user can readwrite
 
 insert into TP000 (select * FROM names);
 select * from TP000;
 update TP000 set firstname = lastname, lastname = firstname where lastname != 'Cool';
 select * from TP000;
 delete from TP000 where lastname != 'Burn';
+select * from TP000;
+truncate TP000;
 select * from TP000;

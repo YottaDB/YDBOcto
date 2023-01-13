@@ -84,26 +84,6 @@
 		CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS_SKIP_PARAMETER_LVN(QUERY_LOCK, MEMORY_CHUNKS); \
 	}
 
-#define POPULATE_GVN_BUFFER_FROM_TABLE(GVN_BUFFER, TABLE, GVN_STR)                                                 \
-	{                                                                                                          \
-		SqlOptionalKeyword *keyword;                                                                       \
-		char *		    gvname, *firstsub;                                                             \
-                                                                                                                   \
-		UNPACK_SQL_STATEMENT(keyword, (TABLE)->source, keyword);                                           \
-		UNPACK_SQL_STATEMENT(value, keyword->v, value);                                                    \
-		gvname = value->v.reference;                                                                       \
-		firstsub = strchr(gvname, '(');                                                                    \
-		if (NULL == firstsub) {                                                                            \
-			/* Not sure how an unsubscripted gvn can be specified in GLOBAL. But handle it anyways. */ \
-			assert(FALSE);                                                                             \
-			YDB_STRING_TO_BUFFER(gvname, &(GVN_BUFFER));                                               \
-		} else {                                                                                           \
-			memcpy(GVN_STR, gvname, firstsub - gvname);                                                \
-			GVN_STR[firstsub - gvname] = '\0';                                                         \
-			YDB_STRING_TO_BUFFER(GVN_STR, &(GVN_BUFFER));                                              \
-		}                                                                                                  \
-	}
-
 /* Runs a query that has already been read and parsed. Creates a logical and physical plan if necessary. And executes it.
  * Returns
  *	 0 for normal
@@ -130,19 +110,17 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 	int		length;
 	unsigned int	ret_value;
 	SqlTable *	table;
-	SqlDropTableStatement *	   drop_table;
-	SqlTruncateTableStatement *truncate_table;
-	SqlColumnList *		   column_list, *cur_table;
-	char *			   tablename;
-	char *			   spcfc_buffer; /* specific buffer (i.e. function-specific or table-specific etc.) */
-	ydb_buffer_t		   table_name_buffers[3];
-	ydb_buffer_t *		   table_name_buffer;
-	SqlFunction *		   function;
-	SqlDropFunctionStatement * drop_function;
-	char *			   function_name;
-	ydb_buffer_t		   function_name_buffers[5];
-	ydb_buffer_t *		   function_name_buffer, *function_hash_buffer;
-	char			   cursor_buffer[INT64_TO_STRING_MAX];
+	SqlDropTableStatement *	  drop_table;
+	char *			  tablename;
+	char *			  spcfc_buffer; /* specific buffer (i.e. function-specific or table-specific etc.) */
+	ydb_buffer_t		  table_name_buffers[3];
+	ydb_buffer_t *		  table_name_buffer;
+	SqlFunction *		  function;
+	SqlDropFunctionStatement *drop_function;
+	char *			  function_name;
+	ydb_buffer_t		  function_name_buffers[5];
+	ydb_buffer_t *		  function_name_buffer, *function_hash_buffer;
+	char			  cursor_buffer[INT64_TO_STRING_MAX];
 	char		    pid_buffer[INT64_TO_STRING_MAX]; /* assume max pid is 64 bits even though it is a 4-byte quantity */
 	boolean_t	    release_query_lock;
 	SqlStatement	    stmt;
@@ -348,37 +326,18 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		}
 		release_query_lock = FALSE; /* Set variable to FALSE so we do not try releasing same lock later */
 		break;
-	case truncate_table_STATEMENT: /* TRUNCATE TABLE */
-		// Get the list of tables to truncate
-		UNPACK_SQL_STATEMENT(truncate_table, result, truncate_table);
-		UNPACK_SQL_STATEMENT(column_list, truncate_table->tables, column_list);
-		cur_table = column_list;
-		do {
-			// Truncate each table in the list, if it exists. If not, let the user know that it doesn't exist.
-			tablename = cur_table->value->v.value->v.reference;
-			table = find_table(tablename);
-			if (NULL == table) {
-				ERROR(ERR_UNKNOWN_TABLE, tablename);
-				CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
-				return 1;
-			} else {
-				if (table->readwrite) {
-					char tableGVNAME[YDB_MAX_IDENT + 2]; // + 2: One for ^, one for null byte. YDB_MAX_IDENT
-									     // does not include ^.
-					ydb_buffer_t gvname_buff;
+	case truncate_table_STATEMENT:; /* TRUNCATE TABLE */
+		ydb_tpfnptr_t tpfn;
 
-					// Kill the GVN that holds the row data for the given table
-					POPULATE_GVN_BUFFER_FROM_TABLE(gvname_buff, table, tableGVNAME);
-					ydb_delete_s(&gvname_buff, 0, NULL, YDB_DEL_TREE);
-				} else {
-					ERROR(ERR_TABLE_READONLY, "TRUNCATE", tablename);
-					CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
-					return 1;
-				}
-			}
-			cur_table = cur_table->next;
-		} while (cur_table != column_list);
-		PRINT_COMMAND_TAG(TRUNCATE_TABLE_COMMAND_TAG);
+		tpfn = (ydb_tpfnptr_t)&truncate_table_tp_callback_fn;
+		status = ydb_tp_s(tpfn, result, NULL, 0, NULL);
+		if (YDB_OK == status) {
+			PRINT_COMMAND_TAG(TRUNCATE_TABLE_COMMAND_TAG);
+		} else {
+			assert(YDB_TP_ROLLBACK == status);
+			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
+			return 1;
+		}
 		break;
 	case drop_table_STATEMENT:   /* DROP TABLE */
 	case create_table_STATEMENT: /* CREATE TABLE */

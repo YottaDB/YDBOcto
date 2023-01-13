@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -346,6 +346,7 @@ add_library(libocto OBJECT
   store_table_in_pg_class.c
   table_has_hidden_column.c
   traverse_where_clause.c
+  truncate_table_tp_callback_fn.c
   unary_operation_data_type_check.c
   validate_table_asterisk_binary_operation.c
   ydb_error_check.c

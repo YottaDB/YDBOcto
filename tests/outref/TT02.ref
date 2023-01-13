@@ -14,10 +14,17 @@ select typname from pg_type;
 
 -- Multiple table case
 truncate names, pg_type, customers;  -- ERR_TABLE_READONLY for `pg_type`
--- All rows present in `pg_type` and `customers`, but deleted from `names`
+-- All rows present not just in `pg_type` and `customers`, but also in `names` (TRUNCATE of list of tables is atomic)
 select firstname, lastname from names;
 select typname from pg_type;
 select first_name, last_name from customers;
+
+-- Truncate of multiple tables with some non-existent tables
+truncate names, invalid, customers;  -- ERR_UNKNOWN_TABLE for `invalid`
+-- All rows present not just in `customers`, but also in `names` (TRUNCATE of list of tables is atomic)
+select firstname, lastname from names;
+select first_name, last_name from customers;
+
 FIRSTNAME|LASTNAME
 Zero|Cool
 Acid|Burn
@@ -52,7 +59,13 @@ varchar
 (6 rows)
 [ERROR]: ERR_TABLE_READONLY: TRUNCATE not allowed on READONLY table 'PG_TYPE'. Only allowed on READWRITE tables.
 FIRSTNAME|LASTNAME
-(0 rows)
+Zero|Cool
+Acid|Burn
+Cereal|Killer
+Lord|Nikon
+Joey|
+Zero|Cool
+(6 rows)
 TYPNAME
 bool
 int4
@@ -60,6 +73,22 @@ name
 numeric
 unknown
 varchar
+(6 rows)
+FIRST_NAME|LAST_NAME
+George|Washington
+John|Adams
+Thomas|Jefferson
+James|Madison
+James|Monroe
+(5 rows)
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: INVALID
+FIRSTNAME|LASTNAME
+Zero|Cool
+Acid|Burn
+Cereal|Killer
+Lord|Nikon
+Joey|
+Zero|Cool
 (6 rows)
 FIRST_NAME|LAST_NAME
 George|Washington

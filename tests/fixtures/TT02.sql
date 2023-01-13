@@ -25,7 +25,14 @@ select typname from pg_type;
 
 -- Multiple table case
 truncate names, pg_type, customers;  -- ERR_TABLE_READONLY for `pg_type`
--- All rows present in `pg_type` and `customers`, but deleted from `names`
+-- All rows present not just in `pg_type` and `customers`, but also in `names` (TRUNCATE of list of tables is atomic)
 select firstname, lastname from names;
 select typname from pg_type;
 select first_name, last_name from customers;
+
+-- Truncate of multiple tables with some non-existent tables
+truncate names, invalid, customers;  -- ERR_UNKNOWN_TABLE for `invalid`
+-- All rows present not just in `customers`, but also in `names` (TRUNCATE of list of tables is atomic)
+select firstname, lastname from names;
+select first_name, last_name from customers;
+

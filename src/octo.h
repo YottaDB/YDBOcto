@@ -889,6 +889,27 @@ typedef enum RegexType {
 		}                                                                                              \
 	}
 
+#define POPULATE_GVN_BUFFER_FROM_TABLE(GVN_BUFFER, TABLE, GVN_STR)                                                 \
+	{                                                                                                          \
+		SqlOptionalKeyword *keyword;                                                                       \
+		char *		    gvname, *firstsub;                                                             \
+		SqlValue *	    value;                                                                         \
+                                                                                                                   \
+		UNPACK_SQL_STATEMENT(keyword, (TABLE)->source, keyword);                                           \
+		UNPACK_SQL_STATEMENT(value, keyword->v, value);                                                    \
+		gvname = value->v.reference;                                                                       \
+		firstsub = strchr(gvname, '(');                                                                    \
+		if (NULL == firstsub) {                                                                            \
+			/* Not sure how an unsubscripted gvn can be specified in GLOBAL. But handle it anyways. */ \
+			assert(FALSE);                                                                             \
+			YDB_STRING_TO_BUFFER(gvname, &(GVN_BUFFER));                                               \
+		} else {                                                                                           \
+			memcpy(GVN_STR, gvname, firstsub - gvname);                                                \
+			GVN_STR[firstsub - gvname] = '\0';                                                         \
+			YDB_STRING_TO_BUFFER(GVN_STR, &(GVN_BUFFER));                                              \
+		}                                                                                                  \
+	}
+
 // Convenience type definition for run_query callback function
 typedef int (*callback_fnptr_t)(SqlStatement *, ydb_long_t, void *, char *, PSQL_MessageTypeT);
 
@@ -944,6 +965,7 @@ int  get_row_count_from_cursorId(ydb_long_t cursorId);
 int  print_temporary_table(SqlStatement *, ydb_long_t cursorId, void *parms, char *plan_name, PSQL_MessageTypeT msg_type);
 void print_result_row(ydb_buffer_t *row);
 int  get_mval_len(unsigned char *buff, int *data_len);
+int  truncate_table_tp_callback_fn(SqlStatement *truncate_stmt);
 
 /**
  * Parses query, and calls the callback if it is a select statement. Otherwise, the query is a data altering

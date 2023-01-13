@@ -827,7 +827,7 @@ FILE
 				qgquery=1
 				# Disable the "set -e" setting temporarily as below command can return exit status 0 or 1
 				set +e
-				tabledefsqlfile=$(compgen -G "tabledefinition-TQG[0-9]*\.sql")
+				tabledefsqlfile=$(compgen -G "tabledefinition-TQG[0-9][0-9]\.sql")
 				set -e
 			elif [[ ($subtest =~ ^TJC00[4-7]) ]]; then
 				qgquery=1

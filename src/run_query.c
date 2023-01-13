@@ -363,7 +363,8 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 				return 1;
 			} else {
 				if (table->readwrite) {
-					char	     tableGVNAME[YDB_MAX_IDENT + 1];
+					char tableGVNAME[YDB_MAX_IDENT + 2]; // + 2: One for ^, one for null byte. YDB_MAX_IDENT
+									     // does not include ^.
 					ydb_buffer_t gvname_buff;
 
 					// Kill the GVN that holds the row data for the given table
@@ -474,8 +475,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 				CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 			}
 
-			// + 2: One for ^, one for null pointer. YDB_MAX_IDENT does not include ^.
-			char		     tableGVNAME[YDB_MAX_IDENT + 2];
+			char tableGVNAME[YDB_MAX_IDENT + 2]; // + 2: One for ^, one for null byte. YDB_MAX_IDENT does not include ^.
 			ydb_buffer_t	     gvname_buff;
 			enum OptionalKeyword retention = NO_KEYWORD;
 			if (drop_table_STATEMENT == result_type) {

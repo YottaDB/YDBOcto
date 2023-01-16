@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -22,6 +22,7 @@ SELECT * FROM YDBJNLFOPCOUNT WHERE occurs > 0;
 SELECT * FROM YDBJNLFRECTYPE;
 -- This is the most common query that users will perform; rest are sanity checks for other tables
 SELECT op,gvname,gvref,nodeval FROM YDBJNLFTYPE1 WHERE gvname='^pastas';
+SELECT op,gvname,gvref,nodeval FROM YDBJNLFTYPE1 WHERE gvref='^%ydboctoocto("oid")';
 SELECT op FROM YDBJNLFTYPE10;
 SELECT op FROM YDBJNLFTYPE4;
 SELECT op FROM YDBJNLFTYPE5;

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -32,8 +32,7 @@ setup() {
 	$ydb_dist/yottadb -r OCTODDL^%YDBJNLF | octo
 	echo '# Extract journals' | tee -a output.txt
 	$ydb_dist/yottadb -run %XCMD 'DO INGEST^%YDBJNLF("./default.mjl","default_region_label")'
-	# This currently errors out due to YDB#966
-	# $ydb_dist/yottadb -run %XCMD 'DO INGEST^%YDBJNLF("./octo.mjl","octo_region_label")'
+	$ydb_dist/yottadb -run %XCMD 'DO INGEST^%YDBJNLF("./octo.mjl","octo_region_label")'
 	echo '# Run queries on journal files' | tee -a output.txt
 	load_fixture TYIO01.sql subtest novv
 	verify_output TYIO01 output.txt

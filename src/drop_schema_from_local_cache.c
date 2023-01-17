@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -27,8 +27,8 @@ int drop_schema_from_local_cache(ydb_buffer_t *name_buffer, SqlSchemaType schema
 	 *	%ydboctoloadedschemas(OCTOLIT_FUNCTIONS,FUNCTIONNAME,FUNCTIONHASH)
 	 *	%ydboctoloadedschemas(OCTOLIT_FUNCTIONS,FUNCTIONNAME,FUNCTIONHASH,OCTOLIT_CHUNK)
 	 * OR
-	 *	%ydboctoloadedschemas(TABLENAME)
-	 *	%ydboctoloadedschemas(TABLENAME,OCTOLIT_CHUNK)
+	 *	%ydboctoloadedschemas(OCTOLIT_TABLES,TABLENAME)
+	 *	%ydboctoloadedschemas(OCTOLIT_TABLES,TABLENAME,OCTOLIT_CHUNK)
 	 */
 	if (TableSchema == schema_type) {
 		assert(NULL == function_hash_buffer);
@@ -68,7 +68,7 @@ int drop_schema_from_local_cache(ydb_buffer_t *name_buffer, SqlSchemaType schema
 		return status;
 	}
 	/* Now that memory has been freed, delete those nodes */
-	status = ydb_delete_s(&schema_local, 1 + extra_sub, &subs_array[0], YDB_DEL_TREE);
+	status = ydb_delete_s(&schema_local, 2 + extra_sub, &subs_array[0], YDB_DEL_TREE);
 	YDB_ERROR_CHECK(status);
 	return status;
 }

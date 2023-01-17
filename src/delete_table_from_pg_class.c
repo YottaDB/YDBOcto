@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -63,6 +63,7 @@ int delete_table_from_pg_class(ydb_buffer_t *table_name_buffer) {
 	pg_class_schema[1] = pg_class[3];
 	status = ydb_get_s(&schema_global, 2, pg_class_schema, &oid_buffer);
 	if (YDB_ERR_GVUNDEF != status) {
+		assert(YDB_OK == status);
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, pg_class, pg_attribute, pg_attribute_schema, oid_buffer);
 		pg_class[4] = oid_buffer;
 		/* Delete table OID node : i.e. KILL ^%ydboctoocto(OCTOLIT_TABLES,OCTOLIT_PG_CATALOG,OCTOLIT_PG_CLASS,TABLEOID) */
@@ -70,6 +71,7 @@ int delete_table_from_pg_class(ydb_buffer_t *table_name_buffer) {
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, pg_class, pg_attribute, pg_attribute_schema, oid_buffer);
 	} else {
 		/* OID for table does not exist. Move on to next step. */
+		assert(config->in_auto_load_octo_seed);
 	}
 	/* Check OID for each column in table (usually stored as
 	 * ^%ydboctoschema(TABLENAME,OCTOLIT_PG_ATTRIBUTE,COLUMNNAME)=COLUMNOID) */

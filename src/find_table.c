@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -54,18 +54,20 @@ SqlTable *find_table(const char *table_name) {
 	OCTO_SET_BUFFER(ret, retbuff);
 	status = ydb_get_s(&varname, 2, &subs_array[0], &ret);
 	switch (status) {
-	case YDB_OK:
+	case YDB_OK:;
+		ydb_buffer_t varname2, subs_array2[3]; /* needed so as to preserve "varname" and "subs_array" for later code */
+
 		/* We have the table definition already stored in process local memory. Use that as long as the
 		 * table definition has not changed in the database.
 		 */
 		table_stmt = *((SqlStatement **)ret.buf_addr);
 		UNPACK_SQL_STATEMENT(table, table_stmt, create_table);
 		/* Check if table has not changed in the database since we cached it */
-		YDB_STRING_TO_BUFFER(config->global_names.schema, &varname);
-		YDB_STRING_TO_BUFFER((char *)table_name, &subs_array[0]);
-		YDB_STRING_TO_BUFFER(OCTOLIT_PG_CLASS, &subs_array[1]);
+		YDB_STRING_TO_BUFFER(config->global_names.schema, &varname2);
+		YDB_STRING_TO_BUFFER((char *)table_name, &subs_array2[0]);
+		YDB_STRING_TO_BUFFER(OCTOLIT_PG_CLASS, &subs_array2[1]);
 		OCTO_SET_NULL_TERMINATED_BUFFER(ret, oid_buff);
-		status = ydb_get_s(&varname, 2, &subs_array[0], &ret);
+		status = ydb_get_s(&varname2, 2, &subs_array2[0], &ret);
 		switch (status) {
 		case YDB_OK:
 			assert(ret.len_alloc > ret.len_used); /* ensure space for null terminator */
@@ -96,7 +98,7 @@ SqlTable *find_table(const char *table_name) {
 			 * local cache, it is used almost always except for rare cases when we go reload from the database.
 			 */
 			assert(NULL != getenv("octo_dbg_drop_cache_expected"));
-			status = drop_schema_from_local_cache(&subs_array[0], TableSchema, NULL);
+			status = drop_schema_from_local_cache(&subs_array2[0], TableSchema, NULL);
 			if (YDB_OK != status) {
 				/* YDB_ERROR_CHECK would already have been done inside "drop_schema_from_local_cache()" */
 				return NULL;

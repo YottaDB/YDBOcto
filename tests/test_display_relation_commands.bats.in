@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -46,3 +46,22 @@ setup() {
 	load_fixture TDRC04.sql subtest novv
 	verify_output TDRC04 output.txt info nodebug
 }
+
+@test "TDRC05 : OCTO509 : Verify that after lots of concurrent CREATE/DROP TABLE, \d still lists the tablename only ONCE" {
+	export octo_dbg_drop_cache_expected=1 # needed to let Octo/Rocto know that concurrent DROP TABLE commands run in this test
+	echo "# This is a test of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/509#note_1237785877" > output.txt
+	echo "# Generate file TDRC05.sql using [yottadb -run gensql^TDRC05]" >> output.txt
+	$ydb_dist/yottadb -run gensql^TDRC05 > TDRC05.sql
+	echo "# Run 8 processes concurrently executing TDRC05.sql using [yottadb -run job^TDRC05]" >> output.txt
+	$ydb_dist/yottadb -run job^TDRC05
+	echo "# Run [\d;] to verify that table names XXX1, XXX2, XXX3, XXX4 show up only ONCE in the output"
+	echo "\d;" > slashd.sql
+	octo -f slashd.sql >> slashd.out 2>&1
+	grep XXX slashd.out >> output.txt
+	echo "# Verify no errors exist except for expected ones" >> output.txt
+	grep ERROR *.mje* | grep -vE "ERR_CANNOT_CREATE_TABLE:|ERR_CANNOT_DROP_TABLE:|ERR_DUPLICATE_KEY_VALUE:|ERR_UNKNOWN_TABLE:" >> output.txt || true
+	echo "# Verify no core files exist (no assert failures, SIG-11s etc.)" >> output.txt
+	find . -name "core*" >> output.txt
+	verify_output TDRC05 output.txt
+}
+

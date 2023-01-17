@@ -24,9 +24,9 @@ setup() {
 }
 
 @test "TYIO01 : Test %YDBJNLF Octo functionality" {
-	routine_text0=$($ydb_dist/yottadb -run %XCMD 'write $text(+0^%YDBJNLF)')
-	if [ -z "$routine_text0" ]; then
-		skip "^%YDBJNLF is not found in this YottaDB install"
+	ydb_version=$($ydb_dist/yottadb -run %XCMD 'WRITE $ZYRELEASE' | cut -d ' ' -f 2)
+	if  [ "$ydb_version" \< "r1.37" ] ; then
+		skip "^%YDBJNLF cannot be tested for YottaDB versions less than r1.37"
 	fi
 	echo '# Load %YDBJNLF DDL Into Octo' | tee -a output.txt
 	$ydb_dist/yottadb -r OCTODDL^%YDBJNLF | octo

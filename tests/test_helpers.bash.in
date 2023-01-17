@@ -952,6 +952,9 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 	return
 }
 
+# Note that the sed statements related to query generator update queries in this function
+# are similar to sed statements in test-auto-upgrade job script in build.sh. Any changes
+# here must be done there as well.
 run_query_in_octo_and_postgres_and_crosscheck() {
 	if [[ $usejdbc == "usejdbc" || $randclientstr == "JDBC" ]]; then
 		local fname="$1"

@@ -840,7 +840,11 @@ FILE
 			fi
 			if [[ "" != $tabledefsqlfile ]]; then
 				outfile="autoupgrade.$tabledefsqlfile.out"
-				../newsrc/octo -f $tabledefsqlfile > $outfile 2>&1
+				# To ignore errors seen by execution of table-definition queries || true is added to the command
+				# below. Errors are only expected during the execution of INSERT statement in table-defintion file.
+				# The failure will be mostly because of constraint violations. Any other error
+				# will result in rest of the test to fail and is expected to be back tracked to this point.
+				../newsrc/octo -f $tabledefsqlfile > $outfile 2>&1 || true
 			fi
 			# TEST1 and TEST2 below together test that Octo automatically recreates any
 			# binary-definitions/plans/xrefs/triggers as needed thereby testing YDBOcto#90.
@@ -866,6 +870,14 @@ FILE
 				ret_status=$?
 				# Re-enable "set -e" now that "octo" invocation is done.
 				set -e
+				if [[ 1 -eq $qgquery ]]; then
+					querytype=$(awk 'NR==1 {print tolower($1);}' $outfile)
+					# Ignore any errors in insert or update query execution as it will be validated
+					# against previous commit output error message down below
+					if [[ ("insert" == $querytype || "update" == $querytype) ]]; then
+						ret_status=0
+					fi
+				fi
 				if [[ 1 -lt $ret_status ]]; then
 					# Invoking newer build of Octo on environment set up by older Octo resulted in a
 					# non-zero exit status greater than 1. This most likely means a fatal error like a SIG-11 or
@@ -920,6 +932,21 @@ FILE
 					if [[ (0 == $is_post_octo649_commit) || (0 != $usedjdbcdriver) ]]; then
 						mv $outfile $outfile.tmp
 						tail -n +2 $outfile.tmp | head -n -1 > $outfile
+					fi
+					# Error formatting in case of query generator with update queries
+					if [[ (1 -eq $qgquery) && ("insert" == $querytype || "update" == $querytype) ]]; then
+						# Below sed statements are similar to the sed statements in test_helper.bats.in
+						# run_query_in_octo_and_postgres_and_crosscheck(). Any change here must be done
+						# there as well.
+						if [[ 1 -eq usedjdbcdriver ]]; then
+							sed 's/ : \(Failing.*\)//;s/ : \(Key .*\)//;/WARN/d;s/\(Duplicate Key Value violates UNIQUE constraint\).*/\1/;s/ERROR: New row for table \(.*\) violates CHECK constraint.*/ERROR: New row for table \U\1\E violates check constraint/;' $outfile >& $outfile.tmp
+						elif [[ 1 -eq $(grep "randclient:OCTO" dbg_env.out) ]]; then
+							sed 's/ : \(Failing.*\)//;s/ : \(Key .*\)//;/WARN/d;s/\(Duplicate Key Value violates UNIQUE constraint\).*/\1/;s/^\[ERROR\]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table \(.*\) violates CHECK constraint.*/\[ERROR\]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table \U\1\E violates check constraint/;/LINE/d;/\^/d;' $outfile &> $outfile.tmp
+						else
+							#PSQL
+							sed 's/ : \(Failing.*\)//;s/ : \(Key .*\)//;/WARN/d;s/\(Duplicate Key Value violates UNIQUE constraint\).*/\1/;s/^ERROR:  New row for table \(.*\) violates CHECK constraint.*/ERROR:  New row for table \U\1\E violates check constraint/;/LINE/d;/\^/d;' $outfile &> $outfile.tmp
+						fi
+						mv $outfile.tmp $outfile
 					fi
 					# TEST2
 					# $sqlfile.log is Octo's output for the same query using the older commit build

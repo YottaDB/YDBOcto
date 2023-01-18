@@ -705,6 +705,17 @@ else
 		# Re-enable "set -e" now that "git merge-base" invocation is done.
 		set -e
 
+		# Note down if older commit is prior to all YDBOcto#759 fixes (spread across many commits).
+		# This will be used later to skip a few tests.
+		pre_octo759_commit="bc3505d790d8e50cc4776863b72673574658ef8d"	# 1 commit before most recent YDBOcto#759 commit
+										# (i.e. 060597ef284c2e1cd8f581124b935aba26a63d24)
+		# Disable the "set -e" setting temporarily as the "git merge-base" can return exit status 0 or 1
+		set +e
+		git merge-base --is-ancestor $commitsha $pre_octo759_commit
+		is_post_octo759_commit=$?
+		# Re-enable "set -e" now that "git merge-base" invocation is done.
+		set -e
+
 
 		# Point src to newsrc
 		ln -s newsrc src
@@ -762,6 +773,10 @@ else
 			#    if the random prior commit is older than the #649 commit.
 			# 8) The TDRC01,TDRC02 sql files fail with the partial implementation of Octo#509, so we can't run them
 			#    in an autoupgrade as they will error out
+			# 9) The TQG02 subtest failed once due to different number of rows returned for a query after the
+			#    YDBOcto#759 fixes compared to a commit before the fixes. Similar issues are expected to be there
+			#    in other TQG* subtests as well so skip all TQG* tests in case the older commit predates the
+			#    YDBOcto#759 fixes.
 			# ----------------------------------------------------------------------------
 			if [[ ($subtest =~ "TC011 : ") || ($subtest =~ "TPC019 : ")                    \
 					|| (($subtest =~ ^"TQG") && (0 == $is_post_octo275_commit))    \
@@ -775,6 +790,7 @@ else
 					|| (($subtest =~ ^"TLQ02") && (0 == $is_post_octo649_commit))  \
 					|| (($subtest =~ ^"TDRC01") && (0 == $is_post_octo509_commit)) \
 					|| (($subtest =~ ^"TDRC02") && (0 == $is_post_octo509_commit)) \
+					|| (($subtest =~ ^"TQG") && (0 == $is_post_octo759_commit))    \
 				]]; then
 				echo "SKIPPED : $tstdir : [subtest : $subtest]" >> ../bats_test.txt
 				cd ..

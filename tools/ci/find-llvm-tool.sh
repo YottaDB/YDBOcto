@@ -1,7 +1,7 @@
 #!/bin/sh
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -26,7 +26,7 @@ exists() {
 
 # Ubuntu likes to name the tools after the version
 # NOTE: should be updated when later versions of LLVM are released
-for version in $(seq 12 -1 "$version"); do
+for version in $(seq 15 -1 "$version"); do
 	if exists "$tool-$version"; then
 		FOUND="$tool-$version"
 		# We found a recent enough version so return success

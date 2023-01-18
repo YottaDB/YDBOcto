@@ -273,8 +273,10 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 		git checkout -B $CI_COMMIT_BRANCH HEAD
 		# Copy M program that is needed for later before we switch to an older git branch.
 		cp ../tools/ci/testAutoUpgrade.m .
-		# Do not go prior to the hard stop commit (SHA pasted below) as an AUTO_UPGRADE error is issued otherwise.
-		hardstopcommit=e2a016b21a1f7d9f2dc55b0655942ab7b8cdd92e
+		# Do not go prior to the hard stop commit (SHA pasted below) as python as python2 is not available anymore on Ubuntu 22.04.
+		# This commit remediated the use of Python2 and changed it to Python3
+		# Python2 is in tests/fixtures/sqllogic/insert.py code.
+		hardstopcommit=eefa4a6f66a05a5cfab97546738231f4952b54b4
 		#############################################################################################
 		# First verify requirements for this test to succeed. If any of those are not met, just return success right away
 		# as the auto upgrade test is not possible.

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -45,4 +45,12 @@ teardown() {
 
 @test "TF02: : Verify that t and f values in the result of query execution from Postgres and Octo are converted to 1 and 0 correctly" {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TF02.sql "trim_trailing_zeroes"
+}
+
+@test "TF03: : Verify that regex used to match NOT NULL constraint error message works fine" {
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	stop_rocto
+	test_port=$(start_rocto 1344 -aw)
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TF03.sql "trim_trailing_zeroes" "write"
 }

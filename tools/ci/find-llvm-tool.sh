@@ -26,7 +26,7 @@ exists() {
 
 # Ubuntu likes to name the tools after the version
 # NOTE: should be updated when later versions of LLVM are released
-for version in $(seq 15 -1 "$version"); do
+for version in $(seq 12 -1 "$version"); do
 	if exists "$tool-$version"; then
 		FOUND="$tool-$version"
 		# We found a recent enough version so return success

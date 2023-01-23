@@ -889,10 +889,10 @@ FILE
 				# Re-enable "set -e" now that "octo" invocation is done.
 				set -e
 				if [[ 1 -eq $qgquery ]]; then
-					querytype=$(awk 'NR==1 {print tolower($1);}' $outfile)
-					# Ignore any errors in insert or update query execution as it will be validated
+					querytype=$(awk 'NR==1 {print tolower($1);}' $sqlfile)
+					# Ignore any errors in insert or update or delete query execution as it will be validated
 					# against previous commit output error message down below
-					if [[ ("insert" == $querytype || "update" == $querytype) ]]; then
+					if [[ (("insert" == $querytype) || ("update" == $querytype) || ("delete" == $querytype)) ]]; then
 						ret_status=0
 					fi
 				fi
@@ -948,11 +948,16 @@ FILE
 					# Re-enable "set -e" now that "git merge-base" invocation is done.
 					set -e
 					if [[ (0 == $is_post_octo649_commit) || (0 != $usedjdbcdriver) ]]; then
-						mv $outfile $outfile.tmp
-						tail -n +2 $outfile.tmp | head -n -1 > $outfile
+						# If QueryGenerator is used and has generated a tabledefinition file, and the query is of
+						# type insert/update/delete, then output of these queries will not have row-header or row
+						# summary lines. Remove the row-header and row-summary lines for SELECT query results only.
+						if ! [[ ((1 -eq $qgquery) && (("insert" == $querytype) || ("update" == $querytype) || ("delete" == $querytype))) ]]; then
+							mv $outfile $outfile.tmp
+							tail -n +2 $outfile.tmp | head -n -1 > $outfile
+						fi
 					fi
 					# Error formatting in case of query generator with update queries
-					if [[ (1 -eq $qgquery) && ("insert" == $querytype || "update" == $querytype) ]]; then
+					if [[ (1 -eq $qgquery) && (("insert" == $querytype) || ("update" == $querytype) || ("delete" == $querytype)) ]]; then
 						# Below sed statements are similar to the sed statements in test_helper.bats.in
 						# run_query_in_octo_and_postgres_and_crosscheck(). Any change here must be done
 						# there as well.

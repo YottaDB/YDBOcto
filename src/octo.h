@@ -290,11 +290,14 @@
 #define DROP_FUNCTION_COMMAND_TAG   "DROP FUNCTION"
 #define TRUNCATE_TABLE_COMMAND_TAG  "TRUNCATE TABLE"
 
-#define PRINT_COMMAND_TAG(COMMAND_TAG)                                                                                       \
-	/* Skip printing COMMAND TAG if running auto load of octo-seed.sql as it is internal (not a user driven activity) */ \
-	if (!config->in_auto_load_octo_seed) {                                                                               \
-		fprintf(stdout, "%s\n", COMMAND_TAG);                                                                        \
-		fflush(stdout);                                                                                              \
+#define PRINT_COMMAND_TAG(COMMAND_TAG)                                                                                     \
+	/* Skip printing COMMAND TAG if running auto load of octo-seed.sql as it is internal (not a user driven activity). \
+	 * Skip printing COMMAND TAG if rocto as that should not go to stdout (should only go to client through simple     \
+	 * or extended query protocol connection.                                                                          \
+	 */                                                                                                                \
+	if (!config->in_auto_load_octo_seed && !config->is_rocto) {                                                        \
+		fprintf(stdout, "%s\n", COMMAND_TAG);                                                                      \
+		fflush(stdout);                                                                                            \
 	}
 
 // Default buffer allocated for $zroutines

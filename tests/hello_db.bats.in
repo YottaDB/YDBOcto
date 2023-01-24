@@ -35,37 +35,40 @@ setup() {
 				psql names -c 'DROP TABLE IF EXISTS TUT008' >& postgres.drop_table_TUT008.out
 				psql names -c 'DROP TABLE IF EXISTS TUT009;' >& postgres.drop_table_TUT009.out
 				psql names -c 'drop table if exists TTA005A; drop table if exists TTA005B;' >& postgres.drop_table_TTA005.out
-				psql names -c 'DROP TABLE IF EXISTS TQG03names;' >& postgres.drop_table_TQG03_1.out
-				psql names -c 'DROP TABLE IF EXISTS TJC06names;' >& postgres.drop_table_TJC06_1.out
+				psql names -c 'DROP TABLE IF EXISTS namesTQG03;' >& postgres.drop_table_TQG03_1.out
+				psql names -c 'DROP TABLE IF EXISTS namesTJC06;' >& postgres.drop_table_TJC06_1.out
 			fi
 			if postgres_database_exists "nullcharnames"; then
-				psql names -c 'DROP TABLE IF EXISTS TQG03nullcharnames;' >& postgres.drop_table_TQG03_2.out
-				psql names -c 'DROP TABLE IF EXISTS TJC06nullcharnames;' >& postgres.drop_table_TJC06_2.out
+				psql names -c 'DROP TABLE IF EXISTS nullcharnamesTQG03;' >& postgres.drop_table_TQG03_2.out
+				psql names -c 'DROP TABLE IF EXISTS nullcharnamesTJC06;' >& postgres.drop_table_TJC06_2.out
 			fi
 			if postgres_database_exists "nameslastname"; then
-				psql names -c 'DROP TABLE IF EXISTS TQG03nameslastname;' >& postgres.drop_table_TQG03_3.out
+				psql names -c 'DROP TABLE IF EXISTS nameslastnameTQG03;' >& postgres.drop_table_TQG03_3.out
 			fi
 			if postgres_database_exists "composite"; then
 				psql composite -c 'DROP TABLE IF EXISTS TUT010' >& postgres.drop_table_TUT010.out
-				psql composite -c 'DROP TABLE IF EXISTS TQG07composite;' >& postgres.drop_table_TQG07.out
+				psql composite -c 'DROP TABLE IF EXISTS compositeTQG07;' >& postgres.drop_table_TQG07.out
 			fi
 			if postgres_database_exists "customers"; then
-				psql customers -c 'DROP TABLE IF EXISTS TQG01customers; DROP TABLE IF EXISTS TQG01orders;' >& postgres.drop_table_TQG01.out
-				psql customers -c 'DROP TABLE IF EXISTS TJC04customers; DROP TABLE IF EXISTS TJC04orders;' >& postgres.drop_table_TJC04.out
+				psql customers -c 'DROP TABLE IF EXISTS customersTQG01; DROP TABLE IF EXISTS ordersTQG01;' >& postgres.drop_table_TQG01.out
+				psql customers -c 'DROP TABLE IF EXISTS customersTJC04; DROP TABLE IF EXISTS ordersTJC04;' >& postgres.drop_table_TJC04.out
 			fi
 			if postgres_database_exists "pastas"; then
-				psql pastas -c 'DROP TABLE IF EXISTS TQG02names4; DROP TABLE IF EXISTS TQG02pastas;' >& postgres.drop_table_TQG02.out
-				psql pastas -c 'DROP TABLE IF EXISTS TJC05names4; DROP TABLE IF EXISTS TJC05pastas;' >& postgres.drop_table_TJC05.out
+				psql pastas -c 'DROP TABLE IF EXISTS names4TQG02; DROP TABLE IF EXISTS pastasTQG02;' >& postgres.drop_table_TQG02.out
+				psql pastas -c 'DROP TABLE IF EXISTS names4TJC05; DROP TABLE IF EXISTS pastasTJC05;' >& postgres.drop_table_TJC05.out
 			fi
 			if postgres_database_exists "northwind"; then
-				psql northwind -c 'DROP TABLE IF EXISTS TQG04customers; DROP TABLE IF EXISTS TQG04orders; DROP TABLE IF EXISTS TQG04shippers; DROP TABLE IF EXISTS TQG04products; DROP TABLE IF EXISTS TQG04orderdetails; DROP TABLE IF EXISTS TQG04categories; DROP TABLE IF EXISTS TQG04employees;' >& postgres.drop_table_TQG04.out
-				psql northwind -c 'DROP TABLE IF EXISTS TJC07customers; DROP TABLE IF EXISTS TJC07orders; DROP TABLE IF EXISTS TJC07shippers; DROP TABLE IF EXISTS TJC07products; DROP TABLE IF EXISTS TJC07orderdetails; DROP TABLE IF EXISTS TJC07categories; DROP TABLE IF EXISTS TJC07employees;' >& postgres.drop_table_TJC07.out
+				for table in categories customers employees orderdetails orders products shippers suppliers
+				do
+					psql northwind -c 'DROP TABLE IF EXISTS '$table'TQG04' &>> postgres.drop_table_TQG04.out
+					psql northwind -c 'DROP TABLE IF EXISTS '$table'TJC07' &>> postgres.drop_table_TJC07.out
+				done
 			fi
 			if postgres_database_exists "boolean"; then
-				psql boolean -c 'DROP TABLE IF EXISTS TQG05stock_availability;' >& postgres.drop_table_TQG05.out
+				psql boolean -c 'DROP TABLE IF EXISTS stock_availabilityTQG05;' >& postgres.drop_table_TQG05.out
 			fi
 			if postgres_database_exists "nullnames"; then
-				psql nullnames -c 'DROP TABLE IF EXISTS TQG06nullnames;' >& postgres.drop_table_TQG06.out
+				psql nullnames -c 'DROP TABLE IF EXISTS nullnamesTQG06;' >& postgres.drop_table_TQG06.out
 			fi
 			echo "\d" > listdb.sql
 		fi

@@ -1,7 +1,7 @@
 #!/usr/bin/expect
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -14,7 +14,10 @@
 # set huge timeout since on a loaded system it is possible the psql password prompt takes some time to show up
 set timeout 60
 set port [lindex $argv 0];
-spawn /bin/bash
+
+# Start bash with --noprofile as otherwise SUSE /etc/profile blindly overwrites $PATH causing below "octo" invocations to fail
+spawn /bin/bash --noprofile
+
 # Enable long lines to prevent wrapping
 send -- "stty cols 4096\r"
 expect "stty cols 4096\r"

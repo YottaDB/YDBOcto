@@ -1,7 +1,7 @@
 #!/usr/bin/expect
 #################################################################
 #								#
-# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -12,7 +12,10 @@
 #################################################################
 
 set timeout 60
-spawn /bin/bash
+
+# Start bash with --noprofile as otherwise SUSE /etc/profile blindly overwrites $PATH causing below "octo" invocations to fail
+spawn /bin/bash --noprofile
+
 expect -re "\[#\$] "
 # Enable long lines to prevent wrapping
 send -- "stty cols 4096\r"

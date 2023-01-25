@@ -1,7 +1,7 @@
 #!/usr/bin/expect
 #################################################################
 #								#
-# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -17,7 +17,8 @@
 # stty_init variable to provide the parameters to the "stty" command for all "spawn" commands done in this expect script.
 set stty_init "cols 4096"
 
-spawn bash
+# Start bash with --noprofile as otherwise SUSE /etc/profile blindly overwrites $PATH causing below "octo" invocations to fail
+spawn /bin/bash --noprofile
 
 # Bump timeout from default of 10 seconds to 60 seconds as 10 seconds is not enough to test lock timeout which is also 10 seconds
 set timeout 60

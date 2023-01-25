@@ -16,7 +16,9 @@
 # This script tests an invalid query that is not terminated by a semicolon and followed by a Ctrl-D.
 
 set timeout 60
-spawn /bin/bash
+
+# Start bash with --noprofile as otherwise SUSE /etc/profile blindly overwrites $PATH causing below "octo" invocations to fail
+spawn /bin/bash --noprofile
 
 # Note "expect_after" needs to be done AFTER spawn or else it won't take effect
 expect_after {

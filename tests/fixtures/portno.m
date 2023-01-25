@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -26,7 +26,11 @@ findopenport
 	.	if (""=$zsearch(portdir)) do
 	.	.	do:(""'=portdir) scavenge
 	.	.	; Port has not been allocated. Check if it is in use by any process in system currently.
-	.	.	zsystem "cat /proc/net/tcp | grep -q `printf ""%04x"" "_port_"`"
+	.	.	; The "nc -z" command below checks if there is anything listening on the port.
+	.	.	zsystem "nc -z localhost "_port
+	.	.	; Note that since the above command does not use any pipes, $zsystem is guaranteed to be
+	.	.	; the exit status of the "nc" command. And can be used below to derive the information on
+	.	.	; whether the port is available or not.
 	.	.	set portisopen=$zsystem
 	set ^portdir(port)=$zdir
 	write port

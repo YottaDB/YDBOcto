@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -32,7 +32,7 @@ teardown() {
   stop_rocto
 }
 
-@test "ensure log output split across multiple lines" {
+@test "TLS01 : ensure log output split across multiple lines" {
   # Spawn several client-server process pairs to create potential for log interleaving
   for i in {1..10}; do
     # Account for TLS and non-TLS pipelines

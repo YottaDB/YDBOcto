@@ -347,7 +347,7 @@ int main(int argc, char **argv) {
 						if (-1 == tls_errno) {
 							ERROR(ERR_ROCTO_TLS_ACCEPT, gtm_tls_get_error());
 						} else {
-							ERROR(ERR_ROCTO_TLS_UNNAMED, tls_errno, strerror(tls_errno));
+							ERROR(ERR_ROCTO_TLS_UNNAMED, strerror(tls_errno), tls_errno);
 						}
 						break;
 					} else if (GTMTLS_WANT_READ == status) {

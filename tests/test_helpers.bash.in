@@ -770,8 +770,9 @@ verify_output() {
 	# test_where_in.bats TWI12 when executed with JDBC driver fails without the following code.
 	# This is because the semicolon at the end of a query is left out of the physical plan in this case.
 	# To avoid such failure we remove all occurrences of semicolons before the comparison.
-	local isjdbcclient=$(grep "randclient:JDBC" dbg_env.out)
-	if [[ ! -z "$isjdbcclient" ]]; then
+	# The first condition is required as not all tests create `dbg_env.out`(hello_db.bats.in is one
+	# such test).
+	if ([[ -e dbg_env.out ]]) && (grep -q "randclient:JDBC" dbg_env.out); then
 		sed 's/;//g' outref/$1.ref > jdbc_$1.ref
 		sed 's/;//g' clean_output.txt > jdbc_clean_output.txt
 		diff jdbc_$1.ref jdbc_clean_output.txt

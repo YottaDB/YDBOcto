@@ -1,6 +1,6 @@
 #################################################################
 #               #
-# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries. #
+# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries. #
 # All rights reserved.            #
 #               #
 # This source code contains the intellectual property #
@@ -41,7 +41,9 @@ END
 
   # Tell us about it
   export ODBCINI=$PWD/odbc.ini
-
+  # isql 2.3.11 prints an extra line whereas isql 2.3.9 does not. So filter out the extra line by storing the pattern
+  # in a variable for later use in different subtests so those subtests have a deterministic reference file.
+  isqlvfilter="^| echo \[string\]"
 }
 
 teardown() {
@@ -49,7 +51,8 @@ teardown() {
 }
 
 @test "TOC001 : Hello ODBC" {
-  echo | isql -v OCTO |& tee output.txt
+  echo | isql -v OCTO |& tee output1.txt
+  grep -v "$isqlvfilter" output1.txt > output.txt
   verify_output TOC001 output.txt
 }
 
@@ -75,7 +78,8 @@ teardown() {
   # Add TLS to ini file
   echo "SSLmode          = require" >> odbc.tls.ini
   # Run temporarily with new INI file
-  echo | ODBCINI=$PWD/odbc.tls.ini isql -v OCTO |& tee output.txt
+  echo | ODBCINI=$PWD/odbc.tls.ini isql -v OCTO |& tee output1.txt
+  grep -v "$isqlvfilter" output1.txt > output.txt
   verify_output TOC004 output.txt
   # Restore old ini file
   mv odbc.ini.iamnothere odbc.ini

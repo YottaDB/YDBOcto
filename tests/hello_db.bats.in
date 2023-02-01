@@ -17,6 +17,8 @@ setup() {
 }
 
 @test "HDB01 : Can communicate and load data into Postgres & MySQL" {
+	skip_escape_sequence_sanitize=1	# skip RHEL7-specific escape_sequence_sanitize() call in verify_output()
+					# as we know it is not needed in this test and will let us run this test on RHEL7 too.
 	for db in mysql postgres
 	do
 		if [[ "mysql" == $db ]]; then

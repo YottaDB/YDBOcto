@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -606,6 +606,12 @@ OCTO
 }
 
 @test "TC049 : OCTO476 : ENDPOINT keyword, as a supplement to END" {
+	# This test inserts records with $CHAR(27) which is an escape sequence.
+	# On RHEL7 systems, verify_output() invokes escape_sequence_sanitize() which removes all escape sequences
+	# from the reference file. This will cause a test failure. But we know this escape sequence sanitization is
+	# not needed for this test so set the var accordingly. This will let us run this test on RHEL7 too.
+	skip_escape_sequence_sanitize=1
+
 	load_fixture vista-mini.zwr
 
 	echo 'Test ENDPOINT with a space' | tee -a output.txt

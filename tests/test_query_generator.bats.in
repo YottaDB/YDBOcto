@@ -31,6 +31,12 @@ teardown() {
 }
 
 @test "TQG03 : Test Query Generator against names OR nullcharnames database" {
+	if $is_rhel7; then
+		# On RHEL7 systems, Postgres version is 9.2.2 which has a different output for various queries in this test
+		# compared to newer Postgres versions on other Linux distributions (which is what Octo output matches).
+		# Therefore skip this test on RHEL7.
+		skip
+	fi
 	randInt=$(($RANDOM % 3))
 	case $randInt in
 	   0)

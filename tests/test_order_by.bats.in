@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -198,9 +198,15 @@ OCTO
 }
 
 @test "TOB16 : OCTO842 : Validate that removal of ORDER BY columns belonging to outer query does not affect the result" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOB16.sql
-  load_fixture TOB16_errors.sql subtest
-  verify_output TOB16_errors output.txt noinfo nodebug
+	if $is_rhel7; then
+		# On RHEL7 systems, Postgres version is 9.2.2 which has a different output for various queries in this test
+		# compared to newer Postgres versions on other Linux distributions (which is what Octo output matches).
+		# Therefore skip this test on RHEL7.
+		skip
+	fi
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOB16.sql
+	load_fixture TOB16_errors.sql subtest
+	verify_output TOB16_errors output.txt noinfo nodebug
 }
 
 @test "TOB17 : OCTO828 : Validate non-integer constants result in an error" {

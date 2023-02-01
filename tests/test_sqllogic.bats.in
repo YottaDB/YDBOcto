@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -69,6 +69,12 @@ sqllogic_test() {
 # TS04: 15s
 # TS05: 23s
 @test "TS01: select1 test cases from https://github.com/shivarajugowda/jdbcSQLTest/blob/master/resources/sqllogictest/select1.test" {
+	if $is_rhel7; then
+		# On RHEL7 systems, Postgres version is 9.2.2 which has a different output for various queries in this test
+		# compared to newer Postgres versions on other Linux distributions (which is what Octo output matches).
+		# Therefore skip this test on RHEL7.
+		skip
+	fi
 	sqllogic_test 1 .1
 }
 

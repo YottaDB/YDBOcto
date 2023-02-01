@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -120,6 +120,12 @@ teardown() {
 }
 
 @test "TUT008 : OCTO579 : Test UTF-8 string handling when ydb_chset=UTF-8" {
+	if $is_rhel7; then
+		# On RHEL7 systems, Postgres version is 9.2.2 which has a different output for various queries in this test
+		# compared to newer Postgres versions on other Linux distributions (which is what Octo output matches).
+		# Therefore skip this test on RHEL7.
+		skip
+	fi
 	# Note: This test is based on the UTF-8 section of the test_insert_into/TII04 subtest
 	if [[ $ydb_chset == "UTF-8" ]]; then
 		# Since YDB is in UTF-8 mode, we can safely run queries which have UTF-8 code points

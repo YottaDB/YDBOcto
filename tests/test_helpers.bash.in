@@ -27,6 +27,11 @@ setup_bats_env() {
 	export COLUMNS=4096
 	# Create a a log of the test being run
 	echo " --> Running test [$BATS_TEST_FILENAME] : subtest [$BATS_TEST_DESCRIPTION] : in $PWD : build type @CMAKE_BUILD_TYPE@ " > bats_test.out
+	if [ ! -x "$(which rpm)" ] || ! grep -q 'VERSION_ID="7' /etc/os-release; then
+		is_rhel7=false
+	else
+		is_rhel7=true
+	fi
 }
 
 save_env_variables() {
@@ -785,10 +790,8 @@ verify_output() {
 escape_sequence_sanitize() {
 	# On RHEL7 and CentOS7, the OCTO> prompt has some escape sequences before it (due likely to an older version of readline()).
 	# Need that trimmed out as it will cause reference file issues.
-	if [ ! -x "$(which rpm)" ] || ! grep -q 'VERSION_ID="7' /etc/os-release; then
-		export disable_escape_sequence_sanitize=1
-	fi
-	if [[ -z "$disable_escape_sequence_sanitize" ]]; then
+	# But if the caller subtest has explicitly disabled this trimming (by setting a variable) honor that and skip this trimming.
+	if [ $is_rhel7 ] && [ 1 != $skip_escape_sequence_sanitize ] ; then
 		mv clean_output.txt clean_output.txt.nosanitize
 		perl @PROJECT_SOURCE_DIR@/tests/fixtures/escape_sequence_sanitize.pl clean_output.txt.nosanitize > clean_output.txt
 	fi

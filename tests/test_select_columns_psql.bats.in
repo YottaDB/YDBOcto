@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -175,9 +175,15 @@ setup() {
 }
 
 @test "TSCP21 : OCTO854 : Support subquery in in-list " {
-       run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP21.sql
-       load_fixture TSCP21_errors.sql subtest novv
-       verify_output TSCP21_errors output.txt
+	if $is_rhel7; then
+		# On RHEL7 systems, Postgres version is 9.2.2 which has a different output for various queries in this test
+		# compared to newer Postgres versions on other Linux distributions (which is what Octo output matches).
+		# Therefore skip this test on RHEL7.
+		skip
+	fi
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP21.sql
+	load_fixture TSCP21_errors.sql subtest novv
+	verify_output TSCP21_errors output.txt
 }
 
 @test "TSCP22 : OCTO889 : Validate that subquery operand of an IN operation issues an error when the subquery has more than 1 column " {

@@ -76,8 +76,11 @@
 // Length of M extrinsic function prefix, i.e. "$$"
 #define EXTRINSIC_PREFIX_LEN 2
 
-#define IS_KEY_COLUMN(COLUMN)	   (NULL != get_keyword(COLUMN, OPTIONAL_KEY_NUM))
-#define IS_COLUMN_NOT_NULL(COLUMN) (IS_KEY_COLUMN(COLUMN) || (NULL != get_keyword(COLUMN, NOT_NULL)))
+#define IS_KEY_COLUMN(COLUMN)		      (NULL != get_keyword(COLUMN, OPTIONAL_KEY_NUM))
+#define IS_COLUMN_NOT_NULL(COLUMN)	      (IS_KEY_COLUMN(COLUMN) || (NULL != get_keyword(COLUMN, NOT_NULL)))
+#define IS_COLUMN_IDENTITY(COLUMN)	      ((IS_COLUMN_ALWAYS_IDENTITY(COLUMN) || (IS_COLUMN_BY_DEFAULT_IDENTITY(COLUMN))))
+#define IS_COLUMN_ALWAYS_IDENTITY(COLUMN)     (NULL != get_keyword(COLUMN, OPTIONAL_GENERATED_ALWAYS_IDENTITY))
+#define IS_COLUMN_BY_DEFAULT_IDENTITY(COLUMN) (NULL != get_keyword(COLUMN, OPTIONAL_GENERATED_BY_DEFAULT_IDENTITY))
 
 /* Maximum query string length for all Octo queries. Currently set to YDB_MAX_STR (the maximum size of a GVN/LVN value) since query
  * strings are stored in LVNs during processing and so are constrained the size limit for LVN values. Should users require a greater
@@ -156,6 +159,7 @@
 #define OCTOLIT_FUNCTIONS	     "functions"
 #define OCTOLIT_FUNCTIONS_MAP	     "functions_map"
 #define OCTOLIT_FORMAT_CODE	     "format_code"
+#define OCTOLIT_IDENTITY	     "identity"
 #define OCTOLIT_KEY		     "KEY"
 #define OCTOLIT_PKEY		     "PKEY"
 #define OCTOLIT_LENGTH		     "length"
@@ -201,6 +205,7 @@
 #define OCTOLIT_YDBOCTOCANCELLOCALXF "localTableXref"
 #define OCTOLIT_YDBOCTOSECRETKEYLIST "%ydboctoSecretKeyList"
 #define OCTOLIT_YDBOCTOTBLCONSTRAINT "%ydboctoTblConstraint"
+#define OCTOLIT_YDBOCTOSCHEMA	     "^%ydboctoschema"
 
 #define OCTOLIT_AIM_OCTO_CACHE	   "^%ydbAIMOctoCache"
 #define OCTOLIT_AIM_SUB_COMPLETED  "completed?"
@@ -325,7 +330,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_PLAN_DEFINITION 22
+#define FMT_PLAN_DEFINITION 23
 
 /* Used by `hash_canonical_query()` */
 #define HASH_LITERAL_VALUES -1
@@ -810,15 +815,12 @@ typedef enum RegexType {
 	}
 
 /* Below parses a drop_behavior SQL grammar component  */
-#define INVOKE_DROP_BEHAVIOR(STMT, KEYWORD)                              \
-	{                                                                \
-		SqlStatement *ret;                                       \
-		SQL_STATEMENT(ret, keyword_STATEMENT);                   \
-		OCTO_CMALLOC_STRUCT(ret->v.keyword, SqlOptionalKeyword); \
-		ret->v.keyword->keyword = KEYWORD;                       \
-		ret->v.keyword->v = NULL;                                \
-		dqinit(ret->v.keyword);                                  \
-		STMT = ret;                                              \
+#define INVOKE_DROP_BEHAVIOR(STMT, KEYWORD)        \
+	{                                          \
+		SqlStatement *ret;                 \
+		MALLOC_KEYWORD_STMT(ret, KEYWORD); \
+		ret->v.keyword->v = NULL;          \
+		STMT = ret;                        \
 	}
 
 /* Below parses a truncate_table_statement SQL grammar component  */
@@ -829,6 +831,17 @@ typedef enum RegexType {
 		OCTO_CMALLOC_STRUCT(ret->v.truncate_table, SqlTruncateTableStatement); \
 		ret->v.truncate_table->tables = TABLES;                                \
 		STMT = ret;                                                            \
+	}
+
+/* Below parses a insert optional keyword SQL grammar component */
+#define MALLOC_KEYWORD_STMT(STMT, KEYWORD)                              \
+	{                                                               \
+		SqlStatement *keyword;                                  \
+		SQL_STATEMENT(keyword, keyword_STATEMENT);              \
+		MALLOC_STATEMENT(keyword, keyword, SqlOptionalKeyword); \
+		keyword->v.keyword->keyword = KEYWORD;                  \
+		dqinit(keyword->v.keyword);                             \
+		STMT = keyword;                                         \
 	}
 
 #ifndef NDEBUG
@@ -1047,8 +1060,8 @@ SqlStatement *data_type(SqlDataType data_type, SqlStatement *size_or_precision, 
 SqlStatement *derived_column(SqlStatement *derived_column_expression, SqlStatement *column_name, struct YYLTYPE *yloc);
 SqlStatement *derived_table(SqlStatement *table_subquery, SqlStatement *correlation_specification);
 SqlStatement *grouping_column_reference(SqlStatement *derived_column_expression, SqlStatement *collate_clause);
-SqlStatement *insert_statement(SqlStatement *table_name, SqlStatement *column_name_list, SqlStatement *query_expression,
-			       int *plan_id, ParseContext *parse_context);
+SqlStatement *insert_statement(SqlStatement *table_name, SqlStatement *column_name_list, SqlStatement *optional_words,
+			       SqlStatement *query_expression, int *plan_id, ParseContext *parse_context);
 SqlStatement *delete_from_statement(SqlStatement *table_name, SqlStatement *alias_name, SqlStatement *where_clause, int *plan_id,
 				    ParseContext *parse_context);
 SqlStatement *update_statement(SqlStatement *table_name, SqlStatement *alias_name, SqlStatement *set_clause_list,

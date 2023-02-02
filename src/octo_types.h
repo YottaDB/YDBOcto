@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -293,6 +293,11 @@ typedef enum OptionalKeyword {
 	OPTIONAL_KEEPDATA,
 	OPTIONAL_CHECK_CONSTRAINT,
 	OPTIONAL_AIM_TYPE,
+	OPTIONAL_OVERRIDING_SYSTEM_VALUE,
+	OPTIONAL_OVERRIDING_USER_VALUE,
+	OPTIONAL_DEFAULT,
+	OPTIONAL_GENERATED_BY_DEFAULT_IDENTITY,
+	OPTIONAL_GENERATED_ALWAYS_IDENTITY,
 } OptionalKeyword;
 
 typedef enum SqlSetOperationType {
@@ -668,6 +673,10 @@ typedef struct SqlInsertStatement {
 	struct SqlStatement *dst_table_alias_stmt; /* SqlTableAlias */
 	struct SqlStatement *columns;		   /* SqlColumnList */
 	struct SqlStatement *src_table_alias_stmt; /* SqlTableAlias */
+	struct SqlStatement *optional_words;	   /* At present this field will be either NULL or
+						    * SqlOptionalKeyword of type OVERRIDE_SYSTEM_VALUE or
+						    * SqlOptionalKeyword of type OVERRIDE_USER_VALUE
+						    */
 } SqlInsertStatement;
 
 typedef struct SqlDeleteFromStatement {
@@ -679,7 +688,9 @@ typedef struct SqlUpdateColumnValue {
 	struct SqlStatement *col_name;	/* Contains name of the column (SqlValue) at start of parsing.
 					 * "update_statement.c" later modifies this to contain SqlColumn.
 					 */
-	struct SqlStatement *col_value; /* Value to assign to the column. Can be SqlValue, SqlBinaryOperation, etc. */
+	struct SqlStatement *col_value; /* Value to assign to the column. Can be SqlOptionalKeyword -> DEFAULT,
+					 * SqlValue, SqlBinaryOperation, etc.
+					 */
 	dqcreate(SqlUpdateColumnValue);
 } SqlUpdateColumnValue;
 

@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.  #
+.. # Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.  #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -490,6 +490,14 @@ ERR_INIT_SCANNER
 
   Description/Action: This message indicates an error in initializing the scanner used to parse provided input. Please contact your YottaDB support channel. PSQL Error Code: XX000
 
+++++++++++++++++++++++++++++++++++++++++
+ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY
+++++++++++++++++++++++++++++++++++++++++
+
+  Text: Cannot INSERT into GENERATED ALWAYS identity column 'xxx.xxx'. Use OVERRIDING SYSTEM VALUE to override.
+
+  Description/Action: This error is generated when the :code:`INSERT INTO` command is done on an ALWAYS GENERATED identity column. See :code:`OVERRIDING SYSTEM VALUE` in `IDENTITY <https://docs.yottadb.com/Octo/grammar.html#identity>`_ to know how to override this check.  PSQL Error Code: 428C9
+
 ++++++++++++++++++++++++++++
 ERR_INSERT_TOO_MANY_COLUMNS
 ++++++++++++++++++++++++++++
@@ -777,6 +785,14 @@ ERR_NOT_OPERATION_TYPE_MISMATCH
   Text: xxx type operand is incorrect for NOT operation. Need a boolean operand.
 
   Description/Action: This error is generated when :code:`NOT` operation is applied on a non boolean operand. PSQL Error Code: 42804
+
+++++++++++++++++++++++++
+ERR_NON_INTEGER_IDENTITY
+++++++++++++++++++++++++
+
+  Text: Only integer columns can be an identity column
+
+  Description/Action: This error is generated when a non :code:`INTEGER` column is made as an identity in :code:`CREATE TABLE` command. PSQL Error Code: 22023
 
 ++++++++++++++++++++
 ERR_NULL_COL_VALUE
@@ -1189,6 +1205,14 @@ ERR_TABLE_KEY_NUM
   Description/Action: This error is generated when a :code:`CREATE TABLE` command specifies a table-level :code:`PRIMARY KEY` constraint (i.e. a PRIMARY KEY keyword followed by a parenthesized list of column names) and a :code:`KEY NUM` keywords in the same command. To specify multiple key columns in the table, use only a table-level :code:`PRIMARY KEY` constraint. No need for any KEY NUM keywords (which are still supported only for historical reasons). PSQL Error Code: 42P10
 
 ++++++++++++++++++++++++++++++++
+ERR_TABLE_MULTIPLE_IDENTITY
+++++++++++++++++++++++++++++++++
+
+  Text: Multiple identity specified for column 'xxx' of table 'xxx'
+
+  Description/Action: This error is generated when a :code:`CREATE TABLE` command specifies more than one column level :code:`IDENTITY` specifications. PSQL Error Code: 42601
+
+++++++++++++++++++++++++++++++++
 ERR_TABLE_MULTIPLE_PRIMARY_KEYS
 ++++++++++++++++++++++++++++++++
 
@@ -1331,6 +1355,14 @@ ERR_UNKNOWN_TABLE
   Text: Unknown table: xxx
 
   Description/Action: This error is generated when the table referenced does not exist or is unknown. PSQL Error Code: 42P01
+
++++++++++++++++++++++++++++++++++++++++
+ERR_UPDATE_OF_GENERATED_ALWAYS_IDENTITY
++++++++++++++++++++++++++++++++++++++++
+
+  Text: Updating a GENERATED ALWAYS IDENTITY column 'xxx.xxx' to a non-DEFAULT value is invalid.
+
+  Description/Action: This error is genererated when a GENERATED ALWAYS AS IDENTITY column is being updated with a non-DEFAULT value. This is invalid. PSQL Error Code: 428C9
 
 ++++++++++++++++++
 ERR_VALUES_LENGTH

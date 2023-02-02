@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -325,6 +325,11 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *root_stmt) {
 			}
 		} while (cur_branch != cas_branch);
 		ret->v.lp_default.group_by_column_num = cas->group_by_fields.group_by_column_num;
+		break;
+	case keyword_STATEMENT:
+		assert(OPTIONAL_DEFAULT == stmt->v.keyword->keyword);
+		MALLOC_LP_2ARGS(ret, LP_KEYWORDS);
+		ret->v.lp_keywords.keywords = stmt->v.keyword;
 		break;
 	case set_operation_STATEMENT:
 	case table_alias_STATEMENT:

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -227,5 +227,6 @@ TEMPLATE(tmpl_constraint, PhysicalPlan *pplan, LogicalPlan *lp_constraint, SqlTa
 TEMPLATE(tmpl_constraint_col_list, PhysicalPlan *pplan, SqlConstraint *constraint, SqlTable *table, ConstraintColListType list_type,
 	 int dot_count, UniqueConstraintLoopType loop_type);
 TEMPLATE(tmpl_update_column_reference, PhysicalPlan *pplan, SqlColumn *cur_column, int dot_count);
+TEMPLATE(tmpl_identity_column, SqlColumn *column);
 
 #endif

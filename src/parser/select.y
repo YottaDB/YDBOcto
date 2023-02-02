@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -53,9 +53,7 @@ optional_query_word_element
         float           lit_fl_val;
 
 	$literal_value->v.value->type = INTEGER_LITERAL;	/* we will convert any fractions to integers so cast type */
-        SQL_STATEMENT(ret, keyword_STATEMENT);
-        OCTO_CMALLOC_STRUCT(ret->v.keyword, SqlOptionalKeyword);
-        ret->v.keyword->keyword = OPTIONAL_LIMIT;
+	MALLOC_KEYWORD_STMT(ret, OPTIONAL_LIMIT);
         ret->v.keyword->v = $literal_value;
         c = ret->v.keyword->v->v.value->v.string_literal;
         lit_fl_val = strtof(c, NULL);
@@ -64,7 +62,6 @@ optional_query_word_element
         snprintf(new_string, INT32_TO_STRING_MAX, "%d", lit_int_val);
         ret->v.keyword->v->v.value->v.string_literal = new_string;
         INVOKE_PARSE_LITERAL_TO_PARAMETER(parse_context, ret->v.keyword->v->v.value, TRUE);
-        dqinit(ret->v.keyword);
         $$ = ret;
       } else {
         ERROR(ERR_INVALID_INPUT_SYNTAX, get_user_visible_type_string(($literal_value)->v.value->type));

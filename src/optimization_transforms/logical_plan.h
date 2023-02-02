@@ -164,7 +164,7 @@ typedef struct LpExtraWhere {
 	int num_outer_joins;
 } LpExtraWhere;
 
-/* Extra fields needed by LP_SELECT_QUERY or LP_TABLE_VALUE or LP_UPDATE */
+/* Extra fields needed by LP_SELECT_QUERY or LP_TABLE_VALUE or LP_UPDATE or LP_INSERT_INTO or LP_DELETE_FROM */
 typedef struct LpExtraInsert {
 	SqlTableAlias *root_table_alias;      /* If LP_SELECT_QUERY, this field points to the outer most SqlTableAlias structure
 					       *   corresponding to this logical plan. Needed to forward this to the
@@ -177,11 +177,17 @@ typedef struct LpExtraInsert {
 					       *   corresponding to source table of the DELETE FROM.
 					       * If LP_INSERT_INTO, this is currently NULL
 					       */
-	struct LogicalPlan * first_aggregate; /* Used only in case of LP_SELECT_QUERY. Not used if LP_TABLE_VALUE */
+	struct LogicalPlan * first_aggregate; /* Used only in case of LP_SELECT_QUERY. Not used otherwise */
 	struct PhysicalPlan *physical_plan;   /* Pointer to corresponding physical plan. Note that there is only ONE physical
 					       * plan corresponding to this logical plan i.e. there is a 1 to 1 mapping.
 					       */
 	boolean_t to_array;		      // Indicates the result of this LP_SELECT_QUERY should be converted to a SQL array
+	boolean_t override_user_value;	      /* Indicates whether the INSERT query has OVERRIDING USER VALUE keyword.
+					       * Also, there is no information stored for OVERRIDING SYSTEM VALUE keyword as all
+					       * error cases are handled by the parser and the valid cases simply use the user
+					       * value (if specified) or the auto-increment value. There will be no check required
+					       * to be done in this case.
+					       */
 } LpExtraInsert;
 
 /* Extra fields needed by LP_COLUMN_ALIAS */

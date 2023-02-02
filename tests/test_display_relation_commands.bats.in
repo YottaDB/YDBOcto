@@ -65,3 +65,7 @@ setup() {
 	verify_output TDRC05 output.txt
 }
 
+@test "TDRC06 : OCTO583 : Verify \d table_name displays DEFAULT column with IDENTITY column type information" {
+	load_fixture TDRC06.sql subtest novv
+	verify_output TDRC06 output.txt
+}

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -12,13 +12,26 @@
 
 insert_statement
   : INSERT INTO column_name query_expression {
-	$$ = insert_statement($column_name, NULL, $query_expression, plan_id, parse_context);
+	$$ = insert_statement($column_name, NULL, NULL, $query_expression, plan_id, parse_context);
+	if (NULL == $$) {
+		YYERROR;
+	}
+    }
+
+  | INSERT INTO column_name optional_insert_words query_expression {
+	$$ = insert_statement($column_name, NULL, $optional_insert_words, $query_expression, plan_id, parse_context);
 	if (NULL == $$) {
 		YYERROR;
 	}
     }
   | INSERT INTO column_name LEFT_PAREN column_name_list RIGHT_PAREN query_expression {
-	$$ = insert_statement($column_name, $column_name_list, $query_expression, plan_id, parse_context);
+	$$ = insert_statement($column_name, $column_name_list, NULL, $query_expression, plan_id, parse_context);
+	if (NULL == $$) {
+		YYERROR;
+	}
+    }
+  | INSERT INTO column_name LEFT_PAREN column_name_list RIGHT_PAREN optional_insert_words query_expression {
+	$$ = insert_statement($column_name, $column_name_list, $optional_insert_words, $query_expression, plan_id, parse_context);
 	if (NULL == $$) {
 		YYERROR;
 	}
@@ -32,5 +45,14 @@ insert_statement
 		YYERROR;
 	}
 	*/
+    }
+  ;
+
+optional_insert_words
+  : OVERRIDING_SYSTEM_VALUE {
+	MALLOC_KEYWORD_STMT($$, OPTIONAL_OVERRIDING_SYSTEM_VALUE);
+    }
+  | OVERRIDING_USER_VALUE {
+	MALLOC_KEYWORD_STMT($$, OPTIONAL_OVERRIDING_USER_VALUE);
     }
   ;

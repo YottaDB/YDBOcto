@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -22,10 +22,7 @@
 SqlStatement *alloc_no_keyword(void) {
 	SqlStatement *ret;
 
-	SQL_STATEMENT(ret, keyword_STATEMENT);
-	OCTO_CMALLOC_STRUCT(ret->v.keyword, SqlOptionalKeyword);
-	ret->v.keyword->keyword = NO_KEYWORD;
+	MALLOC_KEYWORD_STMT(ret, NO_KEYWORD);
 	ret->v.keyword->v = NULL;
-	dqinit(ret->v.keyword);
 	return ret;
 }

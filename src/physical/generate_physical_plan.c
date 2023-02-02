@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -685,6 +685,10 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 			}
 			stmt->v.lp_default.operand[1]
 			    = sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[1], stmt);
+			break;
+		case LP_KEYWORDS:
+			// This is an UPDATE statement with a DEFAULT SET value for an IDENTITY column
+			assert(OPTIONAL_DEFAULT == stmt->v.lp_keywords.keywords->keyword);
 			break;
 		case LP_TABLE:
 			// This should never happen; fall through to error case

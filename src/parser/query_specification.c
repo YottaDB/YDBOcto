@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -35,11 +35,8 @@ SqlStatement *query_specification(OptionalKeyword set_quantifier, SqlStatement *
 	this_table_alias->column_list = select_list;
 	UNPACK_SQL_STATEMENT(select, table_expression, select);
 	select->select_list = select_list;
-	SQL_STATEMENT(quantifier, keyword_STATEMENT);
-	OCTO_CMALLOC_STRUCT(quantifier->v.keyword, SqlOptionalKeyword);
-	quantifier->v.keyword->keyword = set_quantifier;
+	MALLOC_KEYWORD_STMT(quantifier, set_quantifier);
 	quantifier->v.keyword->v = NULL;
-	dqinit(quantifier->v.keyword);
 	select->optional_words = quantifier;
 	select->order_by_expression = sort_specification_list;
 	return ret;

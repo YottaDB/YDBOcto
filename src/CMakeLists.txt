@@ -491,6 +491,7 @@ set(template_files
   ${template_dir}/tmpl_duplication_check.ctemplate
   ${template_dir}/tmpl_emit_source.ctemplate
   ${template_dir}/tmpl_group_by.ctemplate
+  ${template_dir}/tmpl_identity_column.ctemplate
   ${template_dir}/tmpl_insert_into.ctemplate
   ${template_dir}/tmpl_invoke_deferred_plan.ctemplate
   ${template_dir}/tmpl_invoke_deferred_plan_setoper.ctemplate

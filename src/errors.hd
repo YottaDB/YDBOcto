@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -81,6 +81,7 @@ ERROR_DEF(ERR_GROUP_BY_POSITION_NOT_INTEGER, "Non integer constant %s%s in GROUP
 ERROR_DEF(ERR_GROUP_BY_POSITION_INVALID, "GROUP BY position %s%s is not in select list", PSQL_Code_Invalid_Column_Reference)
 ERROR_DEF(ERR_GROUP_BY_SUB_QUERY, "Subqueries are not supported in GROUP BY", PSQL_Code_Grouping_Error)
 ERROR_DEF(ERR_IDENT_LENGTH, "%s length %d exceeds max (%d)", PSQL_Code_Syntax_Error)
+ERROR_DEF(ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY, "Cannot INSERT into GENERATED ALWAYS identity column '%s.%s'. Use OVERRIDING SYSTEM VALUE to override.", PSQL_Code_Generated_Always)
 ERROR_DEF(ERR_INSERT_TOO_MANY_COLUMNS, "INSERT has more target columns than expressions", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_INSERT_TOO_MANY_EXPRESSIONS, "INSERT has more expressions than target columns", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_INSERT_TYPE_MISMATCH, "Column '%s' is of type %s but expression is of type %s", PSQL_Code_Datatype_Mismatch)
@@ -117,6 +118,7 @@ ERROR_DEF(ERR_SETOPER_TYPE_MISMATCH, "%s types %s and %s cannot be matched", PSQ
 ERROR_DEF(ERR_SUBQUERY_ONE_COLUMN, "Subquery must return only one column", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_SUBQUERY_CHECK, "Cannot use subquery in CHECK constraint", PSQL_Code_Feature_Not_Supported)
 ERROR_DEF(ERR_TABLE_DEFINITION_TOO_LONG, "Table definition for %s too long; max size is %d, table length is %d", PSQL_Code_Invalid_Table_Definition)
+ERROR_DEF(ERR_TABLE_MULTIPLE_IDENTITY, "Multiple identity specified for column '%s' of table '%s'", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_TABLE_MULTIPLE_PRIMARY_KEYS, "Multiple primary keys for table '%s' are not allowed", PSQL_Code_Invalid_Table_Definition)
 ERROR_DEF(ERR_TABLE_KEY_NUM, "CREATE TABLE for table '%s' cannot use table-level PRIMARY KEY constraint and KEY NUM at same time", PSQL_Code_Invalid_Table_Definition)
 ERROR_DEF(ERR_TABLE_MUST_HAVE_A_VISIBLE_COLUMN, "Table '%s' must have at least one visible column", PSQL_Code_Invalid_Table_Definition)
@@ -133,6 +135,7 @@ ERROR_DEF(ERR_UNGROUPED_OUTER_QUERY_COLUMN, "subquery uses ungrouped column %s f
 ERROR_DEF(ERR_UNKNOWN_COLUMN_NAME, "Unknown column: %s", PSQL_Code_Undefined_Column)
 ERROR_DEF(ERR_UNKNOWN_FUNCTION, "No function '%s' defined with given parameter types (%s)", PSQL_Code_Undefined_Function)
 ERROR_DEF(ERR_UNKNOWN_FUNCTION_EMULATION, "No %s-parameter function '%s' defined for the current database emulation mode (%s)", PSQL_Code_Undefined_Function)
+ERROR_DEF(ERR_UPDATE_OF_GENERATED_ALWAYS_IDENTITY, "Updating a GENERATED ALWAYS IDENTITY column '%s.%s' to a non-DEFAULT value is invalid.", PSQL_Code_Generated_Always)
 ERROR_DEF(ERR_FUNCTION_NOT_UNIQUE, "Function '%s(%s)' not unique. Parameter(s) may require explicit type cast(s)", PSQL_Code_Undefined_Function)
 ERROR_DEF(ERR_UNKNOWN_TABLE, "Unknown table: %s", PSQL_Code_Undefined_Table)
 ERROR_DEF(ERR_VALUES_LENGTH, "VALUES lists must all be the same length", PSQL_Code_Syntax_Error)
@@ -263,6 +266,7 @@ ERROR_DEF(ERR_INVALID_NUMBER, "%s: invalid number of %s: %d is out of range (min
 ERROR_DEF(ERR_TOO_MANY_FUNCTION_ARGUMENTS, "Too many arguments passed for function %s (max: %d)", PSQL_Code_Numeric_Value_Out_Of_Range)
 ERROR_DEF(ERR_NUMERIC_OVERFLOW, "Numeric field overflow; A field with precision %s, scale %s must round to an absolute value less than 10^%s", PSQL_Code_Numeric_Value_Out_Of_Range)
 ERROR_DEF(ERR_NUMERIC_SCALE, "Numeric scale %d must be between zero(0) and precision %d", PSQL_Code_Invalid_Parameter_Value)
+ERROR_DEF(ERR_NON_INTEGER_IDENTITY, "Only integer columns can be an identity column", PSQL_Code_Invalid_Parameter_Value)
 ERROR_DEF(ERR_TOO_MANY_DELIM_CHARS, "Too many characters specified for DELIM specification (got: %d, max: %d)", PSQL_Code_Numeric_Value_Out_Of_Range)
 ERROR_DEF(ERR_LITERAL_MAX_LEN, "Literal value exceeds max length (%d bytes)", PSQL_Code_Numeric_Value_Out_Of_Range)
 // ROCTO //

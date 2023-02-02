@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -21,6 +21,15 @@ char *get_keyword_name(OptionalKeyword keyword) {
 	switch (keyword) {
 	case NO_KEYWORD:
 		ret = "NO_KEYWORD";
+		break;
+	case OPTIONAL_GENERATED_ALWAYS_IDENTITY:
+		ret = "OPTIONAL_GENERATED_ALWAYS_IDENTITY";
+		break;
+	case OPTIONAL_GENERATED_BY_DEFAULT_IDENTITY:
+		ret = "OPTIONAL_GENERATED_BY_DEFAULT_IDENTITY";
+		break;
+	case OPTIONAL_DEFAULT:
+		ret = "DEFAULT";
 		break;
 	case PRIMARY_KEY:
 		ret = "PRIMARY_KEY";

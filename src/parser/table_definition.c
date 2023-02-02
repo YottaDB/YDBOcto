@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -89,13 +89,8 @@
 		assert(NULL != COLUMN->columnName); /* should be ensured by caller */               \
 		/* Construct the key num keyword */                                                 \
 		SqlStatement *stmt;                                                                 \
-		SQL_STATEMENT(stmt, keyword_STATEMENT);                                             \
-		MALLOC_STATEMENT(stmt, keyword, SqlOptionalKeyword);                                \
-                                                                                                    \
-		SqlOptionalKeyword *keyword;                                                        \
-		keyword = stmt->v.keyword;                                                          \
-		keyword->keyword = OPTIONAL_KEY_NUM;                                                \
 		/* key num value is index of key in table */                                        \
+		MALLOC_KEYWORD_STMT(stmt, OPTIONAL_KEY_NUM);                                        \
                                                                                                     \
 		char key_num_buffer[INT32_TO_STRING_MAX];                                           \
 		int  copied;                                                                        \
@@ -111,8 +106,10 @@
 		outBuff = octo_cmalloc(memory_chunks, len + 1);                                     \
                                                                                                     \
 		strncpy(outBuff, key_num_buffer, len + 1);                                          \
+                                                                                                    \
+		SqlOptionalKeyword *keyword;                                                        \
+		keyword = stmt->v.keyword;                                                          \
 		SQL_VALUE_STATEMENT(keyword->v, INTEGER_LITERAL, outBuff);                          \
-		dqinit(keyword);                                                                    \
                                                                                                     \
 		/* Insert "stmt" into column keyword list */                                        \
 		SqlOptionalKeyword *t_keyword;                                                      \
@@ -200,14 +197,14 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	 * loop) is based on which column (if it is a column-level constraint) or table name (if it is a table-level constraint)
 	 * it is a part of.
 	 *
-	 * Similarly, scan column-level keywords for UNIQUE or PRIMARY KEY constraint.
+	 * Scan column-level keywords for UNIQUE or PRIMARY KEY constraint.
 	 * a) If specified as a column-level constraint, there is no way multiple columns can be specified there (a syntax
 	 *    error would have been issued in that case) so it stays a column-level constraint (i.e. no need to worry about
 	 *    moving a column-level constraint to a table-level constraint).
 	 * b) For each table-level constraint, check if it specifies only ONE column. If so, move this to be a column-level
 	 *    UNIQUE or PRIMARY KEY constraint for the specified column name.
 	 *
-	 * Additionally, scan column-level keywords for PRIMARY KEY constraint.
+	 * Scan column-level keywords for PRIMARY KEY constraint.
 	 * If any duplicate keywords are found (within a column or across columns), issue error.
 	 */
 	boolean_t key_num_keyword_seen, table_level_primary_key_constraint_seen;
@@ -582,10 +579,8 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				OCTO_CMALLOC_STRUCT(new_column, SqlColumn);
 				dqinit(new_column);
 				new_column->columnName = NULL;
-				SQL_STATEMENT(new_column->keywords, keyword_STATEMENT);
-				OCTO_CMALLOC_STRUCT(cur_keyword, SqlOptionalKeyword);
-				cur_keyword->keyword = PRIMARY_KEY;
-				dqinit(cur_keyword);
+				MALLOC_KEYWORD_STMT(new_column->keywords, PRIMARY_KEY);
+				cur_keyword = new_column->keywords->v.keyword;
 				SQL_STATEMENT(cur_keyword->v, constraint_STATEMENT);
 
 				SqlConstraint *constraint;
@@ -625,7 +620,6 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				column_name_list->v.column_list = start_cl;
 				constraint->definition = column_name_list;
 				/* Add new table constraint as a column in the table */
-				new_column->keywords->v.keyword = cur_keyword;
 				UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 				dqappend(start_column, new_column);
 				/* Note this new column as the only PRIMARY KEY constraint column */
@@ -893,6 +887,9 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	 *
 	 * Scan column-level keywords for PRIMARY KEY constraint.
 	 * Check if the PRIMARY KEY constraint has a name. If not, auto generate a name for that constraint.
+	 *
+	 * Scan column-level keywords for IDENTITY constraint.
+	 * Issue error if multiple IDENTITY keywords are specified for a column.
 	 */
 	int num_user_visible_columns;
 
@@ -908,6 +905,9 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		boolean_t not_null_constraint_seen_for_this_column;
 		not_null_constraint_seen_for_this_column = FALSE;
 
+		boolean_t identity_constraint_seen_for_this_column;
+		identity_constraint_seen_for_this_column = FALSE;
+
 		if (NULL != cur_column->columnName) {
 			num_user_visible_columns++;
 		}
@@ -919,6 +919,36 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 
 			SqlConstraint *constraint;
 			switch (cur_keyword->keyword) {
+			case OPTIONAL_GENERATED_ALWAYS_IDENTITY:
+			case OPTIONAL_GENERATED_BY_DEFAULT_IDENTITY:
+				assert(NULL != cur_column->columnName);
+				if (NULL != cur_column->columnName) { // Avoids [clang-analyzer-core.NullDereference]
+					if (identity_constraint_seen_for_this_column) {
+						SqlValue *column_name;
+						SqlValue *table_name;
+						UNPACK_SQL_STATEMENT(column_name, cur_column->columnName, value);
+						UNPACK_SQL_STATEMENT(table_name, table->tableName, value);
+						/* More than one identity constraint, this is invalid */
+						ERROR(ERR_TABLE_MULTIPLE_IDENTITY, column_name->v.string_literal,
+						      table_name->v.string_literal);
+						yyerror(NULL, NULL, &cur_keyword->v, NULL, NULL, NULL);
+						return NULL;
+					} else {
+						identity_constraint_seen_for_this_column = TRUE;
+						/* For IDENTITY, Postgres ignores the constraint name. So Octo will do the same.
+						 * Discard the SqlStatement and SqlConstraint structures that were malloced.
+						 */
+						assert(NULL != cur_keyword->v);
+						cur_keyword->v = NULL;
+					}
+					// Also check if the type of the column. Identity is only allowed on integer based columns.
+					if (INTEGER_TYPE != cur_column->data_type_struct.data_type) {
+						ERROR(ERR_NON_INTEGER_IDENTITY, "");
+						yyerror(NULL, NULL, &cur_column->columnName, NULL, NULL, NULL);
+						return NULL;
+					}
+				}
+				break;
 			case NOT_NULL:
 				if (not_null_constraint_seen_for_this_column) {
 					/* More than one NOT NULL constraints exist for this column.
@@ -1538,6 +1568,10 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			case OPTIONAL_CHECK_CONSTRAINT:
 				readonly_disallowed = TRUE; /* CHECK is only allowed for READWRITE table. Not READONLY. */
 				break;
+			case OPTIONAL_GENERATED_ALWAYS_IDENTITY:
+			case OPTIONAL_GENERATED_BY_DEFAULT_IDENTITY:
+				readonly_disallowed = TRUE; /* IDENTITY is only allowed for READWRITE table. Not READONLY. */
+				break;
 			default:
 				ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
 				assert(FALSE);
@@ -1737,18 +1771,12 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		*buff_ptr++ = '\0';
 		len = buff_ptr - buffer;
 		if (!(options & SOURCE)) {
-			SqlOptionalKeyword *keyword;
-
 			char *out_buffer;
 			out_buffer = octo_cmalloc(memory_chunks, len);
 			memcpy(out_buffer, buffer, len);
-			OCTO_CMALLOC_STRUCT(keyword, SqlOptionalKeyword);
-			keyword->keyword = OPTIONAL_SOURCE;
-			SQL_VALUE_STATEMENT(keyword->v, STRING_LITERAL, out_buffer);
-			dqinit(keyword);
+			MALLOC_KEYWORD_STMT(statement, OPTIONAL_SOURCE);
+			SQL_VALUE_STATEMENT(statement->v.keyword->v, STRING_LITERAL, out_buffer);
 			assert(NULL == table->source);
-			SQL_STATEMENT(statement, keyword_STATEMENT);
-			statement->v.keyword = keyword;
 			table->source = statement;
 		} else if ((NULL == next) || strcasecmp(buffer, next)) {
 			/* GLOBAL keyword value did not specify any subscripts OR has specified subscripts that is not in
@@ -1764,8 +1792,6 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		free(buffer2);
 	}
 	if (!(options & DELIM)) {
-		SqlOptionalKeyword *keyword;
-
 		assert(2 == sizeof(COLUMN_DELIMITER));	// 2 includes null terminator
 		str_len = sizeof(COLUMN_DELIMITER) + 1; // +1 for "is_dollar_char" flag
 
@@ -1774,13 +1800,9 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		out_buffer[0] = DELIM_IS_LITERAL;
 		MEMCPY_LIT(&out_buffer[1], COLUMN_DELIMITER);
 		out_buffer[str_len - 1] = '\0';
-		OCTO_CMALLOC_STRUCT(keyword, SqlOptionalKeyword);
-		keyword->keyword = OPTIONAL_DELIM;
-		SQL_VALUE_STATEMENT(keyword->v, STRING_LITERAL, out_buffer);
-		dqinit(keyword);
+		MALLOC_KEYWORD_STMT(statement, OPTIONAL_DELIM);
+		SQL_VALUE_STATEMENT(statement->v.keyword->v, STRING_LITERAL, out_buffer);
 		assert(NULL == table->delim);
-		SQL_STATEMENT(statement, keyword_STATEMENT);
-		statement->v.keyword = keyword;
 		table->delim = statement;
 	}
 	if ((options & READWRITE) && readwrite_disallowed) {

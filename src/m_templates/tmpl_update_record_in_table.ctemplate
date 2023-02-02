@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -104,7 +104,17 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 		 * Next generate M code that evaluates the specified value for the current column (right side of the store)
 		 */
 		lp_value = lp_upd_col_value->v.lp_default.operand[1];
-		TMPL(tmpl_print_expression, lp_value, pplan, 0, 0);
+		if (LP_KEYWORDS == lp_value->type) {
+			if (OPTIONAL_DEFAULT == lp_value->v.lp_keywords.keywords->keyword) {
+				/* This is a DEFAULT value assignment. At present this is only allowed for IDENTITY columns.
+				 * Parser ensures that this is an IDENTITY column. Go ahead and fetch the auto-incrementing value.
+				 */
+				assert(IS_COLUMN_IDENTITY(cur_column));
+				TMPL(tmpl_identity_column, cur_column);
+			}
+		} else {
+			TMPL(tmpl_print_expression, lp_value, pplan, 0, 0);
+		}
 		/* Finish emitting the size/precision check suffix for non-key columns */
 		switch(cur_column->data_type_struct.data_type) {
 		case NUMERIC_TYPE:

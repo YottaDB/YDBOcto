@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -25,15 +25,12 @@ SqlOptionalKeyword *add_optional_piece_keyword_to_sql_column(int column_number) 
 	char		    buffer[32]; // 32 bytes as it is more than enough to store string form of an integer
 	int		    len;
 
-	SQL_STATEMENT(stmt, keyword_STATEMENT);
-	MALLOC_STATEMENT(stmt, keyword, SqlOptionalKeyword);
+	MALLOC_KEYWORD_STMT(stmt, OPTIONAL_PIECE);
 	keyword = stmt->v.keyword;
-	keyword->keyword = OPTIONAL_PIECE;
 	snprintf(buffer, sizeof(buffer), "%d", column_number);
 	len = strlen(buffer);
 	malloc_space = octo_cmalloc(memory_chunks, len + 1);
 	strncpy(malloc_space, buffer, len + 1);
 	SQL_VALUE_STATEMENT(keyword->v, INTEGER_LITERAL, malloc_space);
-	dqinit(keyword);
 	return keyword;
 }

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -61,13 +61,11 @@ SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *ordering_
 	}
 	alias->column_list = create_sql_column_list(sort_key, NULL, &sort_key->loc);
 	// Add a keyword for ASC or DESC. Default to ASC if not explicitly specified.
-	SQL_STATEMENT(order_spec, keyword_STATEMENT);
-	OCTO_CMALLOC_STRUCT(order_spec->v.keyword, SqlOptionalKeyword);
-	order_spec->v.keyword->keyword
+	OptionalKeyword order_spec_type
 	    = ((NULL == ordering_specification) || ((SqlStatement *)OPTIONAL_ASC == ordering_specification)) ? OPTIONAL_ASC
 													     : OPTIONAL_DESC;
+	MALLOC_KEYWORD_STMT(order_spec, order_spec_type);
 	order_spec->v.keyword->v = NULL;
-	dqinit(order_spec->v.keyword);
 	alias->keywords = order_spec;
 	return ret;
 }

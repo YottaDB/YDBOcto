@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -206,6 +206,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		hash_canonical_query(state, insert->columns, status);	     // SqlColumnList
 		/* TRUE as last parameter above indicates "traverse entire linked list", not just "first element" */
 		hash_canonical_query(state, insert->src_table_alias_stmt, status); // SqlTableAlias
+		hash_canonical_query(state, insert->optional_words, status);	   // SqlOptionalKeyword
 		break;
 	case delete_from_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */
 		SqlDeleteFromStatement *delete;

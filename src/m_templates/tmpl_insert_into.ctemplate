@@ -15,7 +15,6 @@
 
 #include "physical_plan.h"
 #include "template_helpers.h"
-
 TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 	LogicalPlan		*lp_insert_into, *lp_insert_into_options, *lp_select_query, *lp_key, *lp_table, *lp_col_list;
 	LogicalPlan		*lp_insert_into_more_options;
@@ -139,6 +138,13 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 						src_colnum++;
 					} while (NULL != cur_lp_col_list);
 				}
+				/* The below expression helps avoid duplication of code for handling IDENTITY column in case where
+				 * insert columns are explicitely specified and not specified.
+				 */
+				if (col_is_specified && (IS_COLUMN_IDENTITY(cur_column)
+					    && lp_insert_into->extra_detail.lp_select_query.override_user_value)) {
+					    col_is_specified = FALSE; // Execute `else` block in the next `if` to handle IDENTITY
+				}
 				if (col_is_specified) {
 					if (is_insert_into_values) {
 						TMPL(tmpl_key, outputKey); (*buffer_index)--;
@@ -187,12 +193,22 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 						break;
 					}
 				} else {
-					/* This needed target table column is not available in the source query select column list.
-					 * For now, treat it as NULL. Later when support for DEFAULT is added, we should set
-					 * this to that DEFAULT value if one is defined for this column.
-					 * TODO: YDBOcto#555.
-					 */
-					%{}$ZYSQLNULL{}%
+					 if (IS_COLUMN_IDENTITY(cur_column)) {
+					 	TMPL(tmpl_identity_column, cur_column);
+						/* Parser would have generated an error if OVERRIDING SYSTEM VALUE was specified and
+						 * this is a GENERATED ALWAYS identity column. Following assert confirms this usage.
+						 */
+						assert((!lp_insert_into->extra_detail.lp_select_query.override_user_value)
+						       || (lp_insert_into->extra_detail.lp_select_query.override_user_value
+						           && IS_COLUMN_BY_DEFAULT_IDENTITY(cur_column)));
+					 } else {
+					 	/* For the default value of ZYSQLNULL. This needed target table column is not
+						 * available in the source query select column list. For now, treat it as NULL.
+						 * Later when support for DEFAULT is added, we should set this to that DEFAULT
+						 * value if one is defined for this column. TODO: YDBOcto#555.
+						 */
+					 	%{}$ZYSQLNULL{}%
+					 }
 				}
 				if (IS_COLUMN_NOT_NULL(cur_column)) {
 					/* Check if a NOT NULL column is set to NULL. If so issue an error.

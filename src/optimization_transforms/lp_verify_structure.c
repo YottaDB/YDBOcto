@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -636,5 +636,6 @@ boolean_t lp_verify_value(LogicalPlan *plan, PhysicalPlanOptions *options) {
 		*/
 	       | lp_verify_structure_helper(plan, options, LP_SELECT_QUERY)
 	       | lp_verify_structure_helper(plan, options, LP_TABLE_VALUE)
-	       | lp_verify_structure_helper(plan, options, LP_SET_OPERATION);
+	       | lp_verify_structure_helper(plan, options, LP_SET_OPERATION)
+	       | lp_verify_structure_helper(plan, options, LP_KEYWORDS);
 }

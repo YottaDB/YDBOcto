@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -49,6 +49,7 @@ SqlStatement *update_statement(SqlStatement *table_name, SqlStatement *alias_nam
 	 *       pointer so do the needed type cast as part of assigning.
 	 */
 	SqlUpdateColumnValue *ucv, *ucv_head;
+	boolean_t	      is_default_column;
 
 	ucv_head = (SqlUpdateColumnValue *)set_clause_list;
 	ucv = ucv_head;
@@ -68,6 +69,35 @@ SqlStatement *update_statement(SqlStatement *table_name, SqlStatement *alias_nam
 			ERROR(ERR_TABLE_UNKNOWN_COLUMN_NAME, col_name->v.string_literal, tbl_name->v.string_literal);
 			yyerror(NULL, NULL, &ucv->col_name, NULL, NULL, NULL);
 			return NULL;
+		}
+
+		is_default_column = FALSE;
+		if (keyword_STATEMENT == ucv->col_value->type) {
+			assert(OPTIONAL_DEFAULT == ucv->col_value->v.keyword->keyword);
+			is_default_column = TRUE;
+			if (!IS_COLUMN_IDENTITY(tbl_col)) {
+				// Issue error as till YDBOcto#555 is implemented DEFAULT value for a column is only allowed
+				// for identity columns.
+				ERROR(ERR_FEATURE_NOT_IMPLEMENTED,
+				      "DEFAULT value for a column is only allowed for IDENTITY columns");
+				yyerror(NULL, NULL, &ucv->col_name, NULL, NULL, NULL);
+				return NULL;
+			}
+		}
+		/* Check if the column being modified is a GENERATED ALWAYS AS IDENTITY. In this case update can only be done if
+		 * DEFAULT is the value (YDBOcto#555). Till that is implemented, issue an error.
+		 */
+		if (IS_COLUMN_ALWAYS_IDENTITY(tbl_col)) {
+			if (is_default_column) {
+				// Column value can be set to DEFAULT when the column is defined as an IDENTITY
+			} else {
+				SqlValue *tbl_name;
+				UNPACK_SQL_STATEMENT(tbl_name, table->tableName, value);
+				ERROR(ERR_UPDATE_OF_GENERATED_ALWAYS_IDENTITY, tbl_name->v.string_literal,
+				      col_name->v.string_literal);
+				yyerror(NULL, NULL, &ucv->col_name, NULL, NULL, NULL);
+				return NULL;
+			}
 		}
 		/* Update "col_name" to point to "SqlColumn" structure instead of "SqlValue" (having just the column name). */
 		ucv->col_name->type = column_STATEMENT;

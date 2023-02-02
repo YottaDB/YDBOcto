@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -73,6 +73,12 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		LogicalPlan **lp_constraint_ptr;
 		lp_constraint_ptr = &lp_insert_into_more_options->v.lp_default.operand[1];
 		error_encountered |= lp_generate_constraint(lp_constraint_ptr, stmt, table_alias);
+		/* Check if OVERRIDING USER VALUE is specified if so note it down to ignore user value
+		 * during M plan generation
+		 */
+		lp_insert_into->extra_detail.lp_select_query.override_user_value
+		    = ((NULL != insert->optional_words)
+		       && (NULL != get_keyword_from_keywords(insert->optional_words->v.keyword, OPTIONAL_OVERRIDING_USER_VALUE)));
 		return (error_encountered ? NULL : lp_insert_into);
 	} else if (delete_from_STATEMENT == stmt->type) {
 		SqlDeleteFromStatement *delete;

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -58,17 +58,22 @@ set_clause_tail
   ;
 
 set_clause
-  : object_column EQUALS row_value_constructor_element {
+  : object_column EQUALS set_clause_value {
       SqlUpdateColumnValue *colvalue;
 
       OCTO_CMALLOC_STRUCT(colvalue, SqlUpdateColumnValue);
       dqinit(colvalue);
       colvalue->col_name = $object_column;
-      colvalue->col_value = $row_value_constructor_element;
+      colvalue->col_value = $set_clause_value;
       $$ = (SqlStatement *)colvalue;	/* Needed as all grammar rules need to return "SqlStatement *".
       					 * Caller knows to type cast it back to a "SqlUpdateColumnValue *".
 					 */
     }
+  ;
+
+set_clause_value
+  : row_value_constructor_element { $$ = $row_value_constructor_element; }
+  | default_specification { $$ = $default_specification; }
   ;
 
 object_column

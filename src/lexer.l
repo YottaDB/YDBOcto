@@ -1,7 +1,7 @@
 %{
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -149,6 +149,8 @@ int copied_so_far;
 (?i:FROM) { return FROM; }
 (?i:FULL) { return FULL; }
 (?i:FUNCTION) { return FUNCTION; }
+(?i:GENERATED[ \t\n]+ALWAYS[ \t\n]+AS[ \t\n]+IDENTITY) { return GENERATED_ALWAYS_AS_IDENTITY; }
+(?i:GENERATED[ \t\n]+BY[ \t\n]+DEFAULT[ \t\n]+AS[ \t\n]+IDENTITY) { return GENERATED_BY_DEFAULT_AS_IDENTITY; }
 (?i:GLOBAL) { return GLOBAL; }
 (?i:GREATEST) { return GREATEST; }
 (?i:GROUP) { return GROUP; }
@@ -189,6 +191,8 @@ int copied_so_far;
 (?i:ORDER) { return ORDER; }
 (?i:OUTER) { return OUTER; }
 (?i:OVER) { return OVER; }
+(?i:OVERRIDING[ \t\n]+SYSTEM[ \t\n]+VALUE) { return OVERRIDING_SYSTEM_VALUE; }
+(?i:OVERRIDING[ \t\n]+USER[ \t\n]+VALUE) { return OVERRIDING_USER_VALUE; }
 (?i:PACK) { return PACK; }
 (?i:PARENLESS_FUNCTION) { return PARENLESS_FUNCTION; }
 (?i:PARTITION) { return PARTITION; }

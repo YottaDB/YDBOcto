@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -947,6 +947,13 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 			cur_cla = cur_cla->next;
 		} while (cur_cla != start_cla);
 		break;
+	case keyword_STATEMENT:
+		// Nothing to qualify for a keyword_STATEMENT at this point. Do some asserts to validate the usage.
+		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
+		assert(OPTIONAL_DEFAULT == stmt->v.keyword->keyword);
+		assert(table_alias->aggregate_depth == AGGREGATE_DEPTH_UPDATE_SET_CLAUSE);
+		assert(table_alias->qualify_query_stage == QualifyQuery_UPDATE_SET_CLAUSE);
+		break;
 	case create_table_STATEMENT:
 	case select_STATEMENT:
 	case table_value_STATEMENT:
@@ -961,7 +968,6 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 	case column_STATEMENT:
 	case parameter_type_list_STATEMENT:
 	case constraint_STATEMENT:
-	case keyword_STATEMENT:
 	case begin_STATEMENT:
 	case commit_STATEMENT:
 	case set_STATEMENT:

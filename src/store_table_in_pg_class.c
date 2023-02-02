@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -376,5 +376,40 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 	/* else: It is possible no PRIMARY KEY constraint keyword exists in case the user did not specify one.
 	 * In that case, we don't need to store anything about PRIMARY KEY names for this table in gvn nodes.
 	 */
+
+	/* Initialize auto-incrementing column by setting up a gvn which tracks the auto-increment value for columns
+	 * with IDENTITY keyword usage.
+	 */
+	cur_column = start_column;
+	do {
+		if (IS_COLUMN_IDENTITY(cur_column)) {
+			/* Add IDENTITY value `0` to the following gvn. This will be the initial value of this auto-incrementing
+			 * column. Everytime a row is added, $INCREMENT of the following gvn is stored as the column value
+			 * 	^%ydboctoschema("NAMES", "identity",col_name)=0
+			 */
+			ydb_buffer_t schema, subs[4];
+			YDB_STRING_TO_BUFFER(config->global_names.schema, &schema);
+			subs[0] = *table_name_buffer;
+			YDB_LITERAL_TO_BUFFER(OCTOLIT_IDENTITY, &subs[1]);
+
+			char *column_name;
+			UNPACK_SQL_STATEMENT(value, cur_column->columnName, value);
+			column_name = value->v.string_literal;
+			// Convert name to upper case
+			TOUPPER_STR(column_name);
+			column_name = value->v.string_literal;
+			YDB_STRING_TO_BUFFER(column_name, &subs[2]);
+			// Value to store
+			YDB_LITERAL_TO_BUFFER(OCTOLIT_0, &subs[3]);
+			status = ydb_set_s(&schema, 3, subs, &subs[3]);
+			YDB_ERROR_CHECK(status);
+			if (YDB_OK != status) {
+				assert(FALSE);
+				return 1;
+			}
+		}
+		cur_column = cur_column->next;
+	} while (cur_column != start_column);
+
 	return 0;
 }

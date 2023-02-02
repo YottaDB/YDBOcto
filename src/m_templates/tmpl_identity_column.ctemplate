@@ -1,0 +1,36 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "octo_types.h"
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+/* Following code is invoked by tmpl_update_record_in_table.ctemplate and
+ * tmpl_insert_into.ctemplate to process an IDENTITY column.
+ */
+TEMPLATE(tmpl_identity_column, SqlColumn *column) {
+	/* Access the ydboctoschema identity value
+	 * e.g. ^%ydboctoschema(NAMES,"identity",column_name)
+	 */
+	SqlTable *table;
+	UNPACK_SQL_STATEMENT(table, column->table, create_table);
+
+	SqlValue *value;
+	UNPACK_SQL_STATEMENT(value, table->tableName, value);
+
+	char *table_name = value->v.reference;
+	/* Auto-generate value for IDENTITY column */
+	%{}$INCREMENT({{ OCTOLIT_YDBOCTOSCHEMA }}("{{ table_name }}","identity"{}%
+	%{},"{{ column->columnName->v.value->v.reference }}")){}%
+}
+%{}

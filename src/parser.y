@@ -71,14 +71,11 @@ typedef void* yyscan_t;
 	SqlOptionalKeyword	*keyword;							\
 	SqlConstraint		*constraint;							\
 												\
-	SQL_STATEMENT(RET, keyword_STATEMENT);							\
-	MALLOC_STATEMENT(RET, keyword, SqlOptionalKeyword);					\
+	MALLOC_KEYWORD_STMT(RET, (OptionalKeyword)TYPE);\
 	UNPACK_SQL_STATEMENT(keyword, RET, keyword);						\
-	keyword->keyword = (OptionalKeyword)TYPE;						\
 	SQL_STATEMENT(keyword->v, constraint_STATEMENT);					\
 	MALLOC_STATEMENT(keyword->v, constraint, SqlConstraint);				\
 	keyword->v->loc = yyloc; /* note down location for later use in error reporting */	\
-	dqinit(keyword);									\
 	UNPACK_SQL_STATEMENT(constraint, keyword->v, constraint);				\
 	constraint->type = (OptionalKeyword)TYPE;						\
 	constraint->name = NAME;								\
@@ -150,6 +147,8 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token FROM
 %token FULL
 %token FUNCTION
+%token GENERATED_ALWAYS_AS_IDENTITY
+%token GENERATED_BY_DEFAULT_AS_IDENTITY
 %token GLOBAL
 %token GREATEST
 %token GROUP
@@ -189,6 +188,8 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token OR
 %token ORDER
 %token OUTER
+%token OVERRIDING_SYSTEM_VALUE
+%token OVERRIDING_USER_VALUE
 %token OVER
 %token PACK
 %token PARENLESS_FUNCTION
@@ -769,7 +770,10 @@ row_value_constructor_list_tail
 
 row_value_constructor_element
   : numeric_value_expression { $$ = $numeric_value_expression; }
-  | default_specification { $$ = $default_specification; }
+  /* Following default specification should be enabled when YDBOcto#555 is implemented.
+   * For now, its enabled only with UPDATE set clause to allow IDENTITY to make use of it.
+   */
+  //| default_specification { $$ = $default_specification; }
   ;
 
 /* The runtime system is responsible for ensuring
@@ -802,7 +806,9 @@ null_specification
   ;
 
 default_specification
-  : DEFAULT { ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "default_specification: DEFAULT"); YYABORT; }
+  : DEFAULT {
+  	MALLOC_KEYWORD_STMT($$, OPTIONAL_DEFAULT);
+    }
   ;
 
 numeric_value_expression
@@ -1380,31 +1386,19 @@ optional_keyword
 
 optional_keyword_element
   : GLOBAL literal_value {
-      SQL_STATEMENT($$, keyword_STATEMENT);
-      MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
-      ($$)->v.keyword->keyword = OPTIONAL_SOURCE;
+      MALLOC_KEYWORD_STMT($$, OPTIONAL_SOURCE);
       ($$)->v.keyword->v = $literal_value;
-      dqinit(($$)->v.keyword);
     }
   | delim_specification { $$ = $delim_specification; }
   | READONLY {
-      SQL_STATEMENT($$, keyword_STATEMENT);
-      MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
-      ($$)->v.keyword->keyword = OPTIONAL_READONLY;
-      dqinit(($$)->v.keyword);
+      MALLOC_KEYWORD_STMT($$, OPTIONAL_READONLY);
   }
   | READWRITE {
-      SQL_STATEMENT($$, keyword_STATEMENT);
-      MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
-      ($$)->v.keyword->keyword = OPTIONAL_READWRITE;
-      dqinit(($$)->v.keyword);
+      MALLOC_KEYWORD_STMT($$, OPTIONAL_READWRITE);
   }
   | AIMTYPE ddl_int_literal_value {
-      SQL_STATEMENT($$, keyword_STATEMENT);
-      MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
-      ($$)->v.keyword->keyword = OPTIONAL_AIM_TYPE;
+      MALLOC_KEYWORD_STMT($$, OPTIONAL_AIM_TYPE);
       ($$)->v.keyword->v = $ddl_int_literal_value;
-      dqinit(($$)->v.keyword);
   }
   ;
 
@@ -1413,9 +1407,7 @@ delim_specification
 	char	*with_flag_byte, *str_lit;
 	size_t	length;
 
-	SQL_STATEMENT($$, keyword_STATEMENT);
-	MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
-	($$)->v.keyword->keyword = OPTIONAL_DELIM;
+	MALLOC_KEYWORD_STMT($$, OPTIONAL_DELIM);
 	($$)->v.keyword->v = $literal_value;
 	str_lit = ($$)->v.keyword->v->v.value->v.string_literal;
 	length = strlen(str_lit) + 2;	// "is_dollar_char" byte and a null terminator
@@ -1431,10 +1423,7 @@ delim_specification
 	char				*c, *temp, *str_lit;
 	int				copied, len_used, len_alloc, num_args;
 
-	SQL_STATEMENT($$, keyword_STATEMENT);
-        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
-	($$)->v.keyword->keyword = OPTIONAL_DELIM;
-
+	MALLOC_KEYWORD_STMT($$, OPTIONAL_DELIM);
 	len_alloc = INT8_TO_STRING_MAX * 8;
 	str_lit = octo_cmalloc(memory_chunks, len_alloc);
 	str_lit[0] = DELIM_IS_DOLLAR_CHAR;	// Use first byte as a flag to indicate that DELIM is a $CHAR list
@@ -1648,16 +1637,11 @@ column_name
 
 column_definition_tail
   : /* Empty */ {
-       SQL_STATEMENT($$, keyword_STATEMENT);
-       MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
-       dqinit(($$)->v.keyword);
+       MALLOC_KEYWORD_STMT($$, NO_KEYWORD);
     }
   | EXTRACT ddl_str_literal_value column_definition_tail {
-       SQL_STATEMENT($$, keyword_STATEMENT);
-       MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
-       ($$)->v.keyword->keyword = OPTIONAL_EXTRACT;
+       MALLOC_KEYWORD_STMT($$, OPTIONAL_EXTRACT);
        ($$)->v.keyword->v = $ddl_str_literal_value;
-       dqinit(($$)->v.keyword);
 
        SqlOptionalKeyword *keyword;
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
@@ -1666,34 +1650,25 @@ column_definition_tail
   | PIECE ddl_int_literal_value column_definition_tail {
        SqlOptionalKeyword *keyword;
 
-       SQL_STATEMENT($$, keyword_STATEMENT);
-       MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
+       MALLOC_KEYWORD_STMT($$, OPTIONAL_PIECE);
        keyword = $$->v.keyword;
-       keyword->keyword = OPTIONAL_PIECE;
        keyword->v = $ddl_int_literal_value;
-       dqinit(($$)->v.keyword);
 
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
        dqappend(keyword, ($$)->v.keyword);
     }
   | delim_specification column_definition_tail { $$ = $delim_specification; }
   | GLOBAL ddl_str_literal_value column_definition_tail {
-       SQL_STATEMENT($$, keyword_STATEMENT);
-       MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
-       ($$)->v.keyword->keyword = OPTIONAL_SOURCE;
+       MALLOC_KEYWORD_STMT($$, OPTIONAL_SOURCE);
        ($$)->v.keyword->v = $ddl_str_literal_value;
-       dqinit(($$)->v.keyword);
 
        SqlOptionalKeyword *keyword;
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
        dqappend(keyword, ($$)->v.keyword);
     }
   | KEY NUM ddl_int_literal_value column_definition_tail {
-       SQL_STATEMENT($$, keyword_STATEMENT);
-       MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
-       ($$)->v.keyword->keyword = OPTIONAL_KEY_NUM;
+       MALLOC_KEYWORD_STMT($$, OPTIONAL_KEY_NUM);
        ($$)->v.keyword->v = $ddl_int_literal_value;
-       dqinit(($$)->v.keyword);
 
        SqlOptionalKeyword *keyword;
        UNPACK_SQL_STATEMENT(keyword, $4, keyword);
@@ -1704,54 +1679,39 @@ column_definition_tail
         * of older Octo builds (e.g. r1.0.0) that supported the now-obsoleted ADVANCE keyword.
 	* Note: ADVANCE keyword is otherwise ignored/unused in the current Octo builds.
 	*/
-       SQL_STATEMENT($$, keyword_STATEMENT);
-       MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
-       ($$)->v.keyword->keyword = OPTIONAL_ADVANCE;
+       MALLOC_KEYWORD_STMT($$, OPTIONAL_ADVANCE);
        ($$)->v.keyword->v = $ddl_str_literal_value;
-       dqinit(($$)->v.keyword);
 
        SqlOptionalKeyword *keyword;
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
        dqappend(keyword, ($$)->v.keyword);
     }
   | START ddl_str_literal_value column_definition_tail {
-       SQL_STATEMENT($$, keyword_STATEMENT);
-       MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
-       ($$)->v.keyword->keyword = OPTIONAL_START;
+       MALLOC_KEYWORD_STMT($$, OPTIONAL_START);
        ($$)->v.keyword->v = $ddl_str_literal_value;
-       dqinit(($$)->v.keyword);
 
        SqlOptionalKeyword *keyword;
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
        dqappend(keyword, ($$)->v.keyword);
     }
   | STARTINCLUDE column_definition_tail {
-       SQL_STATEMENT($$, keyword_STATEMENT);
-       MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
-       ($$)->v.keyword->keyword = OPTIONAL_STARTINCLUDE;
-       dqinit(($$)->v.keyword);
+       MALLOC_KEYWORD_STMT($$, OPTIONAL_STARTINCLUDE);
 
        SqlOptionalKeyword *keyword;
        UNPACK_SQL_STATEMENT(keyword, $2, keyword);
        dqappend(keyword, ($$)->v.keyword);
     }
   | END ddl_str_literal_value column_definition_tail {
-       SQL_STATEMENT($$, keyword_STATEMENT);
-       MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
-       ($$)->v.keyword->keyword = OPTIONAL_END;
+       MALLOC_KEYWORD_STMT($$, OPTIONAL_END);
        ($$)->v.keyword->v = $ddl_str_literal_value;
-       dqinit(($$)->v.keyword);
 
        SqlOptionalKeyword *keyword;
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
        dqappend(keyword, ($$)->v.keyword);
     }
   | ENDPOINT ddl_str_literal_value column_definition_tail {
-       SQL_STATEMENT($$, keyword_STATEMENT);
-       MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
-       ($$)->v.keyword->keyword = OPTIONAL_ENDPOINT;
+       MALLOC_KEYWORD_STMT($$, OPTIONAL_ENDPOINT);
        ($$)->v.keyword->v = $ddl_str_literal_value;
-       dqinit(($$)->v.keyword);
 
        SqlOptionalKeyword *keyword;
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
@@ -1809,6 +1769,7 @@ column_constraint
     }
 //  | reference_specifications		TODO: Uncomment as part of YDBOcto#773 FOREIGN KEY constraint support
   | check_constraint_definition { $$ = $check_constraint_definition; }
+  | identity_constraint_definition { $$ = $identity_constraint_definition; }
   ;
 
 unique_specifications
@@ -1823,6 +1784,15 @@ unique_specifications
 check_constraint_definition
   : CHECK LEFT_PAREN search_condition RIGHT_PAREN {
 	MALLOC_KEYWORD_CONSTRAINT_STATEMENT($$, OPTIONAL_CHECK_CONSTRAINT, NULL, $search_condition)
+    }
+  ;
+
+identity_constraint_definition
+  : GENERATED_ALWAYS_AS_IDENTITY {
+	MALLOC_KEYWORD_CONSTRAINT_STATEMENT($$, OPTIONAL_GENERATED_ALWAYS_IDENTITY, NULL, NULL)
+    }
+  | GENERATED_BY_DEFAULT_AS_IDENTITY {
+	MALLOC_KEYWORD_CONSTRAINT_STATEMENT($$, OPTIONAL_GENERATED_BY_DEFAULT_IDENTITY, NULL, NULL)
     }
   ;
 

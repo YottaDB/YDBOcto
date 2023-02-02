@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -345,13 +345,28 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 		do {
 			UNPACK_SQL_STATEMENT(column, ucv->col_name, column);
 			child_type[0] = get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type, FALSE);
-			result |= populate_data_type(ucv->col_value, &child_type[1], v, parse_context);
-			if (result) {
-				break;
-			}
-			CAST_AMBIGUOUS_TYPES(child_type[0], child_type[1], result, parse_context);
-			if (result) {
-				break;
+			if (keyword_STATEMENT == ucv->col_value->type) {
+#ifndef NDEBUG
+				SqlOptionalKeyword *keyword;
+				UNPACK_SQL_STATEMENT(keyword, ucv->col_value, keyword);
+				assert(OPTIONAL_DEFAULT == keyword->keyword);
+				UNUSED(keyword);
+#endif
+				/* At present, DEFAULT value is allowed when UPDATE is being applied
+				 * on an identity column. Identity columns are only of INTEGER type and
+				 * since DEFAULT is specified set the value type to be INTEGER as well.
+				 */
+				assert(IS_COLUMN_IDENTITY(column));
+				child_type[1] = INTEGER_LITERAL;
+			} else {
+				result |= populate_data_type(ucv->col_value, &child_type[1], v, parse_context);
+				if (result) {
+					break;
+				}
+				CAST_AMBIGUOUS_TYPES(child_type[0], child_type[1], result, parse_context);
+				if (result) {
+					break;
+				}
 			}
 			if (child_type[0] != child_type[1]) {
 				ERROR(ERR_TYPE_MISMATCH, get_user_visible_type_string(child_type[0]),

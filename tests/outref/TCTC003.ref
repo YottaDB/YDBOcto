@@ -1082,10 +1082,10 @@ LINE 3:1: create table products (first varchar, last varchar, not null);
 syntax error, unexpected NOT, expecting CHECK or PRIMARY or UNIQUE
 LINE 5:1: create table products (id integer, name varchar unique (name));
                                                                  ^
-syntax error, unexpected LEFT_PAREN, expecting CHECK or NOT or PRIMARY or UNIQUE
+syntax error, unexpected LEFT_PAREN
 LINE 6:1: ...te table products (id integer, name varchar unique (id, name));
                                                                 ^
-syntax error, unexpected LEFT_PAREN, expecting CHECK or NOT or PRIMARY or UNIQUE
+syntax error, unexpected LEFT_PAREN
 [ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table 'PRODUCTS' are not allowed
 LINE 8:1: ...roducts (id integer constraint prikey primary key primary key);
                                                                ^^^^^^^^^^^
@@ -1193,7 +1193,7 @@ LINE 54:1: ...numeric CONSTRAINT name1 CHECK (price < NULLIF(1, invalidcol)));
                                                                 ^^^^^^^^^^
 LINE 56:1: ...e numeric CONSTRAINT name1 CHECK (price > 5) AND (price < 10));
                                                            ^^^
-syntax error, unexpected AND, expecting CHECK or NOT or PRIMARY or UNIQUE
+syntax error, unexpected AND
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
 LINE 58:1: ...roducts (id integer CHECK (id + firstname), firstname varchar);
                                               ^^^^^^^^^
@@ -1731,10 +1731,10 @@ LINE 537:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE ('abcd'));
 syntax error, unexpected LITERAL
 LINE 539:1: CREATE TABLE abcd (id1 INTEGER, id2 INTEGER UNIQUE (id1));
                                                                ^
-syntax error, unexpected LEFT_PAREN, expecting CHECK or NOT or PRIMARY or UNIQUE
+syntax error, unexpected LEFT_PAREN
 LINE 540:1: CREATE TABLE abcd (id1 INTEGER, id2 INTEGER UNIQUE (id1, id2));
                                                                ^
-syntax error, unexpected LEFT_PAREN, expecting CHECK or NOT or PRIMARY or UNIQUE
+syntax error, unexpected LEFT_PAREN
 LINE 542:1: CREATE TABLE tmp (id INTEGER, UNIQUE);
                                                 ^
 syntax error, unexpected RIGHT_PAREN, expecting LEFT_PAREN
@@ -1960,10 +1960,10 @@ LINE 696:1: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY ('abcd'));
 syntax error, unexpected LITERAL
 LINE 698:1: CREATE TABLE abcd (id1 INTEGER, id2 INTEGER PRIMARY KEY (id1));
                                                                     ^
-syntax error, unexpected LEFT_PAREN, expecting CHECK or NOT or PRIMARY or UNIQUE
+syntax error, unexpected LEFT_PAREN
 LINE 699:1: ...E TABLE abcd (id1 INTEGER, id2 INTEGER PRIMARY KEY (id1, id2));
                                                                   ^
-syntax error, unexpected LEFT_PAREN, expecting CHECK or NOT or PRIMARY or UNIQUE
+syntax error, unexpected LEFT_PAREN
 LINE 701:1: CREATE TABLE tmp (id INTEGER, PRIMARY KEY);
                                                      ^
 syntax error, unexpected RIGHT_PAREN, expecting LEFT_PAREN

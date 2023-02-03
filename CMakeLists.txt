@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -67,6 +67,7 @@ option(TEST_SPEED "Run separate speed test?" OFF)
 option(TEST_VISTA "Run separate VistA test (Database needs to be set-up separately)?" OFF)
 option(ENABLE_ASAN "Enable address sanitizer in build?" OFF)
 option(ENABLE_AUTO_VAR_INIT_PATTERN "Enable -ftrivial-auto-var-init=pattern in build?" OFF)
+option(FORCE_BINARY_DEFINITION_AUTO_UPGRADE "Force binary table definition auto upgrade?" OFF)
 
 if(NOT ${DISABLE_INSTALL})
 	message(STATUS "Install destination: ${CMAKE_INSTALL_PREFIX}")

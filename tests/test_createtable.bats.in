@@ -705,7 +705,9 @@ OCTO
 }
 
 @test "TC055 : OCTO583 : Validate IDENTIY constraint on columns" {
-	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TC055.sql "trim_trailing_zeroes" useocto
+	stop_rocto
+	test_port=$(start_rocto 1400 -aw)
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TC055.sql "trim_trailing_zeroes"
 	load_fixture TC055_errors.sql subtest novv
 	verify_output TC055_errors output.txt
 }

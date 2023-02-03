@@ -32,6 +32,7 @@ setup_bats_env() {
 	else
 		is_rhel7=true
 	fi
+	skip_escape_sequence_sanitize=0	# By default do not skip RHEL 7 specific escape_sequence_sanitize() call in verify_output()
 }
 
 save_env_variables() {

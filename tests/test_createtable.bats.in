@@ -721,3 +721,63 @@ OCTO
 	load_fixture TC057.sql subtest
 	verify_output TC057 output.txt
 }
+
+@test "TC058 : OCTO519 : Case-sensitivity of double-quoted table names is preserved in constraint names" {
+	# Skip will be removed by MR!1182
+	skip
+}
+
+@test "TC059 : OCTO519 : Double-quoted strings are treated as case sensitive identifiers in CREATE/DROP TABLE statements" {
+	# Skip will be removed by MR!1182
+	skip
+}
+
+@test "TC060 : OCTO519 : Column names differing only in case yield correct constraint names" {
+	# Skip will be removed by MR!1182
+	skip
+}
+
+@test "TC061 : OCTO633 : EXTRACT accepts non-key columns" {
+	# Skip will be removed by MR!1246
+	skip
+}
+
+@test "TC062 : OCTO633 : EXTRACT doesn't parse names of global variables as key or value specifications" {
+	# Skip will be removed by MR!1246
+	skip
+}
+
+@test "TC063 : OCTO633 : EXTRACT accepts SQL function calls" {
+	# Skip will be removed by MR!1246
+	skip
+}
+
+@test "TC064 : OCTO633 : Correct text table definitions are generated for DDLs with EXTRACT column and > 2 non-key columns" {
+	# Skip will be removed by MR!1246
+	skip
+}
+
+@test "TC065 : OCTO633 : String literals in EXTRACT SQL function calls can contain only a double-quote character" {
+	# Skip will be removed by MR!1246
+	skip
+}
+
+@test "TC066 : OCTO633 : EXTRACT containing values() expression works when there are single or multiple key columns" {
+	# Skip will be removed by MR!1246
+	skip
+}
+
+@test "TC067 : OCTO633 : Circular dependencies in/across EXTRACT columns is prohibited" {
+	# Skip will be removed by MR!1246
+	skip
+}
+
+@test "TC068 : OCTO633 : EXTRACT containing values() works after manual addition of rows to table" {
+	# Skip will be removed by MR!1246
+	skip
+}
+
+@test "TC069 : OCTO633 : Double-quotes accepted in EXTRACT function arguments" {
+	# Skip will be removed by MR!1246
+	skip
+}

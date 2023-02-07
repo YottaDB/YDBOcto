@@ -114,7 +114,7 @@ DROP TABLE names;
 CREATE TABLE names (id NUMERIC(abcd,efgh) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
 
-[ERROR]: ERR_CANNOT_CREATE_TABLE: Table 'NAMES' already exists
+CREATE TABLE
 ID
 0
 1

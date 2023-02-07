@@ -15,18 +15,11 @@ load test_helpers
 setup() {
 	init_test
 	createdb
-	# Below is at least needed by TC015 as it does a DROP TABLE and expects underlying M global ^names to not be deleted.
-	# Below is also needed by TC037 as it does a CREATE TABLE without using READONLY but using keywords that are not
-	# compatible with the default READWRITE.
-	echo 'tabletype = "READONLY"' > octo.conf
-	load_fixture names.sql
-	load_fixture names.zwr
-	# Start and stop rocto for all tests. This is needed because `stop_rocto` will not run when it is included in a test case
-	# but that test case fails before reaching this call. Automatically doing it with `teardown` avoids this issue.
-	test_port=$(start_rocto 1400 --allowschemachanges)
 }
 
 teardown() {
+	# Even though rocto is not started for all tests it is helpful to have stop_rocto here as we want it to execute even when the
+	# subtest which do use rocto fail.
 	stop_rocto
 }
 
@@ -48,6 +41,7 @@ OCTO
 }
 
 @test "TC001A : create table with key in extract" {
+  load_fixture names.zwr
   octo <<OCTO 2>&1 | tee output.txt
 CREATE TABLE namesE(
   id INTEGER PRIMARY KEY,
@@ -80,7 +74,7 @@ OCTO
 @test "TC003 : create a table which has no keys and select from it later" {
   load_fixture names4.zwr
   octo <<OCTO 2>&1 | tee output.txt
-create table names4 (id int, First char(20), Last char(30));
+create table names4 (id int, First char(20), Last char(30)) READONLY;
 select * from names4;
 OCTO
   verify_output TC003 output.txt noinfo nodebug
@@ -154,6 +148,7 @@ OCTO
 }
 
 @test "TC011 : OCTO411 : Add support for INTEGER precision specification to parser for CREATE TABLE statements" {
+  load_fixture names.zwr
   load_fixture TC011.sql subtest novv
   verify_output TC011 output.txt
 }
@@ -217,6 +212,10 @@ END
 }
 
 @test "TC015 : OCTO439 : Test that Octo/Rocto reload table from database after a concurrent CREATE or DROP TABLE" {
+  # READONLY config is needed as the test does a DROP TABLE and expects underlying M global ^names to not be deleted
+  echo 'tabletype = "READONLY"' > octo.conf
+  load_fixture names.sql
+  load_fixture names.zwr
   export octo_dbg_drop_cache_expected=1	# needed to let Octo/Rocto know that concurrent DROP TABLE commands run in this test
   (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/TC015.exp > expect.out) &> expect.dbg
   # Remove <Ctrl-M> characters (carriage return, i.e. \r) from expect output.
@@ -268,18 +267,21 @@ END
 }
 
 @test "TC022 : OCTO320 : Octo converts empty column values based on type when NOT NULL is specified in the DDL" {
+	test_port=$(start_rocto 1400 --allowschemachanges)
 	load_fixture nullnames.zwr
 	load_fixture nullnames.sql
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TC022.sql "trim_trailing_zeroes"
 }
 
 @test "TC023 : OCTO320 : Octo treats empty column values as NULL when NOT NULL is not specified in the DDL" {
+	test_port=$(start_rocto 1400 --allowschemachanges)
 	load_fixture nullnames.zwr
 	load_fixture nullnames.sql
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TC023.sql "trim_trailing_zeroes"
 }
 
 @test "TC024 : OCTO320 : Rocto converts empty column values based on type when NOT NULL is specified in the DDL" {
+	test_port=$(start_rocto 1400 --allowschemachanges)
 	load_fixture nullnames.zwr
 	load_fixture nullnames.sql
 	# No need for new fixture, just testing same functionality in Rocto
@@ -287,6 +289,7 @@ END
 }
 
 @test "TC025 : OCTO320 : Rocto treats empty column values as NULL when NOT NULL is not specified in the DDL" {
+	test_port=$(start_rocto 1400 --allowschemachanges)
 	load_fixture nullnames.zwr
 	load_fixture nullnames.sql
 	# No need for new fixture, just testing same functionality in Rocto
@@ -294,12 +297,15 @@ END
 }
 
 @test "TC026 : OCTO527 : Correct handling ASCII null-byte when NOT NULL is not specified" {
+	load_fixture names.sql
+	load_fixture names.zwr
 	$ydb_dist/yottadb -run %XCMD 'set ^names(6)="First|"_$char(0)'
 	load_fixture TC026.sql subtest novv
 	verify_output TC026 output.txt
 }
 
 @test "TC027 : OCTO527 : CREATE TABLE accepts user-defined NULL character and enforces correct precedence when used with NOT NULL" {
+	test_port=$(start_rocto 1400 --allowschemachanges)
 	# Load fixture with user-defined NULL character in DDL and NOT NULL column
 	testname="TC027"
 	load_fixture nullcharnames.sql
@@ -308,13 +314,14 @@ END
 }
 
 @test "TC029 : OCTO320 : Select a combination of populated and NULL/empty fields" {
+	test_port=$(start_rocto 1400 --allowschemachanges)
 	run_java run_query $test_port TC029 useextended &> output.txt
 	verify_output TC029 output.txt
 }
 
 @test "TC030 : OCTO90 : Rerunning query after CREATE TABLE should recreate plans that relied on the recreated table" {
-	# Note this test is mostly the same as the "test_drop_table/TDT04" subtest
-	# Change to one might need to be done in both places.
+	# READONLY config is needed as the test does a DROP TABLE and expects underlying M global to not be deleted
+	echo 'tabletype = "READONLY"' > octo.conf
 	echo "# Load customers DDL and ZWR data" > output.txt
 	load_fixture customers.sql
 	load_fixture customers.zwr
@@ -349,6 +356,7 @@ END
 }
 
 @test "TC032 : OCTO527/OCTO320 : DDLs using EXTRACT wrap \$E[XTRACT] calls with piecevalue2colvalue" {
+	test_port=$(start_rocto 1400 --allowschemachanges)
 	testname="TC032"
 	load_fixture $testname.zwr
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/$testname.sql .
@@ -375,6 +383,7 @@ END
 }
 
 @test "TC034 : OCTO527/OCTO320 : DDLs using EXTRACT wrap \$E[XTRACT] calls with piecevalue2colvalue" {
+	test_port=$(start_rocto 1400 --allowschemachanges)
 	testname="TC034"
 	load_fixture $testname.zwr
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/$testname.sql .
@@ -396,8 +405,8 @@ END
 }
 
 @test "TC036 : OCTO90 : Simple tests of auto upgrade of binary table/function/plan definitions/artifacts" {
-	# This test cannot run with rocto in the background as enabling journaling requires standalone access. So stop it.
-	stop_rocto
+	# The below fixture call results in the required Octo related env for this test. Note names table itself is irrelevant here.
+	load_fixture names.sql
 	echo "" > empty_query.sql
 	echo "------------------------------------------------------------------------------------------------" >> output.txt
 	echo "# Test that if FMT_BINARY_DEFINITION is different between current commit and random prior commit," >> output.txt
@@ -472,6 +481,10 @@ END
 }
 
 @test "TC037 : OCTO589 : DELIM "" at the column level invalidates any PIECE specified and fetches entire node" {
+	# This test requires READONLY config as it does a CREATE TABLE without using READONLY but using keywords that are not
+	# compatible with the default READWRITE.
+	echo 'tabletype = "READONLY"' > octo.conf
+	load_fixture names.zwr
 	$ydb_dist/yottadb -run %XCMD 'set ^names3(1)="first|1",^names3(2)="second|2"'	# needed for one query in TC037.sql
 	testname="TC037"
 	load_fixture $testname.sql subtest novv
@@ -525,6 +538,7 @@ OCTO
 }
 
 @test "TC040 : OCTO590 : Confirm enforcement of table name length limits during table creation and cleanup" {
+	load_fixture names.zwr
 	load_fixture TC040.sql subtest novv
 	verify_output TC040 output.txt
 }
@@ -546,6 +560,8 @@ OCTO
 }
 
 @test "TC043 : OCTO439 : CREATE TABLE times out if concurrent SELECT query is long running" {
+	load_fixture names.sql
+	load_fixture names.zwr
 	load_fixture HANGTIME.sql	# Define HANGTIME as a function
 	(expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/TC043.exp > expect.out) &> expect.dbg
 	sed 's/\r//g;s/.*SHELL#/#/g;s/.*SHELL$/$/g;s/# .*/\n&/g;s/^# #/#/;' expect.out | grep -E '^# |^\[ERROR|^OCTO>|^CREATE' | grep -vE 'PS1|^OCTO> (|exit)$' > output.txt
@@ -553,6 +569,8 @@ OCTO
 }
 
 @test "TC044 : OCTO575 : Octo CREATE TABLE naively creates invalid GVNs from table names" {
+	load_fixture names.sql
+	load_fixture names.zwr
 	echo "# Create table with name that contains _ or . then run select on it and" > output.txt
 	echo "# verify that we don't get any errors." >> output.txt
 	load_fixture TC044.sql subtest novv
@@ -588,6 +606,8 @@ OCTO
 }
 
 @test "TC047 : OCTO672 : GLOBAL keyword in CREATE TABLE command should accept just an unsubscripted global name" {
+	load_fixture names.sql
+	load_fixture names.zwr
 	load_fixture TC047.sql subtest novv
 	echo '# Verify text table definition does not keys() inserted appropriately in the GLOBAL keyword' >> output.txt
 	$ydb_dist/mupip extract octo672.ext
@@ -596,6 +616,10 @@ OCTO
 }
 
 @test "TC048 : OCTO595 : Creation of multiple tables of the same name in sequence with IF NOT EXISTS is skipped with a info message" {
+	# Invoke octo to finish auto load of octo-seed.sql before "load_fixture ... subtest" invocation.
+	# This is to avoid verbose output of each query in "octo-seed.sql" (the "load_fixture" invocation is not
+	# done with "novv") which would otherwise pollute the reference file.
+	octo < /dev/null
 	load_fixture TC048.sql subtest v
 	echo "Exit Status:" $? | tee -a output.txt
 	# Check that we unlock properly
@@ -669,6 +693,10 @@ OCTO
 }
 
 @test "TC051 : OCTO776 : INVSTRLEN in find_table.c when there are > 999,999 objects in Octo" {
+	# READONLY config is needed as the test does a DROP TABLE and expects underlying M global ^names to not be deleted
+	echo 'tabletype = "READONLY"' > octo.conf
+	load_fixture names.sql
+	load_fixture names.zwr
 	echo '# Set OID counter to 999,999' | tee -a output.txt
 	yottadb -r %XCMD 'set ^%ydboctoocto("oid")=999999'
 
@@ -705,19 +733,24 @@ OCTO
 }
 
 @test "TC055 : OCTO583 : Validate IDENTIY constraint on columns" {
-	stop_rocto
-	test_port=$(start_rocto 1400 -aw)
+	load_fixture names.sql
+	load_fixture names.zwr
+	test_port=$(start_rocto 1400 -aw) # --read write and --allow schema changes required for this test
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TC055.sql "trim_trailing_zeroes"
 	load_fixture TC055_errors.sql subtest novv
 	verify_output TC055_errors output.txt
 }
 
 @test "TC056 : OCTO583 : Validate that constraint failure rolls back auto-increment value to what it was prior to the query which caused the failure" {
+	load_fixture names.sql
+	load_fixture names.zwr
 	load_fixture TC056.sql subtest novv
 	verify_output TC056 output.txt
 }
 
 @test "TC057 : OCTO583 : Validate that text table definition has IDENTITY in the column specification" {
+	load_fixture names.sql
+	load_fixture names.zwr
 	load_fixture TC057.sql subtest
 	verify_output TC057 output.txt
 }

@@ -1160,7 +1160,7 @@ run_query_generator() {
 	isReadWriteMode=""
   else
 	isReadWriteMode="write"
- fi
+  fi
   $ydb_dist/yottadb -run -noignore QueryGenerator $databaseSqlFileName "$databaseName.zwr" "$numQueries" "$prefix" $isReadWriteMode 2> "QG_stderr.txt" 1> "QG_stdout.txt"
 
   queryfile="$prefix.sql"

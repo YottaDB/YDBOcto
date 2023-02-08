@@ -65,6 +65,8 @@
 	; Select which mode QueryGenerator.m is going to generate queries in, read-only or read-write.
 	; read-only -> Only SELECT queries are generated
 	; read-write -> SELECT, INSERT, DELETE and UPDATE queries are generated
+	; Note: In a very rare case read-write query generation can generate queries in a manner which results in test failure.
+	;       This is case is further explained in https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1313#note_1272916936.
 	set isReadWriteMode=$piece(arguments," ",6)
 	zwr isReadWriteMode
 	set isReadWriteMode=$select(("write"=isReadWriteMode):1,1:0)
@@ -484,8 +486,8 @@ genSelectQuery()
 	close file
 	; The following LVNs exist for each individual query,
 	; thus they need to be KILLED after each query is created
-	kill tableColumn,selectListLVN,subQuerySelectedTables,innerQuerySLLVN,groupByListLVN,groupByColumnLVN,selectedExprGroupBy,groupByComparisonExpressionExists
-
+	kill tableColumn,selectListLVN,subQuerySelectedTables,groupByListLVN,groupByColumnLVN,selectedExprGroupBy
+	kill innerQuerySLLVN,groupByComparisonExpressionExists
 	quit
 
 genWriteQuery()
@@ -496,6 +498,11 @@ genWriteQuery()
 	if (0=randInt) do genInsertQuery()
 	else  if (1=randInt) do genDeleteQuery()
 	else  do genUpdateQuery()
+	; $$innerSelectList refers to the following lvn to determine if additional columns have to be added. Ensure
+	; present query state doesn't affect the next query. Done here as $$joinClause makes use of it
+	; to generate subquery columns in parent query and killing it in $$generateSubQuery would affect SELECT
+	; query generation. Also similar command is issued at the end of genSelectQuery().
+	kill innerQuerySLLVN
 	quit
 
 genInsertQuery()
@@ -2705,7 +2712,6 @@ generateSubQuery(queryDepth,subQueryType,joinType)
 	; Need to add this to tableAlias array as later calls (e.g. $$innerSelectList etc.) rely on this
 	set tableAlias(alias)=$piece(innerFC," ",2)
 	write "generateSubQuery : set tableAlias(",alias,")=",tableAlias(alias),!
-
 	if (subQueryType="full")  set innerQuery=innerQuery_$$innerSelectList(queryDepth,subQueryType,$random(3)+1,alias)
 	if (subQueryType="limited")  set innerQuery=innerQuery_$$innerSelectList(queryDepth,subQueryType,0,alias)
 	set innerQuery=innerQuery_" "_innerFC_" "_alias
@@ -2747,6 +2753,12 @@ innerSelectList(queryDepth,subQueryType,curDepth,alias)
 	; Qualifier notation (table.column), with the value of the alias variable instead of a table
 	set toBeAdded=alias_"."_$$chooseColumn(aliastable)
 
+	; Rest of the code is specific to subQueryType="full" so quit after the following block is executed
+	if (subQueryType="limited")  do  quit result
+	. set selectListLVN(queryDepth,toBeAdded)="table.column"
+	. set innerQuerySLLVN($piece(toBeAdded,"."),$piece(toBeAdded,".",2))=$piece(innerFC," ",2)
+	. set result=result_toBeAdded
+
 	if ((subQueryType="full")&(allowGBH("alias"_aliasNum)="FALSE"))  do
 	. for i=1:1:15  quit:($data(selectListLVN(queryDepth,toBeAdded))=0)  do
 	. . set toBeAdded=alias_"."_$$chooseColumn(aliastable)
@@ -2756,7 +2768,6 @@ innerSelectList(queryDepth,subQueryType,curDepth,alias)
 	. . set result=result_toBeAdded
 	.
 	. if (i=15)  set curDepth=0  set result=$extract(result,0,$length(result)-1)
-
 
 	if ((subQueryType="full")&(allowGBH("alias"_aliasNum)="TRUE"))  do
 	. new table,chosenColumn,agg,chosenColumn2,tc
@@ -2775,7 +2786,8 @@ innerSelectList(queryDepth,subQueryType,curDepth,alias)
 	. . set result=result_toBeAdded
 	.
 	. new setColumn
-	. if ($$columnCounter(table)>1)  do
+	. ; $$columnCounter returns one more than the actual number of columns
+	. if (($$columnCounter(aliastable)-1)>1)  do
 	. . ; Note: In tables that have only 2 columns (e.g. `stock_availability` table in `boolean.sql`)
 	. . ; it is possible that the randomly chosen "chosenColumn2" ends up being the same as "chosenColumn"
 	. . ; for a lot of iterations (we have seen "i" go as high as up to 16 and fail an "assert(i<16)" below).
@@ -2783,26 +2795,23 @@ innerSelectList(queryDepth,subQueryType,curDepth,alias)
 	. . for i=1:1 do  quit:(chosenColumn'=chosenColumn2)  do assert(i<64)
 	. . . set chosenColumn2=$$chooseColumn(table)
 	. . set setColumn=1
-	. else  if (0=$get(innerQuerySLLVN,0)) do
-	. . ; It is necessary to check `($get(innerQuerySLLVN,0))=0)` as its possible that the aggregate addition code in this
-	. . ; routine generates an aggregate function with the same alias as the actual column. In this case if a table with
-	. . ; only one column is being used, not checking `innerQuerySLLVN` before addition of a column in else block, we will
-	. . ; end up with an ambiguous column name like `RIGHT OUTER JOIN (SELECT ALL MIN(DISTINCT alias1.lastname) as lastname,
-	. . ;  alias1.lastname FROM nameslastname alias1 ..`. Here both columns in select list of inner query have the same
-	. . ; name which results in ambiguity when referenced by outer query.
+	. else  if (0=($get(innerQuerySLLVN(table,chosenColumn),0))) do
+	. . ; It is necessary to check `(0=($get(innerQuerySLLVN(table,chosenColumn),0)))` as it is possible that the aggregate
+	. . ; addition code in this routine generates an aggregate function with the same alias as the actual column.
+	. . ; In this case if a table with only one column is being used, not checking `innerQuerySLLVN` before addition of a
+	. . ; column in else block, we will end up with an ambiguous column name like
+	. . ; `RIGHT OUTER JOIN (SELECT ALL MIN(DISTINCT alias1.lastname) as lastname, alias1.lastname FROM nameslastname alias1
+	. . ; ..`. Here both columns in select list of inner query have the same name which results in ambiguity when referenced
+	. . ; by outer query.
 	. . do assert(result="")
-	. . set chosenColumn2=$$chooseColumn(table)
+	. . ; The result is empty add a column
+	. . set chosenColumn2=chosenColumn
 	. . set setColumn=1
 	. if $data(setColumn) do
 	. . set tc=table_"."_chosenColumn2
 	. . set selectListLVN(queryDepth,tc)="table.column"
 	. . do addToInnerQuerySLLVN($piece(tc,"."),$piece(tc,".",2),$piece(innerFC," ",2))
 	. . set result=result_tc
-
-	if (subQueryType="limited")  do
-	. set selectListLVN(queryDepth,toBeAdded)="table.column"
-	. set innerQuerySLLVN($piece(toBeAdded,"."),$piece(toBeAdded,".",2))=$piece(innerFC," ",2)
-	. set result=result_toBeAdded
 
 	; #FUTURE_TODO: Move the recursion logic down here
 	if ((subQueryType="full")&(curDepth>0)&(allowGBH("alias"_aliasNum)="FALSE"))  do
@@ -2991,7 +3000,7 @@ getRandBoolean()
 ; The below routine only executes if the outer most query OrderBy is being processed.
 ; If OrderBy list doesn't have all nodes from select list `orderByListLessThanSelectList` is set
 ;   1. In the below query although we do not have all nodes from Select List in OrderBy list we do not need
-;      to set `orderByListLessThanSelectList` as the ordering will not differ because duplicate nodes don't effect ordering
+;      to set `orderByListLessThanSelectList` as the ordering will not differ because duplicate nodes don't affect ordering
 ;	  `SELECT NOT (Suppliers.Country > 'Denmark'), Suppliers.ContactName, COUNT(ALL Suppliers.City), Suppliers.ContactName ..
 ;	   .. ORDER BY COUNT(ALL Suppliers.City), NOT (Suppliers.Country > 'Denmark'), Suppliers.ContactName;`
 ;   2. The set `orderByListLessThanSelectList` is later used to determine if `--sort-needed-check` is required to be added to

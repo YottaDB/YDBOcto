@@ -1858,6 +1858,13 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				 */
 				ERROR(ERR_READWRITE_DISALLOWED, NULL);
 				return NULL;
+			} else if (readonly_disallowed && (TABLETYPE_READONLY == table_type)) {
+				/* If a READONLY incompatible column-level keyword has been specified and
+				 * if octo.conf setting for tabletype is set to READONLY then this is a clear
+				 * indication of incompatibility.
+				 */
+				ERROR(ERR_READONLY_DISALLOWED, NULL);
+				return NULL;
 			}
 			/* If READWRITE incompatible column-level keyword has been specified, assume READONLY.
 			 * If READONLY incompatible column-level keyword has been specified, assume READWRITE.

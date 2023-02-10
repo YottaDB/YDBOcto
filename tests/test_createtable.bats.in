@@ -819,3 +819,9 @@ OCTO
 	load_fixture TC070.sql subtest novv
 	verify_output TC070 output.txt
 }
+
+@test "TC071 : OCTO583 : Identity columns in a readonly table is disallowed" {
+	echo 'tabletype = "READONLY"' > octo.conf
+	load_fixture TC071.sql subtest novv
+	verify_output TC071 output.txt
+}

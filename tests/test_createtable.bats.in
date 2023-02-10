@@ -814,3 +814,8 @@ OCTO
 	# Skip will be removed by MR!1246
 	skip
 }
+
+@test "TC070 : OCTO583 : Validate that identity columns have NOT NULL constraint implicitly" {
+	load_fixture TC070.sql subtest novv
+	verify_output TC070 output.txt
+}

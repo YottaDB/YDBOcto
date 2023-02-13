@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////
 //								//
-// Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	//
+// Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	//
 // All rights reserved.						//
 //								//
 //	This source code contains the intellectual property	//
@@ -35,7 +35,7 @@ verbosity = "ERROR"
  */
 // octo_zroutines = "./"
 
-// Settings related to the octod process
+// Settings related to the rocto process
 rocto = {
   /* Specify IP address and port to listen on for connections.
    * The default is 127.0.0.1 (localhost), which specifies the

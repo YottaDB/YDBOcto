@@ -38,13 +38,12 @@ verbosity = "ERROR"
 // Settings related to the rocto process
 rocto = {
   /* Specify IP address and port to listen on for connections.
-   * The default is 127.0.0.1 (localhost), which specifies the
-   * loopback interface of the computer running rocto. This allows
-   * rocto to be run and tested locally, but does not expose rocto
-   * to clients on other hosts. To make rocto accessible to external
-   * hosts, set the address to 0.0.0.0
+   * The default is 0.0.0.0 which allows external connections;
+   * configure your firewall and/or network routes to limit access.
+   * To restrict access to just the local machine, set it to
+   * 127.0.0.1.
    */
-  address = "127.0.0.1"
+  address = "0.0.0.0"
   port = 1337
   // Set to use DNS to resolve numeric IP addresses
   use_dns = false

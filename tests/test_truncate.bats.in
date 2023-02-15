@@ -25,6 +25,10 @@ setup() {
 	create_default_user
 }
 
+teardown() {
+  corecheck
+}
+
 @test "TT01 : OCTO609 : TRUNCATE deletes all row data for given tables" {
 	echo "# --------------------------------------------" >> output.txt
 	echo "# Test TRUNCATE in octo" >> output.txt

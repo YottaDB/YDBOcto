@@ -28,6 +28,7 @@ setup() {
 
 teardown() {
 	stop_rocto
+	corecheck
 }
 
 @test "TP000 : OCTO656/OCTO609 : INSERT, UPDATE, DELETE, TRUNCATE prohibited when: table is READONLY, rocto run with -w, and user can readwrite" {

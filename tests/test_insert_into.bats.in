@@ -24,6 +24,7 @@ setup() {
 
 teardown() {
 	stop_rocto
+	corecheck
 }
 
 @test "TII01 : INSERT INTO with firstName=Zero" {

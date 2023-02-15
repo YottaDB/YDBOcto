@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -19,6 +19,10 @@ setup() {
   load_fixture names.zwr
   load_fixture customers.sql
   load_fixture customers.zwr
+}
+
+teardown() {
+  corecheck
 }
 
 @test "THQ01 : OCTO290 : Test queries with different SELECT COLUMN LIST (single column) do not hash to same plan name" {

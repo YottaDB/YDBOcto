@@ -22,6 +22,7 @@ setup() {
 
 teardown() {
   stop_rocto
+  corecheck
 }
 
 @test "TF01 : OCTO621 : Verify that the number of comment and no comment query files are same when cross check interface is invoked with JDBC client" {

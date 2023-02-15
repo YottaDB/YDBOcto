@@ -1314,3 +1314,9 @@ run_query_in_two_emulations_and_crosscheck() {
 
 	return
 }
+
+corecheck() {
+	# Check if any core files exist.
+	corefilelist=$(find . -name "core*")
+	[[ -z $corefilelist ]]
+}

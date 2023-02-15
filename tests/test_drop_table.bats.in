@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -15,6 +15,10 @@ load test_helpers
 setup() {
   init_test
   createdb
+}
+
+teardown() {
+  corecheck
 }
 
 @test "TDT01 : drop a table, check that octo reports table unknown error on select statements and doesn't return any rows" {

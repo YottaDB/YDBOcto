@@ -21,6 +21,10 @@ setup() {
   $ydb_dist/yottadb -run ^%XCMD 'set ^%ydboctoocto("functions","MODULO")="$$^MODULO"'
 }
 
+teardown() {
+  corecheck
+}
+
 @test "TOB0A : order by firstName ascending" {
   octo >& output.txt <<OCTO
 select * from names order by firstName;

@@ -21,6 +21,7 @@ teardown() {
 	# Even though rocto is not started for all tests it is helpful to have stop_rocto here as we want it to execute even when the
 	# subtest which do use rocto fail.
 	stop_rocto
+	corecheck
 }
 
 @test "TC001 : create a table so large it can't fit in the buffer" {

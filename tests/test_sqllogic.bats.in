@@ -20,6 +20,7 @@ setup() {
 
 teardown() {
 	stop_rocto
+	corecheck
 }
 
 sqllogic_test() {

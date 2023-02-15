@@ -23,6 +23,7 @@ setup() {
 
 teardown() {
   stop_rocto
+  corecheck
 }
 
 @test "TJC001 : Random inner/outer join queries" {

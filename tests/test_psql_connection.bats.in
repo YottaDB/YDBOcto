@@ -28,6 +28,7 @@ setup() {
 
 teardown() {
   stop_rocto
+  corecheck
 }
 
 @test "TPC00A : test no MD5 authentication failure" {

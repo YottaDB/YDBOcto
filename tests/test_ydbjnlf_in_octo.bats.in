@@ -23,6 +23,10 @@ setup() {
   load_fixture pastas.zwr
 }
 
+teardown() {
+  corecheck
+}
+
 @test "TYIO01 : Test %YDBJNLF Octo functionality" {
 	ydb_version=$($ydb_dist/yottadb -run %XCMD 'WRITE $ZYRELEASE' | cut -d ' ' -f 2)
 	if  [ "$ydb_version" \< "r1.37" ] ; then

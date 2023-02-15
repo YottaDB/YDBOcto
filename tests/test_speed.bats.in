@@ -1,6 +1,6 @@
 #################################################################
 #                                                               #
-# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.       #
+# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.       #
 # All rights reserved.                                          #
 #                                                               #
 #       This source code contains the intellectual property     #
@@ -80,6 +80,10 @@ setup_file() {
   $ydb_dist/mupip load -ignorechset ../vista_zwr/129.2-2%2BRXNORM%20CONCEPT%20NAMES%20AND%20SOURCES.zwr
   $ydb_dist/mupip load -ignorechset ../vista_zwr/129.2-3%2BRXNORM%20CONCEPT%20NAMES%20AND%20SOURCES.zwr
   load_fixture vista-file-129_2.sql
+}
+
+teardown() {
+  corecheck
 }
 
 # Test philosophy. Run each query 2-3 times. It proves the following:

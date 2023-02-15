@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -17,6 +17,10 @@ setup() {
   createdb
   load_fixture names.sql
   load_fixture names.zwr
+}
+
+teardown() {
+  corecheck
 }
 
 @test "TROC01: Verifies that when usejdbc argument is passed to cross check function, JDBC client is used and rocto is started" {

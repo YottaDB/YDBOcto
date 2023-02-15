@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -19,6 +19,10 @@ setup() {
   load_fixture customers.zwr
   load_fixture names.sql
   load_fixture names.zwr
+}
+
+teardown() {
+  corecheck
 }
 
 @test "TJOC01 : OCTO291 JOIN queries with invalid ON conditions " {

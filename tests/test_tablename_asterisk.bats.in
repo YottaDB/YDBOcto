@@ -20,6 +20,7 @@ setup() {
 teardown() {
 	# In case a subtest started rocto, stop it before moving on to the next subtest
 	stop_rocto
+	corecheck
 }
 
 @test "TTA001 : OCTO759 : COUNT(DISTINCT TABLENAME.ASTERISK) produces incorrect results in some cases : nullcharnames database" {

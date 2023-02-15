@@ -23,6 +23,10 @@ setup() {
   load_fixture names.zwr
 }
 
+teardown() {
+  corecheck
+}
+
 @test "TSCP01 : OCTO466 : Incorrect results when '|' is part of the column value in the SELECT column list" {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP01.sql
 }

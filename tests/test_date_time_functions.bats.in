@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -30,6 +30,10 @@ setup() {
 	createdb
 	# Specify call-out table to allow M to access C date format function
 	set_ydb_xc_octo
+}
+
+teardown() {
+  corecheck
 }
 
 @test "TDTF01 : OCTO288 : Support functions now(), lpad(), coalesce(), isnull(), current_user(), truncate(), day()" {

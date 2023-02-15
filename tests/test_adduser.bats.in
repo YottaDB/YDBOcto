@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -15,6 +15,10 @@ load test_helpers
 setup() {
   init_test
   createdb
+}
+
+teardown() {
+  corecheck
 }
 
 @test "TAU00 : call %ydboctoAdmin add user with no user" {

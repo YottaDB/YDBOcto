@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -23,6 +23,10 @@ setup() {
 	load_fixture northwind.zwr
 	load_fixture nullnames.sql
 	load_fixture nullnames.zwr
+}
+
+teardown() {
+  corecheck
 }
 
 @test "TBT01 : Test of BOOLEAN type across various valid queries in `boolean` database" {

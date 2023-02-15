@@ -24,6 +24,7 @@ setup() {
 
 teardown() {
 	stop_rocto
+	corecheck
 }
 
 @test "TUT001 : OCTO579 : Test various errors in UPDATE" {

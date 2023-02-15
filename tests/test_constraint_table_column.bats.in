@@ -17,6 +17,10 @@ setup() {
   createdb
 }
 
+teardown() {
+  corecheck
+}
+
 @test "TCTC001 : OCTO772 : Test CONSTRAINT name is accepted for PRIMARY KEY, UNIQUE and NOT NULL" {
 	load_fixture TCTC001.sql subtest novv
 	verify_output TCTC001 output.txt

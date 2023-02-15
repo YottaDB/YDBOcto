@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -29,6 +29,7 @@ setup() {
 
 teardown() {
   stop_rocto
+  corecheck
 }
 
 @test "TCR01 : Test cancel requests abort long running queries; OCTO666 : Also test MUPIP INTRPT of rocto produces JOBEXAM file" {

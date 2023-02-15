@@ -30,6 +30,7 @@ setup() {
 
 teardown() {
   stop_rocto
+  corecheck
 }
 
 @test "TLS01 : ensure log output split across multiple lines" {

@@ -23,6 +23,10 @@ setup() {
   echo 'octo_history = "$PWD/octo_history"' > octo.conf
 }
 
+teardown() {
+  corecheck
+}
+
 @test "TR01 : readline single session history within session" {
   (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_within_session.exp > expect.out) &> expect.dbg
   # stripreturns needed below since different terminals seem to output different amount of ^M characters on history return

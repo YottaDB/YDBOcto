@@ -20,6 +20,7 @@ setup() {
 
 teardown() {
 	stop_rocto
+	corecheck
 }
 
 @test "TQG01 : Test Query Generator against customers database" {

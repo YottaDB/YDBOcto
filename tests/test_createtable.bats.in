@@ -112,23 +112,41 @@ OCTO
 }
 
 @test "TC008 : create a table with an INTEGER and NUMERIC columns with decimals and integers stored in both" {
-  yottadb -run %XCMD 'kill ^T1 set ^T1(1,2.2,3.3)="1.1|2|3"'
-  octo <<OCTO 2>&1 | tee output.txt
-create table t1 (a int primary key, b int, c numeric, d numeric key num 1, e int, f int key num 2) global "^T1(keys(""a""),keys(""d""),keys(""f""))";
-select * from t1;
-drop table t1;
+	if [ ! -z "$CI_JOB_NAME" ] ; then
+		if [ "asan-ubuntu" == "$CI_JOB_NAME" ] && [ "UTF-8" == $ydb_chset ] ; then
+			# We have seen this subtest fail occasionally with a LeakSanitizer SIG-11 when run in the "asan-ubuntu"
+			# pipeline job. All the failure runs so far have happened when ydb_chset was randomly set to "UTF-8".
+			# Therefore we skip this subtest if both conditions are met. See the following for more details.
+			#	https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/892#note_1280024442
+			skip
+		fi
+	fi
+	yottadb -run %XCMD 'kill ^T1 set ^T1(1,2.2,3.3)="1.1|2|3"'
+	octo <<OCTO 2>&1 | tee output.txt
+	create table t1 (a int primary key, b int, c numeric, d numeric key num 1, e int, f int key num 2) global "^T1(keys(""a""),keys(""d""),keys(""f""))";
+	select * from t1;
+	drop table t1;
 OCTO
-  verify_output TC008 output.txt
+	verify_output TC008 output.txt
 }
 
 @test "TC009 : create a table with INTEGER and NUMERIC column types with strings stored in both" {
-  yottadb -run %XCMD 'kill ^T1 set ^T1("hello")="world"'
-  octo <<OCTO 2>&1 | tee output.txt
-create table t1(a int primary key, b numeric) global "^T1(keys(""a""))";
-select * from t1;
-drop table t1;
+	if [ ! -z "$CI_JOB_NAME" ] ; then
+		if [ "asan-ubuntu" == "$CI_JOB_NAME" ] && [ "UTF-8" == $ydb_chset ] ; then
+			# We have seen this subtest fail occasionally with a LeakSanitizer SIG-11 when run in the "asan-ubuntu"
+			# pipeline job. All the failure runs so far have happened when ydb_chset was randomly set to "UTF-8".
+			# Therefore we skip this subtest if both conditions are met. See the following for more details.
+			#	https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/892#note_1280024442
+			skip
+		fi
+	fi
+	yottadb -run %XCMD 'kill ^T1 set ^T1("hello")="world"'
+	octo <<OCTO 2>&1 | tee output.txt
+	create table t1(a int primary key, b numeric) global "^T1(keys(""a""))";
+	select * from t1;
+	drop table t1;
 OCTO
-  verify_output TC009 output.txt
+	verify_output TC009 output.txt
 }
 
 @test "TC010 : OCTO381 : Allow DATE and TIME types to be specified in the Octo DDL but treated as strings internally" {

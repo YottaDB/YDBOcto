@@ -844,3 +844,52 @@ OCTO
 	load_fixture TC071.sql subtest novv
 	verify_output TC071 output.txt
 }
+
+
+@test "TC073 : OCTO940 : Check auto load doesn't result in SIG-11 when there is a dependency from non octo-seed table to octo-seed function" {
+	# Run only if build is of type "Debug", `seedreload` config is only available in "Debug" build
+	if [[ "Debug" != @CMAKE_BUILD_TYPE@ ]]; then
+		skip
+	fi
+	# Invoke octo to finish auto load of octo-seed.sql before "load_fixture ... subtest" invocation.
+	# This is to avoid verbose output of each query in "octo-seed.sql" which would otherwise pollute the reference file.
+	octo < /dev/null
+	load_fixture TC073_before_load.sql subtest novv
+	verify_output TC073_before_load output.txt
+	mv output.txt TC073_before_load_output.txt
+	echo 'seedreload = "TRUE"' > octo.conf
+	# Avoid polluting reference file with octo-seed.sql auto load output
+	octo < /dev/null
+	mv octo.conf octo_seed.conf
+	load_fixture TC073_after_load.sql subtest novv
+	verify_output TC073_after_load output.txt
+	mv output.txt TC073_after_load_output.txt
+	# Queries in the following file results in SIG-11 without #940 fix
+	load_fixture TC073_after_load_2.sql subtest novv
+	verify_output TC073_after_load_2 output.txt
+}
+
+@test "TC074 : OCTO940 : Check table dependency doesn't get deleted after a auto-load of octo-seed" {
+	# Run only if build is of type "Debug", `seedreload` config is only available in "Debug" build
+	if [[ "Debug" != @CMAKE_BUILD_TYPE@ ]]; then
+		skip
+	fi
+	# Invoke octo to finish auto load of octo-seed.sql before "load_fixture ... subtest" invocation.
+	# This is to avoid verbose output of each query in "octo-seed.sql" which would otherwise pollute the reference file.
+	octo < /dev/null
+	load_fixture TC074_before_load.sql subtest novv
+	verify_output TC074_before_load output.txt
+	mv output.txt TC074_before_load_output.txt
+	rm _ydbocto*.m
+	echo 'seedreload = "TRUE"' > octo.conf
+	# Before #940 fix, the DROP FUNCTION in the below TC074_after_load.sql would have dropped the function instead
+	# of giving an error saying a table depends on it.
+	# This was because octo-seed auto load did a drop of that function and this deleted all relation gvns.
+	# This is not expected. After #940 fix the relation gvns are retained and thus the DROP FUNCTION
+	# in TC074_after_load.sql outputs an error as expected.
+	# Avoid polluting reference file with octo-seed.sql auto load output
+	octo < /dev/null
+	mv octo.conf octo_seed.conf
+	load_fixture TC074_after_load.sql subtest novv
+	verify_output TC074_after_load output.txt
+}

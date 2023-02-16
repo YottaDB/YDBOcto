@@ -236,3 +236,14 @@ teardown() {
 	load_fixture TCF034.sql subtest novv
 	verify_output TCF034 output.txt noinfo nodebug
 }
+
+@test "TCF035 : OCTO940 : Verify that the function related octo gvn layout stays the same" {
+	load_fixture TCF035.sql subtest novv
+	verify_output TCF035 output.txt noinfo nodebug
+	$ydb_dist/mupip extract TCF035.ext
+	cp TCF035.ext pre_process_TCF035.ext
+	sed -i -n '/\(^\^\%ydboctoocto("functions"\,"SAMEVALUE.*oid\)/p;/\(^\^\%ydboctoocto("functions"\,"SAMEVALUE.*check\)/p' TCF035.ext
+	sed -i 's/\=\".*\"//' TCF035.ext
+	cp @PROJECT_SOURCE_DIR@/tests/outref/TCF035_ext.ref .
+	diff TCF035_ext.ref TCF035.ext
+}

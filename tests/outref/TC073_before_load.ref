@@ -1,0 +1,10 @@
+drop table if exists tbl;
+create table tbl (id integer CHECK (ABS(id) < 5));
+\d tbl;
+DROP TABLE
+CREATE TABLE
+Table "TBL" stored in Global: ^%ydboctoDDmMNiL3P1bAyQjIOovGhK9 : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID|INTEGER|||
+Check constraints:
+    "TBL_ID_CHECK" CHECK ((ABS(ID) < 5))

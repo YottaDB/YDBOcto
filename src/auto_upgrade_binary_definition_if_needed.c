@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -47,7 +47,6 @@ int auto_upgrade_binary_definition_if_needed(void) {
 #endif
 	boolean_t    auto_upgrade_needed, release_ddl_lock;
 	ydb_buffer_t locksub;
-	boolean_t    save_allow_schema_changes;
 
 #ifdef FORCE_BINARY_DEFINITION_AUTO_UPGRADE
 	if (NULL != getenv("disable_auto_upgrade")) {
@@ -99,38 +98,8 @@ int auto_upgrade_binary_definition_if_needed(void) {
 			break;
 		}
 	}
-	/* In case this is a rocto process, it is not allowed to do schema changes by default. But allow the auto upgrade
-	 * for this process. Hence the temporary modification to "config->allow_schema_changes" below.
-	 */
-	save_allow_schema_changes = config->allow_schema_changes;
-	config->allow_schema_changes = TRUE;
-	/* Do the actual auto upgrade of the binary table definition.
-	 * Set a global variable to indicate this is the small window where auto upgrade of binary table definitions happens.
-	 * This lets "table_definition.c" know to do some special processing (use different logic to calculate whether
-	 * a table should be considered READONLY or READWRITE).
-	 */
-	assert(FALSE == config->in_auto_upgrade_binary_table_definition);
-	config->in_auto_upgrade_binary_table_definition = TRUE;
-	status = auto_upgrade_binary_table_definition();
-	config->in_auto_upgrade_binary_table_definition = FALSE;
-	if (YDB_OK != status) {
-		config->allow_schema_changes = save_allow_schema_changes;
-		CLEANUP_AND_RETURN(status, release_ddl_lock, octo_global, locksub);
-	}
-	/* Do the actual auto upgrade of the binary function definition */
-	status = auto_upgrade_binary_function_definition();
-	if (YDB_OK != status) {
-		config->allow_schema_changes = save_allow_schema_changes;
-		CLEANUP_AND_RETURN(status, release_ddl_lock, octo_global, locksub);
-	}
-	config->allow_schema_changes = save_allow_schema_changes;
-	/* Now that auto upgrade is complete, indicate that (so other processes do not attempt the auto upgrade)
-	 * by setting ^%ydboctoocto(OCTOLIT_BINFMT) to FMT_BINARY_DEFINITION.
-	 */
-	fmt.len_used = snprintf(fmt.buf_addr, fmt.len_alloc, "%d", FMT_BINARY_DEFINITION);
-	status = ydb_set_s(&octo_global, 1, &subs, &fmt);
-	CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, release_ddl_lock, octo_global, locksub);
-
+	UPGRADE_BINARY_DEFINITIONS_AND_RETURN_IF_NOT_YDB_OK(status, release_ddl_lock, octo_global, locksub);
+	assert(YDB_OK == status); // Ensure above call succeeded
 	/* Now that auto upgrade is complete, release exclusive lock */
 	status = ydb_lock_decr_s(&octo_global, 1, &locksub);
 	release_ddl_lock = FALSE; /* needed so the below macro invocation does not try to release the lock again */

@@ -185,7 +185,7 @@
 #define OCTOLIT_PRIMARY_KEY_NAME     "primary_key_name"
 #define OCTOLIT_READ_ONLY	     "read-only"
 #define OCTOLIT_ROUTINE		     "routine"
-#define OCTOLIT_SEEDFMT		     "seedfmt"
+#define OCTOLIT_SEEDDFNFMT	     "seeddfnfmt"
 #define OCTOLIT_SETTINGS	     "settings"
 #define OCTOLIT_T		     "t"
 #define OCTOLIT_TABLEPLANS	     "tableplans"
@@ -331,6 +331,10 @@
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
 #define FMT_PLAN_DEFINITION 23
+
+/* The below macro needs to be manually bumped if there is a non-cosmetic change to octo-seed.sql.
+ */
+#define FMT_SEED_DEFINITION 1
 
 /* Used by `hash_canonical_query()` */
 #define HASH_LITERAL_VALUES -1
@@ -924,6 +928,56 @@ typedef enum RegexType {
 			GVN_STR[firstsub - gvname] = '\0';                                                         \
 			YDB_STRING_TO_BUFFER(GVN_STR, &(GVN_BUFFER));                                              \
 		}                                                                                                  \
+	}
+
+#define SET_OCTOLIT_BINFMT_GVN_AND_RETURN_IF_NOT_YDB_OK(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB)        \
+	{                                                                                                      \
+		ydb_buffer_t lcl_fmt, lcl_subs;                                                                \
+		char	     lcl_fmt_buff[INT32_TO_STRING_MAX];                                                \
+		YDB_STRING_TO_BUFFER(OCTOLIT_BINFMT, &lcl_subs);                                               \
+		lcl_fmt.buf_addr = &lcl_fmt_buff[0];                                                           \
+		lcl_fmt.len_alloc = sizeof(lcl_fmt_buff);                                                      \
+		lcl_fmt.len_used = snprintf(lcl_fmt.buf_addr, lcl_fmt.len_alloc, "%d", FMT_BINARY_DEFINITION); \
+		STATUS = ydb_set_s(&OCTO_GLOBAL, 1, &lcl_subs, &lcl_fmt);                                      \
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);              \
+	}
+
+#define UPGRADE_BINARY_DEFINITIONS_AND_RETURN_IF_NOT_YDB_OK(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB)                       \
+	{                                                                                                                         \
+		/* In case this is a rocto process, it is not allowed to do schema changes by default. But allow the auto upgrade \
+		 * for this process. Hence the temporary modification to "config->allow_schema_changes" below.                    \
+		 */                                                                                                               \
+		boolean_t save_allow_schema_changes;                                                                              \
+		save_allow_schema_changes = config->allow_schema_changes;                                                         \
+		config->allow_schema_changes = TRUE;                                                                              \
+		assert(FALSE == config->in_auto_upgrade_binary_table_definition);                                                 \
+		/* Do the actual auto upgrade of the binary function definition.                                                  \
+		 * Note: Function upgrade is done prior to table upgrade to ensure that the                                       \
+		 * table which depends on a function refers to the upgraded function during its upgrade.                          \
+		 * This also helps to re-create all dependency nodes in the correct format.                                       \
+		 */                                                                                                               \
+		STATUS = auto_upgrade_binary_function_definition();                                                               \
+		if (YDB_OK != STATUS) {                                                                                           \
+			config->allow_schema_changes = save_allow_schema_changes;                                                 \
+			CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                                       \
+		}                                                                                                                 \
+		/* Do the actual auto upgrade of the binary table definition.                                                     \
+		 * Set a global variable to indicate this is the small window where auto upgrade of binary table definitions      \
+		 * happens. This lets "table_definition.c" know to do some special processing (use different logic to calculate   \
+		 * whether a table should be considered READONLY or READWRITE).                                                   \
+		 */                                                                                                               \
+		config->in_auto_upgrade_binary_table_definition = TRUE;                                                           \
+		STATUS = auto_upgrade_binary_table_definition();                                                                  \
+		config->in_auto_upgrade_binary_table_definition = FALSE;                                                          \
+		if (YDB_OK != STATUS) {                                                                                           \
+			config->allow_schema_changes = save_allow_schema_changes;                                                 \
+			CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                                       \
+		}                                                                                                                 \
+		config->allow_schema_changes = save_allow_schema_changes;                                                         \
+		/* Now that auto upgrade is complete, indicate that (so other processes do not attempt the auto upgrade)          \
+		 * by setting ^%ydboctoocto(OCTOLIT_BINFMT) to FMT_BINARY_DEFINITION.                                             \
+		 */                                                                                                               \
+		SET_OCTOLIT_BINFMT_GVN_AND_RETURN_IF_NOT_YDB_OK(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                  \
 	}
 
 // Convenience type definition for run_query callback function

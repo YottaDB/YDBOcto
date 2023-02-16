@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -111,14 +111,23 @@ discardTable(tableName,tableGVNAME)	;
 	. . KILL ^%ydboctoschema(tableName,"primary_key_name")
 	QUIT
 
-discardFunction(functionName,functionHash)	;
+discardFunction(functionName,functionHash,isAutoLoad)	;
 	; --------------------------------------------------------------------------------------------------
 	; Discards all generated plans associated with a function whose name and hash are provided as input.
 	; --------------------------------------------------------------------------------------------------
 	NEW planName
 	SET planName="" FOR  DO  QUIT:""=planName  DO discardPlan(planName)
 	.  SET planName=$ORDER(^%ydboctoocto("functions",functionName,functionHash,"plan_metadata",planName))
-	KILL ^%ydboctoocto("functions",functionName,functionHash);
+	; If Octo is performing an auto load of octo-seed, discardFunction() is called with `isAutoLoad` set to 1.
+	; In such a case avoid deleting dependency nodes as these are only created during CREATE command execution
+	; for the entity which depends on this function and It is not guranteed that the entity will go through CREATE
+	; during auto load of octo-seed.
+	NEW sub
+	IF (isAutoLoad) DO
+	. SET sub="" FOR  DO  QUIT:""=sub
+	. . SET sub=$ORDER(^%ydboctoocto("functions",functionName,functionHash,sub))
+	. . KILL:("check_constraint"'=sub) ^%ydboctoocto("functions",functionName,functionHash,sub)
+	ELSE  KILL ^%ydboctoocto("functions",functionName,functionHash);
 	QUIT
 
 discardPlan(srcPlan)

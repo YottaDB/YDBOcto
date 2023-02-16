@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -363,7 +363,22 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 		ERROR(ERR_BAD_CONFIG, config_file_name, "tabletype can only take on string values (not integer values)");
 		return 1;
 	}
-
+#ifndef NDEBUG
+	/* Read in "seedreload" setting */
+	/* Only used for testing */
+	const char *seedreload;
+	status = config_lookup_string(config_file, "seedreload", &seedreload);
+	if (CONFIG_TRUE == status) {
+		/* Check if a valid value is specified. If not issue error. */
+		if (0 == strcmp(seedreload, "TRUE")) {
+			config->seedreload = TRUE;
+		} else {
+			config->seedreload = FALSE;
+		}
+	} else {
+		config->seedreload = FALSE;
+	}
+#endif
 	/* Load octo_history and octo_history_max_length
 	 * For octo_history if not set, it will just be NULL, which we can easily
 	 * check.
@@ -913,14 +928,15 @@ int octo_init(int argc, char **argv) {
 				/* Error message would have been printed already inside the above function call */
 				break;
 			}
-			/* Check if binary-definitions (of tables or functions) need to be auto upgraded. If so upgrade them. */
-			status = auto_upgrade_binary_definition_if_needed();
+			/* Check if octo-seed needs to be reloaded (due to a newer Octo build). If so do that. */
+			status = auto_load_octo_seed_if_needed();
 			if (YDB_OK != status) {
 				/* Error message would have been printed already inside the above function call */
 				break;
 			}
-			/* Check if octo-seed needs to be reloaded (due to a newer Octo build). If so do that. */
-			status = auto_load_octo_seed_if_needed();
+			/* Check if binary-definitions (of tables or functions) need to be auto upgraded. If so upgrade
+			 * them. */
+			status = auto_upgrade_binary_definition_if_needed();
 			if (YDB_OK != status) {
 				/* Error message would have been printed already inside the above function call */
 				break;

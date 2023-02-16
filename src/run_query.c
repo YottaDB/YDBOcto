@@ -731,7 +731,8 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			ci_param1.length = function_name_buffer->len_used;
 			ci_param2.address = function_hash_buffer->buf_addr;
 			ci_param2.length = function_hash_buffer->len_used;
-			status = ydb_ci("_ydboctoDiscardFunction", &ci_param1, &ci_param2);
+			status
+			    = ydb_ci("_ydboctoDiscardFunction", &ci_param1, &ci_param2, (ydb_int_t)config->in_auto_load_octo_seed);
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 
 			// Drop the function from the local cache

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -87,6 +87,9 @@ typedef struct OctoConfig {
 							    * This helps us to know how many entries we need to append
 							    * when we quit.
 							    */
+#ifndef NDEBUG
+	boolean_t seedreload; /* Only used for testing autoload */
+#endif
 } OctoConfig;
 
 extern OctoConfig *config;

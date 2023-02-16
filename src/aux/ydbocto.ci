@@ -2,7 +2,7 @@ _ydboctoselect          :void        run^%ydboctoselect(I:ydb_ulong_t,I:ydb_stri
 _ydboctoInit            :ydb_long_t* ^%ydboctoInit(I:ydb_int_t)
 _ydboctoNodeDump        :void        ydboctoNodeDump^%ydboctoUtils()
 _ydboctoDiscardTable    :void        discardTable^%ydboctoDiscard(I:ydb_string_t*,I:ydb_string_t*)
-_ydboctoDiscardFunction :void        discardFunction^%ydboctoDiscard(I:ydb_string_t*,I:ydb_string_t*)
+_ydboctoDiscardFunction :void        discardFunction^%ydboctoDiscard(I:ydb_string_t*,I:ydb_string_t*,I:ydb_int_t)
 _ydboctoDiscardAll      :void        discardALL^%ydboctoDiscard()
 _ydboctoxrefupdate      :void        handleSetKill^%ydboctoxrefupdate(I:ydb_string_t*,I:ydb_string_t*)
 _ydboctoxrefMetadata    :void        xrefMetadata^%ydboctoselect(I:ydb_string_t*)

@@ -1,0 +1,67 @@
+#################################################################
+#								#
+# Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+}
+
+teardown() {
+	stop_rocto
+}
+
+# --------------------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------------------------
+# Every subtest in this test is expected to have two parts:
+# * First to be executed on the older commit
+#   * For this part, the bats test is expected to have a `load_fixture file.sql` and a `verify_output file`. This creates the
+#     necessary tables or functions.
+#       For example:
+#         Table A with its check constraint having a reference to the function abs(). This way, running file.sql will create
+#         the required dependency nodes in the DB.
+# * Second part to be executed by test-auto-upgrade job
+#   * For this part, the bats test is expected to just copy over the query file and the reference file to the subtest directory.
+#     These files will be later used by test-auto-upgrade job to run the test after an upgrade
+#   * The queries that are expected here are those which validate that the dependencies which were created before upgrade
+#     still exist.
+#       For example:
+#         Since the first part created a table which depends on function abs(), the query file to be executed after the upgrade
+#         can have a drop function query on abs() and an error which says cannot drop as dependency exist in the reference file.
+#         This will test that the upgrade didn't remove the dependency between the table and the function.
+#
+# While adding a new subtest to test_auto_upgrade.bats.in ensure that the naming of files are as follows:
+# * Files should have names in the format subtestNamesubtestNumber_partNumber
+#   * For example, TAU001_1.sql
+#     * TAU is the name of the subtest
+#     * 001 is the number of the subtest
+#     * 1 represents the part of the test in which the file will be used in.
+#
+# In the test-auto-upgrade job, tools/ci/build.sh script is going to check if the test being run in the test-auto-upgrade job is
+# a test_auto_upgrade test
+# * In such case, it execute the second part of the test by running the second query file (TAU001_2.sql) in Octo and validates the
+#   output by executing `diff` with the second reference file (TAU001_2.ref) of the subtest.
+# --------------------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------------------------
+@test "TAU001 : function to table dependency should not be lost on autoload or auto upgrade" {
+	## Part 1
+	load_fixture TAU001_1.sql subtest novv
+	verify_output TAU001_1 output.txt noinfodebug
+	## Part 2
+	# Make the following files available if the test is run by test-auto-upgrade job
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TAU001_2.sql ./
+	cp @PROJECT_SOURCE_DIR@/tests/outref/TAU001_2.ref ./
+	#load_fixture TAU001_2.sql subtest novv
+	#verify_output TAU001_2 output.txt noinfodebug
+}
+

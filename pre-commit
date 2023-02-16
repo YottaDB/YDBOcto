@@ -200,4 +200,30 @@ foreach file ($filelist)
 	endif
 end
 
+#--------------------------------------------------------------------------------------------------
+# 8) Verify that FMT_SEED_DEFINITION is bumped if there is a change to tests/fixtures/octo-seed.sql
+#--------------------------------------------------------------------------------------------------
+
+set tipcommit = "HEAD"
+set octo_seed_change = `git diff --cached $tipcommit -- tests/fixtures/octo-seed.sql`
+if ("" != "$octo_seed_change")  then
+	set octo_header_change=`git diff --cached $tipcommit -- src/octo.h`
+	if ("" != "$octo_header_change") then
+		# Get the FMT_SEED_DEFINITION value in the latest commit
+		set current_seed_fmt_value=`git diff --cached -G "\#define\ FMT\_SEED\_DEFINITION" $tipcommit -- src/octo.h | grep -o "\+\#define\ FMT\_SEED\_DEFINITION\ [0-9]*" | awk '{print $3}'`
+		# Get the previous FMT_SEED_DEFINITION value
+		set prior_seed_fmt_value=`git diff --cached -G "\#define\ FMT\_SEED\_DEFINITION" $tipcommit -- src/octo.h | grep -o "\-\#define\ FMT\_SEED\_DEFINITION\ [0-9]*" | awk '{print $3}'`
+		# Check if FMT_SEED_DEFINITION value is bumped
+		@ incr_prior_seed_fmt_value = $prior_seed_fmt_value + 1
+		if ("$incr_prior_seed_fmt_value" != "$current_seed_fmt_value") then
+			# octo-seed has changed but FMT_SEED_DEFINITION is not issue an error
+			echo "--> HOOK-E-FAIL : File octo-seed.sql has changed but no update to FMT_SEED_DEFINITION. FMT_SEED_DEFINITION must be bumped."
+			@ exitstatus = 1
+		endif
+	else
+		# octo-seed has changed but FMT_SEED_DEFINITION is not issue an error
+		echo "--> HOOK-E-FAIL : File octo-seed.sql has changed but no update to FMT_SEED_DEFINITION. FMT_SEED_DEFINITION must be bumped."
+		@ exitstatus = 1
+	endif
+endif
 exit $exitstatus

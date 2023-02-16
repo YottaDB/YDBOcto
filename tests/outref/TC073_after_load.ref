@@ -1,0 +1,8 @@
+\d tbl;
+drop function abs(integer);
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function 'ABS(INTEGER)' because other objects (constraint TBL_ID_CHECK on table TBL) depend on it
+Table "TBL" stored in Global: ^%ydboctoDDmMNiL3P1bAyQjIOovGhK9 : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID|INTEGER|||
+Check constraints:
+    "TBL_ID_CHECK" CHECK ((ABS(ID) < 5))

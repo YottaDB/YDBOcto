@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -172,6 +172,7 @@ if("${FULL_TEST_SUITE}")
 	ADD_BATS_TEST_DML(test_constraint_table_column)
 	ADD_BATS_TEST_DML(test_tablename_asterisk)
 	ADD_BATS_TEST_DML(test_select_columns_psql)
+	ADD_BATS_TEST_DML(test_auto_upgrade)
 
 	# The following test requires MySQL and PostgreSQL
 	ADD_BATS_TEST_DML(test_date_time_functions)

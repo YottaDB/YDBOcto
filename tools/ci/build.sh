@@ -740,6 +740,25 @@ else
 				continue
 			fi
 			subtest=$(sed 's/.*subtest \[//;s/].*//;' bats_test.out)
+			if [[ ($subtest =~ ^"TAU") ]]; then
+				subtestName=$(echo $subtest | cut -d " " -f1)
+				# Run auto upgrade specific test
+				# Disable the "set -e" setting temporarily as we want to check the error reported by Octo
+				mv output.txt "$subtestName"_1_output.txt
+				[[ -e "$subtestName"_2.sql ]]
+				[[ -e "$subtestName"_2.ref ]]
+				set +e
+				./newsrc/octo -f "$subtestName"_2.sql > output.txt 2>&1
+				diff "$subtestName"_2.ref output.txt > "$subtestName"_2_output.diff
+				set -e
+				if [[ -s "$subtestName"_2_output.diff ]]; then
+					echo "ERROR : [diff $subtestName_2.ref output.txt] returned non-zero diff" | tee -a ../errors.log
+					echo "[cat $subtestName_2_output.diff] output follows" | tee -a ../errors.log
+					tee -a < $subtestName_2_output.diff ../errors.log
+					exit_status=1
+				fi
+				continue
+			fi
 			# ----------------------------------------------------------------------------
 			# Exclude specific set of subtests (reasons explained below)
 			# ----------------------------------------------------------------------------

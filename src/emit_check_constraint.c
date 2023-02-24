@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -35,7 +35,13 @@ int emit_check_constraint(char **buffer, int *buffer_size, char **buff_ptr, stru
 	char *operation_name;
 	int   ret;
 
-	assert(NULL != stmt);
+	/* Following NULL check is placed to handle a parmless function processing. No additional processing needed for such a case.
+	 * Example query that can pass NULL value to this function is:
+	 * 	`create table test (id int check(parmless()>1));`
+	 */
+	if (NULL == stmt) {
+		return 0;
+	}
 	switch (stmt->type) {
 	case value_STATEMENT:;
 		SqlValue *value;

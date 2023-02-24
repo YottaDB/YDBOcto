@@ -221,3 +221,7 @@ teardown() {
 	verify_output TCTC014 output.txt
 }
 
+@test "TCTC015 : : Test that parmless function when used in check constraint do not result in an SIG-11/assert-failure" {
+	load_fixture TCTC015.sql subtest novv
+	verify_output TCTC015 output.txt
+}

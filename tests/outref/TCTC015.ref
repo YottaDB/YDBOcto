@@ -1,0 +1,5 @@
+
+create function parmless() returns integer as $$^PARMLESSFUNC;
+create table test (id int check(parmless()>1));
+CREATE FUNCTION
+CREATE TABLE

@@ -16,6 +16,7 @@
 #include "git_hashes.h"
 
 #define OCTO_LIT_SEEDFMT "seedfmt"
+
 #define CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB)      \
 	{                                                                       \
 		if (RELEASE_DDL_LOCK) {                                         \
@@ -69,7 +70,7 @@ int auto_load_octo_seed_if_needed(void) {
 	full_auto_load_needed = FALSE;
 	partial_auto_load_needed = FALSE;
 	/* Check if binary definitions (tables or functions) need to be auto upgraded. They need to be if
-	 * ^%ydboctoocto(OCTOLIT_SEEDDEFFMT) is different from FMT_SEED_DEFINITION.
+	 * ^%ydboctoocto(OCTOLIT_SEEDDFNFMT) is different from FMT_SEED_DEFINITION.
 	 */
 	YDB_STRING_TO_BUFFER(config->global_names.octo, &octo_global);
 	YDB_STRING_TO_BUFFER(OCTOLIT_SEEDDFNFMT, &subs);
@@ -81,35 +82,37 @@ int auto_load_octo_seed_if_needed(void) {
 		switch (status) {
 		case YDB_ERR_GVUNDEF:;
 			ydb_buffer_t lcl_sub, lcl_fmt;
-			char	     lcl_fmt_buff[sizeof(YDBOCTO_GIT_COMMIT_VERSION)];
-			/* We have had instances where YDBOCTO_GIT_COMMIT_VERSION does not get generated properly (GIT-NOTFOUND)
-			 * rather than the proper 40 hex digit SHA1 hash. If this happens, and we are getting data from
-			 * ^%ydboctoocto(OCTOLIT_SEEDFMT), we will fail with this error:
-			 *
-			 * YDB-E-INVSTRLEN, Invalid string length 40: max 13
-			 *
-			 * ... because the size of fmt_buff (now = "GIT-NOTFOUND") is not large enough to get the 40 characters
-			 * originally stored in YottaDB. As a precaution, assert that the hash is 40 characters long + 1 NULL.
-			 */
-			assert(sizeof(lcl_fmt_buff) == 41);
+			char	     lcl_fmt_buff[INT32_TO_STRING_MAX];
+
 			lcl_fmt.buf_addr = &lcl_fmt_buff[0];
 			lcl_fmt.len_alloc = sizeof(lcl_fmt_buff);
-			YDB_STRING_TO_BUFFER(OCTO_LIT_SEEDFMT, &lcl_sub);
+			YDB_STRING_TO_BUFFER(OCTOLIT_BINFMT, &lcl_sub);
 			status = ydb_get_s(&octo_global, 1, &lcl_sub, &lcl_fmt);
 			switch (status) {
-			case YDB_ERR_GVUNDEF:
-				/* Both OCTOLIT_SEEDDFNFMT and OCTOLIT_SEEDFMT gvns are not found.
-				 * Only load octo-seed as we are populating an empty DB
-				 */
-				partial_auto_load_needed = TRUE;
-				break;
 			case YDB_OK:
-				/* Only OCTOLIT_SEEDFMT gvn is found.
-				 * Load octo-seed and upgrade binaries as the build has changed, and dependencies if they
-				 * exist have to reflect the latest state of the binary definition.
+				/* OCTOLIT_SEEDDFNFMT gvn is not found but OCTOLIT_BINFMT gvn is found.
+				 * This means the current environment was in use by an Octo build (prior to 0939090a
+				 * which is when OCTOLIT_SEEDDFNFMT gvn started getting set) and user tables/functions
+				 * could have been defined. So
+				 * 1) Need to load "octo-seed.sql".
+				 * 2) In addition we also need to upgrade the binary definitions of user-defined
+				 *    tables/functions since those could have dependencies on functions in "octo-seed.sql"
+				 *    (whose binary definitions will change due to loading "octo-seed.sql" in Step 1).
+				 * Hence need a FULL auto load.
 				 */
 				full_auto_load_needed = TRUE;
 				DELETE_SEED_FMT_GVN();
+				break;
+			case YDB_ERR_GVUNDEF:
+				/* OCTOLIT_SEEDDFNFMT gvn is not found AND OCTOLIT_BINFMT gvn is also not found.
+				 * Note we check OCTOLIT_BINFMT instead of OCTOLIT_SEEDFMT here since the former
+				 * pre-dates the latter. OCTOLIT_BINFMT gvn was defined in the earliest commit that
+				 * started supporting auto upgrade. So if that gvn is not to be seen, it is safe to
+				 * assume no auto upgrade of the binary table/function definitions is needed.
+				 * But since OCTOLIT_SEEDDFNFMT gvn is not found either, we need to load "octo-seed.sql".
+				 * Hence the need for a PARTIAL auto load.
+				 */
+				partial_auto_load_needed = TRUE;
 				break;
 			default:
 				YDB_ERROR_CHECK(status);
@@ -188,7 +191,7 @@ int auto_load_octo_seed_if_needed(void) {
 	 */
 	assert(YDB_OK == status);
 	/* Now that auto load is complete, indicate that (so other processes do not attempt the auto load)
-	 * by setting ^%ydboctoocto(OCTOLIT_SEEDDEFFMT) to FMT_SEED_DEFINITION.
+	 * by setting ^%ydboctoocto(OCTOLIT_SEEDDFNFMT) to FMT_SEED_DEFINITION.
 	 */
 	fmt.len_used = snprintf(fmt.buf_addr, fmt.len_alloc, "%d", FMT_SEED_DEFINITION);
 	status = ydb_set_s(&octo_global, 1, &subs, &fmt);

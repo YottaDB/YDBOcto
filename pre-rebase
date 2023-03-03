@@ -2,7 +2,7 @@
 #
 #################################################################
 #                                                               #
-# Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.       #
+# Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.       #
 # All rights reserved.                                          #
 #                                                               #
 #       This source code contains the intellectual property     #
@@ -31,7 +31,7 @@ else
 	set basecommit = `git merge-base master HEAD`
 	set tipcommit = "HEAD"
 endif
-foreach macro ("FMT_BINARY_DEFINITION" "FMT_PLAN_DEFINITION")
+foreach macro ("FMT_BINARY_DEFINITION" "FMT_PLAN_DEFINITION" "FMT_SEED_DEFINITION")
 	set fmt_mst = `git diff $basecommit..master | grep '^+#define '$macro | awk '{print $3}'`
 	set fmt_brnch = `git diff $basecommit..$tipcommit | grep '^+#define '$macro | awk '{print $3}'`
 	if (("" != "$fmt_brnch") && ("" != "$fmt_mst") && (0 != `expr "$fmt_mst" == "$fmt_brnch"`)) then

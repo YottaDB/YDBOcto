@@ -50,7 +50,9 @@ teardown() {
 # In the test-auto-upgrade job, tools/ci/build.sh script is going to check if the test being run in the test-auto-upgrade job is
 # a test_auto_upgrade test
 # * In such case, it execute the second part of the test by running the second query file (TAU001_2.sql) in Octo and validates the
-#   output by executing `diff` with the second reference file (TAU001_2.ref) of the subtest.
+#   output by executing `diff` with the second reference file (TAU001_2.ref) of the subtest. It picks the second reference file
+#   from the latest commit (not the older commit) so we don't copy the reference file in this test (tools/ci/build.sh takes care
+#   of that while running with the latest commit). Hence the "cp ...TAU001_2.ref" line below is commented out.
 # --------------------------------------------------------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------------------------------------------------------
 @test "TAU001 : function to table dependency should not be lost on autoload or auto upgrade" {
@@ -60,7 +62,11 @@ teardown() {
 	## Part 2
 	# Make the following files available if the test is run by test-auto-upgrade job
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TAU001_2.sql ./
-	cp @PROJECT_SOURCE_DIR@/tests/outref/TAU001_2.ref ./
+	# --------------------------------------------------------
+	# The below steps will be executed by "tools/ci/build.sh" (search for "TAU" there).
+	# Hence they are commented here when running with the older commit.
+	# --------------------------------------------------------
+	#cp @PROJECT_SOURCE_DIR@/tests/outref/TAU001_2.ref ./
 	#load_fixture TAU001_2.sql subtest novv
 	#verify_output TAU001_2 output.txt noinfodebug
 }

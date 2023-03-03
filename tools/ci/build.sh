@@ -768,6 +768,10 @@ else
 				[[ -e ${subtestName}_2.ref ]]
 				set +e
 				../newsrc/octo -f ${subtestName}_2.sql > output.txt 2>&1
+				# In case the older commit had copied the _2.ref file, overwrite it with the newer commit version.
+				# This is because it is possible the reference file might have changed in later commits
+				# (e.g. an error message format might be different etc.). Hence use the "cp -f" below.
+				cp -f ../../tests/outref/${subtestName}_2.ref .
 				diff ${subtestName}_2.ref output.txt > ${subtestName}_2_output.diff
 				set -e
 				if [[ -s ${subtestName}_2_output.diff ]]; then

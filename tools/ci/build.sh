@@ -761,16 +761,17 @@ else
 			subtest=$(sed 's/.*subtest \[//;s/].*//;' bats_test.out)
 			if [[ ($subtest =~ ^"TAU") ]]; then
 				subtestName=$(echo $subtest | cut -d " " -f1)
+				echo "# Running *.sql files in $tstdir : [subtest : $subtest]" | tee -a ../errors.log
 				# Run auto upgrade specific test
 				# Disable the "set -e" setting temporarily as we want to check the error reported by Octo
 				mv output.txt ${subtestName}_1_output.txt
 				[[ -e ${subtestName}_2.sql ]]
-				[[ -e ${subtestName}_2.ref ]]
 				set +e
 				../newsrc/octo -f ${subtestName}_2.sql > output.txt 2>&1
 				# In case the older commit had copied the _2.ref file, overwrite it with the newer commit version.
 				# This is because it is possible the reference file might have changed in later commits
-				# (e.g. an error message format might be different etc.). Hence use the "cp -f" below.
+				# (e.g. an error message format might be different etc.) and we want to use the latest version.
+				# Hence the use of "cp -f" below.
 				cp -f ../../tests/outref/${subtestName}_2.ref .
 				diff ${subtestName}_2.ref output.txt > ${subtestName}_2_output.diff
 				set -e

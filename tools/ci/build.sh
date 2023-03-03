@@ -338,25 +338,17 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 	# Add line to verify_output helper function to remove `..` from test output when Octo is built with Ninja
 	# See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/861 for more details.
 	sed -i "s,# Filter rule #s and line #s printed by flex in TRACE verbosity level output,sed -i 's/\\\.\\\.PATH/PATH/' clean_output\.txt," ../tests/test_helpers.bash.in
-	# Check whether the chosen commit is prior to b1acb27f. If so, then the DDLs in various `*.sql` files must be updated to
-	# accommodate the case sensitivity changes introduced to resolve #519. Do this by removing all references to
-	# `keys(..)` to bring this file into conformity with the changes made to it in b1acb27f.
-	if git merge-base --is-ancestor HEAD b1acb27f; then
-		echo "# Commit $commitsha is ancestor of b1acb27f, deleting deprecated 'keys(..)' expressions from fixtures"
-		# Exclude any VistA fixtures from the search and replace, since the `keys(..)`
-		# expressions there use uppercase column names are thus safe.
-		shopt -s extglob # Temporarily set the extglob shell option to allow exclusion of patterns from glob
-		fixtures="$(ls ../tests/fixtures/!(vista-mini).sql)"
-		sed -i 's/(keys("".*""))*//' $fixtures
-		# Some `keys(..)` expressions are contained in test files themselves and belong to the functionality under test, and
-		# so cannot simply be removed as in the case of those in SQL files above. Rather, they must be modified to use
-		# uppercase table names to match the case convention for case insensitive identifiers. So, do that here.
-		fixtures="$(ls ../tests/*.bats.in)"
-		sed -i 's/keys(\(""[A-Za-z0-9]*""\))/keys(\U\1\E)/g' $fixtures
-		shopt -u extglob # Unset the extglob shell option to return the environment to its previous state
-	else
-		echo "# Commit $commitsha is descendant of b1acb27f, retaining 'keys(..)' expressions from fixtures"
-	fi
+	# If the chosen older commit has "*.sql" or "*.bats.in" files with CREATE TABLE commands containing the GLOBAL
+	# keyword with "keys(..)" expressions using a lower case column name, those will no longer work with the master
+	# after 7fa4406a (YDBOcto#519) as we expect "keys(..)" to use upper case column names for case insensitive column
+	# names and case sensitive column names otherwise. The only tests that use case sensitive column names should be
+	# those that were newly introduced in 7fa4406a and they are TC058, TCO59 and TCO60. So excepting those *.sql files,
+	# all other "*.sql" or "*.bats.in" files are better updated to ensure upper case column names are used inside "keys(..)"
+	# expressions. The following logic takes care of that.
+	shopt -s extglob	# enable extended pattern matching feature (we use ! syntax below)
+	fixtures="$(ls ../tests/*.bats.in ../tests/fixtures/!(TC058*|TC059*|TC060*).sql)"
+	shopt -u extglob	# reset now that extended pattern matching feature need is done
+	sed -i 's/keys(\(""[A-Za-z0-9]*""\))/keys(\U\1\E)/g' $fixtures
 	if [ "ALL" != "$autoupgrade_test_to_troubleshoot" ]; then
 		# Run only a random fraction of the bats tests as we will be running an auto upgrade test on the same queries
 		# once more a little later.

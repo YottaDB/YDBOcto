@@ -309,23 +309,54 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 		# Note: The awk usage below is needed to only skip commits that branch off an otherwise linear commit history.
 		awk '($1 == "*") && ($2 != "|") {print $0;}' gitlogmaster.txt > commit_history.txt
 		numcommits=$(wc -l commit_history.txt | awk '{print $1}')
-		while true;
-		do
-			commitnumber=$(shuf -i 1-$numcommits -n 1)
-			commitsha=$(head -$commitnumber commit_history.txt | tail -1 | awk '{print $2}')
-			if [[ "3d03de63" == "$commitsha" ]]; then
-				# This commit has a known issue in `tests/fixtures/TOJ03.m` that can cause the TJC001 subtest to time out
-				# (see https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1035/pipelines for failure details).
-				# This is fixed in the immediately next commit (e748ab3f) so do not choose this particular commit
-				# as otherwise the "test-auto-upgrade" pipeline job (the current job) will also timeout (see
-				# https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/977#note_923383570 for description of failure).
-				echo "# Skipping $commitsha as it has a known issue that can cause job to timeout"
-				continue
-			fi
-			# Now that we are here, the chosen random older commit has no known issue. So break out of the while loop.
-			break
-		done
+		commitnumber=$(shuf -i 1-$numcommits -n 1)
+		commitsha=$(head -$commitnumber commit_history.txt | tail -1 | awk '{print $2}')
 	fi
+	# -----------------------------------------------------------------------------------------------------------
+	# Check for older commits that have known issues. If they are chosen, return from this script with success.
+	# Note that if "$subtaskname" is not "debug" (i.e. "else" block above), we could have tried a different random
+	# older commit in that case until we find a random older commit that does not have any known issues. But if
+	# "$subtaskname" is "debug" (i.e. "if" block above), we are presented with a specific older commit. We are not
+	# allowed to choose any random older commit. So in that case, we have to return right away. Therefore, we keep
+	# this check logic common to the "if" and "else" code paths above and return right away if the randomly chosen
+	# or specified older commit has known issues.
+	# -----------------------------------------------------------------------------------------------------------
+	is_old_commit_with_issues=0
+	if [[ "3d03de63" == "$commitsha" ]]; then
+		# This commit has a known issue in `tests/fixtures/TOJ03.m` that can cause the TJC001 subtest to time out
+		# (see https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1035/pipelines for failure details).
+		# This is fixed in the immediately next commit (e748ab3f) so do not choose this particular commit
+		# as otherwise the "test-auto-upgrade" pipeline job (the current job) will also timeout (see
+		# https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/977#note_923383570 for description of failure).
+		echo "# Skipping $commitsha as it has a known issue that can cause job to timeout"
+		echo "# See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/977#note_923383570 for details"
+		is_old_commit_with_issues=1
+	fi
+	# Check if chosen older commit is in the range 7fa4406a..f13aff88 (both commits inclusive)
+	# This is because the function text definition is not stored correctly in 7fa4406a (fixed YDBOcto#519) and will be fixed in
+	# the commit after f13aff88a. See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1182#note_1301167074 for details.
+	start_octo519_commit="bee2b104e52874f79d728c98047a1cad2829e25f"	# 1 commit BEFORE YDBOcto#519 commit
+	end_octo519_commit="f13aff88fef422a1b507720323b8a4d96e54da64"	# 1 commit before when YDBOcto#519 issue is fixed
+	# Disable the "set -e" setting temporarily as the "git merge-base" can return exit status 0 or 1
+	set +e
+	git merge-base --is-ancestor $commitsha $start_octo519_commit
+	is_post_start_octo519_commit=$?
+	git merge-base --is-ancestor $commitsha $end_octo519_commit
+	is_post_end_octo519_commit=$?
+	# Re-enable "set -e" now that "git merge-base" invocation is done.
+	set -e
+	if [[ (0 != $is_post_start_octo519_commit) && (0 == $is_post_end_octo519_commit) ]]; then
+		echo "# Skipping $commitsha as it has a known issue with not storing function text definitions correctly"
+		echo "# See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1182#note_1301167074 for details"
+		is_old_commit_with_issues=1
+	fi
+	if [[ 0 != $is_old_commit_with_issues ]]; then
+		echo "# Cannot continue with job. Returning with success"
+		exit 0
+	fi
+	# -----------------------------------------------------------------------------------------------------------
+	# Now that we know the older commit does not have any issues, proceed with auto upgrade test.
+	# -----------------------------------------------------------------------------------------------------------
 	echo $commitsha > commit_picked.txt
 	echo "# Random older commit picked = $commitsha"
 	echo "# Checkout the older commit"
@@ -347,8 +378,12 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 	# expressions. The following logic takes care of that.
 	shopt -s extglob	# enable extended pattern matching feature (we use ! syntax below)
 	fixtures="$(ls ../tests/*.bats.in ../tests/fixtures/!(TC058*|TC059*|TC060*).sql)"
+	sed -i 's/keys(\(""[A-Za-z_0-9]*""\))/keys(\U\1\E)/g' $fixtures
+	# In similar fashion, we could have M programs that generates DDLs (i.e. CREATE TABLE commands) containing "keys(...)"
+	# expressions with lower cased column names. Fix those as well.
+	fixtures="$(ls ../tests/fixtures/*.m)"
+	sed -i 's/keys(\(""""[A-Za-z_0-9]*""""\))/keys(\U\1\E)/g' $fixtures
 	shopt -u extglob	# reset now that extended pattern matching feature need is done
-	sed -i 's/keys(\(""[A-Za-z0-9]*""\))/keys(\U\1\E)/g' $fixtures
 	if [ "ALL" != "$autoupgrade_test_to_troubleshoot" ]; then
 		# Run only a random fraction of the bats tests as we will be running an auto upgrade test on the same queries
 		# once more a little later.

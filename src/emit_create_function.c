@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -54,7 +54,11 @@ int emit_create_function(FILE *output, struct SqlStatement *stmt) {
 	assert(function->function_name);
 	// assert(function->parameter_type_list);
 	UNPACK_SQL_STATEMENT(function_name, function->function_name, value);
-	defn_len += fprintf(output, "CREATE FUNCTION `%s`(", function_name->v.string_literal);
+	if (function_name->is_double_quoted) {
+		defn_len += fprintf(output, "CREATE FUNCTION \"%s\"(", function_name->v.string_literal);
+	} else {
+		defn_len += fprintf(output, "CREATE FUNCTION `%s`(", function_name->v.string_literal);
+	}
 	if (NULL != function->parameter_type_list) { // Skip parameter types if none were specified
 		UNPACK_SQL_STATEMENT(start_parameter_type, function->parameter_type_list, parameter_type_list);
 		cur_parameter_type = start_parameter_type;

@@ -40,3 +40,9 @@ Lord Nikon
 Joey 
 Zero Cool
 (6 rows)
+# Verify function text definitions for double-quoted identifier and non-double-quoted identifier
+# Run [mupip extract] and filter out those global nodes corresponding to function text definitions of ABS/abs
+# Expect to see [ABS] not surrounded by double quotes and [abs] surrounded by double quotes
+^%ydboctoocto("functions","ABS","%ydboctoF0BXSKYtCkTUXzFwpivpB68","text",0)="CREATE FUNCTION `ABS`( NUMERIC) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;"
+^%ydboctoocto("functions","ABS","%ydboctoFXjpLNKLu1sElo0JiZVgdDG","text",0)="CREATE FUNCTION `ABS`( INTEGER) RETURNS INTEGER AS $$ABS^%ydboctosqlfunctions;"
+^%ydboctoocto("functions","abs","%ydboctoFCMDmr1RPkcS1QSpZq9WR11","text",0)="CREATE FUNCTION ""abs""( INTEGER) RETURNS INTEGER AS $$ABS^%ydboctosqlfunctions;"

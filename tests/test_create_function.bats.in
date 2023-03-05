@@ -250,5 +250,10 @@ teardown() {
 
 @test "TCF036 : OCTO519 : Functions with double-quoted identifiers" {
 	load_fixture TCF036.sql subtest novv
+	echo "# Verify function text definitions for double-quoted identifier and non-double-quoted identifier" >> output.txt
+	echo "# Run [mupip extract] and filter out those global nodes corresponding to function text definitions of ABS/abs" >> output.txt
+	echo "# Expect to see [ABS] not surrounded by double quotes and [abs] surrounded by double quotes" >> output.txt
+	$ydb_dist/mupip extract func.ext > func.out
+	grep -w functions func.ext | grep -w text | grep -wi abs >> output.txt
 	verify_output TCF036 output.txt noinfo nodebug
 }

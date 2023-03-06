@@ -3388,26 +3388,20 @@ addToInnerQuerySLLVN(table,column,alias)
 	. if $increment(innerQuerySLLVN)
 	quit
 
-; Extract a double-quoted column alias from a string of the form: tablename.columnname
-extractQuotedColumnAlias(aliasDotColumn,aliasName,rightSide)
-	new i,openQuote
-	for i=1:1  do  quit:($find(aliasDotColumn,aliasName)'=0)&($find(aliasDotColumn,")")=0)  do assert(i<16)
-	. set aliasDotColumn=$piece(rightSide," ",i)
-	. set openQuote=$find(aliasDotColumn,"""")
-	. if 0'=openQuote do
-	. . ; In the case of double-quoted column names, we cannot simply use $PIECE to extract the column alias, since the
-	. . ; column name can contain non-alphanumeric characters, and so might contain the $PIECE delimiter, i.e. " ".
-	. . ;
-	. . ; In that case, we must incrementally construct the column alias `aliasDotColumn` by concatenating each piece
-	. . ; contained between the double-quotes of a double-quoted alias. To do this, we loop through each " " delimited
-	. . ; piece until we hit another double-quote, adding each piece to `aliasDotColumn` and incrementing the
-	. . ; loop-control variable and piece number `i` as we go.
-	. . ;
-	. . ; If the double-quoted alias does not contain any whitespaces, then we skip the piece concatenation and leave
-	. . ; `aliasDotColumn` as is.
-	. . for i=i+1:1  do  quit:(0'=$find(aliasDotColumn,"""",openQuote))
-	. . . set:(0=$find(aliasDotColumn,"""",openQuote)) aliasDotColumn=$$trimTrailingChar(aliasDotColumn_" "_$piece(rightSide," ",i))
-	quit
+; Given an input parameter "aliasName" that points to a table name, and the input parameter "expr" that points to a SQL query
+; expression that is guaranteed to contain references to a column in the "aliasName" table using the "aliasName.columnName" syntax,
+; find the first such occurrence and return the matched "aliasName.columnName" in the output parameter "aliasDotColumn".
+extractQuotedColumnAlias(aliasDotColumn,aliasName,expr)
+        new columnName,ret,doubleQuote
+        set ret=aliasName_".",doubleQuote=""""
+        set columnName=$piece(expr,ret,2)       ; Match on "aliasName." and extract the 2nd piece (will contain the columnName)
+        ; The columnName could start with a double-quote. In that case, look for the terminating double quote and extract all of
+        ; the data until then as the column name. If it does not start with a double-quote, look for a space and extract all of
+        ; the data until then as the column name.
+        if $extract(columnName,1)'=doubleQuote set ret=ret_$piece(columnName," ",1)
+        else  set ret=ret_doubleQuote_$piece(columnName,doubleQuote,2)_doubleQuote
+        set aliasDotColumn=ret
+        quit
 
 extractTableFromClause(clause,piecenum)
 	new openQuote,table,endFrom

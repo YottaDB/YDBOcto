@@ -38,10 +38,7 @@ teardown() {
 		# Therefore skip this test on RHEL7.
 		skip
 	fi
-	# Once https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1182#note_1301057700 is fixed,
-	# uncomment the next line and remove the following line (which avoids choosing "quotenames" as a temporary workaround).
-	# randInt=$(($RANDOM % 4))
-	randInt=$(($RANDOM % 3))
+	randInt=$(($RANDOM % 4))
 	case $randInt in
 	   0)
 	   database="names"

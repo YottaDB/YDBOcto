@@ -98,15 +98,6 @@ teardown() {
 }
 
 @test "TCT013 : OCTO235 : Rename INT data type to NUMERIC as we do also support floating-point/decimal numbers" {
-	if [ ! -z "$CI_JOB_NAME" ] ; then
-		if [ "asan-ubuntu" == "$CI_JOB_NAME" ] && [ "UTF-8" == $ydb_chset ] ; then
-			# We have seen this subtest fail occasionally with a LeakSanitizer SIG-11 when run in the "asan-ubuntu"
-			# pipeline job. All the failure runs so far have happened when ydb_chset was randomly set to "UTF-8".
-			# Therefore we skip this subtest if both conditions are met. See the following for more details.
-			#	https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/892#note_1156225457
-			skip
-		fi
-	fi
 	# This test has a few queries that use the Northwind schema so load that too.
 	load_fixture northwind.sql
 	load_fixture northwind.zwr

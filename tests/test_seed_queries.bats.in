@@ -80,8 +80,20 @@ teardown() {
 }
 
 @test "TSQ011 : function lookup query succeeds without error" {
-
   load_fixture TSQ011.sql subtest novv
   verify_output TSQ011 output.txt
+}
+
+@test "TSQ012 : OCTO945 : \d PG_CLASS etc. does not display the ending parenthesis after OID" {
+	echo "# Determine list of tables loaded by octo-seed.sql by doing a [\d] with no arguments" >> output.txt
+	echo "\d;" | octo >& slashd.txt
+	cat slashd.txt >> output.txt
+	echo "# Do a \d <tablename> for each <tablename> identified in the above [\d] output." >> output.txt
+	echo "# We expect to see the [Global:] line for each table show a gvn with a terminating right paren." >> output.txt
+	echo "# We include the entire output in the reference file just in case it helps identify other regressions" >> output.txt
+	tablelist=$(grep "table" slashd.txt | awk -F"|" '{print $2;}')
+	for table in $tablelist; do echo "\d $table;"; done >> slashd_table.sql
+	octo < slashd_table.sql >> output.txt
+	verify_output TSQ012 output.txt
 }
 

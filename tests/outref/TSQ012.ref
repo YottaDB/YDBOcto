@@ -1,0 +1,568 @@
+# Determine list of tables loaded by octo-seed.sql by doing a [\d] with no arguments
+Schema|Name|Type|Owner
+public|INFORMATION_SCHEMA.TABLES|table|octo
+public|NAMES|table|octo
+public|NAMESWITHAGES|table|octo
+public|OCTOONEROWTABLE|table|octo
+public|PG_ATTRDEF|table|octo
+public|PG_ATTRIBUTE|table|octo
+public|PG_CATALOG.PG_ATTRDEF|table|octo
+public|PG_CATALOG.PG_ATTRIBUTE|table|octo
+public|PG_CATALOG.PG_CLASS|table|octo
+public|PG_CATALOG.PG_DATABASE|table|octo
+public|PG_CATALOG.PG_DESCRIPTION|table|octo
+public|PG_CATALOG.PG_ENUM|table|octo
+public|PG_CATALOG.PG_NAMESPACE|table|octo
+public|PG_CATALOG.PG_PROC|table|octo
+public|PG_CATALOG.PG_RANGE|table|octo
+public|PG_CATALOG.PG_ROLES|table|octo
+public|PG_CATALOG.PG_SETTINGS|table|octo
+public|PG_CATALOG.PG_TYPE|table|octo
+public|PG_CATALOG.PG_USER|table|octo
+public|PG_CLASS|table|octo
+public|PG_DATABASE|table|octo
+public|PG_DESCRIPTION|table|octo
+public|PG_ENUM|table|octo
+public|PG_NAMESPACE|table|octo
+public|PG_PROC|table|octo
+public|PG_RANGE|table|octo
+public|PG_ROLES|table|octo
+public|PG_SETTINGS|table|octo
+public|PG_TYPE|table|octo
+public|PG_USER|table|octo
+(30 rows)
+# Do a \d <tablename> for each <tablename> identified in the above [\d] output.
+# We expect to see the [Global:] line for each table show a gvn with a terminating right paren.
+# We include the entire output in the reference file just in case it helps identify other regressions
+Table "INFORMATION_SCHEMA.TABLES" stored in Global: ^%ydboctoocto("tables","information_schema","tables",OID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+OID|INTEGER||NOT NULL|
+TABLE_CATALOG|VARCHAR|||
+TABLE_SCHEMA|VARCHAR|||
+TABLE_NAME|VARCHAR|||
+TABLE_TYPE|VARCHAR|||
+SELF_REFERENCING_COLUMN_NAME|VARCHAR|||
+REFERENCE_GENERATION|VARCHAR|||
+USER_DEFINED_TYPE_CATALOG|VARCHAR|||
+USER_DEFINED_TYPE_SCHEMA|VARCHAR|||
+USER_DEFINED_TYPE_NAME|VARCHAR|||
+IS_INSERTABLE_INTO|VARCHAR|||
+IS_TYPED|VARCHAR|||
+COMMIT_ACTION|VARCHAR|||
+Indexes:
+    "INFORMATION_SCHEMA.TABLES_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","information_schema","tables",OID)
+Table "NAMES" stored in Global: ^names(ID) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+ID|INTEGER||NOT NULL|
+FIRSTNAME|VARCHAR(30)|||
+LASTNAME|VARCHAR(30)|||
+Indexes:
+    "NAMES_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^names(ID)
+Table "NAMESWITHAGES" stored in Global: ^names(ID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+ID|INTEGER||NOT NULL|
+FIRSTNAME|VARCHAR(30)|||
+LASTNAME|VARCHAR(30)|||
+AGE|INTEGER|||
+DATETIME|VARCHAR(10)|||
+Indexes:
+    "NAMESWITHAGES_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^names(ID)
+Table "OCTOONEROWTABLE" stored in Global: ^%ydboctoocto("tables","octoOneRow",ID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+ID|INTEGER||NOT NULL|
+Indexes:
+    "OCTOONEROWTABLE_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^%ydboctoocto("tables","octoOneRow",ID)
+Table "PG_ATTRDEF" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_attrdef",OID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+ADRELID|INTEGER|||
+ADNUM|INTEGER|||
+ADBIN|VARCHAR|||
+ADSRC|VARCHAR|||
+OID|INTEGER||NOT NULL|
+Indexes:
+    "PG_ATTRDEF_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_attrdef",OID)
+Table "PG_ATTRIBUTE" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_attribute",OID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+ATTRELID|INTEGER|||
+ATTNAME|VARCHAR|||
+ATTTYPID|INTEGER|||
+ATTSTATTARGET|INTEGER|||
+ATTLEN|INTEGER|||
+ATTNUM|INTEGER|||
+ATTNDIMS|INTEGER|||
+ATTCACHEOFF|INTEGER|||
+ATTTYPMOD|INTEGER|||
+ATTBYVAL|BOOLEAN|||
+ATTSTORAGE|VARCHAR|||
+ATTALIGN|VARCHAR|||
+ATTNOTNULL|BOOLEAN|||
+ATTHASDEF|BOOLEAN|||
+ATTHASMISSING|BOOLEAN|||
+ATTIDENTITY|VARCHAR|||
+ATTISDROPPED|BOOLEAN|||
+ATTISLOCAL|BOOLEAN|||
+ATTINHCOUNT|INTEGER|||
+ATTCOLLATION|INTEGER|||
+ATTACL|VARCHAR|||
+ATTOPTIONS|VARCHAR|||
+ATTFDWOPTIONS|VARCHAR|||
+ATTMISSINGVAL|VARCHAR|||
+OID|INTEGER||NOT NULL|
+Indexes:
+    "PG_ATTRIBUTE_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_attribute",OID)
+Table "PG_CATALOG.PG_ATTRDEF" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_attrdef",OID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+ADRELID|INTEGER|||
+ADNUM|INTEGER|||
+ADBIN|VARCHAR|||
+ADSRC|VARCHAR|||
+OID|INTEGER||NOT NULL|
+Indexes:
+    "PG_CATALOG.PG_ATTRDEF_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_attrdef",OID)
+Table "PG_CATALOG.PG_ATTRIBUTE" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_attribute",OID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+ATTRELID|INTEGER|||
+ATTNAME|VARCHAR|||
+ATTTYPID|INTEGER|||
+ATTSTATTARGET|INTEGER|||
+ATTLEN|INTEGER|||
+ATTNUM|INTEGER|||
+ATTNDIMS|INTEGER|||
+ATTCACHEOFF|INTEGER|||
+ATTTYPMOD|INTEGER|||
+ATTBYVAL|BOOLEAN|||
+ATTSTORAGE|VARCHAR|||
+ATTALIGN|VARCHAR|||
+ATTNOTNULL|BOOLEAN|||
+ATTHASDEF|BOOLEAN|||
+ATTHASMISSING|BOOLEAN|||
+ATTIDENTITY|VARCHAR|||
+ATTISDROPPED|BOOLEAN|||
+ATTISLOCAL|BOOLEAN|||
+ATTINHCOUNT|INTEGER|||
+ATTCOLLATION|INTEGER|||
+ATTACL|VARCHAR|||
+ATTOPTIONS|VARCHAR|||
+ATTFDWOPTIONS|VARCHAR|||
+ATTMISSINGVAL|VARCHAR|||
+OID|INTEGER||NOT NULL|
+Indexes:
+    "PG_CATALOG.PG_ATTRIBUTE_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_attribute",OID)
+Table "PG_CATALOG.PG_CLASS" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_class",OID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+RELNAME|VARCHAR|||
+RELNAMESPACE|INTEGER|||
+RELTYPE|INTEGER|||
+RELOFTYPE|INTEGER|||
+RELOWNER|INTEGER|||
+RELAM|INTEGER|||
+RELFILENODE|INTEGER|||
+RELTABLESPACE|INTEGER|||
+RELPAGES|INTEGER|||
+RELTUPLES|INTEGER|||
+RELALLVISIBLE|INTEGER|||
+RELTOASTRELID|INTEGER|||
+RELHASINDEX|BOOLEAN|||
+RELISSHARED|BOOLEAN|||
+RELPERSISTENCE|VARCHAR|||
+RELKIND|VARCHAR|||
+RELNATTS|INTEGER|||
+RELCHECKS|INTEGER|||
+RELHASOIDS|BOOLEAN|||
+RELHASPKEY|BOOLEAN|||
+RELHASRULES|BOOLEAN|||
+RELHASTRIGGERS|BOOLEAN|||
+RELHASSUBCLASS|BOOLEAN|||
+RELROWSECURITY|BOOLEAN|||
+RELFORCEROWSECURITY|BOOLEAN|||
+RELISPOPULATED|BOOLEAN|||
+RELREPLIDENT|VARCHAR|||
+RELISPARTITION|BOOLEAN|||
+RELFROZENXID|INTEGER|||
+RELMINMXID|INTEGER|||
+RELACL|VARCHAR|||
+RELOPTIONS|VARCHAR|||
+RELPARTBOUND|VARCHAR|||
+OID|INTEGER||NOT NULL|
+Indexes:
+    "PG_CATALOG.PG_CLASS_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_class",OID)
+Table "PG_CATALOG.PG_DATABASE" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_database",OID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+DATNAME|VARCHAR|||
+DATDBA|INTEGER|||
+ENCODING|INTEGER|||
+DATCOLLATE|VARCHAR|||
+DATCTYPE|VARCHAR|||
+DATISTEMPLATE|BOOLEAN|||
+DATALLOWCONN|BOOLEAN|||
+DATCONNLIMIT|INTEGER|||
+DATLASTSYSOID|INTEGER|||
+DATFROZENXID|INTEGER|||
+DATMINMXID|INTEGER|||
+DATTABLESPACE|INTEGER|||
+DATACL|INTEGER|||
+OID|INTEGER||NOT NULL|
+Indexes:
+    "PG_CATALOG.PG_DATABASE_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_database",OID)
+Table "PG_CATALOG.PG_DESCRIPTION" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_description",OID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+OBJOID|INTEGER|||
+CLASSOID|INTEGER|||
+OBJSUBID|INTEGER|||
+DESCRIPTION|VARCHAR|||
+OID|INTEGER||NOT NULL|
+Indexes:
+    "PG_CATALOG.PG_DESCRIPTION_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_description",OID)
+Table "PG_CATALOG.PG_ENUM" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_enum",OID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+ENUMTYPID|INTEGER|||
+ENUMSORTORDER|NUMERIC|||
+ENUMLABEL|VARCHAR|||
+OID|INTEGER||NOT NULL|
+Indexes:
+    "PG_CATALOG.PG_ENUM_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_enum",OID)
+Table "PG_CATALOG.PG_NAMESPACE" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_namespace",OID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+NSPNAME|VARCHAR|||
+NSPOWNER|INTEGER|||
+NSPACL|VARCHAR|||
+OID|INTEGER||NOT NULL|
+Indexes:
+    "PG_CATALOG.PG_NAMESPACE_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_namespace",OID)
+Table "PG_CATALOG.PG_PROC" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_proc",OID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+PRONAME|VARCHAR|||
+PRONAMESPACE|INTEGER|||
+PROOWNER|INTEGER|||
+PROLANG|INTEGER|||
+PROCOST|INTEGER|||
+PROROWS|INTEGER|||
+PROVARIADIC|INTEGER|||
+PROTRANSFORM|VARCHAR|||
+PROKIND|BOOLEAN|||
+PROSECDEF|BOOLEAN|||
+PROLEAKPROOF|BOOLEAN|||
+PROISSTRICT|BOOLEAN|||
+PRORETSET|BOOLEAN|||
+PROVOLATILE|VARCHAR|||
+PROPARALLEL|VARCHAR|||
+PRONARGS|INTEGER|||
+PRONARGDEFAULTS|INTEGER|||
+PRORETTYPE|INTEGER|||
+PROARGTYPES|VARCHAR|||
+PROALLARGTYPES|INTEGER|||
+PROARGMODES|VARCHAR|||
+PROARGNAMES|VARCHAR|||
+PROARGDEFAULTS|VARCHAR|||
+PROTRFTYPES|INTEGER|||
+PROSRC|VARCHAR|||
+PROBIN|VARCHAR|||
+PROCONFIG|VARCHAR|||
+PROACL|VARCHAR|||
+OID|INTEGER||NOT NULL|
+Indexes:
+    "PG_CATALOG.PG_PROC_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_proc",OID)
+Table "PG_CATALOG.PG_RANGE" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_range",RNGTYPID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+RNGSUBTYPE|INTEGER|||
+RNGCOLLATION|INTEGER|||
+RNGSUBOPC|INTEGER|||
+RNGCANONICAL|INTEGER|||
+RNGSUBDIFF|INTEGER|||
+RNGTYPID|INTEGER||NOT NULL|
+Indexes:
+    "PG_CATALOG.PG_RANGE_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (RNGTYPID), Global: ^%ydboctoocto("tables","pg_catalog","pg_range",RNGTYPID)
+Table "PG_CATALOG.PG_ROLES" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_roles",OID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+ROLNAME|VARCHAR|||
+ROLSUPER|BOOLEAN|||
+ROLINHERIT|BOOLEAN|||
+ROLCREATEROLE|BOOLEAN|||
+ROLCREATEDB|BOOLEAN|||
+ROLCANLOGIN|BOOLEAN|||
+ROLREPLICATION|BOOLEAN|||
+ROLCONNLIMIT|INTEGER|||
+ROLPASSWORD|VARCHAR|||
+ROLVALIDUNTIL|VARCHAR|||
+ROLBYPASSRLS|BOOLEAN|||
+ROLCONFIG|VARCHAR|||
+OID|INTEGER||NOT NULL|
+Indexes:
+    "PG_CATALOG.PG_ROLES_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_roles",OID)
+Table "PG_CATALOG.PG_SETTINGS" stored in Global: %ydboctoocto("settings","pg_settings",NAME) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+NAME|VARCHAR||NOT NULL|
+SETTING|VARCHAR|||
+UNIT|VARCHAR|||
+CATEGORY|VARCHAR|||
+SHORT_DESC|VARCHAR|||
+EXTRA_DESC|VARCHAR|||
+CONTEXT|VARCHAR|||
+VARTYPE|VARCHAR|||
+SOURCE|VARCHAR|||
+MIN_VAL|VARCHAR|||
+ENUMVALS|VARCHAR|||
+BOOT_VAL|VARCHAR|||
+RESET_VAL|VARCHAR|||
+SOURCEFILE|VARCHAR|||
+SOURCELINE|INTEGER|||
+PENDING_RESTART|BOOLEAN|||
+Indexes:
+    "PG_CATALOG.PG_SETTINGS_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (NAME), Global: %ydboctoocto("settings","pg_settings",NAME)
+Table "PG_CATALOG.PG_TYPE" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_type",TYPNAME) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+TYPNAME|VARCHAR(25)||NOT NULL|
+TYPNAMESPACE|INTEGER|||
+TYPOWNER|INTEGER|||
+TYPLEN|INTEGER|||
+TYPBYVAL|BOOLEAN|||
+TYPTYPE|VARCHAR(25)|||
+TYPCATEGORY|VARCHAR(25)|||
+TYPISPREFERRED|BOOLEAN|||
+TYPISDEFINED|BOOLEAN|||
+TYPDELIM|VARCHAR(25)|||
+TYPRELID|INTEGER|||
+TYPELEM|INTEGER|||
+TYPARRAY|INTEGER|||
+TYPINPUT|VARCHAR(25)|||
+TYPOUTPUT|VARCHAR(25)|||
+TYPRECEIVE|VARCHAR(25)|||
+TYPSEND|VARCHAR(25)|||
+TYPMODIN|VARCHAR(25)|||
+TYPMODOUT|VARCHAR(25)|||
+TYPANALYZE|VARCHAR(25)|||
+TYPALIGN|VARCHAR(25)|||
+TYPSTORAGE|VARCHAR(25)|||
+TYPNOTNULL|BOOLEAN|||
+TYPBASETYPE|INTEGER|||
+TYPTYPMOD|INTEGER|||
+TYPNDIMS|INTEGER|||
+TYPCOLLATION|INTEGER|||
+TYPDEFAULTBIN|VARCHAR(25)|||
+TYPDEFAULT|VARCHAR(25)|||
+TYPACL|VARCHAR(25)|||
+OID|INTEGER|||
+Indexes:
+    "PG_CATALOG.PG_TYPE_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (TYPNAME), Global: ^%ydboctoocto("tables","pg_catalog","pg_type",TYPNAME)
+Table "PG_CATALOG.PG_USER" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_user",USERSYSID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+USENAME|VARCHAR|||
+USERSYSID|INTEGER||NOT NULL|
+USECREATEDB|BOOLEAN|||
+USESUPER|BOOLEAN|||
+USEREPL|BOOLEAN|||
+USEBYPASSRLS|BOOLEAN|||
+PASSWD|VARCHAR|||
+VALUNTIL|VARCHAR|||
+USERCONFIG|VARCHAR|||
+Indexes:
+    "PG_CATALOG.PG_USER_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (USERSYSID), Global: ^%ydboctoocto("tables","pg_catalog","pg_user",USERSYSID)
+Table "PG_CLASS" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_class",OID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+RELNAME|VARCHAR|||
+RELNAMESPACE|INTEGER|||
+RELTYPE|INTEGER|||
+RELOFTYPE|INTEGER|||
+RELOWNER|INTEGER|||
+RELAM|INTEGER|||
+RELFILENODE|INTEGER|||
+RELTABLESPACE|INTEGER|||
+RELPAGES|INTEGER|||
+RELTUPLES|INTEGER|||
+RELALLVISIBLE|INTEGER|||
+RELTOASTRELID|INTEGER|||
+RELHASINDEX|BOOLEAN|||
+RELISSHARED|BOOLEAN|||
+RELPERSISTENCE|VARCHAR|||
+RELKIND|VARCHAR|||
+RELNATTS|INTEGER|||
+RELCHECKS|INTEGER|||
+RELHASOIDS|BOOLEAN|||
+RELHASPKEY|BOOLEAN|||
+RELHASRULES|BOOLEAN|||
+RELHASTRIGGERS|BOOLEAN|||
+RELHASSUBCLASS|BOOLEAN|||
+RELROWSECURITY|BOOLEAN|||
+RELFORCEROWSECURITY|BOOLEAN|||
+RELISPOPULATED|BOOLEAN|||
+RELREPLIDENT|VARCHAR|||
+RELISPARTITION|BOOLEAN|||
+RELFROZENXID|INTEGER|||
+RELMINMXID|INTEGER|||
+RELACL|VARCHAR|||
+RELOPTIONS|VARCHAR|||
+RELPARTBOUND|VARCHAR|||
+OID|INTEGER||NOT NULL|
+Indexes:
+    "PG_CLASS_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_class",OID)
+Table "PG_DATABASE" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_database",OID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+DATNAME|VARCHAR|||
+DATDBA|INTEGER|||
+ENCODING|INTEGER|||
+DATCOLLATE|VARCHAR|||
+DATCTYPE|VARCHAR|||
+DATISTEMPLATE|BOOLEAN|||
+DATALLOWCONN|BOOLEAN|||
+DATCONNLIMIT|INTEGER|||
+DATLASTSYSOID|INTEGER|||
+DATFROZENXID|INTEGER|||
+DATMINMXID|INTEGER|||
+DATTABLESPACE|INTEGER|||
+DATACL|INTEGER|||
+OID|INTEGER||NOT NULL|
+Indexes:
+    "PG_DATABASE_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_database",OID)
+Table "PG_DESCRIPTION" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_description",OID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+OBJOID|INTEGER|||
+CLASSOID|INTEGER|||
+OBJSUBID|INTEGER|||
+DESCRIPTION|VARCHAR|||
+OID|INTEGER||NOT NULL|
+Indexes:
+    "PG_DESCRIPTION_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_description",OID)
+Table "PG_ENUM" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_enum",OID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+ENUMTYPID|INTEGER|||
+ENUMSORTORDER|NUMERIC|||
+ENUMLABEL|VARCHAR|||
+OID|INTEGER||NOT NULL|
+Indexes:
+    "PG_ENUM_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_enum",OID)
+Table "PG_NAMESPACE" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_namespace",OID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+NSPNAME|VARCHAR|||
+NSPOWNER|INTEGER|||
+NSPACL|VARCHAR|||
+OID|INTEGER||NOT NULL|
+Indexes:
+    "PG_NAMESPACE_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_namespace",OID)
+Table "PG_PROC" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_proc",OID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+PRONAME|VARCHAR|||
+PRONAMESPACE|INTEGER|||
+PROOWNER|INTEGER|||
+PROLANG|INTEGER|||
+PROCOST|INTEGER|||
+PROROWS|INTEGER|||
+PROVARIADIC|INTEGER|||
+PROTRANSFORM|VARCHAR|||
+PROKIND|BOOLEAN|||
+PROSECDEF|BOOLEAN|||
+PROLEAKPROOF|BOOLEAN|||
+PROISSTRICT|BOOLEAN|||
+PRORETSET|BOOLEAN|||
+PROVOLATILE|VARCHAR|||
+PROPARALLEL|VARCHAR|||
+PRONARGS|INTEGER|||
+PRONARGDEFAULTS|INTEGER|||
+PRORETTYPE|INTEGER|||
+PROARGTYPES|VARCHAR|||
+PROALLARGTYPES|INTEGER|||
+PROARGMODES|VARCHAR|||
+PROARGNAMES|VARCHAR|||
+PROARGDEFAULTS|VARCHAR|||
+PROTRFTYPES|INTEGER|||
+PROSRC|VARCHAR|||
+PROBIN|VARCHAR|||
+PROCONFIG|VARCHAR|||
+PROACL|VARCHAR|||
+OID|INTEGER||NOT NULL|
+Indexes:
+    "PG_PROC_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_proc",OID)
+Table "PG_RANGE" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_range",RNGTYPID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+RNGSUBTYPE|INTEGER|||
+RNGCOLLATION|INTEGER|||
+RNGSUBOPC|INTEGER|||
+RNGCANONICAL|INTEGER|||
+RNGSUBDIFF|INTEGER|||
+RNGTYPID|INTEGER||NOT NULL|
+Indexes:
+    "PG_RANGE_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (RNGTYPID), Global: ^%ydboctoocto("tables","pg_catalog","pg_range",RNGTYPID)
+Table "PG_ROLES" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_roles",OID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+ROLNAME|VARCHAR|||
+ROLSUPER|BOOLEAN|||
+ROLINHERIT|BOOLEAN|||
+ROLCREATEROLE|BOOLEAN|||
+ROLCREATEDB|BOOLEAN|||
+ROLCANLOGIN|BOOLEAN|||
+ROLREPLICATION|BOOLEAN|||
+ROLCONNLIMIT|INTEGER|||
+ROLPASSWORD|VARCHAR|||
+ROLVALIDUNTIL|VARCHAR|||
+ROLBYPASSRLS|BOOLEAN|||
+ROLCONFIG|VARCHAR|||
+OID|INTEGER||NOT NULL|
+Indexes:
+    "PG_ROLES_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (OID), Global: ^%ydboctoocto("tables","pg_catalog","pg_roles",OID)
+Table "PG_SETTINGS" stored in Global: %ydboctoocto("settings","pg_settings",NAME) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+NAME|VARCHAR||NOT NULL|
+SETTING|VARCHAR|||
+UNIT|VARCHAR|||
+CATEGORY|VARCHAR|||
+SHORT_DESC|VARCHAR|||
+EXTRA_DESC|VARCHAR|||
+CONTEXT|VARCHAR|||
+VARTYPE|VARCHAR|||
+SOURCE|VARCHAR|||
+MIN_VAL|VARCHAR|||
+ENUMVALS|VARCHAR|||
+BOOT_VAL|VARCHAR|||
+RESET_VAL|VARCHAR|||
+SOURCEFILE|VARCHAR|||
+SOURCELINE|INTEGER|||
+PENDING_RESTART|BOOLEAN|||
+Indexes:
+    "PG_SETTINGS_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (NAME), Global: %ydboctoocto("settings","pg_settings",NAME)
+Table "PG_TYPE" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_type",TYPNAME) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+TYPNAME|VARCHAR(25)||NOT NULL|
+TYPNAMESPACE|INTEGER|||
+TYPOWNER|INTEGER|||
+TYPLEN|INTEGER|||
+TYPBYVAL|BOOLEAN|||
+TYPTYPE|VARCHAR(25)|||
+TYPCATEGORY|VARCHAR(25)|||
+TYPISPREFERRED|BOOLEAN|||
+TYPISDEFINED|BOOLEAN|||
+TYPDELIM|VARCHAR(25)|||
+TYPRELID|INTEGER|||
+TYPELEM|INTEGER|||
+TYPARRAY|INTEGER|||
+TYPINPUT|VARCHAR(25)|||
+TYPOUTPUT|VARCHAR(25)|||
+TYPRECEIVE|VARCHAR(25)|||
+TYPSEND|VARCHAR(25)|||
+TYPMODIN|VARCHAR(25)|||
+TYPMODOUT|VARCHAR(25)|||
+TYPANALYZE|VARCHAR(25)|||
+TYPALIGN|VARCHAR(25)|||
+TYPSTORAGE|VARCHAR(25)|||
+TYPNOTNULL|BOOLEAN|||
+TYPBASETYPE|INTEGER|||
+TYPTYPMOD|INTEGER|||
+TYPNDIMS|INTEGER|||
+TYPCOLLATION|INTEGER|||
+TYPDEFAULTBIN|VARCHAR(25)|||
+TYPDEFAULT|VARCHAR(25)|||
+TYPACL|VARCHAR(25)|||
+OID|INTEGER|||
+Indexes:
+    "PG_TYPE_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (TYPNAME), Global: ^%ydboctoocto("tables","pg_catalog","pg_type",TYPNAME)
+Table "PG_USER" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_user",USERSYSID) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+USENAME|VARCHAR|||
+USERSYSID|INTEGER||NOT NULL|
+USECREATEDB|BOOLEAN|||
+USESUPER|BOOLEAN|||
+USEREPL|BOOLEAN|||
+USEBYPASSRLS|BOOLEAN|||
+PASSWD|VARCHAR|||
+VALUNTIL|VARCHAR|||
+USERCONFIG|VARCHAR|||
+Indexes:
+    "PG_USER_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (USERSYSID), Global: ^%ydboctoocto("tables","pg_catalog","pg_user",USERSYSID)

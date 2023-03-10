@@ -80,6 +80,40 @@ compile_octo() {
 	set -e
 }
 
+# This function is invoked before running .sql files using the new octo (from "newsrc").
+setup_before_running_sql_files() {
+	echo "# Running *.sql files in $tstdir : [subtest : $subtest]" | tee -a ../errors.log
+	echo "INCLUDE : $tstdir" >> ../include_bats_test.txt
+	# Check if subtest ran in M or UTF-8 mode and switch ydb_chset and ydb_routines accordingly.
+	# Search "dbg_env.out" file for whether the chset was M or UTF-8.
+	is_utf8=$(grep -c "^ydb_chset=UTF-8" dbg_env.out) || true
+	if [[ $is_utf8 == 0 ]]; then
+		export ydb_chset=M
+		utf8_path="."
+	else
+		export ydb_chset=UTF-8
+		utf8_path="utf8"
+	fi
+	export ydb_routines=". ../newsrc/$utf8_path/_ydbocto.so $ydb_dist/plugin/o/$utf8_path/_ydbposix.so $ydb_dist/plugin/o/$utf8_path/_ydbaim.so $ydb_dist/$utf8_path/libyottadbutil.so"
+	# Create the AIM database if the previous commit predates AIM
+	if [ 0 -eq $is_post_ydbaim_commit ]; then
+		echo "# Previous commit predates AIM; create AIM database for upgrade"
+		$ydb_dist/yottadb -run ^GDE > gde_create_aim.txt 2>&1 << AIM
+add -segment AIMSEG -file="$aimdat" -access_method=MM -block_size=2048
+add -region AIMREG -dyn=AIMSEG -nojournal -key_size=1019 -null_subscripts=always -record_size=2048
+add -name %ydbAIM* -region=AIMREG
+exit
+AIM
+		mupip create -region=AIMREG &>> gde_create_aim.txt
+	fi
+	# Change absolute path names of database files to relative path names for ease of later debugging (if needed)
+	$ydb_dist/yottadb -run GDE >> gde_change_segment.txt 2>&1 << FILE
+	change -segment DEFAULT -file_name=$defaultdat
+	change -segment OCTOSEG -file_name=$octodat
+	change -segment AIMSEG -file_name=$aimdat
+FILE
+}
+
 if [ "$USE_MAKE" = 1 ]; then
 	generator="Unix Makefiles"
 	build_tool="make -j $(grep -c ^processor /proc/cpuinfo)"
@@ -787,12 +821,12 @@ else
 			fi
 			subtest=$(sed 's/.*subtest \[//;s/].*//;' bats_test.out)
 			if [[ ($subtest =~ ^"TAU") ]]; then
-				subtestName=$(echo $subtest | cut -d " " -f1)
-				echo "# Running *.sql files in $tstdir : [subtest : $subtest]" | tee -a ../errors.log
 				# Run auto upgrade specific test
-				# Disable the "set -e" setting temporarily as we want to check the error reported by Octo
+				setup_before_running_sql_files
+				subtestName=$(echo $subtest | cut -d " " -f1)
 				mv output.txt ${subtestName}_1_output.txt
 				[[ -e ${subtestName}_2.sql ]]
+				# Disable the "set -e" setting temporarily as we want to check the error reported by Octo
 				set +e
 				../newsrc/octo -f ${subtestName}_2.sql > output.txt 2>&1
 				# In case the older commit had copied the _2.ref file, overwrite it with the newer commit version.
@@ -910,36 +944,7 @@ else
 				continue
 			fi
 
-			echo "# Running *.sql files in $tstdir : [subtest : $subtest]" | tee -a ../errors.log
-			echo "INCLUDE : $tstdir" >> ../include_bats_test.txt
-			# Check if subtest ran in M or UTF-8 mode and switch ydb_chset and ydb_routines accordingly.
-			# Search "dbg_env.out" file for whether the chset was M or UTF-8.
-			is_utf8=$(grep -c "^ydb_chset=UTF-8" dbg_env.out) || true
-			if [[ $is_utf8 == 0 ]]; then
-				export ydb_chset=M
-				utf8_path="."
-			else
-				export ydb_chset=UTF-8
-				utf8_path="utf8"
-			fi
-			export ydb_routines=". ../newsrc/$utf8_path/_ydbocto.so $ydb_dist/plugin/o/$utf8_path/_ydbposix.so $ydb_dist/plugin/o/$utf8_path/_ydbaim.so $ydb_dist/$utf8_path/libyottadbutil.so"
-			# Create the AIM database if the previous commit predates AIM
-			if [ 0 -eq $is_post_ydbaim_commit ]; then
-				echo "# Previous commit predates AIM; create AIM database for upgrade"
-				$ydb_dist/yottadb -run ^GDE > gde_create_aim.txt 2>&1 << AIM
-add -segment AIMSEG -file="$aimdat" -access_method=MM -block_size=2048
-add -region AIMREG -dyn=AIMSEG -nojournal -key_size=1019 -null_subscripts=always -record_size=2048
-add -name %ydbAIM* -region=AIMREG
-exit
-AIM
-				mupip create -region=AIMREG &>> gde_create_aim.txt
-			fi
-			# Change absolute path names of database files to relative path names for ease of later debugging (if needed)
-			$ydb_dist/yottadb -run GDE >> gde_change_segment.txt 2>&1 << FILE
-			change -segment DEFAULT -file_name=$defaultdat
-			change -segment OCTOSEG -file_name=$octodat
-			change -segment AIMSEG -file_name=$aimdat
-FILE
+			setup_before_running_sql_files
 			if [[ "" != $tabledefsqlfile ]]; then
 				# This is a test_query_generator test. Run table definition queries prior to running
 				# other queries as other queries will depend on the tables created in this definition.

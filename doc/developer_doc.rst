@@ -44,7 +44,7 @@ Installing YottaDB
      # Install YottaDB
      mkdir /tmp/tmp ; wget -P /tmp/tmp https://gitlab.com/YottaDB/DB/YDB/raw/master/sr_unix/ydbinstall.sh
      cd /tmp/tmp ; chmod +x ydbinstall.sh
-     ./ydbinstall.sh --overwrite-existing --utf8 default --aim --posix
+     ./ydbinstall.sh --overwrite-existing --utf8 --aim --posix
 
 ++++++++++++++++++++++++++++++++++++++++++++++++
 Prerequisites for Automated Regression Testing

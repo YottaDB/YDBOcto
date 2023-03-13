@@ -29,7 +29,7 @@ Install YottaDB, Octo, and the required POSIX plugin all together:
 ```sh
 mkdir /tmp/tmp ; wget -P /tmp/tmp https://gitlab.com/YottaDB/DB/YDB/raw/master/sr_unix/ydbinstall.sh
 cd /tmp/tmp ; chmod +x ydbinstall.sh
-sudo ./ydbinstall.sh --utf8 default --verbose --octo
+sudo ./ydbinstall.sh --utf8 --verbose --octo
 ```
 
 Note that the `--octo` option implicitly installs any dependent plugins, such as the POSIX plugin.

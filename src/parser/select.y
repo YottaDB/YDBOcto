@@ -88,7 +88,7 @@ sort_specification_list
   ;
 
 sort_specification_list_tail
-  : /* Empty */ { $$ = NULL; }
+  : /* Empty */ { $$ = NULL; }		%prec PREC1
   | COMMA sort_specification_list { $$ = $sort_specification_list; }
   ;
 
@@ -201,7 +201,7 @@ select_sublist
   ;
 
 select_sublist_tail
-  : /* Empty */ { $$ = NULL; }
+  : /* Empty */ { $$ = NULL; }			%prec PREC1
   | COMMA select_list { $$ = $select_list; }
   ;
 
@@ -314,7 +314,7 @@ derived_table
   ;
 
 table_reference_list_tail
-  : /* Empty */ { $$ = NULL; }
+  : /* Empty */ { $$ = NULL; }		%prec PREC1
   | COMMA table_reference_list { $$ = $table_reference_list; }
   ;
 
@@ -388,7 +388,6 @@ qualified_join
 	 */
 	dqappend(left, right);
     }
-
   | table_reference join_type JOIN table_reference join_specification {
       SqlJoin *left, *right;
       $$ = $1;
@@ -463,7 +462,7 @@ grouping_column_reference_list
   ;
 
 grouping_column_reference_list_tail
-  : /* Empty */ { $$ = NULL; }
+  : /* Empty */ { $$ = NULL; }		%prec PREC1
   | COMMA grouping_column_reference_list { $$ = $grouping_column_reference_list; }
   ;
 

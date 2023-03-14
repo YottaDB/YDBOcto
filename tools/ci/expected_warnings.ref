@@ -1,2 +1,1 @@
-parser.y:warning: 24 shift/reduce conflicts [-Wconflicts-sr]
 physical-lexer.c:warning: variable ‘yylval’ set but not used [-Wunused-but-set-variable]

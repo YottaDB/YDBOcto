@@ -262,6 +262,10 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token HISTORY
 %token DISPLAY
 
+%left PREC1
+%left CROSS FULL INNER JOIN LEFT NATURAL RIGHT
+%left COMMA COLLATE RIGHT_PAREN
+
 %%
 
 sql_statement
@@ -663,7 +667,7 @@ in_value_list_nonempty
 
 in_value_list_non_empty_term
   : value_expression { $$ = $value_expression; }
-  | query_expression { $$ = $query_expression; }
+  | query_expression { $$ = $query_expression; }	%prec PREC1
   ;
 
 in_value_list_tail
@@ -889,7 +893,7 @@ factor
   ;
 
 factor_tail
-  : /* Empty */ { $$ = NULL; }
+  : /* Empty */ { $$ = NULL; }		%prec PREC1
   | collate_clause { $$ = $collate_clause; }
   ;
 
@@ -1159,7 +1163,7 @@ subquery
   ;
 
 query_expression
-  : non_join_query_expression { $$ = $non_join_query_expression; }
+  : non_join_query_expression { $$ = $non_join_query_expression; }	%prec PREC1
   ;
 
 non_join_query_expression
@@ -1302,7 +1306,7 @@ table_value_constructor_list
   ;
 
 table_value_constructor_list_tail
-  : /* Empty */ { $$ = NULL; }
+  : /* Empty */ { $$ = NULL; }		%prec PREC1
   | COMMA table_value_constructor_list { $$ = $table_value_constructor_list; }
   ;
 

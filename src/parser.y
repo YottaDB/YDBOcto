@@ -647,7 +647,7 @@ in_predicate_value
   ;
 
 table_subquery
-  : subquery { $$ = $subquery; }
+  : subquery { $$ = $subquery; }	%prec PREC1
   ;
 
 in_value_list_allow_empty
@@ -667,7 +667,6 @@ in_value_list_nonempty
 
 in_value_list_non_empty_term
   : value_expression { $$ = $value_expression; }
-  | query_expression { $$ = $query_expression; }	%prec PREC1
   ;
 
 in_value_list_tail
@@ -1160,6 +1159,7 @@ column_reference
 
 subquery
   : LEFT_PAREN query_expression RIGHT_PAREN { $$ = $query_expression; }
+  | LEFT_PAREN subquery RIGHT_PAREN { $$ = $2; }
   ;
 
 query_expression
@@ -1243,13 +1243,13 @@ corresponding_spec_tail
 
 non_join_query_primary
   : simple_table { $$ = $simple_table; }
-  | LEFT_PAREN non_join_query_expression RIGHT_PAREN { $$ = $non_join_query_expression; }
   ;
 
 simple_table
   : table_value_constructor { $$ = $table_value_constructor; }
   | explicit_table { ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "explicit_table"); YYABORT; }
   | sql_select_statement { $$ = $sql_select_statement; }
+  | subquery { $$ = $subquery; }		%prec PREC1
   ;
 
 table_value_constructor

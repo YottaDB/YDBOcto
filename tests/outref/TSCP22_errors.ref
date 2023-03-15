@@ -61,7 +61,7 @@ LINE 10:1: ... order by n1.firstname in (((select 1, 'test')UNION(select 2, 't..
                                            ^^^^^^
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 11:1: select 'test' NOT IN (NULL,(select n1.id,n1.id)) from names n1;
-                                       ^^^^^^
+                                      ^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 12:1: select * from names n1 where (select * from names) in (n1.id);
                                          ^^^^^^
@@ -72,7 +72,7 @@ LINE 14:1: ...elect * from names n1 where (select * from names limit 1) in (n1..
 CREATE FUNCTION
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 17:1: select samevalue((select id,id)) from names;
-                             ^^^^^^
+                            ^^^^^^^^^^^^^^
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 19:1: ...es left join names n2 on (select names.firstname,n2.firstname);
                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

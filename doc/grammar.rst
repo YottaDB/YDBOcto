@@ -339,7 +339,7 @@ CREATE TABLE
      lastName VARCHAR(30),
      middleInitial VARCHAR(1),
      age INTEGER)
-     DELIM (9, 9) GLOBAL "^delimnames(keys(""id""))";
+     DELIM (9, 9) GLOBAL "^delimnames";
 
   Here, two TAB characters (ASCII value 9) act as the internal delimiter of an Octo table. Note, however, that these delimiters are not applied to Octo output, which retains the default pipe :code:`|` delimiter. The reason for this is that tables may be joined that have different delimiters, so one common delimiter needs to be chosen anyway. Thus, the default is used.
 
@@ -478,7 +478,7 @@ Examples
       EmployeeID INTEGER,
       OrderDate VARCHAR(16),
       ShipperID INTEGER)
-     GLOBAL "^Orders(keys(""OrderID""))";
+     GLOBAL "^Orders";
 
   In the above example, the :code:`Orders` table maps data in the nodes of the global variable :code:`^Orders`. :code:`^Orders` has a single subscript, :code:`OrderID`. Its nodes are strings, whose :code:`|` separated pieces are, respectively, :code:`CustomerID`, :code:`EmployeeID`, :code:`OrderDate`, and :code:`ShipperID`, e.g., :code:`^Orders(535088)="9015|57|2021-08-26|17"`. :code:`"|"` is the default piece operator.
 
@@ -491,7 +491,7 @@ Examples
       OrderDate VARCHAR(16),
       ShipperID INTEGER)
      DELIM "^"
-     GLOBAL "^Orders(keys(""OrderID""))";
+     GLOBAL "^Orders";
 
   This example is similar to the last, except that the nodes of :code:`^Orders` are strings whose pieces are separated by :code:`"^"`, e.g., :code:`^Orders(535088)="9015^57^2021-08-26^17"`.
 
@@ -506,7 +506,7 @@ Examples
       BirthYear INTEGER,
       DeathYear INTEGER,
       PRIMARY KEY (FirstYear, LastYear))
-     GLOBAL "^USPresidents(keys(""FirstYear""),keys(""LastYear""))";
+     GLOBAL "^USPresidents";
 
   In the above example, ^USPresidents has records like :code:`^USPresidents(1933,1945)="Franklin|Delano|Roosevelt|1882|1945"` and :code:`^USPresidents(2009,2017)="Barack||Obama|1961"`.
 
@@ -516,7 +516,7 @@ Examples
      (ID INTEGER PRIMARY KEY,
       FName VARCHAR PIECE 2,
       LName VARCHAR PIECE 1)
-     GLOBAL "^PresidentNames(keys(""ID""))";
+     GLOBAL "^PresidentNames";
 
   In the above example, ^PresidentNames has records like :code:`^Names(1)="Lincoln|Abraham"` and :code:`^Names(2)="Obama|Barack"`.
 
@@ -527,7 +527,7 @@ Examples
       LName VARCHAR ,
       FName VARCHAR EXTRACT "$PIECE(^AuthorNames(keys(""ID"")),""^"",2)")
      DELIM "^"
-     GLOBAL "^AuthorNames(keys(""ID""))";
+     GLOBAL "^AuthorNames";
 
   In the above example, ^AuthorNames has records like :code:`^Names(1)="Dahl^Roald"` and :code:`^Names(2)="Blyton^Enid"`.
 
@@ -539,7 +539,7 @@ Examples
       EmployeeID INTEGER,
       OrderDate VARCHAR(16),
       ShipperID INTEGER)
-     GLOBAL "^Orders(keys(""OrderID""))"
+     GLOBAL "^Orders"
      READONLY;
 
   In the above example, the :code:`Orders` table is set to be :code:`READONLY`. If the :code:`Orders` table is DROPped then the underlying mapped global variable node (:code:`^Orders`) will be untouched.
@@ -552,7 +552,7 @@ Examples
       EmployeeID INTEGER,
       OrderDate VARCHAR(16),
       ShipperID INTEGER)
-     GLOBAL "^Orders(keys(""OrderID""))"
+     GLOBAL "^Orders"
      READWRITE;
 
   In the above example, the :code:`Orders` table is set to be :code:`READWRITE`. If the :code:`Orders` table is DROPped then the underlying mapped global variable nodes (:code:`^Orders`) will be deleted.
@@ -560,14 +560,14 @@ Examples
   .. code-block:: SQL
 
      CREATE TABLE Orders
-     (OrderID INTEGER PRIMARY KEY START 0 END "$CHAR(0)]]keys(""OrderID"")",
+     (OrderID INTEGER PRIMARY KEY START 0 END "$CHAR(0)]]keys(""ORDERID"")",
       CustomerID INTEGER,
       EmployeeID INTEGER,
       OrderDate VARCHAR(16),
       ShipperID INTEGER)
-     GLOBAL "^Orders(keys(""OrderID""))";
+     GLOBAL "^Orders";
 
-  In the above example, the START and END keywords tell Octo what subset of the ^Orders nodes with one subscript should be mapped to the Orders table. :code:`START 0` indicates that subscripts greater than :code:`0` should be mapped, and :code:`END "$CHAR(0)]]keys(""OrderID"")"` restricts the mapping to numeric subscripts.
+  In the above example, the START and END keywords tell Octo what subset of the ^Orders nodes with one subscript should be mapped to the Orders table. :code:`START 0` indicates that subscripts greater than :code:`0` should be mapped, and :code:`END "$CHAR(0)]]keys(""ORDERID"")"` restricts the mapping to numeric subscripts. Note that the column name is defined as :code:`OrderID` but the :code:`keys()` syntax uses the upper cased column name :code:`ORDERID`. This is because Octo currently assumes any column name that is not specified inside double quotes or back quotes to be an upper cased name.
 
   Rather than using END in the previous example, you can use the simpler ENDPOINT, which will achieve the same result (the below example illustrates that). ENDPOINT will traverse the global until it reaches the specified endpoint, and it will include the end point record as well. Most of the time, ENDPOINT should be used to reach the end of a numeric subscript range. Therefore, a good value to use is :code:`'$CHAR(0)'` or :code:`'" "'`, as these sort after numbers.
 
@@ -579,20 +579,20 @@ Examples
       EmployeeID INTEGER,
       OrderDate VARCHAR(16),
       ShipperID INTEGER)
-     GLOBAL "^Orders(keys(""OrderID""))";
+     GLOBAL "^Orders";
 
 
   .. code-block:: SQL
 
      CREATE TABLE Orders
-     (OrderID INTEGER PRIMARY KEY START 1 END "'+keys(""OrderID"")" STARTINCLUDE,
+     ("OrderID" INTEGER PRIMARY KEY START 1 END "'+keys(""OrderID"")" STARTINCLUDE,
       CustomerID INTEGER,
       EmployeeID INTEGER,
       OrderDate VARCHAR(16),
       ShipperID INTEGER)
-     GLOBAL "^Orders(keys(""OrderID""))";
+     GLOBAL "^Orders";
 
-  In the above example STARTINCLUDE is used with START and END. In this case the FOR loop for `$ORDER() <https://docs.yottadb.com/ProgrammersGuide/functions.html#order>`_ includes the START value of the key column as the first iteration of the loop.
+  In the above example STARTINCLUDE is used with START and END. In this case the FOR loop for `$ORDER() <https://docs.yottadb.com/ProgrammersGuide/functions.html#order>`_ includes the START value of the key column as the first iteration of the loop. Note that in the above example, the column name :code:`OrderID` is specified inside double quotes. This lets the column name be taken as is (with the mixed case lettering) and so we can use :code:`keys()` syntax with the mixed case column name.
 
 +++++++++++++
 Error Case
@@ -2320,7 +2320,7 @@ Northwind DDL Example
        PostalCode VARCHAR(16) NOT NULL,
        Country VARCHAR(32)
      )
-     GLOBAL "^Customers(keys(""CustomerID""))";
+     GLOBAL "^Customers";
 
   In the above, the :code:`Customers` table maps data in nodes of the global variable :code:`^Customers`. The columns of the primary key of the table are all subscripts of a global variable node (all columns in the primary key are global variable subscripts; all global variable subscripts are not necessarily columns, as shown by the next example). The :code:`^Customers` global variable has one subscript, an integer mapping to the column :code:`CustomerID`.
 
@@ -2353,6 +2353,8 @@ VistA DDL Example 1
   The :code:`DESCRIPTION` column is a text field, whose value is the entire global variable node. Unlike the previous example, the global variable node is not piece separated columns. EXTRACT in a column specification overrides any implicit or explicit PIECE specification for that column.
 
   The backtick character (:code:`"\`"`) is used to enclose words so that any possible reserved words that may be used in column or table names are correctly escaped.
+
+  In addition, the backtick/backquote character also ensures the column name is treated as is and no case conversions are done. This lets us use the column name as is in the :code:`keys()` specifications. If the column name had  not been enclosed inside double quotes or backquotes, the column name would be upper cased internally by Octo and the :code:`keys()` syntax would have to only specify the upper cased name.
 
 ---------------------
 VistA DDL Example 2

@@ -1,0 +1,24 @@
+# Testing [--emulate MYSQL]
+   date_format    
+------------------
+ Sat Jan 1st 2000
+(1 row)
+
+# Testing [-e MYSQL]
+   date_format    
+------------------
+ Sat Jan 1st 2000
+(1 row)
+
+# Testing [--emulate=MYSQL]
+   date_format    
+------------------
+ Sat Jan 1st 2000
+(1 row)
+
+# Testing [--emulate POSTGRES]
+ERROR:  No 2-parameter function DATE_FORMAT() defined for the current database emulation mode (POSTGRES)
+# Testing [-e POSTGRES]
+ERROR:  No 2-parameter function DATE_FORMAT() defined for the current database emulation mode (POSTGRES)
+# Testing [--emulate=POSTGRES]
+ERROR:  No 2-parameter function DATE_FORMAT() defined for the current database emulation mode (POSTGRES)

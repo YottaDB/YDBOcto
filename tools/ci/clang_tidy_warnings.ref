@@ -4,4 +4,3 @@ make_buffers.c:warning: va_arg() is called on an uninitialized va_list [clang-an
 make_error_response.c:warning: va_arg() is called on an uninitialized va_list [clang-analyzer-valist.Uninitialized]
 make_error_response.c:warning: va_arg() is called on an uninitialized va_list [clang-analyzer-valist.Uninitialized]
 octo_init.c:warning: Attempt to free released memory [clang-analyzer-unix.Malloc]
-parse_startup_flags.c:warning: Null pointer passed to 1st parameter expecting 'nonnull' [clang-analyzer-core.NonNullParamChecker]

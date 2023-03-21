@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -60,6 +60,7 @@ int parse_startup_flags(int argc, char **argv, char **config_file_name) {
 	      "Mandatory arguments for long options are also mandatory for short options.\n"
 	      "  -a, --allowschemachanges		Allows rocto to make changes to the schema (CREATE TABLE and DROP TABLE)\n"
 	      "  -c, --config-file=<filepath>		Use specified configuration file instead of the default.\n"
+	      "  -e, --emulate=<db_name>		Specify the SQL database to emulate, e.g. MYSQL, POSTGRES, etc.\n"
 	      "  -h, --help				Display this help message and exit.\n"
 	      "  -p, --port=<number>			Listen on the specified port.\n"
 	      "  -v, --verbose=<number>		Specify amount of information to output when running commands by adding 'v' "
@@ -88,32 +89,33 @@ int parse_startup_flags(int argc, char **argv, char **config_file_name) {
 	/* Parse input parameters */
 	while (1) {
 		// List of valid Octo long options
-		static struct option octo_long_options[] = {{"verbose", optional_argument, NULL, 'v'},
+		static struct option octo_long_options[] = {{"config-file", required_argument, NULL, 'c'},
 							    {"dry-run", no_argument, NULL, 'd'},
 							    {"emulate", required_argument, NULL, 'e'},
-							    {"input-file", required_argument, NULL, 'f'},
-							    {"config-file", required_argument, NULL, 'c'},
 							    {"help", no_argument, NULL, 'h'},
-							    {"version", no_argument, NULL, 'r'},
+							    {"input-file", required_argument, NULL, 'f'},
 							    {"release", no_argument, NULL, 'r'},
+							    {"verbose", optional_argument, NULL, 'v'},
+							    {"version", no_argument, NULL, 'r'},
 							    {0, 0, 0, 0}};
 
 		// List of valid Rocto long options
-		static struct option rocto_long_options[] = {{"verbose", optional_argument, NULL, 'v'},
+		static struct option rocto_long_options[] = {{"allowschemachanges", no_argument, NULL, 'a'},
 							     {"config-file", required_argument, NULL, 'c'},
-							     {"port", required_argument, NULL, 'p'},
+							     {"emulate", required_argument, NULL, 'e'},
 							     {"help", no_argument, NULL, 'h'},
-							     {"allowschemachanges", no_argument, NULL, 'a'},
-							     {"version", no_argument, NULL, 'r'},
+							     {"port", required_argument, NULL, 'p'},
 							     {"readwrite", no_argument, NULL, 'w'},
 							     {"release", no_argument, NULL, 'r'},
+							     {"verbose", optional_argument, NULL, 'v'},
+							     {"version", no_argument, NULL, 'r'},
 							     {0, 0, 0, 0}};
 		int		     option_index = 0;
 
 		if (config->is_rocto) {
-			c = getopt_long(argc, argv, "vhc:p:arw", rocto_long_options, &option_index);
+			c = getopt_long(argc, argv, "ac:e:hp:rvw", rocto_long_options, &option_index);
 		} else {
-			c = getopt_long(argc, argv, "vdhe:f:c:r", octo_long_options, &option_index);
+			c = getopt_long(argc, argv, "c:de:f:hrv", octo_long_options, &option_index);
 		}
 		if (-1 == c)
 			break;
@@ -167,20 +169,19 @@ int parse_startup_flags(int argc, char **argv, char **config_file_name) {
 					return 1;
 				}
 			} else {
-				if (config->is_rocto) {
-					printf("%s", rocto_usage);
-				} else {
-					printf("%s", octo_usage);
-				}
-				return 1;
+				assert(FALSE);
 			}
 			emulate_unset = FALSE;
 			break;
 		case 'p':
-			config->rocto_config.port = atoi(optarg);
-			if (0 > config->rocto_config.port || 65535 < config->rocto_config.port) {
-				printf("Please use a port number between 0 and 65535\n");
-				exit(1);
+			if (optarg) {
+				config->rocto_config.port = atoi(optarg);
+				if (0 > config->rocto_config.port || 65535 < config->rocto_config.port) {
+					printf("Please use a port number between 0 and 65535\n");
+					exit(1);
+				}
+			} else {
+				assert(FALSE);
 			}
 			port_unset = FALSE;
 			break;

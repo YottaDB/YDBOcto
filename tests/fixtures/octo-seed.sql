@@ -370,7 +370,7 @@ CREATE FUNCTION PG_ENCODING_TO_CHAR(INTEGER) RETURNS VARCHAR AS $$pgEncodingToCh
 /* Return true if database is currently recovering from a backup.
  * Since this feature is not implemented in Octo, this function will always return false.
  */
-CREATE FUNCTION PG_IS_IN_RECOVERY() RETURNS BOOLEAN AS $$pgIsInRecover^%ydboctopgfunctions;
+CREATE FUNCTION PG_IS_IN_RECOVERY() RETURNS BOOLEAN AS $$pgIsInRecovery^%ydboctopgfunctions;
 /* Return true if database recovery is currently paused.
  * Since this feature is not implemented in Octo, this function will always return false.
  */

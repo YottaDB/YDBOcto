@@ -338,7 +338,7 @@
 
 /* The below macro needs to be manually bumped if there is a non-cosmetic change to octo-seed.sql.
  */
-#define FMT_SEED_DEFINITION 3
+#define FMT_SEED_DEFINITION 4
 
 /* Used by `hash_canonical_query()` */
 #define HASH_LITERAL_VALUES -1

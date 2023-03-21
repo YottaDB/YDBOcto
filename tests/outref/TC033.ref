@@ -41,7 +41,7 @@ CREATE TABLE
 ^%ydboctoocto("functions","PG_ENCODING_TO_CHAR","%ydboctoFGVPC5UaCOorf0RkZxqUb5L","text",0)="CREATE FUNCTION `PG_ENCODING_TO_CHAR`( INTEGER) RETURNS VARCHAR AS $$pgEncodingToChar^%ydboctopgfunctions;"
 ^%ydboctoocto("functions","PG_GET_EXPR","%ydboctoFl3mV1wpIFh5CyoJU5R6I2C","text",0)="CREATE FUNCTION `PG_GET_EXPR`( VARCHAR,  INTEGER) RETURNS VARCHAR AS $$pgGetExpr^%ydboctopgfunctions;"
 ^%ydboctoocto("functions","PG_GET_USERBYID","%ydboctoFseL2ew1QrwgWxgM6GoD1J4","text",0)="CREATE FUNCTION `PG_GET_USERBYID`( INTEGER) RETURNS VARCHAR AS $$pgGetUserById^%ydboctopgfunctions;"
-^%ydboctoocto("functions","PG_IS_IN_RECOVERY","%ydboctoFWJOTKFaYP4AnuuGfCKA3CK","text",0)="CREATE FUNCTION `PG_IS_IN_RECOVERY`() RETURNS BOOLEAN AS $$pgIsInRecover^%ydboctopgfunctions;"
+^%ydboctoocto("functions","PG_IS_IN_RECOVERY","%ydboctoFWJOTKFaYP4AnuuGfCKA3CK","text",0)="CREATE FUNCTION `PG_IS_IN_RECOVERY`() RETURNS BOOLEAN AS $$pgIsInRecovery^%ydboctopgfunctions;"
 ^%ydboctoocto("functions","PG_IS_XLOG_REPLAY_PAUSED","%ydboctoFVOex12Rw59LzpVhhC2KV4I","text",0)="CREATE FUNCTION `PG_IS_XLOG_REPLAY_PAUSED`() RETURNS BOOLEAN AS $$pgIsXlogReplayPaused^%ydboctopgfunctions;"
 ^%ydboctoocto("functions","PG_TABLE_IS_VISIBLE","%ydboctoFprfy58NfzFw4bWtn3HYoBL","text",0)="CREATE FUNCTION `PG_TABLE_IS_VISIBLE`( INTEGER) RETURNS BOOLEAN AS $$pgTableIsVisible^%ydboctopgfunctions;"
 ^%ydboctoocto("functions","REPLACE","%ydboctoFrvGFWZceNJDlLJu4e6S5I1","text",0)="CREATE FUNCTION `REPLACE`( VARCHAR,  VARCHAR,  VARCHAR) RETURNS VARCHAR AS $$REPLACE^%ydboctosqlfunctions;"

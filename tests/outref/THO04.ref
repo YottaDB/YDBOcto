@@ -4,6 +4,7 @@ Start the Rocto remote SQL server.
 Mandatory arguments for long options are also mandatory for short options.
   -a, --allowschemachanges		Allows rocto to make changes to the schema (CREATE TABLE and DROP TABLE)
   -c, --config-file=<filepath>		Use specified configuration file instead of the default.
+  -e, --emulate=<db_name>		Specify the SQL database to emulate, e.g. MYSQL, POSTGRES, etc.
   -h, --help				Display this help message and exit.
   -p, --port=<number>			Listen on the specified port.
   -v, --verbose=<number>		Specify amount of information to output when running commands by adding 'v' characters. The mapping of 'v's to severity levels is as follows:

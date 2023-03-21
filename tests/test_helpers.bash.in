@@ -408,23 +408,22 @@ run_octo_allow_error() {
 start_rocto() {
 	create_user $USER "ydbrocks" --readwrite --allowschemachanges
 	echo "ROCTO START" >> env.log
-	if [[ $2 == "quiet" ]]; then
-		verbosity="-v"
-		opt=$3
-	elif [[ $2 == "verbose" ]]; then
-		verbosity="-vvv"
-		opt=$3
-	else
-		verbosity="-vv"
-		# Allow optional second argument
-		opt=$2
-	fi
 	if [[ $1 != "" ]]; then
 		rocto_port=$(find_open_port $1)
 		portspec="-p $rocto_port"
+		shift 1
 	else
 		rocto_port=""
 		portspec=""
+	fi
+	if [[ $1 == "quiet" ]]; then
+		verbosity="-v"
+		shift 1
+	elif [[ $1 == "verbose" ]]; then
+		verbosity="-vvv"
+		shift 1
+	else
+		verbosity="-vv"
 	fi
 	if [[ -e rocto.log ]]; then
 		mv rocto.log rocto.log_`date -Ins`_$$
@@ -434,7 +433,7 @@ start_rocto() {
 	# to exit with a non-zero status), bats would try to exit the subtest right then but will hang because the rocto listener
 	# process still has an open file descriptor that bats cares about. The "3>&-" is needed below to close that. See
 	# https://bats-core.readthedocs.io/en/stable/writing-tests.html#file-descriptor-3-read-this-if-bats-hangs for more details.
-	rocto $verbosity $portspec $opt &> rocto.log 3>&- &
+	rocto $verbosity $portspec $* &> rocto.log 3>&- &
 	rocto_pid=$!
 	echo $rocto_pid > rocto.pid
 	# Store rocto port number in the file "rocto.port" for later use in "stop_rocto"

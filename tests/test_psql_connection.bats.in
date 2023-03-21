@@ -512,3 +512,20 @@ OCTO
 	sed -i '/\[ INFO\]\|^INFO:/d' clean_output.txt
 	[[ ! -s clean_output.txt ]]
 }
+
+@test "TPC029 : OCTO941 : Rocto accepts --emulate option" {
+	stop_rocto
+	set_ydb_xc_octo
+	for setting in MYSQL POSTGRES; do
+		for optstyle in "--emulate " "-e " "--emulate="; do
+			echo "# Testing [$optstyle$setting]" >> output.txt
+			test_port=$(start_rocto $test_port $optstyle$setting)
+			# The query in TDTF03.sql will work in MySQL but not in PostgreSQL,
+			# so use here to confirm behavior differs for each Rocto emulation,
+			# i.e. MYSQL or POSTGRES.
+			run_psql $test_port TDTF03.sql 2>&1 | tee -a output.txt
+			stop_rocto
+		done
+	done
+	verify_output TPC029 output.txt noinfo nodebug
+}

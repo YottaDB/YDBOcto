@@ -7,11 +7,10 @@
 CREATE TABLE `NAMES` (`ID` INTEGER CONSTRAINT "NAMES_PKEY" PRIMARY KEY, `FIRSTNAME` VARCHAR(30) PIECE 1, `LASTNAME` VARCHAR(30) PIECE 2) GLOBAL "^names(keys(""ID""))" DELIM "|" READONLY;
 # DROP TABLE names KEEPDATA
 
--- TDT08 : OCTO735 : DROP TABLE with KEEPDATA keyword does not do a KILL of the underlying GVN storing the table data
+-- TDT07 : OCTO735 : DROP TABLE with KEEPDATA keyword does not do a KILL of the underlying GVN storing the table data
 
 DROP TABLE names KEEPDATA;
 DROP TABLE nameswithages KEEPDATA;
-
 DROP TABLE
 DROP TABLE
 # Verify ^names exists
@@ -22,19 +21,17 @@ $DATA(^names) = 10
 CREATE TABLE `NAMES` (`ID` INTEGER CONSTRAINT "NAMES_PKEY" PRIMARY KEY, `FIRSTNAME` VARCHAR(30) PIECE 1, `LASTNAME` VARCHAR(30) PIECE 2) GLOBAL "^names(keys(""ID""))" DELIM "|" READWRITE;
 # DROP TABLE names KEEPDATA
 
--- TDT08 : OCTO735 : DROP TABLE with KEEPDATA keyword does not do a KILL of the underlying GVN storing the table data
+-- TDT07 : OCTO735 : DROP TABLE with KEEPDATA keyword does not do a KILL of the underlying GVN storing the table data
 
 DROP TABLE names KEEPDATA;
 DROP TABLE nameswithages KEEPDATA;
-
 DROP TABLE
 DROP TABLE
 
--- TDT08 : OCTO735 : DROP TABLE with KEEPDATA keyword does not do a KILL of the underlying GVN storing the table data
+-- TDT07 : OCTO735 : DROP TABLE with KEEPDATA keyword does not do a KILL of the underlying GVN storing the table data
 
 DROP TABLE names KEEPDATA;
 DROP TABLE nameswithages KEEPDATA;
-
 DROP TABLE
 DROP TABLE
 # Verify ^names exists

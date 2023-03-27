@@ -153,3 +153,11 @@ OCTO
 	done
 	verify_output TDT07 final_output.txt
 }
+
+@test "TDT08 : OCTO802 : Dropping and Recreating the same table with different delimiters resulted in incorrect query results" {
+	echo "# We send two queries, one against the names table with a | delimiter; another with a ^ delimiter" | tee -a output.txt
+	echo "# | delimiter table should return one result; ^ delimiter table none as data has | delimiter" | tee -a output.txt
+	load_fixture names.zwr
+	load_fixture TDT08.sql subtest novv
+	verify_output TDT08 output.txt
+}

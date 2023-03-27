@@ -641,7 +641,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 			int  param_num;
 
 			/* Set the type to "PARAMETER_VALUE" by default. Check if this is an extended query and if query
-			 * parameter types have been specified in the "Parse" message. If so use that type instead.
+			 * parameter data types have been specified in the "Parse" message. If so use that type instead.
 			 */
 			*type = PARAMETER_VALUE;
 			if (parse_context->is_extended_query) {
@@ -649,10 +649,14 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 				if ((LONG_MIN != tmp_long) && (LONG_MAX != tmp_long)) {
 					param_num = (int)tmp_long;
 					parse_context->cur_param_num = param_num;
-					if ((0 < param_num) && (param_num <= parse_context->num_bind_parm_types)) {
-						/* Note down parameter number corresponding to this "SqlValue" structure
-						 * for later use inside MAP_TYPE_TO_PARAMETER_VALUE macro.
-						 */
+					/* Check if parse_context->types[param_num - 1] has a non-zero value.
+					 * If so, data type information has been specified in the "Parse" message. Use that.
+					 * If not, we have no data type information was specified, so skip this step.
+					 * See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1236#note_1327912175 for
+					 * more details.
+					 */
+					if ((0 < param_num) && (param_num <= parse_context->num_bind_parm_types)
+					    && (0 != parse_context->types[param_num - 1])) {
 						*type = get_sqlvaluetype_from_psql_type(parse_context->types[param_num - 1]);
 					}
 				} else {

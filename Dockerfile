@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -75,7 +75,7 @@ COPY --from=octo-builder /opt/yottadb/current/plugin /opt/yottadb/current/plugin
 COPY --from=octo-builder /tmp/octo/tests/fixtures/northwind.* /opt/yottadb/current/plugin/octo/
 
 # Install required libraries for Octo/Rocto (note: NOT the dev versions)
-RUN apt-get update && apt-get install -y libreadline8 libconfig9 libicu66 libssl1.1
+RUN apt-get update && apt-get install -y libreadline8 libconfig9 libicu70 libssl3
 # Change octo.conf to accept connections from everywhere
 RUN cp /opt/yottadb/current/plugin/octo/octo.conf /data/octo.conf && \
     sed -i 's/address = "127.0.0.1"/address = "0.0.0.0"/' /data/octo.conf

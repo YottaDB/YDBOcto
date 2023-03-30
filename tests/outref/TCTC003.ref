@@ -1154,10 +1154,10 @@ LINE 34:1: ...eric CONSTRAINT name1 CHECK (price < (select * from invalid)));
 LINE 36:1: ..., name text, price numeric CONSTRAINT name1 CHECK (price < *));
                                                                          ^
 syntax error, unexpected ASTERISK
-[ERROR]: ERR_INVALID_CONSTRAINT_EXPRESSION: TABLENAME.* expressions not accepted within CHECK constraints 
+[ERROR]: ERR_INVALID_CONSTRAINT_EXPRESSION: TABLENAME.* expressions not accepted within CHECK constraints
 LINE 37:1: ...name text, price numeric CONSTRAINT name1 CHECK (price < t.*));
                                                                        ^
-[ERROR]: ERR_INVALID_CONSTRAINT_EXPRESSION: TABLENAME.* expressions not accepted within CHECK constraints 
+[ERROR]: ERR_INVALID_CONSTRAINT_EXPRESSION: TABLENAME.* expressions not accepted within CHECK constraints
 LINE 38:1: ...ext, price numeric CONSTRAINT name1 CHECK (price < products.*));
                                                                  ^^^^^^^^
 LINE 39:1: ...xt, price numeric CONSTRAINT name1 CHECK (price in products.*));
@@ -1166,7 +1166,7 @@ syntax error, unexpected IDENTIFIER_ALONE, expecting LEFT_PAREN
 LINE 40:1: ...text, price numeric CONSTRAINT name1 CHECK (price in names.*));
                                                                    ^^^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting LEFT_PAREN
-[ERROR]: ERR_INVALID_CONSTRAINT_EXPRESSION: TABLENAME.* expressions not accepted within CHECK constraints 
+[ERROR]: ERR_INVALID_CONSTRAINT_EXPRESSION: TABLENAME.* expressions not accepted within CHECK constraints
 LINE 41:1: ... text, price numeric CONSTRAINT name1 CHECK (price < names.*));
                                                                    ^^^^^
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : NAMES

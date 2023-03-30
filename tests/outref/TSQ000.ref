@@ -103,3 +103,4 @@ LP_SELECT_QUERY:
 TYPLEN
 64
 (1 row)
+[ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete

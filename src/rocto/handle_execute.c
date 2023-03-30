@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -221,6 +221,11 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 	}
 
 	if (0 == status) { // No errors, all rows sent
+		/* We are done sending all rows but we did not go through "run_query()" (because this is an extended query
+		 * and we went through only the early part of "run_query()" for the Parse message, but not for the Bind,
+		 * Describe and Execute messages) and so we did not log the INFO_EXECUTION_DONE message so do that now.
+		 */
+		LOG_LOCAL_ONLY(INFO, INFO_EXECUTION_DONE, "");
 		command_complete = make_command_complete(command_tag, parms.row_count);
 		if (NULL != command_complete) {
 			send_message(session, (BaseMessage *)(&command_complete->type));

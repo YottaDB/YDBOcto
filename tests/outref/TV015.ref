@@ -235,4 +235,5 @@ LP_INSERT_INTO:
 
 [ INFO] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering print_temporary_table
 INSERT 0 4
+[ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [-- Also used in TV015 subtest]

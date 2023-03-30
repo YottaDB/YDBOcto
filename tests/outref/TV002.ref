@@ -14,6 +14,7 @@ LINE 2:1: select * from nonexistanttable;
 [ WARN] PATH:LINENUM DATE TIME: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: INDEX statements
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""ID""))";]
 [ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
+[ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [select * from names;]
 [ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
 [ INFO] PATH:LINENUM DATE TIME: INFO_M_PLAN: Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
@@ -26,4 +27,5 @@ ID|FIRSTNAME|LASTNAME
 4|Joey|
 5|Zero|Cool
 (6 rows)
+[ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command []

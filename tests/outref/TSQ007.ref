@@ -449,4 +449,5 @@ public|PG_SETTINGS|table|octo
 public|PG_TYPE|table|octo
 public|PG_USER|table|octo
 (30 rows)
+[ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command []

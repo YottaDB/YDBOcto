@@ -20,7 +20,6 @@ LP_SELECT_QUERY:
         LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
         LP_COLUMN_LIST_ALIAS: 
 # tail -20 of full_output.txt follows
-          LP_SELECT_MORE_OPTIONS: 
             LP_KEYWORDS: 
   LP_OUTPUT: 
     LP_KEY: 
@@ -39,4 +38,5 @@ ID|FIRSTNAME|LASTNAME
 4|Joey|
 5|Zero|Cool
 (5 rows)
+[ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command []

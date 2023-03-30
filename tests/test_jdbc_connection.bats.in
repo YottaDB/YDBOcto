@@ -124,6 +124,10 @@ teardown() {
 	run_java $testname $test_port &> output.txt
 	# Cannot test memory expansion path since JDBC driver specifies parameter types; TPGC005 tests the expansion case
 	grep "Memory doubled" rocto.log >> output.txt
+	echo "" >> output.txt
+	echo "# Verify INFO_PARSING_DONE and INFO_EXECUTION_DONE messages show up once each per query/command" >> output.txt
+	echo "# when using Extended Query Protocol for SET, SHOW and SELECT queries" >> output.txt
+	grep -E "INFO_PARSING_DONE|INFO_EXECUTION_DONE" rocto.log >> output.txt
 	verify_output $testname output.txt psql
 }
 

@@ -94,7 +94,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 	FILE *	      out;
 	SqlStatement *result;
 	SqlValue *    value;
-	bool	      free_memory_chunks;
+	boolean_t     free_memory_chunks;
 	// + 1 for NULL terminator
 	char *		buffer, filename[OCTO_PATH_MAX + 1], routine_name[MAX_ROUTINE_LEN + 1], function_hash[MAX_ROUTINE_LEN + 1];
 	ydb_long_t	cursorId;
@@ -192,7 +192,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		return (YDB_OK != status);
 	}
 	INFO(INFO_CURSOR, cursor_ydb_buff.buf_addr);
-	free_memory_chunks = true; // By default run "octo_cfree(memory_chunks)" at the end
+	free_memory_chunks = TRUE; // By default run "octo_cfree(memory_chunks)" at the end
 
 	cursor_used = TRUE; /* By default, assume a cursor was used to execute the query */
 	release_query_lock = TRUE;
@@ -204,8 +204,11 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		if (DISPLAY_TABLE_RELATION == display_relation->type) {
 			/* "\d tablename" : Describe/Display a specific relation/table */
 			status = describe_tablename(display_relation->table_name);
-			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
-			return status;
+			if (0 != status) {
+				CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
+				return status;
+			}
+			break;
 		}
 		/* "\d" : Describe/Display all relations/tables */
 		assert(DISPLAY_ALL_RELATION == display_relation->type);
@@ -293,7 +296,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		}
 		// Deciding to free the select_STATEMENT etc. must be done by the caller, as they may want to rerun it or send
 		// row descriptions hence the decision to not free the memory_chunk below.
-		free_memory_chunks = false;
+		free_memory_chunks = FALSE;
 		break;
 	case discard_all_STATEMENT: /* DISCARD ALL */
 		/* Initialize a few variables to NULL at the start. They are used in the CLEANUP_AND_RETURN_WITH_ERROR and
@@ -874,6 +877,15 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 	}
 	if (free_memory_chunks) {
 		OCTO_CFREE(memory_chunks);
+	}
+	/* Log the INFO_EXECUTION_DONE message in case for Octo and for the Simple Query protocol in case of rocto.
+	 * In the Extended Query Protocol case of rocto, we are currently handling just the Parse message. We still
+	 * need to handle the Bind, Describe and Execute messages. Since the result rows will not be sent until the
+	 * Execute message is handled, we need to delay logging the INFO_EXECUTION_DONE message until then. This
+	 * will be logged later in "handle_execute.c". Hence the "is_extended_query" check below.
+	 */
+	if (!parse_context->is_extended_query) {
+		INFO(INFO_EXECUTION_DONE, "");
 	}
 	return 0;
 }

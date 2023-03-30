@@ -249,6 +249,7 @@ COUNT|FIRSTNAME
 2|Joey
 2|Zero
 (2 rows)
+[ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [--	and COUNT(id) in the ORDER BY column list is treated as a 2nd aggregate function use so we expect to see
 --	2 aggregate function counts generated in the physical plan. When #414 is fixed, we will see only 1 aggregate function count.
 SELECT firstname,COUNT(id) FROM names GROUP BY firstname ORDER BY 2,COUNT(id);]
@@ -385,6 +386,7 @@ Lord|1
 Cereal|1
 Zero|2
 (5 rows)
+[ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command []
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------

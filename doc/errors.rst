@@ -354,6 +354,14 @@ INFO_ENV_VAR
 
   Description/Action: This message reports the current value of a YottaDB environment variable. PSQL Error Code: 00000
 
++++++++++++++++++++
+INFO_EXECUTION_DONE
++++++++++++++++++++
+
+  Text: SQL query/command execution complete
+
+  Description/Action: This message indicates that query execution is complete for the current SQL query/command. The actual query/command executed can be found from the preceding INFO_PARSING_DONE message. PSQL Error Code: 00000
+
 ++++++++++++++++++++++++++++++
 ERR_EXTRACT_TYPE_MISMATCH
 ++++++++++++++++++++++++++++++
@@ -557,8 +565,6 @@ ERR_INVALID_CLI_OPTION
 +++++++++++++++++++++++++++++++++
 ERR_INVALID_CONSTRAINT_EXPRESSION
 +++++++++++++++++++++++++++++++++
-
-Text: xxx expressions not accepted within CHECK constraints 
 
   Text: xxx expressions not accepted within CHECK constraints
 

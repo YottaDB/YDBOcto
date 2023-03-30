@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -71,12 +71,14 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 				YDB_STRING_TO_BUFFER(OCTOLIT_VARIABLE, &statement_subs[4]);
 				YDB_STRING_TO_BUFFER(runtime_variable->v.string_literal, &value_buffer);
 				status = ydb_set_s(&statement_subs[0], 4, &statement_subs[1], &value_buffer);
+				YDB_ERROR_CHECK(status);
 				if (YDB_OK != status) {
 					return 1;
 				}
 				YDB_STRING_TO_BUFFER(OCTOLIT_VALUE, &statement_subs[4]);
 				YDB_STRING_TO_BUFFER(runtime_value->v.string_literal, &value_buffer);
 				status = ydb_set_s(&statement_subs[0], 4, &statement_subs[1], &value_buffer);
+				YDB_ERROR_CHECK(status);
 				if (YDB_OK != status) {
 					return 1;
 				}
@@ -157,6 +159,7 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 				YDB_STRING_TO_BUFFER(OCTOLIT_VARIABLE, &statement_subs[4]);
 				YDB_STRING_TO_BUFFER(runtime_variable->v.string_literal, &value_buffer);
 				status = ydb_set_s(&statement_subs[0], 4, &statement_subs[1], &value_buffer);
+				YDB_ERROR_CHECK(status);
 				if (YDB_OK != status) {
 					return 1;
 				}

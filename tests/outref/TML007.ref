@@ -13,4 +13,5 @@ from names limit 1;]
 ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 (1 row)
+[ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command []

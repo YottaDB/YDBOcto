@@ -162,6 +162,7 @@ Reducing stack by rule rrr (line lll):
    $2 = nterm semicolon_or_eof (: )
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""ID""))";]
 [ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
+[ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
 Starting parse
 Entering state sss
 Next token is token SELECT (: )
@@ -408,6 +409,7 @@ ID|FIRSTNAME|LASTNAME
 4|Joey|
 5|Zero|Cool
 (6 rows)
+[ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
 Starting parse
 Entering state sss
 Next token is token ENDOFFILE (: )

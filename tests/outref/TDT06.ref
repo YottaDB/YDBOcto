@@ -2,6 +2,7 @@
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [drop table if exists t1;]
 [ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
 DROP TABLE
+[ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [drop table if exists t1;]
 [ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
 [ INFO] PATH:LINENUM DATE TIME: INFO_TABLE_DOES_NOT_EXIST: Table "T1" does not exist, skipping

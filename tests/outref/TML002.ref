@@ -6,6 +6,7 @@
 FIRSTNAME
 Zero
 (1 row)
+[ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [select lastname from names limit 1;]
 [ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
 [ INFO] PATH:LINENUM DATE TIME: INFO_M_PLAN: Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
@@ -13,6 +14,7 @@ Zero
 LASTNAME
 Cool
 (1 row)
+[ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [select * from names limit 1;]
 [ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
 [ INFO] PATH:LINENUM DATE TIME: INFO_M_PLAN: Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
@@ -20,5 +22,6 @@ Cool
 ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 (1 row)
+[ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [;]
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command []

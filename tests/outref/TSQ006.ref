@@ -79,4 +79,5 @@ LP_SELECT_QUERY:
 VERSION
 PostgreSQL 9.6.5 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 7.1.1 20170630, 64-bit
 (1 row)
+[ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command []

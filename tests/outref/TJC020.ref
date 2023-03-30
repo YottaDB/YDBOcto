@@ -2,4 +2,4 @@
  --> Running query : CREATE TABLE extractnames (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER, fullname VARCHAR EXTRACT CONCAT('Joey', lastname)) GLOBAL "^names(keys(""ID""))"; <--
 -------------------------------------------------------------------------
 SQL State: 42601
-ERROR: Prepared statement expressions not accepted within CHECK constraints 
+ERROR: Prepared statement expressions not accepted within CHECK constraints

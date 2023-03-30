@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -404,6 +404,8 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	} else {
 		parse_context_array = NULL;
 		parse_context.types = NULL;
+		parse_context.parm_start = NULL;
+		parse_context.parm_end = NULL;
 	}
 
 	/* Retrieve ParseContext info from prepared statement local variable, which was previously populated in handle_parse.c.
@@ -462,7 +464,11 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 			offset_buffer.buf_addr[offset_buffer.len_used] = '\0';
 			offset_long = strtol(offset_buffer.buf_addr, NULL, 10);
 			if ((ERANGE != errno) && (0 <= offset_long) && (INT32_MAX >= offset_long)) {
-				parse_context.parm_start[cur_bind_parm] = (int32_t)offset_long;
+				assert(NULL != parse_context.parm_start);
+				/* Below "if" check is to avoid a false [clang-analyzer-core.NullDereference] warning */
+				if (NULL != parse_context.parm_start) {
+					parse_context.parm_start[cur_bind_parm] = (int32_t)offset_long;
+				}
 			} else {
 				ERROR(ERR_LIBCALL, "strtol")
 				CLEANUP_FROM_BIND();
@@ -478,7 +484,11 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 			offset_buffer.buf_addr[offset_buffer.len_used] = '\0';
 			offset_long = strtol(offset_buffer.buf_addr, NULL, 10);
 			if ((ERANGE != errno) && (0 <= offset_long) && (INT32_MAX >= offset_long)) {
-				parse_context.parm_end[cur_bind_parm] = (int32_t)offset_long;
+				assert(NULL != parse_context.parm_end);
+				/* Below "if" check is to avoid a false [clang-analyzer-core.NullDereference] warning */
+				if (NULL != parse_context.parm_end) {
+					parse_context.parm_end[cur_bind_parm] = (int32_t)offset_long;
+				}
 			} else {
 				ERROR(ERR_LIBCALL, "strtol")
 				CLEANUP_FROM_BIND();
@@ -495,7 +505,11 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 			parm_type_buf.buf_addr[parm_type_buf.len_used] = '\0';
 			type_long = strtol(parm_type_buf.buf_addr, NULL, 10);
 			if ((ERANGE != errno) && (0 <= type_long) && (INT16_MAX >= type_long)) {
-				parse_context.types[cur_bind_parm] = (int16_t)type_long;
+				assert(NULL != parse_context.types);
+				/* Below "if" check is to avoid a false [clang-analyzer-core.NullDereference] warning */
+				if (NULL != parse_context.types) {
+					parse_context.types[cur_bind_parm] = (int16_t)type_long;
+				}
 			} else {
 				ERROR(ERR_LIBCALL, "strtol")
 				CLEANUP_FROM_BIND();

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -76,11 +76,11 @@ int copied_so_far;
      }
 <EXPR_STATE>"%{}" {
           BEGIN(EXPR_STATE_END);
-          (*yylval_param) = (Expr*)malloc(sizeof(Expr));
-          (*yylval_param)->type = EXPR_TYPE;
-          (*yylval_param)->value = malloc(copied_so_far + 1);
-          strncpy((*yylval_param)->value, string_buffer, copied_so_far);
-          (*yylval_param)->value[copied_so_far] = '\0';
+          (*yylval) = (Expr*)malloc(sizeof(Expr));
+          (*yylval)->type = EXPR_TYPE;
+          (*yylval)->value = malloc(copied_so_far + 1);
+          strncpy((*yylval)->value, string_buffer, copied_so_far);
+          (*yylval)->value[copied_so_far] = '\0';
           yyless(0);
           return LITERAL;
 }
@@ -104,11 +104,11 @@ int copied_so_far;
    str_buf_ptr = string_buffer;
    char *yptr = yytext;
    COPY_STRING(str_buf_ptr, yptr, copied_so_far, BUFFER_SIZE);
-   (*yylval_param) = (Expr*)malloc(sizeof(Expr));
-   (*yylval_param)->type = VALUE_TYPE;
-   (*yylval_param)->value = malloc(copied_so_far + 1);
-   strncpy((*yylval_param)->value, string_buffer, copied_so_far);
-   (*yylval_param)->value[copied_so_far] = '\0';
+   (*yylval) = (Expr*)malloc(sizeof(Expr));
+   (*yylval)->type = VALUE_TYPE;
+   (*yylval)->value = malloc(copied_so_far + 1);
+   strncpy((*yylval)->value, string_buffer, copied_so_far);
+   (*yylval)->value[copied_so_far] = '\0';
    return LITERAL;
    }
 
@@ -117,11 +117,11 @@ int copied_so_far;
    str_buf_ptr = string_buffer;
    char *yptr = yytext;
    COPY_STRING(str_buf_ptr, yptr, copied_so_far, BUFFER_SIZE);
-   (*yylval_param) = (Expr*)malloc(sizeof(Expr));
-   (*yylval_param)->type = LITERAL_TYPE;
-   (*yylval_param)->value = malloc(copied_so_far + 1);
-   strncpy((*yylval_param)->value, string_buffer, copied_so_far);
-   (*yylval_param)->value[copied_so_far] = '\0';
+   (*yylval) = (Expr*)malloc(sizeof(Expr));
+   (*yylval)->type = LITERAL_TYPE;
+   (*yylval)->value = malloc(copied_so_far + 1);
+   strncpy((*yylval)->value, string_buffer, copied_so_far);
+   (*yylval)->value[copied_so_far] = '\0';
    return LITERAL;
    }
 

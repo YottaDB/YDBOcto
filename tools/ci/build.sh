@@ -42,8 +42,8 @@ esac
 source /opt/yottadb/current/ydb_env_set
 set -u # Enable detection of uninitialized variables. Do *after* ydb_env_set since this script relies on uninitialized variables.
 set -o pipefail	# this way $? is set to zero only if ALL commands in a pipeline succeed. Else only last command determines $?
-		# For example, this ensures the "ninja | ... | grep ..." command used a little later returns a non-zero exit
-		# status even if "ninja" fails (due to a build failure) and not just if "grep" fails.
+		# For example, this ensures that IF we run a "ninja | ... | grep ..." command somewhere in the following script,
+		# it returns a non-zero exit status even if "ninja" fails (due to a build failure) and not just if "grep" fails.
 
 start_dir=$(pwd)
 # Below ensures any errors in this script cause it to exit with a non-zero status right away
@@ -68,7 +68,9 @@ compile_octo() {
 	else
 		# Only show warnings in the GitLab UI. Show the full output in `build_warnings.txt`.
 		# See https://ninja-build.org/manual.html#_environment_variables for the syntax of NINJA_STATUS.
-		NINJA_STATUS="[ninja] [%f/%t] " ninja | tee build_warnings.txt | grep -v '^\[ninja\] '
+		# We don't want the `grep -v ninja` to fail if there are no ninja lines in build_warnings.txt (normal case
+		# when there are no warnings). Hence the `|| true` and a subshell usage.
+		NINJA_STATUS="[ninja] [%f/%t] " ninja | tee build_warnings.txt | (grep -v '^\[ninja\] ' || true)
 	fi
 	exit_status=$?
 	if [[ 0 != $exit_status ]]; then
@@ -464,11 +466,6 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 	echo "# Check for unexpected warnings and error/exit if unexpected errors are found"
 	../tools/ci/sort_warnings.sh build_warnings.txt sorted_build_warnings.txt
 	echo " -> Checking for unexpected warning(s) while compiling ... "
-	if [[ $build_type == "Debug" ]]; then
-		reference=../tools/ci/expected_warnings.ref
-	else
-		reference=../tools/ci/expected_warnings-release.ref
-	fi
 
 	compare() {
 		expected="$1"
@@ -491,7 +488,7 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 			exit 1
 		fi
 	}
-	compare $reference sorted_build_warnings.txt build_warnings.txt
+	compare /dev/null sorted_build_warnings.txt build_warnings.txt
 
 	echo "# Check for unexpected warning(s) from clang-tidy ..."
 	../tools/ci/clang-tidy-all.sh > clang_tidy_warnings.txt 2>/dev/null

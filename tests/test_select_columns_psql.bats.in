@@ -217,3 +217,7 @@ teardown() {
 	verify_output TSCP25_underscore_name_verification output.txt noinfo nodebug
 }
 
+@test "TSCP26 : OCTO211 : Back quotes usage shouldn't result in additional () characters in the output" {
+	load_fixture TSCP26.sql subtest novv
+	verify_output TSCP26 output.txt
+}

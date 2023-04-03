@@ -51,6 +51,10 @@ SqlStatement *insert_statement(SqlStatement *table_name, SqlStatement *column_na
 	}
 	UNPACK_SQL_STATEMENT(join, join_stmt, join);
 	UNPACK_SQL_STATEMENT(table_alias, join->value, table_alias);
+	/* Untill INSERT is allowed with Views (YDBOcto#924) generate an error if
+	 * the table_name corresponds to a view.
+	 */
+	IF_VIEW_ISSUE_UNSUPPORTED_OPERATION_ERROR(table_alias->table, insert_STATEMENT);
 	UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
 	if (!table->readwrite) {
 		ERROR(ERR_TABLE_READONLY, "INSERT", table_name->v.value->v.reference);
@@ -102,7 +106,8 @@ SqlStatement *insert_statement(SqlStatement *table_name, SqlStatement *column_na
 	MALLOC_STATEMENT(ret, insert, SqlInsertStatement);
 	UNPACK_SQL_STATEMENT(insert, ret, insert);
 	/* All we want here is "table_alias->table" but we need "table_alias" in order to later store this as a LP_TABLE
-	 * logical plan. Hence the call to "table_reference()" above. Otherwise a call to "find_table()" would have sufficed.
+	 * logical plan. Hence the call to "table_reference()" above. Otherwise a call to "find_view_or_table()" would have
+	 * sufficed.
 	 */
 	insert->dst_table_alias_stmt = join->value;
 	insert->columns = column_name_list;

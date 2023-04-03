@@ -1,0 +1,77 @@
+#################################################################
+#								#
+# Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+	load_fixture names.sql
+	load_fixture names.zwr
+	test_port=$(start_rocto 1344 --allowschemachanges)
+}
+
+teardown() {
+	stop_rocto
+}
+
+@test "TCV001 : Basic validation of view - creation, select and drop" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV001.sql "trim_trailing_zeroes"
+}
+
+@test "TCV002 : Basic validation of views with column list - creation, select and drop" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV002.sql "trim_trailing_zeroes"
+	load_fixture TCV002_errors.sql subtest novv
+	verify_output TCV002_errors output.txt
+}
+
+
+@test "TCV004 : Verify that views column name specification resolves any column name duplication issue in its definition" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV004.sql "trim_trailing_zeroes"
+	load_fixture TCV004_errors.sql subtest novv
+	verify_output TCV004_errors output.txt
+}
+
+@test "TCV005 : Basic select on views" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV005.sql "trim_trailing_zeroes"
+	load_fixture TCV005_errors.sql subtest novv
+	verify_output TCV005_errors output.txt
+}
+
+@test "TCV006 : Verify group by (expression, column alias and column number usage) and aggregate usage with views" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV006.sql "trim_trailing_zeroes"
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TCV006_customers.sql "trim_trailing_zeroes"
+	load_fixture TCV006_errors.sql subtest novv
+	verify_output TCV006_errors output.txt
+}
+
+@test "TCV007 : Verify order by (column reference, alias and number usage) and order by with select distinct usage" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV007.sql "trim_trailing_zeroes"
+	load_fixture TCV007_errors.sql subtest novv
+	verify_output TCV007_errors output.txt
+}
+
+
+@test "TCV009 : Verify that an error is issued when a drop view is done on a view which still has dependency from another view" {
+	load_fixture TCV009_errors.sql subtest novv
+	verify_output TCV009_errors output.txt
+}
+
+@test "TCV010 : Verify that an error is issued when a drop function is done on a function which is used in a view's definition" {
+	load_fixture TCV010_errors.sql subtest novv
+	verify_output TCV010_errors output.txt
+}
+
+# Any new subtest addition should be done by creating test_create_view3.bats.in till its execution time in pipeline reaches 60 sec.
+# When exceeded new test should be created and the above test name should be updated.

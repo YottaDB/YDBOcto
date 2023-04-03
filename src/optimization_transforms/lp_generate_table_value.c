@@ -48,6 +48,7 @@ LogicalPlan *lp_generate_table_value(SqlStatement *stmt, boolean_t *caller_error
 		row_value = row_value->next;
 	} while (row_value != start_row_value);
 	MALLOC_LP(lp_table_data, lp_table_value->v.lp_default.operand[1], LP_OUTPUT);
-	lp_table_data->v.lp_default.operand[0] = lp_alloc_key(NULL, NULL, table_alias->unique_id, LP_KEY_ADVANCE, NULL, FALSE);
+	lp_table_data->v.lp_default.operand[0]
+	    = lp_alloc_key(NULL, NULL, table_alias->unique_id, LP_KEY_ADVANCE, NULL, FALSE, NULL);
 	return lp_table_value;
 }

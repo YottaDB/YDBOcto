@@ -39,13 +39,13 @@
 		}                                                                                         \
 	}
 
-/* Deletes all references to a tablename and its columns from the catalog.
- * Undoes what was done by "store_table_in_pg_class.c".
+/* Deletes all references to a tablename/viewname and its columns from the catalog.
+ * Undoes what was done by "store_table_in_pg_class.c" and "store_view_in_pg_class.c"
  * Returns
  *	0 for normal
  *	1 for error
  */
-int delete_table_from_pg_class(ydb_buffer_t *table_name_buffer) {
+int delete_table_or_view_from_pg_class(ydb_buffer_t *table_or_view_name_buffer) {
 	int	      status;
 	ydb_buffer_t *pg_class;
 	ydb_buffer_t *pg_attribute;
@@ -57,25 +57,26 @@ int delete_table_from_pg_class(ydb_buffer_t *table_name_buffer) {
 	pg_attribute = make_buffers(config->global_names.octo, 4, OCTOLIT_TABLES, OCTOLIT_PG_CATALOG, OCTOLIT_PG_ATTRIBUTE, "");
 	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&oid_buffer, INT64_TO_STRING_MAX);
 	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&pg_attribute_schema[2], OCTO_MAX_IDENT);
-	/* Check OID for tablename (usually stored as ^%ydboctoschema(TABLENAME,OCTOLIT_PG_CLASS)=TABLEOID) */
+	/* Check OID for tablename/viewname (usually stored as ^%ydboctoschema(TABLENAME,OCTOLIT_PG_CLASS)=TABLEOID) */
 	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
-	pg_class_schema[0] = *table_name_buffer;
+	pg_class_schema[0] = *table_or_view_name_buffer;
 	pg_class_schema[1] = pg_class[3];
 	status = ydb_get_s(&schema_global, 2, pg_class_schema, &oid_buffer);
 	if (YDB_ERR_GVUNDEF != status) {
 		assert(YDB_OK == status);
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, pg_class, pg_attribute, pg_attribute_schema, oid_buffer);
 		pg_class[4] = oid_buffer;
-		/* Delete table OID node : i.e. KILL ^%ydboctoocto(OCTOLIT_TABLES,OCTOLIT_PG_CATALOG,OCTOLIT_PG_CLASS,TABLEOID) */
+		/* Delete table/view OID node : i.e. KILL ^%ydboctoocto(OCTOLIT_TABLES,OCTOLIT_PG_CATALOG,OCTOLIT_PG_CLASS,TABLEOID)
+		 */
 		status = ydb_delete_s(&pg_class[0], 4, &pg_class[1], YDB_DEL_NODE);
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, pg_class, pg_attribute, pg_attribute_schema, oid_buffer);
 	} else {
-		/* OID for table does not exist. Move on to next step. */
+		/* OID for table or view does not exist. Move on to next step. */
 		assert(config->in_auto_load_octo_seed);
 	}
-	/* Check OID for each column in table (usually stored as
+	/* Check OID for each column in table/view (usually stored as
 	 * ^%ydboctoschema(TABLENAME,OCTOLIT_PG_ATTRIBUTE,COLUMNNAME)=COLUMNOID) */
-	pg_attribute_schema[0] = *table_name_buffer;
+	pg_attribute_schema[0] = *table_or_view_name_buffer;
 	pg_attribute_schema[1] = pg_attribute[3];
 	assert(0 == pg_attribute_schema[2].len_used); /* should have been set by OCTO_MALLOC_NULL_TERMINATED_BUFFER above */
 	do {

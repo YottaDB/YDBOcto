@@ -34,7 +34,7 @@ SELECT firstname FROM names WHERE firstname = (RETVARCHAR('Ze') || RETVARCHAR('r
 
 CREATE FUNCTION
 CREATE FUNCTION
-RETTRUE
+???
 true0
 true1
 true2
@@ -54,7 +54,7 @@ LASTNAME
 (0 rows)
 CREATE FUNCTION
 CREATE FUNCTION
-RETTRUESTR
+???
 true0
 true1
 true2

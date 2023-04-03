@@ -82,7 +82,7 @@ LINE 6:1: SELECT id / firstname FROM names;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
 LINE 7:1: SELECT id % firstname FROM names;
                       ^^^^^^^^^
-ID
+???
 0Zero
 1Acid
 2Cereal
@@ -120,7 +120,7 @@ LINE 13:1: SELECT firstname % lastname FROM names;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
 LINE 13:1: SELECT firstname % lastname FROM names;
                               ^^^^^^^^
-FIRSTNAME
+???
 ZeroCool
 AcidBurn
 CerealKiller
@@ -128,7 +128,7 @@ LordNikon
 
 ZeroCool
 (6 rows)
-???
+INTEGER
 1
 1
 1
@@ -136,7 +136,7 @@ ZeroCool
 1
 1
 (6 rows)
-???
+NUMERIC
 1
 1
 1
@@ -144,7 +144,7 @@ ZeroCool
 1
 1
 (6 rows)
-???
+VARCHAR
 1
 1
 1
@@ -152,7 +152,7 @@ ZeroCool
 1
 1
 (6 rows)
-???
+VARCHAR
 1
 1
 1
@@ -176,7 +176,7 @@ LINE 24:1: SELECT -1.5::varchar FROM names;
 LINE 25:1: SELECT -1.5::text FROM names;
                    ^^^
 [ERROR]: ERR_INVALID_TYPE: Type INVALID does not exist
-???
+NUMERIC
 -1.5
 -1.5
 -1.5
@@ -184,7 +184,7 @@ LINE 25:1: SELECT -1.5::text FROM names;
 -1.5
 -1.5
 (6 rows)
-???
+VARCHAR
 -1.5
 -1.5
 -1.5
@@ -192,7 +192,7 @@ LINE 25:1: SELECT -1.5::text FROM names;
 -1.5
 -1.5
 (6 rows)
-???
+VARCHAR
 -1.5
 -1.5
 -1.5
@@ -203,7 +203,7 @@ LINE 25:1: SELECT -1.5::text FROM names;
 [ERROR]: ERR_INVALID_TYPE: Type INVALID does not exist
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: 'abcd'
 [ERROR]: ERR_INVALID_NUMERIC_SYNTAX: Invalid input syntax for type numeric: 'abcd'
-???
+VARCHAR
 abcd
 abcd
 abcd
@@ -211,7 +211,7 @@ abcd
 abcd
 abcd
 (6 rows)
-???
+VARCHAR
 abcd
 abcd
 abcd
@@ -222,7 +222,7 @@ abcd
 [ERROR]: ERR_INVALID_TYPE: Type INVALID does not exist
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: '1.5abcd'
 [ERROR]: ERR_INVALID_NUMERIC_SYNTAX: Invalid input syntax for type numeric: '2.5abcd'
-???
+VARCHAR
 3.5abcd
 3.5abcd
 3.5abcd
@@ -230,7 +230,7 @@ abcd
 3.5abcd
 3.5abcd
 (6 rows)
-???
+VARCHAR
 4.5abcd
 4.5abcd
 4.5abcd

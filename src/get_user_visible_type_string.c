@@ -29,12 +29,16 @@ char *get_user_visible_type_string(SqlValueType type) {
 		ret = "INTEGER";
 		break;
 	case BOOLEAN_OR_STRING_LITERAL:
-		assert(FALSE); /* I don't think it is possible for any query to reach here. Hence the assert.
-				* But not sure if it is possible to reach here in an edge case so in Release builds
-				* we handle this by treating this as if it was a STRING_LITERAL. Hence falling through.
-				*/
-			       /* Note: Below comment is needed to avoid gcc [-Wimplicit-fallthrough=] warning */
-			       /* fall through */
+		/* It is possible for BOOLEAN_OR_STRING_LITERAL to be unresolved to a specific type at this point.
+		 * A `\d view_name` for any of the below views can get us here.
+		 * 	create view view_name as `select 't';
+		 *	create view view_name as select true,'t' union select 'f','t';
+		 * In the second create statement above the second column in both parts of the set operation will be of
+		 * `BOOLEAN_OR_STRING_LITERAL` type. This will be resolved in hash_canonical_query() to be of type
+		 * STRING_LITERAL. So treat this as a STRING_LITERAL.
+		 */
+		/* Note: Below comment is needed to avoid gcc [-Wimplicit-fallthrough=] warning */
+		/* fall through */
 	case STRING_LITERAL:
 		ret = "VARCHAR"; /* VARCHAR (not STRING) is the externally visible type name in SQL */
 		break;

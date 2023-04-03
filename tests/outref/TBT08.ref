@@ -4,7 +4,7 @@
 discard all;
 select id::boolean is true from names;
 select * from stock_availability where available is false;
-ID
+???
 0
 1
 1
@@ -26,7 +26,7 @@ select id::boolean is true from names;
 
 select * from stock_availability where available is unknown;
 select * from stock_availability where available is false;
-ID
+???
 0
 0
 0
@@ -34,7 +34,7 @@ ID
 0
 0
 (6 rows)
-ID
+???
 0
 1
 1

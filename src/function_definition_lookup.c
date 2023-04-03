@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -71,7 +71,7 @@ void function_definition_lookup(FunctionCallContext *fc_context, FunctionMatchCo
 		// Only allocate a new function schema when there isn't one already.
 		SQL_STATEMENT(fc->function_schema, create_function_STATEMENT);
 	}
-	/* Note that find_table() is called from the parser as every table name in the query is encountered but
+	/* Note that find_view_or_table() is called from the parser as every table name in the query is encountered but
 	 * find_function() is not called whenever a function name is encountered in the parser. It is instead called
 	 * much later from populate_data_type() after the entire query has been parsed and qualified. The reason for
 	 * this is that find_function() needs type information of the actual function parameters to determine which

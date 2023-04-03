@@ -49,7 +49,13 @@ LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, SqlTableAlia
 	// Update table references in FROM clause (i.e. join conditions if they exist)
 	table_join = lp_get_table_join(root);
 	do {
-		if ((NULL != table_join->v.lp_default.operand[0]) && (LP_TABLE != table_join->v.lp_default.operand[0]->type)) {
+		/* A LP_VIEW cannot have a column reference from outside its definition so avoid calling lp_replace_helper() on it.
+		 * LP_TABLE will only have columns specific to the table which it represents so avoid calling lp_replace_helper()
+		 * on it as well.
+		 */
+		if ((NULL != table_join->v.lp_default.operand[0])
+		    && ((LP_TABLE != table_join->v.lp_default.operand[0]->type)
+			&& (LP_VIEW != table_join->v.lp_default.operand[0]->type))) {
 			/* A query such as the following may need derived table reference replacement in the FROM clause too
 			 * SELECT (SELECT * FROM (SELECT n3.id FROM (select * from names) n1) n2) FROM (select * from names) n3;
 			 * Hence the lp_replace_helper() call below on the FROM clause.
@@ -141,6 +147,10 @@ LogicalPlan *lp_replace_helper(LogicalPlan *plan, SqlTableAlias *table_alias, Sq
 			 */
 			ret->v.lp_default.operand[1] = lp_replace_helper(plan->v.lp_default.operand[1], table_alias, key);
 		}
+		break;
+	case LP_VIEW:
+		// Nothing to do as a view is not expected to have a column from an outside join
+		assert(FALSE);
 		break;
 	case LP_SELECT_QUERY:
 		lp_replace_derived_table_references(plan, table_alias, key);

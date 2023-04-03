@@ -1,0 +1,35 @@
+#################################################################
+#								#
+# Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+	load_fixture names.sql
+	load_fixture names.zwr
+	test_port=$(start_rocto 1344 --allowschemachanges)
+}
+
+teardown() {
+	stop_rocto
+}
+
+@test "TCV008 : Verify views working with joins" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV008.sql "trim_trailing_zeroes"
+}
+
+@test "TCV019 : Verify `set operation` and `values` clause usage with views" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV019.sql "trim_trailing_zeroes"
+}
+
+# To add any new subtest refer to the comments at the end of test_create_view1_1.bats.in

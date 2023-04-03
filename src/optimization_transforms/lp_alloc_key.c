@@ -17,7 +17,7 @@
 #include "logical_plan.h"
 
 LogicalPlan *lp_alloc_key(SqlTable *table, SqlColumn *column, int unique_id, LPActionType type, SqlKey *cross_reference_output_key,
-			  boolean_t is_cross_reference_key) {
+			  boolean_t is_cross_reference_key, LogicalPlan *view_definition_output_key) {
 	LogicalPlan *ret;
 	SqlKey *     key;
 
@@ -34,6 +34,7 @@ LogicalPlan *lp_alloc_key(SqlTable *table, SqlColumn *column, int unique_id, LPA
 	key->type = type;
 	key->cross_reference_output_key = cross_reference_output_key;
 	key->is_cross_reference_key = is_cross_reference_key;
+	key->view_definition_output_key = view_definition_output_key;
 	ret->v.lp_key.key = key;
 	return ret;
 }

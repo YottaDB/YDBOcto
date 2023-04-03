@@ -438,16 +438,16 @@ DROP TABLE
 ???
 1
 (1 row)
-CASE
+???
 
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left BOOLEAN, right VARCHAR
 LINE 138:1: select true = case true when false then '' else 't' end;
                    ^^^^
-CASE
+???
 
 (1 row)
-CASE
+???
 1
 (1 row)
 CREATE TABLE

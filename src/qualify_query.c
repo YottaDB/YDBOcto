@@ -28,8 +28,9 @@
 		 * ERR_AGGREGATE_FUNCTION_UPDATE errors etc.). Therefore, we set the parent table alias to be itself.     \
 		 * This does not pose any problems else where and so is safe to do so.                                    \
 		 */                                                                                                       \
-		assert(NULL == TABLE_ALIAS->parent_table_alias);                                                          \
-		TABLE_ALIAS->parent_table_alias = TABLE_ALIAS;                                                            \
+		assert(NULL != TABLE_ALIAS->parent_table_alias);                                                          \
+		SQL_STATEMENT(TABLE_ALIAS->parent_table_alias, table_alias_STATEMENT);                                    \
+		TABLE_ALIAS->parent_table_alias->v.table_alias = TABLE_ALIAS;                                             \
 	}
 
 /* Set qualify stage variables (e.g. WHERE clause OR UPDATE SET clause etc.) before the CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR
@@ -195,13 +196,19 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	assert(table_alias_STATEMENT == table_alias_stmt->type);
 	UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 	if (NULL == table_alias->parent_table_alias) {
-		table_alias->parent_table_alias = parent_table_alias;
+		SQL_STATEMENT(table_alias->parent_table_alias, table_alias_STATEMENT);
+		table_alias->parent_table_alias->v.table_alias = parent_table_alias;
 	} else {
-		assert(table_alias->parent_table_alias == parent_table_alias);
+		assert(NULL != table_alias->parent_table_alias);
+		assert(table_alias->parent_table_alias->v.table_alias == parent_table_alias);
 	}
 	table_type = table_alias->table->type;
 	switch (table_type) {
 	case create_table_STATEMENT:
+		return result;
+		break;
+	case create_view_STATEMENT:
+		// The create_view_STATEMENT which has a SELECT statement is qualified and stored so nothing to qualify again
 		return result;
 		break;
 	case table_value_STATEMENT:
@@ -388,7 +395,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	 */
 	lcl_ret.ret_cla = &ret_cla;
 	lcl_ret.max_unique_id = ((NULL != ret) ? ret->max_unique_id : NULL);
-	lcl_ret.aggr_unique_id = ((NULL != ret) ? ret->aggr_unique_id : 0);
+	lcl_ret.aggr_table_alias_stmt = ((NULL != ret) ? ret->aggr_table_alias_stmt : NULL);
 	lcl_ret_ptr = &lcl_ret;
 
 	int *save_max_unique_id = NULL;
@@ -488,7 +495,8 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 						if (0 == group_by_column_count) {
 							group_by_expression->v.column_list_alias = cur_cla;
 						}
-						if (group_by_table_alias->parent_table_alias != table_alias) {
+						assert(NULL != group_by_table_alias->parent_table_alias);
+						if (group_by_table_alias->parent_table_alias->v.table_alias != table_alias) {
 							/* Column belongs to an outer query. Do not increment
 							 * current query's `group_by_column_count`.
 							 */
@@ -558,8 +566,9 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 
 					SqlTableAlias *cur_table_alias;
 					UNPACK_SQL_STATEMENT(cur_table_alias, column_alias->table_alias_stmt, table_alias);
+					assert(NULL != cur_table_alias->parent_table_alias);
 					if ((0
-					     == cur_table_alias->parent_table_alias
+					     == cur_table_alias->parent_table_alias->v.table_alias
 						    ->aggregate_function_or_group_by_or_having_specified)
 					    && is_stmt_table_asterisk(column_alias->column)) {
 						// Expand table.* in ORDER BY as there is no grouping done in the query

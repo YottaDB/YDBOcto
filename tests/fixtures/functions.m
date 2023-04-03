@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -14,3 +14,6 @@
 
 samevalue(param)	; Returns input parameter as output (used by a few bats tests)
 	quit param
+
+threeparmfunc(parm1,parm2,parm3)	; Returns first input parmeter as output
+	quit parm1

@@ -1,0 +1,96 @@
+#################################################################
+#								#
+# Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+	load_fixture names.sql
+	load_fixture names.zwr
+	test_port=$(start_rocto 1344 --allowschemachanges)
+}
+
+teardown() {
+	stop_rocto
+}
+
+@test "TCV011 : Verify that an error is issued when a drop table is done on a table which is used in a view's definition" {
+	load_fixture TCV011_errors.sql subtest novv
+	verify_output TCV011_errors output.txt
+}
+
+@test "TCV012 : Verify drop view behavior" {
+	load_fixture TCV012_errors.sql subtest novv
+	verify_output TCV012_errors output.txt nodebug
+}
+
+@test "TCV013 : Verify the working of display relation commands (\dv, \d, \d view_name)" {
+	load_fixture TCV013_errors.sql subtest novv
+	verify_output TCV013_errors output.txt
+}
+
+@test "TCV014 : Verify that a query which uses view v1 will generate a different m plan when the view v1 is changed" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV014.sql "trim_trailing_zeroes"
+}
+
+@test "TCV015 : Verify subquery usages in view definition" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV015.sql "trim_trailing_zeroes"
+	load_fixture TCV015_errors.sql subtest novv
+	verify_output TCV015_errors output.txt
+}
+
+@test "TCV016 : Verify function usage in view definition" {
+	load_fixture TCV016.sql subtest novv
+	verify_output TCV016 output.txt
+}
+
+@test "TCV018 : Verify views working with northwind table" {
+	load_fixture northwind.sql
+	load_fixture northwind.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TCV018.sql "trim_trailing_zeroes"
+}
+
+@test "TCV020 : Verify multiple row and column subquery used as an expression results in an error" {
+	load_fixture TCV020.sql subtest novv
+	verify_output TCV020 output.txt
+}
+
+@test "TCV021 : Verify `create view` and `create table` fails with an error if relation of the name already exists" {
+	load_fixture TCV021_errors.sql subtest
+	verify_output TCV021_errors output.txt nodebug
+}
+
+@test "TCV022 : Verify `drop view` deletes the plans associated with views" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV022.sql "trim_trailing_zeroes"
+	[[ $(ls -l _ydboctoP*.m | wc -l) -eq 3 ]]
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV022_DROP.sql "trim_trailing_zeroes"
+	[[ $(ls -l _ydboctoP*.m | wc -l) -eq 0 ]]
+}
+
+@test "TCV023 : Verify that parmless function doesn't result in a sig-11 when generating the views definition" {
+	load_fixture TCV023.sql subtest novv
+	verify_output TCV023 output.txt nodebug
+}
+
+@test "TCV024 : Verify that updating a view using INSERT/UPDATE/DELETE generates an error" {
+	load_fixture TCV024_errors.sql subtest novv
+	verify_output TCV024_errors output.txt nodebug
+}
+
+@test "TCV025 : Sliding window test which adds rows that appear and then after additional updates dissapear from the views range of visibility" {
+	stop_rocto
+	test_port=$(start_rocto 1400 -aw)
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV025.sql "trim_trailing_zeroes"
+}
+
+# To add any new subtest refer to the comments at the end of test_create_view1_1.bats.in

@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -19,7 +19,16 @@ TEMPLATE(tmpl_limit_check, SqlOptionalKeyword *limit_keyword, char *prefix, char
 
 	UNPACK_SQL_STATEMENT(limit, limit_keyword->v, value);
 	%{}{{ prefix }}{}%
-	%{}($GET({{ config->global_names.cursor }}(cursorId,{{ PP_PARAMETERS }},{{ limit->parameter_index|%d }})){}%
+	if (limit->parameter_index) {
+		/* Fetch the limit value stored at the parameter index */
+		%{}($GET({{ config->global_names.cursor }}(cursorId,{{ PP_PARAMETERS }},{{ limit->parameter_index|%d }})){}%
+	} else {
+		/* This is a view's processing where limit value is stored in the `limit_keyword`
+		 * itself to generate different M plans when the stored value is different.
+		 * Use the stored value directly.
+		 */
+		%{}(({{ limit->v.string_literal }}){}%
+	}
 	%{}{{ suffix }}){}%
 	return;
 }

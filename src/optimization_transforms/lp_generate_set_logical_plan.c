@@ -68,7 +68,7 @@ LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt) {
 		break;
 	}
 	MALLOC_LP(dst, options->v.lp_default.operand[1], LP_OUTPUT);
-	dst->v.lp_default.operand[0] = lp_alloc_key(NULL, NULL, get_new_plan_unique_id(), LP_KEY_ADVANCE, NULL, FALSE);
+	dst->v.lp_default.operand[0] = lp_alloc_key(NULL, NULL, get_new_plan_unique_id(), LP_KEY_ADVANCE, NULL, FALSE, NULL);
 	// Restore set_operation for cleanup
 	return set_operation;
 }

@@ -62,7 +62,7 @@ CREATE TABLE
 INSERT 0 1
 INSERT 0 1
 INSERT 0 1
-COLUMN1
+???
 |ＡＢＣ|
 |ＡＢ|
 |Ａ|
@@ -77,7 +77,7 @@ DROP TABLE
 CREATE TABLE
 INSERT 0 1
 INSERT 0 1
-COLUMN1
+???
 |ＡＢＣＤ|
 |ＡＢＣ |
 (2 rows)

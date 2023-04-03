@@ -33,7 +33,7 @@ LINE 2:1: select true || false;
 [ERROR]: ERR_TYPE_CAST: Cannot cast type BOOLEAN to type NUMERIC
 LINE 4:1: select id,(id = 2)::numeric from names;
                     ^^^^^^^^^^^^^^^^^
-ID|ID
+ID|VARCHAR
 0|false
 1|false
 2|true
@@ -41,7 +41,7 @@ ID|ID
 4|false
 5|false
 (6 rows)
-ID|ID
+ID|VARCHAR
 0|false
 1|false
 2|true

@@ -1,0 +1,5 @@
+
+create view v1 as select $1;
+[ERROR]: ERR_DOLLAR_SYNTAX: Prepared statement dollar syntax (e.g. $1, $2, etc.) only supported in Rocto using the Extended Query Protocol
+LINE 2:1: create view v1 as select $1;
+                                   ^^

@@ -138,8 +138,7 @@ query_specification
   | SELECT set_quantifier select_list where_clause group_by_clause having_clause optional_order_by {
       // We're going to run against a secret table with one row so the list gets found
       SqlJoin			*join;
-      SqlTable			*table;
-      SqlStatement		*join_statement, *select_list, *ret;
+      SqlStatement		*join_statement, *select_list, *ret, *table_or_view_stmt;
       SqlTableAlias		*alias;
       char			*table_name = "OCTOONEROWTABLE";
       SqlColumnListAlias        *start_cla, *cur_cla;
@@ -172,8 +171,8 @@ query_specification
       UNPACK_SQL_STATEMENT(join, join_statement, join);
       dqinit(join);
       join->max_unique_id = config->plan_id;
-      table = find_table(table_name);
-      if (NULL == table) {
+      table_or_view_stmt = find_view_or_table(table_name);
+      if (NULL == table_or_view_stmt) {
         ERROR(ERR_UNKNOWN_TABLE, table_name);
         yyerror(NULL, NULL, &select_list, NULL, NULL, NULL);
         YYERROR;
@@ -181,8 +180,17 @@ query_specification
       SQL_STATEMENT(join->value, table_alias_STATEMENT);
       MALLOC_STATEMENT(join->value, table_alias, SqlTableAlias);
       UNPACK_SQL_STATEMENT(alias, join->value, table_alias);
-      SQL_STATEMENT_FROM_SQLTABLE(alias, table);
-      alias->alias = table->tableName;
+      if (create_view_STATEMENT == table_or_view_stmt->type) {
+      	SqlView *view;
+        UNPACK_SQL_STATEMENT(view, table_or_view_stmt, create_view);
+        SQL_STATEMENT_FROM_SQLTABLE_OR_SQLVIEW(alias, view);
+	alias->alias = view->viewName;
+      } else {
+      	SqlTable *table;
+	UNPACK_SQL_STATEMENT(table, table_or_view_stmt, create_table);
+        SQL_STATEMENT_FROM_SQLTABLE_OR_SQLVIEW(alias, table);
+        alias->alias = table->tableName;
+      }
       // We can probably put a variable in the bison local for this
       alias->unique_id = *plan_id;
       (*plan_id)++;

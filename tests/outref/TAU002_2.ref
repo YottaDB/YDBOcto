@@ -1,0 +1,162 @@
+
+select * from v1; -- View created in TAU002_1.sql exists and it refers to names table
+drop table names; -- should result in ERR_DROP_TABLE_DEPENDS_ON_VIEW
+
+select * from v2; -- View created in TAU002_1.sql exists and it uses abs(integer)
+drop function abs(integer); -- ERR_DROP_FUNCTION_DEPENDS_ON_VIEW
+
+select * from k1;
+select * from k2;
+drop table OCTOONEROWTABLE;
+
+drop view b1;
+select * from a1;
+select * from b1;
+
+drop function samevalue(integer);
+select * from f1;
+
+-- https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1244#note_1375758802
+drop view a;
+select * from b;
+select * from a;
+
+-- https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1244#note_1375502307
+drop view v9;
+select * from v10;
+drop view v10;
+drop view v9;
+select * from v11;
+drop view v11;
+select * from v9;
+drop view v9;
+
+-- https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1244#note_1375783812
+drop table names;
+select * from v35;
+select * from v34;
+select * from v33;
+
+-- https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1244#note_1379082949
+select * from v36;
+
+-- https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1244#note_1379091825
+select * from v37;
+
+-- https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1244#note_1379101951
+select * from v38;
+
+-- https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1244#note_1379107070
+select * from v39;
+select * from v40;
+
+-- https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1244#note_1380391980
+select * from v41;
+ID|FIRSTNAME|LASTNAME
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+(6 rows)
+[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "NAMES" because view "B1" depends on it
+ABS
+0
+1
+2
+3
+4
+5
+(6 rows)
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS_ON_VIEW: Cannot DROP function ABS(INTEGER) because view "V2" depends on it
+???
+1
+(1 row)
+???
+2
+(1 row)
+[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "OCTOONEROWTABLE" because view "A" depends on it
+[ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "B1" because view "A1" depends on it
+ID|FIRSTNAME|LASTNAME
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+(6 rows)
+ID|FIRSTNAME|LASTNAME
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+(6 rows)
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS_ON_VIEW: Cannot DROP function SAMEVALUE(INTEGER) because view "F1" depends on it
+SAMEVALUE
+1
+(1 row)
+[ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "A" because view "B" depends on it
+???
+1
+(1 row)
+???
+1
+(1 row)
+[ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "V9" because view "V10" depends on it
+ID
+1
+(1 row)
+DROP VIEW
+[ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "V9" because view "V11" depends on it
+ID
+1
+(1 row)
+DROP VIEW
+ID
+1
+(1 row)
+DROP VIEW
+[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "NAMES" because view "B1" depends on it
+COLUMN1
+1
+(1 row)
+LASTNAME
+Acid
+Burn
+Cereal
+Cool
+Joey
+Killer
+Lord
+Nikon
+Zero
+
+(10 rows)
+ID|FIRSTNAME|LASTNAME
+1|Acid|Burn
+0|Zero|Cool
+5|Zero|Cool
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+(6 rows)
+???
+1
+(1 row)
+CASE
+1.2
+(1 row)
+???
+0
+(1 row)
+SUM
+1
+(1 row)
+COUNT(*)
+6
+(1 row)
+ID
+(0 rows)

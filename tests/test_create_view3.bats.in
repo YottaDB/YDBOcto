@@ -1,0 +1,118 @@
+#################################################################
+#								#
+# Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+	load_fixture names.sql
+	load_fixture names.zwr
+	test_port=$(start_rocto 1344 --allowschemachanges)
+}
+
+teardown() {
+	stop_rocto
+}
+
+@test "TCV047: Verify that 'INFO_VIEW_DOES_NOT_EXIST' is seen with a 'DROP VIEW IF EXISTS' when the view doesn't exist" {
+	load_fixture TCV047_errors.sql subtest v
+	verify_output TCV047_errors output.txt
+}
+
+@test "TCV048: Verify auto upgrade of VIEWs works (no SIG-11) when there are dependencies (fancier version of TCV029)" {
+        # Run only if build is of type "Debug", `seedreload` config is only available in "Debug" build
+        if [[ "Debug" != @CMAKE_BUILD_TYPE@ ]]; then
+                skip
+        fi
+	# Tests view dependency sorting logic in src/aux/_ydboctoViewsUpgrade.m
+	echo 'seedreload = "TRUE"' > octo.conf	# to ensure auto upgrade happens
+	$ydb_dist/yottadb -run TCV048 > TCV048.sql
+	octo -f TCV048.sql >& TCV048_1.out
+	echo "" | octo -vv >& TCV048_2.out
+}
+
+@test "TCV049: Verify that the view dependency computation and binary upgrade order for views which have set_operation_STATEMENT is correct" {
+        # Run only if build is of type "Debug", `seedreload` config is only available in "Debug" build
+        if [[ "Debug" != @CMAKE_BUILD_TYPE@ ]]; then
+                skip
+        fi
+	load_fixture TCV049.sql subtest novv
+	echo 'seedreload = "TRUE"' > octo.conf
+	echo "" | octo -vv >& octo_auto_upgrade.out
+	grep "INFO_PARSING_DONE.*TCV049_" octo_auto_upgrade.out | sed 's/.*://g' >> output.txt
+	yottadb -run %XCMD 'zwrite ^%ydboctoocto("viewdependency",*)' >> output.txt
+	verify_output TCV049 output.txt
+}
+
+@test "TCV050: Verify that when dependency nodes are missing binary upgrade logic doesn't make use of older binary definitions and upgrade logic exits after seeing an error" {
+	# This test validates that older definition is not used when trying to upgrade a wrongly ordered view.
+	# Here V11 is wrongly ordered as the dependency node from it to V12 is killed.
+	# V11 upgrade generates an error saying V12 is not found. This is expected as V12 is not yet upgraded and hence it is not yet
+	# available for V11 to upgrade.
+	# Once the upgrade process fails no further processing is done. This is the reason INFO_PARSING_DONE
+	# message is not seen for V12 and V13 as the failure happes at V11's upgrade.
+
+        # Run only if build is of type "Debug", `seedreload` config is only available in "Debug" build
+        if [[ "Debug" != @CMAKE_BUILD_TYPE@ ]]; then
+                skip
+        fi
+	# Making use of TCV049.sql as the same set of queries help validate this usecase
+	load_fixture TCV049.sql subtest novv
+	yottadb -run %XCMD 'kill ^%ydboctoocto("viewdependency","TCV049_V11","views","TCV049_V12")' >> output.txt
+	echo 'seedreload = "TRUE"' > octo.conf
+	echo "" | octo -vv >& octo_auto_upgrade.out || true # Auto upgrade failure results in non-zero status
+	grep ERROR octo_auto_upgrade.out >> output.txt
+	grep v11 octo_auto_upgrade.out >> output.txt
+	grep "INFO_PARSING_DONE.*TCV049_" octo_auto_upgrade.out | sed 's/.*://g' >> output.txt
+	yottadb -run %XCMD 'zwrite ^%ydboctoocto("viewdependency",*)' >> output.txt
+	verify_output TCV050 output.txt
+}
+
+@test "TCV051: Verify that ERR_IDENT_LENGTH error is seen when the view name exceeds 63 bytes" {
+	load_fixture TCV051.sql subtest novv
+	verify_output TCV051 output.txt
+}
+
+@test "TCV052: Verify that view dependency is properly stored when the second row of a VALUES clause has function" {
+	load_fixture TCV052.sql subtest novv
+	yottadb -run %XCMD 'zwrite ^%ydboctoocto("viewdependency","V1","functions",*)' >> output.txt
+	yottadb -run %XCMD 'zwrite ^%ydboctoocto("viewdependency","V2","functions",*)' >> output.txt
+	verify_output TCV052 output.txt
+}
+
+@test "TCV053: Verify that view dependency is properly stored when the parameter of a function has other functions" {
+	load_fixture TCV053.sql subtest novv
+	yottadb -run %XCMD 'zwrite ^%ydboctoocto("viewdependency","V1","functions",*)' >> output.txt
+	verify_output TCV053 output.txt
+}
+
+@test "TCV054: Verify that %YDB-E-GVUNDEF error is not seen upon upgrade of a view definition with a function in second branch of values clause" {
+        # Run only if build is of type "Debug", `seedreload` config is only available in "Debug" build
+        if [[ "Debug" != @CMAKE_BUILD_TYPE@ ]]; then
+                skip
+        fi
+	load_fixture TCV054.sql subtest novv
+	echo 'seedreload = "TRUE"' > octo.conf
+	echo "" | octo >& octo_auto_upgrade.out
+	yottadb -run %XCMD 'zwrite ^%ydboctoocto("viewdependency",*)' >> output.txt
+	verify_output TCV054 output.txt
+	[[ $(grep -c "GVUNDEF" octo_auto_upgrade.out) -eq 0 ]]
+}
+
+@test "TCV055: Verify that ERR_TOO_MANY_SELECT_KEYCOLS is seen when the number of view keys exceed MAX_KEY_COUNT" {
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TCV055.m .
+	yottadb -run TCV055 >> input.sql
+	octo -f input.sql >& output.txt || true
+	verify_output TCV055 output.txt
+}
+# To add any new subtest refer to the comments at the end of test_create_view1_1.bats.in

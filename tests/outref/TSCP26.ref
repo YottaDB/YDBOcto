@@ -1,0 +1,10 @@
+
+select `alias(names)`.* from names as `alias(names)`;
+ID|FIRSTNAME|LASTNAME
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+(6 rows)

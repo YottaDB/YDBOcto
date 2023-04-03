@@ -74,7 +74,7 @@ Entering state sss
 Next token is token SEMICOLON (: )
 Reducing stack by rule rrr (line lll):
    $1 = nterm qualified_name (: )
-[TRACE] PATH:LINENUM DATE TIME: INFO_TABLE_SEARCH: Searching for table NONEXISTANTTABLE
+[TRACE] PATH:LINENUM DATE TIME: INFO_TABLE_OR_VIEW_SEARCH: Searching for table or view NONEXISTANTTABLE
 [ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE: Unknown table: NONEXISTANTTABLE
 LINE 2:1: select * from nonexistanttable;
                         ^^^^^^^^^^^^^^^^
@@ -234,7 +234,7 @@ Entering state sss
 Next token is token SEMICOLON (: )
 Reducing stack by rule rrr (line lll):
    $1 = nterm qualified_name (: )
-[TRACE] PATH:LINENUM DATE TIME: INFO_TABLE_SEARCH: Searching for table NAMES
+[TRACE] PATH:LINENUM DATE TIME: INFO_TABLE_OR_VIEW_SEARCH: Searching for table or view NAMES
 -> $$ = nterm table_reference (: )
 Entering state sss
 Next token is token SEMICOLON (: )

@@ -190,9 +190,17 @@ ERR_CANNOT_CREATE_FUNCTION
 ERR_CANNOT_CREATE_TABLE
 ++++++++++++++++++++++++++++
 
-  Text: Table "xxx" already exists
+  Text: Table or View "xxx" already exists
 
   Description/Action: This error indicates an attempt to create an already existing table. PSQL Error Code: 42P07
+
+++++++++++++++++++++++++++++
+ERR_CANNOT_CREATE_VIEW
+++++++++++++++++++++++++++++
+
+  Text: View or Table "xxx" already exists
+
+  Description/Action: This error indicates an attempt to create an already existing view. PSQL Error Code: 42P07
 
 +++++++++++++++++++++++++
 ERR_CANNOT_DROP_FUNCTION
@@ -209,6 +217,14 @@ ERR_CANNOT_DROP_TABLE
   Text: Cannot DROP table "xxx" as it does not exist
 
   Description/Action: This error indicates an attempt to drop a non-existent table. PSQL Error Code: 42P01
+
++++++++++++++++++++++++++
+ERR_CANNOT_DROP_VIEW
++++++++++++++++++++++++++
+
+  Text: Cannot DROP view "xxx" as it does not exist
+
+  Description/Action: This error indicates an attempt to drop a non-existent view. PSQL Error Code: 42P01
 
 ++++++++++++++++++++++++++++++
 ERR_CASE_BRANCH_TYPE_MISMATCH
@@ -313,6 +329,30 @@ ERR_DROP_FUNCTION_DEPENDS
   Text: Cannot DROP function xxx because other objects (xxx "xxx" on table "xxx") depend on it
 
   Description/Action: This error indicates an attempt to drop a function that is still being relied upon by at least one CHECK constraint in a table. This function cannot be removed until all tables whose CHECK constraints rely on this function are dropped. PSQL Error Code: 2BP01
+
++++++++++++++++++++++++++++++++++
+ERR_DROP_FUNCTION_DEPENDS_ON_VIEW
++++++++++++++++++++++++++++++++++
+
+  Text: Cannot DROP function xxx because view "xxx" depends on it
+
+  Description/Action: This error indicates an attempt to drop a function that is still being relied upon by at least one View. This function cannot be removed until all views which rely on this function are dropped. PSQL Error Code: 2BP01
+
++++++++++++++++++++++++++++++++++
+ERR_DROP_TABLE_DEPENDS_ON_VIEW
++++++++++++++++++++++++++++++++++
+
+  Text: Cannot Drop table "xxx" because view "xxx" depends on it
+
+  Description/Action: This error indicates an attempt to drop a table that is still being relied upon by at least one View. This table cannot be removed until all views which rely on this function are dropped. PSQL Error Code: 2BP01
+
++++++++++++++++++++++++++++++++++
+ERR_DROP_VIEW_DEPENDS_ON_VIEW
++++++++++++++++++++++++++++++++++
+
+  Text: Cannot Drop view "xxx" because view "xxx" depends on it
+
+  Description/Action: This error indicates an attempt to drop a view that is still being relied upon by at least one View. This view cannot be removed until all views which rely on this view are dropped. PSQL Error Code: 2BP01
 
 ++++++++++++++++++++++
 ERR_DUPLICATE_COLUMN
@@ -1260,6 +1300,14 @@ INFO_TABLE_DOES_NOT_EXIST
 
   Description/Action: This message lets the user know that Octo is skipping the action since the specified table does not exist. PSQL Error Code: 00000
 
+++++++++++++++++++++++++++
+INFO_VIEW_DOES_NOT_EXIST
+++++++++++++++++++++++++++
+
+  Text: View "xxx" does not exist, skipping
+
+  Description/Action: This message lets the user know that Octo is skipping the action since the specified view does not exist. PSQL Error Code: 00000
+
 ++++++++++++++++++
 ERR_TABLE_KEY_NUM
 ++++++++++++++++++
@@ -1308,13 +1356,13 @@ ERR_TABLE_READONLY
 
   Description/Action: Queries that modify tables (e.g. INSERT INTO, DELETE, ALTER etc.) are not allowed on tables that have been created as READONLY. They are only allowed on READWRITE tables. PSQL Error Code: 42601
 
-++++++++++++++++++++++
-INFO_TABLE_SEARCH
-++++++++++++++++++++++
+++++++++++++++++++++++++++
+INFO_TABLE_OR_VIEW_SEARCH
+++++++++++++++++++++++++++
 
-  Text: Searching for table xxx
+  Text: Searching for table or view xxx
 
-  Description/Action: This message lets the user know that Octo is looking up the given table. PSQL Error Code: 00000
+  Description/Action: This message lets the user know that Octo is looking up the given table or a view. PSQL Error Code: 00000
 
 ++++++++++++++++++++++++++++++
 ERR_TABLE_UNKNOWN_COLUMN_NAME
@@ -1483,6 +1531,30 @@ ERR_VARCHAR_TOO_LONG
   Text: Value too long for type VARCHAR(xxx)
 
   Description/Action: This error indicates that the specified value is more than xxx characters long and hence cannot fit in the VARCHAR(xxx) type. Specify a value which is less than or equal to xxx characters long. PSQL Error Code: 22001
+
+++++++++++++++++++++++++++
+ERR_VIEW_MORE_COLUMN_NAMES
+++++++++++++++++++++++++++
+
+  Text: View specifies more column names than the number of columns defined
+
+  Description/Action: This error indicates that create view specifies more column names than the number of columns present in the view definition. PSQL Error Code: 42601
+
++++++++++++++++++++++++++++++++++
+ERR_VIEW_OPERATION_NOT_SUPPORTED
++++++++++++++++++++++++++++++++++
+
+  Text: xxx operation on a view is not implemented
+
+  Description/Action: This error indicates that the operation being performed is not supported. PSQL Error Code: 0A000
+
+++++++++++++++
+ERR_WRONG_TYPE
+++++++++++++++
+
+  Text: "xxx" is not a xxx
+
+  Description/Action: This error indicates that the query is executed on a wrong type of object. Second argument specifies the type of object required for the executed query. PSQL Error Code: 42809
 
 +++++++++++++++++++++++
 ERR_YOTTADB

@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -26,7 +26,13 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 	// If there is no table, this is a temporary key;
 	//  use cursor to store the value
 	if ((NULL == key->fixed_to_value) && (NULL == key->table)) {
-		%{}{{ config->global_names.cursor }}(cursorId,{{ PP_KEYS }},{{ key->unique_id|%d }},"","",{}%
+		if (NULL != key->view_definition_output_key) {
+			/* This is a key of a view. Iterate the result of the view definition. */
+			SqlKey *view_src_output_key = key->view_definition_output_key->v.lp_key.key;
+			%{}{{ config->global_names.cursor }}(cursorId,{{ PP_KEYS }},{{ view_src_output_key->unique_id|%d }},"","",{}%
+		} else {
+			%{}{{ config->global_names.cursor }}(cursorId,{{ PP_KEYS }},{{ key->unique_id|%d }},"","",{}%
+		}
 		TMPL(tmpl_key, key);
 		%{}){}%
 		return;

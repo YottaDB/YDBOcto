@@ -54,7 +54,13 @@ SqlColumnListAlias *process_asterisk(SqlJoin *select_table_list, struct YYLTYPE 
 				SqlColumnList *cur;
 
 				OCTO_CMALLOC_STRUCT(cla_new, SqlColumnListAlias);
-				cla_new->alias = cla_cur->alias;
+				/* `cla_cur` corresponds to a column in the JOIN list of the query. `cla_new` corresponds to the
+				 * column that replaces the `*` usage. Any errors using the replaced cla should point to the
+				 * original location of the `*`. Therefore create a copy of the cla and set the location in the
+				 * alias of the copy to point to `loc`.
+				 */
+				cla_new->alias = copy_sql_statement(cla_cur->alias);
+				cla_new->alias->loc = loc;
 				cla_new->type = cla_cur->type;
 				OCTO_CMALLOC_STRUCT(cur, SqlColumnList);
 				dqinit(cur);

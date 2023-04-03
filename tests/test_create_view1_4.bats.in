@@ -1,0 +1,110 @@
+#################################################################
+#								#
+# Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+	load_fixture names.sql
+	load_fixture names.zwr
+	test_port=$(start_rocto 1344 --allowschemachanges)
+}
+
+teardown() {
+	stop_rocto
+}
+
+@test "TCV026 : Cast specification with precision and scale should work fine with views" {
+	# The second query in this subtest used to give first query's output if run in a single session. This happend because
+	# first query routine was ZLINK'd and loaded to process memory and the second query routine was not as it had the same
+	# name as the first and process address space already had a routine of the same name loaded. To solve this issue it was
+	# decided to hash literal values in views and this generated different plan names for both the queries. This solved the
+	# issue. More details on this issue can be found in the below thread
+	# -> https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1244#note_1252391897
+	load_fixture TCV026.sql subtest novv
+	verify_output TCV026 output.txt nodebug
+}
+
+@test "TCV027 : Verify that all plans associated with a view are removed after DISCARD ALL usage" {
+	load_fixture TCV027.sql subtest novv
+	[[ $(ls -l _ydboctoP*.m | wc -l) -eq 0 ]]
+}
+
+@test "TCV028 : Automated test for views" {
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TCV028.m .
+	$ydb_dist/yottadb -run TCV028 >> TCV028.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV028.sql "trim_trailing_zeroes"
+}
+
+@test "TCV029 : Check that auto load works fine with views and its dependencies" {
+	# Run only if build is of type "Debug", `seedreload` config is only available in "Debug" build
+	if [[ "Debug" != @CMAKE_BUILD_TYPE@ ]]; then
+		skip
+	fi
+	##
+	load_fixture composite.sql
+	load_fixture composite.zwr
+	##
+	# Invoke octo to finish auto load of octo-seed.sql before "load_fixture ... subtest" invocation.
+	# This is to avoid verbose output of each query in "octo-seed.sql" which would otherwise pollute the reference file.
+	octo < /dev/null
+	load_fixture TCV029_before_load.sql subtest novv
+	verify_output TCV029_before_load output.txt
+	mv output.txt TCV029_before_load_output.txt
+	echo 'seedreload = "TRUE"' > octo.conf
+	# Avoid polluting reference file with octo-seed.sql auto load output
+	octo < /dev/null
+	mv octo.conf octo_seed.conf
+	load_fixture TCV029_after_load.sql subtest novv
+	verify_output TCV029_after_load output.txt
+	#mv output.txt TCV029_after_load_output.txt
+	# Queries in the following file results in SIG-11 without #940 fix
+	#load_fixture TCV029_after_load_2.sql subtest novv
+	#verify_output TCV029_after_load_2 output.txt
+}
+
+@test "TCV030 : Check that parameter values generate an error in view definition" {
+	load_fixture TCV030.sql subtest novv
+	verify_output TCV030 output.txt
+}
+
+@test "TCV032 : Validate ARRAYs usage with views" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV032.sql "trim_trailing_zeroes"
+}
+
+@test "TCV033 : Validate that derived columns in the FROM clause of a subquery is processed correctly when the column belongs to a view" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV033.sql "trim_trailing_zeroes"
+	load_fixture TCV033_errors.sql subtest novv
+	verify_output TCV033_errors output.txt nodebug
+}
+
+@test "TCV034 : Validate that two views with the same name but differing in LITERAL values contained in its definition will generate different plan names" {
+	load_fixture TCV034_1.sql subtest novv
+	first_m_plan_name=_ydboctoP*.m
+	echo "Only one M plan should be seen below" >> output.txt
+	echo $first_m_plan_name >> output.txt
+	[[ $(echo $first_m_plan_name | wc -w) -eq 1 ]]
+	load_fixture TCV034_2.sql subtest novv
+	second_m_plan_name=_ydboctoP*.m
+	echo "Only one M plan should be seen below and it should be same as the one above" >> output.txt
+	echo $second_m_plan_name >> output.txt
+	[[ $(echo $second_m_plan_name | wc -w) -eq 1 ]]
+	[[ $first_m_plan_name=$second_m_plan_name ]]
+}
+
+@test "TCV035 : Check the logical plan tree for an LP_VIEW" {
+	load_fixture TCV035.sql subtest
+	verify_output TCV035 output.txt
+}
+
+# Any new subtest addition should be done by creating test_create_view3.bats.in

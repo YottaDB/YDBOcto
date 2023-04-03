@@ -142,79 +142,90 @@
 #define OCTOLIT_ROW_COUNT   "RowCount"	  /* keep this in sync with PP_ROW_COUNT in "template_helpers.h" */
 #define OCTOLIT_XREF_STATUS "xref_status" /* keep this in sync with PP_XREF_STATUS in "template_helpers.h" */
 
-#define OCTOLIT_0		     "0"
-#define OCTOLIT_ALL		     "all"
-#define OCTOLIT_BINARY		     "binary"
-#define OCTOLIT_BINFMT		     "binfmt"
-#define OCTOLIT_BOUND		     "bound"
-#define OCTOLIT_CHECK		     "CHECK"
-#define OCTOLIT_CHUNK		     "chunk"
-#define OCTOLIT_COLUMN		     "column"
-#define OCTOLIT_COLUMNS		     "columns"
-#define OCTOLIT_COLUMN_ID	     "column_id"
-#define OCTOLIT_CONSTRAINT	     "constraint"
-#define OCTOLIT_CHECK_CONSTRAINT     "check_constraint"
-#define OCTOLIT_EXTRACTFUNCTION	     "extractfunction"
-#define OCTOLIT_DATA_TYPE	     "data_type"
-#define OCTOLIT_DATA_TYPE_SIZE	     "data_type_size"
-#define OCTOLIT_DDL		     "ddl"
-#define OCTOLIT_FILES		     "files"
-#define OCTOLIT_FUNCTIONS	     "functions"
-#define OCTOLIT_FUNCTIONS_MAP	     "functions_map"
-#define OCTOLIT_FORMAT_CODE	     "format_code"
-#define OCTOLIT_IDENTITY	     "identity"
-#define OCTOLIT_KEY		     "KEY"
-#define OCTOLIT_PKEY		     "PKEY"
-#define OCTOLIT_LENGTH		     "length"
-#define OCTOLIT_TEXT_LENGTH	     "text_length"
-#define OCTOLIT_MYSQL		     "MySQL"
-#define OCTOLIT_NAME		     "name"
-#define OCTOLIT_NAMES		     "names"
-#define OCTOLIT_NONE		     "none"
-#define OCTOLIT_OID		     "oid"
-#define OCTOLIT_OCTOONEROWTABLE	     "OCTOONEROWTABLE"
-#define OCTOLIT_OUTPUT_COLUMNS	     "output_columns"
-#define OCTOLIT_OUTPUT_KEY	     "output_key"
-#define OCTOLIT_PERMISSIONS	     "permissions"
-#define OCTOLIT_PG_ATTRIBUTE	     "pg_attribute"
-#define OCTOLIT_PG_CATALOG	     "pg_catalog"
-#define OCTOLIT_PG_CLASS	     "pg_class"
-#define OCTOLIT_PG_SETTINGS	     "pg_settings"
-#define OCTOLIT_PLANDIRS	     "plandirs"
-#define OCTOLIT_PLANFMT		     "planfmt"
-#define OCTOLIT_PLAN_METADATA	     "plan_metadata"
-#define OCTOLIT_POSTGRESQL	     "PostgreSQL"
-#define OCTOLIT_PREPARED	     "prepared"
-#define OCTOLIT_PRIMARY_KEY_NAME     "primary_key_name"
-#define OCTOLIT_READ_ONLY	     "read-only"
-#define OCTOLIT_ROUTINE		     "routine"
-#define OCTOLIT_SEEDDFNFMT	     "seeddfnfmt"
-#define OCTOLIT_SETTINGS	     "settings"
-#define OCTOLIT_T		     "t"
-#define OCTOLIT_TABLEPLANS	     "tableplans"
-#define OCTOLIT_TABLES		     "tables"
-#define OCTOLIT_TABLE_ID	     "table_id"
-#define OCTOLIT_TABLECONSTRAINT	     "tableconstraint"
-#define OCTOLIT_TAG		     "tag"
-#define OCTOLIT_TEXT		     "text"
-#define OCTOLIT_TIMESTAMP	     "timestamp"
-#define OCTOLIT_TYPE_MODIFIER	     "type_modifier"
-#define OCTOLIT_USER		     "user"
-#define OCTOLIT_USERS		     "users"
-#define OCTOLIT_VALUE		     "value"
-#define OCTOLIT_VARIABLE	     "variable"
-#define OCTOLIT_YDBOCTO		     "^%ydbocto"
-#define OCTOLIT_YDBOCTOCANCEL	     "%ydboctoCancel"
-#define OCTOLIT_YDBOCTOCANCELLOCALXF "localTableXref"
-#define OCTOLIT_YDBOCTOSECRETKEYLIST "%ydboctoSecretKeyList"
-#define OCTOLIT_YDBOCTOTBLCONSTRAINT "%ydboctoTblConstraint"
-#define OCTOLIT_YDBOCTOSCHEMA	     "^%ydboctoschema"
-#define OCTOLIT_YDBOCTOTBLEXTRACT    "%ydboctoTblExtract"
+#define OCTOLIT_0		       "0"
+#define OCTOLIT_ALL		       "all"
+#define OCTOLIT_BINARY		       "binary"
+#define OCTOLIT_BINFMT		       "binfmt"
+#define OCTOLIT_BOUND		       "bound"
+#define OCTOLIT_CHECK		       "CHECK"
+#define OCTOLIT_CHUNK		       "chunk"
+#define OCTOLIT_COLUMN		       "column"
+#define OCTOLIT_COLUMNS		       "columns"
+#define OCTOLIT_COLUMN_ID	       "column_id"
+#define OCTOLIT_CONSTRAINT	       "constraint"
+#define OCTOLIT_CHECK_CONSTRAINT       "check_constraint"
+#define OCTOLIT_EXTRACTFUNCTION	       "extractfunction"
+#define OCTOLIT_DATA_TYPE	       "data_type"
+#define OCTOLIT_DATA_TYPE_SIZE	       "data_type_size"
+#define OCTOLIT_DDL		       "ddl"
+#define OCTOLIT_FILES		       "files"
+#define OCTOLIT_FROMVIEW	       "fromview"
+#define OCTOLIT_FUNCTIONVIEWDEPENDENCY "functionviewdependency"
+#define OCTOLIT_FUNCTIONS	       "functions"
+#define OCTOLIT_FUNCTIONS_MAP	       "functions_map"
+#define OCTOLIT_FORMAT_CODE	       "format_code"
+#define OCTOLIT_IDENTITY	       "identity"
+#define OCTOLIT_KEY		       "KEY"
+#define OCTOLIT_PKEY		       "PKEY"
+#define OCTOLIT_LENGTH		       "length"
+#define OCTOLIT_TEXT_LENGTH	       "text_length"
+#define OCTOLIT_MYSQL		       "MySQL"
+#define OCTOLIT_NAME		       "name"
+#define OCTOLIT_NAMES		       "names"
+#define OCTOLIT_NONE		       "none"
+#define OCTOLIT_OID		       "oid"
+#define OCTOLIT_OCTOONEROWTABLE	       "OCTOONEROWTABLE"
+#define OCTOLIT_OUTPUT_COLUMNS	       "output_columns"
+#define OCTOLIT_OUTPUT_KEY	       "output_key"
+#define OCTOLIT_PERMISSIONS	       "permissions"
+#define OCTOLIT_PG_ATTRIBUTE	       "pg_attribute"
+#define OCTOLIT_PG_CATALOG	       "pg_catalog"
+#define OCTOLIT_PG_CLASS	       "pg_class"
+#define OCTOLIT_PG_SETTINGS	       "pg_settings"
+#define OCTOLIT_PLANDIRS	       "plandirs"
+#define OCTOLIT_PLANFMT		       "planfmt"
+#define OCTOLIT_PLAN_METADATA	       "plan_metadata"
+#define OCTOLIT_POSTGRESQL	       "PostgreSQL"
+#define OCTOLIT_PREPARED	       "prepared"
+#define OCTOLIT_PRIMARY_KEY_NAME       "primary_key_name"
+#define OCTOLIT_READ_ONLY	       "read-only"
+#define OCTOLIT_ROUTINE		       "routine"
+#define OCTOLIT_SEEDDFNFMT	       "seeddfnfmt"
+#define OCTOLIT_SETTINGS	       "settings"
+#define OCTOLIT_T		       "t"
+#define OCTOLIT_TABLEPLANS	       "tableplans"
+#define OCTOLIT_TABLEVIEWDEPENDENCY    "tableviewdependency"
+#define OCTOLIT_TABLES		       "tables"
+#define OCTOLIT_TABLE		       "TABLE"
+#define OCTOLIT_TABLE_ID	       "table_id"
+#define OCTOLIT_TABLECONSTRAINT	       "tableconstraint"
+#define OCTOLIT_TAG		       "tag"
+#define OCTOLIT_TEXT		       "text"
+#define OCTOLIT_TIMESTAMP	       "timestamp"
+#define OCTOLIT_TYPE_MODIFIER	       "type_modifier"
+#define OCTOLIT_USER		       "user"
+#define OCTOLIT_USERS		       "users"
+#define OCTOLIT_VALUE		       "value"
+#define OCTOLIT_VARIABLE	       "variable"
+#define OCTOLIT_VIEWS		       "views"
+#define OCTOLIT_VIEW		       "VIEW"
+#define OCTOLIT_VIEWPLANS	       "viewplans"
+#define OCTOLIT_VIEWDEPENDENCY	       "viewdependency"
+#define OCTOLIT_YDBOCTO		       "^%ydbocto"
+#define OCTOLIT_YDBOCTOCANCEL	       "%ydboctoCancel"
+#define OCTOLIT_YDBOCTOCANCELLOCALXF   "localTableXref"
+#define OCTOLIT_YDBOCTOSECRETKEYLIST   "%ydboctoSecretKeyList"
+#define OCTOLIT_YDBOCTOTBLCONSTRAINT   "%ydboctoTblConstraint"
+#define OCTOLIT_YDBOCTOSCHEMA	       "^%ydboctoschema"
+#define OCTOLIT_YDBOCTOTBLEXTRACT      "%ydboctoTblExtract"
+#define OCTOLIT_YDBOCTOVIEWSORTEDNAMES "%viewssortednames"
+#define OCTOLIT_YDBOCTOVIEWCREATED     "%ydboctoviewcreated"
 
-#define OCTOLIT_AIM_OCTO_CACHE	   "^%ydbAIMOctoCache"
-#define OCTOLIT_AIM_SUB_COMPLETED  "completed?"
-#define OCTOLIT_AIM_SUB_LOCATION   "location"
-#define OCTOLIT_AIM_SUB_CANCELXREF "aimXref"
+#define OCTOLIT_YDBOCTOVIEWDEPENDENCY "%ydboctoViewDependency"
+#define OCTOLIT_AIM_OCTO_CACHE	      "^%ydbAIMOctoCache"
+#define OCTOLIT_AIM_SUB_COMPLETED     "completed?"
+#define OCTOLIT_AIM_SUB_LOCATION      "location"
+#define OCTOLIT_AIM_SUB_CANCELXREF    "aimXref"
 
 /* Macros for StartupMessage parameters sent by client that are NOT actual runtime parameters.
  * These strings are used for selective exclusion of such parameters via strncmp checks in rocto.c
@@ -295,6 +306,8 @@
 #define SHOW_COMMAND_TAG	    "SHOW"
 #define CREATE_TABLE_COMMAND_TAG    "CREATE TABLE"
 #define DROP_TABLE_COMMAND_TAG	    "DROP TABLE"
+#define CREATE_VIEW_COMMAND_TAG	    "CREATE VIEW"
+#define DROP_VIEW_COMMAND_TAG	    "DROP VIEW"
 #define CREATE_FUNCTION_COMMAND_TAG "CREATE FUNCTION"
 #define DROP_FUNCTION_COMMAND_TAG   "DROP FUNCTION"
 #define TRUNCATE_TABLE_COMMAND_TAG  "TRUNCATE TABLE"
@@ -325,7 +338,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_BINARY_DEFINITION 16
+#define FMT_BINARY_DEFINITION 17
 
 /* The below macro needs to be manually bumped if at least one of the following changes.
  *	1) Generated physical plan (_ydboctoP*.m) file name OR contents
@@ -334,7 +347,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_PLAN_DEFINITION 24
+#define FMT_PLAN_DEFINITION 25
 
 /* The below macro needs to be manually bumped if there is a non-cosmetic change to octo-seed.sql.
  */
@@ -843,6 +856,17 @@ typedef enum DDLDependencyType {
 		STMT = ret;                                                                                     \
 	}
 
+/* Below parses a drop_view_statement SQL grammar component  */
+#define INVOKE_DROP_VIEW_STATEMENT(STMT, VIEW_NAME, IF_EXISTS_SPECIFIED)     \
+	{                                                                    \
+		SqlStatement *ret;                                           \
+		SQL_STATEMENT(ret, drop_view_STATEMENT);                     \
+		OCTO_CMALLOC_STRUCT(ret->v.drop_view, SqlDropViewStatement); \
+		ret->v.drop_view->view_name = VIEW_NAME;                     \
+		ret->v.drop_view->if_exists_specified = IF_EXISTS_SPECIFIED; \
+		STMT = ret;                                                  \
+	}
+
 /* Below parses a drop_behavior SQL grammar component  */
 #define INVOKE_DROP_BEHAVIOR(STMT, KEYWORD)        \
 	{                                          \
@@ -998,6 +1022,13 @@ typedef enum DDLDependencyType {
 			config->allow_schema_changes = save_allow_schema_changes;                                                 \
 			CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                                       \
 		}                                                                                                                 \
+		config->in_auto_upgrade_binary_view_definition = TRUE;                                                            \
+		STATUS = auto_upgrade_binary_view_definition();                                                                   \
+		config->in_auto_upgrade_binary_view_definition = FALSE;                                                           \
+		if (YDB_OK != STATUS) {                                                                                           \
+			config->allow_schema_changes = save_allow_schema_changes;                                                 \
+			CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                                       \
+		}                                                                                                                 \
 		config->allow_schema_changes = save_allow_schema_changes;                                                         \
 		/* Now that auto upgrade is complete, indicate that (so other processes do not attempt the auto upgrade)          \
 		 * by setting ^%ydboctoocto(OCTOLIT_BINFMT) to FMT_BINARY_DEFINITION.                                             \
@@ -1005,12 +1036,43 @@ typedef enum DDLDependencyType {
 		SET_OCTOLIT_BINFMT_GVN_AND_RETURN_IF_NOT_YDB_OK(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                  \
 	}
 
+#define IF_VIEW_ISSUE_UNSUPPORTED_OPERATION_ERROR(TABLE_OR_VIEW_STMT, OPERATION_STMT_TYPE) \
+	{                                                                                  \
+		if (create_view_STATEMENT == (TABLE_OR_VIEW_STMT)->type) {                 \
+			char *op_type;                                                     \
+			switch (OPERATION_STMT_TYPE) {                                     \
+			case insert_STATEMENT:                                             \
+				op_type = "INSERT";                                        \
+				break;                                                     \
+			case update_STATEMENT:                                             \
+				op_type = "UPDATE";                                        \
+				break;                                                     \
+			case delete_from_STATEMENT:                                        \
+				op_type = "DELETE";                                        \
+				break;                                                     \
+			default:                                                           \
+				assert(FALSE);                                             \
+				return NULL;                                               \
+			}                                                                  \
+			ERROR(ERR_VIEW_OPERATION_NOT_SUPPORTED, op_type);                  \
+			return NULL;                                                       \
+		}                                                                          \
+	}
+
+#define INIT_VIEW_CACHE_FOR_CURRENT_QUERY(LOADED_SCHEMAS, STATUS)                     \
+	{                                                                             \
+		ydb_buffer_t ydboctoView, subs_array[1];                              \
+		YDB_STRING_TO_BUFFER(LOADED_SCHEMAS, &ydboctoView);                   \
+		YDB_STRING_TO_BUFFER(OCTOLIT_VIEWS, &subs_array[0]);                  \
+		STATUS = ydb_delete_s(&ydboctoView, 1, &subs_array[0], YDB_DEL_TREE); \
+	}
 // Convenience type definition for run_query callback function
 typedef int (*callback_fnptr_t)(SqlStatement *, ydb_long_t, void *, char *, PSQL_MessageTypeT);
 
 int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_column);
 int emit_check_constraint(char **buffer, int *buffer_size, char **buff_ptr, struct SqlStatement *stmt);
 int emit_create_table(FILE *output, struct SqlStatement *stmt);
+int get_table_or_view_text_definition(ydb_buffer_t *view_or_table_name, char **text_definition);
 int emit_create_function(FILE *output, struct SqlStatement *stmt);
 // Recursively copies all of stmt, including making copies of strings
 
@@ -1034,7 +1096,7 @@ SqlValueType get_sqlvaluetype_from_psql_type(PSQL_TypeOid type);
 PSQL_TypeOid get_psql_type_from_sqlvaluetype(SqlValueType type);
 PSQL_TypeSize get_type_size_from_psql_type(PSQL_TypeOid type);
 SqlStatement *get_deepest_column_alias_stmt(SqlStatement *new_column_alias_stmt, SqlStatement *column_alias_to_cmp_stmt);
-SqlTable *    find_table(const char *table_name);
+SqlStatement *find_view_or_table(const char *table_name);
 SqlFunction * find_function(const char *function_name, const char *function_hash);
 void	      get_function_name_and_parmtypes(char *ret_buff, int ret_buff_len, char *function_name, SqlStatement *parm_list_stmt);
 int	   drop_schema_from_local_cache(ydb_buffer_t *name_buffer, SqlSchemaType schema_type, ydb_buffer_t *function_hash_buffer);
@@ -1052,6 +1114,7 @@ int		qualify_extract_function(SqlStatement *stmt, SqlTable *table, SqlValueType 
 int		qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTableAlias *parent_table_alias,
 			      QualifyStatementParms *ret);
 int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_alias_stmt, int depth, QualifyStatementParms *ret);
+int qualify_view_dependency(SqlStatement *stmt, SqlView *view);
 
 ExpressionMatchType match_expression(char *start, char *column, int *expr_len, int max_column_len, char prev);
 
@@ -1084,10 +1147,10 @@ char *	      get_user_visible_binary_operator_string(enum BinaryOperations opera
 int	      get_user_visible_data_type_string(SqlDataTypeStruct *data_type_ptr, char *ret_buff, int ret_buff_size);
 char *	      get_user_visible_type_string(SqlValueType type);
 char *	      get_user_visible_unary_operator_string(enum UnaryOperations operation);
-SqlStatement *get_display_relation_query_stmt(ParseContext *parse_context);
+SqlStatement *get_display_relation_query_stmt(SqlDisplayRelationType relation_type, ParseContext *parse_context);
 
-// Implements the "\d tablename" command at the OCTO> prompt
-int describe_tablename(SqlStatement *table_name);
+// Implements the "\d tablename/viewname" command at the OCTO> prompt
+int describe_table_or_view_name(SqlStatement *table_name);
 
 /* Displays the GLOBAL that holds the table's records. */
 void describe_tablename_global(SqlTable *table);
@@ -1103,10 +1166,10 @@ void ydb_hash_to_string(ydb_uint16 *hash, char *buffer, const unsigned int buf_l
 
 SqlOptionalKeyword *add_optional_piece_keyword_to_sql_column(int column_number);
 
-// Converts a list of columns to a column list alias associated with the given table alias
-SqlColumnListAlias *columns_to_column_list_alias(SqlColumn *column, SqlStatement *table_alias_stmt);
+SqlColumnListAlias *get_encapsulated_cla_list(SqlStatement *table_stmt, SqlStatement *table_alias_stmt);
 
 SqlStatement *	    drill_to_table_alias(SqlStatement *sqlStmt);
+SqlColumn *	    get_column_under_column_list_alias(SqlColumnListAlias *cla);
 int		    get_column_piece_number(SqlColumnAlias *column_alias, SqlTableAlias *table_alias);
 int		    get_column_number_from_column_list_alias(SqlColumnListAlias *input_cla, SqlTableAlias *table_alias);
 SqlColumnListAlias *get_column_list_alias_n_from_table_alias(SqlTableAlias *table_alias, int column_number);
@@ -1118,15 +1181,17 @@ SqlColumnListAlias *copy_column_list_alias_list(SqlColumnListAlias *cla, SqlStat
 SqlStatement *	    copy_sql_statement(SqlStatement *stmt);
 boolean_t	    match_sql_statement(SqlStatement *stmt, SqlStatement *match_stmt);
 
-void	      compress_statement(SqlStatement *stmt, char **out, int *out_length);
+void	      compress_statement(SqlStatement *stmt, char **out, int *out_length, boolean_t is_view_processing);
 SqlStatement *decompress_statement(char *buffer, int out_length);
 
 int  store_table_definition(ydb_buffer_t *table_name_buff, char *table_defn, int table_defn_length, boolean_t is_text);
 int  store_function_definition(ydb_buffer_t *function_name_buffers, char *function_defn, int function_defn_length,
 			       boolean_t is_text);
 int  store_function_dependencies(char *table_name, DDLDependencyType dtype);
-int  store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer);
-int  delete_table_from_pg_class(ydb_buffer_t *table_name_buffer);
+int  store_table_or_view_in_pg_class(SqlStatement *table_or_view_stmt, ydb_buffer_t *name_buffer);
+int  store_view_dependencies(char *view_name, ydb_buffer_t *view_name_buffer);
+int  store_table_dependencies(SqlTable *table, char *table_name, ydb_buffer_t *table_name_buffer);
+int  delete_table_or_view_from_pg_class(ydb_buffer_t *table_name_buffer);
 void cleanup_tables(void);
 int  store_function_in_pg_proc(SqlFunction *function, char *function_hash);
 int  delete_function_from_pg_proc(ydb_buffer_t *function_name_buffer, ydb_buffer_t *function_hash_buffer);
@@ -1168,6 +1233,7 @@ SqlStatement *set_operation(enum SqlSetOperationType setoper_type, SqlStatement 
 SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *ordering_specification);
 SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_element_list, SqlStatement *table_definition_tail,
 			       boolean_t is_not_exists_specified);
+SqlStatement *view_definition(SqlStatement *create_view_stmt, ParseContext *parse_context);
 SqlStatement *table_expression(SqlStatement *from, SqlStatement *where, SqlStatement *group_by, SqlStatement *having);
 SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlation_specification, int *plan_id);
 SqlStatement *function_definition(SqlStatement *identifier, SqlStatement *function_parameter_type_list, SqlStatement *data_type,
@@ -1216,6 +1282,8 @@ int auto_upgrade_plan_definition_if_needed(void);
 int auto_upgrade_binary_definition_if_needed(void);
 int auto_upgrade_binary_function_definition(void);
 int auto_upgrade_binary_table_definition(void);
+int auto_upgrade_binary_view_definition(void);
+int auto_upgrade_binary_table_or_view_definition_helper(ydb_buffer_t *view_or_table_name);
 int is_auto_upgrade_valid(void);
 
 /* history.c function prototypes */

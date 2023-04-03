@@ -3,7 +3,7 @@
 
 select id::boolean,(ABS(2)::boolean || id::text) from names;
 
-ID|ABS
+ID|???
 0|true0
 1|true1
 1|true2

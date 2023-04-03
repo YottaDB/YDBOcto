@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -28,6 +28,7 @@ LP_ACTION_TYPE(LP_TABLE)
 LP_ACTION_TYPE(LP_TABLE_JOIN)
 LP_ACTION_TYPE(LP_TABLE_VALUE)
 LP_ACTION_TYPE(LP_TABLE_DATA)
+LP_ACTION_TYPE(LP_VIEW)
 LP_ACTION_TYPE(LP_ROW_VALUE)
 LP_ACTION_TYPE(LP_COLUMN)
 LP_ACTION_TYPE(LP_COLUMN_ALIAS)

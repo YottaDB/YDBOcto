@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,9 +20,10 @@
  * Parameters:
  * - `first_column_alias` is the column_alias value of the first operand in the expression
  * - `second_column_alias` is the column_alias value of the second operand in the expression
- * NOTE: If `set_oper_stmt` of the column_alias is not NULL then `col_type_list` value of the set_operation is used to perform type
- * comparison. This value is only needed for type comparison. The column count in all cases is done by checking the table_alias of
- * the operands as column count in case of set_operation or select or VALUES can be determined by the table_alias itself. Return:
+ * NOTE: If `set_oper_stmt` of the column_alias is not NULL then `col_type_list_stmt` value of the set_operation is used to perform
+ * type comparison. This value is only needed for type comparison. The column count in all cases is done by checking the table_alias
+ * of the operands as column count in case of set_operation or select or VALUES can be determined by the table_alias itself.
+ * Return:
  * - Issues error if any of the comparisons fail and returns 1.
  * - returns 0 on success.
  */
@@ -47,20 +48,26 @@ int compare_column_count_and_column_type_of_tables(SqlColumnAlias *first_column_
 	if (NULL != first_column_alias->set_oper_stmt) {
 		SqlSetOperation *set_oper;
 		UNPACK_SQL_STATEMENT(set_oper, first_column_alias->set_oper_stmt, set_operation);
-		first_cla = set_oper->col_type_list;
+		first_cla = (NULL != set_oper->col_type_list_stmt) ? set_oper->col_type_list_stmt->v.column_list_alias : NULL;
 	} else {
 		UNPACK_SQL_STATEMENT(first_cla, first_table_alias->column_list, column_list_alias);
 	}
 	if (NULL != second_column_alias->set_oper_stmt) {
 		SqlSetOperation *set_oper;
 		UNPACK_SQL_STATEMENT(set_oper, second_column_alias->set_oper_stmt, set_operation);
-		second_cla = set_oper->col_type_list;
-		;
+		second_cla = (NULL != set_oper->col_type_list_stmt) ? set_oper->col_type_list_stmt->v.column_list_alias : NULL;
 	} else {
 		UNPACK_SQL_STATEMENT(second_cla, second_table_alias->column_list, column_list_alias);
 	}
 	cur_first_cla = first_cla;
 	cur_second_cla = second_cla;
+	// Following if block avoids [clang-analyzer-core.NullDereference] warning
+	// We do not expect these values to be NULL
+	assert(NULL != first_cla);
+	assert(NULL != second_cla);
+	if ((NULL == first_cla) || (NULL == second_cla)) {
+		return 0;
+	}
 	do {
 		SqlValueType left_type = cur_first_cla->type;
 		SqlValueType right_type = cur_second_cla->type;

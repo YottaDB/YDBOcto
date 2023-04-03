@@ -1,0 +1,4 @@
+3:;  select * from TCV037_1v1 inner join TCV037_1v2 on (1=1) cross join TCV037_1v1 n1;
+9:    DO octoPlan1(cursorId)
+10:    DO octoPlan2(cursorId)
+11:    DO octoPlan3(cursorId)

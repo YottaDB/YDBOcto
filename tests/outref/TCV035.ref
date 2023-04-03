@@ -1,0 +1,252 @@
+
+create view v1 as select id,firstname,lastname from names;
+select id,firstname,lastname from v1;
+[ INFO] PATH:LINENUM DATE TIME: INFO_RECORDING_ENV_VARS: # Recording pertinent ydb_* env var values at process startup
+[ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [create view v1 as select id,firstname,lastname from names;]
+[ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
+[ INFO] PATH:LINENUM DATE TIME: INFO_TEXT_REPRESENTATION: create view v1 as select id,firstname,lastname from names;
+CREATE VIEW
+[ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
+[ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [select id,firstname,lastname from v1;]
+[ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
+[ INFO] PATH:LINENUM DATE TIME: INFO_M_PLAN: Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
+LP_SELECT_QUERY: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_DERIVED_COLUMN: 
+          LP_KEY: 
+          - table_name: 
+          - column_name: 
+          - unique_id: 3
+          - method: LP_KEY_ADVANCE
+          - xref_key: false
+          - uses_xref_key: false
+          LP_PIECE_NUMBER: 1
+        LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: ID
+      LP_WHERE: 
+        LP_DERIVED_COLUMN: 
+          LP_KEY: 
+          - table_name: 
+          - column_name: 
+          - unique_id: 3
+          - method: LP_KEY_ADVANCE
+          - xref_key: false
+          - uses_xref_key: false
+          LP_PIECE_NUMBER: 2
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: FIRSTNAME
+      LP_WHERE: 
+        LP_DERIVED_COLUMN: 
+          LP_KEY: 
+          - table_name: 
+          - column_name: 
+          - unique_id: 3
+          - method: LP_KEY_ADVANCE
+          - xref_key: false
+          - uses_xref_key: false
+          LP_PIECE_NUMBER: 3
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: LASTNAME
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_VIEW: 
+          LP_SELECT_QUERY: 
+            LP_PROJECT: 
+              LP_COLUMN_LIST: 
+                LP_WHERE: 
+                  LP_COLUMN_ALIAS: NAMES(1).ID
+                  LP_COLUMN_LIST_ALIAS: 
+                  - type: INTEGER_LITERAL
+                  - alias: ID
+                LP_WHERE: 
+                  LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+                  LP_COLUMN_LIST_ALIAS: 
+                  - type: STRING_LITERAL
+                  - alias: FIRSTNAME
+                LP_WHERE: 
+                  LP_COLUMN_ALIAS: NAMES(1).LASTNAME
+                  LP_COLUMN_LIST_ALIAS: 
+                  - type: STRING_LITERAL
+                  - alias: LASTNAME
+              LP_SELECT: 
+                LP_TABLE_JOIN: 
+                  LP_TABLE: NAMES(1)
+                LP_CRITERIA: 
+                  LP_KEYS: 
+                    LP_KEY: 
+                    - table_name: NAMES
+                    - column_name: ID
+                    - unique_id: 1
+                    - method: LP_KEY_ADVANCE
+                    - xref_key: false
+                    - uses_xref_key: false
+                  LP_SELECT_OPTIONS: 
+                    LP_WHERE: 
+                    LP_SELECT_MORE_OPTIONS: 
+                      LP_KEYWORDS: 
+            LP_OUTPUT: 
+              LP_KEY: 
+              - table_name: 
+              - column_name: 
+              - unique_id: 6
+              - method: LP_KEY_ADVANCE
+              - xref_key: false
+              - uses_xref_key: false
+          LP_OUTPUT: 
+            LP_KEY: 
+            - table_name: 
+            - column_name: 
+            - unique_id: 3
+            - method: LP_KEY_ADVANCE
+            - xref_key: false
+            - uses_xref_key: false
+      LP_CRITERIA: 
+        LP_KEYS: 
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name: 
+    - column_name: 
+    - unique_id: 5
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+
+[DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN AFTER optimize_logical_plan() follows 
+LP_SELECT_QUERY: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_DERIVED_COLUMN: 
+          LP_KEY: 
+          - table_name: 
+          - column_name: 
+          - unique_id: 3
+          - method: LP_KEY_ADVANCE
+          - xref_key: false
+          - uses_xref_key: false
+          LP_PIECE_NUMBER: 1
+        LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: ID
+      LP_WHERE: 
+        LP_DERIVED_COLUMN: 
+          LP_KEY: 
+          - table_name: 
+          - column_name: 
+          - unique_id: 3
+          - method: LP_KEY_ADVANCE
+          - xref_key: false
+          - uses_xref_key: false
+          LP_PIECE_NUMBER: 2
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: FIRSTNAME
+      LP_WHERE: 
+        LP_DERIVED_COLUMN: 
+          LP_KEY: 
+          - table_name: 
+          - column_name: 
+          - unique_id: 3
+          - method: LP_KEY_ADVANCE
+          - xref_key: false
+          - uses_xref_key: false
+          LP_PIECE_NUMBER: 3
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: LASTNAME
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_VIEW: 
+          LP_SELECT_QUERY: 
+            LP_PROJECT: 
+              LP_COLUMN_LIST: 
+                LP_WHERE: 
+                  LP_COLUMN_ALIAS: NAMES(1).ID
+                  LP_COLUMN_LIST_ALIAS: 
+                  - type: INTEGER_LITERAL
+                  - alias: ID
+                LP_WHERE: 
+                  LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+                  LP_COLUMN_LIST_ALIAS: 
+                  - type: STRING_LITERAL
+                  - alias: FIRSTNAME
+                LP_WHERE: 
+                  LP_COLUMN_ALIAS: NAMES(1).LASTNAME
+                  LP_COLUMN_LIST_ALIAS: 
+                  - type: STRING_LITERAL
+                  - alias: LASTNAME
+              LP_SELECT: 
+                LP_TABLE_JOIN: 
+                  LP_TABLE: NAMES(1)
+                LP_CRITERIA: 
+                  LP_KEYS: 
+                    LP_KEY: 
+                    - table_name: NAMES
+                    - column_name: ID
+                    - unique_id: 1
+                    - method: LP_KEY_ADVANCE
+                    - xref_key: false
+                    - uses_xref_key: false
+                  LP_SELECT_OPTIONS: 
+                    LP_WHERE: 
+                    LP_SELECT_MORE_OPTIONS: 
+                      LP_KEYWORDS: 
+            LP_OUTPUT: 
+              LP_KEY: 
+              - table_name: 
+              - column_name: 
+              - unique_id: 6
+              - method: LP_KEY_ADVANCE
+              - xref_key: false
+              - uses_xref_key: false
+          LP_OUTPUT: 
+            LP_KEY: 
+            - table_name: 
+            - column_name: 
+            - unique_id: 3
+            - method: LP_KEY_ADVANCE
+            - xref_key: false
+            - uses_xref_key: false
+      LP_CRITERIA: 
+        LP_KEYS: 
+          LP_KEY: 
+          - table_name: 
+          - column_name: 
+          - unique_id: 3
+          - method: LP_KEY_ADVANCE
+          - xref_key: false
+          - uses_xref_key: false
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name: 
+    - column_name: 
+    - unique_id: 5
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+
+[ INFO] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering print_temporary_table
+ID|FIRSTNAME|LASTNAME
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+(6 rows)
+[ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
+[ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command []

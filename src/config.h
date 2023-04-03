@@ -75,6 +75,9 @@ typedef struct OctoConfig {
 	boolean_t in_auto_upgrade_binary_table_definition; /* TRUE for a short window when octo/rocto startup detects it is
 							    * time to auto upgrade the binary table definitions.
 							    */
+	boolean_t in_auto_upgrade_binary_view_definition;  /* TRUE for a short window when octo/rocto startup detects it is
+							    * time to auto upgrade the binary view definitions.
+							    */
 	boolean_t in_auto_load_octo_seed;		   /* TRUE for a short window when octo/rocto startup detects it is
 							    * time to auto load the octo-seed.sql and octo-seed.zwr files.
 							    */

@@ -1,0 +1,50 @@
+
+-- View definition
+create view v1 as select id,firstname,lastname from names;
+select v1.firstname,v1.lastname from v1 group by v1.firstname; -- ERROR
+select v1.firstname,count(v1.lastname) from v1; -- ERROR
+select count(v1.lastname) from v1 group by 1; -- ERROR
+select v1.lastname,v1.firstname from group by 1; -- ERROR
+select v1.lastname as test, v1.firstname from group by test; -- ERROR
+drop view v1;
+
+-- multi-level query and groupby/aggregate
+create view c1 as select * from customers;
+create view o1 as select * from orders;
+select (select lastname) fron v group by firstname; -- ERROR
+drop view c1;
+drop view o1;
+
+-- CREATE views with group by
+create view v1 as select firstname,count(id) as aggr from names group by firstname;
+select firstname,aggr from v1 group by firstname; -- error
+drop view v1;
+CREATE VIEW
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 3:1: select v1.firstname,v1.lastname from v1 group by v1.firstname; ...
+                              ^^^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+LINE 4:2: select v1.firstname,count(v1.lastname) from v1; -- ERROR
+                 ^^^^^^^^^^^^
+[ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
+LINE 5:2: select count(v1.lastname) from v1 group by 1; -- ERROR
+                 ^^^^^
+LINE 6:2: select v1.lastname,v1.firstname from group by 1; -- ERROR
+                                               ^^^^^
+syntax error, unexpected GROUP
+LINE 7:2: ... v1.lastname as test, v1.firstname from group by test; -- ERROR
+                                                     ^^^^^
+syntax error, unexpected GROUP
+DROP VIEW
+CREATE VIEW
+CREATE VIEW
+LINE 12:1: select (select lastname) fron v group by firstname; -- ERROR
+                                         ^
+syntax error, unexpected IDENTIFIER_ALONE, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+DROP VIEW
+DROP VIEW
+CREATE VIEW
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column AGGR must appear in the GROUP BY clause or be used in an aggregate function
+LINE 17:1: select firstname,aggr from v1 group by firstname; -- error
+                            ^^^^
+DROP VIEW

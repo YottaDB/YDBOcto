@@ -4,7 +4,7 @@
 select id*3 from names order by 1;
 select ABS(id*3) from names order by 1;
 
-ID
+???
 0
 3
 6

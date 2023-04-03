@@ -1,0 +1,43 @@
+#################################################################
+#								#
+# Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+	load_fixture names.sql
+	load_fixture names.zwr
+	test_port=$(start_rocto 1344 --allowschemachanges)
+}
+
+teardown() {
+	stop_rocto
+}
+
+@test "TCV003 : Verify views column name association" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV003.sql "trim_trailing_zeroes"
+	load_fixture TCV003_errors.sql subtest novv
+	verify_output TCV003_errors output.txt
+}
+
+@test "TCV031_2 : Check edge cases which used to fail when changes were made to generate a single plan for a view" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV031_2.sql
+}
+
+@test "TCV017 : Verify views working with composite table" {
+	load_fixture composite.sql
+	load_fixture composite.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries composite TCV017.sql "trim_trailing_zeroes"
+}
+
+# To add any new subtest refer to the comments at the end of test_create_view1_1.bats.in

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,7 +20,10 @@
 
 SqlOptionalKeyword *get_keyword(SqlColumn *column, enum OptionalKeyword keyword) {
 	SqlOptionalKeyword *start_keyword;
-
+	if (NULL == column->keywords) {
+		// This is possible in case of table_value_STATEMENT
+		return NULL;
+	}
 	UNPACK_SQL_STATEMENT(start_keyword, column->keywords, keyword);
 	return get_keyword_from_keywords(start_keyword, keyword);
 }

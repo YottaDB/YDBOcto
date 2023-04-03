@@ -240,6 +240,18 @@ typedef struct LpExtraTable {
 	struct LogicalPlan *next_table; /* maintains linked list of LP_TABLE plans in entire query */
 } LpExtraTable;
 
+typedef struct LpExtraView {
+	SqlTableAlias *table_alias; /* Used in emit_sql_statement.c to access the view's name
+				     * to store view and plan relation gvn of the type:
+				     * `^%ydboctoocto("viewplans","view_name","path/r/_ydboctoP6SMPLe3ZMQquRLJujRVjKL.m")=""`
+				     * This field's usage is similar to `LpTable->table_alias` usage.
+				     */
+#ifndef NDEBUG
+	struct PhysicalPlan *physical_plan;
+#endif
+	struct LogicalPlan *next_view; /* maintains linked list of LP_VIEW plans in entire query */
+} LpExtraView;
+
 typedef struct LpExtraSetOperation {
 	boolean_t is_deferred_plan;	    /* TRUE if at least one of the SET operation operands point to deferred plans.
 					     * A LP_SET_OPERATION plan can have its 2 operands as LP_SET_OPERATION or
@@ -301,6 +313,7 @@ typedef struct LogicalPlan {
 		LpExtraFunctionCall	 lp_function_call;	// To be used if type == LP_FUNCTION_CALL
 		LpExtraTable		 lp_table;		// To be used if type == LP_TABLE
 		LpExtraSetOperation	 lp_set_operation;	// To be used if type == LP_SET_OPERATION
+		LpExtraView		 lp_view;		// To be used if type == LP_VIEW
 		LpExtraConstraint	 lp_constraint;		// To be used if type == LP_CHECK_CONSTRAINT
 								//	or LP_UNIQUE_CONSTRAINT
 	} extra_detail;
@@ -328,6 +341,11 @@ typedef struct SqlKey {
 	// If this is a cross reference key which is not an output key, this will point to the
 	// output key, which we can snag the column name from
 	struct SqlKey *cross_reference_output_key;
+	/* When this field is set it indicates that this key belongs to a view.
+	 * It represents the output key of the view's definition.
+	 * It is set in lp_generate_view() using lp_alloc_key(). Used by tmpl_key and tmpl_key_advance.
+	 */
+	LogicalPlan *view_definition_output_key;
 } SqlKey;
 
 // Helper functions
@@ -436,7 +454,7 @@ LogicalPlan *lp_make_key(SqlColumnAlias *column_alias);
 
 /* Allocate a LP_KEY and associated SqlKey structure. */
 LogicalPlan *lp_alloc_key(SqlTable *table, SqlColumn *column, int unique_id, LPActionType type, SqlKey *cross_reference_output_key,
-			  boolean_t is_cross_reference_key);
+			  boolean_t is_cross_reference_key, LogicalPlan *view_definition_output_key);
 
 // Specific optimizations we can perform
 //  These return 1 if the optimization succeeded, 0 otherwise
@@ -471,6 +489,9 @@ boolean_t lp_generate_constraint(LogicalPlan **lp_constraint_ptr, SqlStatement *
 
 /* Generates a LP_TABLE_VALUE table plan corresponding to a VALUES() clause specification and returns it */
 LogicalPlan *lp_generate_table_value(SqlStatement *stmt, boolean_t *caller_error_encountered);
+
+/* Generates a LP_VIEW plan correponding to a VIEW and returns it */
+LogicalPlan *lp_generate_view(SqlStatement *stmt, boolean_t *caller_error_encountered);
 
 // Creates and returns a new/unique plan id
 int get_new_plan_unique_id(void);

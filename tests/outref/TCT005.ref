@@ -4,7 +4,7 @@
 select 1::numeric from names limit 1;
 select * from names where 1::numeric = names.id
 
-???
+NUMERIC
 1
 (1 row)
 ID|FIRSTNAME|LASTNAME

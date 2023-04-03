@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -77,30 +77,32 @@ typedef struct PhysicalPlan {
 						 * but "tmpl_group_by" call has not happened.
 						 */
 	int		     aggregate_function_or_group_by_or_having_specified; /* copy of same field from table_alias */
-	SetOperType *	     set_oper_list;	  /* Linked list of SET OPERATIONS to do on this plan at the end */
-	struct PhysicalPlan *dnf_prev, *dnf_next; /* Linked list of plans that are at the same LP_SET_DNF level */
-	LogicalPlan *	     lp_select_query;	  /* The owning LP_SELECT_QUERY or LP_TABLE_VALUE or LP_INSERT_INTO
-						   * or LP_DELETE_FROM or LP_UPDATE logical plan corresponding to this
-						   * physical plan.
-						   */
-	struct PhysicalPlan *dependent_plans_end; /* Points to the last physical plan that was added to the linked list of
-						   * physical plans as part of the "generate_physical_plan()" that first
-						   * generated this "PhysicalPlan" structure. The linked list starting from
-						   * the current "PhysicalPlan" structure going back the "prev" links until
-						   * "dependent_plans_end" form a list of physical plans that need to be moved
-						   * ahead in case we encounter the need for this physical plan again during
-						   * "generate_physical_plan()". Moving these plans avoids the need for us to
-						   * generate multiple physical plans for the same logical plan i.e. allowing us
-						   * to have a 1-1 mapping between physical and logical plans.
-						   */
-	boolean_t in_where_clause;		  /* Used by generate_physical_plan() to convey to
-						   * sub_query_check_and_generate_physical_plan() that this particular
-						   * physical plan is currently processing a WHERE clause. Its set in
-						   * generate_physical_plan() before processing WHERE clause and
-						   * reset after processing it. We cannot use PhysicalPlanOptions to convey
-						   * this information because we need to specifically identify if a
-						   * particular physical plan is executing a WHERE clause or not.
-						   */
+	SetOperType *	     set_oper_list; /* Linked list of SET OPERATIONS to do on this plan at the end */
+	unsigned int	     view_total_iter_keys;
+	SqlKey *	     viewKeys[MAX_KEY_COUNT]; /* These represent the keys that map to this pplan */
+	struct PhysicalPlan *dnf_prev, *dnf_next;     /* Linked list of plans that are at the same LP_SET_DNF level */
+	LogicalPlan *	     lp_select_query;	      /* The owning LP_SELECT_QUERY or LP_TABLE_VALUE or LP_INSERT_INTO
+						       * or LP_DELETE_FROM or LP_UPDATE logical plan corresponding to this
+						       * physical plan.
+						       */
+	struct PhysicalPlan *dependent_plans_end;     /* Points to the last physical plan that was added to the linked list of
+						       * physical plans as part of the "generate_physical_plan()" that first
+						       * generated this "PhysicalPlan" structure. The linked list starting from
+						       * the current "PhysicalPlan" structure going back the "prev" links until
+						       * "dependent_plans_end" form a list of physical plans that need to be moved
+						       * ahead in case we encounter the need for this physical plan again during
+						       * "generate_physical_plan()". Moving these plans avoids the need for us to
+						       * generate multiple physical plans for the same logical plan i.e. allowing us
+						       * to have a 1-1 mapping between physical and logical plans.
+						       */
+	boolean_t in_where_clause;		      /* Used by generate_physical_plan() to convey to
+						       * sub_query_check_and_generate_physical_plan() that this particular
+						       * physical plan is currently processing a WHERE clause. Its set in
+						       * generate_physical_plan() before processing WHERE clause and
+						       * reset after processing it. We cannot use PhysicalPlanOptions to convey
+						       * this information because we need to specifically identify if a
+						       * particular physical plan is executing a WHERE clause or not.
+						       */
 } PhysicalPlan;
 
 /* Below macro returns TRUE if GROUP BY or HAVING have been specified and/or Aggregate functions have been used in plan */
@@ -114,7 +116,9 @@ typedef struct PhysicalPlan {
 // This provides a convenient way to pass options to subplans
 // which need to be aware of a request from a higher level
 typedef struct PhysicalPlanOptions {
-	struct PhysicalPlan * parent;
+	// Parent will always represnt the parent of a plan
+	struct PhysicalPlan *parent;
+	// last_plan will always represent the end of linked list of plans
 	struct PhysicalPlan **last_plan;
 	struct PhysicalPlan * dnf_plan_next;
 	boolean_t	      stash_columns_in_keys;
@@ -123,6 +127,7 @@ typedef struct PhysicalPlanOptions {
 					  */
 	LogicalPlan **function;		 /* Helps maintain a linked list of LP_FUNCTION_CALL plans across entire query */
 	LogicalPlan **table;		 /* Helps maintain a linked list of LP_TABLE plans across entire query */
+	LogicalPlan **view;		 /* Helps maintain a linked list of LP_VIEW plans across entire query */
 	LogicalPlan * lp_select_query;	 /* Used by lp_verify_structure() call from generate_physical_plan() to know the
 					  * LogicalPlan of the select query which invoked the function. The intention here
 					  * is to access the address of pplan associated with this logical plan such that

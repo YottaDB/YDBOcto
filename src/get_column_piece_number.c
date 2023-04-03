@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -35,7 +35,8 @@ int get_column_piece_number(SqlColumnAlias *column_alias, SqlTableAlias *table_a
 	cur_cl_alias = start_cl_alias;
 	piece_number = 1;
 	do {
-		if (column_alias == cur_cl_alias->outer_query_column_alias) {
+		if ((NULL != cur_cl_alias->outer_query_column_alias)
+		    && (column_alias == cur_cl_alias->outer_query_column_alias->v.column_alias)) {
 			break;
 		}
 		piece_number++;

@@ -1,0 +1,15 @@
+
+create table test (id integer, firstname varchar, lastname varchar);
+create view v1 as select * from test;
+select * from v1;
+-- Expect the following error from the drop table statement
+-- ERROR:  cannot drop table test because other objects depend on it
+-- DETAIL:  view v1 depends on table test
+-- HINT:  Use DROP ... CASCADE to drop the dependent objects too.
+drop table test;
+
+CREATE TABLE
+CREATE VIEW
+ID|FIRSTNAME|LASTNAME
+(0 rows)
+[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "TEST" because view "V1" depends on it

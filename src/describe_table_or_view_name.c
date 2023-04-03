@@ -15,15 +15,15 @@
 
 #include "octo.h"
 
-/* This function implements the "\d tablename" command at the OCTO> prompt.
+/* This function implements the "\d tablename" and "\d viewname" command at the OCTO> prompt.
  *
  * Input
  * -----
- * "stmt" holds the table name.
+ * "stmt" holds the table/view name.
  *
  * Output
  * ------
- * Displays to "stdout" the table definition details (column names, types etc.)
+ * Displays to "stdout" the table/view definition details (column names, types etc.)
  *
  * Return
  * ------
@@ -31,29 +31,110 @@
  * -1 : Error encountered (e.g. unknown table etc.)
  *
  */
-int describe_tablename(SqlStatement *table_name) {
-	SqlValue * value;
-	char *	   tablename;
-	SqlTable * table;
-	SqlColumn *start_column, *cur_column;
+int describe_table_or_view_name(SqlStatement *table_name) {
+	SqlValue *    value;
+	char *	      tablename;
+	SqlTable *    table;
+	SqlStatement *table_or_view_stmt;
+	SqlColumn *   start_column, *cur_column;
 
 	UNPACK_SQL_STATEMENT(value, table_name, value);
 	tablename = value->v.reference;
-	table = find_table(tablename);
-	if (NULL == table) {
+	table_or_view_stmt = find_view_or_table(tablename);
+	if (NULL == table_or_view_stmt) {
 		ERROR(ERR_UNKNOWN_TABLE, tablename);
 		return -1;
 	}
-	UNPACK_SQL_STATEMENT(value, table->tableName, value);
+	if (create_view_STATEMENT == table_or_view_stmt->type) {
+		SqlView *view;
+		UNPACK_SQL_STATEMENT(view, table_or_view_stmt, create_view);
+		UNPACK_SQL_STATEMENT(value, view->viewName, value);
+		/* Note: The below output is more or less the same as what \d viewname outputs at the psql prompt */
 
-	/* Note: The below output is more or less the same as what \d tablename outputs at the psql prompt */
+		/* First output view name */
+		fprintf(stdout, "View \"%s\"\n", value->v.reference);
 
-	/* First output Column names, types etc. */
-	fprintf(stdout, "Table \"%s\" stored in ", value->v.reference);
+		/* Next output the table columns */
+		fprintf(stdout, "Column|Type|Collation|Nullable|Default\n");
 
-	/* Next output GLOBAL (could be subscripted) that holds the table records */
-	describe_tablename_global(table);
-	fprintf(stdout, " : Type = %s\n", (table->readwrite ? "READWRITE" : "READONLY"));
+		SqlTableAlias *table_alias;
+		boolean_t      is_set_oper = FALSE;
+		if (set_operation_STATEMENT == view->src_table_alias_stmt->type) {
+			SqlStatement *stmt = drill_to_table_alias(view->src_table_alias_stmt);
+			UNPACK_SQL_STATEMENT(table_alias, stmt, table_alias);
+			/* Used to avoid precise column specification as in cases where the precision and scale vary between
+			 * columns of different branches of the set_operation_STATEMENT, we will have to do more processing
+			 * to identify that type is same or different. To avoid this computation and still output a reasonable type
+			 * information we display only the type without any precision or scale.
+			 */
+			is_set_oper = TRUE;
+		} else {
+			UNPACK_SQL_STATEMENT(table_alias, view->src_table_alias_stmt, table_alias);
+		}
+
+		SqlColumnListAlias *start_cla, *cur_cla;
+		UNPACK_SQL_STATEMENT(start_cla, table_alias->column_list, column_list_alias);
+		cur_cla = start_cla;
+		do {
+			UNPACK_SQL_STATEMENT(value, cur_cla->alias, value);
+			fprintf(stdout, "%s|", value->v.reference); /* "Column" column */
+
+			SqlColumn *col;
+			col = get_column_under_column_list_alias(cur_cla);
+			if ((NULL == col) || (is_set_oper)) {
+				// Get just the column type
+				fprintf(stdout, "%s|", get_user_visible_type_string(cur_cla->type)); /* "Type" column */
+			} else {
+				// Get more precise column type
+				int  ret;
+				char data_type_string[MAX_USER_VISIBLE_TYPE_STRING_LEN];
+				ret = get_user_visible_data_type_string(&col->data_type_struct, data_type_string,
+									sizeof(data_type_string));
+				if (0 > ret) {
+					assert(FALSE);
+					return -1;
+				}
+				fprintf(stdout, "%s|", data_type_string); /* "Type" column */
+			}
+			fprintf(stdout, "|"); /* "Collation" column (currently empty as we don't yet support the COLLATE keyword) */
+			fprintf(stdout, "|"); /* "Nullable" column is just kept for similarity with table display */
+			fprintf(stdout, "|"); /* "Default" column is just kept for similarity with table display */
+			fprintf(stdout, "\n");
+			cur_cla = cur_cla->next;
+		} while (cur_cla != start_cla);
+
+		/* Next output the view definition */
+		// fetch the text definition
+		ydb_buffer_t view_name_buffer;
+		UNPACK_SQL_STATEMENT(value, view->viewName, value);
+		YDB_STRING_TO_BUFFER(value->v.reference, &view_name_buffer);
+
+		char *text_definition = NULL;
+		int   status = get_table_or_view_text_definition(&view_name_buffer, &text_definition);
+		if (0 > status) {
+			assert(FALSE);
+			if (NULL != text_definition) {
+				free(text_definition);
+			}
+			return -1;
+		}
+		fprintf(stdout, "View definition:\n%s\n", text_definition);
+		free(text_definition);
+		return 0;
+	} else {
+		assert(create_table_STATEMENT == table_or_view_stmt->type);
+		UNPACK_SQL_STATEMENT(table, table_or_view_stmt, create_table);
+		UNPACK_SQL_STATEMENT(value, table->tableName, value);
+
+		/* Note: The below output is more or less the same as what \d tablename outputs at the psql prompt */
+
+		/* First output Column names, types etc. */
+		fprintf(stdout, "Table \"%s\" stored in ", value->v.reference);
+
+		/* Next output GLOBAL (could be subscripted) that holds the table records */
+		describe_tablename_global(table);
+		fprintf(stdout, " : Type = %s\n", (table->readwrite ? "READWRITE" : "READONLY"));
+	}
 
 	/* Next output the table columns */
 	fprintf(stdout, "Column|Type|Collation|Nullable|Default\n");
@@ -145,8 +226,8 @@ int describe_tablename(SqlStatement *table_name) {
 				buff_ptr = &buffer;
 				/* Although we are emitting a UNIQUE or PRIMARY KEY constraint, all we need to emit at this
 				 * point is a list of column names and we have a "column_list_STATEMENT" type (asserted below).
-				 * That can be emitted by "emit_check_constraint()" so we use that function even though it is
-				 * a CHECK constraint specific function.
+				 * That can be emitted by "emit_check_constraint()" so we use that function even though
+				 * it is a CHECK constraint specific function.
 				 */
 				assert(column_list_STATEMENT == constraint->definition->type);
 				status = emit_check_constraint(&buffer_orig, &buffer_size, buff_ptr, constraint->definition);

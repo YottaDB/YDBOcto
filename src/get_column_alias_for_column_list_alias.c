@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -30,9 +30,9 @@ SqlColumnAlias *get_column_alias_for_column_list_alias(SqlColumnListAlias *col_c
 	 */
 	if (NULL != col_cla->outer_query_column_alias) {
 		/* We already allocated a column_alias for this column_list_alias. Return that. */
-		assert((table_alias_STATEMENT == col_cla->outer_query_column_alias->table_alias_stmt->type)
-		       && (matching_alias == col_cla->outer_query_column_alias->table_alias_stmt->v.table_alias));
-		return col_cla->outer_query_column_alias;
+		assert((table_alias_STATEMENT == col_cla->outer_query_column_alias->v.column_alias->table_alias_stmt->type)
+		       && (matching_alias == col_cla->outer_query_column_alias->v.column_alias->table_alias_stmt->v.table_alias));
+		return col_cla->outer_query_column_alias->v.column_alias;
 	}
 	UNPACK_SQL_STATEMENT(col_list, col_cla->column_list, column_list);
 	if (column_alias_STATEMENT == col_list->value->type) {
@@ -57,6 +57,7 @@ SqlColumnAlias *get_column_alias_for_column_list_alias(SqlColumnListAlias *col_c
 		ret->table_alias_stmt = matching_alias_stmt;
 	}
 	/* Store this column_alias for faster returns from `qualify_column_name.c` for same col_cla */
-	col_cla->outer_query_column_alias = ret;
+	SQL_STATEMENT(col_cla->outer_query_column_alias, column_alias_STATEMENT);
+	col_cla->outer_query_column_alias->v.column_alias = ret;
 	return ret;
 }

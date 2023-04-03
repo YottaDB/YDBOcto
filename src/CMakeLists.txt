@@ -151,11 +151,12 @@ add_library(libocto OBJECT
   auto_upgrade_binary_definition_if_needed.c
   auto_upgrade_binary_function_definition.c
   auto_upgrade_binary_table_definition.c
+  auto_upgrade_binary_view_definition.c
   auto_upgrade_plan_definition_if_needed.c
+  auto_upgrade_binary_table_or_view_definition_helper.c
   binary_operation_data_type_check.c
   check_column_lists_for_type_match.c
   cleanup_tables.c
-  columns_to_column_list_alias.c
   compare_column_count_and_column_type_of_tables.c
   compress_statement.c
   constraint_name_auto_generate.c
@@ -163,21 +164,23 @@ add_library(libocto OBJECT
   copy_sql_statement.c
   create_cursor.c
   decompress_statement.c
-  delete_table_from_pg_class.c
+  delete_table_or_view_from_pg_class.c
   delete_function_from_pg_proc.c
-  describe_tablename.c
+  describe_table_or_view_name.c
   describe_tablename_global.c
   drill_to_table_alias.c
   drop_schema_from_local_cache.c
   emit_check_constraint.c
   emit_column_specification.c
   emit_create_table.c
+  get_encapsulated_cla_list.c
+  get_table_or_view_text_definition.c
   emit_create_function.c
   emit_sql_statement.c
   ensure_same_type.c
   find_column.c
   find_column_alias_name.c
-  find_table.c
+  find_view_or_table.c
   find_function.c
   function_call_data_type_check.c
   function_definition_lookup.c
@@ -186,6 +189,7 @@ add_library(libocto OBJECT
   get_aggregate_func_name.c
   get_column_alias_for_column_list_alias.c
   get_column_alias_from_column_name.c
+  get_column_under_column_list_alias.c
   get_column_list_alias_n_from_table_alias.c
   get_column_number_from_column_list_alias.c
   get_column_piece_number.c
@@ -243,6 +247,7 @@ add_library(libocto OBJECT
   optimization_transforms/lp_generate_column_list.c
   optimization_transforms/lp_generate_set_logical_plan.c
   optimization_transforms/lp_generate_table_value.c
+  optimization_transforms/lp_generate_view.c
   optimization_transforms/lp_generate_where.c
   optimization_transforms/lp_generate_xref_keys.c
   optimization_transforms/lp_generate_xref_plan.c
@@ -326,6 +331,7 @@ add_library(libocto OBJECT
   qualify_extract_function.c
   qualify_query.c
   qualify_statement.c
+  qualify_view_dependency.c
   quoting.c
   readline_get_more.c
   regex_has_no_special_characters.c
@@ -337,12 +343,15 @@ add_library(libocto OBJECT
   store_function_in_pg_proc.c
   store_plandirs_gvn.c
   store_table_definition.c
-  store_table_in_pg_class.c
+  store_table_or_view_in_pg_class.c
+  store_view_dependencies.c
+  store_table_dependencies.c
   table_has_hidden_column.c
   traverse_where_clause.c
   truncate_table_tp_callback_fn.c
   unary_operation_data_type_check.c
   validate_table_asterisk_binary_operation.c
+  view_definition.c
   ydb_error_check.c
   ydb_hash_to_string.c
   yyerror.c

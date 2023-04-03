@@ -388,6 +388,8 @@ int qualify_extract_function(SqlStatement *stmt, SqlTable *table, SqlValueType *
 	case history_STATEMENT:
 	case display_relation_STATEMENT:
 	case invalid_STATEMENT:
+	case create_view_STATEMENT:
+	case drop_view_STATEMENT:
 		/* Do not add "default:" case as we want to enumerate each explicit case here instead of having a
 		 * general purpose bucket where all types not listed above fall into as that could hide subtle bugs.
 		 */

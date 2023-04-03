@@ -231,6 +231,7 @@ int copied_so_far;
 (?i:VALUES) { return VALUES; }
 (?i:VARCHAR) { return VARCHAR; }
 (?i:VARYING) { return VARYING; }
+(?i:VIEW) { return VIEW; }
 (?i:WHEN) { return WHEN; }
 (?i:WHERE) { return WHERE; }
 (?i:EXIT) { return EXIT; }
@@ -265,6 +266,7 @@ int copied_so_far;
 \\q { return QUIT; }
 \\s { return HISTORY; }
 \\d { return DISPLAY; }
+\\dv { return DISPLAY_VIEW; }
 
 ^[ \t\r\n]* { /* skip leading whitespace */
 		if (0 == yylloc->first_line) {
@@ -410,7 +412,7 @@ int copied_so_far;
             }
 
 ` { copied_so_far = 0; BEGIN(IDENTIFIER); }
-<IDENTIFIER>[^(``)]* { char *yptr = yytext; COPY_STRING((&lex_buffer), yptr, copied_so_far); }
+<IDENTIFIER>[^`]* { char *yptr = yytext; COPY_STRING((&lex_buffer), yptr, copied_so_far); }
 <IDENTIFIER>` {
 		BEGIN(INITIAL);
 		SQL_VALUE_MALLOC_STATEMENT(*yylval, COLUMN_REFERENCE, copied_so_far);

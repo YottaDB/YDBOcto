@@ -299,7 +299,14 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *root_stmt) {
 			error_encountered |= lp_generate_column_list(&ret->v.lp_default.operand[0], root_stmt, cur_cl);
 		}
 		// Set `lp_aggregate_function.unique_id` so that the aggregate can be attached later on to the correct physical plan
-		ret->extra_detail.lp_aggregate_function.unique_id = aggregate_function->unique_id;
+		if (NULL != aggregate_function->table_alias_stmt) {
+			// The aggregate is associated to aggregate_function->table_alias_stmt, store its unique_id
+			SqlTableAlias *aggr_table_alias;
+			UNPACK_SQL_STATEMENT(aggr_table_alias, aggregate_function->table_alias_stmt, table_alias);
+			ret->extra_detail.lp_aggregate_function.unique_id = aggr_table_alias->unique_id;
+		} else {
+			ret->extra_detail.lp_aggregate_function.unique_id = 0;
+		}
 		break;
 	case column_STATEMENT:
 		MALLOC_LP_2ARGS(ret, LP_COLUMN);

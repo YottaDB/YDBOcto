@@ -1,0 +1,46 @@
+
+-- Expect the following error select on the following view definitions
+-- [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
+create view v1 (v1_col1) as select (values(lastname),(firstname)) from names;
+select * from v1;
+drop view v1;
+
+create view v1 as select (values(lastname),(firstname)) from names;
+select * from v1;
+drop view v1;
+
+create view v1 as select (select 1 union select 2) from names;
+select * from v1;
+drop view v1;
+
+create view v1 as select (select * from names) from names;
+drop view v1;
+
+-- Expect the following error for the following view definition
+-- [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
+create view v1 as select (select 1,2) from names;
+create view v1 as select (values(1,2)) from names;
+create view v1 as select (select 1,2 union select 2,3) from names;
+
+CREATE VIEW
+[ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
+DROP VIEW
+CREATE VIEW
+[ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
+DROP VIEW
+CREATE VIEW
+[ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
+DROP VIEW
+[ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
+LINE 14:1: create view v1 as select (select * from names) from names;
+                                    ^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_CANNOT_DROP_VIEW: Cannot DROP view "V1" as it does not exist
+[ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
+LINE 17:1: create view v1 as select (select 1,2) from names;
+                                    ^^^^^^^^^^^^
+[ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
+LINE 18:1: create view v1 as select (values(1,2)) from names;
+                                    ^^^^^^^^^^^^^
+[ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
+LINE 19:1: create view v1 as select (select 1,2 union select 2,3) from name...
+                                     ^^^^^^

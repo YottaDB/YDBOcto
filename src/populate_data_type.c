@@ -61,7 +61,6 @@ int populate_data_type_column_list_alias(SqlStatement *v, SqlValueType *type, Sq
 	SqlColumnListAlias *column_list_alias, *cur_column_list_alias;
 	SqlValueType	    child_type;
 	int		    result;
-
 	result = 0;
 	*type = UNKNOWN_SqlValueType;
 	if (NULL != v) {
@@ -375,6 +374,9 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 		}
 		/* Store type of the THEN argument in "*type" for caller to use to compare ELSE argument type if one exists */
 		*type = child_type[0];
+		break;
+	case create_view_STATEMENT:;
+		// Do nothing, populate_data_type processing already happened for the view as part of the CREATE VIEW command
 		break;
 	case insert_STATEMENT:
 		assert(NULL == fix_type); /* so no need to handle non-NULL fix_type scenario */
@@ -993,8 +995,9 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 		 * In such a case, any errors would have already been issued and the statement column data types would have already
 		 * been set. Skip further processing in such cases.
 		 */
-		if (UNKNOWN_SqlDataType != table_value->column->data_type_struct.data_type) {
-			*type = get_sqlvaluetype_from_sqldatatype(table_value->column->data_type_struct.data_type, FALSE);
+		if (UNKNOWN_SqlDataType != table_value->column_stmt->v.column->data_type_struct.data_type) {
+			*type = get_sqlvaluetype_from_sqldatatype(table_value->column_stmt->v.column->data_type_struct.data_type,
+								  FALSE);
 		} else {
 			/* For a table constructed using the VALUES clause, go through each value specified and determine
 			 * its type. Verify all rows have same type for each column.
@@ -1066,7 +1069,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 				 * Note that if one row had a column type of NUL_VALUE and the next row had a type of
 				 * NUMERIC_LITERAL, the final column type would end up being NUMERIC_LITERAL.
 				 */
-				start_column = table_value->column;
+				start_column = table_value->column_stmt->v.column;
 				if (saw_boolean_or_string_literal) {
 					/* Found at least one column value whose type is BOOLEAN_OR_STRING_LITERAL.
 					 * Rescan all the table rows/columns and fix those column values which are of type
@@ -1160,7 +1163,8 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 		}
 		result |= populate_data_type(table_alias->table, type, parent_stmt, parse_context, NULL);
 		assert((select_STATEMENT != table_alias->table->type)
-		       || (table_alias->table->v.select->select_list == table_alias->column_list));
+		       || (table_alias->table->v.select->select_list->v.column_list_alias
+			   == table_alias->column_list->v.column_list_alias));
 		if (result) {
 			break;
 		}
@@ -1361,6 +1365,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 		break;
 	case create_function_STATEMENT:
 	case drop_table_STATEMENT:
+	case drop_view_STATEMENT:
 	case drop_function_STATEMENT:
 	case truncate_table_STATEMENT:
 	case column_STATEMENT:

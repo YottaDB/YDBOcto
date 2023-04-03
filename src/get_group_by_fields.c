@@ -93,6 +93,7 @@ group_by_fields_t *get_group_by_fields(SqlStatement *stmt) {
 	case column_list_alias_STATEMENT:
 	case aggregate_function_STATEMENT:
 	case create_table_STATEMENT:
+	case create_view_STATEMENT:
 	case select_STATEMENT:
 	case table_value_STATEMENT:
 	case insert_STATEMENT:
@@ -101,6 +102,7 @@ group_by_fields_t *get_group_by_fields(SqlStatement *stmt) {
 	case join_STATEMENT:
 	case create_function_STATEMENT:
 	case drop_table_STATEMENT:
+	case drop_view_STATEMENT:
 	case drop_function_STATEMENT:
 	case truncate_table_STATEMENT:
 	case column_STATEMENT:

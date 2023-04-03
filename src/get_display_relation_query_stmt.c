@@ -17,7 +17,7 @@
 #include "octo_types.h"
 
 #define SLASH_D_QUERY_STR \
-	"				\
+	"								\
 	 SELECT n.nspname                              AS \"Schema\",	\
 	        c.relname                              AS \"Name\",	\
 	        CASE c.relkind						\
@@ -44,9 +44,37 @@
 	 ORDER  BY 1, 2;						\
 	 "
 
-/* Returns SqlStatement for \d query */
-SqlStatement *get_display_relation_query_stmt(ParseContext *parse_context) {
+#define SLASH_D_V_QUERY_STR \
+	"								\
+	 SELECT n.nspname as \"Schema\",				\
+	        c.relname as \"Name\",					\
+	        CASE c.relkind						\
+	          WHEN 'r' THEN 'table'					\
+	          WHEN 'v' THEN 'view'					\
+ 	          WHEN 'm' THEN 'materialized view'			\
+	          WHEN 'i' THEN 'index'					\
+	          WHEN 'S' THEN 'sequence'				\
+	          WHEN 's' THEN 'special'				\
+	          WHEN 'f' THEN 'foreign table'				\
+	          WHEN 'p' THEN 'partitioned table'			\
+	          WHEN 'I' THEN 'partitioned index'			\
+	        END as \"Type\",					\
+	        pg_catalog.pg_get_userbyid(c.relowner) as \"Owner\"	\
+	 FROM   pg_catalog.pg_class c					\
+	        LEFT JOIN pg_catalog.pg_namespace n			\
+		       ON n.oid = c.relnamespace			\
+	 WHERE								\
+	        c.relkind IN ('v', '')					\
+	        AND n.nspname <> 'pg_catalog'				\
+	        AND n.nspname <> 'information_schema'			\
+	        AND n.nspname ! ~ '^pg_toast'				\
+	        AND pg_catalog.pg_table_is_visible(c.oid)		\
+	 ORDER BY 1, 2;							\
+	"
+/* Returns SqlStatement for \d or \dv query */
+SqlStatement *get_display_relation_query_stmt(SqlDisplayRelationType relation_type, ParseContext *parse_context) {
 	char display_all_relation_query_str[] = SLASH_D_QUERY_STR;
+	char display_all_view_relation_query_str[] = SLASH_D_V_QUERY_STR;
 	// Save parse_line() related things
 	boolean_t save_is_tty = config->is_tty;
 	int	  save_cur_input_index = cur_input_index;
@@ -58,9 +86,10 @@ SqlStatement *get_display_relation_query_stmt(ParseContext *parse_context) {
 	assert(cur_input_more == &readline_get_more);
 	save_cur_input_more = cur_input_more;
 
-	/* It is possible "eof_hit" is set to a value other than EOF_NONE in case `\d` was the last query
+	/* It is possible "eof_hit" is set to a value other than EOF_NONE in case `\d` or `\dv` was the last query
 	 * when octo is reading input from a file. In that case, we want to process the query in
-	 * "display_all_relation_query_str" without getting affected by "eof_hit" hence the save/restore below.
+	 * "display_all_relation_query_str"/"display_all_view_relation_query_str" without getting affected by "eof_hit" hence the
+	 * save/restore below.
 	 */
 	int save_eof_hit = eof_hit;
 	eof_hit = EOF_NONE;
@@ -69,7 +98,11 @@ SqlStatement *get_display_relation_query_stmt(ParseContext *parse_context) {
 	config->is_tty = 0;
 	cur_input_index = 0;
 	old_input_index = 0;
-	input_buffer_combined = display_all_relation_query_str;
+	if (DISPLAY_ALL_VIEW_RELATION == relation_type) {
+		input_buffer_combined = display_all_view_relation_query_str;
+	} else {
+		input_buffer_combined = display_all_relation_query_str;
+	}
 	old_input_line_begin = input_buffer_combined;
 	cur_input_more = no_more;
 

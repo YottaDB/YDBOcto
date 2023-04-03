@@ -226,6 +226,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token VALUES
 %token VARCHAR
 %token VARYING
+%token VIEW
 %token WHEN
 %token WHERE
 
@@ -266,6 +267,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token QUIT
 %token HISTORY
 %token DISPLAY
+%token DISPLAY_VIEW
 
 %left PREC1
 %left CROSS FULL INNER JOIN LEFT NATURAL RIGHT
@@ -367,6 +369,15 @@ display_relation_command
 	}
 	$$ = ret;
     }
+   | DISPLAY_VIEW {
+   	SqlStatement *ret;
+	SqlDisplayRelation *display_relation;
+	SQL_STATEMENT(ret, display_relation_STATEMENT);
+	MALLOC_STATEMENT(ret, display_relation, SqlDisplayRelation);
+	UNPACK_SQL_STATEMENT(display_relation, ret, display_relation);
+	display_relation->type = DISPLAY_ALL_VIEW_RELATION;
+	$$ = ret;
+     }
   ;
 
 display_parms
@@ -1426,14 +1437,43 @@ sql_schema_statement
 /// TODO: not complete
 sql_schema_manipulation_statement
   : drop_table_statement { $$ = $drop_table_statement; parse_context->command_tag = drop_table_STATEMENT; }
+  | drop_view_statement { $$ = $drop_view_statement; parse_context->command_tag = drop_view_STATEMENT; }
   | drop_function_statement { $$ = $drop_function_statement; parse_context->command_tag = drop_function_STATEMENT; }
   | discard_all_statement { $$ = $discard_all_statement; parse_context->command_tag = discard_all_STATEMENT; }
   ;
 
 sql_schema_definition_statement
   : table_definition { $$ = $table_definition; parse_context->command_tag = create_table_STATEMENT; }
+  | view_definition { $$ = $view_definition; parse_context->command_tag = create_view_STATEMENT; }
   | index_definition { $$ = $index_definition; parse_context->command_tag = index_STATEMENT; }
   | function_definition { $$ = $function_definition; parse_context->command_tag = create_function_STATEMENT; }
+  ;
+
+view_definition
+  : CREATE VIEW qualified_identifier AS query_expression {
+	SqlStatement *create_view_stmt;
+	SqlView *     view;
+	SQL_STATEMENT(create_view_stmt, create_view_STATEMENT);
+	MALLOC_STATEMENT(create_view_stmt, create_view, SqlView);
+	UNPACK_SQL_STATEMENT(view, create_view_stmt, create_view);
+	assert(value_STATEMENT == $qualified_identifier->type);
+	view->viewName = $qualified_identifier;
+	view->src_table_alias_stmt = $query_expression;
+	view->column_name_list = NULL;
+	$$ = create_view_stmt;
+       }
+  | CREATE VIEW qualified_identifier LEFT_PAREN column_name_list RIGHT_PAREN AS query_expression {
+	SqlStatement *create_view_stmt;
+	SqlView *     view;
+	SQL_STATEMENT(create_view_stmt, create_view_STATEMENT);
+	MALLOC_STATEMENT(create_view_stmt, create_view, SqlView);
+	UNPACK_SQL_STATEMENT(view, create_view_stmt, create_view);
+	assert(value_STATEMENT == $qualified_identifier->type);
+	view->viewName = $qualified_identifier;
+	view->src_table_alias_stmt = $query_expression;
+	view->column_name_list = $column_name_list;
+	$$ = create_view_stmt;
+       }
   ;
 
 /// TODO: not complete

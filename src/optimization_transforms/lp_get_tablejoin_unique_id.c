@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -22,6 +22,7 @@ int lp_get_tablejoin_unique_id(LogicalPlan *plan) {
 	assert(LP_TABLE_JOIN == plan->type);
 	oper0 = plan->v.lp_default.operand[0];
 	switch (oper0->type) {
+	case LP_VIEW:
 	case LP_SET_OPERATION:
 	case LP_SELECT_QUERY:
 		cur_lp_key = lp_get_output_key(oper0);

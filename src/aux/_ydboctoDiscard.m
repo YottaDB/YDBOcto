@@ -21,19 +21,21 @@
 
 discardALL	;
 	; Discard plans, xrefs and triggers for ALL tables
-	NEW tableName
-	; Go through list of all tables
-	SET tableName="" FOR  SET tableName=$ORDER(^%ydboctoschema(tableName))  QUIT:""=tableName  DO
-	.  ; For each table discard plan/xref/triggers
-	.  DO discardTable(tableName)
+	; Discard plans for ALL views
+	NEW tableOrViewName
+	; Go through list of all tables and views
+	SET tableOrViewName="" FOR  SET tableOrViewName=$ORDER(^%ydboctoschema(tableOrViewName))  QUIT:""=tableOrViewName  DO
+	. if ("view"=$GET(^%ydboctoschema(tableOrViewName))) DO discardView(tableOrViewName)
+	. else  DO discardTable(tableOrViewName) ;  For each table discard plan/xref/triggers
 	; At this point all derived data should have been removed but it is possible some still remain
-	; in case of application integrity error situation (e.g. for some tableName say TABLE, ^%ydboctoschema(TABLE)
+	; in case of application integrity error situation (e.g. for some tableOrViewName say TABLE, ^%ydboctoschema(TABLE)
 	; does not exist but ^%ydboctoocto("xref_status",TABLE,*) does exist. Since we know we have to discard
 	; everything, we just KILL all such possible out-of-sync global nodes and delete all known plans etc.
 	NEW srcPlan
 	SET srcPlan="" FOR  SET srcPlan=$ORDER(^%ydboctoocto("plandirs",srcPlan))  QUIT:""=srcPlan  DO discardPlan(srcPlan)
 	KILL ^%ydboctoocto("plan_metadata")
 	KILL ^%ydboctoocto("tableplans")
+	KILL ^%ydboctoocto("viewplans")
 	KILL ^%ydboctoocto("xref_status")
 	KILL ^%ydboctoxref
 	QUIT
@@ -130,6 +132,70 @@ discardFunction(functionName,functionHash,isAutoLoad)	;
 	. . SET sub=$ORDER(^%ydboctoocto("functions",functionName,functionHash,sub))
 	. . KILL:("check_constraint"'=sub) ^%ydboctoocto("functions",functionName,functionHash,sub)
 	ELSE  KILL ^%ydboctoocto("functions",functionName,functionHash);
+	QUIT
+
+discardView(viewName,viewGVNAME)
+	; This routine is similar to discardTable any changes there may require changes here
+	; -----------------
+	; Discard plans (_ydboctoP*.m) associated with this view and gvn's maintained to know this association
+	; -----------------
+	NEW planName,tablePlanNames
+	SET planName="" FOR  SET planName=$ORDER(^%ydboctoocto("viewplans",viewName,planName))  QUIT:""=planName  DO
+	. Do discardPlan(planName)
+	. SET tablePlanNames(planName)="" ; Used while discarding table dependency to the view
+	KILL ^%ydboctoocto("viewplans",viewName)
+	DO:$DATA(viewGVNAME)
+	. ; ----------------
+	. ; viewGVNAME is defined. This means it is a call from DROP VIEW.
+	. ; Note: viewGVNAME though defined its value will be an empty string
+	. ; ----------------
+	. ; Remove global variable nodes that record which functions this view depend on.
+	. ; ----------------
+	. NEW gvn
+	. SET gvn="^%ydboctoocto(""viewdependency"",viewName)"
+	. ; Note that these global variable nodes need not exist in case of a DROP VIEW IF EXISTS hence the $DATA check below.
+	. DO:$DATA(@gvn)
+	. . SET gvn="^%ydboctoocto(""viewdependency"",viewName,""functions"")"
+	. . ; Note the above gvn might not exist if no function depends on the view
+	. . DO:$DATA(@gvn)
+	. . . FOR  SET gvn=$QUERY(@gvn)  QUIT:((""=gvn)!(($QSUBSCRIPT(gvn,2)'=viewName)!($QSUBSCRIPT(gvn,3)'="functions")))  DO
+	. . . . ; gvn would be like ^%ydboctoocto("viewdependency","V2","functions","SAMEVALUE","ydboctoFN0uUSDY6E7G9VcjaOGNP9G")
+	. . . . NEW functionName,functionHash
+	. . . . SET functionName=$QSUBSCRIPT(gvn,4)
+	. . . . SET functionHash=$QSUBSCRIPT(gvn,5)
+	. . . . KILL @gvn
+	. . . . ; Need to also kill the following gvn which is maintained in sync with the above
+	. . . . ; ^%ydboctoocto("functionviewdependency","SAMEVALUE","ydboctoFN0uUSDY6E7G9VcjaOGNP9G","V2")
+	. . . . KILL ^%ydboctoocto("functionviewdependency",functionName,functionHash,viewName)
+	. . ; ----------------
+	. . ; Remove global variable nodes that record which tables this view depends on.
+	. . ; ----------------
+	. . ; Note the below gvn might not exist if no table depends on the view
+	. . DO:$DATA(^%ydboctoocto("viewdependency",viewName,"tables"))
+	. . . NEW tableName SET tableName=""
+	. . . FOR  SET tableName=$ORDER(^%ydboctoocto("viewdependency",viewName,"tables",tableName))  QUIT:(""=tableName)  DO
+	. . . . ; gvn would be like ^%ydboctoocto(""viewdependency","V2","tables","NAMES")
+	. . . . KILL ^%ydboctoocto("viewdependency",viewName,"tables",tableName)
+	. . . . ; Need to also kill the following gvn which is maintained in sync with the above
+	. . . . ; ^%ydboctoocto("tableviewdependency","NAMES","V2")
+	. . . . KILL ^%ydboctoocto("tableviewdependency",tableName,viewName)
+	. . . . ; Need to also kill the following gvn which refers to the views plan
+	. . . . ; ^%ydboctoocto("tableplans","NAMES","/home/ganesh/.yottadb/r995_x86_64/r/_ydboctoP6SMPLe3ZMQquRLJujRVjKL.m")=""
+	. . . . set tmp=""
+	. . . . FOR  SET tmp=$ORDER(tablePlanNames(tmp))  QUIT:(""=tmp)  DO
+	. . . . . if $DATA(^%ydboctoocto("tableplans",tableName,tmp)) kill ^%ydboctoocto("tableplans",tableName,tmp)
+	. . ; ----------------
+	. . ; Remove global variable nodes that record which views this view depends on.
+	. . ; ----------------
+	. . ; Note the below gvn might not exist if no view depends on the view
+	. . DO:$DATA(^%ydboctoocto("viewdependency",viewName,"views"))
+	. . . NEW dependentOnViewName SET dependentOnViewName=""
+	. . . FOR  SET dependentOnViewName=$ORDER(^%ydboctoocto("viewdependency",viewName,"views",dependentOnViewName)) QUIT:(""=dependentOnViewName)  DO
+	. . . . ; gvn would be like ^%ydboctoocto("viewdependency","V2","views","V1")
+	. . . . KILL ^%ydboctoocto("viewdependency",viewName,"views",dependentOnViewName)
+	. . . . ; Need to also kill the following gvn which is maintained in sync with the above
+	. . . . ; ^%ydboctoocto("viewdependency","V1","fromview","V2")
+	. . . . KILL ^%ydboctoocto("viewdependency",dependentOnViewName,"fromview",viewName)
 	QUIT
 
 discardPlan(srcPlan)

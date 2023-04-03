@@ -1,0 +1,15 @@
+
+drop view if exists v1;
+create view v1 as select CONCAT(firstname, ABS(id-10)::varchar) from names;
+drop view if exists v1;
+create view v1 as (values (1), ABS(-2));
+select * from v1;
+DROP VIEW
+CREATE VIEW
+DROP VIEW
+LINE 5:1: create view v1 as (values (1), ABS(-2));
+                                         ^^^
+syntax error, unexpected IDENTIFIER_ALONE, expecting LEFT_PAREN
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: V1
+LINE 6:1: select * from v1;
+                        ^^

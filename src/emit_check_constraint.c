@@ -301,6 +301,7 @@ int emit_check_constraint(char **buffer, int *buffer_size, char **buff_ptr, stru
 
 	/* The below types are not possible currently in a CHECK constraint */
 	case create_table_STATEMENT:
+	case create_view_STATEMENT:
 	case column_STATEMENT:
 	case keyword_STATEMENT:
 	case constraint_STATEMENT:
@@ -310,6 +311,7 @@ int emit_check_constraint(char **buffer, int *buffer_size, char **buff_ptr, stru
 	case select_STATEMENT:
 	case insert_STATEMENT:
 	case drop_table_STATEMENT:
+	case drop_view_STATEMENT:
 	case drop_function_STATEMENT:
 	case truncate_table_STATEMENT:
 	case aggregate_function_STATEMENT:

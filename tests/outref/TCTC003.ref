@@ -1734,7 +1734,7 @@ CREATE TABLE
 INSERT 0 1
 INSERT 0 1
 UPDATE 2
-GNP
+???
 1
 1
 (2 rows)
@@ -2011,7 +2011,7 @@ LINE 719:1: ... abcd (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id1 + id2, id1));
 syntax error, unexpected PLUS, expecting RIGHT_PAREN
 CREATE TABLE
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "ABCD_ID1_CHECK" already exists
-[ERROR]: ERR_CANNOT_CREATE_TABLE: Table "ABCD" already exists
+[ERROR]: ERR_CANNOT_CREATE_TABLE: Table or View "ABCD" already exists
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "ABCD_ID1_KEY" already exists
 DROP TABLE
 CREATE TABLE

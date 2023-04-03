@@ -27,6 +27,6 @@ LogicalPlan *lp_make_key(SqlColumnAlias *column_alias) {
 	UNPACK_SQL_STATEMENT(column, column_alias->column, column);
 	UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
 	UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
-	ret = lp_alloc_key(table, column, table_alias->unique_id, LP_KEY_ADVANCE, NULL, FALSE);
+	ret = lp_alloc_key(table, column, table_alias->unique_id, LP_KEY_ADVANCE, NULL, FALSE, NULL);
 	return ret;
 }

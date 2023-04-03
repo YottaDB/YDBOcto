@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,7 +20,7 @@
 #include "octo_types.h"
 #include "helpers.h"
 
-// Note that this function is very similar to find_table.c, so changes there may need to be reflected here also.
+// Note that this function is very similar to find_view_or_table.c, so changes there may need to be reflected here also.
 SqlFunction *find_function(const char *function_name, const char *function_hash) {
 	SqlFunction * function;
 	SqlStatement *stmt;

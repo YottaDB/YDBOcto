@@ -34,6 +34,10 @@ SqlStatement *update_statement(SqlStatement *table_name, SqlStatement *alias_nam
 	}
 	UNPACK_SQL_STATEMENT(join, join_stmt, join);
 	UNPACK_SQL_STATEMENT(table_alias, join->value, table_alias);
+	/* Untill UPDATE is allowed with views (YDBOcto#924) generate an error if
+	 * the table_name corresponds to a view.
+	 */
+	IF_VIEW_ISSUE_UNSUPPORTED_OPERATION_ERROR(table_alias->table, update_STATEMENT);
 	UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
 	if (!table->readwrite) {
 		ERROR(ERR_TABLE_READONLY, "UPDATE", table_name->v.value->v.reference);

@@ -1,0 +1,4 @@
+DROP VIEW
+CREATE VIEW
+[ERROR]: ERR_TOO_MANY_SELECT_KEYCOLS: Too many key columns specified in SELECT query (got: 256, max: 256)
+[ERROR]: ERR_PLAN_NOT_GENERATED: Failed to generate physical plan

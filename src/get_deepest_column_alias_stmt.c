@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -33,11 +33,14 @@ static void has_common_ancestor(SqlStatement *deepest_column_alias_stmt, SqlStat
 	boolean_t common_ancestor_reached = FALSE;
 	UNUSED(common_ancestor_reached); // Avoids [-Wunused-but-set-variable] for the above initialization
 	while (NULL != deepest_table_alias) {
-		if (other_table_alias->parent_table_alias->unique_id == deepest_table_alias->parent_table_alias->unique_id) {
+		assert(NULL != other_table_alias->parent_table_alias);
+		assert(NULL != deepest_table_alias->parent_table_alias);
+		if (other_table_alias->parent_table_alias->v.table_alias->unique_id
+		    == deepest_table_alias->parent_table_alias->v.table_alias->unique_id) {
 			common_ancestor_reached = TRUE;
 			break;
 		}
-		deepest_table_alias = deepest_table_alias->parent_table_alias;
+		deepest_table_alias = deepest_table_alias->parent_table_alias->v.table_alias;
 	}
 	assert(TRUE == common_ancestor_reached);
 }
@@ -58,10 +61,14 @@ SqlStatement *get_deepest_column_alias_stmt(SqlStatement *first_column_alias_stm
 
 	// The column alias whose parent_table_alias has the least unique_id is considered the deepest query level column alias
 	SqlStatement *deepest_column_alias_stmt;
-	if (second_table_alias->parent_table_alias->unique_id <= first_table_alias->parent_table_alias->unique_id) {
+	assert(NULL != second_table_alias->parent_table_alias);
+	assert(NULL != first_table_alias->parent_table_alias);
+	if (second_table_alias->parent_table_alias->v.table_alias->unique_id
+	    <= first_table_alias->parent_table_alias->v.table_alias->unique_id) {
 		deepest_column_alias_stmt = second_column_alias_stmt;
 #ifndef NDEBUG
-		if (second_table_alias->parent_table_alias->unique_id < first_table_alias->parent_table_alias->unique_id) {
+		if (second_table_alias->parent_table_alias->v.table_alias->unique_id
+		    < first_table_alias->parent_table_alias->v.table_alias->unique_id) {
 			has_common_ancestor(deepest_column_alias_stmt, first_column_alias_stmt);
 		}
 #endif

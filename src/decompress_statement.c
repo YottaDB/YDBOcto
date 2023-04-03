@@ -65,6 +65,14 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 	switch (stmt->type) {
 	case create_table_STATEMENT:
 		UNPACK_SQL_STATEMENT(table, stmt, create_table);
+		if (NULL == table->bin_defn_offset) {
+			/* This object is already decompressed i.e. its pointers would have already
+			 * gone through R2A. No need of again going through CALL_DECOMPRESS_HELPER()
+			 */
+			break;
+		}
+		table->bin_defn_offset = NULL;
+
 		CALL_DECOMPRESS_HELPER(table->tableName, out, out_length);
 		CALL_DECOMPRESS_HELPER(table->source, out, out_length);
 		CALL_DECOMPRESS_HELPER(table->columns, out, out_length);
@@ -73,6 +81,144 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 		/* table->readwrite is not a pointer value so no need to call CALL_DECOMPRESS_HELPER on this member */
 		/* table->oid is not a pointer value so no need to call CALL_DECOMPRESS_HELPER on this member */
 		/* table->if_not_exists_specified is not a pointer value */
+		break;
+	case create_view_STATEMENT:;
+		SqlView *view;
+		UNPACK_SQL_STATEMENT(view, stmt, create_view);
+		CALL_DECOMPRESS_HELPER(view->viewName, out, out_length);
+		CALL_DECOMPRESS_HELPER(view->src_table_alias_stmt, out, out_length);
+		break;
+	case table_alias_STATEMENT:;
+		SqlTableAlias *table_alias;
+		UNPACK_SQL_STATEMENT(table_alias, stmt, table_alias);
+		if (NULL == table_alias->bin_defn_offset) {
+			/* This object is already decompressed i.e. its pointers would have already
+			 * gone through R2A. No need of again going through CALL_DECOMPRESS_HELPER()
+			 */
+			break;
+		}
+		table_alias->bin_defn_offset = NULL;
+		CALL_DECOMPRESS_HELPER(table_alias->table, out, out_length);
+		CALL_DECOMPRESS_HELPER(table_alias->alias, out, out_length);
+		CALL_DECOMPRESS_HELPER(table_alias->parent_table_alias, out, out_length);
+		CALL_DECOMPRESS_HELPER(table_alias->column_list, out, out_length);
+		CALL_DECOMPRESS_HELPER(table_alias->correlation_specification, out, out_length);
+		CALL_DECOMPRESS_HELPER(table_alias->table_asterisk_column_alias, out, out_length);
+		table_alias->unique_id = config->plan_id++;
+		break;
+	case select_STATEMENT:;
+		SqlSelectStatement *select;
+		UNPACK_SQL_STATEMENT(select, stmt, select);
+		CALL_DECOMPRESS_HELPER(select->table_list, out, out_length);
+		CALL_DECOMPRESS_HELPER(select->where_expression, out, out_length);
+		CALL_DECOMPRESS_HELPER(select->select_list, out, out_length);
+		CALL_DECOMPRESS_HELPER(select->group_by_expression, out, out_length);
+		CALL_DECOMPRESS_HELPER(select->having_expression, out, out_length);
+		CALL_DECOMPRESS_HELPER(select->order_by_expression, out, out_length);
+		CALL_DECOMPRESS_HELPER(select->optional_words, out, out_length);
+		break;
+	case join_STATEMENT:;
+		SqlJoin *start_join, *cur_join;
+		UNPACK_SQL_STATEMENT(cur_join, stmt, join);
+		start_join = cur_join;
+		do {
+			CALL_DECOMPRESS_HELPER(cur_join->value, out, out_length);
+			CALL_DECOMPRESS_HELPER(cur_join->condition, out, out_length);
+			if (0 == cur_join->next) {
+				cur_join->next = start_join;
+			} else {
+				cur_join->next = R2A(cur_join->next);
+			}
+			cur_join->next->prev = cur_join;
+			cur_join = cur_join->next;
+		} while (cur_join != start_join);
+		if (table_alias_STATEMENT == start_join->value->type) {
+			start_join->max_unique_id = start_join->value->v.table_alias->unique_id + 1;
+		} else if (set_operation_STATEMENT == start_join->value->type) {
+			/* Since right branch of a set operation will have the last table_alias created for the operation.
+			 * The right most table_alias unique_id should be considered as it will be the last unique_id set.
+			 */
+			start_join->max_unique_id = start_join->value->v.set_operation->operand[1]->v.table_alias->unique_id + 1;
+		} else {
+			assert(FALSE);
+		}
+		break;
+	case column_list_alias_STATEMENT:;
+		SqlColumnListAlias *cur_cla, *start_cla;
+		UNPACK_SQL_STATEMENT(cur_cla, stmt, column_list_alias);
+		start_cla = cur_cla;
+		do {
+			if (NULL == cur_cla->bin_defn_offset) {
+				/* This column_alias_STATEMENT case block can be reached again in a nested/recursive call while the
+				 * original column list is still not all decompressed. If we notice in the nested call that a
+				 * cla is already decompressed, we need to return right away because it could be in the middle of
+				 * being decompressed (in the parent call) which means that the cur_cla->next link might not be
+				 * accurate at this point (which is what we need to traverse the linked list). That is the reason
+				 * why we need the break below.
+				 */
+				break;
+			}
+			cur_cla->bin_defn_offset = NULL;
+			CALL_DECOMPRESS_HELPER(cur_cla->column_list, out, out_length);
+			CALL_DECOMPRESS_HELPER(cur_cla->alias, out, out_length);
+			CALL_DECOMPRESS_HELPER(cur_cla->keywords, out, out_length);
+			CALL_DECOMPRESS_HELPER(cur_cla->outer_query_column_alias, out, out_length);
+			if (0 == cur_cla->next) {
+				cur_cla->next = start_cla;
+			} else {
+				cur_cla->next = R2A(cur_cla->next);
+			}
+			cur_cla->next->prev = cur_cla;
+			cur_cla = cur_cla->next;
+		} while (cur_cla != start_cla);
+		break;
+	case column_alias_STATEMENT:;
+		SqlColumnAlias *column_alias;
+		UNPACK_SQL_STATEMENT(column_alias, stmt, column_alias);
+		if (NULL == column_alias->bin_defn_offset) {
+			/* This object is already decompressed i.e. its pointers would have already
+			 * gone through R2A. No need of again going through CALL_DECOMPRESS_HELPER()
+			 */
+			break;
+		}
+		column_alias->bin_defn_offset = NULL;
+		CALL_DECOMPRESS_HELPER(column_alias->column, out, out_length);
+		CALL_DECOMPRESS_HELPER(column_alias->table_alias_stmt, out, out_length);
+		CALL_DECOMPRESS_HELPER(column_alias->set_oper_stmt, out, out_length);
+		break;
+	case aggregate_function_STATEMENT:;
+		SqlAggregateFunction *aggr;
+		UNPACK_SQL_STATEMENT(aggr, stmt, aggregate_function);
+		CALL_DECOMPRESS_HELPER(aggr->parameter, out, out_length);
+		CALL_DECOMPRESS_HELPER(aggr->table_alias_stmt, out, out_length);
+		break;
+	case set_operation_STATEMENT:;
+		SqlSetOperation *set_oper;
+		UNPACK_SQL_STATEMENT(set_oper, stmt, set_operation);
+		CALL_DECOMPRESS_HELPER(set_oper->operand[0], out, out_length);
+		CALL_DECOMPRESS_HELPER(set_oper->operand[1], out, out_length);
+		CALL_DECOMPRESS_HELPER(set_oper->col_type_list_stmt, out, out_length);
+		break;
+	case row_value_STATEMENT:;
+		SqlRowValue *cur_row_value, *start_row_value;
+		UNPACK_SQL_STATEMENT(cur_row_value, stmt, row_value);
+		start_row_value = cur_row_value;
+		do {
+			CALL_DECOMPRESS_HELPER(cur_row_value->value_list, out, out_length);
+			if (0 == cur_row_value->next) {
+				cur_row_value->next = start_row_value;
+			} else {
+				cur_row_value->next = R2A(cur_row_value->next);
+			}
+			cur_row_value->next->prev = cur_row_value;
+			cur_row_value = cur_row_value->next;
+		} while (cur_row_value != start_row_value);
+		break;
+	case table_value_STATEMENT:;
+		SqlTableValue *table_value;
+		UNPACK_SQL_STATEMENT(table_value, stmt, table_value);
+		CALL_DECOMPRESS_HELPER(table_value->row_value_stmt, out, out_length);
+		CALL_DECOMPRESS_HELPER(table_value->column_stmt, out, out_length);
 		break;
 	case create_function_STATEMENT:
 		UNPACK_SQL_STATEMENT(function, stmt, create_function);
@@ -140,19 +286,21 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 		case BOOLEAN_VALUE:
 		case NUMERIC_LITERAL:
 		case INTEGER_LITERAL:
+		case BOOLEAN_OR_STRING_LITERAL:
+			/* value of such type which are unresolved to either BOOLEAN or STRING till this point
+			 * will be set to STRING type later on by hash_canonical_query(). Treat this value similar
+			 * to a STRING_LITERAL at this point.
+			 */
 		case STRING_LITERAL:
 		case DELIM_VALUE:
 		case NUL_VALUE:
 		case FUNCTION_NAME:
 		case FUNCTION_HASH:
 		case COLUMN_REFERENCE:
+		case TABLE_ASTERISK:
 			value->v.string_literal = R2A(value->v.string_literal);
 			break;
-		case BOOLEAN_OR_STRING_LITERAL:
-			/* All literals with this type should have been fixed to either STRING_LITERAL or BOOLEAN_VALUE type
-			 * by the time the binary table definition was created in "compress_statement()". So this should be
-			 * an impossible value.
-			 */
+		case SELECT_ASTERISK:
 		default:
 			assert(FALSE);
 			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
@@ -164,6 +312,18 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 		UNPACK_SQL_STATEMENT(cur_column, stmt, column);
 		start_column = cur_column;
 		do {
+			if (NULL == cur_column->bin_defn_offset) {
+				/* This column_STATEMENT case block can be reached again in a nested/recursive call while the
+				 * original column list is still not all decompressed. If we notice in the nested call that a
+				 * column is already decompressed, we need to return right away because it could be in the middle of
+				 * being decompressed (in the parent call) which means that the cur_column->next link might not be
+				 * accurate at this point (which is what we need to traverse the linked list). That is the reason
+				 * why we need the break below.
+				 */
+				break;
+			}
+			cur_column->bin_defn_offset = NULL;
+			CALL_DECOMPRESS_HELPER(cur_column->table, out, out_length);
 			CALL_DECOMPRESS_HELPER(cur_column->columnName, out, out_length);
 			CALL_DECOMPRESS_HELPER(cur_column->keywords, out, out_length);
 			/* Fix "cur_column->delim" now that "cur_column->keywords" is set up */
@@ -175,7 +335,8 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 				cur_column->next = R2A(cur_column->next);
 			}
 			cur_column->next->prev = cur_column;
-			cur_column->table = (SqlStatement *)out; /* table is first element in compressed structure i.e. "out" */
+			// cur_column->table = (SqlStatement *)out;
+			/* table is first element in compressed structure i.e. "out" */
 			cur_column = cur_column->next;
 		} while (cur_column != start_column);
 		break;
@@ -294,19 +455,18 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 			cur_cas_branch = cur_cas_branch->next;
 		} while (cur_cas_branch != start_cas_branch);
 		break;
+	case array_STATEMENT:;
+		SqlArray *array;
 
+		UNPACK_SQL_STATEMENT(array, stmt, array);
+		CALL_DECOMPRESS_HELPER(array->argument, out, out_length);
+		break;
 	/* The below types are not possible currently in a CREATE TABLE definition */
-	case select_STATEMENT:
 	case insert_STATEMENT:
 	case drop_table_STATEMENT:
+	case drop_view_STATEMENT:
 	case drop_function_STATEMENT:
 	case truncate_table_STATEMENT:
-	case aggregate_function_STATEMENT:
-	case join_STATEMENT:
-	case column_list_alias_STATEMENT:
-	case column_alias_STATEMENT:
-	case table_alias_STATEMENT:
-	case set_operation_STATEMENT:
 	case begin_STATEMENT:
 	case commit_STATEMENT:
 	case set_STATEMENT:
@@ -316,9 +476,6 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 	case index_STATEMENT:
 	case join_type_STATEMENT:
 	case discard_all_STATEMENT:
-	case row_value_STATEMENT:
-	case table_value_STATEMENT:
-	case array_STATEMENT:
 	case history_STATEMENT:
 	case delete_from_STATEMENT:
 	case update_STATEMENT:

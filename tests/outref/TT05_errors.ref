@@ -1,0 +1,7 @@
+
+-- TT05 : OCTO211 : TRUNCATE issue's an error if the object is not a table
+create view v1 as select 1;
+truncate table v1;
+
+CREATE VIEW
+[ERROR] PATH:LINENUM DATE TIME: ERR_WRONG_TYPE: "V1" is not a TABLE

@@ -112,6 +112,14 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		return;
 	if (stmt->hash_canonical_query_cycle == hash_canonical_query_cycle) {
 		switch (stmt->type) {
+		case create_view_STATEMENT:;
+			SqlView *view;
+			ADD_INT_HASH(state, create_view_STATEMENT);
+			UNPACK_SQL_STATEMENT(view, stmt, create_view);
+			assert(value_STATEMENT == view->viewName->type);
+			hash_canonical_query(state, view->viewName, status);
+			return;
+			break;
 		case create_table_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */
 			SqlTable *table;
 
@@ -370,26 +378,37 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		case COLUMN_REFERENCE:
 			ydb_mmrhash_128_ingest(state, (void *)value->v.reference, strlen(value->v.reference));
 			break;
-		case COERCE_TYPE:
+		case COERCE_TYPE:;
 			/* Note that we do NOT want to use the ADD_DATA_TYPE_HASH macro here as we want two queries that
 			 * use type coercion (say "SELECT 1::NUMERIC(1);" vs "SELECT 1::NUMERIC(2);") to hash to the
 			 * same plan if the only difference is in the use of the SIZE/PRECISION and/or SCALE parameters.
 			 * The ADD_DATA_TYPE_HASH macro hashes the size/precision and/or scale values too which we do not
 			 * want in this case. Hence the simple hash of just the data type ("NUMERIC" in the example case).
 			 */
-			ADD_INT_HASH(state, value->u.coerce_type.coerced_type.data_type);
+			SqlDataTypeStruct *coerced_type;
+			coerced_type = &value->u.coerce_type.coerced_type;
+			ADD_INT_HASH(state, coerced_type->data_type);
 			ADD_NON_ZERO_GROUP_BY_NUM_TO_HASH(state, value->group_by_fields.group_by_column_num);
-			/* We want to generate different plans for two queries where one specifies a SIZE/PRECISION and/or
-			 * SCALE and one does not. For example, "SELECT 1::NUMERIC(1);" vs "SELECT 1::NUMERIC(1,0);".
-			 * Hence the additional hash below in the unspecified case. In the unspecified case, we skip this
-			 * hash and that will ensure a different plan gets created.
-			 */
-			if (SIZE_OR_PRECISION_UNSPECIFIED != value->u.coerce_type.coerced_type.size_or_precision) {
-				ADD_INT_HASH(state, SIZE_OR_PRECISION_UNSPECIFIED);
-			}
-			if (SCALE_UNSPECIFIED != value->u.coerce_type.coerced_type.scale) {
-				assert(SIZE_OR_PRECISION_UNSPECIFIED != value->u.coerce_type.coerced_type.size_or_precision);
-				ADD_INT_HASH(state, SCALE_UNSPECIFIED);
+			if (HASH_LITERAL_VALUES == *status) {
+				if (SIZE_OR_PRECISION_UNSPECIFIED != coerced_type->size_or_precision) {
+					ADD_INT_HASH(state, coerced_type->size_or_precision);
+				}
+				if (SCALE_UNSPECIFIED != coerced_type->scale) {
+					ADD_INT_HASH(state, coerced_type->scale);
+				}
+			} else {
+				/* We want to generate different plans for two queries where one specifies a SIZE/PRECISION and/or
+				 * SCALE and one does not. For example, "SELECT 1::NUMERIC(1);" vs "SELECT 1::NUMERIC(1,0);".
+				 * Hence the additional hash below in the unspecified case. In the unspecified case, we skip this
+				 * hash and that will ensure a different plan gets created.
+				 */
+				if (SIZE_OR_PRECISION_UNSPECIFIED != coerced_type->size_or_precision) {
+					ADD_INT_HASH(state, SIZE_OR_PRECISION_UNSPECIFIED);
+				}
+				if (SCALE_UNSPECIFIED != coerced_type->scale) {
+					assert(SIZE_OR_PRECISION_UNSPECIFIED != coerced_type->size_or_precision);
+					ADD_INT_HASH(state, SCALE_UNSPECIFIED);
+				}
 			}
 			assert(IS_LITERAL_PARAMETER(value->u.coerce_type.pre_coerced_type)
 			       || IS_NUL_VALUE(value->u.coerce_type.pre_coerced_type));
@@ -425,6 +444,18 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 	case column_list_alias_STATEMENT:
 		hash_canonical_query_column_list_alias(state, stmt, status, FALSE); // FALSE so we do not loop
 		break;
+	case create_view_STATEMENT:; /* semicolon for empty staatement so we can declare variables in case block */
+		SqlView *view;
+		UNPACK_SQL_STATEMENT(view, stmt, create_view);
+		assert(view->viewName->type == value_STATEMENT);
+		ADD_INT_HASH(state, create_view_STATEMENT);
+		hash_canonical_query(state, view->viewName, status);
+		int save_status;
+		save_status = *status;
+		*status = HASH_LITERAL_VALUES;
+		hash_canonical_query(state, view->src_table_alias_stmt, status);
+		*status = save_status;
+		break;
 	case create_table_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */
 		SqlTable *table;
 
@@ -441,7 +472,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 			 * also any optional size/precision and/or scale if specified.
 			 */
 			ADD_DATA_TYPE_HASH(state, cur_column->data_type_struct);
-			assert(stmt == cur_column->table);
+			assert(stmt->v.value == cur_column->table->v.value);
 			hash_canonical_query(state, cur_column->delim, status);
 			hash_canonical_query(state, cur_column->keywords, status);
 			cur_column = cur_column->next;
@@ -459,7 +490,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 
 		UNPACK_SQL_STATEMENT(table_value, stmt, table_value);
 		ADD_INT_HASH(state, table_value_STATEMENT);
-		start_column = table_value->column;
+		start_column = table_value->column_stmt->v.column;
 		cur_column = start_column;
 		do {
 			hash_canonical_query(state, cur_column->columnName, status);
@@ -537,15 +568,21 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		 *	from the list of all available columns in the corresponding SqlTable. In this case too, there is no need
 		 *	to go through all the available columns in the table. We are interested only in the columns that this
 		 *	query is interested in which would already be part of the SELECT column list or other parts of the query.
-		 * If table_alias->table is of type "table_value_STATEMENT", then the "table_alias->column_list" is derived
-		 *	from the list of all available columns in the corresponding "table_alias->table" structure.
-		 * And since these are the only 3 types possible, no need to traverse "table_alias->column_list" as part of
-		 *	"hash_canonical_query". This is asserted below.
+		 * If table_alias->table is of type "create_view_STATEMENT", then the "table_alias->column_list" is derived
+		 *	from the list of all available columns in the corresponding SqlView->src_table_alias_stmt. In this case
+		 *      too, there is no need to go through all the available columns in the view. We are interested only in the
+		 *      columns that this query is interested in which would already be part of the SELECT column list or other
+		 *      parts of the query. If table_alias->table is of type "table_value_STATEMENT", then the
+		 *      "table_alias->column_list" is derived from the list of all available columns in the corresponding
+		 *      "table_alias->table" structure. And since these are the only 3 types possible, no need to traverse
+		 *      "table_alias->column_list" as part of "hash_canonical_query". This is asserted below.
 		 */
 		assert((select_STATEMENT == table_alias->table->type) || (create_table_STATEMENT == table_alias->table->type)
-		       || (table_value_STATEMENT == table_alias->table->type));
+		       || (table_value_STATEMENT == table_alias->table->type)
+		       || (create_view_STATEMENT == table_alias->table->type));
 		assert((select_STATEMENT != table_alias->table->type)
-		       || (table_alias->table->v.select->select_list == table_alias->column_list));
+		       || (table_alias->table->v.select->select_list->v.column_list_alias
+			   == table_alias->column_list->v.column_list_alias));
 		// hash_canonical_query(state, table_alias->column_list, status);
 		break;
 	case binary_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */

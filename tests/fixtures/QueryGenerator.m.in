@@ -33,7 +33,8 @@
 	; #FUTURE_TODO: Include subquery and Case statements in UPDATE's SET list entry
 	; #FUTURE_TODO: Include queries with UPDATE's SET list entry having more versatile expressions than a simple literal value
 	;		from the column itself
-
+	; #FUTURE_TODO: Views testing should include explicit view column names specification
+	;               Example: (CREATE VIEW view_name (col1,col2) AS SELECT ..)
 
 	set $etrap="zshow ""*""  halt"
 	;
@@ -71,6 +72,16 @@
 	zwr isReadWriteMode
 	set isReadWriteMode=$select(("write"=isReadWriteMode):1,1:0)
 	set origIsReadWriteMode=isReadWriteMode
+
+	; Views usage
+	if ((0=isReadWriteMode)&(1=$random(4))) do
+	. ; QueryGenerator is expected to generate read-only queries.
+	. ; Make use of views either by converting tables to views or by having applying CREATE VIEW
+	. ; on each SELECT query generated.
+	. set enableTableToViewConversion=$random(2)
+	. set enableCreateViewOnSelect=$select((1=enableTableToViewConversion):0,1:1)
+	else  do
+	. set (enableCreateViewOnSelect,enableTableToViewConversion)=0
 
 	; #FUTURE_TODO: Following fillCompositeSql(), fillDefaultNamesLastnameTbl(), fillDefaultCompositeTbl() should ideally be
 	;               done by readSQL and readZWR itself.
@@ -121,13 +132,17 @@
 	set enableGroupByHavingClause=$random(2)
 	; Randomly choose if LIMIT clause will be present (in outermost query and subquery) or not (50% yes, 50% no).
 	set enableLimitClause=$select('$random(8):1,1:0)
+
 	zwrite sqlFile,joinCount,enableSubQuery,enableWhereClause,enableInnerWhereClause
-	zwrite enableOrderByClause,enableGroupByHavingClause,enableLimitClause
-	new i,savecolumns
+	zwrite enableOrderByClause,enableGroupByHavingClause,enableLimitClause,enableTableToViewConversion,enableCreateViewOnSelect
+	new i,savecolumns,viewName
 	merge savecolumns=columns
 
 	; Main Loop
 	set file=prefix_".sql"
+	set dropViewCommands=""
+	do:(enableTableToViewConversion) convertAllTablesToViews(file)
+
 	; Store isReadWriteMode value as its used in the for loop to communicate to the rest of the code if WRITE query is being
 	; generated. The for loop still relies on the original value of isReadWriteMode to know whether this invocation generates
 	; only SELECT queries or a mix of SELECT and WRITE queries.
@@ -137,6 +152,7 @@
 	. write "Query Count "_i,!
 	. ; select read-only queries
 	. if (0=lclIsReadWriteMode)  do
+	. . set:(enableCreateViewOnSelect) viewName="view"_prefix_i
 	. . do genSelectQuery()
 	. else  do
 	. . ; select read-write queries
@@ -148,7 +164,12 @@
 	. . else  do
 	. . . set isReadWriteMode=1
 	. . . do genWriteQuery()
-
+	if (1=enableTableToViewConversion) do
+	. ; insert drop view statements
+	. open file:(append)
+	. use file
+	. write dropViewCommands
+	. close file
 	quit
 
 ; This routine generates the input and output file names and invokes writeTableDefintion()
@@ -496,6 +517,12 @@ genSelectQuery()
 	set query=$$generateQuery(queryDepth,joinCount)
 	write query,!
 
+	if (enableCreateViewOnSelect) do
+	. open file:(append)
+	. use file
+	. write "CREATE VIEW "_viewName_" AS "_query,!
+	. close file
+	. set query="SELECT * FROM "_viewName_";"
 	open file:(append)
 	use file
 	; Add a line to generated query file given LIMIT exists, and ORDER BY does not or is not having all
@@ -507,6 +534,7 @@ genSelectQuery()
 	else  if (orderByExists&(asteriskExists))  write query," ","-- sort-needed-check",!
 	else  if (orderByExists&(orderByListLessThanSelectList))  write query," ","--sort-needed-check",!
 	else  write query,!
+	write:(enableCreateViewOnSelect) "DROP VIEW "_viewName_";",!
 	close file
 	; The following LVNs exist for each individual query,
 	; thus they need to be KILLED after each query is created
@@ -792,11 +820,44 @@ genDeleteQuery()
 	write deleteQuery,!
 	close file
 	write deleteQuery,!
+
+; The following routine generates CREATE VIEW statements for all the tables considered by QueryGenerator.m for generating queries.
+; This function is only invoked when `enableTableToConversion` is set. When this lvn is set information regarding the tables
+; are masked to be under the name of the view which is created by this routine. This way any reference by the QueryGenerator.m to
+; the original table is replaced by the a view reference.
+convertAllTablesToViews(file)
+	; Go through `tables` lvn and add CREATE VIEW statements
+	; When enableTableToViewConversion is set the names in tables lvn will have view in them, remove them before
+	; writing the CREATE VIEW queries.
+	quit:0=$get(tables,0)
+	for i=0:1:tables-1 do
+	. new tableName,createViewQueryStr,viewName
+	. set tableName=tables(i)
+	. ; Get the view and table name
+	. set tableName=$piece(tableName,"view",1)
+	. if (0'=$find(tableName,"""")) do
+	. . ; This tableName has quotes in it, form the view name first and then add back the quote to the tableName
+	. . set viewName=tableName_"view"""
+	. . set tableName=tableName_""""
+	. else  set viewName=tableName_"view"_prefix
+	. set dropViewQueryStr="DROP VIEW IF EXISTS "_viewName_";"
+	. ; Following string is used to place DROP commands at the end of query file.
+	. ; Ensure newline is added at the end of each DROP command. It was noticed that
+	. ; during test executions some views are not dropped if newline is not added. The test execution was mostly through
+	. ; JDBC driver but more investigation needs to be done to determine why this is happening.
+	. set dropViewCommands=dropViewCommands_$select(""'=dropViewCommands:$zchar(10),1:"")_dropViewQueryStr
+	. set createViewQueryStr="CREATE VIEW "_viewName_" AS SELECT * FROM "_tableName_";"
+	. write "convertAllTablesToViews() : createViewQueryStr=",createViewQueryStr,!
+	. open file:(append)
+	. use file
+	. write dropViewQueryStr,!
+	. write createViewQueryStr,!
+	. close file
 	quit
 
 fillCompositeSql()
 	new databaseName
-	set databaseName=$SELECT((1=isReadWriteMode):"composite"_prefix,1:"composite")
+	set databaseName=$SELECT((1=enableTableToViewConversion):"composite"_"view"_prefix,(1=isReadWriteMode):"composite"_prefix,1:"composite")
 	set sqlInfo(databaseName,1,"id0","INTEGER")=""
 	set sqlInfo(databaseName,2,"id1","INTEGER")=""
 	set sqlInfo(databaseName,3,"id2","INTEGER")=""
@@ -866,6 +927,11 @@ readSQL(file)
 	. . . . . set tableName=$extract(line(i),tableNameStart,tableNameEnd-3)_prefix_""""
 	. . . . else  do
 	. . . . . set tableName=tableName_prefix
+	. . . else  if (1=enableTableToViewConversion) do
+	. . . . if (0'=$find(tableName,"""")) do
+	. . . . . set tableName=$extract(line(i),tableNameStart,tableNameEnd-3)_"view"
+	. . . . . set tableName=tableName_""""
+	. . . . else  set tableName=tableName_"view"_prefix
 	. .
 	. . ;set i2=1
 	. . ;COLUMN NAMES
@@ -933,7 +999,7 @@ readZWR(file)
 	. . . . set fullThing=$piece(line(i),"=""") ; EX: ^Names(###)
 	. . . . if ($extract($piece(fullThing,"("),2,1000000)'=previous)  set innerNumber=1
 	. . . . set previous=$extract($piece(fullThing,"("),2,1000000)
-	. . . . set databaseGblName=$SELECT((1=isReadWriteMode):$piece(fullThing,"(")_prefix,1:$piece(fullThing,"("))
+	. . . . set databaseGblName=$SELECT((1=isReadWriteMode):$piece(fullThing,"(")_prefix,(1=enableTableToViewConversion):$piece(fullThing,"(")_"view"_prefix,1:$piece(fullThing,"("))
 	. . . . set table=databaseGblName_"("_innerNumber_")" ; EX: ^Names(custom number)
 	. . . . if $increment(innerNumber)
 	. . . . set firstData=$piece($piece(line(i),"=""",2),"|")
@@ -951,7 +1017,7 @@ readZWR(file)
 
 fillDefaultNamesLastnameTbl()
 	new databaseName
-	set databaseName=$SELECT((1=isReadWriteMode):"nameslastname"_prefix,1:"nameslastname")
+	set databaseName=$SELECT((1=isReadWriteMode):"nameslastname"_prefix,(1=enableTableToViewConversion):"nameslastname"_"view"_prefix,1:"nameslastname")
 	set data("^"_databaseName_"(1)",1,"Cool")=""
 	set data("^"_databaseName_"(2)",1,"Burn")=""
 	set data("^"_databaseName_"(3)",1,"Killer")=""
@@ -962,7 +1028,7 @@ fillDefaultNamesLastnameTbl()
 
 fillDefaultCompositeTbl()
 	new databaseName
-	set databaseName=$SELECT((1=isReadWriteMode):"composite"_prefix,1:"composite")
+	set databaseName=$SELECT((1=isReadWriteMode):"composite"_prefix,(1=enableTableToViewConversion):"composite"_"view"_prefix,1:"composite")
 	; 1st row
 	set data("^"_databaseName_"(1)",1,0)=""
 	set data("^"_databaseName_"(1)",2,1)=""
@@ -1132,8 +1198,12 @@ selectList(queryDepth,curDepth)
 	; cannot use multiple occurence of * if SELECT DISTINCT has been chosen already or joinCount is > 0 as the sum of the number of columns of the tables involved
 	; in the FROM and JOIN clauses could end up greater than 31 and cause MAXNRSUBSCRIPTS error. Disable "*" selection in that case.
 	write "selectList(): queryDepth:",queryDepth," curDepth:",curDepth,!
-	set okToSelectStar=((quantifierLVN("alias"_queryDepth)'="DISTINCT ")!(2>joinCount))
-	set okToSelectMultipleStar=((1>joinCount)!(quantifierLVN("alias"_queryDepth)'="DISTINCT "))
+	; In this function if enableCreatViewOnSelect is found to be set we want all columns to have an alias to avoid ambiguity when the query is used as a view definition.
+	; In order to achieve this "alias"_curDepth_lclAliasCounter is used as an alias wherever alias is not already set.
+	if (enableCreateViewOnSelect) set (okToSelectStar,okToSelectMultipleStar)=0
+	else  do
+	. set okToSelectStar=((quantifierLVN("alias"_queryDepth)'="DISTINCT ")!(2>joinCount))
+	. set okToSelectMultipleStar=((1>joinCount)!(quantifierLVN("alias"_queryDepth)'="DISTINCT "))
 	if ((okToSelectStar&('$random(8)))&((asteriskExists=1)&oktoSelectMultipleStar)) do
 	. set toBeAdded="*"
 	. set asteriskExists=1
@@ -1161,6 +1231,10 @@ selectList(queryDepth,curDepth)
 	; Below check is to ensure that if there is only 1 table, that there can be no subquerying
 	if (GLOBALtotalTables=1) set randInt=0
 
+	; Below check is to ensure that table.* is not selected when this query will be a view definition. Hard to ensure that
+	; table columns don't have ambiguous names
+	set:(enableCreateViewOnSelect&(randInt=2)) randInt=0
+
 	write "selectList(): randInt=",randInt,!
 	; Qualifier notation (table.column) is to be used
 	if (randInt=0) do
@@ -1171,8 +1245,7 @@ selectList(queryDepth,curDepth)
 	. set selectListLVN(queryDepth,toBeAdded,1)=selectNodePosition
 
 	if (randInt=1) do
-	. set aliasNum1More=aliasNum+1
-	. set alias="alias"_aliasNum1More
+	. set aliasNum=aliasNum+1,alias="alias"_aliasNum
 	. set toBeAdded="("_$$generateSubQuery(queryDepth,"limited","")_") AS "_alias
 	. set selectListLVN(queryDepth,alias)="subquery"
 	. if ($increment(selectNodePosition))
@@ -1274,6 +1347,9 @@ selectList(queryDepth,curDepth)
 	. ;   when the expression is constant so that groupByClause can identify and ignore it 50% of the time.
 	. set:(constExpr) selectListLVN(queryDepth,toBeAdded)=typeStr_"_constant_expression"
 	. write "selectList(): expression type - "_selectListLVN(queryDepth,toBeAdded),!
+	. ; Following alias assignment helps to avoid ambiguity between column names when this query is used
+	. ; in view definition.
+	. set:(enableCreateViewOnSelect&('constExpr)) aliasNum=aliasNum+1,toBeAdded=toBeAdded_" AS alias"_aliasNum
 
 	; #FUTURE_TODO: Remove `((3'=randInt)!(constExpr))`
 	;   If aggregate function element gets added to select list from the below block
@@ -1291,7 +1367,9 @@ selectList(queryDepth,curDepth)
 	. . ; Note: When count(table.*) is present other columns either have to be in group by or be also used in aggregate function
 	. . set agg="COUNT("_table_".*)"
 	. . set selectListLVN(queryDepth,agg)="aggregate_function_t_asterisk"
-	. . set toBeAdded=toBeAdded_","_agg
+	. . set:(((3'=randInt)!(constExpr))&((1'=randInt)&enableCreateViewOnSelect)) aliasNum=aliasNum+1,toBeAdded=toBeAdded_" AS alias"_aliasNum
+	. . set:enableCreateViewOnSelect aliasNum=aliasNum+1
+	. . set toBeAdded=toBeAdded_","_agg_$select((enableCreateViewOnSelect):" AS alias"_aliasNum,1:"")
 	. . set tableAsteriskAggregateExists=1
 	. . if ($increment(selectNodePosition))
 	. . set selectListLVN(queryDepth,agg,1)=selectNodePosition
@@ -1308,11 +1386,20 @@ selectList(queryDepth,curDepth)
 	. . new i
 	. . for i=1:1:8 set chosenColumn2=$$chooseColumn(table) quit:(chosenColumn'=chosenColumn2)
 	. . set tc=$select((8'=i):table_"."_chosenColumn2,1:"")
+	. . set:(((3'=randInt)!(constExpr))&((1'=randInt)&enableCreateViewOnSelect)) aliasNum=aliasNum+1,toBeAdded=toBeAdded_" AS alias"_aliasNum
+	. . set:(enableCreateViewOnSelect) aliasNum=aliasNum+1,agg=agg_" AS alias"_aliasNum
 	. . set toBeAdded=toBeAdded_", "_agg_$select(""'=tc:", "_tc,1:"")
 	. . if (""'=tc) do
 	. . . set selectListLVN(queryDepth,tc)="table.column"
 	. . . if ($increment(selectNodePosition))
 	. . . set selectListLVN(queryDepth,tc,1)=selectNodePosition
+	. . . set:enableCreateViewOnSelect aliasNum=aliasNum+1,toBeAdded=toBeAdded_" AS alias"_aliasNum
+	else  if (enableCreateViewOnSelect) do
+	. if (3'=randInt)&(1'=randInt) do
+	. . do assert(0=randInt)
+	. . set aliasNum=aliasNum+1,toBeAdded=toBeAdded_" AS alias"_aliasNum
+	. else  if (3=randInt)&constExpr do
+	. . set aliasNum=aliasNum+1,toBeAdded=toBeAdded_" AS alias"_aliasNum
 
 	set result=toBeAdded
 	if curDepth>0 do
@@ -2773,7 +2860,8 @@ generateQuery(queryDepth,joinCount)
 	; In that case, it would be a sub-query. So give it a name in the outer query using the AS keyword.
 	if ("names.sql"=sqlFile)  do
 	. set fc=fc_" AS names"
-	. set:(1=origIsReadWriteMode) fc=fc_prefix
+	. set fc=$select((1=origIsReadWriteMode):fc_prefix,(1=enableTableToViewConversion):fc_"view"_prefix,1:fc)
+
 	set joinclause="" for i=1:1:joinCount  set joinclause=joinclause_$$joinClause(queryDepth,joinCount)  if $increment(aliasNum)
 	set outerSelectList=$$selectList(queryDepth,selectListDepth)
 	set query=query_outerSelectList

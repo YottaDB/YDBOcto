@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -212,7 +212,9 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	case set_STATEMENT:
 	case show_STATEMENT:
 	case create_table_STATEMENT:
+	case create_view_STATEMENT:
 	case drop_table_STATEMENT:
+	case drop_view_STATEMENT:
 	case create_function_STATEMENT:
 	case drop_function_STATEMENT:
 	case begin_STATEMENT:

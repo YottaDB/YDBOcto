@@ -37,7 +37,7 @@ SqlStatement *validate_query_expression(SqlStatement *query_expression, ParseCon
 	ret = query_expression;
 	ret_parms.ret_cla = NULL;
 	ret_parms.max_unique_id = &max_unique_id;
-	ret_parms.aggr_unique_id = 0;
+	ret_parms.aggr_table_alias_stmt = NULL;
 	max_unique_id = 0; /* Need to initialize this to avoid garbage values from being read in "qualify_statement" */
 	if (qualify_query(ret, NULL, NULL, &ret_parms)) {
 		return NULL;

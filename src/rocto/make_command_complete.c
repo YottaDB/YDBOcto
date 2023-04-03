@@ -56,9 +56,17 @@ CommandComplete *make_command_complete(SqlStatementType cmd_type, int32_t row_co
 		assert(MAX_TAG_LEN >= sizeof(DROP_TABLE_COMMAND_TAG));
 		snprintf(command_tag, MAX_TAG_LEN, DROP_TABLE_COMMAND_TAG);
 		break;
+	case drop_view_STATEMENT:
+		assert(MAX_TAG_LEN >= sizeof(DROP_VIEW_COMMAND_TAG));
+		snprintf(command_tag, MAX_TAG_LEN, DROP_VIEW_COMMAND_TAG);
+		break;
 	case create_table_STATEMENT:
 		assert(MAX_TAG_LEN >= sizeof(CREATE_TABLE_COMMAND_TAG));
 		snprintf(command_tag, MAX_TAG_LEN, CREATE_TABLE_COMMAND_TAG);
+		break;
+	case create_view_STATEMENT:
+		assert(MAX_TAG_LEN >= sizeof(CREATE_VIEW_COMMAND_TAG));
+		snprintf(command_tag, MAX_TAG_LEN, CREATE_VIEW_COMMAND_TAG);
 		break;
 	case drop_function_STATEMENT:
 		assert(MAX_TAG_LEN >= sizeof(DROP_FUNCTION_COMMAND_TAG));

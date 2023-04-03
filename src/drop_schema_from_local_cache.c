@@ -22,7 +22,7 @@ int drop_schema_from_local_cache(ydb_buffer_t *name_buffer, SqlSchemaType schema
 	char	     retbuff[sizeof(void *)];
 
 	YDB_STRING_TO_BUFFER(config->global_names.loadedschemas, &schema_local);
-	/* Free up memory chunk noted down at the end of "src/find_function.c" or "src/find_table.c"
+	/* Free up memory chunk noted down at the end of "src/find_function.c" or "src/find_view_or_table.c"
 	 * Those would be stored in one of the below 2 node pairs:
 	 *	%ydboctoloadedschemas(OCTOLIT_FUNCTIONS,FUNCTIONNAME,FUNCTIONHASH)
 	 *	%ydboctoloadedschemas(OCTOLIT_FUNCTIONS,FUNCTIONNAME,FUNCTIONHASH,OCTOLIT_CHUNK)

@@ -1,0 +1,18 @@
+
+create view v1 as select id, firstname,lastname from names;
+create view v2 as select * from v1;
+-- Expect the following from the DROP VIEW
+-- ERROR:  cannot drop view v1 because other objects depend on it
+-- DETAIL:  view v2 depends on view v1
+-- HINT:  Use DROP ... CASCADE to drop the dependent objects too.
+drop view v1;
+
+-- Following commands shouldn't lead to any errors
+drop view v2;
+drop view v1;
+
+CREATE VIEW
+CREATE VIEW
+[ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "V1" because view "V2" depends on it
+DROP VIEW
+DROP VIEW

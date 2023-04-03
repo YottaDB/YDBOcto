@@ -1,0 +1,5 @@
+3:;  select (select id from TCV031_1v limit 1), (select firstname from TCV031_1v limit 1);
+9:    DO octoPlan1(cursorId)
+10:    DO octoPlan2(cursorId)
+11:    DO octoPlan3(cursorId)
+12:    DO octoPlan4(cursorId)

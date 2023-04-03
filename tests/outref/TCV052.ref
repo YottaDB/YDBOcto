@@ -1,0 +1,10 @@
+create view v1 as values (1), (ABS(-2));
+drop function ABS(integer);
+create view v2 as values (ABS(-2)), (1);
+drop function ABS(integer);
+CREATE VIEW
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS_ON_VIEW: Cannot DROP function ABS(INTEGER) because view "V1" depends on it
+CREATE VIEW
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS_ON_VIEW: Cannot DROP function ABS(INTEGER) because view "V1" depends on it
+^%ydboctoocto("viewdependency","V1","functions","ABS","%ydboctoFXjpLNKLu1sElo0JiZVgdDG")=""
+^%ydboctoocto("viewdependency","V2","functions","ABS","%ydboctoFXjpLNKLu1sElo0JiZVgdDG")=""

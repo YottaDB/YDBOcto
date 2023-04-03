@@ -19,6 +19,15 @@ drop_table_statement
     }
   ;
 
+drop_view_statement
+  : DROP VIEW column_name {
+      INVOKE_DROP_VIEW_STATEMENT($$, $column_name, FALSE);
+    }
+  | DROP VIEW IF EXISTS column_name {
+      INVOKE_DROP_VIEW_STATEMENT($$, $column_name, TRUE);
+    }
+  ;
+
 drop_function_statement
   : DROP FUNCTION column_name optional_function_parameter_type_list {
 	INVOKE_DROP_FUNCTION($$, $column_name, $optional_function_parameter_type_list, FALSE);

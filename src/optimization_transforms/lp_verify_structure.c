@@ -121,6 +121,22 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 		       | lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_TABLE_VALUE)
 		       | lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_SET_OPERATION);
 		break;
+	case LP_VIEW:
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_SELECT_QUERY)
+		       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_SET_OPERATION)
+		       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_TABLE_VALUE);
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_OUTPUT);
+		if ((NULL != options) && (NULL == plan->extra_detail.lp_view.next_view)) {
+			LogicalPlan *prev_view;
+			prev_view = *options->view;
+			assert(prev_view != plan);
+			if (NULL == prev_view) {
+				prev_view = LP_LIST_END;
+			}
+			plan->extra_detail.lp_view.next_view = prev_view;
+			*options->view = plan;
+		}
+		break;
 	case LP_TABLE:
 		/* The below logic is very similar to the logic in the LP_FUNCTION_CALL case when "options" is non-NULL.
 		 * See comments there for more details.
@@ -166,7 +182,8 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 			ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_TABLE)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_TABLE_VALUE)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_SELECT_QUERY)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_SET_OPERATION);
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_SET_OPERATION)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_VIEW);
 			ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_TABLE_JOIN);
 			ret &= lp_verify_structure_helper(plan->extra_detail.lp_table_join.join_on_condition, options, LP_WHERE);
 		} else {

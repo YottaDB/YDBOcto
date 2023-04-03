@@ -114,16 +114,16 @@ LINE 32:2: select TRUE::numeric(2);
 [ERROR]: ERR_INVALID_NUMERIC_SYNTAX: Invalid input syntax for type numeric: '1245-1123'
 [ERROR]: ERR_INVALID_NUMERIC_SYNTAX: Invalid input syntax for type numeric: '+1231+123'
 [ERROR]: ERR_INVALID_NUMERIC_SYNTAX: Invalid input syntax for type numeric: '-1245-1123'
-???
+NUMERIC
 
 (1 row)
-???
+INTEGER
 
 (1 row)
-???
+BOOLEAN
 
 (1 row)
-???
+NUMERIC
 1
 (1 row)
 [ERROR]: ERR_TYPE_CAST: Cannot cast type BOOLEAN to type NUMERIC

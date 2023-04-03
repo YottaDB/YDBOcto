@@ -51,7 +51,9 @@ int check_column_lists_for_type_match(SqlStatement *stmt, ParseContext *parse_co
 			} else {
 				assert(set_operation_STATEMENT == sql_stmt->type);
 				UNPACK_SQL_STATEMENT(set_operand, sql_stmt, set_operation);
-				start_cla[i] = set_operand->col_type_list;
+				start_cla[i] = (NULL != set_operand->col_type_list_stmt)
+						   ? set_operand->col_type_list_stmt->v.column_list_alias
+						   : NULL;
 			}
 		}
 		start_set_cla = NULL;
@@ -90,6 +92,12 @@ int check_column_lists_for_type_match(SqlStatement *stmt, ParseContext *parse_co
 	}
 	for (i = 0; i < 2; i++) {
 		assert(NULL != start_cla[i]);
+		/* Following if block avoids [clang-analyzer-core.NullDereference] warning from compiler when accessing cur_cla[0]
+		 * and cur_cla[1] in the next while loop.
+		 */
+		if (NULL == start_cla[i]) {
+			return 1;
+		}
 		cur_cla[i] = start_cla[i];
 	}
 	fixed_type = FALSE;
@@ -298,7 +306,11 @@ int check_column_lists_for_type_match(SqlStatement *stmt, ParseContext *parse_co
 	}
 	if (is_set_operation) {
 		assert(NULL != start_set_cla);
-		set_operation->col_type_list = start_set_cla;
+		// assert that col_type_list_stmt is always NULL and use PACK_SQL_STATEMENT() instead of manual assignment below
+		if (NULL == set_operation->col_type_list_stmt) {
+			SQL_STATEMENT(set_operation->col_type_list_stmt, column_list_alias_STATEMENT);
+		}
+		set_operation->col_type_list_stmt->v.column_list_alias = start_set_cla;
 	}
 	if (!result && fixed_type) {
 		/* Type checking of column lists ran without errors and there was at least one BOOLEAN_OR_STRING_LITERAL
@@ -308,7 +320,9 @@ int check_column_lists_for_type_match(SqlStatement *stmt, ParseContext *parse_co
 		if (is_set_operation) {
 			SqlColumnListAlias *fix_type_cla;
 
-			fix_type_cla = set_operation->col_type_list;
+			fix_type_cla = (NULL != set_operation->col_type_list_stmt)
+					   ? set_operation->col_type_list_stmt->v.column_list_alias
+					   : NULL;
 			result = populate_data_type_cla_fix(stmt, parse_context, fix_type_cla);
 			assert(!result); /* type fixing call of "populate_data_type" should never fail as it is 2nd call */
 		}

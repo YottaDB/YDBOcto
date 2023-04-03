@@ -59,3 +59,7 @@ teardown() {
 	verify_output TT04 output.txt noinfo nodebug
 }
 
+@test "TT05 : OCTO211 : TRUNCATE issue's an error if the object is not table" {
+	load_fixture TT05_errors.sql subtest
+	verify_output TT05_errors output.txt noinfo nodebug
+}

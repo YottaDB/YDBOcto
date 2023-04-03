@@ -26,7 +26,7 @@ SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlati
 	SqlStatement * ret, *tableName;
 	SqlValue *     value;
 	SqlJoin *      join;
-	SqlTable *     table;
+	SqlStatement * table_stmt;
 	SqlColumn *    column;
 	SqlTableAlias *table_alias;
 
@@ -34,8 +34,8 @@ SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlati
 	case value_STATEMENT:
 		/* column_name holds the name of the desired table */
 		UNPACK_SQL_STATEMENT(value, column_name, value);
-		table = find_table(value->v.reference);
-		if (NULL == table) {
+		table_stmt = find_view_or_table(value->v.reference);
+		if (NULL == table_stmt) {
 			ERROR(ERR_UNKNOWN_TABLE, value->v.reference);
 			yyerror(NULL, NULL, &column_name, NULL, NULL, NULL);
 			return NULL;
@@ -46,7 +46,7 @@ SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlati
 		/* Caller is "table_value_constructor" rule in parser.y.
 		 * In this case, it is not a pre-existing table. But a table defined by the VALUES clause.
 		 */
-		table = NULL;
+		table_stmt = NULL;
 		break;
 	}
 	SQL_STATEMENT(ret, join_STATEMENT);
@@ -55,10 +55,19 @@ SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlati
 	SQL_STATEMENT(join->value, table_alias_STATEMENT);
 	MALLOC_STATEMENT(join->value, table_alias, SqlTableAlias);
 	UNPACK_SQL_STATEMENT(table_alias, join->value, table_alias);
-	if (NULL != table) {
-		SQL_STATEMENT_FROM_SQLTABLE(table_alias, table);
-		tableName = table->tableName;
-		UNPACK_SQL_STATEMENT(column, table->columns, column);
+	if (NULL != table_stmt) {
+		if (create_view_STATEMENT == table_stmt->type) {
+			SqlView *view;
+			UNPACK_SQL_STATEMENT(view, table_stmt, create_view);
+			SQL_STATEMENT_FROM_SQLTABLE_OR_SQLVIEW(table_alias, view);
+			tableName = view->viewName;
+			table_stmt = view->src_table_alias_stmt;
+		} else {
+			SqlTable *table;
+			UNPACK_SQL_STATEMENT(table, table_stmt, create_table);
+			SQL_STATEMENT_FROM_SQLTABLE_OR_SQLVIEW(table_alias, table);
+			tableName = table->tableName;
+		}
 	} else {
 		SqlStatement * table_value_stmt;
 		SqlTableValue *table_value;
@@ -107,10 +116,12 @@ SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlati
 			}
 		}
 		column = start_column;
-		table_value->column = column;
+		SQL_STATEMENT(table_value->column_stmt, column_STATEMENT);
+		table_value->column_stmt->v.column = column;
 		tableName = NULL;
+		table_stmt = table_value_stmt;
 	}
-	PACK_SQL_STATEMENT(table_alias->column_list, columns_to_column_list_alias(column, join->value), column_list_alias);
+	PACK_SQL_STATEMENT(table_alias->column_list, get_encapsulated_cla_list(table_stmt, join->value), column_list_alias);
 	if (NULL != correlation_specification) {
 		SqlColumnList *column_list;
 

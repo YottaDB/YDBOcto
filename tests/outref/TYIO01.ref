@@ -101,9 +101,9 @@ octo_region_label|INCTN|4
 octo_region_label|PBLK|20
 octo_region_label|PFIN|5
 octo_region_label|PINI|5
-octo_region_label|SET|3425
-octo_region_label|TCOM|38
-octo_region_label|TSET|38
+octo_region_label|SET|3480
+octo_region_label|TCOM|40
+octo_region_label|TSET|40
 (15 rows)
 RECTYPE|TBLTYPE
 AIMG|TYPE5

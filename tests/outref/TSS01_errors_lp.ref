@@ -11,18 +11,18 @@ Parsing done for SQL command [select (firstname::boolean AND id::boolean) from n
             LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
             LP_COLUMN_ALIAS: NAMES(1).ID
         - type: BOOLEAN_VALUE
-        - alias: FIRSTNAME
+        - alias: ???
             LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
             LP_COLUMN_ALIAS: NAMES(1).ID
         - type: BOOLEAN_VALUE
-        - alias: FIRSTNAME
+        - alias: ???
 Parsing done for SQL command [select (n1.col1::integer = 0) from (select NULL as col1 from names) n1;]
         - type: BOOLEAN_VALUE
-        - alias: COL1
+        - alias: ???
                 - type: NULL
                 - alias: COL1
         - type: BOOLEAN_VALUE
-        - alias: COL1
+        - alias: ???
                 - type: NULL
                 - alias: COL1
 Parsing done for SQL command []

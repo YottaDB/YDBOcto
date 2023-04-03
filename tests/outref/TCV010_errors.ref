@@ -1,0 +1,15 @@
+
+create function samevalue(integer) returns integer as $$samevalue^functions;
+create view v1 as select samevalue(1);
+select * from v1;
+-- Expect the following error for the drop function statement
+-- ERROR:  cannot drop function samevalue(integer) because other objects depend on it
+-- DETAIL:  view v1 depends on function samevalue(integer)
+-- HINT:  Use DROP ... CASCADE to drop the dependent objects too.
+drop function samevalue(integer);
+CREATE FUNCTION
+CREATE VIEW
+SAMEVALUE
+1
+(1 row)
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS_ON_VIEW: Cannot DROP function SAMEVALUE(INTEGER) because view "V1" depends on it

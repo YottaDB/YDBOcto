@@ -38,8 +38,8 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 	SqlTableAlias *	    table_alias;
 
 	error_encountered = FALSE;
-	// Set operations should be handled in a different function
 	if (set_operation_STATEMENT == stmt->type) {
+		// Set operations should be handled in a different function
 		return lp_generate_set_logical_plan(stmt);
 	} else if (insert_STATEMENT == stmt->type) {
 		SqlInsertStatement *insert;
@@ -208,7 +208,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 	MALLOC_LP(where, select_options->v.lp_default.operand[0], LP_WHERE);
 	LP_GENERATE_WHERE(select_stmt->where_expression, NULL, where->v.lp_default.operand[0], error_encountered);
 	MALLOC_LP(dst, select_query->v.lp_default.operand[1], LP_OUTPUT);
-	dst->v.lp_default.operand[0] = lp_alloc_key(NULL, NULL, get_new_plan_unique_id(), LP_KEY_ADVANCE, NULL, FALSE);
+	dst->v.lp_default.operand[0] = lp_alloc_key(NULL, NULL, get_new_plan_unique_id(), LP_KEY_ADVANCE, NULL, FALSE, NULL);
 	select_query->extra_detail.lp_select_query.root_table_alias = table_alias;
 	select_query->extra_detail.lp_select_query.to_array = FALSE;
 	join_right = NULL;
@@ -243,6 +243,12 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 
 					MALLOC_LP(lp_table, join_right->v.lp_default.operand[0], LP_TABLE);
 					lp_table->v.lp_table.table_alias = table_alias;
+				} else if (create_view_STATEMENT == table_type) {
+					LogicalPlan *lp_view = lp_generate_view(sql_stmt, &error_encountered);
+					if (NULL == lp_view) {
+						return NULL;
+					}
+					join_right->v.lp_default.operand[0] = lp_view;
 				} else {
 					assert(table_value_STATEMENT == table_type);
 					join_right->v.lp_default.operand[0] = lp_generate_table_value(sql_stmt, &error_encountered);
@@ -296,8 +302,9 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 			SqlOptionalKeyword *keyword;
 			if (column_alias_STATEMENT == cur_cla->column_list->v.column_list->value->type) {
 				SqlColumnAlias *column_alias = cur_cla->column_list->v.column_list->value->v.column_alias;
+				assert(NULL != column_alias->table_alias_stmt->v.table_alias->parent_table_alias);
 				if (select_query->extra_detail.lp_select_query.root_table_alias
-				    != column_alias->table_alias_stmt->v.table_alias->parent_table_alias) {
+				    != column_alias->table_alias_stmt->v.table_alias->parent_table_alias->v.table_alias) {
 					// Skip the current node
 					cur_cla = cur_cla->next;
 					// Check if the skipped node was the last node
@@ -389,8 +396,9 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 
 					SqlTableAlias *table_alias;
 					UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
+					assert(NULL != table_alias->parent_table_alias);
 					if (select_query->extra_detail.lp_select_query.root_table_alias
-					    != table_alias->parent_table_alias) {
+					    != table_alias->parent_table_alias->v.table_alias) {
 						// Skip the current node
 						cur_cla = cur_cla->next;
 						/* if (cur_cla == start_cla) then this is the end of the list.
@@ -441,7 +449,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 
 		new_plan = left->v.lp_default.operand[0];
 		assert((LP_SELECT_QUERY == new_plan->type) || (LP_SET_OPERATION == new_plan->type) || (LP_TABLE == new_plan->type)
-		       || (LP_TABLE_VALUE == new_plan->type));
+		       || (LP_TABLE_VALUE == new_plan->type) || (LP_VIEW == new_plan->type));
 		if (LP_TABLE != new_plan->type) {
 			SqlStatement *sql_stmt;
 			LogicalPlan * cur_lp_key;

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -30,7 +30,7 @@ boolean_t lp_is_col_in_update_column_list(LogicalPlan *lp_update, SqlColumn *src
 
 		SqlColumn *cur_column;
 		cur_column = lp_column->v.lp_column.column;
-		assert(cur_column->table == srch_column->table);
+		assert(cur_column->table->v.create_table == srch_column->table->v.create_table);
 		if (cur_column == srch_column) {
 			return TRUE;
 		}

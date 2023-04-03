@@ -71,3 +71,23 @@ teardown() {
 	#verify_output TAU001_2 output.txt noinfodebug
 }
 
+@test "TAU002 : views to function and table dependency should not be lost on autoload or auto upgrade" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	## Part 1
+	load_fixture TAU002_1.sql subtest novv
+	verify_output TAU002_1 output.txt noinfodebug
+	## Part 2
+	# Make the following files available if the test is run by test-auto-upgrade job
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TAU002_2.sql ./
+	mv output.txt output_1.txt
+	mv clean_output.txt clean_output_1.txt
+	# --------------------------------------------------------
+	# The below steps will be executed by "tools/ci/build.sh" (search for "TAU" there).
+	# Hence they are commented here when running with the older commit.
+	# --------------------------------------------------------
+	#cp @PROJECT_SOURCE_DIR@/tests/outref/TAU001_2.ref ./
+	load_fixture TAU002_2.sql subtest novv
+	verify_output TAU002_2 output.txt noinfodebug
+}
+

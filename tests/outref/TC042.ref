@@ -5,4 +5,4 @@ CREATE TABLE temp (id INTEGER);
 CREATE TABLE temp (id INTEGER);
 
 CREATE TABLE
-[ERROR]: ERR_CANNOT_CREATE_TABLE: Table "TEMP" already exists
+[ERROR]: ERR_CANNOT_CREATE_TABLE: Table or View "TEMP" already exists

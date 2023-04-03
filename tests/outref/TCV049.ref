@@ -1,0 +1,17 @@
+
+create view TCV049_v12 as select * from names UNION select * from names;
+create view TCV049_v13 as select * from names EXCEPT ALL select * from TCV049_v12;
+create view TCV049_v11 as select * from names EXCEPT select * from TCV049_v12;
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+ Parsing done for SQL command [create view TCV049_v12 as select * from names UNION select * from names;]
+ Parsing done for SQL command [create view TCV049_v13 as select * from names EXCEPT ALL select * from TCV049_v12;]
+ Parsing done for SQL command [create view TCV049_v11 as select * from names EXCEPT select * from TCV049_v12;]
+^%ydboctoocto("viewdependency","TCV049_V11","tables","NAMES")=""
+^%ydboctoocto("viewdependency","TCV049_V11","views","TCV049_V12")=""
+^%ydboctoocto("viewdependency","TCV049_V12","fromview","TCV049_V11")=""
+^%ydboctoocto("viewdependency","TCV049_V12","fromview","TCV049_V13")=""
+^%ydboctoocto("viewdependency","TCV049_V12","tables","NAMES")=""
+^%ydboctoocto("viewdependency","TCV049_V13","tables","NAMES")=""
+^%ydboctoocto("viewdependency","TCV049_V13","views","TCV049_V12")=""

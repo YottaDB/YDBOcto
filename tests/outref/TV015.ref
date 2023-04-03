@@ -36,7 +36,7 @@ LP_INSERT_INTO:
                     LP_VALUE: '10'
                   LP_COLUMN_LIST_ALIAS: 
                   - type: INTEGER_LITERAL
-                  - alias: ID
+                  - alias: ???
               LP_SELECT: 
                 LP_TABLE_JOIN: 
                   LP_TABLE: NAMES(1)
@@ -132,7 +132,7 @@ LP_INSERT_INTO:
                         LP_VALUE: '10'
                       LP_COLUMN_LIST_ALIAS: 
                       - type: INTEGER_LITERAL
-                      - alias: ID
+                      - alias: ???
                   LP_SELECT: 
                     LP_TABLE_JOIN: 
                       LP_TABLE: NAMES(1)
@@ -173,7 +173,7 @@ LP_INSERT_INTO:
                         LP_VALUE: '10'
                       LP_COLUMN_LIST_ALIAS: 
                       - type: INTEGER_LITERAL
-                      - alias: ID
+                      - alias: ???
                   LP_SELECT: 
                     LP_TABLE_JOIN: 
                       LP_TABLE: NAMES(1)

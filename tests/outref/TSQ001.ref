@@ -61,7 +61,7 @@ LP_SELECT_QUERY:
                           LP_VALUE: 'c'
                         LP_COLUMN_LIST_ALIAS: 
                         - type: BOOLEAN_VALUE
-                        - alias: RELKIND
+                        - alias: ???
                     LP_SELECT: 
                       LP_TABLE_JOIN: 
                         LP_TABLE: C(3)
@@ -253,7 +253,7 @@ LP_SET_OPERATION:
                             LP_VALUE: 'c'
                           LP_COLUMN_LIST_ALIAS: 
                           - type: BOOLEAN_VALUE
-                          - alias: RELKIND
+                          - alias: ???
                       LP_SELECT: 
                         LP_TABLE_JOIN: 
                           LP_TABLE: C(3)

@@ -43,7 +43,7 @@ TEMPLATE(tmpl_constraint_col_list, PhysicalPlan *pplan, SqlConstraint *constrain
 		} else {
 			assert(PRIMARY_KEY == constraint->type);
 			assert(!table_has_hidden_column(table));
-			/* Note: The below code is similar to that in "describe_tablename.c" */
+			/* Note: The below code is similar to describe table part in "describe_table_or_view_name.c" */
 
 			SqlOptionalKeyword *keyword;
 			UNPACK_SQL_STATEMENT(keyword, table->source, keyword);

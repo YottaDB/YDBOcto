@@ -42,8 +42,14 @@ LogicalPlan *lp_copy_plan(LogicalPlan *plan) {
 	}
 	OCTO_CMALLOC_STRUCT(new_plan, LogicalPlan);
 	*new_plan = *plan;
-	new_plan->v.lp_default.operand[0] = lp_copy_plan(plan->v.lp_default.operand[0]);
-	new_plan->v.lp_default.operand[1] = lp_copy_plan(plan->v.lp_default.operand[1]);
+	if (LP_VIEW == plan->type) {
+		// View definition doesn't need to be copied
+		assert(new_plan->v.lp_default.operand[0] == plan->v.lp_default.operand[0]);
+		new_plan->v.lp_default.operand[1] = lp_copy_plan(plan->v.lp_default.operand[1]);
+	} else {
+		new_plan->v.lp_default.operand[0] = lp_copy_plan(plan->v.lp_default.operand[0]);
+		new_plan->v.lp_default.operand[1] = lp_copy_plan(plan->v.lp_default.operand[1]);
+	}
 	if (LP_TABLE_JOIN == plan->type) {
 		new_plan->extra_detail.lp_table_join.join_on_condition
 		    = lp_copy_plan(plan->extra_detail.lp_table_join.join_on_condition);

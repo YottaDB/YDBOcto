@@ -206,7 +206,7 @@ LINE 4:1: (select id        from names) union (select firstname from names...
                   ^^
 LINE 4:1: ...lect id        from names) union (select firstname from names);
                                                       ^^^^^^^^^
-ID
+???
 1
 2
 3
@@ -329,7 +329,7 @@ LINE 32:1: (select id        from names) union all (select firstname from n...
                    ^^
 LINE 32:1: ... id        from names) union all (select firstname from names);
                                                        ^^^^^^^^^
-ID
+???
 1
 2
 3
@@ -450,7 +450,7 @@ LINE 60:1: (select id        from names) intersect (select firstname from n...
                    ^^
 LINE 60:1: ... id        from names) intersect (select firstname from names);
                                                        ^^^^^^^^^
-ID
+???
 1
 2
 3
@@ -564,7 +564,7 @@ LINE 88:1: (select id        from names) intersect all (select firstname fr...
                    ^^
 LINE 88:1: ...       from names) intersect all (select firstname from names);
                                                        ^^^^^^^^^
-ID
+???
 1
 2
 3
@@ -674,7 +674,7 @@ LINE 116:1: (select id        from names) except (select firstname from name...
                     ^^
 LINE 116:1: ...ect id        from names) except (select firstname from names);
                                                         ^^^^^^^^^
-ID
+???
 6
 (1 row)
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT types INTEGER and VARCHAR cannot be matched
@@ -780,7 +780,7 @@ LINE 144:1: (select id        from names) except all (select firstname from ...
                     ^^
 LINE 144:1: ...id        from names) except all (select firstname from names);
                                                         ^^^^^^^^^
-ID
+???
 6
 (1 row)
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT ALL types INTEGER and VARCHAR cannot be matched

@@ -57,6 +57,11 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 		cur_lp_key = lp_get_output_key(oper0);
 		lp_insert_key(root, cur_lp_key);
 		break;
+	case LP_VIEW:;
+		// View definition is optimized right after its generation, no need to call optimize_logical_plan() on it here
+		cur_lp_key = lp_get_output_key(oper0);
+		lp_insert_key(root, cur_lp_key);
+		break;
 	default:
 		assert((LP_TABLE == oper0->type) || (LP_TABLE_VALUE == oper0->type));
 		select = lp_get_select(root);
@@ -89,7 +94,7 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 		}
 		for (cur_key = 0; cur_key <= max_key; cur_key++) {
 			keys->v.lp_default.operand[0]
-			    = lp_alloc_key(table, key_columns[cur_key], unique_id, LP_KEY_ADVANCE, NULL, FALSE);
+			    = lp_alloc_key(table, key_columns[cur_key], unique_id, LP_KEY_ADVANCE, NULL, FALSE, NULL);
 			if (cur_key != max_key) {
 				MALLOC_LP_2ARGS(keys->v.lp_default.operand[1], LP_KEYS);
 				keys = keys->v.lp_default.operand[1];
@@ -112,7 +117,6 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	LogicalPlan *select, *table_join, *where;
 	LogicalPlan *cur;
-	DEBUG_ONLY(LogicalPlan * keys);
 
 	if (NULL == plan)
 		return NULL;
@@ -225,6 +229,7 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	/* Now that optimal join order has been determined, "join" all the tables to generate keys for the physical plan.
 	 * This will be needed by the key fixing optimization which is invoked next.
 	 */
+	DEBUG_ONLY(LogicalPlan * keys);
 	DEBUG_ONLY(keys = lp_get_keys(plan));
 	DEBUG_ONLY(assert(NULL == keys->v.lp_default.operand[0]));
 	if (NULL == join_tables(plan, table_join)) {
@@ -247,12 +252,17 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			 */
 			operand0 = table_join->v.lp_default.operand[0];
 			switch (operand0->type) {
+			case LP_VIEW:
 			case LP_SELECT_QUERY:
 			case LP_SET_OPERATION:
 				select_query = operand0;
 				if (LP_SET_OPERATION == operand0->type) {
 					select_query = lp_drill_to_insert(select_query);
 					assert(LP_SELECT_QUERY == select_query->type);
+				} else if (LP_VIEW == operand0->type) {
+					select_query = operand0->v.lp_default.operand[0];
+					assert((LP_SELECT_QUERY == select_query->type) || (LP_TABLE_VALUE == select_query->type)
+					       || (LP_SET_OPERATION == select_query->type));
 				}
 				right_table_alias = select_query->extra_detail.lp_select_query.root_table_alias;
 				break;

@@ -783,6 +783,70 @@ Error Case
      A CREATE FUNCTION waits for all other concurrently running queries(SELECT or CREATE TABLE or DROP TABLE) to finish so it can safely make DDL changes. It waits for an exclusive lock with a timeout of 10 seconds. If it fails due to a timeout, the user needs to stop all concurrently running queries and reattempt the CREATE FUNCTION statement.
 
 ---------------
+CREATE VIEW
+---------------
+
+  A view can be formed from tables, functions and other views.
+
+  .. code-block:: SQL
+
+     CREATE VIEW [IF NOT EXISTS] view_name (column_name_list) AS view_definition;
+
+     column_name_list: (column, column, ..)
+
+     view_definition: select_query or values clause or set_operation
+
+  The column_name_list is a comma separated list of column names that is assigned to the columns defined by the view_definition. column_name_list resolves any name collision that might be present in the view definition. Name collisions in the column_name_list itself will generate an error.
+
+  A view after its creation can be used in all the clauses where a table can be used. Joins can be performed with views and non-view relations. If a view depends on a table/function/another view, DROP command cannot be applied on the relation on which the view depends on. If applied an error describing the dependency is generated.
+
+  INSERT/DELETE/UPDATE queries are not allowed with VIEWS.
+
+  Example:
+
+  .. code-block:: SQL
+
+     CREATE VIEW v1 AS select * from names;
+     select * from v1;
+
+  The above example creates a view with the name v1 and has as its definition a select query which iterates through all data in the names database. The SELECT on the view above will run `select * from names` and provide the same output as the defining query.
+
+  Example:
+
+  .. code-block:: SQL
+
+     CREATE VIEW v1 (v1_id, v1_firstname, v1_lastname) AS select * from names;
+     select * from v1;
+
+  The above example creates a view with the name v1 and columns v1_id, v1_firstname and v1_lastname. The column names specified will be column names used while displaying the result. In the above example the underlying query will have columns id, firstname and lastname. These are replaced by v1_id, v1_firstname and v1_lastname.
+
+  Example:
+
+  .. code-block:: SQL
+
+     CREATE VIEW v1 AS values(1,'first','second');
+     CREATE VIEW v2 AS select 1 union select 2;
+
+  The above example demonstrates that a view can be created with VALUES clause and SET OPERATION UNION. Other SET OPERATIONS like INTERSECT and EXCEPT can also be used.
+
+  Example:
+
+  .. code-block:: SQL
+
+    CREATE VIEW v1 AS select * from names;
+    CREATE VIEW v2 AS select * from v1;
+
+  The above example demonstrates that a view can be created with other views.
+
+  Example:
+
+  .. code-block:: SQL
+
+    CREATE VIEW v1 AS select max(id) from names;
+
+  The above example demonstrates that a view can be created with functions.
+
+---------------
 DISCARD ALL
 ---------------
 
@@ -856,6 +920,24 @@ Error Case
 
   .. note::
      A DROP FUNCTION waits for all other concurrently running queries(SELECT or CREATE TABLE or DROP TABLE) to finish so it can safely make DDL changes. It waits for an exclusive lock with a timeout of 10 seconds. If it fails due to a timeout, the user needs to stop all concurrently running queries and reattempt the DROP FUNCTION statement.
+
+--------------
+DROP VIEW
+--------------
+
+  .. code-block:: SQL
+
+     DROP VIEW [IF EXISTS] view_name;
+
+  The DROP VIEW statement is used to remove views from the database. The keywords DROP VIEW are followed by the name of the view desired to be dropped.
+
+  If :code:`IF EXISTS` is supplied for a :code:`DROP VIEW` statement and a view does not exist, the result is a no-op with no errors. In this case, error type :code:`INFO_VIEW_DOES_NOT_EXIST` is emitted at :code: `INFO` log severity level.
+
+  Example:
+
+  .. code-block:: SQL
+
+     DROP VIEW v1;
 
 --------------
 TRUNCATE TABLE
@@ -2463,12 +2545,16 @@ Useful Commands at OCTO>
     +-------------------------+-------------------------------------------------------+
     | :code:`\\d tablename`   | Displays information about columns of specified table |
     +-------------------------+-------------------------------------------------------+
+    | :code:`\\d viewname`    | Displays information about the specified view         |
+    +-------------------------+-------------------------------------------------------+
+    | :code:`\\dv`            | Displays all views                                    |
+    +-------------------------+-------------------------------------------------------+
     | :code:`\\s`             | Displays Octo command history                         |
     +-------------------------+-------------------------------------------------------+
 
     .. note::
 
-      Both :code:`\\d` and :code:`\\d tablename` require a semi-colon to terminate the query. Newlines will *not* terminate :code:`\\d` queries.
+      :code:`\\d` ,:code:`\\dv` ,:code:`\\d tablename` and :code: `\\d viewname` require a semi-colon to terminate the query. Newlines will *not* terminate :code:`\\d` queries.
 
     Relation shown will be similar to the following:
 
@@ -2506,7 +2592,16 @@ Useful Commands at OCTO>
 
     .. code-block:: bash
 
-       OCTO> \d NAMES
+       OCTO> create view v1 as select * from names;
+       CREATE VIEW
+
+       OCTO> \dv;
+       Schema|Name|Type|Owner
+       public|V1|view|octo
+
+    .. code-block:: bash
+
+       OCTO> \d NAMES;
        Table "NAMES"
        Column|Type|Collation|Nullable|Default
        ID|INTEGER||NOT NULL|
@@ -2514,13 +2609,24 @@ Useful Commands at OCTO>
        LASTNAME|VARCHAR(30)|||
        OCTO>
 
+    .. code-block:: bash
+
+       OCTO> \d v1;
+       View "V1"
+       Column|Type|Collation|Nullable|Default
+       ID|INTEGER||||
+       FIRSTNAME|VARCHAR(30)||||
+       LASTNAME|VARCHAR(30)||||
+       View definition:
+       SELECT NAMES.ID, NAMES.FIRSTNAME, NAMES.LASTNAME FROM NAMES
+
     :code:`\\d tablename` displays CHECK constraints, if defined.
 
     Example:
 
     .. code-block:: bash
 
-       OCTO> \d EMPLOYEE
+       OCTO> \d EMPLOYEE;
        Table "EMPLOYEE"
        Column|Type|Collation|Nullable|Default
        ID|INTEGER||NOT NULL|

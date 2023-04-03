@@ -33,6 +33,7 @@ set(aux_files
   aux/_ydboctoselect.m
   aux/_ydboctosqlfunctions.m
   aux/_ydboctoxrefupdate.m
+  aux/_ydboctoViewsUpgrade.m
 )
 
 add_ydb_library(_ydbocto SOURCES ${aux_files})

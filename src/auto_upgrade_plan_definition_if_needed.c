@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -85,7 +85,7 @@ int auto_upgrade_plan_definition_if_needed(void) {
 			break;
 		}
 	}
-	/* Call an M routine to discard all plans, xrefs and triggers associated with all tables in Octo.
+	/* Call an M routine to discard all plans, xrefs and triggers associated with all tables and views in Octo.
 	 * This code is very similar to that in "src/run_query.c" to implement "DISCARD ALL".
 	 */
 	status = ydb_ci("_ydboctoDiscardAll");

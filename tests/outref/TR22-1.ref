@@ -10,6 +10,6 @@ ID|FIRSTNAME|LASTNAME
 OCTO> create
 OCTO> LINE 1:1: create
            
-syntax error, unexpected ENDOFFILE, expecting FUNCTION or TABLE
+syntax error, unexpected ENDOFFILE, expecting FUNCTION or TABLE or VIEW
 
 OCTO> 

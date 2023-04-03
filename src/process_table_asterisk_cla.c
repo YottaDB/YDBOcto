@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -75,7 +75,8 @@ void process_table_asterisk_cla(SqlStatement *specification_list, SqlColumnListA
 		*c_cla_head = cla_head;
 	} else {
 		assert(QualifyQuery_ORDER_BY == qualify_query_stage);
-		assert(0 == cur_table_alias->parent_table_alias->aggregate_function_or_group_by_or_having_specified);
+		assert(NULL != cur_table_alias->parent_table_alias);
+		assert(0 == cur_table_alias->parent_table_alias->v.table_alias->aggregate_function_or_group_by_or_having_specified);
 		result = copy_column_list_alias_list(cla, cur_table_alias_stmt, cla_cur->keywords);
 		/* Append linked list of clas corresponding to columns of table after untouched TABLENAME.ASTERISK
 		 * cla. Do not update c_cla_cur as in case SELECT DISTINCT is used we want to match ORDER BY column

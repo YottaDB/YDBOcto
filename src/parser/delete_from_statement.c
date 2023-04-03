@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -34,6 +34,10 @@ SqlStatement *delete_from_statement(SqlStatement *table_name, SqlStatement *alia
 	}
 	UNPACK_SQL_STATEMENT(join, join_stmt, join);
 	UNPACK_SQL_STATEMENT(table_alias, join->value, table_alias);
+	/* Untill DELETE FROM is allowed with Views (YDBOcto#924) generate an error if
+	 * the table_name corresponds to a view.
+	 */
+	IF_VIEW_ISSUE_UNSUPPORTED_OPERATION_ERROR(table_alias->table, delete_from_STATEMENT);
 	UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
 	if (!table->readwrite) {
 		ERROR(ERR_TABLE_READONLY, "DELETE", table_name->v.value->v.reference);

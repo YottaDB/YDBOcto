@@ -1,0 +1,119 @@
+
+create view v1 as select 't';
+select * from v1;
+\d v1;
+
+create view v2 as select '1';
+select * from v2;
+\d v2;
+
+create view v3 as select 'f';
+select * from v3;
+\d v3;
+
+create view v4 as select '0';
+select * from v4;
+\d v4;
+
+create view v5 as select true;
+select * from v5;
+\d v5;
+
+create view v6 as select false;
+select * from v6;
+\d v6;
+
+create view v7 as select true,'t' as col2 union select 'f','t';
+select * from v7;
+\d v7;
+
+create view v8 as select '1'::integer from names limit 1;
+select * from v8;
+\d v8;
+
+create view v9 as select '1'::integer;
+select * from v9;
+\d v9;
+CREATE VIEW
+???
+t
+(1 row)
+View "V1"
+Column|Type|Collation|Nullable|Default
+???|VARCHAR||||
+View definition:
+create view v1 as select 't';
+CREATE VIEW
+???
+1
+(1 row)
+View "V2"
+Column|Type|Collation|Nullable|Default
+???|VARCHAR||||
+View definition:
+create view v2 as select '1';
+CREATE VIEW
+???
+f
+(1 row)
+View "V3"
+Column|Type|Collation|Nullable|Default
+???|VARCHAR||||
+View definition:
+create view v3 as select 'f';
+CREATE VIEW
+???
+0
+(1 row)
+View "V4"
+Column|Type|Collation|Nullable|Default
+???|VARCHAR||||
+View definition:
+create view v4 as select '0';
+CREATE VIEW
+???
+1
+(1 row)
+View "V5"
+Column|Type|Collation|Nullable|Default
+???|BOOLEAN||||
+View definition:
+create view v5 as select true;
+CREATE VIEW
+???
+0
+(1 row)
+View "V6"
+Column|Type|Collation|Nullable|Default
+???|BOOLEAN||||
+View definition:
+create view v6 as select false;
+CREATE VIEW
+???|COL2
+1|t
+0|t
+(2 rows)
+View "V7"
+Column|Type|Collation|Nullable|Default
+???|BOOLEAN||||
+COL2|VARCHAR||||
+View definition:
+create view v7 as select true,'t' as col2 union select 'f','t';
+CREATE VIEW
+INTEGER
+1
+(1 row)
+View "V8"
+Column|Type|Collation|Nullable|Default
+INTEGER|INTEGER||||
+View definition:
+create view v8 as select '1'::integer from names limit 1;
+CREATE VIEW
+INTEGER
+1
+(1 row)
+View "V9"
+Column|Type|Collation|Nullable|Default
+INTEGER|INTEGER||||
+View definition:
+create view v9 as select '1'::integer;

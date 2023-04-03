@@ -142,10 +142,6 @@ int validate_table_asterisk_binary_operation(SqlBinaryOperation *binary, SqlValu
 				yyerror(&second_operand->loc, NULL, NULL, NULL, NULL, NULL);
 			}
 		} else {
-			/* One of the operands is a column alias with a NULL value or a LITERAL with a NULL_VALUE.
-			 * If that operand is a set_operation column alias then consider its type from
-			 * `col_type_list` as it has information of column type from all queries comprising the set_operation.
-			 */
 			int index;
 			if (is_stmt_table_asterisk(first_operand)) {
 				// First operand is `table.*` check the other operand by setting index to right operand

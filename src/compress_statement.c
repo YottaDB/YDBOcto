@@ -15,26 +15,27 @@
 #include "octo_types.h"
 #include "octo_type_check.h"
 
-#define CALL_COMPRESS_HELPER(temp, value, new_value, out, out_length)             \
-	{                                                                         \
-		(temp) = compress_statement_helper((value), (out), (out_length)); \
-		if (NULL != (out)) {                                              \
-			(new_value) = (temp);                                     \
-			if (NULL != new_value) {                                  \
-				A2R((new_value));                                 \
-			}                                                         \
-		}                                                                 \
+#define CALL_COMPRESS_HELPER(temp, value, new_value, out, out_length)                                 \
+	{                                                                                             \
+		(temp) = compress_statement_helper((value), (out), (out_length), is_view_processing); \
+		if (NULL != (out)) {                                                                  \
+			(new_value) = (temp);                                                         \
+			if (NULL != new_value) {                                                      \
+				A2R((new_value));                                                     \
+			}                                                                             \
+		}                                                                                     \
 	}
 
-void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length);
+#define MAX_BIN_DEFN_OFFSET (void *)-1
+void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length, boolean_t is_view_processing);
 
-void compress_statement(SqlStatement *stmt, char **out, int *out_length) {
+void compress_statement(SqlStatement *stmt, char **out, int *out_length, boolean_t is_view_processing) {
 	*out_length = 0;
-	compress_statement_helper(stmt, NULL, out_length);
+	compress_statement_helper(stmt, NULL, out_length, is_view_processing);
 	if (0 != *out_length) {
 		*out = malloc(*out_length);
 		*out_length = 0;
-		compress_statement_helper(stmt, *out, out_length);
+		compress_statement_helper(stmt, *out, out_length, is_view_processing);
 	} else {
 		assert(FALSE);
 		*out = NULL;
@@ -47,7 +48,7 @@ void compress_statement(SqlStatement *stmt, char **out, int *out_length) {
  *
  * If the out buffer is NULL, doesn't copy the statement, but just counts size
  */
-void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) {
+void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length, boolean_t is_view_processing) {
 	SqlColumn *	      cur_column, *start_column, *new_column;
 	SqlOptionalKeyword *  start_keyword, *cur_keyword, *new_keyword;
 	SqlStatement *	      new_stmt;
@@ -57,7 +58,9 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 	SqlValue *	      value, *new_value;
 	int		      len;
 	void *		      r, *ret;
-
+	// Following code is to prevent [-Wmaybe-uninitialized] compiler warning from gcc 7.5.0
+	// Asserts before the use of new_stmt ensure its value is never NULL
+	new_stmt = NULL;
 	if ((NULL == stmt) || (NULL == stmt->v.value))
 		return NULL;
 
@@ -84,8 +87,25 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 	case create_table_STATEMENT:
 		UNPACK_SQL_STATEMENT(table, stmt, create_table);
 		if (NULL != out) {
-			new_table = ((void *)&out[*out_length]);
-			memcpy(new_table, table, sizeof(SqlTable));
+			if (MAX_BIN_DEFN_OFFSET == table->bin_defn_offset) {
+				new_table = ((void *)&out[*out_length]);
+				table->bin_defn_offset = new_table;
+				memcpy(new_table, table, sizeof(SqlTable));
+			} else {
+				assert(NULL != new_stmt);
+				new_stmt->v.create_table = table->bin_defn_offset;
+				A2R(new_stmt->v.create_table);
+				return ret;
+			}
+		} else {
+			if (MAX_BIN_DEFN_OFFSET == table->bin_defn_offset) {
+				break;
+			} else {
+				/* Magic number to inform the next reference to this SqlTable to not add
+				 * sizeof(SqlTable) again as we will be referencing pre-allocated value.
+				 */
+				table->bin_defn_offset = MAX_BIN_DEFN_OFFSET;
+			}
 		}
 		*out_length += sizeof(SqlTable);
 		CALL_COMPRESS_HELPER(r, table->tableName, new_table->tableName, out, out_length);
@@ -96,6 +116,251 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 		/* table->readwrite is not a pointer value so no need to call CALL_COMPRESS_HELPER on this member */
 		/* table->oid is not a pointer value so no need to call CALL_COMPRESS_HELPER on this member */
 		/* table->if_not_exists_specified is not a pointer value */
+		break;
+	case create_view_STATEMENT:;
+		/* Refer to https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1244#note_1485833114 for details regarding
+		 * why `bin_defn_offset` is not used in this case block.
+		 */
+		SqlView *view, *new_view;
+
+		UNPACK_SQL_STATEMENT(view, stmt, create_view);
+		if (NULL != out) {
+			new_view = ((void *)&out[*out_length]);
+			memcpy(new_view, view, sizeof(SqlView));
+		}
+		*out_length += sizeof(SqlView);
+		CALL_COMPRESS_HELPER(r, view->viewName, new_view->viewName, out, out_length);
+		CALL_COMPRESS_HELPER(r, view->src_table_alias_stmt, new_view->src_table_alias_stmt, out, out_length);
+		break;
+	case table_alias_STATEMENT:;
+		SqlTableAlias *table_alias, *new_table_alias;
+		UNPACK_SQL_STATEMENT(table_alias, stmt, table_alias);
+		if (NULL != out) {
+			/* `MAX_BIN_DEFN_OFFSET` value indicates that this instance is the first instance we are
+			 * encountering during this invocation and its fields need to be compressed.
+			 * Note: we do not expect NULL value here as the first invocation of compress_statement()
+			 *       takes care of assigning MAX_BIN_DEFN_OFFSET when a reference is being compressed instead of the
+			 *	 actual structure.
+			 */
+			if (MAX_BIN_DEFN_OFFSET == table_alias->bin_defn_offset) {
+				new_table_alias = ((void *)&out[*out_length]);
+				table_alias->bin_defn_offset = new_table_alias;
+				memcpy(new_table_alias, table_alias, sizeof(SqlTableAlias));
+			} else {
+				/* Not `MAX_BIN_DEFN_OFFSET` which means we this value is already compressed. Refer to it
+				 * using the address stored in `bin_defn_offset`.
+				 */
+				assert(NULL != new_stmt);
+				new_stmt->v.table_alias = table_alias->bin_defn_offset;
+				A2R(new_stmt->v.table_alias);
+				return ret;
+			}
+		} else {
+			/* This is a call to identify the lenght of binary storage required.
+			 * If this is the first occurence of this structure then `bin_defn_offset`
+			 * will have a value of NULL. In such a case consider the structures fields
+			 * for computing the final size and set `bin_defn_offset` to MAX_BIN_DEFN_OFFSET such that
+			 * any other reference to this structure can know that this structure can be
+			 * referenced using a pointer, no need to include its actual size.
+			 */
+			if (MAX_BIN_DEFN_OFFSET == table_alias->bin_defn_offset) {
+				break;
+			} else {
+				/* Refer to table_alias_STATEMENT comments. */
+				table_alias->bin_defn_offset = MAX_BIN_DEFN_OFFSET;
+			}
+		}
+		*out_length += sizeof(SqlTableAlias);
+		CALL_COMPRESS_HELPER(r, table_alias->table, new_table_alias->table, out, out_length);
+		CALL_COMPRESS_HELPER(r, table_alias->alias, new_table_alias->alias, out, out_length);
+		CALL_COMPRESS_HELPER(r, table_alias->parent_table_alias, new_table_alias->parent_table_alias, out, out_length);
+		CALL_COMPRESS_HELPER(r, table_alias->column_list, new_table_alias->column_list, out, out_length);
+		CALL_COMPRESS_HELPER(r, table_alias->correlation_specification, new_table_alias->correlation_specification, out,
+				     out_length);
+		CALL_COMPRESS_HELPER(r, table_alias->table_asterisk_column_alias, new_table_alias->table_asterisk_column_alias, out,
+				     out_length);
+		/* table_alias->unique_id
+		 * group_by_column_count
+		 * aggregate_depth
+		 * aggregate_function_or_group_by_or_having_specified
+		 * do_group_by_checks
+		 * qualify_query_stage
+		 * are not all pointer values so no need to call CALL_COMPRESS_HELPER on this member
+		 * bin_defn_offset
+		 * is only used during compression so no need to consider this value.
+		 */
+		break;
+	case select_STATEMENT:;
+		SqlSelectStatement *select, *new_select;
+		UNPACK_SQL_STATEMENT(select, stmt, select);
+		if (NULL != out) {
+			new_select = ((void *)&out[*out_length]);
+			memcpy(new_select, select, sizeof(SqlSelectStatement));
+		}
+		*out_length += sizeof(SqlSelectStatement);
+		CALL_COMPRESS_HELPER(r, select->table_list, new_select->table_list, out, out_length);
+		CALL_COMPRESS_HELPER(r, select->where_expression, new_select->where_expression, out, out_length);
+		CALL_COMPRESS_HELPER(r, select->select_list, new_select->select_list, out, out_length);
+		CALL_COMPRESS_HELPER(r, select->group_by_expression, new_select->group_by_expression, out, out_length);
+		CALL_COMPRESS_HELPER(r, select->having_expression, new_select->having_expression, out, out_length);
+		CALL_COMPRESS_HELPER(r, select->order_by_expression, new_select->order_by_expression, out, out_length);
+		CALL_COMPRESS_HELPER(r, select->optional_words, new_select->optional_words, out, out_length);
+		break;
+	case join_STATEMENT:;
+		SqlJoin *start_join, *cur_join, *new_join;
+		UNPACK_SQL_STATEMENT(start_join, stmt, join);
+		cur_join = start_join;
+		do {
+			if (NULL != out) {
+				new_join = ((void *)&out[*out_length]);
+				memcpy(new_join, cur_join, sizeof(SqlJoin));
+				new_join->next = new_join->prev = NULL;
+			}
+			*out_length += sizeof(SqlJoin);
+			CALL_COMPRESS_HELPER(r, cur_join->value, new_join->value, out, out_length);
+			CALL_COMPRESS_HELPER(r, cur_join->condition, new_join->condition, out, out_length);
+			cur_join = cur_join->next;
+			if ((NULL != out) && (cur_join != start_join)) {
+				new_join->next = ((void *)&out[*out_length]);
+				A2R(new_join->next);
+			}
+		} while (cur_join != start_join);
+		break;
+	case column_list_alias_STATEMENT:;
+		SqlColumnListAlias *cur_cla, *start_cla, *new_cla;
+		UNPACK_SQL_STATEMENT(start_cla, stmt, column_list_alias);
+		cur_cla = start_cla;
+		do {
+			if (NULL != out) {
+				if (MAX_BIN_DEFN_OFFSET == cur_cla->bin_defn_offset) {
+					new_cla = ((void *)&out[*out_length]);
+					cur_cla->bin_defn_offset = new_cla;
+					memcpy(new_cla, cur_cla, sizeof(SqlColumnListAlias));
+					new_cla->next = new_cla->prev = NULL;
+					*out_length += sizeof(SqlColumnListAlias);
+					CALL_COMPRESS_HELPER(r, cur_cla->column_list, new_cla->column_list, out, out_length);
+					CALL_COMPRESS_HELPER(r, cur_cla->alias, new_cla->alias, out, out_length);
+					CALL_COMPRESS_HELPER(r, cur_cla->keywords, new_cla->keywords, out, out_length);
+					CALL_COMPRESS_HELPER(r, cur_cla->outer_query_column_alias,
+							     new_cla->outer_query_column_alias, out, out_length);
+					// duplicate_of_column
+					// tbl_and_col_id
+				} else {
+					if (cur_cla == start_cla) {
+						assert(NULL != new_stmt);
+						new_stmt->v.column_list_alias = cur_cla->bin_defn_offset;
+						new_cla = new_stmt->v.column_list_alias;
+						A2R(new_stmt->v.column_list_alias);
+					} else {
+						new_cla = cur_cla->bin_defn_offset;
+					}
+				}
+			} else {
+				if (MAX_BIN_DEFN_OFFSET == cur_cla->bin_defn_offset) {
+					// Do nothing
+				} else {
+					/* Refer to table_alias_STATEMENT comments */
+					cur_cla->bin_defn_offset = MAX_BIN_DEFN_OFFSET;
+					*out_length += sizeof(SqlColumnListAlias);
+					CALL_COMPRESS_HELPER(r, cur_cla->column_list, new_cla->column_list, out, out_length);
+					CALL_COMPRESS_HELPER(r, cur_cla->alias, new_cla->alias, out, out_length);
+					CALL_COMPRESS_HELPER(r, cur_cla->keywords, new_cla->keywords, out, out_length);
+					CALL_COMPRESS_HELPER(r, cur_cla->outer_query_column_alias,
+							     new_cla->outer_query_column_alias, out, out_length);
+					// duplicate_of_column
+					// tbl_and_col_id
+				}
+			}
+			cur_cla = cur_cla->next;
+			if ((NULL != out) && (cur_cla != start_cla)) {
+				if (MAX_BIN_DEFN_OFFSET == cur_cla->bin_defn_offset) {
+					new_cla->next = ((void *)&out[*out_length]);
+				} else {
+					new_cla->next = cur_cla->bin_defn_offset;
+				}
+				A2R(new_cla->next);
+			}
+		} while (cur_cla != start_cla);
+		break;
+	case column_alias_STATEMENT:;
+		SqlColumnAlias *column_alias, *new_column_alias;
+		UNPACK_SQL_STATEMENT(column_alias, stmt, column_alias);
+		if (NULL != out) {
+			if (MAX_BIN_DEFN_OFFSET == column_alias->bin_defn_offset) {
+				new_column_alias = ((void *)&out[*out_length]);
+				column_alias->bin_defn_offset = new_column_alias;
+				memcpy(new_column_alias, column_alias, sizeof(SqlColumnAlias));
+			} else {
+				assert(NULL != new_stmt);
+				new_stmt->v.column_alias = column_alias->bin_defn_offset;
+				A2R(new_stmt->v.column_alias);
+				return ret;
+			}
+		} else {
+			if (MAX_BIN_DEFN_OFFSET == column_alias->bin_defn_offset) {
+				break;
+			} else {
+				/* Refer to table_alias_STATEMENT comments */
+				column_alias->bin_defn_offset = MAX_BIN_DEFN_OFFSET;
+			}
+		}
+		*out_length += sizeof(SqlColumnAlias);
+		CALL_COMPRESS_HELPER(r, column_alias->column, new_column_alias->column, out, out_length);
+		CALL_COMPRESS_HELPER(r, column_alias->table_alias_stmt, new_column_alias->table_alias_stmt, out, out_length);
+		CALL_COMPRESS_HELPER(r, column_alias->set_oper_stmt, new_column_alias->set_oper_stmt, out, out_length);
+		break;
+	case aggregate_function_STATEMENT:;
+		SqlAggregateFunction *aggr, *new_aggr;
+		UNPACK_SQL_STATEMENT(aggr, stmt, aggregate_function);
+		if (NULL != out) {
+			new_aggr = ((void *)&out[*out_length]);
+			memcpy(new_aggr, aggr, sizeof(SqlAggregateFunction));
+		}
+		*out_length += sizeof(SqlAggregateFunction);
+		CALL_COMPRESS_HELPER(r, aggr->parameter, new_aggr->parameter, out, out_length);
+		CALL_COMPRESS_HELPER(r, aggr->table_alias_stmt, new_aggr->table_alias_stmt, out, out_length);
+		break;
+	case set_operation_STATEMENT:;
+		SqlSetOperation *set_oper, *new_set_oper;
+		UNPACK_SQL_STATEMENT(set_oper, stmt, set_operation);
+		if (NULL != out) {
+			new_set_oper = ((void *)&out[*out_length]);
+			memcpy(new_set_oper, set_oper, sizeof(SqlSetOperation));
+		}
+		*out_length += sizeof(SqlSetOperation);
+		CALL_COMPRESS_HELPER(r, set_oper->operand[0], new_set_oper->operand[0], out, out_length);
+		CALL_COMPRESS_HELPER(r, set_oper->operand[1], new_set_oper->operand[1], out, out_length);
+		CALL_COMPRESS_HELPER(r, set_oper->col_type_list_stmt, new_set_oper->col_type_list_stmt, out, out_length);
+		break;
+	case row_value_STATEMENT:;
+		SqlRowValue *cur_row_value, *start_row_value, *new_row_value;
+		UNPACK_SQL_STATEMENT(cur_row_value, stmt, row_value);
+		start_row_value = cur_row_value;
+		do {
+			if (NULL != out) {
+				new_row_value = ((void *)&out[*out_length]);
+				memcpy(new_row_value, cur_row_value, sizeof(SqlRowValue));
+				new_row_value->next = new_row_value->prev = NULL;
+			}
+			*out_length += sizeof(SqlRowValue);
+			CALL_COMPRESS_HELPER(r, cur_row_value->value_list, new_row_value->value_list, out, out_length);
+			cur_row_value = cur_row_value->next;
+			if ((NULL != out) && (cur_row_value != start_row_value)) {
+				new_row_value->next = ((void *)&out[*out_length]);
+				A2R(new_row_value->next);
+			}
+		} while (cur_row_value != start_row_value);
+		break;
+	case table_value_STATEMENT:;
+		SqlTableValue *table_value, *new_table_value;
+		UNPACK_SQL_STATEMENT(table_value, stmt, table_value);
+		if (NULL != out) {
+			new_table_value = ((void *)&out[*out_length]);
+			memcpy(new_table_value, table_value, sizeof(SqlTableValue));
+		}
+		*out_length += sizeof(SqlTableValue);
+		CALL_COMPRESS_HELPER(r, table_value->row_value_stmt, new_table_value->row_value_stmt, out, out_length);
+		CALL_COMPRESS_HELPER(r, table_value->column_stmt, new_table_value->column_stmt, out, out_length);
 		break;
 	case create_function_STATEMENT:
 		UNPACK_SQL_STATEMENT(function, stmt, create_function);
@@ -154,22 +419,35 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 			CALL_COMPRESS_HELPER(r, value->v.calculated, new_value->v.calculated, out, out_length);
 			break;
 		case COERCE_TYPE:
+			if ((is_view_processing) && (NULL != new_value)) {
+				new_value->u.coerce_type.coerced_type.scale_parameter_index = 0;
+				new_value->u.coerce_type.coerced_type.size_or_precision_parameter_index = 0;
+			}
 			CALL_COMPRESS_HELPER(r, value->v.coerce_target, new_value->v.coerce_target, out, out_length);
 			break;
 		case BOOLEAN_VALUE:
 		case NUMERIC_LITERAL:
 		case INTEGER_LITERAL:
+		case BOOLEAN_OR_STRING_LITERAL:
+			/* value of such type which are unresolved to either BOOLEAN or STRING till this point
+			 * will be set to STRING type later on by hash_canonical_query(). Treat this value similar
+			 * to a STRING_LITERAL at this point.
+			 */
 		case STRING_LITERAL:
 		case DELIM_VALUE:
 		case NUL_VALUE:
 		case FUNCTION_NAME:
 		case FUNCTION_HASH:
 		case COLUMN_REFERENCE:
+		case TABLE_ASTERISK:
 			len = strlen(value->v.string_literal);
 			if (NULL != out) {
 				memcpy(&out[*out_length], value->v.string_literal, len);
 				new_value->v.string_literal = &out[*out_length];
 				A2R(new_value->v.string_literal);
+				if (is_view_processing) {
+					new_value->parameter_index = 0;
+				}
 			}
 			*out_length += len;
 			if (NULL != out) {
@@ -177,7 +455,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 			}
 			*out_length += 1;
 			break;
-		case BOOLEAN_OR_STRING_LITERAL:
+		case SELECT_ASTERISK:
 		default:
 			assert(FALSE);
 			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
@@ -190,20 +468,51 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 		start_column = cur_column;
 		do {
 			if (NULL != out) {
-				new_column = ((void *)&out[*out_length]);
-				memcpy(new_column, cur_column, sizeof(SqlColumn));
-				new_column->next = new_column->prev = NULL;
-				new_column->table = (void *)0; /* offset 0 : table is first element in compressed structure
-								*            which means a relative offset of 0.
-								*/
+				if (MAX_BIN_DEFN_OFFSET == cur_column->bin_defn_offset) {
+					new_column = ((void *)&out[*out_length]);
+					cur_column->bin_defn_offset = new_column;
+					memcpy(new_column, cur_column, sizeof(SqlColumn));
+					new_column->next = new_column->prev = NULL;
+					/* Each column refers to the same SqlStatement corresponding
+					 * to the SqlTable. SqlStatement has bin_defn_offset which
+					 * ensures that the same reference is referred by all the SqlColumn
+					 * nodes.
+					 */
+					*out_length += sizeof(SqlColumn);
+					CALL_COMPRESS_HELPER(r, cur_column->table, new_column->table, out, out_length);
+					CALL_COMPRESS_HELPER(r, cur_column->columnName, new_column->columnName, out, out_length);
+					CALL_COMPRESS_HELPER(r, cur_column->keywords, new_column->keywords, out, out_length);
+
+				} else {
+					if (cur_column == start_column) {
+						assert(NULL != new_stmt);
+						new_stmt->v.column = cur_column->bin_defn_offset;
+						new_column = new_stmt->v.column;
+						A2R(new_stmt->v.column);
+					} else {
+						new_column = cur_column->bin_defn_offset;
+					}
+				}
+			} else {
+				if (MAX_BIN_DEFN_OFFSET == cur_column->bin_defn_offset) {
+					// Do nothing
+				} else {
+					/* Refer to table_alias_STATEMENT comments */
+					cur_column->bin_defn_offset = MAX_BIN_DEFN_OFFSET;
+					*out_length += sizeof(SqlColumn);
+					CALL_COMPRESS_HELPER(r, cur_column->table, new_column->table, out, out_length);
+					CALL_COMPRESS_HELPER(r, cur_column->columnName, new_column->columnName, out, out_length);
+					CALL_COMPRESS_HELPER(r, cur_column->keywords, new_column->keywords, out, out_length);
+				}
 			}
-			*out_length += sizeof(SqlColumn);
-			CALL_COMPRESS_HELPER(r, cur_column->columnName, new_column->columnName, out, out_length);
-			CALL_COMPRESS_HELPER(r, cur_column->keywords, new_column->keywords, out, out_length);
 			/* cur_column->delim can be derived from cur_column->keywords and so does not need to be compressed */
 			cur_column = cur_column->next;
 			if ((NULL != out) && (cur_column != start_column)) {
-				new_column->next = ((void *)&out[*out_length]);
+				if (MAX_BIN_DEFN_OFFSET == cur_column->bin_defn_offset) {
+					new_column->next = ((void *)&out[*out_length]);
+				} else {
+					new_column->next = cur_column->bin_defn_offset;
+				}
 				A2R(new_column->next);
 			}
 		} while (cur_column != start_column);
@@ -378,19 +687,22 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 			}
 		} while (cur_cas_branch != start_cas_branch);
 		break;
-
-	/* The below types are not possible currently in a CREATE TABLE definition */
-	case select_STATEMENT:
+	case array_STATEMENT:;
+		SqlArray *array, *new_array;
+		UNPACK_SQL_STATEMENT(array, stmt, array);
+		if (NULL != out) {
+			new_array = ((void *)&out[*out_length]);
+			memcpy(new_array, array, sizeof(SqlArray));
+		}
+		*out_length += sizeof(SqlArray);
+		CALL_COMPRESS_HELPER(r, array->argument, new_array->argument, out, out_length);
+		break;
+	/* The below types are not possible currently in a CREATE TABLE/FUNCTION/VIEW definition */
 	case insert_STATEMENT:
 	case drop_table_STATEMENT:
+	case drop_view_STATEMENT:
 	case drop_function_STATEMENT:
 	case truncate_table_STATEMENT:
-	case aggregate_function_STATEMENT:
-	case join_STATEMENT:
-	case column_list_alias_STATEMENT:
-	case column_alias_STATEMENT:
-	case table_alias_STATEMENT:
-	case set_operation_STATEMENT:
 	case begin_STATEMENT:
 	case commit_STATEMENT:
 	case set_STATEMENT:
@@ -400,9 +712,6 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 	case index_STATEMENT:
 	case join_type_STATEMENT:
 	case discard_all_STATEMENT:
-	case row_value_STATEMENT:
-	case table_value_STATEMENT:
-	case array_STATEMENT:
 	case history_STATEMENT:
 	case delete_from_STATEMENT:
 	case update_STATEMENT:

@@ -93,6 +93,11 @@ int main(int argc, char **argv) {
 			parse_context.cursorIdString = cursor_ydb_buff.buf_addr;
 			memory_chunks = alloc_chunk(MEMORY_CHUNK_SIZE);
 			old_input_index = cur_input_index;
+			// Kill view's cache created for previous query
+			INIT_VIEW_CACHE_FOR_CURRENT_QUERY(config->global_names.loadedschemas, status);
+			if (YDB_OK != status) {
+				YDB_ERROR_CHECK(status);
+			}
 			/* Parse query first BEFORE going into "run_query()" (which requires a read-only lock).
 			 * This way we avoid posing problems for any concurrent DDL operations that require a read-write lock
 			 * particularly in case we have a multi-line query and are waiting for user input.

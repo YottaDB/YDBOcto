@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -314,8 +314,8 @@ int auto_upgrade_binary_function_definition(void) {
 			value->type = FUNCTION_HASH;
 
 			binary_function_defn = NULL;
-			compress_statement(result, &binary_function_defn,
-					   &binary_function_defn_length); /* sets "binary_function_defn" to "malloc"ed storage */
+			compress_statement(result, &binary_function_defn, &binary_function_defn_length,
+					   FALSE); /* sets "binary_function_defn" to "malloc"ed storage */
 			assert(NULL != binary_function_defn);
 			/* Note: function_subs[4] initialized and used in the function call below */
 			status = store_function_definition(&function_subs[0], binary_function_defn, binary_function_defn_length,

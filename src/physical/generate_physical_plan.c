@@ -39,8 +39,54 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	boolean_t	    is_set_dnf;
 
 	plan_options = *options;
-	// If this is a union plan, construct physical plans for the two children
-	if (LP_SET_OPERATION == plan->type) {
+	if (LP_VIEW == plan->type) {
+		/* Generate a physical plan for the view definition and store the output key of LP_VIEW->LP_OUTPUT in the
+		 * physical plan. This will be later used to emit M code for the view.
+		 * Note that there can be many views referring to the same view definition. In this case, LP_OUTPUT key from
+		 * all the views are stored in the physical plan of the view definition.
+		 */
+		out = generate_physical_plan(plan->v.lp_default.operand[0], &plan_options);
+		assert((NULL != out) && (NULL != out->lp_select_query));
+#ifndef NDEBUG
+		// Following assert ensures that an already processed LP_VIEW is not seen
+		assert(NULL == plan->extra_detail.lp_view.physical_plan);
+		plan->extra_detail.lp_view.physical_plan = out;
+#endif
+		// Save output key of LP_VIEW in the physical plan
+		LogicalPlan *view_key = lp_get_output_key(plan);
+		if (MAX_KEY_COUNT > out->view_total_iter_keys) {
+			out->viewKeys[out->view_total_iter_keys] = view_key->v.lp_key.key;
+			out->view_total_iter_keys++;
+			return out;
+		} else {
+			// MAX_KEY_COUNT <= out->total_iter_keys
+			ERROR(ERR_TOO_MANY_SELECT_KEYCOLS, out->view_total_iter_keys, MAX_KEY_COUNT);
+			return NULL;
+		}
+
+	} else if (LP_SET_OPERATION == plan->type) {
+		if (NULL != plan->extra_detail.lp_set_operation.physical_plan) {
+			/* This set operation has already been allocated. But do call generate_physical_plan() on the left and
+			 * right branch so that dependent plans are ordered correctly.
+			 */
+			pp_from_lp = plan->extra_detail.lp_set_operation.physical_plan;
+			GET_LP(set_option, plan, 0, LP_SET_OPTION);
+			GET_LP(set_plans, plan, 1, LP_PLANS);
+			out = generate_physical_plan(set_plans->v.lp_default.operand[1], &plan_options);
+			assert(out == pp_from_lp);
+			UNUSED(out); // Avoid [clang-analyzer-deadcode.DeadStores] warning
+			/* Following invocation is required for the correctness of following type of queries
+			 *	 create view v as select * from names where lastname = 'Cool' AND
+			 *		(firstname = 'Zero' OR lastname = 'Burn');
+			 * 	 create view v1 as select * from v union all select * from v;
+			 *	 create view v2 as select * from v1 union all select * from v1;
+			 *	 select * from v2;
+			 */
+			out = generate_physical_plan(set_plans->v.lp_default.operand[0], &plan_options);
+			UNUSED(out); // Avoid [clang-analyzer-deadcode.DeadStores] warning
+			return pp_from_lp;
+		}
+		// If this is a union plan, construct physical plans for the two children
 		PhysicalPlan *next;
 
 		GET_LP(set_option, plan, 0, LP_SET_OPTION);
@@ -70,6 +116,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 			}
 			plan_options.dnf_plan_next = next; /* this helps set prev->dnf_next inside the below nested call */
 		}
+		plan->extra_detail.lp_set_operation.physical_plan = out;
 		prev = generate_physical_plan(set_plans->v.lp_default.operand[0], &plan_options);
 		if (NULL == prev) {
 			return NULL;
@@ -92,7 +139,6 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 			 * for later use in "tmpl_invoke_deferred_plan_setoper()".
 			 */
 			plan->extra_detail.lp_set_operation.set_oper = set_oper;
-			plan->extra_detail.lp_set_operation.physical_plan = out;
 
 			set_oper->input_id1 = input_id1;
 			set_oper->input_id2 = input_id2;
@@ -211,6 +257,66 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		PhysicalPlan *first_pplan;
 		first_pplan = *plan_options.last_plan;
 		assert(NULL != first_pplan);
+		if (first_pplan == end_pplan) {
+			/* Note: This case is only possible when views are involved. Following queries demonstrate the need for this
+			 *	 code block.
+			 * 	 	create view v1 as select * from names n1 where exists (select * from names n2) and
+			 *			(n1.id < 3 or n1.id > 3);
+			 *	 	select * from v1 n1 where exists (select * from v1 n2) and (n1.id < 3 or n1.id > 3);
+			 *	 and
+			 *	 	create view v1 as select firstname,count(id) as aggr from names group by firstname;
+			 *		 select * from v1,v1 as n2;
+			 */
+			/* If parent exists and this plan is after the parent we need to move it such that it comes previous to the
+			 * parent. This ensures parent plan is executed after this plan.
+			 */
+			if (NULL != plan_options.parent) {
+				PhysicalPlan *node = pp_from_lp;
+				while ((NULL != node) && (node != plan_options.parent)) {
+					node = node->next;
+				}
+				if (NULL != node) {
+					// Nothing to do, as this plan already exists previous to the parent plan
+					return pp_from_lp;
+				} else {
+					/* Move the list of nodes that begin from pp_from_lp and end at parent in a way
+					 * such that this sublist of nodes come previous to the parent. This way all the nodes
+					 * which are are required by pp_from_lp are moved previous to the parent
+					 * without disturbing the dependency list of pp_from_lp.
+					 * Following queries demonstrate the need for this type of ordering:
+					 * 	CREATE VIEW k_306 as SELECT 1 as id;
+					 * 	CREATE VIEW k_306d as SELECT * FROM k_306;
+					 * 	SELECT 1 FROM k_306 WHERE EXISTS (SELECT * FROM k_306d) AND (1 < 3 OR 1 > 3);
+					 * Refer to https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1244#note_1452192920
+					 * for a diagram describing the issue.
+					 */
+					PhysicalPlan *parent_node = plan_options.parent;
+					node = pp_from_lp;
+					while ((node != pp_from_lp->dependent_plans_end) && (node->prev != parent_node)) {
+						node = node->prev;
+					}
+					assert(NULL != node);
+					// The sublist can have one or more nodes
+					PhysicalPlan *node_to_move_end = node;
+					PhysicalPlan *node_to_move_start = pp_from_lp;
+					if (NULL == node_to_move_start->next) {
+						parent_node->next = NULL;
+					} else {
+						node_to_move_start->next->prev = parent_node;
+						parent_node->next = node_to_move_start->next;
+					}
+					if (NULL == parent_node->prev) {
+						node_to_move_end->prev = NULL;
+					} else {
+						node_to_move_end->prev = parent_node->prev;
+						node_to_move_end->prev->next = node_to_move_end;
+					}
+					parent_node->prev = node_to_move_start;
+					node_to_move_start->next = parent_node;
+				}
+			}
+			return pp_from_lp;
+		}
 		assert(first_pplan != end_pplan);
 #ifndef NDEBUG
 		PhysicalPlan *tmp_pplan;
@@ -301,10 +407,11 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 				break;
 			}
 			type = table_joins->v.lp_default.operand[0]->type;
-			if ((LP_SELECT_QUERY == type) || (LP_SET_OPERATION == type) || (LP_TABLE_VALUE == type)) {
+			if ((LP_SELECT_QUERY == type) || (LP_SET_OPERATION == type) || (LP_TABLE_VALUE == type)
+			    || (LP_VIEW == type)) {
 				PhysicalPlan *	    ret;
 				PhysicalPlanOptions tmp_options;
-				LogicalPlan *	    select_or_set_or_table_value;
+				LogicalPlan *	    select_or_set_or_table_value_or_view;
 
 				/* This is a fresh sub-query start so do not inherit any DNF context from parent query. */
 				tmp_options = plan_options;
@@ -312,8 +419,8 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 				/* By the same token, do not inherit any "stash_columns_in_keys" context from parent query */
 				tmp_options.stash_columns_in_keys = FALSE;
 				// This is a sub plan, and should be inserted as prev
-				GET_LP(select_or_set_or_table_value, table_joins, 0, type);
-				ret = generate_physical_plan(select_or_set_or_table_value, &tmp_options);
+				GET_LP(select_or_set_or_table_value_or_view, table_joins, 0, type);
+				ret = generate_physical_plan(select_or_set_or_table_value_or_view, &tmp_options);
 				if (NULL == ret) {
 					return NULL;
 				}

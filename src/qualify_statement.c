@@ -125,7 +125,8 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		UNPACK_SQL_STATEMENT(new_column_alias, stmt, column_alias);
 		UNPACK_SQL_STATEMENT(column_table_alias, new_column_alias->table_alias_stmt, table_alias);
-		parent_table_alias = column_table_alias->parent_table_alias;
+		assert(NULL != column_table_alias->parent_table_alias);
+		parent_table_alias = column_table_alias->parent_table_alias->v.table_alias;
 		assert(NULL != parent_table_alias);
 		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		/* Assert that if we are doing GROUP BY related checks ("do_group_by_checks" is set to DO_GROUP_BY_CHECKS), then the
@@ -149,9 +150,9 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 			 * 2) Because of the reasons mentioned in 1, no additional handling is required for WHERE clause, just
 			 *    following through will do the needful.
 			 */
-			if ((ret != NULL) && (0 != ret->aggr_unique_id)) {
+			if ((ret != NULL) && (NULL != ret->aggr_table_alias_stmt)) {
 				// Processing an aggregate function parameter column
-				if (ret->aggr_unique_id != parent_table_alias->unique_id) {
+				if (ret->aggr_table_alias_stmt->v.table_alias->unique_id != parent_table_alias->unique_id) {
 					/* Column belongs to an outer query which is different from
 					 * the deepest column_alias query present in the aggregate function.
 					 */
@@ -219,7 +220,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 							*max_unique_id = column_table_alias->unique_id + 1;
 						}
 					}
-					parent_table_alias = column_table_alias->parent_table_alias;
+					parent_table_alias = column_table_alias->parent_table_alias->v.table_alias;
 					assert(NULL != parent_table_alias);
 					if ((0 < table_alias->aggregate_depth) && (NULL != ret)) {
 						/* Perform `deepest_column_alias_stmt` computation as this is the basis on
@@ -252,7 +253,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 							if (NULL == ret->deepest_column_alias_stmt) {
 								ret->deepest_column_alias_stmt = stmt;
 							} else if (ret->deepest_column_alias_stmt->v.column_alias->table_alias_stmt
-								       ->v.table_alias->parent_table_alias
+								       ->v.table_alias->parent_table_alias->v.table_alias
 								   == parent_table_alias) {
 								/* The column is at the same level as the deepest column in
 								 * the aggregate. No need to update
@@ -318,7 +319,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 								   result);
 			break;
 		case FUNCTION_NAME:
-			/* Cannot validate the function using a "find_function()" call here (like we did "find_table()" for
+			/* Cannot validate the function using a "find_function()" call here (like we did "find_view_or_table()" for
 			 * the table name in the parser). This is because we need type information of the actual function
 			 * parameters to determine which function definition matches the current usage and that has to wait
 			 * until "populate_data_type()". See detailed comment under "case function_call_STATEMENT:" there.
@@ -483,15 +484,15 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		if (!result) {
 			assert(!table_alias->do_group_by_checks || table_alias->aggregate_function_or_group_by_or_having_specified);
 			table_alias->aggregate_depth++;
-			int save_aggr_unique_id;
+			SqlStatement *save_aggr_table_alias_stmt;
 			if (NULL == ret) {
 				assert(FALSE);
-				save_aggr_unique_id = 0;
+				save_aggr_table_alias_stmt = NULL;
 			} else {
 				ret->deepest_column_alias_stmt = NULL;
 				/* If `af` was already qualified during first qualify_query() `for` loop iteration.
-				 * We will have a valid `af->unique_id`, let further qualify_statement() make use of this
-				 * value by setting it to `ret->aggr_unique_id`.
+				 * We will have a valid `af->table_alias_stmt`, let further qualify_statement() make use of this
+				 * value by setting it to `ret->aggr_table_alias_stmt`.
 				 * This value is used to perform GROUP BY validation on an aggregate function parameters. Even
 				 * though we skip aggregate's processing when `do_group_by_check` is `TRUE`, it is possible that we
 				 * are in the first iteration of qualify_query() `for` loop for the present query but in the second
@@ -500,13 +501,15 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 				 * to aggregate related `if` block in `column_alias_STATEMENT` case for more details on what
 				 * conditions are being considered.
 				 */
-				save_aggr_unique_id = ret->aggr_unique_id;
-				ret->aggr_unique_id = af->unique_id;
+				save_aggr_table_alias_stmt = ret->aggr_table_alias_stmt;
+				ret->aggr_table_alias_stmt = af->table_alias_stmt;
 			}
 			CALL_QUALIFY_STATEMENT_AND_RETURN_ON_ERROR(af->parameter, tables, table_alias_stmt, depth + 1, ret, result);
-			if ((af->unique_id) && ((save_aggr_unique_id != 0) && (table_alias->unique_id != af->unique_id))) {
-				/* This aggregate belongs to an outer query. And since save_aggr_unique_id is set
-				 * to a non-zero value this aggregate is a nested usage. Issue error.
+			if ((af->table_alias_stmt)
+			    && ((save_aggr_table_alias_stmt != NULL)
+				&& (table_alias->unique_id != af->table_alias_stmt->v.table_alias->unique_id))) {
+				/* This aggregate belongs to an outer query. And since save_aggr_table_alias_stmt is set
+				 * to a non-NULL value this aggregate is a nested usage. Issue error.
 				 */
 				ERROR(ERR_AGGREGATE_FUNCTION_NESTED, "");
 				yyerror(&af->parameter->loc, NULL, NULL, NULL, NULL, NULL);
@@ -518,13 +521,15 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 			/* Since `af` instance is created using octo_cmalloc() we are sure that `af->unique_id` won't have garbage
 			 * value. It will either be 0 or an assigned value.
 			 */
-			if (!af->unique_id) {
+			// if (!af->unique_id) {
+			if (!af->table_alias_stmt) {
 				assert(!table_alias->do_group_by_checks);
 				assert(NULL != ret);
 				/* The condition (NULL != ret) is used below to avoid clang-tidy_warning
 				 * [clang-analyzer-core.NullDereference] but we are sure that its not NULL by above assert.
 				 */
 				SqlTableAlias *aggr_parent_table_alias;
+				SqlStatement * aggr_parent_table_alias_stmt;
 				SqlStatement * aggr_deepest_column_alias_stmt
 				    = ((NULL != ret) && (NULL != ret->deepest_column_alias_stmt)) ? ret->deepest_column_alias_stmt
 												  : NULL;
@@ -539,12 +544,14 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 					UNPACK_SQL_STATEMENT(aggr_table_alias, aggr_deepest_column_alias->table_alias_stmt,
 							     table_alias);
 					assert(NULL != aggr_table_alias->parent_table_alias);
-					aggr_parent_table_alias = aggr_table_alias->parent_table_alias;
+					aggr_parent_table_alias = aggr_table_alias->parent_table_alias->v.table_alias;
+					aggr_parent_table_alias_stmt = aggr_table_alias->parent_table_alias;
 				} else {
 					/* No column found in the aggregate or it has a subquery in it. In both cases
 					 * associate the aggregate to the current query.
 					 */
 					aggr_parent_table_alias = table_alias;
+					aggr_parent_table_alias_stmt = table_alias_stmt;
 				}
 				/* Now that we know to which table the aggregate belongs to, check if the aggregate is in
 				 * the WHERE clause or SET clause of an UPDATE. In either case, issue an error.
@@ -562,11 +569,11 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 					}
 					return 1;
 				}
-				/* set the `af->unique_id` with the `unique_id` of the table to which this aggregate needs to be
-				 * associated with. Also, set `aggregate_function_or_group_by_or_having_specified` of that table
-				 * to note the aggregate usage.
+				/* set the `af->table_alias_stmt` with the `table_alias_stmt` of the table to which this aggregate
+				 * needs to be associated with. Also, set `aggregate_function_or_group_by_or_having_specified` of
+				 * that table to note the aggregate usage.
 				 */
-				af->unique_id = aggr_parent_table_alias->unique_id;
+				af->table_alias_stmt = aggr_parent_table_alias_stmt;
 				aggr_parent_table_alias->aggregate_function_or_group_by_or_having_specified
 				    |= AGGREGATE_FUNCTION_SPECIFIED;
 				if (NULL != aggr_deepest_column_alias_stmt) {
@@ -574,7 +581,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 				}
 			}
 			if (NULL != ret) {
-				ret->aggr_unique_id = 0;
+				ret->aggr_table_alias_stmt = NULL;
 			}
 			UNPACK_SQL_STATEMENT(cur_cl, af->parameter, column_list);
 			assert((AGGREGATE_COUNT_ASTERISK == af->type) || (NULL != cur_cl->value));
@@ -585,7 +592,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 					process_aggregate_function_table_asterisk(af);
 				}
 			} else if (AGGREGATE_COUNT_ASTERISK == af->type) {
-				af->unique_id = table_alias->unique_id;
+				af->table_alias_stmt = table_alias_stmt;
 			}
 			table_alias->aggregate_depth--;
 		}
@@ -864,7 +871,10 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 							UNPACK_SQL_STATEMENT(column_table_alias, tmp_stmt, table_alias);
 						}
 						if (column_table_alias) {
-							parent_table_alias = column_table_alias->parent_table_alias;
+							parent_table_alias
+							    = (column_table_alias->parent_table_alias == NULL)
+								  ? NULL
+								  : column_table_alias->parent_table_alias->v.table_alias;
 							if (parent_table_alias == table_alias) {
 								if (0 < parent_table_alias->aggregate_depth) {
 									parent_table_alias
@@ -957,6 +967,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		assert(table_alias->qualify_query_stage == QualifyQuery_UPDATE_SET_CLAUSE);
 		break;
 	case create_table_STATEMENT:
+	case create_view_STATEMENT:
 	case select_STATEMENT:
 	case table_value_STATEMENT:
 	case insert_STATEMENT:
@@ -965,6 +976,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 	case join_STATEMENT:
 	case create_function_STATEMENT:
 	case drop_table_STATEMENT:
+	case drop_view_STATEMENT:
 	case drop_function_STATEMENT:
 	case truncate_table_STATEMENT:
 	case column_STATEMENT:

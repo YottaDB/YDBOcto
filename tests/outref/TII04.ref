@@ -238,7 +238,7 @@ CREATE TABLE
 INSERT 0 1
 INSERT 0 1
 INSERT 0 1
-COLUMN1
+???
 |abc|
 |ab|
 |a|
@@ -253,7 +253,7 @@ DROP TABLE
 CREATE TABLE
 INSERT 0 1
 INSERT 0 1
-COLUMN1
+???
 |abcd|
 |abc |
 (2 rows)

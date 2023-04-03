@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -26,7 +26,6 @@ SqlStatement *find_column_alias_name(SqlStatement *stmt) {
 	SqlColumn *	      column;
 	SqlColumnAlias *      column_alias;
 	SqlColumnListAlias *  column_list_alias;
-	SqlBinaryOperation *  binary;
 	SqlUnaryOperation *   unary;
 	SqlFunctionCall *     function_call;
 	SqlValue *	      value;
@@ -77,6 +76,24 @@ SqlStatement *find_column_alias_name(SqlStatement *stmt) {
 			break;
 		case COERCE_TYPE:
 			ret = find_column_alias_name(value->v.coerce_target);
+			if (NULL == ret) {
+				// Following naming convention is similar to Postgres
+				switch (value->u.coerce_type.coerced_type.data_type) {
+				case BOOLEAN_TYPE:
+					return string_literal("BOOLEAN");
+				case INTEGER_TYPE:
+					return string_literal("INTEGER");
+				case NUMERIC_TYPE:
+					return string_literal("NUMERIC");
+				case STRING_TYPE:
+					return string_literal("VARCHAR");
+				case NUL_TYPE:
+					assert(FALSE);
+				case UNKNOWN_SqlDataType:
+					return NULL;
+					break; // Avoid compiler warning
+				}
+			}
 			break;
 		default:
 			// Nothing we can do
@@ -97,15 +114,16 @@ SqlStatement *find_column_alias_name(SqlStatement *stmt) {
 		}
 		break;
 	case binary_STATEMENT:
-		UNPACK_SQL_STATEMENT(binary, stmt, binary);
-		ret = find_column_alias_name(binary->operands[0]);
-		if (NULL != ret)
-			break;
-		ret = find_column_alias_name(binary->operands[1]);
+		ret = NULL;
 		break;
 	case unary_STATEMENT:
 		UNPACK_SQL_STATEMENT(unary, stmt, unary);
-		ret = find_column_alias_name(unary->operand);
+		if (BOOLEAN_EXISTS == unary->operation) {
+			// Following naming convention is similar to Postgres
+			return string_literal("EXISTS");
+		} else {
+			ret = NULL;
+		}
 		break;
 	case function_call_STATEMENT:
 		UNPACK_SQL_STATEMENT(function_call, stmt, function_call);

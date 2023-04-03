@@ -149,7 +149,7 @@ LINE 28:6: ...n1.firstName, n1.lastName, ''::text, NULL, NULL FROM names n1 I...
 PRICE
 18
 (1 row)
-PRICE
+???
 19
 (1 row)
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types NUMERIC and VARCHAR cannot be matched

@@ -1,0 +1,96 @@
+#################################################################
+#								#
+# Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+	load_fixture names.sql
+	load_fixture names.zwr
+	test_port=$(start_rocto 1344 --allowschemachanges)
+}
+
+teardown() {
+	stop_rocto
+}
+
+@test "TCV036 : Check edge cases which used to fail when find_view_or_table() stored the decompressed view in process memory" {
+	# Note: These queries would fail when view was stored over the lifetime of the process because of unique_id not being
+	#       in the order expected.
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV036.sql
+}
+
+@test "TCV037 : Views which use other views should not result in multiple plans for the views when they are used in joins" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV037.sql
+	grep -En 'select|DO octoPlan' _ydboctoP*.m >> output.txt
+	verify_output TCV037 output.txt
+	psql names --command="drop view if exists tcv037_1v2,tcv037_1v1"
+
+}
+
+@test "TCV038 : Views working with empty strings" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV038_1.sql
+	load_fixture TCV038_2.sql subtest novv
+	verify_output TCV038_2 output.txt
+}
+
+@test "TCV039 : Views working with 't', 1, 'f', 0, true and false" {
+	load_fixture TCV039.sql subtest novv
+	verify_output TCV039 output.txt
+}
+
+@test "TCV040 : Views working with incorrect view definition" {
+	load_fixture TCV040.sql subtest novv
+	verify_output TCV040 output.txt
+}
+
+@test "TCV041 : Views working with tables having column level and table level constraints" {
+	stop_rocto
+	test_port=$(start_rocto 1344 -aw)
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV041.sql	"trim_trailing_zeroes" "write"
+}
+
+@test "TCV042 : Views additional edge cases" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV042.sql
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TCV042_customers.sql
+}
+
+@test "TCV043 : A drop view when the view has a function and a table works fine" {
+	load_fixture TCV043.sql subtest novv
+	verify_output TCV043 output.txt
+}
+
+@test "TCV031_1 : Check that multiple plans are not generated for the same view" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV031.sql
+	grep -En 'select|DO octoPlan' _ydboctoP*.m >> output.txt
+	verify_output TCV031 output.txt
+	psql names --command="drop view if exists tcv031_1v"
+}
+
+@test "TCV031_3 : Check edge cases which used to fail when changes were made to generate a single plan for a view" {
+	load_fixture TCV031_3.sql subtest novv
+	verify_output TCV031_3 output.txt
+}
+
+@test "TCV045 : Validate that the powerbi query to fetch column information for a view works" {
+	load_fixture TCV045.sql subtest novv
+	verify_output TCV045 output.txt
+}
+
+@test "TCV046 : Validate column names for binary, unary and coerce typed value statments when used in views" {
+	load_fixture TCV046.sql subtest novv
+	verify_output TCV046 output.txt
+}
+# To add any new subtest refer to the comments at the end of test_create_view1_1.bats.in

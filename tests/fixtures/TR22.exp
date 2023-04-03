@@ -50,7 +50,7 @@ expect "OCTO> "
 send -- "\x04"
 expect -exact "LINE 1:1: create\r
            \r
-syntax error, unexpected ENDOFFILE, expecting FUNCTION or TABLE\r
+syntax error, unexpected ENDOFFILE, expecting FUNCTION or TABLE or VIEW\r
 \r
 OCTO> "
 

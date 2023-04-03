@@ -226,4 +226,16 @@ if ("" != "$octo_seed_change")  then
 		@ exitstatus = 1
 	endif
 endif
+
+#--------------------------------------------------------------------------------------------------
+# 9) Verify that CREATE VIEW command is not seen in tests/fixtures/octo-seed.sql
+#--------------------------------------------------------------------------------------------------
+# Refer to https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1244#note_1230614504 for more details.
+
+set tipcommit = "HEAD"
+set octo_seed_change = `git diff --regexp-ignore-case -G"^[ \t]*create view" --cached $tipcommit -- tests/fixtures/octo-seed.sql`
+if ("" != "$octo_seed_change")  then
+	echo "--> HOOK-E-FAIL : CREATE VIEW usage is found in octo-seed.sql. Refer to https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1244#note_1230614504 for why this is bad."
+	@ exitstatus = 1
+endif
 exit $exitstatus

@@ -36,7 +36,7 @@ LogicalPlan *lp_generate_xref_plan(SqlTable *table, SqlColumn *column, int uniqu
 	MALLOC_LP(project, root->v.lp_default.operand[0], LP_PROJECT);
 	MALLOC_LP(output, root->v.lp_default.operand[1], LP_OUTPUT);
 	// Setup the output key
-	lp_key = lp_alloc_key(table, column, unique_id, LP_INVALID_ACTION, NULL, TRUE);
+	lp_key = lp_alloc_key(table, column, unique_id, LP_INVALID_ACTION, NULL, TRUE, NULL);
 	output->v.lp_default.operand[0] = lp_key;
 	/* Determine whether the cross-reference should be stored in a YDB local or global variable. See comment for
 	 * SqlKey.xref_prefix in logical_plan.h for additional background.

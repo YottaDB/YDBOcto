@@ -1,0 +1,7 @@
+
+create view v1 as select 1,'Zero','Cool'; -- Error as all columns have "?column?" as its name
+create view v1 as select 1 as n1_id,'Zero' as n1_firstname, 'Cool' as n1_firstname; -- ERROR:  column "n1_firstname" specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column "???" specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column "N1_FIRSTNAME" specified more than once
+LINE 3:2: ...s n1_firstname, 'Cool' as n1_firstname; -- ERROR:  column "n1_fi...
+                                       ^^^^^^^^^^^^

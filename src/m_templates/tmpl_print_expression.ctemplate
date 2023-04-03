@@ -320,11 +320,29 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			break;
 		case NUMERIC_TYPE:
 			if (SIZE_OR_PRECISION_UNSPECIFIED != plan->extra_detail.lp_coerce_type.coerce_type.size_or_precision) {
-				%{},$GET({{ config->global_names.cursor }}(cursorId,{{ PP_PARAMETERS }},{}%
-				%{}{{ plan->extra_detail.lp_coerce_type.coerce_type.size_or_precision_parameter_index|%d }})){}%
-				if (SCALE_UNSPECIFIED != plan->extra_detail.lp_coerce_type.coerce_type.scale) {
+				if (0 < plan->extra_detail.lp_coerce_type.coerce_type.size_or_precision_parameter_index) {
+					/* Fetch the size_or_precision value stored at the parameter index */
 					%{},$GET({{ config->global_names.cursor }}(cursorId,{{ PP_PARAMETERS }},{}%
-					%{}{{ plan->extra_detail.lp_coerce_type.coerce_type.scale_parameter_index|%d }})){}%
+					%{}{{ plan->extra_detail.lp_coerce_type.coerce_type.size_or_precision_parameter_index|%d }})){}%
+				} else {
+					/* This is a view's processing where size_or_precision is stored in the logical plan
+					 * itself to generate different M plans when the stored value is different.
+					 * Use the stored value directly.
+					 */
+					%{},{{ plan->extra_detail.lp_coerce_type.coerce_type.size_or_precision|%d }}{}%
+				}
+				if (SCALE_UNSPECIFIED != plan->extra_detail.lp_coerce_type.coerce_type.scale) {
+					if (0 < plan->extra_detail.lp_coerce_type.coerce_type.scale_parameter_index) {
+						/* Fetch the scale value stored at the parameter index */
+						%{},$GET({{ config->global_names.cursor }}(cursorId,{{ PP_PARAMETERS }},{}%
+						%{}{{ plan->extra_detail.lp_coerce_type.coerce_type.scale_parameter_index|%d }})){}%
+					} else {
+						/* This is a view's processing where scale is stored in the logical plan
+						 * itself to generate different M plans when the stored value is different.
+						 * Use the stored value directly.
+						 */
+						%{},{{ plan->extra_detail.lp_coerce_type.coerce_type.scale|%d }}{}%
+					}
 				}
 			}
 			%{}){}%
@@ -334,8 +352,18 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				%{}){}%
 			}
 			if (SIZE_OR_PRECISION_UNSPECIFIED != plan->extra_detail.lp_coerce_type.coerce_type.size_or_precision) {
-				%{},$GET({{ config->global_names.cursor }}(cursorId,{{ PP_PARAMETERS }},{}%
-				%{}{{ plan->extra_detail.lp_coerce_type.coerce_type.size_or_precision_parameter_index|%d }}))){}%
+				%{},{}%
+				if (0 < plan->extra_detail.lp_coerce_type.coerce_type.size_or_precision_parameter_index) {
+					/* Fetch the size_or_precision value stored at the parameter index */
+					%{}$GET({{ config->global_names.cursor }}(cursorId,{{ PP_PARAMETERS }},{}%
+					%{}{{ plan->extra_detail.lp_coerce_type.coerce_type.size_or_precision_parameter_index|%d }}))){}%
+				} else {
+					/* This is a view's processing where size_or_precision is stored in the logical plan
+					 * itself to generate different M plans when the stored value is different.
+					 * Use the stored value directly.
+					 */
+					%{}{{ plan->extra_detail.lp_coerce_type.coerce_type.size_or_precision|%d }}){}%
+				}
 			}
 			break;
 		default:
@@ -398,10 +426,17 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 
 			DEBUG_ONLY(SqlStatementType	table_type);
 			DEBUG_ONLY(table_type = table_alias->table->type);
-			assert((select_STATEMENT == table_type) || (table_value_STATEMENT == table_type));
+			assert((select_STATEMENT == table_type) || (table_value_STATEMENT == table_type) ||
+			       (create_view_STATEMENT == table_type));
 			assert(NULL != sql_key);
 			assert(unique_id == sql_key->unique_id);
-			TMPL(tmpl_key, sql_key);
+			// Check if this is a view's key
+			if (NULL != sql_key->view_definition_output_key) {
+				SqlKey *key = sql_key->view_definition_output_key->v.lp_key.key;
+				TMPL(tmpl_key, key);
+			} else {
+				TMPL(tmpl_key, sql_key);
+			}
 			(*buffer_index)--;      // Go back one, removing paren
 			%{},{}%
 			TMPL(tmpl_key, sql_key);
@@ -418,7 +453,12 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				%{}$$mval2str^%%ydboctoplanhelpers({}%
 				%{}$$mvalPiece^%%ydboctoplanhelpers({}%
 			}
-			TMPL(tmpl_key, sql_key);
+			if (NULL != sql_key->view_definition_output_key) {
+				SqlKey *key = sql_key->view_definition_output_key->v.lp_key.key;
+				TMPL(tmpl_key, key);
+			} else {
+				TMPL(tmpl_key, sql_key);
+			}
 			if (!stash_columns_in_keys) {
 				(*buffer_index)--;	// Go back one, removing paren
 				%{},{}%
@@ -1493,13 +1533,13 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:;
 					/* Generate `table.*` comparison M code which compares the two `table.*` values by
 					 * column-wise comparison. Get the underlying table_alias to get the column_list but first
-					 * check if its a set_operation column. If it is then get col_type_list from set_oper_stmt
-					 * for the type (#849). Note, we only bother about the first table columns type. This is
-					 * because binary_operation_data_type_check() issues error and stops further execution for
-					 * comparison between dissimilar type operands, as a result we do not expect any missmatch
-					 * between first and second operand at this point. Also, NULL and non-NULL comparison is
-					 * handled internally by `TableAsteriskCompare`, so even if first operand has
-					 * NUL_VALUE type column and second operand has non-NUL_VALUE type
+					 * check if its a set_operation column. If it is then get col_type_list_stmt from set_oper
+					 * statement for the column's type information (#849). Note, we only bother about the first
+					 * table columns type. This is because binary_operation_data_type_check() issues error and
+					 * stops further execution for comparison between dissimilar type operands, as a result we
+					 * do not expect any missmatch between first and second operand at this point. Also, NULL
+					 * and non-NULL comparison is handled internally by `TableAsteriskCompare`, so even if first
+					 * operand has NUL_VALUE type column and second operand has non-NUL_VALUE type
 					 * column no additional handling is required here.
 					 */
 					SqlColumnListAlias *first_cla;
@@ -1507,7 +1547,8 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 						SqlSetOperation *first_set_oper;
 						UNPACK_SQL_STATEMENT(first_set_oper, first_operand_ca->set_oper_stmt,
 								     set_operation);
-						first_cla = first_set_oper->col_type_list;
+						first_cla = (NULL != first_set_oper->col_type_list_stmt) ?
+								first_set_oper->col_type_list_stmt->v.column_list_alias : NULL;
 					} else {
 						SqlTableAlias *first_table_alias;//, *second_table_alias;
 						UNPACK_SQL_STATEMENT(first_table_alias, first_operand_ca->table_alias_stmt,

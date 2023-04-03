@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -212,9 +212,13 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 									SQL_VALUE_STATEMENT(ret->column, TABLE_ASTERISK,
 											    column_value->v.string_literal);
 									ret->table_alias_stmt = matching_alias_stmt;
-									cur_table_alias->table_asterisk_column_alias = ret;
+									SQL_STATEMENT(cur_table_alias->table_asterisk_column_alias,
+										      column_alias_STATEMENT);
+									cur_table_alias->table_asterisk_column_alias->v.column_alias
+									    = ret;
 								} else {
-									ret = cur_table_alias->table_asterisk_column_alias;
+									ret = cur_table_alias->table_asterisk_column_alias->v
+										  .column_alias;
 								}
 								if (set_operation_STATEMENT == cur_join->value->type) {
 									ret->set_oper_stmt = cur_join->value;
@@ -275,8 +279,9 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 							 * we are able to do with "matching_table_alias->parent_table_alias" below.
 							 */
 							assert(NULL != matching_table_alias->parent_table_alias);
-							if (cur_table_alias->parent_table_alias
-							    == matching_table_alias->parent_table_alias) {
+							assert(NULL != cur_table_alias->parent_table_alias);
+							if (cur_table_alias->parent_table_alias->v.table_alias
+							    == matching_table_alias->parent_table_alias->v.table_alias) {
 								ERROR(ERR_AMBIGUOUS_COLUMN_NAME, column_name);
 								return NULL;
 							} else {

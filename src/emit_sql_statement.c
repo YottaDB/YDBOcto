@@ -57,7 +57,7 @@ PSQL_TypeSize get_type_size_from_psql_type(PSQL_TypeOid type) {
  *  values
  */
 PhysicalPlan *emit_sql_statement(SqlStatement *stmt, char *plan_filename) {
-	LogicalPlan *	    plan, *cur_plan, *column_alias, *function, *table;
+	LogicalPlan *	    plan, *cur_plan, *column_alias, *function, *table, *view;
 	PhysicalPlan *	    pplan;
 	SqlValue *	    value;
 	char		    valbuff[INT32_TO_STRING_MAX];
@@ -77,6 +77,16 @@ PhysicalPlan *emit_sql_statement(SqlStatement *stmt, char *plan_filename) {
 	if (NULL == plan) {
 		return NULL;
 	}
+	// Kill %ydboctoViewLp created by generate_logical_plan() invocation
+	ydb_buffer_t ydboctoViewLp;
+	YDB_LITERAL_TO_BUFFER("%ydboctoViewLp", &ydboctoViewLp);
+
+	status = ydb_delete_s(&ydboctoViewLp, 0, NULL, YDB_DEL_TREE);
+	YDB_ERROR_CHECK(status);
+	if (YDB_OK != status) {
+		assert(FALSE);
+		return NULL;
+	}
 	lp_emit_plan(plan, "BEFORE optimize_logical_plan()");
 	if (!lp_verify_structure(plan, NULL)) {
 		ERROR(ERR_PLAN_NOT_WELL_FORMED, "");
@@ -93,6 +103,7 @@ PhysicalPlan *emit_sql_statement(SqlStatement *stmt, char *plan_filename) {
 	options.last_plan = &pplan;
 	function = NULL;
 	table = NULL;
+	view = NULL;
 	options.function = &function; /* Store pointer to "function" in options.function. "generate_physical_plan" call below
 				       * will update "function" to point to the start of the linked list of LP_FUNCTION_CALL
 				       * usages (if any) in the the entire query.
@@ -101,6 +112,11 @@ PhysicalPlan *emit_sql_statement(SqlStatement *stmt, char *plan_filename) {
 				       * will update "table" to point to the start of the linked list of LP_TABLE usages
 				       * (if any) in the the entire query (actual update happens in "lp_verify_structure()"
 				       * which is called inside "generate_physical_plan()").
+				       */
+	options.view = &view;	      /* Store pointer to "view" in options.view. "generate_physical_plan()" call below will update
+				       * "view" to point to the start of the linked list of LP_VIEW usages (if any) in the entire
+				       * query (actual update happens in lp_verify_structure()" which is called inside
+				       * "generate_physical_plan()").
 				       */
 	pplan = generate_physical_plan(plan, &options);
 	if (NULL == pplan) {
@@ -185,6 +201,41 @@ PhysicalPlan *emit_sql_statement(SqlStatement *stmt, char *plan_filename) {
 			}
 			table = table->extra_detail.lp_table.next_table;
 		} while (LP_LIST_END != table);
+		if (YDB_OK != status) {
+			return NULL;
+		}
+	}
+	if (NULL != view) {
+		/* "view" points to the start of the linked list of LP_VIEW usages in entire query.
+		 * Store link between plan and all views that plan uses so a later CREATE/DROP VIEW
+		 * of any of the views in this plan knows to delete this stale plan.
+		 */
+		ydb_buffer_t view_buff[3];
+
+		YDB_LITERAL_TO_BUFFER(OCTOLIT_VIEWPLANS, &view_buff[0]);
+		view_buff[2] = plan_meta[2];
+		do {
+			assert(LP_VIEW == view->type);
+
+			SqlStatement *view_stmt;
+			view_stmt = view->extra_detail.lp_view.table_alias->table;
+
+			SqlView *sql_view;
+			UNPACK_SQL_STATEMENT(sql_view, view_stmt, create_view);
+
+			SqlStatement *viewName;
+			viewName = sql_view->viewName;
+			UNPACK_SQL_STATEMENT(value, viewName, value);
+			assert(COLUMN_REFERENCE == value->type);
+			YDB_STRING_TO_BUFFER(value->v.string_literal, &view_buff[1]);
+			/* Store gvn that links plan and this view */
+			status = ydb_set_s(&plan_meta[0], 3, view_buff, NULL);
+			YDB_ERROR_CHECK(status);
+			if (YDB_OK != status) {
+				break;
+			}
+			view = view->extra_detail.lp_view.next_view;
+		} while (LP_LIST_END != view);
 		if (YDB_OK != status) {
 			return NULL;
 		}

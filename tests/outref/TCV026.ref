@@ -1,0 +1,28 @@
+
+drop view if exists v;
+create view v as select lastname::varchar(3) from names;
+select * from v;
+
+drop view if exists v;
+create view v as select lastname::varchar(100) from names;
+select * from v;
+DROP VIEW
+CREATE VIEW
+LASTNAME
+Coo
+Bur
+Kil
+Nik
+
+Coo
+(6 rows)
+DROP VIEW
+CREATE VIEW
+LASTNAME
+Cool
+Burn
+Killer
+Nikon
+
+Cool
+(6 rows)

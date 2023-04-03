@@ -127,6 +127,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 	boolean_t	    ok_to_drop, wrapInTp;
 	SqlStatementType    result_type;
 	SqlDisplayRelation *display_relation;
+	SqlStatement *	    table_stmt;
 
 	// Assign cursor prior to parsing to allow tracking and storage of literal parameters under the cursor local variable
 	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
@@ -174,6 +175,13 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 	 */
 	old_input_index = cur_input_index;
 	memory_chunks = alloc_chunk(MEMORY_CHUNK_SIZE); /* needed by "parse_line()" call below */
+
+	// Kill view's cache created for previous query
+	INIT_VIEW_CACHE_FOR_CURRENT_QUERY(config->global_names.loadedschemas, status);
+	if (YDB_OK != status) {
+		YDB_ERROR_CHECK(status);
+	}
+
 	result = parse_line(parse_context);
 	/* Now that "parse_line()" has been invoked, from this point on, any return path should invoke
 	 * DELETE_QUERY_PARAMETER_CURSOR_LVN to cleanup/delete any query parameter related lvn nodes
@@ -197,29 +205,45 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 	cursor_used = TRUE; /* By default, assume a cursor was used to execute the query */
 	release_query_lock = TRUE;
 	switch (result_type) {
-	// This effectively means select_STATEMENT, but we have to assign ID's inside this function
-	// and so need to propagate them out
 	case display_relation_STATEMENT:
 		UNPACK_SQL_STATEMENT(display_relation, result, display_relation);
-		if (DISPLAY_TABLE_RELATION == display_relation->type) {
-			/* "\d tablename" : Describe/Display a specific relation/table */
-			status = describe_tablename(display_relation->table_name);
+		switch (display_relation->type) {
+		case DISPLAY_TABLE_RELATION:
+			/* "\d tablename" : Describe/Display a specific table */
+			status = describe_table_or_view_name(display_relation->table_name);
 			if (0 != status) {
 				CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
 				return status;
 			}
 			break;
+		case DISPLAY_ALL_RELATION:
+			/* "\d" : Describe/Display all relations/tables/views */
+		case DISPLAY_ALL_VIEW_RELATION:
+			/* "\dv": Describe/Display all views */
+			result = get_display_relation_query_stmt(display_relation->type, parse_context);
+			assert(table_alias_STATEMENT == result->type);
+			result_type = table_alias_STATEMENT;
+			/* `result` retrieved from the above call will be a table_alias_STATEMENT.
+			 * Execute the code in table_alias_STATEMENT switch case below by falling through.
+			 */
+			break;
+		default:
+			assert(FALSE);
+			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
+			return -1;
+			break;
 		}
-		/* "\d" : Describe/Display all relations/tables */
-		assert(DISPLAY_ALL_RELATION == display_relation->type);
-		result = get_display_relation_query_stmt(parse_context);
-		assert(table_alias_STATEMENT == result->type);
-		result_type = table_alias_STATEMENT;
-		/* `result` retrieved from the above call will be a table_alias_STATEMENT.
-		 * Execute the rest of the code in the following case block (by falling through) to process it.
-		 */
+		if (DISPLAY_TABLE_RELATION == display_relation->type) {
+			/* The switch block above for DISPLAY_TABLE_RELATION has executed successfully.
+			 * There is nothing else to do for this case. Issue a `break` so that query completion
+			 * related logging can happen at the end of this function.
+			 */
+			break;
+		}
 		/* fall through */
 	case table_alias_STATEMENT:
+		// This effectively means select_STATEMENT, but we have to assign ID's inside this function
+		// and so need to propagate them out
 	case set_operation_STATEMENT:
 	case insert_STATEMENT:
 	case delete_from_STATEMENT:
@@ -331,7 +355,6 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		break;
 	case truncate_table_STATEMENT:; /* TRUNCATE TABLE */
 		ydb_tpfnptr_t tpfn;
-
 		tpfn = (ydb_tpfnptr_t)&truncate_table_tp_callback_fn;
 		status = ydb_tp_s(tpfn, result, NULL, 0, NULL);
 		if (YDB_OK == status) {
@@ -372,8 +395,8 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			UNPACK_SQL_STATEMENT(drop_table, result, drop_table);
 			UNPACK_SQL_STATEMENT(value, drop_table->table_name, value);
 			tablename = value->v.reference;
-			table = find_table(tablename);
-			if (NULL == table) {
+			table_stmt = find_view_or_table(tablename);
+			if (NULL == table_stmt) {
 				/* Table to be dropped does not exist. */
 				if (FALSE == drop_table->if_exists_specified) {
 					/* The DROP TABLE statement does not specify IF EXISTS. Issue error. */
@@ -387,7 +410,50 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 					CLEANUP_AND_RETURN_WITH_SUCCESS(memory_chunks, buffer, spcfc_buffer, query_lock,
 									&cursor_ydb_buff);
 				}
+			} else {
+				if (create_table_STATEMENT != table_stmt->type) {
+					// issue an error and clean up
+					ERROR(ERR_WRONG_TYPE, tablename, OCTOLIT_TABLE);
+					CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock,
+								      &cursor_ydb_buff);
+				}
+				/* Check if a View relies on this table. If so, disallow the DROP TABLE.
+				 * If a View relies on this table, we would see gvn nodes of the following form
+				 * exist in the database.
+				 *	^ydboctoocto("tableviewdependency","NAMES","V1")=""
+				 * where
+				 *	"NAMES" = table name
+				 *	"V1" = view name
+				 * Therefore check if ^%ydboctoocto("tableviewdependency","NAMES",*)
+				 * nodes exist and if so issue an error.
+				 */
+				// gvn_subs[0] -> ^%ydboctoocto
+				// gvn_subs[1] -> "tableviewdependency"
+				// gvn_subs[2] -> table_name
+				ydb_buffer_t gvn_subs[4];
+				YDB_STRING_TO_BUFFER(config->global_names.octo, &gvn_subs[0]);
+				YDB_LITERAL_TO_BUFFER(OCTOLIT_TABLEVIEWDEPENDENCY, &gvn_subs[1]);
+				YDB_STRING_TO_BUFFER(tablename, &gvn_subs[2]);
+
+				char view_name_buffer[OCTO_MAX_IDENT + 1];
+				gvn_subs[3].buf_addr = view_name_buffer;
+				gvn_subs[3].len_alloc = sizeof(view_name_buffer) - 1; /* reserve 1 byte for null terminator */
+				gvn_subs[3].len_used = 0;
+				status = ydb_subscript_next_s(&gvn_subs[0], 3, &gvn_subs[1], &gvn_subs[3]);
+				if (YDB_ERR_NODEEND != status) {
+					/* There is atleast one view which relies on this table. Issue error */
+					YDB_ERROR_CHECK(status);
+					if (YDB_OK != status) {
+						CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock,
+									      &cursor_ydb_buff);
+					}
+					gvn_subs[3].buf_addr[gvn_subs[3].len_used] = '\0'; /* null terminate view name */
+					ERROR(ERR_DROP_TABLE_DEPENDS_ON_VIEW, tablename, gvn_subs[3].buf_addr);
+					CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock,
+								      &cursor_ydb_buff);
+				}
 			}
+			UNPACK_SQL_STATEMENT(table, table_stmt, create_table);
 			ok_to_drop = TRUE;
 		} else {
 			drop_table = NULL; /* To avoid false [-Wmaybe-uninitialized] warning */
@@ -432,7 +498,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			/* Check if OIDs were created for this table.
 			 * If so, delete those nodes from the catalog now that this table is going away.
 			 */
-			status = delete_table_from_pg_class(table_name_buffer);
+			status = delete_table_or_view_from_pg_class(table_name_buffer);
 			if (0 != status) {
 				CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 			}
@@ -472,13 +538,13 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		}
 		if (create_table_STATEMENT == result_type) {
 			/* CREATE TABLE case. More processing needed. */
-			int	  text_table_defn_length;
-			SqlTable *sql_table;
+			int	      text_table_defn_length;
+			SqlStatement *sql_table_stmt;
 
 			if (!ok_to_drop) {
 				/* Check if table already exists */
-				sql_table = find_table(tablename);
-				if (NULL != sql_table) {
+				sql_table_stmt = find_view_or_table(tablename);
+				if (NULL != sql_table_stmt) {
 					/* Table already exists. */
 					if (FALSE == table->if_not_exists_specified) {
 						/* The CREATE TABLE statement does not specify IF NOT EXISTS. Issue error. */
@@ -517,7 +583,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			 * The below call also sets table->oid which is needed before the call to "compress_statement" as
 			 * that way the oid also gets stored in the binary table definition.
 			 */
-			status = store_table_in_pg_class(table, table_name_buffer);
+			status = store_table_or_view_in_pg_class(result, table_name_buffer);
 			/* Cannot use CLEANUP_AND_RETURN_IF_NOT_YDB_OK macro here because the above function could set
 			 * status to 1 to indicate an error (not necessarily a valid YDB_ERR_* code). In case it is a
 			 * YDB error code, the YDB_ERROR_CHECK call would have already been done inside "store_table_in_pg_class"
@@ -527,7 +593,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			if (YDB_OK != status) {
 				CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 			}
-			compress_statement(result, &spcfc_buffer, &length); /* Sets "spcfc_buffer" to "malloc"ed storage */
+			compress_statement(result, &spcfc_buffer, &length, FALSE); /* Sets "spcfc_buffer" to "malloc"ed storage */
 			assert(NULL != spcfc_buffer);
 			status = store_table_definition(table_name_buffers, spcfc_buffer, length, FALSE);
 			free(spcfc_buffer);  /* free buffer that was "malloc"ed in "compress_statement" */
@@ -549,6 +615,247 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			PRINT_COMMAND_TAG(DROP_TABLE_COMMAND_TAG);
 		} else {
 			PRINT_COMMAND_TAG(CREATE_TABLE_COMMAND_TAG);
+		}
+		release_query_lock = FALSE; /* Set variable to FALSE so we do not try releasing same lock later */
+		break;			    /* OCTO_CFREE(memory_chunks) will be done after the "break" */
+	case drop_view_STATEMENT:;	    /* DROP VIEW */
+	case create_view_STATEMENT:;	    /* CREATE VIEW */
+		/* Complete view definition in case this is a create_view_STATEMENT.
+		 * This helps to avoid asterisk related parsing issues. Refer to the following comment for more details
+		 * https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1378#note_1380319421
+		 * Similar code exists in src/auto_upgrade_binary_table_or_view_definition_helper.c any change here needs to be
+		 * done there as well
+		 */
+		if (create_view_STATEMENT == result_type) {
+			result = view_definition(result, parse_context);
+			if (NULL == result) {
+				CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
+				return 1;
+			}
+		}
+		/* Following code is similar to CREATE TABLE and DROP TABLE code block.
+		 * Any changes to either code block may need to be reflected in the other.
+		 */
+		ydb_buffer_t  view_name_buffers[3];
+		ydb_buffer_t *view_name_buffer;
+		view_name_buffer = &view_name_buffers[0];
+		/* Initialize a few variables to NULL at the start. They are really used much later but any calls to
+		 * CLEANUP_AND_RETURN_WITH_ERROR and CLEANUP_AND_RETURN_IF_NOT_YDB_OK before then need this so they skip freeing
+		 * this.
+		 */
+		buffer = NULL;
+		spcfc_buffer = NULL;
+		null_query_lock = NULL;
+		/* Now release the shared query lock and get an exclusive query lock to do DDL changes */
+		status = ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]);
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, null_query_lock, &cursor_ydb_buff);
+		/* Wait 10 seconds for the exclusive DDL change lock */
+		status = ydb_lock_incr_s(TIMEOUT_DDL_EXCLUSIVELOCK, &query_lock[0], 1, &query_lock[1]);
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, null_query_lock, &cursor_ydb_buff);
+		/* Note: "null_query_lock" used above as we do not have any query lock to release as this point
+		 * since query lock grab failed.
+		 */
+		/* First get a ydb_buffer_t of the view name into "view_name_buffer" */
+		SqlDropViewStatement *drop_view;
+		SqlView *	      view;
+		char *		      viewname;
+		boolean_t	      is_view = FALSE, node_found = TRUE;
+		if (drop_view_STATEMENT == result_type) {
+			UNPACK_SQL_STATEMENT(drop_view, result, drop_view);
+			UNPACK_SQL_STATEMENT(value, drop_view->view_name, value);
+			viewname = value->v.reference;
+
+			/* Determine if a node with the given name exists in ^%ydboctoschema.
+			 * If it does check if its a view by looking at the value stored.
+			 * If it is a view the node will be of the following form:
+			 * A view will have ^%ydboctoschema(view_name)=OCTOLIT_VIEWS
+			 */
+			ydb_buffer_t schema_global;
+			YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
+
+			ydb_buffer_t sub;
+			YDB_STRING_TO_BUFFER(viewname, &sub);
+
+			ydb_buffer_t node_value;
+			char	     node_value_buff[OCTO_MAX_IDENT + 1];
+			node_value.buf_addr = node_value_buff;
+			node_value.len_alloc = sizeof(node_value_buff) - 1; /* reserve 1 byte for null terminator */
+			status = ydb_get_s(&schema_global, 1, &sub, &node_value);
+			switch (status) {
+			case YDB_OK:
+				// A node of the given name exists in ^%ydboctoschema
+				// Check if the value stored is a view by looking at its value.
+				assert(node_value.len_alloc > node_value.len_used); /* Ensure space for null terminator */
+				node_value.buf_addr[node_value.len_used] = '\0';    /* Null terminate string */
+				is_view = (0 == strcmp(node_value.buf_addr, OCTOLIT_VIEW)) ? TRUE : FALSE;
+				break;
+			case YDB_ERR_GVUNDEF:
+				// No nodes of the given name exist
+				node_found = FALSE;
+				break;
+			default:
+				YDB_ERROR_CHECK(status);
+				CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+				break;
+			}
+			if (!node_found) {
+				/* View to be dropped does not exist */
+				if (FALSE == drop_view->if_exists_specified) {
+					// ERR_CANNOT_DROP_VIEW if no view exists and IF EXISTS not specified
+					ERROR(ERR_CANNOT_DROP_VIEW, viewname);
+					CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock,
+								      &cursor_ydb_buff);
+				} else {
+					// INFO
+					INFO(INFO_VIEW_DOES_NOT_EXIST, viewname);
+					PRINT_COMMAND_TAG(DROP_VIEW_COMMAND_TAG);
+					CLEANUP_AND_RETURN_WITH_SUCCESS(memory_chunks, buffer, spcfc_buffer, query_lock,
+									&cursor_ydb_buff);
+				}
+			} else {
+				if (!is_view) {
+					ERROR(ERR_WRONG_TYPE, viewname, OCTOLIT_VIEW);
+					CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock,
+								      &cursor_ydb_buff);
+				}
+				/* Check if another view relies on this view. If so, disallow the DROP VIEW.
+				 * When a view relies on this view, we should see gvn nodes of the following form
+				 * exist in the database.
+				 *	^%ydboctoocto("viewdependency","V1","fromview","V2")=""
+				 * where
+				 *	"V1" = view name being dropped
+				 *	"V2" = view name which depends on this view
+				 * Therefore check if ^%ydboctoocto("viewdependency","V1","fromview",*)
+				 * nodes exist and if so issue an error.
+				 */
+				// gvn_subs[0] -> ^%ydboctoocto
+				// gvn_subs[1] -> "viewdependency"
+				// gvn_subs[2] -> view_name
+				// gvn_subs[3] -> "fromview"
+				ydb_buffer_t gvn_subs[6];
+				YDB_STRING_TO_BUFFER(config->global_names.octo, &gvn_subs[0]);
+				YDB_LITERAL_TO_BUFFER(OCTOLIT_VIEWDEPENDENCY, &gvn_subs[1]);
+				YDB_STRING_TO_BUFFER(viewname, &gvn_subs[2]);
+				YDB_LITERAL_TO_BUFFER(OCTOLIT_FROMVIEW, &gvn_subs[3]);
+				char view_name_buffer[OCTO_MAX_IDENT + 1];
+				gvn_subs[4].buf_addr = view_name_buffer;
+				gvn_subs[4].len_alloc = sizeof(view_name_buffer) - 1; /* reserve 1 byte for null terminator */
+				gvn_subs[4].len_used = 0;
+				status = ydb_subscript_next_s(&gvn_subs[0], 4, &gvn_subs[1], &gvn_subs[4]);
+				if (YDB_ERR_NODEEND != status) {
+					/* There is atleast one view which relies on this view. Issue error */
+					YDB_ERROR_CHECK(status);
+					if (YDB_OK != status) {
+						CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock,
+									      &cursor_ydb_buff);
+					}
+					gvn_subs[4].buf_addr[gvn_subs[4].len_used] = '\0'; /* null terminate view name */
+					ERROR(ERR_DROP_VIEW_DEPENDS_ON_VIEW, viewname, gvn_subs[4].buf_addr);
+					CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock,
+								      &cursor_ydb_buff);
+				}
+			}
+			YDB_STRING_TO_BUFFER(viewname, view_name_buffer);
+			/* Check if OIDs were created for this view.
+			 * If so, delete those nodes from the catalog now that this view is going away.
+			 */
+			status = delete_table_or_view_from_pg_class(view_name_buffer);
+			if (0 != status) {
+				CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+			}
+			// No viewgvname population required as a view doesn't have a ^view global
+			// Empty string is good enough parameter to indicate that this is Drop statement call
+			ydb_buffer_t gvname_buff;
+			YDB_STRING_TO_BUFFER("", &gvname_buff);
+
+			/* discard all plans and dependency global nodes associated with the view being dropped.
+			 */
+			ci_param1.address = view_name_buffer->buf_addr;
+			ci_param1.length = view_name_buffer->len_used;
+			ci_param2.address = gvname_buff.buf_addr;
+			ci_param2.length = gvname_buff.len_used;
+			status = ydb_ci("_ydboctoDiscardView", &ci_param1, &ci_param2);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+
+			/* Now that OIDs and plan nodes have been clean up, dropping the view is a simple
+			 * KILL ^%ydboctoschema(VIEWNAME)
+			 */
+			status = ydb_delete_s(&schema_global, 1, view_name_buffer, YDB_DEL_TREE);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+
+			/* View is stored in memory chunks which are free'd at the end of query execution,
+			 * so no additional memory de-allocation required.
+			 */
+		} else {
+			// CREATE VIEW case. More processing needed.
+			assert(create_view_STATEMENT == result_type);
+
+			// Check if view or table of the same name already exists
+			UNPACK_SQL_STATEMENT(view, result, create_view);
+			UNPACK_SQL_STATEMENT(value, view->viewName, value);
+			viewname = value->v.reference;
+			SqlStatement *sql_view_or_table_stmt = find_view_or_table(viewname);
+			if (NULL != sql_view_or_table_stmt) {
+				// View already exists.
+				ERROR(ERR_CANNOT_CREATE_VIEW, viewname);
+				CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+			}
+			out = open_memstream(&buffer, &buffer_size);
+			assert(out);
+
+			// Emit text definition
+			int text_view_defn_length = 0;
+			text_view_defn_length
+			    += fprintf(out, "%.*s", cur_input_index - old_input_index, input_buffer_combined + old_input_index);
+			fclose(out); // at this point "buffer" and "buffer_size" are usable
+			if (0 > text_view_defn_length) {
+				// Cleanup the buffer and exit with error status
+				CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+			}
+			// Print the converted text representation of the CREATE VIEW command
+			INFO(INFO_TEXT_REPRESENTATION, buffer);
+			/* Store the text representation of the CREATE VIEW statement:
+			 *	^%ydboctoschema(view_name,OCTOLIT_TEXT)
+			 */
+			YDB_STRING_TO_BUFFER(viewname, view_name_buffer);
+			status = store_table_definition(view_name_buffer, buffer, text_view_defn_length, TRUE);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+			free(buffer);
+			buffer = NULL; /* So CLEANUP_AND_RETURN_WITH_ERROR* macro calls below do not try "free(buffer)" */
+			/* First store view name in catalog. As we need that OID to store in the binary view definition */
+			status = store_table_or_view_in_pg_class(result, view_name_buffer);
+			/* Cannot use CLEANUP_AND_RETURN_IF_NOT_YDB_OK macro here because the above function could set
+			 * status to 1 to indicate an error (not necessarily a valid YDB_ERR_* code). In case it is a
+			 * YDB error code, the YDB_ERROR_CHECK call would have already been done inside "store_table_in_pg_class"
+			 * so all we need to do here is check if status is not 0 (aka YDB_OK) and if so invoke
+			 * CLEANUP_AND_RETURN_WITH_ERROR.
+			 */
+			if (YDB_OK != status) {
+				CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+			}
+			compress_statement(result, &spcfc_buffer, &length, TRUE); /* Sets "spcfc_buffer" to "malloc"ed storage */
+			assert(NULL != spcfc_buffer);
+			status = store_table_definition(view_name_buffers, spcfc_buffer, length, FALSE);
+			free(spcfc_buffer);  /* free buffer that was "malloc"ed in "compress_statement" */
+			spcfc_buffer = NULL; /* Now that we did a "free", reset it to NULL */
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+		}
+
+		status = ydb_lock_decr_s(&query_lock[0], 1, &query_lock[1]); /* Release exclusive query lock */
+		if (YDB_OK != status) {
+			/* Signal an error using the standard macro but reset few variables to NULL as those parts of the
+			 * cleanup should not be done in this part of the code.
+			 */
+			assert(NULL == buffer);
+			spcfc_buffer = NULL;
+			assert(NULL == null_query_lock);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, null_query_lock,
+							 &cursor_ydb_buff);
+		}
+		if (drop_view_STATEMENT == result_type) {
+			PRINT_COMMAND_TAG(DROP_VIEW_COMMAND_TAG);
+		} else {
+			PRINT_COMMAND_TAG(CREATE_VIEW_COMMAND_TAG);
 		}
 		release_query_lock = FALSE; /* Set variable to FALSE so we do not try releasing same lock later */
 		break;			    /* OCTO_CFREE(memory_chunks) will be done after the "break" */
@@ -622,6 +929,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 		if (drop_function_STATEMENT == result_type) {
 			/* DROP FUNCTION */
+			assert(NULL != drop_function);
 			if (0 == ret_value) {
 				char fn_name[1024];
 
@@ -719,6 +1027,45 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 					gvn_subs[6].buf_addr[gvn_subs[6].len_used] = '\0'; /* null terminate constraint name */
 					ERROR(ERR_DROP_FUNCTION_DEPENDS, fn_name, OCTOLIT_COLUMN, gvn_subs[6].buf_addr,
 					      gvn_subs[5].buf_addr);
+					CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock,
+								      &cursor_ydb_buff);
+				}
+				/* Check if a View relies on this function. If so, disallow the DROP FUNCTION.
+				 * If a View relies on this function, we would see gvn nodes of the following form
+				 * exist in the database.
+				 *	^%ydboctoocto("functionviewdependency","SAMEVALUE","%ydboctoFN0uUSDY6E7G9VcjaOGNP9G",
+				 *						"V1")=""
+				 * where
+				 *	"SAMEVALUE" = User visible SQL function name
+				 *	"%ydboctoFN0uUSDY6E7G9VcjaOGNP9G" = Function hash (includes input/result parameter types)
+				 *	"V1" = View Name
+				 *
+				 * Therefore check if ^%ydboctoocto("functions",function_name,function_hash,"view_dependency",*)
+				 * nodes exist and if so issue an error.
+				 */
+				// gvn_subs[0] -> ^%ydboctoocto
+				// gvn_subs[1] -> "functionviewdependency"
+				// gvn_subs[2] -> function_name
+				// gvn_subs[3] -> function_hash
+				YDB_LITERAL_TO_BUFFER(OCTOLIT_FUNCTIONVIEWDEPENDENCY, &gvn_subs[1]);
+
+				char view_name_buffer[OCTO_MAX_IDENT + 1];
+				gvn_subs[4].buf_addr = view_name_buffer;
+				gvn_subs[4].len_alloc = sizeof(view_name_buffer) - 1; /* reserve 1 byte for null terminator */
+				gvn_subs[4].len_used = 0;
+				status = ydb_subscript_next_s(&gvn_subs[0], 4, &gvn_subs[1], &gvn_subs[4]);
+				if (YDB_ERR_NODEEND != status) {
+					/* There is at least one view which relies on this function. Issue error */
+					YDB_ERROR_CHECK(status);
+					if (YDB_OK != status) {
+						CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock,
+									      &cursor_ydb_buff);
+					}
+					char fn_name[1024];
+					get_function_name_and_parmtypes(fn_name, sizeof(fn_name), function_name,
+									drop_function->parameter_type_list);
+					gvn_subs[4].buf_addr[gvn_subs[4].len_used] = '\0'; /* null terminate view name */
+					ERROR(ERR_DROP_FUNCTION_DEPENDS_ON_VIEW, fn_name, gvn_subs[4].buf_addr);
 					CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock,
 								      &cursor_ydb_buff);
 				}
@@ -820,7 +1167,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			/* Now that we know there are no too-many-parameter errors in ths function, we can safely go ahead
 			 * with setting the function related gvn in the database.
 			 */
-			compress_statement(result, &spcfc_buffer, &length); /* Sets "spcfc_buffer" to "malloc"ed storage */
+			compress_statement(result, &spcfc_buffer, &length, FALSE); /* Sets "spcfc_buffer" to "malloc"ed storage */
 			assert(NULL != spcfc_buffer);
 			status = store_function_definition(function_name_buffers, spcfc_buffer, length, FALSE);
 			free(spcfc_buffer);  /* free buffer that was "malloc"ed in "compress_statement" */

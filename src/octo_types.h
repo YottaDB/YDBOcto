@@ -63,16 +63,21 @@ typedef void *yyscan_t;
 		*(dst)->v.NAME = *(src)->v.NAME;         \
 	} while (0);
 
-/* Determines the corresponding (SqlStatement *) structures that points to a (SqlTable *) structure */
-#define SQL_STATEMENT_FROM_SQLTABLE(ALIAS, TABLE)                                 \
-	{                                                                         \
-		SqlStatement *lcl_ret;                                            \
-                                                                                  \
-		lcl_ret = (SqlStatement *)((char *)TABLE - sizeof(SqlStatement)); \
-		assert(create_table_STATEMENT == lcl_ret->type);                  \
-		assert(lcl_ret->v.create_table == TABLE);                         \
-		(ALIAS)->table = lcl_ret;                                         \
-		lcl_ret->v.create_table = TABLE;                                  \
+/* Determines the corresponding (SqlStatement *) structures that points to a (SqlTable/SqlView *) structure */
+#define SQL_STATEMENT_FROM_SQLTABLE_OR_SQLVIEW(ALIAS, TABLE_OR_VIEW)                      \
+	{                                                                                 \
+		SqlStatement *lcl_ret;                                                    \
+		lcl_ret = (SqlStatement *)((char *)TABLE_OR_VIEW - sizeof(SqlStatement)); \
+		if (create_view_STATEMENT == lcl_ret->type) {                             \
+			/* Cast to avoid compiler warnings */                             \
+			lcl_ret->v.create_view = (SqlView *)TABLE_OR_VIEW;                \
+		} else if (create_table_STATEMENT == lcl_ret->type) {                     \
+			/* Cast to avoid compiler warnings */                             \
+			lcl_ret->v.create_table = (SqlTable *)TABLE_OR_VIEW;              \
+		} else {                                                                  \
+			assert(FALSE);                                                    \
+		}                                                                         \
+		(ALIAS)->table = lcl_ret;                                                 \
 	}
 
 #define SQL_VALUE_STATEMENT(DEST, TYPE, STRING_LITERAL)          \
@@ -187,6 +192,8 @@ typedef enum SqlStatementType {
 	update_STATEMENT,
 	display_relation_STATEMENT,
 	truncate_table_STATEMENT,
+	create_view_STATEMENT,
+	drop_view_STATEMENT,
 	invalid_STATEMENT, // Keep invalid_STATEMENT at the end
 } SqlStatementType;
 
@@ -348,7 +355,11 @@ typedef enum SqlAggregateType {
 	AGGREGATE_LAST
 } SqlAggregateType;
 
-typedef enum SqlDisplayRelationType { DISPLAY_ALL_RELATION, DISPLAY_TABLE_RELATION } SqlDisplayRelationType;
+typedef enum SqlDisplayRelationType {
+	DISPLAY_ALL_RELATION,
+	DISPLAY_ALL_VIEW_RELATION,
+	DISPLAY_TABLE_RELATION
+} SqlDisplayRelationType;
 
 // Values for this enum are derived from the PostgreSQL catalog and
 // only include types Octo currently supports.
@@ -503,6 +514,7 @@ typedef struct SqlColumn {
 	struct SqlStatement *	 table;
 	struct SqlStatement *	 delim;
 	struct SqlStatement *	 keywords;
+	void *			 bin_defn_offset; /* Refer to comments above similar field in SqlTable */
 	dqcreate(SqlColumn);
 } SqlColumn;
 
@@ -536,8 +548,29 @@ typedef struct SqlColumnAlias {
 						     *  `id` and 2 for the SqlColumnAlias corresponding to `firstname`
 						     *  and 0 for the SqlColumnAlias corresponding to `lastname`).
 						     */
+	void *bin_defn_offset;			    /* Refer to comments above similar field in SqlTable */
 } SqlColumnAlias;
 
+/*
+ * Represents a SQL view
+ */
+typedef struct SqlView {
+	struct SqlStatement *viewName;
+	struct SqlStatement *src_table_alias_stmt;
+	struct SqlStatement *column_name_list; /* This is only valid for a short duration between completion of parsing and
+						* completion of view_definition() invocation in run_query(). When it is valid
+						* it carries view column names that are explicitly specified in CREATE VIEW.
+						* Once the invocation reaches view_definition() these column names are assigned
+						* as alias to view definition's columns. Additionally, view_definition() invocation
+						* is delayed till run_query() with the help of this variable to allow parser
+						* to have enough context to recognize the SELECT_ASTERISK problem at parsing stage
+						* itself. Refer to the following thread to know more about the SELECT_ASTERISK issue
+						* https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1378#note_1380319421.
+						* Note that SELECT_ASTERISK issue occurs in SELECT query, since view depends on
+						* select queries to form its definition the issue had to be handled for view
+						* as well.
+						*/
+} SqlView;
 /*
  * Represents a SQL table
  */
@@ -550,12 +583,48 @@ typedef struct SqlTable {
 	boolean_t	     readwrite; /* TRUE if READWRITE keyword is specified, FALSE if READONLY keyword is specified */
 	uint64_t	     oid;	/* TABLEOID; compared against ^%ydboctoschema(TABLENAME,OCTOLIT_PG_CLASS) */
 	boolean_t	     if_not_exists_specified;
+	/* The following variable "bin_defn_offset" is present in all structures that can be part of a table/view/function
+	 * binary definition and can be pointed to from multiple other structures (for example, multiple "SqlTableAlias" structures
+	 * can point to the same "SqlTable" structure). This is used by compress_statement() and decompress_statement().
+	 *
+	 * 1) compress_statement() takes care of storing a runtime parse tree as a blob (binary object, aka binary definition,
+	 *    which is an array of bytes) in the database.
+	 * 2) decompress_statement() takes care of reading the blob from the database and converting it back into a runtime
+	 *    parse tree.
+	 * 3) After parsing a CREATE TABLE, CREATE VIEW or CREATE FUNCTION command, the parse tree would store an initial value
+	 *    of 0 for "bin_defn_offset".
+	 * 4) compress_statement() is called TWICE. Once to get the size of the blob. Second to do the actual blob conversion.
+	 * 5) In the first compress_statement() call, the initial value of 0 of "bin_defn_offset" would be seen and this is
+	 *    a signal to compress_statement() to do the size calculation of the structure holding this field. As part of that,
+	 *    this field is set to the special value MAX_BIN_DEFN_OFFSET (which is an impossible offset, currently hardcoded to
+	 *    (2^64)-1.
+	 * 6) While still in the first compress_statement() call, any more function invocations that reach this structure
+	 *    (possible due to multiple parse tree structures pointing to this same structure) will see the "bin_defn_offset"
+	 *    set to MAX_BIN_DEFN_OFFSET in which case it will skip the size calculation for this structure as it has already
+	 *    been done once.
+	 * 7) In the second compress_statement() call, the special value of MAX_BIN_DEFN_OFFSET of "bin_defn_offset" would be
+	 *    seen first in this structure and in this case it is a signal to compress_statement() to use up space in the
+	 *    allocated blob to store the current structure. As part of that, "bin_defn_offset" is set to store the offset
+	 *    into this allocated space in the blob.
+	 * 8) While still in the second compress_statement() call, any more function invocations that reach this structure
+	 *    would see the "bin_defn_offset" set to an offset (that is not MAX_BIN_DEFN_OFFSET) and so would set the
+	 *    parent structure (that has a pointer to this structure) to store the "bin_defn_offset" field in the parent structure.
+	 *    This way we allocate only one structure while allowing multiple parent structures to point to this structure.
+	 * 9) decompress_statement() is called only ONCE. When it is called, on the first occurrence of a structure we see if
+	 *    "bin_defn_offset" is non-NULL (which should be the case as we are seeing the current structure for the first time)
+	 *    we set it to NULL and recurse through its various fields.
+	 *10) When we again come across this structure again in decompress_statement(), the "bin_defn_offset" member will have a
+	 *    NULL value indicating that this structure was already decompressed so nothing more is needed to be done.
+	 */
+	void *bin_defn_offset;
 } SqlTable;
 
 /* Below is the table constructed by the VALUES (...) syntax */
 typedef struct SqlTableValue {
 	struct SqlStatement *row_value_stmt; // SqlRowValue
-	SqlColumn *column; // SqlColumn. Stored in "table_reference.c". Used in "populate_data_type.c" and "hash_canonical_query.c"
+	struct SqlStatement *column_stmt;    /* SqlColumn. Stored in "table_reference.c". Used in "populate_data_type.c" and
+					      * hash_canonical_query.c
+					      */
 } SqlTableValue;
 
 typedef struct SqlRowValue {
@@ -608,7 +677,8 @@ typedef struct SqlTableAlias {
 				       * scanned the entire SELECT column list at least once). It is also used to avoid issuing
 				       * duplicate errors (e.g. ERR_UNKNOWN_COLUMN_NAME).
 				       */
-	struct SqlTableAlias *parent_table_alias;
+	// SqlTableAlias
+	struct SqlStatement *parent_table_alias;
 	// SqlColumnListAlias list of available columns
 	struct SqlStatement *column_list;
 	/* `correlation_specification` is a pointer to a table name alias and an optional list of column name aliases.
@@ -616,7 +686,8 @@ typedef struct SqlTableAlias {
 	 * set to a SQLColumnList with nodes corresponding to tablealias, columnalias1 and columnalias2 in the same order.
 	 */
 	struct SqlStatement *correlation_specification;
-	SqlColumnAlias *     table_asterisk_column_alias; /* The ColumnAlias structure corresponding to a TABLE.* specification
+	// SqlColumnAlias
+	struct SqlStatement *table_asterisk_column_alias; /* The ColumnAlias structure corresponding to a TABLE.* specification
 							   * for this table. This is needed to ensure that all references to
 							   * t1.* in the query (for table "t1") return a pointer to the same
 							   * SqlColumnAlias structure as otherwise GROUP BY validation would fail
@@ -624,6 +695,7 @@ typedef struct SqlTableAlias {
 							   * column alias and not multiple copies of it.
 							   */
 	QualifyQueryStage qualify_query_stage;
+	void *		  bin_defn_offset; /* Refer to comments above similar field in SqlTable */
 } SqlTableAlias;
 
 /**
@@ -729,6 +801,12 @@ typedef struct SqlDropTableStatement {
 	boolean_t	     if_exists_specified;
 } SqlDropTableStatement;
 
+typedef struct SqlDropViewStatement {
+	// SqlValue
+	struct SqlStatement *view_name;
+	boolean_t	     if_exists_specified;
+} SqlDropViewStatement;
+
 typedef struct SqlTruncateTableStatement {
 	// SqlValue
 	struct SqlStatement *tables; // SqlColumnListAlias
@@ -763,11 +841,11 @@ typedef struct SqlAggregateFunction {
 				      */
 	// SqlColumnList
 	struct SqlStatement *parameter;
-	int unique_id; /* Used to convey the `unique_id` of the table_alias to which this aggregate should be attached to by copying
-			* this value to `unique_id` of LpExtraAggregateFunction in lp_generate_where(), which later is referred by
-			* lp_verify_structure() to attach the aggregate to the correct physical plan during physical plan
-			* generation.
-			*/
+	struct SqlStatement *table_alias_stmt; /* If not NULL the unique_id of this table_alias will be copied to `unique_id` of
+						* LpExtraAggregateFunction in lp_generate_where(), which later is referred by
+						* lp_verify_structure() to attach this aggregate to the correct physical plan during
+						* physical plan generation.
+						*/
 } SqlAggregateFunction;
 
 typedef struct SqlFunctionCall {
@@ -886,8 +964,10 @@ typedef struct SqlColumnListAlias {
 							 * NATURAL JOIN), this points to the column from a preceding
 							 * table in the join list with the same name as this column.
 							 */
-	SqlColumnAlias *outer_query_column_alias;	// the ColumnAlias structure corresponding to this
-							// ColumnListAlias if/when referenced in outer query
+	// SqlColumnAlias
+	struct SqlStatement *outer_query_column_alias; // the ColumnAlias structure corresponding to this
+						       // ColumnListAlias if/when referenced in outer query
+	void *bin_defn_offset;			       /* Refer to comments above similar field in SqlTable */
 	dqcreate(SqlColumnListAlias);
 } SqlColumnListAlias;
 
@@ -901,16 +981,15 @@ typedef struct SqlColumnListAlias {
 typedef struct SqlSetOperation {
 	SqlSetOperationType  type;
 	struct SqlStatement *operand[2];
-	SqlColumnListAlias * col_type_list; /* List of available columns with type information indicating the union of
-					     * the types of the two operands of the SET operation. For example if this is
-					     * an INTERSECT SET operation and the left operand has a column of type
-					     * NUL_VALUE and the right operand has the same column of type
-					     * INTEGER_LITERAL, then the SET operation would store INTEGER_LITERAL as the
-					     * type (since NUL_VALUE can be matched with any other type, the
-					     * other type should be inherited as the type of this column as the result of
-					     * this SET operation). Used only by `populate_data_type` for type check of
-					     * columns involved in the SET operation.
-					     */
+	struct SqlStatement *col_type_list_stmt; /* SqlColumnListAlias. List of available columns with type information indicating
+						  * the union of the types of the two operands of the SET operation. For example if
+						  * this is an INTERSECT SET operation and the left operand has a column of type
+						  * NUL_VALUE and the right operand has the same column of type INTEGER_LITERAL,
+						  * then the SET operation would store INTEGER_LITERAL as the type (since NUL_VALUE
+						  * can be matched with any other type, the other type should be inherited as the
+						  * type of this column as the result of this SET operation). Used only by
+						  * `populate_data_type` for type check of columns involved in the SET operation.
+						  */
 } SqlSetOperation;
 
 typedef struct SqlBeginStatement {
@@ -996,10 +1075,12 @@ typedef struct SqlStatement {
 		 * "typedef enum SqlStatementType" in a different section of this same file ("octo_types.h").
 		 */
 		struct SqlTable *		  create_table;
+		struct SqlView *		  create_view;
 		struct SqlFunction *		  create_function;
 		struct SqlSelectStatement *	  select;
 		struct SqlInsertStatement *	  insert;
 		struct SqlDropTableStatement *	  drop_table;
+		struct SqlDropViewStatement *	  drop_view;
 		struct SqlDropFunctionStatement * drop_function;
 		struct SqlTruncateTableStatement *truncate_table;
 		struct SqlValue *		  value;
@@ -1068,11 +1149,12 @@ typedef struct {
 							 * the deepest `column_alias` in the aggregate parameter to
 							 * aggregate_function_STATEMENT case.
 							 */
-	int aggr_unique_id; /* Used by aggregate_function_STATEMENT case to convey the `unique_id` of the deepest `column_alias`
-			     * present in it to column_alias_STATEMENT case of qualify_statement() so that GROUP BY validations can
-			     * be performed on the column reference present in aggregate function. This value is only valid for the
-			     * duration of time qualify_statement is processing an aggregate and its parameter.
-			     */
+	struct SqlStatement
+	    *aggr_table_alias_stmt; /* Used by aggregate_function_STATEMENT case to convey the `unique_id` of the deepest
+				     * `column_alias` present in it to column_alias_STATEMENT case of qualify_statement() so that
+				     * GROUP BY validations can be performed on the column reference present in aggregate function.
+				     * This value is only valid for the duration of time qualify_statement is processing an
+				     * aggregate and its parameter.
+				     */
 } QualifyStatementParms;
-
 #endif

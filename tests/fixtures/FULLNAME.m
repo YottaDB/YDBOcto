@@ -11,6 +11,4 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 FULLNAME(firstname,lastname)
-	; write "DBG: firstname: "_firstname,!
-	; write "DBG: lastname: "_lastname,!
 	quit firstname_" "_lastname

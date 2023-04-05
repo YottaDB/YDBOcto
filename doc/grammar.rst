@@ -604,6 +604,39 @@ Examples
 
   In the above example STARTINCLUDE is used with START and END. In this case the FOR loop for `$ORDER() <https://docs.yottadb.com/ProgrammersGuide/functions.html#order>`_ includes the START value of the key column as the first iteration of the loop. Note that in the above example, the column name :code:`OrderID` is specified inside double quotes. This lets the column name be taken as is (with the mixed case lettering) and so we can use :code:`keys()` syntax with the mixed case column name.
 
+  .. code-block:: SQL
+
+     CREATE TABLE extractnames (
+         id INTEGER PRIMARY KEY,
+         firstName VARCHAR(30),
+         lastName VARCHAR(30),
+         age INTEGER,
+         fullname VARCHAR EXTRACT "$$^FULLNAME(values(""FIRSTNAME""),values(""LASTNAME""))"
+     ) GLOBAL "^names(keys(""ID""))";
+
+  .. code-block:: none
+
+    ; FULLNAME.m
+    FULLNAME(firstname,lastname)
+        quit firstname_" "_lastname
+
+  In the above example, ``EXTRACT`` is used to define a computed column that references non-key columns. Non-key columns are referenced in ``EXTRACT`` functions by passing the column name as an M string literal to an expression of the form ``values(..)``.
+
+  .. code-block:: SQL
+
+     CREATE TABLE extractnames (
+         id INTEGER PRIMARY KEY,
+         firstName VARCHAR(30),
+         lastName VARCHAR(30),
+         age INTEGER,
+         fullname VARCHAR EXTRACT CONCAT(firstName, ' ', lastName),
+         nameandnumber VARCHAR EXTRACT CONCAT(lastName, id::varchar)
+     ) GLOBAL "^names(keys(""ID""))";
+
+  In the above example, ``EXTRACT`` is used to define a computed column using a SQL function, in this case ``CONCAT()``.
+
+  In this example, the ``fullname`` column calls ``CONCAT()`` with the ``firstName`` and ``lastName`` columns of the table, along with a string literal containing a space. Similarly, the ``nameandnumber`` column calls ``CONCAT()`` with the ``lastName`` column and the ``id`` column, which is typecast as a ``VARCHAR`` for compatibility with ``CONCAT()``, which requires string type arguments.
+
 +++++++++++++
 Error Case
 +++++++++++++

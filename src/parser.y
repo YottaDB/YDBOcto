@@ -2243,14 +2243,7 @@ ddl_str_literal_value
 		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
 		YYERROR;
 	}
-	if ((NUMERIC_LITERAL == ret->v.value->type) || (INTEGER_LITERAL == ret->v.value->type)) {
-		/* Convert numeric inputs into string type as that is what is expected here */
-		ret->v.value->type = STRING_LITERAL;
-	} else if (STRING_LITERAL != ret->v.value->type) {
-		ERROR(ERR_DDL_LITERAL, "string");
-		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
-		YYERROR;
-	}
+	assert(STRING_LITERAL == ret->v.value->type);
 	$$ = ret;
     }
 

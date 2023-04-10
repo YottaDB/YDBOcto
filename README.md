@@ -14,7 +14,7 @@ Octo requires [YottaDB](https://gitlab.com/YottaDB/DB/YDB) r1.34 or greater. Ins
 
 ## Quickstart
 
-Intsall prerequisite packages.
+Install prerequisite packages:
 
 ```sh
 # Ubuntu
@@ -24,7 +24,7 @@ sudo apt update && sudo apt install -y --no-install-recommends build-essential c
 yum --enablerepo=powertools install -y gcc make cmake bison flex readline-devel git libconfig-devel pkg-config libicu-devel wget findutils procps file openssl-devel postgresql
 ```
 
-Install YottaDB, Octo, and the required POSIX plugin all together.
+Install YottaDB, Octo, and the required POSIX plugin all together:
 
 ```sh
 mkdir /tmp/tmp ; wget -P /tmp/tmp https://gitlab.com/YottaDB/DB/YDB/raw/master/sr_unix/ydbinstall.sh
@@ -32,9 +32,11 @@ cd /tmp/tmp ; chmod +x ydbinstall.sh
 sudo ./ydbinstall.sh --utf8 default --verbose --octo
 ```
 
+Note that the `--octo` option implicitly installs any dependent plugins, such as the POSIX plugin.
+
 `./ydbinstall.sh --help` gives a full list of its numerous options.
 
-The [Quickstart section of the Octo user documentation](https://docs.yottadb.com/Octo/intro.html#quickstart) has more details.
+The Octo [Developer Documentation](https://docs.yottadb.com/Octo/developer_doc.html) provides instructions on building and installing Octo from source.
 
 ### Test with dummy data using Octo and ROcto
 

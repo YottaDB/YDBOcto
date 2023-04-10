@@ -91,64 +91,34 @@ Install Prerequisites
 Install Octo
 ++++++++++++
 
-  Octo is a continuously updated YottaDB plugin that is distributed as source code. A CI (Continuous Integration) pipeline runs a considerable number of unit and system tests before allowing any source code to be merged. This ensures that the master branch is always current with the latest production-ready source code. Octo can be installed by using the :code:`--octo` option when installing YottaDB with the :code:`ydbinstall` script. Alternatively, you can build it from source.
+Octo is a continuously updated YottaDB plugin that is distributed as source code. A CI (Continuous Integration) pipeline runs a considerable number of unit and system tests before allowing any source code to be merged. This ensures that the master branch is always current with the latest production-ready source code.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     Install Prerequisite Packages
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Octo can be installed by using the :code:`--octo` option when installing YottaDB with the :code:`ydbinstall` script.
 
-     .. code-block:: bash
+To do this, start by installing the prerequisite packages:
 
-        # Ubuntu/Debian
-        sudo apt-get install --no-install-recommends build-essential cmake bison flex libreadline-dev libssl-dev wget ca-certificates file libelf-dev curl git pkg-config libicu-dev libconfig-dev
+.. code-block:: bash
 
-        # RHEL 8/Rocky Linux
-        yum --enablerepo=powertools install -y gcc make cmake bison flex readline-devel git libconfig-devel pkg-config libicu-devel wget vim findutils procps file openssl-devel postgresql
+    # Ubuntu
+    sudo apt update && sudo apt install -y --no-install-recommends bison build-essential ca-certificates cmake curl file flex git libconfig-dev libelf-dev libicu-dev libreadline-dev libssl-dev pkg-config wget
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   *(Optional)* Prerequisites for Automated Regression Testing
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # RHEL 8/Rocky Linux
+    yum --enablerepo=powertools install -y bison cmake file findutils flex gcc git libconfig-devel libicu-devel make openssl-devel pkg-config postgresql procps readline-devel wget
 
-  Refer to the :doc:`Developer's Documentation <developer_doc>` for information on setting up and running automated regression testing.
+    # SUSE Enterprise Linux / openSUSE Linux
+    zypper install -y bison cmake file findutils flex gcc git libconfig-devel libicu-devel libopenssl-devel make pkg-config postgresql procps readline-devel wget
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     Clone the Octo source code repository
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Then, install YottaDB, Octo, and the required POSIX plugin all together:
 
-      .. code-block:: bash
+.. code-block:: bash
 
-         # In a temporary directory perform the following commands
-         git clone https://gitlab.com/YottaDB/DBMS/YDBOcto.git
-         cd YDBOcto
+    mkdir /tmp/tmp ; wget -P /tmp/tmp https://gitlab.com/YottaDB/DB/YDB/raw/master/sr_unix/ydbinstall.sh
+    cd /tmp/tmp ; chmod +x ydbinstall.sh
+    sudo ./ydbinstall.sh --utf8 default --verbose --octo
 
-~~~~~~~~~~~~~~~~~
-     Compile Octo
-~~~~~~~~~~~~~~~~~
+`./ydbinstall.sh --help` gives a full list of its numerous options.
 
-      .. code-block:: bash
-
-         mkdir build ; cd build
-         cmake ..
-         make -j `getconf _NPROCESSORS_ONLN`
-
-      Most users proceed to the *Install Octo* step below. The instructions here are for those wishing to contribute to Octo, or building it on Supportable but not Supported platforms.
-
-~~~~~~~~~~~~~~~~~
-     Install Octo
-~~~~~~~~~~~~~~~~~
-
-      Install Octo:
-
-      .. code-block:: bash
-
-         # Tell git that this repo is safe to run git in as root
-         # Don't forget the -E with sudo; otherwise the git config command has no effect
-         git config --global --add safe.directory $(git rev-parse --show-toplevel)
-         sudo -E make install
-
-      .. note::
-
-	 New Octo installations include a default :code:`octo.conf` configuration file at :code:`$ydb_dist/plugin/octo/octo.conf`, which may be modified post-install. Re-installing Octo will *not* overwrite an existing :code:`octo.conf` in this location, so modifications to this file will be preserved across installations.
+The Octo `Developer Documentation <https://docs.yottadb.com/Octo/developer_doc.html>`_ provides instructions on building and installing Octo manually without ``ydbinstall`` / ``ydbinstall.sh``.
 
 ++++++++++++++++
 Configure Octo

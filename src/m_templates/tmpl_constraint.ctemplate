@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -113,12 +113,6 @@ TEMPLATE(tmpl_constraint, PhysicalPlan *pplan, LogicalPlan *lp_constraint, SqlTa
 				assert(0 == i);
 				assert(OPTIONAL_CHECK_CONSTRAINT == constraint->type);
 				col_list_stmt = constraint->v.check_columns;
-				if (NULL == col_list_stmt) {
-					/* No table columns used in this CHECK constraint. Must be a static expression.
-					 * No point generating code to verify this constraint.
-					 */
-					continue;
-				}
 			}
 			switch(type) {
 			case LP_DELETE_FROM:
@@ -138,6 +132,13 @@ TEMPLATE(tmpl_constraint, PhysicalPlan *pplan, LogicalPlan *lp_constraint, SqlTa
 				 */
 				unsigned int	is_lvn_set;
 				SqlColumnList	*start_col, *cur_col;
+				if (NULL == col_list_stmt) {
+					/* No table columns used in this constraint. Must be a static expression. We can skip
+					 * generating code to verify this constraint for the UPDATE command since we are
+					 * guaranteed no column in the SET list of the UPDATE intersects with this constraint.
+					 */
+					continue;
+				}
 				UNPACK_SQL_STATEMENT(start_col, col_list_stmt, column_list);
 				cur_col = start_col;
 				is_lvn_set = 0;

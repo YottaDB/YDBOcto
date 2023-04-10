@@ -1093,3 +1093,9 @@ create table tmp (id integer, unique (tmp.id));
 
 -- Confirm user-friendly error message for ERR_TYPE_NOT_COMPATIBLE issued for CHECK constraints
 create table tmp (id integer CHECK ((id+'abcd')::varchar > 1::varchar));
+
+-- Test of ERR_CHECK_CONSTRAINT_VIOLATION error with CHECK constraint that is a constant (i.e. does not use any table columns)
+CREATE TABLE tmp (product_no integer, CHECK (false));
+INSERT INTO tmp VALUES (1);
+DROP TABLE tmp;
+

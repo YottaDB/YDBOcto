@@ -27,8 +27,8 @@
  * Cannot use that since this one needs to invoke "qualify_extract_function()" instead of "populate_data_type()".
  */
 int qualify_extract_function_column_list(SqlStatement *v, SqlTable *table, SqlValueType *type, boolean_t do_loop,
-					 DataTypeCallback callback, boolean_t is_first_pass, SqlTableAlias *table_alias,
-					 SqlStatement *extract_column, SqlColumnList **dependencies) {
+					 boolean_t is_first_pass, SqlTableAlias *table_alias, SqlStatement *extract_column,
+					 SqlColumnList **dependencies) {
 	SqlColumnList *column_list, *cur_column_list;
 	SqlValueType   current_type;
 	int	       result;
@@ -36,13 +36,11 @@ int qualify_extract_function_column_list(SqlStatement *v, SqlTable *table, SqlVa
 	result = 0;
 	*type = UNKNOWN_SqlValueType;
 	if (NULL != v) {
-		SqlStatement *first_value;
-		SqlValue *    extract_column_name;
+		SqlValue *extract_column_name;
 
 		// SqlColumnList
 		UNPACK_SQL_STATEMENT(column_list, v, column_list);
 		cur_column_list = column_list;
-		first_value = NULL; /* needed to appease static code checkers from false warnings */
 		if (is_first_pass) {
 			assert(NULL != extract_column);
 			UNPACK_SQL_STATEMENT(extract_column_name, extract_column, value);
@@ -122,16 +120,6 @@ int qualify_extract_function_column_list(SqlStatement *v, SqlTable *table, SqlVa
 							   extract_column, dependencies);
 			if (result) {
 				break;
-			}
-			if (UNKNOWN_SqlValueType != *type) {
-				if (NULL != callback) {
-					result |= callback(type, &current_type, first_value, cur_column_list->value, NULL);
-					if (result) {
-						break;
-					}
-				}
-			} else {
-				first_value = cur_column_list->value;
 			}
 			cur_column_list = cur_column_list->next;
 			*type = current_type;
@@ -324,8 +312,8 @@ int qualify_extract_function(SqlStatement *stmt, SqlTable *table, SqlValueType *
 		if (result) {
 			break;
 		}
-		result |= qualify_extract_function_column_list(fc->parameters, table, type, TRUE, ensure_same_type, is_first_pass,
-							       table_alias, extract_column, dependencies);
+		result |= qualify_extract_function_column_list(fc->parameters, table, type, TRUE, is_first_pass, table_alias,
+							       extract_column, dependencies);
 		/* Note down the function name and hash as encountered in this EXTRACT FUNCTION.
 		 * Needed later to store the list of functions that this CREATE TABLE command depends on.
 		 * This way a DROP FUNCTION can check if there are any table EXTRACT FUNCTIONs relying on it and if so error out.

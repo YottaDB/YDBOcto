@@ -59,6 +59,7 @@ select * from tmp;
 drop table tmp;
 CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), abs_id INTEGER EXTRACT "$$ABS^%ydboctosqlfunctions(keys(""LASTNAME""))") GLOBAL "^names";
 select * from tmp;
+drop table tmp;
 
 -- Prevent drop of function depended on by EXTRACT columns until all tables containing dependent columns are dropped
 DROP FUNCTION IF EXISTS SAMEVALUE(INTEGER);
@@ -100,3 +101,25 @@ drop function concat(varchar, varchar, varchar);
 select * from extractnames2;
 drop table extractnames2;
 drop function concat(varchar, varchar, varchar);
+
+-- Test that EXTRACT function parameters can be of different types.
+-- This used to previously incorrectly issue a ERR_TYPE_MISMATCH error.
+-- See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/633#note_1348911984 for details.
+create function myfunc1(varchar, integer, varchar) returns varchar as $$myfunc1^TC063;
+create table tmp (id INTEGER PRIMARY KEY, firstName VARCHAR, lastName VARCHAR, fullname VARCHAR EXTRACT myfunc1(firstName, id, lastName)) GLOBAL "^names" readonly;
+select * from tmp;
+drop table tmp;
+drop function myfunc1(varchar, integer, varchar);
+
+-- Test that BOOLEAN literals are accepted as an EXTRACT function parameter
+create function myfunc2(varchar, boolean, varchar) returns varchar as $$myfunc2^TC063;
+create table tmp (id INTEGER PRIMARY KEY, firstName VARCHAR, lastName VARCHAR, fullname VARCHAR EXTRACT myfunc2(firstName, false, lastName)) GLOBAL "^names" readonly;
+select * from tmp;
+drop table tmp;
+
+-- Test that type cast operators are accepted as an EXTRACT function parameter
+create table tmp (id INTEGER PRIMARY KEY, firstName VARCHAR, lastName VARCHAR, fullname VARCHAR EXTRACT myfunc2(firstName, id::boolean, lastName)) GLOBAL "^names" readonly;
+select * from tmp;
+drop table tmp;
+drop function myfunc2(varchar, boolean, varchar);
+

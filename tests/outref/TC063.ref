@@ -48,6 +48,7 @@ select * from tmp;
 drop table tmp;
 CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), abs_id INTEGER EXTRACT "$$ABS^%ydboctosqlfunctions(keys(""LASTNAME""))") GLOBAL "^names";
 select * from tmp;
+drop table tmp;
 
 -- Prevent drop of function depended on by EXTRACT columns until all tables containing dependent columns are dropped
 DROP FUNCTION IF EXISTS SAMEVALUE(INTEGER);
@@ -89,6 +90,28 @@ drop function concat(varchar, varchar, varchar);
 select * from extractnames2;
 drop table extractnames2;
 drop function concat(varchar, varchar, varchar);
+
+-- Test that EXTRACT function parameters can be of different types.
+-- This used to previously incorrectly issue a ERR_TYPE_MISMATCH error.
+-- See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/633#note_1348911984 for details.
+create function myfunc1(varchar, integer, varchar) returns varchar as $$myfunc1^TC063;
+create table tmp (id INTEGER PRIMARY KEY, firstName VARCHAR, lastName VARCHAR, fullname VARCHAR EXTRACT myfunc1(firstName, id, lastName)) GLOBAL "^names" readonly;
+select * from tmp;
+drop table tmp;
+drop function myfunc1(varchar, integer, varchar);
+
+-- Test that BOOLEAN literals are accepted as an EXTRACT function parameter
+create function myfunc2(varchar, boolean, varchar) returns varchar as $$myfunc2^TC063;
+create table tmp (id INTEGER PRIMARY KEY, firstName VARCHAR, lastName VARCHAR, fullname VARCHAR EXTRACT myfunc2(firstName, false, lastName)) GLOBAL "^names" readonly;
+select * from tmp;
+drop table tmp;
+
+-- Test that type cast operators are accepted as an EXTRACT function parameter
+create table tmp (id INTEGER PRIMARY KEY, firstName VARCHAR, lastName VARCHAR, fullname VARCHAR EXTRACT myfunc2(firstName, id::boolean, lastName)) GLOBAL "^names" readonly;
+select * from tmp;
+drop table tmp;
+drop function myfunc2(varchar, boolean, varchar);
+
 CREATE TABLE
 ID|FIRSTNAME|LASTNAME|AGE|FULLNAME|NAMEANDNUMBER
 0|Zero|Cool||Zero Cool|Cool0
@@ -151,6 +174,7 @@ CREATE TABLE
 DROP TABLE
 CREATE TABLE
 [ERROR]: ERR_YOTTADB: YottaDB error: 150373850,octoPlan1+18^%ydboctoP*,%YDB-E-LVUNDEF, Undefined local variable: %ydboctocursor(107,"keys",1,"TMP","LASTNAME")
+DROP TABLE
 DROP FUNCTION
 CREATE FUNCTION
 CREATE TABLE
@@ -184,5 +208,39 @@ DROP TABLE
 [ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function CONCAT(VARCHAR, VARCHAR, VARCHAR) because other objects (column "FULLNAME2" on table "EXTRACTNAMES2") depend on it
 ID|FIRSTNAME|LASTNAME|AGE|FULLNAME2
 (0 rows)
+DROP TABLE
+DROP FUNCTION
+CREATE FUNCTION
+CREATE TABLE
+ID|FIRSTNAME|LASTNAME|FULLNAME
+0|Zero|Cool|Zero0Cool
+1|Acid|Burn|Acid1Burn
+2|Cereal|Killer|Cereal2Killer
+3|Lord|Nikon|Lord3Nikon
+4|Joey||
+5|Zero|Cool|Zero5Cool
+(6 rows)
+DROP TABLE
+DROP FUNCTION
+CREATE FUNCTION
+CREATE TABLE
+ID|FIRSTNAME|LASTNAME|FULLNAME
+0|Zero|Cool|Zero0Cool
+1|Acid|Burn|Acid0Burn
+2|Cereal|Killer|Cereal0Killer
+3|Lord|Nikon|Lord0Nikon
+4|Joey||
+5|Zero|Cool|Zero0Cool
+(6 rows)
+DROP TABLE
+CREATE TABLE
+ID|FIRSTNAME|LASTNAME|FULLNAME
+0|Zero|Cool|Zero0Cool
+1|Acid|Burn|Acid1Burn
+2|Cereal|Killer|Cereal1Killer
+3|Lord|Nikon|Lord1Nikon
+4|Joey||
+5|Zero|Cool|Zero1Cool
+(6 rows)
 DROP TABLE
 DROP FUNCTION

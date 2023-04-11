@@ -662,6 +662,7 @@ extract_parm_list
 
 extract_parm_list_term
   : literal_value { $$ = $literal_value; }
+  | boolean_primary { $$ = $boolean_primary; }
   | qualified_name { $$ = $qualified_name; }
   | qualified_name cast_specification {
       $$ = cast_specification($cast_specification, $1);

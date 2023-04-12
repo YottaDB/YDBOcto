@@ -18,10 +18,10 @@ Intsall prerequisite packages.
 
 ```sh
 # Ubuntu
-sudo apt update && sudo apt install -y --no-install-recommends build-essential cmake bison flex xxd libreadline-dev libssl-dev wget ca-certificates file libelf-dev curl git pkg-config libicu-dev libconfig-dev
+sudo apt update && sudo apt install -y --no-install-recommends build-essential cmake bison flex libreadline-dev libssl-dev wget ca-certificates file libelf-dev curl git pkg-config libicu-dev libconfig-dev
 
 # RHEL 8/Rocky Linux
-yum --enablerepo=powertools install -y gcc make cmake bison flex readline-devel git libconfig-devel pkg-config libicu-devel wget vim findutils procps file openssl-devel postgresql
+yum --enablerepo=powertools install -y gcc make cmake bison flex readline-devel git libconfig-devel pkg-config libicu-devel wget findutils procps file openssl-devel postgresql
 ```
 
 Install YottaDB, Octo, and the required POSIX plugin all together.

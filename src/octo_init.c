@@ -31,9 +31,6 @@
 #include "octo_types.h"
 #include "rocto_common.h"
 
-// Read binary file with default config settings
-#include "default_octo_conf.h"
-
 #define OCTO_CONF_FILE_NAME "octo.conf"
 
 #define MAX_CONFIG_FILES 3
@@ -130,7 +127,6 @@ int merge_config_file(const char *path, config_t **config_file, enum config_kind
 	config_setting_t *a_root, *b_root;
 	config_t *	  new_config_file;
 	const char *	  error_message, *error_file;
-	char *		  default_octo_conf;
 	int		  error_line, status;
 
 	new_config_file = (config_t *)calloc(1, sizeof(config_t));
@@ -155,13 +151,44 @@ int merge_config_file(const char *path, config_t **config_file, enum config_kind
 			return 1;
 		}
 	} else {
-		default_octo_conf = (char *)malloc(octo_conf_default_len + 1);
-		memcpy(default_octo_conf, octo_conf_default, octo_conf_default_len);
-		default_octo_conf[octo_conf_default_len] = '\0';
 		// TODO: this leaks memory for the same reason as `parse_config_file_settings` (see below).
-		status = config_read_string(new_config_file, default_octo_conf);
-		free(default_octo_conf);
-		if (CONFIG_FALSE == status) {
+		ssize_t	    exe_path_len;
+		char	    exe_path[OCTO_PATH_MAX], default_conf_file[OCTO_PATH_MAX];
+		char *	    ydb_dist;
+		const char *src_path;
+
+		if (DISABLE_INSTALL) {
+			exe_path_len = readlink("/proc/self/exe", exe_path, OCTO_PATH_MAX);
+			if ((-1 != exe_path_len) && (OCTO_PATH_MAX > exe_path_len)) {
+				exe_path[exe_path_len] = '\0'; // readlink() doesn't add a null terminator per man page
+				src_path = dirname(exe_path);
+				if (NULL != src_path) {
+					status = snprintf(default_conf_file, sizeof(default_conf_file), "%s/octo.conf", src_path);
+					if ((int)sizeof(default_conf_file) <= status) {
+						ERROR(ERR_BUFFER_TOO_SMALL, "octo.conf file path");
+						return 1;
+					}
+				} else {
+					ERROR(ERR_LIBCALL_WITH_ARG, "dirname()", exe_path);
+					return 1;
+				}
+			} else {
+				ERROR(ERR_LIBCALL_WITH_ARG, "readlink()", "/proc/self/exe");
+				return 1;
+			}
+		} else {
+			ydb_dist = getenv("ydb_dist");
+			if (NULL == ydb_dist) {
+				ERROR(ERR_FAILED_TO_RETRIEVE_ENVIRONMENT_VARIABLE, "ydb_dist");
+				return 1;
+			}
+			status = snprintf(default_conf_file, sizeof(default_conf_file), "%s/plugin/octo/octo.conf", ydb_dist);
+			if ((int)sizeof(default_conf_file) <= status) {
+				ERROR(ERR_BUFFER_TOO_SMALL, "octo.conf file path");
+				return 1;
+			}
+		}
+		if (CONFIG_FALSE == config_read_file(new_config_file, default_conf_file)) {
 			error_message = config_error_text(new_config_file);
 			error_file = "default";
 			error_line = config_error_line(new_config_file);

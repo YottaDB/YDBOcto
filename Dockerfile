@@ -38,8 +38,7 @@ RUN apt-get update && \
         libreadline-dev \
         libconfig-dev \
         libssl-dev \
-        libicu-dev \
-        vim
+        libicu-dev
 
 # Install AIM and Posix Plugins
 RUN cd /tmp/ && \

@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.       #
+.. # Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.       #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -71,7 +71,7 @@ Rocky Linux/RHEL
   .. code-block:: bash
 
     git clone https://github.com/bats-core/bats-core.git && cd bats-core && sudo ./install.sh /usr
-    yum --enablerepo=powertools install java-11-openjdk-devel expect golang glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC postgresql-odbc bison flex readline-devel libconfig-devel openssl-devel python3 vim passwd
+    yum --enablerepo=powertools install java-11-openjdk-devel expect golang glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC postgresql-odbc bison flex readline-devel libconfig-devel openssl-devel python3 passwd
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Configure PostgreSQL and MySQL/MariaDB

@@ -144,15 +144,6 @@ add_library(libhelpers OBJECT
 )
 add_dependencies(libhelpers check_git)
 
-# Load the default config from src/aux/octo.conf
-ADD_CUSTOM_COMMAND(
-  OUTPUT "${PROJECT_BINARY_DIR}/default_octo_conf.h"
-  DEPENDS "${PROJECT_SOURCE_DIR}/src/aux/octo.conf.default"
-  COMMAND xxd -i "octo.conf.default" "${PROJECT_BINARY_DIR}/default_octo_conf.h"
-  WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/src/aux/"
-  COMMENT "Converting octo_conf.c to binary form for defaults"
-)
-
 add_library(libocto OBJECT
   add_optional_piece_keyword_to_sql_column.c
   auto_load_octo_seed.c
@@ -172,7 +163,6 @@ add_library(libocto OBJECT
   copy_sql_statement.c
   create_cursor.c
   decompress_statement.c
-  ${PROJECT_BINARY_DIR}/default_octo_conf.h
   delete_table_from_pg_class.c
   delete_function_from_pg_proc.c
   describe_tablename.c
@@ -383,7 +373,6 @@ if(${YDB_TLS_AVAILABLE})
 endif()
 
 add_library(librocto OBJECT
-  ${PROJECT_BINARY_DIR}/default_octo_conf.h
   rocto/copy_bind_parameter.c
   rocto/deserialize.c
   rocto/get_pid_start_time.c
@@ -464,7 +453,6 @@ add_executable(rocto
 add_dependencies(rocto check_git)
 
 add_executable(pparser
-  ${PROJECT_BINARY_DIR}/default_octo_conf.h
   physical/pparser.c
   errors.c
   gbldefs.c
@@ -536,9 +524,10 @@ foreach(template ${template_files})
   target_sources(libocto PUBLIC ${PROJECT_BINARY_DIR}/src/${fileName}.c)
 endforeach()
 
-# manually place Call-In/Call-Out files in build directory for use in the DISABLE_INSTALL=ON case
+# manually place Call-In/Call-Out/Config files in build directory for use in the DISABLE_INSTALL=ON case
 configure_file("${PROJECT_SOURCE_DIR}/src/aux/ydbocto.ci" ${PROJECT_BINARY_DIR}/src/ydbocto.ci COPYONLY)
 configure_file("${PROJECT_SOURCE_DIR}/src/aux/ydbocto.xc" ${PROJECT_BINARY_DIR}/src/ydbocto.xc COPYONLY)
+configure_file("${PROJECT_SOURCE_DIR}/src/aux/octo.conf.default" ${PROJECT_BINARY_DIR}/src/octo.conf COPYONLY)
 
 # Set C compiler flags for all Octo targets
 set(CC_COMPILE_FLAGS "-Wall -Wextra -pedantic")

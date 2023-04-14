@@ -1120,7 +1120,7 @@ TableAsteriskCompare(firstOperand,secondOperand,operator,numColumns,colTypeList)
 	;      $ZYSQLNULL in case of a composite NULL row.
 	;   "numColumns" represents the number of columns present in table.
 	;   "colTypeList" is a list of comma separated values representing column types.
-	;      `'t'` represents a NUL_VALUE type or STRING_LITERAL type column. `'f'` represents
+	;      `'t'` represents a STRING_LITERAL type column. `'f'` represents
 	;      all other types of columns. This is required to be able to apply $$ForceNumeric if the type is non-string.
 	;   "operator" is a value representing any of the following characters `<`, `>`, `<=`, `>=`, `'=` and `=`.
 	;      It is converted appropriately to an m operator by considering the operand type.
@@ -1167,7 +1167,7 @@ TableAsteriskCompare(firstOperand,secondOperand,operator,numColumns,colTypeList)
 	. SET secondColVal=$$mval2str(secondCol)
 	. ; get i'th colTypeList value
 	. SET type=$PIECE(colTypeList,",",i)
-	. ; Apply ForceNumeric if the operands are non-string or `NULL`
+	. ; Apply ForceNumeric if the operands are non-string
 	. if ("f"=type)  do
 	. . ; Get the numeric value of the columns
 	. . SET firstColVal=$$ForceNumeric(firstColVal)
@@ -1209,7 +1209,7 @@ TableAsteriskCompare(firstOperand,secondOperand,operator,numColumns,colTypeList)
 	. ELSE  DO
 	. . ; Non-NULL operands and they are not equal. Compare based on column types.
 	. . IF "t"=type DO
-	. . . ; STRING_LITERAL or NUL_VALUE TYPE
+	. . . ; STRING_LITERAL TYPE
 	. . . ; There is a swap that is done before this IF block chain to handle $ZYSQLNULL case
 	. . . ;   re-swap it so that we operate on the original passed operands.
 	. . . IF (("<"=operator)!(">="=operator)) DO

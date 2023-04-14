@@ -1551,13 +1551,11 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 						first_type = cur_first_cla->type;
 						if (STRING_LITERAL == first_type) {
 							%{}t{}%
-						} else if (NUL_VALUE == first_type) {
-							/* `TableAsteriskCompare` takes care of $ZYSQLNULL case
-							 * so no need to worry about it here. Treat it as a
-							 * STRING_LITERAL.
-							 */
-							%{}t{}%
 						} else {
+							/* Note that `TableAsteriskCompare` takes care of $ZYSQLNULL case
+							 * so no need to worry specially about NUL_VALUE/NUL_UNKNOWN here.
+							 * It is ok if it is treated as a non-string-literal.
+							 */
 							%{}f{}%
 						}
 						if (cur_first_cla->next != first_cla) {

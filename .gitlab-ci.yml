@@ -16,7 +16,6 @@ stages:
   - docker
 
 variables:
-  GOLANG_VERSION: 1.13.8
   MYSQL_ROOT_PASSWORD: ydbrocks
 
 # Shared build config
@@ -38,18 +37,13 @@ variables:
     - ln -fs /usr/share/zoneinfo/US/Eastern /etc/localtime
     - apt-get update -qq && apt-get install -y tzdata
     - dpkg-reconfigure --frontend noninteractive tzdata
-    - apt-get install -y -qq --no-install-recommends build-essential clang clang-tidy-11 clang-format-11 cmake bison flex libcmocka-dev python3 python3-pip python3-setuptools python3-wheel libreadline-dev git libconfig-dev libssl-dev postgresql-client postgresql wget libgcrypt20-dev libgpgme-dev expect default-jdk ninja-build unixodbc odbc-postgresql tcsh shellcheck libicu-dev pkg-config locales mysql-server-8.0 mysql-client curl
+    - apt-get install -y -qq --no-install-recommends build-essential clang clang-tidy-11 clang-format-11 cmake bison flex libcmocka-dev python3 python3-pip python3-setuptools python3-wheel libreadline-dev git libconfig-dev libssl-dev postgresql-client postgresql wget libgcrypt20-dev libgpgme-dev expect default-jdk ninja-build unixodbc odbc-postgresql tcsh shellcheck libicu-dev pkg-config locales mysql-server-8.0 mysql-client curl golang
     - locale-gen en_US.UTF-8
     - pip3 install sphinx sphinx_rtd_theme==0.5.2 sphinxcontrib-jquery sphinxcontrib-fulltoc
-    - export PATH=/usr/local/go/bin:$PATH
-    - wget -O go.tgz -q https://golang.org/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz
-    - tar -C /usr/local -xzf go.tgz
-    - rm go.tgz
-    - go version
 
 .rocky:
   before_script:
-    - yum --enablerepo=powertools install -y libcmocka-devel gcc libasan make clang clang-tools-extra cmake bison flex python3-pip readline-devel git libconfig-devel openssl-devel postgresql postgresql-server libgcrypt-devel gpgme-devel openssl expect java-11-openjdk-devel unzip unixODBC postgresql-odbc diffutils pkg-config libicu-devel glibc-langpack-en wget mysql-server xz curl
+    - yum --enablerepo=powertools install -y libcmocka-devel gcc libasan make clang clang-tools-extra cmake bison flex python3-pip readline-devel git libconfig-devel openssl-devel postgresql postgresql-server libgcrypt-devel gpgme-devel openssl expect java-11-openjdk-devel unzip unixODBC postgresql-odbc diffutils pkg-config libicu-devel glibc-langpack-en wget mysql-server xz curl go
     # Ninja is not available from the default repositories on Rocky Linux.
     # On Rocky Linux it is not available at all without going through third-party repositories.
     # Rather than setting that up, just install ninja from the GitHub releases page directly.
@@ -59,13 +53,6 @@ variables:
     # ShellCheck is not available on Rocky Linux; instructions here: https://github.com/koalaman/shellcheck/issues/1789
     - curl -LOf https://github.com/koalaman/shellcheck/releases/download/v0.7.2/shellcheck-v0.7.2.linux.x86_64.tar.xz
     - tar -C /usr/local/bin/ -xf shellcheck-v0.7.2.linux.x86_64.tar.xz --no-anchored 'shellcheck' --strip=1
-    # Install Go
-    - export PATH=/usr/local/go/bin:$PATH
-    - export JDBC_VERSION=42.2.6
-    - wget -O go.tgz -q https://golang.org/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz
-    - tar -C /usr/local -xzf go.tgz
-    - rm go.tgz
-    - go version
 
 commit-verify:
   image: ubuntu:22.04

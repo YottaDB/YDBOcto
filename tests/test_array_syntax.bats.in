@@ -52,3 +52,6 @@ teardown() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAS04.sql
 }
 
+@test "TAS05 : OCTO522 : Derived column replacement in a query with ARRAY should not generate an assert failure" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAS05.sql
+}

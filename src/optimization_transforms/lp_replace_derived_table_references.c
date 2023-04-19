@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -147,6 +147,13 @@ LogicalPlan *lp_replace_helper(LogicalPlan *plan, SqlTableAlias *table_alias, Sq
 		ret->v.lp_default.operand[0] = lp_replace_helper(plan->v.lp_default.operand[0], table_alias, key);
 		assert(LP_COLUMN_LIST == ret->v.lp_default.operand[1]->type);
 		ret->v.lp_default.operand[1] = lp_replace_helper(plan->v.lp_default.operand[1], table_alias, key);
+		break;
+	case LP_ARRAY:
+		// array child can only be one of the following
+		assert((LP_SELECT_QUERY == ret->v.lp_default.operand[0]->type)
+		       || (LP_TABLE_VALUE == ret->v.lp_default.operand[0]->type)
+		       || (LP_SET_OPERATION == ret->v.lp_default.operand[0]->type));
+		ret->v.lp_default.operand[0] = lp_replace_helper(plan->v.lp_default.operand[0], table_alias, key);
 		break;
 	case LP_VALUE:
 	case LP_DERIVED_COLUMN:

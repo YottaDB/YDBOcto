@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.  #
+.. # Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.  #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -108,7 +108,7 @@ octo_zroutines
 
   .. note::
 
-     The :code:`source $(pkg-config --variable=prefix yottadb)/ydb_env_set` command sets these up automatically for environments with the default structure under :code:`$ydb_dir` (defaulting to :code:`$HOME/.yottadb`).
+     The :code:`source /usr/local/etc/ydb_env_set` command sets these up automatically for environments with the default structure under :code:`$ydb_dir` (defaulting to :code:`$HOME/.yottadb`).
 
 ~~~~~~~~~~~~~
 tabletype
@@ -213,13 +213,13 @@ Update Octo configuration file
 
     3. The :code:`ydb_tls_passwd_OCTOSERVER` and :code:`ydb_crypt_config` environment variables must be set correctly.
 
-  If you source :code:`$(pkg-config --variable=prefix yottadb)/ydb_env_set` it provides reasonable default values of environment variables. Review the :code:`$ydb_dist/plugin/octo/octo.conf` file to configure your own environment.
+  If you source :code:`/usr/local/etc/ydb_env_set` it provides reasonable default values of environment variables. Review the :code:`$ydb_dist/plugin/octo/octo.conf` file to configure your own environment.
 
 ----------------------------
 Usage
 ----------------------------
 
-  Before running Octo/ROcto make sure that the required YottaDB variables are set either by creating your own script or run :code:`source $(pkg-config --variable=prefix yottadb)/ydb_env_set`.
+  Before running Octo/ROcto make sure that the required YottaDB variables are set either by creating your own script or run :code:`source /usr/local/etc/ydb_env_set`.
 
   To use the command-line SQL interpreter run: :code:`$ydb_dist/plugin/bin/octo`.
 

@@ -168,7 +168,7 @@ Sanity Checks
      # Set ydb_routines
      export ydb_routines=". src/utf8/_ydbocto.so"
      # Source ydb_* variables
-     source $(pkg-config --variable=prefix yottadb)/ydb_env_set
+     source /usr/local/etc/ydb_env_set
      # ydb_dir can optionally be set to use a location other than $HOME/.yottadb for the working environment.
 
      mupip load ../tests/fixtures/northwind.zwr

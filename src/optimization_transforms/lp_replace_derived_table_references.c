@@ -49,6 +49,14 @@ LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, SqlTableAlia
 	// Update table references in FROM clause (i.e. join conditions if they exist)
 	table_join = lp_get_table_join(root);
 	do {
+		if ((NULL != table_join->v.lp_default.operand[0]) && (LP_TABLE != table_join->v.lp_default.operand[0]->type)) {
+			/* A query such as the following may need derived table reference replacement in the FROM clause too
+			 * SELECT (SELECT * FROM (SELECT n3.id FROM (select * from names) n1) n2) FROM (select * from names) n3;
+			 * Hence the lp_replace_helper() call below on the FROM clause.
+			 */
+			table_join->v.lp_default.operand[0]
+			    = lp_replace_helper(table_join->v.lp_default.operand[0], table_alias, key);
+		}
 		t = table_join->extra_detail.lp_table_join.join_on_condition;
 		if (NULL != t)
 			t->v.lp_default.operand[0] = lp_replace_helper(t->v.lp_default.operand[0], table_alias, key);

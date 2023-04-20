@@ -1,0 +1,3 @@
+
+SELECT (SELECT * FROM (SELECT n3.id FROM (select * from names) n1) n2) FROM (select * from names) n3;
+[ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression

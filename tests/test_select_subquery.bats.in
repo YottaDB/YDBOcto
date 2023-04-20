@@ -165,5 +165,11 @@ teardown() {
 }
 
 @test "TSS27 : OCTO911 : Validate that SIG-11 is not seen when a subquery in the FROM clause has a select column with another subquery" {
-	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS27.sql
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS27.sql
+}
+
+@test "TSS28 : Validate that derived columns in the FROM clause of a subquery is processed correctly" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS28.sql
+  load_fixture TSS28_errors.sql subtest
+  verify_output TSS28_errors output.txt noinfo nodebug
 }

@@ -33,7 +33,7 @@
  *	It is      NULL             when "form" is EmitSourceForm_Insert or EmitSourceForm_NoKeyCol
  */
 TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int unique_id, int num_vars_to_match, enum EmitSourceForm form) {
-	char prev;
+	char 		prev;
 	char		*source_ptr;
 	char		column[OCTO_MAX_IDENT + 1]; // Null terminator
 	int		expr_len, matched_vars = 0;
@@ -58,7 +58,7 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 			 */
 			prev = ((('k' == *source) || ('v' == *source)) ? '(' : *source);
 		} else {
-			prev = *(char *)(source_ptr - 1);
+			prev = *(source_ptr - 1);
 		}
 		match = match_expression(source_ptr, column, &expr_len, sizeof(column), prev);
 		assert(MatchExpressionOFlow != match);
@@ -121,6 +121,7 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 						 * M-level error to prevent erroneous results from being returned until YDBOcto#918
 						 * is resolved.
 						 */
+						assert(FALSE);
 						%{}{{ "ydboctoInvalidExpression" }}{}%
 						break;
 					}

@@ -51,7 +51,7 @@ DROP TABLE IF EXISTS test;
 CREATE TABLE test (id INT GENERATED ALWAYS AS IDENTITY, str TEXT) READONLY; -- ERR_READONLY_DISALLOWED error
 
 -- Implicit read-only table with IDENTITY
-CREATE TABLE namesE(id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,firstName VARCHAR EXTRACT "^names(keys(""id""))",lastName VARCHAR) GLOBAL "^names(keys(""id""))"; -- ERR_READONLY_AND_READWRITE_DISALLOWED
+CREATE TABLE namesE(id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,firstName VARCHAR EXTRACT "^names(keys(""ID""))",lastName VARCHAR) GLOBAL "^names(keys(""ID""))"; -- ERR_READONLY_AND_READWRITE_DISALLOWED
 
 -- Copying data from a table when destination table has identity columns
 CREATE TABLE test (id INT GENERATED ALWAYS AS IDENTITY, str TEXT);

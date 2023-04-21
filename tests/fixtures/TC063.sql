@@ -55,11 +55,7 @@ create table tmp (id integer primary key, firstname varchar, lastname varchar, f
 
 -- Error issued when key column passed to `values(...)` or non-key column passed to `keys(...)`
 CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), abs_id INTEGER EXTRACT "$$ABS^%ydboctosqlfunctions(values(""ID""))") GLOBAL "^names";
-select * from tmp;
-drop table tmp;
 CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), abs_id INTEGER EXTRACT "$$ABS^%ydboctosqlfunctions(keys(""LASTNAME""))") GLOBAL "^names";
-select * from tmp;
-drop table tmp;
 
 -- Prevent drop of function depended on by EXTRACT columns until all tables containing dependent columns are dropped
 DROP FUNCTION IF EXISTS SAMEVALUE(INTEGER);

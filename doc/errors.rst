@@ -498,6 +498,14 @@ ERR_GROUP_BY_SUB_QUERY
 
   Description/Action: This error is generated when a subquery is present in :code:`GROUP BY`. PSQL Error Code: 42803
 
++++++++++++++++++++++++++++
+ERR_KEYS_NEEDS_A_KEY_COLUMN
++++++++++++++++++++++++++++
+
+  Text: Column "xxx" specified using keys() in EXTRACT/GLOBAL keyword is not a KEY column
+
+  Description/Action: This error is generated when a :code:`keys()` usage as part of a :code:`EXTRACT` or :code:`GLOBAL` keyword in a :code:`CREATE TABLE` command specifies a column name that is not a key column in the table. If the column is a non-key column, use :code:`values()` instead. If the column should be a key column, specify the :code:`PRIMARY KEY` constraint/keyword as part of that column definition in the same :code:`CREATE TABLE` command. PSQL Error Code: 42P10
+
 +++++++++++++++++
 ERR_IDENT_LENGTH
 +++++++++++++++++
@@ -1346,7 +1354,7 @@ ERR_UNKNOWN_COLUMN_NAME
 
   Text: Unknown column: xxx
 
-  Description/Action: This error is generated when the column referenced does not exist or is unknown. PSQL Error Code: 42703
+  Description/Action: This error is generated when the column referenced does not exist or is unknown. Note that column names are case sensitive (stored internally in upper case if not specified as a double-quoted identifier) and so if these are specified inside :code:`keys()` or :code:`values()` specifications in a :code:`EXTRACT` keyword of a :code:`CREATE TABLE` command, it is important that the case match. PSQL Error Code: 42703
 
 ++++++++++++++++++++++++++
 ERR_UNKNOWN_FUNCTION
@@ -1403,6 +1411,14 @@ ERR_VALUES_LENGTH
   Text: VALUES lists must all be the same length
 
   Description/Action: This error is generated when a VALUES keyword specifies a list of rows where at least one row does not have the same number of columns as the other rows. PSQL Error Code: 42601
+
++++++++++++++++++++++++++++++++++
+ERR_VALUES_NEEDS_A_NON_KEY_COLUMN
++++++++++++++++++++++++++++++++++
+
+  Text: Column "xxx" specified using values() in EXTRACT/GLOBAL keyword is a KEY column
+
+  Description/Action: This error is generated when a :code:`values()` usage as part of a :code:`EXTRACT` or :code:`GLOBAL` keyword in a :code:`CREATE TABLE` command specifies a column name that is a key column in the table. If the column is a key column, use :code:`keys()` instead. If the column should be a non-key column, make sure the :code:`PRIMARY KEY` constraint/keyword is not specified as part of that column definition in the same :code:`CREATE TABLE` command. PSQL Error Code: 42P10
 
 +++++++++++++++++++++
 ERR_VARCHAR_TOO_LONG

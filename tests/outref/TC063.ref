@@ -44,11 +44,7 @@ create table tmp (id integer primary key, firstname varchar, lastname varchar, f
 
 -- Error issued when key column passed to `values(...)` or non-key column passed to `keys(...)`
 CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), abs_id INTEGER EXTRACT "$$ABS^%ydboctosqlfunctions(values(""ID""))") GLOBAL "^names";
-select * from tmp;
-drop table tmp;
 CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), abs_id INTEGER EXTRACT "$$ABS^%ydboctosqlfunctions(keys(""LASTNAME""))") GLOBAL "^names";
-select * from tmp;
-drop table tmp;
 
 -- Prevent drop of function depended on by EXTRACT columns until all tables containing dependent columns are dropped
 DROP FUNCTION IF EXISTS SAMEVALUE(INTEGER);
@@ -217,12 +213,8 @@ LordLordNikon
 (1 row)
 DROP TABLE
 [ERROR]: ERR_CIRCULAR_EXTRACT_DEFINITION: Definition for EXTRACT column "FULLNAME1" contains circular dependency starting from EXTRACT column "FULLNAME2"
-CREATE TABLE
-[ERROR]: ERR_YOTTADB: YottaDB error: 150373850,octoPlan1+18^%ydboctoP*,%YDB-E-LVUNDEF, Undefined local variable: ydboctoInvalidExpression
-DROP TABLE
-CREATE TABLE
-[ERROR]: ERR_YOTTADB: YottaDB error: 150373850,octoPlan1+18^%ydboctoP*,%YDB-E-LVUNDEF, Undefined local variable: %ydboctocursor(122,"keys",1,"TMP","LASTNAME")
-DROP TABLE
+[ERROR]: ERR_VALUES_NEEDS_A_NON_KEY_COLUMN: Column "ID" specified using values() in EXTRACT/GLOBAL keyword is a KEY column
+[ERROR]: ERR_KEYS_NEEDS_A_KEY_COLUMN: Column "LASTNAME" specified using keys() in EXTRACT/GLOBAL keyword is not a KEY column
 DROP FUNCTION
 CREATE FUNCTION
 CREATE TABLE

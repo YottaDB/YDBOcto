@@ -1472,13 +1472,17 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			SqlValueType type;
 
 			is_extract = TRUE;
-			if ((value_STATEMENT == keyword->v->type) && (CALCULATED_VALUE == keyword->v->v.value->type)) {
+			UNPACK_SQL_STATEMENT(value, keyword->v, value);
+			if (CALCULATED_VALUE == value->type) {
+				/* This is EXTRACT specifying a SQL function call.
+				 * For example
+				 *	fullname VARCHAR EXTRACT CONCAT(firstName, ' ', lastName)
+				 */
 				SqlValueType col_type;
 
 				/* Check function call return type against column type and
 				 * issue error if mismatch.
 				 */
-				UNPACK_SQL_STATEMENT(value, keyword->v, value);
 				status = function_call_data_type_check(value->v.calculated, &type, NULL, table);
 				if (status) {
 					// Error issued by function_call_data_type_check
@@ -1530,6 +1534,59 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 					assert(YDB_OK == status);
 					YDB_ERROR_CHECK(status);
 					return NULL; /* EXTRACT function qualification failed */
+				}
+			} else {
+				/* This is EXTRACT specifying a M function call.
+				 * For example
+				 *	fullname VARCHAR EXTRACT "$$^FULLNAME(values(""fullName""))"
+				 * Validate "keys()" and "values()" usages in that string and ensure they point to
+				 * valid key and non-key columns in the table respectively. If not, issue an error.
+				 */
+				assert(STRING_LITERAL == value->type);
+
+				char *ptr, *ptr_start;
+				ptr_start = ptr = value->v.string_literal;
+				/* Note: The below logic is similar to that in "tmpl_emit_source.ctemplate" */
+				while ('\0' != *ptr) {
+					char		    prev;
+					char		    column[OCTO_MAX_IDENT + 1]; // Null terminator
+					int		    expr_len;
+					ExpressionMatchType match;
+
+					if (ptr_start == ptr) {
+						/* See comment in "tmpl_emit_source.ctemplate" for why these checks are done */
+						prev = ((('k' == *ptr) || ('v' == *ptr)) ? '(' : *ptr);
+					} else {
+						prev = *(ptr - 1);
+					}
+					match = match_expression(ptr, column, &expr_len, sizeof(column), prev);
+					if (NoMatchExpression < match) {
+						SqlColumn *sql_column;
+
+						sql_column = find_column(column, table);
+						if (NULL == sql_column) {
+							ERROR(ERR_UNKNOWN_COLUMN_NAME, column);
+							return NULL;
+						}
+						if ('k' == *ptr) {
+							/* "keys()" syntax used. Check that this column is a KEY column. */
+							if (!IS_KEY_COLUMN(sql_column)) {
+								ERROR(ERR_KEYS_NEEDS_A_KEY_COLUMN, column);
+								return NULL;
+							}
+						} else {
+							/* "values()" syntax used. Check that this column is a non-KEY column. */
+							assert('v' == *ptr);
+							if (IS_KEY_COLUMN(sql_column)) {
+								ERROR(ERR_VALUES_NEEDS_A_NON_KEY_COLUMN, column);
+								return NULL;
+							}
+						}
+						assert(0 < expr_len);
+						ptr += expr_len;
+					} else {
+						ptr++;
+					}
 				}
 			}
 		} else {

@@ -912,3 +912,9 @@ OCTO
 	load_fixture TC074_after_load.sql subtest novv
 	verify_output TC074_after_load output.txt
 }
+
+@test "TC075 : OCTO918 : Check EXTRACT and GLOBAL keyword for valid column references at CREATE TABLE time" {
+	load_fixture TC075_errors.sql subtest novv
+	verify_output TC075_errors output.txt
+}
+

@@ -1391,11 +1391,28 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				 * it in the list of key columns for this table.
 				 */
 				if (NULL != cur_column->columnName) {
-					ADD_KEY_NUM_KEYWORD_TO_COLUMN(cur_column, i);
-					i++;
+					SqlOptionalKeyword *keyword;
+
+					keyword = get_keyword(cur_column, OPTIONAL_EXTRACT);
+					/* EXTRACT type columns are computed columns so do not include them in key columns */
+					if (NULL == keyword) {
+						ADD_KEY_NUM_KEYWORD_TO_COLUMN(cur_column, i);
+						i++;
+					}
 				}
 				cur_column = cur_column->next;
 			} while (cur_column != start_column);
+			if (0 == i) {
+				/* Since we would have already issued a ERR_TABLE_MUST_HAVE_A_VISIBLE_COLUMN error if
+				 * "num_user_visible_columns" was 0 (i.e. all columns have "cur_column->columnName" == NULL),
+				 * we are guaranteed that the table has at least one visible column. Therefore, the only way
+				 * that "i" can be 0 is if all visible columns are EXTRACT type columns. In that case, issue
+				 * an error as the table should have at least one non-EXTRACT type column.
+				 */
+				UNPACK_SQL_STATEMENT(value, table->tableName, value);
+				ERROR(ERR_TABLE_MUST_HAVE_A_NON_EXTRACT_COLUMN, value->v.reference);
+				return NULL;
+			}
 			/* Get the new key columns */
 			max_key = get_key_columns(table, key_columns);
 			assert((i - 1) == max_key); /* Assert that there are "i" (i.e. all columns) primary key columns */

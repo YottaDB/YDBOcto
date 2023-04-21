@@ -1252,6 +1252,14 @@ ERR_TABLE_MUST_HAVE_A_VISIBLE_COLUMN
 
   Description/Action: This error is generated when a :code:`CREATE TABLE` command does not specify any user visible columns (possible for example if the command only specifies table level :code:`CHECK` constraint). PSQL Error Code: 42P10
 
+++++++++++++++++++++++++++++++++++++++++
+ERR_TABLE_MUST_HAVE_A_NON_EXTRACT_COLUMN
+++++++++++++++++++++++++++++++++++++++++
+
+  Text: Table "xxx" must have at least one non-EXTRACT column
+
+  Description/Action: This error is generated when all columns specified in a :code:`CREATE TABLE` command have the :code:`EXTRACT` keyword. Such a table would have all of its columns be computed columns. A table should have at least one non-computed column. PSQL Error Code: 42P10
+
 +++++++++++++++++++
 ERR_TABLE_READONLY
 +++++++++++++++++++

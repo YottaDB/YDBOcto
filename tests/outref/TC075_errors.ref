@@ -1,0 +1,12 @@
+
+-- TC075 : OCTO918 : Check EXTRACT and GLOBAL keyword for valid column references at CREATE TABLE time
+
+-- Test of ERR_TABLE_MUST_HAVE_A_NON_EXTRACT_COLUMN error
+-- Below query is pasted from https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/918#note_1149782871
+CREATE TABLE tmp (fullname VARCHAR EXTRACT "$$^FULLNAME(values(""firstName""))") READONLY;
+
+-- Below query is similar to the above one except we have more than 1 EXTRACT column
+CREATE TABLE tmp (fullname VARCHAR EXTRACT "$$^FULLNAME", fullname2 VARCHAR EXTRACT "$$^FULLNAME") READONLY;
+
+[ERROR]: ERR_TABLE_MUST_HAVE_A_NON_EXTRACT_COLUMN: Table "TMP" must have at least one non-EXTRACT column
+[ERROR]: ERR_TABLE_MUST_HAVE_A_NON_EXTRACT_COLUMN: Table "TMP" must have at least one non-EXTRACT column

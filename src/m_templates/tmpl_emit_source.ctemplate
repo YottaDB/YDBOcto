@@ -114,21 +114,14 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 					%{}{{ config->global_names.cursor }}{}%
 					%{}(cursorId,{{ PP_KEYS }},{{ unique_id|%d }},"{{ table_name }}","{{ column }}"){}%
 				} else {
-					keyword = get_keyword(sql_column, PRIMARY_KEY);
-					if ((NULL != keyword) || sql_column->is_hidden_keycol) {
-						/* A key column was passed to a `values(...)` expression, which is prohibited. Since
-						 * we cannot issue a proper error from within `.ctemplate` files, instead force an
-						 * M-level error to prevent erroneous results from being returned until YDBOcto#918
-						 * is resolved.
-						 */
-						assert(FALSE);
-						%{}{{ "ydboctoInvalidExpression" }}{}%
-						break;
-					}
 					char *source_global;
 					char *placeholder;
 					char *delim;
 
+					/* Note that a key column cannot be passed to a "values(...)" expression as an error
+					 * would have been issued at CREATE TABLE time in that case. Hence the assert below.
+					 */
+					assert((NULL == get_keyword(sql_column, PRIMARY_KEY)) && !sql_column->is_hidden_keycol);
 					assert(ValuesExpression == match);
 					if (NULL == sql_column->delim) {
 						delim = table->delim->v.keyword->v->v.value->v.string_literal;
@@ -153,7 +146,6 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 					} while (cur_column != start_column);
 
 					source_global = table->source->v.keyword->v->v.value->v.string_literal;
-					keyword = get_keyword(sql_column, PRIMARY_KEY);
 					%{}$PIECE($GET({}%
 					if (1 < num_keys) {
 						// There are multiple key columns, so expand them programmatically

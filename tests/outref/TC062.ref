@@ -4,29 +4,21 @@
 create table longkeys (id INTEGER PRIMARY KEY, value VARCHAR) GLOBAL "^longkeys(keys(""ID""))";
 select * from longkeys;
 
+-- Test of ERR_VALUES_NOT_ALLOWED_IN_GLOBAL error
 create table longvalues (id INTEGER PRIMARY KEY, value VARCHAR) GLOBAL "^longvalues(values(""VALUE""))";
-select * from longvalues;
 
--- The following statements test whether an error is issued for erroneous usages
--- of `keys(..)` expressions. However, these tests are currently disabled since
--- the mechanism for validating these usages is not yet implemented. Rather,
--- when YDBOcto#918 is resolved, then these tests can be re-enabled.
-
+-- Test of ERR_UNKNOWN_COLUMN_NAME error
 -- Test prohibition of nested `keys(..)` expressions
--- drop table if exists tmp;
--- create table tmp (id integer primary key) GLOBAL "^names(keys(keys(""ID"")))";
--- select * from tmp;
+create table tmp (id integer primary key) GLOBAL "^names(keys(keys(""ID"")))";
 
--- Test prohibition of `keys(..)` expressions whose case does not match that of
--- the column name it corresponds to, e.g. uppercase column name, but lowercase
--- name used in `keys(..)` expression.
--- drop table if exists tmp;
--- create table tmp (id integer primary key) GLOBAL "^names(keys(""id""))";
--- select * from tmp;
+-- Test of ERR_UNKNOWN_COLUMN_NAME error
+-- Test prohibition of `keys(..)` expressions whose case does not match that of the column name it corresponds to,
+-- e.g. uppercase column name, but lowercase name used in `keys(..)` expression.
+create table tmp (id integer primary key) GLOBAL "^names(keys(""id""))";
 
 CREATE TABLE
 ID|VALUE
 (0 rows)
-CREATE TABLE
-ID|VALUE
-(0 rows)
+[ERROR]: ERR_VALUES_NOT_ALLOWED_IN_GLOBAL: values() usage not allowed in GLOBAL keyword (only keys() usage allowed)
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: keys("ID")
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: id

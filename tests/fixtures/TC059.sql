@@ -122,7 +122,7 @@ select * from tbl;
 drop table if exists tbl;
 create table tbl (col integer, "col" integer, primary key(col, "col")) GLOBAL "^tbl(keys(""COL""),keys(""col""))";
 select * from tbl;
--- LVUNDEF failure for mismatch between `keys(..)` expression and column name, e.g. `COL` to `keys(""col"")`
+-- ERR_GLOBAL_KEY_COLS_ORDER error for mismatch between `keys(..)` expression and column name, e.g. `COL` to `keys(""col"")`
 drop table if exists tbl;
 create table tbl (col integer, "col" integer, primary key(col, "col")) GLOBAL "^tbl(keys(""col""),keys(""col""))";
-select * from tbl;
+

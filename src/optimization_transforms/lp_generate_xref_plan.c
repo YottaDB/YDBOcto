@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -43,7 +43,7 @@ LogicalPlan *lp_generate_xref_plan(SqlTable *table, SqlColumn *column, int uniqu
 	/* Determine whether the cross-reference should be stored in a YDB local or global variable. See comment for
 	 * SqlKey.xref_prefix in logical_plan.h for additional background.
 	 */
-	source_keyword = get_keyword(column, OPTIONAL_SOURCE);
+	source_keyword = get_keyword(column, OPTIONAL_GLOBAL);
 	if (NULL == source_keyword) {
 		UNPACK_SQL_STATEMENT(source_keyword, table->source, keyword);
 	}

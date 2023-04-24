@@ -1471,7 +1471,7 @@ optional_keyword
 
 optional_keyword_element
   : GLOBAL ddl_str_literal_value {
-      MALLOC_KEYWORD_STMT($$, OPTIONAL_SOURCE);
+      MALLOC_KEYWORD_STMT($$, OPTIONAL_GLOBAL);
       ($$)->v.keyword->v = $ddl_str_literal_value;
     }
   | delim_specification { $$ = $delim_specification; }
@@ -1773,7 +1773,7 @@ column_definition_tail
 	}
     }
   | GLOBAL ddl_str_literal_value column_definition_tail {
-       MALLOC_KEYWORD_STMT($$, OPTIONAL_SOURCE);
+       MALLOC_KEYWORD_STMT($$, OPTIONAL_GLOBAL);
        ($$)->v.keyword->v = $ddl_str_literal_value;
 
        SqlOptionalKeyword *keyword;

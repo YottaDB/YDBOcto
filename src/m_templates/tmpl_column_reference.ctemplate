@@ -131,7 +131,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	keyword = get_keyword(column, OPTIONAL_EXTRACT);
 	if (NULL == keyword) {
 		is_extract = FALSE;
-		keyword = get_keyword(column, OPTIONAL_SOURCE);
+		keyword = get_keyword(column, OPTIONAL_GLOBAL);
 		if (NULL == keyword) {
 			UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
 		}

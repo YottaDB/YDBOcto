@@ -100,7 +100,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 		// Get source
 		keyword = get_keyword(column, OPTIONAL_EXTRACT);
 		if (NULL == keyword) {
-			keyword = get_keyword(column, OPTIONAL_SOURCE);
+			keyword = get_keyword(column, OPTIONAL_GLOBAL);
 			if (NULL == keyword) {
 				UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
 			}

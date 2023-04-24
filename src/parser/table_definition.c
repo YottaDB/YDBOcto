@@ -15,7 +15,7 @@
 #include "octo.h"
 #include "octo_type_check.h"
 
-#define SOURCE	  (1 << 0)
+#define GLOBAL	  (1 << 0)
 #define DELIM	  (1 << 1)
 #define READONLY  (1 << 2)
 #define READWRITE (1 << 3)
@@ -1244,7 +1244,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 
 		next_keyword = cur_keyword->next;
 		switch (cur_keyword->keyword) {
-		case OPTIONAL_SOURCE: {
+		case OPTIONAL_GLOBAL: {
 			char *start, *next;
 
 			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
@@ -1257,9 +1257,9 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				 * columns substituted).
 				 */
 				table_source_gvname = start;
-				options &= ~SOURCE; /* Forget GLOBAL keyword(s) specified prior to this GLOBAL keyword */
+				options &= ~GLOBAL; /* Forget GLOBAL keyword(s) specified prior to this GLOBAL keyword */
 			} else {
-				options |= SOURCE;
+				options |= GLOBAL;
 				SQL_STATEMENT(statement, keyword_STATEMENT);
 				statement->v.keyword = cur_keyword;
 				table->source = statement;
@@ -1336,10 +1336,10 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		 ************************************************************************************************************
 		 */
 		assert(NULL == primary_key_constraint_col);
-		if ((options & SOURCE) && !(options & READWRITE) && !(options & READONLY)) {
+		if ((options & GLOBAL) && !(options & READWRITE) && !(options & READONLY)) {
 			/* Table-level GLOBAL keyword specified but neither READWRITE nor READONLY specified.
 			 * The GLOBAL keyword specifies a subscripted global name (this is because if an unsubscripted
-			 * global name was specified, "options & SOURCE" would be FALSE and we would not have come down
+			 * global name was specified, "options & GLOBAL" would be FALSE and we would not have come down
 			 * the "if" condition above). In that case, READWRITE is incompatible so set table_type to be
 			 * READONLY (in case it was set to READWRITE from the default octo.conf setting).
 			 */
@@ -1712,8 +1712,16 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				/* Disallow UNIQUE constraint on a READONLY table as it is not possible to enforce this. */
 				readonly_disallowed = TRUE; /* UNIQUE is only allowed for READWRITE table. Not READONLY. */
 				break;
+			case OPTIONAL_GLOBAL:;
+				int ret;
+
+				ret = validate_global_keyword(cur_keyword, table, max_key);
+				if (-1 == ret) {
+					return NULL;
+				}
+				/* Note: Below comment is needed to avoid gcc [-Wimplicit-fallthrough=] warning */
+				/* fall through */
 			case OPTIONAL_EXTRACT:
-			case OPTIONAL_SOURCE:
 			case OPTIONAL_START:
 			case OPTIONAL_STARTINCLUDE:
 			case OPTIONAL_END:
@@ -1806,7 +1814,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		SqlOptionalKeyword *global_keyword;
 
 		UNPACK_SQL_STATEMENT(start_keyword, first_non_key_column->keywords, keyword);
-		global_keyword = get_keyword_from_keywords(start_keyword, OPTIONAL_SOURCE);
+		global_keyword = get_keyword_from_keywords(start_keyword, OPTIONAL_GLOBAL);
 		if (NULL == global_keyword) {
 			boolean_t	    ok_to_set_empty_delim;
 			SqlOptionalKeyword *piece_keyword;
@@ -1855,16 +1863,28 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			}
 		}
 	}
+	if (options & GLOBAL) {
+		SqlOptionalKeyword *keyword;
+		int		    ret;
+
+		UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
+		ret = validate_global_keyword(keyword, table, max_key);
+		if (-1 == ret) {
+			return NULL;
+		}
+	}
 	/* Now that all table-level keywords have been seen, check for incompatibilities. */
 	/* 1) If table-level GLOBAL keyword is NOT specified, compute the keyword value.
 	 * 2) If table-level GLOBAL keyword is specified and we don't yet know that READWRITE is disallowed in this table,
 	 *    check if the GLOBAL keyword value can cause an incompatibility. For this check if the specified GLOBAL keyword is
 	 *    an M global name followed by the primary key column(s) as subscripts in the KEY NUM order. If so it is
-	 *    compatible with READWRITE. Otherwise it is not.
+	 *    compatible with READWRITE. Otherwise it is not (and we set "readwrite_disallowed" to TRUE in that case).
 	 * 3) If table-level GLOBAL keyword is specified and we already know that READWRITE is disallowed in this table due to
-	 *    other incompatibilities, no need to do any checks of the specified GLOBAL keyword.
+	 *    other incompatibilities, no need to do any checks of the specified GLOBAL keyword. This is because the only
+	 *    purpose of the below logic is to set "readwrite_disallowed" to TRUE if we find the GLOBAL keyword to be incompatible
+	 *    and that variable is already set to TRUE before we come here.
 	 */
-	if (!(options & SOURCE) || !readwrite_disallowed) {
+	if (!(options & GLOBAL) || !readwrite_disallowed) {
 		int   i, total_copied;
 		int   buffer_size, buffer2_size;
 		char *buffer, *buffer2, *buff_ptr;
@@ -1875,7 +1895,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		buffer2 = (char *)malloc(sizeof(char) * buffer2_size);
 		buff_ptr = buffer;
 		total_copied = 0;
-		if (!(options & SOURCE)) {
+		if (!(options & GLOBAL)) {
 			if (NULL != table_source_gvname) {
 				/* User had specified an unsubscripted global name. Use that name. */
 				SNPRINTF_TO_BUFFER(table_source_gvname, buffer, buff_ptr, buffer_size, total_copied);
@@ -1912,11 +1932,12 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		} else {
 			SqlOptionalKeyword *keyword;
 
-			/* Copy just the subscripts portion of the M gvn specified in GLOBAL keyword for later "strcasecmp" check */
+			/* Copy just the subscripts portion of the M gvn specified in GLOBAL keyword for later "strcmp" check */
 			UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
 			UNPACK_SQL_STATEMENT(value, keyword->v, value);
 			start = value->v.string_literal;
 			next = strchr(start, '(');
+			assert(NULL != next);
 		}
 		SNPRINTF_TO_BUFFER("(", buffer, buff_ptr, buffer_size, total_copied);
 
@@ -1936,21 +1957,17 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		// Null terminate, and prepare to return
 		*buff_ptr++ = '\0';
 		len = buff_ptr - buffer;
-		if (!(options & SOURCE)) {
+		if (!(options & GLOBAL)) {
 			char *out_buffer;
 			out_buffer = octo_cmalloc(memory_chunks, len);
 			memcpy(out_buffer, buffer, len);
-			MALLOC_KEYWORD_STMT(statement, OPTIONAL_SOURCE);
+			MALLOC_KEYWORD_STMT(statement, OPTIONAL_GLOBAL);
 			SQL_VALUE_STATEMENT(statement->v.keyword->v, STRING_LITERAL, out_buffer);
 			assert(NULL == table->source);
 			table->source = statement;
-		} else if ((NULL == next) || strcasecmp(buffer, next)) {
+		} else if ((NULL == next) || strcmp(buffer, next)) {
 			/* GLOBAL keyword value did not specify any subscripts OR has specified subscripts that is not in
 			 * a format compatible with READWRITE.
-			 * Note: Need to use "strcasecmp" since the user might specify column name in "keys(...)" syntax
-			 * in any case but "generate_key_name" would have used upper case and they should be treated as the
-			 * same. Since the case matters in the global name, we use "next" (instead of "start") and avoid the
-			 * global name in the string compare call.
 			 */
 			readwrite_disallowed = TRUE;
 		}

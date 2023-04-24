@@ -458,6 +458,22 @@ INFO_GENERATING_XREF
 
   Description/Action: This message indicates that a cross reference is being generated for the given table and column as an optimization. PSQL Error Code: XX000
 
++++++++++++++++++++++++++
+ERR_GLOBAL_KEY_COLS_ORDER
++++++++++++++++++++++++++
+
+  Text: GLOBAL keyword does not specify the KEY columns in the right order
+
+  Description/Action: This error is generated when a :code:`GLOBAL` keyword in a :code:`CREATE TABLE` command specifies key columns (using the :code:`keys()` syntax) in the wrong order. For example, if a table has primary key columns :code:`col1` and :code:`col2` in that order, the :code:`GLOBAL` keyword should specify a global reference where some subscript :code:`keys(""col1"")` is followed by a later subscript (not necessarily the immediately next subscript) :code:`keys(""col2"")`. PSQL Error Code: 42P10
+
++++++++++++++++++++++++++++
+ERR_GLOBAL_MISSING_KEY_COLS
++++++++++++++++++++++++++++
+
+  Text: GLOBAL keyword does not specify all KEY column(s)
+
+  Description/Action: This error is generated when a :code:`GLOBAL` keyword in a :code:`CREATE TABLE` command does not specify all key columns (using the :code:`keys()` syntax). For example, if a table has a primary key column :code:`col1`, the :code:`GLOBAL` keyword should specify a global reference where one subscript is :code:`keys(""col1"")`). PSQL Error Code: 42P10
+
 ++++++++++++++++++++++++++++++
 ERR_GROUP_BY_INVALID_USAGE
 ++++++++++++++++++++++++++++++
@@ -1354,7 +1370,7 @@ ERR_UNKNOWN_COLUMN_NAME
 
   Text: Unknown column: xxx
 
-  Description/Action: This error is generated when the column referenced does not exist or is unknown. Note that column names are case sensitive (stored internally in upper case if not specified as a double-quoted identifier) and so if these are specified inside :code:`keys()` or :code:`values()` specifications in a :code:`EXTRACT` keyword of a :code:`CREATE TABLE` command, it is important that the case match. PSQL Error Code: 42703
+  Description/Action: This error is generated when the column referenced does not exist or is unknown. Note that column names are case sensitive (stored internally in upper case if not specified as a double-quoted identifier) and so if these are specified inside :code:`keys()` or :code:`values()` specifications in a :code:`EXTRACT` keyword or a :code:`GLOBAL` keyword (both column-level and table-level keywords) of a :code:`CREATE TABLE` command, it is important that the case match. PSQL Error Code: 42703
 
 ++++++++++++++++++++++++++
 ERR_UNKNOWN_FUNCTION
@@ -1418,7 +1434,15 @@ ERR_VALUES_NEEDS_A_NON_KEY_COLUMN
 
   Text: Column "xxx" specified using values() in EXTRACT/GLOBAL keyword is a KEY column
 
-  Description/Action: This error is generated when a :code:`values()` usage as part of a :code:`EXTRACT` or :code:`GLOBAL` keyword in a :code:`CREATE TABLE` command specifies a column name that is a key column in the table. If the column is a key column, use :code:`keys()` instead. If the column should be a non-key column, make sure the :code:`PRIMARY KEY` constraint/keyword is not specified as part of that column definition in the same :code:`CREATE TABLE` command. PSQL Error Code: 42P10
+  Description/Action: This error is generated when a :code:`values()` usage as part of a :code:`EXTRACT` keyword in a :code:`CREATE TABLE` command specifies a column name that is a key column in the table. If the column is a key column, use :code:`keys()` instead. If the column should be a non-key column, make sure the :code:`PRIMARY KEY` constraint/keyword is not specified as part of that column definition in the same :code:`CREATE TABLE` command. PSQL Error Code: 42P10
+
+++++++++++++++++++++++++++++++++
+ERR_VALUES_NOT_ALLOWED_IN_GLOBAL
+++++++++++++++++++++++++++++++++
+
+  Text: values() usage not allowed in GLOBAL keyword (only keys() usage allowed)
+
+  Description/Action: This error is generated when a :code:`values()` is used as part of a :code:`GLOBAL` keyword in a :code:`CREATE TABLE` command. Only key columns should be specified in the :code:`GLOBAL` keyword and they should use the :code:`keys()` syntax, not the :code:`values()` syntax. PSQL Error Code: 42P10
 
 +++++++++++++++++++++
 ERR_VARCHAR_TOO_LONG

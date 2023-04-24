@@ -80,14 +80,23 @@ ExpressionMatchType match_expression(char *start, char *column, int *expr_len, i
 		c++;
 	}
 	if (0 == paren_count) {
+		char *end;
+
+		end = c;
 		c--; /* Go back one byte as c will include the right paren which we don't want in "column" */
 		assert(')' == *c);
-		c--; /* Go back one byte as c will include the double quote which we don't want in "column" */
-		assert('"' == *c);
-		assert('"' == *column_start); /* Go 1 byte past "column_start" as it will include the double quote
-					       * which we don't want in "column".
-					       */
-		column_start++;
+		/* When a valid column name is specified inside keys(), "c" will include the trailing double quote
+		 * which we don't want in "column". So go back 1 byte. Note that in case an invalid column name
+		 * is specified inside keys(), for example [keys(abcd)], we won't have the trailing or the leading
+		 * double quote. Hence the if checks below.
+		 */
+		if ('"' == *(c - 1)) {
+			c--;
+		}
+		if ('"' == *column_start) {
+			/* Go 1 byte past "column_start" as it will include the double quote which we don't want in "column". */
+			column_start++;
+		}
 		if ((column_size < (c - column_start)) || (c < column_start)) {
 			return MatchExpressionOFlow;
 		}
@@ -96,10 +105,7 @@ ExpressionMatchType match_expression(char *start, char *column, int *expr_len, i
 		char *c2 = column_start;
 		memcpy(d, c2, c - c2);
 		d[c - c2] = '\0';
-		assert('"' != column[0]);
-		assert('"' == *c);
-		assert(!(column[0] == '"' && column[1] == '"'));
-		*expr_len = c - start + 2;
+		*expr_len = end - start;
 		return match;
 	}
 	return NoMatchExpression;

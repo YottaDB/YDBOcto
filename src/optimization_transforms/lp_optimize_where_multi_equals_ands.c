@@ -430,7 +430,7 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		 * SqlKey.xref_prefix in logical_plan.h for additional background.
 		 */
 		SqlOptionalKeyword *source_keyword;
-		source_keyword = get_keyword(column_alias->column->v.column, OPTIONAL_SOURCE);
+		source_keyword = get_keyword(column_alias->column->v.column, OPTIONAL_GLOBAL);
 		if (NULL == source_keyword) {
 			UNPACK_SQL_STATEMENT(source_keyword, table->source, keyword);
 		}

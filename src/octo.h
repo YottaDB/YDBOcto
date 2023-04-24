@@ -1176,6 +1176,7 @@ int  compare_column_count_and_column_type_of_tables(SqlColumnAlias *first_column
 						    ParseContext *parse_context);
 int  validate_table_asterisk_binary_operation(SqlBinaryOperation *binary, SqlValueType orig_child_type[2],
 					      ParseContext *parse_context);
+int  validate_global_keyword(SqlOptionalKeyword *keyword, SqlTable *table, int max_key);
 
 boolean_t table_has_hidden_column(SqlTable *table);
 

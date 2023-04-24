@@ -40,7 +40,7 @@ char *get_keyword_name(OptionalKeyword keyword) {
 	case UNIQUE_CONSTRAINT:
 		ret = "UNIQUE_CONSTRAINT";
 		break;
-	case OPTIONAL_SOURCE:
+	case OPTIONAL_GLOBAL:
 		ret = "SOURCE";
 		break;
 	case OPTIONAL_END:

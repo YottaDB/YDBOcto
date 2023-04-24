@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -18,7 +18,7 @@ TC041	;
 	WRITE "id INTEGER PRIMARY KEY,",!
 	SET numcols=4
 	FOR i=1:1:numcols DO
-	. WRITE " COL"_i_" INTEGER GLOBAL ""^COL"_i_"(""""abcd"""",2,""""efgh"""")"" PIECE "_i_$SELECT(i'=numcols:",",1:""),!
+	. WRITE " COL"_i_" INTEGER GLOBAL ""^COL"_i_"(""""abcd"""",keys(""""ID""""),""""efgh"""")"" PIECE "_i_$SELECT(i'=numcols:",",1:""),!
 	WRITE "DELIM ("
 	FOR i=1:1:255 DO
 	. WRITE i#127_","

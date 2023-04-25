@@ -362,6 +362,14 @@ INFO_EXECUTION_DONE
 
   Description/Action: This message indicates that query execution is complete for the current SQL query/command. The actual query/command executed can be found from the preceding INFO_PARSING_DONE message. PSQL Error Code: 00000
 
+++++++++++++++++++++++++++++++++
+ERR_EXTRACT_CANNOT_BE_KEY_COLUMN
+++++++++++++++++++++++++++++++++
+
+  Text: Column "xxx" cannot be a computed/extract column and key column at same time
+
+  Description/Action: This error is generated when a column that is defined with an :code:`EXTRACT` keyword in a :code:`CREATE TABLE` command is also defined as a key column (using the :code:`PRIMARY KEY` or :code:`KEY NUM` constraint/keyword). An EXTRACT type of column is a Computed column. A computed column cannot be a key column. PSQL Error Code: 42P10
+
 ++++++++++++++++++++++++++++++
 ERR_EXTRACT_TYPE_MISMATCH
 ++++++++++++++++++++++++++++++
@@ -1434,7 +1442,7 @@ ERR_VALUES_NEEDS_A_NON_KEY_COLUMN
 
   Text: Column "xxx" specified using values() in EXTRACT/GLOBAL keyword is a KEY column
 
-  Description/Action: This error is generated when a :code:`values()` usage as part of a :code:`EXTRACT` keyword in a :code:`CREATE TABLE` command specifies a column name that is a key column in the table. If the column is a key column, use :code:`keys()` instead. If the column should be a non-key column, make sure the :code:`PRIMARY KEY` constraint/keyword is not specified as part of that column definition in the same :code:`CREATE TABLE` command. PSQL Error Code: 42P10
+  Description/Action: This error is generated when a :code:`values()` usage as part of an :code:`EXTRACT` keyword in a :code:`CREATE TABLE` command specifies a column name that is a key column in the table. If the column is a key column, use :code:`keys()` instead. If the column should be a non-key column, make sure the :code:`PRIMARY KEY` constraint/keyword is not specified as part of that column definition in the same :code:`CREATE TABLE` command. PSQL Error Code: 42P10
 
 ++++++++++++++++++++++++++++++++
 ERR_VALUES_NOT_ALLOWED_IN_GLOBAL

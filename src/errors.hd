@@ -126,6 +126,7 @@ ERROR_DEF(ERR_TABLE_MUST_HAVE_A_VISIBLE_COLUMN, "Table \"%s\" must have at least
 ERROR_DEF(ERR_TABLE_MUST_HAVE_A_NON_EXTRACT_COLUMN, "Table \"%s\" must have at least one non-EXTRACT column", PSQL_Code_Invalid_Table_Definition)
 ERROR_DEF(ERR_KEYS_NEEDS_A_KEY_COLUMN, "Column \"%s\" specified using keys() in EXTRACT/GLOBAL keyword is not a KEY column", PSQL_Code_Invalid_Table_Definition)
 ERROR_DEF(ERR_VALUES_NEEDS_A_NON_KEY_COLUMN, "Column \"%s\" specified using values() in EXTRACT/GLOBAL keyword is a KEY column", PSQL_Code_Invalid_Table_Definition)
+ERROR_DEF(ERR_EXTRACT_CANNOT_BE_KEY_COLUMN, "Column \"%s\" cannot be a computed/extract column and key column at same time", PSQL_Code_Invalid_Table_Definition)
 ERROR_DEF(ERR_VALUES_NOT_ALLOWED_IN_GLOBAL, "values() usage not allowed in GLOBAL keyword (only keys() usage allowed)", PSQL_Code_Invalid_Table_Definition)
 ERROR_DEF(ERR_GLOBAL_KEY_COLS_ORDER, "GLOBAL keyword does not specify the KEY columns in the right order", PSQL_Code_Invalid_Table_Definition)
 ERROR_DEF(ERR_GLOBAL_MISSING_KEY_COLS, "GLOBAL keyword does not specify all KEY column(s)", PSQL_Code_Invalid_Table_Definition)

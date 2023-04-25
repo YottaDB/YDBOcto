@@ -1719,9 +1719,18 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				if (-1 == ret) {
 					return NULL;
 				}
+				readwrite_disallowed = TRUE;
+				break;
+			case OPTIONAL_EXTRACT:
+				if (IS_KEY_COLUMN(cur_column)) {
+					/* A column cannot be an EXTRACT/Computed column and a KEY column at the same time */
+					assert(NULL != cur_column->columnName);
+					UNPACK_SQL_STATEMENT(columnName1, cur_column->columnName, value);
+					ERROR(ERR_EXTRACT_CANNOT_BE_KEY_COLUMN, columnName1->v.string_literal);
+					return NULL;
+				}
 				/* Note: Below comment is needed to avoid gcc [-Wimplicit-fallthrough=] warning */
 				/* fall through */
-			case OPTIONAL_EXTRACT:
 			case OPTIONAL_START:
 			case OPTIONAL_STARTINCLUDE:
 			case OPTIONAL_END:

@@ -2509,6 +2509,62 @@ Given this DDL and data set, running ``SELECT * FROM delimnames;`` in Octo will 
     5|Zero|Cool|B|25|Zero|Cool|B|25
     (6 rows)
 
+.. _column-level-delim-ddl-ex:
+
+++++++++++++++++++++++++++++++
+Column-level Delimiter Example
+++++++++++++++++++++++++++++++
+
+It is possible to define Octo globals with a variety of delimiters. To map data in such globals, you can use the column-level ``DELIM`` keyword. For example, consider the following DDL:
+
+  .. code-block:: SQL
+
+    CREATE TABLE names (
+        id       INTEGER,
+        given    VARCHAR(15),
+        surname  VARCHAR(15),
+        street1  VARCHAR(50) GLOBAL "^names(keys(""ID""),""Address"")" DELIM '^' PIECE 1,
+        street2  VARCHAR(50) GLOBAL "^names(keys(""ID""),""Address"")" DELIM '^' PIECE 2,
+        city     VARCHAR(30) GLOBAL "^names(keys(""ID""),""Address"")" DELIM '^' PIECE 3,
+        province VARCHAR(30) GLOBAL "^names(keys(""ID""),""Address"")" DELIM '^' PIECE 4,
+        country  VARCHAR(30) GLOBAL "^names(keys(""ID""),""Address"")" DELIM '^' PIECE 5,
+        postal   VARCHAR(10) GLOBAL "^names(keys(""ID""),""Address"")" DELIM '^' PIECE 6,
+        primary key (id)
+    ) GLOBAL "^names";
+
+This DDL can be used to map global data like this:
+
+  .. code-block:: none
+
+    YottaDB MUPIP EXTRACT /usr/library/V999_R139/pro/mupip extract -select=names names.zwr UTF-8
+    25-APR-2023  10:49:48 ZWR
+    ^names(0)="Zero|Cool"
+    ^names(0,"Address")="123 Any Lane^APT 2^Malvern^Pennsylvania^US^11000"
+    ^names(1)="Acid|Burn"
+    ^names(1,"Address")="2449 Brick Kiln Road^^Ely^County Antrim^UK^L3G 6JJ"
+    ^names(2)="Cereal|Killer"
+    ^names(2,"Address")="Drosselvænget 7852^^Sundby^Nordjylland^Denmark^89536"
+    ^names(3)="Lord|Nikon"
+    ^names(3,"Address")="Rue de la Gare 5883^^Aulnay-sous-Bois^Nord^France^31129"
+    ^names(4)="Joey|"
+    ^names(4,"Address")="5106 Sampige Rd^APT 5^Ghaziabad^Jammu and Kashmir^India^63988"
+    ^names(5)="Zero|Cool"
+    ^names(5,"Address")="Porodice Praizović 8163^^Bačka Topola^North Banat^Serbia^73571"
+
+Note in particular the presence of the caret character (``^``) as a delimiter in the node values of this data set.
+
+Given this data and the preceding DDL, running ``select * from names;`` in Octo will yield the following output:
+
+  .. code-block:: SQL
+
+    ID|GIVEN|SURNAME|STREET1|STREET2|CITY|PROVINCE|COUNTRY|POSTAL
+    0|Zero|Cool|123 Any Lane|APT 2|Malvern|Pennsylvania|US|11000
+    1|Acid|Burn|2449 Brick Kiln Road||Ely|County Antrim|UK|L3G 6JJ
+    2|Cereal|Killer|Drosselvænget 7852||Sundby|Nordjylland|Denmark|89536
+    3|Lord|Nikon|Rue de la Gare 5883||Aulnay-sous-Bois|Nord|France|31129
+    4|Joey||5106 Sampige Rd|APT 5|Ghaziabad|Jammu and Kashmir|India|63988
+    5|Zero|Cool|Porodice Praizović 8163||Bačka Topola|North Banat|Serbia|73571
+    (6 rows)
 
 .. _mixed-delim-ddl-ex:
 

@@ -632,6 +632,16 @@ PSQL
 			fi
 			cd $tstdir
 			subtest=$(sed 's/.*subtest \[//;s/].*//;' bats_test.out)
+			if [ -z $subtest ]; then
+				# See similar code in "tools/ci/vistatest.sh" for why this check is present.
+				# We don't know of any such need here but it might happen in the future so better
+				# to avoid such a situation and so have this safety check as a precaution.
+
+				# $tstdir is a directory that does not contain a valid subtest name in bats_test.out.
+				# Cannot determine if this is a failed or passed or timedout bats test.
+				echo "SUSPECT : $tstdir" >> summary_bats_dirs.txt
+				continue
+			fi
 			# Need -F below in case there are any special characters in the subtest name (e.g. '*')
 			# We do not want to treat those as regex in the grep.
 			passed=$(grep -F -c "$subtest" ../passed_bats_subtests.txt) || true

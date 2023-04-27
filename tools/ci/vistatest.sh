@@ -1,7 +1,7 @@
 #!/bin/bash
 #################################################################
 #								#
-# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -94,6 +94,18 @@ do
 	fi
 	cd $tstdir
 	subtest=$(sed 's/.*subtest \[//;s/].*//;' bats_test.out)
+	if [ -z $subtest ]; then
+		# If a failure happens in the "setup_file()" function in "tests/test_vista_database.bats.in",
+		# we would end up with a temporary directory in the "bats-test*" format but one that does not
+		# have a valid "bats_test.out". And so we would end up with a subtest name that is an empty
+		# string. Skip this directory as we don't want to be doing a grep of an empty string (which
+		# would match all passed and failed subtests) and produce confusing messages.
+
+		# $tstdir is a directory that does not contain a valid subtest name in bats_test.out.
+		# Cannot determine if this is a failed or passed or timedout bats test.
+		echo "SUSPECT : $tstdir" >> summary_bats_dirs.txt
+		continue
+	fi
 	# Need -F below in case there are any special characters in the subtest name (e.g. '*')
 	# We do not want to treat those as regex in the grep.
 	passed=$(grep -F -c "$subtest" ../passed_bats_subtests.txt) || true

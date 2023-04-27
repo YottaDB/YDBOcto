@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -19,7 +19,13 @@ LogicalPlan *lp_copy_plan(LogicalPlan *plan) {
 
 	if (NULL == plan)
 		return NULL;
+	/* Check a few plan types which do not require any copy. Return right away without a malloc/copy in that case. */
 	switch (plan->type) {
+	case LP_KEY:
+		/* Don't see any reason why we will need to modify the SqlKey structure fields under a LP_KEY
+		 * (and in turn keep separate copies for the source and target plans). Therefore, no need to
+		 * do any copy even for the LP_KEY case.
+		 */
 	case LP_VALUE:
 	case LP_TABLE:
 	case LP_TABLE_VALUE:
@@ -37,21 +43,11 @@ LogicalPlan *lp_copy_plan(LogicalPlan *plan) {
 	}
 	OCTO_CMALLOC_STRUCT(new_plan, LogicalPlan);
 	*new_plan = *plan;
-	switch (plan->type) {
-	case LP_KEY:
-		/* Copy SqlStatements which is definitely needed for keys (as these are modified later
-		 * and need to be maintained separately for the source and target plans).
-		 */
-		new_plan->v.lp_key.key = lp_copy_key(plan->v.lp_key.key);
-		break;
-	default:
-		new_plan->v.lp_default.operand[0] = lp_copy_plan(plan->v.lp_default.operand[0]);
-		new_plan->v.lp_default.operand[1] = lp_copy_plan(plan->v.lp_default.operand[1]);
-		if (LP_TABLE_JOIN == plan->type) {
-			new_plan->extra_detail.lp_table_join.join_on_condition
-			    = lp_copy_plan(plan->extra_detail.lp_table_join.join_on_condition);
-		}
-		break;
+	new_plan->v.lp_default.operand[0] = lp_copy_plan(plan->v.lp_default.operand[0]);
+	new_plan->v.lp_default.operand[1] = lp_copy_plan(plan->v.lp_default.operand[1]);
+	if (LP_TABLE_JOIN == plan->type) {
+		new_plan->extra_detail.lp_table_join.join_on_condition
+		    = lp_copy_plan(plan->extra_detail.lp_table_join.join_on_condition);
 	}
 	return new_plan;
 }

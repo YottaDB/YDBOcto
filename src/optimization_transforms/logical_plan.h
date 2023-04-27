@@ -349,8 +349,6 @@ LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt);
 
 // Provides a copy of the plan
 LogicalPlan *lp_copy_plan(LogicalPlan *plan);
-// Copies the SqlKey into a new key
-SqlKey *lp_copy_key(SqlKey *key);
 
 // Returns the projection triple
 LogicalPlan *lp_get_project(LogicalPlan *plan);

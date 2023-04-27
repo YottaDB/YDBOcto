@@ -235,7 +235,6 @@ add_library(libocto OBJECT
   optimization_transforms/logical_plan.c
   optimization_transforms/lp_alloc_key.c
   optimization_transforms/lp_column_list_to_lp.c
-  optimization_transforms/lp_copy_key.c
   optimization_transforms/lp_copy_plan.c
   optimization_transforms/lp_drill_to_insert.c
   optimization_transforms/lp_emit_plan.c

@@ -37,12 +37,8 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 	assert(((RIGHT_JOIN != this_join_type) && (FULL_JOIN != this_join_type)) || cur_key);
 	if (pplan->tablejoin == tablejoin) {
 		unsigned int	save_cur_key;
-		int		in_value_list_id;
 
 		save_cur_key = cur_key;
-		in_value_list_id = 1;	/* assign local variable name to use to store list of values (under a subtree)
-					 * corresponding to fixed keys (e.g. %ydboctoin1, %ydboctoin2 etc.).
-					 */
 		/* This is the outermost "tmpl_tablejoin" invocation. See if there are any IN operator usages which have
 		 * a key on the LHS that is fixed to a list of values on the RHS. If so, generate M local variables to store
 		 * that list before any of the FOR loops for scanning any key begins. This way we do this M local variable
@@ -52,8 +48,6 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 			LogicalPlan	*list;
 
 			key = pplan->iterKeys[cur_key];
-			assert(0 == key->in_value_list_id);
-			assert(in_value_list_id != key->in_value_list_id);	/* hence "in_value_list_id" start at 1 above */
 			list = key->fixed_to_value;
 			if (NULL == list) {
 				continue;
@@ -61,10 +55,15 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 			if (LP_COLUMN_LIST != list->type) {
 				continue;
 			}
+
+			int	in_value_list_id;
+			in_value_list_id = key->unique_id;	/* assign local variable name to use to store list of values
+								 * (under a subtree) corresponding to fixed keys
+								 * (e.g. %ydboctoin1, %ydboctoin2 etc.).
+								 */
 			TMPL(tmpl_print_dots, dot_count);
 			%{}NEW {{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
-			key->in_value_list_id = in_value_list_id;
 			do {
 				LogicalPlan	*value;
 
@@ -79,7 +78,6 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 				%{}`n{{ PLAN_LINE_START }}{}%
 				list = list->v.lp_default.operand[1];
 			} while (NULL != list);
-			in_value_list_id++;
 		}
 		cur_key = save_cur_key;
 	}
@@ -132,16 +130,15 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 			fixed_to_value = key->fixed_to_value;
 			if ((LP_VALUE != fixed_to_value->type)
 					|| !IS_NUL_VALUE(fixed_to_value->v.lp_value.value->type)) {
-				int		in_value_list_id;
 				boolean_t	is_key_column;
 
 				/* Key is fixed to a value (= operator) or list of values (IN operator) */
-				assert((LP_COLUMN_LIST != fixed_to_value->type) || (0 < key->in_value_list_id));
-				assert((LP_COLUMN_LIST == fixed_to_value->type) || (0 == key->in_value_list_id));
-				in_value_list_id = key->in_value_list_id;
-				assert(0 <= in_value_list_id);
-				if (0 < in_value_list_id) {
+				if (LP_COLUMN_LIST == fixed_to_value->type) {
+					int	in_value_list_id;
+
 					/* This is a list of values on the right hand side of an IN operator */
+					in_value_list_id = key->unique_id;
+					assert(in_value_list_id);
 					TMPL(tmpl_print_dots, dot_count);
 					%{}SET {{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}="" FOR  {}%
 					%{}DO:$DATA({{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}{}%
@@ -152,13 +149,11 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 					%{}QUIT:""={{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}{}%
 					%{}`n{{ PLAN_LINE_START }}{}%
 					dot_count++;
-				}
-				if (0 == in_value_list_id) {
-					TMPL(tmpl_print_expression_assignment, fixed_to_value, pplan, dot_count, 0);
-				} else {
 					TMPL(tmpl_print_dots, dot_count);
 					%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}{}%
 					%{}`n{{ PLAN_LINE_START }}{}%
+				} else {
+					TMPL(tmpl_print_expression_assignment, fixed_to_value, pplan, dot_count, 0);
 				}
 				TMPL(tmpl_print_dots, dot_count);
 				%{}SET {}%

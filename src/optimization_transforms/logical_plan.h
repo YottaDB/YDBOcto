@@ -331,7 +331,6 @@ typedef struct SqlKey {
 	// If this is a cross refence key, this value will point to the filename used to store the
 	// code to provide the cross reference
 	char *cross_reference_filename;
-	int   in_value_list_id; /* id used during physical plan phase to store value list of IN operator */
 } SqlKey;
 
 // Helper functions

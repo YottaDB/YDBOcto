@@ -360,12 +360,16 @@ add_executable(octo
   $<TARGET_OBJECTS:libhelpers>
   ${POST_CONFIGURE_FILE}
 )
+add_dependencies(octo check_git)
 
 # This compiles the M files
 include(aux/build_m_files.cmake)
 
 # _ydboctoM and _ydboctoutf8 are the objects from the M files compilation
-add_dependencies(octo check_git _ydboctoM _ydboctoutf8)
+add_dependencies(octo _ydboctoM)
+if(utf8_installed)
+	add_dependencies(octo _ydboctoutf8)
+endif()
 
 if(${YDB_TLS_AVAILABLE})
   add_library(ydbtls SHARED IMPORTED GLOBAL)

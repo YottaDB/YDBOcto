@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -36,7 +36,6 @@ set(aux_files
 )
 
 add_ydb_library(_ydbocto SOURCES ${aux_files})
-add_dependencies(_ydboctoM _ydboctoutf8 check_git)
 
 if(NOT ${DISABLE_INSTALL})
 	# Library

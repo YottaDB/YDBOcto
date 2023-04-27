@@ -444,6 +444,10 @@ LogicalPlan *lp_make_normal_disjunctive_form(LogicalPlan *root);
 // Returned value will be a LP_KEY
 LogicalPlan *lp_make_key(SqlColumnAlias *column_alias);
 
+/* Allocate a LP_KEY and associated SqlKey structure. */
+LogicalPlan *lp_alloc_key(SqlTable *table, SqlColumn *column, int unique_id, LPActionType type, SqlKey *cross_reference_output_key,
+			  boolean_t is_cross_reference_key);
+
 // Specific optimizations we can perform
 //  These return 1 if the optimization succeeded, 0 otherwise
 /// Attempts to replace this EQUALS statement with a xref IN

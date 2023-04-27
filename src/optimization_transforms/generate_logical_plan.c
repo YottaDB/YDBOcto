@@ -24,7 +24,7 @@
  */
 LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 	SqlSelectStatement *select_stmt;
-	LogicalPlan *	    select_query, *project, *select, *dst, *dst_key;
+	LogicalPlan *	    select_query, *project, *select, *dst;
 	LogicalPlan *	    criteria, *where, *order_by;
 	LogicalPlan *	    select_options, *select_more_options, *aggregate_options;
 	LogicalPlan *	    join_right, *temp;
@@ -208,14 +208,9 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 	MALLOC_LP(where, select_options->v.lp_default.operand[0], LP_WHERE);
 	LP_GENERATE_WHERE(select_stmt->where_expression, NULL, where->v.lp_default.operand[0], error_encountered);
 	MALLOC_LP(dst, select_query->v.lp_default.operand[1], LP_OUTPUT);
-	MALLOC_LP(dst_key, dst->v.lp_default.operand[0], LP_KEY);
-	OCTO_CMALLOC_STRUCT(dst_key->v.lp_key.key, SqlKey);
-	dst_key->v.lp_key.key->unique_id = get_new_plan_unique_id();
+	dst->v.lp_default.operand[0] = lp_alloc_key(NULL, NULL, get_new_plan_unique_id(), LP_KEY_ADVANCE, NULL, FALSE);
 	select_query->extra_detail.lp_select_query.root_table_alias = table_alias;
 	select_query->extra_detail.lp_select_query.to_array = FALSE;
-	/// TODO: we should look at the columns to decide which values
-	//   are keys, and if none, create a rowId as part of the advance
-	dst_key->v.lp_key.key->type = LP_KEY_ADVANCE;
 	join_right = NULL;
 	UNPACK_SQL_STATEMENT(start_join, select_stmt->table_list, join);
 	cur_join = start_join;

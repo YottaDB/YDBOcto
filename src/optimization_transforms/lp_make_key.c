@@ -27,12 +27,6 @@ LogicalPlan *lp_make_key(SqlColumnAlias *column_alias) {
 	UNPACK_SQL_STATEMENT(column, column_alias->column, column);
 	UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
 	UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
-
-	MALLOC_LP_2ARGS(ret, LP_KEY);
-	OCTO_CMALLOC_STRUCT(ret->v.lp_key.key, SqlKey);
-	ret->v.lp_key.key->column = column;
-	ret->v.lp_key.key->unique_id = table_alias->unique_id;
-	ret->v.lp_key.key->table = table;
-	ret->v.lp_key.key->type = LP_KEY_ADVANCE;
+	ret = lp_alloc_key(table, column, table_alias->unique_id, LP_KEY_ADVANCE, NULL, FALSE);
 	return ret;
 }

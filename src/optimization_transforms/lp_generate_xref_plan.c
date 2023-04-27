@@ -23,23 +23,21 @@
 
 LogicalPlan *lp_generate_xref_plan(SqlTable *table, SqlColumn *column, int unique_id) {
 	LogicalPlan *	    root, *project, *output, *column_list, *select, *cur, *lp_cla;
-	LogicalPlan *	    table_join, *criteria, *lp_output_key, *lp_table;
+	LogicalPlan *	    table_join, *criteria, *lp_key, *lp_table;
 	LogicalPlan *	    select_options, *select_more_options, *lp_keywords;
 	SqlColumnAlias *    cla;
 	SqlTableAlias *	    table_alias;
 	SqlStatement *	    table_alias_statement;
 	SqlColumn *	    key_columns[MAX_KEY_COUNT];
 	SqlOptionalKeyword *keywords, *source_keyword;
-	SqlKey *	    output_key;
 	int		    cur_key, max_key;
 
+	MALLOC_LP_2ARGS(root, LP_SELECT_QUERY);
+	MALLOC_LP(project, root->v.lp_default.operand[0], LP_PROJECT);
+	MALLOC_LP(output, root->v.lp_default.operand[1], LP_OUTPUT);
 	// Setup the output key
-	OCTO_CMALLOC_STRUCT(output_key, SqlKey);
-	output_key->table = table;
-	output_key->column = column;
-	output_key->unique_id = unique_id;
-	output_key->is_cross_reference_key = TRUE;
-
+	lp_key = lp_alloc_key(table, column, unique_id, LP_INVALID_ACTION, NULL, TRUE);
+	output->v.lp_default.operand[0] = lp_key;
 	/* Determine whether the cross-reference should be stored in a YDB local or global variable. See comment for
 	 * SqlKey.xref_prefix in logical_plan.h for additional background.
 	 */
@@ -47,12 +45,9 @@ LogicalPlan *lp_generate_xref_plan(SqlTable *table, SqlColumn *column, int uniqu
 	if (NULL == source_keyword) {
 		UNPACK_SQL_STATEMENT(source_keyword, table->source, keyword);
 	}
-	output_key->xref_prefix
+	lp_key->v.lp_key.key->xref_prefix
 	    = (CARET_CHAR == (source_keyword->v->v.value->v.string_literal[0]) ? PP_GLOBAL_PREFIX : PP_LOCAL_PREFIX);
 
-	MALLOC_LP_2ARGS(root, LP_SELECT_QUERY);
-	MALLOC_LP(project, root->v.lp_default.operand[0], LP_PROJECT);
-	MALLOC_LP(output, root->v.lp_default.operand[1], LP_OUTPUT);
 	MALLOC_LP(column_list, project->v.lp_default.operand[0], LP_COLUMN_LIST);
 	MALLOC_LP(select, project->v.lp_default.operand[1], LP_SELECT);
 
@@ -109,10 +104,6 @@ LogicalPlan *lp_generate_xref_plan(SqlTable *table, SqlColumn *column, int uniqu
 	keywords = lp_keywords->v.lp_keywords.keywords;
 	dqinit(keywords);
 	keywords->keyword = OPTIONAL_XREF_INDEX;
-
-	// Select an LP_KEY to output things to that is correct
-	MALLOC_LP(lp_output_key, output->v.lp_default.operand[0], LP_KEY);
-	lp_output_key->v.lp_key.key = output_key;
 
 	// Optimize this new plan
 	return optimize_logical_plan(root);

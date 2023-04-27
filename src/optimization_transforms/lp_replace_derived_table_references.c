@@ -102,6 +102,9 @@ LogicalPlan *lp_replace_helper(LogicalPlan *plan, SqlTableAlias *table_alias, Sq
 			int part;
 
 			MALLOC_LP_2ARGS(ret, LP_DERIVED_COLUMN);
+			/* Not using "lp_alloc_key()" here because we only allocate LP_KEY but not also the corresponding SqlKey
+			 * (as we take a copy of an existing SqlKey instead).
+			 */
 			MALLOC_LP_2ARGS(ret->v.lp_default.operand[0], LP_KEY);
 			ret->v.lp_default.operand[0]->v.lp_key.key = key;
 

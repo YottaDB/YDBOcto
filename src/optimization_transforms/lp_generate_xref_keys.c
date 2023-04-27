@@ -24,7 +24,7 @@
  * reference
  */
 LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumnAlias *column_alias, SqlTableAlias *table_alias) {
-	LogicalPlan *root, *keys, *cur_lp_key, *table_join, *lp_table_alias, *lp_output_key;
+	LogicalPlan *root, *keys, *table_join, *lp_table_alias, *lp_output_key;
 	int	     cur_key, max_key, unique_id;
 	SqlColumn *  key_columns[MAX_KEY_COUNT], *column;
 	SqlKey *     output_key;
@@ -61,13 +61,8 @@ LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumn
 	memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn *));
 	max_key = get_key_columns(table, key_columns);
 	for (cur_key = 0; cur_key <= max_key; cur_key++) {
-		MALLOC_LP(cur_lp_key, keys->v.lp_default.operand[0], LP_KEY);
-		OCTO_CMALLOC_STRUCT(cur_lp_key->v.lp_key.key, SqlKey);
-		cur_lp_key->v.lp_key.key->column = key_columns[cur_key];
-		cur_lp_key->v.lp_key.key->unique_id = unique_id;
-		cur_lp_key->v.lp_key.key->table = table;
-		cur_lp_key->v.lp_key.key->type = LP_KEY_ADVANCE;
-		cur_lp_key->v.lp_key.key->cross_reference_output_key = output_key;
+		keys->v.lp_default.operand[0]
+		    = lp_alloc_key(table, key_columns[cur_key], unique_id, LP_KEY_ADVANCE, output_key, FALSE);
 		if (cur_key != max_key) {
 			MALLOC_LP_2ARGS(keys->v.lp_default.operand[1], LP_KEYS);
 			keys = keys->v.lp_default.operand[1];

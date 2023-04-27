@@ -88,12 +88,8 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 			table = NULL;
 		}
 		for (cur_key = 0; cur_key <= max_key; cur_key++) {
-			MALLOC_LP(cur_lp_key, keys->v.lp_default.operand[0], LP_KEY);
-			OCTO_CMALLOC_STRUCT(cur_lp_key->v.lp_key.key, SqlKey);
-			cur_lp_key->v.lp_key.key->column = key_columns[cur_key];
-			cur_lp_key->v.lp_key.key->unique_id = unique_id;
-			cur_lp_key->v.lp_key.key->table = table;
-			cur_lp_key->v.lp_key.key->type = LP_KEY_ADVANCE;
+			keys->v.lp_default.operand[0]
+			    = lp_alloc_key(table, key_columns[cur_key], unique_id, LP_KEY_ADVANCE, NULL, FALSE);
 			if (cur_key != max_key) {
 				MALLOC_LP_2ARGS(keys->v.lp_default.operand[1], LP_KEYS);
 				keys = keys->v.lp_default.operand[1];

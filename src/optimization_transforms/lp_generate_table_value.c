@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -19,7 +19,7 @@
 LogicalPlan *lp_generate_table_value(SqlStatement *stmt, boolean_t *caller_error_encountered) {
 	SqlTableValue *	    table_value;
 	SqlStatement *	    table_value_stmt;
-	LogicalPlan *	    lp_table_value, *lp_table_data, *lp_row_value_next, *lp_table_key;
+	LogicalPlan *	    lp_table_value, *lp_table_data, *lp_row_value_next;
 	SqlRowValue *	    row_value, *start_row_value;
 	SqlColumnListAlias *cla;
 	SqlTableAlias *	    table_alias;
@@ -48,9 +48,6 @@ LogicalPlan *lp_generate_table_value(SqlStatement *stmt, boolean_t *caller_error
 		row_value = row_value->next;
 	} while (row_value != start_row_value);
 	MALLOC_LP(lp_table_data, lp_table_value->v.lp_default.operand[1], LP_OUTPUT);
-	MALLOC_LP(lp_table_key, lp_table_data->v.lp_default.operand[0], LP_KEY);
-	OCTO_CMALLOC_STRUCT(lp_table_key->v.lp_key.key, SqlKey);
-	lp_table_key->v.lp_key.key->unique_id = table_alias->unique_id;
-	lp_table_key->v.lp_key.key->type = LP_KEY_ADVANCE;
+	lp_table_data->v.lp_default.operand[0] = lp_alloc_key(NULL, NULL, table_alias->unique_id, LP_KEY_ADVANCE, NULL, FALSE);
 	return lp_table_value;
 }

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -24,7 +24,7 @@
 LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt) {
 	SqlStatement *	 set_operation_stmt;
 	LogicalPlan *	 options, *set_operation, *plans, *key, *set_plans[2];
-	LogicalPlan *	 dst, *dst_key;
+	LogicalPlan *	 dst;
 	SqlSetOperation *set_operation_sql;
 
 	// Get plans for each of the sub plans
@@ -68,10 +68,7 @@ LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt) {
 		break;
 	}
 	MALLOC_LP(dst, options->v.lp_default.operand[1], LP_OUTPUT);
-	MALLOC_LP(dst_key, dst->v.lp_default.operand[0], LP_KEY);
-	OCTO_CMALLOC_STRUCT(dst_key->v.lp_key.key, SqlKey);
-	dst_key->v.lp_key.key->unique_id = get_new_plan_unique_id();
-	dst_key->v.lp_key.key->type = LP_KEY_ADVANCE;
+	dst->v.lp_default.operand[0] = lp_alloc_key(NULL, NULL, get_new_plan_unique_id(), LP_KEY_ADVANCE, NULL, FALSE);
 	// Restore set_operation for cleanup
 	return set_operation;
 }

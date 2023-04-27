@@ -309,15 +309,9 @@ typedef struct LogicalPlan {
 typedef struct SqlKey {
 	SqlTable * table;
 	SqlColumn *column;
-	int	   key_num;
 	int	   unique_id;
 	// If this key is fixed, this is the value
 	LogicalPlan *fixed_to_value;
-	// Table that owns this key; used to extract key from plan
-	//  when generating an extract for a given column
-	// If this key is part of a UNION, this is the LP_SELECT_QUERY
-	//  plan which outputs this key
-	LogicalPlan *owner;
 	// The only relevant types are KEY_FIXED, KEY_ADVANCE
 	LPActionType type;
 	// If true, this is an output key for a cross reference
@@ -334,8 +328,6 @@ typedef struct SqlKey {
 	// If this is a cross reference key which is not an output key, this will point to the
 	// output key, which we can snag the column name from
 	struct SqlKey *cross_reference_output_key;
-	// The source of the cross reference
-	SqlColumnAlias *cross_reference_column_alias;
 	// If this is a cross refence key, this value will point to the filename used to store the
 	// code to provide the cross reference
 	char *	  cross_reference_filename;

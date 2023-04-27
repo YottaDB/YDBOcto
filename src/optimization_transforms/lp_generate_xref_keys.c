@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -56,7 +56,6 @@ LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumn
 		return NULL;
 	lp_output_key = lp_get_output_key(table_join->v.lp_default.operand[0]);
 	output_key = lp_output_key->v.lp_key.key;
-	output_key->cross_reference_column_alias = column_alias;
 
 	MALLOC_LP(keys, root, LP_KEYS);
 	memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn *));
@@ -65,7 +64,6 @@ LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumn
 		MALLOC_LP(cur_lp_key, keys->v.lp_default.operand[0], LP_KEY);
 		OCTO_CMALLOC_STRUCT(cur_lp_key->v.lp_key.key, SqlKey);
 		cur_lp_key->v.lp_key.key->column = key_columns[cur_key];
-		cur_lp_key->v.lp_key.key->key_num = cur_key;
 		cur_lp_key->v.lp_key.key->unique_id = unique_id;
 		cur_lp_key->v.lp_key.key->table = table;
 		cur_lp_key->v.lp_key.key->type = LP_KEY_ADVANCE;

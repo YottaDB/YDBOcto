@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -31,7 +31,6 @@ LogicalPlan *lp_make_key(SqlColumnAlias *column_alias) {
 	MALLOC_LP_2ARGS(ret, LP_KEY);
 	OCTO_CMALLOC_STRUCT(ret->v.lp_key.key, SqlKey);
 	ret->v.lp_key.key->column = column;
-	ret->v.lp_key.key->key_num = -1;
 	ret->v.lp_key.key->unique_id = table_alias->unique_id;
 	ret->v.lp_key.key->table = table;
 	ret->v.lp_key.key->type = LP_KEY_ADVANCE;

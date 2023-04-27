@@ -436,7 +436,6 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		}
 		key->xref_prefix = ('^' == (source_keyword->v->v.value->v.string_literal[0]) ? PP_GLOBAL_PREFIX : PP_LOCAL_PREFIX);
 
-		key->cross_reference_column_alias = column_alias;
 		if (LP_CRITERIA == before_first_key->type) {
 			MALLOC_LP_2ARGS(before_first_key->v.lp_default.operand[0], LP_KEYS);
 			before_first_key = before_first_key->v.lp_default.operand[0];

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -91,11 +91,9 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 			MALLOC_LP(cur_lp_key, keys->v.lp_default.operand[0], LP_KEY);
 			OCTO_CMALLOC_STRUCT(cur_lp_key->v.lp_key.key, SqlKey);
 			cur_lp_key->v.lp_key.key->column = key_columns[cur_key];
-			cur_lp_key->v.lp_key.key->key_num = cur_key;
 			cur_lp_key->v.lp_key.key->unique_id = unique_id;
 			cur_lp_key->v.lp_key.key->table = table;
 			cur_lp_key->v.lp_key.key->type = LP_KEY_ADVANCE;
-			cur_lp_key->v.lp_key.key->owner = oper0;
 			if (cur_key != max_key) {
 				MALLOC_LP_2ARGS(keys->v.lp_default.operand[1], LP_KEYS);
 				keys = keys->v.lp_default.operand[1];

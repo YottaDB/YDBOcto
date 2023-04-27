@@ -363,10 +363,22 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 	}
 	assert(cur_key > key_start);
 	for ( ; cur_key > key_start; cur_key--) {
+		key = pplan->iterKeys[cur_key - 1];
+		if (key->is_cross_reference_key && (NULL == key->column) && (NULL != key->table)) {
+			/* A cross reference key always has a non-NULL column and table (guaranteed by an assert in
+			 * "lp_alloc_key.c". But this cross reference key has a NULL column and a non-NULL table.
+			 * This is the case of a temporarily disabled xref key (i.e. it is processed using "tmpl_emit_source"
+			 * and not using "tmpl_key") during the second half of a RIGHT JOIN.  See comments in code further
+			 * down below (search for "save_key_column") for how a recursive caller would have created this
+			 * situation. So skip emitting M code for this disabled key as there is no lvn corresponding to this
+			 * key that needs to be cleaned up (i.e. KILLed).
+			 */
+			continue;
+		}
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, orig_dot_count);
 		assert(0 < cur_key);
-		TMPL(tmpl_key_finish, pplan->iterKeys[cur_key - 1]);
+		TMPL(tmpl_key_finish, key);
 	}
 	if (pplan->tablejoin == tablejoin) {
 		/* This is the outermost "tmpl_tablejoin" invocation. Do additional invocation for RIGHT JOINs (if any)
@@ -409,6 +421,30 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 				/* Assert that this is not the outermost "tmpl_tablejoin" invocation */
 				assert(this_table_join != pplan->tablejoin);
 				right_join_table_id = this_table_id;
+
+				SqlColumn	*save_key_column;
+				save_key_column = NULL;
+				for (right_join_cur_key = cur_key; right_join_cur_key < total_keys; right_join_cur_key++) {
+					key = pplan->iterKeys[right_join_cur_key];
+					if (right_join_table_id == key->unique_id) {
+						if (key->is_cross_reference_key) {
+							/* Until now, we would have used "tmpl_key()" to emit code for "key".
+							 * But now on, we need to use "tmpl_emit_source()" to emit different
+							 * code for the second half of a RIGHT JOIN. Hence set "key->column"
+							 * to NULL to ensure "tmpl_key()" does not get chosen. See comment in
+							 * "tmpl_column_reference" (search for "key->column") for more details.
+							 */
+							assert(NULL != key->column);
+							assert(NULL != key->table);
+							assert(NULL == save_key_column);
+							save_key_column = key->column;
+							key->column = NULL;
+						}
+					} else {
+						break;
+					}
+				}
+				TMPL(tmpl_tablejoin, pplan, this_table_join, cur_key, TRUE, dot_count, tableName, columnName);
 				for (right_join_cur_key = cur_key; right_join_cur_key < total_keys; right_join_cur_key++) {
 					key = pplan->iterKeys[right_join_cur_key];
 					if (right_join_table_id == key->unique_id) {
@@ -417,14 +453,14 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 							 * But now on, we need to use "tmpl_emit_source()" to emit different
 							 * code for the second half of a RIGHT JOIN. Hence set the below.
 							 */
-							key->use_tmpl_emit_source_for_xref_key = TRUE;
+							assert(NULL == key->column);
+							assert(NULL != save_key_column);
+							key->column = save_key_column;
 						}
 					} else {
 						break;
 					}
 				}
-				TMPL(tmpl_tablejoin, pplan, this_table_join, cur_key, TRUE, dot_count, tableName, columnName);
-				/* No need to undo "key->use_tmpl_emit_source_for_xref_key" as it is not used after here */
 				num_tables = 1;	// include this table as first one for next round of RIGHT JOIN key nullification
 			} else {
 				num_tables++;

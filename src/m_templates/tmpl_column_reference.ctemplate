@@ -77,7 +77,8 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	 * an xref key). In case of a key column, we have to always go through "tmpl_key" (this is because key columns are not
 	 * part of the node value and so don't have a PIECE # and hence should not go through "tmpl_emit_source"). In case of a
 	 * non-key column, we will mostly go through "tmpl_key" but can go through "tmpl_emit_source" in the case of the second
-	 * half of a RIGHT JOIN ("key->use_tmpl_emit_source_for_xref_key" would be TRUE in that case).
+	 * half of a RIGHT JOIN ("key->column" would be set to NULL in that case in "tmpl_tablejoin" thereby ensuring we fail
+	 * the "if (key->column == column)" check below and never invoke "tmpl_key" but instead fall through to "tmpl_emit_source").
 	 */
 	matching_plan = get_physical_plan_and_key_for_unique_id(pplan, unique_id, &matching_key);
 	cur_plan = pplan;
@@ -89,16 +90,6 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 			key = cur_plan->iterKeys[i];
 			if (key->unique_id == unique_id) {
 				if (key->column == column) {
-					/* If using "tmpl_key" has been asked to be disabled (possible for xref key in second half
-					 * of RIGHT JOIN), continue generating column value (using "tmpl_emit_source") instead of
-					 * key value. In this case, we are guaranteed the column of interest is a non-key column
-					 * (whose value got fixed using an xref and hence got added as a key). Therefore it is okay
-					 * to go ahead and generate a value using "tmpl_emit_source".
-					 */
-					if (key->use_tmpl_emit_source_for_xref_key) {
-						next_plan = NULL;	/* so we break out of outer "do" loop too */
-						break;
-					}
 					if (matching_plan != pplan) {
 						/* Key belongs to a parent query table. Depending on whether OUTER JOINs were in
 						 * use there or not, it is possible for this key column to be undefined at this

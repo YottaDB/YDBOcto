@@ -23,6 +23,11 @@ LogicalPlan *lp_alloc_key(SqlTable *table, SqlColumn *column, int unique_id, LPA
 
 	MALLOC_LP_2ARGS(ret, LP_KEY);
 	OCTO_CMALLOC_STRUCT(key, SqlKey);
+	/* Assert that if ever we are creating a cross reference key, it has a non-NULL table and non-NULL column.
+	 * This will be used by "tmpl_tablejoin" to temporarily set the column to a NULL value (while keeping the
+	 * table as non-NULL) to handle the second half of a RIGHT JOIN.
+	 */
+	assert(!is_cross_reference_key || ((NULL != table) && (NULL != column)));
 	key->table = table;
 	key->column = column;
 	key->unique_id = unique_id;

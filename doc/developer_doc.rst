@@ -138,11 +138,11 @@ Compile
 
      make -j `getconf _NPROCESSORS_ONLN`
 
- Set JDBC_VERSION in the environment and download the JDBC driver into the build directory. Versions starting with 42.2.6 are tested, but earlier versions may work. For example, using 42.2.12 version:
+ Set JDBC_VERSION in the environment and download the JDBC driver into the build directory. Versions starting with 42.2.6 are tested, but earlier versions may work. For example, using 42.6.0 version:
 
   .. code-block:: bash
 
-     export JDBC_VERSION=42.2.12
+     export JDBC_VERSION=42.6.0
      wget https://jdbc.postgresql.org/download/postgresql-$JDBC_VERSION.jar
 
 ~~~~~~~~~

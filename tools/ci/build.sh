@@ -170,7 +170,7 @@ df -h > dbg_dfh.out		# system disk space
 lscpu > dbg_lscpu.out		# system CPUs
 
 echo "# Download PostgreSQL JDBC driver for testing"
-export JDBC_VERSION=42.2.12
+export JDBC_VERSION=42.6.0	# this is the latest driver as of May 2023
 wget https://jdbc.postgresql.org/download/postgresql-$JDBC_VERSION.jar
 
 echo "# Check repo for unused outref files"

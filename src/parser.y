@@ -199,6 +199,8 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token PRIMARY
 %token READONLY
 %token READWRITE
+%token REGCLASS
+%token REGPROC
 %token RESTRICT
 %token RETURNS
 %token RIGHT
@@ -1038,6 +1040,12 @@ conditional_expression
 cast_specification
   : COLON COLON data_type {
       $$ = (SqlStatement *)$data_type;
+    }
+  | COLON COLON REGCLASS {
+      SQL_VALUE_STATEMENT($$, FUNCTION_NAME, "REGCLASS");
+    }
+  | COLON COLON REGPROC {
+      SQL_VALUE_STATEMENT($$, FUNCTION_NAME, "REGPROC");
     }
   | COLON COLON identifier {
       SqlValue	*value;
@@ -2424,6 +2432,14 @@ sql_keyword
     }
   | NAME {
       SQL_VALUE_STATEMENT($$, COLUMN_REFERENCE, "NAME");
+      $$->loc = yyloc;
+    }
+  | REGCLASS {
+      SQL_VALUE_STATEMENT($$, FUNCTION_NAME, "REGCLASS");
+      $$->loc = yyloc;
+    }
+  | REGPROC {
+      SQL_VALUE_STATEMENT($$, FUNCTION_NAME, "REGPROC");
       $$->loc = yyloc;
     }
   ;

@@ -224,3 +224,13 @@ teardown() {
 	run_java TJC020 $test_port &> output.txt
 	verify_output TJC020 output.txt
 }
+
+@test "TJC021 : OCTO960 : Squirrel SQL and/or SQL Workbench queries using PostgreSQL JDBC driver 42.6.0" {
+	# Although this subtest is in the "test_jdbc_connection" test, it does not use "run_java" or
+	# "run_query_in_octo_and_postgres_and_crosscheck_multiple_queries" like other subtests in this test.
+	# This test uses queries that were noted down when using SquirrelSQL or SQL Workbench with the Postgres
+	# JDBC driver version 42.6.0. These queries are run against a simple octo command and their output verified.
+	load_fixture TJC021.sql subtest novv
+	verify_output TJC021 output.txt
+}
+

@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -43,6 +43,7 @@
 	; signaled by `MySQL` labels in various `_ydboctof*.m` routines, e.g. `_ydboctofLPAD.m`.
 	SET %ydboctoerror("UNKNOWNFUNCTION")=$incr(%ydboctoerrcode)
 	SET %ydboctoerror("CHECKCONSTRAINTVIOLATION")=$incr(%ydboctoerrcode)
+	SET %ydboctoerror("UNKNOWNTABLE")=$incr(%ydboctoerrcode)
 	; Any additions of error codes needs to happen before the following line (%ydboctoerrcodemax)
 	; Changes need to also happen in `ydb_error_check.c` and likely in `_ydboctoplanhelpers.m`
 	SET %ydboctoerrcodemax=$incr(%ydboctoerrcode)

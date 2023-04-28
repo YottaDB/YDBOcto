@@ -35,9 +35,6 @@ RUN wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-li
 RUN curl -LOf https://github.com/koalaman/shellcheck/releases/download/v0.7.2/shellcheck-v0.7.2.linux.x86_64.tar.xz && tar -C /usr/local/bin/ -xf shellcheck-v0.7.2.linux.x86_64.tar.xz --no-anchored 'shellcheck' --strip=1
 ENV USER=root
 
-# Java
-ENV JDBC_VERSION=42.2.6
-
 ADD . /builds/YDBDBMS/
 WORKDIR /builds/YDBDBMS
 

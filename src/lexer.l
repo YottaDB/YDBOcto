@@ -202,6 +202,8 @@ int copied_so_far;
 (?i:PRIMARY) { return PRIMARY; }
 (?i:READONLY) { return READONLY; }
 (?i:READWRITE) { return READWRITE; }
+(?i:REGCLASS) { return REGCLASS; }
+(?i:REGPROC) { return REGPROC; }
 (?i:RESTRICT) { return RESTRICT; }
 (?i:RETURNS) { return RETURNS; }
 (?i:RIGHT) { return RIGHT; }

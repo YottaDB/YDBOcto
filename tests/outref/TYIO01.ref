@@ -101,7 +101,7 @@ octo_region_label|INCTN|4
 octo_region_label|PBLK|20
 octo_region_label|PFIN|5
 octo_region_label|PINI|5
-octo_region_label|SET|3403
+octo_region_label|SET|3425
 octo_region_label|TCOM|38
 octo_region_label|TSET|38
 (15 rows)
@@ -1055,7 +1055,11 @@ SET|^%ydboctoocto|^%ydboctoocto("oid")|"896"
 SET|^%ydboctoocto|^%ydboctoocto("oid")|"897"
 SET|^%ydboctoocto|^%ydboctoocto("oid")|"898"
 SET|^%ydboctoocto|^%ydboctoocto("oid")|"899"
-(899 rows)
+SET|^%ydboctoocto|^%ydboctoocto("oid")|"900"
+SET|^%ydboctoocto|^%ydboctoocto("oid")|"901"
+SET|^%ydboctoocto|^%ydboctoocto("oid")|"902"
+SET|^%ydboctoocto|^%ydboctoocto("oid")|"903"
+(903 rows)
 OP
 PINI
 PINI

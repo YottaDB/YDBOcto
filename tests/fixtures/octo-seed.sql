@@ -139,7 +139,7 @@ CREATE TABLE pg_catalog.pg_proc (
   prorows INTEGER,
   provariadic INTEGER,
   protransform VARCHAR,
-  prokind BOOLEAN,
+  prokind VARCHAR,
   prosecdef BOOLEAN,
   proleakproof BOOLEAN,
   proisstrict BOOLEAN,
@@ -179,6 +179,7 @@ CREATE TABLE pg_catalog.pg_attribute (
   attnotnull BOOLEAN,
   atthasdef BOOLEAN,
   atthasmissing BOOLEAN,
+  attgenerated VARCHAR,
   attidentity VARCHAR,
   attisdropped BOOLEAN,
   attislocal BOOLEAN,
@@ -389,6 +390,9 @@ CREATE FUNCTION ARRAY_UPPER(NUMERIC, INT) RETURNS INT AS $$pgArrayLower^%ydbocto
 CREATE FUNCTION ARRAY_UPPER(VARCHAR, INT) RETURNS INT AS $$pgArrayLower^%ydboctopgfunctions;
 CREATE FUNCTION ARRAY_UPPER(BOOLEAN, INT) RETURNS INT AS $$pgArrayLower^%ydboctopgfunctions;
 CREATE FUNCTION GENERATE_SERIES(INT, INT) RETURNS INT AS $$pgGenerateSeries^%ydboctopgfunctions;
+
+CREATE FUNCTION REGCLASS(VARCHAR) RETURNS INTEGER AS $$pgRegClass^%ydboctopgfunctions;
+CREATE FUNCTION REGPROC(VARCHAR) RETURNS VARCHAR AS $$pgRegProc^%ydboctopgfunctions;
 
 /* Stores PostgreSQL range types */
 CREATE TABLE pg_catalog.pg_range (

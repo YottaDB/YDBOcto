@@ -269,7 +269,7 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 			 * if these various related tables are out of sync. That said, there are no known cases of such issues
 			 * as of this writing.
 			 */
-			copied = snprintf(buffer, sizeof(buffer), "%lld|%s|%d|-1|%d|%d|0|-1|%d|%d|%c|%c|%d|0|0|1|0|0|0|||||",
+			copied = snprintf(buffer, sizeof(buffer), "%lld|%s|%d|-1|%d|%d|0|-1|%d|%d|%c|%c|%d|0|0||1|0|0|0|||||",
 					  class_oid, column_name, atttypid, attlen, attnum, atttypmod, attbyval, attstorage,
 					  attalign, attnotnull);
 			assert(sizeof(buffer) > copied);

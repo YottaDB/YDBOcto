@@ -92,3 +92,33 @@ pgTableIsVisible(a) ; TODO this is just a placeholder
 setConfig(setting,value,local)
 	SET %ydboctosession(0,"variables",setting)=value
 	QUIT %ydboctosession(0,"variables",setting)
+
+pgRegClass(tablename)
+	; -------------------------------------------------------------------------------------------------------------
+	; This is a simplistic implementation of "::regclass" that enabled SquirrelSQL to work with JDBC driver 42.6.0.
+	; The full fledged implementation will have to wait for YDBOcto#967.
+	; -------------------------------------------------------------------------------------------------------------
+	QUIT:$ZYISSQLNULL(tablename) $ZYSQLNULL
+	; Given a "tablename" argument, we need to find its corresponding OID.
+	NEW tbl,tbl2,oid
+	; Note that a tablename could be of the form "tablename" or "schemaname"."tablename".
+	; Check for both forms in the order "schemaname"."tablename" and then just "tablename" by stripping off
+	; the schema name (if present) and retrying the search.  This is similar to what "src/find_table.c" does.
+	SET tbl=tablename
+	FOR  DO  QUIT:(tbl="")!(oid'=0)  SET tbl=$piece(tbl,".",2)
+	. set tbl2=$translate(tbl,"""")	; In case schema or table name is surrounded by double-quotes, remove it before checking.
+	. SET oid=$get(^%ydboctoschema(tbl2,"pg_class"),0)
+	DO:(0=oid)
+	.	SET %ydboctoerror("UNKNOWNTABLE",1)=tablename	; pass parameter to `src/ydb_error_check.c`
+	.	ZMESSAGE %ydboctoerror("UNKNOWNTABLE")
+	QUIT oid
+
+pgRegProc(procname)
+	; -------------------------------------------------------------------------------------------------------------
+	; This is a simplistic implementation of "::regproc" that enabled SquirrelSQL to work with JDBC driver 42.6.0.
+	; The full fledged implementation will have to wait for YDBOcto#967.
+	; -------------------------------------------------------------------------------------------------------------
+	; For now we return the procedure/function name as is. This simplistic approach is good enough for right now.
+	; Will need to revisit it if/when the need arises.
+	QUIT procname
+

@@ -59,7 +59,7 @@ Ubuntu/Debian
   .. code-block:: bash
 
     git clone https://github.com/bats-core/bats-core.git && cd bats-core && sudo ./install.sh /usr
-    apt-get install default-jdk expect golang-go locales libcmocka-dev postgresql-client postgresql mysql-client mysql-server unixodbc odbc-postgresql bison flex libreadline-dev libconfig-dev libssl-dev python3
+    apt-get install default-jdk expect golang-go locales libcmocka-dev postgresql-client postgresql mysql-client mysql-server unixodbc odbc-postgresql bison flex libreadline-dev libconfig-dev libssl-dev python3 ncat
     locale-gen en_US.UTF-8
 
 ~~~~~~~~~~~~~~~~~
@@ -71,7 +71,7 @@ Rocky Linux/RHEL
   .. code-block:: bash
 
     git clone https://github.com/bats-core/bats-core.git && cd bats-core && sudo ./install.sh /usr
-    yum --enablerepo=powertools install java-11-openjdk-devel expect golang glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC postgresql-odbc bison flex readline-devel libconfig-devel openssl-devel python3 passwd
+    yum --enablerepo=powertools install java-11-openjdk-devel expect golang glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC postgresql-odbc bison flex readline-devel libconfig-devel openssl-devel python3 passwd nmap-ncat
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Configure PostgreSQL and MySQL/MariaDB

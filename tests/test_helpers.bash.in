@@ -398,7 +398,7 @@ find_open_port() {
 	fi
 
 	# Find open port
-	open_port=`ydb_gbldir=$lockfile.gld $ydb_dist/yottadb -run findopenport^portno $start_port`
+	open_port=$(ydb_gbldir=$lockfile.gld $ydb_dist/yottadb -run findopenport^portno $start_port)
 
 	echo $open_port
 	# Record free port number that was found and time when it was found for later debugging in case it is needed

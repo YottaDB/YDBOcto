@@ -94,7 +94,7 @@ do
 	fi
 	cd $tstdir
 	subtest=$(sed 's/.*subtest \[//;s/].*//;' bats_test.out)
-	if [ -z $subtest ]; then
+	if [ -z "$subtest" ]; then
 		# If a failure happens in the "setup_file()" function in "tests/test_vista_database.bats.in",
 		# we would end up with a temporary directory in the "bats-test*" format but one that does not
 		# have a valid "bats_test.out". And so we would end up with a subtest name that is an empty

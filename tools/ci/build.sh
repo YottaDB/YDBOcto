@@ -632,7 +632,7 @@ PSQL
 			fi
 			cd $tstdir
 			subtest=$(sed 's/.*subtest \[//;s/].*//;' bats_test.out)
-			if [ -z $subtest ]; then
+			if [ -z "$subtest" ]; then
 				# See similar code in "tools/ci/vistatest.sh" for why this check is present.
 				# We don't know of any such need here but it might happen in the future so better
 				# to avoid such a situation and so have this safety check as a precaution.

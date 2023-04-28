@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -38,7 +38,6 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	FILE *		output_file;
 	char *		linestart, *lineend;
 	hash128_state_t state;
-	SqlKey *	prev_t_key;
 
 	assert(NULL != cur_plan);
 	buffer_len = INIT_M_ROUTINE_LENGTH;
@@ -123,14 +122,13 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		routine_name = octo_cmalloc(memory_chunks, MAX_ROUTINE_LEN + 1); // + 1 needed for null terminator
 		generate_name_type(CrossReference, &state, 0, routine_name, MAX_ROUTINE_LEN + 1);
 		// Copy routine name (starts with %)
-		key->cross_reference_filename = routine_name;
+		cur_plan->filename = routine_name;
 		/* The below call updates "filename" to be the full path including "routine_name" at the end */
 		status = get_full_path_of_generated_m_file(filename, sizeof(filename), &routine_name[1]);
 		if (status) {
 			free(buffer);
 			return 1;
 		}
-		cur_plan->filename = key->cross_reference_filename;
 		status = emit_physical_or_xref_plan(filename, NULL, tableName, columnName, cur_plan);
 		if (status) {
 			free(buffer);
@@ -214,46 +212,35 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	// Emit meta plan first that invokes all the Non-Deferred plans in sequence
 	fprintf(output_file, "\noctoPlan0(cursorId,wrapInTp)\n");
 	/* Emit M code to invoke xref plans first (if needed). This lets us wrap the rest of the query inside TP without TRANS2BIG
-	 * errors (which are very likely if xref plans also happen while inside TP). To do that, go through the non-deferred and
-	 * deferred plans and see if any of them rely on cross references and if so invoke that cross reference plan.
+	 * errors (which are very likely if xref plans also happen while inside TP). To do that, go through the xref plans
+	 * and invoke those cross reference plans.
 	 */
+	SqlKey *prev_t_key, *t_key;
 	prev_t_key = NULL;
-	for (cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next) {
-		SqlKey *     key, *t_key;
-		unsigned int cur_key;
+	for (cur_plan = xrefplan.next; NULL != cur_plan; cur_plan = cur_plan->next) {
+		t_key = cur_plan->outputKey;
+		/* If cross-reference-output-key is the same as the previously encountered key or the corresponding
+		 * table/column is the same, an xref has already been generated in this physical plan so skip doing
+		 * the check again for whether it has been generated or not.
+		 */
+		if ((NULL == t_key) || (prev_t_key == t_key)
+		    || ((NULL != prev_t_key) && (prev_t_key->table == t_key->table) && (prev_t_key->column == t_key->column))) {
+			continue;
+		}
+		prev_t_key = t_key;
+		UNPACK_SQL_STATEMENT(value, t_key->table->tableName, value);
+		tableName = value->v.reference;
+		UNPACK_SQL_STATEMENT(value, t_key->column->columnName, value);
+		columnName = value->v.reference;
 
-		for (cur_key = 0; cur_key < cur_plan->total_iter_keys; cur_key++) {
-			SqlValue *value;
-			char *	  tableName;
-			char *	  columnName;
-
-			key = cur_plan->iterKeys[cur_key];
-			t_key = key->cross_reference_output_key;
-			/* If cross-reference-output-key is the same as the previously encountered key or the corresponding
-			 * table/column is the same, an xref has already been generated in this physical plan so skip doing
-			 * the check again for whether it has been generated or not.
-			 */
-			if ((NULL == t_key) || (prev_t_key == t_key)
-			    || ((NULL != prev_t_key) && (prev_t_key->table == t_key->table)
-				&& (prev_t_key->column == t_key->column))) {
-				continue;
-			}
-			prev_t_key = t_key;
-			UNPACK_SQL_STATEMENT(value, t_key->table->tableName, value);
-			tableName = value->v.reference;
-			UNPACK_SQL_STATEMENT(value, t_key->column->columnName, value);
-			columnName = value->v.reference;
-
-			/* Global tables (most Octo tables) xref differs from local tables (e.g. pg_settings) */
-			if ('^' == t_key->xref_prefix[0]) {
-				fprintf(output_file, "    DO:'$GET(%s(\"%s\",\"%s\",\"%s\")) %s^%s(cursorId)\n",
-					OCTOLIT_AIM_OCTO_CACHE, tableName, columnName, OCTOLIT_AIM_SUB_COMPLETED, XREFPLAN_LIT,
-					t_key->cross_reference_filename);
-			} else {
-				fprintf(output_file, "    DO:'$DATA(%s%s(\"%s\",\"%s\",\"%s\")) %s^%s(cursorId)\n",
-					t_key->xref_prefix, config->global_names.raw_octo, OCTOLIT_XREF_STATUS, tableName,
-					columnName, XREFPLAN_LIT, t_key->cross_reference_filename);
-			}
+		/* Global tables (most Octo tables) xref differs from local tables (e.g. pg_settings) */
+		if ('^' == t_key->xref_prefix[0]) {
+			fprintf(output_file, "    DO:'$GET(%s(\"%s\",\"%s\",\"%s\")) %s^%s(cursorId)\n", OCTOLIT_AIM_OCTO_CACHE,
+				tableName, columnName, OCTOLIT_AIM_SUB_COMPLETED, XREFPLAN_LIT, cur_plan->filename);
+		} else {
+			fprintf(output_file, "    DO:'$DATA(%s%s(\"%s\",\"%s\",\"%s\")) %s^%s(cursorId)\n", t_key->xref_prefix,
+				config->global_names.raw_octo, OCTOLIT_XREF_STATUS, tableName, columnName, XREFPLAN_LIT,
+				cur_plan->filename);
 		}
 	}
 	/* NEW variables that are used across all plans. Do it only once at the start of plan instead of inside each plan

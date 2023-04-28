@@ -34,11 +34,11 @@ NSPNAME|RELNAME|ATTNAME|ATTTYPID|ATTNOTNULL|ATTTYPMOD|ATTLEN|ATTNUM|TYPBASETYPE|
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_CLASS","RELNAMESPACE","completed?")) xrefPlan^%ydboctoXYkad267rlVZ6m59u2qFgB3(cursorId)
-    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_ATTRIBUTE","ATTRELID","completed?")) xrefPlan^%ydboctoXrhrVFmIWwx028jWceQCy61(cursorId)
-    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_TYPE","OID","completed?")) xrefPlan^%ydboctoXvhqpVjZolduTu0c3uUtyBH(cursorId)
-    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_ATTRDEF","ADRELID","completed?")) xrefPlan^%ydboctoXP4JgVezp1y2WP35NRvu7A8(cursorId)
     DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_DESCRIPTION","OBJOID","completed?")) xrefPlan^%ydboctoX3SmteSmt6Etu65fUXSSiJ0(cursorId)
+    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_ATTRDEF","ADRELID","completed?")) xrefPlan^%ydboctoXP4JgVezp1y2WP35NRvu7A8(cursorId)
+    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_TYPE","OID","completed?")) xrefPlan^%ydboctoXvhqpVjZolduTu0c3uUtyBH(cursorId)
+    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_ATTRIBUTE","ATTRELID","completed?")) xrefPlan^%ydboctoXrhrVFmIWwx028jWceQCy61(cursorId)
+    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_CLASS","RELNAMESPACE","completed?")) xrefPlan^%ydboctoXYkad267rlVZ6m59u2qFgB3(cursorId)
     NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
@@ -515,11 +515,11 @@ octoPlan1(cursorId)
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_CLASS","RELNAMESPACE","completed?")) xrefPlan^%ydboctoXYkad267rlVZ6m59u2qFgB3(cursorId)
-    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_ATTRIBUTE","ATTRELID","completed?")) xrefPlan^%ydboctoXrhrVFmIWwx028jWceQCy61(cursorId)
-    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_TYPE","OID","completed?")) xrefPlan^%ydboctoXvhqpVjZolduTu0c3uUtyBH(cursorId)
-    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_ATTRDEF","ADRELID","completed?")) xrefPlan^%ydboctoXP4JgVezp1y2WP35NRvu7A8(cursorId)
     DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_DESCRIPTION","OBJOID","completed?")) xrefPlan^%ydboctoX3SmteSmt6Etu65fUXSSiJ0(cursorId)
+    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_ATTRDEF","ADRELID","completed?")) xrefPlan^%ydboctoXP4JgVezp1y2WP35NRvu7A8(cursorId)
+    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_TYPE","OID","completed?")) xrefPlan^%ydboctoXvhqpVjZolduTu0c3uUtyBH(cursorId)
+    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_ATTRIBUTE","ATTRELID","completed?")) xrefPlan^%ydboctoXrhrVFmIWwx028jWceQCy61(cursorId)
+    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_CLASS","RELNAMESPACE","completed?")) xrefPlan^%ydboctoXYkad267rlVZ6m59u2qFgB3(cursorId)
     NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
@@ -1060,10 +1060,10 @@ octoPlan1(cursorId)
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_NAMESPACE","NSPNAME","completed?")) xrefPlan^%ydboctoXyZbIP7AkmLzbognCrJLq4B(cursorId)
-    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_CLASS","RELNAMESPACE","completed?")) xrefPlan^%ydboctoXYkad267rlVZ6m59u2qFgB3(cursorId)
-    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_ATTRIBUTE","ATTRELID","completed?")) xrefPlan^%ydboctoXrhrVFmIWwx028jWceQCy61(cursorId)
     DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_TYPE","OID","completed?")) xrefPlan^%ydboctoXvhqpVjZolduTu0c3uUtyBH(cursorId)
+    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_ATTRIBUTE","ATTRELID","completed?")) xrefPlan^%ydboctoXrhrVFmIWwx028jWceQCy61(cursorId)
+    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_CLASS","RELNAMESPACE","completed?")) xrefPlan^%ydboctoXYkad267rlVZ6m59u2qFgB3(cursorId)
+    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_NAMESPACE","NSPNAME","completed?")) xrefPlan^%ydboctoXyZbIP7AkmLzbognCrJLq4B(cursorId)
     NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
@@ -1258,10 +1258,10 @@ octoPlan2(cursorId)
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_NAMESPACE","NSPNAME","completed?")) xrefPlan^%ydboctoXyZbIP7AkmLzbognCrJLq4B(cursorId)
-    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_CLASS","RELNAMESPACE","completed?")) xrefPlan^%ydboctoXYkad267rlVZ6m59u2qFgB3(cursorId)
-    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_ATTRIBUTE","ATTRELID","completed?")) xrefPlan^%ydboctoXrhrVFmIWwx028jWceQCy61(cursorId)
     DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_TYPE","OID","completed?")) xrefPlan^%ydboctoXvhqpVjZolduTu0c3uUtyBH(cursorId)
+    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_ATTRIBUTE","ATTRELID","completed?")) xrefPlan^%ydboctoXrhrVFmIWwx028jWceQCy61(cursorId)
+    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_CLASS","RELNAMESPACE","completed?")) xrefPlan^%ydboctoXYkad267rlVZ6m59u2qFgB3(cursorId)
+    DO:'$GET(^%ydbAIMOctoCache("PG_CATALOG.PG_NAMESPACE","NSPNAME","completed?")) xrefPlan^%ydboctoXyZbIP7AkmLzbognCrJLq4B(cursorId)
     NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)

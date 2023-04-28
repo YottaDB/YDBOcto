@@ -328,9 +328,6 @@ typedef struct SqlKey {
 	// If this is a cross reference key which is not an output key, this will point to the
 	// output key, which we can snag the column name from
 	struct SqlKey *cross_reference_output_key;
-	// If this is a cross refence key, this value will point to the filename used to store the
-	// code to provide the cross reference
-	char *cross_reference_filename;
 } SqlKey;
 
 // Helper functions

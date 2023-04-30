@@ -39,8 +39,8 @@ octoPlan0(cursorId,wrapInTp)
 octoPlan1(cursorId)
 --
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",5))
-    SET %ydboctoin1(%ydboctoexpr)=""
-    SET %ydboctoin1="" FOR  DO:$DATA(%ydboctoin1(%ydboctoin1))  SET %ydboctoin1=$ORDER(%ydboctoin1(%ydboctoin1)) QUIT:""=%ydboctoin1
+    SET %ydboctoin0(%ydboctoexpr)=""
+    SET %ydboctoin0="" FOR  DO:$DATA(%ydboctoin0(%ydboctoin0))  SET %ydboctoin0=$ORDER(%ydboctoin0(%ydboctoin0)) QUIT:""=%ydboctoin0
 --
     . SET %ydboctocursor(cursorId,"keys",1,"ORDER1","STATUS")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"ORDER1","STATUS")) IF $DATA(^%ydbAIMDkhryjZbAGBxsFRR7PrVfA4(3,%ydboctocursor(cursorId,"keys",1,"ORDER1","STATUS"))) DO
     . . SET %ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID")=0
@@ -73,8 +73,8 @@ octoPlan1(cursorId)
 octoPlan2(cursorId)
 --
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",5))
-    SET %ydboctoin1(%ydboctoexpr)=""
-    SET %ydboctoin1="" FOR  DO:$DATA(%ydboctoin1(%ydboctoin1))  SET %ydboctoin1=$ORDER(%ydboctoin1(%ydboctoin1)) QUIT:""=%ydboctoin1
+    SET %ydboctoin0(%ydboctoexpr)=""
+    SET %ydboctoin0="" FOR  DO:$DATA(%ydboctoin0(%ydboctoin0))  SET %ydboctoin0=$ORDER(%ydboctoin0(%ydboctoin0)) QUIT:""=%ydboctoin0
 --
     . SET %ydboctocursor(cursorId,"keys",1,"ORDER1","STATUS")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"ORDER1","STATUS")) IF $DATA(^%ydbAIMDkhryjZbAGBxsFRR7PrVfA4(3,%ydboctocursor(cursorId,"keys",1,"ORDER1","STATUS"))) DO
     . . SET %ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID")=0

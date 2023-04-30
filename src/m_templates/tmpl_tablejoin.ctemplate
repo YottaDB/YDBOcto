@@ -57,10 +57,10 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 			}
 
 			int	in_value_list_id;
-			in_value_list_id = key->unique_id;	/* assign local variable name to use to store list of values
-								 * (under a subtree) corresponding to fixed keys
-								 * (e.g. %ydboctoin1, %ydboctoin2 etc.).
-								 */
+			in_value_list_id = cur_key;	/* assign local variable name to use to store list of values
+							 * (under a subtree) corresponding to fixed keys
+							 * (e.g. %ydboctoin1, %ydboctoin2 etc.).
+							 */
 			TMPL(tmpl_print_dots, dot_count);
 			%{}NEW {{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
@@ -137,8 +137,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 					int	in_value_list_id;
 
 					/* This is a list of values on the right hand side of an IN operator */
-					in_value_list_id = key->unique_id;
-					assert(in_value_list_id);
+					in_value_list_id = cur_key;
 					TMPL(tmpl_print_dots, dot_count);
 					%{}SET {{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}="" FOR  {}%
 					%{}DO:$DATA({{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}{}%

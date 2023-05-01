@@ -368,6 +368,15 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 		echo "# See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/977#note_923383570 for details"
 		is_old_commit_with_issues=1
 	fi
+	# Check if chosen older commit is in the range c1fab585..fe17e8a2. These commits had an issue that was fixed in
+	# 4e25d39d and that could cause various tests to take hours to complete causing the test to timeout in the pipeline
+	# or to take more than a day when run in-house (using "debug" as the value of "$subtaskname"). Therefore skip these commits.
+	if [[ ("c1fab585" == "$commitsha") || ("6b24314a" == "$commitsha")
+			|| ("03736ba5" == "$commitsha") || ("fe17e8a2" == "$commitsha") ]]; then
+		echo "# Skipping $commitsha as it has a known issue that can cause job to timeout"
+		echo "# See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1375#background for details"
+		is_old_commit_with_issues=1
+	fi
 	# Check if chosen older commit is in the range 7fa4406a..f13aff88 (both commits inclusive)
 	# This is because the function text definition is not stored correctly in 7fa4406a (fixed YDBOcto#519) and will be fixed in
 	# the commit after f13aff88a. See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1182#note_1301167074 for details.

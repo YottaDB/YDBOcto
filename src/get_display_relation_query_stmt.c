@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -52,6 +52,7 @@ SqlStatement *get_display_relation_query_stmt(ParseContext *parse_context) {
 	int	  save_cur_input_index = cur_input_index;
 	int	  save_old_input_index = old_input_index;
 	char *	  save_input_buffer_combined = input_buffer_combined;
+	char *	  save_old_input_line_begin = old_input_line_begin;
 	int	  save_leading_spaces = leading_spaces;
 	int (*save_cur_input_more)();
 	assert(cur_input_more == &readline_get_more);
@@ -69,6 +70,7 @@ SqlStatement *get_display_relation_query_stmt(ParseContext *parse_context) {
 	cur_input_index = 0;
 	old_input_index = 0;
 	input_buffer_combined = display_all_relation_query_str;
+	old_input_line_begin = input_buffer_combined;
 	cur_input_more = no_more;
 
 	// Invoke parse_line
@@ -79,6 +81,7 @@ SqlStatement *get_display_relation_query_stmt(ParseContext *parse_context) {
 	cur_input_index = save_cur_input_index;
 	old_input_index = save_old_input_index;
 	input_buffer_combined = save_input_buffer_combined;
+	old_input_line_begin = save_old_input_line_begin;
 	cur_input_more = save_cur_input_more;
 	leading_spaces = save_leading_spaces;
 	eof_hit = save_eof_hit;

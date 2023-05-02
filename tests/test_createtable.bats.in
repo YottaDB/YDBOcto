@@ -923,3 +923,16 @@ OCTO
 	verify_output TC076_errors output.txt
 }
 
+@test "TC077 : OCTO913 : Test old_input_line_begin maintenance in readline_get_more.c (used to asert fail)" {
+	# Run only if build is of type "Debug", `seedreload` config is only available in "Debug" build
+	if [[ "Debug" != @CMAKE_BUILD_TYPE@ ]]; then
+		skip
+	fi
+	# This test used to previously assert fail in the second "load_fixture" call below as follows.
+	#	octo: src/readline_get_more.c:73: readline_get_more: Assertion `old_input_line_begin >= input_buffer_combined' failed.
+	#	%YDB-F-KILLBYSIGSINFO1, YottaDB process 93300 has been killed by a signal 6 at address 0x00007F5CC3C8BA7C (vaddr 0x000000E400016C74)
+	echo 'seedreload = "TRUE"' > octo.conf
+	load_fixture vista-mini.sql || true
+	load_fixture vista-mini.sql || true
+}
+

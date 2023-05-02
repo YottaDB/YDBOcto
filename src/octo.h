@@ -691,14 +691,18 @@ typedef enum DDLDependencyType {
 		 * by min(cur_input_max * 2, QUERY_LENGTH) + padding (for the \n\0)                                \
 		 */                                                                                                \
 		if (QUERY_LENGTH >= (cur_input_max - cur_input_index - padding)) {                                 \
-			int   resize_amt;                                                                          \
-			char *tmp;                                                                                 \
+			int    resize_amt;                                                                         \
+			size_t old_begin_index;                                                                    \
+			char * tmp;                                                                                \
                                                                                                                    \
 			resize_amt = ((QUERY_LENGTH > (cur_input_max * 2)) ? QUERY_LENGTH : (cur_input_max * 2));  \
 			tmp = malloc(resize_amt + NEWLINE_NEEDED + 1);                                             \
 			memcpy(tmp, input_buffer_combined, cur_input_index);                                       \
+			assert(old_input_line_begin >= input_buffer_combined);                                     \
+			old_begin_index = old_input_line_begin - input_buffer_combined;                            \
 			free(input_buffer_combined);                                                               \
 			input_buffer_combined = tmp;                                                               \
+			old_input_line_begin = &input_buffer_combined[old_begin_index];                            \
 			cur_input_max = resize_amt;                                                                \
 		}                                                                                                  \
 		memcpy(&input_buffer_combined[cur_input_index], QUERY, QUERY_LENGTH);                              \

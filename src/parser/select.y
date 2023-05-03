@@ -142,13 +142,31 @@ query_specification
       SqlStatement		*join_statement, *select_list, *ret;
       SqlTableAlias		*alias;
       char			*table_name = "OCTOONEROWTABLE";
+      SqlColumnListAlias        *start_cla, *cur_cla;
 
       select_list = $select_list;
-      if (NULL == select_list->v.column_list_alias->column_list) {
-        ERROR(ERR_SELECT_STAR_NO_TABLES, NULL);
-        yyerror(NULL, NULL, &select_list, NULL, NULL, NULL);
-        YYERROR;
-      }
+      UNPACK_SQL_STATEMENT(start_cla, select_list, column_list_alias);
+      cur_cla = start_cla;
+      do {
+	SqlColumnList	*column_list;
+	SqlValue	*value;
+
+        UNPACK_SQL_STATEMENT(column_list, cur_cla->column_list, column_list);
+	if (value_STATEMENT == column_list->value->type) {
+	  UNPACK_SQL_STATEMENT(value, column_list->value, value);
+	  if (SELECT_ASTERISK == value->type) {
+	    /* We need to issue an ERR_SELECT_STAR_NO_TABLES error here. But doing so could issue misleading errors in case
+	     * the query has a syntax error (see https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1378#note_1379104917
+	     * for more details). Therefore, we defer issuing this error until "qualify_query()" time as by that time,
+	     * the full line would be parsed and any syntax errors in the query would be issued by then. We record this by
+	     * storing a NULL pointer in "value->v.string_literal".
+	     */
+	    assert(NULL != value->v.string_literal);
+	    value->v.string_literal = NULL;
+          }
+	}
+        cur_cla = cur_cla->next;
+      } while (cur_cla != start_cla);
       SQL_STATEMENT(join_statement, join_STATEMENT);
       MALLOC_STATEMENT(join_statement, join, SqlJoin);
       UNPACK_SQL_STATEMENT(join, join_statement, join);
@@ -194,8 +212,21 @@ select_list
 
 select_sublist
   : ASTERISK {
-      SQL_COLUMN_LIST_ALIAS_STATEMENT($$);
-      $$->loc = yyloc; /* note down the location of the ASTERISK for later use in populate_data_type (for error reporting) */
+      SqlStatement	*ret;
+
+      SQL_COLUMN_LIST_ALIAS_STATEMENT(ret);
+
+      SqlColumnListAlias	*cla;
+      UNPACK_SQL_STATEMENT(cla, ret, column_list_alias);
+      SQL_COLUMN_LIST_STATEMENT(cla->column_list);
+
+      SqlColumnList *column_list;
+      UNPACK_SQL_STATEMENT(column_list, cla->column_list, column_list);
+      SQL_VALUE_STATEMENT(column_list->value, SELECT_ASTERISK, ""); /* note down the location of the ASTERISK for later use
+								     * in populate_data_type (for error reporting).
+								     */
+      cla->column_list->loc = yyloc; /* note down location of ASTERISK for later use in populate_data_type (for error reporting) */
+      $$ = ret;
     }
   | derived_column { $$ = $derived_column; }
   ;

@@ -637,6 +637,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				}
 
 				SqlStatement *column_name_list;
+				/* Not using SQL_COLUMN_LIST_STATEMENT below as we don't want to malloc SqlColumnList */
 				SQL_STATEMENT(column_name_list, column_list_STATEMENT);
 				column_name_list->v.column_list = start_cl;
 				constraint->definition = column_name_list;

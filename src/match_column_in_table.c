@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -27,7 +27,9 @@ SqlColumnListAlias *match_column_in_table(SqlTableAlias *table_alias, char *colu
 					  boolean_t issue_error) {
 	SqlColumnListAlias *cur_column_list, *start_column_list, *ret;
 
-	// If there is no column list for this table alias, we won't match anything
+	/* If there is no column list for this table alias (possible in case of error scenarios),
+	 * no match possible so return right away.
+	 */
 	if (NULL == table_alias->column_list)
 		return NULL;
 	UNPACK_SQL_STATEMENT(start_column_list, table_alias->column_list, column_list_alias);

@@ -126,6 +126,7 @@ int emit_check_constraint(char **buffer, int *buffer_size, char **buff_ptr, stru
 			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "NULL");
 			break;
 		case TABLE_ASTERISK:
+		case SELECT_ASTERISK:
 		case PARAMETER_VALUE:
 		case FUNCTION_HASH:
 		case DELIM_VALUE:

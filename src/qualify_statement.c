@@ -342,6 +342,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		case FUNCTION_HASH:
 		case DELIM_VALUE:
 		case IS_NULL_LITERAL:
+		case SELECT_ASTERISK:
 		case INVALID_SqlValueType:
 		case UNKNOWN_SqlValueType:
 			assert(FALSE);

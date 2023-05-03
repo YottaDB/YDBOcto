@@ -48,6 +48,7 @@ SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *ordering_
 			ERROR(ERR_ORDER_BY_POSITION_NOT_INTEGER, "", value->v.reference)
 			yyerror(NULL, NULL, &(sort_key), NULL, NULL, NULL);
 			return NULL;
+		case SELECT_ASTERISK:
 		case FUNCTION_NAME:
 		case FUNCTION_HASH:
 		case DELIM_VALUE:

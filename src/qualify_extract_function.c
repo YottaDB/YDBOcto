@@ -287,6 +287,7 @@ int qualify_extract_function(SqlStatement *stmt, SqlTable *table, SqlValueType *
 		case INVALID_SqlValueType:
 		case PARAMETER_VALUE:
 		case TABLE_ASTERISK:
+		case SELECT_ASTERISK:
 		case BOOLEAN_OR_STRING_LITERAL:
 			/* Even though a literal like 'f' or 't' is specified as a function parameter, it would be
 			 * converted to a STRING_LITERAL as part of the 2nd call to "qualify_check_constraint()" in

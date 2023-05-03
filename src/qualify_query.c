@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -321,42 +321,59 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	asterisk_list = NULL;
 	/* Go through the select column list (`select n1.id,*,n2.id ...`) to find/process ASTERISK */
 	do {
-		if (NULL == cla_cur->column_list) {
-			/* Came across an ASTERISK in the select column list */
-			if (NULL == asterisk_list) {
-				SqlJoin *next_join = NULL;
-
-				if (prev_end != start_join->prev) {
-					/* Parent join exists. Remove them temporarily so process_asterisk() expands
-					 * to only all current query level columns and not parent query columns
+		SqlColumnList *column_list;
+		SqlValue *     value;
+		UNPACK_SQL_STATEMENT(column_list, cla_cur->column_list, column_list);
+		if (value_STATEMENT == column_list->value->type) {
+			UNPACK_SQL_STATEMENT(value, column_list->value, value);
+			if (SELECT_ASTERISK == value->type) {
+				/* Came across an ASTERISK in the select column list */
+				if (NULL == value->v.string_literal) {
+					/* This is a case of ERR_SELECT_STAR_NO_TABLES error which should have been
+					 * issued under the "query_specification" rule in "src/parser/select.y" but
+					 * was delayed to avoid misleading error messages. Now that the possibility of
+					 * a misleading error message is gone (any syntax errors would have been issued
+					 * already) issue the deferred error here.
 					 */
-					next_join = prev_end->next;
-					start_join->prev->next = next_join;
-					next_join->prev = start_join->prev;
-					start_join->prev = prev_end;
-					prev_end->next = start_join;
+					ERROR(ERR_SELECT_STAR_NO_TABLES, NULL);
+					yyerror(NULL, NULL, &cla_cur->column_list, NULL, NULL, NULL);
+					return 1;
 				}
-				asterisk_list = process_asterisk(start_join, select_list->loc);
-				if (NULL != next_join) {
-					/* Add back the parent join nodes */
-					prev_end->next = next_join;
-					start_join->prev = next_join->prev;
-					next_join->prev->next = start_join;
-					next_join->prev = prev_end;
-				}
-			}
-			if (cla_cur->next == cla_cur) {
-				/* cla_cur is the only member of select column list (`select * from ..`) */
-				select_list->v.column_list_alias = asterisk_list;
-			} else {
-				SqlColumnListAlias *cla_alias;
+				if (NULL == asterisk_list) {
+					SqlJoin *next_join = NULL;
 
-				cla_alias = copy_column_list_alias_list(asterisk_list, NULL, NULL);
-				/* ASTERISK is present among other columns `select n1.id,*,n2.id from ..`
-				 * Replace dummy node (current cla_cur) with column alias list corresponding
-				 * to ASTERISK in the position where it was seen in select column list.
-				 */
-				REPLACE_COLUMNLISTALIAS(cla_cur, cla_alias, cla_head, select_list);
+					if (prev_end != start_join->prev) {
+						/* Parent join exists. Remove them temporarily so process_asterisk() expands
+						 * to only all current query level columns and not parent query columns
+						 */
+						next_join = prev_end->next;
+						start_join->prev->next = next_join;
+						next_join->prev = start_join->prev;
+						start_join->prev = prev_end;
+						prev_end->next = start_join;
+					}
+					asterisk_list = process_asterisk(start_join, cla_cur->column_list->loc);
+					if (NULL != next_join) {
+						/* Add back the parent join nodes */
+						prev_end->next = next_join;
+						start_join->prev = next_join->prev;
+						next_join->prev->next = start_join;
+						next_join->prev = prev_end;
+					}
+				}
+				if (cla_cur->next == cla_cur) {
+					/* cla_cur is the only member of select column list (`select * from ..`) */
+					select_list->v.column_list_alias = asterisk_list;
+				} else {
+					SqlColumnListAlias *cla_alias;
+
+					cla_alias = copy_column_list_alias_list(asterisk_list, NULL, NULL);
+					/* ASTERISK is present among other columns `select n1.id,*,n2.id from ..`
+					 * Replace dummy node (current cla_cur) with column alias list corresponding
+					 * to ASTERISK in the position where it was seen in select column list.
+					 */
+					REPLACE_COLUMNLISTALIAS(cla_cur, cla_alias, cla_head, select_list);
+				}
 			}
 		}
 		cla_cur = cla_cur->next;

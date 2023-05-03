@@ -1,6 +1,6 @@
-ERROR:  SELECT * with no tables specified is not valid
 ERROR:  LINE 1:1: SELECT * AFRO names;
-ERROR:                   ^
-[SOCKET] [ERROR] PATH:LINENUM DATE TIME: ERR_SELECT_STAR_NO_TABLES: SELECT * with no tables specified is not valid
+ERROR:                     ^^^^
+ERROR:  syntax error, unexpected IDENTIFIER_ALONE, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 [SOCKET] [ERROR] PATH:LINENUM DATE TIME: CUSTOM_ERROR: LINE 1:1: SELECT * AFRO names;
-[SOCKET] [ERROR] PATH:LINENUM DATE TIME: CUSTOM_ERROR:                  ^
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME: CUSTOM_ERROR:                    ^^^^
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME: CUSTOM_ERROR: syntax error, unexpected IDENTIFIER_ALONE, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE

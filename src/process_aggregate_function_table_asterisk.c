@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -54,41 +54,40 @@ void process_aggregate_function_table_asterisk(SqlAggregateFunction *af) {
 	table_alias_stmt = column_alias->table_alias_stmt;
 	assert(NULL != table_alias_stmt);
 	UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
-	if (NULL != table_alias->column_list) {
-		SqlColumnListAlias *inner_cur_cla, *inner_start_cla;
-		SqlStatement *	    column_alias_stmt;
-		SqlColumnAlias *    column_alias;
-		SqlColumnList *	    cl;
 
-		UNPACK_SQL_STATEMENT(inner_start_cla, table_alias->column_list, column_list_alias);
-		inner_cur_cla = inner_start_cla;
-		if (AGGREGATE_COUNT_DISTINCT != type) {
-			/* For AVG, SUM, MIN & MAX aggregate functions having a TABLENAME.ASTERISK is NOT valid even if it
-			 * only has a single column. It is treated as a "record" type by Postgres and so Octo follows the same
-			 * model and issues an error here. Return table.* as is and let populate_data_type() issue an error.
-			 */
-			return;
-		} else {
-			/* COUNT(DISTINCT t1.*) behaves differently from COUNT(DISTINCT t1.col) in terms of NULL value counting
-			 * even if t1 has only one column. See YDBOcto #759 for details. Therefore, need to distinguish the two.
-			 * Hence the type change below. COUNT(DISTINCT t1.col) will continue to have AGGREGATE_COUNT_DISTINCT
-			 * as the type. COUNT(DISTINCT t1.*) will have type AGGREGATE_COUNT_DISTINCT_TABLE_ASTERISK.
-			 */
-			af->type = AGGREGATE_COUNT_DISTINCT_TABLE_ASTERISK;
-		}
-		do {
-			OCTO_CMALLOC_STRUCT(cl, SqlColumnList);
-			dqinit(cl);
-			column_alias = get_column_alias_for_column_list_alias(inner_cur_cla, table_alias_stmt);
-			PACK_SQL_STATEMENT(column_alias_stmt, column_alias, column_alias);
-			cl->value = column_alias_stmt;
-			if (NULL == cl_new)
-				cl_new = cl;
-			else
-				dqappend(cl_new, cl);
-
-			inner_cur_cla = inner_cur_cla->next;
-		} while (inner_cur_cla != inner_start_cla);
-		specification_list->v.column_list = cl_new;
+	SqlColumnListAlias *inner_cur_cla, *inner_start_cla;
+	SqlColumnList *	    cl;
+	assert(NULL != table_alias->column_list);
+	UNPACK_SQL_STATEMENT(inner_start_cla, table_alias->column_list, column_list_alias);
+	inner_cur_cla = inner_start_cla;
+	if (AGGREGATE_COUNT_DISTINCT != type) {
+		/* For AVG, SUM, MIN & MAX aggregate functions having a TABLENAME.ASTERISK is NOT valid even if it
+		 * only has a single column. It is treated as a "record" type by Postgres and so Octo follows the same
+		 * model and issues an error here. Return table.* as is and let populate_data_type() issue an error.
+		 */
+		return;
+	} else {
+		/* COUNT(DISTINCT t1.*) behaves differently from COUNT(DISTINCT t1.col) in terms of NULL value counting
+		 * even if t1 has only one column. See YDBOcto #759 for details. Therefore, need to distinguish the two.
+		 * Hence the type change below. COUNT(DISTINCT t1.col) will continue to have AGGREGATE_COUNT_DISTINCT
+		 * as the type. COUNT(DISTINCT t1.*) will have type AGGREGATE_COUNT_DISTINCT_TABLE_ASTERISK.
+		 */
+		af->type = AGGREGATE_COUNT_DISTINCT_TABLE_ASTERISK;
 	}
+	do {
+		OCTO_CMALLOC_STRUCT(cl, SqlColumnList);
+		dqinit(cl);
+		column_alias = get_column_alias_for_column_list_alias(inner_cur_cla, table_alias_stmt);
+
+		SqlStatement *column_alias_stmt;
+		PACK_SQL_STATEMENT(column_alias_stmt, column_alias, column_alias);
+		cl->value = column_alias_stmt;
+		if (NULL == cl_new)
+			cl_new = cl;
+		else
+			dqappend(cl_new, cl);
+
+		inner_cur_cla = inner_cur_cla->next;
+	} while (inner_cur_cla != inner_start_cla);
+	specification_list->v.column_list = cl_new;
 }

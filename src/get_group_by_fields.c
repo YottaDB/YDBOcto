@@ -60,6 +60,7 @@ group_by_fields_t *get_group_by_fields(SqlStatement *stmt) {
 			 * as the expectation is that they would have been converted to
 			 * SqlColumnAlias during the invocation of this function.
 			 */
+		case SELECT_ASTERISK:
 		case BOOLEAN_VALUE:
 		case NUMERIC_LITERAL:
 		case INTEGER_LITERAL:

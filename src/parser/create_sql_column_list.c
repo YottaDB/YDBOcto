@@ -20,15 +20,13 @@ SqlStatement *create_sql_column_list(SqlStatement *elem, SqlStatement *tail, YYL
 	SqlColumnList *column_list, *cl_tail;
 	SqlStatement * ret;
 
-	SQL_STATEMENT(ret, column_list_STATEMENT);
-	MALLOC_STATEMENT(ret, column_list, SqlColumnList);
+	SQL_COLUMN_LIST_STATEMENT(ret);
 	UNPACK_SQL_STATEMENT(column_list, ret, column_list);
 	if (NULL != llocp) {
 		ret->loc = *llocp;
 	}
 	column_list->value = elem;
 	assert(0 == column_list->qualify_extract_function_cycle);
-	dqinit(column_list);
 	if (NULL != tail) {
 		UNPACK_SQL_STATEMENT(cl_tail, tail, column_list);
 		dqappend(column_list, cl_tail);

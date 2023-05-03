@@ -940,6 +940,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 		case FUNCTION_HASH:
 		case DELIM_VALUE:
 		case IS_NULL_LITERAL:
+		case SELECT_ASTERISK:
 		case INVALID_SqlValueType:
 		case UNKNOWN_SqlValueType:
 			/* These usages should not be possible. Assert accordingly. */

@@ -3,6 +3,6 @@
 
 select * asdfasdfsdf;
 
-[ERROR]: ERR_SELECT_STAR_NO_TABLES: SELECT * with no tables specified is not valid
 LINE 3:1: select * asdfasdfsdf;
-                 ^
+                   ^^^^^^^^^^^
+syntax error, unexpected IDENTIFIER_ALONE, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE

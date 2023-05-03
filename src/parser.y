@@ -1206,7 +1206,7 @@ parenless_function
   : PARENLESS_FUNCTION parenless_function_tail {
       SQL_STATEMENT($$, value_STATEMENT);
       MALLOC_STATEMENT($$, value, SqlValue);
-      SqlStatement *fc_statement, *cl_statement;
+      SqlStatement *fc_statement;
       SqlFunctionCall *fc;
       SqlValue *value;
       UNPACK_SQL_STATEMENT(value, $$, value);
@@ -1217,14 +1217,7 @@ parenless_function
       UNPACK_SQL_STATEMENT(fc, fc_statement, function_call);
       fc->function_name = $PARENLESS_FUNCTION;
       value->v.calculated = fc_statement;
-
-      SQL_STATEMENT(cl_statement, column_list_STATEMENT);
-      MALLOC_STATEMENT(cl_statement, column_list, SqlColumnList);
-      SqlColumnList *column_list;
-      UNPACK_SQL_STATEMENT(column_list, cl_statement, column_list);
-      dqinit(column_list);
-      fc->parameters = cl_statement;
-
+      SQL_COLUMN_LIST_STATEMENT(fc->parameters);
       // Change the function name value to be a string literal rather than column reference
       UNPACK_SQL_STATEMENT(value, $PARENLESS_FUNCTION, value);
       value->type = FUNCTION_NAME;

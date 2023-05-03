@@ -1,10 +1,21 @@
 -- Error cases
+
+-- Test of ERR_SELECT_STAR_NO_TABLES error
 select *;
+select 1,*;
+select true,'a',*;
+
+-- Test of ERR_MISSING_FROM_ENTRY error
 select n1.*;
+select 1,n1.*;
 select n1.* from names n2;
 select * from (select n1.* from names n2);
+
+-- Test of ERR_SELECT_STAR_NO_TABLES error
 select * as alias from names;
 select * alias from names;
+
+-- Test of ERR_SUBQUERY_ONE_COLUMN error
 select (select names.*) from names;
 
 -- ORDER BY TABLENAME.ASTERISK usage with wrong TABLENAME
@@ -12,32 +23,41 @@ select * from (select firstname,lastname,id from names)n1 order by n2.*,n1.id;
 select id from names n1 order by n2.*;
 select n1.* from names n1 order by *,n1.id;
 [ERROR]: ERR_SELECT_STAR_NO_TABLES: SELECT * with no tables specified is not valid
-LINE 1:1: select *;
+LINE 2:1: select *;
                  ^
+[ERROR]: ERR_SELECT_STAR_NO_TABLES: SELECT * with no tables specified is not valid
+LINE 3:1: select 1,*;
+                   ^
+[ERROR]: ERR_SELECT_STAR_NO_TABLES: SELECT * with no tables specified is not valid
+LINE 4:1: select true,'a',*;
+                          ^
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
-LINE 2:1: select n1.*;
+LINE 6:1: select n1.*;
                  ^^^^
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
-LINE 3:1: select n1.* from names n2;
+LINE 7:1: select 1,n1.*;
+                   ^^^^
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+LINE 8:1: select n1.* from names n2;
                  ^^^^
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
-LINE 4:1: select * from (select n1.* from names n2);
+LINE 9:1: select * from (select n1.* from names n2);
                                 ^^^^
-[ERROR]: ERR_SELECT_STAR_NO_TABLES: SELECT * with no tables specified is not valid
-LINE 5:1: select * as alias from names;
-                 ^
-[ERROR]: ERR_SELECT_STAR_NO_TABLES: SELECT * with no tables specified is not valid
-LINE 6:1: select * alias from names;
-                 ^
+LINE 11:1: select * as alias from names;
+                    ^^
+syntax error, unexpected AS, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+LINE 12:1: select * alias from names;
+                    ^^^^^
+syntax error, unexpected IDENTIFIER_ALONE, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
-LINE 7:1: select (select names.*) from names;
-                 ^^^^^^^^^^^^^^^^
+LINE 14:1: select (select names.*) from names;
+                  ^^^^^^^^^^^^^^^^
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
-LINE 9:1: ...(select firstname,lastname,id from names)n1 order by n2.*,n1.id;
-                                                                  ^^^^
+LINE 16:1: ...(select firstname,lastname,id from names)n1 order by n2.*,n1.id;
+                                                                   ^^^^
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
-LINE 10:1: select id from names n1 order by n2.*;
+LINE 17:1: select id from names n1 order by n2.*;
                                             ^^^^
-LINE 11:1: select n1.* from names n1 order by *,n1.id;
+LINE 18:1: select n1.* from names n1 order by *,n1.id;
                                               ^
 syntax error, unexpected ASTERISK

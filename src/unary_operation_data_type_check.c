@@ -61,6 +61,9 @@ int unary_operation_data_type_check(SqlUnaryOperation *unary, SqlValueType child
 		case NUMERIC_LITERAL:
 			*type = child_type[0];
 			break;
+		case SELECT_ASTERISK:
+			assert(FALSE);
+			break;
 		}
 		break;
 	case BOOLEAN_NOT:
@@ -98,6 +101,9 @@ int unary_operation_data_type_check(SqlUnaryOperation *unary, SqlValueType child
 		case BOOLEAN_VALUE:
 		case NUL_VALUE:
 			*type = child_type[0];
+			break;
+		case SELECT_ASTERISK:
+			assert(FALSE);
 			break;
 		}
 		break;

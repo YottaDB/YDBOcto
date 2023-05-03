@@ -263,6 +263,10 @@ typedef enum SqlValueType {
 				    * context makes them a boolean value and if not they are reset to STRING_LITERAL.
 				    * So this is a temporary state that is only there for a short time during parsing.
 				    */
+	SELECT_ASTERISK,	   /* To note down a "*" specified in a SELECT column list. This exists only for a short time
+				    * until it is expanded to the list of columns derived from the FROM/JOIN list of tables.
+				    * So most of the code after early parsing should expect to not see this at all.
+				    */
 	INVALID_SqlValueType
 } SqlValueType;
 

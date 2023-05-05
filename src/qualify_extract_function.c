@@ -245,22 +245,8 @@ int qualify_extract_function(SqlStatement *stmt, SqlTable *table, SqlValueType *
 				yyerror(&stmt->loc, NULL, NULL, NULL, NULL, NULL);
 				result = 1;
 			} else {
-				ydb_buffer_t ydboctoTblExtract;
-				ydb_buffer_t subs[2];
-				int	     status;
-				/* Note down the column name as encountered in this EXTRACT FUNCTION. */
-				YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTOTBLEXTRACT, &ydboctoTblExtract);
-				YDB_LITERAL_TO_BUFFER(OCTOLIT_COLUMNS, &subs[0]);
-				YDB_STRING_TO_BUFFER(column_name, &subs[1]);
-				status = ydb_set_s(&ydboctoTblExtract, 2, &subs[0], NULL);
-				assert(YDB_OK == status);
-				YDB_ERROR_CHECK(status);
-				if (YDB_OK != status) {
-					result = 1;
-				} else {
-					/* Now that column qualification is successful, do data type population for caller */
-					*type = get_sqlvaluetype_from_sqldatatype(match_column->data_type_struct.data_type, FALSE);
-				}
+				/* Now that column qualification is successful, do data type population for caller */
+				*type = get_sqlvaluetype_from_sqldatatype(match_column->data_type_struct.data_type, FALSE);
 				if (!is_first_pass) {
 					MALLOC_STATEMENT(stmt, column_alias, SqlColumnAlias);
 					stmt->type = column_alias_STATEMENT;

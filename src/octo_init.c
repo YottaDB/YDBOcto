@@ -426,6 +426,10 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 	}
 	zroutines_len = ZRO_INIT_ALLOC;
 	YDB_MALLOC_BUFFER(&zroutines_buffer, zroutines_len);
+	if (NULL == zroutines_buffer.buf_addr) {
+		ERROR(ERR_SYSCALL, "YDB_MALLOC_BUFFER", errno, strerror(errno));
+		return 1;
+	}
 	/* We need space at the end of "zroutines_buffer" to store a ' ' and '\0' (as this is needed by the "while" loop
 	 * that is invoked later in this function to set "config->plan_src_dir". Hence reduce len_alloc by 2 bytes.
 	 */
@@ -440,12 +444,12 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 			YDB_FREE_BUFFER(&zroutines_buffer);
 			zroutines_len = (zroutines_from_file_len * 2) + 2; /* "* 2" to double size, "+ 2" for ' ' and '\0' at end */
 			YDB_MALLOC_BUFFER(&zroutines_buffer, zroutines_len);
-			YDB_COPY_STRING_TO_BUFFER(zroutines_from_file, &zroutines_buffer, done);
-			if (!done) {
-				ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed");
-				YDB_FREE_BUFFER(&zroutines_buffer);
+			if (NULL == zroutines_buffer.buf_addr) {
+				ERROR(ERR_SYSCALL, "YDB_MALLOC_BUFFER", errno, strerror(errno));
 				return 1;
 			}
+			YDB_COPY_STRING_TO_BUFFER(zroutines_from_file, &zroutines_buffer, done);
+			assert(done);
 		}
 		do {
 			// Shift start of buffer to after the zroutines path pulled from the configuration file
@@ -466,13 +470,12 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 				zroutines_buffer.buf_addr = zroutines_buf_start;
 				YDB_FREE_BUFFER(&zroutines_buffer);
 				YDB_MALLOC_BUFFER(&zroutines_buffer, zroutines_len);
-				YDB_COPY_STRING_TO_BUFFER(zroutines_from_file, &zroutines_buffer, done);
-				if (!done) {
-					ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed");
-					zroutines_buffer.buf_addr = zroutines_buf_start;
-					YDB_FREE_BUFFER(&zroutines_buffer);
+				if (NULL == zroutines_buffer.buf_addr) {
+					ERROR(ERR_SYSCALL, "YDB_MALLOC_BUFFER", errno, strerror(errno));
 					return 1;
 				}
+				YDB_COPY_STRING_TO_BUFFER(zroutines_from_file, &zroutines_buffer, done);
+				assert(done);
 			} else {
 				YDB_ERROR_CHECK(status);
 				if (YDB_OK != status) {
@@ -513,6 +516,10 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 			zroutines_len = zroutines_buffer.len_used + 2; // Null terminator plus padding space
 			YDB_FREE_BUFFER(&zroutines_buffer);
 			YDB_MALLOC_BUFFER(&zroutines_buffer, zroutines_len);
+			if (NULL == zroutines_buffer.buf_addr) {
+				ERROR(ERR_SYSCALL, "YDB_MALLOC_BUFFER", errno, strerror(errno));
+				return 1;
+			}
 			status = ydb_get_s(&dollar_zroutines_buffer, 0, NULL, &zroutines_buffer);
 		} else {
 			/* Restore "len_alloc" to what it originally was (i.e. undo "-= 2" done in a prior step).

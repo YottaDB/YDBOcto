@@ -4,6 +4,5 @@ errors.c:warning: va_arg() is called on an uninitialized va_list [clang-analyzer
 make_buffers.c:warning: va_arg() is called on an uninitialized va_list [clang-analyzer-valist.Uninitialized]
 make_error_response.c:warning: va_arg() is called on an uninitialized va_list [clang-analyzer-valist.Uninitialized]
 make_error_response.c:warning: va_arg() is called on an uninitialized va_list [clang-analyzer-valist.Uninitialized]
-octo_init.c:warning: Attempt to free released memory [clang-analyzer-unix.Malloc]
 process_asterisk.c:warning: Access to field 'prev' results in a dereference of a null pointer (loaded from variable 'cla_alias') [clang-analyzer-core.NullDereference]
 process_asterisk.c:warning: Access to field 'prev' results in a dereference of a null pointer (loaded from variable 'cla_common') [clang-analyzer-core.NullDereference]

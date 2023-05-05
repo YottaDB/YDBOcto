@@ -3,4 +3,3 @@ errors.c:warning: va_arg() is called on an uninitialized va_list [clang-analyzer
 make_buffers.c:warning: va_arg() is called on an uninitialized va_list [clang-analyzer-valist.Uninitialized]
 make_error_response.c:warning: va_arg() is called on an uninitialized va_list [clang-analyzer-valist.Uninitialized]
 make_error_response.c:warning: va_arg() is called on an uninitialized va_list [clang-analyzer-valist.Uninitialized]
-octo_init.c:warning: Attempt to free released memory [clang-analyzer-unix.Malloc]

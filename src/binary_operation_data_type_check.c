@@ -127,6 +127,48 @@ int binary_operation_data_type_check(SqlBinaryOperation *binary, SqlValueType ch
 		}
 		*type = BOOLEAN_VALUE;
 		break;
+	case BOOLEAN_REGEX_SENSITIVE:
+	case BOOLEAN_REGEX_INSENSITIVE:
+	case BOOLEAN_REGEX_SENSITIVE_LIKE:
+	case BOOLEAN_REGEX_INSENSITIVE_LIKE:
+	case BOOLEAN_REGEX_SENSITIVE_SIMILARTO:
+	case BOOLEAN_REGEX_INSENSITIVE_SIMILARTO:
+		if (!result) {
+			int i;
+			for (i = 0; i < 2; i++) {
+				if (!IS_STRING_TYPE(child_type[i])) {
+					ISSUE_TYPE_COMPATIBILITY_ERROR(child_type[i], "regex operations", &binary->operands[i],
+								       result);
+				}
+			}
+		}
+		if (!result) {
+			if ((BOOLEAN_REGEX_SENSITIVE_LIKE == binary->operation)
+			    || (BOOLEAN_REGEX_SENSITIVE_SIMILARTO == binary->operation)) {
+				/* If the pattern string has no special meaning characters, then case sensitive LIKE is the same as
+				 * the EQUALS operator since LIKE matches the entire string and this is a case-sensitive match.
+				 * The EQUALS operator has better chances of being optimized so use that instead of LIKE if
+				 * possible.
+				 */
+				int status;
+
+				status = regex_has_no_special_characters(
+				    binary->operands[1],
+				    ((BOOLEAN_REGEX_SENSITIVE_LIKE == binary->operation) ? REGEX_LIKE : REGEX_SIMILARTO),
+				    parse_context);
+				if (-1 == status) {
+					/* ERROR is already issued by nested function call in regex_hash_no_special_characters(),
+					 * so if ever an error status is seen just return to the caller with an error status.
+					 */
+					assert(FALSE);
+					return 1;
+				}
+				assert((0 == status) || (1 == status));
+				binary->operation = ((0 == status) ? binary->operation : BOOLEAN_EQUALS);
+			}
+		}
+		*type = BOOLEAN_VALUE;
+		break;
 	case BOOLEAN_IS:
 	case BOOLEAN_IS_NOT:
 	case BOOLEAN_EQUALS:
@@ -135,12 +177,6 @@ int binary_operation_data_type_check(SqlBinaryOperation *binary, SqlValueType ch
 	case BOOLEAN_GREATER_THAN:
 	case BOOLEAN_LESS_THAN_OR_EQUALS:
 	case BOOLEAN_GREATER_THAN_OR_EQUALS:
-	case BOOLEAN_REGEX_SENSITIVE:
-	case BOOLEAN_REGEX_INSENSITIVE:
-	case BOOLEAN_REGEX_SENSITIVE_LIKE:
-	case BOOLEAN_REGEX_INSENSITIVE_LIKE:
-	case BOOLEAN_REGEX_SENSITIVE_SIMILARTO:
-	case BOOLEAN_REGEX_INSENSITIVE_SIMILARTO:
 	case BOOLEAN_IN:
 	case BOOLEAN_NOT_IN:
 	case BOOLEAN_ANY_EQUALS:

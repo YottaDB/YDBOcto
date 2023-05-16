@@ -167,22 +167,6 @@ int validate_table_asterisk_binary_operation(SqlBinaryOperation *binary, SqlValu
 			}
 		}
 		break;
-	case BOOLEAN_REGEX_SENSITIVE:
-	case BOOLEAN_REGEX_INSENSITIVE:
-	case BOOLEAN_REGEX_SENSITIVE_LIKE:
-	case BOOLEAN_REGEX_INSENSITIVE_LIKE:
-	case BOOLEAN_REGEX_SENSITIVE_SIMILARTO:
-	case BOOLEAN_REGEX_INSENSITIVE_SIMILARTO:;
-		assert((is_stmt_table_asterisk(first_operand) || IS_NUL_VALUE(orig_child_type[0]))
-		       && (is_stmt_table_asterisk(second_operand) || IS_NUL_VALUE(orig_child_type[1])));
-		SqlStatement **operand;
-		if (is_stmt_table_asterisk(first_operand)) {
-			operand = &first_operand;
-		} else {
-			operand = &second_operand;
-		}
-		ISSUE_TYPE_COMPATIBILITY_ERROR(TABLE_ASTERISK, "REGEX operation", operand, result);
-		break;
 	case BOOLEAN_ANY_EQUALS:
 	case BOOLEAN_ANY_NOT_EQUALS:
 	case BOOLEAN_ANY_LESS_THAN:
@@ -201,6 +185,12 @@ int validate_table_asterisk_binary_operation(SqlBinaryOperation *binary, SqlValu
 		CHECK_AND_ISSUE_TABLE_ASTERISK_NULL_SUBQUERY_INCOMPATIBILITY_ERROR(first_operand, second_operand, result);
 		assert(result);
 		break;
+	case BOOLEAN_REGEX_SENSITIVE:
+	case BOOLEAN_REGEX_INSENSITIVE:
+	case BOOLEAN_REGEX_SENSITIVE_LIKE:
+	case BOOLEAN_REGEX_INSENSITIVE_LIKE:
+	case BOOLEAN_REGEX_SENSITIVE_SIMILARTO:
+	case BOOLEAN_REGEX_INSENSITIVE_SIMILARTO:;
 	case ADDITION:
 	case SUBTRACTION:
 	case DIVISION:

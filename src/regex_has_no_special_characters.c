@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -28,8 +28,9 @@ int regex_has_no_special_characters(SqlStatement *stmt, enum RegexType regex_typ
 	char *	  ptr, *ptr_start, *ptr_top, *ptr_minus_escape_start, *ptr_minus_escape;
 	size_t	  len;
 
-	if ((value_STATEMENT != stmt->type) || !IS_LITERAL_PARAMETER(stmt->v.value->type)) {
-		/* Cannot do any checks if it is not a literal. Return FALSE to indicate it might have special characters. */
+	if ((value_STATEMENT != stmt->type) || !IS_STRING_TYPE(stmt->v.value->type)) {
+		/* Cannot do any checks if the `stmt` is not of STRING type. Return FALSE to indicate it might have special
+		 * characters. */
 		return 0;
 	}
 	/* Note: The regex matching logic is currently in $$pattransform^%ydboctoplanhelpers, an M program.

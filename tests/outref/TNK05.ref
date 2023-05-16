@@ -444,10 +444,16 @@ LINE 73:1: select n1.* < ANY (select NULL union select '') from names n1;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
 LINE 74:1: select n1.* NOT IN (select '' union select '') from names n1;
                                ^^^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for REGEX operation
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for regex operations
 LINE 75:1: select n1.* similar to '' from names n1;
                   ^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for REGEX operation
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for regex operations
+LINE 75:1: select n1.* similar to '' from names n1;
+                                   ^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for regex operations
+LINE 76:1: select '' similar to n1.* from names n1;
+                   ^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for regex operations
 LINE 76:1: select '' similar to n1.* from names n1;
                                 ^^
 GREATEST

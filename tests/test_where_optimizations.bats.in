@@ -187,13 +187,9 @@ OCTO
 }
 
 @test "TWO14 : [NOT] LIKE with integer cast" {
-  octo <<OCTO 2>&1 | tee output.txt
-select * from names where id like 4::integer;
-select * from names where id not like 4::integer;
-OCTO
-  # Include generated M code in reference file to verify all optimizations there
-  cat _ydboctoP*.m >> output.txt
-  verify_output TWO14 output.txt
+  # YDBOcto#972 integer operands are not allowed for a regex operation
+  load_fixture TWO14.sql subtest
+  verify_output TWO14 output.txt noinfo nodebug
 }
 
 @test "TWO15 : #307 : WHERE with primary-key-column = primary-key-column" {

@@ -203,36 +203,40 @@ syntax error, unexpected IDENTIFIER_ALONE
 LINE 25:1: select NULL is n1.* from names n1;
                           ^^
 syntax error, unexpected IDENTIFIER_ALONE
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for regex operations
 LINE 26:1: select n1.* like 'test' from names n1;
                   ^^
-LINE 26:1: select n1.* like 'test' from names n1;
-                            ^^^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for REGEX operation
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for regex operations
 LINE 27:1: select n1.* like NULL from names n1;
                   ^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
-LINE 28:1: select 'test' like n1.* from names n1;
-                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for regex operations
+LINE 27:1: select n1.* like NULL from names n1;
+                            ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for regex operations
 LINE 28:1: select 'test' like n1.* from names n1;
                               ^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for regex operations
 LINE 29:1: select n1.* similar to 'test' from names n1;
                   ^^
-LINE 29:1: select n1.* similar to 'test' from names n1;
-                                  ^^^^^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for REGEX operation
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for regex operations
 LINE 30:1: select n1.* similar to NULL from names n1;
                   ^^
-[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
-LINE 31:1: select 'test' similar to n1.* from names n1;
-                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for regex operations
+LINE 30:1: select n1.* similar to NULL from names n1;
+                                  ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for regex operations
 LINE 31:1: select 'test' similar to n1.* from names n1;
                                     ^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for REGEX operation
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for regex operations
 LINE 32:1: select n1.* LIKE n1.* from names n1;
                   ^^
-[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for REGEX operation
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for regex operations
+LINE 32:1: select n1.* LIKE n1.* from names n1;
+                            ^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for regex operations
+LINE 33:1: select NULL like n1.* from names n1;
+                  ^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for regex operations
 LINE 33:1: select NULL like n1.* from names n1;
                             ^^
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*

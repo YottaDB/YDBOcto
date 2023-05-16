@@ -560,13 +560,13 @@ typedef enum DDLDependencyType {
 			YYABORT;                                                                        \
 	}
 
-#define INVOKE_REGEX_SPECIFICATION(STMT, OP0, OP1, IS_REGEX_LIKE_OR_SIMILAR, IS_SENSITIVE, IS_NOT, PARSE_CONTEXT)            \
-	{                                                                                                                    \
-		int status;                                                                                                  \
-                                                                                                                             \
-		status = regex_specification(STMT, OP0, OP1, IS_REGEX_LIKE_OR_SIMILAR, IS_SENSITIVE, IS_NOT, PARSE_CONTEXT); \
-		if (0 != status)                                                                                             \
-			YYABORT;                                                                                             \
+#define INVOKE_REGEX_SPECIFICATION(STMT, OP0, OP1, IS_REGEX_LIKE_OR_SIMILAR, IS_SENSITIVE, IS_NOT)            \
+	{                                                                                                     \
+		int status;                                                                                   \
+                                                                                                              \
+		status = regex_specification(STMT, OP0, OP1, IS_REGEX_LIKE_OR_SIMILAR, IS_SENSITIVE, IS_NOT); \
+		if (0 != status)                                                                              \
+			YYABORT;                                                                              \
 	}
 
 #define INVOKE_PARSE_LITERAL_TO_PARAMETER(PARSE_CONTEXT, VALUE_STMT, UPDATE_EXISTING)            \
@@ -1163,7 +1163,7 @@ void	  process_table_asterisk_cla(SqlStatement *specification_list, SqlColumnLis
 void	  process_aggregate_function_table_asterisk(SqlAggregateFunction *af);
 boolean_t is_stmt_table_asterisk(SqlStatement *stmt);
 int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, enum RegexType regex_type, int is_sensitive,
-			int is_not, ParseContext *parse_context);
+			int is_not);
 SqlStatement *set_operation(enum SqlSetOperationType setoper_type, SqlStatement *left_operand, SqlStatement *right_operand);
 SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *ordering_specification);
 SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_element_list, SqlStatement *table_definition_tail,

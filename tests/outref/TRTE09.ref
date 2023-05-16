@@ -1,0 +1,115 @@
+
+-- TRTE09 : OCTO972 : Verify the structure of the regex expression after a regex to equals conversion
+-- In this case, since the type is not easy to determine, binary_operation_data_type_check() will take care of
+-- regex to equals optimization. One consequence of this is that if an expression like
+-- `('test' || 'test') NOT LIKE 'test'` is used then before YDBOcto#972 this expression  would have been
+-- converted to `('test' || 'test') != 'test'`, but after the change it will be converted to
+-- `NOT(('test' || 'test') = 'test')`.
+-- Optimization to the logical plan will convert `NOT(('test' || 'test') = 'test')` to `('test' || 'test') != 'test'`.
+select * from names where (firstname || lastname) NOT LIKE 'test';
+[ INFO] PATH:LINENUM DATE TIME: INFO_RECORDING_ENV_VARS: # Recording pertinent ydb_* env var values at process startup
+[ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [select * from names where (firstname || lastname) NOT LIKE 'test';]
+[ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
+[ INFO] PATH:LINENUM DATE TIME: INFO_M_PLAN: Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
+LP_SELECT_QUERY: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: NAMES(1).ID
+        LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: ID
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: FIRSTNAME
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: NAMES(1).LASTNAME
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: LASTNAME
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_TABLE: NAMES(1)
+      LP_CRITERIA: 
+        LP_KEYS: 
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+            LP_BOOLEAN_NOT: 
+              LP_BOOLEAN_EQUALS: 
+                LP_CONCAT: 
+                  LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+                  LP_COLUMN_ALIAS: NAMES(1).LASTNAME
+                LP_VALUE: 'test'
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name: 
+    - column_name: 
+    - unique_id: 3
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+
+[DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN AFTER optimize_logical_plan() follows 
+LP_SELECT_QUERY: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: NAMES(1).ID
+        LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: ID
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: FIRSTNAME
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: NAMES(1).LASTNAME
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: LASTNAME
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_TABLE: NAMES(1)
+      LP_CRITERIA: 
+        LP_KEYS: 
+          LP_KEY: 
+          - table_name: NAMES
+          - column_name: ID
+          - unique_id: 1
+          - method: LP_KEY_ADVANCE
+          - xref_key: false
+          - uses_xref_key: false
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+            LP_BOOLEAN_NOT_EQUALS: 
+              LP_CONCAT: 
+                LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+                LP_COLUMN_ALIAS: NAMES(1).LASTNAME
+              LP_VALUE: 'test'
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name: 
+    - column_name: 
+    - unique_id: 3
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+
+[ INFO] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering print_temporary_table
+ID|FIRSTNAME|LASTNAME
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+5|Zero|Cool
+(5 rows)
+[ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
+[ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command []

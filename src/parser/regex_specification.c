@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,38 +23,14 @@
 
 /* Returns 0 on success. 1 on failure. */
 int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, enum RegexType regex_type, int is_sensitive,
-			int is_not, ParseContext *parse_context) {
+			int is_not) {
 	SqlStatement *regex;
 
 	CREATE_BINARY_STATEMENT(regex);
 	if (is_sensitive) {
-		if (REGEX_LIKE == regex_type) {
-			/* If the pattern string has no special meaning characters, then case sensitive LIKE is the same as
-			 * the EQUALS operator since LIKE matches the entire string and this is a case-sensitive match.
-			 * The EQUALS operator has better chances of being optimized so use that instead of LIKE if possible.
-			 */
-			int status;
-
-			status = regex_has_no_special_characters(op1, regex_type, parse_context);
-			if (-1 == status) {
-				/* Error : Forward error to caller so it can do YYABORT. */
-				return 1;
-			}
-			assert((0 == status) || (1 == status));
-			regex->v.binary->operation = ((0 == status) ? BOOLEAN_REGEX_SENSITIVE_LIKE : BOOLEAN_EQUALS);
-		} else if (REGEX_SIMILARTO == regex_type) {
-			/* If the pattern string has no special meaning characters, then LIKE is same as EQUALS operator.
-			 * The latter has better chances of being optimized so check for that here.
-			 */
-			int status;
-
-			status = regex_has_no_special_characters(op1, regex_type, parse_context);
-			if (-1 == status) {
-				/* Error : Forward error to caller so it can do YYABORT. */
-				return 1;
-			}
-			assert((0 == status) || (1 == status));
-			regex->v.binary->operation = ((0 == status) ? BOOLEAN_REGEX_SENSITIVE_SIMILARTO : BOOLEAN_EQUALS);
+		if ((REGEX_LIKE == regex_type) || (REGEX_SIMILARTO == regex_type)) {
+			regex->v.binary->operation
+			    = (REGEX_LIKE == regex_type) ? BOOLEAN_REGEX_SENSITIVE_LIKE : BOOLEAN_REGEX_SENSITIVE_SIMILARTO;
 		} else {
 			assert(REGEX_TILDE == regex_type);
 			/* The regex match is not an entire string match (i.e. a substring match is also okay) so we cannot

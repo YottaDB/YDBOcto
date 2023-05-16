@@ -79,3 +79,45 @@ teardown() {
   cp ../../tests/outref/TRTE07.ref .
   diff TRTE07.ref clean_output.txt
 }
+
+@test "TRTE08 : OCTO972 : Verify that LIKE and SIMILAR TO issue error when operands are non-STRING or non-NULL type" {
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/TRTE08_errors.sql .
+  # Construct list of queries using LIKE
+  grep " like " TRTE08_errors.sql > like.sql
+  # Construct list of queries using NOT LIKE
+  sed 's/ like / not like /g' like.sql > notlike.sql
+  # Construct list of queries using SIMILAR TO
+  sed 's/ like / similar to /g' like.sql > similarto.sql
+  # Construct list of queries using NOT SIMILAR TO
+  sed 's/ like / not similar to /g' like.sql > notsimilarto.sql
+  # Construct list of queries using ilike
+  sed 's/ like / ilike /g' like.sql > ilike.sql
+  # Construct list of queries using ~
+  sed 's/ like / ~ /g' like.sql > tilde.sql
+  # Construct list of queries using ~~
+  sed 's/ like / ~~ /g' like.sql > tildetilde.sql
+  # Construct list of queries using ~*
+  sed 's/ like / ~* /g' like.sql > tildeasterisk.sql
+  # Construct consolidated list of queries
+  cat like.sql similarto.sql notlike.sql notsimilarto.sql ilike.sql tilde.sql tildetilde.sql tildeasterisk.sql > TRTE08_input.sql
+  # Construct the reference file
+  cp @PROJECT_SOURCE_DIR@/tests/outref/TRTE08_errors.ref .
+  cat TRTE08_errors.ref > like.ref
+  # Run the loop 8 times to construct 8 operator output
+  for ((i = 1 ; i <= 8 ; i++)); do
+    cat like.ref >> TRTE08_output.ref
+  done
+  octo -f TRTE08_input.sql > output.txt 2>&1 | tee -a output.txt
+  # Remove syntax highlighting
+  sed -i "/\^/d" output.txt
+  # Remove context information
+  sed -i "/^LINE/d" output.txt
+  # Compare only the error message
+  diff TRTE08_output.ref output.txt
+  # If the above diff fails the failed line number helps to identify the failed query in the generated TRTE08_input.sql
+}
+
+@test "TRTE09 : OCTO972 : Verify the structure of the regex expression after a regex to equals conversion" {
+  load_fixture TRTE09.sql subtest
+  verify_output TRTE09 output.txt
+}

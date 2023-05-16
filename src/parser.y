@@ -534,34 +534,34 @@ comparison_predicate
        * operand 5 - case sensitivity: FALSE = insensitive; TRUE = sensitive
        * operand 6 - not operator: FALSE = no NOT; TRUE = NOT
        */
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), REGEX_TILDE, TRUE, FALSE, parse_context);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), REGEX_TILDE, TRUE, FALSE);
     }
   | row_value_constructor TILDE ASTERISK row_value_constructor {
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($4), REGEX_TILDE, FALSE, FALSE, parse_context);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($4), REGEX_TILDE, FALSE, FALSE);
     }
   | row_value_constructor EXCLAMATION TILDE row_value_constructor {
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($4), REGEX_TILDE, TRUE, TRUE, parse_context);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($4), REGEX_TILDE, TRUE, TRUE);
     }
   | row_value_constructor EXCLAMATION TILDE ASTERISK row_value_constructor {
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($5), REGEX_TILDE, FALSE, TRUE, parse_context);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($5), REGEX_TILDE, FALSE, TRUE);
     }
   | row_value_constructor like_predicate row_value_constructor {
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), REGEX_LIKE, TRUE, FALSE, parse_context);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), REGEX_LIKE, TRUE, FALSE);
     }
   | row_value_constructor not_like_predicate row_value_constructor {
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), REGEX_LIKE, TRUE, TRUE, parse_context);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), REGEX_LIKE, TRUE, TRUE);
     }
   | row_value_constructor insensitive_like_predicate row_value_constructor {
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), REGEX_LIKE, FALSE, FALSE, parse_context);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), REGEX_LIKE, FALSE, FALSE);
     }
   | row_value_constructor not_insensitive_like_predicate row_value_constructor {
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), REGEX_LIKE, FALSE, TRUE, parse_context);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), REGEX_LIKE, FALSE, TRUE);
     }
   | row_value_constructor SIMILAR TO row_value_constructor {
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($4), REGEX_SIMILARTO, TRUE, FALSE, parse_context);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($4), REGEX_SIMILARTO, TRUE, FALSE);
     }
   | row_value_constructor NOT SIMILAR TO row_value_constructor {
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($5), REGEX_SIMILARTO, TRUE, TRUE, parse_context);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($5), REGEX_SIMILARTO, TRUE, TRUE);
     }
   ;
 

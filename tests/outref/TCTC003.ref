@@ -109,8 +109,10 @@ create table products (id integer CHECK (-id::varchar));
 create table products (id integer, firstname varchar CHECK (firstname = +'Zero'));
 create table products (id integer, firstname varchar CHECK (firstname = 'Zero' || +'Zero'));
 create table products (id integer, firstname varchar CHECK (firstname = 'Zero' || -'Zero'));
-create table products (id integer, firstname varchar CHECK (firstname = 'Zero' || +NULL));
 create table products (id integer, firstname varchar CHECK (firstname = 'Zero' || -NULL));
+ -- +NULL below is a valid usage. Drop the table created by the below command so that other tests are not affected
+create table products (id integer, firstname varchar CHECK (firstname = 'Zero' || +NULL));
+drop table products;
 
 -- Test of ERR_UNKNOWN_FUNCTION error
 create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (ABS(name)));
@@ -1327,47 +1329,46 @@ LINE 89:1: ...teger, firstname varchar CHECK (firstname = 'Zero' || +'Zero'));
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
 LINE 90:1: ...teger, firstname varchar CHECK (firstname = 'Zero' || -'Zero'));
                                                                      ^^^^^^
-[ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type NULL
-LINE 91:1: ...integer, firstname varchar CHECK (firstname = 'Zero' || +NULL));
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NULL not compatible for - operation
+LINE 91:1: ...integer, firstname varchar CHECK (firstname = 'Zero' || -NULL));
                                                                        ^^^^
-[ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type NULL
-LINE 92:1: ...integer, firstname varchar CHECK (firstname = 'Zero' || -NULL));
-                                                                       ^^^^
+CREATE TABLE
+DROP TABLE
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function ABS defined with given parameter types (VARCHAR)
-LINE 94:1: ..., name text, price numeric CONSTRAINT name1 CHECK (ABS(name)));
+LINE 96:1: ..., name text, price numeric CONSTRAINT name1 CHECK (ABS(name)));
                                                                  ^^^
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function INVALIDFUNC defined with given parameter types (VARCHAR)
-LINE 95:1: ...ext, price numeric CONSTRAINT name1 CHECK (INVALIDFUNC(name)));
+LINE 97:1: ...ext, price numeric CONSTRAINT name1 CHECK (INVALIDFUNC(name)));
                                                          ^^^^^^^^^^^
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function SAMEVALUE defined with given parameter types (INTEGER)
-LINE 96:1: ...CONSTRAINT name1 CHECK (price * samevalue(product_no) < 1000));
+LINE 98:1: ...CONSTRAINT name1 CHECK (price * samevalue(product_no) < 1000));
                                               ^^^^^^^^^
 [ERROR]: ERR_TOO_MANY_FUNCTION_ARGUMENTS: Too many arguments passed for function INVALIDFUNC (max: 32)
 [ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left INTEGER, right VARCHAR
-LINE 100:1: ...T name1 CHECK (case when 1=1 then 2 when 2=2 then 'abcd' end));
+LINE 102:1: ...T name1 CHECK (case when 1=1 then 2 when 2=2 then 'abcd' end));
                                                  ^
-LINE 100:1: ...NT name1 CHECK (case when 1=1 then 2 when 2=2 then 'abcd' end));
+LINE 102:1: ...NT name1 CHECK (case when 1=1 then 2 when 2=2 then 'abcd' end));
                                                                   ^^^^^^
 [ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left INTEGER, right VARCHAR
-LINE 101:1: ...CONSTRAINT name1 CHECK (case when 1=1 then 2 else 'abcd' end));
+LINE 103:1: ...CONSTRAINT name1 CHECK (case when 1=1 then 2 else 'abcd' end));
                                                           ^
-LINE 101:1: ... CONSTRAINT name1 CHECK (case when 1=1 then 2 else 'abcd' end));
+LINE 103:1: ... CONSTRAINT name1 CHECK (case when 1=1 then 2 else 'abcd' end));
                                                                   ^^^^^^
 [ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left VARCHAR, right INTEGER
-LINE 102:1: ...NT name1 CHECK (case id when 1 then 'abcd' when 2 then id end));
+LINE 104:1: ...NT name1 CHECK (case id when 1 then 'abcd' when 2 then id end));
                                                    ^^^^^^
-LINE 102:1: ...NT name1 CHECK (case id when 1 then 'abcd' when 2 then id end));
+LINE 104:1: ...NT name1 CHECK (case id when 1 then 'abcd' when 2 then id end));
                                                                       ^^
 [ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left VARCHAR, right INTEGER
-LINE 103:1: ...ONSTRAINT name1 CHECK (case id when 1 then 'abcd' else id end));
+LINE 105:1: ...ONSTRAINT name1 CHECK (case id when 1 then 'abcd' else id end));
                                                           ^^^^^^
-LINE 103:1: ...ONSTRAINT name1 CHECK (case id when 1 then 'abcd' else id end));
+LINE 105:1: ...ONSTRAINT name1 CHECK (case id when 1 then 'abcd' else id end));
                                                                       ^^
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type INTEGER but is used in a context that expects a BOOLEAN type
-LINE 105:1: ...s (id integer CONSTRAINT name1 CHECK (case when id then 2 end));
+LINE 107:1: ...s (id integer CONSTRAINT name1 CHECK (case when id then 2 end));
                                                                ^^
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type VARCHAR but is used in a context that expects a INTEGER type
-LINE 106:1: ...nteger CONSTRAINT name1 CHECK (case id when 'abcd' then 2 end));
+LINE 108:1: ...nteger CONSTRAINT name1 CHECK (case id when 'abcd' then 2 end));
                                                            ^^^^^^
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "NAME1" already exists
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "NAME2" already exists
@@ -1378,10 +1379,10 @@ LINE 106:1: ...nteger CONSTRAINT name1 CHECK (case id when 'abcd' then 2 end));
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU" already exists
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "TOOLONG1ABCDEFGHIJKLMNOPQRSTUVWXYZTOOLONG2ABCDEFGHIJKLMNOPQRSTU" already exists
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
-LINE 153:2: ...toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstuv...
+LINE 155:2: ...toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstuv...
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
-LINE 155:1: ...toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstuv...
+LINE 157:1: ...toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstuv...
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_TABLE_MUST_HAVE_A_VISIBLE_COLUMN: Table "PRODUCTS" must have at least one visible column
 [ERROR]: ERR_TABLE_MUST_HAVE_A_VISIBLE_COLUMN: Table "PRODUCTS" must have at least one visible column
@@ -1737,43 +1738,43 @@ GNP
 1
 1
 (2 rows)
-LINE 536:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (3));
+LINE 538:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (3));
                                                     ^
 syntax error, unexpected LITERAL
-LINE 537:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE ('abcd'));
+LINE 539:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE ('abcd'));
                                                     ^^^^^^
 syntax error, unexpected LITERAL
-LINE 539:1: CREATE TABLE abcd (id1 INTEGER, id2 INTEGER UNIQUE (id1));
+LINE 541:1: CREATE TABLE abcd (id1 INTEGER, id2 INTEGER UNIQUE (id1));
                                                                ^
 syntax error, unexpected LEFT_PAREN
-LINE 540:1: CREATE TABLE abcd (id1 INTEGER, id2 INTEGER UNIQUE (id1, id2));
+LINE 542:1: CREATE TABLE abcd (id1 INTEGER, id2 INTEGER UNIQUE (id1, id2));
                                                                ^
 syntax error, unexpected LEFT_PAREN
-LINE 542:1: CREATE TABLE tmp (id INTEGER, UNIQUE);
+LINE 544:1: CREATE TABLE tmp (id INTEGER, UNIQUE);
                                                 ^
 syntax error, unexpected RIGHT_PAREN, expecting LEFT_PAREN
-LINE 544:1: ...EATE TABLE abcd (id1 INTEGER, CHECK (id1 > 2) CHECK (id1 > 3));
+LINE 546:1: ...EATE TABLE abcd (id1 INTEGER, CHECK (id1 > 2) CHECK (id1 > 3));
                                                              ^^^^^
 syntax error, unexpected CHECK, expecting RIGHT_PAREN
-LINE 546:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1) UNIQUE (id1));
+LINE 548:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1) UNIQUE (id1));
                                                          ^^^^^^
 syntax error, unexpected UNIQUE, expecting RIGHT_PAREN
-LINE 548:1: CREATE TABLE abcd (id1 INTEGER, CHECK (id1 > 2) UNIQUE (id1));
+LINE 550:1: CREATE TABLE abcd (id1 INTEGER, CHECK (id1 > 2) UNIQUE (id1));
                                                             ^^^^^^
 syntax error, unexpected UNIQUE, expecting RIGHT_PAREN
 [ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "ID2" of table "ABCD" does not exist
-LINE 550:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id2));
+LINE 552:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id2));
                                                     ^^^
 [ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "ID2" of table "ABCD" does not exist
-LINE 551:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1, id2));
+LINE 553:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1, id2));
                                                          ^^^
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "ID1" specified more than once
-LINE 553:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1, id1));
+LINE 555:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1, id1));
                                                          ^^^
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "ID1" specified more than once
-LINE 554:1: ... TABLE abcd (id1 INTEGER, id2 INTEGER, UNIQUE (id1, id2, id1));
+LINE 556:1: ... TABLE abcd (id1 INTEGER, id2 INTEGER, UNIQUE (id1, id2, id1));
                                                                         ^^^
-LINE 556:1: ...TABLE abcd (id1 INTEGER, id2 INTEGER, UNIQUE (id1 + id2, id1));
+LINE 558:1: ...TABLE abcd (id1 INTEGER, id2 INTEGER, UNIQUE (id1 + id2, id1));
                                                                  ^
 syntax error, unexpected PLUS, expecting RIGHT_PAREN
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "UNIQ1" already exists
@@ -1958,7 +1959,7 @@ DROP TABLE
 [ERROR]: ERR_TABLE_KEY_NUM: CREATE TABLE for table "PRODUCTS" cannot use table-level PRIMARY KEY constraint and KEY NUM at same time
 [ERROR]: ERR_TABLE_KEY_NUM: CREATE TABLE for table "PRODUCTS" cannot use table-level PRIMARY KEY constraint and KEY NUM at same time
 [ERROR]: ERR_TABLE_KEY_NUM: CREATE TABLE for table "TMP" cannot use table-level PRIMARY KEY constraint and KEY NUM at same time
-LINE 686:1: ...cts (id integer, constraint prikey primary key (id) key num 0);
+LINE 688:1: ...cts (id integer, constraint prikey primary key (id) key num 0);
                                                                    ^^^
 syntax error, unexpected KEY, expecting RIGHT_PAREN
 CREATE TABLE
@@ -1966,46 +1967,46 @@ DROP TABLE
 CREATE TABLE
 DROP TABLE
 [ERROR]: ERR_MISSING_KEY: Missing key 0 in table TMP; max key was 1
-LINE 695:3: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (3));
+LINE 697:3: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (3));
                                                          ^
 syntax error, unexpected LITERAL
-LINE 696:1: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY ('abcd'));
+LINE 698:1: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY ('abcd'));
                                                          ^^^^^^
 syntax error, unexpected LITERAL
-LINE 698:1: CREATE TABLE abcd (id1 INTEGER, id2 INTEGER PRIMARY KEY (id1));
+LINE 700:1: CREATE TABLE abcd (id1 INTEGER, id2 INTEGER PRIMARY KEY (id1));
                                                                     ^
 syntax error, unexpected LEFT_PAREN
-LINE 699:1: ...E TABLE abcd (id1 INTEGER, id2 INTEGER PRIMARY KEY (id1, id2));
+LINE 701:1: ...E TABLE abcd (id1 INTEGER, id2 INTEGER PRIMARY KEY (id1, id2));
                                                                   ^
 syntax error, unexpected LEFT_PAREN
-LINE 701:1: CREATE TABLE tmp (id INTEGER, PRIMARY KEY);
+LINE 703:1: CREATE TABLE tmp (id INTEGER, PRIMARY KEY);
                                                      ^
 syntax error, unexpected RIGHT_PAREN, expecting LEFT_PAREN
-LINE 703:1: ... TABLE abcd (id1 INTEGER, PRIMARY KEY (id1) PRIMARY KEY (id1));
+LINE 705:1: ... TABLE abcd (id1 INTEGER, PRIMARY KEY (id1) PRIMARY KEY (id1));
                                                            ^^^^^^^
 syntax error, unexpected PRIMARY, expecting RIGHT_PAREN
-LINE 705:1: ...TE TABLE abcd (id1 INTEGER, CHECK (id1 > 2) PRIMARY KEY (id1));
+LINE 707:1: ...TE TABLE abcd (id1 INTEGER, CHECK (id1 > 2) PRIMARY KEY (id1));
                                                            ^^^^^^^
 syntax error, unexpected PRIMARY, expecting RIGHT_PAREN
-LINE 707:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1) PRIMARY KEY (id1));
+LINE 709:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1) PRIMARY KEY (id1));
                                                          ^^^^^^^
 syntax error, unexpected PRIMARY, expecting RIGHT_PAREN
-LINE 709:1: ...d (id1 INTEGER, CHECK (id1 > 2) UNIQUE (id1) PRIMARY KEY (id1));
+LINE 711:1: ...d (id1 INTEGER, CHECK (id1 > 2) UNIQUE (id1) PRIMARY KEY (id1));
                                                ^^^^^^
 syntax error, unexpected UNIQUE, expecting RIGHT_PAREN
 [ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "ID2" of table "ABCD" does not exist
-LINE 711:1: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (id2));
+LINE 713:1: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (id2));
                                                          ^^^
 [ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "ID2" of table "ABCD" does not exist
-LINE 712:1: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (id1, id2));
+LINE 714:1: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (id1, id2));
                                                               ^^^
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "ID1" specified more than once
-LINE 714:1: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (id1, id1));
+LINE 716:1: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (id1, id1));
                                                               ^^^
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "ID1" specified more than once
-LINE 715:1: ...E abcd (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id1, id2, id1));
+LINE 717:1: ...E abcd (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id1, id2, id1));
                                                                         ^^^
-LINE 717:1: ... abcd (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id1 + id2, id1));
+LINE 719:1: ... abcd (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id1 + id2, id1));
                                                                  ^
 syntax error, unexpected PLUS, expecting RIGHT_PAREN
 CREATE TABLE
@@ -2209,11 +2210,11 @@ DROP TABLE
 DROP TABLE
 DROP TABLE
 DROP TABLE
-LINE 855:1: create table tmp (id integer, unique (tmp.id));
+LINE 857:1: create table tmp (id integer, unique (tmp.id));
                                                      ^
 syntax error, unexpected PERIOD, expecting RIGHT_PAREN
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
-LINE 857:1: ...able tmp (id integer CHECK ((id+'abcd')::varchar > 1::varchar));
+LINE 859:1: ...able tmp (id integer CHECK ((id+'abcd')::varchar > 1::varchar));
                                                ^^^^^^
 CREATE TABLE
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TMP violates CHECK constraint TMP_CHECK : Failing row contains (1)

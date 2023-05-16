@@ -120,8 +120,10 @@ create table products (id integer CHECK (-id::varchar));
 create table products (id integer, firstname varchar CHECK (firstname = +'Zero'));
 create table products (id integer, firstname varchar CHECK (firstname = 'Zero' || +'Zero'));
 create table products (id integer, firstname varchar CHECK (firstname = 'Zero' || -'Zero'));
-create table products (id integer, firstname varchar CHECK (firstname = 'Zero' || +NULL));
 create table products (id integer, firstname varchar CHECK (firstname = 'Zero' || -NULL));
+ -- +NULL below is a valid usage. Drop the table created by the below command so that other tests are not affected
+create table products (id integer, firstname varchar CHECK (firstname = 'Zero' || +NULL));
+drop table products;
 
 -- Test of ERR_UNKNOWN_FUNCTION error
 create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (ABS(name)));

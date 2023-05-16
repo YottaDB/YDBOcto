@@ -42,26 +42,34 @@ int unary_operation_data_type_check(SqlUnaryOperation *unary, SqlValueType child
 			/* Note: Below comment is needed to avoid gcc [-Wimplicit-fallthrough=] warning */
 			/* fall through */
 		case STRING_LITERAL:
-		case COLUMN_REFERENCE:
-		case CALCULATED_VALUE:
-		case FUNCTION_NAME:
-		case FUNCTION_HASH:
-		case PARAMETER_VALUE:
-		case NUL_VALUE:
-		case COERCE_TYPE:
-		case DELIM_VALUE:
-		case IS_NULL_LITERAL:
-		case INVALID_SqlValueType:
-		case UNKNOWN_SqlValueType:
 		case BOOLEAN_VALUE:
 			/* Unary + and - operators cannot be used on non-numeric or non-integer types */
 			ISSUE_ERROR(&unary->operand, ERR_INVALID_INPUT_SYNTAX, get_user_visible_type_string(child_type[0]), result);
+			break;
+		case NUL_VALUE:
+			if (NEGATIVE == unary->operation) {
+				ISSUE_TYPE_COMPATIBILITY_ERROR(child_type[0], "- operation", &unary->operand, result);
+				break;
+			} /* else {
+			   * 	This is valid based on where this unary operation is used so set the type and move on
+			   */
+			*type = child_type[0];
 			break;
 		case INTEGER_LITERAL:
 		case NUMERIC_LITERAL:
 			*type = child_type[0];
 			break;
 		case SELECT_ASTERISK:
+		case CALCULATED_VALUE:
+		case PARAMETER_VALUE:
+		case COERCE_TYPE:
+		case COLUMN_REFERENCE:
+		case FUNCTION_NAME:
+		case FUNCTION_HASH:
+		case DELIM_VALUE:
+		case IS_NULL_LITERAL:
+		case INVALID_SqlValueType:
+		case UNKNOWN_SqlValueType:
 			assert(FALSE);
 			break;
 		}

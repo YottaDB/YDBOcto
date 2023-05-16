@@ -202,3 +202,9 @@ teardown() {
 	load_fixture TSCP23_errors.sql subtest novv
 	verify_output TSCP23_errors output.txt
 }
+
+@test "TSCP24 : OCTO211 : Allow NULL values in force numeric unary operation" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP24.sql
+	load_fixture TSCP24_errors.sql subtest novv
+	verify_output TSCP24_errors output.txt noinfo nodebug
+}

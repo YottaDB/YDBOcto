@@ -197,36 +197,6 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			}
 			p = lp_copy_plan(plan);
 			assert((LP_SELECT_QUERY == p->type) || (LP_DELETE_FROM == p->type) || (LP_UPDATE == plan->type));
-			if (LP_SELECT_QUERY == p->type) {
-				/* After a new DNF copy of the LP_SELECT_QUERY logical plan has been created, check for any
-				 * ORDER BY COLUMN NUM N usages in prior plan (in that case the Nth LP_COLUMN_LIST plan list under
-				 * LP_ORDER_BY would point to the exact same Nth logical plan under the LP_COLUMN_LIST under
-				 * LP_PROJECT). If present, that connection would have been severed by the "lp_copy_plan()" call as
-				 * each LP_COLUMN_LIST under LP_ORDER_BY and LP_PROJECT would have been copied over to different
-				 * memory. Re-establish the connection.
-				 */
-				LogicalPlan *output;
-
-				GET_LP(output, p, 1, LP_OUTPUT);
-				if (NULL != output->v.lp_default.operand[1]) {
-					LogicalPlan *order_by, *project, *select_column_list;
-
-					GET_LP(order_by, output, 1, LP_ORDER_BY);
-					GET_LP(project, p, 0, LP_PROJECT);
-					GET_LP(select_column_list, project, 0, LP_COLUMN_LIST);
-					while (NULL != order_by) {
-						if (order_by->extra_detail.lp_order_by.order_by_column_num) {
-							/* This is an ORDER BY COLUMN NUM N case. Handle it. */
-							LogicalPlan *nth_column_list;
-							nth_column_list = lp_get_col_num_n_in_select_column_list(
-							    select_column_list,
-							    order_by->extra_detail.lp_order_by.order_by_column_num);
-							order_by->v.lp_default.operand[0] = nth_column_list;
-						}
-						order_by = order_by->v.lp_default.operand[1];
-					}
-				}
-			}
 			child_where = lp_get_select_where(p);
 			/* Below sets the LHS of the LP_BOOLEAN_OR condition as the WHERE clause of one of the DNF plans */
 			child_where->v.lp_default.operand[0] = cur->v.lp_default.operand[0];

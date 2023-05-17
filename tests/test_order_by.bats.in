@@ -224,3 +224,7 @@ OCTO
 	load_fixture TOB18_errors.sql subtest
 	verify_output TOB18_errors output.txt noinfo nodebug
 }
+
+@test "TOB19 : OCTO727 : Test that ORDER BY COLUMN NUM used with subquery and DNF expansion does not SIG-11/assert-fail" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOB19.sql
+}

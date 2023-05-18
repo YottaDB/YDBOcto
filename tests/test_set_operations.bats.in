@@ -111,3 +111,8 @@ teardown() {
 @test "TSO16 : OCTO727 : Test SET operations whose operands end up as deferred physical plans" {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSO16.sql
 }
+
+@test "TSO17 : OCTO969 : Test SET operations query result table has the column names from first set operation instead of the last" {
+  load_fixture TSO17.sql subtest novv
+  verify_output TSO17 output.txt
+}

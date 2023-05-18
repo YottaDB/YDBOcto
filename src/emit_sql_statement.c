@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -199,7 +199,14 @@ PhysicalPlan *emit_sql_statement(SqlStatement *stmt, char *plan_filename) {
 		plan_meta[4].len_used = 0;
 
 		// Note down column data types
-		cur_plan = pplan->projection;
+		if (LP_SET_OPERATION == plan->type) {
+			LogicalPlan *root_lplan;
+			// Find the first query in set operation and use its column data to set the result table's column data
+			root_lplan = lp_drill_to_insert(plan);
+			cur_plan = lp_get_projection_columns(root_lplan);
+		} else {
+			cur_plan = pplan->projection;
+		}
 		do {
 			assert(cur_plan->type == LP_COLUMN_LIST);
 			GET_LP(column_alias, cur_plan, 0, LP_WHERE);

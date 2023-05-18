@@ -52,7 +52,7 @@ SELECT ProductID FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
 -- Arithmetic operation of INTEGER and STRING/VARCHAR should issue type mismatch error
 SELECT ProductID + ProductName FROM Products LIMIT 1;
 
-ID|FIRSTNAME|???
+ID|???|FIRSTNAME
 0||Zero
 1||Acid
 2||Cereal

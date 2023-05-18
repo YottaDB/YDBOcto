@@ -883,7 +883,7 @@ LINE 172:1: SELECT a.id as A_id, b.id as B_id
                                  ^^^^^^^^^^^^
 LINE 175:4: SELECT id as A_id, 'a' AS B_id
                                ^^^^^^^^^^^
-ID|FIRSTNAME|LASTNAME|???|???|???
+ID|FIRSTNAME|LASTNAME|ID|FIRSTNAME|LASTNAME
 0|Zero|Cool|0|Zero|Cool
 1|Acid|Burn|1|Acid|Burn
 2|Cereal|Killer|2|Cereal|Killer

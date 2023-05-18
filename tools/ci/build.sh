@@ -589,10 +589,7 @@ PSQL
 	# are not that huge etc.). So disable the "set -e" setting temporarily for this step.
 	set +e
 	# Parallelize tests to however many CPUs there are on a machine
-	#CTEST_PARALLEL_LEVEL=$(getconf _NPROCESSORS_ONLN)
-	# See why we set this to 1 for now here: https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/915#note_1138723084
-	# We can remove this line and put the line above when we fix the issues.
-	CTEST_PARALLEL_LEVEL=1
+	CTEST_PARALLEL_LEVEL=$(getconf _NPROCESSORS_ONLN)
 	export CTEST_PARALLEL_LEVEL
 	if [[ ("test-auto-upgrade" != $jobname) ]]; then
 		ctest

@@ -73,7 +73,6 @@ if("${FULL_TEST_SUITE}")
 	ADD_BATS_TEST(hello_db)
 
 	# These tests don't need Postgres or MySQL/MariaDB
-	ADD_BATS_TEST(test_errors)
 	ADD_BATS_TEST(test_verbosity)
 	ADD_BATS_TEST(test_readline)
 	ADD_BATS_TEST(test_help_option)
@@ -128,6 +127,7 @@ if("${FULL_TEST_SUITE}")
 	endif()
 
 	# These tests require Postgres running
+	ADD_BATS_TEST_DML(test_errors)
 	ADD_BATS_TEST_DML(test_where)
 	ADD_BATS_TEST_DML(test_order_by)
 	ADD_BATS_TEST_DML(test_createtable)

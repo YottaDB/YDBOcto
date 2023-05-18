@@ -23,9 +23,9 @@ setup() {
 
   test_port=$(start_rocto 1344)
 
-  # There can be multiple drivers (ANSI, Unicode), just pick one and remove
-  # square brackets ([])
-  postgres_driver=$(odbcinst -q -d | grep -i postgres | tail -1 | sed 's/[][]//g')
+  # There can be multiple drivers (ANSI, Unicode), just pick one and remove square brackets ([])
+  # The name of the Postgres driver can be "PSQL" (e.g. on SUSE), not "postgres".
+  postgres_driver=$(odbcinst -q -d | grep -i 'postgres\|psql' | tail -1 | sed 's/[][]//g')
 
   # Create ini file for Database called OCTO
   cat > odbc.ini <<END

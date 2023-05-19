@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -13,7 +13,7 @@
 # by the pipeline. It lets you run the pipeline tests locally.  If you change
 # .gitlab-ci.yml, update this as well.
 #
-# Usage: docker build -f Dockerfile-Tests.vista -t tests-vista .
+# Usage: docker build -f tools/misc-dockerfiles/Dockerfile-Tests.vista -t tests-vista .
 
 FROM yottadb/octo-vehu:latest-master
 ENTRYPOINT [""]

@@ -11,33 +11,18 @@
 #################################################################
 # This file mirrors the pipeline set-up, but is not used by the
 # pipeline. It lets you run the pipeline tests locally.
-# If you change .gitlab-ci.yml, update this as well.
 #
 # Insturctions:
 # docker run --rm --name mysql -e MYSQL_ROOT_PASSWORD=ydbrocks -d mysql:8.0 OR docker run --rm --name mysql -e MARIADB_ROOT_PASSWORD=ydbrocks -d mariadb
-# docker build -f Dockerfile-Tests.ubuntu -t tests-ubuntu .
+# docker build -f tools/misc-dockerfiles/Dockerfile-Tests.ubuntu -t tests-ubuntu .
 # docker run -it --link mysql --rm tests-ubuntu
 # OR docker run -it --link mysql --rm tests-ubuntu "test-auto-upgrade" "debug" "52ba5a43" "test_display_relation_commands"
 # OR docker run -it --link mysql --rm tests-ubuntu "test-auto-upgrade" "debug" "52ba5a43" "ALL" (to run all auto-upgrade tests for a specific commit)
 # OR docker run -it --link mysql -v /tmp/myfolder:/octooutput --rm tests-ubuntu "test-auto-upgrade" "debug" "52ba5a43" "ALL" (keeps the tests output in /tmp/myfolder so that it can be examined)
 # docker kill mysql; docker rm mysql
 
-FROM yottadb/yottadb-base:latest-master
-
-# Separate, non-interactive installation of tzdata required due to expect's dependency on libtcl8.6, which depends on tzdata.
-# If these steps aren't done, the build will open an interactive prompt to setup tzdata during apt-get install.
-RUN export DEBIAN_FRONTEND=noninteractive
-RUN ln -fs /usr/share/zoneinfo/US/Eastern /etc/localtime
-RUN apt-get update && \
-    apt-get install -y tzdata
-RUN dpkg-reconfigure --frontend noninteractive tzdata
-RUN apt-get install -y -qq --no-install-recommends build-essential clang clang-tidy-11 clang-format-11 cmake bison flex libcmocka-dev python3 python3-pip python3-setuptools python3-wheel libreadline-dev git libconfig-dev libssl-dev postgresql-client postgresql xxd wget libgcrypt20-dev libgpgme-dev expect default-jdk ninja-build unixodbc odbc-postgresql tcsh shellcheck libicu-dev pkg-config locales curl mysql-client golang ncat
-RUN locale-gen en_US.UTF-8
-RUN pip3 install sphinx sphinx_rtd_theme==0.5.2 sphinxcontrib-jquery sphinxcontrib-fulltoc
-ENV USER=root
-
+FROM registry.gitlab.com/yottadb/dbms/ydbocto:ubuntu-master
 ADD . /builds/YDBDBMS/
 WORKDIR /builds/YDBDBMS
-
 ENTRYPOINT ["tools/ci/build.sh"]
 CMD ["make-ubuntu", "none"]

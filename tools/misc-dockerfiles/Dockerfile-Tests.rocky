@@ -1,0 +1,26 @@
+#################################################################
+#								#
+# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+# This file mirrors the pipeline set-up, but is not used by the
+# pipeline. It lets you run the pipeline tests locally.
+#
+# Instructions:
+# docker run --rm --name mysql -e MYSQL_ROOT_PASSWORD=ydbrocks -d mysql:8.0 OR docker run --rm --name mysql -e MARIADB_ROOT_PASSWORD=ydbrocks -d mariadb
+# docker build -f tools/misc-dockerfiles/Dockerfile-Tests.rocky -t tests-rocky .
+# docker run -it --link mysql --rm tests-rocky
+# docker kill mysql; docker rm mysql
+# No autoupgrade command example here as we don't fully support it with Rocky Linux
+
+FROM registry.gitlab.com/yottadb/dbms/ydbocto:rocky-master
+ADD . /builds/YDBDBMS/
+WORKDIR /builds/YDBDBMS
+ENTRYPOINT ["tools/ci/build.sh"]
+CMD ["make-rocky", "none"]

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -9,18 +9,8 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
-# This file mirrors the pipeline set-up, but is not used by the
-# pipeline. It lets you run the pipeline tests locally.
-# If you change .gitlab-ci.yml, update this as well.
-#
-# Instructions:
-# docker run --rm --name mysql -e MYSQL_ROOT_PASSWORD=ydbrocks -d mysql:8.0 OR docker run --rm --name mysql -e MARIADB_ROOT_PASSWORD=ydbrocks -d mariadb
-# docker build -f Dockerfile-Tests.rocky -t tests-rocky .
-# docker run -it --link mysql --rm tests-rocky
-# docker kill mysql; docker rm mysql
-# No autoupgrade command example here as we don't fully support it with Rocky Linux
-
-FROM yottadb/yottadb-rocky-base:latest-master
+ARG imagetag=latest-master
+FROM yottadb/yottadb-rocky-base:${imagetag}
 
 # Yum update and packages
 RUN yum update -y  && \
@@ -34,9 +24,3 @@ RUN wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-li
 # Shellcheck
 RUN curl -LOf https://github.com/koalaman/shellcheck/releases/download/v0.7.2/shellcheck-v0.7.2.linux.x86_64.tar.xz && tar -C /usr/local/bin/ -xf shellcheck-v0.7.2.linux.x86_64.tar.xz --no-anchored 'shellcheck' --strip=1
 ENV USER=root
-
-ADD . /builds/YDBDBMS/
-WORKDIR /builds/YDBDBMS
-
-ENTRYPOINT ["tools/ci/build.sh"]
-CMD ["make-rocky", "none"]

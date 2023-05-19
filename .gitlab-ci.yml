@@ -11,6 +11,7 @@
 #################################################################
 
 stages:
+  - docker-baseline
   - build
   - docs
   - docker-create
@@ -18,6 +19,10 @@ stages:
 
 variables:
   MYSQL_ROOT_PASSWORD: ydbrocks
+  UBUNTU_REL_BASELINE_REPO: registry.gitlab.com/yottadb/dbms/ydbocto:ubuntu-release
+  UBUNTU_MAS_BASELINE_REPO: registry.gitlab.com/yottadb/dbms/ydbocto:ubuntu-master
+  ROCKY_REL_BASELINE_REPO:  registry.gitlab.com/yottadb/dbms/ydbocto:rocky-release
+  ROCKY_MAS_BASELINE_REPO: registry.gitlab.com/yottadb/dbms/ydbocto:rocky-master
 
 # Shared build config
 .make:
@@ -29,32 +34,49 @@ variables:
     when: always
   interruptible: true
 
-.ubuntu:
-  before_script:
-    # Separate, non-interactive installation of tzdata required due to expect's dependency on libtcl8.6, which depends on tzdata.
-    # If these steps aren't done, the build will open an interactive prompt to setup tzdata during apt-get install.
-    - export DEBIAN_FRONTEND=noninteractive
-    - ln -fs /usr/share/zoneinfo/US/Eastern /etc/localtime
-    - apt-get update -qq && apt-get install -y tzdata
-    - dpkg-reconfigure --frontend noninteractive tzdata
-    # ncat is needed for nc utility (used by bats tests in "tests/fixtures/portno.m")
-    - apt-get install -y -qq --no-install-recommends build-essential clang clang-tidy-11 clang-format-11 cmake bison flex libcmocka-dev python3 python3-pip python3-setuptools python3-wheel libreadline-dev git libconfig-dev libssl-dev postgresql-client postgresql wget libgcrypt20-dev libgpgme-dev expect default-jdk ninja-build unixodbc odbc-postgresql tcsh shellcheck libicu-dev pkg-config locales mysql-server-8.0 mysql-client curl golang ncat
-    - locale-gen en_US.UTF-8
-    - pip3 install sphinx sphinx_rtd_theme==0.5.2 sphinxcontrib-jquery sphinxcontrib-fulltoc
+.docker-baseline-shared:
+  stage: docker-baseline
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  interruptible: true
+  services:
+    - docker:dind
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker image build --pull -f ${FILE} --build-arg imagetag=${TAG} --progress=plain -t ${REPO} .
+    - docker push ${REPO}
 
-.rocky:
-  before_script:
-    # nmap-ncat is needed for nc utility (used by bats tests in "tests/fixtures/portno.m")
-    - yum --enablerepo=powertools install -y libcmocka-devel gcc libasan make clang clang-tools-extra cmake bison flex python3-pip readline-devel git libconfig-devel openssl-devel postgresql postgresql-server libgcrypt-devel gpgme-devel openssl expect java-11-openjdk-devel unzip unixODBC postgresql-odbc diffutils pkg-config libicu-devel glibc-langpack-en wget mysql-server xz curl go nmap-ncat
-    # Ninja is not available from the default repositories on Rocky Linux.
-    # On Rocky Linux it is not available at all without going through third-party repositories.
-    # Rather than setting that up, just install ninja from the GitHub releases page directly.
-    - wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-linux.zip
-    - unzip ninja-linux.zip
-    - mv ninja /usr/local/bin/ninja
-    # ShellCheck is not available on Rocky Linux; instructions here: https://github.com/koalaman/shellcheck/issues/1789
-    - curl -LOf https://github.com/koalaman/shellcheck/releases/download/v0.7.2/shellcheck-v0.7.2.linux.x86_64.tar.xz
-    - tar -C /usr/local/bin/ -xf shellcheck-v0.7.2.linux.x86_64.tar.xz --no-anchored 'shellcheck' --strip=1
+octo-ubuntu-master-base-image:
+  extends:
+    - .docker-baseline-shared
+  variables:
+    FILE: tools/misc-dockerfiles/Dockerfile-Ubuntu-Tests.baseline
+    REPO: ${UBUNTU_MAS_BASELINE_REPO}
+    TAG: latest-master
+
+octo-ubuntu-release-base-image:
+  extends:
+    - .docker-baseline-shared
+  variables:
+    FILE: tools/misc-dockerfiles/Dockerfile-Ubuntu-Tests.baseline
+    REPO: ${UBUNTU_REL_BASELINE_REPO}
+    TAG: latest
+
+octo-rocky-master-base-image:
+  extends:
+    - .docker-baseline-shared
+  variables:
+    FILE: tools/misc-dockerfiles/Dockerfile-Rocky-Tests.baseline
+    REPO: ${ROCKY_MAS_BASELINE_REPO}
+    TAG: latest-master
+
+octo-rocky-release-base-image:
+  extends:
+    - .docker-baseline-shared
+  variables:
+    FILE: tools/misc-dockerfiles/Dockerfile-Rocky-Tests.baseline
+    REPO: ${ROCKY_REL_BASELINE_REPO}
+    TAG: latest
 
 commit-verify:
   image: ubuntu:22.04
@@ -70,7 +92,7 @@ commit-verify:
 
 # This is against the latest released version of YottaDB
 release-ubuntu:
-  image: yottadb/yottadb-base:latest
+  image: ${UBUNTU_REL_BASELINE_REPO}
   # Run Release job only if this is a scheduled pipeline
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
@@ -78,13 +100,12 @@ release-ubuntu:
     - mysql:8.0
   extends:
     - .make
-    - .ubuntu
   script:
     - ./tools/ci/build.sh "make-ubuntu" "none"
 
 # This is against the latest released version of YottaDB
 release-rocky:
-  image: yottadb/yottadb-rocky-base:latest
+  image: ${ROCKY_REL_BASELINE_REPO}
   # Run Release job only if this is a scheduled pipeline
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
@@ -92,47 +113,43 @@ release-rocky:
     - mysql:8.0
   extends:
     - .make
-    - .rocky
   script: ./tools/ci/build.sh "make-rocky" "none"
 
 make-ubuntu:
-  image: yottadb/yottadb-base:latest-master
+  image: ${UBUNTU_MAS_BASELINE_REPO}
   services:
     - mysql:8.0
   extends:
     - .make
-    - .ubuntu
   script:
     - ./tools/ci/build.sh "make-ubuntu" "none"
   only:
     - master@YottaDB/DBMS/YDBOcto
 
 make-rocky:
-  image: yottadb/yottadb-rocky-base:latest-master
+  image: ${ROCKY_MAS_BASELINE_REPO}
   services:
     - mysql:8.0
   extends:
     - .make
-    - .rocky
   script: ./tools/ci/build.sh "make-rocky" "none"
   only:
     - master@YottaDB/DBMS/YDBOcto
 
 asan-ubuntu:
-  image: yottadb/yottadb-base:latest-master
+  image: ${UBUNTU_MAS_BASELINE_REPO}
   # Override default runner timeout
   timeout: 3h
   # This ASAN job always runs
   extends:
     - .make
-    - .ubuntu
   services:
     - mysql:8.0
   script:
     - ./tools/ci/build.sh "make-ubuntu" "asan"
 
 asan-rocky:
-  image: yottadb/yottadb-rocky-base:latest-master
+  image: ${ROCKY_MAS_BASELINE_REPO}
   # Override default runner timeout
   timeout: 3h
   # Run this ASAN job only if this is a scheduled pipeline or if we are on a ASAN branch
@@ -141,7 +158,6 @@ asan-rocky:
     - if: '$CI_COMMIT_BRANCH =~ /asan/'
   extends:
     - .make
-    - .rocky
   services:
     - mysql:8.0
   script:
@@ -149,23 +165,21 @@ asan-rocky:
 
 # This job runs for branches and on master
 make-tls-ubuntu:
-  image: yottadb/yottadb-base:latest-master
+  image: ${UBUNTU_MAS_BASELINE_REPO}
   services:
     - mysql:8.0
   extends:
     - .make
-    - .ubuntu
   script:
     - ./tools/ci/install-tls.sh
     - ./tools/ci/build.sh "make-tls-ubuntu" "none"
 
 make-tls-rocky:
-  image: yottadb/yottadb-rocky-base:latest-master
+  image: ${ROCKY_MAS_BASELINE_REPO}
   services:
     - mysql:8.0
   extends:
     - .make
-    - .rocky
   script:
     - ./tools/ci/install-tls.sh
     - ./tools/ci/build.sh "make-tls-rocky" "none"
@@ -174,24 +188,22 @@ make-tls-rocky:
 
 test-force-upgrade:
   # This job tests auto upgrade functionality of binary table/function definitions by forcing an auto upgrade
-  image: yottadb/yottadb-base:latest-master
+  image: ${UBUNTU_MAS_BASELINE_REPO}
   services:
     - mysql:8.0
   extends:
     - .make
-    - .ubuntu
   script:
     - ./tools/ci/build.sh "test-auto-upgrade" "force"
 
 test-auto-upgrade:
   # This job tests that auto upgrade functionality of binary table/function definitions and plan definitions (physical plans,
   # xref plans, triggers etc.) works fine relative to a random older commit
-  image: yottadb/yottadb-base:latest-master
+  image: ${UBUNTU_MAS_BASELINE_REPO}
   services:
     - mysql:8.0
   extends:
     - .make
-    - .ubuntu
   script:
     # We previously used netstat and xxd, and that's why we install net-tools
     - apt-get install -y -qq --no-install-recommends net-tools xxd

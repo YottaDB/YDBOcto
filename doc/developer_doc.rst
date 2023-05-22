@@ -36,7 +36,7 @@ Installing YottaDB
 
      # Install prerequisite packages
      # Ubuntu/Debian
-     apt update && apt install wget file procps libelf1 libicu70 libicu-dev curl cmake make gcc pkg-config sudo git
+     apt update && apt install wget file procps libelf1 libicu-dev curl cmake make gcc pkg-config sudo git
 
      # Rocky Linux/RHEL
      yum install wget file procps-ng binutils findutils elfutils-libelf libicu libicu-devel curl cmake make gcc pkg-config sudo git nano gzip

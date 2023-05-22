@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -19,7 +19,7 @@
 #include "octo_types.h"
 #include "helpers.h"
 
-void cleanup_tables() {
+void cleanup_tables(void) {
 	int	     status;
 	char	     buffer[sizeof(MemoryChunk **)];
 	char	     table_name[OCTO_MAX_IDENT + 1]; // Null terminator

@@ -1018,7 +1018,7 @@ char *m_escape_string(const char *string);
 int   m_escape_string2(char **buffer, int *buffer_len, char *string);
 char *m_unescape_string(const char *string);
 
-int	      readline_get_more();
+int	      readline_get_more(void);
 SqlStatement *parse_line(ParseContext *parse_context);
 
 int	     check_column_lists_for_type_match(SqlStatement *v,
@@ -1127,7 +1127,7 @@ int  store_function_definition(ydb_buffer_t *function_name_buffers, char *functi
 int  store_function_dependencies(char *table_name, DDLDependencyType dtype);
 int  store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer);
 int  delete_table_from_pg_class(ydb_buffer_t *table_name_buffer);
-void cleanup_tables();
+void cleanup_tables(void);
 int  store_function_in_pg_proc(SqlFunction *function, char *function_hash);
 int  delete_function_from_pg_proc(ydb_buffer_t *function_name_buffer, ydb_buffer_t *function_hash_buffer);
 int  regex_has_no_special_characters(SqlStatement *op1, enum RegexType regex_type, ParseContext *parse_context);
@@ -1196,19 +1196,19 @@ boolean_t is_query_canceled(callback_fnptr_t callback);
 /* Loads default runtime parameter settings into `pg_catalog.pg_settings`.
  * Needed for SET/SHOW commands to work properly.
  */
-int load_pg_defaults();
+int load_pg_defaults(void);
 
 // Returns the amount of memory used by the current process
-int64_t get_mem_usage();
+int64_t get_mem_usage(void);
 
-int no_more();
+int no_more(void);
 
 int  get_input(char *buf, int size);
 void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, ParseContext *parse_context, char const *s);
 
 int   get_full_path_of_generated_m_file(char *filename, int filename_len, char *m_routine_name);
 int   get_full_path_of_generated_o_file(char *filename, int filename_len, char *o_routine_name);
-char *get_emulation_string();
+char *get_emulation_string(void);
 
 int auto_load_octo_seed(void);
 int auto_load_octo_seed_if_needed(void);
@@ -1243,7 +1243,7 @@ extern int   cur_input_max;
 extern int   eof_hit;
 extern FILE *inputFile;
 extern char *input_buffer_combined; // The input buffer for octo. Contains the query strings.
-extern int (*cur_input_more)();
+extern int (*cur_input_more)(void);
 extern OctoConfig * config;
 extern ydb_buffer_t lex_buffer;		// String buffer for use in lexer.l
 extern int	    ydb_release_number; /* e.g. the integer 130 in case of r1.30 etc. */

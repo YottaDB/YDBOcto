@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -129,21 +129,21 @@ void	     free_row_description(RowDescription *rowd);
 // These should be viewed as helpers for other functions
 // varargs should be of type ErrorResponseArg
 ErrorResponse * make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECode code, const char *message, size_t num_args, ...);
-BindComplete *	make_bind_complete();
+BindComplete *	make_bind_complete(void);
 BackendKeyData *make_backend_key_data(int32_t secret_key, pid_t pid);
-CloseComplete * make_close_complete();
+CloseComplete * make_close_complete(void);
 ReadyForQuery * make_ready_for_query(PSQL_TransactionStatus status);
-EmptyQueryResponse *	   make_empty_query_response();
+EmptyQueryResponse *	   make_empty_query_response(void);
 RowDescription *	   make_row_description(RowDescriptionParm *parms, int16_t num_parms);
 DataRow *		   make_data_row(DataRowParm *parms, int16_t num_parms, int32_t *col_data_types);
 CommandComplete *	   make_command_complete(SqlStatementType type, int32_t num_rows);
 AuthenticationMD5Password *make_authentication_md5_password(RoctoSession *session, char *salt);
-AuthenticationOk *	   make_authentication_ok();
-ParseComplete *		   make_parse_complete();
+AuthenticationOk *	   make_authentication_ok(void);
+ParseComplete *		   make_parse_complete(void);
 ParameterStatus *	   make_parameter_status(StartupMessageParm *parm);
-PortalSuspended *	   make_portal_suspended();
-NoData *		   make_no_data();
-ParameterDescription *	   make_parameter_description();
+PortalSuspended *	   make_portal_suspended(void);
+NoData *		   make_no_data(void);
+ParameterDescription *	   make_parameter_description(char *statement, RoctoSession *session);
 
 // read_* messages parse the message and return a pointer to the filled out message type
 // If the message was invalid, the return is NULL
@@ -179,7 +179,7 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name);
 
 // Helper to indicate that there is no more input
-int no_more();
+int no_more(void);
 
 // Helper to lookup rocto user permissions from database
 int get_user_permissions(RoctoSession *session);

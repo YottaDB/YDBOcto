@@ -54,7 +54,7 @@ SqlStatement *get_display_relation_query_stmt(ParseContext *parse_context) {
 	char *	  save_input_buffer_combined = input_buffer_combined;
 	char *	  save_old_input_line_begin = old_input_line_begin;
 	int	  save_leading_spaces = leading_spaces;
-	int (*save_cur_input_more)();
+	int (*save_cur_input_more)(void);
 	assert(cur_input_more == &readline_get_more);
 	save_cur_input_more = cur_input_more;
 

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -35,7 +35,7 @@ int auto_load_octo_seed(void) {
 	char  octo_seed_path[OCTO_PATH_MAX], exe_path[OCTO_PATH_MAX], mupip_path[OCTO_PATH_MAX];
 	FILE *save_inputFile;
 	int   status;
-	int (*save_cur_input_more)();
+	int (*save_cur_input_more)(void);
 	size_t	     filename_len;
 	pid_t	     child_id;
 	char *	     ydb_dist;

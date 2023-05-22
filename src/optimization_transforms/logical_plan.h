@@ -473,6 +473,6 @@ boolean_t lp_generate_constraint(LogicalPlan **lp_constraint_ptr, SqlStatement *
 LogicalPlan *lp_generate_table_value(SqlStatement *stmt, boolean_t *caller_error_encountered);
 
 // Creates and returns a new/unique plan id
-int get_new_plan_unique_id();
+int get_new_plan_unique_id(void);
 
 #endif

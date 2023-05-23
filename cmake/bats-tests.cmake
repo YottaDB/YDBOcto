@@ -65,6 +65,33 @@ endif()
 
 # These tests are only run in the full test suite, but omitted during installation testing
 if("${FULL_TEST_SUITE}")
+	# Java is needed for many tests, so we need to find it and compile the code we need
+	find_package(Java COMPONENTS Development REQUIRED)
+	if(Java_Development_FOUND)
+		include(UseJava)
+		set(JAVA_SOURCE_FILES
+			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC002.java
+			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC008.java
+			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC010.java
+			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC011.java
+			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC015.java
+			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC016.java
+			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC017.java
+			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC018.java
+			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC019.java
+			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC020.java
+			${PROJECT_SOURCE_DIR}/tests/fixtures/run_multi_query.java
+			${PROJECT_SOURCE_DIR}/tests/fixtures/run_multiple_query_files.java
+			${PROJECT_SOURCE_DIR}/tests/fixtures/run_query.java
+		)
+		add_jar(jocto ${JAVA_SOURCE_FILES})
+
+		# Get the Postgres JDBC file to use against Octo
+		set(JDBC_VERSION "42.6.0") # this is the latest driver as of May 2023
+		file(DOWNLOAD "https://jdbc.postgresql.org/download/postgresql-${JDBC_VERSION}.jar" postgresql.jar
+		EXPECTED_HASH SHA1=7614cfce466145b84972781ab0079b8dea49e363)
+	endif()
+
 	# These tests do things that influence the behavior of other tests, and thus
 	# they are run alone.
 	ADD_BATS_TEST_SERIAL(test_no_parallel_suite)
@@ -174,6 +201,7 @@ if("${FULL_TEST_SUITE}")
 	ADD_BATS_TEST_DML(test_powerbi)
 	ADD_BATS_TEST_DML(test_select_columns_psql)
 	ADD_BATS_TEST_DML(test_auto_upgrade)
+	ADD_BATS_TEST_DML(test_jdbc_connection)
 
 	# The following test requires MySQL and PostgreSQL
 	ADD_BATS_TEST_DML(test_date_time_functions)
@@ -181,11 +209,6 @@ if("${FULL_TEST_SUITE}")
 	find_program(go NAMES go)
 	if(go)
 		ADD_BATS_TEST_DML(test_psql_go_connection)
-	endif()
-
-	find_program(java NAMES java)
-	if(java)
-		ADD_BATS_TEST_DML(test_jdbc_connection)
 	endif()
 
 	find_program(isql NAMES isql)

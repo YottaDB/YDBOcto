@@ -560,15 +560,6 @@ run_go() {
 }
 
 run_java() {
-	# Check if .java file has already been compiled to a .class file. If so skip that step.
-	if [[ ! -e @PROJECT_BINARY_DIR@/$1.class ||
-		$(stat -c '%Y' @PROJECT_BINARY_DIR@/$1.class) -le $(stat -c '%Y' @PROJECT_SOURCE_DIR@/tests/fixtures/$1.java) ]]; then
-		# Copy .java file from fixtures directory to current directory to create .class file
-		cp @PROJECT_SOURCE_DIR@/tests/fixtures/$1.java @PROJECT_BINARY_DIR@
-		# Compile the .java file to a .class file
-		javac @PROJECT_BINARY_DIR@/$1.java	# will create the file $1.class
-
-	fi
 	strip_sql_comments $3
 	if [[ $1 == "run_query" ]]; then
 		# Only append ".sql" for queries derived from fixtures, not for generated queries
@@ -584,15 +575,11 @@ run_java() {
 	else
 		query=""
 	fi
-	psql_jar="@PROJECT_BINARY_DIR@/postgresql-$JDBC_VERSION.jar"
-	if ! [[ -v JDBC_VERSION ]]; then
-		echo "error: \$JDBC_VERSION was required but not set. Consult the Octo README for more information."
-	elif ! [[ -e "$psql_jar" ]]; then
+	psql_jar="@PROJECT_BINARY_DIR@/postgresql.jar"
+	if ! [ -e "$psql_jar" ]; then
 		echo "error: $psql_jar does not exist. Cannot continue."
 	fi
-	# Run the $1.java file now that the $1.class file has been compiled/created.
-	# Ensure both the postgresql-$JDBC_VERSION.jar file and the $1.class file will be found in the -classpath specification below
-	java -classpath @PROJECT_BINARY_DIR@/postgresql-$JDBC_VERSION.jar:@PROJECT_BINARY_DIR@ $1 $2 "$query" $4 $5 $6
+	java -classpath $psql_jar:@PROJECT_BINARY_DIR@/src/jocto.jar $1 $2 "$query" $4 $5 $6
 }
 
 strip_psql_header() {

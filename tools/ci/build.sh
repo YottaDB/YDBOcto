@@ -169,9 +169,13 @@ free > dbg_free.out		# system RAM and SWAP
 df -h > dbg_dfh.out		# system disk space
 lscpu > dbg_lscpu.out		# system CPUs
 
-echo "# Download PostgreSQL JDBC driver for testing"
-export JDBC_VERSION=42.6.0	# this is the latest driver as of May 2023
-wget https://jdbc.postgresql.org/download/postgresql-$JDBC_VERSION.jar
+# The Postgres driver is now part of the CMake files as of MR !1390 ([#915] Pre-compile Java and other refactoring)
+# But previous commits don't have that, so need to get it for previous commits
+if [[ "test-auto-upgrade" == $jobname ]]; then
+	echo "# Download PostgreSQL JDBC driver for testing"
+	export JDBC_VERSION=42.6.0	# this is the latest driver as of May 2023
+	wget https://jdbc.postgresql.org/download/postgresql-$JDBC_VERSION.jar
+fi
 
 echo "# Check repo for unused outref files"
 pushd ../tests

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -14,7 +14,7 @@
 
 #include "octo.h"
 
-char *get_emulation_string() {
+char *get_emulation_string(void) {
 	switch (config->database_emulation) {
 	case POSTGRES:
 		assert(MAX_EMULATION_STRING_LEN > strlen(OCTOLIT_POSTGRESQL));

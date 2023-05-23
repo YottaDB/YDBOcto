@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -25,7 +25,7 @@
 #define COMMAND_LEN    (sizeof(COMMAND_STRING) + INT64_TO_STRING_MAX)
 
 // Returns the amount of memory used by the current process
-int64_t get_mem_usage() {
+int64_t get_mem_usage(void) {
 	FILE *	fp;
 	char	mem_used[INT64_TO_STRING_MAX];
 	int64_t ret;

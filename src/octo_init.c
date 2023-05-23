@@ -664,7 +664,7 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 	return 0;
 }
 
-int populate_global_names() {
+int populate_global_names(void) {
 	SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(schema, "^");	 /* ^%ydboctoschema */
 	SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(session, "");	 /*  %ydboctosession */
 	SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(cursor, "");	 /*  %ydboctocursor */
@@ -677,7 +677,7 @@ int populate_global_names() {
 }
 
 // TODO: this function leaks about half a kilobyte of memory
-void init_crypto() {
+void init_crypto(void) {
 	/* Load the human readable error strings for libcrypto */
 	ERR_load_crypto_strings();
 

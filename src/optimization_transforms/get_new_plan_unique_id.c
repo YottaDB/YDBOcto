@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -19,7 +19,7 @@
 
 #include "logical_plan.h"
 
-int get_new_plan_unique_id() {
+int get_new_plan_unique_id(void) {
 	int ret;
 
 	ret = config->plan_id;

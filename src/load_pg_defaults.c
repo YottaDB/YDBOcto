@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -79,7 +79,7 @@
 		}                                                                                                      \
 	}
 
-int load_pg_defaults() {
+int load_pg_defaults(void) {
 #include "pg_defaults_table.h" /* this would return with a value that is not YDB_OK in case of errors */
 	return YDB_OK;
 }

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,7 +20,7 @@
 
 #include "message_formats.h"
 
-NoData *make_no_data() {
+NoData *make_no_data(void) {
 	NoData *ret;
 
 	ret = (NoData *)malloc(sizeof(NoData));

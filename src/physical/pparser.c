@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -26,7 +26,7 @@ char linestart_prefix[64];
 Expr *print_template(Expr *expr, Expr *prev);
 void  store_linestart_prefix(char *str);
 
-int main() {
+int main(void) {
 	if (yyparse()) {
 		ERROR(ERR_PARSING_COMMAND, "Trouble parsing input");
 		return 1;
@@ -80,7 +80,7 @@ void store_linestart_prefix(char *str) {
 	return;
 }
 
-char *get_linestart_prefix() {
+char *get_linestart_prefix(void) {
 	if (linestart_prefix_firsttime_use) {
 		linestart_prefix_firsttime_use = FALSE;
 		return linestart_prefix + strlen(linestart_prefix); /* effectively return an empty string */

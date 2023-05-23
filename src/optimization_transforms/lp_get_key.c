@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -24,7 +24,7 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 	SqlValue *	search_column_name;
 	SqlTableAlias * table_alias;
 	SqlKey *	key, *primary_key;
-	int		key_id, search_id, join_table_id, join_table_num;
+	int		key_id, search_id, join_table_id;
 	LogicalPlan *	cur_key, *lp_key;
 
 	column_alias = lp_column_alias->v.lp_column_alias.column_alias;
@@ -41,7 +41,6 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 	cur_key = lp_get_keys(plan);
 
 	primary_key = NULL;
-	join_table_num = 0;
 	join_table_id = -1;
 	search_id = table_alias->unique_id;
 	do {
@@ -50,7 +49,6 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 		key_id = key->unique_id;
 		if (join_table_id != key_id) {
 			join_table_id = key_id;
-			join_table_num++;
 		}
 		do {
 			if (key_id != search_id)

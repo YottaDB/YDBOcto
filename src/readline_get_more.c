@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -17,7 +17,7 @@
 
 #include "octo.h"
 
-int readline_get_more() {
+int readline_get_more(void) {
 	int   line_length, data_read;
 	char *line;
 	if (config->is_tty) {

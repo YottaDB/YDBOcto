@@ -28,7 +28,7 @@
 
 extern int yydebug;
 
-int no_more() { return 0; }
+int no_more(void) { return 0; }
 
 int main(int argc, char **argv) {
 	ParseContext parse_context;

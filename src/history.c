@@ -1,6 +1,6 @@
 /****************************************************************
  * 								*
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  * 								*
  * This source code contains the intellectual property		*
@@ -43,7 +43,7 @@
  * reading/writing fails
  * NB: Private function to this file
  */
-boolean_t ensure_file_exists() {
+boolean_t ensure_file_exists(void) {
 	int fd;
 
 	fd = open(config->octo_history, O_CREAT, S_IRUSR | S_IWUSR);

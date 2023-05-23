@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -22,7 +22,7 @@
 #include "rocto.h"
 #include "physical_plan.h"
 
-int no_more() {
+int no_more(void) {
 	eof_hit = EOF_CTRLD;
 	return 0;
 }

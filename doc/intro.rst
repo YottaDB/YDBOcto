@@ -57,6 +57,7 @@ Setup
   Installing and configuring YottaDB is described on its own `documentation page <https://docs.yottadb.com/AdminOpsGuide/installydb.html>`__. With the :code:`--octo` option of YottaDB's `ydbinstall.sh <https://gitlab.com/YottaDB/DB/YDB/-/blob/master/sr_unix/ydbinstall.sh>`_ script, you can install YottaDB and Octo with one command.
 
   .. note::
+
     Octo is a YottaDB application, not an application that runs on the upstream GT.M for which YottaDB is a drop-in upward-compatible replacement.
 
 -------------
@@ -150,9 +151,9 @@ Configure Octo
   Setup Database
 ~~~~~~~~~~~~~~~~
 
-.. note::
+  .. note::
 
-   There is no need to create databases manually if :code:`ydb_env_set` has been sourced.
+    There is no need to create databases manually if :code:`ydb_env_set` has been sourced.
 
   Octo uses several global variables for its operation, which start with :code:`%ydbocto` and :code:`%ydbAIM`. The :code:`%ydbAIM` globals are intended to be ephemeral and are not recommended to be journaled; we also recommend that you use a memory mapped region with 2K blocks. Use `GDE <https://docs.yottadb.net/AdminOpsGuide/gde.html>`_ to map :code:`%ydbocto*` and :code:`%ydbAIM` global variables to a separate region. Global variables used by Octo and AIM must have `NULL_SUBSCRIPTS=ALWAYS <https://docs.yottadb.net/AdminOpsGuide/gde.html#no-n-ull-ubscripts-always-never-existing>`_.
 
@@ -612,8 +613,7 @@ Useful Commands at OCTO>
 
     .. note::
 
-       Both :code:`\\d` and :code:`\\d tablename` require a semi-colon to terminate the query. Newlines will *not* terminate :code:`\\d` queries.
-
+      Both :code:`\\d` and :code:`\\d tablename` require a semi-colon to terminate the query. Newlines will *not* terminate :code:`\\d` queries.
 
     Relation shown will be similar to the following:
 

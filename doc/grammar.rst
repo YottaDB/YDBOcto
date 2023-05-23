@@ -774,10 +774,6 @@ DROP TABLE
 
   If :code:`IF EXISTS` is supplied for a :code:`DROP TABLE` statement and a table does not exist, the result is a no-op with no errors. In this case, error type :code:`INFO_TABLE_DOES_NOT_EXIST` is emitted at :code:`INFO` log severity level.
 
-.. Optional parameters include CASCADE and RESTRICT.
-.. The CASCADE parameter is used to specify that all objects depending on the table will also be dropped.
-.. The RESTRICT parameter is used to specify that the table referred to by table_name will not be dropped if there are existing objects depending on it.
-
   Example:
 
   .. code-block:: SQL
@@ -1697,40 +1693,49 @@ NULLIF
   The built-in NULLIF function returns NULL if both arguments are equal, or the first argument otherwise.
   The arguments must have the same type.
 
-.. The following function is not currently documented because it is not fully functional, but is partially implemented to avoid syntax errors during SQL client startup.
-    +++++++++++++++++++
-    PG_ENCODING_TO_CHAR
-    +++++++++++++++++++
++++++++++++++++++++
+PG_ENCODING_TO_CHAR
++++++++++++++++++++
 
-    .. code-block:: SQL
+  .. code-block:: SQL
 
-       PG_ENCODING_TO_CHAR(INTEGER)
+     PG_ENCODING_TO_CHAR(INTEGER)
 
-    The built-in PG_ENCODING_TO_CHAR function converts the value of the current character encoding setting from INTEGER representation to VARCHAR.
+  The built-in PG_ENCODING_TO_CHAR function converts the value of the current character encoding setting from INTEGER representation to VARCHAR.
 
-    Since PostgreSQL encodings are not fully supported by Octo, this function will always return SQL_ASCII.
+  Since PostgreSQL encodings are not fully supported by Octo, this function will always return SQL_ASCII.
 
-.. The following function is not currently documented because it is not fully functional, but is partially implemented to avoid syntax errors during SQL client startup.
-    +++++++++++++++++
-    PG_IS_IN_RECOVERY
-    +++++++++++++++++
+  .. note::
 
-    .. code-block:: SQL
+    This function is only partially implemented and returns a fixed value regardless of input. It is partially implemented solely to avoid syntax errors during SQL client startup.
 
-       PG_IS_IN_RECOVERY()
++++++++++++++++++
+PG_IS_IN_RECOVERY
++++++++++++++++++
 
-    The built-in PG_IS_IN_RECOVERY function returns true if the database is in the process of recovering from a failure by restoring a backup. Since Octo doesn't currently support this feature, this function always returns false (0).
+  .. code-block:: SQL
 
-.. The following function is not currently documented because it is not fully functional, but is partially implemented to avoid syntax errors during SQL client startup.
-    ++++++++++++++++++++++++
-    PG_IS_XLOG_REPLAY_PAUSED
-    ++++++++++++++++++++++++
+     PG_IS_IN_RECOVERY()
 
-    .. code-block:: SQL
+  The built-in PG_IS_IN_RECOVERY function returns true if the database is in the process of recovering from a failure by restoring a backup. Since Octo doesn't currently support this feature, this function always returns false (0).
 
-       PG_IS_XLOG_REPLAY_PAUSED()
+  .. note::
 
-    The built-in PG_IS_XLOG_REPLAY_PAUSED function returns true if the database has paused the process of recovering from a failure by restoring a backup. Since Octo doesn't currently support this feature, this function always returns false (0).
+    This function is only partially implemented and returns a fixed value regardless of input. It is partially implemented solely to avoid syntax errors during SQL client startup.
+
+++++++++++++++++++++++++
+PG_IS_XLOG_REPLAY_PAUSED
+++++++++++++++++++++++++
+
+  .. code-block:: SQL
+
+     PG_IS_XLOG_REPLAY_PAUSED()
+
+  The built-in PG_IS_XLOG_REPLAY_PAUSED function returns true if the database has paused the process of recovering from a failure by restoring a backup. Since Octo doesn't currently support this feature, this function always returns false (0).
+
+  .. note::
+
+    This function is only partially implemented and returns a fixed value regardless of input. It is partially implemented solely to avoid syntax errors during SQL client startup.
 
 +++++++
 ROUND

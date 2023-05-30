@@ -826,7 +826,7 @@ fillCompositeSql()
 ; It takes in the filename of the desired .sql/.zwr file as a parameter.
 findFile(file)
 	if ($zsearch(file)="") do
-	. set file="../../tests/fixtures/"_file
+	. set file="@PROJECT_SOURCE_DIR@/tests/fixtures/"_file
 	quit file
 
 ; This function takes in a .sql file, and stores table names, row names, and the variable typing of the rows.

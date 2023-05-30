@@ -48,9 +48,14 @@ macro(ADD_BATS_TEST_WITH_TIME TEST_NAME)
 endmacro(ADD_BATS_TEST_WITH_TIME)
 
 # Copy over the setup script
-configure_file (
+configure_file(
   "${PROJECT_SOURCE_DIR}/tests/test_helpers.bash.in"
   "${PROJECT_BINARY_DIR}/bats_tests/test_helpers.bash"
+)
+
+configure_file(
+  "${PROJECT_SOURCE_DIR}/tests/fixtures/QueryGenerator.m.in"
+  "${PROJECT_BINARY_DIR}/configured_fixtures/QueryGenerator.m"
 )
 
 # Core tests to always run

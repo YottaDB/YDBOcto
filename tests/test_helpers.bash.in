@@ -1157,7 +1157,7 @@ run_query_generator() {
 	numQueries=$(( $numQueries / 4 ))	# Generate 25% of queries to save time in the pipeline for JDBC tests
   fi
 
-  cp @PROJECT_SOURCE_DIR@/tests/fixtures/QueryGenerator.m .
+  cp @PROJECT_BINARY_DIR@/configured_fixtures/QueryGenerator.m .
   if [[ "nameslastname" = $databaseName ]]; then
 	load_fixture "postgres-$databaseName.sql"
   	databaseSqlFileName="postgres-$databaseName.sql"

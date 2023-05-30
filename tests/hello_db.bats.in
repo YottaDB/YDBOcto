@@ -99,6 +99,12 @@ teardown() {
 			# command below to avoid bats from treating this as an error.
 			create_${db}_database "$schema" &> "$schema".${db}.create || true
 			load_${db}_fixture "$schema" ${db}-"$schema".sql "$schema".${db}.load || true
+			# This is needed for the QueryGenarator program. Load it once for each database.
+			# (QueryGenerator is used to generate random queries to compare Octo to Postgres)
+			if [[ "postgres" == $db ]]; then
+				load_postgres_fixture "$schema" postgres-QueryGenerator.sql
+			fi
+
 			# Do minimal check of database contents after {mysql,postgres} load
 			# First find list of table names in this database/schema
 			if [[ "mysql" == $db ]]; then

@@ -1167,7 +1167,6 @@ run_query_generator() {
   	databaseSqlFileName="$databaseName.sql"
   fi
   load_fixture "QueryGenerator.sql"
-  load_postgres_fixture $databaseName postgres-QueryGenerator.sql
   # 80% of the time select read-only mode and 20% of the time select read-write mode
   isReadWriteMode=$(($RANDOM % 100))
   if [[ 80 -gt $isReadWriteMode ]]; then

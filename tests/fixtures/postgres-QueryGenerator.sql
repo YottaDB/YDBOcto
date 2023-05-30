@@ -1,6 +1,6 @@
 -- ######################################################################
 -- #									#
--- # Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	#
+-- # Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
 -- # All rights reserved.						#
 -- #									#
 -- #	This source code contains the intellectual property		#
@@ -10,24 +10,19 @@
 -- #									#
 -- ######################################################################
 
-DROP FUNCTION IF EXISTS SAMEVALUE(integer);
 CREATE FUNCTION SAMEVALUE(integer) RETURNS integer
     AS 'select $1;'
     LANGUAGE SQL
     IMMUTABLE;
-DROP FUNCTION IF EXISTS SAMEVALUE(numeric);
 CREATE FUNCTION SAMEVALUE(numeric) RETURNS numeric
     AS 'select $1;'
     LANGUAGE SQL
     IMMUTABLE;
-DROP FUNCTION IF EXISTS SAMEVALUE(varchar);
 CREATE FUNCTION SAMEVALUE(varchar) RETURNS varchar
     AS 'select $1;'
     LANGUAGE SQL
     IMMUTABLE;
-DROP FUNCTION IF EXISTS SAMEVALUE(boolean);
 CREATE FUNCTION SAMEVALUE(boolean) RETURNS boolean
     AS 'select $1;'
     LANGUAGE SQL
     IMMUTABLE;
-

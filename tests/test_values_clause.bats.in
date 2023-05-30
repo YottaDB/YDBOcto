@@ -26,7 +26,6 @@ teardown() {
 @test "TVC01 : OCTO502 : Implement VALUES clause (aka table-value-constructor)" {
 	echo "# Load SAMEVALUE function (used in TVC01.sql) in Octo and Postgres" >> output.txt
 	load_fixture "QueryGenerator.sql"
-	load_postgres_fixture names postgres-QueryGenerator.sql
 	echo "# Run cross check" >> output.txt
 	# TVC01.sql has 100+ queries. To reduce test runtime we would ideally run only a small random fraction (25%) of that.
 	# But later stages of the test rely on all queries here being executed so we run all queries (100% i.e. 1.00) here.

@@ -39,7 +39,6 @@ teardown() {
 	# This subtest is similar to the test_delete_from_table/TDFT01 subtest
 	echo "# Load SAMEVALUE function (used in TVC01.sql) in Octo and Postgres" >> output.txt
 	load_fixture "QueryGenerator.sql"
-	load_postgres_fixture names postgres-QueryGenerator.sql
 	echo "# Run cross check" >> output.txt
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TUT002.sql
 	# Firstly, delete created tables from Postgres as it can confuse later runs of other tests

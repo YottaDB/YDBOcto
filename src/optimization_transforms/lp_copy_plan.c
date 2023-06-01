@@ -28,7 +28,6 @@ LogicalPlan *lp_copy_plan(LogicalPlan *plan) {
 		 */
 	case LP_VALUE:
 	case LP_TABLE:
-	case LP_TABLE_VALUE:
 	case LP_TABLE_DATA:
 	case LP_ROW_VALUE:
 	case LP_COLUMN:

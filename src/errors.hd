@@ -228,6 +228,7 @@ ERROR_DEF(ERR_FAILED_TO_RETRIEVE_ENVIRONMENT_VARIABLE, "Failed to retrieve value
 // OCTO //
 // ROCTO //
 ERROR_DEF(ERR_AUTO_UPGRADE, "Cannot auto upgrade binary table/function definitions. Please manually upgrade.", PSQL_Code_Config_File_Error)
+ERROR_DEF(ERR_AUTO_UPGRADE_DB_HIGHER_FMT, "Cannot auto upgrade as DB has data in higher format. Please delete data or manually upgrade.", PSQL_Code_Config_File_Error)
 
 /*** Connection errors ***/
 // OCTO //

@@ -218,6 +218,7 @@ add_library(libocto OBJECT
   get_display_relation_query_stmt.c
   history.c
   hash_canonical_query.c
+  is_auto_upgrade_valid.c
   is_query_canceled.c
   is_stmt_table_asterisk.c
   load_pg_defaults.c

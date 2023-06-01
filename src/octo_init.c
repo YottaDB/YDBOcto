@@ -955,6 +955,14 @@ int octo_init(int argc, char **argv) {
 				assert(UserPermissions_ReadOnly == rocto_session.permissions);
 				rocto_session.permissions = UserPermissions_RWAllowSchemaChanges;
 			}
+			/* Quit auto-upgrade if DB has higher binary definition format as artifacts might exist which will
+			 * be incompatible with the current binary definition format.
+			 */
+			status = is_auto_upgrade_valid();
+			if (YDB_OK != status) {
+				/* Error message would have been printed already inside the above function call */
+				break;
+			}
 			/* Check if plan-definitions (of tables or functions) need to be auto upgraded (due to format changes).  *
 			 * If so discard them (they will be regenerated as needed).  */
 			status = auto_upgrade_plan_definition_if_needed();

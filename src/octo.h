@@ -1216,6 +1216,7 @@ int auto_upgrade_plan_definition_if_needed(void);
 int auto_upgrade_binary_definition_if_needed(void);
 int auto_upgrade_binary_function_definition(void);
 int auto_upgrade_binary_table_definition(void);
+int is_auto_upgrade_valid(void);
 
 /* history.c function prototypes */
 void print_history(void);

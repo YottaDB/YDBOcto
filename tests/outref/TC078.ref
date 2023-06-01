@@ -1,0 +1,1 @@
+[ERROR]: ERR_AUTO_UPGRADE_DB_HIGHER_FMT: Cannot auto upgrade as DB has data in higher format. Please delete data or manually upgrade.

@@ -936,3 +936,9 @@ OCTO
 	load_fixture vista-mini.sql || true
 }
 
+@test "TC078 : OCTO977 : Test that a higher binary definition to lower binary definition upgrade refuses Octo startup" {
+	load_fixture names.sql # Adds ^ydboctoocto("binfmt") based on current value of FMT_BINARY_DEFINITION
+	yottadb -run %XCMD 'set ^%ydboctoocto("binfmt")=^%ydboctoocto("binfmt")+1'
+	octo < /dev/null >> output.txt 2>&1 || true
+	verify_output TC078 output.txt
+}

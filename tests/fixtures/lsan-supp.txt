@@ -12,8 +12,10 @@
 # YottaDB Init
 leak:db_init
 
-# Leak from YottaDB in several levels down from op_gvorder/op_fngvget etc. leading to init_hashtab_intl_int4
+# Leak from YottaDB in several levels down from op_gvorder/op_fngvget etc. leading to init_hashtab_intl_int(4/8)
 leak:init_hashtab_intl_int4
+leak:init_hashtab_intl_int8
+
 # In some cases (TSCP06 subtest when run in the "asan-ubuntu" job), "init_hashtab_intl_int4" has been seen to
 # instead show up as "init_hashtab_intl_addr.lto_priv". Not sure why. So have that as a suppression too.
 leak:init_hashtab_intl_addr

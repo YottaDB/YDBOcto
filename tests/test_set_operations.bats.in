@@ -116,3 +116,7 @@ teardown() {
   load_fixture TSO17.sql subtest novv
   verify_output TSO17 output.txt
 }
+
+@test "TSO18 : OCTO981 : Test VALUES with SET operations in sub-query when used with WHERE and OR in outer query" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSO18.sql
+}

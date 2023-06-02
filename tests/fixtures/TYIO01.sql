@@ -19,7 +19,7 @@ SELECT label, jnlfilename, dbfilename FROM YDBJNLF;
 SELECT COUNT(*) FROM YDBJNLFACTIVE;
 SELECT COUNT(*) FROM YDBJNLFCOMPLETE;
 SELECT * FROM YDBJNLFOPCOUNT WHERE occurs > 0;
-SELECT * FROM YDBJNLFRECTYPE;
+SELECT RECTYPE, TBLTYPE FROM YDBJNLFRECTYPE;
 -- This is the most common query that users will perform; rest are sanity checks for other tables
 SELECT op,gvname,gvref,nodeval FROM YDBJNLFTYPE1 WHERE gvname='^pastas';
 SELECT op,gvname,gvref,nodeval FROM YDBJNLFTYPE1 WHERE gvref='^%ydboctoocto("oid")';

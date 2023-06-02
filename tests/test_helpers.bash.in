@@ -542,6 +542,7 @@ delete_users() {
 
 setup_go() {
 	mkdir -p "$test_temp/go/src/"
+	export GOPROXY=https://proxy.golang.org/cached-only
 	export GOPATH="$test_temp/go"
 }
 

@@ -152,8 +152,19 @@ boolean_t lp_is_operand_type_string(LogicalPlan *plan, boolean_t *is_null) {
 			 * can possibly have a `v` member usable other than `lp_default`. Any changes to the `v` union
 			 * layout might need to be reflected here (LOGICAL_PLAN_KEEP_IN_SYNC).
 			 */
-			cur_plan = cur_plan->v.lp_default.operand[0];
-			assert(NULL != cur_plan);
+			switch (cur_plan->type) {
+			case LP_SET_OPERATION:
+				/* LP_SET_OPERATION has LP_SET_OPTION as [0] AND LP_PLANS as [1].
+				 * We need to go to [1] to eventually arrive at the LP_COLUMN_LIST and derive the type
+				 * information from it. So this is an exception from the rest which use [0].
+				 */
+				cur_plan = cur_plan->v.lp_default.operand[1];
+				break;
+			default:
+				cur_plan = cur_plan->v.lp_default.operand[0];
+				assert(NULL != cur_plan);
+				break;
+			}
 			break;
 		}
 	}

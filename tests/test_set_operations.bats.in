@@ -120,3 +120,10 @@ teardown() {
 @test "TSO18 : OCTO981 : Test VALUES with SET operations in sub-query when used with WHERE and OR in outer query" {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSO18.sql
 }
+
+@test "TSO19 : OCTO803 : Test SET operations used as an operand to a binary operator do not SIG-11" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSO19.sql
+	load_fixture TSO19_errors.sql subtest novv
+	verify_output TSO19_errors output.txt
+}
+

@@ -58,6 +58,7 @@ teardown() {
 			if postgres_database_exists "customers"; then
 				psql customers -c 'DROP TABLE IF EXISTS customersTQG01; DROP TABLE IF EXISTS ordersTQG01;' >& postgres.drop_table_TQG01.out
 				psql customers -c 'DROP TABLE IF EXISTS customersTJC04; DROP TABLE IF EXISTS ordersTJC04;' >& postgres.drop_table_TJC04.out
+				psql customers -c 'DROP TABLE IF EXISTS customersTF03;'                                    >& postgres.drop_table_TF03.out
 			fi
 			if postgres_database_exists "pastas"; then
 				psql pastas -c 'DROP TABLE IF EXISTS names4TQG02; DROP TABLE IF EXISTS pastasTQG02;' >& postgres.drop_table_TQG02.out

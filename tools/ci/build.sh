@@ -529,13 +529,8 @@ if [[ ("test-auto-upgrade" != $jobname) || ("force" != $subtaskname) ]]; then
 	if $is_ubuntu; then
 	  /etc/init.d/postgresql start
 	elif $is_rocky8; then
-	  cp ../tools/ci/postgres-rocky/postgresql-setup /usr/bin/postgresql-setup
-	  chmod +x /usr/bin/postgresql-setup
-	  postgresql-setup initdb
-	  mv ../tools/ci/postgres-rocky/postgresql.conf /var/lib/pgsql/data/postgresql.conf
-	  chown -v postgres.postgres /var/lib/pgsql/data/postgresql.conf
-	  su postgres -c "/usr/bin/postgres -D /var/lib/pgsql/data -p 5432" &
-	  sleep 2
+	  su postgres -c 'pg_ctl -D /var/lib/pgsql/data initdb'
+	  su postgres -c 'pg_ctl -D /var/lib/pgsql/data start'
 	fi
 
 	echo "# Make the current user a superuser"

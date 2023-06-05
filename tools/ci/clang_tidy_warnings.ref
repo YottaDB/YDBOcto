@@ -1,5 +1,2 @@
 errors.c:warning: Function 'vfprintf' is called with an uninitialized va_list argument [clang-analyzer-valist.Uninitialized]
 errors.c:warning: va_arg() is called on an uninitialized va_list [clang-analyzer-valist.Uninitialized]
-make_buffers.c:warning: va_arg() is called on an uninitialized va_list [clang-analyzer-valist.Uninitialized]
-make_error_response.c:warning: va_arg() is called on an uninitialized va_list [clang-analyzer-valist.Uninitialized]
-make_error_response.c:warning: va_arg() is called on an uninitialized va_list [clang-analyzer-valist.Uninitialized]

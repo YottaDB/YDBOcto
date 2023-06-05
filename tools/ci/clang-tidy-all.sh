@@ -2,7 +2,7 @@
 
 #################################################################
 #								#
-# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -22,5 +22,5 @@ if ! clang_tidy=$("$(git rev-parse --show-toplevel)"/tools/ci/find-llvm-tool.sh 
 	exit 1
 fi
 
-find ../src -name '*.c' | grep -v '/test_.*\.c' \
-	| xargs "$clang_tidy" --checks="$ignored_warnings" "$@"
+find ../src -name '*.c' ! -name 'test_*.c' -print0 | \
+	xargs -0 -n 1 -P $(getconf _NPROCESSORS_ONLN) "$clang_tidy" --quiet --checks="$ignored_warnings" -p=$PWD

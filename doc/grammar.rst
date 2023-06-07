@@ -700,6 +700,54 @@ CREATE FUNCTION
 
   The SQL function's parameter data types are specified in a list, while the data type of the return value must be a single value (only one object can be returned from a function). The extrinsic function name must be of the form detailed in the `M Programmer's Guide <https://docs.yottadb.com/ProgrammersGuide/langfeat.html#extrinsic-functions>`__.
 
+  Example with parameters (see below for the M routine that goes with these examples):
+
+  .. code-block:: none
+
+     CREATE FUNCTION ADD(int, int)
+     RETURNS int AS $$add^myextrinsicfunction;
+
+     CREATE FUNCTION APPEND(varchar, varchar)
+     RETURNS varchar AS $$append^myextrinsicfunction;
+
+  To create a parameterless function, the parameter type list may be omitted by leaving the parentheses blank:
+
+  Example:
+
+  .. code-block:: none
+
+     CREATE FUNCTION USERFUNC()
+     RETURNS int AS $$userfunc^myextrinsicfunction;
+
+  Here's the M code (in routine ``myextrinsicfunction.m``) that goes with these functions:
+
+  .. code-block:: none
+
+     myextrinsicfunction
+     add(x,y)
+      quit x+y
+     append(x,y)
+      quit x_y
+     userfunc()
+      quit 42
+
+  Here are the results of running this from Octo:
+
+  .. code-block:: none
+
+     OCTO> select add(5,6);
+     ADD
+     11
+     (1 row)
+     OCTO> select append('foo','boo');
+     APPEND
+     fooboo
+     (1 row)
+     OCTO> select userfunc();
+     USERFUNC
+     42
+     (1 row)
+
   When a function is created from a CREATE FUNCTION statement, an entry is added to Octo's internal PostgreSQL catalog. In other words, a row is added to the :code:`pg_catalog.pg_proc` system table. To view a list of created functions, their argument number and type(s), and return argument type, you can run:
 
   .. code-block:: SQL
@@ -721,27 +769,6 @@ CREATE FUNCTION
 
      select oid,typname
      from pg_catalog.pg_type;
-
-  Note that CREATE FUNCTION is the preferred method for creating new SQL functions and manually creating these functions through direct database modifications is not advised.
-
-  Example:
-
-  .. code-block:: none
-
-     CREATE FUNCTION ADD(int, int)
-     RETURNS int AS $$ADD^myextrinsicfunction;
-
-     CREATE FUNCTION APPEND(varchar, varchar)
-     RETURNS varchar AS $$APPEND;
-
-  To create a parameterless function, the parameter type list may be omitted by leaving the parentheses blank:
-
-  Example:
-
-  .. code-block:: none
-
-     CREATE FUNCTION userfunc()
-     RETURNS int AS $$userfunc^myextrinsicfunction;
 
 +++++++++++++
 Error Case

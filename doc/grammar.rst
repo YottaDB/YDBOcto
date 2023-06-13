@@ -2372,6 +2372,28 @@ Variations of ~
 Technical Notes
 ---------------------
 
+++++++++++++++++++++++++
+Types of quotes accepted
+++++++++++++++++++++++++
+
+Octo accepts three types of quote syntax:
+
+1. Single-quotes
+2. Double-quotes
+3. Backticks
+
+Single-quotes are used to designate string literals, which Octo treats as belonging to the VARCHAR SQL type.
+
+Double-quotes can be used in two different ways: as case-sensitive SQL identifiers and as string literals in and only in GLOBAL keyword definitions in CREATE TABLE (DDL) statements. Identifiers, whether case sensitive or not, are used to reference tables, columns, etc. For example, table names and column names are identifiers. String literals in GLOBAL keyword definitions contain M code that maps the given SQL table to a YottaDB global variable node.
+
+Finally, the backtick character ("`") is used to enclose words so that any possible reserved words that may be used in column or table names are correctly escaped.
+
+In addition, the backtick/backquote character also ensures the column name is treated as is and no case conversions are done. This lets us use the column name as is in the keys() specifications. If the column name had not been enclosed inside double quotes or backquotes, the column name would be upper cased internally by Octo and the ``keys()`` syntax would have to only specify the upper cased name.
+
++++++++++++++++++++++++++
+Exceptions to BNF grammar
++++++++++++++++++++++++++
+
   The following rule for a row_value_constructor is currently a deviation from BNF due to a Reduce-Reduce conflict in the grammar:
 
   .. code-block:: none

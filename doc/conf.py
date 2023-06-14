@@ -47,8 +47,7 @@ import sphinx_rtd_theme
 extensions = ["sphinx.ext.autodoc",
     "sphinx.ext.doctest",
     "sphinx.ext.mathjax",
-    "sphinx.ext.githubpages",
-    "sphinxcontrib.jquery"
+    "sphinx.ext.githubpages"
 ]
 
 # Add any paths that contain templates here, relative to this directory.

@@ -277,6 +277,7 @@ int check_column_lists_for_type_match(SqlStatement *stmt, ParseContext *parse_co
 				UNPACK_SQL_STATEMENT(column_alias, column_list->value, column_alias);
 				UNPACK_SQL_STATEMENT(column, column_alias->column, column);
 				cla1_type = type_mismatch_cla[1]->type;
+				cl1 = NULL; // Avoid [-Wmaybe-uninitialized] warning
 			} else {
 
 				cl1 = (SqlColumnList *)cur_cla[1];
@@ -287,6 +288,7 @@ int check_column_lists_for_type_match(SqlStatement *stmt, ParseContext *parse_co
 			ERROR(ERR_INSERT_TYPE_MISMATCH, value->v.string_literal, get_user_visible_type_string(cla1_type),
 			      get_user_visible_type_string(type_mismatch_cla[0]->type));
 			if (cla1_is_of_type_cl) {
+				assert(NULL != cl1);
 				yyerror(NULL, NULL, &cl1->value, NULL, NULL, NULL);
 			}
 			location = type_mismatch_cla[0]->column_list->loc;

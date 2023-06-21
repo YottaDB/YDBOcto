@@ -642,20 +642,17 @@ if (NOT ${DISABLE_INSTALL})
 	install(TARGETS rocto
 			DESTINATION octo/bin)
 
-	if (NOT EXISTS ${CMAKE_INSTALL_PREFIX}/bin/)
-	  install(DIRECTORY DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/)
-	endif()
+	install(DIRECTORY DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/)
 
 	# Create symbolic (soft) links to binaries from $ydb_dist/plugin/bin
-	INSTALL(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_INSTALL_PREFIX}/octo/bin/octo ${CMAKE_INSTALL_PREFIX}/bin/octo)")
-	INSTALL(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_INSTALL_PREFIX}/octo/bin/rocto ${CMAKE_INSTALL_PREFIX}/bin/rocto)")
+	install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_INSTALL_PREFIX}/octo/bin/octo ${CMAKE_INSTALL_PREFIX}/bin/octo)")
+	install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_INSTALL_PREFIX}/octo/bin/rocto ${CMAKE_INSTALL_PREFIX}/bin/rocto)")
 
 	# Configuration file
-	if(NOT EXISTS ${CMAKE_INSTALL_PREFIX}/octo/octo.conf)
-		install(FILES aux/octo.conf.default
+	install(FILES aux/octo.conf.default
 				DESTINATION octo
 				RENAME octo.conf)
-	endif()
+
 	install(FILES ${PROJECT_SOURCE_DIR}/src/aux/ydbocto.ci
 			DESTINATION octo)
 

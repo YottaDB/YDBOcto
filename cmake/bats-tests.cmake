@@ -93,7 +93,7 @@ if("${FULL_TEST_SUITE}")
 
 		# Get the Postgres JDBC file to use against Octo
 		set(JDBC_VERSION "42.6.0") # this is the latest driver as of May 2023
-		file(DOWNLOAD "https://jdbc.postgresql.org/download/postgresql-${JDBC_VERSION}.jar" postgresql.jar
+		file(DOWNLOAD "https://jdbc.postgresql.org/download/postgresql-${JDBC_VERSION}.jar" ${PROJECT_BINARY_DIR}/postgresql.jar
 		EXPECTED_HASH SHA1=7614cfce466145b84972781ab0079b8dea49e363)
 	endif()
 

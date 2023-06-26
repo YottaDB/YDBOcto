@@ -614,7 +614,7 @@ PSQL
 	# Note that "grep" exits with status of 1 if no match is found. But we do not want the script to error (due to "set -e")
 	# because of this ("set -o pipefail" will cause final exit status of pipeline to be non-zero if at least one of the
 	# commands exits with a non-zero status). Hence the "|| true" usage below.
-	grep "Temporary files in" Testing/Temporary/LastTest.log || true | awk '{print $NF}' | sed 's,.*/,,g' | sort > failed_bats_dirs.txt
+	(grep "Temporary files in" Testing/Temporary/LastTest.log || true) | awk '{print $NF}' | sed 's,.*/,,g' | sort > failed_bats_dirs.txt
 	# Update "passed_bats_dirs.txt" for use by a later stage (to remove passed directories and reduce pipeline artifact size)
 	# No need to do this for "test-auto-upgrade" job as it does not use this file. And it is actually not correct to run
 	# this code for that job as we are running an older commit and it could have multiple subtests with name ambiguity

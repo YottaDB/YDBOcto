@@ -1,0 +1,15 @@
+
+select _id1 as _ from _test1 group by _ order by _;
+select * from _test2;
+_
+1
+2
+(2 rows)
+_ID1|_FULLNAME
+0|ZeroCool
+1|AcidBurn
+2|CerealKiller
+3|LordNikon
+4|Joey
+5|ZeroCool
+(6 rows)

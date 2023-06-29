@@ -942,3 +942,27 @@ OCTO
 	octo < /dev/null >> output.txt 2>&1 || true
 	verify_output TC078 output.txt
 }
+
+@test "TC079 : OCTO993 : Check auto load works fine when table and column names start with `_`" {
+	# Run only if build is of type "Debug", `seedreload` config is only available in "Debug" build
+	if [[ "Debug" != @CMAKE_BUILD_TYPE@ ]]; then
+		skip
+	fi
+	load_fixture names.zwr
+	# Invoke octo to finish auto load of octo-seed.sql before "load_fixture ... subtest" invocation.
+	# This is to avoid verbose output of each query in "octo-seed.sql" which would otherwise pollute the reference file.
+	octo < /dev/null
+	load_fixture TC079_before_load.sql subtest novv
+	verify_output TC079_before_load output.txt
+	mv output.txt TC079_before_load_output.txt
+	echo 'seedreload = "TRUE"' > octo.conf
+	# Check if auto load created the tables again
+	octo -vvv < /dev/null >> seed_reload_log.txt 2>&1
+	[[ $(grep -c 'INFO_PARSING_DONE: Parsing done for SQL command \[CREATE TABLE `_TEST1`' seed_reload_log.txt) -eq 1 ]]
+	[[ $(grep -c 'INFO_PARSING_DONE: Parsing done for SQL command \[CREATE TABLE `_TEST2`' seed_reload_log.txt) -eq 1 ]]
+	mv octo.conf octo_seed.conf
+	# Check if select on the reloaded tables work fine
+	load_fixture TC079_after_load.sql subtest novv
+	verify_output TC079_after_load output.txt
+	mv output.txt TC079_after_load_output.txt
+}

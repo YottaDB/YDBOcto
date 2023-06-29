@@ -344,7 +344,7 @@ int copied_so_far;
 		RESET_BUFFER(lex_buffer);
                 return PARENLESS_FUNCTION;
               }
-[a-zA-Z][a-zA-Z0-9_$^]* {
+[a-zA-Z_][a-zA-Z0-9_$^]* {
                 copied_so_far = 0;
                 char *yptr = yytext;
                 COPY_STRING((&lex_buffer), yptr, copied_so_far);

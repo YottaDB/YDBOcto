@@ -373,7 +373,12 @@ In READONLY tables, if none of the columns are specified as keys (PRIMARY KEY or
 
   Here, two TAB characters (ASCII value 9) act as the internal delimiter of an Octo table. Note, however, that these delimiters are not applied to Octo output, which retains the default pipe :code:`|` delimiter. The reason for this is that tables may be joined that have different delimiters, so one common delimiter needs to be chosen anyway. Thus, the default is used.
 
-  Note that table and column names may be specified as either unquoted identifiers, e.g. :code:`id` or :code:`mytable`, or as double-quoted identifiers, e.g. :code:`"id"` or :code: `"mytable"`. Unquoted identifiers are *case insensitive* and internally cast to uppercase, while double-quoted identifiers are *case sensitive*. Additionally, double-quoted identifiers may contain spaces and/or SQL keywords.
+  Note:
+
+    * Table and column names may be specified as either unquoted identifiers, e.g. :code:`id` or :code:`mytable`, or as double-quoted identifiers, e.g. :code:`"id"` or :code: `"mytable"`.
+    * Unquoted identifiers are *case insensitive* and internally cast to uppercase, while double-quoted identifiers are *case sensitive*
+    * Double-quoted identifiers may contain spaces and/or SQL keywords
+    * Underscores are allowed in all identifiers
 
 .. _mapexisting:
 

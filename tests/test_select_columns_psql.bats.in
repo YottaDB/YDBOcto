@@ -208,3 +208,12 @@ teardown() {
 	load_fixture TSCP24_errors.sql subtest novv
 	verify_output TSCP24_errors output.txt noinfo nodebug
 }
+
+@test "TSCP25 : OCTO993 : Allow underscore as starting character in identifiers" {
+	test_port=$(start_rocto 1400 -aw) # --read write and --allow schema changes required for this test
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP25_underscore_name_result_crosscheck.sql
+	$ydb_dist/yottadb -run %XCMD 'set ^x(1)="first_last",^x(2)="first_last"'
+	load_fixture TSCP25_underscore_name_verification.sql subtest novv
+	verify_output TSCP25_underscore_name_verification output.txt noinfo nodebug
+}
+

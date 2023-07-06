@@ -8,7 +8,7 @@ DROP TABLE names2;
 
 CREATE TABLE
 INSERT 0 2
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 5|Zero|Cool
 (2 rows)

@@ -23,25 +23,25 @@ LP_SELECT_QUERY:
           LP_AGGREGATE_FUNCTION_COUNT: 
             LP_COLUMN_LIST: 
               LP_MULTIPLICATION: 
-                LP_COLUMN_ALIAS: N1(1).ID
+                LP_COLUMN_ALIAS: n1(1).id
                 LP_VALUE: '2'
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
         - alias: ???
       LP_WHERE: 
-        LP_COLUMN_ALIAS: N1(1).FIRSTNAME
+        LP_COLUMN_ALIAS: n1(1).firstname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: FIRSTNAME
+        - alias: firstname
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: N1(1)
+        LP_TABLE: n1(1)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
           LP_WHERE: 
             LP_BOOLEAN_IN: 
-              LP_COLUMN_ALIAS: N1(1).ID
+              LP_COLUMN_ALIAS: n1(1).id
               LP_SELECT_QUERY: 
                 LP_PROJECT: 
                   LP_COLUMN_LIST: 
@@ -50,20 +50,20 @@ LP_SELECT_QUERY:
                         LP_COLUMN_LIST: 
                           LP_ADDITION: 
                             LP_MODULO: 
-                              LP_COLUMN_ALIAS: N2(2).ID
+                              LP_COLUMN_ALIAS: n2(2).id
                               LP_VALUE: '3'
                             LP_VALUE: '4'
                       LP_COLUMN_LIST_ALIAS: 
                       - type: INTEGER_LITERAL
-                      - alias: MAX
+                      - alias: max
                   LP_SELECT: 
                     LP_TABLE_JOIN: 
-                      LP_TABLE: N2(2)
+                      LP_TABLE: n2(2)
                     LP_CRITERIA: 
                       LP_KEYS: 
                         LP_KEY: 
-                        - table_name: NAMES
-                        - column_name: ID
+                        - table_name: names
+                        - column_name: id
                         - unique_id: 2
                         - method: LP_KEY_ADVANCE
                         - xref_key: false
@@ -75,7 +75,7 @@ LP_SELECT_QUERY:
                             LP_GROUP_BY: 
                               LP_COLUMN_LIST: 
                                 LP_WHERE: 
-                                  LP_COLUMN_ALIAS: N2(2).FIRSTNAME
+                                  LP_COLUMN_ALIAS: n2(2).firstname
                                   LP_COLUMN_LIST_ALIAS: 
                                   - type: STRING_LITERAL
                           LP_KEYWORDS:  DISTINCT;
@@ -92,7 +92,7 @@ LP_SELECT_QUERY:
               LP_GROUP_BY: 
                 LP_COLUMN_LIST: 
                   LP_WHERE: 
-                    LP_COLUMN_ALIAS: N1(1).FIRSTNAME
+                    LP_COLUMN_ALIAS: n1(1).firstname
                     LP_COLUMN_LIST_ALIAS: 
                     - type: STRING_LITERAL
             LP_KEYWORDS:  DISTINCT;
@@ -107,10 +107,10 @@ LP_SELECT_QUERY:
     LP_ORDER_BY: ORDER BY ASC: 
       LP_COLUMN_LIST: 
         LP_WHERE: 
-          LP_COLUMN_ALIAS: N1(1).FIRSTNAME
+          LP_COLUMN_ALIAS: n1(1).firstname
           LP_COLUMN_LIST_ALIAS: 
           - type: STRING_LITERAL
-          - alias: FIRSTNAME
+          - alias: firstname
       LP_ORDER_BY: ORDER BY ASC: 
         LP_COLUMN_LIST: 
           LP_WHERE: 
@@ -119,7 +119,7 @@ LP_SELECT_QUERY:
               LP_AGGREGATE_FUNCTION_COUNT: 
                 LP_COLUMN_LIST: 
                   LP_MULTIPLICATION: 
-                    LP_COLUMN_ALIAS: N1(1).ID
+                    LP_COLUMN_ALIAS: n1(1).id
                     LP_VALUE: '2'
             LP_COLUMN_LIST_ALIAS: 
             - type: INTEGER_LITERAL
@@ -135,24 +135,24 @@ LP_SELECT_QUERY:
           LP_AGGREGATE_FUNCTION_COUNT: 
             LP_COLUMN_LIST: 
               LP_MULTIPLICATION: 
-                LP_COLUMN_ALIAS: N1(1).ID
+                LP_COLUMN_ALIAS: n1(1).id
                 LP_VALUE: '2'
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
         - alias: ???
       LP_WHERE: 
-        LP_COLUMN_ALIAS: N1(1).FIRSTNAME
+        LP_COLUMN_ALIAS: n1(1).firstname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: FIRSTNAME
+        - alias: firstname
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: N1(1)
+        LP_TABLE: n1(1)
       LP_CRITERIA: 
         LP_KEYS: 
           LP_KEY: 
-          - table_name: NAMES
-          - column_name: ID
+          - table_name: names
+          - column_name: id
           - unique_id: 1
           - method: LP_KEY_ADVANCE
           - xref_key: false
@@ -160,7 +160,7 @@ LP_SELECT_QUERY:
         LP_SELECT_OPTIONS: 
           LP_WHERE: 
             LP_BOOLEAN_IN: 
-              LP_COLUMN_ALIAS: N1(1).ID
+              LP_COLUMN_ALIAS: n1(1).id
               LP_SELECT_QUERY: 
                 LP_PROJECT: 
                   LP_COLUMN_LIST: 
@@ -169,20 +169,20 @@ LP_SELECT_QUERY:
                         LP_COLUMN_LIST: 
                           LP_ADDITION: 
                             LP_MODULO: 
-                              LP_COLUMN_ALIAS: N2(2).ID
+                              LP_COLUMN_ALIAS: n2(2).id
                               LP_VALUE: '3'
                             LP_VALUE: '4'
                       LP_COLUMN_LIST_ALIAS: 
                       - type: INTEGER_LITERAL
-                      - alias: MAX
+                      - alias: max
                   LP_SELECT: 
                     LP_TABLE_JOIN: 
-                      LP_TABLE: N2(2)
+                      LP_TABLE: n2(2)
                     LP_CRITERIA: 
                       LP_KEYS: 
                         LP_KEY: 
-                        - table_name: NAMES
-                        - column_name: ID
+                        - table_name: names
+                        - column_name: id
                         - unique_id: 2
                         - method: LP_KEY_ADVANCE
                         - xref_key: false
@@ -194,7 +194,7 @@ LP_SELECT_QUERY:
                             LP_GROUP_BY: 
                               LP_COLUMN_LIST: 
                                 LP_WHERE: 
-                                  LP_COLUMN_ALIAS: N2(2).FIRSTNAME
+                                  LP_COLUMN_ALIAS: n2(2).firstname
                                   LP_COLUMN_LIST_ALIAS: 
                                   - type: STRING_LITERAL
                           LP_KEYWORDS:  DISTINCT;
@@ -211,7 +211,7 @@ LP_SELECT_QUERY:
               LP_GROUP_BY: 
                 LP_COLUMN_LIST: 
                   LP_WHERE: 
-                    LP_COLUMN_ALIAS: N1(1).FIRSTNAME
+                    LP_COLUMN_ALIAS: n1(1).firstname
                     LP_COLUMN_LIST_ALIAS: 
                     - type: STRING_LITERAL
             LP_KEYWORDS:  DISTINCT;
@@ -226,10 +226,10 @@ LP_SELECT_QUERY:
     LP_ORDER_BY: ORDER BY ASC: 
       LP_COLUMN_LIST: 
         LP_WHERE: 
-          LP_COLUMN_ALIAS: N1(1).FIRSTNAME
+          LP_COLUMN_ALIAS: n1(1).firstname
           LP_COLUMN_LIST_ALIAS: 
           - type: STRING_LITERAL
-          - alias: FIRSTNAME
+          - alias: firstname
       LP_ORDER_BY: ORDER BY ASC: 
         LP_COLUMN_LIST: 
           LP_WHERE: 
@@ -238,14 +238,14 @@ LP_SELECT_QUERY:
               LP_AGGREGATE_FUNCTION_COUNT: 
                 LP_COLUMN_LIST: 
                   LP_MULTIPLICATION: 
-                    LP_COLUMN_ALIAS: N1(1).ID
+                    LP_COLUMN_ALIAS: n1(1).id
                     LP_VALUE: '2'
             LP_COLUMN_LIST_ALIAS: 
             - type: INTEGER_LITERAL
             - alias: ???
 
 [ INFO] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering print_temporary_table
-???|FIRSTNAME
+???|firstname
 2|Joey
 2|Zero
 (2 rows)
@@ -260,20 +260,20 @@ LP_SELECT_QUERY:
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
-        LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+        LP_COLUMN_ALIAS: names(1).firstname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: FIRSTNAME
+        - alias: firstname
       LP_WHERE: 
         LP_AGGREGATE_FUNCTION_COUNT: 
           LP_COLUMN_LIST: 
-            LP_COLUMN_ALIAS: NAMES(1).ID
+            LP_COLUMN_ALIAS: names(1).id
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: COUNT
+        - alias: count
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: NAMES(1)
+        LP_TABLE: names(1)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
@@ -283,7 +283,7 @@ LP_SELECT_QUERY:
               LP_GROUP_BY: 
                 LP_COLUMN_LIST: 
                   LP_WHERE: 
-                    LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+                    LP_COLUMN_ALIAS: names(1).firstname
                     LP_COLUMN_LIST_ALIAS: 
                     - type: STRING_LITERAL
             LP_KEYWORDS: 
@@ -300,16 +300,16 @@ LP_SELECT_QUERY:
         LP_WHERE: 
           LP_AGGREGATE_FUNCTION_COUNT: 
             LP_COLUMN_LIST: 
-              LP_COLUMN_ALIAS: NAMES(1).ID
+              LP_COLUMN_ALIAS: names(1).id
           LP_COLUMN_LIST_ALIAS: 
           - type: INTEGER_LITERAL
-          - alias: COUNT
+          - alias: count
       LP_ORDER_BY: ORDER BY ASC: 
         LP_COLUMN_LIST: 
           LP_WHERE: 
             LP_AGGREGATE_FUNCTION_COUNT: 
               LP_COLUMN_LIST: 
-                LP_COLUMN_ALIAS: NAMES(1).ID
+                LP_COLUMN_ALIAS: names(1).id
             LP_COLUMN_LIST_ALIAS: 
             - type: INTEGER_LITERAL
 
@@ -318,25 +318,25 @@ LP_SELECT_QUERY:
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
-        LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+        LP_COLUMN_ALIAS: names(1).firstname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: FIRSTNAME
+        - alias: firstname
       LP_WHERE: 
         LP_AGGREGATE_FUNCTION_COUNT: 
           LP_COLUMN_LIST: 
-            LP_COLUMN_ALIAS: NAMES(1).ID
+            LP_COLUMN_ALIAS: names(1).id
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: COUNT
+        - alias: count
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: NAMES(1)
+        LP_TABLE: names(1)
       LP_CRITERIA: 
         LP_KEYS: 
           LP_KEY: 
-          - table_name: NAMES
-          - column_name: ID
+          - table_name: names
+          - column_name: id
           - unique_id: 1
           - method: LP_KEY_ADVANCE
           - xref_key: false
@@ -348,7 +348,7 @@ LP_SELECT_QUERY:
               LP_GROUP_BY: 
                 LP_COLUMN_LIST: 
                   LP_WHERE: 
-                    LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+                    LP_COLUMN_ALIAS: names(1).firstname
                     LP_COLUMN_LIST_ALIAS: 
                     - type: STRING_LITERAL
             LP_KEYWORDS: 
@@ -365,21 +365,21 @@ LP_SELECT_QUERY:
         LP_WHERE: 
           LP_AGGREGATE_FUNCTION_COUNT: 
             LP_COLUMN_LIST: 
-              LP_COLUMN_ALIAS: NAMES(1).ID
+              LP_COLUMN_ALIAS: names(1).id
           LP_COLUMN_LIST_ALIAS: 
           - type: INTEGER_LITERAL
-          - alias: COUNT
+          - alias: count
       LP_ORDER_BY: ORDER BY ASC: 
         LP_COLUMN_LIST: 
           LP_WHERE: 
             LP_AGGREGATE_FUNCTION_COUNT: 
               LP_COLUMN_LIST: 
-                LP_COLUMN_ALIAS: NAMES(1).ID
+                LP_COLUMN_ALIAS: names(1).id
             LP_COLUMN_LIST_ALIAS: 
             - type: INTEGER_LITERAL
 
 [ INFO] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering print_temporary_table
-FIRSTNAME|COUNT
+firstname|count
 Acid|1
 Joey|1
 Lord|1
@@ -403,16 +403,16 @@ octoPlan0(cursorId,wrapInTp)
 
 octoPlan1(cursorId)
     NEW %ydboctoz,%ydboctoexpr,%ydboctog KILL %ydboctocursor(cursorId,"keys",5,"","")
-    SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")="")  DO
+    SET %ydboctocursor(cursorId,"keys",2,"names","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",2,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",2,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"names","id")="")  DO
     . SET %ydboctoexpr=1
     . DO:%ydboctoexpr
-    . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"names","id"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctog=%ydboctoexpr
     . . SET %ydboctocursor(cursorId,"keys",5,"","","GroupBy",%ydboctog)=""
     . . SET %ydboctocursor(cursorId,"keys",5,"","","GroupBy")=%ydboctog
-    . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",2,"NAMES","ID")
+    . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",2,"names","id")
     . . SET %ydboctoexpr(2)=%ydboctoexpr
     . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",3))
     . . SET %ydboctoexpr=%ydboctoexpr(2)#%ydboctoexpr
@@ -421,7 +421,7 @@ octoPlan1(cursorId)
     . . SET %ydboctoexpr=%ydboctoexpr(1)+%ydboctoexpr
     . . SET %ydboctop=%ydboctoexpr
     . . DO Max^%ydboctoplanhelpers(5,%ydboctog,1,%ydboctop,0)
-    ZKILL %ydboctocursor(cursorId,"keys",2,"NAMES","ID")
+    ZKILL %ydboctocursor(cursorId,"keys",2,"names","id")
     SET %ydboctog=""
     FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",5,"","","GroupBy",%ydboctog))  SET %ydboctog=$ORDER(%ydboctocursor(cursorId,"keys",5,"","","GroupBy",%ydboctog)) QUIT:(""=%ydboctog)
     . SET %ydboctoexpr=1
@@ -437,25 +437,25 @@ octoPlan1(cursorId)
 
 octoPlan2(cursorId)
     NEW %ydboctoz,%ydboctoexpr,%ydboctog KILL %ydboctocursor(cursorId,"keys",6,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
+    SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
     . SET %ydboctoexpr=1
-    . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
+    . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"names","id")
     . SET %ydboctoexpr(1)=%ydboctoexpr
     . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr(1)):$ZYSQLNULL,$DATA(%ydboctocursor(cursorId,"keys",5,"","",%ydboctoexpr(1))):1,$DATA(%ydboctocursor(cursorId,"keys",5,"","",$ZYSQLNULL)):$ZYSQLNULL,1:0)
     . DO:%ydboctoexpr
-    . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctog=%ydboctoexpr
     . . SET %ydboctocursor(cursorId,"keys",6,"","","GroupBy",%ydboctog)=""
     . . SET %ydboctocursor(cursorId,"keys",6,"","","GroupBy")=%ydboctog
-    . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
+    . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"names","id")
     . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",2))
     . . SET %ydboctoexpr=%ydboctoexpr(1)*%ydboctoexpr
     . . SET %ydboctop=%ydboctoexpr
     . . DO Count^%ydboctoplanhelpers(6,%ydboctog,1,%ydboctop)
-    ZKILL %ydboctocursor(cursorId,"keys",1,"NAMES","ID")
+    ZKILL %ydboctocursor(cursorId,"keys",1,"names","id")
     SET %ydboctog=""
     FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",6,"","","GroupBy",%ydboctog))  SET %ydboctog=$ORDER(%ydboctocursor(cursorId,"keys",6,"","","GroupBy",%ydboctog)) QUIT:(""=%ydboctog)
     . SET %ydboctoexpr=1
@@ -501,22 +501,22 @@ octoPlan0(cursorId,wrapInTp)
 
 octoPlan1(cursorId)
     NEW %ydboctoz,%ydboctoexpr,%ydboctog KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
+    SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
     . SET %ydboctoexpr=1
     . DO:%ydboctoexpr
-    . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctog=%ydboctoexpr
     . . SET %ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog)=""
     . . SET %ydboctocursor(cursorId,"keys",3,"","","GroupBy")=%ydboctog
-    . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
+    . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"names","id")
     . . SET %ydboctop=%ydboctoexpr
     . . DO Count^%ydboctoplanhelpers(3,%ydboctog,2,%ydboctop)
-    . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
+    . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"names","id")
     . . SET %ydboctop=%ydboctoexpr
     . . DO Count^%ydboctoplanhelpers(3,%ydboctog,1,%ydboctop)
-    ZKILL %ydboctocursor(cursorId,"keys",1,"NAMES","ID")
+    ZKILL %ydboctocursor(cursorId,"keys",1,"names","id")
     SET %ydboctog=""
     FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog))  SET %ydboctog=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog)) QUIT:(""=%ydboctog)
     . SET %ydboctoexpr=1

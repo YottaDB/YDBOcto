@@ -1,12 +1,12 @@
 select a,b from (select 1 as a, 2 as b);
 select a,c from (select 1 as a, 2 as b);
 select c,b from (select 1 as a, 2 as b);
-A|B
+a|b
 1|2
 (1 row)
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: C
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: c
 LINE 2:1: select a,c from (select 1 as a, 2 as b);
                    ^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: C
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: c
 LINE 3:1: select c,b from (select 1 as a, 2 as b);
                  ^

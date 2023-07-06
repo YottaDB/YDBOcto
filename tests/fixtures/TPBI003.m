@@ -16,9 +16,7 @@
 ; -----------------------------------------------------------------------------------------------------
 
 TPBI003;
-	set psql=+$zcmdline
-	if psql set relname="TPBI003",attname="ID"
-	else    set relname="tpbi003",attname="id"
+	set relname="tpbi003",attname="id"
 	set x("numeric")=""
 	set x("numeric(1)")=""
 	set x("numeric(1,0)")=""

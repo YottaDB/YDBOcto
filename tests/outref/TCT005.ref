@@ -7,6 +7,6 @@ select * from names where 1::numeric = names.id
 NUMERIC
 1
 (1 row)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 1|Acid|Burn
 (1 row)

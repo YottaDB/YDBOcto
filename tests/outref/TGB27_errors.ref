@@ -1,9 +1,9 @@
 
 SELECT id,firstname FROM names n1 HAVING 1 IN (SELECT n2.id FROM names n2 group by n1.id);
 SELECT id,firstname FROM names n1 WHERE id IN (SELECT n2.id FROM names n2 group by n1.id+1);
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'id' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 2:1: ...names n1 HAVING 1 IN (SELECT n2.id FROM names n2 group by n1.id...
                                           ^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'id' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 3:1: ...names n1 WHERE id IN (SELECT n2.id FROM names n2 group by n1.id...
                                           ^^^^^

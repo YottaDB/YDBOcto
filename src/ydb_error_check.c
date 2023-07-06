@@ -381,6 +381,11 @@ void ydb_error_check(int status, char *file, int line) {
 			/* Now that we have got the value, delete the M node */
 			ydb_delete_s(&varname, 2, subs, YDB_DEL_NODE);
 		}
+		/* Check if %ydboctoerror("NEGATIVESUBSTRINGLENGTH")	*/
+		ydboctoerrcode++;
+		if (positive_status == ydboctoerrcode) {
+			octo_log(line, file, ERROR, ERROR_Severity, ERR_NEGATIVE_SUBSTRING_LENGTH, NULL);
+		}
 		/* Not an Octo internal error */
 		ydboctoerrcode++;
 		assert(ydboctoerrcode == ydboctoerrcodemax);

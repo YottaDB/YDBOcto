@@ -9,157 +9,157 @@ LP_SELECT_QUERY:
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
-        LP_COLUMN_ALIAS: N(2).NSPNAME
+        LP_COLUMN_ALIAS: n(2).nspname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: NSPNAME
+        - alias: nspname
       LP_WHERE: 
-        LP_COLUMN_ALIAS: C(1).RELNAME
+        LP_COLUMN_ALIAS: c(1).relname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: RELNAME
+        - alias: relname
       LP_WHERE: 
-        LP_COLUMN_ALIAS: A(3).ATTNAME
+        LP_COLUMN_ALIAS: a(3).attname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: ATTNAME
+        - alias: attname
       LP_WHERE: 
-        LP_COLUMN_ALIAS: A(3).ATTTYPID
+        LP_COLUMN_ALIAS: a(3).atttypid
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: ATTTYPID
+        - alias: atttypid
       LP_WHERE: 
-        LP_COLUMN_ALIAS: T(4).TYPNAME
+        LP_COLUMN_ALIAS: t(4).typname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: TYPNAME
+        - alias: typname
       LP_WHERE: 
-        LP_COLUMN_ALIAS: A(3).ATTNUM
+        LP_COLUMN_ALIAS: a(3).attnum
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: ATTNUM
+        - alias: attnum
       LP_WHERE: 
-        LP_COLUMN_ALIAS: A(3).ATTLEN
+        LP_COLUMN_ALIAS: a(3).attlen
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: ATTLEN
+        - alias: attlen
       LP_WHERE: 
-        LP_COLUMN_ALIAS: A(3).ATTTYPMOD
+        LP_COLUMN_ALIAS: a(3).atttypmod
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: ATTTYPMOD
+        - alias: atttypmod
       LP_WHERE: 
-        LP_COLUMN_ALIAS: A(3).ATTNOTNULL
+        LP_COLUMN_ALIAS: a(3).attnotnull
         LP_COLUMN_LIST_ALIAS: 
         - type: BOOLEAN_VALUE
-        - alias: ATTNOTNULL
+        - alias: attnotnull
       LP_WHERE: 
-        LP_COLUMN_ALIAS: C(1).RELHASRULES
+        LP_COLUMN_ALIAS: c(1).relhasrules
         LP_COLUMN_LIST_ALIAS: 
         - type: BOOLEAN_VALUE
-        - alias: RELHASRULES
+        - alias: relhasrules
       LP_WHERE: 
-        LP_COLUMN_ALIAS: C(1).RELKIND
+        LP_COLUMN_ALIAS: c(1).relkind
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: RELKIND
+        - alias: relkind
       LP_WHERE: 
-        LP_COLUMN_ALIAS: C(1).OID
+        LP_COLUMN_ALIAS: c(1).oid
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: OID
+        - alias: oid
       LP_WHERE: 
         LP_FUNCTION_CALL: 
-          LP_VALUE: 'PG_GET_EXPR'
+          LP_VALUE: 'pg_get_expr'
           LP_COLUMN_LIST: 
-            LP_VALUE: '%ydboctoFl3mV1wpIFh5CyoJU5R6I2C'
+            LP_VALUE: '%ydboctoFg9NtfgQK65FJVKgk5GrPK4'
             LP_VALUE: '$$pgGetExpr^%ydboctopgfunctions'
             LP_VALUE: 'VARCHAR'
-            LP_COLUMN_ALIAS: D(5).ADBIN
-            LP_COLUMN_ALIAS: D(5).ADRELID
+            LP_COLUMN_ALIAS: d(5).adbin
+            LP_COLUMN_ALIAS: d(5).adrelid
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: PG_GET_EXPR
+        - alias: pg_get_expr
       LP_WHERE: 
         LP_CASE: 
           LP_CASE_STATEMENT: 
-            LP_COLUMN_ALIAS: T(4).TYPTYPE
+            LP_COLUMN_ALIAS: t(4).typtype
             LP_VALUE: '0'
           LP_CASE_BRANCH: 
             LP_CASE_BRANCH_STATEMENT: 
               LP_VALUE: 'd'
-              LP_COLUMN_ALIAS: T(4).TYPBASETYPE
+              LP_COLUMN_ALIAS: t(4).typbasetype
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
         - alias: CASE
       LP_WHERE: 
-        LP_COLUMN_ALIAS: T(4).TYPTYPMOD
+        LP_COLUMN_ALIAS: t(4).typtypmod
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: TYPTYPMOD
+        - alias: typtypmod
       LP_WHERE: 
-        LP_COLUMN_ALIAS: C(1).RELHASOIDS
+        LP_COLUMN_ALIAS: c(1).relhasoids
         LP_COLUMN_LIST_ALIAS: 
         - type: BOOLEAN_VALUE
-        - alias: RELHASOIDS
+        - alias: relhasoids
       LP_WHERE: 
         LP_VALUE: ''
         LP_COLUMN_LIST_ALIAS: 
         - type: NULL
         - alias: ???
       LP_WHERE: 
-        LP_COLUMN_ALIAS: C(1).RELHASSUBCLASS
+        LP_COLUMN_ALIAS: c(1).relhassubclass
         LP_COLUMN_LIST_ALIAS: 
         - type: BOOLEAN_VALUE
-        - alias: RELHASSUBCLASS
+        - alias: relhassubclass
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: C(1)
+        LP_TABLE: c(1)
         LP_TABLE_JOIN: INNER_JOIN: 
           LP_WHERE: 
             LP_BOOLEAN_AND: 
               LP_BOOLEAN_AND: 
                 LP_BOOLEAN_EQUALS: 
-                  LP_COLUMN_ALIAS: N(2).OID
-                  LP_COLUMN_ALIAS: C(1).RELNAMESPACE
+                  LP_COLUMN_ALIAS: n(2).oid
+                  LP_COLUMN_ALIAS: c(1).relnamespace
                 LP_BOOLEAN_EQUALS: 
-                  LP_COLUMN_ALIAS: C(1).RELNAME
+                  LP_COLUMN_ALIAS: c(1).relname
                   LP_VALUE: 'PATIENT'
               LP_BOOLEAN_EQUALS: 
-                LP_COLUMN_ALIAS: N(2).NSPNAME
+                LP_COLUMN_ALIAS: n(2).nspname
                 LP_VALUE: 'public'
-          LP_TABLE: N(2)
+          LP_TABLE: n(2)
           LP_TABLE_JOIN: INNER_JOIN: 
             LP_WHERE: 
               LP_BOOLEAN_AND: 
                 LP_BOOLEAN_AND: 
                   LP_BOOLEAN_NOT: 
-                    LP_COLUMN_ALIAS: A(3).ATTISDROPPED
+                    LP_COLUMN_ALIAS: a(3).attisdropped
                   LP_BOOLEAN_GREATER_THAN: 
-                    LP_COLUMN_ALIAS: A(3).ATTNUM
+                    LP_COLUMN_ALIAS: a(3).attnum
                     LP_VALUE: '0'
                 LP_BOOLEAN_EQUALS: 
-                  LP_COLUMN_ALIAS: A(3).ATTRELID
-                  LP_COLUMN_ALIAS: C(1).OID
-            LP_TABLE: A(3)
+                  LP_COLUMN_ALIAS: a(3).attrelid
+                  LP_COLUMN_ALIAS: c(1).oid
+            LP_TABLE: a(3)
             LP_TABLE_JOIN: INNER_JOIN: 
               LP_WHERE: 
                 LP_BOOLEAN_EQUALS: 
-                  LP_COLUMN_ALIAS: T(4).OID
-                  LP_COLUMN_ALIAS: A(3).ATTTYPID
-              LP_TABLE: T(4)
+                  LP_COLUMN_ALIAS: t(4).oid
+                  LP_COLUMN_ALIAS: a(3).atttypid
+              LP_TABLE: t(4)
               LP_TABLE_JOIN: LEFT_JOIN: 
                 LP_WHERE: 
                   LP_BOOLEAN_AND: 
                     LP_BOOLEAN_AND: 
-                      LP_COLUMN_ALIAS: A(3).ATTHASDEF
+                      LP_COLUMN_ALIAS: a(3).atthasdef
                       LP_BOOLEAN_EQUALS: 
-                        LP_COLUMN_ALIAS: D(5).ADRELID
-                        LP_COLUMN_ALIAS: A(3).ATTRELID
+                        LP_COLUMN_ALIAS: d(5).adrelid
+                        LP_COLUMN_ALIAS: a(3).attrelid
                     LP_BOOLEAN_EQUALS: 
-                      LP_COLUMN_ALIAS: D(5).ADNUM
-                      LP_COLUMN_ALIAS: A(3).ATTNUM
-                LP_TABLE: D(5)
+                      LP_COLUMN_ALIAS: d(5).adnum
+                      LP_COLUMN_ALIAS: a(3).attnum
+                LP_TABLE: d(5)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
@@ -177,167 +177,167 @@ LP_SELECT_QUERY:
     LP_ORDER_BY: ORDER BY ASC: 
       LP_COLUMN_LIST: 
         LP_WHERE: 
-          LP_COLUMN_ALIAS: N(2).NSPNAME
+          LP_COLUMN_ALIAS: n(2).nspname
           LP_COLUMN_LIST_ALIAS: 
           - type: STRING_LITERAL
       LP_ORDER_BY: ORDER BY ASC: 
         LP_COLUMN_LIST: 
           LP_WHERE: 
-            LP_COLUMN_ALIAS: C(1).RELNAME
+            LP_COLUMN_ALIAS: c(1).relname
             LP_COLUMN_LIST_ALIAS: 
             - type: STRING_LITERAL
         LP_ORDER_BY: ORDER BY ASC: 
           LP_COLUMN_LIST: 
             LP_WHERE: 
-              LP_COLUMN_ALIAS: A(3).ATTNUM
+              LP_COLUMN_ALIAS: a(3).attnum
               LP_COLUMN_LIST_ALIAS: 
               - type: INTEGER_LITERAL
-              - alias: ATTNUM
+              - alias: attnum
 
 [DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN AFTER optimize_logical_plan() follows 
 LP_SELECT_QUERY: 
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
-        LP_COLUMN_ALIAS: N(2).NSPNAME
+        LP_COLUMN_ALIAS: n(2).nspname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: NSPNAME
+        - alias: nspname
       LP_WHERE: 
-        LP_COLUMN_ALIAS: C(1).RELNAME
+        LP_COLUMN_ALIAS: c(1).relname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: RELNAME
+        - alias: relname
       LP_WHERE: 
-        LP_COLUMN_ALIAS: A(3).ATTNAME
+        LP_COLUMN_ALIAS: a(3).attname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: ATTNAME
+        - alias: attname
       LP_WHERE: 
-        LP_COLUMN_ALIAS: A(3).ATTTYPID
+        LP_COLUMN_ALIAS: a(3).atttypid
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: ATTTYPID
+        - alias: atttypid
       LP_WHERE: 
-        LP_COLUMN_ALIAS: T(4).TYPNAME
+        LP_COLUMN_ALIAS: t(4).typname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: TYPNAME
+        - alias: typname
       LP_WHERE: 
-        LP_COLUMN_ALIAS: A(3).ATTNUM
+        LP_COLUMN_ALIAS: a(3).attnum
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: ATTNUM
+        - alias: attnum
       LP_WHERE: 
-        LP_COLUMN_ALIAS: A(3).ATTLEN
+        LP_COLUMN_ALIAS: a(3).attlen
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: ATTLEN
+        - alias: attlen
       LP_WHERE: 
-        LP_COLUMN_ALIAS: A(3).ATTTYPMOD
+        LP_COLUMN_ALIAS: a(3).atttypmod
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: ATTTYPMOD
+        - alias: atttypmod
       LP_WHERE: 
-        LP_COLUMN_ALIAS: A(3).ATTNOTNULL
+        LP_COLUMN_ALIAS: a(3).attnotnull
         LP_COLUMN_LIST_ALIAS: 
         - type: BOOLEAN_VALUE
-        - alias: ATTNOTNULL
+        - alias: attnotnull
       LP_WHERE: 
-        LP_COLUMN_ALIAS: C(1).RELHASRULES
+        LP_COLUMN_ALIAS: c(1).relhasrules
         LP_COLUMN_LIST_ALIAS: 
         - type: BOOLEAN_VALUE
-        - alias: RELHASRULES
+        - alias: relhasrules
       LP_WHERE: 
-        LP_COLUMN_ALIAS: C(1).RELKIND
+        LP_COLUMN_ALIAS: c(1).relkind
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: RELKIND
+        - alias: relkind
       LP_WHERE: 
-        LP_COLUMN_ALIAS: C(1).OID
+        LP_COLUMN_ALIAS: c(1).oid
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: OID
+        - alias: oid
       LP_WHERE: 
         LP_FUNCTION_CALL: 
-          LP_VALUE: 'PG_GET_EXPR'
+          LP_VALUE: 'pg_get_expr'
           LP_COLUMN_LIST: 
-            LP_VALUE: '%ydboctoFl3mV1wpIFh5CyoJU5R6I2C'
+            LP_VALUE: '%ydboctoFg9NtfgQK65FJVKgk5GrPK4'
             LP_VALUE: '$$pgGetExpr^%ydboctopgfunctions'
             LP_VALUE: 'VARCHAR'
-            LP_COLUMN_ALIAS: D(5).ADBIN
-            LP_COLUMN_ALIAS: D(5).ADRELID
+            LP_COLUMN_ALIAS: d(5).adbin
+            LP_COLUMN_ALIAS: d(5).adrelid
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: PG_GET_EXPR
+        - alias: pg_get_expr
       LP_WHERE: 
         LP_CASE: 
           LP_CASE_STATEMENT: 
-            LP_COLUMN_ALIAS: T(4).TYPTYPE
+            LP_COLUMN_ALIAS: t(4).typtype
             LP_VALUE: '0'
           LP_CASE_BRANCH: 
             LP_CASE_BRANCH_STATEMENT: 
               LP_VALUE: 'd'
-              LP_COLUMN_ALIAS: T(4).TYPBASETYPE
+              LP_COLUMN_ALIAS: t(4).typbasetype
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
         - alias: CASE
       LP_WHERE: 
-        LP_COLUMN_ALIAS: T(4).TYPTYPMOD
+        LP_COLUMN_ALIAS: t(4).typtypmod
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: TYPTYPMOD
+        - alias: typtypmod
       LP_WHERE: 
-        LP_COLUMN_ALIAS: C(1).RELHASOIDS
+        LP_COLUMN_ALIAS: c(1).relhasoids
         LP_COLUMN_LIST_ALIAS: 
         - type: BOOLEAN_VALUE
-        - alias: RELHASOIDS
+        - alias: relhasoids
       LP_WHERE: 
         LP_VALUE: ''
         LP_COLUMN_LIST_ALIAS: 
         - type: NULL
         - alias: ???
       LP_WHERE: 
-        LP_COLUMN_ALIAS: C(1).RELHASSUBCLASS
+        LP_COLUMN_ALIAS: c(1).relhassubclass
         LP_COLUMN_LIST_ALIAS: 
         - type: BOOLEAN_VALUE
-        - alias: RELHASSUBCLASS
+        - alias: relhassubclass
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: C(1)
+        LP_TABLE: c(1)
         LP_TABLE_JOIN: INNER_JOIN: 
           LP_WHERE: 
             LP_BOOLEAN_AND: 
               LP_BOOLEAN_EQUALS: 
-                LP_COLUMN_ALIAS: C(1).RELNAME
+                LP_COLUMN_ALIAS: c(1).relname
                 LP_VALUE: 'PATIENT'
               LP_BOOLEAN_EQUALS: 
-                LP_COLUMN_ALIAS: N(2).NSPNAME
+                LP_COLUMN_ALIAS: n(2).nspname
                 LP_VALUE: 'public'
-          LP_TABLE: N(2)
+          LP_TABLE: n(2)
           LP_TABLE_JOIN: INNER_JOIN: 
             LP_WHERE: 
               LP_BOOLEAN_AND: 
                 LP_BOOLEAN_NOT: 
-                  LP_COLUMN_ALIAS: A(3).ATTISDROPPED
+                  LP_COLUMN_ALIAS: a(3).attisdropped
                 LP_BOOLEAN_GREATER_THAN: 
-                  LP_COLUMN_ALIAS: A(3).ATTNUM
+                  LP_COLUMN_ALIAS: a(3).attnum
                   LP_VALUE: '0'
             LP_SELECT_QUERY: 
               LP_PROJECT: 
                 LP_COLUMN_LIST: 
                   LP_WHERE: 
-                    LP_COLUMN_ALIAS: PG_CATALOG.PG_ATTRIBUTE(8).ATTRELID
+                    LP_COLUMN_ALIAS: pg_catalog.pg_attribute(8).attrelid
                   LP_WHERE: 
-                    LP_COLUMN_ALIAS: PG_CATALOG.PG_ATTRIBUTE(8).OID
+                    LP_COLUMN_ALIAS: pg_catalog.pg_attribute(8).oid
                 LP_SELECT: 
                   LP_TABLE_JOIN: 
-                    LP_TABLE: PG_CATALOG.PG_ATTRIBUTE(8)
+                    LP_TABLE: pg_catalog.pg_attribute(8)
                   LP_CRITERIA: 
                     LP_KEYS: 
                       LP_KEY: 
-                      - table_name: PG_CATALOG.PG_ATTRIBUTE
-                      - column_name: OID
+                      - table_name: pg_catalog.pg_attribute
+                      - column_name: oid
                       - unique_id: 8
                       - method: LP_KEY_ADVANCE
                       - xref_key: false
@@ -348,8 +348,8 @@ LP_SELECT_QUERY:
                         LP_KEYWORDS:  XREF_INDEX;
               LP_OUTPUT: 
                 LP_KEY: 
-                - table_name: PG_CATALOG.PG_ATTRIBUTE
-                - column_name: ATTRELID
+                - table_name: pg_catalog.pg_attribute
+                - column_name: attrelid
                 - unique_id: 3
                 - method: LP_INVALID_ACTION
                 - xref_key: true
@@ -360,17 +360,17 @@ LP_SELECT_QUERY:
                 LP_PROJECT: 
                   LP_COLUMN_LIST: 
                     LP_WHERE: 
-                      LP_COLUMN_ALIAS: PG_CATALOG.PG_TYPE(9).OID
+                      LP_COLUMN_ALIAS: pg_catalog.pg_type(9).oid
                     LP_WHERE: 
-                      LP_COLUMN_ALIAS: PG_CATALOG.PG_TYPE(9).TYPNAME
+                      LP_COLUMN_ALIAS: pg_catalog.pg_type(9).typname
                   LP_SELECT: 
                     LP_TABLE_JOIN: 
-                      LP_TABLE: PG_CATALOG.PG_TYPE(9)
+                      LP_TABLE: pg_catalog.pg_type(9)
                     LP_CRITERIA: 
                       LP_KEYS: 
                         LP_KEY: 
-                        - table_name: PG_CATALOG.PG_TYPE
-                        - column_name: TYPNAME
+                        - table_name: pg_catalog.pg_type
+                        - column_name: typname
                         - unique_id: 9
                         - method: LP_KEY_ADVANCE
                         - xref_key: false
@@ -381,8 +381,8 @@ LP_SELECT_QUERY:
                           LP_KEYWORDS:  XREF_INDEX;
                 LP_OUTPUT: 
                   LP_KEY: 
-                  - table_name: PG_CATALOG.PG_TYPE
-                  - column_name: OID
+                  - table_name: pg_catalog.pg_type
+                  - column_name: oid
                   - unique_id: 4
                   - method: LP_INVALID_ACTION
                   - xref_key: true
@@ -390,25 +390,25 @@ LP_SELECT_QUERY:
               LP_TABLE_JOIN: LEFT_JOIN: 
                 LP_WHERE: 
                   LP_BOOLEAN_AND: 
-                    LP_COLUMN_ALIAS: A(3).ATTHASDEF
+                    LP_COLUMN_ALIAS: a(3).atthasdef
                     LP_BOOLEAN_EQUALS: 
-                      LP_COLUMN_ALIAS: D(5).ADNUM
-                      LP_COLUMN_ALIAS: A(3).ATTNUM
+                      LP_COLUMN_ALIAS: d(5).adnum
+                      LP_COLUMN_ALIAS: a(3).attnum
                 LP_SELECT_QUERY: 
                   LP_PROJECT: 
                     LP_COLUMN_LIST: 
                       LP_WHERE: 
-                        LP_COLUMN_ALIAS: PG_ATTRDEF(10).ADRELID
+                        LP_COLUMN_ALIAS: pg_attrdef(10).adrelid
                       LP_WHERE: 
-                        LP_COLUMN_ALIAS: PG_ATTRDEF(10).OID
+                        LP_COLUMN_ALIAS: pg_attrdef(10).oid
                     LP_SELECT: 
                       LP_TABLE_JOIN: 
-                        LP_TABLE: PG_ATTRDEF(10)
+                        LP_TABLE: pg_attrdef(10)
                       LP_CRITERIA: 
                         LP_KEYS: 
                           LP_KEY: 
-                          - table_name: PG_ATTRDEF
-                          - column_name: OID
+                          - table_name: pg_attrdef
+                          - column_name: oid
                           - unique_id: 10
                           - method: LP_KEY_ADVANCE
                           - xref_key: false
@@ -419,8 +419,8 @@ LP_SELECT_QUERY:
                             LP_KEYWORDS:  XREF_INDEX;
                   LP_OUTPUT: 
                     LP_KEY: 
-                    - table_name: PG_ATTRDEF
-                    - column_name: ADRELID
+                    - table_name: pg_attrdef
+                    - column_name: adrelid
                     - unique_id: 5
                     - method: LP_INVALID_ACTION
                     - xref_key: true
@@ -428,72 +428,72 @@ LP_SELECT_QUERY:
       LP_CRITERIA: 
         LP_KEYS: 
           LP_KEY: 
-          - table_name: PG_CATALOG.PG_CLASS
-          - column_name: OID
+          - table_name: pg_catalog.pg_class
+          - column_name: oid
           - unique_id: 1
           - method: LP_KEY_ADVANCE
           - xref_key: false
           - uses_xref_key: false
           LP_KEYS: 
             LP_KEY: 
-            - table_name: PG_CATALOG.PG_NAMESPACE
-            - column_name: OID
+            - table_name: pg_catalog.pg_namespace
+            - column_name: oid
             - unique_id: 2
             - method: LP_KEY_FIX
             - xref_key: false
             - uses_xref_key: false
             - value:
-                LP_COLUMN_ALIAS: C(1).RELNAMESPACE
+                LP_COLUMN_ALIAS: c(1).relnamespace
             LP_KEYS: 
               LP_KEY: 
-              - table_name: PG_CATALOG.PG_ATTRIBUTE
-              - column_name: ATTRELID
+              - table_name: pg_catalog.pg_attribute
+              - column_name: attrelid
               - unique_id: 3
               - method: LP_KEY_FIX
               - xref_key: true
               - uses_xref_key: false
               - value:
-                  LP_COLUMN_ALIAS: C(1).OID
+                  LP_COLUMN_ALIAS: c(1).oid
               LP_KEYS: 
                 LP_KEY: 
-                - table_name: PG_CATALOG.PG_ATTRIBUTE
-                - column_name: OID
+                - table_name: pg_catalog.pg_attribute
+                - column_name: oid
                 - unique_id: 3
                 - method: LP_KEY_ADVANCE
                 - xref_key: false
                 - uses_xref_key: true
                 LP_KEYS: 
                   LP_KEY: 
-                  - table_name: PG_CATALOG.PG_TYPE
-                  - column_name: OID
+                  - table_name: pg_catalog.pg_type
+                  - column_name: oid
                   - unique_id: 4
                   - method: LP_KEY_FIX
                   - xref_key: true
                   - uses_xref_key: false
                   - value:
-                      LP_COLUMN_ALIAS: A(3).ATTTYPID
+                      LP_COLUMN_ALIAS: a(3).atttypid
                   LP_KEYS: 
                     LP_KEY: 
-                    - table_name: PG_CATALOG.PG_TYPE
-                    - column_name: TYPNAME
+                    - table_name: pg_catalog.pg_type
+                    - column_name: typname
                     - unique_id: 4
                     - method: LP_KEY_ADVANCE
                     - xref_key: false
                     - uses_xref_key: true
                     LP_KEYS: 
                       LP_KEY: 
-                      - table_name: PG_ATTRDEF
-                      - column_name: ADRELID
+                      - table_name: pg_attrdef
+                      - column_name: adrelid
                       - unique_id: 5
                       - method: LP_KEY_FIX
                       - xref_key: true
                       - uses_xref_key: false
                       - value:
-                          LP_COLUMN_ALIAS: A(3).ATTRELID
+                          LP_COLUMN_ALIAS: a(3).attrelid
                       LP_KEYS: 
                         LP_KEY: 
-                        - table_name: PG_ATTRDEF
-                        - column_name: OID
+                        - table_name: pg_attrdef
+                        - column_name: oid
                         - unique_id: 5
                         - method: LP_KEY_ADVANCE
                         - xref_key: false
@@ -513,27 +513,27 @@ LP_SELECT_QUERY:
     LP_ORDER_BY: ORDER BY ASC: 
       LP_COLUMN_LIST: 
         LP_WHERE: 
-          LP_COLUMN_ALIAS: N(2).NSPNAME
+          LP_COLUMN_ALIAS: n(2).nspname
           LP_COLUMN_LIST_ALIAS: 
           - type: STRING_LITERAL
       LP_ORDER_BY: ORDER BY ASC: 
         LP_COLUMN_LIST: 
           LP_WHERE: 
-            LP_COLUMN_ALIAS: C(1).RELNAME
+            LP_COLUMN_ALIAS: c(1).relname
             LP_COLUMN_LIST_ALIAS: 
             - type: STRING_LITERAL
         LP_ORDER_BY: ORDER BY ASC: 
           LP_COLUMN_LIST: 
             LP_WHERE: 
-              LP_COLUMN_ALIAS: A(3).ATTNUM
+              LP_COLUMN_ALIAS: a(3).attnum
               LP_COLUMN_LIST_ALIAS: 
               - type: INTEGER_LITERAL
-              - alias: ATTNUM
+              - alias: attnum
 
-[ INFO] PATH:LINENUM DATE TIME: INFO_GENERATING_XREF: Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_ATTRDEF] and column [ADRELID]
-[ INFO] PATH:LINENUM DATE TIME: INFO_GENERATING_XREF: Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_CATALOG.PG_TYPE] and column [OID]
-[ INFO] PATH:LINENUM DATE TIME: INFO_GENERATING_XREF: Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_CATALOG.PG_ATTRIBUTE] and column [ATTRELID]
+[ INFO] PATH:LINENUM DATE TIME: INFO_GENERATING_XREF: Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [pg_attrdef] and column [adrelid]
+[ INFO] PATH:LINENUM DATE TIME: INFO_GENERATING_XREF: Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [pg_catalog.pg_type] and column [oid]
+[ INFO] PATH:LINENUM DATE TIME: INFO_GENERATING_XREF: Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [pg_catalog.pg_attribute] and column [attrelid]
 [ INFO] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering print_temporary_table
-NSPNAME|RELNAME|ATTNAME|ATTTYPID|TYPNAME|ATTNUM|ATTLEN|ATTTYPMOD|ATTNOTNULL|RELHASRULES|RELKIND|OID|PG_GET_EXPR|CASE|TYPTYPMOD|RELHASOIDS|???|RELHASSUBCLASS
+nspname|relname|attname|atttypid|typname|attnum|attlen|atttypmod|attnotnull|relhasrules|relkind|oid|pg_get_expr|CASE|typtypmod|relhasoids|???|relhassubclass
 (0 rows)
 [ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete

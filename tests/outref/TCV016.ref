@@ -14,13 +14,13 @@ CREATE FUNCTION
 CREATE VIEW
 CREATE VIEW
 CREATE VIEW
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'firstname' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 7:1: ...iew v4 as select samevalue(firstname) from names having sameval...
                                         ^^^^^^^^^
-SAMEVALUE
+samevalue
 1
 (1 row)
-SAMEVALUE
+samevalue
 0
 1
 2
@@ -28,7 +28,7 @@ SAMEVALUE
 4
 5
 (6 rows)
-SAMEVALUE
+samevalue
 Zero
 Acid
 Cereal
@@ -36,6 +36,6 @@ Lord
 Joey
 Zero
 (6 rows)
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: V4
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: v4
 LINE 11:1: select * from v4;
                          ^^

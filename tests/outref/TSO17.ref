@@ -3,7 +3,7 @@
 -- Both of the below queries are expected to have a result table with colum name `y`
 select * from ((select id as y from names) union (select 1+id from names) union (select 1+id as x from names)) n1;
 ((select id as y from names) union (select 1+id from names) union (select 1+id as x from names));
-Y
+y
 0
 1
 2
@@ -12,7 +12,7 @@ Y
 5
 6
 (7 rows)
-Y
+y
 0
 1
 2

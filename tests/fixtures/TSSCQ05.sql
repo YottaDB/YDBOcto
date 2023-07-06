@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -12,4 +12,4 @@
 
 SELECT setting
 FROM   pg_catalog.pg_settings
-WHERE  NAME = 'max_index_keys'
+WHERE  name = 'max_index_keys'

@@ -140,7 +140,7 @@ query_specification
       SqlJoin			*join;
       SqlStatement		*join_statement, *select_list, *ret, *table_or_view_stmt;
       SqlTableAlias		*alias;
-      char			*table_name = "OCTOONEROWTABLE";
+      char			*table_name = OCTOLIT_OCTOONEROWTABLE;
       SqlColumnListAlias        *start_cla, *cur_cla;
 
       select_list = $select_list;

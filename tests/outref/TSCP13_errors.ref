@@ -13,24 +13,24 @@ select avg(n2.*) from (select n1.firstname from names n1) n2;
 select sum(n2.*) from (select n1.firstname from names n1) n2;
 select avg(DISTINCT n2.*) from (select n1.firstname from names n1) n2;
 select sum(DISTINCT n2.*) from (select n1.firstname from names n1) n2;
-[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : n1
 LINE 2:1: select count(DISTINCT n1.*) from names1col n11;
                                 ^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N1.FIRSTNAME
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: n1.firstname
 LINE 4:1: select n1.* = n1.firstname from names1col n1;
                         ^^^^^^^^^^^^
-[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : NAMES1COL
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : names1col
 LINE 6:1: select id from names1col n1 group by names1col.*;
                                                ^^^^^^^^^^^
-[ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function AVG cannot be invoked with a parameter of type TABLENAME.*
+[ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function avg cannot be invoked with a parameter of type TABLENAME.*
 LINE 8:1: select avg(n2.*) from (select n1.firstname from names n1) n2;
                  ^^^
-[ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function SUM cannot be invoked with a parameter of type TABLENAME.*
+[ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function sum cannot be invoked with a parameter of type TABLENAME.*
 LINE 9:1: select sum(n2.*) from (select n1.firstname from names n1) n2;
                  ^^^
-[ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function AVG cannot be invoked with a parameter of type TABLENAME.*
+[ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function avg cannot be invoked with a parameter of type TABLENAME.*
 LINE 10:1: select avg(DISTINCT n2.*) from (select n1.firstname from names ...
                   ^^^
-[ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function SUM cannot be invoked with a parameter of type TABLENAME.*
+[ERROR]: ERR_MISTYPED_FUNCTION_TABLE_ASTERISK: Function sum cannot be invoked with a parameter of type TABLENAME.*
 LINE 11:1: select sum(DISTINCT n2.*) from (select n1.firstname from names ...
                   ^^^

@@ -13,7 +13,7 @@ SHOW DateStyle;
 SET DateStyle='ISO';
 SHOW DateStyle;
 
-POSTGRESQL
-ISO
+postgresql
+iso
 PostgreSQL
 ISO

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2021 YottaDB LLC and/OR its subsidiaries.	#
+# Copyright (c) 2020-2023 YottaDB LLC and/OR its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -17,5 +17,5 @@
 SELECT c.relname, a.attname
 FROM pg_catalog.pg_class AS c
 INNER JOIN pg_catalog.pg_attribute AS a ON a.attrelid = c.oid
-WHERE c.relname = 'ORDERS';
+WHERE c.relname = 'orders';
 

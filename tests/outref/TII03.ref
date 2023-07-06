@@ -12,7 +12,7 @@ DROP TABLE namesXfer;
 
 CREATE TABLE
 INSERT 0 5
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer

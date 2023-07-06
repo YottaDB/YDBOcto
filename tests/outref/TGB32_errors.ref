@@ -49,22 +49,22 @@ SELECT ALL 1 FROM customers c ORDER BY EXISTS (SELECT 1 FROM customers n1 WHERE 
 -- #820
 select (select lastname) from names group by firstname;
 
-[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column LAST_NAME from outer query
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column last_name from outer query
 LINE 2:1: ...ELECT 1 FROM orders where c.last_name != 'James' group by order...
                                        ^^^^^^^^^^^
-[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : C
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : c
 LINE 4:1: ...d from orders n2 group by c.first_name) as n2 on (c.customer_id ...
                                        ^^^^^^^^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 6:1: ...ECT 1 FROM customers alias6 ORDER BY count(alias4.order_date));
                                                   ^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ALIAS4.ORDER_DATE
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: alias4.order_date
 LINE 8:1: ...TS (SELECT 1 FROM customers alias6 ORDER BY alias4.order_date);
                                                          ^^^^^^^^^^^^^^^^^
-[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column LAST_NAME from outer query
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column last_name from outer query
 LINE 10:1: ...oup by n2.order_id having c.last_name = 'James') from customers...
                                         ^^^^^^^^^^^
-[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column FIRST_NAME from outer query
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column first_name from outer query
 LINE 12:1: ...aving count((select count(c.first_name||n3.first_name) from cust...
                                         ^^^^^^^^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_NESTED: Aggregate function calls cannot be nested
@@ -97,10 +97,10 @@ LINE 22:1: ...r_id) from customers c where count(c.first_name)>1 group by c.f...
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 23:1: ... (SELECT 1 FROM orders where count(order_id) > 1 group by order...
                                            ^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'firstname' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 25:1: select firstname from names n1 ORDER BY EXISTS (select count(n1...
                   ^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'firstname' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 26:1: select firstname from names n1 ORDER BY count(n1.firstname);
                   ^^^^^^^^^
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
@@ -130,6 +130,6 @@ LINE 36:1: ...1 FROM customers n1 ORDER BY count(c.last_name=c.first_name)=1)...
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 38:1: ...CT 1 FROM customers n1 WHERE count(c.last_name=n1.first_name)=1...
                                            ^^^^^
-[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column LASTNAME from outer query
+[ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column lastname from outer query
 LINE 40:1: select (select lastname) from names group by firstname;
                           ^^^^^^^^

@@ -55,25 +55,25 @@ CREATE TABLE DATETIME (id INTEGER PRIMARY KEY, date1 DATE, time1 TIME(abcd)) REA
 -- DROP TABLE DATETIME;
 
 CREATE TABLE
-DATE1
+date1
 2020-01-04
 1998-11-13
 2005-09-22
 1975-05-31
 (4 rows)
-TIME1
+time1
 14:01:10
 14:12:59
 13:23:09
 15:15:22
 (4 rows)
-ID
+id
 1
 2
 3
 4
 (4 rows)
-ID
+id
 1
 2
 3
@@ -81,25 +81,25 @@ ID
 (4 rows)
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: '2020-01-04'
 [ERROR]: ERR_INVALID_NUMERIC_SYNTAX: Invalid input syntax for type numeric: '2020-01-04'
-DATE1
+date1
 2020-01-04
 1998-11-13
 2005-09-22
 1975-05-31
 (4 rows)
-DATE1
+date1
 2020-01-04
 1998-11-13
 2005-09-22
 1975-05-31
 (4 rows)
-DATE1
+date1
 2020-01-04
 1998-11-13
 2005-09-22
 1975-05-31
 (4 rows)
-DATE1
+date1
 2020-01-04
 1998-11-13
 2005-09-22
@@ -107,7 +107,7 @@ DATE1
 (4 rows)
 DROP TABLE
 CREATE TABLE
-TIME1
+time1
 14:01:10
 14:12:59
 13:23:09
@@ -115,25 +115,25 @@ TIME1
 (4 rows)
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: '14:01:10'
 [ERROR]: ERR_INVALID_NUMERIC_SYNTAX: Invalid input syntax for type numeric: '14:01:10'
-TIME1
+time1
 14:01:10
 14:12:59
 13:23:09
 15:15:22
 (4 rows)
-TIME1
+time1
 14:01:10
 14:12:59
 13:23:09
 15:15:22
 (4 rows)
-TIME1
+time1
 14:01:10
 14:12:59
 13:23:09
 15:15:22
 (4 rows)
-TIME1
+time1
 14:01:10
 14:12:59
 13:23:09

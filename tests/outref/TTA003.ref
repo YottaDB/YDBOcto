@@ -76,50 +76,50 @@ SELECT n1.* AS x, n1.* AS b FROM names n1 ORDER BY a, b;
 -- Postgres too issues a similar error in this case.
 SELECT DISTINCT n1.* FROM names n1 ORDER BY n1.*;
 
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'lastname' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 4:1: SELECT lastname FROM names GROUP BY names.* ORDER BY firstname;
                  ^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'id' must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'id' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 6:1: SELECT id FROM names GROUP BY names.* HAVING id < 1;
                  ^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'id' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 7:1: SELECT COUNT(id) FROM names GROUP BY names.* HAVING id < 1;
                                                               ^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'id' must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'id' must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'id' must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'id' must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'id' must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'id' must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'id' must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'id' must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'id' must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'firstname' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 19:1: SELECT firstname FROM names GROUP BY names.*;
                   ^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'customer_id' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 20:1: SELECT COUNT(n1.*),n1.customer_id FROM customers AS n1 GROUP BY ...
                               ^^^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'customer_id' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 21:1: SELECT n1.customer_id FROM customers AS n1 GROUP BY n1.*;
                   ^^^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'customer_id' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 22:1: ...CT COUNT(n1.customer_id),n1.customer_id FROM customers AS n1 GRO...
                                        ^^^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column NAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'customer_id' must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'name' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 24:1: SELECT COUNT(n1.*),n1.name FROM ((SELECT 1 AS id, 'test' AS nam...
                               ^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'id' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 25:1: SELECT COUNT(n1.*),n1.id FROM names1col AS n1 GROUP BY n1.*;
                               ^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column CUSTOMER_ID must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column N1.* must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'customer_id' must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'customer_id' must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'id' must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'id' must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'id' must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'n1.*' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 32:1: ...T 1 FROM names n1 GROUP BY n1.firstname HAVING n1.* IS NOT NULL;
                                                              ^^
 [ERROR]: ERR_TYPE_CAST: Cannot cast type TABLENAME.* to type INTEGER
@@ -194,7 +194,7 @@ LINE 56:1: SELECT COUNT(n1.*::BOOLEAN) FROM (SELECT id FROM names) n1;
 [ERROR]: ERR_TYPE_CAST: Cannot cast type TABLENAME.* to type BOOLEAN
 LINE 57:1: SELECT COUNT(DISTINCT n1.*::BOOLEAN) FROM (SELECT id FROM names...
                                  ^^^^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: A
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: a
 LINE 59:1: SELECT n1.* AS x, n1.* AS b FROM names n1 ORDER BY a, b;
                                                               ^
 [ERROR]: ERR_ORDER_BY_SELECT_DISTINCT: For SELECT DISTINCT, ORDER BY expressions must appear in select list

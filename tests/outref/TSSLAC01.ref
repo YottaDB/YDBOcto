@@ -58,5 +58,8 @@ ORDER BY nspname,
          c.relname,
          attnum
 [ WARN]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: OVER not implemented, just returning columns
-NSPNAME|RELNAME|ATTNAME|ATTTYPID|ATTNOTNULL|ATTTYPMOD|ATTLEN|ATTNUM|ATTIDENTITY|ADSRC|DESCRIPTION|TYPBASETYPE|TYPTYPE
-(0 rows)
+nspname|relname|attname|atttypid|attnotnull|atttypmod|attlen|attnum|attidentity|adsrc|description|typbasetype|typtype
+public|names|id|23|1|-1|4|1||||0|b
+public|names|firstname|1043|0|34|-1|2||||0|b
+public|names|lastname|1043|0|34|-1|3||||0|b
+(3 rows)

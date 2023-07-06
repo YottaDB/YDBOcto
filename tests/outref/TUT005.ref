@@ -9,7 +9,7 @@ UPDATE 2
 ;  UPDATE names SET firstname = firstname || '#' where lastname = 'Cool';
 ;; ---------------------------------------------------------
 octoPlan0(cursorId,wrapInTp)
-    DO:'$GET(^%ydbAIMOctoCache("NAMES","LASTNAME","completed?")) xrefPlan^%ydboctoXOMMMsQ8ks3NI1C42wS8F05(cursorId)
+    DO:'$GET(^%ydbAIMOctoCache("names","lastname","completed?")) xrefPlan^%ydboctoXu0siAfaFoReUzbZQmH6R7H(cursorId)
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     TCOMMIT:wrapInTp

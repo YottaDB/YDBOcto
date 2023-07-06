@@ -1,6 +1,6 @@
 # Run an INSERT INTO query and a SELECT query to verify the INSERT INTO worked
 INSERT 0 1
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -12,7 +12,7 @@ ID|FIRSTNAME|LASTNAME
 # Turn off write permissions in the current directory (thereby preventing physical plans from being deleted/created)
 # Rerun the INSERT INTO and SELECT query to verify no new physical plans get created
 INSERT 0 1
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer

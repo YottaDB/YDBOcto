@@ -12,17 +12,17 @@ EXCEPT (select name FROM easynames WHERE id < 2 ORDER BY name)
 	INTERSECT ALL (select name FROM easynames WHERE id < 3 OR id > 12 LIMIT 3)
 EXCEPT (select name FROM easynames WHERE id < 2 ORDER BY name)
 	INTERSECT ALL (select name FROM easynames WHERE id = 4 LIMIT 5);
-NAME
+name
 Name0
 Name1
 Name2
 (3 rows)
-NAME
+name
 Name0
 Name1
 Name2
 (3 rows)
-NAME
+name
 Name0
 Name1
 Name2

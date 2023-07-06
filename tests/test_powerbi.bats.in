@@ -32,20 +32,12 @@ setup() {
 }
 
 @test "TPBI003 : OCTO867 : Test atttypmod column maintenance in pg_attribute table mirrors Postgres behavior" {
-	echo "# Run [yottadb -run TPBI003 0 > postgres.sql] to generate queries that are compatible with Postgres" >> output.txt
-	yottadb -run TPBI003 0 > postgres.sql
-	echo "# Run [yottadb -run TPBI003 1 > octo.sql] to generate queries that are compatible with Octo" >> output.txt
-	yottadb -run TPBI003 1 > octo.sql
-	echo "# Run [psql --no-align names -f postgres.sql > postgres.out] to get Postgres output" >> output.txt
-	psql --no-align names -f postgres.sql > postgres.out
-	echo "# Run [octo -f octo.sql > octo.out] to get Octo output" >> output.txt
-	octo -f octo.sql > octo.out
-	echo "# Filter out essential query output from postgres.out into postgres.out2" >> output.txt
-	grep "^[0-9-]" postgres.out > postgres.out2
-	echo "# Filter out essential query output from octo.out into octo.out2" >> output.txt
-	grep "^[0-9-]" octo.out > octo.out2
-	echo "# Run [diff postgres.out2 octo.out2]. Expect no diff output below" >> output.txt
-	diff postgres.out2 octo.out2
-	verify_output TPBI003 output.txt noinfo nodebug
+	yottadb -run TPBI003 > queries.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names queries.sql roctoflags="-aw"
+}
+
+@test "TPBI004 : OCTO914/OCTO985 : Test of PowerBI when used through Postgres Npgsql Driver (not ODBC)" {
+	load_fixture TPBI004.sql subtest novv
+	verify_output TPBI004 output.txt noinfo nodebug
 }
 

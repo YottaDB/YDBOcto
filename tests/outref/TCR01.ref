@@ -23,9 +23,9 @@ ydb=# \q
 # Also cerify that JOBEXAM file contains the M-stack as expected
 # -------------------------------------------------------------------------------------------
 HANGTIME+5^HANGTIME    ($ZINTERRUPT) 
-octoPlan1+11^%ydboctoPIR6F3U01sKxUisROTrne64
-octoPlan1+5^%ydboctoPIR6F3U01sKxUisROTrne64
-octoPlan1+3^%ydboctoPIR6F3U01sKxUisROTrne64
-octoPlan0+3^%ydboctoPIR6F3U01sKxUisROTrne64
+octoPlan1+11^%ydboctoPo3oUDhfaJMBezpyRSwuECH
+octoPlan1+5^%ydboctoPo3oUDhfaJMBezpyRSwuECH
+octoPlan1+3^%ydboctoPo3oUDhfaJMBezpyRSwuECH
+octoPlan0+3^%ydboctoPo3oUDhfaJMBezpyRSwuECH
 run+8^%ydboctoselect
 # Verify M variable ZINTRSET got set IF ydb_zinterrupt env var (randomly) drove the zinterrupt

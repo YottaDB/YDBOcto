@@ -8,7 +8,7 @@ create view v as select lastname::varchar(100) from names;
 select * from v;
 DROP VIEW
 CREATE VIEW
-LASTNAME
+lastname
 Coo
 Bur
 Kil
@@ -18,7 +18,7 @@ Coo
 (6 rows)
 DROP VIEW
 CREATE VIEW
-LASTNAME
+lastname
 Cool
 Burn
 Killer

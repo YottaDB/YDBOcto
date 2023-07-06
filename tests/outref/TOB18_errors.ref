@@ -17,22 +17,22 @@ select 1 as ambiguous, 2 as ambiguous from names order by ambiguous;
 
 -- Misc
 SELECT * FROM names GROUP BY 1 ORDER BY firstname;
-[ERROR] PATH:LINENUM DATE TIME: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "FIRSTNAME": qualify name for safe execution
+[ERROR] PATH:LINENUM DATE TIME: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "firstname": qualify name for safe execution
 LINE 2:1: ...!= 'Zero' as firstname,firstname from names order by firstname;
                                                                   ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'firstname' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 4:1: select id,firstname from names group by 1 order by firstname;
                     ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'firstname' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 5:1: select id,firstname as firstname from names group by 1 order by...
                     ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_SELECT_DISTINCT: For SELECT DISTINCT, ORDER BY expressions must appear in select list
 LINE 7:1: SELECT DISTINCT 2+id,lastname FROM names ORDER BY id;
                                                             ^^
-[ERROR] PATH:LINENUM DATE TIME: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "FIRSTNAME": qualify name for safe execution
+[ERROR] PATH:LINENUM DATE TIME: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "firstname": qualify name for safe execution
 LINE 9:1: select 1, 2 from names n1, names n2 order by firstname;
                                                        ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "AMBIGUOUS": qualify name for safe execution
+[ERROR] PATH:LINENUM DATE TIME: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "ambiguous": qualify name for safe execution
 LINE 11:1: ...t 1 as ambiguous, 2 as ambiguous from names order by ambiguous;
                                                                    ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'firstname' must appear in the GROUP BY clause or be used in an aggregate function

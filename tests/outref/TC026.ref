@@ -2,6 +2,6 @@
 -- TC030 : OCTO527 : Correct handling ASCII null-byte when NOT NULL is not specified
 
 select * from names where lastname is NULL;
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 4|Joey|
 (1 row)

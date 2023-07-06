@@ -481,12 +481,12 @@ int main(int argc, char **argv) {
 		 */
 		for (cur_parm = 0; cur_parm < startup_message->num_parameters; cur_parm++) {
 			char *name;
-			/* Convert to uppercase for parameter name lookup. This is needed since StartupMessages do not pass through
-			 * the lexer and so do not automatically get uppercased. Use the struct packing of StartupMessageParm to
+			/* Convert to lowercase for parameter name lookup. This is needed since StartupMessages do not pass through
+			 * the lexer and so do not automatically get lowercased. Use the struct packing of StartupMessageParm to
 			 * identify the end of the parameter name without needing to do a strlen().
 			 */
 			name = startup_message->parameters[cur_parm].name;
-			TOUPPER_STR(name);
+			TOLOWER_STR(name);
 			name = startup_message->parameters[cur_parm].name;
 			status = set_parameter_in_pg_settings(name, startup_message->parameters[cur_parm].value);
 			if (YDB_OK != status) {
@@ -509,11 +509,11 @@ int main(int argc, char **argv) {
 		}
 
 		/* Prepare buffers for looping over runtime parameter LVNS, i.e.:
-		 *	%ydboctoocto(OCTOLIT_SETTINGS,OCTOLIT_NAMES,NAME_UPPER)=NAME
+		 *	%ydboctoocto(OCTOLIT_SETTINGS,OCTOLIT_PG_SETTINGS,NAME_LOWER)=NAME
 		 */
 		YDB_STRING_TO_BUFFER(config->global_names.raw_octo, &pg_buffers[0]);
 		YDB_STRING_TO_BUFFER(OCTOLIT_SETTINGS, &pg_buffers[1]);
-		YDB_STRING_TO_BUFFER(OCTOLIT_NAMES, &pg_buffers[2]);
+		YDB_STRING_TO_BUFFER(OCTOLIT_PG_SETTINGS, &pg_buffers[2]);
 		// Prepare buffers for storing runtime parameter names during iteration over list of valid parameter names
 		OCTO_MALLOC_NULL_TERMINATED_BUFFER(&variable_buffer, OCTO_INIT_BUFFER_LEN);
 		OCTO_MALLOC_NULL_TERMINATED_BUFFER(&pg_buffers[3], OCTO_INIT_BUFFER_LEN);
@@ -555,7 +555,7 @@ int main(int argc, char **argv) {
 				if (FALSE == read_only) {
 					/* We haven't yet sent ParameterStatus messages for read-only runtime variables, which are
 					 * stored in a different LVN, i.e.:
-					 *	%ydboctoocto(OCTOLIT_SETTINGS,OCTOLIT_READ_ONLY,NAME_UPPER)
+					 *	%ydboctoocto(OCTOLIT_SETTINGS,OCTOLIT_READ_ONLY,NAME_LOWER)
 					 * So, loop over these next.
 					 */
 					YDB_STRING_TO_BUFFER(OCTOLIT_READ_ONLY, &pg_buffers[2]);
@@ -574,22 +574,8 @@ int main(int argc, char **argv) {
 			if (YDB_OK != status) {
 				break;
 			}
-			/* Copy variable name from subscript into separate buffer for parameter lookup, which will modify the
-			 * string to canonical case in-place. This prevents a premature end to the breadth-first subscript loop due
-			 * to reuse of the same subscript in a different case.
-			 */
-			YDB_COPY_BUFFER_TO_BUFFER(&pg_buffers[3], &variable_buffer, done);
-			if (!done) {
-				/* The copy did not happen because there was not enough space in the destination.
-				 * Adjust "len_used" in the destination and then expand the buffer and then retry the copy.
-				 */
-				variable_buffer.len_used = pg_buffers[3].len_used;
-				EXPAND_YDB_BUFFER_T_ALLOCATION(variable_buffer);
-				YDB_COPY_BUFFER_TO_BUFFER(&pg_buffers[3], &variable_buffer, done);
-				assert(done);
-			}
-			variable_buffer.buf_addr[variable_buffer.len_used] = '\0';
-			message_parm.name = variable_buffer.buf_addr;
+			pg_buffers[3].buf_addr[pg_buffers[3].len_used] = '\0';
+			message_parm.name = pg_buffers[3].buf_addr;
 			message_parm.value = get_parameter_from_pg_settings(&message_parm.name, &value_buffer);
 			if (NULL == message_parm.value) {
 				break;

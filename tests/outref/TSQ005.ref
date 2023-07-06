@@ -232,9 +232,9 @@ ORDER  BY data_type,
 ]
 [ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
 [ INFO] PATH:LINENUM DATE TIME: INFO_M_PLAN: Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
-[ INFO] PATH:LINENUM DATE TIME: INFO_GENERATING_XREF: Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_TYPE] and column [OID]
-[ INFO] PATH:LINENUM DATE TIME: INFO_GENERATING_XREF: Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_CATALOG.PG_TYPE] and column [TYPTYPE]
+[ INFO] PATH:LINENUM DATE TIME: INFO_GENERATING_XREF: Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [pg_type] and column [oid]
+[ INFO] PATH:LINENUM DATE TIME: INFO_GENERATING_XREF: Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [pg_catalog.pg_type] and column [typtype]
 [ INFO] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering print_temporary_table
-TYPE_CAT|TYPE_SCHEM|TYPE_NAME|CLASS_NAME|DATA_TYPE|REMARKS|BASE_TYPE
+type_cat|type_schem|type_name|class_name|data_type|remarks|base_type
 (0 rows)
 [ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete

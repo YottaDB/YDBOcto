@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -33,7 +33,7 @@ INSERT INTO tmp1(id, `%yo_keycol`) SELECT id, id from tmp1;
 
 -- Test that "%YO_KEYCOL" is a column name that can be used in a CREATE TABLE as well as a SELECT if it was NOT an implicitly inserted column.
 -- Create a READONLY table tmp2 that uses the same gvn created by the READWRITE table tmp1 so we can see the actual hidden column.
-CREATE TABLE tmp2 (`%yo_keycol` INTEGER PRIMARY KEY, id INTEGER, firstname VARCHAR) READONLY GLOBAL "^%ydboctoDAgeMzpAgs346YlVTTNcBB6(keys(""%YO_KEYCOL"")";
+CREATE TABLE tmp2 (`%yo_keycol` INTEGER PRIMARY KEY, id INTEGER, firstname VARCHAR) READONLY GLOBAL "^%ydboctoDAgeMzpAgs346YlVTTNcBB6(keys(""%yo_keycol"")";
 SELECT `%yo_keycol` from tmp2;
 SELECT * from tmp2;
 -- Test that tablename.* syntax produces same output as * did above;

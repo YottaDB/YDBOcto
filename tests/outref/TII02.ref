@@ -12,7 +12,7 @@ DROP TABLE namesLastNameXref;
 
 CREATE TABLE
 INSERT 0 5
-LASTNAME|ID
+lastname|id
 Burn|1
 Cool|0
 Cool|5

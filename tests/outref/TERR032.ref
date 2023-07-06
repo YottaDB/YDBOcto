@@ -11,7 +11,7 @@ CREATE TABLE abcd (id INTEGER PRIMARY KEY, datetime INTEGER EXTRACT "$ZHOROLOG")
 CREATE TABLE abcd (id INTEGER, firstname VARCHAR(20) PIECE 3) READWRITE;
 
 -- Test of READWRITE with column-level GLOBAL
-CREATE TABLE abcd (id INTEGER PRIMARY KEY, firstname VARCHAR(20) GLOBAL "^names(keys(""ID""))") READWRITE;
+CREATE TABLE abcd (id INTEGER PRIMARY KEY, firstname VARCHAR(20) GLOBAL "^names(keys(""id""))") READWRITE;
 
 -- Test of READWRITE with column-level DELIM
 CREATE TABLE abcd (id INTEGER, firstname VARCHAR(20) DELIM "#") READWRITE;
@@ -39,7 +39,7 @@ CREATE TABLE abcd (id INTEGER, firstname VARCHAR DELIM "a");
 -- key column initially and cannot easily change that to READONLY later) and so we test that here.
 CREATE TABLE abcd (id INTEGER, firstname VARCHAR DELIM "", lastname VARCHAR DELIM "");
 
-[ERROR]: ERR_READWRITE_DISALLOWED: READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
 [ERROR]: ERR_READWRITE_DISALLOWED: READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
 [ERROR]: ERR_READWRITE_DISALLOWED: READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
 [ERROR]: ERR_READWRITE_DISALLOWED: READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword

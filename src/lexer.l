@@ -319,7 +319,7 @@ int copied_so_far;
                 COPY_STRING((&lex_buffer), yptr, copied_so_far);
 		SQL_VALUE_MALLOC_STATEMENT(*yylval, PARAMETER_VALUE, copied_so_far);
                 char *d = (*yylval)->v.value->v.string_literal;
-		TOUPPER(d, d+copied_so_far+1, lex_buffer.buf_addr, &lex_buffer.buf_addr[lex_buffer.len_used]);
+		TOLOWER(d, d+copied_so_far+1, lex_buffer.buf_addr, &lex_buffer.buf_addr[lex_buffer.len_used]);
 		RESET_BUFFER(lex_buffer);
                 return LITERAL;
               }
@@ -329,7 +329,7 @@ int copied_so_far;
                 COPY_STRING((&lex_buffer), yptr, copied_so_far);
 		SQL_VALUE_MALLOC_STATEMENT(*yylval, COLUMN_REFERENCE, copied_so_far);
                 char *d = (*yylval)->v.value->v.string_literal;
-		TOUPPER(d, d+copied_so_far+1, lex_buffer.buf_addr, &lex_buffer.buf_addr[lex_buffer.len_used]);
+		TOLOWER(d, d+copied_so_far+1, lex_buffer.buf_addr, &lex_buffer.buf_addr[lex_buffer.len_used]);
 		RESET_BUFFER(lex_buffer);
                 return INTRINSIC_FUNCTION;
               }
@@ -342,7 +342,7 @@ int copied_so_far;
                 COPY_STRING((&lex_buffer), yptr, copied_so_far);
 		SQL_VALUE_MALLOC_STATEMENT(*yylval, COLUMN_REFERENCE, copied_so_far);
                 char *d = (*yylval)->v.value->v.string_literal;
-		TOUPPER(d, d+copied_so_far+1, lex_buffer.buf_addr, &lex_buffer.buf_addr[lex_buffer.len_used]);
+		TOLOWER(d, d+copied_so_far+1, lex_buffer.buf_addr, &lex_buffer.buf_addr[lex_buffer.len_used]);
 		RESET_BUFFER(lex_buffer);
                 return PARENLESS_FUNCTION;
               }

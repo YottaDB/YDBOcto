@@ -30,7 +30,7 @@ CREATE FUNCTION
 CREATE FUNCTION
 DROP FUNCTION
 CREATE FUNCTION
-OVERLOADEDFUNC
+overloadedfunc
 12.5hello
 12.5hello
 12.5hello
@@ -38,7 +38,7 @@ OVERLOADEDFUNC
 12.5hello
 12.5hello
 (6 rows)
-OVERLOADEDFUNC
+overloadedfunc
 1.22.5hello
 1.22.5hello
 1.22.5hello
@@ -46,7 +46,7 @@ OVERLOADEDFUNC
 1.22.5hello
 1.22.5hello
 (6 rows)
-OVERLOADEDFUNC
+overloadedfunc
 hello2
 hello2
 hello2
@@ -54,7 +54,7 @@ hello2
 hello2
 hello2
 (6 rows)
-OVERLOADEDFUNC
+overloadedfunc
 1
 1
 1

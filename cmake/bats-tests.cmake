@@ -216,6 +216,8 @@ if("${FULL_TEST_SUITE}")
 	ADD_BATS_TEST_DML(test_select_columns_psql)
 	ADD_BATS_TEST_DML(test_auto_upgrade)
 	ADD_BATS_TEST_DML(test_jdbc_connection)
+	ADD_BATS_TEST_DML(test_pg_functions)
+	ADD_BATS_TEST_DML(test_dbeaver_connect_queries)
 
 	# The following test requires MySQL and PostgreSQL
 	ADD_BATS_TEST_DML(test_date_time_functions)

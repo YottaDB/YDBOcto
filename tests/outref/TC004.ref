@@ -3,36 +3,36 @@
 
 -- Need READONLY below as we do not want the DROP TABLE to delete ^T1 as the following queries rely on ^T1 persisting.
 
-CREATE TABLE t1 (a int primary key) GLOBAL "^T1(keys(""A""))" READONLY;
+CREATE TABLE t1 (a int primary key) GLOBAL "^T1(keys(""a""))" READONLY;
 SELECT * FROM t1;
 DROP TABLE t1;
-CREATE TABLE t1 (a int primary key, b int) GLOBAL "^T1(keys(""A""))" READONLY;
+CREATE TABLE t1 (a int primary key, b int) GLOBAL "^T1(keys(""a""))" READONLY;
 SELECT * FROM t1;
 DROP TABLE t1;
-CREATE TABLE t1 (a int primary key, b int, c int) GLOBAL "^T1(keys(""A""))" READONLY;
+CREATE TABLE t1 (a int primary key, b int, c int) GLOBAL "^T1(keys(""a""))" READONLY;
 SELECT * FROM t1;
 DROP TABLE t1;
-CREATE TABLE t1 (a int primary key, b int, c int, d int) GLOBAL "^T1(keys(""A""))" READONLY;
+CREATE TABLE t1 (a int primary key, b int, c int, d int) GLOBAL "^T1(keys(""a""))" READONLY;
 SELECT * FROM t1;
 DROP TABLE t1;
 
 CREATE TABLE
-A
+a
 1
 (1 row)
 DROP TABLE
 CREATE TABLE
-A|B
+a|b
 1|2|3|4
 (1 row)
 DROP TABLE
 CREATE TABLE
-A|B|C
+a|b|c
 1|2|3
 (1 row)
 DROP TABLE
 CREATE TABLE
-A|B|C|D
+a|b|c|d
 1|2|3|4
 (1 row)
 DROP TABLE

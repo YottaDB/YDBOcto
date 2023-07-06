@@ -406,3 +406,14 @@ OCTO
 OCTO
 	verify_output TERR050 output.txt
 }
+
+@test "TERR051 : OCTO985 : Test ERR_NEGATIVE_SUBSTRING_LENGTH error" {
+	load_fixture TERR051.sql subtest novv
+	verify_output TERR051 output.txt
+}
+
+@test "TERR052 : OCTO929 : Test ERR_VALUES_NOT_ALLOWED_IN_START_END error" {
+	load_fixture TERR052.sql subtest novv
+	verify_output TERR052 output.txt
+}
+

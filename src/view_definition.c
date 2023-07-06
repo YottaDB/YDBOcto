@@ -27,11 +27,29 @@ SqlStatement *view_definition(SqlStatement *create_view_stmt, ParseContext *pars
 	SqlView *view;
 	UNPACK_SQL_STATEMENT(view, create_view_stmt, create_view);
 
-	SqlStatement *view_name = view->viewName;
+	SqlStatement *viewName = view->viewName;
+	if (config->is_auto_upgrade_octo929) {
+		SqlValue *value;
+		char *	  view_name, uppercase_name[OCTO_MAX_IDENT + 1];
+
+		UNPACK_SQL_STATEMENT(value, viewName, value);
+		if (!value->is_double_quoted) {
+			char *start, *end, *dst, *dst_end;
+
+			start = value->v.string_literal;
+			end = start + strlen(start);
+			dst = uppercase_name;
+			dst_end = dst + sizeof(uppercase_name);
+			TOUPPER(dst, dst_end, start, end);
+			view_name = uppercase_name;
+		} else {
+			view_name = value->v.string_literal;
+		}
+		fprintf(config->octo929_sqlfile_stream, "DROP VIEW IF EXISTS \"%s\";\n", view_name);
+	}
 	SqlStatement *column_name_list = view->column_name_list;
 	SqlStatement *query_expression = view->src_table_alias_stmt;
-	assert(value_STATEMENT == view_name->type);
-	view->viewName = view_name;
+	assert(value_STATEMENT == viewName->type);
 	SqlStatement *	 src_table_alias_stmt;
 	SqlStatementType save_command_tag = parse_context->command_tag;
 	// Pass command type to be select as we are processing view definition

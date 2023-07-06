@@ -18,7 +18,7 @@ CREATE TABLE objecttypes (
 	  CONSTRAINT idx_objecttypes_objecttype UNIQUE (objecttype)
 );
 \d objecttypes;
-SELECT XECUTE_M_CODE('zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D');
+SELECT XECUTE_M_CODE("zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D");
 INSERT INTO objecttypes values (1, 'aaa');
 SELECT * FROM objecttypes;
 SELECT XECUTE_M_CODE('zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D');

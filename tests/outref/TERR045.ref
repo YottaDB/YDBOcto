@@ -1,15 +1,15 @@
 OCTO> select id from dummy1; select id from dummy2;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: DUMMY1
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: dummy1
 LINE 1:1: select id from dummy1; select id from dummy2;
                          ^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: DUMMY2
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: dummy2
 LINE 1:1: select id from dummy2;
                          ^^^^^^
 OCTO> select id from dummy1; select id from dummy2;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: DUMMY1
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: dummy1
 LINE 1:1: select id from dummy1; select id from dummy2;
                          ^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: DUMMY2
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: dummy2
 LINE 1:1: select id from dummy2;
                          ^^^^^^
 OCTO> 

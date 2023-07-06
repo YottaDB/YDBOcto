@@ -9,18 +9,18 @@ SELECT (SELECT n3.id FROM names n3 LEFT JOIN names n4 ON n4.id = COUNT(n1.id) OR
 SELECT (SELECT n3.id FROM names n3 WHERE n3.id = COUNT(n1.id) LIMIT 1),(SELECT n2.id FROM names n2 ORDER BY COUNT(n1.id) LIMIT 1) FROM names n1;
 SELECT (SELECT id FROM names n1 WHERE COUNT(n2.id) = 6 LIMIT 1),COUNT(n2.id) FROM names n2;
 
-COUNT|ID
+count|id
 6|
 (1 row)
-ID|ID
+id|id
 0|
 (1 row)
 [ERROR]: ERR_AGGREGATE_FUNCTION_JOIN: Aggregate functions are not allowed in JOIN conditions
 LINE 7:1: ...EFT JOIN names n4 ON n4.id = COUNT(n1.id) ORDER BY COUNT(n1.id)...
                                           ^^^^^
-ID|ID
+id|id
 |0
 (1 row)
-ID|COUNT
+id|count
 0|6
 (1 row)

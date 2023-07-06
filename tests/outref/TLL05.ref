@@ -1,4 +1,4 @@
-FIRSTNAME|LASTNAME
+firstname|lastname
 Zero|Cool
 Acid|Burn
 Cereal|Killer
@@ -6,12 +6,12 @@ Lord|Nikon
 Joey|
 Zero|Cool
 (6 rows)
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: NOTATHING
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: notathing
 LINE 5:1: select notathing from names; select firstname from names limit ...
 HIGHLIGHT
-FIRSTNAME
+firstname
 Zero
 (1 row)
-LASTNAME
+lastname
 Cool
 (1 row)

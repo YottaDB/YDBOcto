@@ -39,7 +39,7 @@ OCTO
   # create a global for a table that can be selected from
   yottadb -run %XCMD 'set ^T1(1)="2|3|4"'
   octo <<OCTO 2>&1 | tee output.txt
-create table t1 (a int primary key, b int, c int, d int) GLOBAL "^T1(keys(""A""))";
+create table t1 (a int primary key, b int, c int, d int) GLOBAL "^T1(keys(""a""))";
 OCTO
   octo <<OCTO 2>&1 | tee output.txt
 select * from t1;
@@ -106,7 +106,7 @@ OCTO
 		echo "# Populate ^names with data for NAMES table" >> final_output.txt
 		load_fixture names.zwr
 		echo "# Verify NAMES table got created with READONLY or READWRITE tabletype" >> final_output.txt
-		$ydb_dist/yottadb -run %XCMD 'write ^%ydboctoschema("NAMES","text",0)' >> final_output.txt
+		$ydb_dist/yottadb -run %XCMD 'write ^%ydboctoschema("names","text",0)' >> final_output.txt
 		echo "# DROP TABLE names" >> final_output.txt
 		load_fixture TDT05.sql subtest novv
 		cat output.txt >> final_output.txt
@@ -144,7 +144,7 @@ OCTO
 		echo "# Populate ^names with data for NAMES table" >> final_output.txt
 		load_fixture names.zwr
 		echo "# Verify NAMES table got created with READONLY or READWRITE tabletype" >> final_output.txt
-		$ydb_dist/yottadb -run %XCMD 'write ^%ydboctoschema("NAMES","text",0)' >> final_output.txt
+		$ydb_dist/yottadb -run %XCMD 'write ^%ydboctoschema("names","text",0)' >> final_output.txt
 		echo "# DROP TABLE names KEEPDATA" >> final_output.txt
 		load_fixture TDT07.sql subtest novv
 		cat output.txt >> final_output.txt

@@ -14,8 +14,8 @@
 
 select "ABS"(-1);
 select "abs"(-1); -- Error: function name was defined as uppercase
-select "CONCAT"(firstname, ' ', lastname) from names;
-select "concat"(firstname, ' ', lastname) from names; -- Error: function name was defined as uppercase
+select "concat"(firstname, ' ', lastname) from names;
+select "CONCAT"(firstname, ' ', lastname) from names; -- Error: function name was defined as lowercase
 
 CREATE FUNCTION "concat"(VARCHAR, VARCHAR, VARCHAR) RETURNS VARCHAR AS $$^%ydboctofCONCAT;
 CREATE FUNCTION "abs"(INTEGER) RETURNS INTEGER AS $$ABS^%ydboctosqlfunctions;

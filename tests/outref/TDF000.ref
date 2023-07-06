@@ -5,7 +5,11 @@ SELECT ABS(-1) FROM names;
 DROP FUNCTION ABS (INTEGER);
 SELECT ABS(-1) FROM names;
 
-ABS
+SELECT ABS(-1.0) FROM names;
+DROP FUNCTION ABS (NUMERIC);
+SELECT ABS(-1.0) FROM names;
+
+abs
 1
 1
 1
@@ -14,9 +18,20 @@ ABS
 1
 (6 rows)
 DROP FUNCTION
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function ABS defined with given parameter types (INTEGER)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function abs defined with given parameter types (INTEGER)
 LINE 5:1: SELECT ABS(-1) FROM names;
                  ^^^
+abs
+1
+1
+1
+1
+1
+1
+(6 rows)
+DROP FUNCTION
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function abs defined with given parameter types (NUMERIC)
+LINE 9:1: SELECT ABS(-1.0) FROM names;
+                 ^^^
 Remaining function definitions (hashes):
---> Found: ^%ydboctoocto("functions","ABS","%ydboctoF0BXSKYtCkTUXzFwpivpB68")
-Successfully deleted function "ABS" from pg_catalog.pg_proc
+Successfully deleted function "abs" from pg_catalog.pg_proc

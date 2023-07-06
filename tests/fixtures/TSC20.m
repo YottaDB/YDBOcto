@@ -45,10 +45,10 @@ TSC20	;
 	set file="ddl.sql"
 	open file:(newversion)
 	use file
-	write "create table longvalues (id INTEGER PRIMARY KEY, value VARCHAR) GLOBAL '^longvalues(keys(""ID""))';",!
+	write "create table longvalues (id INTEGER PRIMARY KEY, value VARCHAR) GLOBAL '^longvalues(keys(""id""))';",!
 	write "create table lotsofcols (id INTEGER PRIMARY KEY,",!
 	for i=1:1:ncols write "  col"_i_" VARCHAR"  write:i'=ncols "," write !
-	write ") GLOBAL '^lotsofcols(keys(""ID""))';",!
+	write ") GLOBAL '^lotsofcols(keys(""id""))';",!
 	close file
 	;
 	use reffile

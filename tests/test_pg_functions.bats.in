@@ -1,0 +1,28 @@
+#################################################################
+#								#
+# Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+}
+
+teardown() {
+  corecheck
+}
+
+@test "TPF01 : OCTO929 : Test of substring() function" {
+	yottadb -run TPF01 > TPF01.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TPF01.sql
+}
+

@@ -10,7 +10,7 @@
 #								#
 #################################################################
 
--- TC055 : OCTO583 : Validate IDENTIY constraint on columns
+-- TC055 : OCTO583 : Validate IDENTITY constraint on columns
 -- INSERT test cases
 -- GENERATED ALWAYS AS IDENTITY
 DROP TABLE IF EXISTS test;

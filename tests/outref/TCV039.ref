@@ -38,7 +38,7 @@ CREATE VIEW
 ???
 t
 (1 row)
-View "V1"
+View "v1"
 Column|Type|Collation|Nullable|Default
 ???|VARCHAR||||
 View definition:
@@ -47,7 +47,7 @@ CREATE VIEW
 ???
 1
 (1 row)
-View "V2"
+View "v2"
 Column|Type|Collation|Nullable|Default
 ???|VARCHAR||||
 View definition:
@@ -56,7 +56,7 @@ CREATE VIEW
 ???
 f
 (1 row)
-View "V3"
+View "v3"
 Column|Type|Collation|Nullable|Default
 ???|VARCHAR||||
 View definition:
@@ -65,7 +65,7 @@ CREATE VIEW
 ???
 0
 (1 row)
-View "V4"
+View "v4"
 Column|Type|Collation|Nullable|Default
 ???|VARCHAR||||
 View definition:
@@ -74,7 +74,7 @@ CREATE VIEW
 ???
 1
 (1 row)
-View "V5"
+View "v5"
 Column|Type|Collation|Nullable|Default
 ???|BOOLEAN||||
 View definition:
@@ -83,27 +83,27 @@ CREATE VIEW
 ???
 0
 (1 row)
-View "V6"
+View "v6"
 Column|Type|Collation|Nullable|Default
 ???|BOOLEAN||||
 View definition:
 create view v6 as select false;
 CREATE VIEW
-???|COL2
+???|col2
 1|t
 0|t
 (2 rows)
-View "V7"
+View "v7"
 Column|Type|Collation|Nullable|Default
 ???|BOOLEAN||||
-COL2|VARCHAR||||
+col2|VARCHAR||||
 View definition:
 create view v7 as select true,'t' as col2 union select 'f','t';
 CREATE VIEW
 INTEGER
 1
 (1 row)
-View "V8"
+View "v8"
 Column|Type|Collation|Nullable|Default
 INTEGER|INTEGER||||
 View definition:
@@ -112,7 +112,7 @@ CREATE VIEW
 INTEGER
 1
 (1 row)
-View "V9"
+View "v9"
 Column|Type|Collation|Nullable|Default
 INTEGER|INTEGER||||
 View definition:

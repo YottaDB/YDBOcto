@@ -31,7 +31,7 @@ select * from names order by 1.235,-12345678901234567890;
 select * from names order by -1.235,12345678901234567890;
 select * from names order by 1,2,-12345678901234567890;
 
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 5|Zero|Cool
 4|Joey|
 3|Lord|Nikon
@@ -39,7 +39,7 @@ ID|FIRSTNAME|LASTNAME
 1|Acid|Burn
 0|Zero|Cool
 (6 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 5|Zero|Cool
 3|Lord|Nikon
@@ -47,7 +47,7 @@ ID|FIRSTNAME|LASTNAME
 2|Cereal|Killer
 1|Acid|Burn
 (6 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 1|Acid|Burn
 0|Zero|Cool
 5|Zero|Cool
@@ -55,7 +55,7 @@ ID|FIRSTNAME|LASTNAME
 3|Lord|Nikon
 4|Joey|
 (6 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 1|Acid|Burn
 5|Zero|Cool
 0|Zero|Cool
@@ -63,7 +63,7 @@ ID|FIRSTNAME|LASTNAME
 3|Lord|Nikon
 4|Joey|
 (6 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 1|Acid|Burn
 0|Zero|Cool
 5|Zero|Cool
@@ -71,7 +71,7 @@ ID|FIRSTNAME|LASTNAME
 3|Lord|Nikon
 4|Joey|
 (6 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 1|Acid|Burn
 2|Cereal|Killer
 4|Joey|
@@ -79,7 +79,7 @@ ID|FIRSTNAME|LASTNAME
 5|Zero|Cool
 0|Zero|Cool
 (6 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -87,7 +87,7 @@ ID|FIRSTNAME|LASTNAME
 4|Joey|
 5|Zero|Cool
 (6 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer

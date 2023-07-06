@@ -5,7 +5,7 @@ SELECT t1.id, t1.firstName, t1.lastName FROM names t1 INNER JOIN (SELECT * FROM 
 UNION ALL
 SELECT * FROM names t1;
 
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer

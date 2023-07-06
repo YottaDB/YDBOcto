@@ -9,5 +9,5 @@ CREATE TABLE tmp (id INTEGER PRIMARY KEY EXTRACT "$ZDATE($HOROLOG,""YEAR-MM-DD 2
 -- Test of KEY NUM and EXTRACT
 CREATE TABLE tmp (id INTEGER PRIMARY KEY, datetime INTEGER EXTRACT "$ZDATE($HOROLOG,""YEAR-MM-DD 24:60:SS"")" KEY NUM 1) GLOBAL "^tmp";
 
-[ERROR]: ERR_EXTRACT_CANNOT_BE_KEY_COLUMN: Column "ID" cannot be a computed/extract column and key column at same time
-[ERROR]: ERR_EXTRACT_CANNOT_BE_KEY_COLUMN: Column "DATETIME" cannot be a computed/extract column and key column at same time
+[ERROR]: ERR_EXTRACT_CANNOT_BE_KEY_COLUMN: Column "id" cannot be a computed/extract column and key column at same time
+[ERROR]: ERR_EXTRACT_CANNOT_BE_KEY_COLUMN: Column "datetime" cannot be a computed/extract column and key column at same time

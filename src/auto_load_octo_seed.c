@@ -32,10 +32,8 @@
  * Returns 0 on success and 1 on error.
  */
 int auto_load_octo_seed(void) {
-	char  octo_seed_path[OCTO_PATH_MAX], exe_path[OCTO_PATH_MAX], mupip_path[OCTO_PATH_MAX];
-	FILE *save_inputFile;
-	int   status;
-	int (*save_cur_input_more)(void);
+	char	     octo_seed_path[OCTO_PATH_MAX], exe_path[OCTO_PATH_MAX], mupip_path[OCTO_PATH_MAX];
+	int	     status;
 	size_t	     filename_len;
 	pid_t	     child_id;
 	char *	     ydb_dist;
@@ -105,48 +103,7 @@ int auto_load_octo_seed(void) {
 			return 1;
 		}
 	}
-	/* Open the seed file to parse/run queries and set the global variable "inputFile" to point to that. */
-	save_inputFile = inputFile; /* Save "inputFile" (non-NULL value possible in case of "octo -f" invocation */
-	inputFile = fopen(octo_seed_path, "r");
-	if (NULL == inputFile) {
-		ERROR(ERR_FILE_NOT_FOUND, octo_seed_path);
-		assert(FALSE);
-		return 1;
-	}
-	/* Change global variables to reflect that we are now going to read queries from "octo-seed.sql" */
-	/* Set "readline_get_more()" as the function to read/parse query lines from "inputFile".
-	 * But before that, save current value of "cur_input_more" in temporary variable.
-	 */
-	save_cur_input_more = cur_input_more;
-	cur_input_more = &readline_get_more;
-	/* Ready input buffer for reading from seed file */
-	cur_input_index = 0;
-	input_buffer_combined[cur_input_index] = '\0';
-	/* Read query lines from "inputFile" until end */
-	do {
-		ParseContext parse_context;
-
-		memset(&parse_context, 0, sizeof(parse_context));
-		assert(config->in_auto_load_octo_seed); /* Caller should have set this to TRUE. Needed by "run_query()" to
-							 * bypass ERR_CANNOT_CREATE_TABLE/ERR_CANNOT_CREATE_FUNCTION errors.
-							 */
-		status = run_query(&print_temporary_table, NULL, PSQL_Invalid, &parse_context);
-		if (0 != status) {
-			break;
-		}
-		if (EOF_NONE != eof_hit) {
-			break;
-		}
-	} while (!feof(inputFile));
-	fclose(inputFile);
-	/* Restore global variables now that seed file loading is done */
-	cur_input_more = save_cur_input_more;
-	inputFile = save_inputFile;
-	/* Reset query processing related global variables that might have been modified in above "run_query()" loop */
-	eof_hit = EOF_NONE;
-	ERASE_INPUT_BUFFER; /* Clear history of all "parse_line()" processing related to binary function upgrade to avoid
-			     * confusion when we next proceed to run real queries.
-			     */
+	status = run_query_file(octo_seed_path);
 	if (0 != status) {
 		/* run_query() has failed to process one of the seed table or function. Exit with an error. */
 		ERROR(ERR_AUTO_SEED_LOAD, "");

@@ -4,6 +4,6 @@
 CREATE FUNCTION secondvalue(varchar, integer) RETURNS integer AS $$b5^TCF031;
 select secondvalue(NULL, 1);
 CREATE FUNCTION
-SECONDVALUE
+secondvalue
 5
 (1 row)

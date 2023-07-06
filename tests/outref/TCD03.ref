@@ -1,4 +1,4 @@
-FIRST_NAME|LAST_NAME|ORDER_DATE|ORDER_AMOUNT
+first_name|last_name|order_date|order_amount
 George|Washington|07/04/1776|$234.56
 Thomas|Jefferson|03/14/1760|$78.50
 Thomas|Jefferson|09/03/1790|$65.50

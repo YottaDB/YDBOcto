@@ -107,7 +107,7 @@ teardown() {
 	echo "" >> output.txt
 	echo "# Additionally verify that hidden column is not emitted in the text table definition" >> output.txt
 	echo "# But also verify that the hidden column name shows up in the M gvn of the GLOBAL keyword" >> output.txt
-	grep -w "text" run.ext | grep -w TMP1 >> output.txt
+	grep -w "text" run.ext | grep -w tmp1 >> output.txt
 	echo '# Additionally verify AIM Data got built and has correct contents' >> output.txt
 	$ydb_dist/yottadb -r zwriteAIMData^aimutils &>> output.txt
 	echo '# Verify key fixing optimization happened for = and IS NULL operators in WHERE clause' >> output.txt

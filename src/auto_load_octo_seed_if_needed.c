@@ -11,6 +11,7 @@
  ****************************************************************/
 
 #include <assert.h>
+#include <unistd.h> /* for unlink() */
 
 #include "octo.h"
 #include "git_hashes.h"
@@ -101,6 +102,7 @@ int auto_load_octo_seed_if_needed(void) {
 				 * Hence need a FULL auto load.
 				 */
 				full_auto_load_needed = TRUE;
+				config->is_auto_upgrade_octo929 = TRUE;
 				DELETE_SEED_FMT_GVN();
 				break;
 			case YDB_ERR_GVUNDEF:
@@ -130,6 +132,9 @@ int auto_load_octo_seed_if_needed(void) {
 			fmt.buf_addr[fmt.len_used] = '\0';
 			int seed_definition_fmt = atoi(fmt.buf_addr);
 			full_auto_load_needed = (FMT_SEED_DEFINITION != seed_definition_fmt);
+			if (full_auto_load_needed && (FMT_SEED_DEFINITION_OCTO929 > seed_definition_fmt)) {
+				config->is_auto_upgrade_octo929 = TRUE;
+			}
 #ifndef NDEBUG
 			// Force auto load if config->seedreload is TRUE
 			full_auto_load_needed = (config->seedreload) ? TRUE : full_auto_load_needed;
@@ -156,6 +161,22 @@ int auto_load_octo_seed_if_needed(void) {
 			break;
 		}
 	}
+	if (config->is_auto_upgrade_octo929) {
+		/* Open a temporary file that will hold the CREATE FUNCTION/CREATE TABLE commands needed for special auto upgrade */
+		int fd;
+		assert(sizeof(OCTO929_SQLFILE_NAME) < sizeof(config->octo929_sqlfile));
+		strcpy(config->octo929_sqlfile, OCTO929_SQLFILE_NAME);
+		fd = mkstemp(config->octo929_sqlfile);
+		if (-1 == fd) {
+			ERROR(ERR_SYSCALL_WITH_ARG, "mkstemp()", errno, strerror(errno), config->octo929_sqlfile);
+			CLEANUP_AND_RETURN(fd, release_ddl_lock, octo_global, locksub);
+		}
+		config->octo929_sqlfile_stream = fdopen(fd, "w");
+		if (NULL == config->octo929_sqlfile_stream) {
+			ERROR(ERR_SYSCALL_WITH_ARG, "fdopen()", errno, strerror(errno), config->octo929_sqlfile);
+			CLEANUP_AND_RETURN(fd, release_ddl_lock, octo_global, locksub);
+		}
+	}
 	/* In case this is a rocto process, it is not allowed to do schema changes by default. But allow the auto upgrade
 	 * for this process. Hence the temporary modification to "config->allow_schema_changes" below.
 	 */
@@ -179,6 +200,31 @@ int auto_load_octo_seed_if_needed(void) {
 		 */
 		UPGRADE_BINARY_DEFINITIONS_AND_RETURN_IF_NOT_YDB_OK(status, release_ddl_lock, octo_global, locksub);
 		assert(YDB_OK == status); // Ensure above call succeeded
+		if (config->is_auto_upgrade_octo929) {
+			status = fclose(config->octo929_sqlfile_stream);
+			if (0 != status) {
+				ERROR(ERR_SYSCALL_WITH_ARG, "fclose()", errno, strerror(errno), config->octo929_sqlfile);
+				CLEANUP_AND_RETURN(status, release_ddl_lock, octo_global, locksub);
+			}
+			status = run_query_file(config->octo929_sqlfile);
+			if (0 != status) {
+				CLEANUP_AND_RETURN(status, release_ddl_lock, octo_global, locksub);
+			}
+			/* Now that auto upgrade of views finished fine, remove the temporary file */
+			status = unlink(config->octo929_sqlfile);
+			if (0 != status) {
+				CLEANUP_AND_RETURN(status, release_ddl_lock, octo_global, locksub);
+			}
+			/* Kill LVN that was used for avoiding duplicate CREATE/DROP TABLE/FUNCTION commands during auto upgrade */
+			ydb_buffer_t ydbocto929;
+			YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTO929, &ydbocto929);
+			status = ydb_delete_s(&ydbocto929, 0, NULL, YDB_DEL_TREE);
+			if (YDB_OK != status) {
+				CLEANUP_AND_RETURN(status, release_ddl_lock, octo_global, locksub);
+			}
+			/* Reset global variable now that octo929 upgrade is done */
+			config->is_auto_upgrade_octo929 = FALSE;
+		}
 	} else {
 		assert(partial_auto_load_needed);
 		/* Write the current FMT_BINARY_DEFINITION value to ^%ydboctoocto(OCTOLIT_BINFMT). So other processes do not
@@ -187,7 +233,7 @@ int auto_load_octo_seed_if_needed(void) {
 		SET_OCTOLIT_BINFMT_GVN_AND_RETURN_IF_NOT_YDB_OK(status, release_ddl_lock, octo_global, locksub);
 	}
 	/* Following assert ensures that the operations in the above if/else block have succeeded.
-	 * If it hasn't we should not reach this part of the code.
+	 * If it hasn't, we should not reach this part of the code.
 	 */
 	assert(YDB_OK == status);
 	/* Now that auto load is complete, indicate that (so other processes do not attempt the auto load)

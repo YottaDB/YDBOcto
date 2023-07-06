@@ -1,5 +1,5 @@
 # Run TPP08.sql that generates xref plan for NAMES table and LASTNAME column
-FIRSTNAME
+firstname
 Lord
 (1 row)
 # KILL internal gvns so Octo has no idea of any generated physical/xref plans
@@ -7,7 +7,7 @@ Lord
 # If the xref plan does not get regenerated we would see an error due to running the garbage M code
 # This is a way of verifying that the xref plan does indeed get regenerated
 # Run TPP08.sql again. Verify that no error occurs and xref plan gets regenerated
-FIRSTNAME
+firstname
 Lord
 (1 row)
 # Verify internal gvns in Octo corresponding to xref plans did get regenerated
@@ -18,10 +18,10 @@ Lord
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_columns",1,"data_type")=1043
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_columns",1,"data_type_size")=-1
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_columns",1,"format_code")=0
-^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_columns",1,"name")="FIRSTNAME"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_columns",1,"name")="firstname"
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_columns",1,"table_id")=0
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_columns",1,"type_modifier")=-1
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")=3
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoX*.m","output_key")=1
-^%ydbAIMOctoCache("NAMES","LASTNAME","completed?")=1
-^%ydbAIMOctoCache("NAMES","LASTNAME","location")="^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2)"
+^%ydbAIMOctoCache("names","lastname","completed?")=1
+^%ydbAIMOctoCache("names","lastname","location")="^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2)"

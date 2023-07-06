@@ -55,10 +55,10 @@ drop table v1;
 drop table if exists v1;
 CREATE VIEW
 DROP VIEW
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: V1
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: v1
 LINE 4:1: select * from v1;
                         ^^
-[ERROR]: ERR_CANNOT_DROP_VIEW: Cannot DROP view "V1" as it does not exist
+[ERROR]: ERR_CANNOT_DROP_VIEW: Cannot DROP view "v1" as it does not exist
 DROP VIEW
 CREATE VIEW
 CREATE VIEW
@@ -77,7 +77,7 @@ syntax error, unexpected COMMA, expecting SEMICOLON or ENDOFFILE
 ???
 1
 (1 row)
-[ERROR]: ERR_CANNOT_CREATE_VIEW: View or Table "V1" already exists
+[ERROR]: ERR_CANNOT_CREATE_VIEW: View or Table "v1" already exists
 ???
 1
 (1 row)
@@ -96,9 +96,9 @@ syntax error, unexpected COMMA, expecting SEMICOLON or ENDOFFILE
 DROP VIEW
 DROP VIEW
 CREATE TABLE
-[ERROR]: ERR_WRONG_TYPE: "TEST" is not a VIEW
-[ERROR]: ERR_WRONG_TYPE: "TEST" is not a VIEW
+[ERROR]: ERR_WRONG_TYPE: "test" is not a VIEW
+[ERROR]: ERR_WRONG_TYPE: "test" is not a VIEW
 DROP TABLE
 CREATE VIEW
-[ERROR]: ERR_WRONG_TYPE: "V1" is not a TABLE
-[ERROR]: ERR_WRONG_TYPE: "V1" is not a TABLE
+[ERROR]: ERR_WRONG_TYPE: "v1" is not a TABLE
+[ERROR]: ERR_WRONG_TYPE: "v1" is not a TABLE

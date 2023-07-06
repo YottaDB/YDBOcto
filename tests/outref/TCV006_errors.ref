@@ -20,10 +20,10 @@ create view v1 as select firstname,count(id) as aggr from names group by firstna
 select firstname,aggr from v1 group by firstname; -- error
 drop view v1;
 CREATE VIEW
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'lastname' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 3:1: select v1.firstname,v1.lastname from v1 group by v1.firstname; ...
                               ^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'firstname' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 4:2: select v1.firstname,count(v1.lastname) from v1; -- ERROR
                  ^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
@@ -44,7 +44,7 @@ syntax error, unexpected IDENTIFIER_ALONE, expecting EXCEPT or UNION or SEMICOLO
 DROP VIEW
 DROP VIEW
 CREATE VIEW
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column AGGR must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'aggr' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 17:1: select firstname,aggr from v1 group by firstname; -- error
                             ^^^^
 DROP VIEW

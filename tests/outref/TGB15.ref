@@ -2,12 +2,12 @@
 select id from names having 1=1;
 select 1 from names having 1=1 order by id;
 select 1 from names having id = 2;
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'id' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 2:1: select id from names having 1=1;
                  ^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'id' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 3:1: select 1 from names having 1=1 order by id;
                                                   ^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'id' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 4:1: select 1 from names having id = 2;
                                      ^^

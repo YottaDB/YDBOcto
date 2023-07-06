@@ -19,54 +19,54 @@ select REPLACE('ABCA', 'A', 'B');
 select RIGHTY('ABCDEFGH',5);
 select FMDIFF(3000102.010101,3000101.010101,2);
 select FMADD(3000101.010101,1,0,0,0);
-DATEFORMAT
+dateformat
 01/01/2000 1:01:01 am
 (1 row)
-DATEFORMAT
+dateformat
 01/01/2000 1:01:01 am
 (1 row)
-DATEFORMAT
+dateformat
 01/01/2000@TIME
 (1 row)
-FMGET
+fmget
 PROGRAMMER,ONE
 (1 row)
-FMGET
+fmget
 PXRM CPRS CONFIGURATION
 (1 row)
-IFNULL
+ifnull
 0
 (1 row)
-IFNULL
+ifnull
 0
 (1 row)
-IFNULL
+ifnull
 A
 (1 row)
-LEFTY
+lefty
 ABCDE
 (1 row)
-MPIECE
+mpiece
 A
 (1 row)
-TOKEN
+token
 A
 (1 row)
-NUMBER
+number
 123
 (1 row)
-PATINDEX
+patindex
 3
 (1 row)
-REPLACE
+replace
 BBCB
 (1 row)
-RIGHTY
+righty
 DEFGH
 (1 row)
-FMDIFF
+fmdiff
 86400
 (1 row)
-FMADD
+fmadd
 3000102.010101
 (1 row)

@@ -74,7 +74,7 @@ teardown() {
   # Filter global octo.conf (any not in the local directory)
   sed -i '/^.*\[ INFO\].* \/.*\/octo.conf/d' octo_output.txt.tmp
   # Filter out header ("ID" or "VALUE" or "COL1") and summary ("rows") lines from octo output before creating reference file.
-  grep -vwE "ID|VALUE|COL1|rows" octo_output.txt.tmp > octo_output.txt
+  grep -vwE "id|value|col1|rows" octo_output.txt.tmp > octo_output.txt
   # Generate the final reference file (it is two copies of what has been generated in TSC20.half_ref)
   cat TSC20.half_ref TSC20.half_ref > TSC20.ref
   cmp TSC20.ref octo_output.txt

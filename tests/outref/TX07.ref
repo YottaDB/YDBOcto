@@ -5,21 +5,21 @@ CREATE TABLE
 INSERT 0 1
 INSERT 0 1
 INSERT 0 1
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 3||b3
 (1 row)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 2|a2|
 (1 row)
 INSERT 0 1
 ???
 # Expect row with primary key 4 to show up in the two sets of output below
 (1 row)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 3||b3
 4||
 (2 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 2|a2|
 4||
 (2 rows)
@@ -31,23 +31,23 @@ CREATE TABLE
 INSERT 0 1
 INSERT 0 1
 INSERT 0 1
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 3||b3
 (1 row)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 2|a2|
 (1 row)
-XECUTE_M_CODE
+xecute_m_code
 0
 (1 row)
 ???
 # Expect row with primary key 4 to show up in the two sets of output below
 (1 row)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 3||b3
 4||
 (2 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 2|a2|
 4||
 (2 rows)

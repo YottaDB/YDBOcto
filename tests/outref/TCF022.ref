@@ -3,133 +3,181 @@
 
 SELECT proname,pronargs,prorettype,proargtypes FROM pg_catalog.pg_proc;
 SELECT proname,pronargs,prorettype,proargtypes FROM pg_proc;
-PRONAME|PRONARGS|PRORETTYPE|PROARGTYPES
-ABS|1|1700|1700
-ABS|1|23|23
-CONCAT|2|1043|1043 1043
-CONCAT|3|1043|1043 1043 1043
-ROUND|2|1700|1700 23
-ROUND|2|1700|23 23
-TRUNC|2|1700|1700 23
-TRUNC|2|1700|23 1700
-TRUNC|2|1700|1700 1700
-TRUNC|2|1700|23 23
-TRUNCATE|2|1700|1700 23
-TRUNCATE|2|1700|23 1700
-TRUNCATE|2|1700|1700 1700
-TRUNCATE|2|1700|23 23
-NOW|0|1043|
-DAY|1|1043|1043
-LOCALTIME|0|1043|
-LOCALTIMESTAMP|0|1043|
-CURRENT_TIMESTAMP|0|1043|
-CURRENT_TIME|0|1043|
-DATE_FORMAT|2|1043|1043 1043
-DAYOFMONTH|1|1043|1043
-LPAD|2|1043|1043 23
-LPAD|3|1043|1043 23 1043
-REPLACE|3|1043|1043 1043 1043
-ROW_NUMBER|0|23|
-SET_CONFIG|3|1043|1043 1043 16
-VERSION|0|1043|
-PG_CATALOG.PG_TABLE_IS_VISIBLE|1|16|23
-PG_CATALOG.PG_GET_USERBYID|1|1043|23
-CURRENT_SCHEMA|0|1043|
-CURRENT_DATABASE|0|1043|
-CURRENT_CATALOG|0|1043|
-CURRENT_ROLE|0|1043|
-CURRENT_USER|0|1043|
-SESSION_USER|0|1043|
-USER|0|1043|
-PG_CATALOG.CURRENT_SCHEMAS|1|1043|16
-PG_CATALOG.OBJ_DESCRIPTION|2|1043|23 1043
-PG_CATALOG.PG_BACKEND_PID|0|1043|
-PG_CATALOG.PG_GET_EXPR|2|1043|1043 23
-PG_ENCODING_TO_CHAR|1|1043|23
-PG_IS_IN_RECOVERY|0|16|
-PG_IS_XLOG_REPLAY_PAUSED|0|16|
-HAS_DATABASE_PRIVILEGE|2|16|23 1043
-HAS_DATABASE_PRIVILEGE|3|16|1043 1043 1043
-ARRAY_LOWER|2|23|23 23
-ARRAY_LOWER|2|23|1700 23
-ARRAY_LOWER|2|23|1043 23
-ARRAY_LOWER|2|23|16 23
-ARRAY_UPPER|2|23|23 23
-ARRAY_UPPER|2|23|1700 23
-ARRAY_UPPER|2|23|1043 23
-ARRAY_UPPER|2|23|16 23
-GENERATE_SERIES|2|23|23 23
-REGCLASS|1|23|1043
-REGPROC|1|1043|1043
-PG_TABLE_IS_VISIBLE|1|16|23
-PG_GET_USERBYID|1|1043|23
-CURRENT_SCHEMAS|1|1043|16
-OBJ_DESCRIPTION|2|1043|23 1043
-PG_BACKEND_PID|0|1043|
-PG_GET_EXPR|2|1043|1043 23
-(63 rows)
-PRONAME|PRONARGS|PRORETTYPE|PROARGTYPES
-ABS|1|1700|1700
-ABS|1|23|23
-CONCAT|2|1043|1043 1043
-CONCAT|3|1043|1043 1043 1043
-ROUND|2|1700|1700 23
-ROUND|2|1700|23 23
-TRUNC|2|1700|1700 23
-TRUNC|2|1700|23 1700
-TRUNC|2|1700|1700 1700
-TRUNC|2|1700|23 23
-TRUNCATE|2|1700|1700 23
-TRUNCATE|2|1700|23 1700
-TRUNCATE|2|1700|1700 1700
-TRUNCATE|2|1700|23 23
-NOW|0|1043|
-DAY|1|1043|1043
-LOCALTIME|0|1043|
-LOCALTIMESTAMP|0|1043|
-CURRENT_TIMESTAMP|0|1043|
-CURRENT_TIME|0|1043|
-DATE_FORMAT|2|1043|1043 1043
-DAYOFMONTH|1|1043|1043
-LPAD|2|1043|1043 23
-LPAD|3|1043|1043 23 1043
-REPLACE|3|1043|1043 1043 1043
-ROW_NUMBER|0|23|
-SET_CONFIG|3|1043|1043 1043 16
-VERSION|0|1043|
-PG_CATALOG.PG_TABLE_IS_VISIBLE|1|16|23
-PG_CATALOG.PG_GET_USERBYID|1|1043|23
-CURRENT_SCHEMA|0|1043|
-CURRENT_DATABASE|0|1043|
-CURRENT_CATALOG|0|1043|
-CURRENT_ROLE|0|1043|
-CURRENT_USER|0|1043|
-SESSION_USER|0|1043|
-USER|0|1043|
-PG_CATALOG.CURRENT_SCHEMAS|1|1043|16
-PG_CATALOG.OBJ_DESCRIPTION|2|1043|23 1043
-PG_CATALOG.PG_BACKEND_PID|0|1043|
-PG_CATALOG.PG_GET_EXPR|2|1043|1043 23
-PG_ENCODING_TO_CHAR|1|1043|23
-PG_IS_IN_RECOVERY|0|16|
-PG_IS_XLOG_REPLAY_PAUSED|0|16|
-HAS_DATABASE_PRIVILEGE|2|16|23 1043
-HAS_DATABASE_PRIVILEGE|3|16|1043 1043 1043
-ARRAY_LOWER|2|23|23 23
-ARRAY_LOWER|2|23|1700 23
-ARRAY_LOWER|2|23|1043 23
-ARRAY_LOWER|2|23|16 23
-ARRAY_UPPER|2|23|23 23
-ARRAY_UPPER|2|23|1700 23
-ARRAY_UPPER|2|23|1043 23
-ARRAY_UPPER|2|23|16 23
-GENERATE_SERIES|2|23|23 23
-REGCLASS|1|23|1043
-REGPROC|1|1043|1043
-PG_TABLE_IS_VISIBLE|1|16|23
-PG_GET_USERBYID|1|1043|23
-CURRENT_SCHEMAS|1|1043|16
-OBJ_DESCRIPTION|2|1043|23 1043
-PG_BACKEND_PID|0|1043|
-PG_GET_EXPR|2|1043|1043 23
-(63 rows)
+proname|pronargs|prorettype|proargtypes
+abs|1|1700|1700
+abs|1|23|23
+concat|2|1043|1043 1043
+concat|3|1043|1043 1043 1043
+round|2|1700|1700 23
+round|2|1700|23 23
+trunc|2|1700|1700 23
+trunc|2|1700|23 1700
+trunc|2|1700|1700 1700
+trunc|2|1700|23 23
+truncate|2|1700|1700 23
+truncate|2|1700|23 1700
+truncate|2|1700|1700 1700
+truncate|2|1700|23 23
+now|0|1043|
+day|1|1043|1043
+localtime|0|1043|
+localtimestamp|0|1043|
+current_timestamp|0|1043|
+current_time|0|1043|
+date_format|2|1043|1043 1043
+dayofmonth|1|1043|1043
+lpad|2|1043|1043 23
+lpad|3|1043|1043 23 1043
+replace|3|1043|1043 1043 1043
+row_number|0|23|
+set_config|3|1043|1043 1043 16
+version|0|1043|
+pg_catalog.pg_table_is_visible|1|16|23
+pg_catalog.pg_get_userbyid|1|1043|23
+current_schema|0|1043|
+current_database|0|1043|
+current_catalog|0|1043|
+current_role|0|1043|
+current_user|0|1043|
+session_user|0|1043|
+user|0|1043|
+pg_catalog.current_schemas|1|1043|16
+pg_catalog.obj_description|2|1043|23 1043
+pg_catalog.pg_backend_pid|0|1043|
+pg_catalog.pg_get_expr|2|1043|1043 23
+pg_catalog.pg_get_expr|3|1043|1043 23 16
+pg_catalog.pg_total_relation_size|1|1043|23
+pg_catalog.pg_relation_size|1|1043|23
+pg_catalog.pg_get_constraintdef|1|1043|23
+pg_catalog.pg_get_constraintdef|2|1043|23 16
+pg_catalog.pg_get_ruledef|1|1043|23
+pg_catalog.pg_get_ruledef|2|1043|23 16
+pg_encoding_to_char|1|1043|23
+pg_is_in_recovery|0|16|
+pg_is_xlog_replay_paused|0|16|
+has_database_privilege|2|16|23 1043
+has_database_privilege|3|16|1043 1043 1043
+array_lower|2|23|23 23
+array_lower|2|23|1700 23
+array_lower|2|23|1043 23
+array_lower|2|23|16 23
+array_upper|2|23|23 23
+array_upper|2|23|1700 23
+array_upper|2|23|1043 23
+array_upper|2|23|16 23
+generate_series|2|23|23 23
+regclass|1|23|1043
+regproc|1|1043|1043
+format_type|2|1043|23 23
+substring|1|1043|1043
+substring|2|1043|1043 23
+substring|3|1043|1043 23 23
+pg_catalog.pg_get_partkeydef|1|1043|23
+pg_catalog.pg_stat_get_numscans|1|1043|23
+pg_catalog.pg_tablespace_location|1|1043|23
+pg_table_is_visible|1|16|23
+pg_get_userbyid|1|1043|23
+current_schemas|1|1043|16
+obj_description|2|1043|23 1043
+pg_backend_pid|0|1043|
+pg_get_expr|2|1043|1043 23
+pg_get_expr|3|1043|1043 23 16
+pg_total_relation_size|1|1043|23
+pg_relation_size|1|1043|23
+pg_get_constraintdef|1|1043|23
+pg_get_constraintdef|2|1043|23 16
+pg_get_ruledef|1|1043|23
+pg_get_ruledef|2|1043|23 16
+pg_get_partkeydef|1|1043|23
+pg_stat_get_numscans|1|1043|23
+pg_tablespace_location|1|1043|23
+(87 rows)
+proname|pronargs|prorettype|proargtypes
+abs|1|1700|1700
+abs|1|23|23
+concat|2|1043|1043 1043
+concat|3|1043|1043 1043 1043
+round|2|1700|1700 23
+round|2|1700|23 23
+trunc|2|1700|1700 23
+trunc|2|1700|23 1700
+trunc|2|1700|1700 1700
+trunc|2|1700|23 23
+truncate|2|1700|1700 23
+truncate|2|1700|23 1700
+truncate|2|1700|1700 1700
+truncate|2|1700|23 23
+now|0|1043|
+day|1|1043|1043
+localtime|0|1043|
+localtimestamp|0|1043|
+current_timestamp|0|1043|
+current_time|0|1043|
+date_format|2|1043|1043 1043
+dayofmonth|1|1043|1043
+lpad|2|1043|1043 23
+lpad|3|1043|1043 23 1043
+replace|3|1043|1043 1043 1043
+row_number|0|23|
+set_config|3|1043|1043 1043 16
+version|0|1043|
+pg_catalog.pg_table_is_visible|1|16|23
+pg_catalog.pg_get_userbyid|1|1043|23
+current_schema|0|1043|
+current_database|0|1043|
+current_catalog|0|1043|
+current_role|0|1043|
+current_user|0|1043|
+session_user|0|1043|
+user|0|1043|
+pg_catalog.current_schemas|1|1043|16
+pg_catalog.obj_description|2|1043|23 1043
+pg_catalog.pg_backend_pid|0|1043|
+pg_catalog.pg_get_expr|2|1043|1043 23
+pg_catalog.pg_get_expr|3|1043|1043 23 16
+pg_catalog.pg_total_relation_size|1|1043|23
+pg_catalog.pg_relation_size|1|1043|23
+pg_catalog.pg_get_constraintdef|1|1043|23
+pg_catalog.pg_get_constraintdef|2|1043|23 16
+pg_catalog.pg_get_ruledef|1|1043|23
+pg_catalog.pg_get_ruledef|2|1043|23 16
+pg_encoding_to_char|1|1043|23
+pg_is_in_recovery|0|16|
+pg_is_xlog_replay_paused|0|16|
+has_database_privilege|2|16|23 1043
+has_database_privilege|3|16|1043 1043 1043
+array_lower|2|23|23 23
+array_lower|2|23|1700 23
+array_lower|2|23|1043 23
+array_lower|2|23|16 23
+array_upper|2|23|23 23
+array_upper|2|23|1700 23
+array_upper|2|23|1043 23
+array_upper|2|23|16 23
+generate_series|2|23|23 23
+regclass|1|23|1043
+regproc|1|1043|1043
+format_type|2|1043|23 23
+substring|1|1043|1043
+substring|2|1043|1043 23
+substring|3|1043|1043 23 23
+pg_catalog.pg_get_partkeydef|1|1043|23
+pg_catalog.pg_stat_get_numscans|1|1043|23
+pg_catalog.pg_tablespace_location|1|1043|23
+pg_table_is_visible|1|16|23
+pg_get_userbyid|1|1043|23
+current_schemas|1|1043|16
+obj_description|2|1043|23 1043
+pg_backend_pid|0|1043|
+pg_get_expr|2|1043|1043 23
+pg_get_expr|3|1043|1043 23 16
+pg_total_relation_size|1|1043|23
+pg_relation_size|1|1043|23
+pg_get_constraintdef|1|1043|23
+pg_get_constraintdef|2|1043|23 16
+pg_get_ruledef|1|1043|23
+pg_get_ruledef|2|1043|23 16
+pg_get_partkeydef|1|1043|23
+pg_stat_get_numscans|1|1043|23
+pg_tablespace_location|1|1043|23
+(87 rows)

@@ -7,7 +7,7 @@ DROP FUNCTION DOLLARZWRITE (VARCHAR);
 select DOLLARZWRITE(firstname) from names;
 
 CREATE FUNCTION
-DOLLARZWRITE
+dollarzwrite
 "Zero"
 "Acid"
 "Cereal"
@@ -16,8 +16,8 @@ DOLLARZWRITE
 "Zero"
 (6 rows)
 DROP FUNCTION
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function DOLLARZWRITE defined with given parameter types (VARCHAR)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function dollarzwrite defined with given parameter types (VARCHAR)
 LINE 6:1: select DOLLARZWRITE(firstname) from names;
                  ^^^^^^^^^^^^
 Remaining function definitions (hashes):
-Successfully deleted function "DOLLARZWRITE" from pg_catalog.pg_proc
+Successfully deleted function "dollarzwrite" from pg_catalog.pg_proc

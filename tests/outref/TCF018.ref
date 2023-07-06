@@ -7,11 +7,11 @@ SELECT * FROM names WHERE firstname > lastname;
 SELECT * FROM names WHERE SAMEVALUE(firstname) > SAMEVALUE(lastname);
 
 CREATE FUNCTION
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 5|Zero|Cool
 (2 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 5|Zero|Cool
 (2 rows)

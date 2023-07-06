@@ -1,0 +1,59 @@
+# Test of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/929#note_1508425327
+# Below output contains global names of the UNIQUE constraint for many table/columnname combinations
+# Those global names are expected to be the same BEFORE and AFTER YDBOcto#929
+# Note that the PRIMARY KEY constraint global name is also part of the below output
+# And it is okay for that to be different BEFORE and AFTER YDBOcto#929
+# It is only the UNIQUE constraint global name that needs to be the same BEFORE and AFTER YDBOcto#929
+
+-- TCTC017 : OCTO929 : Test that UNIQUE constraint global names are unchanged after YDBOcto#929
+
+-- Test of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/929#note_1508425327
+
+create table "TCTC017a" (id integer primary key, id1 integer, id2 integer, UNIQUE (id1, id2));
+\d "TCTC017a";
+
+create table TCTC017b (id integer primary key, id1 integer, id2 integer, UNIQUE (id1, id2));
+\d TCTC017b;
+
+create table "TCTC017c" (id integer primary key, "iD1" integer, id2 integer, UNIQUE ("iD1", id2));
+\d "TCTC017a";
+
+create table TCTC017d (id integer primary key, id1 integer, "iD2" integer, UNIQUE (id1, "iD2"));
+\d TCTC017b;
+
+CREATE TABLE
+Table "TCTC017a" stored in Global: ^%ydboctoDf8mJstqmh3icKNq5CrqUB9(id) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+id1|INTEGER|||
+id2|INTEGER|||
+Indexes:
+    "TCTC017a_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^%ydboctoDf8mJstqmh3icKNq5CrqUB9(id)
+    "TCTC017a_id1_id2_KEY" UNIQUE CONSTRAINT, Column(s) (id1, id2), Global ^%ydboctoUaHvJ0pOKIFZemAHjExK6E5
+CREATE TABLE
+Table "tctc017b" stored in Global: ^%ydboctoD3M0ThFzOiASFmYpHmJZbIK(id) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+id1|INTEGER|||
+id2|INTEGER|||
+Indexes:
+    "tctc017b_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^%ydboctoD3M0ThFzOiASFmYpHmJZbIK(id)
+    "tctc017b_id1_id2_KEY" UNIQUE CONSTRAINT, Column(s) (id1, id2), Global ^%ydboctoU1zDaAejZXM9jjSW0CzO4DL
+CREATE TABLE
+Table "TCTC017a" stored in Global: ^%ydboctoDf8mJstqmh3icKNq5CrqUB9(id) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+id1|INTEGER|||
+id2|INTEGER|||
+Indexes:
+    "TCTC017a_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^%ydboctoDf8mJstqmh3icKNq5CrqUB9(id)
+    "TCTC017a_id1_id2_KEY" UNIQUE CONSTRAINT, Column(s) (id1, id2), Global ^%ydboctoUaHvJ0pOKIFZemAHjExK6E5
+CREATE TABLE
+Table "tctc017b" stored in Global: ^%ydboctoD3M0ThFzOiASFmYpHmJZbIK(id) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+id1|INTEGER|||
+id2|INTEGER|||
+Indexes:
+    "tctc017b_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^%ydboctoD3M0ThFzOiASFmYpHmJZbIK(id)
+    "tctc017b_id1_id2_KEY" UNIQUE CONSTRAINT, Column(s) (id1, id2), Global ^%ydboctoU1zDaAejZXM9jjSW0CzO4DL

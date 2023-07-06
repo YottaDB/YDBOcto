@@ -1,9 +1,9 @@
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: NOTATHING
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: notathing
 LINE 1:1: select notathing as a
                  ^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ALSONOTATHING
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: alsonotathing
 LINE 3:2: alsonotathing = 0; select * from names limit 1;
           ^^^^^^^^^^^^^
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 (1 row)

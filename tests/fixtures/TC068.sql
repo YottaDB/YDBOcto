@@ -13,5 +13,5 @@
 -- TC068 : OCTO633 : EXTRACT containing values() works after manual additional of rows to table
 
 drop table if exists tmp;
-create table tmp (id1 integer primary key, id2 integer, id3 integer extract "$extract(values(""ID2""),1,99)*10") READONLY GLOBAL "^x";
+create table tmp (id1 integer primary key, id2 integer, id3 integer extract "$extract(values(""id2""),1,99)*10") READONLY GLOBAL "^x";
 select * from tmp;

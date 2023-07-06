@@ -307,6 +307,7 @@ add_library(libocto OBJECT
   parser/table_expression.c
   parser/table_reference.c
   parser/validate_global_keyword.c
+  parser/validate_start_end_keyword.c
   parser/validate_query_expression.c
   physical/allocate_physical_plan.c
   physical/emit_physical_or_xref_plan.c
@@ -336,6 +337,7 @@ add_library(libocto OBJECT
   readline_get_more.c
   regex_has_no_special_characters.c
   run_query.c
+  run_query_file.c
   set_parameter_in_pg_settings.c
   get_parameter_from_pg_settings.c
   store_function_definition.c

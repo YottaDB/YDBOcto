@@ -12,11 +12,11 @@
 
 -- TC062 : OCTO633 : EXTRACT doesn't parse names of global variables as key or value specifications
 
-create table longkeys (id INTEGER PRIMARY KEY, value VARCHAR) GLOBAL "^longkeys(keys(""ID""))";
+create table longkeys (id INTEGER PRIMARY KEY, value VARCHAR) GLOBAL "^longkeys(keys(""id""))";
 select * from longkeys;
 
 -- Test of ERR_VALUES_NOT_ALLOWED_IN_GLOBAL error
-create table longvalues (id INTEGER PRIMARY KEY, value VARCHAR) GLOBAL "^longvalues(values(""VALUE""))";
+create table longvalues (id INTEGER PRIMARY KEY, value VARCHAR) GLOBAL "^longvalues(values(""value""))";
 
 -- Test of ERR_UNKNOWN_COLUMN_NAME error
 -- Test prohibition of nested `keys(..)` expressions

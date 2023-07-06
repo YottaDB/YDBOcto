@@ -16,9 +16,9 @@
 create table abcd ("id" integer);
 select * from abcd;
 select "id" from abcd;
-select id from abcd; -- Error: Unknown column 'ID'
+select id from abcd;
 select "ID" from abcd; -- Error: Unknown column 'ID'
-select ID from abcd; -- Error: Unknown column 'ID'
+select ID from abcd;
 drop table abcd;
 
 create table abcd ("ID" integer);
@@ -26,72 +26,72 @@ select * from abcd;
 select "id" from abcd; -- Error: Unknown column 'id'
 select id from abcd; -- Error: Unknown column 'id'
 select "ID" from abcd;
-select ID from abcd;
-drop table "abcd"; -- Error: Unknown table 'abcd'
-drop table "ABCD";
+select ID from abcd; -- Error: Unknown column 'id'
+drop table "ABCD"; -- Error: Unknown table 'ABCD'
+drop table "abcd";
 
 create table abcd (id integer);
 select * from abcd;
-select "id" from abcd; -- Error: Unknown column 'id'
+select "id" from abcd;
 select id from abcd;
-select "ID" from abcd;
+select "ID" from abcd; -- Error: Unknown column 'ID'
 select ID from abcd;
 drop table ABCD;
 
 create table abcd (ID integer);
 select * from abcd;
-select "id" from abcd; -- Error: Unknown column 'id'
+select "id" from abcd;
 select id from abcd;
-select "ID" from abcd;
+select "ID" from abcd; -- Error: Unknown column 'ID'
 select ID from abcd;
 select abcd.ID from abcd;
-select abcd."ID" from abcd;
-select abcd."id" from abcd; -- Error: Unknown column
+select abcd."ID" from abcd; -- Error: Unknown column 'ID'
+select abcd."id" from abcd;
 select abcd.id from abcd;
-select "abcd".ID from abcd; -- Error: Missing FROM clause
+select "abcd".ID from abcd;
 select abcd.ID from abcd;
-select "ABCD".ID from abcd;
+select "ABCD".ID from abcd; -- Error: Missing FROM clause
 select ABCD.ID from abcd;
-drop table "abcd"; -- Error: Unknown table
+drop table "ABCD"; -- Error: Unknown table
 drop table abcd; -- Table dropped successfully
 
 -- Identifiers as table names
-create table "efgh" ("id" integer);
-select * from "efgh";
+create table "EFGH" ("ID" integer);
+select * from "efgh"; -- Error: Unknown table
 select * from efgh; -- Error: Unknown table
-select * from "EFGH"; -- Error: Unknown table
+select * from "EFGH";
 select * from EFGH; -- Error: Unknown table
-select * from "efgh" where "efgh"."id" = 0;
-select * from "Efgh" where "efgh"."id" = 0; -- Error: Unknown table
-select * from "efgh" where "efgh"."Id" = 0; -- Error: Unknown column
-select * from "efgh" where efgh.id = 0; -- Error: Missing FROM-clause
+select * from "EFGH" where "EFGH"."ID" = 0;
+select * from "Efgh" where "EFGH"."ID" = 0; -- Error: Unknown table
+select * from "EFGH" where "EFGH"."Id" = 0; -- Error: Unknown column
+select * from "EFGH" where efgh.id = 0; -- Error: Missing FROM-clause
 drop table efgh; -- Error: Unknown table
 drop table EFGH; -- Error: Unknown table
-drop table "EFGH"; -- Error: Unknown table
-drop table "efgh"; -- Table dropped successfully
-
-create table "EFGH" (id integer);
-select * from "efgh"; -- Error: Unknown table
-select * from efgh;
-select * from "EFGH";
-select * from EFGH;
 drop table "efgh"; -- Error: Unknown table
 drop table "EFGH"; -- Table dropped successfully
 
-create table efgh ("ID" integer);
-select * from "efgh"; -- Error: Unknown table
+create table "efgh" (id integer);
+select * from "EFGH"; -- Error: Unknown table
 select * from efgh;
 select * from "EFGH";
 select * from EFGH;
-drop table "efgh"; -- Error: Unknown table
+drop table "EFGH"; -- Error: Unknown table
+drop table "efgh"; -- Table dropped successfully
+
+create table efgh ("id" integer);
+select * from "efgh";
+select * from efgh;
+select * from "EFGH"; -- Error: Unknown table
+select * from EFGH;
+drop table "EFGH"; -- Error: Unknown table
 drop table EFGH; -- Table dropped successfully
 
 create table EFGH (ID integer);
-select * from "efgh"; -- Error: Unknown table
+select * from "efgh";
 select * from efgh;
-select * from "EFGH";
+select * from "EFGH"; -- Error: Unknown table
 select * from EFGH;
-drop table "efgh";
+drop table "EFGH"; -- Error: Unknown table
 drop table EFGH; -- Table dropped successfully
 
 -- Identifiers and literals as alias names
@@ -103,26 +103,26 @@ drop table EFGH; -- Table dropped successfully
 
 -- Correct handling of double quotes in GROUP BY
 drop table if exists tmp;
-create table tmp ("id1" integer, "id2" integer);
-select "id1" from tmp group by "id2";
+create table tmp ("ID1" integer, "ID2" integer);
+select "ID1" from tmp group by "ID2";
 
 -- Correct handling of double quotes in NATURAL JOIN
 drop table if exists tmp;
 create table tmp (id1 integer, id2 integer) READWRITE;
 insert into tmp values (1,2);
 insert into tmp values (2,1);
-select * from (select id1 as "id" from tmp) n1 natural join (select id2 as "id" from tmp) n2;
-select n2."id", n1."id" from (select id1 as "id" from tmp) n1 natural join (select id2 as "id" from tmp) n2;
-select n2.id, n1.id from (select id1 as "id" from tmp) n1 natural join (select id2 as "id" from tmp) n2; -- Error: Unknown column
+select * from (select id1 as "ID" from tmp) n1 natural join (select id2 as "ID" from tmp) n2;
+select n2."ID", n1."ID" from (select id1 as "ID" from tmp) n1 natural join (select id2 as "ID" from tmp) n2;
+select n2.id, n1.id from (select id1 as "ID" from tmp) n1 natural join (select id2 as "ID" from tmp) n2; -- Error: Unknown column
 
 -- Correct handling of column names that differ only in case sensitivity
 drop table if exists tbl;
-create table tbl (col integer, "col" integer, primary key(col, "col"));
+create table tbl (col integer, "COL" integer, primary key(col, "COL"));
 select * from tbl;
 drop table if exists tbl;
-create table tbl (col integer, "col" integer, primary key(col, "col")) GLOBAL "^tbl(keys(""COL""),keys(""col""))";
+create table tbl (col integer, "COL" integer, primary key(col, "COL")) GLOBAL "^tbl(keys(""col""),keys(""COL""))";
 select * from tbl;
 -- ERR_GLOBAL_KEY_COLS_ORDER error for mismatch between `keys(..)` expression and column name, e.g. `COL` to `keys(""col"")`
 drop table if exists tbl;
-create table tbl (col integer, "col" integer, primary key(col, "col")) GLOBAL "^tbl(keys(""col""),keys(""col""))";
+create table tbl (col integer, "COL" integer, primary key(col, "COL")) GLOBAL "^tbl(keys(""COL""),keys(""COL""))";
 

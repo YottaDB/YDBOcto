@@ -253,10 +253,10 @@ LINE 23:1: create table TBT13 (id integer, check (true in ('t', 'fa')));
                                                   ^^^^
 LINE 23:1: create table TBT13 (id integer, check (true in ('t', 'fa')));
                                                            ^^^^^^^^^
-[ERROR]: ERR_MISTYPED_FUNCTION: Function SUM cannot be invoked with a parameter of type VARCHAR
+[ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type VARCHAR
 LINE 25:1: select sum('t') from names;
                   ^^^
-[ERROR]: ERR_MISTYPED_FUNCTION: Function SUM cannot be invoked with a parameter of type VARCHAR
+[ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type VARCHAR
 LINE 26:1: select sum('f') from names;
                   ^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types BOOLEAN and VARCHAR cannot be matched
@@ -326,8 +326,8 @@ LINE 44:1: ... TBT13 (id integer, CHECK (case 't' when 1 then 'MyZero' end));
 LINE 45:1: ... TBT13 (id integer, CHECK (case 't' when true then 'abcd' end));
                                                        ^^^^
 CREATE TABLE
-[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "TXT" is of type BOOLEAN but expression is of type VARCHAR
-TXT
+[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "txt" is of type BOOLEAN but expression is of type VARCHAR
+txt
 (0 rows)
 DROP TABLE
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
@@ -345,66 +345,66 @@ LINE 53:1: select * from names where ('f' or 'fat');
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
 LINE 55:1: ...BT13 (id integer, CHECK (case when id=1 then 't' else 'f' end));
                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: TBT13
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tbt13
 LINE 56:1: insert into TBT13 values (1);
                        ^^^^^
-[ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "TBT13" as it does not exist
+[ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tbt13" as it does not exist
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TBT13 violates CHECK constraint TBT13_CHECK : Failing row contains (1)
-Table "TBT13" stored in Global: ^%ydboctoDWwbFBURjM9XzkxmIFYp94D : Type = READWRITE
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_CHECK : Failing row contains (1)
+Table "tbt13" stored in Global: ^%ydboctoDs1WfLXUI15XKQwwTJhPLEG : Type = READWRITE
 Column|Type|Collation|Nullable|Default
-ID|INTEGER|||
+id|INTEGER|||
 Check constraints:
-    "TBT13_CHECK" CHECK (FALSE)
-ID
+    "tbt13_CHECK" CHECK (FALSE)
+id
 (0 rows)
 DROP TABLE
 CREATE TABLE
 INSERT 0 1
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TBT13 violates CHECK constraint TBT13_ID_CHECK : Failing row contains (b)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_id_CHECK : Failing row contains (b)
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TBT13 violates CHECK constraint TBT13_CHECK : Failing row contains (4)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_CHECK : Failing row contains (4)
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TBT13 violates CHECK constraint TBT13_CHECK : Failing row contains (5)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_CHECK : Failing row contains (5)
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TBT13 violates CHECK constraint TBT13_CHECK : Failing row contains (11)
-Table "TBT13" stored in Global: ^%ydboctoDWwbFBURjM9XzkxmIFYp94D : Type = READWRITE
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_CHECK : Failing row contains (11)
+Table "tbt13" stored in Global: ^%ydboctoDs1WfLXUI15XKQwwTJhPLEG : Type = READWRITE
 Column|Type|Collation|Nullable|Default
-ID|INTEGER|||
+id|INTEGER|||
 Check constraints:
-    "TBT13_CHECK" CHECK ((TRUE IN (FALSE, FALSE)))
+    "tbt13_CHECK" CHECK ((TRUE IN (FALSE, FALSE)))
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TBT13 violates CHECK constraint TBT13_CHECK : Failing row contains (12)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_CHECK : Failing row contains (12)
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TBT13 violates CHECK constraint TBT13_CHECK : Failing row contains (4)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_CHECK : Failing row contains (4)
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TBT13 violates CHECK constraint TBT13_CHECK : Failing row contains (1)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_CHECK : Failing row contains (1)
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TBT13 violates CHECK constraint TBT13_CHECK : Failing row contains (1)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_CHECK : Failing row contains (1)
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TBT13 violates CHECK constraint TBT13_CHECK : Failing row contains (1)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_CHECK : Failing row contains (1)
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TBT13 violates CHECK constraint TBT13_CHECK : Failing row contains (1)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_CHECK : Failing row contains (1)
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TBT13 violates CHECK constraint TBT13_CHECK : Failing row contains (1)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_CHECK : Failing row contains (1)
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TBT13 violates CHECK constraint TBT13_CHECK : Failing row contains (1)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_CHECK : Failing row contains (1)
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TBT13 violates CHECK constraint TBT13_CHECK : Failing row contains (1)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_CHECK : Failing row contains (1)
 DROP TABLE
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function FN defined with given parameter types (VARCHAR, VARCHAR)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function fn defined with given parameter types (VARCHAR, VARCHAR)
 LINE 119:1: create table TBT13 (id varchar, check (fn(id, 'f')));
                                                    ^^
 [ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'VARCHAR' is not a valid boolean value
@@ -415,13 +415,13 @@ LINE 121:1: select not 'falsed' from names;
 LINE 124:1: select -'t';
                     ^^^
 CREATE TABLE
-Table "TBT13" stored in Global: ^%ydboctoDWwbFBURjM9XzkxmIFYp94D : Type = READWRITE
+Table "tbt13" stored in Global: ^%ydboctoDs1WfLXUI15XKQwwTJhPLEG : Type = READWRITE
 Column|Type|Collation|Nullable|Default
-ID|INTEGER|||
+id|INTEGER|||
 Check constraints:
-    "TBT13_CHECK" CHECK ((TRUE IN (TRUE, FALSE)))
+    "tbt13_CHECK" CHECK ((TRUE IN (TRUE, FALSE)))
 INSERT 0 1
-ID
+id
 3
 (1 row)
 DROP TABLE
@@ -452,7 +452,7 @@ LINE 138:1: select true = case true when false then '' else 't' end;
 (1 row)
 CREATE TABLE
 INSERT 0 6
-TXT
+txt
 1
 1
 0
@@ -466,19 +466,19 @@ NULLIF
 (1 row)
 CREATE TABLE
 INSERT 0 1
-ID
+id
 8
 (1 row)
 DROP TABLE
 CREATE TABLE
 INSERT 0 1
-ID
+id
 9
 (1 row)
 DROP TABLE
 CREATE TABLE
 INSERT 0 1
-ID
+id
 10
 (1 row)
 DROP TABLE

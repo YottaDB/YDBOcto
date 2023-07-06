@@ -1,15 +1,15 @@
 # Run query with extract fields that previously crashed
 CREATE TABLE delim_null (
         ID NUMERIC PRIMARY KEY START 0 ENDPOINT '" "',
-        P01 CHARACTER(30) NOT NULL GLOBAL "^DELIMNULL(keys(""ID""),0)" PIECE 1,
-        P02 CHARACTER(30) GLOBAL "^DELIMNULL(keys(""ID""),0)" PIECE 2,
-        P11 CHARACTER(30) GLOBAL "^DELIMNULL(keys(""ID""),1)" PIECE 1,
-        P12 CHARACTER(30) GLOBAL "^DELIMNULL(keys(""ID""),1)" PIECE 2,
-        E2  CHARACTER(30) GLOBAL "^DELIMNULL(keys(""ID""),2)" DELIM ""
-) GLOBAL "^DELIMNULL(keys(""ID""))";
+        P01 CHARACTER(30) NOT NULL GLOBAL "^DELIMNULL(keys(""id""),0)" PIECE 1,
+        P02 CHARACTER(30) GLOBAL "^DELIMNULL(keys(""id""),0)" PIECE 2,
+        P11 CHARACTER(30) GLOBAL "^DELIMNULL(keys(""id""),1)" PIECE 1,
+        P12 CHARACTER(30) GLOBAL "^DELIMNULL(keys(""id""),1)" PIECE 2,
+        E2  CHARACTER(30) GLOBAL "^DELIMNULL(keys(""id""),2)" DELIM ""
+) GLOBAL "^DELIMNULL(keys(""id""))";
 select * from delim_null;
 CREATE TABLE
-ID|P01|P02|P11|P12|E2
+id|p01|p02|p11|p12|e2
 1|1P01|1P02|||1E2|||||
 2|2P01|2P02|||
 (2 rows)
@@ -18,5 +18,5 @@ ID|P01|P02|P11|P12|E2
 CREATE TABLE tmp (id INTEGER PRIMARY KEY, datetime VARCHAR PIECE 2 EXTRACT "$HOROLOG");
 SELECT * FROM tmp;
 CREATE TABLE
-ID|DATETIME
+id|datetime
 (0 rows)

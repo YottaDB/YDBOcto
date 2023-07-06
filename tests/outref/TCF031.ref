@@ -271,757 +271,757 @@ SELECT thirdvalue(1.0, NULL, NULL); -- Call $$c11^TCF031: return 11
 SELECT thirdvalue('1', true, NULL); -- Call $$c12^TCF031: return 12
 SELECT thirdvalue('1', '1', '1'); -- Call $$c13^TCF031: return 13
 CREATE FUNCTION
-SAMEVALUE
+samevalue
 1
 (1 row)
-SAMEVALUE
+samevalue
 1
 (1 row)
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function SAMEVALUE defined with given parameter types (NUMERIC)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function samevalue defined with given parameter types (NUMERIC)
 LINE 6:2: SELECT samevalue(1.0); -- Error: Unknown function
                  ^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function SAMEVALUE defined with given parameter types (VARCHAR)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function samevalue defined with given parameter types (VARCHAR)
 LINE 7:2: SELECT samevalue('1'); -- Error: Unknown function
                  ^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function SAMEVALUE defined with given parameter types (BOOLEAN)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function samevalue defined with given parameter types (BOOLEAN)
 LINE 8:2: SELECT samevalue(true); -- Error: Unknown function
                  ^^^^^^^^^
 CREATE FUNCTION
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SAMEVALUE(NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'samevalue(NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 10:1: SELECT samevalue(NULL); -- Error: Function not unique
                   ^^^^^^^^^
-SAMEVALUE
+samevalue
 1
 (1 row)
-SAMEVALUE
+samevalue
 2
 (1 row)
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function SAMEVALUE defined with given parameter types (VARCHAR)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function samevalue defined with given parameter types (VARCHAR)
 LINE 13:2: SELECT samevalue('1'); -- Error: Unknown function
                   ^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function SAMEVALUE defined with given parameter types (BOOLEAN)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function samevalue defined with given parameter types (BOOLEAN)
 LINE 14:2: SELECT samevalue(true); -- Error: Unknown function
                   ^^^^^^^^^
 CREATE FUNCTION
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SAMEVALUE(NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'samevalue(NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 16:1: SELECT samevalue(NULL); -- Error: Function not unique
                   ^^^^^^^^^
-SAMEVALUE
+samevalue
 1
 (1 row)
-SAMEVALUE
+samevalue
 2
 (1 row)
-SAMEVALUE
+samevalue
 3
 (1 row)
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function SAMEVALUE defined with given parameter types (BOOLEAN)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function samevalue defined with given parameter types (BOOLEAN)
 LINE 20:2: SELECT samevalue(true); -- Error: Unknown function
                   ^^^^^^^^^
 CREATE FUNCTION
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SAMEVALUE(NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'samevalue(NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 22:1: SELECT samevalue(NULL); -- Error: Function not unique
                   ^^^^^^^^^
-SAMEVALUE
+samevalue
 1
 (1 row)
-SAMEVALUE
+samevalue
 2
 (1 row)
-SAMEVALUE
+samevalue
 3
 (1 row)
-SAMEVALUE
+samevalue
 4
 (1 row)
 CREATE FUNCTION
-SECONDVALUE
+secondvalue
 1
 (1 row)
-SECONDVALUE
+secondvalue
 1
 (1 row)
-SECONDVALUE
+secondvalue
 1
 (1 row)
-SECONDVALUE
+secondvalue
 1
 (1 row)
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function SECONDVALUE defined with given parameter types (NUMERIC, INTEGER)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function secondvalue defined with given parameter types (NUMERIC, INTEGER)
 LINE 33:2: SELECT secondvalue(1.0, 1); -- Error: Unknown function
                   ^^^^^^^^^^^
 CREATE FUNCTION
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SECONDVALUE(NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'secondvalue(NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 35:1: SELECT secondvalue(NULL, NULL); -- Error: Function not unique
                   ^^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SECONDVALUE(INTEGER, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'secondvalue(INTEGER, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 36:2: SELECT secondvalue(1, NULL); --  Error: Function not unique
                   ^^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function SECONDVALUE defined with given parameter types (NUMERIC, INTEGER)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function secondvalue defined with given parameter types (NUMERIC, INTEGER)
 LINE 37:2: SELECT secondvalue(1.0, 1); -- Error: Unknown function
                   ^^^^^^^^^^^
-SECONDVALUE
+secondvalue
 1
 (1 row)
-SECONDVALUE
+secondvalue
 2
 (1 row)
 CREATE FUNCTION
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SECONDVALUE(NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'secondvalue(NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 41:1: SELECT secondvalue(NULL, NULL); -- Error: Function not unique
                   ^^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SECONDVALUE(INTEGER, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'secondvalue(INTEGER, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 42:2: SELECT secondvalue(1, NULL); --  Error: Function not unique
                   ^^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function SECONDVALUE defined with given parameter types (VARCHAR, INTEGER)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function secondvalue defined with given parameter types (VARCHAR, INTEGER)
 LINE 43:2: SELECT secondvalue('1', 1); -- Error: Unknown function
                   ^^^^^^^^^^^
-SECONDVALUE
+secondvalue
 1
 (1 row)
-SECONDVALUE
+secondvalue
 2
 (1 row)
-SECONDVALUE
+secondvalue
 3
 (1 row)
-SECONDVALUE
+secondvalue
 3
 (1 row)
 CREATE FUNCTION
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SECONDVALUE(NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'secondvalue(NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 49:1: SELECT secondvalue(NULL, NULL); -- Error: Function not unique
                   ^^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SECONDVALUE(INTEGER, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'secondvalue(INTEGER, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 50:2: SELECT secondvalue(1, NULL); --  Error: Function not unique
                   ^^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function SECONDVALUE defined with given parameter types (BOOLEAN, INTEGER)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function secondvalue defined with given parameter types (BOOLEAN, INTEGER)
 LINE 51:2: SELECT secondvalue(true, 1); -- Error: Unknown function
                   ^^^^^^^^^^^
-SECONDVALUE
+secondvalue
 1
 (1 row)
-SECONDVALUE
+secondvalue
 2
 (1 row)
-SECONDVALUE
+secondvalue
 3
 (1 row)
-SECONDVALUE
+secondvalue
 4
 (1 row)
-SECONDVALUE
+secondvalue
 4
 (1 row)
 CREATE FUNCTION
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SECONDVALUE(NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'secondvalue(NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 58:1: SELECT secondvalue(NULL, NULL); -- Error: Function not unique
                   ^^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SECONDVALUE(NULL, INTEGER)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'secondvalue(NULL, INTEGER)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 59:2: SELECT secondvalue(NULL, 1); --  Error: Function not unique
                   ^^^^^^^^^^^
-SECONDVALUE
+secondvalue
 1
 (1 row)
-SECONDVALUE
+secondvalue
 2
 (1 row)
-SECONDVALUE
+secondvalue
 3
 (1 row)
-SECONDVALUE
+secondvalue
 4
 (1 row)
-SECONDVALUE
+secondvalue
 4
 (1 row)
-SECONDVALUE
+secondvalue
 5
 (1 row)
-SECONDVALUE
+secondvalue
 5
 (1 row)
 CREATE FUNCTION
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SECONDVALUE(NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'secondvalue(NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 68:1: SELECT secondvalue(NULL, NULL); -- Error: Function not unique
                   ^^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SECONDVALUE(NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'secondvalue(NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 69:2: SELECT secondvalue(NULL, '1'); --  Error: Function not unique
                   ^^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'SECONDVALUE(VARCHAR, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'secondvalue(VARCHAR, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 70:2: SELECT secondvalue('1', NULL); --  Error: Function not unique
                   ^^^^^^^^^^^
-SECONDVALUE
+secondvalue
 1
 (1 row)
-SECONDVALUE
+secondvalue
 2
 (1 row)
-SECONDVALUE
+secondvalue
 3
 (1 row)
-SECONDVALUE
+secondvalue
 4
 (1 row)
-SECONDVALUE
+secondvalue
 4
 (1 row)
-SECONDVALUE
+secondvalue
 5
 (1 row)
-SECONDVALUE
+secondvalue
 6
 (1 row)
 CREATE FUNCTION
-THIRDVALUE
+thirdvalue
 1
 (1 row)
-THIRDVALUE
+thirdvalue
 1
 (1 row)
-THIRDVALUE
+thirdvalue
 1
 (1 row)
-THIRDVALUE
+thirdvalue
 1
 (1 row)
-THIRDVALUE
+thirdvalue
 1
 (1 row)
-THIRDVALUE
+thirdvalue
 1
 (1 row)
-THIRDVALUE
+thirdvalue
 1
 (1 row)
-THIRDVALUE
+thirdvalue
 1
 (1 row)
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function THIRDVALUE defined with given parameter types (NULL, INTEGER, NULL)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function thirdvalue defined with given parameter types (NULL, INTEGER, NULL)
 LINE 88:2: SELECT thirdvalue(NULL, 1, NULL); -- Error: Unknown function
                   ^^^^^^^^^^
 CREATE FUNCTION
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 90:1: SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not uniq...
                   ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 91:2: SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
                   ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 92:2: SELECT thirdvalue(NULL, true, NULL); -- Error: Function not uniq...
                   ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(INTEGER, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 93:2: SELECT thirdvalue(1, true, NULL); -- Error: Function not unique
                   ^^^^^^^^^^
-THIRDVALUE
+thirdvalue
 1
 (1 row)
-THIRDVALUE
+thirdvalue
 1
 (1 row)
-THIRDVALUE
+thirdvalue
 1
 (1 row)
-THIRDVALUE
+thirdvalue
 1
 (1 row)
-THIRDVALUE
+thirdvalue
 2
 (1 row)
-THIRDVALUE
+thirdvalue
 2
 (1 row)
-THIRDVALUE
+thirdvalue
 2
 (1 row)
-THIRDVALUE
+thirdvalue
 2
 (1 row)
 CREATE FUNCTION
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 103:1: SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not uniq...
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 104:2: SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 105:2: SELECT thirdvalue(NULL, true, NULL); -- Error: Function not uniq...
                    ^^^^^^^^^^
-THIRDVALUE
+thirdvalue
 1
 (1 row)
-THIRDVALUE
+thirdvalue
 2
 (1 row)
-THIRDVALUE
+thirdvalue
 3
 (1 row)
-THIRDVALUE
+thirdvalue
 3
 (1 row)
-THIRDVALUE
+thirdvalue
 3
 (1 row)
-THIRDVALUE
+thirdvalue
 3
 (1 row)
-THIRDVALUE
+thirdvalue
 3
 (1 row)
-THIRDVALUE
+thirdvalue
 3
 (1 row)
 CREATE FUNCTION
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 115:1: SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not uniq...
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 116:2: SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(INTEGER, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 117:2: SELECT thirdvalue(1, true, NULL); -- Error: Function not unique
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 118:2: SELECT thirdvalue(NULL, NULL, '1'); -- Error: Function not uniqu...
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(INTEGER, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 119:2: SELECT thirdvalue(1, NULL, '1'); -- Error: Function not unique
                    ^^^^^^^^^^
-THIRDVALUE
+thirdvalue
 1
 (1 row)
-THIRDVALUE
+thirdvalue
 2
 (1 row)
-THIRDVALUE
+thirdvalue
 3
 (1 row)
-THIRDVALUE
+thirdvalue
 3
 (1 row)
-THIRDVALUE
+thirdvalue
 4
 (1 row)
-THIRDVALUE
+thirdvalue
 4
 (1 row)
 CREATE FUNCTION
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 127:1: SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not uniq...
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 128:2: SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 129:2: SELECT thirdvalue(NULL, true, NULL); -- Error: Function not uniq...
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(INTEGER, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 130:2: SELECT thirdvalue(1, true, NULL); -- Error: Function not unique
                    ^^^^^^^^^^
-THIRDVALUE
+thirdvalue
 1
 (1 row)
-THIRDVALUE
+thirdvalue
 2
 (1 row)
-THIRDVALUE
+thirdvalue
 3
 (1 row)
-THIRDVALUE
+thirdvalue
 4
 (1 row)
-THIRDVALUE
+thirdvalue
 5
 (1 row)
-THIRDVALUE
+thirdvalue
 5
 (1 row)
 CREATE FUNCTION
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 138:1: SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not uniq...
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 139:2: SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NUMERIC, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, NUMERIC, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 140:2: SELECT thirdvalue(NULL, 1.0, NULL); -- Error: Function not uniqu...
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NUMERIC, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(INTEGER, NUMERIC, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 141:2: SELECT thirdvalue(1, 1.0, NULL); -- Error: Function not unique
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, INTEGER)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(INTEGER, NULL, INTEGER)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 142:2: SELECT thirdvalue(1, NULL, 1); -- Error: Function not unique
                    ^^^^^^^^^^
-THIRDVALUE
+thirdvalue
 1
 (1 row)
-THIRDVALUE
+thirdvalue
 2
 (1 row)
-THIRDVALUE
+thirdvalue
 3
 (1 row)
-THIRDVALUE
+thirdvalue
 4
 (1 row)
-THIRDVALUE
+thirdvalue
 5
 (1 row)
-THIRDVALUE
+thirdvalue
 6
 (1 row)
-THIRDVALUE
+thirdvalue
 6
 (1 row)
 CREATE FUNCTION
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 151:1: SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not uniq...
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 152:2: SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NUMERIC, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, NUMERIC, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 153:2: SELECT thirdvalue(NULL, 1.0, NULL); -- Error: Function not uniqu...
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NUMERIC, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(INTEGER, NUMERIC, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 154:2: SELECT thirdvalue(1, 1.0, NULL); -- Error: Function not unique
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, NUMERIC)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(INTEGER, NULL, NUMERIC)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 155:2: SELECT thirdvalue(1, NULL, 1.0); -- Error: Function not unique
                    ^^^^^^^^^^
-THIRDVALUE
+thirdvalue
 1
 (1 row)
-THIRDVALUE
+thirdvalue
 2
 (1 row)
-THIRDVALUE
+thirdvalue
 3
 (1 row)
-THIRDVALUE
+thirdvalue
 4
 (1 row)
-THIRDVALUE
+thirdvalue
 5
 (1 row)
-THIRDVALUE
+thirdvalue
 6
 (1 row)
-THIRDVALUE
+thirdvalue
 7
 (1 row)
-THIRDVALUE
+thirdvalue
 7
 (1 row)
 CREATE FUNCTION
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 165:1: SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not uniq...
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 166:2: SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, NUMERIC)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, NULL, NUMERIC)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 167:2: SELECT thirdvalue(NULL, NULL, 1.0); -- Error: Function not uniqu...
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, NUMERIC)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(INTEGER, NULL, NUMERIC)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 168:2: SELECT thirdvalue(1, NULL, 1.0); -- Error: Function not unique
                    ^^^^^^^^^^
-THIRDVALUE
+thirdvalue
 1
 (1 row)
-THIRDVALUE
+thirdvalue
 2
 (1 row)
-THIRDVALUE
+thirdvalue
 3
 (1 row)
-THIRDVALUE
+thirdvalue
 4
 (1 row)
-THIRDVALUE
+thirdvalue
 5
 (1 row)
-THIRDVALUE
+thirdvalue
 6
 (1 row)
-THIRDVALUE
+thirdvalue
 7
 (1 row)
-THIRDVALUE
+thirdvalue
 8
 (1 row)
-THIRDVALUE
+thirdvalue
 8
 (1 row)
-THIRDVALUE
+thirdvalue
 8
 (1 row)
-THIRDVALUE
+thirdvalue
 8
 (1 row)
 CREATE FUNCTION
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 181:1: SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not uniq...
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 182:2: SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, BOOLEAN)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, NULL, BOOLEAN)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 183:2: SELECT thirdvalue(NULL, NULL, true); -- Error: Function not uniq...
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, BOOLEAN)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(INTEGER, NULL, BOOLEAN)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 184:2: SELECT thirdvalue(1, NULL, true); -- Error: Function not unique
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NUMERIC, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(INTEGER, NUMERIC, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 185:2: SELECT thirdvalue(1, 1.0, NULL); -- Error: Function not unique
                    ^^^^^^^^^^
-THIRDVALUE
+thirdvalue
 1
 (1 row)
-THIRDVALUE
+thirdvalue
 2
 (1 row)
-THIRDVALUE
+thirdvalue
 3
 (1 row)
-THIRDVALUE
+thirdvalue
 4
 (1 row)
-THIRDVALUE
+thirdvalue
 5
 (1 row)
-THIRDVALUE
+thirdvalue
 6
 (1 row)
-THIRDVALUE
+thirdvalue
 7
 (1 row)
-THIRDVALUE
+thirdvalue
 8
 (1 row)
-THIRDVALUE
+thirdvalue
 9
 (1 row)
-THIRDVALUE
+thirdvalue
 9
 (1 row)
 CREATE FUNCTION
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 197:1: SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not uniq...
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(INTEGER, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 198:2: SELECT thirdvalue(1, NULL, NULL); -- Error: Function not unique
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 199:2: SELECT thirdvalue(NULL, NULL, '1'); -- Error: Function not uniqu...
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(INTEGER, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 200:2: SELECT thirdvalue(1, NULL, '1'); -- Error: Function not unique
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(INTEGER, VARCHAR, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(INTEGER, VARCHAR, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 201:2: SELECT thirdvalue(1, '1', NULL); -- Error: Function not unique
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, VARCHAR, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, VARCHAR, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 202:2: SELECT thirdvalue(NULL, '1', NULL); -- Error: Function not uniqu...
                    ^^^^^^^^^^
-THIRDVALUE
+thirdvalue
 1
 (1 row)
-THIRDVALUE
+thirdvalue
 2
 (1 row)
-THIRDVALUE
+thirdvalue
 3
 (1 row)
-THIRDVALUE
+thirdvalue
 4
 (1 row)
-THIRDVALUE
+thirdvalue
 5
 (1 row)
-THIRDVALUE
+thirdvalue
 6
 (1 row)
-THIRDVALUE
+thirdvalue
 7
 (1 row)
-THIRDVALUE
+thirdvalue
 8
 (1 row)
-THIRDVALUE
+thirdvalue
 9
 (1 row)
-THIRDVALUE
+thirdvalue
 10
 (1 row)
-THIRDVALUE
+thirdvalue
 10
 (1 row)
 CREATE FUNCTION
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 215:1: SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not uniq...
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 216:2: SELECT thirdvalue(NULL, NULL, '1'); -- Error: Function not uniqu...
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, VARCHAR, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, VARCHAR, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 217:2: SELECT thirdvalue(NULL, '1', '1'); -- Error: Function not unique
                    ^^^^^^^^^^
-THIRDVALUE
+thirdvalue
 1
 (1 row)
-THIRDVALUE
+thirdvalue
 2
 (1 row)
-THIRDVALUE
+thirdvalue
 3
 (1 row)
-THIRDVALUE
+thirdvalue
 4
 (1 row)
-THIRDVALUE
+thirdvalue
 5
 (1 row)
-THIRDVALUE
+thirdvalue
 6
 (1 row)
-THIRDVALUE
+thirdvalue
 7
 (1 row)
-THIRDVALUE
+thirdvalue
 8
 (1 row)
-THIRDVALUE
+thirdvalue
 9
 (1 row)
-THIRDVALUE
+thirdvalue
 10
 (1 row)
-THIRDVALUE
+thirdvalue
 11
 (1 row)
-THIRDVALUE
+thirdvalue
 11
 (1 row)
-THIRDVALUE
+thirdvalue
 11
 (1 row)
-THIRDVALUE
+thirdvalue
 11
 (1 row)
 CREATE FUNCTION
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 233:1: SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not uniq...
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, BOOLEAN, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 234:2: SELECT thirdvalue(NULL, true, NULL); -- Error: Function not uniq...
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 235:2: SELECT thirdvalue(NULL, NULL, '1'); -- Error: Function not uniqu...
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, BOOLEAN, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, BOOLEAN, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 236:2: SELECT thirdvalue(NULL, true, '1'); -- Error: Function not uniqu...
                    ^^^^^^^^^^
-THIRDVALUE
+thirdvalue
 1
 (1 row)
-THIRDVALUE
+thirdvalue
 2
 (1 row)
-THIRDVALUE
+thirdvalue
 3
 (1 row)
-THIRDVALUE
+thirdvalue
 4
 (1 row)
-THIRDVALUE
+thirdvalue
 5
 (1 row)
-THIRDVALUE
+thirdvalue
 6
 (1 row)
-THIRDVALUE
+thirdvalue
 7
 (1 row)
-THIRDVALUE
+thirdvalue
 8
 (1 row)
-THIRDVALUE
+thirdvalue
 9
 (1 row)
-THIRDVALUE
+thirdvalue
 10
 (1 row)
-THIRDVALUE
+thirdvalue
 11
 (1 row)
-THIRDVALUE
+thirdvalue
 12
 (1 row)
-THIRDVALUE
+thirdvalue
 12
 (1 row)
-THIRDVALUE
+thirdvalue
 12
 (1 row)
-THIRDVALUE
+thirdvalue
 12
 (1 row)
-THIRDVALUE
+thirdvalue
 12
 (1 row)
 CREATE FUNCTION
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 254:1: SELECT thirdvalue(NULL, NULL, NULL); -- Error: Function not uniq...
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(VARCHAR, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(VARCHAR, NULL, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 255:2: SELECT thirdvalue('1', NULL, NULL); -- Error: Function not uniqu...
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, VARCHAR, NULL)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, VARCHAR, NULL)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 256:2: SELECT thirdvalue(NULL, '1', NULL); -- Error: Function not uniqu...
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(NULL, VARCHAR, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(NULL, VARCHAR, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 257:2: SELECT thirdvalue(NULL, '1', '1'); -- Error: Function not unique
                    ^^^^^^^^^^
-[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'THIRDVALUE(VARCHAR, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
+[ERROR]: ERR_FUNCTION_NOT_UNIQUE: Function 'thirdvalue(VARCHAR, NULL, VARCHAR)' not unique. Parameter(s) may require explicit type cast(s)
 LINE 258:2: SELECT thirdvalue('1', NULL, '1'); -- Error: Function not unique
                    ^^^^^^^^^^
-THIRDVALUE
+thirdvalue
 1
 (1 row)
-THIRDVALUE
+thirdvalue
 2
 (1 row)
-THIRDVALUE
+thirdvalue
 3
 (1 row)
-THIRDVALUE
+thirdvalue
 4
 (1 row)
-THIRDVALUE
+thirdvalue
 5
 (1 row)
-THIRDVALUE
+thirdvalue
 6
 (1 row)
-THIRDVALUE
+thirdvalue
 7
 (1 row)
-THIRDVALUE
+thirdvalue
 8
 (1 row)
-THIRDVALUE
+thirdvalue
 9
 (1 row)
-THIRDVALUE
+thirdvalue
 10
 (1 row)
-THIRDVALUE
+thirdvalue
 11
 (1 row)
-THIRDVALUE
+thirdvalue
 12
 (1 row)
-THIRDVALUE
+thirdvalue
 13
 (1 row)

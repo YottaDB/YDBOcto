@@ -10,17 +10,17 @@ LP_SELECT_QUERY:
     LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_FUNCTION_CALL: 
-          LP_VALUE: 'CURRENT_SCHEMA'
+          LP_VALUE: 'current_schema'
           LP_COLUMN_LIST: 
-            LP_VALUE: '%ydboctoF7yBPpHADmM4I1Qc1HDQe5K'
+            LP_VALUE: '%ydboctoFEgmvSntGZ5WXshL6YqMmD5'
             LP_VALUE: '$$pgCurrentSchema^%ydboctopgfunctions'
             LP_VALUE: 'VARCHAR'
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: CURRENT_SCHEMA
+        - alias: current_schema
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: OCTOONEROWTABLE(1)
+        LP_TABLE: octoonerowtable(1)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
@@ -42,22 +42,22 @@ LP_SELECT_QUERY:
     LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_FUNCTION_CALL: 
-          LP_VALUE: 'CURRENT_SCHEMA'
+          LP_VALUE: 'current_schema'
           LP_COLUMN_LIST: 
-            LP_VALUE: '%ydboctoF7yBPpHADmM4I1Qc1HDQe5K'
+            LP_VALUE: '%ydboctoFEgmvSntGZ5WXshL6YqMmD5'
             LP_VALUE: '$$pgCurrentSchema^%ydboctopgfunctions'
             LP_VALUE: 'VARCHAR'
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: CURRENT_SCHEMA
+        - alias: current_schema
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: OCTOONEROWTABLE(1)
+        LP_TABLE: octoonerowtable(1)
       LP_CRITERIA: 
         LP_KEYS: 
           LP_KEY: 
-          - table_name: OCTOONEROWTABLE
-          - column_name: ID
+          - table_name: octoonerowtable
+          - column_name: id
           - unique_id: 1
           - method: LP_KEY_ADVANCE
           - xref_key: false
@@ -75,7 +75,7 @@ LP_SELECT_QUERY:
     - xref_key: false
     - uses_xref_key: false
 
-CURRENT_SCHEMA
+current_schema
 public
 (1 row)
 [DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
@@ -84,21 +84,21 @@ LP_SELECT_QUERY:
     LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_FUNCTION_CALL: 
-          LP_VALUE: 'ABS'
+          LP_VALUE: 'abs'
           LP_COLUMN_LIST: 
-            LP_VALUE: '%ydboctoFXjpLNKLu1sElo0JiZVgdDG'
+            LP_VALUE: '%ydboctoFCMDmr1RPkcS1QSpZq9WR11'
             LP_VALUE: '$$ABS^%ydboctosqlfunctions'
             LP_VALUE: 'INTEGER'
             LP_MULTIPLICATION: 
               LP_NEGATIVE: 
                 LP_VALUE: '2'
-              LP_COLUMN_ALIAS: NAMES(1).ID
+              LP_COLUMN_ALIAS: names(1).id
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: ABS
+        - alias: abs
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: NAMES(1)
+        LP_TABLE: names(1)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
@@ -120,26 +120,26 @@ LP_SELECT_QUERY:
     LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_FUNCTION_CALL: 
-          LP_VALUE: 'ABS'
+          LP_VALUE: 'abs'
           LP_COLUMN_LIST: 
-            LP_VALUE: '%ydboctoFXjpLNKLu1sElo0JiZVgdDG'
+            LP_VALUE: '%ydboctoFCMDmr1RPkcS1QSpZq9WR11'
             LP_VALUE: '$$ABS^%ydboctosqlfunctions'
             LP_VALUE: 'INTEGER'
             LP_MULTIPLICATION: 
               LP_NEGATIVE: 
                 LP_VALUE: '2'
-              LP_COLUMN_ALIAS: NAMES(1).ID
+              LP_COLUMN_ALIAS: names(1).id
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: ABS
+        - alias: abs
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: NAMES(1)
+        LP_TABLE: names(1)
       LP_CRITERIA: 
         LP_KEYS: 
           LP_KEY: 
-          - table_name: NAMES
-          - column_name: ID
+          - table_name: names
+          - column_name: id
           - unique_id: 1
           - method: LP_KEY_ADVANCE
           - xref_key: false
@@ -157,7 +157,7 @@ LP_SELECT_QUERY:
     - xref_key: false
     - uses_xref_key: false
 
-ABS
+abs
 0
 2
 4
@@ -171,9 +171,9 @@ LP_SELECT_QUERY:
     LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_FUNCTION_CALL: 
-          LP_VALUE: 'REPLACE'
+          LP_VALUE: 'replace'
           LP_COLUMN_LIST: 
-            LP_VALUE: '%ydboctoFrvGFWZceNJDlLJu4e6S5I1'
+            LP_VALUE: '%ydboctoFPVePihbHpguYa2YigLy811'
             LP_VALUE: '$$REPLACE^%ydboctosqlfunctions'
             LP_VALUE: 'VARCHAR'
             LP_CONCAT: 
@@ -183,10 +183,10 @@ LP_SELECT_QUERY:
             LP_VALUE: 'abcd'
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: REPLACE
+        - alias: replace
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: OCTOONEROWTABLE(1)
+        LP_TABLE: octoonerowtable(1)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
@@ -208,9 +208,9 @@ LP_SELECT_QUERY:
     LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_FUNCTION_CALL: 
-          LP_VALUE: 'REPLACE'
+          LP_VALUE: 'replace'
           LP_COLUMN_LIST: 
-            LP_VALUE: '%ydboctoFrvGFWZceNJDlLJu4e6S5I1'
+            LP_VALUE: '%ydboctoFPVePihbHpguYa2YigLy811'
             LP_VALUE: '$$REPLACE^%ydboctosqlfunctions'
             LP_VALUE: 'VARCHAR'
             LP_CONCAT: 
@@ -220,15 +220,15 @@ LP_SELECT_QUERY:
             LP_VALUE: 'abcd'
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: REPLACE
+        - alias: replace
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: OCTOONEROWTABLE(1)
+        LP_TABLE: octoonerowtable(1)
       LP_CRITERIA: 
         LP_KEYS: 
           LP_KEY: 
-          - table_name: OCTOONEROWTABLE
-          - column_name: ID
+          - table_name: octoonerowtable
+          - column_name: id
           - unique_id: 1
           - method: LP_KEY_ADVANCE
           - xref_key: false
@@ -246,6 +246,6 @@ LP_SELECT_QUERY:
     - xref_key: false
     - uses_xref_key: false
 
-REPLACE
+replace
 abcdefgh
 (1 row)

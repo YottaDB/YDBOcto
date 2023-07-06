@@ -5,7 +5,7 @@ CREATE TABLE extractnames (
 	id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER,
 	fullname VARCHAR EXTRACT CONCAT(firstName, ' ', lastName),
 	nameandnumber VARCHAR EXTRACT CONCAT(lastName, id::varchar)
-) GLOBAL "^names(keys(""ID""))";
+) GLOBAL "^names(keys(""id""))";
 
 -- Select all columns from table with function call EXTRACT column
 select * from extractnames;
@@ -43,8 +43,8 @@ drop table tmp;
 create table tmp (id integer primary key, firstname varchar, lastname varchar, fullname1 varchar extract concat(firstname, fullname2), fullname2 varchar extract concat(fullname1, lastname)) GLOBAL "^names";
 
 -- Error issued when key column passed to `values(...)` or non-key column passed to `keys(...)`
-CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), abs_id INTEGER EXTRACT "$$ABS^%ydboctosqlfunctions(values(""ID""))") GLOBAL "^names";
-CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), abs_id INTEGER EXTRACT "$$ABS^%ydboctosqlfunctions(keys(""LASTNAME""))") GLOBAL "^names";
+CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), abs_id INTEGER EXTRACT "$$ABS^%ydboctosqlfunctions(values(""id""))") GLOBAL "^names";
+CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), abs_id INTEGER EXTRACT "$$ABS^%ydboctosqlfunctions(keys(""lastname""))") GLOBAL "^names";
 
 -- Prevent drop of function depended on by EXTRACT columns until all tables containing dependent columns are dropped
 DROP FUNCTION IF EXISTS SAMEVALUE(INTEGER);
@@ -71,13 +71,13 @@ drop table if exists extractnames1;
 CREATE TABLE extractnames1 (
 	id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER,
 	fullname1 VARCHAR EXTRACT CONCAT(firstName, ' ', lastName)
-) GLOBAL "^names1(keys(""ID""))";
+) GLOBAL "^names1(keys(""id""))";
 drop function concat(varchar, varchar, varchar);
 drop table if exists extractnames2;
 CREATE TABLE extractnames2 (
 	id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER,
 	fullname2 VARCHAR EXTRACT CONCAT(firstName, ' ', lastName)
-) GLOBAL "^names2(keys(""ID""))";
+) GLOBAL "^names2(keys(""id""))";
 drop function concat(varchar, varchar, varchar);
 select * from extractnames1;
 select * from extractnames2;
@@ -157,7 +157,7 @@ select fullname from fullnames;
 drop table if exists fullnames;
 
 CREATE TABLE
-ID|FIRSTNAME|LASTNAME|AGE|FULLNAME|NAMEANDNUMBER
+id|firstname|lastname|age|fullname|nameandnumber
 0|Zero|Cool||Zero Cool|Cool0
 1|Acid|Burn||Acid Burn|Burn1
 2|Cereal|Killer||Cereal Killer|Killer2
@@ -165,7 +165,7 @@ ID|FIRSTNAME|LASTNAME|AGE|FULLNAME|NAMEANDNUMBER
 4|Joey|||Joey |4
 5|Zero|Cool||Zero Cool|Cool5
 (6 rows)
-FULLNAME
+fullname
 Zero Cool
 Acid Burn
 Cereal Killer
@@ -173,7 +173,7 @@ Lord Nikon
 Joey 
 Zero Cool
 (6 rows)
-FULLNAME
+fullname
 Zero Cool
 Acid Burn
 Cereal Killer
@@ -181,8 +181,8 @@ Lord Nikon
 Joey 
 Zero Cool
 (6 rows)
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function CONCAT(VARCHAR, VARCHAR, VARCHAR) because other objects (column "FULLNAME" on table "EXTRACTNAMES") depend on it
-FULLNAME
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function concat(VARCHAR, VARCHAR, VARCHAR) because other objects (column "fullname" on table "extractnames") depend on it
+fullname
 Zero Cool
 Acid Burn
 Cereal Killer
@@ -192,67 +192,67 @@ Zero Cool
 (6 rows)
 DROP TABLE
 DROP FUNCTION
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function CONCAT defined with given parameter types (VARCHAR, VARCHAR, VARCHAR)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function concat defined with given parameter types (VARCHAR, VARCHAR, VARCHAR)
 LINE 19:1: select concat('no', 'more', 'concat');
                   ^^^^^^
 CREATE FUNCTION
-[ERROR]: ERR_CIRCULAR_EXTRACT_DEFINITION: Definition for EXTRACT column "FULLNAME" contains circular dependency starting from EXTRACT column "FULLNAME"
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: SELFREF
+[ERROR]: ERR_CIRCULAR_EXTRACT_DEFINITION: Definition for EXTRACT column "fullname" contains circular dependency starting from EXTRACT column "fullname"
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: selfref
 LINE 23:1: select * from selfref;
                          ^^^^^^^
 CREATE TABLE
-ABS_ID
+abs_id
 (0 rows)
 DROP TABLE
 CREATE TABLE
-FULLNAME1
+fullname1
 LordNikon
 (1 row)
-FULLNAME2
+fullname2
 LordLordNikon
 (1 row)
 DROP TABLE
-[ERROR]: ERR_CIRCULAR_EXTRACT_DEFINITION: Definition for EXTRACT column "FULLNAME1" contains circular dependency starting from EXTRACT column "FULLNAME2"
-[ERROR]: ERR_VALUES_NEEDS_A_NON_KEY_COLUMN: Column "ID" specified using values() in EXTRACT/GLOBAL keyword is a KEY column
-[ERROR]: ERR_KEYS_NEEDS_A_KEY_COLUMN: Column "LASTNAME" specified using keys() in EXTRACT/GLOBAL keyword is not a KEY column
+[ERROR]: ERR_CIRCULAR_EXTRACT_DEFINITION: Definition for EXTRACT column "fullname1" contains circular dependency starting from EXTRACT column "fullname2"
+[ERROR]: ERR_VALUES_NEEDS_A_NON_KEY_COLUMN: Column "id" specified using values() in EXTRACT/GLOBAL keyword is a KEY column
+[ERROR]: ERR_KEYS_NEEDS_A_KEY_COLUMN: Column "lastname" specified using keys() in EXTRACT/GLOBAL keyword is not a KEY column
 DROP FUNCTION
 CREATE FUNCTION
 CREATE TABLE
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function SAMEVALUE(INTEGER) because other objects (constraint "NAME1" on table "PRODUCTS1") depend on it
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function samevalue(INTEGER) because other objects (constraint "name1" on table "products1") depend on it
 CREATE TABLE
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function SAMEVALUE(INTEGER) because other objects (constraint "NAME1" on table "PRODUCTS1") depend on it
-DROP TABLE
-CREATE TABLE
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function SAMEVALUE(INTEGER) because other objects (constraint "NAME1" on table "PRODUCTS1") depend on it
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function samevalue(INTEGER) because other objects (constraint "name1" on table "products1") depend on it
 DROP TABLE
 CREATE TABLE
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function samevalue(INTEGER) because other objects (constraint "name1" on table "products1") depend on it
 DROP TABLE
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function SAMEVALUE(INTEGER) because other objects (constraint "NAME2" on table "PRODUCTS2") depend on it
+CREATE TABLE
 DROP TABLE
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function SAMEVALUE(INTEGER) because other objects (column "ID1" on table "EXTRACTNAMES1") depend on it
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function samevalue(INTEGER) because other objects (constraint "name2" on table "products2") depend on it
 DROP TABLE
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function SAMEVALUE(INTEGER) because other objects (column "ID2" on table "EXTRACTNAMES2") depend on it
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function samevalue(INTEGER) because other objects (column "id1" on table "extractnames1") depend on it
+DROP TABLE
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function samevalue(INTEGER) because other objects (column "id2" on table "extractnames2") depend on it
 DROP TABLE
 DROP FUNCTION
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function CONCAT(VARCHAR, VARCHAR, VARCHAR) because other objects (column "FULLNAME1" on table "EXTRACTNAMES1") depend on it
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function concat(VARCHAR, VARCHAR, VARCHAR) because other objects (column "fullname1" on table "extractnames1") depend on it
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function CONCAT(VARCHAR, VARCHAR, VARCHAR) because other objects (column "FULLNAME1" on table "EXTRACTNAMES1") depend on it
-ID|FIRSTNAME|LASTNAME|AGE|FULLNAME1
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function concat(VARCHAR, VARCHAR, VARCHAR) because other objects (column "fullname1" on table "extractnames1") depend on it
+id|firstname|lastname|age|fullname1
 (0 rows)
-ID|FIRSTNAME|LASTNAME|AGE|FULLNAME2
+id|firstname|lastname|age|fullname2
 (0 rows)
 DROP TABLE
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function CONCAT(VARCHAR, VARCHAR, VARCHAR) because other objects (column "FULLNAME2" on table "EXTRACTNAMES2") depend on it
-ID|FIRSTNAME|LASTNAME|AGE|FULLNAME2
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function concat(VARCHAR, VARCHAR, VARCHAR) because other objects (column "fullname2" on table "extractnames2") depend on it
+id|firstname|lastname|age|fullname2
 (0 rows)
 DROP TABLE
 DROP FUNCTION
 CREATE FUNCTION
 CREATE TABLE
-ID|FIRSTNAME|LASTNAME|FULLNAME
+id|firstname|lastname|fullname
 0|Zero|Cool|Zero0Cool
 1|Acid|Burn|Acid1Burn
 2|Cereal|Killer|Cereal2Killer
@@ -263,7 +263,7 @@ ID|FIRSTNAME|LASTNAME|FULLNAME
 DROP TABLE
 CREATE FUNCTION
 CREATE TABLE
-ID|FIRSTNAME|LASTNAME|FULLNAME
+id|firstname|lastname|fullname
 0|Zero|Cool|Zero0Cool
 1|Acid|Burn|Acid0Burn
 2|Cereal|Killer|Cereal0Killer
@@ -273,7 +273,7 @@ ID|FIRSTNAME|LASTNAME|FULLNAME
 (6 rows)
 DROP TABLE
 CREATE TABLE
-ID|FIRSTNAME|LASTNAME|FULLNAME
+id|firstname|lastname|fullname
 0|Zero|Cool|Zero0Cool
 1|Acid|Burn|Acid1Burn
 2|Cereal|Killer|Cereal1Killer
@@ -284,7 +284,7 @@ ID|FIRSTNAME|LASTNAME|FULLNAME
 DROP TABLE
 CREATE FUNCTION
 CREATE TABLE
-FULLNAME
+fullname
 Zero99Cool
 Acid99Burn
 Cereal99Killer
@@ -295,7 +295,7 @@ Zero99Cool
 DROP TABLE
 CREATE FUNCTION
 CREATE TABLE
-FULLNAME
+fullname
 Zero23.34Cool
 Acid23.34Burn
 Cereal23.34Killer
@@ -305,7 +305,7 @@ Zero23.34Cool
 (6 rows)
 DROP TABLE
 CREATE TABLE
-FULLNAME
+fullname
 
 
 
@@ -315,7 +315,7 @@ FULLNAME
 (6 rows)
 DROP TABLE
 CREATE TABLE
-FULLNAME
+fullname
 
 
 
@@ -330,7 +330,7 @@ DROP FUNCTION
 DROP FUNCTION
 CREATE FUNCTION
 CREATE TABLE
-FULLNAME
+fullname
 ZerofCool
 AcidfBurn
 CerealfKiller

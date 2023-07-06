@@ -4,9 +4,9 @@
 SELECT (SELECT * FROM (SELECT n3.id) n3);
 SELECT (SELECT * FROM names n1, (SELECT n1.id) n2);
 
-[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N3
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : n3
 LINE 3:1: SELECT (SELECT * FROM (SELECT n3.id) n3);
                                         ^^^^^
-[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : n1
 LINE 4:1: SELECT (SELECT * FROM names n1, (SELECT n1.id) n2);
                                                   ^^^^^

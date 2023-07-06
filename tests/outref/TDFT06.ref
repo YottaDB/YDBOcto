@@ -44,14 +44,14 @@ CREATE FUNCTION
 -- Test of $TLEVEL for SELECT : Expect 0
 (1 row)
 $TLEVEL=0
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 (1 row)
 ???
 -- Test of $TLEVEL for VALUES : Expect 0
 (1 row)
 $TLEVEL=0
-COLUMN1|COLUMN2
+column1|column2
 1|
 (1 row)
 ???
@@ -59,7 +59,7 @@ COLUMN1|COLUMN2
 (1 row)
 $TLEVEL=0
 $TLEVEL=0
-DISPLAYTLEVEL
+displaytlevel
 
 (1 row)
 ???
@@ -67,7 +67,7 @@ DISPLAYTLEVEL
 (1 row)
 $TLEVEL=0
 $TLEVEL=0
-DISPLAYTLEVEL
+displaytlevel
 
 (1 row)
 ???
@@ -75,14 +75,14 @@ DISPLAYTLEVEL
 (1 row)
 $TLEVEL=0
 $TLEVEL=0
-DISPLAYTLEVEL
+displaytlevel
 (0 rows)
 ???
 -- Test of $TLEVEL for UNION ALL : Expect 0
 (1 row)
 $TLEVEL=0
 $TLEVEL=0
-DISPLAYTLEVEL
+displaytlevel
 
 
 (2 rows)
@@ -91,7 +91,7 @@ DISPLAYTLEVEL
 (1 row)
 $TLEVEL=0
 $TLEVEL=0
-DISPLAYTLEVEL
+displaytlevel
 
 (1 row)
 ???
@@ -99,7 +99,7 @@ DISPLAYTLEVEL
 (1 row)
 $TLEVEL=0
 $TLEVEL=0
-DISPLAYTLEVEL
+displaytlevel
 (0 rows)
 ???
 -- Test of $TLEVEL for INSERT INTO : Expect 1

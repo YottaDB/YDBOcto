@@ -1,9 +1,9 @@
 select * from t1;
-create table t1(a int, b int) global "^T1(keys(""A""),keys(""B""))";
+create table t1(a int, b int) global "^T1(keys(""a""),keys(""b""))";
 select * from t1;
 drop table t1;
 select * from t1;
-ERROR:  Unknown table: T1
+ERROR:  Unknown table: t1
 ERROR:  LINE 1:1: select * from t1;
 ERROR:                          ^^
 CREATE TABLE
@@ -15,6 +15,6 @@ CREATE TABLE
 (3 rows)
 
 DROP TABLE
-ERROR:  Unknown table: T1
+ERROR:  Unknown table: t1
 ERROR:  LINE 1:1: select * from t1;
 ERROR:                          ^^

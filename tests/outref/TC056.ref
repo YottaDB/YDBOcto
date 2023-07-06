@@ -15,13 +15,13 @@ select * from test;
 CREATE TABLE
 INSERT 0 1
 INSERT 0 1
-ID|NAME
+id|name
 0|first
 1|first
 (2 rows)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TEST violates CHECK constraint TEST_ID_CHECK : Failing row contains (3, second)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table test violates CHECK constraint test_id_CHECK : Failing row contains (3, second)
 INSERT 0 1
-ID|NAME
+id|name
 0|first
 1|first
 2|ID should be 2

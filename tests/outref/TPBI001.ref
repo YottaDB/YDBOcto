@@ -139,73 +139,81 @@ select "EMPLOYEEID",
     "PHOTO",
     "NOTES"
 from "octo"."public"."EMPLOYEES";
-NSPNAME|RELNAME|ATTNAME|ATTTYPID|TYPNAME|ATTNUM|ATTLEN|ATTTYPMOD|ATTNOTNULL|RELHASRULES|RELKIND|OID|PG_GET_EXPR|CASE|TYPTYPMOD|RELHASOIDS|???|RELHASSUBCLASS
-public|NAMES|ID|23|int4|1|4|-1|1|0|r|602||0|-1|0||0
-public|NAMES|FIRSTNAME|1043|varchar|2|-1|34|0|0|r|602||0|-1|0||0
-public|NAMES|LASTNAME|1043|varchar|3|-1|34|0|0|r|602||0|-1|0||0
-(3 rows)
-RELNAME|NSPNAME|RELKIND
-CATEGORIES|public|r
-EMPLOYEES|public|r
-INFORMATION_SCHEMA.TABLES|public|r
-NAMES|public|r
-NAMESWITHAGES|public|r
-NWCUSTOMERS|public|r
-NWORDERS|public|r
-OCTOONEROWTABLE|public|r
-ORDERDETAILS|public|r
-PG_AM|public|r
-PG_ATTRDEF|public|r
-PG_ATTRIBUTE|public|r
-PG_CATALOG.PG_AM|public|r
-PG_CATALOG.PG_ATTRDEF|public|r
-PG_CATALOG.PG_ATTRIBUTE|public|r
-PG_CATALOG.PG_CLASS|public|r
-PG_CATALOG.PG_CONSTRAINT|public|r
-PG_CATALOG.PG_DATABASE|public|r
-PG_CATALOG.PG_DESCRIPTION|public|r
-PG_CATALOG.PG_ENUM|public|r
-PG_CATALOG.PG_INDEX|public|r
-PG_CATALOG.PG_NAMESPACE|public|r
-PG_CATALOG.PG_PROC|public|r
-PG_CATALOG.PG_RANGE|public|r
-PG_CATALOG.PG_ROLES|public|r
-PG_CATALOG.PG_SETTINGS|public|r
-PG_CATALOG.PG_TYPE|public|r
-PG_CATALOG.PG_USER|public|r
-PG_CLASS|public|r
-PG_CONSTRAINT|public|r
-PG_DATABASE|public|r
-PG_DESCRIPTION|public|r
-PG_ENUM|public|r
-PG_INDEX|public|r
-PG_NAMESPACE|public|r
-PG_PROC|public|r
-PG_RANGE|public|r
-PG_ROLES|public|r
-PG_SETTINGS|public|r
-PG_TYPE|public|r
-PG_USER|public|r
-PRODUCTS|public|r
-SHIPPERS|public|r
-SUPPLIERS|public|r
-(44 rows)
+nspname|relname|attname|atttypid|typname|attnum|attlen|atttypmod|attnotnull|relhasrules|relkind|oid|pg_get_expr|CASE|typtypmod|relhasoids|???|relhassubclass
+(0 rows)
+relname|nspname|relkind
+categories|public|r
+employees|public|r
+information_schema.tables|public|r
+names|public|r
+nameswithages|public|r
+nwcustomers|public|r
+nworders|public|r
+octoonerowtable|public|r
+orderdetails|public|r
+pg_aggregate|public|r
+pg_am|public|r
+pg_attrdef|public|r
+pg_attribute|public|r
+pg_catalog.pg_aggregate|public|r
+pg_catalog.pg_am|public|r
+pg_catalog.pg_attrdef|public|r
+pg_catalog.pg_attribute|public|r
+pg_catalog.pg_class|public|r
+pg_catalog.pg_constraint|public|r
+pg_catalog.pg_conversion|public|r
+pg_catalog.pg_database|public|r
+pg_catalog.pg_depend|public|r
+pg_catalog.pg_description|public|r
+pg_catalog.pg_enum|public|r
+pg_catalog.pg_index|public|r
+pg_catalog.pg_inherits|public|r
+pg_catalog.pg_language|public|r
+pg_catalog.pg_namespace|public|r
+pg_catalog.pg_policies|public|r
+pg_catalog.pg_proc|public|r
+pg_catalog.pg_range|public|r
+pg_catalog.pg_rewrite|public|r
+pg_catalog.pg_roles|public|r
+pg_catalog.pg_settings|public|r
+pg_catalog.pg_shdescription|public|r
+pg_catalog.pg_tablespace|public|r
+pg_catalog.pg_trigger|public|r
+pg_catalog.pg_type|public|r
+pg_catalog.pg_user|public|r
+pg_class|public|r
+pg_constraint|public|r
+pg_conversion|public|r
+pg_database|public|r
+pg_depend|public|r
+pg_description|public|r
+pg_enum|public|r
+pg_index|public|r
+pg_inherits|public|r
+pg_language|public|r
+pg_namespace|public|r
+pg_policies|public|r
+pg_proc|public|r
+pg_range|public|r
+pg_rewrite|public|r
+pg_roles|public|r
+pg_settings|public|r
+pg_shdescription|public|r
+pg_tablespace|public|r
+pg_trigger|public|r
+pg_type|public|r
+pg_user|public|r
+products|public|r
+shippers|public|r
+suppliers|public|r
+(64 rows)
 [ WARN]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: arrays
-ATTNAME|ATTNUM|RELNAME|NSPNAME|RELNAME
+attname|attnum|relname|nspname|relname
 (0 rows)
 [ WARN]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: arrays
 [ WARN]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: arrays
 PKTABLE_CAT|PKTABLE_SCHEM|PKTABLE_NAME|PKCOLUMN_NAME|FKTABLE_CAT|FKTABLE_SCHEM|FKTABLE_NAME|FKCOLUMN_NAME|KEY_SEQ|UPDATE_RULE|DELETE_RULE|FK_NAME|PK_NAME|DEFERRABILITY
 (0 rows)
-EMPLOYEEID|LASTNAME|FIRSTNAME|BIRTHDATE|PHOTO|NOTES
-1|Davolio|Nancy|DATE|EmpID1.pic|Education includes a BA in psychology from Colorado State University. She also completed (The Art of the Cold Call). Nancy is a member of 'Toastmasters International'.
-2|Fuller|Andrew|DATE|EmpID2.pic|Andrew received his BTS commercial and a Ph.D. in international marketing from the University of Dallas. He is fluent in French and Italian and reads German. He joined the company as a sales representative, was promoted to sales manager and was then named vice president of sales. Andrew is a member of the Sales Management Roundtable, the Seattle Chamber of Commerce, and the Pacific Rim Importers Association.
-3|Leverling|Janet|DATE|EmpID3.pic|Janet has a BS degree in chemistry from Boston College). She has also completed a certificate program in food retailing management. Janet was hired as a sales associate and was promoted to sales representative.
-4|Peacock|Margaret|DATE|EmpID4.pic|Margaret holds a BA in English literature from Concordia College and an MA from the American Institute of Culinary Arts. She was temporarily assigned to the London office before returning to her permanent post in Seattle.
-5|Buchanan|Steven|DATE|EmpID5.pic|Steven Buchanan graduated from St. Andrews University, Scotland, with a BSC degree. Upon joining the company as a sales representative, he spent 6 months in an orientation program at the Seattle office and then returned to his permanent post in London, where he was promoted to sales manager. Mr. Buchanan has completed the courses 'Successful Telemarketing' and 'International Sales Management'. He is fluent in French.
-6|Suyama|Michael|DATE|EmpID6.pic|Michael is a graduate of Sussex University (MA, economics) and the University of California at Los Angeles (MBA, marketing). He has also taken the courses 'Multi-Cultural Selling' and 'Time Management for the Sales Professional'. He is fluent in Japanese and can read and write French, Portuguese, and Spanish.
-7|King|Robert|DATE|EmpID7.pic|Robert King served in the Peace Corps and traveled extensively before completing his degree in English at the University of Michigan and then joining the company. After completing a course entitled 'Selling in Europe', he was transferred to the London office.
-8|Callahan|Laura|DATE|EmpID8.pic|Laura received a BA in psychology from the University of Washington. She has also completed a course in business French. She reads and writes French.
-9|Dodsworth|Anne|DATE|EmpID9.pic|Anne has a BA degree in English from St. Lawrence College. She is fluent in French and German.
-10|West|Adam|DATE|EmpID10.pic|An old chum.
-(10 rows)
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: octo.public.EMPLOYEES
+LINE 140:7: from "octo"."public"."EMPLOYEES";
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^

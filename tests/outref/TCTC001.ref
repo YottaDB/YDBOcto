@@ -7,5 +7,5 @@ select * from products;
 
 DROP TABLE
 CREATE TABLE
-PRODUCT_NO|NAME
+product_no|name
 (0 rows)

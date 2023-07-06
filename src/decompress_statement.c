@@ -26,6 +26,11 @@
 void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length);
 
 SqlStatement *decompress_statement(char *buffer, int out_length) {
+	/* We should never come here to decompress a binary function/table/view definition while loading octo-seed.sql
+	 * as we will be looking at potentially older/incompatible binary definitions and can lead to memory corruption issues.
+	 * Hence the below assert.
+	 */
+	assert(!config->in_auto_load_octo_seed);
 	return (SqlStatement *)decompress_statement_helper((SqlStatement *)buffer, buffer, out_length);
 }
 

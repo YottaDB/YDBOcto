@@ -4,11 +4,11 @@ select * from nonexistanttable;
 INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""ID""))";
 
 select * from names;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: NONEXISTANTTABLE
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: nonexistanttable
 LINE 2:1: select * from nonexistanttable;
                         ^^^^^^^^^^^^^^^^
 [ WARN]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: INDEX statements
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer

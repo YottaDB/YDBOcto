@@ -299,6 +299,8 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 		fi
 		commitsha=$autoupgrade_old_commit
 	else
+		# Checkout a random prior commit to test if auto-upgrade of plans/xrefs/triggers/binary-table-definitions etc.
+		# from that commit to the current/latest commit works fine in Octo.
 		if [[ $CI_COMMIT_BRANCH == "" ]]; then
 			# This is possible if the pipeline runs for example when a new tag is created on a pre-existing commit.
 			# (for example when the r1.0.0 tag was created). In this case, treat this job as a success.
@@ -308,8 +310,7 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 		fi
 		# Record git log --all output in a file just in case it helps later. Not used by this script.
 		git log --graph --all --oneline --pretty=format:'%h%d; %ai; %an; %s' > gitlogall.txt
-		# Checkout a random prior commit to test if auto-upgrade of plans/xrefs/triggers/binary-table-definitions etc.
-		# from that commit to the current/latest commit works fine in Octo.
+		# Create and checkout a new branch from the current commit HEAD to avoid modifying the commit branch
 		git checkout -B $CI_COMMIT_BRANCH HEAD
 		# Copy M program that is needed for later before we switch to an older git branch.
 		cp ../tools/ci/testAutoUpgrade.m .
@@ -839,6 +840,13 @@ else
 		# we don't run into stack space issues (which can show up as a "Segmentation fault (core dumped)" error).
 		ulimit -s 131072
 
+		# As part of YDBOcto#929 upgrade, we could run a DROP TABLE followed by a CREATE TABLE of the same table name.
+		# If so, we could encounter asserts like the following when we replay tests which have DROP/CREATE TABLE commands
+		# (e.g. TSCP25 subtest which does a "DROP TABLE __" and "CREATE TABLE __").
+		#	octo: /builds/YDBDBMS/src/find_view_or_table.c:96: find_view_or_table_in_cache: Assertion `NULL != getenv("octo_dbg_drop_cache_expected")' failed.
+		# Avoid such assert failures by setting the env var below during the replay.
+		export octo_dbg_drop_cache_expected=1
+
 		# Point src to newsrc
 		ln -s newsrc src
 		for tstdir in bats-test.*
@@ -883,6 +891,11 @@ else
 				# (e.g. an error message format might be different etc.) and we want to use the latest version.
 				# Hence the use of "cp -f" below.
 				cp -f ../../tests/outref/${subtestName}_2.ref .
+				# Additionally, as part of YDBOcto#929, we execute a lot of queries during auto upgrade so
+				# it is possible to see DBFILEXT messages in the syslog (which will show up in stderr when
+				# run in the pipeline under docker) so filter those out before the diff.
+				mv output.txt output.txt.orig
+				grep -v DBFILEXT output.txt.orig > output.txt
 				diff ${subtestName}_2.ref output.txt > ${subtestName}_2_output.diff
 				set -e
 				if [[ -s ${subtestName}_2_output.diff ]]; then

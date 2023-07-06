@@ -59,10 +59,10 @@ select n1.id NOT IN (select 1 union select 3 union select 2) from names n1 group
 
 -- misc
 select lastname in (select 'Cool') from names group by lastname in (select 'Cool') having lastname in (select 'Cool');
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'id' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 6:5: ...names n1 WHERE id IN (SELECT n2.id FROM names n2 group by n1.id...
                                           ^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'id' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 7:1: ...names n1 WHERE id IN (SELECT n2.id=0 FROM names n2 group by n1....
                                           ^^^^^
 [ERROR]: ERR_GROUP_BY_SUB_QUERY: Subqueries are not supported in GROUP BY

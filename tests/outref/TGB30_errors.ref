@@ -43,61 +43,61 @@ select firstname from (select lastname as ln1,firstname from names)n1 order by e
 select firstname from (select lastname as ln1,firstname from names)n1 order by exists (select n2.firstname ||'test' from (select firstname from names) n2 group by ln1);
 select firstname from (select lastname as ln1,firstname from names)n1 order by exists (select n2.firstname from (select firstname from names) n2 group by ln1);
 select (select id from names n2 limit 1) as sub from names group by sub;
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: X
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: x
 LINE 2:1: select n1.* as x from names n1 group by x;
                                                   ^
-[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "ID1": qualify name for safe execution
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "id1": qualify name for safe execution
 LINE 4:1: select id as id1, firstname as id1 from names order by id1;
                                                                  ^^^
-[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "ID1": qualify name for safe execution
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "id1": qualify name for safe execution
 LINE 6:1: select id as id1, id as id1 from names group by id1;
                                                           ^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: CUSTOMERS
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: customers
 LINE 9:1: ... ALL last_name as ln1 FROM customers c GROUP BY last_name ORDER...
                                         ^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: LN1
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ln1
 LINE 11:1: select lastname as ln1 from names group by ln1 || 'test';
                                                       ^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'lastname' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 13:1: select lastname as ln1 from names , (select id as ln1 from names...
                   ^^^^^^^^
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
 LINE 15:1: select count(firstname) as cnt from names group by cnt;
                   ^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'firstname' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 16:1: select firstname || 'test', lastname as conct from names group ...
                   ^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'lastname' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 17:1: ...irstname || 'test' as conct, lastname from names group by conct;
                                            ^^^^^^^^
-[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "ALIAS": qualify name for safe execution
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "alias": qualify name for safe execution
 LINE 19:1: ...firstname as alias, max(id) as alias from names group by alias;
                                                                        ^^^^^
-[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "ALIAS": qualify name for safe execution
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "alias": qualify name for safe execution
 LINE 20:1: ... alias, 'last' || firstname as alias from names group by alias;
                                                                        ^^^^^
-[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "FIRSTNAME": qualify name for safe execution
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "firstname": qualify name for safe execution
 LINE 22:1: select 1, 2 from names n1, names n2 group by firstname;
                                                         ^^^^^^^^^
-[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "AMBIGUOUS": qualify name for safe execution
+[ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "ambiguous": qualify name for safe execution
 LINE 24:1: ...t 1 as ambiguous, 2 as ambiguous from names group by ambiguous;
                                                                    ^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FN
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: fn
 LINE 26:1: ...ct lastname from names group by fn), firstname as fn from names;
                                               ^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N1.FN
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: n1.fn
 LINE 27:1: ...order by exists (select lastname from names n2 group by n1.fn);
                                                                       ^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N2.LN1
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: n2.ln1
 LINE 28:1: ...order by exists (select lastname from names n2 group by n2.ln1);
                                                                       ^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: N2.FIRSTNAME
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: n2.firstname
 LINE 29:1: ...1 order by exists (select n2.firstname ||'test' from (select fir...
                                         ^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'firstname' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 30:1: ...1 order by exists (select n2.firstname ||'test' from (select fir...
                                         ^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'firstname' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 31:1: ...1 order by exists (select n2.firstname from (select firstname fr...
                                         ^^^^^^^^^^^^
 [ERROR]: ERR_GROUP_BY_SUB_QUERY: Subqueries are not supported in GROUP BY

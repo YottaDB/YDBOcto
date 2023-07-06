@@ -124,20 +124,20 @@ LINE 23:1: SELECT * FROM names WHERE NOT 'abcd' AND NOT 1=1;
 
 
 (6 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 (0 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 (0 rows)
-COL1|COL2
+col1|col2
 (0 rows)
 ???
 
 (1 row)
-COL1|COL2|COL3
+col1|col2|col3
 (0 rows)
-COL1|COL2
+col1|col2
 (0 rows)
 [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 (0 rows)
 [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression

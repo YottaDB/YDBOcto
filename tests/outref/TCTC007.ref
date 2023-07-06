@@ -1,15 +1,15 @@
     . . . SET col(1)=$GET(%ydboctocursor(cursorId,"parameters",1))
     . . . SET col(4)=$GET(%ydboctocursor(cursorId,"parameters",2))
     . . . ; CHECK constraints enforcement section
-    . . . IF '%ydboctoexpr DO  DO CheckConstraintViolation^%ydboctoplanhelpers("TMP","TMP_ID4_CHECK",5)
+    . . . IF '%ydboctoexpr DO  DO CheckConstraintViolation^%ydboctoplanhelpers("tmp","tmp_id4_CHECK",5)
     . . . . SET col(2)=%ydboctoexpr
     . . . . SET col(3)=%ydboctoexpr
     . . . . SET col(5)=%ydboctoexpr
     . . . SET col(2)=%ydboctoexpr
-    . . . IF '%ydboctoexpr DO  DO CheckConstraintViolation^%ydboctoplanhelpers("TMP","TMP_CHECK",5)
+    . . . IF '%ydboctoexpr DO  DO CheckConstraintViolation^%ydboctoplanhelpers("tmp","tmp_CHECK",5)
     . . . . SET col(3)=%ydboctoexpr
     . . . . SET col(5)=%ydboctoexpr
     . . . SET col(5)=%ydboctoexpr
-    . . . IF '%ydboctoexpr DO  DO CheckConstraintViolation^%ydboctoplanhelpers("TMP","TMP_CHECK1",5)
+    . . . IF '%ydboctoexpr DO  DO CheckConstraintViolation^%ydboctoplanhelpers("tmp","tmp_CHECK1",5)
     . . . . SET col(3)=%ydboctoexpr
     . . . SET col(-1)=%ydboctoexpr

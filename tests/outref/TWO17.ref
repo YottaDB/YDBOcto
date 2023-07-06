@@ -5,19 +5,19 @@ LP_SELECT_QUERY:
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
-        LP_COLUMN_ALIAS: NAMES(1).ID
+        LP_COLUMN_ALIAS: names(1).id
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: ID
+        - alias: id
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: NAMES(1)
+        LP_TABLE: names(1)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
           LP_WHERE: 
             LP_BOOLEAN_IS_NOT: 
-              LP_COLUMN_ALIAS: NAMES(1).ID
+              LP_COLUMN_ALIAS: names(1).id
               LP_VALUE: ''
           LP_SELECT_MORE_OPTIONS: 
             LP_KEYWORDS: 
@@ -35,18 +35,18 @@ LP_SELECT_QUERY:
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
-        LP_COLUMN_ALIAS: NAMES(1).ID
+        LP_COLUMN_ALIAS: names(1).id
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: ID
+        - alias: id
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: NAMES(1)
+        LP_TABLE: names(1)
       LP_CRITERIA: 
         LP_KEYS: 
           LP_KEY: 
-          - table_name: NAMES
-          - column_name: ID
+          - table_name: names
+          - column_name: id
           - unique_id: 1
           - method: LP_KEY_ADVANCE
           - xref_key: false
@@ -64,7 +64,7 @@ LP_SELECT_QUERY:
     - xref_key: false
     - uses_xref_key: false
 
-ID
+id
 0
 1
 2

@@ -12,9 +12,9 @@ LINE 3:1: SELECT * FROM names n1, names n2 where N1.FIRSTNAME = 2;
                                                  ^^^^^^^^^^^^
 LINE 3:1: SELECT * FROM names n1, names n2 where N1.FIRSTNAME = 2;
                                                                 ^
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "NAMES_PKEY" : Key (ID)=(0) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "names_PKEY" : Key (id)=(0) already exists
 DELETE 2
-[ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "NAME" of table "NAMES" does not exist
+[ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "name" of table "names" does not exist
 LINE 6:1: UPDATE test.names SET id = 3, name = "Sunny" WHERE temperature =...
                                         ^^^^
 TRUNCATE TABLE

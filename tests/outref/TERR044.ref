@@ -3,42 +3,42 @@
 
 select id from dummy1; select id from dummy2;
 select id from dummy3;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: DUMMY1
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: dummy1
 LINE 3:1: select id from dummy1; select id from dummy2;
                          ^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: DUMMY2
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: dummy2
 LINE 3:1: select id from dummy1; select id from dummy2;
                                                 ^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: DUMMY3
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: dummy3
 LINE 4:1: select id from dummy3;
                          ^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: DUMMY1
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: dummy1
 LINE 1:1: select id from dummy1; select id from dummy2;
                          ^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: DUMMY2
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: dummy2
 LINE 1:1: select id from dummy2;
                          ^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: DUMMY3
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: dummy3
 LINE 2:1: select id from dummy3;
                          ^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: NOTATHING
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: notathing
 LINE 3:1: select * from names where notathing = 0; select * from names wh...
                                     ^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ALSONOTATHING
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: alsonotathing
 LINE 3:1: ...elect * from names where alsonotathing = 1; select * from names...
                                       ^^^^^^^^^^^^^
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 (1 row)
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: NOTATHING
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: notathing
 LINE 4:1: select * from names where notathing = 0; select * from names wh...
                                     ^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ALSONOTATHING
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: alsonotathing
 LINE 4:1: ...elect * from names where alsonotathing = 1; select * from names...
                                       ^^^^^^^^^^^^^
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 (1 row)
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ASWELLNOTATHING
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: aswellnotathing
 LINE 4:1: select * from names where aswellnotathing;
                                     ^^^^^^^^^^^^^^^

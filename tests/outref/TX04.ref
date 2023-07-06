@@ -38,134 +38,142 @@
 ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(10)=2
 ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(11)=0
 ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(12)="+^names -command=kill -name=%ydbXtoXI8zgdGIqUuCoYeqwF60 -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
-^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6("comment-1")="xref for table NAMES column FIRSTNAME"
-^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6("comment-2")="xref for table NAMES column LASTNAME"
+^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6("comment-1")="xref for table names column firstname"
+^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6("comment-2")="xref for table names column lastname"
 ^%ydbAIMDxref("^names","^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6")=""
 # Verify key fixing optimization happened in physical plan only for <lastname IS NULL> query
 # Key fixed query will have a plan that does $ORDER(^%ydbAIMD*)
 _ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:;  SELECT * FROM names n1 LEFT JOIN  names n2 ON TRUE WHERE (n1.lastname IS NULL) AND (n2.lastname IS NULL);
+_ydboctoP*.m:;  SELECT * FROM names n1 INNER JOIN names n2 ON TRUE WHERE n1.lastname IS NULL;
 --
 _ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"NAMES","LASTNAME")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
-_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
---
-_ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:;  SELECT * FROM names n1 INNER JOIN names n2 ON TRUE WHERE (n1.lastname IS NULL) AND (n2.lastname IS NULL);
---
-_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"NAMES","LASTNAME")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
-_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
-_ydboctoP*.m-    . . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    . . SET %ydboctocursor(cursorId,"keys",2,"NAMES","LASTNAME")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
-_ydboctoP*.m-    . . . SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=""
-_ydboctoP*.m:    . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")="")  DO
---
-_ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:;  SELECT * FROM names n1 LEFT  JOIN names n2 ON n2.lastname IS NULL;
---
-_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",2,"NAMES","LASTNAME")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
-_ydboctoP*.m-    . . SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=""
-_ydboctoP*.m:    . . FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")="")  DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"names","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
+_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
 --
 _ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  SELECT * FROM names n1 LEFT JOIN  names n2 ON TRUE WHERE n1.lastname IS NULL;
 --
 _ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"NAMES","LASTNAME")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
-_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
---
-_ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:;  SELECT * FROM names n1 RIGHT JOIN names n2 ON TRUE WHERE (n1.lastname IS NULL) AND (n2.lastname IS NULL);
---
-_ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:;  SELECT * FROM names n1 LEFT JOIN  names n2 ON TRUE WHERE n2.lastname IS NULL;
---
-_ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:;  SELECT * FROM names n1 INNER JOIN names n2 ON TRUE WHERE (n1.lastname IS NULL) OR  (n2.lastname IS NULL);
---
-_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"NAMES","LASTNAME")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
-_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
---
-_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",2,"NAMES","LASTNAME")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
-_ydboctoP*.m-    . . SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=""
-_ydboctoP*.m:    . . FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")="")  DO
---
-_ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:;  SELECT * FROM names n1 RIGHT JOIN names n2 ON n2.lastname IS NULL INNER JOIN names n3 ON n3.firstname = n2.firstname WHERE n1.firstname IS NULL;
---
-_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",2,"NAMES","LASTNAME")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
-_ydboctoP*.m-    . . SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=""
-_ydboctoP*.m:    . . FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")="")  DO
---
-_ydboctoP*.m-    . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    . . . SET %ydboctocursor(cursorId,"keys",3,"NAMES","FIRSTNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"NAMES","FIRSTNAME")) IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",3,"NAMES","FIRSTNAME"))) DO
-_ydboctoP*.m-    . . . . SET %ydboctocursor(cursorId,"keys",3,"NAMES","ID")=""
-_ydboctoP*.m:    . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",3,"NAMES","FIRSTNAME"),%ydboctocursor(cursorId,"keys",3,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"NAMES","ID")="")  DO
---
-_ydboctoP*.m-    . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    . . SET %ydboctocursor(cursorId,"keys",3,"NAMES","FIRSTNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"NAMES","FIRSTNAME")) IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",3,"NAMES","FIRSTNAME"))) DO
-_ydboctoP*.m-    . . . SET %ydboctocursor(cursorId,"keys",3,"NAMES","ID")=""
-_ydboctoP*.m:    . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",3,"NAMES","FIRSTNAME"),%ydboctocursor(cursorId,"keys",3,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"NAMES","ID")="")  DO
---
-_ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:;  SELECT * FROM names n1 FULL JOIN  names n2 ON TRUE WHERE (n1.lastname IS NULL) AND (n2.lastname IS NULL);
---
-_ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:;  SELECT * FROM names n1, names n2                   WHERE n2.lastname IS NULL;
---
-_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",2,"NAMES","LASTNAME")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
-_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")="")  DO
---
-_ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:;  SELECT * FROM names n1 INNER JOIN names n2 ON n2.lastname IS NULL INNER JOIN names n3 ON n3.firstname = n2.firstname WHERE n1.firstname IS NULL;
---
-_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"NAMES","FIRSTNAME")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,"")) DO
-_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,"",%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
-_ydboctoP*.m-    . . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    . . SET %ydboctocursor(cursorId,"keys",2,"NAMES","LASTNAME")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
-_ydboctoP*.m-    . . . SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=""
-_ydboctoP*.m:    . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")="")  DO
-_ydboctoP*.m-    . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    . . . . SET %ydboctocursor(cursorId,"keys",3,"NAMES","FIRSTNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"NAMES","FIRSTNAME")) IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",3,"NAMES","FIRSTNAME"))) DO
-_ydboctoP*.m-    . . . . . SET %ydboctocursor(cursorId,"keys",3,"NAMES","ID")=""
-_ydboctoP*.m:    . . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",3,"NAMES","FIRSTNAME"),%ydboctocursor(cursorId,"keys",3,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"NAMES","ID")="")  DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"names","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
+_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
 --
 _ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  SELECT * FROM names WHERE (lastname || firstname) IS NULL;
 --
 _ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  SELECT * FROM names n1 LEFT  JOIN names n2 ON n2.lastname IS NULL INNER JOIN names n3 ON n3.firstname = n2.firstname WHERE n1.firstname IS NULL;
+--
+_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"names","firstname")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,"")) DO
+_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,"",%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+--
+_ydboctoP*.m-    . . SET %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    . . SET %ydboctocursor(cursorId,"keys",2,"names","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
+_ydboctoP*.m-    . . . SET %ydboctocursor(cursorId,"keys",2,"names","id")=""
+_ydboctoP*.m:    . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",2,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"names","id")="")  DO
+--
+_ydboctoP*.m-    . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"names","id"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    . . . . SET %ydboctocursor(cursorId,"keys",3,"names","firstname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"names","firstname")) IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",3,"names","firstname"))) DO
+_ydboctoP*.m-    . . . . . SET %ydboctocursor(cursorId,"keys",3,"names","id")=""
+_ydboctoP*.m:    . . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",3,"names","firstname"),%ydboctocursor(cursorId,"keys",3,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"names","id")="")  DO
+--
+_ydboctoP*.m-    . . . SET %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    . . . SET %ydboctocursor(cursorId,"keys",3,"names","firstname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"names","firstname")) IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",3,"names","firstname"))) DO
+_ydboctoP*.m-    . . . . SET %ydboctocursor(cursorId,"keys",3,"names","id")=""
+_ydboctoP*.m:    . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",3,"names","firstname"),%ydboctocursor(cursorId,"keys",3,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"names","id")="")  DO
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  SELECT * FROM names n1 INNER JOIN names n2 ON TRUE WHERE n2.lastname IS NULL;
 --
 _ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",2,"NAMES","LASTNAME")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
-_ydboctoP*.m-    . . SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=""
-_ydboctoP*.m:    . . FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")="")  DO
+_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",2,"names","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
+_ydboctoP*.m-    . . SET %ydboctocursor(cursorId,"keys",2,"names","id")=""
+_ydboctoP*.m:    . . FOR  SET %ydboctocursor(cursorId,"keys",2,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",2,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"names","id")="")  DO
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  SELECT * FROM names n1 FULL JOIN  names n2 ON TRUE WHERE n1.lastname IS NULL;
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  SELECT * FROM names WHERE 2 IS NOT NULL;
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  SELECT * FROM names WHERE lastname IS NULL;
+--
+_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"names","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
+_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  SELECT * FROM names n1 LEFT JOIN  names n2 ON TRUE WHERE (n1.lastname IS NULL) AND (n2.lastname IS NULL);
+--
+_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"names","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
+_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  SELECT * FROM names n1 FULL JOIN  names n2 ON TRUE WHERE (n1.lastname IS NULL) AND (n2.lastname IS NULL);
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  SELECT * FROM names n1 LEFT  JOIN names n2 ON n2.lastname IS NULL;
+--
+_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",2,"names","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
+_ydboctoP*.m-    . . SET %ydboctocursor(cursorId,"keys",2,"names","id")=""
+_ydboctoP*.m:    . . FOR  SET %ydboctocursor(cursorId,"keys",2,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",2,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"names","id")="")  DO
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  SELECT * FROM names n1 LEFT JOIN  names n2 ON TRUE WHERE n2.lastname IS NULL;
 --
 _ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  SELECT * FROM names n1, names n2                   WHERE (n1.lastname IS NULL) OR  (n2.lastname IS NULL);
 --
 _ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"NAMES","LASTNAME")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
-_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"names","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
+_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
 --
 _ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",2,"NAMES","LASTNAME")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
-_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")="")  DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",2,"names","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
+_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",2,"names","id")=""
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",2,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",2,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"names","id")="")  DO
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  SELECT * FROM names n1 INNER JOIN names n2 ON TRUE WHERE (n1.lastname IS NULL) AND (n2.lastname IS NULL);
+--
+_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"names","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
+_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+_ydboctoP*.m-    . . SET %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    . . SET %ydboctocursor(cursorId,"keys",2,"names","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
+_ydboctoP*.m-    . . . SET %ydboctocursor(cursorId,"keys",2,"names","id")=""
+_ydboctoP*.m:    . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",2,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"names","id")="")  DO
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  SELECT * FROM names n1 INNER JOIN names n2 ON TRUE WHERE (n1.lastname IS NULL) OR  (n2.lastname IS NULL);
+--
+_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"names","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
+_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+--
+_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",2,"names","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
+_ydboctoP*.m-    . . SET %ydboctocursor(cursorId,"keys",2,"names","id")=""
+_ydboctoP*.m:    . . FOR  SET %ydboctocursor(cursorId,"keys",2,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",2,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"names","id")="")  DO
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  SELECT * FROM names n1 INNER JOIN names n2 ON n2.lastname IS NULL;
+--
+_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",2,"names","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
+_ydboctoP*.m-    . . SET %ydboctocursor(cursorId,"keys",2,"names","id")=""
+_ydboctoP*.m:    . . FOR  SET %ydboctocursor(cursorId,"keys",2,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",2,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"names","id")="")  DO
 --
 _ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  SELECT * FROM names WHERE lastname IS NOT NULL;
@@ -174,103 +182,95 @@ _ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  SELECT * FROM names n1 RIGHT JOIN names n2 ON TRUE WHERE n1.lastname IS NULL;
 --
 _ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:;  SELECT * FROM names WHERE lastname IS NULL;
---
-_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"NAMES","LASTNAME")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
-_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
---
-_ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:;  SELECT * FROM names n1 LEFT  JOIN names n2 ON n2.lastname IS NULL INNER JOIN names n3 ON n3.firstname = n2.firstname WHERE n1.firstname IS NULL;
---
-_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"NAMES","FIRSTNAME")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,"")) DO
-_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,"",%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
---
-_ydboctoP*.m-    . . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    . . SET %ydboctocursor(cursorId,"keys",2,"NAMES","LASTNAME")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
-_ydboctoP*.m-    . . . SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=""
-_ydboctoP*.m:    . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")="")  DO
---
-_ydboctoP*.m-    . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    . . . . SET %ydboctocursor(cursorId,"keys",3,"NAMES","FIRSTNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"NAMES","FIRSTNAME")) IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",3,"NAMES","FIRSTNAME"))) DO
-_ydboctoP*.m-    . . . . . SET %ydboctocursor(cursorId,"keys",3,"NAMES","ID")=""
-_ydboctoP*.m:    . . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",3,"NAMES","FIRSTNAME"),%ydboctocursor(cursorId,"keys",3,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"NAMES","ID")="")  DO
---
-_ydboctoP*.m-    . . . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    . . . SET %ydboctocursor(cursorId,"keys",3,"NAMES","FIRSTNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"NAMES","FIRSTNAME")) IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",3,"NAMES","FIRSTNAME"))) DO
-_ydboctoP*.m-    . . . . SET %ydboctocursor(cursorId,"keys",3,"NAMES","ID")=""
-_ydboctoP*.m:    . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",3,"NAMES","FIRSTNAME"),%ydboctocursor(cursorId,"keys",3,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"NAMES","ID")="")  DO
---
-_ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:;  SELECT * FROM names n1 FULL JOIN  names n2 ON TRUE WHERE (n1.lastname IS NULL) OR  (n2.lastname IS NULL);
---
-_ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:;  SELECT * FROM names n1 RIGHT JOIN names n2 ON n2.lastname IS NULL;
---
-_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",2,"NAMES","LASTNAME")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
-_ydboctoP*.m-    . . SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=""
-_ydboctoP*.m:    . . FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")="")  DO
---
-_ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:;  SELECT * FROM names n1 FULL JOIN  names n2 ON TRUE WHERE n2.lastname IS NULL;
---
-_ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:;  SELECT * FROM names n1, names n2                   WHERE n1.lastname IS NULL;
---
-_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"NAMES","LASTNAME")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
-_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
---
-_ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  SELECT * FROM names n1 RIGHT JOIN names n2 ON TRUE WHERE (n1.lastname IS NULL) OR  (n2.lastname IS NULL);
 --
 _ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:;  SELECT * FROM names n1, names n2                   WHERE (n1.lastname IS NULL) AND (n2.lastname IS NULL);
+_ydboctoP*.m:;  SELECT * FROM names n1, names n2                   WHERE n2.lastname IS NULL;
 --
 _ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"NAMES","LASTNAME")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
-_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
-_ydboctoP*.m-    . . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    . . SET %ydboctocursor(cursorId,"keys",2,"NAMES","LASTNAME")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
-_ydboctoP*.m-    . . . SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=""
-_ydboctoP*.m:    . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")="")  DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",2,"names","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
+_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",2,"names","id")=""
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",2,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",2,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"names","id")="")  DO
 --
 _ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:;  SELECT * FROM names WHERE (lastname || firstname) IS NOT NULL;
---
-_ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:;  SELECT * FROM names n1 INNER JOIN names n2 ON TRUE WHERE n1.lastname IS NULL;
---
-_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"NAMES","LASTNAME")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
-_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
---
-_ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:;  SELECT * FROM names n1 INNER JOIN names n2 ON n2.lastname IS NULL;
---
-_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",2,"NAMES","LASTNAME")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
-_ydboctoP*.m-    . . SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=""
-_ydboctoP*.m:    . . FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")="")  DO
+_ydboctoP*.m:;  SELECT * FROM names n1 RIGHT JOIN names n2 ON TRUE WHERE (n1.lastname IS NULL) AND (n2.lastname IS NULL);
 --
 _ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  SELECT * FROM names WHERE 'abcd' IS NULL;
 --
 _ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  SELECT * FROM names n1 RIGHT JOIN names n2 ON n2.lastname IS NULL;
+--
+_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",2,"names","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
+_ydboctoP*.m-    . . SET %ydboctocursor(cursorId,"keys",2,"names","id")=""
+_ydboctoP*.m:    . . FOR  SET %ydboctocursor(cursorId,"keys",2,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",2,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"names","id")="")  DO
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  SELECT * FROM names n1, names n2                   WHERE (n1.lastname IS NULL) AND (n2.lastname IS NULL);
+--
+_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"names","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
+_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+_ydboctoP*.m-    . . SET %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    . . SET %ydboctocursor(cursorId,"keys",2,"names","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
+_ydboctoP*.m-    . . . SET %ydboctocursor(cursorId,"keys",2,"names","id")=""
+_ydboctoP*.m:    . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",2,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"names","id")="")  DO
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  SELECT * FROM names WHERE (lastname || firstname) IS NOT NULL;
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  SELECT * FROM names n1 RIGHT JOIN names n2 ON TRUE WHERE n2.lastname IS NULL;
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  SELECT * FROM names n1 FULL JOIN  names n2 ON TRUE WHERE (n1.lastname IS NULL) OR  (n2.lastname IS NULL);
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  SELECT * FROM names n1, names n2                   WHERE n1.lastname IS NULL;
+--
+_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"names","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
+_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  SELECT * FROM names n1 RIGHT JOIN names n2 ON n2.lastname IS NULL INNER JOIN names n3 ON n3.firstname = n2.firstname WHERE n1.firstname IS NULL;
+--
+_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",2,"names","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
+_ydboctoP*.m-    . . SET %ydboctocursor(cursorId,"keys",2,"names","id")=""
+_ydboctoP*.m:    . . FOR  SET %ydboctocursor(cursorId,"keys",2,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",2,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"names","id")="")  DO
+--
+_ydboctoP*.m-    . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"names","id"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    . . . SET %ydboctocursor(cursorId,"keys",3,"names","firstname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"names","firstname")) IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",3,"names","firstname"))) DO
+_ydboctoP*.m-    . . . . SET %ydboctocursor(cursorId,"keys",3,"names","id")=""
+_ydboctoP*.m:    . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",3,"names","firstname"),%ydboctocursor(cursorId,"keys",3,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"names","id")="")  DO
+--
+_ydboctoP*.m-    . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"names","id"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    . . SET %ydboctocursor(cursorId,"keys",3,"names","firstname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"names","firstname")) IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",3,"names","firstname"))) DO
+_ydboctoP*.m-    . . . SET %ydboctocursor(cursorId,"keys",3,"names","id")=""
+_ydboctoP*.m:    . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",3,"names","firstname"),%ydboctocursor(cursorId,"keys",3,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"names","id")="")  DO
 --
 _ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  SELECT * FROM names n1 LEFT JOIN  names n2 ON TRUE WHERE (n1.lastname IS NULL) OR  (n2.lastname IS NULL);
 --
 _ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:;  SELECT * FROM names n1 FULL JOIN  names n2 ON TRUE WHERE n1.lastname IS NULL;
+_ydboctoP*.m:;  SELECT * FROM names n1 INNER JOIN names n2 ON n2.lastname IS NULL INNER JOIN names n3 ON n3.firstname = n2.firstname WHERE n1.firstname IS NULL;
+--
+_ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"names","firstname")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,"")) DO
+_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,"",%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+_ydboctoP*.m-    . . SET %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    . . SET %ydboctocursor(cursorId,"keys",2,"names","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
+_ydboctoP*.m-    . . . SET %ydboctocursor(cursorId,"keys",2,"names","id")=""
+_ydboctoP*.m:    . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",2,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"names","id")="")  DO
+_ydboctoP*.m-    . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"names","id"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    . . . . SET %ydboctocursor(cursorId,"keys",3,"names","firstname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"names","firstname")) IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",3,"names","firstname"))) DO
+_ydboctoP*.m-    . . . . . SET %ydboctocursor(cursorId,"keys",3,"names","id")=""
+_ydboctoP*.m:    . . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",3,"names","firstname"),%ydboctocursor(cursorId,"keys",3,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"names","id")="")  DO
 --
 _ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:;  SELECT * FROM names WHERE 2 IS NOT NULL;
+_ydboctoP*.m:;  SELECT * FROM names n1 FULL JOIN  names n2 ON TRUE WHERE n2.lastname IS NULL;

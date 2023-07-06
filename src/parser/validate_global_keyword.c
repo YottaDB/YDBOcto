@@ -55,8 +55,12 @@ int validate_global_keyword(SqlOptionalKeyword *keyword, SqlTable *table, int ma
 
 			sql_column = find_column(column, table);
 			if (NULL == sql_column) {
-				ERROR(ERR_UNKNOWN_COLUMN_NAME, column);
-				return -1;
+				/* Check if YDBOcto#929 conversion is needed (lower case column name) */
+				DO_AUTO_UPGRADE_OCTO929_CHECK(ptr, expr_len, column, sql_column);
+				if (NULL == sql_column) {
+					ERROR(ERR_UNKNOWN_COLUMN_NAME, column);
+					return -1;
+				}
 			}
 			if ('k' == *ptr) {
 				/* "keys()" syntax used. Check that this column is a KEY column. */

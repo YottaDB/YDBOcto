@@ -11,5 +11,5 @@
 #################################################################
 
 drop table if exists tmp;
-create table tmp (id1 integer primary key, id2 integer key num 1, id3 integer, id4 integer extract "$extract(values(""ID3""),1,99)*10") READONLY GLOBAL "^x";
+create table tmp (id1 integer primary key, id2 integer key num 1, id3 integer, id4 integer extract "$extract(values(""id3""),1,99)*10") READONLY GLOBAL "^x";
 select * from tmp;

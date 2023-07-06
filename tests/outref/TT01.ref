@@ -22,7 +22,7 @@ select * from orders;
 
 -- Non-existent tables case
 truncate badtable, notgoodtable, missingtable;
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -31,16 +31,16 @@ ID|FIRSTNAME|LASTNAME
 5|Zero|Cool
 (6 rows)
 TRUNCATE TABLE
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 (0 rows)
-CUSTOMER_ID|FIRST_NAME|LAST_NAME|EMAIL|ADDRESS|CITY|STATE|ZIPCODE
+customer_id|first_name|last_name|email|address|city|state|zipcode
 1|George|Washington|gwashington@usa.gov|3200 Mt Vernon Hwy|Mount Vernon|VA|22121
 2|John|Adams|jadams@usa.gov|1250 Hancock St|Quincy|MA|02169
 3|Thomas|Jefferson|tjefferson@usa.gov|931 Thomas Jefferson Pkwy|Charlottesville|VA|22902
 4|James|Madison|jmadison@usa.gov|11350 Constitution Hwy|Orange|VA|22960
 5|James|Monroe|jmonroe@usa.gov|2050 James Monroe Parkway|Charlottesville|VA|22902
 (5 rows)
-ORDER_ID|ORDER_DATE|ORDER_AMOUNT|CUSTOMER_ID
+order_id|order_date|order_amount|customer_id
 1|07/04/1776|$234.56|1
 2|03/14/1760|$78.50|3
 3|05/23/1784|$124.00|2
@@ -49,11 +49,11 @@ ORDER_ID|ORDER_DATE|ORDER_AMOUNT|CUSTOMER_ID
 6|11/27/1787|$14.40|9
 (6 rows)
 TRUNCATE TABLE
-CUSTOMER_ID|FIRST_NAME|LAST_NAME|EMAIL|ADDRESS|CITY|STATE|ZIPCODE
+customer_id|first_name|last_name|email|address|city|state|zipcode
 (0 rows)
-ORDER_ID|ORDER_DATE|ORDER_AMOUNT|CUSTOMER_ID
+order_id|order_date|order_amount|customer_id
 (0 rows)
-[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE: Unknown table: BADTABLE
+[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE: Unknown table: badtable
 
 # --------------------------------------------
 # Test TRUNCATE in rocto
@@ -84,4 +84,4 @@ TRUNCATE TABLE
 ----------+------------+--------------+-------------
 (0 rows)
 
-ERROR:  Unknown table: BADTABLE
+ERROR:  Unknown table: badtable

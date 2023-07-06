@@ -6,6 +6,6 @@ select * from names where 1.1::integer = names.id
 INTEGER
 1
 (1 row)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 1|Acid|Burn
 (1 row)

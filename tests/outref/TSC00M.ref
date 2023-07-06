@@ -1,6 +1,6 @@
 # OCTO674 : octo -f of file containing 3 queries with multi-line C-style comments and #-style comments.
 # Do not expect to see blank lines in query output (used to happen before OCTO674 was fixed)
-FIRSTNAME|LASTNAME|ID
+firstname|lastname|id
 Zero|Cool|0
 Acid|Burn|1
 Cereal|Killer|2
@@ -8,9 +8,9 @@ Lord|Nikon|3
 Joey||4
 Zero|Cool|5
 (6 rows)
-QUERY2
+query2
 1
 (1 row)
-QUERY3
+query3
 2
 (1 row)

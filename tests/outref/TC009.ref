@@ -1,5 +1,5 @@
 CREATE TABLE
-A|B
+a|b
 hello|world
 (1 row)
 DROP TABLE

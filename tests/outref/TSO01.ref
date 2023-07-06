@@ -3,7 +3,7 @@
 
 select firstName, lastName from names union select firstName, lastName from names;
 
-FIRSTNAME|LASTNAME
+firstname|lastname
 Zero|Cool
 Acid|Burn
 Cereal|Killer

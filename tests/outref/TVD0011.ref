@@ -16,54 +16,54 @@ select RIGHTY((select null::varchar),5) IS NULL as RIGHTY;
 select TOKEN((select null::varchar),'^',1) IS NULL as TOKEN;
 select FMDIFF((select null::numeric),(select null::numeric),(select null::integer)) IS NULL as FMDIFF;
 select FMADD((select null::numeric),1,2,3,4) IS NULL as FMADD;
-CURRTIMESTAMP
+currtimestamp
 1
 (1 row)
-GETDATE
+getdate
 1
 (1 row)
-DATEFORMAT1
+dateformat1
 1
 (1 row)
-DATEFORMAT2
+dateformat2
 1
 (1 row)
-FMGET1
+fmget1
 1
 (1 row)
-FMGET2
+fmget2
 1
 (1 row)
-FMGET3
+fmget3
 1
 (1 row)
-IFNULL
+ifnull
 0
 (1 row)
-LEFTY
+lefty
 1
 (1 row)
-MPIECE
+mpiece
 1
 (1 row)
-NUMBER
+number
 1
 (1 row)
-PATINDEX
+patindex
 1
 (1 row)
-REPLACE
+replace
 1
 (1 row)
-RIGHTY
+righty
 1
 (1 row)
-TOKEN
+token
 1
 (1 row)
-FMDIFF
+fmdiff
 1
 (1 row)
-FMADD
+fmadd
 1
 (1 row)

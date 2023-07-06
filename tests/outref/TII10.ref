@@ -23,7 +23,7 @@ CREATE TABLE
 INSERT 0 1
 INSERT 0 1
 INSERT 0 1
-ID|SALARY
+id|salary
 1|2.1
 2|2.12
 3|0
@@ -31,23 +31,23 @@ ID|SALARY
 ???
 -- Below SELECT query for SALARY = 2.123 should return 0 rows since only 2.12 got stored (SCALE = 2)
 (1 row)
-ID|SALARY
+id|salary
 (0 rows)
 ???
 -- Below SELECT query for SALARY = 0 should return 1 row even though we stored -0.0 as they are the same value
 (1 row)
-ID|SALARY
+id|salary
 3|0
 (1 row)
 ???
 -- Below SELECT query for SALARY = -0 should return 1 row even though we stored -0.0 as they are the same value
 (1 row)
-ID|SALARY
+id|salary
 3|0
 (1 row)
 ???
 -- Below SELECT query for SALARY = 2.1 should return 1 row since we stored a row with 2.1 SALARY
 (1 row)
-ID|SALARY
+id|salary
 1|2.1
 (1 row)

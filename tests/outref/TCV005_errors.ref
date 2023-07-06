@@ -13,9 +13,9 @@ select v1.n1.id,v1.n1.firstname,v1.n1.lastname from v1; -- ERROR:  missing FROM-
 --                                                            ^
 --LOCATION:  parserOpenTable, parse_relation.c:1180
 
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: V1
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: v1
 LINE 2:1: select v1.firstname,n1.firstname from v1 as n1; -- ERROR
                                                 ^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: V1
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: v1
 LINE 7:6: ....firstname,v1.n1.lastname from v1; -- ERROR:  missing FROM-claus...
                                             ^^

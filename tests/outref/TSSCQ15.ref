@@ -3,5 +3,5 @@ select null as type_cat, n.nspname as type_schem, t.typname as type_name,  null 
 ----- ROCTO/JDBC -----
 
 ----- OCTO -----
-TYPE_CAT|TYPE_SCHEM|TYPE_NAME|CLASS_NAME|DATA_TYPE|REMARKS|BASE_TYPE
+type_cat|type_schem|type_name|class_name|data_type|remarks|base_type
 (0 rows)

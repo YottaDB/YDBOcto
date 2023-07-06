@@ -6,7 +6,7 @@ CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(3
 select * from tmp;
 DROP TABLE
 CREATE TABLE
-ID|FIRSTNAME|LASTNAME|NAMEQUOTE
+id|firstname|lastname|namequote
 0|Zero|Cool|Zero"
 1|Acid|Burn|Acid"
 2|Cereal|Killer|Cereal"

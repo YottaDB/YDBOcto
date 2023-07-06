@@ -9,7 +9,7 @@ INTEGER
 1
 (1 row)
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: '1.1'
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 1|Acid|Burn
 (1 row)
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: '1.1'

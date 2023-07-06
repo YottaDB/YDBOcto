@@ -39,36 +39,36 @@ Check constraints:
     "id ABcd_col TMP_CHECK" CHECK (("col TMP" > 2))
 CREATE TABLE
 CREATE TABLE
-Table "T" stored in Global: ^%ydboctoD2Z07aRHRvjuY8EuqHV12C5(ID) : Type = READWRITE
+Table "T" stored in Global: ^%ydboctoD2Z07aRHRvjuY8EuqHV12C5(id) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
-ID|INTEGER||NOT NULL|
+id|INTEGER||NOT NULL|
 Indexes:
-    "T_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^%ydboctoD2Z07aRHRvjuY8EuqHV12C5(ID)
-Table "t" stored in Global: ^%ydboctoD8oRR7qRYjLs241efCry582(ID) : Type = READWRITE
+    "T_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^%ydboctoD2Z07aRHRvjuY8EuqHV12C5(id)
+Table "t" stored in Global: ^%ydboctoD8oRR7qRYjLs241efCry582(id) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
-ID|INTEGER||NOT NULL|
+id|INTEGER||NOT NULL|
 Indexes:
-    "t_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^%ydboctoD8oRR7qRYjLs241efCry582(ID)
+    "t_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^%ydboctoD8oRR7qRYjLs241efCry582(id)
 CREATE TABLE
 CREATE TABLE
 CREATE TABLE
-Table "TMP" stored in Global: ^%ydboctoDK8x9V2YiyPMRxcDYOMpB0K : Type = READWRITE
+Table "tmp" stored in Global: ^%ydboctoDq4kC6afkVUEkYUwQW3JDKF : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id 1|INTEGER|||
 id 2|INTEGER|||
 Indexes:
-    "TMP_id 2_id 1_KEY" UNIQUE CONSTRAINT, Column(s) ("id 2", "id 1"), Global ^%ydboctoU3veJdiCY8Gh2JhmSeVZQ64
+    "tmp_id 2_id 1_KEY" UNIQUE CONSTRAINT, Column(s) ("id 2", "id 1"), Global ^%ydboctoU3veJdiCY8Gh2JhmSeVZQ64
 Check constraints:
     "c 3" CHECK (("id 1" < "id 2"))
-Table "TMP2" stored in Global: ^%ydboctoDhi9FWYfTwmiairk1dyhrGC : Type = READWRITE
+Table "tmp2" stored in Global: ^%ydboctoDdnfDUx4izkPZ9mCvyX36IJ : Type = READWRITE
 Column|Type|Collation|Nullable|Default
-ID1|INTEGER|||
-ID2|INTEGER|||
+id1|INTEGER|||
+id2|INTEGER|||
 Indexes:
-    "TMP2_ID2_ID1_KEY" UNIQUE CONSTRAINT, Column(s) (ID2, ID1), Global ^%ydboctoUwGtRZZgkvtnMZZl0zONUAK
+    "tmp2_id2_id1_KEY" UNIQUE CONSTRAINT, Column(s) (id2, id1), Global ^%ydboctoUwGtRZZgkvtnMZZl0zONUAK
 Check constraints:
-    "C3" CHECK ((ID1 < ID2))
-Table "TMP3" stored in Global: ^%ydboctoDvt9jqaQAeaH6MtsF2mzhG9 : Type = READWRITE
+    "c3" CHECK ((id1 < id2))
+Table "tmp3" stored in Global: ^%ydboctoDWjzymDOCs5muUPMLP01DL6 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id%1|INTEGER|||
 id%1

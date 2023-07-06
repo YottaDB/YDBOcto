@@ -1,6 +1,6 @@
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: NOTATHING
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: notathing
 LINE 1:1: select * from names where notathing = 0 and alsonotathing = 1; ...
                                     ^^^^^^^^^
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 (1 row)

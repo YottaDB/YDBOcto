@@ -3,6 +3,6 @@ drop view if exists tcv047v1;
 [ INFO] PATH:LINENUM DATE TIME: INFO_RECORDING_ENV_VARS: # Recording pertinent ydb_* env var values at process startup
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [drop view if exists tcv047v1;]
 [ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
-[ INFO] PATH:LINENUM DATE TIME: INFO_VIEW_DOES_NOT_EXIST: View "TCV047V1" does not exist, skipping
+[ INFO] PATH:LINENUM DATE TIME: INFO_VIEW_DOES_NOT_EXIST: View "tcv047v1" does not exist, skipping
 DROP VIEW
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command []

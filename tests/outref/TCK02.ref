@@ -1,6 +1,6 @@
-ORDER1_ID|PATIENT_ID|STATUS_NAME|SIGNEDBY|PATIENT_NAME|SIGNED_DATE|STARTDATE|STOPDATE|CURRENT_ACTION|ACTION|ORDER_TYPE|REPLACED_ORDER|LAPSED_DATE_TIME|NATURE_OF_DC|DC_DATE_TIME|PATIENT_LOCATION
+order1_id|patient_id|status_name|signedby|patient_name|signed_date|startdate|stopdate|current_action|action|order_type|replaced_order|lapsed_date_time|nature_of_dc|dc_date_time|patient_location
 (0 rows)
 octoPlan0(cursorId,wrapInTp)
     DO octoPlan1(cursorId)
 octoPlan1(cursorId)
-    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID")
+    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"order1","order1_id")

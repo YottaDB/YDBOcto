@@ -2,22 +2,22 @@ Test AIM/ENDPOINT on NULL piece
 SELECT * FROM ORDER_STATUS WHERE SHORT_NAME = 'dc';
 SELECT * FROM ORDER_STATUS WHERE SHORT_NAME IS NULL;
 SELECT * FROM ORDER_STATUS WHERE SHORT_NAME = 'actv';
-ORDER_STATUS_ID|NAME|SHORT_NAME|ABBREVIATION|MASTER_ENTRY_FOR_VUID|VUID
+order_status_id|name|short_name|abbreviation|master_entry_for_vuid|vuid
 (0 rows)
-ORDER_STATUS_ID|NAME|SHORT_NAME|ABBREVIATION|MASTER_ENTRY_FOR_VUID|VUID
+order_status_id|name|short_name|abbreviation|master_entry_for_vuid|vuid
 1|DISCONTINUED||dc||
 (1 row)
-ORDER_STATUS_ID|NAME|SHORT_NAME|ABBREVIATION|MASTER_ENTRY_FOR_VUID|VUID
+order_status_id|name|short_name|abbreviation|master_entry_for_vuid|vuid
 6|ACTIVE|actv|a|1|4500659
 (1 row)
 
 Test AIM/ENDPOINT on NULL data (node does not exist)
 SELECT * FROM ORDER_STATUS WHERE VUID IS NULL;
 SELECT * FROM ORDER_STATUS WHERE VUID = '4500752';
-ORDER_STATUS_ID|NAME|SHORT_NAME|ABBREVIATION|MASTER_ENTRY_FOR_VUID|VUID
+order_status_id|name|short_name|abbreviation|master_entry_for_vuid|vuid
 1|DISCONTINUED||dc||
 (1 row)
-ORDER_STATUS_ID|NAME|SHORT_NAME|ABBREVIATION|MASTER_ENTRY_FOR_VUID|VUID
+order_status_id|name|short_name|abbreviation|master_entry_for_vuid|vuid
 3|HOLD|hold|h|1|4500752
 (1 row)
 ^%ydbAIMDU4ywpb0QmJQZ3hbyDxDYIA="^ORD"
@@ -72,7 +72,7 @@ ORDER_STATUS_ID|NAME|SHORT_NAME|ABBREVIATION|MASTER_ENTRY_FOR_VUID|VUID
 ^%ydbAIMDU4ywpb0QmJQZ3hbyDxDYIA(14)="+^ORD(sub1=100.01,sub2=0:$C(0)) -command=kill -name=%ydbU4ywpb0QmJQZ3hbyDxDYIA2 -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDU4ywpb0QmJQZ3hbyDxDYIA"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  set sub=$order(@vars) quit:'$zlength(sub)  do"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
 ^%ydbAIMDU4ywpb0QmJQZ3hbyDxDYIA(16)="+^ORD(sub1=100.01,sub2=0:$C(0)) -command=set -name=%ydbU4ywpb0QmJQZ3hbyDxDYIAs -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" if '($data(^ORD(100.01,sub2,0))#10) for i=2 set j=-i if '$data(^%ydbAIMDU4ywpb0QmJQZ3hbyDxDYIA(i,"""",sub2)) set ^(sub2)="""" set inccnt=inccnt+1 if 1=$increment(^%ydbAIMDU4ywpb0QmJQZ3hbyDxDYIA(j,"""")),$increment(^%ydbAIMDU4ywpb0QmJQZ3hbyDxDYIA(j))"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDU4ywpb0QmJQZ3hbyDxDYIA(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
 ^%ydbAIMDU4ywpb0QmJQZ3hbyDxDYIA(17)="+^ORD(sub1=100.01,sub2=0:$C(0)) -command=zkill -name=%ydbU4ywpb0QmJQZ3hbyDxDYIAz -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" if '($ZTDATA\10) for i=2 if $data(^%ydbAIMDU4ywpb0QmJQZ3hbyDxDYIA(i,"""",sub2)) set j=-i zkill ^(sub2) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDU4ywpb0QmJQZ3hbyDxDYIA(j,""""),-1) zkill ^("""") zkill:1>$increment(^%ydbAIMDU4ywpb0QmJQZ3hbyDxDYIA(j),-1) ^(j)"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDU4ywpb0QmJQZ3hbyDxDYIA(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
-^%ydbAIMDU4ywpb0QmJQZ3hbyDxDYIA("comment-2")="xref for table ORDER_STATUS column SHORT_NAME"
+^%ydbAIMDU4ywpb0QmJQZ3hbyDxDYIA("comment-2")="xref for table order_status column short_name"
 ^%ydbAIMDXnwSPY8bB4n90niSwL7d0A="^ORD"
 ^%ydbAIMDXnwSPY8bB4n90niSwL7d0A(-1)=16
 ^%ydbAIMDXnwSPY8bB4n90niSwL7d0A(-1,"")=2
@@ -125,6 +125,6 @@ ORDER_STATUS_ID|NAME|SHORT_NAME|ABBREVIATION|MASTER_ENTRY_FOR_VUID|VUID
 ^%ydbAIMDXnwSPY8bB4n90niSwL7d0A(14)="+^ORD(sub1=100.01,sub2=0:$C(0)) -command=kill -name=%ydbXnwSPY8bB4n90niSwL7d0A2 -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDXnwSPY8bB4n90niSwL7d0A"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  set sub=$order(@vars) quit:'$zlength(sub)  do"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
 ^%ydbAIMDXnwSPY8bB4n90niSwL7d0A(16)="+^ORD(sub1=100.01,sub2=0:$C(0)) -command=set -name=%ydbXnwSPY8bB4n90niSwL7d0As -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" if '($data(^ORD(100.01,sub2,""VUID""))#10) for i=1 set j=-i if '$data(^%ydbAIMDXnwSPY8bB4n90niSwL7d0A(i,"""",sub2)) set ^(sub2)="""" set inccnt=inccnt+1 if 1=$increment(^%ydbAIMDXnwSPY8bB4n90niSwL7d0A(j,"""")),$increment(^%ydbAIMDXnwSPY8bB4n90niSwL7d0A(j))"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDXnwSPY8bB4n90niSwL7d0A(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
 ^%ydbAIMDXnwSPY8bB4n90niSwL7d0A(17)="+^ORD(sub1=100.01,sub2=0:$C(0)) -command=zkill -name=%ydbXnwSPY8bB4n90niSwL7d0Az -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" if '($ZTDATA\10) for i=1 if $data(^%ydbAIMDXnwSPY8bB4n90niSwL7d0A(i,"""",sub2)) set j=-i zkill ^(sub2) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDXnwSPY8bB4n90niSwL7d0A(j,""""),-1) zkill ^("""") zkill:1>$increment(^%ydbAIMDXnwSPY8bB4n90niSwL7d0A(j),-1) ^(j)"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDXnwSPY8bB4n90niSwL7d0A(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
-^%ydbAIMDXnwSPY8bB4n90niSwL7d0A("comment-1")="xref for table ORDER_STATUS column VUID"
+^%ydbAIMDXnwSPY8bB4n90niSwL7d0A("comment-1")="xref for table order_status column vuid"
 ^%ydbAIMDxref("^ORD","^%ydbAIMDU4ywpb0QmJQZ3hbyDxDYIA")=""
 ^%ydbAIMDxref("^ORD","^%ydbAIMDXnwSPY8bB4n90niSwL7d0A")=""

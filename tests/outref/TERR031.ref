@@ -19,27 +19,27 @@ SELECT * FROM (VALUES (1), (3), (5), (7), (9) ) AS MyTable(a,b);
 -- Test of ERR_UNKNOWN_COLUMN_NAME with VALUES clause
 SELECT * FROM names WHERE (id = (SELECT x FROM (VALUES(y)) AS tbl(x)));
 
-[ERROR]: ERR_AS_MORE_COLUMNS: Table name "ABCD" has 3 columns available but 4 columns specified
+[ERROR]: ERR_AS_MORE_COLUMNS: Table name "abcd" has 3 columns available but 4 columns specified
 LINE 3:1: SELECT * FROM names AS abcd(a,b,c,d);
                                  ^^^^
-[ERROR]: ERR_AS_MORE_COLUMNS: Table name "ABCD" has 2 columns available but 4 columns specified
+[ERROR]: ERR_AS_MORE_COLUMNS: Table name "abcd" has 2 columns available but 4 columns specified
 LINE 4:1: ...,c FROM (SELECT firstname,lastname FROM names) AS abcd(a,b,c,d);
                                                                ^^^^
-[ERROR]: ERR_AS_MORE_COLUMNS: Table name "TBL" has 1 columns available but 2 columns specified
+[ERROR]: ERR_AS_MORE_COLUMNS: Table name "tbl" has 1 columns available but 2 columns specified
 LINE 5:1: SELECT col1 FROM (SELECT 1 AS col1) AS tbl(a,b);
                                                  ^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: id
 LINE 7:1: SELECT id,firstname,lastname FROM names AS abcd(a,b,c);
                  ^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: LASTNAME
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: lastname
 LINE 8:1: SELECT a,lastname,c FROM (SELECT * FROM names) AS abcd(a,b,c);
                    ^^^^^^^^
-[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : NAMES
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : names
 LINE 10:1: SELECT names.id,b,c FROM names AS abcd(a,b,c);
                   ^^^^^^^^
-[ERROR]: ERR_AS_MORE_COLUMNS: Table name "MYTABLE" has 1 columns available but 2 columns specified
+[ERROR]: ERR_AS_MORE_COLUMNS: Table name "mytable" has 1 columns available but 2 columns specified
 LINE 12:1: SELECT * FROM (VALUES (1), (3), (5), (7), (9) ) AS MyTable(a,b);
                                                               ^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: Y
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: y
 LINE 14:1: ... FROM names WHERE (id = (SELECT x FROM (VALUES(y)) AS tbl(x)));
                                                              ^

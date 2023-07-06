@@ -16,7 +16,7 @@ LP_SELECT_QUERY:
         - alias: ???
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: NAMES(1)
+        LP_TABLE: names(1)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
@@ -43,12 +43,12 @@ LP_SELECT_QUERY:
         - alias: ???
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: NAMES(1)
+        LP_TABLE: names(1)
       LP_CRITERIA: 
         LP_KEYS: 
           LP_KEY: 
-          - table_name: NAMES
-          - column_name: ID
+          - table_name: names
+          - column_name: id
           - unique_id: 1
           - method: LP_KEY_ADVANCE
           - xref_key: false
@@ -110,13 +110,13 @@ octoPlan0(cursorId,wrapInTp)
 
 octoPlan1(cursorId)
     NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
+    SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
     . SET %ydboctoexpr=1
     . DO:%ydboctoexpr
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
-    ZKILL %ydboctocursor(cursorId,"keys",1,"NAMES","ID")
+    ZKILL %ydboctocursor(cursorId,"keys",1,"names","id")
     QUIT

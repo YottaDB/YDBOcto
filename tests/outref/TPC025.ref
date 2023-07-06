@@ -1,15 +1,15 @@
    name    | setting  
 -----------+----------
- DateStyle | ISO, MDY
+ datestyle | ISO, MDY
 (1 row)
 
 SET
+   name    | setting  
+-----------+----------
+ datestyle | ISO, MDY
+(1 row)
+
  name | setting 
 ------+---------
 (0 rows)
-
-   name    | setting 
------------+---------
- DateStyle | ISO
-(1 row)
 

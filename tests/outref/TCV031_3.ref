@@ -5,7 +5,7 @@ create view v1 as select * from v order by firstname;
 select * from octoonerowtable, v1, v;
 CREATE VIEW
 CREATE VIEW
-ID|ID|FIRSTNAME|LASTNAME|ID|FIRSTNAME|LASTNAME
+id|id|firstname|lastname|id|firstname|lastname
 1|1|Acid|Burn|0|Zero|Cool
 1|1|Acid|Burn|1|Acid|Burn
 1|1|Acid|Burn|2|Cereal|Killer

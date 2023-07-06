@@ -12,11 +12,11 @@ select * from nonexistanttable;
 INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""ID""))";
 
 select * from names;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: NONEXISTANTTABLE
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: nonexistanttable
 LINE 2:1: select * from nonexistanttable;
                         ^^^^^^^^^^^^^^^^
 [ WARN]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: INDEX statements
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -37,7 +37,7 @@ INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),ke
 select * from names;
 [ INFO] PATH:LINENUM DATE TIME: INFO_LOADED_CONFIG: Loaded config from $PWD/octo.conf
 [ INFO] PATH:LINENUM DATE TIME: INFO_RECORDING_ENV_VARS: # Recording pertinent ydb_* env var values at process startup
-[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE: Unknown table: NONEXISTANTTABLE
+[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE: Unknown table: nonexistanttable
 LINE 2:1: select * from nonexistanttable;
                         ^^^^^^^^^^^^^^^^
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [select * from nonexistanttable;]
@@ -50,7 +50,7 @@ LINE 2:1: select * from nonexistanttable;
 [ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
 [ INFO] PATH:LINENUM DATE TIME: INFO_M_PLAN: Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 [ INFO] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering print_temporary_table
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -73,7 +73,7 @@ INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),ke
 select * from names;
 [ INFO] PATH:LINENUM DATE TIME: INFO_LOADED_CONFIG: Loaded config from $PWD/octo.conf
 [ INFO] PATH:LINENUM DATE TIME: INFO_RECORDING_ENV_VARS: # Recording pertinent ydb_* env var values at process startup
-[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE: Unknown table: NONEXISTANTTABLE
+[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE: Unknown table: nonexistanttable
 LINE 2:1: select * from nonexistanttable;
                         ^^^^^^^^^^^^^^^^
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [select * from nonexistanttable;]
@@ -90,23 +90,23 @@ LP_SELECT_QUERY:
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
-        LP_COLUMN_ALIAS: NAMES(1).ID
+        LP_COLUMN_ALIAS: names(1).id
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: ID
+        - alias: id
       LP_WHERE: 
-        LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+        LP_COLUMN_ALIAS: names(1).firstname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: FIRSTNAME
+        - alias: firstname
       LP_WHERE: 
-        LP_COLUMN_ALIAS: NAMES(1).LASTNAME
+        LP_COLUMN_ALIAS: names(1).lastname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: LASTNAME
+        - alias: lastname
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: NAMES(1)
+        LP_TABLE: names(1)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
@@ -127,28 +127,28 @@ LP_SELECT_QUERY:
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
-        LP_COLUMN_ALIAS: NAMES(1).ID
+        LP_COLUMN_ALIAS: names(1).id
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: ID
+        - alias: id
       LP_WHERE: 
-        LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+        LP_COLUMN_ALIAS: names(1).firstname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: FIRSTNAME
+        - alias: firstname
       LP_WHERE: 
-        LP_COLUMN_ALIAS: NAMES(1).LASTNAME
+        LP_COLUMN_ALIAS: names(1).lastname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: LASTNAME
+        - alias: lastname
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: NAMES(1)
+        LP_TABLE: names(1)
       LP_CRITERIA: 
         LP_KEYS: 
           LP_KEY: 
-          - table_name: NAMES
-          - column_name: ID
+          - table_name: names
+          - column_name: id
           - unique_id: 1
           - method: LP_KEY_ADVANCE
           - xref_key: false
@@ -167,7 +167,7 @@ LP_SELECT_QUERY:
     - uses_xref_key: false
 
 [ INFO] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering print_temporary_table
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -258,8 +258,8 @@ Entering state sss
 Next token is token SEMICOLON (: )
 Reducing stack by rule rrr (line lll):
    $1 = nterm qualified_name (: )
-[TRACE] PATH:LINENUM DATE TIME: INFO_TABLE_OR_VIEW_SEARCH: Searching for table or view NONEXISTANTTABLE
-[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE: Unknown table: NONEXISTANTTABLE
+[TRACE] PATH:LINENUM DATE TIME: INFO_TABLE_OR_VIEW_SEARCH: Searching for table or view nonexistanttable
+[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE: Unknown table: nonexistanttable
 LINE 2:1: select * from nonexistanttable;
                         ^^^^^^^^^^^^^^^^
 Error: popping token FROM (: )
@@ -418,7 +418,7 @@ Entering state sss
 Next token is token SEMICOLON (: )
 Reducing stack by rule rrr (line lll):
    $1 = nterm qualified_name (: )
-[TRACE] PATH:LINENUM DATE TIME: INFO_TABLE_OR_VIEW_SEARCH: Searching for table or view NAMES
+[TRACE] PATH:LINENUM DATE TIME: INFO_TABLE_OR_VIEW_SEARCH: Searching for table or view names
 -> $$ = nterm table_reference (: )
 Entering state sss
 Next token is token SEMICOLON (: )
@@ -516,23 +516,23 @@ LP_SELECT_QUERY:
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
-        LP_COLUMN_ALIAS: NAMES(1).ID
+        LP_COLUMN_ALIAS: names(1).id
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: ID
+        - alias: id
       LP_WHERE: 
-        LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+        LP_COLUMN_ALIAS: names(1).firstname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: FIRSTNAME
+        - alias: firstname
       LP_WHERE: 
-        LP_COLUMN_ALIAS: NAMES(1).LASTNAME
+        LP_COLUMN_ALIAS: names(1).lastname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: LASTNAME
+        - alias: lastname
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: NAMES(1)
+        LP_TABLE: names(1)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
@@ -553,28 +553,28 @@ LP_SELECT_QUERY:
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
-        LP_COLUMN_ALIAS: NAMES(1).ID
+        LP_COLUMN_ALIAS: names(1).id
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: ID
+        - alias: id
       LP_WHERE: 
-        LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+        LP_COLUMN_ALIAS: names(1).firstname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: FIRSTNAME
+        - alias: firstname
       LP_WHERE: 
-        LP_COLUMN_ALIAS: NAMES(1).LASTNAME
+        LP_COLUMN_ALIAS: names(1).lastname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: LASTNAME
+        - alias: lastname
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: NAMES(1)
+        LP_TABLE: names(1)
       LP_CRITERIA: 
         LP_KEYS: 
           LP_KEY: 
-          - table_name: NAMES
-          - column_name: ID
+          - table_name: names
+          - column_name: id
           - unique_id: 1
           - method: LP_KEY_ADVANCE
           - xref_key: false
@@ -593,7 +593,7 @@ LP_SELECT_QUERY:
     - uses_xref_key: false
 
 [ INFO] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering print_temporary_table
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer

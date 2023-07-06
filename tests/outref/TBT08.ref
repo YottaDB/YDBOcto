@@ -12,7 +12,7 @@ select * from stock_availability where available is false;
 1
 1
 (6 rows)
-PRODUCT_ID|AVAILABLE
+product_id|available
 200|0
 700|0
 800|0
@@ -42,9 +42,9 @@ select * from stock_availability where available is false;
 1
 1
 (6 rows)
-PRODUCT_ID|AVAILABLE
+product_id|available
 (0 rows)
-PRODUCT_ID|AVAILABLE
+product_id|available
 200|0
 700|0
 800|0

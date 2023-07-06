@@ -13,6 +13,6 @@ drop view v1;
 
 CREATE VIEW
 CREATE VIEW
-[ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "V1" because view "V2" depends on it
+[ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "v1" because view "v2" depends on it
 DROP VIEW
 DROP VIEW

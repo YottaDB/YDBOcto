@@ -1,7 +1,7 @@
 # Run TPP01.sql that generates M xref plan and stores corresponding xref plan related gvn in database
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 3|Lord|Nikon
 (1 row)
 # KILL ^%ydbAIMOctoCache and also remove _ydboctoX*.{m,o} to xref rebuild
 # Run TPP01.sql again. Should issue ZLINKFILE error because _ydboctoX*.m (which rebuilds xref) has been deleted
-[ERROR]: ERR_YOTTADB: YottaDB error: 150373978,octoPlan0+1^%ydboctoP*,%YDB-E-ZLINKFILE, Error while zlinking "_ydboctoXOMMMsQ8ks3NI1C42wS8F05",%YDB-E-FILENOTFND, File _ydboctoX*.m not found,%YDB-E-FILENOTFND, File _ydboctoX*.o not found
+[ERROR]: ERR_YOTTADB: YottaDB error: 150373978,octoPlan0+1^%ydboctoP*,%YDB-E-ZLINKFILE, Error while zlinking "_ydboctoXu0siAfaFoReUzbZQmH6R7H",%YDB-E-FILENOTFND, File _ydboctoX*.m not found,%YDB-E-FILENOTFND, File _ydboctoX*.o not found

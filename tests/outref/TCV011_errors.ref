@@ -10,6 +10,6 @@ drop table test;
 
 CREATE TABLE
 CREATE VIEW
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 (0 rows)
-[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "TEST" because view "V1" depends on it
+[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "test" because view "v1" depends on it

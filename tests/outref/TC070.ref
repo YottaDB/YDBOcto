@@ -44,43 +44,43 @@ select * from test;
 drop table test;
 
 CREATE TABLE
-[ERROR]: ERR_NULL_COL_VALUE: NULL value in column ID violates NOT NULL constraint
+[ERROR]: ERR_NULL_COL_VALUE: NULL value in column id violates NOT NULL constraint
 INSERT 0 1
-[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "ID". Use OVERRIDING SYSTEM VALUE to override.
-ID|NAME
+[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "id". Use OVERRIDING SYSTEM VALUE to override.
+id|name
 34|first
 (1 row)
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_NULL_COL_VALUE: NULL value in column ID violates NOT NULL constraint
+[ERROR]: ERR_NULL_COL_VALUE: NULL value in column id violates NOT NULL constraint
 INSERT 0 1
 INSERT 0 1
-[ERROR]: ERR_NULL_COL_VALUE: NULL value in column ID violates NOT NULL constraint
-ID|NAME
+[ERROR]: ERR_NULL_COL_VALUE: NULL value in column id violates NOT NULL constraint
+id|name
 23|first
 1|first
 (2 rows)
 DROP TABLE
 CREATE TABLE
 INSERT 0 2
-[ERROR]: ERR_UPDATE_OF_GENERATED_ALWAYS_IDENTITY: Updating a GENERATED ALWAYS IDENTITY column "ID" to a non-DEFAULT value is invalid.
+[ERROR]: ERR_UPDATE_OF_GENERATED_ALWAYS_IDENTITY: Updating a GENERATED ALWAYS IDENTITY column "id" to a non-DEFAULT value is invalid.
 LINE 19:1: update test set id=NULL; -- only default allowed
                            ^^
-[ERROR]: ERR_UPDATE_OF_GENERATED_ALWAYS_IDENTITY: Updating a GENERATED ALWAYS IDENTITY column "ID" to a non-DEFAULT value is invalid.
+[ERROR]: ERR_UPDATE_OF_GENERATED_ALWAYS_IDENTITY: Updating a GENERATED ALWAYS IDENTITY column "id" to a non-DEFAULT value is invalid.
 LINE 20:2: update test set id=NULL where name='first'; -- only default allo...
                            ^^
 DROP TABLE
 CREATE TABLE
 INSERT 0 2
-[ERROR]: ERR_NULL_COL_VALUE: NULL value in column ID violates NOT NULL constraint
-[ERROR]: ERR_NULL_COL_VALUE: NULL value in column ID violates NOT NULL constraint
+[ERROR]: ERR_NULL_COL_VALUE: NULL value in column id violates NOT NULL constraint
+[ERROR]: ERR_NULL_COL_VALUE: NULL value in column id violates NOT NULL constraint
 DROP TABLE
 CREATE TABLE
 INSERT 0 2
-[ERROR]: ERR_NULL_COL_VALUE: NULL value in column ID violates NOT NULL constraint
-[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "ID". Use OVERRIDING SYSTEM VALUE to override.
+[ERROR]: ERR_NULL_COL_VALUE: NULL value in column id violates NOT NULL constraint
+[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "id". Use OVERRIDING SYSTEM VALUE to override.
 INSERT 0 1
-ID|NAME
+id|name
 1|first
 2|second
 3|fourth
@@ -88,11 +88,11 @@ ID|NAME
 DROP TABLE
 CREATE TABLE
 INSERT 0 2
-[ERROR]: ERR_NULL_COL_VALUE: NULL value in column ID violates NOT NULL constraint
-[ERROR]: ERR_NULL_COL_VALUE: NULL value in column ID violates NOT NULL constraint
+[ERROR]: ERR_NULL_COL_VALUE: NULL value in column id violates NOT NULL constraint
+[ERROR]: ERR_NULL_COL_VALUE: NULL value in column id violates NOT NULL constraint
 INSERT 0 1
 INSERT 0 1
-ID|NAME
+id|name
 1|first
 2|second
 3|fourth

@@ -55,11 +55,11 @@ CREATE TABLE _names (_id INTEGER PRIMARY KEY, _firstName VARCHAR(30), lastName V
 select * from _names;
 
 drop table if exists _test3 keepdata;
-create table _test3 (_id1 integer primary key, _fullname text extract "$PIECE(^names(keys(""_ID1"")),""|"",1)_$PIECE(^names(keys(""_ID1"")),""|"",2)") GLOBAL "^names";
+create table _test3 (_id1 integer primary key, _fullname text extract "$PIECE(^names(keys(""_id1"")),""|"",1)_$PIECE(^names(keys(""_id1"")),""|"",2)") GLOBAL "^names";
 select * from _test3;
 
 drop table _test3 keepdata;
-create table _test3 (_id1 integer primary key START 0 END "keys(""_ID1"")=3", _firstname text, _lastname text) GLOBAL "^names";
+create table _test3 (_id1 integer primary key START 0 END "keys(""_id1"")=3", _firstname text, _lastname text) GLOBAL "^names";
 select * from _test3;
 
 drop table _test3 keepdata;
@@ -67,7 +67,7 @@ create table _test3 (_id1 integer primary key START 0 ENDPOINT 3, _firstname tex
 select * from _test3;
 
 drop table _test3 keepdata;
-create table _test3 (_id1 integer primary key, _firstname text, _lastname text, _fullname text extract "(values(""_FIRSTNAME""))_(values(""_LASTNAME""))") GLOBAL "^names";
+create table _test3 (_id1 integer primary key, _firstname text, _lastname text, _fullname text extract "(values(""_firstname""))_(values(""_lastname""))") GLOBAL "^names";
 select * from _test3;
 
 drop table _test3 keepdata;
@@ -76,7 +76,7 @@ select * from _test3;
 select * from _test3 order by _id1 desc;
 
 drop table _test3 keepdata;
-create table _test3 (_id1 integer primary key, _firstname text, _lastname text) DELIM "_" GLOBAL "^x(keys(""_ID1""))";
+create table _test3 (_id1 integer primary key, _firstname text, _lastname text) DELIM "_" GLOBAL "^x(keys(""_id1""))";
 select * from _test3;
 select * from _test3 order by _id1 desc;
 

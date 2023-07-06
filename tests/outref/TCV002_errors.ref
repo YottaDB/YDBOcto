@@ -8,13 +8,13 @@ SELECT v.test_col; -- ERROR
 DROP VIEW v;
 SELECT v.test_col FROM v;
 CREATE VIEW
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: V.TEST_COL
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: v.test_col
 LINE 6:1: SELECT v.test_col FROM v; -- ERROR
                  ^^^^^^^^^^
-[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : V
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : v
 LINE 7:2: SELECT v.test_col; -- ERROR
                  ^^^^^^^^^^
 DROP VIEW
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: V
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: v
 LINE 9:1: SELECT v.test_col FROM v;
                                  ^

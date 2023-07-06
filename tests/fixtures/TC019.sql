@@ -12,7 +12,7 @@
 
 -- TC019 : OCTO483 : CREATE TABLE works with multiple characters as DELIM qualifier and validate xrefs
 
-CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (123, 124, 125) GLOBAL "^delimnames(keys(""ID""))";
+CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (123, 124, 125) GLOBAL "^delimnames(keys(""id""))";
 
 SELECT * FROM delimnames;
 SELECT * FROM delimnames WHERE firstname = 'Zero';

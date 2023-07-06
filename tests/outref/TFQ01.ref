@@ -83,14 +83,14 @@ LINE 5:3: select (select *) between 1 and 2;
 LINE 15:4: ...rstname varchar, fullname1 varchar extract concat(firstname,));
                                                                           ^
 syntax error, unexpected RIGHT_PAREN
-[ERROR]: ERR_TOO_MANY_TABLE_KEYCOLS: Too many key columns specified in CREATE TABLE of TMP (got: 1000, max: 255)
-[ERROR]: ERR_TOO_MANY_TABLE_KEYCOLS: Too many key columns specified in CREATE TABLE of TMP (got: 48901234567890, max: 255)
+[ERROR]: ERR_TOO_MANY_TABLE_KEYCOLS: Too many key columns specified in CREATE TABLE of tmp (got: 1000, max: 255)
+[ERROR]: ERR_TOO_MANY_TABLE_KEYCOLS: Too many key columns specified in CREATE TABLE of tmp (got: 48901234567890, max: 255)
 CREATE TABLE
 [ERROR]: ERR_TOO_MANY_SELECT_KEYCOLS: Too many key columns specified in SELECT query (got: 264, max: 256)
 [ERROR]: ERR_PLAN_NOT_GENERATED: Failed to generate physical plan
 CREATE TABLE
 INSERT 0 1
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TMP violates CHECK constraint TMP_LASTNAME_CHECK : Failing row contains (abcd)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp violates CHECK constraint tmp_lastname_CHECK : Failing row contains (abcd)
 ???
 1
 1
@@ -131,7 +131,7 @@ INSERT 0 1
 1
 1
 (6 rows)
-IDBOOL
+idbool
 0
 0
 1
@@ -150,5 +150,5 @@ IDBOOL
 -- This used to previously SIG-11.
 -- Expected output is an ERR_TOO_MANY_KEYCOLS error
 DROP TABLE
-[ERROR]: ERR_TOO_MANY_TABLE_KEYCOLS: Too many key columns specified in CREATE TABLE of TMP (got: 256, max: 255)
+[ERROR]: ERR_TOO_MANY_TABLE_KEYCOLS: Too many key columns specified in CREATE TABLE of tmp (got: 256, max: 255)
 

@@ -40,12 +40,12 @@ drop table tmp;
  -- Test https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/579#note_1105838798
  -- Expect first and third select to output 2 rows and second select to issue ERR_SUBQUERY_MULTIPLE_ROWS error
 (1 row)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 4|Joey|
 1|Acid|Burn
 (2 rows)
 [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 4|Joey|
 1|Acid|Burn
 (2 rows)
@@ -57,8 +57,8 @@ ID|FIRSTNAME|LASTNAME
 CREATE TABLE
 INSERT 0 1
 INSERT 0 1
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "TMP_PKEY" : Key (ID4)=(1) already exists
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "TMP_PKEY" : Key (ID4)=(0) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_PKEY" : Key (id4)=(1) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_PKEY" : Key (id4)=(0) already exists
 DROP TABLE
 ???
 
@@ -69,17 +69,17 @@ CREATE TABLE
 INSERT 0 1
 INSERT 0 1
 DELETE 2
-ID1
+id1
 (0 rows)
 DELETE 0
 INSERT 0 1
 INSERT 0 1
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "TMP_PKEY" : Key (ID1)=(2) already exists
-ID1
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_PKEY" : Key (id1)=(2) already exists
+id1
 0
 6
 (2 rows)
 DELETE 2
-ID1
+id1
 (0 rows)
 DROP TABLE

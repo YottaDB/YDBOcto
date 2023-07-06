@@ -1,14 +1,14 @@
-ERROR:  INSERT not allowed on READONLY table "TP000". Only allowed on READWRITE tables.
+ERROR:  INSERT not allowed on READONLY table "tp000". Only allowed on READWRITE tables.
  id | firstname | lastname 
 ----+-----------+----------
 (0 rows)
 
-ERROR:  UPDATE not allowed on READONLY table "TP000". Only allowed on READWRITE tables.
+ERROR:  UPDATE not allowed on READONLY table "tp000". Only allowed on READWRITE tables.
  id | firstname | lastname 
 ----+-----------+----------
 (0 rows)
 
-ERROR:  DELETE not allowed on READONLY table "TP000". Only allowed on READWRITE tables.
+ERROR:  DELETE not allowed on READONLY table "tp000". Only allowed on READWRITE tables.
  id | firstname | lastname 
 ----+-----------+----------
 (0 rows)

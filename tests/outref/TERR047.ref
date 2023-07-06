@@ -10,19 +10,19 @@ select PARENLESS_FUNCTION;
 -- Test backtick and double quoted identifiers
 SELECT `abcd` FROM names;
 SELECT "abcd" FROM names;
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: IDENTIFIER_PERIOD_IDENTIFIER
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: identifier_period_identifier
 LINE 3:1: select IDENTIFIER_PERIOD_IDENTIFIER;
                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: IDENTIFIER_BACKTICK
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: identifier_backtick
 LINE 4:1: select IDENTIFIER_BACKTICK;
                  ^^^^^^^^^^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: IDENTIFIER_ALONE
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: identifier_alone
 LINE 5:1: select IDENTIFIER_ALONE;
                  ^^^^^^^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: PARENLESS_FUNCTION
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: parenless_function
 LINE 6:1: select PARENLESS_FUNCTION;
                  ^^^^^^^^^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ABCD
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: abcd
 LINE 8:1: SELECT `abcd` FROM names;
                  ^^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: abcd

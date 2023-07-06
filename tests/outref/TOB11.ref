@@ -3,7 +3,7 @@
 
 select * from (select * from names union select 6::integer,'Joey','Abcd' union select 7::integer,'Joey','Zzzz') subquery1 order by firstname desc, lastname asc;
 
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 5|Zero|Cool
 3|Lord|Nikon

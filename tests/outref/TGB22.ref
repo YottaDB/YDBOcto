@@ -257,7 +257,7 @@ CREATE FUNCTION
 CREATE FUNCTION
 CREATE FUNCTION
 CREATE FUNCTION
-SAMEVALUE
+samevalue
 0
 1
 2
@@ -265,7 +265,7 @@ SAMEVALUE
 4
 5
 (6 rows)
-SAMEVALUE
+samevalue
 0
 1
 2
@@ -273,7 +273,7 @@ SAMEVALUE
 4
 5
 (6 rows)
-SAMEVALUE
+samevalue
 0
 1
 2
@@ -281,25 +281,22 @@ SAMEVALUE
 4
 5
 (6 rows)
-SAMEVALUE
+samevalue
 1
 (1 row)
-SAMEVALUE
+samevalue
 1
 (1 row)
-SAMEVALUE
+samevalue
 1
 (1 row)
-SAMEVALUE
+samevalue
 1
 (1 row)
-SAMEVALUE
+samevalue
 1
 (1 row)
-SAMEVALUE
-1
-(1 row)
-???
+samevalue
 1
 (1 row)
 ???
@@ -317,10 +314,13 @@ SAMEVALUE
 ???
 1
 (1 row)
-SAMEVALUE
+???
+1
+(1 row)
+samevalue
 Acid
 (1 row)
-SAMEVALUE
+samevalue
 0
 1
 2
@@ -328,7 +328,7 @@ SAMEVALUE
 4
 5
 (6 rows)
-SAMEVALUE
+samevalue
 0
 1
 2
@@ -336,37 +336,14 @@ SAMEVALUE
 4
 5
 (6 rows)
-SAMEVALUE
+samevalue
 0
 2
 3
 4
 5
 (5 rows)
-SAMEVALUE
-0
-1
-2
-3
-4
-5
-(6 rows)
-SAMEVALUE
-0
-2
-3
-4
-5
-(5 rows)
-SAMEVALUE
-1
-2
-4
-3
-0
-5
-(6 rows)
-SAMEVALUE
+samevalue
 0
 1
 2
@@ -374,7 +351,30 @@ SAMEVALUE
 4
 5
 (6 rows)
-SAMEVALUE
+samevalue
+0
+2
+3
+4
+5
+(5 rows)
+samevalue
+1
+2
+4
+3
+0
+5
+(6 rows)
+samevalue
+0
+1
+2
+3
+4
+5
+(6 rows)
+samevalue
 Cool
 Burn
 Killer
@@ -382,46 +382,46 @@ Nikon
 
 Cool
 (6 rows)
-SAMEVALUE
+samevalue
 
 Burn
 Cool
 Nikon
 Killer
 (5 rows)
-SAMEVALUE
+samevalue
 
 Burn
 Cool
 Nikon
 Killer
 (5 rows)
-SAMEVALUE
+samevalue
 Burn
 Nikon
 Killer
 (3 rows)
-SAMEVALUE
+samevalue
 Burn
 Killer
 Nikon
 (3 rows)
-SAMEVALUE
+samevalue
 Burn
 Nikon
 Killer
 (3 rows)
-SAMEVALUE
+samevalue
 Burn
 Killer
 Nikon
 (3 rows)
-SAMEVALUE
+samevalue
 Burn
 Nikon
 Killer
 (3 rows)
-SAMEVALUE
+samevalue
 Burn
 Killer
 Nikon
@@ -456,329 +456,123 @@ Nikon
 1
 1
 (3 rows)
-SAMEVALUE
-Acid
-Cereal
-Lord
-(3 rows)
-SAMEVALUE
-
-Burn
-Cool
-Nikon
-Killer
-(5 rows)
-SAMEVALUE
-Burn
-Cool
-Killer
-Nikon
-
-(5 rows)
-SAMEVALUE
-Burn
-Cool
-Killer
-Nikon
-(4 rows)
-SAMEVALUE
-Burn
-Cool
-Killer
-Nikon
-
-(5 rows)
-SAMEVALUE
-Burn
-Cool
-Killer
-Nikon
-(4 rows)
-SAMEVALUE
-Burn
-Killer
-
-Nikon
-Cool
-(5 rows)
-SAMEVALUE
-Burn
-Killer
-Nikon
-
-(4 rows)
-SAMEVALUE
-Burn
-Killer
-Nikon
-
-(4 rows)
-SAMEVALUE
-
-Burn
-Cool
-Cool
-Nikon
-Killer
-(6 rows)
-???
-testCool
-testBurn
-testKiller
-testNikon
-
-testCool
-(6 rows)
-???
-
-testBurn
-testCool
-testNikon
-testKiller
-(5 rows)
-???
-
-testBurn
-testCool
-testNikon
-testKiller
-(5 rows)
-???
-testBurn
-testNikon
-testKiller
-(3 rows)
-???
-testBurn
-testKiller
-testNikon
-(3 rows)
-???
-testBurn
-testNikon
-testKiller
-(3 rows)
-???
-testBurn
-testKiller
-testNikon
-(3 rows)
-???
-testBurn
-testNikon
-testKiller
-(3 rows)
-???
-testBurn
-testKiller
-testNikon
-(3 rows)
-???
-1
-1
-1
-(3 rows)
-???
-1
-1
-1
-(3 rows)
-???
-1
-1
-1
-(3 rows)
-???
-1
-1
-1
-(3 rows)
-???
-1
-1
-1
-(3 rows)
-???
-1
-1
-1
-(3 rows)
-SAMEVALUE
+samevalue
 Acid
 Cereal
 Lord
 (3 rows)
-???
+samevalue
 
-testBurn
-testCool
-testNikon
-testKiller
+Burn
+Cool
+Nikon
+Killer
 (5 rows)
-???
-testBurn
-testCool
-testKiller
-testNikon
-
-(5 rows)
-???
-testBurn
-testCool
-testKiller
-testNikon
-(4 rows)
-???
-testBurn
-testCool
-testKiller
-testNikon
+samevalue
+Burn
+Cool
+Killer
+Nikon
 
 (5 rows)
-???
-testBurn
-testCool
-testKiller
-testNikon
+samevalue
+Burn
+Cool
+Killer
+Nikon
 (4 rows)
-???
-testBurn
-testKiller
+samevalue
+Burn
+Cool
+Killer
+Nikon
 
-testNikon
-testCool
 (5 rows)
-???
-testBurn
-testKiller
-testNikon
+samevalue
+Burn
+Cool
+Killer
+Nikon
+(4 rows)
+samevalue
+Burn
+Killer
+
+Nikon
+Cool
+(5 rows)
+samevalue
+Burn
+Killer
+Nikon
 
 (4 rows)
-???
-testBurn
-testKiller
-testNikon
+samevalue
+Burn
+Killer
+Nikon
 
 (4 rows)
-???
+samevalue
 
-testBurn
-testCool
-testCool
-testNikon
-testKiller
+Burn
+Cool
+Cool
+Nikon
+Killer
 (6 rows)
 ???
-0
-1
-(2 rows)
+testCool
+testBurn
+testKiller
+testNikon
+
+testCool
+(6 rows)
 ???
-0
-1
-0
-0
-0
-0
-(6 rows)
-SAMEVALUE
 
 testBurn
 testCool
 testNikon
 testKiller
 (5 rows)
-SAMEVALUE
-testBurn
-testCool
-testKiller
-testNikon
-
-(5 rows)
-SAMEVALUE
+???
 
 testBurn
 testCool
 testNikon
 testKiller
 (5 rows)
-SAMEVALUE
-
+???
 testBurn
-testCool
 testNikon
 testKiller
-(5 rows)
-SAMEVALUE
-1
-1
-1
-1
-
-1
-(6 rows)
-SAMEVALUE
-
-1
-1
-1
-1
-(5 rows)
-SAMEVALUE
-
-1
-(2 rows)
-SAMEVALUE
-
-1
-(2 rows)
-SAMEVALUE
-
-1
-(2 rows)
-SAMEVALUE
-1
-1
-1
-1
-(4 rows)
-SAMEVALUE
-1
-1
-1
-1
-(4 rows)
-SAMEVALUE
-1
-1
-1
 (3 rows)
-SAMEVALUE
-1
-1
-1
-1
-(4 rows)
-SAMEVALUE
-1
-(1 row)
-SAMEVALUE
-1
-(1 row)
-SAMEVALUE
-1
-(1 row)
 ???
-1
-1
-1
-1
-(4 rows)
+testBurn
+testKiller
+testNikon
+(3 rows)
 ???
-1
-1
-1
-1
-(4 rows)
+testBurn
+testNikon
+testKiller
+(3 rows)
+???
+testBurn
+testKiller
+testNikon
+(3 rows)
+???
+testBurn
+testNikon
+testKiller
+(3 rows)
+???
+testBurn
+testKiller
+testNikon
+(3 rows)
 ???
 1
 1
@@ -788,6 +582,212 @@ SAMEVALUE
 1
 1
 1
+(3 rows)
+???
+1
+1
+1
+(3 rows)
+???
+1
+1
+1
+(3 rows)
+???
+1
+1
+1
+(3 rows)
+???
+1
+1
+1
+(3 rows)
+samevalue
+Acid
+Cereal
+Lord
+(3 rows)
+???
+
+testBurn
+testCool
+testNikon
+testKiller
+(5 rows)
+???
+testBurn
+testCool
+testKiller
+testNikon
+
+(5 rows)
+???
+testBurn
+testCool
+testKiller
+testNikon
+(4 rows)
+???
+testBurn
+testCool
+testKiller
+testNikon
+
+(5 rows)
+???
+testBurn
+testCool
+testKiller
+testNikon
+(4 rows)
+???
+testBurn
+testKiller
+
+testNikon
+testCool
+(5 rows)
+???
+testBurn
+testKiller
+testNikon
+
+(4 rows)
+???
+testBurn
+testKiller
+testNikon
+
+(4 rows)
+???
+
+testBurn
+testCool
+testCool
+testNikon
+testKiller
+(6 rows)
+???
+0
+1
+(2 rows)
+???
+0
+1
+0
+0
+0
+0
+(6 rows)
+samevalue
+
+testBurn
+testCool
+testNikon
+testKiller
+(5 rows)
+samevalue
+testBurn
+testCool
+testKiller
+testNikon
+
+(5 rows)
+samevalue
+
+testBurn
+testCool
+testNikon
+testKiller
+(5 rows)
+samevalue
+
+testBurn
+testCool
+testNikon
+testKiller
+(5 rows)
+samevalue
+1
+1
+1
+1
+
+1
+(6 rows)
+samevalue
+
+1
+1
+1
+1
+(5 rows)
+samevalue
+
+1
+(2 rows)
+samevalue
+
+1
+(2 rows)
+samevalue
+
+1
+(2 rows)
+samevalue
+1
+1
+1
+1
+(4 rows)
+samevalue
+1
+1
+1
+1
+(4 rows)
+samevalue
+1
+1
+1
+(3 rows)
+samevalue
+1
+1
+1
+1
+(4 rows)
+samevalue
+1
+(1 row)
+samevalue
+1
+(1 row)
+samevalue
+1
+(1 row)
+???
+1
+1
+1
+1
+(4 rows)
+???
+1
+1
+1
+1
+(4 rows)
+???
+1
+1
+1
+(3 rows)
+???
+1
+1
+1
 1
 (4 rows)
 ???
@@ -796,44 +796,44 @@ SAMEVALUE
 ???
 1
 (1 row)
-SAMEVALUE
+samevalue
 Acid
 Lord
 Zero
 Cereal
 (4 rows)
-SAMEVALUE
+samevalue
 
 1
 (2 rows)
-SAMEVALUE
+samevalue
 1
 
 (2 rows)
-SAMEVALUE
+samevalue
 1
 
 (2 rows)
-SAMEVALUE
+samevalue
 1
 1
 
 1
 1
 (5 rows)
-SAMEVALUE
+samevalue
 1
 1
 1
 
 (4 rows)
-SAMEVALUE
+samevalue
 1
 1
 1
 
 (4 rows)
-SAMEVALUE
+samevalue
 
 1
 1
@@ -863,38 +863,38 @@ SAMEVALUE
 ???
 1
 (1 row)
-FIRSTNAME
+firstname
 Acid
 Joey
 Lord
 Zero
 Cereal
 (5 rows)
-PARMLESSFUNC
+parmlessfunc
 SUCCESS
 SUCCESS
 SUCCESS
 SUCCESS
 SUCCESS
 (5 rows)
-PARMLESSFUNC|FIRSTNAME
+parmlessfunc|firstname
 SUCCESS|Acid
 SUCCESS|Joey
 SUCCESS|Lord
 SUCCESS|Zero
 SUCCESS|Cereal
 (5 rows)
-PARMLESSFUNC
+parmlessfunc
 SUCCESS
 (1 row)
-PARMLESSFUNC
+parmlessfunc
 SUCCESS
 SUCCESS
 SUCCESS
 SUCCESS
 SUCCESS
 (5 rows)
-PARMLESSFUNC
+parmlessfunc
 SUCCESS
 SUCCESS
 SUCCESS
@@ -933,39 +933,39 @@ SUCCESS
 
 0
 (2 rows)
-PARMLESSFUNC
+parmlessfunc
 SUCCESS
 (1 row)
-PARMLESSFUNC
+parmlessfunc
 SUCCESS
 (1 row)
-PARMLESSFUNC
+parmlessfunc
 SUCCESS
 (1 row)
-PARMLESSFUNC
+parmlessfunc
 SUCCESS
 SUCCESS
 SUCCESS
 SUCCESS
 SUCCESS
 (5 rows)
-PARMLESSFUNC
+parmlessfunc
 SUCCESS
 (1 row)
-PARMLESSFUNC
+parmlessfunc
 SUCCESS
 (1 row)
-PARMLESSFUNC
+parmlessfunc
 SUCCESS
 (1 row)
-PARMLESSFUNC
+parmlessfunc
 SUCCESS
 SUCCESS
 SUCCESS
 SUCCESS
 SUCCESS
 (5 rows)
-PARMLESSFUNC
+parmlessfunc
 SUCCESS
 SUCCESS
 SUCCESS
@@ -997,20 +997,20 @@ SUCCESS
 1
 1
 (4 rows)
-PARMLESSFUNC
+parmlessfunc
 SUCCESS
 SUCCESS
 SUCCESS
 SUCCESS
 SUCCESS
 (5 rows)
-PARMLESSFUNC
+parmlessfunc
 SUCCESS
 SUCCESS
 SUCCESS
 SUCCESS
 (4 rows)
-SAMEVALUE
+samevalue
 0
 1
 2
@@ -1018,7 +1018,7 @@ SAMEVALUE
 4
 5
 (6 rows)
-SAMEVALUE
+samevalue
 0
 1
 2
@@ -1026,7 +1026,7 @@ SAMEVALUE
 4
 5
 (6 rows)
-SAMEVALUE
+samevalue
 0
 1
 2
@@ -1034,7 +1034,7 @@ SAMEVALUE
 4
 5
 (6 rows)
-SAMEVALUE
+samevalue
 0
 1
 2
@@ -1042,28 +1042,25 @@ SAMEVALUE
 4
 5
 (6 rows)
-SAMEVALUE
+samevalue
 1
 (1 row)
-SAMEVALUE
+samevalue
 1
 (1 row)
-SAMEVALUE
+samevalue
 1
 (1 row)
-SAMEVALUE
+samevalue
 1
 (1 row)
-SAMEVALUE
+samevalue
 1
 (1 row)
-SAMEVALUE
+samevalue
 1
 (1 row)
-SAMEVALUE
-1
-(1 row)
-???
+samevalue
 1
 (1 row)
 ???
@@ -1081,10 +1078,13 @@ SAMEVALUE
 ???
 1
 (1 row)
-SAMEVALUE
+???
+1
+(1 row)
+samevalue
 Acid
 (1 row)
-SAMEVALUE
+samevalue
 0
 1
 2
@@ -1092,7 +1092,7 @@ SAMEVALUE
 4
 5
 (6 rows)
-SAMEVALUE
+samevalue
 0
 1
 2
@@ -1100,14 +1100,14 @@ SAMEVALUE
 4
 5
 (6 rows)
-SAMEVALUE
+samevalue
 0
 2
 3
 4
 5
 (5 rows)
-SAMEVALUE
+samevalue
 0
 1
 2
@@ -1115,14 +1115,14 @@ SAMEVALUE
 4
 5
 (6 rows)
-SAMEVALUE
+samevalue
 0
 2
 3
 4
 5
 (5 rows)
-SAMEVALUE
+samevalue
 1
 2
 4
@@ -1130,13 +1130,13 @@ SAMEVALUE
 0
 5
 (6 rows)
-SAMEVALUE
+samevalue
 1
 2
 3
 4
 (4 rows)
-SAMEVALUE
+samevalue
 0
 1
 2
@@ -1144,7 +1144,7 @@ SAMEVALUE
 4
 5
 (6 rows)
-SAMEVALUE
+samevalue
 0
 1
 2
@@ -1152,7 +1152,7 @@ SAMEVALUE
 4
 5
 (6 rows)
-SAMEVALUE
+samevalue
 0
 1
 2
@@ -1160,7 +1160,7 @@ SAMEVALUE
 4
 5
 (6 rows)
-SAMEVALUE
+samevalue
 0
 1
 2
@@ -1168,7 +1168,7 @@ SAMEVALUE
 4
 5
 (6 rows)
-SAMEVALUE
+samevalue
 0
 1
 2
@@ -1176,28 +1176,25 @@ SAMEVALUE
 4
 5
 (6 rows)
-SAMEVALUE
+samevalue
 1
 (1 row)
-SAMEVALUE
+samevalue
 1
 (1 row)
-SAMEVALUE
+samevalue
 1
 (1 row)
-SAMEVALUE
+samevalue
 1
 (1 row)
-SAMEVALUE
+samevalue
 1
 (1 row)
-SAMEVALUE
+samevalue
 1
 (1 row)
-SAMEVALUE
-1
-(1 row)
-???
+samevalue
 1
 (1 row)
 ???
@@ -1215,10 +1212,13 @@ SAMEVALUE
 ???
 1
 (1 row)
-SAMEVALUE
+???
+1
+(1 row)
+samevalue
 Acid
 (1 row)
-SAMEVALUE
+samevalue
 0
 1
 2
@@ -1226,7 +1226,7 @@ SAMEVALUE
 4
 5
 (6 rows)
-SAMEVALUE
+samevalue
 0
 1
 2
@@ -1234,14 +1234,14 @@ SAMEVALUE
 4
 5
 (6 rows)
-SAMEVALUE
+samevalue
 0
 2
 3
 4
 5
 (5 rows)
-SAMEVALUE
+samevalue
 0
 1
 2
@@ -1249,14 +1249,14 @@ SAMEVALUE
 4
 5
 (6 rows)
-SAMEVALUE
+samevalue
 0
 2
 3
 4
 5
 (5 rows)
-SAMEVALUE
+samevalue
 1
 2
 4
@@ -1264,13 +1264,13 @@ SAMEVALUE
 0
 5
 (6 rows)
-SAMEVALUE
+samevalue
 1
 2
 3
 4
 (4 rows)
-SAMEVALUE
+samevalue
 0
 1
 2
@@ -1278,10 +1278,10 @@ SAMEVALUE
 4
 5
 (6 rows)
-SAMEVALUE
+samevalue
 Acid
 (1 row)
-ID
+id
 1
 2
 4
@@ -1289,16 +1289,16 @@ ID
 0
 5
 (6 rows)
-ID
+id
 1
 2
 3
 4
 (4 rows)
-SAMEVALUE
+samevalue
 Acid
 (1 row)
-ID
+id
 1
 2
 4
@@ -1306,7 +1306,7 @@ ID
 0
 5
 (6 rows)
-ID
+id
 1
 2
 3
@@ -1343,34 +1343,34 @@ ID
 5
 6
 (6 rows)
-PARMLESSFUNC
+parmlessfunc
 SUCCESS
 (1 row)
-PARMLESSFUNC
+parmlessfunc
 SUCCESS
 (1 row)
-PARMLESSFUNC
+parmlessfunc
 SUCCESS
 (1 row)
-PARMLESSFUNC
+parmlessfunc
 SUCCESS
 (1 row)
-PARMLESSFUNC
+parmlessfunc
 SUCCESS
 (1 row)
-PARMLESSFUNC
+parmlessfunc
 SUCCESS
 (1 row)
-PARMLESSFUNC
+parmlessfunc
 SUCCESS
 (1 row)
-PARMLESSFUNC
+parmlessfunc
 SUCCESS
 (1 row)
-PARMLESSFUNC
+parmlessfunc
 SUCCESS
 (1 row)
-PARMLESSFUNC
+parmlessfunc
 SUCCESS
 (1 row)
 ???

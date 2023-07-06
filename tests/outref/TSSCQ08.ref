@@ -26,5 +26,5 @@ FROM   pg_catalog.pg_class c
 ----- ROCTO/JDBC -----
 
 ----- OCTO -----
-OID|ATTNUM|ATTNAME|RELNAME|NSPNAME|???|???
+oid|attnum|attname|relname|nspname|???|???
 (0 rows)

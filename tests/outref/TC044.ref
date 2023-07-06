@@ -5,5 +5,5 @@
 CREATE TABLE information_schema.testeroni (tester VARCHAR);
 SELECT * FROM information_schema.testeroni;
 CREATE TABLE
-TESTER
+tester
 (0 rows)

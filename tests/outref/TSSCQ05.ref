@@ -1,12 +1,12 @@
 SELECT setting
 FROM   pg_catalog.pg_settings
-WHERE  NAME = 'max_index_keys'
+WHERE  name = 'max_index_keys'
 
 ----- ROCTO/JDBC -----
 null
 
 
 ----- OCTO -----
-SETTING
+setting
 
 (1 row)

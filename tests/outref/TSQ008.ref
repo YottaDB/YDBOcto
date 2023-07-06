@@ -11,27 +11,27 @@ LP_SELECT_QUERY:
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
-        LP_COLUMN_ALIAS: C(2).RELNAMESPACE
+        LP_COLUMN_ALIAS: c(2).relnamespace
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: RELNAMESPACE
+        - alias: relnamespace
       LP_WHERE: 
-        LP_COLUMN_ALIAS: N(1).OID
+        LP_COLUMN_ALIAS: n(1).oid
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: OID
+        - alias: oid
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: N(1)
+        LP_TABLE: n(1)
         LP_TABLE_JOIN: CROSS_JOIN: 
-          LP_TABLE: C(2)
+          LP_TABLE: c(2)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
           LP_WHERE: 
             LP_BOOLEAN_EQUALS: 
-              LP_COLUMN_ALIAS: N(1).OID
-              LP_COLUMN_ALIAS: C(2).RELNAMESPACE
+              LP_COLUMN_ALIAS: n(1).oid
+              LP_COLUMN_ALIAS: c(2).relnamespace
           LP_SELECT_MORE_OPTIONS: 
             LP_KEYWORDS: 
   LP_OUTPUT: 
@@ -48,34 +48,34 @@ LP_SELECT_QUERY:
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
-        LP_COLUMN_ALIAS: C(2).RELNAMESPACE
+        LP_COLUMN_ALIAS: c(2).relnamespace
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: RELNAMESPACE
+        - alias: relnamespace
       LP_WHERE: 
-        LP_COLUMN_ALIAS: N(1).OID
+        LP_COLUMN_ALIAS: n(1).oid
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: OID
+        - alias: oid
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: N(1)
+        LP_TABLE: n(1)
         LP_TABLE_JOIN: CROSS_JOIN: 
           LP_SELECT_QUERY: 
             LP_PROJECT: 
               LP_COLUMN_LIST: 
                 LP_WHERE: 
-                  LP_COLUMN_ALIAS: PG_CATALOG.PG_CLASS(5).RELNAMESPACE
+                  LP_COLUMN_ALIAS: pg_catalog.pg_class(5).relnamespace
                 LP_WHERE: 
-                  LP_COLUMN_ALIAS: PG_CATALOG.PG_CLASS(5).OID
+                  LP_COLUMN_ALIAS: pg_catalog.pg_class(5).oid
               LP_SELECT: 
                 LP_TABLE_JOIN: 
-                  LP_TABLE: PG_CATALOG.PG_CLASS(5)
+                  LP_TABLE: pg_catalog.pg_class(5)
                 LP_CRITERIA: 
                   LP_KEYS: 
                     LP_KEY: 
-                    - table_name: PG_CATALOG.PG_CLASS
-                    - column_name: OID
+                    - table_name: pg_catalog.pg_class
+                    - column_name: oid
                     - unique_id: 5
                     - method: LP_KEY_ADVANCE
                     - xref_key: false
@@ -86,8 +86,8 @@ LP_SELECT_QUERY:
                       LP_KEYWORDS:  XREF_INDEX;
             LP_OUTPUT: 
               LP_KEY: 
-              - table_name: PG_CATALOG.PG_CLASS
-              - column_name: RELNAMESPACE
+              - table_name: pg_catalog.pg_class
+              - column_name: relnamespace
               - unique_id: 2
               - method: LP_INVALID_ACTION
               - xref_key: true
@@ -95,26 +95,26 @@ LP_SELECT_QUERY:
       LP_CRITERIA: 
         LP_KEYS: 
           LP_KEY: 
-          - table_name: PG_CATALOG.PG_NAMESPACE
-          - column_name: OID
+          - table_name: pg_catalog.pg_namespace
+          - column_name: oid
           - unique_id: 1
           - method: LP_KEY_ADVANCE
           - xref_key: false
           - uses_xref_key: false
           LP_KEYS: 
             LP_KEY: 
-            - table_name: PG_CATALOG.PG_CLASS
-            - column_name: RELNAMESPACE
+            - table_name: pg_catalog.pg_class
+            - column_name: relnamespace
             - unique_id: 2
             - method: LP_KEY_FIX
             - xref_key: true
             - uses_xref_key: false
             - value:
-                LP_COLUMN_ALIAS: N(1).OID
+                LP_COLUMN_ALIAS: n(1).oid
             LP_KEYS: 
               LP_KEY: 
-              - table_name: PG_CATALOG.PG_CLASS
-              - column_name: OID
+              - table_name: pg_catalog.pg_class
+              - column_name: oid
               - unique_id: 2
               - method: LP_KEY_ADVANCE
               - xref_key: false
@@ -132,9 +132,9 @@ LP_SELECT_QUERY:
     - xref_key: false
     - uses_xref_key: false
 
-[ INFO] PATH:LINENUM DATE TIME: INFO_GENERATING_XREF: Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_CATALOG.PG_CLASS] and column [RELNAMESPACE]
+[ INFO] PATH:LINENUM DATE TIME: INFO_GENERATING_XREF: Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [pg_catalog.pg_class] and column [relnamespace]
 [ INFO] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering print_temporary_table
-RELNAMESPACE|OID
+relnamespace|oid
 2200|2200
 2200|2200
 2200|2200
@@ -171,6 +171,26 @@ RELNAMESPACE|OID
 2200|2200
 2200|2200
 2200|2200
-(36 rows)
+2200|2200
+2200|2200
+2200|2200
+2200|2200
+2200|2200
+2200|2200
+2200|2200
+2200|2200
+2200|2200
+2200|2200
+2200|2200
+2200|2200
+2200|2200
+2200|2200
+2200|2200
+2200|2200
+2200|2200
+2200|2200
+2200|2200
+2200|2200
+(56 rows)
 [ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command []

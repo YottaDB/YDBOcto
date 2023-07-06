@@ -542,7 +542,7 @@ ERR_GROUP_BY_INVALID_USAGE
 ERR_GROUP_BY_OR_AGGREGATE_FUNCTION
 ++++++++++++++++++++++++++++++++++++
 
-  Text: Column xxx must appear in the GROUP BY clause or be used in an aggregate function
+  Text: Column 'xxx' must appear in the GROUP BY clause or be used in an aggregate function
 
   Description/Action: This error is generated when a column is :code:`SELECT` ed, but does not appear in a :code:`GROUP BY` clause or isn't used in an aggregate function. PSQL Error Code: 42803
 
@@ -881,6 +881,14 @@ ERR_MULTIPLE_ZERO_KEYS
   Text: Multiple xxx keys found for table xxx
 
   Description/Action: This error indicates that the table has multiple :code:`KEY NUM` elements with the same number, and that the source schema needs to be corrected. PSQL Error Code: 42P08
+
++++++++++++++++++++++++++++++++
+ERR_NEGATIVE_SUBSTRING_LENGTH
++++++++++++++++++++++++++++++++
+
+  Text: negative substring length not allowed
+
+  Description/Action: This error is generated when the :code:`substring()` function is invoked with a negative length (3rd parameter). PSQL Error Code: 22011
 
 +++++++++++++++++++++++++++++++
 ERR_NOT_OPERATION_TYPE_MISMATCH
@@ -1531,6 +1539,14 @@ ERR_VALUES_NOT_ALLOWED_IN_GLOBAL
   Text: values() usage not allowed in GLOBAL keyword (only keys() usage allowed)
 
   Description/Action: This error is generated when a :code:`values()` is used as part of a :code:`GLOBAL` keyword in a :code:`CREATE TABLE` command. Only key columns should be specified in the :code:`GLOBAL` keyword and they should use the :code:`keys()` syntax, not the :code:`values()` syntax. PSQL Error Code: 42P10
+
+++++++++++++++++++++++++++++++++++++
+ERR_VALUES_NOT_ALLOWED_IN_START_END
+++++++++++++++++++++++++++++++++++++
+
+  Text: values() usage not allowed in START/END keywords (only keys() usage allowed)
+
+  Description/Action: This error is generated when a :code:`values()` is used as part of a :code:`START` or :code:`END` keyword in a :code:`CREATE TABLE` command. Only key columns should be specified in those keywords and they should use the :code:`keys()` syntax, not the :code:`values()` syntax. PSQL Error Code: 42P10
 
 +++++++++++++++++++++
 ERR_VARCHAR_TOO_LONG

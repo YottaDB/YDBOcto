@@ -17,7 +17,7 @@ CREATE TABLE namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw (
         id INTEGER PRIMARY KEY,
         firstName VARCHAR(30),
         lastName TEXT(30)
-) GLOBAL "^names(keys(""ID""))";
+) GLOBAL "^names(keys(""id""))";
 
 SELECT * from namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw;
 
@@ -26,7 +26,7 @@ CREATE TABLE namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv (
         id INTEGER PRIMARY KEY,
         firstName VARCHAR(30),
         lastName TEXT(30)
-) GLOBAL "^names(keys(""ID""))";
+) GLOBAL "^names(keys(""id""))";
 
 SELECT * from namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv;
 
@@ -35,7 +35,7 @@ CREATE TABLE x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrst (
         id INTEGER PRIMARY KEY,
         firstName VARCHAR(30),
         lastName TEXT(30)
-) GLOBAL "^names(keys(""ID""))";
+) GLOBAL "^names(keys(""id""))";
 
 SELECT * from x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrst;
 
@@ -45,7 +45,7 @@ CREATE TABLE x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu (
         id INTEGER PRIMARY KEY,
         firstName VARCHAR(30),
         lastName TEXT(30)
-) GLOBAL "^names(keys(""ID""))";
+) GLOBAL "^names(keys(""id""))";
 
 SELECT * from x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu;
 
@@ -55,7 +55,7 @@ CREATE TABLE namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu.x (
         id INTEGER PRIMARY KEY,
         firstName VARCHAR(30),
         lastName TEXT(30)
-) GLOBAL "^names(keys(""ID""))";
+) GLOBAL "^names(keys(""id""))";
 
 SELECT * from namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu.x;
 
@@ -65,7 +65,7 @@ CREATE TABLE x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv (
         id INTEGER PRIMARY KEY,
         firstName VARCHAR(30),
         lastName TEXT(30)
-) GLOBAL "^names(keys(""ID""))";
+) GLOBAL "^names(keys(""id""))";
 
 SELECT * from x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv;
 
@@ -75,7 +75,7 @@ CREATE TABLE namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv.x (
         id INTEGER PRIMARY KEY,
         firstName VARCHAR(30),
         lastName TEXT(30)
-) GLOBAL "^names(keys(""ID""))";
+) GLOBAL "^names(keys(""id""))";
 
 SELECT * from namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv.x;
 
@@ -84,7 +84,7 @@ CREATE TABLE x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw 
         id INTEGER PRIMARY KEY,
         firstName VARCHAR(30),
         lastName TEXT(30)
-) GLOBAL "^names(keys(""ID""))";
+) GLOBAL "^names(keys(""id""))";
 
 SELECT * from x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw;
 
@@ -93,6 +93,6 @@ CREATE TABLE namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw.x 
         id INTEGER PRIMARY KEY,
         firstName VARCHAR(30),
         lastName TEXT(30)
-) GLOBAL "^names(keys(""ID""))";
+) GLOBAL "^names(keys(""id""))";
 
 SELECT * from x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw;

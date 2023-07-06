@@ -1,0 +1,6 @@
+
+-- TERR051 : OCTO985 : Test ERR_NEGATIVE_SUBSTRING_LENGTH error
+
+select substring('abcd',1,-2);
+
+[ERROR]: ERR_NEGATIVE_SUBSTRING_LENGTH: negative substring length not allowed

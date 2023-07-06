@@ -24,8 +24,8 @@ teardown() {
 
 @test "global in both table and column DDL" {
   octo <<OCTO >& output.txt
-CREATE TABLE abc (id INTEGER PRIMARY KEY, name VARCHAR GLOBAL "^people(keys(""ID""))")
-GLOBAL "^people(keys(""ID""))";
+CREATE TABLE abc (id INTEGER PRIMARY KEY, name VARCHAR GLOBAL "^people(keys(""id""))")
+GLOBAL "^people(keys(""id""))";
 SELECT * FROM abc;
 OCTO
 }
@@ -33,7 +33,7 @@ OCTO
 @test "piece is actually applied to columns" {
   # Fetch the last names from the names schema, which is stored in the 3rd piece
   octo <<OCTO >& output.txt
-CREATE TABLE abc (id INTEGER PRIMARY KEY, name VARCHAR PIECE 3) GLOBAL "^names(keys(""ID""))";
+CREATE TABLE abc (id INTEGER PRIMARY KEY, name VARCHAR PIECE 3) GLOBAL "^names(keys(""id""))";
 SELECT * FROM abc;
 OCTO
   [[ "$(grep -c Zero ./output.txt)" == "0" ]]

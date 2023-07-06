@@ -1,6 +1,6 @@
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: NOTATHING
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: notathing
 LINE 1:1: select notathing as a from names; select * from names limit 1;
                  ^^^^^^^^^
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 (1 row)

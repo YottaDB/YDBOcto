@@ -13,5 +13,5 @@
 -- TC060 : OCTO519 : Column names differing only in case yield correct constraint names
 
 drop table if exists tmp;
-create table tmp ("id" integer unique, "Id" integer unique, "iD" integer unique, id integer unique);
+create table tmp ("ID" integer unique, "Id" integer unique, "iD" integer unique, id integer unique);
 \d tmp;

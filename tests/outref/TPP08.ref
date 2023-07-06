@@ -1,9 +1,9 @@
 # Run TPP08.sql that generates xref plan for NAMES table and LASTNAME column
-FIRSTNAME
+firstname
 Lord
 (1 row)
 # Delete xref plan _ydboctoX*.{m,o}
 # Run TPP08b.sql again. Verify that no error occurs. xref plan gets regenerated
-LASTNAME
+lastname
 Nikon
 (1 row)

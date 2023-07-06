@@ -5,7 +5,7 @@ select firstName, lastName from names
 except all
 select firstName, lastName from names where firstName = 'Zero' and id = 0;
 
-FIRSTNAME|LASTNAME
+firstname|lastname
 Acid|Burn
 Joey|
 Lord|Nikon

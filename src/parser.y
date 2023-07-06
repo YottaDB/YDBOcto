@@ -1059,10 +1059,10 @@ cast_specification
       $$ = (SqlStatement *)$data_type;
     }
   | COLON COLON REGCLASS {
-      SQL_VALUE_STATEMENT($$, FUNCTION_NAME, "REGCLASS");
+      SQL_VALUE_STATEMENT($$, FUNCTION_NAME, "regclass");
     }
   | COLON COLON REGPROC {
-      SQL_VALUE_STATEMENT($$, FUNCTION_NAME, "REGPROC");
+      SQL_VALUE_STATEMENT($$, FUNCTION_NAME, "regproc");
     }
   | COLON COLON identifier {
       SqlValue	*value;
@@ -2085,13 +2085,13 @@ identifier
 	  yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
 	  YYERROR;
         }
-        /* Enforce the default identifier case (uppercase) for most identifiers, but preserve
+        /* Enforce the default identifier case (lowercase) for most identifiers, but preserve
          * case sensitivity when signaled by the lexer through the is_double_quoted field of
          * the SqlValue.
          */
 	if (!value->is_double_quoted) {
-		/* Render identifier string case insensitive by converting to upper case */
-		TOUPPER_STR(value->v.string_literal);
+		/* Render identifier string case insensitive by converting to lower case */
+		TOLOWER_STR(value->v.string_literal);
 	}
   }
 //  | introducer character_set_specification actual_identifier
@@ -2462,23 +2462,23 @@ function_definition
  */
 sql_keyword
   : TRUNCATE {
-      SQL_VALUE_STATEMENT($$, STRING_LITERAL, "TRUNCATE");
+      SQL_VALUE_STATEMENT($$, STRING_LITERAL, "truncate");
       $$->loc = yyloc;
     }
   | TO {
-      SQL_VALUE_STATEMENT($$, STRING_LITERAL, "TO");
+      SQL_VALUE_STATEMENT($$, STRING_LITERAL, "to");
       $$->loc = yyloc;
     }
   | NAME {
-      SQL_VALUE_STATEMENT($$, COLUMN_REFERENCE, "NAME");
+      SQL_VALUE_STATEMENT($$, COLUMN_REFERENCE, "name");
       $$->loc = yyloc;
     }
   | REGCLASS {
-      SQL_VALUE_STATEMENT($$, FUNCTION_NAME, "REGCLASS");
+      SQL_VALUE_STATEMENT($$, FUNCTION_NAME, "regclass");
       $$->loc = yyloc;
     }
   | REGPROC {
-      SQL_VALUE_STATEMENT($$, FUNCTION_NAME, "REGPROC");
+      SQL_VALUE_STATEMENT($$, FUNCTION_NAME, "regproc");
       $$->loc = yyloc;
     }
   ;

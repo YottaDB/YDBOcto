@@ -1,6 +1,6 @@
 
 select oid,typname,typlen from pg_catalog.pg_type;
-OID|TYPNAME|TYPLEN
+oid|typname|typlen
 16|bool|1
 23|int4|4
 19|name|64

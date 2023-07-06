@@ -68,7 +68,7 @@ teardown() {
         fi
 	# Making use of TCV049.sql as the same set of queries help validate this usecase
 	load_fixture TCV049.sql subtest novv
-	yottadb -run %XCMD 'kill ^%ydboctoocto("viewdependency","TCV049_V11","views","TCV049_V12")' >> output.txt
+	yottadb -run %XCMD 'kill ^%ydboctoocto("viewdependency","tcv049_v11","views","tcv049_v12")' >> output.txt
 	echo 'seedreload = "TRUE"' > octo.conf
 	echo "" | octo -vv >& octo_auto_upgrade.out || true # Auto upgrade failure results in non-zero status
 	grep ERROR octo_auto_upgrade.out >> output.txt

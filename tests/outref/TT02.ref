@@ -25,7 +25,7 @@ truncate names, invalid, customers;  -- ERR_UNKNOWN_TABLE for `invalid`
 select firstname, lastname from names;
 select first_name, last_name from customers;
 
-FIRSTNAME|LASTNAME
+firstname|lastname
 Zero|Cool
 Acid|Burn
 Cereal|Killer
@@ -33,7 +33,7 @@ Lord|Nikon
 Joey|
 Zero|Cool
 (6 rows)
-TYPNAME
+typname
 bool
 int4
 name
@@ -41,15 +41,15 @@ numeric
 unknown
 varchar
 (6 rows)
-FIRST_NAME|LAST_NAME
+first_name|last_name
 George|Washington
 John|Adams
 Thomas|Jefferson
 James|Madison
 James|Monroe
 (5 rows)
-[ERROR]: ERR_TABLE_READONLY: TRUNCATE not allowed on READONLY table "PG_TYPE". Only allowed on READWRITE tables.
-TYPNAME
+[ERROR]: ERR_TABLE_READONLY: TRUNCATE not allowed on READONLY table "pg_type". Only allowed on READWRITE tables.
+typname
 bool
 int4
 name
@@ -57,8 +57,8 @@ numeric
 unknown
 varchar
 (6 rows)
-[ERROR]: ERR_TABLE_READONLY: TRUNCATE not allowed on READONLY table "PG_TYPE". Only allowed on READWRITE tables.
-FIRSTNAME|LASTNAME
+[ERROR]: ERR_TABLE_READONLY: TRUNCATE not allowed on READONLY table "pg_type". Only allowed on READWRITE tables.
+firstname|lastname
 Zero|Cool
 Acid|Burn
 Cereal|Killer
@@ -66,7 +66,7 @@ Lord|Nikon
 Joey|
 Zero|Cool
 (6 rows)
-TYPNAME
+typname
 bool
 int4
 name
@@ -74,15 +74,15 @@ numeric
 unknown
 varchar
 (6 rows)
-FIRST_NAME|LAST_NAME
+first_name|last_name
 George|Washington
 John|Adams
 Thomas|Jefferson
 James|Madison
 James|Monroe
 (5 rows)
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: INVALID
-FIRSTNAME|LASTNAME
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: invalid
+firstname|lastname
 Zero|Cool
 Acid|Burn
 Cereal|Killer
@@ -90,7 +90,7 @@ Lord|Nikon
 Joey|
 Zero|Cool
 (6 rows)
-FIRST_NAME|LAST_NAME
+first_name|last_name
 George|Washington
 John|Adams
 Thomas|Jefferson

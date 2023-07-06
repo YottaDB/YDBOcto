@@ -3,20 +3,20 @@
 
 select "ABS"(-1);
 select "abs"(-1); -- Error: function name was defined as uppercase
-select "CONCAT"(firstname, ' ', lastname) from names;
-select "concat"(firstname, ' ', lastname) from names; -- Error: function name was defined as uppercase
+select "concat"(firstname, ' ', lastname) from names;
+select "CONCAT"(firstname, ' ', lastname) from names; -- Error: function name was defined as lowercase
 
 CREATE FUNCTION "concat"(VARCHAR, VARCHAR, VARCHAR) RETURNS VARCHAR AS $$^%ydboctofCONCAT;
 CREATE FUNCTION "abs"(INTEGER) RETURNS INTEGER AS $$ABS^%ydboctosqlfunctions;
 select "abs"(-1);
 select "concat"(firstname, ' ', lastname) from names;
-ABS
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function ABS defined with given parameter types (INTEGER)
+LINE 3:1: select "ABS"(-1);
+                 ^^^^^
+abs
 1
 (1 row)
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function abs defined with given parameter types (INTEGER)
-LINE 4:1: select "abs"(-1); -- Error: function name was defined as upperc...
-                 ^^^^^
-CONCAT
+concat
 Zero Cool
 Acid Burn
 Cereal Killer
@@ -24,11 +24,11 @@ Lord Nikon
 Joey 
 Zero Cool
 (6 rows)
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function concat defined with given parameter types (VARCHAR, VARCHAR, VARCHAR)
-LINE 6:1: select "concat"(firstname, ' ', lastname) from names; -- Error: ...
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function CONCAT defined with given parameter types (VARCHAR, VARCHAR, VARCHAR)
+LINE 6:1: select "CONCAT"(firstname, ' ', lastname) from names; -- Error: ...
                  ^^^^^^^^
-CREATE FUNCTION
-CREATE FUNCTION
+[ERROR]: ERR_CANNOT_CREATE_FUNCTION: Function "concat(VARCHAR, VARCHAR, VARCHAR)" already exists with same argument types
+[ERROR]: ERR_CANNOT_CREATE_FUNCTION: Function "abs(INTEGER)" already exists with same argument types
 abs
 1
 (1 row)
@@ -43,6 +43,5 @@ Zero Cool
 # Verify function text definitions for double-quoted identifier and non-double-quoted identifier
 # Run [mupip extract] and filter out those global nodes corresponding to function text definitions of ABS/abs
 # Expect to see [ABS] not surrounded by double quotes and [abs] surrounded by double quotes
-^%ydboctoocto("functions","ABS","%ydboctoF0BXSKYtCkTUXzFwpivpB68","text",0)="CREATE FUNCTION `ABS`( NUMERIC) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;"
-^%ydboctoocto("functions","ABS","%ydboctoFXjpLNKLu1sElo0JiZVgdDG","text",0)="CREATE FUNCTION `ABS`( INTEGER) RETURNS INTEGER AS $$ABS^%ydboctosqlfunctions;"
-^%ydboctoocto("functions","abs","%ydboctoFCMDmr1RPkcS1QSpZq9WR11","text",0)="CREATE FUNCTION ""abs""( INTEGER) RETURNS INTEGER AS $$ABS^%ydboctosqlfunctions;"
+^%ydboctoocto("functions","abs","%ydboctoFCMDmr1RPkcS1QSpZq9WR11","text",0)="CREATE FUNCTION `abs`( INTEGER) RETURNS INTEGER AS $$ABS^%ydboctosqlfunctions;"
+^%ydboctoocto("functions","abs","%ydboctoFd8ho2z5XoZT7LbZWVR1J54","text",0)="CREATE FUNCTION `abs`( NUMERIC) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;"

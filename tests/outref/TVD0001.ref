@@ -57,177 +57,177 @@ select count(*) from ORDER1 where BA_HEAD_AND_OR_NECK_CANCER IS NULL;
 select count(*) from ORDER1 where BA_COMBAT_VETERAN IS NULL;
 select count(*) from ORDER1 where PFSS_ACCOUNT_REFERENCE IS NULL;
 select count(*) from ORDER1 where BA_SHIPBOARD_HAZARD IS NULL;
-COUNT(*)
+count(*)
 0
 (1 row)
-COUNT(*)
+count(*)
 0
 (1 row)
-COUNT(*)
+count(*)
 0
 (1 row)
-COUNT(*)
+count(*)
 0
 (1 row)
-COUNT(*)
+count(*)
 0
 (1 row)
-COUNT(*)
+count(*)
 0
 (1 row)
-COUNT(*)
+count(*)
 0
 (1 row)
-COUNT(*)
+count(*)
 819
 (1 row)
-COUNT(*)
+count(*)
 25093
 (1 row)
-COUNT(*)
+count(*)
 40826
 (1 row)
-COUNT(*)
+count(*)
 1149
 (1 row)
-COUNT(*)
+count(*)
 38727
 (1 row)
-COUNT(*)
+count(*)
 38754
 (1 row)
-COUNT(*)
+count(*)
 0
 (1 row)
-COUNT(*)
+count(*)
 31576
 (1 row)
-COUNT(*)
+count(*)
 0
 (1 row)
-COUNT(*)
+count(*)
 40947
 (1 row)
-COUNT(*)
+count(*)
 14
 (1 row)
-COUNT(*)
+count(*)
 40939
 (1 row)
-COUNT(*)
+count(*)
 40937
 (1 row)
-COUNT(*)
+count(*)
 4351
 (1 row)
-COUNT(*)
+count(*)
 7896
 (1 row)
-COUNT(*)
+count(*)
 0
 (1 row)
-COUNT(*)
+count(*)
 0
 (1 row)
-COUNT(*)
+count(*)
 0
 (1 row)
-COUNT(*)
+count(*)
 0
 (1 row)
-COUNT(*)
+count(*)
 40933
 (1 row)
-COUNT(*)
+count(*)
 39460
 (1 row)
-COUNT(*)
+count(*)
 39869
 (1 row)
-COUNT(*)
+count(*)
 39430
 (1 row)
-COUNT(*)
+count(*)
 40947
 (1 row)
-COUNT(*)
+count(*)
 40946
 (1 row)
-COUNT(*)
+count(*)
 40931
 (1 row)
-COUNT(*)
+count(*)
 40918
 (1 row)
-COUNT(*)
+count(*)
 40947
 (1 row)
-COUNT(*)
+count(*)
 40947
 (1 row)
-COUNT(*)
+count(*)
 40947
 (1 row)
-COUNT(*)
+count(*)
 36128
 (1 row)
-COUNT(*)
+count(*)
 35165
 (1 row)
-COUNT(*)
+count(*)
 33815
 (1 row)
-COUNT(*)
+count(*)
 38760
 (1 row)
-COUNT(*)
+count(*)
 35407
 (1 row)
-COUNT(*)
+count(*)
 37665
 (1 row)
-COUNT(*)
+count(*)
 40946
 (1 row)
-COUNT(*)
+count(*)
 40515
 (1 row)
-COUNT(*)
+count(*)
 40137
 (1 row)
-COUNT(*)
+count(*)
 20461
 (1 row)
-COUNT(*)
+count(*)
 35886
 (1 row)
-COUNT(*)
+count(*)
 35971
 (1 row)
-COUNT(*)
+count(*)
 40947
 (1 row)
-COUNT(*)
+count(*)
 40947
 (1 row)
-COUNT(*)
+count(*)
 40947
 (1 row)
-COUNT(*)
+count(*)
 40947
 (1 row)
-COUNT(*)
+count(*)
 40947
 (1 row)
-COUNT(*)
+count(*)
 40947
 (1 row)
-COUNT(*)
+count(*)
 40947
 (1 row)
-COUNT(*)
+count(*)
 40947
 (1 row)
-COUNT(*)
+count(*)
 40947
 (1 row)

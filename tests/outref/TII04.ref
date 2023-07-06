@@ -81,7 +81,7 @@ DROP TABLE test4;
 ???
  -- NAMES table BEFORE INSERT INTO : Has 6 rows
 (1 row)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -108,7 +108,7 @@ INSERT 0 4
 ???
  -- NAMES table AFTER various INSERT INTO operations; Has 21 rows, id=0 thru id=20
 (1 row)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -137,7 +137,7 @@ ID|FIRSTNAME|LASTNAME
 ???
  -- CUSTOMERS table BEFORE INSERT INTO : Has 5 rows
 (1 row)
-CUSTOMER_ID|FIRST_NAME|LAST_NAME|EMAIL|ADDRESS|CITY|STATE|ZIPCODE
+customer_id|first_name|last_name|email|address|city|state|zipcode
 1|George|Washington|gwashington@usa.gov|3200 Mt Vernon Hwy|Mount Vernon|VA|22121
 2|John|Adams|jadams@usa.gov|1250 Hancock St|Quincy|MA|02169
 3|Thomas|Jefferson|tjefferson@usa.gov|931 Thomas Jefferson Pkwy|Charlottesville|VA|22902
@@ -160,7 +160,7 @@ INSERT 0 5
 ???
  -- CUSTOMERS table AFTER INSERT INTO : Has 10 rows (twice original number)
 (1 row)
-CUSTOMER_ID|FIRST_NAME|LAST_NAME|EMAIL|ADDRESS|CITY|STATE|ZIPCODE
+customer_id|first_name|last_name|email|address|city|state|zipcode
 1|George|Washington|gwashington@usa.gov|3200 Mt Vernon Hwy|Mount Vernon|VA|22121
 2|John|Adams|jadams@usa.gov|1250 Hancock St|Quincy|MA|02169
 3|Thomas|Jefferson|tjefferson@usa.gov|931 Thomas Jefferson Pkwy|Charlottesville|VA|22902
@@ -178,7 +178,7 @@ CUSTOMER_ID|FIRST_NAME|LAST_NAME|EMAIL|ADDRESS|CITY|STATE|ZIPCODE
 ???
  -- COMPOSITE table BEFORE INSERT INTO : Has 10 rows
 (1 row)
-ID0|ID1|ID2|ID3|ID4|ID5|ID6|ID7|NAME
+id0|id1|id2|id3|id4|id5|id6|id7|name
 0|1|2|3|4|5|6|7|Name1
 0|1|2|3|4|5|6|8|Name2
 0|1|2|3|4|5|7|7|Name3
@@ -206,7 +206,7 @@ INSERT 0 10
 ???
  -- COMPOSITE table AFTER INSERT INTO : Has 20 rows (twice original number)
 (1 row)
-ID0|ID1|ID2|ID3|ID4|ID5|ID6|ID7|NAME
+id0|id1|id2|id3|id4|id5|id6|id7|name
 0|1|2|3|4|5|6|7|Name1
 0|1|2|3|4|5|6|8|Name2
 0|1|2|3|4|5|7|7|Name3
@@ -266,7 +266,7 @@ DROP TABLE
 (1 row)
 CREATE TABLE
 INSERT 0 1
-COLUMN1
+column1
 |ab|
 (1 row)
 DROP TABLE
@@ -284,7 +284,7 @@ INSERT 0 1
 INSERT 0 1
 INSERT 0 1
 INSERT 0 1
-COLUMN1
+column1
 3
 -4.1
 5.2

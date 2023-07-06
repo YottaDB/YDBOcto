@@ -1,39 +1,39 @@
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: MYTABLE
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: mytable
 LINE 1:1: SELECT * FROM myTable;
                         ^^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: HELLOTABLE
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: hellotable
 LINE 2:1: SELECT "Hello world!" FROM helloTable;
                                      ^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: PEOPLE
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: people
 LINE 4:2: FROM people
                ^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: TABLEA
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tablea
 LINE 13:1: SELECT * FROM tableA
                          ^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EMPLOYEE
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: employee
 LINE 18:2: Select distinct Salary from Employee e1 where 2=(Select count(di...
                                        ^^^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EMPLOYEE
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: employee
 LINE 19:1: Select * from Employee a where rowid <>( select max(rowid) from ...
                          ^^^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EMPLOYEE
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: employee
 LINE 20:1: ...elect Employee_name,Salary/12 as `Monthly Salary` from employee;
                                                                      ^^^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EMPLOYEE
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: employee
 LINE 21:1: Select * from Employee where Rownum =1;
                          ^^^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EMPLOYEE
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: employee
 LINE 22:1: Select * from Employee where Rowid=(select max(Rowid) from Emplo...
                          ^^^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EMPLOYEE
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: employee
 LINE 23:1: Select * from Employee where Rownum <= 5;
                          ^^^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EMPLOYEE
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: employee
 LINE 24:1: select distinct salary from employee a where 3 >= (select count(...
                                        ^^^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EMP
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: emp
 LINE 25:1: ...m(select distinct salary from emp order by salary desc)where ro...
                                             ^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: A
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: a
 LINE 27:2: SELECT 5+5/5 FROM A;
                              ^

@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -82,8 +82,8 @@ gt1mb ;
 gt1mbOut ;
 	open "output.ref":(stream:nowrap)
 	use "output.ref":nowrap
-	set o="" for i=1:1:64 for k=1:1:21 set o=o_"A1234567890|B1234567890|C1234567890|"
-	set o=o_"A1234567890|B1234567890|C1234567890" write o,!
+	set o="" for i=1:1:64 for k=1:1:21 set o=o_"a1234567890|b1234567890|c1234567890|"
+	set o=o_"a1234567890|b1234567890|c1234567890" write o,!
 	set o="" for i=1:1:64 for k=1:1:21 set o=o_"1|2|3|"
 	set o=o_"1|2|3" write o,!
 	set o="" for i=1:1:64 for k=1:1:21 set o=o_"4|5|6|"

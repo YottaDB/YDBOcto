@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -11,7 +11,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 TC0010	;
-	new g set g="^%ydboctoD"_$zysuffix("DATETIME")
+	new g set g="^%ydboctoD"_$zysuffix("datetime")
 	set @g@(1)="2020-01-04|14:01:10"
 	set @g@(2)="1998-11-13|14:12:59"
 	set @g@(3)="2005-09-22|13:23:09"

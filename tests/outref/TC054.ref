@@ -11,5 +11,5 @@ CREATE TABLE TMP (id1 INTEGER, id2 INTEGER, UNIQUE (id2, id1)) GLOBAL "^x(keys("
 CREATE TABLE TMP (id1 INTEGER, id2 INTEGER, UNIQUE (id2, id1)) GLOBAL "^x(keys(""ID1""),keys(""ID2"")))" READONLY;
 
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: %YO_KEYCOL
-[ERROR]: ERR_GLOBAL_MISSING_KEY_COLS: GLOBAL keyword does not specify all KEY column(s)
-[ERROR]: ERR_READONLY_DISALLOWED: READONLY keyword in CREATE TABLE is disallowed due to an incompatible keyword
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1

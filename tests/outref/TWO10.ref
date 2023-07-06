@@ -1,4 +1,4 @@
-ID|FIRSTNAME|LASTNAME|AGE|DATETIME|ID|FIRSTNAME|LASTNAME|AGE|DATETIME|ID|FIRSTNAME|LASTNAME|AGE|DATETIME|ID|FIRSTNAME|LASTNAME|AGE|DATETIME
+id|firstname|lastname|age|datetime|id|firstname|lastname|age|datetime|id|firstname|lastname|age|datetime|id|firstname|lastname|age|datetime
 (0 rows)
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
@@ -21,23 +21,23 @@ octoPlan0(cursorId,wrapInTp)
 
 octoPlan1(cursorId)
     NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",6,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")="")  DO
-    . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))),"|",3) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
-    . SET %ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID")) IF $DATA(^names(%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID"))) DO
-    . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID")
-    . . SET %ydboctocursor(cursorId,"keys",3,"NAMESWITHAGES","ID")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"NAMESWITHAGES","ID")) IF $DATA(^names(%ydboctocursor(cursorId,"keys",3,"NAMESWITHAGES","ID"))) DO
-    . . . SET %ydboctocursor(cursorId,"keys",4,"NAMESWITHAGES","ID")=""
-    . . . FOR  SET %ydboctocursor(cursorId,"keys",4,"NAMESWITHAGES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",4,"NAMESWITHAGES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",4,"NAMESWITHAGES","ID")="")  DO
+    SET %ydboctocursor(cursorId,"keys",1,"nameswithages","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"nameswithages","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"nameswithages","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"nameswithages","id")="")  DO
+    . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"nameswithages","id"))),"|",3) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . SET %ydboctocursor(cursorId,"keys",2,"nameswithages","id")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"nameswithages","id")) IF $DATA(^names(%ydboctocursor(cursorId,"keys",2,"nameswithages","id"))) DO
+    . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",2,"nameswithages","id")
+    . . SET %ydboctocursor(cursorId,"keys",3,"nameswithages","id")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"nameswithages","id")) IF $DATA(^names(%ydboctocursor(cursorId,"keys",3,"nameswithages","id"))) DO
+    . . . SET %ydboctocursor(cursorId,"keys",4,"nameswithages","id")=""
+    . . . FOR  SET %ydboctocursor(cursorId,"keys",4,"nameswithages","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",4,"nameswithages","id"))) QUIT:(%ydboctocursor(cursorId,"keys",4,"nameswithages","id")="")  DO
     . . . . SET %ydboctoexpr=1
-    . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))),"|",3) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"nameswithages","id"))),"|",3) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . . . SET %ydboctoexpr(2)=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
     . . . . SET %ydboctoexpr=-%ydboctoexpr
     . . . . SET %ydboctoexpr=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . SET %ydboctoexpr=%ydboctoexpr(2)'=%ydboctoexpr
     . . . . SET %ydboctoexpr(1)=%ydboctoexpr
-    . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))),"|",3) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"nameswithages","id"))),"|",3) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . . . SET %ydboctoexpr(2)=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",2))
     . . . . SET %ydboctoexpr=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
@@ -45,38 +45,18 @@ octoPlan1(cursorId)
     . . . . SET %ydboctoexpr=%ydboctoexpr(1)&%ydboctoexpr
     . . . . DO:%ydboctoexpr
     . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",6,"","")) %ydboctoz=42
-    . . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")
+    . . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"nameswithages","id")
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
-    . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
-    . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"nameswithages","id"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))),"|",3) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"nameswithages","id"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . SET %ydboctoexpr=$ZDATE($HOROLOG,"YEAR-MM-DD 24:60:SS") SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
-    . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
-    . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID")
-    . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
-    . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
-    . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
-    . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
-    . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
-    . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID"))),"|",3) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"nameswithages","id"))),"|",3) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
@@ -84,19 +64,19 @@ octoPlan1(cursorId)
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",3,"NAMESWITHAGES","ID")
+    . . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",2,"nameswithages","id")
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",3,"NAMESWITHAGES","ID"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"nameswithages","id"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",3,"NAMESWITHAGES","ID"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"nameswithages","id"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",3,"NAMESWITHAGES","ID"))),"|",3) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"nameswithages","id"))),"|",3) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
@@ -104,19 +84,39 @@ octoPlan1(cursorId)
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",4,"NAMESWITHAGES","ID")
+    . . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",3,"nameswithages","id")
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",4,"NAMESWITHAGES","ID"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",3,"nameswithages","id"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",4,"NAMESWITHAGES","ID"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",3,"nameswithages","id"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",4,"NAMESWITHAGES","ID"))),"|",3) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",3,"nameswithages","id"))),"|",3) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
+    . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
+    . . . . . SET %ydboctoexpr=$ZDATE($HOROLOG,"YEAR-MM-DD 24:60:SS") SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
+    . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
+    . . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",4,"nameswithages","id")
+    . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
+    . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
+    . . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",4,"nameswithages","id"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
+    . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
+    . . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",4,"nameswithages","id"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
+    . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
+    . . . . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",4,"nameswithages","id"))),"|",3) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
@@ -124,8 +124,8 @@ octoPlan1(cursorId)
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . SET %ydboctocursor(cursorId,"keys",6,"","",%ydboctocursor(cursorId,"keys",6,"",""))=%ydboctoexpr
-    . . . ZKILL %ydboctocursor(cursorId,"keys",4,"NAMESWITHAGES","ID")
-    . . ZKILL %ydboctocursor(cursorId,"keys",3,"NAMESWITHAGES","ID")
-    . ZKILL %ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID")
-    ZKILL %ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")
+    . . . ZKILL %ydboctocursor(cursorId,"keys",4,"nameswithages","id")
+    . . ZKILL %ydboctocursor(cursorId,"keys",3,"nameswithages","id")
+    . ZKILL %ydboctocursor(cursorId,"keys",2,"nameswithages","id")
+    ZKILL %ydboctocursor(cursorId,"keys",1,"nameswithages","id")
     QUIT

@@ -1,12 +1,12 @@
-CUSTOMER_ID|FIRST_NAME|LAST_NAME|EMAIL|ADDRESS|CITY|STATE|ZIPCODE
+customer_id|first_name|last_name|email|address|city|state|zipcode
 (0 rows)
-CUSTOMER_ID|FIRST_NAME|LAST_NAME|EMAIL|ADDRESS|CITY|STATE|ZIPCODE
+customer_id|first_name|last_name|email|address|city|state|zipcode
 4|James|Madison|jmadison@usa.gov|11350 Constitution Hwy|Orange|VA|22960
 (1 row)
-CUSTOMER_ID|FIRST_NAME|LAST_NAME|EMAIL|ADDRESS|CITY|STATE|ZIPCODE
+customer_id|first_name|last_name|email|address|city|state|zipcode
 2|John|Adams|jadams@usa.gov|1250 Hancock St|Quincy|MA|02169
 (1 row)
-CUSTOMER_ID|FIRST_NAME|LAST_NAME|EMAIL|ADDRESS|CITY|STATE|ZIPCODE
+customer_id|first_name|last_name|email|address|city|state|zipcode
 (0 rows)
 ???|???
 1|0

@@ -10,7 +10,7 @@
     . . DO:'$ZYISSQLNULL(col(2))&'$ZYISSQLNULL(col(1))
     . . . KILL ^%ydboctoU8i8zccV3vIXn3Wiis3L2K5(col(2),col(1))
 # Verify col(i) usages in M code for UPDATE command
-    . . SET col(2)=($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDK8x9V2YiyPMRxcDYOMpB0K(%ydboctocursor(cursorId,"keys",1,"TMP","%YO_KEYCOL")),"|",1))+$GET(%ydboctocursor(cursorId,"parameters",1)))
+    . . SET col(2)=($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE(^%ydboctoDq4kC6afkVUEkYUwQW3JDKF(%ydboctocursor(cursorId,"keys",1,"tmp","%yo_keycol")),"|",1))+$GET(%ydboctocursor(cursorId,"parameters",1)))
     . . SET $PIECE(%ydboctoUPD,"|",2)=$$colvalue2piecevalue^%ydboctoplanhelpers(col(2))
     . . SET col(-2)=%ydboctoexpr
     . . DO:'$ZYISSQLNULL(col(-2))

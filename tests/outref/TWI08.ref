@@ -3,7 +3,7 @@
 
 SELECT firstName FROM names WHERE firstName IN ('Zero', 'Acid', 'Cool');
 
-FIRSTNAME
+firstname
 Acid
 Zero
 Zero
@@ -14,7 +14,7 @@ Zero
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    DO:'$GET(^%ydbAIMOctoCache("NAMES","FIRSTNAME","completed?")) xrefPlan^%ydboctoXS6loYoNNto55iv2lHkNkCK(cursorId)
+    DO:'$GET(^%ydbAIMOctoCache("names","firstname","completed?")) xrefPlan^%ydboctoXbbukBmYFvqWyiOgMrJ5B3E(cursorId)
     NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
@@ -35,15 +35,15 @@ octoPlan1(cursorId)
     SET %ydboctoin0(%ydboctoexpr)=""
     SET %ydboctoin0="" FOR  DO:$DATA(%ydboctoin0(%ydboctoin0))  SET %ydboctoin0=$ORDER(%ydboctoin0(%ydboctoin0)) QUIT:""=%ydboctoin0
     . SET %ydboctoexpr=%ydboctoin0
-    . SET %ydboctocursor(cursorId,"keys",1,"NAMES","FIRSTNAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"NAMES","FIRSTNAME")) IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",1,"NAMES","FIRSTNAME"))) DO
-    . . SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
-    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",1,"NAMES","FIRSTNAME"),%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
+    . SET %ydboctocursor(cursorId,"keys",1,"names","firstname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"names","firstname")) IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",1,"names","firstname"))) DO
+    . . SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
+    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",1,"names","firstname"),%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
     . . . SET %ydboctoexpr=1
     . . . DO:%ydboctoexpr
     . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"NAMES","FIRSTNAME")
+    . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"names","firstname")
     . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
-    ZKILL %ydboctocursor(cursorId,"keys",1,"NAMES","ID")
-    ZKILL %ydboctocursor(cursorId,"keys",1,"NAMES","FIRSTNAME")
+    ZKILL %ydboctocursor(cursorId,"keys",1,"names","id")
+    ZKILL %ydboctocursor(cursorId,"keys",1,"names","firstname")
     QUIT

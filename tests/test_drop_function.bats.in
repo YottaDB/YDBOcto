@@ -25,13 +25,13 @@ teardown() {
 
 @test "TDF000 : OCTO345 : DROP FUNCTION works with existing functions (ABS)" {
 	load_fixture TDF000.sql subtest novv
-	yottadb -r CHECKFUNCDELETE ABS 2>&1 | tee -a output.txt	# Confirm the relevant database nodes for the function were deleted
+	yottadb -r CHECKFUNCDELETE abs 2>&1 | tee -a output.txt	# Confirm the relevant database nodes for the function were deleted
 	verify_output TDF000 output.txt noinfo nodebug
 }
 
 @test "TDF001 : OCTO345 : DROP FUNCTION works with new function" {
 	load_fixture TDF001.sql subtest novv
-	yottadb -r CHECKFUNCDELETE DOLLARZWRITE 2>&1 | tee -a output.txt	# Confirm the relevant database nodes for the function were deleted
+	yottadb -r CHECKFUNCDELETE dollarzwrite 2>&1 | tee -a output.txt	# Confirm the relevant database nodes for the function were deleted
 	verify_output TDF001 output.txt noinfo nodebug
 }
 
@@ -54,7 +54,7 @@ teardown() {
 
 @test "TDF003 : OCTO562 : DROP FUNCTION works with parameterless functions" {
 	load_fixture TDF003.sql subtest novv
-	yottadb -r CHECKFUNCDELETE PARMLESSFUNC 2>&1 | tee -a output.txt	# Confirm the relevant database nodes for the function were deleted
+	yottadb -r CHECKFUNCDELETE parmlessfunc 2>&1 | tee -a output.txt	# Confirm the relevant database nodes for the function were deleted
 	verify_output TDF003 output.txt noinfo nodebug
 }
 
@@ -65,7 +65,7 @@ teardown() {
 
 @test "TDF005 : OCTO562 : DROP FUNCTION on overloaded function only deletes targeted definition" {
 	load_fixture TDF005.sql subtest novv
-	yottadb -r CHECKFUNCDELETE ABS 2>&1 | tee -a output.txt	# Confirm the relevant database nodes for the function were deleted
+	yottadb -r CHECKFUNCDELETE abs 2>&1 | tee -a output.txt	# Confirm the relevant database nodes for the function were deleted
 	# There should be one remaining ABS function definition
 	verify_output TDF005 output.txt noinfo nodebug
 }
@@ -73,8 +73,8 @@ teardown() {
 @test "TDF006 : OCTO595 : DROP FUNCTION IF EXISTS issues an info message when the specified function doesn't exist" {
 	load_fixture TDF006.sql subtest v
 	echo "Exit Status:" $? | tee -a output.txt
-	yottadb -r CHECKFUNCDELETE PARMLESSFUNC 2>&1 | tee -a output.txt	# Confirm the relevant database nodes for the function were deleted
-	yottadb -r CHECKFUNCDELETE PARMFULLFUNC 2>&1 | tee -a output.txt	# Confirm the relevant database nodes for the function were deleted
+	yottadb -r CHECKFUNCDELETE parmlessfunc 2>&1 | tee -a output.txt	# Confirm the relevant database nodes for the function were deleted
+	yottadb -r CHECKFUNCDELETE parmfullfunc 2>&1 | tee -a output.txt	# Confirm the relevant database nodes for the function were deleted
 	# Check that we unlock properly
 	$ydb_dist/yottadb -run %XCMD 'for i=1:1:512 write "DROP FUNCTION IF EXISTS PARMFULLFUNC (NUMERIC);",!' > lock.sql
 	# The above produces lots of 'DROP FUNCTION' output. Don't want to keep that in the reference file so filter that out.

@@ -13,22 +13,22 @@ select distinct n1.* from names n1 order by n1.*;
 -- Following queries validate that both queries only issue `ERR_GROUP_BY_OR_AGGREGATE_FUNCTION` error on n1.* column and not an expanded list of columns.
 select 1 from names n1 order by count(*),n1.*;
 select 1 from names n1 order by n1.*,count(*);
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'firstname' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 2:1: ...up by n1.* order by n1.*, n1.firstname; -- Both Octo and Postgre...
                                        ^^^^^^^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column N1.* must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'n1.*' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 3:2: ...irstname,n1.lastname order by n1.*; -- column n1.* not in group ...
                                            ^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column N1.* must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'n1.*' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 4:2: ...irstname,n1.lastname order by n1.*; -- will work in postgres but...
                                            ^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column N1.* must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'n1.*' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 5:2: ...irstname,n1.lastname order by n1.*; -- demonstrates that without...
                                            ^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column N1.* must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'n1.*' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 6:2: ...ct count(1) from names n1 order by n1.*; -- n1.* not in GROUP BY
                                                 ^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column N1.* must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'n1.*' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 7:2: ... from names n1 having 1<1 order by n1.*; -- n1.* not in GROUP BY
                                                 ^^^^
 [ERROR]: ERR_ORDER_BY_SELECT_DISTINCT: For SELECT DISTINCT, ORDER BY expressions must appear in select list
@@ -37,9 +37,9 @@ LINE 9:3: select distinct n1.* from names n1 order by n1.lastname,n1.*;
 [ERROR]: ERR_ORDER_BY_SELECT_DISTINCT: For SELECT DISTINCT, ORDER BY expressions must appear in select list
 LINE 10:1: select distinct n1.* from names n1 order by n1.*;
                                                        ^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column N1.* must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'n1.*' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 12:1: select 1 from names n1 order by count(*),n1.*;
                                                     ^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column N1.* must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'n1.*' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 13:1: select 1 from names n1 order by n1.*,count(*);
                                            ^^^^

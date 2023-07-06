@@ -19,11 +19,11 @@ CREATE TABLE datetime1 (id INTEGER PRIMARY KEY, date1 DATE, time1 TIME(19));
 
 -- This is a fancy query that tests DELIM/START/END/KEY NUM etc.
 CREATE TABLE fancy (
- KEYCOL1 INTEGER PRIMARY KEY START 0 END "'(keys(""KEYCOL1""))!(keys(""KEYCOL1"")="""")",
- KEYCOL2 INTEGER KEY NUM 1 START 0 END "'(keys(""KEYCOL2""))!('keys(""KEYCOL1""))",
- NONKEYCOL1 CHARACTER(64) NOT NULL GLOBAL "^XMB(1,keys(""KEYCOL1""),3.2,keys(""KEYCOL2""),0)" PIECE 17 DELIM (64),
- NONKEYCOL2 CHARACTER(21) GLOBAL "^ABCD" EXTRACT "$E($G(^XMB(""KEYCOL1"")),1,245)" PIECE 38 DELIM "#"
+ KEYCOL1 INTEGER PRIMARY KEY START 0 END "'(keys(""keycol1""))!(keys(""keycol1"")="""")",
+ KEYCOL2 INTEGER KEY NUM 1 START 0 END "'(keys(""keycol2""))!('keys(""keycol1""))",
+ NONKEYCOL1 CHARACTER(64) NOT NULL GLOBAL "^XMB(1,keys(""keycol1""),3.2,keys(""keycol2""),0)" PIECE 17 DELIM (64),
+ NONKEYCOL2 CHARACTER(21) GLOBAL "^ABCD" EXTRACT "$E($G(^XMB(""keycol1"")),1,245)" PIECE 38 DELIM "#"
 )
-GLOBAL "^XMB(1,keys(""KEYCOL1""),3.2,keys(""KEYCOL2""))"
+GLOBAL "^XMB(1,keys(""keycol1""),3.2,keys(""keycol2""))"
 DELIM (67,68);
 

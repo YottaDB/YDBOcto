@@ -1,8 +1,8 @@
 ERROR:  Rocto is not allowed to make schema changes without startup flag --allowschemachanges
-ERROR:  No function DOLLARZWRITE defined with given parameter types (VARCHAR)
+ERROR:  No function dollarzwrite defined with given parameter types (VARCHAR)
 ERROR:  LINE 1:1: select DOLLARZWRITE(firstname) from names;
 ERROR:                   ^^^^^^^^^^^^
 ERROR:  Rocto is not allowed to make schema changes without startup flag --allowschemachanges
-ERROR:  No function DOLLARLENGTH defined with given parameter types (VARCHAR)
+ERROR:  No function dollarlength defined with given parameter types (VARCHAR)
 ERROR:  LINE 1:1: select DOLLARLENGTH(firstname) from names;
 ERROR:                   ^^^^^^^^^^^^

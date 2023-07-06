@@ -1,9 +1,9 @@
 # This is a test of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/509#note_1237785877
 # Generate file TDRC05.sql using [yottadb -run gensql^TDRC05]
 # Run 8 processes concurrently executing TDRC05.sql using [yottadb -run job^TDRC05]
-public|XXX1|table|octo
-public|XXX2|table|octo
-public|XXX3|table|octo
-public|XXX4|table|octo
+public|xxx1|table|octo
+public|xxx2|table|octo
+public|xxx3|table|octo
+public|xxx4|table|octo
 # Verify no errors exist except for expected ones
 # Verify no core files exist (no assert failures, SIG-11s etc.)

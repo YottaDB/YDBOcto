@@ -124,7 +124,7 @@ int auto_upgrade_binary_table_definition(void) {
 			// Skip views upgrade it will be done later
 			continue;
 		}
-		status = auto_upgrade_binary_table_or_view_definition_helper(&table_subs[0]);
+		status = auto_upgrade_binary_table_or_view_definition_helper(&table_subs[0], FALSE);
 		if (YDB_OK != status) {
 			CLEANUP_AND_RETURN(status, table_buff, NULL, FALSE, NULL);
 		}

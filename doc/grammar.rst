@@ -376,7 +376,7 @@ In READONLY tables, if none of the columns are specified as keys (PRIMARY KEY or
   Note:
 
     * Table and column names may be specified as either unquoted identifiers, e.g. :code:`id` or :code:`mytable`, or as double-quoted identifiers, e.g. :code:`"id"` or :code:`"mytable"`.
-    * Unquoted identifiers are *case insensitive* and internally cast to uppercase, while double-quoted identifiers are *case sensitive*
+    * Unquoted identifiers are *case insensitive* and internally cast to lowercase, while double-quoted identifiers are *case sensitive*
     * Double-quoted identifiers may contain spaces and/or SQL keywords
     * Underscores are allowed in all identifiers
 
@@ -430,15 +430,15 @@ Mapping to existing YottaDB global variables
   |              |                    |               | column is not an EXTRACT column that refers back to the one referencing it,    |                              |                                                           |
   |              |                    |               | i.e. no circular dependencies.                                                 |                              |                                                           |
   +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
-  | GLOBAL       | Literal            | Table, Column | Represents the "source" location for a table. It consists of a global name     | table/default GLOBAL setting | :code:`^%ydboctoD_$zysuffix(TABLENAME)(keys("COLNAME"))`  |
-  |              |                    |               | followed by an optional list of subscripts. One may refer to a key column in   |                              | where :code:`TABLENAME` is the table name and             |
-  |              |                    |               | the subscript by specifying :code:`keys("COLNAME")` where :code:`COLNAME`      |                              | :code:`COLNAME` is the name of the primary key column.    |
+  | GLOBAL       | Literal            | Table, Column | Represents the "source" location for a table. It consists of a global name     | table/default GLOBAL setting | :code:`^%ydboctoD_$zysuffix(tablename)(keys("colname"))`  |
+  |              |                    |               | followed by an optional list of subscripts. One may refer to a key column in   |                              | where :code:`tablename` is the table name and             |
+  |              |                    |               | the subscript by specifying :code:`keys("colname")` where :code:`colname`      |                              | :code:`colname` is the name of the primary key column.    |
   |              |                    |               | is the name of the key column. Note that key column names in :code:`keys(..)`  |                              | If more than one key column exists, they will form more   |
-  |              |                    |               | are case sensitive, regardless of whether the key column name itself is case   |                              | subscripts. For example, if :code:`KEYCOL` is a column    |
+  |              |                    |               | are case sensitive, regardless of whether the key column name itself is case   |                              | subscripts. For example, if :code:`keycol` is a column    |
   |              |                    |               | sensitive. Note also that in the case of a :code:`READONLY` table, if no key   |                              | that is specified with a :code:`PRIMARY KEY` keyword and  |
-  |              |                    |               | columns are specified, all columns in the order specified are automatically    |                              | :code:`KEYCOL2` is an additional column specified with a  |
+  |              |                    |               | columns are specified, all columns in the order specified are automatically    |                              | :code:`keycol2` is an additional column specified with a  |
   |              |                    |               | assumed to be key columns. In case of a :code:`READWRITE` table, if no key     |                              | :code:`KEY NUM 1` keyword, then the default value would   |
-  |              |                    |               | columns are specified, a hidden key column is created by Octo with the name    |                              | be :code:`^%ydboctoD...(keys("KEYCOL"),keys("KEYCOL2"))`  |
+  |              |                    |               | columns are specified, a hidden key column is created by Octo with the name    |                              | be :code:`^%ydboctoD...(keys("keycol"),keys("keycol2"))`  |
   |              |                    |               | :code:`%YO_KEYCOL`. See examples in this document for how you can construct    |                              |                                                           |
   |              |                    |               | the GLOBAL keyword. If the Table-level GLOBAL keyword specifiesa global name   |                              |                                                           |
   |              |                    |               | with no subscripts, Octo adds subscripts to it one for every key column that   |                              |                                                           |
@@ -570,7 +570,7 @@ Examples
      CREATE TABLE AuthorNames
      (ID INTEGER PRIMARY KEY,
       LName VARCHAR ,
-      FName VARCHAR EXTRACT "$PIECE(^AuthorNames(keys(""ID"")),""^"",2)")
+      FName VARCHAR EXTRACT "$PIECE(^AuthorNames(keys(""id"")),""^"",2)")
      DELIM "^"
      GLOBAL "^AuthorNames";
 
@@ -605,14 +605,14 @@ Examples
   .. code-block:: SQL
 
      CREATE TABLE Orders
-     (OrderID INTEGER PRIMARY KEY START 0 END "$CHAR(0)]]keys(""ORDERID"")",
+     (OrderID INTEGER PRIMARY KEY START 0 END "$CHAR(0)]]keys(""orderid"")",
       CustomerID INTEGER,
       EmployeeID INTEGER,
       OrderDate VARCHAR(16),
       ShipperID INTEGER)
      GLOBAL "^Orders";
 
-  In the above example, the START and END keywords tell Octo what subset of the ^Orders nodes with one subscript should be mapped to the Orders table. :code:`START 0` indicates that subscripts greater than :code:`0` should be mapped, and :code:`END "$CHAR(0)]]keys(""ORDERID"")"` restricts the mapping to numeric subscripts. Note that the column name is defined as :code:`OrderID` but the :code:`keys()` syntax uses the upper cased column name :code:`ORDERID`. This is because Octo currently assumes any column name that is not specified inside double quotes or back quotes to be an upper cased name.
+  In the above example, the START and END keywords tell Octo what subset of the ^Orders nodes with one subscript should be mapped to the Orders table. :code:`START 0` indicates that subscripts greater than :code:`0` should be mapped, and :code:`END "$CHAR(0)]]keys(""orderid"")"` restricts the mapping to numeric subscripts. Note that the column name is defined as :code:`OrderID` but the :code:`keys()` syntax uses the lower cased column name :code:`orderid`. This is because Octo currently assumes any column name that is not specified inside double quotes or back quotes to be a lower cased name.
 
   Rather than using END in the previous example, you can use the simpler ENDPOINT, which will achieve the same result (the below example illustrates that). ENDPOINT will traverse the global until it reaches the specified endpoint, and it will include the end point record as well. Most of the time, ENDPOINT should be used to reach the end of a numeric subscript range. Therefore, a good value to use is :code:`'$CHAR(0)'` or :code:`'" "'`, as these sort after numbers.
 
@@ -646,8 +646,8 @@ Examples
          firstName VARCHAR(30),
          lastName VARCHAR(30),
          age INTEGER,
-         fullname VARCHAR EXTRACT "$$^FULLNAME(values(""FIRSTNAME""),values(""LASTNAME""))"
-     ) GLOBAL "^names(keys(""ID""))";
+         fullname VARCHAR EXTRACT "$$^FULLNAME(values(""firstname""),values(""lastname""))"
+     ) GLOBAL "^names(keys(""id""))";
 
   .. code-block:: none
 
@@ -655,7 +655,7 @@ Examples
     FULLNAME(firstname,lastname)
         quit firstname_" "_lastname
 
-  In the above example, ``EXTRACT`` is used to define a computed column that references non-key columns. Non-key columns are referenced in ``EXTRACT`` functions by passing the column name as an M string literal to an expression of the form ``values(..)``.
+  In the above example, ``EXTRACT`` is used to define a computed column that references non-key columns. Non-key columns are referenced in ``EXTRACT`` functions by passing the column name as an M string literal to an expression of the form ``values(..)``. Note that the column name is defined as :code:`firstName` but the :code:`values()` syntax uses the lower cased column name :code:`firstname`. This is because Octo currently assumes any column name that is not specified inside double quotes or back quotes to be a lower cased name.
 
   .. code-block:: SQL
 
@@ -666,7 +666,7 @@ Examples
          age INTEGER,
          fullname VARCHAR EXTRACT CONCAT(firstName, ' ', lastName),
          nameandnumber VARCHAR EXTRACT CONCAT(lastName, id::varchar)
-     ) GLOBAL "^names(keys(""ID""))";
+     ) GLOBAL "^names(keys(""id""))";
 
   In the above example, ``EXTRACT`` is used to define a computed column using a SQL function, in this case ``CONCAT()``.
 
@@ -693,7 +693,7 @@ CREATE FUNCTION
 
   The CREATE FUNCTION statement is used to create SQL functions that map to extrinsic M functions and store these mappings in the database. The keywords CREATE FUNCTION are followed by the name of the SQL function to be created, the data types of its parameters, its return type, and the fully-qualified extrinsic M function name.
 
-  The name of the SQL function may be specified as either unquoted identifiers, e.g. :code:`id` or :code:`mytable`, or as double-quoted identifiers, e.g. :code:`"id"` or :code:`"mytable"`. Unquoted identifiers are *case insensitive* and cast internally to uppercase, while double-quoted identifiers are *case sensitive*. Additionally, double-quoted identifiers may contain spaces and/or SQL keywords.
+  The name of the SQL function may be specified as either unquoted identifiers, e.g. :code:`id` or :code:`mytable`, or as double-quoted identifiers, e.g. :code:`"id"` or :code:`"mytable"`. Unquoted identifiers are *case insensitive* and cast internally to lowercase, while double-quoted identifiers are *case sensitive*. Additionally, double-quoted identifiers may contain spaces and/or SQL keywords.
 
   If IF NOT EXISTS is supplied for a CREATE FUNCTION statement and a function exists, the result is a no-op with no errors. In this case, error type INFO_FUNCTION_ALREADY_EXISTS is emitted at INFO log severity level.
 
@@ -981,9 +981,9 @@ SELECT
 
   The SELECT statement is used to select rows from the database by specifying a query, and optionally sorting the resulting rows.
 
-Table and column names may be specified as either unquoted identifiers, e.g. :code:`id` or :code:`mytable`, or as double-quoted identifiers, e.g. :code:`"id"` or :code:`"mytable"`. Unquoted identifiers are *case insensitive* and cast internally to uppercase, while double-quoted identifiers are *case sensitive*. Additionally, double-quoted identifiers may contain spaces and/or SQL keywords.
+Table and column names may be specified as either unquoted identifiers, e.g. :code:`id` or :code:`mytable`, or as double-quoted identifiers, e.g. :code:`"id"` or :code:`"mytable"`. Unquoted identifiers are *case insensitive* and cast internally to lowercase, while double-quoted identifiers are *case sensitive*. Additionally, double-quoted identifiers may contain spaces and/or SQL keywords.
 
-Note also that Octo converts all unquoted identifiers to *upper case* internally, such that double-quoted identifiers referring to tables or columns created by a :code:`CREATE TABLE` statement that did not specify these names using double-quoted identifiers must be in upper case in order to avoid unknown table or unknown column errors.
+Note also that Octo converts all unquoted identifiers to *lower case* internally, such that double-quoted identifiers referring to tables or columns created by a :code:`CREATE TABLE` statement that did not specify these names using double-quoted identifiers must be in lower case in order to avoid unknown table or unknown column errors.
 
   .. code-block:: PSQL
 
@@ -1474,7 +1474,7 @@ Functions
 
   Note that function prototypes that appear both with and without parentheses indicate that the given function may be called both with and without parentheses. For example, :code:`CURRENT_CATALOG()` may be called as either :code:`CURRENT_CATALOG()` or :code:`CURRENT_CATALOG`.
 
-  Function names may be specified as either unquoted identifiers, e.g. :code:`abs` or :code:`concat`, or as double-quoted identifiers, e.g. :code:`"abs"` or :code:`"concat"`. Unquoted identifiers are *case insensitive* and will be internally cast to uppercase, while double-quoted identifiers are *case sensitive*. Additionally, double-quoted identifiers may contain spaces and/or SQL keywords.
+  Function names may be specified as either unquoted identifiers, e.g. :code:`abs` or :code:`concat`, or as double-quoted identifiers, e.g. :code:`"abs"` or :code:`"concat"`. Unquoted identifiers are *case insensitive* and will be internally cast to lowercase, while double-quoted identifiers are *case sensitive*. Additionally, double-quoted identifiers may contain spaces and/or SQL keywords.
 
   Note that when calling functions using double-quoted identifiers, only the *function name* should be double quoted and not the parentheses or arguments.
 
@@ -2681,7 +2681,7 @@ Double-quotes can be used in two different ways: as case-sensitive SQL identifie
 
 Finally, the backtick character ("`") is used to enclose words so that any possible reserved words that may be used in column or table names are correctly escaped.
 
-In addition, the backtick/backquote character also ensures the column name is treated as is and no case conversions are done. This lets us use the column name as is in the keys() specifications. If the column name had not been enclosed inside double quotes or backquotes, the column name would be upper cased internally by Octo and the ``keys()`` syntax would have to only specify the upper cased name.
+In addition, the backtick/backquote character also ensures the column name is treated as is and no case conversions are done. This lets us use the column name as is in the :code:`keys()` or :code:`values()` specifications. If the column name had not been enclosed inside double quotes or backquotes, the column name would be lower cased internally by Octo and the ``keys()`` or ``values()`` syntax would have to only specify the lower cased name.
 
 +++++++++++++++++++++++++
 Exceptions to BNF grammar
@@ -2765,22 +2765,22 @@ VistA DDL Example 1
   .. code-block:: SQL
 
      CREATE TABLE `INDEX_DESCRIPTION`(
-      `INDEX_ID` NUMERIC PRIMARY KEY START 0 END "'(keys(""INDEX_ID""))!(keys(""INDEX_ID"")="""")",
-      `INDEX_DESCRIPTION_ID` NUMERIC KEY NUM 1 START 0 END "'(keys(""INDEX_DESCRIPTION_ID""))!(keys(""INDEX_DESCRIPTION_ID"")="""")",
-      `DESCRIPTION` VARCHAR GLOBAL "^DD(""IX"",keys(""INDEX_ID""),.1,keys(""INDEX_DESCRIPTION_ID""),0)"
-         EXTRACT "$G(^DD(""IX"",keys(""INDEX_ID""),.1,keys(""INDEX_DESCRIPTION_ID""),0))"
+      `INDEX_ID` NUMERIC PRIMARY KEY START 0 END "'(keys(""index_id""))!(keys(""index_id"")="""")",
+      `INDEX_DESCRIPTION_ID` NUMERIC KEY NUM 1 START 0 END "'(keys(""index_description_id""))!(keys(""index_description_id"")="""")",
+      `DESCRIPTION` VARCHAR GLOBAL "^DD(""IX"",keys(""index_id""),.1,keys(""index_description_id""),0)"
+         EXTRACT "$G(^DD(""IX"",keys(""index_id""),.1,keys(""index_description_id""),0))"
      )
-     GLOBAL "^DD(""IX"",keys(""INDEX_ID""),.1,keys(""INDEX_DESCRIPTION_ID""))";
+     GLOBAL "^DD(""IX"",keys(""index_id""),.1,keys(""index_description_id""))";
 
-  The table has a numeric primary key, :code:`INDEX_ID`. :code:`START 0` means that a :code:`$ORDER()` loop to find the next subscript starts with :code:`0` and :code:`END "'(keys(""INDEX_DESCRIPTION_ID""))!(keys(""INDEX_DESCRIPTION_ID"")="""")"` means that the loop ends when the result of that :code:`$ORDER()` is :code:`0` or the empty string (:code:`""`), indicating the end of breadth first traversal of that level of the tree.
+  The table has a numeric primary key, :code:`INDEX_ID`. :code:`START 0` means that a :code:`$ORDER()` loop to find the next subscript starts with :code:`0` and :code:`END "'(keys(""index_description_id""))!(keys(""index_description_id"")="""")"` means that the loop ends when the result of that :code:`$ORDER()` is :code:`0` or the empty string (:code:`""`), indicating the end of breadth first traversal of that level of the tree.
 
-  :code:`GLOBAL "^DD(""IX"",keys(""INDEX_ID""),.1,keys(""INDEX_DESCRIPTION_ID""))"` means that the table is in multiple :code:`^DD("IX",…,.1,…)` subtrees of :code:`^DD` with the primary key :code:`INDEX_ID` in the second subscript, and the :code:`INDEX_DESCRIPTION_ID` column in the fourth subscript, with :code:`.1` as the third subscript. GLOBAL can also be applied at the COLUMN level to allow a table to incorporate columns from different global variables, with the restriction that KEY columns of a table must all be subscripts of the same global variable.
+  :code:`GLOBAL "^DD(""IX"",keys(""index_id""),.1,keys(""index_description_id""))"` means that the table is in multiple :code:`^DD("IX",…,.1,…)` subtrees of :code:`^DD` with the primary key :code:`INDEX_ID` in the second subscript, and the :code:`INDEX_DESCRIPTION_ID` column in the fourth subscript, with :code:`.1` as the third subscript. GLOBAL can also be applied at the COLUMN level to allow a table to incorporate columns from different global variables, with the restriction that KEY columns of a table must all be subscripts of the same global variable.
 
   The :code:`DESCRIPTION` column is a text field, whose value is the entire global variable node. Unlike the previous example, the global variable node is not piece separated columns. EXTRACT in a column specification overrides any implicit or explicit PIECE specification for that column.
 
   The backtick character (:code:`"\`"`) is used to enclose words so that any possible reserved words that may be used in column or table names are correctly escaped.
 
-  In addition, the backtick/backquote character also ensures the column name is treated as is and no case conversions are done. This lets us use the column name as is in the :code:`keys()` specifications. If the column name had  not been enclosed inside double quotes or backquotes, the column name would be upper cased internally by Octo and the :code:`keys()` syntax would have to only specify the upper cased name.
+  In addition, the backtick/backquote character also ensures the column name is treated as is and no case conversions are done. This lets us use the column name as is in the :code:`keys()` specifications. If the column name had  not been enclosed inside double quotes or backquotes, the column name would be lower cased internally by Octo and the :code:`keys()` syntax would have to only specify the lower cased name.
 
 .. _vista-ddl-ex-2:
 
@@ -2793,13 +2793,13 @@ VistA DDL Example 2
   .. code-block:: SQL
 
      CREATE TABLE `LINE_PORT_ADDRESS`(
-      `LINE_PORT_ADDRESS_ID` NUMERIC PRIMARY KEY START 0 END "'(keys(""LINE_PORT_ADDRESS_ID""))!(keys(""LINE_PORT_ADDRESS_ID"")="""")",
-      `NAME` CHARACTER(30) NOT NULL GLOBAL "^%ZIS(3.23,keys(""LINE_PORT_ADDRESS_ID""),0)" PIECE 1,
-      `LOCATION` CHARACTER(30) GLOBAL "^%ZIS(3.23,keys(""LINE_PORT_ADDRESS_ID""),0)" PIECE 2,
-      `DEVICE` INTEGER GLOBAL "^%ZIS(3.23,keys(""LINE_PORT_ADDRESS_ID""),0)" PIECE 3,
-      `SUBTYPE` INTEGER GLOBAL "^%ZIS(3.23,keys(""LINE_PORT_ADDRESS_ID""),0)" PIECE 4
+      `LINE_PORT_ADDRESS_ID` NUMERIC PRIMARY KEY START 0 END "'(keys(""line_port_address_id""))!(keys(""line_port_address_id"")="""")",
+      `NAME` CHARACTER(30) NOT NULL GLOBAL "^%ZIS(3.23,keys(""line_port_address_id""),0)" PIECE 1,
+      `LOCATION` CHARACTER(30) GLOBAL "^%ZIS(3.23,keys(""line_port_address_id""),0)" PIECE 2,
+      `DEVICE` INTEGER GLOBAL "^%ZIS(3.23,keys(""line_port_address_id""),0)" PIECE 3,
+      `SUBTYPE` INTEGER GLOBAL "^%ZIS(3.23,keys(""line_port_address_id""),0)" PIECE 4
      )
-     GLOBAL "^%ZIS(3.23,keys(""LINE_PORT_ADDRESS_ID""))"
+     GLOBAL "^%ZIS(3.23,keys(""line_port_address_id""))"
      DELIM "^";
 
   :code:`DELIM "^"` specifies to Octo that :code:`"^"` is the piece separator to use when mapping values of global variable nodes into columns.
@@ -2826,7 +2826,7 @@ To create a column that retrieves an entire database node, specify the empty str
         age INTEGER,
         fullProfile VARCHAR DELIM ""
     )
-    GLOBAL "^delimnames(keys(""ID""))";
+    GLOBAL "^delimnames(keys(""id""))";
 
 This DDL can be used to access data like the following:
 
@@ -2868,12 +2868,12 @@ It is possible to define Octo globals with a variety of delimiters. To map data 
         id       INTEGER,
         given    VARCHAR(15),
         surname  VARCHAR(15),
-        street1  VARCHAR(50) GLOBAL "^names(keys(""ID""),""Address"")" DELIM '^' PIECE 1,
-        street2  VARCHAR(50) GLOBAL "^names(keys(""ID""),""Address"")" DELIM '^' PIECE 2,
-        city     VARCHAR(30) GLOBAL "^names(keys(""ID""),""Address"")" DELIM '^' PIECE 3,
-        province VARCHAR(30) GLOBAL "^names(keys(""ID""),""Address"")" DELIM '^' PIECE 4,
-        country  VARCHAR(30) GLOBAL "^names(keys(""ID""),""Address"")" DELIM '^' PIECE 5,
-        postal   VARCHAR(10) GLOBAL "^names(keys(""ID""),""Address"")" DELIM '^' PIECE 6,
+        street1  VARCHAR(50) GLOBAL "^names(keys(""id""),""Address"")" DELIM '^' PIECE 1,
+        street2  VARCHAR(50) GLOBAL "^names(keys(""id""),""Address"")" DELIM '^' PIECE 2,
+        city     VARCHAR(30) GLOBAL "^names(keys(""id""),""Address"")" DELIM '^' PIECE 3,
+        province VARCHAR(30) GLOBAL "^names(keys(""id""),""Address"")" DELIM '^' PIECE 4,
+        country  VARCHAR(30) GLOBAL "^names(keys(""id""),""Address"")" DELIM '^' PIECE 5,
+        postal   VARCHAR(10) GLOBAL "^names(keys(""id""),""Address"")" DELIM '^' PIECE 6,
         primary key (id)
     ) GLOBAL "^names";
 
@@ -2927,8 +2927,8 @@ If you want to map an Octo table to global that uses *mixed row delimiters*, you
         id INTEGER,
         title VARCHAR PIECE 1,
         author VARCHAR PIECE 2,
-        author_firstname VARCHAR EXTRACT "$PIECE(values(""AUTHOR""),""; "",2)",
-        author_lastname  VARCHAR EXTRACT "$PIECE(values(""AUTHOR""),""; "",1)",
+        author_firstname VARCHAR EXTRACT "$PIECE(values(""author""),""; "",2)",
+        author_lastname  VARCHAR EXTRACT "$PIECE(values(""author""),""; "",1)",
         year INTEGER PIECE 3,
         PRIMARY KEY(id)
     )
@@ -2961,8 +2961,8 @@ The previous example can be re-written to remove the author column.
     CREATE TABLE authors(
         id INTEGER,
         title VARCHAR PIECE 1,
-        firstname VARCHAR EXTRACT "$PIECE($PIECE(^X(keys(""ID"")),""^"",2),""; "",2)",
-        lastname  VARCHAR EXTRACT "$PIECE($PIECE(^X(keys(""ID"")),""^"",2),""; "",1)",
+        firstname VARCHAR EXTRACT "$PIECE($PIECE(^X(keys(""id"")),""^"",2),""; "",2)",
+        lastname  VARCHAR EXTRACT "$PIECE($PIECE(^X(keys(""id"")),""^"",2),""; "",1)",
         year INTEGER PIECE 3,
         PRIMARY KEY(id)
     )
@@ -2994,9 +2994,9 @@ If you want to map an Octo table to global that uses *delimiters and JSON*, you 
         dep VARCHAR(30),
         level INTEGER,
         title VARCHAR(30),
-        lang VARCHAR(2)  EXTRACT "$SELECT($PIECE(^ZMYGLOBAL(keys(""LOC""),keys(""DEP""),keys(""LEVEL"")),""^"",2)=""N"":""dut"",1:$PIECE(^(keys(""LEVEL"")),""^"",2)",
-        isbn VARCHAR(16) EXTRACT "$$^jsonField($PIECE(^ZMYGLOBAL(keys(""LOC""),keys(""DEP""),keys(""LEVEL"")),""^"",3),""isbn"")",
-        co   INTEGER     EXTRACT "$$^jsonField($PIECE(^ZMYGLOBAL(keys(""LOC""),keys(""DEP""),keys(""LEVEL"")),""^"",3),""co"")",
+        lang VARCHAR(2)  EXTRACT "$SELECT($PIECE(^ZMYGLOBAL(keys(""loc""),keys(""dep""),keys(""level"")),""^"",2)=""N"":""dut"",1:$PIECE(^(keys(""level"")),""^"",2)",
+        isbn VARCHAR(16) EXTRACT "$$^jsonField($PIECE(^ZMYGLOBAL(keys(""loc""),keys(""dep""),keys(""level"")),""^"",3),""isbn"")",
+        co   INTEGER     EXTRACT "$$^jsonField($PIECE(^ZMYGLOBAL(keys(""loc""),keys(""dep""),keys(""level"")),""^"",3),""co"")",
         PRIMARY KEY (loc,dep,level)
     )
     GLOBAL "^ZMYGLOBAL"

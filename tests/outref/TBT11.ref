@@ -12,29 +12,29 @@ LP_SELECT_QUERY:
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
-        LP_COLUMN_ALIAS: NAMES(1).ID
+        LP_COLUMN_ALIAS: names(1).id
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: ID
+        - alias: id
       LP_WHERE: 
-        LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+        LP_COLUMN_ALIAS: names(1).firstname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: FIRSTNAME
+        - alias: firstname
       LP_WHERE: 
-        LP_COLUMN_ALIAS: NAMES(1).LASTNAME
+        LP_COLUMN_ALIAS: names(1).lastname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: LASTNAME
+        - alias: lastname
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: NAMES(1)
+        LP_TABLE: names(1)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
           LP_WHERE: 
             LP_BOOLEAN_IS: 
-              LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+              LP_COLUMN_ALIAS: names(1).firstname
               LP_VALUE: ''
           LP_SELECT_MORE_OPTIONS: 
             LP_KEYWORDS: 
@@ -52,37 +52,37 @@ LP_SELECT_QUERY:
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
-        LP_COLUMN_ALIAS: NAMES(1).ID
+        LP_COLUMN_ALIAS: names(1).id
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
-        - alias: ID
+        - alias: id
       LP_WHERE: 
-        LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+        LP_COLUMN_ALIAS: names(1).firstname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: FIRSTNAME
+        - alias: firstname
       LP_WHERE: 
-        LP_COLUMN_ALIAS: NAMES(1).LASTNAME
+        LP_COLUMN_ALIAS: names(1).lastname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: LASTNAME
+        - alias: lastname
     LP_SELECT: 
       LP_TABLE_JOIN: 
         LP_SELECT_QUERY: 
           LP_PROJECT: 
             LP_COLUMN_LIST: 
               LP_WHERE: 
-                LP_COLUMN_ALIAS: NAMES(4).FIRSTNAME
+                LP_COLUMN_ALIAS: names(4).firstname
               LP_WHERE: 
-                LP_COLUMN_ALIAS: NAMES(4).ID
+                LP_COLUMN_ALIAS: names(4).id
             LP_SELECT: 
               LP_TABLE_JOIN: 
-                LP_TABLE: NAMES(4)
+                LP_TABLE: names(4)
               LP_CRITERIA: 
                 LP_KEYS: 
                   LP_KEY: 
-                  - table_name: NAMES
-                  - column_name: ID
+                  - table_name: names
+                  - column_name: id
                   - unique_id: 4
                   - method: LP_KEY_ADVANCE
                   - xref_key: false
@@ -93,8 +93,8 @@ LP_SELECT_QUERY:
                     LP_KEYWORDS:  XREF_INDEX;
           LP_OUTPUT: 
             LP_KEY: 
-            - table_name: NAMES
-            - column_name: FIRSTNAME
+            - table_name: names
+            - column_name: firstname
             - unique_id: 1
             - method: LP_INVALID_ACTION
             - xref_key: true
@@ -102,8 +102,8 @@ LP_SELECT_QUERY:
       LP_CRITERIA: 
         LP_KEYS: 
           LP_KEY: 
-          - table_name: NAMES
-          - column_name: FIRSTNAME
+          - table_name: names
+          - column_name: firstname
           - unique_id: 1
           - method: LP_KEY_FIX
           - xref_key: true
@@ -112,8 +112,8 @@ LP_SELECT_QUERY:
               LP_VALUE: ''
           LP_KEYS: 
             LP_KEY: 
-            - table_name: NAMES
-            - column_name: ID
+            - table_name: names
+            - column_name: id
             - unique_id: 1
             - method: LP_KEY_ADVANCE
             - xref_key: false
@@ -131,9 +131,9 @@ LP_SELECT_QUERY:
     - xref_key: false
     - uses_xref_key: false
 
-[ INFO] PATH:LINENUM DATE TIME: INFO_GENERATING_XREF: Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [NAMES] and column [FIRSTNAME]
+[ INFO] PATH:LINENUM DATE TIME: INFO_GENERATING_XREF: Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [names] and column [firstname]
 [ INFO] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering print_temporary_table
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 (0 rows)
 [ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command []

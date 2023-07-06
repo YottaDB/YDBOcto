@@ -8,10 +8,10 @@ select DOLLARREV(id)::integer from names limit 1;
 
 CREATE FUNCTION
 CREATE FUNCTION
-DOLLARZWRITE
+dollarzwrite
 0
 (1 row)
-DOLLARREV
+dollarrev
 0
 (1 row)
 Listing of M files, should see 2

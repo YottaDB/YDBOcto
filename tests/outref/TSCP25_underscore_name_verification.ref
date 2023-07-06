@@ -44,11 +44,11 @@ CREATE TABLE _names (_id INTEGER PRIMARY KEY, _firstName VARCHAR(30), lastName V
 select * from _names;
 
 drop table if exists _test3 keepdata;
-create table _test3 (_id1 integer primary key, _fullname text extract "$PIECE(^names(keys(""_ID1"")),""|"",1)_$PIECE(^names(keys(""_ID1"")),""|"",2)") GLOBAL "^names";
+create table _test3 (_id1 integer primary key, _fullname text extract "$PIECE(^names(keys(""_id1"")),""|"",1)_$PIECE(^names(keys(""_id1"")),""|"",2)") GLOBAL "^names";
 select * from _test3;
 
 drop table _test3 keepdata;
-create table _test3 (_id1 integer primary key START 0 END "keys(""_ID1"")=3", _firstname text, _lastname text) GLOBAL "^names";
+create table _test3 (_id1 integer primary key START 0 END "keys(""_id1"")=3", _firstname text, _lastname text) GLOBAL "^names";
 select * from _test3;
 
 drop table _test3 keepdata;
@@ -56,7 +56,7 @@ create table _test3 (_id1 integer primary key START 0 ENDPOINT 3, _firstname tex
 select * from _test3;
 
 drop table _test3 keepdata;
-create table _test3 (_id1 integer primary key, _firstname text, _lastname text, _fullname text extract "(values(""_FIRSTNAME""))_(values(""_LASTNAME""))") GLOBAL "^names";
+create table _test3 (_id1 integer primary key, _firstname text, _lastname text, _fullname text extract "(values(""_firstname""))_(values(""_lastname""))") GLOBAL "^names";
 select * from _test3;
 
 drop table _test3 keepdata;
@@ -65,7 +65,7 @@ select * from _test3;
 select * from _test3 order by _id1 desc;
 
 drop table _test3 keepdata;
-create table _test3 (_id1 integer primary key, _firstname text, _lastname text) DELIM "_" GLOBAL "^x(keys(""_ID1""))";
+create table _test3 (_id1 integer primary key, _firstname text, _lastname text) DELIM "_" GLOBAL "^x(keys(""_id1""))";
 select * from _test3;
 select * from _test3 order by _id1 desc;
 
@@ -79,7 +79,7 @@ create function x(int) returns int as $$^%_ydboctofCONCAT;
 create function x(int) returns int as $$^_%ydboctofCONCAT;
 DROP FUNCTION
 CREATE FUNCTION
-_TESTF
+_testf
 1
 (1 row)
 ???
@@ -119,7 +119,7 @@ DROP TABLE
 CREATE TABLE
 INSERT 0 1
 INSERT 0 1
-_ID1
+_id1
 1
 2
 (2 rows)
@@ -127,9 +127,9 @@ _
 1
 2
 (2 rows)
-Table "_TEST1" stored in Global: ^%ydboctoDkXPIWRV3GFj4ldWYPemM91 : Type = READWRITE
+Table "_test1" stored in Global: ^%ydboctoD0X4kGhZ1Yho2WnUvH6jT4L : Type = READWRITE
 Column|Type|Collation|Nullable|Default
-_ID1|INTEGER|||
+_id1|INTEGER|||
 DROP TABLE
 CREATE TABLE
 INSERT 0 1
@@ -147,19 +147,19 @@ Column|Type|Collation|Nullable|Default
 __|INTEGER|||
 DROP TABLE
 CREATE TABLE
-Table "_TEST2" stored in Global: ^%ydboctoD4rXHtUQQi4i7sy8Kcsz3FH : Type = READWRITE
+Table "_test2" stored in Global: ^%ydboctoDljsBRgOJ3NiLoA4uippx85 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
-_ID1|INTEGER|||
+_id1|INTEGER|||
 Check constraints:
-    "_CONSTRAINT" CHECK ((_ID1 < 1))
+    "_constraint" CHECK ((_id1 < 1))
 INSERT 0 1
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table _TEST2 violates CHECK constraint _CONSTRAINT : Failing row contains (1)
-_ID1
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table _test2 violates CHECK constraint _constraint : Failing row contains (1)
+_id1
 0
 (1 row)
 DROP TABLE
 CREATE TABLE
-_ID|_FIRSTNAME|LASTNAME
+_id|_firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -169,7 +169,7 @@ _ID|_FIRSTNAME|LASTNAME
 (6 rows)
 DROP TABLE
 CREATE TABLE
-_ID1|_FULLNAME
+_id1|_fullname
 0|ZeroCool
 1|AcidBurn
 2|CerealKiller
@@ -179,20 +179,20 @@ _ID1|_FULLNAME
 (6 rows)
 DROP TABLE
 CREATE TABLE
-_ID1|_FIRSTNAME|_LASTNAME
+_id1|_firstname|_lastname
 1|Acid|Burn
 2|Cereal|Killer
 (2 rows)
 DROP TABLE
 CREATE TABLE
-_ID1|_FIRSTNAME|_LASTNAME
+_id1|_firstname|_lastname
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 (3 rows)
 DROP TABLE
 CREATE TABLE
-_ID1|_FIRSTNAME|_LASTNAME|_FULLNAME
+_id1|_firstname|_lastname|_fullname
 0|Zero|Cool|ZeroCool
 1|Acid|Burn|AcidBurn
 2|Cereal|Killer|CerealKiller
@@ -202,21 +202,21 @@ _ID1|_FIRSTNAME|_LASTNAME|_FULLNAME
 (6 rows)
 DROP TABLE
 CREATE TABLE
-_ID1|_FIRSTNAME|_LASTNAME
+_id1|_firstname|_lastname
 1|first|last
 2|first|last
 (2 rows)
-_ID1|_FIRSTNAME|_LASTNAME
+_id1|_firstname|_lastname
 2|first|last
 1|first|last
 (2 rows)
 DROP TABLE
 CREATE TABLE
-_ID1|_FIRSTNAME|_LASTNAME
+_id1|_firstname|_lastname
 1|first|last
 2|first|last
 (2 rows)
-_ID1|_FIRSTNAME|_LASTNAME
+_id1|_firstname|_lastname
 2|first|last
 1|first|last
 (2 rows)

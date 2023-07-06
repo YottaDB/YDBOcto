@@ -1,9 +1,9 @@
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 1|Acid|Burn
 0|Zero|Cool
 5|Zero|Cool
 (3 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 (2 rows)

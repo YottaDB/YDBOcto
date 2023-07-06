@@ -9,7 +9,7 @@ select * from v1;
 drop function samevalue(integer);
 CREATE FUNCTION
 CREATE VIEW
-SAMEVALUE
+samevalue
 1
 (1 row)
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS_ON_VIEW: Cannot DROP function SAMEVALUE(INTEGER) because view "V1" depends on it
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS_ON_VIEW: Cannot DROP function samevalue(INTEGER) because view "v1" depends on it

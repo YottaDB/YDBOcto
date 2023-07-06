@@ -1,5 +1,5 @@
 select * from names2 where 'Cool' = lastName;
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 (1 row)
 _ydboctoX*.m
@@ -21,5 +21,5 @@ _ydboctoX*.m
 ^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(9)="1"
 ^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(10)="2"
 ^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5(11)="2"
-^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5("comment-0")="xref for table NAMES2 column LASTNAME"
+^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5("comment-0")="xref for table names2 column lastname"
 ^%ydbAIMDxref("^names2","^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5")=""

@@ -7,12 +7,12 @@ CREATE TABLE products (product_no integer CONSTRAINT "abcdefghijklmnopqrstuvwxyz
 select * from products;
 DROP TABLE
 CREATE TABLE
-Table "PRODUCTS" stored in Global: ^%ydboctoDFTZ1TylADeWHpGzdXFFgD0(PRODUCT_NO) : Type = READWRITE
+Table "products" stored in Global: ^%ydboctoDwjMZ1xzpdeepqN3cJQvvI6(product_no) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
-PRODUCT_NO|INTEGER||NOT NULL|
-NAME|VARCHAR||NOT NULL|
+product_no|INTEGER||NOT NULL|
+name|VARCHAR||NOT NULL|
 Indexes:
-    "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz12345678901" PRIMARY KEY CONSTRAINT, Column(s) (PRODUCT_NO), Global: ^%ydboctoDFTZ1TylADeWHpGzdXFFgD0(PRODUCT_NO)
-    "C2" UNIQUE CONSTRAINT, Column(s) (NAME), Global ^%ydboctoU7yjxbUdAkzrKOMsTYl5R6J
-PRODUCT_NO|NAME
+    "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz12345678901" PRIMARY KEY CONSTRAINT, Column(s) (product_no), Global: ^%ydboctoDwjMZ1xzpdeepqN3cJQvvI6(product_no)
+    "c2" UNIQUE CONSTRAINT, Column(s) (name), Global ^%ydboctoU7yjxbUdAkzrKOMsTYl5R6J
+product_no|name
 (0 rows)

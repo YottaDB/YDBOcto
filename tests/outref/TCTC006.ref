@@ -96,102 +96,102 @@ create table TABLE_abcdef (
 drop table TABLE_abcdef;
 
 CREATE TABLE
-Table "TABLE_ABCDEFGHIJKLMNOPQRSTUVWXYZ" stored in Global: ^%ydboctoDednY1yEMKdTudDUGVvHKEF : Type = READWRITE
+Table "table_abcdefghijklmnopqrstuvwxyz" stored in Global: ^%ydboctoD9QysmremVICziEE3Jy3qCK : Type = READWRITE
 Column|Type|Collation|Nullable|Default
-COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ|INTEGER|||
+column_abcdefghijklmnopqrstuvwxyz|INTEGER|||
 Check constraints:
-    "TABLE_ABCDEFGHIJKLMNOPQRSTUV_COLUMN_ABCDEFGHIJKLMNOPQRSTU_CHECK" CHECK ((COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ < 2))
+    "table_abcdefghijklmnopqrstuv_column_abcdefghijklmnopqrstu_CHECK" CHECK ((column_abcdefghijklmnopqrstuvwxyz < 2))
 DROP TABLE
 CREATE TABLE
-Table "TABLE_ABCDEFGHIJKLMNOPQRSTUVWXYZ" stored in Global: ^%ydboctoDednY1yEMKdTudDUGVvHKEF : Type = READWRITE
+Table "table_abcdefghijklmnopqrstuvwxyz" stored in Global: ^%ydboctoD9QysmremVICziEE3Jy3qCK : Type = READWRITE
 Column|Type|Collation|Nullable|Default
-COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ|INTEGER|||
+column_abcdefghijklmnopqrstuvwxyz|INTEGER|||
 Check constraints:
-    "TABLE_ABCDEFGHIJKLMNOPQRSTUV_COLUMN_ABCDEFGHIJKLMNOPQRSTU_CHECK" CHECK ((COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ < 2))
-    "TABLE_ABCDEFGHIJKLMNOPQRSTUV_COLUMN_ABCDEFGHIJKLMNOPQRST_CHECK1" CHECK ((COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ > 0))
+    "table_abcdefghijklmnopqrstuv_column_abcdefghijklmnopqrstu_CHECK" CHECK ((column_abcdefghijklmnopqrstuvwxyz < 2))
+    "table_abcdefghijklmnopqrstuv_column_abcdefghijklmnopqrst_CHECK1" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 0))
 DROP TABLE
 CREATE TABLE
-Table "TABLE_ABCDEFGHIJKLMNOPQRSTUVWXYZ" stored in Global: ^%ydboctoDednY1yEMKdTudDUGVvHKEF : Type = READWRITE
+Table "table_abcdefghijklmnopqrstuvwxyz" stored in Global: ^%ydboctoD9QysmremVICziEE3Jy3qCK : Type = READWRITE
 Column|Type|Collation|Nullable|Default
-COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ|INTEGER|||
+column_abcdefghijklmnopqrstuvwxyz|INTEGER|||
 Check constraints:
-    "TABLE_ABCDEFGHIJKLMNOPQRSTUV_COLUMN_ABCDEFGHIJKLMNOPQRSTU_CHECK" CHECK ((COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ > 2))
-    "TABLE_ABCDEFGHIJKLMNOPQRSTUV_COLUMN_ABCDEFGHIJKLMNOPQRST_CHECK1" CHECK ((COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ > 3))
-    "TABLE_ABCDEFGHIJKLMNOPQRSTUV_COLUMN_ABCDEFGHIJKLMNOPQRST_CHECK2" CHECK ((COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ > 4))
-    "TABLE_ABCDEFGHIJKLMNOPQRSTUV_COLUMN_ABCDEFGHIJKLMNOPQRST_CHECK3" CHECK ((COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ > 5))
-    "TABLE_ABCDEFGHIJKLMNOPQRSTUV_COLUMN_ABCDEFGHIJKLMNOPQRST_CHECK4" CHECK ((COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ > 6))
-    "TABLE_ABCDEFGHIJKLMNOPQRSTUV_COLUMN_ABCDEFGHIJKLMNOPQRST_CHECK5" CHECK ((COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ > 7))
-    "TABLE_ABCDEFGHIJKLMNOPQRSTUV_COLUMN_ABCDEFGHIJKLMNOPQRST_CHECK6" CHECK ((COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ > 8))
-    "TABLE_ABCDEFGHIJKLMNOPQRSTUV_COLUMN_ABCDEFGHIJKLMNOPQRST_CHECK7" CHECK ((COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ > 9))
-    "TABLE_ABCDEFGHIJKLMNOPQRSTUV_COLUMN_ABCDEFGHIJKLMNOPQRST_CHECK8" CHECK ((COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ > 0))
-    "TABLE_ABCDEFGHIJKLMNOPQRSTUV_COLUMN_ABCDEFGHIJKLMNOPQRST_CHECK9" CHECK ((COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ > 1))
-    "TABLE_ABCDEFGHIJKLMNOPQRSTU_COLUMN_ABCDEFGHIJKLMNOPQRST_CHECK10" CHECK ((COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ > 0))
+    "table_abcdefghijklmnopqrstuv_column_abcdefghijklmnopqrstu_CHECK" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 2))
+    "table_abcdefghijklmnopqrstuv_column_abcdefghijklmnopqrst_CHECK1" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 3))
+    "table_abcdefghijklmnopqrstuv_column_abcdefghijklmnopqrst_CHECK2" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 4))
+    "table_abcdefghijklmnopqrstuv_column_abcdefghijklmnopqrst_CHECK3" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 5))
+    "table_abcdefghijklmnopqrstuv_column_abcdefghijklmnopqrst_CHECK4" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 6))
+    "table_abcdefghijklmnopqrstuv_column_abcdefghijklmnopqrst_CHECK5" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 7))
+    "table_abcdefghijklmnopqrstuv_column_abcdefghijklmnopqrst_CHECK6" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 8))
+    "table_abcdefghijklmnopqrstuv_column_abcdefghijklmnopqrst_CHECK7" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 9))
+    "table_abcdefghijklmnopqrstuv_column_abcdefghijklmnopqrst_CHECK8" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 0))
+    "table_abcdefghijklmnopqrstuv_column_abcdefghijklmnopqrst_CHECK9" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 1))
+    "table_abcdefghijklmnopqrstu_column_abcdefghijklmnopqrst_CHECK10" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 0))
 DROP TABLE
 CREATE TABLE
-Table "TABLENAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXYZ" stored in Global: ^%ydboctoDFttWnqswvbWCsyFhuVup54 : Type = READWRITE
+Table "tablename_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxyz" stored in Global: ^%ydboctoDANwgOt1wiFnurL9Gvjqb8G : Type = READWRITE
 Column|Type|Collation|Nullable|Default
-COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXY|INTEGER|||
+columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy|INTEGER|||
 Check constraints:
-    "TABLENAME_ABCDEFGHIJKLMNOPQR_COLUMNNAME_ABCDEFGHIJKLMNOPQ_CHECK" CHECK ((COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXY > 2))
-    "TABLENAME_ABCDEFGHIJKLMNOPQR_COLUMNNAME_ABCDEFGHIJKLMNOP_CHECK1" CHECK ((COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXY > 3))
-    "TABLENAME_ABCDEFGHIJKLMNOPQR_COLUMNNAME_ABCDEFGHIJKLMNOP_CHECK2" CHECK ((COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXY > 4))
-    "TABLENAME_ABCDEFGHIJKLMNOPQR_COLUMNNAME_ABCDEFGHIJKLMNOP_CHECK3" CHECK ((COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXY > 5))
-    "TABLENAME_ABCDEFGHIJKLMNOPQR_COLUMNNAME_ABCDEFGHIJKLMNOP_CHECK4" CHECK ((COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXY > 6))
-    "TABLENAME_ABCDEFGHIJKLMNOPQR_COLUMNNAME_ABCDEFGHIJKLMNOP_CHECK5" CHECK ((COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXY > 7))
-    "TABLENAME_ABCDEFGHIJKLMNOPQR_COLUMNNAME_ABCDEFGHIJKLMNOP_CHECK6" CHECK ((COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXY > 8))
-    "TABLENAME_ABCDEFGHIJKLMNOPQR_COLUMNNAME_ABCDEFGHIJKLMNOP_CHECK7" CHECK ((COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXY > 9))
-    "TABLENAME_ABCDEFGHIJKLMNOPQR_COLUMNNAME_ABCDEFGHIJKLMNOP_CHECK8" CHECK ((COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXY > 0))
-    "TABLENAME_ABCDEFGHIJKLMNOPQR_COLUMNNAME_ABCDEFGHIJKLMNOP_CHECK9" CHECK ((COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXY > 1))
-    "TABLENAME_ABCDEFGHIJKLMNOPQ_COLUMNNAME_ABCDEFGHIJKLMNOP_CHECK10" CHECK ((COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXY > 0))
+    "tablename_abcdefghijklmnopqr_columnname_abcdefghijklmnopq_CHECK" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 2))
+    "tablename_abcdefghijklmnopqr_columnname_abcdefghijklmnop_CHECK1" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 3))
+    "tablename_abcdefghijklmnopqr_columnname_abcdefghijklmnop_CHECK2" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 4))
+    "tablename_abcdefghijklmnopqr_columnname_abcdefghijklmnop_CHECK3" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 5))
+    "tablename_abcdefghijklmnopqr_columnname_abcdefghijklmnop_CHECK4" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 6))
+    "tablename_abcdefghijklmnopqr_columnname_abcdefghijklmnop_CHECK5" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 7))
+    "tablename_abcdefghijklmnopqr_columnname_abcdefghijklmnop_CHECK6" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 8))
+    "tablename_abcdefghijklmnopqr_columnname_abcdefghijklmnop_CHECK7" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 9))
+    "tablename_abcdefghijklmnopqr_columnname_abcdefghijklmnop_CHECK8" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 0))
+    "tablename_abcdefghijklmnopqr_columnname_abcdefghijklmnop_CHECK9" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 1))
+    "tablename_abcdefghijklmnopq_columnname_abcdefghijklmnop_CHECK10" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 0))
 DROP TABLE
 CREATE TABLE
-Table "TABLENAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXYZ" stored in Global: ^%ydboctoDFttWnqswvbWCsyFhuVup54 : Type = READWRITE
+Table "tablename_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxyz" stored in Global: ^%ydboctoDANwgOt1wiFnurL9Gvjqb8G : Type = READWRITE
 Column|Type|Collation|Nullable|Default
-COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ|INTEGER|||
+column_abcdefghijklmnopqrstuvwxyz|INTEGER|||
 Check constraints:
-    "TABLENAME_ABCDEFGHIJKLMNOPQR_COLUMN_ABCDEFGHIJKLMNOPQRSTU_CHECK" CHECK ((COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ > 2))
-    "TABLENAME_ABCDEFGHIJKLMNOPQR_COLUMN_ABCDEFGHIJKLMNOPQRST_CHECK1" CHECK ((COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ > 3))
-    "TABLENAME_ABCDEFGHIJKLMNOPQR_COLUMN_ABCDEFGHIJKLMNOPQRST_CHECK2" CHECK ((COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ > 4))
-    "TABLENAME_ABCDEFGHIJKLMNOPQR_COLUMN_ABCDEFGHIJKLMNOPQRST_CHECK3" CHECK ((COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ > 5))
-    "TABLENAME_ABCDEFGHIJKLMNOPQR_COLUMN_ABCDEFGHIJKLMNOPQRST_CHECK4" CHECK ((COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ > 6))
-    "TABLENAME_ABCDEFGHIJKLMNOPQR_COLUMN_ABCDEFGHIJKLMNOPQRST_CHECK5" CHECK ((COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ > 7))
-    "TABLENAME_ABCDEFGHIJKLMNOPQR_COLUMN_ABCDEFGHIJKLMNOPQRST_CHECK6" CHECK ((COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ > 8))
-    "TABLENAME_ABCDEFGHIJKLMNOPQR_COLUMN_ABCDEFGHIJKLMNOPQRST_CHECK7" CHECK ((COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ > 9))
-    "TABLENAME_ABCDEFGHIJKLMNOPQR_COLUMN_ABCDEFGHIJKLMNOPQRST_CHECK8" CHECK ((COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ > 0))
-    "TABLENAME_ABCDEFGHIJKLMNOPQR_COLUMN_ABCDEFGHIJKLMNOPQRST_CHECK9" CHECK ((COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ > 1))
-    "TABLENAME_ABCDEFGHIJKLMNOPQ_COLUMN_ABCDEFGHIJKLMNOPQRST_CHECK10" CHECK ((COLUMN_ABCDEFGHIJKLMNOPQRSTUVWXYZ > 0))
+    "tablename_abcdefghijklmnopqr_column_abcdefghijklmnopqrstu_CHECK" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 2))
+    "tablename_abcdefghijklmnopqr_column_abcdefghijklmnopqrst_CHECK1" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 3))
+    "tablename_abcdefghijklmnopqr_column_abcdefghijklmnopqrst_CHECK2" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 4))
+    "tablename_abcdefghijklmnopqr_column_abcdefghijklmnopqrst_CHECK3" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 5))
+    "tablename_abcdefghijklmnopqr_column_abcdefghijklmnopqrst_CHECK4" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 6))
+    "tablename_abcdefghijklmnopqr_column_abcdefghijklmnopqrst_CHECK5" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 7))
+    "tablename_abcdefghijklmnopqr_column_abcdefghijklmnopqrst_CHECK6" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 8))
+    "tablename_abcdefghijklmnopqr_column_abcdefghijklmnopqrst_CHECK7" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 9))
+    "tablename_abcdefghijklmnopqr_column_abcdefghijklmnopqrst_CHECK8" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 0))
+    "tablename_abcdefghijklmnopqr_column_abcdefghijklmnopqrst_CHECK9" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 1))
+    "tablename_abcdefghijklmnopq_column_abcdefghijklmnopqrst_CHECK10" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 0))
 DROP TABLE
 CREATE TABLE
-Table "TABLENAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXYZ" stored in Global: ^%ydboctoDFttWnqswvbWCsyFhuVup54 : Type = READWRITE
+Table "tablename_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxyz" stored in Global: ^%ydboctoDANwgOt1wiFnurL9Gvjqb8G : Type = READWRITE
 Column|Type|Collation|Nullable|Default
-COLUMN_ABCDEF|INTEGER|||
+column_abcdef|INTEGER|||
 Check constraints:
-    "TABLENAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEF_COLUMN_ABCDEF_CHECK" CHECK ((COLUMN_ABCDEF > 2))
-    "TABLENAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDE_COLUMN_ABCDEF_CHECK1" CHECK ((COLUMN_ABCDEF > 3))
-    "TABLENAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDE_COLUMN_ABCDEF_CHECK2" CHECK ((COLUMN_ABCDEF > 4))
-    "TABLENAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDE_COLUMN_ABCDEF_CHECK3" CHECK ((COLUMN_ABCDEF > 5))
-    "TABLENAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDE_COLUMN_ABCDEF_CHECK4" CHECK ((COLUMN_ABCDEF > 6))
-    "TABLENAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDE_COLUMN_ABCDEF_CHECK5" CHECK ((COLUMN_ABCDEF > 7))
-    "TABLENAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDE_COLUMN_ABCDEF_CHECK6" CHECK ((COLUMN_ABCDEF > 8))
-    "TABLENAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDE_COLUMN_ABCDEF_CHECK7" CHECK ((COLUMN_ABCDEF > 9))
-    "TABLENAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDE_COLUMN_ABCDEF_CHECK8" CHECK ((COLUMN_ABCDEF > 0))
-    "TABLENAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDE_COLUMN_ABCDEF_CHECK9" CHECK ((COLUMN_ABCDEF > 1))
-    "TABLENAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCD_COLUMN_ABCDEF_CHECK10" CHECK ((COLUMN_ABCDEF > 0))
+    "tablename_abcdefghijklmnopqrstuvwxyz_abcdef_column_abcdef_CHECK" CHECK ((column_abcdef > 2))
+    "tablename_abcdefghijklmnopqrstuvwxyz_abcde_column_abcdef_CHECK1" CHECK ((column_abcdef > 3))
+    "tablename_abcdefghijklmnopqrstuvwxyz_abcde_column_abcdef_CHECK2" CHECK ((column_abcdef > 4))
+    "tablename_abcdefghijklmnopqrstuvwxyz_abcde_column_abcdef_CHECK3" CHECK ((column_abcdef > 5))
+    "tablename_abcdefghijklmnopqrstuvwxyz_abcde_column_abcdef_CHECK4" CHECK ((column_abcdef > 6))
+    "tablename_abcdefghijklmnopqrstuvwxyz_abcde_column_abcdef_CHECK5" CHECK ((column_abcdef > 7))
+    "tablename_abcdefghijklmnopqrstuvwxyz_abcde_column_abcdef_CHECK6" CHECK ((column_abcdef > 8))
+    "tablename_abcdefghijklmnopqrstuvwxyz_abcde_column_abcdef_CHECK7" CHECK ((column_abcdef > 9))
+    "tablename_abcdefghijklmnopqrstuvwxyz_abcde_column_abcdef_CHECK8" CHECK ((column_abcdef > 0))
+    "tablename_abcdefghijklmnopqrstuvwxyz_abcde_column_abcdef_CHECK9" CHECK ((column_abcdef > 1))
+    "tablename_abcdefghijklmnopqrstuvwxyz_abcd_column_abcdef_CHECK10" CHECK ((column_abcdef > 0))
 DROP TABLE
 CREATE TABLE
-Table "TABLE_ABCDEF" stored in Global: ^%ydboctoDa9xUCOYmJZXn1yheqUmSK4 : Type = READWRITE
+Table "table_abcdef" stored in Global: ^%ydboctoDmI36FaaUDwWULe5Yd187C6 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
-COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXY|INTEGER|||
+columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy|INTEGER|||
 Check constraints:
-    "TABLE_ABCDEF_COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEF_CHECK" CHECK ((COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXY > 2))
-    "TABLE_ABCDEF_COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDE_CHECK1" CHECK ((COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXY > 3))
-    "TABLE_ABCDEF_COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDE_CHECK2" CHECK ((COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXY > 4))
-    "TABLE_ABCDEF_COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDE_CHECK3" CHECK ((COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXY > 5))
-    "TABLE_ABCDEF_COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDE_CHECK4" CHECK ((COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXY > 6))
-    "TABLE_ABCDEF_COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDE_CHECK5" CHECK ((COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXY > 7))
-    "TABLE_ABCDEF_COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDE_CHECK6" CHECK ((COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXY > 8))
-    "TABLE_ABCDEF_COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDE_CHECK7" CHECK ((COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXY > 9))
-    "TABLE_ABCDEF_COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDE_CHECK8" CHECK ((COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXY > 0))
-    "TABLE_ABCDEF_COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDE_CHECK9" CHECK ((COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXY > 1))
-    "TABLE_ABCDEF_COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCD_CHECK10" CHECK ((COLUMNNAME_ABCDEFGHIJKLMNOPQRSTUVWXYZ_ABCDEFGHIJKLMNOPQRSTUVWXY > 0))
+    "table_abcdef_columnname_abcdefghijklmnopqrstuvwxyz_abcdef_CHECK" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 2))
+    "table_abcdef_columnname_abcdefghijklmnopqrstuvwxyz_abcde_CHECK1" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 3))
+    "table_abcdef_columnname_abcdefghijklmnopqrstuvwxyz_abcde_CHECK2" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 4))
+    "table_abcdef_columnname_abcdefghijklmnopqrstuvwxyz_abcde_CHECK3" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 5))
+    "table_abcdef_columnname_abcdefghijklmnopqrstuvwxyz_abcde_CHECK4" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 6))
+    "table_abcdef_columnname_abcdefghijklmnopqrstuvwxyz_abcde_CHECK5" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 7))
+    "table_abcdef_columnname_abcdefghijklmnopqrstuvwxyz_abcde_CHECK6" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 8))
+    "table_abcdef_columnname_abcdefghijklmnopqrstuvwxyz_abcde_CHECK7" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 9))
+    "table_abcdef_columnname_abcdefghijklmnopqrstuvwxyz_abcde_CHECK8" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 0))
+    "table_abcdef_columnname_abcdefghijklmnopqrstuvwxyz_abcde_CHECK9" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 1))
+    "table_abcdef_columnname_abcdefghijklmnopqrstuvwxyz_abcd_CHECK10" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 0))
 DROP TABLE

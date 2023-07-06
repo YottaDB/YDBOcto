@@ -250,7 +250,6 @@ int auto_upgrade_binary_function_definition(void) {
 					}
 				}
 			}
-
 			COPY_QUERY_TO_INPUT_BUFFER(ret_buff.buf_addr, (int)ret_buff.len_used, NEWLINE_NEEDED_FALSE);
 			/* Note: Following code is similar to that in octo.c and run_query.c */
 			memset(&parse_context, 0, sizeof(parse_context));
@@ -269,6 +268,7 @@ int auto_upgrade_binary_function_definition(void) {
 			/* To print only the current query store the index for the last one
 			 * then print the difference between the cur_input_index - old_input_index
 			 */
+			assert(0 == cur_input_index);
 			old_input_index = cur_input_index;
 			result = parse_line(&parse_context);
 			/* From now on, all CLEANUP_* macro calls will have TRUE as the last parameter
@@ -282,6 +282,33 @@ int auto_upgrade_binary_function_definition(void) {
 			if (NULL == result) {
 				INFO(INFO_RETURNING_FAILURE, "parse_line");
 				CLEANUP_AND_RETURN(1, function_buff, ret_buff, TRUE, &cursor_ydb_buff);
+			}
+			if (config->is_auto_upgrade_octo929) {
+				hash128_state_t state;
+				char		function_hash[MAX_ROUTINE_LEN + 1];
+				int		status;
+				INVOKE_HASH_CANONICAL_QUERY(state, result, status); /* "state" holds final hash */
+				if (0 != status) {
+					CLEANUP_AND_RETURN(1, function_buff, ret_buff, TRUE, &cursor_ydb_buff);
+				}
+				generate_name_type(FunctionHash, &state, 0, function_hash, sizeof(function_hash));
+
+				ydb_buffer_t ydbocto929, func_subs[2];
+				char	     subs0_buff[INT32_TO_STRING_MAX];
+				unsigned int data_ret;
+
+				YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTO929, &ydbocto929);
+				func_subs[0].buf_addr = subs0_buff;
+				func_subs[0].len_alloc = sizeof(subs0_buff);
+				func_subs[0].len_used
+				    = snprintf(func_subs[0].buf_addr, func_subs[0].len_alloc, "%d", create_function_STATEMENT);
+				YDB_STRING_TO_BUFFER(function_hash, &func_subs[1]);
+				status = ydb_data_s(&ydbocto929, 2, &func_subs[0], &data_ret);
+				CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, TRUE, &cursor_ydb_buff);
+				if (0 == data_ret) {
+					fprintf(config->octo929_sqlfile_stream, "%.*s\n", cur_input_index - old_input_index,
+						input_buffer_combined + old_input_index);
+				}
 			}
 			/* Get OID of the function_name and function_hash combination (from below gvn) as we need that OID
 			 * to store in the binary function definition.

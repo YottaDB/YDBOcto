@@ -51,16 +51,16 @@ char *get_parameter_from_pg_settings(char **variable, ydb_buffer_t *out) {
 	char *	     value_str;
 	int	     status;
 	int	     value_len;
+	unsigned int data_ret;
 	boolean_t    check_ro = FALSE; // For tracking whether a read-only variable check is necessary
 
 	assert(NULL != variable);
-
-	// Uppercase the variable name to enforce case insensitivity
-	TOUPPER_STR(*variable);
+	// Lowercase the variable name to enforce case insensitivity
+	TOLOWER_STR(*variable);
 	/* Initialize session LVN subscripts
 	 *
 	 * Use global_names.raw_octo to access table LVN, i.e. "%ydboctoocto" instead of "^%ydboctoocto":
-	 *	%ydboctoocto(OCTOLIT_SETTINGS,OCTOLIT_NAMES,variable)
+	 *	%ydboctoocto(OCTOLIT_SETTINGS,OCTOLIT_PG_SETTINGS,variable)
 	 *
 	 * Note that the variable will be upper case due to lexer conversion of identifiers.
 	 * Accordingly, first retrieve the canonical form of the variable name (typically lowercase, per PostgreSQL convention)
@@ -68,7 +68,7 @@ char *get_parameter_from_pg_settings(char **variable, ydb_buffer_t *out) {
 	 */
 	YDB_STRING_TO_BUFFER(config->global_names.raw_octo, &pg_buffers[0]);
 	YDB_STRING_TO_BUFFER(OCTOLIT_SETTINGS, &pg_buffers[1]);
-	YDB_STRING_TO_BUFFER(OCTOLIT_NAMES, &pg_buffers[2]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_PG_SETTINGS, &pg_buffers[2]);
 	YDB_STRING_TO_BUFFER(*variable, &pg_buffers[3]);
 
 	/* Lookup the canonical name of the parameter and use it to replace the upper case form.
@@ -76,8 +76,8 @@ char *get_parameter_from_pg_settings(char **variable, ydb_buffer_t *out) {
 	 *
 	 * Note that this will overwrite the pre-allocated space in variable.
 	 */
-	status = ydb_get_s(&pg_buffers[0], 3, &pg_buffers[1], &pg_buffers[3]);
-	if (YDB_ERR_LVUNDEF == status) {
+	status = ydb_data_s(&pg_buffers[0], 3, &pg_buffers[1], &data_ret);
+	if (0 == data_ret) {
 		/* The variable may be either invalid or read-only (and so stored elsewhere).
 		 * So, check whether a read-only variable is requested, otherwise issue an error for an invalid one.
 		 */

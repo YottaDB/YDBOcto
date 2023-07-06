@@ -15,8 +15,8 @@
 -- Table with literal delimiter (default '|')
 CREATE TABLE extractnames (
 	id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER,
-	fullname VARCHAR EXTRACT "$$^FULLNAME(values(""FIRSTNAME""),values(""LASTNAME""))"
-) GLOBAL "^names(keys(""ID""))";
+	fullname VARCHAR EXTRACT "$$^FULLNAME(values(""firstname""),values(""lastname""))"
+) GLOBAL "^names(keys(""id""))";
 
 select * from extractnames;
 select fullname from extractnames;
@@ -24,8 +24,8 @@ select fullname from extractnames;
 -- Table with non-literal delimiter at table level
 CREATE TABLE delimnames (
 	id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  middleInitial VARCHAR(1), age INTEGER,
-	fullname VARCHAR EXTRACT "$$^FULLNAME(values(""FIRSTNAME""),values(""LASTNAME""))"
-) DELIM (123, 9, 124, 9, 125) GLOBAL "^delimnames(keys(""ID""))";
+	fullname VARCHAR EXTRACT "$$^FULLNAME(values(""firstname""),values(""lastname""))"
+) DELIM (123, 9, 124, 9, 125) GLOBAL "^delimnames(keys(""id""))";
 
 select * from extractnames;
 select fullname from delimnames;
@@ -33,8 +33,8 @@ select fullname from delimnames;
 -- Table with non-literal delimiter at column level
 CREATE TABLE delimnamescol (
 	id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30) DELIM (13), middleInitial VARCHAR(1), age INTEGER,
-	fullname VARCHAR EXTRACT "$$^FULLNAME(values(""FIRSTNAME""),values(""LASTNAME""))"
-) GLOBAL "^delimnamescol(keys(""ID""))";
+	fullname VARCHAR EXTRACT "$$^FULLNAME(values(""firstname""),values(""lastname""))"
+) GLOBAL "^delimnamescol(keys(""id""))";
 
 select * from extractnames;
 select fullname from delimnamescol;

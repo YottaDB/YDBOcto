@@ -175,44 +175,44 @@ update composite set id3 = id3, id7 = NULL, id0 = id0;
 ???
 -- Test of ERR_TABLE_UNKNOWN_COLUMN_NAME error using a regular column
 (1 row)
-[ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "ABCD" of table "NAMES" does not exist
+[ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "abcd" of table "names" does not exist
 LINE 4:1: update names set abcd = 2;
                            ^^^^
 ???
 -- Test of ERR_TABLE_UNKNOWN_COLUMN_NAME error using a hidden key column
 (1 row)
 CREATE TABLE
-[ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "%YO_KEYCOL" of table "TMP" does not exist
+[ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "%yo_keycol" of table "tmp" does not exist
 LINE 8:1: update tmp set `%yo_keycol` = 2;
                          ^^^^^^^^^^^^
 DROP TABLE
 ???
 -- Test of ERR_MISSING_FROM_ENTRY
 (1 row)
-[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : NAMES
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : names
 LINE 12:1: update names n1 set firstname = 'abcd' where names.id = 2;
                                                         ^^^^^^^^
 ???
 -- Test of ERR_TABLE_READONLY error against various catalog tables
 (1 row)
-[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "OCTOONEROWTABLE". Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "PG_CATALOG.PG_NAMESPACE". Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "PG_CATALOG.PG_TYPE". Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "PG_CATALOG.PG_CLASS". Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "PG_CATALOG.PG_DESCRIPTION". Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "INFORMATION_SCHEMA.TABLES". Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "PG_CATALOG.PG_PROC". Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "PG_CATALOG.PG_ATTRIBUTE". Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "PG_CATALOG.PG_ATTRDEF". Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "PG_CATALOG.PG_SETTINGS". Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "PG_CATALOG.PG_DATABASE". Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "PG_CATALOG.PG_ROLES". Only allowed on READWRITE tables.
-[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "PG_CATALOG.PG_USER". Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "octoonerowtable". Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "pg_catalog.pg_namespace". Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "pg_catalog.pg_type". Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "pg_catalog.pg_class". Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "pg_catalog.pg_description". Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "information_schema.tables". Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "pg_catalog.pg_proc". Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "pg_catalog.pg_attribute". Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "pg_catalog.pg_attrdef". Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "pg_catalog.pg_settings". Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "pg_catalog.pg_database". Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "pg_catalog.pg_roles". Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "pg_catalog.pg_user". Only allowed on READWRITE tables.
 ???
 -- Test of ERR_TABLE_READONLY error in a table created with READONLY
 (1 row)
 CREATE TABLE
-[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "TEST1". Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "test1". Only allowed on READWRITE tables.
 DROP TABLE
 ???
 -- Test same table created with READWRITE works fine with UPDATE
@@ -220,7 +220,7 @@ DROP TABLE
 CREATE TABLE
 INSERT 0 1
 UPDATE 1
-ID|FIRSTNAME
+id|firstname
 1|efgh
 (1 row)
 DROP TABLE
@@ -228,7 +228,7 @@ DROP TABLE
 -- Test of ERR_TABLE_READONLY error in a table created with READONLY implicitly assumed
 (1 row)
 CREATE TABLE
-[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "TEST1". Only allowed on READWRITE tables.
+[ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "test1". Only allowed on READWRITE tables.
 DROP TABLE
 ???
 -- Test of ERR_TYPE_NOT_COMPATIBLE error
@@ -280,34 +280,34 @@ syntax error, unexpected WHERE
 ???
 -- Test of ERR_UNKNOWN_TABLE error
 (1 row)
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: ABCD
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: abcd
 LINE 63:1: update abcd set id = 2;
                   ^^^^
 ???
 -- Test of ERR_DUPLICATE_COLUMN error
 (1 row)
-[ERROR]: ERR_DUPLICATE_COLUMN: Column "ID" specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column "id" specified more than once
 LINE 66:1: update names set id = 2, id = 3;
                                     ^^
-[ERROR]: ERR_DUPLICATE_COLUMN: Column "ID" specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column "id" specified more than once
 LINE 67:1: update names set id = 2, firstname = 'abcd', id = 3;
                                                         ^^
-[ERROR]: ERR_DUPLICATE_COLUMN: Column "FIRSTNAME" specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column "firstname" specified more than once
 LINE 68:1: ... = 2, firstname = 'abcd', lastname = 'efgh', firstname = 'xyz';
                                                            ^^^^^^^^^
-[ERROR]: ERR_DUPLICATE_COLUMN: Column "ID" specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column "id" specified more than once
 LINE 69:1: ...ames set id = 2, firstname = 'abcd', firstname = 'efgh', id = 5;
                                                                        ^^
 ???
 -- Test case where ERR_DUPLICATE_COLUMN error is issued even if ERR_TABLE_UNKNOWN_COLUMN_NAME error also exists
 (1 row)
-[ERROR]: ERR_DUPLICATE_COLUMN: Column "ID" specified more than once
+[ERROR]: ERR_DUPLICATE_COLUMN: Column "id" specified more than once
 LINE 72:1: update names set id = 2, firstname = 'abcd', abcd = 4, id = 5;
                                                                   ^^
 ???
 -- Test case where ERR_TABLE_UNKNOWN_COLUMN_NAME error is issued even if ERR_DUPLICATE_COLUMN error also exists
 (1 row)
-[ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "ABCD" of table "NAMES" does not exist
+[ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "abcd" of table "names" does not exist
 LINE 75:1: update names set firstname = 'abcd', abcd = 4, id = 4, id = 5;
                                                 ^^^^
 ???
@@ -326,11 +326,11 @@ LINE 78:1: ...pdate names set firstname = (select firstname,lastname from name..
 CREATE TABLE
 INSERT 0 1
 [ERROR]: ERR_VARCHAR_TOO_LONG: Value too long for type VARCHAR(3)
-COLUMN1
+column1
 a
 (1 row)
 [ERROR]: ERR_VARCHAR_TOO_LONG: Value too long for type VARCHAR(3)
-COLUMN1
+column1
 a
 (1 row)
 DROP TABLE
@@ -342,31 +342,31 @@ DROP TABLE
 (1 row)
 CREATE TABLE
 INSERT 0 1
-COLUMN1
+column1
 a
 (1 row)
 [ERROR]: ERR_VARCHAR_TOO_LONG: Value too long for type VARCHAR(4)
-COLUMN1
+column1
 a
 (1 row)
 [ERROR]: ERR_VARCHAR_TOO_LONG: Value too long for type VARCHAR(4)
-COLUMN1
+column1
 a
 (1 row)
 [ERROR]: ERR_VARCHAR_TOO_LONG: Value too long for type VARCHAR(4)
-COLUMN1
+column1
 a
 (1 row)
 [ERROR]: ERR_VARCHAR_TOO_LONG: Value too long for type VARCHAR(4)
-COLUMN1
+column1
 a
 (1 row)
 [ERROR]: ERR_VARCHAR_TOO_LONG: Value too long for type VARCHAR(4)
-COLUMN1
+column1
 a
 (1 row)
 [ERROR]: ERR_VARCHAR_TOO_LONG: Value too long for type VARCHAR(4)
-COLUMN1
+column1
 a
 (1 row)
 DROP TABLE
@@ -382,11 +382,11 @@ DROP TABLE
 CREATE TABLE
 INSERT 0 1
 [ERROR]: ERR_VARCHAR_TOO_LONG: Value too long for type VARCHAR(4)
-COLUMN1
+column1
 a
 (1 row)
 [ERROR]: ERR_VARCHAR_TOO_LONG: Value too long for type VARCHAR(4)
-COLUMN1
+column1
 a
 (1 row)
 DROP TABLE
@@ -409,7 +409,7 @@ INSERT 0 4
 ???
 -- Verify that no rows are updated at the end
 (1 row)
-COLUMN1
+column1
 a
 ab
 abc
@@ -419,7 +419,7 @@ DROP TABLE
 ???
 -- Test that valid queries work fine after an UPDATE query that had an error midway
 (1 row)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 4|Joey|
 (1 row)
 ???
@@ -448,19 +448,19 @@ INSERT 0 1
 ???
 -- Expect only 1 row from SELECT * containing 4-character string; Should not see 5-character string
 (1 row)
-NAME
+name
 abcd
 (1 row)
 ???
 -- Test of ERR_DUPLICATE_KEY_VALUE on names database
 (1 row)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "NAMES_PKEY" : Key (ID)=(1) already exists
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "NAMES_PKEY" : Key (ID)=(5) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "names_PKEY" : Key (id)=(1) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "names_PKEY" : Key (id)=(5) already exists
 ???
 -- Test ERR_DUPLICATE_KEY_VALUE error is not issued if OR operands are swapped
 (1 row)
 UPDATE 2
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -471,14 +471,14 @@ ID|FIRSTNAME|LASTNAME
 ???
 -- Test of ERR_DUPLICATE_KEY_VALUE on composite database
 (1 row)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "COMPOSITE_PKEY" : Key (ID0, ID1, ID2, ID3, ID4, ID5, ID6, ID7)=(1, 2, 3, 4, 5, 6, 8, 7) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "composite_PKEY" : Key (id0, id1, id2, id3, id4, id5, id6, id7)=(1, 2, 3, 4, 5, 6, 8, 7) already exists
 ???
 -- Test of ERR_NULL_COL_VALUE on names database
 (1 row)
-[ERROR]: ERR_NULL_COL_VALUE: NULL value in column ID violates NOT NULL constraint
-[ERROR]: ERR_NULL_COL_VALUE: NULL value in column ID violates NOT NULL constraint
+[ERROR]: ERR_NULL_COL_VALUE: NULL value in column id violates NOT NULL constraint
+[ERROR]: ERR_NULL_COL_VALUE: NULL value in column id violates NOT NULL constraint
 ???
 -- Test of ERR_NULL_COL_VALUE on composite database
 (1 row)
-[ERROR]: ERR_NULL_COL_VALUE: NULL value in column ID0 violates NOT NULL constraint
-[ERROR]: ERR_NULL_COL_VALUE: NULL value in column ID7 violates NOT NULL constraint
+[ERROR]: ERR_NULL_COL_VALUE: NULL value in column id0 violates NOT NULL constraint
+[ERROR]: ERR_NULL_COL_VALUE: NULL value in column id7 violates NOT NULL constraint

@@ -11,13 +11,13 @@ DROP TABLE tmp;
 # Before the YDBOcto#904 fixes, we would see 0 rows of output from the second SELECT query
 CREATE TABLE
 INSERT 0 1
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 1|Zero|Cool
 (1 row)
 DROP TABLE
 CREATE TABLE
 INSERT 0 1
-ID|LASTNAME|FIRSTNAME
+id|lastname|firstname
 1|Cool|Zero
 (1 row)
 DROP TABLE

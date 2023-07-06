@@ -4,11 +4,11 @@
 [ INFO] PATH:LINENUM DATE TIME: INFO_M_PLAN: Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 [DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
 LP_INSERT_INTO: 
-  LP_TABLE: NAMES(4)
+  LP_TABLE: names(4)
   LP_INSERT_INTO_OPTIONS: 
     LP_COLUMN_LIST: 
-      LP_COLUMN: LASTNAME
-      LP_COLUMN: ID
+      LP_COLUMN: lastname
+      LP_COLUMN: id
     LP_INSERT_INTO_MORE_OPTIONS: 
       LP_SET_OPERATION: 
         LP_SET_OPTION: 
@@ -26,30 +26,30 @@ LP_INSERT_INTO:
             LP_PROJECT: 
               LP_COLUMN_LIST: 
                 LP_WHERE: 
-                  LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+                  LP_COLUMN_ALIAS: names(1).firstname
                   LP_COLUMN_LIST_ALIAS: 
                   - type: STRING_LITERAL
-                  - alias: FIRSTNAME
+                  - alias: firstname
                 LP_WHERE: 
                   LP_ADDITION: 
-                    LP_COLUMN_ALIAS: NAMES(1).ID
+                    LP_COLUMN_ALIAS: names(1).id
                     LP_VALUE: '10'
                   LP_COLUMN_LIST_ALIAS: 
                   - type: INTEGER_LITERAL
                   - alias: ???
               LP_SELECT: 
                 LP_TABLE_JOIN: 
-                  LP_TABLE: NAMES(1)
+                  LP_TABLE: names(1)
                 LP_CRITERIA: 
                   LP_KEYS: 
                   LP_SELECT_OPTIONS: 
                     LP_WHERE: 
                       LP_BOOLEAN_OR: 
                         LP_BOOLEAN_EQUALS: 
-                          LP_COLUMN_ALIAS: NAMES(1).ID
+                          LP_COLUMN_ALIAS: names(1).id
                           LP_VALUE: '4'
                         LP_BOOLEAN_EQUALS: 
-                          LP_COLUMN_ALIAS: NAMES(1).ID
+                          LP_COLUMN_ALIAS: names(1).id
                           LP_VALUE: '5'
                     LP_SELECT_MORE_OPTIONS: 
                       LP_KEYWORDS: 
@@ -65,15 +65,15 @@ LP_INSERT_INTO:
             LP_TABLE_DATA: 
               LP_COLUMN_LIST: 
                 LP_WHERE: 
-                  LP_COLUMN_ALIAS: (3).COLUMN1
+                  LP_COLUMN_ALIAS: (3).column1
                   LP_COLUMN_LIST_ALIAS: 
                   - type: STRING_LITERAL
-                  - alias: COLUMN1
+                  - alias: column1
                 LP_WHERE: 
-                  LP_COLUMN_ALIAS: (3).COLUMN2
+                  LP_COLUMN_ALIAS: (3).column2
                   LP_COLUMN_LIST_ALIAS: 
                   - type: INTEGER_LITERAL
-                  - alias: COLUMN2
+                  - alias: column2
               LP_ROW_VALUE: 
                 LP_COLUMN_LIST: 
                   LP_VALUE: 'Lastname100'
@@ -90,17 +90,17 @@ LP_INSERT_INTO:
               - xref_key: false
               - uses_xref_key: false
       LP_CONSTRAINT: 
-        LP_UNIQUE_CONSTRAINT: NAMES_PKEY
+        LP_UNIQUE_CONSTRAINT: names_PKEY
           LP_COLUMN_LIST: 
-            LP_VALUE: 'ID'
+            LP_VALUE: 'id'
 
 [DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN AFTER optimize_logical_plan() follows 
 LP_INSERT_INTO: 
-  LP_TABLE: NAMES(4)
+  LP_TABLE: names(4)
   LP_INSERT_INTO_OPTIONS: 
     LP_COLUMN_LIST: 
-      LP_COLUMN: LASTNAME
-      LP_COLUMN: ID
+      LP_COLUMN: lastname
+      LP_COLUMN: id
     LP_INSERT_INTO_MORE_OPTIONS: 
       LP_SET_OPERATION: 
         LP_SET_OPTION: 
@@ -122,25 +122,25 @@ LP_INSERT_INTO:
                 LP_PROJECT: 
                   LP_COLUMN_LIST: 
                     LP_WHERE: 
-                      LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+                      LP_COLUMN_ALIAS: names(1).firstname
                       LP_COLUMN_LIST_ALIAS: 
                       - type: STRING_LITERAL
-                      - alias: FIRSTNAME
+                      - alias: firstname
                     LP_WHERE: 
                       LP_ADDITION: 
-                        LP_COLUMN_ALIAS: NAMES(1).ID
+                        LP_COLUMN_ALIAS: names(1).id
                         LP_VALUE: '10'
                       LP_COLUMN_LIST_ALIAS: 
                       - type: INTEGER_LITERAL
                       - alias: ???
                   LP_SELECT: 
                     LP_TABLE_JOIN: 
-                      LP_TABLE: NAMES(1)
+                      LP_TABLE: names(1)
                     LP_CRITERIA: 
                       LP_KEYS: 
                         LP_KEY: 
-                        - table_name: NAMES
-                        - column_name: ID
+                        - table_name: names
+                        - column_name: id
                         - unique_id: 1
                         - method: LP_KEY_FIX
                         - xref_key: false
@@ -163,25 +163,25 @@ LP_INSERT_INTO:
                 LP_PROJECT: 
                   LP_COLUMN_LIST: 
                     LP_WHERE: 
-                      LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+                      LP_COLUMN_ALIAS: names(1).firstname
                       LP_COLUMN_LIST_ALIAS: 
                       - type: STRING_LITERAL
-                      - alias: FIRSTNAME
+                      - alias: firstname
                     LP_WHERE: 
                       LP_ADDITION: 
-                        LP_COLUMN_ALIAS: NAMES(1).ID
+                        LP_COLUMN_ALIAS: names(1).id
                         LP_VALUE: '10'
                       LP_COLUMN_LIST_ALIAS: 
                       - type: INTEGER_LITERAL
                       - alias: ???
                   LP_SELECT: 
                     LP_TABLE_JOIN: 
-                      LP_TABLE: NAMES(1)
+                      LP_TABLE: names(1)
                     LP_CRITERIA: 
                       LP_KEYS: 
                         LP_KEY: 
-                        - table_name: NAMES
-                        - column_name: ID
+                        - table_name: names
+                        - column_name: id
                         - unique_id: 1
                         - method: LP_KEY_FIX
                         - xref_key: false
@@ -204,15 +204,15 @@ LP_INSERT_INTO:
             LP_TABLE_DATA: 
               LP_COLUMN_LIST: 
                 LP_WHERE: 
-                  LP_COLUMN_ALIAS: (3).COLUMN1
+                  LP_COLUMN_ALIAS: (3).column1
                   LP_COLUMN_LIST_ALIAS: 
                   - type: STRING_LITERAL
-                  - alias: COLUMN1
+                  - alias: column1
                 LP_WHERE: 
-                  LP_COLUMN_ALIAS: (3).COLUMN2
+                  LP_COLUMN_ALIAS: (3).column2
                   LP_COLUMN_LIST_ALIAS: 
                   - type: INTEGER_LITERAL
-                  - alias: COLUMN2
+                  - alias: column2
               LP_ROW_VALUE: 
                 LP_COLUMN_LIST: 
                   LP_VALUE: 'Lastname100'
@@ -229,9 +229,9 @@ LP_INSERT_INTO:
               - xref_key: false
               - uses_xref_key: false
       LP_CONSTRAINT: 
-        LP_UNIQUE_CONSTRAINT: NAMES_PKEY
+        LP_UNIQUE_CONSTRAINT: names_PKEY
           LP_COLUMN_LIST: 
-            LP_VALUE: 'ID'
+            LP_VALUE: 'id'
 
 [ INFO] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering print_temporary_table
 INSERT 0 4

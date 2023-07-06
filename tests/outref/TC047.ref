@@ -26,7 +26,7 @@ SELECT * from tmp5;
 -- Simple test case first
 (1 row)
 CREATE TABLE
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -38,7 +38,7 @@ ID|FIRSTNAME|LASTNAME
 -- Test for READONLY with user specified primary key columns
 (1 row)
 CREATE TABLE
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -50,7 +50,7 @@ ID|FIRSTNAME|LASTNAME
 -- Test for READONLY with no user specified primary key columns
 (1 row)
 CREATE TABLE
-ID
+id
 0
 1
 2
@@ -62,7 +62,7 @@ ID
 -- Test for READWRITE with user specified primary key columns
 (1 row)
 CREATE TABLE
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -74,7 +74,7 @@ ID|FIRSTNAME|LASTNAME
 -- Test for READWRITE with no user specified primary key columns
 (1 row)
 CREATE TABLE
-FIRSTANDLASTNAME
+firstandlastname
 Zero|Cool
 Acid|Burn
 Cereal|Killer
@@ -83,8 +83,8 @@ Joey|
 Zero|Cool
 (6 rows)
 # Verify text table definition does not keys() inserted appropriately in the GLOBAL keyword
-^%ydboctoschema("TMP1","text",0)="CREATE TABLE `TMP1` (`ID` INTEGER CONSTRAINT ""TMP1_PKEY"" PRIMARY KEY, `FIRSTNAME` VARCHAR PIECE 1, `LASTNAME` VARCHAR PIECE 2) GLOBAL ""^names(keys(""""ID""""))"" DELIM ""|"" READWRITE;"
-^%ydboctoschema("TMP2","text",0)="CREATE TABLE `TMP2` (`ID` INTEGER CONSTRAINT ""TMP2_PKEY"" PRIMARY KEY, `FIRSTNAME` VARCHAR PIECE 1, `LASTNAME` VARCHAR PIECE 2) GLOBAL ""^names(keys(""""ID""""))"" DELIM ""|"" READONLY;"
-^%ydboctoschema("TMP3","text",0)="CREATE TABLE `TMP3` (`ID` INTEGER) GLOBAL ""^names(keys(""""ID""""))"" DELIM ""|"" READONLY;"
-^%ydboctoschema("TMP4","text",0)="CREATE TABLE `TMP4` (`ID` INTEGER CONSTRAINT ""TMP4_PKEY"" PRIMARY KEY, `FIRSTNAME` VARCHAR PIECE 1, `LASTNAME` VARCHAR PIECE 2) GLOBAL ""^names(keys(""""ID""""))"" DELIM ""|"" READWRITE;"
-^%ydboctoschema("TMP5","text",0)="CREATE TABLE `TMP5` (`FIRSTANDLASTNAME` VARCHAR DELIM """") GLOBAL ""^names(keys(""""%YO_KEYCOL""""))"" DELIM ""|"" READWRITE;"
+^%ydboctoschema("tmp1","text",0)="CREATE TABLE `tmp1` (`id` INTEGER CONSTRAINT ""tmp1_PKEY"" PRIMARY KEY, `firstname` VARCHAR PIECE 1, `lastname` VARCHAR PIECE 2) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"" READWRITE;"
+^%ydboctoschema("tmp2","text",0)="CREATE TABLE `tmp2` (`id` INTEGER CONSTRAINT ""tmp2_PKEY"" PRIMARY KEY, `firstname` VARCHAR PIECE 1, `lastname` VARCHAR PIECE 2) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("tmp3","text",0)="CREATE TABLE `tmp3` (`id` INTEGER) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("tmp4","text",0)="CREATE TABLE `tmp4` (`id` INTEGER CONSTRAINT ""tmp4_PKEY"" PRIMARY KEY, `firstname` VARCHAR PIECE 1, `lastname` VARCHAR PIECE 2) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"" READWRITE;"
+^%ydboctoschema("tmp5","text",0)="CREATE TABLE `tmp5` (`firstandlastname` VARCHAR DELIM """") GLOBAL ""^names(keys(""""%yo_keycol""""))"" DELIM ""|"" READWRITE;"

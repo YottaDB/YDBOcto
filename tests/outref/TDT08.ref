@@ -12,14 +12,14 @@ select * from names where FIRSTNAME = 'Joey';
 -- Print the contents according to the new definition
 select id,'"',firstname,'"' from names;
 CREATE TABLE
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 4|Joey|
 (1 row)
 DROP TABLE
 CREATE TABLE
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 (0 rows)
-ID|???|FIRSTNAME|???
+id|???|firstname|???
 0|"|Zero|Cool|"
 1|"|Acid|Burn|"
 2|"|Cereal|Killer|"

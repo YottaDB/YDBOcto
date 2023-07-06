@@ -43,21 +43,21 @@ int set_parameter_in_pg_settings(char *variable, char *value) {
 
 	// SET a runtime variable to a specified value by updating the appropriate session LVN
 	assert((NULL != variable) && (NULL != value));
-	// Uppercase the variable name to enforce case insensitivity
-	TOUPPER_STR(variable);
+	// Lowercase the variable name to enforce case insensitivity
+	TOLOWER_STR(variable);
 
 	/* Initialize session LVN subscripts
 	 *
 	 * Use global_names.raw_octo to access table LVN, i.e. "%ydboctoocto" instead of "^%ydboctoocto":
-	 *	%ydboctoocto(OCTOLIT_SETTINGS,OCTOLIT_NAMES,runtime_variable_stmt)
+	 *	%ydboctoocto(OCTOLIT_SETTINGS,OCTOLIT_PG_SETTINGS,runtime_variable_stmt)
 	 *
-	 * Note that the runtime_variable_stmt will be upper case due to lexer conversion of identifiers.
+	 * Note that the runtime_variable_stmt will be lower case due to lexer conversion of identifiers.
 	 * Accordingly, first retrieve the canonical form of the variable name (typically lowercase, per PostgreSQL convention)
-	 * from the upper-to-canonical name mapping done at startup in octo_init.c by load_pg_defaults().
+	 * from the lower-to-canonical name mapping done at startup in octo_init.c by load_pg_defaults().
 	 */
 	YDB_STRING_TO_BUFFER(config->global_names.raw_octo, &pg_buffers[0]);
 	YDB_STRING_TO_BUFFER(OCTOLIT_SETTINGS, &pg_buffers[1]);
-	YDB_STRING_TO_BUFFER(OCTOLIT_NAMES, &pg_buffers[2]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_PG_SETTINGS, &pg_buffers[2]);
 	YDB_STRING_TO_BUFFER(variable, &pg_buffers[3]);
 	/* Prepare the variable name as a ydb_ci parameter here to reuse length determination done by YDB_STRING_TO_BUFFER before it
 	 * is overwritten by ydb_get_s below, saving a strlen call.
@@ -65,17 +65,23 @@ int set_parameter_in_pg_settings(char *variable, char *value) {
 	ci_variable.address = variable;
 	ci_variable.length = pg_buffers[3].len_used;
 
-	/* Lookup the canonical name of the parameter and use it to replace the upper case form.
-	 * This canonical form will be used to lookup the correct row in `pg_settings` below.
-	 *
-	 * Note that this will overwrite the pre-allocated space in runtime_variable_stmt->v.string_literal.
+	/* Lookup the row in `pg_settings` corresponding to the specified runtime parameter:
+	 *	%ydboctoocto(OCTOLIT_SETTINGS,OCTOLIT_PG_SETTINGS,canonical_name)
 	 */
-	status = ydb_get_s(&pg_buffers[0], 3, &pg_buffers[1], &pg_buffers[3]);
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&value_buffer, OCTO_INIT_BUFFER_LEN);
+	YDB_STRING_TO_BUFFER(OCTOLIT_PG_SETTINGS, &pg_buffers[2]);
+	status = ydb_get_s(&pg_buffers[0], 3, &pg_buffers[1], &value_buffer);
+	if (YDB_ERR_INVSTRLEN == status) {
+		EXPAND_YDB_BUFFER_T_ALLOCATION(value_buffer);
+		status = ydb_get_s(&pg_buffers[0], 3, &pg_buffers[1], &value_buffer);
+		assert(YDB_ERR_INVSTRLEN != status);
+	}
 	if (YDB_ERR_LVUNDEF == status) {
 		/* Note: name is null-terminated during read_startup_message(), while the macros are compile-time
 		 * string literals and thus null-terminated then.
 		 */
-		if ((0 == strcmp(variable, OCTOLIT_USER_UPPER)) || (0 == strcmp(variable, OCTOLIT_DATABASE_UPPER))) {
+		YDB_FREE_BUFFER(&value_buffer);
+		if ((0 == strcmp(variable, OCTOLIT_USER_LOWER)) || (0 == strcmp(variable, OCTOLIT_DATABASE_LOWER))) {
 			/* StartupMessages will contain "user" and "database" fields that are not in fact
 			 * run-time parameters, but variables used for authentication only. Accordingly, they should
 			 * not be stored in the database. So signal to the caller to skip these fields in this case by returning `2`
@@ -90,8 +96,8 @@ int set_parameter_in_pg_settings(char *variable, char *value) {
 			 */
 			return 2;
 		}
-		if ((0 == strcmp(variable, OCTOLIT_IS_SUPERUSER_UPPER))
-		    || (0 == strcmp(variable, OCTOLIT_SESSION_AUTHORIZATION_UPPER))) {
+		if ((0 == strcmp(variable, OCTOLIT_IS_SUPERUSER_LOWER))
+		    || (0 == strcmp(variable, OCTOLIT_SESSION_AUTHORIZATION_LOWER))) {
 			ERROR(ERR_PARM_CANNOT_BE_CHANGED, variable);
 		} else {
 			// The specified runtime variable is invalid, i.e. doesn't exist. Issue error.
@@ -99,24 +105,6 @@ int set_parameter_in_pg_settings(char *variable, char *value) {
 		}
 		return 1;
 	}
-	YDB_ERROR_CHECK(status);
-	if (YDB_OK != status) {
-		return 1;
-	}
-
-	/* Lookup the row in `pg_settings` corresponding to the specified runtime parameter:
-	 *	%ydboctoocto(OCTOLIT_SETTINGS,OCTOLIT_PG_SETTINGS,canonical_name)
-	 */
-	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&value_buffer, OCTO_INIT_BUFFER_LEN);
-	YDB_STRING_TO_BUFFER(OCTOLIT_PG_SETTINGS, &pg_buffers[2]);
-	status = ydb_get_s(&pg_buffers[0], 3, &pg_buffers[1], &value_buffer);
-	if (YDB_ERR_INVSTRLEN == status) {
-		EXPAND_YDB_BUFFER_T_ALLOCATION(value_buffer);
-		status = ydb_get_s(&pg_buffers[0], 3, &pg_buffers[1], &value_buffer);
-		assert(YDB_ERR_INVSTRLEN != status);
-	}
-	assert(YDB_OK
-	       == status); // We already checked for the existence of this parameter, so it should have a row in `pg_settings`
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
 		YDB_FREE_BUFFER(&value_buffer);

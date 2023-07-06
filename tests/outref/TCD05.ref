@@ -1,4 +1,4 @@
-FIRST_NAME|LAST_NAME|ORDER_DATE|ORDER_AMOUNT
+first_name|last_name|order_date|order_amount
 James|Madison||
 James|Monroe||
 (2 rows)

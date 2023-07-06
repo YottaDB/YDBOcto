@@ -15,7 +15,7 @@ DROP TABLE
 CREATE TABLE
 INSERT 0 1
 UPDATE 1
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Cereal|
 (1 row)
 ???

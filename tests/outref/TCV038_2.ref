@@ -30,7 +30,7 @@ create view v9 as select array(select NULL from names);
 \d v9;
 
 CREATE VIEW
-View "V4"
+View "v4"
 Column|Type|Collation|Nullable|Default
 ???|NULL||||
 View definition:
@@ -39,13 +39,13 @@ create view v4 as select '';
 
 (1 row)
 CREATE VIEW
-View "V5"
+View "v5"
 Column|Type|Collation|Nullable|Default
 ???|NULL||||
 View definition:
 create view v5 as select NULL;
 CREATE VIEW
-View "V6"
+View "v6"
 Column|Type|Collation|Nullable|Default
 ARRAY|NULL||||
 View definition:
@@ -54,7 +54,7 @@ ARRAY
 {NULL}
 (1 row)
 CREATE VIEW
-View "V7"
+View "v7"
 Column|Type|Collation|Nullable|Default
 ARRAY|NULL||||
 View definition:
@@ -63,13 +63,13 @@ ARRAY
 {NULL,NULL,NULL,NULL,NULL,NULL}
 (1 row)
 CREATE VIEW
-View "V8"
+View "v8"
 Column|Type|Collation|Nullable|Default
 ARRAY|NULL||||
 View definition:
 create view v8 as select array(select NULL);
 CREATE VIEW
-View "V9"
+View "v9"
 Column|Type|Collation|Nullable|Default
 ARRAY|NULL||||
 View definition:

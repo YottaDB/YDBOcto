@@ -93,51 +93,51 @@ update "T M P" set "i d"=1; -- ERROR Cannot update, column `"i d"` defined as GE
 insert into "T M P"("i d",name) overriding user value values(5,'first'); -- ERROR Cannot insert, column `"i d"` defined as GENERATED ALWAYS IDENTITY
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "ID". Use OVERRIDING SYSTEM VALUE to override.
-[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "ID". Use OVERRIDING SYSTEM VALUE to override.
-[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "ID". Use OVERRIDING SYSTEM VALUE to override.
+[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "id". Use OVERRIDING SYSTEM VALUE to override.
+[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "id". Use OVERRIDING SYSTEM VALUE to override.
+[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "id". Use OVERRIDING SYSTEM VALUE to override.
 LINE 6:2:   INSERT INTO test(id,str) VALUES(3,'second'); -- ERROR cannot i...
                              ^^
-[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "ID". Use OVERRIDING SYSTEM VALUE to override.
+[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "id". Use OVERRIDING SYSTEM VALUE to override.
 LINE 7:2:   INSERT INTO test(id,str) SELECT 1,'third' UNION SELECT 2,'four...
                              ^^
-[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "ID". Use OVERRIDING SYSTEM VALUE to override.
-ID|STR
+[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "id". Use OVERRIDING SYSTEM VALUE to override.
+id|str
 (0 rows)
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "ID". Use OVERRIDING SYSTEM VALUE to override.
-ID|STR
+[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "id". Use OVERRIDING SYSTEM VALUE to override.
+id|str
 (0 rows)
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "ID" is of type INTEGER but expression is of type VARCHAR
+[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "id" is of type INTEGER but expression is of type VARCHAR
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_UPDATE_OF_GENERATED_ALWAYS_IDENTITY: Updating a GENERATED ALWAYS IDENTITY column "ID" to a non-DEFAULT value is invalid.
+[ERROR]: ERR_UPDATE_OF_GENERATED_ALWAYS_IDENTITY: Updating a GENERATED ALWAYS IDENTITY column "id" to a non-DEFAULT value is invalid.
 LINE 22:1: UPDATE test SET id=1; -- ERROR column "id" can only be updated t...
                              ^^
-[ERROR]: ERR_UPDATE_OF_GENERATED_ALWAYS_IDENTITY: Updating a GENERATED ALWAYS IDENTITY column "ID" to a non-DEFAULT value is invalid.
+[ERROR]: ERR_UPDATE_OF_GENERATED_ALWAYS_IDENTITY: Updating a GENERATED ALWAYS IDENTITY column "id" to a non-DEFAULT value is invalid.
 LINE 23:2:   UPDATE test SET id=1,str='first'; -- ERROR column "id" can onl...
                              ^^
-[ERROR]: ERR_UPDATE_OF_GENERATED_ALWAYS_IDENTITY: Updating a GENERATED ALWAYS IDENTITY column "ID" to a non-DEFAULT value is invalid.
+[ERROR]: ERR_UPDATE_OF_GENERATED_ALWAYS_IDENTITY: Updating a GENERATED ALWAYS IDENTITY column "id" to a non-DEFAULT value is invalid.
 LINE 24:2:   UPDATE test SET id=1; -- ERROR column "id" can only be updated...
                              ^^
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "ID". Use OVERRIDING SYSTEM VALUE to override.
+[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "id". Use OVERRIDING SYSTEM VALUE to override.
 INSERT 0 1
 DROP TABLE
 [ERROR]: ERR_READONLY_DISALLOWED: READONLY keyword in CREATE TABLE is disallowed due to an incompatible keyword
-[ERROR]: ERR_READONLY_AND_READWRITE_DISALLOWED: CREATE TABLE specifies keywords that make it incompatible with both READONLY and READWRITE keywords
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
 CREATE TABLE
-[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "ID". Use OVERRIDING SYSTEM VALUE to override.
-[ERROR]: ERR_NULL_COL_VALUE: NULL value in column ID violates NOT NULL constraint
-[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "ID". Use OVERRIDING SYSTEM VALUE to override.
-ID|STR
+[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "id". Use OVERRIDING SYSTEM VALUE to override.
+[ERROR]: ERR_NULL_COL_VALUE: NULL value in column id violates NOT NULL constraint
+[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "id". Use OVERRIDING SYSTEM VALUE to override.
+id|str
 (0 rows)
-[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "ID". Use OVERRIDING SYSTEM VALUE to override.
-ID|STR
+[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "id". Use OVERRIDING SYSTEM VALUE to override.
+id|str
 (0 rows)
 DROP TABLE
 [ERROR]: ERR_NON_INTEGER_IDENTITY: Only integer columns can be an identity column
@@ -171,26 +171,26 @@ LINE 54:2: CREATE TABLE test (name NUMERIC(20,2) GENERATED BY DEFAULT AS ID...
 LINE 55:2: CREATE TABLE test (name BOOLEAN GENERATED BY DEFAULT AS IDENTITY...
                               ^^^^
 CREATE TABLE
-[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "ID". Use OVERRIDING SYSTEM VALUE to override.
+[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "id". Use OVERRIDING SYSTEM VALUE to override.
 LINE 58:1: insert into test(id,name) overriding user value values(5,'first'...
                             ^^
-[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "ID". Use OVERRIDING SYSTEM VALUE to override.
+[ERROR]: ERR_INSERT_ON_GENERATED_ALWAYS_IDENTITY: Cannot INSERT into GENERATED ALWAYS identity column "id". Use OVERRIDING SYSTEM VALUE to override.
 DROP TABLE
 CREATE TABLE
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: DEFAULT value for a column is only allowed for IDENTITY columns
 LINE 63:1: update test set id=default;
                            ^^
 DROP TABLE
-[ERROR]: ERR_TABLE_MULTIPLE_IDENTITY: Multiple identity specified for column "ID" of table "TEST"
+[ERROR]: ERR_TABLE_MULTIPLE_IDENTITY: Multiple identity specified for column "id" of table "test"
 LINE 66:1: ...always as identity generated by default as identity, name text);
                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-[ERROR]: ERR_TABLE_MULTIPLE_IDENTITY: Multiple identity specified for column "ID" of table "TEST"
+[ERROR]: ERR_TABLE_MULTIPLE_IDENTITY: Multiple identity specified for column "id" of table "test"
 LINE 67:1: ...ays as identity generated by default as identity generated by de...
                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-[ERROR]: ERR_TABLE_MULTIPLE_IDENTITY: Multiple identity specified for column "ID" of table "TEST"
+[ERROR]: ERR_TABLE_MULTIPLE_IDENTITY: Multiple identity specified for column "id" of table "test"
 LINE 68:1: ...ult as identity generated by default as identity generated by de...
                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-[ERROR]: ERR_TABLE_MULTIPLE_IDENTITY: Multiple identity specified for column "ID" of table "TEST"
+[ERROR]: ERR_TABLE_MULTIPLE_IDENTITY: Multiple identity specified for column "id" of table "test"
 LINE 69:1: ... generated always as identity generated by default as identity);
                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 CREATE TABLE

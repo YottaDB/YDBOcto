@@ -12,7 +12,7 @@ select ABS(id*3) from names order by 1;
 12
 15
 (6 rows)
-ABS
+abs
 0
 3
 6

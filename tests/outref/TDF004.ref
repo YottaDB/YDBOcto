@@ -4,5 +4,5 @@
 DROP FUNCTION PARMLESSFUNC ();
 DROP FUNCTION PARMFULLFUNC (VARCHAR, INTEGER, NUMERIC);
 
-[ERROR]: ERR_CANNOT_DROP_FUNCTION: Cannot DROP function PARMLESSFUNC(): no function defined with given name and parameter types
-[ERROR]: ERR_CANNOT_DROP_FUNCTION: Cannot DROP function PARMFULLFUNC(VARCHAR, INTEGER, NUMERIC): no function defined with given name and parameter types
+[ERROR]: ERR_CANNOT_DROP_FUNCTION: Cannot DROP function parmlessfunc(): no function defined with given name and parameter types
+[ERROR]: ERR_CANNOT_DROP_FUNCTION: Cannot DROP function parmfullfunc(VARCHAR, INTEGER, NUMERIC): no function defined with given name and parameter types

@@ -299,7 +299,7 @@ select * from v91;
 -- OPTIONAL_AIM_TYPE,
 
 CREATE VIEW
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -308,7 +308,7 @@ ID|FIRSTNAME|LASTNAME
 5|Zero|Cool
 (6 rows)
 CREATE VIEW
-id 1|firstname 1|lastname 1|ID2|FIRSTNAME2|LASTNAME2
+id 1|firstname 1|lastname 1|id2|firstname2|lastname2
 0|Zero|Cool|0|Zero|Cool
 0|Zero|Cool|1|Acid|Burn
 0|Zero|Cool|2|Cereal|Killer
@@ -347,7 +347,7 @@ id 1|firstname 1|lastname 1|ID2|FIRSTNAME2|LASTNAME2
 5|Zero|Cool|5|Zero|Cool
 (36 rows)
 CREATE VIEW
-V1_FIRSTNAME
+v1_firstname
 Zero
 Acid
 Cereal
@@ -373,7 +373,7 @@ Nikon
 
 (10 rows)
 CREATE VIEW
-ID0|ID1|ID2|ID3|ID4|ID5|ID6|ID7|NAME
+id0|id1|id2|id3|id4|id5|id6|id7|name
 0|1|2|3|4|5|6|7|Name1
 0|1|2|3|4|5|6|8|Name2
 0|1|2|3|4|5|7|7|Name3
@@ -390,7 +390,7 @@ CREATE VIEW
 1
 (1 row)
 CREATE VIEW
-TYPNAME|TYPNAMESPACE|TYPOWNER|TYPLEN|TYPBYVAL|TYPTYPE|TYPCATEGORY|TYPISPREFERRED|TYPISDEFINED|TYPDELIM|TYPRELID|TYPELEM|TYPARRAY|TYPINPUT|TYPOUTPUT|TYPRECEIVE|TYPSEND|TYPMODIN|TYPMODOUT|TYPANALYZE|TYPALIGN|TYPSTORAGE|TYPNOTNULL|TYPBASETYPE|TYPTYPMOD|TYPNDIMS|TYPCOLLATION|TYPDEFAULTBIN|TYPDEFAULT|TYPACL|OID
+typname|typnamespace|typowner|typlen|typbyval|typtype|typcategory|typispreferred|typisdefined|typdelim|typrelid|typelem|typarray|typinput|typoutput|typreceive|typsend|typmodin|typmodout|typanalyze|typalign|typstorage|typnotnull|typbasetype|typtypmod|typndims|typcollation|typdefaultbin|typdefault|typacl|oid
 bool|11|10|1|1|b|B|1|1|,|0|0|1000|boolin|boolout|boolrecv|boolsend|-|-|-|c|p|0|0|-1|0|0||||16
 int4|11|10|4|1|b|N|0|1|,|0|0|1007|int4in|int4out|int4recv|int4send|-|-|-|i|p|0|0|-1|0|0||||23
 name|11|10|64|0|b|S|0|1|,|0|18|1003|namein|nameout|namerecv|namesend|-|-|-|c|p|0|0|-1|0|0||||19
@@ -399,11 +399,11 @@ unknown|11|10|-2|f|p|X|f|t|,|0|0|0|unknownin|unknownout|unknownrecv|unknownsend|
 varchar|11|10|-1|0|b|S|0|1|,|0|0|1015|varcharin|varcharout|varcharrecv|varcharsend|varchartypmodin|varchartypmodout|-|i|x|0|0|-1|0|100||||1043
 (6 rows)
 CREATE VIEW
-ABS
+abs
 1
 (1 row)
 CREATE VIEW
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -412,7 +412,7 @@ ID|FIRSTNAME|LASTNAME
 5|Zero|Cool
 (6 rows)
 CREATE VIEW
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -425,10 +425,10 @@ CREATE FUNCTION
 CREATE FUNCTION
 CREATE FUNCTION
 CREATE VIEW
-SAMEVALUE
+samevalue
 1
 (1 row)
-SAMEVALUE
+samevalue
 1
 (1 row)
 CREATE VIEW
@@ -442,7 +442,7 @@ CREATE VIEW
 CREATE FUNCTION
 CREATE FUNCTION
 CREATE VIEW
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -453,13 +453,13 @@ ID|FIRSTNAME|LASTNAME
 CREATE VIEW
 CREATE VIEW
 CREATE VIEW
-ID
+id
 1
 (1 row)
-ID
+id
 1
 (1 row)
-ID
+id
 1
 (1 row)
 CREATE VIEW
@@ -496,7 +496,7 @@ CREATE VIEW
 CREATE VIEW
 CREATE VIEW
 CREATE VIEW
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 1|Acid|Burn
 0|Zero|Cool
 5|Zero|Cool
@@ -504,7 +504,7 @@ ID|FIRSTNAME|LASTNAME
 3|Lord|Nikon
 4|Joey|
 (6 rows)
-LASTNAME
+lastname
 Acid
 Burn
 Cereal
@@ -516,7 +516,7 @@ Nikon
 Zero
 
 (10 rows)
-COLUMN1
+column1
 1
 (1 row)
 CREATE VIEW
@@ -532,15 +532,15 @@ CREATE VIEW
 0
 (1 row)
 CREATE VIEW
-SUM
+sum
 1
 (1 row)
 CREATE VIEW
-COUNT(*)
+count(*)
 6
 (1 row)
 CREATE VIEW
-ID
+id
 (0 rows)
 CREATE VIEW
 ???
@@ -564,7 +564,7 @@ CREATE VIEW
 
 (6 rows)
 CREATE VIEW
-ABS
+abs
 
 (1 row)
 CREATE VIEW
@@ -577,7 +577,7 @@ CREATE VIEW
 
 (6 rows)
 CREATE VIEW
-IDBOOL
+idbool
 -1
 -1
 0
@@ -586,7 +586,7 @@ IDBOOL
 0
 (6 rows)
 CREATE VIEW
-SUB|???
+sub|???
 true|1
 (1 row)
 CREATE VIEW
@@ -617,20 +617,20 @@ CREATE VIEW
 1
 (6 rows)
 CREATE VIEW
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 2|Cereal|Killer
 4|Joey|
 (3 rows)
 CREATE VIEW
-FIRSTNAME
+firstname
 (0 rows)
 CREATE VIEW
 ???
 1
 (1 row)
 CREATE VIEW
-A|B
+a|b
 0|0
 0|1
 0|2
@@ -669,7 +669,7 @@ A|B
 5|5
 (36 rows)
 CREATE VIEW
-COUNT
+count
 6
 (1 row)
 CREATE VIEW
@@ -681,7 +681,7 @@ Zero2
 Cereal1
 (5 rows)
 CREATE VIEW
-COL1
+col1
 0
 1
 2
@@ -690,7 +690,7 @@ COL1
 5
 (6 rows)
 CREATE VIEW
-FIRSTNAME
+firstname
 Zero
 Acid
 Cereal
@@ -699,7 +699,7 @@ Joey
 Zero
 (6 rows)
 CREATE VIEW
-FIRSTNAME|COUNT
+firstname|count
 Acid|1
 Joey|1
 Lord|1
@@ -707,7 +707,7 @@ Zero|2
 Cereal|1
 (5 rows)
 CREATE VIEW
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -716,11 +716,11 @@ ID|FIRSTNAME|LASTNAME
 5|Zero|Cool
 (6 rows)
 CREATE VIEW
-A2|B2|C2
+a2|b2|c2
 0|Zero|Cool
 (1 row)
 CREATE VIEW
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -729,7 +729,7 @@ ID|FIRSTNAME|LASTNAME
 5|Zero|Cool
 (6 rows)
 CREATE VIEW
-ID
+id
 0
 1
 2
@@ -737,7 +737,7 @@ ID
 5
 (5 rows)
 CREATE VIEW
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -765,43 +765,43 @@ CREATE VIEW
 CREATE TABLE
 INSERT 0 1
 INSERT 0 1
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TMP80 violates CHECK constraint TMP80_VALUE_CHECK : Failing row contains (3, third, 0)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "TMP80_ID_KEY" : Key (ID)=(2) already exists
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp80 violates CHECK constraint tmp80_value_CHECK : Failing row contains (3, third, 0)
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp80_id_KEY" : Key (id)=(2) already exists
 CREATE VIEW
-ID|NAME|VALUE
+id|name|value
 1|first|1.2
 2|second|2.2
 (2 rows)
 CREATE TABLE
 INSERT 0 1
 INSERT 0 1
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TMP81 violates CHECK constraint NAME1 : Failing row contains (3, third, 0)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp81 violates CHECK constraint name1 : Failing row contains (3, third, 0)
 CREATE VIEW
-ID|NAME|VALUE
+id|name|value
 1|first|1.2
 2|second|2.2
 (2 rows)
 CREATE TABLE
 INSERT 0 1
 INSERT 0 1
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TMP82 violates CHECK constraint TMP82_ID_CHECK : Failing row contains (0)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "TMP82_ID_KEY" : Key (ID)=(1) already exists
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp82 violates CHECK constraint tmp82_id_CHECK : Failing row contains (0)
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp82_id_KEY" : Key (id)=(1) already exists
 CREATE VIEW
-ID
+id
 1
 2
 (2 rows)
 CREATE TABLE
 INSERT 0 1
 INSERT 0 1
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TMP83 violates CHECK constraint NAME1 : Failing row contains (0)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp83 violates CHECK constraint name1 : Failing row contains (0)
 CREATE VIEW
-ID
+id
 1
 2
 (2 rows)
 CREATE VIEW
-LASTNAME
+lastname
 Cool
 Burn
 Killer
@@ -810,24 +810,24 @@ Nikon
 (5 rows)
 CREATE TABLE
 CREATE VIEW
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 (3 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 (3 rows)
 CREATE TABLE
 CREATE VIEW
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 1|Burn|Acid
 2|Killer|Cereal
 3|Nikon|Lord
 (3 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 1|Burn|Acid
 2|Killer|Cereal
 3|Nikon|Lord
@@ -836,11 +836,11 @@ CREATE TABLE
 INSERT 0 1
 INSERT 0 1
 CREATE VIEW
-ID|STR
+id|str
 1|first
 2|second
 (2 rows)
-ID|STR
+id|str
 1|first
 2|second
 (2 rows)
@@ -849,12 +849,12 @@ INSERT 0 1
 INSERT 0 1
 INSERT 0 1
 CREATE VIEW
-ID|STR
+id|str
 1|first
 3|second
 2|third
 (3 rows)
-ID|STR
+id|str
 1|first
 3|second
 2|third
@@ -865,7 +865,7 @@ EXISTS
 (1 row)
 CREATE VIEW
 CREATE VIEW
-ID|NEWID
+id|newid
 0|0
 2|0
 4|0
@@ -873,7 +873,7 @@ ID|NEWID
 3|1
 5|1
 (6 rows)
-ID|???
+id|???
 0|0
 1|1
 2|0

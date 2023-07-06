@@ -81,6 +81,16 @@ typedef struct OctoConfig {
 	boolean_t in_auto_load_octo_seed;		   /* TRUE for a short window when octo/rocto startup detects it is
 							    * time to auto load the octo-seed.sql and octo-seed.zwr files.
 							    */
+	boolean_t is_auto_upgrade_octo929;		   /* TRUE for a short window when octo/rocto startup detects it is
+							    * time to auto upgrade due to YDBOcto#929 (case insensitive names
+							    * of table/column/function/view are stored in lower case).
+							    */
+	char octo929_sqlfile[48];			   /* Holds the file name where we write the CREATE TABLE/CREATE FUNCTION
+							    * commands during the special YDBOcto#929 auto upgrade.
+							    */
+	FILE *octo929_sqlfile_stream;			   /* File used to write CREATE TABLE/CREATE FUNCTION commands during
+							    * special YDBOcto#929 auto upgrade.
+							    */
 	tabletype_t default_tabletype;			   /* type of table (readonly vs readwrite) assigned to CREATE TABLE
 							    * if not explicitly specified.
 							    */

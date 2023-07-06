@@ -5,34 +5,34 @@ select * from names where id >= 1 and id <= 4;
 select * from names where id <= 4 and id >= 1;
 select * from names where id >= 1 or id < 5;
 select * from names where id >= 1 or id <= 5;
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
 (5 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 1|Acid|Burn
 2|Cereal|Killer
 (2 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 1|Acid|Burn
 2|Cereal|Killer
 (2 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
 (4 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
 (4 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
@@ -40,7 +40,7 @@ ID|FIRSTNAME|LASTNAME
 5|Zero|Cool
 0|Zero|Cool
 (6 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon

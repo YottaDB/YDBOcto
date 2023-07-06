@@ -35,6 +35,17 @@ SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlati
 		/* column_name holds the name of the desired table */
 		UNPACK_SQL_STATEMENT(value, column_name, value);
 		table_stmt = find_view_or_table(value->v.reference);
+		if (config->is_auto_upgrade_octo929 && (NULL == table_stmt)) {
+			char  column2[OCTO_MAX_IDENT + 1];
+			char *src, *srcend, *dst, *dstend;
+
+			src = value->v.reference;
+			srcend = value->v.reference + strlen(value->v.reference);
+			dst = column2;
+			dstend = column2 + sizeof(column2);
+			TOUPPER(dst, dstend, src, srcend);
+			table_stmt = find_view_or_table(column2);
+		}
 		if (NULL == table_stmt) {
 			ERROR(ERR_UNKNOWN_TABLE, value->v.reference);
 			yyerror(NULL, NULL, &column_name, NULL, NULL, NULL);

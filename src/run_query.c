@@ -390,8 +390,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		/* Note: "null_query_lock" used above as we do not have any query lock to release
 		 * at this point since query lock grab failed.
 		 */
-		/* First get a ydb_buffer_t of the table name into "table_name_buffer" */
-		if (drop_table_STATEMENT == result_type) {
+		if ((drop_table_STATEMENT == result_type) && !config->in_auto_load_octo_seed) {
 			UNPACK_SQL_STATEMENT(drop_table, result, drop_table);
 			UNPACK_SQL_STATEMENT(value, drop_table->table_name, value);
 			tablename = value->v.reference;
@@ -410,15 +409,20 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 					CLEANUP_AND_RETURN_WITH_SUCCESS(memory_chunks, buffer, spcfc_buffer, query_lock,
 									&cursor_ydb_buff);
 				}
-			} else {
+			} else if (!config->is_auto_upgrade_octo929) {
+				/* Check if a View relies on this table. If so, disallow the DROP TABLE.
+				 * We don't want to issue this error in case of the YDBOcto#929 auto upgrade (where it is
+				 * possible for such scenarios to arise but it is okay because we are going to recreate all
+				 * tables/functions/views and so all dependencies are going to be recomputed. Hence the
+				 * "else if (!config->is_auto_upgrade_octo929)" check above.
+				 */
 				if (create_table_STATEMENT != table_stmt->type) {
 					// issue an error and clean up
 					ERROR(ERR_WRONG_TYPE, tablename, OCTOLIT_TABLE);
 					CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock,
 								      &cursor_ydb_buff);
 				}
-				/* Check if a View relies on this table. If so, disallow the DROP TABLE.
-				 * If a View relies on this table, we would see gvn nodes of the following form
+				/* If a View relies on this table, we would see gvn nodes of the following form
 				 * exist in the database.
 				 *	^ydboctoocto("tableviewdependency","NAMES","V1")=""
 				 * where
@@ -456,45 +460,78 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			UNPACK_SQL_STATEMENT(table, table_stmt, create_table);
 			ok_to_drop = TRUE;
 		} else {
-			drop_table = NULL; /* To avoid false [-Wmaybe-uninitialized] warning */
-			UNPACK_SQL_STATEMENT(table, result, create_table);
-			UNPACK_SQL_STATEMENT(value, table->tableName, value);
+			if (drop_table_STATEMENT == result_type) {
+				UNPACK_SQL_STATEMENT(drop_table, result, drop_table);
+				UNPACK_SQL_STATEMENT(value, drop_table->table_name, value);
+				assert(OPTIONAL_KEEPDATA == drop_table->drop_data_retention);
+				table = NULL; /* To avoid false [-Wmaybe-uninitialized] warning */
+			} else {
+				UNPACK_SQL_STATEMENT(table, result, create_table);
+				UNPACK_SQL_STATEMENT(value, table->tableName, value);
+				drop_table = NULL; /* To avoid false [-Wmaybe-uninitialized] warning */
+			}
 			tablename = value->v.reference;
 			/* If auto load of octo-seed.sql is in progress, a CREATE TABLE must do a DROP TABLE. */
 			ok_to_drop = config->in_auto_load_octo_seed;
 		}
+		/* First get a ydb_buffer_t of the table name into "table_name_buffer" */
 		YDB_STRING_TO_BUFFER(tablename, table_name_buffer);
+		if (config->is_auto_upgrade_octo929) {
+			/* Note down that a CREATE TABLE or DROP TABLE with this table name happened.
+			 * Later used to avoid duplicate CREATE TABLE/DROP TABLE calls during the auto upgrade process.
+			 */
+			ydb_buffer_t ydbocto929, table_subs[2];
+			char	     subs0_buff[INT32_TO_STRING_MAX];
+
+			YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTO929, &ydbocto929);
+			table_subs[0].buf_addr = subs0_buff;
+			table_subs[0].len_alloc = sizeof(subs0_buff);
+			table_subs[0].len_used = snprintf(table_subs[0].buf_addr, table_subs[0].len_alloc, "%d", result_type);
+			table_subs[1] = *table_name_buffer;
+			status = ydb_set_s(&ydbocto929, 2, &table_subs[0], NULL);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+		}
 		if (ok_to_drop) {
 			/* DROP TABLE */
-			/* Delete globals that maintained UNIQUE constraints (if any) for this table */
-			SqlColumn *start_column, *cur_column;
-			UNPACK_SQL_STATEMENT(start_column, table->columns, column);
-			cur_column = start_column;
-			do {
-				SqlOptionalKeyword *start_keyword, *cur_keyword;
-				UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
-				cur_keyword = start_keyword;
+			/* If we are doing auto load of octo-seed.sql and encountering DROP TABLE commands etc., we should not
+			 * be deleting any globals corresponding to the UNIQUE constraints as they hold constraint enforcement
+			 * information.
+			 */
+			assert(config->in_auto_load_octo_seed || config->is_auto_upgrade_octo929 || (NULL != table));
+			/* The "(NULL != table)" check below is not needed (due to the assert above) but is needed to
+			 * avoid false [clang-analyzer-core.NullDereference] warnings from clang-tidy.
+			 */
+			if (!config->in_auto_load_octo_seed && !config->is_auto_upgrade_octo929 && (NULL != table)) {
+				/* Delete globals that maintained UNIQUE constraints (if any) for this table */
+				SqlColumn *start_column, *cur_column;
+				UNPACK_SQL_STATEMENT(start_column, table->columns, column);
+				cur_column = start_column;
 				do {
-					switch (cur_keyword->keyword) {
-					case UNIQUE_CONSTRAINT:;
-						SqlConstraint *constraint;
-						UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
-						UNPACK_SQL_STATEMENT(value, constraint->v.uniq_gblname, value);
+					SqlOptionalKeyword *start_keyword, *cur_keyword;
+					UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
+					cur_keyword = start_keyword;
+					do {
+						switch (cur_keyword->keyword) {
+						case UNIQUE_CONSTRAINT:;
+							SqlConstraint *constraint;
+							UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
+							UNPACK_SQL_STATEMENT(value, constraint->v.uniq_gblname, value);
 
-						ydb_buffer_t uniq_gblname;
-						YDB_STRING_TO_BUFFER(value->v.string_literal, &uniq_gblname);
-						status = ydb_delete_s(&uniq_gblname, 0, NULL, YDB_DEL_TREE);
-						CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer,
-										 query_lock, &cursor_ydb_buff);
-						break;
-					default:
-						break;
-					}
-					cur_keyword = cur_keyword->next;
-				} while (cur_keyword != start_keyword);
-				cur_column = cur_column->next;
-			} while (cur_column != start_column);
-
+							ydb_buffer_t uniq_gblname;
+							YDB_STRING_TO_BUFFER(value->v.string_literal, &uniq_gblname);
+							status = ydb_delete_s(&uniq_gblname, 0, NULL, YDB_DEL_TREE);
+							CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer,
+											 spcfc_buffer, query_lock,
+											 &cursor_ydb_buff);
+							break;
+						default:
+							break;
+						}
+						cur_keyword = cur_keyword->next;
+					} while (cur_keyword != start_keyword);
+					cur_column = cur_column->next;
+				} while (cur_column != start_column);
+			}
 			/* Check if OIDs were created for this table.
 			 * If so, delete those nodes from the catalog now that this table is going away.
 			 */
@@ -508,8 +545,19 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			enum OptionalKeyword retention = NO_KEYWORD;
 			if (drop_table_STATEMENT == result_type) {
 				retention = drop_table->drop_data_retention;
+				assert((OPTIONAL_KEEPDATA == retention) || (NULL != table));
 			}
-			if (table->readwrite && (OPTIONAL_KEEPDATA != retention)) {
+			/* The "(NULL != table)" check below is not needed (due to the assert above) but is needed to
+			 * avoid false [clang-analyzer-core.NullDereference] warnings from clang-tidy.
+			 */
+			if ((OPTIONAL_KEEPDATA != retention) && (NULL != table) && table->readwrite) {
+				/* If we are doing auto-load of octo-seed.sql, we have not yet upgraded the binary table
+				 * definitions. Therefore, we should never come here as the below macro call tries to use
+				 * the "table->keyword" structure and it won't be valid until the binary definition is upgraded.
+				 * This is taken care of by ensuring all "DROP TABLE" commands in "octo-seed.sql" have KEEPDATA
+				 * in them. Hence the below assert.
+				 */
+				assert(!config->in_auto_load_octo_seed);
 				POPULATE_GVN_BUFFER_FROM_TABLE(gvname_buff, table, tableGVNAME);
 			} else {
 				YDB_STRING_TO_BUFFER("", &gvname_buff);
@@ -529,11 +577,14 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			 */
 			status = ydb_delete_s(&schema_global, 1, table_name_buffer, YDB_DEL_TREE);
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
-			/* Drop the table from the local cache */
-			status = drop_schema_from_local_cache(table_name_buffer, TableSchema, NULL);
-			if (YDB_OK != status) {
-				/* YDB_ERROR_CHECK would already have been done inside "drop_schema_from_local_cache()" */
-				CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+			if (!config->in_auto_load_octo_seed && !config->is_auto_upgrade_octo929) {
+				/* Drop the table from the local cache */
+				status = drop_schema_from_local_cache(table_name_buffer, TableSchema, NULL);
+				if (YDB_OK != status) {
+					/* YDB_ERROR_CHECK would already have been done inside "drop_schema_from_local_cache()" */
+					CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock,
+								      &cursor_ydb_buff);
+				}
 			}
 		}
 		if (create_table_STATEMENT == result_type) {
@@ -712,14 +763,19 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 					CLEANUP_AND_RETURN_WITH_SUCCESS(memory_chunks, buffer, spcfc_buffer, query_lock,
 									&cursor_ydb_buff);
 				}
-			} else {
+			} else if (!config->is_auto_upgrade_octo929) {
+				/* Check if another view relies on this view. If so, disallow the DROP VIEW.
+				 * We don't want to issue this error in case of the YDBOcto#929 auto upgrade (where it is
+				 * possible for such scenarios to arise but it is okay because we are going to recreate all
+				 * tables/functions/views and so all dependencies are going to be recomputed. Hence the
+				 * "else if (!config->is_auto_upgrade_octo929)" check above.
+				 */
 				if (!is_view) {
 					ERROR(ERR_WRONG_TYPE, viewname, OCTOLIT_VIEW);
 					CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock,
 								      &cursor_ydb_buff);
 				}
-				/* Check if another view relies on this view. If so, disallow the DROP VIEW.
-				 * When a view relies on this view, we should see gvn nodes of the following form
+				/* When a view relies on this view, we should see gvn nodes of the following form
 				 * exist in the database.
 				 *	^%ydboctoocto("viewdependency","V1","fromview","V2")=""
 				 * where
@@ -902,6 +958,21 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		generate_name_type(FunctionHash, &state, 0, function_hash, sizeof(function_hash));
 		function_hash_buffer = &function_name_buffers[2];
 		YDB_STRING_TO_BUFFER(function_hash, function_hash_buffer);
+		if (config->is_auto_upgrade_octo929) {
+			/* Note down that a CREATE FUNCTION or DROP FUNCTION of this function/parameter-list happened.
+			 * Later used to avoid duplicate CREATE FUNCTION/DROP FUNCTION calls during the auto upgrade process.
+			 */
+			ydb_buffer_t ydbocto929, func_subs[2];
+			char	     subs0_buff[INT32_TO_STRING_MAX];
+
+			YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTO929, &ydbocto929);
+			func_subs[0].buf_addr = subs0_buff;
+			func_subs[0].len_alloc = sizeof(subs0_buff);
+			func_subs[0].len_used = snprintf(func_subs[0].buf_addr, func_subs[0].len_alloc, "%d", result_type);
+			func_subs[1] = *function_hash_buffer;
+			status = ydb_set_s(&ydbocto929, 2, &func_subs[0], NULL);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+		}
 		// Add function hash to parse tree for later addition to logical plan
 		if (create_function_STATEMENT == result_type) {
 			SQL_STATEMENT(function->function_hash, value_STATEMENT);
@@ -948,10 +1019,10 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 					CLEANUP_AND_RETURN_WITH_SUCCESS(memory_chunks, buffer, spcfc_buffer, query_lock,
 									&cursor_ydb_buff);
 				}
-			} else {
-				/* Check if a table CHECK constraint or EXTRACT column relies on this function. If so, disallow the
-				 * DROP FUNCTION. If a CHECK constraint or EXTRACT column relies on this function, we would see gvn
-				 * nodes of the following form exist in the database:
+			} else if (!config->is_auto_upgrade_octo929) {
+				/* Check if a table CHECK constraint or EXTRACT column or a VIEW relies on this function.
+				 * If so, disallow the DROP FUNCTION. In that case, gvn nodes of the following form would
+				 * exist in the database:
 				 *	^%ydboctoocto("functions","SAMEVALUE","%ydboctoFN0uUSDY6E7G9VcjaOGNP9G",
 				 *						"check_constraint","NAMES","NAME1")=""
 				 * OR
@@ -965,6 +1036,11 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 				 *
 				 * Therefore check if ^%ydboctoocto("functions",function_name,function_hash,"check_constraint",*)
 				 * nodes exist and if so issue an error.
+				 *
+				 * But we don't want to issue this error in case of the YDBOcto#929 auto upgrade (where it is
+				 * possible for such scenarios to arise but it is okay because we are going to recreate all
+				 * tables/functions/views and so all dependencies are going to be recomputed. Hence the
+				 * "else if (!config->is_auto_upgrade_octo929)" check above.
 				 */
 				ydb_buffer_t gvn_subs[7];
 				YDB_STRING_TO_BUFFER(config->global_names.octo, &gvn_subs[0]);
@@ -1113,8 +1189,16 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			ci_param1.length = function_name_buffer->len_used;
 			ci_param2.address = function_hash_buffer->buf_addr;
 			ci_param2.length = function_hash_buffer->len_used;
-			status
-			    = ydb_ci("_ydboctoDiscardFunction", &ci_param1, &ci_param2, (ydb_int_t)config->in_auto_load_octo_seed);
+
+			ydb_int_t auto_load;
+			/* The M function we are about to invoke has special code in case "auto_load" parameter is non-zero.
+			 * It skips deleting dependencies as it is not sure if CREATE TABLE commands for tables/views that
+			 * depend on this function would be rerun. But in case of the YDBOcto#929 auto upgrade, all existing
+			 * tables/functions/views are going to be auto upgraded unconditionally. Therefore, it is safe to
+			 * pass a zero "auto_load" parameter in that case.
+			 */
+			auto_load = config->is_auto_upgrade_octo929 ? FALSE : config->in_auto_load_octo_seed;
+			status = ydb_ci("_ydboctoDiscardFunction", &ci_param1, &ci_param2, auto_load);
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 
 			// Drop the function from the local cache

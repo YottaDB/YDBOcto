@@ -14,7 +14,7 @@ unknown
 varchar
 
 ----- OCTO -----
-TYPNAME
+typname
 bool
 int4
 numeric

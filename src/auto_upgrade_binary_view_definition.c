@@ -66,7 +66,7 @@ int auto_upgrade_binary_view_definition(void) {
 	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&table_subs[0], MAX_DEFINITION_FRAGMENT_SIZE); /* to store row index */
 	table_subs[0].len_used = 0;
 	// Setup return value
-	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&table_subs[1], YDB_MAX_KEY_SZ); /* to store the view name */
+	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&table_subs[1], OCTO_MAX_IDENT); /* to store the view name */
 	table_buff = &table_subs[0]; /* Note down that this buffer needs to be freed in case of error code path */
 	while (TRUE) {
 		// Get view name to upgrade
@@ -85,7 +85,7 @@ int auto_upgrade_binary_view_definition(void) {
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, NULL, FALSE, NULL);
 
 		// Upgrade the view
-		status = auto_upgrade_binary_table_or_view_definition_helper(&table_subs[1]);
+		status = auto_upgrade_binary_table_or_view_definition_helper(&table_subs[1], TRUE);
 		if (YDB_OK != status) {
 			CLEANUP_AND_RETURN(status, table_buff, NULL, FALSE, NULL);
 		}

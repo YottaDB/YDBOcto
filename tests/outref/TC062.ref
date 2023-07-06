@@ -1,11 +1,11 @@
 
 -- TC062 : OCTO633 : EXTRACT doesn't parse names of global variables as key or value specifications
 
-create table longkeys (id INTEGER PRIMARY KEY, value VARCHAR) GLOBAL "^longkeys(keys(""ID""))";
+create table longkeys (id INTEGER PRIMARY KEY, value VARCHAR) GLOBAL "^longkeys(keys(""id""))";
 select * from longkeys;
 
 -- Test of ERR_VALUES_NOT_ALLOWED_IN_GLOBAL error
-create table longvalues (id INTEGER PRIMARY KEY, value VARCHAR) GLOBAL "^longvalues(values(""VALUE""))";
+create table longvalues (id INTEGER PRIMARY KEY, value VARCHAR) GLOBAL "^longvalues(values(""value""))";
 
 -- Test of ERR_UNKNOWN_COLUMN_NAME error
 -- Test prohibition of nested `keys(..)` expressions
@@ -17,8 +17,8 @@ create table tmp (id integer primary key) GLOBAL "^names(keys(keys(""ID"")))";
 create table tmp (id integer primary key) GLOBAL "^names(keys(""id""))";
 
 CREATE TABLE
-ID|VALUE
+id|value
 (0 rows)
 [ERROR]: ERR_VALUES_NOT_ALLOWED_IN_GLOBAL: values() usage not allowed in GLOBAL keyword (only keys() usage allowed)
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: keys("ID")
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: id
+CREATE TABLE

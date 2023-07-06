@@ -1,7 +1,7 @@
-A|B|C|D
+a|b|c|d
 1|2|3|4
 (1 row)
 DROP TABLE
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: T1
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: t1
 LINE 3:1: select * from t1;
                         ^^

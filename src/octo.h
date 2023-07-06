@@ -19,6 +19,7 @@
 #include <stdint.h>    /* needed for uint64_t */
 #include <errno.h>     /* for errno */
 #include <ctype.h>     /* for tolower/toupper */
+#include <unistd.h>    /* for unlink() */
 
 #include <libyottadb.h>
 
@@ -129,7 +130,7 @@
 #define COLUMN_DELIMITER "|"
 #define EMPTY_DELIMITER	 ""
 
-#define VALUES_COLUMN_NAME_PREFIX "COLUMN"
+#define VALUES_COLUMN_NAME_PREFIX "column"
 
 #define ZERO_OUTPUT_KEY_ID 0
 
@@ -171,10 +172,9 @@
 #define OCTOLIT_TEXT_LENGTH	       "text_length"
 #define OCTOLIT_MYSQL		       "MySQL"
 #define OCTOLIT_NAME		       "name"
-#define OCTOLIT_NAMES		       "names"
 #define OCTOLIT_NONE		       "none"
 #define OCTOLIT_OID		       "oid"
-#define OCTOLIT_OCTOONEROWTABLE	       "OCTOONEROWTABLE"
+#define OCTOLIT_OCTOONEROWTABLE	       "octoonerowtable"
 #define OCTOLIT_OUTPUT_COLUMNS	       "output_columns"
 #define OCTOLIT_OUTPUT_KEY	       "output_key"
 #define OCTOLIT_PERMISSIONS	       "permissions"
@@ -228,17 +228,22 @@
 #define OCTOLIT_AIM_SUB_LOCATION      "location"
 #define OCTOLIT_AIM_SUB_CANCELXREF    "aimXref"
 
+/* YDBOcto#929 related macros */
+#define OCTOLIT_YDBOCTO929 "%ydbocto929"
+
+#define OCTO929_SQLFILE_NAME "/tmp/ydbocto929_auto_upgrade_XXXXXX"
+
 /* Macros for StartupMessage parameters sent by client that are NOT actual runtime parameters.
  * These strings are used for selective exclusion of such parameters via strncmp checks in rocto.c
  * to prevent ERR_INVALID_RUNTIME_PARAMETER errors at remote connection startup.
  */
-#define OCTOLIT_USER_UPPER     "USER"
-#define OCTOLIT_DATABASE_UPPER "DATABASE"
+#define OCTOLIT_USER_LOWER     "user"
+#define OCTOLIT_DATABASE_LOWER "database"
 /* Macros for read-only runtime parameters. Used for conditionally issuing ERR_PARM_CANNOT_BE_CHANGED
  * message in set_parameter_in_pg_settings.c.
  */
-#define OCTOLIT_IS_SUPERUSER_UPPER	    "IS_SUPERUSER"
-#define OCTOLIT_SESSION_AUTHORIZATION_UPPER "SESSION_AUTHORIZATION"
+#define OCTOLIT_IS_SUPERUSER_LOWER	    "is_superuser"
+#define OCTOLIT_SESSION_AUTHORIZATION_LOWER "session_authorization"
 
 // Macros for plan size allocation in physical plan generation
 #define OCTOPLAN_LIT	  "octoPlan"
@@ -257,7 +262,7 @@
  * all columns specified by the user are together assumed to be the primary key.
  * All column names that are Octo created have a %YO prefix (short form for YdbOcto).
  */
-#define HIDDEN_KEY_COL_NAME "%YO_KEYCOL"
+#define HIDDEN_KEY_COL_NAME "%yo_keycol"
 
 /* Below defines the default values used for all row description messages currently sent by Rocto */
 #define ROWDESC_DEFAULT_TYPE_MODIFIER -1
@@ -318,7 +323,7 @@
 	 * Skip printing COMMAND TAG if rocto as that should not go to stdout (should only go to client through simple     \
 	 * or extended query protocol connection.                                                                          \
 	 */                                                                                                                \
-	if (!config->in_auto_load_octo_seed && !config->is_rocto) {                                                        \
+	if (!config->in_auto_load_octo_seed && !config->is_auto_upgrade_octo929 && !config->is_rocto) {                    \
 		fprintf(stdout, "%s\n", COMMAND_TAG);                                                                      \
 		fflush(stdout);                                                                                            \
 	}
@@ -352,7 +357,13 @@
 
 /* The below macro needs to be manually bumped if there is a non-cosmetic change to octo-seed.sql.
  */
-#define FMT_SEED_DEFINITION 6
+#define FMT_SEED_DEFINITION 7
+
+#define FMT_SEED_DEFINITION_OCTO929                                                 \
+	7 /* The value of FMT_SEED_DEFINITION when YDBOcto#929 changes were merged. \
+	   * This requires a special auto upgrade (upper case names to lower case)  \
+	   * hence the special macro for this case.                                 \
+	   */
 
 /* Used by `hash_canonical_query()` */
 #define HASH_LITERAL_VALUES -1
@@ -381,16 +392,16 @@
 		strcpy(TARGET, LITERAL);            \
 	}
 
-/* Convert a string to uppercase and store in provided destination.
+/* Convert a string to lowercase and store in provided destination.
  * Note that DEST and START may or may not be the same. This macro handles both cases.
  */
-#define TOUPPER(DEST, DEST_END, START, END)                                                 \
+#define TOLOWER(DEST, DEST_END, START, END)                                                 \
 	{                                                                                   \
 		char *start;                                                                \
                                                                                             \
 		start = (START);                                                            \
 		while (start < END) {                                                       \
-			(*DEST) = toupper(*start);                                          \
+			(*DEST) = tolower(*start);                                          \
 			(DEST)++;                                                           \
 			start++;                                                            \
 		}                                                                           \
@@ -399,24 +410,53 @@
 		/* Check for buffer overflow. It is okay if DEST < DEST_END as there are */ \
 		/* cases where this macro is applied piecemeal to a single buffer. */       \
 		assert(DEST <= DEST_END);                                                   \
+		UNUSED(DEST_END); /* avoids [-Wunused-but-set-variable] compiler warning */ \
 	}
 
-/* Convert a string to lowercase and store in provided destination
+// Convert a string to lowercase in place
+#define TOLOWER_STR(STR)                             \
+	{                                            \
+		size_t len;                          \
+		char * end, *begin;                  \
+                                                     \
+		begin = STR;                         \
+		len = strlen(begin);                 \
+		end = begin + len;                   \
+		TOLOWER(begin, end + 1, begin, end); \
+	}
+
+#define TOLOWER_SUBSTR(STR, LEN)                                                          \
+	{                                                                                 \
+		char *end, *begin;                                                        \
+                                                                                          \
+		begin = STR;                                                              \
+		end = begin + LEN;                                                        \
+		while (begin < end) {                                                     \
+			(*begin) = tolower(*begin);                                       \
+			begin++;                                                          \
+		}                                                                         \
+		/* Check for buffer overflow. It is okay if (begin < end) as there are */ \
+		/* cases where this macro is applied piecemeal to a single buffer. */     \
+		assert(begin <= end);                                                     \
+	}
+
+/* Convert a string to uppercase and store in provided destination
  * Note that DEST and START may or may not be the same. This macro handles both cases.
  */
-#define TOLOWER(DEST, DEST_END, START, END)        \
-	{                                          \
-		char *start;                       \
-                                                   \
-		start = (START);                   \
-		while (start < END) {              \
-			(*DEST) = tolower(*start); \
-			(DEST)++;                  \
-			start++;                   \
-		}                                  \
-		(*DEST) = '\0';                    \
-		(DEST)++;                          \
-		assert(DEST <= DEST_END);          \
+#define TOUPPER(DEST, DEST_END, START, END)                                                                             \
+	{                                                                                                               \
+		char *sTART;                                                                                            \
+                                                                                                                        \
+		sTART = (START);                                                                                        \
+		while (sTART < END) {                                                                                   \
+			(*DEST) = toupper(*sTART);                                                                      \
+			(DEST)++;                                                                                       \
+			sTART++;                                                                                        \
+		}                                                                                                       \
+		(*DEST) = '\0';                                                                                         \
+		(DEST)++;                                                                                               \
+		assert(DEST <= DEST_END);                                                                               \
+		UNUSED(DEST_END); /* needed in some cases to avoid [-Wunused-but-set-variable] warning from compiler */ \
 	}
 
 // Convert a string to uppercase in place
@@ -430,17 +470,6 @@
 		len = strlen(begin);                 \
 		end = begin + len;                   \
 		TOUPPER(begin, end + 1, begin, end); \
-	}
-
-// Convert a string to lowercase in place
-#define TOLOWER_STR(STR)                         \
-	{                                        \
-		size_t len;                      \
-		char * end;                      \
-                                                 \
-		len = strlen(STR);               \
-		end = STR + len;                 \
-		TOLOWER(STR, end + 1, STR, end); \
 	}
 
 // Increase the amount of memory allocated for a give array by the size specified by NEW_SIZE,
@@ -992,49 +1021,102 @@ typedef enum DDLDependencyType {
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);              \
 	}
 
-#define UPGRADE_BINARY_DEFINITIONS_AND_RETURN_IF_NOT_YDB_OK(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB)                       \
-	{                                                                                                                         \
-		/* In case this is a rocto process, it is not allowed to do schema changes by default. But allow the auto upgrade \
-		 * for this process. Hence the temporary modification to "config->allow_schema_changes" below.                    \
-		 */                                                                                                               \
-		boolean_t save_allow_schema_changes;                                                                              \
-		save_allow_schema_changes = config->allow_schema_changes;                                                         \
-		config->allow_schema_changes = TRUE;                                                                              \
-		assert(FALSE == config->in_auto_upgrade_binary_table_definition);                                                 \
-		/* Do the actual auto upgrade of the binary function definition.                                                  \
-		 * Note: Function upgrade is done prior to table upgrade to ensure that the                                       \
-		 * table which depends on a function refers to the upgraded function during its upgrade.                          \
-		 * This also helps to re-create all dependency nodes in the correct format.                                       \
-		 */                                                                                                               \
-		STATUS = auto_upgrade_binary_function_definition();                                                               \
-		if (YDB_OK != STATUS) {                                                                                           \
-			config->allow_schema_changes = save_allow_schema_changes;                                                 \
-			CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                                       \
-		}                                                                                                                 \
-		/* Do the actual auto upgrade of the binary table definition.                                                     \
-		 * Set a global variable to indicate this is the small window where auto upgrade of binary table definitions      \
-		 * happens. This lets "table_definition.c" know to do some special processing (use different logic to calculate   \
-		 * whether a table should be considered READONLY or READWRITE).                                                   \
-		 */                                                                                                               \
-		config->in_auto_upgrade_binary_table_definition = TRUE;                                                           \
-		STATUS = auto_upgrade_binary_table_definition();                                                                  \
-		config->in_auto_upgrade_binary_table_definition = FALSE;                                                          \
-		if (YDB_OK != STATUS) {                                                                                           \
-			config->allow_schema_changes = save_allow_schema_changes;                                                 \
-			CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                                       \
-		}                                                                                                                 \
-		config->in_auto_upgrade_binary_view_definition = TRUE;                                                            \
-		STATUS = auto_upgrade_binary_view_definition();                                                                   \
-		config->in_auto_upgrade_binary_view_definition = FALSE;                                                           \
-		if (YDB_OK != STATUS) {                                                                                           \
-			config->allow_schema_changes = save_allow_schema_changes;                                                 \
-			CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                                       \
-		}                                                                                                                 \
-		config->allow_schema_changes = save_allow_schema_changes;                                                         \
-		/* Now that auto upgrade is complete, indicate that (so other processes do not attempt the auto upgrade)          \
-		 * by setting ^%ydboctoocto(OCTOLIT_BINFMT) to FMT_BINARY_DEFINITION.                                             \
-		 */                                                                                                               \
-		SET_OCTOLIT_BINFMT_GVN_AND_RETURN_IF_NOT_YDB_OK(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                  \
+#define UPGRADE_BINARY_DEFINITIONS_AND_RETURN_IF_NOT_YDB_OK(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB)                        \
+	{                                                                                                                          \
+		/* In case this is a rocto process, it is not allowed to do schema changes by default. But allow the auto upgrade  \
+		 * for this process. Hence the temporary modification to "config->allow_schema_changes" below.                     \
+		 */                                                                                                                \
+		boolean_t save_allow_schema_changes;                                                                               \
+		save_allow_schema_changes = config->allow_schema_changes;                                                          \
+		config->allow_schema_changes = TRUE;                                                                               \
+		assert(FALSE == config->in_auto_upgrade_binary_table_definition);                                                  \
+		/* Do the actual auto upgrade of the binary function definition.                                                   \
+		 * Note: Function upgrade is done prior to table upgrade to ensure that the                                        \
+		 * table which depends on a function refers to the upgraded function during its upgrade.                           \
+		 * This also helps to re-create all dependency nodes in the correct format.                                        \
+		 */                                                                                                                \
+		STATUS = auto_upgrade_binary_function_definition();                                                                \
+		if (YDB_OK != STATUS) {                                                                                            \
+			config->allow_schema_changes = save_allow_schema_changes;                                                  \
+			CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                                        \
+		}                                                                                                                  \
+		/* Do the actual auto upgrade of the binary table definition.                                                      \
+		 * Set a global variable to indicate this is the small window where auto upgrade of binary table definitions       \
+		 * happens. This lets "table_definition.c" know to do some special processing (use different logic to calculate    \
+		 * whether a table should be considered READONLY or READWRITE).                                                    \
+		 */                                                                                                                \
+		config->in_auto_upgrade_binary_table_definition = TRUE;                                                            \
+		STATUS = auto_upgrade_binary_table_definition();                                                                   \
+		config->in_auto_upgrade_binary_table_definition = FALSE;                                                           \
+		if (YDB_OK != STATUS) {                                                                                            \
+			config->allow_schema_changes = save_allow_schema_changes;                                                  \
+			CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                                        \
+		}                                                                                                                  \
+		if (config->is_auto_upgrade_octo929) {                                                                             \
+			STATUS = fclose(config->octo929_sqlfile_stream);                                                           \
+			if (0 != STATUS) {                                                                                         \
+				ERROR(ERR_SYSCALL_WITH_ARG, "fclose()", errno, strerror(errno), config->octo929_sqlfile);          \
+				config->allow_schema_changes = save_allow_schema_changes;                                          \
+				CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                                \
+			}                                                                                                          \
+			STATUS = run_query_file(config->octo929_sqlfile);                                                          \
+			if (0 != STATUS) {                                                                                         \
+				config->allow_schema_changes = save_allow_schema_changes;                                          \
+				CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                                \
+			}                                                                                                          \
+			/* Now that auto upgrade of tables/functions finished fine, remove the temporary file */                   \
+			STATUS = unlink(config->octo929_sqlfile);                                                                  \
+			if (0 != STATUS) {                                                                                         \
+				config->allow_schema_changes = save_allow_schema_changes;                                          \
+				CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                                \
+			}                                                                                                          \
+			/* Open a temporary file that will hold the DROP VIEW/CREATE VIEW commands needed for special auto upgrade \
+			 */                                                                                                        \
+			int fd;                                                                                                    \
+			assert(sizeof(OCTO929_SQLFILE_NAME) < sizeof(config->octo929_sqlfile));                                    \
+			strcpy(config->octo929_sqlfile, OCTO929_SQLFILE_NAME);                                                     \
+			fd = mkstemp(config->octo929_sqlfile);                                                                     \
+			if (-1 == fd) {                                                                                            \
+				ERROR(ERR_SYSCALL_WITH_ARG, "mkstemp()", errno, strerror(errno), config->octo929_sqlfile);         \
+				CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                                \
+			}                                                                                                          \
+			config->octo929_sqlfile_stream = fdopen(fd, "w");                                                          \
+			if (NULL == config->octo929_sqlfile_stream) {                                                              \
+				ERROR(ERR_SYSCALL_WITH_ARG, "fdopen()", errno, strerror(errno), config->octo929_sqlfile);          \
+				CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                                \
+			}                                                                                                          \
+		}                                                                                                                  \
+		config->in_auto_upgrade_binary_view_definition = TRUE;                                                             \
+		STATUS = auto_upgrade_binary_view_definition();                                                                    \
+		config->in_auto_upgrade_binary_view_definition = FALSE;                                                            \
+		if (YDB_OK != STATUS) {                                                                                            \
+			config->allow_schema_changes = save_allow_schema_changes;                                                  \
+			CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                                        \
+		}                                                                                                                  \
+		config->allow_schema_changes = save_allow_schema_changes;                                                          \
+		/* Now that auto upgrade is complete, indicate that (so other processes do not attempt the auto upgrade)           \
+		 * by setting ^%ydboctoocto(OCTOLIT_BINFMT) to FMT_BINARY_DEFINITION.                                              \
+		 */                                                                                                                \
+		SET_OCTOLIT_BINFMT_GVN_AND_RETURN_IF_NOT_YDB_OK(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                   \
+	}
+
+#define DO_AUTO_UPGRADE_OCTO929_CHECK(PTR, EXPR_LEN, COLUMN, SQL_COLUMN)                              \
+	{                                                                                             \
+		if (config->is_auto_upgrade_octo929) {                                                \
+			char  column2[OCTO_MAX_IDENT + 1];                                            \
+			char *src, *srcend, *dst, *dstend;                                            \
+                                                                                                      \
+			src = COLUMN;                                                                 \
+			srcend = COLUMN + strlen(COLUMN);                                             \
+			dst = column2;                                                                \
+			dstend = column2 + sizeof(column2);                                           \
+			TOLOWER(dst, dstend, src, srcend);                                            \
+			SQL_COLUMN = find_column(column2, table);                                     \
+			if (NULL != SQL_COLUMN) {                                                     \
+				/* Lower case column name matched. So modify column name in-place. */ \
+				memcpy(PTR + EXPR_LEN - (srcend - src) - 2, column2, srcend - src);   \
+			}                                                                             \
+		}                                                                                     \
 	}
 
 #define IF_VIEW_ISSUE_UNSUPPORTED_OPERATION_ERROR(TABLE_OR_VIEW_STMT, OPERATION_STMT_TYPE) \
@@ -1140,6 +1222,9 @@ int  truncate_table_tp_callback_fn(SqlStatement *truncate_stmt);
  * @returns TRUE on success, FALSE on failure
  */
 int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type, ParseContext *parse_context);
+
+/* Executes a sequence of SQL queries stored in file name "query_file_name" */
+int run_query_file(char *query_file_name);
 
 char *	      get_aggregate_func_name(SqlAggregateType type);
 SqlValueType  get_set_operation_column_alias_type(SqlStatement *ca_stmt);
@@ -1248,6 +1333,7 @@ int  compare_column_count_and_column_type_of_tables(SqlColumnAlias *first_column
 int  validate_table_asterisk_binary_operation(SqlBinaryOperation *binary, SqlValueType orig_child_type[2],
 					      ParseContext *parse_context);
 int  validate_global_keyword(SqlOptionalKeyword *keyword, SqlTable *table, int max_key);
+int  validate_start_end_keyword(SqlOptionalKeyword *keyword, SqlTable *table);
 
 boolean_t table_has_hidden_column(SqlTable *table);
 
@@ -1284,7 +1370,7 @@ int auto_upgrade_binary_definition_if_needed(void);
 int auto_upgrade_binary_function_definition(void);
 int auto_upgrade_binary_table_definition(void);
 int auto_upgrade_binary_view_definition(void);
-int auto_upgrade_binary_table_or_view_definition_helper(ydb_buffer_t *view_or_table_name);
+int auto_upgrade_binary_table_or_view_definition_helper(ydb_buffer_t *view_or_table_name, boolean_t is_view);
 int is_auto_upgrade_valid(void);
 
 /* history.c function prototypes */

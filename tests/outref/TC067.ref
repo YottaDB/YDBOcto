@@ -16,19 +16,19 @@ select * from tmp;
 drop table if exists tmp;
 create table tmp (id integer primary key, firstname varchar, lastname varchar, id2 integer extract abs(id2)) GLOBAL "^names";
 DROP TABLE
-[ERROR]: ERR_CIRCULAR_EXTRACT_DEFINITION: Definition for EXTRACT column "FULLNAME1" contains circular dependency starting from EXTRACT column "FULLNAME2"
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: TMP
+[ERROR]: ERR_CIRCULAR_EXTRACT_DEFINITION: Definition for EXTRACT column "fullname1" contains circular dependency starting from EXTRACT column "fullname2"
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
 LINE 5:1: select * from tmp;
                         ^^^
 DROP TABLE
-[ERROR]: ERR_CIRCULAR_EXTRACT_DEFINITION: Definition for EXTRACT column "FULLNAME1" contains circular dependency starting from EXTRACT column "FULLNAME2"
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: TMP
+[ERROR]: ERR_CIRCULAR_EXTRACT_DEFINITION: Definition for EXTRACT column "fullname1" contains circular dependency starting from EXTRACT column "fullname2"
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
 LINE 9:1: select * from tmp;
                         ^^^
 DROP TABLE
-[ERROR]: ERR_CIRCULAR_EXTRACT_DEFINITION: Definition for EXTRACT column "FULLNAME1" contains circular dependency starting from EXTRACT column "FULLNAME1"
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: TMP
+[ERROR]: ERR_CIRCULAR_EXTRACT_DEFINITION: Definition for EXTRACT column "fullname1" contains circular dependency starting from EXTRACT column "fullname1"
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
 LINE 13:1: select * from tmp;
                          ^^^
 DROP TABLE
-[ERROR]: ERR_CIRCULAR_EXTRACT_DEFINITION: Definition for EXTRACT column "ID2" contains circular dependency starting from EXTRACT column "ID2"
+[ERROR]: ERR_CIRCULAR_EXTRACT_DEFINITION: Definition for EXTRACT column "id2" contains circular dependency starting from EXTRACT column "id2"

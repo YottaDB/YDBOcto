@@ -20,21 +20,21 @@ CREATE FUNCTION current_user() RETURNS VARCHAR AS $$pgUser^%ydboctopgfunctions;
 select current_user;
 DROP FUNCTION
 CREATE FUNCTION
-TRUNCATE
+truncate
 1.0
 (1 row)
 DROP FUNCTION
 CREATE FUNCTION
-TRUNCATE
+truncate
 1.0
 (1 row)
 DROP FUNCTION
 CREATE FUNCTION
-CURRENT_USER
+current_user
 
 (1 row)
 DROP FUNCTION
 CREATE FUNCTION
-CURRENT_USER
+current_user
 
 (1 row)

@@ -14,7 +14,7 @@ SELECT COALESCE(NULL, 1, 'a');
 LINE 3:1: SELECT COALESCE();
                           ^
 syntax error, unexpected RIGHT_PAREN
-[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID_COLUMN
+[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_COLUMN_NAME: Unknown column: invalid_column
 LINE 4:1: SELECT COALESCE(invalid_column) FROM names;
                           ^^^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right NUMERIC

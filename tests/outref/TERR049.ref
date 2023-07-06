@@ -62,32 +62,32 @@ syntax error, unexpected LEFT_PAREN
 LINE 12:1: )
             ^
 syntax error, unexpected RIGHT_PAREN
-[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : NAMES
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : names
 LINE 17:3:     fullname VARCHAR EXTRACT CONCAT(firstname, names.lastname)
                                                           ^^^^^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: NONAME
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: noname
 LINE 22:3:     fullname VARCHAR EXTRACT CONCAT(firstname, noname)
                                                           ^^^^^^
 LINE 27:3:     fullname VARCHAR EXTRACT CONCAT(extractnames.*, lastname)
                                                             ^
 syntax error, unexpected ASTERISK
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function CONCAT defined with given parameter types (INTEGER, VARCHAR)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function concat defined with given parameter types (INTEGER, VARCHAR)
 LINE 32:3:     fullname VARCHAR EXTRACT CONCAT(1, lastname)
                                         ^^^^^^
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function CONCAT defined with given parameter types (INTEGER, VARCHAR)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function concat defined with given parameter types (INTEGER, VARCHAR)
 LINE 36:3:     fullname VARCHAR EXTRACT CONCAT(firstname::integer, lastname...
                                         ^^^^^^
 DROP TABLE
 [ERROR]: ERR_EXTRACT_TYPE_MISMATCH: EXTRACT column of type VARCHAR, but function call returns type INTEGER
 LINE 40:1: ...tmp (id integer primary key, fullname varchar extract abs(id));
                                                             ^^^^^^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: TMP
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
 LINE 41:1: select * from tmp;  -- Error: table `tmp` doesn't exist
                          ^^^
 DROP TABLE
 LINE 44:1: ...imary key, fullname1 varchar extract concat(id, id || 'abcd'));
                                                                  ^
 syntax error, unexpected PIPE, expecting RIGHT_PAREN
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: TMP
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
 LINE 45:1: select * from tmp;
                          ^^^

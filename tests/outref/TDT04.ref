@@ -28,24 +28,24 @@ _ydboctoX*.o
 [ INFO] PATH:LINENUM DATE TIME: INFO_M_PLAN: Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 [ INFO] PATH:LINENUM DATE TIME: INFO_M_PLAN: Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 # Verify db nodes correctly represent tables and plans (including xref plans) that rely on them
-^%ydboctoocto("tableplans","CUSTOMERS","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("tableplans","CUSTOMERS","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("tableplans","CUSTOMERS","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("tableplans","CUSTOMERS","$PWD/_ydboctoX*.m")=""
-^%ydboctoocto("tableplans","ORDERS","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("tableplans","ORDERS","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("tableplans","ORDERS","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("tableplans","ORDERS","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("tableplans","ORDERS","$PWD/_ydboctoX*.m")=""
-^%ydboctoocto("tableplans","ORDERS","$PWD/_ydboctoX*.m")=""
+^%ydboctoocto("tableplans","customers","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("tableplans","customers","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("tableplans","customers","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("tableplans","customers","$PWD/_ydboctoX*.m")=""
+^%ydboctoocto("tableplans","orders","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("tableplans","orders","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("tableplans","orders","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("tableplans","orders","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("tableplans","orders","$PWD/_ydboctoX*.m")=""
+^%ydboctoocto("tableplans","orders","$PWD/_ydboctoX*.m")=""
 # Verify db nodes correctly represent functions and plans that rely on them
 # Verify db nodes for plans that are reusable (i.e. do not need to be regenerated)
-^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
-^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
-^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
-^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
-^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="4"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoX*.m","output_key")="1"
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoX*.m","output_key")="1"
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoX*.m","output_key")="1"
@@ -74,7 +74,7 @@ _ydboctoX*.o
 ^%ydbAIMDE7chspaSKyAUuPbW0nWu8C(10)="2"
 ^%ydbAIMDE7chspaSKyAUuPbW0nWu8C(11)="5"
 ^%ydbAIMDE7chspaSKyAUuPbW0nWu8C(12)="+^customers -command=kill -name=%ydbE7chspaSKyAUuPbW0nWu8C0 -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDE7chspaSKyAUuPbW0nWu8C"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
-^%ydbAIMDE7chspaSKyAUuPbW0nWu8C("comment-1")="xref for table CUSTOMERS column FIRST_NAME"
+^%ydbAIMDE7chspaSKyAUuPbW0nWu8C("comment-1")="xref for table customers column first_name"
 ^%ydbAIMDjrxHoM6teHpBHmytfyBe36="^orders"
 ^%ydbAIMDjrxHoM6teHpBHmytfyBe36(-2)="6"
 ^%ydbAIMDjrxHoM6teHpBHmytfyBe36(-2,"$124.00")="1"
@@ -115,16 +115,16 @@ _ydboctoX*.o
 ^%ydbAIMDjrxHoM6teHpBHmytfyBe36(10)="2"
 ^%ydbAIMDjrxHoM6teHpBHmytfyBe36(11)="12"
 ^%ydbAIMDjrxHoM6teHpBHmytfyBe36(12)="+^orders -command=kill -name=%ydbjrxHoM6teHpBHmytfyBe360 -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDjrxHoM6teHpBHmytfyBe36"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
-^%ydbAIMDjrxHoM6teHpBHmytfyBe36("comment-1")="xref for table ORDERS column ORDER_DATE"
-^%ydbAIMDjrxHoM6teHpBHmytfyBe36("comment-2")="xref for table ORDERS column ORDER_AMOUNT"
+^%ydbAIMDjrxHoM6teHpBHmytfyBe36("comment-1")="xref for table orders column order_date"
+^%ydbAIMDjrxHoM6teHpBHmytfyBe36("comment-2")="xref for table orders column order_amount"
 ^%ydbAIMDxref("^customers","^%ydbAIMDE7chspaSKyAUuPbW0nWu8C")=""
 ^%ydbAIMDxref("^orders","^%ydbAIMDjrxHoM6teHpBHmytfyBe36")=""
-^%ydbAIMOctoCache("CUSTOMERS","FIRST_NAME","completed?")="1"
-^%ydbAIMOctoCache("CUSTOMERS","FIRST_NAME","location")="^%ydbAIMDE7chspaSKyAUuPbW0nWu8C(1)"
-^%ydbAIMOctoCache("ORDERS","ORDER_AMOUNT","completed?")="1"
-^%ydbAIMOctoCache("ORDERS","ORDER_AMOUNT","location")="^%ydbAIMDjrxHoM6teHpBHmytfyBe36(2)"
-^%ydbAIMOctoCache("ORDERS","ORDER_DATE","completed?")="1"
-^%ydbAIMOctoCache("ORDERS","ORDER_DATE","location")="^%ydbAIMDjrxHoM6teHpBHmytfyBe36(1)"
+^%ydbAIMOctoCache("customers","first_name","completed?")="1"
+^%ydbAIMOctoCache("customers","first_name","location")="^%ydbAIMDE7chspaSKyAUuPbW0nWu8C(1)"
+^%ydbAIMOctoCache("orders","order_amount","completed?")="1"
+^%ydbAIMOctoCache("orders","order_amount","location")="^%ydbAIMDjrxHoM6teHpBHmytfyBe36(2)"
+^%ydbAIMOctoCache("orders","order_date","completed?")="1"
+^%ydbAIMOctoCache("orders","order_date","location")="^%ydbAIMDjrxHoM6teHpBHmytfyBe36(1)"
 # Verify db nodes correctly represent src/obj dirs of generated plans (including xref plans)
 ^%ydboctoocto("plandirs","$PWD/_ydboctoP*.m","$PWD/_ydboctoP*.o")=""
 ^%ydboctoocto("plandirs","$PWD/_ydboctoP*.m","$PWD/_ydboctoP*.o")=""
@@ -252,10 +252,10 @@ _ydboctoX*.m
 _ydboctoX*.o
 # Verify how many queries created new plans
 # Verify db nodes correctly represent tables and plans (including xref plans) that rely on them
-^%ydboctoocto("tableplans","CUSTOMERS","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("tableplans","CUSTOMERS","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("tableplans","CUSTOMERS","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("tableplans","CUSTOMERS","$PWD/_ydboctoX*.m")=""
+^%ydboctoocto("tableplans","customers","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("tableplans","customers","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("tableplans","customers","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("tableplans","customers","$PWD/_ydboctoX*.m")=""
 # Verify db nodes correctly represent functions and plans that rely on them
 # Verify db nodes for plans that are reusable (i.e. do not need to be regenerated)
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
@@ -286,10 +286,10 @@ _ydboctoX*.o
 ^%ydbAIMDE7chspaSKyAUuPbW0nWu8C(10)="2"
 ^%ydbAIMDE7chspaSKyAUuPbW0nWu8C(11)="5"
 ^%ydbAIMDE7chspaSKyAUuPbW0nWu8C(12)="+^customers -command=kill -name=%ydbE7chspaSKyAUuPbW0nWu8C0 -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDE7chspaSKyAUuPbW0nWu8C"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
-^%ydbAIMDE7chspaSKyAUuPbW0nWu8C("comment-1")="xref for table CUSTOMERS column FIRST_NAME"
+^%ydbAIMDE7chspaSKyAUuPbW0nWu8C("comment-1")="xref for table customers column first_name"
 ^%ydbAIMDxref("^customers","^%ydbAIMDE7chspaSKyAUuPbW0nWu8C")=""
-^%ydbAIMOctoCache("CUSTOMERS","FIRST_NAME","completed?")="1"
-^%ydbAIMOctoCache("CUSTOMERS","FIRST_NAME","location")="^%ydbAIMDE7chspaSKyAUuPbW0nWu8C(1)"
+^%ydbAIMOctoCache("customers","first_name","completed?")="1"
+^%ydbAIMOctoCache("customers","first_name","location")="^%ydbAIMDE7chspaSKyAUuPbW0nWu8C(1)"
 # Verify db nodes correctly represent src/obj dirs of generated plans (including xref plans)
 ^%ydboctoocto("plandirs","$PWD/_ydboctoP*.m","$PWD/_ydboctoP*.o")=""
 ^%ydboctoocto("plandirs","$PWD/_ydboctoP*.m","$PWD/_ydboctoP*.o")=""

@@ -6,7 +6,7 @@ select ABS(-id)-(select 2 from names limit 1) as absid from names;
 select ABS(-id)*(select 2 from names limit 1) as absid from names;
 select ABS(-id)/(select 2 from names limit 1) as absid from names;
 select ABS(-id)%(select 2 from names limit 1) as absid from names;
-ABSID
+absid
 2
 3
 4
@@ -14,7 +14,7 @@ ABSID
 6
 7
 (6 rows)
-ABSID
+absid
 -2
 -1
 0
@@ -22,7 +22,7 @@ ABSID
 2
 3
 (6 rows)
-ABSID
+absid
 0
 2
 4
@@ -30,7 +30,7 @@ ABSID
 8
 10
 (6 rows)
-ABSID
+absid
 0
 .5
 1
@@ -38,7 +38,7 @@ ABSID
 2
 2.5
 (6 rows)
-ABSID
+absid
 0
 1
 0

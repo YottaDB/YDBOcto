@@ -1,3 +1,3 @@
 [ WARN] Global ^%ydboctoxref maps to default region DEFAULT. Recommended mapping for ^%ydbocto* is to a separate region
-[ERROR]: ERR_YOTTADB: YottaDB error: 150373602,(SimpleAPI),%YDB-E-REC2BIG, Record size (1656) is greater than maximum (256) for region: DEFAULT,%YDB-I-GVIS, 		Global variable: ^%ydboctoschema("OCTOONEROWTABLE","binary",0)
+[ERROR]: ERR_YOTTADB: YottaDB error: 150372986,(SimpleAPI),%YDB-E-GVSUBOFLOW, Maximum combined length of subscripts exceeded,%YDB-I-GVIS, 		Global variable: ^%ydboctoocto("functions","CONCAT","%ydboctoFoGO5XAvk4aaOdYpI5k13E7")
 [ERROR]: ERR_AUTO_SEED_LOAD: Failed to load internal tables and functions

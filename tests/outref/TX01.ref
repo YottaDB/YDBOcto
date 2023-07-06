@@ -1,4 +1,4 @@
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 5|Zero|Cool
 (2 rows)
@@ -35,7 +35,7 @@ ID|FIRSTNAME|LASTNAME
 ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(10)=2
 ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(11)=6
 ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(12)="+^names -command=kill -name=%ydbXtoXI8zgdGIqUuCoYeqwF60 -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
-^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6("comment-1")="xref for table NAMES column FIRSTNAME"
+^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6("comment-1")="xref for table names column firstname"
 ^%ydbAIMDxref("^names","^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6")=""
  --> KILL ^names(0)  ZWRITE ^%ydbAIMD*
 ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6="^names"
@@ -63,7 +63,7 @@ ID|FIRSTNAME|LASTNAME
 ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(10)=2
 ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(11)=5
 ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(12)="+^names -command=kill -name=%ydbXtoXI8zgdGIqUuCoYeqwF60 -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
-^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6("comment-1")="xref for table NAMES column FIRSTNAME"
+^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6("comment-1")="xref for table names column firstname"
 ^%ydbAIMDxref("^names","^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6")=""
  --> KILL ^names(5)  ZWRITE ^%ydbAIMD*
 ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6="^names"
@@ -89,5 +89,5 @@ ID|FIRSTNAME|LASTNAME
 ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(10)=2
 ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(11)=4
 ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(12)="+^names -command=kill -name=%ydbXtoXI8zgdGIqUuCoYeqwF60 -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
-^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6("comment-1")="xref for table NAMES column FIRSTNAME"
+^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6("comment-1")="xref for table names column firstname"
 ^%ydbAIMDxref("^names","^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6")=""

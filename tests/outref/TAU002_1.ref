@@ -66,7 +66,7 @@ select * from v40;
 create view v41 as select id from names n1 where (select n1.id from names n2 where n2.id > 5) is not null;
 select * from v41;
 CREATE VIEW
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -75,7 +75,7 @@ ID|FIRSTNAME|LASTNAME
 5|Zero|Cool
 (6 rows)
 CREATE VIEW
-ABS
+abs
 0
 1
 2
@@ -92,7 +92,7 @@ CREATE VIEW
 2
 (1 row)
 CREATE VIEW
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -101,7 +101,7 @@ ID|FIRSTNAME|LASTNAME
 5|Zero|Cool
 (6 rows)
 CREATE VIEW
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -111,7 +111,7 @@ ID|FIRSTNAME|LASTNAME
 (6 rows)
 CREATE FUNCTION
 CREATE VIEW
-SAMEVALUE
+samevalue
 1
 (1 row)
 CREATE VIEW
@@ -125,19 +125,19 @@ CREATE VIEW
 CREATE VIEW
 CREATE VIEW
 CREATE VIEW
-ID
+id
 1
 (1 row)
-ID
+id
 1
 (1 row)
-ID
+id
 1
 (1 row)
 CREATE VIEW
 CREATE VIEW
 CREATE VIEW
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 1|Acid|Burn
 0|Zero|Cool
 5|Zero|Cool
@@ -145,7 +145,7 @@ ID|FIRSTNAME|LASTNAME
 3|Lord|Nikon
 4|Joey|
 (6 rows)
-LASTNAME
+lastname
 Acid
 Burn
 Cereal
@@ -157,7 +157,7 @@ Nikon
 Zero
 
 (10 rows)
-COLUMN1
+column1
 1
 (1 row)
 CREATE VIEW
@@ -173,13 +173,13 @@ CREATE VIEW
 0
 (1 row)
 CREATE VIEW
-SUM
+sum
 1
 (1 row)
 CREATE VIEW
-COUNT(*)
+count(*)
 6
 (1 row)
 CREATE VIEW
-ID
+id
 (0 rows)

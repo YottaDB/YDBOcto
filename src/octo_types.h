@@ -361,13 +361,17 @@ typedef enum SqlDisplayRelationType {
 	DISPLAY_TABLE_RELATION
 } SqlDisplayRelationType;
 
-// Values for this enum are derived from the PostgreSQL catalog and
-// only include types Octo currently supports.
-// Typename to OID mappings can be acquired by running the following
-// query against an existing PostgreSQL database:
-//	select typname,oid from pg_catalog.pg_type;
+/* Values for this enum are derived from the PostgreSQL catalog and only include types Octo currently supports.
+ * Any additions to the below list might need changes to "pgFormatType" entryref in "src/aux/_ydboctopgfunctions.m".
+ *
+ * Typename to OID mappings can be acquired by running the following
+ * query against an existing PostgreSQL database:
+ *	select typname,oid from pg_catalog.pg_type;
+ */
 typedef enum {
 	PSQL_TypeOid_bool = 16,
+	PSQL_TypeOid_int8 = 20,
+	PSQL_TypeOid_int2 = 21,
 	PSQL_TypeOid_int4 = 23,
 	PSQL_TypeOid_unknown = 705,
 	PSQL_TypeOid_varchar = 1043,

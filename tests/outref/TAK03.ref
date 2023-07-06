@@ -76,7 +76,7 @@ syntax error, unexpected LITERAL
 LINE 3:1: select id as $1 from names;
                        ^^
 syntax error, unexpected LITERAL
-BACKTICK
+backtick
 0
 1
 2
@@ -96,13 +96,13 @@ syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOF
 LINE 9:1: select id as $$dummyextrinsicfunction^something from names;
                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 syntax error, unexpected EXTRINSIC_FUNCTION
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: IDB
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: idb
 LINE 11:1: select idb from (select 8 as "ida");
                   ^^^
 LINE 12:1: select idb from (select 8 as 'ida');
                                         ^^^^^
 syntax error, unexpected LITERAL
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: IDB
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: idb
 LINE 13:1: select idb from (select 8 as ida);
                   ^^^
 LINE 15:1: select id from names as 123;
@@ -111,7 +111,7 @@ syntax error, unexpected LITERAL
 LINE 16:1: select id from names as $1;
                                    ^^
 syntax error, unexpected LITERAL
-ID
+id
 0
 1
 2
@@ -131,10 +131,10 @@ syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOF
 LINE 22:1: select id from names as $$dummyextrinsicfunction^something;
                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 syntax error, unexpected EXTRINSIC_FUNCTION
-[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : n2
 LINE 24:1: select n2.id from names as "n1";
                   ^^^^^
-[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : n2
 LINE 25:1: select n2.id from names as n1;
                   ^^^^^
 LINE 27:1: select id 123 from names;
@@ -143,7 +143,7 @@ syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDO
 LINE 28:1: select id $1 from names;
                      ^^
 syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
-BACKTICK
+backtick
 0
 1
 2
@@ -163,13 +163,13 @@ syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOF
 LINE 34:1: select id $$dummyextrinsicfunction^something from names;
                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 syntax error, unexpected EXTRINSIC_FUNCTION, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: IDB
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: idb
 LINE 36:1: select idb from (select 8 "ida") n1;
                   ^^^
 LINE 37:1: select idb from (select 8 'ida') n1;
                                      ^^^^^
 syntax error, unexpected LITERAL, expecting EXCEPT or UNION or RIGHT_PAREN
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: IDB
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: idb
 LINE 38:1: select idb from (select 8 ida) n1;
                   ^^^
 LINE 40:1: select id from names 123;
@@ -178,7 +178,7 @@ syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDO
 LINE 41:1: select id from names $1;
                                 ^^
 syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
-ID
+id
 0
 1
 2
@@ -198,18 +198,18 @@ syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOF
 LINE 47:1: select id from names $$dummyextrinsicfunction^something;
                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 syntax error, unexpected EXTRINSIC_FUNCTION, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
-[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : n2
 LINE 49:1: select n2.id from names "n1";
                   ^^^^^
-[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N2
+[ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : n2
 LINE 50:1: select n2.id from names n1;
                   ^^^^^
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: IDB
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: idb
 LINE 52:1: select idb from (select 8 "ida");
                   ^^^
 LINE 53:1: select idb from (select 8 'ida');
                                      ^^^^^
 syntax error, unexpected LITERAL, expecting EXCEPT or UNION or RIGHT_PAREN
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: IDB
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: idb
 LINE 54:1: select idb from (select 8 ida);
                   ^^^

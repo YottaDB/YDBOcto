@@ -11,7 +11,7 @@ SELECT namesunion.firstname from ((select * from names) UNION ALL (select * from
 SELECT NULL as computed_id from (select * from names UNION ALL select * from names) ORDER BY computed_id;
 SELECT 1 as computed_id from (select * from names UNION ALL select * from names) ORDER BY computed_id;
 SELECT 1+id*2 as computed_id from (select * from names UNION ALL select * from names) ORDER BY computed_id;
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -19,7 +19,7 @@ ID|FIRSTNAME|LASTNAME
 4|Joey|
 5|Zero|Cool
 (6 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 0|Zero|Cool
 1|Acid|Burn
@@ -33,7 +33,7 @@ ID|FIRSTNAME|LASTNAME
 5|Zero|Cool
 5|Zero|Cool
 (12 rows)
-FIRSTNAME
+firstname
 Acid
 Burn
 Cereal
@@ -47,7 +47,7 @@ Zero
 Zero
 
 (12 rows)
-FIRSTNAME
+firstname
 Acid
 Burn
 Cereal
@@ -61,7 +61,7 @@ Zero
 Zero
 
 (12 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 1|Acid|Burn
 1|Acid|Burn
 2|Cereal|Killer
@@ -75,7 +75,7 @@ ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 5|Zero|Cool
 (12 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 1|Acid|Burn
 1|Acid|Burn
 2|Cereal|Killer
@@ -89,7 +89,7 @@ ID|FIRSTNAME|LASTNAME
 0|Zero|Cool
 5|Zero|Cool
 (12 rows)
-FIRSTNAME
+firstname
 Acid
 Acid
 Cereal
@@ -103,7 +103,7 @@ Zero
 Zero
 Zero
 (12 rows)
-COMPUTED_ID
+computed_id
 
 
 
@@ -117,7 +117,7 @@ COMPUTED_ID
 
 
 (12 rows)
-COMPUTED_ID
+computed_id
 1
 1
 1
@@ -131,7 +131,7 @@ COMPUTED_ID
 1
 1
 (12 rows)
-COMPUTED_ID
+computed_id
 1
 1
 3

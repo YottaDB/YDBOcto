@@ -10,17 +10,17 @@ LP_SELECT_QUERY:
     LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_FUNCTION_CALL: 
-          LP_VALUE: 'VERSION'
+          LP_VALUE: 'version'
           LP_COLUMN_LIST: 
-            LP_VALUE: '%ydboctoFvUsCzPUyvXXbs0y5Mx1mA5'
+            LP_VALUE: '%ydboctoFBEAzI0enXVCykMWTSKSU6A'
             LP_VALUE: '$$VERSION^%ydboctosqlfunctions'
             LP_VALUE: 'VARCHAR'
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: VERSION
+        - alias: version
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: OCTOONEROWTABLE(1)
+        LP_TABLE: octoonerowtable(1)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
@@ -42,22 +42,22 @@ LP_SELECT_QUERY:
     LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_FUNCTION_CALL: 
-          LP_VALUE: 'VERSION'
+          LP_VALUE: 'version'
           LP_COLUMN_LIST: 
-            LP_VALUE: '%ydboctoFvUsCzPUyvXXbs0y5Mx1mA5'
+            LP_VALUE: '%ydboctoFBEAzI0enXVCykMWTSKSU6A'
             LP_VALUE: '$$VERSION^%ydboctosqlfunctions'
             LP_VALUE: 'VARCHAR'
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: VERSION
+        - alias: version
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_TABLE: OCTOONEROWTABLE(1)
+        LP_TABLE: octoonerowtable(1)
       LP_CRITERIA: 
         LP_KEYS: 
           LP_KEY: 
-          - table_name: OCTOONEROWTABLE
-          - column_name: ID
+          - table_name: octoonerowtable
+          - column_name: id
           - unique_id: 1
           - method: LP_KEY_ADVANCE
           - xref_key: false
@@ -76,7 +76,7 @@ LP_SELECT_QUERY:
     - uses_xref_key: false
 
 [ INFO] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering print_temporary_table
-VERSION
+version
 PostgreSQL 13.0.0 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 7.1.1 20170630, 64-bit
 (1 row)
 [ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete

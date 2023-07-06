@@ -37,16 +37,16 @@ LINE 7:1: select Price::boolean from Products;
                  ^^^^^^^^^^^^^^
 [ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'Zero' is not a valid boolean value
 [ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: '2' is not a valid boolean value
-[ERROR]: ERR_MISTYPED_FUNCTION: Function MIN cannot be invoked with a parameter of type BOOLEAN
+[ERROR]: ERR_MISTYPED_FUNCTION: Function min cannot be invoked with a parameter of type BOOLEAN
 LINE 12:1: select min(mybool) from (select id=2 as mybool from names) n1;
                   ^^^
-[ERROR]: ERR_MISTYPED_FUNCTION: Function MAX cannot be invoked with a parameter of type BOOLEAN
+[ERROR]: ERR_MISTYPED_FUNCTION: Function max cannot be invoked with a parameter of type BOOLEAN
 LINE 13:1: select max(mybool) from (select id=2 as mybool from names) n1;
                   ^^^
-[ERROR]: ERR_MISTYPED_FUNCTION: Function SUM cannot be invoked with a parameter of type BOOLEAN
+[ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type BOOLEAN
 LINE 14:1: select sum(mybool) from (select id=2 as mybool from names) n1;
                   ^^^
-[ERROR]: ERR_MISTYPED_FUNCTION: Function AVG cannot be invoked with a parameter of type BOOLEAN
+[ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type BOOLEAN
 LINE 15:1: select avg(mybool) from (select id=2 as mybool from names) n1;
                   ^^^
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types BOOLEAN and INTEGER cannot be matched

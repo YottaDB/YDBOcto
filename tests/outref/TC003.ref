@@ -1,5 +1,4 @@
-CREATE TABLE
-ID|FIRST|LAST
+id|first|last
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer

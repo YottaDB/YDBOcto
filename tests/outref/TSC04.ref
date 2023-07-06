@@ -1,3 +1,3 @@
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: INVALID
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: invalid
 LINE 1:1: SELECT invalid FROM names;
                  ^^^^^^^

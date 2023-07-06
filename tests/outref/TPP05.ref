@@ -1,9 +1,9 @@
 # Run TPP01.sql that generates M xref routine and stores corresponding xref plan related gvn in database
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 3|Lord|Nikon
 (1 row)
 # KILL ^%ydbAIMD* but keep (_ydboctoX*.{m,o} and ^%ydbAIMOctoCache) to create an out-of-sync situation
 # Run TPP01.sql again. Should return NO rows (incorrect result) because ^%ydbAIMD* was killed
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 (0 rows)
 # Verify ^%ydbAIMD* was NOT rebuilt. Running [ZWRITE ^%ydbAIMD*]. Output below

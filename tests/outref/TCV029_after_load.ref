@@ -214,8 +214,8 @@ select * from v89;
 -- https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1244#note_1380399080
 select * from v90;
 select * from v91;
-[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "NAMES" because view "B1" depends on it
-ID|FIRSTNAME|LASTNAME
+[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "names" because view "b1" depends on it
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -223,7 +223,7 @@ ID|FIRSTNAME|LASTNAME
 4|Joey|
 5|Zero|Cool
 (6 rows)
-id 1|firstname 1|lastname 1|ID2|FIRSTNAME2|LASTNAME2
+id 1|firstname 1|lastname 1|id2|firstname2|lastname2
 0|Zero|Cool|0|Zero|Cool
 0|Zero|Cool|1|Acid|Burn
 0|Zero|Cool|2|Cereal|Killer
@@ -261,7 +261,7 @@ id 1|firstname 1|lastname 1|ID2|FIRSTNAME2|LASTNAME2
 5|Zero|Cool|4|Joey|
 5|Zero|Cool|5|Zero|Cool
 (36 rows)
-V1_FIRSTNAME
+v1_firstname
 Zero
 Acid
 Cereal
@@ -285,8 +285,8 @@ Killer
 Nikon
 
 (10 rows)
-[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "COMPOSITE" because view "V5_1" depends on it
-ID0|ID1|ID2|ID3|ID4|ID5|ID6|ID7|NAME
+[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "composite" because view "v5_1" depends on it
+id0|id1|id2|id3|id4|id5|id6|id7|name
 0|1|2|3|4|5|6|7|Name1
 0|1|2|3|4|5|6|8|Name2
 0|1|2|3|4|5|7|7|Name3
@@ -298,12 +298,12 @@ ID0|ID1|ID2|ID3|ID4|ID5|ID6|ID7|NAME
 0|2|3|4|5|6|8|7|Name9
 1|2|3|4|5|6|8|7|Name10
 (10 rows)
-[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "OCTOONEROWTABLE" because view "A" depends on it
+[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "octoonerowtable" because view "a" depends on it
 ???
 1
 (1 row)
-[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "PG_TYPE" because view "V7_1" depends on it
-TYPNAME|TYPNAMESPACE|TYPOWNER|TYPLEN|TYPBYVAL|TYPTYPE|TYPCATEGORY|TYPISPREFERRED|TYPISDEFINED|TYPDELIM|TYPRELID|TYPELEM|TYPARRAY|TYPINPUT|TYPOUTPUT|TYPRECEIVE|TYPSEND|TYPMODIN|TYPMODOUT|TYPANALYZE|TYPALIGN|TYPSTORAGE|TYPNOTNULL|TYPBASETYPE|TYPTYPMOD|TYPNDIMS|TYPCOLLATION|TYPDEFAULTBIN|TYPDEFAULT|TYPACL|OID
+[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "pg_type" because view "v7_1" depends on it
+typname|typnamespace|typowner|typlen|typbyval|typtype|typcategory|typispreferred|typisdefined|typdelim|typrelid|typelem|typarray|typinput|typoutput|typreceive|typsend|typmodin|typmodout|typanalyze|typalign|typstorage|typnotnull|typbasetype|typtypmod|typndims|typcollation|typdefaultbin|typdefault|typacl|oid
 bool|11|10|1|1|b|B|1|1|,|0|0|1000|boolin|boolout|boolrecv|boolsend|-|-|-|c|p|0|0|-1|0|0||||16
 int4|11|10|4|1|b|N|0|1|,|0|0|1007|int4in|int4out|int4recv|int4send|-|-|-|i|p|0|0|-1|0|0||||23
 name|11|10|64|0|b|S|0|1|,|0|18|1003|namein|nameout|namerecv|namesend|-|-|-|c|p|0|0|-1|0|0||||19
@@ -311,12 +311,12 @@ numeric|11|10|-1|0|b|N|0|1|,|0|0|1231|numeric_in|numeric_out|numeric_recv|numeri
 unknown|11|10|-2|f|p|X|f|t|,|0|0|0|unknownin|unknownout|unknownrecv|unknownsend|-|-|-|c|p|f|0|-1|0|0||||705
 varchar|11|10|-1|0|b|S|0|1|,|0|0|1015|varcharin|varcharout|varcharrecv|varcharsend|varchartypmodin|varchartypmodout|-|i|x|0|0|-1|0|100||||1043
 (6 rows)
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS_ON_VIEW: Cannot DROP function ABS(INTEGER) because view "V47" depends on it
-ABS
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS_ON_VIEW: Cannot DROP function abs(INTEGER) because view "v47" depends on it
+abs
 1
 (1 row)
-[ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "B1" because view "A1" depends on it
-ID|FIRSTNAME|LASTNAME
+[ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "b1" because view "a1" depends on it
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -324,7 +324,7 @@ ID|FIRSTNAME|LASTNAME
 4|Joey|
 5|Zero|Cool
 (6 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -332,11 +332,11 @@ ID|FIRSTNAME|LASTNAME
 4|Joey|
 5|Zero|Cool
 (6 rows)
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS_ON_VIEW: Cannot DROP function SAMEVALUE(INTEGER) because view "F1" depends on it
-SAMEVALUE
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS_ON_VIEW: Cannot DROP function samevalue(INTEGER) because view "f1" depends on it
+samevalue
 1
 (1 row)
-SAMEVALUE
+samevalue
 1
 1
 1
@@ -344,14 +344,14 @@ SAMEVALUE
 1
 1
 (6 rows)
-[ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "A" because view "B" depends on it
+[ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "a" because view "b" depends on it
 ???
 1
 (1 row)
 ???
 1
 (1 row)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -359,24 +359,24 @@ ID|FIRSTNAME|LASTNAME
 4|Joey|
 5|Zero|Cool
 (6 rows)
-[ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "V9_1" because view "V10_1" depends on it
-ID
+[ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "v9_1" because view "v10_1" depends on it
+id
 1
 (1 row)
 DROP VIEW
-[ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "V9_1" because view "V11_1" depends on it
-ID
+[ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "v9_1" because view "v11_1" depends on it
+id
 1
 (1 row)
 DROP VIEW
-ID
+id
 1
 (1 row)
 DROP VIEW
 ???
 1
 (1 row)
-FIRSTNAME|LASTNAME
+firstname|lastname
 Zero|Cool
 Acid|Burn
 Cereal|Killer
@@ -384,7 +384,7 @@ Lord|Nikon
 Joey|
 Zero|Cool
 (6 rows)
-ID1|FIRSTNAME1|LASTNAME1|ID2|FIRSTNAME2|LASTNAME2
+id1|firstname1|lastname1|id2|firstname2|lastname2
 0|Zero|Cool|0|Zero|Cool
 0|Zero|Cool|1|Acid|Burn
 0|Zero|Cool|2|Cereal|Killer
@@ -422,22 +422,22 @@ ID1|FIRSTNAME1|LASTNAME1|ID2|FIRSTNAME2|LASTNAME2
 5|Zero|Cool|4|Joey|
 5|Zero|Cool|5|Zero|Cool
 (36 rows)
-COLUMN1|COLUMN2|COLUMN3
+column1|column2|column3
 1|2|3
 1|2|3
 (2 rows)
-COLUMN1|COLUMN2|COLUMN3
+column1|column2|column3
 1|test|test2
 (1 row)
-COLUMN1|COLUMN2|COLUMN3
+column1|column2|column3
 1|test|test2
 2|test3|test4
 (2 rows)
-COLUMN1|COLUMN2|COLUMN3
+column1|column2|column3
 1|test|test2
 2|test3|test4
 (2 rows)
-V1_FIRSTNAME
+v1_firstname
 Zero
 Acid
 Cereal
@@ -449,7 +449,7 @@ Killer
 Nikon
 
 (10 rows)
-FIRSTNAME|LASTNAME
+firstname|lastname
 Zero|Cool
 Acid|Burn
 Cereal|Killer
@@ -457,7 +457,7 @@ Lord|Nikon
 Joey|
 Zero|Cool
 (6 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -465,41 +465,41 @@ ID|FIRSTNAME|LASTNAME
 4|Joey|
 5|Zero|Cool
 (6 rows)
-FIRSTNAME
+firstname
 Acid
 Joey
 Lord
 Zero
 Cereal
 (5 rows)
-FIRSTNAME
+firstname
 Acid
 Joey
 Lord
 Zero
 Cereal
 (5 rows)
-FIRSTNAME
+firstname
 Acid
 Cereal
 Joey
 Lord
 Zero
 (5 rows)
-FIRSTNAME
+firstname
 Acid
 Cereal
 Joey
 Lord
 Zero
 (5 rows)
-COUNT
+count
 6
 (1 row)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 (1 row)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -507,7 +507,7 @@ ID|FIRSTNAME|LASTNAME
 4|Joey|
 5|Zero|Cool
 (6 rows)
-FIRSTNAME
+firstname
 Zero
 Zero
 Lord
@@ -515,7 +515,7 @@ Joey
 Cereal
 Acid
 (6 rows)
-FIRSTNAME
+firstname
 Zero
 Acid
 Cereal
@@ -523,10 +523,10 @@ Lord
 Joey
 Zero
 (6 rows)
-COLUMN1|COLUMN2|COLUMN3
+column1|column2|column3
 1|2|3
 (1 row)
-ID
+id
 0
 1
 2
@@ -534,10 +534,10 @@ ID
 4
 5
 (6 rows)
-A1|A2|A3|A4|A5|A6
+a1|a2|a3|a4|a5|a6
 1|2|3|3|4|5
 (1 row)
-ID
+id
 1
 1
 1
@@ -569,7 +569,7 @@ ID
 5
 5
 (30 rows)
-id 1|firstname 1|lastname 1|ID2|FIRSTNAME2|LASTNAME2
+id 1|firstname 1|lastname 1|id2|firstname2|lastname2
 0|Zero|Cool|0|Zero|Cool
 0|Zero|Cool|1|Acid|Burn
 0|Zero|Cool|2|Cereal|Killer
@@ -607,7 +607,7 @@ id 1|firstname 1|lastname 1|ID2|FIRSTNAME2|LASTNAME2
 5|Zero|Cool|4|Joey|
 5|Zero|Cool|5|Zero|Cool
 (36 rows)
-V1_FIRSTNAME
+v1_firstname
 Zero
 Acid
 Cereal
@@ -655,7 +655,7 @@ Killer
 Nikon
 
 (10 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -664,7 +664,7 @@ ID|FIRSTNAME|LASTNAME
 5|Zero|Cool
 ||
 (7 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -673,7 +673,7 @@ ID|FIRSTNAME|LASTNAME
 5|Zero|Cool
 ||
 (7 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -687,11 +687,11 @@ ID|FIRSTNAME|LASTNAME
 4|Joey|
 5|Zero|Cool
 (12 rows)
-[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "NAMES" because view "B1" depends on it
-COLUMN1
+[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "names" because view "b1" depends on it
+column1
 1
 (1 row)
-LASTNAME
+lastname
 Acid
 Burn
 Cereal
@@ -703,7 +703,7 @@ Nikon
 Zero
 
 (10 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 1|Acid|Burn
 0|Zero|Cool
 5|Zero|Cool
@@ -720,13 +720,13 @@ CASE
 ???
 0
 (1 row)
-SUM
+sum
 1
 (1 row)
-COUNT(*)
+count(*)
 6
 (1 row)
-ID
+id
 (0 rows)
 ???
 (0 rows)
@@ -744,7 +744,7 @@ ID
 
 
 (6 rows)
-ABS
+abs
 
 (1 row)
 ???
@@ -755,7 +755,7 @@ ABS
 
 
 (6 rows)
-IDBOOL
+idbool
 -1
 -1
 0
@@ -763,7 +763,7 @@ IDBOOL
 0
 0
 (6 rows)
-SUB|???
+sub|???
 true|1
 (1 row)
 ???
@@ -790,17 +790,17 @@ true|1
 1
 1
 (6 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 2|Cereal|Killer
 4|Joey|
 (3 rows)
-FIRSTNAME
+firstname
 (0 rows)
 ???
 1
 (1 row)
-A|B
+a|b
 0|0
 0|1
 0|2
@@ -838,7 +838,7 @@ A|B
 5|4
 5|5
 (36 rows)
-COUNT
+count
 6
 (1 row)
 ???
@@ -848,7 +848,7 @@ Lord1
 Zero2
 Cereal1
 (5 rows)
-COL1
+col1
 0
 1
 2
@@ -856,7 +856,7 @@ COL1
 4
 5
 (6 rows)
-FIRSTNAME
+firstname
 Zero
 Acid
 Cereal
@@ -864,14 +864,14 @@ Lord
 Joey
 Zero
 (6 rows)
-FIRSTNAME|COUNT
+firstname|count
 Acid|1
 Joey|1
 Lord|1
 Zero|2
 Cereal|1
 (5 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -879,10 +879,10 @@ ID|FIRSTNAME|LASTNAME
 4|Joey|
 5|Zero|Cool
 (6 rows)
-A2|B2|C2
+a2|b2|c2
 0|Zero|Cool
 (1 row)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -890,14 +890,14 @@ ID|FIRSTNAME|LASTNAME
 4|Joey|
 5|Zero|Cool
 (6 rows)
-ID
+id
 0
 1
 2
 3
 5
 (5 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -919,47 +919,47 @@ is null
 0
 0
 (2 rows)
-[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "TMP80" because view "V80" depends on it
-ID|NAME|VALUE
+[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "tmp80" because view "v80" depends on it
+id|name|value
 1|first|1.2
 2|second|2.2
 (2 rows)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TMP80 violates CHECK constraint TMP80_VALUE_CHECK : Failing row contains (3, third, 0)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "TMP80_ID_KEY" : Key (ID)=(2) already exists
-[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "TMP81" because view "V81" depends on it
-ID|NAME|VALUE
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp80 violates CHECK constraint tmp80_value_CHECK : Failing row contains (3, third, 0)
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp80_id_KEY" : Key (id)=(2) already exists
+[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "tmp81" because view "v81" depends on it
+id|name|value
 1|first|1.2
 2|second|2.2
 (2 rows)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TMP81 violates CHECK constraint NAME1 : Failing row contains (3, third, 0)
-[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "TMP82" because view "V82" depends on it
-ID
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp81 violates CHECK constraint name1 : Failing row contains (3, third, 0)
+[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "tmp82" because view "v82" depends on it
+id
 1
 2
 (2 rows)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TMP82 violates CHECK constraint TMP82_ID_CHECK : Failing row contains (0)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "TMP82_ID_KEY" : Key (ID)=(1) already exists
-[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "TMP83" because view "V83" depends on it
-ID
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp82 violates CHECK constraint tmp82_id_CHECK : Failing row contains (0)
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp82_id_KEY" : Key (id)=(1) already exists
+[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "tmp83" because view "v83" depends on it
+id
 1
 2
 (2 rows)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TMP83 violates CHECK constraint NAME1 : Failing row contains (0)
-LASTNAME
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp83 violates CHECK constraint name1 : Failing row contains (0)
+lastname
 Cool
 Burn
 Killer
 Nikon
 
 (5 rows)
-[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "TMP86" because view "V86" depends on it
-[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "TMP85" because view "V85" depends on it
-ID|FIRSTNAME|LASTNAME
+[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "tmp86" because view "v86" depends on it
+[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "tmp85" because view "v85" depends on it
+id|firstname|lastname
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 (3 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 1|Burn|Acid
 2|Killer|Cereal
 3|Nikon|Lord
@@ -968,7 +968,7 @@ DROP VIEW
 DROP VIEW
 DROP TABLE
 DROP TABLE
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -976,45 +976,45 @@ ID|FIRSTNAME|LASTNAME
 4|Joey|
 5|Zero|Cool
 (6 rows)
-ID|STR
+id|str
 1|first
 2|second
 (2 rows)
-ID|STR
+id|str
 1|first
 2|second
 (2 rows)
 INSERT 0 1
-ID|STR
+id|str
 1|first
 2|second
 3|second
 (3 rows)
-ID|STR
+id|str
 1|first
 2|second
 3|second
 (3 rows)
-ID|STR
+id|str
 1|first
 3|second
 2|third
 (3 rows)
-ID|STR
+id|str
 1|first
 3|second
 2|third
 (3 rows)
 INSERT 0 1
 INSERT 0 1
-ID|STR
+id|str
 1|first
 3|second
 2|third
 6|fourth
 3|fifth
 (5 rows)
-ID|STR
+id|str
 1|first
 3|second
 2|third
@@ -1024,7 +1024,7 @@ ID|STR
 EXISTS
 1
 (1 row)
-ID|NEWID
+id|newid
 0|0
 2|0
 4|0
@@ -1032,7 +1032,7 @@ ID|NEWID
 3|1
 5|1
 (6 rows)
-ID|???
+id|???
 0|0
 1|1
 2|0

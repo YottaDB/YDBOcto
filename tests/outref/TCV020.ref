@@ -34,7 +34,7 @@ DROP VIEW
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 14:1: create view v1 as select (select * from names) from names;
                                     ^^^^^^^^^^^^^^^^^^^^^
-[ERROR]: ERR_CANNOT_DROP_VIEW: Cannot DROP view "V1" as it does not exist
+[ERROR]: ERR_CANNOT_DROP_VIEW: Cannot DROP view "v1" as it does not exist
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 17:1: create view v1 as select (select 1,2) from names;
                                     ^^^^^^^^^^^^

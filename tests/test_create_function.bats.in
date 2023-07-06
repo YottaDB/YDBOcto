@@ -242,7 +242,7 @@ teardown() {
 	verify_output TCF035 output.txt noinfo nodebug
 	$ydb_dist/mupip extract TCF035.ext
 	cp TCF035.ext pre_process_TCF035.ext
-	sed -i -n '/\(^\^\%ydboctoocto("functions"\,"SAMEVALUE.*oid\)/p;/\(^\^\%ydboctoocto("functions"\,"SAMEVALUE.*check\)/p' TCF035.ext
+	sed -i -n '/\(^\^\%ydboctoocto("functions"\,"samevalue.*oid\)/p;/\(^\^\%ydboctoocto("functions"\,"samevalue.*check\)/p' TCF035.ext
 	sed -i 's/\=\".*\"//' TCF035.ext
 	cp @PROJECT_SOURCE_DIR@/tests/outref/TCF035_ext.ref .
 	diff TCF035_ext.ref TCF035.ext

@@ -86,12 +86,12 @@ syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDO
 LINE 23:1: select 1 from names as 'N1' inner join (select n2.id from names ...
                                   ^^^^
 syntax error, unexpected LITERAL
-ID
+id
 1
 (1 row)
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: IDA
-LINE 26:1: select ida from (select 1 as "ida");
-                  ^^^
+ida
+1
+(1 row)
 LINE 27:1: select ida from (select 1 as 'IDA');
                                         ^^^^^
 syntax error, unexpected LITERAL

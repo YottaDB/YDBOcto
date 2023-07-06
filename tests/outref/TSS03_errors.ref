@@ -80,6 +80,6 @@ LINE 25:1: ...mes n1 WHERE n1.firstName = (SELECT NULL, n2.id, NULL from names..
 [ERROR] PATH:LINENUM DATE TIME: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 26:1: ...es n1 WHERE n1.firstName != (SELECT NULL, n2.id, NULL from names...
                                            ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
+[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_COLUMN_NAME: Unknown column: id
 LINE 28:1: select id+2;
                   ^^

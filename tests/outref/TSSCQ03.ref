@@ -4,6 +4,6 @@ select current_schema()
 public
 
 ----- OCTO -----
-CURRENT_SCHEMA
+current_schema
 public
 (1 row)

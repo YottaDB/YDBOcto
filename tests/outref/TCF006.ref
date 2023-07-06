@@ -17,7 +17,7 @@ select DOLLARZWRITE(firstname) from names;
 DROP FUNCTION DOLLARZWRITE(VARCHAR);
 
 CREATE FUNCTION
-DOLLARZWRITE
+dollarzwrite
 "Zero"
 "Acid"
 "Cereal"
@@ -27,7 +27,7 @@ DOLLARZWRITE
 (6 rows)
 DROP FUNCTION
 CREATE FUNCTION
-DOLLARZWRITE
+dollarzwrite
 "Zero"
 "Acid"
 "Cereal"
@@ -37,7 +37,7 @@ DOLLARZWRITE
 (6 rows)
 DROP FUNCTION
 CREATE FUNCTION
-DOLLARZWRITE
+dollarzwrite
 "Zero"
 "Acid"
 "Cereal"

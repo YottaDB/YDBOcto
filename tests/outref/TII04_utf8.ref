@@ -48,7 +48,7 @@ DROP TABLE testu4;
 (1 row)
 CREATE TABLE
 INSERT 0 1
-COLUMN1
+column1
 ＡＢＣＤ
 (1 row)
 DROP TABLE
@@ -90,7 +90,7 @@ DROP TABLE
 (1 row)
 CREATE TABLE
 INSERT 0 1
-COLUMN1
+column1
 |ＡＢ|
 (1 row)
 DROP TABLE

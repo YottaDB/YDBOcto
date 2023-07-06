@@ -16,16 +16,16 @@ select * from names limit .;
 select * from names limit;
 select * from names limit 'abcd';
 select * from names limit -3;
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 (1 row)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 (1 row)
-ID|FIRSTNAME|LASTNAME|ID|FIRSTNAME|LASTNAME
+id|firstname|lastname|id|firstname|lastname
 4|Joey||4|Joey|
 (1 row)
-ID|FIRSTNAME|LASTNAME|ID|FIRSTNAME|LASTNAME
+id|firstname|lastname|id|firstname|lastname
 0|Zero|Cool|0|Zero|Cool
 (1 row)
 LINE 10:1: select * from names limit .;

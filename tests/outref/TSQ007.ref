@@ -58,19 +58,19 @@ LP_SELECT_QUERY:
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
-        LP_COLUMN_ALIAS: N(2).NSPNAME
+        LP_COLUMN_ALIAS: n(2).nspname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
         - alias: Schema
       LP_WHERE: 
-        LP_COLUMN_ALIAS: C(1).RELNAME
+        LP_COLUMN_ALIAS: c(1).relname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
         - alias: Name
       LP_WHERE: 
         LP_CASE: 
           LP_CASE_STATEMENT: 
-            LP_COLUMN_ALIAS: C(1).RELKIND
+            LP_COLUMN_ALIAS: c(1).relkind
           LP_CASE_BRANCH: 
             LP_CASE_BRANCH_STATEMENT: 
               LP_VALUE: 'r'
@@ -112,12 +112,12 @@ LP_SELECT_QUERY:
         - alias: Type
       LP_WHERE: 
         LP_FUNCTION_CALL: 
-          LP_VALUE: 'PG_CATALOG.PG_GET_USERBYID'
+          LP_VALUE: 'pg_catalog.pg_get_userbyid'
           LP_COLUMN_LIST: 
-            LP_VALUE: '%ydboctoFwYGPSTRCKG67stgdEjL8D7'
+            LP_VALUE: '%ydboctoF0eN518pztmH9aR0p6vmaIK'
             LP_VALUE: '$$pgGetUserById^%ydboctopgfunctions'
             LP_VALUE: 'VARCHAR'
-            LP_COLUMN_ALIAS: C(1).RELOWNER
+            LP_COLUMN_ALIAS: c(1).relowner
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
         - alias: Owner
@@ -126,7 +126,7 @@ LP_SELECT_QUERY:
         LP_WHERE: 
           LP_BOOLEAN_AND: 
             LP_BOOLEAN_IN: 
-              LP_COLUMN_ALIAS: C(1).RELKIND
+              LP_COLUMN_ALIAS: c(1).relkind
               LP_COLUMN_LIST: 
                 LP_VALUE: 'r'
                 LP_VALUE: 'p'
@@ -136,19 +136,19 @@ LP_SELECT_QUERY:
                 LP_VALUE: 'f'
                 LP_VALUE: ''
             LP_FUNCTION_CALL: 
-              LP_VALUE: 'PG_CATALOG.PG_TABLE_IS_VISIBLE'
+              LP_VALUE: 'pg_catalog.pg_table_is_visible'
               LP_COLUMN_LIST: 
-                LP_VALUE: '%ydboctoFZPxVOipyvcmjbTa20TTWJD'
+                LP_VALUE: '%ydboctoFaJzTzdoZpCPpx8lgLIAME8'
                 LP_VALUE: '$$pgTableIsVisible^%ydboctopgfunctions'
                 LP_VALUE: 'BOOLEAN'
-                LP_COLUMN_ALIAS: C(1).OID
-        LP_TABLE: C(1)
+                LP_COLUMN_ALIAS: c(1).oid
+        LP_TABLE: c(1)
         LP_TABLE_JOIN: LEFT_JOIN: 
           LP_WHERE: 
             LP_BOOLEAN_EQUALS: 
-              LP_COLUMN_ALIAS: N(2).OID
-              LP_COLUMN_ALIAS: C(1).RELNAMESPACE
-          LP_TABLE: N(2)
+              LP_COLUMN_ALIAS: n(2).oid
+              LP_COLUMN_ALIAS: c(1).relnamespace
+          LP_TABLE: n(2)
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
@@ -158,7 +158,7 @@ LP_SELECT_QUERY:
                 LP_BOOLEAN_AND: 
                   LP_BOOLEAN_AND: 
                     LP_BOOLEAN_IN: 
-                      LP_COLUMN_ALIAS: C(1).RELKIND
+                      LP_COLUMN_ALIAS: c(1).relkind
                       LP_COLUMN_LIST: 
                         LP_VALUE: 'r'
                         LP_VALUE: 'p'
@@ -168,22 +168,22 @@ LP_SELECT_QUERY:
                         LP_VALUE: 'f'
                         LP_VALUE: ''
                     LP_BOOLEAN_NOT_EQUALS: 
-                      LP_COLUMN_ALIAS: N(2).NSPNAME
+                      LP_COLUMN_ALIAS: n(2).nspname
                       LP_VALUE: 'pg_catalog'
                   LP_BOOLEAN_NOT_EQUALS: 
-                    LP_COLUMN_ALIAS: N(2).NSPNAME
+                    LP_COLUMN_ALIAS: n(2).nspname
                     LP_VALUE: 'information_schema'
                 LP_BOOLEAN_NOT: 
                   LP_BOOLEAN_REGEX_SENSITIVE: 
-                    LP_COLUMN_ALIAS: N(2).NSPNAME
+                    LP_COLUMN_ALIAS: n(2).nspname
                     LP_VALUE: '^pg_toast'
               LP_FUNCTION_CALL: 
-                LP_VALUE: 'PG_CATALOG.PG_TABLE_IS_VISIBLE'
+                LP_VALUE: 'pg_catalog.pg_table_is_visible'
                 LP_COLUMN_LIST: 
-                  LP_VALUE: '%ydboctoFZPxVOipyvcmjbTa20TTWJD'
+                  LP_VALUE: '%ydboctoFaJzTzdoZpCPpx8lgLIAME8'
                   LP_VALUE: '$$pgTableIsVisible^%ydboctopgfunctions'
                   LP_VALUE: 'BOOLEAN'
-                  LP_COLUMN_ALIAS: C(1).OID
+                  LP_COLUMN_ALIAS: c(1).oid
           LP_SELECT_MORE_OPTIONS: 
             LP_KEYWORDS: 
   LP_OUTPUT: 
@@ -197,14 +197,14 @@ LP_SELECT_QUERY:
     LP_ORDER_BY: ORDER BY ASC: 
       LP_COLUMN_LIST: 
         LP_WHERE: 
-          LP_COLUMN_ALIAS: N(2).NSPNAME
+          LP_COLUMN_ALIAS: n(2).nspname
           LP_COLUMN_LIST_ALIAS: 
           - type: STRING_LITERAL
           - alias: Schema
       LP_ORDER_BY: ORDER BY ASC: 
         LP_COLUMN_LIST: 
           LP_WHERE: 
-            LP_COLUMN_ALIAS: C(1).RELNAME
+            LP_COLUMN_ALIAS: c(1).relname
             LP_COLUMN_LIST_ALIAS: 
             - type: STRING_LITERAL
             - alias: Name
@@ -214,19 +214,19 @@ LP_SELECT_QUERY:
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
-        LP_COLUMN_ALIAS: N(2).NSPNAME
+        LP_COLUMN_ALIAS: n(2).nspname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
         - alias: Schema
       LP_WHERE: 
-        LP_COLUMN_ALIAS: C(1).RELNAME
+        LP_COLUMN_ALIAS: c(1).relname
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
         - alias: Name
       LP_WHERE: 
         LP_CASE: 
           LP_CASE_STATEMENT: 
-            LP_COLUMN_ALIAS: C(1).RELKIND
+            LP_COLUMN_ALIAS: c(1).relkind
           LP_CASE_BRANCH: 
             LP_CASE_BRANCH_STATEMENT: 
               LP_VALUE: 'r'
@@ -268,12 +268,12 @@ LP_SELECT_QUERY:
         - alias: Type
       LP_WHERE: 
         LP_FUNCTION_CALL: 
-          LP_VALUE: 'PG_CATALOG.PG_GET_USERBYID'
+          LP_VALUE: 'pg_catalog.pg_get_userbyid'
           LP_COLUMN_LIST: 
-            LP_VALUE: '%ydboctoFwYGPSTRCKG67stgdEjL8D7'
+            LP_VALUE: '%ydboctoF0eN518pztmH9aR0p6vmaIK'
             LP_VALUE: '$$pgGetUserById^%ydboctopgfunctions'
             LP_VALUE: 'VARCHAR'
-            LP_COLUMN_ALIAS: C(1).RELOWNER
+            LP_COLUMN_ALIAS: c(1).relowner
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
         - alias: Owner
@@ -281,27 +281,27 @@ LP_SELECT_QUERY:
       LP_TABLE_JOIN: 
         LP_WHERE: 
           LP_FUNCTION_CALL: 
-            LP_VALUE: 'PG_CATALOG.PG_TABLE_IS_VISIBLE'
+            LP_VALUE: 'pg_catalog.pg_table_is_visible'
             LP_COLUMN_LIST: 
-              LP_VALUE: '%ydboctoFZPxVOipyvcmjbTa20TTWJD'
+              LP_VALUE: '%ydboctoFaJzTzdoZpCPpx8lgLIAME8'
               LP_VALUE: '$$pgTableIsVisible^%ydboctopgfunctions'
               LP_VALUE: 'BOOLEAN'
-              LP_COLUMN_ALIAS: C(1).OID
+              LP_COLUMN_ALIAS: c(1).oid
         LP_SELECT_QUERY: 
           LP_PROJECT: 
             LP_COLUMN_LIST: 
               LP_WHERE: 
-                LP_COLUMN_ALIAS: PG_CATALOG.PG_CLASS(5).RELKIND
+                LP_COLUMN_ALIAS: pg_catalog.pg_class(5).relkind
               LP_WHERE: 
-                LP_COLUMN_ALIAS: PG_CATALOG.PG_CLASS(5).OID
+                LP_COLUMN_ALIAS: pg_catalog.pg_class(5).oid
             LP_SELECT: 
               LP_TABLE_JOIN: 
-                LP_TABLE: PG_CATALOG.PG_CLASS(5)
+                LP_TABLE: pg_catalog.pg_class(5)
               LP_CRITERIA: 
                 LP_KEYS: 
                   LP_KEY: 
-                  - table_name: PG_CATALOG.PG_CLASS
-                  - column_name: OID
+                  - table_name: pg_catalog.pg_class
+                  - column_name: oid
                   - unique_id: 5
                   - method: LP_KEY_ADVANCE
                   - xref_key: false
@@ -312,20 +312,20 @@ LP_SELECT_QUERY:
                     LP_KEYWORDS:  XREF_INDEX;
           LP_OUTPUT: 
             LP_KEY: 
-            - table_name: PG_CATALOG.PG_CLASS
-            - column_name: RELKIND
+            - table_name: pg_catalog.pg_class
+            - column_name: relkind
             - unique_id: 1
             - method: LP_INVALID_ACTION
             - xref_key: true
             - uses_xref_key: false
         LP_TABLE_JOIN: LEFT_JOIN: 
           LP_WHERE: 
-          LP_TABLE: N(2)
+          LP_TABLE: n(2)
       LP_CRITERIA: 
         LP_KEYS: 
           LP_KEY: 
-          - table_name: PG_CATALOG.PG_CLASS
-          - column_name: RELKIND
+          - table_name: pg_catalog.pg_class
+          - column_name: relkind
           - unique_id: 1
           - method: LP_KEY_FIX
           - xref_key: true
@@ -341,22 +341,22 @@ LP_SELECT_QUERY:
                 LP_VALUE: ''
           LP_KEYS: 
             LP_KEY: 
-            - table_name: PG_CATALOG.PG_CLASS
-            - column_name: OID
+            - table_name: pg_catalog.pg_class
+            - column_name: oid
             - unique_id: 1
             - method: LP_KEY_ADVANCE
             - xref_key: false
             - uses_xref_key: true
             LP_KEYS: 
               LP_KEY: 
-              - table_name: PG_CATALOG.PG_NAMESPACE
-              - column_name: OID
+              - table_name: pg_catalog.pg_namespace
+              - column_name: oid
               - unique_id: 2
               - method: LP_KEY_FIX
               - xref_key: false
               - uses_xref_key: false
               - value:
-                  LP_COLUMN_ALIAS: C(1).RELNAMESPACE
+                  LP_COLUMN_ALIAS: c(1).relnamespace
         LP_SELECT_OPTIONS: 
           LP_WHERE: 
             LP_BOOLEAN_AND: 
@@ -364,7 +364,7 @@ LP_SELECT_QUERY:
                 LP_BOOLEAN_AND: 
                   LP_BOOLEAN_AND: 
                     LP_BOOLEAN_IN: 
-                      LP_COLUMN_ALIAS: C(1).RELKIND
+                      LP_COLUMN_ALIAS: c(1).relkind
                       LP_COLUMN_LIST: 
                         LP_VALUE: 'r'
                         LP_VALUE: 'p'
@@ -374,22 +374,22 @@ LP_SELECT_QUERY:
                         LP_VALUE: 'f'
                         LP_VALUE: ''
                     LP_BOOLEAN_NOT_EQUALS: 
-                      LP_COLUMN_ALIAS: N(2).NSPNAME
+                      LP_COLUMN_ALIAS: n(2).nspname
                       LP_VALUE: 'pg_catalog'
                   LP_BOOLEAN_NOT_EQUALS: 
-                    LP_COLUMN_ALIAS: N(2).NSPNAME
+                    LP_COLUMN_ALIAS: n(2).nspname
                     LP_VALUE: 'information_schema'
                 LP_BOOLEAN_NOT: 
                   LP_BOOLEAN_REGEX_SENSITIVE: 
-                    LP_COLUMN_ALIAS: N(2).NSPNAME
+                    LP_COLUMN_ALIAS: n(2).nspname
                     LP_VALUE: '^pg_toast'
               LP_FUNCTION_CALL: 
-                LP_VALUE: 'PG_CATALOG.PG_TABLE_IS_VISIBLE'
+                LP_VALUE: 'pg_catalog.pg_table_is_visible'
                 LP_COLUMN_LIST: 
-                  LP_VALUE: '%ydboctoFZPxVOipyvcmjbTa20TTWJD'
+                  LP_VALUE: '%ydboctoFaJzTzdoZpCPpx8lgLIAME8'
                   LP_VALUE: '$$pgTableIsVisible^%ydboctopgfunctions'
                   LP_VALUE: 'BOOLEAN'
-                  LP_COLUMN_ALIAS: C(1).OID
+                  LP_COLUMN_ALIAS: c(1).oid
           LP_SELECT_MORE_OPTIONS: 
             LP_KEYWORDS: 
   LP_OUTPUT: 
@@ -403,57 +403,77 @@ LP_SELECT_QUERY:
     LP_ORDER_BY: ORDER BY ASC: 
       LP_COLUMN_LIST: 
         LP_WHERE: 
-          LP_COLUMN_ALIAS: N(2).NSPNAME
+          LP_COLUMN_ALIAS: n(2).nspname
           LP_COLUMN_LIST_ALIAS: 
           - type: STRING_LITERAL
           - alias: Schema
       LP_ORDER_BY: ORDER BY ASC: 
         LP_COLUMN_LIST: 
           LP_WHERE: 
-            LP_COLUMN_ALIAS: C(1).RELNAME
+            LP_COLUMN_ALIAS: c(1).relname
             LP_COLUMN_LIST_ALIAS: 
             - type: STRING_LITERAL
             - alias: Name
 
-[ INFO] PATH:LINENUM DATE TIME: INFO_GENERATING_XREF: Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_CATALOG.PG_CLASS] and column [RELKIND]
+[ INFO] PATH:LINENUM DATE TIME: INFO_GENERATING_XREF: Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [pg_catalog.pg_class] and column [relkind]
 [ INFO] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering print_temporary_table
 Schema|Name|Type|Owner
-public|INFORMATION_SCHEMA.TABLES|table|octo
-public|NAMES|table|octo
-public|NAMESWITHAGES|table|octo
-public|OCTOONEROWTABLE|table|octo
-public|PG_AM|table|octo
-public|PG_ATTRDEF|table|octo
-public|PG_ATTRIBUTE|table|octo
-public|PG_CATALOG.PG_AM|table|octo
-public|PG_CATALOG.PG_ATTRDEF|table|octo
-public|PG_CATALOG.PG_ATTRIBUTE|table|octo
-public|PG_CATALOG.PG_CLASS|table|octo
-public|PG_CATALOG.PG_CONSTRAINT|table|octo
-public|PG_CATALOG.PG_DATABASE|table|octo
-public|PG_CATALOG.PG_DESCRIPTION|table|octo
-public|PG_CATALOG.PG_ENUM|table|octo
-public|PG_CATALOG.PG_INDEX|table|octo
-public|PG_CATALOG.PG_NAMESPACE|table|octo
-public|PG_CATALOG.PG_PROC|table|octo
-public|PG_CATALOG.PG_RANGE|table|octo
-public|PG_CATALOG.PG_ROLES|table|octo
-public|PG_CATALOG.PG_SETTINGS|table|octo
-public|PG_CATALOG.PG_TYPE|table|octo
-public|PG_CATALOG.PG_USER|table|octo
-public|PG_CLASS|table|octo
-public|PG_CONSTRAINT|table|octo
-public|PG_DATABASE|table|octo
-public|PG_DESCRIPTION|table|octo
-public|PG_ENUM|table|octo
-public|PG_INDEX|table|octo
-public|PG_NAMESPACE|table|octo
-public|PG_PROC|table|octo
-public|PG_RANGE|table|octo
-public|PG_ROLES|table|octo
-public|PG_SETTINGS|table|octo
-public|PG_TYPE|table|octo
-public|PG_USER|table|octo
-(36 rows)
+public|information_schema.tables|table|octo
+public|names|table|octo
+public|nameswithages|table|octo
+public|octoonerowtable|table|octo
+public|pg_aggregate|table|octo
+public|pg_am|table|octo
+public|pg_attrdef|table|octo
+public|pg_attribute|table|octo
+public|pg_catalog.pg_aggregate|table|octo
+public|pg_catalog.pg_am|table|octo
+public|pg_catalog.pg_attrdef|table|octo
+public|pg_catalog.pg_attribute|table|octo
+public|pg_catalog.pg_class|table|octo
+public|pg_catalog.pg_constraint|table|octo
+public|pg_catalog.pg_conversion|table|octo
+public|pg_catalog.pg_database|table|octo
+public|pg_catalog.pg_depend|table|octo
+public|pg_catalog.pg_description|table|octo
+public|pg_catalog.pg_enum|table|octo
+public|pg_catalog.pg_index|table|octo
+public|pg_catalog.pg_inherits|table|octo
+public|pg_catalog.pg_language|table|octo
+public|pg_catalog.pg_namespace|table|octo
+public|pg_catalog.pg_policies|table|octo
+public|pg_catalog.pg_proc|table|octo
+public|pg_catalog.pg_range|table|octo
+public|pg_catalog.pg_rewrite|table|octo
+public|pg_catalog.pg_roles|table|octo
+public|pg_catalog.pg_settings|table|octo
+public|pg_catalog.pg_shdescription|table|octo
+public|pg_catalog.pg_tablespace|table|octo
+public|pg_catalog.pg_trigger|table|octo
+public|pg_catalog.pg_type|table|octo
+public|pg_catalog.pg_user|table|octo
+public|pg_class|table|octo
+public|pg_constraint|table|octo
+public|pg_conversion|table|octo
+public|pg_database|table|octo
+public|pg_depend|table|octo
+public|pg_description|table|octo
+public|pg_enum|table|octo
+public|pg_index|table|octo
+public|pg_inherits|table|octo
+public|pg_language|table|octo
+public|pg_namespace|table|octo
+public|pg_policies|table|octo
+public|pg_proc|table|octo
+public|pg_range|table|octo
+public|pg_rewrite|table|octo
+public|pg_roles|table|octo
+public|pg_settings|table|octo
+public|pg_shdescription|table|octo
+public|pg_tablespace|table|octo
+public|pg_trigger|table|octo
+public|pg_type|table|octo
+public|pg_user|table|octo
+(56 rows)
 [ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command []

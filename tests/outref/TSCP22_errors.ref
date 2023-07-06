@@ -49,7 +49,7 @@ LINE 5:1: ...lect * from names n1 where n1.id in (select n2.* from names n2);
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 6:1: ... * from names n1 order by n1.firstname in (select * from names);
                                                         ^^^^^^
-[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'firstname' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 7:1: ...ct 1 from names n1 having n1.firstname in (select * from names);
                                        ^^^^^^^^^^^^
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column

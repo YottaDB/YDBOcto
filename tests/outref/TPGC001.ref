@@ -35,7 +35,7 @@
 &{typarray false false false false 0 INT4 0 0 HEX}
 &{typinput false true false false -5 VARCHAR 0 0 HEX}
 &{typoutput false true false false -5 VARCHAR 0 0 HEX}
-&{typreceive false true false false -5 VARCHAR 0 0 HEX}
+&{typreceive false false false false 0 INT4 0 0 HEX}
 &{typsend false true false false -5 VARCHAR 0 0 HEX}
 &{typmodin false true false false -5 VARCHAR 0 0 HEX}
 &{typmodout false true false false -5 VARCHAR 0 0 HEX}

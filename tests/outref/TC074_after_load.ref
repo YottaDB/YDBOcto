@@ -4,13 +4,13 @@ select * from test; -- Table created in TC074_before_load.sql exists
 drop function abs(integer); -- should result in ERR_CANNOT_DROP_FUNCTION
 select * from test;
 insert into test values(3); -- ERR_CHECK_CONSTRAINT_VIOLATION
-ID
+id
 1
 2
 (2 rows)
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function ABS(INTEGER) because other objects (constraint "TEST_ID_CHECK" on table "TEST") depend on it
-ID
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function abs(INTEGER) because other objects (constraint "test_id_CHECK" on table "test") depend on it
+id
 1
 2
 (2 rows)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TEST violates CHECK constraint TEST_ID_CHECK : Failing row contains (3)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table test violates CHECK constraint test_id_CHECK : Failing row contains (3)

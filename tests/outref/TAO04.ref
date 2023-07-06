@@ -9,11 +9,11 @@ select * from names where lastname > ANY (select ''::varchar);
 select * from names where lastname <= ALL (select NULL::varchar);
 select * from names where lastname > ANY (select NULL::varchar);
 
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 (0 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 (0 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 (0 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 (0 rows)

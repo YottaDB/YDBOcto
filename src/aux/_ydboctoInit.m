@@ -44,6 +44,7 @@
 	SET %ydboctoerror("UNKNOWNFUNCTION")=$incr(%ydboctoerrcode)
 	SET %ydboctoerror("CHECKCONSTRAINTVIOLATION")=$incr(%ydboctoerrcode)
 	SET %ydboctoerror("UNKNOWNTABLE")=$incr(%ydboctoerrcode)
+	SET %ydboctoerror("NEGATIVESUBSTRINGLENGTH")=$incr(%ydboctoerrcode)
 	; Any additions of error codes needs to happen before the following line (%ydboctoerrcodemax)
 	; Changes need to also happen in `ydb_error_check.c` and likely in `_ydboctoplanhelpers.m`
 	SET %ydboctoerrcodemax=$incr(%ydboctoerrcode)

@@ -8,63 +8,63 @@
 \d composite;
 \d ORDER_ORDER_ACTIONS;
 
-Table "COMPOSITE" stored in Global: ^composite(ID0,ID1,ID2,ID3,ID4,ID5,ID6,ID7) : Type = READWRITE
+Table "composite" stored in Global: ^composite(id0,id1,id2,id3,id4,id5,id6,id7) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
-ID0|INTEGER||NOT NULL|
-ID1|INTEGER||NOT NULL|
-ID2|INTEGER||NOT NULL|
-ID3|INTEGER||NOT NULL|
-ID4|INTEGER||NOT NULL|
-ID5|INTEGER||NOT NULL|
-ID6|INTEGER||NOT NULL|
-ID7|INTEGER||NOT NULL|
-NAME|VARCHAR(20)|||
+id0|INTEGER||NOT NULL|
+id1|INTEGER||NOT NULL|
+id2|INTEGER||NOT NULL|
+id3|INTEGER||NOT NULL|
+id4|INTEGER||NOT NULL|
+id5|INTEGER||NOT NULL|
+id6|INTEGER||NOT NULL|
+id7|INTEGER||NOT NULL|
+name|VARCHAR(20)|||
 Indexes:
-    "COMPOSITE_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID0, ID1, ID2, ID3, ID4, ID5, ID6, ID7), Global: ^composite(ID0,ID1,ID2,ID3,ID4,ID5,ID6,ID7)
-Table "ORDER_ORDER_ACTIONS" stored in Global: ^OR(100,ORDER1_ID,8,ORDER_ORDER_ACTIONS_ID) : Type = READONLY
+    "composite_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (id0, id1, id2, id3, id4, id5, id6, id7), Global: ^composite(id0,id1,id2,id3,id4,id5,id6,id7)
+Table "order_order_actions" stored in Global: ^OR(100,order1_id,8,order_order_actions_id) : Type = READONLY
 Column|Type|Collation|Nullable|Default
-ORDER1_ID|INTEGER||NOT NULL|
-ORDER_ORDER_ACTIONS_ID|INTEGER||NOT NULL|
-DATE_TIME_ORDERED|INTEGER||NOT NULL|
-REASON_FOR_ACTION_REJECT|VARCHAR(240)|||
-ACTION|VARCHAR(12)|||
-PROVIDER|INTEGER|||
-SIGNATURE_STATUS|VARCHAR(34)|||
-SIGNED_BY|INTEGER|||
-DATE_TIME_SIGNED|INTEGER|||
-SIGNED_ON_CHART|INTEGER|||
-VERIFYING_NURSE|INTEGER|||
-DATE_TIME_NURSE_VERIFIED|INTEGER|||
-VERIFYING_CLERK|INTEGER|||
-DATE_TIME_CLERK_VERIFIED|INTEGER|||
-NATURE_OF_ORDER|INTEGER|||
-ENTERED_BY|INTEGER|||
-TEXT_REFERENCE|INTEGER|||
-RELEASE_STATUS|VARCHAR(11)|||
-RELEASE_DATE_TIME|INTEGER|||
-RELEASING_PERSON|INTEGER|||
-CHART_REVIEWED_BY|INTEGER|||
-DATE_TIME_CHART_REVIEWED|INTEGER|||
-DC_HOLD_UNTIL|INTEGER|||
-DC_HOLD_RELEASED_BY|INTEGER|||
-DIGITAL_SIGNATURE|VARCHAR(100)|||
-DRUG_SCHEDULE|VARCHAR(3)|||
-DIGITAL_SIGNATURE_REQUIRED|VARCHAR(3)|||
-FLAGGED|VARCHAR(3)|||
-BULLETIN|INTEGER|||
-DATE_TIME_FLAGGED|INTEGER|||
-FLAGGED_BY|INTEGER|||
-REASON_FOR_FLAG|VARCHAR(80)|||
-DATE_TIME_UNFLAGGED|INTEGER|||
-UNFLAGGED_BY|INTEGER|||
-REASON_FOR_UNFLAG|VARCHAR(80)|||
-ALERTED_PROVIDER|INTEGER|||
-DISPOSITION_BY|INTEGER|||
-DISPOSITION_DATE_TIME|INTEGER|||
-CHART_COPY_PRINTED|VARCHAR(3)|||
-CHART_COPY_PRINTED_WHEN|INTEGER|||
-CHART_COPY_PRINTED_BY|INTEGER|||
-CHART_COPY_PRINTER|VARCHAR(50)|||
-ADMIN_RELEASED_BY_POLICY|VARCHAR(3)|||
+order1_id|INTEGER||NOT NULL|
+order_order_actions_id|INTEGER||NOT NULL|
+date_time_ordered|INTEGER||NOT NULL|
+reason_for_action_reject|VARCHAR(240)|||
+action|VARCHAR(12)|||
+provider|INTEGER|||
+signature_status|VARCHAR(34)|||
+signed_by|INTEGER|||
+date_time_signed|INTEGER|||
+signed_on_chart|INTEGER|||
+verifying_nurse|INTEGER|||
+date_time_nurse_verified|INTEGER|||
+verifying_clerk|INTEGER|||
+date_time_clerk_verified|INTEGER|||
+nature_of_order|INTEGER|||
+entered_by|INTEGER|||
+text_reference|INTEGER|||
+release_status|VARCHAR(11)|||
+release_date_time|INTEGER|||
+releasing_person|INTEGER|||
+chart_reviewed_by|INTEGER|||
+date_time_chart_reviewed|INTEGER|||
+dc_hold_until|INTEGER|||
+dc_hold_released_by|INTEGER|||
+digital_signature|VARCHAR(100)|||
+drug_schedule|VARCHAR(3)|||
+digital_signature_required|VARCHAR(3)|||
+flagged|VARCHAR(3)|||
+bulletin|INTEGER|||
+date_time_flagged|INTEGER|||
+flagged_by|INTEGER|||
+reason_for_flag|VARCHAR(80)|||
+date_time_unflagged|INTEGER|||
+unflagged_by|INTEGER|||
+reason_for_unflag|VARCHAR(80)|||
+alerted_provider|INTEGER|||
+disposition_by|INTEGER|||
+disposition_date_time|INTEGER|||
+chart_copy_printed|VARCHAR(3)|||
+chart_copy_printed_when|INTEGER|||
+chart_copy_printed_by|INTEGER|||
+chart_copy_printer|VARCHAR(50)|||
+admin_released_by_policy|VARCHAR(3)|||
 Indexes:
-    "ORDER_ORDER_ACTIONS_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ORDER1_ID, ORDER_ORDER_ACTIONS_ID), Global: ^OR(100,ORDER1_ID,8,ORDER_ORDER_ACTIONS_ID)
+    "order_order_actions_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (order1_id, order_order_actions_id), Global: ^OR(100,order1_id,8,order_order_actions_id)

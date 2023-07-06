@@ -16,7 +16,7 @@ CREATE TABLE extractnames (
 	id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER,
 	fullname VARCHAR EXTRACT CONCAT(firstName, ' ', lastName),
 	nameandnumber VARCHAR EXTRACT CONCAT(lastName, id::varchar)
-) GLOBAL "^names(keys(""ID""))";
+) GLOBAL "^names(keys(""id""))";
 
 -- Select all columns from table with function call EXTRACT column
 select * from extractnames;
@@ -54,8 +54,8 @@ drop table tmp;
 create table tmp (id integer primary key, firstname varchar, lastname varchar, fullname1 varchar extract concat(firstname, fullname2), fullname2 varchar extract concat(fullname1, lastname)) GLOBAL "^names";
 
 -- Error issued when key column passed to `values(...)` or non-key column passed to `keys(...)`
-CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), abs_id INTEGER EXTRACT "$$ABS^%ydboctosqlfunctions(values(""ID""))") GLOBAL "^names";
-CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), abs_id INTEGER EXTRACT "$$ABS^%ydboctosqlfunctions(keys(""LASTNAME""))") GLOBAL "^names";
+CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), abs_id INTEGER EXTRACT "$$ABS^%ydboctosqlfunctions(values(""id""))") GLOBAL "^names";
+CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), abs_id INTEGER EXTRACT "$$ABS^%ydboctosqlfunctions(keys(""lastname""))") GLOBAL "^names";
 
 -- Prevent drop of function depended on by EXTRACT columns until all tables containing dependent columns are dropped
 DROP FUNCTION IF EXISTS SAMEVALUE(INTEGER);
@@ -82,13 +82,13 @@ drop table if exists extractnames1;
 CREATE TABLE extractnames1 (
 	id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER,
 	fullname1 VARCHAR EXTRACT CONCAT(firstName, ' ', lastName)
-) GLOBAL "^names1(keys(""ID""))";
+) GLOBAL "^names1(keys(""id""))";
 drop function concat(varchar, varchar, varchar);
 drop table if exists extractnames2;
 CREATE TABLE extractnames2 (
 	id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER,
 	fullname2 VARCHAR EXTRACT CONCAT(firstName, ' ', lastName)
-) GLOBAL "^names2(keys(""ID""))";
+) GLOBAL "^names2(keys(""id""))";
 drop function concat(varchar, varchar, varchar);
 select * from extractnames1;
 select * from extractnames2;

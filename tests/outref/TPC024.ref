@@ -6,8 +6,8 @@ SET
 SET
 SET
 SET
-ERROR:  Runtime parameter "IS_SUPERUSER" cannot be changed
-ERROR:  Runtime parameter "SESSION_AUTHORIZATION" cannot be changed
+ERROR:  Runtime parameter "is_superuser" cannot be changed
+ERROR:  Runtime parameter "session_authorization" cannot be changed
  client_encoding 
 -----------------
  TEST
@@ -116,5 +116,5 @@ SET
  postgres
 (1 row)
 
-[HOST:POST] [ERROR] PATH:LINENUM DATE TIME: ERR_PARM_CANNOT_BE_CHANGED: Runtime parameter "IS_SUPERUSER" cannot be changed
-[HOST:POST] [ERROR] PATH:LINENUM DATE TIME: ERR_PARM_CANNOT_BE_CHANGED: Runtime parameter "SESSION_AUTHORIZATION" cannot be changed
+[HOST:POST] [ERROR] PATH:LINENUM DATE TIME: ERR_PARM_CANNOT_BE_CHANGED: Runtime parameter "is_superuser" cannot be changed
+[HOST:POST] [ERROR] PATH:LINENUM DATE TIME: ERR_PARM_CANNOT_BE_CHANGED: Runtime parameter "session_authorization" cannot be changed

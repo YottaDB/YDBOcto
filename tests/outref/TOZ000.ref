@@ -1,4 +1,4 @@
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 (1 row)
 Listing of dirA should see generated files

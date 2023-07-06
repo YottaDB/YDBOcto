@@ -26,7 +26,7 @@ insert into v1 values (1,'abcd','efgh');
 
 CREATE VIEW
 [ERROR]: ERR_VIEW_OPERATION_NOT_SUPPORTED: INSERT operation on a view is not implemented
-ID
+id
 0
 1
 2
@@ -34,7 +34,7 @@ ID
 4
 5
 (6 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -43,7 +43,7 @@ ID|FIRSTNAME|LASTNAME
 5|Zero|Cool
 (6 rows)
 [ERROR]: ERR_VIEW_OPERATION_NOT_SUPPORTED: UPDATE operation on a view is not implemented
-ID
+id
 0
 1
 2
@@ -51,7 +51,7 @@ ID
 4
 5
 (6 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -60,7 +60,7 @@ ID|FIRSTNAME|LASTNAME
 5|Zero|Cool
 (6 rows)
 [ERROR]: ERR_VIEW_OPERATION_NOT_SUPPORTED: DELETE operation on a view is not implemented
-ID
+id
 0
 1
 2
@@ -68,7 +68,7 @@ ID
 4
 5
 (6 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -77,7 +77,7 @@ ID|FIRSTNAME|LASTNAME
 5|Zero|Cool
 (6 rows)
 [ERROR]: ERR_VIEW_OPERATION_NOT_SUPPORTED: DELETE operation on a view is not implemented
-ID
+id
 0
 1
 2
@@ -85,7 +85,7 @@ ID
 4
 5
 (6 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -95,7 +95,7 @@ ID|FIRSTNAME|LASTNAME
 (6 rows)
 DROP VIEW
 CREATE VIEW
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Cool|Zero
 1|Burn|Acid
 2|Killer|Cereal

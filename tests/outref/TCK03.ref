@@ -1,4 +1,4 @@
-NAME
+name
 Name1
 Name2
 Name3
@@ -19,7 +19,7 @@ Name10
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    DO:'$GET(^%ydbAIMOctoCache("COMPOSITE","NAME","completed?")) xrefPlan^%ydboctoXME0THqzTDPU94fIPMVYR4D(cursorId)
+    DO:'$GET(^%ydbAIMOctoCache("composite","name","completed?")) xrefPlan^%ydboctoXDIJKrGlkIXRQCqVNa8gL8I(cursorId)
     NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
@@ -28,100 +28,100 @@ octoPlan0(cursorId,wrapInTp)
 
 octoPlan1(cursorId)
     NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",5,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID0")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID0")=$ORDER(^composite(%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID0"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID0")="")  DO
-    . SET %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID1")=""
-    . FOR  SET %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID1")=$ORDER(^composite(%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID1"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID1")="")  DO
-    . . SET %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID2")=""
-    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID2")=$ORDER(^composite(%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID1"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID2"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID2")="")  DO
-    . . . SET %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID3")=""
-    . . . FOR  SET %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID3")=$ORDER(^composite(%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID1"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID2"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID3"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID3")="")  DO
-    . . . . SET %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID4")=""
-    . . . . FOR  SET %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID4")=$ORDER(^composite(%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID1"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID2"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID3"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID4"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID4")="")  DO
-    . . . . . SET %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID5")=""
-    . . . . . FOR  SET %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID5")=$ORDER(^composite(%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID1"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID2"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID3"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID4"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID5"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID5")="")  DO
-    . . . . . . SET %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID6")=""
-    . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID6")=$ORDER(^composite(%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID1"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID2"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID3"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID4"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID5"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID6"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID6")="")  DO
-    . . . . . . . SET %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID7")=""
-    . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID7")=$ORDER(^composite(%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID1"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID2"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID3"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID4"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID5"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID6"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID7"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID7")="")  DO
+    SET %ydboctocursor(cursorId,"keys",1,"composite","id0")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"composite","id0")=$ORDER(^composite(%ydboctocursor(cursorId,"keys",1,"composite","id0"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"composite","id0")="")  DO
+    . SET %ydboctocursor(cursorId,"keys",1,"composite","id1")=""
+    . FOR  SET %ydboctocursor(cursorId,"keys",1,"composite","id1")=$ORDER(^composite(%ydboctocursor(cursorId,"keys",1,"composite","id0"),%ydboctocursor(cursorId,"keys",1,"composite","id1"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"composite","id1")="")  DO
+    . . SET %ydboctocursor(cursorId,"keys",1,"composite","id2")=""
+    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"composite","id2")=$ORDER(^composite(%ydboctocursor(cursorId,"keys",1,"composite","id0"),%ydboctocursor(cursorId,"keys",1,"composite","id1"),%ydboctocursor(cursorId,"keys",1,"composite","id2"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"composite","id2")="")  DO
+    . . . SET %ydboctocursor(cursorId,"keys",1,"composite","id3")=""
+    . . . FOR  SET %ydboctocursor(cursorId,"keys",1,"composite","id3")=$ORDER(^composite(%ydboctocursor(cursorId,"keys",1,"composite","id0"),%ydboctocursor(cursorId,"keys",1,"composite","id1"),%ydboctocursor(cursorId,"keys",1,"composite","id2"),%ydboctocursor(cursorId,"keys",1,"composite","id3"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"composite","id3")="")  DO
+    . . . . SET %ydboctocursor(cursorId,"keys",1,"composite","id4")=""
+    . . . . FOR  SET %ydboctocursor(cursorId,"keys",1,"composite","id4")=$ORDER(^composite(%ydboctocursor(cursorId,"keys",1,"composite","id0"),%ydboctocursor(cursorId,"keys",1,"composite","id1"),%ydboctocursor(cursorId,"keys",1,"composite","id2"),%ydboctocursor(cursorId,"keys",1,"composite","id3"),%ydboctocursor(cursorId,"keys",1,"composite","id4"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"composite","id4")="")  DO
+    . . . . . SET %ydboctocursor(cursorId,"keys",1,"composite","id5")=""
+    . . . . . FOR  SET %ydboctocursor(cursorId,"keys",1,"composite","id5")=$ORDER(^composite(%ydboctocursor(cursorId,"keys",1,"composite","id0"),%ydboctocursor(cursorId,"keys",1,"composite","id1"),%ydboctocursor(cursorId,"keys",1,"composite","id2"),%ydboctocursor(cursorId,"keys",1,"composite","id3"),%ydboctocursor(cursorId,"keys",1,"composite","id4"),%ydboctocursor(cursorId,"keys",1,"composite","id5"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"composite","id5")="")  DO
+    . . . . . . SET %ydboctocursor(cursorId,"keys",1,"composite","id6")=""
+    . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",1,"composite","id6")=$ORDER(^composite(%ydboctocursor(cursorId,"keys",1,"composite","id0"),%ydboctocursor(cursorId,"keys",1,"composite","id1"),%ydboctocursor(cursorId,"keys",1,"composite","id2"),%ydboctocursor(cursorId,"keys",1,"composite","id3"),%ydboctocursor(cursorId,"keys",1,"composite","id4"),%ydboctocursor(cursorId,"keys",1,"composite","id5"),%ydboctocursor(cursorId,"keys",1,"composite","id6"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"composite","id6")="")  DO
+    . . . . . . . SET %ydboctocursor(cursorId,"keys",1,"composite","id7")=""
+    . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",1,"composite","id7")=$ORDER(^composite(%ydboctocursor(cursorId,"keys",1,"composite","id0"),%ydboctocursor(cursorId,"keys",1,"composite","id1"),%ydboctocursor(cursorId,"keys",1,"composite","id2"),%ydboctocursor(cursorId,"keys",1,"composite","id3"),%ydboctocursor(cursorId,"keys",1,"composite","id4"),%ydboctocursor(cursorId,"keys",1,"composite","id5"),%ydboctocursor(cursorId,"keys",1,"composite","id6"),%ydboctocursor(cursorId,"keys",1,"composite","id7"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"composite","id7")="")  DO
     . . . . . . . . SET %ydboctoexpr=1
-    . . . . . . . . SET %ydboctoexpr=$GET(^composite(%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID1"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID2"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID3"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID4"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID5"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID6"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID7"))) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . . . . . . . SET %ydboctoexpr=$GET(^composite(%ydboctocursor(cursorId,"keys",1,"composite","id0"),%ydboctocursor(cursorId,"keys",1,"composite","id1"),%ydboctocursor(cursorId,"keys",1,"composite","id2"),%ydboctocursor(cursorId,"keys",1,"composite","id3"),%ydboctocursor(cursorId,"keys",1,"composite","id4"),%ydboctocursor(cursorId,"keys",1,"composite","id5"),%ydboctocursor(cursorId,"keys",1,"composite","id6"),%ydboctocursor(cursorId,"keys",1,"composite","id7"))) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . . . . . . . SET %ydboctoexpr(2)=%ydboctoexpr
     . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
     . . . . . . . . SET %ydboctoexpr=$$regexmatch^%ydboctoplanhelpers(%ydboctoexpr(2),%ydboctoexpr,1,0)
     . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
-    . . . . . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID1")
+    . . . . . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"composite","id1")
     . . . . . . . . SET %ydboctoexpr(2)=%ydboctoexpr
     . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",2))
     . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(2)<%ydboctoexpr
     . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(1)!%ydboctoexpr
     . . . . . . . . DO:%ydboctoexpr
-    . . . . . . . . . SET %ydboctoexpr=$GET(^composite(%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID1"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID2"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID3"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID4"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID5"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID6"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID7"))) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
-    . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"COMPOSITE","NAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"COMPOSITE","NAME")) IF $DATA(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",2,"COMPOSITE","NAME"))) DO
-    . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID0")=""
-    . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID0")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",2,"COMPOSITE","NAME"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID0"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID0")="")  DO
-    . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID1")=""
-    . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID1")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",2,"COMPOSITE","NAME"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID1"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID1")="")  DO
-    . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID2")=""
-    . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID2")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",2,"COMPOSITE","NAME"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID1"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID2"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID2")="")  DO
-    . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID3")=""
-    . . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID3")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",2,"COMPOSITE","NAME"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID1"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID2"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID3"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID3")="")  DO
-    . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID4")=""
-    . . . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID4")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",2,"COMPOSITE","NAME"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID1"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID2"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID3"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID4"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID4")="")  DO
-    . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID5")=""
-    . . . . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID5")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",2,"COMPOSITE","NAME"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID1"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID2"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID3"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID4"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID5"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID5")="")  DO
-    . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID6")=""
-    . . . . . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID6")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",2,"COMPOSITE","NAME"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID1"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID2"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID3"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID4"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID5"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID6"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID6")="")  DO
-    . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID7")=""
-    . . . . . . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID7")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",2,"COMPOSITE","NAME"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID1"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID2"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID3"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID4"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID5"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID6"),%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID7"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID7")="")  DO
-    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(^composite(%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID1"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID2"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID3"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID4"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID5"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID6"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID7"))) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
-    . . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"COMPOSITE","NAME")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"COMPOSITE","NAME")) IF $DATA(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",3,"COMPOSITE","NAME"))) DO
-    . . . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID0")=""
-    . . . . . . . . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID0")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",3,"COMPOSITE","NAME"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID0"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID0")="")  DO
-    . . . . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID1")=""
-    . . . . . . . . . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID1")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",3,"COMPOSITE","NAME"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID1"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID1")="")  DO
-    . . . . . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID2")=""
-    . . . . . . . . . . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID2")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",3,"COMPOSITE","NAME"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID1"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID2"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID2")="")  DO
-    . . . . . . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID3")=""
-    . . . . . . . . . . . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID3")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",3,"COMPOSITE","NAME"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID1"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID2"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID3"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID3")="")  DO
-    . . . . . . . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID4")=""
-    . . . . . . . . . . . . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID4")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",3,"COMPOSITE","NAME"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID1"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID2"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID3"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID4"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID4")="")  DO
-    . . . . . . . . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID5")=""
-    . . . . . . . . . . . . . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID5")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",3,"COMPOSITE","NAME"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID1"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID2"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID3"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID4"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID5"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID5")="")  DO
-    . . . . . . . . . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID6")=""
-    . . . . . . . . . . . . . . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID6")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",3,"COMPOSITE","NAME"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID1"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID2"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID3"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID4"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID5"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID6"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID6")="")  DO
-    . . . . . . . . . . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID7")=""
-    . . . . . . . . . . . . . . . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID7")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",3,"COMPOSITE","NAME"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID1"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID2"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID3"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID4"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID5"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID6"),%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID7"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID7")="")  DO
+    . . . . . . . . . SET %ydboctoexpr=$GET(^composite(%ydboctocursor(cursorId,"keys",1,"composite","id0"),%ydboctocursor(cursorId,"keys",1,"composite","id1"),%ydboctocursor(cursorId,"keys",1,"composite","id2"),%ydboctocursor(cursorId,"keys",1,"composite","id3"),%ydboctocursor(cursorId,"keys",1,"composite","id4"),%ydboctocursor(cursorId,"keys",1,"composite","id5"),%ydboctocursor(cursorId,"keys",1,"composite","id6"),%ydboctocursor(cursorId,"keys",1,"composite","id7"))) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"composite","name")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"composite","name")) IF $DATA(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",2,"composite","name"))) DO
+    . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"composite","id0")=""
+    . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"composite","id0")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",2,"composite","name"),%ydboctocursor(cursorId,"keys",2,"composite","id0"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"composite","id0")="")  DO
+    . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"composite","id1")=""
+    . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"composite","id1")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",2,"composite","name"),%ydboctocursor(cursorId,"keys",2,"composite","id0"),%ydboctocursor(cursorId,"keys",2,"composite","id1"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"composite","id1")="")  DO
+    . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"composite","id2")=""
+    . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"composite","id2")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",2,"composite","name"),%ydboctocursor(cursorId,"keys",2,"composite","id0"),%ydboctocursor(cursorId,"keys",2,"composite","id1"),%ydboctocursor(cursorId,"keys",2,"composite","id2"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"composite","id2")="")  DO
+    . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"composite","id3")=""
+    . . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"composite","id3")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",2,"composite","name"),%ydboctocursor(cursorId,"keys",2,"composite","id0"),%ydboctocursor(cursorId,"keys",2,"composite","id1"),%ydboctocursor(cursorId,"keys",2,"composite","id2"),%ydboctocursor(cursorId,"keys",2,"composite","id3"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"composite","id3")="")  DO
+    . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"composite","id4")=""
+    . . . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"composite","id4")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",2,"composite","name"),%ydboctocursor(cursorId,"keys",2,"composite","id0"),%ydboctocursor(cursorId,"keys",2,"composite","id1"),%ydboctocursor(cursorId,"keys",2,"composite","id2"),%ydboctocursor(cursorId,"keys",2,"composite","id3"),%ydboctocursor(cursorId,"keys",2,"composite","id4"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"composite","id4")="")  DO
+    . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"composite","id5")=""
+    . . . . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"composite","id5")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",2,"composite","name"),%ydboctocursor(cursorId,"keys",2,"composite","id0"),%ydboctocursor(cursorId,"keys",2,"composite","id1"),%ydboctocursor(cursorId,"keys",2,"composite","id2"),%ydboctocursor(cursorId,"keys",2,"composite","id3"),%ydboctocursor(cursorId,"keys",2,"composite","id4"),%ydboctocursor(cursorId,"keys",2,"composite","id5"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"composite","id5")="")  DO
+    . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"composite","id6")=""
+    . . . . . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"composite","id6")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",2,"composite","name"),%ydboctocursor(cursorId,"keys",2,"composite","id0"),%ydboctocursor(cursorId,"keys",2,"composite","id1"),%ydboctocursor(cursorId,"keys",2,"composite","id2"),%ydboctocursor(cursorId,"keys",2,"composite","id3"),%ydboctocursor(cursorId,"keys",2,"composite","id4"),%ydboctocursor(cursorId,"keys",2,"composite","id5"),%ydboctocursor(cursorId,"keys",2,"composite","id6"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"composite","id6")="")  DO
+    . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",2,"composite","id7")=""
+    . . . . . . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",2,"composite","id7")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",2,"composite","name"),%ydboctocursor(cursorId,"keys",2,"composite","id0"),%ydboctocursor(cursorId,"keys",2,"composite","id1"),%ydboctocursor(cursorId,"keys",2,"composite","id2"),%ydboctocursor(cursorId,"keys",2,"composite","id3"),%ydboctocursor(cursorId,"keys",2,"composite","id4"),%ydboctocursor(cursorId,"keys",2,"composite","id5"),%ydboctocursor(cursorId,"keys",2,"composite","id6"),%ydboctocursor(cursorId,"keys",2,"composite","id7"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"composite","id7")="")  DO
+    . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(^composite(%ydboctocursor(cursorId,"keys",1,"composite","id0"),%ydboctocursor(cursorId,"keys",1,"composite","id1"),%ydboctocursor(cursorId,"keys",1,"composite","id2"),%ydboctocursor(cursorId,"keys",1,"composite","id3"),%ydboctocursor(cursorId,"keys",1,"composite","id4"),%ydboctocursor(cursorId,"keys",1,"composite","id5"),%ydboctocursor(cursorId,"keys",1,"composite","id6"),%ydboctocursor(cursorId,"keys",1,"composite","id7"))) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"composite","name")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",3,"composite","name")) IF $DATA(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",3,"composite","name"))) DO
+    . . . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"composite","id0")=""
+    . . . . . . . . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"composite","id0")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",3,"composite","name"),%ydboctocursor(cursorId,"keys",3,"composite","id0"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"composite","id0")="")  DO
+    . . . . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"composite","id1")=""
+    . . . . . . . . . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"composite","id1")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",3,"composite","name"),%ydboctocursor(cursorId,"keys",3,"composite","id0"),%ydboctocursor(cursorId,"keys",3,"composite","id1"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"composite","id1")="")  DO
+    . . . . . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"composite","id2")=""
+    . . . . . . . . . . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"composite","id2")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",3,"composite","name"),%ydboctocursor(cursorId,"keys",3,"composite","id0"),%ydboctocursor(cursorId,"keys",3,"composite","id1"),%ydboctocursor(cursorId,"keys",3,"composite","id2"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"composite","id2")="")  DO
+    . . . . . . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"composite","id3")=""
+    . . . . . . . . . . . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"composite","id3")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",3,"composite","name"),%ydboctocursor(cursorId,"keys",3,"composite","id0"),%ydboctocursor(cursorId,"keys",3,"composite","id1"),%ydboctocursor(cursorId,"keys",3,"composite","id2"),%ydboctocursor(cursorId,"keys",3,"composite","id3"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"composite","id3")="")  DO
+    . . . . . . . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"composite","id4")=""
+    . . . . . . . . . . . . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"composite","id4")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",3,"composite","name"),%ydboctocursor(cursorId,"keys",3,"composite","id0"),%ydboctocursor(cursorId,"keys",3,"composite","id1"),%ydboctocursor(cursorId,"keys",3,"composite","id2"),%ydboctocursor(cursorId,"keys",3,"composite","id3"),%ydboctocursor(cursorId,"keys",3,"composite","id4"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"composite","id4")="")  DO
+    . . . . . . . . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"composite","id5")=""
+    . . . . . . . . . . . . . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"composite","id5")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",3,"composite","name"),%ydboctocursor(cursorId,"keys",3,"composite","id0"),%ydboctocursor(cursorId,"keys",3,"composite","id1"),%ydboctocursor(cursorId,"keys",3,"composite","id2"),%ydboctocursor(cursorId,"keys",3,"composite","id3"),%ydboctocursor(cursorId,"keys",3,"composite","id4"),%ydboctocursor(cursorId,"keys",3,"composite","id5"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"composite","id5")="")  DO
+    . . . . . . . . . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"composite","id6")=""
+    . . . . . . . . . . . . . . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"composite","id6")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",3,"composite","name"),%ydboctocursor(cursorId,"keys",3,"composite","id0"),%ydboctocursor(cursorId,"keys",3,"composite","id1"),%ydboctocursor(cursorId,"keys",3,"composite","id2"),%ydboctocursor(cursorId,"keys",3,"composite","id3"),%ydboctocursor(cursorId,"keys",3,"composite","id4"),%ydboctocursor(cursorId,"keys",3,"composite","id5"),%ydboctocursor(cursorId,"keys",3,"composite","id6"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"composite","id6")="")  DO
+    . . . . . . . . . . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",3,"composite","id7")=""
+    . . . . . . . . . . . . . . . . . . . . . . . . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"composite","id7")=$ORDER(^%ydbAIMD81RGiDYaJwC0ntBPKi9H3H(0,%ydboctocursor(cursorId,"keys",3,"composite","name"),%ydboctocursor(cursorId,"keys",3,"composite","id0"),%ydboctocursor(cursorId,"keys",3,"composite","id1"),%ydboctocursor(cursorId,"keys",3,"composite","id2"),%ydboctocursor(cursorId,"keys",3,"composite","id3"),%ydboctocursor(cursorId,"keys",3,"composite","id4"),%ydboctocursor(cursorId,"keys",3,"composite","id5"),%ydboctocursor(cursorId,"keys",3,"composite","id6"),%ydboctocursor(cursorId,"keys",3,"composite","id7"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"composite","id7")="")  DO
     . . . . . . . . . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=1
     . . . . . . . . . . . . . . . . . . . . . . . . . . . DO:%ydboctoexpr
     . . . . . . . . . . . . . . . . . . . . . . . . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",5,"","")) %ydboctoz=42
-    . . . . . . . . . . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(^composite(%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID0"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID1"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID2"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID3"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID4"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID5"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID6"),%ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID7"))) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . . . . . . . . . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$GET(^composite(%ydboctocursor(cursorId,"keys",1,"composite","id0"),%ydboctocursor(cursorId,"keys",1,"composite","id1"),%ydboctocursor(cursorId,"keys",1,"composite","id2"),%ydboctocursor(cursorId,"keys",1,"composite","id3"),%ydboctocursor(cursorId,"keys",1,"composite","id4"),%ydboctocursor(cursorId,"keys",1,"composite","id5"),%ydboctocursor(cursorId,"keys",1,"composite","id6"),%ydboctocursor(cursorId,"keys",1,"composite","id7"))) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . . . . . . . . . . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",5,"","",%ydboctocursor(cursorId,"keys",5,"",""))=%ydboctoexpr
-    . . . . . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID7")
-    . . . . . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID6")
-    . . . . . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID5")
-    . . . . . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID4")
-    . . . . . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID3")
-    . . . . . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID2")
-    . . . . . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID1")
-    . . . . . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",3,"COMPOSITE","ID0")
-    . . . . . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",3,"COMPOSITE","NAME")
-    . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID7")
-    . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID6")
-    . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID5")
-    . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID4")
-    . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID3")
-    . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID2")
-    . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID1")
-    . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",2,"COMPOSITE","ID0")
-    . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",2,"COMPOSITE","NAME")
-    ZKILL %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID7")
-    ZKILL %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID6")
-    ZKILL %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID5")
-    ZKILL %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID4")
-    ZKILL %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID3")
-    ZKILL %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID2")
-    ZKILL %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID1")
-    ZKILL %ydboctocursor(cursorId,"keys",1,"COMPOSITE","ID0")
+    . . . . . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",3,"composite","id7")
+    . . . . . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",3,"composite","id6")
+    . . . . . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",3,"composite","id5")
+    . . . . . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",3,"composite","id4")
+    . . . . . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",3,"composite","id3")
+    . . . . . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",3,"composite","id2")
+    . . . . . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",3,"composite","id1")
+    . . . . . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",3,"composite","id0")
+    . . . . . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",3,"composite","name")
+    . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",2,"composite","id7")
+    . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",2,"composite","id6")
+    . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",2,"composite","id5")
+    . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",2,"composite","id4")
+    . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",2,"composite","id3")
+    . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",2,"composite","id2")
+    . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",2,"composite","id1")
+    . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",2,"composite","id0")
+    . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",2,"composite","name")
+    ZKILL %ydboctocursor(cursorId,"keys",1,"composite","id7")
+    ZKILL %ydboctocursor(cursorId,"keys",1,"composite","id6")
+    ZKILL %ydboctocursor(cursorId,"keys",1,"composite","id5")
+    ZKILL %ydboctocursor(cursorId,"keys",1,"composite","id4")
+    ZKILL %ydboctocursor(cursorId,"keys",1,"composite","id3")
+    ZKILL %ydboctocursor(cursorId,"keys",1,"composite","id2")
+    ZKILL %ydboctocursor(cursorId,"keys",1,"composite","id1")
+    ZKILL %ydboctocursor(cursorId,"keys",1,"composite","id0")
     QUIT

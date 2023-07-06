@@ -8,14 +8,14 @@ SELECT TRUNC(155, -44);
 SELECT TRUNC(155, 1.5);
 SELECT TRUNC(155, -1.5);
 SELECT TRUNC(155, 45);
-TRUNC
+trunc
 1.01234567890123456000
 (1 row)
 [ERROR]: ERR_YOTTADB: YottaDB error: 150373210,PostgreSQL+2^%ydboctofTRUNCATE,%YDB-E-DIVZERO, Attempt to divide by zero
-TRUNC
+trunc
 155.00
 (1 row)
-TRUNC
+trunc
 100
 (1 row)
 [ERROR]: ERR_YOTTADB: YottaDB error: 150373506,PostgreSQL+2^%ydboctofTRUNCATE,%YDB-E-NUMOFLOW, Numeric overflow

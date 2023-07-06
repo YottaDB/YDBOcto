@@ -1,6 +1,6 @@
 \d tbl;
-Table "TBL" stored in Global: ^%ydboctoDDmMNiL3P1bAyQjIOovGhK9 : Type = READWRITE
+Table "tbl" stored in Global: ^%ydboctoD8DOa3WW9naMa37ptmpvi2E : Type = READWRITE
 Column|Type|Collation|Nullable|Default
-ID|INTEGER|||
+id|INTEGER|||
 Check constraints:
-    "TBL_ID_CHECK" CHECK ((ABS(ID) < 5))
+    "tbl_id_CHECK" CHECK ((abs(id) < 5))

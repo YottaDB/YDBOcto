@@ -172,104 +172,102 @@ create table tmp (id1 integer, id2 integer, primary key (id1, id2), firstname va
 -- Test of ERR_GLOBAL_KEY_COLS_ORDER error
 create table tmp (id1 integer, id2 integer, primary key (id1, id2), firstname varchar GLOBAL "^names(1,keys(""ID2""),2,keys(""ID1""))") READONLY;
 
-[ERROR]: ERR_TABLE_MUST_HAVE_A_NON_EXTRACT_COLUMN: Table "TMP" must have at least one non-EXTRACT column
-[ERROR]: ERR_TABLE_MUST_HAVE_A_NON_EXTRACT_COLUMN: Table "TMP" must have at least one non-EXTRACT column
+[ERROR]: ERR_TABLE_MUST_HAVE_A_NON_EXTRACT_COLUMN: Table "tmp" must have at least one non-EXTRACT column
+[ERROR]: ERR_TABLE_MUST_HAVE_A_NON_EXTRACT_COLUMN: Table "tmp" must have at least one non-EXTRACT column
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: fullName
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: fullName
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: invalidColumn
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: invalidColumn
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: firstName
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: firstName
-[ERROR]: ERR_VALUES_NEEDS_A_NON_KEY_COLUMN: Column "ID" specified using values() in EXTRACT/GLOBAL keyword is a KEY column
-[ERROR]: ERR_KEYS_NEEDS_A_KEY_COLUMN: Column "LASTNAME" specified using keys() in EXTRACT/GLOBAL keyword is not a KEY column
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: firstName
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: firstName
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: firstName
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: firstName
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: firstName
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: firstName
-[ERROR]: ERR_KEYS_NEEDS_A_KEY_COLUMN: Column "FIRSTNAME" specified using keys() in EXTRACT/GLOBAL keyword is not a KEY column
-[ERROR]: ERR_KEYS_NEEDS_A_KEY_COLUMN: Column "FIRSTNAME" specified using keys() in EXTRACT/GLOBAL keyword is not a KEY column
-[ERROR]: ERR_KEYS_NEEDS_A_KEY_COLUMN: Column "FIRSTNAME" specified using keys() in EXTRACT/GLOBAL keyword is not a KEY column
-[ERROR]: ERR_VALUES_NOT_ALLOWED_IN_GLOBAL: values() usage not allowed in GLOBAL keyword (only keys() usage allowed)
-[ERROR]: ERR_VALUES_NOT_ALLOWED_IN_GLOBAL: values() usage not allowed in GLOBAL keyword (only keys() usage allowed)
-[ERROR]: ERR_VALUES_NOT_ALLOWED_IN_GLOBAL: values() usage not allowed in GLOBAL keyword (only keys() usage allowed)
-[ERROR]: ERR_VALUES_NOT_ALLOWED_IN_GLOBAL: values() usage not allowed in GLOBAL keyword (only keys() usage allowed)
-[ERROR]: ERR_VALUES_NOT_ALLOWED_IN_GLOBAL: values() usage not allowed in GLOBAL keyword (only keys() usage allowed)
-[ERROR]: ERR_VALUES_NOT_ALLOWED_IN_GLOBAL: values() usage not allowed in GLOBAL keyword (only keys() usage allowed)
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: id
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: id
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: id
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FIRSTNAME
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FIRSTNAME
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FIRSTNAME
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FIRSTNAME
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FIRSTNAME
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FIRSTNAME
+CREATE TABLE
+[ERROR]: ERR_READWRITE_DISALLOWED: READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
+[ERROR]: ERR_CANNOT_CREATE_TABLE: Table or View "tmp" already exists
 [ERROR]: ERR_GLOBAL_MISSING_KEY_COLS: GLOBAL keyword does not specify all KEY column(s)
 [ERROR]: ERR_GLOBAL_MISSING_KEY_COLS: GLOBAL keyword does not specify all KEY column(s)
 [ERROR]: ERR_GLOBAL_MISSING_KEY_COLS: GLOBAL keyword does not specify all KEY column(s)
-[ERROR]: ERR_GLOBAL_MISSING_KEY_COLS: GLOBAL keyword does not specify all KEY column(s)
-[ERROR]: ERR_GLOBAL_MISSING_KEY_COLS: GLOBAL keyword does not specify all KEY column(s)
-[ERROR]: ERR_GLOBAL_MISSING_KEY_COLS: GLOBAL keyword does not specify all KEY column(s)
-[ERROR]: ERR_GLOBAL_KEY_COLS_ORDER: GLOBAL keyword does not specify the KEY columns in the right order
-[ERROR]: ERR_GLOBAL_KEY_COLS_ORDER: GLOBAL keyword does not specify the KEY columns in the right order
-[ERROR]: ERR_GLOBAL_KEY_COLS_ORDER: GLOBAL keyword does not specify the KEY columns in the right order
-[ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "TMP" as it does not exist
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID2
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID2
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID2
+DROP TABLE
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1",keys("ID2")
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: TMP
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
 LINE 57:1: select * from tmp;
                          ^^^
-[ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "TMP" as it does not exist
-[ERROR]: ERR_GLOBAL_KEY_COLS_ORDER: GLOBAL keyword does not specify the KEY columns in the right order
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: TMP
+[ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
 LINE 61:1: select * from tmp;
                          ^^^
-[ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "TMP" as it does not exist
+[ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: "ID1
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: TMP
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
 LINE 65:1: select * from tmp;
                          ^^^
-[ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "TMP" as it does not exist
+[ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: "ID1
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: TMP
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
 LINE 69:1: select * from tmp;
                          ^^^
-[ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "TMP" as it does not exist
-[ERROR]: ERR_GLOBAL_MISSING_KEY_COLS: GLOBAL keyword does not specify all KEY column(s)
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: TMP
+[ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
 LINE 73:1: select * from tmp;
                          ^^^
-[ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "TMP" as it does not exist
+[ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
+LINE 77:1: select * from tmp;
+                         ^^^
+[ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
+LINE 81:1: select * from tmp;
+                         ^^^
+[ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
+LINE 85:1: select * from tmp;
+                         ^^^
+[ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
+LINE 89:1: select * from tmp;
+                         ^^^
+[ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
+LINE 93:1: select * from tmp;
+                         ^^^
+[ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
+LINE 97:1: select * from tmp;
+                         ^^^
 CREATE TABLE
-ID1
-(0 rows)
-DROP TABLE
-CREATE TABLE
-ID1|FIRSTNAME
-(0 rows)
-DROP TABLE
-CREATE TABLE
-ID1
-(0 rows)
-DROP TABLE
-CREATE TABLE
-	    . . SET %ydboctoexpr=$GET(^x(%ydboctocursor(cursorId,"keys",1,"TMP","ID1")x)) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
-	                                                                              ^-----
-		At column 79, line 23, source module $PWD/_ydboctoP*.m
-%YDB-E-RPARENMISSING, Right parenthesis expected
-ID1|FIRSTNAME
-(0 rows)
-DROP TABLE
-CREATE TABLE
-ID1
-(0 rows)
-DROP TABLE
-CREATE TABLE
-	    . . SET %ydboctoexpr=$GET(^x(%ydboctocursor(cursorId,"keys",1,"TMP","ID1")xy)) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
-	                                                                              ^-----
-		At column 79, line 23, source module $PWD/_ydboctoP*.m
-%YDB-E-RPARENMISSING, Right parenthesis expected
-ID1|FIRSTNAME
-(0 rows)
-[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: id
-[ERROR]: ERR_KEYS_NEEDS_A_KEY_COLUMN: Column "FIRSTNAME" specified using keys() in EXTRACT/GLOBAL keyword is not a KEY column
-[ERROR]: ERR_VALUES_NOT_ALLOWED_IN_GLOBAL: values() usage not allowed in GLOBAL keyword (only keys() usage allowed)
-[ERROR]: ERR_VALUES_NOT_ALLOWED_IN_GLOBAL: values() usage not allowed in GLOBAL keyword (only keys() usage allowed)
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FIRSTNAME
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FIRSTNAME
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
 [ERROR]: ERR_GLOBAL_MISSING_KEY_COLS: GLOBAL keyword does not specify all KEY column(s)
-[ERROR]: ERR_GLOBAL_MISSING_KEY_COLS: GLOBAL keyword does not specify all KEY column(s)
-[ERROR]: ERR_GLOBAL_KEY_COLS_ORDER: GLOBAL keyword does not specify the KEY columns in the right order
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID2

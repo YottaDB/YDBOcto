@@ -11,7 +11,7 @@
 #################################################################
 
 -- TC072 : OCTO519 : Test x.y column name syntax
-CREATE TABLE `X.Y` (`ID` INTEGER CONSTRAINT XY_PKEY PRIMARY KEY) GLOBAL "^xy(keys(""ID""))" DELIM "|" READWRITE;
+CREATE TABLE `X.Y` (`ID` INTEGER CONSTRAINT X.Y_PKEY PRIMARY KEY) GLOBAL "^xy(keys(""id""))" DELIM "|" READWRITE;
 SELECT * FROM x.y;
 \d x.y;
 

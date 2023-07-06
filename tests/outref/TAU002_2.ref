@@ -1,4 +1,4 @@
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -6,8 +6,8 @@ ID|FIRSTNAME|LASTNAME
 4|Joey|
 5|Zero|Cool
 (6 rows)
-[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "NAMES" because view "B1" depends on it
-ABS
+[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "names" because view "b1" depends on it
+abs
 0
 1
 2
@@ -15,16 +15,16 @@ ABS
 4
 5
 (6 rows)
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS_ON_VIEW: Cannot DROP function ABS(INTEGER) because view "V2" depends on it
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS_ON_VIEW: Cannot DROP function abs(INTEGER) because view "v2" depends on it
 ???
 1
 (1 row)
 ???
 2
 (1 row)
-[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "OCTOONEROWTABLE" because view "A" depends on it
-[ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "B1" because view "A1" depends on it
-ID|FIRSTNAME|LASTNAME
+[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "octoonerowtable" because view "a" depends on it
+[ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "b1" because view "a1" depends on it
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -32,7 +32,7 @@ ID|FIRSTNAME|LASTNAME
 4|Joey|
 5|Zero|Cool
 (6 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -40,36 +40,36 @@ ID|FIRSTNAME|LASTNAME
 4|Joey|
 5|Zero|Cool
 (6 rows)
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS_ON_VIEW: Cannot DROP function SAMEVALUE(INTEGER) because view "F1" depends on it
-SAMEVALUE
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS_ON_VIEW: Cannot DROP function samevalue(INTEGER) because view "f1" depends on it
+samevalue
 1
 (1 row)
-[ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "A" because view "B" depends on it
+[ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "a" because view "b" depends on it
 ???
 1
 (1 row)
 ???
 1
 (1 row)
-[ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "V9" because view "V10" depends on it
-ID
+[ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "v9" because view "v10" depends on it
+id
 1
 (1 row)
 DROP VIEW
-[ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "V9" because view "V11" depends on it
-ID
+[ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "v9" because view "v11" depends on it
+id
 1
 (1 row)
 DROP VIEW
-ID
+id
 1
 (1 row)
 DROP VIEW
-[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "NAMES" because view "B1" depends on it
-COLUMN1
+[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "names" because view "b1" depends on it
+column1
 1
 (1 row)
-LASTNAME
+lastname
 Acid
 Burn
 Cereal
@@ -81,7 +81,7 @@ Nikon
 Zero
 
 (10 rows)
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 1|Acid|Burn
 0|Zero|Cool
 5|Zero|Cool
@@ -98,11 +98,11 @@ CASE
 ???
 0
 (1 row)
-SUM
+sum
 1
 (1 row)
-COUNT(*)
+count(*)
 6
 (1 row)
-ID
+id
 (0 rows)

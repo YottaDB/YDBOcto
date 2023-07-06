@@ -22,7 +22,7 @@ CREATE TABLE abcd (id INTEGER PRIMARY KEY, datetime INTEGER EXTRACT "$ZHOROLOG")
 CREATE TABLE abcd (id INTEGER, firstname VARCHAR(20) PIECE 3) READWRITE;
 
 -- Test of READWRITE with column-level GLOBAL
-CREATE TABLE abcd (id INTEGER PRIMARY KEY, firstname VARCHAR(20) GLOBAL "^names(keys(""ID""))") READWRITE;
+CREATE TABLE abcd (id INTEGER PRIMARY KEY, firstname VARCHAR(20) GLOBAL "^names(keys(""id""))") READWRITE;
 
 -- Test of READWRITE with column-level DELIM
 CREATE TABLE abcd (id INTEGER, firstname VARCHAR(20) DELIM "#") READWRITE;

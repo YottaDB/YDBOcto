@@ -20,7 +20,7 @@ public|null
 ----- OCTO -----
 [ WARN]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: arrays
 [ WARN]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: arrays
-TABLE_SCHEM|TABLE_CATALOG
+table_schem|table_catalog
 information_schema|
 pg_catalog|
 public|

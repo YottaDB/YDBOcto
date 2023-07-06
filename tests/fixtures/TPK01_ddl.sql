@@ -14,11 +14,11 @@
 
 -- All columns are key columns
 CREATE TABLE T1(a INT STARTINCLUDE, b INT STARTINCLUDE, c INT STARTINCLUDE, d INT STARTINCLUDE, e INT STARTINCLUDE)
-GLOBAL "^T1(keys(""A""),keys(""B""),keys(""C""),keys(""D""),keys(""E""))";
+GLOBAL "^T1(keys(""a""),keys(""b""),keys(""c""),keys(""d""),keys(""e""))";
 
 -- Some columns are not key columns
 CREATE TABLE T2(a VARCHAR(10) PRIMARY KEY STARTINCLUDE, b VARCHAR(10) KEY NUM 1 STARTINCLUDE, c VARCHAR(10) STARTINCLUDE)
-GLOBAL "^T2(keys(""A""),keys(""B""))";
+GLOBAL "^T2(keys(""a""),keys(""b""))";
 
 -- Test that when START is specified, we go PAST the START value and not include it in the FOR loop
 -- For this, we will use vista-mini.sql and vista-mini.zwr that are already available. No separate CREATE TABLE needed.

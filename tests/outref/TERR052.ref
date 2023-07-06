@@ -1,0 +1,6 @@
+
+-- TERR052 : OCTO929 : Test ERR_VALUES_NOT_ALLOWED_IN_START_END error
+
+CREATE TABLE TERR052 (keycol1 INTEGER PRIMARY KEY START 0 END "'(keys(""keycol1""))!(values(""keycol2"")="""")", keycol2 INTEGER);
+
+[ERROR]: ERR_VALUES_NOT_ALLOWED_IN_START_END: values() usage not allowed in START/END keywords (only keys() usage allowed)

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -16,10 +16,10 @@ CREATE FUNCTION ZEXT(VARCHAR,INTEGER,INTEGER) RETURNS VARCHAR AS $$ZEXT^Q6F;
 -- A shortened table to show the usecase
 CREATE TABLE QAUDITCEVENT (
 ID VARCHAR PRIMARY KEY,
-DATELABEL VARCHAR GLOBAL "^qAuditC(keys(""ID""),""EventDescr"",""DateLabel"")" PIECE 1,
-EVENTNAME VARCHAR GLOBAL "^qAuditC(keys(""ID""),""EventDescr"",""EventName"")" PIECE 1
+DATELABEL VARCHAR GLOBAL "^qAuditC(keys(""id""),""EventDescr"",""DateLabel"")" PIECE 1,
+EVENTNAME VARCHAR GLOBAL "^qAuditC(keys(""id""),""EventDescr"",""EventName"")" PIECE 1
 )
- GLOBAL "^qAuditC(keys(""ID""),""EventDescr"")";
+ GLOBAL "^qAuditC(keys(""id""),""EventDescr"")";
 
 -- making an sql expression with grouping by year:
 select ZEXT(DATELABEL, 1, 4), count (*) from QAUDITCEVENT group by ZEXT(DATELABEL, 1,4);

@@ -48,9 +48,9 @@ OCTO
   octo <<OCTO 2>&1 | tee output.txt
 CREATE TABLE namesE(
   id INTEGER PRIMARY KEY,
-  firstName VARCHAR EXTRACT "^names(keys(""ID""))",
+  firstName VARCHAR EXTRACT "^names(keys(""id""))",
   lastName VARCHAR
-) GLOBAL "^names(keys(""ID""))";
+) GLOBAL "^names(keys(""id""))";
 OCTO
   run octo <<OCTO
 SELECT * FROM namesE;
@@ -75,9 +75,11 @@ OCTO
 }
 
 @test "TC003 : create a table which has no keys and select from it later" {
+  octo <<OCTO 2>&1 | tee output.txt
+create table names4 (id int, First char(20), Last char(30)) READONLY GLOBAL "^%ydboctoDRjvo6GxnmC6en4dT5J9vL3";
+OCTO
   load_fixture names4.zwr
   octo <<OCTO 2>&1 | tee output.txt
-create table names4 (id int, First char(20), Last char(30)) READONLY;
 select * from names4;
 OCTO
   verify_output TC003 output.txt noinfo nodebug
@@ -117,7 +119,7 @@ OCTO
 @test "TC008 : create a table with an INTEGER and NUMERIC columns with decimals and integers stored in both" {
 	yottadb -run %XCMD 'kill ^T1 set ^T1(1,2.2,3.3)="1.1|2|3"'
 	octo <<OCTO 2>&1 | tee output.txt
-	create table t1 (a int primary key, b int, c numeric, d numeric key num 1, e int, f int key num 2) global "^T1(keys(""A""),keys(""D""),keys(""F""))";
+	create table t1 (a int primary key, b int, c numeric, d numeric key num 1, e int, f int key num 2) global "^T1(keys(""a""),keys(""d""),keys(""f""))";
 	select * from t1;
 	drop table t1;
 OCTO
@@ -127,7 +129,7 @@ OCTO
 @test "TC009 : create a table with INTEGER and NUMERIC column types with strings stored in both" {
 	yottadb -run %XCMD 'kill ^T1 set ^T1("hello")="world"'
 	octo <<OCTO 2>&1 | tee output.txt
-	create table t1(a int primary key, b numeric) global "^T1(keys(""A""))";
+	create table t1(a int primary key, b numeric) global "^T1(keys(""a""))";
 	select * from t1;
 	drop table t1;
 OCTO
@@ -159,9 +161,9 @@ OCTO
 @test "TC012 : OCTO484 : PIECE numbers of non-primary-key columns specified in CREATE TABLE should start at 1 by default" {
   yottadb -dir << "END" 2>&1 | tee ydbsets.txt
 set prefix="^%ydboctoD"
-set @(prefix_$zysuffix("SIMPLE0"))@(1)=""
-set @(prefix_$zysuffix("SIMPLE1"))@(1)="First"
-set @(prefix_$zysuffix("SIMPLE2"))@(1)="First|Last"
+set @(prefix_$zysuffix("simple0"))@(1)=""
+set @(prefix_$zysuffix("simple1"))@(1)="First"
+set @(prefix_$zysuffix("simple2"))@(1)="First|Last"
 END
   load_fixture TC012.sql subtest novv
   verify_output TC012 output.txt
@@ -498,7 +500,7 @@ END
 	grep -E '=$ZYSQLNULL|\$PIECE' _ydbocto*.m >> output.txt
 	echo '# Verify text table definition does not have PIECE specified for FIRSTNAME column' >> output.txt
 	$ydb_dist/mupip extract $testname.ext
-	grep -w "text" $testname.ext | grep -wE "NAMES1|NAMES2|NAMES3" >> output.txt
+	grep -w "text" $testname.ext | grep -wE "names1|names2|names3" >> output.txt
 	verify_output $testname output.txt
 }
 
@@ -589,7 +591,7 @@ OCTO
 		echo "# ----------------------------------" >> output.txt
 		echo '# Test of [tabletype = "'$setting'"]' >> output.txt
 		echo "# ----------------------------------" >> output.txt
-		if [[ "UNSPECIFIED" == $setting ]]; then
+		if [[ UNSPECIFIED == $setting ]]; then
 			confsetting=""
 		else
 			confsetting="tabletype = \"$setting\""
@@ -598,7 +600,7 @@ OCTO
 		sed 's/MYTBL/&'$setting'/g' TC045.sql > input_$setting.sql
 		octo -f input_$setting.sql >> output.txt 2>&1
 		$ydb_dist/mupip extract run$setting.ext
-		grep "ydboctoschema.*MYTBL"$setting".*text.*CREATE TABLE" run$setting.ext >> output.txt
+		grep "ydboctoschema.*mytbl"$(echo -n $setting | tr '[:upper:]' '[:lower:]')".*text.*CREATE TABLE" run$setting.ext >> output.txt
 	done
 	verify_output TC045 output.txt
 }
@@ -614,7 +616,7 @@ OCTO
 	load_fixture TC047.sql subtest novv
 	echo '# Verify text table definition does not keys() inserted appropriately in the GLOBAL keyword' >> output.txt
 	$ydb_dist/mupip extract octo672.ext
-	grep -w "text" octo672.ext | grep "TMP" >> output.txt
+	grep -w "text" octo672.ext | grep "tmp" >> output.txt
 	verify_output TC047 output.txt
 }
 
@@ -712,7 +714,7 @@ OCTO
 	load_fixture names.sql subtest novv
 
 	echo '# Verify Increment' | tee -a output.txt
-	yottadb -r %XCMD 'write ^%ydboctoschema("NAMES","pg_class")' | tee -a output.txt
+	yottadb -r %XCMD 'write ^%ydboctoschema("names","pg_class")' | tee -a output.txt
 	echo '# Run select query twice. The second one fails with assert without the fix.' | tee -a output.txt
 	echo 'SELECT * FROM names;'                 > TC051b.sql
 	echo 'SELECT * FROM names;'                >> TC051b.sql
@@ -763,9 +765,9 @@ OCTO
 	load_fixture TC058.sql subtest novv
 	$ydb_dist/yottadb -run %XCMD write '^%ydboctoschema("T","text",0),!' >> recreate.sql
 	$ydb_dist/yottadb -run %XCMD write '^%ydboctoschema("t","text",0),!' >> recreate.sql
-	$ydb_dist/yottadb -run %XCMD write '^%ydboctoschema("TMP","text",0),!' >> recreate.sql
-	$ydb_dist/yottadb -run %XCMD write '^%ydboctoschema("TMP2","text",0),!' >> recreate.sql
-	$ydb_dist/yottadb -run %XCMD write '^%ydboctoschema("TMP3","text",0),!' >> recreate.sql
+	$ydb_dist/yottadb -run %XCMD write '^%ydboctoschema("tmp","text",0),!' >> recreate.sql
+	$ydb_dist/yottadb -run %XCMD write '^%ydboctoschema("tmp2","text",0),!' >> recreate.sql
+	$ydb_dist/yottadb -run %XCMD write '^%ydboctoschema("tmp3","text",0),!' >> recreate.sql
 	load_fixture TC058_drop.sql subtest novv
 	octo -f recreate.sql 2>&1 | tee -a output.txt
 	verify_output TC058 output.txt
@@ -778,7 +780,7 @@ OCTO
 
 @test "TC060 : OCTO519 : Column names differing only in case yield correct constraint names" {
 	load_fixture TC060.sql subtest novv
-	$ydb_dist/yottadb -run %XCMD write '^%ydboctoschema("TMP","text",0),!' >> recreate.sql
+	$ydb_dist/yottadb -run %XCMD write '^%ydboctoschema("tmp","text",0),!' >> recreate.sql
 	load_fixture TC060_drop.sql subtest novv
 	octo -f recreate.sql 2>&1 | tee -a output.txt
 	verify_output TC060 output.txt
@@ -807,11 +809,11 @@ OCTO
 	load_fixture TC061.zwr
 	load_fixture TC064a.sql subtest novv
 
-	$ydb_dist/yottadb -r WRITESCHEMA DELIMNAMESCOL
-	$ydb_dist/yottadb -r WRITESCHEMA DELIMNAMESCOL &> schema.txt
+	$ydb_dist/yottadb -r WRITESCHEMA delimnamescol
+	$ydb_dist/yottadb -r WRITESCHEMA delimnamescol &> schema.txt
 	load_fixture TC064b.sql subtest novv
 	octo -f schema.txt 2>&1 | tee -a output.txt
-	$ydb_dist/yottadb -r WRITESCHEMA DELIMNAMESCOL >> schema.txt
+	$ydb_dist/yottadb -r WRITESCHEMA delimnamescol >> schema.txt
 	load_fixture TC064c.sql subtest novv
 	cat schema.txt >> output.txt
 	verify_output TC064 output.txt
@@ -958,8 +960,8 @@ OCTO
 	echo 'seedreload = "TRUE"' > octo.conf
 	# Check if auto load created the tables again
 	octo -vvv < /dev/null >> seed_reload_log.txt 2>&1
-	[[ $(grep -c 'INFO_PARSING_DONE: Parsing done for SQL command \[CREATE TABLE `_TEST1`' seed_reload_log.txt) -eq 1 ]]
-	[[ $(grep -c 'INFO_PARSING_DONE: Parsing done for SQL command \[CREATE TABLE `_TEST2`' seed_reload_log.txt) -eq 1 ]]
+	[[ $(grep -c 'INFO_PARSING_DONE: Parsing done for SQL command \[CREATE TABLE `_test1`' seed_reload_log.txt) -eq 1 ]]
+	[[ $(grep -c 'INFO_PARSING_DONE: Parsing done for SQL command \[CREATE TABLE `_test2`' seed_reload_log.txt) -eq 1 ]]
 	mv octo.conf octo_seed.conf
 	# Check if select on the reloaded tables work fine
 	load_fixture TC079_after_load.sql subtest novv

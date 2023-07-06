@@ -42,7 +42,7 @@
 		}                                                                                                      \
 	}
 
-int auto_upgrade_binary_table_or_view_definition_helper(ydb_buffer_t *view_or_table_name) {
+int auto_upgrade_binary_table_or_view_definition_helper(ydb_buffer_t *view_or_table_name, boolean_t is_view) {
 	/* $order through ^%ydboctoschema(view_or_table_name) and for each view_or_table_name, get CREATE TABLE/VIEW statement from
 	 *	^%ydboctoschema(view_or_table_name,OCTOLIT_TEXT)
 	 * OR
@@ -105,7 +105,7 @@ int auto_upgrade_binary_table_or_view_definition_helper(ydb_buffer_t *view_or_ta
 		COPY_QUERY_TO_INPUT_BUFFER(table_or_view_subs[2].buf_addr, (int)table_or_view_subs[2].len_used,
 					   NEWLINE_NEEDED_FALSE);
 	} else {
-		/* Note: COPY_QUERY_TO_INPUT_BUFFER macro invocation is done inside "get_table_or_view_text_definition() call */
+		/* Note: COPY_QUERY_TO_INPUT_BUFFER macro invocation is done inside "get_table_or_view_text_definition()" call */
 		status = get_table_or_view_text_definition(view_or_table_name, NULL);
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_or_view_buff, NULL, FALSE, NULL);
 	}
@@ -133,6 +133,7 @@ int auto_upgrade_binary_table_or_view_definition_helper(ydb_buffer_t *view_or_ta
 	/* To print only the current query store the index for the last one
 	 * then print the difference between the cur_input_index - old_input_index
 	 */
+	assert(0 == cur_input_index);
 	old_input_index = cur_input_index;
 
 	// Kill View's Cache created and let `CLEANUP_AND_RETURN_IF_NOT_YDB_OK` do `YDB_ERROR_CHECK`
@@ -155,7 +156,8 @@ int auto_upgrade_binary_table_or_view_definition_helper(ydb_buffer_t *view_or_ta
 	 * https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1378#note_1380319421
 	 * Similar code exists in run_query.c any change here needs to be done there as well
 	 */
-	if (create_view_STATEMENT == result->type) {
+	assert(is_view == (create_view_STATEMENT == result->type));
+	if (is_view) {
 		result = view_definition(result, &parse_context);
 		if (NULL == result) {
 			CLEANUP_AND_RETURN(1, table_or_view_buff, NULL, TRUE, &cursor_ydb_buff);
@@ -165,6 +167,29 @@ int auto_upgrade_binary_table_or_view_definition_helper(ydb_buffer_t *view_or_ta
 #ifndef FORCE_BINARY_DEFINITION_AUTO_UPGRADE
 	INFO(INFO_PARSING_DONE, cur_input_index - old_input_index, input_buffer_combined + old_input_index);
 #endif
+	if (config->is_auto_upgrade_octo929) {
+		if (!is_view) {
+			ydb_buffer_t ydbocto929, table_subs[2];
+			char	     subs0_buff[INT32_TO_STRING_MAX];
+			unsigned int data_ret;
+
+			YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTO929, &ydbocto929);
+			table_subs[0].buf_addr = subs0_buff;
+			table_subs[0].len_alloc = sizeof(subs0_buff);
+			table_subs[0].len_used
+			    = snprintf(table_subs[0].buf_addr, table_subs[0].len_alloc, "%d", create_table_STATEMENT);
+			table_subs[1] = *view_or_table_name;
+			status = ydb_data_s(&ydbocto929, 2, &table_subs[0], &data_ret);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_or_view_buff, NULL, TRUE, &cursor_ydb_buff);
+			if (0 == data_ret) {
+				emit_create_table(config->octo929_sqlfile_stream, result);
+				fprintf(config->octo929_sqlfile_stream, "\n");
+			}
+		} else {
+			fprintf(config->octo929_sqlfile_stream, "%.*s\n", cur_input_index - old_input_index,
+				input_buffer_combined + old_input_index);
+		}
+	}
 	/* Get OID of the table name (from below gvn) as we need that OID to store in the binary table definition.
 	 *	^%ydboctoschema(view_or_table_name,OCTOLIT_PG_CLASS)=TABLEOID
 	 */
@@ -180,8 +205,6 @@ int auto_upgrade_binary_table_or_view_definition_helper(ydb_buffer_t *view_or_ta
 		ERROR(ERR_SYSCALL_WITH_ARG, "strtoll()", errno, strerror(errno), table_or_view_subs[2].buf_addr);
 		CLEANUP_AND_RETURN(1, table_or_view_buff, NULL, TRUE, &cursor_ydb_buff);
 	}
-	boolean_t is_view;
-	is_view = (create_view_STATEMENT == result->type) ? TRUE : FALSE;
 	if (!is_view) {
 		SqlTable *table;
 		UNPACK_SQL_STATEMENT(table, result, create_table);

@@ -4,6 +4,6 @@
 CREATE FUNCTION functoolong() RETURNS INTEGER AS $$^%ydboctoabcdefghijklmnopqrstuvw;
 SELECT functoolong();
 CREATE FUNCTION
-FUNCTOOLONG
+functoolong
 1
 (1 row)

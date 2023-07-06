@@ -153,9 +153,52 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 
 	SQL_STATEMENT(table_stmt, create_table_STATEMENT);
 	MALLOC_STATEMENT(table_stmt, create_table, SqlTable);
-	assert((value_STATEMENT == tableName->type) && (COLUMN_REFERENCE == tableName->v.value->type));
+	assert(value_STATEMENT == tableName->type);
 	UNPACK_SQL_STATEMENT(table, table_stmt, create_table);
 	table->tableName = tableName;
+	if (config->is_auto_upgrade_octo929) {
+		SqlValue *value;
+		char *	  table_name, uppercase_name[OCTO_MAX_IDENT + 1];
+
+		UNPACK_SQL_STATEMENT(value, tableName, value);
+		if (!value->is_double_quoted) {
+			char *start, *end, *dst, *dst_end;
+
+			start = value->v.string_literal;
+			end = start + strlen(start);
+			dst = uppercase_name;
+			dst_end = dst + sizeof(uppercase_name);
+			TOUPPER(dst, dst_end, start, end);
+			table_name = uppercase_name;
+		} else {
+			table_name = value->v.string_literal;
+		}
+
+		ydb_buffer_t ydbocto929, table_subs[2];
+		char	     subs0_buff[INT32_TO_STRING_MAX];
+		unsigned int data_ret;
+
+		YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTO929, &ydbocto929);
+		table_subs[0].buf_addr = subs0_buff;
+		table_subs[0].len_alloc = sizeof(subs0_buff);
+		table_subs[0].len_used = snprintf(table_subs[0].buf_addr, table_subs[0].len_alloc, "%d", drop_table_STATEMENT);
+		YDB_STRING_TO_BUFFER(table_name, &table_subs[1]);
+
+		int status;
+		status = ydb_data_s(&ydbocto929, 2, &table_subs[0], &data_ret);
+		if (YDB_OK != status) {
+			YDB_ERROR_CHECK(status);
+			return NULL;
+		}
+		if (0 == data_ret) {
+			status = ydb_set_s(&ydbocto929, 2, &table_subs[0], NULL);
+			if (YDB_OK != status) {
+				YDB_ERROR_CHECK(status);
+				return NULL;
+			}
+			fprintf(config->octo929_sqlfile_stream, "DROP TABLE IF EXISTS \"%s\" KEEPDATA;\n", table_name);
+		}
+	}
 	table->columns = table_element_list;
 	table->if_not_exists_specified = if_not_exists_specified;
 	/* Determine whether table is READWRITE or READONLY. Use default setting from octo.conf.
@@ -646,6 +689,41 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				dqappend(start_column, new_column);
 				/* Note this new column as the only PRIMARY KEY constraint column */
 				primary_key_constraint_col = new_column;
+			} else if (NULL == primary_key_constraint_col) {
+				/* This is a case where KEY NUM 0 was specified but no PRIMARY KEY was specified
+				 * and there is only ONE key column. Add the PRIMARY KEY keyword to that column.
+				 * Not doing so will cause the table text definition to be incomplete causing
+				 * ERR_GLOBAL_KEY_COLS_ORDER error later when that gets used as part of auto upgrade
+				 * to recreate the table definition (YDBOcto#929).
+				 */
+				cur_column = key_columns[0];
+				assert(NULL != cur_column);
+				assert(NULL != cur_column->columnName);
+
+				SqlStatement *stmt;
+				MALLOC_KEYWORD_STMT(stmt, PRIMARY_KEY);
+				cur_keyword = stmt->v.keyword;
+				SQL_STATEMENT(cur_keyword->v, constraint_STATEMENT);
+
+				SqlConstraint *constraint;
+				OCTO_CMALLOC_STRUCT(constraint, SqlConstraint);
+				cur_keyword->v->v.constraint = constraint;
+				constraint->type = PRIMARY_KEY;
+				constraint->name = NULL; /* A name will be auto generated a little later */
+				constraint->definition = create_sql_column_list(cur_column->columnName, NULL, NULL);
+
+				SqlOptionalKeyword *keyword, *t_keyword;
+				keyword = stmt->v.keyword;
+				/* Insert "stmt" into column keyword list */
+				if (NULL != cur_column->keywords) {
+					/* List of keywords already exists. Append new keyword to existing list. */
+					UNPACK_SQL_STATEMENT(t_keyword, cur_column->keywords, keyword);
+					dqappend(t_keyword, keyword);
+				} else {
+					/* No keywords already exist. Make this the only keyword in the list. */
+					cur_column->keywords = stmt;
+				}
+				primary_key_constraint_col = cur_column;
 			}
 		}
 	}
@@ -1173,16 +1251,59 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 
 					hash128_state_t state;
 					HASH128_STATE_INIT(state, 0);
-					ydb_mmrhash_128_ingest(&state, (void *)value->v.reference, strlen(value->v.reference));
+					/* After YDBOcto#929, case insensitive table names got treated as lower case
+					 * whereas they were treated as upper case previously. Since we want the
+					 * global names corresponding to the UNIQUE constraint to be the same before and
+					 * after the YDBOcto#929 auto-upgrade, we convert such case insensitive table
+					 * names to uppercase before hashing them so the resulting global name is the
+					 * same before and after YDBOcto#929.
+					 */
+					char *tbl_name2, uppercase_name[OCTO_MAX_IDENT + 1];
+					int   tbl_len;
+
+					tbl_name2 = value->v.string_literal;
+					tbl_len = strlen(tbl_name2);
+					if (!value->is_double_quoted) {
+						char *start, *end, *dst, *dst_end;
+
+						start = tbl_name2;
+						end = start + tbl_len;
+						dst = uppercase_name;
+						dst_end = dst + sizeof(uppercase_name);
+						TOUPPER(dst, dst_end, start, end);
+						tbl_name2 = uppercase_name;
+					}
+					ydb_mmrhash_128_ingest(&state, (void *)tbl_name2, tbl_len);
 
 					SqlColumnList *start_cl, *cur_cl;
 					UNPACK_SQL_STATEMENT(start_cl, constraint->definition, column_list);
 					cur_cl = start_cl;
 					do {
 						SqlValue *col_name;
+						char *	  col_name2, uppercase_name[OCTO_MAX_IDENT + 1];
+						int	  col_len;
+
 						UNPACK_SQL_STATEMENT(col_name, cur_cl->value, value);
-						ydb_mmrhash_128_ingest(&state, (void *)col_name->v.string_literal,
-								       strlen(col_name->v.string_literal));
+						/* After YDBOcto#929, case insensitive column names got treated as lower case
+						 * whereas they were treated as upper case previously. Since we want the
+						 * globals corresponding to the UNIQUE constraint to be the same before and
+						 * after the YDBOcto#929 auto-upgrade, we convert such case insensitive column
+						 * names to uppercase before hashing them so the resulting global name is the
+						 * same before and after YDBOcto#929.
+						 */
+						col_name2 = col_name->v.string_literal;
+						col_len = strlen(col_name2);
+						if (!col_name->is_double_quoted) {
+							char *start, *end, *dst, *dst_end;
+
+							start = col_name2;
+							end = start + col_len;
+							dst = uppercase_name;
+							dst_end = dst + sizeof(uppercase_name);
+							TOUPPER(dst, dst_end, start, end);
+							col_name2 = uppercase_name;
+						}
+						ydb_mmrhash_128_ingest(&state, (void *)col_name2, col_len);
 						cur_cl = cur_cl->next;
 					} while (cur_cl != start_cl);
 
@@ -1571,8 +1692,12 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 
 						sql_column = find_column(column, table);
 						if (NULL == sql_column) {
-							ERROR(ERR_UNKNOWN_COLUMN_NAME, column);
-							return NULL;
+							/* Check if YDBOcto#929 conversion is needed (lower case column name) */
+							DO_AUTO_UPGRADE_OCTO929_CHECK(ptr, expr_len, column, sql_column);
+							if (NULL == sql_column) {
+								ERROR(ERR_UNKNOWN_COLUMN_NAME, column);
+								return NULL;
+							}
 						}
 						if ('k' == *ptr) {
 							/* "keys()" syntax used. Check that this column is a KEY column. */
@@ -1697,6 +1822,8 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		is_key_column = FALSE;
 		piece_keyword = NULL;
 		delim_keyword = NULL;
+
+		int ret;
 		do {
 			switch (cur_keyword->keyword) {
 			case PRIMARY_KEY:
@@ -1719,9 +1846,15 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				readonly_disallowed = TRUE; /* UNIQUE is only allowed for READWRITE table. Not READONLY. */
 				break;
 			case OPTIONAL_GLOBAL:;
-				int ret;
-
 				ret = validate_global_keyword(cur_keyword, table, max_key);
+				if (-1 == ret) {
+					return NULL;
+				}
+				readwrite_disallowed = TRUE;
+				break;
+			case OPTIONAL_START:
+			case OPTIONAL_END:;
+				ret = validate_start_end_keyword(cur_keyword, table);
 				if (-1 == ret) {
 					return NULL;
 				}
@@ -1735,11 +1868,9 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 					ERROR(ERR_EXTRACT_CANNOT_BE_KEY_COLUMN, columnName1->v.string_literal);
 					return NULL;
 				}
-				/* Note: Below comment is needed to avoid gcc [-Wimplicit-fallthrough=] warning */
-				/* fall through */
-			case OPTIONAL_START:
+				readwrite_disallowed = TRUE;
+				break;
 			case OPTIONAL_STARTINCLUDE:
-			case OPTIONAL_END:
 			case OPTIONAL_ENDPOINT:
 				readwrite_disallowed = TRUE;
 				break;

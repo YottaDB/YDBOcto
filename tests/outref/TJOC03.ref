@@ -9,7 +9,7 @@ left join (
 ) n2
 on n1.id = n2.id;
 
-ID|FIRSTNAME|LASTNAME|ID|FIRSTNAME|LASTNAME
+id|firstname|lastname|id|firstname|lastname
 0|Zero|Cool|||
 1|Acid|Burn|1|Acid|Burn
 2|Cereal|Killer|2|Cereal|Killer

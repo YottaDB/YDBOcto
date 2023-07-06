@@ -13,6 +13,6 @@
 [ WARN] Global ^%ydboctoxref maps to default region DEFAULT. Recommended mapping for ^%ydbocto* is to a separate region
 CREATE TABLE
 CREATE TABLE
-COUNT(*)
+count(*)
 1
 (1 row)

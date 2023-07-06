@@ -11,7 +11,7 @@ WHERE    (n1.id = 1) OR (n1.id = 2) OR (n1.id = 3) OR (n1.id = 4) OR (n1.id = 5)
       OR (n3.id = 1) OR (n3.id = 2) OR (n3.id = 3) OR (n3.id = 4) OR (n3.id = 5)
       OR (n4.id = 1) OR (n4.id = 2) OR (n4.id = 3) OR (n4.id = 4) OR (n4.id = 5);
 
-ID|FIRSTNAME|LASTNAME|ID|FIRSTNAME|LASTNAME|ID|FIRSTNAME|LASTNAME|ID|FIRSTNAME|LASTNAME
+id|firstname|lastname|id|firstname|lastname|id|firstname|lastname|id|firstname|lastname
 1|Acid|Burn|1|Acid|Burn|1|Acid|Burn|1|Acid|Burn
 2|Cereal|Killer|2|Cereal|Killer|2|Cereal|Killer|2|Cereal|Killer
 3|Lord|Nikon|3|Lord|Nikon|3|Lord|Nikon|3|Lord|Nikon

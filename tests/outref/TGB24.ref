@@ -33,20 +33,20 @@ DROP FUNCTION
 CREATE FUNCTION
 DROP TABLE
 CREATE TABLE
-XECUTE_M_CODE
+xecute_m_code
 0
 (1 row)
-XECUTE_M_CODE
+xecute_m_code
 0
 (1 row)
-XECUTE_M_CODE
+xecute_m_code
 0
 (1 row)
-ZEXT|COUNT(*)
+zext|count(*)
 2020|2
 2021|1
 (2 rows)
-ZEXT|COUNT(*)
+zext|count(*)
 2020|2
 2021|1
 (2 rows)

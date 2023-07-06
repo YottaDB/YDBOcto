@@ -12,7 +12,7 @@
 
 -- TC017 : OCTO483 : CREATE TABLE allows other non-printable characters (carriage return) in DELIM qualifier and validate xrefs
 
-CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (13) GLOBAL "^delimnames(keys(""ID""))";
+CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (13) GLOBAL "^delimnames(keys(""id""))";
 
 SELECT * FROM delimnames;
 SELECT * FROM delimnames WHERE firstname = 'Zero';

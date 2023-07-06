@@ -1,4 +1,4 @@
 select * from names2 where firstName = 'Zero';
-ID|FIRSTNAME|LASTNAME
+id|firstname|lastname
 0|Zero|Cool
 (1 row)

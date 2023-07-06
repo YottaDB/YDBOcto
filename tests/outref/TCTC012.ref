@@ -28,37 +28,37 @@ CREATE TABLE
 [ERROR]: ERR_YOTTADB: YottaDB error: 150372994,XecuteMCode+2^xecutemcode,%YDB-E-GVUNDEF, Global variable undefined: ^%ydboctoU2tuomEAySubezrd0DoxaEI
 INSERT 0 1
 INSERT 0 1
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "USER1_USERNAME_KEY" : Key (USERNAME)=(sam) already exists
-[ERROR]: ERR_NULL_COL_VALUE: NULL value in column EMAIL violates NOT NULL constraint
-ID|USERNAME|EMAIL|PASS
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "user1_username_KEY" : Key (username)=(sam) already exists
+[ERROR]: ERR_NULL_COL_VALUE: NULL value in column email violates NOT NULL constraint
+id|username|email|pass
 1|sam|sam@zzz.com|catdog.33
 3|bam|bam@zzz.com|catdog.33
 (2 rows)
 ^%ydboctoU2tuomEAySubezrd0DoxaEI("bam@zzz.com")=""
 ^%ydboctoU2tuomEAySubezrd0DoxaEI("sam@zzz.com")=""
-XECUTE_M_CODE
+xecute_m_code
 0
 (1 row)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "USER1_EMAIL_KEY" : Key (EMAIL)=(sam@zzz.com) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "user1_email_KEY" : Key (email)=(sam@zzz.com) already exists
 ^%ydboctoU2tuomEAySubezrd0DoxaEI("bam@zzz.com")=""
 ^%ydboctoU2tuomEAySubezrd0DoxaEI("sam@zzz.com")=""
-XECUTE_M_CODE
+xecute_m_code
 0
 (1 row)
 DELETE 1
 ^%ydboctoU2tuomEAySubezrd0DoxaEI("sam@zzz.com")=""
-XECUTE_M_CODE
+xecute_m_code
 0
 (1 row)
-Table "USER1" stored in Global: ^%ydboctoDv8yauF7PYxPvMTz51FOUCL : Type = READWRITE
+Table "user1" stored in Global: ^%ydboctoD6FVCe4lHdzc5udpf3IvwJI : Type = READWRITE
 Column|Type|Collation|Nullable|Default
-ID|INTEGER|||
-USERNAME|VARCHAR(20)||NOT NULL|
-EMAIL|VARCHAR(100)||NOT NULL|
-PASS|VARCHAR(64)||NOT NULL|
+id|INTEGER|||
+username|VARCHAR(20)||NOT NULL|
+email|VARCHAR(100)||NOT NULL|
+pass|VARCHAR(64)||NOT NULL|
 Indexes:
-    "USER1_USERNAME_KEY" UNIQUE CONSTRAINT, Column(s) (USERNAME), Global ^%ydboctoUoJMBP6gLVMGwUFSYYcKI1B
-    "USER1_EMAIL_KEY" UNIQUE CONSTRAINT, Column(s) (EMAIL), Global ^%ydboctoU2tuomEAySubezrd0DoxaEI
+    "user1_username_KEY" UNIQUE CONSTRAINT, Column(s) (username), Global ^%ydboctoUoJMBP6gLVMGwUFSYYcKI1B
+    "user1_email_KEY" UNIQUE CONSTRAINT, Column(s) (email), Global ^%ydboctoU2tuomEAySubezrd0DoxaEI
 DROP TABLE
 -------------------------
 -- TCTC012 : OCTO582 : Various User Level UNIQUE Tests
@@ -89,34 +89,34 @@ DROP TABLE
 CREATE TABLE
 [ERROR]: ERR_YOTTADB: YottaDB error: 150372994,XecuteMCode+2^xecutemcode,%YDB-E-GVUNDEF, Global variable undefined: ^%ydboctoUAmZMXJ5Co5UNpwPQfk5TL5
 INSERT 0 2
-UID|USER_ID|SERVICE_ID|URL
+uid|user_id|service_id|url
 1|1|aa|http://foo.com
 3|1|cc|http://foo.com
 (2 rows)
 ^%ydboctoUAmZMXJ5Co5UNpwPQfk5TL5(1,"aa","http://foo.com")=""
 ^%ydboctoUAmZMXJ5Co5UNpwPQfk5TL5(1,"cc","http://foo.com")=""
-XECUTE_M_CODE
+xecute_m_code
 0
 (1 row)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "UNIQUE_SUBSCRIPTIONS" : Key (USER_ID, SERVICE_ID, URL)=(1, aa, http://foo.com) already exists
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "UNIQUE_SUBSCRIPTIONS" : Key (USER_ID, SERVICE_ID, URL)=(1, aa, http://foo.com) already exists
-UID|USER_ID|SERVICE_ID|URL
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "unique_subscriptions" : Key (user_id, service_id, url)=(1, aa, http://foo.com) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "unique_subscriptions" : Key (user_id, service_id, url)=(1, aa, http://foo.com) already exists
+uid|user_id|service_id|url
 1|1|aa|http://foo.com
 3|1|cc|http://foo.com
 (2 rows)
 ^%ydboctoUAmZMXJ5Co5UNpwPQfk5TL5(1,"aa","http://foo.com")=""
 ^%ydboctoUAmZMXJ5Co5UNpwPQfk5TL5(1,"cc","http://foo.com")=""
-XECUTE_M_CODE
+xecute_m_code
 0
 (1 row)
-Table "SUBSCRIPTIONS" stored in Global: ^%ydboctoDAdZEy8LbVwsexV3QyZU735 : Type = READWRITE
+Table "subscriptions" stored in Global: ^%ydboctoD9Okcb1Om0eO2SpzE51jcC6 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
-UID|INTEGER||NOT NULL|
-USER_ID|INTEGER||NOT NULL|
-SERVICE_ID|VARCHAR(64)||NOT NULL|
-URL|VARCHAR(512)||NOT NULL|
+uid|INTEGER||NOT NULL|
+user_id|INTEGER||NOT NULL|
+service_id|VARCHAR(64)||NOT NULL|
+url|VARCHAR(512)||NOT NULL|
 Indexes:
-    "UNIQUE_SUBSCRIPTIONS" UNIQUE CONSTRAINT, Column(s) (USER_ID, SERVICE_ID, URL), Global ^%ydboctoUAmZMXJ5Co5UNpwPQfk5TL5
+    "unique_subscriptions" UNIQUE CONSTRAINT, Column(s) (user_id, service_id, url), Global ^%ydboctoUAmZMXJ5Co5UNpwPQfk5TL5
 DROP TABLE
 -------------------------
 -- TCTC012 : OCTO582 : Various User Level UNIQUE Tests
@@ -128,7 +128,7 @@ CREATE TABLE objecttypes (
 	  CONSTRAINT idx_objecttypes_objecttype UNIQUE (objecttype)
 );
 \d objecttypes;
-SELECT XECUTE_M_CODE('zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D');
+SELECT XECUTE_M_CODE("zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D");
 INSERT INTO objecttypes values (1, 'aaa');
 SELECT * FROM objecttypes;
 SELECT XECUTE_M_CODE('zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D');
@@ -151,50 +151,52 @@ SELECT XECUTE_M_CODE('zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D');
 DROP TABLE IF EXISTS objecttypes;
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_YOTTADB: YottaDB error: 150372994,XecuteMCode+2^xecutemcode,%YDB-E-GVUNDEF, Global variable undefined: ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D
-Table "OBJECTTYPES" stored in Global: ^%ydboctoDfBlMaZYthyS9AJM9ueg123 : Type = READWRITE
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D
+LINE 8:1: SELECT XECUTE_M_CODE("zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D");
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Table "objecttypes" stored in Global: ^%ydboctoDGqLA6Acg3KGojClvUpw7IC : Type = READWRITE
 Column|Type|Collation|Nullable|Default
-ID|INTEGER||NOT NULL|
-OBJECTTYPE|VARCHAR(255)|||
+id|INTEGER||NOT NULL|
+objecttype|VARCHAR(255)|||
 Indexes:
-    "IDX_OBJECTTYPES_OBJECTTYPE" UNIQUE CONSTRAINT, Column(s) (OBJECTTYPE), Global ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D
+    "idx_objecttypes_objecttype" UNIQUE CONSTRAINT, Column(s) (objecttype), Global ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D
 INSERT 0 1
-ID|OBJECTTYPE
+id|objecttype
 1|aaa
 (1 row)
 ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D("aaa")=""
-XECUTE_M_CODE
+xecute_m_code
 0
 (1 row)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "IDX_OBJECTTYPES_OBJECTTYPE" : Key (OBJECTTYPE)=(aaa) already exists
-ID|OBJECTTYPE
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "idx_objecttypes_objecttype" : Key (objecttype)=(aaa) already exists
+id|objecttype
 1|aaa
 (1 row)
 INSERT 0 1
-ID|OBJECTTYPE
+id|objecttype
 1|aaa
 2|bbb
 (2 rows)
 ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D("aaa")=""
 ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D("bbb")=""
-XECUTE_M_CODE
+xecute_m_code
 0
 (1 row)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "IDX_OBJECTTYPES_OBJECTTYPE" : Key (OBJECTTYPE)=(aaa) already exists
-ID|OBJECTTYPE
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "idx_objecttypes_objecttype" : Key (objecttype)=(aaa) already exists
+id|objecttype
 1|aaa
 2|bbb
 (2 rows)
 DELETE 1
-ID|OBJECTTYPE
+id|objecttype
 1|aaa
 (1 row)
 ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D("aaa")=""
-XECUTE_M_CODE
+xecute_m_code
 0
 (1 row)
 DELETE 1
-ID|OBJECTTYPE
+id|objecttype
 (0 rows)
 [ERROR]: ERR_YOTTADB: YottaDB error: 150372994,XecuteMCode+2^xecutemcode,%YDB-E-GVUNDEF, Global variable undefined: ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D
 DROP TABLE
@@ -221,13 +223,13 @@ DROP TABLE Customer;
 DROP TABLE
 CREATE TABLE
 INSERT 0 2
-ID|NAME|EMAILADDRESS
+id|name|emailaddress
 1|aaa|a@example.com
 2|bbb|b@example.com
 (2 rows)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "UNQ_CUSTOMER_EMAIL" : Key (EMAILADDRESS)=(a@example.com) already exists
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "UNQ_CUSTOMER_EMAIL" : Key (EMAILADDRESS)=(a@example.com) already exists
-ID|NAME|EMAILADDRESS
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "unq_customer_email" : Key (emailaddress)=(a@example.com) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "unq_customer_email" : Key (emailaddress)=(a@example.com) already exists
+id|name|emailaddress
 1|aaa|a@example.com
 2|bbb|b@example.com
 (2 rows)
@@ -255,25 +257,25 @@ DROP TABLE User2;
 DROP TABLE
 CREATE TABLE
 INSERT 0 2
-ID|FIRSTNAM|LASTNAME|EMAIL
+id|firstnam|lastname|email
 1|a|b|a@example.com
 2|a|b|b@example.com
 (2 rows)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "USER2_EMAIL_KEY" : Key (EMAIL)=(a@example.com) already exists
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "USER2_EMAIL_KEY" : Key (EMAIL)=(a@example.com) already exists
-ID|FIRSTNAM|LASTNAME|EMAIL
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "user2_email_KEY" : Key (email)=(a@example.com) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "user2_email_KEY" : Key (email)=(a@example.com) already exists
+id|firstnam|lastname|email
 1|a|b|a@example.com
 2|a|b|b@example.com
 (2 rows)
-Table "USER2" stored in Global: ^%ydboctoDyHjlEKcT4QFTSglSXEfYGL(ID) : Type = READWRITE
+Table "user2" stored in Global: ^%ydboctoDqjLykrTQDdq11IkWYH6WGC(id) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
-ID|INTEGER||NOT NULL|
-FIRSTNAM|VARCHAR(255)||NOT NULL|
-LASTNAME|VARCHAR(255)||NOT NULL|
-EMAIL|VARCHAR(255)||NOT NULL|
+id|INTEGER||NOT NULL|
+firstnam|VARCHAR(255)||NOT NULL|
+lastname|VARCHAR(255)||NOT NULL|
+email|VARCHAR(255)||NOT NULL|
 Indexes:
-    "USER2_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (ID), Global: ^%ydboctoDyHjlEKcT4QFTSglSXEfYGL(ID)
-    "USER2_EMAIL_KEY" UNIQUE CONSTRAINT, Column(s) (EMAIL), Global ^%ydboctoU18NCO2s7YjbSa2sU8Lqq5B
+    "user2_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^%ydboctoDqjLykrTQDdq11IkWYH6WGC(id)
+    "user2_email_KEY" UNIQUE CONSTRAINT, Column(s) (email), Global ^%ydboctoU18NCO2s7YjbSa2sU8Lqq5B
 DROP TABLE
 -------------------------
 -- TCTC012 : OCTO582 : Various User Level UNIQUE Tests
@@ -299,13 +301,13 @@ DROP TABLE balances;
 DROP TABLE
 CREATE TABLE
 INSERT 0 2
-DISTRIBUTION_ID|ADDRESS|USD_BALANCE|DETAILS
+distribution_id|address|usd_balance|details
 1|aaa|22.3355|foo
 2|aaa|22.5566|
 (2 rows)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "BALANCES_DISTRIBUTION_ID_ADDRESS_KEY" : Key (DISTRIBUTION_ID, ADDRESS)=(1, aaa) already exists
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "BALANCES_DISTRIBUTION_ID_ADDRESS_KEY" : Key (DISTRIBUTION_ID, ADDRESS)=(1, aaa) already exists
-DISTRIBUTION_ID|ADDRESS|USD_BALANCE|DETAILS
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "balances_distribution_id_address_KEY" : Key (distribution_id, address)=(1, aaa) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "balances_distribution_id_address_KEY" : Key (distribution_id, address)=(1, aaa) already exists
+distribution_id|address|usd_balance|details
 1|aaa|22.3355|foo
 2|aaa|22.5566|
 (2 rows)

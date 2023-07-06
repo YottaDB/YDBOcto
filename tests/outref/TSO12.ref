@@ -192,7 +192,7 @@ UNION ALL
   ON n1.id = n2.id
 );
 
-ID
+id
 0
 1
 2
@@ -310,7 +310,7 @@ LINE 30:1: (select firstname from names) union (select new2id from (select...
                    ^^^^^^^^^
 LINE 30:1: ...me from names) union (select new2id from (select newid+2 as new2...
                                            ^^^^^^
-ID
+id
 0
 1
 2
@@ -438,7 +438,7 @@ LINE 58:1: (select firstname from names) union all (select new2id from (se...
                    ^^^^^^^^^
 LINE 58:1: ...rom names) union all (select new2id from (select newid+2 as new2...
                                            ^^^^^^
-ID
+id
 1
 2
 3
@@ -552,7 +552,7 @@ LINE 86:1: (select firstname from names) intersect (select new2id from (se...
                    ^^^^^^^^^
 LINE 86:1: ...rom names) intersect (select new2id from (select newid+2 as new2...
                                            ^^^^^^
-ID
+id
 1
 2
 3
@@ -666,7 +666,7 @@ LINE 114:1: (select firstname from names) intersect all (select new2id from...
                     ^^^^^^^^^
 LINE 114:1: ...names) intersect all (select new2id from (select newid+2 as new2...
                                             ^^^^^^
-ID
+id
 0
 (1 row)
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT types INTEGER and VARCHAR cannot be matched
@@ -772,7 +772,7 @@ LINE 142:1: (select firstname from names) except (select new2id from (selec...
                     ^^^^^^^^^
 LINE 142:1: ...e from names) except (select new2id from (select newid+2 as new2...
                                             ^^^^^^
-ID
+id
 0
 (1 row)
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: EXCEPT ALL types INTEGER and VARCHAR cannot be matched
@@ -883,7 +883,7 @@ LINE 172:1: SELECT a.id as A_id, b.id as B_id
                                  ^^^^^^^^^^^^
 LINE 175:4: SELECT id as A_id, 'a' AS B_id
                                ^^^^^^^^^^^
-ID|FIRSTNAME|LASTNAME|ID|FIRSTNAME|LASTNAME
+id|firstname|lastname|id|firstname|lastname
 0|Zero|Cool|0|Zero|Cool
 1|Acid|Burn|1|Acid|Burn
 2|Cereal|Killer|2|Cereal|Killer

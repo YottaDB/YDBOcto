@@ -12,7 +12,7 @@
 
 -- TC016 : OCTO483 : CREATE TABLE allows TAB characters in DELIM qualifier and validate xrefs
 
-CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9) GLOBAL "^delimnames(keys(""ID""))";
+CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9) GLOBAL "^delimnames(keys(""id""))";
 
 SELECT * FROM delimnames;
 SELECT * FROM delimnames WHERE firstname = 'Zero';

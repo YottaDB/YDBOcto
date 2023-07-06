@@ -12,7 +12,7 @@ select dollarzwrite(firstname) from names;
 select dollarZWRITE(firstname) from names;
 
 CREATE FUNCTION
-DOLLARZWRITE
+dollarzwrite
 "Zero"
 "Acid"
 "Cereal"
@@ -20,7 +20,7 @@ DOLLARZWRITE
 "Joey"
 "Zero"
 (6 rows)
-DOLLARZWRITE
+dollarzwrite
 "Zero"
 "Acid"
 "Cereal"
@@ -28,7 +28,7 @@ DOLLARZWRITE
 "Joey"
 "Zero"
 (6 rows)
-DOLLARZWRITE
+dollarzwrite
 "Zero"
 "Acid"
 "Cereal"

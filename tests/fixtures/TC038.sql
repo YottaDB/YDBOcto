@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -20,7 +20,7 @@ CREATE TABLE tmp (firstname VARCHAR, id INTEGER, firstname VARCHAR);
 CREATE TABLE tmp (firstname VARCHAR, firstname VARCHAR, id INTEGER);
 CREATE TABLE tmp (id INTEGER, firstname VARCHAR, lastname VARCHAR, firstname INTEGER, id2 INTEGER);
 
--- Test that %YO_KEYCOL (the name of the hidden column) is not a user-defined column name that can be used in a table
+-- Test that %yo_keycol (the name of the hidden column) is not a user-defined column name that can be used in a table
 -- if the table had the hidden key column implicitly inserted (which it would if no primary key columns are specified
 -- and READWRITE is specified).
 CREATE TABLE tmp (firstName VARCHAR, lastName VARCHAR, `%yo_keycol` INTEGER) READWRITE;

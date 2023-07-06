@@ -18,7 +18,7 @@ select n1.id,n2.id from names n1 full join names n2 on not exists (select * from
 select n1.id,n2.id from names n1 full join names n2 on exists (select * from names where n1.id < n2.id);
 
 select n1.id,n2.id from names n1 full join names n2 on not exists (select * from names where n1.id < n2.id);
-ID|ID
+id|id
 0|0
 0|1
 0|2
@@ -56,7 +56,7 @@ ID|ID
 5|4
 5|5
 (36 rows)
-ID|ID
+id|id
 0|0
 1|1
 2|2
@@ -64,7 +64,7 @@ ID|ID
 4|4
 5|5
 (6 rows)
-ID|ID
+id|id
 0|0
 0|1
 0|2
@@ -87,7 +87,7 @@ ID|ID
 4|5
 5|5
 (21 rows)
-ID|ID
+id|id
 0|0
 1|0
 1|1
@@ -110,7 +110,7 @@ ID|ID
 5|4
 5|5
 (21 rows)
-ID|ID
+id|id
 0|0
 0|1
 0|2
@@ -148,7 +148,7 @@ ID|ID
 5|4
 5|5
 (36 rows)
-ID|ID
+id|id
 0|
 1|0
 1|1
@@ -161,7 +161,7 @@ ID|ID
 4|
 5|
 (11 rows)
-ID|ID
+id|id
 0|0
 0|1
 0|2
@@ -199,7 +199,7 @@ ID|ID
 5|4
 5|5
 (36 rows)
-ID|ID
+id|id
 0|
 1|
 2|
@@ -213,7 +213,7 @@ ID|ID
 |4
 |5
 (12 rows)
-ID|ID
+id|id
 0|1
 0|2
 0|3
@@ -232,7 +232,7 @@ ID|ID
 5|
 |0
 (17 rows)
-ID|ID
+id|id
 0|0
 1|0
 1|1

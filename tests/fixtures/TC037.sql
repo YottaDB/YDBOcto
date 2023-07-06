@@ -17,7 +17,7 @@ CREATE TABLE names1 (
 	id INTEGER PRIMARY KEY,
 	firstName VARCHAR(30) DELIM "",
 	lastName TEXT(30)
-) GLOBAL "^names(keys(""ID""))";
+) GLOBAL "^names(keys(""id""))";
 
 SELECT * FROM names1;
 
@@ -26,7 +26,7 @@ CREATE TABLE names2 (
 	id INTEGER PRIMARY KEY,
 	firstName VARCHAR(30) DELIM "" PIECE 2,
 	lastName TEXT(30)
-) GLOBAL "^names(keys(""ID""))";
+) GLOBAL "^names(keys(""id""))";
 
 SELECT * FROM names2;
 
@@ -36,7 +36,7 @@ SELECT * FROM names2;
 CREATE TABLE names3 (
 	id INTEGER PRIMARY KEY,
 	firstName VARCHAR DELIM ""
-) GLOBAL "^names3(keys(""ID""))";
+) GLOBAL "^names3(keys(""id""))";
 
 SELECT * from names3;
 SELECT * from names3 WHERE firstname = 'first|1';

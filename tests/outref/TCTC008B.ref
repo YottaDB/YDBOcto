@@ -37,21 +37,21 @@ UPDATE articles SET category_id = NULL WHERE article_id = 3;
 SELECT * FROM articles;
 DROP TABLE
 CREATE TABLE
-Table "ARTICLES" stored in Global: ^%ydboctoD2jeRghq9AAWKMCeP0h9N6B(ARTICLE_ID) : Type = READWRITE
+Table "articles" stored in Global: ^%ydboctoDMsG2927nvWQn38EEh8Gb92(article_id) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
-ARTICLE_ID|INTEGER||NOT NULL|
-CATEGORY_ID|INTEGER||NOT NULL|
+article_id|INTEGER||NOT NULL|
+category_id|INTEGER||NOT NULL|
 Indexes:
-    "ARTICLE_ID_PK" PRIMARY KEY CONSTRAINT, Column(s) (ARTICLE_ID), Global: ^%ydboctoD2jeRghq9AAWKMCeP0h9N6B(ARTICLE_ID)
+    "article_id_pk" PRIMARY KEY CONSTRAINT, Column(s) (article_id), Global: ^%ydboctoDMsG2927nvWQn38EEh8Gb92(article_id)
 INSERT 0 2
-ARTICLE_ID|CATEGORY_ID
+article_id|category_id
 3|5
 8|10
 (2 rows)
-[ERROR]: ERR_NULL_COL_VALUE: NULL value in column CATEGORY_ID violates NOT NULL constraint
-[ERROR]: ERR_NULL_COL_VALUE: NULL value in column CATEGORY_ID violates NOT NULL constraint
-[ERROR]: ERR_NULL_COL_VALUE: NULL value in column CATEGORY_ID violates NOT NULL constraint
-ARTICLE_ID|CATEGORY_ID
+[ERROR]: ERR_NULL_COL_VALUE: NULL value in column category_id violates NOT NULL constraint
+[ERROR]: ERR_NULL_COL_VALUE: NULL value in column category_id violates NOT NULL constraint
+[ERROR]: ERR_NULL_COL_VALUE: NULL value in column category_id violates NOT NULL constraint
+article_id|category_id
 3|5
 8|10
 (2 rows)

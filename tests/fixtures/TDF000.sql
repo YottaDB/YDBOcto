@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -15,4 +15,8 @@
 SELECT ABS(-1) FROM names;
 DROP FUNCTION ABS (INTEGER);
 SELECT ABS(-1) FROM names;
+
+SELECT ABS(-1.0) FROM names;
+DROP FUNCTION ABS (NUMERIC);
+SELECT ABS(-1.0) FROM names;
 

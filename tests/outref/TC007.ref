@@ -1,11 +1,11 @@
-[ERROR]: ERR_MISSING_KEY: Missing key 0 in table T1; max key was 10
-[ERROR]: ERR_MISSING_KEY: Missing key 1 in table T1; max key was 10
-[ERROR]: ERR_MISSING_KEY: Missing key 2 in table T1; max key was 10
-[ERROR]: ERR_MISSING_KEY: Missing key 3 in table T1; max key was 10
-[ERROR]: ERR_MISSING_KEY: Missing key 4 in table T1; max key was 10
-[ERROR]: ERR_MISSING_KEY: Missing key 6 in table T1; max key was 10
-[ERROR]: ERR_MISSING_KEY: Missing key 8 in table T1; max key was 10
-[ERROR]: ERR_MISSING_KEY: Missing key 9 in table T1; max key was 10
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: T1
+[ERROR]: ERR_MISSING_KEY: Missing key 0 in table t1; max key was 10
+[ERROR]: ERR_MISSING_KEY: Missing key 1 in table t1; max key was 10
+[ERROR]: ERR_MISSING_KEY: Missing key 2 in table t1; max key was 10
+[ERROR]: ERR_MISSING_KEY: Missing key 3 in table t1; max key was 10
+[ERROR]: ERR_MISSING_KEY: Missing key 4 in table t1; max key was 10
+[ERROR]: ERR_MISSING_KEY: Missing key 6 in table t1; max key was 10
+[ERROR]: ERR_MISSING_KEY: Missing key 8 in table t1; max key was 10
+[ERROR]: ERR_MISSING_KEY: Missing key 9 in table t1; max key was 10
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: t1
 LINE 2:1: select * from t1;
                         ^^

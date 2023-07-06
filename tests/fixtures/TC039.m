@@ -21,6 +21,6 @@ TC039	;
 	WRITE "id INTEGER PRIMARY KEY,",!
 	SET numcols=1000
 	FOR i=1:1:numcols DO
-	. WRITE " COL"_i_" INTEGER GLOBAL ""^COL"_i_"(""""abcd"""",keys(""""ID""""),""""efgh"""")"" PIECE "_i_$SELECT(i'=numcols:",",1:""),!
+	. WRITE " COL"_i_" INTEGER GLOBAL ""^COL"_i_"(""""abcd"""",keys(""""id""""),""""efgh"""")"" PIECE "_i_$SELECT(i'=numcols:",",1:""),!
 	WRITE ");",!
 	QUIT

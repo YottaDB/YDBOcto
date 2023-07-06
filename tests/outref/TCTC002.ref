@@ -23,17 +23,17 @@ select * from products;
 
 DROP TABLE
 CREATE TABLE
-ID
+id
 (0 rows)
 DROP TABLE
 CREATE TABLE
-ID
+id
 (0 rows)
 DROP TABLE
 CREATE TABLE
-PRODUCT_NO|NAME|PRICE
+product_no|name|price
 (0 rows)
 DROP TABLE
 CREATE TABLE
-PRODUCT_NO|NAME|PRICE
+product_no|name|price
 (0 rows)

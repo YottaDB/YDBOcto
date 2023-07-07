@@ -1403,9 +1403,9 @@ COALESCE
 
      SELECT COALESCE(NULL, 'a', 'b');
 
-++++++++++
+++++++
 CONCAT
-++++++++++
+++++++
 
   .. code-block:: SQL
 
@@ -1827,6 +1827,73 @@ USER
   The built-in USER function returns the username of the current Rocto user. Returns an empty string in Octo, since Octo does not implement SQL user authentication and does not distinguish between users.
 
   Note that :code:`USER()` is a synonym for :code:`CURRENT_USER()`.
+
+-------------------
+Aggregate Functions
+-------------------
+
+Aggregate functions operate on a set of values in "aggregate" to yield a single new value.
+
+The set of values passed to each aggregate function call may be preceded by the ``ALL`` or ``DISTINCT`` keyword. ``ALL`` will cause the aggregregate function to process all passed values. ``DISTINCT`` will cause it to process all *unique* values, omitting duplicates.
+
++++
+AVG
++++
+
+  .. code-block:: SQL
+
+     AVG([ALL | DISTINCT] value_expression)
+
+  The :code:`AVG` aggregate function returns the average of all the non-NULL values passed to it.
+
++++++
+COUNT
++++++
+
+  .. code-block:: SQL
+
+     COUNT(*)
+     COUNT([ALL | DISTINCT] value_expression)
+
+  The :code:`COUNT` aggregate function returns the number of rows belonging to a table.
+
+  :code:`COUNT(*)` returns the number of rows belonging to the table referenced in the :code:`FROM` clause of the given query.
+
+  If a subquery is passed to :code:`COUNT`, then it returns the number of result rows that would be returned by the subquery.
+
+  If a column name is passed to :code:`COUNT`, then it returns the number of non-NULL result rows for the given column.
+
++++
+MAX
++++
+
+  .. code-block:: SQL
+
+     MAX([ALL | DISTINCT] value_expression)
+
+  The :code:`MAX` aggregate function returns the maximum of all the non-NULL values passed to it.
+
++++
+MIN
++++
+
+  .. code-block:: SQL
+
+     MIN([ALL | DISTINCT] value_expression)
+
+  The :code:`MIN` aggregate function returns the maximum of all the non-NULL values passed to it.
+
++++
+SUM
++++
+
+  .. code-block:: SQL
+
+     SUM(INT)
+     SUM(NUMERIC)
+
+  The :code:`SUM` aggregate function returns the sum of all the non-NULL values passed to it.
+
 
 --------------
 Constructors

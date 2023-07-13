@@ -803,6 +803,15 @@ else
 		# Re-enable "set -e" now that "git merge-base" invocation is done.
 		set -e
 
+		# Note down if older commit is prior to YDBOcto#993 fix.
+		# This will be used later to skip a few tests.
+		pre_octo993_commit="fef2307f1488053c7c097f91f3ee822f013b048d"	# 1 commit before most recent YDBOcto#993 fix
+		# Disable the "set -e" setting temporarily as the "git merge-base" can return exit status 0 or 1
+		set +e
+		git merge-base --is-ancestor $commitsha $pre_octo993_commit
+		is_post_octo993_commit=$?
+		# Re-enable "set -e" now that "git merge-base" invocation is done.
+		set -e
 
 		# Point src to newsrc
 		ln -s newsrc src
@@ -907,6 +916,7 @@ else
 					|| (($subtest =~ ^"TDRC01") && (0 == $is_post_octo509_commit)) \
 					|| (($subtest =~ ^"TDRC02") && (0 == $is_post_octo509_commit)) \
 					|| (($subtest =~ ^"TQG") && (0 == $is_post_octo759_commit))    \
+					|| (($subtest =~ ^"TSCP25") && (0 == $is_post_octo993_commit)) \
 				]]; then
 				skip_test=1
 			else

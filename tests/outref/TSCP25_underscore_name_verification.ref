@@ -39,7 +39,7 @@ insert into _test2 values(0);
 insert into _test2 values(1); -- Error
 select * from _test2;
 
-drop table if exists _names;
+drop table if exists _names keepdata;
 CREATE TABLE _names (_id INTEGER PRIMARY KEY, _firstName VARCHAR(30), lastName VARCHAR(30)) GLOBAL "^names";
 select * from _names;
 

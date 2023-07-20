@@ -43,7 +43,7 @@ teardown() {
   load_fixture boolean.sql
   load_fixture boolean.zwr
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP03_names.sql
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TSCP03_nullnames.sql
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TSCP03_nullnames.sql "trim_trailing_zeroes"
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries boolean TSCP03_boolean.sql
   load_fixture TSCP03_errors.sql subtest novv
   verify_output TSCP03_errors output.txt

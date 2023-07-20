@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -53,3 +53,10 @@ select coalesce(1 is not null);
 select * from nullnames where (id = 2) between 1 = 1 and false;
 -- Make sure that BETWEEN is unambiguous
 SELECT true BETWEEN (true BETWEEN true AND false) AND false;
+
+-- Test positive and negative numeric values with leading zeroes (e.g. 0.01 and -0.5)
+-- Postgres prints the leading zero while Octo does not.
+-- This is a test to ensure that the test framework handles both cases and adds the leading zero to the Octo output.
+SELECT (salary%1) from nullnames;
+SELECT -(salary%1) from nullnames;
+

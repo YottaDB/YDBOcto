@@ -569,12 +569,12 @@ if (ENABLE_ASAN)
 		# If we don't do that, the tests stop, and we cannot proceed any further until we fix the issue
 		# -fsanitize-recover must be combined with ASAN_OPTIONS="halt_on_error=0" to achieve the desired effect.
 		# This feature is not currently used, but is kept here as it doesn't harm anything.
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -fsanitize-recover=address")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -fsanitize-recover=address -DENABLE_ASAN")
 	else()
 		# We had some issues with Clang Sanitizer getting stuck when using psql and TLS with Rocto
 		# Created an issue here: https://github.com/google/sanitizers/issues/1477
 		message(WARNING "-fsanitize=address has some issues in tests for Octo for compiler ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}")
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -fsanitize-recover=address")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -fsanitize-recover=address -DENABLE_ASAN")
 	endif()
 
 endif()

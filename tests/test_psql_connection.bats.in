@@ -137,6 +137,8 @@ OCTO
 }
 
 @test "TPC00K : ensure socket cleanup when rocto process is killed" {
+  # Note that because of the "kill -9" below, database rundown will not happen so ipcs (semaphores, shared memory segments)
+  # would be left over by this test.
   kill -9 $(cat rocto.pid)
   start_rocto $test_port
   log=$(cat rocto.log)

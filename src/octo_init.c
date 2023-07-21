@@ -740,6 +740,23 @@ int octo_init(int argc, char **argv) {
 	// Search for config file octo.conf (OCTO_CONF_FILE_NAME) in directories ".", "~", and "$ydb_dist/plugin/octo" in that order
 	config_init(config_file);
 
+#ifdef ENABLE_ASAN
+	/* If ASAN is enabled, it will establish the default signal handler (SIG_DFL) for SIGTERM which would cause a MUPIP STOP
+	 * that is sent to an octo/rocto process to terminate the process immediately (due to YDB@ae2721d8). That would
+	 * leave semaphores/shared-memory-segments resulting in an ipc leak which eventually builds up and results in
+	 * the system running out of ipc space (e.g. if one runs the entire bats test with an ASAN build of Octo).
+	 * To avoid such a situation, change SIG_DFL to SIG_IGN that way we ensure when the YottaDB SIGTERM signal handler
+	 * gets control, it does not immediately terminate the process but waits for a logical point to do it (and more
+	 * importantly takes care of running down the databases and cleaning up the ipcs).
+	 */
+	struct sigaction act;
+
+	sigemptyset(&act.sa_mask);
+	act.sa_flags = 0;
+	act.sa_handler = SIG_IGN;
+	sigaction(SIGTERM, &act, NULL);
+#endif
+
 	// Note: This loop is only ever executed once. Structured this way to make it easy to break out in case of error code paths.
 	for (;;) {
 		ydb_buffer_t zyrelease, zyrel_value;

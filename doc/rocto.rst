@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.  #
+.. # Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.  #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -86,6 +86,70 @@ Command Line Flags
   #. **-r,  \-\-release**
 
       Display release information and exit.
+
+++++++++++++++++++++++++++++++++++++++
+Creating a ROcto service using Systemd
+++++++++++++++++++++++++++++++++++++++
+
+ROcto can also be managed as a Systemd service by creating a ``rocto.service`` file in the appropriate directory, e.g. ``/lib/systemd/system/`` on Ubuntu. For example:
+
+.. code-block::
+
+    [Unit]
+    Description=Rocto
+    After=network.target
+
+    [Service]
+    Type=exec
+    User=sam
+    WorkingDirectory=/home/sam
+    ExecStart=/bin/bash -c '. "$0" && exec "$@"' /usr/local/lib/yottadb/r138/pro/ydb_env_set /usr/local/lib/yottadb/r138/pro/plugin/bin/rocto -v -p 1337
+    ExecStop=/usr/local/lib/yottadb/r138/pro/mupip stop ${MAINPID}
+
+    [Install]
+    WantedBy=multi-user.target
+
+You can also use an environment file to set YottaDB environment variables. For instance, consider this ``rocto.service`` file:
+
+.. code-block::
+
+    [Unit]
+    Description=Rocto
+    After=network.target
+
+    [Service]
+    Type=exec
+    User=sam
+    WorkingDirectory=/extra3/vista/vehu/
+    EnvironmentFile=/extra3/vista/vehu/etc/env-systemd
+    ExecStartPre=rm -f /dev/shm/temp.dat
+    ExecStartPre=/usr/local/lib/yottadb/r138/mupip create -reg=TEMP
+    ExecStartPre=/usr/local/lib/yottadb/r138/mupip journal -recover -backward \"j/aim.mjl j/vehu.mjl j/octo.mjl\"
+    ExecStart=/usr/local/lib/yottadb/r138/plugin/bin/rocto -v -p 1338
+    ExecStop=/usr/local/lib/yottadb/r138/mupip stop ${MAINPID}
+
+    [Install]
+    WantedBy=multi-user.target
+
+Here are the contents of the matching environment file, in this case ``/extra3/vista/vehu/etc/env-systemd``:
+
+.. code-block::
+
+    ydb_dist=/usr/local/lib/yottadb/r138
+    ydb_tmp=/extra3/vista/vehu/tmp
+    vista_home=/extra3/vista/vehu/
+    ydb_linktmpdir=/extra3/vista/vehu/tmp
+    ydb_gbldir=/extra3/vista/vehu/g/vehu.gld
+    ydb_zinterrupt='I $$JOBEXAM^ZU($ZPOSITION)'
+    ydb_lct_stdnull=1
+    ydb_lvnullsubs=2
+    ydb_zquit_anyway=1
+    ydb_sysid=vehu
+    ydb_zstep='n oldio s oldio=$i u 0 zp @$zpos b  u oldio'
+    ydb_link=RECURSIVE
+    ydb_xc_ydbposix=/usr/local/lib/yottadb/r138/plugin/ydbposix.xc
+    ydb_routines=/extra3/vista/vehu/o*(/extra3/vista/vehu/r) $ydb_dist/plugin/o/_ydbposix.so $ydb_dist/plugin/o/_ydbocto.so $ydb_dist/plugin/o/_ydbaim.so $ydb_dist/plugin/o/_ydbgui.so $ydb_dist/plugin/o/_ydbmwebserver.so $ydb_dist/libyottadbutil.so
+
 
 -----------------------------
 Connecting using SQuirreL SQL

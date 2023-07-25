@@ -212,17 +212,19 @@ Next, in the ``PostgreSQL ANSI ODBC Driver (psqlODBC) Setup`` window, fill out t
 
     Configuring the PostgreSQL ANSI ODBC Driver
 
-If you haven't yet started ROcto, then do so now. Then, click the ``Test`` button to test the connection:
+If you haven't yet started ROcto, then do so now. Then, click the ``Test`` button to test the connection; if everything is working, you should see a ``Connection successful`` message:
 
     .. figure:: images/odbc-setup-4.png
 
     Testing the PostgreSQL ANSI ODBC Driver connection
 
-If everything is working, you should see a ``Connection successful`` message:
+Press ``OK`` to go back to the main dialog.
 
     .. figure:: images/odbc-setup-5.png
 
-    Successful  PostgreSQL ANSI ODBC Driver connection
+    Successful PostgreSQL ANSI ODBC Driver connection
+
+You are now done. Press ``OK`` to close the ODBC Data Sources application.
 
 That's it for setting up the ODBC driver.
 
@@ -236,7 +238,7 @@ To import ROcto data into Microsoft Excel, start by opening up Excel. Then, navi
 
     Getting data "From Other Sources" in Excel
 
-In the dropdown, select ``From Microsoft Query``:
+In the drop down, select ``From Microsoft Query``:
 
     .. figure:: images/rocto-excel-setup-2.png
 
@@ -276,13 +278,13 @@ You should then see the data you selected in your Excel spreadsheet, e.g.:
 Importing ROcto data into Microsoft PowerBI
 +++++++++++++++++++++++++++++++++++++++++++
 
-First, open PowerBI, then click on ``Get Data`` and select the ``More...`` option from the dropdown menu:
+First, open PowerBI, then click on ``Get Data`` and select the ``More...`` option from the drop down menu:
 
     .. figure:: images/windows-powerbi-setup-1.png
 
     Bringing up the "Get Data"  menu in PowerBI
 
-Next, search for ``ODBC`` in the ``Get Data`` window and select the ``ODBC`` option from the panel on the right:
+Next, search for ``ODBC`` in the ``Get Data`` window and select the ``ODBC`` option from the panel on the right, and then click ``Connect``:
 
     .. figure:: images/windows-powerbi-setup-2.png
 
@@ -306,7 +308,7 @@ If everything works properly, you will then see the ``Navigator`` window, e.g.:
 
     Viewing the Navigator window in PowerBI
 
-Here, you can navigate all the tables and columns in ROcto using the drilldown menu on the left and select the ones you want to draw data from, e.g.:
+Here, you can navigate all the tables and columns in ROcto using the drill down menu on the left and select the ones you want to draw data from, e.g.:
 
     .. figure:: images/windows-powerbi-setup-6.png
 

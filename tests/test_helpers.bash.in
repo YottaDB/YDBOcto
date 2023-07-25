@@ -83,13 +83,12 @@ init_test() {
 	source @YOTTADB_INCLUDE_DIRS@/ydb_env_unset
 	rand_chset=$(( $RANDOM % 2))
 	# We have seen various subtests fail occasionally with a LeakSanitizer SIG-11 when run in the "asan-ubuntu"
-	# pipeline job. All the failure runs so far have happened when ydb_chset was randomly set to "UTF-8".
-	# For lack of a better fix/workaround, we set ydb_chset to M for all subtests when run in the "asan-ubuntu" job.
-	# See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/892#note_1156225457 and other threads in the same issue for details.
-	if [ ! -z "$CI_JOB_NAME" ] ; then
-		if [ "asan-ubuntu" == "$CI_JOB_NAME" ] ; then
-			rand_chset=1
-		fi
+	# pipeline job or when linking Octo with YottaDB that was built using ASAN. All the failure runs so far have
+	# happened when ydb_chset was randomly set to "UTF-8". For lack of a better fix/workaround, we set ydb_chset to M
+	# for all subtests when run with ASAN enabled. See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/892#note_1156225457
+	# and other threads in the same issue for details.
+	if [[ @ENABLE_ASAN@ == "ON" ]]; then
+		rand_chset=1
 	fi
 	if [[ $rand_chset -eq 0 ]]; then
 		export ydb_chset=UTF-8

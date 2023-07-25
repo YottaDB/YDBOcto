@@ -557,26 +557,19 @@ else()
 endif()
 
 if (ENABLE_ASAN)
-	if (
-		# Tested on GCC 8, 9, 11. GCC 8 has issues with printing the full stack with ASAN.
-		# See tests/fixtures/lsan-supp-rocky.txt for more detail
-		(${CMAKE_C_COMPILER_ID} STREQUAL "GNU" AND ${CMAKE_C_COMPILER_VERSION} VERSION_GREATER_EQUAL "8.0.0")
-	   )
-		# Address sanitizer enabled. Use proper compiler/linker flags
-		# Note that we don't use CC_COMPILE_FLAGS, as that only applies to the compiler, not linker
-		# -fsanitize=address needs to be on both.
-		# Note that -fsanitize-recover is needed in order for us to be able to continue the tests after each error report
-		# If we don't do that, the tests stop, and we cannot proceed any further until we fix the issue
-		# -fsanitize-recover must be combined with ASAN_OPTIONS="halt_on_error=0" to achieve the desired effect.
-		# This feature is not currently used, but is kept here as it doesn't harm anything.
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -fsanitize-recover=address -DENABLE_ASAN")
-	else()
+	# Address sanitizer enabled. Use proper compiler/linker flags
+	# Note that we don't use CC_COMPILE_FLAGS, as that only applies to the compiler, not linker
+	# -fsanitize=address needs to be on both.
+	# Note that -fsanitize-recover is needed in order for us to be able to continue the tests after each error report
+	# If we don't do that, the tests stop, and we cannot proceed any further until we fix the issue
+	# -fsanitize-recover must be combined with ASAN_OPTIONS="halt_on_error=0" to achieve the desired effect.
+	# This feature is not currently used, but is kept here as it doesn't harm anything.
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -fsanitize-recover=address -DENABLE_ASAN")
+	if (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
 		# We had some issues with Clang Sanitizer getting stuck when using psql and TLS with Rocto
 		# Created an issue here: https://github.com/google/sanitizers/issues/1477
 		message(WARNING "-fsanitize=address has some issues in tests for Octo for compiler ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}")
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -fsanitize-recover=address -DENABLE_ASAN")
 	endif()
-
 endif()
 
   # TODO: Per https://gcc.gnu.org/pipermail/gcc-patches/2021-February/565514.html, gcc 12 should most likely have

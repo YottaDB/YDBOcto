@@ -471,7 +471,17 @@ trap cleanup_before_exit EXIT
 
 echo "# Configure the build system for Octo"
 
+randomize_OCTO_INIT_BUFFER_LEN() {
+	new_buffer_size=$(( 2 ** (RANDOM % 11) ))
+	sed -i "s/OCTO_INIT_BUFFER_LEN [0-9]*/OCTO_INIT_BUFFER_LEN $new_buffer_size/" ../src/octo.h
+}
+
 cmake -G "$generator" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=$build_type -DFULL_TEST_SUITE=$full_test -DDISABLE_INSTALL=$disable_install -DENABLE_ASAN=$asan ..
+if [[ ("ON" == $asan) ]]; then
+	# This is an ASAN job. In this case, we want to test for memory issues so randomly select a power of two to
+	# use for altering the size of OCTO_INIT_BUFFER_LEN to test for regressions
+	randomize_OCTO_INIT_BUFFER_LEN
+fi
 compile_octo
 
 # If this is the "test-auto-upgrade" job, skip steps that are covered by other jobs (e.g. "make-ubuntu" etc.)
@@ -715,8 +725,7 @@ else
 	cmakeflags="$cmakeflags -DCMAKE_BUILD_TYPE=$build_type -DFULL_TEST_SUITE=$full_test"
 	cmakeflags="$cmakeflags -DDISABLE_INSTALL=$disable_install"
 	# Randomly select a power of two to use for altering the size of OCTO_INIT_BUFFER_LEN to test for regressions
-	new_buffer_size=$(( 2 ** (RANDOM % 11) ))
-	sed -i "s/OCTO_INIT_BUFFER_LEN [0-9]*/OCTO_INIT_BUFFER_LEN $new_buffer_size/" ../src/octo.h
+	randomize_OCTO_INIT_BUFFER_LEN
 
 	cmake -G "$generator" $cmakeflags ..
 	compile_octo

@@ -29,7 +29,7 @@ if ! [ -e "$file" ]; then
        exit 1
 fi
 
-skipextensions="ref png zwr html ci"	# List of extensions that cannot have copyrights.
+skipextensions="ref png zwr html ci jpg"	# List of extensions that cannot have copyrights.
 	# .png  -> these are images (i.e. binary files) used in the documentation.
 	#		Same reason as .rst for not requiring a copyright.
 	# .ref  -> reference files used by the test cases (e.g. tests/outref/TUF001.ref).

@@ -431,7 +431,7 @@ Test with dummy data using Rocto
 
   For example:
 
-  .. figure:: squirrel.png
+  .. figure:: images/squirrel.png
 
      Squirrel SQL Sample Screenshot
 

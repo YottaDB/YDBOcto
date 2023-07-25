@@ -151,6 +151,173 @@ Here are the contents of the matching environment file, in this case ``/extra3/v
     ydb_routines=/extra3/vista/vehu/o*(/extra3/vista/vehu/r) $ydb_dist/plugin/o/_ydbposix.so $ydb_dist/plugin/o/_ydbocto.so $ydb_dist/plugin/o/_ydbaim.so $ydb_dist/plugin/o/_ydbgui.so $ydb_dist/plugin/o/_ydbmwebserver.so $ydb_dist/libyottadbutil.so
 
 
+-------------------------------------
+Writing queries using the YottaDB GUI
+-------------------------------------
+
+Octo queries can be written interactively using the YottaDB GUI. If you installed the GUI when you `installed YottaDB <https://yottadb.com/product/get-started/>`_, then you can start it by running:
+
+
+.. code-block:: bash
+
+    yottadb -run %ydbgui --readwrite
+
+You can then access the GUI by directing your browser to ``localhost:9080``:
+
+    .. figure:: images/gui-dashboard.jpg
+
+    YottaDB GUI dashboard
+
+To write a new query, navigate to Development -> Octo -> New Query:
+
+    .. figure:: images/gui-new_query.jpg
+
+    Navigating to the Octo query editor
+
+Here, you can use the top text box to write SQL queries, then run them with the "play" button:
+
+    .. figure:: images/gui-query_results.jpg
+
+    Writing an Octo query in the GUI query editor
+
+As seen in the above screenshot, you can also use the left hand tree to browse the SQL tables and functions. You can even also drag and drop tables and functions into the SQL editor.
+
+-----------------------------------------
+Accessing ROcto data on Microsoft Windows
+-----------------------------------------
+
+++++++++++++++++++++++++++++++++++++++
+Configuring the PostgreSQL ODBC driver
+++++++++++++++++++++++++++++++++++++++
+
+The easiest way to access ROcto using Microsoft tools is via the PostgreSQL ODBC driver. So, before demonstrating how to use ROcto with Excel and PowerBI, we'll show you how to setup the PostgreSQL ODBC driver for use with ROcto on Windows.
+
+First, download an ODBC driver with at least version 13 from the `PostgreSQL ODBC MSI downloads page <https://www.postgresql.org/ftp/odbc/versions/msi/>`_. Then, run the file you downloaded to open the install wizard, then click through to install the driver.
+
+Once the ODBC driver is installed, run the ODBC Data Sources application (``odbcad32.exe``). In the application window, click ``Add ...`` to add a new User DSN:
+
+    .. figure:: images/odbc-setup-1.png
+
+    Running ODBC Data Sources
+
+Then, in the ``Create New Data Source`` window, scroll down to the ``PostgreSQL ANSI`` driver you just installed, select it, and click ``Finish``:
+
+    .. figure:: images/odbc-setup-2.png
+
+    Creating a new Data Source
+
+Next, in the ``PostgreSQL ANSI ODBC Driver (psqlODBC) Setup`` window, fill out the form with the connectivity information for your ROcto instance. For example, if accessing a ROcto instance running inside WSL2, your configuration will look similar to this:
+
+    .. figure:: images/odbc-setup-3.png
+
+    Configuring the PostgreSQL ANSI ODBC Driver
+
+If you haven't yet started ROcto, then do so now. Then, click the ``Test`` button to test the connection:
+
+    .. figure:: images/odbc-setup-4.png
+
+    Testing the PostgreSQL ANSI ODBC Driver connection
+
+If everything is working, you should see a ``Connection successful`` message:
+
+    .. figure:: images/odbc-setup-5.png
+
+    Successful  PostgreSQL ANSI ODBC Driver connection
+
+That's it for setting up the ODBC driver.
+
++++++++++++++++++++++++++++++++++++++++++
+Importing ROcto data into Microsoft Excel
++++++++++++++++++++++++++++++++++++++++++
+
+To import ROcto data into Microsoft Excel, start by opening up Excel. Then, navigate to the ``DATA`` tab and select ``From Other Sources``:
+
+    .. figure:: images/rocto-excel-setup-1.png
+
+    Getting data "From Other Sources" in Excel
+
+In the dropdown, select ``From Microsoft Query``:
+
+    .. figure:: images/rocto-excel-setup-2.png
+
+    Selecting "Microsoft Query" in Excel
+
+Select the previously set-up Octo data source:
+
+    .. figure:: images/rocto-excel-setup-8.png
+
+    Choosing a ROcto data source in Excel
+
+In the ``Query Wizard - Choose Columns`` window, select which tables and/or columns you would like to include in your query, e.g.:
+
+    .. figure:: images/rocto-excel-setup-9.png
+
+    Choosing data columns using the Excel Query Wizard
+
+Then, click ``Next`` to move on, then click through the subsequent windows using the ``Next`` button until you get to the ``Query Wizard - Finish`` window. Then, click ``Finish``:
+
+    .. figure:: images/rocto-excel-setup-10.png
+
+    Finishing the Excel Query Wizard
+
+Finally, in the ``Import Data`` window, specify how you'd like to view the data and where you want to put it, e.g.:
+
+    .. figure:: images/rocto-excel-setup-11.png
+
+    Importing ROcto data into Excel
+
+You should then see the data you selected in your Excel spreadsheet, e.g.:
+
+    .. figure:: images/rocto-excel-setup-12.png
+
+    Viewing ROcto data imported into Excel
+
++++++++++++++++++++++++++++++++++++++++++++
+Importing ROcto data into Microsoft PowerBI
++++++++++++++++++++++++++++++++++++++++++++
+
+First, open PowerBI, then click on ``Get Data`` and select the ``More...`` option from the dropdown menu:
+
+    .. figure:: images/windows-powerbi-setup-1.png
+
+    Bringing up the "Get Data"  menu in PowerBI
+
+Next, search for ``ODBC`` in the ``Get Data`` window and select the ``ODBC`` option from the panel on the right:
+
+    .. figure:: images/windows-powerbi-setup-2.png
+
+    Choosing the ODBC driver data source in PowerBI
+
+Then, select the Data Source Name of the Octo data source created in the above ODBC setup section and click ``OK``, e.g.:
+
+    .. figure:: images/windows-powerbi-setup-3.png
+
+    Choosing the ODBC Data Source Name in PowerBI
+
+Next, put in your ROcto credentials and click the ``Connect`` button:
+
+    .. figure:: images/windows-powerbi-setup-4.png
+
+    Entering ROcto credentials in PowerBI
+
+If everything works properly, you will then see the ``Navigator`` window, e.g.:
+
+    .. figure:: images/windows-powerbi-setup-5.png
+
+    Viewing the Navigator window in PowerBI
+
+Here, you can navigate all the tables and columns in ROcto using the drilldown menu on the left and select the ones you want to draw data from, e.g.:
+
+    .. figure:: images/windows-powerbi-setup-6.png
+
+    Using the Navigator window in PowerBI
+
+Once you've chosen the data you want, you can then click ``Load`` to pull it into PowerBI:
+
+    .. figure:: images/windows-powerbi-setup-7.png
+
+    Loading data from the Navigator window in PowerBI
+
 -----------------------------
 Connecting using SQuirreL SQL
 -----------------------------
@@ -198,7 +365,7 @@ Detailed Steps
 
   At the Extra Packs Screen, scroll down and check "Optional Plugin - PostgreSQL", as shown in the following figure, then press Next.
 
-    .. figure:: squirrel-install-extra-packs.png
+    .. figure:: images/squirrel-install-extra-packs.png
 
     Check "Optional Plugin - PostgreSQL"
 
@@ -208,79 +375,79 @@ Detailed Steps
 
   The first time you launch it, you will be greeted with a Welcome Screen. Go ahead and close that. This is what you should see now.
 
-    .. figure:: squirrel-base-program.png
+    .. figure:: images/squirrel-base-program.png
 
     SquirrelSQL before any configuration
 
   Click on Windows menu > View Drivers
 
-    .. figure:: squirrel-view-drivers1.png
+    .. figure:: images/squirrel-view-drivers1.png
 
     SquirrelSQL View Drivers 1
 
   Scroll down until you see "PostgreSQL", and then click on it.
 
-    .. figure:: squirrel-view-drivers2.png
+    .. figure:: images/squirrel-view-drivers2.png
 
     SquirrelSQL View Drivers 2
 
   Click on Drivers menu > Modify Driver
 
-    .. figure:: squirrel-modify-postgres-driver1.png
+    .. figure:: images/squirrel-modify-postgres-driver1.png
 
     SquirrelSQL Modify Postgres Driver - Main Screen
 
   Click on the "Extra Class Path" tab
 
-    .. figure:: squirrel-modify-postgres-driver2.png
+    .. figure:: images/squirrel-modify-postgres-driver2.png
 
     SquirrelSQL Modify Postgres Driver - Extra Path Tab
 
   Click on the "Add" button. A file open dialog will present itself.
 
-    .. figure:: squirrel-modify-postgres-driver3.png
+    .. figure:: images/squirrel-modify-postgres-driver3.png
 
     SquirrelSQL Modify Postgres Driver - Add button dialog
 
   Remember the SquirrelSQL install path you were asked to note down? We need it now. Navigate to that install path, then to "plugins", then to "postgres", then to "lib".
 
-    .. figure:: squirrel-modify-postgres-driver4.png
+    .. figure:: images/squirrel-modify-postgres-driver4.png
 
     SquirrelSQL Modify Postgres Driver - Navigation
 
   Within the "lib" directory, you will find two files. We want the one called "postgresql-nn.n.n.jar". Click on that.
 
-    .. figure:: squirrel-modify-postgres-driver5.png
+    .. figure:: images/squirrel-modify-postgres-driver5.png
 
     SquirrelSQL Modify Postgres Driver - Select
 
   Press "open".
 
-    .. figure:: squirrel-modify-postgres-driver6.png
+    .. figure:: images/squirrel-modify-postgres-driver6.png
 
     SquirrelSQL Modify Postgres Driver - After Open
 
   Next, press "List Drivers". You will see the "Class Name" fill out.
 
-    .. figure:: squirrel-modify-postgres-driver7.png
+    .. figure:: images/squirrel-modify-postgres-driver7.png
 
     SquirrelSQL Modify Postgres Driver - List Drivers
 
   Then, you will see this after you press OK. Notice the check mark next to the driver. That's what we want to see.
 
-    .. figure:: squirrel-modify-postgres-driver-done.png
+    .. figure:: images/squirrel-modify-postgres-driver-done.png
 
     SquirrelSQL Modify Postgres Driver - Completion
 
   Next, create an alias for your ROcto server, including the server IP address and port number. First, click on the Windows menu > Aliases.
 
-    .. figure:: squirrel-add-rocto-alias1.png
+    .. figure:: images/squirrel-add-rocto-alias1.png
 
     SquirrelSQL Add Alias - Side Bar
 
   Then, click on Aliases, new Alias.
 
-    .. figure:: squirrel-add-rocto-alias2.png
+    .. figure:: images/squirrel-add-rocto-alias2.png
 
     SquirrelSQL Add Alias - Main Screen
 
@@ -294,31 +461,31 @@ Detailed Steps
 
   Here's a sample fully filled out dialog:
 
-    .. figure:: squirrel-add-rocto-alias3.png
+    .. figure:: images/squirrel-add-rocto-alias3.png
 
     SquirrelSQL Add Alias - Main Screen Filled Out
 
   You should press "Test" and then "Connect" on the Test Dialog to test your connection. Once you are done, press OK. Once you do that, you will be immediately presented with another dialog to connect to ROcto:
 
-    .. figure:: squirrel-rocto-connect1.png
+    .. figure:: images/squirrel-rocto-connect1.png
 
     SquirrelSQL ROcto Connection Prompt
 
   Now press "Connect". If you have a big schema, you will get this warning that it's taking too long to load. It's okay to ignore this warning. Press "Close".
 
-    .. figure:: squirrel-rocto-connect-session-load-time-warning.png
+    .. figure:: images/squirrel-rocto-connect-session-load-time-warning.png
 
     SquirrelSQL ROcto Load Time Warning
 
   At this point, you will see the main screen. In this screen, you can explore the schema for the tables in Octo.
 
-    .. figure:: squirrel-rocto-connected-main-screen.png
+    .. figure:: images/squirrel-rocto-connected-main-screen.png
 
     SquirrelSQL ROcto Connected At Last!
 
   To write SQL statements, switch to the SQL tab. Drag down the divider to give yourself more editing space.
 
-    .. figure:: squirrel-rocto-connected-sql-tab.png
+    .. figure:: images/squirrel-rocto-connected-sql-tab.png
 
     SquirrelSQL ROcto SQL Tab
 
@@ -334,12 +501,12 @@ Detailed Steps
 
        SELECT * FROM names;
 
-    .. figure:: query.png
+    .. figure:: images/query.png
 
     Result after the query
 
   To make querying easier, Octo supports "Auto-Complete". To initiate it, type :code:`TABLENAME.`, then press CTRL-SPACE. E.g.
 
-    .. figure:: squirrel-rocto-autocomplete.png
+    .. figure:: images/squirrel-rocto-autocomplete.png
 
     Octo Auto-Complete with Squirrel

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -58,7 +58,8 @@ static void test_valid_input(void **state) {
 	// The actual test
 	will_return(__wrap_read_bytes, test_data->pid);
 	will_return(__wrap_read_bytes, test_data->secret_key);
-	CancelRequest *cancel = read_cancel_request(NULL, (char *)(&test_data->length), sizeof(test_data));
+	int32_t	       data_size = sizeof(CancelRequest);
+	CancelRequest *cancel = read_cancel_request(NULL, (char **)&test_data, &data_size);
 
 	// Standard checks
 	assert_non_null(cancel);
@@ -86,7 +87,8 @@ static void test_invalid_length(void **state) {
 	test_data->secret_key = htonl(8888);
 
 	// The actual test
-	CancelRequest *cancel = read_cancel_request(NULL, (char *)(&test_data->length), sizeof(test_data));
+	int32_t	       data_size = sizeof(test_data);
+	CancelRequest *cancel = read_cancel_request(NULL, (char **)&test_data, &data_size);
 
 	// Standard checks
 	assert_null(cancel);
@@ -109,7 +111,8 @@ static void test_invalid_request_code(void **state) {
 	test_data->secret_key = htonl(8888);
 
 	// The actual test
-	CancelRequest *cancel = read_cancel_request(NULL, (char *)(&test_data->length), sizeof(test_data));
+	int32_t	       data_size = sizeof(test_data);
+	CancelRequest *cancel = read_cancel_request(NULL, (char **)&test_data, &data_size);
 
 	// Standard checks
 	assert_null(cancel);

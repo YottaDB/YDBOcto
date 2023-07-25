@@ -473,6 +473,7 @@ echo "# Configure the build system for Octo"
 
 randomize_OCTO_INIT_BUFFER_LEN() {
 	new_buffer_size=$(( 2 ** (RANDOM % 11) ))
+	echo "# Random value of OCTO_INIT_BUFFER_LEN = $new_buffer_size" > OCTO_INIT_BUFFER_LEN.txt
 	sed -i "s/OCTO_INIT_BUFFER_LEN [0-9]*/OCTO_INIT_BUFFER_LEN $new_buffer_size/" ../src/octo.h
 }
 

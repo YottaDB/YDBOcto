@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,7 +20,7 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-CancelRequest *read_cancel_request(RoctoSession *session, char *data, uint32_t data_size) {
+CancelRequest *read_cancel_request(RoctoSession *session, char **data, int32_t *data_size) {
 	char *	       tmp;
 	int	       tmp_len;
 	CancelRequest *ret = NULL;
@@ -31,14 +31,24 @@ CancelRequest *read_cancel_request(RoctoSession *session, char *data, uint32_t d
 	// 	decimal value of least significant 16 bits: 5678
 	int32_t expected_request_code = 80877102;
 
-	// Ensure data buffer is smaller than the amount to be read
-	if (data_length > data_size) {
+	if ((int32_t)data_length > *data_size) {
+		/* We did not read the minimum bytes needed to check what sort of a message we received. Just return. */
 		return NULL;
+	}
+
+	// Ensure data buffer has enough space to hold a CancelRequest message.
+	if ((int32_t)expected_length > *data_size) {
+		char *old_data;
+
+		old_data = *data;
+		*data = (char *)malloc(expected_length);
+		memcpy(*data, old_data, *data_size);
+		*data_size = expected_length;
+		free(old_data);
 	}
 	// Read all message parameters into return struct
 	ret = (CancelRequest *)malloc(sizeof(CancelRequest));
-	memset(&ret->length, 0, expected_length);
-	memcpy(&ret->length, data, expected_length);
+	memcpy(ret, *data, expected_length);
 
 	// Convert to host endianness
 	ret->length = ntohl(ret->length);

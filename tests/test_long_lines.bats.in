@@ -19,6 +19,10 @@ setup() {
   load_fixture pastas.zwr
   load_fixture names.sql
   load_fixture names.zwr
+  # Set the stack limit to this number so that ASAN will have enough space to do its work
+  # On Rocky Linux on GCC 8.5, 8M is not enough
+  # On SUSE 15 Clang 13, 64M is not enough... need 128M.
+  ulimit -s 131072
 }
 
 teardown() {
@@ -47,12 +51,6 @@ OCTO
 }
 
 @test "TLL04 : octo -f on query greater than 32k characters in one query" {
-  # On Rocky Linux on GCC 8.5, the default stack of 8M is not enough to run this query with ASAN due to Octo's use of recursion
-  # This not an issue on Ubuntu with GCC 9.3
-  # Raise the limit pre-emptively to 64M
-  if [[ "@ENABLE_ASAN@" == "ON" ]]; then
-    ulimit -s 65536
-  fi
   export COLUMNS=35000 # increase column limit to avoid control characters
   yottadb -run gt32k^genlargequery
   run_octo_allow_error in.sql output.txt
@@ -61,12 +59,6 @@ OCTO
 }
 
 @test "TLL05 : octo -f on series of queries greater than 32k characters" {
-  # On Rocky Linux on GCC 8.5, the default stack of 8M is not enough to run this query with ASAN due to Octo's use of recursion
-  # This not an issue on Ubuntu with GCC 9.3
-  # Raise the limit pre-emptively to 64M
-  if [[ "@ENABLE_ASAN@" == "ON" ]]; then
-    ulimit -s 65536
-  fi
   export COLUMNS=35000 # increase column limit to avoid control characters
   yottadb -run almost32k^genlargequery
   run_octo_allow_error in.sql output.txt
@@ -75,10 +67,6 @@ OCTO
 }
 
 @test "TLL06 : octo query greater than 32k characters in one query" {
-  # This test fails on CentOS due to line limit
-  if [[ $( grep -i "centos" /etc/*-release ) ]]; then
-    skip "Skipping test as it does not work on CentOS"
-  fi
   export COLUMNS=35000 # increase column limit to avoid control characters
   yottadb -run gt32k^genlargequery
   run_octo_allow_error in.sql output.txt
@@ -87,10 +75,6 @@ OCTO
 }
 
 @test "TLL07 : octo series of queries greater than 32k characters" {
-  # This test fails on CentOS due to line limit
-  if [[ $( grep -i "centos" /etc/*-release ) ]]; then
-    skip "Skipping test as it does not work on CentOS"
-  fi
   export COLUMNS=35000 # increase column limit to avoid control characters
   yottadb -run almost32k^genlargequery
   run_octo_allow_error in.sql output.txt
@@ -100,10 +84,6 @@ OCTO
 }
 
 @test "TLL08 : octo -f on query that overlaps with itself when shifting the input buffer" {
-  # This test fails on CentOS due to line limit
-  if [[ $( grep -i "centos" /etc/*-release ) ]]; then
-    skip "Skipping test as it does not work on CentOS"
-  fi
   export COLUMNS=35000 # increase column limit to avoid control characters
   yottadb -run bufoverlap^genlargequery
   octo -f in.sql &> output.txt
@@ -112,10 +92,6 @@ OCTO
 }
 
 @test "TLL09 : octo on query that overlaps with itself when shifting the input buffer" {
-  # This test fails on CentOS due to line limit
-  if [[ $( grep -i "centos" /etc/*-release ) ]]; then
-    skip "Skipping test as it does not work on CentOS"
-  fi
   export COLUMNS=35000 # increase column limit to avoid control characters
   yottadb -run bufoverlap^genlargequery
   octo < in.sql &> output.txt

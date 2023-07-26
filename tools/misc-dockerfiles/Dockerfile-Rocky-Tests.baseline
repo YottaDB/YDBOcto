@@ -16,7 +16,7 @@ FROM yottadb/yottadb-rocky-base:${imagetag}
 RUN yum update -y  && \
     yum clean all && \
     rm -rf /var/cache/yum/* && \
-    yum --enablerepo=powertools install -y libcmocka-devel gcc libasan make clang clang-tools-extra cmake bison flex python3 python3-pip readline-devel git libconfig-devel openssl-devel postgresql postgresql-server libgcrypt-devel gpgme-devel openssl expect java-11-openjdk-devel unzip unixODBC postgresql-odbc diffutils pkg-config libicu-devel glibc-langpack-en wget mysql-server mysql xz curl go nmap-ncat
+    yum --enablerepo=powertools install -y libcmocka-devel gcc libasan make clang clang-tools-extra cmake bison flex python3 python3-pip readline-devel git libconfig-devel openssl-devel postgresql postgresql-server libgcrypt-devel gpgme-devel openssl expect java-11-openjdk-devel tzdata-java unzip unixODBC postgresql-odbc diffutils pkg-config libicu-devel glibc-langpack-en wget mysql-server mysql xz curl go nmap-ncat
 
 # Ninja
 RUN wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-linux.zip && unzip ninja-linux.zip && mv ninja /usr/local/bin/ninja

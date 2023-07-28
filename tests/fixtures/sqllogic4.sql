@@ -1,4 +1,4 @@
--- Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.
+-- Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.
 -- All rights reserved.
 --
 -- This source code contains the intellectual property
@@ -6,7 +6,7 @@
 -- under a license.  If you do not know the terms of
 -- the license, please stop and do not read further.
 
-CREATE TABLE t1(
+CREATE TABLE s4t1(
   id INTEGER PRIMARY KEY,
   a1 INTEGER,
   b1 INTEGER,
@@ -14,8 +14,8 @@ CREATE TABLE t1(
   d1 INTEGER,
   e1 INTEGER,
   x1 VARCHAR(30)
-) GLOBAL "^t1";
-CREATE TABLE t2(
+) GLOBAL "^s4t1";
+CREATE TABLE s4t2(
   id INTEGER PRIMARY KEY,
   a2 INTEGER,
   b2 INTEGER,
@@ -23,8 +23,8 @@ CREATE TABLE t2(
   d2 INTEGER,
   e2 INTEGER,
   x2 VARCHAR(30)
-) GLOBAL "^t2";
-CREATE TABLE t3(
+) GLOBAL "^s4t2";
+CREATE TABLE s4t3(
   id INTEGER PRIMARY KEY,
   a3 INTEGER,
   b3 INTEGER,
@@ -32,8 +32,8 @@ CREATE TABLE t3(
   d3 INTEGER,
   e3 INTEGER,
   x3 VARCHAR(30)
-) GLOBAL "^t3";
-CREATE TABLE t4(
+) GLOBAL "^s4t3";
+CREATE TABLE s4t4(
   id INTEGER PRIMARY KEY,
   a4 INTEGER,
   b4 INTEGER,
@@ -41,8 +41,8 @@ CREATE TABLE t4(
   d4 INTEGER,
   e4 INTEGER,
   x4 VARCHAR(30)
-) GLOBAL "^t4";
-CREATE TABLE t5(
+) GLOBAL "^s4t4";
+CREATE TABLE s4t5(
   id INTEGER PRIMARY KEY,
   a5 INTEGER,
   b5 INTEGER,
@@ -50,8 +50,8 @@ CREATE TABLE t5(
   d5 INTEGER,
   e5 INTEGER,
   x5 VARCHAR(30)
-) GLOBAL "^t5";
-CREATE TABLE t6(
+) GLOBAL "^s4t5";
+CREATE TABLE s4t6(
   id INTEGER PRIMARY KEY,
   a6 INTEGER,
   b6 INTEGER,
@@ -59,8 +59,8 @@ CREATE TABLE t6(
   d6 INTEGER,
   e6 INTEGER,
   x6 VARCHAR(30)
-) GLOBAL "^t6";
-CREATE TABLE t7(
+) GLOBAL "^s4t6";
+CREATE TABLE s4t7(
   id INTEGER PRIMARY KEY,
   a7 INTEGER,
   b7 INTEGER,
@@ -68,8 +68,8 @@ CREATE TABLE t7(
   d7 INTEGER,
   e7 INTEGER,
   x7 VARCHAR(30)
-) GLOBAL "^t7";
-CREATE TABLE t8(
+) GLOBAL "^s4t7";
+CREATE TABLE s4t8(
   id INTEGER PRIMARY KEY,
   a8 INTEGER,
   b8 INTEGER,
@@ -77,8 +77,8 @@ CREATE TABLE t8(
   d8 INTEGER,
   e8 INTEGER,
   x8 VARCHAR(30)
-) GLOBAL "^t8";
-CREATE TABLE t9(
+) GLOBAL "^s4t8";
+CREATE TABLE s4t9(
   id INTEGER PRIMARY KEY,
   a9 INTEGER,
   b9 INTEGER,
@@ -86,4 +86,4 @@ CREATE TABLE t9(
   d9 INTEGER,
   e9 INTEGER,
   x9 VARCHAR(30)
-) GLOBAL "^t9";
+) GLOBAL "^s4t9";

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -17,7 +17,7 @@
 -- After the YDBOcto#769 fixes to rearrange CROSS JOIN independently for each DNF plan, it takes less than a second to run.
 
 SELECT e6, e8+376, x4, x9, e5*680, d2+210, d3
-  FROM t3, t6, t8, t2, t5, t9, t4
+  FROM s4t3, s4t6, s4t8, s4t2, s4t5, s4t9, s4t4
  WHERE (18=c5 OR c5=31 OR 915=c5)
    AND (b4=810 OR b4=849 OR 653=b4 OR b4=288)
    AND a2 in (543,324,253)

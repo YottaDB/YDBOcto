@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -12,5 +12,5 @@
 
 -- TGB07 : OCTO401 : COUNT(DISTINCT) usage issues `Assert failed` error
 
-SELECT COUNT(DISTINCT Country) FROM Customers;
+SELECT COUNT(DISTINCT Country) FROM nwCustomers;
 

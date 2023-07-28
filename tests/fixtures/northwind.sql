@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,8 +10,8 @@
 #								#
 #################################################################
 
-CREATE TABLE Customers (CustomerID INTEGER PRIMARY KEY, CustomerName VARCHAR(48), ContactName VARCHAR(32), Address VARCHAR(64), City VARCHAR(32), PostalCode VARCHAR(16), Country VARCHAR(32)) GLOBAL "^Customers";
-CREATE TABLE Orders (OrderID INTEGER PRIMARY KEY, CustomerID INTEGER, EmployeeID INTEGER, OrderDate VARCHAR(16), ShipperID INTEGER) GLOBAL "^Orders";
+CREATE TABLE nwCustomers (CustomerID INTEGER PRIMARY KEY, CustomerName VARCHAR(48), ContactName VARCHAR(32), Address VARCHAR(64), City VARCHAR(32), PostalCode VARCHAR(16), Country VARCHAR(32)) GLOBAL "^nwCustomers";
+CREATE TABLE nwOrders (OrderID INTEGER PRIMARY KEY, CustomerID INTEGER, EmployeeID INTEGER, OrderDate VARCHAR(16), ShipperID INTEGER) GLOBAL "^nwOrders";
 CREATE TABLE Shippers (ShipperID INTEGER PRIMARY KEY, ShipperName VARCHAR(32), Phone VARCHAR(14)) GLOBAL "^Shippers";
 CREATE TABLE Suppliers (SupplierID INTEGER PRIMARY KEY, SupplierName VARCHAR(48), ContactName VARCHAR(32), Address VARCHAR(64), City VARCHAR(32), PostalCode VARCHAR(16), Country VARCHAR(32), Phone VARCHAR(15)) GLOBAL "^Suppliers";
 CREATE TABLE Products (ProductID INTEGER PRIMARY KEY, ProductName VARCHAR(48), SupplierID INTEGER, CategoryID INTEGER, Unit VARCHAR(32), Price NUMERIC) GLOBAL "^Products";

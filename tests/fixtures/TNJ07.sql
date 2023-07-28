@@ -1,6 +1,6 @@
 -- ##############################################################
 -- #								#
--- # Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+-- # Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
 -- # All rights reserved.					#
 -- #								#
 -- #	This source code contains the intellectual property	#
@@ -16,7 +16,7 @@ SELECT * FROM Employees NATURAL JOIN (SELECT EmployeeID, Notes, LastName FROM Em
 SELECT ALL (SELECT alias1.OrderDetailID FROM OrderDetails alias1 WHERE (((15) % -(-20)) <= alias1.Quantity) ORDER BY alias1.OrderDetailID LIMIT 1) AS alias1, Employees.Photo, Employees.EmployeeID, Employees.FirstName, Employees.Notes, (SELECT alias2.ProductID FROM OrderDetails alias2 ORDER BY alias2.ProductID LIMIT 1) AS alias2, Employees.Notes FROM Employees NATURAL JOIN (SELECT DISTINCT alias3.EmployeeID, alias3.Notes, alias3.LastName FROM Employees alias3) AS alias3;
 
 -- natural join on 2 tables with one common column
-SELECT * FROM Customers NATURAL JOIN Orders;
+SELECT * FROM nwCustomers NATURAL JOIN nwOrders;
 
 -- natural join on 2 tables with no common column
 SELECT * FROM Categories NATURAL JOIN Suppliers;

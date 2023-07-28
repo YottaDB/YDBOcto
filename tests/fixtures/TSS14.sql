@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -12,5 +12,5 @@
 
 -- TSS14 : OCTO473 : Incorrect results when ON clause of a JOIN uses column references from a sub-query
 
-SELECT CustomerID,EmployeeID,ContactName,Notes FROM Customers INNER JOIN (SELECT EmployeeID,Notes FROM Employees) AS alias4 ON (Customers.ContactName > alias4.Notes) ORDER BY CustomerID,EmployeeID;
+SELECT CustomerID,EmployeeID,ContactName,Notes FROM nwCustomers INNER JOIN (SELECT EmployeeID,Notes FROM Employees) AS alias4 ON (nwCustomers.ContactName > alias4.Notes) ORDER BY CustomerID,EmployeeID;
 

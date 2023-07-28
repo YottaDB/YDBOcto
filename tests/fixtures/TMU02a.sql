@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -22,9 +22,9 @@
 # SELECT * from names n1 INNER JOIN names n2 ON n1.id = n2.id WHERE (n1.firstname = 'Joey') OR (n2.lastname = 'Nikon');
 # SELECT n1.firstname from names n1 RIGHT JOIN names n2 ON n1.id = n2.id WHERE (n1.id = 0);
 
-SELECT * FROM Customers WHERE CustomerID = 1;
+SELECT * FROM nwCustomers WHERE CustomerID = 1;
 SELECT * FROM OrderDetails WHERE OrderDetailID = 1;
-SELECT * FROM Orders WHERE OrderID = 10443;
+SELECT * FROM nwOrders WHERE OrderID = 10443;
 SELECT * FROM Suppliers WHERE SupplierID = 1;
 SELECT * FROM Products WHERE ProductID = 1;
 SELECT * FROM Categories WHERE CategoryID = 1;

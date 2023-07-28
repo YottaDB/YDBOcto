@@ -146,14 +146,14 @@ public|NAMES|LASTNAME|1043|varchar|3|-1|34|0|0|r|602||0|-1|0||0
 (3 rows)
 RELNAME|NSPNAME|RELKIND
 CATEGORIES|public|r
-CUSTOMERS|public|r
 EMPLOYEES|public|r
 INFORMATION_SCHEMA.TABLES|public|r
 NAMES|public|r
 NAMESWITHAGES|public|r
+NWCUSTOMERS|public|r
+NWORDERS|public|r
 OCTOONEROWTABLE|public|r
 ORDERDETAILS|public|r
-ORDERS|public|r
 PG_AM|public|r
 PG_ATTRDEF|public|r
 PG_ATTRIBUTE|public|r

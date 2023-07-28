@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -36,9 +36,9 @@
 # SELECT * FROM (SELECT * FROM names UNION ALL SELECT * FROM names) n1 WHERE id = ANY (SELECT n2.id FROM names n2 WHERE n2.id = 1 OR n2.firstname = 'Zero');
 # SELECT * FROM (SELECT * FROM names UNION ALL SELECT * FROM names) n1 WHERE id = ALL (SELECT n2.id FROM names n2 WHERE n2.id = 1 OR n2.firstname = 'Zero');
 
-SELECT * FROM Customers WHERE CustomerID = 1;
+SELECT * FROM nwCustomers WHERE CustomerID = 1;
 SELECT * FROM OrderDetails WHERE OrderDetailID = 1;
-SELECT * FROM Orders WHERE OrderID = 10443;
+SELECT * FROM nwOrders WHERE OrderID = 10443;
 SELECT * FROM Suppliers WHERE SupplierID = 1;
 SELECT * FROM Products WHERE ProductID = 1;
 SELECT * FROM Categories WHERE CategoryID = 1;

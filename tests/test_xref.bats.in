@@ -50,10 +50,10 @@ OCTO
   grep SELECT TX02.sql >> output.txt
   echo "# Running : octo -f TX02.sql : Expect 1 row of output" >> output.txt
   octo -f TX02.sql 2>&1 | tee -a output.txt
-  echo "# Running : zwrite ^Customers(37)" >> output.txt
-  yottadb -run %XCMD 'zwrite ^Customers(37)' 2>&1 | tee -a output.txt
-  echo "# Running : set ^Customers(37) : Changing PostalCode from NULL to 'NullCode'" >> output.txt
-  yottadb -run %XCMD 'set ^Customers(37)="Hungry Owl All-Night Grocers|Patricia McKenna|8 Johnstown Road|Cork|NullCode|Ireland"' 2>&1 | tee -a output.txt
+  echo "# Running : zwrite ^nwCustomers(37)" >> output.txt
+  yottadb -run %XCMD 'zwrite ^nwCustomers(37)' 2>&1 | tee -a output.txt
+  echo "# Running : set ^nwCustomers(37) : Changing PostalCode from NULL to 'NullCode'" >> output.txt
+  yottadb -run %XCMD 'set ^nwCustomers(37)="Hungry Owl All-Night Grocers|Patricia McKenna|8 Johnstown Road|Cork|NullCode|Ireland"' 2>&1 | tee -a output.txt
   echo "# Re-Running : octo -f TX02.sql : Expect NO output" >> output.txt
   octo -f TX02.sql 2>&1 | tee -a output.txt
   echo "#" >> output.txt

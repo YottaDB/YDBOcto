@@ -65,7 +65,7 @@ teardown() {
 				psql pastas -c 'DROP TABLE IF EXISTS names4TJC05; DROP TABLE IF EXISTS pastasTJC05;' >& postgres.drop_table_TJC05.out
 			fi
 			if postgres_database_exists "northwind"; then
-				for table in categories customers employees orderdetails orders products shippers suppliers
+				for table in Categories nwCustomers Employees OrderDetails nwOrders Products Shippers Suppliers
 				do
 					psql northwind -c 'DROP TABLE IF EXISTS '$table'TQG04' &>> postgres.drop_table_TQG04.out
 					psql northwind -c 'DROP TABLE IF EXISTS '$table'TJC07' &>> postgres.drop_table_TJC07.out
@@ -121,7 +121,7 @@ teardown() {
 				inputfile="input_${schema}_${tablename}.sql"
 				outputfile="output_${schema}_${tablename}.txt"
 				if [[ "mysql" == $db ]]; then
-					if [[ "$schema" == "sqllogic4" && "$tablename" == "t1" ]]; then
+					if [[ "$schema" == "sqllogic4" && "$tablename" == "s4t1" ]]; then
 						echo "select * from $tablename order by id;" > $inputfile
 					else
 						echo "select * from $tablename;" > $inputfile

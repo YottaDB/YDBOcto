@@ -134,8 +134,8 @@ OCTO
 	# If we reached here, it means the above cross check succeeded so note that in the reference file.
 	echo "PASS : cross check" >> output.txt
 	echo "# Verify generated plan to see CROSS JOIN reordering happened as expected." >> output.txt
-	echo "# Tables were specified in FROM clause in the order           : T3, T6, T8, T2, T5, T9, T4" >> output.txt
-	echo "# But they are expected to be reordered after optimization as : T3, T2, T5, T9, T4, T8, T6" >> output.txt
+	echo "# Tables were specified in FROM clause in the order           : s4t3, s4t6, s4t8, s4t2, s4t5, s4t9, s4t4" >> output.txt
+	echo "# But they are expected to be reordered after optimization as : s4t3, s4t2, s4t5, s4t9, s4t4, s4t8, s4t6" >> output.txt
 	echo "# Capture key parts of the physical plan in reference file that verifies this." >> output.txt
 	grep -E "octoPlan|SELECT|FROM|WHERE|AND|DATA\(\^\%ydbAIMD.*" _ydboctoP*.m >> output.txt
 	verify_output TCJ13 output.txt

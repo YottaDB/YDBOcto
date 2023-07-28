@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,5 +10,5 @@
 #								#
 #################################################################
 
-CREATE TABLE t1(a INTEGER, b INTEGER, c INTEGER, d INTEGER, e INTEGER, PRIMARY KEY(a, b, c, d, e)) GLOBAL "^T1";
+CREATE TABLE s1t1(a INTEGER, b INTEGER, c INTEGER, d INTEGER, e INTEGER, PRIMARY KEY(a, b, c, d, e)) GLOBAL "^s1t1";
 

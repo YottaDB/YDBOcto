@@ -60,6 +60,8 @@ ERROR_DEF(PSQL_Code_Duplicate_Table, "42P07")
 ERROR_DEF(PSQL_Code_Ambiguous_Parameter, "42P08")
 ERROR_DEF(PSQL_Code_Invalid_Column_Reference, "42P10")
 ERROR_DEF(PSQL_Code_Invalid_Table_Definition, "42P16")
+// Class 54 - Program Limit Exceeded
+ERROR_DEF(PSQL_Code_Too_Many_Columns, "54011")
 // Class 55 - Object Not In Prerequisite State
 ERROR_DEF(PSQL_Code_Cant_Change_Runtime_Param, "55P02")
 // Class 57 - Operator Intervention

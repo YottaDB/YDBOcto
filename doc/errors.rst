@@ -1348,6 +1348,22 @@ ERR_TOO_MANY_FUNCTION_ARGUMENTS
 
   Description/Action: This error indicates an attempt to create a function with more arguments than the maximum allowed. PSQL Error Code: 22003
 
+++++++++++++++++++++++++++++++++
+ERR_TOO_MANY_SELECT_KEYCOLS
+++++++++++++++++++++++++++++++++
+
+  Text: Too many key columns specified in SELECT query (got: xxx, max: xxx)
+
+  Description/Action: This message indicates an attempt to specify too many key columns in a SELECT query. For every table specified in the FROM/JOIN list of a SELECT query, the number of key columns is summed up and if the sum is more than 256, this error is issued. PSQL Error Code: 54001
+
+++++++++++++++++++++++++++++++++
+ERR_TOO_MANY_TABLE_KEYCOLS
+++++++++++++++++++++++++++++++++
+
+  Text: Too many key columns specified in CREATE TABLE of xxx (got: xxx, max: xxx)
+
+  Description/Action: This message indicates an attempt to specify too many key columns in a CREATE TABLE command. The maximum number of key columns allowed in one table is 256. PSQL Error Code: 54001
+
 +++++++++++++++++++++++++++++
 ERR_TYPE_CAST
 +++++++++++++++++++++++++++++

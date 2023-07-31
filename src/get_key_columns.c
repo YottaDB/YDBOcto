@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -44,7 +44,11 @@ int get_key_columns(SqlTable *table, SqlColumn **key_columns) {
 			if (NULL != keyword) {
 				UNPACK_SQL_STATEMENT(value, keyword->v, value);
 				key_num = atoi(value->v.string_literal);
-				assert(MAX_KEY_COUNT > key_num);
+				if (MAX_KEY_COUNT <= key_num) {
+					UNPACK_SQL_STATEMENT(value, table->tableName, value);
+					ERROR(ERR_TOO_MANY_TABLE_KEYCOLS, value->v.reference, key_num, MAX_KEY_COUNT - 1);
+					return -2;
+				}
 				if (NULL != key_columns[key_num]) {
 					UNPACK_SQL_STATEMENT(value, table->tableName, value);
 					ERROR(ERR_MULTIPLE_ZERO_KEYS, key_num, value->v.reference);

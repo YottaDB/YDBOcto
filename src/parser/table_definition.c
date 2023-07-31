@@ -1416,7 +1416,12 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			}
 			/* Get the new key columns */
 			max_key = get_key_columns(table, key_columns);
-			assert((i - 1) == max_key); /* Assert that there are "i" (i.e. all columns) primary key columns */
+			/* We expect "i" primary columns. If that is not the case, it implies an error would have been
+			 * issued inside "get_key_columns()". Return in that case.
+			 */
+			if ((i - 1) != max_key) {
+				return NULL;
+			}
 		}
 		break;
 	case -2:

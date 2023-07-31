@@ -23,7 +23,7 @@
 #include "template_helpers.h"
 
 void	     gen_source_keys(PhysicalPlan *out, LogicalPlan *plan);
-void	     iterate_keys(PhysicalPlan *out, LogicalPlan *plan);
+int	     iterate_keys(PhysicalPlan *out, LogicalPlan *plan);
 LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *options, LogicalPlan *stmt, LogicalPlan *parent);
 
 PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *options) {
@@ -323,7 +323,9 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		// Iterate through the keys in the logical plan and use them to fill out the "iterKeys[]" array in physical plan
 		keys = lp_get_keys(plan);
 		assert((NULL != keys->v.lp_default.operand[0]));
-		iterate_keys(out, keys);
+		if (0 != iterate_keys(out, keys)) {
+			return NULL;
+		}
 		// Note: The below do/while loop can be done only after we have initialized "iterKeys[]" for this table_join.
 		//       That is why this is not done as part of the previous do/while loop as "iterate_keys()" gets called only
 		//       after the previous do/while loop.
@@ -460,17 +462,23 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	return out;
 }
 
-void iterate_keys(PhysicalPlan *out, LogicalPlan *plan) {
+int iterate_keys(PhysicalPlan *out, LogicalPlan *plan) {
 	LogicalPlan *left, *right;
 
 	assert(LP_KEYS == plan->type);
 	GET_LP(left, plan, 0, LP_KEY);
-	out->iterKeys[out->total_iter_keys] = left->v.lp_key.key;
+	if (MAX_KEY_COUNT > out->total_iter_keys) {
+		out->iterKeys[out->total_iter_keys] = left->v.lp_key.key;
+	}
 	out->total_iter_keys++;
 	if (NULL != plan->v.lp_default.operand[1]) {
 		GET_LP(right, plan, 1, LP_KEYS);
-		iterate_keys(out, right);
+		return iterate_keys(out, right);
+	} else if (MAX_KEY_COUNT <= out->total_iter_keys) {
+		ERROR(ERR_TOO_MANY_SELECT_KEYCOLS, out->total_iter_keys, MAX_KEY_COUNT);
+		return 1;
 	}
+	return 0;
 }
 
 LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *options, LogicalPlan *stmt, LogicalPlan *parent) {

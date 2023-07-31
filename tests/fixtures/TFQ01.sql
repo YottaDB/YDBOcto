@@ -32,7 +32,16 @@ select (select 1 is null) between false and true;
 -- Test https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/803#note_1492162026
 -------------------------------------------------------------------------------
 
--- This used to previously SIG-11 as follows
+-- This used to previously SIG-11.
 -- Expected output is a "syntax error".
 create table tmp (firstname varchar, fullname1 varchar extract concat(firstname,));
+
+-- This used to previously Assert fail at get_key_columns.c:47
+-- Expected output is an ERR_TOO_MANY_KEYCOLS error
+create table tmp (id integer key num 1000);
+
+-- This used to previously SIG-11 in generate_physical_plan.c
+-- Expected output is an ERR_TOO_MANY_KEYCOLS error
+create table c ( id0 INTEGER, id1 INTEGER, id2 INTEGER, id3 INTEGER, id4 INTEGER, id5 INTEGER, id6 INTEGER, id7 INTEGER, name VARCHAR(20), PRIMARY KEY (id0, id1, id2, id3, id4, id5, id6, id7));
+select 1 from  c c1, c c2, c c3, c c4, c c5, c c6, c c7, c c8, c c9, c c10, c c11, c c12, c c13, c c14, c c15, c c16, c c17, c c18, c c19, c c20, c c21, c c22, c c23, c c24, c c25, c c26, c c27, c c28, c c29, c c30, c c31, c c32, c c33;
 

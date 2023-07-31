@@ -70,7 +70,7 @@
 // Initial size to allocate for memory chunks (1 MiB)
 #define MEMORY_CHUNK_SIZE (1 * 1024 * 1024)
 // Maximum number of key columns
-#define MAX_KEY_COUNT 255
+#define MAX_KEY_COUNT 256
 // Maximum length for database emulation strings, e.g. "PostgreSQL"
 #define MAX_EMULATION_STRING_LEN 12
 // Length of M extrinsic function prefix, i.e. "$$"

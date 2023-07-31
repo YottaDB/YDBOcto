@@ -52,3 +52,19 @@ create table tmp (lastname varchar, check((lastname like 'abc\%')));
 insert into tmp values ('abc%');
 insert into tmp values ('abcd');
 
+-----------------------------------------------------------------------------------------
+-- Test of binary operations evaluating to NULL in IN operand list along with TABLENAME.ASTERISK
+-- Test of (4) in https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/803#note_1492162026
+-- This used to previously SIG-11 in "validate_table_asterisk_binary_operation()"
+-- Expected output is no error in any of the below queries.
+-- Note: These queries are not run through crosscheck as Postgres issues an operator not unique error.
+-----------------------------------------------------------------------------------------
+select n1.* in (NULL % NULL , n1.*) from names n1;
+
+-- Test of similar queries like above.
+select n1.* in (NULL, n1.*) from names n1;
+select n1.* in (NULL - NULL , n1.*) from names n1;
+select n1.* in (NULL + NULL , n1.*) from names n1;
+select n1.* in (NULL * NULL , n1.*) from names n1;
+-----------------------------------------------------------------------------------------
+

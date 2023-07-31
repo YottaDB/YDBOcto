@@ -78,12 +78,10 @@ int validate_table_asterisk_binary_operation(SqlBinaryOperation *binary, SqlValu
 			UNPACK_SQL_STATEMENT(start_column_list, second_operand, column_list);
 			cur_column_list = start_column_list;
 			do {
-				assert(is_stmt_table_asterisk(cur_column_list->value)
-				       || ((value_STATEMENT == cur_column_list->value->type)
-					   && IS_NUL_VALUE(cur_column_list->value->v.value->type)));
-				if (value_STATEMENT == cur_column_list->value->type) {
+				if (!is_stmt_table_asterisk(cur_column_list->value)) {
 					/* This is a valid usage
 					 * Example: `n1.* not in (NULL,n1.*)`
+					 * Example: `n1.* not in (NULL % NULL,n1.*)`
 					 * The reasons why other types are not possible here are
 					 * 1) validate_table_asterisk_binary_operation() is only invoked for `table.*`
 					 *    compatible types i.e. either NULL or `table.*`

@@ -41,6 +41,22 @@ create table tmp (lastname varchar, check((lastname like 'abc\%')));
 insert into tmp values ('abc%');
 insert into tmp values ('abcd');
 
+-----------------------------------------------------------------------------------------
+-- Test of binary operations evaluating to NULL in IN operand list along with TABLENAME.ASTERISK
+-- Test of (4) in https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/803#note_1492162026
+-- This used to previously SIG-11 in "validate_table_asterisk_binary_operation()"
+-- Expected output is no error in any of the below queries.
+-- Note: These queries are not run through crosscheck as Postgres issues an operator not unique error.
+-----------------------------------------------------------------------------------------
+select n1.* in (NULL % NULL , n1.*) from names n1;
+
+-- Test of similar queries like above.
+select n1.* in (NULL, n1.*) from names n1;
+select n1.* in (NULL - NULL , n1.*) from names n1;
+select n1.* in (NULL + NULL , n1.*) from names n1;
+select n1.* in (NULL * NULL , n1.*) from names n1;
+-----------------------------------------------------------------------------------------
+
 [ERROR]: ERR_SELECT_STAR_NO_TABLES: SELECT * with no tables specified is not valid
 LINE 5:3: select (select *) between 1 and 2;
                          ^
@@ -60,6 +76,46 @@ CREATE TABLE
 CREATE TABLE
 INSERT 0 1
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table TMP violates CHECK constraint TMP_LASTNAME_CHECK : Failing row contains (abcd)
+???
+1
+1
+1
+1
+1
+1
+(6 rows)
+???
+1
+1
+1
+1
+1
+1
+(6 rows)
+???
+1
+1
+1
+1
+1
+1
+(6 rows)
+???
+1
+1
+1
+1
+1
+1
+(6 rows)
+???
+1
+1
+1
+1
+1
+1
+(6 rows)
 
 -------------------------------------------------------------------------------
 -- Test of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/803#note_1494165192
@@ -69,3 +125,4 @@ INSERT 0 1
 -- Expected output is an ERR_TOO_MANY_KEYCOLS error
 DROP TABLE
 [ERROR]: ERR_TOO_MANY_TABLE_KEYCOLS: Too many key columns specified in CREATE TABLE of TMP (got: 256, max: 255)
+

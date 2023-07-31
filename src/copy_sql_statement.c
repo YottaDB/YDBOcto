@@ -52,9 +52,18 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		new_table_alias->table = copy_sql_statement(table_alias->table);
 		new_table_alias->alias = copy_sql_statement(table_alias->alias);
 		new_table_alias->unique_id = table_alias->unique_id;
-		// the column list has a reference to this table, so don't copy it
-		// new_table_alias->column_list = copy_sql_statement(table_alias->column_list);
-		new_table_alias->column_list = table_alias->column_list;
+		if (select_STATEMENT != new_table_alias->table->type) {
+			/* The column list has a reference to this table, so don't invoke "copy_sql_statement()" on it.
+			 * Instead just link to it.
+			 *	new_table_alias->column_list = copy_sql_statement(table_alias->column_list);
+			 */
+			new_table_alias->column_list = table_alias->column_list;
+		} else {
+			/* For select_STATEMENT, the table alias column list should be the same as the underlying
+			 * select column list. This is relied upon in various asserts.
+			 */
+			new_table_alias->column_list = new_table_alias->table->v.select->select_list;
+		}
 		break;
 	case select_STATEMENT:
 		UNPACK_SQL_STATEMENT(select, stmt, select);

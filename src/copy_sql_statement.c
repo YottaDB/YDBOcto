@@ -86,18 +86,47 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		ret->v.value->type = value->type;
 		ret->v.value->parameter_index = value->parameter_index;
 		ret->v.value->is_double_quoted = value->is_double_quoted;
-		if (COERCE_TYPE == value->type) {
+		switch (value->type) {
+		case COERCE_TYPE:
 			ret->v.value->u.coerce_type.pre_coerced_type = value->u.coerce_type.pre_coerced_type;
 			ret->v.value->u.coerce_type.coerced_type = value->u.coerce_type.coerced_type;
 			ret->v.value->v.coerce_target = copy_sql_statement(value->v.coerce_target);
-		} else if (CALCULATED_VALUE == value->type) {
+			break;
+		case CALCULATED_VALUE:
 			ret->v.value->v.calculated = copy_sql_statement(value->v.calculated);
-		} else if (IS_NUL_VALUE(value->type)) {
-			// Don't copy a null value
-		} else {
+			break;
+		case NUL_VALUE:
+		case SELECT_ASTERISK:
+		case IS_NULL_LITERAL:
+			// Don't copy a null value. Allocate 1-byte string and set null terminator in it.
+			assert((NULL == value->v.reference) || (0 == strlen(value->v.reference)));
+			len = 1;
+			ret->v.value->v.reference = octo_cmalloc(memory_chunks, len);
+			ret->v.value->v.reference[0] = '\0';
+			break;
+		case BOOLEAN_VALUE:
+		case NUMERIC_LITERAL:
+		case INTEGER_LITERAL:
+		case STRING_LITERAL:
+		case COLUMN_REFERENCE:
+		case FUNCTION_NAME:
+		case FUNCTION_HASH:
+		case PARAMETER_VALUE:
+		case DELIM_VALUE:
+		case TABLE_ASTERISK:
+		case BOOLEAN_OR_STRING_LITERAL:
 			len = strlen(value->v.reference) + 1;
 			ret->v.value->v.reference = octo_cmalloc(memory_chunks, len);
 			memcpy(ret->v.value->v.reference, value->v.reference, len);
+			break;
+		case UNKNOWN_SqlValueType:
+		case INVALID_SqlValueType:
+			/* Do not add "default:" case as we want to enumerate each explicit case here instead of having a
+			 * general purpose bucket where all types not listed above fall into as that could hide subtle bugs.
+			 */
+			assert(FALSE);
+			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
+			break;
 		}
 		break;
 	case binary_STATEMENT:

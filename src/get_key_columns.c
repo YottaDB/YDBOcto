@@ -44,9 +44,15 @@ int get_key_columns(SqlTable *table, SqlColumn **key_columns) {
 			if (NULL != keyword) {
 				UNPACK_SQL_STATEMENT(value, keyword->v, value);
 				key_num = atoi(value->v.string_literal);
-				if (MAX_KEY_COUNT <= key_num) {
-					UNPACK_SQL_STATEMENT(value, table->tableName, value);
-					ERROR(ERR_TOO_MANY_TABLE_KEYCOLS, value->v.reference, key_num, MAX_KEY_COUNT - 1);
+				/* Note that it is possible "key_num" can be negative in case KEY NUM is a huge positive number.
+				 * So handle that also as a positive number case below.
+				 */
+				if ((MAX_KEY_COUNT <= key_num) || (0 > key_num)) {
+					SqlValue *tblName;
+
+					UNPACK_SQL_STATEMENT(tblName, table->tableName, value);
+					ERROR(ERR_TOO_MANY_TABLE_KEYCOLS, tblName->v.reference, value->v.string_literal,
+					      MAX_KEY_COUNT - 1);
 					return -2;
 				}
 				if (NULL != key_columns[key_num]) {

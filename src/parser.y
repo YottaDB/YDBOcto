@@ -668,16 +668,22 @@ table_subquery
   : subquery { $$ = $subquery; }	%prec PREC1
   ;
 
-extract_parm_list
+extract_parm_list_allow_empty
   : /* Empty */ {
       $$ = create_sql_column_list(NULL, NULL, &yyloc);
     }
-  | extract_parm_list_term extract_parm_list_tail {
-      $$ = create_sql_column_list($extract_parm_list_term, $extract_parm_list_tail, &yyloc);
+  | extract_parm_list_nonempty {
+      $$ = $extract_parm_list_nonempty;
     }
   ;
 
-extract_parm_list_term
+extract_parm_list_nonempty
+  : extract_parm_list_non_empty_term extract_parm_list_tail {
+      $$ = create_sql_column_list($extract_parm_list_non_empty_term, $extract_parm_list_tail, &yyloc);
+    }
+  ;
+
+extract_parm_list_non_empty_term
   : literal_value { $$ = $literal_value; }
   | boolean_primary { $$ = $boolean_primary; }
   | qualified_name { $$ = $qualified_name; }
@@ -692,7 +698,7 @@ extract_parm_list_term
 
 extract_parm_list_tail
   : /* Empty */ { $$ = NULL; }
-  | COMMA extract_parm_list { $$ = $extract_parm_list; }
+  | COMMA extract_parm_list_nonempty { $$ = $extract_parm_list_nonempty; }
   ;
 
 in_value_list_allow_empty
@@ -1176,7 +1182,7 @@ generic_function_call
   ;
 
 extract_function_call
-  : function_name LEFT_PAREN extract_parm_list RIGHT_PAREN {
+  : function_name LEFT_PAREN extract_parm_list_allow_empty RIGHT_PAREN {
       SQL_STATEMENT($$, value_STATEMENT);
       MALLOC_STATEMENT($$, value, SqlValue);
       SqlStatement *fc_statement;
@@ -1189,7 +1195,7 @@ extract_function_call
       MALLOC_STATEMENT(fc_statement, function_call, SqlFunctionCall);
       UNPACK_SQL_STATEMENT(fc, fc_statement, function_call);
       fc->function_name = $function_name;
-      fc->parameters = $extract_parm_list;
+      fc->parameters = $extract_parm_list_allow_empty;
       value->v.calculated = fc_statement;
 
       // Change the function name value to be a string literal rather than column reference

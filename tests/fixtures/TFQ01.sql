@@ -45,3 +45,10 @@ create table tmp (id integer key num 1000);
 create table c ( id0 INTEGER, id1 INTEGER, id2 INTEGER, id3 INTEGER, id4 INTEGER, id5 INTEGER, id6 INTEGER, id7 INTEGER, name VARCHAR(20), PRIMARY KEY (id0, id1, id2, id3, id4, id5, id6, id7));
 select 1 from  c c1, c c2, c c3, c c4, c c5, c c6, c c7, c c8, c c9, c c10, c c11, c c12, c c13, c c14, c c15, c c16, c c17, c c18, c c19, c c20, c c21, c c22, c c23, c c24, c c25, c c26, c c27, c c28, c c29, c c30, c c31, c c32, c c33;
 
+-- This used to previously SIG-11 in parse_literal_to_parameter.c:33
+-- Expected output is no error in the "create table" or when inserting 'abc%' but
+-- an ERR_CHECK_CONSTRAINT_VIOLATION error when inserting 'abcd'.
+create table tmp (lastname varchar, check((lastname like 'abc\%')));
+insert into tmp values ('abc%');
+insert into tmp values ('abcd');
+

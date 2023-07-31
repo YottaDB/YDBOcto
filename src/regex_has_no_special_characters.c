@@ -143,11 +143,16 @@ int regex_has_no_special_characters(SqlStatement *stmt, enum RegexType regex_typ
 			assert((ptr_minus_escape_start + len) > ptr_minus_escape);
 			*ptr_minus_escape = '\0';
 			stmt->v.value->v.string_literal = ptr_minus_escape_start;
-			/* Update stored parameter corresponding to this literal to reflect the modified version */
-			status = parse_literal_to_parameter(parse_context, stmt->v.value, TRUE);
-			if (status) {
-				/* Error encountered. Return error to caller so they can do YYABORT as appropriate. */
-				return -1;
+			/* Update stored parameter corresponding to this literal to reflect the modified version.
+			 * It is possible though that this literal does not have a stored parameter (i.e. parameter_index == 0)
+			 * in case this literal is for example inside a CHECK constraint. In that case, skip the update.
+			 */
+			if (0 != stmt->v.value->parameter_index) {
+				status = parse_literal_to_parameter(parse_context, stmt->v.value, TRUE);
+				if (status) {
+					/* Error encountered. Return error to caller so they can do YYABORT as appropriate. */
+					return -1;
+				}
 			}
 		}
 	}

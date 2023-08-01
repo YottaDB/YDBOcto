@@ -154,9 +154,16 @@ boolean_t lp_is_operand_type_string(LogicalPlan *plan, boolean_t *is_null) {
 			 */
 			switch (cur_plan->type) {
 			case LP_SET_OPERATION:
-				/* LP_SET_OPERATION has LP_SET_OPTION as [0] AND LP_PLANS as [1].
-				 * We need to go to [1] to eventually arrive at the LP_COLUMN_LIST and derive the type
-				 * information from it. So this is an exception from the rest which use [0].
+			case LP_CASE:
+			case LP_CASE_BRANCH_STATEMENT:
+				/* 1) LP_SET_OPERATION has LP_SET_OPTION as [0] AND LP_PLANS as [1].
+				 *    We need to go to [1] to eventually arrive at the LP_COLUMN_LIST and derive the type
+				 *    information from it. So this is an exception from the rest which use [0].
+				 * 2) Similar reasoning for LP_CASE which has LP_CASE_STATEMENT as [0] and LP_CASE_BRANCH as [1].
+				 *    We need to go to [1] to arrive at LP_CASE_BRANCH as LP_CASE_STATEMENT only has the
+				 *    case condition and not the branch value (which is needed for the result type).
+				 * 3) Similar reasoning for LP_CASE_BRANCH_STATEMENT which has branch condition as [0] and
+				 *    branch value as [1]. We need latter to determine the result type.
 				 */
 				cur_plan = cur_plan->v.lp_default.operand[1];
 				break;

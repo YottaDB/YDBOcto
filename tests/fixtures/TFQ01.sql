@@ -70,5 +70,15 @@ select n1.* in (NULL, n1.*) from names n1;
 select n1.* in (NULL - NULL , n1.*) from names n1;
 select n1.* in (NULL + NULL , n1.*) from names n1;
 select n1.* in (NULL * NULL , n1.*) from names n1;
------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+-- Test CASE inside a subquery used as a binary operand in outer query
+-- This used to previously SIG-11 in lp_is_operand_type_string.c.
+-- Expected output is no error.
+-------------------------------------------------------------------------------
+-- Test https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/803#note_1495138200
+select (case when id > (select 1) then (select 1) else (select 0) end)=1 as idbool from names;
+
+-- Test https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/803#note_1495376878
+select (case when true then 1 end) = 1;
 

@@ -1685,7 +1685,7 @@ table_constraint
 
 unique_constraint_definition
   : unique_specifications LEFT_PAREN unique_column_list RIGHT_PAREN {
-	MALLOC_KEYWORD_CONSTRAINT_STATEMENT($$, $unique_specifications, NULL, $unique_column_list);
+	MALLOC_KEYWORD_CONSTRAINT_STATEMENT($$, (uintptr_t)$unique_specifications, NULL, $unique_column_list);
     }
   ;
 
@@ -1886,7 +1886,7 @@ column_constraint
       MALLOC_KEYWORD_CONSTRAINT_STATEMENT($$, NOT_NULL, NULL, NULL);
     }
   | unique_specifications {
-	MALLOC_KEYWORD_CONSTRAINT_STATEMENT($$, $unique_specifications, NULL, NULL);
+	MALLOC_KEYWORD_CONSTRAINT_STATEMENT($$, (uintptr_t)$unique_specifications, NULL, NULL);
     }
 //  | reference_specifications		TODO: Uncomment as part of YDBOcto#773 FOREIGN KEY constraint support
   | check_constraint_definition { $$ = $check_constraint_definition; }

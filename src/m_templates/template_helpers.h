@@ -21,13 +21,13 @@
 #define TMPL(fn, ...) fn(global_buffer, buffer_len, buffer_index, ##__VA_ARGS__);
 
 // This does not put a trailing semicolon
-#define TEMPLATE(name, ...) void name(char **global_buffer, int *buffer_len, int *buffer_index, ##__VA_ARGS__)
+#define TEMPLATE(name, ...) void name(char **global_buffer, uint64_t *buffer_len, uint64_t *buffer_index, ##__VA_ARGS__)
 
 /// WARNING: this macro assumes the presence of global_buffer, buffer_len, buffer_index, written, retry
 #define TEMPLATE_SNPRINTF(...)                                                                                  \
 	do {                                                                                                    \
 		boolean_t retry;                                                                                \
-		int	  written;                                                                              \
+		uint64_t  written;                                                                              \
                                                                                                                 \
 		retry = FALSE;                                                                                  \
 		written = snprintf(*global_buffer + *buffer_index, *buffer_len - *buffer_index, ##__VA_ARGS__); \
@@ -176,7 +176,7 @@ typedef enum {
 	UniqueConstraintLoopMax,
 } UniqueConstraintLoopType;
 
-void resize_tmpl_buffer(char **global_buffer, int *buffer_len, int *buffer_index);
+void resize_tmpl_buffer(char **global_buffer, uint64_t *buffer_len, uint64_t *buffer_index);
 
 TEMPLATE(tmpl_print_dots, int dots);
 TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan);

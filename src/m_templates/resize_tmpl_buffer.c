@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -13,7 +13,7 @@
 #include "octo_types.h"
 #include "template_helpers.h"
 
-void resize_tmpl_buffer(char **global_buffer, int *buffer_len, int *buffer_index) {
+void resize_tmpl_buffer(char **global_buffer, uint64_t *buffer_len, uint64_t *buffer_index) {
 	*buffer_len *= 2;
 	char *tmp = calloc(*buffer_len, sizeof(char));
 	memcpy(tmp, *global_buffer, *buffer_index);

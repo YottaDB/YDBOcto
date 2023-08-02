@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -18,7 +18,7 @@
 ; -----------------------------------------------------------------------------------------------------
 
 genrandomqueries	;
-	set maxjoins=+$zcmdline
+	set maxjoins=1+$random(+$zcmdline)
 	set primarykey("customers")="customer_id"
 	set primarykey("orders")="order_id"
 	; Define possible values of columns in customers and orders table (later used by ON and/or WHERE clause)
@@ -198,11 +198,13 @@ chooseOnClauseOperands(left,right,i)
 	; Randomly (with 1/16 probability) choose both sides to be literals.
 	if 0=rand do  quit
 	. if $random(2) do
-	. .	; choose literals that are not equal to each other
-	. .	set left="1",right="2"
+	. . ; choose literals that are not equal to each other
+	. . if $random(2) set left="1",right="2"
+	. . else  set left="NULL",right="1"
 	. else  do
-	. .	; choose literals that are equal to each other
-	. .	set left="1",right="1"
+	. . ; choose literals that are equal to each other
+	. . if $random(2) set left="1",right="1"
+	. . else  set left="NULL",right="NULL"
 	; Randomly (with 3/16 probability) choose one side to be a literal and one side to be a column reference.
 	if 4>rand do  quit
 	. ; choose column reference randomly from available tables till `i`th index

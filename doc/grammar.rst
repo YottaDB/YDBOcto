@@ -375,7 +375,7 @@ In READONLY tables, if none of the columns are specified as keys (PRIMARY KEY or
 
   Note:
 
-    * Table and column names may be specified as either unquoted identifiers, e.g. :code:`id` or :code:`mytable`, or as double-quoted identifiers, e.g. :code:`"id"` or :code: `"mytable"`.
+    * Table and column names may be specified as either unquoted identifiers, e.g. :code:`id` or :code:`mytable`, or as double-quoted identifiers, e.g. :code:`"id"` or :code:`"mytable"`.
     * Unquoted identifiers are *case insensitive* and internally cast to uppercase, while double-quoted identifiers are *case sensitive*
     * Double-quoted identifiers may contain spaces and/or SQL keywords
     * Underscores are allowed in all identifiers
@@ -981,7 +981,7 @@ SELECT
 
   The SELECT statement is used to select rows from the database by specifying a query, and optionally sorting the resulting rows.
 
-Table and column names may be specified as either unquoted identifiers, e.g. :code:`id` or :code:`mytable`, or as double-quoted identifiers, e.g. :code:`"id"` or :code: `"mytable"`. Unquoted identifiers are *case insensitive* and cast internally to uppercase, while double-quoted identifiers are *case sensitive*. Additionally, double-quoted identifiers may contain spaces and/or SQL keywords.
+Table and column names may be specified as either unquoted identifiers, e.g. :code:`id` or :code:`mytable`, or as double-quoted identifiers, e.g. :code:`"id"` or :code:`"mytable"`. Unquoted identifiers are *case insensitive* and cast internally to uppercase, while double-quoted identifiers are *case sensitive*. Additionally, double-quoted identifiers may contain spaces and/or SQL keywords.
 
 Note also that Octo converts all unquoted identifiers to *upper case* internally, such that double-quoted identifiers referring to tables or columns created by a :code:`CREATE TABLE` statement that did not specify these names using double-quoted identifiers must be in upper case in order to avoid unknown table or unknown column errors.
 
@@ -1474,7 +1474,7 @@ Functions
 
   Note that function prototypes that appear both with and without parentheses indicate that the given function may be called both with and without parentheses. For example, :code:`CURRENT_CATALOG()` may be called as either :code:`CURRENT_CATALOG()` or :code:`CURRENT_CATALOG`.
 
-  Function names may be specified as either unquoted identifiers, e.g. :code:`abs` or :code:`concat`, or as double-quoted identifiers, e.g. :code:`"abs"` or :code: `"concat"`. Unquoted identifiers are *case insensitive* and will be internally cast to uppercase, while double-quoted identifiers are *case sensitive*. Additionally, double-quoted identifiers may contain spaces and/or SQL keywords.
+  Function names may be specified as either unquoted identifiers, e.g. :code:`abs` or :code:`concat`, or as double-quoted identifiers, e.g. :code:`"abs"` or :code:`"concat"`. Unquoted identifiers are *case insensitive* and will be internally cast to uppercase, while double-quoted identifiers are *case sensitive*. Additionally, double-quoted identifiers may contain spaces and/or SQL keywords.
 
   Note that when calling functions using double-quoted identifiers, only the *function name* should be double quoted and not the parentheses or arguments.
 

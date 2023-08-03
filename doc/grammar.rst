@@ -693,7 +693,7 @@ CREATE FUNCTION
 
   The CREATE FUNCTION statement is used to create SQL functions that map to extrinsic M functions and store these mappings in the database. The keywords CREATE FUNCTION are followed by the name of the SQL function to be created, the data types of its parameters, its return type, and the fully-qualified extrinsic M function name.
 
-  The name of the SQL function may be specified as either unquoted identifiers, e.g. :code:`id` or :code:`mytable`, or as double-quoted identifiers, e.g. :code:`"id"` or :code: `"mytable"`. Unquoted identifiers are *case insensitive* and cast internally to uppercase, while double-quoted identifiers are *case sensitive*. Additionally, double-quoted identifiers may contain spaces and/or SQL keywords.
+  The name of the SQL function may be specified as either unquoted identifiers, e.g. :code:`id` or :code:`mytable`, or as double-quoted identifiers, e.g. :code:`"id"` or :code:`"mytable"`. Unquoted identifiers are *case insensitive* and cast internally to uppercase, while double-quoted identifiers are *case sensitive*. Additionally, double-quoted identifiers may contain spaces and/or SQL keywords.
 
   If IF NOT EXISTS is supplied for a CREATE FUNCTION statement and a function exists, the result is a no-op with no errors. In this case, error type INFO_FUNCTION_ALREADY_EXISTS is emitted at INFO log severity level.
 
@@ -796,7 +796,7 @@ CREATE VIEW
 
      view_definition: select_query or values clause or set_operation
 
-  The column_name_list is a comma separated list of column names that is assigned to the columns defined by the view_definition. column_name_list resolves any name collision that might be present in the view definition. Name collisions in the column_name_list itself will generate an error.
+  The :code:`column_name_list` is a comma separated list of column names that is assigned to the columns defined by the view_definition. :code:`column_name_list` resolves any name collision that might be present in the view definition. Name collisions in the :code:`column_name_list` itself will generate an error.
 
   A view after its creation can be used in all the clauses where a table can be used. Joins can be performed with views and non-view relations. If a view depends on a table/function/another view, DROP command cannot be applied on the relation on which the view depends on. If applied an error describing the dependency is generated.
 
@@ -809,7 +809,7 @@ CREATE VIEW
      CREATE VIEW v1 AS select * from names;
      select * from v1;
 
-  The above example creates a view with the name v1 and has as its definition a select query which iterates through all data in the names database. The SELECT on the view above will run `select * from names` and provide the same output as the defining query.
+  The above example creates a view with the name :code:`v1` and has as its definition a select query which iterates through all data in the names database. The SELECT on the view above will run :code:`select * from names` and provide the same output as the defining query.
 
   Example:
 
@@ -818,7 +818,7 @@ CREATE VIEW
      CREATE VIEW v1 (v1_id, v1_firstname, v1_lastname) AS select * from names;
      select * from v1;
 
-  The above example creates a view with the name v1 and columns v1_id, v1_firstname and v1_lastname. The column names specified will be column names used while displaying the result. In the above example the underlying query will have columns id, firstname and lastname. These are replaced by v1_id, v1_firstname and v1_lastname.
+  The above example creates a view with the name :code:`v1` and columns :code:`v1_id`, :code:`v1_firstname` and :code:`v1_lastname`. The column names specified will be column names used while displaying the result. In the above example the underlying query will have columns :code:`id`, :code:`firstname` and :code:`lastname`. These are replaced by :code:`v1_id`, :code:`v1_firstname` and :code:`v1_lastname`.
 
   Example:
 
@@ -845,6 +845,13 @@ CREATE VIEW
     CREATE VIEW v1 AS select max(id) from names;
 
   The above example demonstrates that a view can be created with functions.
+
++++++++++++++
+Error Case
++++++++++++++
+
+  .. note::
+     A CREATE VIEW waits for all other concurrently running queries(SELECT or CREATE TABLE or DROP TABLE) to finish so it can safely make DDL changes. It waits for an exclusive lock with a timeout of 10 seconds. If it fails owing to a timeout, retry when currently running queries complete, or after stopping them.
 
 ---------------
 DISCARD ALL
@@ -931,13 +938,20 @@ DROP VIEW
 
   The DROP VIEW statement is used to remove views from the database. The keywords DROP VIEW are followed by the name of the view desired to be dropped.
 
-  If :code:`IF EXISTS` is supplied for a :code:`DROP VIEW` statement and a view does not exist, the result is a no-op with no errors. In this case, error type :code:`INFO_VIEW_DOES_NOT_EXIST` is emitted at :code: `INFO` log severity level.
+  If :code:`IF EXISTS` is supplied for a DROP VIEW statement and a view does not exist, the result is a no-op with no errors. In this case, error type :code:`INFO_VIEW_DOES_NOT_EXIST` is emitted at :code:`INFO` log severity level.
 
   Example:
 
   .. code-block:: SQL
 
      DROP VIEW v1;
+
++++++++++++++
+Error Case
++++++++++++++
+
+  .. note::
+     A DROP VIEW waits for all other concurrently running queries(SELECT or CREATE TABLE or DROP TABLE) to finish so it can safely make DDL changes. It waits for an exclusive lock with a timeout of 10 seconds. If it fails owing to a timeout, retry when currently running queries complete, or after stopping them.
 
 --------------
 TRUNCATE TABLE
@@ -1017,7 +1031,15 @@ FROM
 	     SELECT *
 	     FROM names;
 
-      - **alias** : A temporary name given to a table or a column for the purposes of a query. Please refer to the :ref:`sql-alias` section below for more information.
+      - **view_name** : The name of an existing view.
+
+          .. code-block:: SQL
+
+             /* Selects all rows generated by the view definition */
+	     SELECT *
+	     FROM v1;
+
+      - **alias** : A temporary name given to a table or a view or a column for the purposes of a query. Please refer to the :ref:`sql-alias` section below for more information.
 
           .. code-block:: SQL
 
@@ -2554,7 +2576,7 @@ Useful Commands at OCTO>
 
     .. note::
 
-      :code:`\\d` ,:code:`\\dv` ,:code:`\\d tablename` and :code: `\\d viewname` require a semi-colon to terminate the query. Newlines will *not* terminate :code:`\\d` queries.
+      :code:`\\d` , :code:`\\dv` , :code:`\\d tablename` and :code:`\\d viewname` require a semi-colon to terminate the query. Newlines will *not* terminate :code:`\\d` queries.
 
     Relation shown will be similar to the following:
 
@@ -2613,12 +2635,13 @@ Useful Commands at OCTO>
 
        OCTO> \d v1;
        View "V1"
+
        Column|Type|Collation|Nullable|Default
        ID|INTEGER||||
        FIRSTNAME|VARCHAR(30)||||
        LASTNAME|VARCHAR(30)||||
        View definition:
-       SELECT NAMES.ID, NAMES.FIRSTNAME, NAMES.LASTNAME FROM NAMES
+       create view v1 as select * from names;
 
     :code:`\\d tablename` displays CHECK constraints, if defined.
 

@@ -151,7 +151,6 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
-    . . . . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")
     . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")
     . . . . . . . . . . . . . . DO:0=%ydboctoz(11)
     . . . . . . . . . . . . . . . SET %ydboctoexpr=1
@@ -172,8 +171,6 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
-    . . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")
-    . . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")
     . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID")
     . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OBJOID")
     . . . . . . . . . . . DO:0=%ydboctoz(9)
@@ -195,10 +192,6 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
-    . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")
-    . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")
-    . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID")
-    . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OBJOID")
     . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",5,"PG_CATALOG.PG_ATTRDEF","OID")
     . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",5,"PG_CATALOG.PG_ATTRDEF","ADRELID")
     . . . . . . . . DO:0=%ydboctoz(7)
@@ -273,7 +266,6 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
-    . . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")
     . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")
     . . . . . . . . . . . . DO:0=%ydboctoz(11)
     . . . . . . . . . . . . . SET %ydboctoexpr=1
@@ -294,8 +286,6 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
-    . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")
-    . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")
     . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID")
     . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OBJOID")
     . . . . . . . . . DO:0=%ydboctoz(9)
@@ -317,12 +307,6 @@ octoPlan1(cursorId)
     . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
-    . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")
-    . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")
-    . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID")
-    . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OBJOID")
-    . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",5,"PG_CATALOG.PG_ATTRDEF","OID")
-    . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",5,"PG_CATALOG.PG_ATTRDEF","ADRELID")
     . . . . . . ZKILL %ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME")
     . . . . . . ZKILL %ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","OID")
     . . . . ZKILL %ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID")
@@ -446,7 +430,6 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
-    . . . . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")
     . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")
     . . . . . . . . . . . . . . DO:0=%ydboctoz(11)
     . . . . . . . . . . . . . . . SET %ydboctoexpr=1
@@ -463,8 +446,6 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
-    . . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")
-    . . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")
     . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID")
     . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OBJOID")
     . . . . . . . . . . . DO:0=%ydboctoz(9)
@@ -482,10 +463,6 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
-    . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")
-    . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")
-    . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID")
-    . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OBJOID")
     . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",5,"PG_CATALOG.PG_ATTRDEF","OID")
     . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",5,"PG_CATALOG.PG_ATTRDEF","ADRELID")
     . . . . . . . . DO:0=%ydboctoz(7)
@@ -552,7 +529,6 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
-    . . . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")
     . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")
     . . . . . . . . . . . . DO:0=%ydboctoz(11)
     . . . . . . . . . . . . . SET %ydboctoexpr=1
@@ -569,8 +545,6 @@ octoPlan1(cursorId)
     . . . . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
-    . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")
-    . . . . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")
     . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID")
     . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OBJOID")
     . . . . . . . . . DO:0=%ydboctoz(9)
@@ -588,12 +562,6 @@ octoPlan1(cursorId)
     . . . . . . . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . . . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . . . . . . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctoexpr
-    . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",8,"PG_CATALOG.PG_NAMESPACE","OID")
-    . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",7,"PG_CATALOG.PG_CLASS","OID")
-    . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OID")
-    . . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",6,"PG_CATALOG.PG_DESCRIPTION","OBJOID")
-    . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",5,"PG_CATALOG.PG_ATTRDEF","OID")
-    . . . . . . . . . ZKILL %ydboctocursor(cursorId,"keys",5,"PG_CATALOG.PG_ATTRDEF","ADRELID")
     . . . . . . ZKILL %ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","TYPNAME")
     . . . . . . ZKILL %ydboctocursor(cursorId,"keys",4,"PG_CATALOG.PG_TYPE","OID")
     . . . . ZKILL %ydboctocursor(cursorId,"keys",3,"PG_CATALOG.PG_ATTRIBUTE","OID")

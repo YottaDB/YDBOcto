@@ -100,8 +100,12 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 		}
 	}
 
-	int	orig_dot_count;
+	int		orig_dot_count;
 	orig_dot_count = dot_count;
+
+	boolean_t	need_tmpl_key_finish;
+	need_tmpl_key_finish = FALSE;
+
 	fixed_xref_key = NULL;
 	for ( ; cur_key < total_keys; cur_key++) {
 		// For each key, output the key start, a FOR loop, QUIT, and increment
@@ -158,6 +162,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 				%{}SET {}%
 				TMPL(tmpl_key, key);
 				%{}={{ PP_YDB_OCTO_EXPR }}{}%
+				need_tmpl_key_finish = TRUE;
 				/* The "tmpl_key_source" function call below would result in an M gvn.
 				 * If the `fixed_to_value` is `$ZYSQLNULL`, we have to skip doing the gvn reference
 				 * with `$ZYSQLNULL` as a subscript (as it causes a ZYSQLNULLNOTVALID error currently).
@@ -226,6 +231,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 		}
 		TMPL(tmpl_print_dots, dot_count);
 		TMPL(tmpl_key_start, key);
+		need_tmpl_key_finish = TRUE;
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
 		/* If STARTINCLUDE was specified for this key column, include the starting value also in the FOR loop.
@@ -414,24 +420,26 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 			pplan->treat_key_as_null[right_table_id] = FALSE;
 		}
 	}
-	assert(cur_key > key_start);
-	for ( ; cur_key > key_start; cur_key--) {
-		key = pplan->iterKeys[cur_key - 1];
-		if (key->is_cross_reference_key && (NULL == key->column) && (NULL != key->table)) {
-			/* A cross reference key always has a non-NULL column and table (guaranteed by an assert in
-			 * "lp_alloc_key.c". But this cross reference key has a NULL column and a non-NULL table.
-			 * This is the case of a temporarily disabled xref key (i.e. it is processed using "tmpl_emit_source"
-			 * and not using "tmpl_key") during the second half of a RIGHT JOIN.  See comments in code further
-			 * down below (search for "save_key_column") for how a recursive caller would have created this
-			 * situation. So skip emitting M code for this disabled key as there is no lvn corresponding to this
-			 * key that needs to be cleaned up (i.e. KILLed).
-			 */
-			continue;
+	if (need_tmpl_key_finish) {
+		assert(cur_key > key_start);
+		for ( ; cur_key > key_start; cur_key--) {
+			key = pplan->iterKeys[cur_key - 1];
+			if (key->is_cross_reference_key && (NULL == key->column) && (NULL != key->table)) {
+				/* A cross reference key always has a non-NULL column and table (guaranteed by an assert in
+				 * "lp_alloc_key.c". But this cross reference key has a NULL column and a non-NULL table.
+				 * This is the case of a temporarily disabled xref key (i.e. it is processed using "tmpl_emit_source"
+				 * and not using "tmpl_key") during the second half of a RIGHT JOIN.  See comments in code further
+				 * down below (search for "save_key_column") for how a recursive caller would have created this
+				 * situation. So skip emitting M code for this disabled key as there is no lvn corresponding to this
+				 * key that needs to be cleaned up (i.e. KILLed).
+				 */
+				continue;
+			}
+			%{}`n{{ PLAN_LINE_START }}{}%
+			TMPL(tmpl_print_dots, orig_dot_count);
+			assert(0 < cur_key);
+			TMPL(tmpl_key_finish, key);
 		}
-		%{}`n{{ PLAN_LINE_START }}{}%
-		TMPL(tmpl_print_dots, orig_dot_count);
-		assert(0 < cur_key);
-		TMPL(tmpl_key_finish, key);
 	}
 	if (pplan->tablejoin == tablejoin) {
 		/* This is the outermost "tmpl_tablejoin" invocation. Do additional invocation for RIGHT JOINs (if any)

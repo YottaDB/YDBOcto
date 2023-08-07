@@ -2739,22 +2739,20 @@ Northwind DDL Example
 
   .. code-block:: SQL
 
-     CREATE TABLE Customers(
+     CREATE TABLE nwCustomers(
        CustomerID INTEGER PRIMARY KEY,
        CustomerName VARCHAR(48),
        ContactName VARCHAR(32),
        Address VARCHAR(64),
        City VARCHAR(32),
-       PostalCode VARCHAR(16) NOT NULL,
+       PostalCode VARCHAR(16),
        Country VARCHAR(32)
      )
-     GLOBAL "^Customers";
+     GLOBAL "^nwCustomers";
 
-  In the above, the :code:`Customers` table maps data in nodes of the global variable :code:`^Customers`. The columns of the primary key of the table are all subscripts of a global variable node (all columns in the primary key are global variable subscripts; all global variable subscripts are not necessarily columns, as shown by the next example). The :code:`^Customers` global variable has one subscript, an integer mapping to the column :code:`CustomerID`.
+  In the above, the :code:`nwCustomers` table maps data in nodes of the global variable :code:`^nwCustomers`. The columns of the primary key of the table are all subscripts of a global variable node (all columns in the primary key are global variable subscripts; all global variable subscripts are not necessarily columns, as shown by the next example). The :code:`^nwCustomers` global variable has one subscript, an integer mapping to the column :code:`CustomerID`.
 
   Columns such as :code:`CustomerName` are pieces of the node, using the default :code:`"|"` as the piece separator, in the order listed. If PIECE is not specified, Octo maps columns in the order in which they appear in the CREATE TABLE statement to consecutive pieces of the global node value.
-
-  SQL allows columns other than key columns to have a :code:`NULL` value. The :code:`NOT NULL` for the :code:`PostalCode` column tells Octo that this column can never have a :code:`NULL` value. Since Octo uses empty strings to store :code:`NULL` in the global variable nodes, this means that there can never be a global variable node in the :code:`^Customers` global with an empty string as the fifth piece.
 
 .. _vista-ddl-ex-1:
 

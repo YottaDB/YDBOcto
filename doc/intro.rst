@@ -259,11 +259,11 @@ Sample Queries
      Finland
      Canada
 
-    The following query selects the first five records from the 'Customers' table where the country is 'France'.
+    The following query selects the first five records from the 'nwCustomers' table where the country is 'France'.
 
     .. code-block:: PSQL
 
-     OCTO> SELECT * FROM Customers
+     OCTO> SELECT * FROM nwCustomers
      OCTO> WHERE Country='France'
      OCTO> LIMIT 5;
      7|Blondel père et fils|Frédérique Citeaux|24, place Kléber|Strasbourg|67000|France

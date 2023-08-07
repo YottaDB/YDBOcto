@@ -228,3 +228,13 @@ teardown() {
 	load_fixture TVD0010.sql subtest novv
 	verify_output TVD0010 output.txt
 }
+
+@test "TVD0011 : YDBOctoVistA#34 VistA Functions need to handle SQL NULL" {
+	load_fixture TVD0011.sql subtest novv
+	verify_output TVD0011 output.txt
+}
+
+@test "TVD0012 : YDBOctoVistA#34 Test VistA Functions" {
+	load_fixture TVD0012.sql subtest novv
+	verify_output TVD0012 output.txt
+}

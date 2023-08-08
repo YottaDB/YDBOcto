@@ -1069,12 +1069,19 @@ else
 					usedjdbcdriver=0
 				fi
 				if [[ ($subtest =~ ^"TQG") && (-n $octooutfile) ]]; then
-					# a) If the random older commit predates the YDBOcto#649 commit, then the octo output
+					# a) If the query executed is CREATE/DROP statement and JDBC driver was used, the output will not be
+					#    comparable so just ensuring ret_status was -lt 1 is enough validation(done prior to this code block.
+					#    Continue to the next file.
+					# b) If the random older commit predates the YDBOcto#649 commit, then the octo output
 					#    would not contain the row-header and row summary line at the head and tail of the octo output.
 					#    So filter that out from the newer Octo build output.
-					# b) If the random older commit postdates the YDBOcto#649 commit, even then the octo output would
+					# c) If the random older commit postdates the YDBOcto#649 commit, even then the octo output would
 					#    not contain the row-header and row summary line if the test ran using the JDBC driver.
 					#    So remove the same lines from the octo output of the newer commit.
+					if [[ (0 != $usedjdbcdriver) && (("create" == $querytype) || ("drop" == $querytype)) ]]; then
+						# JDBC driver would have output the `#number of rows` text and that is not comparable to `../newsrc/octo -f` execution
+						continue
+					fi
 					pre_octo649_commit="9c64861100d7f6c6653a75f7b06f036465c2f486"
 					# Disable the "set -e" setting temporarily as the "git merge-base" can return exit status 0 or 1
 					set +e

@@ -392,3 +392,17 @@ OCTO
 	load_fixture TERR049.sql subtest novv
 	verify_output TERR049 output.txt
 }
+
+@test "TERR050 : OCTO1004 : Ensure auto load failure returns an error and exits" {
+	# Do not use database created by "init_test" as auto upgrade would have already happened on it
+	# (due to the "load_fixture" calls). Create an empty database file and perform the test.
+	rm -f *.gld *.dat
+	$ydb_dist/yottadb -run GDE exit
+	$ydb_dist/mupip create
+	mupip set -null=always -reg DEFAULT
+	# Following invocation should not result in sig-11
+	octo <<OCTO 2>&1 | tee -a output.txt
+\d;
+OCTO
+	verify_output TERR050 output.txt
+}

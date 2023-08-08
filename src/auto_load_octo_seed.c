@@ -147,6 +147,11 @@ int auto_load_octo_seed(void) {
 	ERASE_INPUT_BUFFER; /* Clear history of all "parse_line()" processing related to binary function upgrade to avoid
 			     * confusion when we next proceed to run real queries.
 			     */
+	if (0 != status) {
+		/* run_query() has failed to process one of the seed table or function. Exit with an error. */
+		ERROR(ERR_AUTO_SEED_LOAD, "");
+		return 1;
+	}
 	/* -----------------------------------------------------------------
 	 * Do the actual load of the "octo-seed.zwr" file.
 	 * -----------------------------------------------------------------

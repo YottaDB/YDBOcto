@@ -930,6 +930,14 @@ ERR_NUMERIC_OVERFLOW
 
   Description/Action: This error indicates that the integer portion of a value that is being type cast to NUMERIC(PRECISION,SCALE) cannot be longer than PRECISION-SCALE (i.e. PRECISION minus SCALE) decimal digits. PSQL Error Code: 22003
 
++++++++++++++++++++
+ERR_AUTO_SEED_LOAD
++++++++++++++++++++
+
+  Text: Failed to load internal tables and functions
+
+  Description/Action: This error indicates that the auto load of internal tables and function have failed. Examine the preceding messages for more error detail. Fix the cause of that error and rerun the command that produced the ERR_AUTO_SEED_LOAD error. PSQL Error Code: XX000
+
 ++++++++++++++++++++++++++++++
 ERR_ORDER_BY_POSITION_INVALID
 ++++++++++++++++++++++++++++++

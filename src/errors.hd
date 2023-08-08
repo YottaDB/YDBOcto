@@ -25,6 +25,7 @@ ERROR_DEF(ERR_PLAN_NOT_WELL_FORMED, "Plan produced by optimizer appears incorrec
 ERROR_DEF(ERR_FAILED_TO_OPTIMIZE_PLAN, "Failed to optimize logical plan", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_UNKNOWN_KEYWORD_STATE, "Unknown state reached; please contact your Octo support channel", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_YOTTADB, "YottaDB error: %s", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_AUTO_SEED_LOAD, "Failed to load internal tables and functions", PSQL_Code_Internal_Error)
 // ROCTO //
 ERROR_DEF(ERR_ROCTO_TLS_ACCEPT, "ydb_tls_accept: %s", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_ROCTO_TLS_UNNAMED, "Unnamed failure in ydb_tls_accept: %s (tls_errno: %d)", PSQL_Code_Internal_Error)

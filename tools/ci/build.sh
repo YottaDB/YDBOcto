@@ -823,6 +823,16 @@ else
 		# Re-enable "set -e" now that "git merge-base" invocation is done.
 		set -e
 
+		# Note down if older commit is prior to YDBOcto#211 TAU related fix.
+		# This will be used later to skip a few tests.
+		pre_octo211_commit="9fe6a0ad1cf9a258171b2e2ec5b18113403656f4"	# 1 commit before YDBOcto#211 commit
+		# Disable the "set -e" setting temporarily as the "git merge-base" can return exit status 0 or 1
+		set +e
+		git merge-base --is-ancestor $commitsha $pre_octo211_commit
+		is_post_octo211_commit=$?
+		# Re-enable "set -e" now that "git merge-base" invocation is done.
+		set -e
+
 		# When ydb_chset=UTF-8 is randomly chosen by the test framework, replaying the TLL* subtests in the
 		# test_long_lines test requires more stack space than the default of 8Mb. "tests/test_long_lines.bats.in"
 		# already has code in the "setup()" function to take this into account. Duplicate that logic here so
@@ -851,6 +861,15 @@ else
 			fi
 			subtest=$(sed 's/.*subtest \[//;s/].*//;' bats_test.out)
 			if [[ ($subtest =~ ^"TAU") ]]; then
+				if [[ ($subtest =~ ^"TAU002") && (0 == $is_post_octo211_commit) ]]; then
+					# Before "9fe6a0ad1cf9a258171b2e2ec5b18113403656f4", TAU002 subtest ran auto-upgrade test
+					# queries in old commit itself unintentionally. This caused the auto-upgrade test queries
+					# to fail when run by the below code. Therefore skip this subtest.
+					echo "SKIPPED : $tstdir : [subtest : $subtest]" >> ../bats_test.txt
+					cd ..
+					rm -rf $tstdir
+					continue
+				fi
 				# Run auto upgrade specific test
 				setup_before_running_sql_files
 				subtestName=$(echo $subtest | cut -d " " -f1)

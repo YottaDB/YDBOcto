@@ -823,6 +823,12 @@ else
 		# Re-enable "set -e" now that "git merge-base" invocation is done.
 		set -e
 
+		# When ydb_chset=UTF-8 is randomly chosen by the test framework, replaying the TLL* subtests in the
+		# test_long_lines test requires more stack space than the default of 8Mb. "tests/test_long_lines.bats.in"
+		# already has code in the "setup()" function to take this into account. Duplicate that logic here so
+		# we don't run into stack space issues (which can show up as a "Segmentation fault (core dumped)" error).
+		ulimit -s 131072
+
 		# Point src to newsrc
 		ln -s newsrc src
 		for tstdir in bats-test.*

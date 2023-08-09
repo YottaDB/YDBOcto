@@ -12,7 +12,8 @@
 -- TVD0011 : YDBOctoVistA#34 VistA Functions need to handle SQL NULL
 select CURRTIMESTAMP((select null::varchar)) IS NULL as CURRTIMESTAMP;
 select GETDATE((select null::varchar)) IS NULL as GETDATE;
-select DATEFORMAT((select null::numeric),'5Z') IS NULL as DATEFORMAT;
+select DATEFORMAT((select null::numeric)) IS NULL as DATEFORMAT1;
+select DATEFORMAT((select null::numeric),'5Z') IS NULL as DATEFORMAT2;
 select FMGET(200::numeric,.01,(select null::numeric)) IS NULL as FMGET1;
 select FMGET(200::numeric,.01,(select null::numeric),(select null::numeric)) IS NULL as FMGET2;
 select FMGET(200::numeric,.01,1::numeric,(select null::numeric),(select null::numeric)) IS NULL as FMGET3;

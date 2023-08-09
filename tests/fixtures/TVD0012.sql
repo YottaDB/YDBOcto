@@ -13,6 +13,8 @@
 --
 -- select CURRTIMESTAMP('v'); -- Disabled as answer different by date
 -- select GETDATE('v');       -- Ditto
+select DATEFORMAT(3000101.010101);
+select DATEFORMAT(3000101.010101,'');
 select DATEFORMAT(3000101.010101,'5Z');
 select FMGET(200::numeric,.01,1::numeric);
 select FMGET(200.03,.01,2::numeric,1::numeric);

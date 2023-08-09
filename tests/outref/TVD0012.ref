@@ -1,7 +1,9 @@
 -- TVD0012 : YDBOctoVistA#34 Test VistA Functions
--- 
+--
 -- select CURRTIMESTAMP('v'); -- Disabled as answer different by date
 -- select GETDATE('v');       -- Ditto
+select DATEFORMAT(3000101.010101);
+select DATEFORMAT(3000101.010101,'');
 select DATEFORMAT(3000101.010101,'5Z');
 select FMGET(200::numeric,.01,1::numeric);
 select FMGET(200.03,.01,2::numeric,1::numeric);
@@ -17,6 +19,12 @@ select REPLACE('ABCA', 'A', 'B');
 select RIGHTY('ABCDEFGH',5);
 select FMDIFF(3000102.010101,3000101.010101,2);
 select FMADD(3000101.010101,1,0,0,0);
+DATEFORMAT
+01/01/2000 1:01:01 am
+(1 row)
+DATEFORMAT
+01/01/2000 1:01:01 am
+(1 row)
 DATEFORMAT
 01/01/2000@TIME
 (1 row)

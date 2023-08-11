@@ -206,6 +206,7 @@
 #define OCTOLIT_USER		       "user"
 #define OCTOLIT_USERS		       "users"
 #define OCTOLIT_VALUE		       "value"
+#define OCTOLIT_VALUES		       "values"
 #define OCTOLIT_VARIABLE	       "variable"
 #define OCTOLIT_VIEWS		       "views"
 #define OCTOLIT_VIEW		       "VIEW"

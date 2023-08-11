@@ -196,6 +196,12 @@ discardView(viewName,viewGVNAME)
 	. . . . ; Need to also kill the following gvn which is maintained in sync with the above
 	. . . . ; ^%ydboctoocto("viewdependency","V1","fromview","V2")
 	. . . . KILL ^%ydboctoocto("viewdependency",dependentOnViewName,"fromview",viewName)
+	. . ; ----------------
+	. . ; Remove global variable nodes that record if the view depends on VALUES clause
+	. . ; ----------------
+	. . ; Note the below gvn might not exist if the current view doesn't use a VALUES clause and an auto upgrade hasn't happened
+	. . ; for it.
+	. . KILL ^%ydboctoocto("viewdependency",viewName,"values")
 	QUIT
 
 discardPlan(srcPlan)

@@ -95,6 +95,32 @@ int auto_upgrade_binary_table_definition(void) {
 			break;
 		}
 		if (is_view) {
+			// Check if a `viewdependency` node exist for this view
+			ydb_buffer_t gvn_subs[4];
+			YDB_STRING_TO_BUFFER(config->global_names.octo, &gvn_subs[0]);
+			YDB_LITERAL_TO_BUFFER(OCTOLIT_VIEWDEPENDENCY, &gvn_subs[1]);
+			gvn_subs[2] = table_subs[0];
+
+			unsigned int ret_value;
+			status = ydb_data_s(&gvn_subs[0], 2, &gvn_subs[1], &ret_value);
+			assert(YDB_OK == status);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, NULL, FALSE, NULL);
+			/* It is possible for views to exist with `ret_value` being `0` in case VALUES clause alone exists in
+			 * the view definition or its join. If the view definition made use of table or a function (even
+			 * `select 1` makes use of `octoOneRowTable`) `ret_value` would be non-zero.
+			 */
+			if (!ret_value) {
+				// VALUES dependency exists
+				/* Store the following gvn node now, this ensures auto upgrade will include this view also in the
+				 * list of views it upgrades. Refer to the logic in src/aux/_ydboctoViewsUpgrade.m to know how
+				 * this happens.
+				 * Gvn - ^%ydboctoocto("viewdependency","V2","values");
+				 */
+				YDB_LITERAL_TO_BUFFER(OCTOLIT_VALUES, &gvn_subs[3]);
+				status = ydb_set_s(&gvn_subs[0], 3, &gvn_subs[1], NULL);
+				assert(YDB_OK == status);
+				CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, NULL, FALSE, NULL);
+			}
 			// Skip views upgrade it will be done later
 			continue;
 		}

@@ -1,0 +1,69 @@
+-- TITER10 : ORDER BY on a column with ITERATOR is not supported
+CREATE TABLE names (id INTEGER PRIMARY KEY ITERATOR "$$id^TITER10", firstName VARCHAR(30), lastName VARCHAR(30)) GLOBAL "^names";
+
+-- VALID CASE: ORDER BY on a non-ITERATOR column of an ITERATOR table returns sorted results
+SELECT firstName, lastName FROM names ORDER BY firstName;
+-- VALID CASE: ORDER BY DESC on a non-ITERATOR column also works
+SELECT firstName FROM names ORDER BY firstName DESC;
+
+-- INVALID CASES
+-- ORDER BY DESC on an ITERATOR column should error (was previously generating invalid M syntax)
+SELECT * FROM names ORDER BY id DESC;
+-- ORDER BY ASC on an ITERATOR column should also error (was previously silently dropping ORDER BY)
+SELECT * FROM names ORDER BY id ASC;
+-- ORDER BY by column number referencing the ITERATOR column should error too
+SELECT * FROM names ORDER BY 1 DESC;
+-- ORDER BY using a SELECT-list alias that resolves to the ITERATOR column should error
+SELECT id AS my_id FROM names ORDER BY my_id;
+-- ORDER BY referencing an ITERATOR column NOT in the SELECT list should also error (no SELECT-list rebinding)
+SELECT firstName FROM names ORDER BY id;
+-- Composite key with one ITERATOR column: ORDER BY the ITERATOR column should error
+CREATE TABLE composite (a INTEGER ITERATOR "$$a^TITER10", b INTEGER, val VARCHAR(30), PRIMARY KEY (a, b)) GLOBAL "^composite(keys(""a""),keys(""b""))";
+SELECT * FROM composite ORDER BY a;
+OCTO> CREATE TABLE names (id INTEGER PRIMARY KEY ITERATOR "$$id^TITER10", firstName VARCHAR(30), lastName VARCHAR(30)) GLOBAL "^names";
+CREATE TABLE
+OCTO> SELECT firstName, lastName FROM names ORDER BY firstName;
+firstname|lastname
+Acid|Burn
+Cereal|Killer
+Joey|
+Lord|Nikon
+Zero|Cool
+Zero|Cool
+(6 rows)
+OCTO> SELECT firstName FROM names ORDER BY firstName DESC;
+firstname
+Zero
+Zero
+Lord
+Joey
+Cereal
+Acid
+(6 rows)
+[ERROR]: ERR_ITERATOR_ORDER_BY_NOT_SUPPORTED: ORDER BY on column "id" is not supported as the column has an ITERATOR
+LINE 6:1: SELECT * FROM names ORDER BY id DESC;
+                                       ^^
+OCTO> SELECT * FROM names ORDER BY id DESC;
+[ERROR]: ERR_ITERATOR_ORDER_BY_NOT_SUPPORTED: ORDER BY on column "id" is not supported as the column has an ITERATOR
+LINE 7:1: SELECT * FROM names ORDER BY id ASC;
+                                       ^^
+OCTO> SELECT * FROM names ORDER BY id ASC;
+[ERROR]: ERR_ITERATOR_ORDER_BY_NOT_SUPPORTED: ORDER BY on column "id" is not supported as the column has an ITERATOR
+LINE 8:1: SELECT * FROM names ORDER BY 1 DESC;
+                                       ^
+OCTO> SELECT * FROM names ORDER BY 1 DESC;
+[ERROR]: ERR_ITERATOR_ORDER_BY_NOT_SUPPORTED: ORDER BY on column "id" is not supported as the column has an ITERATOR
+LINE 9:1: SELECT id AS my_id FROM names ORDER BY my_id;
+                                                 ^^^^^
+OCTO> SELECT id AS my_id FROM names ORDER BY my_id;
+[ERROR]: ERR_ITERATOR_ORDER_BY_NOT_SUPPORTED: ORDER BY on column "id" is not supported as the column has an ITERATOR
+LINE 10:1: SELECT firstName FROM names ORDER BY id;
+                                                ^^
+OCTO> SELECT firstName FROM names ORDER BY id;
+OCTO> CREATE TABLE composite (a INTEGER ITERATOR "$$a^TITER10", b INTEGER, val VARCHAR(30), PRIMARY KEY (a, b)) GLOBAL "^composite(keys(""a""),keys(""b""))";
+CREATE TABLE
+[ERROR]: ERR_ITERATOR_ORDER_BY_NOT_SUPPORTED: ORDER BY on column "a" is not supported as the column has an ITERATOR
+LINE 12:1: SELECT * FROM composite ORDER BY a;
+                                            ^
+OCTO> SELECT * FROM composite ORDER BY a;
+OCTO> 

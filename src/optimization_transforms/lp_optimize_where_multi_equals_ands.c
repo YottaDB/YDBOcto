@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -471,6 +471,10 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		SqlTable *table;
 
 		UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
+		// Tables with iterators cannot be cross-referenced
+		if (TRUE == table->has_iterator) {
+			return where;
+		}
 		generated_xref_keys = lp_generate_xref_keys(plan, table, column_alias, table_alias);
 		if (NULL == generated_xref_keys) {
 			return where;

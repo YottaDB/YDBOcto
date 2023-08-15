@@ -1,0 +1,127 @@
+-- TITER12 : ITERATOR key columns may be omitted from GLOBAL keys()
+-- Case 1 (allowed) : trailing ITERATOR key column omitted from GLOBAL
+DROP TABLE IF EXISTS t12a;
+CREATE TABLE t12a
+(
+	catsys VARCHAR(30),
+	id integer,
+	idx integer ITERATOR "$$idx^TITER01",
+	title VARCHAR(200) EXTRACT "$get(RAti(keys(""idx""),""ti""))",
+	PRIMARY KEY (catsys,id,idx)
+)
+DELIM "^"
+GLOBAL "^BCAT(keys(""catsys""),keys(""id""),""title"")";
+-- Case 2 (allowed) : middle ITERATOR key column omitted from GLOBAL
+DROP TABLE IF EXISTS t12b;
+CREATE TABLE t12b
+(
+	catsys VARCHAR(30),
+	id integer ITERATOR "$$id^TITER01",
+	idx integer,
+	title VARCHAR(200) EXTRACT "$get(RAti(keys(""idx""),""ti""))",
+	PRIMARY KEY (catsys,id,idx)
+)
+DELIM "^"
+GLOBAL "^BCAT(keys(""catsys""),""title"",keys(""idx""))";
+-- Case 3 (allowed) : ITERATOR key explicitly mentioned in GLOBAL is still accepted
+DROP TABLE IF EXISTS t12c;
+CREATE TABLE t12c
+(
+	catsys VARCHAR(30),
+	id integer ITERATOR "$$id^TITER01",
+	idx integer,
+	title VARCHAR(200) EXTRACT "$get(RAti(keys(""idx""),""ti""))",
+	PRIMARY KEY (catsys,id,idx)
+)
+DELIM "^"
+GLOBAL "^BCAT(keys(""catsys""),keys(""id""),""title"",keys(""idx""))";
+-- Case 4 (rejected) : a non-ITERATOR key column may NOT be omitted from GLOBAL
+DROP TABLE IF EXISTS t12d;
+CREATE TABLE t12d
+(
+	catsys VARCHAR(30),
+	id integer,
+	idx integer ITERATOR "$$idx^TITER01",
+	title VARCHAR(200) EXTRACT "$get(RAti(keys(""idx""),""ti""))",
+	PRIMARY KEY (catsys,id,idx)
+)
+DELIM "^"
+GLOBAL "^BCAT(keys(""catsys""),""title"")";
+-- Case 5 (rejected) : non-ITERATOR keys mentioned out of order still error
+DROP TABLE IF EXISTS t12e;
+CREATE TABLE t12e
+(
+	catsys VARCHAR(30),
+	id integer,
+	idx integer ITERATOR "$$idx^TITER01",
+	title VARCHAR(200) EXTRACT "$get(RAti(keys(""idx""),""ti""))",
+	PRIMARY KEY (catsys,id,idx)
+)
+DELIM "^"
+GLOBAL "^BCAT(keys(""id""),keys(""catsys""),""title"")";
+OCTO> DROP TABLE IF EXISTS t12a;
+DROP TABLE
+OCTO> CREATE TABLE t12a
+(
+	catsys VARCHAR(30),
+	id integer,
+	idx integer ITERATOR "$$idx^TITER01",
+	title VARCHAR(200) EXTRACT "$get(RAti(keys(""idx""),""ti""))",
+	PRIMARY KEY (catsys,id,idx)
+)
+DELIM "^"
+GLOBAL "^BCAT(keys(""catsys""),keys(""id""),""title"")";
+CREATE TABLE
+OCTO> DROP TABLE IF EXISTS t12b;
+DROP TABLE
+OCTO> CREATE TABLE t12b
+(
+	catsys VARCHAR(30),
+	id integer ITERATOR "$$id^TITER01",
+	idx integer,
+	title VARCHAR(200) EXTRACT "$get(RAti(keys(""idx""),""ti""))",
+	PRIMARY KEY (catsys,id,idx)
+)
+DELIM "^"
+GLOBAL "^BCAT(keys(""catsys""),""title"",keys(""idx""))";
+CREATE TABLE
+OCTO> DROP TABLE IF EXISTS t12c;
+DROP TABLE
+OCTO> CREATE TABLE t12c
+(
+	catsys VARCHAR(30),
+	id integer ITERATOR "$$id^TITER01",
+	idx integer,
+	title VARCHAR(200) EXTRACT "$get(RAti(keys(""idx""),""ti""))",
+	PRIMARY KEY (catsys,id,idx)
+)
+DELIM "^"
+GLOBAL "^BCAT(keys(""catsys""),keys(""id""),""title"",keys(""idx""))";
+CREATE TABLE
+OCTO> DROP TABLE IF EXISTS t12d;
+DROP TABLE
+[ERROR]: ERR_GLOBAL_MISSING_KEY_COLS: GLOBAL keyword does not specify all KEY column(s)
+OCTO> CREATE TABLE t12d
+(
+	catsys VARCHAR(30),
+	id integer,
+	idx integer ITERATOR "$$idx^TITER01",
+	title VARCHAR(200) EXTRACT "$get(RAti(keys(""idx""),""ti""))",
+	PRIMARY KEY (catsys,id,idx)
+)
+DELIM "^"
+GLOBAL "^BCAT(keys(""catsys""),""title"")";
+OCTO> DROP TABLE IF EXISTS t12e;
+DROP TABLE
+[ERROR]: ERR_GLOBAL_KEY_COLS_ORDER: GLOBAL keyword does not specify the KEY columns in the right order
+OCTO> CREATE TABLE t12e
+(
+	catsys VARCHAR(30),
+	id integer,
+	idx integer ITERATOR "$$idx^TITER01",
+	title VARCHAR(200) EXTRACT "$get(RAti(keys(""idx""),""ti""))",
+	PRIMARY KEY (catsys,id,idx)
+)
+DELIM "^"
+GLOBAL "^BCAT(keys(""id""),keys(""catsys""),""title"")";
+OCTO> 

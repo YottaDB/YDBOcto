@@ -794,6 +794,54 @@ ERR_INVALID_WRITE_SIZE
 
   Description/Action: This error indicates an internal code attempt to write beyond a buffer's allocated range. Please contact your YottaDB support channel. PSQL Error Code: 22003
 
++++++++++++++++++++++++++++++++++++++
+ERR_ITERATOR_CANNOT_BE_NON_KEY_COLUMN
++++++++++++++++++++++++++++++++++++++
+
+  Text: Column "xxx" cannot use an ITERATOR as it is a non-key column; only key columns can use iterators
+
+  Description/Action: This error indicates that you tried to use the ITERATOR keyword on a column that is not one of the table's primary keys. Only primary keys columns can be traversed via an ITERATOR expression. PSQL Error Code: 42601
+
++++++++++++++++++++++++++++++++
+ERR_ITERATOR_CANNOT_BE_COMBINED
++++++++++++++++++++++++++++++++
+
+  Text: Column "xxx" cannot use an ITERATOR with START/END/STARTINCLUDE/ENDPOINT
+
+  Description/Action: This error indicates that you tried to use the ITERATOR keyword on a column together with START/END/STARTINCLUDE/ENDPOINT. This is not supported mainly because users can exactly control what results they want to return using an ITERATOR; adding finer control over that is not necessary.
+
+++++++++++++++++++++++++++++++++++++
+ERR_ITERATOR_ORDER_BY_NOT_SUPPORTED
+++++++++++++++++++++++++++++++++++++
+
+  Text: ORDER BY on column "xxx" is not supported as the column has an ITERATOR
+
+  Description/Action: This error indicates that you used ORDER BY on a column that has the ITERATOR keyword specified. This is not supported because the iteration order returned by the user-defined ITERATOR function is opaque to Octo, so ORDER BY semantics cannot be guaranteed. Remove the ORDER BY clause or sort the results in the application layer.
+
+++++++++++++++++++++++++++++++++++++++
+ERR_ITERATOR_KEYS_NEEDS_A_KEY_COLUMN
+++++++++++++++++++++++++++++++++++++++
+
+  Text: Column "xxx" specified using keys() in ITERATOR argument list is not a KEY column
+
+  Description/Action: This error indicates that you used a keys() reference inside an ITERATOR argument list that names a column which is not a KEY column of the table. Only KEY columns may be referenced via keys() inside ITERATOR. Either change the column to a KEY column or remove the keys() reference and pass the value in some other way.
+
++++++++++++++++++++++++++++++++
+ERR_ITERATOR_VALUES_NOT_ALLOWED
++++++++++++++++++++++++++++++++
+
+  Text: values() usage not allowed in ITERATOR argument list (only keys() usage allowed)
+
+  Description/Action: This error indicates that you used a values() reference inside an ITERATOR argument list. Only keys() references are allowed inside ITERATOR because there is no row context available at the time the iterator runs. Remove the values() reference.
+
++++++++++++++++++++++++++
+ERR_ITERATOR_BAD_SYNTAX
++++++++++++++++++++++++++
+
+  Text: ITERATOR value must have the form "$$tag^routine" or "$$tag^routine(arglist)"
+
+  Description/Action: This error indicates that the string supplied to the ITERATOR keyword does not match the expected format. It must be either a bare M entryref (e.g. "$$tag^routine") or an entryref followed by a parenthesized argument list (e.g. "$$tag^routine(keys(""id1""),keys(""id2""),other)"). Check that the parentheses are balanced and that nothing trails the closing parenthesis.
+
 +++++++++++++++++++++++++
 ERR_JOIN_ALIAS_DUPLICATE
 +++++++++++++++++++++++++

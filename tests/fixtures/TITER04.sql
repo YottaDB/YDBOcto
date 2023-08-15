@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2023-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -9,27 +9,10 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
-
-doc/_build/
-build*/
-doc/make.bat
-.tags
-.tags1
-*/*.sc*
-cscope.*
-gen_cscope.sh
-\#*\#
-**/*~
-TAGS
-*.swp
-*.pyc
-tags
-.dir-locals.el
-.vscode/
-data/
-Testing/
-
-roctolist.md
-src/gtmcrypt/
-tests/fixtures/*.o
-CLAUDE.local.md
+-- TITER04 : ITERATOR Disables Cross References/ITERATOR JOINS
+DROP TABLE IF EXISTS names_iterator;
+CREATE TABLE names_iterator (
+        id INTEGER PRIMARY KEY ITERATOR "$$id^TITER04",
+        firstName VARCHAR(30),
+        lastName VARCHAR(30)
+) GLOBAL "^names";

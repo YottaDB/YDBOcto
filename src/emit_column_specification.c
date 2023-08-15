@@ -141,6 +141,15 @@ int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_co
 			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " SKIPCONDITION \"%s\"",
 								    buffer2);
 			break;
+		case OPTIONAL_ITERATOR:
+			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
+			m_escape_string2(&buffer2, &buffer2_size, value->v.reference);
+			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " ITERATOR \"%s\"", buffer2);
+			break;
+		case OPTIONAL_VIRTUAL:
+			/* Value-less marker that travels with ITERATOR. */
+			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " VIRTUAL");
+			break;
 		case OPTIONAL_GENERATED_ALWAYS_IDENTITY:
 			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " GENERATED ALWAYS AS IDENTITY");
 			break;

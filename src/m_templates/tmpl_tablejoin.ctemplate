@@ -579,21 +579,30 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 		 * Do this only if there is a table associated with the key (nested queries correspond to temporary tables
 		 * and so should skip this).
 		 */
-		SqlOptionalKeyword	*keyword = NULL;
+
+		boolean_t has_iterator = FALSE;
+
 		assert((NULL != key->table) || (NULL == key->column));
 		assert((NULL == key->table) || (NULL != key->column));
 		if (NULL != key->table) {
+			SqlOptionalKeyword	*iterator_keyword;
+			SqlOptionalKeyword	*include_endpoint_keyword;
+
+			iterator_keyword = (key->column ? get_keyword(key->column, OPTIONAL_ITERATOR) : NULL);
+			has_iterator = (NULL != iterator_keyword);
+
 			if (!key->emit_desc_order) {
 				/* This key should have a FOR loop emitted in ascending order (most common case). */
-				keyword = get_keyword(key->column, OPTIONAL_STARTINCLUDE);
+				include_endpoint_keyword = get_keyword(key->column, OPTIONAL_STARTINCLUDE);
 			} else {
 				/* This key should have a FOR loop emitted in descending order (possible for example if ORDER BY
 				 * optimization of YDBOcto#959 is enabled etc.).
 				 */
 				assert(NULL == get_keyword(key->column, OPTIONAL_END));
-				keyword = get_keyword(key->column, OPTIONAL_ENDPOINT);
+				include_endpoint_keyword  = get_keyword(key->column, OPTIONAL_ENDPOINT);
 			}
-			if (NULL != keyword) {
+			if (NULL != include_endpoint_keyword) {
+				assert(has_iterator == FALSE); // This is disallowed during table defintion
 				%{}DO:$DATA({}%
 				if (NULL == fixed_xref_key) {
 					TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Value);
@@ -605,12 +614,20 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 		}
 		%{}FOR  SET {}%
 		TMPL(tmpl_key, key);
-		%{}=$ORDER({}%
+		if (has_iterator) {
+			%{}={}%
+		} else {
+			%{}=$ORDER({}%
+		}
 		TMPL(tmpl_key_advance, pplan, key);
 		if (key->emit_desc_order) {
 			%{},-1{}%
 		}
-		%{}) QUIT:({}%
+		if(has_iterator) {
+			%{} QUIT:({}%
+		} else {
+			%{}) QUIT:({}%
+		}
 		TMPL(tmpl_key_end, key);
 		%{}){}%
 		if (NULL != limit_keyword) {

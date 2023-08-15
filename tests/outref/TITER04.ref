@@ -1,0 +1,30 @@
+# Iterators should not generate AIM data
+-- TITER04 : ITERATOR Disables Cross References/ITERATOR JOINS
+SELECT * from names_iterator;
+SELECT * from names_iterator where firstName = 'Zero';
+SELECT * FROM names_iterator n1 FULL JOIN names n2 ON n2.id = n1.id;
+OCTO> SELECT * from names_iterator;
+id|firstname|lastname
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+(6 rows)
+OCTO> SELECT * from names_iterator where firstName = 'Zero';
+id|firstname|lastname
+0|Zero|Cool
+5|Zero|Cool
+(2 rows)
+OCTO> SELECT * FROM names_iterator n1 FULL JOIN names n2 ON n2.id = n1.id;
+id|firstname|lastname|id|firstname|lastname
+0|Zero|Cool|0|Zero|Cool
+1|Acid|Burn|1|Acid|Burn
+2|Cereal|Killer|2|Cereal|Killer
+3|Lord|Nikon|3|Lord|Nikon
+4|Joey||4|Joey|
+5|Zero|Cool|5|Zero|Cool
+(6 rows)
+OCTO> 
+ --> ZWRITE ^%ydbAIMD* (should not exist)

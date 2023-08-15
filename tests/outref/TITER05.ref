@@ -1,0 +1,36 @@
+-- TITER05 : ITERATOR Mix ITERATOR key fields with regular key fields
+CREATE TABLE cat_rec_titles
+(
+        catsys VARCHAR(30),
+        id integer,
+        idx integer ITERATOR "$$idx^TITER01",
+        language VARCHAR(10) EXTRACT "RAti(keys(""idx""),""lg"")",
+        type varchar(10) EXTRACT "RAti(keys(""idx""),""ty"")",
+        source varchar(10) EXTRACT "RAti(keys(""idx""),""so"")",
+        title varchar(200) EXTRACT "RAti(keys(""idx""),""ti"")",
+        PRIMARY KEY (catsys,id,idx)
+)
+DELIM "^"
+GLOBAL "^BCAT(keys(""catsys""),keys(""id""),""title"",keys(""idx""))";
+select * from cat_rec_titles;
+OCTO> CREATE TABLE cat_rec_titles
+(
+        catsys VARCHAR(30),
+        id integer,
+        idx integer ITERATOR "$$idx^TITER01",
+        language VARCHAR(10) EXTRACT "RAti(keys(""idx""),""lg"")",
+        type varchar(10) EXTRACT "RAti(keys(""idx""),""ty"")",
+        source varchar(10) EXTRACT "RAti(keys(""idx""),""so"")",
+        title varchar(200) EXTRACT "RAti(keys(""idx""),""ti"")",
+        PRIMARY KEY (catsys,id,idx)
+)
+DELIM "^"
+GLOBAL "^BCAT(keys(""catsys""),keys(""id""),""title"",keys(""idx""))";
+CREATE TABLE
+OCTO> select * from cat_rec_titles;
+catsys|id|idx|language|type|source|title
+lvd|123|1|lvd123foo|lvd123boo|lvd123coo|lvd123doo
+lvd|123|2|lvd123foo|lvd123boo|lvd123coo|lvd123doo
+lvd|123|3|lvd123foo|lvd123boo|lvd123coo|lvd123doo
+(3 rows)
+OCTO> 

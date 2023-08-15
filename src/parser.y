@@ -181,6 +181,8 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token INTEGER
 %token INTERSECT
 %token INTO
+%token ITERATOR
+%token VIRTUAL
 %token IS
 %token JOIN
 %token KEEPDATA
@@ -2065,6 +2067,31 @@ column_definition_tail
        SqlOptionalKeyword *keyword;
        UNPACK_SQL_STATEMENT(keyword, $2, keyword);
        dqappend(keyword, ($$)->v.keyword);
+    }
+  | ITERATOR ddl_str_literal_value column_definition_tail {
+       MALLOC_KEYWORD_STMT($$, OPTIONAL_ITERATOR);
+       ($$)->v.keyword->v = $ddl_str_literal_value;
+
+       SqlOptionalKeyword *keyword;
+       UNPACK_SQL_STATEMENT(keyword, $3, keyword);
+       dqappend(keyword, ($$)->v.keyword);
+    }
+  | ITERATOR ddl_str_literal_value VIRTUAL column_definition_tail {
+       /* VIRTUAL is only valid as a suffix to the ITERATOR string literal. The grammar
+	* enforces the pairing -- there is no separate VIRTUAL production -- so a VIRTUAL
+	* keyword anywhere else in a column definition is a syntax error.
+	*/
+       MALLOC_KEYWORD_STMT($$, OPTIONAL_ITERATOR);
+       ($$)->v.keyword->v = $ddl_str_literal_value;
+
+       SqlStatement	  *virtual_stmt;
+       SqlOptionalKeyword *keyword, *tail_keyword;
+       MALLOC_KEYWORD_STMT(virtual_stmt, OPTIONAL_VIRTUAL);
+       UNPACK_SQL_STATEMENT(keyword, virtual_stmt, keyword);
+       dqappend(keyword, ($$)->v.keyword);
+
+       UNPACK_SQL_STATEMENT(tail_keyword, $4, keyword);
+       dqappend(tail_keyword, ($$)->v.keyword);
     }
   ;
 

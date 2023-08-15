@@ -185,6 +185,8 @@ int save_yylloc_first_line;
 (?i:INT8) { return INT8; }
 (?i:INTEGER) { return INTEGER; }
 (?i:INTERSECT) { return INTERSECT; }
+(?i:ITERATOR) { return ITERATOR; }
+(?i:VIRTUAL) { return VIRTUAL; }
 (?i:INTO) { return INTO; }
 (?i:IS) { return IS; }
 (?i:JOIN) { return JOIN; }

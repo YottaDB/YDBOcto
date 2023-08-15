@@ -363,6 +363,8 @@ typedef enum OptionalKeyword {
 	OPTIONAL_DATE_TIME_TEXT,
 	OPTIONAL_SKIP,
 	OPTIONAL_SKIPCONDITION,
+	OPTIONAL_ITERATOR,
+	OPTIONAL_VIRTUAL
 } OptionalKeyword;
 
 typedef enum SqlSetOperationType {
@@ -675,7 +677,8 @@ typedef struct SqlTable {
 	 *10) When we again come across this structure again in decompress_statement(), the "bin_defn_offset" member will have a
 	 *    NULL value indicating that this structure was already decompressed so nothing more is needed to be done.
 	 */
-	void *bin_defn_offset;
+	void *	  bin_defn_offset;
+	boolean_t has_iterator;
 } SqlTable;
 
 /* Below is the table constructed by the VALUES (...) syntax */

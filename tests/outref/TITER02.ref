@@ -1,0 +1,62 @@
+-- TITER02 : ITERATOR Disallowed keywords (START/STARTINCLUDE/END/ENDPOINT/AIMTYPE)
+DROP TABLE IF EXISTS cat_rec_titles;
+CREATE TABLE cat_rec_titles
+(
+        catsys VARCHAR(30) ITERATOR "$$catsys^TITER01" START 0,
+        PRIMARY KEY (catsys)
+);
+CREATE TABLE cat_rec_titles
+(
+	catsys VARCHAR(30) ITERATOR "$$catsys^TITER01" STARTINCLUDE,
+        PRIMARY KEY (catsys)
+);
+CREATE TABLE cat_rec_titles
+(
+	catsys VARCHAR(30) ITERATOR "$$catsys^TITER01" ENDPOINT 0,
+        PRIMARY KEY (catsys)
+);
+CREATE TABLE cat_rec_titles
+(
+	catsys VARCHAR(30) ITERATOR "$$catsys^TITER01" END "''$$catsys^TITER01(5)",
+        PRIMARY KEY (catsys)
+);
+CREATE TABLE cat_rec_titles
+(
+	catsys VARCHAR(30) ITERATOR "$$catsys^TITER01",
+        PRIMARY KEY (catsys)
+)
+AIMTYPE 1;
+OCTO> DROP TABLE IF EXISTS cat_rec_titles;
+DROP TABLE
+[ERROR]: ERR_ITERATOR_CANNOT_BE_COMBINED: Column "catsys" cannot use an ITERATOR with START/END/STARTINCLUDE/ENDPOINT
+OCTO> CREATE TABLE cat_rec_titles
+(
+        catsys VARCHAR(30) ITERATOR "$$catsys^TITER01" START 0,
+        PRIMARY KEY (catsys)
+);
+[ERROR]: ERR_ITERATOR_CANNOT_BE_COMBINED: Column "catsys" cannot use an ITERATOR with START/END/STARTINCLUDE/ENDPOINT
+OCTO> CREATE TABLE cat_rec_titles
+(
+	catsys VARCHAR(30) ITERATOR "$$catsys^TITER01" STARTINCLUDE,
+        PRIMARY KEY (catsys)
+);
+[ERROR]: ERR_ITERATOR_CANNOT_BE_COMBINED: Column "catsys" cannot use an ITERATOR with START/END/STARTINCLUDE/ENDPOINT
+OCTO> CREATE TABLE cat_rec_titles
+(
+	catsys VARCHAR(30) ITERATOR "$$catsys^TITER01" ENDPOINT 0,
+        PRIMARY KEY (catsys)
+);
+[ERROR]: ERR_ITERATOR_CANNOT_BE_COMBINED: Column "catsys" cannot use an ITERATOR with START/END/STARTINCLUDE/ENDPOINT
+OCTO> CREATE TABLE cat_rec_titles
+(
+	catsys VARCHAR(30) ITERATOR "$$catsys^TITER01" END "''$$catsys^TITER01(5)",
+        PRIMARY KEY (catsys)
+);
+OCTO> CREATE TABLE cat_rec_titles
+(
+	catsys VARCHAR(30) ITERATOR "$$catsys^TITER01",
+        PRIMARY KEY (catsys)
+)
+AIMTYPE 1;
+CREATE TABLE
+OCTO> 

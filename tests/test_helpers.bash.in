@@ -180,7 +180,13 @@ OCTO
 copy_test_files() {
 	for f in $@; do
 		mkdir -p $test_temp/$(dirname $f)
-		cp @PROJECT_SOURCE_DIR@/tests/$f $test_temp/$f
+		if [ -f @PROJECT_SOURCE_DIR@/tests/$f ]; then
+			cp @PROJECT_SOURCE_DIR@/tests/$f $test_temp/$f
+		else
+			echo "Create reference file like this:"
+			echo "cp $PWD/output.txt @PROJECT_SOURCE_DIR@/tests/$f"
+			return 1
+		fi
 	done
 }
 
@@ -879,7 +885,11 @@ verify_output() {
 		sed 's/;//g' clean_output.txt > jdbc_clean_output.txt
 		diff jdbc_$1.ref jdbc_clean_output.txt
 	else
-		diff outref/$1.ref clean_output.txt
+		diff outref/$1.ref clean_output.txt || {
+			echo "If appropriate, update reference file like this:"
+			echo "cp $PWD/clean_output.txt @PROJECT_SOURCE_DIR@/tests/outref/$1.ref"
+			return 1
+		}
 	fi
 	return
 }

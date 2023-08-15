@@ -1,0 +1,35 @@
+-- TITER06 : ITERATOR tables are readonly
+DROP TABLE IF EXISTS cat_rec_titles;
+CREATE TABLE cat_rec_titles
+(
+        catsys VARCHAR(30) ITERATOR "$$catsys^TITER01",
+        id integer ITERATOR "$$id^TITER01",
+        idx integer ITERATOR "$$idx^TITER01",
+        language VARCHAR(10) EXTRACT "$get(RAti(keys(""idx""),""lg""))",
+        type VARCHAR(10) EXTRACT "$get(RAti(keys(""idx""),""ty""))",
+        source VARCHAR(10) EXTRACT "$get(RAti(keys(""idx""),""so""))",
+        title VARCHAR(200) EXTRACT "$get(RAti(keys(""idx""),""ti""))",
+        PRIMARY KEY (catsys,id,idx)
+)
+DELIM "^"
+GLOBAL "^BCAT(keys(""catsys""),keys(""id""),""title"",keys(""idx""))";
+INSERT INTO cat_rec_titles VALUES ('1',1,1,'a','b','c','d');
+OCTO> DROP TABLE IF EXISTS cat_rec_titles;
+DROP TABLE
+OCTO> CREATE TABLE cat_rec_titles
+(
+        catsys VARCHAR(30) ITERATOR "$$catsys^TITER01",
+        id integer ITERATOR "$$id^TITER01",
+        idx integer ITERATOR "$$idx^TITER01",
+        language VARCHAR(10) EXTRACT "$get(RAti(keys(""idx""),""lg""))",
+        type VARCHAR(10) EXTRACT "$get(RAti(keys(""idx""),""ty""))",
+        source VARCHAR(10) EXTRACT "$get(RAti(keys(""idx""),""so""))",
+        title VARCHAR(200) EXTRACT "$get(RAti(keys(""idx""),""ti""))",
+        PRIMARY KEY (catsys,id,idx)
+)
+DELIM "^"
+GLOBAL "^BCAT(keys(""catsys""),keys(""id""),""title"",keys(""idx""))";
+CREATE TABLE
+[ERROR]: ERR_TABLE_READONLY: INSERT not allowed on READONLY table "cat_rec_titles". Only allowed on READWRITE tables.
+OCTO> INSERT INTO cat_rec_titles VALUES ('1',1,1,'a','b','c','d');
+OCTO> 

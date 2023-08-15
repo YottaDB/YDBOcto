@@ -1,0 +1,33 @@
+-- TITER09 : ITERATOR shown in \d output
+DROP TABLE IF EXISTS names;
+CREATE TABLE names (id INTEGER PRIMARY KEY ITERATOR "$$id^names", firstName VARCHAR(30), lastName VARCHAR(30)) GLOBAL "^names";
+\d names;
+-- Composite primary key with multiple ITERATOR columns
+DROP TABLE IF EXISTS composite;
+CREATE TABLE composite (a INTEGER ITERATOR "$$a^TITER09", b INTEGER ITERATOR "$$b^TITER09", val VARCHAR(30), PRIMARY KEY (a, b)) GLOBAL "^composite(keys(""a""),keys(""b""))";
+\d composite;
+OCTO> DROP TABLE IF EXISTS names;
+DROP TABLE
+OCTO> CREATE TABLE names (id INTEGER PRIMARY KEY ITERATOR "$$id^names", firstName VARCHAR(30), lastName VARCHAR(30)) GLOBAL "^names";
+CREATE TABLE
+OCTO> \d names;
+Table "names" stored in Global: ^names(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|ITERATOR "$$id^names"
+firstname|VARCHAR(30)|||
+lastname|VARCHAR(30)|||
+Indexes:
+    "names_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^names(id)
+OCTO> DROP TABLE IF EXISTS composite;
+DROP TABLE
+OCTO> CREATE TABLE composite (a INTEGER ITERATOR "$$a^TITER09", b INTEGER ITERATOR "$$b^TITER09", val VARCHAR(30), PRIMARY KEY (a, b)) GLOBAL "^composite(keys(""a""),keys(""b""))";
+CREATE TABLE
+OCTO> \d composite;
+Table "composite" stored in Global: ^composite(a,b) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+a|INTEGER||NOT NULL|ITERATOR "$$a^TITER09"
+b|INTEGER||NOT NULL|ITERATOR "$$b^TITER09"
+val|VARCHAR(30)|||
+Indexes:
+    "composite_pkey" PRIMARY KEY CONSTRAINT, Column(s) (a, b), Global: ^composite(a,b)
+OCTO> 

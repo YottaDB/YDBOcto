@@ -1,0 +1,175 @@
+-- TITER07 : Garbage In Garbage Out
+DROP TABLE IF EXISTS cat_rec_titles;
+CREATE TABLE cat_rec_titles
+(
+        catsys VARCHAR(30) ITERATOR "quit:foo",
+        id integer ITERATOR "n x",
+        idx integer ITERATOR "xxx aswsdf",
+        language VARCHAR(10) EXTRACT "$get(RAti(keys(""idx""),""lg""))",
+        type VARCHAR(10) EXTRACT "$get(RAti(keys(""idx""),""ty""))",
+        source VARCHAR(10) EXTRACT "$get(RAti(keys(""idx""),""so""))",
+        title VARCHAR(200) EXTRACT "$get(RAti(keys(""idx""),""ti""))",
+        PRIMARY KEY (catsys,id,idx)
+)
+DELIM "^"
+GLOBAL "^BCAT(keys(""catsys""),keys(""id""),""title"",keys(""idx""))";
+select * from cat_rec_titles;
+OCTO> DROP TABLE IF EXISTS cat_rec_titles;
+DROP TABLE
+OCTO> CREATE TABLE cat_rec_titles
+(
+        catsys VARCHAR(30) ITERATOR "quit:foo",
+        id integer ITERATOR "n x",
+        idx integer ITERATOR "xxx aswsdf",
+        language VARCHAR(10) EXTRACT "$get(RAti(keys(""idx""),""lg""))",
+        type VARCHAR(10) EXTRACT "$get(RAti(keys(""idx""),""ty""))",
+        source VARCHAR(10) EXTRACT "$get(RAti(keys(""idx""),""so""))",
+        title VARCHAR(200) EXTRACT "$get(RAti(keys(""idx""),""ti""))",
+        PRIMARY KEY (catsys,id,idx)
+)
+DELIM "^"
+GLOBAL "^BCAT(keys(""catsys""),keys(""id""),""title"",keys(""idx""))";
+CREATE TABLE
+OCTO> select * from cat_rec_titles;
+	    FOR  SET %ydboctocursor(cursorId,"keys",1,"cat_rec_titles","catsys")=quit:foo(%ydboctocursor(cursorId,"keys",1,"cat_rec_titles","catsys")) QUIT:(%ydboctocursor(cursorId,"keys",1,"cat_rec_titles","catsys")="")  DO
+	                                                                             ^-----
+		At column 78, line 16, source module $PWD/_ydboctoP*.m
+%YDB-E-SPOREOL, Either a space or an end-of-line was expected but not found
+	    . SET %ydboctocursor(cursorId,"keys",1,"cat_rec_titles","id")=""
+	      ^-----
+		At column 7, line 17, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . FOR  SET %ydboctocursor(cursorId,"keys",1,"cat_rec_titles","id")=n x(%ydboctocursor(cursorId,"keys",1,"cat_rec_titles","catsys"),%ydboctocursor(cursorId,"keys",1,"cat_rec_titles","id")) QUIT:(%ydboctocursor(cursorId,"keys",1,"cat_rec_titles","id")="")  DO
+	      ^-----
+		At column 7, line 18, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . SET %ydboctocursor(cursorId,"keys",1,"cat_rec_titles","idx")=""
+	        ^-----
+		At column 9, line 19, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"cat_rec_titles","idx")=xxx aswsdf(%ydboctocursor(cursorId,"keys",1,"cat_rec_titles","catsys"),%ydboctocursor(cursorId,"keys",1,"cat_rec_titles","id"),%ydboctocursor(cursorId,"keys",1,"cat_rec_titles","idx")) QUIT:(%ydboctocursor(cursorId,"keys",1,"cat_rec_titles","idx")="")  DO
+	        ^-----
+		At column 9, line 20, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . SET %ydboctoexpr=1
+	          ^-----
+		At column 11, line 21, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . DO:%ydboctoexpr
+	          ^-----
+		At column 11, line 22, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+	            ^-----
+		At column 13, line 23, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"cat_rec_titles","catsys")
+	            ^-----
+		At column 13, line 24, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+	            ^-----
+		At column 13, line 25, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET %ydboctoexpr(0)=%ydboctoexpr
+	            ^-----
+		At column 13, line 26, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"cat_rec_titles","id")
+	            ^-----
+		At column 13, line 27, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+	            ^-----
+		At column 13, line 28, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
+	            ^-----
+		At column 13, line 29, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET %ydboctoexpr(0)=%ydboctoexpr
+	            ^-----
+		At column 13, line 30, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"cat_rec_titles","idx")
+	            ^-----
+		At column 13, line 31, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+	            ^-----
+		At column 13, line 32, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
+	            ^-----
+		At column 13, line 33, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET %ydboctoexpr(0)=%ydboctoexpr
+	            ^-----
+		At column 13, line 34, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET %ydboctoexpr=$get(RAti(%ydboctocursor(cursorId,"keys",1,"cat_rec_titles","idx"),"lg")) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+	            ^-----
+		At column 13, line 35, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+	            ^-----
+		At column 13, line 36, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
+	            ^-----
+		At column 13, line 37, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET %ydboctoexpr(0)=%ydboctoexpr
+	            ^-----
+		At column 13, line 38, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET %ydboctoexpr=$get(RAti(%ydboctocursor(cursorId,"keys",1,"cat_rec_titles","idx"),"ty")) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+	            ^-----
+		At column 13, line 39, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+	            ^-----
+		At column 13, line 40, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
+	            ^-----
+		At column 13, line 41, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET %ydboctoexpr(0)=%ydboctoexpr
+	            ^-----
+		At column 13, line 42, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET %ydboctoexpr=$get(RAti(%ydboctocursor(cursorId,"keys",1,"cat_rec_titles","idx"),"so")) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+	            ^-----
+		At column 13, line 43, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+	            ^-----
+		At column 13, line 44, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
+	            ^-----
+		At column 13, line 45, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET %ydboctoexpr(0)=%ydboctoexpr
+	            ^-----
+		At column 13, line 46, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET %ydboctoexpr=$get(RAti(%ydboctocursor(cursorId,"keys",1,"cat_rec_titles","idx"),"ti")) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+	            ^-----
+		At column 13, line 47, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+	            ^-----
+		At column 13, line 48, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
+	            ^-----
+		At column 13, line 49, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+	    . . . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+	            ^-----
+		At column 13, line 50, source module $PWD/_ydboctoP*.m
+%YDB-W-BLKTOODEEP, Block level too deep
+[ERROR]: ERR_YOTTADB: YottaDB error: 150373706,octoPlan1+3^%ydboctoP*,%YDB-E-SPOREOL, Either a space or an end-of-line was expected but not found
+OCTO> 

@@ -2033,6 +2033,22 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			case OPTIONAL_GENERATED_BY_DEFAULT_IDENTITY:
 				readonly_disallowed = TRUE; /* IDENTITY is only allowed for READWRITE table. Not READONLY. */
 				break;
+			case OPTIONAL_ITERATOR:
+				ret = validate_iterator_keyword(cur_column, table);
+				if (-1 == ret) {
+					return NULL;
+				}
+				readwrite_disallowed = TRUE; /* ITERATORS are only allowed on READONLY tables */
+				table->has_iterator = TRUE;
+				break;
+			case OPTIONAL_VIRTUAL:
+				/* VIRTUAL is enforced as a syntactic suffix to ITERATOR by the parser
+				 * grammar (see "ITERATOR ddl_str_literal_value VIRTUAL ..." rule in
+				 * parser.y), so it cannot appear on a column that lacks ITERATOR. The
+				 * sibling OPTIONAL_ITERATOR case already covers READONLY enforcement
+				 * and "has_iterator" flag; nothing to do here.
+				 */
+				break;
 			default:
 				ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
 				assert(FALSE);

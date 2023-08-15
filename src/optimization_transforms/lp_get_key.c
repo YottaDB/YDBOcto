@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -22,6 +22,7 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 	SqlColumnAlias *column_alias;
 	SqlColumn      *column;
 	SqlValue       *search_column_name;
+	SqlTable       *table;
 	SqlTableAlias  *table_alias;
 	SqlKey	       *key, *primary_key;
 	int		key_id, search_id, join_table_id;
@@ -33,6 +34,54 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 	assert(column_STATEMENT == column_alias->column->type);
 	UNPACK_SQL_STATEMENT(column, column_alias->column, column);
 	UNPACK_SQL_STATEMENT(search_column_name, column->columnName, value);
+	UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
+
+	/* For ITERATOR tables, refuse to fix the key of "column" (return NULL) if any PRIMARY KEY column
+	 * with KEY NUM <= column's KEY NUM carries the VIRTUAL keyword.
+	 *
+	 * Background: a fixed key triggers an existence check in the generated JOIN M code of the form
+	 *	$DATA(<table-data-global>(<leading-key-1>, ..., <leading-key-N>, <fixed-key>))
+	 * which spans every PK subscript up to and including the column being fixed. For an ITERATOR
+	 * column declared VIRTUAL the iterator fabricates rows that are not stored at predictable
+	 * subscripts in the data global, so a $DATA against that global is meaningless for that
+	 * subscript -- the check would always evaluate false and the JOIN would silently drop every
+	 * matched row. A single virtual ancestor poisons the check for every later key column, hence
+	 * the [0..fixed_key_num] sweep below.
+	 *
+	 * Non-VIRTUAL ITERATOR columns (e.g. an iterator implemented as "quit $order(^names(n))"
+	 * against a populated global) still get key-fixed: their $DATA lookups land on real data. This
+	 * per-column granularity is the whole point of the VIRTUAL keyword. See TITER08.
+	 */
+	if (TRUE == table->has_iterator) {
+		SqlOptionalKeyword *key_num_keyword;
+
+		key_num_keyword = get_keyword(column, OPTIONAL_KEY_NUM);
+		if (NULL != key_num_keyword) {
+			SqlValue  *key_num_value;
+			SqlColumn *key_columns[MAX_KEY_COUNT] = {NULL};
+			int	   fixed_key_num, i, max_key;
+
+			UNPACK_SQL_STATEMENT(key_num_value, key_num_keyword->v, value);
+			fixed_key_num = atoi(key_num_value->v.string_literal);
+
+			max_key = get_key_columns(table, key_columns);
+			assert(0 <= max_key);
+			assert(fixed_key_num <= max_key);
+			UNUSED(max_key); /* Only consumed by the assertions above; quiets release-build warnings. */
+
+			for (i = 0; i <= fixed_key_num; i++) {
+				assert(NULL != key_columns[i]);
+				if (NULL != get_keyword(key_columns[i], OPTIONAL_VIRTUAL)) {
+					/* A leading PK column (possibly this one) is VIRTUAL. Refuse the key-fix
+					 * so the caller falls through to the existing ITERATOR short-circuit in
+					 * "lp_optimize_where_multi_equals_ands_helper()" -- the JOIN runs as a
+					 * nested-loop full enumeration (slow but correct).
+					 */
+					return NULL;
+				}
+			}
+		}
+	}
 
 	cur_key = lp_get_keys(plan);
 
@@ -68,10 +117,9 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 				break;
 			}
 #ifndef NDEBUG
-			SqlTable *table;
 			SqlValue *key_table_name, *search_table_name;
 
-			UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
+			/* "table" is already unpacked at function scope for the VIRTUAL guard above. */
 			UNPACK_SQL_STATEMENT(search_table_name, table->tableName, value);
 			UNPACK_SQL_STATEMENT(key_table_name, key->table->tableName, value);
 			/* We are guaranteed the below assert because "key_id" is same as "search_id" */

@@ -1,0 +1,23 @@
+-- TITER03 : ITERATOR Disallowed on non-key fields
+CREATE TABLE cat_rec_titles
+(
+        catsys VARCHAR(30),
+        id integer,
+        idx integer,
+        language VARCHAR(10) ITERATOR "$$idx^bcat" EXTRACT "RAti(keys(""idx""),""lg"")",
+        PRIMARY KEY (catsys,id,idx)
+)
+DELIM "^"
+GLOBAL "^BCAT(keys(""catsys""),keys(""id""),""title"",keys(""idx""))";
+[ERROR]: ERR_ITERATOR_CANNOT_BE_NON_KEY_COLUMN: Column "language" cannot use an ITERATOR as it is a non-key column; only key columns can use iterators
+OCTO> CREATE TABLE cat_rec_titles
+(
+        catsys VARCHAR(30),
+        id integer,
+        idx integer,
+        language VARCHAR(10) ITERATOR "$$idx^bcat" EXTRACT "RAti(keys(""idx""),""lg"")",
+        PRIMARY KEY (catsys,id,idx)
+)
+DELIM "^"
+GLOBAL "^BCAT(keys(""catsys""),keys(""id""),""title"",keys(""idx""))";
+OCTO> 

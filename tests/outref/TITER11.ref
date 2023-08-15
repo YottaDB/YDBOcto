@@ -1,0 +1,147 @@
+-- TITER11 : ITERATOR key-fixing applies on INNER JOIN
+DROP TABLE IF EXISTS names_iterator;
+CREATE TABLE names_iterator (
+        id INTEGER PRIMARY KEY ITERATOR "$$id^TITER11",
+        firstName VARCHAR(30),
+        lastName VARCHAR(30)
+) GLOBAL "^names";
+-- INNER JOIN on the ITERATOR key column. With key-fixing, "id" is set from "names" (the outer table)
+-- and the ITERATOR function "$$id^TITER11" is not called to enumerate values for this column.
+SELECT n.id, n.firstName, i.lastName FROM names n INNER JOIN names_iterator i ON n.id = i.id;
+[ INFO] PATH:LINENUM DATE TIME: INFO_RECORDING_ENV_VARS: # Recording pertinent ydb_* env var values at process startup
+[ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [DROP TABLE IF EXISTS names_iterator;]
+OCTO> DROP TABLE IF EXISTS names_iterator;
+[ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
+[ INFO] PATH:LINENUM DATE TIME: INFO_TABLE_DOES_NOT_EXIST: Table "names_iterator" does not exist, skipping
+DROP TABLE
+[ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [CREATE TABLE names_iterator (
+        id INTEGER PRIMARY KEY ITERATOR "$$id^TITER11",
+        firstName VARCHAR(30),
+        lastName VARCHAR(30)
+) GLOBAL "^names";]
+OCTO> CREATE TABLE names_iterator (
+        id INTEGER PRIMARY KEY ITERATOR "$$id^TITER11",
+        firstName VARCHAR(30),
+        lastName VARCHAR(30)
+) GLOBAL "^names";
+[ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
+[ INFO] PATH:LINENUM DATE TIME: INFO_TEXT_REPRESENTATION: CREATE TABLE `names_iterator` (`id` INTEGER CONSTRAINT "names_iterator_pkey" PRIMARY KEY ITERATOR "$$id^TITER11", `firstname` VARCHAR(30) PIECE 1, `lastname` VARCHAR(30) PIECE 2) GLOBAL "^names(keys(""id""))" DELIM "|" READONLY;
+CREATE TABLE
+[ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
+[ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [SELECT n.id, n.firstName, i.lastName FROM names n INNER JOIN names_iterator i ON n.id = i.id;]
+OCTO> SELECT n.id, n.firstName, i.lastName FROM names n INNER JOIN names_iterator i ON n.id = i.id;
+[ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
+[ INFO] PATH:LINENUM DATE TIME: INFO_M_PLAN: Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
+LP_SELECT_QUERY: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n(1).id
+        LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: id
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n(1).firstname
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: firstname
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: i(2).lastname
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: lastname
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_TABLE: n(1)
+        LP_TABLE_JOIN: INNER_JOIN: 
+          LP_WHERE: 
+            LP_BOOLEAN_EQUALS: 
+              LP_COLUMN_ALIAS: n(1).id
+              LP_COLUMN_ALIAS: i(2).id
+          LP_TABLE: i(2)
+      LP_CRITERIA: 
+        LP_KEYS: 
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name: 
+    - column_name: 
+    - unique_id: 4
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+
+[DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN AFTER optimize_logical_plan() follows 
+LP_SELECT_QUERY: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n(1).id
+        LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: id
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n(1).firstname
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: firstname
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: i(2).lastname
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: lastname
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_TABLE: n(1)
+        LP_TABLE_JOIN: INNER_JOIN: 
+          LP_WHERE: 
+          LP_TABLE: i(2)
+      LP_CRITERIA: 
+        LP_KEYS: 
+          LP_KEY: 
+          - table_name: names
+          - column_name: id
+          - unique_id: 1
+          - method: LP_KEY_ADVANCE
+          - xref_key: false
+          - uses_xref_key: false
+          LP_KEYS: 
+            LP_KEY: 
+            - table_name: names_iterator
+            - column_name: id
+            - unique_id: 2
+            - method: LP_KEY_FIX
+            - xref_key: false
+            - uses_xref_key: false
+            - value:
+                LP_COLUMN_ALIAS: n(1).id
+                fix_type: LP_BOOLEAN_EQUALS
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name: 
+    - column_name: 
+    - unique_id: 4
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+
+[ INFO] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering print_temporary_table
+id|firstname|lastname
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+(6 rows)
+[ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
+[ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command []
+OCTO> 

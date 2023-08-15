@@ -1,0 +1,94 @@
+-- TITER01 : ITERATOR basic test
+DROP TABLE IF EXISTS cat_rec_titles;
+CREATE TABLE cat_rec_titles
+(
+        catsys VARCHAR(30) ITERATOR "$$catsys^TITER01",
+        id integer ITERATOR "$$id^TITER01",
+        idx integer ITERATOR "$$idx^TITER01",
+        language VARCHAR(10) EXTRACT "$get(RAti(keys(""idx""),""lg""))",
+        type VARCHAR(10) EXTRACT "$get(RAti(keys(""idx""),""ty""))",
+        source VARCHAR(10) EXTRACT "$get(RAti(keys(""idx""),""so""))",
+        title VARCHAR(200) EXTRACT "$get(RAti(keys(""idx""),""ti""))",
+        PRIMARY KEY (catsys,id,idx)
+)
+DELIM "^"
+GLOBAL "^BCAT(keys(""catsys""),keys(""id""),""title"",keys(""idx""))";
+SELECT * FROM cat_rec_titles;
+SELECT * FROM cat_rec_titles WHERE exists (select * from cat_rec_titles);
+OCTO> DROP TABLE IF EXISTS cat_rec_titles;
+DROP TABLE
+OCTO> CREATE TABLE cat_rec_titles
+(
+        catsys VARCHAR(30) ITERATOR "$$catsys^TITER01",
+        id integer ITERATOR "$$id^TITER01",
+        idx integer ITERATOR "$$idx^TITER01",
+        language VARCHAR(10) EXTRACT "$get(RAti(keys(""idx""),""lg""))",
+        type VARCHAR(10) EXTRACT "$get(RAti(keys(""idx""),""ty""))",
+        source VARCHAR(10) EXTRACT "$get(RAti(keys(""idx""),""so""))",
+        title VARCHAR(200) EXTRACT "$get(RAti(keys(""idx""),""ti""))",
+        PRIMARY KEY (catsys,id,idx)
+)
+DELIM "^"
+GLOBAL "^BCAT(keys(""catsys""),keys(""id""),""title"",keys(""idx""))";
+CREATE TABLE
+OCTO> SELECT * FROM cat_rec_titles;
+catsys|id|idx|language|type|source|title
+1|1|1|11foo|11boo|11coo|11doo
+1|1|2|11foo|11boo|11coo|11doo
+1|1|3|11foo|11boo|11coo|11doo
+1|2|1|12foo|12boo|12coo|12doo
+1|2|2|12foo|12boo|12coo|12doo
+1|2|3|12foo|12boo|12coo|12doo
+1|3|1|13foo|13boo|13coo|13doo
+1|3|2|13foo|13boo|13coo|13doo
+1|3|3|13foo|13boo|13coo|13doo
+2|1|1|21foo|21boo|21coo|21doo
+2|1|2|21foo|21boo|21coo|21doo
+2|1|3|21foo|21boo|21coo|21doo
+2|2|1|22foo|22boo|22coo|22doo
+2|2|2|22foo|22boo|22coo|22doo
+2|2|3|22foo|22boo|22coo|22doo
+2|3|1|23foo|23boo|23coo|23doo
+2|3|2|23foo|23boo|23coo|23doo
+2|3|3|23foo|23boo|23coo|23doo
+3|1|1|31foo|31boo|31coo|31doo
+3|1|2|31foo|31boo|31coo|31doo
+3|1|3|31foo|31boo|31coo|31doo
+3|2|1|32foo|32boo|32coo|32doo
+3|2|2|32foo|32boo|32coo|32doo
+3|2|3|32foo|32boo|32coo|32doo
+3|3|1|33foo|33boo|33coo|33doo
+3|3|2|33foo|33boo|33coo|33doo
+3|3|3|33foo|33boo|33coo|33doo
+(27 rows)
+OCTO> SELECT * FROM cat_rec_titles WHERE exists (select * from cat_rec_titles);
+catsys|id|idx|language|type|source|title
+1|1|1|11foo|11boo|11coo|11doo
+1|1|2|11foo|11boo|11coo|11doo
+1|1|3|11foo|11boo|11coo|11doo
+1|2|1|12foo|12boo|12coo|12doo
+1|2|2|12foo|12boo|12coo|12doo
+1|2|3|12foo|12boo|12coo|12doo
+1|3|1|13foo|13boo|13coo|13doo
+1|3|2|13foo|13boo|13coo|13doo
+1|3|3|13foo|13boo|13coo|13doo
+2|1|1|21foo|21boo|21coo|21doo
+2|1|2|21foo|21boo|21coo|21doo
+2|1|3|21foo|21boo|21coo|21doo
+2|2|1|22foo|22boo|22coo|22doo
+2|2|2|22foo|22boo|22coo|22doo
+2|2|3|22foo|22boo|22coo|22doo
+2|3|1|23foo|23boo|23coo|23doo
+2|3|2|23foo|23boo|23coo|23doo
+2|3|3|23foo|23boo|23coo|23doo
+3|1|1|31foo|31boo|31coo|31doo
+3|1|2|31foo|31boo|31coo|31doo
+3|1|3|31foo|31boo|31coo|31doo
+3|2|1|32foo|32boo|32coo|32doo
+3|2|2|32foo|32boo|32coo|32doo
+3|2|3|32foo|32boo|32coo|32doo
+3|3|1|33foo|33boo|33coo|33doo
+3|3|2|33foo|33boo|33coo|33doo
+3|3|3|33foo|33boo|33coo|33doo
+(27 rows)
+OCTO> 

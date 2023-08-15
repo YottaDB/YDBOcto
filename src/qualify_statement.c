@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -819,6 +819,45 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 						}
 					} else {
 						qualified_cla = NULL;
+					}
+				}
+				/* ORDER BY does not work with ITERATOR columns: the iteration is driven by
+				 * a user-supplied function, not by a $ORDER walk of an underlying global, so
+				 * there is no defined ordering to honor. Issue ERR_ITERATOR_ORDER_BY_NOT_SUPPORTED
+				 * in one place for all three cases handled above:
+				 *	(1) ORDER BY by SELECT-list alias	-> qualified_cla is non-NULL
+				 *	(2) ORDER BY by column number		-> qualified_cla is non-NULL
+				 *	(3) ORDER BY by direct column reference -> qualified_cla is NULL
+				 * In cases (1) and (2) the column to inspect is the resolved SELECT-list entry
+				 * pointed to by qualified_cla->column_list; in case (3) it is the column already
+				 * resolved into cur_cl->value by the recursive qualify at line 681. Run this
+				 * check BEFORE the cur_cla rebinding below so the yyerror caret uses
+				 * cur_cla->column_list, which still holds the original ORDER BY position.
+				 */
+				if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE != table_alias->aggregate_depth) {
+					SqlStatement *order_by_value;
+
+					if (NULL != qualified_cla) {
+						SqlColumnList *cl;
+						UNPACK_SQL_STATEMENT(cl, qualified_cla->column_list, column_list);
+						order_by_value = cl->value;
+					} else {
+						order_by_value = cur_cl->value;
+					}
+					if (column_alias_STATEMENT == order_by_value->type) {
+						SqlColumnAlias *ca;
+						UNPACK_SQL_STATEMENT(ca, order_by_value, column_alias);
+						if (column_STATEMENT == ca->column->type) {
+							SqlColumn *col;
+							UNPACK_SQL_STATEMENT(col, ca->column, column);
+							if (NULL != get_keyword(col, OPTIONAL_ITERATOR)) {
+								SqlValue *cn;
+								UNPACK_SQL_STATEMENT(cn, col->columnName, value);
+								ERROR(ERR_ITERATOR_ORDER_BY_NOT_SUPPORTED, cn->v.string_literal);
+								yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL);
+								return 1;
+							}
+						}
 					}
 				}
 				/* Actual repointing to SELECT column list cla happens here (above code set things up for here) */

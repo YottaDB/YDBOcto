@@ -1,0 +1,998 @@
+-- TITER08 : ITERATOR key-fixing is per-column. VIRTUAL columns fall back to nested-loop;
+-- non-VIRTUAL columns are still fixed. The CREATE TABLE itself is in TITER08_create.sql
+-- which is loaded silently so the LP dump captured here is only the two JOIN plans.
+-- FULL JOIN on id: id is VIRTUAL -> guard fires -> nested-loop full enumeration (LP_KEY_ADVANCE on id).
+SELECT * FROM cat_rec_titles n1 FULL JOIN cat_rec_titles n2 ON n1.id = n2.id;
+-- INNER JOIN on catsys: catsys is non-VIRTUAL at key_num=0 -> key-fix applies (LP_KEY_FIX on n2.catsys).
+SELECT * FROM cat_rec_titles n1 INNER JOIN cat_rec_titles n2 ON n1.catsys = n2.catsys;
+[ INFO] PATH:LINENUM DATE TIME: INFO_RECORDING_ENV_VARS: # Recording pertinent ydb_* env var values at process startup
+[ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [SELECT * FROM cat_rec_titles n1 FULL JOIN cat_rec_titles n2 ON n1.id = n2.id;]
+OCTO> SELECT * FROM cat_rec_titles n1 FULL JOIN cat_rec_titles n2 ON n1.id = n2.id;
+[ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
+[ INFO] PATH:LINENUM DATE TIME: INFO_M_PLAN: Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
+LP_SELECT_QUERY: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).catsys
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: catsys
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).id
+        LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: id
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).idx
+        LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: idx
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).language
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: language
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).type
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: type
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).source
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: source
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).title
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: title
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).catsys
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: catsys
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).id
+        LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: id
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).idx
+        LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: idx
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).language
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: language
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).type
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: type
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).source
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: source
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).title
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: title
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_TABLE: n1(1)
+        LP_TABLE_JOIN: FULL_JOIN: 
+          LP_WHERE: 
+            LP_BOOLEAN_EQUALS: 
+              LP_COLUMN_ALIAS: n1(1).id
+              LP_COLUMN_ALIAS: n2(2).id
+          LP_TABLE: n2(2)
+      LP_CRITERIA: 
+        LP_KEYS: 
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name: 
+    - column_name: 
+    - unique_id: 4
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+
+[DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN AFTER optimize_logical_plan() follows 
+LP_SELECT_QUERY: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).catsys
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: catsys
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).id
+        LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: id
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).idx
+        LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: idx
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).language
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: language
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).type
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: type
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).source
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: source
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).title
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: title
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).catsys
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: catsys
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).id
+        LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: id
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).idx
+        LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: idx
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).language
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: language
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).type
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: type
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).source
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: source
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).title
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: title
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_TABLE: n1(1)
+        LP_TABLE_JOIN: FULL_JOIN: 
+          LP_WHERE: 
+            LP_BOOLEAN_EQUALS: 
+              LP_COLUMN_ALIAS: n1(1).id
+              LP_COLUMN_ALIAS: n2(2).id
+          LP_TABLE: n2(2)
+      LP_CRITERIA: 
+        LP_KEYS: 
+          LP_KEY: 
+          - table_name: cat_rec_titles
+          - column_name: catsys
+          - unique_id: 1
+          - method: LP_KEY_ADVANCE
+          - xref_key: false
+          - uses_xref_key: false
+          LP_KEYS: 
+            LP_KEY: 
+            - table_name: cat_rec_titles
+            - column_name: id
+            - unique_id: 1
+            - method: LP_KEY_ADVANCE
+            - xref_key: false
+            - uses_xref_key: false
+            LP_KEYS: 
+              LP_KEY: 
+              - table_name: cat_rec_titles
+              - column_name: idx
+              - unique_id: 1
+              - method: LP_KEY_ADVANCE
+              - xref_key: false
+              - uses_xref_key: false
+              LP_KEYS: 
+                LP_KEY: 
+                - table_name: cat_rec_titles
+                - column_name: catsys
+                - unique_id: 2
+                - method: LP_KEY_ADVANCE
+                - xref_key: false
+                - uses_xref_key: false
+                LP_KEYS: 
+                  LP_KEY: 
+                  - table_name: cat_rec_titles
+                  - column_name: id
+                  - unique_id: 2
+                  - method: LP_KEY_ADVANCE
+                  - xref_key: false
+                  - uses_xref_key: false
+                  LP_KEYS: 
+                    LP_KEY: 
+                    - table_name: cat_rec_titles
+                    - column_name: idx
+                    - unique_id: 2
+                    - method: LP_KEY_ADVANCE
+                    - xref_key: false
+                    - uses_xref_key: false
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name: 
+    - column_name: 
+    - unique_id: 4
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+
+[ INFO] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering print_temporary_table
+catsys|id|idx|language|type|source|title|catsys|id|idx|language|type|source|title
+1|1|1|11foo|11boo|11coo|11doo|1|1|1|11foo|11boo|11coo|11doo
+1|1|1|11foo|11boo|11coo|11doo|1|1|2|11foo|11boo|11coo|11doo
+1|1|1|11foo|11boo|11coo|11doo|1|1|3|11foo|11boo|11coo|11doo
+1|1|1|21foo|21boo|21coo|21doo|2|1|1|21foo|21boo|21coo|21doo
+1|1|1|21foo|21boo|21coo|21doo|2|1|2|21foo|21boo|21coo|21doo
+1|1|1|21foo|21boo|21coo|21doo|2|1|3|21foo|21boo|21coo|21doo
+1|1|1|31foo|31boo|31coo|31doo|3|1|1|31foo|31boo|31coo|31doo
+1|1|1|31foo|31boo|31coo|31doo|3|1|2|31foo|31boo|31coo|31doo
+1|1|1|31foo|31boo|31coo|31doo|3|1|3|31foo|31boo|31coo|31doo
+1|1|2|11foo|11boo|11coo|11doo|1|1|1|11foo|11boo|11coo|11doo
+1|1|2|11foo|11boo|11coo|11doo|1|1|2|11foo|11boo|11coo|11doo
+1|1|2|11foo|11boo|11coo|11doo|1|1|3|11foo|11boo|11coo|11doo
+1|1|2|21foo|21boo|21coo|21doo|2|1|1|21foo|21boo|21coo|21doo
+1|1|2|21foo|21boo|21coo|21doo|2|1|2|21foo|21boo|21coo|21doo
+1|1|2|21foo|21boo|21coo|21doo|2|1|3|21foo|21boo|21coo|21doo
+1|1|2|31foo|31boo|31coo|31doo|3|1|1|31foo|31boo|31coo|31doo
+1|1|2|31foo|31boo|31coo|31doo|3|1|2|31foo|31boo|31coo|31doo
+1|1|2|31foo|31boo|31coo|31doo|3|1|3|31foo|31boo|31coo|31doo
+1|1|3|11foo|11boo|11coo|11doo|1|1|1|11foo|11boo|11coo|11doo
+1|1|3|11foo|11boo|11coo|11doo|1|1|2|11foo|11boo|11coo|11doo
+1|1|3|11foo|11boo|11coo|11doo|1|1|3|11foo|11boo|11coo|11doo
+1|1|3|21foo|21boo|21coo|21doo|2|1|1|21foo|21boo|21coo|21doo
+1|1|3|21foo|21boo|21coo|21doo|2|1|2|21foo|21boo|21coo|21doo
+1|1|3|21foo|21boo|21coo|21doo|2|1|3|21foo|21boo|21coo|21doo
+1|1|3|31foo|31boo|31coo|31doo|3|1|1|31foo|31boo|31coo|31doo
+1|1|3|31foo|31boo|31coo|31doo|3|1|2|31foo|31boo|31coo|31doo
+1|1|3|31foo|31boo|31coo|31doo|3|1|3|31foo|31boo|31coo|31doo
+1|2|1|12foo|12boo|12coo|12doo|1|2|1|12foo|12boo|12coo|12doo
+1|2|1|12foo|12boo|12coo|12doo|1|2|2|12foo|12boo|12coo|12doo
+1|2|1|12foo|12boo|12coo|12doo|1|2|3|12foo|12boo|12coo|12doo
+1|2|1|22foo|22boo|22coo|22doo|2|2|1|22foo|22boo|22coo|22doo
+1|2|1|22foo|22boo|22coo|22doo|2|2|2|22foo|22boo|22coo|22doo
+1|2|1|22foo|22boo|22coo|22doo|2|2|3|22foo|22boo|22coo|22doo
+1|2|1|32foo|32boo|32coo|32doo|3|2|1|32foo|32boo|32coo|32doo
+1|2|1|32foo|32boo|32coo|32doo|3|2|2|32foo|32boo|32coo|32doo
+1|2|1|32foo|32boo|32coo|32doo|3|2|3|32foo|32boo|32coo|32doo
+1|2|2|12foo|12boo|12coo|12doo|1|2|1|12foo|12boo|12coo|12doo
+1|2|2|12foo|12boo|12coo|12doo|1|2|2|12foo|12boo|12coo|12doo
+1|2|2|12foo|12boo|12coo|12doo|1|2|3|12foo|12boo|12coo|12doo
+1|2|2|22foo|22boo|22coo|22doo|2|2|1|22foo|22boo|22coo|22doo
+1|2|2|22foo|22boo|22coo|22doo|2|2|2|22foo|22boo|22coo|22doo
+1|2|2|22foo|22boo|22coo|22doo|2|2|3|22foo|22boo|22coo|22doo
+1|2|2|32foo|32boo|32coo|32doo|3|2|1|32foo|32boo|32coo|32doo
+1|2|2|32foo|32boo|32coo|32doo|3|2|2|32foo|32boo|32coo|32doo
+1|2|2|32foo|32boo|32coo|32doo|3|2|3|32foo|32boo|32coo|32doo
+1|2|3|12foo|12boo|12coo|12doo|1|2|1|12foo|12boo|12coo|12doo
+1|2|3|12foo|12boo|12coo|12doo|1|2|2|12foo|12boo|12coo|12doo
+1|2|3|12foo|12boo|12coo|12doo|1|2|3|12foo|12boo|12coo|12doo
+1|2|3|22foo|22boo|22coo|22doo|2|2|1|22foo|22boo|22coo|22doo
+1|2|3|22foo|22boo|22coo|22doo|2|2|2|22foo|22boo|22coo|22doo
+1|2|3|22foo|22boo|22coo|22doo|2|2|3|22foo|22boo|22coo|22doo
+1|2|3|32foo|32boo|32coo|32doo|3|2|1|32foo|32boo|32coo|32doo
+1|2|3|32foo|32boo|32coo|32doo|3|2|2|32foo|32boo|32coo|32doo
+1|2|3|32foo|32boo|32coo|32doo|3|2|3|32foo|32boo|32coo|32doo
+1|3|1|13foo|13boo|13coo|13doo|1|3|1|13foo|13boo|13coo|13doo
+1|3|1|13foo|13boo|13coo|13doo|1|3|2|13foo|13boo|13coo|13doo
+1|3|1|13foo|13boo|13coo|13doo|1|3|3|13foo|13boo|13coo|13doo
+1|3|1|23foo|23boo|23coo|23doo|2|3|1|23foo|23boo|23coo|23doo
+1|3|1|23foo|23boo|23coo|23doo|2|3|2|23foo|23boo|23coo|23doo
+1|3|1|23foo|23boo|23coo|23doo|2|3|3|23foo|23boo|23coo|23doo
+1|3|1|33foo|33boo|33coo|33doo|3|3|1|33foo|33boo|33coo|33doo
+1|3|1|33foo|33boo|33coo|33doo|3|3|2|33foo|33boo|33coo|33doo
+1|3|1|33foo|33boo|33coo|33doo|3|3|3|33foo|33boo|33coo|33doo
+1|3|2|13foo|13boo|13coo|13doo|1|3|1|13foo|13boo|13coo|13doo
+1|3|2|13foo|13boo|13coo|13doo|1|3|2|13foo|13boo|13coo|13doo
+1|3|2|13foo|13boo|13coo|13doo|1|3|3|13foo|13boo|13coo|13doo
+1|3|2|23foo|23boo|23coo|23doo|2|3|1|23foo|23boo|23coo|23doo
+1|3|2|23foo|23boo|23coo|23doo|2|3|2|23foo|23boo|23coo|23doo
+1|3|2|23foo|23boo|23coo|23doo|2|3|3|23foo|23boo|23coo|23doo
+1|3|2|33foo|33boo|33coo|33doo|3|3|1|33foo|33boo|33coo|33doo
+1|3|2|33foo|33boo|33coo|33doo|3|3|2|33foo|33boo|33coo|33doo
+1|3|2|33foo|33boo|33coo|33doo|3|3|3|33foo|33boo|33coo|33doo
+1|3|3|13foo|13boo|13coo|13doo|1|3|1|13foo|13boo|13coo|13doo
+1|3|3|13foo|13boo|13coo|13doo|1|3|2|13foo|13boo|13coo|13doo
+1|3|3|13foo|13boo|13coo|13doo|1|3|3|13foo|13boo|13coo|13doo
+1|3|3|23foo|23boo|23coo|23doo|2|3|1|23foo|23boo|23coo|23doo
+1|3|3|23foo|23boo|23coo|23doo|2|3|2|23foo|23boo|23coo|23doo
+1|3|3|23foo|23boo|23coo|23doo|2|3|3|23foo|23boo|23coo|23doo
+1|3|3|33foo|33boo|33coo|33doo|3|3|1|33foo|33boo|33coo|33doo
+1|3|3|33foo|33boo|33coo|33doo|3|3|2|33foo|33boo|33coo|33doo
+1|3|3|33foo|33boo|33coo|33doo|3|3|3|33foo|33boo|33coo|33doo
+2|1|1|11foo|11boo|11coo|11doo|1|1|1|11foo|11boo|11coo|11doo
+2|1|1|11foo|11boo|11coo|11doo|1|1|2|11foo|11boo|11coo|11doo
+2|1|1|11foo|11boo|11coo|11doo|1|1|3|11foo|11boo|11coo|11doo
+2|1|1|21foo|21boo|21coo|21doo|2|1|1|21foo|21boo|21coo|21doo
+2|1|1|21foo|21boo|21coo|21doo|2|1|2|21foo|21boo|21coo|21doo
+2|1|1|21foo|21boo|21coo|21doo|2|1|3|21foo|21boo|21coo|21doo
+2|1|1|31foo|31boo|31coo|31doo|3|1|1|31foo|31boo|31coo|31doo
+2|1|1|31foo|31boo|31coo|31doo|3|1|2|31foo|31boo|31coo|31doo
+2|1|1|31foo|31boo|31coo|31doo|3|1|3|31foo|31boo|31coo|31doo
+2|1|2|11foo|11boo|11coo|11doo|1|1|1|11foo|11boo|11coo|11doo
+2|1|2|11foo|11boo|11coo|11doo|1|1|2|11foo|11boo|11coo|11doo
+2|1|2|11foo|11boo|11coo|11doo|1|1|3|11foo|11boo|11coo|11doo
+2|1|2|21foo|21boo|21coo|21doo|2|1|1|21foo|21boo|21coo|21doo
+2|1|2|21foo|21boo|21coo|21doo|2|1|2|21foo|21boo|21coo|21doo
+2|1|2|21foo|21boo|21coo|21doo|2|1|3|21foo|21boo|21coo|21doo
+2|1|2|31foo|31boo|31coo|31doo|3|1|1|31foo|31boo|31coo|31doo
+2|1|2|31foo|31boo|31coo|31doo|3|1|2|31foo|31boo|31coo|31doo
+2|1|2|31foo|31boo|31coo|31doo|3|1|3|31foo|31boo|31coo|31doo
+2|1|3|11foo|11boo|11coo|11doo|1|1|1|11foo|11boo|11coo|11doo
+2|1|3|11foo|11boo|11coo|11doo|1|1|2|11foo|11boo|11coo|11doo
+2|1|3|11foo|11boo|11coo|11doo|1|1|3|11foo|11boo|11coo|11doo
+2|1|3|21foo|21boo|21coo|21doo|2|1|1|21foo|21boo|21coo|21doo
+2|1|3|21foo|21boo|21coo|21doo|2|1|2|21foo|21boo|21coo|21doo
+2|1|3|21foo|21boo|21coo|21doo|2|1|3|21foo|21boo|21coo|21doo
+2|1|3|31foo|31boo|31coo|31doo|3|1|1|31foo|31boo|31coo|31doo
+2|1|3|31foo|31boo|31coo|31doo|3|1|2|31foo|31boo|31coo|31doo
+2|1|3|31foo|31boo|31coo|31doo|3|1|3|31foo|31boo|31coo|31doo
+2|2|1|12foo|12boo|12coo|12doo|1|2|1|12foo|12boo|12coo|12doo
+2|2|1|12foo|12boo|12coo|12doo|1|2|2|12foo|12boo|12coo|12doo
+2|2|1|12foo|12boo|12coo|12doo|1|2|3|12foo|12boo|12coo|12doo
+2|2|1|22foo|22boo|22coo|22doo|2|2|1|22foo|22boo|22coo|22doo
+2|2|1|22foo|22boo|22coo|22doo|2|2|2|22foo|22boo|22coo|22doo
+2|2|1|22foo|22boo|22coo|22doo|2|2|3|22foo|22boo|22coo|22doo
+2|2|1|32foo|32boo|32coo|32doo|3|2|1|32foo|32boo|32coo|32doo
+2|2|1|32foo|32boo|32coo|32doo|3|2|2|32foo|32boo|32coo|32doo
+2|2|1|32foo|32boo|32coo|32doo|3|2|3|32foo|32boo|32coo|32doo
+2|2|2|12foo|12boo|12coo|12doo|1|2|1|12foo|12boo|12coo|12doo
+2|2|2|12foo|12boo|12coo|12doo|1|2|2|12foo|12boo|12coo|12doo
+2|2|2|12foo|12boo|12coo|12doo|1|2|3|12foo|12boo|12coo|12doo
+2|2|2|22foo|22boo|22coo|22doo|2|2|1|22foo|22boo|22coo|22doo
+2|2|2|22foo|22boo|22coo|22doo|2|2|2|22foo|22boo|22coo|22doo
+2|2|2|22foo|22boo|22coo|22doo|2|2|3|22foo|22boo|22coo|22doo
+2|2|2|32foo|32boo|32coo|32doo|3|2|1|32foo|32boo|32coo|32doo
+2|2|2|32foo|32boo|32coo|32doo|3|2|2|32foo|32boo|32coo|32doo
+2|2|2|32foo|32boo|32coo|32doo|3|2|3|32foo|32boo|32coo|32doo
+2|2|3|12foo|12boo|12coo|12doo|1|2|1|12foo|12boo|12coo|12doo
+2|2|3|12foo|12boo|12coo|12doo|1|2|2|12foo|12boo|12coo|12doo
+2|2|3|12foo|12boo|12coo|12doo|1|2|3|12foo|12boo|12coo|12doo
+2|2|3|22foo|22boo|22coo|22doo|2|2|1|22foo|22boo|22coo|22doo
+2|2|3|22foo|22boo|22coo|22doo|2|2|2|22foo|22boo|22coo|22doo
+2|2|3|22foo|22boo|22coo|22doo|2|2|3|22foo|22boo|22coo|22doo
+2|2|3|32foo|32boo|32coo|32doo|3|2|1|32foo|32boo|32coo|32doo
+2|2|3|32foo|32boo|32coo|32doo|3|2|2|32foo|32boo|32coo|32doo
+2|2|3|32foo|32boo|32coo|32doo|3|2|3|32foo|32boo|32coo|32doo
+2|3|1|13foo|13boo|13coo|13doo|1|3|1|13foo|13boo|13coo|13doo
+2|3|1|13foo|13boo|13coo|13doo|1|3|2|13foo|13boo|13coo|13doo
+2|3|1|13foo|13boo|13coo|13doo|1|3|3|13foo|13boo|13coo|13doo
+2|3|1|23foo|23boo|23coo|23doo|2|3|1|23foo|23boo|23coo|23doo
+2|3|1|23foo|23boo|23coo|23doo|2|3|2|23foo|23boo|23coo|23doo
+2|3|1|23foo|23boo|23coo|23doo|2|3|3|23foo|23boo|23coo|23doo
+2|3|1|33foo|33boo|33coo|33doo|3|3|1|33foo|33boo|33coo|33doo
+2|3|1|33foo|33boo|33coo|33doo|3|3|2|33foo|33boo|33coo|33doo
+2|3|1|33foo|33boo|33coo|33doo|3|3|3|33foo|33boo|33coo|33doo
+2|3|2|13foo|13boo|13coo|13doo|1|3|1|13foo|13boo|13coo|13doo
+2|3|2|13foo|13boo|13coo|13doo|1|3|2|13foo|13boo|13coo|13doo
+2|3|2|13foo|13boo|13coo|13doo|1|3|3|13foo|13boo|13coo|13doo
+2|3|2|23foo|23boo|23coo|23doo|2|3|1|23foo|23boo|23coo|23doo
+2|3|2|23foo|23boo|23coo|23doo|2|3|2|23foo|23boo|23coo|23doo
+2|3|2|23foo|23boo|23coo|23doo|2|3|3|23foo|23boo|23coo|23doo
+2|3|2|33foo|33boo|33coo|33doo|3|3|1|33foo|33boo|33coo|33doo
+2|3|2|33foo|33boo|33coo|33doo|3|3|2|33foo|33boo|33coo|33doo
+2|3|2|33foo|33boo|33coo|33doo|3|3|3|33foo|33boo|33coo|33doo
+2|3|3|13foo|13boo|13coo|13doo|1|3|1|13foo|13boo|13coo|13doo
+2|3|3|13foo|13boo|13coo|13doo|1|3|2|13foo|13boo|13coo|13doo
+2|3|3|13foo|13boo|13coo|13doo|1|3|3|13foo|13boo|13coo|13doo
+2|3|3|23foo|23boo|23coo|23doo|2|3|1|23foo|23boo|23coo|23doo
+2|3|3|23foo|23boo|23coo|23doo|2|3|2|23foo|23boo|23coo|23doo
+2|3|3|23foo|23boo|23coo|23doo|2|3|3|23foo|23boo|23coo|23doo
+2|3|3|33foo|33boo|33coo|33doo|3|3|1|33foo|33boo|33coo|33doo
+2|3|3|33foo|33boo|33coo|33doo|3|3|2|33foo|33boo|33coo|33doo
+2|3|3|33foo|33boo|33coo|33doo|3|3|3|33foo|33boo|33coo|33doo
+3|1|1|11foo|11boo|11coo|11doo|1|1|1|11foo|11boo|11coo|11doo
+3|1|1|11foo|11boo|11coo|11doo|1|1|2|11foo|11boo|11coo|11doo
+3|1|1|11foo|11boo|11coo|11doo|1|1|3|11foo|11boo|11coo|11doo
+3|1|1|21foo|21boo|21coo|21doo|2|1|1|21foo|21boo|21coo|21doo
+3|1|1|21foo|21boo|21coo|21doo|2|1|2|21foo|21boo|21coo|21doo
+3|1|1|21foo|21boo|21coo|21doo|2|1|3|21foo|21boo|21coo|21doo
+3|1|1|31foo|31boo|31coo|31doo|3|1|1|31foo|31boo|31coo|31doo
+3|1|1|31foo|31boo|31coo|31doo|3|1|2|31foo|31boo|31coo|31doo
+3|1|1|31foo|31boo|31coo|31doo|3|1|3|31foo|31boo|31coo|31doo
+3|1|2|11foo|11boo|11coo|11doo|1|1|1|11foo|11boo|11coo|11doo
+3|1|2|11foo|11boo|11coo|11doo|1|1|2|11foo|11boo|11coo|11doo
+3|1|2|11foo|11boo|11coo|11doo|1|1|3|11foo|11boo|11coo|11doo
+3|1|2|21foo|21boo|21coo|21doo|2|1|1|21foo|21boo|21coo|21doo
+3|1|2|21foo|21boo|21coo|21doo|2|1|2|21foo|21boo|21coo|21doo
+3|1|2|21foo|21boo|21coo|21doo|2|1|3|21foo|21boo|21coo|21doo
+3|1|2|31foo|31boo|31coo|31doo|3|1|1|31foo|31boo|31coo|31doo
+3|1|2|31foo|31boo|31coo|31doo|3|1|2|31foo|31boo|31coo|31doo
+3|1|2|31foo|31boo|31coo|31doo|3|1|3|31foo|31boo|31coo|31doo
+3|1|3|11foo|11boo|11coo|11doo|1|1|1|11foo|11boo|11coo|11doo
+3|1|3|11foo|11boo|11coo|11doo|1|1|2|11foo|11boo|11coo|11doo
+3|1|3|11foo|11boo|11coo|11doo|1|1|3|11foo|11boo|11coo|11doo
+3|1|3|21foo|21boo|21coo|21doo|2|1|1|21foo|21boo|21coo|21doo
+3|1|3|21foo|21boo|21coo|21doo|2|1|2|21foo|21boo|21coo|21doo
+3|1|3|21foo|21boo|21coo|21doo|2|1|3|21foo|21boo|21coo|21doo
+3|1|3|31foo|31boo|31coo|31doo|3|1|1|31foo|31boo|31coo|31doo
+3|1|3|31foo|31boo|31coo|31doo|3|1|2|31foo|31boo|31coo|31doo
+3|1|3|31foo|31boo|31coo|31doo|3|1|3|31foo|31boo|31coo|31doo
+3|2|1|12foo|12boo|12coo|12doo|1|2|1|12foo|12boo|12coo|12doo
+3|2|1|12foo|12boo|12coo|12doo|1|2|2|12foo|12boo|12coo|12doo
+3|2|1|12foo|12boo|12coo|12doo|1|2|3|12foo|12boo|12coo|12doo
+3|2|1|22foo|22boo|22coo|22doo|2|2|1|22foo|22boo|22coo|22doo
+3|2|1|22foo|22boo|22coo|22doo|2|2|2|22foo|22boo|22coo|22doo
+3|2|1|22foo|22boo|22coo|22doo|2|2|3|22foo|22boo|22coo|22doo
+3|2|1|32foo|32boo|32coo|32doo|3|2|1|32foo|32boo|32coo|32doo
+3|2|1|32foo|32boo|32coo|32doo|3|2|2|32foo|32boo|32coo|32doo
+3|2|1|32foo|32boo|32coo|32doo|3|2|3|32foo|32boo|32coo|32doo
+3|2|2|12foo|12boo|12coo|12doo|1|2|1|12foo|12boo|12coo|12doo
+3|2|2|12foo|12boo|12coo|12doo|1|2|2|12foo|12boo|12coo|12doo
+3|2|2|12foo|12boo|12coo|12doo|1|2|3|12foo|12boo|12coo|12doo
+3|2|2|22foo|22boo|22coo|22doo|2|2|1|22foo|22boo|22coo|22doo
+3|2|2|22foo|22boo|22coo|22doo|2|2|2|22foo|22boo|22coo|22doo
+3|2|2|22foo|22boo|22coo|22doo|2|2|3|22foo|22boo|22coo|22doo
+3|2|2|32foo|32boo|32coo|32doo|3|2|1|32foo|32boo|32coo|32doo
+3|2|2|32foo|32boo|32coo|32doo|3|2|2|32foo|32boo|32coo|32doo
+3|2|2|32foo|32boo|32coo|32doo|3|2|3|32foo|32boo|32coo|32doo
+3|2|3|12foo|12boo|12coo|12doo|1|2|1|12foo|12boo|12coo|12doo
+3|2|3|12foo|12boo|12coo|12doo|1|2|2|12foo|12boo|12coo|12doo
+3|2|3|12foo|12boo|12coo|12doo|1|2|3|12foo|12boo|12coo|12doo
+3|2|3|22foo|22boo|22coo|22doo|2|2|1|22foo|22boo|22coo|22doo
+3|2|3|22foo|22boo|22coo|22doo|2|2|2|22foo|22boo|22coo|22doo
+3|2|3|22foo|22boo|22coo|22doo|2|2|3|22foo|22boo|22coo|22doo
+3|2|3|32foo|32boo|32coo|32doo|3|2|1|32foo|32boo|32coo|32doo
+3|2|3|32foo|32boo|32coo|32doo|3|2|2|32foo|32boo|32coo|32doo
+3|2|3|32foo|32boo|32coo|32doo|3|2|3|32foo|32boo|32coo|32doo
+3|3|1|13foo|13boo|13coo|13doo|1|3|1|13foo|13boo|13coo|13doo
+3|3|1|13foo|13boo|13coo|13doo|1|3|2|13foo|13boo|13coo|13doo
+3|3|1|13foo|13boo|13coo|13doo|1|3|3|13foo|13boo|13coo|13doo
+3|3|1|23foo|23boo|23coo|23doo|2|3|1|23foo|23boo|23coo|23doo
+3|3|1|23foo|23boo|23coo|23doo|2|3|2|23foo|23boo|23coo|23doo
+3|3|1|23foo|23boo|23coo|23doo|2|3|3|23foo|23boo|23coo|23doo
+3|3|1|33foo|33boo|33coo|33doo|3|3|1|33foo|33boo|33coo|33doo
+3|3|1|33foo|33boo|33coo|33doo|3|3|2|33foo|33boo|33coo|33doo
+3|3|1|33foo|33boo|33coo|33doo|3|3|3|33foo|33boo|33coo|33doo
+3|3|2|13foo|13boo|13coo|13doo|1|3|1|13foo|13boo|13coo|13doo
+3|3|2|13foo|13boo|13coo|13doo|1|3|2|13foo|13boo|13coo|13doo
+3|3|2|13foo|13boo|13coo|13doo|1|3|3|13foo|13boo|13coo|13doo
+3|3|2|23foo|23boo|23coo|23doo|2|3|1|23foo|23boo|23coo|23doo
+3|3|2|23foo|23boo|23coo|23doo|2|3|2|23foo|23boo|23coo|23doo
+3|3|2|23foo|23boo|23coo|23doo|2|3|3|23foo|23boo|23coo|23doo
+3|3|2|33foo|33boo|33coo|33doo|3|3|1|33foo|33boo|33coo|33doo
+3|3|2|33foo|33boo|33coo|33doo|3|3|2|33foo|33boo|33coo|33doo
+3|3|2|33foo|33boo|33coo|33doo|3|3|3|33foo|33boo|33coo|33doo
+3|3|3|13foo|13boo|13coo|13doo|1|3|1|13foo|13boo|13coo|13doo
+3|3|3|13foo|13boo|13coo|13doo|1|3|2|13foo|13boo|13coo|13doo
+3|3|3|13foo|13boo|13coo|13doo|1|3|3|13foo|13boo|13coo|13doo
+3|3|3|23foo|23boo|23coo|23doo|2|3|1|23foo|23boo|23coo|23doo
+3|3|3|23foo|23boo|23coo|23doo|2|3|2|23foo|23boo|23coo|23doo
+3|3|3|23foo|23boo|23coo|23doo|2|3|3|23foo|23boo|23coo|23doo
+3|3|3|33foo|33boo|33coo|33doo|3|3|1|33foo|33boo|33coo|33doo
+3|3|3|33foo|33boo|33coo|33doo|3|3|2|33foo|33boo|33coo|33doo
+3|3|3|33foo|33boo|33coo|33doo|3|3|3|33foo|33boo|33coo|33doo
+(243 rows)
+[ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
+[ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [SELECT * FROM cat_rec_titles n1 INNER JOIN cat_rec_titles n2 ON n1.catsys = n2.catsys;]
+OCTO> SELECT * FROM cat_rec_titles n1 INNER JOIN cat_rec_titles n2 ON n1.catsys = n2.catsys;
+[ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
+[ INFO] PATH:LINENUM DATE TIME: INFO_M_PLAN: Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
+LP_SELECT_QUERY: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).catsys
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: catsys
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).id
+        LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: id
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).idx
+        LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: idx
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).language
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: language
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).type
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: type
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).source
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: source
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).title
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: title
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).catsys
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: catsys
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).id
+        LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: id
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).idx
+        LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: idx
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).language
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: language
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).type
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: type
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).source
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: source
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).title
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: title
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_TABLE: n1(1)
+        LP_TABLE_JOIN: INNER_JOIN: 
+          LP_WHERE: 
+            LP_BOOLEAN_EQUALS: 
+              LP_COLUMN_ALIAS: n1(1).catsys
+              LP_COLUMN_ALIAS: n2(2).catsys
+          LP_TABLE: n2(2)
+      LP_CRITERIA: 
+        LP_KEYS: 
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name: 
+    - column_name: 
+    - unique_id: 4
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+
+[DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN AFTER optimize_logical_plan() follows 
+LP_SELECT_QUERY: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).catsys
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: catsys
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).id
+        LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: id
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).idx
+        LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: idx
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).language
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: language
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).type
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: type
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).source
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: source
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n1(1).title
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: title
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).catsys
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: catsys
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).id
+        LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: id
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).idx
+        LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: idx
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).language
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: language
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).type
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: type
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).source
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: source
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: n2(2).title
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: title
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_TABLE: n1(1)
+        LP_TABLE_JOIN: INNER_JOIN: 
+          LP_WHERE: 
+          LP_TABLE: n2(2)
+      LP_CRITERIA: 
+        LP_KEYS: 
+          LP_KEY: 
+          - table_name: cat_rec_titles
+          - column_name: catsys
+          - unique_id: 1
+          - method: LP_KEY_ADVANCE
+          - xref_key: false
+          - uses_xref_key: false
+          LP_KEYS: 
+            LP_KEY: 
+            - table_name: cat_rec_titles
+            - column_name: id
+            - unique_id: 1
+            - method: LP_KEY_ADVANCE
+            - xref_key: false
+            - uses_xref_key: false
+            LP_KEYS: 
+              LP_KEY: 
+              - table_name: cat_rec_titles
+              - column_name: idx
+              - unique_id: 1
+              - method: LP_KEY_ADVANCE
+              - xref_key: false
+              - uses_xref_key: false
+              LP_KEYS: 
+                LP_KEY: 
+                - table_name: cat_rec_titles
+                - column_name: catsys
+                - unique_id: 2
+                - method: LP_KEY_FIX
+                - xref_key: false
+                - uses_xref_key: false
+                - value:
+                    LP_COLUMN_ALIAS: n1(1).catsys
+                    fix_type: LP_BOOLEAN_EQUALS
+                LP_KEYS: 
+                  LP_KEY: 
+                  - table_name: cat_rec_titles
+                  - column_name: id
+                  - unique_id: 2
+                  - method: LP_KEY_ADVANCE
+                  - xref_key: false
+                  - uses_xref_key: false
+                  LP_KEYS: 
+                    LP_KEY: 
+                    - table_name: cat_rec_titles
+                    - column_name: idx
+                    - unique_id: 2
+                    - method: LP_KEY_ADVANCE
+                    - xref_key: false
+                    - uses_xref_key: false
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name: 
+    - column_name: 
+    - unique_id: 4
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+
+[ INFO] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering print_temporary_table
+catsys|id|idx|language|type|source|title|catsys|id|idx|language|type|source|title
+1|1|1|11foo|11boo|11coo|11doo|1|1|1|11foo|11boo|11coo|11doo
+1|1|1|11foo|11boo|11coo|11doo|1|1|2|11foo|11boo|11coo|11doo
+1|1|1|11foo|11boo|11coo|11doo|1|1|3|11foo|11boo|11coo|11doo
+1|1|1|12foo|12boo|12coo|12doo|1|2|1|12foo|12boo|12coo|12doo
+1|1|1|12foo|12boo|12coo|12doo|1|2|2|12foo|12boo|12coo|12doo
+1|1|1|12foo|12boo|12coo|12doo|1|2|3|12foo|12boo|12coo|12doo
+1|1|1|13foo|13boo|13coo|13doo|1|3|1|13foo|13boo|13coo|13doo
+1|1|1|13foo|13boo|13coo|13doo|1|3|2|13foo|13boo|13coo|13doo
+1|1|1|13foo|13boo|13coo|13doo|1|3|3|13foo|13boo|13coo|13doo
+1|1|2|11foo|11boo|11coo|11doo|1|1|1|11foo|11boo|11coo|11doo
+1|1|2|11foo|11boo|11coo|11doo|1|1|2|11foo|11boo|11coo|11doo
+1|1|2|11foo|11boo|11coo|11doo|1|1|3|11foo|11boo|11coo|11doo
+1|1|2|12foo|12boo|12coo|12doo|1|2|1|12foo|12boo|12coo|12doo
+1|1|2|12foo|12boo|12coo|12doo|1|2|2|12foo|12boo|12coo|12doo
+1|1|2|12foo|12boo|12coo|12doo|1|2|3|12foo|12boo|12coo|12doo
+1|1|2|13foo|13boo|13coo|13doo|1|3|1|13foo|13boo|13coo|13doo
+1|1|2|13foo|13boo|13coo|13doo|1|3|2|13foo|13boo|13coo|13doo
+1|1|2|13foo|13boo|13coo|13doo|1|3|3|13foo|13boo|13coo|13doo
+1|1|3|11foo|11boo|11coo|11doo|1|1|1|11foo|11boo|11coo|11doo
+1|1|3|11foo|11boo|11coo|11doo|1|1|2|11foo|11boo|11coo|11doo
+1|1|3|11foo|11boo|11coo|11doo|1|1|3|11foo|11boo|11coo|11doo
+1|1|3|12foo|12boo|12coo|12doo|1|2|1|12foo|12boo|12coo|12doo
+1|1|3|12foo|12boo|12coo|12doo|1|2|2|12foo|12boo|12coo|12doo
+1|1|3|12foo|12boo|12coo|12doo|1|2|3|12foo|12boo|12coo|12doo
+1|1|3|13foo|13boo|13coo|13doo|1|3|1|13foo|13boo|13coo|13doo
+1|1|3|13foo|13boo|13coo|13doo|1|3|2|13foo|13boo|13coo|13doo
+1|1|3|13foo|13boo|13coo|13doo|1|3|3|13foo|13boo|13coo|13doo
+1|2|1|11foo|11boo|11coo|11doo|1|1|1|11foo|11boo|11coo|11doo
+1|2|1|11foo|11boo|11coo|11doo|1|1|2|11foo|11boo|11coo|11doo
+1|2|1|11foo|11boo|11coo|11doo|1|1|3|11foo|11boo|11coo|11doo
+1|2|1|12foo|12boo|12coo|12doo|1|2|1|12foo|12boo|12coo|12doo
+1|2|1|12foo|12boo|12coo|12doo|1|2|2|12foo|12boo|12coo|12doo
+1|2|1|12foo|12boo|12coo|12doo|1|2|3|12foo|12boo|12coo|12doo
+1|2|1|13foo|13boo|13coo|13doo|1|3|1|13foo|13boo|13coo|13doo
+1|2|1|13foo|13boo|13coo|13doo|1|3|2|13foo|13boo|13coo|13doo
+1|2|1|13foo|13boo|13coo|13doo|1|3|3|13foo|13boo|13coo|13doo
+1|2|2|11foo|11boo|11coo|11doo|1|1|1|11foo|11boo|11coo|11doo
+1|2|2|11foo|11boo|11coo|11doo|1|1|2|11foo|11boo|11coo|11doo
+1|2|2|11foo|11boo|11coo|11doo|1|1|3|11foo|11boo|11coo|11doo
+1|2|2|12foo|12boo|12coo|12doo|1|2|1|12foo|12boo|12coo|12doo
+1|2|2|12foo|12boo|12coo|12doo|1|2|2|12foo|12boo|12coo|12doo
+1|2|2|12foo|12boo|12coo|12doo|1|2|3|12foo|12boo|12coo|12doo
+1|2|2|13foo|13boo|13coo|13doo|1|3|1|13foo|13boo|13coo|13doo
+1|2|2|13foo|13boo|13coo|13doo|1|3|2|13foo|13boo|13coo|13doo
+1|2|2|13foo|13boo|13coo|13doo|1|3|3|13foo|13boo|13coo|13doo
+1|2|3|11foo|11boo|11coo|11doo|1|1|1|11foo|11boo|11coo|11doo
+1|2|3|11foo|11boo|11coo|11doo|1|1|2|11foo|11boo|11coo|11doo
+1|2|3|11foo|11boo|11coo|11doo|1|1|3|11foo|11boo|11coo|11doo
+1|2|3|12foo|12boo|12coo|12doo|1|2|1|12foo|12boo|12coo|12doo
+1|2|3|12foo|12boo|12coo|12doo|1|2|2|12foo|12boo|12coo|12doo
+1|2|3|12foo|12boo|12coo|12doo|1|2|3|12foo|12boo|12coo|12doo
+1|2|3|13foo|13boo|13coo|13doo|1|3|1|13foo|13boo|13coo|13doo
+1|2|3|13foo|13boo|13coo|13doo|1|3|2|13foo|13boo|13coo|13doo
+1|2|3|13foo|13boo|13coo|13doo|1|3|3|13foo|13boo|13coo|13doo
+1|3|1|11foo|11boo|11coo|11doo|1|1|1|11foo|11boo|11coo|11doo
+1|3|1|11foo|11boo|11coo|11doo|1|1|2|11foo|11boo|11coo|11doo
+1|3|1|11foo|11boo|11coo|11doo|1|1|3|11foo|11boo|11coo|11doo
+1|3|1|12foo|12boo|12coo|12doo|1|2|1|12foo|12boo|12coo|12doo
+1|3|1|12foo|12boo|12coo|12doo|1|2|2|12foo|12boo|12coo|12doo
+1|3|1|12foo|12boo|12coo|12doo|1|2|3|12foo|12boo|12coo|12doo
+1|3|1|13foo|13boo|13coo|13doo|1|3|1|13foo|13boo|13coo|13doo
+1|3|1|13foo|13boo|13coo|13doo|1|3|2|13foo|13boo|13coo|13doo
+1|3|1|13foo|13boo|13coo|13doo|1|3|3|13foo|13boo|13coo|13doo
+1|3|2|11foo|11boo|11coo|11doo|1|1|1|11foo|11boo|11coo|11doo
+1|3|2|11foo|11boo|11coo|11doo|1|1|2|11foo|11boo|11coo|11doo
+1|3|2|11foo|11boo|11coo|11doo|1|1|3|11foo|11boo|11coo|11doo
+1|3|2|12foo|12boo|12coo|12doo|1|2|1|12foo|12boo|12coo|12doo
+1|3|2|12foo|12boo|12coo|12doo|1|2|2|12foo|12boo|12coo|12doo
+1|3|2|12foo|12boo|12coo|12doo|1|2|3|12foo|12boo|12coo|12doo
+1|3|2|13foo|13boo|13coo|13doo|1|3|1|13foo|13boo|13coo|13doo
+1|3|2|13foo|13boo|13coo|13doo|1|3|2|13foo|13boo|13coo|13doo
+1|3|2|13foo|13boo|13coo|13doo|1|3|3|13foo|13boo|13coo|13doo
+1|3|3|11foo|11boo|11coo|11doo|1|1|1|11foo|11boo|11coo|11doo
+1|3|3|11foo|11boo|11coo|11doo|1|1|2|11foo|11boo|11coo|11doo
+1|3|3|11foo|11boo|11coo|11doo|1|1|3|11foo|11boo|11coo|11doo
+1|3|3|12foo|12boo|12coo|12doo|1|2|1|12foo|12boo|12coo|12doo
+1|3|3|12foo|12boo|12coo|12doo|1|2|2|12foo|12boo|12coo|12doo
+1|3|3|12foo|12boo|12coo|12doo|1|2|3|12foo|12boo|12coo|12doo
+1|3|3|13foo|13boo|13coo|13doo|1|3|1|13foo|13boo|13coo|13doo
+1|3|3|13foo|13boo|13coo|13doo|1|3|2|13foo|13boo|13coo|13doo
+1|3|3|13foo|13boo|13coo|13doo|1|3|3|13foo|13boo|13coo|13doo
+2|1|1|21foo|21boo|21coo|21doo|2|1|1|21foo|21boo|21coo|21doo
+2|1|1|21foo|21boo|21coo|21doo|2|1|2|21foo|21boo|21coo|21doo
+2|1|1|21foo|21boo|21coo|21doo|2|1|3|21foo|21boo|21coo|21doo
+2|1|1|22foo|22boo|22coo|22doo|2|2|1|22foo|22boo|22coo|22doo
+2|1|1|22foo|22boo|22coo|22doo|2|2|2|22foo|22boo|22coo|22doo
+2|1|1|22foo|22boo|22coo|22doo|2|2|3|22foo|22boo|22coo|22doo
+2|1|1|23foo|23boo|23coo|23doo|2|3|1|23foo|23boo|23coo|23doo
+2|1|1|23foo|23boo|23coo|23doo|2|3|2|23foo|23boo|23coo|23doo
+2|1|1|23foo|23boo|23coo|23doo|2|3|3|23foo|23boo|23coo|23doo
+2|1|2|21foo|21boo|21coo|21doo|2|1|1|21foo|21boo|21coo|21doo
+2|1|2|21foo|21boo|21coo|21doo|2|1|2|21foo|21boo|21coo|21doo
+2|1|2|21foo|21boo|21coo|21doo|2|1|3|21foo|21boo|21coo|21doo
+2|1|2|22foo|22boo|22coo|22doo|2|2|1|22foo|22boo|22coo|22doo
+2|1|2|22foo|22boo|22coo|22doo|2|2|2|22foo|22boo|22coo|22doo
+2|1|2|22foo|22boo|22coo|22doo|2|2|3|22foo|22boo|22coo|22doo
+2|1|2|23foo|23boo|23coo|23doo|2|3|1|23foo|23boo|23coo|23doo
+2|1|2|23foo|23boo|23coo|23doo|2|3|2|23foo|23boo|23coo|23doo
+2|1|2|23foo|23boo|23coo|23doo|2|3|3|23foo|23boo|23coo|23doo
+2|1|3|21foo|21boo|21coo|21doo|2|1|1|21foo|21boo|21coo|21doo
+2|1|3|21foo|21boo|21coo|21doo|2|1|2|21foo|21boo|21coo|21doo
+2|1|3|21foo|21boo|21coo|21doo|2|1|3|21foo|21boo|21coo|21doo
+2|1|3|22foo|22boo|22coo|22doo|2|2|1|22foo|22boo|22coo|22doo
+2|1|3|22foo|22boo|22coo|22doo|2|2|2|22foo|22boo|22coo|22doo
+2|1|3|22foo|22boo|22coo|22doo|2|2|3|22foo|22boo|22coo|22doo
+2|1|3|23foo|23boo|23coo|23doo|2|3|1|23foo|23boo|23coo|23doo
+2|1|3|23foo|23boo|23coo|23doo|2|3|2|23foo|23boo|23coo|23doo
+2|1|3|23foo|23boo|23coo|23doo|2|3|3|23foo|23boo|23coo|23doo
+2|2|1|21foo|21boo|21coo|21doo|2|1|1|21foo|21boo|21coo|21doo
+2|2|1|21foo|21boo|21coo|21doo|2|1|2|21foo|21boo|21coo|21doo
+2|2|1|21foo|21boo|21coo|21doo|2|1|3|21foo|21boo|21coo|21doo
+2|2|1|22foo|22boo|22coo|22doo|2|2|1|22foo|22boo|22coo|22doo
+2|2|1|22foo|22boo|22coo|22doo|2|2|2|22foo|22boo|22coo|22doo
+2|2|1|22foo|22boo|22coo|22doo|2|2|3|22foo|22boo|22coo|22doo
+2|2|1|23foo|23boo|23coo|23doo|2|3|1|23foo|23boo|23coo|23doo
+2|2|1|23foo|23boo|23coo|23doo|2|3|2|23foo|23boo|23coo|23doo
+2|2|1|23foo|23boo|23coo|23doo|2|3|3|23foo|23boo|23coo|23doo
+2|2|2|21foo|21boo|21coo|21doo|2|1|1|21foo|21boo|21coo|21doo
+2|2|2|21foo|21boo|21coo|21doo|2|1|2|21foo|21boo|21coo|21doo
+2|2|2|21foo|21boo|21coo|21doo|2|1|3|21foo|21boo|21coo|21doo
+2|2|2|22foo|22boo|22coo|22doo|2|2|1|22foo|22boo|22coo|22doo
+2|2|2|22foo|22boo|22coo|22doo|2|2|2|22foo|22boo|22coo|22doo
+2|2|2|22foo|22boo|22coo|22doo|2|2|3|22foo|22boo|22coo|22doo
+2|2|2|23foo|23boo|23coo|23doo|2|3|1|23foo|23boo|23coo|23doo
+2|2|2|23foo|23boo|23coo|23doo|2|3|2|23foo|23boo|23coo|23doo
+2|2|2|23foo|23boo|23coo|23doo|2|3|3|23foo|23boo|23coo|23doo
+2|2|3|21foo|21boo|21coo|21doo|2|1|1|21foo|21boo|21coo|21doo
+2|2|3|21foo|21boo|21coo|21doo|2|1|2|21foo|21boo|21coo|21doo
+2|2|3|21foo|21boo|21coo|21doo|2|1|3|21foo|21boo|21coo|21doo
+2|2|3|22foo|22boo|22coo|22doo|2|2|1|22foo|22boo|22coo|22doo
+2|2|3|22foo|22boo|22coo|22doo|2|2|2|22foo|22boo|22coo|22doo
+2|2|3|22foo|22boo|22coo|22doo|2|2|3|22foo|22boo|22coo|22doo
+2|2|3|23foo|23boo|23coo|23doo|2|3|1|23foo|23boo|23coo|23doo
+2|2|3|23foo|23boo|23coo|23doo|2|3|2|23foo|23boo|23coo|23doo
+2|2|3|23foo|23boo|23coo|23doo|2|3|3|23foo|23boo|23coo|23doo
+2|3|1|21foo|21boo|21coo|21doo|2|1|1|21foo|21boo|21coo|21doo
+2|3|1|21foo|21boo|21coo|21doo|2|1|2|21foo|21boo|21coo|21doo
+2|3|1|21foo|21boo|21coo|21doo|2|1|3|21foo|21boo|21coo|21doo
+2|3|1|22foo|22boo|22coo|22doo|2|2|1|22foo|22boo|22coo|22doo
+2|3|1|22foo|22boo|22coo|22doo|2|2|2|22foo|22boo|22coo|22doo
+2|3|1|22foo|22boo|22coo|22doo|2|2|3|22foo|22boo|22coo|22doo
+2|3|1|23foo|23boo|23coo|23doo|2|3|1|23foo|23boo|23coo|23doo
+2|3|1|23foo|23boo|23coo|23doo|2|3|2|23foo|23boo|23coo|23doo
+2|3|1|23foo|23boo|23coo|23doo|2|3|3|23foo|23boo|23coo|23doo
+2|3|2|21foo|21boo|21coo|21doo|2|1|1|21foo|21boo|21coo|21doo
+2|3|2|21foo|21boo|21coo|21doo|2|1|2|21foo|21boo|21coo|21doo
+2|3|2|21foo|21boo|21coo|21doo|2|1|3|21foo|21boo|21coo|21doo
+2|3|2|22foo|22boo|22coo|22doo|2|2|1|22foo|22boo|22coo|22doo
+2|3|2|22foo|22boo|22coo|22doo|2|2|2|22foo|22boo|22coo|22doo
+2|3|2|22foo|22boo|22coo|22doo|2|2|3|22foo|22boo|22coo|22doo
+2|3|2|23foo|23boo|23coo|23doo|2|3|1|23foo|23boo|23coo|23doo
+2|3|2|23foo|23boo|23coo|23doo|2|3|2|23foo|23boo|23coo|23doo
+2|3|2|23foo|23boo|23coo|23doo|2|3|3|23foo|23boo|23coo|23doo
+2|3|3|21foo|21boo|21coo|21doo|2|1|1|21foo|21boo|21coo|21doo
+2|3|3|21foo|21boo|21coo|21doo|2|1|2|21foo|21boo|21coo|21doo
+2|3|3|21foo|21boo|21coo|21doo|2|1|3|21foo|21boo|21coo|21doo
+2|3|3|22foo|22boo|22coo|22doo|2|2|1|22foo|22boo|22coo|22doo
+2|3|3|22foo|22boo|22coo|22doo|2|2|2|22foo|22boo|22coo|22doo
+2|3|3|22foo|22boo|22coo|22doo|2|2|3|22foo|22boo|22coo|22doo
+2|3|3|23foo|23boo|23coo|23doo|2|3|1|23foo|23boo|23coo|23doo
+2|3|3|23foo|23boo|23coo|23doo|2|3|2|23foo|23boo|23coo|23doo
+2|3|3|23foo|23boo|23coo|23doo|2|3|3|23foo|23boo|23coo|23doo
+3|1|1|31foo|31boo|31coo|31doo|3|1|1|31foo|31boo|31coo|31doo
+3|1|1|31foo|31boo|31coo|31doo|3|1|2|31foo|31boo|31coo|31doo
+3|1|1|31foo|31boo|31coo|31doo|3|1|3|31foo|31boo|31coo|31doo
+3|1|1|32foo|32boo|32coo|32doo|3|2|1|32foo|32boo|32coo|32doo
+3|1|1|32foo|32boo|32coo|32doo|3|2|2|32foo|32boo|32coo|32doo
+3|1|1|32foo|32boo|32coo|32doo|3|2|3|32foo|32boo|32coo|32doo
+3|1|1|33foo|33boo|33coo|33doo|3|3|1|33foo|33boo|33coo|33doo
+3|1|1|33foo|33boo|33coo|33doo|3|3|2|33foo|33boo|33coo|33doo
+3|1|1|33foo|33boo|33coo|33doo|3|3|3|33foo|33boo|33coo|33doo
+3|1|2|31foo|31boo|31coo|31doo|3|1|1|31foo|31boo|31coo|31doo
+3|1|2|31foo|31boo|31coo|31doo|3|1|2|31foo|31boo|31coo|31doo
+3|1|2|31foo|31boo|31coo|31doo|3|1|3|31foo|31boo|31coo|31doo
+3|1|2|32foo|32boo|32coo|32doo|3|2|1|32foo|32boo|32coo|32doo
+3|1|2|32foo|32boo|32coo|32doo|3|2|2|32foo|32boo|32coo|32doo
+3|1|2|32foo|32boo|32coo|32doo|3|2|3|32foo|32boo|32coo|32doo
+3|1|2|33foo|33boo|33coo|33doo|3|3|1|33foo|33boo|33coo|33doo
+3|1|2|33foo|33boo|33coo|33doo|3|3|2|33foo|33boo|33coo|33doo
+3|1|2|33foo|33boo|33coo|33doo|3|3|3|33foo|33boo|33coo|33doo
+3|1|3|31foo|31boo|31coo|31doo|3|1|1|31foo|31boo|31coo|31doo
+3|1|3|31foo|31boo|31coo|31doo|3|1|2|31foo|31boo|31coo|31doo
+3|1|3|31foo|31boo|31coo|31doo|3|1|3|31foo|31boo|31coo|31doo
+3|1|3|32foo|32boo|32coo|32doo|3|2|1|32foo|32boo|32coo|32doo
+3|1|3|32foo|32boo|32coo|32doo|3|2|2|32foo|32boo|32coo|32doo
+3|1|3|32foo|32boo|32coo|32doo|3|2|3|32foo|32boo|32coo|32doo
+3|1|3|33foo|33boo|33coo|33doo|3|3|1|33foo|33boo|33coo|33doo
+3|1|3|33foo|33boo|33coo|33doo|3|3|2|33foo|33boo|33coo|33doo
+3|1|3|33foo|33boo|33coo|33doo|3|3|3|33foo|33boo|33coo|33doo
+3|2|1|31foo|31boo|31coo|31doo|3|1|1|31foo|31boo|31coo|31doo
+3|2|1|31foo|31boo|31coo|31doo|3|1|2|31foo|31boo|31coo|31doo
+3|2|1|31foo|31boo|31coo|31doo|3|1|3|31foo|31boo|31coo|31doo
+3|2|1|32foo|32boo|32coo|32doo|3|2|1|32foo|32boo|32coo|32doo
+3|2|1|32foo|32boo|32coo|32doo|3|2|2|32foo|32boo|32coo|32doo
+3|2|1|32foo|32boo|32coo|32doo|3|2|3|32foo|32boo|32coo|32doo
+3|2|1|33foo|33boo|33coo|33doo|3|3|1|33foo|33boo|33coo|33doo
+3|2|1|33foo|33boo|33coo|33doo|3|3|2|33foo|33boo|33coo|33doo
+3|2|1|33foo|33boo|33coo|33doo|3|3|3|33foo|33boo|33coo|33doo
+3|2|2|31foo|31boo|31coo|31doo|3|1|1|31foo|31boo|31coo|31doo
+3|2|2|31foo|31boo|31coo|31doo|3|1|2|31foo|31boo|31coo|31doo
+3|2|2|31foo|31boo|31coo|31doo|3|1|3|31foo|31boo|31coo|31doo
+3|2|2|32foo|32boo|32coo|32doo|3|2|1|32foo|32boo|32coo|32doo
+3|2|2|32foo|32boo|32coo|32doo|3|2|2|32foo|32boo|32coo|32doo
+3|2|2|32foo|32boo|32coo|32doo|3|2|3|32foo|32boo|32coo|32doo
+3|2|2|33foo|33boo|33coo|33doo|3|3|1|33foo|33boo|33coo|33doo
+3|2|2|33foo|33boo|33coo|33doo|3|3|2|33foo|33boo|33coo|33doo
+3|2|2|33foo|33boo|33coo|33doo|3|3|3|33foo|33boo|33coo|33doo
+3|2|3|31foo|31boo|31coo|31doo|3|1|1|31foo|31boo|31coo|31doo
+3|2|3|31foo|31boo|31coo|31doo|3|1|2|31foo|31boo|31coo|31doo
+3|2|3|31foo|31boo|31coo|31doo|3|1|3|31foo|31boo|31coo|31doo
+3|2|3|32foo|32boo|32coo|32doo|3|2|1|32foo|32boo|32coo|32doo
+3|2|3|32foo|32boo|32coo|32doo|3|2|2|32foo|32boo|32coo|32doo
+3|2|3|32foo|32boo|32coo|32doo|3|2|3|32foo|32boo|32coo|32doo
+3|2|3|33foo|33boo|33coo|33doo|3|3|1|33foo|33boo|33coo|33doo
+3|2|3|33foo|33boo|33coo|33doo|3|3|2|33foo|33boo|33coo|33doo
+3|2|3|33foo|33boo|33coo|33doo|3|3|3|33foo|33boo|33coo|33doo
+3|3|1|31foo|31boo|31coo|31doo|3|1|1|31foo|31boo|31coo|31doo
+3|3|1|31foo|31boo|31coo|31doo|3|1|2|31foo|31boo|31coo|31doo
+3|3|1|31foo|31boo|31coo|31doo|3|1|3|31foo|31boo|31coo|31doo
+3|3|1|32foo|32boo|32coo|32doo|3|2|1|32foo|32boo|32coo|32doo
+3|3|1|32foo|32boo|32coo|32doo|3|2|2|32foo|32boo|32coo|32doo
+3|3|1|32foo|32boo|32coo|32doo|3|2|3|32foo|32boo|32coo|32doo
+3|3|1|33foo|33boo|33coo|33doo|3|3|1|33foo|33boo|33coo|33doo
+3|3|1|33foo|33boo|33coo|33doo|3|3|2|33foo|33boo|33coo|33doo
+3|3|1|33foo|33boo|33coo|33doo|3|3|3|33foo|33boo|33coo|33doo
+3|3|2|31foo|31boo|31coo|31doo|3|1|1|31foo|31boo|31coo|31doo
+3|3|2|31foo|31boo|31coo|31doo|3|1|2|31foo|31boo|31coo|31doo
+3|3|2|31foo|31boo|31coo|31doo|3|1|3|31foo|31boo|31coo|31doo
+3|3|2|32foo|32boo|32coo|32doo|3|2|1|32foo|32boo|32coo|32doo
+3|3|2|32foo|32boo|32coo|32doo|3|2|2|32foo|32boo|32coo|32doo
+3|3|2|32foo|32boo|32coo|32doo|3|2|3|32foo|32boo|32coo|32doo
+3|3|2|33foo|33boo|33coo|33doo|3|3|1|33foo|33boo|33coo|33doo
+3|3|2|33foo|33boo|33coo|33doo|3|3|2|33foo|33boo|33coo|33doo
+3|3|2|33foo|33boo|33coo|33doo|3|3|3|33foo|33boo|33coo|33doo
+3|3|3|31foo|31boo|31coo|31doo|3|1|1|31foo|31boo|31coo|31doo
+3|3|3|31foo|31boo|31coo|31doo|3|1|2|31foo|31boo|31coo|31doo
+3|3|3|31foo|31boo|31coo|31doo|3|1|3|31foo|31boo|31coo|31doo
+3|3|3|32foo|32boo|32coo|32doo|3|2|1|32foo|32boo|32coo|32doo
+3|3|3|32foo|32boo|32coo|32doo|3|2|2|32foo|32boo|32coo|32doo
+3|3|3|32foo|32boo|32coo|32doo|3|2|3|32foo|32boo|32coo|32doo
+3|3|3|33foo|33boo|33coo|33doo|3|3|1|33foo|33boo|33coo|33doo
+3|3|3|33foo|33boo|33coo|33doo|3|3|2|33foo|33boo|33coo|33doo
+3|3|3|33foo|33boo|33coo|33doo|3|3|3|33foo|33boo|33coo|33doo
+(243 rows)
+[ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
+[ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command []
+OCTO> 

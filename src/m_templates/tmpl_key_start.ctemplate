@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -25,10 +25,17 @@ TEMPLATE(tmpl_key_start, SqlKey *key) {
 	assert((NULL != key->table) || (NULL == key->column));
 	assert((NULL == key->table) || (NULL != key->column));
 	if (NULL != key->column) {
+#ifndef NDEBUG
+		// Assert that an Iterator is not allowed here (as table definition disallows ITERATOR and START)
+		SqlOptionalKeyword	*iterator_keyword;
+
+		iterator_keyword = get_keyword(key->column, OPTIONAL_ITERATOR);
+#endif
 		if (!key->emit_desc_order) {
 			/* This key should have a FOR loop emitted in ascending order (most common case). */
 			keyword = get_keyword(key->column, OPTIONAL_START);
 			if (NULL != keyword) {
+				assert(iterator_keyword == NULL);
 				UNPACK_SQL_STATEMENT(value, keyword->v, value);
 				start = value->v.string_literal;
 				zwrite_needed = FALSE;
@@ -40,6 +47,7 @@ TEMPLATE(tmpl_key_start, SqlKey *key) {
 			assert(NULL == get_keyword(key->column, OPTIONAL_END));
 			keyword = get_keyword(key->column, OPTIONAL_ENDPOINT);
 			if (NULL != keyword) {
+				assert(iterator_keyword == NULL);
 				UNPACK_SQL_STATEMENT(value, keyword->v, value);
 				start = value->v.string_literal;
 				/* Emit "$zwrite()" ONLY if it's not the empty string

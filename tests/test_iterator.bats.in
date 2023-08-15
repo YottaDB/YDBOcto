@@ -1,0 +1,121 @@
+#################################################################
+#								#
+# Copyright (c) 2023-2026 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+}
+
+teardown() {
+	corecheck
+}
+
+@test "TITER01 : ITERATOR basic test" {
+	load_fixture TITER01.zwr
+	load_fixture TITER01.sql subtest novv
+	verify_output TITER01 output.txt
+}
+
+@test "TITER02 : ITERATOR Disallowed keywords (START/STARTINCLUDE/END/ENDPOINT/AIMTYPE)" {
+	load_fixture TITER02.sql subtest novv
+	verify_output TITER02 output.txt
+}
+
+@test "TITER03 : ITERATOR Disallowed on non-key fields" {
+	load_fixture TITER03.sql subtest novv
+	verify_output TITER03 output.txt
+}
+
+@test "TITER04 : ITERATOR Disables Cross References/ITERATOR JOINS" {
+	load_fixture names.zwr
+	load_fixture names.sql
+	load_fixture TITER04.sql
+
+	echo "# Iterators should not generate AIM data" > output.txt
+	load_fixture TITER04_iterator.sql subtest novv
+	echo " --> ZWRITE ^%ydbAIMD* (should not exist)" >> output.txt
+	yottadb -run zwriteAIMData^aimutils 2>&1 | tee -a output.txt
+	verify_output TITER04 output.txt
+
+	echo "# Tables that use Iterators should give back as the same results as non-iterator tables"
+	octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TITER04_iterator.sql > iterator_results.txt
+	octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TITER04_names.sql > non_iterator_results.txt
+	diff iterator_results.txt non_iterator_results.txt
+}
+
+@test "TITER05 : ITERATOR Mix ITERATOR key fields with regular key fields" {
+	load_fixture TITER01.zwr
+	load_fixture TITER05.sql subtest novv
+	verify_output TITER05 output.txt
+}
+
+@test "TITER06 : ITERATOR tables are readonly" {
+	load_fixture TITER06.sql subtest novv
+	verify_output TITER06 output.txt
+}
+
+@test "TITER07 : Garbage In Garbage Out" {
+	load_fixture TITER07.sql subtest novv
+	verify_output TITER07 output.txt
+}
+
+@test "TITER08 : ITERATOR key-fixing is per-column (VIRTUAL vs non-VIRTUAL)" {
+	load_fixture TITER08.zwr
+	load_fixture TITER08_create.sql
+	# The verbose ("subtest") load below captures only the two JOIN queries' LP dumps. The first query
+	# (FULL JOIN on the # VIRTUAL "id" column) must show no LP_KEY_FIX on the id key -- the VIRTUAL
+	# guard in lp_get_key() forces a nested-loop full enumeration. The second query (INNER JOIN on
+	# the non-VIRTUAL leading PK column "catsys") must show "method: LP_KEY_FIX" for n2.catsys, proving
+	# the per-column granularity of the VIRTUAL keyword.
+	load_fixture TITER08.sql subtest
+	verify_output TITER08 output.txt
+}
+
+@test "TITER09 : ITERATOR shown in \d output" {
+	load_fixture TITER09.sql subtest novv
+	verify_output TITER09 output.txt
+}
+
+@test "TITER10 : ORDER BY on column with ITERATOR is not supported" {
+	load_fixture names.zwr
+	load_fixture TITER10.sql subtest novv
+	verify_output TITER10 output.txt
+}
+
+@test "TITER11 : ITERATOR key-fixing applies on INNER JOIN" {
+	load_fixture names.zwr
+	load_fixture names.sql
+	# Use "-vv" verbosity (default for "subtest" without "novv") so the LP structure dump is
+	# included in output.txt. Key-fixing for the JOIN should make "names_iterator.id" appear
+	# with "method: LP_KEY_FIX" in the logical plan -- this is what proves the optimization
+	# was applied to the ITERATOR table.
+	load_fixture TITER11.sql subtest | grep LP_KEY_FIX
+	verify_output TITER11 output.txt
+}
+
+@test "TITER12 : ITERATOR key columns may be omitted from GLOBAL keys()" {
+	load_fixture TITER12.sql subtest novv
+	verify_output TITER12 output.txt
+}
+
+@test "TITER13 : ITERATOR accepts an explicit argument list with keys() substitution" {
+	load_fixture TITER01.zwr
+	load_fixture TITER13.sql subtest novv
+	verify_output TITER13 output.txt
+}
+
+@test "TITER14 : VIRTUAL is only valid as a syntactic suffix to ITERATOR" {
+	load_fixture TITER14.sql subtest novv
+	verify_output TITER14 output.txt
+}

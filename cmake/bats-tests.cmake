@@ -157,6 +157,7 @@ if("${FULL_TEST_SUITE}")
 	ADD_BATS_TEST(test_truncate)
 	ADD_BATS_TEST(test_ydbjnlf_in_octo)
 	ADD_BATS_TEST(test_fuzzing_queries)
+	ADD_BATS_TEST(test_iterator)
 
 	# The following tests only require the psql command line client, not Postgres
 	# (Therefore, we don't need databases set-up for these tests)

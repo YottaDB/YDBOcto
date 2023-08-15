@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -100,8 +100,6 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 	} else {
 		SqlKey	*plan_key;
 
-		assert(NULL != table->source);
-		iter_key_index = 0;
 		for (iter_key_index = 0; iter_key_index < pplan->total_iter_keys; iter_key_index++) {
 			plan_key = pplan->iterKeys[iter_key_index];
 			if (plan_key == key) {
@@ -114,10 +112,98 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 				keys_to_match++;
 		}
 		keys_to_match++;
-		UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
-		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		TMPL(tmpl_emit_source, table, value->v.string_literal, tableName, key->unique_id,	\
-							(void *)0, keys_to_match, EmitSourceForm_Value);
+		keyword = get_keyword(key->column, OPTIONAL_ITERATOR);
+		if (NULL != keyword) {
+			char	*iterator;
+			char	*paren;
+
+			UNPACK_SQL_STATEMENT(value, keyword->v, value);
+			iterator = value->v.string_literal;
+			paren = strchr(iterator, '(');
+
+			if (NULL == paren) {
+				/* Bare entryref format "$$tag^routine": Octo appends every key of this
+				 * unique_id automatically as comma-separated arguments.
+				 */
+				boolean_t first_key_emitted = FALSE;
+
+				%{}{{ iterator }}({}%
+				for (iter_key_index = 0; iter_key_index < pplan->total_iter_keys; iter_key_index++) {
+					plan_key = pplan->iterKeys[iter_key_index];
+					if (plan_key->unique_id == key->unique_id) {
+						if (first_key_emitted) {
+							%{},{}%
+						}
+						TMPL(tmpl_key, plan_key);
+						first_key_emitted = TRUE;
+						if (--keys_to_match == 0) break;
+					}
+				}
+				assert(0 == keys_to_match);
+				%{}){}%
+			} else {
+				/* Argument-list format "$$tag^routine(arglist)": emit the prefix up to
+				 * and including the '(' verbatim, then walk the argument list
+				 * substituting each keys("colname") token with a cursor lookup of that
+				 * column's current key value (the same emission tmpl_emit_source.ctemplate
+				 * uses for keys() in GLOBAL strings). Other bytes (literals, M
+				 * expressions, commas) pass through unchanged. The trailing ')' is
+				 * emitted as part of the verbatim pass.
+				 *
+				 * validate_iterator_keyword() has already verified that values() is
+				 * absent and that every keys() names a KEY column of this table, so
+				 * those branches are unreachable assertions below.
+				 */
+				char	*prefix_ptr;
+				char	*arglist_start;
+				char	*arglist_end;
+				char	*ptr;
+
+				for (prefix_ptr = iterator; prefix_ptr <= paren; prefix_ptr++) {
+					%{}{{ *prefix_ptr|%c }}{}%
+				}
+
+				arglist_start = paren + 1;
+				arglist_end   = iterator + strlen(iterator) - 1; /* Points at the trailing ')'. */
+				ptr = arglist_start;
+				while (ptr < arglist_end) {
+					char			prev;
+					char			column[OCTO_MAX_IDENT + 1];
+					int			expr_len;
+					ExpressionMatchType	match;
+
+					prev  = (ptr == arglist_start) ? '(' : *(ptr - 1);
+					match = match_expression(ptr, column, &expr_len, sizeof(column), prev);
+
+					if (NoMatchExpression == match) {
+						/* Opaque byte: pass through unchanged. */
+						%{}{{ *ptr|%c }}{}%
+						ptr++;
+						continue;
+					}
+
+					assert(KeysExpression == match);
+					assert(0 < expr_len);
+
+					/* Emit the same cursor() call format used by tmpl_emit_source.ctemplate
+					 * for keys() references in GLOBAL strings.
+					 */
+					%{}{{ config->global_names.cursor }}{}%
+					%{}(cursorId,{{ PP_KEYS }},{{ key->unique_id|%d }},"{{ tableName }}","{{ column }}"){}%
+
+					ptr += expr_len;
+				}
+
+				/* Emit the closing ')'. */
+				%{}{{ *arglist_end|%c }}{}%
+			}
+		} else {
+			assert(NULL != table->source);
+			UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
+			UNPACK_SQL_STATEMENT(value, keyword->v, value);
+			TMPL(tmpl_emit_source, table, value->v.string_literal, tableName, key->unique_id,	\
+					(void *)0, keys_to_match, EmitSourceForm_Value);
+		}
 	}
 	return;
 }

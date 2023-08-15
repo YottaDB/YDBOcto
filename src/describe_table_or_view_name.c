@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022-2025 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -194,7 +194,15 @@ int describe_table_or_view_name(SqlStatement *table_name) {
 				/* fprintf(stdout, ""); "Default" column is empty till YDBOcto#555 is implemented hence commented */
 				default_str = "";
 			}
-			fprintf(memstream, "%s\n", default_str);
+			SqlOptionalKeyword *iter_keyword = get_keyword(cur_column, OPTIONAL_ITERATOR);
+			if (NULL != iter_keyword) {
+				SqlValue *iter_val;
+				UNPACK_SQL_STATEMENT(iter_val, iter_keyword->v, value);
+				fprintf(memstream, "%s%sITERATOR \"%s\"\n", default_str, ('\0' != default_str[0]) ? " " : "",
+					iter_val->v.reference);
+			} else {
+				fprintf(memstream, "%s\n", default_str);
+			}
 		}
 		cur_column = cur_column->next;
 	} while (cur_column != start_column);

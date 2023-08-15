@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -21,6 +21,12 @@ TEMPLATE(tmpl_key_end, SqlKey *key) {
 	assert((NULL != key->table) || (NULL == key->column));
 	assert((NULL == key->table) || (NULL != key->column));
 	if (NULL != key->column) {
+#ifndef NDEBUG
+		// Assert that an Iterator is not allowed here (as table definition disallows ITERATOR and END or ENDPOINT)
+		SqlOptionalKeyword	*iterator;
+
+		iterator = get_keyword(key->column, OPTIONAL_ITERATOR);
+#endif
 		if (!key->emit_desc_order) {
 			SqlOptionalKeyword	*optional_end, *optional_endpoint;
 
@@ -28,6 +34,7 @@ TEMPLATE(tmpl_key_end, SqlKey *key) {
 			optional_endpoint = get_keyword(key->column, OPTIONAL_ENDPOINT);
 
 			if (optional_end || optional_endpoint) {
+				assert(NULL == iterator);
 				char			*end, *endpoint, *table_name;
 				SqlValue		*value;
 				SqlTable		*table;
@@ -63,6 +70,7 @@ TEMPLATE(tmpl_key_end, SqlKey *key) {
 			SqlOptionalKeyword	*optional_start;
 			optional_start      = get_keyword(key->column, OPTIONAL_START);
 			if (NULL != optional_start) {
+				assert(NULL == iterator);
 				SqlValue	*value;
 				char		*start;
 

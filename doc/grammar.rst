@@ -990,7 +990,7 @@ optional_keyword
 
   .. code-block:: none
 
-     [ AIMTYPE | DELIM | END | ENDPOINT | EXTRACT | GLOBAL | KEY NUM | NOT NULL | PIECE | READONLY | READWRITE | SKIP | SKIPCONDITION | START | STARTINCLUDE ]
+     [ AIMTYPE | DELIM | END | ENDPOINT | EXTRACT | GLOBAL | ITERATOR | KEY NUM | NOT NULL | PIECE | READONLY | READWRITE | SKIP | SKIPCONDITION | START | STARTINCLUDE | VIRTUAL ]
 
   The keywords denoted above are M expressions and literals. They are explained in the following table:
 
@@ -1045,6 +1045,20 @@ optional_keyword
   |              |                    |               | is explicitly specified or automatically assumed/generated but if the          |                              |                                                           |
   |              |                    |               | Column-level GLOBAL keyword specifies a global name with no subscripts no such |                              |                                                           |
   |              |                    |               | automatic subscript addition takes place.                                      |                              |                                                           |
+  +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
+  | ITERATOR     | Literal            | Column        | Specifies an extrinsic function to use for iteration over the keys of a        | Not applicable               | Not applicable                                            |
+  |              |                    |               | table. Accepts two formats: a bare entryref :code:`"$$tag^routine"`            |                              |                                                           |
+  |              |                    |               | (Octo auto-appends every key of the iteration as comma-separated arguments)    |                              |                                                           |
+  |              |                    |               | or an entryref with an explicit argument list                                  |                              |                                                           |
+  |              |                    |               | :code:`"$$tag^routine(arg, arg, ...)"`. In the explicit form each              |                              |                                                           |
+  |              |                    |               | :code:`keys("colname")` token is substituted at codegen time with that         |                              |                                                           |
+  |              |                    |               | column's current key value; other bytes (literal strings, M expressions,       |                              |                                                           |
+  |              |                    |               | commas) pass through verbatim. :code:`values(...)` is not allowed and the      |                              |                                                           |
+  |              |                    |               | argument list cannot be empty. See detailed discussion later in the document.  |                              |                                                           |
+  |              |                    |               | Specifying ITERATOR on any column automatically makes the table                |                              |                                                           |
+  |              |                    |               | :code:`READONLY`. Because ITERATOR essentially replaces ORDER BY on a key      |                              |                                                           |
+  |              |                    |               | field, you cannot use ORDER BY with an ITERATOR column. See VIRTUAL entry      |                              |                                                           |
+  |              |                    |               | below for for using ITERATOR to return data that is not backed by a global.    |                              |                                                           |
   +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
   | KEY NUM      | Integer Literal    | Column        | Specifies an integer indicating this column as part of a composite key.        | Not applicable               | Not applicable                                            |
   |              |                    |               | The :code:`PRIMARY KEY` column correponds to :code:`KEY NUM 0`.                |                              |                                                           |
@@ -1121,6 +1135,11 @@ optional_keyword
   |              |                    |               | the loop does a $ORDER() of the START value and uses that for the first        |                              |                                                           |
   |              |                    |               | loop iteration.                                                                |                              |                                                           |
   +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
+  | VIRTUAL      | Not applicable     | Column        | A keyword that pairs with :code:`ITERATOR`. It declares that the keys returned | Not applicable               | Not specified                                             |
+  |              |                    |               | by the ITERATOR don't correspond to real data in a global, and therefore, when |                              |                                                           |
+  |              |                    |               | optimizing queries, Octo should skip optimizations that depend on the          |                              |                                                           |
+  |              |                    |               | existence of the data.                                                         |                              |                                                           |
+  +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
 
   In the table above:
 
@@ -1135,6 +1154,7 @@ optional_keyword
     * If the DELIM keyword is specified in the first non-key column and has a value other than :code:`""`
     * If the PIECE number is not the same as the column number (first column is 1, second column is 2, etc.)
     * If the GLOBAL keyword is specified with subscripts that are not in a format compatible with READWRITE
+    * If the ITERATOR keyword is specified on any column
 
   If a :code:`DELIM ""` is specified for a column, any :code:`PIECE` keyword specified for that column is ignored and is treated as if the keyword was not specified.
 
@@ -3435,6 +3455,25 @@ Useful Commands at OCTO>
        Check constraints:
            "EMPLOYEE_AGE_CHECK" CHECK ((AGE >= 18))
 
+    :code:`\\d tablename` displays the ``ITERATOR`` configured on a key column
+    (see :ref:`ITERATOR Examples <iterator-examples>`) in the ``Default``
+    column.
+
+    Example:
+
+    .. code-block:: bash
+
+       OCTO> CREATE TABLE names (id INTEGER PRIMARY KEY ITERATOR "$$id^names", firstName VARCHAR(30), lastName VARCHAR(30)) GLOBAL "^names";
+       CREATE TABLE
+       OCTO> \d names;
+       Table "names" stored in Global: ^names(id) : Type = READONLY
+       Column|Type|Collation|Nullable|Default
+       id|INTEGER||NOT NULL|ITERATOR "$$id^names"
+       firstname|VARCHAR(30)|||
+       lastname|VARCHAR(30)|||
+       Indexes:
+           "names_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^names(id)
+
 .. _technical-notes:
 
 ---------------------
@@ -3805,6 +3844,335 @@ A ``select * from specialone;`` query against the ``specialone`` table will yiel
     LOC|DEP|LEVEL|TITLE|LANG|ISBN|CO
     antwerp|cde|14|Lijmen|dut|9789025313210|1234
     antwerp|qeb|9|Austen|Y|012345678234|9999
+
+.. _iterator-examples:
+
++++++++++++++++++
+ITERATOR Examples
++++++++++++++++++
+
+ITERATOR can be used on a table for two purposes:
+
+- To customize where to start and end looping on a global
+- To return extra data (e.g. using an existing API) that is later displayed using ``EXTRACT``.
+
+ITERATORs are intended for advanced users with existing M applications that
+already have APIs that return data.
+
+Specifying ``ITERATOR`` on any column in a ``CREATE TABLE`` command
+automatically makes the table ``READONLY``. Explicitly specifying ``READWRITE``
+together with ``ITERATOR`` in the same ``CREATE TABLE`` command results in an
+error.
+
+This is best illustrated using a few examples. First example focuses mainly on
+how to create an ITERATOR; as the example itself isn't intrinsically useful.
+
+  .. code-block:: SQL
+
+        CREATE TABLE names (
+                id INTEGER PRIMARY KEY ITERATOR "$$id^names",
+                firstName VARCHAR(30),
+                lastName VARCHAR(30)
+        ) GLOBAL "^names";
+
+The ``names`` M routine is defined as:
+
+  .. code-block:: none
+
+        names ; Iterator calls for names table
+        id(n) quit $order(^names(n))
+
+What happens in this example is that whenever Octo needs a row, it will call
+``set key1=$$id^names(key1)``, reusing the ``key1`` output as the input for the
+next call. The first time it is called, ``key1`` is an empty string.
+Eventually, when ``key1`` is an empty string, Octo will stop looping.
+
+A more advanced example showing custom iteration in VistA:
+
+  .. code-block:: SQL
+
+        DROP TABLE IF EXISTS PHARMACY_PATIENT_UNIT_DOSE_ITERATOR;
+        CREATE TABLE PHARMACY_PATIENT_UNIT_DOSE_ITERATOR(
+        PHARMACY_PATIENT_ID INTEGER START 0 ENDPOINT '$CHAR(0)',
+        PHARMACY_PATIENT_UNIT_DOSE_ID INTEGER ITERATOR "$$GET^KBANPSG",
+        PATIENT_NAME VARCHAR EXTRACT "$G(REC(.5))",
+        PROVIDER_NAME VARCHAR EXTRACT "$G(REC(1))",
+        ORDERABLE_ITEM VARCHAR EXTRACT "$G(REC(108))",
+        PRIMARY KEY (PHARMACY_PATIENT_ID, PHARMACY_PATIENT_UNIT_DOSE_ID)
+        )
+        GLOBAL "^PS(55,keys(""pharmacy_patient_id""),5,keys(""pharmacy_patient_unit_dose_id""))" READONLY
+        DELIM "^"
+        AIMTYPE 1;
+
+where ``KBANPSG`` M routine is defined as:
+
+  .. code-block:: none
+
+        KBANPSG
+        GET(ID,UD)
+         KILL REC
+         I UD="" S UD=0 ; Start from zero
+         S UD=$O(^PS(55,ID,5,UD)) ; Get next record
+         I 'UD QUIT "" ; Reached the indexes, terminate loop
+         D COLLECT(ID,UD)
+         Q UD
+         ;
+        COLLECT(ID,UD)
+         N IENS S IENS=UD_","_ID_","
+         N ARRAY
+         D GETS^DIQ(55.06,IENS,"*","","ARRAY")
+         M REC=ARRAY(55.06,IENS)
+         QUIT
+
+First, focusing on ``GET:GET+4``: Since the second key is being used in the
+Iterator, it needs to pass the first key along as the first argument ``ID``;
+and the second key in this case is ``UD``. Since this is VistA, if we are
+passed the empty string, we need to skip that and actually start with ``0``,
+but not include ``0``. And we terminate once we reach the Fileman indexes, and
+with that return an empty string.
+
+Next, note the use of the ``COLLECT`` label: We use a VistA API to get data
+from Subfile 55.06, and we get the result of the data into the REC array.
+The REC array is referenced in three columns using EXTRACT expressions. Note
+that while we are always sure that REC will be defined if KBANPSG is called,
+there are cases (e.g. left or right joins) where the records will attempt to
+be printed but the ITERATOR won't execute. For this reason, we surround the
+expressions with ``$GET``.
+
+The next example is to show how to get data in order to be able to later to use it in EXTRACT fields. Let's assume you have this data:
+
+  .. code-block:: none
+
+	^BCAT("lvd",123,"title",1)="h^eng^1^0^oip^English < literature, 1789-1815^^fp"
+	^BCAT("lvd",123,"title",2)="e^fre^3^0^oip^L'ouvre gravé de James Ensor : catalogu^^fp"
+	^BCAT("lvd",123,"title",3)="p^fre^3^0^oip^l'apprentissage du genre : pour une éducation non sexiste et égalitaire^^doc"
+
+And this SQL defintion:
+
+  .. code-block:: SQL
+
+	DROP TABLE IF EXISTS cat_rec_titles;
+	CREATE TABLE cat_rec_titles
+	(
+		catsys VARCHAR(30) ITERATOR "$$catsys^bcat",
+		id integer ITERATOR "$$id^bcat",
+		idx integer ITERATOR "$$idx^bcat",
+		language VARCHAR(10) EXTRACT "RAti(keys(""idx""),""lg"")",
+		type varchar(10) EXTRACT "RAti(keys(""idx""),""ty"")",
+		source varchar(10) EXTRACT "RAti(keys(""idx""),""so"")",
+		title varchar(200) EXTRACT "RAti(keys(""idx""),""ti"")",
+		PRIMARY KEY (catsys,id,idx)
+	)
+	DELIM "^"
+	GLOBAL "^BCAT(keys(""catsys""),keys(""id""),""title"",keys(""idx""))";
+
+and ``bcat.m``:
+
+  .. code-block:: none
+
+	bcat
+	catsys(catsys)
+	 set catsys=$order(^BCAT(catsys))
+	 quit catsys
+	 ;
+	id(catsys,id)
+	 set id=$order(^BCAT(catsys,id))
+	 quit id
+	 ;
+	idx(catsys,id,idx)
+	 kill RAti
+	 set idx=$order(^BCAT(catsys,id,"title",idx))
+	 if idx="" quit ""
+	 do collect(catsys,id,idx)
+	 quit idx
+	 ;
+	collect(catsys,id,idx) ;
+	 set RAti(idx,"lg")=$piece(^BCAT(catsys,id,"title",idx),"^",2)
+	 set RAti(idx,"ty")=$piece(^BCAT(catsys,id,"title",idx),"^",1)
+	 set RAti(idx,"so")=$piece(^BCAT(catsys,id,"title",idx),"^",5)
+	 set RAti(idx,"ti")=$piece(^BCAT(catsys,id,"title",idx),"^",6)
+	 quit
+
+Notice that the ``language``, ``type``, ``source``, and ``title`` fields are
+all extract fields relying on a local variable ``RAti``. ``RAti`` is set using
+a simple pretend API ``collect^bcat(catsys,id,idx)``.
+
+An enhancement to this example since there is no reason for us to try to loop through
+``catsys`` and ``id`` is to remove the iterators over these fields and just iterate
+over ``idx``. This will save us the small cost of these two calls.
+
+Assuming the ^BCAT data is the same; here's the new SQL and M files:
+
+  .. code-block:: SQL
+
+	DROP TABLE IF EXISTS cat_rec_titles;
+	CREATE TABLE cat_rec_titles
+	(
+		catsys VARCHAR(30),
+		id integer,
+		idx integer ITERATOR "$$idx^bcat",
+		language VARCHAR(10) EXTRACT "RAti(keys(""idx""),""lg"")",
+		type varchar(10) EXTRACT "RAti(keys(""idx""),""ty"")",
+		source varchar(10) EXTRACT "RAti(keys(""idx""),""so"")",
+		title varchar(200) EXTRACT "RAti(keys(""idx""),""ti"")",
+		PRIMARY KEY (catsys,id,idx)
+	)
+	DELIM "^"
+	GLOBAL "^BCAT(keys(""catsys""),keys(""id""),""title"",keys(""idx""))";
+
+and ``bcat.m``:
+
+  .. code-block:: none
+
+	bcat
+	idx(catsys,id,idx)
+	 kill RAti
+	 set idx=$order(^BCAT(catsys,id,"title",idx))
+	 if idx="" quit ""
+	 do collect(catsys,id,idx)
+	 quit idx
+	 ;
+	collect(catsys,id,idx) ;
+	 set RAti(idx,"lg")=$piece(^BCAT(catsys,id,"title",idx),"^",2)
+	 set RAti(idx,"ty")=$piece(^BCAT(catsys,id,"title",idx),"^",1)
+	 set RAti(idx,"so")=$piece(^BCAT(catsys,id,"title",idx),"^",5)
+	 set RAti(idx,"ti")=$piece(^BCAT(catsys,id,"title",idx),"^",6)
+	 quit
+
+This brings us back to the VistA Example. We have these fields there:
+
+  .. code-block:: SQL
+
+        PATIENT_NAME VARCHAR EXTRACT "REC(.5)",
+        PROVIDER_NAME VARCHAR EXTRACT "REC(1)",
+        ORDERABLE_ITEM VARCHAR EXTRACT "REC(108)",
+
+These are extracted in the M routine:
+
+  .. code-block:: none
+
+         COLLECT(ID,UD)
+         N IENS S IENS=UD_","_ID_","
+         N ARRAY
+         D GETS^DIQ(55.06,IENS,"*","","ARRAY")
+         M REC=ARRAY(55.06,IENS)
+         QUIT
+
+++++++++++++++++++++++++++++++++
+Explicit ITERATOR argument lists
+++++++++++++++++++++++++++++++++
+
+All examples above use the bare-entryref form, where Octo automatically
+appends every key of the current iteration as the call's arguments (in the
+order the keys appear in the table's :code:`PRIMARY KEY`). If you need a
+different calling convention -- to reorder arguments, repeat a key, omit
+a key, or pass additional literals or M expressions to the iterator
+routine -- you can supply an explicit argument list inside the ITERATOR
+string. Octo parses the argument list at :code:`CREATE TABLE` time and
+rejects malformed references with an error.
+
+Inside the argument list:
+
+- :code:`keys("colname")` is substituted at codegen time with the current
+  key value for :code:`colname`. The column must be a :code:`KEY` column
+  of the same table.
+- Any other byte sequence (literal strings, numeric constants, M
+  expressions, commas) passes through verbatim.
+- :code:`values(...)` references are **not** allowed -- the iterator runs
+  before any row context is available.
+- The argument list cannot be empty. To get the bare-entryref behavior,
+  omit the parentheses entirely.
+
+For example, the :code:`cat_rec_titles` table shown earlier can be
+rewritten to call the same :code:`bcat` routines using an explicit
+argument list -- both forms are equivalent and produce identical query
+results:
+
+  .. code-block:: SQL
+
+	CREATE TABLE cat_rec_titles_explicit
+	(
+		catsys VARCHAR(30) ITERATOR "$$catsys^bcat(keys(""catsys""))",
+		id integer ITERATOR "$$id^bcat(keys(""catsys""),keys(""id""))",
+		idx integer ITERATOR "$$idx^bcat(keys(""catsys""),keys(""id""),keys(""idx""))",
+		language VARCHAR(10) EXTRACT "RAti(keys(""idx""),""lg"")",
+		type varchar(10) EXTRACT "RAti(keys(""idx""),""ty"")",
+		source varchar(10) EXTRACT "RAti(keys(""idx""),""so"")",
+		title varchar(200) EXTRACT "RAti(keys(""idx""),""ti"")",
+		PRIMARY KEY (catsys,id,idx)
+	)
+	DELIM "^"
+	GLOBAL "^BCAT(keys(""catsys""),keys(""id""),""title"",keys(""idx""))";
+
+A more interesting use of the explicit form is passing extra context that
+the bare-entryref form has no place to convey. For instance, if an M
+routine accepts a leading "label" argument identifying which logical
+dataset to scan:
+
+  .. code-block:: SQL
+
+		idx integer ITERATOR "$$idx^bcat(""titles"",keys(""catsys""),keys(""id""),keys(""idx""))",
+
+then the literal :code:`"titles"` is emitted directly into the generated
+M plan and arrives as the first argument to :code:`$$idx^bcat`, with the
+key values following.
+
+++++++++++++++++++++++
+ITERATOR with VIRTUAL
+++++++++++++++++++++++
+
+The :code:`VIRTUAL` keyword is written immediately after an :code:`ITERATOR`
+string. It declares that the keys returned by the ITERATOR don't correspond
+to real data in a global; therefore, when optimizing queries, Octo skips
+optimizations that depend on the existence of the data. :code:`VIRTUAL` is
+parsed only as a suffix to :code:`ITERATOR`; placing it anywhere else in a
+column definition is a syntax error.
+
+If a column's iterator generates data rather than reading from a real global,
+and you forget to mark it :code:`VIRTUAL`, JOINs on that column may silently
+return no rows. Octo will apply an optimization that assumes the column's
+values exist in the table's global; because they don't, the JOIN matches
+nothing. Always mark synthetic ITERATOR columns :code:`VIRTUAL`.
+
+:code:`VIRTUAL` is per-column. A column without :code:`VIRTUAL` keeps the
+optimizations even when other columns of the same table are marked
+:code:`VIRTUAL`.
+
+For example, a table whose leading primary key column is backed by real
+data but whose remaining primary key columns are generated by the iterator
+functions:
+
+  .. code-block:: SQL
+
+	CREATE TABLE cat_rec_titles_virtual
+	(
+		catsys VARCHAR(30) ITERATOR "$$catsys^bcat",
+		id integer ITERATOR "$$id^bcat" VIRTUAL,
+		idx integer ITERATOR "$$idx^bcat" VIRTUAL,
+		language VARCHAR(10) EXTRACT "RAti(keys(""idx""),""lg"")",
+		PRIMARY KEY (catsys, id, idx)
+	)
+	GLOBAL "^BCAT(keys(""catsys""),keys(""id""),""title"",keys(""idx""))";
+
+A JOIN on :code:`catsys` (the non-:code:`VIRTUAL` column) benefits from
+Octo's query optimizations and runs efficiently:
+
+  .. code-block:: SQL
+
+	SELECT * FROM cat_rec_titles_virtual t1
+	INNER JOIN cat_rec_titles_virtual t2 ON t1.catsys = t2.catsys;
+
+JOINs on :code:`id` or :code:`idx` (the :code:`VIRTUAL` columns) skip those
+optimizations -- correct but slower because Octo iterates every key
+combination:
+
+  .. code-block:: SQL
+
+	SELECT * FROM cat_rec_titles_virtual t1
+	INNER JOIN cat_rec_titles_virtual t2 ON t1.id = t2.id;
+
+	SELECT * FROM cat_rec_titles_virtual t1
+	INNER JOIN cat_rec_titles_virtual t2 ON t1.idx = t2.idx;
 
 ---------------------
 SQL NULL Values

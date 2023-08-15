@@ -21,7 +21,7 @@ void function_definition_lookup(FunctionCallContext *fc_context, FunctionMatchCo
 	SqlFunction *	 function;
 
 	fc = fc_context->fc;
-	if ((0 < fc_context->num_null_args) && (cur_parm < fc_context->num_args)) {
+	if (cur_parm < fc_context->num_args) {
 		if (fc_context->null_args[cur_parm]) {
 			/* This parameter initially had a type of NULL, but we haven't yet tried all possible types
 			 * for it, so increment it to try the next type at the next recursion level.
@@ -38,9 +38,17 @@ void function_definition_lookup(FunctionCallContext *fc_context, FunctionMatchCo
 			fc_context->arg_types[cur_parm] = UNKNOWN_SqlValueType;
 		} else {
 			/* This was not SQL NULL, so don't iterate over possible types. Instead, just attempt to lookup a function
-			 * definition using the given type as is.
+			 * definition using the given type as is. There is one exception and that is if the function parameter
+			 * type is a NUMERIC whereas the actual parameter type is INTEGER. In that case, we need to treat the
+			 * INTEGER as a NUMERIC and match that function. So first try with INTEGER but if that does not find
+			 * any function, search using NUMERIC.
 			 */
 			function_definition_lookup(fc_context, match_context, cur_parm + 1);
+			if ((INTEGER_LITERAL == fc_context->arg_types[cur_parm]) && (0 == match_context->num_matches)) {
+				fc_context->arg_types[cur_parm] = NUMERIC_LITERAL;
+				function_definition_lookup(fc_context, match_context, cur_parm + 1);
+				fc_context->arg_types[cur_parm] = INTEGER_LITERAL;
+			}
 		}
 		return;
 	}

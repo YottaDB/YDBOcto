@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -16,7 +16,6 @@ typedef struct FunctionCallContext {
 	SqlValueType	 arg_types[YDB_MAX_PARMS]; // List of argument types for looking up function definition from function call
 	boolean_t	 null_args[YDB_MAX_PARMS]; // Array of flags indicating whether the argument at the given index was SQL NULL
 	int		 num_args;		   // The total number of arguments for the function call
-	int		 num_null_args;		   // The total number of SQL NULL arguments for the function call
 } FunctionCallContext;
 
 // Struct for tracking information about possible function definition matches during function definition lookup.

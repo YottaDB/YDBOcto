@@ -66,7 +66,6 @@ int function_call_data_type_check(SqlStatement *fc_stmt, SqlValueType *type, Par
 	cur_column_list = start_column_list = fc->parameters->v.column_list;
 	fc_context.fc = fc;
 	fc_context.num_args = 0;
-	fc_context.num_null_args = 0;
 	if (NULL != cur_column_list->value) { // Only iterate over parameters if there are any
 		do {
 			fc_context.num_args++;
@@ -109,9 +108,6 @@ int function_call_data_type_check(SqlStatement *fc_stmt, SqlValueType *type, Par
 				 * iterate through the SqlValueType enum incrementally in function_definition_lookup().
 				 */
 				fc_context.arg_types[fc_context.num_args - 1] = UNKNOWN_SqlValueType;
-				// Increment the number of null arguments for later reference in
-				// function_definition_lookup()
-				fc_context.num_null_args++;
 			} else {
 				// This parameter is not SQL NULL, so flag it as such and use the given type as is.
 				fc_context.null_args[fc_context.num_args - 1] = FALSE;

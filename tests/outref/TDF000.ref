@@ -18,9 +18,14 @@ abs
 1
 (6 rows)
 DROP FUNCTION
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function abs defined with given parameter types (INTEGER)
-LINE 5:1: SELECT ABS(-1) FROM names;
-                 ^^^
+abs
+1
+1
+1
+1
+1
+1
+(6 rows)
 abs
 1
 1

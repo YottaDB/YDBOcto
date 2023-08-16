@@ -66,6 +66,7 @@ int function_call_data_type_check(SqlStatement *fc_stmt, SqlValueType *type, Par
 	cur_column_list = start_column_list = fc->parameters->v.column_list;
 	fc_context.fc = fc;
 	fc_context.num_args = 0;
+	fc_context.num_ambiguous_args = 0;
 	if (NULL != cur_column_list->value) { // Only iterate over parameters if there are any
 		do {
 			fc_context.num_args++;
@@ -99,24 +100,22 @@ int function_call_data_type_check(SqlStatement *fc_stmt, SqlValueType *type, Par
 				UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
 				assert(fix_type == *type);
 			}
-			if (IS_NUL_VALUE(*type)) {
-				/* Note down this parameter as a NULL parameter by setting a flag for it in the
-				 * fc_context.null_args array.
+
+			SqlValueType lcl_type;
+			lcl_type = *type;
+			fc_context.arg_types[fc_context.num_args - 1] = lcl_type;
+			if (IS_NUL_VALUE(lcl_type) || (INTEGER_LITERAL == lcl_type)) {
+				/* A NULL actual parameter type can be matched with a function parameter type
+				 * of BOOLEAN, INTEGER, NUMERIC or STRING. So treat it as an ambiguous argument.
+				 * An INTEGER actual parameter type can be matched with a function parameter type
+				 * of INTEGER or NUMERIC. So treat that as an ambiguous argument too.
 				 */
-				fc_context.null_args[fc_context.num_args - 1] = TRUE;
-				/* Initialize the parameter type for this field to UNKNOWN_SqlValueType so that we can later
-				 * iterate through the SqlValueType enum incrementally in function_definition_lookup().
-				 */
-				fc_context.arg_types[fc_context.num_args - 1] = UNKNOWN_SqlValueType;
-			} else {
-				// This parameter is not SQL NULL, so flag it as such and use the given type as is.
-				fc_context.null_args[fc_context.num_args - 1] = FALSE;
-				fc_context.arg_types[fc_context.num_args - 1] = *type;
+				fc_context.num_ambiguous_args++;
 			}
-			ADD_INT_HASH(&state, *type);
+			ADD_INT_HASH(&state, lcl_type);
 			int written;
-			written
-			    = snprintf(c, MAX_FUNC_TYPES_LEN - function_parm_types_len, "%s", get_user_visible_type_string(*type));
+			written = snprintf(c, MAX_FUNC_TYPES_LEN - function_parm_types_len, "%s",
+					   get_user_visible_type_string(lcl_type));
 			assert((MAX_FUNC_TYPES_LEN - function_parm_types_len) > written);
 			c += written;
 			function_parm_types_len += written;
@@ -150,8 +149,14 @@ int function_call_data_type_check(SqlStatement *fc_stmt, SqlValueType *type, Par
 	 */
 	FunctionMatchContext match_context;
 
-	memset(&match_context, 0, sizeof(match_context));
-	function_definition_lookup(&fc_context, &match_context, 0);
+	memset(&match_context, 0, sizeof(match_context)); /* clears "match_context.num_matches" and "match_context.best_match" */
+
+	int ret;
+	ret = function_definition_lookup(&fc_context, &match_context);
+	if (0 != ret) {
+		result = 1;
+		return result;
+	}
 	if (0 == match_context.num_matches) {
 		// Issue syntax error and abort if function doesn't exist.
 		ERROR(ERR_UNKNOWN_FUNCTION, fc->function_name->v.value->v.string_literal, function_parm_types);

@@ -16,45 +16,12 @@
 #include "octo_type_check.h"
 #include "function_definition_lookup.h"
 
-void function_definition_lookup(FunctionCallContext *fc_context, FunctionMatchContext *match_context, int cur_parm) {
+/* Returns 0 on success. 1 on failure. */
+int function_definition_lookup(FunctionCallContext *fc_context, FunctionMatchContext *match_context) {
 	SqlFunctionCall *fc;
 	SqlFunction *	 function;
 
 	fc = fc_context->fc;
-	if (cur_parm < fc_context->num_args) {
-		if (fc_context->null_args[cur_parm]) {
-			/* This parameter initially had a type of NULL, but we haven't yet tried all possible types
-			 * for it, so increment it to try the next type at the next recursion level.
-			 */
-			assert(UNKNOWN_SqlValueType == fc_context->arg_types[cur_parm]);
-			while (STRING_LITERAL > fc_context->arg_types[cur_parm]) {
-				fc_context->arg_types[cur_parm]++;
-				function_definition_lookup(fc_context, match_context, cur_parm + 1);
-			}
-			/* Reset the current argument type for this parameter for possible later iteration on the parameter type of
-			 * the parent parameter, i.e. cur_parm - 1. Moreover, since `UNKNOWN_SqlValueType` is not a valid type, we
-			 * do not need to check for it below, so just return here.
-			 */
-			fc_context->arg_types[cur_parm] = UNKNOWN_SqlValueType;
-		} else {
-			/* This was not SQL NULL, so don't iterate over possible types. Instead, just attempt to lookup a function
-			 * definition using the given type as is. There is one exception and that is if the function parameter
-			 * type is a NUMERIC whereas the actual parameter type is INTEGER. In that case, we need to treat the
-			 * INTEGER as a NUMERIC and match that function. So first try with INTEGER but if that does not find
-			 * any function, search using NUMERIC.
-			 */
-			function_definition_lookup(fc_context, match_context, cur_parm + 1);
-			if ((INTEGER_LITERAL == fc_context->arg_types[cur_parm]) && (0 == match_context->num_matches)) {
-				fc_context->arg_types[cur_parm] = NUMERIC_LITERAL;
-				function_definition_lookup(fc_context, match_context, cur_parm + 1);
-				fc_context->arg_types[cur_parm] = INTEGER_LITERAL;
-			}
-		}
-		return;
-	}
-	/* We've reached the tail of the recursion. Do nothing here and allow code below to do a final lookup attempt with
-	 * the current parameter specifications.
-	 */
 
 	char	  function_hash[MAX_ROUTINE_LEN + 1];
 	int	  i;
@@ -70,14 +37,28 @@ void function_definition_lookup(FunctionCallContext *fc_context, FunctionMatchCo
 	ydb_mmrhash_128_ingest(&state, (void *)function_name_value->v.reference, strlen(function_name_value->v.reference));
 
 	// Add each parameter type to the hash
-	for (i = 0; i < fc_context->num_args; i++) {
-		ADD_INT_HASH(&state, fc_context->arg_types[i]);
+	int actual_args;
+
+	actual_args = fc_context->num_args;
+	for (i = 0; i < actual_args; i++) {
+		SqlValueType arg_type;
+
+		arg_type = fc_context->arg_types[i];
+		if (NUL_VALUE == arg_type) {
+			/* Postgres treats NULL as VARCHAR by default. If that does not work, then it tries out
+			 * all other type matches. See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/816#note_887646106.
+			 */
+			assert(0 != fc_context->num_ambiguous_args);
+			arg_type = STRING_LITERAL;
+		}
+		ADD_INT_HASH(&state, arg_type);
 	}
 	generate_name_type(FunctionHash, &state, 0, function_hash, sizeof(function_hash));
 	// Retrieve the DDL for the given function
 	if (NULL == fc->function_schema) {
 		// Only allocate a new function schema when there isn't one already.
 		SQL_STATEMENT(fc->function_schema, create_function_STATEMENT);
+		/* Note: "function_schema" is further initialized in the caller "function_call_data_type_check.c". */
 	}
 	/* Note that find_view_or_table() is called from the parser as every table name in the query is encountered but
 	 * find_function() is not called whenever a function name is encountered in the parser. It is instead called
@@ -87,24 +68,121 @@ void function_definition_lookup(FunctionCallContext *fc_context, FunctionMatchCo
 	 * not available until all column references in the query are qualified (which only happens in
 	 * qualify_query() after the entire query has been parsed and just before populate_data_type() is called).
 	 */
-	function = find_function(fc->function_name->v.value->v.string_literal, function_hash);
+	char *function_name;
+	function_name = fc->function_name->v.value->v.string_literal;
+	function = find_function(function_name, function_hash);
 	if (NULL != function) {
+		assert(NULL == match_context->best_match);
+		match_context->best_match = function;
+		match_context->num_matches++;
+	}
+	if ((0 == fc_context->num_ambiguous_args) || (0 != match_context->num_matches)) {
+		assert(1 >= match_context->num_matches);
+		return 0;
+	}
+	/* We did not find a function match and there are actual parameters which are ambiguous.
+	 * Examine all existing function prototypes with the same name and see how many of them match.
+	 */
+	ydb_buffer_t octo_global, function_subs[3];
+
+	assert(0 != actual_args);
+	YDB_STRING_TO_BUFFER(config->global_names.octo, &octo_global);
+	YDB_STRING_TO_BUFFER(OCTOLIT_FUNCTIONS, &function_subs[0]);
+	YDB_STRING_TO_BUFFER(function_name, &function_subs[1]);
+	function_subs[2].len_alloc = sizeof(function_hash);
+	function_subs[2].len_used = 0;
+	function_subs[2].buf_addr = function_hash;
+	while (TRUE) {
+		int status;
+		status = ydb_subscript_next_s(&octo_global, 3, &function_subs[0], &function_subs[2]);
+		if (YDB_ERR_NODEEND == status) {
+			break;
+		}
+		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status) {
+			return 1;
+		}
+		function = find_function(function_name, function_hash);
+		if (NULL == function) {
+			return 1;
+		}
+		/* Check if the parameter list of this function matches the actual parameters */
+		SqlParameterTypeList *parameter_type_list;
+		SqlParameterTypeList *cur_parameter_type_list;
+
+		if (NULL == function->parameter_type_list) {
+			/* Function prototype allows for 0 parameters whereas we know actual parameters "actual_args"
+			 * is non-zero (asserted above). This cannot be a match. Move on to next function.
+			 */
+			continue;
+		}
+		UNPACK_SQL_STATEMENT(parameter_type_list, function->parameter_type_list, parameter_type_list);
+		cur_parameter_type_list = parameter_type_list;
+		int	  prototype_args = 0;
+		boolean_t match = TRUE;
+		do {
+			SqlDataType  data_type;
+			SqlValueType value_type;
+
+			assert(data_type_struct_STATEMENT == cur_parameter_type_list->data_type_struct->type);
+			data_type = cur_parameter_type_list->data_type_struct->v.data_type_struct.data_type;
+			value_type = get_sqlvaluetype_from_sqldatatype(data_type, FALSE);
+
+			/* If actual parameter is NULL literal, it will match with ANY function parameter type.
+			 * If actual parameter is INTEGER literal, it will match with INTEGER or NUMERIC function
+			 * parameter type.
+			 * Otherwise, actual parameter type should match with function parameter type.
+			 */
+			SqlValueType arg_type;
+			if (prototype_args >= actual_args) {
+				/* Function prototype requires more parameters than actual parameters.
+				 * This function cannot be a match. Move on to next function.
+				 */
+				match = FALSE;
+				break;
+			}
+			arg_type = fc_context->arg_types[prototype_args];
+			switch (arg_type) {
+			case NUL_VALUE:
+				assert(TRUE == match);
+				break;
+			case INTEGER_LITERAL:
+				match = ((INTEGER_LITERAL == value_type) || (NUMERIC_LITERAL == value_type));
+				break;
+			default:
+				match = (arg_type == value_type);
+				break;
+			}
+			if (!match) {
+				break;
+			}
+			cur_parameter_type_list = cur_parameter_type_list->next;
+			prototype_args++;
+		} while (cur_parameter_type_list != parameter_type_list);
+		if (!match) {
+			continue; /* move on to next function to see match */
+		}
+		if (prototype_args != actual_args) {
+			continue; /* move on to next function to see match */
+		}
 		if ((NULL == match_context->best_match)
 		    || (0
 			!= strcmp(match_context->best_match->extrinsic_function->v.value->v.string_literal,
 				  function->extrinsic_function->v.value->v.string_literal))) {
-			/* If the newly matched function definition references the same extrinsic function as the current best
-			 * match, then the definitions are functionally interchangable. In that case, we can accept both matches,
-			 * since both will behave the same way.
+			/* If the newly matched function definition references the same extrinsic function as the current
+			 * best match, then the definitions are functionally interchangable. In that case, we can accept
+			 * both matches, since both will behave the same way.
 			 *
 			 * So, only increment match_context->num_matches when either:
 			 *   1. It is the first match (NULL == match_context->best_match), OR
 			 *   2. The matched functions reference *different* extrinsic functions
 			 */
 			match_context->num_matches++;
+			if (1 < match_context->num_matches) {
+				return 0; /* So caller can issue ERR_FUNCTION_NOT_UNIQUE error */
+			}
+			match_context->best_match = function;
 		}
-		match_context->best_match = function;
 	}
-
-	return;
+	return 0;
 }

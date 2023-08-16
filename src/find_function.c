@@ -163,12 +163,14 @@ SqlFunction *find_function(const char *function_name, const char *function_hash)
 		}
 		assert(length > (cur_buff - buff));
 		YDB_ERROR_CHECK(status);
-		if (YDB_OK != status)
+		if (YDB_OK != status) {
 			break;
+		}
 		status = ydb_get_s(&octo_global, 5, &function_subs[0], &value_buffer);
 		YDB_ERROR_CHECK(status);
-		if (YDB_OK != status)
+		if (YDB_OK != status) {
 			break;
+		}
 		memcpy(cur_buff, value_buffer.buf_addr, value_buffer.len_used);
 		cur_buff += value_buffer.len_used;
 		assert(MAX_DEFINITION_FRAGMENT_SIZE >= value_buffer.len_used);

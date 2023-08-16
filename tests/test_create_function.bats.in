@@ -257,3 +257,8 @@ teardown() {
 	grep -w functions func.ext | grep -w text | grep -wi abs >> output.txt
 	verify_output TCF036 output.txt noinfo nodebug
 }
+
+@test "TCF037 : OCTO816 and OCTO1010 : Test NULL/INTEGER literals in functions with large number of parameters" {
+	load_fixture TCF037.sql subtest novv
+	verify_output TCF037 output.txt noinfo nodebug
+}

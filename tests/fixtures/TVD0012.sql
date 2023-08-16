@@ -16,9 +16,9 @@
 select DATEFORMAT(3000101.010101);
 select DATEFORMAT(3000101.010101,'');
 select DATEFORMAT(3000101.010101,'5Z');
-select FMGET(200::numeric,.01,1::numeric);
-select FMGET(200.03,.01,2::numeric,1::numeric);
-select IFNULL((select NULL)::varchar,'0');
+select FMGET(200,.01,1);
+select FMGET(200.03,.01,2,1);
+select IFNULL((select NULL),'0');
 select IFNULL('','0');
 select IFNULL('A','0');
 select LEFTY('ABCDEFGH',5);

@@ -103,6 +103,22 @@ typedef struct PhysicalPlan {
 						       * this information because we need to specifically identify if a
 						       * particular physical plan is executing a WHERE clause or not.
 						       */
+	boolean_t key_lvn_can_be_zysqlnull; /* TRUE in case the query contains at least 1 LEFT JOIN and no RIGHT/FULL JOIN.
+					     * In this case, we can emit much better M code (YDBOcto#1006). See commit
+					     * message for more details on this field.
+					     */
+	int dnf_num;			    /* If this plan is part of a set of DNF sibling plans, this field indicates the
+					     * dnf sibling number. Is unique for each sibling plan. Currently helps generate
+					     * unique labels in the M code while emitting LEFT JOIN related code. This is
+					     * because each DNF plan could contain DIFFERENT M code depending on how each
+					     * of the DNF plans get optimized differently and therefore we cannot use one
+					     * common M code for all DNF plans. Could be used in other scenarios in the future.
+					     */
+#ifndef NDEBUG
+	boolean_t emitting_octoLeftJoin_label; /* TRUE if we are emitting M code under the `octoLeftJoinNN` label. Used only by
+						* an assert currently. Hence kept under a `NDEBUG` flag.
+						*/
+#endif
 } PhysicalPlan;
 
 /* Below macro returns TRUE if GROUP BY or HAVING have been specified and/or Aggregate functions have been used in plan */

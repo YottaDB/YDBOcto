@@ -91,7 +91,7 @@ OCTO
 	yottadb -run zwriteAIMData^aimutils >> final_output.txt
 	echo '# Verify key fixing optimization happened in physical plan only for <lastname IS NULL> query' >> final_output.txt
 	echo '# Key fixed query will have a plan that does $ORDER(^%ydbAIMD*)' >> final_output.txt
-	grep -E -B 1 "SELECT|%ydbAIMD" _ydboctoP*.m >> final_output.txt
+	grep -E -B 1 " SELECT|%ydbAIMD" _ydboctoP*.m >> final_output.txt
 	verify_output TX04 final_output.txt
 }
 

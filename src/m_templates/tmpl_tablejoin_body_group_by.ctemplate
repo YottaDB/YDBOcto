@@ -89,18 +89,52 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *pplan, int dot_count) {
 					UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
 					unique_id = table_alias->unique_id;
 				}
-				if (pplan->treat_key_as_null[unique_id]) {
+				if (pplan->key_lvn_can_be_zysqlnull) {
+					PhysicalPlan	*matching_plan;
+					SqlKey		*matching_key;
+					matching_plan = get_physical_plan_and_key_for_unique_id(pplan, unique_id, &matching_key);
+					assert(matching_plan == pplan);
+					UNUSED(matching_plan);
+					assert(unique_id == matching_key->unique_id);
+
+					TMPL(tmpl_print_dots, dot_count);
+					%{}IF $ZYISSQLNULL({}%
+					TMPL(tmpl_key, matching_key);
+					%{}) DO{}%
+					%{}`n{{ PLAN_LINE_START }}{}%
+					dot_count++;
 					TMPL(tmpl_print_dots, dot_count);
 					%{}SET {{ PP_YDB_OCTO_EXPR }}=$ZYSQLNULL{}%
 					%{}`n{{ PLAN_LINE_START }}{}%
-				} else if (LP_AGGREGATE_FUNCTION_COUNT_TABLE_ASTERISK == af->type) {
-					/* COUNT(TABLE.*) usage */
+					dot_count--;
 					TMPL(tmpl_print_dots, dot_count);
-					%{}SET {{ PP_YDB_OCTO_EXPR }}=""{}%
+					%{}ELSE  DO{}%
 					%{}`n{{ PLAN_LINE_START }}{}%
+					dot_count++;
+					if (LP_AGGREGATE_FUNCTION_COUNT_TABLE_ASTERISK == af->type) {
+						/* COUNT(TABLE.*) usage */
+						TMPL(tmpl_print_dots, dot_count);
+						%{}SET {{ PP_YDB_OCTO_EXPR }}=""{}%
+						%{}`n{{ PLAN_LINE_START }}{}%
+					} else {
+						// COUNT(DISTINCT TABLE.*) usage
+						TMPL(tmpl_column_list_combine, lp_column_list, pplan, "_", TRUE, dot_count, TRUE);
+					}
+					dot_count--;
 				} else {
-					// COUNT(DISTINCT TABLE.*) usage
-					TMPL(tmpl_column_list_combine, lp_column_list, pplan, "_", TRUE, dot_count, TRUE);
+					if (pplan->treat_key_as_null[unique_id]) {
+						TMPL(tmpl_print_dots, dot_count);
+						%{}SET {{ PP_YDB_OCTO_EXPR }}=$ZYSQLNULL{}%
+						%{}`n{{ PLAN_LINE_START }}{}%
+					} else if (LP_AGGREGATE_FUNCTION_COUNT_TABLE_ASTERISK == af->type) {
+						/* COUNT(TABLE.*) usage */
+						TMPL(tmpl_print_dots, dot_count);
+						%{}SET {{ PP_YDB_OCTO_EXPR }}=""{}%
+						%{}`n{{ PLAN_LINE_START }}{}%
+					} else {
+						// COUNT(DISTINCT TABLE.*) usage
+						TMPL(tmpl_column_list_combine, lp_column_list, pplan, "_", TRUE, dot_count, TRUE);
+					}
 				}
 			} else {
 				TMPL(tmpl_print_expression, l_plan, pplan, dot_count, 0);

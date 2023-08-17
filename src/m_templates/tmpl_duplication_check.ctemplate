@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -54,6 +54,10 @@ TEMPLATE(tmpl_duplication_check, PhysicalPlan *pplan) {
 		/* Check if the table owning this key has all columns set to be treated as NULL (as part of an OUTER JOIN) */
 		/* Note that we should use "pplan" (currently processed physical plan) below and not "first_pplan" whose
 		 * processing is most likely done at this point and whose "treat_key_as_null" array contains arbitrary values.
+		 */
+		/* Note: We don't need to handle the "if (pplan->key_lvn_can_be_zysqlnull)" case here as in that case, we are
+		 * guaranteed "pplan->treat_key_as_null[key->unique_id]" is FALSE and so we will invoke "tmpl_key" which
+		 * would anyways get the right answer ($ZYSQLNULL or a non-NULL value) as set by the caller LEFT JOIN context.
 		 */
 		if (!pplan->treat_key_as_null[key->unique_id]) {
 			TMPL(tmpl_key, key);

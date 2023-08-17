@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -19,9 +19,25 @@
 
 /* Function invoked to generate M code for WHERE clause or HAVING clause or ON condition in a JOIN */
 TEMPLATE(tmpl_where_or_having_or_on, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count) {
-	assert(dot_count);	/* Ensure "tmpl_print_expression" knows to split boolean expression
-				 * across multiple lines so we do not exceed M maximum source line limit.
-				 */
+	if (pplan->key_lvn_can_be_zysqlnull) {
+		if (!dot_count) {
+			/* While emitting the LEFT JOIN body, we would have temporarily reset "dot_count" to 0 in "tmpl_tablejoin".
+			 * That is the only case we know of how "dot_count" can be 0 when we come here. Assert for that case below.
+			 */
+			assert(pplan->emitting_octoLeftJoin_label);	/* This is the only case we know of currently */
+			%{}`n{{ PLAN_LINE_START }}{}%
+			/* Make dot_count non-zero by adding a dotted DO layer in M.
+			 * This way "tmpl_print_expression" call below can emit code for the boolean expression
+			 * split across multiple M lines without exceeding maximum M source line limit.
+			 */
+			%{}DO{}%
+			dot_count++;
+		}
+	} else {
+		assert(dot_count);	/* Ensure "tmpl_print_expression" knows to split boolean expression
+					 * across multiple lines so we do not exceed M maximum source line limit.
+					 */
+	}
 	%{}`n{{ PLAN_LINE_START }}{}%
 	TMPL(tmpl_print_expression, plan, pplan, dot_count, 0);	/* variable PP_YDB_OCTO_EXPR holds the result */
 	return;

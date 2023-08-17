@@ -18,7 +18,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 								int dot_count, char *tableName, char *columnName) {
 	SqlKey			*key, *save_key, *fixed_xref_key;
 	unsigned int		total_keys, key_start;
-	int			left_table_id, right_table_id, this_table_id;
+	int			left_table_id;
 	enum SqlJoinType	this_join_type, next_join_type;
 	SqlOptionalKeyword	*limit_keyword;
 	LogicalPlan		*right_tablejoin;
@@ -100,7 +100,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 		}
 	}
 
-	int		orig_dot_count;
+	int	orig_dot_count;
 	orig_dot_count = dot_count;
 
 	boolean_t	need_tmpl_key_finish;
@@ -279,11 +279,38 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 		 */
 		TMPL(tmpl_tablejoin_on_condition, tablejoin, pplan, &dot_count);
 	}
+	int	save_dot_count;
+#	ifndef NDEBUG
+	boolean_t	save_emitting_octoLeftJoin_label;
+#	endif
+	save_dot_count = dot_count;
 	if (this_join_is_left_join && !pplan->treat_key_as_null[left_table_id]) {
 		TMPL(tmpl_tablejoin_on_condition, tablejoin, pplan, &dot_count);
+		save_dot_count = dot_count;
 		TMPL(tmpl_print_dots, dot_count);
-		%{}SET {{ PP_YDB_OCTO_Z }}({{ key_start|%d }})=1{}%
-		%{}`n{{ PLAN_LINE_START }}{}%
+		%{}SET {{ PP_YDB_OCTO_Z }}({}%
+		if (pplan->key_lvn_can_be_zysqlnull) {
+			%{}{{ left_table_id|%d }}{}%
+		} else {
+			%{}{{ key_start|%d }}{}%
+		}
+		%{})=1{}%
+		%{}`n{}%
+		if (pplan->key_lvn_can_be_zysqlnull) {
+			/* We are now going to emit M code for the LEFT JOIN body. Note down the current offset of the
+			 * emit buffer so once the LEFT JOIN body is emitted (in a recursive call), we can replace that
+			 * M code with 2 "DO octoLeftJoinNN" calls in the emit buffer and emit the LEFT JOIN body under
+			 * the label once all "octoPlanNN" emission is done.
+			 */
+			tablejoin->extra_detail.lp_table_join.left_join_save_buffer_index = *buffer_index;
+			/* Since the LEFT JOIN body is finally moved under the "octoLeftJoinNN" label, we want to reset
+			 * "dot_count" to 0 before emitting the LEFT JOIN body.
+			 */
+			dot_count = 0;
+			DEBUG_ONLY(save_emitting_octoLeftJoin_label = pplan->emitting_octoLeftJoin_label);
+			DEBUG_ONLY(pplan->emitting_octoLeftJoin_label = TRUE);
+		}
+		%{}{{ PLAN_LINE_START }}{}%
 	}
 	if ((RIGHT_JOIN == this_join_type) || (FULL_JOIN == this_join_type)) {
 		if (!right_join_second_half) {
@@ -341,84 +368,185 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 		boolean_t	skip_right_tablejoin;
 		skip_right_tablejoin = FALSE;
 		if (LEFT_JOIN == next_join_type) {
+
 			assert(key == pplan->iterKeys[cur_key]);
-			LogicalPlan	*fixed_to_value;
+			if (!pplan->key_lvn_can_be_zysqlnull) {
+				LogicalPlan	*fixed_to_value;
 
-			fixed_to_value = key->fixed_to_value;
-			if (NULL != fixed_to_value) {
-				/* This is a LEFT JOIN. Check if the fixed value evaluates to a NULL. If so, we can skip the
-				 * following call to "tmpl_tablejoin" and avoid a lot of unnecessary emitted M code (YDBOcto#1006).
-				 */
-				/* A NULL value is possible if the key is fixed to a NULL value or a IS NULL or a column alias
-				 * that evaluates to a NULL because it is a column in the right table of the LEFT JOIN and so
-				 * all columns have the value of NULL (i.e. "treat_key_as_null[right_table_id]" is TRUE).
-				 */
-				int 		unique_id;
+				fixed_to_value = key->fixed_to_value;
+				if (NULL != fixed_to_value) {
+					/* This is a LEFT JOIN. Check if the fixed value evaluates to a NULL. If so, we can skip the
+					 * following call to "tmpl_tablejoin" and avoid a lot of unnecessary emitted M code (YDBOcto#1006).
+					 */
+					/* A NULL value is possible if the key is fixed to a NULL value or a IS NULL or a column alias
+					 * that evaluates to a NULL because it is a column in the right table of the LEFT JOIN and so
+					 * all columns have the value of NULL (i.e. "treat_key_as_null[right_table_id]" is TRUE).
+					 */
+					int 		unique_id;
 
-				unique_id = 0;
-				switch(fixed_to_value->type) {
-				case LP_VALUE:;
-					SqlValue	*value;
+					unique_id = 0;
+					switch(fixed_to_value->type) {
+					case LP_VALUE:;
+						SqlValue	*value;
 
-					value = fixed_to_value->v.lp_value.value;
-					if (IS_NUL_VALUE(value->type) || (IS_NULL_LITERAL == value->type)) {
-						unique_id = key->unique_id;
+						value = fixed_to_value->v.lp_value.value;
+						if (IS_NUL_VALUE(value->type) || (IS_NULL_LITERAL == value->type)) {
+							unique_id = key->unique_id;
+						}
+						break;
+					case LP_COLUMN_ALIAS:;
+						LogicalPlan	*derived_column;
+
+						derived_column = fixed_to_value->extra_detail.lp_column_alias.derived_column;
+						if (NULL == derived_column) {
+							SqlColumnAlias *column_alias;
+							column_alias = fixed_to_value->v.lp_column_alias.column_alias;
+
+							SqlTableAlias *table_alias;
+							UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
+							unique_id = table_alias->unique_id;
+						} else {
+							LogicalPlan	*lp_key;
+							GET_LP(lp_key, derived_column, 0, LP_KEY);
+
+							SqlKey *sql_key = lp_key->v.lp_key.key;
+							unique_id = sql_key->unique_id;
+						}
+						break;
+					default:
+						break;
 					}
-					break;
-				case LP_COLUMN_ALIAS:;
-					LogicalPlan	*derived_column;
-
-					derived_column = fixed_to_value->extra_detail.lp_column_alias.derived_column;
-					if (NULL == derived_column) {
-						SqlColumnAlias *column_alias;
-						column_alias = fixed_to_value->v.lp_column_alias.column_alias;
-
-						SqlTableAlias *table_alias;
-						UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
-						unique_id = table_alias->unique_id;
-					} else {
-						LogicalPlan	*lp_key;
-						GET_LP(lp_key, derived_column, 0, LP_KEY);
-
-						SqlKey *sql_key = lp_key->v.lp_key.key;
-						unique_id = sql_key->unique_id;
+					if (pplan->treat_key_as_null[unique_id]) {
+						skip_right_tablejoin = TRUE;
 					}
-					break;
-				default:
-					break;
 				}
-				if (pplan->treat_key_as_null[unique_id]) {
-					skip_right_tablejoin = TRUE;
+				if (!skip_right_tablejoin) {
+					TMPL(tmpl_print_dots, dot_count);
+					%{}SET {{ PP_YDB_OCTO_Z }}({{ cur_key|%d }})=0`n{{ PLAN_LINE_START }}{}%
 				}
-			}
-			if (!skip_right_tablejoin) {
+			} else {
+				int	right_table_id;
+				right_table_id = pplan->iterKeys[cur_key]->unique_id;
 				TMPL(tmpl_print_dots, dot_count);
-				%{}SET {{ PP_YDB_OCTO_Z }}({{ cur_key|%d }})=0`n{{ PLAN_LINE_START }}{}%
+				%{}SET {{ PP_YDB_OCTO_Z }}({{ right_table_id|%d }})=0`n{{ PLAN_LINE_START }}{}%
 			}
 		}
 		if (!skip_right_tablejoin) {
 			TMPL(tmpl_tablejoin, pplan, right_tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
 		}
 		if (LEFT_JOIN == next_join_type) {
-			assert(NULL != right_tablejoin->extra_detail.lp_table_join.join_on_condition);
-			if (!skip_right_tablejoin) {
+			int	right_table_id;
+			key = pplan->iterKeys[cur_key];
+			right_table_id = key->unique_id;
+			if (!pplan->key_lvn_can_be_zysqlnull) {
+				if (!skip_right_tablejoin) {
+					/* Generate M code to include rows from the left table where there is no matching
+					 * right table rows (NO_MATCHING_RIGHT_TABLE_ROWS code block).
+					 */
+					%{}`n{{ PLAN_LINE_START }}{}%
+					TMPL(tmpl_print_dots, dot_count);
+					%{}DO:0={{ PP_YDB_OCTO_Z }}({{ cur_key|%d }})`n{{ PLAN_LINE_START }}{}%
+					dot_count++;
+				}
+				/* Treat all keys in the right table as NULL and invoke nested joins (if needed) */
+				pplan->treat_key_as_null[right_table_id] = TRUE;
+				TMPL(tmpl_tablejoin, pplan, right_tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
+				/* Undo NULL-treating of keys in right table */
+				assert(pplan->treat_key_as_null[right_table_id]);
+				pplan->treat_key_as_null[right_table_id] = FALSE;
+			} else {
 				/* Generate M code to include rows from the left table where there is no matching right table rows
 				 * (NO_MATCHING_RIGHT_TABLE_ROWS code block).
 				 */
+				/* Generate DO call for left table rows with non-matching right table rows */
+				assert(NULL != right_tablejoin->extra_detail.lp_table_join.join_on_condition);
 				%{}`n{{ PLAN_LINE_START }}{}%
 				TMPL(tmpl_print_dots, dot_count);
-				%{}DO:0={{ PP_YDB_OCTO_Z }}({{ cur_key|%d }})`n{{ PLAN_LINE_START }}{}%
+
+				%{}DO:0={{ PP_YDB_OCTO_Z }}({{ right_table_id|%d }}){}%
 				dot_count++;
+
+				unsigned int	cur_key_copy;
+				cur_key_copy = cur_key;
+				for ( ; cur_key_copy < total_keys; cur_key_copy++) {
+					key = pplan->iterKeys[cur_key_copy];
+					if (key->unique_id != right_table_id) {
+						break;
+					}
+					assert(!key->is_cross_reference_key || ((NULL != key->column) && (NULL != key->table)));
+					%{}`n{{ PLAN_LINE_START }}{}%
+					TMPL(tmpl_print_dots, dot_count);
+					%{}SET {}%
+					TMPL(tmpl_key, key);
+					%{}=$ZYSQLNULL{}%
+				}
+				%{}`n{{ PLAN_LINE_START }}{}%
+				TMPL(tmpl_print_dots, dot_count);
+
+				char	dnf_num_str[INT32_TO_STRING_MAX];
+				if (0 != pplan->dnf_num) {
+					snprintf(dnf_num_str, sizeof(dnf_num_str), "D%d", pplan->dnf_num);
+				} else {
+					dnf_num_str[0] = '\0';
+				}
+				%{}DO {{ PP_OCTO_LEFT_JOIN }}{{ right_table_id|%d }}{{ dnf_num_str }}{}%
+				dot_count--;
+				cur_key_copy = cur_key;
+				/* Generate the "tmpl_key_finish" calls now that BOTH calls to "DO octoLeftJoinNN" of the
+				 * LEFT JOIN are done.
+				 */
+				for ( ; cur_key_copy < total_keys; cur_key_copy++) {
+					key = pplan->iterKeys[cur_key_copy];
+					if (key->unique_id != right_table_id) {
+						break;
+					}
+					assert(!key->is_cross_reference_key || ((NULL != key->column) && (NULL != key->table)));
+					%{}`n{{ PLAN_LINE_START }}{}%
+					TMPL(tmpl_print_dots, dot_count);
+					assert(0 < cur_key_copy);
+					TMPL(tmpl_key_finish, key);
+				}
 			}
-			/* Treat all keys in the right table as NULL and invoke nested joins (if needed) */
-			key = pplan->iterKeys[cur_key];
-			right_table_id = key->unique_id;
-			pplan->treat_key_as_null[right_table_id] = TRUE;
-			TMPL(tmpl_tablejoin, pplan, right_tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
-			/* Undo NULL-treating of keys in right table */
-			assert(pplan->treat_key_as_null[right_table_id]);
-			pplan->treat_key_as_null[right_table_id] = FALSE;
 		}
+	}
+	if (pplan->key_lvn_can_be_zysqlnull && this_join_is_left_join) {
+		uint64_t	idx[2], len;
+		char		*tmp_buff;
+
+		assert(!pplan->treat_key_as_null[left_table_id]);	/* as this is set to TRUE only for RIGHT/FULL JOIN
+									 * and "pplan->key_lvn_can_be_zysqlnull" is TRUE in above
+									 * "if" indicating there are no RIGHT/FULL joins.
+									 */
+		dot_count = save_dot_count;
+		/* We are now done emitting M code corresponding to the LEFT JOIN body. Move the M code off to a buffer
+		 * stored inside the corresponding "LpExtraTableJoin" structure that way we can emit this at a later point
+		 * when emitting of all "octoPlan" plans is done.
+		 */
+		DEBUG_ONLY(pplan->emitting_octoLeftJoin_label = save_emitting_octoLeftJoin_label);
+		idx[0] = tablejoin->extra_detail.lp_table_join.left_join_save_buffer_index;
+		idx[1] = *buffer_index;
+		len = idx[1] - idx[0];
+		tmp_buff = octo_cmalloc(memory_chunks, len);
+		memcpy(tmp_buff, *global_buffer + idx[0], len);
+		*buffer_index = idx[0];
+		tablejoin->extra_detail.lp_table_join.left_join_buffer = tmp_buff;
+		tablejoin->extra_detail.lp_table_join.left_join_save_buffer_index = len;
+		%{}{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, dot_count);
+
+		char	dnf_num_str[INT32_TO_STRING_MAX];
+		if (0 != pplan->dnf_num) {
+			snprintf(dnf_num_str, sizeof(dnf_num_str), "D%d", pplan->dnf_num);
+		} else {
+			dnf_num_str[0] = '\0';
+		}
+		%{}DO {{ PP_OCTO_LEFT_JOIN }}{{ left_table_id|%d }}{{ dnf_num_str }}{}%
+		/* In this case, we will generate the "tmpl_key_finish" calls AFTER both calls to "DO octoLeftJoinNN"
+		 * are done. This will be later done in the caller of this function (see "tmpl_key_finish" call above).
+		 * Therefore, set the "need_tmpl_key_finish" variable to FALSE to avoid an unnecessary "tmpl_key_finish"
+		 * call in the current function.
+		 */
+		need_tmpl_key_finish = FALSE;
 	}
 	if (need_tmpl_key_finish) {
 		assert(cur_key > key_start);
@@ -427,11 +555,11 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 			if (key->is_cross_reference_key && (NULL == key->column) && (NULL != key->table)) {
 				/* A cross reference key always has a non-NULL column and table (guaranteed by an assert in
 				 * "lp_alloc_key.c". But this cross reference key has a NULL column and a non-NULL table.
-				 * This is the case of a temporarily disabled xref key (i.e. it is processed using "tmpl_emit_source"
-				 * and not using "tmpl_key") during the second half of a RIGHT JOIN.  See comments in code further
-				 * down below (search for "save_key_column") for how a recursive caller would have created this
-				 * situation. So skip emitting M code for this disabled key as there is no lvn corresponding to this
-				 * key that needs to be cleaned up (i.e. KILLed).
+				 * This is the case of a temporarily disabled xref key (i.e. it is processed using
+				 * "tmpl_emit_source" and not using "tmpl_key") during the second half of a RIGHT JOIN.
+				 * See comments in code further down below (search for "save_key_column") for how a recursive
+				 * caller would have created this situation. So skip emitting M code for this disabled key as
+				 * there is no lvn corresponding to this key that needs to be cleaned up (i.e. KILLed).
 				 */
 				continue;
 			}
@@ -460,7 +588,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 			assert(LP_TABLE_JOIN == this_table_join->type);
 			this_join_type = this_table_join->extra_detail.lp_table_join.cur_join_type;
 			if ((RIGHT_JOIN == this_join_type) || (FULL_JOIN == this_join_type)) {
-				int		right_join_table_id;
+				int		right_join_table_id, this_table_id;
 				unsigned int	right_join_cur_key;
 
 				/* Set keys of all tables till now to NULL */
@@ -532,6 +660,8 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 			/* We nullified at least one key above for a RIGHT JOIN. Undo all of those. */
 			for (cur_key = 0; cur_key < total_keys; cur_key++)
 			{
+				int	this_table_id;
+
 				this_table_id = pplan->iterKeys[cur_key]->unique_id;
 				pplan->treat_key_as_null[this_table_id] = FALSE;
 			}

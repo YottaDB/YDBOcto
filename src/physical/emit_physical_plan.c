@@ -211,7 +211,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	}
 	fprintf(output_file, ";; %s\n", HYPHEN_LINE);
 	// Emit meta plan first that invokes all the Non-Deferred plans in sequence
-	fprintf(output_file, "\noctoPlan0(cursorId,wrapInTp)\n");
+	fprintf(output_file, "\n%s0(cursorId,wrapInTp)\n", OCTOPLAN_LIT);
 	/* Emit M code to invoke xref plans first (if needed). This lets us wrap the rest of the query inside TP without TRANS2BIG
 	 * errors (which are very likely if xref plans also happen while inside TP). To do that, go through the xref plans
 	 * and invoke those cross reference plans.
@@ -311,6 +311,33 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		buffer_index = 0;
 		tmpl_physical_plan(&buffer, &buffer_len, &buffer_index, cur_plan);
 		fprintf(output_file, "%s\n", buffer);
+	}
+	// Emit M code coresponding to LEFT JOIN body (in case any exists)
+	for (cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next) {
+		if (!cur_plan->key_lvn_can_be_zysqlnull) {
+			continue;
+		}
+		LogicalPlan *tablejoin;
+		tablejoin = cur_plan->tablejoin;
+		for (; NULL != tablejoin; tablejoin = tablejoin->v.lp_default.operand[1]) {
+			if (NULL == tablejoin->extra_detail.lp_table_join.left_join_buffer) {
+				continue;
+			}
+			int unique_id;
+			unique_id = lp_get_tablejoin_unique_id(tablejoin);
+			buffer_index = 0;
+
+			char dnf_num_str[INT32_TO_STRING_MAX];
+			if (0 != cur_plan->dnf_num) {
+				snprintf(dnf_num_str, sizeof(dnf_num_str), "D%d", cur_plan->dnf_num);
+			} else {
+				dnf_num_str[0] = '\0';
+			}
+			fprintf(output_file, "\n%s%d%s;\n", OCTO_LEFT_JOIN_LIT, unique_id, dnf_num_str);
+			fprintf(output_file, "%.*s\n    QUIT\n",
+				(int)tablejoin->extra_detail.lp_table_join.left_join_save_buffer_index,
+				tablejoin->extra_detail.lp_table_join.left_join_buffer);
+		}
 	}
 	free(buffer);
 	// Close out the file

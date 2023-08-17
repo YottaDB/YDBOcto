@@ -96,9 +96,8 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 						 * point (https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/800#note_862163964).
 						 * Use NULL value in that case. Otherwise, generate the actual key.
 						 */
-						TMPL(tmpl_key_dollardata_check, key, FALSE);	/* FALSE to indicate this
-												 * is not a derived column.
-												 */
+						TMPL(tmpl_key_dollardata_check, matching_plan, key, FALSE);
+								/* FALSE to indicate this is not a derived column. */
 					}
 					TMPL(tmpl_key, key);
 					if (matching_plan != pplan) {
@@ -143,7 +142,8 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 			 * in use there or not, it is possible for this key column to be undefined
 			 * at this point. So check that before using it. See #800 comment above for similar code.
 			 */
-			TMPL(tmpl_key_dollardata_check, matching_key, FALSE);	/* FALSE to indicate this is not a derived column */
+			TMPL(tmpl_key_dollardata_check, matching_plan, matching_key, FALSE);
+				/* FALSE to indicate this is not a derived column */
 		}
 		if (!dot_count) {
 			if (!is_xref_plan) {
@@ -166,6 +166,12 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	if (!is_trigger && !is_extract) {
 		if (NULL != piece) {
 			%{}$PIECE({}%
+		}
+		if (pplan->key_lvn_can_be_zysqlnull) {
+			%{}$SELECT($ZYISSQLNULL({}%
+			assert(matching_key->unique_id == unique_id);
+			TMPL(tmpl_key, matching_key);
+			%{}):$ZYSQLNULL,1:{}%
 		}
 		/* If the current query/command is guaranteed to be running inside TSTART/TCOMMIT fence, then we
 		 * do not need to wrap the database access around a "$GET" call. Otherwise we need to or else we
@@ -194,6 +200,9 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 		if (!is_extract) {
 			if (!skipped_dollar_get) {
 				%{}){}%
+			}
+			if (pplan->key_lvn_can_be_zysqlnull) {
+				%{}){}%	/* closing paren for "$SELECT($ZYISSQLNULL" */
 			}
 			if (NULL != piece) {
 				if (is_dollar_char) {

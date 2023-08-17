@@ -147,6 +147,16 @@ typedef struct LpDefault {
 typedef struct LpExtraTableJoin {
 	enum SqlJoinType    cur_join_type;
 	struct LogicalPlan *join_on_condition;
+	char *		    left_join_buffer; /* If non-NULL, points to M code under `octoLeftJoinNN` label corresponding
+					       * to this LEFT JOIN.
+					       */
+	uint64_t left_join_save_buffer_index;
+	/* This is a multi-purpose variable. While emitting M code for a LEFT JOIN, it is used to note down
+	 * the value of "*buffer_index" BEFORE we start emitting M code for the LEFT JOIN body.
+	 * Once LEFT JOIN body is emitted, this variable stores the length of the M code that corresponds to
+	 * the LEFT JOIN body (used later when we emit this body of code undef the "octoLeftJoinNN" label).
+	 */
+
 } LpExtraTableJoin;
 
 /* Extra fields needed by LP_ORDER_BY */

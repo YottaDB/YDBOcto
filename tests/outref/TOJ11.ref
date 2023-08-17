@@ -1,2 +1,2 @@
 # Test that emitted M code size for a 20-way LEFT JOIN (with ON condition using key-fix) is in Kb (not Gb)
-Emitted M code size is [ 25K ]
+Emitted M code size is [ 14K ]

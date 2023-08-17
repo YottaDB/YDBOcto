@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -16,8 +16,15 @@
 #include "template_helpers.h"
 
 /* Invoked when we are not sure if key lvn exists */
-TEMPLATE(tmpl_key_dollardata_check, SqlKey *key, boolean_t is_derived_column) {
-	%{}$SELECT('{}%
+TEMPLATE(tmpl_key_dollardata_check, PhysicalPlan *pplan, SqlKey *key, boolean_t is_derived_column) {
+	%{}$SELECT({}%
+	if (pplan->key_lvn_can_be_zysqlnull) {
+		%{}$ZYISSQLNULL({}%
+		TMPL(tmpl_key, key);
+		%{}){}%
+		%{}:$ZYSQLNULL,{}%;
+	}
+	%{}'{}%
 	/* In case this is a derived column, it is possible the lvn (that iterates through the table rows) does not exist
 	 * but the subtree (table row output that is already computed and stored in a lvn tree) exists. Therefore, we cannot
 	 * just check if $DATA is non-zero (as a value of 10 implies lvn does not exist but sub-tree exists). We need to

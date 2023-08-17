@@ -408,7 +408,8 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		SqlKey		*matching_key;
 		matching_plan = get_physical_plan_and_key_for_unique_id(pplan, unique_id, &matching_key);
 		if (matching_plan != pplan) {
-			TMPL(tmpl_key_dollardata_check, sql_key, TRUE);	/* TRUE to indicate this is a derived column */
+			TMPL(tmpl_key_dollardata_check, matching_plan, sql_key, TRUE);
+				/* TRUE to indicate this is a derived column */
 		}
 		boolean_t is_table_asterisk = is_stmt_table_asterisk(subquery_column_alias->column);
 		if (is_table_asterisk) {
@@ -431,16 +432,25 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			assert(NULL != sql_key);
 			assert(unique_id == sql_key->unique_id);
 			// Check if this is a view's key
+			SqlKey	*key;
 			if (NULL != sql_key->view_definition_output_key) {
-				SqlKey *key = sql_key->view_definition_output_key->v.lp_key.key;
-				TMPL(tmpl_key, key);
+				key = sql_key->view_definition_output_key->v.lp_key.key;
 			} else {
-				TMPL(tmpl_key, sql_key);
+				key = sql_key;
 			}
+			if (pplan->key_lvn_can_be_zysqlnull) {
+				%{}$SELECT($ZYISSQLNULL({}%
+				TMPL(tmpl_key, sql_key);
+				%{}):$ZYSQLNULL,1:{}%
+			}
+			TMPL(tmpl_key, key);
 			(*buffer_index)--;      // Go back one, removing paren
 			%{},{}%
 			TMPL(tmpl_key, sql_key);
 			%{}){}%
+			if (pplan->key_lvn_can_be_zysqlnull) {
+				%{}){}%	/* close left paren in "$SELECT($ZYISSQLNULL" */
+			}
 		} else {
 			LogicalPlan	*piece_num;
 			GET_LP(piece_num, plan, 1, LP_PIECE_NUMBER);
@@ -450,6 +460,11 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			assert(!stash_columns_in_keys || (1 == piece_num->v.lp_piece_number.piece_number));
 
 			if (!stash_columns_in_keys) {
+				if (pplan->key_lvn_can_be_zysqlnull) {
+					%{}$SELECT($ZYISSQLNULL({}%
+					TMPL(tmpl_key, sql_key);
+					%{}):$ZYSQLNULL,1:{}%
+				}
 				%{}$$mval2str^%%ydboctoplanhelpers({}%
 				%{}$$mvalPiece^%%ydboctoplanhelpers({}%
 			}
@@ -465,6 +480,9 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				TMPL(tmpl_key, sql_key);
 				%{}),{{ piece_num->v.lp_piece_number.piece_number|%d }}{}%
 				%{})){}%
+				if (pplan->key_lvn_can_be_zysqlnull) {
+					%{}){}%	/* close left paren in "$SELECT($ZYISSQLNULL" */
+				}
 			}
 		}
 		if (matching_plan != pplan) {

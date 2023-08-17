@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -33,7 +33,6 @@ TEMPLATE(tmpl_column_reference_common, PhysicalPlan *pplan, SqlColumnAlias *colu
 		*done = TRUE;
 		return;
 	}
-
 	if (is_stmt_table_asterisk(column_alias->column)) {
 		/* "column_alias" is a TABLENAME.ASTERISK reference. In this case, we are guaranteed this is inside a GROUP BY
 		 * or a WHERE clause but not in the SELECT column list (would have been expanded to a list of columns even
@@ -57,6 +56,37 @@ TEMPLATE(tmpl_column_reference_common, PhysicalPlan *pplan, SqlColumnAlias *colu
 			 */
 			*done = FALSE;
 			return;
+		}
+
+		if (pplan->key_lvn_can_be_zysqlnull) {
+			PhysicalPlan	*matching_plan;
+			SqlKey		*matching_key;
+
+			matching_plan = get_physical_plan_and_key_for_unique_id(pplan, unique_id, &matching_key);
+			UNUSED(matching_plan);
+			assert(matching_key->unique_id == unique_id);
+			if (!dot_count) {
+				%{}$SELECT($ZYISSQLNULL({}%
+				TMPL(tmpl_key, matching_key);
+				%{}):$ZYSQLNULL,1:{}%
+			} else {
+				TMPL(tmpl_key, matching_key);
+				%{}`n{{ PLAN_LINE_START }}{}%
+				TMPL(tmpl_print_dots, dot_count);
+				%{}IF $ZYISSQLNULL({{ PP_YDB_OCTO_EXPR }}) DO{}%
+				dot_count++;
+				%{}`n{{ PLAN_LINE_START }}{}%
+				TMPL(tmpl_print_dots, dot_count);
+				%{}SET {{ PP_YDB_OCTO_EXPR }}=$ZYSQLNULL{}%
+				dot_count--;
+				%{}`n{{ PLAN_LINE_START }}{}%
+				TMPL(tmpl_print_dots, dot_count);
+				%{}ELSE  DO{}%
+				dot_count++;
+				%{}`n{{ PLAN_LINE_START }}{}%
+				TMPL(tmpl_print_dots, dot_count);
+				%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+			}
 		}
 
 		int		save_group_by_column_number;
@@ -122,6 +152,9 @@ TEMPLATE(tmpl_column_reference_common, PhysicalPlan *pplan, SqlColumnAlias *colu
 			cur_column = cur_column->next;
 		} while (cur_column != start_column);
  		column_alias->group_by_column_number = save_group_by_column_number;	/* Restore "group_by_column_number" */
+		if (pplan->key_lvn_can_be_zysqlnull && !dot_count) {
+			%{}){}%
+		}
 		*done = TRUE;
 		return;
 	}

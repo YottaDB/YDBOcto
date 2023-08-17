@@ -138,10 +138,11 @@
  * Each macro is prefixed with a OCTOLIT_.
  * A similar piece of code exists in template_helpers.h where PP_* macros are defined.
  */
-#define OCTOLIT_KEYS	    "keys"	  /* keep this in sync with PP_KEYS in "template_helpers.h" */
-#define OCTOLIT_PARAMETERS  "parameters"  /* keep this in sync with PP_PARAMETERS in "template_helpers.h" */
-#define OCTOLIT_ROW_COUNT   "RowCount"	  /* keep this in sync with PP_ROW_COUNT in "template_helpers.h" */
-#define OCTOLIT_XREF_STATUS "xref_status" /* keep this in sync with PP_XREF_STATUS in "template_helpers.h" */
+#define OCTOLIT_KEYS	    "keys"	   /* keep this in sync with PP_KEYS in "template_helpers.h" */
+#define OCTOLIT_PARAMETERS  "parameters"   /* keep this in sync with PP_PARAMETERS in "template_helpers.h" */
+#define OCTOLIT_ROW_COUNT   "RowCount"	   /* keep this in sync with PP_ROW_COUNT in "template_helpers.h" */
+#define OCTOLIT_XREF_STATUS "xref_status"  /* keep this in sync with PP_XREF_STATUS in "template_helpers.h" */
+#define OCTO_LEFT_JOIN_LIT  "octoLeftJoin" /* keep this in sync with PP_OCTO_LEFT_JOIN in "template_helpers.h" */
 
 #define OCTOLIT_0		       "0"
 #define OCTOLIT_ALL		       "all"

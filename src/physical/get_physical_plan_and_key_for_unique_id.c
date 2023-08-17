@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -35,11 +35,14 @@ PhysicalPlan *get_physical_plan_and_key_for_unique_id(PhysicalPlan *pplan, int u
 			if (key->unique_id == unique_id) {
 				assert((NULL == matching_plan) || (matching_plan == cur_plan));
 				matching_plan = cur_plan;
-				*matching_key = key;
-				break;
+				if (!key->is_cross_reference_key) {
+					*matching_key = key;
+					break;
+				}
 			}
 		}
 		cur_plan = next_plan;
 	} while (NULL != cur_plan);
+	assert((NULL == matching_plan) || (NULL != matching_key));
 	return matching_plan;
 }

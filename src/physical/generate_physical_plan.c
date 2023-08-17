@@ -437,9 +437,24 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		//       That is why this is not done as part of the previous do/while loop as "iterate_keys()" gets called only
 		//       after the previous do/while loop.
 		table_joins = out->tablejoin;
+		assert(NO_JOIN == table_joins->extra_detail.lp_table_join.cur_join_type);
+		int num_left_joins, num_right_or_full_joins;
+		num_left_joins = 0;
+		num_right_or_full_joins = 0;
 		do {
 			LogicalPlan *join_on_condition;
 
+			switch (table_joins->extra_detail.lp_table_join.cur_join_type) {
+			case LEFT_JOIN:
+				num_left_joins++;
+				break;
+			case RIGHT_JOIN:
+			case FULL_JOIN:
+				num_right_or_full_joins++;
+				break;
+			default:
+				break;
+			}
 			/* See if there are any sub-queries in the ON clause of any JOINs. If so, generate separate physical plans
 			 * (deferred and/or non-deferred) for them and add them as prev records in physical plan.
 			 */
@@ -449,6 +464,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 			}
 			table_joins = table_joins->v.lp_default.operand[1];
 		} while (NULL != table_joins);
+		out->key_lvn_can_be_zysqlnull = ((0 != num_left_joins) && (0 == num_right_or_full_joins));
 		/* See if there are any sub-queries in the WHERE clause. If so, generate separate physical plans
 		 * (deferred and/or non-deferred) for them and add them as prev records in physical plan.
 		 */
@@ -535,10 +551,12 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 				/* Caller indicates this plan is part of a set of DNF plans. Maintain linked list of DNF siblings.
 				 */
 				out->dnf_next = plan_options.dnf_plan_next;
+				out->dnf_num = out->dnf_next->dnf_num; /* Maintain unique DNF sibling plan number */
 				assert(NULL == plan_options.dnf_plan_next->dnf_prev);
 				plan_options.dnf_plan_next->dnf_prev = out;
 				assert(NULL == out->dnf_prev);
 			}
+			out->dnf_num++;
 		}
 	} else {
 		/* VALUES clause. Check for any sub-queries in the data specified across multiple rows/columns */

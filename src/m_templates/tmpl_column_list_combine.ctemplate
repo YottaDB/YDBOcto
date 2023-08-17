@@ -173,10 +173,7 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 				 * Cannot call `tmpl_print_expression.ctemplate` as the information of whether this column is in
 				 * an ORDER BY or not is not easily derivable after this point.
 				 */
-				if (dot_count) {
-					TMPL(tmpl_print_dots, dot_count);
-					%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
-				}
+				assert(!dot_count);
 				/* This is a `table.*` column present in both ORDER BY and GROUP BY.
 				 * Fetch grouped table.* value and place each column as ORDER BY subscript.
 				 */
@@ -220,23 +217,34 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 						%{},{}%
 					}
 				} while (cur_cla != start_cla);
-				if (dot_count) {
-					%{}`n{{ PLAN_LINE_START }}{}%
-				}
 			} else {
 				/* It belongs to the current query and `tablejoin_body_group_by_done` is not set we
 				 * expect an expanded list of table.* of the form (table.*,table.col1,table.col2 ..), the
 				 * below code adds composite NULL related subscript and continues on to process the rest of
 				 * the list. The composite NULL subscript is needed to order a Composite NULL last (even after
-				 * ROW(NULL)) ( seehttps://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/759#note_736104049 for more
+				 * ROW(NULL)) (see https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/759#note_736104049 for more
 				 * details). This is the reason why "process_table_asterisk_cla()" kept this node intact.
 				 * Achieve this ordering by using "$ZYSQLNULL" in case of a Composite NULL and "0" otherwise.
 				 */
+				if (pplan->key_lvn_can_be_zysqlnull) {
+					PhysicalPlan	*matching_plan;
+					SqlKey		*matching_key;
+					matching_plan = get_physical_plan_and_key_for_unique_id(pplan, unique_id, &matching_key);
+					assert(matching_plan == pplan);
+					UNUSED(matching_plan);
+					assert(unique_id == matching_key->unique_id);
+					%{}$SELECT($ZYISSQLNULL({}%
+					TMPL(tmpl_key, matching_key);
+					%{}):$ZYSQLNULL,1:{}%
+				}
 				if (pplan->treat_key_as_null[unique_id]) {
 					/* Composite NULL */
 					%{}$ZYSQLNULL{}%
 				} else {
 					%{}0{}%
+				}
+				if (pplan->key_lvn_can_be_zysqlnull) {
+					%{}){}%
 				}
 			}
 		}

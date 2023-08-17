@@ -23,7 +23,7 @@
 // This does not put a trailing semicolon
 #define TEMPLATE(name, ...) void name(char **global_buffer, uint64_t *buffer_len, uint64_t *buffer_index, ##__VA_ARGS__)
 
-/// WARNING: this macro assumes the presence of global_buffer, buffer_len, buffer_index, written, retry
+/// WARNING: this macro assumes the presence of global_buffer, buffer_len, buffer_index
 #define TEMPLATE_SNPRINTF(...)                                                                                  \
 	do {                                                                                                    \
 		boolean_t retry;                                                                                \
@@ -50,12 +50,13 @@
  *       inside the tmpl_*.ctemplate functions. Not having that will cause generated M code to contain just OrderBy
  *       instead of "OrderBy" as the subscript in an lvn.
  */
-#define PP_ORDER_BY    "\"OrderBy\""
-#define PP_GROUP_BY    "\"GroupBy\""
-#define PP_ROW_COUNT   "\"RowCount\""	 /* Note: This has to be maintained in sync with OCTOLIT_ROW_COUNT */
-#define PP_KEYS	       "\"keys\""	 /* Note: This has to be maintained in sync with OCTOLIT_KEYS */
-#define PP_PARAMETERS  "\"parameters\""	 /* Note: This has to be maintained in sync with OCTOLIT_PARAMETERS */
-#define PP_XREF_STATUS "\"xref_status\"" /* Note: This has to be maintained in sync with OCTOLIT_XREF_STATUS */
+#define PP_ORDER_BY	  "\"OrderBy\""
+#define PP_GROUP_BY	  "\"GroupBy\""
+#define PP_ROW_COUNT	  "\"RowCount\""    /* Note: This has to be maintained in sync with OCTOLIT_ROW_COUNT */
+#define PP_KEYS		  "\"keys\""	    /* Note: This has to be maintained in sync with OCTOLIT_KEYS */
+#define PP_PARAMETERS	  "\"parameters\""  /* Note: This has to be maintained in sync with OCTOLIT_PARAMETERS */
+#define PP_XREF_STATUS	  "\"xref_status\"" /* Note: This has to be maintained in sync with OCTOLIT_XREF_STATUS */
+#define PP_OCTO_LEFT_JOIN "octoLeftJoin"    /* Note: This has to be maintained in sync with OCTO_LEFT_JOIN_LIT */
 // Set prefixes for YDB global and local variables nodes, i.e. "^" and "", respectively
 #define PP_GLOBAL_PREFIX "^"
 #define PP_LOCAL_PREFIX	 ""
@@ -196,7 +197,7 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *pplan, int dot_count);
 TEMPLATE(tmpl_key_start, SqlKey *key);
 TEMPLATE(tmpl_key_finish, SqlKey *key);
 TEMPLATE(tmpl_key_end, SqlKey *key);
-TEMPLATE(tmpl_key_dollardata_check, SqlKey *key, boolean_t is_derived_column);
+TEMPLATE(tmpl_key_dollardata_check, PhysicalPlan *pplan, SqlKey *key, boolean_t is_derived_column);
 // Outputs: '%ydboctocursor(cursorId,PP_KEYS,key->unique_id,tableName,columnName)'
 TEMPLATE(tmpl_key, SqlKey *key);
 TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key);

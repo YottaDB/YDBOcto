@@ -119,10 +119,20 @@ teardown() {
 @test "TOJ11 : OCTO1006 : Emitted M code size is Kb (not Gb) in 20-way LEFT JOIN where ON condition has key-fix optimization" {
 	load_fixture names.sql
 	load_fixture names.zwr
-	yottadb -run TOJ11 20 > TOJ11.sql	# 20 specifies 20-way LEFT JOIN
+	yottadb -run TOJ11 20 1 > TOJ11.sql	# 20 specifies 20-way LEFT JOIN, 1 specifies key fix optimization is ON
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOJ11.sql
 	echo "# Test that emitted M code size for a 20-way LEFT JOIN (with ON condition using key-fix) is in Kb (not Gb)" >> output.txt
 	echo "Emitted M code size is [" $(ls -lh _ydboctoP*.m | awk '{print $5;}') "]" >> output.txt
 	verify_output TOJ11 output.txt
+}
+
+@test "TOJ12 : OCTO1006 : Emitted M code size is Kb (not Gb) in 20-way LEFT JOIN where ON condition does NOT have key-fix optimization" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	yottadb -run TOJ11 20 0 > TOJ12.sql	# 20 specifies 20-way LEFT JOIN, 1 specifies key fix optimization is OFF
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOJ12.sql
+	echo "# Test that emitted M code size for a 20-way LEFT JOIN (with ON condition NOT using key-fix) is in Kb (not Gb)" >> output.txt
+	echo "Emitted M code size is [" $(ls -lh _ydboctoP*.m | awk '{print $5;}') "]" >> output.txt
+	verify_output TOJ12 output.txt
 }
 

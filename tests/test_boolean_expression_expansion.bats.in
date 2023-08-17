@@ -25,7 +25,7 @@ teardown() {
 
 @test "TBEE01 : 3-way LEFT JOIN with 20 OR usages in BOOLEAN EXPRESSION should expand to only 27 plans (not 540 plans)" {
 	load_fixture TBEE01.sql subtest novv
-	grep -E 'QUIT$|octoPlan' _ydboctoP*.m > physicalplan.txt
+	grep -E 'QUIT$|octoPlan|^octoLeft' _ydboctoP*.m > physicalplan.txt
 	verify_output TBEE01p physicalplan.txt
 	verify_output TBEE01 output.txt
 }

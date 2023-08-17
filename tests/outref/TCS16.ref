@@ -1,0 +1,26 @@
+
+-- TCS16 : OCTO1009 : CASE should not evaluate ALL branch values as it can cause errors (e.g. ZYSQLNULLNOTVALID)
+
+-- Test https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/1009#note_1501103697
+-- Without the OCTO1009 fixes, this would issue a ZYSQLNULLNOTVALID error.
+drop function if exists datetime(varchar);
+create function datetime(varchar) returns varchar as $$^TCS16datetime;
+select id, case when lastname is null then 'active' else datetime(lastname) end as "inactive_date" from names;
+
+-- Test https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/1009#note_1517211478
+-- Without the OCTO1009 fixes, this would issue a "divide by zero" error.
+select case when lastname is null then 1 else id / 0 end from names where lastname is null;
+
+DROP FUNCTION
+CREATE FUNCTION
+id|inactive_date
+0|DATE TIME
+1|DATE TIME
+2|DATE TIME
+3|DATE TIME
+4|active
+5|DATE TIME
+(6 rows)
+CASE
+1
+(1 row)

@@ -96,3 +96,9 @@ teardown() {
   load_fixture TCS15_errors.sql subtest novv
   verify_output TCS15_errors output.txt
 }
+
+@test "TCS16 : OCTO1009 : CASE should not evaluate ALL branch values as it can cause errors (e.g. ZYSQLNULLNOTVALID)" {
+	load_fixture TCS16.sql subtest novv
+	verify_output TCS16 output.txt
+}
+

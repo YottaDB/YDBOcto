@@ -1409,58 +1409,48 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			if (NULL != cas_value) {
 				TMPL(tmpl_print_expression, cas_value, pplan, dot_count, depth);
 				TMPL(tmpl_print_dots, dot_count);
-				%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},0,0)={{ PP_YDB_OCTO_EXPR }}{}%
-				%{}`n{{ PLAN_LINE_START }}{}%
-			}
-			if (NULL != default_value) {
-				TMPL(tmpl_print_expression, default_value, pplan, dot_count, depth);
-				TMPL(tmpl_print_dots, dot_count);
-				%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},0,1)={{ PP_YDB_OCTO_EXPR }}{}%
+				%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},0)={{ PP_YDB_OCTO_EXPR }}{}%
 				%{}`n{{ PLAN_LINE_START }}{}%
 			}
 			num_case_paths = 1;
+			int	save_dot_count = dot_count;
 			while (NULL != cur_plan) {
+				if (1 < num_case_paths) {
+					TMPL(tmpl_print_dots, dot_count);
+					%{}ELSE  DO{}%
+					%{}`n{{ PLAN_LINE_START }}{}%
+					dot_count++;
+				}
 				GET_LP(cur_branch, cur_plan, 0, LP_CASE_BRANCH_STATEMENT);
 				condition = cur_branch->v.lp_default.operand[0];
 				TMPL(tmpl_print_expression, condition, pplan, dot_count, depth);
 				TMPL(tmpl_print_dots, dot_count);
-				%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},{{ num_case_paths|%d }},0)={{ PP_YDB_OCTO_EXPR }}{}%
-				%{}`n{{ PLAN_LINE_START }}{}%
-				branch_value = cur_branch->v.lp_default.operand[1];
-				TMPL(tmpl_print_expression, branch_value, pplan, dot_count, depth);
-				TMPL(tmpl_print_dots, dot_count);
-				%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},{{ num_case_paths|%d }},1)={{ PP_YDB_OCTO_EXPR }}{}%
-				%{}`n{{ PLAN_LINE_START }}{}%
-				cur_plan = cur_plan->v.lp_default.operand[1];
-				num_case_paths++;
-			}
-			cur_plan = second_operand;
-			num_case_paths = 1;
-			TMPL(tmpl_print_dots, dot_count);
-			%{}SET {{ PP_YDB_OCTO_EXPR }}=$SELECT({}%
-			while (NULL != cur_plan) {
-				%{}({}%
-				%{}{{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},{{ num_case_paths|%d }},0){}%
-				%{})=({}%
+				%{}IF {{ PP_YDB_OCTO_EXPR }}={}%
 				if (NULL != cas_value) {
-					%{}{{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},0,0){}%
+					%{}{{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},0){}%
 				} else {
 					%{}1{}%
 				}
-				%{}):({}%
-				%{}{{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},{{ num_case_paths|%d }},1){}%
-				%{}),{}%
+				%{} DO`n{{ PLAN_LINE_START }}{}%
+				dot_count++;
+				branch_value = cur_branch->v.lp_default.operand[1];
+				TMPL(tmpl_print_expression, branch_value, pplan, dot_count, depth);
 				cur_plan = cur_plan->v.lp_default.operand[1];
 				num_case_paths++;
+				dot_count--;
 			}
-			if (NULL != default_value) {
-				%{}1:{}%
-				%{}{{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},0,1){}%
-				%{}){}%
-			} else {
-				%{}1:$ZYSQLNULL){}%
-			}
+			TMPL(tmpl_print_dots, dot_count);
+			%{}ELSE  DO{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
+			dot_count++;
+			if (NULL != default_value) {
+				TMPL(tmpl_print_expression, default_value, pplan, dot_count, depth);
+			} else {
+				TMPL(tmpl_print_dots, dot_count);
+				%{}SET {{ PP_YDB_OCTO_EXPR }}=$ZYSQLNULL{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+			}
+			dot_count = save_dot_count;
 		} else {
 			%{}$SELECT({}%
 			while (NULL != cur_plan) {

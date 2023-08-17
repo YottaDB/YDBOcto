@@ -25,6 +25,20 @@ typedef void *yyscan_t;
 // Set maximum M routine length - must be in sync with MAX_MIDENT_LEN in YDB/sr_port/mdef.h
 #define MAX_ROUTINE_LEN YDB_MAX_IDENT
 
+/* Note: The below macro needs to be kept in sync with
+ * 1) MAX_SRCLINE in YDB/sr_port/compiler.h AND
+ * 2) YDB_MAX_M_LINE_LEN in YDB/sr_unix/libyottadb.h
+ *
+ * It uses a hardcoded integer value below, not the YDB_MAX_M_LINE_LEN macro (which is available in libyottadb.h)
+ * because that macro would be available only in libyottadb.h of YottaDB r2.00 onwards and we want
+ * Octo builds to continue to work with r1.38 and prior versions.
+ *
+ * This macro is currently not used but it is hoped that it will be useful when examining emitted M code and wanting
+ * to decide whether it is longer than the maximum allowed M line limit in YottaDB. In that case, the M code emitting
+ * logic can backtrack and decide on an alternative approach (for example, splitting the emitted M line into 2 or so).
+ */
+#define MAX_M_LINE_LEN 32766
+
 // Per https://www.postgresql.org/docs/11/catalog-pg-type.html, for type length values of -1 and -2:
 //	"-1 indicates a 'varlena' type (one that has a length word), -2 indicates a null-terminated C string."
 #define TYPLEN_VARLENA -1

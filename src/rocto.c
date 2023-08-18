@@ -171,11 +171,38 @@ int main(int argc, char **argv) {
 		FATAL(ERR_SYSCALL, "bind", errno, strerror(errno));
 	}
 
-	// Spin off another thread to keep an eye on dead processes
+	/* Spin off another thread to keep an eye on dead processes.
+	 * But before that, make sure that thread does not catch any signals (e.g. SIGTERM).
+	 * We want only the main process to catch those signals as that does invoke "ydb_eintr_handler()"
+	 * in case of EINTR interrupting a long-running system call. If the thread gets the signal,
+	 * the main process would then hang as it would have no clue that it has to terminate.
+	 * So we block all signals, except those which could be generated from within the thread,
+	 * then create the thread (so it blocks those signals) and then restore the original signal
+	 * mask in the main process so it can continue to catch those signals.
+	 */
+	sigset_t block_worker, savemask;
+	sigfillset(&block_worker);
+	sigdelset(&block_worker, SIGSEGV);
+	sigdelset(&block_worker, SIGKILL);
+	sigdelset(&block_worker, SIGFPE);
+	sigdelset(&block_worker, SIGBUS);
+	status = pthread_sigmask(SIG_BLOCK, &block_worker, &savemask);
+	if (0 != status) {
+		FATAL(ERR_SYSCALL, "pthread_sigmask(SIG_BLOCK)", status, strerror(status));
+	}
+
+	/* Create thread with signals blocked so it does not receive any external signals */
 	pthread_t thread_id;
 	status = pthread_create(&thread_id, NULL, rocto_helper_waitpid, (void *)(&rocto_session));
-	if (0 != status)
+	if (0 != status) {
 		FATAL(ERR_SYSCALL, "pthread_create", status, strerror(status));
+	}
+
+	/* Restore signal mask in main process now that thread creation is done */
+	status = pthread_sigmask(SIG_SETMASK, &savemask, NULL);
+	if (0 != status) {
+		FATAL(ERR_SYSCALL, "pthread_sigmask(SIG_SETMASK)", status, strerror(status));
+	}
 
 	if (listen(sfd, 3) < 0) {
 		FATAL(ERR_SYSCALL, "listen", errno, strerror(errno));

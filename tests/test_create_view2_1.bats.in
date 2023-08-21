@@ -65,9 +65,13 @@ teardown() {
 	# Run this list of SELECT queries through Postgres to determine those queries that issue errors.
 	# Filter those queries out of validselect.sql. This filtered list is stored in validselect2.sql.
 	psql names -f validselect.sql >& psql.out2 || true
+	# It is possible for psql.line2 to be empty when there are no errors, nothing to skip in this case consider the whole file
 	grep -i ERROR psql.out2 | sed 's/psql:validselect.sql://;s/:.*//;' > psql.line2
-	awk 'NR==FNR {a[$1]; next}; ! (FNR in a)' psql.line2 validselect.sql >& validselect2.sql
-
+	if [[ -s psql.line2 ]]; then
+		awk 'NR==FNR {a[$1]; next}; ! (FNR in a)' psql.line2 validselect.sql >& validselect2.sql
+	else
+		cp validselect.sql validselect2.sql
+	fi
 	# Use validselect2.sql to generate a list of transformed SELECT queries that randomly use any of the above VIEWS in place
 	# of the names table in the SELECT queries. The M program TCV044.m helps generating this random query list.
 	cat validselect2.sql | yottadb -run TCV044 > viewgenqueries.sql
@@ -77,8 +81,12 @@ teardown() {
 	# Filter those queries out and store the filtered list in viewgenqueries2.sql
 	psql names -f viewgenqueries.sql >& psql.out3 || true
 	grep -i ERROR psql.out3 | sed 's/psql:viewgenqueries.sql://;s/:.*//;' > psql.line3
-	awk 'NR==FNR {a[$1]; next}; ! (FNR in a)' psql.line3 viewgenqueries.sql >& viewgenqueries2.sql
-
+	# It is possible for psql.line3 to be empty when there are no errors, nothing to skip in this case test the whole file
+	if [[ -s psql.line3 ]]; then
+		awk 'NR==FNR {a[$1]; next}; ! (FNR in a)' psql.line3 viewgenqueries.sql >& viewgenqueries2.sql
+	else
+		cp viewgenqueries.sql viewgenqueries2.sql
+	fi
 	# Run this filtered list of SELECT queries against Postgres and Octo
 	psql names -f viewgenqueries2.sql >& psql.out4
 	octo -f viewgenqueries2.sql >& octo.out4 || true

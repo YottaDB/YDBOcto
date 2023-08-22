@@ -220,3 +220,7 @@ teardown() {
 	load_fixture TSCP26.sql subtest novv
 	verify_output TSCP26 output.txt
 }
+
+@test "TSCP27 : OCTO350 : Validate edge cases with arithmetic expression involving subqueries in SELECT column list" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP27.sql
+}

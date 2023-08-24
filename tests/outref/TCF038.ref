@@ -1,0 +1,15 @@
+# Create a user-defined function
+
+-- TCF038 : OCTO929 : Test that repeated auto upgrade runs work fine with user defined functions
+
+CREATE FUNCTION tmpFunc(integer) returns integer as $$^func;
+CREATE TABLE tmpTable (id integer);
+CREATE VIEW tmpView as select * from names;
+
+CREATE FUNCTION
+CREATE TABLE
+CREATE VIEW
+# Set ^%ydboctoocto("seeddfnfmt") to 6 (before YDBOcto#929 changes)
+# Start octo which will automatically run auto upgrade due to previous step
+# We expect no errors in this step
+# This step used to previously issue an ERR_CANNOT_CREATE_FUNCTION error

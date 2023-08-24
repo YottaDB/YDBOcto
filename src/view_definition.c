@@ -30,22 +30,38 @@ SqlStatement *view_definition(SqlStatement *create_view_stmt, ParseContext *pars
 	SqlStatement *viewName = view->viewName;
 	if (config->is_auto_upgrade_octo929) {
 		SqlValue *value;
-		char *	  view_name, uppercase_name[OCTO_MAX_IDENT + 1];
+		char *	  view_name, upper_or_lower_case_name[OCTO_MAX_IDENT + 1];
 
-		UNPACK_SQL_STATEMENT(value, viewName, value);
-		if (!value->is_double_quoted) {
-			char *start, *end, *dst, *dst_end;
+		/* See comment in "src/parser/table_definition.c" for why "for" loop that runs 2 iterations is needed */
+		int i;
+		for (i = 0; i < 2; i++) {
+			UNPACK_SQL_STATEMENT(value, viewName, value);
+			if (!value->is_double_quoted) {
+				char *start, *end, *dst, *dst_end;
 
-			start = value->v.string_literal;
-			end = start + strlen(start);
-			dst = uppercase_name;
-			dst_end = dst + sizeof(uppercase_name);
-			TOUPPER(dst, dst_end, start, end);
-			view_name = uppercase_name;
-		} else {
-			view_name = value->v.string_literal;
+				start = value->v.string_literal;
+				end = start + strlen(start);
+				dst = upper_or_lower_case_name;
+				dst_end = dst + sizeof(upper_or_lower_case_name);
+				if (0 == i) {
+					TOUPPER(dst, dst_end, start, end);
+				} else {
+					TOLOWER(dst, dst_end, start, end);
+				}
+				view_name = upper_or_lower_case_name;
+			} else {
+				view_name = value->v.string_literal;
+			}
+			/* octo-seed.sql only has CREATE TABLE and CREATE FUNCTION commands, no CREATE VIEW commands so
+			 * assert that as we don't do "OCTOLIT_YDBOCTO929" maintenance and "config->in_auto_load_octo_seed"
+			 * checks like we do in "table_definition.c" and "function_definition.c".
+			 */
+			assert(!config->in_auto_load_octo_seed);
+			fprintf(config->octo929_sqlfile_stream, "DROP VIEW IF EXISTS \"%s\";\n", view_name);
+			if (value->is_double_quoted) {
+				break;
+			}
 		}
-		fprintf(config->octo929_sqlfile_stream, "DROP VIEW IF EXISTS \"%s\";\n", view_name);
 	}
 	SqlStatement *column_name_list = view->column_name_list;
 	SqlStatement *query_expression = view->src_table_alias_stmt;

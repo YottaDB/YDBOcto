@@ -262,3 +262,18 @@ teardown() {
 	load_fixture TCF037.sql subtest novv
 	verify_output TCF037 output.txt noinfo nodebug
 }
+
+@test "TCF038 : OCTO929 : Test that repeated auto upgrade runs work fine with user defined functions" {
+	export octo_dbg_drop_cache_expected=1	# needed to let Octo know that DROP TABLE commands run in this test
+						# as part of the auto upgrade (or else asserts fail).
+	echo "# Create a user-defined function" >> output.txt
+	load_fixture TCF038.sql subtest novv
+	echo '# Set ^%ydboctoocto("seeddfnfmt") to 6 (before YDBOcto#929 changes)' >> output.txt
+	yottadb -run %XCMD 'set ^%ydboctoocto("seeddfnfmt")=6'
+	echo "# Start octo which will automatically run auto upgrade due to previous step" >> output.txt
+	echo "# We expect no errors in this step" >> output.txt
+	echo "# This step used to previously issue an ERR_CANNOT_CREATE_FUNCTION error" >> output.txt
+	echo "" | octo
+	verify_output TCF038 output.txt noinfo nodebug
+}
+

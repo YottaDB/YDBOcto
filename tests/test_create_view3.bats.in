@@ -115,4 +115,17 @@ teardown() {
 	octo -f input.sql >& output.txt || true
 	verify_output TCV055 output.txt
 }
+
+@test "TCV056 : OCTO929 : Test that repeated auto upgrade runs work fine with user defined views" {
+	echo "# Create a user-defined view" >> output.txt
+	load_fixture TCV056.sql subtest novv
+	echo '# Set ^%ydboctoocto("seeddfnfmt") to 6 (before YDBOcto#929 changes)' >> output.txt
+	yottadb -run %XCMD 'set ^%ydboctoocto("seeddfnfmt")=6'
+	echo "# Start octo which will automatically run auto upgrade due to previous step" >> output.txt
+	echo "# We expect no errors in this step" >> output.txt
+	echo "# This step used to previously issue an ERR_CANNOT_CREATE_VIEW error" >> output.txt
+	echo "" | octo
+	verify_output TCV056 output.txt noinfo nodebug
+}
+
 # To add any new subtest refer to the comments at the end of test_create_view1_1.bats.in

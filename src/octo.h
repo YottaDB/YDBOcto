@@ -398,13 +398,13 @@
  */
 #define TOLOWER(DEST, DEST_END, START, END)                                                 \
 	{                                                                                   \
-		char *start;                                                                \
+		char *sTART;                                                                \
                                                                                             \
-		start = (START);                                                            \
-		while (start < END) {                                                       \
-			(*DEST) = tolower(*start);                                          \
+		sTART = (START);                                                            \
+		while (sTART < END) {                                                       \
+			(*DEST) = tolower(*sTART);                                          \
 			(DEST)++;                                                           \
-			start++;                                                            \
+			sTART++;                                                            \
 		}                                                                           \
 		(*DEST) = '\0';                                                             \
 		(DEST)++;                                                                   \

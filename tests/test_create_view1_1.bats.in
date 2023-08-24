@@ -73,5 +73,5 @@ teardown() {
 	verify_output TCV010_errors output.txt
 }
 
-# Any new subtest addition should be done by creating test_create_view3.bats.in till its execution time in pipeline reaches 60 sec.
+# Any new subtest addition should be done in test_create_view3.bats.in till its execution time in pipeline reaches 60 sec.
 # When exceeded new test should be created and the above test name should be updated.

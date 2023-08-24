@@ -158,45 +158,85 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	table->tableName = tableName;
 	if (config->is_auto_upgrade_octo929) {
 		SqlValue *value;
-		char *	  table_name, uppercase_name[OCTO_MAX_IDENT + 1];
+		char *	  table_name, upper_or_lower_case_name[OCTO_MAX_IDENT + 1];
 
 		UNPACK_SQL_STATEMENT(value, tableName, value);
-		if (!value->is_double_quoted) {
-			char *start, *end, *dst, *dst_end;
 
-			start = value->v.string_literal;
-			end = start + strlen(start);
-			dst = uppercase_name;
-			dst_end = dst + sizeof(uppercase_name);
-			TOUPPER(dst, dst_end, start, end);
-			table_name = uppercase_name;
-		} else {
-			table_name = value->v.string_literal;
-		}
+		/* If table name was not double quoted, that means it would have been stored internally as an upper case
+		 * name before YDBOcto#929. Therefore generate a DROP TABLE command to drop the upper case table name.
+		 * But it is possible there is an error during the very first auto upgrade due to some operational issues
+		 * which later get fixed. In that case, the table binary/text definition would have been recreated using a
+		 * lower case table name at the start of the aborted auto upgrade. That would mean the second auto upgrade
+		 * would generate a DROP TABLE command on a non-existent upper case table name. And that would mean the
+		 * CREATE TABLE command that is generated immediately after the DROP TABLE command would issue an error
+		 * (e.g. ERR_DUPLICATE_PRIMARY_KEY_CONSTRAINT) and again abort the later auto upgrade attempts. To avoid
+		 * such errors, generate a DROP TABLE command to drop the lower case table name as well. Hence the "for" loop
+		 * that runs twice in case "value->is_double_quoted" is FALSE.
+		 */
+		int i;
+		for (i = 0; i < 2; i++) {
+			if (!value->is_double_quoted) {
+				char *start, *end, *dst, *dst_end;
 
-		ydb_buffer_t ydbocto929, table_subs[2];
-		char	     subs0_buff[INT32_TO_STRING_MAX];
-		unsigned int data_ret;
+				start = value->v.string_literal;
+				end = start + strlen(start);
+				/* Generate upper or lower case table name depending on for loop iteration number */
+				dst = upper_or_lower_case_name;
+				dst_end = dst + sizeof(upper_or_lower_case_name);
+				if (0 == i) {
+					TOUPPER(dst, dst_end, start, end);
+				} else {
+					TOLOWER(dst, dst_end, start, end);
+				}
+				table_name = upper_or_lower_case_name;
+			} else {
+				assert(0 == i);
+				table_name = value->v.string_literal;
+			}
 
-		YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTO929, &ydbocto929);
-		table_subs[0].buf_addr = subs0_buff;
-		table_subs[0].len_alloc = sizeof(subs0_buff);
-		table_subs[0].len_used = snprintf(table_subs[0].buf_addr, table_subs[0].len_alloc, "%d", drop_table_STATEMENT);
-		YDB_STRING_TO_BUFFER(table_name, &table_subs[1]);
+			ydb_buffer_t ydbocto929, table_subs[2];
+			char	     subs0_buff[INT32_TO_STRING_MAX];
+			unsigned int data_ret;
 
-		int status;
-		status = ydb_data_s(&ydbocto929, 2, &table_subs[0], &data_ret);
-		if (YDB_OK != status) {
-			YDB_ERROR_CHECK(status);
-			return NULL;
-		}
-		if (0 == data_ret) {
-			status = ydb_set_s(&ydbocto929, 2, &table_subs[0], NULL);
+			YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTO929, &ydbocto929);
+			table_subs[0].buf_addr = subs0_buff;
+			table_subs[0].len_alloc = sizeof(subs0_buff);
+			table_subs[0].len_used
+			    = snprintf(table_subs[0].buf_addr, table_subs[0].len_alloc, "%d", drop_table_STATEMENT);
+			YDB_STRING_TO_BUFFER(table_name, &table_subs[1]);
+
+			int status;
+			status = ydb_data_s(&ydbocto929, 2, &table_subs[0], &data_ret);
 			if (YDB_OK != status) {
 				YDB_ERROR_CHECK(status);
 				return NULL;
 			}
-			fprintf(config->octo929_sqlfile_stream, "DROP TABLE IF EXISTS \"%s\" KEEPDATA;\n", table_name);
+			if (0 == data_ret) {
+				status = ydb_set_s(&ydbocto929, 2, &table_subs[0], NULL);
+				if (YDB_OK != status) {
+					YDB_ERROR_CHECK(status);
+					return NULL;
+				}
+				/* If we are loading "octo-seed.sql" and are encountering "CREATE TABLE" commands there,
+				 * we don't need to worry about deleting the upper case version table as such
+				 * commands are included in "octo-seed.sql" itself at the start so skip generating the
+				 * "DROP TABLE" command in that case.
+				 */
+				if (!config->in_auto_load_octo_seed) {
+					fprintf(config->octo929_sqlfile_stream, "DROP TABLE IF EXISTS \"%s\" KEEPDATA;\n",
+						table_name);
+				}
+				if (value->is_double_quoted) {
+					break;
+				}
+			} else {
+				/* We already did a DROP TABLE of the upper case name. In that case, don't do a DROP TABLE
+				 * of the lower case name as it can incorrectly lead to permanently deleting a valid lower
+				 * case table name at the end of the auto upgrade.
+				 */
+				assert(0 == i);
+				break;
+			}
 		}
 	}
 	table->columns = table_element_list;

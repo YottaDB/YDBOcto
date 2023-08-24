@@ -1,0 +1,19 @@
+# Create a user-defined table (by loading names.sql)
+# Set ^%ydboctoocto("seeddfnfmt") to 6 (before YDBOcto#929 changes)
+# Start octo which will automatically run auto upgrade due to previous step
+# We expect no errors in this step
+# This step used to previously issue an ERR_DUPLICATE_PRIMARY_KEY_CONSTRAINT error
+# Also verify that tables/function that were added to octo-seed.sql after YDBOcto#929 (23b2d60c) are still there
+
+-- TC080 : OCTO929 : Test that repeated auto upgrade runs work fine with user defined tables
+
+-- Below queries verify that tables/function that were added to octo-seed.sql after YDBOcto#929 (23b2d60c) are still there
+-- We take one representative function and table.
+select pg_tablespace_location(1);
+select * from pg_depend;
+
+pg_tablespace_location
+
+(1 row)
+classid|objid|objsubid|refclassid|refobjid|refobjsubid|deptype
+(0 rows)

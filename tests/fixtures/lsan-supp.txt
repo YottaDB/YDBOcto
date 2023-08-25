@@ -70,3 +70,16 @@ leak:libconfig.so.*
 # find_table, which are already excluded above. This solution is the best I can
 # come up with now.
 leak:alloc_chunk
+
+# This is another pesky one which I think is an issue in ASAN.
+# Signature looks like this:
+#
+# Direct leak of 8192 byte(s) in 1 object(s) allocated from:
+#     #0 0x7f8dc74be887 in __interceptor_malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:145
+#     #1 0x7f8dc67b2c74 in _IO_file_doallocate (/lib/x86_64-linux-gnu/libc.so.6+0x7ec74)
+#
+# Trying to raise this error later causes a SIG-11 in at least the TCV056 and TCF038 subtests.
+# In both cases, the core file indicated we were outside Octo code so we suppress this leak signature
+# thereby avoiding the SIG-11 and test failure.
+leak:_IO_file_doallocate
+

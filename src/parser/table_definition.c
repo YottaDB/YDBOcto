@@ -230,11 +230,13 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 					break;
 				}
 			} else {
-				/* We already did a DROP TABLE of the upper case name. In that case, don't do a DROP TABLE
-				 * of the lower case name as it can incorrectly lead to permanently deleting a valid lower
-				 * case table name at the end of the auto upgrade.
+				/* In case the table name is an upper case name, coming here means we already did a DROP TABLE
+				 * of the upper case name. In that case, don't do a DROP TABLE of the lower case name as it can
+				 * incorrectly lead to deleting a valid lower case table name at the end of the auto upgrade.
+				 * Note though that table names could be of the form "__" which have the same name in upper or
+				 * lower case so those can come here when i=0 and i=1 hence we cannot "assert(0 == i)" below
+				 * even though that is true almost 99.99% of the time.
 				 */
-				assert(0 == i);
 				break;
 			}
 		}

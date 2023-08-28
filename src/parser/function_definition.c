@@ -123,11 +123,13 @@ SqlStatement *function_definition(SqlStatement *identifier, SqlStatement *functi
 					octo929_drop_function = TRUE;
 				}
 			} else {
-				/* We already did a DROP FUNCTION of the upper case name. In that case, don't do a DROP FUNCTION
-				 * of the lower case name as it can incorrectly lead to permanently deleting a valid lower
-				 * case table name at the end of the auto upgrade.
+				/* In case the function name is an upper case name, coming here means we already did a DROP FUNCTION
+				 * of the upper case name. In that case, don't do a DROP FUNCTION of the lower case name as it can
+				 * incorrectly lead to deleting a valid lower case function name at the end of the auto upgrade.
+				 * Note though that function names could be of the form "__" which have the same name in upper or
+				 * lower case so those can come here when i=0 and i=1 hence we cannot "assert(0 == i)" below
+				 * even though that is true almost 99.99% of the time.
 				 */
-				assert(0 == i);
 				need_iteration_two = FALSE;
 			}
 		}

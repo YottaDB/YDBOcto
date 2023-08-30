@@ -103,8 +103,12 @@ To do this, start by installing the prerequisite packages:
     # Ubuntu
     sudo apt update && sudo apt install -y --no-install-recommends bison build-essential ca-certificates cmake curl file flex git libconfig-dev libelf-dev libicu-dev libreadline-dev libssl-dev pkg-config wget
 
-    # RHEL 8/Rocky Linux
-    yum --enablerepo=powertools install -y bison cmake file findutils flex gcc git libconfig-devel libicu-devel make openssl-devel pkg-config postgresql procps readline-devel wget
+    # Rocky Linux
+    sudo yum --enablerepo=powertools install -y bison cmake file findutils flex gcc git libconfig-devel libicu-devel make openssl-devel pkg-config postgresql procps readline-devel wget
+
+    # RHEL 8
+    sudo subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms
+    sudo yum install -y bison cmake file findutils flex gcc git libconfig-devel libicu-devel make openssl-devel pkg-config postgresql procps readline-devel wget
 
     # SUSE Enterprise Linux / openSUSE Linux
     zypper install -y bison cmake file findutils flex gcc git libconfig-devel libicu-devel libopenssl-devel make pkg-config postgresql procps readline-devel wget

@@ -28,7 +28,7 @@ CREATE TABLE
 [ERROR]: ERR_YOTTADB: YottaDB error: 150372994,XecuteMCode+2^xecutemcode,%YDB-E-GVUNDEF, Global variable undefined: ^%ydboctoU2tuomEAySubezrd0DoxaEI
 INSERT 0 1
 INSERT 0 1
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "user1_username_KEY" : Key (username)=(sam) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "user1_username_key" : Key (username)=(sam) already exists
 [ERROR]: ERR_NULL_COL_VALUE: NULL value in column email violates NOT NULL constraint
 id|username|email|pass
 1|sam|sam@zzz.com|catdog.33
@@ -39,7 +39,7 @@ id|username|email|pass
 xecute_m_code
 0
 (1 row)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "user1_email_KEY" : Key (email)=(sam@zzz.com) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "user1_email_key" : Key (email)=(sam@zzz.com) already exists
 ^%ydboctoU2tuomEAySubezrd0DoxaEI("bam@zzz.com")=""
 ^%ydboctoU2tuomEAySubezrd0DoxaEI("sam@zzz.com")=""
 xecute_m_code
@@ -57,8 +57,8 @@ username|VARCHAR(20)||NOT NULL|
 email|VARCHAR(100)||NOT NULL|
 pass|VARCHAR(64)||NOT NULL|
 Indexes:
-    "user1_username_KEY" UNIQUE CONSTRAINT, Column(s) (username), Global ^%ydboctoUoJMBP6gLVMGwUFSYYcKI1B
-    "user1_email_KEY" UNIQUE CONSTRAINT, Column(s) (email), Global ^%ydboctoU2tuomEAySubezrd0DoxaEI
+    "user1_username_key" UNIQUE CONSTRAINT, Column(s) (username), Global ^%ydboctoUoJMBP6gLVMGwUFSYYcKI1B
+    "user1_email_key" UNIQUE CONSTRAINT, Column(s) (email), Global ^%ydboctoU2tuomEAySubezrd0DoxaEI
 DROP TABLE
 -------------------------
 -- TCTC012 : OCTO582 : Various User Level UNIQUE Tests
@@ -261,8 +261,8 @@ id|firstnam|lastname|email
 1|a|b|a@example.com
 2|a|b|b@example.com
 (2 rows)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "user2_email_KEY" : Key (email)=(a@example.com) already exists
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "user2_email_KEY" : Key (email)=(a@example.com) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "user2_email_key" : Key (email)=(a@example.com) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "user2_email_key" : Key (email)=(a@example.com) already exists
 id|firstnam|lastname|email
 1|a|b|a@example.com
 2|a|b|b@example.com
@@ -274,8 +274,8 @@ firstnam|VARCHAR(255)||NOT NULL|
 lastname|VARCHAR(255)||NOT NULL|
 email|VARCHAR(255)||NOT NULL|
 Indexes:
-    "user2_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^%ydboctoDqjLykrTQDdq11IkWYH6WGC(id)
-    "user2_email_KEY" UNIQUE CONSTRAINT, Column(s) (email), Global ^%ydboctoU18NCO2s7YjbSa2sU8Lqq5B
+    "user2_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^%ydboctoDqjLykrTQDdq11IkWYH6WGC(id)
+    "user2_email_key" UNIQUE CONSTRAINT, Column(s) (email), Global ^%ydboctoU18NCO2s7YjbSa2sU8Lqq5B
 DROP TABLE
 -------------------------
 -- TCTC012 : OCTO582 : Various User Level UNIQUE Tests
@@ -305,8 +305,8 @@ distribution_id|address|usd_balance|details
 1|aaa|22.3355|foo
 2|aaa|22.5566|
 (2 rows)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "balances_distribution_id_address_KEY" : Key (distribution_id, address)=(1, aaa) already exists
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "balances_distribution_id_address_KEY" : Key (distribution_id, address)=(1, aaa) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "balances_distribution_id_address_key" : Key (distribution_id, address)=(1, aaa) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "balances_distribution_id_address_key" : Key (distribution_id, address)=(1, aaa) already exists
 distribution_id|address|usd_balance|details
 1|aaa|22.3355|foo
 2|aaa|22.5566|

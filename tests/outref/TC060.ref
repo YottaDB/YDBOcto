@@ -13,10 +13,10 @@ Id|INTEGER|||
 iD|INTEGER|||
 id|INTEGER|||
 Indexes:
-    "tmp_ID_KEY" UNIQUE CONSTRAINT, Column(s) ("ID"), Global ^%ydboctoU69yx9EELEL8hld12O5XJ7B
-    "tmp_Id_KEY" UNIQUE CONSTRAINT, Column(s) ("Id"), Global ^%ydboctoU618Q4xcKBEl8SPXfc5PdA4
-    "tmp_iD_KEY" UNIQUE CONSTRAINT, Column(s) ("iD"), Global ^%ydboctoUEavKPLS1petpvJ5ris36K8
-    "tmp_id_KEY" UNIQUE CONSTRAINT, Column(s) (id), Global ^%ydboctoU69yx9EELEL8hld12O5XJ7B
+    "tmp_ID_key" UNIQUE CONSTRAINT, Column(s) ("ID"), Global ^%ydboctoU69yx9EELEL8hld12O5XJ7B
+    "tmp_Id_key" UNIQUE CONSTRAINT, Column(s) ("Id"), Global ^%ydboctoU618Q4xcKBEl8SPXfc5PdA4
+    "tmp_iD_key" UNIQUE CONSTRAINT, Column(s) ("iD"), Global ^%ydboctoUEavKPLS1petpvJ5ris36K8
+    "tmp_id_key" UNIQUE CONSTRAINT, Column(s) (id), Global ^%ydboctoU69yx9EELEL8hld12O5XJ7B
 
 -- TC060 : OCTO519 : Column names differing only in case yield correct constraint names
 

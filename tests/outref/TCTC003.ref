@@ -1374,8 +1374,8 @@ LINE 108:1: ...nteger CONSTRAINT name1 CHECK (case id when 'abcd' then 2 end));
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "name2" already exists
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "name3" already exists
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "name3" already exists
-CREATE TABLE
-[ERROR]: ERR_CANNOT_CREATE_TABLE: Table or View "products" already exists
+[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "products_product_no_check" already exists
+[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "products_price_check1" already exists
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu" already exists
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu" already exists
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
@@ -1386,36 +1386,37 @@ LINE 157:1: ...toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstuv.
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_TABLE_MUST_HAVE_A_VISIBLE_COLUMN: Table "products" must have at least one visible column
 [ERROR]: ERR_TABLE_MUST_HAVE_A_VISIBLE_COLUMN: Table "products" must have at least one visible column
-[ERROR]: ERR_CANNOT_CREATE_TABLE: Table or View "products" already exists
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_check : Failing row contains (1, abcd, 5)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_check : Failing row contains (2, efgh, -1)
+CREATE TABLE
 INSERT 0 1
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_check : Failing row contains (3, NULL, -1)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_check : Failing row contains (3, NULL, -1)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_price_check : Failing row contains (2, efgh, -1)
+INSERT 0 1
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_price_check : Failing row contains (1, abcd, -1)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_price_check : Failing row contains (3, NULL, -1)
 product_no|name|price
+1|abcd|5
 3||6
-(1 row)
+(2 rows)
 DROP TABLE
 CREATE TABLE
 INSERT 0 1
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_price_CHECK1 : Failing row contains (2, efgh, 5)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_price_CHECK1 : Failing row contains (1, abcd, 5)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_price_check1 : Failing row contains (2, efgh, 5)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_price_check1 : Failing row contains (1, abcd, 5)
 product_no|name|price
 1|abcd|6
 (1 row)
 DROP TABLE
 CREATE TABLE
 INSERT 0 1
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_CHECK : Failing row contains (2, efgh)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_CHECK : Failing row contains (2, abcd)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_check : Failing row contains (2, efgh)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_check : Failing row contains (2, abcd)
 product_no|name
 3|abcd
 (1 row)
 DROP TABLE
 CREATE TABLE
 INSERT 0 1
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_CHECK1 : Failing row contains (10, efgh)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_CHECK1 : Failing row contains (10, abcd)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_check1 : Failing row contains (10, efgh)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_check1 : Failing row contains (10, abcd)
 product_no|name
 5|abcd
 (1 row)
@@ -1432,9 +1433,9 @@ product_no|name|price
 DROP TABLE
 CREATE TABLE
 INSERT 0 1
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_CHECK : Failing row contains (2, efgh, 1001)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_check : Failing row contains (2, efgh, 1001)
 INSERT 0 1
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_CHECK : Failing row contains (3, ijkl, 1001)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_check : Failing row contains (3, ijkl, 1001)
 product_no|name|price
 1|abcd|2000
 3|ijkl|
@@ -1442,7 +1443,7 @@ product_no|name|price
 DROP TABLE
 CREATE TABLE
 INSERT 0 1
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_CHECK : Failing row contains (5, efgh)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_check : Failing row contains (5, efgh)
 INSERT 0 1
 UPDATE 2
 product_no|name
@@ -1451,18 +1452,18 @@ product_no|name
 (2 rows)
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_CHECK : Failing row contains (2, Str2)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_check : Failing row contains (2, Str2)
 INSERT 0 1
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_CHECK1 : Failing row contains (10, Str10)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_name_CHECK : Failing row contains (4, Cereal)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_CHECK : Failing row contains (5, Zero)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_check1 : Failing row contains (10, Str10)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_name_check : Failing row contains (4, Cereal)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_check : Failing row contains (5, Zero)
 INSERT 0 1
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_CHECK : Failing row contains (8, Lord)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_CHECK : Failing row contains (6, Str2)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_CHECK : Failing row contains (6, Str10)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_name_CHECK : Failing row contains (6, Cereal)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_CHECK : Failing row contains (6, Zero)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_CHECK : Failing row contains (9, Lord)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_check : Failing row contains (8, Lord)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_check : Failing row contains (6, Str2)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_check : Failing row contains (6, Str10)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_name_check : Failing row contains (6, Cereal)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_check : Failing row contains (6, Zero)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_check : Failing row contains (9, Lord)
 product_no|name
 6|Joey
 9|Lord3
@@ -1485,7 +1486,7 @@ id|age
 1|12
 2|15
 (2 rows)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbl violates CHECK constraint tbl_age_CHECK : Failing row contains (1, 112)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbl violates CHECK constraint tbl_age_check : Failing row contains (1, 112)
 id|age
 1|12
 2|15
@@ -1493,11 +1494,11 @@ id|age
 DROP TABLE
 CREATE TABLE
 INSERT 0 1
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_CHECK : Failing row contains (1, Lord)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_CHECK1 : Failing row contains (15, Lord)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_CHECK : Failing row contains (8, Lord)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_name_CHECK : Failing row contains (7, Cereal)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_CHECK : Failing row contains (7, Zero)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_check : Failing row contains (1, Lord)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_check1 : Failing row contains (15, Lord)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_check : Failing row contains (8, Lord)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_name_check : Failing row contains (7, Cereal)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_check : Failing row contains (7, Zero)
 product_no|name
 3|Lord
 (1 row)
@@ -1525,7 +1526,7 @@ INSERT 0 1
 product_no|name1|name2
 3|abcd|xyz
 (1 row)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_CHECK : Failing row contains (2, mno, xyz)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_check : Failing row contains (2, mno, xyz)
 product_no|name1|name2
 3|abcd|xyz
 (1 row)
@@ -1535,7 +1536,7 @@ INSERT 0 1
 product_no|name1|name2
 3|abcd|xyz
 (1 row)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_CHECK : Failing row contains (2, abcd, xyz)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_check : Failing row contains (2, abcd, xyz)
 product_no|name1|name2
 3|abcd|xyz
 (1 row)
@@ -1545,7 +1546,7 @@ INSERT 0 1
 product_no|name1|name2
 3|abcd|xyz
 (1 row)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_CHECK : Failing row contains (2, mno, xyz)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_check : Failing row contains (2, mno, xyz)
 product_no|name1|name2
 3|abcd|xyz
 (1 row)
@@ -1599,11 +1600,11 @@ DROP TABLE
 CREATE TABLE
 INSERT 0 1
 INSERT 0 1
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_id1_CHECK : Failing row contains (2, 0, ijkl)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_id1_CHECK : Failing row contains (3, -1, ijkl)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_name_CHECK : Failing row contains (4, 2, mnop)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_id1_CHECK : Failing row contains (1, 0, abcd)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_name_CHECK : Failing row contains (1, 2, mnop)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_id1_check : Failing row contains (2, 0, ijkl)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_id1_check : Failing row contains (3, -1, ijkl)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_name_check : Failing row contains (4, 2, mnop)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_id1_check : Failing row contains (1, 0, abcd)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_name_check : Failing row contains (1, 2, mnop)
 CREATE FUNCTION
 DROP TABLE
 CREATE TABLE
@@ -1635,7 +1636,7 @@ UPDATE 1
 agency_code|product_code|distribution_channel|claim
 AA|BB|CC|No
 (1 row)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table product_details violates CHECK constraint product_details_claim_CHECK : Failing row contains (AA, BB, CC, foo)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table product_details violates CHECK constraint product_details_claim_check : Failing row contains (AA, BB, CC, foo)
 DROP TABLE
 DROP TABLE
 CREATE TABLE
@@ -1676,7 +1677,7 @@ domain_id|domain|uid|gid
 1|foo noo roo|25|25
 2|foo doo boo|23|23
 (2 rows)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table domains violates CHECK constraint domains_uid_CHECK : Failing row contains (1, foo noo roo, 250000, 25)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table domains violates CHECK constraint domains_uid_check : Failing row contains (1, foo noo roo, 250000, 25)
 DROP TABLE
 DROP TABLE
 CREATE TABLE
@@ -1694,7 +1695,7 @@ id|year|start_registration_date|end_registration_date
 1|2020|DATE|DATE
 2|2021|DATE|DATE
 (2 rows)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table course_enrollment_session violates CHECK constraint course_enrollment_session_CHECK : Failing row contains (1, 2020, DATE, DATE)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table course_enrollment_session violates CHECK constraint course_enrollment_session_check : Failing row contains (1, 2020, DATE, DATE)
 id|year|start_registration_date|end_registration_date
 1|2020|DATE|DATE
 2|2021|DATE|DATE
@@ -1779,21 +1780,21 @@ syntax error, unexpected PLUS, expecting RIGHT_PAREN
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "uniq1" already exists
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "uniq2" already exists
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "uniq3" already exists
-CREATE TABLE
+[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "abcd_id1_key" already exists
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu" already exists
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu" already exists
-[ERROR]: ERR_CANNOT_CREATE_TABLE: Table or View "abcd" already exists
-[ERROR]: ERR_CANNOT_CREATE_TABLE: Table or View "abcd" already exists
+[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "abcd_id1_key" already exists
+[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "abcd_id1_check" already exists
 CREATE TABLE
 INSERT 0 1
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id1_id2_KEY" : Key (id1, id2)=(3, 4) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id1_id2_key" : Key (id1, id2)=(3, 4) already exists
 id1|id2
 3|4
 (1 row)
 DROP TABLE
 CREATE TABLE
 INSERT 0 1
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id1_id2_KEY" : Key (id1, id2)=(abcd efgh, ijkl mnop) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id1_id2_key" : Key (id1, id2)=(abcd efgh, ijkl mnop) already exists
 id1|id2
 abcd efgh|ijkl mnop
 (1 row)
@@ -1809,7 +1810,7 @@ DROP TABLE
 CREATE TABLE
 INSERT 0 1
 INSERT 0 1
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id2_id3_KEY" : Key (id2, id3)=(2, 3) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id2_id3_key" : Key (id2, id3)=(2, 3) already exists
 INSERT 0 1
 id1|id2|id3
 1|2|3
@@ -1828,7 +1829,7 @@ id1|id2|id3
 |3|3
 |3|
 (4 rows)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id1_id3_KEY" : Key (id1, id3)=(2, 3) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id1_id3_key" : Key (id1, id3)=(2, 3) already exists
 id1|id2|id3
 1|2|3
 2|3|3
@@ -1919,7 +1920,7 @@ id1|id2
 4|4
 5|3
 (3 rows)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id1_id2_KEY" : Key (id1, id2)=(5, 3) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id1_id2_key" : Key (id1, id2)=(5, 3) already exists
 id1|id2
 3|5
 4|4
@@ -1933,7 +1934,7 @@ id1|id2
 3|2
 3|5
 (2 rows)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id1_id2_KEY" : Key (id1, id2)=(3, 4) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id1_id2_key" : Key (id1, id2)=(3, 4) already exists
 id1|id2
 3|2
 3|5
@@ -1943,9 +1944,9 @@ CREATE TABLE
 INSERT 0 1
 INSERT 0 1
 INSERT 0 1
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp violates CHECK constraint tmp_id1_CHECK : Failing row contains (1, 2, 3)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id1_id2_KEY" : Key (id1, id2)=(4, 4) already exists
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id2_id3_KEY" : Key (id2, id3)=(5, 1) already exists
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp violates CHECK constraint tmp_id1_check : Failing row contains (1, 2, 3)
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id1_id2_key" : Key (id1, id2)=(4, 4) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id2_id3_key" : Key (id2, id3)=(5, 1) already exists
 id1|id2|id3
 3|4|2
 4|3|4
@@ -2008,10 +2009,10 @@ LINE 717:1: ...E abcd (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id1, id2, id1));
 LINE 719:1: ... abcd (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id1 + id2, id1));
                                                                  ^
 syntax error, unexpected PLUS, expecting RIGHT_PAREN
+CREATE TABLE
+[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "abcd_id1_check" already exists
 [ERROR]: ERR_CANNOT_CREATE_TABLE: Table or View "abcd" already exists
-[ERROR]: ERR_CANNOT_CREATE_TABLE: Table or View "abcd" already exists
-[ERROR]: ERR_CANNOT_CREATE_TABLE: Table or View "abcd" already exists
-[ERROR]: ERR_CANNOT_CREATE_TABLE: Table or View "abcd" already exists
+[ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "abcd_id1_key" already exists
 DROP TABLE
 CREATE TABLE
 INSERT 0 2
@@ -2020,7 +2021,7 @@ DROP TABLE
 DROP TABLE
 CREATE TABLE
 INSERT 0 2
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "employees_PKEY" : Key (id)=(2) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "employees_pkey" : Key (id)=(2) already exists
 id|age
 1|22
 2|25
@@ -2028,14 +2029,14 @@ id|age
 DROP TABLE
 CREATE TABLE
 INSERT 0 1
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_PKEY" : Key (id1, id2)=(3, 4) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_pkey" : Key (id1, id2)=(3, 4) already exists
 id1|id2
 3|4
 (1 row)
 DROP TABLE
 CREATE TABLE
 INSERT 0 1
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_PKEY" : Key (id1, id2)=(abcd efgh, ijkl mnop) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_pkey" : Key (id1, id2)=(abcd efgh, ijkl mnop) already exists
 id1|id2
 abcd efgh|ijkl mnop
 (1 row)
@@ -2052,7 +2053,7 @@ DROP TABLE
 CREATE TABLE
 INSERT 0 1
 INSERT 0 1
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_PKEY" : Key (id2, id3)=(2, 3) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_pkey" : Key (id2, id3)=(2, 3) already exists
 id1|id2|id3
 1|2|3
 2|2|5
@@ -2065,7 +2066,7 @@ id1|id2|id3
 1|2|3
 2|3|3
 (2 rows)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_PKEY" : Key (id1, id3)=(2, 3) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_pkey" : Key (id1, id3)=(2, 3) already exists
 id1|id2|id3
 1|2|3
 2|3|3
@@ -2134,7 +2135,7 @@ id1|id2
 4|4
 5|3
 (3 rows)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_PKEY" : Key (id1, id2)=(5, 3) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_pkey" : Key (id1, id2)=(5, 3) already exists
 id1|id2
 3|5
 4|4
@@ -2148,7 +2149,7 @@ id1|id2
 3|2
 3|5
 (2 rows)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_PKEY" : Key (id1, id2)=(3, 4) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_pkey" : Key (id1, id2)=(3, 4) already exists
 id1|id2
 3|2
 3|5
@@ -2158,12 +2159,12 @@ CREATE TABLE
 INSERT 0 1
 INSERT 0 1
 INSERT 0 1
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp violates CHECK constraint tmp_id1_CHECK : Failing row contains (1, 2, 3)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp violates CHECK constraint tmp_id1_CHECK : Failing row contains (1, 4, 2)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_PKEY" : Key (id1, id2)=(5, 4) already exists
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id2_id3_KEY" : Key (id2, id3)=(3, 4) already exists
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_PKEY" : Key (id1, id2)=(4, 4) already exists
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id2_id3_KEY" : Key (id2, id3)=(5, 1) already exists
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp violates CHECK constraint tmp_id1_check : Failing row contains (1, 2, 3)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp violates CHECK constraint tmp_id1_check : Failing row contains (1, 4, 2)
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_pkey" : Key (id1, id2)=(5, 4) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id2_id3_key" : Key (id2, id3)=(3, 4) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_pkey" : Key (id1, id2)=(4, 4) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id2_id3_key" : Key (id2, id3)=(5, 1) already exists
 id1|id2|id3
 3|4|2
 4|3|4
@@ -2201,7 +2202,7 @@ id1|INTEGER||NOT NULL|
 id2|INTEGER|||
 id3|INTEGER|||
 Indexes:
-    "tmp5_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (id1), Global: ^%ydboctoDuf7WLU7mN4YQWVSJPMGjDJ(id1)
+    "tmp5_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id1), Global: ^%ydboctoDuf7WLU7mN4YQWVSJPMGjDJ(id1)
     "tmp_unique" UNIQUE CONSTRAINT, Column(s) (id2), Global ^%ydboctoUMunPiwys1UuqLjq7UPCoFB
 Check constraints:
     "tmp_check" CHECK ((id3 > 1))
@@ -2216,5 +2217,5 @@ syntax error, unexpected PERIOD, expecting RIGHT_PAREN
 LINE 859:1: ...able tmp (id integer CHECK ((id+'abcd')::varchar > 1::varchar));
                                                ^^^^^^
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp violates CHECK constraint tmp_CHECK : Failing row contains (1)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp violates CHECK constraint tmp_check : Failing row contains (1)
 DROP TABLE

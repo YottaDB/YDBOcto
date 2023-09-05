@@ -83,8 +83,8 @@ Joey|
 Zero|Cool
 (6 rows)
 # Verify text table definition does not keys() inserted appropriately in the GLOBAL keyword
-^%ydboctoschema("tmp1","text",0)="CREATE TABLE `tmp1` (`id` INTEGER CONSTRAINT ""tmp1_PKEY"" PRIMARY KEY, `firstname` VARCHAR PIECE 1, `lastname` VARCHAR PIECE 2) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"" READWRITE;"
-^%ydboctoschema("tmp2","text",0)="CREATE TABLE `tmp2` (`id` INTEGER CONSTRAINT ""tmp2_PKEY"" PRIMARY KEY, `firstname` VARCHAR PIECE 1, `lastname` VARCHAR PIECE 2) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("tmp1","text",0)="CREATE TABLE `tmp1` (`id` INTEGER CONSTRAINT ""tmp1_pkey"" PRIMARY KEY, `firstname` VARCHAR PIECE 1, `lastname` VARCHAR PIECE 2) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"" READWRITE;"
+^%ydboctoschema("tmp2","text",0)="CREATE TABLE `tmp2` (`id` INTEGER CONSTRAINT ""tmp2_pkey"" PRIMARY KEY, `firstname` VARCHAR PIECE 1, `lastname` VARCHAR PIECE 2) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"" READONLY;"
 ^%ydboctoschema("tmp3","text",0)="CREATE TABLE `tmp3` (`id` INTEGER) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"" READONLY;"
-^%ydboctoschema("tmp4","text",0)="CREATE TABLE `tmp4` (`id` INTEGER CONSTRAINT ""tmp4_PKEY"" PRIMARY KEY, `firstname` VARCHAR PIECE 1, `lastname` VARCHAR PIECE 2) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"" READWRITE;"
+^%ydboctoschema("tmp4","text",0)="CREATE TABLE `tmp4` (`id` INTEGER CONSTRAINT ""tmp4_pkey"" PRIMARY KEY, `firstname` VARCHAR PIECE 1, `lastname` VARCHAR PIECE 2) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"" READWRITE;"
 ^%ydboctoschema("tmp5","text",0)="CREATE TABLE `tmp5` (`firstandlastname` VARCHAR DELIM """") GLOBAL ""^names(keys(""""%yo_keycol""""))"" DELIM ""|"" READWRITE;"

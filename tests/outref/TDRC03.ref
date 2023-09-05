@@ -20,7 +20,7 @@ id6|INTEGER||NOT NULL|
 id7|INTEGER||NOT NULL|
 name|VARCHAR(20)|||
 Indexes:
-    "composite_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (id0, id1, id2, id3, id4, id5, id6, id7), Global: ^composite(id0,id1,id2,id3,id4,id5,id6,id7)
+    "composite_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id0, id1, id2, id3, id4, id5, id6, id7), Global: ^composite(id0,id1,id2,id3,id4,id5,id6,id7)
 Table "order_order_actions" stored in Global: ^OR(100,order1_id,8,order_order_actions_id) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 order1_id|INTEGER||NOT NULL|
@@ -67,4 +67,4 @@ chart_copy_printed_by|INTEGER|||
 chart_copy_printer|VARCHAR(50)|||
 admin_released_by_policy|VARCHAR(3)|||
 Indexes:
-    "order_order_actions_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (order1_id, order_order_actions_id), Global: ^OR(100,order1_id,8,order_order_actions_id)
+    "order_order_actions_pkey" PRIMARY KEY CONSTRAINT, Column(s) (order1_id, order_order_actions_id), Global: ^OR(100,order1_id,8,order_order_actions_id)

@@ -57,8 +57,8 @@ id|firstname|lastname
 CREATE TABLE
 INSERT 0 1
 INSERT 0 1
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_PKEY" : Key (id4)=(1) already exists
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_PKEY" : Key (id4)=(0) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_pkey" : Key (id4)=(1) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_pkey" : Key (id4)=(0) already exists
 DROP TABLE
 ???
 
@@ -74,7 +74,7 @@ id1
 DELETE 0
 INSERT 0 1
 INSERT 0 1
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_PKEY" : Key (id1)=(2) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_pkey" : Key (id1)=(2) already exists
 id1
 0
 6

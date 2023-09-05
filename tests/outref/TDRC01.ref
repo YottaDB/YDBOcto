@@ -91,7 +91,7 @@ id|INTEGER||NOT NULL|
 firstname|VARCHAR(30)|||
 lastname|VARCHAR(30)|||
 Indexes:
-    "names_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^names(id)
+    "names_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^names(id)
 firstname
 Zero
 Acid
@@ -102,7 +102,7 @@ id|INTEGER||NOT NULL|
 firstname|VARCHAR(30)|||
 lastname|VARCHAR(30)|||
 Indexes:
-    "names_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^names(id)
+    "names_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^names(id)
 Schema|Name|Type|Owner
 public|information_schema.tables|table|octo
 public|names|table|octo

@@ -90,7 +90,7 @@ CREATE TABLE
 [ERROR]: ERR_PLAN_NOT_GENERATED: Failed to generate physical plan
 CREATE TABLE
 INSERT 0 1
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp violates CHECK constraint tmp_lastname_CHECK : Failing row contains (abcd)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp violates CHECK constraint tmp_lastname_check : Failing row contains (abcd)
 ???
 1
 1

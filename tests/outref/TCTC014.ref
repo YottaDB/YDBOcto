@@ -1,4 +1,9 @@
 _ydboctoP*.m:;; ---------------------------------------------------------
+_ydboctoP*.m:;  INSERT INTO tmp VALUES (3, 2);
+_ydboctoP*.m:;; ---------------------------------------------------------
+_ydboctoP*.m:    . . DO:$DATA(^%ydboctoUQ8buQ87BO5l9CJk7uNqm9E(col(2)))
+_ydboctoP*.m:    . . SET ^%ydboctoUQ8buQ87BO5l9CJk7uNqm9E(col(2))=""
+_ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:;  DELETE FROM TMP;
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:    . . . . KILL ^%ydboctoUQ8buQ87BO5l9CJk7uNqm9E(col(2))
@@ -8,8 +13,3 @@ _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:    . . . . . KILL ^%ydboctoUQ8buQ87BO5l9CJk7uNqm9E(col(-2))
 _ydboctoP*.m:    . . . . . DO:$DATA(^%ydboctoUQ8buQ87BO5l9CJk7uNqm9E(col(2)))
 _ydboctoP*.m:    . . . . . SET ^%ydboctoUQ8buQ87BO5l9CJk7uNqm9E(col(2))=""
-_ydboctoP*.m:;; ---------------------------------------------------------
-_ydboctoP*.m:;  INSERT INTO tmp VALUES (3, 2);
-_ydboctoP*.m:;; ---------------------------------------------------------
-_ydboctoP*.m:    . . DO:$DATA(^%ydboctoUQ8buQ87BO5l9CJk7uNqm9E(col(2)))
-_ydboctoP*.m:    . . SET ^%ydboctoUQ8buQ87BO5l9CJk7uNqm9E(col(2))=""

@@ -66,9 +66,9 @@ id|firstname
 2|second|2
 (1 row)
 # Verify generated plans (including xref plans) do not have $PIECE for FIRSTNAME column
-_ydboctoP*.m:    . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"names1","id"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
 _ydboctoP*.m:    . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"names2","id"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"names1","id"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
 # Verify text table definition does not have PIECE specified for FIRSTNAME column
-^%ydboctoschema("names1","text",0)="CREATE TABLE `names1` (`id` INTEGER CONSTRAINT ""names1_PKEY"" PRIMARY KEY, `firstname` VARCHAR(30) DELIM """", `lastname` VARCHAR(30) PIECE 2) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"" READONLY;"
-^%ydboctoschema("names2","text",0)="CREATE TABLE `names2` (`id` INTEGER CONSTRAINT ""names2_PKEY"" PRIMARY KEY, `firstname` VARCHAR(30) DELIM """", `lastname` VARCHAR(30) PIECE 2) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"" READONLY;"
-^%ydboctoschema("names3","text",0)="CREATE TABLE `names3` (`id` INTEGER CONSTRAINT ""names3_PKEY"" PRIMARY KEY, `firstname` VARCHAR DELIM """") GLOBAL ""^names3(keys(""""id""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("names1","text",0)="CREATE TABLE `names1` (`id` INTEGER CONSTRAINT ""names1_pkey"" PRIMARY KEY, `firstname` VARCHAR(30) DELIM """", `lastname` VARCHAR(30) PIECE 2) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("names2","text",0)="CREATE TABLE `names2` (`id` INTEGER CONSTRAINT ""names2_pkey"" PRIMARY KEY, `firstname` VARCHAR(30) DELIM """", `lastname` VARCHAR(30) PIECE 2) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("names3","text",0)="CREATE TABLE `names3` (`id` INTEGER CONSTRAINT ""names3_pkey"" PRIMARY KEY, `firstname` VARCHAR DELIM """") GLOBAL ""^names3(keys(""""id""""))"" DELIM ""|"" READONLY;"

@@ -343,12 +343,12 @@ LINE 115:1: INSERT INTO abcd VALUES (1);
 ???
 -- Test of ERR_DUPLICATE_KEY_VALUE on names database
 (1 row)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "names_PKEY" : Key (id)=(4) already exists
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "names_PKEY" : Key (id)=(3) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "names_pkey" : Key (id)=(4) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "names_pkey" : Key (id)=(3) already exists
 ???
 -- Test of ERR_DUPLICATE_KEY_VALUE on composite database
 (1 row)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "composite_PKEY" : Key (id0, id1, id2, id3, id4, id5, id6, id7)=(1, 2, 3, 4, 5, 6, 8, 7) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "composite_pkey" : Key (id0, id1, id2, id3, id4, id5, id6, id7)=(1, 2, 3, 4, 5, 6, 8, 7) already exists
 ???
 -- Test of ERR_NULL_COL_VALUE on names database where ID column is explicitly specified as NULL
 (1 row)

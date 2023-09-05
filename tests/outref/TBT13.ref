@@ -350,59 +350,59 @@ LINE 56:1: insert into TBT13 values (1);
                        ^^^^^
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tbt13" as it does not exist
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_CHECK : Failing row contains (1)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (1)
 Table "tbt13" stored in Global: ^%ydboctoDs1WfLXUI15XKQwwTJhPLEG : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id|INTEGER|||
 Check constraints:
-    "tbt13_CHECK" CHECK (FALSE)
+    "tbt13_check" CHECK (FALSE)
 id
 (0 rows)
 DROP TABLE
 CREATE TABLE
 INSERT 0 1
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_id_CHECK : Failing row contains (b)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_id_check : Failing row contains (b)
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_CHECK : Failing row contains (4)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (4)
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_CHECK : Failing row contains (5)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (5)
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_CHECK : Failing row contains (11)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (11)
 Table "tbt13" stored in Global: ^%ydboctoDs1WfLXUI15XKQwwTJhPLEG : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id|INTEGER|||
 Check constraints:
-    "tbt13_CHECK" CHECK ((TRUE IN (FALSE, FALSE)))
+    "tbt13_check" CHECK ((TRUE IN (FALSE, FALSE)))
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_CHECK : Failing row contains (12)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (12)
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_CHECK : Failing row contains (4)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (4)
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_CHECK : Failing row contains (1)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (1)
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_CHECK : Failing row contains (1)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (1)
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_CHECK : Failing row contains (1)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (1)
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_CHECK : Failing row contains (1)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (1)
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_CHECK : Failing row contains (1)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (1)
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_CHECK : Failing row contains (1)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (1)
 DROP TABLE
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_CHECK : Failing row contains (1)
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (1)
 DROP TABLE
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function fn defined with given parameter types (VARCHAR, VARCHAR)
 LINE 119:1: create table TBT13 (id varchar, check (fn(id, 'f')));
@@ -419,7 +419,7 @@ Table "tbt13" stored in Global: ^%ydboctoDs1WfLXUI15XKQwwTJhPLEG : Type = READWR
 Column|Type|Collation|Nullable|Default
 id|INTEGER|||
 Check constraints:
-    "tbt13_CHECK" CHECK ((TRUE IN (TRUE, FALSE)))
+    "tbt13_check" CHECK ((TRUE IN (TRUE, FALSE)))
 INSERT 0 1
 id
 3

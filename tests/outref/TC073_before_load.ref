@@ -7,4 +7,4 @@ Table "tbl" stored in Global: ^%ydboctoD8DOa3WW9naMa37ptmpvi2E : Type = READWRIT
 Column|Type|Collation|Nullable|Default
 id|INTEGER|||
 Check constraints:
-    "tbl_id_CHECK" CHECK ((abs(id) < 5))
+    "tbl_id_check" CHECK ((abs(id) < 5))

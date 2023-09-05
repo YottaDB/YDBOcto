@@ -205,7 +205,7 @@ teardown() {
 	# In that case, which constraint gets reported as being violated first could differ between Postgres and Octo.
 	# Additionally, constraint names and select column list output differs in case (lower case vs upper case) so
 	# that is also taken care of below. Hence the complicated sed expression below.
-	sed 's/^psql.*new row for relation/\[ERROR\]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table/;s/^psql.*duplicate key value violates unique constraint.*/\[ERROR\]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint/;s/\"tmp\"/tmp/;s/\"tmp\([a-z_0-9]*\)\(check[0-9]*\)\"/tmp\1\U\2\E/;s/check constraint/CHECK constraint/;s/^DETAIL:  //;/NOTICE/d;/^Key /d;/^Failing row contains/d' psql.out > psql.out.xform
+	sed 's/^psql.*new row for relation/\[ERROR\]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table/;s/^psql.*duplicate key value violates unique constraint.*/\[ERROR\]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint/;s/\"tmp\"/tmp/;s/\"tmp\([a-z_0-9]*\)\(check[0-9]*\)\"/tmp\1\2/;s/check constraint/CHECK constraint/;s/^DETAIL:  //;/NOTICE/d;/^Key /d;/^Failing row contains/d' psql.out > psql.out.xform
 	sed 's/ : \(Failing.*\)//;s/ : \(Key .*\)//;/WARN/d;s/\(Duplicate Key Value violates UNIQUE constraint\).*/\1/;' octo.out > octo.out.xform
 	echo "# Running [diff psql.out.xform octo.out.xform]. Expect no output below." >> output.txt
 	diff psql.out.xform octo.out.xform >> output.txt || true

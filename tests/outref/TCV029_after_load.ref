@@ -924,8 +924,8 @@ id|name|value
 1|first|1.2
 2|second|2.2
 (2 rows)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp80 violates CHECK constraint tmp80_value_CHECK : Failing row contains (3, third, 0)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp80_id_KEY" : Key (id)=(2) already exists
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp80 violates CHECK constraint tmp80_value_check : Failing row contains (3, third, 0)
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp80_id_key" : Key (id)=(2) already exists
 [ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "tmp81" because view "v81" depends on it
 id|name|value
 1|first|1.2
@@ -937,8 +937,8 @@ id
 1
 2
 (2 rows)
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp82 violates CHECK constraint tmp82_id_CHECK : Failing row contains (0)
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp82_id_KEY" : Key (id)=(1) already exists
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp82 violates CHECK constraint tmp82_id_check : Failing row contains (0)
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp82_id_key" : Key (id)=(1) already exists
 [ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "tmp83" because view "v83" depends on it
 id
 1

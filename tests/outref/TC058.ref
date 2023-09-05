@@ -35,20 +35,20 @@ Column|Type|Collation|Nullable|Default
 col Tmp|INTEGER|||
 col TMP|INTEGER|||
 Check constraints:
-    "id ABcd_col Tmp_CHECK" CHECK (("col Tmp" > 2))
-    "id ABcd_col TMP_CHECK" CHECK (("col TMP" > 2))
+    "id ABcd_col Tmp_check" CHECK (("col Tmp" > 2))
+    "id ABcd_col TMP_check" CHECK (("col TMP" > 2))
 CREATE TABLE
 CREATE TABLE
 Table "T" stored in Global: ^%ydboctoD2Z07aRHRvjuY8EuqHV12C5(id) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id|INTEGER||NOT NULL|
 Indexes:
-    "T_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^%ydboctoD2Z07aRHRvjuY8EuqHV12C5(id)
+    "T_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^%ydboctoD2Z07aRHRvjuY8EuqHV12C5(id)
 Table "t" stored in Global: ^%ydboctoD8oRR7qRYjLs241efCry582(id) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id|INTEGER||NOT NULL|
 Indexes:
-    "t_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^%ydboctoD8oRR7qRYjLs241efCry582(id)
+    "t_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^%ydboctoD8oRR7qRYjLs241efCry582(id)
 CREATE TABLE
 CREATE TABLE
 CREATE TABLE
@@ -57,7 +57,7 @@ Column|Type|Collation|Nullable|Default
 id 1|INTEGER|||
 id 2|INTEGER|||
 Indexes:
-    "tmp_id 2_id 1_KEY" UNIQUE CONSTRAINT, Column(s) ("id 2", "id 1"), Global ^%ydboctoU3veJdiCY8Gh2JhmSeVZQ64
+    "tmp_id 2_id 1_key" UNIQUE CONSTRAINT, Column(s) ("id 2", "id 1"), Global ^%ydboctoU3veJdiCY8Gh2JhmSeVZQ64
 Check constraints:
     "c 3" CHECK (("id 1" < "id 2"))
 Table "tmp2" stored in Global: ^%ydboctoDdnfDUx4izkPZ9mCvyX36IJ : Type = READWRITE
@@ -65,7 +65,7 @@ Column|Type|Collation|Nullable|Default
 id1|INTEGER|||
 id2|INTEGER|||
 Indexes:
-    "tmp2_id2_id1_KEY" UNIQUE CONSTRAINT, Column(s) (id2, id1), Global ^%ydboctoUwGtRZZgkvtnMZZl0zONUAK
+    "tmp2_id2_id1_key" UNIQUE CONSTRAINT, Column(s) (id2, id1), Global ^%ydboctoUwGtRZZgkvtnMZZl0zONUAK
 Check constraints:
     "c3" CHECK ((id1 < id2))
 Table "tmp3" stored in Global: ^%ydboctoDWjzymDOCs5muUPMLP01DL6 : Type = READWRITE

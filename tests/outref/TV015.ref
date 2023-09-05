@@ -90,7 +90,7 @@ LP_INSERT_INTO:
               - xref_key: false
               - uses_xref_key: false
       LP_CONSTRAINT: 
-        LP_UNIQUE_CONSTRAINT: names_PKEY
+        LP_UNIQUE_CONSTRAINT: names_pkey
           LP_COLUMN_LIST: 
             LP_VALUE: 'id'
 
@@ -229,7 +229,7 @@ LP_INSERT_INTO:
               - xref_key: false
               - uses_xref_key: false
       LP_CONSTRAINT: 
-        LP_UNIQUE_CONSTRAINT: names_PKEY
+        LP_UNIQUE_CONSTRAINT: names_pkey
           LP_COLUMN_LIST: 
             LP_VALUE: 'id'
 

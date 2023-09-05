@@ -834,6 +834,18 @@ else
 		# Re-enable "set -e" now that "git merge-base" invocation is done.
 		set -e
 
+		# Note down if older commit is prior to YDBOcto#929 fix
+		# This will be used later to skip a few tests.
+		pre_octo929_commit="e254b1483b4915e16f912203d3cec5d9264b0b06" # 1 commit before YDBOcto#929
+		# The constraint name varies because of quoted identifiers introduction by YDBOcto#519 and then further changes to
+		# it by YDBOcto#929. Note down if the commit comes prior to YDBOcto#929 fix such that the case variation can be ignored in TAU001 subtest.
+		# Disable the "set -e" setting temporarily as the "git merge-base" can return exit status 0 or 1
+		set +e
+		git merge-base --is-ancestor $commitsha $pre_octo929_commit
+		is_post_octo929_commit=$?
+		# Re-enable "set -e" now that "git merge-base" invocation is done.
+		set -e
+
 		# When ydb_chset=UTF-8 is randomly chosen by the test framework, replaying the TLL* subtests in the
 		# test_long_lines test requires more stack space than the default of 8Mb. "tests/test_long_lines.bats.in"
 		# already has code in the "setup()" function to take this into account. Duplicate that logic here so
@@ -891,10 +903,14 @@ else
 				# (e.g. an error message format might be different etc.) and we want to use the latest version.
 				# Hence the use of "cp -f" below.
 				cp -f ../../tests/outref/${subtestName}_2.ref .
+				mv output.txt output.txt.orig
+				if [[ ($subtest =~ ^"TAU001") && (0 == $is_post_octo929_commit) ]]; then
+					mv output.txt.orig output.txt.orig1
+					sed 's/ constraint \(.*\) / constraint \L\1\E /' output.txt.orig1 >& output.txt.orig
+				fi
 				# Additionally, as part of YDBOcto#929, we execute a lot of queries during auto upgrade so
 				# it is possible to see DBFILEXT messages in the syslog (which will show up in stderr when
 				# run in the pipeline under docker) so filter those out before the diff.
-				mv output.txt output.txt.orig
 				grep -v DBFILEXT output.txt.orig > output.txt
 				diff ${subtestName}_2.ref output.txt > ${subtestName}_2_output.diff
 				set -e

@@ -76,14 +76,14 @@ is_insertable_into|VARCHAR|||
 is_typed|VARCHAR|||
 commit_action|VARCHAR|||
 Indexes:
-    "information_schema.tables_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","information_schema","tables",oid)
+    "information_schema.tables_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","information_schema","tables",oid)
 Table "names" stored in Global: ^names(id) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id|INTEGER||NOT NULL|
 firstname|VARCHAR(30)|||
 lastname|VARCHAR(30)|||
 Indexes:
-    "names_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^names(id)
+    "names_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^names(id)
 Table "nameswithages" stored in Global: ^names(id) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 id|INTEGER||NOT NULL|
@@ -92,12 +92,12 @@ lastname|VARCHAR(30)|||
 age|INTEGER|||
 datetime|VARCHAR(10)|||
 Indexes:
-    "nameswithages_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^names(id)
+    "nameswithages_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^names(id)
 Table "octoonerowtable" stored in Global: ^%ydboctoocto("tables","octoOneRow",id) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 id|INTEGER||NOT NULL|
 Indexes:
-    "octoonerowtable_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^%ydboctoocto("tables","octoOneRow",id)
+    "octoonerowtable_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^%ydboctoocto("tables","octoOneRow",id)
 Table "pg_aggregate" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_aggregate",aggfnoid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 aggfnoid|INTEGER||NOT NULL|
@@ -123,7 +123,7 @@ aggmtransspace|INTEGER||NOT NULL|
 agginitval|VARCHAR|||
 aggminitval|VARCHAR|||
 Indexes:
-    "pg_aggregate_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (aggfnoid), Global: ^%ydboctoocto("tables","pg_catalog","pg_aggregate",aggfnoid)
+    "pg_aggregate_pkey" PRIMARY KEY CONSTRAINT, Column(s) (aggfnoid), Global: ^%ydboctoocto("tables","pg_catalog","pg_aggregate",aggfnoid)
 Table "pg_am" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_am",oid : Type = READONLY
 Column|Type|Collation|Nullable|Default
 amname|VARCHAR|||
@@ -131,7 +131,7 @@ amhandler|VARCHAR|||
 amtype|VARCHAR|||
 oid|INTEGER||NOT NULL|
 Indexes:
-    "pg_am_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_am",oid
+    "pg_am_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_am",oid
 Table "pg_attrdef" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_attrdef",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 adrelid|INTEGER|||
@@ -140,7 +140,7 @@ adbin|VARCHAR|||
 adsrc|VARCHAR|||
 oid|INTEGER||NOT NULL|
 Indexes:
-    "pg_attrdef_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_attrdef",oid)
+    "pg_attrdef_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_attrdef",oid)
 Table "pg_attribute" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_attribute",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 attrelid|INTEGER|||
@@ -170,7 +170,7 @@ attfdwoptions|VARCHAR|||
 attmissingval|VARCHAR|||
 oid|INTEGER||NOT NULL|
 Indexes:
-    "pg_attribute_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_attribute",oid)
+    "pg_attribute_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_attribute",oid)
 Table "pg_catalog.pg_aggregate" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_aggregate",aggfnoid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 aggfnoid|INTEGER||NOT NULL|
@@ -196,7 +196,7 @@ aggmtransspace|INTEGER||NOT NULL|
 agginitval|VARCHAR|||
 aggminitval|VARCHAR|||
 Indexes:
-    "pg_catalog.pg_aggregate_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (aggfnoid), Global: ^%ydboctoocto("tables","pg_catalog","pg_aggregate",aggfnoid)
+    "pg_catalog.pg_aggregate_pkey" PRIMARY KEY CONSTRAINT, Column(s) (aggfnoid), Global: ^%ydboctoocto("tables","pg_catalog","pg_aggregate",aggfnoid)
 Table "pg_catalog.pg_am" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_am",oid : Type = READONLY
 Column|Type|Collation|Nullable|Default
 amname|VARCHAR|||
@@ -204,7 +204,7 @@ amhandler|VARCHAR|||
 amtype|VARCHAR|||
 oid|INTEGER||NOT NULL|
 Indexes:
-    "pg_catalog.pg_am_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_am",oid
+    "pg_catalog.pg_am_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_am",oid
 Table "pg_catalog.pg_attrdef" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_attrdef",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 adrelid|INTEGER|||
@@ -213,7 +213,7 @@ adbin|VARCHAR|||
 adsrc|VARCHAR|||
 oid|INTEGER||NOT NULL|
 Indexes:
-    "pg_catalog.pg_attrdef_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_attrdef",oid)
+    "pg_catalog.pg_attrdef_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_attrdef",oid)
 Table "pg_catalog.pg_attribute" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_attribute",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 attrelid|INTEGER|||
@@ -243,7 +243,7 @@ attfdwoptions|VARCHAR|||
 attmissingval|VARCHAR|||
 oid|INTEGER||NOT NULL|
 Indexes:
-    "pg_catalog.pg_attribute_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_attribute",oid)
+    "pg_catalog.pg_attribute_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_attribute",oid)
 Table "pg_catalog.pg_class" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_class",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 relname|VARCHAR|||
@@ -281,7 +281,7 @@ reloptions|VARCHAR|||
 relpartbound|VARCHAR|||
 oid|INTEGER||NOT NULL|
 Indexes:
-    "pg_catalog.pg_class_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_class",oid)
+    "pg_catalog.pg_class_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_class",oid)
 Table "pg_catalog.pg_constraint" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_constraint",oid : Type = READONLY
 Column|Type|Collation|Nullable|Default
 conname|VARCHAR|||
@@ -310,7 +310,7 @@ conbin|VARCHAR|||
 consrc|VARCHAR|||
 oid|INTEGER||NOT NULL|
 Indexes:
-    "pg_catalog.pg_constraint_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_constraint",oid
+    "pg_catalog.pg_constraint_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_constraint",oid
 Table "pg_catalog.pg_conversion" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_conversion",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 oid|INTEGER||NOT NULL|
@@ -322,7 +322,7 @@ contoencoding|INTEGER||NOT NULL|
 conproc|VARCHAR||NOT NULL|
 condefault|BOOLEAN||NOT NULL|
 Indexes:
-    "pg_catalog.pg_conversion_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_conversion",oid)
+    "pg_catalog.pg_conversion_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_conversion",oid)
 Table "pg_catalog.pg_database" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_database",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 datname|VARCHAR|||
@@ -340,7 +340,7 @@ dattablespace|INTEGER|||
 datacl|INTEGER|||
 oid|INTEGER||NOT NULL|
 Indexes:
-    "pg_catalog.pg_database_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_database",oid)
+    "pg_catalog.pg_database_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_database",oid)
 Table "pg_catalog.pg_depend" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_depend",classid,objid,objsubid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 classid|INTEGER||NOT NULL|
@@ -351,7 +351,7 @@ refobjid|INTEGER||NOT NULL|
 refobjsubid|INTEGER||NOT NULL|
 deptype|VARCHAR||NOT NULL|
 Indexes:
-    "pg_catalog.pg_depend_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (classid, objid, objsubid), Global: ^%ydboctoocto("tables","pg_catalog","pg_depend",classid,objid,objsubid)
+    "pg_catalog.pg_depend_pkey" PRIMARY KEY CONSTRAINT, Column(s) (classid, objid, objsubid), Global: ^%ydboctoocto("tables","pg_catalog","pg_depend",classid,objid,objsubid)
 Table "pg_catalog.pg_description" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_description",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 objoid|INTEGER|||
@@ -360,7 +360,7 @@ objsubid|INTEGER|||
 description|VARCHAR|||
 oid|INTEGER||NOT NULL|
 Indexes:
-    "pg_catalog.pg_description_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_description",oid)
+    "pg_catalog.pg_description_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_description",oid)
 Table "pg_catalog.pg_enum" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_enum",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 enumtypid|INTEGER|||
@@ -368,7 +368,7 @@ enumsortorder|NUMERIC|||
 enumlabel|VARCHAR|||
 oid|INTEGER||NOT NULL|
 Indexes:
-    "pg_catalog.pg_enum_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_enum",oid)
+    "pg_catalog.pg_enum_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_enum",oid)
 Table "pg_catalog.pg_index" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_index",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 indexrelid|INTEGER|||
@@ -392,14 +392,14 @@ indexprs|VARCHAR|||
 indpred|VARCHAR|||
 oid|INTEGER||NOT NULL|
 Indexes:
-    "pg_catalog.pg_index_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_index",oid)
+    "pg_catalog.pg_index_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_index",oid)
 Table "pg_catalog.pg_inherits" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_inherits",inhrelid,inhseqno) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 inhrelid|INTEGER||NOT NULL|
 inhparent|INTEGER|||
 inhseqno|INTEGER||NOT NULL|
 Indexes:
-    "pg_catalog.pg_inherits_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (inhrelid, inhseqno), Global: ^%ydboctoocto("tables","pg_catalog","pg_inherits",inhrelid,inhseqno)
+    "pg_catalog.pg_inherits_pkey" PRIMARY KEY CONSTRAINT, Column(s) (inhrelid, inhseqno), Global: ^%ydboctoocto("tables","pg_catalog","pg_inherits",inhrelid,inhseqno)
 Table "pg_catalog.pg_language" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_language",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 oid|INTEGER||NOT NULL|
@@ -412,7 +412,7 @@ laninline|INTEGER||NOT NULL|
 lanvalidator|INTEGER||NOT NULL|
 lanacl|VARCHAR|||
 Indexes:
-    "pg_catalog.pg_language_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_language",oid)
+    "pg_catalog.pg_language_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_language",oid)
 Table "pg_catalog.pg_namespace" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_namespace",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 nspname|VARCHAR|||
@@ -420,7 +420,7 @@ nspowner|INTEGER|||
 nspacl|VARCHAR|||
 oid|INTEGER||NOT NULL|
 Indexes:
-    "pg_catalog.pg_namespace_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_namespace",oid)
+    "pg_catalog.pg_namespace_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_namespace",oid)
 Table "pg_catalog.pg_policies" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_policies",schemaname,tablename) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 schemaname|VARCHAR||NOT NULL|
@@ -432,7 +432,7 @@ cmd|VARCHAR|||
 qual|VARCHAR|||
 with_check|VARCHAR|||
 Indexes:
-    "pg_catalog.pg_policies_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (schemaname, tablename), Global: ^%ydboctoocto("tables","pg_catalog","pg_policies",schemaname,tablename)
+    "pg_catalog.pg_policies_pkey" PRIMARY KEY CONSTRAINT, Column(s) (schemaname, tablename), Global: ^%ydboctoocto("tables","pg_catalog","pg_policies",schemaname,tablename)
 Table "pg_catalog.pg_proc" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_proc",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 proname|VARCHAR|||
@@ -465,7 +465,7 @@ proconfig|VARCHAR|||
 proacl|VARCHAR|||
 oid|INTEGER||NOT NULL|
 Indexes:
-    "pg_catalog.pg_proc_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_proc",oid)
+    "pg_catalog.pg_proc_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_proc",oid)
 Table "pg_catalog.pg_range" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_range",rngtypid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 rngsubtype|INTEGER|||
@@ -475,7 +475,7 @@ rngcanonical|INTEGER|||
 rngsubdiff|INTEGER|||
 rngtypid|INTEGER||NOT NULL|
 Indexes:
-    "pg_catalog.pg_range_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (rngtypid), Global: ^%ydboctoocto("tables","pg_catalog","pg_range",rngtypid)
+    "pg_catalog.pg_range_pkey" PRIMARY KEY CONSTRAINT, Column(s) (rngtypid), Global: ^%ydboctoocto("tables","pg_catalog","pg_range",rngtypid)
 Table "pg_catalog.pg_rewrite" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_rewrite",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 oid|INTEGER||NOT NULL|
@@ -487,7 +487,7 @@ is_instead|BOOLEAN||NOT NULL|
 ev_qual|VARCHAR||NOT NULL|
 ev_action|VARCHAR||NOT NULL|
 Indexes:
-    "pg_catalog.pg_rewrite_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_rewrite",oid)
+    "pg_catalog.pg_rewrite_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_rewrite",oid)
 Table "pg_catalog.pg_roles" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_roles",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 rolname|VARCHAR|||
@@ -504,7 +504,7 @@ rolbypassrls|BOOLEAN|||
 rolconfig|VARCHAR|||
 oid|INTEGER||NOT NULL|
 Indexes:
-    "pg_catalog.pg_roles_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_roles",oid)
+    "pg_catalog.pg_roles_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_roles",oid)
 Table "pg_catalog.pg_settings" stored in Global: %ydboctoocto("settings","pg_settings",name) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 name|VARCHAR||NOT NULL|
@@ -524,7 +524,7 @@ sourcefile|VARCHAR|||
 sourceline|INTEGER|||
 pending_restart|BOOLEAN|||
 Indexes:
-    "pg_catalog.pg_settings_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (name), Global: %ydboctoocto("settings","pg_settings",name)
+    "pg_catalog.pg_settings_pkey" PRIMARY KEY CONSTRAINT, Column(s) (name), Global: %ydboctoocto("settings","pg_settings",name)
 Table "pg_catalog.pg_shdescription" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_shdescription",objoid,classoid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 objoid|INTEGER||NOT NULL|
@@ -532,7 +532,7 @@ classoid|INTEGER||NOT NULL|
 description|VARCHAR|||
 spcoptions|VARCHAR|||
 Indexes:
-    "pg_catalog.pg_shdescription_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (objoid, classoid), Global: ^%ydboctoocto("tables","pg_catalog","pg_shdescription",objoid,classoid)
+    "pg_catalog.pg_shdescription_pkey" PRIMARY KEY CONSTRAINT, Column(s) (objoid, classoid), Global: ^%ydboctoocto("tables","pg_catalog","pg_shdescription",objoid,classoid)
 Table "pg_catalog.pg_tablespace" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_tablespace",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 oid|INTEGER||NOT NULL|
@@ -541,7 +541,7 @@ spcowner|INTEGER|||
 spcacl|VARCHAR|||
 spcoptions|VARCHAR|||
 Indexes:
-    "pg_catalog.pg_tablespace_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_tablespace",oid)
+    "pg_catalog.pg_tablespace_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_tablespace",oid)
 Table "pg_catalog.pg_trigger" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_trigger",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 oid|INTEGER||NOT NULL|
@@ -563,7 +563,7 @@ tgqual|VARCHAR|||
 tgoldtable|VARCHAR|||
 tgnewtable|VARCHAR|||
 Indexes:
-    "pg_catalog.pg_trigger_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_trigger",oid)
+    "pg_catalog.pg_trigger_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_trigger",oid)
 Table "pg_catalog.pg_type" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_type",typname) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 typname|VARCHAR(25)||NOT NULL|
@@ -598,7 +598,7 @@ typdefault|VARCHAR(25)|||
 typacl|VARCHAR(25)|||
 oid|INTEGER|||
 Indexes:
-    "pg_catalog.pg_type_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (typname), Global: ^%ydboctoocto("tables","pg_catalog","pg_type",typname)
+    "pg_catalog.pg_type_pkey" PRIMARY KEY CONSTRAINT, Column(s) (typname), Global: ^%ydboctoocto("tables","pg_catalog","pg_type",typname)
 Table "pg_catalog.pg_user" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_user",usersysid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 usename|VARCHAR|||
@@ -611,7 +611,7 @@ passwd|VARCHAR|||
 valuntil|VARCHAR|||
 userconfig|VARCHAR|||
 Indexes:
-    "pg_catalog.pg_user_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (usersysid), Global: ^%ydboctoocto("tables","pg_catalog","pg_user",usersysid)
+    "pg_catalog.pg_user_pkey" PRIMARY KEY CONSTRAINT, Column(s) (usersysid), Global: ^%ydboctoocto("tables","pg_catalog","pg_user",usersysid)
 Table "pg_class" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_class",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 relname|VARCHAR|||
@@ -649,7 +649,7 @@ reloptions|VARCHAR|||
 relpartbound|VARCHAR|||
 oid|INTEGER||NOT NULL|
 Indexes:
-    "pg_class_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_class",oid)
+    "pg_class_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_class",oid)
 Table "pg_constraint" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_constraint",oid : Type = READONLY
 Column|Type|Collation|Nullable|Default
 conname|VARCHAR|||
@@ -678,7 +678,7 @@ conbin|VARCHAR|||
 consrc|VARCHAR|||
 oid|INTEGER||NOT NULL|
 Indexes:
-    "pg_constraint_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_constraint",oid
+    "pg_constraint_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_constraint",oid
 Table "pg_conversion" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_conversion",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 oid|INTEGER||NOT NULL|
@@ -690,7 +690,7 @@ contoencoding|INTEGER||NOT NULL|
 conproc|VARCHAR||NOT NULL|
 condefault|BOOLEAN||NOT NULL|
 Indexes:
-    "pg_conversion_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_conversion",oid)
+    "pg_conversion_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_conversion",oid)
 Table "pg_database" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_database",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 datname|VARCHAR|||
@@ -708,7 +708,7 @@ dattablespace|INTEGER|||
 datacl|INTEGER|||
 oid|INTEGER||NOT NULL|
 Indexes:
-    "pg_database_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_database",oid)
+    "pg_database_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_database",oid)
 Table "pg_depend" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_depend",classid,objid,objsubid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 classid|INTEGER||NOT NULL|
@@ -719,7 +719,7 @@ refobjid|INTEGER||NOT NULL|
 refobjsubid|INTEGER||NOT NULL|
 deptype|VARCHAR||NOT NULL|
 Indexes:
-    "pg_depend_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (classid, objid, objsubid), Global: ^%ydboctoocto("tables","pg_catalog","pg_depend",classid,objid,objsubid)
+    "pg_depend_pkey" PRIMARY KEY CONSTRAINT, Column(s) (classid, objid, objsubid), Global: ^%ydboctoocto("tables","pg_catalog","pg_depend",classid,objid,objsubid)
 Table "pg_description" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_description",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 objoid|INTEGER|||
@@ -728,7 +728,7 @@ objsubid|INTEGER|||
 description|VARCHAR|||
 oid|INTEGER||NOT NULL|
 Indexes:
-    "pg_description_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_description",oid)
+    "pg_description_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_description",oid)
 Table "pg_enum" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_enum",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 enumtypid|INTEGER|||
@@ -736,7 +736,7 @@ enumsortorder|NUMERIC|||
 enumlabel|VARCHAR|||
 oid|INTEGER||NOT NULL|
 Indexes:
-    "pg_enum_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_enum",oid)
+    "pg_enum_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_enum",oid)
 Table "pg_index" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_index",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 indexrelid|INTEGER|||
@@ -760,14 +760,14 @@ indexprs|VARCHAR|||
 indpred|VARCHAR|||
 oid|INTEGER||NOT NULL|
 Indexes:
-    "pg_index_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_index",oid)
+    "pg_index_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_index",oid)
 Table "pg_inherits" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_inherits",inhrelid,inhseqno) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 inhrelid|INTEGER||NOT NULL|
 inhparent|INTEGER|||
 inhseqno|INTEGER||NOT NULL|
 Indexes:
-    "pg_inherits_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (inhrelid, inhseqno), Global: ^%ydboctoocto("tables","pg_catalog","pg_inherits",inhrelid,inhseqno)
+    "pg_inherits_pkey" PRIMARY KEY CONSTRAINT, Column(s) (inhrelid, inhseqno), Global: ^%ydboctoocto("tables","pg_catalog","pg_inherits",inhrelid,inhseqno)
 Table "pg_language" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_language",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 oid|INTEGER||NOT NULL|
@@ -780,7 +780,7 @@ laninline|INTEGER||NOT NULL|
 lanvalidator|INTEGER||NOT NULL|
 lanacl|VARCHAR|||
 Indexes:
-    "pg_language_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_language",oid)
+    "pg_language_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_language",oid)
 Table "pg_namespace" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_namespace",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 nspname|VARCHAR|||
@@ -788,7 +788,7 @@ nspowner|INTEGER|||
 nspacl|VARCHAR|||
 oid|INTEGER||NOT NULL|
 Indexes:
-    "pg_namespace_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_namespace",oid)
+    "pg_namespace_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_namespace",oid)
 Table "pg_policies" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_policies",schemaname,tablename) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 schemaname|VARCHAR||NOT NULL|
@@ -800,7 +800,7 @@ cmd|VARCHAR|||
 qual|VARCHAR|||
 with_check|VARCHAR|||
 Indexes:
-    "pg_policies_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (schemaname, tablename), Global: ^%ydboctoocto("tables","pg_catalog","pg_policies",schemaname,tablename)
+    "pg_policies_pkey" PRIMARY KEY CONSTRAINT, Column(s) (schemaname, tablename), Global: ^%ydboctoocto("tables","pg_catalog","pg_policies",schemaname,tablename)
 Table "pg_proc" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_proc",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 proname|VARCHAR|||
@@ -833,7 +833,7 @@ proconfig|VARCHAR|||
 proacl|VARCHAR|||
 oid|INTEGER||NOT NULL|
 Indexes:
-    "pg_proc_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_proc",oid)
+    "pg_proc_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_proc",oid)
 Table "pg_range" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_range",rngtypid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 rngsubtype|INTEGER|||
@@ -843,7 +843,7 @@ rngcanonical|INTEGER|||
 rngsubdiff|INTEGER|||
 rngtypid|INTEGER||NOT NULL|
 Indexes:
-    "pg_range_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (rngtypid), Global: ^%ydboctoocto("tables","pg_catalog","pg_range",rngtypid)
+    "pg_range_pkey" PRIMARY KEY CONSTRAINT, Column(s) (rngtypid), Global: ^%ydboctoocto("tables","pg_catalog","pg_range",rngtypid)
 Table "pg_rewrite" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_rewrite",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 oid|INTEGER||NOT NULL|
@@ -855,7 +855,7 @@ is_instead|BOOLEAN||NOT NULL|
 ev_qual|VARCHAR||NOT NULL|
 ev_action|VARCHAR||NOT NULL|
 Indexes:
-    "pg_rewrite_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_rewrite",oid)
+    "pg_rewrite_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_rewrite",oid)
 Table "pg_roles" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_roles",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 rolname|VARCHAR|||
@@ -872,7 +872,7 @@ rolbypassrls|BOOLEAN|||
 rolconfig|VARCHAR|||
 oid|INTEGER||NOT NULL|
 Indexes:
-    "pg_roles_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_roles",oid)
+    "pg_roles_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_roles",oid)
 Table "pg_settings" stored in Global: %ydboctoocto("settings","pg_settings",name) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 name|VARCHAR||NOT NULL|
@@ -892,7 +892,7 @@ sourcefile|VARCHAR|||
 sourceline|INTEGER|||
 pending_restart|BOOLEAN|||
 Indexes:
-    "pg_settings_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (name), Global: %ydboctoocto("settings","pg_settings",name)
+    "pg_settings_pkey" PRIMARY KEY CONSTRAINT, Column(s) (name), Global: %ydboctoocto("settings","pg_settings",name)
 Table "pg_shdescription" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_shdescription",objoid,classoid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 objoid|INTEGER||NOT NULL|
@@ -900,7 +900,7 @@ classoid|INTEGER||NOT NULL|
 description|VARCHAR|||
 spcoptions|VARCHAR|||
 Indexes:
-    "pg_shdescription_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (objoid, classoid), Global: ^%ydboctoocto("tables","pg_catalog","pg_shdescription",objoid,classoid)
+    "pg_shdescription_pkey" PRIMARY KEY CONSTRAINT, Column(s) (objoid, classoid), Global: ^%ydboctoocto("tables","pg_catalog","pg_shdescription",objoid,classoid)
 Table "pg_tablespace" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_tablespace",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 oid|INTEGER||NOT NULL|
@@ -909,7 +909,7 @@ spcowner|INTEGER|||
 spcacl|VARCHAR|||
 spcoptions|VARCHAR|||
 Indexes:
-    "pg_tablespace_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_tablespace",oid)
+    "pg_tablespace_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_tablespace",oid)
 Table "pg_trigger" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_trigger",oid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 oid|INTEGER||NOT NULL|
@@ -931,7 +931,7 @@ tgqual|VARCHAR|||
 tgoldtable|VARCHAR|||
 tgnewtable|VARCHAR|||
 Indexes:
-    "pg_trigger_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_trigger",oid)
+    "pg_trigger_pkey" PRIMARY KEY CONSTRAINT, Column(s) (oid), Global: ^%ydboctoocto("tables","pg_catalog","pg_trigger",oid)
 Table "pg_type" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_type",typname) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 typname|VARCHAR(25)||NOT NULL|
@@ -966,7 +966,7 @@ typdefault|VARCHAR(25)|||
 typacl|VARCHAR(25)|||
 oid|INTEGER|||
 Indexes:
-    "pg_type_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (typname), Global: ^%ydboctoocto("tables","pg_catalog","pg_type",typname)
+    "pg_type_pkey" PRIMARY KEY CONSTRAINT, Column(s) (typname), Global: ^%ydboctoocto("tables","pg_catalog","pg_type",typname)
 Table "pg_user" stored in Global: ^%ydboctoocto("tables","pg_catalog","pg_user",usersysid) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 usename|VARCHAR|||
@@ -979,4 +979,4 @@ passwd|VARCHAR|||
 valuntil|VARCHAR|||
 userconfig|VARCHAR|||
 Indexes:
-    "pg_user_PKEY" PRIMARY KEY CONSTRAINT, Column(s) (usersysid), Global: ^%ydboctoocto("tables","pg_catalog","pg_user",usersysid)
+    "pg_user_pkey" PRIMARY KEY CONSTRAINT, Column(s) (usersysid), Global: ^%ydboctoocto("tables","pg_catalog","pg_user",usersysid)

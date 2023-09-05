@@ -14,10 +14,10 @@ DROP TABLE tmp;
 CREATE TABLE
 INSERT 0 1
 INSERT 0 1
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_PKEY" : Key (id1, id2)=(3, 4) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_pkey" : Key (id1, id2)=(3, 4) already exists
 DROP TABLE
 CREATE TABLE
 INSERT 0 1
 INSERT 0 1
-[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_PKEY" : Key (id1, id2)=(4, 4) already exists
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_pkey" : Key (id1, id2)=(4, 4) already exists
 DROP TABLE

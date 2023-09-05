@@ -193,12 +193,6 @@ _ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=""
 _ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=$ORDER(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(1,%ydboctocursor(cursorId,"keys",1,"tmp3","firstname"),%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")="")  DO
 --
 _ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:;  SELECT `%yo_keycol` from tmp2;
---
-_ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:;  SELECT t2.* from tmp2 t2;
---
-_ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  SELECT * FROM tmp1;
 --
 _ydboctoP*.m-;; ---------------------------------------------------------
@@ -208,6 +202,9 @@ _ydboctoP*.m-    . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1)
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tmp3","firstname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"tmp3","firstname")) IF $DATA(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(1,%ydboctocursor(cursorId,"keys",1,"tmp3","firstname"))) DO
 _ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=""
 _ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=$ORDER(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(1,%ydboctocursor(cursorId,"keys",1,"tmp3","firstname"),%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")="")  DO
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  SELECT `%yo_keycol` from tmp2;
 --
 _ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  SELECT * FROM tmp3 WHERE lastname IS NULL;
@@ -224,6 +221,9 @@ _ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tmp3","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(2,"")) DO
 _ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=""
 _ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=$ORDER(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(2,"",%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")="")  DO
+--
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  SELECT t2.* from tmp2 t2;
 --
 _ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  SELECT * FROM tmp3 WHERE lastname = 'last2';

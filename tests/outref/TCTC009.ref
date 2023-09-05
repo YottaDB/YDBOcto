@@ -29,15 +29,15 @@ LP_INSERT_INTO:
           - xref_key: false
           - uses_xref_key: false
       LP_CONSTRAINT: 
-        LP_CHECK_CONSTRAINT: tmp_id1_CHECK
+        LP_CHECK_CONSTRAINT: tmp_id1_check
           LP_WHERE: 
             LP_BOOLEAN_GREATER_THAN: 
               LP_INSERT_INTO_COL: tmp(2).id1
               LP_VALUE: '2'
-        LP_UNIQUE_CONSTRAINT: tmp_PKEY
+        LP_UNIQUE_CONSTRAINT: tmp_pkey
           LP_COLUMN_LIST: 
             LP_VALUE: 'id1'
-        LP_UNIQUE_CONSTRAINT: tmp_id1_id2_KEY
+        LP_UNIQUE_CONSTRAINT: tmp_id1_id2_key
           LP_COLUMN_LIST: 
             LP_VALUE: 'id1'
             LP_VALUE: 'id2'
@@ -63,15 +63,15 @@ LP_UPDATE:
         LP_COLUMN: id1
         LP_VALUE: '4'
     LP_CONSTRAINT: 
-      LP_CHECK_CONSTRAINT: tmp_id1_CHECK
+      LP_CHECK_CONSTRAINT: tmp_id1_check
         LP_WHERE: 
           LP_BOOLEAN_GREATER_THAN: 
             LP_UPDATE_COL: tmp(1).id1
             LP_VALUE: '2'
-      LP_UNIQUE_CONSTRAINT: tmp_PKEY
+      LP_UNIQUE_CONSTRAINT: tmp_pkey
         LP_COLUMN_LIST: 
           LP_VALUE: 'id1'
-      LP_UNIQUE_CONSTRAINT: tmp_id1_id2_KEY
+      LP_UNIQUE_CONSTRAINT: tmp_id1_id2_key
         LP_COLUMN_LIST: 
           LP_VALUE: 'id1'
           LP_VALUE: 'id2'
@@ -92,10 +92,10 @@ LP_DELETE_FROM:
           LP_SELECT_MORE_OPTIONS: 
             LP_KEYWORDS: 
   LP_CONSTRAINT: 
-    LP_UNIQUE_CONSTRAINT: tmp_PKEY
+    LP_UNIQUE_CONSTRAINT: tmp_pkey
       LP_COLUMN_LIST: 
         LP_VALUE: 'id1'
-    LP_UNIQUE_CONSTRAINT: tmp_id1_id2_KEY
+    LP_UNIQUE_CONSTRAINT: tmp_id1_id2_key
       LP_COLUMN_LIST: 
         LP_VALUE: 'id1'
         LP_VALUE: 'id2'

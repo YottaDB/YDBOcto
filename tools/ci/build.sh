@@ -917,7 +917,7 @@ else
 				mv output.txt output.txt.orig
 				if [[ ($subtest =~ ^"TAU001") && (0 == $is_post_octo929_commit) ]]; then
 					mv output.txt.orig output.txt.orig1
-					sed 's/ constraint \(.*\) / constraint \L\1\E /' output.txt.orig1 >& output.txt.orig
+					sed 's/\(test_id_check\)/\L\1\E/i' output.txt.orig1 >& output.txt.orig
 				fi
 				# Additionally, as part of YDBOcto#929, we execute a lot of queries during auto upgrade so
 				# it is possible to see DBFILEXT messages in the syslog (which will show up in stderr when

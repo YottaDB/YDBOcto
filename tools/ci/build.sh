@@ -419,6 +419,8 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 	# Add line to verify_output helper function to remove `..` from test output when Octo is built with Ninja
 	# See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/861 for more details.
 	sed -i "s,# Filter rule #s and line #s printed by flex in TRACE verbosity level output,sed -i 's/\\\.\\\.PATH/PATH/' clean_output\.txt," ../tests/test_helpers.bash.in
+
+	# Note down if older commit is prior to YDBOcto#929. If so, case insensitive column names are stored in upper case.
 	# If the chosen older commit has "*.sql" or "*.bats.in" files with CREATE TABLE commands containing the GLOBAL
 	# keyword with "keys(..)" expressions using a lower case column name, those will no longer work with the master
 	# after 7fa4406a (YDBOcto#519) as we expect "keys(..)" to use upper case column names for case insensitive column
@@ -426,14 +428,23 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 	# those that were newly introduced in 7fa4406a and they are TC058, TCO59 and TCO60. So excepting those *.sql files,
 	# all other "*.sql" or "*.bats.in" files are better updated to ensure upper case column names are used inside "keys(..)"
 	# expressions. The following logic takes care of that.
-	shopt -s extglob	# enable extended pattern matching feature (we use ! syntax below)
-	fixtures="$(ls ../tests/*.bats.in ../tests/fixtures/!(TC058*|TC059*|TC060*).sql)"
-	sed -i 's/keys(\(""[A-Za-z_0-9]*""\))/keys(\U\1\E)/g' $fixtures
-	# In similar fashion, we could have M programs that generates DDLs (i.e. CREATE TABLE commands) containing "keys(...)"
-	# expressions with lower cased column names. Fix those as well.
-	fixtures="$(ls ../tests/fixtures/*.m)"
-	sed -i 's/keys(\(""""[A-Za-z_0-9]*""""\))/keys(\U\1\E)/g' $fixtures
-	shopt -u extglob	# reset now that extended pattern matching feature need is done
+	pre_octo929_commit="8f6e404c05cb695e32c2458d3c9ba71632926bb0"	# 1 commit before YDBOcto#929 commit
+	# Disable the "set -e" setting temporarily as the "git merge-base" can return exit status 0 or 1
+	set +e
+	git merge-base --is-ancestor $commitsha $pre_octo929_commit
+	is_post_octo929_commit=$?
+	# Re-enable "set -e" now that "git merge-base" invocation is done.
+	set -e
+	if [[ (0 == $is_post_octo929_commit) ]]; then
+		shopt -s extglob	# enable extended pattern matching feature (we use ! syntax below)
+		fixtures="$(ls ../tests/*.bats.in ../tests/fixtures/!(TC058*|TC059*|TC060*).sql)"
+		sed -i 's/keys(\(""[A-Za-z_0-9]*""\))/keys(\U\1\E)/g' $fixtures
+		# In similar fashion, we could have M programs that generates DDLs (i.e. CREATE TABLE commands)
+		# containing "keys(...)" expressions with lower cased column names. Fix those as well.
+		fixtures="$(ls ../tests/fixtures/*.m)"
+		sed -i 's/keys(\(""""[A-Za-z_0-9]*""""\))/keys(\U\1\E)/g' $fixtures
+		shopt -u extglob	# reset now that extended pattern matching feature need is done
+	fi
 	if [ "ALL" != "$autoupgrade_test_to_troubleshoot" ]; then
 		# Run only a random fraction of the bats tests as we will be running an auto upgrade test on the same queries
 		# once more a little later.

@@ -224,3 +224,8 @@ teardown() {
 @test "TSCP27 : OCTO350 : Validate edge cases with arithmetic expression involving subqueries in SELECT column list" {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP27.sql
 }
+
+@test "TSCP28 : OCTO1015 : Check that COMMAND as a column name without quotes is allowed" {
+	load_fixture TSCP28.sql subtest novv
+	verify_output TSCP28 output.txt noinfo debug
+}

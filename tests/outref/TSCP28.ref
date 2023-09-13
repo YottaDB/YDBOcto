@@ -1,0 +1,15 @@
+
+drop table if exists test;
+create table test (COMMAND varchar);
+insert into test values('test_command');
+select command from test;
+
+-- Copied from YDBOcto#1015
+create table xyz (name varchar primary key, command varchar);
+DROP TABLE
+CREATE TABLE
+INSERT 0 1
+command
+test_command
+(1 row)
+CREATE TABLE

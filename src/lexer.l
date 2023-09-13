@@ -123,7 +123,6 @@ int copied_so_far;
 (?i:CHECK) { return CHECK; }
 (?i:COALESCE) { return COALESCE; }
 (?i:COLLATE) { return COLLATE; }
-(?i:COMMAND) { return COMMAND; }
 (?i:COMMIT) { return COMMIT; }
 (?i:CONSTRAINT) { return CONSTRAINT; }
 (?i:CORRESPONDING) { return CORRESPONDING; }

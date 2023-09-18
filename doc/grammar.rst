@@ -121,6 +121,21 @@ Boolean Data Type
   | '1'            | true          |
   +----------------+---------------+
 
++++++++++++++++++++++++++
+Casting between SQL types
++++++++++++++++++++++++++
+
+You can cast SQL values from one type to another using either the ``::`` operator, or the ``CAST()`` function. For example:
+
+.. code-block::
+
+    -- `::` usage
+    select '1'::INTEGER;  -- Returns 1
+
+    -- `CAST()` usage
+    select CAST(1.1 AS INTEGER);  -- Returns 1
+    select CAST(1 AS BOOLEAN);  -- Returns 1
+
 --------------
 Constraints
 --------------

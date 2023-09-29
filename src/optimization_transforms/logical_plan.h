@@ -42,6 +42,14 @@
 		(DEST) = (SOURCE)->v.lp_default.operand[(SIDE)];                   \
 	}
 
+#define GET_LP_ALLOW_NULL(DEST, SOURCE, SIDE, DEST_TYPE)                                \
+	{                                                                               \
+		assert((SIDE) < 2);                                                     \
+		assert((NULL == (SOURCE)->v.lp_default.operand[(SIDE)])                 \
+		       || ((SOURCE)->v.lp_default.operand[(SIDE)]->type == DEST_TYPE)); \
+		(DEST) = (SOURCE)->v.lp_default.operand[(SIDE)];                        \
+	}
+
 #define GET_LP_INSERT_INTO_SELECT_QUERY(LP_INSERT, LP_SELECT_QUERY)                            \
 	{                                                                                      \
 		LogicalPlan *lp_insert_into_options, *lp_insert_into_more_options;             \
@@ -356,13 +364,32 @@ typedef struct SqlKey {
 	 * It is set in lp_generate_view() using lp_alloc_key(). Used by tmpl_key and tmpl_key_advance.
 	 */
 	LogicalPlan *view_definition_output_key;
+	boolean_t    emit_desc_order; /* TRUE if FOR loop emitted for this key needs to be a descending loop
+				       * (instead of default ascending loop).
+				       */
 } SqlKey;
+
+/* Like PhysicalPlanOptions, the below struct provides a convenient way to pass options to subplans
+ * which need to be aware of a request from a higher level call of "optimize_logical_plan()".
+ */
+typedef struct LogicalPlanOptions {
+	boolean_t disable_lp_optimize_order_by;
+} LogicalPlanOptions;
+
+#define OPTIMIZE_LOGICAL_PLAN_OUTERMOST_CALL(PLAN, DISABLE_LP_OPTIMIZE_ORDER_BY)             \
+	{                                                                                    \
+		LogicalPlanOptions logical_options;                                          \
+                                                                                             \
+		memset(&logical_options, 0, sizeof(LogicalPlanOptions));                     \
+		logical_options.disable_lp_optimize_order_by = DISABLE_LP_OPTIMIZE_ORDER_BY; \
+		PLAN = optimize_logical_plan(PLAN, &logical_options);                        \
+	}
 
 // Helper functions
 
 // Generates a base plan given a SELECT statement
 LogicalPlan *generate_logical_plan(SqlStatement *stmt);
-LogicalPlan *optimize_logical_plan(LogicalPlan *plan);
+LogicalPlan *optimize_logical_plan(LogicalPlan *plan, LogicalPlanOptions *options);
 
 // Generate a logical plan for a SET operation
 LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt);
@@ -395,7 +422,9 @@ LogicalPlan *lp_get_keys(LogicalPlan *plan);
 LogicalPlan *lp_get_criteria(LogicalPlan *plan);
 // Returns the key corresponding to a column, or NULL
 SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *column_alias);
-// Returns the output key
+// Returns the LP_OUTPUT plan
+LogicalPlan *lp_get_output(LogicalPlan *plan);
+// Returns the output key (LP_KEY plan under the LP_OUTPUT plan)
 LogicalPlan *lp_get_output_key(LogicalPlan *plan);
 // Returns the number of columns in the SELECT column list for a given plan
 int lp_get_num_cols_in_select_column_list(LogicalPlan *plan);
@@ -473,6 +502,9 @@ int lp_optimize_where_replace_non_key_equal(LogicalPlan *plan, LogicalPlan *wher
 
 /* Attempts to optimize any CROSS JOINs in the query */
 void lp_optimize_cross_join(LogicalPlan *plan, LogicalPlan *table_join, LogicalPlan *where);
+
+/* Attempts to optimize any ORDER BY in the query (YDBOcto#959) */
+void lp_optimize_order_by(LogicalPlan *plan);
 
 /**
  * Attempts to optimize there WHERE statement which contains nothing but items like

@@ -67,7 +67,7 @@ LogicalPlan *lp_generate_view(SqlStatement *stmt, boolean_t *caller_error_encoun
 		 * 	CREATE VIEW v1 as SELECT * FROM names n1 WHERE EXISTS (SELECT * FROM names n2) AND (n1.id < 3 OR n1.id > 3);
 		 * 	SELECT * FROM v1 n1 WHERE EXISTS (SELECT * FROM v1 n2) AND (n1.id < 3 OR n1.id > 3);
 		 */
-		lp_view_src = optimize_logical_plan(lp_view_src);
+		OPTIMIZE_LOGICAL_PLAN_OUTERMOST_CALL(lp_view_src, FALSE);
 		ydb_buffer_t save_value;
 		save_value.buf_addr = (char *)&lp_view_src;
 		save_value.len_used = save_value.len_alloc = sizeof(void *);

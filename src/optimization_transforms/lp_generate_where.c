@@ -382,7 +382,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *root_stmt) {
 	case set_operation_STATEMENT:
 	case table_alias_STATEMENT:
 		ret = generate_logical_plan(stmt);
-		ret = optimize_logical_plan(ret);
+		OPTIMIZE_LOGICAL_PLAN_OUTERMOST_CALL(ret, FALSE);
 		break;
 	case select_STATEMENT:
 		// This should never happen, as all select statements are now wrapped in a table_alias

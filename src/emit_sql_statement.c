@@ -64,7 +64,7 @@ PhysicalPlan *emit_sql_statement(SqlStatement *stmt, char *plan_filename) {
 	int		    status;
 	int16_t		    num_columns = 0;
 	ydb_buffer_t	    plan_meta[6], value_buffer;
-	PhysicalPlanOptions options;
+	PhysicalPlanOptions physical_options;
 	PSQL_TypeOid	    column_type;
 	PSQL_TypeSize	    type_size;
 
@@ -92,33 +92,33 @@ PhysicalPlan *emit_sql_statement(SqlStatement *stmt, char *plan_filename) {
 		ERROR(ERR_PLAN_NOT_WELL_FORMED, "");
 		return NULL;
 	}
-	plan = optimize_logical_plan(plan);
+	OPTIMIZE_LOGICAL_PLAN_OUTERMOST_CALL(plan, FALSE);
 	if (NULL == plan) {
 		ERROR(ERR_FAILED_TO_OPTIMIZE_PLAN, "");
 		return NULL;
 	}
 	lp_emit_plan(plan, "AFTER optimize_logical_plan()");
-	memset(&options, 0, sizeof(PhysicalPlanOptions));
+	memset(&physical_options, 0, sizeof(PhysicalPlanOptions));
 	pplan = NULL;
-	options.last_plan = &pplan;
+	physical_options.last_plan = &pplan;
 	function = NULL;
 	table = NULL;
 	view = NULL;
-	options.function = &function; /* Store pointer to "function" in options.function. "generate_physical_plan" call below
-				       * will update "function" to point to the start of the linked list of LP_FUNCTION_CALL
-				       * usages (if any) in the the entire query.
-				       */
-	options.table = &table;	      /* Store pointer to "table" in options.table. "generate_physical_plan()" call below
-				       * will update "table" to point to the start of the linked list of LP_TABLE usages
-				       * (if any) in the the entire query (actual update happens in "lp_verify_structure()"
-				       * which is called inside "generate_physical_plan()").
-				       */
-	options.view = &view;	      /* Store pointer to "view" in options.view. "generate_physical_plan()" call below will update
-				       * "view" to point to the start of the linked list of LP_VIEW usages (if any) in the entire
-				       * query (actual update happens in lp_verify_structure()" which is called inside
-				       * "generate_physical_plan()").
-				       */
-	pplan = generate_physical_plan(plan, &options);
+	physical_options.function = &function; /* Store pointer to "function" in physical_options.function. "generate_physical_plan"
+						* call below will update "function" to point to the start of the linked list of
+						* LP_FUNCTION_CALL usages (if any) in the the entire query.
+						*/
+	physical_options.table = &table; /* Store pointer to "table" in physical_options.table. "generate_physical_plan()" call
+					  * below will update "table" to point to the start of the linked list of LP_TABLE usages
+					  * (if any) in the the entire query (actual update happens in "lp_verify_structure()"
+					  * which is called inside "generate_physical_plan()").
+					  */
+	physical_options.view = &view;	 /* Store pointer to "view" in physical_options.view. "generate_physical_plan()" call below
+					  * will update "view" to point to the start of the linked list of LP_VIEW usages (if any)
+					  * in the entire query (actual update happens in "lp_verify_structure()" which is called
+					  * inside "generate_physical_plan()").
+					  */
+	pplan = generate_physical_plan(plan, &physical_options);
 	if (NULL == pplan) {
 		ERROR(ERR_PLAN_NOT_GENERATED, "physical");
 		return NULL;

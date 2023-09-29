@@ -105,11 +105,6 @@ displaytlevel
 -- Test of $TLEVEL for INSERT INTO : Expect 1
 (1 row)
 $TLEVEL=1
-$TLEVEL=1
-$TLEVEL=1
-$TLEVEL=1
-$TLEVEL=1
-$TLEVEL=1
 INSERT 0 1
 ???
 -- Test of $TLEVEL for DELETE FROM : Expect 1

@@ -234,14 +234,24 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 		need_tmpl_key_finish = TRUE;
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
-		/* If STARTINCLUDE was specified for this key column, include the starting value also in the FOR loop.
+		/* If STARTINCLUDE/ENDPOINT was specified for this key column, include the starting value also in the FOR loop.
 		 * Do this only if there is a table associated with the key (nested queries correspond to temporary tables
 		 * and so should skip this).
 		 */
+		SqlOptionalKeyword	*keyword = NULL;
+		assert((NULL != key->table) || (NULL == key->column));
+		assert((NULL == key->table) || (NULL != key->column));
 		if (NULL != key->table) {
-			SqlOptionalKeyword	*keyword;
-
-			keyword = (key->column ? get_keyword(key->column, OPTIONAL_STARTINCLUDE) : NULL);
+			if (!key->emit_desc_order) {
+				/* This key should have a FOR loop emitted in ascending order (most common case). */
+				keyword = get_keyword(key->column, OPTIONAL_STARTINCLUDE);
+			} else {
+				/* This key should have a FOR loop emitted in descending order (possible for example if ORDER BY
+				 * optimization of YDBOcto#959 is enabled etc.).
+				 */
+				assert(NULL == get_keyword(key->column, OPTIONAL_END));
+				keyword = get_keyword(key->column, OPTIONAL_ENDPOINT);
+			}
 			if (NULL != keyword) {
 				%{}DO:$DATA({}%
 				if (NULL == fixed_xref_key) {
@@ -256,6 +266,9 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 		TMPL(tmpl_key, key);
 		%{}=$ORDER({}%
 		TMPL(tmpl_key_advance, pplan, key);
+		if (key->emit_desc_order) {
+			%{},-1{}%
+		}
 		%{}) QUIT:({}%
 		TMPL(tmpl_key_end, key);
 		%{}){}%

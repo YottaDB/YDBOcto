@@ -43,13 +43,14 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 
 			GET_LP(set_plans, oper0, 1, LP_PLANS);
 			for (i = 0; i < 2; i++) {
-				set_plans->v.lp_default.operand[i] = optimize_logical_plan(set_plans->v.lp_default.operand[i]);
+				OPTIMIZE_LOGICAL_PLAN_OUTERMOST_CALL(set_plans->v.lp_default.operand[i], FALSE);
 				if (NULL == set_plans->v.lp_default.operand[i]) {
 					return NULL;
 				}
 			}
 		} else {
-			plan->v.lp_default.operand[0] = oper0 = optimize_logical_plan(plan->v.lp_default.operand[0]);
+			OPTIMIZE_LOGICAL_PLAN_OUTERMOST_CALL(plan->v.lp_default.operand[0], FALSE);
+			oper0 = plan->v.lp_default.operand[0];
 			if (NULL == oper0) {
 				return NULL;
 			}
@@ -114,7 +115,7 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 	return plan;
 }
 
-LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
+LogicalPlan *optimize_logical_plan(LogicalPlan *plan, LogicalPlanOptions *options) {
 	LogicalPlan *select, *table_join, *where;
 	LogicalPlan *cur;
 
@@ -124,12 +125,12 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	switch (plan->type) {
 	case LP_SET_OPERATION:
 		plan->v.lp_default.operand[1]->v.lp_default.operand[0]
-		    = optimize_logical_plan(plan->v.lp_default.operand[1]->v.lp_default.operand[0]);
+		    = optimize_logical_plan(plan->v.lp_default.operand[1]->v.lp_default.operand[0], options);
 		if (NULL == plan->v.lp_default.operand[1]->v.lp_default.operand[0]) {
 			return NULL;
 		}
 		plan->v.lp_default.operand[1]->v.lp_default.operand[1]
-		    = optimize_logical_plan(plan->v.lp_default.operand[1]->v.lp_default.operand[1]);
+		    = optimize_logical_plan(plan->v.lp_default.operand[1]->v.lp_default.operand[1], options);
 		if (NULL == plan->v.lp_default.operand[1]->v.lp_default.operand[1]) {
 			return NULL;
 		}
@@ -141,7 +142,7 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 		/* For an INSERT INTO, we only need to optimize the SELECT query (source of the INSERT INTO) */
 		GET_LP(lp_insert_into_options, plan, 1, LP_INSERT_INTO_OPTIONS);
 		GET_LP(lp_insert_into_more_options, lp_insert_into_options, 1, LP_INSERT_INTO_MORE_OPTIONS);
-		lp_ret = optimize_logical_plan(lp_insert_into_more_options->v.lp_default.operand[0]);
+		lp_ret = optimize_logical_plan(lp_insert_into_more_options->v.lp_default.operand[0], options);
 		if (NULL == lp_ret) {
 			return NULL;
 		}
@@ -219,7 +220,12 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			/* Below sets the RHS of the last LP_BOOLEAN_OR condition as the WHERE clause of the last DNF plans */
 			assert(NULL != cur);
 			where->v.lp_default.operand[0] = cur;
-			return optimize_logical_plan(new_plan);
+			/* TRUE below disables "lp_optimize_order_by()" call as that could produce output in random order
+			 * if ORDER BY is removed due to each DNF plan adding rows in an arbitrary order depending on the
+			 * WHERE clause OR operands encountered in that order.
+			 */
+			OPTIMIZE_LOGICAL_PLAN_OUTERMOST_CALL(new_plan, TRUE);
+			return new_plan;
 		}
 	}
 	select = lp_get_select(plan);
@@ -281,5 +287,11 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	assert(where == lp_get_select_where(plan));
 	/* Pass 3rd parameter as NULL below to indicate this is not an OUTER JOIN ON CLAUSE */
 	lp_optimize_where_multi_equals_ands(plan, where, NULL, where->extra_detail.lp_where.num_outer_joins);
+	/* Now that keys have been generated in the "join_tables()" call above, see if ORDER BY can be optimized.
+	 * Disable ORDER BY optimization in case caller signalled so (e.g. DNF expansion occurred).
+	 */
+	if (!options->disable_lp_optimize_order_by) {
+		lp_optimize_order_by(plan);
+	}
 	return plan;
 }

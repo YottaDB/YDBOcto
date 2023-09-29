@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -332,7 +332,7 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 				EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");
 			}
 		} else {
-			if ((LP_ORDER_BY == plan->type) && plan->extra_detail.lp_order_by.direction) {
+			if (LP_ORDER_BY == plan->type) {
 				char *		     str;
 				enum OptionalKeyword direction;
 

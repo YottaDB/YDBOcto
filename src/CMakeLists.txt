@@ -257,6 +257,7 @@ add_library(libocto OBJECT
   optimization_transforms/lp_get_key.c
   optimization_transforms/lp_get_keys.c
   optimization_transforms/lp_get_num_cols_in_select_column_list.c
+  optimization_transforms/lp_get_output.c
   optimization_transforms/lp_get_output_key.c
   optimization_transforms/lp_get_project.c
   optimization_transforms/lp_get_projection_columns.c
@@ -274,6 +275,7 @@ add_library(libocto OBJECT
   optimization_transforms/lp_make_key.c
   optimization_transforms/lp_make_normal_disjunctive_form.c
   optimization_transforms/lp_optimize_cross_join.c
+  optimization_transforms/lp_optimize_order_by.c
   optimization_transforms/lp_optimize_where_multi_equals_ands.c
   optimization_transforms/lp_replace_derived_table_references.c
   optimization_transforms/lp_verify_structure.c

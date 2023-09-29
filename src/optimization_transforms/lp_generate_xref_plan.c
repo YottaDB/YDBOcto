@@ -106,5 +106,6 @@ LogicalPlan *lp_generate_xref_plan(SqlTable *table, SqlColumn *column, int uniqu
 	keywords->keyword = OPTIONAL_XREF_INDEX;
 
 	// Optimize this new plan
-	return optimize_logical_plan(root);
+	OPTIMIZE_LOGICAL_PLAN_OUTERMOST_CALL(root, FALSE);
+	return root;
 }

@@ -228,3 +228,23 @@ OCTO
 @test "TOB19 : OCTO727 : Test that ORDER BY COLUMN NUM used with subquery and DNF expansion does not SIG-11/assert-fail" {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOB19.sql
 }
+
+@test "TOB20 : OCTO959 : Test that ORDER BY on a KEY column with LIMIT on a huge table is optimized" {
+	load_fixture composite.sql
+	load_fixture composite.zwr
+	echo "# Run crosscheck on TOB20_names.sql" >> output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOB20_names.sql "trim_trailing_zeroes" roctoflags="-aw"
+	echo "# Run crosscheck on TOB20_composite.sql" >> output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries composite TOB20_composite.sql
+	echo "# Run only octo (not psql) on TOB20_octoonly.sql" >> output.txt
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TOB20_octoonly.sql .
+	octo -f TOB20_octoonly.sql 2>&1 >> output.txt
+	echo "# Verify ORDER BY optimization took effect (i.e. ORDER BY got removed) from queries where applicable" >> output.txt
+	echo "# Queries where ORDER BY optimization took effect will only show up as lines containing [select]" >> output.txt
+	echo "# Queries where ORDER BY optimization did not take effect will show up as lines containing [select] and [OrderBy]" >> output.txt
+	# The "sed" below is to remove trailing ";" at the end of the "select" query as it does not show up in case JDBC is not
+	# randomly chosen by the test framework to execute the queries. This lets us have a deterministic reference file.
+	grep -Ei "KILL.*OrderBy|SELECT" _ydboctoP*.m | sed 's/;$//g' >> output.txt
+	verify_output TOB20 output.txt noinfo nodebug
+}
+

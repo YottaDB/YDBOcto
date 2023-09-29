@@ -467,20 +467,12 @@ octoPlan0(cursorId,wrapInTp)
 octoPlan1(cursorId)
     NEW %ydboctoz,%ydboctoexpr SET %ydboctozlimit(16)=0 KILL %ydboctocursor(cursorId,"keys",16,"","")
     SET %ydboctocursor(cursorId,"keys",1,"shippers","shipperid")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"shippers","shipperid")=$ORDER(^Shippers(%ydboctocursor(cursorId,"keys",1,"shippers","shipperid"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"shippers","shipperid")="")  DO
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"shippers","shipperid")=$ORDER(^Shippers(%ydboctocursor(cursorId,"keys",1,"shippers","shipperid"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"shippers","shipperid")="")!($GET(%ydboctocursor(cursorId,"parameters",1))'>%ydboctozlimit(16))  DO
     . SET %ydboctoexpr=1
     . DO:%ydboctoexpr
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",16,"","")) %ydboctoz=42
     . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"shippers","shipperid")
-    . . SET %ydboctocursor(cursorId,"keys",16,"","","OrderBy",$$ForceNumeric^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"shippers","shipperid")),%ydboctocursor(cursorId,"keys",16,"",""))=%ydboctoexpr
+    . . IF $INCREMENT(%ydboctocursor(cursorId,"keys",16,"","",%ydboctoexpr))&$INCREMENT(%ydboctozlimit(16))
     ZKILL %ydboctocursor(cursorId,"keys",1,"shippers","shipperid")
-    NEW %ydboctoi  SET %ydboctoi(0)=1
-    SET %ydboctoi(1)="" FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",16,"","","OrderBy",%ydboctoi(1)))  SET %ydboctoi(1)=$ORDER(%ydboctocursor(cursorId,"keys",16,"","","OrderBy",%ydboctoi(1)),1)  QUIT:(%ydboctoi(1)="")!($GET(%ydboctocursor(cursorId,"parameters",1))<%ydboctoi(0))
-    . SET %ydboctoi(2)="" FOR  SET %ydboctoi(2)=$ORDER(%ydboctocursor(cursorId,"keys",16,"","","OrderBy",%ydboctoi(1),%ydboctoi(2))) QUIT:(%ydboctoi(2)="")!($GET(%ydboctocursor(cursorId,"parameters",1))<%ydboctoi(0))  DO
-    . . IF $INCREMENT(%ydboctocursor(cursorId,"keys",16,"","",%ydboctocursor(cursorId,"keys",16,"","","OrderBy",%ydboctoi(1),%ydboctoi(2))))
-    . . IF $INCREMENT(%ydboctoi(0))
-    KILL %ydboctocursor(cursorId,"keys",16,"","","OrderBy")
-    SET %ydboctocursor(cursorId,"keys",16,"","")=%ydboctoi(0)-1
     KILL %ydboctozlimit(16)
     QUIT
 

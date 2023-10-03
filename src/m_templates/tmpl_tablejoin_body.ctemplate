@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -37,7 +37,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *pplan, int dot_count, char *tableNam
 		 * temporarily make the 2nd column onwards invisible.
 		 */
 		col1 = pplan->projection;
-		col2_onwards = col1->v.lp_default.operand[1];
+		GET_LP(col2_onwards, col1, 1, LP_COLUMN_LIST);
 		col1->v.lp_default.operand[1] = NULL;
 		TMPL(tmpl_column_list_combine, col1, pplan, ",", FALSE, 0, FALSE);
 		%{}`n{{ PLAN_LINE_START }}{}%

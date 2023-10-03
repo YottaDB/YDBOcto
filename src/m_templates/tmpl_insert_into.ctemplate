@@ -32,9 +32,9 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 	int			dot_count;
 
 	lp_insert_into = pplan->lp_select_query;
-	lp_insert_into_options = lp_insert_into->v.lp_default.operand[1];
-	lp_insert_into_more_options = lp_insert_into_options->v.lp_default.operand[1];
-	lp_col_list = lp_insert_into_options->v.lp_default.operand[0];
+	GET_LP(lp_insert_into_options, lp_insert_into, 1, LP_INSERT_INTO_OPTIONS);
+	GET_LP_ALLOW_NULL(lp_col_list, lp_insert_into_options, 0, LP_COLUMN_LIST);
+	GET_LP(lp_insert_into_more_options, lp_insert_into_options, 1, LP_INSERT_INTO_MORE_OPTIONS);
 	lp_select_query = lp_insert_into_more_options->v.lp_default.operand[0];
 	lp_key = lp_get_output_key(lp_select_query);
 	outputKey = lp_key->v.lp_key.key;
@@ -74,7 +74,7 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 		%{}`n{{ PLAN_LINE_START }}{}%
 	}
 	/* Generate code to extract each column value */
-	lp_table = lp_insert_into->v.lp_default.operand[0];
+	GET_LP(lp_table, lp_insert_into, 0, LP_TABLE);
 	table_stmt = lp_table->v.lp_table.table_alias->table;
 	UNPACK_SQL_STATEMENT(table, table_stmt, create_table);
 	UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
@@ -134,7 +134,7 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 							col_is_specified = TRUE;
 							break;
 						}
-						cur_lp_col_list = cur_lp_col_list->v.lp_default.operand[1];
+						GET_LP_ALLOW_NULL(cur_lp_col_list, cur_lp_col_list, 1, LP_COLUMN_LIST);
 						src_colnum++;
 					} while (NULL != cur_lp_col_list);
 				}
@@ -235,7 +235,7 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 	} while (cur_column != start_column);
 
 	LogicalPlan	*lp_constraint;
-	lp_constraint = lp_insert_into_more_options->v.lp_default.operand[1];
+	GET_LP_ALLOW_NULL(lp_constraint, lp_insert_into_more_options, 1, LP_CONSTRAINT);
 	TMPL(tmpl_constraint, pplan, lp_constraint, table, dot_count);
 
 	/* Generate global reference */

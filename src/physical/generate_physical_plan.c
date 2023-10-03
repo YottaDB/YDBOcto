@@ -375,17 +375,14 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		LogicalPlan *output;
 		// Set my output key
 		GET_LP(output, plan, 1, LP_OUTPUT);
-		if (LP_KEY == output->v.lp_default.operand[0]->type) {
-			LogicalPlan *output_key;
 
-			GET_LP(output_key, output, 0, LP_KEY);
-			out->outputKey = output_key->v.lp_key.key;
-			out->is_cross_reference_key = out->outputKey->is_cross_reference_key;
-		} else {
-			assert(FALSE);
-		}
+		LogicalPlan *output_key;
+		GET_LP(output_key, output, 0, LP_KEY);
+		out->outputKey = output_key->v.lp_key.key;
+		out->is_cross_reference_key = out->outputKey->is_cross_reference_key;
+
 		// If there is an ORDER BY, note it down
-		if (output->v.lp_default.operand[1]) {
+		if (NULL != output->v.lp_default.operand[1]) {
 			assert(LP_TABLE_VALUE != plan->type);
 			GET_LP(out->order_by, output, 1, LP_ORDER_BY);
 		}
@@ -425,7 +422,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 					return NULL;
 				}
 			}
-			table_joins = table_joins->v.lp_default.operand[1];
+			GET_LP_ALLOW_NULL(table_joins, table_joins, 1, LP_TABLE_JOIN);
 		} while (NULL != table_joins);
 		// Iterate through the keys in the logical plan and use them to fill out the "iterKeys[]" array in physical plan
 		keys = lp_get_keys(plan);
@@ -462,7 +459,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 			if (NULL != join_on_condition) {
 				sub_query_check_and_generate_physical_plan(&plan_options, join_on_condition, NULL);
 			}
-			table_joins = table_joins->v.lp_default.operand[1];
+			GET_LP_ALLOW_NULL(table_joins, table_joins, 1, LP_TABLE_JOIN);
 		} while (NULL != table_joins);
 		out->key_lvn_can_be_zysqlnull = ((0 != num_left_joins) && (0 == num_right_or_full_joins));
 		/* See if there are any sub-queries in the WHERE clause. If so, generate separate physical plans
@@ -567,10 +564,9 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		do {
 			LogicalPlan *lp_column_list;
 
-			assert(LP_ROW_VALUE == lp_row_value->type);
 			GET_LP(lp_column_list, lp_row_value, 0, LP_COLUMN_LIST);
 			sub_query_check_and_generate_physical_plan(&plan_options, lp_column_list, NULL);
-			lp_row_value = lp_row_value->v.lp_default.operand[1];
+			GET_LP_ALLOW_NULL(lp_row_value, lp_row_value, 1, LP_ROW_VALUE);
 		} while (NULL != lp_row_value);
 	}
 	out->stash_columns_in_keys = options->stash_columns_in_keys;
@@ -799,8 +795,7 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 			while (NULL != plan) {
 				assert(LP_COLUMN_LIST != plan->v.lp_default.operand[0]->type);
 				sub_query_check_and_generate_physical_plan(options, plan->v.lp_default.operand[0], plan);
-				plan = plan->v.lp_default.operand[1];
-				assert((NULL == plan) || (LP_COLUMN_LIST == plan->type));
+				GET_LP_ALLOW_NULL(plan, plan, 1, LP_COLUMN_LIST);
 			}
 			break;
 		case LP_ORDER_BY:

@@ -439,7 +439,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COLUMN)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_UPD_COL_VALUE);
 			assert(ret);
-			plan = plan->v.lp_default.operand[1];
+			GET_LP_ALLOW_NULL(plan, plan, 1, LP_COLUMN_LIST);
 		}
 		break;
 	case LP_VALUE:
@@ -519,7 +519,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 				ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COLUMN_LIST);
 				assert(ret);
 			}
-			plan = plan->v.lp_default.operand[1];
+			GET_LP_ALLOW_NULL(plan, plan, 1, LP_ORDER_BY);
 		}
 		break;
 	case LP_AGGREGATE_FUNCTION_COUNT_ASTERISK:

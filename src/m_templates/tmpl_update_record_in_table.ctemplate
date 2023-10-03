@@ -201,8 +201,7 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 			/* This is a key column. Column value is already available in the desired lvn. */
 			num_key_cols_in_set_clause++;
 		}
-		lp_column_list = lp_column_list->v.lp_default.operand[1];
-		assert((NULL == lp_column_list) || (LP_COLUMN_LIST == lp_column_list->type));
+		GET_LP_ALLOW_NULL(lp_column_list, lp_column_list, 1, LP_COLUMN_LIST);
 	} while (NULL != lp_column_list);
 
 	if (num_key_cols_in_set_clause) {
@@ -229,7 +228,7 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 	%{}`n{{ PLAN_LINE_START }}{}%
 	LogicalPlan	*lp_constraint, *lp_update_options;
 	GET_LP(lp_update_options, lp_update, 1, LP_UPDATE_OPTIONS);
-	lp_constraint = lp_update_options->v.lp_default.operand[1];
+	GET_LP_ALLOW_NULL(lp_constraint, lp_update_options, 1, LP_CONSTRAINT);
 	TMPL(tmpl_constraint, pplan, lp_constraint, table, dot_count);
 	status = ydb_delete_s(&ydboctoTblConstraint, 0, NULL, YDB_DEL_TREE); /* Remove lvn nodes that tracked PP_COL(i) */
 	assert(YDB_OK == status);

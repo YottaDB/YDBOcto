@@ -67,8 +67,7 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *pplan, int dot_count) {
 			LogicalPlan	*lp_column_list;
 			LogicalPlan	*l_plan;
 
-			lp_column_list = af->v.lp_default.operand[0];
-			assert(LP_COLUMN_LIST == lp_column_list->type);
+			GET_LP(lp_column_list, af, 0, LP_COLUMN_LIST);
 			l_plan = lp_column_list->v.lp_default.operand[0];
 			assert(NULL != l_plan);
 			if ((LP_AGGREGATE_FUNCTION_COUNT_TABLE_ASTERISK == af->type)

@@ -800,7 +800,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 					%{}){}%
 				}
 				%{}){}%
-				plan2 = plan2->v.lp_default.operand[1];
+				GET_LP_ALLOW_NULL(plan2, plan2, 1, LP_COLUMN_LIST);
 				first_iteration = FALSE;
 			} while (NULL != plan2);
 			if (!dot_count) {
@@ -1069,14 +1069,14 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			%{}):{}%
 			TMPL(tmpl_print_expression, cur_plan, pplan, dot_count, depth);
 			%{},{}%
-			cur_plan = first_operand->v.lp_default.operand[1];
+			GET_LP_ALLOW_NULL(cur_plan, first_operand, 1, LP_COLUMN_LIST);
 			while (NULL != cur_plan) {
 				%{}'$ZYISSQLNULL({}%
 				TMPL(tmpl_print_expression, cur_plan->v.lp_default.operand[0], pplan, dot_count, depth);
 				%{}):{}%
 				TMPL(tmpl_print_expression, cur_plan->v.lp_default.operand[0], pplan, dot_count, depth);
 				%{},{}%
-				cur_plan = cur_plan->v.lp_default.operand[1];
+				GET_LP_ALLOW_NULL(cur_plan, cur_plan, 1, LP_COLUMN_LIST);
 			}
 		} else {
 			int	numargs, numargs2;	/* Number of arguments in the COALESCE function */
@@ -1089,18 +1089,18 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			numargs++;	/* PP_YDB_OCTO_EXPR(1) stores value of first argument to COALESCE function.
 					 * PP_YDB_OCTO_EXPR(2) stores value of second argument to COALESCE function and so on.
 					 */
-			cur_plan = first_operand->v.lp_default.operand[1];
+			GET_LP_ALLOW_NULL(cur_plan, first_operand, 1, LP_COLUMN_LIST);
 			while (NULL != cur_plan) {
 				TMPL(tmpl_print_expression, cur_plan->v.lp_default.operand[0], pplan, dot_count, depth);
 				TMPL(tmpl_print_dots, dot_count);
 				%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},{{ numargs|%d }})={{ PP_YDB_OCTO_EXPR }}{}%
 				%{}`n{{ PLAN_LINE_START }}{}%
-				cur_plan = cur_plan->v.lp_default.operand[1];
+				GET_LP_ALLOW_NULL(cur_plan, cur_plan, 1, LP_COLUMN_LIST);
 				numargs++;
 			}
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {{ PP_YDB_OCTO_EXPR }}=$SELECT({}%
-			cur_plan = first_operand->v.lp_default.operand[1];
+			GET_LP_ALLOW_NULL(cur_plan, first_operand, 1, LP_COLUMN_LIST);
 			for (numargs2 = 0; numargs2 < numargs; numargs2++) {
 				%{}'$ZYISSQLNULL({{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},{{ numargs2|%d }})){}%
 				%{}:{{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},{{ numargs2|%d }}),{}%
@@ -1120,15 +1120,14 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		assert((NULL != first_operand) && "fatal error: GREATEST/LEAST should have at least one value");
 		min_or_max = ((LP_GREATEST == plan_type) ? "$$max" : "$$min");
 		/* If the arguments are strings, we need to use the M follows operator ']' as appropriate */
-		cur_plan = plan->v.lp_default.operand[0];
-		assert(LP_COLUMN_LIST == cur_plan->type);
+		GET_LP(cur_plan, plan, 0, LP_COLUMN_LIST);
 		do {
 			use_string_comparison = lp_is_operand_type_string(cur_plan->v.lp_default.operand[0], &is_null);
 			if (is_null) {
 				/* The operand was a NUL_VALUE. This can be treated as a string or number.
 				 * Check next operand(s) to get real type information if any are non-NULL.
 				 */
-				cur_plan = cur_plan->v.lp_default.operand[1];
+				GET_LP_ALLOW_NULL(cur_plan, cur_plan, 1, LP_COLUMN_LIST);
 			} else {
 				/* Operand is not NULL. Therefore its type is determined for sure. No need to check any more
 				 * operands.
@@ -1145,7 +1144,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			int	numargs;	/* Number of arguments in the GREATEST/LEAST function */
 
 			for (numargs = 1, cur_plan = first_operand; NULL != cur_plan; cur_plan = next_plan, numargs++) {
-				next_plan = cur_plan->v.lp_default.operand[1];
+				GET_LP_ALLOW_NULL(next_plan, cur_plan, 1, LP_COLUMN_LIST);
 				TMPL(tmpl_print_expression, cur_plan->v.lp_default.operand[0], pplan, dot_count, depth);
 				TMPL(tmpl_print_dots, dot_count);
 				%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},{{ numargs|%d }})={{ PP_YDB_OCTO_EXPR }}{}%
@@ -1170,7 +1169,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			int	lcl_depth;
 
 			for (lcl_depth = 0, cur_plan = first_operand; NULL != cur_plan; cur_plan = next_plan, lcl_depth++) {
-				next_plan = cur_plan->v.lp_default.operand[1];
+				GET_LP_ALLOW_NULL(next_plan, cur_plan, 1, LP_COLUMN_LIST);
 				if (NULL != next_plan) {
 					%{}{{ min_or_max }}^%%ydboctoplanhelpers({{ use_string_comparison|%d }},{}%
 				}
@@ -1241,20 +1240,22 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		 * during physical planning. Hence, we skip both of these nodes in the tree and use the node after second_operand,
 		 * which is the node containing the relevant extrinsic function call.
 		 */
-		assert(NULL != second_operand->v.lp_default.operand[1]);
-		second_operand = second_operand->v.lp_default.operand[1];
+		GET_LP(second_operand, second_operand, 1, LP_COLUMN_LIST);
 		/* The SqlFunctionCall argument list begins after the return type, which occurs after the extrinsic function node.
 		 * Accordingly, initialize cur_plan for iteration starting from the return type node instead of the parent
 		 * extrinsic function node, using t_operand to store this for convenience.
 		 */
-		t_operand = second_operand->v.lp_default.operand[1];
+		GET_LP(t_operand, second_operand, 1, LP_COLUMN_LIST);
 		cur_plan = t_operand;
 		// Check for a BOOLEAN return type. If so, convert any string values to 0/1 in the generated plan.
 		return_type = t_operand->v.lp_default.operand[0]->v.lp_value.value->type;
 		if (dot_count) {
 			numargs = 0;
-			while (NULL != cur_plan->v.lp_default.operand[1]) {
-				cur_plan = cur_plan->v.lp_default.operand[1];
+			for ( ; ; ) {
+				GET_LP_ALLOW_NULL(cur_plan, cur_plan, 1, LP_COLUMN_LIST);
+				if (NULL == cur_plan) {
+					break;
+				}
 				TMPL(tmpl_print_expression, cur_plan->v.lp_default.operand[0], pplan, dot_count, depth);
 				TMPL(tmpl_print_dots, dot_count);
 				%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},{{ numargs|%d }})={{ PP_YDB_OCTO_EXPR }}{}%
@@ -1279,7 +1280,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			if (cur_plan != t_operand) {
 				%{},{}%
 			}
-			cur_plan = cur_plan->v.lp_default.operand[1];
+			GET_LP(cur_plan, cur_plan, 1, LP_COLUMN_LIST);
 			if (dot_count) {
 				%{}{{ PP_YDB_OCTO_EXPR }}({{ depth|%d}},{{ numargs|%d }}){}%
 				numargs++;
@@ -1453,7 +1454,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				dot_count++;
 				branch_value = cur_branch->v.lp_default.operand[1];
 				TMPL(tmpl_print_expression, branch_value, pplan, dot_count, depth);
-				cur_plan = cur_plan->v.lp_default.operand[1];
+				GET_LP_ALLOW_NULL(cur_plan, cur_plan, 1, LP_CASE_BRANCH);
 				num_case_paths++;
 				dot_count--;
 			}
@@ -1486,7 +1487,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				%{}):({}%
 				TMPL(tmpl_print_expression, branch_value, pplan, dot_count, depth);
 				%{}),{}%
-				cur_plan = cur_plan->v.lp_default.operand[1];
+				GET_LP_ALLOW_NULL(cur_plan, cur_plan, 1, LP_CASE_BRANCH);
 			}
 			if (NULL != default_value) {
 				%{}1:{}%

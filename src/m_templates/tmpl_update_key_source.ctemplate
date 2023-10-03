@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -77,8 +77,7 @@ TEMPLATE(tmpl_update_key_source, PhysicalPlan *pplan, boolean_t pre_update) {
 					is_a_key_col = TRUE;
 					break;
 				}
-				lp_column_list = lp_column_list->v.lp_default.operand[1];
-				assert((NULL == lp_column_list) || (LP_COLUMN_LIST == lp_column_list->type));
+				GET_LP_ALLOW_NULL(lp_column_list, lp_column_list, 1, LP_COLUMN_LIST);
 			} while (NULL != lp_column_list);
 			if (is_first_col) {
 				%{}{{ PP_YDB_OCTO_UPD }}({}%

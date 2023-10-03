@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -238,7 +238,7 @@ LogicalPlan *lp_make_normal_disjunctive_form(LogicalPlan *root) {
 			}
 			cur->v.lp_default.operand[0] = lp;
 			MALLOC_LP_2ARGS(cur->v.lp_default.operand[1], boolean_type);
-			cur = cur->v.lp_default.operand[1];
+			GET_LP(cur, cur, 1, boolean_type);
 			if ((LP_BOOLEAN_OR != r->type)) {
 				break;
 			}

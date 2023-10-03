@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -47,7 +47,7 @@ LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, boolean_t *caller_er
 			ret_column_list = column_list;
 		if (cur_cla != start_cla) {
 			MALLOC_LP_2ARGS(column_list->v.lp_default.operand[1], LP_COLUMN_LIST);
-			column_list = column_list->v.lp_default.operand[1];
+			GET_LP(column_list, column_list, 1, LP_COLUMN_LIST);
 		}
 	} while (cur_cla != start_cla);
 	/* Examine "error_encountered" variable to see if any errors were encountered inside LP_GENERATE_WHERE.

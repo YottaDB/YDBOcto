@@ -62,13 +62,13 @@ LogicalPlan *lp_copy_plan(LogicalPlan *plan) {
 		 * each LP_COLUMN_LIST under LP_ORDER_BY and LP_PROJECT would have been copied over to different
 		 * memory. Re-establish the connection.
 		 */
-		LogicalPlan *output;
+		LogicalPlan *output, *order_by;
 
 		GET_LP(output, new_plan, 1, LP_OUTPUT);
-		if (NULL != output->v.lp_default.operand[1]) {
-			LogicalPlan *order_by, *project, *select_column_list;
+		GET_LP_ALLOW_NULL(order_by, output, 1, LP_ORDER_BY);
+		if (NULL != order_by) {
+			LogicalPlan *project, *select_column_list;
 
-			GET_LP(order_by, output, 1, LP_ORDER_BY);
 			GET_LP(project, new_plan, 0, LP_PROJECT);
 			GET_LP(select_column_list, project, 0, LP_COLUMN_LIST);
 			while (NULL != order_by) {
@@ -79,7 +79,7 @@ LogicalPlan *lp_copy_plan(LogicalPlan *plan) {
 					    select_column_list, order_by->extra_detail.lp_order_by.order_by_column_num);
 					order_by->v.lp_default.operand[0] = nth_column_list;
 				}
-				order_by = order_by->v.lp_default.operand[1];
+				GET_LP_ALLOW_NULL(order_by, order_by, 1, LP_ORDER_BY);
 			}
 		}
 	}

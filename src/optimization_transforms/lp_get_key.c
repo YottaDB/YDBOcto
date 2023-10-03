@@ -89,8 +89,8 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 				break;
 			return key;
 		} while (TRUE);
-		cur_key = cur_key->v.lp_default.operand[1];
-	} while (cur_key != NULL);
+		GET_LP_ALLOW_NULL(cur_key, cur_key, 1, LP_KEYS);
+	} while (NULL != cur_key);
 	if (NULL != primary_key) {
 		/* If primary key is already fixed, then no point trying to generate xref key for the
 		 * same table. Return non-NULL value (corresponding to the primary key for this table)

@@ -226,7 +226,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 			MALLOC_LP(join_right, select->v.lp_default.operand[0], LP_TABLE_JOIN);
 		} else {
 			MALLOC_LP_2ARGS(join_right->v.lp_default.operand[1], LP_TABLE_JOIN);
-			join_right = join_right->v.lp_default.operand[1];
+			GET_LP(join_right, join_right, 1, LP_TABLE_JOIN);
 		}
 		assert(set_operation_STATEMENT != stmt->type); /* else would have returned at beginning of this function */
 		sql_stmt = cur_join->value;
@@ -359,7 +359,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 			if (cur_cla != start_cla) {
 				prev_order_by = &(order_by->v.lp_default.operand[1]);
 				MALLOC_LP_2ARGS(order_by->v.lp_default.operand[1], LP_ORDER_BY);
-				order_by = order_by->v.lp_default.operand[1];
+				GET_LP(order_by, order_by, 1, LP_ORDER_BY);
 			}
 		} while (cur_cla != start_cla);
 	}
@@ -460,7 +460,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 			cur_lp_key = lp_get_output_key(new_plan);
 			lp_replace_derived_table_references(select_query, table_alias, cur_lp_key->v.lp_key.key);
 		}
-		left = left->v.lp_default.operand[1];
+		GET_LP_ALLOW_NULL(left, left, 1, LP_TABLE_JOIN);
 		cur_join = cur_join->next;
 	}
 

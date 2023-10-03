@@ -70,13 +70,12 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 				/* Below assert is ensured by "lp_optimize_where_multi_equals_ands_helper()".
 				 * Or else it would not have decided to fix the key.
 				 */
-				value = list->v.lp_default.operand[0];
-				assert(LP_VALUE == value->type);
+				GET_LP(value, list, 0, LP_VALUE);
 				TMPL(tmpl_print_expression_assignment, value, pplan, dot_count, 0);
 				TMPL(tmpl_print_dots, dot_count);
 				%{}SET {{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}({{ PP_YDB_OCTO_EXPR }})=""{}%
 				%{}`n{{ PLAN_LINE_START }}{}%
-				list = list->v.lp_default.operand[1];
+				GET_LP_ALLOW_NULL(list, list, 1, LP_COLUMN_LIST);
 			} while (NULL != list);
 		}
 		cur_key = save_cur_key;
@@ -371,7 +370,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 		TMPL(tmpl_tablejoin_body, pplan, dot_count, tableName, columnName);
 	} else {
 		assert(cur_key < total_keys);
-		right_tablejoin = tablejoin->v.lp_default.operand[1];
+		GET_LP(right_tablejoin, tablejoin, 1, LP_TABLE_JOIN);
 		next_join_type = right_tablejoin->extra_detail.lp_table_join.cur_join_type;
 		// Treat a FULL_JOIN as a LEFT_JOIN at this stage. It will be treated as a RIGHT JOIN at a later stage.
 		if (FULL_JOIN == next_join_type) {
@@ -667,7 +666,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 			} else {
 				num_tables++;
 			}
-			this_table_join = this_table_join->v.lp_default.operand[1];
+			GET_LP_ALLOW_NULL(this_table_join, this_table_join, 1, LP_TABLE_JOIN);
 		} while (NULL != this_table_join);
 		if (key_nullified) {
 			/* We nullified at least one key above for a RIGHT JOIN. Undo all of those. */

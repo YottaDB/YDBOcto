@@ -219,8 +219,7 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 							keycol_is_in_set_clause = TRUE;
 							break;
 						}
-						lp_column_list = lp_column_list->v.lp_default.operand[1];
-						assert((NULL == lp_column_list) || (LP_COLUMN_LIST == lp_column_list->type));
+						GET_LP_ALLOW_NULL(lp_column_list, lp_column_list, 1, LP_COLUMN_LIST);
 					} while (NULL != lp_column_list);
 				}
 				if (keycol_is_in_set_clause) {

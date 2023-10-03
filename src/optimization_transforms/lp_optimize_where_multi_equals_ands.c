@@ -45,7 +45,7 @@ void lp_optimize_where_multi_equals_ands(LogicalPlan *plan, LogicalPlan *where, 
 		assert(0 < key->unique_id);
 		assert(key->unique_id < max_unique_id);
 		key_unique_id_array[key->unique_id] = i;
-		cur = cur->v.lp_default.operand[1];
+		GET_LP_ALLOW_NULL(cur, cur, 1, LP_KEYS);
 		i++;
 	}
 	lp_optimize_where_multi_equals_ands_helper(plan, where, key_unique_id_array, right_table_alias, num_outer_joins);
@@ -144,7 +144,7 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 				return where;
 				break;
 			}
-			list = list->v.lp_default.operand[1];
+			GET_LP_ALLOW_NULL(list, list, 1, LP_COLUMN_LIST);
 		} while (NULL != list);
 		break;
 	default:
@@ -438,10 +438,10 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 
 		if (LP_CRITERIA == before_first_key->type) {
 			MALLOC_LP_2ARGS(before_first_key->v.lp_default.operand[0], LP_KEYS);
-			before_first_key = before_first_key->v.lp_default.operand[0];
+			GET_LP(before_first_key, before_first_key, 0, LP_KEYS);
 		} else {
 			MALLOC_LP_2ARGS(before_first_key->v.lp_default.operand[1], LP_KEYS);
-			before_first_key = before_first_key->v.lp_default.operand[1];
+			GET_LP(before_first_key, before_first_key, 1, LP_KEYS);
 		}
 		before_first_key->v.lp_default.operand[0] = xref_keys;
 		xref_keys = generated_xref_keys;

@@ -76,7 +76,7 @@ LogicalPlan *lp_generate_xref_plan(SqlTable *table, SqlColumn *column, int uniqu
 	max_key = get_key_columns(table, key_columns);
 	for (cur_key = 0; cur_key <= max_key; cur_key++) {
 		MALLOC_LP_2ARGS(column_list->v.lp_default.operand[1], LP_COLUMN_LIST);
-		column_list = column_list->v.lp_default.operand[1];
+		GET_LP(column_list, column_list, 1, LP_COLUMN_LIST);
 		MALLOC_LP(cur, column_list->v.lp_default.operand[0], LP_WHERE);
 		MALLOC_LP(lp_cla, cur->v.lp_default.operand[0], LP_COLUMN_ALIAS);
 		// This is used to pass information about types to the functions which output the final result

@@ -38,11 +38,9 @@ LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, SqlTableAlia
 	t = lp_get_project(root);
 	t->v.lp_default.operand[0] = lp_replace_helper(t->v.lp_default.operand[0], table_alias, key);
 	// Make sure to update table references in ORDER BY clause
-	t = root->v.lp_default.operand[1];
-	assert(LP_OUTPUT == t->type);
-	t = t->v.lp_default.operand[1];
+	GET_LP(t, root, 1, LP_OUTPUT);
+	GET_LP_ALLOW_NULL(t, t, 1, LP_ORDER_BY);
 	if (NULL != t) {
-		assert(LP_ORDER_BY == t->type);
 		t->v.lp_default.operand[0] = lp_replace_helper(t->v.lp_default.operand[0], table_alias, key);
 		t->v.lp_default.operand[1] = lp_replace_helper(t->v.lp_default.operand[1], table_alias, key);
 	}
@@ -66,7 +64,7 @@ LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, SqlTableAlia
 		t = table_join->extra_detail.lp_table_join.join_on_condition;
 		if (NULL != t)
 			t->v.lp_default.operand[0] = lp_replace_helper(t->v.lp_default.operand[0], table_alias, key);
-		table_join = table_join->v.lp_default.operand[1];
+		GET_LP_ALLOW_NULL(table_join, table_join, 1, LP_TABLE_JOIN);
 	} while (NULL != table_join);
 	if (NULL != select_options->v.lp_default.operand[1]) {
 		GET_LP(select_more_options, select_options, 1, LP_SELECT_MORE_OPTIONS);

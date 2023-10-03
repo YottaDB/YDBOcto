@@ -34,8 +34,7 @@ boolean_t lp_is_col_in_update_column_list(LogicalPlan *lp_update, SqlColumn *src
 		if (cur_column == srch_column) {
 			return TRUE;
 		}
-		lp_column_list = lp_column_list->v.lp_default.operand[1];
-		assert((NULL == lp_column_list) || (LP_COLUMN_LIST == lp_column_list->type));
+		GET_LP_ALLOW_NULL(lp_column_list, lp_column_list, 1, LP_COLUMN_LIST);
 	} while (NULL != lp_column_list);
 	return FALSE;
 }

@@ -333,7 +333,7 @@ TEMPLATE(tmpl_constraint, PhysicalPlan *pplan, LogicalPlan *lp_constraint, SqlTa
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
 
-		lp_constraint = lp_constraint_orig->v.lp_default.operand[1];
+		GET_LP_ALLOW_NULL(lp_constraint, lp_constraint_orig, 1, LP_UNIQUE_CONSTRAINT);
 		for ( ; NULL != lp_constraint; lp_constraint = lp_constraint->v.lp_default.operand[1]) {
 			assert(LP_UNIQUE_CONSTRAINT == lp_constraint->type);
 

@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -40,7 +40,7 @@ TEMPLATE(tmpl_delete_record_from_table, PhysicalPlan *pplan, int dot_count) {
 	 * "tmpl_constraint()" below.
 	 */
 	LogicalPlan	*lp_constraint;
-	lp_constraint = lp_delete_from->v.lp_default.operand[1];
+	GET_LP_ALLOW_NULL(lp_constraint, lp_delete_from, 1, LP_CONSTRAINT);
 	if (NULL != lp_constraint) {
 		/* Define the local variable name under which we will store column numbers that have PP_COL(i) initialized.
 		 * This will help us (inside "tmpl_constraint()") determine the list of remaining table columns whose

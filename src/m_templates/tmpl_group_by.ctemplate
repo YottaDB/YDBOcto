@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -137,7 +137,7 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *pplan, int dot_count) {
 		LogicalPlan	*having;
 
 		/* Check if there is a HAVING clause. If so, generate pplan for that. */
-		having = pplan->aggregate_options->v.lp_default.operand[1];
+		GET_LP_ALLOW_NULL(having, pplan->aggregate_options, 1, LP_HAVING);
 		if (NULL != having) {
 			TMPL(tmpl_where_or_having_or_on, having->v.lp_default.operand[0], pplan, dot_count);
 		} else {

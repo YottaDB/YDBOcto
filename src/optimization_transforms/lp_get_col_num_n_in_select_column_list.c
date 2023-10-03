@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -28,7 +28,7 @@ LogicalPlan *lp_get_col_num_n_in_select_column_list(LogicalPlan *column_list, in
 		if (num_cols == n) {
 			break;
 		}
-		column_list = column_list->v.lp_default.operand[1];
+		GET_LP_ALLOW_NULL(column_list, column_list, 1, LP_COLUMN_LIST);
 	} while (NULL != column_list);
 	assert(num_cols);
 	return column_list;

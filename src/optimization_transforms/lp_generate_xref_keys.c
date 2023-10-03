@@ -65,7 +65,7 @@ LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumn
 		    = lp_alloc_key(table, key_columns[cur_key], unique_id, LP_KEY_ADVANCE, output_key, FALSE, NULL);
 		if (cur_key != max_key) {
 			MALLOC_LP_2ARGS(keys->v.lp_default.operand[1], LP_KEYS);
-			keys = keys->v.lp_default.operand[1];
+			GET_LP(keys, keys, 1, LP_KEYS);
 		}
 	}
 	return root;

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -56,7 +56,7 @@ void lp_optimize_cross_join(LogicalPlan *plan, LogicalPlan *table_join, LogicalP
 	num_cross_joins = 0;
 	assert(NULL != left);
 	do {
-		next_left = left->v.lp_default.operand[1];
+		GET_LP_ALLOW_NULL(next_left, left, 1, LP_TABLE_JOIN);
 		if (NULL == next_left) {
 			break;
 		}
@@ -77,7 +77,7 @@ void lp_optimize_cross_join(LogicalPlan *plan, LogicalPlan *table_join, LogicalP
 			 * and inserted after "left" noted down above.
 			 */
 			for (; NULL != right; right = next_right) {
-				next_right = right->v.lp_default.operand[1];
+				GET_LP_ALLOW_NULL(next_right, right, 1, LP_TABLE_JOIN);
 				if (NULL == next_right) {
 					break;
 				}
@@ -161,6 +161,7 @@ void lp_optimize_cross_join(LogicalPlan *plan, LogicalPlan *table_join, LogicalP
 	 */
 	cur_table_join = table_join;
 	for (i = 1; i < cur_entries; i++) {
+		assert(NULL != cur_table_join);
 		tmp_id = sorted_array[i];
 		right = table_join_array[tmp_id];
 		if (cur_table_join != right) {
@@ -174,7 +175,7 @@ void lp_optimize_cross_join(LogicalPlan *plan, LogicalPlan *table_join, LogicalP
 		}
 		/* else: This table join is already in the right position. Move on. */
 		assert(cur_table_join != start_right);
-		cur_table_join = cur_table_join->v.lp_default.operand[1];
+		GET_LP_ALLOW_NULL(cur_table_join, cur_table_join, 1, LP_TABLE_JOIN);
 	}
 	free(table_join_array);
 	free(equals_id1_id2);

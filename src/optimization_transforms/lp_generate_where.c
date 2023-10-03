@@ -233,7 +233,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *root_stmt) {
 		 * identifying hash.
 		 */
 		MALLOC_LP_2ARGS(ret->v.lp_default.operand[1], LP_COLUMN_LIST);
-		cur_lp = ret->v.lp_default.operand[1];
+		GET_LP(cur_lp, ret, 1, LP_COLUMN_LIST);
 		SQL_STATEMENT(sql_function_hash, value_STATEMENT);
 		MALLOC_STATEMENT(sql_function_hash, value, SqlValue);
 		sql_function_hash->v.value->type = STRING_LITERAL;
@@ -243,13 +243,13 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *root_stmt) {
 		LP_GENERATE_WHERE(function_call->function_schema->v.create_function->function_hash, root_stmt,
 				  cur_lp->v.lp_default.operand[0], error_encountered);
 		MALLOC_LP_2ARGS(cur_lp->v.lp_default.operand[1], LP_COLUMN_LIST);
-		cur_lp = cur_lp->v.lp_default.operand[1];
+		GET_LP(cur_lp, cur_lp, 1, LP_COLUMN_LIST);
 		// Add the function's extrinsic function name to the plan
 		LP_GENERATE_WHERE(function_call->function_schema->v.create_function->extrinsic_function, root_stmt,
 				  cur_lp->v.lp_default.operand[0], error_encountered);
 		// Add the function's return type to the plan
 		MALLOC_LP_2ARGS(cur_lp->v.lp_default.operand[1], LP_COLUMN_LIST);
-		cur_lp = cur_lp->v.lp_default.operand[1];
+		GET_LP(cur_lp, cur_lp, 1, LP_COLUMN_LIST);
 		SQL_STATEMENT(ret_type, value_STATEMENT);
 		MALLOC_STATEMENT(ret_type, value, SqlValue);
 		data_type = function_call->function_schema->v.create_function->return_type->v.data_type_struct.data_type;
@@ -369,7 +369,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *root_stmt) {
 			cur_branch = cur_branch->next;
 			if (cur_branch != cas_branch) {
 				MALLOC_LP_2ARGS(cur_lp->v.lp_default.operand[1], LP_CASE_BRANCH);
-				cur_lp = cur_lp->v.lp_default.operand[1];
+				GET_LP(cur_lp, cur_lp, 1, LP_CASE_BRANCH);
 			}
 		} while (cur_branch != cas_branch);
 		ret->v.lp_default.group_by_column_num = cas->group_by_fields.group_by_column_num;

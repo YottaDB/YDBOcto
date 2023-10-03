@@ -50,13 +50,13 @@
 		(DEST) = (SOURCE)->v.lp_default.operand[(SIDE)];                        \
 	}
 
-#define GET_LP_INSERT_INTO_SELECT_QUERY(LP_INSERT, LP_SELECT_QUERY)                            \
-	{                                                                                      \
-		LogicalPlan *lp_insert_into_options, *lp_insert_into_more_options;             \
-                                                                                               \
-		lp_insert_into_options = LP_INSERT->v.lp_default.operand[1];                   \
-		lp_insert_into_more_options = lp_insert_into_options->v.lp_default.operand[1]; \
-		LP_SELECT_QUERY = lp_insert_into_more_options->v.lp_default.operand[0];        \
+#define GET_LP_INSERT_INTO_SELECT_QUERY(LP_INSERT, LP_SELECT_QUERY)                                          \
+	{                                                                                                    \
+		LogicalPlan *lp_insert_into_options, *lp_insert_into_more_options;                           \
+                                                                                                             \
+		GET_LP(lp_insert_into_options, LP_INSERT, 1, LP_INSERT_INTO_OPTIONS);                        \
+		GET_LP(lp_insert_into_more_options, lp_insert_into_options, 1, LP_INSERT_INTO_MORE_OPTIONS); \
+		LP_SELECT_QUERY = lp_insert_into_more_options->v.lp_default.operand[0];                      \
 	}
 
 /* The ERROR_ENCOUNTERED parameter is set to TRUE in case we notice errors inside "lp_generate_where()" (it could recurse

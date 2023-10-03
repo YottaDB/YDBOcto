@@ -75,7 +75,7 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 		// Malloc the keys corresponding to this LP_TABLE/LP_TABLE_VALUE and APPEND them to the end of the linked list.
 		if (NULL != keys->v.lp_default.operand[0]) {
 			MALLOC_LP_2ARGS(keys->v.lp_default.operand[1], LP_KEYS);
-			keys = keys->v.lp_default.operand[1];
+			GET_LP(keys, keys, 1, LP_KEYS);
 		}
 		table_alias = ((LP_TABLE == oper0->type) ? oper0->v.lp_table.table_alias
 							 : oper0->extra_detail.lp_select_query.root_table_alias);
@@ -98,16 +98,15 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 			    = lp_alloc_key(table, key_columns[cur_key], unique_id, LP_KEY_ADVANCE, NULL, FALSE, NULL);
 			if (cur_key != max_key) {
 				MALLOC_LP_2ARGS(keys->v.lp_default.operand[1], LP_KEYS);
-				keys = keys->v.lp_default.operand[1];
+				GET_LP(keys, keys, 1, LP_KEYS);
 			}
 		}
 		break;
 	}
 	/* See if there are other tables in the JOIN list. If so add keys from those too. */
-	if (NULL != plan->v.lp_default.operand[1]) {
-		LogicalPlan *next;
-
-		GET_LP(next, plan, 1, LP_TABLE_JOIN);
+	LogicalPlan *next;
+	GET_LP_ALLOW_NULL(next, plan, 1, LP_TABLE_JOIN);
+	if (NULL != next) {
 		if (NULL == join_tables(root, next)) {
 			return NULL;
 		}
@@ -282,7 +281,7 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan, LogicalPlanOptions *option
 			lp_optimize_where_multi_equals_ands(plan, table_join->extra_detail.lp_table_join.join_on_condition,
 							    right_table_alias, where->extra_detail.lp_where.num_outer_joins);
 		}
-		table_join = table_join->v.lp_default.operand[1];
+		GET_LP_ALLOW_NULL(table_join, table_join, 1, LP_TABLE_JOIN);
 	} while (NULL != table_join);
 	assert(where == lp_get_select_where(plan));
 	/* Pass 3rd parameter as NULL below to indicate this is not an OUTER JOIN ON CLAUSE */

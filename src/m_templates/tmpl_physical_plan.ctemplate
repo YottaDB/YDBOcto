@@ -18,7 +18,6 @@
 // Adding one below for null terminator as LIT_LEN does not include it.
 #define OCTO_AIM_XREF_COMMENT_MAXSIZE (LIT_LEN(OCTO_AIM_XREF_COMMENT) + 1 /* null */ - 4 /* strlen("%s") * 2 */ +  OCTO_MAX_IDENT * 2)
 TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
-	LogicalPlan		*lp_temp;
 	unsigned int		cur_key;
 	int			dot_count;
 	SqlOptionalKeyword	*limit_keyword;
@@ -51,7 +50,6 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 	if (pplan->outputKey->is_cross_reference_key) {
 		SqlTable		*table;
 		SqlColumn		*column;
-		int			num_key_cols;
 		boolean_t		is_dollar_char;
 		SqlOptionalKeyword	*keyword;
 		SqlValue		*value;
@@ -114,14 +112,6 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			UNPACK_SQL_STATEMENT(keyword, table->aim_type, keyword);
 			UNPACK_SQL_STATEMENT(value, keyword->v, value);
 			aim_type = atoi(value->v.string_literal);
-		}
-
-		// Determine number of primary key columns
-		lp_temp = pplan->projection->v.lp_default.operand[1];
-		num_key_cols = 0;
-		while (NULL != lp_temp) {
-			lp_temp = lp_temp->v.lp_default.operand[1];
-			num_key_cols++;
 		}
 
 		// Create comment
@@ -347,7 +337,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 				%{}{{ PP_YDB_OCTO_EXPR }}{}%
 				%{})){}%
 			}
-			lp_row_value = lp_row_value->v.lp_default.operand[1];
+			GET_LP_ALLOW_NULL(lp_row_value, lp_row_value, 1, LP_ROW_VALUE);
 		} while (NULL != lp_row_value);
 	} else {
 		assert(LP_SELECT_QUERY == pplan->lp_select_query->type);
@@ -413,10 +403,8 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 				// check column table_asterisk
 				if (pplan->tablejoin_body_group_by_done) {
 					LogicalPlan     *tmpPlan;
-					tmpPlan = order_by->v.lp_default.operand[0];
-					assert(LP_COLUMN_LIST == tmpPlan->type);
-					tmpPlan = tmpPlan->v.lp_default.operand[0];
-					assert(LP_WHERE == tmpPlan->type);
+					GET_LP(tmpPlan, order_by, 0, LP_COLUMN_LIST);
+					GET_LP(tmpPlan, tmpPlan, 0, LP_WHERE);
 					tmpPlan = tmpPlan->v.lp_default.operand[0];
 					if (IS_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(tmpPlan)) {
 						GET_COLUMN_ALIAS_FROM_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(tmpPlan,
@@ -464,7 +452,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 					%{}SET {{ PP_YDB_OCTO_I }}({{ num_cols|%d }})="" {}%
 					TMPL(tmpl_order_by_sort, pplan, is_desc, num_cols, limit_keyword);
 				}
-				order_by = order_by->v.lp_default.operand[1];
+				GET_LP_ALLOW_NULL(order_by, order_by, 1, LP_ORDER_BY);
 			} while (NULL != order_by);
 			TMPL(tmpl_print_dots, num_cols);
 			num_cols++;

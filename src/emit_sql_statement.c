@@ -261,7 +261,6 @@ PhysicalPlan *emit_sql_statement(SqlStatement *stmt, char *plan_filename) {
 		do {
 			assert(cur_plan->type == LP_COLUMN_LIST);
 			GET_LP(column_alias, cur_plan, 0, LP_WHERE);
-			assert(NULL != column_alias->v.lp_default.operand[1]);
 			GET_LP(column_alias, column_alias, 1, LP_COLUMN_LIST_ALIAS);
 			UNPACK_SQL_STATEMENT(value, column_alias->v.lp_column_list_alias.column_list_alias->alias, value);
 			// This assumes the SqlValue will outlive this RowDescription
@@ -328,7 +327,7 @@ PhysicalPlan *emit_sql_statement(SqlStatement *stmt, char *plan_filename) {
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status)
 				break;
-			cur_plan = cur_plan->v.lp_default.operand[1];
+			GET_LP_ALLOW_NULL(cur_plan, cur_plan, 1, LP_COLUMN_LIST);
 		} while (NULL != cur_plan);
 		if (YDB_OK != status) {
 			return NULL;

@@ -12,9 +12,13 @@ DROP TABLE nameswithages;
 -- show up as mentioned above. So we use VALUES clause below.
 CREATE VIEW TCV056 as values(1);
 
+OCTO> DROP TABLE names;
 DROP TABLE
+OCTO> DROP TABLE nameswithages;
 DROP TABLE
+OCTO> CREATE VIEW TCV056 as values(1);
 CREATE VIEW
+OCTO> 
 # Set ^%ydboctoocto("seeddfnfmt") to 6 (before YDBOcto#929 changes)
 # Start octo which will automatically run auto upgrade due to previous step
 # We expect no errors in this step

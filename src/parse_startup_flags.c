@@ -47,6 +47,7 @@ int parse_startup_flags(int argc, char **argv, char **config_file_name) {
 	      "  -e, --emulate=<db_name>		Specify the SQL database to emulate, e.g. MYSQL, POSTGRES, etc.\n"
 	      "  -f, --input-file=<filepath>		Read commands from specified file instead of opening interactive prompt.\n"
 	      "  -h, --help				Display this help message and exit.\n"
+	      "  -p, --print-sql-query			Display each query as it executes [octo -f] or [octo <]\n"
 	      "  -v, --verbose=<number>		Specify amount of information to output when running commands by adding 'v' "
 	      "characters. The mapping of 'v's to severity levels is as follows:\n"
 	      "	-v: include INFO and WARNING messages\n"
@@ -89,15 +90,12 @@ int parse_startup_flags(int argc, char **argv, char **config_file_name) {
 	/* Parse input parameters */
 	while (1) {
 		// List of valid Octo long options
-		static struct option octo_long_options[] = {{"config-file", required_argument, NULL, 'c'},
-							    {"dry-run", no_argument, NULL, 'd'},
-							    {"emulate", required_argument, NULL, 'e'},
-							    {"help", no_argument, NULL, 'h'},
-							    {"input-file", required_argument, NULL, 'f'},
-							    {"release", no_argument, NULL, 'r'},
-							    {"verbose", optional_argument, NULL, 'v'},
-							    {"version", no_argument, NULL, 'r'},
-							    {0, 0, 0, 0}};
+		static struct option octo_long_options[]
+		    = {{"config-file", required_argument, NULL, 'c'}, {"dry-run", no_argument, NULL, 'd'},
+		       {"emulate", required_argument, NULL, 'e'},     {"help", no_argument, NULL, 'h'},
+		       {"input-file", required_argument, NULL, 'f'},  {"print-sql-query", no_argument, NULL, 'p'},
+		       {"release", no_argument, NULL, 'r'},	      {"verbose", optional_argument, NULL, 'v'},
+		       {"version", no_argument, NULL, 'r'},	      {0, 0, 0, 0}};
 
 		// List of valid Rocto long options
 		static struct option rocto_long_options[] = {{"allowschemachanges", no_argument, NULL, 'a'},
@@ -115,7 +113,7 @@ int parse_startup_flags(int argc, char **argv, char **config_file_name) {
 		if (config->is_rocto) {
 			c = getopt_long(argc, argv, "ac:e:hp:rvw", rocto_long_options, &option_index);
 		} else {
-			c = getopt_long(argc, argv, "c:de:f:hrv", octo_long_options, &option_index);
+			c = getopt_long(argc, argv, "c:de:f:hprv", octo_long_options, &option_index);
 		}
 		if (-1 == c)
 			break;
@@ -180,10 +178,10 @@ int parse_startup_flags(int argc, char **argv, char **config_file_name) {
 					printf("Please use a port number between 0 and 65535\n");
 					exit(1);
 				}
+				port_unset = FALSE;
 			} else {
-				assert(FALSE);
+				config->octo_print_flag_specified = TRUE;
 			}
-			port_unset = FALSE;
 			break;
 		case 'a':
 			config->allow_schema_changes = TRUE;

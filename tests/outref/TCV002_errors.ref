@@ -7,14 +7,24 @@ SELECT v.test_col FROM v; -- ERROR
 SELECT v.test_col; -- ERROR
 DROP VIEW v;
 SELECT v.test_col FROM v;
+OCTO> CREATE VIEW v (total_col)
+  AS
+     SELECT id FROM names;
 CREATE VIEW
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: v.test_col
 LINE 6:1: SELECT v.test_col FROM v; -- ERROR
                  ^^^^^^^^^^
+OCTO> SELECT v.test_col FROM v;
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : v
 LINE 7:2: SELECT v.test_col; -- ERROR
                  ^^^^^^^^^^
+OCTO> -- ERROR
+SELECT v.test_col;
+OCTO> -- ERROR
+DROP VIEW v;
 DROP VIEW
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: v
 LINE 9:1: SELECT v.test_col FROM v;
                                  ^
+OCTO> SELECT v.test_col FROM v;
+OCTO> 

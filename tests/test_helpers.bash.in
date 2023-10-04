@@ -207,7 +207,7 @@ load_fixture() {
 			else
 				octoflags="-vv $4"
 			fi
-			octo $octoflags -f input.sql 2>&1 | tee -a output.txt
+			octo $octoflags -p -f input.sql 2>&1 | tee -a output.txt
 		else
 			octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name
 		fi

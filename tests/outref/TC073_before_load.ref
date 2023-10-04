@@ -1,10 +1,14 @@
 drop table if exists tbl;
 create table tbl (id integer CHECK (ABS(id) < 5));
 \d tbl;
+OCTO> drop table if exists tbl;
 DROP TABLE
+OCTO> create table tbl (id integer CHECK (ABS(id) < 5));
 CREATE TABLE
+OCTO> \d tbl;
 Table "tbl" stored in Global: ^%ydboctoD8DOa3WW9naMa37ptmpvi2E : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id|INTEGER|||
 Check constraints:
     "tbl_id_check" CHECK ((abs(id) < 5))
+OCTO> 

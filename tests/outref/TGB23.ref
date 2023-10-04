@@ -13,7 +13,16 @@ EVENTNAME VARCHAR GLOBAL "^qAuditC(keys(""id""),""EventDescr"",""EventName"")" P
 -- making an sql expression with grouping by year:
 select ZEXT(DATELABEL, 1, 4), count (*) from QAUDITCEVENT group by ZEXT(DATELABEL, 1,4);
 
+OCTO> CREATE FUNCTION ZEXT(VARCHAR,INTEGER,INTEGER) RETURNS VARCHAR AS $$ZEXT^Q6F;
 CREATE FUNCTION
+OCTO> CREATE TABLE QAUDITCEVENT (
+ID VARCHAR PRIMARY KEY,
+DATELABEL VARCHAR GLOBAL "^qAuditC(keys(""id""),""EventDescr"",""DateLabel"")" PIECE 1,
+EVENTNAME VARCHAR GLOBAL "^qAuditC(keys(""id""),""EventDescr"",""EventName"")" PIECE 1
+)
+ GLOBAL "^qAuditC(keys(""id""),""EventDescr"")";
 CREATE TABLE
+OCTO> select ZEXT(DATELABEL, 1, 4), count (*) from QAUDITCEVENT group by ZEXT(DATELABEL, 1,4);
 zext|count(*)
 (0 rows)
+OCTO> 

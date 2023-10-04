@@ -19,7 +19,9 @@ SELECT * FROM composite;
 UPDATE composite SET name = name || '?' where name = 'Name4' OR id4 = 5;
 SELECT * FROM composite;
 
+OCTO> UPDATE composite SET name = 'Name11' where name = 'Name9';
 UPDATE 1
+OCTO> SELECT * FROM composite;
 id0|id1|id2|id3|id4|id5|id6|id7|name
 0|1|2|3|4|5|6|7|Name1
 0|1|2|3|4|5|6|8|Name2
@@ -32,7 +34,9 @@ id0|id1|id2|id3|id4|id5|id6|id7|name
 0|2|3|4|5|6|8|7|Name11
 1|2|3|4|5|6|8|7|Name10
 (10 rows)
+OCTO> UPDATE composite SET name = name || 'new1' where id1 > 1;
 UPDATE 2
+OCTO> SELECT * FROM composite;
 id0|id1|id2|id3|id4|id5|id6|id7|name
 0|1|2|3|4|5|6|7|Name1
 0|1|2|3|4|5|6|8|Name2
@@ -45,7 +49,9 @@ id0|id1|id2|id3|id4|id5|id6|id7|name
 0|2|3|4|5|6|8|7|Name11new1
 1|2|3|4|5|6|8|7|Name10new1
 (10 rows)
+OCTO> UPDATE composite SET name = name || 'new2' where id7 = 8;
 UPDATE 1
+OCTO> SELECT * FROM composite;
 id0|id1|id2|id3|id4|id5|id6|id7|name
 0|1|2|3|4|5|6|7|Name1
 0|1|2|3|4|5|6|8|Name2new2
@@ -58,7 +64,9 @@ id0|id1|id2|id3|id4|id5|id6|id7|name
 0|2|3|4|5|6|8|7|Name11new1
 1|2|3|4|5|6|8|7|Name10new1
 (10 rows)
+OCTO> UPDATE composite SET name = name || 'new3';
 UPDATE 10
+OCTO> SELECT * FROM composite;
 id0|id1|id2|id3|id4|id5|id6|id7|name
 0|1|2|3|4|5|6|7|Name1new3
 0|1|2|3|4|5|6|8|Name2new2new3
@@ -71,7 +79,9 @@ id0|id1|id2|id3|id4|id5|id6|id7|name
 0|2|3|4|5|6|8|7|Name11new1new3
 1|2|3|4|5|6|8|7|Name10new1new3
 (10 rows)
+OCTO> UPDATE composite SET name = name || '?' where name = 'Name4' OR id4 = 5;
 UPDATE 5
+OCTO> SELECT * FROM composite;
 id0|id1|id2|id3|id4|id5|id6|id7|name
 0|1|2|3|4|5|6|7|Name1new3
 0|1|2|3|4|5|6|8|Name2new2new3
@@ -84,6 +94,7 @@ id0|id1|id2|id3|id4|id5|id6|id7|name
 0|2|3|4|5|6|8|7|Name11new1new3?
 1|2|3|4|5|6|8|7|Name10new1new3?
 (10 rows)
+OCTO> 
 # Include key parts of generated M plans in reference file
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:;  UPDATE composite SET name = name || '?' where name = 'Name4' OR id4 = 5;

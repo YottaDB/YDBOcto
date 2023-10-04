@@ -10,6 +10,8 @@ select * from asdf;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: asdf
 LINE 2:1: select * from asdf;
                         ^^^^
+OCTO> select * from asdf;
+OCTO> \d;
 Schema|Name|Type|Owner
 public|information_schema.tables|table|octo
 public|names|table|octo
@@ -71,3 +73,5 @@ public|pg_user|table|octo
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: asdf
 LINE 6:1: select * from asdf;
                         ^^^^
+OCTO> select * from asdf;
+OCTO> 

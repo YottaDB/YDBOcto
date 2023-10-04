@@ -4,8 +4,11 @@
 CREATE TABLE tmp (id1 INTEGER PRIMARY KEY, id2 INTEGER, id3 INTEGER);
 INSERT INTO tmp VALUES (1, 2, 3);
 
+OCTO> CREATE TABLE tmp (id1 INTEGER PRIMARY KEY, id2 INTEGER, id3 INTEGER);
 CREATE TABLE
+OCTO> INSERT INTO tmp VALUES (1, 2, 3);
 INSERT 0 1
+OCTO> 
 # Verify no str2mval()/mval2str() calls in generated M code
 # Should see no lines containing "mval" in the below output
 ;  INSERT INTO tmp VALUES (1, 2, 3);

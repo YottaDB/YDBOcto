@@ -18,6 +18,7 @@ SELECT (a+b+c+d+e)/5, d, a+b*2+c*3+d*4 FROM s1t1
 
 SELECT DISTINCT Categories.CategoryID, (SELECT alias1.ShipperID FROM Shippers alias1 ORDER BY alias1.ShipperID LIMIT 1) AS alias1, Categories.CategoryName FROM Categories INNER JOIN Products AS alias2 ON ((Categories.CategoryName > alias2.Unit) OR NOT ((Categories.CategoryID <= alias2.ProductID)) AND (('Dried fruit and bean curd' < '48 - 6 oz jars')) OR (Categories.CategoryID = SOME (SELECT ALL alias2.CategoryID FROM Products alias2 WHERE alias2.ProductName BETWEEN 'Louisiana Hot Spiced Okra' AND 'Escargots de Bourgogne' ORDER BY alias2.CategoryID LIMIT 1)) AND (Categories.Description > '48 - 6 oz jars')) WHERE NOT EXISTS (SELECT MIN(alias4.SupplierID), alias4.City FROM Suppliers alias4 GROUP BY alias4.City HAVING NOT EXISTS (SELECT ALL alias5.ShipperID, alias5.OrderDate FROM nwOrders alias5));
 
+OCTO> SELECT * FROM names WHERE EXISTS (SELECT * FROM names) AND (id < 3 OR id > 3);
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -25,6 +26,7 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (5 rows)
+OCTO> SELECT * FROM names WHERE EXISTS (SELECT * FROM names WHERE firstname = 'Zero') AND (id < 3 OR id > 3);
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -32,6 +34,7 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (5 rows)
+OCTO> SELECT id FROM names WHERE EXISTS (SELECT COUNT(*) FROM names n2 GROUP BY n2.lastName) AND ((id < 3) OR (id > 3)) ORDER BY id;
 id
 0
 1
@@ -39,6 +42,7 @@ id
 4
 5
 (5 rows)
+OCTO> SELECT n1.id FROM names n1 INNER JOIN names n2 ON ((n1.firstname > n2.firstname) OR NOT (1 < 2)) WHERE NOT EXISTS (SELECT 1 FROM names WHERE NOT EXISTS (SELECT 1 FROM names));
 id
 0
 0
@@ -55,6 +59,11 @@ id
 5
 5
 (14 rows)
+OCTO> SELECT (a+b+c+d+e)/5, d, a+b*2+c*3+d*4 FROM s1t1
+ WHERE EXISTS(SELECT 1 FROM s1t1 AS x WHERE x.b<s1t1.b)
+   AND d NOT BETWEEN 110 AND 150
+ ORDER BY 3,2,1
+;
 ???|d|???
 107|108|1067
 152|154|1521
@@ -78,6 +87,7 @@ id
 242|241|2419
 247|248|2476
 (21 rows)
+OCTO> SELECT DISTINCT Categories.CategoryID, (SELECT alias1.ShipperID FROM Shippers alias1 ORDER BY alias1.ShipperID LIMIT 1) AS alias1, Categories.CategoryName FROM Categories INNER JOIN Products AS alias2 ON ((Categories.CategoryName > alias2.Unit) OR NOT ((Categories.CategoryID <= alias2.ProductID)) AND (('Dried fruit and bean curd' < '48 - 6 oz jars')) OR (Categories.CategoryID = SOME (SELECT ALL alias2.CategoryID FROM Products alias2 WHERE alias2.ProductName BETWEEN 'Louisiana Hot Spiced Okra' AND 'Escargots de Bourgogne' ORDER BY alias2.CategoryID LIMIT 1)) AND (Categories.Description > '48 - 6 oz jars')) WHERE NOT EXISTS (SELECT MIN(alias4.SupplierID), alias4.City FROM Suppliers alias4 GROUP BY alias4.City HAVING NOT EXISTS (SELECT ALL alias5.ShipperID, alias5.OrderDate FROM nwOrders alias5));
 categoryid|alias1|categoryname
 1|1|Beverages
 2|1|Condiments
@@ -88,6 +98,7 @@ categoryid|alias1|categoryname
 7|1|Produce
 8|1|Seafood
 (8 rows)
+OCTO> 
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  SELECT n1.id FROM names n1 INNER JOIN names n2 ON ((n1.firstname > n2.firstname) OR NOT (1 < 2)) WHERE NOT EXISTS (SELECT 1 FROM names WHERE NOT EXISTS (SELECT 1 FROM names));

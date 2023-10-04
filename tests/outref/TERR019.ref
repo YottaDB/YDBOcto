@@ -22,14 +22,24 @@ SELECT * FROM names n1 NATURAL JOIN names n2 FULL  JOIN names n3 ON n1.id = n2.i
 SELECT n1.id,n2.id,n3.id FROM names n1 NATURAL JOIN names n2 FULL  JOIN names n3 ON n2.id < n3.id;
 
 [ERROR]: ERR_COMMON_COLUMN: Common column name "id" appears more than once in left side of NATURAL JOIN
+OCTO> SELECT * FROM names AS n1 join names AS n2 ON n1.id = n2.id NATURAL JOIN names AS n3;
 [ERROR]: ERR_COMMON_COLUMN: Common column name "id" appears more than once in right side of NATURAL JOIN
+OCTO> SELECT * FROM names AS n1 NATURAL JOIN (SELECT * FROM names n2 INNER JOIN names n3 ON n2.id = n3.id) n4;
 [ERROR]: ERR_COMMON_COLUMN: Common column name "id" appears more than once in left side of NATURAL JOIN
+OCTO> SELECT * FROM names AS n1 NATURAL JOIN names AS n2 JOIN names AS n3 ON n2.id = n3.id NATURAL JOIN names AS n4;
 [ERROR]: ERR_COMMON_COLUMN: Common column name "id" appears more than once in left side of NATURAL JOIN
+OCTO> SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4;
 [ERROR]: ERR_COMMON_COLUMN: Common column name "id" appears more than once in left side of NATURAL JOIN
+OCTO> SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4 WHERE n4.firstName = 'Zero';
 [ERROR]: ERR_COMMON_COLUMN: Common column name "id" appears more than once in right side of NATURAL JOIN
+OCTO> SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n4;
 [ERROR]: ERR_COMMON_COLUMN: Common column name "id" appears more than once in right side of NATURAL JOIN
+OCTO> SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n4 WHERE n3.firstName = 'Zero';
 [ERROR]: ERR_COMMON_COLUMN: Common column name "customer_id" appears more than once in left side of NATURAL JOIN
+OCTO> SELECT c1.customer_id,o2.order_id,c3.customer_id FROM customers c1 LEFT JOIN orders o2 ON c1.customer_id = o2.customer_id NATURAL JOIN customers c3;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
+OCTO> SELECT * from (SELECT id from names) n1 NATURAL JOIN (SELECT firstname AS id FROM names) n2;
+OCTO> SELECT * FROM names n1 NATURAL JOIN names n2 FULL  JOIN names n3 ON n1.id = n2.id;
 id|firstname|lastname|id|firstname|lastname
 0|Zero|Cool|0|Zero|Cool
 0|Zero|Cool|1|Acid|Burn
@@ -62,6 +72,7 @@ id|firstname|lastname|id|firstname|lastname
 5|Zero|Cool|4|Joey|
 5|Zero|Cool|5|Zero|Cool
 (30 rows)
+OCTO> SELECT n1.id,n2.id,n3.id FROM names n1 NATURAL JOIN names n2 FULL  JOIN names n3 ON n2.id < n3.id;
 id|id|id
 0|0|1
 0|0|2
@@ -80,3 +91,4 @@ id|id|id
 5|5|
 ||0
 (16 rows)
+OCTO> 

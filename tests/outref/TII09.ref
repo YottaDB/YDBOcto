@@ -49,15 +49,20 @@ SELECT t3.* FROM tmp3 t3 WHERE firstname = 'first1';
 SELECT t3.* FROM tmp3 t3 WHERE lastname = 'last2';
 SELECT t3.* FROM tmp3 t3 WHERE firstname IS NULL;
 SELECT t3.* FROM tmp3 t3 WHERE lastname IS NULL;
+OCTO> CREATE TABLE tmp1 (id INTEGER, firstname VARCHAR);
 CREATE TABLE
+OCTO> INSERT INTO tmp1 VALUES (1234, 'First'), (1234, 'First');
 INSERT 0 2
+OCTO> INSERT INTO tmp1 SELECT * FROM tmp1;
 INSERT 0 2
+OCTO> SELECT * FROM tmp1;
 id|firstname
 1234|First
 1234|First
 1234|First
 1234|First
 (4 rows)
+OCTO> SELECT t1.* from tmp1 t1;
 id|firstname
 1234|First
 1234|First
@@ -67,72 +72,99 @@ id|firstname
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: %yo_keycol
 LINE 9:1: SELECT `%yo_keycol` FROM tmp1;
                  ^^^^^^^^^^^^
+OCTO> SELECT `%yo_keycol` FROM tmp1;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: %yo_keycol
 LINE 10:1: SELECT `%YO_KEYCOL` FROM tmp1;
                   ^^^^^^^^^^^^
+OCTO> SELECT `%YO_KEYCOL` FROM tmp1;
 [ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "%yo_keycol" of table "tmp1" does not exist
 LINE 12:1: INSERT INTO tmp1(`%yo_keycol`, id) SELECT id, id from tmp1;
                             ^^^^^^^^^^^^
+OCTO> INSERT INTO tmp1(`%yo_keycol`, id) SELECT id, id from tmp1;
 [ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "%yo_keycol" of table "tmp1" does not exist
 LINE 13:1: INSERT INTO tmp1(id, `%yo_keycol`) SELECT id, id from tmp1;
                                 ^^^^^^^^^^^^
+OCTO> INSERT INTO tmp1(id, `%yo_keycol`) SELECT id, id from tmp1;
+OCTO> CREATE TABLE tmp2 (`%yo_keycol` INTEGER PRIMARY KEY, id INTEGER, firstname VARCHAR) READONLY GLOBAL "^%ydboctoDAgeMzpAgs346YlVTTNcBB6(keys(""%yo_keycol"")";
 CREATE TABLE
+OCTO> SELECT `%yo_keycol` from tmp2;
 %yo_keycol
 (0 rows)
+OCTO> SELECT * from tmp2;
 %yo_keycol|id|firstname
 (0 rows)
+OCTO> SELECT t2.* from tmp2 t2;
 %yo_keycol|id|firstname
 (0 rows)
+OCTO> CREATE TABLE tmp3 (firstName VARCHAR, lastName varchar) READWRITE;
 CREATE TABLE
+OCTO> INSERT INTO tmp3 VALUES (NULL, NULL);
 INSERT 0 1
+OCTO> INSERT INTO tmp3 VALUES (NULL, 'last1');
 INSERT 0 1
+OCTO> INSERT INTO tmp3 VALUES (NULL, 'last2');
 INSERT 0 1
+OCTO> INSERT INTO tmp3 VALUES ('first1', NULL);
 INSERT 0 1
+OCTO> INSERT INTO tmp3 VALUES ('first1', 'last1');
 INSERT 0 1
+OCTO> INSERT INTO tmp3 VALUES ('first1', 'last2');
 INSERT 0 1
+OCTO> INSERT INTO tmp3 VALUES ('first2', NULL);
 INSERT 0 1
+OCTO> INSERT INTO tmp3 VALUES ('first2', 'last1');
 INSERT 0 1
+OCTO> INSERT INTO tmp3 VALUES ('first2', 'last2');
 INSERT 0 1
+OCTO> SELECT * FROM tmp3 WHERE firstname = 'first1';
 firstname|lastname
 first1|
 first1|last1
 first1|last2
 (3 rows)
+OCTO> SELECT * FROM tmp3 WHERE lastname = 'last2';
 firstname|lastname
 |last2
 first1|last2
 first2|last2
 (3 rows)
+OCTO> SELECT * FROM tmp3 WHERE firstname IS NULL;
 firstname|lastname
 |
 |last1
 |last2
 (3 rows)
+OCTO> SELECT * FROM tmp3 WHERE lastname IS NULL;
 firstname|lastname
 |
 first1|
 first2|
 (3 rows)
+OCTO> SELECT t3.* FROM tmp3 t3 WHERE firstname = 'first1';
 firstname|lastname
 first1|
 first1|last1
 first1|last2
 (3 rows)
+OCTO> SELECT t3.* FROM tmp3 t3 WHERE lastname = 'last2';
 firstname|lastname
 |last2
 first1|last2
 first2|last2
 (3 rows)
+OCTO> SELECT t3.* FROM tmp3 t3 WHERE firstname IS NULL;
 firstname|lastname
 |
 |last1
 |last2
 (3 rows)
+OCTO> SELECT t3.* FROM tmp3 t3 WHERE lastname IS NULL;
 firstname|lastname
 |
 first1|
 first2|
 (3 rows)
+OCTO> 
 # Run [mupip extract run.ext]
 
 # Additionally verify that hidden column is not emitted in the text table definition

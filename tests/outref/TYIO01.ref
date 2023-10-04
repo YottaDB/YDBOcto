@@ -19,6 +19,7 @@ SELECT op FROM YDBJNLFTYPE10;
 SELECT op FROM YDBJNLFTYPE4;
 SELECT op FROM YDBJNLFTYPE5;
 SELECT op FROM YDBJNLFTYPE6;
+OCTO> \d;
 Schema|Name|Type|Owner
 public|information_schema.tables|table|octo
 public|names|table|octo
@@ -98,16 +99,20 @@ public|ydbjnlftype7|table|octo
 public|ydbjnlftype8|table|octo
 public|ydbjnlftype9|table|octo
 (77 rows)
+OCTO> SELECT label, jnlfilename, dbfilename FROM YDBJNLF;
 label|jnlfilename|dbfilename
 default_region_label|$PWD/default.mjl|$PWD/mumps.dat
 octo_region_label|$PWD/octo.mjl|$PWD/octo.dat
 (2 rows)
+OCTO> SELECT COUNT(*) FROM YDBJNLFACTIVE;
 count(*)
 0
 (1 row)
+OCTO> SELECT COUNT(*) FROM YDBJNLFCOMPLETE;
 count(*)
 8
 (1 row)
+OCTO> SELECT * FROM YDBJNLFOPCOUNT WHERE occurs > 0;
 label|opcode|occurs
 default_region_label|EOF|1
 default_region_label|EPOCH|3
@@ -125,6 +130,7 @@ octo_region_label|SET|4526
 octo_region_label|TCOM|54
 octo_region_label|TSET|54
 (15 rows)
+OCTO> SELECT RECTYPE, TBLTYPE FROM YDBJNLFRECTYPE;
 rectype|tbltype
 AIMG|TYPE5
 ALIGN|TYPE4
@@ -163,6 +169,7 @@ ZTRIG|TYPE1
 ZTSTART|TYPE14
 ZTWORM|TYPE2
 (36 rows)
+OCTO> SELECT op,gvname,gvref,nodeval FROM YDBJNLFTYPE1 WHERE gvname='^pastas';
 op|gvname|gvref|nodeval
 SET|^pastas|^pastas(0)|"Fettucine"
 SET|^pastas|^pastas(1)|"Cavatelli"
@@ -175,6 +182,7 @@ SET|^pastas|^pastas(7)|"Orechiette"
 SET|^pastas|^pastas(8)|"Lasagna"
 SET|^pastas|^pastas(9)|"Pappardelle"
 (10 rows)
+OCTO> SELECT op,gvname,gvref,nodeval FROM YDBJNLFTYPE1 WHERE gvref='^%ydboctoocto("oid")';
 op|gvname|gvref|nodeval
 SET|^%ydboctoocto|^%ydboctoocto("oid")|"1"
 SET|^%ydboctoocto|^%ydboctoocto("oid")|"2"
@@ -1308,6 +1316,7 @@ SET|^%ydboctoocto|^%ydboctoocto("oid")|"1129"
 SET|^%ydboctoocto|^%ydboctoocto("oid")|"1130"
 SET|^%ydboctoocto|^%ydboctoocto("oid")|"1131"
 (1131 rows)
+OCTO> SELECT op FROM YDBJNLFTYPE10;
 op
 PINI
 PINI
@@ -1318,6 +1327,7 @@ PINI
 PINI
 PINI
 (8 rows)
+OCTO> SELECT op FROM YDBJNLFTYPE4;
 op
 PFIN
 PFIN
@@ -1328,6 +1338,7 @@ PFIN
 PFIN
 PFIN
 (8 rows)
+OCTO> SELECT op FROM YDBJNLFTYPE5;
 op
 PBLK
 PBLK
@@ -1354,7 +1365,9 @@ PBLK
 PBLK
 PBLK
 (24 rows)
+OCTO> SELECT op FROM YDBJNLFTYPE6;
 op
 EOF
 EOF
 (2 rows)
+OCTO> 

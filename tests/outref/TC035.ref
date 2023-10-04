@@ -7,7 +7,9 @@ SELECT * FROM delimnames;
 SELECT * FROM delimnames WHERE firstname = 'Zero';
 SELECT * FROM delimnames WHERE firstname != 'Zero';
 
+OCTO> CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30) DELIM (9), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) GLOBAL "^delimnames(keys(""id""))";
 CREATE TABLE
+OCTO> SELECT * FROM delimnames;
 id|firstname|lastname|middleinitial|age
 0|Zero|B|25|
 1|Acid|I|22|
@@ -16,13 +18,16 @@ id|firstname|lastname|middleinitial|age
 4|Joey||42|
 5|Zero|B|25|
 (6 rows)
+OCTO> SELECT * FROM delimnames WHERE firstname = 'Zero';
 id|firstname|lastname|middleinitial|age
 0|Zero|B|25|
 5|Zero|B|25|
 (2 rows)
+OCTO> SELECT * FROM delimnames WHERE firstname != 'Zero';
 id|firstname|lastname|middleinitial|age
 1|Acid|I|22|
 2|Cereal|A|59|
 3|Lord|O||
 4|Joey||42|
 (4 rows)
+OCTO> 

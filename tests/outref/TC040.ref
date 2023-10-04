@@ -88,10 +88,22 @@ SELECT * from x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
 LINE 3:1: ...namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw...
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> CREATE TABLE namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw (
+        id INTEGER PRIMARY KEY,
+        firstName VARCHAR(30),
+        lastName TEXT(30)
+) GLOBAL "^names(keys(""id""))";
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
 LINE 9:1: ...namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw...
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> SELECT * from namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw;
+OCTO> CREATE TABLE namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv (
+        id INTEGER PRIMARY KEY,
+        firstName VARCHAR(30),
+        lastName TEXT(30)
+) GLOBAL "^names(keys(""id""))";
 CREATE TABLE
+OCTO> SELECT * from namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -100,7 +112,13 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> CREATE TABLE x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrst (
+        id INTEGER PRIMARY KEY,
+        firstName VARCHAR(30),
+        lastName TEXT(30)
+) GLOBAL "^names(keys(""id""))";
 CREATE TABLE
+OCTO> SELECT * from x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrst;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -109,43 +127,84 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> DROP TABLE IF EXISTS namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv;
 DROP TABLE
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
 LINE 28:1: ...x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu...
               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> CREATE TABLE x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu (
+        id INTEGER PRIMARY KEY,
+        firstName VARCHAR(30),
+        lastName TEXT(30)
+) GLOBAL "^names(keys(""id""))";
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
 LINE 34:1: ...x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu...
               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> SELECT * from x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu;
+OCTO> DROP TABLE IF EXISTS namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv;
 DROP TABLE
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
 LINE 37:1: ...namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu.x...
               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> CREATE TABLE namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu.x (
+        id INTEGER PRIMARY KEY,
+        firstName VARCHAR(30),
+        lastName TEXT(30)
+) GLOBAL "^names(keys(""id""))";
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
 LINE 43:1: ...namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu.x...
               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> SELECT * from namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu.x;
+OCTO> DROP TABLE IF EXISTS namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv;
 DROP TABLE
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 65 exceeds max (63)
 LINE 46:1: ...x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu...
               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> CREATE TABLE x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv (
+        id INTEGER PRIMARY KEY,
+        firstName VARCHAR(30),
+        lastName TEXT(30)
+) GLOBAL "^names(keys(""id""))";
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 65 exceeds max (63)
 LINE 52:1: ...x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu...
               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> SELECT * from x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv;
+OCTO> DROP TABLE IF EXISTS namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv;
 DROP TABLE
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 65 exceeds max (63)
 LINE 55:1: ...namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv....
               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> CREATE TABLE namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv.x (
+        id INTEGER PRIMARY KEY,
+        firstName VARCHAR(30),
+        lastName TEXT(30)
+) GLOBAL "^names(keys(""id""))";
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 65 exceeds max (63)
 LINE 61:1: ...namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv....
               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> SELECT * from namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv.x;
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
 LINE 63:1: ...namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw...
               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> CREATE TABLE x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw (
+        id INTEGER PRIMARY KEY,
+        firstName VARCHAR(30),
+        lastName TEXT(30)
+) GLOBAL "^names(keys(""id""))";
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
 LINE 69:1: ...namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw...
               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> SELECT * from x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw;
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
 LINE 71:1: ...namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw...
               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> CREATE TABLE namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw.x (
+        id INTEGER PRIMARY KEY,
+        firstName VARCHAR(30),
+        lastName TEXT(30)
+) GLOBAL "^names(keys(""id""))";
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
 LINE 77:1: ...namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw...
               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> SELECT * from x.namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw;
+OCTO> 

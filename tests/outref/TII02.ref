@@ -10,8 +10,15 @@ INSERT INTO namesLastNameXref (SELECT lastName, id FROM NAMES WHERE lastName IS 
 SELECT * FROM namesLastNameXref;
 DROP TABLE namesLastNameXref;
 
+OCTO> CREATE TABLE namesLastNameXref (
+  lastName VARCHAR(30),
+  id INTEGER,
+  PRIMARY KEY (lastName, id)
+);
 CREATE TABLE
+OCTO> INSERT INTO namesLastNameXref (SELECT lastName, id FROM NAMES WHERE lastName IS NOT NULL);
 INSERT 0 5
+OCTO> SELECT * FROM namesLastNameXref;
 lastname|id
 Burn|1
 Cool|0
@@ -19,4 +26,6 @@ Cool|5
 Killer|2
 Nikon|3
 (5 rows)
+OCTO> DROP TABLE namesLastNameXref;
 DROP TABLE
+OCTO> 

@@ -5,16 +5,20 @@ select 1[1];
 select 1[1][1];
 select (1[1])[1];
 [ WARN]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: arrays
+OCTO> select 1[1];
 ???
 1
 (1 row)
 [ WARN]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: arrays
 [ WARN]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: arrays
+OCTO> select 1[1][1];
 ???
 1
 (1 row)
 [ WARN]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: arrays
 [ WARN]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: arrays
+OCTO> select (1[1])[1];
 ???
 1
 (1 row)
+OCTO> 

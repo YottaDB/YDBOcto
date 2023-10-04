@@ -25,6 +25,7 @@ truncate names, invalid, customers;  -- ERR_UNKNOWN_TABLE for `invalid`
 select firstname, lastname from names;
 select first_name, last_name from customers;
 
+OCTO> select firstname, lastname from names;
 firstname|lastname
 Zero|Cool
 Acid|Burn
@@ -33,6 +34,7 @@ Lord|Nikon
 Joey|
 Zero|Cool
 (6 rows)
+OCTO> select typname from pg_type;
 typname
 bool
 int4
@@ -41,6 +43,7 @@ numeric
 unknown
 varchar
 (6 rows)
+OCTO> select first_name, last_name from customers;
 first_name|last_name
 George|Washington
 John|Adams
@@ -48,7 +51,10 @@ Thomas|Jefferson
 James|Madison
 James|Monroe
 (5 rows)
+OCTO> truncate pg_type;
 [ERROR]: ERR_TABLE_READONLY: TRUNCATE not allowed on READONLY table "pg_type". Only allowed on READWRITE tables.
+OCTO> -- ERR_TABLE_READONLY
+select typname from pg_type;
 typname
 bool
 int4
@@ -57,7 +63,10 @@ numeric
 unknown
 varchar
 (6 rows)
+OCTO> truncate names, pg_type, customers;
 [ERROR]: ERR_TABLE_READONLY: TRUNCATE not allowed on READONLY table "pg_type". Only allowed on READWRITE tables.
+OCTO> -- ERR_TABLE_READONLY for `pg_type`
+select firstname, lastname from names;
 firstname|lastname
 Zero|Cool
 Acid|Burn
@@ -66,6 +75,7 @@ Lord|Nikon
 Joey|
 Zero|Cool
 (6 rows)
+OCTO> select typname from pg_type;
 typname
 bool
 int4
@@ -74,6 +84,7 @@ numeric
 unknown
 varchar
 (6 rows)
+OCTO> select first_name, last_name from customers;
 first_name|last_name
 George|Washington
 John|Adams
@@ -81,7 +92,10 @@ Thomas|Jefferson
 James|Madison
 James|Monroe
 (5 rows)
+OCTO> truncate names, invalid, customers;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: invalid
+OCTO> -- ERR_UNKNOWN_TABLE for `invalid`
+select firstname, lastname from names;
 firstname|lastname
 Zero|Cool
 Acid|Burn
@@ -90,6 +104,7 @@ Lord|Nikon
 Joey|
 Zero|Cool
 (6 rows)
+OCTO> select first_name, last_name from customers;
 first_name|last_name
 George|Washington
 John|Adams
@@ -97,3 +112,4 @@ Thomas|Jefferson
 James|Madison
 James|Monroe
 (5 rows)
+OCTO> 

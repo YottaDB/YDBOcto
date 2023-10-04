@@ -2,8 +2,13 @@
 create view v1 as select id,firstname,lastname from names;
 select distinct v1.firstname from v1 order by v1.lastname; -- ERROR
 drop view v1;
+OCTO> create view v1 as select id,firstname,lastname from names;
 CREATE VIEW
 [ERROR]: ERR_ORDER_BY_SELECT_DISTINCT: For SELECT DISTINCT, ORDER BY expressions must appear in select list
 LINE 3:1: ...ct distinct v1.firstname from v1 order by v1.lastname; -- ERROR
                                                        ^^^^^^^^^^^
+OCTO> select distinct v1.firstname from v1 order by v1.lastname;
+OCTO> -- ERROR
+drop view v1;
 DROP VIEW
+OCTO> 

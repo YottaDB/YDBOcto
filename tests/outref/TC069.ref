@@ -3,5 +3,8 @@
 
 drop table if exists tmp;
 create table tmp (name varchar primary key, namequote varchar extract concat (name, '"'));
+OCTO> drop table if exists tmp;
 DROP TABLE
+OCTO> create table tmp (name varchar primary key, namequote varchar extract concat (name, '"'));
 CREATE TABLE
+OCTO> 

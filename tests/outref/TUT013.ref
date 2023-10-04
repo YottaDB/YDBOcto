@@ -11,14 +11,22 @@ SELECT * from namesTQG03;
 SELECT '-- Below UPDATE query should run fine (previously it used to incorrectly issue a ERR_CHECK_CONSTRAINT_VIOLATION error)';
 UPDATE namesTQG03 SET firstName=firstName;
 
+OCTO> DROP TABLE IF EXISTS namesTQG03;
 DROP TABLE
+OCTO> CREATE TABLE namesTQG03 (id INTEGER PRIMARY KEY,firstName VARCHAR,lastName VARCHAR, CHECK(lastName>firstName));
 CREATE TABLE
+OCTO> INSERT INTO namesTQG03 VALUES(0,'Cereal','Cool');
 INSERT 0 1
+OCTO> UPDATE namesTQG03 SET lastName=NULL;
 UPDATE 1
+OCTO> SELECT * from namesTQG03;
 id|firstname|lastname
 0|Cereal|
 (1 row)
+OCTO> SELECT '-- Below UPDATE query should run fine (previously it used to incorrectly issue a ERR_CHECK_CONSTRAINT_VIOLATION error)';
 ???
 -- Below UPDATE query should run fine (previously it used to incorrectly issue a ERR_CHECK_CONSTRAINT_VIOLATION error)
 (1 row)
+OCTO> UPDATE namesTQG03 SET firstName=firstName;
 UPDATE 1
+OCTO> 

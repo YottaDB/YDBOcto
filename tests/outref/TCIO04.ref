@@ -1,7 +1,9 @@
 select * from names2 where 'Cool' = lastName;
+OCTO> select * from names2 where 'Cool' = lastName;
 id|firstname|lastname
 0|Zero|Cool
 (1 row)
+OCTO> 
 _ydboctoX*.m
 ^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5="^names2"
 ^%ydbAIMDEoh7G9LAJbLJWs2VI0VHG5("")="2"

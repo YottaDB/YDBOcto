@@ -9,17 +9,25 @@ select * from v1;
 select * from v2;
 select * from v3;
 select * from v4;
+OCTO> create function samevalue(integer) returns integer as $$samevalue^functions;
 CREATE FUNCTION
+OCTO> create function samevalue(varchar) returns varchar as $$samevalue^functions;
 CREATE FUNCTION
+OCTO> create view v1 as select samevalue(1);
 CREATE VIEW
+OCTO> create view v2 as select samevalue(id) from names;
 CREATE VIEW
+OCTO> create view v3 as select samevalue(firstname) from names;
 CREATE VIEW
+OCTO> create view v4 as select samevalue(firstname) from names having samevalue(id)<4;
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'firstname' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 7:1: ...iew v4 as select samevalue(firstname) from names having sameval...
                                         ^^^^^^^^^
+OCTO> select * from v1;
 samevalue
 1
 (1 row)
+OCTO> select * from v2;
 samevalue
 0
 1
@@ -28,6 +36,7 @@ samevalue
 4
 5
 (6 rows)
+OCTO> select * from v3;
 samevalue
 Zero
 Acid
@@ -39,3 +48,5 @@ Zero
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: v4
 LINE 11:1: select * from v4;
                          ^^
+OCTO> select * from v4;
+OCTO> 

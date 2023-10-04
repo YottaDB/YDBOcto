@@ -29,48 +29,64 @@ create view v8 as select array(select NULL);
 create view v9 as select array(select NULL from names);
 \d v9;
 
+OCTO> create view v4 as select '';
 CREATE VIEW
+OCTO> \d v4;
 View "v4"
 Column|Type|Collation|Nullable|Default
 ???|NULL||||
 View definition:
 create view v4 as select '';
+OCTO> select * from v4;
 ???
 
 (1 row)
+OCTO> create view v5 as select NULL;
 CREATE VIEW
+OCTO> \d v5;
 View "v5"
 Column|Type|Collation|Nullable|Default
 ???|NULL||||
 View definition:
 create view v5 as select NULL;
+OCTO> create view v6 as select array(select '');
 CREATE VIEW
+OCTO> \d v6;
 View "v6"
 Column|Type|Collation|Nullable|Default
 ARRAY|NULL||||
 View definition:
 create view v6 as select array(select '');
+OCTO> select * from v6;
 ARRAY
 {NULL}
 (1 row)
+OCTO> create view v7 as select array(select '' from names);
 CREATE VIEW
+OCTO> \d v7;
 View "v7"
 Column|Type|Collation|Nullable|Default
 ARRAY|NULL||||
 View definition:
 create view v7 as select array(select '' from names);
+OCTO> select * from v7;
 ARRAY
 {NULL,NULL,NULL,NULL,NULL,NULL}
 (1 row)
+OCTO> create view v8 as select array(select NULL);
 CREATE VIEW
+OCTO> \d v8;
 View "v8"
 Column|Type|Collation|Nullable|Default
 ARRAY|NULL||||
 View definition:
 create view v8 as select array(select NULL);
+OCTO> create view v9 as select array(select NULL from names);
 CREATE VIEW
+OCTO> \d v9;
 View "v9"
 Column|Type|Collation|Nullable|Default
 ARRAY|NULL||||
 View definition:
 create view v9 as select array(select NULL from names);
+OCTO> 

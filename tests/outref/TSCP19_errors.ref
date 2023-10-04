@@ -82,338 +82,407 @@ LINE 3:1: select 1 in ('stf',12) from names n1;
                        ^^^^^
 LINE 3:1: select 1 in ('stf',12) from names n1;
                              ^^
+OCTO> select 1 in ('stf',12) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 4:1: select 1 in (12,'stf') from names n1;
                        ^^
 LINE 4:1: select 1 in (12,'stf') from names n1;
                           ^^^^^
+OCTO> select 1 in (12,'stf') from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 5:1: select 'stf' in (12,12) from names n1;
                  ^^^^^
 LINE 5:1: select 'stf' in (12,12) from names n1;
                            ^^^^^
+OCTO> select 'stf' in (12,12) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 6:1: select 'stf' in ('stf',12) from names n1;
                            ^^^^^
 LINE 6:1: select 'stf' in ('stf',12) from names n1;
                                  ^^
+OCTO> select 'stf' in ('stf',12) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 7:1: select 'stf' in (12,'stf') from names n1;
                            ^^
 LINE 7:1: select 'stf' in (12,'stf') from names n1;
                               ^^^^^
+OCTO> select 'stf' in (12,'stf') from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 8:1: select n1.id in ('stf',12) from names n1;
                            ^^^^^
 LINE 8:1: select n1.id in ('stf',12) from names n1;
                                  ^^
+OCTO> select n1.id in ('stf',12) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 9:1: select n1.id in (n1.lastname,12) from names n1;
                            ^^^^^^^^^^^
 LINE 9:1: select n1.id in (n1.lastname,12) from names n1;
                                        ^^
+OCTO> select n1.id in (n1.lastname,12) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 10:1: select n1.id in (n1.lastname,n1.id) from names n1;
                             ^^^^^^^^^^^
 LINE 10:1: select n1.id in (n1.lastname,n1.id) from names n1;
                                         ^^^^^
+OCTO> select n1.id in (n1.lastname,n1.id) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 11:1: select n1.id in (n1.id,n1.lastname) from names n1;
                             ^^^^^
 LINE 11:1: select n1.id in (n1.id,n1.lastname) from names n1;
                                   ^^^^^^^^^^^
+OCTO> select n1.id in (n1.id,n1.lastname) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
 LINE 12:1: select n1.id in (n1.*,n1.id) from names n1;
                             ^^^^
 LINE 12:1: select n1.id in (n1.*,n1.id) from names n1;
                                  ^^^^^
+OCTO> select n1.id in (n1.*,n1.id) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
 LINE 13:1: select n1.id in (n1.id,n1.*) from names n1;
                             ^^^^^
 LINE 13:1: select n1.id in (n1.id,n1.*) from names n1;
                                   ^^^^
+OCTO> select n1.id in (n1.id,n1.*) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 14:1: select n1.lastname in (n1.lastname,12) from names n1;
                                   ^^^^^^^^^^^
 LINE 14:1: select n1.lastname in (n1.lastname,12) from names n1;
                                               ^^
+OCTO> select n1.lastname in (n1.lastname,12) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 15:1: select n1.lastname in (n1.lastname,n1.id) from names n1;
                                   ^^^^^^^^^^^
 LINE 15:1: select n1.lastname in (n1.lastname,n1.id) from names n1;
                                               ^^^^^
+OCTO> select n1.lastname in (n1.lastname,n1.id) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 16:1: select n1.lastname in (n1.id,n1.lastname) from names n1;
                                   ^^^^^
 LINE 16:1: select n1.lastname in (n1.id,n1.lastname) from names n1;
                                         ^^^^^^^^^^^
+OCTO> select n1.lastname in (n1.id,n1.lastname) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 17:1: select n1.lastname in (n1.id,n1.id) from names n1;
                   ^^^^^^^^^^^
 LINE 17:1: select n1.lastname in (n1.id,n1.id) from names n1;
                                   ^^^^^^^^^^^
+OCTO> select n1.lastname in (n1.id,n1.id) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
 LINE 18:1: select n1.lastname in (n1.lastname,n1.*) from names n1;
                                   ^^^^^^^^^^^
 LINE 18:1: select n1.lastname in (n1.lastname,n1.*) from names n1;
                                               ^^^^
+OCTO> select n1.lastname in (n1.lastname,n1.*) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
 LINE 19:1: select n1.lastname in (n1.*,n1.lastname) from names n1;
                                   ^^^^
 LINE 19:1: select n1.lastname in (n1.*,n1.lastname) from names n1;
                                        ^^^^^^^^^^^
+OCTO> select n1.lastname in (n1.*,n1.lastname) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 20:1: select n1.* in ('stf',12) from names n1;
                            ^^^^^
 LINE 20:1: select n1.* in ('stf',12) from names n1;
                                  ^^
+OCTO> select n1.* in ('stf',12) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 21:1: select n1.* in (n1.lastname,12) from names n1;
                            ^^^^^^^^^^^
 LINE 21:1: select n1.* in (n1.lastname,12) from names n1;
                                        ^^
+OCTO> select n1.* in (n1.lastname,12) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 22:1: select n1.* in (n1.id,n1.lastname) from names n1;
                            ^^^^^
 LINE 22:1: select n1.* in (n1.id,n1.lastname) from names n1;
                                  ^^^^^^^^^^^
+OCTO> select n1.* in (n1.id,n1.lastname) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
 LINE 23:1: select n1.* in (n1.lastname,n1.lastname) from names n1;
                   ^^
 LINE 23:1: select n1.* in (n1.lastname,n1.lastname) from names n1;
                            ^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select n1.* in (n1.lastname,n1.lastname) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
 LINE 24:1: select n1.* in (n1.*,n1.lastname) from names n1;
                            ^^^^
 LINE 24:1: select n1.* in (n1.*,n1.lastname) from names n1;
                                 ^^^^^^^^^^^
+OCTO> select n1.* in (n1.*,n1.lastname) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
 LINE 25:1: select n1.* in (n1.lastname,n1.*) from names n1;
                            ^^^^^^^^^^^
 LINE 25:1: select n1.* in (n1.lastname,n1.*) from names n1;
                                        ^^^^
+OCTO> select n1.* in (n1.lastname,n1.*) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
 LINE 26:1: select n1.* in (n1.id,n1.*) from names n1;
                            ^^^^^
 LINE 26:1: select n1.* in (n1.id,n1.*) from names n1;
                                  ^^^^
+OCTO> select n1.* in (n1.id,n1.*) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
 LINE 27:1: select n1.* in (n1.*,n1.id) from names n1;
                            ^^^^
 LINE 27:1: select n1.* in (n1.*,n1.id) from names n1;
                                 ^^^^^
+OCTO> select n1.* in (n1.*,n1.id) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
 LINE 28:1: select n1.* in (n1.lastname,n1.*) from names n1;
                            ^^^^^^^^^^^
 LINE 28:1: select n1.* in (n1.lastname,n1.*) from names n1;
                                        ^^^^
+OCTO> select n1.* in (n1.lastname,n1.*) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
 LINE 29:1: select n1.* in (n1.*,n1.lastname) from names n1;
                            ^^^^
 LINE 29:1: select n1.* in (n1.*,n1.lastname) from names n1;
                                 ^^^^^^^^^^^
+OCTO> select n1.* in (n1.*,n1.lastname) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
 LINE 30:1: select n1.* in (n1.lastname,NULL) from names n1;
                   ^^
 LINE 30:1: select n1.* in (n1.lastname,NULL) from names n1;
                            ^^^^^^^^^^^^^^^^
+OCTO> select n1.* in (n1.lastname,NULL) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
 LINE 31:1: select n1.* in (NULL,n1.lastname) from names n1;
                   ^^
 LINE 31:1: select n1.* in (NULL,n1.lastname) from names n1;
                            ^^^^^^^^^^^^^^^^
+OCTO> select n1.* in (NULL,n1.lastname) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
 LINE 32:1: select n1.* in (n1.lastname) from names n1;
                   ^^
 LINE 32:1: select n1.* in (n1.lastname) from names n1;
                            ^^^^^^^^^^^
+OCTO> select n1.* in (n1.lastname) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
 LINE 33:1: select n1.lastname in (n1.*) from names n1;
                   ^^^^^^^^^^^
 LINE 33:1: select n1.lastname in (n1.*) from names n1;
                                   ^^^^
+OCTO> select n1.lastname in (n1.*) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
 LINE 34:1: select n1.* in (n1.id) from names n1;
                   ^^
 LINE 34:1: select n1.* in (n1.id) from names n1;
                            ^^^^^
+OCTO> select n1.* in (n1.id) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
 LINE 35:1: select n1.id in (n1.*) from names n1;
                   ^^^^^
 LINE 35:1: select n1.id in (n1.*) from names n1;
                             ^^^^
+OCTO> select n1.id in (n1.*) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
 LINE 36:1: select n1.* in (select n2.*) from (select 'test' union select NU...
                   ^^
 LINE 36:1: select n1.* in (select n2.*) from (select 'test' union select NU...
                            ^^^^^^
+OCTO> select n1.* in (select n2.*) from (select 'test' union select NULL union select 'numtest') n1, (select 'nottest' union select NULL) n2;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 39:1: select 1 not in ('stf',12) from names n1;
                             ^^^^^
 LINE 39:1: select 1 not in ('stf',12) from names n1;
                                   ^^
+OCTO> select 1 not in ('stf',12) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 40:1: select 1 not in (12,'stf') from names n1;
                             ^^
 LINE 40:1: select 1 not in (12,'stf') from names n1;
                                ^^^^^
+OCTO> select 1 not in (12,'stf') from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 41:1: select 'stf' not in (12,12) from names n1;
                   ^^^^^
 LINE 41:1: select 'stf' not in (12,12) from names n1;
                                 ^^^^^
+OCTO> select 'stf' not in (12,12) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 42:1: select 'stf' not in ('stf',12) from names n1;
                                 ^^^^^
 LINE 42:1: select 'stf' not in ('stf',12) from names n1;
                                       ^^
+OCTO> select 'stf' not in ('stf',12) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 43:1: select 'stf' not in (12,'stf') from names n1;
                                 ^^
 LINE 43:1: select 'stf' not in (12,'stf') from names n1;
                                    ^^^^^
+OCTO> select 'stf' not in (12,'stf') from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 44:1: select n1.id not in ('stf',12) from names n1;
                                 ^^^^^
 LINE 44:1: select n1.id not in ('stf',12) from names n1;
                                       ^^
+OCTO> select n1.id not in ('stf',12) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 45:1: select n1.id not in (n1.lastname,12) from names n1;
                                 ^^^^^^^^^^^
 LINE 45:1: select n1.id not in (n1.lastname,12) from names n1;
                                             ^^
+OCTO> select n1.id not in (n1.lastname,12) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 46:1: select n1.id not in (n1.lastname,n1.id) from names n1;
                                 ^^^^^^^^^^^
 LINE 46:1: select n1.id not in (n1.lastname,n1.id) from names n1;
                                             ^^^^^
+OCTO> select n1.id not in (n1.lastname,n1.id) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 47:1: select n1.id not in (n1.id,n1.lastname) from names n1;
                                 ^^^^^
 LINE 47:1: select n1.id not in (n1.id,n1.lastname) from names n1;
                                       ^^^^^^^^^^^
+OCTO> select n1.id not in (n1.id,n1.lastname) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
 LINE 48:1: select n1.id not in (n1.*,n1.id) from names n1;
                                 ^^^^
 LINE 48:1: select n1.id not in (n1.*,n1.id) from names n1;
                                      ^^^^^
+OCTO> select n1.id not in (n1.*,n1.id) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
 LINE 49:1: select n1.id not in (n1.id,n1.*) from names n1;
                                 ^^^^^
 LINE 49:1: select n1.id not in (n1.id,n1.*) from names n1;
                                       ^^^^
+OCTO> select n1.id not in (n1.id,n1.*) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 50:1: select n1.lastname not in (n1.lastname,12) from names n1;
                                       ^^^^^^^^^^^
 LINE 50:1: select n1.lastname not in (n1.lastname,12) from names n1;
                                                   ^^
+OCTO> select n1.lastname not in (n1.lastname,12) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 51:1: select n1.lastname not in (n1.lastname,n1.id) from names n1;
                                       ^^^^^^^^^^^
 LINE 51:1: select n1.lastname not in (n1.lastname,n1.id) from names n1;
                                                   ^^^^^
+OCTO> select n1.lastname not in (n1.lastname,n1.id) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 52:1: select n1.lastname not in (n1.id,n1.lastname) from names n1;
                                       ^^^^^
 LINE 52:1: select n1.lastname not in (n1.id,n1.lastname) from names n1;
                                             ^^^^^^^^^^^
+OCTO> select n1.lastname not in (n1.id,n1.lastname) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 53:1: select n1.lastname not in (n1.id,n1.id) from names n1;
                   ^^^^^^^^^^^
 LINE 53:1: select n1.lastname not in (n1.id,n1.id) from names n1;
                                       ^^^^^^^^^^^
+OCTO> select n1.lastname not in (n1.id,n1.id) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
 LINE 54:1: select n1.lastname not in (n1.lastname,n1.*) from names n1;
                                       ^^^^^^^^^^^
 LINE 54:1: select n1.lastname not in (n1.lastname,n1.*) from names n1;
                                                   ^^^^
+OCTO> select n1.lastname not in (n1.lastname,n1.*) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
 LINE 55:1: select n1.lastname not in (n1.*,n1.lastname) from names n1;
                                       ^^^^
 LINE 55:1: select n1.lastname not in (n1.*,n1.lastname) from names n1;
                                            ^^^^^^^^^^^
+OCTO> select n1.lastname not in (n1.*,n1.lastname) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 56:1: select n1.* not in ('stf',12) from names n1;
                                ^^^^^
 LINE 56:1: select n1.* not in ('stf',12) from names n1;
                                      ^^
+OCTO> select n1.* not in ('stf',12) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 57:1: select n1.* not in (n1.lastname,12) from names n1;
                                ^^^^^^^^^^^
 LINE 57:1: select n1.* not in (n1.lastname,12) from names n1;
                                            ^^
+OCTO> select n1.* not in (n1.lastname,12) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 58:1: select n1.* not in (n1.id,n1.lastname) from names n1;
                                ^^^^^
 LINE 58:1: select n1.* not in (n1.id,n1.lastname) from names n1;
                                      ^^^^^^^^^^^
+OCTO> select n1.* not in (n1.id,n1.lastname) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
 LINE 59:1: select n1.* not in (n1.lastname,n1.lastname) from names n1;
                   ^^
 LINE 59:1: select n1.* not in (n1.lastname,n1.lastname) from names n1;
                                ^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select n1.* not in (n1.lastname,n1.lastname) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
 LINE 60:1: select n1.* not in (n1.*,n1.lastname) from names n1;
                                ^^^^
 LINE 60:1: select n1.* not in (n1.*,n1.lastname) from names n1;
                                     ^^^^^^^^^^^
+OCTO> select n1.* not in (n1.*,n1.lastname) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
 LINE 61:1: select n1.* not in (n1.lastname,n1.*) from names n1;
                                ^^^^^^^^^^^
 LINE 61:1: select n1.* not in (n1.lastname,n1.*) from names n1;
                                            ^^^^
+OCTO> select n1.* not in (n1.lastname,n1.*) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
 LINE 62:1: select n1.* not in (n1.id,n1.*) from names n1;
                                ^^^^^
 LINE 62:1: select n1.* not in (n1.id,n1.*) from names n1;
                                      ^^^^
+OCTO> select n1.* not in (n1.id,n1.*) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
 LINE 63:1: select n1.* not in (n1.*,n1.id) from names n1;
                                ^^^^
 LINE 63:1: select n1.* not in (n1.*,n1.id) from names n1;
                                     ^^^^^
+OCTO> select n1.* not in (n1.*,n1.id) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
 LINE 64:1: select n1.* not in (n1.lastname,n1.*) from names n1;
                                ^^^^^^^^^^^
 LINE 64:1: select n1.* not in (n1.lastname,n1.*) from names n1;
                                            ^^^^
+OCTO> select n1.* not in (n1.lastname,n1.*) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
 LINE 65:1: select n1.* not in (n1.*,n1.lastname) from names n1;
                                ^^^^
 LINE 65:1: select n1.* not in (n1.*,n1.lastname) from names n1;
                                     ^^^^^^^^^^^
+OCTO> select n1.* not in (n1.*,n1.lastname) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
 LINE 66:1: select n1.* not in (n1.lastname,NULL) from names n1;
                   ^^
 LINE 66:1: select n1.* not in (n1.lastname,NULL) from names n1;
                                ^^^^^^^^^^^^^^^^
+OCTO> select n1.* not in (n1.lastname,NULL) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
 LINE 67:1: select n1.* not in (NULL,n1.lastname) from names n1;
                   ^^
 LINE 67:1: select n1.* not in (NULL,n1.lastname) from names n1;
                                ^^^^^^^^^^^^^^^^
+OCTO> select n1.* not in (NULL,n1.lastname) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
 LINE 68:1: select n1.* not in (n1.lastname) from names n1;
                   ^^
 LINE 68:1: select n1.* not in (n1.lastname) from names n1;
                                ^^^^^^^^^^^
+OCTO> select n1.* not in (n1.lastname) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TABLENAME.*
 LINE 69:1: select n1.lastname not in (n1.*) from names n1;
                   ^^^^^^^^^^^
 LINE 69:1: select n1.lastname not in (n1.*) from names n1;
                                       ^^^^
+OCTO> select n1.lastname not in (n1.*) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
 LINE 70:1: select n1.* not in (n1.id) from names n1;
                   ^^
 LINE 70:1: select n1.* not in (n1.id) from names n1;
                                ^^^^^
+OCTO> select n1.* not in (n1.id) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TABLENAME.*
 LINE 71:1: select n1.id not in (n1.*) from names n1;
                   ^^^^^
 LINE 71:1: select n1.id not in (n1.*) from names n1;
                                 ^^^^
+OCTO> select n1.id not in (n1.*) from names n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
 LINE 72:1: select n1.* not in (select n2.*) from (select 'test' union selec...
                   ^^
 LINE 72:1: select n1.* not in (select n2.*) from (select 'test' union selec...
                                ^^^^^^
+OCTO> select n1.* not in (select n2.*) from (select 'test' union select NULL union select 'numtest') n1, (select 'nottest' union select NULL) n2;
+OCTO> 

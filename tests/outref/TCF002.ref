@@ -9,9 +9,13 @@ select PG_CATALOG.PG_GET_EXPR('balloons', true) as badarg from names;
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function abs defined with given parameter types (VARCHAR)
 LINE 2:1: select ABS('balloons') as badarg from names;
                  ^^^
+OCTO> select ABS('balloons') as badarg from names;
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function replace defined with given parameter types (VARCHAR, INTEGER, VARCHAR)
 LINE 4:1: select REPLACE('balloons', 12, 'hot air') as badarg from names;
                  ^^^^^^^
+OCTO> select REPLACE('balloons', 12, 'hot air') as badarg from names;
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function pg_catalog.pg_get_expr defined with given parameter types (VARCHAR, BOOLEAN)
 LINE 6:1: select PG_CATALOG.PG_GET_EXPR('balloons', true) as badarg from n...
                  ^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select PG_CATALOG.PG_GET_EXPR('balloons', true) as badarg from names;
+OCTO> 

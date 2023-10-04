@@ -23,10 +23,13 @@ select 1;
 -- code and hence is added to this test.
 --      octo: YDBOcto/src/run_query.c:235: run_query: Assertion `table_alias_STATEMENT == result->type' failed.
 \d
+OCTO> select n1.firstname from names n1 limit 2;
 firstname
 Zero
 Acid
 (2 rows)
+OCTO> --Test \d command with semicolon works fine
+\d;
 Schema|Name|Type|Owner
 public|information_schema.tables|table|octo
 public|names|table|octo
@@ -85,6 +88,8 @@ public|pg_trigger|table|octo
 public|pg_type|table|octo
 public|pg_user|table|octo
 (56 rows)
+OCTO> --Test \d command with semicolon works fine
+\d names;
 Table "names" stored in Global: ^names(id) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id|INTEGER||NOT NULL|
@@ -92,10 +97,13 @@ firstname|VARCHAR(30)|||
 lastname|VARCHAR(30)|||
 Indexes:
     "names_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^names(id)
+OCTO> select n1.firstname from names n1 limit 2;
 firstname
 Zero
 Acid
 (2 rows)
+OCTO> --Test that the \d tablename without semicolon works fine
+\d names;
 Table "names" stored in Global: ^names(id) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id|INTEGER||NOT NULL|
@@ -103,6 +111,9 @@ firstname|VARCHAR(30)|||
 lastname|VARCHAR(30)|||
 Indexes:
     "names_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^names(id)
+OCTO> \d
+
+select 
 Schema|Name|Type|Owner
 public|information_schema.tables|table|octo
 public|names|table|octo
@@ -164,6 +175,8 @@ public|pg_user|table|octo
 LINE 16:1: 1;
             ^
 syntax error, unexpected LITERAL
+OCTO> 1;
+OCTO> \d
 Schema|Name|Type|Owner
 public|information_schema.tables|table|octo
 public|names|table|octo

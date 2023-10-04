@@ -11,6 +11,15 @@ WHERE a.firstName IN (
         WHERE c.id = a.id)
 );
 
+OCTO> SELECT *
+FROM names a
+WHERE a.firstName IN (
+    SELECT b.firstName
+    FROM names b
+    WHERE b.id IN (SELECT c.id
+        FROM names c
+        WHERE c.id = a.id)
+);
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -19,6 +28,7 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> 
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  SELECT *

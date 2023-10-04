@@ -3,7 +3,9 @@
 
 INSERT INTO names SELECT id+6 FROM names where firstname = 'Zero';
 
+OCTO> INSERT INTO names SELECT id+6 FROM names where firstname = 'Zero';
 INSERT 0 2
+OCTO> 
 # Verify that ^%ydboctoX... invocation happens BEFORE the TSTART in the generated M plan
 ;  INSERT INTO names SELECT id+6 FROM names where firstname = 'Zero';
 octoPlan0(cursorId,wrapInTp)

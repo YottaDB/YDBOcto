@@ -13,7 +13,9 @@ SELECT PARMLESSFUNC() FROM names;
 DROP FUNCTION PARMLESSFUNC;
 SELECT PARMLESSFUNC() FROM names;
 
+OCTO> CREATE FUNCTION PARMLESSFUNC() RETURNS VARCHAR AS $$^PARMLESSFUNC;
 CREATE FUNCTION
+OCTO> SELECT PARMLESSFUNC() FROM names;
 parmlessfunc
 SUCCESS
 SUCCESS
@@ -22,11 +24,15 @@ SUCCESS
 SUCCESS
 SUCCESS
 (6 rows)
+OCTO> DROP FUNCTION PARMLESSFUNC ();
 DROP FUNCTION
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function parmlessfunc defined with given parameter types (none)
 LINE 6:1: SELECT PARMLESSFUNC() FROM names;
                  ^^^^^^^^^^^^
+OCTO> SELECT PARMLESSFUNC() FROM names;
+OCTO> CREATE FUNCTION PARMLESSFUNC() RETURNS VARCHAR AS $$^PARMLESSFUNC;
 CREATE FUNCTION
+OCTO> SELECT PARMLESSFUNC() FROM names;
 parmlessfunc
 SUCCESS
 SUCCESS
@@ -35,9 +41,12 @@ SUCCESS
 SUCCESS
 SUCCESS
 (6 rows)
+OCTO> DROP FUNCTION PARMLESSFUNC;
 DROP FUNCTION
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function parmlessfunc defined with given parameter types (none)
 LINE 11:1: SELECT PARMLESSFUNC() FROM names;
                   ^^^^^^^^^^^^
+OCTO> SELECT PARMLESSFUNC() FROM names;
+OCTO> 
 Remaining function definitions (hashes):
 Successfully deleted function "parmlessfunc" from pg_catalog.pg_proc

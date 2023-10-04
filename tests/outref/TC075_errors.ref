@@ -173,101 +173,190 @@ create table tmp (id1 integer, id2 integer, primary key (id1, id2), firstname va
 create table tmp (id1 integer, id2 integer, primary key (id1, id2), firstname varchar GLOBAL "^names(1,keys(""ID2""),2,keys(""ID1""))") READONLY;
 
 [ERROR]: ERR_TABLE_MUST_HAVE_A_NON_EXTRACT_COLUMN: Table "tmp" must have at least one non-EXTRACT column
+OCTO> CREATE TABLE tmp (fullname VARCHAR EXTRACT "$$^FULLNAME(values(""firstName""))") READONLY;
 [ERROR]: ERR_TABLE_MUST_HAVE_A_NON_EXTRACT_COLUMN: Table "tmp" must have at least one non-EXTRACT column
+OCTO> CREATE TABLE tmp (fullname VARCHAR EXTRACT "$$^FULLNAME", fullname2 VARCHAR EXTRACT "$$^FULLNAME") READONLY;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: fullName
+OCTO> CREATE TABLE tmp (id INTEGER PRIMARY KEY, fullname VARCHAR EXTRACT "$$^FULLNAME(values(""fullName""))") READONLY;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: fullName
+OCTO> CREATE TABLE tmp (id INTEGER PRIMARY KEY, fullname VARCHAR EXTRACT "$$^FULLNAME(keys(""fullName""))") READONLY;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: invalidColumn
+OCTO> CREATE TABLE tmp (fullname VARCHAR EXTRACT "$$^FULLNAME(values(""invalidColumn""))") READWRITE;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: invalidColumn
+OCTO> CREATE TABLE tmp (fullname VARCHAR EXTRACT "$$^FULLNAME(keys(""invalidColumn""))") READWRITE;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: firstName
+OCTO> CREATE TABLE `TMP` (`ID` INTEGER PRIMARY KEY, `FULLNAME` VARCHAR EXTRACT "$$^FULLNAME(keys(""firstName""))");
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: firstName
+OCTO> CREATE TABLE `TMP` (`ID` INTEGER PRIMARY KEY, `FULLNAME` VARCHAR EXTRACT "$$^FULLNAME(values(""firstName""))");
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
+OCTO> CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), abs_id INTEGER EXTRACT "$$ABS^%ydboctosqlfunctions(values(""ID""))") GLOBAL "^names";
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
+OCTO> CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), computed VARCHAR EXTRACT "$$PostgreSQL^%ydboctofCONCAT(keys(""ID""),values(""FIRSTNAME""),keys(""LASTNAME""))") GLOBAL "^names";
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: firstName
+OCTO> create table tmp (id integer primary key) GLOBAL "^names(keys(""firstName"")))" READONLY;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: firstName
+OCTO> create table tmp (id integer primary key) GLOBAL "^names(keys(""firstName"")))" READWRITE;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: firstName
+OCTO> create table tmp (id integer primary key, comp varchar EXTRACT "$$abcd") GLOBAL "^names(keys(""firstName"")))" READONLY;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: firstName
+OCTO> create table tmp (id integer primary key) GLOBAL "^names(values(""firstName"")))" READONLY;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: firstName
+OCTO> create table tmp (id integer primary key) GLOBAL "^names(values(""firstName"")))" READWRITE;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: firstName
+OCTO> create table tmp (id integer primary key, comp varchar EXTRACT "$$abcd") GLOBAL "^names(values(""firstName"")))" READONLY;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FIRSTNAME
+OCTO> create table tmp (id integer primary key, firstname varchar) GLOBAL "^names(keys(""FIRSTNAME"")))" READONLY;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FIRSTNAME
+OCTO> create table tmp (id integer primary key, firstname varchar) GLOBAL "^names(keys(""FIRSTNAME"")))" READWRITE;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FIRSTNAME
+OCTO> create table tmp (id integer primary key, firstname varchar, comp varchar EXTRACT "$$abcd") GLOBAL "^names(keys(""FIRSTNAME"")))" READONLY;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
+OCTO> create table tmp (id integer primary key, firstname varchar) GLOBAL "^names(values(""ID"")))" READONLY;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
+OCTO> create table tmp (id integer primary key, firstname varchar) GLOBAL "^names(values(""ID"")))" READWRITE;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
+OCTO> create table tmp (id integer primary key, firstname varchar, comp varchar EXTRACT "$$abcd") GLOBAL "^names(values(""ID"")))" READONLY;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FIRSTNAME
+OCTO> create table tmp (id integer primary key, firstname varchar) GLOBAL "^names(values(""FIRSTNAME"")))" READONLY;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FIRSTNAME
+OCTO> create table tmp (id integer primary key, firstname varchar) GLOBAL "^names(values(""FIRSTNAME"")))" READWRITE;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FIRSTNAME
+OCTO> create table tmp (id integer primary key, firstname varchar, comp varchar EXTRACT "$$abcd") GLOBAL "^names(values(""FIRSTNAME"")))" READONLY;
+OCTO> create table tmp (id integer primary key, firstname varchar) GLOBAL "^names(keys(""id"")))" READONLY;
 CREATE TABLE
 [ERROR]: ERR_READWRITE_DISALLOWED: READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
+OCTO> create table tmp (id integer primary key, firstname varchar) GLOBAL "^names(keys(""id"")))" READWRITE;
+OCTO> create table tmp (id integer primary key, firstname varchar, comp varchar EXTRACT "$$abcd") GLOBAL "^names(keys(""id"")))" READONLY;
 [ERROR]: ERR_CANNOT_CREATE_TABLE: Table or View "tmp" already exists
 [ERROR]: ERR_GLOBAL_MISSING_KEY_COLS: GLOBAL keyword does not specify all KEY column(s)
+OCTO> create table tmp (id integer primary key, firstname varchar) GLOBAL "^names(1)" READONLY;
 [ERROR]: ERR_GLOBAL_MISSING_KEY_COLS: GLOBAL keyword does not specify all KEY column(s)
+OCTO> create table tmp (id integer primary key, firstname varchar) GLOBAL "^names(1)" READWRITE;
 [ERROR]: ERR_GLOBAL_MISSING_KEY_COLS: GLOBAL keyword does not specify all KEY column(s)
+OCTO> create table tmp (id integer primary key, firstname varchar, comp varchar EXTRACT "$$abcd") GLOBAL "^names(1)" READONLY;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
+OCTO> create table tmp (id1 integer, id2 integer, primary key (id1, id2), firstname varchar) GLOBAL "^names(1,keys(""ID1""))" READONLY;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
+OCTO> create table tmp (id1 integer, id2 integer, primary key (id1, id2), firstname varchar) GLOBAL "^names(1,keys(""ID1""))" READWRITE;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
+OCTO> create table tmp (id1 integer, id2 integer, primary key (id1, id2), firstname varchar, comp varchar EXTRACT "$$abcd") GLOBAL "^names(1,keys(""ID1""))" READONLY;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID2
+OCTO> create table tmp (id1 integer, id2 integer, primary key (id1, id2), firstname varchar) GLOBAL "^names(1,keys(""ID2""),2,keys(""ID1""))" READONLY;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID2
+OCTO> create table tmp (id1 integer, id2 integer, primary key (id1, id2), firstname varchar) GLOBAL "^names(1,keys(""ID2""),2,keys(""ID1""))" READWRITE;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID2
+OCTO> create table tmp (id1 integer, id2 integer, primary key (id1, id2), firstname varchar, comp varchar EXTRACT "$$abcd") GLOBAL "^names(1,keys(""ID2""),2,keys(""ID1""))" READONLY;
+OCTO> drop table tmp;
 DROP TABLE
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1",keys("ID2")
+OCTO> CREATE TABLE TMP (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id2, id1)) GLOBAL "^x(keys(""ID1"",keys(""ID2"")))" READONLY;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
 LINE 57:1: select * from tmp;
                          ^^^
+OCTO> select * from tmp;
+OCTO> drop table tmp;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
+OCTO> CREATE TABLE TMP (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id2, id1)) GLOBAL "^x(keys(ID1))" READONLY;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
 LINE 61:1: select * from tmp;
                          ^^^
+OCTO> select * from tmp;
+OCTO> drop table tmp;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: "ID1
+OCTO> CREATE TABLE TMP (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id2, id1)) GLOBAL "^x(keys(""""ID1))" READONLY;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
 LINE 65:1: select * from tmp;
                          ^^^
+OCTO> select * from tmp;
+OCTO> drop table tmp;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: "ID1
+OCTO> CREATE TABLE TMP (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id2, id1)) GLOBAL "^x(keys(""""ID1)" READONLY;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
 LINE 69:1: select * from tmp;
                          ^^^
+OCTO> select * from tmp;
+OCTO> drop table tmp;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
+OCTO> CREATE TABLE TMP (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id1, id2)) GLOBAL "^x(keys(""ID1""),keys(""ID2" READONLY;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
 LINE 73:1: select * from tmp;
                          ^^^
+OCTO> select * from tmp;
+OCTO> drop table tmp;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
+OCTO> CREATE TABLE TMP (id1 INTEGER PRIMARY KEY) GLOBAL "^x(keys(""ID1"")" READONLY;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
 LINE 77:1: select * from tmp;
                          ^^^
+OCTO> select * from tmp;
+OCTO> drop table tmp;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
+OCTO> CREATE TABLE TMP (id1 INTEGER PRIMARY KEY, firstname varchar) GLOBAL "^x(keys(""ID1"")" READONLY;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
 LINE 81:1: select * from tmp;
                          ^^^
+OCTO> select * from tmp;
+OCTO> drop table tmp;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
+OCTO> CREATE TABLE TMP (id1 INTEGER PRIMARY KEY) GLOBAL "^x(keys(""ID1"")x" READONLY;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
 LINE 85:1: select * from tmp;
                          ^^^
+OCTO> select * from tmp;
+OCTO> drop table tmp;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
+OCTO> CREATE TABLE TMP (id1 INTEGER PRIMARY KEY, firstname varchar) GLOBAL "^x(keys(""ID1"")x" READONLY;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
 LINE 89:1: select * from tmp;
                          ^^^
+OCTO> select * from tmp;
+OCTO> drop table tmp;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
+OCTO> CREATE TABLE TMP (id1 INTEGER PRIMARY KEY) GLOBAL "^x(keys(""ID1"")xy" READONLY;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
 LINE 93:1: select * from tmp;
                          ^^^
+OCTO> select * from tmp;
+OCTO> drop table tmp;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
+OCTO> CREATE TABLE TMP (id1 INTEGER PRIMARY KEY, firstname varchar) GLOBAL "^x(keys(""ID1"")xy)" READONLY;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
 LINE 97:1: select * from tmp;
                          ^^^
+OCTO> select * from tmp;
+OCTO> CREATE TABLE tmp (
+        id       INTEGER,
+        given    VARCHAR(15),
+        surname  VARCHAR(15),
+        street1  VARCHAR(50) GLOBAL "^names(keys(""id""),""Address"")" DELIM '^' PIECE 1,
+        street2  VARCHAR(50) GLOBAL "^names(keys(""id""),""Address"")" DELIM '^' PIECE 2,
+        city     VARCHAR(30) GLOBAL "^names(keys(""id""),""Address"")" DELIM '^' PIECE 3,
+        province VARCHAR(30) GLOBAL "^names(keys(""id""),""Address"")" DELIM '^' PIECE 4,
+        country  VARCHAR(30) GLOBAL "^names(keys(""id""),""Address"")" DELIM '^' PIECE 5,
+        postal   VARCHAR(10) GLOBAL "^names(keys(""id""),""Address"")" DELIM '^' PIECE 6,
+        primary key (id)
+) GLOBAL "^names";
 CREATE TABLE
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FIRSTNAME
+OCTO> create table tmp (id integer primary key, firstname varchar GLOBAL "^names(keys(""FIRSTNAME"")))") READONLY;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: FIRSTNAME
+OCTO> create table tmp (id integer primary key, firstname varchar GLOBAL "^names(values(""FIRSTNAME"")))") READONLY;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
+OCTO> create table tmp (id integer primary key, firstname varchar GLOBAL "^names(values(""ID"")))") READONLY;
 [ERROR]: ERR_GLOBAL_MISSING_KEY_COLS: GLOBAL keyword does not specify all KEY column(s)
+OCTO> create table tmp (id integer primary key, firstname varchar GLOBAL "^names(1)") READONLY;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
+OCTO> create table tmp (id1 integer, id2 integer, primary key (id1, id2), firstname varchar GLOBAL "^names(1,keys(""ID1""))") READONLY;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID2
+OCTO> create table tmp (id1 integer, id2 integer, primary key (id1, id2), firstname varchar GLOBAL "^names(1,keys(""ID2""),2,keys(""ID1""))") READONLY;
+OCTO> 

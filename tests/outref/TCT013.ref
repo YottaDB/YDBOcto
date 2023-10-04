@@ -70,18 +70,24 @@ SELECT firstname::invalid FROM names;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
 LINE 3:1: SELECT id + firstname FROM names;
                       ^^^^^^^^^
+OCTO> SELECT id + firstname FROM names;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
 LINE 4:1: SELECT id - firstname FROM names;
                       ^^^^^^^^^
+OCTO> SELECT id - firstname FROM names;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
 LINE 5:1: SELECT id * firstname FROM names;
                       ^^^^^^^^^
+OCTO> SELECT id * firstname FROM names;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
 LINE 6:1: SELECT id / firstname FROM names;
                       ^^^^^^^^^
+OCTO> SELECT id / firstname FROM names;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
 LINE 7:1: SELECT id % firstname FROM names;
                       ^^^^^^^^^
+OCTO> SELECT id % firstname FROM names;
+OCTO> SELECT id || firstname FROM names;
 ???
 0Zero
 1Acid
@@ -96,30 +102,36 @@ LINE 9:1: SELECT firstname + lastname FROM names;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
 LINE 9:1: SELECT firstname + lastname FROM names;
                              ^^^^^^^^
+OCTO> SELECT firstname + lastname FROM names;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
 LINE 10:1: SELECT firstname - lastname FROM names;
                   ^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
 LINE 10:1: SELECT firstname - lastname FROM names;
                               ^^^^^^^^
+OCTO> SELECT firstname - lastname FROM names;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
 LINE 11:1: SELECT firstname * lastname FROM names;
                   ^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
 LINE 11:1: SELECT firstname * lastname FROM names;
                               ^^^^^^^^
+OCTO> SELECT firstname * lastname FROM names;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
 LINE 12:1: SELECT firstname / lastname FROM names;
                   ^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
 LINE 12:1: SELECT firstname / lastname FROM names;
                               ^^^^^^^^
+OCTO> SELECT firstname / lastname FROM names;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
 LINE 13:1: SELECT firstname % lastname FROM names;
                   ^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
 LINE 13:1: SELECT firstname % lastname FROM names;
                               ^^^^^^^^
+OCTO> SELECT firstname % lastname FROM names;
+OCTO> SELECT firstname || lastname FROM names;
 ???
 ZeroCool
 AcidBurn
@@ -128,6 +140,7 @@ LordNikon
 
 ZeroCool
 (6 rows)
+OCTO> SELECT 1::integer FROM names;
 INTEGER
 1
 1
@@ -136,6 +149,7 @@ INTEGER
 1
 1
 (6 rows)
+OCTO> SELECT 1::numeric FROM names;
 NUMERIC
 1
 1
@@ -144,6 +158,7 @@ NUMERIC
 1
 1
 (6 rows)
+OCTO> SELECT 1::varchar FROM names;
 VARCHAR
 1
 1
@@ -152,6 +167,7 @@ VARCHAR
 1
 1
 (6 rows)
+OCTO> SELECT 1::text FROM names;
 VARCHAR
 1
 1
@@ -161,6 +177,8 @@ VARCHAR
 1
 (6 rows)
 [ERROR]: ERR_INVALID_TYPE: Type invalid does not exist
+OCTO> SELECT 1::invalid FROM names;
+OCTO> SELECT -1.5::numeric FROM names;
 ???
 -1.5
 -1.5
@@ -172,10 +190,14 @@ VARCHAR
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
 LINE 24:1: SELECT -1.5::varchar FROM names;
                    ^^^
+OCTO> SELECT -1.5::varchar FROM names;
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
 LINE 25:1: SELECT -1.5::text FROM names;
                    ^^^
+OCTO> SELECT -1.5::text FROM names;
 [ERROR]: ERR_INVALID_TYPE: Type invalid does not exist
+OCTO> SELECT -1.5::invalid FROM names;
+OCTO> SELECT (-1.5)::numeric FROM names;
 NUMERIC
 -1.5
 -1.5
@@ -184,6 +206,7 @@ NUMERIC
 -1.5
 -1.5
 (6 rows)
+OCTO> SELECT (-1.5)::varchar FROM names;
 VARCHAR
 -1.5
 -1.5
@@ -192,6 +215,7 @@ VARCHAR
 -1.5
 -1.5
 (6 rows)
+OCTO> SELECT (-1.5)::text FROM names;
 VARCHAR
 -1.5
 -1.5
@@ -201,8 +225,12 @@ VARCHAR
 -1.5
 (6 rows)
 [ERROR]: ERR_INVALID_TYPE: Type invalid does not exist
+OCTO> SELECT (-1.5)::invalid FROM names;
+OCTO> SELECT 'abcd'::integer FROM names;
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: 'abcd'
+OCTO> SELECT 'abcd'::numeric FROM names;
 [ERROR]: ERR_INVALID_NUMERIC_SYNTAX: Invalid input syntax for type numeric: 'abcd'
+OCTO> SELECT 'abcd'::varchar FROM names;
 VARCHAR
 abcd
 abcd
@@ -211,6 +239,7 @@ abcd
 abcd
 abcd
 (6 rows)
+OCTO> SELECT 'abcd'::text FROM names;
 VARCHAR
 abcd
 abcd
@@ -220,8 +249,12 @@ abcd
 abcd
 (6 rows)
 [ERROR]: ERR_INVALID_TYPE: Type invalid does not exist
+OCTO> SELECT 'abcd'::invalid FROM names;
+OCTO> SELECT '1.5abcd'::integer FROM names;
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: '1.5abcd'
+OCTO> SELECT '2.5abcd'::numeric FROM names;
 [ERROR]: ERR_INVALID_NUMERIC_SYNTAX: Invalid input syntax for type numeric: '2.5abcd'
+OCTO> SELECT '3.5abcd'::varchar FROM names;
 VARCHAR
 3.5abcd
 3.5abcd
@@ -230,6 +263,7 @@ VARCHAR
 3.5abcd
 3.5abcd
 (6 rows)
+OCTO> SELECT '4.5abcd'::text FROM names;
 VARCHAR
 4.5abcd
 4.5abcd
@@ -239,6 +273,8 @@ VARCHAR
 4.5abcd
 (6 rows)
 [ERROR]: ERR_INVALID_TYPE: Type invalid does not exist
+OCTO> SELECT '5.5abcd'::invalid FROM names;
+OCTO> SELECT id::integer FROM names;
 id
 0
 1
@@ -247,6 +283,7 @@ id
 4
 5
 (6 rows)
+OCTO> SELECT id::numeric FROM names;
 id
 0
 1
@@ -255,6 +292,7 @@ id
 4
 5
 (6 rows)
+OCTO> SELECT id::varchar FROM names;
 id
 0
 1
@@ -263,6 +301,7 @@ id
 4
 5
 (6 rows)
+OCTO> SELECT id::text FROM names;
 id
 0
 1
@@ -272,6 +311,8 @@ id
 5
 (6 rows)
 [ERROR]: ERR_INVALID_TYPE: Type invalid does not exist
+OCTO> SELECT id::invalid FROM names;
+OCTO> select Price::numeric from Products;
 price
 18
 19
@@ -351,6 +392,7 @@ price
 18
 13
 (77 rows)
+OCTO> select Price::varchar from Products;
 price
 18
 19
@@ -430,6 +472,7 @@ price
 18
 13
 (77 rows)
+OCTO> select Price::text from Products;
 price
 18
 19
@@ -510,8 +553,12 @@ price
 13
 (77 rows)
 [ERROR]: ERR_INVALID_TYPE: Type invalid does not exist
+OCTO> select Price::invalid from Products;
+OCTO> SELECT firstname::integer FROM names;
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: 'Zero'
+OCTO> SELECT firstname::numeric FROM names;
 [ERROR]: ERR_INVALID_NUMERIC_SYNTAX: Invalid input syntax for type numeric: 'Zero'
+OCTO> SELECT firstname::varchar FROM names;
 firstname
 Zero
 Acid
@@ -520,6 +567,7 @@ Lord
 Joey
 Zero
 (6 rows)
+OCTO> SELECT firstname::text FROM names;
 firstname
 Zero
 Acid
@@ -529,3 +577,5 @@ Joey
 Zero
 (6 rows)
 [ERROR]: ERR_INVALID_TYPE: Type invalid does not exist
+OCTO> SELECT firstname::invalid FROM names;
+OCTO> 

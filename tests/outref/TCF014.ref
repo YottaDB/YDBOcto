@@ -4,6 +4,7 @@
 select id*3 from names order by 1;
 select ABS(id*3) from names order by 1;
 
+OCTO> select id*3 from names order by 1;
 ???
 0
 3
@@ -12,6 +13,7 @@ select ABS(id*3) from names order by 1;
 12
 15
 (6 rows)
+OCTO> select ABS(id*3) from names order by 1;
 abs
 0
 3
@@ -20,3 +22,4 @@ abs
 12
 15
 (6 rows)
+OCTO> 

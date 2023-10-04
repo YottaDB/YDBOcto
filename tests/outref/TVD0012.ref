@@ -19,54 +19,73 @@ select REPLACE('ABCA', 'A', 'B');
 select RIGHTY('ABCDEFGH',5);
 select FMDIFF(3000102.010101,3000101.010101,2);
 select FMADD(3000101.010101,1,0,0,0);
+OCTO> --
+select DATEFORMAT(3000101.010101);
 dateformat
 01/01/2000 1:01:01 am
 (1 row)
+OCTO> select DATEFORMAT(3000101.010101,'');
 dateformat
 01/01/2000 1:01:01 am
 (1 row)
+OCTO> select DATEFORMAT(3000101.010101,'5Z');
 dateformat
 01/01/2000@TIME
 (1 row)
+OCTO> select FMGET(200,.01,1);
 fmget
 PROGRAMMER,ONE
 (1 row)
+OCTO> select FMGET(200.03,.01,2,1);
 fmget
 PXRM CPRS CONFIGURATION
 (1 row)
+OCTO> select IFNULL((select NULL),'0');
 ifnull
 0
 (1 row)
+OCTO> select IFNULL('','0');
 ifnull
 0
 (1 row)
+OCTO> select IFNULL('A','0');
 ifnull
 A
 (1 row)
+OCTO> select LEFTY('ABCDEFGH',5);
 lefty
 ABCDE
 (1 row)
+OCTO> select MPIECE('A^B','^',1);
 mpiece
 A
 (1 row)
+OCTO> select TOKEN('A^B','^',1);
 token
 A
 (1 row)
+OCTO> select NUMBER('123 any road');
 number
 123
 (1 row)
+OCTO> select PATINDEX('BQAF', 'A');
 patindex
 3
 (1 row)
+OCTO> select REPLACE('ABCA', 'A', 'B');
 replace
 BBCB
 (1 row)
+OCTO> select RIGHTY('ABCDEFGH',5);
 righty
 DEFGH
 (1 row)
+OCTO> select FMDIFF(3000102.010101,3000101.010101,2);
 fmdiff
 86400
 (1 row)
+OCTO> select FMADD(3000101.010101,1,0,0,0);
 fmadd
 3000102.010101
 (1 row)
+OCTO> 

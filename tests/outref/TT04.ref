@@ -15,21 +15,29 @@ truncate (((a)));
 LINE 3:1: truncate 2+3;
                    ^
 syntax error, unexpected LITERAL
+OCTO> truncate 2+3;
 LINE 4:1: truncate 2;
                    ^
 syntax error, unexpected LITERAL
+OCTO> truncate 2;
 LINE 5:1: truncate false;
                    ^^^^^
 syntax error, unexpected FALSE_TOKEN
+OCTO> truncate false;
 LINE 7:1: truncate (names);
                    ^
 syntax error, unexpected LEFT_PAREN
+OCTO> truncate (names);
 LINE 8:1: truncate (a);
                    ^
 syntax error, unexpected LEFT_PAREN
+OCTO> truncate (a);
 LINE 9:1: truncate (((names)));
                    ^
 syntax error, unexpected LEFT_PAREN
+OCTO> truncate (((names)));
 LINE 10:1: truncate (((a)));
                     ^
 syntax error, unexpected LEFT_PAREN
+OCTO> truncate (((a)));
+OCTO> 

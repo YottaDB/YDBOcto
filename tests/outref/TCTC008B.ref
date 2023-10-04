@@ -35,23 +35,45 @@ VALUES
 -- Test UPDATE where column is explicitly specified and takes on a NULL value
 UPDATE articles SET category_id = NULL WHERE article_id = 3;
 SELECT * FROM articles;
+OCTO> DROP TABLE IF EXISTS articles;
 DROP TABLE
+OCTO> CREATE TABLE articles(
+article_id INTEGER CONSTRAINT article_id_pk PRIMARY KEY,
+category_id INTEGER CONSTRAINT article_category_nn NOT NULL
+);
 CREATE TABLE
+OCTO> -- implicitly READWRITE
+
+\d articles;
 Table "articles" stored in Global: ^%ydboctoDMsG2927nvWQn38EEh8Gb92(article_id) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 article_id|INTEGER||NOT NULL|
 category_id|INTEGER||NOT NULL|
 Indexes:
     "article_id_pk" PRIMARY KEY CONSTRAINT, Column(s) (article_id), Global: ^%ydboctoDMsG2927nvWQn38EEh8Gb92(article_id)
+OCTO> INSERT INTO articles
+VALUES
+(3,5),
+(8,10);
 INSERT 0 2
+OCTO> SELECT * FROM articles;
 article_id|category_id
 3|5
 8|10
 (2 rows)
+OCTO> INSERT INTO articles(article_id, category_id)
+VALUES
+(6,NULL);
 [ERROR]: ERR_NULL_COL_VALUE: NULL value in column category_id violates NOT NULL constraint
+OCTO> INSERT INTO articles(article_id)
+VALUES
+(6);
 [ERROR]: ERR_NULL_COL_VALUE: NULL value in column category_id violates NOT NULL constraint
+OCTO> UPDATE articles SET category_id = NULL WHERE article_id = 3;
 [ERROR]: ERR_NULL_COL_VALUE: NULL value in column category_id violates NOT NULL constraint
+OCTO> SELECT * FROM articles;
 article_id|category_id
 3|5
 8|10
 (2 rows)
+OCTO> 

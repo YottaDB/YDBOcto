@@ -7,7 +7,10 @@ select * from names;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: nonexistanttable
 LINE 2:1: select * from nonexistanttable;
                         ^^^^^^^^^^^^^^^^
+OCTO> select * from nonexistanttable;
 [ WARN]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: INDEX statements
+OCTO> INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""ID""))";
+OCTO> select * from names;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -16,3 +19,4 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> 

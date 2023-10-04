@@ -44,9 +44,12 @@ SELECT id as A_id, "" AS B_id from names;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
 LINE 3:1: select "ID" from names;
                  ^^^^
+OCTO> select "ID" from names;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: id a
 LINE 4:1: select "id a" from (select 1 as "ID A")n1;
                  ^^^^^^
+OCTO> select "id a" from (select 1 as "ID A")n1;
+OCTO> select "id" from names;
 id
 0
 1
@@ -55,6 +58,7 @@ id
 4
 5
 (6 rows)
+OCTO> select id from names as "n1";
 id
 0
 1
@@ -63,6 +67,7 @@ id
 4
 5
 (6 rows)
+OCTO> select n1.id from names as "n1";
 id
 0
 1
@@ -71,6 +76,7 @@ id
 4
 5
 (6 rows)
+OCTO> select lastName from names group by lastName having exists (select alias1.lastName from names as "alias1" group by alias1.lastName);
 lastname
 
 Burn
@@ -78,23 +84,30 @@ Cool
 Nikon
 Killer
 (5 rows)
+OCTO> select 1 from names as "n1" inner join (select n2.id from names as "n2" where n2.id = 1 OR n2.id = 2) as "alias2" ON (n1.id = alias2.id ) inner join names as "n3" ON (n1.id = n3.id);
 ???
 1
 1
 (2 rows)
 [ERROR]: ERR_JOIN_ALIAS_DUPLICATE: table name "n1 with space" specified more than once
+OCTO> select * from names as "n1 with space", names as "n1 with space";
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : N1
 LINE 14:1: select * from names n1, names n2 where "N1"."FIRSTNAME" = 2;
                                                   ^^^^^^^^^^^^^^^^
+OCTO> select * from names n1, names n2 where "N1"."FIRSTNAME" = 2;
+OCTO> select ida from (select 8 as "ida",'ey' as firstname, '' as lastname)n1;
 ida
 8
 (1 row)
 [ERROR]: ERR_AMBIGUOUS_COLUMN_NAME: Ambiguous column name "id space": qualify name for safe execution
 LINE 17:1: ..., (select id as "id space" from names ) n2 where "id space" = 3;
                                                                ^^^^^^^^^^
+OCTO> select * from (select id as "id space" from names) n1, (select id as "id space" from names ) n2 where "id space" = 3;
+OCTO> select ida from (select 8 "ida",'ey' as firstname, '' as lastname)n1;
 ida
 8
 (1 row)
+OCTO> select n1.id from names "n1";
 id
 0
 1
@@ -103,6 +116,7 @@ id
 4
 5
 (6 rows)
+OCTO> select lastName from names group by lastName having exists (select alias1.lastName from names "alias1" group by alias1.lastName);
 lastname
 
 Burn
@@ -110,15 +124,20 @@ Cool
 Nikon
 Killer
 (5 rows)
+OCTO> select 1 from names "n1" inner join (select n2.id from names "n2" where n2.id = 1 OR n2.id = 2) "alias2" ON (n1.id = alias2.id ) inner join names "n3" ON (n1.id = n3.id);
 ???
 1
 1
 (2 rows)
+OCTO> select 1 from names as n1 inner join (select n2.id from names "n2" where n2.id = 1 OR n2.id = 2) alias2 ON (n1.id = alias2.id ) inner join names as "n3" ON (n1.id = n3.id);
 ???
 1
 1
 (2 rows)
 [ERROR]: ERR_COMMON_COLUMN: Common column name "first name" appears more than once in left side of NATURAL JOIN
+OCTO> select * from (select "first name" from "quote names") as n1 join "quote names" as n2 on true natural join "quote names" as n3;
 [ERROR]: ERR_ZERO_LENGTH_IDENT: Zero-length identifier
 LINE 29:1: SELECT id as A_id, "" AS B_id from names;
                               ^^
+OCTO> SELECT id as A_id, "" AS B_id from names;
+OCTO> 

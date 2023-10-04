@@ -6,11 +6,17 @@ drop table if exists "t";
 drop table if exists tmp;
 drop table if exists tmp2;
 drop table if exists tmp3;
+OCTO> drop table if exists "T";
 DROP TABLE
+OCTO> drop table if exists "t";
 DROP TABLE
+OCTO> drop table if exists tmp;
 DROP TABLE
+OCTO> drop table if exists tmp2;
 DROP TABLE
+OCTO> drop table if exists tmp3;
 DROP TABLE
+OCTO> 
 
 -- TC058 : OCTO519 : Case-sensitivity of double-quoted table names is preserved in constraint names
 
@@ -29,7 +35,9 @@ create table tmp3 ("id%1" integer);
 \d tmp2;
 \d tmp3;
 select * from tmp3;
+OCTO> create table "id ABcd" ("col Tmp" integer CHECK ("col Tmp" > 2), "col TMP" integer CHECK ("col TMP" > 2));
 CREATE TABLE
+OCTO> \d "id ABcd";
 Table "id ABcd" stored in Global: ^%ydboctoDcDIbAT8CSUSJHpSnmukH6G : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 col Tmp|INTEGER|||
@@ -37,21 +45,29 @@ col TMP|INTEGER|||
 Check constraints:
     "id ABcd_col Tmp_check" CHECK (("col Tmp" > 2))
     "id ABcd_col TMP_check" CHECK (("col TMP" > 2))
+OCTO> create table "T" (id integer primary key);
 CREATE TABLE
+OCTO> create table "t" (id integer primary key);
 CREATE TABLE
+OCTO> \d "T";
 Table "T" stored in Global: ^%ydboctoD2Z07aRHRvjuY8EuqHV12C5(id) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id|INTEGER||NOT NULL|
 Indexes:
     "T_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^%ydboctoD2Z07aRHRvjuY8EuqHV12C5(id)
+OCTO> \d "t";
 Table "t" stored in Global: ^%ydboctoD8oRR7qRYjLs241efCry582(id) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id|INTEGER||NOT NULL|
 Indexes:
     "t_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^%ydboctoD8oRR7qRYjLs241efCry582(id)
+OCTO> create table tmp ("id 1" integer, "id 2" integer, unique("id 2", "id 1"), constraint "c 3" CHECK ("id 1" < "id 2"));
 CREATE TABLE
+OCTO> create table tmp2 (id1 integer, id2 integer, unique(id2, id1), constraint c3 CHECK (id1 < id2));
 CREATE TABLE
+OCTO> create table tmp3 ("id%1" integer);
 CREATE TABLE
+OCTO> \d tmp;
 Table "tmp" stored in Global: ^%ydboctoDq4kC6afkVUEkYUwQW3JDKF : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id 1|INTEGER|||
@@ -60,6 +76,7 @@ Indexes:
     "tmp_id 2_id 1_key" UNIQUE CONSTRAINT, Column(s) ("id 2", "id 1"), Global ^%ydboctoU3veJdiCY8Gh2JhmSeVZQ64
 Check constraints:
     "c 3" CHECK (("id 1" < "id 2"))
+OCTO> \d tmp2;
 Table "tmp2" stored in Global: ^%ydboctoDdnfDUx4izkPZ9mCvyX36IJ : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id1|INTEGER|||
@@ -68,11 +85,14 @@ Indexes:
     "tmp2_id2_id1_key" UNIQUE CONSTRAINT, Column(s) (id2, id1), Global ^%ydboctoUwGtRZZgkvtnMZZl0zONUAK
 Check constraints:
     "c3" CHECK ((id1 < id2))
+OCTO> \d tmp3;
 Table "tmp3" stored in Global: ^%ydboctoDWjzymDOCs5muUPMLP01DL6 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id%1|INTEGER|||
+OCTO> select * from tmp3;
 id%1
 (0 rows)
+OCTO> 
 
 -- TC058 : OCTO519 : Case-sensitivity of double-quoted table names is preserved in constraint names
 
@@ -81,11 +101,17 @@ drop table if exists "t";
 drop table if exists tmp;
 drop table if exists tmp2;
 drop table if exists tmp3;
+OCTO> drop table if exists "T";
 DROP TABLE
+OCTO> drop table if exists "t";
 DROP TABLE
+OCTO> drop table if exists tmp;
 DROP TABLE
+OCTO> drop table if exists tmp2;
 DROP TABLE
+OCTO> drop table if exists tmp3;
 DROP TABLE
+OCTO> 
 CREATE TABLE
 CREATE TABLE
 CREATE TABLE

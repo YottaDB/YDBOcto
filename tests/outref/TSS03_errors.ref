@@ -38,48 +38,66 @@ SELECT * FROM names n1 WHERE n1.firstName != (SELECT NULL, n2.id, NULL from name
 -- Miscellaneous queries that issue error but used to assert fail due to an incorrect change to match_column_in_table.c
 select id+2;
 
+OCTO> SELECT * FROM names n1 WHERE n1.firstName = (SELECT n2.firstname FROM names n2 WHERE n2.firstname = n1.firstname);
 [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
 [ERROR] PATH:LINENUM DATE TIME: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 5:1: ...rom names n1 where n1.id IN (SELECT * FROM names n2 WHERE n2.id ...
                                           ^^^^^^
+OCTO> SELECT * from names n1 where n1.id IN (SELECT * FROM names n2 WHERE n2.id = ((n1.id + 1) % 6));
+OCTO> select id/(select 2 from names) from (select id from names) as n2;
 [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
+OCTO> select 2*(select id*id from names) from (select id from names) as n2;
 [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 10:1: ...LECT * FROM names a WHERE a.firstName = (SELECT b.id FROM names...
                                         ^^^^^^^^^^^
 LINE 10:1: ...names a WHERE a.firstName = (SELECT b.id FROM names b WHERE a.id...
                                            ^^^^^^
+OCTO> SELECT * FROM names a WHERE a.firstName = (SELECT b.id FROM names b WHERE a.id = b.id);
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 11:1: ...LECT * FROM names a WHERE a.firstName != (SELECT b.id FROM name...
                                         ^^^^^^^^^^^
 LINE 11:1: ...ames a WHERE a.firstName != (SELECT b.id FROM names b WHERE a.id...
                                            ^^^^^^
+OCTO> SELECT * FROM names a WHERE a.firstName != (SELECT b.id FROM names b WHERE a.id = b.id);
 [ERROR] PATH:LINENUM DATE TIME: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 13:1: ...names a WHERE a.firstName = (SELECT b.firstName,b.lastname FROM ...
                                            ^^^^^^
+OCTO> SELECT * FROM names a WHERE a.firstName = (SELECT b.firstName,b.lastname FROM names b WHERE a.id = b.id);
 [ERROR] PATH:LINENUM DATE TIME: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 14:1: ...ames a WHERE a.firstName != (SELECT b.firstName,b.lastname FROM ...
                                            ^^^^^^
+OCTO> SELECT * FROM names a WHERE a.firstName != (SELECT b.firstName,b.lastname FROM names b WHERE a.id = b.id);
+OCTO> SELECT * FROM names a WHERE a.firstName = (SELECT b.firstName FROM names b WHERE (a.id % 2) = (b.id % 2));
 [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
+OCTO> SELECT * FROM names a WHERE a.firstName != (SELECT b.firstName FROM names b WHERE (a.id % 2) = (b.id % 2));
 [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
 [ERROR] PATH:LINENUM DATE TIME: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 19:1: ...names a WHERE a.firstName = (SELECT b.firstName,b.lastname FROM ...
                                            ^^^^^^
+OCTO> SELECT * FROM names a WHERE a.firstName = (SELECT b.firstName,b.lastname FROM names b WHERE (a.id % 2) = (b.id % 2));
 [ERROR] PATH:LINENUM DATE TIME: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 20:1: ...ames a WHERE a.firstName != (SELECT b.firstName,b.lastname FROM ...
                                            ^^^^^^
+OCTO> SELECT * FROM names a WHERE a.firstName != (SELECT b.firstName,b.lastname FROM names b WHERE (a.id % 2) = (b.id % 2));
 [ERROR] PATH:LINENUM DATE TIME: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 22:1: ...FROM names a WHERE a.firstName = (SELECT NULL, NULL, firstname);
                                                 ^^^^^^
+OCTO> SELECT * FROM names a WHERE a.firstName = (SELECT NULL, NULL, firstname);
 [ERROR] PATH:LINENUM DATE TIME: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 23:1: ...ROM names a WHERE a.firstName != (SELECT NULL, NULL, firstname);
                                                 ^^^^^^
+OCTO> SELECT * FROM names a WHERE a.firstName != (SELECT NULL, NULL, firstname);
 [ERROR] PATH:LINENUM DATE TIME: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 25:1: ...mes n1 WHERE n1.firstName = (SELECT NULL, n2.id, NULL from names...
                                            ^^^^^^
+OCTO> SELECT * FROM names n1 WHERE n1.firstName = (SELECT NULL, n2.id, NULL from names n2);
 [ERROR] PATH:LINENUM DATE TIME: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 26:1: ...es n1 WHERE n1.firstName != (SELECT NULL, n2.id, NULL from names...
                                            ^^^^^^
+OCTO> SELECT * FROM names n1 WHERE n1.firstName != (SELECT NULL, n2.id, NULL from names n2);
 [ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_COLUMN_NAME: Unknown column: id
 LINE 28:1: select id+2;
                   ^^
+OCTO> select id+2;
+OCTO> 

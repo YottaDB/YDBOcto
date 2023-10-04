@@ -6,15 +6,20 @@ select 11 % (-4);
 select (-11) % 4;
 select (-11) % (-4);
 
+OCTO> select 11 % 4;
 ???
 3
 (1 row)
+OCTO> select 11 % (-4);
 ???
 -1
 (1 row)
+OCTO> select (-11) % 4;
 ???
 1
 (1 row)
+OCTO> select (-11) % (-4);
 ???
 -3
 (1 row)
+OCTO> 

@@ -4,6 +4,7 @@
 select current_schema();
 select abs(-2*id) from names;
 select replace('abcd' || 'efgh', 'efgh', 'abcd');
+OCTO> select current_schema();
 [DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
 LP_SELECT_QUERY: 
   LP_PROJECT: 
@@ -78,6 +79,7 @@ LP_SELECT_QUERY:
 current_schema
 public
 (1 row)
+OCTO> select abs(-2*id) from names;
 [DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
 LP_SELECT_QUERY: 
   LP_PROJECT: 
@@ -165,6 +167,7 @@ abs
 8
 10
 (6 rows)
+OCTO> select replace('abcd' || 'efgh', 'efgh', 'abcd');
 [DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
 LP_SELECT_QUERY: 
   LP_PROJECT: 
@@ -249,3 +252,4 @@ LP_SELECT_QUERY:
 replace
 abcdefgh
 (1 row)
+OCTO> 

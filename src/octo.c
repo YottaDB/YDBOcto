@@ -39,7 +39,6 @@ int main(int argc, char **argv) {
 	if (0 != status) {
 		return status;
 	}
-
 	TRACE(INFO_OCTO_STARTED, "");
 	yydebug = (TRACE == config->verbosity_level); /* Enable yacc/flex/bison tracing if verbosity was set to TRACE */
 	cur_input_more = &readline_get_more;
@@ -51,6 +50,13 @@ int main(int argc, char **argv) {
 			readline_setup();
 		}
 	}
+	/* Now that all auto-upgrade and octo-seed related loading has occurred inside "octo_init()", set up
+	 * "config->octo_print_query" based on whether "-p" was specified. We don't want to do this during
+	 * auto upgrade etc. because that would cause a lot of query output (loading "octo-seed.sql" etc.)
+	 * that would clutter the output. We also don't want to do this query printing if "readline()"
+	 * is used for command line editing as that will display the query as the user enters it anyways.
+	 */
+	config->octo_print_query = config->octo_print_flag_specified && !config->is_tty;
 	cur_input_index = 0;
 	input_buffer_combined[cur_input_index] = '\0';
 	do {

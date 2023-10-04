@@ -1,10 +1,12 @@
 
 select _id1 as _ from _test1 group by _ order by _;
 select * from _test2;
+OCTO> select _id1 as _ from _test1 group by _ order by _;
 _
 1
 2
 (2 rows)
+OCTO> select * from _test2;
 _id1|_fullname
 0|ZeroCool
 1|AcidBurn
@@ -13,3 +15,4 @@ _id1|_fullname
 4|Joey
 5|ZeroCool
 (6 rows)
+OCTO> 

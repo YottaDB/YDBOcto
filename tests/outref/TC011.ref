@@ -114,7 +114,9 @@ DROP TABLE names;
 CREATE TABLE names (id NUMERIC(abcd,efgh) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 DROP TABLE names;
 
+OCTO> CREATE TABLE names (id INTEGER(64) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 CREATE TABLE
+OCTO> SELECT id FROM names;
 id
 0
 1
@@ -123,6 +125,7 @@ id
 4
 5
 (6 rows)
+OCTO> SELECT id::integer FROM names;
 id
 0
 1
@@ -131,6 +134,7 @@ id
 4
 5
 (6 rows)
+OCTO> SELECT id::numeric FROM names;
 id
 0
 1
@@ -139,6 +143,7 @@ id
 4
 5
 (6 rows)
+OCTO> SELECT id::varchar FROM names;
 id
 0
 1
@@ -147,6 +152,7 @@ id
 4
 5
 (6 rows)
+OCTO> SELECT id::text FROM names;
 id
 0
 1
@@ -155,6 +161,7 @@ id
 4
 5
 (6 rows)
+OCTO> SELECT id::date FROM names;
 id
 0
 1
@@ -163,6 +170,7 @@ id
 4
 5
 (6 rows)
+OCTO> SELECT id::time FROM names;
 id
 0
 1
@@ -171,8 +179,11 @@ id
 4
 5
 (6 rows)
+OCTO> DROP TABLE names;
 DROP TABLE
+OCTO> CREATE TABLE names (id NUMERIC(10) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 CREATE TABLE
+OCTO> SELECT id FROM names;
 id
 0
 1
@@ -181,6 +192,7 @@ id
 4
 5
 (6 rows)
+OCTO> SELECT id::integer FROM names;
 id
 0
 1
@@ -189,6 +201,7 @@ id
 4
 5
 (6 rows)
+OCTO> SELECT id::numeric FROM names;
 id
 0
 1
@@ -197,6 +210,7 @@ id
 4
 5
 (6 rows)
+OCTO> SELECT id::varchar FROM names;
 id
 0
 1
@@ -205,6 +219,7 @@ id
 4
 5
 (6 rows)
+OCTO> SELECT id::text FROM names;
 id
 0
 1
@@ -213,6 +228,7 @@ id
 4
 5
 (6 rows)
+OCTO> SELECT id::date FROM names;
 id
 0
 1
@@ -221,6 +237,7 @@ id
 4
 5
 (6 rows)
+OCTO> SELECT id::time FROM names;
 id
 0
 1
@@ -229,8 +246,11 @@ id
 4
 5
 (6 rows)
+OCTO> DROP TABLE names;
 DROP TABLE
+OCTO> CREATE TABLE names (id NUMERIC(10,4) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 CREATE TABLE
+OCTO> SELECT id FROM names;
 id
 0
 1
@@ -239,6 +259,7 @@ id
 4
 5
 (6 rows)
+OCTO> SELECT id::integer FROM names;
 id
 0
 1
@@ -247,6 +268,7 @@ id
 4
 5
 (6 rows)
+OCTO> SELECT id::numeric FROM names;
 id
 0
 1
@@ -255,6 +277,7 @@ id
 4
 5
 (6 rows)
+OCTO> SELECT id::varchar FROM names;
 id
 0
 1
@@ -263,6 +286,7 @@ id
 4
 5
 (6 rows)
+OCTO> SELECT id::text FROM names;
 id
 0
 1
@@ -271,6 +295,7 @@ id
 4
 5
 (6 rows)
+OCTO> SELECT id::date FROM names;
 id
 0
 1
@@ -279,6 +304,7 @@ id
 4
 5
 (6 rows)
+OCTO> SELECT id::time FROM names;
 id
 0
 1
@@ -287,122 +313,200 @@ id
 4
 5
 (6 rows)
+OCTO> DROP TABLE names;
 DROP TABLE
+OCTO> CREATE TABLE names (id INTEGER(4) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 CREATE TABLE
+OCTO> DROP TABLE names;
 DROP TABLE
+OCTO> CREATE TABLE names (id INTEGER(8) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 CREATE TABLE
+OCTO> DROP TABLE names;
 DROP TABLE
+OCTO> CREATE TABLE names (id INTEGER(16) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 CREATE TABLE
+OCTO> DROP TABLE names;
 DROP TABLE
+OCTO> CREATE TABLE names (id INTEGER(32) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 CREATE TABLE
+OCTO> DROP TABLE names;
 DROP TABLE
+OCTO> CREATE TABLE names (id INTEGER(64) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 CREATE TABLE
+OCTO> DROP TABLE names;
 DROP TABLE
+OCTO> CREATE TABLE names (id INTEGER(127) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 CREATE TABLE
+OCTO> DROP TABLE names;
 DROP TABLE
+OCTO> CREATE TABLE names (id INTEGER(0) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 CREATE TABLE
+OCTO> DROP TABLE names;
 DROP TABLE
 LINE 47:1: CREATE TABLE names (id INTEGER(-1) PRIMARY KEY, firstName VARCH...
                                           ^
 syntax error, unexpected MINUS, expecting LITERAL
+OCTO> CREATE TABLE names (id INTEGER(-1) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
 LINE 49:1: CREATE TABLE names (id INTEGER(-1.5) PRIMARY KEY, firstName VAR...
                                           ^
 syntax error, unexpected MINUS, expecting LITERAL
+OCTO> CREATE TABLE names (id INTEGER(-1.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: '15.5'
 LINE 51:1: ...REATE TABLE names (id INTEGER(15.5) PRIMARY KEY, firstName VARCH...
                                             ^^^^
+OCTO> CREATE TABLE names (id INTEGER(15.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: 'abcd'
 LINE 53:1: ...EATE TABLE names (id INTEGER('abcd') PRIMARY KEY, firstName VARC...
                                            ^^^^^^
+OCTO> CREATE TABLE names (id INTEGER('abcd') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
 LINE 55:1: ...REATE TABLE names (id INTEGER(abcd) PRIMARY KEY, firstName VARCH...
                                             ^^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
+OCTO> CREATE TABLE names (id INTEGER(abcd) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
+OCTO> CREATE TABLE names (id NUMERIC(4) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 CREATE TABLE
+OCTO> DROP TABLE names;
 DROP TABLE
+OCTO> CREATE TABLE names (id NUMERIC(8) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 CREATE TABLE
+OCTO> DROP TABLE names;
 DROP TABLE
+OCTO> CREATE TABLE names (id NUMERIC(16) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 CREATE TABLE
+OCTO> DROP TABLE names;
 DROP TABLE
+OCTO> CREATE TABLE names (id NUMERIC(32) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 CREATE TABLE
+OCTO> DROP TABLE names;
 DROP TABLE
+OCTO> CREATE TABLE names (id NUMERIC(64) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 CREATE TABLE
+OCTO> DROP TABLE names;
 DROP TABLE
+OCTO> CREATE TABLE names (id NUMERIC(127) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 CREATE TABLE
+OCTO> DROP TABLE names;
 DROP TABLE
+OCTO> CREATE TABLE names (id NUMERIC(0) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 CREATE TABLE
+OCTO> DROP TABLE names;
 DROP TABLE
 LINE 72:1: CREATE TABLE names (id NUMERIC(-1) PRIMARY KEY, firstName VARCH...
                                           ^
 syntax error, unexpected MINUS, expecting LITERAL
+OCTO> CREATE TABLE names (id NUMERIC(-1) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
 LINE 74:1: CREATE TABLE names (id NUMERIC(-1.5) PRIMARY KEY, firstName VAR...
                                           ^
 syntax error, unexpected MINUS, expecting LITERAL
+OCTO> CREATE TABLE names (id NUMERIC(-1.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: '15.5'
 LINE 76:1: ...REATE TABLE names (id NUMERIC(15.5) PRIMARY KEY, firstName VARCH...
                                             ^^^^
+OCTO> CREATE TABLE names (id NUMERIC(15.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: 'abcd'
 LINE 78:1: ...EATE TABLE names (id NUMERIC('abcd') PRIMARY KEY, firstName VARC...
                                            ^^^^^^
+OCTO> CREATE TABLE names (id NUMERIC('abcd') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
 LINE 80:1: ...REATE TABLE names (id NUMERIC(abcd) PRIMARY KEY, firstName VARCH...
                                             ^^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
+OCTO> CREATE TABLE names (id NUMERIC(abcd) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
+OCTO> CREATE TABLE names (id NUMERIC(4,2) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 CREATE TABLE
+OCTO> DROP TABLE names;
 DROP TABLE
+OCTO> CREATE TABLE names (id NUMERIC(8,7) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 CREATE TABLE
+OCTO> DROP TABLE names;
 DROP TABLE
 [ERROR]: ERR_NUMERIC_SCALE: Numeric scale 18 must be between zero(0) and precision 16
 LINE 87:1: ...EATE TABLE names (id NUMERIC(16,18) PRIMARY KEY, firstName VARC...
                                           ^^^^^^^
+OCTO> CREATE TABLE names (id NUMERIC(16,18) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
+OCTO> CREATE TABLE names (id NUMERIC(32,25) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 CREATE TABLE
+OCTO> DROP TABLE names;
 DROP TABLE
 [ERROR]: ERR_NUMERIC_SCALE: Numeric scale 2047 must be between zero(0) and precision 64
 LINE 91:1: ...ATE TABLE names (id NUMERIC(64,2047) PRIMARY KEY, firstName VAR...
                                          ^^^^^^^^^
+OCTO> CREATE TABLE names (id NUMERIC(64,2047) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: '85.5'
 LINE 93:1: ...E TABLE names (id NUMERIC(127,85.5) PRIMARY KEY, firstName VARCH...
                                             ^^^^
+OCTO> CREATE TABLE names (id NUMERIC(127,85.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: '100.87'
 LINE 95:1: ...TE TABLE names (id NUMERIC(0,100.87) PRIMARY KEY, firstName VARC...
                                            ^^^^^^
+OCTO> CREATE TABLE names (id NUMERIC(0,100.87) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
 LINE 97:1: CREATE TABLE names (id NUMERIC(-1,20) PRIMARY KEY, firstName VA...
                                           ^
 syntax error, unexpected MINUS, expecting LITERAL
+OCTO> CREATE TABLE names (id NUMERIC(-1,20) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
 LINE 99:1: CREATE TABLE names (id NUMERIC(-1.5,-2.5) PRIMARY KEY, firstNam...
                                           ^
 syntax error, unexpected MINUS, expecting LITERAL
+OCTO> CREATE TABLE names (id NUMERIC(-1.5,-2.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: '15.5'
 LINE 101:1: ...REATE TABLE names (id NUMERIC(15.5,20.835) PRIMARY KEY, firstNam...
                                              ^^^^
+OCTO> CREATE TABLE names (id NUMERIC(15.5,20.835) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: 'abcd'
 LINE 103:1: ...EATE TABLE names (id NUMERIC('abcd',20.835) PRIMARY KEY, firstNa...
                                             ^^^^^^
+OCTO> CREATE TABLE names (id NUMERIC('abcd',20.835) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: 'abcd'
 LINE 105:1: ...EATE TABLE names (id NUMERIC('abcd','efgh') PRIMARY KEY, firstNa...
                                             ^^^^^^
+OCTO> CREATE TABLE names (id NUMERIC('abcd','efgh') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
 LINE 107:1: ...REATE TABLE names (id NUMERIC(abcd,'efgh') PRIMARY KEY, firstNam...
                                              ^^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
+OCTO> CREATE TABLE names (id NUMERIC(abcd,'efgh') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
 LINE 109:1: ...REATE TABLE names (id NUMERIC(abcd,efgh) PRIMARY KEY, firstName ...
                                              ^^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
+OCTO> CREATE TABLE names (id NUMERIC(abcd,efgh) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
+OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
+OCTO> 

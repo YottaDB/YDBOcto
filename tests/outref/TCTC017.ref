@@ -21,7 +21,9 @@ create table "TCTC017c" (id integer primary key, "iD1" integer, id2 integer, UNI
 create table TCTC017d (id integer primary key, id1 integer, "iD2" integer, UNIQUE (id1, "iD2"));
 \d TCTC017b;
 
+OCTO> create table "TCTC017a" (id integer primary key, id1 integer, id2 integer, UNIQUE (id1, id2));
 CREATE TABLE
+OCTO> \d "TCTC017a";
 Table "TCTC017a" stored in Global: ^%ydboctoDf8mJstqmh3icKNq5CrqUB9(id) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id|INTEGER||NOT NULL|
@@ -30,7 +32,9 @@ id2|INTEGER|||
 Indexes:
     "TCTC017a_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^%ydboctoDf8mJstqmh3icKNq5CrqUB9(id)
     "TCTC017a_id1_id2_key" UNIQUE CONSTRAINT, Column(s) (id1, id2), Global ^%ydboctoUaHvJ0pOKIFZemAHjExK6E5
+OCTO> create table TCTC017b (id integer primary key, id1 integer, id2 integer, UNIQUE (id1, id2));
 CREATE TABLE
+OCTO> \d TCTC017b;
 Table "tctc017b" stored in Global: ^%ydboctoD3M0ThFzOiASFmYpHmJZbIK(id) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id|INTEGER||NOT NULL|
@@ -39,7 +43,9 @@ id2|INTEGER|||
 Indexes:
     "tctc017b_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^%ydboctoD3M0ThFzOiASFmYpHmJZbIK(id)
     "tctc017b_id1_id2_key" UNIQUE CONSTRAINT, Column(s) (id1, id2), Global ^%ydboctoU1zDaAejZXM9jjSW0CzO4DL
+OCTO> create table "TCTC017c" (id integer primary key, "iD1" integer, id2 integer, UNIQUE ("iD1", id2));
 CREATE TABLE
+OCTO> \d "TCTC017a";
 Table "TCTC017a" stored in Global: ^%ydboctoDf8mJstqmh3icKNq5CrqUB9(id) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id|INTEGER||NOT NULL|
@@ -48,7 +54,9 @@ id2|INTEGER|||
 Indexes:
     "TCTC017a_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^%ydboctoDf8mJstqmh3icKNq5CrqUB9(id)
     "TCTC017a_id1_id2_key" UNIQUE CONSTRAINT, Column(s) (id1, id2), Global ^%ydboctoUaHvJ0pOKIFZemAHjExK6E5
+OCTO> create table TCTC017d (id integer primary key, id1 integer, "iD2" integer, UNIQUE (id1, "iD2"));
 CREATE TABLE
+OCTO> \d TCTC017b;
 Table "tctc017b" stored in Global: ^%ydboctoD3M0ThFzOiASFmYpHmJZbIK(id) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id|INTEGER||NOT NULL|
@@ -57,3 +65,4 @@ id2|INTEGER|||
 Indexes:
     "tctc017b_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^%ydboctoD3M0ThFzOiASFmYpHmJZbIK(id)
     "tctc017b_id1_id2_key" UNIQUE CONSTRAINT, Column(s) (id1, id2), Global ^%ydboctoU1zDaAejZXM9jjSW0CzO4DL
+OCTO> 

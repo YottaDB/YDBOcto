@@ -3,7 +3,10 @@
 
 CREATE FUNCTION functoolong() RETURNS INTEGER AS $$^%ydboctoabcdefghijklmnopqrstuvw;
 SELECT functoolong();
+OCTO> CREATE FUNCTION functoolong() RETURNS INTEGER AS $$^%ydboctoabcdefghijklmnopqrstuvw;
 CREATE FUNCTION
+OCTO> SELECT functoolong();
 functoolong
 1
 (1 row)
+OCTO> 

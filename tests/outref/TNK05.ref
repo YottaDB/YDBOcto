@@ -96,14 +96,19 @@ select '' similar to n1.* from names n1;
 select greatest('','10','2');
 select max('') from names;
 
+OCTO> select firstname from ((select * from names) union (select 8 as id,'ey' as firstname, '' as lastname))n1 where firstname SIMILAR TO (firstname || lastname);
 firstname
 (0 rows)
+OCTO> select firstname from ((select * from names) union (select 8 as id,'ey' as firstname, '' as lastname))n1 where firstname LIKE (firstname || lastname);
 firstname
 (0 rows)
+OCTO> select * from ((select * from names) union (select 8 as id,'ey' as firstname, '' as lastname))n1 where (firstname || lastname) SIMILAR TO firstname;
 id|firstname|lastname
 (0 rows)
+OCTO> select * from ((select * from names) union (select 8 as id,'ey' as firstname, '' as lastname))n1 where (firstname || lastname) LIKE firstname;
 id|firstname|lastname
 (0 rows)
+OCTO> select * from ((select * from names) union (select 8 as id,'ey' as firstname, '' as lastname))n1 where (firstname || lastname) ~ firstname;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -111,6 +116,7 @@ id|firstname|lastname
 3|Lord|Nikon
 5|Zero|Cool
 (5 rows)
+OCTO> select id,col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1;
 id|col1
 1|
 2|First
@@ -118,6 +124,7 @@ id|col1
 4|Cool
 5|Cool
 (5 rows)
+OCTO> select id,col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 order by col1, id;
 id|col1
 4|Cool
 5|Cool
@@ -125,6 +132,7 @@ id|col1
 1|
 3|
 (5 rows)
+OCTO> select id,col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 order by col1 desc, id;
 id|col1
 1|
 3|
@@ -132,6 +140,7 @@ id|col1
 4|Cool
 5|Cool
 (5 rows)
+OCTO> select id,col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 order by id, col1;
 id|col1
 1|
 2|First
@@ -139,6 +148,7 @@ id|col1
 4|Cool
 5|Cool
 (5 rows)
+OCTO> select id,col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 order by id, col1 desc;
 id|col1
 1|
 2|First
@@ -146,36 +156,43 @@ id|col1
 4|Cool
 5|Cool
 (5 rows)
+OCTO> select AVG(id),col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 GROUP BY col1 order by col1;
 avg|col1
 4.5|Cool
 2|First
 2|
 (3 rows)
+OCTO> select MIN(id),col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 GROUP BY col1 order by col1;
 min|col1
 4|Cool
 2|First
 1|
 (3 rows)
+OCTO> select MAX(id),col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 GROUP BY col1 order by col1 desc;
 max|col1
 3|
 2|First
 5|Cool
 (3 rows)
+OCTO> select SUM(id),col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 GROUP BY col1 order by col1;
 sum|col1
 9|Cool
 2|First
 4|
 (3 rows)
+OCTO> select COUNT(id),col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 GROUP BY col1 order by col1;
 count|col1
 2|Cool
 1|First
 2|
 (3 rows)
+OCTO> select COUNT(*),col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 GROUP BY col1 order by col1;
 count(*)|col1
 2|Cool
 1|First
 2|
 (3 rows)
+OCTO> select * from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1;
 col1|id
 |1
 First|2
@@ -183,6 +200,7 @@ First|2
 Cool|4
 Cool|5
 (5 rows)
+OCTO> select * from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 order by col1, id;
 col1|id
 Cool|4
 Cool|5
@@ -190,6 +208,7 @@ First|2
 |1
 |3
 (5 rows)
+OCTO> select * from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 order by col1 desc, id;
 col1|id
 |1
 |3
@@ -197,6 +216,7 @@ First|2
 Cool|4
 Cool|5
 (5 rows)
+OCTO> select * from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 order by id, col1;
 col1|id
 |1
 First|2
@@ -204,6 +224,7 @@ First|2
 Cool|4
 Cool|5
 (5 rows)
+OCTO> select * from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 order by id, col1 desc;
 col1|id
 |1
 First|2
@@ -211,76 +232,91 @@ First|2
 Cool|4
 Cool|5
 (5 rows)
+OCTO> select distinct col1 from ((select NULL as col1, 1 as id) union (select 'First', 2) union (select '', 3) union (select 'Cool',4) union (select 'Cool',5)) u1 order by col1 desc;
 col1
 
 First
 Cool
 (3 rows)
+OCTO> SELECT id * 1 from ((SELECT NULL AS col1, 1 AS id) UNION (SELECT '', 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
 ???
 1
 3
 4
 
 (4 rows)
+OCTO> SELECT id + 1 FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT '', 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
 ???
 2
 4
 5
 
 (4 rows)
+OCTO> SELECT id - 1 FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT '', 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
 ???
 0
 2
 3
 
 (4 rows)
+OCTO> SELECT id * 1 FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT '', 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
 ???
 1
 3
 4
 
 (4 rows)
+OCTO> SELECT id / 1 FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT '', 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
 ???
 1
 3
 4
 
 (4 rows)
+OCTO> SELECT 10 / id FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT '', 2) UNION (SELECT 'Cool',5) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
 ???
 10
 5
 2
 
 (4 rows)
+OCTO> SELECT 10 * id FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT '', 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
 ???
 10
 30
 40
 
 (4 rows)
+OCTO> SELECT 10 - id FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT '', 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
 ???
 9
 7
 6
 
 (4 rows)
+OCTO> SELECT 10 + id FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT '', 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
 ???
 11
 13
 14
 
 (4 rows)
+OCTO> select * from names where lastname = (select ''::text);
 id|firstname|lastname
 (0 rows)
+OCTO> SELECT ARRAY(SELECT '' FROM names);
 ARRAY
 {NULL,NULL,NULL,NULL,NULL,NULL}
 (1 row)
+OCTO> SELECT GREATEST('');
 GREATEST
 
 (1 row)
+OCTO> SELECT LEAST('');
 LEAST
 
 (1 row)
+OCTO> SELECT * FROM names where id < 4 UNION ALL (VALUES (0, 'Zero', 'Cool'), (1, 'Acid', 'Burn'), (2, 'Cereal', 'Killer'), (3, 'Lord', 'Nikon'), (4, 'Joey', ''), (5, 'Zero', 'Cool'));
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -293,14 +329,17 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (10 rows)
+OCTO> SELECT * FROM names where id < 4 INTERSECT ALL (VALUES (0, 'Zero', 'Cool'), (1, 'Acid', 'Burn'), (2, 'Cereal', 'Killer'), (3, 'Lord', 'Nikon'), (4, 'Joey', ''), (5, 'Zero', 'Cool'));
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 (4 rows)
+OCTO> SELECT * FROM names where id < 4 EXCEPT ALL (VALUES (0, 'Zero', 'Cool'), (1, 'Acid', 'Burn'), (2, 'Cereal', 'Killer'), (3, 'Lord', 'Nikon'), (4, 'Joey', ''), (5, 'Zero', 'Cool'));
 id|firstname|lastname
 (0 rows)
+OCTO> SELECT * FROM names where id < 4 UNION (VALUES (0, 'Zero', 'Cool'), (1, 'Acid', 'Burn'), (2, 'Cereal', 'Killer'), (3, 'Lord', 'Nikon'), (4, 'Joey', ''), (5, 'Zero', 'Cool'));
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -309,14 +348,17 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> SELECT * FROM names where id < 4 INTERSECT (VALUES (0, 'Zero', 'Cool'), (1, 'Acid', 'Burn'), (2, 'Cereal', 'Killer'), (3, 'Lord', 'Nikon'), (4, 'Joey', ''), (5, 'Zero', 'Cool'));
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 (4 rows)
+OCTO> SELECT * FROM names where id < 4 EXCEPT (VALUES (0, 'Zero', 'Cool'), (1, 'Acid', 'Burn'), (2, 'Cereal', 'Killer'), (3, 'Lord', 'Nikon'), (4, 'Joey', ''), (5, 'Zero', 'Cool'));
 id|firstname|lastname
 (0 rows)
+OCTO> SELECT * FROM names where id < 4 UNION ALL VALUES (0, 'Zero', 'Cool'), (1, 'Acid', 'Burn'), (2, 'Cereal', 'Killer'), (3, 'Lord', 'Nikon'), (4, 'Joey', ''), (5, 'Zero', 'Cool');
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -329,14 +371,17 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (10 rows)
+OCTO> SELECT * FROM names where id < 4 INTERSECT ALL VALUES (0, 'Zero', 'Cool'), (1, 'Acid', 'Burn'), (2, 'Cereal', 'Killer'), (3, 'Lord', 'Nikon'), (4, 'Joey', ''), (5, 'Zero', 'Cool');
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 (4 rows)
+OCTO> SELECT * FROM names where id < 4 EXCEPT ALL VALUES (0, 'Zero', 'Cool'), (1, 'Acid', 'Burn'), (2, 'Cereal', 'Killer'), (3, 'Lord', 'Nikon'), (4, 'Joey', ''), (5, 'Zero', 'Cool');
 id|firstname|lastname
 (0 rows)
+OCTO> SELECT * FROM names where id < 4 UNION VALUES (0, 'Zero', 'Cool'), (1, 'Acid', 'Burn'), (2, 'Cereal', 'Killer'), (3, 'Lord', 'Nikon'), (4, 'Joey', ''), (5, 'Zero', 'Cool');
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -345,14 +390,17 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> SELECT * FROM names where id < 4 INTERSECT VALUES (0, 'Zero', 'Cool'), (1, 'Acid', 'Burn'), (2, 'Cereal', 'Killer'), (3, 'Lord', 'Nikon'), (4, 'Joey', ''), (5, 'Zero', 'Cool');
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 (4 rows)
+OCTO> SELECT * FROM names where id < 4 EXCEPT VALUES (0, 'Zero', 'Cool'), (1, 'Acid', 'Burn'), (2, 'Cereal', 'Killer'), (3, 'Lord', 'Nikon'), (4, 'Joey', ''), (5, 'Zero', 'Cool');
 id|firstname|lastname
 (0 rows)
+OCTO> VALUES (0, 'Zero', 'Cool'), (1, 'Acid', 'Burn'), (2, 'Cereal', 'Killer'), (3, 'Lord', 'Nikon'), (4, 'Joey', ''), (5, 'Zero', 'Cool') UNION ALL SELECT * FROM names where id < 4;
 column1|column2|column3
 0|Zero|Cool
 1|Acid|Burn
@@ -365,16 +413,19 @@ column1|column2|column3
 2|Cereal|Killer
 3|Lord|Nikon
 (10 rows)
+OCTO> VALUES (0, 'Zero', 'Cool'), (1, 'Acid', 'Burn'), (2, 'Cereal', 'Killer'), (3, 'Lord', 'Nikon'), (4, 'Joey', ''), (5, 'Zero', 'Cool') INTERSECT ALL SELECT * FROM names where id < 4;
 column1|column2|column3
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 (4 rows)
+OCTO> VALUES (0, 'Zero', 'Cool'), (1, 'Acid', 'Burn'), (2, 'Cereal', 'Killer'), (3, 'Lord', 'Nikon'), (4, 'Joey', ''), (5, 'Zero', 'Cool') EXCEPT ALL SELECT * FROM names where id < 4;
 column1|column2|column3
 4|Joey|
 5|Zero|Cool
 (2 rows)
+OCTO> VALUES (0, 'Zero', 'Cool'), (1, 'Acid', 'Burn'), (2, 'Cereal', 'Killer'), (3, 'Lord', 'Nikon'), (4, 'Joey', ''), (5, 'Zero', 'Cool') UNION SELECT * FROM names where id < 4;
 column1|column2|column3
 0|Zero|Cool
 1|Acid|Burn
@@ -383,12 +434,14 @@ column1|column2|column3
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> VALUES (0, 'Zero', 'Cool'), (1, 'Acid', 'Burn'), (2, 'Cereal', 'Killer'), (3, 'Lord', 'Nikon'), (4, 'Joey', ''), (5, 'Zero', 'Cool') INTERSECT SELECT * FROM names where id < 4;
 column1|column2|column3
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 (4 rows)
+OCTO> VALUES (0, 'Zero', 'Cool'), (1, 'Acid', 'Burn'), (2, 'Cereal', 'Killer'), (3, 'Lord', 'Nikon'), (4, 'Joey', ''), (5, 'Zero', 'Cool') EXCEPT SELECT * FROM names where id < 4;
 column1|column2|column3
 4|Joey|
 5|Zero|Cool
@@ -396,9 +449,12 @@ column1|column2|column3
 LINE 62:1: select * from names where lastname is '';
                                                   ^
 syntax error, unexpected EMPTY_STRING
+OCTO> select * from names where lastname is '';
 LINE 63:1: select * from names where lastname is NOT '';
                                                       ^
 syntax error, unexpected EMPTY_STRING, expecting UNKNOWN or TRUE_TOKEN or FALSE_TOKEN or NULL_TOKEN
+OCTO> select * from names where lastname is NOT '';
+OCTO> select '' from names order by 1;
 ???
 
 
@@ -407,6 +463,7 @@ syntax error, unexpected EMPTY_STRING, expecting UNKNOWN or TRUE_TOKEN or FALSE_
 
 
 (6 rows)
+OCTO> select t1.* = '' from names t1;
 ???
 
 
@@ -415,6 +472,7 @@ syntax error, unexpected EMPTY_STRING, expecting UNKNOWN or TRUE_TOKEN or FALSE_
 
 
 (6 rows)
+OCTO> select '' = t1.* from names t1;
 ???
 
 
@@ -426,39 +484,51 @@ syntax error, unexpected EMPTY_STRING, expecting UNKNOWN or TRUE_TOKEN or FALSE_
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
 LINE 68:1: select t1.* = (select '') from names t1;
                           ^^^^^^
+OCTO> select t1.* = (select '') from names t1;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
 LINE 69:1: select (select '') = t1.* from names t1;
                    ^^^^^^
+OCTO> select (select '') = t1.* from names t1;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
 LINE 70:1: select n1.* > (select '') from names n1;
                           ^^^^^^
+OCTO> select n1.* > (select '') from names n1;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
 LINE 71:1: select n1.* < ANY (select '') from names n1;
                               ^^^^^^
+OCTO> select n1.* < ANY (select '') from names n1;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
 LINE 72:1: select n1.* < ANY (select '' union select NULL) from names n1;
                               ^^^^^^
+OCTO> select n1.* < ANY (select '' union select NULL) from names n1;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
 LINE 73:1: select n1.* < ANY (select NULL union select '') from names n1;
                               ^^^^^^
+OCTO> select n1.* < ANY (select NULL union select '') from names n1;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
 LINE 74:1: select n1.* NOT IN (select '' union select '') from names n1;
                                ^^^^^^
+OCTO> select n1.* NOT IN (select '' union select '') from names n1;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for regex operations
 LINE 75:1: select n1.* similar to '' from names n1;
                   ^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for regex operations
 LINE 75:1: select n1.* similar to '' from names n1;
                                    ^
+OCTO> select n1.* similar to '' from names n1;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for regex operations
 LINE 76:1: select '' similar to n1.* from names n1;
                    ^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for regex operations
 LINE 76:1: select '' similar to n1.* from names n1;
                                 ^^
+OCTO> select '' similar to n1.* from names n1;
+OCTO> select greatest('','10','2');
 GREATEST
 2
 (1 row)
+OCTO> select max('') from names;
 max
 
 (1 row)
+OCTO> 

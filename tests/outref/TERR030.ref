@@ -33,44 +33,59 @@ SELECT * FROM NAMES WHERE id IN (values (3,4,6,7));
 [ERROR]: ERR_VALUES_LENGTH: VALUES lists must all be the same length
 LINE 4:1: SELECT * FROM (VALUES (1), (2,3)) AS MyTable;
                                 ^^^^^^^^^^
+OCTO> SELECT * FROM (VALUES (1), (2,3)) AS MyTable;
 [ERROR]: ERR_VALUES_LENGTH: VALUES lists must all be the same length
 LINE 5:1: SELECT * FROM (VALUES (1), (2), (3), (2,3)) AS MyTable;
                                           ^^^^^^^^^^
+OCTO> SELECT * FROM (VALUES (1), (2), (3), (2,3)) AS MyTable;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 7:1: SELECT * FROM (VALUES (1), ('abcd')) AS abcd;
                                  ^
 LINE 7:1: SELECT * FROM (VALUES (1), ('abcd')) AS abcd;
                                       ^^^^^^
+OCTO> SELECT * FROM (VALUES (1), ('abcd')) AS abcd;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left NUMERIC, right BOOLEAN
 LINE 8:1: SELECT * FROM (VALUES (1), (1.5), (true)) AS abcd;
                                  ^
 LINE 8:1: SELECT * FROM (VALUES (1), (1.5), (true)) AS abcd;
                                              ^^^^
+OCTO> SELECT * FROM (VALUES (1), (1.5), (true)) AS abcd;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 9:1: ... (SELECT * FROM (VALUES (NULL),('abcd')) n1 WHERE column1 = 1);
                                                                ^^^^^^^
 LINE 9:1: ... (SELECT * FROM (VALUES (NULL),('abcd')) n1 WHERE column1 = 1);
                                                                          ^
+OCTO> SELECT id FROM names WHERE id = (SELECT * FROM (VALUES (NULL),('abcd')) n1 WHERE column1 = 1);
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 10:1: SELECT id FROM names WHERE id = (SELECT * FROM (VALUES (NULL),('...
                                       ^^
 LINE 10:1: ...CT id FROM names WHERE id = (SELECT * FROM (VALUES (NULL),('abcd...
                                            ^^^^^^
+OCTO> SELECT id FROM names WHERE id = (SELECT * FROM (VALUES (NULL),('abcd')) n1 WHERE column1 IS NOT NULL);
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: a
 LINE 12:1: SELECT a, b FROM (VALUES (1, 2), (3, 4), (5, 6), (7, 8), (9, 10...
                   ^
+OCTO> SELECT a, b FROM (VALUES (1, 2), (3, 4), (5, 6), (7, 8), (9, 10) ) AS MyTable;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: col1
 LINE 13:1: SELECT col1 FROM (VALUES (1)) as MyTable;
                   ^^^^
+OCTO> SELECT col1 FROM (VALUES (1)) as MyTable;
 LINE 15:1: VALUES (VALUES (1));
                    ^^^^^^
 syntax error, unexpected VALUES
+OCTO> VALUES (VALUES (1));
 LINE 16:1: SELECT * FROM (VALUES (1, SELECT 1)) AS abcd;
                                      ^^^^^^
 syntax error, unexpected SELECT
+OCTO> SELECT * FROM (VALUES (1, SELECT 1)) AS abcd;
+OCTO> VALUES((SELECT id FROM names));
 [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
+OCTO> SELECT id FROM names WHERE id = (SELECT * FROM (VALUES (NULL),(1)) n1);
 [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
 LINE 21:1: SELECT firstname,lastname,id FROM names UNION ALL (VALUES (0, '...
                   ^^^^^^^^^
+OCTO> SELECT firstname,lastname,id FROM names UNION ALL (VALUES (0, 'Zero', 'Cool'), (1, 'Acid', 'Burn'), (2, 'Cereal', 'Killer'), (3, 'Lord', 'Nikon'), (4, 'Joey', ''), (5, 'Zero', 'Cool'));
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
+OCTO> SELECT * FROM NAMES WHERE id IN (values (3,4,6,7));
+OCTO> 

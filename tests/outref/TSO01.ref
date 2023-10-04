@@ -3,6 +3,7 @@
 
 select firstName, lastName from names union select firstName, lastName from names;
 
+OCTO> select firstName, lastName from names union select firstName, lastName from names;
 firstname|lastname
 Zero|Cool
 Acid|Burn
@@ -10,3 +11,4 @@ Cereal|Killer
 Lord|Nikon
 Joey|
 (5 rows)
+OCTO> 

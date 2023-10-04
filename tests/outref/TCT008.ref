@@ -6,14 +6,19 @@ CREATE FUNCTION DOLLARREV(INTEGER) RETURNS VARCHAR AS $REVERSE;
 select DOLLARZWRITE(id)::integer from names limit 1;
 select DOLLARREV(id)::integer from names limit 1;
 
+OCTO> CREATE FUNCTION DOLLARZWRITE(INTEGER) RETURNS VARCHAR AS $ZWRITE;
 CREATE FUNCTION
+OCTO> CREATE FUNCTION DOLLARREV(INTEGER) RETURNS VARCHAR AS $REVERSE;
 CREATE FUNCTION
+OCTO> select DOLLARZWRITE(id)::integer from names limit 1;
 dollarzwrite
 0
 (1 row)
+OCTO> select DOLLARREV(id)::integer from names limit 1;
 dollarrev
 0
 (1 row)
+OCTO> 
 Listing of M files, should see 2
 _ydboctoP*.m
 _ydboctoP*.m

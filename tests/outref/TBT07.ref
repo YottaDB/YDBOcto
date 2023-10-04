@@ -31,118 +31,143 @@ LINE 3:1: SELECT * FROM names WHERE id IS TRUE;
                                     ^^
 LINE 3:1: SELECT * FROM names WHERE id IS TRUE;
                                           ^^^^
+OCTO> SELECT * FROM names WHERE id IS TRUE;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right BOOLEAN
 LINE 4:1: SELECT * FROM names WHERE id IS NOT TRUE;
                                     ^^
 LINE 4:1: SELECT * FROM names WHERE id IS NOT TRUE;
                                               ^^^^
+OCTO> SELECT * FROM names WHERE id IS NOT TRUE;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right BOOLEAN
 LINE 5:1: SELECT * FROM names WHERE id IS FALSE;
                                     ^^
 LINE 5:1: SELECT * FROM names WHERE id IS FALSE;
                                           ^^^^^
+OCTO> SELECT * FROM names WHERE id IS FALSE;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right BOOLEAN
 LINE 6:1: SELECT * FROM names WHERE id IS NOT FALSE;
                                     ^^
 LINE 6:1: SELECT * FROM names WHERE id IS NOT FALSE;
                                               ^^^^^
+OCTO> SELECT * FROM names WHERE id IS NOT FALSE;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right BOOLEAN
 LINE 7:1: SELECT * FROM names WHERE id IS UNKNOWN;
                                     ^^
 LINE 7:1: SELECT * FROM names WHERE id IS UNKNOWN;
                                           ^^^^^^^
+OCTO> SELECT * FROM names WHERE id IS UNKNOWN;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right BOOLEAN
 LINE 8:1: SELECT * FROM names WHERE id IS NOT UNKNOWN;
                                     ^^
 LINE 8:1: SELECT * FROM names WHERE id IS NOT UNKNOWN;
                                               ^^^^^^^
+OCTO> SELECT * FROM names WHERE id IS NOT UNKNOWN;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right BOOLEAN
 LINE 9:1: SELECT * FROM names a1 WHERE a1.id IS TRUE;
                                        ^^^^^
 LINE 9:1: SELECT * FROM names a1 WHERE a1.id IS TRUE;
                                                 ^^^^
+OCTO> SELECT * FROM names a1 WHERE a1.id IS TRUE;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right BOOLEAN
 LINE 10:1: SELECT * FROM names a1 WHERE a1.id IS NOT TRUE;
                                         ^^^^^
 LINE 10:1: SELECT * FROM names a1 WHERE a1.id IS NOT TRUE;
                                                      ^^^^
+OCTO> SELECT * FROM names a1 WHERE a1.id IS NOT TRUE;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right BOOLEAN
 LINE 11:1: SELECT * FROM names a1 WHERE a1.id IS FALSE;
                                         ^^^^^
 LINE 11:1: SELECT * FROM names a1 WHERE a1.id IS FALSE;
                                                  ^^^^^
+OCTO> SELECT * FROM names a1 WHERE a1.id IS FALSE;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right BOOLEAN
 LINE 12:1: SELECT * FROM names a1 WHERE a1.id IS NOT FALSE;
                                         ^^^^^
 LINE 12:1: SELECT * FROM names a1 WHERE a1.id IS NOT FALSE;
                                                      ^^^^^
+OCTO> SELECT * FROM names a1 WHERE a1.id IS NOT FALSE;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right BOOLEAN
 LINE 13:1: SELECT * FROM names a1 WHERE a1.id IS UNKNOWN;
                                         ^^^^^
 LINE 13:1: SELECT * FROM names a1 WHERE a1.id IS UNKNOWN;
                                                  ^^^^^^^
+OCTO> SELECT * FROM names a1 WHERE a1.id IS UNKNOWN;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right BOOLEAN
 LINE 14:1: SELECT * FROM names a1 WHERE a1.id IS NOT UNKNOWN;
                                         ^^^^^
 LINE 14:1: SELECT * FROM names a1 WHERE a1.id IS NOT UNKNOWN;
                                                      ^^^^^^^
+OCTO> SELECT * FROM names a1 WHERE a1.id IS NOT UNKNOWN;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right BOOLEAN
 LINE 15:1: SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS TRUE ...
                    ^^^^^^
 LINE 15:1: ... a2.id from names a2 where a1.id = a2.id) IS TRUE FROM names a1;
                                                            ^^^^
+OCTO> SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS TRUE FROM names a1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right BOOLEAN
 LINE 16:1: SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS NOT T...
                    ^^^^^^
 LINE 16:1: ...id from names a2 where a1.id = a2.id) IS NOT TRUE FROM names a1;
                                                            ^^^^
+OCTO> SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS NOT TRUE FROM names a1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right BOOLEAN
 LINE 17:1: SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY...
                    ^^^^^^
 LINE 17:1: ...re a1.id != a2.id ORDER BY a2.id LIMIT 1) IS TRUE FROM names a1;
                                                            ^^^^
+OCTO> SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS TRUE FROM names a1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right BOOLEAN
 LINE 18:1: SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY...
                    ^^^^^^
 LINE 18:1: ...1.id != a2.id ORDER BY a2.id LIMIT 1) IS NOT TRUE FROM names a1;
                                                            ^^^^
+OCTO> SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS NOT TRUE FROM names a1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right BOOLEAN
 LINE 19:1: SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS FALSE...
                    ^^^^^^
 LINE 19:1: ...2.id from names a2 where a1.id = a2.id) IS FALSE FROM names a1;
                                                          ^^^^^
+OCTO> SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS FALSE FROM names a1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right BOOLEAN
 LINE 20:1: SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS NOT F...
                    ^^^^^^
 LINE 20:1: ... from names a2 where a1.id = a2.id) IS NOT FALSE FROM names a1;
                                                          ^^^^^
+OCTO> SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS NOT FALSE FROM names a1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right BOOLEAN
 LINE 21:1: SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY...
                    ^^^^^^
 LINE 21:1: ... a1.id != a2.id ORDER BY a2.id LIMIT 1) IS FALSE FROM names a1;
                                                          ^^^^^
+OCTO> SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS FALSE FROM names a1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right BOOLEAN
 LINE 22:1: SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY...
                    ^^^^^^
 LINE 22:1: ...id != a2.id ORDER BY a2.id LIMIT 1) IS NOT FALSE FROM names a1;
                                                          ^^^^^
+OCTO> SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS NOT FALSE FROM names a1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right BOOLEAN
 LINE 23:1: SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS UNKNO...
                    ^^^^^^
 LINE 23:1: ...id from names a2 where a1.id = a2.id) IS UNKNOWN FROM names a1;
                                                        ^^^^^^^
+OCTO> SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS UNKNOWN FROM names a1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right BOOLEAN
 LINE 24:1: SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS NOT U...
                    ^^^^^^
 LINE 24:1: ...rom names a2 where a1.id = a2.id) IS NOT UNKNOWN FROM names a1;
                                                        ^^^^^^^
+OCTO> SELECT (SELECT a2.id from names a2 where a1.id = a2.id) IS NOT UNKNOWN FROM names a1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right BOOLEAN
 LINE 25:1: SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY...
                    ^^^^^^
 LINE 25:1: ...1.id != a2.id ORDER BY a2.id LIMIT 1) IS UNKNOWN FROM names a1;
                                                        ^^^^^^^
+OCTO> SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS UNKNOWN FROM names a1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right BOOLEAN
 LINE 26:1: SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY...
                    ^^^^^^
 LINE 26:1: ... != a2.id ORDER BY a2.id LIMIT 1) IS NOT UNKNOWN FROM names a1;
                                                        ^^^^^^^
+OCTO> SELECT (SELECT a2.id from names a2 where a1.id != a2.id ORDER BY a2.id LIMIT 1) IS NOT UNKNOWN FROM names a1;
+OCTO> 

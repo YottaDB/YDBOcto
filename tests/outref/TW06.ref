@@ -4,9 +4,11 @@
 SELECT * FROM names WHERE lastName IS NULL;
 SELECT * FROM names WHERE lastName IS NOT NULL;
 
+OCTO> SELECT * FROM names WHERE lastName IS NULL;
 id|firstname|lastname
 4|Joey|
 (1 row)
+OCTO> SELECT * FROM names WHERE lastName IS NOT NULL;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -14,3 +16,4 @@ id|firstname|lastname
 3|Lord|Nikon
 5|Zero|Cool
 (5 rows)
+OCTO> 

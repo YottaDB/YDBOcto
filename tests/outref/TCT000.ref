@@ -5,11 +5,16 @@ select '1'::integer from names limit 1;
 select * from names where '1'::integer = names.id;
 select 'hello'::integer from names limit 1;
 select * from names where 'hello'::integer = names.id;
+OCTO> select '1'::integer from names limit 1;
 INTEGER
 1
 (1 row)
+OCTO> select * from names where '1'::integer = names.id;
 id|firstname|lastname
 1|Acid|Burn
 (1 row)
+OCTO> select 'hello'::integer from names limit 1;
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: 'hello'
+OCTO> select * from names where 'hello'::integer = names.id;
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: 'hello'
+OCTO> 

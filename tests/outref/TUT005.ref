@@ -3,7 +3,9 @@
 
 UPDATE names SET firstname = firstname || '#' where lastname = 'Cool';
 
+OCTO> UPDATE names SET firstname = firstname || '#' where lastname = 'Cool';
 UPDATE 2
+OCTO> 
 # Verify that ^%ydboctoX... invocation happens BEFORE the TSTART in the generated M plan
 ;; ---------------------------------------------------------
 ;  UPDATE names SET firstname = firstname || '#' where lastname = 'Cool';

@@ -298,7 +298,9 @@ select * from v91;
 -- OPTIONAL_KEEPDATA,
 -- OPTIONAL_AIM_TYPE,
 
+OCTO> create view v1_1 as select * from names;
 CREATE VIEW
+OCTO> select * from v1_1;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -307,7 +309,9 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> create view v2_1 ("id 1","firstname 1","lastname 1",id2,firstname2,lastname2) as select * from names,names n2;
 CREATE VIEW
+OCTO> select * from v2_1;
 id 1|firstname 1|lastname 1|id2|firstname2|lastname2
 0|Zero|Cool|0|Zero|Cool
 0|Zero|Cool|1|Acid|Burn
@@ -346,7 +350,9 @@ id 1|firstname 1|lastname 1|id2|firstname2|lastname2
 5|Zero|Cool|4|Joey|
 5|Zero|Cool|5|Zero|Cool
 (36 rows)
+OCTO> create view v3_1 (v1_firstname) as select firstname as "v1 firstname" from names union select lastname as "v1 lastname" from names;
 CREATE VIEW
+OCTO> select * from v3_1;
 v1_firstname
 Zero
 Acid
@@ -359,7 +365,9 @@ Killer
 Nikon
 
 (10 rows)
+OCTO> create view v4_1 as select firstname as "v1 firstname" from names union select lastname as "v1 lastname" from names;
 CREATE VIEW
+OCTO> select * from v4_1;
 v1 firstname
 Zero
 Acid
@@ -372,7 +380,9 @@ Killer
 Nikon
 
 (10 rows)
+OCTO> create view v5_1 as select * from composite;
 CREATE VIEW
+OCTO> select * from v5_1;
 id0|id1|id2|id3|id4|id5|id6|id7|name
 0|1|2|3|4|5|6|7|Name1
 0|1|2|3|4|5|6|8|Name2
@@ -385,11 +395,15 @@ id0|id1|id2|id3|id4|id5|id6|id7|name
 0|2|3|4|5|6|8|7|Name9
 1|2|3|4|5|6|8|7|Name10
 (10 rows)
+OCTO> create view v6_1 as select 1;
 CREATE VIEW
+OCTO> select * from v6_1;
 ???
 1
 (1 row)
+OCTO> create view v7_1 as select * from pg_type;
 CREATE VIEW
+OCTO> select * from v7_1;
 typname|typnamespace|typowner|typlen|typbyval|typtype|typcategory|typispreferred|typisdefined|typdelim|typrelid|typelem|typarray|typinput|typoutput|typreceive|typsend|typmodin|typmodout|typanalyze|typalign|typstorage|typnotnull|typbasetype|typtypmod|typndims|typcollation|typdefaultbin|typdefault|typacl|oid
 bool|11|10|1|1|b|B|1|1|,|0|0|1000|boolin|boolout|boolrecv|boolsend|-|-|-|c|p|0|0|-1|0|0||||16
 int4|11|10|4|1|b|N|0|1|,|0|0|1007|int4in|int4out|int4recv|int4send|-|-|-|i|p|0|0|-1|0|0||||23
@@ -398,11 +412,15 @@ numeric|11|10|-1|0|b|N|0|1|,|0|0|1231|numeric_in|numeric_out|numeric_recv|numeri
 unknown|11|10|-2|f|p|X|f|t|,|0|0|0|unknownin|unknownout|unknownrecv|unknownsend|-|-|-|c|p|f|0|-1|0|0||||705
 varchar|11|10|-1|0|b|S|0|1|,|0|0|1015|varcharin|varcharout|varcharrecv|varcharsend|varchartypmodin|varchartypmodout|-|i|x|0|0|-1|0|100||||1043
 (6 rows)
+OCTO> create view v8_1 as select abs(1) from names limit 1;
 CREATE VIEW
+OCTO> select * from v8_1;
 abs
 1
 (1 row)
+OCTO> create view b1 as select * from names;
 CREATE VIEW
+OCTO> select * from b1;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -411,7 +429,9 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> create view a1 as select * from b1;
 CREATE VIEW
+OCTO> select * from a1;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -420,28 +440,43 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> CREATE FUNCTION SAMEVALUE(INTEGER) RETURNS INTEGER AS $$samevalue^functions;
 CREATE FUNCTION
+OCTO> CREATE FUNCTION SAMEVALUE(NUMERIC) RETURNS NUMERIC AS $$samevalue^functions;
 CREATE FUNCTION
+OCTO> CREATE FUNCTION SAMEVALUE(VARCHAR) RETURNS VARCHAR AS $$samevalue^functions;
 CREATE FUNCTION
+OCTO> CREATE FUNCTION SAMEVALUE(BOOLEAN) RETURNS BOOLEAN AS $$samevalue^functions;
 CREATE FUNCTION
+OCTO> create view f1 as select samevalue(1);
 CREATE VIEW
+OCTO> select * from f1;
 samevalue
 1
 (1 row)
+OCTO> select samevalue(1);
 samevalue
 1
 (1 row)
+OCTO> create view a as select 1;
 CREATE VIEW
+OCTO> create view b as select * from a;
 CREATE VIEW
+OCTO> select * from b;
 ???
 1
 (1 row)
+OCTO> select * from a;
 ???
 1
 (1 row)
+OCTO> CREATE FUNCTION PARMLESSFUNC() RETURNS VARCHAR AS $$^PARMLESSFUNC;
 CREATE FUNCTION
+OCTO> CREATE FUNCTION THREEPARMFUNC(VARCHAR,INTEGER,INTEGER) RETURNS VARCHAR AS $$threeparmfunc^functions;
 CREATE FUNCTION
+OCTO> create view c AS select * FROM names WHERE THREEPARMFUNC(PARMLESSFUNC(),2,3) = 'SUCCESS';
 CREATE VIEW
+OCTO> select * from c;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -450,52 +485,93 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> create view v9_1 as select * from octoonerowtable;
 CREATE VIEW
+OCTO> create view v10_1 as select * from v9_1;
 CREATE VIEW
+OCTO> create view v11_1 as select * from v9_1;
 CREATE VIEW
+OCTO> select * from v9_1;
 id
 1
 (1 row)
+OCTO> select * from v10_1;
 id
 1
 (1 row)
+OCTO> select * from v11_1;
 id
 1
 (1 row)
+OCTO> create view v1 as select 1;
 CREATE VIEW
+OCTO> create view v2 as select firstname, lastname from names;
 CREATE VIEW
+OCTO> create view v3 (id1,firstname1,lastname1,id2,firstname2,lastname2) as select * from names,names n2;
 CREATE VIEW
+OCTO> create view v4 as (VALUES (1,2,3),(1,2,3));
 CREATE VIEW
+OCTO> create view v5 as (VALUES (1,'test','test2'));
 CREATE VIEW
+OCTO> create view v6 as (VALUES(1,'test','test2'),(2,'test3','test4'));
 CREATE VIEW
+OCTO> create view v7 as select * from (VALUES(1,'test','test2'),(2,'test3','test4')) as val7;
 CREATE VIEW
+OCTO> create view v8 (v1_firstname) as select firstname from names union select lastname from names;
 CREATE VIEW
+OCTO> create view v9 as select * from (select firstname, lastname from names)n1;
 CREATE VIEW
+OCTO> create view v11 as select n1.* from names n1;
 CREATE VIEW
+OCTO> create view v12 as select firstname from names group by firstname having firstname != 'Cool';
 CREATE VIEW
+OCTO> create view v13 as select firstname from names group by 1 having firstname != 'Cool';
 CREATE VIEW
+OCTO> create view v14 as select firstname from names group by 1 having firstname != 'Cool' order by 1;
 CREATE VIEW
+OCTO> create view v15 as select firstname from names group by 1 having firstname != 'Cool' order by firstname;
 CREATE VIEW
+OCTO> create view v16 as select count(firstname) from names;
 CREATE VIEW
+OCTO> create view v17 as select * from names limit 1;
 CREATE VIEW
+OCTO> create view v18 as select distinct * from names;
 CREATE VIEW
+OCTO> create view v19 as select firstname from names order by firstname desc, lastname asc;
 CREATE VIEW
+OCTO> create view v20 as select firstname from names order by exists(select id from names order by id desc);
 CREATE VIEW
+OCTO> create view v21 as values(1,2,3);
 CREATE VIEW
+OCTO> create view v22 as select id from (select id from names)n1;
 CREATE VIEW
+OCTO> create view v23(a1,a2,a3,a4,a5,a6) as select * from (VALUES (1,2,3)) n1, (VALUES (3,4,5)) n2;
 CREATE VIEW
+OCTO> create view v24 as select n1.* from (select id from names)n1 inner join (select id from names)n2 on n1.id>0;
 CREATE VIEW
+OCTO> create view v25 ("id 1","firstname 1","lastname 1",id2,firstname2,lastname2) as select * from names,names n2;
 CREATE VIEW
+OCTO> create view v26 (v1_firstname) as select firstname as "v1 firstname" from names union select lastname as "v1 lastname" from names;
 CREATE VIEW
+OCTO> create view v27 as select firstname as "v1 firstname" from names union select lastname as "v1 lastname" from names;
 CREATE VIEW
+OCTO> create view v28 as select * from v27;
 CREATE VIEW
+OCTO> create view v29 as select * from v28;
 CREATE VIEW
+OCTO> create view v30 as SELECT * FROM ((SELECT * FROM names) UNION (SELECT NULL AS id, NULL AS firstname, NULL AS lastname)) n1 WHERE (id = 0) OR NOT (id = 0) OR (id IS NULL) ORDER BY n1.id;
 CREATE VIEW
+OCTO> create view v31 as SELECT * FROM ((SELECT * FROM names) UNION (SELECT NULL AS id, NULL AS firstname, NULL AS lastname)union (select * from names)) n1 WHERE (id = 0) OR NOT (id = 0) OR (id IS NULL) ORDER BY n1.id;
 CREATE VIEW
+OCTO> create view v32 as (select * from names UNION select * from names) UNION ALL (select * from names UNION select * from names);
 CREATE VIEW
+OCTO> create view v33 as select * from (select * from names) order by lastname;
 CREATE VIEW
+OCTO> create view v34 as select * from (select lastname from names union select firstname from names) order by lastname;
 CREATE VIEW
+OCTO> create view v35 as select * from (values(1)) order by 1;
 CREATE VIEW
+OCTO> select * from v33;
 id|firstname|lastname
 1|Acid|Burn
 0|Zero|Cool
@@ -504,6 +580,7 @@ id|firstname|lastname
 3|Lord|Nikon
 4|Joey|
 (6 rows)
+OCTO> select * from v34;
 lastname
 Acid
 Burn
@@ -516,45 +593,68 @@ Nikon
 Zero
 
 (10 rows)
+OCTO> select * from v35;
 column1
 1
 (1 row)
+OCTO> create view v36 as select 1 from (select 1 union select 1);
 CREATE VIEW
+OCTO> select * from v36;
 ???
 1
 (1 row)
+OCTO> create view v37 as select CASE WHEN NULL THEN 1.1 WHEN 1.0+3.3=4.3 THEN 1.2 ELSE 9.9 end;
 CREATE VIEW
+OCTO> select * from v37;
 CASE
 1.2
 (1 row)
+OCTO> create view v38 as select 1 IN (2,3);
 CREATE VIEW
+OCTO> select * from v38;
 ???
 0
 (1 row)
+OCTO> create view v39 as select sum(mybool::integer) from (select id=2 as mybool from names) n1;
 CREATE VIEW
+OCTO> select * from v39;
 sum
 1
 (1 row)
+OCTO> create view v40 as select count(*) from (select id=2 from names) n1;
 CREATE VIEW
+OCTO> select * from v40;
 count(*)
 6
 (1 row)
+OCTO> create view v41 as select id from names n1 where (select n1.id from names n2 where n2.id > 5) is not null;
 CREATE VIEW
+OCTO> select * from v41;
 id
 (0 rows)
+OCTO> create view v42 as SELECT NULL FROM names GROUP BY firstname HAVING NULL!='hello' ORDER BY 1;
 CREATE VIEW
+OCTO> select * from v42;
 ???
 (0 rows)
+OCTO> create view v43 as SELECT NULL FROM names GROUP BY 1 HAVING NULL!='hello';
 CREATE VIEW
+OCTO> select * from v43;
 ???
 (0 rows)
+OCTO> create view v44 as SELECT 1.2 FROM names GROUP BY 1 HAVING 1.2=1.2 ORDER BY 1;
 CREATE VIEW
+OCTO> select * from v44;
 ???
 1.2
 (1 row)
+OCTO> create view v45 as SELECT * FROM names a WHERE a.firstName != (SELECT NULL from names limit 2);
 CREATE VIEW
+OCTO> select * from v45;
 [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
+OCTO> create view v46 as SELECT 10 + (select NULL)::INTEGER FROM names;
 CREATE VIEW
+OCTO> select * from v46;
 ???
 
 
@@ -563,11 +663,15 @@ CREATE VIEW
 
 
 (6 rows)
+OCTO> create view v47 as SELECT ABS((select id from names where firstname = 'noname'));
 CREATE VIEW
+OCTO> select * from v47;
 abs
 
 (1 row)
+OCTO> create view v48 as select 'test' NOT IN ((select n1.firstname),NULL) from names n1;
 CREATE VIEW
+OCTO> select * from v48;
 ???
 
 
@@ -576,7 +680,9 @@ CREATE VIEW
 
 
 (6 rows)
+OCTO> create view v49 as select (case when id > (select 1) then (select 1) else (select 0) end)-1 as idbool from names;
 CREATE VIEW
+OCTO> select * from v49;
 idbool
 -1
 -1
@@ -585,11 +691,15 @@ idbool
 0
 0
 (6 rows)
+OCTO> create view v50 as select (case (select 1) when (select 1) then 'true' end)as sub, TRUE;
 CREATE VIEW
+OCTO> select * from v50;
 sub|???
 true|1
 (1 row)
+OCTO> create view v51 as select * from (select ((values(lastname))) = 'Burn' from names) as n1;
 CREATE VIEW
+OCTO> select * from v51;
 ???
 0
 1
@@ -598,7 +708,9 @@ CREATE VIEW
 
 0
 (6 rows)
+OCTO> create view v52 as select * from (select ((select lastname)) = 'Burn' from names) as n1;
 CREATE VIEW
+OCTO> select * from v52;
 ???
 0
 1
@@ -607,7 +719,9 @@ CREATE VIEW
 
 0
 (6 rows)
+OCTO> create view v53 as select * from (select ((select 1)) = 1 from names) as n1;
 CREATE VIEW
+OCTO> select * from v53;
 ???
 1
 1
@@ -616,20 +730,28 @@ CREATE VIEW
 1
 1
 (6 rows)
+OCTO> create view v54 as select * from names as n1 where (select n2.id % 2 != 1 from names n2 where n1.id = n2.id);
 CREATE VIEW
+OCTO> select * from v54;
 id|firstname|lastname
 0|Zero|Cool
 2|Cereal|Killer
 4|Joey|
 (3 rows)
+OCTO> create view v55 as select all alias1.firstname from names as names  natural join names as alias1 where (names.id is null) order by alias1.firstname;
 CREATE VIEW
+OCTO> select * from v55;
 firstname
 (0 rows)
+OCTO> create view v56 as SELECT 1 FROM names x HAVING EXISTS(SELECT t1.id, MAX(t1.lastName) FROM names t1 LEFT JOIN (SELECT lastName FROM names group by lastname) AS t2 ON (t1.firstName <= 'Acid') WHERE t1.id <= 1 and t2.lastName IS NULL GROUP BY t2.*, t1.id having 0 IN (SELECT t1.id FROM names y ORDER BY t2.*,t1.id limit 1));
 CREATE VIEW
+OCTO> select * from v56;
 ???
 1
 (1 row)
+OCTO> create view v57 as SELECT * FROM (SELECT id as A FROM names) n1 NATURAL JOIN (SELECT id as B FROM names) n2;
 CREATE VIEW
+OCTO> select * from v57;
 a|b
 0|0
 0|1
@@ -668,11 +790,16 @@ a|b
 5|4
 5|5
 (36 rows)
+OCTO> create view v58 as select count(DISTINCT n1.*) from (select id,firstname from names) n1;
 CREATE VIEW
+OCTO> select * from v58;
 count
 6
 (1 row)
+OCTO> create view v59 as SELECT firstname || COUNT(DISTINCT names.*) FROM names GROUP BY firstname;
 CREATE VIEW
+OCTO> -- LP_AGGREGATE_FUNCTION_COUNT_DISTINCT_TABLE_ASTERISK
+select * from v59;
 ???
 Acid1
 Joey1
@@ -680,7 +807,9 @@ Lord1
 Zero2
 Cereal1
 (5 rows)
+OCTO> create view v60 as select col1 from (select id as col1 from names) n2;
 CREATE VIEW
+OCTO> select * from v60;
 col1
 0
 1
@@ -689,7 +818,9 @@ col1
 4
 5
 (6 rows)
+OCTO> create view v61 as select firstname from (select lastname as ln1,firstname from names)n1 order by exists (select firstname ||'test' from (select firstname as ln1 from names) n2 group by ln1);
 CREATE VIEW
+OCTO> select * from v61;
 firstname
 Zero
 Acid
@@ -698,7 +829,9 @@ Lord
 Joey
 Zero
 (6 rows)
+OCTO> create view v62 as SELECT * FROM (SELECT firstname,COUNT(id) FROM names n1 GROUP BY firstname) n2;
 CREATE VIEW
+OCTO> select * from v62;
 firstname|count
 Acid|1
 Joey|1
@@ -706,7 +839,9 @@ Lord|1
 Zero|2
 Cereal|1
 (5 rows)
+OCTO> create view v63 as SELECT * from names where 'Baaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' != 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 CREATE VIEW
+OCTO> select * from v63;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -715,11 +850,15 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> create view v64 as SELECT * FROM (SELECT * FROM names) AS abcd(a2,b2,c2) LIMIT 1;
 CREATE VIEW
+OCTO> select * from v64;
 a2|b2|c2
 0|Zero|Cool
 (1 row)
+OCTO> create view v65 as SELECT * FROM names WHERE (id = (SELECT x FROM (VALUES(id)) AS tbl(x)));
 CREATE VIEW
+OCTO> select * from v65;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -728,7 +867,9 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> create view v66 as SELECT ALL alias1.id FROM (select * from (values (0, 'Zero', 'Cool'), (1, 'Acid', 'Burn'), (2, 'Cereal', 'Killer'), (3, 'Lord', 'Nikon'), (4, 'Joey', NULL), (5, 'Zero', 'Cool')) as names(id,firstname,lastname)) AS names  NATURAL JOIN names AS alias1 WHERE (((4) + -(-1)) IS NOT NULL) ORDER BY alias1.id;
 CREATE VIEW
+OCTO> select * from v66;
 id
 0
 1
@@ -736,7 +877,9 @@ id
 3
 5
 (5 rows)
+OCTO> create view v67 as select `alias(names)`.* from names as `alias(names)`;
 CREATE VIEW
+OCTO> select * from v67;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -745,62 +888,102 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> create view v68 as select ALL n1.* != n2.* from (VALUES('test') ,('test') ,('test')) n1 JOIN (select ('test') union select ('test') union select ('test')) n2 on (n1.column1='test');
 CREATE VIEW
+OCTO> select * from v68;
 ???
 0
 0
 0
 (3 rows)
+OCTO> CREATE VIEW v69 as SELECT CASE WHEN id IS NULL THEN 'is null' WHEN id=0 THEN 'is zero' WHEN id=1 THEN 'is one' end FROM ((SELECT 0 AS id) UNION (SELECT 1 AS id) UNION (SELECT NULL AS id)) n1 order by id;
 CREATE VIEW
+OCTO> select * from v69;
 CASE
 is zero
 is one
 is null
 (3 rows)
+OCTO> CREATE VIEW v70 as SELECT id IS NULL FROM ((SELECT 0 AS id) UNION (SELECT 1 AS id)) n1;
 CREATE VIEW
+OCTO> select * from v70;
 ???
 0
 0
 (2 rows)
+OCTO> create table tmp80 (id integer unique, name text, value numeric check (value > 0));
 CREATE TABLE
+OCTO> insert into tmp80 values(1,'first',1.2);
 INSERT 0 1
+OCTO> insert into tmp80 values(2,'second',2.2);
 INSERT 0 1
+OCTO> insert into tmp80 values(3,'third',0);
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp80 violates CHECK constraint tmp80_value_check : Failing row contains (3, third, 0)
+OCTO> -- Fails due to value being less than 0
+insert into tmp80 values(2,'third',3.2);
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp80_id_key" : Key (id)=(2) already exists
+OCTO> -- Fails due to id being not unique
+create view v80 as select * from tmp80;
 CREATE VIEW
+OCTO> select * from v80;
 id|name|value
 1|first|1.2
 2|second|2.2
 (2 rows)
+OCTO> create table tmp81 (id integer, name text, value numeric constraint name1 check (value > 0));
 CREATE TABLE
+OCTO> insert into tmp81 values(1,'first',1.2);
 INSERT 0 1
+OCTO> insert into tmp81 values(2,'second',2.2);
 INSERT 0 1
+OCTO> insert into tmp81 values(3,'third',0);
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp81 violates CHECK constraint name1 : Failing row contains (3, third, 0)
+OCTO> -- Fails due to value being less than 0
+create view v81 as select * from tmp81;
 CREATE VIEW
+OCTO> select * from v81;
 id|name|value
 1|first|1.2
 2|second|2.2
 (2 rows)
+OCTO> create table tmp82 (id integer, check (id > 0),unique(id));
 CREATE TABLE
+OCTO> insert into tmp82 values(1);
 INSERT 0 1
+OCTO> insert into tmp82 values(2);
 INSERT 0 1
+OCTO> insert into tmp82 values(0);
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp82 violates CHECK constraint tmp82_id_check : Failing row contains (0)
+OCTO> -- Fails due to id being less than 0
+insert into tmp82 values(1);
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp82_id_key" : Key (id)=(1) already exists
+OCTO> -- Fails due to id being not unique
+create view v82 as select * from tmp82;
 CREATE VIEW
+OCTO> select * from v82;
 id
 1
 2
 (2 rows)
+OCTO> create table tmp83 (id integer, constraint name1 check (id > 0));
 CREATE TABLE
+OCTO> insert into tmp83 values(1);
 INSERT 0 1
+OCTO> insert into tmp83 values(2);
 INSERT 0 1
+OCTO> insert into tmp83 values(0);
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp83 violates CHECK constraint name1 : Failing row contains (0)
+OCTO> -- Fails due to id being less than 0
+create view v83 as select * from tmp83;
 CREATE VIEW
+OCTO> select * from v83;
 id
 1
 2
 (2 rows)
+OCTO> create view v84 as select distinct lastname from names;
 CREATE VIEW
+OCTO> select * from v84;
 lastname
 Cool
 Burn
@@ -808,63 +991,94 @@ Killer
 Nikon
 
 (5 rows)
+OCTO> create table tmp85 (id integer primary key start 0 endpoint 3, firstname varchar(30), lastname varchar(30)) global "^names";
 CREATE TABLE
+OCTO> create view v85 as select * from tmp85;
 CREATE VIEW
+OCTO> select * from v85;
 id|firstname|lastname
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 (3 rows)
+OCTO> select * from tmp85;
 id|firstname|lastname
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 (3 rows)
+OCTO> create table tmp86 (id integer primary key start 0 endpoint 3, firstname varchar(30) piece 2, lastname varchar(30) piece 1) global "^names";
 CREATE TABLE
+OCTO> create view v86 as select * from tmp86;
 CREATE VIEW
+OCTO> select * from v86;
 id|firstname|lastname
 1|Burn|Acid
 2|Killer|Cereal
 3|Nikon|Lord
 (3 rows)
+OCTO> select * from tmp86;
 id|firstname|lastname
 1|Burn|Acid
 2|Killer|Cereal
 3|Nikon|Lord
 (3 rows)
+OCTO> create table tmp87 (id int generated always as identity, str text);
 CREATE TABLE
+OCTO> INSERT INTO tmp87(str) VALUES('first');
 INSERT 0 1
+OCTO> -- Auto increment value assigned for ID
+INSERT INTO tmp87(str) VALUES('second');
 INSERT 0 1
+OCTO> -- Auto increment value assigned for ID
+create view v87 as select * from tmp87;
 CREATE VIEW
+OCTO> select * from v87;
 id|str
 1|first
 2|second
 (2 rows)
+OCTO> select * from tmp87;
 id|str
 1|first
 2|second
 (2 rows)
+OCTO> create table tmp88 (id int generated by default as identity, str text);
 CREATE TABLE
+OCTO> INSERT INTO tmp88(str) VALUES('first');
 INSERT 0 1
+OCTO> -- Auto increment value assigned for ID
+INSERT INTO tmp88(id,str) VALUES(3,'second');
 INSERT 0 1
+OCTO> -- 3 assigned for ID
+INSERT INTO tmp88(str) VALUES('third');
 INSERT 0 1
+OCTO> -- Auto increment value assigned for ID and its value should be 2
+create view v88 as select * from tmp88;
 CREATE VIEW
+OCTO> select * from v88;
 id|str
 1|first
 3|second
 2|third
 (3 rows)
+OCTO> select * from tmp88;
 id|str
 1|first
 3|second
 2|third
 (3 rows)
+OCTO> create view v89 as select exists (select * from names);
 CREATE VIEW
+OCTO> select * from v89;
 EXISTS
 1
 (1 row)
+OCTO> create view v90 as SELECT * FROM (SELECT * FROM (SELECT id, id%2 AS newid FROM names) n1) n2 ORDER BY newid;
 CREATE VIEW
+OCTO> create view v91 as SELECT * FROM (SELECT * FROM (SELECT id, id%2 FROM names) n1) n2;
 CREATE VIEW
+OCTO> select * from v90;
 id|newid
 0|0
 2|0
@@ -873,6 +1087,7 @@ id|newid
 3|1
 5|1
 (6 rows)
+OCTO> select * from v91;
 id|???
 0|0
 1|1
@@ -881,3 +1096,4 @@ id|???
 4|0
 5|1
 (6 rows)
+OCTO> 

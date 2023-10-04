@@ -1,5 +1,6 @@
 
 select oid,typname,typlen from pg_catalog.pg_type;
+OCTO> select oid,typname,typlen from pg_catalog.pg_type;
 oid|typname|typlen
 16|bool|1
 23|int4|4
@@ -8,3 +9,4 @@ oid|typname|typlen
 705|unknown|-2
 1043|varchar|-1
 (6 rows)
+OCTO> 

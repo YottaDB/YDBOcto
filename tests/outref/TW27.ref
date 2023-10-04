@@ -12,11 +12,24 @@ CREATE TABLE `ORDER_STATUS` (
 GLOBAL "^ORD(100.01,keys(""order_status_id""))"
 DELIM "^";
 SELECT * FROM `ORDER_STATUS` WHERE SHORT_NAME = 'flag';
+OCTO> DROP TABLE IF EXISTS `ORDER_STATUS`;
 DROP TABLE
+OCTO> CREATE TABLE `ORDER_STATUS` (
+ `ORDER_STATUS_ID` INTEGER PRIMARY KEY START 0 ENDPOINT '" "',
+ `NAME` CHARACTER(20) NOT NULL GLOBAL "^ORD(100.01,keys(""order_status_id""),0)" PIECE 1,
+ `SHORT_NAME` CHARACTER(4) GLOBAL "^ORD(100.01,keys(""order_status_id""),0)" PIECE 2,
+ `ABBREVIATION` CHARACTER(3) GLOBAL "^ORD(100.01,keys(""order_status_id""),.1)" EXTRACT "$E($G(^ORD(100.01,keys(""order_status_id""),.1)),1,245)",
+ `MASTER_ENTRY_FOR_VUID` CHARACTER(3) GLOBAL "^ORD(100.01,keys(""order_status_id""),""VUID"")" PIECE 2,
+ `VUID` CHARACTER(20) GLOBAL "^ORD(100.01,keys(""order_status_id""),""VUID"")" PIECE 1
+)
+GLOBAL "^ORD(100.01,keys(""order_status_id""))"
+DELIM "^";
 CREATE TABLE
+OCTO> SELECT * FROM `ORDER_STATUS` WHERE SHORT_NAME = 'flag';
 order_status_id|name|short_name|abbreviation|master_entry_for_vuid|vuid
 4|FLAGGED|flag|"?"|1|4501095
 (1 row)
+OCTO> 
 ^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(2,"actv",6)=""
 ^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(2,"canc",13)=""
 ^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(2,"comp",2)=""
@@ -52,11 +65,24 @@ CREATE TABLE `ORDER_STATUS` (
 GLOBAL "^ORD(100.01,keys(""order_status_id""))"
 DELIM "^";
 SELECT * FROM `ORDER_STATUS` WHERE SHORT_NAME = 'flag';
+OCTO> DROP TABLE IF EXISTS `ORDER_STATUS`;
 DROP TABLE
+OCTO> CREATE TABLE `ORDER_STATUS` (
+ `ORDER_STATUS_ID` INTEGER PRIMARY KEY START 0 ENDPOINT '"A"',
+ `NAME` CHARACTER(20) NOT NULL GLOBAL "^ORD(100.01,keys(""order_status_id""),0)" PIECE 1,
+ `SHORT_NAME` CHARACTER(4) GLOBAL "^ORD(100.01,keys(""order_status_id""),0)" PIECE 2,
+ `ABBREVIATION` CHARACTER(3) GLOBAL "^ORD(100.01,keys(""order_status_id""),.1)" EXTRACT "$E($G(^ORD(100.01,keys(""order_status_id""),.1)),1,245)",
+ `MASTER_ENTRY_FOR_VUID` CHARACTER(3) GLOBAL "^ORD(100.01,keys(""order_status_id""),""VUID"")" PIECE 2,
+ `VUID` CHARACTER(20) GLOBAL "^ORD(100.01,keys(""order_status_id""),""VUID"")" PIECE 1
+)
+GLOBAL "^ORD(100.01,keys(""order_status_id""))"
+DELIM "^";
 CREATE TABLE
+OCTO> SELECT * FROM `ORDER_STATUS` WHERE SHORT_NAME = 'flag';
 order_status_id|name|short_name|abbreviation|master_entry_for_vuid|vuid
 4|FLAGGED|flag|"?"|1|4501095
 (1 row)
+OCTO> 
 ^%ydbAIMDPgQyctQBh0d91zI84zuF52(2,"actv",6)=""
 ^%ydbAIMDPgQyctQBh0d91zI84zuF52(2,"canc",13)=""
 ^%ydbAIMDPgQyctQBh0d91zI84zuF52(2,"comp",2)=""
@@ -92,10 +118,23 @@ CREATE TABLE `ORDER_STATUS` (
 GLOBAL "^ORD(100.01,keys(""order_status_id""))"
 DELIM "^";
 SELECT * FROM `ORDER_STATUS` WHERE SHORT_NAME = 'flag';
+OCTO> DROP TABLE IF EXISTS `ORDER_STATUS`;
 DROP TABLE
+OCTO> CREATE TABLE `ORDER_STATUS` (
+ `ORDER_STATUS_ID` INTEGER PRIMARY KEY START 0 ENDPOINT '""',
+ `NAME` CHARACTER(20) NOT NULL GLOBAL "^ORD(100.01,keys(""order_status_id""),0)" PIECE 1,
+ `SHORT_NAME` CHARACTER(4) GLOBAL "^ORD(100.01,keys(""order_status_id""),0)" PIECE 2,
+ `ABBREVIATION` CHARACTER(3) GLOBAL "^ORD(100.01,keys(""order_status_id""),.1)" EXTRACT "$E($G(^ORD(100.01,keys(""order_status_id""),.1)),1,245)",
+ `MASTER_ENTRY_FOR_VUID` CHARACTER(3) GLOBAL "^ORD(100.01,keys(""order_status_id""),""VUID"")" PIECE 2,
+ `VUID` CHARACTER(20) GLOBAL "^ORD(100.01,keys(""order_status_id""),""VUID"")" PIECE 1
+)
+GLOBAL "^ORD(100.01,keys(""order_status_id""))"
+DELIM "^";
 CREATE TABLE
+OCTO> SELECT * FROM `ORDER_STATUS` WHERE SHORT_NAME = 'flag';
 order_status_id|name|short_name|abbreviation|master_entry_for_vuid|vuid
 (0 rows)
+OCTO> 
 ^%ydbAIMDVkUew77nQzoJFfkquc2jF9(2,"actv",6)=""
 ^%ydbAIMDVkUew77nQzoJFfkquc2jF9(2,"canc",13)=""
 ^%ydbAIMDVkUew77nQzoJFfkquc2jF9(2,"comp",2)=""
@@ -132,13 +171,28 @@ GLOBAL "^ORD(100.01,keys(""order_status_id""))"
 DELIM "^";
 SELECT * FROM `ORDER_STATUS` WHERE SHORT_NAME = 'hold'; -- Record 3
 SELECT * FROM `ORDER_STATUS` WHERE SHORT_NAME = 'flag'; -- Record 4
+OCTO> DROP TABLE IF EXISTS `ORDER_STATUS`;
 DROP TABLE
+OCTO> CREATE TABLE `ORDER_STATUS` (
+ `ORDER_STATUS_ID` INTEGER PRIMARY KEY START 0 ENDPOINT 3,
+ `NAME` CHARACTER(20) NOT NULL GLOBAL "^ORD(100.01,keys(""order_status_id""),0)" PIECE 1,
+ `SHORT_NAME` CHARACTER(4) GLOBAL "^ORD(100.01,keys(""order_status_id""),0)" PIECE 2,
+ `ABBREVIATION` CHARACTER(3) GLOBAL "^ORD(100.01,keys(""order_status_id""),.1)" EXTRACT "$E($G(^ORD(100.01,keys(""order_status_id""),.1)),1,245)",
+ `MASTER_ENTRY_FOR_VUID` CHARACTER(3) GLOBAL "^ORD(100.01,keys(""order_status_id""),""VUID"")" PIECE 2,
+ `VUID` CHARACTER(20) GLOBAL "^ORD(100.01,keys(""order_status_id""),""VUID"")" PIECE 1
+)
+GLOBAL "^ORD(100.01,keys(""order_status_id""))"
+DELIM "^";
 CREATE TABLE
+OCTO> SELECT * FROM `ORDER_STATUS` WHERE SHORT_NAME = 'hold';
 order_status_id|name|short_name|abbreviation|master_entry_for_vuid|vuid
 3|HOLD|hold|h|1|4500752
 (1 row)
+OCTO> -- Record 3
+SELECT * FROM `ORDER_STATUS` WHERE SHORT_NAME = 'flag';
 order_status_id|name|short_name|abbreviation|master_entry_for_vuid|vuid
 (0 rows)
+OCTO> -- Record 4
 ^%ydbAIMDJDL1RcgmPlUwXLrNnsHODE(2,"comp",2)=""
 ^%ydbAIMDJDL1RcgmPlUwXLrNnsHODE(2,"dc",1)=""
 ^%ydbAIMDJDL1RcgmPlUwXLrNnsHODE(2,"hold",3)=""
@@ -161,11 +215,24 @@ CREATE TABLE `ORDER_STATUS` (
 GLOBAL "^ORD(100.01,keys(""order_status_id""))"
 DELIM "^";
 SELECT * FROM `ORDER_STATUS` WHERE SHORT_NAME = 'flag';
+OCTO> DROP TABLE IF EXISTS `ORDER_STATUS`;
 DROP TABLE
+OCTO> CREATE TABLE `ORDER_STATUS` (
+ `ORDER_STATUS_ID` INTEGER PRIMARY KEY START 0 ENDPOINT '$CHAR(0)',
+ `NAME` CHARACTER(20) NOT NULL GLOBAL "^ORD(100.01,keys(""order_status_id""),0)" PIECE 1,
+ `SHORT_NAME` CHARACTER(4) GLOBAL "^ORD(100.01,keys(""order_status_id""),0)" PIECE 2,
+ `ABBREVIATION` CHARACTER(3) GLOBAL "^ORD(100.01,keys(""order_status_id""),.1)" EXTRACT "$E($G(^ORD(100.01,keys(""order_status_id""),.1)),1,245)",
+ `MASTER_ENTRY_FOR_VUID` CHARACTER(3) GLOBAL "^ORD(100.01,keys(""order_status_id""),""VUID"")" PIECE 2,
+ `VUID` CHARACTER(20) GLOBAL "^ORD(100.01,keys(""order_status_id""),""VUID"")" PIECE 1
+)
+GLOBAL "^ORD(100.01,keys(""order_status_id""))"
+DELIM "^";
 CREATE TABLE
+OCTO> SELECT * FROM `ORDER_STATUS` WHERE SHORT_NAME = 'flag';
 order_status_id|name|short_name|abbreviation|master_entry_for_vuid|vuid
 4|FLAGGED|flag|"?"|1|4501095
 (1 row)
+OCTO> 
 ^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(2,"actv",6)=""
 ^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(2,"canc",13)=""
 ^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(2,"comp",2)=""

@@ -4,9 +4,12 @@
 select 1::numeric from names limit 1;
 select * from names where 1::numeric = names.id
 
+OCTO> select 1::numeric from names limit 1;
 NUMERIC
 1
 (1 row)
+OCTO> select * from names where 1::numeric = names.id
+
 id|firstname|lastname
 1|Acid|Burn
 (1 row)

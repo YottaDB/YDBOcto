@@ -20,30 +20,41 @@ update names set id = (select max(id));
 [ERROR]: ERR_AGGREGATE_FUNCTION_UPDATE: Aggregate functions are not allowed in UPDATE
 LINE 2:1: update names set id=max(id);
                               ^^^
+OCTO> update names set id=max(id);
 [ERROR]: ERR_AGGREGATE_FUNCTION_UPDATE: Aggregate functions are not allowed in UPDATE
 LINE 3:1: update names set id=max(2) < min(1));
                               ^^^
+OCTO> update names set id=max(2) < min(1));
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 5:1: delete from names where sum(id) = 2;
                                   ^^^
+OCTO> delete from names where sum(id) = 2;
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 6:1: delete from names where count(*) < min(2);
                                   ^^^^^
+OCTO> delete from names where count(*) < min(2);
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 8:1: update names set id = 1 where count(id) = 3;
                                         ^^^^^
+OCTO> update names set id = 1 where count(id) = 3;
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 9:1: update names set id = 1 where avg(1) = 3;
                                         ^^^
+OCTO> update names set id = 1 where avg(1) = 3;
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 10:1: update names set id = 1 where id = (select max(id));
                                                       ^^^
+OCTO> update names set id = 1 where id = (select max(id));
 [ERROR]: ERR_AGGREGATE_FUNCTION_UPDATE: Aggregate functions are not allowed in UPDATE
 LINE 12:1: update names set id = count(1);
                                  ^^^^^
+OCTO> update names set id = count(1);
 [ERROR]: ERR_AGGREGATE_FUNCTION_UPDATE: Aggregate functions are not allowed in UPDATE
 LINE 13:1: update names set id = count(id);
                                  ^^^^^
+OCTO> update names set id = count(id);
 [ERROR]: ERR_AGGREGATE_FUNCTION_UPDATE: Aggregate functions are not allowed in UPDATE
 LINE 14:1: update names set id = (select max(id));
                                          ^^^
+OCTO> update names set id = (select max(id));
+OCTO> 

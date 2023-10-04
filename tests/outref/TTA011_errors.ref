@@ -16,30 +16,48 @@ select 1 from names n1 order by n1.*,count(*);
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'firstname' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 2:1: ...up by n1.* order by n1.*, n1.firstname; -- Both Octo and Postgre...
                                        ^^^^^^^^^^^^
+OCTO> select 1 from names n1 group by n1.* order by n1.*, n1.firstname;
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'n1.*' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 3:2: ...irstname,n1.lastname order by n1.*; -- column n1.* not in group ...
                                            ^^^^
+OCTO> -- Both Octo and Postgres issue error saying `n1.firstname` is not in GroupBy
+select 1 from names n1 group by n1.firstname,n1.lastname order by n1.*;
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'n1.*' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 4:2: ...irstname,n1.lastname order by n1.*; -- will work in postgres but...
                                            ^^^^
+OCTO> -- column n1.* not in group by
+select 1 from names n1 group by n1.id,n1.firstname,n1.lastname order by n1.*;
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'n1.*' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 5:2: ...irstname,n1.lastname order by n1.*; -- demonstrates that without...
                                            ^^^^
+OCTO> -- will work in postgres but not in Octo because of #675
+select 1 from (select firstname,lastname from names) n1 group by n1.firstname,n1.lastname order by n1.*;
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'n1.*' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 6:2: ...ct count(1) from names n1 order by n1.*; -- n1.* not in GROUP BY
                                                 ^^^^
+OCTO> -- demonstrates that without #675 the error seen in Octo is same as Postgres
+select count(1) from names n1 order by n1.*;
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'n1.*' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 7:2: ... from names n1 having 1<1 order by n1.*; -- n1.* not in GROUP BY
                                                 ^^^^
+OCTO> -- n1.* not in GROUP BY
+select 1 from names n1 having 1<1 order by n1.*;
 [ERROR]: ERR_ORDER_BY_SELECT_DISTINCT: For SELECT DISTINCT, ORDER BY expressions must appear in select list
 LINE 9:3: select distinct n1.* from names n1 order by n1.lastname,n1.*;
                                                                   ^^^^
+OCTO> -- n1.* not in GROUP BY
+
+select distinct n1.* from names n1 order by n1.lastname,n1.*;
 [ERROR]: ERR_ORDER_BY_SELECT_DISTINCT: For SELECT DISTINCT, ORDER BY expressions must appear in select list
 LINE 10:1: select distinct n1.* from names n1 order by n1.*;
                                                        ^^^^
+OCTO> select distinct n1.* from names n1 order by n1.*;
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'n1.*' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 12:1: select 1 from names n1 order by count(*),n1.*;
                                                     ^^^^
+OCTO> select 1 from names n1 order by count(*),n1.*;
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'n1.*' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 13:1: select 1 from names n1 order by n1.*,count(*);
                                            ^^^^
+OCTO> select 1 from names n1 order by n1.*,count(*);
+OCTO> 

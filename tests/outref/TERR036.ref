@@ -4,4 +4,6 @@
 -- Currently only tested with LPAD, as this is the only function that requires an M-level
 -- error to be issued. However, other functions are likely to issue similar errors in the future.
 select lpad('dfdf', 5);
+OCTO> select lpad('dfdf', 5);
 [ERROR]: ERR_UNKNOWN_FUNCTION_EMULATION: No 2-parameter function LPAD() defined for the current database emulation mode (MYSQL)
+OCTO> 

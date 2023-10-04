@@ -78,43 +78,87 @@ create table test19 (id int check('test' < samevalue4(1.1)));
 -- varchar
 create function samevalue4(varchar) returns varchar as $$samevalue^functions;
 create table test20 (id int check('test' < samevalue4('test')));
+OCTO> --	Any change in this gvn layout will result in the loss of dependency nodes created prior
+--	to the layout change. This test is present to alert us on such an occasion and to inform us to check auto upgarde cases.
+
+create function samevalue1() returns integer as $$^PARMLESSFUNC;
 CREATE FUNCTION
+OCTO> create table test1 (id int check(id < samevalue1()));
 CREATE TABLE
+OCTO> create function samevalue1(integer) returns integer as $$samevalue^functions;
 CREATE FUNCTION
+OCTO> create table test2 (id int check(id < samevalue1(2)));
 CREATE TABLE
+OCTO> create function samevalue1(boolean) returns integer as $$samevalue^functions;
 CREATE FUNCTION
+OCTO> create table test3 (id int check(id < samevalue1(true)));
 CREATE TABLE
+OCTO> create function samevalue1(numeric) returns integer as $$samevalue^functions;
 CREATE FUNCTION
+OCTO> create table test4 (id int check(id < samevalue1(1.1)));
 CREATE TABLE
+OCTO> create function samevalue1(varchar) returns integer as $$samevalue^functions;
 CREATE FUNCTION
+OCTO> create table test5 (id int check(id < samevalue1('test')));
 CREATE TABLE
+OCTO> create function samevalue2() returns boolean as $$^PARMLESSFUNC;
 CREATE FUNCTION
+OCTO> create table test6 (id int check(TRUE < samevalue2()));
 CREATE TABLE
+OCTO> create function samevalue2(integer) returns boolean as $$samevalue^functions;
 CREATE FUNCTION
+OCTO> create table test7 (id int check(TRUE < samevalue2(2)));
 CREATE TABLE
+OCTO> create function samevalue2(boolean) returns boolean as $$samevalue^functions;
 CREATE FUNCTION
+OCTO> create table test8 (id int check(TRUE < samevalue2(true)));
 CREATE TABLE
+OCTO> create function samevalue2(numeric) returns boolean as $$samevalue^functions;
 CREATE FUNCTION
+OCTO> create table test9 (id int check(TRUE < samevalue2(1.1)));
 CREATE TABLE
+OCTO> create function samevalue2(varchar) returns boolean as $$samevalue^functions;
 CREATE FUNCTION
+OCTO> create table test10 (id int check(TRUE < samevalue2('test')));
 CREATE TABLE
+OCTO> create function samevalue3() returns numeric as $$^PARMLESSFUNC;
 CREATE FUNCTION
+OCTO> create table test11 (id int check(1.1 < samevalue3()));
 CREATE TABLE
+OCTO> create function samevalue3(integer) returns numeric as $$samevalue^functions;
 CREATE FUNCTION
+OCTO> create table test12 (id int check(1.1 < samevalue3(1)));
 CREATE TABLE
+OCTO> create function samevalue3(boolean) returns numeric as $$samevalue^functions;
 CREATE FUNCTION
+OCTO> create table test13 (id int check(1.1 < samevalue3(true)));
 CREATE TABLE
+OCTO> create function samevalue3(numeric) returns numeric as $$samevalue^functions;
 CREATE FUNCTION
+OCTO> create table test14 (id int check(1.1 < samevalue3(1.1)));
 CREATE TABLE
+OCTO> create function samevalue3(varchar) returns numeric as $$samevalue^functions;
 CREATE FUNCTION
+OCTO> create table test15 (id int check(1.1 < samevalue3('test')));
 CREATE TABLE
+OCTO> create function samevalue4() returns varchar as $$^PARMLESSFUNC;
 CREATE FUNCTION
+OCTO> create table test16 (id int check('test' < samevalue4()));
 CREATE TABLE
+OCTO> create function samevalue4(integer) returns varchar as $$samevalue^functions;
 CREATE FUNCTION
+OCTO> create table test17 (id int check('test' < samevalue4(1)));
 CREATE TABLE
+OCTO> create function samevalue4(boolean) returns varchar as $$samevalue^functions;
 CREATE FUNCTION
+OCTO> create table test18 (id int check('test' < samevalue4(true)));
 CREATE TABLE
+OCTO> create function samevalue4(numeric) returns varchar as $$samevalue^functions;
 CREATE FUNCTION
+OCTO> create table test19 (id int check('test' < samevalue4(1.1)));
 CREATE TABLE
+OCTO> create function samevalue4(varchar) returns varchar as $$samevalue^functions;
 CREATE FUNCTION
+OCTO> create table test20 (id int check('test' < samevalue4('test')));
 CREATE TABLE
+OCTO> 

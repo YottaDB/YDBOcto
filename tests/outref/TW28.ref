@@ -2,24 +2,31 @@ Test AIM/ENDPOINT on NULL piece
 SELECT * FROM ORDER_STATUS WHERE SHORT_NAME = 'dc';
 SELECT * FROM ORDER_STATUS WHERE SHORT_NAME IS NULL;
 SELECT * FROM ORDER_STATUS WHERE SHORT_NAME = 'actv';
+OCTO> SELECT * FROM ORDER_STATUS WHERE SHORT_NAME = 'dc';
 order_status_id|name|short_name|abbreviation|master_entry_for_vuid|vuid
 (0 rows)
+OCTO> SELECT * FROM ORDER_STATUS WHERE SHORT_NAME IS NULL;
 order_status_id|name|short_name|abbreviation|master_entry_for_vuid|vuid
 1|DISCONTINUED||dc||
 (1 row)
+OCTO> SELECT * FROM ORDER_STATUS WHERE SHORT_NAME = 'actv';
 order_status_id|name|short_name|abbreviation|master_entry_for_vuid|vuid
 6|ACTIVE|actv|a|1|4500659
 (1 row)
+OCTO> 
 
 Test AIM/ENDPOINT on NULL data (node does not exist)
 SELECT * FROM ORDER_STATUS WHERE VUID IS NULL;
 SELECT * FROM ORDER_STATUS WHERE VUID = '4500752';
+OCTO> SELECT * FROM ORDER_STATUS WHERE VUID IS NULL;
 order_status_id|name|short_name|abbreviation|master_entry_for_vuid|vuid
 1|DISCONTINUED||dc||
 (1 row)
+OCTO> SELECT * FROM ORDER_STATUS WHERE VUID = '4500752';
 order_status_id|name|short_name|abbreviation|master_entry_for_vuid|vuid
 3|HOLD|hold|h|1|4500752
 (1 row)
+OCTO> 
 ^%ydbAIMDU4ywpb0QmJQZ3hbyDxDYIA="^ORD"
 ^%ydbAIMDU4ywpb0QmJQZ3hbyDxDYIA(-2)=16
 ^%ydbAIMDU4ywpb0QmJQZ3hbyDxDYIA(-2,"")=2

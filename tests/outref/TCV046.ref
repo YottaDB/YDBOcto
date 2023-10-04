@@ -52,23 +52,38 @@ select * from v16;
 create view v17 as select id+id from names;
 select * from v17;
 
+OCTO> create view v1 as select EXISTS (select 1);
 CREATE VIEW
+OCTO> -- EXISTS
+select * from v1;
 EXISTS
 1
 (1 row)
+OCTO> create view v2 as select abs(1);
 CREATE VIEW
+OCTO> -- abs
+select * from v2;
 abs
 1
 (1 row)
+OCTO> create view v3 as select 1::varchar;
 CREATE VIEW
+OCTO> -- varchar
+select * from v3;
 VARCHAR
 1
 (1 row)
+OCTO> create view v4 as select 1::integer;
 CREATE VIEW
+OCTO> -- int4
+select * from v4;
 INTEGER
 1
 (1 row)
+OCTO> create view v5 as select id::integer from names;
 CREATE VIEW
+OCTO> -- id
+select * from v5;
 id
 0
 1
@@ -77,11 +92,16 @@ id
 4
 5
 (6 rows)
+OCTO> create view v6 as select 1.244::NUMERIC(2,1);
 CREATE VIEW
+OCTO> -- NUMERIC
+select * from v6;
 NUMERIC
 1.2
 (1 row)
+OCTO> create view v7 as select +id from names;
 CREATE VIEW
+OCTO> select * from v7;
 ???
 0
 1
@@ -90,7 +110,9 @@ CREATE VIEW
 4
 5
 (6 rows)
+OCTO> create view v8 as select -id from names;
 CREATE VIEW
+OCTO> select * from v8;
 ???
 0
 -1
@@ -99,23 +121,33 @@ CREATE VIEW
 -4
 -5
 (6 rows)
+OCTO> create view v9 as select +1;
 CREATE VIEW
+OCTO> select * from v9;
 ???
 1
 (1 row)
+OCTO> create view v10 as select +(select id from names limit 1);
 CREATE VIEW
+OCTO> select * from v10;
 ???
 0
 (1 row)
+OCTO> create view v11 as select NOT EXISTS(select id from names);
 CREATE VIEW
+OCTO> select * from v11;
 ???
 0
 (1 row)
+OCTO> create view v12 as select NOT 1::boolean;
 CREATE VIEW
+OCTO> select * from v12;
 ???
 0
 (1 row)
+OCTO> create view v13 as select 1 + id from names;
 CREATE VIEW
+OCTO> select * from v13;
 ???
 1
 2
@@ -124,7 +156,9 @@ CREATE VIEW
 5
 6
 (6 rows)
+OCTO> create view v14 as select count(1) + id from names group by id;
 CREATE VIEW
+OCTO> select * from v14;
 ???
 1
 2
@@ -133,15 +167,21 @@ CREATE VIEW
 5
 6
 (6 rows)
+OCTO> create view v15 as select abs(1)+1;
 CREATE VIEW
+OCTO> select * from v15;
 ???
 2
 (1 row)
+OCTO> create view v16 as select 1::varchar || 'test';
 CREATE VIEW
+OCTO> select * from v16;
 ???
 1test
 (1 row)
+OCTO> create view v17 as select id+id from names;
 CREATE VIEW
+OCTO> select * from v17;
 ???
 0
 2
@@ -150,3 +190,4 @@ CREATE VIEW
 8
 10
 (6 rows)
+OCTO> 

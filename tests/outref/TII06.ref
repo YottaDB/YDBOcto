@@ -13,10 +13,17 @@ SELECT * FROM names;
 SELECT * FROM names where firstname is NULL;
 SELECT * FROM names where lastname is NULL;
 
+OCTO> INSERT INTO names SELECT id+6 FROM names ORDER BY id DESC LIMIT 2;
 INSERT 0 2
+OCTO> INSERT INTO names(firstname,id) SELECT firstname,id+12 FROM names LIMIT 2;
 INSERT 0 2
+OCTO> INSERT INTO names SELECT id+24,NULL,NULL FROM names LIMIT 2;
 INSERT 0 2
+OCTO> INSERT INTO names(lastname, id) SELECT firstname, id+10 FROM names WHERE id = 4 OR id = 5 UNION VALUES ('Lastname100', 100), ('', 200);
 INSERT 0 4
+OCTO> -- Also used in TV015 subtest
+
+SELECT * FROM names;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -35,6 +42,7 @@ id|firstname|lastname
 100||Lastname100
 200||
 (16 rows)
+OCTO> SELECT * FROM names where firstname is NULL;
 id|firstname|lastname
 10||
 11||
@@ -45,6 +53,7 @@ id|firstname|lastname
 100||Lastname100
 200||
 (8 rows)
+OCTO> SELECT * FROM names where lastname is NULL;
 id|firstname|lastname
 4|Joey|
 10||
@@ -55,6 +64,7 @@ id|firstname|lastname
 25||
 200||
 (8 rows)
+OCTO> 
 # Verify target table columns that don't have a corresponding source column are set to NULL in generated M plan
 _ydboctoP*.m:;  INSERT INTO names SELECT id+6 FROM names ORDER BY id DESC LIMIT 2;
 _ydboctoP*.m:    . SET col(1)=$$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(val,1))

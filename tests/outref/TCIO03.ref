@@ -1,4 +1,6 @@
 select * from names2 where firstName = 'Zero';
+OCTO> select * from names2 where firstName = 'Zero';
 id|firstname|lastname
 0|Zero|Cool
 (1 row)
+OCTO> 

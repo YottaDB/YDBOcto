@@ -36,7 +36,13 @@ SELECT * from names3;
 SELECT * from names3 WHERE firstname = 'first|1';
 SELECT * from names3 WHERE firstname = 'second|2';
 
+OCTO> CREATE TABLE names1 (
+	id INTEGER PRIMARY KEY,
+	firstName VARCHAR(30) DELIM "",
+	lastName TEXT(30)
+) GLOBAL "^names(keys(""id""))";
 CREATE TABLE
+OCTO> SELECT * FROM names1;
 id|firstname|lastname
 0|Zero|Cool|Cool
 1|Acid|Burn|Burn
@@ -45,7 +51,13 @@ id|firstname|lastname
 4|Joey||
 5|Zero|Cool|Cool
 (6 rows)
+OCTO> CREATE TABLE names2 (
+	id INTEGER PRIMARY KEY,
+	firstName VARCHAR(30) DELIM "" PIECE 2,
+	lastName TEXT(30)
+) GLOBAL "^names(keys(""id""))";
 CREATE TABLE
+OCTO> SELECT * FROM names2;
 id|firstname|lastname
 0|Zero|Cool|Cool
 1|Acid|Burn|Burn
@@ -54,17 +66,25 @@ id|firstname|lastname
 4|Joey||
 5|Zero|Cool|Cool
 (6 rows)
+OCTO> CREATE TABLE names3 (
+	id INTEGER PRIMARY KEY,
+	firstName VARCHAR DELIM ""
+) GLOBAL "^names3(keys(""id""))";
 CREATE TABLE
+OCTO> SELECT * from names3;
 id|firstname
 1|first|1
 2|second|2
 (2 rows)
+OCTO> SELECT * from names3 WHERE firstname = 'first|1';
 id|firstname
 1|first|1
 (1 row)
+OCTO> SELECT * from names3 WHERE firstname = 'second|2';
 id|firstname
 2|second|2
 (1 row)
+OCTO> 
 # Verify generated plans (including xref plans) do not have $PIECE for FIRSTNAME column
 _ydboctoP*.m:    . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"names2","id"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
 _ydboctoP*.m:    . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"names1","id"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL

@@ -12,9 +12,13 @@ SELECT CASE 1 in (1) when 3 then 2 end;
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type VARCHAR but is used in a context that expects a BOOLEAN type
 LINE 4:1: SELECT CASE 1 in (1) when 'g' then 2 end;
                                     ^^^
+OCTO> SELECT CASE 1 in (1) when 'g' then 2 end;
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type INTEGER but is used in a context that expects a BOOLEAN type
 LINE 5:1: SELECT CASE 1 in (1) when 1 then 2 end;
                                     ^
+OCTO> SELECT CASE 1 in (1) when 1 then 2 end;
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type INTEGER but is used in a context that expects a BOOLEAN type
 LINE 6:1: SELECT CASE 1 in (1) when 3 then 2 end;
                                     ^
+OCTO> SELECT CASE 1 in (1) when 3 then 2 end;
+OCTO> 

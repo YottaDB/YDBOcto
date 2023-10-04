@@ -1,4 +1,5 @@
 SELECT * FROM ORDER_STATUS;
+OCTO> SELECT * FROM ORDER_STATUS;
 order_status_id|name|short_name|abbreviation|master_entry_for_vuid|vuid
 1|DISCONTINUED|dc|dc|1|4500704
 2|COMPLETE|comp|c|1|4501088
@@ -17,3 +18,4 @@ order_status_id|name|short_name|abbreviation|master_entry_for_vuid|vuid
 15|RENEWED|rnew|rn|1|4500873
 99|NO STATUS|none|'|1|4501102
 (16 rows)
+OCTO> 

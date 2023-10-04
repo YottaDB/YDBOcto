@@ -3,5 +3,9 @@
 drop function if exists XECUTE_M_CODE(VARCHAR);
 create function XECUTE_M_CODE(VARCHAR) returns integer as $$octo738^octo738;
 select XECUTE_M_CODE('zhalt 1');
+OCTO> drop function if exists XECUTE_M_CODE(VARCHAR);
 DROP FUNCTION
+OCTO> create function XECUTE_M_CODE(VARCHAR) returns integer as $$octo738^octo738;
 CREATE FUNCTION
+OCTO> select XECUTE_M_CODE('zhalt 1');
+OCTO> 

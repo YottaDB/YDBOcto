@@ -12,8 +12,11 @@
 select pg_tablespace_location(1);
 select * from pg_depend;
 
+OCTO> select pg_tablespace_location(1);
 pg_tablespace_location
 
 (1 row)
+OCTO> select * from pg_depend;
 classid|objid|objsubid|refclassid|refobjid|refobjsubid|deptype
 (0 rows)
+OCTO> 

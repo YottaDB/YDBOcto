@@ -28,69 +28,87 @@ LINE 2:1: ...rom (VALUES('testa')) n1 where n1.* < ANY (select n2.* from (VAL...
                                             ^^
 LINE 2:1: ...esta')) n1 where n1.* < ANY (select n2.* from (VALUES('test')) n...
                                           ^^^^^^
+OCTO> select n1.column1 from (VALUES('testa')) n1 where n1.* < ANY (select n2.* from (VALUES('test')) n2);
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
 LINE 3:1: ...olumn1 from (VALUES('testa')) n1 where n1.* < ANY (select NULL);
                                                                 ^^^^^^
+OCTO> select n1.column1 from (VALUES('testa')) n1 where n1.* < ANY (select NULL);
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
 LINE 4:1: ...olumn1 from (VALUES('testa')) n1 where n1.* < ALL (select NULL);
                                                                 ^^^^^^
+OCTO> select n1.column1 from (VALUES('testa')) n1 where n1.* < ALL (select NULL);
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
 LINE 5:1: ...lumn1 from (VALUES('testa')) n1 where n1.* < SOME (select NULL);
                                                                 ^^^^^^
+OCTO> select n1.column1 from (VALUES('testa')) n1 where n1.* < SOME (select NULL);
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
 LINE 6:1: ...1.column1 from (VALUES('testa')) n1 where n1.* < ANY (select 1);
                                                        ^^
 LINE 6:1: ...1.column1 from (VALUES('testa')) n1 where n1.* < ANY (select 1);
                                                                    ^^^^^^
+OCTO> select n1.column1 from (VALUES('testa')) n1 where n1.* < ANY (select 1);
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
 LINE 7:1: ...1.column1 from (VALUES('testa')) n1 where n1.* < ALL (select 1);
                                                        ^^
 LINE 7:1: ...1.column1 from (VALUES('testa')) n1 where n1.* < ALL (select 1);
                                                                    ^^^^^^
+OCTO> select n1.column1 from (VALUES('testa')) n1 where n1.* < ALL (select 1);
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
 LINE 8:1: ....column1 from (VALUES('testa')) n1 where n1.* < SOME (select 1);
                                                       ^^
 LINE 8:1: ....column1 from (VALUES('testa')) n1 where n1.* < SOME (select 1);
                                                                    ^^^^^^
+OCTO> select n1.column1 from (VALUES('testa')) n1 where n1.* < SOME (select 1);
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
 LINE 10:1: select n1.* < 1 from (VALUES(NULL)) n1;
                   ^^
 LINE 10:1: select n1.* < 1 from (VALUES(NULL)) n1;
                          ^
+OCTO> select n1.* < 1 from (VALUES(NULL)) n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
 LINE 11:1: select n1.* < 1 from (VALUES(1)) n1;
                   ^^
 LINE 11:1: select n1.* < 1 from (VALUES(1)) n1;
                          ^
+OCTO> select n1.* < 1 from (VALUES(1)) n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
 LINE 12:1: select n1.* < 'test' from (VALUES(NULL)) n1;
                   ^^
 LINE 12:1: select n1.* < 'test' from (VALUES(NULL)) n1;
                          ^^^^^^
+OCTO> select n1.* < 'test' from (VALUES(NULL)) n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
 LINE 13:1: select n1.* < 'test' from (VALUES('test')) n1;
                   ^^
 LINE 13:1: select n1.* < 'test' from (VALUES('test')) n1;
                          ^^^^^^
+OCTO> select n1.* < 'test' from (VALUES('test')) n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right VARCHAR
 LINE 15:1: select n1.* > (select 'test') from (VALUES(NULL)) n1;
                   ^^
 LINE 15:1: select n1.* > (select 'test') from (VALUES(NULL)) n1;
                           ^^^^^^
+OCTO> select n1.* > (select 'test') from (VALUES(NULL)) n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right INTEGER
 LINE 16:1: select n1.* > (select 1) from (VALUES(NULL)) n1;
                   ^^
 LINE 16:1: select n1.* > (select 1) from (VALUES(NULL)) n1;
                           ^^^^^^
+OCTO> select n1.* > (select 1) from (VALUES(NULL)) n1;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for NULL type subquery comparison
 LINE 17:1: select n1.* > (select NULL) from (VALUES(NULL)) n1;
                           ^^^^^^
+OCTO> select n1.* > (select NULL) from (VALUES(NULL)) n1;
 [ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left INTEGER, right NUMERIC
 LINE 19:1: select n1.* = n2.* from (select column1 from (VALUES(3))nx)n1,(s...
                          ^^
+OCTO> select n1.* = n2.* from (select column1 from (VALUES(3))nx)n1,(select column1 from (VALUES(3.0))ny)n2;
 [ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left INTEGER, right NUMERIC
 LINE 20:1: select n1.* = n2.* from (select column1 from (VALUES(3))nx)n1,(s...
                          ^^
+OCTO> select n1.* = n2.* from (select column1 from (VALUES(3))nx)n1,(select ROUND(column1,1) as column1 from (VALUES(3.0))ny)n2;
 [ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left INTEGER, right NUMERIC
 LINE 21:1: select n1.* = n2.* from (select customer_id from orders where cu...
                          ^^
+OCTO> select n1.* = n2.* from (select customer_id from orders where customer_id = 3) n1, (select round(avg(customer_id),1) from orders where customer_id = 3) n2;
+OCTO> 

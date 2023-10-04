@@ -12,8 +12,11 @@ CREATE TABLE `names` (`id` INTEGER CONSTRAINT "names_pkey" PRIMARY KEY, `firstna
 DROP TABLE names;
 DROP TABLE nameswithages;
 
+OCTO> DROP TABLE names;
 DROP TABLE
+OCTO> DROP TABLE nameswithages;
 DROP TABLE
+OCTO> 
 # Verify ^names still exists (READONLY) or not (READWRITE)
 $DATA(^names) = 10
 # CREATE TABLE NAMES with READWRITE tabletype
@@ -27,15 +30,21 @@ CREATE TABLE `names` (`id` INTEGER CONSTRAINT "names_pkey" PRIMARY KEY, `firstna
 DROP TABLE names;
 DROP TABLE nameswithages;
 
+OCTO> DROP TABLE names;
 DROP TABLE
+OCTO> DROP TABLE nameswithages;
 DROP TABLE
+OCTO> 
 
 -- TDT05 : OCTO502 : DROP TABLE on READWRITE table does a KILL of the underlying GVN storing the table data
 
 DROP TABLE names;
 DROP TABLE nameswithages;
 
+OCTO> DROP TABLE names;
 DROP TABLE
+OCTO> DROP TABLE nameswithages;
 DROP TABLE
+OCTO> 
 # Verify ^names still exists (READONLY) or not (READWRITE)
 $DATA(^names) = 0

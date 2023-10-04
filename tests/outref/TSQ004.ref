@@ -52,6 +52,32 @@ ORDER  BY procedure_schem,
           procedure_name,
           p.oid :: text
 ]
+OCTO> SELECT NULL          AS PROCEDURE_CAT,
+       n.nspname     AS PROCEDURE_SCHEM,
+       p.proname     AS PROCEDURE_NAME,
+       NULL,
+       NULL,
+       NULL,
+       d.description AS REMARKS,
+       2             AS PROCEDURE_TYPE,
+       p.proname
+       || '_'
+       || p.oid      AS SPECIFIC_NAME
+FROM   pg_catalog.pg_namespace n,
+       pg_catalog.pg_proc p
+       left join pg_catalog.pg_description d
+              ON ( p.oid = d.objoid )
+       left join pg_catalog.pg_class c
+              ON ( d.classoid = c.oid
+                   AND c.relname = 'pg_proc' )
+       left join pg_catalog.pg_namespace pn
+              ON ( c.relnamespace = pn.oid
+                   AND pn.nspname = 'pg_catalog' )
+WHERE  p.pronamespace = n.oid
+ORDER  BY procedure_schem,
+          procedure_name,
+          p.oid :: text
+
 [ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
 [ INFO] PATH:LINENUM DATE TIME: INFO_M_PLAN: Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 [DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN BEFORE optimize_logical_plan() follows 

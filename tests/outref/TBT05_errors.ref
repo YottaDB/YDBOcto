@@ -11,18 +11,25 @@ SELECT * from names n1 INNER JOIN names n2 ON n2.id
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
 LINE 3:1: SELECT * from names WHERE firstname;
                                     ^^^^^^^^^
+OCTO> SELECT * from names WHERE firstname;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
 LINE 4:1: SELECT * from names WHERE id;
                                     ^^
+OCTO> SELECT * from names WHERE id;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
 LINE 5:1: SELECT COUNT(*) from names GROUP BY firstname HAVING firstname;
                                                                ^^^^^^^^^
+OCTO> SELECT COUNT(*) from names GROUP BY firstname HAVING firstname;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
 LINE 6:1: SELECT COUNT(*) from names GROUP BY id HAVING id;
                                                         ^^
+OCTO> SELECT COUNT(*) from names GROUP BY id HAVING id;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
 LINE 7:1: SELECT * from names n1 INNER JOIN names n2 ON n2.firstname;
                                                         ^^^^^^^^^^^^
+OCTO> SELECT * from names n1 INNER JOIN names n2 ON n2.firstname;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
 LINE 8:1: SELECT * from names n1 INNER JOIN names n2 ON n2.id
                                                         ^^^^^
+OCTO> SELECT * from names n1 INNER JOIN names n2 ON n2.id
+

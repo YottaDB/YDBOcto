@@ -27,7 +27,12 @@ CREATE TABLE delimnamescol (
 
 select * from extractnames;
 select fullname from delimnamescol;
+OCTO> CREATE TABLE extractnames (
+	id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER,
+	fullname VARCHAR EXTRACT "$$^FULLNAME(values(""firstname""),values(""lastname""))"
+) GLOBAL "^names(keys(""id""))";
 CREATE TABLE
+OCTO> select * from extractnames;
 id|firstname|lastname|age|fullname
 0|Zero|Cool||Zero Cool
 1|Acid|Burn||Acid Burn
@@ -36,6 +41,7 @@ id|firstname|lastname|age|fullname
 4|Joey|||Joey 
 5|Zero|Cool||Zero Cool
 (6 rows)
+OCTO> select fullname from extractnames;
 fullname
 Zero Cool
 Acid Burn
@@ -44,7 +50,12 @@ Lord Nikon
 Joey 
 Zero Cool
 (6 rows)
+OCTO> CREATE TABLE delimnames (
+	id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  middleInitial VARCHAR(1), age INTEGER,
+	fullname VARCHAR EXTRACT "$$^FULLNAME(values(""firstname""),values(""lastname""))"
+) DELIM (123, 9, 124, 9, 125) GLOBAL "^delimnames(keys(""id""))";
 CREATE TABLE
+OCTO> select * from extractnames;
 id|firstname|lastname|age|fullname
 0|Zero|Cool||Zero Cool
 1|Acid|Burn||Acid Burn
@@ -53,6 +64,7 @@ id|firstname|lastname|age|fullname
 4|Joey|||Joey 
 5|Zero|Cool||Zero Cool
 (6 rows)
+OCTO> select fullname from delimnames;
 fullname
 Zero Cool
 Acid Burn
@@ -61,7 +73,12 @@ Lord Nikon
 Joey 
 Zero Cool
 (6 rows)
+OCTO> CREATE TABLE delimnamescol (
+	id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30) DELIM (13), middleInitial VARCHAR(1), age INTEGER,
+	fullname VARCHAR EXTRACT "$$^FULLNAME(values(""firstname""),values(""lastname""))"
+) GLOBAL "^delimnamescol(keys(""id""))";
 CREATE TABLE
+OCTO> select * from extractnames;
 id|firstname|lastname|age|fullname
 0|Zero|Cool||Zero Cool
 1|Acid|Burn||Acid Burn
@@ -70,6 +87,7 @@ id|firstname|lastname|age|fullname
 4|Joey|||Joey 
 5|Zero|Cool||Zero Cool
 (6 rows)
+OCTO> select fullname from delimnamescol;
 fullname
 Zero B|25
 Acid I|22
@@ -78,3 +96,4 @@ Lord O|
 Joey |42
 Zero B|25
 (6 rows)
+OCTO> 

@@ -8,16 +8,24 @@ select _id1 as _ from _test1 group by _ order by _;
 drop table if exists _test2 keepdata;
 create table _test2 (_id1 integer primary key, _fullname text extract "$PIECE(^names(keys(""_id1"")),""|"",1)_$PIECE(^names(keys(""_id1"")),""|"",2)") GLOBAL "^names";
 select * from _test2;
+OCTO> drop table if exists _test1 keepdata;
 DROP TABLE
+OCTO> create table _test1 (_id1 integer);
 CREATE TABLE
+OCTO> insert into _test1 values(1);
 INSERT 0 1
+OCTO> insert into _test1(_id1) values(2);
 INSERT 0 1
+OCTO> select _id1 as _ from _test1 group by _ order by _;
 _
 1
 2
 (2 rows)
+OCTO> drop table if exists _test2 keepdata;
 DROP TABLE
+OCTO> create table _test2 (_id1 integer primary key, _fullname text extract "$PIECE(^names(keys(""_id1"")),""|"",1)_$PIECE(^names(keys(""_id1"")),""|"",2)") GLOBAL "^names";
 CREATE TABLE
+OCTO> select * from _test2;
 _id1|_fullname
 0|ZeroCool
 1|AcidBurn
@@ -26,3 +34,4 @@ _id1|_fullname
 4|Joey
 5|ZeroCool
 (6 rows)
+OCTO> 

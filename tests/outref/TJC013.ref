@@ -13,7 +13,16 @@ SHOW DateStyle;
 SET DateStyle='ISO';
 SHOW DateStyle;
 
+OCTO> SET DateStyle TO PostgreSQL;
+OCTO> SHOW DateStyle;
 postgresql
+OCTO> SET DateStyle=ISO;
+OCTO> SHOW DateStyle;
 iso
+OCTO> SET DateStyle TO 'PostgreSQL';
+OCTO> SHOW DateStyle;
 PostgreSQL
+OCTO> SET DateStyle='ISO';
+OCTO> SHOW DateStyle;
 ISO
+OCTO> 

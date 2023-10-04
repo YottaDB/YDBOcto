@@ -3,6 +3,8 @@
 
 select * from names where 1::integer = 1::numeric limit 1;
 
+OCTO> select * from names where 1::integer = 1::numeric limit 1;
 id|firstname|lastname
 0|Zero|Cool
 (1 row)
+OCTO> 

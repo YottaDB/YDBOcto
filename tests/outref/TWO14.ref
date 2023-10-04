@@ -7,9 +7,12 @@ LINE 2:1: select * from names where id like 4::integer;
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for regex operations
 LINE 2:1: select * from names where id like 4::integer;
                                             ^
+OCTO> select * from names where id like 4::integer;
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for regex operations
 LINE 3:1: select * from names where id not like 4::integer;
                                     ^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for regex operations
 LINE 3:1: select * from names where id not like 4::integer;
                                                 ^
+OCTO> select * from names where id not like 4::integer;
+OCTO> 

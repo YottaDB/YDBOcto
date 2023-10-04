@@ -2,6 +2,10 @@
 drop view if exists namesv1;
 create view namesv1 as select * from names;
 select (select * from (select n3.id from namesv1 n1) n2) from namesv1 n3;
+OCTO> drop view if exists namesv1;
 DROP VIEW
+OCTO> create view namesv1 as select * from names;
 CREATE VIEW
+OCTO> select (select * from (select n3.id from namesv1 n1) n2) from namesv1 n3;
 [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
+OCTO> 

@@ -115,157 +115,274 @@ select * from tbl;
 drop table if exists tbl;
 create table tbl (col integer, "COL" integer, primary key(col, "COL")) GLOBAL "^tbl(keys(""COL""),keys(""COL""))";
 
+OCTO> create table abcd ("id" integer);
 CREATE TABLE
+OCTO> select * from abcd;
 id
 (0 rows)
+OCTO> select "id" from abcd;
 id
 (0 rows)
+OCTO> select id from abcd;
 id
 (0 rows)
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
 LINE 7:1: select "ID" from abcd; -- Error: Unknown column 'ID'
                  ^^^^
+OCTO> select "ID" from abcd;
+OCTO> -- Error: Unknown column 'ID'
+select ID from abcd;
 id
 (0 rows)
+OCTO> drop table abcd;
 DROP TABLE
+OCTO> create table abcd ("ID" integer);
 CREATE TABLE
+OCTO> select * from abcd;
 ID
 (0 rows)
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: id
 LINE 13:1: select "id" from abcd; -- Error: Unknown column 'id'
                   ^^^^
+OCTO> select "id" from abcd;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: id
 LINE 14:2: select id from abcd; -- Error: Unknown column 'id'
                   ^^
+OCTO> -- Error: Unknown column 'id'
+select id from abcd;
+OCTO> -- Error: Unknown column 'id'
+select "ID" from abcd;
 ID
 (0 rows)
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: id
 LINE 16:1: select ID from abcd; -- Error: Unknown column 'id'
                   ^^
+OCTO> select ID from abcd;
+OCTO> -- Error: Unknown column 'id'
+drop table "ABCD";
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "ABCD" as it does not exist
+OCTO> -- Error: Unknown table 'ABCD'
+drop table "abcd";
 DROP TABLE
+OCTO> create table abcd (id integer);
 CREATE TABLE
+OCTO> select * from abcd;
 id
 (0 rows)
+OCTO> select "id" from abcd;
 id
 (0 rows)
+OCTO> select id from abcd;
 id
 (0 rows)
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
 LINE 24:1: select "ID" from abcd; -- Error: Unknown column 'ID'
                   ^^^^
+OCTO> select "ID" from abcd;
+OCTO> -- Error: Unknown column 'ID'
+select ID from abcd;
 id
 (0 rows)
+OCTO> drop table ABCD;
 DROP TABLE
+OCTO> create table abcd (ID integer);
 CREATE TABLE
+OCTO> select * from abcd;
 id
 (0 rows)
+OCTO> select "id" from abcd;
 id
 (0 rows)
+OCTO> select id from abcd;
 id
 (0 rows)
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
 LINE 32:1: select "ID" from abcd; -- Error: Unknown column 'ID'
                   ^^^^
+OCTO> select "ID" from abcd;
+OCTO> -- Error: Unknown column 'ID'
+select ID from abcd;
 id
 (0 rows)
+OCTO> select abcd.ID from abcd;
 id
 (0 rows)
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: abcd.ID
 LINE 35:1: select abcd."ID" from abcd; -- Error: Unknown column 'ID'
                   ^^^^^^^^^
+OCTO> select abcd."ID" from abcd;
+OCTO> -- Error: Unknown column 'ID'
+select abcd."id" from abcd;
 id
 (0 rows)
+OCTO> select abcd.id from abcd;
 id
 (0 rows)
+OCTO> select "abcd".ID from abcd;
 id
 (0 rows)
+OCTO> select abcd.ID from abcd;
 id
 (0 rows)
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : ABCD
 LINE 40:1: select "ABCD".ID from abcd; -- Error: Missing FROM clause
                   ^^^^^^^^^
+OCTO> select "ABCD".ID from abcd;
+OCTO> -- Error: Missing FROM clause
+select ABCD.ID from abcd;
 id
 (0 rows)
+OCTO> drop table "ABCD";
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "ABCD" as it does not exist
+OCTO> -- Error: Unknown table
+drop table abcd;
 DROP TABLE
+OCTO> -- Table dropped successfully
+
+create table "EFGH" ("ID" integer);
 CREATE TABLE
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: efgh
 LINE 46:1: select * from "efgh"; -- Error: Unknown table
                          ^^^^^^
+OCTO> select * from "efgh";
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: efgh
 LINE 47:2: select * from efgh; -- Error: Unknown table
                          ^^^^
+OCTO> -- Error: Unknown table
+select * from efgh;
+OCTO> -- Error: Unknown table
+select * from "EFGH";
 ID
 (0 rows)
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: efgh
 LINE 49:1: select * from EFGH; -- Error: Unknown table
                          ^^^^
+OCTO> select * from EFGH;
+OCTO> -- Error: Unknown table
+select * from "EFGH" where "EFGH"."ID" = 0;
 ID
 (0 rows)
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: Efgh
 LINE 51:1: select * from "Efgh" where "EFGH"."ID" = 0; -- Error: Unknown ta...
                          ^^^^^^
+OCTO> select * from "Efgh" where "EFGH"."ID" = 0;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: EFGH.Id
 LINE 52:2: ...elect * from "EFGH" where "EFGH"."Id" = 0; -- Error: Unknown co...
                                         ^^^^^^^^^^^
+OCTO> -- Error: Unknown table
+select * from "EFGH" where "EFGH"."Id" = 0;
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : efgh
 LINE 53:2: select * from "EFGH" where efgh.id = 0; -- Error: Missing FROM-...
                                       ^^^^^^^
+OCTO> -- Error: Unknown column
+select * from "EFGH" where efgh.id = 0;
+OCTO> -- Error: Missing FROM-clause
+drop table efgh;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "efgh" as it does not exist
+OCTO> -- Error: Unknown table
+drop table EFGH;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "efgh" as it does not exist
+OCTO> -- Error: Unknown table
+drop table "efgh";
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "efgh" as it does not exist
+OCTO> -- Error: Unknown table
+drop table "EFGH";
 DROP TABLE
+OCTO> -- Table dropped successfully
+
+create table "efgh" (id integer);
 CREATE TABLE
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EFGH
 LINE 60:1: select * from "EFGH"; -- Error: Unknown table
                          ^^^^^^
+OCTO> select * from "EFGH";
+OCTO> -- Error: Unknown table
+select * from efgh;
 id
 (0 rows)
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EFGH
 LINE 62:1: select * from "EFGH";
                          ^^^^^^
+OCTO> select * from "EFGH";
+OCTO> select * from EFGH;
 id
 (0 rows)
+OCTO> drop table "EFGH";
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "EFGH" as it does not exist
+OCTO> -- Error: Unknown table
+drop table "efgh";
 DROP TABLE
+OCTO> -- Table dropped successfully
+
+create table efgh ("id" integer);
 CREATE TABLE
+OCTO> select * from "efgh";
 id
 (0 rows)
+OCTO> select * from efgh;
 id
 (0 rows)
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EFGH
 LINE 70:1: select * from "EFGH"; -- Error: Unknown table
                          ^^^^^^
+OCTO> select * from "EFGH";
+OCTO> -- Error: Unknown table
+select * from EFGH;
 id
 (0 rows)
+OCTO> drop table "EFGH";
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "EFGH" as it does not exist
+OCTO> -- Error: Unknown table
+drop table EFGH;
 DROP TABLE
+OCTO> -- Table dropped successfully
+
+create table EFGH (ID integer);
 CREATE TABLE
+OCTO> select * from "efgh";
 id
 (0 rows)
+OCTO> select * from efgh;
 id
 (0 rows)
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EFGH
 LINE 78:1: select * from "EFGH"; -- Error: Unknown table
                          ^^^^^^
+OCTO> select * from "EFGH";
+OCTO> -- Error: Unknown table
+select * from EFGH;
 id
 (0 rows)
+OCTO> drop table "EFGH";
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "EFGH" as it does not exist
+OCTO> -- Error: Unknown table
+drop table EFGH;
 DROP TABLE
+OCTO> -- Table dropped successfully
+
+
+drop table if exists tmp;
 DROP TABLE
+OCTO> create table tmp ("ID1" integer, "ID2" integer);
 CREATE TABLE
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'ID1' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 86:1: select "ID1" from tmp group by "ID2";
                   ^^^^^
+OCTO> select "ID1" from tmp group by "ID2";
+OCTO> drop table if exists tmp;
 DROP TABLE
+OCTO> create table tmp (id1 integer, id2 integer) READWRITE;
 CREATE TABLE
+OCTO> insert into tmp values (1,2);
 INSERT 0 1
+OCTO> insert into tmp values (2,1);
 INSERT 0 1
+OCTO> select * from (select id1 as "ID" from tmp) n1 natural join (select id2 as "ID" from tmp) n2;
 ID
 1
 2
 (2 rows)
+OCTO> select n2."ID", n1."ID" from (select id1 as "ID" from tmp) n1 natural join (select id2 as "ID" from tmp) n2;
 ID|ID
 1|1
 2|2
@@ -273,13 +390,25 @@ ID|ID
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: n2.id
 LINE 94:1: select n2.id, n1.id from (select id1 as "ID" from tmp) n1 natur...
                   ^^^^^
+OCTO> select n2.id, n1.id from (select id1 as "ID" from tmp) n1 natural join (select id2 as "ID" from tmp) n2;
+OCTO> -- Error: Unknown column
+
+drop table if exists tbl;
 DROP TABLE
+OCTO> create table tbl (col integer, "COL" integer, primary key(col, "COL"));
 CREATE TABLE
+OCTO> select * from tbl;
 col|COL
 (0 rows)
+OCTO> drop table if exists tbl;
 DROP TABLE
+OCTO> create table tbl (col integer, "COL" integer, primary key(col, "COL")) GLOBAL "^tbl(keys(""col""),keys(""COL""))";
 CREATE TABLE
+OCTO> select * from tbl;
 col|COL
 (0 rows)
+OCTO> drop table if exists tbl;
 DROP TABLE
 [ERROR]: ERR_GLOBAL_KEY_COLS_ORDER: GLOBAL keyword does not specify the KEY columns in the right order
+OCTO> create table tbl (col integer, "COL" integer, primary key(col, "COL")) GLOBAL "^tbl(keys(""COL""),keys(""COL""))";
+OCTO> 

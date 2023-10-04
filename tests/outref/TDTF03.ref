@@ -2,4 +2,6 @@
 -- TDTF03 : OCTO288 : Calling DATE_FORMAT() when emulating PostgreSQL issues an error
 
 SELECT DATE_FORMAT('DATE TIME', '%a %b %D %Y');
+OCTO> SELECT DATE_FORMAT('DATE TIME', '%a %b %D %Y');
 [ERROR]: ERR_UNKNOWN_FUNCTION_EMULATION: No 2-parameter function DATE_FORMAT() defined for the current database emulation mode (POSTGRES)
+OCTO> 

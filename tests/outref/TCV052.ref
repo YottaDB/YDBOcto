@@ -2,7 +2,12 @@ create view v1 as values (1), (ABS(-2));
 drop function ABS(integer);
 create view v2 as values (ABS(-2)), (1);
 drop function ABS(integer);
+OCTO> create view v1 as values (1), (ABS(-2));
 CREATE VIEW
+OCTO> drop function ABS(integer);
 [ERROR]: ERR_DROP_FUNCTION_DEPENDS_ON_VIEW: Cannot DROP function abs(INTEGER) because view "v1" depends on it
+OCTO> create view v2 as values (ABS(-2)), (1);
 CREATE VIEW
+OCTO> drop function ABS(integer);
 [ERROR]: ERR_DROP_FUNCTION_DEPENDS_ON_VIEW: Cannot DROP function abs(INTEGER) because view "v1" depends on it
+OCTO> 

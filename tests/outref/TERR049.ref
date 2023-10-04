@@ -52,42 +52,81 @@ select * from tmp;  -- Error: table `tmp` doesn't exist
 drop table if exists tmp;
 create table tmp (id varchar primary key, fullname1 varchar extract concat(id, id || 'abcd'));
 select * from tmp;
+OCTO> DROP TABLE IF EXISTS extractnames;
 DROP TABLE
 LINE 7:3:     fullname VARCHAR EXTRACT SUM(id)
                                        ^^^
 syntax error, unexpected SUM
+OCTO> CREATE TABLE extractnames (
+    id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER,
+    fullname VARCHAR EXTRACT SUM(id)
+) GLOBAL "^names(keys(""ID""))";
 LINE 12:3:     fullname VARCHAR EXTRACT (select * from names;)
                                         ^
 syntax error, unexpected LEFT_PAREN
+OCTO> CREATE TABLE extractnames (
+    id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER,
+    fullname VARCHAR EXTRACT (select * from names;
 LINE 12:1: )
             ^
 syntax error, unexpected RIGHT_PAREN
+OCTO> )
+) GLOBAL "^names(keys(""ID""))";
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : names
 LINE 17:3:     fullname VARCHAR EXTRACT CONCAT(firstname, names.lastname)
                                                           ^^^^^^^^^^^^^^
+OCTO> CREATE TABLE extractnames (
+    id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER,
+    fullname VARCHAR EXTRACT CONCAT(firstname, names.lastname)
+) GLOBAL "^names(keys(""ID""))";
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: noname
 LINE 22:3:     fullname VARCHAR EXTRACT CONCAT(firstname, noname)
                                                           ^^^^^^
+OCTO> CREATE TABLE extractnames (
+    id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER,
+    fullname VARCHAR EXTRACT CONCAT(firstname, noname)
+) GLOBAL "^names(keys(""ID""))";
 LINE 27:3:     fullname VARCHAR EXTRACT CONCAT(extractnames.*, lastname)
                                                             ^
 syntax error, unexpected ASTERISK
+OCTO> CREATE TABLE extractnames (
+    id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER,
+    fullname VARCHAR EXTRACT CONCAT(extractnames.*, lastname)
+) GLOBAL "^names(keys(""ID""))";
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function concat defined with given parameter types (INTEGER, VARCHAR)
 LINE 32:3:     fullname VARCHAR EXTRACT CONCAT(1, lastname)
                                         ^^^^^^
+OCTO> CREATE TABLE extractnames (
+    id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER,
+    fullname VARCHAR EXTRACT CONCAT(1, lastname)
+) GLOBAL "^names(keys(""ID""))";
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function concat defined with given parameter types (INTEGER, VARCHAR)
 LINE 36:3:     fullname VARCHAR EXTRACT CONCAT(firstname::integer, lastname...
                                         ^^^^^^
+OCTO> CREATE TABLE extractnames (
+    id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER,
+    fullname VARCHAR EXTRACT CONCAT(firstname::integer, lastname)
+) GLOBAL "^names(keys(""ID""))";
+OCTO> drop table if exists tmp;
 DROP TABLE
 [ERROR]: ERR_EXTRACT_TYPE_MISMATCH: EXTRACT column of type VARCHAR, but function call returns type INTEGER
 LINE 40:1: ...tmp (id integer primary key, fullname varchar extract abs(id));
                                                             ^^^^^^^^^^^^^^^
+OCTO> create table tmp (id integer primary key, fullname varchar extract abs(id));
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
 LINE 41:1: select * from tmp;  -- Error: table `tmp` doesn't exist
                          ^^^
+OCTO> select * from tmp;
+OCTO> -- Error: table `tmp` doesn't exist
+
+drop table if exists tmp;
 DROP TABLE
 LINE 44:1: ...imary key, fullname1 varchar extract concat(id, id || 'abcd'));
                                                                  ^
 syntax error, unexpected PIPE, expecting RIGHT_PAREN
+OCTO> create table tmp (id varchar primary key, fullname1 varchar extract concat(id, id || 'abcd'));
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
 LINE 45:1: select * from tmp;
                          ^^^
+OCTO> select * from tmp;
+OCTO> 

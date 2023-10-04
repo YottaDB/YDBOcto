@@ -14,11 +14,20 @@ select * from v1 group by firstname;
 --OCTO> select * from v1 group by firstname;
 --[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
 
+OCTO> create view v1 as select * from (select id,firstname,lastname from names) n1,(select id,firstname,lastname from names) n2;
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "id" specified more than once
 LINE 2:1: create view v1 as select * from (select id,firstname,lastname f...
                                    ^
+OCTO> -- ERROR:  column "id" specified more than once
+
+create view v1 (v1_n1_id,v1_n1_firstname,v1_n1_lastname,v1_n2_id,v1_n2_firstname,v1_n2_lastname) as select n1.* from (select * from names) n1 left join (select * from names) n2 on n1.firstname = n2.firstname where n1.lastName = 'Cool' AND (n1.firstName = 'Zero' OR n1.lastName = 'Burn');
 [ERROR]: ERR_VIEW_MORE_COLUMN_NAMES: View specifies more column names than the number of columns defined
 LINE 4:3: ...n1_firstname,v1_n1_lastname,v1_n2_id,v1_n2_firstname,v1_n2_lastn...
                                          ^^^^^^^^
+OCTO> create view v1 as select * from (select id,firstname,lastname from (select id,firstname,lastname from (select id,firstname,lastname from (select id,firstname,lastname from names)n1)n2)n3)n4;
 CREATE VIEW
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'id' must appear in the GROUP BY clause or be used in an aggregate function
+OCTO> select * from v1 group by firstname;
+OCTO> --OCTO> select * from v1 group by firstname;
+--[ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column ID must appear in the GROUP BY clause or be used in an aggregate function
+

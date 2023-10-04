@@ -6,9 +6,13 @@ create view v1 AS select * FROM names WHERE THREEPARMFUNC(PARMLESSFUNC(),2,3) = 
 select * from v1;
 drop view v1;
 
+OCTO> CREATE FUNCTION PARMLESSFUNC() RETURNS VARCHAR AS $$^PARMLESSFUNC;
 CREATE FUNCTION
+OCTO> CREATE FUNCTION THREEPARMFUNC(VARCHAR,INTEGER,INTEGER) RETURNS VARCHAR AS $$threeparmfunc^functions;
 CREATE FUNCTION
+OCTO> create view v1 AS select * FROM names WHERE THREEPARMFUNC(PARMLESSFUNC(),2,3) = 'SUCCESS';
 CREATE VIEW
+OCTO> select * from v1;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -17,4 +21,6 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> drop view v1;
 DROP VIEW
+OCTO> 

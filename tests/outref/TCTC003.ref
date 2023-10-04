@@ -1093,647 +1093,1129 @@ DROP TABLE tmp;
 LINE 3:1: create table products (first varchar, last varchar, not null);
                                                               ^^^
 syntax error, unexpected NOT, expecting CHECK or PRIMARY or UNIQUE
+OCTO> create table products (first varchar, last varchar, not null);
 LINE 5:1: create table products (id integer, name varchar unique (name));
                                                                  ^
 syntax error, unexpected LEFT_PAREN
+OCTO> create table products (id integer, name varchar unique (name));
 LINE 6:1: ...te table products (id integer, name varchar unique (id, name));
                                                                 ^
 syntax error, unexpected LEFT_PAREN
+OCTO> create table products (id integer, name varchar unique (id, name));
 [ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table "products" are not allowed
 LINE 8:1: ...roducts (id integer constraint prikey primary key primary key);
                                                                ^^^^^^^^^^^
+OCTO> create table products (id integer constraint prikey primary key primary key);
 [ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table "products" are not allowed
 LINE 9:1: ...r constraint prikey primary key constraint seckey primary key);
                                                                ^^^^^^^^^^^
+OCTO> create table products (id integer constraint prikey primary key constraint seckey primary key);
 [ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table "products" are not allowed
 LINE 10:1: ...teger constraint prikey primary key, name varchar primary key);
                                                                 ^^^^^^^^^^^
+OCTO> create table products (id integer constraint prikey primary key, name varchar primary key);
 [ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table "products" are not allowed
 LINE 11:1: ...raint prikey primary key, name varchar, primary key (id, name));
                                                       ^^^^^^^^^^^^^^^^^^^^^^
+OCTO> create table products (id integer constraint prikey primary key, name varchar, primary key (id, name));
 [ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table "products" are not allowed
 LINE 12:1: ...ger primary key, id2 integer key num 1, primary key (id1, id2));
                                                       ^^^^^^^^^^^^^^^^^^^^^^
+OCTO> create table products (id1 integer primary key, id2 integer key num 1, primary key (id1, id2));
 [ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table "products" are not allowed
 LINE 13:1: ...r, id2 integer, primary key (id1, id2), primary key (id2, id1));
                                                       ^^^^^^^^^^^^^^^^^^^^^^
+OCTO> create table products (id1 integer, id2 integer, primary key (id1, id2), primary key (id2, id1));
 [ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table "tmp103" are not allowed
 LINE 14:1: ...int pkey103 primary key (id1), primary key (id1), id1 integer);
                                              ^^^^^^^^^^^^^^^^^
+OCTO> create table tmp103 (constraint pkey103 primary key (id1), primary key (id1), id1 integer);
 [ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table "tmp104" are not allowed
 LINE 15:1: ...eger, constraint pkey104 primary key (id1), primary key (id1));
                                                           ^^^^^^^^^^^^^^^^^
+OCTO> create table tmp104 (id1 integer, constraint pkey104 primary key (id1), primary key (id1));
 [ERROR]: ERR_TABLE_MULTIPLE_PRIMARY_KEYS: Multiple primary keys for table "tmp105" are not allowed
 LINE 16:1: ...int pkey105 primary key (id1), id1 integer, primary key (id1));
                                                           ^^^^^^^^^^^^^^^^^
+OCTO> create table tmp105 (constraint pkey105 primary key (id1), id1 integer, primary key (id1));
+OCTO> create table tmp1 (id1 integer constraint tmp_pkey primary key);
 CREATE TABLE
 [ERROR]: ERR_DUPLICATE_PRIMARY_KEY_CONSTRAINT: PRIMARY KEY constraint name "tmp_pkey" already exists in table "tmp1"
+OCTO> create table tmp2 (id2 integer constraint tmp_pkey primary key);
+OCTO> drop table tmp1;
 DROP TABLE
 [ERROR]: ERR_AGGREGATE_FUNCTION_CHECK: Aggregate functions are not allowed in CHECK constraints
 LINE 22:1: ...able products (id integer, name text CHECK (COUNT(*) is NULL));
                                                           ^^^^^
+OCTO> create table products (id integer, name text CHECK (COUNT(*) is NULL));
 [ERROR]: ERR_AGGREGATE_FUNCTION_CHECK: Aggregate functions are not allowed in CHECK constraints
 LINE 23:1: ...e products (id integer, name text CHECK (COUNT(name) is NULL));
                                                        ^^^^^
+OCTO> create table products (id integer, name text CHECK (COUNT(name) is NULL));
 [ERROR]: ERR_AGGREGATE_FUNCTION_CHECK: Aggregate functions are not allowed in CHECK constraints
 LINE 24:1: ...ble products (id integer, name text CHECK (MIN(name) is NULL));
                                                          ^^^
+OCTO> create table products (id integer, name text CHECK (MIN(name) is NULL));
 [ERROR]: ERR_AGGREGATE_FUNCTION_CHECK: Aggregate functions are not allowed in CHECK constraints
 LINE 25:1: ...ble products (id integer, name text CHECK (MAX(name) is NULL));
                                                          ^^^
+OCTO> create table products (id integer, name text CHECK (MAX(name) is NULL));
 [ERROR]: ERR_AGGREGATE_FUNCTION_CHECK: Aggregate functions are not allowed in CHECK constraints
 LINE 26:1: ...ble products (id integer, name text CHECK (AVG(name) is NULL));
                                                          ^^^
+OCTO> create table products (id integer, name text CHECK (AVG(name) is NULL));
 [ERROR]: ERR_AGGREGATE_FUNCTION_CHECK: Aggregate functions are not allowed in CHECK constraints
 LINE 27:1: ...ble products (id integer, name text CHECK (SUM(name) is NULL));
                                                          ^^^
+OCTO> create table products (id integer, name text CHECK (SUM(name) is NULL));
 [ERROR]: ERR_SUBQUERY_CHECK: Cannot use subquery in CHECK constraint
 LINE 29:1: ..., price numeric CONSTRAINT name1 CHECK (price < (select 1000)));
                                                                ^^^^^^
+OCTO> create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < (select 1000)));
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: names
 LINE 30:1: ...umeric CONSTRAINT name1 CHECK (price < (select * from names)));
                                                                     ^^^^^
+OCTO> create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < (select * from names)));
 [ERROR]: ERR_AGGREGATE_FUNCTION_CHECK: Aggregate functions are not allowed in CHECK constraints
 LINE 32:1: ...ducts (id integer, name text CHECK (COUNT(*) = (SELECT 1000)));
                                                   ^^^^^
+OCTO> create table products (id integer, name text CHECK (COUNT(*) = (SELECT 1000)));
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: invalid
 LINE 34:1: ...eric CONSTRAINT name1 CHECK (price < (select * from invalid)));
                                                                   ^^^^^^^
+OCTO> create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < (select * from invalid)));
 LINE 36:1: ..., name text, price numeric CONSTRAINT name1 CHECK (price < *));
                                                                          ^
 syntax error, unexpected ASTERISK
+OCTO> create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < *));
 [ERROR]: ERR_INVALID_CONSTRAINT_EXPRESSION: TABLENAME.* expressions not accepted within CHECK constraints
 LINE 37:1: ...name text, price numeric CONSTRAINT name1 CHECK (price < t.*));
                                                                        ^
+OCTO> create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < t.*));
 [ERROR]: ERR_INVALID_CONSTRAINT_EXPRESSION: TABLENAME.* expressions not accepted within CHECK constraints
 LINE 38:1: ...ext, price numeric CONSTRAINT name1 CHECK (price < products.*));
                                                                  ^^^^^^^^
+OCTO> create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < products.*));
 LINE 39:1: ...xt, price numeric CONSTRAINT name1 CHECK (price in products.*));
                                                                  ^^^^^^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting LEFT_PAREN
+OCTO> create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price in products.*));
 LINE 40:1: ...text, price numeric CONSTRAINT name1 CHECK (price in names.*));
                                                                    ^^^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting LEFT_PAREN
+OCTO> create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price in names.*));
 [ERROR]: ERR_INVALID_CONSTRAINT_EXPRESSION: TABLENAME.* expressions not accepted within CHECK constraints
 LINE 41:1: ... text, price numeric CONSTRAINT name1 CHECK (price < names.*));
                                                                    ^^^^^
+OCTO> create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < names.*));
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : names
 LINE 43:1: ... text, price numeric CONSTRAINT name1 CHECK (price < names.id));
                                                                    ^^^^^^^^
+OCTO> create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < names.id));
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : x
 LINE 44:1: ...integer, name varchar CHECK (2 > 0) CHECK (x.name is not null));
                                                          ^^^^^^
+OCTO> create table products (id integer, name varchar CHECK (2 > 0) CHECK (x.name is not null));
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: invalid
 LINE 46:1: ... text, price numeric CONSTRAINT name1 CHECK (price < invalid));
                                                                    ^^^^^^^
+OCTO> create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < invalid));
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: product
 LINE 47:1: ... text, price numeric CONSTRAINT name1 CHECK (price < product));
                                                                    ^^^^^^^
+OCTO> create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < product));
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: product
 LINE 49:2: ...e numeric CONSTRAINT name1 CHECK (price < samevalue(product)));
                                                                   ^^^^^^^
+OCTO> ---- Test error inside function call parameters
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < samevalue(product)));
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: id
 LINE 50:1: ...ger, name text, price numeric CONSTRAINT name1 CHECK (ABS(id)));
                                                                         ^^
+OCTO> create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (ABS(id)));
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: invalidcol
 LINE 51:1: ...CONSTRAINT name1 CHECK (price < COALESCE(NULL, 1, invalidcol)));
                                                                 ^^^^^^^^^^
+OCTO> create table products (product_no integer, price numeric CONSTRAINT name1 CHECK (price < COALESCE(NULL, 1, invalidcol)));
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: invalidcol
 LINE 52:1: ...meric CONSTRAINT name1 CHECK (price < GREATEST(1, invalidcol)));
                                                                 ^^^^^^^^^^
+OCTO> create table products (product_no integer, price numeric CONSTRAINT name1 CHECK (price < GREATEST(1, invalidcol)));
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: invalidcol
 LINE 53:1: ... numeric CONSTRAINT name1 CHECK (price < LEAST(1, invalidcol)));
                                                                 ^^^^^^^^^^
+OCTO> create table products (product_no integer, price numeric CONSTRAINT name1 CHECK (price < LEAST(1, invalidcol)));
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: invalidcol
 LINE 54:1: ...numeric CONSTRAINT name1 CHECK (price < NULLIF(1, invalidcol)));
                                                                 ^^^^^^^^^^
+OCTO> create table products (product_no integer, price numeric CONSTRAINT name1 CHECK (price < NULLIF(1, invalidcol)));
 LINE 56:1: ...e numeric CONSTRAINT name1 CHECK (price > 5) AND (price < 10));
                                                            ^^^
 syntax error, unexpected AND
+OCTO> create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price > 5) AND (price < 10));
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
 LINE 58:1: ...roducts (id integer CHECK (id + firstname), firstname varchar);
                                               ^^^^^^^^^
+OCTO> create table products (id integer CHECK (id + firstname), firstname varchar);
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for arithmetic operations
 LINE 59:1: ...able products (id integer CHECK (id - true), firstname varchar);
                                                     ^^^^
+OCTO> create table products (id integer CHECK (id - true), firstname varchar);
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for arithmetic operations
 LINE 60:1: ...oducts (id integer CHECK (id * 0::boolean), firstname varchar);
                                              ^
+OCTO> create table products (id integer CHECK (id * 0::boolean), firstname varchar);
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
 LINE 61:1: ...oducts (id integer CHECK (id / 1::varchar), firstname varchar);
                                              ^
+OCTO> create table products (id integer CHECK (id / 1::varchar), firstname varchar);
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for arithmetic operations
 LINE 62:1: ...able products (id integer CHECK (id % true), firstname varchar);
                                                     ^^^^
+OCTO> create table products (id integer CHECK (id % true), firstname varchar);
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
 LINE 63:1: ...ble products (id integer CHECK (id || true), firstname varchar);
                                               ^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for || operator
 LINE 63:1: ...ble products (id integer CHECK (id || true), firstname varchar);
                                                     ^^^^
+OCTO> create table products (id integer CHECK (id || true), firstname varchar);
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for || operator
 LINE 64:1: ...le products (id integer CHECK (id || 0::numeric), firstname varc...
                                              ^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for || operator
 LINE 64:1: ...ducts (id integer CHECK (id || 0::numeric), firstname varchar);
                                              ^
+OCTO> create table products (id integer CHECK (id || 0::numeric), firstname varchar);
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for || operator
 LINE 65:1: ...e products (id integer CHECK (NULL || 0::numeric), firstname var...
                                             ^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for || operator
 LINE 65:1: ...cts (id integer CHECK (NULL || 0::numeric), firstname varchar);
                                              ^
+OCTO> create table products (id integer CHECK (NULL || 0::numeric), firstname varchar);
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
 LINE 66:1: ...ble products (id integer CHECK (firstname), firstname varchar);
                                               ^^^^^^^^^
+OCTO> create table products (id integer CHECK (firstname), firstname varchar);
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
 LINE 67:1: ...oducts (id integer CHECK (firstname || id), firstname varchar);
                                         ^^^^^^^^^^^^^^^
+OCTO> create table products (id integer CHECK (firstname || id), firstname varchar);
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
 LINE 68:1: ... (id integer CHECK (id::boolean || firstname), firstname varchar...
                                   ^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> create table products (id integer CHECK (id::boolean || firstname), firstname varchar);
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
 LINE 69:1: ...roducts (id integer CHECK (firstname AND id::boolean), firstnam...
                                          ^^^^^^^^^
+OCTO> create table products (id integer CHECK (firstname AND id::boolean), firstname varchar);
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
 LINE 70:1: ...ducts (id integer CHECK (id::boolean OR id), firstname varchar);
                                                       ^^
+OCTO> create table products (id integer CHECK (id::boolean OR id), firstname varchar);
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
 LINE 72:2: ... text, price numeric CONSTRAINT name1 CHECK (ABS(product_no)));
                                                            ^^^^^^^^^^^^^^^
+OCTO> ---- Test error inside function call parameters
+create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (ABS(product_no)));
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 74:1: ...roducts (id integer CHECK (firstname IN (1, 2)), firstname varc...
                                          ^^^^^^^^^
 LINE 74:1: ...cts (id integer CHECK (firstname IN (1, 2)), firstname varchar);
                                                    ^^^^
+OCTO> create table products (id integer CHECK (firstname IN (1, 2)), firstname varchar);
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 75:1: ...ucts (id integer CHECK (id IN (1, 'abcd')), firstname varchar);
                                              ^
 LINE 75:1: ...ducts (id integer CHECK (id IN (1, 'abcd')), firstname varchar);
                                                  ^^^^^^
+OCTO> create table products (id integer CHECK (id IN (1, 'abcd')), firstname varchar);
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right NUMERIC
 LINE 76:1: ...s (id integer CHECK (COALESCE(NULL, 'a', 1.2)), firstname varcha...
                                             ^^^^
 LINE 76:1: ...d integer CHECK (COALESCE(NULL, 'a', 1.2)), firstname varchar);
                                                    ^^^
+OCTO> create table products (id integer CHECK (COALESCE(NULL, 'a', 1.2)), firstname varchar);
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 77:1: ...ts (id integer CHECK (COALESCE(id, NULL, firstname)), firstname ...
                                              ^^
 LINE 77:1: ...eger CHECK (COALESCE(id, NULL, firstname)), firstname varchar);
                                              ^^^^^^^^^
+OCTO> create table products (id integer CHECK (COALESCE(id, NULL, firstname)), firstname varchar);
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right NUMERIC
 LINE 78:1: ...s (id integer CHECK (GREATEST(NULL, 'a', 1.2)), firstname varcha...
                                             ^^^^
 LINE 78:1: ...d integer CHECK (GREATEST(NULL, 'a', 1.2)), firstname varchar);
                                                    ^^^
+OCTO> create table products (id integer CHECK (GREATEST(NULL, 'a', 1.2)), firstname varchar);
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 79:1: ...ts (id integer CHECK (GREATEST(id, NULL, firstname)), firstname ...
                                              ^^
 LINE 79:1: ...eger CHECK (GREATEST(id, NULL, firstname)), firstname varchar);
                                              ^^^^^^^^^
+OCTO> create table products (id integer CHECK (GREATEST(id, NULL, firstname)), firstname varchar);
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right NUMERIC
 LINE 80:1: ...ucts (id integer CHECK (LEAST(NULL, 'a', 1.2)), firstname varcha...
                                             ^^^^
 LINE 80:1: ... (id integer CHECK (LEAST(NULL, 'a', 1.2)), firstname varchar);
                                                    ^^^
+OCTO> create table products (id integer CHECK (LEAST(NULL, 'a', 1.2)), firstname varchar);
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 81:1: ...ducts (id integer CHECK (LEAST(id, NULL, firstname)), firstname ...
                                              ^^
 LINE 81:1: ...integer CHECK (LEAST(id, NULL, firstname)), firstname varchar);
                                              ^^^^^^^^^
+OCTO> create table products (id integer CHECK (LEAST(id, NULL, firstname)), firstname varchar);
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right NUMERIC
 LINE 82:1: ...ducts (id integer CHECK (NULLIF('a', 1.2)), firstname varchar);
                                               ^^^
 LINE 82:1: ...ducts (id integer CHECK (NULLIF('a', 1.2)), firstname varchar);
                                                    ^^^
+OCTO> create table products (id integer CHECK (NULLIF('a', 1.2)), firstname varchar);
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 83:1: ...ucts (id integer CHECK (NULLIF(id, firstname)), firstname varcha...
                                              ^^
 LINE 83:1: ... (id integer CHECK (NULLIF(id, firstname)), firstname varchar);
                                              ^^^^^^^^^
+OCTO> create table products (id integer CHECK (NULLIF(id, firstname)), firstname varchar);
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type BOOLEAN
 LINE 85:1: create table products (id integer CHECK (+id::boolean));
                                                      ^^
+OCTO> create table products (id integer CHECK (+id::boolean));
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type BOOLEAN
 LINE 86:1: create table products (id integer CHECK (-id::boolean));
                                                      ^^
+OCTO> create table products (id integer CHECK (-id::boolean));
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
 LINE 87:1: create table products (id integer CHECK (-id::varchar));
                                                      ^^
+OCTO> create table products (id integer CHECK (-id::varchar));
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
 LINE 88:1: ...cts (id integer, firstname varchar CHECK (firstname = +'Zero'));
                                                                      ^^^^^^
+OCTO> create table products (id integer, firstname varchar CHECK (firstname = +'Zero'));
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
 LINE 89:1: ...teger, firstname varchar CHECK (firstname = 'Zero' || +'Zero'));
                                                                      ^^^^^^
+OCTO> create table products (id integer, firstname varchar CHECK (firstname = 'Zero' || +'Zero'));
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
 LINE 90:1: ...teger, firstname varchar CHECK (firstname = 'Zero' || -'Zero'));
                                                                      ^^^^^^
+OCTO> create table products (id integer, firstname varchar CHECK (firstname = 'Zero' || -'Zero'));
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NULL not compatible for - operation
 LINE 91:1: ...integer, firstname varchar CHECK (firstname = 'Zero' || -NULL));
                                                                        ^^^^
+OCTO> create table products (id integer, firstname varchar CHECK (firstname = 'Zero' || -NULL));
+OCTO> -- +NULL below is a valid usage. Drop the table created by the below command so that other tests are not affected
+create table products (id integer, firstname varchar CHECK (firstname = 'Zero' || +NULL));
 CREATE TABLE
+OCTO> drop table products;
 DROP TABLE
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function abs defined with given parameter types (VARCHAR)
 LINE 96:1: ..., name text, price numeric CONSTRAINT name1 CHECK (ABS(name)));
                                                                  ^^^
+OCTO> create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (ABS(name)));
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function invalidfunc defined with given parameter types (VARCHAR)
 LINE 97:1: ...ext, price numeric CONSTRAINT name1 CHECK (INVALIDFUNC(name)));
                                                          ^^^^^^^^^^^
+OCTO> create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (INVALIDFUNC(name)));
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function samevalue defined with given parameter types (INTEGER)
 LINE 98:1: ...CONSTRAINT name1 CHECK (price * samevalue(product_no) < 1000));
                                               ^^^^^^^^^
+OCTO> create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price * samevalue(product_no) < 1000));
 [ERROR]: ERR_TOO_MANY_FUNCTION_ARGUMENTS: Too many arguments passed for function invalidfunc (max: 32)
+OCTO> create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (INVALIDFUNC(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33)));
 [ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left INTEGER, right VARCHAR
 LINE 102:1: ...T name1 CHECK (case when 1=1 then 2 when 2=2 then 'abcd' end));
                                                  ^
 LINE 102:1: ...NT name1 CHECK (case when 1=1 then 2 when 2=2 then 'abcd' end));
                                                                   ^^^^^^
+OCTO> create table products (id integer CONSTRAINT name1 CHECK (case when 1=1 then 2 when 2=2 then 'abcd' end));
 [ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left INTEGER, right VARCHAR
 LINE 103:1: ...CONSTRAINT name1 CHECK (case when 1=1 then 2 else 'abcd' end));
                                                           ^
 LINE 103:1: ... CONSTRAINT name1 CHECK (case when 1=1 then 2 else 'abcd' end));
                                                                   ^^^^^^
+OCTO> create table products (id integer CONSTRAINT name1 CHECK (case when 1=1 then 2 else 'abcd' end));
 [ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left VARCHAR, right INTEGER
 LINE 104:1: ...NT name1 CHECK (case id when 1 then 'abcd' when 2 then id end));
                                                    ^^^^^^
 LINE 104:1: ...NT name1 CHECK (case id when 1 then 'abcd' when 2 then id end));
                                                                       ^^
+OCTO> create table products (id integer CONSTRAINT name1 CHECK (case id when 1 then 'abcd' when 2 then id end));
 [ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left VARCHAR, right INTEGER
 LINE 105:1: ...ONSTRAINT name1 CHECK (case id when 1 then 'abcd' else id end));
                                                           ^^^^^^
 LINE 105:1: ...ONSTRAINT name1 CHECK (case id when 1 then 'abcd' else id end));
                                                                       ^^
+OCTO> create table products (id integer CONSTRAINT name1 CHECK (case id when 1 then 'abcd' else id end));
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type INTEGER but is used in a context that expects a BOOLEAN type
 LINE 107:1: ...s (id integer CONSTRAINT name1 CHECK (case when id then 2 end));
                                                                ^^
+OCTO> create table products (id integer CONSTRAINT name1 CHECK (case when id then 2 end));
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type VARCHAR but is used in a context that expects a INTEGER type
 LINE 108:1: ...nteger CONSTRAINT name1 CHECK (case id when 'abcd' then 2 end));
                                                            ^^^^^^
+OCTO> create table products (id integer CONSTRAINT name1 CHECK (case id when 'abcd' then 2 end));
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "name1" already exists
+OCTO> CREATE TABLE products (
+	     product_no integer,
+	     name text,
+	     price numeric CHECK (price > 0) CONSTRAINT name1 CHECK (price > 5) CONSTRAINT name1 CHECK (price < 10)
+	 );
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "name2" already exists
+OCTO> CREATE TABLE products (
+	     product_no integer CONSTRAINT name1 CHECK (product_no > 0),
+	     name text CONSTRAINT name2 CHECK (name is NOT NULL),
+	     price numeric CONSTRAINT name2 CHECK (price > 5)
+	 );
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "name3" already exists
+OCTO> CREATE TABLE products (
+	     product_no integer,
+	     name text,
+	     price numeric CHECK (price > 0) CONSTRAINT name3 CHECK (price > 5),
+	     CONSTRAINT name3 CHECK (price < 10)
+	 );
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "name3" already exists
+OCTO> CREATE TABLE products (
+	     product_no integer,
+	     name text,
+	     price numeric CHECK (price > 0),
+	     CONSTRAINT name3 CHECK (price > 5),
+	     CONSTRAINT name3 CHECK (price < 10)
+	 );
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "products_product_no_check" already exists
+OCTO> CREATE TABLE products (
+	     product_no integer CHECK (product_no > 0),
+	     name text,
+	     price numeric CONSTRAINT products_product_no_check CHECK (price > 5)
+	 );
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "products_price_check1" already exists
+OCTO> CREATE TABLE products (
+	     product_no integer,
+	     name text,
+	     price numeric CHECK (price > 0) CHECK (price > 5) CONSTRAINT products_price_check1 CHECK (price < 10)
+	 );
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu" already exists
+OCTO> CREATE TABLE products (
+	     product_no integer
+	     CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu CHECK (product_no < 2)
+	     CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu CHECK (product_no > 0)
+	);
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu" already exists
+OCTO> CREATE TABLE products (
+	     product_no integer,
+	     CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu CHECK (product_no < 2),
+	     CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu CHECK (product_no > 0)
+	);
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
 LINE 155:2: ...toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstuv...
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> CREATE TABLE products (
+	product_no integer CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstuv CHECK (product_no < 2));
 [ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
 LINE 157:1: ...toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstuv...
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> CREATE TABLE products (product_no integer CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstuv UNIQUE);
 [ERROR]: ERR_TABLE_MUST_HAVE_A_VISIBLE_COLUMN: Table "products" must have at least one visible column
+OCTO> CREATE TABLE products (CHECK (1 > 0));
 [ERROR]: ERR_TABLE_MUST_HAVE_A_VISIBLE_COLUMN: Table "products" must have at least one visible column
+OCTO> CREATE TABLE products (CHECK (1 > 0), CHECK (2 > 1));
+OCTO> CREATE TABLE products (product_no integer, name text, price numeric CHECK (price > 0));
 CREATE TABLE
+OCTO> INSERT INTO products VALUES (1, 'abcd', 5);
 INSERT 0 1
+OCTO> INSERT INTO products VALUES (2, 'efgh', -1);
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_price_check : Failing row contains (2, efgh, -1)
+OCTO> INSERT INTO products VALUES (3, NULL, 6);
 INSERT 0 1
+OCTO> UPDATE products SET price = -1;
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_price_check : Failing row contains (1, abcd, -1)
+OCTO> UPDATE products SET price = -1 WHERE product_no = 3;
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_price_check : Failing row contains (3, NULL, -1)
+OCTO> SELECT * from products;
 product_no|name|price
 1|abcd|5
 3||6
 (2 rows)
+OCTO> DROP TABLE products;
 DROP TABLE
+OCTO> CREATE TABLE products (product_no integer, name text, price numeric CHECK (price > 0) CHECK (price > 5));
 CREATE TABLE
+OCTO> INSERT INTO products VALUES (1, 'abcd', 6);
 INSERT 0 1
+OCTO> INSERT INTO products VALUES (2, 'efgh', 5);
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_price_check1 : Failing row contains (2, efgh, 5)
+OCTO> UPDATE products SET price = 5;
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_price_check1 : Failing row contains (1, abcd, 5)
+OCTO> SELECT * from products;
 product_no|name|price
 1|abcd|6
 (1 row)
+OCTO> DROP TABLE products;
 DROP TABLE
+OCTO> CREATE TABLE products (product_no integer PRIMARY KEY CHECK (product_no > 2), name text);
 CREATE TABLE
+OCTO> INSERT INTO products VALUES (3, 'abcd');
 INSERT 0 1
+OCTO> INSERT INTO products VALUES (2, 'efgh');
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_check : Failing row contains (2, efgh)
+OCTO> UPDATE products SET product_no = 2;
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_check : Failing row contains (2, abcd)
+OCTO> SELECT * from products;
 product_no|name
 3|abcd
 (1 row)
+OCTO> DROP TABLE products;
 DROP TABLE
+OCTO> CREATE TABLE products (product_no integer PRIMARY KEY CHECK (product_no > 2) CHECK (product_no < 10), name text);
 CREATE TABLE
+OCTO> INSERT INTO products VALUES (5, 'abcd');
 INSERT 0 1
+OCTO> INSERT INTO products VALUES (10, 'efgh');
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_check1 : Failing row contains (10, efgh)
+OCTO> UPDATE products SET product_no = 10;
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_check1 : Failing row contains (10, abcd)
+OCTO> SELECT * from products;
 product_no|name
 5|abcd
 (1 row)
+OCTO> DROP TABLE products;
 DROP TABLE
+OCTO> CREATE TABLE products (
+             product_no integer,
+             name text,
+             price numeric CONSTRAINT name1
+                CHECK (((price > 5) AND (price < 8)) OR (price = 0) OR (price is NULL) OR (price * price < 100))
+        );
 CREATE TABLE
+OCTO> INSERT INTO products VALUES (1, 'abcd', 9);
 INSERT 0 1
+OCTO> INSERT INTO products VALUES (2, 'efgh', 10);
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint name1 : Failing row contains (2, efgh, 10)
+OCTO> INSERT INTO products VALUES (3, 'ijkl', NULL);
 INSERT 0 1
+OCTO> UPDATE products SET price = 10;
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint name1 : Failing row contains (1, abcd, 10)
+OCTO> SELECT * from products;
 product_no|name|price
 1|abcd|9
 3|ijkl|
 (2 rows)
+OCTO> DROP TABLE products;
 DROP TABLE
+OCTO> CREATE TABLE products (
+             product_no integer,
+             name text,
+             price numeric,
+             CHECK ((price is NULL) OR (product_no is NULL) OR ((price * product_no) <= 2000))
+        );
 CREATE TABLE
+OCTO> INSERT INTO products VALUES (1, 'abcd', 2000);
 INSERT 0 1
+OCTO> INSERT INTO products VALUES (2, 'efgh', 1001);
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_check : Failing row contains (2, efgh, 1001)
+OCTO> INSERT INTO products VALUES (3, 'ijkl', NULL);
 INSERT 0 1
+OCTO> UPDATE products SET price = 1001;
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_check : Failing row contains (3, ijkl, 1001)
+OCTO> SELECT * from products;
 product_no|name|price
 1|abcd|2000
 3|ijkl|
 (2 rows)
+OCTO> DROP TABLE products;
 DROP TABLE
+OCTO> CREATE TABLE products (product_no integer, name text CHECK (product_no < 5));
 CREATE TABLE
+OCTO> INSERT INTO products VALUES (4, 'abcd');
 INSERT 0 1
+OCTO> INSERT INTO products VALUES (5, 'efgh');
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_check : Failing row contains (5, efgh)
+OCTO> INSERT INTO products VALUES (NULL, 'ijkl');
 INSERT 0 1
+OCTO> UPDATE products SET product_no = NULL;
 UPDATE 2
+OCTO> SELECT * from products;
 product_no|name
 |abcd
 |ijkl
 (2 rows)
+OCTO> DROP TABLE products;
 DROP TABLE
+OCTO> CREATE TABLE products (
+                product_no integer PRIMARY KEY CHECK (product_no > 2) CHECK (product_no < 10),
+                CHECK ((name || product_no) < 'Lord8'),
+                name text CHECK (name > 'Cereal') CHECK (name < 'Zero')
+        );
 CREATE TABLE
+OCTO> INSERT INTO products VALUES (2, 'Str2');
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_check : Failing row contains (2, Str2)
+OCTO> INSERT INTO products VALUES (9, 'Lord3');
 INSERT 0 1
+OCTO> INSERT INTO products VALUES (10, 'Str10');
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_check1 : Failing row contains (10, Str10)
+OCTO> INSERT INTO products VALUES (4, 'Cereal');
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_name_check : Failing row contains (4, Cereal)
+OCTO> INSERT INTO products VALUES (5, 'Zero');
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_check : Failing row contains (5, Zero)
+OCTO> INSERT INTO products VALUES (6, 'Joey');
 INSERT 0 1
+OCTO> INSERT INTO products VALUES (8, 'Lord');
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_check : Failing row contains (8, Lord)
+OCTO> UPDATE products SET name = 'Str2';
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_check : Failing row contains (6, Str2)
+OCTO> UPDATE products SET name = 'Str10';
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_check : Failing row contains (6, Str10)
+OCTO> UPDATE products SET name = 'Cereal';
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_name_check : Failing row contains (6, Cereal)
+OCTO> UPDATE products SET name = 'Zero';
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_check : Failing row contains (6, Zero)
+OCTO> UPDATE products SET name = 'Lord';
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_check : Failing row contains (9, Lord)
+OCTO> SELECT * from products;
 product_no|name
 6|Joey
 9|Lord3
 (2 rows)
+OCTO> DROP TABLE products;
 DROP TABLE
+OCTO> CREATE TABLE users(
+    id              integer primary key,
+    first_name      varchar(50)        ,
+    last_name       varchar(50)        ,
+    nick_name       varchar(100)       ,
+    email           varchar(255)       ,
+    password_digest text               ,
+    created_at      integer            ,
+    updated_at      integer            ,
+    CONSTRAINT validate_name CHECK((first_name != '' AND last_name != '') OR nick_name != '')
+);
 CREATE TABLE
+OCTO> INSERT INTO users(id, first_name, last_name, nick_name, email, password_digest)
+VALUES
+(1, 'Ms.', 'Winter', 'ms..winter', 'ms..winter@mailinator.com', 'c75029a15cbf675cf06b98ce7defeaa3'),
+(2, 'Sebastian', 'Batz', 'sebastian.batz', 'sebastian.batz@mailinator.com', '2518b96a5669f2fc884c8be0f7668feb'),
+(3, '', '', '', 'ms..winter@mailinator.com', 'c75029a15cbf675cf06b98ce7defeaa3'),
+(4, '', '', '', 'sebastian.batz@mailinator.com', '2518b96a5669f2fc884c8be0f7668feb');
 INSERT 0 4
+OCTO> DROP TABLE IF EXISTS users;
 DROP TABLE
+OCTO> CREATE TABLE users(
+    id              integer primary key,
+    first_name      varchar(50)        ,
+    last_name       varchar(50)        ,
+    nick_name       varchar(100)       ,
+    email           varchar(255)       ,
+    password_digest text               ,
+    created_at      integer            ,
+    updated_at      integer            ,
+    CONSTRAINT validate_name CHECK((first_name IS NOT NULL AND last_name IS NOT NULL) OR nick_name IS NOT NULL)
+);
 CREATE TABLE
+OCTO> INSERT INTO users(id, first_name, last_name, nick_name, email, password_digest)
+VALUES
+(1, 'Ms.', 'Winter', 'ms..winter', 'ms..winter@mailinator.com', 'c75029a15cbf675cf06b98ce7defeaa3'),
+(2, 'Sebastian', 'Batz', 'sebastian.batz', 'sebastian.batz@mailinator.com', '2518b96a5669f2fc884c8be0f7668feb'),
+(3, '', '', '', 'ms..winter@mailinator.com', 'c75029a15cbf675cf06b98ce7defeaa3'),
+(4, '', '', '', 'sebastian.batz@mailinator.com', '2518b96a5669f2fc884c8be0f7668feb');
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table users violates CHECK constraint validate_name : Failing row contains (3, NULL, NULL, NULL, ms..winter@mailinator.com, c75029a15cbf675cf06b98ce7defeaa3, NULL, NULL)
+OCTO> INSERT INTO users(id, first_name, last_name, nick_name, email, password_digest)
+VALUES
+(1, 'Ms.', 'Winter', 'ms..winter', 'ms..winter@mailinator.com', 'c75029a15cbf675cf06b98ce7defeaa3'),
+(2, 'Sebastian', 'Batz', 'sebastian.batz', 'sebastian.batz@mailinator.com', '2518b96a5669f2fc884c8be0f7668feb');
 INSERT 0 2
+OCTO> UPDATE users SET first_name = NULL, nick_name = NULL;
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table users violates CHECK constraint validate_name : Failing row contains (1, NULL, Winter, NULL, ms..winter@mailinator.com, c75029a15cbf675cf06b98ce7defeaa3, NULL, NULL)
+OCTO> UPDATE users SET last_name = NULL, nick_name = NULL;
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table users violates CHECK constraint validate_name : Failing row contains (1, Ms., NULL, NULL, ms..winter@mailinator.com, c75029a15cbf675cf06b98ce7defeaa3, NULL, NULL)
+OCTO> UPDATE users SET first_name = NULL, last_name = NULL, nick_name = NULL;
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table users violates CHECK constraint validate_name : Failing row contains (1, NULL, NULL, NULL, ms..winter@mailinator.com, c75029a15cbf675cf06b98ce7defeaa3, NULL, NULL)
+OCTO> DROP TABLE IF EXISTS users;
 DROP TABLE
+OCTO> CREATE TABLE tbl (id integer PRIMARY KEY CHECK (age < 20), age INTEGER);
 CREATE TABLE
+OCTO> INSERT INTO tbl VALUES (1, 12);
 INSERT 0 1
+OCTO> INSERT INTO tbl VALUES (2, 15);
 INSERT 0 1
+OCTO> SELECT * from tbl;
 id|age
 1|12
 2|15
 (2 rows)
+OCTO> UPDATE tbl SET age = age + 100;
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbl violates CHECK constraint tbl_age_check : Failing row contains (1, 112)
+OCTO> SELECT * from tbl;
 id|age
 1|12
 2|15
 (2 rows)
+OCTO> DROP TABLE tbl;
 DROP TABLE
+OCTO> CREATE TABLE products ( product_no integer PRIMARY KEY CHECK (product_no > 2) CHECK (product_no < 10), CHECK ((name || product_no) < 'Lord8'), name text CHECK (name > 'Cereal') CHECK (name < 'Zero'));
 CREATE TABLE
+OCTO> INSERT INTO products VALUES (3, 'Lord');
 INSERT 0 1
+OCTO> UPDATE products SET product_no = 1;
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_check : Failing row contains (1, Lord)
+OCTO> UPDATE products SET product_no = 15;
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_product_no_check1 : Failing row contains (15, Lord)
+OCTO> UPDATE products SET product_no = 8;
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_check : Failing row contains (8, Lord)
+OCTO> UPDATE products SET product_no = 7, name = 'Cereal';
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_name_check : Failing row contains (7, Cereal)
+OCTO> UPDATE products SET product_no = 7, name = 'Zero';
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_check : Failing row contains (7, Zero)
+OCTO> SELECT * from products;
 product_no|name
 3|Lord
 (1 row)
+OCTO> DROP TABLE products;
 DROP TABLE
+OCTO> CREATE TABLE products ( product_no integer PRIMARY KEY CHECK (product_no > 2) CHECK (product_no < 10), CHECK ((name || product_no) < 'Lord8'), name text CHECK (name > 'Cereal') CHECK (name < 'Zero'));
 CREATE TABLE
+OCTO> INSERT INTO products VALUES (3, 'Lord');
 INSERT 0 1
+OCTO> SELECT * from products;
 product_no|name
 3|Lord
 (1 row)
+OCTO> UPDATE products SET product_no = 9, name = 'Dummy';
 UPDATE 1
+OCTO> SELECT * from products;
 product_no|name
 9|Dummy
 (1 row)
+OCTO> UPDATE products SET product_no = 8, name = 'Lorc';
 UPDATE 1
+OCTO> SELECT * from products;
 product_no|name
 8|Lorc
 (1 row)
+OCTO> UPDATE products SET product_no = 7, name = 'Lord';
 UPDATE 1
+OCTO> SELECT * from products;
 product_no|name
 7|Lord
 (1 row)
+OCTO> DROP TABLE products;
 DROP TABLE
+OCTO> CREATE TABLE products (product_no integer PRIMARY KEY CHECK ((product_no > 2) and (name2 > 'abcd')) CHECK ((product_no > 2) and (name2 > 'abcd')), name1 text, name2 text);
 CREATE TABLE
+OCTO> INSERT INTO products VALUES (3, 'abcd', 'xyz');
 INSERT 0 1
+OCTO> SELECT * from products;
 product_no|name1|name2
 3|abcd|xyz
 (1 row)
+OCTO> UPDATE products SET product_no = 2, name1 = 'mno' WHERE name2 = 'xyz';
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_check : Failing row contains (2, mno, xyz)
+OCTO> SELECT * from products;
 product_no|name1|name2
 3|abcd|xyz
 (1 row)
+OCTO> DROP TABLE products;
 DROP TABLE
+OCTO> CREATE TABLE products (product_no integer PRIMARY KEY CHECK ((product_no > 2) and (name2 > 'abcd')) CHECK ((product_no > 2) and (name2 > 'abcd')), name1 text, name2 text);
 CREATE TABLE
+OCTO> INSERT INTO products VALUES (3, 'abcd', 'xyz');
 INSERT 0 1
+OCTO> SELECT * from products;
 product_no|name1|name2
 3|abcd|xyz
 (1 row)
+OCTO> UPDATE products SET product_no = 2 WHERE name2 = 'xyz';
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_check : Failing row contains (2, abcd, xyz)
+OCTO> SELECT * from products;
 product_no|name1|name2
 3|abcd|xyz
 (1 row)
+OCTO> DROP TABLE products;
 DROP TABLE
+OCTO> CREATE TABLE products (product_no integer PRIMARY KEY CHECK ((product_no > 2) and (name2 > 'abcd')) CHECK ((product_no > 2) and (name2 > 'abcd')), name1 text, name2 text);
 CREATE TABLE
+OCTO> INSERT INTO products VALUES (3, 'abcd', 'xyz');
 INSERT 0 1
+OCTO> SELECT * from products;
 product_no|name1|name2
 3|abcd|xyz
 (1 row)
+OCTO> UPDATE products SET product_no = 2, name1 = 'mno' WHERE name2 != 'mno';
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_check : Failing row contains (2, mno, xyz)
+OCTO> SELECT * from products;
 product_no|name1|name2
 3|abcd|xyz
 (1 row)
+OCTO> DROP TABLE IF EXISTS products;
 DROP TABLE
+OCTO> CREATE TABLE products (product_no integer PRIMARY KEY CHECK (name2 > 'abcd'), name1 text, name2 text);
 CREATE TABLE
+OCTO> INSERT INTO products VALUES (3, 'abcd', 'xyz');
 INSERT 0 1
+OCTO> SELECT * from products;
 product_no|name1|name2
 3|abcd|xyz
 (1 row)
+OCTO> UPDATE products SET product_no = 2, name1 = 'mno' WHERE name2 = 'xyz';
 UPDATE 1
+OCTO> SELECT * from products;
 product_no|name1|name2
 2|mno|xyz
 (1 row)
+OCTO> DROP TABLE IF EXISTS products;
 DROP TABLE
+OCTO> DROP FUNCTION IF EXISTS SAMEVALUE(INTEGER);
 DROP FUNCTION
+OCTO> CREATE FUNCTION SAMEVALUE(INTEGER) RETURNS INTEGER AS $$samevalue^functions;
 CREATE FUNCTION
+OCTO> DROP TABLE IF EXISTS products;
 DROP TABLE
+OCTO> CREATE TABLE products (product_no INTEGER, name TEXT, price NUMERIC CONSTRAINT name1 CHECK (price * samevalue(product_no) < 1000));
 CREATE TABLE
+OCTO> SELECT '-- Expect ERR_DROP_FUNCTION_DEPENDS error in a DROP FUNCTION AFTER 1 CREATE TABLE and 0 DROP TABLE';
 ???
 -- Expect ERR_DROP_FUNCTION_DEPENDS error in a DROP FUNCTION AFTER 1 CREATE TABLE and 0 DROP TABLE
 (1 row)
+OCTO> DROP FUNCTION SAMEVALUE(INTEGER);
 [ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function samevalue(INTEGER) because other objects (constraint "name1" on table "products") depend on it
+OCTO> DROP TABLE products;
 DROP TABLE
+OCTO> SELECT '-- Expect NO ERR_DROP_FUNCTION_DEPENDS error in a DROP FUNCTION AFTER 1 CREATE TABLE and 1 DROP TABLE';
 ???
 -- Expect NO ERR_DROP_FUNCTION_DEPENDS error in a DROP FUNCTION AFTER 1 CREATE TABLE and 1 DROP TABLE
 (1 row)
+OCTO> DROP FUNCTION SAMEVALUE(INTEGER);
 DROP FUNCTION
+OCTO> DROP FUNCTION IF EXISTS SAMEVALUE(INTEGER);
 DROP FUNCTION
+OCTO> CREATE FUNCTION SAMEVALUE(INTEGER) RETURNS INTEGER AS $$samevalue^functions;
 CREATE FUNCTION
+OCTO> CREATE TABLE products1 (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (samevalue(product_no) < 1000));
 CREATE TABLE
+OCTO> SELECT '-- Expect ERR_DROP_FUNCTION_DEPENDS error (constraint NAME1) in a DROP FUNCTION AFTER 1 CREATE TABLE and 0 DROP TABLE';
 ???
 -- Expect ERR_DROP_FUNCTION_DEPENDS error (constraint NAME1) in a DROP FUNCTION AFTER 1 CREATE TABLE and 0 DROP TABLE
 (1 row)
+OCTO> DROP FUNCTION SAMEVALUE(INTEGER);
 [ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function samevalue(INTEGER) because other objects (constraint "name1" on table "products1") depend on it
+OCTO> CREATE TABLE products2 (product_no integer, name text, price numeric CONSTRAINT name2 CHECK (samevalue(product_no) < 1000));
 CREATE TABLE
+OCTO> SELECT '-- Expect ERR_DROP_FUNCTION_DEPENDS error (constraint NAME1) in a DROP FUNCTION AFTER 2 CREATE TABLE and 0 DROP TABLE';
 ???
 -- Expect ERR_DROP_FUNCTION_DEPENDS error (constraint NAME1) in a DROP FUNCTION AFTER 2 CREATE TABLE and 0 DROP TABLE
 (1 row)
+OCTO> DROP FUNCTION SAMEVALUE(INTEGER);
 [ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function samevalue(INTEGER) because other objects (constraint "name1" on table "products1") depend on it
+OCTO> DROP TABLE products1;
 DROP TABLE
+OCTO> SELECT '-- Expect ERR_DROP_FUNCTION_DEPENDS error (constraint NAME2) in a DROP FUNCTION AFTER 2 CREATE TABLE and 1 DROP TABLE';
 ???
 -- Expect ERR_DROP_FUNCTION_DEPENDS error (constraint NAME2) in a DROP FUNCTION AFTER 2 CREATE TABLE and 1 DROP TABLE
 (1 row)
+OCTO> DROP FUNCTION SAMEVALUE(INTEGER);
 [ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function samevalue(INTEGER) because other objects (constraint "name2" on table "products2") depend on it
+OCTO> DROP TABLE products2;
 DROP TABLE
+OCTO> SELECT '-- Expect ERR_DROP_FUNCTION_DEPENDS error (constraint NAME2) in a DROP FUNCTION AFTER 2 CREATE TABLE and 2 DROP TABLE';
 ???
 -- Expect ERR_DROP_FUNCTION_DEPENDS error (constraint NAME2) in a DROP FUNCTION AFTER 2 CREATE TABLE and 2 DROP TABLE
 (1 row)
+OCTO> DROP FUNCTION SAMEVALUE(INTEGER);
 DROP FUNCTION
+OCTO> DROP TABLE IF EXISTS products;
 DROP TABLE
+OCTO> CREATE TABLE products (id0 INTEGER primary key, id1 INTEGER KEY NUM 1, name VARCHAR, CHECK (id1 > 0), CHECK (name < 'mnop'));
 CREATE TABLE
+OCTO> INSERT INTO products VALUES (1, 2, 'abcd');
 INSERT 0 1
+OCTO> INSERT INTO products VALUES (2, 3, 'efgh');
 INSERT 0 1
+OCTO> INSERT INTO products VALUES (2, 0, 'ijkl');
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_id1_check : Failing row contains (2, 0, ijkl)
+OCTO> INSERT INTO products VALUES (3, -1, 'ijkl');
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_id1_check : Failing row contains (3, -1, ijkl)
+OCTO> INSERT INTO products VALUES (4, 2, 'mnop');
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_name_check : Failing row contains (4, 2, mnop)
+OCTO> UPDATE products SET id1 = id1 - 2;
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_id1_check : Failing row contains (1, 0, abcd)
+OCTO> UPDATE products SET name = 'mnop' where id0 = 1;
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table products violates CHECK constraint products_name_check : Failing row contains (1, 2, mnop)
+OCTO> CREATE FUNCTION IF NOT EXISTS length(VARCHAR) RETURNS INTEGER AS $L;
 CREATE FUNCTION
+OCTO> DROP TABLE IF EXISTS clients;
 DROP TABLE
+OCTO> CREATE TABLE clients (
+    id            NUMERIC      CONSTRAINT clients PRIMARY KEY,
+    zip           CHAR(5)      CONSTRAINT zip_length CHECK (length(zip) = 5)
+);
 CREATE TABLE
+OCTO> INSERT INTO clients
+VALUES
+(1, '11223'),
+(2, '11225');
 INSERT 0 2
+OCTO> SELECT * FROM clients;
 id|zip
 1|11223
 2|11225
 (2 rows)
+OCTO> UPDATE clients SET zip = '11228' WHERE id = 1;
 UPDATE 1
+OCTO> SELECT * FROM clients;
 id|zip
 1|11228
 2|11225
 (2 rows)
+OCTO> UPDATE clients SET zip = (zip::numeric - 10000)::varchar;
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table clients violates CHECK constraint zip_length : Failing row contains (1, 1228)
+OCTO> SELECT * FROM clients;
 id|zip
 1|11228
 2|11225
 (2 rows)
+OCTO> DROP FUNCTION IF EXISTS length(VARCHAR);
 [ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function length(VARCHAR) because other objects (constraint "zip_length" on table "clients") depend on it
+OCTO> DROP TABLE clients;
 DROP TABLE
+OCTO> DROP FUNCTION length(VARCHAR);
 DROP FUNCTION
+OCTO> DROP TABLE IF EXISTS product_details;
 DROP TABLE
+OCTO> CREATE TABLE product_details(
+    agency_code VARCHAR(10) NOT NULL,
+    product_code VARCHAR(40) NOT NULL,
+    distribution_channel VARCHAR(15) NOT NULL ,
+    claim VARCHAR(5) NOT NULL CHECK(CLAIM IN ('No','Yes'))
+);
 CREATE TABLE
+OCTO> INSERT INTO product_details(agency_code,product_code,distribution_channel,claim)
+VALUES ('AA','BB','CC','Yes');
 INSERT 0 1
+OCTO> SELECT * FROM product_details;
 agency_code|product_code|distribution_channel|claim
 AA|BB|CC|Yes
 (1 row)
+OCTO> UPDATE product_details SET claim = 'No';
 UPDATE 1
+OCTO> SELECT * FROM product_details;
 agency_code|product_code|distribution_channel|claim
 AA|BB|CC|No
 (1 row)
+OCTO> UPDATE product_details SET claim = 'foo';
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table product_details violates CHECK constraint product_details_claim_check : Failing row contains (AA, BB, CC, foo)
+OCTO> DROP TABLE product_details;
 DROP TABLE
+OCTO> DROP TABLE IF EXISTS users;
 DROP TABLE
+OCTO> CREATE TABLE users(
+    username VARCHAR(30) CONSTRAINT user_name_pk PRIMARY KEY,
+    password VARCHAR(60) CONSTRAINT user_password_nn NOT NULL,
+    email VARCHAR(60) CONSTRAINT user_email_nn NOT NULL,
+    CONSTRAINT user_email_chk CHECK(email LIKE '%@%.%')
+);
 CREATE TABLE
+OCTO> INSERT INTO users(username, password, email)
+VALUES
+('sam','catdog.33','sam@zzz.com'),
+('nars','fatdog.44','nars@zzz.com');
 INSERT 0 2
+OCTO> SELECT * FROM users;
 username|password|email
 nars|fatdog.44|nars@zzz.com
 sam|catdog.33|sam@zzz.com
 (2 rows)
+OCTO> update users set email = 'sam@yyy.com' where username = 'sam';
 UPDATE 1
+OCTO> select * from users;
 username|password|email
 nars|fatdog.44|nars@zzz.com
 sam|catdog.33|sam@yyy.com
 (2 rows)
+OCTO> update users set email = 'foocoo' where username = 'nars';
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table users violates CHECK constraint user_email_chk : Failing row contains (nars, fatdog.44, foocoo)
+OCTO> DROP TABLE users;
 DROP TABLE
+OCTO> CREATE TABLE users(
+username VARCHAR(30) CONSTRAINT user_name_pk PRIMARY KEY,
+password VARCHAR(60) CONSTRAINT user_password_nn NOT NULL,
+email VARCHAR(60) CONSTRAINT user_email_nn NOT NULL,
+phone VARCHAR(10) CONSTRAINT phone_check CHECK(phone SIMILAR TO '[[:digit:]]{10}')
+);
 CREATE TABLE
+OCTO> INSERT into USERS
+VALUES
+('sam','nnnnnn.33','foo@boo.com','8888888888'),
+('bam','nnnnnn.33','bam@boo.com','9999999999');
 INSERT 0 2
+OCTO> SELECT * FROM users;
 username|password|email|phone
 bam|nnnnnn.33|bam@boo.com|9999999999
 sam|nnnnnn.33|foo@boo.com|8888888888
 (2 rows)
+OCTO> UPDATE users SET phone = '906222' WHERE username = 'sam';
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table users violates CHECK constraint phone_check : Failing row contains (sam, nnnnnn.33, foo@boo.com, 906222)
+OCTO> DROP TABLE users;
 DROP TABLE
+OCTO> DROP TABLE IF EXISTS domains;
 DROP TABLE
+OCTO> CREATE TABLE domains (
+  domain_id INTEGER PRIMARY KEY,
+  domain VARCHAR(255) UNIQUE NOT NULL,
+  uid INT NOT NULL CHECK(uid BETWEEN 1 AND 65535),
+  gid INT NOT NULL CHECK(gid BETWEEN 1 AND 65535)
+);
 CREATE TABLE
+OCTO> INSERT INTO domains(domain_id, domain, uid, gid) VALUES
+(1,'foo doo koo',22,22),
+(2,'foo doo boo',23,23);
 INSERT 0 2
+OCTO> SELECT * FROM domains;
 domain_id|domain|uid|gid
 1|foo doo koo|22|22
 2|foo doo boo|23|23
 (2 rows)
+OCTO> UPDATE domains SET domain = 'foo noo roo' WHERE domain_id = 1;
 UPDATE 1
+OCTO> SELECT * FROM domains;
 domain_id|domain|uid|gid
 1|foo noo roo|22|22
 2|foo doo boo|23|23
 (2 rows)
+OCTO> UPDATE domains SET uid = 25, gid = 25 WHERE uid = 22;
 UPDATE 1
+OCTO> SELECT * FROM domains;
 domain_id|domain|uid|gid
 1|foo noo roo|25|25
 2|foo doo boo|23|23
 (2 rows)
+OCTO> UPDATE domains SET uid = 250000, gid = 25 WHERE uid = 25;
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table domains violates CHECK constraint domains_uid_check : Failing row contains (1, foo noo roo, 250000, 25)
+OCTO> DROP TABLE domains;
 DROP TABLE
+OCTO> DROP TABLE IF EXISTS country;
 DROP TABLE
+OCTO> CREATE TABLE country (
+	    code CHARACTER(3) NOT NULL,
+	    name TEXT NOT NULL,
+	    continent TEXT NOT NULL,
+	    region TEXT NOT NULL,
+	    surfacearea NUMERIC NOT NULL,
+	    indepyear SMALLINT,
+	    population INTEGER NOT NULL,
+	    lifeexpectancy NUMERIC,
+	    gnp NUMERIC(10,2),
+	    gnpold NUMERIC(10,2),
+	    localname TEXT NOT NULL,
+	    governmentform TEXT NOT NULL,
+	    headofstate TEXT,
+	    capital INTEGER,
+	    code2 CHARACTER(2) NOT NULL,
+	    CONSTRAINT country_continent_check CHECK (((((((continent = 'Asia'::text) OR (continent = 'Europe'::text)) OR (continent = 'North America'::text)) OR (continent = 'Africa'::text)) OR (continent = 'Australia'::text)) OR (continent = 'Antarctica'::text)) OR (continent = 'South America'::text))
+);
 CREATE TABLE
+OCTO> INSERT INTO country VALUES ('FRA', 'France', 'Europe', 'Western Europe', 551500, 843, 59225700, 78.800003, 1424285.00, 1392448.00, 'France', 'Republic', 'Emmanuel Macron', 2974, 'FR');
 INSERT 0 1
+OCTO> SELECT * FROM country;
 code|name|continent|region|surfacearea|indepyear|population|lifeexpectancy|gnp|gnpold|localname|governmentform|headofstate|capital|code2
 FRA|France|Europe|Western Europe|551500|843|59225700|78.800003|1424285|1392448|France|Republic|Emmanuel Macron|2974|FR
 (1 row)
+OCTO> UPDATE country SET continent = 'Europa';
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table country violates CHECK constraint country_continent_check : Failing row contains (FRA, France, Europa, Western Europe, 551500, 843, 59225700, 78.800003, 1424285, 1392448, France, Republic, Emmanuel Macron, 2974, FR)
+OCTO> UPDATE country SET gnp = NULL;
 UPDATE 1
+OCTO> DROP TABLE country;
 DROP TABLE
+OCTO> DROP TABLE IF EXISTS Course_Enrollment_Session;
 DROP TABLE
+OCTO> CREATE TABLE Course_Enrollment_Session (
+ ID INT PRIMARY KEY,
+ Year INT NOT NULL,
+ Start_Registration_Date DATE NOT NULL,
+ End_Registration_Date DATE CHECK(End_Registration_Date > Start_Registration_Date)
+);
 CREATE TABLE
+OCTO> INSERT INTO Course_Enrollment_Session
+VALUES
+(1,2020,'DATE','DATE'),
+(2,2021,'DATE','DATE')
+;
 INSERT 0 2
+OCTO> SELECT * FROM Course_Enrollment_Session;
 id|year|start_registration_date|end_registration_date
 1|2020|DATE|DATE
 2|2021|DATE|DATE
 (2 rows)
+OCTO> UPDATE Course_Enrollment_Session SET End_Registration_Date = 'DATE' WHERE ID = 1;
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table course_enrollment_session violates CHECK constraint course_enrollment_session_check : Failing row contains (1, 2020, DATE, DATE)
+OCTO> SELECT * FROM Course_Enrollment_Session;
 id|year|start_registration_date|end_registration_date
 1|2020|DATE|DATE
 2|2021|DATE|DATE
 (2 rows)
+OCTO> UPDATE Course_Enrollment_Session SET End_Registration_Date = 'DATE' WHERE ID = 2;
 UPDATE 1
+OCTO> SELECT * FROM Course_Enrollment_Session;
 id|year|start_registration_date|end_registration_date
 1|2020|DATE|DATE
 2|2021|DATE|DATE
 (2 rows)
+OCTO> UPDATE Course_Enrollment_Session SET End_Registration_Date = NULL WHERE ID = 2;
 UPDATE 1
+OCTO> SELECT * FROM Course_Enrollment_Session;
 id|year|start_registration_date|end_registration_date
 1|2020|DATE|DATE
 2|2021|DATE|
 (2 rows)
+OCTO> DROP TABLE Course_Enrollment_Session;
 DROP TABLE
+OCTO> DROP TABLE IF EXISTS concepts;
 DROP TABLE
+OCTO> CREATE TABLE concepts(
+	concept_id INTEGER PRIMARY KEY,
+	standard_concept VARCHAR(1),
+	CONSTRAINT chk_c_standard_concept CHECK (COALESCE(standard_concept,'C') IN ('C','S'))
+);
 CREATE TABLE
+OCTO> INSERT INTO concepts
+VALUES
+(1,'S'),
+(2,NULL),
+(3,'C'),
+(4,NULL);
 INSERT 0 4
+OCTO> SELECT * FROM concepts;
 concept_id|standard_concept
 1|S
 2|
 3|C
 4|
 (4 rows)
+OCTO> UPDATE concepts SET standard_concept = NULL;
 UPDATE 4
+OCTO> SELECT * FROM concepts;
 concept_id|standard_concept
 1|
 2|
 3|
 4|
 (4 rows)
+OCTO> UPDATE concepts SET standard_concept = 'Q';
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table concepts violates CHECK constraint chk_c_standard_concept : Failing row contains (1, Q)
+OCTO> DROP TABLE concepts;
 DROP TABLE
+OCTO> DROP TABLE IF EXISTS country;
 DROP TABLE
+OCTO> CREATE TABLE country (gnp numeric(4,2));
 CREATE TABLE
+OCTO> INSERT INTO country VALUES (1.25);
 INSERT 0 1
+OCTO> INSERT INTO country VALUES (NULL);
 INSERT 0 1
+OCTO> UPDATE country SET gnp = NULL;
 UPDATE 2
+OCTO> SELECT gnp is NULL from country;
 ???
 1
 1
@@ -1741,158 +2223,250 @@ UPDATE 2
 LINE 538:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (3));
                                                     ^
 syntax error, unexpected LITERAL
+OCTO> CREATE TABLE abcd (id1 INTEGER, UNIQUE (3));
 LINE 539:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE ('abcd'));
                                                     ^^^^^^
 syntax error, unexpected LITERAL
+OCTO> CREATE TABLE abcd (id1 INTEGER, UNIQUE ('abcd'));
 LINE 541:1: CREATE TABLE abcd (id1 INTEGER, id2 INTEGER UNIQUE (id1));
                                                                ^
 syntax error, unexpected LEFT_PAREN
+OCTO> CREATE TABLE abcd (id1 INTEGER, id2 INTEGER UNIQUE (id1));
 LINE 542:1: CREATE TABLE abcd (id1 INTEGER, id2 INTEGER UNIQUE (id1, id2));
                                                                ^
 syntax error, unexpected LEFT_PAREN
+OCTO> CREATE TABLE abcd (id1 INTEGER, id2 INTEGER UNIQUE (id1, id2));
 LINE 544:1: CREATE TABLE tmp (id INTEGER, UNIQUE);
                                                 ^
 syntax error, unexpected RIGHT_PAREN, expecting LEFT_PAREN
+OCTO> CREATE TABLE tmp (id INTEGER, UNIQUE);
 LINE 546:1: ...EATE TABLE abcd (id1 INTEGER, CHECK (id1 > 2) CHECK (id1 > 3));
                                                              ^^^^^
 syntax error, unexpected CHECK, expecting RIGHT_PAREN
+OCTO> CREATE TABLE abcd (id1 INTEGER, CHECK (id1 > 2) CHECK (id1 > 3));
 LINE 548:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1) UNIQUE (id1));
                                                          ^^^^^^
 syntax error, unexpected UNIQUE, expecting RIGHT_PAREN
+OCTO> CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1) UNIQUE (id1));
 LINE 550:1: CREATE TABLE abcd (id1 INTEGER, CHECK (id1 > 2) UNIQUE (id1));
                                                             ^^^^^^
 syntax error, unexpected UNIQUE, expecting RIGHT_PAREN
+OCTO> CREATE TABLE abcd (id1 INTEGER, CHECK (id1 > 2) UNIQUE (id1));
 [ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "id2" of table "abcd" does not exist
 LINE 552:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id2));
                                                     ^^^
+OCTO> CREATE TABLE abcd (id1 INTEGER, UNIQUE (id2));
 [ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "id2" of table "abcd" does not exist
 LINE 553:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1, id2));
                                                          ^^^
+OCTO> CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1, id2));
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "id1" specified more than once
 LINE 555:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1, id1));
                                                          ^^^
+OCTO> CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1, id1));
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "id1" specified more than once
 LINE 556:1: ... TABLE abcd (id1 INTEGER, id2 INTEGER, UNIQUE (id1, id2, id1));
                                                                         ^^^
+OCTO> CREATE TABLE abcd (id1 INTEGER, id2 INTEGER, UNIQUE (id1, id2, id1));
 LINE 558:1: ...TABLE abcd (id1 INTEGER, id2 INTEGER, UNIQUE (id1 + id2, id1));
                                                                  ^
 syntax error, unexpected PLUS, expecting RIGHT_PAREN
+OCTO> CREATE TABLE abcd (id1 INTEGER, id2 INTEGER, UNIQUE (id1 + id2, id1));
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "uniq1" already exists
+OCTO> CREATE TABLE abcd (id INTEGER CONSTRAINT uniq1 UNIQUE, name VARCHAR CONSTRAINT uniq1 UNIQUE);
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "uniq2" already exists
+OCTO> CREATE TABLE abcd (id1 INTEGER, id2 INTEGER, CONSTRAINT uniq2 UNIQUE (id1, id2), CONSTRAINT uniq2 UNIQUE (id2, id1));
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "uniq3" already exists
+OCTO> CREATE TABLE abcd (id1 INTEGER, CONSTRAINT uniq3 UNIQUE (id1, id2), id2 integer CONSTRAINT uniq3 UNIQUE);
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "abcd_id1_key" already exists
+OCTO> CREATE TABLE abcd (id1 INTEGER UNIQUE, id2 INTEGER CONSTRAINT abcd_id1_key UNIQUE);
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu" already exists
+OCTO> CREATE TABLE abcd (
+	     id1 integer CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu UNIQUE,
+	     id2 integer CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu UNIQUE
+	);
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu" already exists
+OCTO> CREATE TABLE abcd (
+	     id1 integer,
+	     id2 integer,
+	     CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu UNIQUE (id1, id2),
+	     CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu UNIQUE (id2, id1)
+	);
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "abcd_id1_key" already exists
+OCTO> CREATE TABLE abcd (id1 INTEGER UNIQUE, id2 INTEGER CONSTRAINT abcd_id1_key CHECK (id2 > 1));
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "abcd_id1_check" already exists
+OCTO> CREATE TABLE abcd (id1 INTEGER CHECK (id1 > 1), id2 INTEGER CONSTRAINT abcd_id1_check UNIQUE);
+OCTO> CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, UNIQUE(id1, id2));
 CREATE TABLE
+OCTO> INSERT INTO tmp VALUES (3, 4);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (3, 4);
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id1_id2_key" : Key (id1, id2)=(3, 4) already exists
+OCTO> SELECT * FROM tmp;
 id1|id2
 3|4
 (1 row)
+OCTO> DROP TABLE tmp;
 DROP TABLE
+OCTO> CREATE TABLE tmp (id1 VARCHAR, id2 VARCHAR, UNIQUE(id1, id2));
 CREATE TABLE
+OCTO> INSERT INTO tmp VALUES ('abcd efgh', 'ijkl mnop');
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES ('abcd efgh', 'ijkl mnop');
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id1_id2_key" : Key (id1, id2)=(abcd efgh, ijkl mnop) already exists
+OCTO> SELECT * FROM tmp;
 id1|id2
 abcd efgh|ijkl mnop
 (1 row)
+OCTO> DROP TABLE tmp;
 DROP TABLE
+OCTO> CREATE TABLE tmp (id1 VARCHAR, id2 VARCHAR, UNIQUE(id1, id2));
 CREATE TABLE
+OCTO> INSERT INTO tmp VALUES (NULL, NULL);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (NULL, NULL);
 INSERT 0 1
+OCTO> SELECT * FROM tmp;
 id1|id2
 |
 |
 (2 rows)
+OCTO> DROP TABLE tmp;
 DROP TABLE
+OCTO> CREATE TABLE TMP (id1 INTEGER, id2 INTEGER, id3 INTEGER, UNIQUE (id1, id2), UNIQUE(id2, id3));
 CREATE TABLE
+OCTO> INSERT INTO tmp VALUES (1, 2, 3);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (2, 2, 5);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (3, 2, 3);
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id2_id3_key" : Key (id2, id3)=(2, 3) already exists
+OCTO> INSERT INTO tmp VALUES (3, 2, 4);
 INSERT 0 1
+OCTO> SELECT * FROM tmp;
 id1|id2|id3
 1|2|3
 2|2|5
 3|2|4
 (3 rows)
+OCTO> DROP TABLE tmp;
 DROP TABLE
+OCTO> CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, id3 INTEGER, UNIQUE(id1, id3));
 CREATE TABLE
+OCTO> INSERT INTO tmp VALUES (1,2,3);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (2,3,3);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (NULL,3,3);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (NULL,3,NULL);
 INSERT 0 1
+OCTO> SELECT * FROM tmp;
 id1|id2|id3
 1|2|3
 2|3|3
 |3|3
 |3|
 (4 rows)
+OCTO> INSERT INTO tmp VALUES (2,4,3);
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id1_id3_key" : Key (id1, id3)=(2, 3) already exists
+OCTO> SELECT * FROM tmp;
 id1|id2|id3
 1|2|3
 2|3|3
 |3|3
 |3|
 (4 rows)
+OCTO> DELETE FROM tmp WHERE id2 = 3;
 DELETE 3
+OCTO> SELECT * FROM tmp;
 id1|id2|id3
 1|2|3
 (1 row)
+OCTO> INSERT INTO tmp VALUES (2,4,3);
 INSERT 0 1
+OCTO> SELECT * FROM tmp;
 id1|id2|id3
 1|2|3
 2|4|3
 (2 rows)
+OCTO> DROP TABLE tmp;
 DROP TABLE
+OCTO> ---------------------------------------------------------------------------
+---------------------------------------------------------------------------
+CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, UNIQUE(id1, id2));
 CREATE TABLE
+OCTO> INSERT INTO tmp VALUES (3, 5);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (4, 4);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (5, 3);
 INSERT 0 1
+OCTO> SELECT * FROM tmp;
 id1|id2
 3|5
 4|4
 5|3
 (3 rows)
+OCTO> UPDATE TMP SET id1 = id2 + 1;
 UPDATE 3
+OCTO> SELECT * FROM tmp;
 id1|id2
 6|5
 5|4
 4|3
 (3 rows)
+OCTO> DROP TABLE tmp;
 DROP TABLE
+OCTO> CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, UNIQUE(id1, id2));
 CREATE TABLE
+OCTO> INSERT INTO tmp VALUES (3, 4);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (5, 3);
 INSERT 0 1
+OCTO> SELECT * FROM tmp;
 id1|id2
 3|4
 5|3
 (2 rows)
+OCTO> UPDATE TMP SET id1 = id2, id2 = id1;
 UPDATE 2
+OCTO> SELECT * FROM tmp;
 id1|id2
 4|3
 3|5
 (2 rows)
+OCTO> DROP TABLE tmp;
 DROP TABLE
+OCTO> CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, UNIQUE(id2));
 CREATE TABLE
+OCTO> INSERT INTO tmp VALUES (3, 5);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (4, 4);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (5, 3);
 INSERT 0 1
+OCTO> SELECT * FROM tmp;
 id1|id2
 3|5
 4|4
 5|3
 (3 rows)
+OCTO> UPDATE TMP SET id2 = NULL;
 UPDATE 3
+OCTO> SELECT * FROM tmp;
 id1|id2
 3|
 4|
 5|
 (3 rows)
+OCTO> INSERT INTO tmp VALUES (3, 5);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (4, 4);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (5, 3);
 INSERT 0 1
+OCTO> SELECT * FROM tmp;
 id1|id2
 3|
 4|
@@ -1901,7 +2475,9 @@ id1|id2
 4|4
 5|3
 (6 rows)
+OCTO> UPDATE TMP SET id2 = id1 - 3 where id2 is NULL;
 UPDATE 3
+OCTO> SELECT * FROM tmp;
 id1|id2
 3|0
 4|1
@@ -1910,272 +2486,440 @@ id1|id2
 4|4
 5|3
 (6 rows)
+OCTO> DROP TABLE tmp;
 DROP TABLE
+OCTO> ---------------------------------------------------------------------------
+---------------------------------------------------------------------------
+CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, UNIQUE(id1, id2));
 CREATE TABLE
+OCTO> INSERT INTO tmp VALUES (3, 5);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (4, 4);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (5, 3);
 INSERT 0 1
+OCTO> SELECT * FROM tmp;
 id1|id2
 3|5
 4|4
 5|3
 (3 rows)
+OCTO> UPDATE TMP SET id1 = id2 + 1, id2 = id1 - 1;
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id1_id2_key" : Key (id1, id2)=(5, 3) already exists
+OCTO> SELECT * FROM tmp;
 id1|id2
 3|5
 4|4
 5|3
 (3 rows)
+OCTO> DROP TABLE tmp;
 DROP TABLE
+OCTO> CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, UNIQUE(id1, id2));
 CREATE TABLE
+OCTO> INSERT INTO tmp VALUES (3, 2);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (3, 5);
 INSERT 0 1
+OCTO> SELECT * FROM tmp;
 id1|id2
 3|2
 3|5
 (2 rows)
+OCTO> UPDATE TMP SET id2 = 4;
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id1_id2_key" : Key (id1, id2)=(3, 4) already exists
+OCTO> SELECT * FROM tmp;
 id1|id2
 3|2
 3|5
 (2 rows)
+OCTO> DROP TABLE tmp;
 DROP TABLE
+OCTO> ---------------------------------------------------------------------------
+---------------------------------------------------------------------------
+CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, id3 INTEGER, UNIQUE(id1, id2), UNIQUE(id2, id3), CHECK (id1 > 2));
 CREATE TABLE
+OCTO> INSERT INTO tmp VALUES (3, 4, 2);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (4, 3, 4);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (5, 4, 5);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (1, 2, 3);
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp violates CHECK constraint tmp_id1_check : Failing row contains (1, 2, 3)
+OCTO> UPDATE tmp SET id1 = 4 WHERE id2 > 2;
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id1_id2_key" : Key (id1, id2)=(4, 4) already exists
+OCTO> UPDATE tmp SET id3 = id3 - id2, id2 = 5 WHERE id2 > 2;
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id2_id3_key" : Key (id2, id3)=(5, 1) already exists
+OCTO> SELECT * FROM tmp;
 id1|id2|id3
 3|4|2
 4|3|4
 5|4|5
 (3 rows)
+OCTO> DROP TABLE tmp;
 DROP TABLE
 [ERROR]: ERR_TABLE_KEY_NUM: CREATE TABLE for table "products" cannot use table-level PRIMARY KEY constraint and KEY NUM at same time
+OCTO> create table products (id integer key num 0, primary key (id));
 [ERROR]: ERR_TABLE_KEY_NUM: CREATE TABLE for table "products" cannot use table-level PRIMARY KEY constraint and KEY NUM at same time
+OCTO> create table products (id integer key num 0, constraint prikey primary key (id));
 [ERROR]: ERR_TABLE_KEY_NUM: CREATE TABLE for table "products" cannot use table-level PRIMARY KEY constraint and KEY NUM at same time
+OCTO> create table products (id1 integer, id2 integer key num 1, constraint prikey primary key (id1, id2));
 [ERROR]: ERR_TABLE_KEY_NUM: CREATE TABLE for table "products" cannot use table-level PRIMARY KEY constraint and KEY NUM at same time
+OCTO> create table products (id1 integer key num 0, id2 integer key num 1, constraint prikey primary key (id1, id2));
 [ERROR]: ERR_TABLE_KEY_NUM: CREATE TABLE for table "products" cannot use table-level PRIMARY KEY constraint and KEY NUM at same time
+OCTO> create table products (id1 integer key num 1, id2 integer key num 1, primary key (id1, id2));
 [ERROR]: ERR_TABLE_KEY_NUM: CREATE TABLE for table "tmp" cannot use table-level PRIMARY KEY constraint and KEY NUM at same time
+OCTO> create table tmp (id1 integer KEY NUM 2, id2 integer, id3 integer, PRIMARY KEY (id2, id1, id3));
 LINE 688:1: ...cts (id integer, constraint prikey primary key (id) key num 0);
                                                                    ^^^
 syntax error, unexpected KEY, expecting RIGHT_PAREN
+OCTO> create table products (id integer, constraint prikey primary key (id) key num 0);
+OCTO> create table tmp (id integer primary key key num 0);
 CREATE TABLE
+OCTO> drop table tmp;
 DROP TABLE
+OCTO> create table tmp (id integer key num 0 primary key);
 CREATE TABLE
+OCTO> drop table tmp;
 DROP TABLE
 [ERROR]: ERR_MISSING_KEY: Missing key 0 in table tmp; max key was 1
+OCTO> create table tmp (id integer primary key key num 1);
 LINE 697:3: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (3));
                                                          ^
 syntax error, unexpected LITERAL
+OCTO> ---------------------------------------------------------------------------
+---------------------------------------------------------------------------
+CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (3));
 LINE 698:1: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY ('abcd'));
                                                          ^^^^^^
 syntax error, unexpected LITERAL
+OCTO> CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY ('abcd'));
 LINE 700:1: CREATE TABLE abcd (id1 INTEGER, id2 INTEGER PRIMARY KEY (id1));
                                                                     ^
 syntax error, unexpected LEFT_PAREN
+OCTO> CREATE TABLE abcd (id1 INTEGER, id2 INTEGER PRIMARY KEY (id1));
 LINE 701:1: ...E TABLE abcd (id1 INTEGER, id2 INTEGER PRIMARY KEY (id1, id2));
                                                                   ^
 syntax error, unexpected LEFT_PAREN
+OCTO> CREATE TABLE abcd (id1 INTEGER, id2 INTEGER PRIMARY KEY (id1, id2));
 LINE 703:1: CREATE TABLE tmp (id INTEGER, PRIMARY KEY);
                                                      ^
 syntax error, unexpected RIGHT_PAREN, expecting LEFT_PAREN
+OCTO> CREATE TABLE tmp (id INTEGER, PRIMARY KEY);
 LINE 705:1: ... TABLE abcd (id1 INTEGER, PRIMARY KEY (id1) PRIMARY KEY (id1));
                                                            ^^^^^^^
 syntax error, unexpected PRIMARY, expecting RIGHT_PAREN
+OCTO> CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (id1) PRIMARY KEY (id1));
 LINE 707:1: ...TE TABLE abcd (id1 INTEGER, CHECK (id1 > 2) PRIMARY KEY (id1));
                                                            ^^^^^^^
 syntax error, unexpected PRIMARY, expecting RIGHT_PAREN
+OCTO> CREATE TABLE abcd (id1 INTEGER, CHECK (id1 > 2) PRIMARY KEY (id1));
 LINE 709:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1) PRIMARY KEY (id1));
                                                          ^^^^^^^
 syntax error, unexpected PRIMARY, expecting RIGHT_PAREN
+OCTO> CREATE TABLE abcd (id1 INTEGER, UNIQUE (id1) PRIMARY KEY (id1));
 LINE 711:1: ...d (id1 INTEGER, CHECK (id1 > 2) UNIQUE (id1) PRIMARY KEY (id1));
                                                ^^^^^^
 syntax error, unexpected UNIQUE, expecting RIGHT_PAREN
+OCTO> CREATE TABLE abcd (id1 INTEGER, CHECK (id1 > 2) UNIQUE (id1) PRIMARY KEY (id1));
 [ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "id2" of table "abcd" does not exist
 LINE 713:1: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (id2));
                                                          ^^^
+OCTO> CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (id2));
 [ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "id2" of table "abcd" does not exist
 LINE 714:1: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (id1, id2));
                                                               ^^^
+OCTO> CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (id1, id2));
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "id1" specified more than once
 LINE 716:1: CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (id1, id1));
                                                               ^^^
+OCTO> CREATE TABLE abcd (id1 INTEGER, PRIMARY KEY (id1, id1));
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "id1" specified more than once
 LINE 717:1: ...E abcd (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id1, id2, id1));
                                                                         ^^^
+OCTO> CREATE TABLE abcd (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id1, id2, id1));
 LINE 719:1: ... abcd (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id1 + id2, id1));
                                                                  ^
 syntax error, unexpected PLUS, expecting RIGHT_PAREN
+OCTO> CREATE TABLE abcd (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id1 + id2, id1));
+OCTO> CREATE TABLE abcd (id1 INTEGER PRIMARY KEY, id2 INTEGER CONSTRAINT abcd_id1_key CHECK (id2 > 1));
 CREATE TABLE
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "abcd_id1_check" already exists
+OCTO> CREATE TABLE abcd (id1 INTEGER CHECK (id1 > 1), id2 INTEGER CONSTRAINT abcd_id1_check PRIMARY KEY);
+OCTO> CREATE TABLE abcd (id1 INTEGER PRIMARY KEY, id2 INTEGER CONSTRAINT abcd_id1_key UNIQUE);
 [ERROR]: ERR_CANNOT_CREATE_TABLE: Table or View "abcd" already exists
 [ERROR]: ERR_DUPLICATE_CONSTRAINT: Constraint name "abcd_id1_key" already exists
+OCTO> CREATE TABLE abcd (id1 INTEGER UNIQUE, id2 INTEGER CONSTRAINT abcd_id1_key PRIMARY KEY);
+OCTO> DROP TABLE IF EXISTS employees;
 DROP TABLE
+OCTO> CREATE TABLE employees(ID INTEGER CONSTRAINT PK_ID PRIMARY KEY, AGE INTEGER);
 CREATE TABLE
+OCTO> INSERT INTO employees(ID,AGE) VALUES (1,22), (2,25);
 INSERT 0 2
+OCTO> UPDATE employees set id = 2 where age = 22;
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "pk_id" : Key (id)=(2) already exists
+OCTO> DROP TABLE employees;
 DROP TABLE
+OCTO> DROP TABLE IF EXISTS employees;
 DROP TABLE
+OCTO> CREATE TABLE employees(ID INTEGER PRIMARY KEY, AGE INTEGER);
 CREATE TABLE
+OCTO> INSERT INTO employees(ID,AGE) VALUES (1,22), (2,25);
 INSERT 0 2
+OCTO> UPDATE employees set id = 2 where age = 22;
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "employees_pkey" : Key (id)=(2) already exists
+OCTO> SELECT * FROM employees;
 id|age
 1|22
 2|25
 (2 rows)
+OCTO> DROP TABLE employees;
 DROP TABLE
+OCTO> CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id1, id2));
 CREATE TABLE
+OCTO> INSERT INTO tmp VALUES (3, 4);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (3, 4);
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_pkey" : Key (id1, id2)=(3, 4) already exists
+OCTO> SELECT * FROM tmp;
 id1|id2
 3|4
 (1 row)
+OCTO> DROP TABLE tmp;
 DROP TABLE
+OCTO> CREATE TABLE tmp (id1 VARCHAR, id2 VARCHAR, PRIMARY KEY(id1, id2));
 CREATE TABLE
+OCTO> INSERT INTO tmp VALUES ('abcd efgh', 'ijkl mnop');
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES ('abcd efgh', 'ijkl mnop');
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_pkey" : Key (id1, id2)=(abcd efgh, ijkl mnop) already exists
+OCTO> SELECT * FROM tmp;
 id1|id2
 abcd efgh|ijkl mnop
 (1 row)
+OCTO> DROP TABLE tmp;
 DROP TABLE
+OCTO> CREATE TABLE tmp (id1 VARCHAR, id2 VARCHAR, PRIMARY KEY(id1, id2));
 CREATE TABLE
+OCTO> INSERT INTO tmp VALUES (NULL, 'efgh');
 [ERROR]: ERR_NULL_COL_VALUE: NULL value in column id1 violates NOT NULL constraint
+OCTO> INSERT INTO tmp VALUES ('abcd', NULL);
 [ERROR]: ERR_NULL_COL_VALUE: NULL value in column id2 violates NOT NULL constraint
+OCTO> INSERT INTO tmp VALUES (NULL, NULL);
 [ERROR]: ERR_NULL_COL_VALUE: NULL value in column id1 violates NOT NULL constraint
+OCTO> INSERT INTO tmp VALUES ('abcd', 'efgh');
 INSERT 0 1
+OCTO> SELECT * FROM tmp;
 id1|id2
 abcd|efgh
 (1 row)
+OCTO> DROP TABLE tmp;
 DROP TABLE
+OCTO> CREATE TABLE TMP (id1 INTEGER, id2 INTEGER, id3 INTEGER, PRIMARY KEY (id2, id3));
 CREATE TABLE
+OCTO> INSERT INTO tmp VALUES (1, 2, 3);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (2, 2, 5);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (3, 2, 3);
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_pkey" : Key (id2, id3)=(2, 3) already exists
+OCTO> SELECT * FROM tmp;
 id1|id2|id3
 1|2|3
 2|2|5
 (2 rows)
+OCTO> DROP TABLE tmp;
 DROP TABLE
+OCTO> CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, id3 INTEGER, PRIMARY KEY(id1, id3));
 CREATE TABLE
+OCTO> INSERT INTO tmp VALUES (1,2,3);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (2,3,3);
 INSERT 0 1
+OCTO> SELECT * FROM tmp;
 id1|id2|id3
 1|2|3
 2|3|3
 (2 rows)
+OCTO> INSERT INTO tmp VALUES (2,4,3);
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_pkey" : Key (id1, id3)=(2, 3) already exists
+OCTO> SELECT * FROM tmp;
 id1|id2|id3
 1|2|3
 2|3|3
 (2 rows)
+OCTO> DELETE FROM tmp WHERE id2 = 3;
 DELETE 1
+OCTO> SELECT * FROM tmp;
 id1|id2|id3
 1|2|3
 (1 row)
+OCTO> INSERT INTO tmp VALUES (2,4,3);
 INSERT 0 1
+OCTO> SELECT * FROM tmp;
 id1|id2|id3
 1|2|3
 2|4|3
 (2 rows)
+OCTO> DROP TABLE tmp;
 DROP TABLE
+OCTO> ---------------------------------------------------------------------------
+---------------------------------------------------------------------------
+CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, PRIMARY KEY(id1, id2));
 CREATE TABLE
+OCTO> INSERT INTO tmp VALUES (3, 5);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (4, 4);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (5, 3);
 INSERT 0 1
+OCTO> SELECT * FROM tmp;
 id1|id2
 3|5
 4|4
 5|3
 (3 rows)
+OCTO> UPDATE TMP SET id1 = id2 + 1;
 UPDATE 3
+OCTO> SELECT * FROM tmp;
 id1|id2
 4|3
 5|4
 6|5
 (3 rows)
+OCTO> DROP TABLE tmp;
 DROP TABLE
+OCTO> CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, PRIMARY KEY(id1, id2));
 CREATE TABLE
+OCTO> INSERT INTO tmp VALUES (3, 4);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (5, 3);
 INSERT 0 1
+OCTO> SELECT * FROM tmp;
 id1|id2
 3|4
 5|3
 (2 rows)
+OCTO> UPDATE TMP SET id1 = id2, id2 = id1;
 UPDATE 2
+OCTO> SELECT * FROM tmp;
 id1|id2
 3|5
 4|3
 (2 rows)
+OCTO> DROP TABLE tmp;
 DROP TABLE
+OCTO> CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, PRIMARY KEY(id2));
 CREATE TABLE
+OCTO> INSERT INTO tmp VALUES (3, 5);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (4, 4);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (5, 3);
 INSERT 0 1
+OCTO> SELECT * FROM tmp;
 id1|id2
 5|3
 4|4
 3|5
 (3 rows)
+OCTO> UPDATE TMP SET id2 = NULL;
 [ERROR]: ERR_NULL_COL_VALUE: NULL value in column id2 violates NOT NULL constraint
+OCTO> SELECT * FROM tmp;
 id1|id2
 5|3
 4|4
 3|5
 (3 rows)
+OCTO> DROP TABLE tmp;
 DROP TABLE
+OCTO> ---------------------------------------------------------------------------
+---------------------------------------------------------------------------
+CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, PRIMARY KEY(id1, id2));
 CREATE TABLE
+OCTO> INSERT INTO tmp VALUES (3, 5);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (4, 4);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (5, 3);
 INSERT 0 1
+OCTO> SELECT * FROM tmp;
 id1|id2
 3|5
 4|4
 5|3
 (3 rows)
+OCTO> UPDATE TMP SET id1 = id2 + 1, id2 = id1 - 1;
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_pkey" : Key (id1, id2)=(5, 3) already exists
+OCTO> SELECT * FROM tmp;
 id1|id2
 3|5
 4|4
 5|3
 (3 rows)
+OCTO> DROP TABLE tmp;
 DROP TABLE
+OCTO> CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, PRIMARY KEY(id1, id2));
 CREATE TABLE
+OCTO> INSERT INTO tmp VALUES (3, 2);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (3, 5);
 INSERT 0 1
+OCTO> SELECT * FROM tmp;
 id1|id2
 3|2
 3|5
 (2 rows)
+OCTO> UPDATE TMP SET id2 = 4;
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_pkey" : Key (id1, id2)=(3, 4) already exists
+OCTO> SELECT * FROM tmp;
 id1|id2
 3|2
 3|5
 (2 rows)
+OCTO> DROP TABLE tmp;
 DROP TABLE
+OCTO> ---------------------------------------------------------------------------
+---------------------------------------------------------------------------
+CREATE TABLE tmp (id1 INTEGER, id2 INTEGER, id3 INTEGER, PRIMARY KEY(id1, id2), UNIQUE(id2, id3), CHECK (id1 > 2));
 CREATE TABLE
+OCTO> INSERT INTO tmp VALUES (3, 4, 2);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (4, 3, 4);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (5, 4, 5);
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (1, 2, 3);
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp violates CHECK constraint tmp_id1_check : Failing row contains (1, 2, 3)
+OCTO> UPDATE tmp SET id1 = 1 WHERE id2 > 2;
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp violates CHECK constraint tmp_id1_check : Failing row contains (1, 4, 2)
+OCTO> INSERT INTO tmp VALUES (5, 4, 6);
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_pkey" : Key (id1, id2)=(5, 4) already exists
+OCTO> INSERT INTO tmp VALUES (6, 3, 4);
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id2_id3_key" : Key (id2, id3)=(3, 4) already exists
+OCTO> UPDATE tmp SET id1 = 4 WHERE id2 > 2;
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_pkey" : Key (id1, id2)=(4, 4) already exists
+OCTO> UPDATE tmp SET id3 = id3 - id2, id2 = 5 WHERE id2 > 2;
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp_id2_id3_key" : Key (id2, id3)=(5, 1) already exists
+OCTO> SELECT * FROM tmp;
 id1|id2|id3
 3|4|2
 4|3|4
 5|4|5
 (3 rows)
+OCTO> DROP TABLE tmp;
 DROP TABLE
+OCTO> CREATE TABLE tmp1 (id1 INTEGER CONSTRAINT tmp_primary_key PRIMARY KEY, id2 INTEGER CONSTRAINT tmp_unique UNIQUE, id3 INTEGER CONSTRAINT tmp_check CHECK (id3 > 1));
 CREATE TABLE
+OCTO> CREATE TABLE tmp2 (id1 INTEGER CONSTRAINT tmp_unique PRIMARY KEY);
 CREATE TABLE
+OCTO> CREATE TABLE tmp3 (id1 INTEGER CONSTRAINT tmp_check PRIMARY KEY);
 CREATE TABLE
 [ERROR]: ERR_DUPLICATE_PRIMARY_KEY_CONSTRAINT: PRIMARY KEY constraint name "tmp_primary_key" already exists in table "tmp1"
+OCTO> CREATE TABLE tmp4 (id1 INTEGER CONSTRAINT tmp_primary_key PRIMARY KEY);
+OCTO> CREATE TABLE tmp5 (id1 INTEGER PRIMARY KEY, id2 INTEGER CONSTRAINT tmp_unique UNIQUE, id3 INTEGER CONSTRAINT tmp_check CHECK (id3 > 1));
 CREATE TABLE
+OCTO> \d tmp1;
 Table "tmp1" stored in Global: ^%ydboctoDgVN6HfISi9gTi74HkBOPB4(id1) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id1|INTEGER||NOT NULL|
@@ -2186,16 +2930,19 @@ Indexes:
     "tmp_unique" UNIQUE CONSTRAINT, Column(s) (id2), Global ^%ydboctoU8wskIA82EFCHKPlMn15AK8
 Check constraints:
     "tmp_check" CHECK ((id3 > 1))
+OCTO> \d tmp2;
 Table "tmp2" stored in Global: ^%ydboctoDdnfDUx4izkPZ9mCvyX36IJ(id1) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id1|INTEGER||NOT NULL|
 Indexes:
     "tmp_unique" PRIMARY KEY CONSTRAINT, Column(s) (id1), Global: ^%ydboctoDdnfDUx4izkPZ9mCvyX36IJ(id1)
+OCTO> \d tmp3;
 Table "tmp3" stored in Global: ^%ydboctoDWjzymDOCs5muUPMLP01DL6(id1) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id1|INTEGER||NOT NULL|
 Indexes:
     "tmp_check" PRIMARY KEY CONSTRAINT, Column(s) (id1), Global: ^%ydboctoDWjzymDOCs5muUPMLP01DL6(id1)
+OCTO> \d tmp5;
 Table "tmp5" stored in Global: ^%ydboctoDuf7WLU7mN4YQWVSJPMGjDJ(id1) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id1|INTEGER||NOT NULL|
@@ -2206,16 +2953,26 @@ Indexes:
     "tmp_unique" UNIQUE CONSTRAINT, Column(s) (id2), Global ^%ydboctoUMunPiwys1UuqLjq7UPCoFB
 Check constraints:
     "tmp_check" CHECK ((id3 > 1))
+OCTO> DROP TABLE tmp1;
 DROP TABLE
+OCTO> DROP TABLE tmp2;
 DROP TABLE
+OCTO> DROP TABLE tmp3;
 DROP TABLE
+OCTO> DROP TABLE tmp5;
 DROP TABLE
 LINE 857:1: create table tmp (id integer, unique (tmp.id));
                                                      ^
 syntax error, unexpected PERIOD, expecting RIGHT_PAREN
+OCTO> create table tmp (id integer, unique (tmp.id));
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
 LINE 859:1: ...able tmp (id integer CHECK ((id+'abcd')::varchar > 1::varchar));
                                                ^^^^^^
+OCTO> create table tmp (id integer CHECK ((id+'abcd')::varchar > 1::varchar));
+OCTO> CREATE TABLE tmp (product_no integer, CHECK (false));
 CREATE TABLE
+OCTO> INSERT INTO tmp VALUES (1);
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp violates CHECK constraint tmp_check : Failing row contains (1)
+OCTO> DROP TABLE tmp;
 DROP TABLE
+OCTO> 

@@ -11,14 +11,20 @@ CREATE TABLE names (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName TEXT
 select * from names where FIRSTNAME = 'Joey';
 -- Print the contents according to the new definition
 select id,'"',firstname,'"' from names;
+OCTO> CREATE TABLE names (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names";
 CREATE TABLE
+OCTO> select * from names where FIRSTNAME = 'Joey';
 id|firstname|lastname
 4|Joey|
 (1 row)
+OCTO> drop table names keepdata;
 DROP TABLE
+OCTO> CREATE TABLE names (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names" DELIM "^";
 CREATE TABLE
+OCTO> select * from names where FIRSTNAME = 'Joey';
 id|firstname|lastname
 (0 rows)
+OCTO> select id,'"',firstname,'"' from names;
 id|???|firstname|???
 0|"|Zero|Cool|"
 1|"|Acid|Burn|"
@@ -27,3 +33,4 @@ id|???|firstname|???
 4|"|Joey||"
 5|"|Zero|Cool|"
 (6 rows)
+OCTO> 

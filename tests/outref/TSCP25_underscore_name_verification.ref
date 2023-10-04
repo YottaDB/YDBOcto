@@ -77,28 +77,39 @@ create function x(int) returns int as $$_samevalue^functions;
 create function x(int) returns int as $$_samevalue^functions;
 create function x(int) returns int as $$^%_ydboctofCONCAT;
 create function x(int) returns int as $$^_%ydboctofCONCAT;
+OCTO> drop function if exists _testf;
 DROP FUNCTION
+OCTO> create function _testf(integer) returns integer as $$samevalue^functions;
 CREATE FUNCTION
+OCTO> select _testf(1);
 _testf
 1
 (1 row)
+OCTO> select 1 order by _testf(1);
 ???
 1
 (1 row)
+OCTO> select _testf(1) as _ group by _ order by _ ;
 _
 1
 (1 row)
+OCTO> drop function if exists __;
 DROP FUNCTION
+OCTO> create function __(integer) returns integer as $$samevalue^functions;
 CREATE FUNCTION
+OCTO> select __(1);
 __
 1
 (1 row)
+OCTO> select 1 order by __(1);
 ???
 1
 (1 row)
+OCTO> select __(1) as ___ group by ___ order by ___;
 ___
 1
 (1 row)
+OCTO> select id as _ from names group by _ order by _;
 _
 0
 1
@@ -107,6 +118,7 @@ _
 4
 5
 (6 rows)
+OCTO> select id as __ from names group by __ order by __;
 __
 0
 1
@@ -115,50 +127,74 @@ __
 4
 5
 (6 rows)
+OCTO> drop table if exists _test1;
 DROP TABLE
+OCTO> create table _test1 (_id1 integer);
 CREATE TABLE
+OCTO> insert into _test1 values(1);
 INSERT 0 1
+OCTO> insert into _test1(_id1) values(2);
 INSERT 0 1
+OCTO> select _id1 from _test1;
 _id1
 1
 2
 (2 rows)
+OCTO> select _id1 as _ from _test1 group by _ order by _;
 _
 1
 2
 (2 rows)
+OCTO> \d _test1;
 Table "_test1" stored in Global: ^%ydboctoD0X4kGhZ1Yho2WnUvH6jT4L : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 _id1|INTEGER|||
+OCTO> drop table if exists __;
 DROP TABLE
+OCTO> create table __ (__ integer);
 CREATE TABLE
+OCTO> insert into __ values(1);
 INSERT 0 1
+OCTO> insert into __(__) values(2);
 INSERT 0 1
+OCTO> select __ from __;
 __
 1
 2
 (2 rows)
+OCTO> select __ as ___ from __ group by ___ order by ___;
 ___
 1
 2
 (2 rows)
+OCTO> \d __;
 Table "__" stored in Global: ^%ydboctoDZyUJuivPBC6yBOUNYRyE9B : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 __|INTEGER|||
+OCTO> drop table if exists _test2;
 DROP TABLE
+OCTO> create table _test2 (_id1 integer constraint _constraint check(_id1<1));
 CREATE TABLE
+OCTO> \d _test2;
 Table "_test2" stored in Global: ^%ydboctoDljsBRgOJ3NiLoA4uippx85 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 _id1|INTEGER|||
 Check constraints:
     "_constraint" CHECK ((_id1 < 1))
+OCTO> insert into _test2 values(0);
 INSERT 0 1
+OCTO> insert into _test2 values(1);
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table _test2 violates CHECK constraint _constraint : Failing row contains (1)
+OCTO> -- Error
+select * from _test2;
 _id1
 0
 (1 row)
+OCTO> drop table if exists _names keepdata;
 DROP TABLE
+OCTO> CREATE TABLE _names (_id INTEGER PRIMARY KEY, _firstName VARCHAR(30), lastName VARCHAR(30)) GLOBAL "^names";
 CREATE TABLE
+OCTO> select * from _names;
 _id|_firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -167,8 +203,11 @@ _id|_firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> drop table if exists _test3 keepdata;
 DROP TABLE
+OCTO> create table _test3 (_id1 integer primary key, _fullname text extract "$PIECE(^names(keys(""_id1"")),""|"",1)_$PIECE(^names(keys(""_id1"")),""|"",2)") GLOBAL "^names";
 CREATE TABLE
+OCTO> select * from _test3;
 _id1|_fullname
 0|ZeroCool
 1|AcidBurn
@@ -177,21 +216,30 @@ _id1|_fullname
 4|Joey
 5|ZeroCool
 (6 rows)
+OCTO> drop table _test3 keepdata;
 DROP TABLE
+OCTO> create table _test3 (_id1 integer primary key START 0 END "keys(""_id1"")=3", _firstname text, _lastname text) GLOBAL "^names";
 CREATE TABLE
+OCTO> select * from _test3;
 _id1|_firstname|_lastname
 1|Acid|Burn
 2|Cereal|Killer
 (2 rows)
+OCTO> drop table _test3 keepdata;
 DROP TABLE
+OCTO> create table _test3 (_id1 integer primary key START 0 ENDPOINT 3, _firstname text, _lastname text) GLOBAL "^names";
 CREATE TABLE
+OCTO> select * from _test3;
 _id1|_firstname|_lastname
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 (3 rows)
+OCTO> drop table _test3 keepdata;
 DROP TABLE
+OCTO> create table _test3 (_id1 integer primary key, _firstname text, _lastname text, _fullname text extract "(values(""_firstname""))_(values(""_lastname""))") GLOBAL "^names";
 CREATE TABLE
+OCTO> select * from _test3;
 _id1|_firstname|_lastname|_fullname
 0|Zero|Cool|ZeroCool
 1|Acid|Burn|AcidBurn
@@ -200,22 +248,30 @@ _id1|_firstname|_lastname|_fullname
 4|Joey||Joey
 5|Zero|Cool|ZeroCool
 (6 rows)
+OCTO> drop table _test3 keepdata;
 DROP TABLE
+OCTO> create table _test3 (_id1 integer primary key, _firstname text, _lastname text) DELIM "_" GLOBAL "^x";
 CREATE TABLE
+OCTO> select * from _test3;
 _id1|_firstname|_lastname
 1|first|last
 2|first|last
 (2 rows)
+OCTO> select * from _test3 order by _id1 desc;
 _id1|_firstname|_lastname
 2|first|last
 1|first|last
 (2 rows)
+OCTO> drop table _test3 keepdata;
 DROP TABLE
+OCTO> create table _test3 (_id1 integer primary key, _firstname text, _lastname text) DELIM "_" GLOBAL "^x(keys(""_id1""))";
 CREATE TABLE
+OCTO> select * from _test3;
 _id1|_firstname|_lastname
 1|first|last
 2|first|last
 (2 rows)
+OCTO> select * from _test3 order by _id1 desc;
 _id1|_firstname|_lastname
 2|first|last
 1|first|last
@@ -223,18 +279,25 @@ _id1|_firstname|_lastname
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: _
 LINE 70:1: select id as _ from names group by _ having _ > 1;
                                                        ^
+OCTO> select id as _ from names group by _ having _ > 1;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: __
 LINE 71:1: ...elect id as __ from names group by __ having __ > 1 order by __;
                                                            ^^
+OCTO> select id as __ from names group by __ having __ > 1 order by __;
 LINE 73:1: create function x(int) returns int as $$_samevalue^functions;
                                                  ^
 syntax error, unexpected INVALID_TOKEN, expecting EXTRINSIC_FUNCTION or INTRINSIC_FUNCTION
+OCTO> create function x(int) returns int as $$_samevalue^functions;
 LINE 74:1: create function x(int) returns int as $$_samevalue^functions;
                                                  ^
 syntax error, unexpected INVALID_TOKEN, expecting EXTRINSIC_FUNCTION or INTRINSIC_FUNCTION
+OCTO> create function x(int) returns int as $$_samevalue^functions;
 LINE 75:1: create function x(int) returns int as $$^%_ydboctofCONCAT;
                                                      ^^^^^^^^^^^^^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting SEMICOLON or ENDOFFILE
+OCTO> create function x(int) returns int as $$^%_ydboctofCONCAT;
 LINE 76:1: create function x(int) returns int as $$^_%ydboctofCONCAT;
                                                  ^
 syntax error, unexpected INVALID_TOKEN, expecting EXTRINSIC_FUNCTION or INTRINSIC_FUNCTION
+OCTO> create function x(int) returns int as $$^_%ydboctofCONCAT;
+OCTO> 

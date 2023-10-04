@@ -32,8 +32,11 @@ CREATE FUNCTION RETVARCHAR(VARCHAR) RETURNS VARCHAR AS $$RETVARCHAR^TCF010;
 SELECT * FROM names WHERE firstname = RETVARCHAR(firstname);
 SELECT firstname FROM names WHERE firstname = (RETVARCHAR('Ze') || RETVARCHAR('ro')) OR lastname = (RETVARCHAR('B') || RETVARCHAR('u') ||RETVARCHAR('rn'));
 
+OCTO> CREATE FUNCTION RETTRUE() RETURNS BOOLEAN AS $$RETTRUE^TCF010;
 CREATE FUNCTION
+OCTO> CREATE FUNCTION RETFALSE() RETURNS BOOLEAN AS $$RETFALSE^TCF010;
 CREATE FUNCTION
+OCTO> SELECT RETTRUE() || id::text FROM names;
 ???
 true0
 true1
@@ -42,6 +45,7 @@ true3
 true4
 true5
 (6 rows)
+OCTO> SELECT id FROM names WHERE RETTRUE();
 id
 0
 1
@@ -50,10 +54,14 @@ id
 4
 5
 (6 rows)
+OCTO> SELECT lastname FROM names WHERE RETFALSE();
 lastname
 (0 rows)
+OCTO> CREATE FUNCTION RETTRUESTR() RETURNS BOOLEAN AS $$RETTRUESTR^TCF010;
 CREATE FUNCTION
+OCTO> CREATE FUNCTION RETFALSESTR() RETURNS BOOLEAN AS $$RETFALSESTR^TCF010;
 CREATE FUNCTION
+OCTO> SELECT RETTRUESTR() || id::text FROM names;
 ???
 true0
 true1
@@ -62,6 +70,7 @@ true3
 true4
 true5
 (6 rows)
+OCTO> SELECT id FROM names WHERE RETTRUESTR();
 id
 0
 1
@@ -70,17 +79,23 @@ id
 4
 5
 (6 rows)
+OCTO> SELECT lastname FROM names WHERE RETFALSESTR();
 lastname
 (0 rows)
+OCTO> CREATE FUNCTION RETINT(INTEGER) RETURNS INTEGER AS $$RETINT^TCF010;
 CREATE FUNCTION
+OCTO> SELECT * FROM names WHERE id = RETINT(1) OR id = RETINT(2);
 id|firstname|lastname
 1|Acid|Burn
 2|Cereal|Killer
 (2 rows)
+OCTO> SELECT * FROM names WHERE id = (RETINT(1)+RETINT(2));
 id|firstname|lastname
 3|Lord|Nikon
 (1 row)
+OCTO> CREATE FUNCTION RETNUM(NUMERIC) RETURNS NUMERIC AS $$RETINT^TCF010;
 CREATE FUNCTION
+OCTO> SELECT RETNUM(3.14) FROM names;
 retnum
 3.14
 3.14
@@ -89,13 +104,17 @@ retnum
 3.14
 3.14
 (6 rows)
+OCTO> SELECT * FROM names WHERE id = (RETNUM(2.5) + RETNUM(2.5));
 id|firstname|lastname
 5|Zero|Cool
 (1 row)
+OCTO> SELECT * FROM names WHERE id = RETNUM(3.14)::integer;
 id|firstname|lastname
 3|Lord|Nikon
 (1 row)
+OCTO> CREATE FUNCTION RETVARCHAR2(NUMERIC, VARCHAR) RETURNS VARCHAR AS $$RETVARCHAR2^TCF010;
 CREATE FUNCTION
+OCTO> SELECT RETVARCHAR2(3.14, '... is pi') FROM names;
 retvarchar2
 3.14... is pi
 3.14... is pi
@@ -104,7 +123,9 @@ retvarchar2
 3.14... is pi
 3.14... is pi
 (6 rows)
+OCTO> CREATE FUNCTION RETVARCHAR(VARCHAR) RETURNS VARCHAR AS $$RETVARCHAR^TCF010;
 CREATE FUNCTION
+OCTO> SELECT * FROM names WHERE firstname = RETVARCHAR(firstname);
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -113,8 +134,10 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> SELECT firstname FROM names WHERE firstname = (RETVARCHAR('Ze') || RETVARCHAR('ro')) OR lastname = (RETVARCHAR('B') || RETVARCHAR('u') ||RETVARCHAR('rn'));
 firstname
 Zero
 Zero
 Acid
 (3 rows)
+OCTO> 

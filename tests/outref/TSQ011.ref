@@ -2,6 +2,7 @@
 -- TSQ011 : function lookup query succeeds without error
 
 select proname,typname from pg_catalog.pg_proc inner join pg_catalog.pg_type on pg_catalog.pg_proc.prorettype = pg_catalog.pg_type.oid;
+OCTO> select proname,typname from pg_catalog.pg_proc inner join pg_catalog.pg_type on pg_catalog.pg_proc.prorettype = pg_catalog.pg_type.oid;
 proname|typname
 abs|numeric
 abs|int4
@@ -91,3 +92,4 @@ pg_get_partkeydef|varchar
 pg_stat_get_numscans|varchar
 pg_tablespace_location|varchar
 (87 rows)
+OCTO> 

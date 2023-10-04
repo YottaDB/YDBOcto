@@ -7,6 +7,10 @@ select (select 0 union select 1) > 1;
 select * from (select (select 0 union select 1)>1 from names) n2;
 select * from (select (select.1 union select 1)>1 from names) n2;
 
+OCTO> select (select 0 union select 1) > 1;
 [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
+OCTO> select * from (select (select 0 union select 1)>1 from names) n2;
 [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
+OCTO> select * from (select (select.1 union select 1)>1 from names) n2;
 [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
+OCTO> 

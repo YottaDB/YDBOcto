@@ -172,70 +172,109 @@ select '-- Test of ERR_NULL_COL_VALUE on composite database';
 update composite set id0 = NULL;
 update composite set id3 = id3, id7 = NULL, id0 = id0;
 
+OCTO> select '-- Test of ERR_TABLE_UNKNOWN_COLUMN_NAME error using a regular column';
 ???
 -- Test of ERR_TABLE_UNKNOWN_COLUMN_NAME error using a regular column
 (1 row)
 [ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "abcd" of table "names" does not exist
 LINE 4:1: update names set abcd = 2;
                            ^^^^
+OCTO> update names set abcd = 2;
+OCTO> select '-- Test of ERR_TABLE_UNKNOWN_COLUMN_NAME error using a hidden key column';
 ???
 -- Test of ERR_TABLE_UNKNOWN_COLUMN_NAME error using a hidden key column
 (1 row)
+OCTO> create table tmp (name varchar);
 CREATE TABLE
 [ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "%yo_keycol" of table "tmp" does not exist
 LINE 8:1: update tmp set `%yo_keycol` = 2;
                          ^^^^^^^^^^^^
+OCTO> update tmp set `%yo_keycol` = 2;
+OCTO> drop table tmp;
 DROP TABLE
+OCTO> select '-- Test of ERR_MISSING_FROM_ENTRY';
 ???
 -- Test of ERR_MISSING_FROM_ENTRY
 (1 row)
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : names
 LINE 12:1: update names n1 set firstname = 'abcd' where names.id = 2;
                                                         ^^^^^^^^
+OCTO> update names n1 set firstname = 'abcd' where names.id = 2;
+OCTO> select '-- Test of ERR_TABLE_READONLY error against various catalog tables';
 ???
 -- Test of ERR_TABLE_READONLY error against various catalog tables
 (1 row)
 [ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "octoonerowtable". Only allowed on READWRITE tables.
+OCTO> update octoOneRowTable set oid = oid + 1;
 [ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "pg_catalog.pg_namespace". Only allowed on READWRITE tables.
+OCTO> update pg_catalog.pg_namespace set nspname = nspname || 'abcd' where NULL != NULL;
 [ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "pg_catalog.pg_type". Only allowed on READWRITE tables.
+OCTO> update pg_catalog.pg_type set oid = oid + 1;
 [ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "pg_catalog.pg_class". Only allowed on READWRITE tables.
+OCTO> update pg_catalog.pg_class set oid = oid + 1;
 [ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "pg_catalog.pg_description". Only allowed on READWRITE tables.
+OCTO> update pg_catalog.pg_description set oid = oid + 1;
 [ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "information_schema.tables". Only allowed on READWRITE tables.
+OCTO> update information_schema.tables set oid = oid + 1 where NULL = NULL;
 [ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "pg_catalog.pg_proc". Only allowed on READWRITE tables.
+OCTO> update pg_catalog.pg_proc set oid = oid + 1;
 [ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "pg_catalog.pg_attribute". Only allowed on READWRITE tables.
+OCTO> update pg_catalog.pg_attribute set oid = oid + 1;
 [ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "pg_catalog.pg_attrdef". Only allowed on READWRITE tables.
+OCTO> update pg_catalog.pg_attrdef set oid = oid + 1;
 [ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "pg_catalog.pg_settings". Only allowed on READWRITE tables.
+OCTO> update pg_catalog.pg_settings set name = 'efgh';
 [ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "pg_catalog.pg_database". Only allowed on READWRITE tables.
+OCTO> update pg_catalog.pg_database set oid = oid + 1;
 [ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "pg_catalog.pg_roles". Only allowed on READWRITE tables.
+OCTO> update pg_catalog.pg_roles set oid = oid + 1;
 [ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "pg_catalog.pg_user". Only allowed on READWRITE tables.
+OCTO> update pg_catalog.pg_user set usersysid = usersysid + 1;
+OCTO> select '-- Test of ERR_TABLE_READONLY error in a table created with READONLY';
 ???
 -- Test of ERR_TABLE_READONLY error in a table created with READONLY
 (1 row)
+OCTO> create table test1 (id INTEGER PRIMARY KEY, firstname VARCHAR) READONLY;
 CREATE TABLE
 [ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "test1". Only allowed on READWRITE tables.
+OCTO> update test1 set firstname = 'efgh';
+OCTO> drop table test1;
 DROP TABLE
+OCTO> select '-- Test same table created with READWRITE works fine with UPDATE';
 ???
 -- Test same table created with READWRITE works fine with UPDATE
 (1 row)
+OCTO> create table test1 (id INTEGER PRIMARY KEY, firstname VARCHAR) READWRITE;
 CREATE TABLE
+OCTO> insert into test1 values (1, 'abcd');
 INSERT 0 1
+OCTO> update test1 set firstname = 'efgh';
 UPDATE 1
+OCTO> select * from test1;
 id|firstname
 1|efgh
 (1 row)
+OCTO> drop table test1;
 DROP TABLE
+OCTO> select '-- Test of ERR_TABLE_READONLY error in a table created with READONLY implicitly assumed';
 ???
 -- Test of ERR_TABLE_READONLY error in a table created with READONLY implicitly assumed
 (1 row)
+OCTO> create table test1 (id INTEGER PRIMARY KEY, firstname VARCHAR DELIM "", lastname VARCHAR DELIM "");
 CREATE TABLE
 [ERROR]: ERR_TABLE_READONLY: UPDATE not allowed on READONLY table "test1". Only allowed on READWRITE tables.
+OCTO> update test1 set id = id + 1;
+OCTO> drop table test1;
 DROP TABLE
+OCTO> select '-- Test of ERR_TYPE_NOT_COMPATIBLE error';
 ???
 -- Test of ERR_TYPE_NOT_COMPATIBLE error
 (1 row)
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
 LINE 47:1: update names set id = id + 1 where firstname;
                                               ^^^^^^^^^
+OCTO> update names set id = id + 1 where firstname;
+OCTO> select '-- Test of ERR_TYPE_MISMATCH error';
 ???
 -- Test of ERR_TYPE_MISMATCH error
 (1 row)
@@ -244,222 +283,321 @@ LINE 50:1: update names set firstname = 2;
                             ^^^^^^^^^
 LINE 50:1: update names set firstname = 2;
                                         ^
+OCTO> update names set firstname = 2;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 51:1: update names set firstname = lastname, id = lastname;
                                                   ^^
 LINE 51:1: update names set firstname = lastname, id = lastname;
                                                        ^^^^^^^^
+OCTO> update names set firstname = lastname, id = lastname;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 52:1: update names set firstname = lastname, lastname = id;
                                                   ^^^^^^^^
 LINE 52:1: update names set firstname = lastname, lastname = id;
                                                              ^^
+OCTO> update names set firstname = lastname, lastname = id;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 53:1: update names set firstname = (select id from names);
                             ^^^^^^^^^
 LINE 53:1: update names set firstname = (select id from names);
                                          ^^^^^^
+OCTO> update names set firstname = (select id from names);
+OCTO> select '-- Test of various syntax errors (SET clause not specified etc.)';
 ???
 -- Test of various syntax errors (SET clause not specified etc.)
 (1 row)
 LINE 56:1: update names where lastname = firstname;
                         ^^^^^
 syntax error, unexpected WHERE
+OCTO> update names where lastname = firstname;
 LINE 57:1: update names set firstname != 'abcd' ;
                                       ^^
 syntax error, unexpected NOT_EQUALS, expecting EQUALS
+OCTO> update names set firstname != 'abcd' ;
 LINE 58:1: update names set id * 2 = 3;
                                ^
 syntax error, unexpected ASTERISK, expecting EQUALS
+OCTO> update names set id * 2 = 3;
 LINE 59:1: update names set where firstname = lastname;
                             ^^^^^
 syntax error, unexpected WHERE
+OCTO> update names set where firstname = lastname;
 LINE 60:1: update names set id = id + where firstname = lastname;
                                       ^^^^^
 syntax error, unexpected WHERE
+OCTO> update names set id = id + where firstname = lastname;
+OCTO> select '-- Test of ERR_UNKNOWN_TABLE error';
 ???
 -- Test of ERR_UNKNOWN_TABLE error
 (1 row)
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: abcd
 LINE 63:1: update abcd set id = 2;
                   ^^^^
+OCTO> update abcd set id = 2;
+OCTO> select '-- Test of ERR_DUPLICATE_COLUMN error';
 ???
 -- Test of ERR_DUPLICATE_COLUMN error
 (1 row)
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "id" specified more than once
 LINE 66:1: update names set id = 2, id = 3;
                                     ^^
+OCTO> update names set id = 2, id = 3;
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "id" specified more than once
 LINE 67:1: update names set id = 2, firstname = 'abcd', id = 3;
                                                         ^^
+OCTO> update names set id = 2, firstname = 'abcd', id = 3;
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "firstname" specified more than once
 LINE 68:1: ... = 2, firstname = 'abcd', lastname = 'efgh', firstname = 'xyz';
                                                            ^^^^^^^^^
+OCTO> update names set id = 2, firstname = 'abcd', lastname = 'efgh', firstname = 'xyz';
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "id" specified more than once
 LINE 69:1: ...ames set id = 2, firstname = 'abcd', firstname = 'efgh', id = 5;
                                                                        ^^
+OCTO> update names set id = 2, firstname = 'abcd', firstname = 'efgh', id = 5;
+OCTO> select '-- Test case where ERR_DUPLICATE_COLUMN error is issued even if ERR_TABLE_UNKNOWN_COLUMN_NAME error also exists';
 ???
 -- Test case where ERR_DUPLICATE_COLUMN error is issued even if ERR_TABLE_UNKNOWN_COLUMN_NAME error also exists
 (1 row)
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "id" specified more than once
 LINE 72:1: update names set id = 2, firstname = 'abcd', abcd = 4, id = 5;
                                                                   ^^
+OCTO> update names set id = 2, firstname = 'abcd', abcd = 4, id = 5;
+OCTO> select '-- Test case where ERR_TABLE_UNKNOWN_COLUMN_NAME error is issued even if ERR_DUPLICATE_COLUMN error also exists';
 ???
 -- Test case where ERR_TABLE_UNKNOWN_COLUMN_NAME error is issued even if ERR_DUPLICATE_COLUMN error also exists
 (1 row)
 [ERROR]: ERR_TABLE_UNKNOWN_COLUMN_NAME: Column "abcd" of table "names" does not exist
 LINE 75:1: update names set firstname = 'abcd', abcd = 4, id = 4, id = 5;
                                                 ^^^^
+OCTO> update names set firstname = 'abcd', abcd = 4, id = 4, id = 5;
+OCTO> select '-- Test of ERR_SUBQUERY_ONE_COLUMN error';
 ???
 -- Test of ERR_SUBQUERY_ONE_COLUMN error
 (1 row)
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 78:1: ...pdate names set firstname = (select firstname,lastname from name...
                                            ^^^^^^
+OCTO> update names set firstname = (select firstname,lastname from names limit 1);
+OCTO> select '-- Test of ERR_SUBQUERY_MULTIPLE_ROWS error';
 ???
 -- Test of ERR_SUBQUERY_MULTIPLE_ROWS error
 (1 row)
+OCTO> update names set firstname = (select firstname from names);
 [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
+OCTO> select '-- Test of simple ERR_VARCHAR_TOO_LONG error';
 ???
 -- Test of simple ERR_VARCHAR_TOO_LONG error
 (1 row)
+OCTO> create table test1 (column1 VARCHAR(3));
 CREATE TABLE
+OCTO> insert into test1 values ('a');
 INSERT 0 1
+OCTO> update test1 set column1 = 'abcd';
 [ERROR]: ERR_VARCHAR_TOO_LONG: Value too long for type VARCHAR(3)
+OCTO> -- 4 ascii characters
+select * from test1;
 column1
 a
 (1 row)
+OCTO> update test1 set column1 = 'ＡＢＣＤ';
 [ERROR]: ERR_VARCHAR_TOO_LONG: Value too long for type VARCHAR(3)
+OCTO> -- 4 utf-8 characters
+select * from test1;
 column1
 a
 (1 row)
+OCTO> drop table test1;
 DROP TABLE
+OCTO> select '-- Test of fancy ERR_VARCHAR_TOO_LONG error';
 ???
 -- Test of fancy ERR_VARCHAR_TOO_LONG error
 (1 row)
+OCTO> select '-- Test that VARCHAR(4) does not allow 7 character strings to be stored if not all last 3 characters are spaces.';
 ???
 -- Test that VARCHAR(4) does not allow 7 character strings to be stored if not all last 3 characters are spaces.
 (1 row)
+OCTO> create table test1 (column1 VARCHAR(4));
 CREATE TABLE
+OCTO> insert into test1 values ('a');
 INSERT 0 1
+OCTO> select * from test1;
 column1
 a
 (1 row)
+OCTO> update test1 set column1 = 'abcd  e';
 [ERROR]: ERR_VARCHAR_TOO_LONG: Value too long for type VARCHAR(4)
+OCTO> select * from test1;
 column1
 a
 (1 row)
+OCTO> update test1 set column1 = 'abcd e ';
 [ERROR]: ERR_VARCHAR_TOO_LONG: Value too long for type VARCHAR(4)
+OCTO> select * from test1;
 column1
 a
 (1 row)
+OCTO> update test1 set column1 = 'abcde  ';
 [ERROR]: ERR_VARCHAR_TOO_LONG: Value too long for type VARCHAR(4)
+OCTO> select * from test1;
 column1
 a
 (1 row)
+OCTO> update test1 set column1 = 'ＡＢＣＤ  Ｅ';
 [ERROR]: ERR_VARCHAR_TOO_LONG: Value too long for type VARCHAR(4)
+OCTO> select * from test1;
 column1
 a
 (1 row)
+OCTO> update test1 set column1 = 'ＡＢＣＤ Ｅ ';
 [ERROR]: ERR_VARCHAR_TOO_LONG: Value too long for type VARCHAR(4)
+OCTO> select * from test1;
 column1
 a
 (1 row)
+OCTO> update test1 set column1 = 'ＡＢＣＤＥ  ';
 [ERROR]: ERR_VARCHAR_TOO_LONG: Value too long for type VARCHAR(4)
+OCTO> select * from test1;
 column1
 a
 (1 row)
+OCTO> drop table test1;
 DROP TABLE
+OCTO> select '-- Test of fancier ERR_VARCHAR_TOO_LONG error';
 ???
 -- Test of fancier ERR_VARCHAR_TOO_LONG error
 (1 row)
+OCTO> select '-- Test that an over length value when typecast to varchar(N) will be truncated to N characters';
 ???
 -- Test that an over length value when typecast to varchar(N) will be truncated to N characters
 (1 row)
+OCTO> select '-- And that and an error will be issued if N is over length compared to the maximum column size';
 ???
 -- And that and an error will be issued if N is over length compared to the maximum column size
 (1 row)
+OCTO> create table test1 (column1 character(4));
 CREATE TABLE
+OCTO> insert into test1 values ('a');
 INSERT 0 1
+OCTO> update test1 set column1 = '|' || 'abcd'::varchar(3) || '|';
 [ERROR]: ERR_VARCHAR_TOO_LONG: Value too long for type VARCHAR(4)
+OCTO> select * from test1;
 column1
 a
 (1 row)
+OCTO> update test1 set column1 = '|' || 'ＡＢＣＤ'::varchar(3) || '|';
 [ERROR]: ERR_VARCHAR_TOO_LONG: Value too long for type VARCHAR(4)
+OCTO> select * from test1;
 column1
 a
 (1 row)
+OCTO> drop table test1;
 DROP TABLE
+OCTO> select '-- Test of ERR_NUMERIC_OVERFLOW';
 ???
 -- Test of ERR_NUMERIC_OVERFLOW
 (1 row)
+OCTO> create table test1 (column1 NUMERIC(2,1));
 CREATE TABLE
+OCTO> insert into test1 values (0);
 INSERT 0 1
+OCTO> update test1 set column1 = 10;
 [ERROR]: ERR_NUMERIC_OVERFLOW: Numeric field overflow; A field with precision 2, scale 1 must round to an absolute value less than 10^1
+OCTO> update test1 set column1 = -10;
 [ERROR]: ERR_NUMERIC_OVERFLOW: Numeric field overflow; A field with precision 2, scale 1 must round to an absolute value less than 10^1
+OCTO> update test1 set column1 = 9.99;
 [ERROR]: ERR_NUMERIC_OVERFLOW: Numeric field overflow; A field with precision 2, scale 1 must round to an absolute value less than 10^1
+OCTO> update test1 set column1 = -9.99;
 [ERROR]: ERR_NUMERIC_OVERFLOW: Numeric field overflow; A field with precision 2, scale 1 must round to an absolute value less than 10^1
+OCTO> drop table test1;
 DROP TABLE
+OCTO> select '-- Test of ERR_VARCHAR_TOO_LONG midway in the UPDATE';
 ???
 -- Test of ERR_VARCHAR_TOO_LONG midway in the UPDATE
 (1 row)
+OCTO> create table test1 (column1 VARCHAR(3));
 CREATE TABLE
+OCTO> insert into test1 values ('a'), ('ab'), ('abc'), ('b');
 INSERT 0 4
+OCTO> update test1 set column1 = column1 || '#';
 [ERROR]: ERR_VARCHAR_TOO_LONG: Value too long for type VARCHAR(3)
+OCTO> select '-- Verify that no rows are updated at the end';
 ???
 -- Verify that no rows are updated at the end
 (1 row)
+OCTO> select * from test1;
 column1
 a
 ab
 abc
 b
 (4 rows)
+OCTO> drop table test1;
 DROP TABLE
+OCTO> select '-- Test that valid queries work fine after an UPDATE query that had an error midway';
 ???
 -- Test that valid queries work fine after an UPDATE query that had an error midway
 (1 row)
+OCTO> select * from names where id = 4;
 id|firstname|lastname
 4|Joey|
 (1 row)
+OCTO> select '-- Test of ERR_VARCHAR_TOO_LONG error on a PRIMARY KEY column';
 ???
 -- Test of ERR_VARCHAR_TOO_LONG error on a PRIMARY KEY column
 (1 row)
+OCTO> select '-- Test of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/579#note_1031134291';
 ???
 -- Test of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/579#note_1031134291
 (1 row)
+OCTO> select '-- Test that VARCHAR(4) does not allow 5 character strings to be stored';
 ???
 -- Test that VARCHAR(4) does not allow 5 character strings to be stored
 (1 row)
+OCTO> drop table if exists products;
 DROP TABLE
+OCTO> create table products (name VARCHAR(4) PRIMARY KEY);
 CREATE TABLE
+OCTO> select '-- Expect NO error from INSERT INTO when inserting 4-character string';
 ???
 -- Expect NO error from INSERT INTO when inserting 4-character string
 (1 row)
+OCTO> insert into products values ('abcd');
 INSERT 0 1
+OCTO> select '-- Expect ERR_VARCHAR_TOO_LONG error from INSERT INTO when inserting 5-character string';
 ???
 -- Expect ERR_VARCHAR_TOO_LONG error from INSERT INTO when inserting 5-character string
 (1 row)
+OCTO> insert into products values ('abcde');
 [ERROR]: ERR_VARCHAR_TOO_LONG: Value too long for type VARCHAR(4)
+OCTO> select '-- Expect ERR_VARCHAR_TOO_LONG error from UPDATE when updating 4-character string to a 5-character string';
 ???
 -- Expect ERR_VARCHAR_TOO_LONG error from UPDATE when updating 4-character string to a 5-character string
 (1 row)
+OCTO> update products set name = 'abcde' where name = 'abcd';
 [ERROR]: ERR_VARCHAR_TOO_LONG: Value too long for type VARCHAR(4)
+OCTO> select '-- Expect only 1 row from SELECT * containing 4-character string; Should not see 5-character string';
 ???
 -- Expect only 1 row from SELECT * containing 4-character string; Should not see 5-character string
 (1 row)
+OCTO> select * from products;
 name
 abcd
 (1 row)
+OCTO> select '-- Test of ERR_DUPLICATE_KEY_VALUE on names database';
 ???
 -- Test of ERR_DUPLICATE_KEY_VALUE on names database
 (1 row)
+OCTO> update names set id = id + 1;
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "names_pkey" : Key (id)=(1) already exists
+OCTO> update names set id = id + 1 where id = 4 OR id = 5;
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "names_pkey" : Key (id)=(5) already exists
+OCTO> select '-- Test ERR_DUPLICATE_KEY_VALUE error is not issued if OR operands are swapped';
 ???
 -- Test ERR_DUPLICATE_KEY_VALUE error is not issued if OR operands are swapped
 (1 row)
+OCTO> update names set id = id + 1 where id = 5 OR id = 4;
 UPDATE 2
+OCTO> select * from names;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -468,17 +606,26 @@ id|firstname|lastname
 5|Joey|
 6|Zero|Cool
 (6 rows)
+OCTO> select '-- Test of ERR_DUPLICATE_KEY_VALUE on composite database';
 ???
 -- Test of ERR_DUPLICATE_KEY_VALUE on composite database
 (1 row)
+OCTO> update composite set id0 = 1 where name = 'Name9';
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "composite_pkey" : Key (id0, id1, id2, id3, id4, id5, id6, id7)=(1, 2, 3, 4, 5, 6, 8, 7) already exists
+OCTO> select '-- Test of ERR_NULL_COL_VALUE on names database';
 ???
 -- Test of ERR_NULL_COL_VALUE on names database
 (1 row)
+OCTO> update names set id = NULL;
 [ERROR]: ERR_NULL_COL_VALUE: NULL value in column id violates NOT NULL constraint
+OCTO> update names set id = NULL where id = 5;
 [ERROR]: ERR_NULL_COL_VALUE: NULL value in column id violates NOT NULL constraint
+OCTO> select '-- Test of ERR_NULL_COL_VALUE on composite database';
 ???
 -- Test of ERR_NULL_COL_VALUE on composite database
 (1 row)
+OCTO> update composite set id0 = NULL;
 [ERROR]: ERR_NULL_COL_VALUE: NULL value in column id0 violates NOT NULL constraint
+OCTO> update composite set id3 = id3, id7 = NULL, id0 = id0;
 [ERROR]: ERR_NULL_COL_VALUE: NULL value in column id7 violates NOT NULL constraint
+OCTO> 

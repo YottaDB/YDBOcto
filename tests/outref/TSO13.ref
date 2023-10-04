@@ -52,6 +52,10 @@ SELECT ProductID FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
 -- Arithmetic operation of INTEGER and STRING/VARCHAR should issue type mismatch error
 SELECT ProductID + ProductName FROM Products LIMIT 1;
 
+OCTO> --------------------------------------------------------
+--------------------------------------------------------
+
+SELECT id, NULL, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names;
 id|???|firstname
 0||Zero
 1||Acid
@@ -71,84 +75,111 @@ LINE 7:1: ...ROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SEL...
                                             ^^
 LINE 7:1: ...ULL FROM names UNION ALL SELECT id, firstname, NULL from names;
                                                  ^^^^^^^^^
+OCTO> SELECT id, NULL, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, firstname, NULL from names;
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
 LINE 8:1: SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, N...
                      ^^
 LINE 8:1: ...ULL FROM names UNION ALL SELECT id, firstname, NULL from names;
                                                  ^^^^^^^^^
+OCTO> SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, firstname, NULL from names;
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
 LINE 9:1: SELECT id, id, firstname FROM names UNION ALL SELECT id, firstna...
                      ^^
 LINE 9:1: ...names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL...
                                         ^^^^^^^^^
+OCTO> SELECT id, id, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, NULL, NULL from names;
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
 LINE 10:1: SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, N...
                       ^^
 LINE 10:1: ...ULL from names UNION ALL SELECT id, firstname, NULL from names;
                                                   ^^^^^^^^^
+OCTO> SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, firstname, NULL from names;
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
 LINE 11:1: SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, N...
                       ^^
 LINE 11:1: ...names UNION ALL SELECT id, firstname, NULL from names UNION ALL...
                                          ^^^^^^^^^
+OCTO> SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, firstname, NULL from names UNION ALL SELECT id, NULL, NULL from names;
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
 LINE 12:1: SELECT id, id, firstname FROM names UNION ALL SELECT id, firstna...
                       ^^
 LINE 12:1: ...names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL...
                                          ^^^^^^^^^
+OCTO> SELECT id, id, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, NULL, NULL from names;
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
 LINE 13:1: SELECT id, firstname, firstname FROM names UNION ALL SELECT id,...
                       ^^^^^^^^^
 LINE 13:1: ... NULL, NULL from names UNION ALL SELECT id, id, NULL from names;
                                                           ^^
+OCTO> SELECT id, firstname, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, id, NULL from names;
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
 LINE 14:1: SELECT id, firstname, firstname FROM names UNION ALL SELECT id,...
                       ^^^^^^^^^
 LINE 14:1: ...ROM names UNION ALL SELECT id, id, NULL from names UNION ALL SEL...
                                              ^^
+OCTO> SELECT id, firstname, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, id, NULL from names UNION ALL SELECT id, NULL, NULL from names;
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
 LINE 15:1: SELECT id, firstname, firstname FROM names UNION ALL SELECT id,...
                       ^^^^^^^^^
 LINE 15:1: ...ROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SEL...
                                              ^^
+OCTO> SELECT id, firstname, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, NULL, NULL from names;
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
 LINE 16:1: ...names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL...
                                          ^^^^^^^^^
 LINE 16:1: ... NULL, NULL from names UNION ALL SELECT id, id, NULL from names;
                                                           ^^
+OCTO> SELECT id, NULL, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, id, NULL from names;
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
 LINE 17:1: ...names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL...
                                          ^^^^^^^^^
 LINE 17:1: ...ROM names UNION ALL SELECT id, id, NULL from names UNION ALL SEL...
                                              ^^
+OCTO> SELECT id, NULL, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, id, NULL from names UNION ALL SELECT id, NULL, NULL from names;
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
 LINE 18:1: ...ROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SEL...
                                              ^^
 LINE 18:1: ...names UNION ALL SELECT id, firstname, NULL from names UNION ALL...
                                          ^^^^^^^^^
+OCTO> SELECT id, NULL, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, firstname, NULL from names UNION ALL SELECT id, NULL, NULL from names;
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
 LINE 19:1: ...ROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SEL...
                                              ^^
 LINE 19:1: ...ULL from names UNION ALL SELECT id, firstname, NULL from names;
                                                   ^^^^^^^^^
+OCTO> SELECT id, NULL, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, firstname, NULL from names;
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
 LINE 20:1: ...ROM names UNION ALL SELECT id, id, NULL from names UNION ALL SEL...
                                              ^^
 LINE 20:1: ...ULL from names UNION ALL SELECT id, firstname, NULL from names;
                                                   ^^^^^^^^^
+OCTO> SELECT id, NULL, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, id, NULL from names UNION ALL SELECT id, firstname, NULL from names;
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types VARCHAR and INTEGER cannot be matched
 LINE 21:1: ...names UNION ALL SELECT id, firstname, NULL from names UNION ALL...
                                          ^^^^^^^^^
 LINE 21:1: ...tname, NULL from names UNION ALL SELECT id, id, NULL from names;
                                                           ^^
+OCTO> SELECT id, NULL, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, firstname, NULL from names UNION ALL SELECT id, id, NULL from names;
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION ALL types INTEGER and VARCHAR cannot be matched
 LINE 23:1: SELECT * FROM names n1 INNER JOIN names n2 ON n1.id = n2.id
                   ^
 LINE 28:6: ...n1.firstName, n1.lastName, ''::text, NULL, NULL FROM names n1 I...
                                           ^^^^^^^
+OCTO> SELECT * FROM names n1 INNER JOIN names n2 ON n1.id = n2.id
+UNION ALL
+(
+  SELECT id, firstName, lastName, NULL, NULL, '' FROM names
+  EXCEPT ALL
+  SELECT n1.id, n1.firstName, n1.lastName, ''::text, NULL, NULL FROM names n1 INNER JOIN names n2 ON n1.id = n2.id
+);
+OCTO> --------------------------------------------------------
+--------------------------------------------------------
+
+SELECT * FROM (SELECT Price FROM Products UNION SELECT ProductID FROM Products) LIMIT 1;
 price
 18
 (1 row)
+OCTO> SELECT Price + ProductID FROM Products LIMIT 1;
 ???
 19
 (1 row)
@@ -157,14 +188,19 @@ LINE 38:1: SELECT Price FROM Products UNION SELECT ProductName FROM Produc...
                   ^^^^^
 LINE 38:1: ...e FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
                                            ^^^^^^^^^^^
+OCTO> SELECT Price FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
 LINE 40:1: SELECT Price + ProductName FROM Products LIMIT 1;
                           ^^^^^^^^^^^
+OCTO> SELECT Price + ProductName FROM Products LIMIT 1;
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types INTEGER and VARCHAR cannot be matched
 LINE 42:1: SELECT ProductID FROM Products UNION SELECT ProductName FROM Pr...
                   ^^^^^^^^^
 LINE 42:1: ...D FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
                                            ^^^^^^^^^^^
+OCTO> SELECT ProductID FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
 LINE 44:1: SELECT ProductID + ProductName FROM Products LIMIT 1;
                               ^^^^^^^^^^^
+OCTO> SELECT ProductID + ProductName FROM Products LIMIT 1;
+OCTO> 

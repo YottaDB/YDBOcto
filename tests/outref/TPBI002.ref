@@ -5,6 +5,7 @@
 select * from ((select * from names));
 select * from ((select * from names) inner join names on TRUE);
 select * from ((select * from names) ref inner join names on TRUE);
+OCTO> select * from ((select * from names));
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -13,6 +14,7 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> select * from ((select * from names) inner join names on TRUE);
 id|firstname|lastname|id|firstname|lastname
 0|Zero|Cool|0|Zero|Cool
 0|Zero|Cool|1|Acid|Burn
@@ -51,6 +53,7 @@ id|firstname|lastname|id|firstname|lastname
 5|Zero|Cool|4|Joey|
 5|Zero|Cool|5|Zero|Cool
 (36 rows)
+OCTO> select * from ((select * from names) ref inner join names on TRUE);
 id|firstname|lastname|id|firstname|lastname
 0|Zero|Cool|0|Zero|Cool
 0|Zero|Cool|1|Acid|Burn
@@ -89,3 +92,4 @@ id|firstname|lastname|id|firstname|lastname
 5|Zero|Cool|4|Joey|
 5|Zero|Cool|5|Zero|Cool
 (36 rows)
+OCTO> 

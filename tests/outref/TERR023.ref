@@ -6,3 +6,5 @@ select ABS(-id)+(select firstname from names limit 1) as absid from names;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
 LINE 3:1: select ABS(-id)+(select firstname from names limit 1) as absid f...
                            ^^^^^^
+OCTO> select ABS(-id)+(select firstname from names limit 1) as absid from names;
+OCTO> 

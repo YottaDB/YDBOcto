@@ -3,5 +3,8 @@
 
 CREATE FUNCTION BADEXTRINSIC() RETURNS VARCHAR AS $$^%ydboctobadextrinsic;
 SELECT BADEXTRINSIC();
+OCTO> CREATE FUNCTION BADEXTRINSIC() RETURNS VARCHAR AS $$^%ydboctobadextrinsic;
 CREATE FUNCTION
+OCTO> SELECT BADEXTRINSIC();
 [ERROR]: ERR_YOTTADB: YottaDB error: 150373978,octoPlan1+7^%ydboctoP*,%YDB-E-ZLINKFILE, Error while zlinking "_ydboctobadextrinsic",%YDB-E-FILENOTFND, File _ydboctobadextrinsic.m not found,%YDB-E-FILENOTFND, File _ydboctobadextrinsic.o not found
+OCTO> 

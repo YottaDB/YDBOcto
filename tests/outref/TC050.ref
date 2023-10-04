@@ -8,15 +8,28 @@ CREATE TABLE delim_null (
         E2  CHARACTER(30) GLOBAL "^DELIMNULL(keys(""id""),2)" DELIM ""
 ) GLOBAL "^DELIMNULL(keys(""id""))";
 select * from delim_null;
+OCTO> CREATE TABLE delim_null (
+        ID NUMERIC PRIMARY KEY START 0 ENDPOINT '" "',
+        P01 CHARACTER(30) NOT NULL GLOBAL "^DELIMNULL(keys(""id""),0)" PIECE 1,
+        P02 CHARACTER(30) GLOBAL "^DELIMNULL(keys(""id""),0)" PIECE 2,
+        P11 CHARACTER(30) GLOBAL "^DELIMNULL(keys(""id""),1)" PIECE 1,
+        P12 CHARACTER(30) GLOBAL "^DELIMNULL(keys(""id""),1)" PIECE 2,
+        E2  CHARACTER(30) GLOBAL "^DELIMNULL(keys(""id""),2)" DELIM ""
+) GLOBAL "^DELIMNULL(keys(""id""))";
 CREATE TABLE
+OCTO> select * from delim_null;
 id|p01|p02|p11|p12|e2
 1|1P01|1P02|||1E2|||||
 2|2P01|2P02|||
 (2 rows)
+OCTO> 
 
 # Verify that PIECE keyword is ignored if EXTRACT is specified
 CREATE TABLE tmp (id INTEGER PRIMARY KEY, datetime VARCHAR PIECE 2 EXTRACT "$HOROLOG");
 SELECT * FROM tmp;
+OCTO> CREATE TABLE tmp (id INTEGER PRIMARY KEY, datetime VARCHAR PIECE 2 EXTRACT "$HOROLOG");
 CREATE TABLE
+OCTO> SELECT * FROM tmp;
 id|datetime
 (0 rows)
+OCTO> 

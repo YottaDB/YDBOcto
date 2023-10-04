@@ -4,21 +4,31 @@
 drop table if exists tmp;
 create table tmp (id1 integer primary key, id2 integer, id3 integer extract "$extract(values(""id2""),1,99)*10") READONLY GLOBAL "^x";
 select * from tmp;
+OCTO> drop table if exists tmp;
 DROP TABLE
+OCTO> create table tmp (id1 integer primary key, id2 integer, id3 integer extract "$extract(values(""id2""),1,99)*10") READONLY GLOBAL "^x";
 CREATE TABLE
+OCTO> select * from tmp;
 id1|id2|id3
 (0 rows)
+OCTO> 
 
 select * from tmp;
+OCTO> select * from tmp;
 id1|id2|id3
 (0 rows)
+OCTO> 
 
 drop table if exists tmp;
 create table tmp (id1 integer primary key, id2 integer key num 1, id3 integer, id4 integer extract "$extract(values(""id3""),1,99)*10") READONLY GLOBAL "^x";
 select * from tmp;
+OCTO> drop table if exists tmp;
 DROP TABLE
+OCTO> create table tmp (id1 integer primary key, id2 integer key num 1, id3 integer, id4 integer extract "$extract(values(""id3""),1,99)*10") READONLY GLOBAL "^x";
 CREATE TABLE
+OCTO> select * from tmp;
 id1|id2|id3|id4
 1|5|10|100
 2|10|20|200
 (2 rows)
+OCTO> 

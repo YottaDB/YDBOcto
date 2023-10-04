@@ -29,24 +29,42 @@ SELECT XECUTE_M_CODE('set ^qAuditC(3)="20210101|New Year"');
 -- making an sql expression with grouping by year:
 SELECT ZEXT(DATELABEL, 1, 4), count (*) from QAUDITCEVENT group by ZEXT(DATELABEL, 1,4);
 SELECT ZEXT(DATELABEL, 1, 4), count (*) from QAUDITCEVENT group by 1;
+OCTO> DROP FUNCTION IF EXISTS ZEXT(VARCHAR,INTEGER,INTEGER);
 DROP FUNCTION
+OCTO> CREATE FUNCTION ZEXT(VARCHAR,INTEGER,INTEGER) RETURNS VARCHAR AS $$ZEXT^Q6F;
 CREATE FUNCTION
+OCTO> --this is a shortened table to show the error
+DROP TABLE IF EXISTS QAUDITCEVENT;
 DROP TABLE
+OCTO> CREATE TABLE QAUDITCEVENT
+(
+ID VARCHAR PRIMARY KEY,
+DATELABEL VARCHAR,
+EVENTNAME VARCHAR
+) GLOBAL "^qAuditC";
 CREATE TABLE
+OCTO> --
+--
+SELECT XECUTE_M_CODE('kill ^qAuditC');
 xecute_m_code
 0
 (1 row)
+OCTO> SELECT XECUTE_M_CODE('set ^qAuditC(1)="20200101|New Year",^qAuditC(2)="20200229|Leap Day"');
 xecute_m_code
 0
 (1 row)
+OCTO> SELECT XECUTE_M_CODE('set ^qAuditC(3)="20210101|New Year"');
 xecute_m_code
 0
 (1 row)
+OCTO> SELECT ZEXT(DATELABEL, 1, 4), count (*) from QAUDITCEVENT group by ZEXT(DATELABEL, 1,4);
 zext|count(*)
 2020|2
 2021|1
 (2 rows)
+OCTO> SELECT ZEXT(DATELABEL, 1, 4), count (*) from QAUDITCEVENT group by 1;
 zext|count(*)
 2020|2
 2021|1
 (2 rows)
+OCTO> 

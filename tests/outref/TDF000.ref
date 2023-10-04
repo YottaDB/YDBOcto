@@ -9,6 +9,7 @@ SELECT ABS(-1.0) FROM names;
 DROP FUNCTION ABS (NUMERIC);
 SELECT ABS(-1.0) FROM names;
 
+OCTO> SELECT ABS(-1) FROM names;
 abs
 1
 1
@@ -17,7 +18,9 @@ abs
 1
 1
 (6 rows)
+OCTO> DROP FUNCTION ABS (INTEGER);
 DROP FUNCTION
+OCTO> SELECT ABS(-1) FROM names;
 abs
 1
 1
@@ -26,6 +29,7 @@ abs
 1
 1
 (6 rows)
+OCTO> SELECT ABS(-1.0) FROM names;
 abs
 1
 1
@@ -34,9 +38,12 @@ abs
 1
 1
 (6 rows)
+OCTO> DROP FUNCTION ABS (NUMERIC);
 DROP FUNCTION
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function abs defined with given parameter types (NUMERIC)
 LINE 9:1: SELECT ABS(-1.0) FROM names;
                  ^^^
+OCTO> SELECT ABS(-1.0) FROM names;
+OCTO> 
 Remaining function definitions (hashes):
 Successfully deleted function "abs" from pg_catalog.pg_proc

@@ -95,22 +95,44 @@ create table TABLE_abcdef (
 \d TABLE_abcdef;
 drop table TABLE_abcdef;
 
+OCTO> create table TABLE_abcdefghijklmnopqrstuvwxyz (COLUMN_abcdefghijklmnopqrstuvwxyz integer
+	CHECK (COLUMN_abcdefghijklmnopqrstuvwxyz < 2));
 CREATE TABLE
+OCTO> \d TABLE_abcdefghijklmnopqrstuvwxyz;
 Table "table_abcdefghijklmnopqrstuvwxyz" stored in Global: ^%ydboctoD9QysmremVICziEE3Jy3qCK : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 column_abcdefghijklmnopqrstuvwxyz|INTEGER|||
 Check constraints:
     "table_abcdefghijklmnopqrstuv_column_abcdefghijklmnopqrstu_check" CHECK ((column_abcdefghijklmnopqrstuvwxyz < 2))
+OCTO> drop table TABLE_abcdefghijklmnopqrstuvwxyz;
 DROP TABLE
+OCTO> create table TABLE_abcdefghijklmnopqrstuvwxyz (COLUMN_abcdefghijklmnopqrstuvwxyz integer
+	CHECK (COLUMN_abcdefghijklmnopqrstuvwxyz < 2)
+	CHECK (COLUMN_abcdefghijklmnopqrstuvwxyz > 0));
 CREATE TABLE
+OCTO> \d TABLE_abcdefghijklmnopqrstuvwxyz;
 Table "table_abcdefghijklmnopqrstuvwxyz" stored in Global: ^%ydboctoD9QysmremVICziEE3Jy3qCK : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 column_abcdefghijklmnopqrstuvwxyz|INTEGER|||
 Check constraints:
     "table_abcdefghijklmnopqrstuv_column_abcdefghijklmnopqrstu_check" CHECK ((column_abcdefghijklmnopqrstuvwxyz < 2))
     "table_abcdefghijklmnopqrstuv_column_abcdefghijklmnopqrst_check1" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 0))
+OCTO> drop table TABLE_abcdefghijklmnopqrstuvwxyz;
 DROP TABLE
+OCTO> create table TABLE_abcdefghijklmnopqrstuvwxyz (COLUMN_abcdefghijklmnopqrstuvwxyz integer
+	CHECK (COLUMN_abcdefghijklmnopqrstuvwxyz > 2)
+	CHECK (COLUMN_abcdefghijklmnopqrstuvwxyz > 3)
+	CHECK (COLUMN_abcdefghijklmnopqrstuvwxyz > 4)
+	CHECK (COLUMN_abcdefghijklmnopqrstuvwxyz > 5)
+	CHECK (COLUMN_abcdefghijklmnopqrstuvwxyz > 6)
+	CHECK (COLUMN_abcdefghijklmnopqrstuvwxyz > 7)
+	CHECK (COLUMN_abcdefghijklmnopqrstuvwxyz > 8)
+	CHECK (COLUMN_abcdefghijklmnopqrstuvwxyz > 9)
+	CHECK (COLUMN_abcdefghijklmnopqrstuvwxyz > 0)
+	CHECK (COLUMN_abcdefghijklmnopqrstuvwxyz > 1)
+	CHECK (COLUMN_abcdefghijklmnopqrstuvwxyz > 0));
 CREATE TABLE
+OCTO> \d TABLE_abcdefghijklmnopqrstuvwxyz;
 Table "table_abcdefghijklmnopqrstuvwxyz" stored in Global: ^%ydboctoD9QysmremVICziEE3Jy3qCK : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 column_abcdefghijklmnopqrstuvwxyz|INTEGER|||
@@ -126,8 +148,23 @@ Check constraints:
     "table_abcdefghijklmnopqrstuv_column_abcdefghijklmnopqrst_check8" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 0))
     "table_abcdefghijklmnopqrstuv_column_abcdefghijklmnopqrst_check9" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 1))
     "table_abcdefghijklmnopqrstu_column_abcdefghijklmnopqrst_check10" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 0))
+OCTO> drop table TABLE_abcdefghijklmnopqrstuvwxyz;
 DROP TABLE
+OCTO> create table TABLENAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxyz (
+	COLUMNNAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy integer
+	CHECK (COLUMNNAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 2)
+	CHECK (COLUMNNAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 3)
+	CHECK (COLUMNNAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 4)
+	CHECK (COLUMNNAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 5)
+	CHECK (COLUMNNAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 6)
+	CHECK (COLUMNNAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 7)
+	CHECK (COLUMNNAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 8)
+	CHECK (COLUMNNAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 9)
+	CHECK (COLUMNNAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 0)
+	CHECK (COLUMNNAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 1)
+	CHECK (COLUMNNAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 0));
 CREATE TABLE
+OCTO> \d TABLENAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxyz;
 Table "tablename_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxyz" stored in Global: ^%ydboctoDANwgOt1wiFnurL9Gvjqb8G : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy|INTEGER|||
@@ -143,8 +180,23 @@ Check constraints:
     "tablename_abcdefghijklmnopqr_columnname_abcdefghijklmnop_check8" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 0))
     "tablename_abcdefghijklmnopqr_columnname_abcdefghijklmnop_check9" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 1))
     "tablename_abcdefghijklmnopq_columnname_abcdefghijklmnop_check10" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 0))
+OCTO> drop table TABLENAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxyz;
 DROP TABLE
+OCTO> create table TABLENAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxyz (
+	COLUMN_abcdefghijklmnopqrstuvwxyz integer
+	CHECK (COLUMN_abcdefghijklmnopqrstuvwxyz > 2)
+	CHECK (COLUMN_abcdefghijklmnopqrstuvwxyz > 3)
+	CHECK (COLUMN_abcdefghijklmnopqrstuvwxyz > 4)
+	CHECK (COLUMN_abcdefghijklmnopqrstuvwxyz > 5)
+	CHECK (COLUMN_abcdefghijklmnopqrstuvwxyz > 6)
+	CHECK (COLUMN_abcdefghijklmnopqrstuvwxyz > 7)
+	CHECK (COLUMN_abcdefghijklmnopqrstuvwxyz > 8)
+	CHECK (COLUMN_abcdefghijklmnopqrstuvwxyz > 9)
+	CHECK (COLUMN_abcdefghijklmnopqrstuvwxyz > 0)
+	CHECK (COLUMN_abcdefghijklmnopqrstuvwxyz > 1)
+	CHECK (COLUMN_abcdefghijklmnopqrstuvwxyz > 0));
 CREATE TABLE
+OCTO> \d TABLENAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxyz;
 Table "tablename_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxyz" stored in Global: ^%ydboctoDANwgOt1wiFnurL9Gvjqb8G : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 column_abcdefghijklmnopqrstuvwxyz|INTEGER|||
@@ -160,8 +212,23 @@ Check constraints:
     "tablename_abcdefghijklmnopqr_column_abcdefghijklmnopqrst_check8" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 0))
     "tablename_abcdefghijklmnopqr_column_abcdefghijklmnopqrst_check9" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 1))
     "tablename_abcdefghijklmnopq_column_abcdefghijklmnopqrst_check10" CHECK ((column_abcdefghijklmnopqrstuvwxyz > 0))
+OCTO> drop table TABLENAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxyz;
 DROP TABLE
+OCTO> create table TABLENAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxyz (
+	COLUMN_abcdef integer
+	CHECK (COLUMN_abcdef > 2)
+	CHECK (COLUMN_abcdef > 3)
+	CHECK (COLUMN_abcdef > 4)
+	CHECK (COLUMN_abcdef > 5)
+	CHECK (COLUMN_abcdef > 6)
+	CHECK (COLUMN_abcdef > 7)
+	CHECK (COLUMN_abcdef > 8)
+	CHECK (COLUMN_abcdef > 9)
+	CHECK (COLUMN_abcdef > 0)
+	CHECK (COLUMN_abcdef > 1)
+	CHECK (COLUMN_abcdef > 0));
 CREATE TABLE
+OCTO> \d TABLENAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxyz;
 Table "tablename_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxyz" stored in Global: ^%ydboctoDANwgOt1wiFnurL9Gvjqb8G : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 column_abcdef|INTEGER|||
@@ -177,8 +244,23 @@ Check constraints:
     "tablename_abcdefghijklmnopqrstuvwxyz_abcde_column_abcdef_check8" CHECK ((column_abcdef > 0))
     "tablename_abcdefghijklmnopqrstuvwxyz_abcde_column_abcdef_check9" CHECK ((column_abcdef > 1))
     "tablename_abcdefghijklmnopqrstuvwxyz_abcd_column_abcdef_check10" CHECK ((column_abcdef > 0))
+OCTO> drop table TABLENAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxyz;
 DROP TABLE
+OCTO> create table TABLE_abcdef (
+	COLUMNNAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy integer
+	CHECK (COLUMNNAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 2)
+	CHECK (COLUMNNAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 3)
+	CHECK (COLUMNNAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 4)
+	CHECK (COLUMNNAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 5)
+	CHECK (COLUMNNAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 6)
+	CHECK (COLUMNNAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 7)
+	CHECK (COLUMNNAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 8)
+	CHECK (COLUMNNAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 9)
+	CHECK (COLUMNNAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 0)
+	CHECK (COLUMNNAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 1)
+	CHECK (COLUMNNAME_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 0));
 CREATE TABLE
+OCTO> \d TABLE_abcdef;
 Table "table_abcdef" stored in Global: ^%ydboctoDmI36FaaUDwWULe5Yd187C6 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy|INTEGER|||
@@ -194,4 +276,6 @@ Check constraints:
     "table_abcdef_columnname_abcdefghijklmnopqrstuvwxyz_abcde_check8" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 0))
     "table_abcdef_columnname_abcdefghijklmnopqrstuvwxyz_abcde_check9" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 1))
     "table_abcdef_columnname_abcdefghijklmnopqrstuvwxyz_abcd_check10" CHECK ((columnname_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxy > 0))
+OCTO> drop table TABLE_abcdef;
 DROP TABLE
+OCTO> 

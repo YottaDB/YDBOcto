@@ -5,6 +5,7 @@ SELECT ABS(-ABS(-id)) from names;
 SELECT ABS(ABS(-ABS(-id)-3)) from names;
 SELECT * from names where id = ABS(ABS(-1)+2);
 SELECT * from names where id = ABS(ABS(ABS(-1)+2)-1);
+OCTO> SELECT ABS(-ABS(-id)) from names;
 abs
 0
 1
@@ -13,6 +14,7 @@ abs
 4
 5
 (6 rows)
+OCTO> SELECT ABS(ABS(-ABS(-id)-3)) from names;
 abs
 3
 4
@@ -21,9 +23,12 @@ abs
 7
 8
 (6 rows)
+OCTO> SELECT * from names where id = ABS(ABS(-1)+2);
 id|firstname|lastname
 3|Lord|Nikon
 (1 row)
+OCTO> SELECT * from names where id = ABS(ABS(ABS(-1)+2)-1);
 id|firstname|lastname
 2|Cereal|Killer
 (1 row)
+OCTO> 

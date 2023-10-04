@@ -12,18 +12,28 @@ EXCEPT (select name FROM easynames WHERE id < 2 ORDER BY name)
 	INTERSECT ALL (select name FROM easynames WHERE id < 3 OR id > 12 LIMIT 3)
 EXCEPT (select name FROM easynames WHERE id < 2 ORDER BY name)
 	INTERSECT ALL (select name FROM easynames WHERE id = 4 LIMIT 5);
+OCTO> SELECT name FROM easynames WHERE id < 3 OR id > 12 LIMIT 3;
 name
 Name0
 Name1
 Name2
 (3 rows)
+OCTO> (SELECT name FROM easynames WHERE id < 3 ORDER BY name)
+	INTERSECT ALL (select name FROM easynames WHERE id < 3 OR id > 12)
+EXCEPT (select name FROM easynames WHERE id < 2 ORDER BY name)
+	INTERSECT ALL (select name FROM easynames WHERE id = 4);
 name
 Name0
 Name1
 Name2
 (3 rows)
+OCTO> (SELECT name FROM easynames WHERE id < 3 ORDER BY name)
+	INTERSECT ALL (select name FROM easynames WHERE id < 3 OR id > 12 LIMIT 3)
+EXCEPT (select name FROM easynames WHERE id < 2 ORDER BY name)
+	INTERSECT ALL (select name FROM easynames WHERE id = 4 LIMIT 5);
 name
 Name0
 Name1
 Name2
 (3 rows)
+OCTO> 

@@ -1,5 +1,8 @@
 
 create function parmless() returns integer as $$^PARMLESSFUNC;
 create table test (id int check(parmless()>1));
+OCTO> create function parmless() returns integer as $$^PARMLESSFUNC;
 CREATE FUNCTION
+OCTO> create table test (id int check(parmless()>1));
 CREATE TABLE
+OCTO> 

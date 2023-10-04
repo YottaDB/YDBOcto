@@ -11,8 +11,14 @@ drop view v1;
 drop view v2;
 drop view v1;
 
+OCTO> create view v1 as select id, firstname,lastname from names;
 CREATE VIEW
+OCTO> create view v2 as select * from v1;
 CREATE VIEW
+OCTO> drop view v1;
 [ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "v1" because view "v2" depends on it
+OCTO> drop view v2;
 DROP VIEW
+OCTO> drop view v1;
 DROP VIEW
+OCTO> 

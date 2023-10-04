@@ -238,7 +238,7 @@ OCTO
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries composite TOB20_composite.sql
 	echo "# Run only octo (not psql) on TOB20_octoonly.sql" >> output.txt
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TOB20_octoonly.sql .
-	octo -f TOB20_octoonly.sql 2>&1 >> output.txt
+	load_fixture TOB20_octoonly.sql subtest novv
 	echo "# Verify ORDER BY optimization took effect (i.e. ORDER BY got removed) from queries where applicable" >> output.txt
 	echo "# Queries where ORDER BY optimization took effect will only show up as lines containing [select]" >> output.txt
 	echo "# Queries where ORDER BY optimization did not take effect will show up as lines containing [select] and [OrderBy]" >> output.txt

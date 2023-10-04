@@ -17,6 +17,7 @@ select * from names "strlit2";
 select * from names as "strlit3";
 select * from names as "strlit4";
 
+OCTO> select id as ida from names;
 ida
 0
 1
@@ -25,6 +26,7 @@ ida
 4
 5
 (6 rows)
+OCTO> select id as idb from names;
 idb
 0
 1
@@ -33,6 +35,7 @@ idb
 4
 5
 (6 rows)
+OCTO> select id as "strlit1" from names;
 strlit1
 0
 1
@@ -41,6 +44,7 @@ strlit1
 4
 5
 (6 rows)
+OCTO> select id as "strlit2" from names;
 strlit2
 0
 1
@@ -49,6 +53,7 @@ strlit2
 4
 5
 (6 rows)
+OCTO> select * from names n1;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -57,6 +62,7 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> select * from names n2;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -65,6 +71,7 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> select * from names as n3;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -73,6 +80,7 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> select * from names as n4;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -81,6 +89,7 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> select * from names "strlit1";
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -89,6 +98,7 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> select * from names "strlit2";
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -97,6 +107,7 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> select * from names as "strlit3";
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -105,6 +116,7 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> select * from names as "strlit4";
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -113,3 +125,4 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> 

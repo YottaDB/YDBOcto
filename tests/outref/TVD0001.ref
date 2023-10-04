@@ -57,177 +57,237 @@ select count(*) from ORDER1 where BA_HEAD_AND_OR_NECK_CANCER IS NULL;
 select count(*) from ORDER1 where BA_COMBAT_VETERAN IS NULL;
 select count(*) from ORDER1 where PFSS_ACCOUNT_REFERENCE IS NULL;
 select count(*) from ORDER1 where BA_SHIPBOARD_HAZARD IS NULL;
+OCTO> discard all;
+OCTO> select count(*) from ORDER1 where ORDER1 IS NULL;
 count(*)
 0
 (1 row)
+OCTO> select count(*) from ORDER1 where OBJECT_OF_ORDER IS NULL;
 count(*)
 0
 (1 row)
+OCTO> select count(*) from ORDER1 where CURRENT_AGENT_PROVIDER IS NULL;
 count(*)
 0
 (1 row)
+OCTO> select count(*) from ORDER1 where DIALOG IS NULL;
 count(*)
 0
 (1 row)
+OCTO> select count(*) from ORDER1 where WHO_ENTERED IS NULL;
 count(*)
 0
 (1 row)
+OCTO> select count(*) from ORDER1 where WHEN_ENTERED IS NULL;
 count(*)
 0
 (1 row)
+OCTO> select count(*) from ORDER1 where STATUS IS NULL;
 count(*)
 0
 (1 row)
+OCTO> select count(*) from ORDER1 where PATIENT_LOCATION IS NULL;
 count(*)
 819
 (1 row)
+OCTO> select count(*) from ORDER1 where ITEM_ORDERED IS NULL;
 count(*)
 25093
 (1 row)
+OCTO> select count(*) from ORDER1 where VEILED IS NULL;
 count(*)
 40826
 (1 row)
+OCTO> select count(*) from ORDER1 where TYPE IS NULL;
 count(*)
 1149
 (1 row)
+OCTO> select count(*) from ORDER1 where REPLACED_ORDER IS NULL;
 count(*)
 38727
 (1 row)
+OCTO> select count(*) from ORDER1 where REPLACEMENT_ORDER IS NULL;
 count(*)
 38754
 (1 row)
+OCTO> select count(*) from ORDER1 where PATIENT_CLASS IS NULL;
 count(*)
 0
 (1 row)
+OCTO> select count(*) from ORDER1 where TREATING_SPECIALTY IS NULL;
 count(*)
 31576
 (1 row)
+OCTO> select count(*) from ORDER1 where PACKAGE IS NULL;
 count(*)
 0
 (1 row)
+OCTO> select count(*) from ORDER1 where COST IS NULL;
 count(*)
 40947
 (1 row)
+OCTO> select count(*) from ORDER1 where SIGNATURE_REQUIRED IS NULL;
 count(*)
 14
 (1 row)
+OCTO> select count(*) from ORDER1 where EVENT IS NULL;
 count(*)
 40939
 (1 row)
+OCTO> select count(*) from ORDER1 where PATIENT_APPOINTMENT IS NULL;
 count(*)
 40937
 (1 row)
+OCTO> select count(*) from ORDER1 where START_DATE IS NULL;
 count(*)
 4351
 (1 row)
+OCTO> select count(*) from ORDER1 where STOP_DATE IS NULL;
 count(*)
 7896
 (1 row)
+OCTO> select count(*) from ORDER1 where `TO` IS NULL;
 count(*)
 0
 (1 row)
+OCTO> select count(*) from ORDER1 where CURRENT_ACTION IS NULL;
 count(*)
 0
 (1 row)
+OCTO> select count(*) from ORDER1 where DATE_OF_LAST_ACTIVITY IS NULL;
 count(*)
 0
 (1 row)
+OCTO> select count(*) from ORDER1 where GRACE_DAYS_BEFORE_PURGE IS NULL;
 count(*)
 0
 (1 row)
+OCTO> select count(*) from ORDER1 where ALERT_ON_RESULTS IS NULL;
 count(*)
 40933
 (1 row)
+OCTO> select count(*) from ORDER1 where PARENT IS NULL;
 count(*)
 39460
 (1 row)
+OCTO> select count(*) from ORDER1 where LAPSED_DATE_TIME IS NULL;
 count(*)
 39869
 (1 row)
+OCTO> select count(*) from ORDER1 where SERVICE_CONN_CONDITION IS NULL;
 count(*)
 39430
 (1 row)
+OCTO> select count(*) from ORDER1 where MST IS NULL;
 count(*)
 40947
 (1 row)
+OCTO> select count(*) from ORDER1 where AGENT_ORANGE_EXPOSURE IS NULL;
 count(*)
 40946
 (1 row)
+OCTO> select count(*) from ORDER1 where IONIZING_RAD_EXPOSURE IS NULL;
 count(*)
 40931
 (1 row)
+OCTO> select count(*) from ORDER1 where SOUTHWEST_ASIA_CONDITIONS IS NULL;
 count(*)
 40918
 (1 row)
+OCTO> select count(*) from ORDER1 where HEAD_AND_OR_NECK_CANCER IS NULL;
 count(*)
 40947
 (1 row)
+OCTO> select count(*) from ORDER1 where COMBAT_VETERAN IS NULL;
 count(*)
 40947
 (1 row)
+OCTO> select count(*) from ORDER1 where SHIPBOARD_HAZARD IS NULL;
 count(*)
 40947
 (1 row)
+OCTO> select count(*) from ORDER1 where NATURE_OF_DC IS NULL;
 count(*)
 36128
 (1 row)
+OCTO> select count(*) from ORDER1 where DC_ED_BY IS NULL;
 count(*)
 35165
 (1 row)
+OCTO> select count(*) from ORDER1 where DC_DATE_TIME IS NULL;
 count(*)
 33815
 (1 row)
+OCTO> select count(*) from ORDER1 where DC_REASON IS NULL;
 count(*)
 38760
 (1 row)
+OCTO> select count(*) from ORDER1 where DC_REASON_TEXT IS NULL;
 count(*)
 35407
 (1 row)
+OCTO> select count(*) from ORDER1 where COMPLETED IS NULL;
 count(*)
 37665
 (1 row)
+OCTO> select count(*) from ORDER1 where COMPLETED_BY IS NULL;
 count(*)
 40946
 (1 row)
+OCTO> select count(*) from ORDER1 where DC_EVENT IS NULL;
 count(*)
 40515
 (1 row)
+OCTO> select count(*) from ORDER1 where DC_ORIGINAL_ORDER IS NULL;
 count(*)
 40137
 (1 row)
+OCTO> select count(*) from ORDER1 where RESULTS_DATE_TIME IS NULL;
 count(*)
 20461
 (1 row)
+OCTO> select count(*) from ORDER1 where ABNORMAL_RESULTS IS NULL;
 count(*)
 35886
 (1 row)
+OCTO> select count(*) from ORDER1 where FINDINGS IS NULL;
 count(*)
 35971
 (1 row)
+OCTO> select count(*) from ORDER1 where BA_SERVICE_CONN_CONDITION IS NULL;
 count(*)
 40947
 (1 row)
+OCTO> select count(*) from ORDER1 where BA_MILITARY_SEXUAL_TRAUMA IS NULL;
 count(*)
 40947
 (1 row)
+OCTO> select count(*) from ORDER1 where BA_AGENT_ORANGE_EXPOSURE IS NULL;
 count(*)
 40947
 (1 row)
+OCTO> select count(*) from ORDER1 where BA_IONIZING_RAD_EXPOSURE IS NULL;
 count(*)
 40947
 (1 row)
+OCTO> select count(*) from ORDER1 where BA_SOUT_ASIA_CONDITIONS IS NULL;
 count(*)
 40947
 (1 row)
+OCTO> select count(*) from ORDER1 where BA_HEAD_AND_OR_NECK_CANCER IS NULL;
 count(*)
 40947
 (1 row)
+OCTO> select count(*) from ORDER1 where BA_COMBAT_VETERAN IS NULL;
 count(*)
 40947
 (1 row)
+OCTO> select count(*) from ORDER1 where PFSS_ACCOUNT_REFERENCE IS NULL;
 count(*)
 40947
 (1 row)
+OCTO> select count(*) from ORDER1 where BA_SHIPBOARD_HAZARD IS NULL;
 count(*)
 40947
 (1 row)
+OCTO> 

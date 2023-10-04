@@ -3,7 +3,10 @@
 -- See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1094#note_968288462 for more background.
 CREATE FUNCTION secondvalue(varchar, integer) RETURNS integer AS $$b5^TCF031;
 select secondvalue(NULL, 1);
+OCTO> CREATE FUNCTION secondvalue(varchar, integer) RETURNS integer AS $$b5^TCF031;
 CREATE FUNCTION
+OCTO> select secondvalue(NULL, 1);
 secondvalue
 5
 (1 row)
+OCTO> 

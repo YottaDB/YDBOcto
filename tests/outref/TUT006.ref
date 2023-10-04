@@ -11,5 +11,8 @@ id|firstname|lastname
 UPDATE names n1 SET firstname = firstname || '?' WHERE n1.id IN (SELECT n2.id FROM names n2 ORDER BY n2.id DESC LIMIT 3);
 UPDATE names SET firstname = firstname || '#' WHERE id IN (SELECT id FROM names ORDER BY id DESC LIMIT 3);
 
+OCTO> UPDATE names n1 SET firstname = firstname || '?' WHERE n1.id IN (SELECT n2.id FROM names n2 ORDER BY n2.id DESC LIMIT 3);
 UPDATE 3
+OCTO> UPDATE names SET firstname = firstname || '#' WHERE id IN (SELECT id FROM names ORDER BY id DESC LIMIT 3);
 UPDATE 3
+OCTO> 

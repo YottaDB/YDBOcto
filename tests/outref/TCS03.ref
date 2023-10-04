@@ -5,3 +5,5 @@ LINE 2:1: SELECT case when id=1 then 'id_is_1' else 1 end as caseid FROM ...
                                      ^^^^^^^^^
 LINE 2:1: ... case when id=1 then 'id_is_1' else 1 end as caseid FROM names;
                                                  ^
+OCTO> SELECT case when id=1 then 'id_is_1' else 1 end as caseid FROM names;
+OCTO> 

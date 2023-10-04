@@ -39,80 +39,104 @@ DELETE FROM names WHERE DISPLAYTLEVEL() is NULL AND id = 6;
 SELECT '-- Test of $TLEVEL for UPDATE : Expect 1';
 UPDATE names SET firstname = lastname, lastname = firstname WHERE DISPLAYTLEVEL() is NULL AND id = 5;
 
+OCTO> CREATE FUNCTION DISPLAYTLEVEL() RETURNS VARCHAR AS $$DISPLAYTLEVEL^TDFT06;
 CREATE FUNCTION
+OCTO> SELECT '-- Test of $TLEVEL for SELECT : Expect 0';
 ???
 -- Test of $TLEVEL for SELECT : Expect 0
 (1 row)
+OCTO> SELECT * FROM names WHERE DISPLAYTLEVEL() is NULL LIMIT 1;
 $TLEVEL=0
 id|firstname|lastname
 0|Zero|Cool
 (1 row)
+OCTO> SELECT '-- Test of $TLEVEL for VALUES : Expect 0';
 ???
 -- Test of $TLEVEL for VALUES : Expect 0
 (1 row)
+OCTO> VALUES (1, DISPLAYTLEVEL());
 $TLEVEL=0
 column1|column2
 1|
 (1 row)
+OCTO> SELECT '-- Test of $TLEVEL for UNION : Expect 0';
 ???
 -- Test of $TLEVEL for UNION : Expect 0
 (1 row)
+OCTO> SELECT DISPLAYTLEVEL() UNION SELECT DISPLAYTLEVEL();
 $TLEVEL=0
 $TLEVEL=0
 displaytlevel
 
 (1 row)
+OCTO> SELECT '-- Test of $TLEVEL for INTERSECT : Expect 0';
 ???
 -- Test of $TLEVEL for INTERSECT : Expect 0
 (1 row)
+OCTO> SELECT DISPLAYTLEVEL() INTERSECT SELECT DISPLAYTLEVEL();
 $TLEVEL=0
 $TLEVEL=0
 displaytlevel
 
 (1 row)
+OCTO> SELECT '-- Test of $TLEVEL for EXCEPT : Expect 0';
 ???
 -- Test of $TLEVEL for EXCEPT : Expect 0
 (1 row)
+OCTO> SELECT DISPLAYTLEVEL() EXCEPT SELECT DISPLAYTLEVEL();
 $TLEVEL=0
 $TLEVEL=0
 displaytlevel
 (0 rows)
+OCTO> SELECT '-- Test of $TLEVEL for UNION ALL : Expect 0';
 ???
 -- Test of $TLEVEL for UNION ALL : Expect 0
 (1 row)
+OCTO> SELECT DISPLAYTLEVEL() UNION ALL SELECT DISPLAYTLEVEL();
 $TLEVEL=0
 $TLEVEL=0
 displaytlevel
 
 
 (2 rows)
+OCTO> SELECT '-- Test of $TLEVEL for INTERSECT ALL : Expect 0';
 ???
 -- Test of $TLEVEL for INTERSECT ALL : Expect 0
 (1 row)
+OCTO> SELECT DISPLAYTLEVEL() INTERSECT ALL SELECT DISPLAYTLEVEL();
 $TLEVEL=0
 $TLEVEL=0
 displaytlevel
 
 (1 row)
+OCTO> SELECT '-- Test of $TLEVEL for EXCEPT ALL : Expect 0';
 ???
 -- Test of $TLEVEL for EXCEPT ALL : Expect 0
 (1 row)
+OCTO> SELECT DISPLAYTLEVEL() EXCEPT ALL SELECT DISPLAYTLEVEL();
 $TLEVEL=0
 $TLEVEL=0
 displaytlevel
 (0 rows)
+OCTO> SELECT '-- Test of $TLEVEL for INSERT INTO : Expect 1';
 ???
 -- Test of $TLEVEL for INSERT INTO : Expect 1
 (1 row)
+OCTO> INSERT INTO names SELECT id+1,firstname,lastname FROM names WHERE DISPLAYTLEVEL() is NULL ORDER BY id DESC LIMIT 1;
 $TLEVEL=1
 INSERT 0 1
+OCTO> SELECT '-- Test of $TLEVEL for DELETE FROM : Expect 1';
 ???
 -- Test of $TLEVEL for DELETE FROM : Expect 1
 (1 row)
+OCTO> DELETE FROM names WHERE DISPLAYTLEVEL() is NULL AND id = 6;
 $TLEVEL=1
 DELETE 1
+OCTO> SELECT '-- Test of $TLEVEL for UPDATE : Expect 1';
 ???
 -- Test of $TLEVEL for UPDATE : Expect 1
 (1 row)
+OCTO> UPDATE names SET firstname = lastname, lastname = firstname WHERE DISPLAYTLEVEL() is NULL AND id = 5;
 $TLEVEL=1
 UPDATE 1
+OCTO> 

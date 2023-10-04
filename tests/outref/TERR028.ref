@@ -28,30 +28,41 @@ select id as $$dummyextrinsicfunction^something from names;
 LINE 3:1: SELECT * FROM names WHERE id = $$ABS^%ydboctosqlfunctions(-2);
                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
 syntax error, unexpected EXTRINSIC_FUNCTION
+OCTO> SELECT * FROM names WHERE id = $$ABS^%ydboctosqlfunctions(-2);
 LINE 5:1: SELECT $ZWRITE(firstname) FROM names;
                  ^^^^^^^
 syntax error, unexpected INTRINSIC_FUNCTION
+OCTO> SELECT $ZWRITE(firstname) FROM names;
 LINE 7:1: SELECT * FROM names WHERE id = $$^%("some value");
                                          ^^^^
 syntax error, unexpected EXTRINSIC_FUNCTION
+OCTO> SELECT * FROM names WHERE id = $$^%("some value");
 LINE 8:1: SELECT * FROM names WHERE id = $$%^%("some value");
                                          ^^^^^
 syntax error, unexpected EXTRINSIC_FUNCTION
+OCTO> SELECT * FROM names WHERE id = $$%^%("some value");
 LINE 9:1: SELECT * FROM names WHERE id = $$%ABS^someroutine(-2);
                                          ^^^^^^^^^^^^^^^^^^
 syntax error, unexpected EXTRINSIC_FUNCTION
+OCTO> SELECT * FROM names WHERE id = $$%ABS^someroutine(-2);
 LINE 10:1: SELECT * FROM names WHERE id = $$ABS^%someroutine(-2);
                                           ^^^^^^^^^^^^^^^^^^
 syntax error, unexpected EXTRINSIC_FUNCTION
+OCTO> SELECT * FROM names WHERE id = $$ABS^%someroutine(-2);
 LINE 12:1: SELECT $$a('b');
                   ^^^
 syntax error, unexpected EXTRINSIC_FUNCTION
+OCTO> SELECT $$a('b');
 LINE 14:1: SELECT * FROM names WHERE $$a('b');
                                      ^^^
 syntax error, unexpected EXTRINSIC_FUNCTION
+OCTO> SELECT * FROM names WHERE $$a('b');
 LINE 16:1: SELECT id FROM names GROUP BY id HAVING $$a(id);
                                                    ^^^
 syntax error, unexpected EXTRINSIC_FUNCTION
+OCTO> SELECT id FROM names GROUP BY id HAVING $$a(id);
 LINE 18:1: select id as $$dummyextrinsicfunction^something from names;
                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 syntax error, unexpected EXTRINSIC_FUNCTION
+OCTO> select id as $$dummyextrinsicfunction^something from names;
+OCTO> 

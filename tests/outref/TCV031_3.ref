@@ -3,8 +3,11 @@
 create view v as select n1.id, n1.firstname, n1.lastname from names n1 inner join names n2 on n1.id = n2.id;
 create view v1 as select * from v order by firstname;
 select * from octoonerowtable, v1, v;
+OCTO> create view v as select n1.id, n1.firstname, n1.lastname from names n1 inner join names n2 on n1.id = n2.id;
 CREATE VIEW
+OCTO> create view v1 as select * from v order by firstname;
 CREATE VIEW
+OCTO> select * from octoonerowtable, v1, v;
 id|id|firstname|lastname|id|firstname|lastname
 1|1|Acid|Burn|0|Zero|Cool
 1|1|Acid|Burn|1|Acid|Burn
@@ -43,3 +46,4 @@ id|id|firstname|lastname|id|firstname|lastname
 1|5|Zero|Cool|4|Joey|
 1|5|Zero|Cool|5|Zero|Cool
 (36 rows)
+OCTO> 

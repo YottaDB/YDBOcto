@@ -8,8 +8,15 @@ WHERE n1.firstName IN (SELECT n2.firstName
   WHERE n1.firstName = n1.lastName
 );
 
+OCTO> SELECT *
+FROM names n1
+WHERE n1.firstName IN (SELECT n2.firstName
+  FROM names n2
+  WHERE n1.firstName = n1.lastName
+);
 id|firstname|lastname
 (0 rows)
+OCTO> 
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  SELECT *

@@ -9,8 +9,11 @@ SELECT * FROM delimnamesp;
 SELECT * FROM delimnamesu WHERE firstname = 'Zero';
 SELECT * FROM delimnamesp WHERE firstname = 'Zero';
 
+OCTO> CREATE TABLE DELIMNAMESU (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM '_' GLOBAL "^delimnamesu(keys(""id""))";
 CREATE TABLE
+OCTO> CREATE TABLE DELIMNAMESP (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM '|' GLOBAL "^delimnamesp(keys(""id""))";
 CREATE TABLE
+OCTO> SELECT * FROM delimnamesu;
 id|firstname|lastname|middleinitial|age
 0|Zero|Cool|B|25
 1|Acid|Burn|I|22
@@ -19,6 +22,7 @@ id|firstname|lastname|middleinitial|age
 4|Joey|||42
 5|Zero|Cool|B|25
 (6 rows)
+OCTO> SELECT * FROM delimnamesp;
 id|firstname|lastname|middleinitial|age
 0|Zero|Cool|B|25
 1|Acid|Burn|I|22
@@ -27,11 +31,14 @@ id|firstname|lastname|middleinitial|age
 4|Joey|||42
 5|Zero|Cool|B|25
 (6 rows)
+OCTO> SELECT * FROM delimnamesu WHERE firstname = 'Zero';
 id|firstname|lastname|middleinitial|age
 0|Zero|Cool|B|25
 5|Zero|Cool|B|25
 (2 rows)
+OCTO> SELECT * FROM delimnamesp WHERE firstname = 'Zero';
 id|firstname|lastname|middleinitial|age
 0|Zero|Cool|B|25
 5|Zero|Cool|B|25
 (2 rows)
+OCTO> 

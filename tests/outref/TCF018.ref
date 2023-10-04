@@ -6,12 +6,16 @@ CREATE FUNCTION SAMEVALUE(VARCHAR) RETURNS VARCHAR AS $$samevalue^functions;
 SELECT * FROM names WHERE firstname > lastname;
 SELECT * FROM names WHERE SAMEVALUE(firstname) > SAMEVALUE(lastname);
 
+OCTO> CREATE FUNCTION SAMEVALUE(VARCHAR) RETURNS VARCHAR AS $$samevalue^functions;
 CREATE FUNCTION
+OCTO> SELECT * FROM names WHERE firstname > lastname;
 id|firstname|lastname
 0|Zero|Cool
 5|Zero|Cool
 (2 rows)
+OCTO> SELECT * FROM names WHERE SAMEVALUE(firstname) > SAMEVALUE(lastname);
 id|firstname|lastname
 0|Zero|Cool
 5|Zero|Cool
 (2 rows)
+OCTO> 

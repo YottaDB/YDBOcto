@@ -5,3 +5,5 @@ LINE 2:1: SELECT case when id=1 then 'id_is_1' when id=2 then 'id_is_2' e...
                                      ^^^^^^^^^
 LINE 2:1: ...is_1' when id=2 then 'id_is_2' else 1 end as caseid FROM names;
                                                  ^
+OCTO> SELECT case when id=1 then 'id_is_1' when id=2 then 'id_is_2' else 1 end as caseid FROM names;
+OCTO> 

@@ -7,5 +7,8 @@ SET nonexistent_parameter = 'invalid';
 -- SHOW statement for invalid run-time parameter issues error
 SHOW nonexistent_parameter;
 
+OCTO> SET nonexistent_parameter = 'invalid';
 [ERROR]: ERR_INVALID_RUNTIME_PARAMETER: Unrecognized runtime configuration parameter "nonexistent_parameter"
+OCTO> SHOW nonexistent_parameter;
 [ERROR]: ERR_INVALID_RUNTIME_PARAMETER: Unrecognized runtime configuration parameter "nonexistent_parameter"
+OCTO> 

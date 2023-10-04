@@ -16,9 +16,15 @@ create table tmp (id integer primary key) GLOBAL "^names(keys(keys(""ID"")))";
 -- e.g. uppercase column name, but lowercase name used in `keys(..)` expression.
 create table tmp (id integer primary key) GLOBAL "^names(keys(""id""))";
 
+OCTO> create table longkeys (id INTEGER PRIMARY KEY, value VARCHAR) GLOBAL "^longkeys(keys(""id""))";
 CREATE TABLE
+OCTO> select * from longkeys;
 id|value
 (0 rows)
 [ERROR]: ERR_VALUES_NOT_ALLOWED_IN_GLOBAL: values() usage not allowed in GLOBAL keyword (only keys() usage allowed)
+OCTO> create table longvalues (id INTEGER PRIMARY KEY, value VARCHAR) GLOBAL "^longvalues(values(""value""))";
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: keys("ID")
+OCTO> create table tmp (id integer primary key) GLOBAL "^names(keys(keys(""ID"")))";
+OCTO> create table tmp (id integer primary key) GLOBAL "^names(keys(""id""))";
 CREATE TABLE
+OCTO> 

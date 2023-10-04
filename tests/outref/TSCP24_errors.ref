@@ -32,6 +32,7 @@ select null || -(select 1) from names;
 --   ERR_UNKNOWN_FUNCTION: No function ABS defined with given parameter types (VARCHAR)
 select 'test' || +abs('12') from names;
 select 'test' || -abs('12') from names;
+OCTO> select 1% +NULL from names;
 ???
 
 
@@ -43,9 +44,13 @@ select 'test' || -abs('12') from names;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NULL not compatible for - operation
 LINE 3:2: select -NULL;
                   ^^^^
+OCTO> -- doesn't error
+select -NULL;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NULL not compatible for - operation
 LINE 4:1: select 'test' || -(select null) from names;
                              ^^^^^^
+OCTO> select 'test' || -(select null) from names;
+OCTO> select 'test' || +(select null) from names;
 ???
 
 
@@ -57,51 +62,70 @@ LINE 4:1: select 'test' || -(select null) from names;
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
 LINE 6:2: select 'test' || -NULL::varchar from names;
                             ^^^^
+OCTO> -- doesn't error as type inferred here is null where Postgres infers the type as STRING
+select 'test' || -NULL::varchar from names;
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
 LINE 8:1: select 'test' || +'test';
                             ^^^^^^
+OCTO> select 'test' || +'test';
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
 LINE 9:1: select 'test' || -'test';
                             ^^^^^^
+OCTO> select 'test' || -'test';
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
 LINE 10:1: select +'test';
                    ^^^^^^
+OCTO> select +'test';
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
 LINE 11:1: select -'test';
                    ^^^^^^
+OCTO> select -'test';
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type BOOLEAN
 LINE 12:1: select -TRUE;
                    ^^^^
+OCTO> select -TRUE;
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type BOOLEAN
 LINE 13:1: select +TRUE;
                    ^^^^
+OCTO> select +TRUE;
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type BOOLEAN
 LINE 14:1: select 'test' || +TRUE;
                              ^^^^
+OCTO> select 'test' || +TRUE;
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type BOOLEAN
 LINE 15:1: select 'test' || -TRUE;
                              ^^^^
+OCTO> select 'test' || -TRUE;
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
 LINE 16:1: select +lastname from names;
                    ^^^^^^^^
+OCTO> select +lastname from names;
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
 LINE 17:1: select -lastname from names;
                    ^^^^^^^^
+OCTO> select -lastname from names;
+OCTO> select 'test' || +'test'::integer from names;
 [ERROR]: ERR_INVALID_INTEGER_SYNTAX: Invalid input syntax for type integer: 'test'
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function abs defined with given parameter types (VARCHAR)
 LINE 19:1: select 'test' || +abs('test') from names;
                              ^^^
+OCTO> select 'test' || +abs('test') from names;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
 LINE 21:1: select null || +(select 1) from names;
                   ^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
+OCTO> select null || +(select 1) from names;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
 LINE 22:1: select null || -(select 1) from names;
                   ^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
+OCTO> select null || -(select 1) from names;
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function abs defined with given parameter types (VARCHAR)
 LINE 24:1: select 'test' || +abs('12') from names;
                              ^^^
+OCTO> select 'test' || +abs('12') from names;
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function abs defined with given parameter types (VARCHAR)
 LINE 25:1: select 'test' || -abs('12') from names;
                              ^^^
+OCTO> select 'test' || -abs('12') from names;
+OCTO> 

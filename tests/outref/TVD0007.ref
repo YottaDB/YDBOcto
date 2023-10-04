@@ -1,4 +1,5 @@
 select QUESTION_TEXT from MH_INSTRUMENT_CONTENT LIMIT 5;
+OCTO> select QUESTION_TEXT from MH_INSTRUMENT_CONTENT LIMIT 5;
 question_text
 Facial and Oral Movements
  
@@ -32,3 +33,4 @@ serpentine). Do not include tremor (repetitive, regular, rhythmic
 movements).
  
 (5 rows)
+OCTO> 

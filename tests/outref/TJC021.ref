@@ -55,48 +55,73 @@ SELECT * FROM (SELECT n.nspname,c.relname,a.attname,a.atttypid,a.attnotnull OR (
 -- Test that queries from SquirrelSQL using "::regproc" do not issue an error
 SELECT typinput='pg_catalog.array_in'::regproc as is_array, typtype, typname, pg_type.oid   FROM pg_catalog.pg_type   LEFT JOIN (select ns.oid as nspoid, ns.nspname, r.r           from pg_namespace as ns           join ( select s.r, (current_schemas(false))[s.r] as nspname                    from generate_series(1, array_upper(current_schemas(false), 1)) as s(r) ) as r          using ( nspname )        ) as sp     ON sp.nspoid = typnamespace  WHERE pg_type.oid = $1  ORDER BY sp.r, pg_type.oid DESC;
 
+OCTO> select NULL::regclass;
 regclass
 
 (1 row)
+OCTO> select regclass(NULL);
 regclass
 
 (1 row)
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function regclass defined with given parameter types (INTEGER)
+OCTO> select 1::regclass;
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function regclass defined with given parameter types (INTEGER)
 LINE 8:1: select regclass(1);
                  ^^^^^^^^
+OCTO> select regclass(1);
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function regclass defined with given parameter types (NUMERIC)
+OCTO> select 1.1::regclass;
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function regclass defined with given parameter types (NUMERIC)
 LINE 11:1: select regclass(1.1);
                   ^^^^^^^^
+OCTO> select regclass(1.1);
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function regclass defined with given parameter types (BOOLEAN)
+OCTO> select true::regclass;
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function regclass defined with given parameter types (BOOLEAN)
 LINE 14:1: select regclass(true);
                   ^^^^^^^^
+OCTO> select regclass(true);
+OCTO> select 'PG_CLASS'::regclass;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: PG_CLASS
+OCTO> select 'pg_catalog."PG_CLASS"'::regclass;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: pg_catalog."PG_CLASS"
+OCTO> select '"PG_CATALOG"."PG_CLASS"'::regclass;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: "PG_CATALOG"."PG_CLASS"
+OCTO> select '"pg_catalog"."PG_CLASS"'::regclass;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: "pg_catalog"."PG_CLASS"
+OCTO> select 'NAMES'::regclass;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: NAMES
+OCTO> select 'public.NAMES'::regclass;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: public.NAMES
+OCTO> select '"public"."NAMES"'::regclass;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: "public"."NAMES"
+OCTO> select 'pg_class'::regclass;
 regclass
 488
 (1 row)
+OCTO> select 'pg_catalog."pg_class"'::regclass;
 regclass
 40
 (1 row)
+OCTO> select '"PG_CATALOG"."pg_class"'::regclass;
 regclass
 488
 (1 row)
+OCTO> select '"pg_catalog"."pg_class"'::regclass;
 regclass
 40
 (1 row)
+OCTO> select 'names'::regclass;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: names
+OCTO> select 'public.names'::regclass;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: public.names
+OCTO> select '"public"."names"'::regclass;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: "public"."names"
+OCTO> SELECT TRUE FROM   pg_attribute WHERE  attrelid = '"public"."PG_CATALOG.PG_NAMESPACE"'::regclass AND    attname = 'oid' AND NOT attisdropped;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: "public"."PG_CATALOG.PG_NAMESPACE"
+OCTO> SELECT TRUE FROM   pg_attribute WHERE  attrelid = '"public"."NAMES"'::regclass AND    attname = 'oid' AND NOT attisdropped;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: "public"."NAMES"
+OCTO> SELECT NULL AS TABLE_CAT, n.nspname AS TABLE_SCHEM, c.relname AS TABLE_NAME,  CASE n.nspname ~ '^pg_' OR n.nspname = 'information_schema'  WHEN true THEN CASE  WHEN n.nspname = 'pg_catalog' OR n.nspname = 'information_schema' THEN CASE c.relkind   WHEN 'r' THEN 'SYSTEM TABLE'   WHEN 'v' THEN 'SYSTEM VIEW'   WHEN 'i' THEN 'SYSTEM INDEX'   ELSE NULL   END  WHEN n.nspname = 'pg_toast' THEN CASE c.relkind   WHEN 'r' THEN 'SYSTEM TOAST TABLE'   WHEN 'i' THEN 'SYSTEM TOAST INDEX'   ELSE NULL   END  ELSE CASE c.relkind   WHEN 'r' THEN 'TEMPORARY TABLE'   WHEN 'p' THEN 'TEMPORARY TABLE'   WHEN 'i' THEN 'TEMPORARY INDEX'   WHEN 'S' THEN 'TEMPORARY SEQUENCE'   WHEN 'v' THEN 'TEMPORARY VIEW'   ELSE NULL   END  END  WHEN false THEN CASE c.relkind  WHEN 'r' THEN 'TABLE'  WHEN 'p' THEN 'PARTITIONED TABLE'  WHEN 'i' THEN 'INDEX'  WHEN 'P' then 'PARTITIONED INDEX'  WHEN 'S' THEN 'SEQUENCE'  WHEN 'v' THEN 'VIEW'  WHEN 'c' THEN 'TYPE'  WHEN 'f' THEN 'FOREIGN TABLE'  WHEN 'm' THEN 'MATERIALIZED VIEW'  ELSE NULL  END  ELSE NULL  END  AS TABLE_TYPE, d.description AS REMARKS,  '' as TYPE_CAT, '' as TYPE_SCHEM, '' as TYPE_NAME, '' AS SELF_REFERENCING_COL_NAME, '' AS REF_GENERATION  FROM pg_catalog.pg_namespace n, pg_catalog.pg_class c  LEFT JOIN pg_catalog.pg_description d ON (c.oid = d.objoid AND d.objsubid = 0  and d.classoid = 'pg_class'::regclass)  WHERE c.relnamespace = n.oid  AND (false  OR ( c.relkind = 'r' AND n.nspname !~ '^pg_' AND n.nspname <> 'information_schema' )  OR ( c.relkind = 'r' AND (n.nspname = 'pg_catalog' OR n.nspname = 'information_schema') )  OR ( c.relkind = 'v' AND n.nspname <> 'pg_catalog' AND n.nspname <> 'information_schema' ) )  ORDER BY TABLE_TYPE,TABLE_SCHEM,TABLE_NAME;
 table_cat|table_schem|table_name|table_type|remarks|type_cat|type_schem|type_name|self_referencing_col_name|ref_generation
 |public|information_schema.tables|TABLE||||||
 |public|octoonerowtable|TABLE||||||
@@ -153,12 +178,16 @@ table_cat|table_schem|table_name|table_type|remarks|type_cat|type_schem|type_nam
 |public|pg_type|TABLE||||||
 |public|pg_user|TABLE||||||
 (54 rows)
+OCTO> SELECT NULL AS PROCEDURE_CAT, n.nspname AS PROCEDURE_SCHEM, p.proname AS PROCEDURE_NAME, NULL, NULL, NULL, d.description AS REMARKS, 2 AS PROCEDURE_TYPE,  p.proname || '_' || p.oid AS SPECIFIC_NAME  FROM pg_catalog.pg_namespace n, pg_catalog.pg_proc p  LEFT JOIN pg_catalog.pg_description d ON (p.oid=d.objoid)  LEFT JOIN pg_catalog.pg_class c ON (d.classoid=c.oid AND c.relname='pg_proc')  LEFT JOIN pg_catalog.pg_namespace pn ON (c.relnamespace=pn.oid AND pn.nspname='pg_catalog')  WHERE p.pronamespace=n.oid  AND p.prokind='p' ORDER BY PROCEDURE_SCHEM, PROCEDURE_NAME, p.oid::text;
 procedure_cat|procedure_schem|procedure_name|???|???|???|remarks|procedure_type|specific_name
 (0 rows)
 [ WARN]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: OVER not implemented, just returning columns
+OCTO> SELECT * FROM (SELECT n.nspname,c.relname,a.attname,a.atttypid,a.attnotnull OR (t.typtype = 'd' AND t.typnotnull) AS attnotnull,a.atttypmod,a.attlen,t.typtypmod,row_number() OVER (PARTITION BY a.attrelid ORDER BY a.attnum) AS attnum, nullif(a.attidentity, '') as attidentity,nullif(a.attgenerated, '') as attgenerated,pg_catalog.pg_get_expr(def.adbin, def.adrelid) AS adsrc,dsc.description,t.typbasetype,t.typtype  FROM pg_catalog.pg_namespace n  JOIN pg_catalog.pg_class c ON (c.relnamespace = n.oid)  JOIN pg_catalog.pg_attribute a ON (a.attrelid=c.oid)  JOIN pg_catalog.pg_type t ON (a.atttypid = t.oid)  LEFT JOIN pg_catalog.pg_attrdef def ON (a.attrelid=def.adrelid AND a.attnum = def.adnum)  LEFT JOIN pg_catalog.pg_description dsc ON (c.oid=dsc.objoid AND a.attnum = dsc.objsubid)  LEFT JOIN pg_catalog.pg_class dc ON (dc.oid=dsc.classoid AND dc.relname='pg_class')  LEFT JOIN pg_catalog.pg_namespace dn ON (dc.relnamespace=dn.oid AND dn.nspname='pg_catalog')  WHERE c.relkind in ('r','p','v','f','m') and a.attnum > 0 AND NOT a.attisdropped  AND n.nspname LIKE 'public' AND c.relname LIKE 'NAMES') c WHERE true  AND attname LIKE '%' ORDER BY nspname,c.relname,attnum;
 nspname|relname|attname|atttypid|attnotnull|atttypmod|attlen|typtypmod|attnum|attidentity|attgenerated|adsrc|description|typbasetype|typtype
 (0 rows)
 [ WARN]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: arrays
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: generate_series
 LINE 40:1: ...                   from generate_series(1, array_upper(current_...
                                       ^^^^^^^^^^^^^^^
+OCTO> SELECT typinput='pg_catalog.array_in'::regproc as is_array, typtype, typname, pg_type.oid   FROM pg_catalog.pg_type   LEFT JOIN (select ns.oid as nspoid, ns.nspname, r.r           from pg_namespace as ns           join ( select s.r, (current_schemas(false))[s.r] as nspname                    from generate_series(1, array_upper(current_schemas(false), 1)) as s(r) ) as r          using ( nspname )        ) as sp     ON sp.nspoid = typnamespace  WHERE pg_type.oid = $1  ORDER BY sp.r, pg_type.oid DESC;
+OCTO> 

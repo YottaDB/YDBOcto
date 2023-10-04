@@ -10,6 +10,15 @@ WHERE n1.firstName IN (
   WHERE n1.id = n2.id
 )
 
+OCTO> SELECT *
+FROM names n1
+INNER JOIN names n2
+ON (n1.id = n2.id)
+WHERE n1.firstName IN (
+  SELECT n3.firstName FROM names n3
+  WHERE n1.id = n2.id
+)
+
 id|firstname|lastname|id|firstname|lastname
 0|Zero|Cool|0|Zero|Cool
 1|Acid|Burn|1|Acid|Burn

@@ -95,6 +95,7 @@ Reducing stack by rule rrr (line lll):
    $1 = token error (: )
    $2 = nterm semicolon_or_eof (: )
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [select * from nonexistanttable;]
+OCTO> select * from nonexistanttable;
 [ INFO] PATH:LINENUM DATE TIME: INFO_RETURNING_FAILURE: Returning failure from run_query
 Starting parse
 Entering state sss
@@ -165,6 +166,7 @@ Reducing stack by rule rrr (line lll):
    $1 = nterm sql_schema_statement (: )
    $2 = nterm semicolon_or_eof (: )
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""ID""))";]
+OCTO> INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""ID""))";
 [ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
 [ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
 Starting parse
@@ -323,6 +325,7 @@ Reducing stack by rule rrr (line lll):
    $1 = nterm query_expression (: )
    $2 = nterm semicolon_or_eof (: )
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [select * from names;]
+OCTO> select * from names;
 [ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
 [TRACE] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering hash_canonical_query
 [ INFO] PATH:LINENUM DATE TIME: INFO_M_PLAN: Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
@@ -430,3 +433,4 @@ Entering state sss
 Reducing stack by rule rrr (line lll):
    $1 = nterm semicolon_or_eof (: )
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command []
+OCTO> 

@@ -5,7 +5,11 @@ drop table if exists products;
 CREATE TABLE products (product_no integer CONSTRAINT c1 PRIMARY KEY, name text CONSTRAINT c2 UNIQUE CONSTRAINT c3 NOT NULL);
 select * from products;
 
+OCTO> drop table if exists products;
 DROP TABLE
+OCTO> CREATE TABLE products (product_no integer CONSTRAINT c1 PRIMARY KEY, name text CONSTRAINT c2 UNIQUE CONSTRAINT c3 NOT NULL);
 CREATE TABLE
+OCTO> select * from products;
 product_no|name
 (0 rows)
+OCTO> 

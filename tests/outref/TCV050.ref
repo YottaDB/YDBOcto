@@ -2,9 +2,13 @@
 create view TCV049_v12 as select * from names UNION select * from names;
 create view TCV049_v13 as select * from names EXCEPT ALL select * from TCV049_v12;
 create view TCV049_v11 as select * from names EXCEPT select * from TCV049_v12;
+OCTO> create view TCV049_v12 as select * from names UNION select * from names;
 CREATE VIEW
+OCTO> create view TCV049_v13 as select * from names EXCEPT ALL select * from TCV049_v12;
 CREATE VIEW
+OCTO> create view TCV049_v11 as select * from names EXCEPT select * from TCV049_v12;
 CREATE VIEW
+OCTO> 
 [ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE: Unknown table: tcv049_v12
 LINE 1:1: ...V049_v11 as select * from names EXCEPT select * from TCV049_v12;
 ^%ydboctoocto("viewdependency","tcv049_v11","tables","names")=""

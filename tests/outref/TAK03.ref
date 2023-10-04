@@ -73,9 +73,12 @@ select idb from (select 8 ida);
 LINE 2:1: select id as 123 from names;
                        ^^^
 syntax error, unexpected LITERAL
+OCTO> select id as 123 from names;
 LINE 3:1: select id as $1 from names;
                        ^^
 syntax error, unexpected LITERAL
+OCTO> select id as $1 from names;
+OCTO> select id as `backtick` from names;
 backtick
 0
 1
@@ -87,30 +90,40 @@ backtick
 LINE 6:1: select id as lit.lit from names;
                           ^
 syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+OCTO> select id as lit.lit from names;
 LINE 7:1: select id as 'quote'.'quote' from names;
                        ^^^^^^^
 syntax error, unexpected LITERAL
+OCTO> select id as 'quote'.'quote' from names;
 LINE 8:1: select id as "quote"."quote" from names;
                               ^
 syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+OCTO> select id as "quote"."quote" from names;
 LINE 9:1: select id as $$dummyextrinsicfunction^something from names;
                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 syntax error, unexpected EXTRINSIC_FUNCTION
+OCTO> select id as $$dummyextrinsicfunction^something from names;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: idb
 LINE 11:1: select idb from (select 8 as "ida");
                   ^^^
+OCTO> select idb from (select 8 as "ida");
 LINE 12:1: select idb from (select 8 as 'ida');
                                         ^^^^^
 syntax error, unexpected LITERAL
+OCTO> select idb from (select 8 as 'ida');
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: idb
 LINE 13:1: select idb from (select 8 as ida);
                   ^^^
+OCTO> select idb from (select 8 as ida);
 LINE 15:1: select id from names as 123;
                                    ^^^
 syntax error, unexpected LITERAL
+OCTO> select id from names as 123;
 LINE 16:1: select id from names as $1;
                                    ^^
 syntax error, unexpected LITERAL
+OCTO> select id from names as $1;
+OCTO> select id from names as `backtick`;
 id
 0
 1
@@ -122,27 +135,36 @@ id
 LINE 19:1: select id from names as lit.lit;
                                       ^
 syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+OCTO> select id from names as lit.lit;
 LINE 20:1: select id from names as 'quote'.'quote';
                                    ^^^^^^^
 syntax error, unexpected LITERAL
+OCTO> select id from names as 'quote'.'quote';
 LINE 21:1: select id from names as "quote"."quote";
                                           ^
 syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+OCTO> select id from names as "quote"."quote";
 LINE 22:1: select id from names as $$dummyextrinsicfunction^something;
                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 syntax error, unexpected EXTRINSIC_FUNCTION
+OCTO> select id from names as $$dummyextrinsicfunction^something;
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : n2
 LINE 24:1: select n2.id from names as "n1";
                   ^^^^^
+OCTO> select n2.id from names as "n1";
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : n2
 LINE 25:1: select n2.id from names as n1;
                   ^^^^^
+OCTO> select n2.id from names as n1;
 LINE 27:1: select id 123 from names;
                      ^^^
 syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+OCTO> select id 123 from names;
 LINE 28:1: select id $1 from names;
                      ^^
 syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+OCTO> select id $1 from names;
+OCTO> select id `backtick` from names;
 backtick
 0
 1
@@ -154,30 +176,40 @@ backtick
 LINE 31:1: select id lit.lit from names;
                         ^
 syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+OCTO> select id lit.lit from names;
 LINE 32:1: select id 'quote'.'quote' from names;
                      ^^^^^^^
 syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+OCTO> select id 'quote'.'quote' from names;
 LINE 33:1: select id "quote"."quote" from names;
                             ^
 syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+OCTO> select id "quote"."quote" from names;
 LINE 34:1: select id $$dummyextrinsicfunction^something from names;
                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 syntax error, unexpected EXTRINSIC_FUNCTION, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+OCTO> select id $$dummyextrinsicfunction^something from names;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: idb
 LINE 36:1: select idb from (select 8 "ida") n1;
                   ^^^
+OCTO> select idb from (select 8 "ida") n1;
 LINE 37:1: select idb from (select 8 'ida') n1;
                                      ^^^^^
 syntax error, unexpected LITERAL, expecting EXCEPT or UNION or RIGHT_PAREN
+OCTO> select idb from (select 8 'ida') n1;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: idb
 LINE 38:1: select idb from (select 8 ida) n1;
                   ^^^
+OCTO> select idb from (select 8 ida) n1;
 LINE 40:1: select id from names 123;
                                 ^^^
 syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+OCTO> select id from names 123;
 LINE 41:1: select id from names $1;
                                 ^^
 syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+OCTO> select id from names $1;
+OCTO> select id from names `backtick`;
 id
 0
 1
@@ -189,27 +221,37 @@ id
 LINE 44:1: select id from names lit.lit;
                                    ^
 syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+OCTO> select id from names lit.lit;
 LINE 45:1: select id from names 'quote'.'quote';
                                 ^^^^^^^
 syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+OCTO> select id from names 'quote'.'quote';
 LINE 46:1: select id from names "quote"."quote";
                                        ^
 syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+OCTO> select id from names "quote"."quote";
 LINE 47:1: select id from names $$dummyextrinsicfunction^something;
                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 syntax error, unexpected EXTRINSIC_FUNCTION, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+OCTO> select id from names $$dummyextrinsicfunction^something;
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : n2
 LINE 49:1: select n2.id from names "n1";
                   ^^^^^
+OCTO> select n2.id from names "n1";
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : n2
 LINE 50:1: select n2.id from names n1;
                   ^^^^^
+OCTO> select n2.id from names n1;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: idb
 LINE 52:1: select idb from (select 8 "ida");
                   ^^^
+OCTO> select idb from (select 8 "ida");
 LINE 53:1: select idb from (select 8 'ida');
                                      ^^^^^
 syntax error, unexpected LITERAL, expecting EXCEPT or UNION or RIGHT_PAREN
+OCTO> select idb from (select 8 'ida');
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: idb
 LINE 54:1: select idb from (select 8 ida);
                   ^^^
+OCTO> select idb from (select 8 ida);
+OCTO> 

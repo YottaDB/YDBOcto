@@ -22,6 +22,26 @@ left join patient_movement AM on P.CURRENT_ADMISSION=AM.PATIENT_MOVEMENT_ID
 where P.CURRENT_MOVEMENT is not null
 and P.ward_location not like 'ZZ%' and P.NAME not like 'ZZ%';
 
+OCTO> SELECT P.NAME AS PATIENT_NAME, P.PATIENT_ID as PATIENT_ID,
+       P.WARD_LOCATION,
+       TOKEN(REPLACE(TOKEN(REPLACE(P.WARD_LOCATION,'WARD ',''),'-',1),'WARD ',''),' ',2) AS PCU,
+       CONCAT(TOKEN(REPLACE(TOKEN(REPLACE(P.WARD_LOCATION,'WARD ',''),'-',2),'WARD ',''),' ',1),' ',TOKEN(P.WARD_LOCATION,'-',3)) AS UNIT,
+       P.ROOM_BED as ROOM_BED,
+       REPLACE(P.DIVISION,'VEHU ','') as FACILTY,
+       P.SEX as SEX,
+       P.CURRENT_ADMISSION as CURRENT_ADMISSION,
+       P.CURRENT_MOVEMENT as CURRENT_MOVEMENT,
+       DATEFORMAT(P.DATE_OF_BIRTH,'5Z') as DATE_OF_BIRTH,
+       -- P.Age, -- Don't add Age to pipeline as it will keep changing
+       PM.PATIENT_MOVEMENT_ID as Current_Patient_Movement,
+       PM.TYPE_OF_MOVEMENT as Current_Movement_Type,
+       AM.PATIENT_MOVEMENT_ID as Admission_Movement,
+       AM.TYPE_OF_MOVEMENT as Admission_Type
+FROM PATIENT P
+left join patient_movement PM on P.CURRENT_MOVEMENT=PM.PATIENT_MOVEMENT_ID
+left join patient_movement AM on P.CURRENT_ADMISSION=AM.PATIENT_MOVEMENT_ID
+where P.CURRENT_MOVEMENT is not null
+and P.ward_location not like 'ZZ%' and P.NAME not like 'ZZ%';
 patient_name|patient_id|ward_location|pcu|unit|room_bed|facilty|sex|current_admission|current_movement|date_of_birth|current_patient_movement|current_movement_type|admission_movement|admission_type
 EIGHT,PATIENT|3|7A GEN MED|GEN| |722-B|CBOC|M|4612|4612|04/07/1935|4612|1|4612|1
 ONEHUNDRED,PATIENT|100013|ICU/CCU|| |ICU-10|DIVISION|M|4686|4686|04/07/1935|4686|1|4686|1
@@ -251,3 +271,4 @@ PATIENT,DAN II|100907|3 NORTH SURG|NORTH| |AS-1|DIVISION|M|4762|4762|06/15/1946|
 TRAINING,PATIENT|101036|NHCU|| |NH15-B||M|4634|4778|03/03/1960|4778|3|4634|3
 EHMP,EIGHT|101043|3E NORTH|NORTH| |3E-100-4|CBOC|M|5277|5277|03/03/1960|5277|1|5277|1
 (227 rows)
+OCTO> 

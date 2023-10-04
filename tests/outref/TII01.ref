@@ -6,10 +6,15 @@ INSERT INTO names2 (SELECT * FROM names WHERE firstName='Zero');
 SELECT * FROM names2;
 DROP TABLE names2;
 
+OCTO> CREATE TABLE names2 (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30));
 CREATE TABLE
+OCTO> INSERT INTO names2 (SELECT * FROM names WHERE firstName='Zero');
 INSERT 0 2
+OCTO> SELECT * FROM names2;
 id|firstname|lastname
 0|Zero|Cool
 5|Zero|Cool
 (2 rows)
+OCTO> DROP TABLE names2;
 DROP TABLE
+OCTO> 

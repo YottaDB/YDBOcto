@@ -40,57 +40,88 @@ INSERT INTO testu4 SELECT '|' || 'ＡＢＣＤ'::varchar(2) || '|';
 SELECT * FROM testu4;
 DROP TABLE testu4;
 
+OCTO> --
+--
+
+SELECT '';
 ???
 
 (1 row)
+OCTO> SELECT '-- Test that VARCHAR(4) allows 4 characters (even if it is more than 4 bytes) to be stored.';
 ???
 -- Test that VARCHAR(4) allows 4 characters (even if it is more than 4 bytes) to be stored.
 (1 row)
+OCTO> CREATE TABLE testu1 (column1 character(4));
 CREATE TABLE
+OCTO> INSERT INTO testu1 VALUES ('ＡＢＣＤ');
 INSERT 0 1
+OCTO> SELECT column1 FROM testu1;
 column1
 ＡＢＣＤ
 (1 row)
+OCTO> DROP TABLE testu1;
 DROP TABLE
+OCTO> SELECT '';
 ???
 
 (1 row)
+OCTO> SELECT '-- Test that VARCHAR(4) allows character strings shorter than 4 chars to be stored without space padding at end';
 ???
 -- Test that VARCHAR(4) allows character strings shorter than 4 chars to be stored without space padding at end
 (1 row)
+OCTO> CREATE TABLE testu2 (column1 character(4));
 CREATE TABLE
+OCTO> INSERT INTO testu2 VALUES ('ＡＢＣ');
 INSERT 0 1
+OCTO> INSERT INTO testu2 VALUES ('ＡＢ');
 INSERT 0 1
+OCTO> INSERT INTO testu2 VALUES ('Ａ');
 INSERT 0 1
+OCTO> SELECT '|' || column1 || '|' FROM testu2;
 ???
 |ＡＢＣ|
 |ＡＢ|
 |Ａ|
 (3 rows)
+OCTO> DROP TABLE testu2;
 DROP TABLE
+OCTO> SELECT '';
 ???
 
 (1 row)
+OCTO> SELECT '-- Test that VARCHAR(4) allows 7 character strings to be stored if last 3 characters are spaces.';
 ???
 -- Test that VARCHAR(4) allows 7 character strings to be stored if last 3 characters are spaces.
 (1 row)
+OCTO> CREATE TABLE testu3 (column1 character(4));
 CREATE TABLE
+OCTO> INSERT INTO testu3 VALUES ('ＡＢＣＤ   ');
 INSERT 0 1
+OCTO> INSERT INTO testu3 VALUES ('ＡＢＣ    ');
 INSERT 0 1
+OCTO> SELECT '|' || column1 || '|' FROM testu3;
 ???
 |ＡＢＣＤ|
 |ＡＢＣ |
 (2 rows)
+OCTO> DROP TABLE testu3;
 DROP TABLE
+OCTO> SELECT '';
 ???
 
 (1 row)
+OCTO> SELECT '-- Test that an over length value when typecast to varchar(N) will be truncated to N characters without an error.';
 ???
 -- Test that an over length value when typecast to varchar(N) will be truncated to N characters without an error.
 (1 row)
+OCTO> CREATE TABLE testu4 (column1 character(4));
 CREATE TABLE
+OCTO> INSERT INTO testu4 SELECT '|' || 'ＡＢＣＤ'::varchar(2) || '|';
 INSERT 0 1
+OCTO> SELECT * FROM testu4;
 column1
 |ＡＢ|
 (1 row)
+OCTO> DROP TABLE testu4;
 DROP TABLE
+OCTO> 

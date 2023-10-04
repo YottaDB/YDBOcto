@@ -3,7 +3,9 @@
 
 DELETE FROM names where lastname = 'Cool';
 
+OCTO> DELETE FROM names where lastname = 'Cool';
 DELETE 2
+OCTO> 
 # Verify that ^%ydboctoX... invocation happens BEFORE the TSTART in the generated M plan
 ;; ---------------------------------------------------------
 ;  DELETE FROM names where lastname = 'Cool';

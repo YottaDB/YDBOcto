@@ -7,8 +7,11 @@ LINE 1:1: SELECT 1 IN (true) FROM names;
                  ^
 LINE 1:1: SELECT 1 IN (true) FROM names;
                        ^^^^
+OCTO> SELECT 1 IN (true) FROM names;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left BOOLEAN, right INTEGER
 LINE 2:1: SELECT true IN (1) FROM names;
                  ^^^^
 LINE 2:1: SELECT true IN (1) FROM names;
                           ^
+OCTO> SELECT true IN (1) FROM names;
+OCTO> 

@@ -5,7 +5,11 @@ select firstName, lastName from names
 intersect all
 select firstName, lastName from names where firstName = 'Zero';
 
+OCTO> select firstName, lastName from names
+intersect all
+select firstName, lastName from names where firstName = 'Zero';
 firstname|lastname
 Zero|Cool
 Zero|Cool
 (2 rows)
+OCTO> 

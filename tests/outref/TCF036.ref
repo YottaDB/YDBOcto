@@ -13,9 +13,13 @@ select "concat"(firstname, ' ', lastname) from names;
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function ABS defined with given parameter types (INTEGER)
 LINE 3:1: select "ABS"(-1);
                  ^^^^^
+OCTO> select "ABS"(-1);
+OCTO> select "abs"(-1);
 abs
 1
 (1 row)
+OCTO> -- Error: function name was defined as uppercase
+select "concat"(firstname, ' ', lastname) from names;
 concat
 Zero Cool
 Acid Burn
@@ -27,11 +31,18 @@ Zero Cool
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function CONCAT defined with given parameter types (VARCHAR, VARCHAR, VARCHAR)
 LINE 6:1: select "CONCAT"(firstname, ' ', lastname) from names; -- Error: ...
                  ^^^^^^^^
+OCTO> select "CONCAT"(firstname, ' ', lastname) from names;
+OCTO> -- Error: function name was defined as lowercase
+
+CREATE FUNCTION "concat"(VARCHAR, VARCHAR, VARCHAR) RETURNS VARCHAR AS $$^%ydboctofCONCAT;
 [ERROR]: ERR_CANNOT_CREATE_FUNCTION: Function "concat(VARCHAR, VARCHAR, VARCHAR)" already exists with same argument types
+OCTO> CREATE FUNCTION "abs"(INTEGER) RETURNS INTEGER AS $$ABS^%ydboctosqlfunctions;
 [ERROR]: ERR_CANNOT_CREATE_FUNCTION: Function "abs(INTEGER)" already exists with same argument types
+OCTO> select "abs"(-1);
 abs
 1
 (1 row)
+OCTO> select "concat"(firstname, ' ', lastname) from names;
 concat
 Zero Cool
 Acid Burn
@@ -40,6 +51,7 @@ Lord Nikon
 Joey 
 Zero Cool
 (6 rows)
+OCTO> 
 # Verify function text definitions for double-quoted identifier and non-double-quoted identifier
 # Run [mupip extract] and filter out those global nodes corresponding to function text definitions of ABS/abs
 # Expect to see [ABS] not surrounded by double quotes and [abs] surrounded by double quotes

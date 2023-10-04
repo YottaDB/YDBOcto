@@ -8,15 +8,22 @@ select NOT n1.* from (select id = 1 from names) n1;
 [ERROR]: ERR_NOT_OPERATION_TYPE_MISMATCH: VARCHAR type operand is incorrect for NOT operation. Need a boolean operand.
 LINE 2:1: select NOT n1.lastname from names n1;
                      ^^^^^^^^^^^
+OCTO> select NOT n1.lastname from names n1;
 [ERROR]: ERR_NOT_OPERATION_TYPE_MISMATCH: INTEGER type operand is incorrect for NOT operation. Need a boolean operand.
 LINE 3:1: select NOT 1 from names n1;
                      ^
+OCTO> select NOT 1 from names n1;
 [ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'VARCHAR' is not a valid boolean value
 LINE 4:1: select NOT 'test' from names n1;
                      ^^^^^^
+OCTO> select NOT 'test' from names n1;
 [ERROR]: ERR_NOT_OPERATION_TYPE_MISMATCH: TABLENAME.* type operand is incorrect for NOT operation. Need a boolean operand.
 LINE 5:1: select NOT n1.* from names n1;;
                      ^^^^
+OCTO> select NOT n1.* from names n1;
+OCTO> ;
 [ERROR]: ERR_NOT_OPERATION_TYPE_MISMATCH: TABLENAME.* type operand is incorrect for NOT operation. Need a boolean operand.
 LINE 6:1: select NOT n1.* from (select id = 1 from names) n1;
                      ^^^^
+OCTO> select NOT n1.* from (select id = 1 from names) n1;
+OCTO> 

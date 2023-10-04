@@ -54,73 +54,123 @@ create view TCV003v1(id1,id2) as select t1.id, t1.id, t1.id id3, t1.id id3 from 
 LINE 2:1: ...te view TCV003v1 (TCV003v1_id,NULL,TCV003v1_lastname) as select ...
                                            ^^^^
 syntax error, unexpected NULL_TOKEN
+OCTO> create view TCV003v1 (TCV003v1_id,NULL,TCV003v1_lastname) as select names.* from names;
 LINE 3:1: ...te view TCV003v1 (TCV003v1_id,'',TCV003v1_lastname) as select n...
                                             ^
 syntax error, unexpected EMPTY_STRING
+OCTO> create view TCV003v1 (TCV003v1_id,'',TCV003v1_lastname) as select names.* from names;
 LINE 4:1: ...e view TCV003v1 (TCV003v1_id,'asdf',TCV003v1_lastname) as select...
                                           ^^^^^^
 syntax error, unexpected LITERAL
+OCTO> create view TCV003v1 (TCV003v1_id,'asdf',TCV003v1_lastname) as select names.* from names;
+OCTO> --create view TCV003v1 (TCV003v1_id,"asd",TCV003v1_lastname) as select names.* from names; -- double quotes
+create view TCV003v1 (TCV003v1_id,TCV003v1_id,TCV003v1_lastname) as select names.* from names;
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "tcv003v1_id" specified more than once
 LINE 6:2: ...iew TCV003v1 (TCV003v1_id,TCV003v1_id,TCV003v1_lastname) as sel...
                                        ^^^^^^^^^^^
+OCTO> create view TCV003v1 (TCV003v1_id,TCV003v1_firstname,TCV003v1_id) as select id,firstname,lastname from names;
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "tcv003v1_id" specified more than once
 LINE 7:1: ...3v1_id,TCV003v1_firstname,TCV003v1_id) as select id,firstname,l...
                                        ^^^^^^^^^^^
+OCTO> create view TCV003v1 (TCV003v1_id,TCV003v1_id) as select id from names;
 [ERROR]: ERR_VIEW_MORE_COLUMN_NAMES: View specifies more column names than the number of columns defined
 LINE 8:1: ...iew TCV003v1 (TCV003v1_id,TCV003v1_id) as select id from names;...
                                        ^^^^^^^^^^^
+OCTO> -- ERROR:  CREATE VIEW specifies more column names than columns
+create view TCV003v1 (TCV003v1_col1) as select (values(lastname,firstname)) from names;
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 9:2: ...1_col1) as select (values(lastname,firstname)) from names; -- ER...
                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> -- ERROR:  subquery must return only one column
+create view TCV003v1 (TCV003v1_id,TCV003v1_id,TCV003v1_lastname) as select 1,'Zero','Cool';
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "tcv003v1_id" specified more than once
 LINE 10:2: ...iew TCV003v1 (TCV003v1_id,TCV003v1_id,TCV003v1_lastname) as sel...
                                         ^^^^^^^^^^^
+OCTO> -- ERROR:  column "TCV003v1_id" specified more than once
+create view TCV003v1 (TCV003v1_id,TCV003v1_id) as select 1;
 [ERROR]: ERR_VIEW_MORE_COLUMN_NAMES: View specifies more column names than the number of columns defined
 LINE 11:2: ...iew TCV003v1 (TCV003v1_id,TCV003v1_id) as select 1; -- ERROR:  ...
                                         ^^^^^^^^^^^
+OCTO> -- ERROR:  CREATE VIEW specifies more column names than columns
+create view TCV003v1 (TCV003v1_col1,TCV003v1_col2,TCV003v1_col3) as select (values(1,'Zero','Cool')) from names;
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 12:2: ...v1_col3) as select (values(1,'Zero','Cool')) from names; -- ERR...
                                  ^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE 13:2: ...ol2,TCV003v1_col3) as select values(1,'Zero','Cool') from names;...
                                            ^^^^^^
 syntax error, unexpected VALUES
+OCTO> -- ERROR:  subquery must return only one column
+create view TCV003v1 (TCV003v1_col1,TCV003v1_col2,TCV003v1_col3) as select values(1,'Zero','Cool') from names;
+OCTO> -- ERROR:  syntax error at or near "("
+create view TCV003v1 as select id as n1_id,firstname,lastname as n1_id from names n1;
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "n1_id" specified more than once
 LINE 14:2: ... n1_id,firstname,lastname as n1_id from names n1; -- column "n1...
                                            ^^^^^
+OCTO> -- column "n1_id" specified more than once --
+create view TCV003v1 (TCV003v1_firstname,TCV003v1_lastname,TCV003v1_id) as select firstname,lastname from names union select firstname,lastname from names;
 [ERROR]: ERR_VIEW_MORE_COLUMN_NAMES: View specifies more column names than the number of columns defined
 LINE 15:2: ...rstname,TCV003v1_lastname,TCV003v1_id) as select firstname,last...
                                         ^^^^^^^^^^^
+OCTO> -- ERROR:  CREATE VIEW specifies more column names than columns
+
+create view TCV003v1 as select (values(lastname,firstname)) from names;
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 17:3: ...CV003v1 as select (values(lastname,firstname)) from names; -- va...
                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> -- values -- ERROR:  subquery must return only one column
+create view TCV003v1 as select 1,'Zero','Cool';
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "???" specified more than once
+OCTO> -- column "?column?" specified more than once --
+create view TCV003v1 as select 1 as n1_id,'Zero' as n1_firstname, 'Cool' as n1_firstname;
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "n1_firstname" specified more than once
 LINE 19:2: ...s n1_firstname, 'Cool' as n1_firstname; -- ERROR:  column "n1_fi...
                                         ^^^^^^^^^^^^
 LINE 20:2: ...eate view TCV003v1 as values((1,'Zero','Cool'),(1,'Z','C')); --...
                                              ^
 syntax error, unexpected COMMA, expecting RIGHT_PAREN
+OCTO> -- ERROR:  column "n1_firstname" specified more than once
+create view TCV003v1 as values((1,'Zero','Cool'),(1,'Z','C'));
+OCTO> -- column "column1" has pseudo-type record (this one is more of values implementation error)
+create view TCV003v1 as select(values(1,'Zero','Cool')) from names;
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 21:2: ... TCV003v1 as select(values(1,'Zero','Cool')) from names; -- ERR...
                                  ^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE 22:2: ...eate view TCV003v1 as select values(1,'Zero','Cool') from names;...
                                            ^^^^^^
 syntax error, unexpected VALUES
+OCTO> -- ERROR:  subquery must return only one column
+create view TCV003v1 as select values(1,'Zero','Cool') from names;
+OCTO> -- ERROR:  syntax error at or near "("
+create view TCV003v1 as select firstname,firstname from names union select firstname,lastname from names;
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "firstname" specified more than once
 LINE 23:2: ...V003v1 as select firstname,firstname from names union select fi...
                                          ^^^^^^^^^
+OCTO> -- ERROR:  column "firstname" specified more than once
+create view TCV003v1 as select 'Zero','Zero1' union select 'Cool','Cool1';
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "???" specified more than once
+OCTO> -- ERROR:  column "?column?" specified more than once
+create view TCV003v1 as select 'Zero','Zero1'union select 'Cool','Cool1' as col2;
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "???" specified more than once
+OCTO> -- ERROR:  column "?column?" specified more than once
+create view v3 as select * from names n1 right join names n2 on n1.firstname = n2.firstname;
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "id" specified more than once
 LINE 26:2: create view v3 as select * from names n1 right join names n2 on...
                                     ^
+OCTO> --  ERROR:  column "id" specified more than once
+
+
+create table t1 (id integer);
 CREATE TABLE
+OCTO> create view TCV003v1(id1,id1) as select t1.id, t1.id, t1.id id2 from t1;
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "id1" specified more than once
 LINE 30:1: create view TCV003v1(id1,id1) as select t1.id, t1.id, t1.id id2...
                                     ^^^
+OCTO> create view TCV003v1(id1,id2) as select t1.id, t1.id, t1.id id2 from t1;
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "id2" specified more than once
 LINE 32:1: ...ew TCV003v1(id1,id2) as select t1.id, t1.id, t1.id id2 from t1;
                                                                  ^^^
+OCTO> create view TCV003v1(id1,id2) as select t1.id, t1.id, t1.id id3, t1.id id3 from t1;
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "id3" specified more than once
 LINE 34:1: ...(id1,id2) as select t1.id, t1.id, t1.id id3, t1.id id3 from t1;
                                                                  ^^^
+OCTO> 

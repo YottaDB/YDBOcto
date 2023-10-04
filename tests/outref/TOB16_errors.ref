@@ -5,6 +5,9 @@ select (select id from names n2 ORDER BY n1.id LIMIT 1),count(n1.id) from names 
 [ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_SELECT_DISTINCT: For SELECT DISTINCT, ORDER BY expressions must appear in select list
 LINE 2:1: select distinct n2.* from names n1, names n2 order by n2.*;
                                                                 ^^^^
+OCTO> select distinct n2.* from names n1, names n2 order by n2.*;
 [ERROR] PATH:LINENUM DATE TIME: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column id from outer query
 LINE 4:1: ...ct id from names n2 ORDER BY n1.id LIMIT 1),count(n1.id) from n...
                                           ^^^^^
+OCTO> select (select id from names n2 ORDER BY n1.id LIMIT 1),count(n1.id) from names n1;
+OCTO> 

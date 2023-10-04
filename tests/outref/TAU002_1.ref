@@ -65,7 +65,9 @@ select * from v40;
 -- https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1244#note_1380391980
 create view v41 as select id from names n1 where (select n1.id from names n2 where n2.id > 5) is not null;
 select * from v41;
+OCTO> create view v1 as select * from names;
 CREATE VIEW
+OCTO> select * from v1;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -74,7 +76,9 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> create view v2 as select abs(id) from names;
 CREATE VIEW
+OCTO> select * from v2;
 abs
 0
 1
@@ -83,15 +87,21 @@ abs
 4
 5
 (6 rows)
+OCTO> create view k1 as select 1;
 CREATE VIEW
+OCTO> select * from k1;
 ???
 1
 (1 row)
+OCTO> create view k2 as select 2;
 CREATE VIEW
+OCTO> select * from k2;
 ???
 2
 (1 row)
+OCTO> create view b1 as select * from names;
 CREATE VIEW
+OCTO> select * from b1;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -100,7 +110,9 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> create view a1 as select * from b1;
 CREATE VIEW
+OCTO> select * from a1;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -109,34 +121,51 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> CREATE FUNCTION SAMEVALUE(INTEGER) RETURNS INTEGER AS $$samevalue^functions;
 CREATE FUNCTION
+OCTO> create view f1 as select samevalue(1);
 CREATE VIEW
+OCTO> select * from f1;
 samevalue
 1
 (1 row)
+OCTO> create view a as select 1;
 CREATE VIEW
+OCTO> create view b as select * from a;
 CREATE VIEW
+OCTO> select * from b;
 ???
 1
 (1 row)
+OCTO> select * from a;
 ???
 1
 (1 row)
+OCTO> create view v9 as select * from octoonerowtable;
 CREATE VIEW
+OCTO> create view v10 as select * from v9;
 CREATE VIEW
+OCTO> create view v11 as select * from v9;
 CREATE VIEW
+OCTO> select * from v9;
 id
 1
 (1 row)
+OCTO> select * from v10;
 id
 1
 (1 row)
+OCTO> select * from v11;
 id
 1
 (1 row)
+OCTO> create view v33 as select * from (select * from names) order by lastname;
 CREATE VIEW
+OCTO> create view v34 as select * from (select lastname from names union select firstname from names) order by lastname;
 CREATE VIEW
+OCTO> create view v35 as select * from (values(1)) order by 1;
 CREATE VIEW
+OCTO> select * from v33;
 id|firstname|lastname
 1|Acid|Burn
 0|Zero|Cool
@@ -145,6 +174,7 @@ id|firstname|lastname
 3|Lord|Nikon
 4|Joey|
 (6 rows)
+OCTO> select * from v34;
 lastname
 Acid
 Burn
@@ -157,29 +187,43 @@ Nikon
 Zero
 
 (10 rows)
+OCTO> select * from v35;
 column1
 1
 (1 row)
+OCTO> create view v36 as select 1 from (select 1 union select 1);
 CREATE VIEW
+OCTO> select * from v36;
 ???
 1
 (1 row)
+OCTO> create view v37 as select CASE WHEN NULL THEN 1.1 WHEN 1.0+3.3=4.3 THEN 1.2 ELSE 9.9 end;
 CREATE VIEW
+OCTO> select * from v37;
 CASE
 1.2
 (1 row)
+OCTO> create view v38 as select 1 IN (2,3);
 CREATE VIEW
+OCTO> select * from v38;
 ???
 0
 (1 row)
+OCTO> create view v39 as select sum(mybool::integer) from (select id=2 as mybool from names) n1;
 CREATE VIEW
+OCTO> select * from v39;
 sum
 1
 (1 row)
+OCTO> create view v40 as select count(*) from (select id=2 from names) n1;
 CREATE VIEW
+OCTO> select * from v40;
 count(*)
 6
 (1 row)
+OCTO> create view v41 as select id from names n1 where (select n1.id from names n2 where n2.id > 5) is not null;
 CREATE VIEW
+OCTO> select * from v41;
 id
 (0 rows)
+OCTO> 

@@ -3,4 +3,6 @@
 
 select substring('abcd',1,-2);
 
+OCTO> select substring('abcd',1,-2);
 [ERROR]: ERR_NEGATIVE_SUBSTRING_LENGTH: negative substring length not allowed
+OCTO> 

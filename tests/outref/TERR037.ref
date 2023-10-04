@@ -16,12 +16,25 @@ from nonexistenttable;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: nonexistenttable
 LINE 3:1: ...badcolumn, notsogoodcolumn, maybeokcolumn from nonexistenttable;
                                                             ^^^^^^^^^^^^^^^^
+OCTO> SELECT badcolumn, notsogoodcolumn, maybeokcolumn from nonexistenttable;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: middlename
 LINE 4:1: ...ELECT firstname, lastname, middlename from names as extralongnam...
                                         ^^^^^^^^^^
+OCTO> SELECT firstname, lastname, middlename from names as extralongnamealias;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: multilinequery
 LINE 7:3: 	multilinequery,
 	          ^^^^^^^^^^^^^^
+OCTO> SELECT
+	firstname,
+	multilinequery,
+	lastname
+from names;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: nonexistenttable
 LINE 14:5: from nonexistenttable;
                 ^^^^^^^^^^^^^^^^
+OCTO> SELECT
+	multi,
+	line,
+	query
+from nonexistenttable;
+OCTO> 

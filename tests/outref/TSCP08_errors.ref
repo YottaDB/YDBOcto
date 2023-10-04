@@ -25,39 +25,53 @@ select n1.* from names n1 order by *,n1.id;
 [ERROR]: ERR_SELECT_STAR_NO_TABLES: SELECT * with no tables specified is not valid
 LINE 2:1: select *;
                  ^
+OCTO> select *;
 [ERROR]: ERR_SELECT_STAR_NO_TABLES: SELECT * with no tables specified is not valid
 LINE 3:1: select 1,*;
                    ^
+OCTO> select 1,*;
 [ERROR]: ERR_SELECT_STAR_NO_TABLES: SELECT * with no tables specified is not valid
 LINE 4:1: select true,'a',*;
                           ^
+OCTO> select true,'a',*;
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : n1
 LINE 6:1: select n1.*;
                  ^^^^
+OCTO> select n1.*;
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : n1
 LINE 7:1: select 1,n1.*;
                    ^^^^
+OCTO> select 1,n1.*;
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : n1
 LINE 8:1: select n1.* from names n2;
                  ^^^^
+OCTO> select n1.* from names n2;
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : n1
 LINE 9:1: select * from (select n1.* from names n2);
                                 ^^^^
+OCTO> select * from (select n1.* from names n2);
 LINE 11:1: select * as alias from names;
                     ^^
 syntax error, unexpected AS, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+OCTO> select * as alias from names;
 LINE 12:1: select * alias from names;
                     ^^^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+OCTO> select * alias from names;
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 14:1: select (select names.*) from names;
                   ^^^^^^^^^^^^^^^^
+OCTO> select (select names.*) from names;
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : n2
 LINE 16:1: ...(select firstname,lastname,id from names)n1 order by n2.*,n1.id;
                                                                    ^^^^
+OCTO> select * from (select firstname,lastname,id from names)n1 order by n2.*,n1.id;
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : n2
 LINE 17:1: select id from names n1 order by n2.*;
                                             ^^^^
+OCTO> select id from names n1 order by n2.*;
 LINE 18:1: select n1.* from names n1 order by *,n1.id;
                                               ^
 syntax error, unexpected ASTERISK
+OCTO> select n1.* from names n1 order by *,n1.id;
+OCTO> 

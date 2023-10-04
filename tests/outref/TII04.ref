@@ -75,12 +75,15 @@ INSERT INTO test4 VALUES (-9.501);
 SELECT * FROM test4;
 DROP TABLE test4;
 
+OCTO> SELECT '';
 ???
 
 (1 row)
+OCTO> SELECT ' -- NAMES table BEFORE INSERT INTO : Has 6 rows';
 ???
  -- NAMES table BEFORE INSERT INTO : Has 6 rows
 (1 row)
+OCTO> SELECT * FROM names;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -89,25 +92,35 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> SELECT '';
 ???
 
 (1 row)
+OCTO> SELECT ' -- INSERT INTO';
 ???
  -- INSERT INTO
 (1 row)
+OCTO> SELECT ' -- Add every existing row of NAMES table into same table resulting in 2x rows';
 ???
  -- Add every existing row of NAMES table into same table resulting in 2x rows
 (1 row)
+OCTO> INSERT INTO names SELECT id+6,firstname,lastname FROM names;
 INSERT 0 6
+OCTO> SELECT '';
 ???
 
 (1 row)
+OCTO> INSERT INTO names VALUES (12, 'First12', 'Last12'), (13, 'First13', 'Last13');
 INSERT 0 2
+OCTO> INSERT INTO names(id,firstname,lastname) VALUES (14, 'First14', 'Last14'), (15, 'First15', 'Last15') UNION SELECT id+16,'First' || (id+16), 'Last' || (id+16) FROM names LIMIT 1;
 INSERT 0 3
+OCTO> INSERT INTO names VALUES (17, 'First17', 'Last17'), (18, 'First18', 'Last18') UNION VALUES (19, 'First19', 'Last19'), (20, 'First20', 'Last20');
 INSERT 0 4
+OCTO> SELECT ' -- NAMES table AFTER various INSERT INTO operations; Has 21 rows, id=0 thru id=20';
 ???
  -- NAMES table AFTER various INSERT INTO operations; Has 21 rows, id=0 thru id=20
 (1 row)
+OCTO> SELECT * FROM names;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -131,12 +144,15 @@ id|firstname|lastname
 19|First19|Last19
 20|First20|Last20
 (21 rows)
+OCTO> SELECT '';
 ???
 
 (1 row)
+OCTO> SELECT ' -- CUSTOMERS table BEFORE INSERT INTO : Has 5 rows';
 ???
  -- CUSTOMERS table BEFORE INSERT INTO : Has 5 rows
 (1 row)
+OCTO> SELECT * FROM customers;
 customer_id|first_name|last_name|email|address|city|state|zipcode
 1|George|Washington|gwashington@usa.gov|3200 Mt Vernon Hwy|Mount Vernon|VA|22121
 2|John|Adams|jadams@usa.gov|1250 Hancock St|Quincy|MA|02169
@@ -144,22 +160,29 @@ customer_id|first_name|last_name|email|address|city|state|zipcode
 4|James|Madison|jmadison@usa.gov|11350 Constitution Hwy|Orange|VA|22960
 5|James|Monroe|jmonroe@usa.gov|2050 James Monroe Parkway|Charlottesville|VA|22902
 (5 rows)
+OCTO> SELECT '';
 ???
 
 (1 row)
+OCTO> SELECT ' -- INSERT INTO';
 ???
  -- INSERT INTO
 (1 row)
+OCTO> SELECT ' -- Add every existing row of CUSTOMERS table into same table resulting in 2x rows';
 ???
  -- Add every existing row of CUSTOMERS table into same table resulting in 2x rows
 (1 row)
+OCTO> INSERT INTO customers SELECT customer_id+5,first_name,last_name,email,address,city,state,zipcode FROM customers;
 INSERT 0 5
+OCTO> SELECT '';
 ???
 
 (1 row)
+OCTO> SELECT ' -- CUSTOMERS table AFTER INSERT INTO : Has 10 rows (twice original number)';
 ???
  -- CUSTOMERS table AFTER INSERT INTO : Has 10 rows (twice original number)
 (1 row)
+OCTO> SELECT * FROM customers;
 customer_id|first_name|last_name|email|address|city|state|zipcode
 1|George|Washington|gwashington@usa.gov|3200 Mt Vernon Hwy|Mount Vernon|VA|22121
 2|John|Adams|jadams@usa.gov|1250 Hancock St|Quincy|MA|02169
@@ -172,12 +195,15 @@ customer_id|first_name|last_name|email|address|city|state|zipcode
 9|James|Madison|jmadison@usa.gov|11350 Constitution Hwy|Orange|VA|22960
 10|James|Monroe|jmonroe@usa.gov|2050 James Monroe Parkway|Charlottesville|VA|22902
 (10 rows)
+OCTO> SELECT '';
 ???
 
 (1 row)
+OCTO> SELECT ' -- COMPOSITE table BEFORE INSERT INTO : Has 10 rows';
 ???
  -- COMPOSITE table BEFORE INSERT INTO : Has 10 rows
 (1 row)
+OCTO> SELECT * FROM composite;
 id0|id1|id2|id3|id4|id5|id6|id7|name
 0|1|2|3|4|5|6|7|Name1
 0|1|2|3|4|5|6|8|Name2
@@ -190,22 +216,29 @@ id0|id1|id2|id3|id4|id5|id6|id7|name
 0|2|3|4|5|6|8|7|Name9
 1|2|3|4|5|6|8|7|Name10
 (10 rows)
+OCTO> SELECT '';
 ???
 
 (1 row)
+OCTO> SELECT ' -- INSERT INTO';
 ???
  -- INSERT INTO
 (1 row)
+OCTO> SELECT ' -- Add every existing row of COMPOSITE table into same table resulting in 2x rows';
 ???
  -- Add every existing row of COMPOSITE table into same table resulting in 2x rows
 (1 row)
+OCTO> INSERT INTO composite SELECT id0,id1,id2,id3,id4,id5+2,id6,id7,name FROM composite;
 INSERT 0 10
+OCTO> SELECT '';
 ???
 
 (1 row)
+OCTO> SELECT ' -- COMPOSITE table AFTER INSERT INTO : Has 20 rows (twice original number)';
 ???
  -- COMPOSITE table AFTER INSERT INTO : Has 20 rows (twice original number)
 (1 row)
+OCTO> SELECT * FROM composite;
 id0|id1|id2|id3|id4|id5|id6|id7|name
 0|1|2|3|4|5|6|7|Name1
 0|1|2|3|4|5|6|8|Name2
@@ -228,62 +261,94 @@ id0|id1|id2|id3|id4|id5|id6|id7|name
 1|2|3|4|5|6|8|7|Name10
 1|2|3|4|5|8|8|7|Name10
 (20 rows)
+OCTO> SELECT '';
 ???
 
 (1 row)
+OCTO> SELECT '-- Test that VARCHAR(4) allows character strings shorter than 4 chars to be stored without space padding at end';
 ???
 -- Test that VARCHAR(4) allows character strings shorter than 4 chars to be stored without space padding at end
 (1 row)
+OCTO> CREATE TABLE test1 (column1 character(4));
 CREATE TABLE
+OCTO> INSERT INTO test1 VALUES ('abc');
 INSERT 0 1
+OCTO> INSERT INTO test1 VALUES ('ab');
 INSERT 0 1
+OCTO> INSERT INTO test1 VALUES ('a');
 INSERT 0 1
+OCTO> SELECT '|' || column1 || '|' FROM test1;
 ???
 |abc|
 |ab|
 |a|
 (3 rows)
+OCTO> DROP TABLE test1;
 DROP TABLE
+OCTO> SELECT '';
 ???
 
 (1 row)
+OCTO> SELECT '-- Test that VARCHAR(4) allows 7 character strings to be stored if last 3 characters are spaces';
 ???
 -- Test that VARCHAR(4) allows 7 character strings to be stored if last 3 characters are spaces
 (1 row)
+OCTO> CREATE TABLE test2 (column1 character(4));
 CREATE TABLE
+OCTO> INSERT INTO test2 VALUES ('abcd   ');
 INSERT 0 1
+OCTO> INSERT INTO test2 VALUES ('abc    ');
 INSERT 0 1
+OCTO> SELECT '|' || column1 || '|' FROM test2;
 ???
 |abcd|
 |abc |
 (2 rows)
+OCTO> DROP TABLE test2;
 DROP TABLE
+OCTO> SELECT '';
 ???
 
 (1 row)
+OCTO> SELECT '-- Test that an over length value when typecast to varchar(N) will be truncated to N characters without an error';
 ???
 -- Test that an over length value when typecast to varchar(N) will be truncated to N characters without an error
 (1 row)
+OCTO> CREATE TABLE test3 (column1 character(4));
 CREATE TABLE
+OCTO> INSERT INTO test3 SELECT '|' || 'abcd'::varchar(2) || '|';
 INSERT 0 1
+OCTO> SELECT * FROM test3;
 column1
 |ab|
 (1 row)
+OCTO> DROP TABLE test3;
 DROP TABLE
+OCTO> SELECT '';
 ???
 
 (1 row)
+OCTO> SELECT '-- Test that excess digits to right of decimal point in NUMERIC(PRECISION,SCALE) column are discarded without an error';
 ???
 -- Test that excess digits to right of decimal point in NUMERIC(PRECISION,SCALE) column are discarded without an error
 (1 row)
+OCTO> CREATE TABLE test4 (column1 NUMERIC(2,1));
 CREATE TABLE
+OCTO> INSERT INTO test4 VALUES (3);
 INSERT 0 1
+OCTO> INSERT INTO test4 VALUES (-4.1);
 INSERT 0 1
+OCTO> INSERT INTO test4 VALUES (5.23);
 INSERT 0 1
+OCTO> INSERT INTO test4 VALUES (-6.385);
 INSERT 0 1
+OCTO> INSERT INTO test4 VALUES (-7.4999);
 INSERT 0 1
+OCTO> INSERT INTO test4 VALUES (9.499);
 INSERT 0 1
+OCTO> INSERT INTO test4 VALUES (-9.501);
 INSERT 0 1
+OCTO> SELECT * FROM test4;
 column1
 3
 -4.1
@@ -293,4 +358,6 @@ column1
 9.5
 -9.5
 (7 rows)
+OCTO> DROP TABLE test4;
 DROP TABLE
+OCTO> 

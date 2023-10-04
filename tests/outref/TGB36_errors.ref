@@ -9,21 +9,29 @@ select 1 where max('test'||'testa')='test';
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 2:1: select 1 from names where count(1) = 1;
                                     ^^^^^
+OCTO> select 1 from names where count(1) = 1;
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 3:1: select 1 where count(1) = 1;
                          ^^^^^
+OCTO> select 1 where count(1) = 1;
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 4:1: select 1 where max(1) = 1;
                          ^^^
+OCTO> select 1 where max(1) = 1;
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 5:1: select 1 where max(1+1) = 2;
                          ^^^
+OCTO> select 1 where max(1+1) = 2;
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 6:1: select 1 where max(1 - 1 + 1 / 1 * (select 1)) = 1;
                          ^^^
+OCTO> select 1 where max(1 - 1 + 1 / 1 * (select 1)) = 1;
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 7:1: select 1 where max((select id from names limit 1))=1;
                          ^^^
+OCTO> select 1 where max((select id from names limit 1))=1;
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 8:1: select 1 where max('test'||'testa')='test';
                          ^^^
+OCTO> select 1 where max('test'||'testa')='test';
+OCTO> 

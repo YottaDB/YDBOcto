@@ -23,33 +23,52 @@ SELECT XECUTE_M_CODE('zwrite ^%ydboctoU2tuomEAySubezrd0DoxaEI');
 \d user1;
 DROP TABLE user1;
 
+OCTO> DROP TABLE IF EXISTS user1;
 DROP TABLE
+OCTO> CREATE TABLE user1 (
+	     id int,
+	     username varchar(20) UNIQUE NOT NULL,
+	     email varchar(100) UNIQUE NOT NULL,
+	     pass varchar(64) NOT NULL
+);
 CREATE TABLE
+OCTO> SELECT XECUTE_M_CODE('zwrite ^%ydboctoU2tuomEAySubezrd0DoxaEI');
 [ERROR]: ERR_YOTTADB: YottaDB error: 150372994,XecuteMCode+2^xecutemcode,%YDB-E-GVUNDEF, Global variable undefined: ^%ydboctoU2tuomEAySubezrd0DoxaEI
+OCTO> INSERT INTO user1 VALUES(1,'sam','sam@zzz.com','catdog.33');
 INSERT 0 1
+OCTO> INSERT INTO user1 VALUES(3,'bam','bam@zzz.com','catdog.33');
 INSERT 0 1
+OCTO> INSERT INTO user1 VALUES(2,'sam','sam@zzz.com','catdog.33');
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "user1_username_key" : Key (username)=(sam) already exists
+OCTO> INSERT INTO user1 VALUES(4,'sam','','');
 [ERROR]: ERR_NULL_COL_VALUE: NULL value in column email violates NOT NULL constraint
+OCTO> SELECT * FROM user1;
 id|username|email|pass
 1|sam|sam@zzz.com|catdog.33
 3|bam|bam@zzz.com|catdog.33
 (2 rows)
+OCTO> SELECT XECUTE_M_CODE('zwrite ^%ydboctoU2tuomEAySubezrd0DoxaEI');
 ^%ydboctoU2tuomEAySubezrd0DoxaEI("bam@zzz.com")=""
 ^%ydboctoU2tuomEAySubezrd0DoxaEI("sam@zzz.com")=""
 xecute_m_code
 0
 (1 row)
+OCTO> UPDATE user1 SET email = 'sam@zzz.com' where id = 3;
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "user1_email_key" : Key (email)=(sam@zzz.com) already exists
+OCTO> SELECT XECUTE_M_CODE('zwrite ^%ydboctoU2tuomEAySubezrd0DoxaEI');
 ^%ydboctoU2tuomEAySubezrd0DoxaEI("bam@zzz.com")=""
 ^%ydboctoU2tuomEAySubezrd0DoxaEI("sam@zzz.com")=""
 xecute_m_code
 0
 (1 row)
+OCTO> DELETE FROM user1 WHERE id = 3;
 DELETE 1
+OCTO> SELECT XECUTE_M_CODE('zwrite ^%ydboctoU2tuomEAySubezrd0DoxaEI');
 ^%ydboctoU2tuomEAySubezrd0DoxaEI("sam@zzz.com")=""
 xecute_m_code
 0
 (1 row)
+OCTO> \d user1;
 Table "user1" stored in Global: ^%ydboctoD6FVCe4lHdzc5udpf3IvwJI : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id|INTEGER|||
@@ -59,7 +78,9 @@ pass|VARCHAR(64)||NOT NULL|
 Indexes:
     "user1_username_key" UNIQUE CONSTRAINT, Column(s) (username), Global ^%ydboctoUoJMBP6gLVMGwUFSYYcKI1B
     "user1_email_key" UNIQUE CONSTRAINT, Column(s) (email), Global ^%ydboctoU2tuomEAySubezrd0DoxaEI
+OCTO> DROP TABLE user1;
 DROP TABLE
+OCTO> 
 -------------------------
 -- TCTC012 : OCTO582 : Various User Level UNIQUE Tests
 -- B: Table UNIQUE named constraint on multiple NOT NULL fields
@@ -85,30 +106,50 @@ SELECT * FROM subscriptions;
 SELECT XECUTE_M_CODE('zwrite ^%ydboctoUAmZMXJ5Co5UNpwPQfk5TL5');
 \d subscriptions;
 DROP TABLE IF EXISTS subscriptions;
+OCTO> DROP TABLE IF EXISTS subscriptions;
 DROP TABLE
+OCTO> CREATE TABLE subscriptions (
+	   uid              INT NOT NULL,
+	   user_id          INT NOT NULL,
+	   service_id       VARCHAR(64)  NOT NULL,
+	   url              VARCHAR(512) NOT NULL,
+	   --CONSTRAINT pk_subscriptions PRIMARY KEY (uid),
+	   CONSTRAINT unique_subscriptions UNIQUE (user_id, service_id, url)
+);
 CREATE TABLE
+OCTO> SELECT XECUTE_M_CODE('zwrite ^%ydboctoUAmZMXJ5Co5UNpwPQfk5TL5');
 [ERROR]: ERR_YOTTADB: YottaDB error: 150372994,XecuteMCode+2^xecutemcode,%YDB-E-GVUNDEF, Global variable undefined: ^%ydboctoUAmZMXJ5Co5UNpwPQfk5TL5
+OCTO> INSERT INTO subscriptions VALUES
+(1, 1, 'aa', 'http://foo.com'),
+(3, 1, 'cc', 'http://foo.com');
 INSERT 0 2
+OCTO> SELECT * FROM subscriptions;
 uid|user_id|service_id|url
 1|1|aa|http://foo.com
 3|1|cc|http://foo.com
 (2 rows)
+OCTO> SELECT XECUTE_M_CODE('zwrite ^%ydboctoUAmZMXJ5Co5UNpwPQfk5TL5');
 ^%ydboctoUAmZMXJ5Co5UNpwPQfk5TL5(1,"aa","http://foo.com")=""
 ^%ydboctoUAmZMXJ5Co5UNpwPQfk5TL5(1,"cc","http://foo.com")=""
 xecute_m_code
 0
 (1 row)
+OCTO> INSERT INTO subscriptions VALUES (2, 1, 'aa', 'http://foo.com');
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "unique_subscriptions" : Key (user_id, service_id, url)=(1, aa, http://foo.com) already exists
+OCTO> UPDATE subscriptions SET service_id = 'aa' WHERE uid = 3;
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "unique_subscriptions" : Key (user_id, service_id, url)=(1, aa, http://foo.com) already exists
+OCTO> SELECT * FROM subscriptions;
 uid|user_id|service_id|url
 1|1|aa|http://foo.com
 3|1|cc|http://foo.com
 (2 rows)
+OCTO> SELECT XECUTE_M_CODE('zwrite ^%ydboctoUAmZMXJ5Co5UNpwPQfk5TL5');
 ^%ydboctoUAmZMXJ5Co5UNpwPQfk5TL5(1,"aa","http://foo.com")=""
 ^%ydboctoUAmZMXJ5Co5UNpwPQfk5TL5(1,"cc","http://foo.com")=""
 xecute_m_code
 0
 (1 row)
+OCTO> \d subscriptions;
 Table "subscriptions" stored in Global: ^%ydboctoD9Okcb1Om0eO2SpzE51jcC6 : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 uid|INTEGER||NOT NULL|
@@ -117,7 +158,9 @@ service_id|VARCHAR(64)||NOT NULL|
 url|VARCHAR(512)||NOT NULL|
 Indexes:
     "unique_subscriptions" UNIQUE CONSTRAINT, Column(s) (user_id, service_id, url), Global ^%ydboctoUAmZMXJ5Co5UNpwPQfk5TL5
+OCTO> DROP TABLE IF EXISTS subscriptions;
 DROP TABLE
+OCTO> 
 -------------------------
 -- TCTC012 : OCTO582 : Various User Level UNIQUE Tests
 -- C: Table UNIQUE Named constraint on a single NULLABLE field
@@ -149,8 +192,15 @@ DELETE FROM objecttypes where id = 1;
 SELECT * FROM objecttypes;
 SELECT XECUTE_M_CODE('zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D');
 DROP TABLE IF EXISTS objecttypes;
+OCTO> DROP TABLE IF EXISTS objecttypes;
 DROP TABLE
+OCTO> CREATE TABLE objecttypes (
+	  id INT NOT NULL,
+	  objecttype VARCHAR(255),
+	  CONSTRAINT idx_objecttypes_objecttype UNIQUE (objecttype)
+);
 CREATE TABLE
+OCTO> \d objecttypes;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D
 LINE 8:1: SELECT XECUTE_M_CODE("zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D");
                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -160,46 +210,65 @@ id|INTEGER||NOT NULL|
 objecttype|VARCHAR(255)|||
 Indexes:
     "idx_objecttypes_objecttype" UNIQUE CONSTRAINT, Column(s) (objecttype), Global ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D
+OCTO> SELECT XECUTE_M_CODE("zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D");
+OCTO> INSERT INTO objecttypes values (1, 'aaa');
 INSERT 0 1
+OCTO> SELECT * FROM objecttypes;
 id|objecttype
 1|aaa
 (1 row)
+OCTO> SELECT XECUTE_M_CODE('zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D');
 ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D("aaa")=""
 xecute_m_code
 0
 (1 row)
+OCTO> INSERT INTO objecttypes values (2, 'bbb'), (3, 'aaa');
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "idx_objecttypes_objecttype" : Key (objecttype)=(aaa) already exists
+OCTO> SELECT * FROM objecttypes;
 id|objecttype
 1|aaa
 (1 row)
+OCTO> INSERT INTO objecttypes values (2, 'bbb');
 INSERT 0 1
+OCTO> SELECT * FROM objecttypes;
 id|objecttype
 1|aaa
 2|bbb
 (2 rows)
+OCTO> SELECT XECUTE_M_CODE('zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D');
 ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D("aaa")=""
 ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D("bbb")=""
 xecute_m_code
 0
 (1 row)
+OCTO> UPDATE objecttypes SET objecttype = 'aaa' WHERE id = 2;
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "idx_objecttypes_objecttype" : Key (objecttype)=(aaa) already exists
+OCTO> SELECT * FROM objecttypes;
 id|objecttype
 1|aaa
 2|bbb
 (2 rows)
+OCTO> DELETE FROM objecttypes where id = 2;
 DELETE 1
+OCTO> SELECT * FROM objecttypes;
 id|objecttype
 1|aaa
 (1 row)
+OCTO> SELECT XECUTE_M_CODE('zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D');
 ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D("aaa")=""
 xecute_m_code
 0
 (1 row)
+OCTO> DELETE FROM objecttypes where id = 1;
 DELETE 1
+OCTO> SELECT * FROM objecttypes;
 id|objecttype
 (0 rows)
+OCTO> SELECT XECUTE_M_CODE('zwrite ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D');
 [ERROR]: ERR_YOTTADB: YottaDB error: 150372994,XecuteMCode+2^xecutemcode,%YDB-E-GVUNDEF, Global variable undefined: ^%ydboctoUIJe0YA67EEcnjNUb2OoV1D
+OCTO> DROP TABLE IF EXISTS objecttypes;
 DROP TABLE
+OCTO> 
 -------------------------
 -- TCTC012 : OCTO582 : Various User Level UNIQUE Tests
 -- D: UNIQUE Named constraint on a NOT NULL field
@@ -220,20 +289,36 @@ UPDATE Customer SET EmailAddress = 'a@example.com' WHERE Id = 2;
 -- Verify data is still the same
 SELECT * FROM Customer;
 DROP TABLE Customer;
+OCTO> DROP TABLE IF EXISTS Customer;
 DROP TABLE
+OCTO> CREATE TABLE Customer(
+	Id INT PRIMARY KEY,
+	Name VARCHAR(100) NOT NULL,
+	EmailAddress VARCHAR(100) NOT NULL,
+	CONSTRAINT Unq_Customer_Email UNIQUE(EmailAddress)
+);
 CREATE TABLE
+OCTO> INSERT INTO Customer VALUES
+(1, 'aaa', 'a@example.com'),
+(2, 'bbb', 'b@example.com');
 INSERT 0 2
+OCTO> SELECT * FROM Customer;
 id|name|emailaddress
 1|aaa|a@example.com
 2|bbb|b@example.com
 (2 rows)
+OCTO> INSERT INTO Customer VALUES (3, 'ccc', 'a@example.com');
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "unq_customer_email" : Key (emailaddress)=(a@example.com) already exists
+OCTO> UPDATE Customer SET EmailAddress = 'a@example.com' WHERE Id = 2;
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "unq_customer_email" : Key (emailaddress)=(a@example.com) already exists
+OCTO> SELECT * FROM Customer;
 id|name|emailaddress
 1|aaa|a@example.com
 2|bbb|b@example.com
 (2 rows)
+OCTO> DROP TABLE Customer;
 DROP TABLE
+OCTO> 
 -------------------------
 -- TCTC012 : OCTO582 : Various User Level UNIQUE Tests
 -- E: Table UNIQUE unnamed constraint on a NOT NULL field
@@ -254,19 +339,34 @@ UPDATE User2 SET email = 'a@example.com' WHERE id = 2;
 SELECT * FROM User2;
 \d User2;
 DROP TABLE User2;
+OCTO> DROP TABLE IF EXISTS User2;
 DROP TABLE
+OCTO> CREATE TABLE User2
+(
+	    id               INT          NOT NULL PRIMARY KEY,
+	    firstnam         VARCHAR(255) NOT NULL,
+	    lastname         VARCHAR(255) NOT NULL,
+	    email            VARCHAR(255) NOT NULL,
+	    UNIQUE (email)
+);
 CREATE TABLE
+OCTO> INSERT INTO User2 VALUES (1,'a','b','a@example.com'), (2,'a','b','b@example.com');
 INSERT 0 2
+OCTO> SELECT * FROM User2;
 id|firstnam|lastname|email
 1|a|b|a@example.com
 2|a|b|b@example.com
 (2 rows)
+OCTO> INSERT INTO User2 VALUES (3,'a','b','a@example.com');
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "user2_email_key" : Key (email)=(a@example.com) already exists
+OCTO> UPDATE User2 SET email = 'a@example.com' WHERE id = 2;
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "user2_email_key" : Key (email)=(a@example.com) already exists
+OCTO> SELECT * FROM User2;
 id|firstnam|lastname|email
 1|a|b|a@example.com
 2|a|b|b@example.com
 (2 rows)
+OCTO> \d User2;
 Table "user2" stored in Global: ^%ydboctoDqjLykrTQDdq11IkWYH6WGC(id) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id|INTEGER||NOT NULL|
@@ -276,7 +376,9 @@ email|VARCHAR(255)||NOT NULL|
 Indexes:
     "user2_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^%ydboctoDqjLykrTQDdq11IkWYH6WGC(id)
     "user2_email_key" UNIQUE CONSTRAINT, Column(s) (email), Global ^%ydboctoU18NCO2s7YjbSa2sU8Lqq5B
+OCTO> DROP TABLE User2;
 DROP TABLE
+OCTO> 
 -------------------------
 -- TCTC012 : OCTO582 : Various User Level UNIQUE Tests
 -- F: Table UNIQUE unnamed constraint on multiple NOT NULL fields (like B, except unnamed)
@@ -298,18 +400,35 @@ INSERT INTO balances VALUES (1,'aaa',22.3365,'boo');
 UPDATE balances SET distribution_id = 1 where distribution_id = 2;
 SELECT * from balances;
 DROP TABLE balances;
+OCTO> DROP TABLE IF EXISTS balances;
 DROP TABLE
+OCTO> CREATE TABLE balances(
+	distribution_id INT NOT NULL,
+	address CHAR(32) NOT NULL,
+	usd_balance DECIMAL(15, 4) NOT NULL,
+	details TEXT,
+	UNIQUE (distribution_id, address)
+);
 CREATE TABLE
+OCTO> INSERT INTO balances VALUES
+(1,'aaa',22.3355,'foo'),
+(2,'aaa',22.5566,NULL);
 INSERT 0 2
+OCTO> SELECT * from balances;
 distribution_id|address|usd_balance|details
 1|aaa|22.3355|foo
 2|aaa|22.5566|
 (2 rows)
+OCTO> INSERT INTO balances VALUES (1,'aaa',22.3365,'boo');
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "balances_distribution_id_address_key" : Key (distribution_id, address)=(1, aaa) already exists
+OCTO> UPDATE balances SET distribution_id = 1 where distribution_id = 2;
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "balances_distribution_id_address_key" : Key (distribution_id, address)=(1, aaa) already exists
+OCTO> SELECT * from balances;
 distribution_id|address|usd_balance|details
 1|aaa|22.3355|foo
 2|aaa|22.5566|
 (2 rows)
+OCTO> DROP TABLE balances;
 DROP TABLE
+OCTO> 
 -------------------------

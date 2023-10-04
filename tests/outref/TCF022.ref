@@ -3,6 +3,7 @@
 
 SELECT proname,pronargs,prorettype,proargtypes FROM pg_catalog.pg_proc;
 SELECT proname,pronargs,prorettype,proargtypes FROM pg_proc;
+OCTO> SELECT proname,pronargs,prorettype,proargtypes FROM pg_catalog.pg_proc;
 proname|pronargs|prorettype|proargtypes
 abs|1|1700|1700
 abs|1|23|23
@@ -92,6 +93,7 @@ pg_get_partkeydef|1|1043|23
 pg_stat_get_numscans|1|1043|23
 pg_tablespace_location|1|1043|23
 (87 rows)
+OCTO> SELECT proname,pronargs,prorettype,proargtypes FROM pg_proc;
 proname|pronargs|prorettype|proargtypes
 abs|1|1700|1700
 abs|1|23|23
@@ -181,3 +183,4 @@ pg_get_partkeydef|1|1043|23
 pg_stat_get_numscans|1|1043|23
 pg_tablespace_location|1|1043|23
 (87 rows)
+OCTO> 

@@ -7,12 +7,22 @@ select id from names where '\' not like '\';
 select id from names where '\' ~~ '\';
 select id from names where '\' !~~ '\';
 select firstname from (select 8 as id,'ey' as firstname, '\' as lastname)n1 where firstname LIKE lastname;
+OCTO> select id from names where '\\' like '\';
 [ERROR]: ERR_INVALID_ESCAPE_PATTERN: Cannot end pattern with escape character: \
+OCTO> select id from names where '\\' not like '\';
 [ERROR]: ERR_INVALID_ESCAPE_PATTERN: Cannot end pattern with escape character: \
+OCTO> select id from names where '\\' ~~ '\';
 [ERROR]: ERR_INVALID_ESCAPE_PATTERN: Cannot end pattern with escape character: \
+OCTO> select id from names where '\\' !~~ '\';
 [ERROR]: ERR_INVALID_ESCAPE_PATTERN: Cannot end pattern with escape character: \
+OCTO> select id from names where '\' like '\';
 [ERROR]: ERR_INVALID_ESCAPE_PATTERN: Cannot end pattern with escape character: \
+OCTO> select id from names where '\' not like '\';
 [ERROR]: ERR_INVALID_ESCAPE_PATTERN: Cannot end pattern with escape character: \
+OCTO> select id from names where '\' ~~ '\';
 [ERROR]: ERR_INVALID_ESCAPE_PATTERN: Cannot end pattern with escape character: \
+OCTO> select id from names where '\' !~~ '\';
 [ERROR]: ERR_INVALID_ESCAPE_PATTERN: Cannot end pattern with escape character: \
+OCTO> select firstname from (select 8 as id,'ey' as firstname, '\' as lastname)n1 where firstname LIKE lastname;
 [ERROR]: ERR_INVALID_ESCAPE_PATTERN: Cannot end pattern with escape character: \
+OCTO> 

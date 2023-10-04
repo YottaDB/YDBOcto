@@ -31,27 +31,62 @@ DROP VIEW IF EXISTS v97e;
 DROP VIEW IF EXISTS v97d; -- This should not fail
 DROP VIEW IF EXISTS v97; -- This should not fail
 
+OCTO> create view v1 as select abs(1);
 CREATE VIEW
+OCTO> create view v2 as select * from v1;
 CREATE VIEW
+OCTO> drop view v2;
 DROP VIEW
+OCTO> drop view v1;
 DROP VIEW
+OCTO> drop table octoonerowtable;
 DROP TABLE
+OCTO> -- This should not fail
+
+CREATE VIEW v292 as SELECT * from names where id = ABS(ABS(-1)+2);
 CREATE VIEW
+OCTO> CREATE VIEW v292d as SELECT * from v292 where id = ABS(ABS(-1)+2);
 CREATE VIEW
+OCTO> CREATE VIEW v292e as SELECT * from v292d where id = ABS(ABS(-1)+2);
 CREATE VIEW
+OCTO> DROP VIEW IF EXISTS v292e;
 DROP VIEW
+OCTO> DROP VIEW IF EXISTS v292d;
 DROP VIEW
+OCTO> -- This should not fail
+DROP VIEW IF EXISTS v292;
 DROP VIEW
+OCTO> -- This should not fail
+
+CREATE VIEW v293 as SELECT * from names where id = ABS(ABS(ABS(-1)+2)-1);
 CREATE VIEW
+OCTO> CREATE VIEW v293d as SELECT * from v293 where id = ABS(ABS(ABS(-1)+2)-1);
 CREATE VIEW
+OCTO> CREATE VIEW v293e as SELECT * from v293d where id = ABS(ABS(ABS(-1)+2)-1);
 CREATE VIEW
+OCTO> DROP VIEW IF EXISTS v293e;
 DROP VIEW
+OCTO> DROP VIEW IF EXISTS v293d;
 DROP VIEW
+OCTO> -- This should not fail
+DROP VIEW IF EXISTS v293;
 DROP VIEW
+OCTO> -- This should not fail
+
+CREATE FUNCTION SAMEVALUE(VARCHAR) RETURNS VARCHAR AS $$samevalue^functions;
 CREATE FUNCTION
+OCTO> CREATE VIEW v97 as SELECT * FROM names WHERE SAMEVALUE(firstname) > SAMEVALUE(lastname);
 CREATE VIEW
+OCTO> CREATE VIEW v97d as SELECT * FROM v97 WHERE SAMEVALUE(firstname) > SAMEVALUE(lastname);
 CREATE VIEW
+OCTO> CREATE VIEW v97e as SELECT * FROM v97d WHERE SAMEVALUE(firstname) > SAMEVALUE(lastname);
 CREATE VIEW
+OCTO> DROP VIEW IF EXISTS v97e;
 DROP VIEW
+OCTO> DROP VIEW IF EXISTS v97d;
 DROP VIEW
+OCTO> -- This should not fail
+DROP VIEW IF EXISTS v97;
 DROP VIEW
+OCTO> -- This should not fail
+

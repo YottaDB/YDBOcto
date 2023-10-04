@@ -5,8 +5,11 @@ drop table if exists products;
 CREATE TABLE products (product_no integer CONSTRAINT "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz12345678901" PRIMARY KEY, name text CONSTRAINT c2 UNIQUE CONSTRAINT c3 NOT NULL);
 \d products;
 select * from products;
+OCTO> drop table if exists products;
 DROP TABLE
+OCTO> CREATE TABLE products (product_no integer CONSTRAINT "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz12345678901" PRIMARY KEY, name text CONSTRAINT c2 UNIQUE CONSTRAINT c3 NOT NULL);
 CREATE TABLE
+OCTO> \d products;
 Table "products" stored in Global: ^%ydboctoDwjMZ1xzpdeepqN3cJQvvI6(product_no) : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 product_no|INTEGER||NOT NULL|
@@ -14,5 +17,7 @@ name|VARCHAR||NOT NULL|
 Indexes:
     "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz12345678901" PRIMARY KEY CONSTRAINT, Column(s) (product_no), Global: ^%ydboctoDwjMZ1xzpdeepqN3cJQvvI6(product_no)
     "c2" UNIQUE CONSTRAINT, Column(s) (name), Global ^%ydboctoU7yjxbUdAkzrKOMsTYl5R6J
+OCTO> select * from products;
 product_no|name
 (0 rows)
+OCTO> 

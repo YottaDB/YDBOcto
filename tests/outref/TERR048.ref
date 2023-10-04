@@ -3,3 +3,5 @@
 
  select * from names n1 inner join names n2 using (id);
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: USING clause
+OCTO> select * from names n1 inner join names n2 using (id);
+OCTO> 

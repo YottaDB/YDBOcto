@@ -16,20 +16,27 @@ select * from names n1 where id in (values (n1.lastname), (n1.firstname));
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: id
 LINE 3:1: select * from (values (id));
                                  ^^
+OCTO> select * from (values (id));
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: n1.invalid
 LINE 4:1: select * from names n1 where id in (values (1), (n1.invalid));
                                                            ^^^^^^^^^^
+OCTO> select * from names n1 where id in (values (1), (n1.invalid));
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : tbl
 LINE 6:1: select * from (values (tbl.id)) as abcd;
                                  ^^^^^^
+OCTO> select * from (values (tbl.id)) as abcd;
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : n2
 LINE 7:1: select * from names n1 where id in (values (1), (n2.id));
                                                            ^^^^^
+OCTO> select * from names n1 where id in (values (1), (n2.id));
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 9:1: select * from names n1 where id in (values (1), (n1.firstname));
                                                       ^
 LINE 9:1: select * from names n1 where id in (values (1), (n1.firstname));
                                                            ^^^^^^^^^^^^
+OCTO> select * from names n1 where id in (values (1), (n1.firstname));
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 10:1: select * from names n1 where id in (values (n1.lastname), (n1.fi...
                                         ^^
+OCTO> select * from names n1 where id in (values (n1.lastname), (n1.firstname));
+OCTO> 

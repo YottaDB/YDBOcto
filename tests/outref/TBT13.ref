@@ -186,149 +186,189 @@ LINE 3:1: select * from names where 'f' = 1;
                                     ^^^
 LINE 3:1: select * from names where 'f' = 1;
                                           ^
+OCTO> select * from names where 'f' = 1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left BOOLEAN, right VARCHAR
 LINE 4:1: select * from names where true = (select 't');
                                     ^^^^
 LINE 4:1: select * from names where true = (select 't');
                                             ^^^^^^
+OCTO> select * from names where true = (select 't');
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left BOOLEAN, right VARCHAR
 LINE 5:1: select * from names where true = (select 't' union select 'f');
                                     ^^^^
+OCTO> select * from names where true = (select 't' union select 'f');
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 6:1: select 't' in (1);
                  ^^^
 LINE 6:1: select 't' in (1);
                          ^
+OCTO> select 't' in (1);
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left BOOLEAN, right VARCHAR
 LINE 7:1: select true in ('t', 'fa');
                  ^^^^
 LINE 7:1: select true in ('t', 'fa');
                           ^^^^^^^^^
+OCTO> select true in ('t', 'fa');
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 8:1: select * from names where 'f' = 1;
                                     ^^^
 LINE 8:1: select * from names where 'f' = 1;
                                           ^
+OCTO> select * from names where 'f' = 1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 9:1: select * from names where 1 = 'f';
                                     ^
 LINE 9:1: select * from names where 1 = 'f';
                                         ^^^
+OCTO> select * from names where 1 = 'f';
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 10:1: select 1 = case true when false then 't' when true then 'f' end;
                   ^
+OCTO> select 1 = case true when false then 't' when true then 'f' end;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 11:1: ...able TBT13 (id integer, CHECK (1 = case true when false then 't...
                                              ^
+OCTO> create table TBT13 (id integer, CHECK (1 = case true when false then 't' when true then 'f' end));
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left BOOLEAN, right VARCHAR
 LINE 12:1: select false in (values ('f'),('f'));
                   ^^^^^
+OCTO> select false in (values ('f'),('f'));
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left BOOLEAN, right VARCHAR
 LINE 13:1: select NULLIF(false, 'abcd');
                          ^^^^^
 LINE 13:1: select NULLIF(false, 'abcd');
                                 ^^^^^^
+OCTO> select NULLIF(false, 'abcd');
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right BOOLEAN
 LINE 14:1: select NULLIF('abcd', false);
                          ^^^^^^
 LINE 14:1: select NULLIF('abcd', false);
                                  ^^^^^
+OCTO> select NULLIF('abcd', false);
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left BOOLEAN, right VARCHAR
 LINE 15:1: ...elect * from names where (firstname = 'Zero') in (values ('f'));
                                         ^^^^^^^^^^^^^^^^^^
+OCTO> select * from names where (firstname = 'Zero') in (values ('f'));
+OCTO> create table TBT13 (txt varchar);
 CREATE TABLE
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 18:1: insert into TBT13 values ('t'), (1);
                                      ^^^
 LINE 18:1: insert into TBT13 values ('t'), (1);
                                             ^
+OCTO> insert into TBT13 values ('t'), (1);
+OCTO> drop table TBT13;
 DROP TABLE
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 21:1: create table TBT13 (id integer, check ('t' in (1)));
                                                   ^^^
 LINE 21:1: create table TBT13 (id integer, check ('t' in (1)));
                                                           ^
+OCTO> create table TBT13 (id integer, check ('t' in (1)));
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left BOOLEAN, right VARCHAR
 LINE 23:1: create table TBT13 (id integer, check (true in ('t', 'fa')));
                                                   ^^^^
 LINE 23:1: create table TBT13 (id integer, check (true in ('t', 'fa')));
                                                            ^^^^^^^^^
+OCTO> create table TBT13 (id integer, check (true in ('t', 'fa')));
 [ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type VARCHAR
 LINE 25:1: select sum('t') from names;
                   ^^^
+OCTO> select sum('t') from names;
 [ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type VARCHAR
 LINE 26:1: select sum('f') from names;
                   ^^^
+OCTO> select sum('f') from names;
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types BOOLEAN and VARCHAR cannot be matched
 LINE 28:1: select 't' union select false union select 'g';
                   ^^^
 LINE 28:1: select 't' union select false union select 'g';
                                                       ^^^
+OCTO> select 't' union select false union select 'g';
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types BOOLEAN and VARCHAR cannot be matched
 LINE 29:1: select id=2 from names union values ('f');
                   ^^^^
+OCTO> select id=2 from names union values ('f');
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types INTEGER and BOOLEAN cannot be matched
 LINE 30:1: select id from names union select 'f' from names;
                   ^^
 LINE 30:1: select id from names union select 'f' from names;
                                              ^^^
+OCTO> select id from names union select 'f' from names;
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types VARCHAR and BOOLEAN cannot be matched
 LINE 31:1: select 'a','t' union select false,'f';
                   ^^^
 LINE 31:1: select 'a','t' union select false,'f';
                                        ^^^^^
+OCTO> select 'a','t' union select false,'f';
 [ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left VARCHAR, right INTEGER
 LINE 33:1: select case when id=1 then 't' else 1 end from names;
                                       ^^^
 LINE 33:1: select case when id=1 then 't' else 1 end from names;
                                                ^
+OCTO> select case when id=1 then 't' else 1 end from names;
 [ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left INTEGER, right VARCHAR
 LINE 34:1: select 1 = case true when false then 2 when true then 'f' end;
                                                 ^
 LINE 34:1: select 1 = case true when false then 2 when true then 'f' end;
                                                                  ^^^
+OCTO> select 1 = case true when false then 2 when true then 'f' end;
 [ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left INTEGER, right VARCHAR
 LINE 35:1: ... 1 = case true when false then 2 when true then 3 else 'f' end;
                                              ^
 LINE 35:1: ... 1 = case true when false then 2 when true then 3 else 'f' end;
                                                                      ^^^
+OCTO> select 1 = case true when false then 2 when true then 3 else 'f' end;
 [ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left VARCHAR, right INTEGER
 LINE 36:1: ...TBT13 (id integer, CHECK (case when id=1 then 't' else 1 end));
                                                             ^^^
 LINE 36:1: ...TBT13 (id integer, CHECK (case when id=1 then 't' else 1 end));
                                                                      ^
+OCTO> create table TBT13 (id integer, CHECK (case when id=1 then 't' else 1 end));
 [ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left INTEGER, right VARCHAR
 LINE 37:1: ...HECK (1 = case true when false then 2 when true then 'f' end));
                                                   ^
 LINE 37:1: ...HECK (1 = case true when false then 2 when true then 'f' end));
                                                                    ^^^
+OCTO> create table TBT13 (id integer, CHECK (1 = case true when false then 2 when true then 'f' end));
 [ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left INTEGER, right VARCHAR
 LINE 38:1: ...(1 = case true when false then 2 when true then 3 else 'f' end)...
                                              ^
 LINE 38:1: ... = case true when false then 2 when true then 3 else 'f' end));
                                                                    ^^^
+OCTO> create table TBT13 (id integer, CHECK (1 = case true when false then 2 when true then 3 else 'f' end));
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type VARCHAR but is used in a context that expects a INTEGER type
 LINE 40:1: select case 1 when 't' then 'MyZero' end;
                               ^^^
+OCTO> select case 1 when 't' then 'MyZero' end;
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type INTEGER but is used in a context that expects a VARCHAR type
 LINE 41:1: select case 't' when 1 then 'MyZero' end;
                                 ^
+OCTO> select case 't' when 1 then 'MyZero' end;
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type BOOLEAN but is used in a context that expects a VARCHAR type
 LINE 42:1: select case 't' when true then 'abcd' end;
                                 ^^^^
+OCTO> select case 't' when true then 'abcd' end;
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type VARCHAR but is used in a context that expects a INTEGER type
 LINE 43:1: ... TBT13 (id integer, CHECK (case 1 when 't' then 'MyZero' end));
                                                      ^^^
+OCTO> create table TBT13 (id integer, CHECK (case 1 when 't' then 'MyZero' end));
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type INTEGER but is used in a context that expects a VARCHAR type
 LINE 44:1: ... TBT13 (id integer, CHECK (case 't' when 1 then 'MyZero' end));
                                                        ^
+OCTO> create table TBT13 (id integer, CHECK (case 't' when 1 then 'MyZero' end));
 [ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type BOOLEAN but is used in a context that expects a VARCHAR type
 LINE 45:1: ... TBT13 (id integer, CHECK (case 't' when true then 'abcd' end));
                                                        ^^^^
+OCTO> create table TBT13 (id integer, CHECK (case 't' when true then 'abcd' end));
+OCTO> create table TBT13 (txt boolean);
 CREATE TABLE
 [ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "txt" is of type BOOLEAN but expression is of type VARCHAR
+OCTO> insert into TBT13 values ('t'), ('f');
+OCTO> select * from TBT13;
 txt
 (0 rows)
+OCTO> drop table TBT13;
 DROP TABLE
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
 LINE 52:1: select * from names where 't' AND 'g';
@@ -336,122 +376,193 @@ LINE 52:1: select * from names where 't' AND 'g';
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
 LINE 52:1: select * from names where 't' AND 'g';
                                              ^^^
+OCTO> select * from names where 't' AND 'g';
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
 LINE 53:1: select * from names where ('f' or 'fat');
                                       ^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
 LINE 53:1: select * from names where ('f' or 'fat');
                                              ^^^^^
+OCTO> select * from names where ('f' or 'fat');
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
 LINE 55:1: ...BT13 (id integer, CHECK (case when id=1 then 't' else 'f' end));
                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> create table TBT13 (id integer, CHECK (case when id=1 then 't' else 'f' end));
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tbt13
 LINE 56:1: insert into TBT13 values (1);
                        ^^^^^
+OCTO> insert into TBT13 values (1);
+OCTO> drop table TBT13;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tbt13" as it does not exist
+OCTO> create table TBT13 (id integer, check ('f'));
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (1)
+OCTO> \d TBT13;
 Table "tbt13" stored in Global: ^%ydboctoDs1WfLXUI15XKQwwTJhPLEG : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id|INTEGER|||
 Check constraints:
     "tbt13_check" CHECK (FALSE)
+OCTO> insert into TBT13 values (1);
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (1)
+OCTO> select * from TBT13;
 id
 (0 rows)
+OCTO> drop table TBT13;
 DROP TABLE
+OCTO> create table TBT13 (id varchar, check ('af' = concat(id, 'f')));
 CREATE TABLE
+OCTO> insert into TBT13 values ('a');
 INSERT 0 1
+OCTO> insert into TBT13 values ('b');
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_id_check : Failing row contains (b)
+OCTO> drop table TBT13;
 DROP TABLE
+OCTO> create table TBT13 (id integer, check (true in ('f')));
 CREATE TABLE
+OCTO> insert into TBT13 values (4);
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (4)
+OCTO> drop table TBT13;
 DROP TABLE
+OCTO> create table TBT13 (id integer, check (true in ('f', 'f')));
 CREATE TABLE
+OCTO> insert into TBT13 values (5);
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (5)
+OCTO> drop table TBT13;
 DROP TABLE
+OCTO> create table TBT13 (id integer, check ('t' in (false, 'f')));
 CREATE TABLE
-[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (11)
+OCTO> \d TBT13;
 Table "tbt13" stored in Global: ^%ydboctoDs1WfLXUI15XKQwwTJhPLEG : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id|INTEGER|||
 Check constraints:
     "tbt13_check" CHECK ((TRUE IN (FALSE, FALSE)))
+OCTO> insert into TBT13 values (11);
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (11)
+OCTO> drop table TBT13;
 DROP TABLE
+OCTO> create table TBT13 (id integer, check (not 't'));
 CREATE TABLE
+OCTO> insert into TBT13 values (12);
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (12)
+OCTO> drop table TBT13;
 DROP TABLE
+OCTO> create table TBT13 (id integer, check (NULLIF('t', 'f') is NULL));
 CREATE TABLE
+OCTO> insert into TBT13 values (4);
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (4)
+OCTO> drop table TBT13;
 DROP TABLE
+OCTO> create table TBT13 (id integer, CHECK ('a' = case true when false then 't' when true then 'f' end));
 CREATE TABLE
+OCTO> insert into TBT13 values (1);
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (1)
+OCTO> drop table TBT13;
 DROP TABLE
+OCTO> create table TBT13 (id integer, CHECK ('a' = case true when false then 't' when true then 'f' end));
 CREATE TABLE
+OCTO> insert into TBT13 values (1);
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (1)
+OCTO> drop table TBT13;
 DROP TABLE
+OCTO> create table TBT13 (id integer, CHECK ('a' = case true when false then 't' when true then 'f' end));
 CREATE TABLE
+OCTO> insert into TBT13 values (1);
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (1)
+OCTO> drop table TBT13;
 DROP TABLE
+OCTO> create table TBT13 (id integer, CHECK ('a' = case true when false then 't' when true then 'f' else 'f' end));
 CREATE TABLE
+OCTO> insert into TBT13 values (1);
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (1)
+OCTO> drop table TBT13;
 DROP TABLE
+OCTO> create table TBT13 (id integer, CHECK ('a' = case true when false then '' when null then null when true then 'f' else 't' end));
 CREATE TABLE
+OCTO> insert into TBT13 values (1);
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (1)
+OCTO> drop table TBT13;
 DROP TABLE
+OCTO> create table TBT13 (id integer, CHECK ('a' = case true when false then '' when null then null when true then 'f' else null end));
 CREATE TABLE
+OCTO> insert into TBT13 values (1);
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (1)
+OCTO> drop table TBT13;
 DROP TABLE
+OCTO> create table TBT13 (id integer, CHECK ('a' = case when true then 't' when 't' then 't' when null then 'f' end));
 CREATE TABLE
+OCTO> insert into TBT13 values (1);
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tbt13 violates CHECK constraint tbt13_check : Failing row contains (1)
+OCTO> drop table TBT13;
 DROP TABLE
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function fn defined with given parameter types (VARCHAR, VARCHAR)
 LINE 119:1: create table TBT13 (id varchar, check (fn(id, 'f')));
                                                    ^^
+OCTO> create table TBT13 (id varchar, check (fn(id, 'f')));
 [ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'VARCHAR' is not a valid boolean value
 LINE 121:1: select not 'falsed' from names;
                        ^^^^^^^^
+OCTO> select not 'falsed' from names;
+OCTO> select * from names order by 'ff'::boolean;
 [ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'ff' is not a valid boolean value
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
 LINE 124:1: select -'t';
                     ^^^
+OCTO> select -'t';
+OCTO> create table TBT13 (id integer, check ('t' in (true, 'f')));
 CREATE TABLE
+OCTO> \d TBT13;
 Table "tbt13" stored in Global: ^%ydboctoDs1WfLXUI15XKQwwTJhPLEG : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id|INTEGER|||
 Check constraints:
     "tbt13_check" CHECK ((TRUE IN (TRUE, FALSE)))
+OCTO> insert into TBT13 values (3);
 INSERT 0 1
+OCTO> select * from TBT13;
 id
 3
 (1 row)
+OCTO> drop table TBT13;
 DROP TABLE
+OCTO> select 't' union select 'f' union select true;
 ???
 1
 0
 (2 rows)
+OCTO> select null in (false, 'f', '');
 ???
 
 (1 row)
+OCTO> select null in (true, 't', null, '');
 ???
 
 (1 row)
+OCTO> select 't' in (true, null, 't', '');
 ???
 1
 (1 row)
+OCTO> select true = case true when false then '' end;
 ???
 
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left BOOLEAN, right VARCHAR
 LINE 138:1: select true = case true when false then '' else 't' end;
                    ^^^^
+OCTO> select true = case true when false then '' else 't' end;
+OCTO> select true = case true when false then '' when null then null end;
 ???
 
 (1 row)
+OCTO> select true = case true when false then '' when null then null when true then true else 't' end;
 ???
 1
 (1 row)
+OCTO> create table TBT13 (txt boolean);
 CREATE TABLE
+OCTO> insert into TBT13 values ('t'), (true), ('f'), (false), (null), ('');
 INSERT 0 6
+OCTO> select * from TBT13;
 txt
 1
 1
@@ -460,25 +571,40 @@ txt
 
 
 (6 rows)
+OCTO> drop table TBT13;
 DROP TABLE
+OCTO> select NULLIF('', 'f');
 NULLIF
 
 (1 row)
+OCTO> create table TBT13 (id integer, check (null in (false, 'f', '')));
 CREATE TABLE
+OCTO> insert into TBT13 values (8);
 INSERT 0 1
+OCTO> select * from TBT13;
 id
 8
 (1 row)
+OCTO> drop table TBT13;
 DROP TABLE
+OCTO> create table TBT13 (id integer, check (null in (true, 't', null, '')));
 CREATE TABLE
+OCTO> insert into TBT13 values (9);
 INSERT 0 1
+OCTO> select * from TBT13;
 id
 9
 (1 row)
+OCTO> drop table TBT13;
 DROP TABLE
+OCTO> create table TBT13 (id integer, check ('t' in (true, null, 't', '')));
 CREATE TABLE
+OCTO> insert into TBT13 values (10);
 INSERT 0 1
+OCTO> select * from TBT13;
 id
 10
 (1 row)
+OCTO> drop table TBT13;
 DROP TABLE
+OCTO> 

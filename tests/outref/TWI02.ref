@@ -3,6 +3,7 @@
 
 SELECT * FROM names n1 WHERE n1.firstName IN (SELECT n2.firstName FROM names n2 WHERE n1.id = n2.id);
 
+OCTO> SELECT * FROM names n1 WHERE n1.firstName IN (SELECT n2.firstName FROM names n2 WHERE n1.id = n2.id);
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -11,6 +12,7 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> 
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  SELECT * FROM names n1 WHERE n1.firstName IN (SELECT n2.firstName FROM names n2 WHERE n1.id = n2.id);

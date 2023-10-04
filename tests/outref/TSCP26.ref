@@ -1,5 +1,6 @@
 
 select `alias(names)`.* from names as `alias(names)`;
+OCTO> select `alias(names)`.* from names as `alias(names)`;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -8,3 +9,4 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> 

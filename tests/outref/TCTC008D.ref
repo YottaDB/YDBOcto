@@ -4,10 +4,15 @@ DROP TABLE IF EXISTS tmp;
 CREATE TABLE tmp (id INTEGER CONSTRAINT notnull1 NOT NULL NOT NULL CONSTRAINT notnull3 not null);
 \d tmp;
 select * from tmp;
+OCTO> DROP TABLE IF EXISTS tmp;
 DROP TABLE
+OCTO> CREATE TABLE tmp (id INTEGER CONSTRAINT notnull1 NOT NULL NOT NULL CONSTRAINT notnull3 not null);
 CREATE TABLE
+OCTO> \d tmp;
 Table "tmp" stored in Global: ^%ydboctoDq4kC6afkVUEkYUwQW3JDKF : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id|INTEGER||NOT NULL|
+OCTO> select * from tmp;
 id
 (0 rows)
+OCTO> 

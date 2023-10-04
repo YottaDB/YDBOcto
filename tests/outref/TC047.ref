@@ -22,10 +22,13 @@ SELECT '-- Test for READWRITE with no user specified primary key columns';
 CREATE TABLE tmp5 (firstandlastname VARCHAR) GLOBAL "^names" READWRITE;
 SELECT * from tmp5;
 
+OCTO> SELECT '-- Simple test case first';
 ???
 -- Simple test case first
 (1 row)
+OCTO> CREATE TABLE tmp1 (id INTEGER PRIMARY KEY, firstName VARCHAR, lastName TEXT) GLOBAL "^names";
 CREATE TABLE
+OCTO> SELECT * from tmp1;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -34,10 +37,13 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> SELECT '-- Test for READONLY with user specified primary key columns';
 ???
 -- Test for READONLY with user specified primary key columns
 (1 row)
+OCTO> CREATE TABLE tmp2 (id INTEGER PRIMARY KEY, firstName VARCHAR, lastName TEXT) GLOBAL "^names" READONLY;
 CREATE TABLE
+OCTO> SELECT * from tmp2;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -46,10 +52,13 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> SELECT '-- Test for READONLY with no user specified primary key columns';
 ???
 -- Test for READONLY with no user specified primary key columns
 (1 row)
+OCTO> CREATE TABLE tmp3 (id INTEGER) GLOBAL "^names" READONLY;
 CREATE TABLE
+OCTO> SELECT * from tmp3;
 id
 0
 1
@@ -58,10 +67,13 @@ id
 4
 5
 (6 rows)
+OCTO> SELECT '-- Test for READWRITE with user specified primary key columns';
 ???
 -- Test for READWRITE with user specified primary key columns
 (1 row)
+OCTO> CREATE TABLE tmp4 (id INTEGER PRIMARY KEY, firstName VARCHAR, lastName TEXT) GLOBAL "^names" READWRITE;
 CREATE TABLE
+OCTO> SELECT * from tmp4;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -70,10 +82,13 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> SELECT '-- Test for READWRITE with no user specified primary key columns';
 ???
 -- Test for READWRITE with no user specified primary key columns
 (1 row)
+OCTO> CREATE TABLE tmp5 (firstandlastname VARCHAR) GLOBAL "^names" READWRITE;
 CREATE TABLE
+OCTO> SELECT * from tmp5;
 firstandlastname
 Zero|Cool
 Acid|Burn
@@ -82,6 +97,7 @@ Lord|Nikon
 Joey|
 Zero|Cool
 (6 rows)
+OCTO> 
 # Verify text table definition does not keys() inserted appropriately in the GLOBAL keyword
 ^%ydboctoschema("tmp1","text",0)="CREATE TABLE `tmp1` (`id` INTEGER CONSTRAINT ""tmp1_pkey"" PRIMARY KEY, `firstname` VARCHAR PIECE 1, `lastname` VARCHAR PIECE 2) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"" READWRITE;"
 ^%ydboctoschema("tmp2","text",0)="CREATE TABLE `tmp2` (`id` INTEGER CONSTRAINT ""tmp2_pkey"" PRIMARY KEY, `firstname` VARCHAR PIECE 1, `lastname` VARCHAR PIECE 2) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"" READONLY;"

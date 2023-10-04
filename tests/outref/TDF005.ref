@@ -8,8 +8,11 @@ DROP FUNCTION ABS (VARCHAR);
 -- One definition, i.e. ABS (NUMERIC),  should remain afterward, per CREATE FUNCTION calls in octo-seed.sql.
 DROP FUNCTION ABS (INTEGER);
 
+OCTO> DROP FUNCTION ABS (VARCHAR);
 [ERROR]: ERR_CANNOT_DROP_FUNCTION: Cannot DROP function abs(VARCHAR): no function defined with given name and parameter types
+OCTO> DROP FUNCTION ABS (INTEGER);
 DROP FUNCTION
+OCTO> 
 Remaining function definitions (hashes):
 --> Found: ^%ydboctoocto("functions","abs","%ydboctoFd8ho2z5XoZT7LbZWVR1J54")
 Successfully deleted function "abs" from pg_catalog.pg_proc

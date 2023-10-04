@@ -214,7 +214,9 @@ select * from v89;
 -- https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1244#note_1380399080
 select * from v90;
 select * from v91;
+OCTO> drop table names;
 [ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "names" because view "b1" depends on it
+OCTO> select * from v1_1;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -223,6 +225,7 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> select * from v2_1;
 id 1|firstname 1|lastname 1|id2|firstname2|lastname2
 0|Zero|Cool|0|Zero|Cool
 0|Zero|Cool|1|Acid|Burn
@@ -261,6 +264,7 @@ id 1|firstname 1|lastname 1|id2|firstname2|lastname2
 5|Zero|Cool|4|Joey|
 5|Zero|Cool|5|Zero|Cool
 (36 rows)
+OCTO> select * from v3_1;
 v1_firstname
 Zero
 Acid
@@ -273,6 +277,7 @@ Killer
 Nikon
 
 (10 rows)
+OCTO> select * from v4_1;
 v1 firstname
 Zero
 Acid
@@ -285,7 +290,9 @@ Killer
 Nikon
 
 (10 rows)
+OCTO> drop table composite;
 [ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "composite" because view "v5_1" depends on it
+OCTO> select * from v5_1;
 id0|id1|id2|id3|id4|id5|id6|id7|name
 0|1|2|3|4|5|6|7|Name1
 0|1|2|3|4|5|6|8|Name2
@@ -298,11 +305,15 @@ id0|id1|id2|id3|id4|id5|id6|id7|name
 0|2|3|4|5|6|8|7|Name9
 1|2|3|4|5|6|8|7|Name10
 (10 rows)
+OCTO> drop table octoonerowtable;
 [ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "octoonerowtable" because view "a" depends on it
+OCTO> select * from v6_1;
 ???
 1
 (1 row)
+OCTO> drop table pg_type;
 [ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "pg_type" because view "v7_1" depends on it
+OCTO> select * from v7_1;
 typname|typnamespace|typowner|typlen|typbyval|typtype|typcategory|typispreferred|typisdefined|typdelim|typrelid|typelem|typarray|typinput|typoutput|typreceive|typsend|typmodin|typmodout|typanalyze|typalign|typstorage|typnotnull|typbasetype|typtypmod|typndims|typcollation|typdefaultbin|typdefault|typacl|oid
 bool|11|10|1|1|b|B|1|1|,|0|0|1000|boolin|boolout|boolrecv|boolsend|-|-|-|c|p|0|0|-1|0|0||||16
 int4|11|10|4|1|b|N|0|1|,|0|0|1007|int4in|int4out|int4recv|int4send|-|-|-|i|p|0|0|-1|0|0||||23
@@ -311,11 +322,15 @@ numeric|11|10|-1|0|b|N|0|1|,|0|0|1231|numeric_in|numeric_out|numeric_recv|numeri
 unknown|11|10|-2|f|p|X|f|t|,|0|0|0|unknownin|unknownout|unknownrecv|unknownsend|-|-|-|c|p|f|0|-1|0|0||||705
 varchar|11|10|-1|0|b|S|0|1|,|0|0|1015|varcharin|varcharout|varcharrecv|varcharsend|varchartypmodin|varchartypmodout|-|i|x|0|0|-1|0|100||||1043
 (6 rows)
+OCTO> drop function abs(integer);
 [ERROR]: ERR_DROP_FUNCTION_DEPENDS_ON_VIEW: Cannot DROP function abs(INTEGER) because view "v47" depends on it
+OCTO> select * from v8_1;
 abs
 1
 (1 row)
+OCTO> drop view b1;
 [ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "b1" because view "a1" depends on it
+OCTO> select * from a1;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -324,6 +339,7 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> select * from b1;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -332,10 +348,13 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> drop function samevalue(integer);
 [ERROR]: ERR_DROP_FUNCTION_DEPENDS_ON_VIEW: Cannot DROP function samevalue(INTEGER) because view "f1" depends on it
+OCTO> select * from f1;
 samevalue
 1
 (1 row)
+OCTO> select samevalue(1) from names;
 samevalue
 1
 1
@@ -344,13 +363,17 @@ samevalue
 1
 1
 (6 rows)
+OCTO> drop view a;
 [ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "a" because view "b" depends on it
+OCTO> select * from b;
 ???
 1
 (1 row)
+OCTO> select * from a;
 ???
 1
 (1 row)
+OCTO> select * from c;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -359,23 +382,33 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> drop view v9_1;
 [ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "v9_1" because view "v10_1" depends on it
+OCTO> select * from v10_1;
 id
 1
 (1 row)
+OCTO> drop view v10_1;
 DROP VIEW
+OCTO> drop view v9_1;
 [ERROR]: ERR_DROP_VIEW_DEPENDS_ON_VIEW: Cannot Drop view "v9_1" because view "v11_1" depends on it
+OCTO> select * from v11_1;
 id
 1
 (1 row)
+OCTO> drop view v11_1;
 DROP VIEW
+OCTO> select * from v9_1;
 id
 1
 (1 row)
+OCTO> drop view v9_1;
 DROP VIEW
+OCTO> select * from v1;
 ???
 1
 (1 row)
+OCTO> select * from v2;
 firstname|lastname
 Zero|Cool
 Acid|Burn
@@ -384,6 +417,7 @@ Lord|Nikon
 Joey|
 Zero|Cool
 (6 rows)
+OCTO> select * from v3;
 id1|firstname1|lastname1|id2|firstname2|lastname2
 0|Zero|Cool|0|Zero|Cool
 0|Zero|Cool|1|Acid|Burn
@@ -422,21 +456,26 @@ id1|firstname1|lastname1|id2|firstname2|lastname2
 5|Zero|Cool|4|Joey|
 5|Zero|Cool|5|Zero|Cool
 (36 rows)
+OCTO> select * from v4;
 column1|column2|column3
 1|2|3
 1|2|3
 (2 rows)
+OCTO> select * from v5;
 column1|column2|column3
 1|test|test2
 (1 row)
+OCTO> select * from v6;
 column1|column2|column3
 1|test|test2
 2|test3|test4
 (2 rows)
+OCTO> select * from v7;
 column1|column2|column3
 1|test|test2
 2|test3|test4
 (2 rows)
+OCTO> select * from v8;
 v1_firstname
 Zero
 Acid
@@ -449,6 +488,7 @@ Killer
 Nikon
 
 (10 rows)
+OCTO> select * from v9;
 firstname|lastname
 Zero|Cool
 Acid|Burn
@@ -457,6 +497,7 @@ Lord|Nikon
 Joey|
 Zero|Cool
 (6 rows)
+OCTO> select * from v11;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -465,6 +506,7 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> select * from v12;
 firstname
 Acid
 Joey
@@ -472,6 +514,7 @@ Lord
 Zero
 Cereal
 (5 rows)
+OCTO> select * from v13;
 firstname
 Acid
 Joey
@@ -479,6 +522,7 @@ Lord
 Zero
 Cereal
 (5 rows)
+OCTO> select * from v14;
 firstname
 Acid
 Cereal
@@ -486,6 +530,7 @@ Joey
 Lord
 Zero
 (5 rows)
+OCTO> select * from v15;
 firstname
 Acid
 Cereal
@@ -493,12 +538,15 @@ Joey
 Lord
 Zero
 (5 rows)
+OCTO> select * from v16;
 count
 6
 (1 row)
+OCTO> select * from v17;
 id|firstname|lastname
 0|Zero|Cool
 (1 row)
+OCTO> select * from v18;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -507,6 +555,7 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> select * from v19;
 firstname
 Zero
 Zero
@@ -515,6 +564,7 @@ Joey
 Cereal
 Acid
 (6 rows)
+OCTO> select * from v20;
 firstname
 Zero
 Acid
@@ -523,9 +573,11 @@ Lord
 Joey
 Zero
 (6 rows)
+OCTO> select * from v21;
 column1|column2|column3
 1|2|3
 (1 row)
+OCTO> select * from v22;
 id
 0
 1
@@ -534,9 +586,11 @@ id
 4
 5
 (6 rows)
+OCTO> select * from v23;
 a1|a2|a3|a4|a5|a6
 1|2|3|3|4|5
 (1 row)
+OCTO> select * from v24;
 id
 1
 1
@@ -569,6 +623,7 @@ id
 5
 5
 (30 rows)
+OCTO> select * from v25;
 id 1|firstname 1|lastname 1|id2|firstname2|lastname2
 0|Zero|Cool|0|Zero|Cool
 0|Zero|Cool|1|Acid|Burn
@@ -607,6 +662,7 @@ id 1|firstname 1|lastname 1|id2|firstname2|lastname2
 5|Zero|Cool|4|Joey|
 5|Zero|Cool|5|Zero|Cool
 (36 rows)
+OCTO> select * from v26;
 v1_firstname
 Zero
 Acid
@@ -619,6 +675,7 @@ Killer
 Nikon
 
 (10 rows)
+OCTO> select * from v27;
 v1 firstname
 Zero
 Acid
@@ -631,6 +688,7 @@ Killer
 Nikon
 
 (10 rows)
+OCTO> select * from v28;
 v1 firstname
 Zero
 Acid
@@ -643,6 +701,7 @@ Killer
 Nikon
 
 (10 rows)
+OCTO> select * from v29;
 v1 firstname
 Zero
 Acid
@@ -655,6 +714,7 @@ Killer
 Nikon
 
 (10 rows)
+OCTO> select * from v30;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -664,6 +724,7 @@ id|firstname|lastname
 5|Zero|Cool
 ||
 (7 rows)
+OCTO> select * from v31;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -673,6 +734,7 @@ id|firstname|lastname
 5|Zero|Cool
 ||
 (7 rows)
+OCTO> select * from v32;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -687,10 +749,13 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (12 rows)
+OCTO> drop table names;
 [ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "names" because view "b1" depends on it
+OCTO> select * from v35;
 column1
 1
 (1 row)
+OCTO> select * from v34;
 lastname
 Acid
 Burn
@@ -703,6 +768,7 @@ Nikon
 Zero
 
 (10 rows)
+OCTO> select * from v33;
 id|firstname|lastname
 1|Acid|Burn
 0|Zero|Cool
@@ -711,31 +777,42 @@ id|firstname|lastname
 3|Lord|Nikon
 4|Joey|
 (6 rows)
+OCTO> select * from v36;
 ???
 1
 (1 row)
+OCTO> select * from v37;
 CASE
 1.2
 (1 row)
+OCTO> select * from v38;
 ???
 0
 (1 row)
+OCTO> select * from v39;
 sum
 1
 (1 row)
+OCTO> select * from v40;
 count(*)
 6
 (1 row)
+OCTO> select * from v41;
 id
 (0 rows)
+OCTO> select * from v42;
 ???
 (0 rows)
+OCTO> select * from v43;
 ???
 (0 rows)
+OCTO> select * from v44;
 ???
 1.2
 (1 row)
+OCTO> select * from v45;
 [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
+OCTO> select * from v46;
 ???
 
 
@@ -744,9 +821,11 @@ id
 
 
 (6 rows)
+OCTO> select * from v47;
 abs
 
 (1 row)
+OCTO> select * from v48;
 ???
 
 
@@ -755,6 +834,7 @@ abs
 
 
 (6 rows)
+OCTO> select * from v49;
 idbool
 -1
 -1
@@ -763,9 +843,11 @@ idbool
 0
 0
 (6 rows)
+OCTO> select * from v50;
 sub|???
 true|1
 (1 row)
+OCTO> select * from v51;
 ???
 0
 1
@@ -774,6 +856,7 @@ true|1
 
 0
 (6 rows)
+OCTO> select * from v52;
 ???
 0
 1
@@ -782,6 +865,7 @@ true|1
 
 0
 (6 rows)
+OCTO> select * from v53;
 ???
 1
 1
@@ -790,16 +874,20 @@ true|1
 1
 1
 (6 rows)
+OCTO> select * from v54;
 id|firstname|lastname
 0|Zero|Cool
 2|Cereal|Killer
 4|Joey|
 (3 rows)
+OCTO> select * from v55;
 firstname
 (0 rows)
+OCTO> select * from v56;
 ???
 1
 (1 row)
+OCTO> select * from v57;
 a|b
 0|0
 0|1
@@ -838,9 +926,11 @@ a|b
 5|4
 5|5
 (36 rows)
+OCTO> select * from v58;
 count
 6
 (1 row)
+OCTO> select * from v59;
 ???
 Acid1
 Joey1
@@ -848,6 +938,7 @@ Lord1
 Zero2
 Cereal1
 (5 rows)
+OCTO> select * from v60;
 col1
 0
 1
@@ -856,6 +947,7 @@ col1
 4
 5
 (6 rows)
+OCTO> select * from v61;
 firstname
 Zero
 Acid
@@ -864,6 +956,7 @@ Lord
 Joey
 Zero
 (6 rows)
+OCTO> select * from v62;
 firstname|count
 Acid|1
 Joey|1
@@ -871,6 +964,7 @@ Lord|1
 Zero|2
 Cereal|1
 (5 rows)
+OCTO> select * from v63;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -879,9 +973,11 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> select * from v64;
 a2|b2|c2
 0|Zero|Cool
 (1 row)
+OCTO> select * from v65;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -890,6 +986,7 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> select * from v66;
 id
 0
 1
@@ -897,6 +994,7 @@ id
 3
 5
 (5 rows)
+OCTO> select * from v67;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -905,46 +1003,75 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> select * from v68;
 ???
 0
 0
 0
 (3 rows)
+OCTO> select * from v69;
 CASE
 is zero
 is one
 is null
 (3 rows)
+OCTO> select * from v70;
 ???
 0
 0
 (2 rows)
+OCTO> drop table tmp80;
 [ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "tmp80" because view "v80" depends on it
+OCTO> -- Ensure view dependency is intact
+select * from v80;
 id|name|value
 1|first|1.2
 2|second|2.2
 (2 rows)
+OCTO> insert into tmp80 values(3,'third',0);
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp80 violates CHECK constraint tmp80_value_check : Failing row contains (3, third, 0)
+OCTO> -- Fails due to value being less than 0
+insert into tmp80 values(2,'third',3.2);
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp80_id_key" : Key (id)=(2) already exists
+OCTO> -- Fails due to id being not unique
+drop table tmp81;
 [ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "tmp81" because view "v81" depends on it
+OCTO> -- Ensure view dependency is intact
+select * from v81;
 id|name|value
 1|first|1.2
 2|second|2.2
 (2 rows)
+OCTO> insert into tmp81 values(3,'third',0);
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp81 violates CHECK constraint name1 : Failing row contains (3, third, 0)
+OCTO> -- Fails due to value being less than 0
+drop table tmp82;
 [ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "tmp82" because view "v82" depends on it
+OCTO> -- Ensure view dependency is intact
+select * from v82;
 id
 1
 2
 (2 rows)
+OCTO> insert into tmp82 values(0);
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp82 violates CHECK constraint tmp82_id_check : Failing row contains (0)
+OCTO> -- Fails due to id being less than 0
+insert into tmp82 values(1);
 [ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tmp82_id_key" : Key (id)=(1) already exists
+OCTO> -- Fails due to id being not unique
+drop table tmp83;
 [ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "tmp83" because view "v83" depends on it
+OCTO> -- Ensure view dependency is intact
+select * from v83;
 id
 1
 2
 (2 rows)
+OCTO> insert into tmp83 values(0);
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tmp83 violates CHECK constraint name1 : Failing row contains (0)
+OCTO> -- Fails due to id being less than 0
+
+select * from v84;
 lastname
 Cool
 Burn
@@ -952,22 +1079,31 @@ Killer
 Nikon
 
 (5 rows)
+OCTO> drop table tmp86;
 [ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "tmp86" because view "v86" depends on it
+OCTO> drop table tmp85;
 [ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "tmp85" because view "v85" depends on it
+OCTO> select * from v85;
 id|firstname|lastname
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 (3 rows)
+OCTO> select * from v86;
 id|firstname|lastname
 1|Burn|Acid
 2|Killer|Cereal
 3|Nikon|Lord
 (3 rows)
+OCTO> drop view v85;
 DROP VIEW
+OCTO> drop view v86;
 DROP VIEW
+OCTO> drop table tmp85;
 DROP TABLE
+OCTO> drop table tmp86;
 DROP TABLE
+OCTO> select * from names;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -976,37 +1112,50 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
+OCTO> select * from v87;
 id|str
 1|first
 2|second
 (2 rows)
+OCTO> select * from tmp87;
 id|str
 1|first
 2|second
 (2 rows)
+OCTO> INSERT INTO tmp87(str) VALUES('second');
 INSERT 0 1
+OCTO> -- Auto increment value assigned for ID
+select * from v87;
 id|str
 1|first
 2|second
 3|second
 (3 rows)
+OCTO> select * from tmp87;
 id|str
 1|first
 2|second
 3|second
 (3 rows)
+OCTO> select * from v88;
 id|str
 1|first
 3|second
 2|third
 (3 rows)
+OCTO> select * from tmp88;
 id|str
 1|first
 3|second
 2|third
 (3 rows)
+OCTO> INSERT INTO tmp88(id,str) VALUES(6,'fourth');
 INSERT 0 1
+OCTO> -- 6 assigned for ID
+INSERT INTO tmp88(str) VALUES('fifth');
 INSERT 0 1
+OCTO> -- Auto increment value assigned for ID and the value should be 3
+select * from v88;
 id|str
 1|first
 3|second
@@ -1014,6 +1163,7 @@ id|str
 6|fourth
 3|fifth
 (5 rows)
+OCTO> select * from tmp88;
 id|str
 1|first
 3|second
@@ -1021,9 +1171,11 @@ id|str
 6|fourth
 3|fifth
 (5 rows)
+OCTO> select * from v89;
 EXISTS
 1
 (1 row)
+OCTO> select * from v90;
 id|newid
 0|0
 2|0
@@ -1032,6 +1184,7 @@ id|newid
 3|1
 5|1
 (6 rows)
+OCTO> select * from v91;
 id|???
 0|0
 1|1
@@ -1040,3 +1193,4 @@ id|???
 4|0
 5|1
 (6 rows)
+OCTO> 

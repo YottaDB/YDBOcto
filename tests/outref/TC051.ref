@@ -13,8 +13,18 @@ CREATE TABLE namesWithAges (
  datetime TIME(10) EXTRACT "$ZDATE($HOROLOG,""YEAR-MM-DD 24:60:SS"")"	-- this is a computed column
 )
  GLOBAL "^names";
+OCTO> CREATE TABLE names (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30)) GLOBAL "^names";
 CREATE TABLE
+OCTO> CREATE TABLE namesWithAges (
+ id INTEGER PRIMARY KEY,
+ firstName VARCHAR(30),
+ lastName VARCHAR(30),
+ age INTEGER,
+ datetime TIME(10) EXTRACT "$ZDATE($HOROLOG,""YEAR-MM-DD 24:60:SS"")"	-- this is a computed column
+)
+ GLOBAL "^names";
 CREATE TABLE
+OCTO> 
 DROP TABLE
 DROP TABLE
 
@@ -28,8 +38,18 @@ CREATE TABLE namesWithAges (
  datetime TIME(10) EXTRACT "$ZDATE($HOROLOG,""YEAR-MM-DD 24:60:SS"")"	-- this is a computed column
 )
  GLOBAL "^names";
+OCTO> CREATE TABLE names (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30)) GLOBAL "^names";
 CREATE TABLE
+OCTO> CREATE TABLE namesWithAges (
+ id INTEGER PRIMARY KEY,
+ firstName VARCHAR(30),
+ lastName VARCHAR(30),
+ age INTEGER,
+ datetime TIME(10) EXTRACT "$ZDATE($HOROLOG,""YEAR-MM-DD 24:60:SS"")"	-- this is a computed column
+)
+ GLOBAL "^names";
 CREATE TABLE
+OCTO> 
 # Verify Increment
 1000010
 # Run select query twice. The second one fails with assert without the fix.

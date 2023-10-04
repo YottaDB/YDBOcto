@@ -6,10 +6,16 @@ select command from test;
 
 -- Copied from YDBOcto#1015
 create table xyz (name varchar primary key, command varchar);
+OCTO> drop table if exists test;
 DROP TABLE
+OCTO> create table test (COMMAND varchar);
 CREATE TABLE
+OCTO> insert into test values('test_command');
 INSERT 0 1
+OCTO> select command from test;
 command
 test_command
 (1 row)
+OCTO> create table xyz (name varchar primary key, command varchar);
 CREATE TABLE
+OCTO> 

@@ -24,12 +24,19 @@ SELECT OVERLOADEDFUNC(true) FROM names;
 -- Parameter type: BOOLEAN; return type: BOOLEAN
 SELECT  * FROM names where firstname = OVERLOADEDFUNC(true);
 
+OCTO> CREATE FUNCTION OVERLOADEDFUNC (INTEGER, NUMERIC, VARCHAR) RETURNS VARCHAR AS $$^OVERLOADEDFUNC;
 CREATE FUNCTION
+OCTO> CREATE FUNCTION OVERLOADEDFUNC (NUMERIC, NUMERIC, VARCHAR) RETURNS VARCHAR AS $$^OVERLOADEDFUNC;
 CREATE FUNCTION
+OCTO> CREATE FUNCTION OVERLOADEDFUNC (VARCHAR, INTEGER) RETURNS VARCHAR AS $$^OVERLOADEDFUNC;
 CREATE FUNCTION
+OCTO> CREATE FUNCTION OVERLOADEDFUNC (BOOLEAN) RETURNS VARCHAR AS $$^OVERLOADEDFUNC;
 CREATE FUNCTION
+OCTO> DROP FUNCTION OVERLOADEDFUNC(BOOLEAN);
 DROP FUNCTION
+OCTO> CREATE FUNCTION OVERLOADEDFUNC (BOOLEAN) RETURNS BOOLEAN AS $$^OVERLOADEDFUNC;
 CREATE FUNCTION
+OCTO> SELECT OVERLOADEDFUNC(1, 2.5, 'hello') FROM names;
 overloadedfunc
 12.5hello
 12.5hello
@@ -38,6 +45,7 @@ overloadedfunc
 12.5hello
 12.5hello
 (6 rows)
+OCTO> SELECT OVERLOADEDFUNC(1.2, 2.5, 'hello') FROM names;
 overloadedfunc
 1.22.5hello
 1.22.5hello
@@ -46,6 +54,7 @@ overloadedfunc
 1.22.5hello
 1.22.5hello
 (6 rows)
+OCTO> SELECT OVERLOADEDFUNC('hello', 2) FROM names;
 overloadedfunc
 hello2
 hello2
@@ -54,6 +63,7 @@ hello2
 hello2
 hello2
 (6 rows)
+OCTO> SELECT OVERLOADEDFUNC(true) FROM names;
 overloadedfunc
 1
 1
@@ -67,3 +77,5 @@ LINE 18:1: SELECT  * FROM names where firstname = OVERLOADEDFUNC(true);
                                       ^^^^^^^^^
 LINE 18:1: SELECT  * FROM names where firstname = OVERLOADEDFUNC(true);
                                                   ^^^^^^^^^^^^^^^^^^^^
+OCTO> SELECT  * FROM names where firstname = OVERLOADEDFUNC(true);
+OCTO> 

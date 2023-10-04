@@ -9,21 +9,29 @@ select 1 from names n0 group by firstname having EXISTS (select firstname from n
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 2:1: ...e EXISTS (select 1 from names n2 order by count(n1.firstname));
                                                        ^^^^^
+OCTO> select firstname from names n1 where EXISTS (select 1 from names n2 order by count(n1.firstname));
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 3:1: ...t firstname from names n1 where count(firstname||lastname) < 1;
                                              ^^^^^
+OCTO> select firstname from names n1 where count(firstname||lastname) < 1;
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 4:1: ...y exists(select 1 from names n2 order by count(n1.firstname)));
                                                       ^^^^^
+OCTO> select firstname from names n1 where EXISTS (select 1 from names n2 order by exists(select 1 from names n2 order by count(n1.firstname)));
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 5:1: ...ect 1 from names n2 order by count(n1.firstname||n1.lastname));
                                           ^^^^^
+OCTO> select firstname from names n1 where EXISTS (select 1 from names n2 order by count(n1.firstname||n1.lastname));
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 6:1: ...ect 1 from names n2 order by count(n1.firstname||n1.lastname)))...
                                           ^^^^^
+OCTO> select firstname from names n1 where EXISTS (select 1 from names n2 order by exists(select 1 from names n2 order by count(n1.firstname||n1.lastname)));
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 7:1: ... names n2 group by n2.id having count(c.id) > 2) GROUP BY c.id;
                                              ^^^^^
+OCTO> select all 1 from names c where exists (select 1 from names n2 group by n2.id having count(c.id) > 2) GROUP BY c.id;
 [ERROR]: ERR_AGGREGATE_FUNCTION_WHERE: Aggregate functions are not allowed in WHERE
 LINE 8:1: ... EXISTS (select 1 from names n2 order by count(n1.firstname)));
                                                       ^^^^^
+OCTO> select 1 from names n0 group by firstname having EXISTS (select firstname from names n1 where EXISTS (select 1 from names n2 order by count(n1.firstname)));
+OCTO> 

@@ -4,6 +4,9 @@
 -- Octo should give a type error if selecting an integer but comparing to string
 SELECT CASE WHEN id = '' THEN 'true' ELSE 'false' END
 	FROM (SELECT CASE WHEN false THEN 2 END AS id) n1;
+OCTO> SELECT CASE WHEN id = '' THEN 'true' ELSE 'false' END
+	FROM (SELECT CASE WHEN false THEN 2 END AS id) n1;
 CASE
 false
 (1 row)
+OCTO> 

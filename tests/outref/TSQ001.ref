@@ -15,6 +15,13 @@ FROM pg_catalog.pg_type t
 WHERE n.nspname  != 'pg_toast'
   AND (t.typrelid = 0 OR
     (SELECT c.relkind = 'c' FROM pg_catalog.pg_class c WHERE c.oid = t.typrelid));]
+OCTO> SELECT t.typname,t.oid
+FROM pg_catalog.pg_type t
+  JOIN pg_catalog.pg_namespace n
+  ON (t.typnamespace = n.oid)
+WHERE n.nspname  != 'pg_toast'
+  AND (t.typrelid = 0 OR
+    (SELECT c.relkind = 'c' FROM pg_catalog.pg_class c WHERE c.oid = t.typrelid));
 [ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
 [ INFO] PATH:LINENUM DATE TIME: INFO_M_PLAN: Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 [DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
@@ -306,3 +313,4 @@ varchar|1043
 (6 rows)
 [ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command []
+OCTO> 

@@ -10,8 +10,15 @@ INSERT INTO namesXfer (SELECT * FROM names WHERE lastName IS NOT NULL);
 SELECT * FROM namesXfer;
 DROP TABLE namesXfer;
 
+OCTO> CREATE TABLE namesXfer (
+  id INTEGER PRIMARY KEY
+, firstName VARCHAR(30)
+, lastName VARCHAR(30)
+);
 CREATE TABLE
+OCTO> INSERT INTO namesXfer (SELECT * FROM names WHERE lastName IS NOT NULL);
 INSERT 0 5
+OCTO> SELECT * FROM namesXfer;
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -19,4 +26,6 @@ id|firstname|lastname
 3|Lord|Nikon
 5|Zero|Cool
 (5 rows)
+OCTO> DROP TABLE namesXfer;
 DROP TABLE
+OCTO> 

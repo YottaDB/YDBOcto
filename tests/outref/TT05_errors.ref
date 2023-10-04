@@ -3,5 +3,8 @@
 create view v1 as select 1;
 truncate table v1;
 
+OCTO> create view v1 as select 1;
 CREATE VIEW
+OCTO> truncate table v1;
 [ERROR] PATH:LINENUM DATE TIME: ERR_WRONG_TYPE: "v1" is not a TABLE
+OCTO> 

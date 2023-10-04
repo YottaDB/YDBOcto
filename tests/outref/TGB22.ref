@@ -252,11 +252,17 @@ select parmlessfunc() from names group by 1 having 'FAIL'!=CAST(parmlessfunc() a
 SELECT 'test' FROM names GROUP BY 1;
 SELECT 'test' FROM names GROUP BY 1 HAVING 'test'!='hello';
 SELECT 'test' FROM names GROUP BY firstname HAVING 'test'!='hello' ORDER BY 1;
+OCTO> CREATE FUNCTION SAMEVALUE(INTEGER) RETURNS INTEGER AS $$samevalue^functions;
 CREATE FUNCTION
+OCTO> CREATE FUNCTION SAMEVALUE(NUMERIC) RETURNS NUMERIC AS $$samevalue^functions;
 CREATE FUNCTION
+OCTO> CREATE FUNCTION SAMEVALUE(BOOLEAN) RETURNS BOOLEAN AS $$samevalue^functions;
 CREATE FUNCTION
+OCTO> CREATE FUNCTION SAMEVALUE(VARCHAR) RETURNS VARCHAR AS $$samevalue^functions;
 CREATE FUNCTION
+OCTO> CREATE FUNCTION PARMLESSFUNC() RETURNS VARCHAR AS $$^PARMLESSFUNC;
 CREATE FUNCTION
+OCTO> select samevalue(id) from names;
 samevalue
 0
 1
@@ -265,6 +271,7 @@ samevalue
 4
 5
 (6 rows)
+OCTO> select samevalue(id) from names group by id;
 samevalue
 0
 1
@@ -273,6 +280,7 @@ samevalue
 4
 5
 (6 rows)
+OCTO> select samevalue(id) from names group by samevalue(id);
 samevalue
 0
 1
@@ -281,45 +289,59 @@ samevalue
 4
 5
 (6 rows)
+OCTO> select samevalue(id) from names group by id having 1=samevalue(id);
 samevalue
 1
 (1 row)
+OCTO> select samevalue(id) from names group by id having 1=samevalue(id) order by samevalue(id);
 samevalue
 1
 (1 row)
+OCTO> select samevalue(id) from names group by id having 1=id;
 samevalue
 1
 (1 row)
+OCTO> select samevalue(id) from names group by id having 1=samevalue(id) order by id;
 samevalue
 1
 (1 row)
+OCTO> select samevalue(id) from names group by samevalue(id) having 1=samevalue(id);
 samevalue
 1
 (1 row)
+OCTO> select samevalue(id) from names group by samevalue(id) having 1=samevalue(id) order by samevalue(id);
 samevalue
 1
 (1 row)
+OCTO> select 1 from names group by id having 1=samevalue(id);
 ???
 1
 (1 row)
+OCTO> select 1 from names group by id having 1=samevalue(id) order by samevalue(id);
 ???
 1
 (1 row)
+OCTO> select 1 from names group by id having 1=id;
 ???
 1
 (1 row)
+OCTO> select 1 from names group by id having 1=samevalue(id) order by id;
 ???
 1
 (1 row)
+OCTO> select 1 from names group by samevalue(id) having 1=samevalue(id);
 ???
 1
 (1 row)
+OCTO> select 1 from names group by samevalue(id) having 1=samevalue(id) order by samevalue(id);
 ???
 1
 (1 row)
+OCTO> select samevalue(firstname) from names group by samevalue(id),firstname having 1=samevalue(id) order by samevalue(id);
 samevalue
 Acid
 (1 row)
+OCTO> select samevalue(id) from names group by 1;
 samevalue
 0
 1
@@ -328,6 +350,7 @@ samevalue
 4
 5
 (6 rows)
+OCTO> select samevalue(id) from names group by 1 order by samevalue(id);
 samevalue
 0
 1
@@ -336,6 +359,7 @@ samevalue
 4
 5
 (6 rows)
+OCTO> select samevalue(id) from names group by 1 having 1!=samevalue(id) order by samevalue(id);
 samevalue
 0
 2
@@ -343,29 +367,7 @@ samevalue
 4
 5
 (5 rows)
-samevalue
-0
-1
-2
-3
-4
-5
-(6 rows)
-samevalue
-0
-2
-3
-4
-5
-(5 rows)
-samevalue
-1
-2
-4
-3
-0
-5
-(6 rows)
+OCTO> select samevalue(id) from names group by 1 order by 1;
 samevalue
 0
 1
@@ -374,6 +376,33 @@ samevalue
 4
 5
 (6 rows)
+OCTO> select samevalue(id) from names group by 1 having 1!=samevalue(id) order by 1;
+samevalue
+0
+2
+3
+4
+5
+(5 rows)
+OCTO> select samevalue(id) from names group by 1,firstname order by samevalue(firstname);
+samevalue
+1
+2
+4
+3
+0
+5
+(6 rows)
+OCTO> select samevalue(id) from names group by samevalue(id),id;
+samevalue
+0
+1
+2
+3
+4
+5
+(6 rows)
+OCTO> select samevalue(lastname) from names;
 samevalue
 Cool
 Burn
@@ -382,6 +411,7 @@ Nikon
 
 Cool
 (6 rows)
+OCTO> select samevalue(lastname) from names group by lastname;
 samevalue
 
 Burn
@@ -389,6 +419,7 @@ Cool
 Nikon
 Killer
 (5 rows)
+OCTO> select samevalue(lastname) from names group by samevalue(lastname);
 samevalue
 
 Burn
@@ -396,424 +427,500 @@ Cool
 Nikon
 Killer
 (5 rows)
+OCTO> select samevalue(lastname) from names group by lastname having 'Cool'!=samevalue(lastname);
 samevalue
 Burn
 Nikon
 Killer
 (3 rows)
+OCTO> select samevalue(lastname) from names group by lastname having 'Cool'!=samevalue(lastname) order by samevalue(lastname);
 samevalue
 Burn
 Killer
 Nikon
 (3 rows)
+OCTO> select samevalue(lastname) from names group by lastname having 'Cool'!=lastname;
 samevalue
 Burn
 Nikon
 Killer
 (3 rows)
+OCTO> select samevalue(lastname) from names group by lastname having 'Cool'!=samevalue(lastname) order by lastname;
 samevalue
 Burn
 Killer
 Nikon
 (3 rows)
+OCTO> select samevalue(lastname) from names group by samevalue(lastname) having 'Cool'!=samevalue(lastname);
 samevalue
 Burn
 Nikon
 Killer
 (3 rows)
+OCTO> select samevalue(lastname) from names group by samevalue(lastname) having 'Cool'!=samevalue(lastname) order by samevalue(lastname);
 samevalue
 Burn
 Killer
 Nikon
 (3 rows)
+OCTO> select 1 from names group by lastname having 'Cool'!=samevalue(lastname);
 ???
 1
 1
 1
 (3 rows)
+OCTO> select 1 from names group by lastname having 'Cool'!=samevalue(lastname) order by samevalue(lastname);
 ???
 1
 1
 1
 (3 rows)
+OCTO> select 1 from names group by lastname having 'Cool'!=lastname;
 ???
 1
 1
 1
 (3 rows)
+OCTO> select 1 from names group by lastname having 'Cool'!=samevalue(lastname) order by lastname;
 ???
 1
 1
 1
 (3 rows)
+OCTO> select 1 from names group by samevalue(lastname) having 'Cool'!=samevalue(lastname);
 ???
 1
 1
 1
 (3 rows)
+OCTO> select 1 from names group by samevalue(lastname) having 'Cool'!=samevalue(lastname) order by samevalue(lastname);
 ???
 1
 1
 1
 (3 rows)
-samevalue
-Acid
-Cereal
-Lord
-(3 rows)
-samevalue
-
-Burn
-Cool
-Nikon
-Killer
-(5 rows)
-samevalue
-Burn
-Cool
-Killer
-Nikon
-
-(5 rows)
-samevalue
-Burn
-Cool
-Killer
-Nikon
-(4 rows)
-samevalue
-Burn
-Cool
-Killer
-Nikon
-
-(5 rows)
-samevalue
-Burn
-Cool
-Killer
-Nikon
-(4 rows)
-samevalue
-Burn
-Killer
-
-Nikon
-Cool
-(5 rows)
-samevalue
-Burn
-Killer
-Nikon
-
-(4 rows)
-samevalue
-Burn
-Killer
-Nikon
-
-(4 rows)
-samevalue
-
-Burn
-Cool
-Cool
-Nikon
-Killer
-(6 rows)
-???
-testCool
-testBurn
-testKiller
-testNikon
-
-testCool
-(6 rows)
-???
-
-testBurn
-testCool
-testNikon
-testKiller
-(5 rows)
-???
-
-testBurn
-testCool
-testNikon
-testKiller
-(5 rows)
-???
-testBurn
-testNikon
-testKiller
-(3 rows)
-???
-testBurn
-testKiller
-testNikon
-(3 rows)
-???
-testBurn
-testNikon
-testKiller
-(3 rows)
-???
-testBurn
-testKiller
-testNikon
-(3 rows)
-???
-testBurn
-testNikon
-testKiller
-(3 rows)
-???
-testBurn
-testKiller
-testNikon
-(3 rows)
-???
-1
-1
-1
-(3 rows)
-???
-1
-1
-1
-(3 rows)
-???
-1
-1
-1
-(3 rows)
-???
-1
-1
-1
-(3 rows)
-???
-1
-1
-1
-(3 rows)
-???
-1
-1
-1
-(3 rows)
+OCTO> select samevalue(firstname) from names group by samevalue(lastname),firstname having 'Cool'!=samevalue(lastname) order by samevalue(lastname);
 samevalue
 Acid
 Cereal
 Lord
 (3 rows)
-???
+OCTO> select samevalue(lastname) from names group by 1;
+samevalue
 
-testBurn
-testCool
-testNikon
-testKiller
+Burn
+Cool
+Nikon
+Killer
 (5 rows)
-???
-testBurn
-testCool
-testKiller
-testNikon
-
-(5 rows)
-???
-testBurn
-testCool
-testKiller
-testNikon
-(4 rows)
-???
-testBurn
-testCool
-testKiller
-testNikon
+OCTO> select samevalue(lastname) from names group by 1 order by samevalue(lastname);
+samevalue
+Burn
+Cool
+Killer
+Nikon
 
 (5 rows)
-???
-testBurn
-testCool
-testKiller
-testNikon
+OCTO> select samevalue(lastname) from names group by 1 having 'Zero'!=samevalue(lastname) order by samevalue(lastname);
+samevalue
+Burn
+Cool
+Killer
+Nikon
 (4 rows)
-???
-testBurn
-testKiller
+OCTO> select samevalue(lastname) from names group by 1 order by 1;
+samevalue
+Burn
+Cool
+Killer
+Nikon
 
-testNikon
-testCool
 (5 rows)
-???
-testBurn
-testKiller
-testNikon
+OCTO> select samevalue(lastname) from names group by 1 having 'Zero'!=samevalue(lastname) order by 1;
+samevalue
+Burn
+Cool
+Killer
+Nikon
+(4 rows)
+OCTO> select samevalue(lastname) from names group by 1,firstname order by samevalue(firstname);
+samevalue
+Burn
+Killer
+
+Nikon
+Cool
+(5 rows)
+OCTO> select samevalue(lastname) from names group by 1,firstname having 'Zero'!=samevalue(firstname) order by 1;
+samevalue
+Burn
+Killer
+Nikon
 
 (4 rows)
-???
-testBurn
-testKiller
-testNikon
+OCTO> select samevalue(lastname) from names group by 1,firstname having 'Zero'!=firstname order by 1;
+samevalue
+Burn
+Killer
+Nikon
 
 (4 rows)
-???
+OCTO> select samevalue(lastname) from names group by samevalue(lastname),id;
+samevalue
 
-testBurn
-testCool
-testCool
-testNikon
-testKiller
+Burn
+Cool
+Cool
+Nikon
+Killer
 (6 rows)
+OCTO> select 'test'||samevalue(lastname) from names;
 ???
-0
-1
-(2 rows)
+testCool
+testBurn
+testKiller
+testNikon
+
+testCool
+(6 rows)
+OCTO> select 'test'||samevalue(lastname) from names group by lastname;
 ???
-0
-1
-0
-0
-0
-0
-(6 rows)
-samevalue
 
 testBurn
 testCool
 testNikon
 testKiller
 (5 rows)
-samevalue
-testBurn
-testCool
-testKiller
-testNikon
-
-(5 rows)
-samevalue
+OCTO> select 'test'||samevalue(lastname) from names group by 'test'||samevalue(lastname);
+???
 
 testBurn
 testCool
 testNikon
 testKiller
 (5 rows)
-samevalue
-
+OCTO> select 'test'||samevalue(lastname) from names group by lastname having 'testCool'!='test'||samevalue(lastname);
+???
 testBurn
-testCool
 testNikon
 testKiller
-(5 rows)
-samevalue
-1
-1
-1
-1
-
-1
-(6 rows)
-samevalue
-
-1
-1
-1
-1
-(5 rows)
-samevalue
-
-1
-(2 rows)
-samevalue
-
-1
-(2 rows)
-samevalue
-
-1
-(2 rows)
-samevalue
-1
-1
-1
-1
-(4 rows)
-samevalue
-1
-1
-1
-1
-(4 rows)
-samevalue
-1
-1
-1
 (3 rows)
-samevalue
-1
-1
-1
-1
-(4 rows)
-samevalue
-1
-(1 row)
-samevalue
-1
-(1 row)
-samevalue
-1
-(1 row)
+OCTO> select 'test'||samevalue(lastname) from names group by lastname having 'testCool'!='test'||samevalue(lastname) order by 'test'||samevalue(lastname);
 ???
-1
-1
-1
-1
-(4 rows)
+testBurn
+testKiller
+testNikon
+(3 rows)
+OCTO> select 'test'||samevalue(lastname) from names group by lastname having 'Cool'!=lastname;
 ???
-1
-1
-1
-1
-(4 rows)
+testBurn
+testNikon
+testKiller
+(3 rows)
+OCTO> select 'test'||samevalue(lastname) from names group by lastname having 'testCool'!='test'||samevalue(lastname) order by lastname;
+???
+testBurn
+testKiller
+testNikon
+(3 rows)
+OCTO> select 'test'||samevalue(lastname) from names group by 'test'||samevalue(lastname) having 'testCool'!='test'||samevalue(lastname);
+???
+testBurn
+testNikon
+testKiller
+(3 rows)
+OCTO> select 'test'||samevalue(lastname) from names group by 'test'||samevalue(lastname) having 'testCool'!='test'||samevalue(lastname) order by 'test'||samevalue(lastname);
+???
+testBurn
+testKiller
+testNikon
+(3 rows)
+OCTO> select 1 from names group by lastname having 'testCool'!='test'||samevalue(lastname);
 ???
 1
 1
 1
 (3 rows)
+OCTO> select 1 from names group by lastname having 'testCool'!='test'||samevalue(lastname) order by 'test'||samevalue(lastname);
+???
+1
+1
+1
+(3 rows)
+OCTO> select 1 from names group by lastname having 'Cool'!=lastname;
+???
+1
+1
+1
+(3 rows)
+OCTO> select 1 from names group by lastname having 'testCool'!='test'||samevalue(lastname) order by lastname;
+???
+1
+1
+1
+(3 rows)
+OCTO> select 1 from names group by 'test'||samevalue(lastname) having 'testCool'!='test'||samevalue(lastname);
+???
+1
+1
+1
+(3 rows)
+OCTO> select 1 from names group by 'test'||samevalue(lastname) having 'testCool'!='test'||samevalue(lastname) order by 'test'||samevalue(lastname);
+???
+1
+1
+1
+(3 rows)
+OCTO> select samevalue(firstname) from names group by 'test'||samevalue(lastname),firstname having 'testCool'!='test'||samevalue(lastname) order by 'test'||samevalue(lastname);
+samevalue
+Acid
+Cereal
+Lord
+(3 rows)
+OCTO> select 'test'||samevalue(lastname) from names group by 1;
+???
+
+testBurn
+testCool
+testNikon
+testKiller
+(5 rows)
+OCTO> select 'test'||samevalue(lastname) from names group by 1 order by 'test'||samevalue(lastname);
+???
+testBurn
+testCool
+testKiller
+testNikon
+
+(5 rows)
+OCTO> select 'test'||samevalue(lastname) from names group by 1 having 'Zero'!='test'||samevalue(lastname) order by 'test'||samevalue(lastname);
+???
+testBurn
+testCool
+testKiller
+testNikon
+(4 rows)
+OCTO> select 'test'||samevalue(lastname) from names group by 1 order by 1;
+???
+testBurn
+testCool
+testKiller
+testNikon
+
+(5 rows)
+OCTO> select 'test'||samevalue(lastname) from names group by 1 having 'Zero'!='test'||samevalue(lastname) order by 1;
+???
+testBurn
+testCool
+testKiller
+testNikon
+(4 rows)
+OCTO> select 'test'||samevalue(lastname) from names group by 1,firstname order by samevalue(firstname);
+???
+testBurn
+testKiller
+
+testNikon
+testCool
+(5 rows)
+OCTO> select 'test'||samevalue(lastname) from names group by 1,firstname having 'Zero'!=samevalue(firstname) order by 1;
+???
+testBurn
+testKiller
+testNikon
+
+(4 rows)
+OCTO> select 'test'||samevalue(lastname) from names group by 1,firstname having 'Zero'!=firstname order by 1;
+???
+testBurn
+testKiller
+testNikon
+
+(4 rows)
+OCTO> select 'test'||samevalue(lastname) from names group by 'test'||samevalue(lastname),id;
+???
+
+testBurn
+testCool
+testCool
+testNikon
+testKiller
+(6 rows)
+OCTO> select not 1!=samevalue(id) from names group by not 1!=samevalue(id);
+???
+0
+1
+(2 rows)
+OCTO> select not 1!=samevalue(id) from names group by id;
+???
+0
+1
+0
+0
+0
+0
+(6 rows)
+OCTO> select samevalue('test'||samevalue(lastname)) from names group by lastname;
+samevalue
+
+testBurn
+testCool
+testNikon
+testKiller
+(5 rows)
+OCTO> select samevalue('test'||samevalue(lastname)) from names group by samevalue(lastname) order by 'zero'||samevalue(lastname);
+samevalue
+testBurn
+testCool
+testKiller
+testNikon
+
+(5 rows)
+OCTO> select samevalue('test'||samevalue(lastname)) from names group by 'test'||samevalue(lastname);
+samevalue
+
+testBurn
+testCool
+testNikon
+testKiller
+(5 rows)
+OCTO> select samevalue('test'||samevalue(lastname)) from names group by samevalue('test'||samevalue(lastname));
+samevalue
+
+testBurn
+testCool
+testNikon
+testKiller
+(5 rows)
+OCTO> select samevalue(NOT 'test'=lastname) from names;
+samevalue
+1
+1
+1
+1
+
+1
+(6 rows)
+OCTO> select samevalue(NOT 'test'=lastname) from names group by lastname;
+samevalue
+
+1
+1
+1
+1
+(5 rows)
+OCTO> select samevalue(NOT 'test'=lastname) from names group by 'test'=lastname;
+samevalue
+
+1
+(2 rows)
+OCTO> select samevalue(NOT 'test'=lastname) from names group by NOT 'test'=lastname;
+samevalue
+
+1
+(2 rows)
+OCTO> select samevalue(NOT 'test'=lastname) from names group by samevalue(NOT 'test'=lastname);
+samevalue
+
+1
+(2 rows)
+OCTO> select samevalue(NOT 'test'=lastname) from names group by lastname having FALSE!=samevalue(NOT 'test'=lastname);
+samevalue
+1
+1
+1
+1
+(4 rows)
+OCTO> select samevalue(NOT 'test'=lastname) from names group by lastname having FALSE!=samevalue(NOT 'test'=lastname) order by samevalue(NOT 'test'=lastname);
+samevalue
+1
+1
+1
+1
+(4 rows)
+OCTO> select samevalue(NOT 'test'=lastname) from names group by lastname having 'Cool'!=lastname;
+samevalue
+1
+1
+1
+(3 rows)
+OCTO> select samevalue(NOT 'test'=lastname) from names group by lastname having FALSE!=samevalue(NOT 'test'=lastname) order by lastname;
+samevalue
+1
+1
+1
+1
+(4 rows)
+OCTO> select samevalue(NOT 'test'=lastname) from names group by samevalue(NOT 'test'=lastname) having FALSE!=samevalue(NOT 'test'=lastname);
+samevalue
+1
+(1 row)
+OCTO> select samevalue(NOT 'test'=lastname) from names group by samevalue(NOT 'test'=lastname) having FALSE!=samevalue(NOT 'test'=lastname) order by samevalue(NOT 'test'=lastname);
+samevalue
+1
+(1 row)
+OCTO> select samevalue(NOT 'test'=lastname) from names group by NOT 'test'=lastname having FALSE!=(NOT 'test'=lastname);
+samevalue
+1
+(1 row)
+OCTO> select 1 from names group by lastname having FALSE!=samevalue(NOT 'test'=lastname);
 ???
 1
 1
 1
 1
 (4 rows)
+OCTO> select 1 from names group by lastname having FALSE!=samevalue(NOT 'test'=lastname) order by 'test'=lastname;
+???
+1
+1
+1
+1
+(4 rows)
+OCTO> select 1 from names group by lastname having 'Cool'!=lastname;
+???
+1
+1
+1
+(3 rows)
+OCTO> select 1 from names group by lastname having FALSE!=samevalue(NOT 'test'=lastname) order by lastname;
+???
+1
+1
+1
+1
+(4 rows)
+OCTO> select 1 from names group by samevalue(NOT 'test'=lastname) having FALSE!=samevalue(NOT 'test'=lastname);
 ???
 1
 (1 row)
+OCTO> select 1 from names group by samevalue(NOT 'test'=lastname) having FALSE!=samevalue(NOT 'test'=lastname) order by samevalue(NOT 'test'=lastname);
 ???
 1
 (1 row)
+OCTO> select samevalue(firstname) from names group by samevalue(NOT 'test'=lastname),firstname having FALSE!=samevalue(NOT 'test'=lastname) order by samevalue(NOT 'test'=lastname);
 samevalue
 Acid
 Lord
 Zero
 Cereal
 (4 rows)
+OCTO> select samevalue(NOT 'test'=lastname) from names group by 1;
 samevalue
 
 1
 (2 rows)
+OCTO> select samevalue(NOT 'test'=lastname) from names group by 1 order by samevalue(NOT 'test'=lastname);
 samevalue
 1
 
 (2 rows)
+OCTO> select samevalue(NOT 'test'=lastname) from names group by 1 order by 1;
 samevalue
 1
 
 (2 rows)
+OCTO> select samevalue(NOT 'test'=lastname) from names group by 1,firstname order by samevalue(firstname);
 samevalue
 1
 1
@@ -821,18 +928,21 @@ samevalue
 1
 1
 (5 rows)
+OCTO> select samevalue(NOT 'test'=lastname) from names group by 1,firstname having 'Zero'!=samevalue(firstname) order by 1;
 samevalue
 1
 1
 1
 
 (4 rows)
+OCTO> select samevalue(NOT 'test'=lastname) from names group by 1,firstname having 'Zero'!=firstname order by 1;
 samevalue
 1
 1
 1
 
 (4 rows)
+OCTO> select samevalue(NOT 'test'=lastname) from names group by samevalue(NOT 'test'=lastname),id;
 samevalue
 
 1
@@ -841,10 +951,12 @@ samevalue
 1
 1
 (6 rows)
+OCTO> select not TRUE!=samevalue(NOT 'test'=lastname) from names group by not TRUE!=samevalue(NOT 'test'=lastname);
 ???
 
 1
 (2 rows)
+OCTO> select not TRUE!=samevalue(NOT 'test'=lastname) from names group by lastname;
 ???
 
 1
@@ -852,17 +964,21 @@ samevalue
 1
 1
 (5 rows)
+OCTO> select not TRUE!=samevalue(NOT 'test'=lastname) from names group by samevalue(NOT 'test'=lastname);
 ???
 
 1
 (2 rows)
+OCTO> select not TRUE!=samevalue(NOT 'test'=lastname) from names group by TRUE!=samevalue(NOT 'test'=lastname);
 ???
 
 1
 (2 rows)
+OCTO> select 1 from names group by parmlessfunc();
 ???
 1
 (1 row)
+OCTO> select firstname from names group by parmlessfunc(),firstname;
 firstname
 Acid
 Joey
@@ -870,6 +986,7 @@ Lord
 Zero
 Cereal
 (5 rows)
+OCTO> select parmlessfunc() from names group by parmlessfunc(),firstname;
 parmlessfunc
 SUCCESS
 SUCCESS
@@ -877,6 +994,7 @@ SUCCESS
 SUCCESS
 SUCCESS
 (5 rows)
+OCTO> select parmlessfunc(),firstname from names group by parmlessfunc(),firstname;
 parmlessfunc|firstname
 SUCCESS|Acid
 SUCCESS|Joey
@@ -884,9 +1002,11 @@ SUCCESS|Lord
 SUCCESS|Zero
 SUCCESS|Cereal
 (5 rows)
+OCTO> select parmlessfunc() from names group by parmlessfunc();
 parmlessfunc
 SUCCESS
 (1 row)
+OCTO> select parmlessfunc() from names group by lastname;
 parmlessfunc
 SUCCESS
 SUCCESS
@@ -894,6 +1014,7 @@ SUCCESS
 SUCCESS
 SUCCESS
 (5 rows)
+OCTO> select parmlessfunc() from names group by parmlessfunc(),id;
 parmlessfunc
 SUCCESS
 SUCCESS
@@ -902,12 +1023,15 @@ SUCCESS
 SUCCESS
 SUCCESS
 (6 rows)
+OCTO> select parmlessfunc()!='Success' from names group by parmlessfunc()!='Success';
 ???
 1
 (1 row)
+OCTO> select parmlessfunc()!=firstname from names group by parmlessfunc()!=firstname;
 ???
 1
 (1 row)
+OCTO> select parmlessfunc()!=firstname from names group by firstname;
 ???
 1
 1
@@ -915,6 +1039,7 @@ SUCCESS
 1
 1
 (5 rows)
+OCTO> select parmlessfunc()!=firstname from names group by parmlessfunc()!=firstname,firstname;
 ???
 1
 1
@@ -922,6 +1047,7 @@ SUCCESS
 1
 1
 (5 rows)
+OCTO> select ('Zero'!=lastname)!=(parmlessfunc()!=firstname) from names group by firstname,lastname;
 ???
 0
 
@@ -929,19 +1055,24 @@ SUCCESS
 0
 0
 (5 rows)
+OCTO> select ('Zero'!=lastname)!=(parmlessfunc()!=firstname) from names group by ('Zero'!=lastname)!=(parmlessfunc()!=firstname);
 ???
 
 0
 (2 rows)
+OCTO> select parmlessfunc() from names group by 1;
 parmlessfunc
 SUCCESS
 (1 row)
+OCTO> select parmlessfunc() from names group by 1 order by 1;
 parmlessfunc
 SUCCESS
 (1 row)
+OCTO> select parmlessfunc() from names group by parmlessfunc() order by 1;
 parmlessfunc
 SUCCESS
 (1 row)
+OCTO> select parmlessfunc() from names group by 1,firstname having parmlessfunc()!=firstname;
 parmlessfunc
 SUCCESS
 SUCCESS
@@ -949,15 +1080,19 @@ SUCCESS
 SUCCESS
 SUCCESS
 (5 rows)
+OCTO> select parmlessfunc() from names group by 1 having parmlessfunc()!='Zero';
 parmlessfunc
 SUCCESS
 (1 row)
+OCTO> select parmlessfunc() from names group by 1 order by parmlessfunc();
 parmlessfunc
 SUCCESS
 (1 row)
+OCTO> select parmlessfunc() from names group by 1 order by parmlessfunc()!='Zero';
 parmlessfunc
 SUCCESS
 (1 row)
+OCTO> select parmlessfunc() from names group by lastname;
 parmlessfunc
 SUCCESS
 SUCCESS
@@ -965,6 +1100,7 @@ SUCCESS
 SUCCESS
 SUCCESS
 (5 rows)
+OCTO> select parmlessfunc() from names group by lastname order by lastname!=parmlessfunc();
 parmlessfunc
 SUCCESS
 SUCCESS
@@ -972,12 +1108,15 @@ SUCCESS
 SUCCESS
 SUCCESS
 (5 rows)
+OCTO> select 1 from names group by parmlessfunc();
 ???
 1
 (1 row)
+OCTO> select 1 from names group by parmlessfunc() order by parmlessfunc();
 ???
 1
 (1 row)
+OCTO> select 1 from names group by lastname order by parmlessfunc();
 ???
 1
 1
@@ -985,18 +1124,21 @@ SUCCESS
 1
 1
 (5 rows)
+OCTO> select 1 from names group by lastname having parmlessfunc()!=lastname;
 ???
 1
 1
 1
 1
 (4 rows)
+OCTO> select 1 from names group by lastname having parmlessfunc()!=lastname order by parmlessfunc();
 ???
 1
 1
 1
 1
 (4 rows)
+OCTO> select parmlessfunc() from names group by lastname order by lastname!=parmlessfunc();
 parmlessfunc
 SUCCESS
 SUCCESS
@@ -1004,12 +1146,14 @@ SUCCESS
 SUCCESS
 SUCCESS
 (5 rows)
+OCTO> select parmlessfunc() from names group by lastname having lastname!=parmlessfunc();
 parmlessfunc
 SUCCESS
 SUCCESS
 SUCCESS
 SUCCESS
 (4 rows)
+OCTO> select samevalue(CAST(id AS NUMERIC)) from names;
 samevalue
 0
 1
@@ -1018,6 +1162,7 @@ samevalue
 4
 5
 (6 rows)
+OCTO> select samevalue(CAST(id AS NUMERIC)) from names group by id;
 samevalue
 0
 1
@@ -1026,6 +1171,7 @@ samevalue
 4
 5
 (6 rows)
+OCTO> select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS NUMERIC));
 samevalue
 0
 1
@@ -1034,6 +1180,7 @@ samevalue
 4
 5
 (6 rows)
+OCTO> select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS INTEGER)),id;
 samevalue
 0
 1
@@ -1042,48 +1189,63 @@ samevalue
 4
 5
 (6 rows)
+OCTO> select samevalue(CAST(id AS NUMERIC)) from names group by id having 1=samevalue(CAST(id AS NUMERIC));
 samevalue
 1
 (1 row)
+OCTO> select samevalue(CAST(id AS NUMERIC)) from names group by id having 1=samevalue(CAST(id AS INTEGER));
 samevalue
 1
 (1 row)
+OCTO> select samevalue(CAST(id AS NUMERIC)) from names group by id having 1=samevalue(CAST(id AS NUMERIC)) order by samevalue(CAST(id AS NUMERIC));
 samevalue
 1
 (1 row)
+OCTO> select samevalue(CAST(id AS NUMERIC)) from names group by id having 1=id;
 samevalue
 1
 (1 row)
+OCTO> select samevalue(CAST(id AS NUMERIC)) from names group by id having 1=samevalue(CAST(id AS NUMERIC)) order by id;
 samevalue
 1
 (1 row)
+OCTO> select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS NUMERIC)) having 1=samevalue(CAST(id AS NUMERIC));
 samevalue
 1
 (1 row)
+OCTO> select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS NUMERIC)) having 1=samevalue(CAST(id AS NUMERIC)) order by samevalue(CAST(id AS NUMERIC));
 samevalue
 1
 (1 row)
+OCTO> select 1 from names group by id having 1=samevalue(CAST(id AS NUMERIC));
 ???
 1
 (1 row)
+OCTO> select 1 from names group by id having 1=samevalue(CAST(id AS NUMERIC)) order by samevalue(CAST(id AS NUMERIC));
 ???
 1
 (1 row)
+OCTO> select 1 from names group by id having 1=id;
 ???
 1
 (1 row)
+OCTO> select 1 from names group by id having 1=samevalue(CAST(id AS NUMERIC)) order by id;
 ???
 1
 (1 row)
+OCTO> select 1 from names group by samevalue(CAST(id AS NUMERIC)) having 1=samevalue(CAST(id AS NUMERIC));
 ???
 1
 (1 row)
+OCTO> select 1 from names group by samevalue(CAST(id AS NUMERIC)) having 1=samevalue(CAST(id AS NUMERIC)) order by samevalue(CAST(id AS NUMERIC));
 ???
 1
 (1 row)
+OCTO> select samevalue(firstname) from names group by samevalue(CAST(id AS NUMERIC)),firstname having 1=samevalue(CAST(id AS NUMERIC)) order by samevalue(CAST(id AS NUMERIC));
 samevalue
 Acid
 (1 row)
+OCTO> select samevalue(CAST(id AS NUMERIC)) from names group by 1;
 samevalue
 0
 1
@@ -1092,6 +1254,7 @@ samevalue
 4
 5
 (6 rows)
+OCTO> select samevalue(CAST(id AS NUMERIC)) from names group by 1 order by samevalue(CAST(id AS NUMERIC));
 samevalue
 0
 1
@@ -1100,6 +1263,7 @@ samevalue
 4
 5
 (6 rows)
+OCTO> select samevalue(CAST(id AS NUMERIC)) from names group by 1 having 1!=samevalue(CAST(id AS NUMERIC)) order by samevalue(CAST(id AS NUMERIC));
 samevalue
 0
 2
@@ -1107,6 +1271,7 @@ samevalue
 4
 5
 (5 rows)
+OCTO> select samevalue(CAST(id AS NUMERIC)) from names group by 1 order by 1;
 samevalue
 0
 1
@@ -1115,6 +1280,7 @@ samevalue
 4
 5
 (6 rows)
+OCTO> select samevalue(CAST(id AS NUMERIC)) from names group by 1 having 1!=samevalue(CAST(id AS NUMERIC)) order by 1;
 samevalue
 0
 2
@@ -1122,6 +1288,7 @@ samevalue
 4
 5
 (5 rows)
+OCTO> select samevalue(CAST(id AS NUMERIC)) from names group by 1,firstname order by samevalue(firstname);
 samevalue
 1
 2
@@ -1130,12 +1297,14 @@ samevalue
 0
 5
 (6 rows)
+OCTO> select samevalue(CAST(id AS NUMERIC)) from names group by 1,firstname having 'Zero'!=samevalue(firstname) order by 1;
 samevalue
 1
 2
 3
 4
 (4 rows)
+OCTO> select samevalue(CAST(id AS NUMERIC)) from names group by samevalue(CAST(id AS NUMERIC)),id;
 samevalue
 0
 1
@@ -1144,6 +1313,7 @@ samevalue
 4
 5
 (6 rows)
+OCTO> select samevalue(id::NUMERIC) from names;
 samevalue
 0
 1
@@ -1152,6 +1322,7 @@ samevalue
 4
 5
 (6 rows)
+OCTO> select samevalue(id::NUMERIC) from names group by id;
 samevalue
 0
 1
@@ -1160,6 +1331,7 @@ samevalue
 4
 5
 (6 rows)
+OCTO> select samevalue(id::NUMERIC) from names group by samevalue(id::NUMERIC);
 samevalue
 0
 1
@@ -1168,6 +1340,7 @@ samevalue
 4
 5
 (6 rows)
+OCTO> select samevalue(id::NUMERIC) from names group by samevalue(id::INTEGER),id;
 samevalue
 0
 1
@@ -1176,48 +1349,63 @@ samevalue
 4
 5
 (6 rows)
+OCTO> select samevalue(id::NUMERIC) from names group by id having 1=samevalue(id::NUMERIC);
 samevalue
 1
 (1 row)
+OCTO> select samevalue(id::NUMERIC) from names group by id having 1=samevalue(id::INTEGER);
 samevalue
 1
 (1 row)
+OCTO> select samevalue(id::NUMERIC) from names group by id having 1=samevalue(id::NUMERIC) order by samevalue(id::NUMERIC);
 samevalue
 1
 (1 row)
+OCTO> select samevalue(id::NUMERIC) from names group by id having 1=id;
 samevalue
 1
 (1 row)
+OCTO> select samevalue(id::NUMERIC) from names group by id having 1=samevalue(id::NUMERIC) order by id;
 samevalue
 1
 (1 row)
+OCTO> select samevalue(id::NUMERIC) from names group by samevalue(id::NUMERIC) having 1=samevalue(id::NUMERIC);
 samevalue
 1
 (1 row)
+OCTO> select samevalue(id::NUMERIC) from names group by samevalue(id::NUMERIC) having 1=samevalue(id::NUMERIC) order by samevalue(id::NUMERIC);
 samevalue
 1
 (1 row)
+OCTO> select 1 from names group by id having 1=samevalue(id::NUMERIC);
 ???
 1
 (1 row)
+OCTO> select 1 from names group by id having 1=samevalue(id::NUMERIC) order by samevalue(id::NUMERIC);
 ???
 1
 (1 row)
+OCTO> select 1 from names group by id having 1=id;
 ???
 1
 (1 row)
+OCTO> select 1 from names group by id having 1=samevalue(id::NUMERIC) order by id;
 ???
 1
 (1 row)
+OCTO> select 1 from names group by samevalue(id::NUMERIC) having 1=samevalue(id::NUMERIC);
 ???
 1
 (1 row)
+OCTO> select 1 from names group by samevalue(id::NUMERIC) having 1=samevalue(id::NUMERIC) order by samevalue(id::NUMERIC);
 ???
 1
 (1 row)
+OCTO> select samevalue(firstname) from names group by samevalue(id::NUMERIC),firstname having 1=samevalue(id::NUMERIC) order by samevalue(id::NUMERIC);
 samevalue
 Acid
 (1 row)
+OCTO> select samevalue(id::NUMERIC) from names group by 1;
 samevalue
 0
 1
@@ -1226,6 +1414,7 @@ samevalue
 4
 5
 (6 rows)
+OCTO> select samevalue(id::NUMERIC) from names group by 1 order by samevalue(id::NUMERIC);
 samevalue
 0
 1
@@ -1234,6 +1423,7 @@ samevalue
 4
 5
 (6 rows)
+OCTO> select samevalue(id::NUMERIC) from names group by 1 having 1!=samevalue(id::NUMERIC) order by samevalue(id::NUMERIC);
 samevalue
 0
 2
@@ -1241,6 +1431,7 @@ samevalue
 4
 5
 (5 rows)
+OCTO> select samevalue(id::NUMERIC) from names group by 1 order by 1;
 samevalue
 0
 1
@@ -1249,6 +1440,7 @@ samevalue
 4
 5
 (6 rows)
+OCTO> select samevalue(id::NUMERIC) from names group by 1 having 1!=samevalue(id::NUMERIC) order by 1;
 samevalue
 0
 2
@@ -1256,6 +1448,7 @@ samevalue
 4
 5
 (5 rows)
+OCTO> select samevalue(id::NUMERIC) from names group by 1,firstname order by samevalue(firstname);
 samevalue
 1
 2
@@ -1264,12 +1457,14 @@ samevalue
 0
 5
 (6 rows)
+OCTO> select samevalue(id::NUMERIC) from names group by 1,firstname having 'Zero'!=samevalue(firstname) order by 1;
 samevalue
 1
 2
 3
 4
 (4 rows)
+OCTO> select samevalue(id::NUMERIC) from names group by samevalue(id::NUMERIC),id;
 samevalue
 0
 1
@@ -1278,9 +1473,11 @@ samevalue
 4
 5
 (6 rows)
+OCTO> select samevalue(firstname) from names group by CAST(id AS NUMERIC),firstname having 1=CAST(id AS NUMERIC) order by CAST(id AS NUMERIC);
 samevalue
 Acid
 (1 row)
+OCTO> select CAST(id AS NUMERIC) from names group by 1,firstname order by samevalue(firstname);
 id
 1
 2
@@ -1289,15 +1486,18 @@ id
 0
 5
 (6 rows)
+OCTO> select CAST(id AS NUMERIC) from names group by 1,firstname having 'Zero'!=samevalue(firstname) order by 1;
 id
 1
 2
 3
 4
 (4 rows)
+OCTO> select samevalue(firstname) from names group by id::NUMERIC,firstname having 1=id::NUMERIC order by id::NUMERIC;
 samevalue
 Acid
 (1 row)
+OCTO> select id::NUMERIC from names group by 1,firstname order by samevalue(firstname);
 id
 1
 2
@@ -1306,12 +1506,14 @@ id
 0
 5
 (6 rows)
+OCTO> select id::NUMERIC from names group by 1,firstname having 'Zero'!=samevalue(firstname) order by 1;
 id
 1
 2
 3
 4
 (4 rows)
+OCTO> select 1+samevalue(id)::INTEGER from names group by 1+samevalue(id)::INTEGER;
 ???
 1
 2
@@ -1320,6 +1522,7 @@ id
 5
 6
 (6 rows)
+OCTO> select 1+samevalue(id)::INTEGER from names group by 1;
 ???
 1
 2
@@ -1328,6 +1531,7 @@ id
 5
 6
 (6 rows)
+OCTO> select 1+samevalue(id)::INTEGER from names group by 1 having 1+samevalue(id)::INTEGER != 2;
 ???
 1
 3
@@ -1335,6 +1539,7 @@ id
 5
 6
 (5 rows)
+OCTO> select 1+CAST(samevalue(id) as INTEGER) from names group by 1+CAST(samevalue(id) as INTEGER);
 ???
 1
 2
@@ -1343,42 +1548,55 @@ id
 5
 6
 (6 rows)
+OCTO> select parmlessfunc() from names group by parmlessfunc()::VARCHAR;
 parmlessfunc
 SUCCESS
 (1 row)
+OCTO> select parmlessfunc() from names group by parmlessfunc()::VARCHAR having 'FAIL'!=parmlessfunc()::VARCHAR;
 parmlessfunc
 SUCCESS
 (1 row)
+OCTO> select parmlessfunc() from names group by parmlessfunc()::VARCHAR having 'FAIL'!=parmlessfunc()::VARCHAR;
 parmlessfunc
 SUCCESS
 (1 row)
+OCTO> select parmlessfunc() from names group by 1 having 'FAIL'!=parmlessfunc()::VARCHAR;
 parmlessfunc
 SUCCESS
 (1 row)
+OCTO> select parmlessfunc() from names group by 1 having 'FAIL'!=parmlessfunc()::VARCHAR;
 parmlessfunc
 SUCCESS
 (1 row)
+OCTO> select parmlessfunc() from names group by CAST(parmlessfunc() as VARCHAR);
 parmlessfunc
 SUCCESS
 (1 row)
+OCTO> select parmlessfunc() from names group by CAST(parmlessfunc() as VARCHAR) having 'FAIL'!=CAST(parmlessfunc() as VARCHAR);
 parmlessfunc
 SUCCESS
 (1 row)
+OCTO> select parmlessfunc() from names group by CAST(parmlessfunc() as VARCHAR) having 'FAIL'!=CAST(parmlessfunc() as VARCHAR);
 parmlessfunc
 SUCCESS
 (1 row)
+OCTO> select parmlessfunc() from names group by 1 having 'FAIL'!=CAST(parmlessfunc() as VARCHAR);
 parmlessfunc
 SUCCESS
 (1 row)
+OCTO> select parmlessfunc() from names group by 1 having 'FAIL'!=CAST(parmlessfunc() as VARCHAR);
 parmlessfunc
 SUCCESS
 (1 row)
+OCTO> SELECT 'test' FROM names GROUP BY 1;
 ???
 test
 (1 row)
+OCTO> SELECT 'test' FROM names GROUP BY 1 HAVING 'test'!='hello';
 ???
 test
 (1 row)
+OCTO> SELECT 'test' FROM names GROUP BY firstname HAVING 'test'!='hello' ORDER BY 1;
 ???
 test
 test
@@ -1386,3 +1604,4 @@ test
 test
 test
 (5 rows)
+OCTO> 

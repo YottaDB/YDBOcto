@@ -11,8 +11,11 @@ CREATE TABLE `names` (`id` INTEGER CONSTRAINT "names_pkey" PRIMARY KEY, `firstna
 
 DROP TABLE names KEEPDATA;
 DROP TABLE nameswithages KEEPDATA;
+OCTO> DROP TABLE names KEEPDATA;
 DROP TABLE
+OCTO> DROP TABLE nameswithages KEEPDATA;
 DROP TABLE
+OCTO> 
 # Verify ^names exists
 $DATA(^names) = 10
 # CREATE TABLE NAMES with READWRITE tabletype
@@ -25,14 +28,20 @@ CREATE TABLE `names` (`id` INTEGER CONSTRAINT "names_pkey" PRIMARY KEY, `firstna
 
 DROP TABLE names KEEPDATA;
 DROP TABLE nameswithages KEEPDATA;
+OCTO> DROP TABLE names KEEPDATA;
 DROP TABLE
+OCTO> DROP TABLE nameswithages KEEPDATA;
 DROP TABLE
+OCTO> 
 
 -- TDT07 : OCTO735 : DROP TABLE with KEEPDATA keyword does not do a KILL of the underlying GVN storing the table data
 
 DROP TABLE names KEEPDATA;
 DROP TABLE nameswithages KEEPDATA;
+OCTO> DROP TABLE names KEEPDATA;
 DROP TABLE
+OCTO> DROP TABLE nameswithages KEEPDATA;
 DROP TABLE
+OCTO> 
 # Verify ^names exists
 $DATA(^names) = 10

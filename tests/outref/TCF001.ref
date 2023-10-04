@@ -4,8 +4,12 @@
 DROP FUNCTION ABS(NUMERIC);	-- to avoid ERR_CANNOT_CREATE_FUNCTION error
 CREATE FUNCTION ABS(NUMERIC) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;
 select ABS(-id)+2 as absid from names;
+OCTO> DROP FUNCTION ABS(NUMERIC);
 DROP FUNCTION
+OCTO> -- to avoid ERR_CANNOT_CREATE_FUNCTION error
+CREATE FUNCTION ABS(NUMERIC) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;
 CREATE FUNCTION
+OCTO> select ABS(-id)+2 as absid from names;
 absid
 2
 3
@@ -14,3 +18,4 @@ absid
 6
 7
 (6 rows)
+OCTO> 

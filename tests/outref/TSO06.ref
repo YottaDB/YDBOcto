@@ -5,6 +5,9 @@ select firstName, lastName from names
 except all
 select firstName, lastName from names where firstName = 'Zero' and id = 0;
 
+OCTO> select firstName, lastName from names
+except all
+select firstName, lastName from names where firstName = 'Zero' and id = 0;
 firstname|lastname
 Acid|Burn
 Joey|
@@ -12,3 +15,4 @@ Lord|Nikon
 Zero|Cool
 Cereal|Killer
 (5 rows)
+OCTO> 

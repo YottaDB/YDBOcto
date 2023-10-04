@@ -15,10 +15,19 @@ CREATE TABLE tmp (id INTEGER, firstname VARCHAR, lastname VARCHAR, firstname INT
 CREATE TABLE tmp (firstName VARCHAR, lastName VARCHAR, `%yo_keycol` INTEGER) READWRITE;
 
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "id" specified more than once
+OCTO> CREATE TABLE tmp (id INTEGER, id INTEGER);
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "firstname" specified more than once
+OCTO> CREATE TABLE tmp (firstname VARCHAR, firstname VARCHAR);
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "id" specified more than once
+OCTO> CREATE TABLE tmp (id INTEGER, firstname VARCHAR, id INTEGER);
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "id" specified more than once
+OCTO> CREATE TABLE tmp (id INTEGER, id INTEGER, firstname VARCHAR);
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "firstname" specified more than once
+OCTO> CREATE TABLE tmp (firstname VARCHAR, id INTEGER, firstname VARCHAR);
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "firstname" specified more than once
+OCTO> CREATE TABLE tmp (firstname VARCHAR, firstname VARCHAR, id INTEGER);
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "firstname" specified more than once
+OCTO> CREATE TABLE tmp (id INTEGER, firstname VARCHAR, lastname VARCHAR, firstname INTEGER, id2 INTEGER);
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "%yo_keycol" specified more than once
+OCTO> CREATE TABLE tmp (firstName VARCHAR, lastName VARCHAR, `%yo_keycol` INTEGER) READWRITE;
+OCTO> 

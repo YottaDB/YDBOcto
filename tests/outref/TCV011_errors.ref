@@ -8,8 +8,13 @@ select * from v1;
 -- HINT:  Use DROP ... CASCADE to drop the dependent objects too.
 drop table test;
 
+OCTO> create table test (id integer, firstname varchar, lastname varchar);
 CREATE TABLE
+OCTO> create view v1 as select * from test;
 CREATE VIEW
+OCTO> select * from v1;
 id|firstname|lastname
 (0 rows)
+OCTO> drop table test;
 [ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "test" because view "v1" depends on it
+OCTO> 

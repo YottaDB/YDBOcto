@@ -18,33 +18,45 @@ select 1 from names n1 order by exists(select count(n1.firstname) from names n2 
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column firstname from outer query
 LINE 2:1: ... n1 having exists(select 1 from names n2 group by n1.firstname);
                                                                ^^^^^^^^^^^^
+OCTO> select 1 from names n1 having exists(select 1 from names n2 group by n1.firstname);
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column firstname from outer query
 LINE 3:1: ...ng exists(select 1 from names n2 group by n1.firstname||'test');
                                                        ^^^^^^^^^^^^
+OCTO> select 1 from names n1 having exists(select 1 from names n2 group by n1.firstname||'test');
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column firstname from outer query
 LINE 5:1: ...s n1 having exists(select n1.firstname from names n2 group by 1)...
                                        ^^^^^^^^^^^^
+OCTO> select 1 from names n1 having exists(select n1.firstname from names n2 group by 1);
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column firstname from outer query
 LINE 6:1: ...est' having exists(select n1.firstname||'test' from names n2 gro...
                                        ^^^^^^^^^^^^
+OCTO> select 1 from names n1 GROUP BY n1.firstname||'test' having exists(select n1.firstname||'test' from names n2 group by 1);
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column firstname from outer query
 LINE 7:1: ...s n1 having exists(select n1.firstname||'test' from names n2 gro...
                                        ^^^^^^^^^^^^
+OCTO> select 1 from names n1 having exists(select n1.firstname||'test' from names n2 group by 1);
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column firstname from outer query
 LINE 9:1: ...p by 'test'||n2.firstname,n1.firstname||('test'||n2.firstname));
                                        ^^^^^^^^^^^^
+OCTO> select 1 from names n1 having exists(select 1 from names n2 group by 'test'||n2.firstname,n1.firstname||('test'||n2.firstname));
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column firstname from outer query
 LINE 10:1: ...sts(select 1 from names n2 group by n1.firstname||n2.firstname);
                                                   ^^^^^^^^^^^^
+OCTO> select 1 from names n1 GROUP BY n1.firstname||'test' having exists(select 1 from names n2 group by n1.firstname||n2.firstname);
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column firstname from outer query
 LINE 11:1: ...ng exists(select 1 from names n2 group by n1.firstname||'test');
                                                         ^^^^^^^^^^^^
+OCTO> select 1 from names n1 GROUP BY n1.firstname||'test' having exists(select 1 from names n2 group by n1.firstname||'test');
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column firstname from outer query
 LINE 12:1: ...') from names n2 group by n1.firstname || 'abcd') from names n1 ...
                                         ^^^^^^^^^^^^
+OCTO> select 1 = (select count(n1.firstname || 'abcd') from names n2 group by n1.firstname || 'abcd') from names n1 group by n1.firstname || 'abcd';
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column firstname from outer query
 LINE 13:1: ...select count(n1.firstname) from names n2 group by n1.firstname);
                                                                 ^^^^^^^^^^^^
+OCTO> select count(n1.firstname) from names n1 order by exists(select count(n1.firstname) from names n2 group by n1.firstname);
 [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column firstname from outer query
 LINE 14:1: ...select count(n1.firstname) from names n2 group by n1.firstname);
                                                                 ^^^^^^^^^^^^
+OCTO> select 1 from names n1 order by exists(select count(n1.firstname) from names n2 group by n1.firstname);
+OCTO> 

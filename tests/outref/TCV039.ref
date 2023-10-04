@@ -34,86 +34,114 @@ select * from v8;
 create view v9 as select '1'::integer;
 select * from v9;
 \d v9;
+OCTO> create view v1 as select 't';
 CREATE VIEW
+OCTO> select * from v1;
 ???
 t
 (1 row)
+OCTO> \d v1;
 View "v1"
 Column|Type|Collation|Nullable|Default
 ???|VARCHAR||||
 View definition:
 create view v1 as select 't';
+OCTO> create view v2 as select '1';
 CREATE VIEW
+OCTO> select * from v2;
 ???
 1
 (1 row)
+OCTO> \d v2;
 View "v2"
 Column|Type|Collation|Nullable|Default
 ???|VARCHAR||||
 View definition:
 create view v2 as select '1';
+OCTO> create view v3 as select 'f';
 CREATE VIEW
+OCTO> select * from v3;
 ???
 f
 (1 row)
+OCTO> \d v3;
 View "v3"
 Column|Type|Collation|Nullable|Default
 ???|VARCHAR||||
 View definition:
 create view v3 as select 'f';
+OCTO> create view v4 as select '0';
 CREATE VIEW
+OCTO> select * from v4;
 ???
 0
 (1 row)
+OCTO> \d v4;
 View "v4"
 Column|Type|Collation|Nullable|Default
 ???|VARCHAR||||
 View definition:
 create view v4 as select '0';
+OCTO> create view v5 as select true;
 CREATE VIEW
+OCTO> select * from v5;
 ???
 1
 (1 row)
+OCTO> \d v5;
 View "v5"
 Column|Type|Collation|Nullable|Default
 ???|BOOLEAN||||
 View definition:
 create view v5 as select true;
+OCTO> create view v6 as select false;
 CREATE VIEW
+OCTO> select * from v6;
 ???
 0
 (1 row)
+OCTO> \d v6;
 View "v6"
 Column|Type|Collation|Nullable|Default
 ???|BOOLEAN||||
 View definition:
 create view v6 as select false;
+OCTO> create view v7 as select true,'t' as col2 union select 'f','t';
 CREATE VIEW
+OCTO> select * from v7;
 ???|col2
 1|t
 0|t
 (2 rows)
+OCTO> \d v7;
 View "v7"
 Column|Type|Collation|Nullable|Default
 ???|BOOLEAN||||
 col2|VARCHAR||||
 View definition:
 create view v7 as select true,'t' as col2 union select 'f','t';
+OCTO> create view v8 as select '1'::integer from names limit 1;
 CREATE VIEW
+OCTO> select * from v8;
 INTEGER
 1
 (1 row)
+OCTO> \d v8;
 View "v8"
 Column|Type|Collation|Nullable|Default
 INTEGER|INTEGER||||
 View definition:
 create view v8 as select '1'::integer from names limit 1;
+OCTO> create view v9 as select '1'::integer;
 CREATE VIEW
+OCTO> select * from v9;
 INTEGER
 1
 (1 row)
+OCTO> \d v9;
 View "v9"
 Column|Type|Collation|Nullable|Default
 INTEGER|INTEGER||||
 View definition:
 create view v9 as select '1'::integer;
+OCTO> 

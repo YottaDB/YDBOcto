@@ -9,16 +9,22 @@ SELECT ABS(ABS(ABS(1, 2))) FROM names;
 SELECT LENGTH(LENGTH(1, 2)) FROM names;
 SELECT LENGTH(LENGTH(LENGTH(1, 2))) FROM names;
 
+OCTO> CREATE FUNCTION LENGTH(VARCHAR) RETURNS INTEGER AS $$^LENGTH;
 CREATE FUNCTION
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function abs defined with given parameter types (INTEGER, INTEGER)
 LINE 5:1: SELECT ABS(ABS(1, 2)) FROM names;
                      ^^^
+OCTO> SELECT ABS(ABS(1, 2)) FROM names;
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function abs defined with given parameter types (INTEGER, INTEGER)
 LINE 6:1: SELECT ABS(ABS(ABS(1, 2))) FROM names;
                          ^^^
+OCTO> SELECT ABS(ABS(ABS(1, 2))) FROM names;
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function length defined with given parameter types (INTEGER, INTEGER)
 LINE 8:1: SELECT LENGTH(LENGTH(1, 2)) FROM names;
                         ^^^^^^
+OCTO> SELECT LENGTH(LENGTH(1, 2)) FROM names;
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function length defined with given parameter types (INTEGER, INTEGER)
 LINE 9:1: SELECT LENGTH(LENGTH(LENGTH(1, 2))) FROM names;
                                ^^^^^^
+OCTO> SELECT LENGTH(LENGTH(LENGTH(1, 2))) FROM names;
+OCTO> 

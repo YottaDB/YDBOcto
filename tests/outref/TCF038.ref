@@ -6,9 +6,13 @@ CREATE FUNCTION tmpFunc(integer) returns integer as $$^func;
 CREATE TABLE tmpTable (id integer);
 CREATE VIEW tmpView as select * from names;
 
+OCTO> CREATE FUNCTION tmpFunc(integer) returns integer as $$^func;
 CREATE FUNCTION
+OCTO> CREATE TABLE tmpTable (id integer);
 CREATE TABLE
+OCTO> CREATE VIEW tmpView as select * from names;
 CREATE VIEW
+OCTO> 
 # Set ^%ydboctoocto("seeddfnfmt") to 6 (before YDBOcto#929 changes)
 # Start octo which will automatically run auto upgrade due to previous step
 # We expect no errors in this step

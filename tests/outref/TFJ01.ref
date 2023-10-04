@@ -18,6 +18,7 @@ select n1.id,n2.id from names n1 full join names n2 on not exists (select * from
 select n1.id,n2.id from names n1 full join names n2 on exists (select * from names where n1.id < n2.id);
 
 select n1.id,n2.id from names n1 full join names n2 on not exists (select * from names where n1.id < n2.id);
+OCTO> select n1.id,n2.id from names n1 full join names n2 on n1.id = n2.id or exists (select * from names);
 id|id
 0|0
 0|1
@@ -56,6 +57,7 @@ id|id
 5|4
 5|5
 (36 rows)
+OCTO> select n1.id,n2.id from names n1 full join names n2 on n1.id = n2.id or not exists (select * from names);
 id|id
 0|0
 1|1
@@ -64,6 +66,7 @@ id|id
 4|4
 5|5
 (6 rows)
+OCTO> select n1.id,n2.id from names n1 full join names n2 on n1.id = n2.id or exists (select * from names where n1.id < n2.id);
 id|id
 0|0
 0|1
@@ -87,6 +90,7 @@ id|id
 4|5
 5|5
 (21 rows)
+OCTO> select n1.id,n2.id from names n1 full join names n2 on n1.id = n2.id or not exists (select * from names where n1.id < n2.id);
 id|id
 0|0
 1|0
@@ -110,6 +114,7 @@ id|id
 5|4
 5|5
 (21 rows)
+OCTO> select n1.id,n2.id from names n1 full join names n2 on (n1.id = (select n3.id from names n3 where n1.id = n3.id));
 id|id
 0|0
 0|1
@@ -148,6 +153,7 @@ id|id
 5|4
 5|5
 (36 rows)
+OCTO> select n1.id,n2.id from names n1 full join names n2 on (1 = (select n3.id from names n3 where n1.id = n3.id));
 id|id
 0|
 1|0
@@ -161,6 +167,7 @@ id|id
 4|
 5|
 (11 rows)
+OCTO> select n1.id,n2.id from names n1 full join names n2 on exists (select * from names);
 id|id
 0|0
 0|1
@@ -199,6 +206,7 @@ id|id
 5|4
 5|5
 (36 rows)
+OCTO> select n1.id,n2.id from names n1 full join names n2 on not exists (select * from names);
 id|id
 0|
 1|
@@ -213,6 +221,7 @@ id|id
 |4
 |5
 (12 rows)
+OCTO> select n1.id,n2.id from names n1 full join names n2 on exists (select * from names where n1.id < n2.id);
 id|id
 0|1
 0|2
@@ -232,6 +241,7 @@ id|id
 5|
 |0
 (17 rows)
+OCTO> select n1.id,n2.id from names n1 full join names n2 on not exists (select * from names where n1.id < n2.id);
 id|id
 0|0
 1|0
@@ -255,3 +265,4 @@ id|id
 5|4
 5|5
 (21 rows)
+OCTO> 

@@ -21,21 +21,29 @@ IDENTIFIER_PERIOD_IDENTIFIER;
 LINE 3:1: tablename;
           ^^^^^^^^^
 syntax error, unexpected IDENTIFIER_ALONE
+OCTO> tablename;
 LINE 4:1: tablename aliasname;
           ^^^^^^^^^
 syntax error, unexpected IDENTIFIER_ALONE
+OCTO> tablename aliasname;
 LINE 6:1: names;
           ^^^^^
 syntax error, unexpected IDENTIFIER_ALONE
+OCTO> names;
 LINE 7:1: names aliasname;
           ^^^^^
 syntax error, unexpected IDENTIFIER_ALONE
+OCTO> names aliasname;
 LINE 10:1: IDENTIFIER_ALONE;
            ^^^^^^^^^^^^^^^^
 syntax error, unexpected IDENTIFIER_ALONE
+OCTO> IDENTIFIER_ALONE;
 LINE 11:1: IDENTIFIER_BACK_TICK;
            ^^^^^^^^^^^^^^^^^^^^
 syntax error, unexpected IDENTIFIER_ALONE
+OCTO> IDENTIFIER_BACK_TICK;
 LINE 12:1: IDENTIFIER_PERIOD_IDENTIFIER;
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 syntax error, unexpected IDENTIFIER_ALONE
+OCTO> IDENTIFIER_PERIOD_IDENTIFIER;
+OCTO> 

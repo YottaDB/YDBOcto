@@ -32,7 +32,7 @@ expect "OCTO> "
 # Exit Octo using CTRL-D
 send -- "\x04"
 expect -exact "\r
-ID|FIRSTNAME|LASTNAME\r
+id|firstname|lastname\r
 0|Zero|Cool\r
 1|Acid|Burn\r
 2|Cereal|Killer\r

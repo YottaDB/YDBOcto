@@ -20,27 +20,40 @@ SELECT * FROM tmp;
 SELECT firstName from tmp;
 DROP TABLE tmp;
 
+OCTO> CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR DELIM "" PIECE 5) READWRITE;
 CREATE TABLE
+OCTO> INSERT INTO tmp VALUES (1, 'first|1');
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (2, 'second|2');
 INSERT 0 1
+OCTO> SELECT * FROM tmp;
 id|firstname
 1|first|1
 2|second|2
 (2 rows)
+OCTO> SELECT firstName from tmp;
 firstname
 first|1
 second|2
 (2 rows)
+OCTO> DROP TABLE tmp;
 DROP TABLE
+OCTO> CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR) READWRITE;
 CREATE TABLE
+OCTO> INSERT INTO tmp VALUES (1, 'first|1');
 INSERT 0 1
+OCTO> INSERT INTO tmp VALUES (2, 'second|2');
 INSERT 0 1
+OCTO> SELECT * FROM tmp;
 id|firstname
 1|first|1
 2|second|2
 (2 rows)
+OCTO> SELECT firstName from tmp;
 firstname
 first|1
 second|2
 (2 rows)
+OCTO> DROP TABLE tmp;
 DROP TABLE
+OCTO> 

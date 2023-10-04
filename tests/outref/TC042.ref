@@ -4,5 +4,8 @@
 CREATE TABLE temp (id INTEGER);
 CREATE TABLE temp (id INTEGER);
 
+OCTO> CREATE TABLE temp (id INTEGER);
 CREATE TABLE
+OCTO> CREATE TABLE temp (id INTEGER);
 [ERROR]: ERR_CANNOT_CREATE_TABLE: Table or View "temp" already exists
+OCTO> 

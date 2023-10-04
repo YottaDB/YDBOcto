@@ -8,6 +8,15 @@ CREATE TABLE domains (
   gid int NOT NULL CHECK(gid BETWEEN 1 AND 65535)
 );
 INSERT INTO domains VALUES (1,NULL,99999,99999);
+OCTO> DROP TABLE IF EXISTS domains;
 DROP TABLE
+OCTO> CREATE TABLE domains (
+  domain_id integer PRIMARY KEY,
+  domain varchar(255) UNIQUE NOT NULL,
+  uid int NOT NULL CHECK(uid BETWEEN 1 AND 65535),
+  gid int NOT NULL CHECK(gid BETWEEN 1 AND 65535)
+);
 CREATE TABLE
+OCTO> INSERT INTO domains VALUES (1,NULL,99999,99999);
 [ERROR]: ERR_NULL_COL_VALUE: NULL value in column domain violates NOT NULL constraint
+OCTO> 

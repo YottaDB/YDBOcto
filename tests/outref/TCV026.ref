@@ -6,8 +6,11 @@ select * from v;
 drop view if exists v;
 create view v as select lastname::varchar(100) from names;
 select * from v;
+OCTO> drop view if exists v;
 DROP VIEW
+OCTO> create view v as select lastname::varchar(3) from names;
 CREATE VIEW
+OCTO> select * from v;
 lastname
 Coo
 Bur
@@ -16,8 +19,11 @@ Nik
 
 Coo
 (6 rows)
+OCTO> drop view if exists v;
 DROP VIEW
+OCTO> create view v as select lastname::varchar(100) from names;
 CREATE VIEW
+OCTO> select * from v;
 lastname
 Cool
 Burn
@@ -26,3 +32,4 @@ Nikon
 
 Cool
 (6 rows)
+OCTO> 

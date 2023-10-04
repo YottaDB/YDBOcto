@@ -592,6 +592,44 @@ Launching Options
 
        octo --input-file=files/commands.txt
 
+~~~~~~~~~~~~~~~~~
+  Print-sql-query
+~~~~~~~~~~~~~~~~~
+
+    Specifying the ``-p`` or ``--print-sql-query`` command line flag/option in the ``octo`` command line causes every sql query (e.g. SELECT query, INSERT command, CREATE TABLE command etc.) to be printed before displaying the result of that particular query when used with ``octo -f``` or ``octo < inputfile``.
+
+    The query line is prefixed with ``OCTO>`` just like one would see if one entered the query at the ``OCTO>`` prompt.
+
+    Note that the ``-p`` flag/option has a different meaning for the ``rocto`` executable (to specify a port number). The query printing option only works with ``octo``.
+
+    .. code-block:: bash
+
+       --print-sql-query
+
+    or equivalently,
+
+    .. code-block:: bash
+
+       -p
+
+    Example:
+
+    .. code-block:: bash
+
+       octo -p -f input.sql
+
+    Output:
+
+    .. code-block:: sql
+
+       OCTO> select 1;
+       ???
+       1
+       (1 row)
+       OCTO> select 2;
+       ???
+       2
+       (1 row)
 
 ~~~~~~~~~~~~~
 Exit status

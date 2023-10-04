@@ -46,64 +46,99 @@ delete from names where firstname;
 select '-- Test of ERR_TYPE_MISMATCH error';
 delete from names where lastname = id; -- a modified version of this query (with a type cast operator) is tested in TDFT01.sql
 
+OCTO> select '-- Test of ERR_UNKNOWN_COLUMN_NAME';
 ???
 -- Test of ERR_UNKNOWN_COLUMN_NAME
 (1 row)
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: abcd
 LINE 4:1: delete from names where abcd = 2;
                                   ^^^^
+OCTO> delete from names where abcd = 2;
+OCTO> select '-- Test of ERR_MISSING_FROM_ENTRY';
 ???
 -- Test of ERR_MISSING_FROM_ENTRY
 (1 row)
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : names
 LINE 7:1: delete from names n1 where names.id = 2;
                                      ^^^^^^^^
+OCTO> delete from names n1 where names.id = 2;
+OCTO> select '-- Test of ERR_TABLE_READONLY error against various catalog tables';
 ???
 -- Test of ERR_TABLE_READONLY error against various catalog tables
 (1 row)
 [ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY table "octoonerowtable". Only allowed on READWRITE tables.
+OCTO> delete from octoOneRowTable;
 [ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY table "pg_catalog.pg_namespace". Only allowed on READWRITE tables.
+OCTO> delete from pg_catalog.pg_namespace where NULL != NULL;
 [ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY table "pg_catalog.pg_type". Only allowed on READWRITE tables.
+OCTO> delete from pg_catalog.pg_type;
 [ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY table "pg_catalog.pg_class". Only allowed on READWRITE tables.
+OCTO> delete from pg_catalog.pg_class;
 [ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY table "pg_catalog.pg_description". Only allowed on READWRITE tables.
+OCTO> delete from pg_catalog.pg_description;
 [ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY table "information_schema.tables". Only allowed on READWRITE tables.
+OCTO> delete from information_schema.tables where NULL = NULL;
 [ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY table "pg_catalog.pg_proc". Only allowed on READWRITE tables.
+OCTO> delete from pg_catalog.pg_proc;
 [ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY table "pg_catalog.pg_attribute". Only allowed on READWRITE tables.
+OCTO> delete from pg_catalog.pg_attribute;
 [ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY table "pg_catalog.pg_attrdef". Only allowed on READWRITE tables.
+OCTO> delete from pg_catalog.pg_attrdef;
 [ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY table "pg_catalog.pg_settings". Only allowed on READWRITE tables.
+OCTO> delete from pg_catalog.pg_settings;
 [ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY table "pg_catalog.pg_database". Only allowed on READWRITE tables.
+OCTO> delete from pg_catalog.pg_database;
 [ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY table "pg_catalog.pg_roles". Only allowed on READWRITE tables.
+OCTO> delete from pg_catalog.pg_roles;
 [ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY table "pg_catalog.pg_user". Only allowed on READWRITE tables.
+OCTO> delete from pg_catalog.pg_user;
+OCTO> select '-- Test of ERR_TABLE_READONLY error in a table created with READONLY';
 ???
 -- Test of ERR_TABLE_READONLY error in a table created with READONLY
 (1 row)
+OCTO> create table test1 (id INTEGER PRIMARY KEY) READONLY;
 CREATE TABLE
 [ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY table "test1". Only allowed on READWRITE tables.
+OCTO> delete from test1;
+OCTO> drop table test1;
 DROP TABLE
+OCTO> select '-- Test same table created with READWRITE works fine with DELETE FROM';
 ???
 -- Test same table created with READWRITE works fine with DELETE FROM
 (1 row)
+OCTO> create table test1 (id INTEGER PRIMARY KEY) READWRITE;
 CREATE TABLE
+OCTO> delete from test1;
 DELETE 0
+OCTO> drop table test1;
 DROP TABLE
+OCTO> select '-- Test of ERR_TABLE_READONLY error in a table created with READONLY implicitly assumed';
 ???
 -- Test of ERR_TABLE_READONLY error in a table created with READONLY implicitly assumed
 (1 row)
+OCTO> create table test1 (id INTEGER PRIMARY KEY, firstname VARCHAR DELIM "", lastname VARCHAR DELIM "");
 CREATE TABLE
 [ERROR]: ERR_TABLE_READONLY: DELETE not allowed on READONLY table "test1". Only allowed on READWRITE tables.
+OCTO> delete from test1;
+OCTO> drop table test1;
 DROP TABLE
+OCTO> select '-- Test of ERR_UNKNOWN_TABLE error';
 ???
 -- Test of ERR_UNKNOWN_TABLE error
 (1 row)
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: abcd
 LINE 40:1: delete from abcd;
                        ^^^^
+OCTO> delete from abcd;
+OCTO> select '-- Test of ERR_TYPE_NOT_COMPATIBLE error';
 ???
 -- Test of ERR_TYPE_NOT_COMPATIBLE error
 (1 row)
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
 LINE 43:1: delete from names where firstname;
                                    ^^^^^^^^^
+OCTO> delete from names where firstname;
+OCTO> select '-- Test of ERR_TYPE_MISMATCH error';
 ???
 -- Test of ERR_TYPE_MISMATCH error
 (1 row)
@@ -112,3 +147,6 @@ LINE 46:1: delete from names where lastname = id; -- a modified version of ...
                                    ^^^^^^^^
 LINE 46:1: ...te from names where lastname = id; -- a modified version of this...
                                              ^^
+OCTO> delete from names where lastname = id;
+OCTO> -- a modified version of this query (with a type cast operator) is tested in TDFT01.sql
+

@@ -3,6 +3,7 @@
 
 select id::boolean,(ABS(2)::boolean || id::text) from names;
 
+OCTO> select id::boolean,(ABS(2)::boolean || id::text) from names;
 id|???
 0|true0
 1|true1
@@ -11,3 +12,4 @@ id|???
 1|true4
 1|true5
 (6 rows)
+OCTO> 

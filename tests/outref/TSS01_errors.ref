@@ -25,42 +25,53 @@ LINE 4:1: select * from names where id != firstname;
                                     ^^
 LINE 4:1: select * from names where id != firstname;
                                           ^^^^^^^^^
+OCTO> select * from names where id != firstname;
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right VARCHAR
 LINE 5:1: select * from (select * from names) n1 where id != firstname;
                                                        ^^
 LINE 5:1: select * from (select * from names) n1 where id != firstname;
                                                              ^^^^^^^^^
+OCTO> select * from (select * from names) n1 where id != firstname;
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
 LINE 7:1: select (firstname = 'd' AND id) from names;
                                       ^^
+OCTO> select (firstname = 'd' AND id) from names;
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
 LINE 8:1: select (1 AND id) from names;
                   ^
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
 LINE 8:1: select (1 AND id) from names;
                         ^^
+OCTO> select (1 AND id) from names;
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
 LINE 9:1: select (firstname AND id) from names;
                   ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
 LINE 9:1: select (firstname AND id) from names;
                                 ^^
+OCTO> select (firstname AND id) from names;
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
 LINE 10:1: select id and 0 = 1 from names;
                   ^^
+OCTO> select id and 0 = 1 from names;
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
 LINE 11:1: select id and (0 = 1) from names;
                   ^^
+OCTO> select id and (0 = 1) from names;
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
 LINE 12:1: select (0 = 1) and id from names;
                               ^^
+OCTO> select (0 = 1) and id from names;
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
 LINE 13:1: select id and id from names;
                   ^^
 [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
 LINE 13:1: select id and id from names;
                          ^^
+OCTO> select id and id from names;
+OCTO> select (firstname::boolean AND id::boolean) from names;
 [ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'Zero' is not a valid boolean value
+OCTO> select (n1.col1::integer = 0) from (select NULL as col1 from names) n1;
 ???
 
 
@@ -69,3 +80,4 @@ LINE 13:1: select id and id from names;
 
 
 (6 rows)
+OCTO> 

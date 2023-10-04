@@ -11,6 +11,7 @@ SELECT firstname,COUNT(id) FROM names GROUP BY firstname ORDER BY 2,COUNT(id);
 
 [ INFO] PATH:LINENUM DATE TIME: INFO_RECORDING_ENV_VARS: # Recording pertinent ydb_* env var values at process startup
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [SELECT DISTINCT 1 + COUNT(n1.id * 2),n1.firstname from names n1 where n1.id IN (SELECT DISTINCT MAX((n2.id % 3) + 4) from names n2 GROUP BY n2.firstname) GROUP BY n1.firstname ORDER BY 2, 1;]
+OCTO> SELECT DISTINCT 1 + COUNT(n1.id * 2),n1.firstname from names n1 where n1.id IN (SELECT DISTINCT MAX((n2.id % 3) + 4) from names n2 GROUP BY n2.firstname) GROUP BY n1.firstname ORDER BY 2, 1;
 [ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
 [ INFO] PATH:LINENUM DATE TIME: INFO_M_PLAN: Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 [DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
@@ -253,6 +254,9 @@ LP_SELECT_QUERY:
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [--	and COUNT(id) in the ORDER BY column list is treated as a 2nd aggregate function use so we expect to see
 --	2 aggregate function counts generated in the physical plan. When #414 is fixed, we will see only 1 aggregate function count.
 SELECT firstname,COUNT(id) FROM names GROUP BY firstname ORDER BY 2,COUNT(id);]
+OCTO> --	and COUNT(id) in the ORDER BY column list is treated as a 2nd aggregate function use so we expect to see
+--	2 aggregate function counts generated in the physical plan. When #414 is fixed, we will see only 1 aggregate function count.
+SELECT firstname,COUNT(id) FROM names GROUP BY firstname ORDER BY 2,COUNT(id);
 [ INFO] PATH:LINENUM DATE TIME: INFO_CURSOR: Generating SQL for CURSOR_NUM
 [ INFO] PATH:LINENUM DATE TIME: INFO_M_PLAN: Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 [DEBUG] PATH:LINENUM DATE TIME: INFO_CURPLAN: LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
@@ -388,6 +392,7 @@ Zero|2
 (5 rows)
 [ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command []
+OCTO> 
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  --	and COUNT(id) in the ORDER BY column list is treated as a 2nd aggregate function use so we expect to see

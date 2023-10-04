@@ -69,9 +69,14 @@ typedef struct OctoConfig {
 	config_t *	     config_file;
 	pid_t		     process_id;
 	boolean_t	     dry_run;
-	int		     plan_id, page_size;
-	boolean_t	     allow_schema_changes;
-	boolean_t	     readwrite;
+	boolean_t	     octo_print_flag_specified; /* TRUE if "-p" or "--print-sql-query" was specified in octo startup */
+	boolean_t	     octo_print_query;		/* prints each query in "octo" (not "rocto") as it is executed.
+							 * Does nothing if "config->is_tty" is TRUE (readline already
+							 * prints query in that case).
+							 */
+	int	  plan_id, page_size;
+	boolean_t allow_schema_changes;
+	boolean_t readwrite;
 	boolean_t in_auto_upgrade_binary_table_definition; /* TRUE for a short window when octo/rocto startup detects it is
 							    * time to auto upgrade the binary table definitions.
 							    */

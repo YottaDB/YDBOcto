@@ -21,19 +21,32 @@ drop table if exists products;
 CREATE TABLE products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price > 0));
 select * from products;
 
+OCTO> drop table if exists products;
 DROP TABLE
+OCTO> create table products (id integer, check (id > 0));
 CREATE TABLE
+OCTO> select * from products;
 id
 (0 rows)
+OCTO> drop table if exists products;
 DROP TABLE
+OCTO> create table products (id integer, CONSTRAINT name1 check (id > 0));
 CREATE TABLE
+OCTO> select * from products;
 id
 (0 rows)
+OCTO> drop table if exists products;
 DROP TABLE
+OCTO> CREATE TABLE products (product_no integer, name text, price numeric CHECK (price > 0));
 CREATE TABLE
+OCTO> select * from products;
 product_no|name|price
 (0 rows)
+OCTO> drop table if exists products;
 DROP TABLE
+OCTO> CREATE TABLE products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price > 0));
 CREATE TABLE
+OCTO> select * from products;
 product_no|name|price
 (0 rows)
+OCTO> 

@@ -3,6 +3,7 @@
 
 select n1.id,n2.id,n3.id,n4.id from names n1 inner join names n2 on n2.id < n1.id inner join names n3 on n3.id < n2.id inner join names n4 on n4.id < n3.id;
 
+OCTO> select n1.id,n2.id,n3.id,n4.id from names n1 inner join names n2 on n2.id < n1.id inner join names n3 on n3.id < n2.id inner join names n4 on n4.id < n3.id;
 id|id|id|id
 3|2|1|0
 4|2|1|0
@@ -20,6 +21,7 @@ id|id|id|id
 5|4|3|1
 5|4|3|2
 (15 rows)
+OCTO> 
 # Verify generated M plan has IF checks in between FOR loops instead of after ALL FOR loops
 octoPlan0(cursorId,wrapInTp)
     DO octoPlan1(cursorId)

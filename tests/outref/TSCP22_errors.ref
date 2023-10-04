@@ -37,60 +37,83 @@ select (VALUES((select 1,2)));
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 2:1: ...om (select * from names) n1 where n1.* in (select * from names);
                                                         ^^^^^^
+OCTO> select * from (select * from names) n1 where n1.* in (select * from names);
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 3:1: select * from names n1 where n1.id in (select * from names);
                                                  ^^^^^^
+OCTO> select * from names n1 where n1.id in (select * from names);
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 4:1: ...ect * from names n1 where n1.firstname in (select * from names);
                                                         ^^^^^^
+OCTO> select * from names n1 where n1.firstname in (select * from names);
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 5:1: ...lect * from names n1 where n1.id in (select n2.* from names n2);
                                                   ^^^^^^
+OCTO> select * from names n1 where n1.id in (select n2.* from names n2);
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 6:1: ... * from names n1 order by n1.firstname in (select * from names);
                                                         ^^^^^^
+OCTO> select * from names n1 order by n1.firstname in (select * from names);
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'firstname' must appear in the GROUP BY clause or be used in an aggregate function
 LINE 7:1: ...ct 1 from names n1 having n1.firstname in (select * from names);
                                        ^^^^^^^^^^^^
+OCTO> select 1 from names n1 having n1.firstname in (select * from names);
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 8:1: ...1 order by n1.firstname in ((select id, firstname from names) UN...
                                           ^^^^^^
+OCTO> select * from names n1 order by n1.firstname in ((select id, firstname from names) UNION (select id, firstname from names));
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
+OCTO> select * from names n1 order by n1.id in (VALUES('test','firstname'));
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 10:1: ... order by n1.firstname in (((select 1, 'test')UNION(select 2, 't...
                                            ^^^^^^
+OCTO> select * from names n1 order by n1.firstname in (((select 1, 'test')UNION(select 2, 'test')) UNION (select id, firstname from names));
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 11:1: select 'test' NOT IN (NULL,(select n1.id,n1.id)) from names n1;
                                       ^^^^^^^^^^^^^^^^^^^^
+OCTO> select 'test' NOT IN (NULL,(select n1.id,n1.id)) from names n1;
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 12:1: select * from names n1 where (select * from names) in (n1.id);
                                          ^^^^^^
+OCTO> select * from names n1 where (select * from names) in (n1.id);
+OCTO> select * from names n1 where (select id from names) in (n1.id);
 [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 14:1: ...elect * from names n1 where (select * from names limit 1) in (n1...
                                            ^^^^^^
+OCTO> select * from names n1 where (select * from names limit 1) in (n1.id);
+OCTO> CREATE FUNCTION SAMEVALUE(INTEGER) RETURNS INTEGER AS $$samevalue^functions;
 CREATE FUNCTION
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 17:1: select samevalue((select id,id)) from names;
                             ^^^^^^^^^^^^^^
+OCTO> select samevalue((select id,id)) from names;
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 19:1: ...es left join names n2 on (select names.firstname,n2.firstname);
                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select 1 from names left join names n2 on (select names.firstname,n2.firstname);
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
 LINE 20:1: ...ect 1 from names left join names n2 on (select names.firstname);
                                                      ^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select 1 from names left join names n2 on (select names.firstname);
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 22:1: ...elect count((select names.firstname,names.firstname)) from names...
                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select count((select names.firstname,names.firstname)) from names;
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 24:1: select (select names.firstname,names.firstname)::VARCHAR from na...
                    ^^^^^^
+OCTO> select (select names.firstname,names.firstname)::VARCHAR from names;
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 26:1: select (VALUES(1,2));
                   ^^^^^^^^^^^^^
+OCTO> select (VALUES(1,2));
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 27:1: select (VALUES((select 1,2),2));
                   ^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select (VALUES((select 1,2),2));
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 28:1: select (VALUES((select 1,2)));
                            ^^^^^^
+OCTO> select (VALUES((select 1,2)));
+OCTO> 

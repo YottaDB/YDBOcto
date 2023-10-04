@@ -11,7 +11,9 @@ select dollarzwrite(firstname) from names;
 -- Call function with name in mixed case
 select dollarZWRITE(firstname) from names;
 
+OCTO> CREATE FUNCTION DOLLARZWRITE(VARCHAR) RETURNS VARCHAR AS $ZWRITE;
 CREATE FUNCTION
+OCTO> select DOLLARZWRITE(firstname) from names;
 dollarzwrite
 "Zero"
 "Acid"
@@ -20,6 +22,7 @@ dollarzwrite
 "Joey"
 "Zero"
 (6 rows)
+OCTO> select dollarzwrite(firstname) from names;
 dollarzwrite
 "Zero"
 "Acid"
@@ -28,6 +31,7 @@ dollarzwrite
 "Joey"
 "Zero"
 (6 rows)
+OCTO> select dollarZWRITE(firstname) from names;
 dollarzwrite
 "Zero"
 "Acid"
@@ -36,3 +40,4 @@ dollarzwrite
 "Joey"
 "Zero"
 (6 rows)
+OCTO> 

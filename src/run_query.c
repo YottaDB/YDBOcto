@@ -189,6 +189,13 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 	 * other macros that are invoked return code paths (e.g. CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS).
 	 */
 	INFO(INFO_PARSING_DONE, cur_input_index - old_input_index, input_buffer_combined + old_input_index);
+	if (config->octo_print_query) {
+		fprintf(stdout, "OCTO> %.*s\n", cur_input_index - old_input_index, input_buffer_combined + old_input_index);
+		/* It is possible error output of this query goes to stderr. In that case, it is possible for the two
+		 * output streams to get mixed up giving confusing results. Therefore, flush stdout right away.
+		 */
+		fflush(stdout);
+	}
 	if (NULL == result) {
 		INFO(INFO_RETURNING_FAILURE, "run_query");
 		CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);

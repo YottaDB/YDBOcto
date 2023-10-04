@@ -344,142 +344,284 @@ create table tmp121 (id1 integer constraint tmp121_id3_check primary key, id2 in
 
 -- Test constraints are double-quoted and do not fail any asserts, see https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1182#note_1290235104 for details
 create table tmp122 (id integer constraint c CHECK (id > 1));
+OCTO> create table tmp01 (id integer, check ((true is unknown) and (false is null)));
 CREATE TABLE
+OCTO> create table tmp02 (id integer, check (('abcd' != 'efgh') and (1 <= id) and (1.5 > abs(-2.35))));
 CREATE TABLE
+OCTO> create table tmp03 (id integer, check (NOT nullif(1.0, 1) is not null));
 CREATE TABLE
+OCTO> create table tmp04 (id integer, firstname varchar, check (greatest(firstname, 'abcd', NULL, 'zzz') is null));
 CREATE TABLE
+OCTO> create table tmp05 (id integer, firstname varchar, lastname varchar, check (least(firstname || 'efgh', lastname, firstname || lastname) is null));
 CREATE TABLE
+OCTO> create table tmp06 (id integer, lastname varchar, check (coalesce(NULL, lastname) is null));
 CREATE TABLE
+OCTO> create table tmp07 (id integer, lastname varchar, check (nullif(NULL, 2) is null));
 CREATE TABLE
+OCTO> create table tmp08 (id integer, check(case id when 2 then true end));
 CREATE TABLE
+OCTO> create table tmp09 (id integer, check(case id when 2 then true else false end));
 CREATE TABLE
+OCTO> create table tmp10 (id integer, check(case when id is null then true end));
 CREATE TABLE
+OCTO> create table tmp11 (id integer, check(case when id is null then true else false end));
 CREATE TABLE
+OCTO> create table tmp12 (id integer, check(id::boolean));
 CREATE TABLE
+OCTO> create table tmp13 (id integer, check(id::numeric(3) = 3.0));
 CREATE TABLE
+OCTO> create table tmp14 (id integer, check(id::numeric(4,1) != 4.5));
 CREATE TABLE
+OCTO> create table tmp15 (id integer, check(id::integer < 4));
 CREATE TABLE
+OCTO> create table tmp16 (id integer, check(id::varchar(10) > 'abcd'));
 CREATE TABLE
+OCTO> create table tmp17 (id integer, check(+id >= -2));
 CREATE TABLE
+OCTO> create table tmp18 (id integer, check(NOT id::boolean));
 CREATE TABLE
+OCTO> create table tmp19 (id integer, check(id + (id % 3) - (id * 2) <= (id / 20)));
 CREATE TABLE
+OCTO> create table tmp20 (id integer, check(id::boolean OR NOT id::boolean));
 CREATE TABLE
+OCTO> create table tmp21 (id integer, check(id::boolean AND NOT id::boolean));
 CREATE TABLE
+OCTO> create table tmp22 (lastname varchar, check(lastname ~ 'abcd'));
 CREATE TABLE
+OCTO> create table tmp23 (lastname varchar, check(lastname ~* 'abcd'));
 CREATE TABLE
+OCTO> create table tmp24 (lastname varchar, check((lastname like 'abcd%') or (lastname not like 'abcd%')));
 CREATE TABLE
+OCTO> create table tmp25 (lastname varchar, check((lastname ilike 'ab%cd') or (lastname not ilike 'ab%cd')));
 CREATE TABLE
+OCTO> create table tmp26 (lastname varchar, check((lastname similar to 'ab%cd') and (lastname not similar to 'ab%cd')));
 CREATE TABLE
+OCTO> create table tmp27 (id integer, check(id in (2,3)));
 CREATE TABLE
+OCTO> create table tmp28 (id integer, check(id not in (2,3)));
 CREATE TABLE
+OCTO> create table tmp29 (product_no integer CHECK (price > product_no), name text, price numeric);
 CREATE TABLE
+OCTO> create table tmp30 (id integer unique, name varchar constraint name1 not null, firstname varchar constraint name1 check (firstname is not NULL));
 CREATE TABLE
+OCTO> create table tmp31 (id integer, check (1 + 2 = 3), check (2 + 3 = 5));
 CREATE TABLE
+OCTO> create table tmp32 (id integer CONSTRAINT toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu CHECK (id < 2));
 CREATE TABLE
+OCTO> create table tmp33 (
+	      product_no integer,
+	      name text,
+	      price numeric CONSTRAINT tmp33_price_check CHECK (price > 0) CONSTRAINT tmp33_price_check1 CHECK (price > 5)
+	       CHECK (price < 10)
+	  );
 CREATE TABLE
+OCTO> create table tmp34 (
+	      product_no integer,
+	      name text,
+	      price numeric CHECK (price > product_no)
+	  );
 CREATE TABLE
+OCTO> create table tmp35 (
+	      product_no integer CHECK (price > product_no),
+	      name text,
+	      price numeric
+	  );
 CREATE TABLE
+OCTO> create table tmp36 (id integer, name varchar check (id > 0));
 CREATE TABLE
+OCTO> create table tmp37 (id integer, name varchar check (id > 0) check (name is not null) check ((name || id) = 'Zero2'));
 CREATE TABLE
+OCTO> create table tmp38 (id integer, name varchar check (2 > 0) check (name is not null));
 CREATE TABLE
+OCTO> create table tmp39 (check (1 > 0), firstname varchar check (firstname > 'abcd'));
 CREATE TABLE
+OCTO> create table tmp40 (check (1 > 0), check (2 > 1), firstname varchar check (firstname > 'abcd'));
 CREATE TABLE
+OCTO> create table tmp41 (id integer, check (1 > 0), firstname varchar check (firstname > 'abcd'));
 CREATE TABLE
+OCTO> create table tmp42 (id integer constraint uniq1 unique);
 CREATE TABLE
+OCTO> create table tmp43 (id integer, constraint uniq1 unique (id));
 CREATE TABLE
+OCTO> create table tmp44 (id1 integer, id2 integer, constraint uniq1 unique (id1, id2));
 CREATE TABLE
+OCTO> create table tmp45 (id1 integer, id2 integer, UNIQUE(id1, id2), CHECK (id1 > 2));
 CREATE TABLE
+OCTO> create table tmp46 (id1 integer, constraint u1 unique (id1), constraint u2 unique (id1));
 CREATE TABLE
+OCTO> create table tmp47 (id integer unique constraint uniq2 unique, name varchar constraint uniq1 unique);
 CREATE TABLE
+OCTO> create table tmp48 (id integer unique constraint uniq2 unique constraint uniq3 unique, name varchar constraint uniq1 unique);
 CREATE TABLE
+OCTO> create table tmp49 (id1 integer, id2 integer, constraint u1 unique (id1, id2), constraint u2 unique (id2, id1));
 CREATE TABLE
+OCTO> create table tmp50 (id1 integer, id2 integer, constraint u1 unique (id1, id2), constraint u2 unique (id1, id2));
 CREATE TABLE
+OCTO> create table tmp51 (id1 integer, id2 integer, unique (id1, id2), constraint u2 unique (id1, id2), constraint u3 unique (id1, id2));
 CREATE TABLE
+OCTO> create table tmp52 (id1 integer, id2 integer, unique (id1), constraint u2 unique (id1), constraint u3 unique (id1));
 CREATE TABLE
+OCTO> create table tmp53 (constraint uniq unique (id1), id1 integer);
 CREATE TABLE
+OCTO> create table tmp54 (id1 integer, constraint uniq unique (id2), id2 integer);
 CREATE TABLE
+OCTO> create table tmp55 (id1 integer, constraint uniq unique (id1, id2), id2 integer);
 CREATE TABLE
+OCTO> create table tmp56 (id integer constraint uniq1 unique constraint uniq2 unique, name varchar constraint uniq2 unique);
 CREATE TABLE
+OCTO> create table tmp57 (id1 integer, id2 integer, unique (id1, id2), unique (id2, id1));
 CREATE TABLE
+OCTO> create table tmp58 (id1 integer, id2 integer, id3 integer, unique (id1, id2), unique (id1, id2, id3));
 CREATE TABLE
+OCTO> create table tmp59 (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu integer unique);
 CREATE TABLE
+OCTO> create table tmp60toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopq (id integer unique);
 CREATE TABLE
+OCTO> create table tmp61toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopq (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu integer unique);
 CREATE TABLE
+OCTO> create table tmp62 (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, id2 integer, unique (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr, id2));
 CREATE TABLE
+OCTO> create table tmp63 (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, unique (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr));
 CREATE TABLE
+OCTO> create table tmp64toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopq (id1 integer, id2 integer, unique (id1, id2));
 CREATE TABLE
+OCTO> create table tmp65toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopq (id1 integer, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, unique (id1, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr));
 CREATE TABLE
+OCTO> create table tmp66toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopq (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, id2 integer, unique (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr, id2));
 CREATE TABLE
+OCTO> create table tmp67toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopq (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, unique (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr));
 CREATE TABLE
+OCTO> create table tmp68toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopq (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid1 integer, toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid2 integer, unique (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid1, toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid2), unique (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid2, toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid1));
 CREATE TABLE
+OCTO> create table tmp69 (abcdefghijklmnopqrstuvwxyz1 integer, abcdefghijklmnopqrstuvwxyz2 integer, unique (abcdefghijklmnopqrstuvwxyz1, abcdefghijklmnopqrstuvwxyz2));
 CREATE TABLE
+OCTO> create table tmp70 (abcdefghijklmnopqrstuvwxyz1 integer, abcdefghijklmnopqrstuvwxyz2 integer, abcdefghijklmnopqrstuvwxyz3 integer, unique (abcdefghijklmnopqrstuvwxyz1, abcdefghijklmnopqrstuvwxyz2), unique (abcdefghijklmnopqrstuvwxyz1, abcdefghijklmnopqrstuvwxyz3));
 CREATE TABLE
+OCTO> create table tmp71 (abcdefghijklmnopqrstuvwxyz1 integer, abcdefghijklmnopqrstuvwxyz2 integer, abcdefghijklmnopqrstuvwxyz3 integer, abcdefghijklmnopqrstuvwxyz4 integer, unique (abcdefghijklmnopqrstuvwxyz1, abcdefghijklmnopqrstuvwxyz2), unique (abcdefghijklmnopqrstuvwxyz1, abcdefghijklmnopqrstuvwxyz2, abcdefghijklmnopqrstuvwxyz3), unique (abcdefghijklmnopqrstuvwxyz1, abcdefghijklmnopqrstuvwxyz4, abcdefghijklmnopqrstuvwxyz2, abcdefghijklmnopqrstuvwxyz3));
 CREATE TABLE
+OCTO> create table tmp72 (id1 integer constraint tmp72_id2_key unique, id2 integer unique);
 CREATE TABLE
+OCTO> create table tmp73 (id1 integer constraint tmp73_id2_key CHECK (id1 > 1), id2 integer unique);
 CREATE TABLE
+OCTO> create table tmp74 (id1 integer constraint tmp74_id2_check unique, id2 integer CHECK (id2 > 1));
 CREATE TABLE
+OCTO> create table tmp75toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopq (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid1 integer, toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid2 integer, constraint tmp75toolongabcdefghijklmnopq_toolong1abcdefghijklmnopqrst_key1 CHECK (1 > 1), unique (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid1, toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid2), unique (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid2, toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrid1));
 CREATE TABLE
+OCTO> create table tmp76 (id integer PRIMARY KEY, firstname varchar, lastname varchar) READONLY GLOBAL "^names";
 CREATE TABLE
+OCTO> select count(*) from tmp76;
 count(*)
 6
 (1 row)
+OCTO> create table tmp77 (id integer CONSTRAINT myPrimaryKey77 PRIMARY KEY, firstname varchar, lastname varchar) READONLY GLOBAL "^names";
 CREATE TABLE
+OCTO> select count(*) from tmp77;
 count(*)
 6
 (1 row)
+OCTO> create table tmp78 (id integer, firstname varchar, lastname varchar, PRIMARY KEY (id)) READONLY GLOBAL "^names";
 CREATE TABLE
+OCTO> select count(*) from tmp78;
 count(*)
 6
 (1 row)
+OCTO> create table tmp79 (id integer, firstname varchar, lastname varchar, CONSTRAINT myPrimaryKey79 PRIMARY KEY (id)) READONLY GLOBAL "^names";
 CREATE TABLE
+OCTO> select count(*) from tmp79;
 count(*)
 6
 (1 row)
+OCTO> create table tmp80 (id1 integer key num 0, id2 integer key num 1);
 CREATE TABLE
+OCTO> create table tmp81 (id1 integer, id2 integer, PRIMARY KEY (id1, id2));
 CREATE TABLE
+OCTO> create table tmp82 (id integer primary key unique);
 CREATE TABLE
+OCTO> create table tmp83 (id integer, primary key (id), unique (id));
 CREATE TABLE
+OCTO> create table tmp84 (id1 integer, id2 integer, primary key (id1, id2), unique (id1, id2));
 CREATE TABLE
+OCTO> create table tmp85 (id1 integer, id2 integer, primary key (id1), unique (id2));
 CREATE TABLE
+OCTO> create table tmp86 (id1 integer, id2 integer, primary key (id1, id2), unique (id2, id1));
 CREATE TABLE
+OCTO> create table tmp87 (id integer primary key constraint uniq unique);
 CREATE TABLE
+OCTO> create table tmp88 (id integer constraint primkey88 primary key constraint abcd unique);
 CREATE TABLE
+OCTO> create table tmp89 (id integer, constraint primkey89 primary key (id), constraint uniq unique (id));
 CREATE TABLE
+OCTO> create table tmp90 (id integer, primary key (id), constraint uniq90 unique (id));
 CREATE TABLE
+OCTO> create table tmp91 (id1 integer, id2 integer, constraint primkey91 primary key (id1, id2), constraint uniq unique (id1, id2));
 CREATE TABLE
+OCTO> create table tmp92 (id1 integer, id2 integer, primary key (id1, id2), constraint uniq92 unique (id1, id2));
 CREATE TABLE
+OCTO> create table tmp93 (unique (id2, id3), id1 integer, id2 integer, id3 integer, primary key (id2, id3));
 CREATE TABLE
+OCTO> create table tmp94 (constraint uniq94 unique (id2, id3), id1 integer, id2 integer, id3 integer, primary key (id2, id3));
 CREATE TABLE
+OCTO> create table tmp95 (unique (id2), id1 integer, id2 integer, primary key (id2));
 CREATE TABLE
+OCTO> create table tmp96 (constraint uniq96 unique (id2), id1 integer, id2 integer, primary key (id2));
 CREATE TABLE
+OCTO> create table tmp97 (id integer constraint pkey97 primary key);
 CREATE TABLE
+OCTO> create table tmp98 (id integer, constraint pkey98 primary key (id));
 CREATE TABLE
+OCTO> create table tmp99 (id1 integer, id2 integer, constraint pkey99 primary key (id1, id2));
 CREATE TABLE
+OCTO> create table tmp100 (id1 integer, id2 integer, UNIQUE(id1, id2), CHECK (id1 > 2), constraint pkay100 primary key (id2));
 CREATE TABLE
+OCTO> create table tmp101 (constraint pkey101 primary key (id1), id1 integer);
 CREATE TABLE
+OCTO> create table tmp102 (id1 integer, constraint pkey102 primary key (id2), id2 integer);
 CREATE TABLE
+OCTO> create table tmp103 (id1 integer, constraint pkey103 primary key (id1, id2), id2 integer);
 CREATE TABLE
+OCTO> create table tmp104 (id1 integer, id2 integer, primary key (id1, id2));
 CREATE TABLE
+OCTO> create table tmp105toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnop (id integer primary key);
 CREATE TABLE
+OCTO> create table tmp105toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnoq (id integer primary key);
 CREATE TABLE
+OCTO> create table tmp105toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnor (id integer primary key);
 CREATE TABLE
+OCTO> create table tmp106 (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu integer primary key);
 CREATE TABLE
+OCTO> create table tmp107toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnop (id integer primary key);
 CREATE TABLE
+OCTO> create table tmp108toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnop (toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqrstu integer primary key);
 CREATE TABLE
+OCTO> create table tmp109 (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, id2 integer, primary key (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr, id2));
 CREATE TABLE
+OCTO> create table tmp110 (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, primary key (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr));
 CREATE TABLE
+OCTO> create table tmp111toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnop (id1 integer, id2 integer, primary key (id1, id2));
 CREATE TABLE
+OCTO> create table tmp112toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnop (id1 integer, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, primary key (id1, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr));
 CREATE TABLE
+OCTO> create table tmp113toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnop (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, id2 integer, primary key (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr, id2));
 CREATE TABLE
+OCTO> create table tmp114toolongabcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnop (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr integer, primary key (id1toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr, id2toolong1abcdefghijklmnopqrstuvwxyztoolong2abcdefghijklmnopqr));
 CREATE TABLE
+OCTO> create table tmp115 (id1 integer constraint tmp115_pkey unique, id2 integer primary key);
 CREATE TABLE
+OCTO> create table tmp116 (id1 integer constraint tmp116_id2_key primary key, id2 integer unique);
 CREATE TABLE
+OCTO> create table tmp117 (id1 integer constraint tmp117_pkey CHECK (id1 > 1), id2 integer primary key);
 CREATE TABLE
+OCTO> create table tmp118 (id1 integer constraint tmp118_id1_check primary key, id2 integer CHECK (id1 > 1));
 CREATE TABLE
+OCTO> create table tmp119 (id2 integer constraint tmp119_pkey CHECK (id2 > 1), id3 integer constraint tmp119_pkey1 unique, id1 integer primary key);
 CREATE TABLE
+OCTO> create table tmp120 (id2 integer constraint tmp120_id1_key CHECK (id2 > 1), id3 integer constraint tmp120_id1_key1 primary key, id1 integer unique);
 CREATE TABLE
+OCTO> create table tmp121 (id1 integer constraint tmp121_id3_check primary key, id2 integer constraint tmp121_id3_check1 unique, id3 integer CHECK (id3 > 1));
 CREATE TABLE
+OCTO> create table tmp122 (id integer constraint c CHECK (id > 1));
 CREATE TABLE
+OCTO> 
 # Generate and Run query file select.sql that does a SELECT * of all tables created in TCTC005.sql
 id
 (0 rows)

@@ -211,4 +211,6 @@ epub_copyright = copyright
 # A list of files that should not be packed into the epub file.
 epub_exclude_files = ['search.html']
 
-
+# Disable smart quotes for quote characters
+smartquotes = True
+smartquotes_action = "De" # dashes and ellipses only

@@ -121,20 +121,48 @@ Boolean Data Type
   | '1'            | true          |
   +----------------+---------------+
 
+  For boolean values, the following predicates are available (e.g. in ``WHERE`` clauses):
+
+  .. code-block:: SQL
+
+     boolean_expression IS TRUE
+     boolean_expression IS NOT TRUE
+     boolean_expression IS FALSE
+     boolean_expression IS NOT FALSE
+     boolean_expression IS UNKNOWN
+     boolean_expression IS NOT UNKNOWN
+
+  The expressions ``TRUE``/``FALSE`` are self-explanatory; ``IS UNKNOWN``/``IS NOT UNKNOWN`` is the same as ``IS NULL``/``IS NOT NULL``, but only for boolean values.
+
+  Here's a small example:
+
+  .. code-block:: SQL
+
+     DROP TABLE IF EXISTS TEST;
+     CREATE TABLE TEST (
+             ID INTEGER PRIMARY KEY,
+             FOO BOOLEAN
+     );
+     INSERT INTO TEST VALUES (1, TRUE), (2, FALSE), (3, NULL);
+     SELECT * FROM TEST WHERE FOO IS TRUE;
+     SELECT * FROM TEST WHERE FOO IS FALSE;
+     SELECT * FROM TEST WHERE FOO IS UNKNOWN;
+
+
 +++++++++++++++++++++++++
 Casting between SQL types
 +++++++++++++++++++++++++
 
-You can cast SQL values from one type to another using either the ``::`` operator, or the ``CAST()`` function. For example:
+   You can cast SQL values from one type to another using either the ``::`` operator, or the ``CAST()`` function. For example:
 
-.. code-block::
+   .. code-block::
 
-    -- `::` usage
-    select '1'::INTEGER;  -- Returns 1
+      -- `::` usage
+      select '1'::INTEGER;  -- Returns 1
 
-    -- `CAST()` usage
-    select CAST(1.1 AS INTEGER);  -- Returns 1
-    select CAST(1 AS BOOLEAN);  -- Returns 1
+      -- `CAST()` usage
+      select CAST(1.1 AS INTEGER);  -- Returns 1
+      select CAST(1 AS BOOLEAN);  -- Returns 1
 
 --------------
 Constraints

@@ -42,13 +42,8 @@ select * from TOB20f order by id asc;
 select * from TOB20f order by id asc limit 2;
 select * from TOB20f order by id desc;
 select * from TOB20f order by id desc limit 2;
------------------------------------------------------------------
--- Disable below 2 queries due to https://gitlab.com/YottaDB/Util/YDBAIM/-/issues/72#note_1588276028
--- Re-enable once YDBAIM#72 is fixed.
------------------------------------------------------------------
--- select * from TOB20f where lastname = 'efgh' order by id asc limit 2;
--- select * from TOB20f where lastname = 'efgh' order by id desc limit 2;
------------------------------------------------------------------
+select * from TOB20f where lastname = 'efgh' order by id asc limit 2;
+select * from TOB20f where lastname = 'efgh' order by id desc limit 2;
 create table TOB20g (id integer primary key START 9 ENDPOINT 11, firstname varchar, lastname varchar) GLOBAL "^TOB20d" READONLY;
 select * from TOB20g order by id;
 select * from TOB20g order by id asc;
@@ -63,13 +58,8 @@ select * from TOB20h order by id asc;
 select * from TOB20h order by id asc limit 2;
 select * from TOB20h order by id desc;
 select * from TOB20h order by id desc limit 2;
------------------------------------------------------------------
--- Disable below 2 queries due to https://gitlab.com/YottaDB/Util/YDBAIM/-/issues/72#note_1588276028
--- Re-enable once YDBAIM#72 is fixed.
------------------------------------------------------------------
--- select * from TOB20h where lastname = 'efgh' order by id asc limit 2;
--- select * from TOB20h where lastname = 'efgh' order by id desc limit 2;
------------------------------------------------------------------
+select * from TOB20h where lastname = 'efgh' order by id asc limit 2;
+select * from TOB20h where lastname = 'efgh' order by id desc limit 2;
 
 -- Test that END keyword disables ORDER BY optimization
 create table TOB20i (id integer primary key END "keys(""id"")>11", firstname varchar, lastname varchar) GLOBAL "^TOB20d" READONLY;

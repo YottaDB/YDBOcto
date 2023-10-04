@@ -104,6 +104,14 @@ id|firstname|lastname
 12|abcd|efgh
 11|abcd|efgh
 (2 rows)
+id|firstname|lastname
+9|abcd|efgh
+10|abcd|efgh
+(2 rows)
+id|firstname|lastname
+12|abcd|efgh
+11|abcd|efgh
+(2 rows)
 CREATE TABLE
 id|firstname|lastname
 10|abcd|efgh
@@ -153,6 +161,14 @@ id|firstname|lastname
 11|abcd|efgh
 10|abcd|efgh
 (3 rows)
+id|firstname|lastname
+12|abcd|efgh
+11|abcd|efgh
+(2 rows)
+id|firstname|lastname
+10|abcd|efgh
+11|abcd|efgh
+(2 rows)
 id|firstname|lastname
 12|abcd|efgh
 11|abcd|efgh
@@ -212,14 +228,17 @@ _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from composite order by id0 desc, id1 desc limit 2
 _ydboctoP*.m:;  select * from names order by id + 2
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from TOB20f where lastname = 'efgh' order by id desc limit 2
 _ydboctoP*.m:;  select * from TOB20e where firstname = 'abcd' order by id desc limit 2
 _ydboctoP*.m:;  select * from TOB20a order by id desc limit 2
+_ydboctoP*.m:;  select * from TOB20h where lastname = 'efgh' order by id asc limit 2
 _ydboctoP*.m:;  select * from names n1 order by n1.firstname
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from names n1, names n2 order by n2.id, n1.id
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",4,"","","OrderBy")
 _ydboctoP*.m:;  select * from TOB20c order by zipcode desc
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from TOB20f where lastname = 'efgh' order by id asc limit 2
 _ydboctoP*.m:;  select * from TOB20i order by id
 _ydboctoP*.m:;  select * from names where id = 3 OR id = 1 OR id = 2 order by id desc
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
@@ -234,6 +253,7 @@ _ydboctoP*.m:;  select * from names n1, names n2 order by n1.id desc, n2.id asc 
 _ydboctoP*.m:;  select * from TOB20d where firstname = 'abcd' order by id asc limit 2
 _ydboctoP*.m:;  select * from names n1, names n2, names n3 where n1.lastname is NULL and n2.firstname = 'Zero' order by n1.id desc, n2.id desc, n3.id asc
 _ydboctoP*.m:;  select * from names n1, names n2 order by n1.id asc, n2.id desc limit 2
+_ydboctoP*.m:;  select * from TOB20h where lastname = 'efgh' order by id desc limit 2
 _ydboctoP*.m:;  select * from TOB20c order by zipcode desc limit 2
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from names n1 order by n1.*

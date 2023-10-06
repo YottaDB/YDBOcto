@@ -1374,6 +1374,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 	case keyword_STATEMENT:
 	case begin_STATEMENT:
 	case commit_STATEMENT:
+	case dynamic_sql_STATEMENT:
 	case set_STATEMENT:
 	case show_STATEMENT:
 	case no_data_STATEMENT:

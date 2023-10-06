@@ -116,6 +116,7 @@ add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/parser.y
           parser/discard.y
           parser/set.y
           parser/truncate.y
+          parser/dynamicsql.y
   COMMAND awk -v path=${PROJECT_SOURCE_DIR}/src/
     -f ${PROJECT_SOURCE_DIR}/tools/combine-grammar.awk
     ${PROJECT_SOURCE_DIR}/src/parser.y > ${PROJECT_BINARY_DIR}/parser.y

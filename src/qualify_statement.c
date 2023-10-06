@@ -984,6 +984,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 	case constraint_STATEMENT:
 	case begin_STATEMENT:
 	case commit_STATEMENT:
+	case dynamic_sql_STATEMENT:
 	case set_STATEMENT:
 	case show_STATEMENT:
 	case no_data_STATEMENT:

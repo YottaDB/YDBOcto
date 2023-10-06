@@ -92,3 +92,11 @@ teardown() {
   verify_output TOC005 output.txt
 }
 
+@test "TOC006 : OCTO958 : DEALLOCATE STR needs to be supported as a no-op and not issue an error" {
+  echo "# Run a simple [select 1;] query through isql/rocto" >> output.txt
+  echo 'select 1;' | isql OCTO -b 2>&1 | tee -a output.txt
+  echo "# Check for any lines containing [ERROR] in the rocto log file. We don't expect to see any." >> output.txt
+  grep ERROR rocto.log >> output.txt || true
+  verify_output TOC006 output.txt
+}
+

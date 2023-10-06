@@ -1288,6 +1288,10 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "transactions");
 		cursor_used = FALSE; /* Remove this line once this feature gets implemented */
 		break;
+	case dynamic_sql_STATEMENT:
+		/* Do not issue a ERR_FEATURE_NOT_IMPLEMENTED warning. Just silently do nothing. (YDBOcto#958) */
+		cursor_used = FALSE; /* Remove this line once this feature gets implemented */
+		break;
 	case set_STATEMENT:
 	case show_STATEMENT:
 		cursorId = atol(cursor_ydb_buff.buf_addr);

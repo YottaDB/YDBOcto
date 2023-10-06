@@ -127,6 +127,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token CREATE
 %token CROSS
 %token DATE
+%token DEALLOCATE
 %token DEC
 %token DECIMAL
 %token DEFAULT
@@ -195,6 +196,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token PARENLESS_FUNCTION
 %token PARTITION
 %token PIECE
+%token PREPARE
 %token PRIMARY
 %token READONLY
 %token READWRITE
@@ -312,6 +314,11 @@ sql_statement
       YYACCEPT;
     }
   | error semicolon_or_eof { *out = NULL; YYABORT; }
+  | sql_dynamic_statement {
+      parse_context->command_tag = dynamic_sql_STATEMENT;
+      SQL_STATEMENT(*out, dynamic_sql_STATEMENT);
+      YYACCEPT;
+    }
   | sql_set_statement semicolon_or_eof {
       *out = $sql_set_statement;
       // No routine will be generated for SET statements, so indicate that for extended query
@@ -392,6 +399,7 @@ display_parms
 %include "parser/discard.y"
 %include "parser/set.y"
 %include "parser/truncate.y"
+%include "parser/dynamicsql.y"
 
 sql_data_statement
   : sql_data_change_statement {

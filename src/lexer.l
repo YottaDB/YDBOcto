@@ -130,6 +130,7 @@ int copied_so_far;
 (?i:CREATE) { return CREATE; }
 (?i:CROSS) { return CROSS; }
 (?i:DATE) { return DATE; }
+(?i:DEALLOCATE) { return DEALLOCATE; }
 (?i:DEC) { return DEC; }
 (?i:DECIMAL) { return DECIMAL; }
 (?i:DEFAULT) { return DEFAULT; }
@@ -198,6 +199,7 @@ int copied_so_far;
 (?i:PACK) { return PACK; }
 (?i:PARTITION) { return PARTITION; }
 (?i:PIECE) { return PIECE; }
+(?i:PREPARE) { return PREPARE; }
 (?i:PRIMARY) { return PRIMARY; }
 (?i:READONLY) { return READONLY; }
 (?i:READWRITE) { return READWRITE; }

@@ -1,0 +1,9 @@
+# Run a simple [select 1;] query through isql/rocto
++------------+
+| ???        |
++------------+
+| 1          |
++------------+
+SQLRowCount returns 1
+1 rows fetched
+# Check for any lines containing [ERROR] in the rocto log file. We don't expect to see any.

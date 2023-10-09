@@ -29,12 +29,8 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 
 	column_alias = lp_column_alias->v.lp_column_alias.column_alias;
 	UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
-	if (create_table_STATEMENT != table_alias->table->type) {
-		/* There is no key for an on-the-fly table constructued using the VALUES clause */
-		assert(table_value_STATEMENT == table_alias->table->type);
-		return NULL;
-	}
-	assert(column_alias->column->type == column_STATEMENT);
+	assert(create_table_STATEMENT == table_alias->table->type); /* must be ensured by caller */
+	assert(column_STATEMENT == column_alias->column->type);
 	UNPACK_SQL_STATEMENT(column, column_alias->column, column);
 	UNPACK_SQL_STATEMENT(search_column_name, column->columnName, value);
 

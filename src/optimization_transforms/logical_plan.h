@@ -364,9 +364,17 @@ typedef struct SqlKey {
 	 * It is set in lp_generate_view() using lp_alloc_key(). Used by tmpl_key and tmpl_key_advance.
 	 */
 	LogicalPlan *view_definition_output_key;
-	boolean_t    emit_desc_order; /* TRUE if FOR loop emitted for this key needs to be a descending loop
-				       * (instead of default ascending loop).
-				       */
+	boolean_t    emit_desc_order;	  /* TRUE if FOR loop emitted for this key needs to be a descending loop
+					   * (instead of default ascending loop).
+					   */
+	LPActionType fixed_to_value_type; /* Initialized to one of the following if "fixed_to_value" is non-NULL.
+					   *	LP_BOOLEAN_EQUALS
+					   *	LP_BOOLEAN_LESS_THAN
+					   *	LP_BOOLEAN_GREATER_THAN
+					   *	LP_BOOLEAN_LESS_THAN_OR_EQUALS
+					   *	LP_BOOLEAN_GREATER_THAN_OR_EQUALS
+					   * Uninitialized if "fixed_to_value" is NULL.
+					   */
 } SqlKey;
 
 /* Like PhysicalPlanOptions, the below struct provides a convenient way to pass options to subplans

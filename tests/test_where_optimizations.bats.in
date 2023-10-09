@@ -236,3 +236,21 @@ CAT
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TWO18.sql
 }
 
+@test "TWO19 : OCTO616 : Key fixing optimization in WHERE clause for COLUMN > LITERAL (or >=, <, <=)" {
+	load_fixture composite.sql
+	load_fixture composite.zwr
+	echo "# Run crosscheck on TWO19_names.sql" >> output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TWO19_names.sql roctoflags="-aw"
+	echo "# Run only octo (not psql) on TWO19_octoonly.sql" >> output.txt
+	load_fixture TWO19_octoonly.sql subtest novv
+	echo "# Verify key-fixing optimization in WHERE clause took effect from queries where applicable" >> output.txt
+	echo "# Queries where key-fixing optimization took effect for <, >, <=, >= will show up in M code as lines" >> output.txt
+	echo "# containing [%ydboctozkeyfix]. Such lines will not show up for = or IN queries as they are equality" >> output.txt
+	echo "# checks but the optimization in those cases is checked in other tests so we don't worry about it here" >> output.txt
+	echo "# Also search for queries where the ORDER BY optimization took effect." >> output.txt
+	echo "# Queries where ORDER BY optimization took effect will only show up as lines containing [select]" >> output.txt
+	echo "# Queries where ORDER BY optimization did not take effect will show up as lines containing [select] and [OrderBy]" >> output.txt
+	grep -Ei "%ydboctozkeyfix.*%ydboctoexpr|SELECT|KILL.*OrderBy" _ydboctoP*.m >> output.txt
+	psql names -c 'DROP TABLE IF EXISTS TWO19a;' >& postgres.drop_table_TWO19.out
+	verify_output TWO19 output.txt noinfo nodebug
+}

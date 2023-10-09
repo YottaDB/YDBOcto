@@ -321,14 +321,14 @@ LP_SELECT_QUERY:
               LP_BOOLEAN_AND: 
                 LP_BOOLEAN_NOT: 
                   LP_COLUMN_ALIAS: a(3).attisdropped
-                LP_BOOLEAN_GREATER_THAN: 
-                  LP_COLUMN_ALIAS: a(3).attnum
-                  LP_VALUE: '0'
+                LP_BOOLEAN_EQUALS: 
+                  LP_COLUMN_ALIAS: a(3).attrelid
+                  LP_COLUMN_ALIAS: c(1).oid
             LP_SELECT_QUERY: 
               LP_PROJECT: 
                 LP_COLUMN_LIST: 
                   LP_WHERE: 
-                    LP_COLUMN_ALIAS: pg_catalog.pg_attribute(8).attrelid
+                    LP_COLUMN_ALIAS: pg_catalog.pg_attribute(8).attnum
                   LP_WHERE: 
                     LP_COLUMN_ALIAS: pg_catalog.pg_attribute(8).oid
                 LP_SELECT: 
@@ -350,7 +350,7 @@ LP_SELECT_QUERY:
               LP_OUTPUT: 
                 LP_KEY: 
                 - table_name: pg_catalog.pg_attribute
-                - column_name: attrelid
+                - column_name: attnum
                 - unique_id: 3
                 - method: LP_INVALID_ACTION
                 - xref_key: true
@@ -445,16 +445,18 @@ LP_SELECT_QUERY:
             - uses_xref_key: false
             - value:
                 LP_COLUMN_ALIAS: c(1).relnamespace
+                fix_type: LP_BOOLEAN_EQUALS
             LP_KEYS: 
               LP_KEY: 
               - table_name: pg_catalog.pg_attribute
-              - column_name: attrelid
+              - column_name: attnum
               - unique_id: 3
               - method: LP_KEY_FIX
               - xref_key: true
               - uses_xref_key: false
               - value:
-                  LP_COLUMN_ALIAS: c(1).oid
+                  LP_VALUE: '0'
+                  fix_type: LP_BOOLEAN_GREATER_THAN
               LP_KEYS: 
                 LP_KEY: 
                 - table_name: pg_catalog.pg_attribute
@@ -473,6 +475,7 @@ LP_SELECT_QUERY:
                   - uses_xref_key: false
                   - value:
                       LP_COLUMN_ALIAS: a(3).atttypid
+                      fix_type: LP_BOOLEAN_EQUALS
                   LP_KEYS: 
                     LP_KEY: 
                     - table_name: pg_catalog.pg_type
@@ -491,6 +494,7 @@ LP_SELECT_QUERY:
                       - uses_xref_key: false
                       - value:
                           LP_COLUMN_ALIAS: a(3).attrelid
+                          fix_type: LP_BOOLEAN_EQUALS
                       LP_KEYS: 
                         LP_KEY: 
                         - table_name: pg_attrdef
@@ -533,7 +537,7 @@ LP_SELECT_QUERY:
 
 [ INFO] PATH:LINENUM DATE TIME: INFO_GENERATING_XREF: Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [pg_attrdef] and column [adrelid]
 [ INFO] PATH:LINENUM DATE TIME: INFO_GENERATING_XREF: Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [pg_catalog.pg_type] and column [oid]
-[ INFO] PATH:LINENUM DATE TIME: INFO_GENERATING_XREF: Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [pg_catalog.pg_attribute] and column [attrelid]
+[ INFO] PATH:LINENUM DATE TIME: INFO_GENERATING_XREF: Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [pg_catalog.pg_attribute] and column [attnum]
 [ INFO] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering print_temporary_table
 nspname|relname|attname|atttypid|typname|attnum|attlen|atttypmod|attnotnull|relhasrules|relkind|oid|pg_get_expr|CASE|typtypmod|relhasoids|???|relhassubclass
 (0 rows)

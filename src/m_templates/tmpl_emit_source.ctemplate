@@ -28,11 +28,13 @@
  * Emits the source given, replacing keys("columnName") with
  *  references to this PhysicalPlan's keys
  * Note: "parm1" can take on different meanings based on the "form" parameter value. Hence the generic name for this parameter.
- *	It means a "table_name"     when "form" is EmitSourceForm_Value or EmitSourceForm_Trigger
+ *	It means a "table_name"     when "form" is EmitSourceForm_Value or EmitSourceForm_Trigger or EmitSourceForm_KeyFix
  *	It means a "lp_column_list" when "form" is EmitSourceForm_UpdateKeyCol
  *	It is      NULL             when "form" is EmitSourceForm_Insert or EmitSourceForm_NoKeyCol
+ * Note: "parm2" is currently used only by EmitSourceForm_KeyFix and represents the index of the "key" in "pplan->iterKeys[]"
  */
-TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int unique_id, int num_vars_to_match, enum EmitSourceForm form) {
+TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int unique_id, int parm2,	\
+		int num_vars_to_match, enum EmitSourceForm form) {
 	char 		prev;
 	char		*source_ptr;
 	char		column[OCTO_MAX_IDENT + 1]; // Null terminator
@@ -42,6 +44,7 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 	boolean_t	is_currently_inside_quotes = false;
 	ExpressionMatchType match;
 
+	assert(0 <= unique_id);
 	source_ptr = source;
 	key_count = 0;
 	assert(num_vars_to_match);
@@ -102,6 +105,13 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 			// Note that we don't add quotes to column in case the user uses an
 			//  extrinsic or something
 			switch(form) {
+			case EmitSourceForm_KeyFix:;
+				if ((matched_vars + 1) == num_vars_to_match) {
+					%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ unique_id|%d }},{{ parm2|%d }}){}%
+					break;
+				}
+				/* Note: Below comment is needed to avoid gcc [-Wimplicit-fallthrough=] warning */
+				/* fall through */
 			case EmitSourceForm_Value:;
 				/* Caller wants M global source form that is usable in a SELECT/DELETE FROM query. */
 				char	*table_name;
@@ -149,14 +159,16 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 					%{}$PIECE($GET({}%
 					if (1 < num_keys) {
 						// There are multiple key columns, so expand them programmatically
-						TMPL(tmpl_emit_source, table, source_global, table_name, unique_id, MAX_KEY_COUNT, form);
+						TMPL(tmpl_emit_source, table, source_global, table_name,	\
+							unique_id, parm2, MAX_KEY_COUNT, form);
 					} else {
 						assert(1 == num_keys);
 						assert(NULL != key_column);
 						// There is only one key column, so simply construct the node reference here
 						placeholder = strstr(source_global, "(");
 						*placeholder = '\0';
-						%{}{{ source_global }}({{ config->global_names.cursor }}(cursorId,{{ PP_KEYS }},{{ unique_id|%d }}{}%
+						%{}{{ source_global }}({{ config->global_names.cursor }}{}%
+						%{}(cursorId,{{ PP_KEYS }},{{ unique_id|%d }}{}%
 						%{},"{{ table_name }}"{}%
 						%{},"{{ key_column->columnName->v.value->v.string_literal }}")){}%
 					}

@@ -1,0 +1,1215 @@
+# Run crosscheck on TWO19_names.sql
+# Run only octo (not psql) on TWO19_octoonly.sql
+
+-- TWO19 : OCTO616 : Key fixing optimization in WHERE clause for COLUMN > LITERAL (or >=, <, <=)
+
+-- Test = with primary key column
+select * from names where id = 3;
+select * from names where id = 3 limit 2;
+
+-- Test > with primary key column
+select * from names where id > 3;
+select * from names where id > 3 limit 2;
+
+-- Test < with primary key column
+select * from names where id < 3;
+select * from names where id < 3 limit 2;
+
+-- Test >= with primary key column
+select * from names where id >= 3;
+select * from names where id >= 3 limit 2;
+
+-- Test <= with primary key column
+select * from names where id <= 3;
+select * from names where id <= 3 limit 2;
+
+-- Test = with non-key column
+select * from names where firstname = 'Joey';
+select * from names where firstname = 'Joey' limit 2;
+
+-- Test > with non-key column
+select * from names where firstname > 'Joey';
+select * from names where firstname > 'Joey' limit 2;
+
+-- Test < with non-key column
+select * from names where firstname < 'Joey';
+select * from names where firstname < 'Joey' limit 2;
+
+-- Test >= with non-key column
+select * from names where firstname >= 'Joey';
+select * from names where firstname >= 'Joey' limit 2;
+
+-- Test <= with non-key column
+select * from names where firstname <= 'Joey';
+select * from names where firstname <= 'Joey' limit 2;
+
+-- Test = with non-first-key column in a composite key table
+select * from composite where id6 = 7;
+select * from composite where id6 = 7 limit 2;
+
+-- Test > with non-first-key column in a composite key table
+select * from composite where id6 > 7;
+select * from composite where id6 > 7 limit 2;
+
+-- Test < with non-first-key column in a composite key table
+select * from composite where id6 < 7;
+select * from composite where id6 < 7 limit 2;
+
+-- Test >= with non-first-key column in a composite key table
+select * from composite where id6 >= 7;
+select * from composite where id6 >= 7 limit 2;
+
+-- Test <= with non-first-key column in a composite key table
+select * from composite where id6 <= 7;
+select * from composite where id6 <= 7 limit 2;
+
+-- Test that ORDER BY optimization is enabled in case of primary key column
+select * from names where id in (3,1,5) order by id asc;
+select * from names where id in (3,1,5) order by id desc;
+
+-- Test that ORDER BY optimization is disabled if non-key column is used without =
+-- (search for LP_BOOLEAN_EQUALS check in lp_optimize_order_by.c and the surrounding comment for WHY).
+select * from names where firstname > 'Joey' order by id desc;
+select * from names where firstname > 'Joey' order by id asc;
+select * from names where firstname >= 'Joey' order by id desc;
+select * from names where firstname >= 'Joey' order by id asc;
+select * from names where firstname < 'Joey' order by id desc;
+select * from names where firstname < 'Joey' order by id asc;
+select * from names where firstname <= 'Joey' order by id desc;
+select * from names where firstname <= 'Joey' order by id asc;
+
+-- Test key-fixing optimization in WHERE clause (YDBOcto#616) with START, STARTINCLUDE, ENDPOINT keywords
+-- and with/without ORDER BY optimization (YDBOcto#959).
+create table TWO19b (id integer primary key, firstname varchar, lastname varchar) GLOBAL "^TWO19b";
+insert into TWO19b values (13, 'abcd0', 'efgh11');
+insert into TWO19b values (12, 'abcd1', 'efgh6');
+insert into TWO19b values (11, 'abcd2', 'efgh7');
+insert into TWO19b values (10, 'abcd3', 'efgh8');
+insert into TWO19b values (9, 'abcd4', 'efgh9');
+insert into TWO19b values (8, 'abcd5', 'efgh10');
+insert into TWO19b values (7, 'abcd12', 'efgh13');
+-- Test with START
+create table TWO19c (id integer primary key START 8, firstname varchar, lastname varchar) GLOBAL "^TWO19b";
+select * from TWO19c where id > 6 order by id asc limit 2;
+select * from TWO19c where id > 6 order by id desc limit 2;
+select * from TWO19c where id >= 6 order by id asc limit 2;
+select * from TWO19c where id >= 6 order by id desc limit 2;
+select * from TWO19c where id > 8 order by id asc limit 2;
+select * from TWO19c where id > 8 order by id desc limit 2;
+select * from TWO19c where id >= 8 order by id asc limit 2;
+select * from TWO19c where id >= 8 order by id desc limit 2;
+select * from TWO19c where id > 9 order by id asc limit 2;
+select * from TWO19c where id > 9 order by id desc limit 2;
+select * from TWO19c where id >= 9 order by id asc limit 2;
+select * from TWO19c where id >= 9 order by id desc limit 2;
+select * from TWO19c where id < 12 order by id asc limit 2;
+select * from TWO19c where id < 12 order by id desc limit 2;
+select * from TWO19c where id <= 12 order by id asc limit 2;
+select * from TWO19c where id <= 12 order by id desc limit 2;
+select * from TWO19c where id < 14 order by id asc limit 2;
+select * from TWO19c where id < 14 order by id desc limit 2;
+select * from TWO19c where id <= 14 order by id asc limit 2;
+select * from TWO19c where id <= 14 order by id desc limit 2;
+-- Test with START,STARTINCLUDE
+create table TWO19d (id integer primary key START 8 STARTINCLUDE, firstname varchar, lastname varchar) GLOBAL "^TWO19b";
+select * from TWO19d where id > 6 order by id asc limit 2;
+select * from TWO19d where id > 6 order by id desc limit 2;
+select * from TWO19d where id >= 6 order by id asc limit 2;
+select * from TWO19d where id >= 6 order by id desc limit 2;
+select * from TWO19d where id > 8 order by id asc limit 2;
+select * from TWO19d where id > 8 order by id desc limit 2;
+select * from TWO19d where id >= 8 order by id asc limit 2;
+select * from TWO19d where id >= 8 order by id desc limit 2;
+select * from TWO19d where id > 9 order by id asc limit 2;
+select * from TWO19d where id > 9 order by id desc limit 2;
+select * from TWO19d where id >= 9 order by id asc limit 2;
+select * from TWO19d where id >= 9 order by id desc limit 2;
+select * from TWO19d where id < 12 order by id asc limit 2;
+select * from TWO19d where id < 12 order by id desc limit 2;
+select * from TWO19d where id <= 12 order by id asc limit 2;
+select * from TWO19d where id <= 12 order by id desc limit 2;
+select * from TWO19d where id < 14 order by id asc limit 2;
+select * from TWO19d where id < 14 order by id desc limit 2;
+select * from TWO19d where id <= 14 order by id asc limit 2;
+select * from TWO19d where id <= 14 order by id desc limit 2;
+-- Test with ENDPOINT
+create table TWO19e (id integer primary key ENDPOINT 11, firstname varchar, lastname varchar) GLOBAL "^TWO19b";
+select * from TWO19e where id > 6 order by id asc limit 2;
+select * from TWO19e where id > 6 order by id desc limit 2;
+select * from TWO19e where id >= 6 order by id asc limit 2;
+select * from TWO19e where id >= 6 order by id desc limit 2;
+select * from TWO19e where id > 8 order by id asc limit 2;
+select * from TWO19e where id > 8 order by id desc limit 2;
+select * from TWO19e where id >= 8 order by id asc limit 2;
+select * from TWO19e where id >= 8 order by id desc limit 2;
+select * from TWO19e where id > 9 order by id asc limit 2;
+select * from TWO19e where id > 9 order by id desc limit 2;
+select * from TWO19e where id >= 9 order by id asc limit 2;
+select * from TWO19e where id >= 9 order by id desc limit 2;
+select * from TWO19e where id < 12 order by id asc limit 2;
+select * from TWO19e where id < 12 order by id desc limit 2;
+select * from TWO19e where id <= 12 order by id asc limit 2;
+select * from TWO19e where id <= 12 order by id desc limit 2;
+select * from TWO19e where id < 14 order by id asc limit 2;
+select * from TWO19e where id < 14 order by id desc limit 2;
+select * from TWO19e where id <= 14 order by id asc limit 2;
+select * from TWO19e where id <= 14 order by id desc limit 2;
+-- Test with START,ENDPOINT
+create table TWO19f (id integer primary key START 8 ENDPOINT 11, firstname varchar, lastname varchar) GLOBAL "^TWO19b";
+select * from TWO19f where id > 6 order by id asc limit 2;
+select * from TWO19f where id > 6 order by id desc limit 2;
+select * from TWO19f where id >= 6 order by id asc limit 2;
+select * from TWO19f where id >= 6 order by id desc limit 2;
+select * from TWO19f where id > 8 order by id asc limit 2;
+select * from TWO19f where id > 8 order by id desc limit 2;
+select * from TWO19f where id >= 8 order by id asc limit 2;
+select * from TWO19f where id >= 8 order by id desc limit 2;
+select * from TWO19f where id > 9 order by id asc limit 2;
+select * from TWO19f where id > 9 order by id desc limit 2;
+select * from TWO19f where id >= 9 order by id asc limit 2;
+select * from TWO19f where id >= 9 order by id desc limit 2;
+select * from TWO19f where id < 12 order by id asc limit 2;
+select * from TWO19f where id < 12 order by id desc limit 2;
+select * from TWO19f where id <= 12 order by id asc limit 2;
+select * from TWO19f where id <= 12 order by id desc limit 2;
+select * from TWO19f where id < 14 order by id asc limit 2;
+select * from TWO19f where id < 14 order by id desc limit 2;
+select * from TWO19f where id <= 14 order by id asc limit 2;
+select * from TWO19f where id <= 14 order by id desc limit 2;
+-- Test with START,STARTINCLUDE,ENDPOINT
+create table TWO19g (id integer primary key START 8 STARTINCLUDE ENDPOINT 11, firstname varchar, lastname varchar) GLOBAL "^TWO19b";
+select * from TWO19g where id > 6 order by id asc limit 2;
+select * from TWO19g where id > 6 order by id desc limit 2;
+select * from TWO19g where id >= 6 order by id asc limit 2;
+select * from TWO19g where id >= 6 order by id desc limit 2;
+select * from TWO19g where id > 8 order by id asc limit 2;
+select * from TWO19g where id > 8 order by id desc limit 2;
+select * from TWO19g where id >= 8 order by id asc limit 2;
+select * from TWO19g where id >= 8 order by id desc limit 2;
+select * from TWO19g where id > 9 order by id asc limit 2;
+select * from TWO19g where id > 9 order by id desc limit 2;
+select * from TWO19g where id >= 9 order by id asc limit 2;
+select * from TWO19g where id >= 9 order by id desc limit 2;
+select * from TWO19g where id < 12 order by id asc limit 2;
+select * from TWO19g where id < 12 order by id desc limit 2;
+select * from TWO19g where id <= 12 order by id asc limit 2;
+select * from TWO19g where id <= 12 order by id desc limit 2;
+select * from TWO19g where id < 14 order by id asc limit 2;
+select * from TWO19g where id < 14 order by id desc limit 2;
+select * from TWO19g where id <= 14 order by id asc limit 2;
+select * from TWO19g where id <= 14 order by id desc limit 2;
+
+OCTO> select * from names where id = 3;
+id|firstname|lastname
+3|Lord|Nikon
+(1 row)
+OCTO> select * from names where id = 3 limit 2;
+id|firstname|lastname
+3|Lord|Nikon
+(1 row)
+OCTO> select * from names where id > 3;
+id|firstname|lastname
+4|Joey|
+5|Zero|Cool
+(2 rows)
+OCTO> select * from names where id > 3 limit 2;
+id|firstname|lastname
+4|Joey|
+5|Zero|Cool
+(2 rows)
+OCTO> select * from names where id < 3;
+id|firstname|lastname
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+(3 rows)
+OCTO> select * from names where id < 3 limit 2;
+id|firstname|lastname
+0|Zero|Cool
+1|Acid|Burn
+(2 rows)
+OCTO> select * from names where id >= 3;
+id|firstname|lastname
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+(3 rows)
+OCTO> select * from names where id >= 3 limit 2;
+id|firstname|lastname
+3|Lord|Nikon
+4|Joey|
+(2 rows)
+OCTO> select * from names where id <= 3;
+id|firstname|lastname
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+(4 rows)
+OCTO> select * from names where id <= 3 limit 2;
+id|firstname|lastname
+0|Zero|Cool
+1|Acid|Burn
+(2 rows)
+OCTO> select * from names where firstname = 'Joey';
+id|firstname|lastname
+4|Joey|
+(1 row)
+OCTO> select * from names where firstname = 'Joey' limit 2;
+id|firstname|lastname
+4|Joey|
+(1 row)
+OCTO> select * from names where firstname > 'Joey';
+id|firstname|lastname
+3|Lord|Nikon
+0|Zero|Cool
+5|Zero|Cool
+(3 rows)
+OCTO> select * from names where firstname > 'Joey' limit 2;
+id|firstname|lastname
+3|Lord|Nikon
+0|Zero|Cool
+(2 rows)
+OCTO> select * from names where firstname < 'Joey';
+id|firstname|lastname
+1|Acid|Burn
+2|Cereal|Killer
+(2 rows)
+OCTO> select * from names where firstname < 'Joey' limit 2;
+id|firstname|lastname
+1|Acid|Burn
+2|Cereal|Killer
+(2 rows)
+OCTO> select * from names where firstname >= 'Joey';
+id|firstname|lastname
+4|Joey|
+3|Lord|Nikon
+0|Zero|Cool
+5|Zero|Cool
+(4 rows)
+OCTO> select * from names where firstname >= 'Joey' limit 2;
+id|firstname|lastname
+4|Joey|
+3|Lord|Nikon
+(2 rows)
+OCTO> select * from names where firstname <= 'Joey';
+id|firstname|lastname
+1|Acid|Burn
+2|Cereal|Killer
+4|Joey|
+(3 rows)
+OCTO> select * from names where firstname <= 'Joey' limit 2;
+id|firstname|lastname
+1|Acid|Burn
+2|Cereal|Killer
+(2 rows)
+OCTO> select * from composite where id6 = 7;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+0|1|2|3|4|5|7|7|Name3
+(1 row)
+OCTO> select * from composite where id6 = 7 limit 2;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+0|1|2|3|4|5|7|7|Name3
+(1 row)
+OCTO> select * from composite where id6 > 7;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+0|1|2|3|4|5|8|7|Name4
+0|1|2|3|4|6|8|7|Name5
+0|1|2|3|5|6|8|7|Name6
+0|1|2|4|5|6|8|7|Name7
+0|1|3|4|5|6|8|7|Name8
+0|2|3|4|5|6|8|7|Name9
+1|2|3|4|5|6|8|7|Name10
+(7 rows)
+OCTO> select * from composite where id6 > 7 limit 2;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+0|1|2|3|4|5|8|7|Name4
+0|1|2|3|4|6|8|7|Name5
+(2 rows)
+OCTO> select * from composite where id6 < 7;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+0|1|2|3|4|5|6|7|Name1
+0|1|2|3|4|5|6|8|Name2
+(2 rows)
+OCTO> select * from composite where id6 < 7 limit 2;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+0|1|2|3|4|5|6|7|Name1
+0|1|2|3|4|5|6|8|Name2
+(2 rows)
+OCTO> select * from composite where id6 >= 7;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+0|1|2|3|4|5|7|7|Name3
+0|1|2|3|4|5|8|7|Name4
+0|1|2|3|4|6|8|7|Name5
+0|1|2|3|5|6|8|7|Name6
+0|1|2|4|5|6|8|7|Name7
+0|1|3|4|5|6|8|7|Name8
+0|2|3|4|5|6|8|7|Name9
+1|2|3|4|5|6|8|7|Name10
+(8 rows)
+OCTO> select * from composite where id6 >= 7 limit 2;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+0|1|2|3|4|5|7|7|Name3
+0|1|2|3|4|5|8|7|Name4
+(2 rows)
+OCTO> select * from composite where id6 <= 7;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+0|1|2|3|4|5|6|7|Name1
+0|1|2|3|4|5|6|8|Name2
+0|1|2|3|4|5|7|7|Name3
+(3 rows)
+OCTO> select * from composite where id6 <= 7 limit 2;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+0|1|2|3|4|5|6|7|Name1
+0|1|2|3|4|5|6|8|Name2
+(2 rows)
+OCTO> select * from names where id in (3,1,5) order by id asc;
+id|firstname|lastname
+1|Acid|Burn
+3|Lord|Nikon
+5|Zero|Cool
+(3 rows)
+OCTO> select * from names where id in (3,1,5) order by id desc;
+id|firstname|lastname
+5|Zero|Cool
+3|Lord|Nikon
+1|Acid|Burn
+(3 rows)
+OCTO> select * from names where firstname > 'Joey' order by id desc;
+id|firstname|lastname
+5|Zero|Cool
+3|Lord|Nikon
+0|Zero|Cool
+(3 rows)
+OCTO> select * from names where firstname > 'Joey' order by id asc;
+id|firstname|lastname
+0|Zero|Cool
+3|Lord|Nikon
+5|Zero|Cool
+(3 rows)
+OCTO> select * from names where firstname >= 'Joey' order by id desc;
+id|firstname|lastname
+5|Zero|Cool
+4|Joey|
+3|Lord|Nikon
+0|Zero|Cool
+(4 rows)
+OCTO> select * from names where firstname >= 'Joey' order by id asc;
+id|firstname|lastname
+0|Zero|Cool
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+(4 rows)
+OCTO> select * from names where firstname < 'Joey' order by id desc;
+id|firstname|lastname
+2|Cereal|Killer
+1|Acid|Burn
+(2 rows)
+OCTO> select * from names where firstname < 'Joey' order by id asc;
+id|firstname|lastname
+1|Acid|Burn
+2|Cereal|Killer
+(2 rows)
+OCTO> select * from names where firstname <= 'Joey' order by id desc;
+id|firstname|lastname
+4|Joey|
+2|Cereal|Killer
+1|Acid|Burn
+(3 rows)
+OCTO> select * from names where firstname <= 'Joey' order by id asc;
+id|firstname|lastname
+1|Acid|Burn
+2|Cereal|Killer
+4|Joey|
+(3 rows)
+OCTO> create table TWO19b (id integer primary key, firstname varchar, lastname varchar) GLOBAL "^TWO19b";
+CREATE TABLE
+OCTO> insert into TWO19b values (13, 'abcd0', 'efgh11');
+INSERT 0 1
+OCTO> insert into TWO19b values (12, 'abcd1', 'efgh6');
+INSERT 0 1
+OCTO> insert into TWO19b values (11, 'abcd2', 'efgh7');
+INSERT 0 1
+OCTO> insert into TWO19b values (10, 'abcd3', 'efgh8');
+INSERT 0 1
+OCTO> insert into TWO19b values (9, 'abcd4', 'efgh9');
+INSERT 0 1
+OCTO> insert into TWO19b values (8, 'abcd5', 'efgh10');
+INSERT 0 1
+OCTO> insert into TWO19b values (7, 'abcd12', 'efgh13');
+INSERT 0 1
+OCTO> create table TWO19c (id integer primary key START 8, firstname varchar, lastname varchar) GLOBAL "^TWO19b";
+CREATE TABLE
+OCTO> select * from TWO19c where id > 6 order by id asc limit 2;
+id|firstname|lastname
+9|abcd4|efgh9
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19c where id > 6 order by id desc limit 2;
+id|firstname|lastname
+13|abcd0|efgh11
+12|abcd1|efgh6
+(2 rows)
+OCTO> select * from TWO19c where id >= 6 order by id asc limit 2;
+id|firstname|lastname
+9|abcd4|efgh9
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19c where id >= 6 order by id desc limit 2;
+id|firstname|lastname
+13|abcd0|efgh11
+12|abcd1|efgh6
+(2 rows)
+OCTO> select * from TWO19c where id > 8 order by id asc limit 2;
+id|firstname|lastname
+9|abcd4|efgh9
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19c where id > 8 order by id desc limit 2;
+id|firstname|lastname
+13|abcd0|efgh11
+12|abcd1|efgh6
+(2 rows)
+OCTO> select * from TWO19c where id >= 8 order by id asc limit 2;
+id|firstname|lastname
+9|abcd4|efgh9
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19c where id >= 8 order by id desc limit 2;
+id|firstname|lastname
+13|abcd0|efgh11
+12|abcd1|efgh6
+(2 rows)
+OCTO> select * from TWO19c where id > 9 order by id asc limit 2;
+id|firstname|lastname
+10|abcd3|efgh8
+11|abcd2|efgh7
+(2 rows)
+OCTO> select * from TWO19c where id > 9 order by id desc limit 2;
+id|firstname|lastname
+13|abcd0|efgh11
+12|abcd1|efgh6
+(2 rows)
+OCTO> select * from TWO19c where id >= 9 order by id asc limit 2;
+id|firstname|lastname
+9|abcd4|efgh9
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19c where id >= 9 order by id desc limit 2;
+id|firstname|lastname
+13|abcd0|efgh11
+12|abcd1|efgh6
+(2 rows)
+OCTO> select * from TWO19c where id < 12 order by id asc limit 2;
+id|firstname|lastname
+9|abcd4|efgh9
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19c where id < 12 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19c where id <= 12 order by id asc limit 2;
+id|firstname|lastname
+9|abcd4|efgh9
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19c where id <= 12 order by id desc limit 2;
+id|firstname|lastname
+12|abcd1|efgh6
+11|abcd2|efgh7
+(2 rows)
+OCTO> select * from TWO19c where id < 14 order by id asc limit 2;
+id|firstname|lastname
+9|abcd4|efgh9
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19c where id < 14 order by id desc limit 2;
+id|firstname|lastname
+13|abcd0|efgh11
+12|abcd1|efgh6
+(2 rows)
+OCTO> select * from TWO19c where id <= 14 order by id asc limit 2;
+id|firstname|lastname
+9|abcd4|efgh9
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19c where id <= 14 order by id desc limit 2;
+id|firstname|lastname
+13|abcd0|efgh11
+12|abcd1|efgh6
+(2 rows)
+OCTO> create table TWO19d (id integer primary key START 8 STARTINCLUDE, firstname varchar, lastname varchar) GLOBAL "^TWO19b";
+CREATE TABLE
+OCTO> select * from TWO19d where id > 6 order by id asc limit 2;
+id|firstname|lastname
+8|abcd5|efgh10
+9|abcd4|efgh9
+(2 rows)
+OCTO> select * from TWO19d where id > 6 order by id desc limit 2;
+id|firstname|lastname
+13|abcd0|efgh11
+12|abcd1|efgh6
+(2 rows)
+OCTO> select * from TWO19d where id >= 6 order by id asc limit 2;
+id|firstname|lastname
+8|abcd5|efgh10
+9|abcd4|efgh9
+(2 rows)
+OCTO> select * from TWO19d where id >= 6 order by id desc limit 2;
+id|firstname|lastname
+13|abcd0|efgh11
+12|abcd1|efgh6
+(2 rows)
+OCTO> select * from TWO19d where id > 8 order by id asc limit 2;
+id|firstname|lastname
+9|abcd4|efgh9
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19d where id > 8 order by id desc limit 2;
+id|firstname|lastname
+13|abcd0|efgh11
+12|abcd1|efgh6
+(2 rows)
+OCTO> select * from TWO19d where id >= 8 order by id asc limit 2;
+id|firstname|lastname
+8|abcd5|efgh10
+9|abcd4|efgh9
+(2 rows)
+OCTO> select * from TWO19d where id >= 8 order by id desc limit 2;
+id|firstname|lastname
+13|abcd0|efgh11
+12|abcd1|efgh6
+(2 rows)
+OCTO> select * from TWO19d where id > 9 order by id asc limit 2;
+id|firstname|lastname
+10|abcd3|efgh8
+11|abcd2|efgh7
+(2 rows)
+OCTO> select * from TWO19d where id > 9 order by id desc limit 2;
+id|firstname|lastname
+13|abcd0|efgh11
+12|abcd1|efgh6
+(2 rows)
+OCTO> select * from TWO19d where id >= 9 order by id asc limit 2;
+id|firstname|lastname
+9|abcd4|efgh9
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19d where id >= 9 order by id desc limit 2;
+id|firstname|lastname
+13|abcd0|efgh11
+12|abcd1|efgh6
+(2 rows)
+OCTO> select * from TWO19d where id < 12 order by id asc limit 2;
+id|firstname|lastname
+8|abcd5|efgh10
+9|abcd4|efgh9
+(2 rows)
+OCTO> select * from TWO19d where id < 12 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19d where id <= 12 order by id asc limit 2;
+id|firstname|lastname
+8|abcd5|efgh10
+9|abcd4|efgh9
+(2 rows)
+OCTO> select * from TWO19d where id <= 12 order by id desc limit 2;
+id|firstname|lastname
+12|abcd1|efgh6
+11|abcd2|efgh7
+(2 rows)
+OCTO> select * from TWO19d where id < 14 order by id asc limit 2;
+id|firstname|lastname
+8|abcd5|efgh10
+9|abcd4|efgh9
+(2 rows)
+OCTO> select * from TWO19d where id < 14 order by id desc limit 2;
+id|firstname|lastname
+13|abcd0|efgh11
+12|abcd1|efgh6
+(2 rows)
+OCTO> select * from TWO19d where id <= 14 order by id asc limit 2;
+id|firstname|lastname
+8|abcd5|efgh10
+9|abcd4|efgh9
+(2 rows)
+OCTO> select * from TWO19d where id <= 14 order by id desc limit 2;
+id|firstname|lastname
+13|abcd0|efgh11
+12|abcd1|efgh6
+(2 rows)
+OCTO> create table TWO19e (id integer primary key ENDPOINT 11, firstname varchar, lastname varchar) GLOBAL "^TWO19b";
+CREATE TABLE
+OCTO> select * from TWO19e where id > 6 order by id asc limit 2;
+id|firstname|lastname
+7|abcd12|efgh13
+8|abcd5|efgh10
+(2 rows)
+OCTO> select * from TWO19e where id > 6 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19e where id >= 6 order by id asc limit 2;
+id|firstname|lastname
+7|abcd12|efgh13
+8|abcd5|efgh10
+(2 rows)
+OCTO> select * from TWO19e where id >= 6 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19e where id > 8 order by id asc limit 2;
+id|firstname|lastname
+9|abcd4|efgh9
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19e where id > 8 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19e where id >= 8 order by id asc limit 2;
+id|firstname|lastname
+8|abcd5|efgh10
+9|abcd4|efgh9
+(2 rows)
+OCTO> select * from TWO19e where id >= 8 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19e where id > 9 order by id asc limit 2;
+id|firstname|lastname
+10|abcd3|efgh8
+11|abcd2|efgh7
+(2 rows)
+OCTO> select * from TWO19e where id > 9 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19e where id >= 9 order by id asc limit 2;
+id|firstname|lastname
+9|abcd4|efgh9
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19e where id >= 9 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19e where id < 12 order by id asc limit 2;
+id|firstname|lastname
+7|abcd12|efgh13
+8|abcd5|efgh10
+(2 rows)
+OCTO> select * from TWO19e where id < 12 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19e where id <= 12 order by id asc limit 2;
+id|firstname|lastname
+7|abcd12|efgh13
+8|abcd5|efgh10
+(2 rows)
+OCTO> select * from TWO19e where id <= 12 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19e where id < 14 order by id asc limit 2;
+id|firstname|lastname
+7|abcd12|efgh13
+8|abcd5|efgh10
+(2 rows)
+OCTO> select * from TWO19e where id < 14 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19e where id <= 14 order by id asc limit 2;
+id|firstname|lastname
+7|abcd12|efgh13
+8|abcd5|efgh10
+(2 rows)
+OCTO> select * from TWO19e where id <= 14 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> create table TWO19f (id integer primary key START 8 ENDPOINT 11, firstname varchar, lastname varchar) GLOBAL "^TWO19b";
+CREATE TABLE
+OCTO> select * from TWO19f where id > 6 order by id asc limit 2;
+id|firstname|lastname
+9|abcd4|efgh9
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19f where id > 6 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19f where id >= 6 order by id asc limit 2;
+id|firstname|lastname
+9|abcd4|efgh9
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19f where id >= 6 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19f where id > 8 order by id asc limit 2;
+id|firstname|lastname
+9|abcd4|efgh9
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19f where id > 8 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19f where id >= 8 order by id asc limit 2;
+id|firstname|lastname
+9|abcd4|efgh9
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19f where id >= 8 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19f where id > 9 order by id asc limit 2;
+id|firstname|lastname
+10|abcd3|efgh8
+11|abcd2|efgh7
+(2 rows)
+OCTO> select * from TWO19f where id > 9 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19f where id >= 9 order by id asc limit 2;
+id|firstname|lastname
+9|abcd4|efgh9
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19f where id >= 9 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19f where id < 12 order by id asc limit 2;
+id|firstname|lastname
+9|abcd4|efgh9
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19f where id < 12 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19f where id <= 12 order by id asc limit 2;
+id|firstname|lastname
+9|abcd4|efgh9
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19f where id <= 12 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19f where id < 14 order by id asc limit 2;
+id|firstname|lastname
+9|abcd4|efgh9
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19f where id < 14 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19f where id <= 14 order by id asc limit 2;
+id|firstname|lastname
+9|abcd4|efgh9
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19f where id <= 14 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> create table TWO19g (id integer primary key START 8 STARTINCLUDE ENDPOINT 11, firstname varchar, lastname varchar) GLOBAL "^TWO19b";
+CREATE TABLE
+OCTO> select * from TWO19g where id > 6 order by id asc limit 2;
+id|firstname|lastname
+8|abcd5|efgh10
+9|abcd4|efgh9
+(2 rows)
+OCTO> select * from TWO19g where id > 6 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19g where id >= 6 order by id asc limit 2;
+id|firstname|lastname
+8|abcd5|efgh10
+9|abcd4|efgh9
+(2 rows)
+OCTO> select * from TWO19g where id >= 6 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19g where id > 8 order by id asc limit 2;
+id|firstname|lastname
+9|abcd4|efgh9
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19g where id > 8 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19g where id >= 8 order by id asc limit 2;
+id|firstname|lastname
+8|abcd5|efgh10
+9|abcd4|efgh9
+(2 rows)
+OCTO> select * from TWO19g where id >= 8 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19g where id > 9 order by id asc limit 2;
+id|firstname|lastname
+10|abcd3|efgh8
+11|abcd2|efgh7
+(2 rows)
+OCTO> select * from TWO19g where id > 9 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19g where id >= 9 order by id asc limit 2;
+id|firstname|lastname
+9|abcd4|efgh9
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19g where id >= 9 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19g where id < 12 order by id asc limit 2;
+id|firstname|lastname
+8|abcd5|efgh10
+9|abcd4|efgh9
+(2 rows)
+OCTO> select * from TWO19g where id < 12 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19g where id <= 12 order by id asc limit 2;
+id|firstname|lastname
+8|abcd5|efgh10
+9|abcd4|efgh9
+(2 rows)
+OCTO> select * from TWO19g where id <= 12 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19g where id < 14 order by id asc limit 2;
+id|firstname|lastname
+8|abcd5|efgh10
+9|abcd4|efgh9
+(2 rows)
+OCTO> select * from TWO19g where id < 14 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> select * from TWO19g where id <= 14 order by id asc limit 2;
+id|firstname|lastname
+8|abcd5|efgh10
+9|abcd4|efgh9
+(2 rows)
+OCTO> select * from TWO19g where id <= 14 order by id desc limit 2;
+id|firstname|lastname
+11|abcd2|efgh7
+10|abcd3|efgh8
+(2 rows)
+OCTO> 
+# Verify key-fixing optimization in WHERE clause took effect from queries where applicable
+# Queries where key-fixing optimization took effect for <, >, <=, >= will show up in M code as lines
+# containing [%ydboctozkeyfix]. Such lines will not show up for = or IN queries as they are equality
+# checks but the optimization in those cases is checked in other tests so we don't worry about it here
+# Also search for queries where the ORDER BY optimization took effect.
+# Queries where ORDER BY optimization took effect will only show up as lines containing [select]
+# Queries where ORDER BY optimization did not take effect will show up as lines containing [select] and [OrderBy]
+_ydboctoP*.m:;  select * from TWO19d where id < 12 order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19g where id > 6 order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where id < 3 order by id;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where id > 3 order by id asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from composite where id6 = 7;
+_ydboctoP*.m:;  select * from names where firstname <= 'Joey' order by id asc;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from names where firstname = 'Joey' limit 2;
+_ydboctoP*.m:;  select * from names where id = 3 order by id desc limit 2;
+_ydboctoP*.m:;  select * from TWO19e where id < 12 order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where id < 3 order by id desc;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19c where id <= 12 order by id asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where id < 3 order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where id < 3 order by id limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19d where id > 6 order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from composite where id6 <= 7;
+_ydboctoP*.m:    . . . . . . SET %ydboctozkeyfix(1,6,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where firstname > 'Joey' order by id limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from names where id < 3 limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19a where name < 'efgh' order by name;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19d where id <= 12 order by id asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19e where id > 6 order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where id >= 3 order by id asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19e where id <= 12 order by id asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19c where id <= 12 order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19f where id <= 12 order by id asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where id in (3,1,5) order by id asc;
+_ydboctoP*.m:;  select * from names where id = 3 order by id desc;
+_ydboctoP*.m:;  select * from names where firstname < 'Joey' order by id asc;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from composite where id6 >= 7;
+_ydboctoP*.m:    . . . . . . SET %ydboctozkeyfix(1,6)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19a where name <= 'efgh' order by name;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19c where id >= 6 order by id asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where firstname < 'Joey' order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from names where id >= 3 order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19a where name <= 'efgh' order by name asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where firstname > 'Joey' order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from TWO19a where name < 'efgh' order by name desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where id = 3;
+_ydboctoP*.m:;  select * from names where id < 3;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from composite where id6 > 7;
+_ydboctoP*.m:    . . . . . . SET %ydboctozkeyfix(1,6)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19a where name > 'efgh' order by name;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from composite where id6 < 7 limit 2;
+_ydboctoP*.m:    . . . . . . SET %ydboctozkeyfix(1,6,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where firstname <= 'Joey' order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from names where firstname < 'Joey' order by id asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from names where firstname <= 'Joey' order by id asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from TWO19d where id < 12 order by id asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19f where id >= 6 order by id asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19a where name <= 'efgh' order by name desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where id <= 3;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where id > 3 order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19c where id < 12 order by id asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where id > 3 limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19g where id <= 12 order by id asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19f where id > 6 order by id asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where id = 3 limit 2;
+_ydboctoP*.m:;  select * from TWO19c where id < 12 order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where id > 3;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19g where id < 12 order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where firstname < 'Joey';
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19g where id < 12 order by id asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19a where name < 'efgh' order by name desc;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19c where id >= 6 order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where id >= 3 order by id asc;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where id <= 3 order by id limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19d where id >= 6 order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from composite where id6 = 7 limit 2;
+_ydboctoP*.m:;  select * from composite where id6 > 7 limit 2;
+_ydboctoP*.m:    . . . . . . SET %ydboctozkeyfix(1,6)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where firstname >= 'Joey';
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where firstname >= 'Joey' order by id desc;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from TWO19a where name >= 'efgh' order by name asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where id in (3,1,5) order by id desc;
+_ydboctoP*.m:;  select * from names where firstname = 'Joey' order by id asc limit 2;
+_ydboctoP*.m:;  select * from TWO19g where id > 6 order by id asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where id <= 3 limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19f where id < 12 order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where id > 3 order by id desc;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where id <= 3 order by id desc;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where id = 3 order by id;
+_ydboctoP*.m:;  select * from names where firstname >= 'Joey' order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from composite where id6 < 7;
+_ydboctoP*.m:    . . . . . . SET %ydboctozkeyfix(1,6,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19a where name >= 'efgh' order by name desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where id >= 3 limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19d where id <= 12 order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where firstname = 'Joey' order by id desc;
+_ydboctoP*.m:;  select * from names where firstname >= 'Joey' order by id limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from names where firstname = 'Joey' order by id desc limit 2;
+_ydboctoP*.m:;  select * from composite where id6 >= 7 limit 2;
+_ydboctoP*.m:    . . . . . . SET %ydboctozkeyfix(1,6)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where firstname > 'Joey' order by id;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from names where id <= 3 order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19e where id <= 12 order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where firstname >= 'Joey' limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19g where id >= 6 order by id asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19c where id > 6 order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where firstname = 'Joey';
+_ydboctoP*.m:;  select * from names where id = 3 order by id limit 2;
+_ydboctoP*.m:;  select * from TWO19a where name >= 'efgh' order by name desc;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where id <= 3 order by id;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19e where id >= 6 order by id asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where firstname <= 'Joey';
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19g where id <= 12 order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where firstname < 'Joey' limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19c where id > 6 order by id asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19f where id < 12 order by id asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from composite where id6 <= 7 limit 2;
+_ydboctoP*.m:    . . . . . . SET %ydboctozkeyfix(1,6,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19f where id > 6 order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where firstname > 'Joey' order by id desc;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from TWO19a where name <= 'efgh' order by name desc;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19a where name >= 'efgh' order by name;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where firstname >= 'Joey' order by id;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from names where firstname <= 'Joey' limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where firstname > 'Joey' limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19d where id > 6 order by id asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19a where name > 'efgh' order by name desc;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where firstname < 'Joey' order by id desc;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from names where firstname <= 'Joey' order by id desc;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from names where id > 3 order by id asc;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where id >= 3;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where id >= 3 order by id desc;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19a where name > 'efgh' order by name asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where firstname = 'Joey' order by id asc;
+_ydboctoP*.m:;  select * from TWO19d where id >= 6 order by id asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19e where id < 12 order by id asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19g where id >= 6 order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19a where name > 'efgh' order by name desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19e where id > 6 order by id asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from names where firstname > 'Joey';
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19e where id >= 6 order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19f where id >= 6 order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19a where name < 'efgh' order by name asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:;  select * from TWO19f where id <= 12 order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr

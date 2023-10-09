@@ -83,6 +83,7 @@ LP_SELECT_QUERY:
                           - uses_xref_key: false
                           - value:
                               LP_COLUMN_ALIAS: t(1).typrelid
+                              fix_type: LP_BOOLEAN_EQUALS
                         LP_SELECT_OPTIONS: 
                           LP_WHERE: 
                             LP_BOOLEAN_EQUALS: 
@@ -174,6 +175,7 @@ LP_SET_OPERATION:
               - uses_xref_key: false
               - value:
                   LP_VALUE: '0'
+                  fix_type: LP_BOOLEAN_EQUALS
               LP_KEYS: 
                 LP_KEY: 
                 - table_name: pg_catalog.pg_type
@@ -192,6 +194,7 @@ LP_SET_OPERATION:
                   - uses_xref_key: false
                   - value:
                       LP_COLUMN_ALIAS: t(1).typnamespace
+                      fix_type: LP_BOOLEAN_EQUALS
             LP_SELECT_OPTIONS: 
               LP_WHERE: 
                 LP_BOOLEAN_NOT_EQUALS: 
@@ -245,6 +248,7 @@ LP_SET_OPERATION:
                 - uses_xref_key: false
                 - value:
                     LP_COLUMN_ALIAS: t(1).typnamespace
+                    fix_type: LP_BOOLEAN_EQUALS
             LP_SELECT_OPTIONS: 
               LP_WHERE: 
                 LP_BOOLEAN_AND: 
@@ -275,6 +279,7 @@ LP_SET_OPERATION:
                             - uses_xref_key: false
                             - value:
                                 LP_COLUMN_ALIAS: t(1).typrelid
+                                fix_type: LP_BOOLEAN_EQUALS
                           LP_SELECT_OPTIONS: 
                             LP_WHERE: 
                               LP_BOOLEAN_EQUALS: 

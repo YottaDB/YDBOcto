@@ -41,17 +41,6 @@ insert into TOB20b values (false, 'abcd', 'efgh');
 select * from TOB20b order by id desc limit 2;  -- ORDER BY optimization should take effect
 select * from TOB20b order by id asc;  -- ORDER BY optimization should take effect
 
--- Test ORDER BY on VARCHAR/STRING key column with or without LIMIT keyword is NOT optimized.
--- Cannot optimize ORDER BY on a VARCHAR primary key column due to #397.
-drop table if exists TOB20c;
-create table TOB20c (zipcode varchar primary key, residents integer);
-insert into TOB20c values ('22960', 20);
-insert into TOB20c values ('02169', 10);
-select * from TOB20c order by zipcode;
-select * from TOB20c order by zipcode desc;
-select * from TOB20c order by zipcode desc limit 2;
-select * from TOB20c order by zipcode asc limit 2;
-
 -- Test that ORDER BY optimization is disabled for DNF plans
 select * from names where id = 3 OR id = 1 OR id = 2 order by id desc;
 select * from names where id = 3 OR id = 1 OR id = 2 order by id asc;

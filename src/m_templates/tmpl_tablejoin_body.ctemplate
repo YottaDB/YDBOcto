@@ -43,14 +43,17 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *pplan, int dot_count, char *tableNam
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET{}%
-		%{} {{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_XREF_COLUMN }},{}%
+		%{} {{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}{}%
+		%{}("{{ tableName }}","{{ columnName }}",{{ PP_XREF_COLUMN }},{}%
 		TMPL(tmpl_column_list_combine, col2_onwards, pplan, ",", FALSE, 0, FALSE);
 		%{})=""`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
-		%{}IF $INCREMENT({{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_XREF_COLUMN }})){}%
+		%{}IF $INCREMENT({{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}{}%
+		%{}("{{ tableName }}","{{ columnName }}",{{ PP_XREF_COLUMN }})){}%
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
-		%{}IF $INCREMENT({{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")){}%
+		%{}IF $INCREMENT({{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}{}%
+		%{}("{{ tableName }}","{{ columnName }}")){}%
 		col1->v.lp_default.operand[1] = col2_onwards;	/* Make the 2nd column visible again */
 		return;
 	}

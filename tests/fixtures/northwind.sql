@@ -10,10 +10,10 @@
 #								#
 #################################################################
 
-CREATE TABLE nwCustomers (CustomerID INTEGER PRIMARY KEY, CustomerName VARCHAR(48), ContactName VARCHAR(32), Address VARCHAR(64), City VARCHAR(32), PostalCode VARCHAR(16), Country VARCHAR(32)) GLOBAL "^nwCustomers";
+CREATE TABLE nwCustomers (CustomerID INTEGER PRIMARY KEY, CustomerName VARCHAR(48), ContactName VARCHAR(32), Address VARCHAR(64), City VARCHAR(32), PostalCode VARCHAR(16) MAYBE_CANONICAL, Country VARCHAR(32)) GLOBAL "^nwCustomers";
 CREATE TABLE nwOrders (OrderID INTEGER PRIMARY KEY, CustomerID INTEGER, EmployeeID INTEGER, OrderDate VARCHAR(16), ShipperID INTEGER) GLOBAL "^nwOrders";
 CREATE TABLE Shippers (ShipperID INTEGER PRIMARY KEY, ShipperName VARCHAR(32), Phone VARCHAR(14)) GLOBAL "^Shippers";
-CREATE TABLE Suppliers (SupplierID INTEGER PRIMARY KEY, SupplierName VARCHAR(48), ContactName VARCHAR(32), Address VARCHAR(64), City VARCHAR(32), PostalCode VARCHAR(16), Country VARCHAR(32), Phone VARCHAR(15)) GLOBAL "^Suppliers";
+CREATE TABLE Suppliers (SupplierID INTEGER PRIMARY KEY, SupplierName VARCHAR(48), ContactName VARCHAR(32), Address VARCHAR(64), City VARCHAR(32), PostalCode VARCHAR(16) MAYBE_CANONICAL, Country VARCHAR(32), Phone VARCHAR(15)) GLOBAL "^Suppliers";
 CREATE TABLE Products (ProductID INTEGER PRIMARY KEY, ProductName VARCHAR(48), SupplierID INTEGER, CategoryID INTEGER, Unit VARCHAR(32), Price NUMERIC) GLOBAL "^Products";
 CREATE TABLE OrderDetails (OrderDetailID INTEGER PRIMARY KEY, OrderID INTEGER, ProductID INTEGER, Quantity INTEGER) GLOBAL "^OrderDetails";
 CREATE TABLE Categories (CategoryID INTEGER PRIMARY KEY, CategoryName VARCHAR(32), Description VARCHAR(64)) GLOBAL "^Categories";

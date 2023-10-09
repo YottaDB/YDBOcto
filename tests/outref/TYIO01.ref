@@ -115,20 +115,20 @@ count(*)
 OCTO> SELECT * FROM YDBJNLFOPCOUNT WHERE occurs > 0;
 label|opcode|occurs
 default_region_label|EOF|1
+octo_region_label|EOF|1
 default_region_label|EPOCH|3
-default_region_label|PBLK|4
 default_region_label|PFIN|3
 default_region_label|PINI|3
-default_region_label|SET|27
-octo_region_label|EOF|1
+default_region_label|PBLK|4
 octo_region_label|EPOCH|4
-octo_region_label|INCTN|8
-octo_region_label|PBLK|20
 octo_region_label|PFIN|5
 octo_region_label|PINI|5
-octo_region_label|SET|4526
+octo_region_label|INCTN|8
+octo_region_label|PBLK|20
+default_region_label|SET|27
 octo_region_label|TCOM|54
 octo_region_label|TSET|54
+octo_region_label|SET|4526
 (15 rows)
 OCTO> SELECT RECTYPE, TBLTYPE FROM YDBJNLFRECTYPE;
 rectype|tbltype

@@ -108,7 +108,7 @@ TEMPLATE(tmpl_delete_record_from_table, PhysicalPlan *pplan, int dot_count) {
 	}
 	assert(keys_to_match == total_keys);
 #	endif
-	TMPL(tmpl_emit_source, table, value->v.string_literal, tableName, key->unique_id, total_keys, EmitSourceForm_Value);
+	TMPL(tmpl_emit_source, table, value->v.string_literal, tableName, key->unique_id, 0, total_keys, EmitSourceForm_Value);
 	TMPL(tmpl_set_duplication_check, pplan, dot_count);
 	%{}`n{{ PLAN_LINE_START }}{}%
 	TMPL(tmpl_print_dots, dot_count);

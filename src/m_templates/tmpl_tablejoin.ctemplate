@@ -67,8 +67,8 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 			do {
 				LogicalPlan	*value;
 
-				/* Below assert is ensured by "lp_optimize_where_multi_equals_ands_helper()".
-				 * Or else it would not have decided to fix the key.
+				/* LP_VALUE type below is ensured by "lp_optimize_where_multi_equals_ands_helper()"
+				 * (or else it would not have decided to fix the key).
 				 */
 				GET_LP(value, list, 0, LP_VALUE);
 				TMPL(tmpl_print_expression_assignment, value, pplan, dot_count, 0);
@@ -134,8 +134,10 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 			if ((LP_VALUE != fixed_to_value->type)
 					|| !IS_NUL_VALUE(fixed_to_value->v.lp_value.value->type)) {
 				boolean_t	is_key_column;
+				boolean_t	use_pp_ydb_octo_expr;
 
 				/* Key is fixed to a value (= operator) or list of values (IN operator) */
+				use_pp_ydb_octo_expr = TRUE;
 				if (LP_COLUMN_LIST == fixed_to_value->type) {
 					int	in_value_list_id;
 
@@ -147,7 +149,11 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 					%{}({{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}))  {}%
 					%{}SET {{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}={}%
 					%{}$ORDER({{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}{}%
-					%{}({{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }})) {}%
+					%{}({{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}){}%
+					if (key->emit_desc_order) {
+						%{},-1{}%
+					}
+					%{}) {}%
 					%{}QUIT:""={{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}{}%
 					%{}`n{{ PLAN_LINE_START }}{}%
 					dot_count++;
@@ -156,11 +162,318 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 					%{}`n{{ PLAN_LINE_START }}{}%
 				} else {
 					TMPL(tmpl_print_expression_assignment, fixed_to_value, pplan, dot_count, 0);
+					switch(key->fixed_to_value_type) {
+					case LP_BOOLEAN_EQUALS:
+					case LP_BOOLEAN_IS:
+						break;
+					case LP_BOOLEAN_LESS_THAN:
+					case LP_BOOLEAN_GREATER_THAN:
+					case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
+					case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
+						assert(!IS_NULL_FIXED_VALUE(key->fixed_to_value));
+						TMPL(tmpl_print_dots, dot_count);
+
+						%{}SET {}%
+						%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}{}%
+						switch(key->fixed_to_value_type) {
+						case LP_BOOLEAN_LESS_THAN:
+						case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
+							if (!key->emit_desc_order) {
+								%{},1{}%
+							}
+							break;
+						case LP_BOOLEAN_GREATER_THAN:
+						case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
+							if (key->emit_desc_order) {
+								%{},1{}%
+							}
+						default:
+							break;
+						}
+						%{})={{ PP_YDB_OCTO_EXPR }}{}%
+						%{}`n{{ PLAN_LINE_START }}{}%
+						TMPL(tmpl_print_dots, dot_count);
+						switch(key->fixed_to_value_type) {
+						case LP_BOOLEAN_LESS_THAN:
+						case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
+							if (!key->emit_desc_order) {
+								%{}SET {}%
+								%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+								%{},{{ cur_key|%d }})=""{}%
+								%{}`n{{ PLAN_LINE_START }}{}%
+								TMPL(tmpl_print_dots, dot_count);
+							}
+							break;
+						case LP_BOOLEAN_GREATER_THAN:
+						case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
+							if (key->emit_desc_order) {
+								%{}SET {}%
+								%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+								%{},{{ cur_key|%d }})=""{}%
+								%{}`n{{ PLAN_LINE_START }}{}%
+								TMPL(tmpl_print_dots, dot_count);
+							}
+						default:
+							break;
+						}
+						if ((!key->emit_desc_order
+								&& (LP_BOOLEAN_GREATER_THAN_OR_EQUALS == key->fixed_to_value_type))
+						    	|| (key->emit_desc_order
+								&& (LP_BOOLEAN_LESS_THAN_OR_EQUALS == key->fixed_to_value_type))) {
+							%{}DO  {}%
+						}
+						%{}IF '$ZYISSQLNULL({}%
+						%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}{}%
+						switch(key->fixed_to_value_type) {
+						case LP_BOOLEAN_LESS_THAN:
+						case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
+							if (!key->emit_desc_order) {
+								%{},1{}%
+							}
+							break;
+						case LP_BOOLEAN_GREATER_THAN:
+						case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
+							if (key->emit_desc_order) {
+								%{},1{}%
+							}
+						default:
+							break;
+						}
+						%{})) {}%
+						%{}FOR  SET {}%
+						%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}){}%
+						%{}=$ORDER({}%
+						if (key->is_cross_reference_key) {
+							SqlTable		*table;
+							table = key->table;
+
+							SqlValue		*value;
+							UNPACK_SQL_STATEMENT(value, table->tableName, value);
+
+							char		*tableName2, *columnName2;
+							tableName2 = value->v.reference;
+							UNPACK_SQL_STATEMENT(value, key->column->columnName, value);
+							columnName2 = value->v.reference;
+							TMPL(tmpl_key_source_aim, tableName2, columnName2);
+
+							%{},{}%
+							%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }})){}%
+						} else {
+							TMPL(tmpl_key_source, pplan, key, EmitSourceForm_KeyFix);
+						}
+						if (key->emit_desc_order) {
+							%{},-1{}%
+						}
+						%{}) QUIT:{}%
+						%{}({{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }})="")!({}%
+						/* Determine type of column as that will determine how the QUIT: is structured */
+						assert(NULL != key->column);
+						boolean_t	is_string;
+						is_string = FALSE;
+						switch(key->column->data_type_struct.data_type) {
+						case BOOLEAN_TYPE:
+						case INTEGER_TYPE:
+						case NUMERIC_TYPE:
+							break;
+						case STRING_TYPE:
+							is_string = TRUE;
+							break;
+						case UNKNOWN_SqlDataType:
+						case NUL_TYPE:
+							assert(FALSE);
+							break;
+						}
+						if (!is_string) {
+							%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}){}%
+							switch(key->fixed_to_value_type) {
+							case LP_BOOLEAN_LESS_THAN:
+								if (!key->emit_desc_order) {
+									%{}'<{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+									%{},{{ cur_key|%d }},1){}%
+								} else {
+									%{}=""{}%
+								}
+								break;
+							case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
+								if (!key->emit_desc_order) {
+									%{}>{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+									%{},{{ cur_key|%d }},1){}%
+								} else {
+									%{}=""{}%
+								}
+								break;
+							case LP_BOOLEAN_GREATER_THAN:
+								if (!key->emit_desc_order) {
+									%{}=""{}%
+								} else {
+									%{}'>{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+									%{},{{ cur_key|%d }},1){}%
+								}
+								break;
+							case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
+								if (!key->emit_desc_order) {
+									%{}=""{}%
+								} else {
+									%{}<{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+									%{},{{ cur_key|%d }},1){}%
+								}
+								break;
+							default:
+								assert(FALSE);
+								break;
+							}
+						} else {
+							switch(key->fixed_to_value_type) {
+							case LP_BOOLEAN_LESS_THAN:
+								if (!key->emit_desc_order) {
+									%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+									%{},{{ cur_key|%d }},1){}%
+									%{}']{}%
+									%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+									%{},{{ cur_key|%d }}){}%
+								} else {
+									%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+									%{},{{ cur_key|%d }}){}%
+									%{}=""{}%
+								}
+								break;
+							case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
+								if (!key->emit_desc_order) {
+									%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+									%{},{{ cur_key|%d }}){}%
+									%{}]{}%
+									%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+									%{},{{ cur_key|%d }},1){}%
+								} else {
+									%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+									%{},{{ cur_key|%d }}){}%
+									%{}=""{}%
+								}
+								break;
+							case LP_BOOLEAN_GREATER_THAN:
+								if (!key->emit_desc_order) {
+									%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+									%{},{{ cur_key|%d }}){}%
+									%{}=""{}%
+								} else {
+									%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+									%{},{{ cur_key|%d }}){}%
+									%{}']{}%
+									%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+									%{},{{ cur_key|%d }},1){}%
+								}
+								break;
+							case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
+								if (!key->emit_desc_order) {
+									%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+									%{},{{ cur_key|%d }}){}%
+									%{}=""{}%
+								} else {
+									%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+									%{},{{ cur_key|%d }},1){}%
+									%{}]{}%
+									%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+									%{},{{ cur_key|%d }}){}%
+								}
+								break;
+							default:
+								assert(FALSE);
+								break;
+							}
+						}
+						%{})  DO{}%
+						%{}`n{{ PLAN_LINE_START }}{}%
+						dot_count++;
+
+						/* If START/STARTINCLUDE/ENDPOINT keywords were specified for this column,
+						 * skip processing records that are outside the range indicated by these keywords.
+						 * Note that we are processing these keywords INSIDE the FOR loop instead of outside
+						 * and so this is not optimal.
+						 *
+						 * For example, take a "CREATE TABLE hugetbl (id integer PRIMARY KEY START 90)"
+						 * command. And let us say the table has 100 rows taking on values of "id" from
+						 * 1 to 100. The START keyword restricts the table from rows 90 to 100. But if
+						 * we have a query say "select * from hugetbl WHERE id > 1;", we would end up
+						 * generating M code that does a FOR loop using $ORDER of the ^hugetbl global.
+						 * That FOR loop would run for 100 iterations and inside that loop we would have
+						 * M code that would check if the current "id" value is greater than 90 and if not
+						 * we would move on to the next iteration. Basically wasting 90 iterations whereas
+						 * if we had structured the FOR loop to start at subscript 90 onwards, we would
+						 * have avoided this overhead.
+						 *
+						 * But this is not an easy change and this use case is not considered common
+						 * so keeping the implementation simple for now.
+						 */
+						SqlOptionalKeyword	*keyword;
+						keyword = get_keyword(key->column, OPTIONAL_START);
+						if (NULL != keyword) {
+							SqlValue	*value;
+							UNPACK_SQL_STATEMENT(value, keyword->v, value);
+
+							char		*start;
+							start = value->v.string_literal;
+
+							boolean_t	startinclude;
+							startinclude = (NULL != get_keyword(key->column, OPTIONAL_STARTINCLUDE));
+							TMPL(tmpl_print_dots, dot_count);
+							%{}QUIT:{}%
+							if (!is_string) {
+								%{}{{ PP_YDB_OCTO_ZKEYFIX }}{}%
+								%{}({{ key->unique_id|%d }},{{ cur_key|%d }}){}%
+								if (startinclude) {
+									%{}<{{ start }}{}%
+								} else {
+									%{}<={{ start }}{}%
+								}
+							} else {
+								if (startinclude) {
+									%{}{{ start }}]{}%
+									%{}{{ PP_YDB_OCTO_ZKEYFIX }}{}%
+									%{}({{ key->unique_id|%d }},{{ cur_key|%d }}){}%
+								} else {
+									%{}{{ PP_YDB_OCTO_ZKEYFIX }}{}%
+									%{}({{ key->unique_id|%d }},{{ cur_key|%d }}){}%
+									%{}']{{ start }}{}%
+								}
+							}
+							%{}`n{{ PLAN_LINE_START }}{}%
+						}
+						/* END keyword is not supported with key-fixing optimization as it will involve
+						 * changing "tmpl_emit_source" to replace "keys()" usages with "PP_YDB_OCTO_ZKEYFIX"
+						 * usages (like what "EmitSourceForm_KeyFix" does but for all usages and not just
+						 * the last key column like what is currently implemented in "tmpl_emit_source".
+						 */
+						assert(NULL == get_keyword(key->column, OPTIONAL_END));
+						keyword = get_keyword(key->column, OPTIONAL_ENDPOINT);
+						if (NULL != keyword) {
+							SqlValue	*value;
+							UNPACK_SQL_STATEMENT(value, keyword->v, value);
+
+							char		*endpoint;
+							endpoint = value->v.string_literal;
+							TMPL(tmpl_print_dots, dot_count);
+							%{}QUIT:{}%
+							%{}{{ PP_YDB_OCTO_ZKEYFIX }}{}%
+							%{}({{ key->unique_id|%d }},{{ cur_key|%d }}){}%
+							%{}]]{{ endpoint }}{}%
+							%{}`n{{ PLAN_LINE_START }}{}%
+						}
+						use_pp_ydb_octo_expr = FALSE;
+						break;
+					default:
+						assert(FALSE);
+						break;
+					}
 				}
 				TMPL(tmpl_print_dots, dot_count);
 				%{}SET {}%
 				TMPL(tmpl_key, key);
-				%{}={{ PP_YDB_OCTO_EXPR }}{}%
+				%{}={}%
+				if (use_pp_ydb_octo_expr) {
+					%{}{{ PP_YDB_OCTO_EXPR }}{}%
+				} else {
+					%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}){}%
+				}
 				need_tmpl_key_finish = TRUE;
 				/* The "tmpl_key_source" function call below would result in an M gvn.
 				 * If the `fixed_to_value` is `$ZYSQLNULL`, we have to skip doing the gvn reference
@@ -387,12 +700,14 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 
 				fixed_to_value = key->fixed_to_value;
 				if (NULL != fixed_to_value) {
-					/* This is a LEFT JOIN. Check if the fixed value evaluates to a NULL. If so, we can skip the
-					 * following call to "tmpl_tablejoin" and avoid a lot of unnecessary emitted M code (YDBOcto#1006).
+					/* This is a LEFT JOIN. Check if the fixed value evaluates to a NULL. If so, we can
+					 * skip the following call to "tmpl_tablejoin" and avoid a lot of unnecessary emitted
+					 * M code (YDBOcto#1006).
 					 */
-					/* A NULL value is possible if the key is fixed to a NULL value or a IS NULL or a column alias
-					 * that evaluates to a NULL because it is a column in the right table of the LEFT JOIN and so
-					 * all columns have the value of NULL (i.e. "treat_key_as_null[right_table_id]" is TRUE).
+					/* A NULL value is possible if the key is fixed to a NULL value or a IS NULL or a
+					 * column alias that evaluates to a NULL because it is a column in the right table
+					 * of the LEFT JOIN and so all columns have the value of NULL
+					 * (i.e. "treat_key_as_null[right_table_id]" is TRUE).
 					 */
 					int 		unique_id;
 
@@ -415,7 +730,8 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 							column_alias = fixed_to_value->v.lp_column_alias.column_alias;
 
 							SqlTableAlias *table_alias;
-							UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
+							UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt,	\
+								table_alias);
 							unique_id = table_alias->unique_id;
 						} else {
 							LogicalPlan	*lp_key;

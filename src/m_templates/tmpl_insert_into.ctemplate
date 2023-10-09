@@ -97,7 +97,7 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 				assert(0 == cur_column->column_number);
 				/* Column is a hidden key column. Generate a unique counter for it using the top level table gvn */
 				%{}$INCREMENT({}%
-				TMPL(tmpl_emit_source, table, value->v.string_literal, NULL, 0, MAX_KEY_COUNT, \
+				TMPL(tmpl_emit_source, table, value->v.string_literal, NULL, 0, 0, MAX_KEY_COUNT, \
 					EmitSourceForm_NoKeyCol);
 				%{}){}%
 			} else {
@@ -241,7 +241,7 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 	/* Generate global reference */
 	TMPL(tmpl_print_dots, dot_count);
 	%{}SET {}%
-	TMPL(tmpl_emit_source, table, value->v.string_literal, NULL, 0, MAX_KEY_COUNT, EmitSourceForm_Insert);
+	TMPL(tmpl_emit_source, table, value->v.string_literal, NULL, 0, 0, MAX_KEY_COUNT, EmitSourceForm_Insert);
 	%{}={}%
 	/* Generate non-key columns */
 	assert(cur_column == start_column);

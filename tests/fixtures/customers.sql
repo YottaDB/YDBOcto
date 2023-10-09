@@ -10,5 +10,5 @@
 #								#
 #################################################################
 
-CREATE TABLE customers (customer_id INTEGER PRIMARY KEY, first_name VARCHAR(8), last_name VARCHAR(10), email VARCHAR(20), address VARCHAR(26), city VARCHAR(16), state VARCHAR(2), zipcode VARCHAR(5)) GLOBAL "^customers";
+CREATE TABLE customers (customer_id INTEGER PRIMARY KEY, first_name VARCHAR(8), last_name VARCHAR(10), email VARCHAR(20), address VARCHAR(26), city VARCHAR(16), state VARCHAR(2), zipcode VARCHAR(5) MAYBE_CANONICAL) GLOBAL "^customers";
 CREATE TABLE orders (order_id INTEGER PRIMARY KEY, order_date VARCHAR(10), order_amount VARCHAR(7), customer_id INTEGER) GLOBAL "^orders";

@@ -193,7 +193,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 		 */
 		TMPL(tmpl_print_expression, column_alias->extract_lp, pplan, 0, depth);
 	} else {
-		TMPL(tmpl_emit_source, table, source, table_name, unique_id, MAX_KEY_COUNT,	\
+		TMPL(tmpl_emit_source, table, source, table_name, unique_id, 0, MAX_KEY_COUNT,	\
 					(is_trigger ? EmitSourceForm_Trigger : EmitSourceForm_Value));
 	}
 	if (!is_trigger) {

@@ -56,7 +56,7 @@ void lp_optimize_order_by(LogicalPlan *plan) {
 			SqlKey *key;
 			key = lp_key->v.lp_key.key;
 
-			if (LP_KEY_FIX != key->type) {
+			if ((LP_KEY_FIX != key->type) || !key->is_cross_reference_key) {
 				assert(!key->emit_desc_order); /* assert this is initialized to FALSE at key allocation time */
 				assert((NULL != key->table) || (NULL == key->column));
 				assert((NULL == key->table) || (NULL != key->column));
@@ -97,16 +97,18 @@ void lp_optimize_order_by(LogicalPlan *plan) {
 				}
 
 				/* ORDER BY and FOR loop order are guaranteed to be identical only for INTEGER, NUMERIC and
-				 * BOOLEAN types. Not for STRING type (see YDBOcto#397 for more details). So skip optimization
-				 * in that case. In the future, types like DATE/TIME etc. would need to be examined on a
-				 * case-by-case basis and either supported or not in the code block below.
+				 * BOOLEAN types. For STRING type, the application guarantees the order will be identical
+				 * if it did not specify the MAYBE_CANONICAL keyword for this column at CREATE TABLE time
+				 * (see https://gitlab.com/YottaDB/DB/YDB/-/issues/1031#note_1600678857 for more details).
+				 * So skip optimization otherwise in that case. In the future, types like DATE/TIME etc.
+				 * would need to be examined on a case-by-case basis and either supported or not in the
+				 * code block below.
 				 */
 				LogicalPlan *lp_column_list_alias;
 				GET_LP(lp_column_list_alias, lp_where, 1, LP_COLUMN_LIST_ALIAS);
 				if (0 == loop) {
 					boolean_t type_supported;
 
-					type_supported = FALSE;
 					switch (lp_column_list_alias->v.lp_column_list_alias.column_list_alias->type) {
 					case INTEGER_LITERAL:
 					case NUMERIC_LITERAL:
@@ -114,9 +116,11 @@ void lp_optimize_order_by(LogicalPlan *plan) {
 						type_supported = TRUE;
 						break;
 					case STRING_LITERAL:
+						type_supported = (NULL == get_keyword(sql_column, OPTIONAL_MAYBE_CANONICAL));
 						break;
 					default:
 						assert(FALSE);
+						type_supported = FALSE; /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
 						break;
 					}
 					if (!type_supported) {
@@ -137,20 +141,26 @@ void lp_optimize_order_by(LogicalPlan *plan) {
 						key->emit_desc_order = TRUE;
 					}
 				}
-
 				GET_LP_ALLOW_NULL(cur_order_by, cur_order_by, 1, LP_ORDER_BY);
 			} else {
+				assert((NULL != key->fixed_to_value) && key->is_cross_reference_key);
 				/* This is a xref key that is fixed to a specific value. Skip this key column for the
-				 * purposes of the ORDER BY optimization as long as it is fixed to ONE value. If this
-				 * is fixed to a LIST of values (i.e. IN operator) then we cannot optimize ORDER BY
-				 * as the processing order would be rows sorted on the cross referenced non-key column
-				 * value (within one non-key column value, all rows will be sorted in primary key column
-				 * order, but the primary key column values corresponding to the first non-key column value
-				 * are not guaranteed to be in sorted order compared to the primary key column values
-				 * corresponding to the second (or later) non-key column values.
+				 * purposes of the ORDER BY optimization as long as it is fixed to ONE value. If this is
+				 * fixed to a LIST of values (i.e. IN operator) then we cannot optimize ORDER BY as the
+				 * processing order would be rows sorted on the cross referenced non-key column value which
+				 * is not the same as the ORDER BY order (within one non-key column value, all rows will be
+				 * sorted in primary key column order, but the primary key column values corresponding to
+				 * the first non-key column value are not guaranteed to be in sorted order compared to the
+				 * primary key column values corresponding to the second (or later) non-key column values).
 				 */
-				assert(NULL != key->fixed_to_value);
 				if (LP_COLUMN_LIST == key->fixed_to_value->type) {
+					break;
+				}
+				if (LP_BOOLEAN_EQUALS != key->fixed_to_value_type) {
+					/* This is an xref key that is used for a range of key values.
+					 * For the same reasons as described in the previous comment block (LIST of values)
+					 * disable the ORDER BY optimization in this case.
+					 */
 					break;
 				}
 			}

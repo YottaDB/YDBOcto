@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -84,8 +84,9 @@ TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key, enum EmitSourceForm 
 		assert(keys_to_match);
 		UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		if (EmitSourceForm_Value == form) {
-			TMPL(tmpl_emit_source, table, value->v.string_literal, tableName, key->unique_id, keys_to_match, form);
+		if ((EmitSourceForm_Value == form) || (EmitSourceForm_KeyFix == form)) {
+			TMPL(tmpl_emit_source, table, value->v.string_literal, tableName, key->unique_id,	\
+				(EmitSourceForm_Value == form) ? 0 : iter_key_index, keys_to_match, form);
 		} else {
 			assert(EmitSourceForm_UpdateKeyCol == form);
 			/* In this case a linked list of "lp_column_list" structures needs to be passed in to "tmpl_emit_source". */
@@ -97,7 +98,7 @@ TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key, enum EmitSourceForm 
 			lp_column_list = lp_get_update_column_list(lp_update);
 
 			TMPL(tmpl_emit_source, table, value->v.string_literal, (char *)lp_column_list,		\
-									key->unique_id, keys_to_match, form);
+									key->unique_id, 0, keys_to_match, form);
 		}
 	}
 	return;

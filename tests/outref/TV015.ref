@@ -147,6 +147,7 @@ LP_INSERT_INTO:
                         - uses_xref_key: false
                         - value:
                             LP_VALUE: '4'
+                            fix_type: LP_BOOLEAN_EQUALS
                       LP_SELECT_OPTIONS: 
                         LP_WHERE: 
                         LP_SELECT_MORE_OPTIONS: 
@@ -188,6 +189,7 @@ LP_INSERT_INTO:
                         - uses_xref_key: false
                         - value:
                             LP_VALUE: '5'
+                            fix_type: LP_BOOLEAN_EQUALS
                       LP_SELECT_OPTIONS: 
                         LP_WHERE: 
                         LP_SELECT_MORE_OPTIONS: 

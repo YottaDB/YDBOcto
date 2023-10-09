@@ -177,6 +177,7 @@ int copied_so_far;
 (?i:LIKE) { return LIKE; }
 (?i:LIMIT) { return LIMIT; }
 (?i:MAX) { return MAX; }
+(?i:MAYBE_CANONICAL) { return MAYBE_CANONICAL; }
 (?i:MIN) { return MIN; }
 (?i:NATURAL) { return NATURAL; }
 (?i:NAME) { return NAME; }			/* A NAME is a VARCHAR representing an internal system name. Since Octo doesn't

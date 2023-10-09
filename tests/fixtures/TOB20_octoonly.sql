@@ -71,3 +71,25 @@ select * from TOB20i order by id desc limit 2;
 select * from TOB20i where lastname = 'efgh' order by id asc limit 2;
 select * from TOB20i where lastname = 'efgh' order by id desc limit 2;
 
+-- Test ORDER BY on VARCHAR/STRING key column with or without LIMIT keyword is NOT optimized
+-- because of the presence of the MAYBE_CANONICAL keyword. Results would still be correct though.
+drop table if exists TOB20c;
+create table TOB20c (zipcode varchar primary key MAYBE_CANONICAL, residents integer);
+insert into TOB20c values ('22960', 20);
+insert into TOB20c values ('02169', 10);
+select * from TOB20c order by zipcode;
+select * from TOB20c order by zipcode desc;
+select * from TOB20c order by zipcode desc limit 2;
+select * from TOB20c order by zipcode asc limit 2;
+
+-- Test ORDER BY on VARCHAR/STRING key column with or without LIMIT keyword is optimized
+-- because of the absence of the MAYBE_CANONICAL keyword. But results would be incorrect.
+drop table if exists TOB20j;
+create table TOB20j (zipcode varchar primary key, residents integer);
+insert into TOB20j values ('22960', 20);
+insert into TOB20j values ('02169', 10);
+select * from TOB20j order by zipcode;
+select * from TOB20j order by zipcode desc;
+select * from TOB20j order by zipcode desc limit 2;
+select * from TOB20j order by zipcode asc limit 2;
+

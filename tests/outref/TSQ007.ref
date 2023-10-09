@@ -364,6 +364,7 @@ LP_SELECT_QUERY:
                 LP_VALUE: 'S'
                 LP_VALUE: 'f'
                 LP_VALUE: ''
+              fix_type: LP_BOOLEAN_IN
           LP_KEYS: 
             LP_KEY: 
             - table_name: pg_catalog.pg_class
@@ -382,6 +383,7 @@ LP_SELECT_QUERY:
               - uses_xref_key: false
               - value:
                   LP_COLUMN_ALIAS: c(1).relnamespace
+                  fix_type: LP_BOOLEAN_EQUALS
         LP_SELECT_OPTIONS: 
           LP_WHERE: 
             LP_BOOLEAN_AND: 

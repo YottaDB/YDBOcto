@@ -80,9 +80,10 @@
 #define PP_YDB_OCTO_P	       "%ydboctop"
 #define PP_YDB_OCTO_UPD	       "%ydboctoUPD" /* see comment in tmpl_update_table.ctemplate for its purpose */
 #define PP_YDB_OCTO_Z	       "%ydboctoz"
+#define PP_YDB_OCTO_ZDISTINCT  "%ydboctozdistinct"
 #define PP_YDB_OCTO_ZDUPLICATE "%ydboctozduplicate"
 #define PP_YDB_OCTO_ZLIMIT     "%ydboctozlimit"
-#define PP_YDB_OCTO_ZDISTINCT  "%ydboctozdistinct"
+#define PP_YDB_OCTO_ZKEYFIX    "%ydboctozkeyfix"
 
 #define PLAN_LINE_START "    " /* 4 spaces start an M line in the generated plan */
 
@@ -151,7 +152,8 @@ enum EmitSourceForm {
 	EmitSourceForm_Insert,
 	EmitSourceForm_NoKeyCol,
 	EmitSourceForm_UpdateKeyCol,
-	EmitSourceForm_AIM
+	EmitSourceForm_AIM,
+	EmitSourceForm_KeyFix,
 };
 
 typedef enum {
@@ -213,7 +215,8 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 	 boolean_t is_asterisk);
 TEMPLATE(tmpl_invoke_deferred_plan, InvokeDeferredPlanType invocation_type, LogicalPlan *plan, int dot_count);
 TEMPLATE(tmpl_invoke_deferred_plan_setoper, InvokeDeferredPlanType invocation_type, LogicalPlan *plan, int dot_count);
-TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int unique_id, int keys_to_match, enum EmitSourceForm form);
+TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int unique_id, int parm2, int keys_to_match,
+	 enum EmitSourceForm form);
 TEMPLATE(tmpl_duplication_check, PhysicalPlan *pplan);
 TEMPLATE(tmpl_set_duplication_check, PhysicalPlan *pplan, int dot_count);
 TEMPLATE(tmpl_order_by_key, int num_cols);

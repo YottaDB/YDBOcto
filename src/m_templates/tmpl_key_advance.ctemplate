@@ -29,7 +29,8 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 		if (NULL != key->view_definition_output_key) {
 			/* This is a key of a view. Iterate the result of the view definition. */
 			SqlKey *view_src_output_key = key->view_definition_output_key->v.lp_key.key;
-			%{}{{ config->global_names.cursor }}(cursorId,{{ PP_KEYS }},{{ view_src_output_key->unique_id|%d }},"","",{}%
+			%{}{{ config->global_names.cursor }}(cursorId,{{ PP_KEYS }},{}%
+			%{}{{ view_src_output_key->unique_id|%d }},"","",{}%
 		} else {
 			%{}{{ config->global_names.cursor }}(cursorId,{{ PP_KEYS }},{{ key->unique_id|%d }},"","",{}%
 		}
@@ -103,7 +104,8 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 		keys_to_match++;
 		UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		TMPL(tmpl_emit_source, table, value->v.string_literal, tableName, key->unique_id, keys_to_match, EmitSourceForm_Value);
+		TMPL(tmpl_emit_source, table, value->v.string_literal, tableName, key->unique_id,	\
+								0, keys_to_match, EmitSourceForm_Value);
 	}
 	return;
 }

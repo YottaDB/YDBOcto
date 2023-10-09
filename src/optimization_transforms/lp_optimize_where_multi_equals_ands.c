@@ -61,19 +61,17 @@ void lp_optimize_where_multi_equals_ands(LogicalPlan *plan, LogicalPlan *where, 
  */
 LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, LogicalPlan *where, int *key_unique_id_array, void *ptr,
 							boolean_t num_outer_joins) {
-	LogicalPlan *	    cur, *left, *right, *t;
-	LogicalPlan *	    first_key, *before_first_key, *last_key, *before_last_key, *xref_keys;
-	LogicalPlan *	    generated_xref_keys, *lp_key;
-	SqlColumnList *	    column_list;
-	SqlColumnListAlias *column_list_alias;
-	SqlColumnAlias *    column_alias;
-	SqlTableAlias *	    table_alias;
-	SqlKey *	    key;
-	int		    left_id, right_id;
-	LogicalPlan *	    new_left, *new_right, *list;
-	LPActionType	    type;
-	SqlTableAlias *	    right_table_alias;
-	boolean_t	    is_null;
+	LogicalPlan *	cur, *left, *right, *t;
+	LogicalPlan *	first_key, *before_first_key, *last_key, *before_last_key, *xref_keys;
+	LogicalPlan *	generated_xref_keys, *lp_key;
+	SqlColumnAlias *column_alias;
+	SqlTableAlias * table_alias;
+	SqlKey *	key;
+	int		left_id, right_id;
+	LogicalPlan *	new_left, *new_right, *list;
+	LPActionType	type;
+	SqlTableAlias * right_table_alias;
+	boolean_t	is_null;
 
 	if (LP_WHERE == where->type) {
 		cur = where->v.lp_default.operand[0];
@@ -125,6 +123,10 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		}
 	case LP_BOOLEAN_IS:
 	case LP_BOOLEAN_EQUALS:
+	case LP_BOOLEAN_LESS_THAN:
+	case LP_BOOLEAN_GREATER_THAN:
+	case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
+	case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
 		break;
 	case LP_BOOLEAN_IN:
 		/* Check if left side of IN is a LP_COLUMN_ALIAS. If not, we cannot do key fixing. */
@@ -224,6 +226,8 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		equals_id1_id2[(right_id * max_unique_id) + left_id] = TRUE;
 		return where;
 	}
+	boolean_t operands_swapped;
+	operands_swapped = FALSE;
 	/* From here on "num_outer_joins" is no longer overloaded and a non-zero value truly implies OUTER JOIN usage.
 	 * Hence a few checks for OUTER JOIN usage are done after this point.
 	 */
@@ -246,6 +250,7 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 			t = left;
 			left = right;
 			right = t;
+			operands_swapped = TRUE;
 		}
 	} else {
 		// At least one of these is a constant; just fix it
@@ -259,6 +264,7 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 			t = left;
 			left = right;
 			right = t;
+			operands_swapped = TRUE;
 		} else if (left_id) {
 			// The right is a value, left a column. Check if left comes in from parent query.
 			// In that case, we cannot fix it. Else it is already in the right order so no swap needed
@@ -331,15 +337,21 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 			assert(LP_VALUE == left->type);
 			assert(LP_VALUE == right->type);
 			/* This is one of the following cases.
-			 *	WHERE 5=5           -> LP_BOOLEAN_EQUALS
-			 *	WHERE 5 IS NULL     -> LP_BOOLEAN_IS
-			 *	WHERE 5 IS NOT NULL -> LP_BOOLEAN_IS_NOT
+			 *	WHERE 5=5		-> LP_BOOLEAN_EQUALS
+			 *	WHERE 5<3		-> LP_BOOLEAN_LESS_THAN
+			 *	WHERE 5>3		-> LP_BOOLEAN_GREATER_THAN
+			 *	WHERE 5<=3		-> LP_BOOLEAN_LESS_THAN_OR_EQUALS
+			 *	WHERE 5>=3		-> LP_BOOLEAN_GREATER_THAN_OR_EQUALS
+			 *	WHERE 5 IS NULL		-> LP_BOOLEAN_IS
+			 *	WHERE 5 IS NOT NULL	-> LP_BOOLEAN_IS_NOT
 			 * Nothing we can do here in terms of optimizing.
 			 */
 			return where;
 		}
 	}
-	assert((LP_BOOLEAN_EQUALS == type) || (LP_BOOLEAN_IN == type) || (LP_BOOLEAN_IS == type));
+	assert((LP_BOOLEAN_EQUALS == type) || (LP_BOOLEAN_LESS_THAN == type) || (LP_BOOLEAN_GREATER_THAN == type)
+	       || (LP_BOOLEAN_LESS_THAN_OR_EQUALS == type) || (LP_BOOLEAN_GREATER_THAN_OR_EQUALS == type) || (LP_BOOLEAN_IN == type)
+	       || (LP_BOOLEAN_IS == type));
 	right_table_alias = (SqlTableAlias *)ptr;
 	if (NULL != right_table_alias) {
 		/* This is part of a JOIN ON clause (`right_table_alias` variable non-NULL). In this case, we cannot fix the key
@@ -369,26 +381,72 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 			return where;
 		}
 	}
+	// Get the table alias and column for left
+	column_alias = left->v.lp_column_alias.column_alias;
+	UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
+	// TODO: how do we handle triggers on generated tables?
+	if (create_table_STATEMENT != table_alias->table->type) {
+		/* There is no cross reference possible for an on-the-fly table constructed using the VALUES clause */
+		assert(table_value_STATEMENT == table_alias->table->type);
+		return where;
+	}
+
+	SqlColumn *column;
+	assert(column_STATEMENT == column_alias->column->type);
+	UNPACK_SQL_STATEMENT(column, column_alias->column, column);
+	switch (type) {
+	case LP_BOOLEAN_LESS_THAN:
+	case LP_BOOLEAN_GREATER_THAN:
+	case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
+	case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
+		if (NULL != get_keyword(column, OPTIONAL_END)) {
+			/* This is a column which has END keyword specified. It requires more work to support this with the
+			 * key-fixing optimization than is considered worth the effort at this point so we return in this case.
+			 * See OPTIONAL_END usage in tmpl_tablejoin.ctemplate and surrounding comments for more details.
+			 */
+			return where;
+		}
+		if (STRING_TYPE == column->data_type_struct.data_type) {
+			if (NULL != get_keyword(column, OPTIONAL_MAYBE_CANONICAL)) {
+				/* This is a STRING typed column and MAYBE_CANONICAL has been specified as a column-level
+				 * keyword in the CREATE TABLE. In this case, we need to disable the key fixing optimization
+				 * as it can cause incorrect results. See
+				 * https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1471#note_1600675079 for details.
+				 */
+				return where;
+			}
+			if ((!operands_swapped && (0 != right_id)) || (operands_swapped && (0 != left_id))) {
+				SqlColumnAlias *right_column_alias;
+				right_column_alias = right->v.lp_column_alias.column_alias;
+				assert(column_STATEMENT == right_column_alias->column->type);
+
+				SqlColumn *right_column;
+				UNPACK_SQL_STATEMENT(right_column, right_column_alias->column, column);
+				if (STRING_TYPE == right_column->data_type_struct.data_type) {
+					/* See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1471#note_1602779457
+					 * for details on why the below check is needed.
+					 */
+					if (NULL != get_keyword(right_column, OPTIONAL_MAYBE_CANONICAL)) {
+						return where;
+					}
+				}
+			}
+		}
+		break;
+	case LP_BOOLEAN_IS:
+	case LP_BOOLEAN_IN:
+	case LP_BOOLEAN_EQUALS:
+		break;
+	default:
+		assert(FALSE);
+		break;
+	}
 	key = lp_get_key(plan, left);
 	// If the left isn't a key, generate a cross reference
 	if (NULL == key) {
 		SqlTable *table;
 
-		// Get the table alias and column for left
-		column_alias = left->v.lp_column_alias.column_alias;
-		UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
-		// TODO: how do we handle triggers on generated tables?
-		if (create_table_STATEMENT != table_alias->table->type) {
-			/* There is no cross reference possible for an on-the-fly table constructued using the VALUES clause */
-			assert(table_value_STATEMENT == table_alias->table->type);
-			return where;
-		}
 		UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
-		if (column_STATEMENT != column_alias->column->type) {
-			UNPACK_SQL_STATEMENT(column_list_alias, column_alias->column, column_list_alias);
-			UNPACK_SQL_STATEMENT(column_list, column_list_alias->column_list, column_list);
-			UNPACK_SQL_STATEMENT(column_alias, column_list->value, column_alias);
-		}
 		generated_xref_keys = lp_generate_xref_keys(plan, table, column_alias, table_alias);
 		if (NULL == generated_xref_keys) {
 			return where;
@@ -430,7 +488,7 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		 * SqlKey.xref_prefix in logical_plan.h for additional background.
 		 */
 		SqlOptionalKeyword *source_keyword;
-		source_keyword = get_keyword(column_alias->column->v.column, OPTIONAL_GLOBAL);
+		source_keyword = get_keyword(column, OPTIONAL_GLOBAL);
 		if (NULL == source_keyword) {
 			UNPACK_SQL_STATEMENT(source_keyword, table->source, keyword);
 		}
@@ -478,7 +536,35 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		}
 		key->fixed_to_value = right;
 		key->type = LP_KEY_FIX;
-		/* Now that a key has been fixed to a constant (or another key), see if we can eliminate this LP_BOOLEAN_EQUALS
+		if (!operands_swapped) {
+			key->fixed_to_value_type = type;
+		} else {
+			switch (type) {
+			case LP_BOOLEAN_LESS_THAN:
+				key->fixed_to_value_type = LP_BOOLEAN_GREATER_THAN;
+				break;
+			case LP_BOOLEAN_GREATER_THAN:
+				key->fixed_to_value_type = LP_BOOLEAN_LESS_THAN;
+				break;
+			case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
+				key->fixed_to_value_type = LP_BOOLEAN_GREATER_THAN_OR_EQUALS;
+				break;
+			case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
+				key->fixed_to_value_type = LP_BOOLEAN_LESS_THAN_OR_EQUALS;
+				break;
+			default:
+				key->fixed_to_value_type = type;
+				break;
+			}
+		}
+		/* Anytime a "LP_BOOLEAN_EQUALS etc." is mentioned below, it implies actually any one of the following
+		 *	LP_BOOLEAN_EQUALS
+		 *	LP_BOOLEAN_LESS_THAN
+		 *	LP_BOOLEAN_GREATER_THAN
+		 *	LP_BOOLEAN_LESS_THAN_OR_EQUALS
+		 *	LP_BOOLEAN_GREATER_THAN_OR_EQUALS
+		 */
+		/* Now that a key has been fixed to a constant (or another key), see if we can eliminate this LP_BOOLEAN_EQUALS etc.
 		 * from the WHERE or ON clause expression as it will otherwise result in a redundant IF check in the generated
 		 * M code. We cannot do this removal in case this is the WHERE clause and OUTER JOINs exist (it is okay to do
 		 * this if it is the ON clause and OUTER JOINs exist) as we need == check for this WHERE clause to be generated
@@ -516,7 +602,7 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 			}
 			where = NULL;
 		} else {
-			/* Do not remove this LP_BOOLEAN_EQUALS from the WHERE clause due to the presence of OUTER JOINs */
+			/* Do not remove this LP_BOOLEAN_EQUALS etc. from the WHERE clause due to the presence of OUTER JOINs */
 		}
 	}
 	return where;

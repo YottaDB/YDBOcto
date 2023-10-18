@@ -71,7 +71,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 				 * (or else it would not have decided to fix the key).
 				 */
 				GET_LP(value, list, 0, LP_VALUE);
-				TMPL(tmpl_print_expression_assignment, value, pplan, dot_count, 0);
+				TMPL(tmpl_print_expression_assignment, value, pplan, dot_count, 0, key);
 				TMPL(tmpl_print_dots, dot_count);
 				%{}SET {{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}({{ PP_YDB_OCTO_EXPR }})=""{}%
 				%{}`n{{ PLAN_LINE_START }}{}%
@@ -161,7 +161,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 					%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_IN }}{{ in_value_list_id|%d }}{}%
 					%{}`n{{ PLAN_LINE_START }}{}%
 				} else {
-					TMPL(tmpl_print_expression_assignment, fixed_to_value, pplan, dot_count, 0);
+					TMPL(tmpl_print_expression_assignment, fixed_to_value, pplan, dot_count, 0, key);
 					switch(key->fixed_to_value_type) {
 					case LP_BOOLEAN_EQUALS:
 					case LP_BOOLEAN_IS:

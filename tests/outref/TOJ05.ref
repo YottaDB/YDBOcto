@@ -56,7 +56,7 @@ octoPlan0(cursorId,wrapInTp)
 
 octoPlan1(cursorId)
 --
-    . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",4))
+    SET %ydboctoexpr=+%ydboctoexpr
     SET %ydboctoin0(%ydboctoexpr)=""
     SET %ydboctoin0="" FOR  DO:$DATA(%ydboctoin0(%ydboctoin0))  SET %ydboctoin0=$ORDER(%ydboctoin0(%ydboctoin0)) QUIT:""=%ydboctoin0
 --
@@ -68,7 +68,7 @@ octoPlan1(cursorId)
 
 octoPlan2(cursorId)
 --
-    . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",4))
+    SET %ydboctoexpr=+%ydboctoexpr
     SET %ydboctoin0(%ydboctoexpr)=""
     SET %ydboctoin0="" FOR  DO:$DATA(%ydboctoin0(%ydboctoin0))  SET %ydboctoin0=$ORDER(%ydboctoin0(%ydboctoin0)) QUIT:""=%ydboctoin0
 --

@@ -1,0 +1,20 @@
+# Running crosscheck on TTC001.sql
+# Running [octo -f TTC001_errors.sql] on queries that generate ERR_DUPLICATE_KEY_VALUE errors
+
+-- TTC001 : OCTO1019 : Type cast literals before storing in INTEGER or NUMERIC column values
+
+-- Below queries are those which are commented in TTC001.sql.
+-- They cannot be run there due to cross check issues for queries that generate an error.
+
+-- Test of ERR_DUPLICATE_KEY_VALUE error
+insert into tblINT values (5.499, 7);
+insert into tblINT values (5.5, 8);
+insert into tblINT values (5.501, 9);
+
+OCTO> insert into tblINT values (5.499, 7);
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tblint_pkey" : Key (id)=(5) already exists
+OCTO> insert into tblINT values (5.5, 8);
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tblint_pkey" : Key (id)=(6) already exists
+OCTO> insert into tblINT values (5.501, 9);
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tblint_pkey" : Key (id)=(6) already exists
+OCTO> 

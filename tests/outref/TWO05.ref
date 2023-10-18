@@ -20,6 +20,7 @@ octoPlan1(cursorId)
     SET %ydboctocursor(cursorId,"keys",1,"nameswithages","id")=""
     FOR  SET %ydboctocursor(cursorId,"keys",1,"nameswithages","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"nameswithages","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"nameswithages","id")="")  DO
     . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"nameswithages","id")
+    . SET %ydboctoexpr=+%ydboctoexpr
     . SET %ydboctocursor(cursorId,"keys",2,"nameswithages","age")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"nameswithages","age")) IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(3,%ydboctocursor(cursorId,"keys",2,"nameswithages","age"))) DO
     . . SET %ydboctocursor(cursorId,"keys",2,"nameswithages","id")=""
     . . FOR  SET %ydboctocursor(cursorId,"keys",2,"nameswithages","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(3,%ydboctocursor(cursorId,"keys",2,"nameswithages","age"),%ydboctocursor(cursorId,"keys",2,"nameswithages","id"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"nameswithages","id")="")  DO

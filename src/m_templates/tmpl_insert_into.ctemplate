@@ -101,6 +101,9 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 					EmitSourceForm_NoKeyCol);
 				%{}){}%
 			} else {
+				SqlValueType	src_cur_cla_type;
+
+				src_cur_cla_type = UNKNOWN_SqlValueType;
 				if (NULL == lp_col_list) {
 					/* No comma-separated list of target columns was specified */
 					col_is_specified = (NULL != src_cur_cla);
@@ -109,6 +112,8 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 					 * target table, then set "src_cur_cla" to NULL.
 					 */
 					if (NULL != src_cur_cla) {
+						src_cur_cla_type = src_cur_cla->type;
+						assert(UNKNOWN_SqlValueType != src_cur_cla_type);
 						src_cur_cla = src_cur_cla->next;
 						src_colnum++;
 						if (src_start_cla == src_cur_cla) {
@@ -155,9 +160,14 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 						%{}$$mval2str^%%ydboctoplanhelpers($$mvalPiece^%%ydboctoplanhelpers({{ PP_VAL }},{}%
 						%{}{{ src_colnum|%d }})){}%
 					}
-					/* Check if the column has size/precision/scale specified. If so, do checks/conversions as
-					 * appropriate. Currently the only 2 types that honor the size/precision/scale are
-					 * STRING_TYPE and NUMERIC_TYPE. So check for those below.
+					/* 1) Check if the column has size/precision/scale specified. If so, do checks/conversions
+					 *    as appropriate. Currently the only 2 types that honor the size/precision/scale are
+					 *    STRING_TYPE and NUMERIC_TYPE.
+					 * 2) If the source column is a NUMERIC type and target column is INTEGER,
+					 *    need to do ROUNDing of the input data before fitting into an INTEGER (YDBOcto#1019).
+					 * 3) If the source column is an INTEGER/NUMERIC type and target column is INTEGER/NUMERIC,
+					 *    need to do "+" of the input data to ensure non-canonical strings are converted
+					 *    to numeric (e.g. "023" -> "23").
 					 */
 					switch(cur_column->data_type_struct.data_type) {
 					case NUMERIC_TYPE:
@@ -179,9 +189,42 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 								%{},{{ cur_column->data_type_struct.scale|%d }}{}%
 							}
 							%{}){}%
+						} else if (NUMERIC_TYPE == cur_column->data_type_struct.data_type) {
+							switch(src_cur_cla_type) {
+							case NUMERIC_LITERAL:
+							case INTEGER_LITERAL:
+								%{}`n{{ PLAN_LINE_START }}{}%
+								TMPL(tmpl_print_dots, dot_count);
+								%{}SET {{ PP_COL }}({{ cur_column->column_number|%d }})={}%
+								%{}+{}%
+								%{}{{ PP_COL }}({{ cur_column->column_number|%d }}){}%
+								break;
+							default:
+								break;
+							}
 						}
 						break;
 					case INTEGER_TYPE:
+						switch(src_cur_cla_type) {
+						case NUMERIC_LITERAL:
+						case INTEGER_LITERAL:
+							%{}`n{{ PLAN_LINE_START }}{}%
+							TMPL(tmpl_print_dots, dot_count);
+							%{}SET {{ PP_COL }}({{ cur_column->column_number|%d }})={}%
+							if (NUMERIC_LITERAL == src_cur_cla_type) {
+								%{}$$ROUND^%%ydboctosqlfunctions({}%
+							} else {
+								%{}+{}%
+							}
+							%{}{{ PP_COL }}({{ cur_column->column_number|%d }}){}%
+							if (NUMERIC_LITERAL == src_cur_cla_type) {
+								%{},0){}%
+							}
+							break;
+						default:
+							break;
+						}
+						break;
 					case NUL_TYPE:
 					case BOOLEAN_TYPE:
 						/* No checks are currently done/deemed-necessary for these types.

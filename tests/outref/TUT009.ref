@@ -7,7 +7,7 @@ _ydboctoP*.m:;  update TUT009 set id = id * 2, firstname = firstname || '#' wher
 _ydboctoP*.m-    NEW %ydboctoz,%ydboctoexpr
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of updated records
 --
-_ydboctoP*.m-    . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",3))
+_ydboctoP*.m-    SET %ydboctoexpr=+%ydboctoexpr
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tut009","id")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"tut009","id")) IF $DATA(^%ydbAIMDpAK6QtZ8ecQgfe7B6A0F4A(1,%ydboctocursor(cursorId,"keys",1,"tut009","id"))) DO
 _ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"tut009","%yo_keycol")=""
 _ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tut009","%yo_keycol")=$ORDER(^%ydbAIMDpAK6QtZ8ecQgfe7B6A0F4A(1,%ydboctocursor(cursorId,"keys",1,"tut009","id"),%ydboctocursor(cursorId,"keys",1,"tut009","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tut009","%yo_keycol")="")  DO

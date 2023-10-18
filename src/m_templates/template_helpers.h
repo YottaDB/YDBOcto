@@ -206,7 +206,7 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key);
 TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key, enum EmitSourceForm form);
 TEMPLATE(tmpl_key_source_aim, char *tableName, char *columnName);
 TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count, int depth);
-TEMPLATE(tmpl_print_expression_assignment, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count, int depth);
+TEMPLATE(tmpl_print_expression_assignment, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count, int depth, SqlKey *key);
 TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t is_trigger, int dot_count, int depth);
 TEMPLATE(tmpl_column_reference_common, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t is_trigger, int dot_count,
 	 int depth, int unique_id, boolean_t *done);

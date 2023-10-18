@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -18,9 +18,10 @@
  * result of the expression in the M variable "PP_YDB_OCTO_EXPR". In order to do so, it ensures "dot_count" variable
  * is greater than 0 (if not already the case) before invoking "tmpl_print_expression()".
  */
-TEMPLATE(tmpl_print_expression_assignment, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count, int depth) {
+TEMPLATE(tmpl_print_expression_assignment, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count, int depth, SqlKey *key) {
 	boolean_t	adjust_dot_count;
 
+	assert(NULL != key->fixed_to_value);	/* this function is only called for keys that have been fixed to a value */
 	adjust_dot_count = !dot_count;
 	if (adjust_dot_count) {
 		%{}DO{}%
@@ -32,6 +33,19 @@ TEMPLATE(tmpl_print_expression_assignment, LogicalPlan *plan, PhysicalPlan *ppla
 	TMPL(tmpl_print_expression, plan, pplan, dot_count, depth);
 	if (adjust_dot_count) {
 		dot_count--;
+	}
+	/* If the key column is being fixed to an INTEGER/NUMERIC value/type, then ensure it is that type in M by doing
+	 * a "+" operator. This will ensure any non-canonical input is converted appropriately (e.g. "023" -> "23").
+	 */
+	switch(key->column->data_type_struct.data_type) {
+	case INTEGER_TYPE:
+	case NUMERIC_TYPE:
+		TMPL(tmpl_print_dots, dot_count);
+		%{}SET {{ PP_YDB_OCTO_EXPR }}=+{{ PP_YDB_OCTO_EXPR }}{}%
+		%{}`n{{ PLAN_LINE_START }}{}%
+		break;
+	default:
+		break;
 	}
 	return;
 }

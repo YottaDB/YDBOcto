@@ -218,6 +218,7 @@ if("${FULL_TEST_SUITE}")
 	ADD_BATS_TEST_DML(test_jdbc_connection)
 	ADD_BATS_TEST_DML(test_pg_functions)
 	ADD_BATS_TEST_DML(test_dbeaver_connect_queries)
+	ADD_BATS_TEST_DML(test_type_cast)
 
 	# The following test requires MySQL and PostgreSQL
 	ADD_BATS_TEST_DML(test_date_time_functions)

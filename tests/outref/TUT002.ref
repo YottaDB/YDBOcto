@@ -28,6 +28,7 @@ _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"","")=""
 _ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"","")=$ORDER(%ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""))) QUIT:(%ydboctocursor(cursorId,"keys",1,"","")="")  DO
 _ydboctoP*.m:    . SET col(1)=%ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""),1)
+_ydboctoP*.m:    . SET col(1)=+col(1)
 _ydboctoP*.m:    . SET col(2)=%ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""),2)
 _ydboctoP*.m:    . SET col(2)=$$SizeCheckVARCHAR^%ydboctoplanhelpers(col(2),30)
 _ydboctoP*.m:    . SET col(3)=%ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""),3)
@@ -48,6 +49,7 @@ _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"","")=""
 _ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"","")=$ORDER(%ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""))) QUIT:(%ydboctocursor(cursorId,"keys",1,"","")="")  DO
 _ydboctoP*.m:    . SET col(1)=%ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""),1)
+_ydboctoP*.m:    . SET col(1)=+col(1)
 _ydboctoP*.m:    . SET col(2)=%ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""),2)
 _ydboctoP*.m:    . SET col(2)=$$SizeCheckVARCHAR^%ydboctoplanhelpers(col(2),30)
 _ydboctoP*.m:    . SET col(3)=%ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""),3)
@@ -232,6 +234,7 @@ _ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",4,"","")=""
 _ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",4,"","")=$ORDER(%ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))) QUIT:(%ydboctocursor(cursorId,"keys",4,"","")="")  DO
 _ydboctoP*.m:    . SET val=%ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))
 _ydboctoP*.m:    . SET col(1)=$$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(val,1))
+_ydboctoP*.m:    . SET col(1)=+col(1)
 _ydboctoP*.m:    . SET col(2)=$$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(val,2))
 _ydboctoP*.m:    . SET col(2)=$$SizeCheckVARCHAR^%ydboctoplanhelpers(col(2),30)
 _ydboctoP*.m:    . ; --------------------------------------
@@ -266,6 +269,7 @@ _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"","")=""
 _ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"","")=$ORDER(%ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""))) QUIT:(%ydboctocursor(cursorId,"keys",1,"","")="")  DO
 _ydboctoP*.m:    . SET col(1)=%ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""),1)
+_ydboctoP*.m:    . SET col(1)=+col(1)
 _ydboctoP*.m:    . SET col(2)=%ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""),2)
 _ydboctoP*.m:    . SET col(2)=$$SizeCheckVARCHAR^%ydboctoplanhelpers(col(2),30)
 _ydboctoP*.m:    . SET col(3)=%ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""),3)
@@ -314,6 +318,7 @@ _ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",4,"","")=""
 _ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",4,"","")=$ORDER(%ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))) QUIT:(%ydboctocursor(cursorId,"keys",4,"","")="")  DO
 _ydboctoP*.m:    . SET val=%ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))
 _ydboctoP*.m:    . SET col(1)=$$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(val,1))
+_ydboctoP*.m:    . SET col(1)=+col(1)
 _ydboctoP*.m:    . SET col(2)=$$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(val,2))
 _ydboctoP*.m:    . SET col(2)=$$SizeCheckVARCHAR^%ydboctoplanhelpers(col(2),30)
 _ydboctoP*.m:    . SET col(3)=$$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(val,3))

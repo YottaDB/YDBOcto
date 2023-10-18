@@ -1,0 +1,34 @@
+#################################################################
+#								#
+# Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+}
+
+teardown() {
+  corecheck
+}
+
+@test "TTC001 : OCTO1019 : Type cast literals before storing in INTEGER or NUMERIC column values" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	echo "# Running crosscheck on TTC001.sql" >> output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TTC001.sql "trim_trailing_zeroes" roctoflags="-aw"
+	echo "# Running [octo -f TTC001_errors.sql] on queries that generate ERR_DUPLICATE_KEY_VALUE errors" >> output.txt
+	load_fixture TTC001_errors.sql subtest novv
+	psql names -c 'DROP TABLE IF EXISTS tblINT, tblNUM;' >& postgres.drop_table_TTC001.out
+	verify_output TTC001 output.txt
+}
+

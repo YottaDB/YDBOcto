@@ -389,7 +389,7 @@ CREATE TABLE
      LastName char(30),
      PRIMARY KEY (ID, FirstName, LastName));
 
-  By default, a column can have NULL values. The NOT NULL constraint enforces a column to **not** accept NULL values.
+  By default, a column can have NULL values. The NOT NULL constraint enforces a column to **not** accept NULL values when a new row is added as part of a :code:`INSERT INTO` command or an existing row is updated using a :code:`UPDATE` command. Since both these commands can be run only on READWRITE tables, the NOT NULL keyword is ignored in the case of READONLY tables.
 
   Example:
 
@@ -433,7 +433,7 @@ optional_keyword
 
   .. code-block:: none
 
-     [ AIMTYPE | DELIM | END | ENDPOINT | EXTRACT | GLOBAL | KEY NUM | MAYBE_CANONICAL | PIECE | READONLY | READWRITE | START | STARTINCLUDE ]
+     [ AIMTYPE | DELIM | END | ENDPOINT | EXTRACT | GLOBAL | KEY NUM | MAYBE_CANONICAL | NOT NULL | PIECE | READONLY | READWRITE | START | STARTINCLUDE ]
 
   The keywords denoted above are M expressions and literals. They are explained in the following table:
 
@@ -513,6 +513,11 @@ optional_keyword
   |                 |                    |               | incorrect results when inequality comparisons are done on this column in say   |                              |                                                           |
   |                 |                    |               | the WHERE or the ON clause. If this keyword is declared to be any type other   |                              |                                                           |
   |                 |                    |               | than VARCHAR, the keyword is ignored.                                          |                              |                                                           |
+  +-----------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
+  | NOT NULL        | Not applicable     | Column        | Indicates that this column cannot take on a NULL value. An error is issued if  | Not applicable               | Not applicable                                            |
+  |                 |                    |               | an :code:`INSERT INTO` or :code:`UPDATE` command tries to set this column      |                              |                                                           |
+  |                 |                    |               | to a NULL value for :code:`READWRITE` tables. For :code:`READONLY` tables      |                              |                                                           |
+  |                 |                    |               | this keyword is ignored.                                                       |                              |                                                           |
   +-----------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
   | PIECE           | Integer Literal    | Column        | Represents a piece number. Used to obtain the value of a column in a table     | default (column number,      | Not applicable                                            |
   |                 |                    |               | by extracting this piece number from the value of the global variable node     | starting at 1 for non-key    |                                                           |
@@ -2862,7 +2867,6 @@ VistA DDL Example 2
 
   :code:`DELIM "^"` specifies to Octo that :code:`"^"` is the piece separator to use when mapping values of global variable nodes into columns.
 
-  As with the :code:`PostalCode` column from the :ref:`northwind-ddl-ex` above, the NOT NULL for the :code:`NAME` column means that an empty string for the first piece of :code:`^%ZIS(3.23,…)` global variable nodes will be treated as an empty string rather than a NULL. In contrast, had the INTEGER :code:`DEVICE` column been declared NOT NULL, an empty string for the third piece of global variable nodes would have been reported as a zero rather than a NULL.
 
 .. _sqlnull:
 

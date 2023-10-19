@@ -274,7 +274,7 @@ writeTableDefinition(inputSqlFile,outputSqlFile,subtestName)
 	. . . . . . set columnName=$extract(columnNameAndType,1,$find(columnNameAndType,"""",2)-1)
 	. . . . . . set columnType=$extract(columnNameAndType,$find(columnNameAndType,"""",2)+1,$length(columnNameAndType))
 	. . . . . set columnNameAndType=$$addConstraint(columnNameAndType,columnName,columnType,dupTableName,outputSqlFile)
-	. . . . . do restOfTheQuery(firstColumn,.restOfTheQuery,columnName,columnNameAndType)
+	. . . . . do restOfTheQuery(firstColumn,.restOfTheQuery,tableName,columnName,columnNameAndType)
 	. . . . . ; Column definition is added above, try to add table constraint and then proceed to add other column definitions
 	. . . . . set restOfTheQuery=$$addTableConstraint(restOfTheQuery,.tableConstraintAdded,dupTableName,outputSqlFile)
 	. . . . . set firstColumn=0	; This value is later used to add ',' before the next column or constraint definition
@@ -289,7 +289,7 @@ writeTableDefinition(inputSqlFile,outputSqlFile,subtestName)
 	. . . . . . set columnType=$piece(columnNameAndType," ",2)
 	. . . . . . set columnNameAndTypeEnd=0
 	. . . . . . set columnNameAndType=$$addConstraint(columnNameAndType,columnName,columnType,dupTableName,outputSqlFile)
-	. . . . . . do restOfTheQuery(firstColumn,.restOfTheQuery,columnName,columnNameAndType)
+	. . . . . . do restOfTheQuery(firstColumn,.restOfTheQuery,tableName,columnName,columnNameAndType)
 	. . . . . . set firstColumn=0	; This value is later used to add ',' before the next column or constraint definition
 	. . . . set tableNameEnd=$select(((($length(line(i))+1)=columnNameAndTypeEnd)):0,1:columnNameAndTypeEnd)
 	. . . if ($find(line(i),endingChars)'=0)  do
@@ -302,7 +302,7 @@ writeTableDefinition(inputSqlFile,outputSqlFile,subtestName)
 	. . . . set finalColumnName=$piece(finalColumnAndType," ")
 	. . . . set finalColumnType=$piece(finalColumnAndType," ",2)
 	. . . . set finalColumnAndType=$$addConstraint(finalColumnAndType,finalColumnName,finalColumnType,dupTableName,outputSqlFile)
-	. . . . do restOfTheQuery(firstColumn,.restOfTheQuery,finalColumnName,finalColumnAndType)
+	. . . . do restOfTheQuery(firstColumn,.restOfTheQuery,tableName,finalColumnName,finalColumnAndType)
 	. . . . open dropTableOutputFileName:(append)
 	. . . . use dropTableOutputFileName
 	. . . . write "DROP TABLE IF EXISTS "_dupTableName_";",!
@@ -342,11 +342,19 @@ writeTableDefinition(inputSqlFile,outputSqlFile,subtestName)
 	kill line
 	quit
 
-restOfTheQuery(firstColumn,restOfTheQuery,columnName,columnNameAndType)
+restOfTheQuery(firstColumn,restOfTheQuery,tableName,columnName,columnNameAndType)
 	set restOfTheQuery=$select(firstColumn=1:"",1:restOfTheQuery_",")_columnNameAndType
 	; For columns like "zipcode", octo needs the "MAYBE_CANONICAL" keyword in order to ensure certain optimizations
-	; do not return incorrect results. So add that keyword accordingly.
-	if ("zipcode"=columnName)!("PostalCode"=columnName) set restOfTheQuery=restOfTheQuery_" MAYBE_CANONICAL"
+	; do not return incorrect results. So add that keyword accordingly. The list of columns that need this keyword
+	; is currently hardcoded and should be kept in sync with the "CREATE TABLE" commands containing this keyword
+	; in tests/fixtures/customers.sql and tests/fixtures/northwind.sql.
+	new maybeCanonical
+	set maybeCanonical=0
+	set:("customers"=tableName)&("zipcode"=columnName) maybeCanonical=1		; in tests/fixtures/customers.sql
+	set:("nwCustomers"=tableName)&("PostalCode"=columnName) maybeCanonical=1	; in tests/fixtures/northwind.sql
+	set:("Suppliers"=tableName)&("PostalCode"=columnName) maybeCanonical=1		; in tests/fixtures/northwind.sql
+	set:("Suppliers"=tableName)&("Phone"=columnName) maybeCanonical=1		; in tests/fixtures/northwind.sql
+	set:maybeCanonical restOfTheQuery=restOfTheQuery_" MAYBE_CANONICAL"
 	quit
 
 ; This routine is a helper to select the conditions using which addConstraint() can add a constraint

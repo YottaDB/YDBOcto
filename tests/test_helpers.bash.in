@@ -1204,7 +1204,7 @@ run_query_generator() {
 	do
 		# Before running CREATE TABLE commands on Postgres, remove "MAYBE_CANONICAL" keyword which is octo specific.
 		cp $splitfile $splitfile.psql
-		sed -i 's/ MAYBE_CANONICAL//;' $splitfile.psql
+		sed -i 's/ MAYBE_CANONICAL//g;' $splitfile.psql
 		PGOPTIONS='--client-min-messages=warning' $psql_cmd --no-align $databaseName -f "$splitfile.psql" >> "postgres-tabledefinition-$prefix.out" 2>>"postgres-tabledefinition-$prefix-err.out" || true
 	done
   fi

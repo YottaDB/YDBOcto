@@ -1202,10 +1202,7 @@ run_query_generator() {
 	fi
 	for splitfile in tabledefinition-$prefix-*.sql
 	do
-		# Before running CREATE TABLE commands on Postgres, remove "MAYBE_CANONICAL" keyword which is octo specific.
-		cp $splitfile $splitfile.psql
-		sed -i 's/ MAYBE_CANONICAL//;' $splitfile.psql
-		PGOPTIONS='--client-min-messages=warning' $psql_cmd --no-align $databaseName -f "$splitfile.psql" >> "postgres-tabledefinition-$prefix.out" 2>>"postgres-tabledefinition-$prefix-err.out" || true
+		PGOPTIONS='--client-min-messages=warning' $psql_cmd --no-align $databaseName -f "$splitfile" >> "postgres-tabledefinition-$prefix.out" 2>>"postgres-tabledefinition-$prefix-err.out" || true
 	done
   fi
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries $databaseName $queryfile "trim_trailing_zeroes" $usejdbcoption $useextended $isReadWriteMode

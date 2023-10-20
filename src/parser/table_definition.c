@@ -1934,9 +1934,6 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			case OPTIONAL_GENERATED_BY_DEFAULT_IDENTITY:
 				readonly_disallowed = TRUE; /* IDENTITY is only allowed for READWRITE table. Not READONLY. */
 				break;
-			case OPTIONAL_MAYBE_CANONICAL:
-				/* This keyword is allowed for READWRITE and READONLY tables so nothing to do here */
-				break;
 			default:
 				ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
 				assert(FALSE);

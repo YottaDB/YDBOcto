@@ -369,6 +369,8 @@ typedef struct SqlKey {
 					   */
 	LPActionType fixed_to_value_type; /* Initialized to one of the following if "fixed_to_value" is non-NULL.
 					   *	LP_BOOLEAN_EQUALS
+					   *	LP_BOOLEAN_IS
+					   *	LP_BOOLEAN_IN
 					   *	LP_BOOLEAN_LESS_THAN
 					   *	LP_BOOLEAN_GREATER_THAN
 					   *	LP_BOOLEAN_LESS_THAN_OR_EQUALS

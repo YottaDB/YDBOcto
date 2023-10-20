@@ -97,10 +97,9 @@ void lp_optimize_order_by(LogicalPlan *plan) {
 				}
 
 				/* ORDER BY and FOR loop order are guaranteed to be identical only for INTEGER, NUMERIC and
-				 * BOOLEAN types. For STRING type, the application guarantees the order will be identical
-				 * if it did not specify the MAYBE_CANONICAL keyword for this column at CREATE TABLE time
-				 * (see https://gitlab.com/YottaDB/DB/YDB/-/issues/1031#note_1600678857 for more details).
-				 * So skip optimization otherwise in that case. In the future, types like DATE/TIME etc.
+				 * BOOLEAN types. Not for STRING type (for more details, see
+				 * https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/959#note_1612645682).
+				 * So skip optimization for the STRING case. In the future, types like DATE/TIME etc.
 				 * would need to be examined on a case-by-case basis and either supported or not in the
 				 * code block below.
 				 */
@@ -116,7 +115,7 @@ void lp_optimize_order_by(LogicalPlan *plan) {
 						type_supported = TRUE;
 						break;
 					case STRING_LITERAL:
-						type_supported = (NULL == get_keyword(sql_column, OPTIONAL_MAYBE_CANONICAL));
+						type_supported = FALSE;
 						break;
 					default:
 						assert(FALSE);
@@ -144,23 +143,43 @@ void lp_optimize_order_by(LogicalPlan *plan) {
 				GET_LP_ALLOW_NULL(cur_order_by, cur_order_by, 1, LP_ORDER_BY);
 			} else {
 				assert((NULL != key->fixed_to_value) && key->is_cross_reference_key);
-				/* This is a xref key that is fixed to a specific value. Skip this key column for the
-				 * purposes of the ORDER BY optimization as long as it is fixed to ONE value. If this is
-				 * fixed to a LIST of values (i.e. IN operator) then we cannot optimize ORDER BY as the
-				 * processing order would be rows sorted on the cross referenced non-key column value which
-				 * is not the same as the ORDER BY order (within one non-key column value, all rows will be
-				 * sorted in primary key column order, but the primary key column values corresponding to
-				 * the first non-key column value are not guaranteed to be in sorted order compared to the
-				 * primary key column values corresponding to the second (or later) non-key column values).
-				 */
-				if (LP_COLUMN_LIST == key->fixed_to_value->type) {
+				assert((LP_COLUMN_LIST != key->fixed_to_value->type)
+				       || (LP_BOOLEAN_IN == key->fixed_to_value_type));
+
+				boolean_t ok_to_optimize;
+				switch (key->fixed_to_value_type) {
+				case LP_BOOLEAN_EQUALS:
+				case LP_BOOLEAN_IS:
+					ok_to_optimize = TRUE;
 					break;
-				}
-				if (LP_BOOLEAN_EQUALS != key->fixed_to_value_type) {
+				case LP_BOOLEAN_IN:
+					/* This is a xref key that is fixed to a specific value. Skip this key column for the
+					 * purposes of the ORDER BY optimization as long as it is fixed to ONE value. If this is
+					 * fixed to a LIST of values (i.e. IN operator) then we cannot optimize ORDER BY as the
+					 * processing order would be rows sorted on the cross referenced non-key column value which
+					 * is not the same as the ORDER BY order (within one non-key column value, all rows will be
+					 * sorted in primary key column order, but the primary key column values corresponding to
+					 * the first non-key column value are not guaranteed to be in sorted order compared to the
+					 * primary key column values corresponding to the second (or later) non-key column values).
+					 */
+					ok_to_optimize = FALSE;
+					break;
+				case LP_BOOLEAN_LESS_THAN:
+				case LP_BOOLEAN_GREATER_THAN:
+				case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
+				case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
 					/* This is an xref key that is used for a range of key values.
 					 * For the same reasons as described in the previous comment block (LIST of values)
 					 * disable the ORDER BY optimization in this case.
 					 */
+					ok_to_optimize = FALSE;
+					break;
+				default:
+					assert(FALSE);
+					ok_to_optimize = FALSE;
+					break;
+				}
+				if (!ok_to_optimize) {
 					break;
 				}
 			}

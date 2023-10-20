@@ -30,7 +30,7 @@ id|firstname|lastname|id|firstname|lastname
 (1 row)
 OCTO> select * from names n1 INNER JOIN names n2 ON (n1.id = n2.id) WHERE n1.firstName > 'Cereal' LIMIT 1;
 id|firstname|lastname|id|firstname|lastname
-4|Joey||4|Joey|
+0|Zero|Cool|0|Zero|Cool
 (1 row)
 LINE 10:1: select * from names limit .;
                                      ^

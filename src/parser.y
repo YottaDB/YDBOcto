@@ -178,7 +178,6 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token LIKE
 %token LIMIT
 %token MAX
-%token MAYBE_CANONICAL
 %token MIN
 %token NAME
 %token NATURAL
@@ -1884,13 +1883,6 @@ column_definition_tail
 
        SqlOptionalKeyword *keyword;
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
-       dqappend(keyword, ($$)->v.keyword);
-    }
-  | MAYBE_CANONICAL column_definition_tail {
-       MALLOC_KEYWORD_STMT($$, OPTIONAL_MAYBE_CANONICAL);
-
-       SqlOptionalKeyword *keyword;
-       UNPACK_SQL_STATEMENT(keyword, $2, keyword);
        dqappend(keyword, ($$)->v.keyword);
     }
   | column_constraint_definition column_definition_tail {

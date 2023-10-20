@@ -456,7 +456,6 @@ octoPlan3(cursorId)
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
-    DO:'$GET(^%ydbAIMOctoCache("products","productname","completed?")) xrefPlan^%ydboctoX3NItaqB3ruvBhLmLsg9IL9(cursorId)
     NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
@@ -468,15 +467,15 @@ octoPlan0(cursorId,wrapInTp)
     QUIT
 
 octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr SET %ydboctozlimit(17)=0 KILL %ydboctocursor(cursorId,"keys",17,"","")
+    NEW %ydboctoz,%ydboctoexpr SET %ydboctozlimit(16)=0 KILL %ydboctocursor(cursorId,"keys",16,"","")
     SET %ydboctocursor(cursorId,"keys",1,"shippers","shipperid")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"shippers","shipperid")=$ORDER(^Shippers(%ydboctocursor(cursorId,"keys",1,"shippers","shipperid"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"shippers","shipperid")="")!($GET(%ydboctocursor(cursorId,"parameters",1))'>%ydboctozlimit(17))  DO
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"shippers","shipperid")=$ORDER(^Shippers(%ydboctocursor(cursorId,"keys",1,"shippers","shipperid"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"shippers","shipperid")="")!($GET(%ydboctocursor(cursorId,"parameters",1))'>%ydboctozlimit(16))  DO
     . SET %ydboctoexpr=1
     . DO:%ydboctoexpr
     . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"shippers","shipperid")
-    . . IF $INCREMENT(%ydboctocursor(cursorId,"keys",17,"","",%ydboctoexpr))&$INCREMENT(%ydboctozlimit(17))
+    . . IF $INCREMENT(%ydboctocursor(cursorId,"keys",16,"","",%ydboctoexpr))&$INCREMENT(%ydboctozlimit(16))
     ZKILL %ydboctocursor(cursorId,"keys",1,"shippers","shipperid")
-    KILL %ydboctozlimit(17)
+    KILL %ydboctozlimit(16)
     QUIT
 
 octoPlan2(cursorId)
@@ -531,24 +530,24 @@ octoPlan3(cursorId)
 
 octoPlan4(cursorId)
     NEW %ydboctoz,%ydboctoexpr SET %ydboctozlimit(15)=0 KILL %ydboctocursor(cursorId,"keys",15,"","")
-    DO
+    SET %ydboctocursor(cursorId,"keys",5,"products","productid")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",5,"products","productid")=$ORDER(^Products(%ydboctocursor(cursorId,"keys",5,"products","productid"))) QUIT:(%ydboctocursor(cursorId,"keys",5,"products","productid")="")  DO
+    . SET %ydboctoexpr=1
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",4))
-    SET %ydboctozkeyfix(5,0)=%ydboctoexpr
-    DO  IF '$ZYISSQLNULL(%ydboctozkeyfix(5,0)) FOR  SET %ydboctozkeyfix(5,0)=$ORDER(^%ydbAIMDUuZVNFwc1IOFO58JA5G665(1,%ydboctozkeyfix(5,0))) QUIT:(%ydboctozkeyfix(5,0)="")!(%ydboctozkeyfix(5,0)="")  DO
-    . SET %ydboctocursor(cursorId,"keys",5,"products","productname")=%ydboctozkeyfix(5,0) IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",5,"products","productname")) IF $DATA(^%ydbAIMDUuZVNFwc1IOFO58JA5G665(1,%ydboctocursor(cursorId,"keys",5,"products","productname"))) DO
-    . . SET %ydboctocursor(cursorId,"keys",5,"products","productid")=""
-    . . FOR  SET %ydboctocursor(cursorId,"keys",5,"products","productid")=$ORDER(^%ydbAIMDUuZVNFwc1IOFO58JA5G665(1,%ydboctocursor(cursorId,"keys",5,"products","productname"),%ydboctocursor(cursorId,"keys",5,"products","productid"))) QUIT:(%ydboctocursor(cursorId,"keys",5,"products","productid")="")  DO
-    . . . SET %ydboctoexpr=1
-    . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",5,"products","productname")
-    . . . SET %ydboctoexpr(1)=%ydboctoexpr
-    . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",5))
-    . . . SET %ydboctoexpr=%ydboctoexpr(1)']%ydboctoexpr
-    . . . DO:%ydboctoexpr
-    . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",15,"","")) %ydboctoz=42
-    . . . . SET %ydboctoexpr=$PIECE($GET(^Products(%ydboctocursor(cursorId,"keys",5,"products","productid"))),"|",3) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
-    . . . . SET %ydboctocursor(cursorId,"keys",15,"","","OrderBy",$$ForceNumeric^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE($GET(^Products(%ydboctocursor(cursorId,"keys",5,"products","productid"))),"|",3))),%ydboctocursor(cursorId,"keys",15,"",""))=%ydboctoexpr
+    . SET %ydboctoexpr(2)=%ydboctoexpr
+    . SET %ydboctoexpr=$PIECE($GET(^Products(%ydboctocursor(cursorId,"keys",5,"products","productid"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . SET %ydboctoexpr=%ydboctoexpr(2)']%ydboctoexpr
+    . SET %ydboctoexpr(1)=%ydboctoexpr
+    . SET %ydboctoexpr=$PIECE($GET(^Products(%ydboctocursor(cursorId,"keys",5,"products","productid"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . SET %ydboctoexpr(2)=%ydboctoexpr
+    . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",5))
+    . SET %ydboctoexpr=%ydboctoexpr(2)']%ydboctoexpr
+    . SET %ydboctoexpr=%ydboctoexpr(1)&%ydboctoexpr
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",15,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$PIECE($GET(^Products(%ydboctocursor(cursorId,"keys",5,"products","productid"))),"|",3) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . SET %ydboctocursor(cursorId,"keys",15,"","","OrderBy",$$ForceNumeric^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE($GET(^Products(%ydboctocursor(cursorId,"keys",5,"products","productid"))),"|",3))),%ydboctocursor(cursorId,"keys",15,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",5,"products","productid")
-    ZKILL %ydboctocursor(cursorId,"keys",5,"products","productname")  KILL %ydboctozkeyfix(5)
     NEW %ydboctoi  SET %ydboctoi(0)=1
     SET %ydboctoi(1)="" FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",15,"","","OrderBy",%ydboctoi(1)))  SET %ydboctoi(1)=$ORDER(%ydboctocursor(cursorId,"keys",15,"","","OrderBy",%ydboctoi(1)),1)  QUIT:(%ydboctoi(1)="")!($GET(%ydboctocursor(cursorId,"parameters",6))<%ydboctoi(0))
     . SET %ydboctoi(2)="" FOR  SET %ydboctoi(2)=$ORDER(%ydboctocursor(cursorId,"keys",15,"","","OrderBy",%ydboctoi(1),%ydboctoi(2))) QUIT:(%ydboctoi(2)="")!($GET(%ydboctocursor(cursorId,"parameters",6))<%ydboctoi(0))  DO
@@ -596,13 +595,13 @@ octoPlan5(cursorId)
     . . DO:%ydboctoexpr
     . . . SET %ydboctoexpr=1
     . . . SET %ydboctoexpr='$$EXISTS^%ydboctoplanhelpers(12,"")
-    . . . SET %ydboctoexpr=%ydboctoexpr&('$DATA(%ydboctozdistinct(14,%ydboctocursor(cursorId,"keys",3,"categories","categoryid"),$$GetScalarOrArray^%ydboctoplanhelpers(17,0,""),$$piecevalue2colvalue^%ydboctoplanhelpers($PIECE($GET(^Categories(%ydboctocursor(cursorId,"keys",3,"categories","categoryid"))),"|",1)))))
+    . . . SET %ydboctoexpr=%ydboctoexpr&('$DATA(%ydboctozdistinct(14,%ydboctocursor(cursorId,"keys",3,"categories","categoryid"),$$GetScalarOrArray^%ydboctoplanhelpers(16,0,""),$$piecevalue2colvalue^%ydboctoplanhelpers($PIECE($GET(^Categories(%ydboctocursor(cursorId,"keys",3,"categories","categoryid"))),"|",1)))))
     . . . DO:%ydboctoexpr
     . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",14,"","")) %ydboctoz=42
     . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",3,"categories","categoryid")
     . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . SET %ydboctoexpr=$$GetScalarOrArray^%ydboctoplanhelpers(17,0,"")
+    . . . . SET %ydboctoexpr=$$GetScalarOrArray^%ydboctoplanhelpers(16,0,"")
     . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . SET %ydboctoexpr(0)=%ydboctoexpr
@@ -610,7 +609,7 @@ octoPlan5(cursorId)
     . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . SET %ydboctocursor(cursorId,"keys",14,"","",%ydboctocursor(cursorId,"keys",14,"",""))=%ydboctoexpr
-    . . . . SET:1 %ydboctozdistinct(14,%ydboctocursor(cursorId,"keys",3,"categories","categoryid"),$$GetScalarOrArray^%ydboctoplanhelpers(17,0,""),$$piecevalue2colvalue^%ydboctoplanhelpers($PIECE($GET(^Categories(%ydboctocursor(cursorId,"keys",3,"categories","categoryid"))),"|",1)))=""
+    . . . . SET:1 %ydboctozdistinct(14,%ydboctocursor(cursorId,"keys",3,"categories","categoryid"),$$GetScalarOrArray^%ydboctoplanhelpers(16,0,""),$$piecevalue2colvalue^%ydboctoplanhelpers($PIECE($GET(^Categories(%ydboctocursor(cursorId,"keys",3,"categories","categoryid"))),"|",1)))=""
     . ZKILL %ydboctocursor(cursorId,"keys",4,"products","productid")
     ZKILL %ydboctocursor(cursorId,"keys",3,"categories","categoryid")
     KILL %ydboctozdistinct(14)

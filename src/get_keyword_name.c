@@ -109,9 +109,6 @@ char *get_keyword_name(OptionalKeyword keyword) {
 	case OPTIONAL_AIM_TYPE:
 		ret = "AIMTYPE";
 		break;
-	case OPTIONAL_MAYBE_CANONICAL:
-		ret = "MAYBE_CANONICAL";
-		break;
 	default:
 		assert(FALSE);
 		ret = NULL;

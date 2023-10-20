@@ -400,6 +400,25 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 		echo "# See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1182#note_1301167074 for details"
 		is_old_commit_with_issues=1
 	fi
+	# Check if chosen older commit is in the range 58d38301..538cb03a (both commits inclusive)
+	# This is because these commits used the MAYBE_CANONICAL keyword for certain columns (in customers and northwind
+	# data sets) which has since been nixed (so the master branch has no clue about that keyword).
+	start_canonical_commit="d65a213e4be163fa005b7c5e9686878a739804af"	# 1 commit BEFORE 58d38301 commit
+	end_canonical_commit="538cb03a65e8c8ace180bdcd0e25a63b4b605974"
+	# Disable the "set -e" setting temporarily as the "git merge-base" can return exit status 0 or 1
+	set +e
+	git merge-base --is-ancestor $commitsha $start_canonical_commit
+	is_post_start_canonical_commit=$?
+	git merge-base --is-ancestor $commitsha $end_canonical_commit
+	is_post_end_canonical_commit=$?
+	# Re-enable "set -e" now that "git merge-base" invocation is done.
+	set -e
+	if [[ (0 != $is_post_start_canonical_commit) && (0 == $is_post_end_canonical_commit) ]]; then
+		echo "# Skipping $commitsha as it uses MAYBE_CANONICAL keyword which has since been nixed"
+		echo "# See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/616#note_1612820859 for details"
+		is_old_commit_with_issues=1
+	fi
+	# Return right away if we have found that the old commit has issues.
 	if [[ 0 != $is_old_commit_with_issues ]]; then
 		echo "# Cannot continue with job. Returning with success"
 		exit 0

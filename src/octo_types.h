@@ -339,7 +339,6 @@ typedef enum OptionalKeyword {
 	OPTIONAL_DEFAULT,
 	OPTIONAL_GENERATED_BY_DEFAULT_IDENTITY,
 	OPTIONAL_GENERATED_ALWAYS_IDENTITY,
-	OPTIONAL_MAYBE_CANONICAL,
 } OptionalKeyword;
 
 typedef enum SqlSetOperationType {

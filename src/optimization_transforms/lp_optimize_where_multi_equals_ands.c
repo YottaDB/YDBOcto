@@ -407,30 +407,11 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 			return where;
 		}
 		if (STRING_TYPE == column->data_type_struct.data_type) {
-			if (NULL != get_keyword(column, OPTIONAL_MAYBE_CANONICAL)) {
-				/* This is a STRING typed column and MAYBE_CANONICAL has been specified as a column-level
-				 * keyword in the CREATE TABLE. In this case, we need to disable the key fixing optimization
-				 * as it can cause incorrect results. See
-				 * https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1471#note_1600675079 for details.
-				 */
-				return where;
-			}
-			if ((!operands_swapped && (0 != right_id)) || (operands_swapped && (0 != left_id))) {
-				SqlColumnAlias *right_column_alias;
-				right_column_alias = right->v.lp_column_alias.column_alias;
-				assert(column_STATEMENT == right_column_alias->column->type);
-
-				SqlColumn *right_column;
-				UNPACK_SQL_STATEMENT(right_column, right_column_alias->column, column);
-				if (STRING_TYPE == right_column->data_type_struct.data_type) {
-					/* See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1471#note_1602779457
-					 * for details on why the below check is needed.
-					 */
-					if (NULL != get_keyword(right_column, OPTIONAL_MAYBE_CANONICAL)) {
-						return where;
-					}
-				}
-			}
+			/* This is a STRING typed column. In this case, we need to disable the key fixing optimization as it can
+			 * cause incorrect results (see https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/616#note_1612587360 for
+			 * more details). Hence the "return" below. When YottaDB/Util/YDBAIM#73 is fixed, it can be re-enabled.
+			 */
+			return where;
 		}
 		break;
 	case LP_BOOLEAN_IS:

@@ -295,7 +295,72 @@ sql_statement
   | query_expression semicolon_or_eof {
       SqlStatement	*ret;
 
-      ret = validate_query_expression($query_expression, parse_context, select_STATEMENT);
+      ret = $query_expression;
+      if (parse_context->is_extended_query) {
+      	/* If we are parsing a SELECT query through the Extended Query Protocol as part of a Parse message,
+      	 * we might later need to LIMIT the result set based on the max-row-count specified (if any) in the
+      	 * Execute message. To handle that, check if a LIMIT was specified in this query. If not, set the
+      	 * query as if LIMIT NNNN was specified where NNNN is the maximum possible integer that YottaDB can
+      	 * store without losing precision.
+      	 */
+      	if (table_alias_STATEMENT == ret->type) {
+      		SqlTableAlias		*table_alias;
+      		UNPACK_SQL_STATEMENT(table_alias, ret, table_alias);
+
+      		if (select_STATEMENT == table_alias->table->type) {
+      			SqlSelectStatement	*select;
+      			UNPACK_SQL_STATEMENT(select, table_alias->table, select);
+
+      			SqlOptionalKeyword *keywords, *keyword;
+      			UNPACK_SQL_STATEMENT(keywords, select->optional_words, keyword);
+      			keyword = get_keyword_from_keywords(keywords, OPTIONAL_LIMIT);
+
+      			SqlStatement	*value_stmt;
+      			if (NULL == keyword) {
+      				/* LIMIT was not specified in outer most SELECT query.
+      				 * Make it look as if a LIMIT NNNN was specified where NNN is largest integer
+      				 * that YottaDB would work with. This is guaranteed to be more than the
+      				 * number of rows returned by any query and so it is a safe value to have
+      				 * to effectively say return ALL rows of the query.
+      				 */
+      				SQL_VALUE_MALLOC_STATEMENT(value_stmt, INTEGER_LITERAL, sizeof(YDB_MAX_INT_VAL));
+      				strcpy(value_stmt->v.value->v.string_literal, YDB_MAX_INT_VAL);
+
+      				SqlStatement	*limit;
+      				MALLOC_KEYWORD_STMT(limit, OPTIONAL_LIMIT);
+      				limit->v.keyword->v = value_stmt;
+				assert(!parse_context->execute_row_limit_parm_index);
+      				INVOKE_PARSE_LITERAL_TO_PARAMETER(parse_context, value_stmt->v.value, FALSE);
+				assert(value_stmt->v.value->parameter_index);
+      				if (NULL == select->optional_words) {
+      					select->optional_words = limit;
+      				} else {
+      					SqlOptionalKeyword *select_words, *new_words;
+      					UNPACK_SQL_STATEMENT(select_words, select->optional_words, keyword);
+      					UNPACK_SQL_STATEMENT(new_words, limit, keyword);
+      					dqappend(select_words, new_words);
+      				}
+      			} else {
+      				/* LIMIT was specified in outer most SELECT query. So we do not need to add
+      				 * that keyword again like we did in the "if" block above. But we will need to
+      				 * later check what the user specified LIMIT is and what the max-row-count
+      				 * number is in the Execute message and use the minimum of these two limits for
+      				 * the actual query execution. This is taken care of later in "handle_execute.c".
+      				 */
+      				DEBUG_ONLY(value_stmt = keyword->v);
+      			}
+#			ifndef NDEBUG
+			/* Assert that LIMIT in outer most query is the LAST parameter. See similar comment in
+			 * "src/parser/parse_literal_to_parameter.c" for more details on why this is needed.
+			 */
+			assert(value_stmt->v.value->parameter_index);
+			assert(value_stmt->v.value->parameter_index == parse_context->total_parms);
+			parse_context->execute_row_limit_parm_index = value_stmt->v.value->parameter_index;
+#			endif
+      		}
+      	}
+      }
+      ret = validate_query_expression(ret, parse_context, select_STATEMENT);
       if (NULL == ret) {
            YYABORT;
       }

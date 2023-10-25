@@ -32,7 +32,7 @@ teardown() {
 	echo "# Load SAMEVALUE function (used in TVC01.sql) in Octo and Postgres" >> output.txt
 	load_fixture "QueryGenerator.sql"
 	echo "# Run cross check" >> output.txt
-	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDFT01.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDFT01.sql noextended
 	# Firstly, delete TDFT01 table from Postgres database as it can confuse later runs of other tests
 	# (e.g. hello_db/HDB01 subtest etc.) in case we error out in the later steps of this TDFT01 subtest
 	psql names -c 'drop table if exists TDFT01;' >& postgres.drop_table_TDFT01.out

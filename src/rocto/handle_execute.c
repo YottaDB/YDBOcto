@@ -163,8 +163,27 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 				return 1;
 			}
 		}
+		/* Check if Execute message has specified a non-zero max_data_to_send. If so, transfer this to the LIMIT
+		 * keyword that was added to the SELECT query at Parse message time (in "src/parser.y") in case the LIMIT
+		 * parameter is GREATER than the max_data_to_send value. That way, we only return the number of rows
+		 * requested and not waste time computing rows that the user does not anyways want.
+		 * Note that the LIMIT keyword addition would have happened only for SELECT queries and not for other
+		 * commands like INSERT/DELETE/UPDATE hence the "select_STATEMENT == command_tag" check below.
+		 */
+		if ((select_STATEMENT == command_tag) && (parms.max_data_to_send)) {
+			temp_long = strtol(parm_buf.buf_addr, NULL, 10);
+			if (temp_long > parms.max_data_to_send) {
+				parm_buf.len_used = snprintf(parm_buf.buf_addr, parm_buf.len_alloc, "%d", parms.max_data_to_send);
+				assert(parm_buf.len_used <= parm_buf.len_alloc);
+				status = ydb_set_s(&cursor_subs[0], 3, &cursor_subs[1], &parm_buf);
+				YDB_ERROR_CHECK(status);
+				if (YDB_OK != status) {
+					YDB_FREE_BUFFER(&parm_buf);
+					return 1;
+				}
+			}
+		}
 		YDB_FREE_BUFFER(&parm_buf);
-
 		// Prepare call-in interface to execute query
 		ci_routine.address = routine_buffer.buf_addr;
 		ci_routine.length = routine_buffer.len_used;

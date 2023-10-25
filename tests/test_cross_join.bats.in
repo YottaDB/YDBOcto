@@ -113,14 +113,14 @@ OCTO
 }
 
 @test "TCJ11 : OCTO529 : Test query with only ONE CROSS JOIN is also reordered/optimized" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCJ11.sql
-  echo "# Verify key fixing optimization by looking at generated M code" >> output.txt
-  grep -E "SELECT|ydboctoX|SET|octoPlan|FOR" _ydboctoP*.m >> output.txt
-  verify_output TCJ11 output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCJ11.sql noextended
+	echo "# Verify key fixing optimization by looking at generated M code" >> output.txt
+	grep -E "SELECT|ydboctoX|SET|octoPlan|FOR" _ydboctoP*.m >> output.txt
+	verify_output TCJ11 output.txt
 }
 
 @test "TCJ12 : OCTO652 : Incorrect results if CROSS JOIN is used with OR operator in the WHERE clause" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCJ12.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCJ12.sql
 }
 
 @test "TCJ13 : OCTO769 : Speed up CROSS JOIN by rearranging FROM/JOIN even if OR is used in WHERE clause" {
@@ -130,7 +130,7 @@ OCTO
 	echo "# It runs in less than a second after the YDBOcto#769 fixes." >> output.txt
 	echo "# We do not do actual time verification. But expect us to notice a regression right away since" >> output.txt
 	echo "# this test would then take 900 seconds to run and be seen in the pipeline as an outlier." >> output.txt
-	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries sqllogic4 TCJ13.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries sqllogic4 TCJ13.sql noextended
 	# If we reached here, it means the above cross check succeeded so note that in the reference file.
 	echo "PASS : cross check" >> output.txt
 	echo "# Verify generated plan to see CROSS JOIN reordering happened as expected." >> output.txt
@@ -143,7 +143,7 @@ OCTO
 
 @test "TCJ14 : OCTO769 : Verify CROSS JOIN reordering optimization happens INDEPENDENTLY in each plan if OR is used in WHERE clause" {
 	echo "# Run cross check on one query." >> output.txt
-	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCJ14.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCJ14.sql noextended
 	# If we reached here, it means the above cross check succeeded so note that in the reference file.
 	echo "PASS : cross check" >> output.txt
 	echo "# Verify that CROSS JOIN reordering happened INDEPENDENTLY in each of the 2 DNF plans" >> output.txt

@@ -86,7 +86,7 @@ OCTO
 
 @test "TX04 : OCTO531 : Optimize IS NULL check in WHERE clause by using key fixing optimization" {
 	echo '# Run IS NULL query using Octo and Postgres and verify same output (should see no message below)' > final_output.txt
-	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TX04.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TX04.sql noextended
 	echo '# Verify ^%ydbAIMD* got built and has correct contents' >> final_output.txt
 	yottadb -run zwriteAIMData^aimutils >> final_output.txt
 	echo '# Verify key fixing optimization happened in physical plan only for <lastname IS NULL> query' >> final_output.txt

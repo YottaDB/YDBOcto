@@ -40,7 +40,7 @@ teardown() {
 	echo "# Load SAMEVALUE function (used in TVC01.sql) in Octo and Postgres" >> output.txt
 	load_fixture "QueryGenerator.sql"
 	echo "# Run cross check" >> output.txt
-	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TUT002.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TUT002.sql noextended
 	# Firstly, delete created tables from Postgres as it can confuse later runs of other tests
 	# (e.g. hello_db/HDB01 subtest etc.) in case we error out in the later steps of this TUT002 subtest
 	psql names -c 'drop table if exists TUT002; drop table if exists TUT002B' >& postgres.drop_table_TUT002.out
@@ -141,7 +141,7 @@ teardown() {
 
 @test "TUT009 : OCTO579 : Test that UPDATE correctly updates duplicate rows on table with no primary key columns" {
 	echo "# Run cross check first" >> output.txt
-	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TUT009.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TUT009.sql noextended
 	# Delete TUT009 table from Postgres database as it can confuse later runs of other tests
 	# (e.g. hello_db/HDB01 subtest etc.) in case we error out in the later steps of this TUT009 subtest
 	psql names -c 'drop table if exists TUT009;' >& postgres.drop_table_TUT009.out

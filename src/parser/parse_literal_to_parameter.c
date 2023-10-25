@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -40,6 +40,11 @@ int parse_literal_to_parameter(ParseContext *parse_context, SqlValue *value, boo
 	} else {
 		// ROCTO ONLY: Track total number of parameters, both literals and PARAMETER_VALUES
 		if (config->is_rocto) {
+			/* Assert that LIMIT NNNN added in "src/parser.y" is the LAST parameter. That is, we should
+			 * never come here to increment the parameter count if the LIMIT NNNN parameter addition
+			 * already happened. This is relied upon by "src/rocto/handle_execute.c".
+			 */
+			assert(!parse_context->execute_row_limit_parm_index);
 			assert(0 <= parse_context->total_parms);
 			parse_context->total_parms++;
 			if (0 > parse_context->total_parms) {

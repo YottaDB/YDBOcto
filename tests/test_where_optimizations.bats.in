@@ -240,7 +240,7 @@ CAT
 	load_fixture composite.sql
 	load_fixture composite.zwr
 	echo "# Run crosscheck on TWO19_names.sql" >> output.txt
-	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TWO19_names.sql roctoflags="-aw"
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TWO19_names.sql roctoflags="-aw" noextended
 	echo "# Run only octo (not psql) on TWO19_octoonly.sql" >> output.txt
 	load_fixture TWO19_octoonly.sql subtest novv
 	echo "# Verify key-fixing optimization in WHERE clause took effect from queries where applicable" >> output.txt

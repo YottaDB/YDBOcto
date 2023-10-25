@@ -144,7 +144,7 @@ teardown() {
 }
 
 @test "TCT019 : OCTO636 : SIZE/PRECISION and/or SCALE differences in typecast operator should not result in different plans" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCT019.sql	# appends to output.txt
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCT019.sql noextended	# appends to output.txt
   load_fixture TCT019.sql subtest novv
   # Also verify that only a subset of of the above queries generates a unique plan and the rest of the queries map to one another
   # The easiest way to do this is to find out the query (in a commented section) from the _ydboctoP*.m file and add it to the

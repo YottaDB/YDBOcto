@@ -233,9 +233,9 @@ OCTO
 	load_fixture composite.sql
 	load_fixture composite.zwr
 	echo "# Run crosscheck on TOB20_names.sql" >> output.txt
-	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOB20_names.sql "trim_trailing_zeroes" roctoflags="-aw"
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOB20_names.sql "trim_trailing_zeroes" roctoflags="-aw" noextended
 	echo "# Run crosscheck on TOB20_composite.sql" >> output.txt
-	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries composite TOB20_composite.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries composite TOB20_composite.sql noextended
 	echo "# Run only octo (not psql) on TOB20_octoonly.sql" >> output.txt
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TOB20_octoonly.sql .
 	load_fixture TOB20_octoonly.sql subtest novv

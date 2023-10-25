@@ -29,7 +29,7 @@ teardown() {
 	echo "# Run cross check" >> output.txt
 	# TVC01.sql has 100+ queries. To reduce test runtime we would ideally run only a small random fraction (25%) of that.
 	# But later stages of the test rely on all queries here being executed so we run all queries (100% i.e. 1.00) here.
-	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TVC01.sql 1.00
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TVC01.sql 1.00 noextended
 	echo "# Test [DROP TABLE names] removes all plans using names table for VALUES queries too" >> output.txt
 	echo "DROP TABLE NAMES" | octo
 	echo "# Below are plans that remain after DROP TABLE names" >> output.txt
@@ -43,7 +43,7 @@ teardown() {
 }
 
 @test "TVC02 : OCTO502 : Verify VALUES clause results in no unnecessary physical plans" {
-	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TVC02.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TVC02.sql noextended
 	echo "# Verify no unnecessary generated physical plans by looking at generated M code" >> output.txt
 	grep -E "VALUES|SELECT|octoPlan|--------" _ydboctoP*.m >> output.txt
 	verify_output TVC02 output.txt

@@ -885,6 +885,13 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 			usejdbc="usejdbc"
 			randclientstr="JDBC"	# Since the user specified "usejdbc", fixate random client choice to JDBC
 		fi
+		if [[ $i == "noextended" ]]; then
+			# "noextended" is specified by the caller whenever they want to disable "extended" query protocol
+			# in case JDBC is chosen as the client. This is because the caller test relies on emitted M code
+			# which can be different for queries executed through Extended query protocol due to the addition
+			# of a LIMIT keyword (YDBOcto#1014).
+			noextended=1
+		fi
 		if [[ $i == "usesimple" ]]; then
 			jdbcprotocol="usesimple"
 		fi
@@ -914,6 +921,10 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 			randclientstr="JDBC"
 			# Randomly choose simple or extended query protocol
 			jdbcprotocol=$(choose_jdbc_protocol_randomly)
+			if [[ $noextended == 1 ]]; then
+				# The user specified "noextended". Ensure only simple (not extended) query protocol is chosen.
+				jdbcprotocol="usesimple"
+			fi
 		elif [[ $randclient == 1 ]]; then
 			randclientstr="PSQL"
 			create_default_user
@@ -945,7 +956,7 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 	fi
 	fname=`echo $queryfile | sed 's/\..*//g'`
 	# Prepare query file/files for execution
-	if [[ $randclientstr == "JDBC" || $usejdbc == "usejdbc" ]]; then
+	if [[ $randclientstr == "JDBC" ]]; then
 		# Remove commented instructions like -- sort-needed-check or -- rowcount-only-check
 		# and commented queries as they are not handled well by JDBC client
 		sed 's/\s*--.*//' $queryfile &> "$fname"_nocomment.sql

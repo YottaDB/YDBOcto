@@ -483,7 +483,12 @@ typedef struct {
 	boolean_t  skip_cursor_cleanup;
 	boolean_t *is_bind_parm; // Used to track which literal parameters are bind parameters
 	int16_t	   is_bind_parm_size;
-	char	   routine[MAX_ROUTINE_LEN];
+#ifndef NDEBUG
+	int execute_row_limit_parm_index; /* The index of the parameter lvn where the "rows_to_return" value
+					   * of the Execute message (of the Extended query protocol) can be set.
+					   */
+#endif
+	char routine[MAX_ROUTINE_LEN];
 } ParseContext;
 
 typedef struct SqlDataTypeStruct {

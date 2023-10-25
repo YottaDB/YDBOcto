@@ -337,6 +337,13 @@
 
 #define YDB_MAX_KEY_SZ 1023 /* 1023 can be replaced by MAX_STR_LEN (from YDB repo) if it is exposed in libyottadb.h */
 
+#define YDB_MAX_INT_VAL                                                                                         \
+	"999999999999999999" /* Largest integer in YDB without losing precision (18 digits). Doing this integer \
+			      * + 1 would give us a number that will no longer return precise results when one  \
+			      * does a - 1 on it. This integer value is currently not defined as a macro in the \
+			      * YDB repository but is used in YDB/sr_unix/ygblstat.mpt.                         \
+			      */
+
 /* Size of query buffer initially allocated. Gets expanded as need arises. */
 #define INIT_QUERY_SIZE 32768
 

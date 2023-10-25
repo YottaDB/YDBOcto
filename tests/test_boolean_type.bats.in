@@ -83,7 +83,10 @@ teardown() {
 	#
 	# So, we expect 16 - 8 = 8 plans in the first case. In the second case, there are only 8 queries, covering cases 1-4 listed
 	# above. In that case, we expect 8 - 4 = 4 queries.
-	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries boolean TBT09.sql
+	#
+	# Note: "noextended" usage below is a temporary workaround that should be removed once
+	# https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/498#note_1623006175 is resolved.
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries boolean TBT09.sql noextended
 	[[ 8 -eq $(ls _ydboctoP*.m | wc -l) ]]
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TBT09b.sql
 	[[ 12 -eq $(ls _ydboctoP*.m | wc -l) ]] # The previous 4 plans plus 4 new ones

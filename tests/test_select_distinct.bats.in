@@ -43,6 +43,7 @@ teardown() {
   mv clean_output.txt errors_clean_output.txt
   # TSD04_noerrors.sql can be used with `run_query_in_octo_and_postgres_and_crosscheck_multiple_queries` because all queries
   # generate valid output (i.e. no errors at all). No reference file needed for this.
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSD04_noerrors.sql
+  # Note: "noextended" usage below is a temporary workaround that should be removed once YDBOcto#1021 is fixed.
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSD04_noerrors.sql noextended
 }
 

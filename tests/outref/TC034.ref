@@ -27,19 +27,20 @@ octoPlan0(cursorId,wrapInTp)
     QUIT
 
 octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    NEW %ydboctoz,%ydboctoexpr SET %ydboctozlimit(3)=0 KILL %ydboctocursor(cursorId,"keys",3,"","")
     SET %ydboctocursor(cursorId,"keys",1,"index_description","index_id")=0
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"index_description","index_id")=$ORDER(^DD("IX",%ydboctocursor(cursorId,"keys",1,"index_description","index_id"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"index_description","index_id"))!(%ydboctocursor(cursorId,"keys",1,"index_description","index_id")=""))  DO
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"index_description","index_id")=$ORDER(^DD("IX",%ydboctocursor(cursorId,"keys",1,"index_description","index_id"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"index_description","index_id"))!(%ydboctocursor(cursorId,"keys",1,"index_description","index_id")=""))!($GET(%ydboctocursor(cursorId,"parameters",1))'>%ydboctozlimit(3))  DO
     . SET %ydboctocursor(cursorId,"keys",1,"index_description","index_description_id")=0
-    . FOR  SET %ydboctocursor(cursorId,"keys",1,"index_description","index_description_id")=$ORDER(^DD("IX",%ydboctocursor(cursorId,"keys",1,"index_description","index_id"),.1,%ydboctocursor(cursorId,"keys",1,"index_description","index_description_id"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"index_description","index_description_id"))!(%ydboctocursor(cursorId,"keys",1,"index_description","index_description_id")=""))  DO
+    . FOR  SET %ydboctocursor(cursorId,"keys",1,"index_description","index_description_id")=$ORDER(^DD("IX",%ydboctocursor(cursorId,"keys",1,"index_description","index_id"),.1,%ydboctocursor(cursorId,"keys",1,"index_description","index_description_id"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"index_description","index_description_id"))!(%ydboctocursor(cursorId,"keys",1,"index_description","index_description_id")=""))!($GET(%ydboctocursor(cursorId,"parameters",1))'>%ydboctozlimit(3))  DO
     . . SET %ydboctoexpr=1
     . . DO:%ydboctoexpr
-    . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"",""))&$INCREMENT(%ydboctozlimit(3)) %ydboctoz=42
     . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"index_description","index_id")
     . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"index_description","index_description_id")
     ZKILL %ydboctocursor(cursorId,"keys",1,"index_description","index_id")
+    KILL %ydboctozlimit(3)
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
@@ -54,19 +55,20 @@ octoPlan0(cursorId,wrapInTp)
     QUIT
 
 octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    NEW %ydboctoz,%ydboctoexpr SET %ydboctozlimit(3)=0 KILL %ydboctocursor(cursorId,"keys",3,"","")
     SET %ydboctocursor(cursorId,"keys",1,"index_description","index_id")=0
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"index_description","index_id")=$ORDER(^DD("IX",%ydboctocursor(cursorId,"keys",1,"index_description","index_id"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"index_description","index_id"))!(%ydboctocursor(cursorId,"keys",1,"index_description","index_id")=""))  DO
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"index_description","index_id")=$ORDER(^DD("IX",%ydboctocursor(cursorId,"keys",1,"index_description","index_id"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"index_description","index_id"))!(%ydboctocursor(cursorId,"keys",1,"index_description","index_id")=""))!($GET(%ydboctocursor(cursorId,"parameters",1))'>%ydboctozlimit(3))  DO
     . SET %ydboctocursor(cursorId,"keys",1,"index_description","index_description_id")=0
-    . FOR  SET %ydboctocursor(cursorId,"keys",1,"index_description","index_description_id")=$ORDER(^DD("IX",%ydboctocursor(cursorId,"keys",1,"index_description","index_id"),.1,%ydboctocursor(cursorId,"keys",1,"index_description","index_description_id"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"index_description","index_description_id"))!(%ydboctocursor(cursorId,"keys",1,"index_description","index_description_id")=""))  DO
+    . FOR  SET %ydboctocursor(cursorId,"keys",1,"index_description","index_description_id")=$ORDER(^DD("IX",%ydboctocursor(cursorId,"keys",1,"index_description","index_id"),.1,%ydboctocursor(cursorId,"keys",1,"index_description","index_description_id"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"index_description","index_description_id"))!(%ydboctocursor(cursorId,"keys",1,"index_description","index_description_id")=""))!($GET(%ydboctocursor(cursorId,"parameters",1))'>%ydboctozlimit(3))  DO
     . . SET %ydboctoexpr=1
     . . DO:%ydboctoexpr
-    . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"",""))&$INCREMENT(%ydboctozlimit(3)) %ydboctoz=42
     . . . SET %ydboctoexpr=$E($G(^DD("IX",%ydboctocursor(cursorId,"keys",1,"index_description","index_id"),.1,%ydboctocursor(cursorId,"keys",1,"index_description","index_description_id"),0)),1,245) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"index_description","index_description_id")
     ZKILL %ydboctocursor(cursorId,"keys",1,"index_description","index_id")
+    KILL %ydboctozlimit(3)
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
@@ -81,17 +83,18 @@ octoPlan0(cursorId,wrapInTp)
     QUIT
 
 octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    NEW %ydboctoz,%ydboctoexpr SET %ydboctozlimit(3)=0 KILL %ydboctocursor(cursorId,"keys",3,"","")
     SET %ydboctocursor(cursorId,"keys",1,"index_description","index_id")=0
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"index_description","index_id")=$ORDER(^DD("IX",%ydboctocursor(cursorId,"keys",1,"index_description","index_id"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"index_description","index_id"))!(%ydboctocursor(cursorId,"keys",1,"index_description","index_id")=""))  DO
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"index_description","index_id")=$ORDER(^DD("IX",%ydboctocursor(cursorId,"keys",1,"index_description","index_id"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"index_description","index_id"))!(%ydboctocursor(cursorId,"keys",1,"index_description","index_id")=""))!($GET(%ydboctocursor(cursorId,"parameters",1))'>%ydboctozlimit(3))  DO
     . SET %ydboctocursor(cursorId,"keys",1,"index_description","index_description_id")=0
-    . FOR  SET %ydboctocursor(cursorId,"keys",1,"index_description","index_description_id")=$ORDER(^DD("IX",%ydboctocursor(cursorId,"keys",1,"index_description","index_id"),.1,%ydboctocursor(cursorId,"keys",1,"index_description","index_description_id"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"index_description","index_description_id"))!(%ydboctocursor(cursorId,"keys",1,"index_description","index_description_id")=""))  DO
+    . FOR  SET %ydboctocursor(cursorId,"keys",1,"index_description","index_description_id")=$ORDER(^DD("IX",%ydboctocursor(cursorId,"keys",1,"index_description","index_id"),.1,%ydboctocursor(cursorId,"keys",1,"index_description","index_description_id"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"index_description","index_description_id"))!(%ydboctocursor(cursorId,"keys",1,"index_description","index_description_id")=""))!($GET(%ydboctocursor(cursorId,"parameters",1))'>%ydboctozlimit(3))  DO
     . . SET %ydboctoexpr=1
     . . DO:%ydboctoexpr
-    . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"",""))&$INCREMENT(%ydboctozlimit(3)) %ydboctoz=42
     . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"index_description","index_description_id")
     . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"index_description","index_description_id")
     ZKILL %ydboctocursor(cursorId,"keys",1,"index_description","index_id")
+    KILL %ydboctozlimit(3)
     QUIT

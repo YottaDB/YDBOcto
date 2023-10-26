@@ -245,7 +245,7 @@ OCTO
 	# The "sed" below is to remove trailing ";" at the end of the "select" query as it does not show up in case JDBC is not
 	# randomly chosen by the test framework to execute the queries. This lets us have a deterministic reference file.
 	grep -Ei "KILL.*OrderBy|SELECT" _ydboctoP*.m | sed 's/;$//g' >> output.txt
-	psql names -c 'DROP TABLE IF EXISTS TOB20a,TOB20b;' >& postgres.drop_table_TOB20.out
+	psql names -c 'DROP TABLE IF EXISTS TOB20a,TOB20b,TOB20c;' >& postgres.drop_table_TOB20.out
 	verify_output TOB20 output.txt noinfo nodebug
 }
 

@@ -43,7 +43,7 @@ teardown() {
 				psql names -c 'drop table if exists TTA005A,TTA005B;' >& postgres.drop_table_TTA005.out
 				psql names -c 'DROP TABLE IF EXISTS namesTQG03;' >& postgres.drop_table_TQG03_1.out
 				psql names -c 'DROP TABLE IF EXISTS namesTJC06;' >& postgres.drop_table_TJC06_1.out
-				psql names -c 'DROP TABLE IF EXISTS TOB20a,TOB20b;' >& postgres.drop_table_TOB20_1.out
+				psql names -c 'DROP TABLE IF EXISTS TOB20a,TOB20b,TOB20c;' >& postgres.drop_table_TOB20_1.out
 				psql names -c 'DROP VIEW IF EXISTS TCV0281;' >& postgres.drop_view_TCV0281.out
 				psql names -c 'DROP VIEW IF EXISTS TCV0282;' >& postgres.drop_view_TCV0282.out
 				psql names -c 'DROP VIEW IF EXISTS TCV0283;' >& postgres.drop_view_TCV0283.out

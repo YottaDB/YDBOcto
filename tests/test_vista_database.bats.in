@@ -115,16 +115,16 @@ exit
 FILE2
 
 	# Ditto for AIM region
-	if $ydb_dist/yottadb -run ^GDE show | grep '%ydbAIMD'; then
+	if $ydb_dist/yottadb -run ^GDE show | grep '%ydbAIM'; then
 		$ydb_dist/yottadb -run ^GDE <<FILE3
 delete -region AIM
 delete -segment AIM
-delete -name %ydbAIMD*
+delete -name %ydbAIM*
 FILE3
 	fi
 	$ydb_dist/yottadb -run ^GDE <<FILE4
 add -name %ydbAIMD* -r=AIM
-add -segment AIM -access_method=mm -block_size=2048 -file="$test_temp/aim.dat"
+add -segment AIM -access_method=bg -block_size=2048 -file="$test_temp/aim.dat"
 add -region AIM -key_size=1019 -record_size=2048 -null_subscripts=ALWAYS -nojournal -dynamic_segment=AIM
 exit
 FILE4

@@ -574,7 +574,6 @@ boolean_primary_minus_empty_string
 					 */
   | UNKNOWN {
       SQL_VALUE_STATEMENT($$, BOOLEAN_VALUE, "");
-      INVOKE_PARSE_LITERAL_TO_PARAMETER(parse_context, ($$)->v.value, FALSE);
       $$->loc = yyloc;
   }
   ;

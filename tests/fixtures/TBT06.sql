@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -40,3 +40,11 @@ SELECT (SELECT a2.available from stock_availability a2 where a1.product_id = a2.
 SELECT (SELECT a2.available from stock_availability a2 where a1.product_id = a2.product_id) IS NOT UNKNOWN FROM stock_availability a1;
 SELECT (SELECT a2.available from stock_availability a2 where a1.product_id != a2.product_id ORDER BY a2.product_id LIMIT 1) IS UNKNOWN FROM stock_availability a1;
 SELECT (SELECT a2.available from stock_availability a2 where a1.product_id != a2.product_id ORDER BY a2.product_id LIMIT 1) IS NOT UNKNOWN FROM stock_availability a1;
+
+-- Test IS UNKNOWN followed by literals works fine when reusing similar IS NULL query plan
+-- Test of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/498#note_1623006175
+select true is null;
+select true is unknown;
+select true is null,3;
+select true is unknown,3;
+

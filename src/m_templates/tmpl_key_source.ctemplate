@@ -47,6 +47,14 @@ TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key, enum EmitSourceForm 
 		while ((iter_key_index < pplan->total_iter_keys) && (pplan->iterKeys[iter_key_index]->unique_id != key->unique_id))
 			iter_key_index++;
 		%{},{}%
+
+		boolean_t	aimsub_needed;
+		if (('^' == key->xref_prefix[0]) && (IS_COLUMN_STRING_TYPE(key->column))) {
+			aimsub_needed = TRUE;
+			%{}$$strcolval2aimsubs^%%ydboctoplanhelpers({}%
+		} else {
+			aimsub_needed = FALSE;
+		}
 		// We only look at the first subscript, since we don't want to look at actual values of the keys
 		assert(key == pplan->iterKeys[iter_key_index]);
 		if (IS_NULL_FIXED_VALUE(key->fixed_to_value)) {
@@ -57,6 +65,9 @@ TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key, enum EmitSourceForm 
 			%{}""{}%
 		} else {
 			TMPL(tmpl_key, key);
+		}
+		if (aimsub_needed) {
+			%{}){}%
 		}
 		%{}){}%
 	} else {

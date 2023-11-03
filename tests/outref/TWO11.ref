@@ -24,9 +24,9 @@ octoPlan1(cursorId)
     KILL %ydboctozduplicate(3)
     DO
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
-    SET %ydboctocursor(cursorId,"keys",1,"names","firstname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"names","firstname")) IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",1,"names","firstname"))) DO
+    SET %ydboctocursor(cursorId,"keys",1,"names","firstname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"names","firstname")) IF $DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"names","firstname")))) DO
     . SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
-    . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",1,"names","firstname"),%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+    . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"names","firstname")),%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
     . . DO:'$DATA(%ydboctozduplicate(3,%ydboctocursor(cursorId,"keys",1,"names","id")))
     . . . SET %ydboctoexpr=1
     . . . DO:%ydboctoexpr
@@ -51,9 +51,9 @@ octoPlan2(cursorId)
     NEW %ydboctoz,%ydboctoexpr
     DO
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",2))
-    SET %ydboctocursor(cursorId,"keys",1,"names","lastname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"names","lastname")) IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,%ydboctocursor(cursorId,"keys",1,"names","lastname"))) DO
+    SET %ydboctocursor(cursorId,"keys",1,"names","lastname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"names","lastname")) IF $DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"names","lastname")))) DO
     . SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
-    . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,%ydboctocursor(cursorId,"keys",1,"names","lastname"),%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+    . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"names","lastname")),%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
     . . DO:'$DATA(%ydboctozduplicate(3,%ydboctocursor(cursorId,"keys",1,"names","id")))
     . . . SET %ydboctoexpr=1
     . . . DO:%ydboctoexpr

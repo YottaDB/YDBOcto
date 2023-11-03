@@ -82,6 +82,7 @@
 #define IS_COLUMN_IDENTITY(COLUMN)	      ((IS_COLUMN_ALWAYS_IDENTITY(COLUMN) || (IS_COLUMN_BY_DEFAULT_IDENTITY(COLUMN))))
 #define IS_COLUMN_ALWAYS_IDENTITY(COLUMN)     (NULL != get_keyword(COLUMN, OPTIONAL_GENERATED_ALWAYS_IDENTITY))
 #define IS_COLUMN_BY_DEFAULT_IDENTITY(COLUMN) (NULL != get_keyword(COLUMN, OPTIONAL_GENERATED_BY_DEFAULT_IDENTITY))
+#define IS_COLUMN_STRING_TYPE(COLUMN)	      (STRING_TYPE == COLUMN->data_type_struct.data_type)
 
 /* Maximum query string length for all Octo queries. Currently set to YDB_MAX_STR (the maximum size of a GVN/LVN value) since query
  * strings are stored in LVNs during processing and so are constrained the size limit for LVN values. Should users require a greater
@@ -361,7 +362,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_PLAN_DEFINITION 29
+#define FMT_PLAN_DEFINITION 30
 
 /* The below macro needs to be manually bumped if there is a non-cosmetic change to octo-seed.sql.
  */

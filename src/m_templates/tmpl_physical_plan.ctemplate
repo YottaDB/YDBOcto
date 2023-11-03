@@ -127,6 +127,8 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			%{} zpiece (always 0), omitfix (always 1),{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{};   stat (always 2), AIM Metadata Type (depending if the table has it specified or not){}%
+			%{};   forceStrOrder (1 for STRING type columns so canonical strings are correctly ordered, 0 otherwise){}%
+
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}NEW aimglobal SET aimglobal=$$XREFDATA^%%YDBAIM(base,.subs,{}%
 			if (is_dollar_char) {
@@ -139,7 +141,10 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			} else {
 				%{},{{piece}}{}%
 			}
-			%{},0,0,1,2,{{aim_type|%d}}){}%
+			%{},0,0,1,2,{{aim_type|%d}},{}%
+
+			boolean_t	is_column_string_type = IS_COLUMN_STRING_TYPE(column);
+			%{}{{ is_column_string_type|%d }}){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}; Now that xref building is complete, cleanup saved cancel related state information{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
@@ -198,7 +203,8 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			} else {
 			%{},{{piece}}{}%
 			}
-			%{},1,0,1,2,{{aim_type|%d}}){}%
+			%{},1,0,1,2,{{aim_type|%d}},{}%
+			%{}{{ is_column_string_type|%d }}){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 			if (NULL == piece) {
 				%{}SET {{OCTOLIT_AIM_OCTO_CACHE}}("{{tableName}}","{{columnName}}","{{OCTOLIT_AIM_SUB_LOCATION}}"{}%

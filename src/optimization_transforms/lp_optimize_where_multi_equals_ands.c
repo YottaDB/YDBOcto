@@ -406,13 +406,6 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 			 */
 			return where;
 		}
-		if (STRING_TYPE == column->data_type_struct.data_type) {
-			/* This is a STRING typed column. In this case, we need to disable the key fixing optimization as it can
-			 * cause incorrect results (see https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/616#note_1612587360 for
-			 * more details). Hence the "return" below. When YottaDB/Util/YDBAIM#73 is fixed, it can be re-enabled.
-			 */
-			return where;
-		}
 		break;
 	case LP_BOOLEAN_IS:
 	case LP_BOOLEAN_IN:

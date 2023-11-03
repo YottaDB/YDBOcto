@@ -54,9 +54,9 @@ octoPlan1(cursorId)
     NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",8,"","")
     DO
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",9))
-    SET %ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","nspname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","nspname")) IF $DATA(^%ydbAIMDIAZUW2okN7cJr2ksplU2DH(1,%ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","nspname"))) DO
+    SET %ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","nspname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","nspname")) IF $DATA(^%ydbAIMD7jgOw7D13bwN0qEm1uvW9J(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","nspname")))) DO
     . SET %ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","oid")=""
-    . FOR  SET %ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","oid")=$ORDER(^%ydbAIMDIAZUW2okN7cJr2ksplU2DH(1,%ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","nspname"),%ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","oid"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","oid")="")  DO
+    . FOR  SET %ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","oid")=$ORDER(^%ydbAIMD7jgOw7D13bwN0qEm1uvW9J(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","nspname")),%ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","oid"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","oid")="")  DO
     . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","oid")
     . . SET %ydboctoexpr=+%ydboctoexpr
     . . SET %ydboctocursor(cursorId,"keys",2,"pg_catalog.pg_class","relnamespace")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"pg_catalog.pg_class","relnamespace")) IF $DATA(^%ydbAIMD8RNtDFdTgR6cnR1cdPREE7(2,%ydboctocursor(cursorId,"keys",2,"pg_catalog.pg_class","relnamespace"))) DO
@@ -566,9 +566,9 @@ octoPlan1(cursorId)
     NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",8,"","")
     DO
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",8))
-    SET %ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","nspname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","nspname")) IF $DATA(^%ydbAIMDIAZUW2okN7cJr2ksplU2DH(1,%ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","nspname"))) DO
+    SET %ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","nspname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","nspname")) IF $DATA(^%ydbAIMD7jgOw7D13bwN0qEm1uvW9J(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","nspname")))) DO
     . SET %ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","oid")=""
-    . FOR  SET %ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","oid")=$ORDER(^%ydbAIMDIAZUW2okN7cJr2ksplU2DH(1,%ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","nspname"),%ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","oid"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","oid")="")  DO
+    . FOR  SET %ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","oid")=$ORDER(^%ydbAIMD7jgOw7D13bwN0qEm1uvW9J(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","nspname")),%ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","oid"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","oid")="")  DO
     . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"pg_catalog.pg_namespace","oid")
     . . SET %ydboctoexpr=+%ydboctoexpr
     . . SET %ydboctocursor(cursorId,"keys",2,"pg_catalog.pg_class","relnamespace")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"pg_catalog.pg_class","relnamespace")) IF $DATA(^%ydbAIMD8RNtDFdTgR6cnR1cdPREE7(2,%ydboctocursor(cursorId,"keys",2,"pg_catalog.pg_class","relnamespace"))) DO

@@ -67,6 +67,15 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 			if (iter_key->unique_id == key->unique_id)
 				keys_to_match++;
 			%{},{}%
+
+			boolean_t	aimsub_needed;
+			if ((NULL != iter_key->xref_prefix) && ('^' == iter_key->xref_prefix[0])
+					&& (IS_COLUMN_STRING_TYPE(iter_key->column))) {
+				aimsub_needed = TRUE;
+				%{}$$strcolval2aimsubs^%%ydboctoplanhelpers({}%
+			} else {
+				aimsub_needed = FALSE;
+			}
 			if ((1 == keys_to_match) && IS_NULL_FIXED_VALUE(iter_key->fixed_to_value)) {
 				/* Use empty string instead of $ZYSQLNULL when generating xref global subscript.
 				 * This is because we use "" to store NULL values in the xref global.
@@ -76,6 +85,9 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 			} else {
 				assert(!IS_NULL_FIXED_VALUE(iter_key->fixed_to_value));
 				TMPL(tmpl_key, iter_key);
+			}
+			if (aimsub_needed) {
+				%{}){}%
 			}
 			iter_key_index++;
 			iter_key = pplan->iterKeys[iter_key_index];

@@ -1245,3 +1245,18 @@ TableAsteriskCompare(firstOperand,secondOperand,operator,numColumns,colTypeList)
 	. . QUIT
 	set result=curResult
 	QUIT result
+
+; -------------------------------------------------------------------------------------------------------------------
+; A STRING type column value 'abcd' would be stored as the subscript '#abcd' in the ^ydbAIM.* global (this is to
+; ensure ordering of strings that contain canonical numbers stays correct.
+; Below 2 helper functions are used to convert from/to STRING type column value to/from subscript value in ^ydbAIM.*
+; cross reference global. See YDBAIM#73 (and YDBOcto#616) for more details.
+
+strcolval2aimsubs(colvalue)
+	QUIT "#"_colvalue
+
+aimsubs2strcolval(subscript)
+	QUIT $ZEXTRACT(subscript,2,$ZLENGTH(subscript))
+
+; -------------------------------------------------------------------------------------------------------------------
+

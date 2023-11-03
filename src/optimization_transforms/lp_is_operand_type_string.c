@@ -103,9 +103,7 @@ boolean_t lp_is_operand_type_string(LogicalPlan *plan, boolean_t *is_null) {
 				}
 				break;
 			case column_STATEMENT:
-				if (STRING_TYPE == column_alias->column->v.column->data_type_struct.data_type) {
-					ret = TRUE;
-				}
+				ret = IS_COLUMN_STRING_TYPE(column_alias->column->v.column);
 				break;
 			default:
 				assert(FALSE);

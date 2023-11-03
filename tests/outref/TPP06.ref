@@ -9,4 +9,4 @@ id|firstname|lastname
 (1 row)
 # Verify ^%ydbAIMOctoCache was correctly rebuilt : Running [ZWRITE ^%ydbAIMOctoCache]. Output below
 ^%ydbAIMOctoCache("names","lastname","completed?")=1
-^%ydbAIMOctoCache("names","lastname","location")="^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2)"
+^%ydbAIMOctoCache("names","lastname","location")="^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2)"

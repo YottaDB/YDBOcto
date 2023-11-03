@@ -30,25 +30,25 @@ order_status_id|name|short_name|abbreviation|master_entry_for_vuid|vuid
 4|FLAGGED|flag|"?"|1|4501095
 (1 row)
 OCTO> 
-^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(2,"actv",6)=""
-^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(2,"canc",13)=""
-^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(2,"comp",2)=""
-^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(2,"dc",1)=""
-^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(2,"dc/e",12)=""
-^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(2,"dlay",10)=""
-^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(2,"exp",7)=""
-^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(2,"flag",4)=""
-^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(2,"hold",3)=""
-^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(2,"laps",14)=""
-^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(2,"none",99)=""
-^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(2,"part",9)=""
-^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(2,"pend",5)=""
-^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(2,"rnew",15)=""
-^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(2,"schd",8)=""
-^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(2,"unr",11)=""
-^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(6)="+^ORD(sub1=100.01,sub2=0:"" "",sub3=0) -command=set -name=%ydbs5rFrVUkFVChje0N5hPDK3S -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" for i=2 set p=$piece($ztoldval,""^"",i),q=$piece($ztvalue,""^"",i),j=-i do"_$C(10)_" . if p'=q do"_$C(10)_" . . if $data(^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(i,p,sub2))#10 zkill ^(sub2) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(j,p),-1) zkill ^(p) if 1>$increment(^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(j),-1) zkill ^(j)"_$C(10)_" . . if '($data(^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(i,q,sub2))#10) set ^(sub2)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(j,q))),$increment(^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(j))"_$C(10)_" . else  if '$zlength(q),'($data(^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(i,"""",sub2))#10) set ^(sub2)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(j,""""))),$increment(^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(j))"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
-^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(7)="+^ORD(sub1=100.01,sub2=0:"" "",sub3=0) -command=kill -name=%ydbs5rFrVUkFVChje0N5hPDK3K -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDs5rFrVUkFVChje0N5hPDK3"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
-^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(8)="+^ORD(sub1=100.01,sub2=0:"" "",sub3=0) -command=zkill -name=%ydbs5rFrVUkFVChje0N5hPDK3Z -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" for i=2 set j=-i,p=$piece($ztoldval,""^"",i) if $data(^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(i,p,sub2)) zkill ^(sub2) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(j,p),-1) zkill ^(p) zkill:1>$increment(^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(j),-1) ^(j)"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDs5rFrVUkFVChje0N5hPDK3(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
+^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(2,"#actv",6)=""
+^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(2,"#canc",13)=""
+^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(2,"#comp",2)=""
+^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(2,"#dc",1)=""
+^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(2,"#dc/e",12)=""
+^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(2,"#dlay",10)=""
+^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(2,"#exp",7)=""
+^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(2,"#flag",4)=""
+^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(2,"#hold",3)=""
+^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(2,"#laps",14)=""
+^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(2,"#none",99)=""
+^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(2,"#part",9)=""
+^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(2,"#pend",5)=""
+^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(2,"#rnew",15)=""
+^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(2,"#schd",8)=""
+^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(2,"#unr",11)=""
+^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(6)="+^ORD(sub1=100.01,sub2=0:"" "",sub3=0) -command=set -name=%ydbYmu5OSkB8WchqgAElzP0KLS -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" for i=2 set p=""#""_$piece($ztoldval,""^"",i),q=""#""_$piece($ztvalue,""^"",i),j=-i do"_$C(10)_" . if p'=q do"_$C(10)_" . . if $data(^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(i,p,sub2))#10 zkill ^(sub2) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(j,p),-1) zkill ^(p) if 1>$increment(^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(j),-1) zkill ^(j)"_$C(10)_" . . if '($data(^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(i,q,sub2))#10) set ^(sub2)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(j,q))),$increment(^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(j))"_$C(10)_" . else  if '($zlength(q)-1),'($data(^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(i,""#"",sub2))#10) set ^(sub2)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(j,""#""))),$increment(^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(j))"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
+^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(7)="+^ORD(sub1=100.01,sub2=0:"" "",sub3=0) -command=kill -name=%ydbYmu5OSkB8WchqgAElzP0KLK -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDYmu5OSkB8WchqgAElzP0KL"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(8)="+^ORD(sub1=100.01,sub2=0:"" "",sub3=0) -command=zkill -name=%ydbYmu5OSkB8WchqgAElzP0KLZ -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" for i=2 set j=-i,p=""#""_$piece($ztoldval,""^"",i) if $data(^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(i,p,sub2)) zkill ^(sub2) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(j,p),-1) zkill ^(p) zkill:1>$increment(^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(j),-1) ^(j)"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDYmu5OSkB8WchqgAElzP0KL(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
 _ydboctoX*.m:    NEW global SET global=$NAME(^ORD(100.01,$zwrite(0)_":"_$zwrite(" "),0))
 
 Test ENDPOINT with a "A"
@@ -83,25 +83,25 @@ order_status_id|name|short_name|abbreviation|master_entry_for_vuid|vuid
 4|FLAGGED|flag|"?"|1|4501095
 (1 row)
 OCTO> 
-^%ydbAIMDPgQyctQBh0d91zI84zuF52(2,"actv",6)=""
-^%ydbAIMDPgQyctQBh0d91zI84zuF52(2,"canc",13)=""
-^%ydbAIMDPgQyctQBh0d91zI84zuF52(2,"comp",2)=""
-^%ydbAIMDPgQyctQBh0d91zI84zuF52(2,"dc",1)=""
-^%ydbAIMDPgQyctQBh0d91zI84zuF52(2,"dc/e",12)=""
-^%ydbAIMDPgQyctQBh0d91zI84zuF52(2,"dlay",10)=""
-^%ydbAIMDPgQyctQBh0d91zI84zuF52(2,"exp",7)=""
-^%ydbAIMDPgQyctQBh0d91zI84zuF52(2,"flag",4)=""
-^%ydbAIMDPgQyctQBh0d91zI84zuF52(2,"hold",3)=""
-^%ydbAIMDPgQyctQBh0d91zI84zuF52(2,"laps",14)=""
-^%ydbAIMDPgQyctQBh0d91zI84zuF52(2,"none",99)=""
-^%ydbAIMDPgQyctQBh0d91zI84zuF52(2,"part",9)=""
-^%ydbAIMDPgQyctQBh0d91zI84zuF52(2,"pend",5)=""
-^%ydbAIMDPgQyctQBh0d91zI84zuF52(2,"rnew",15)=""
-^%ydbAIMDPgQyctQBh0d91zI84zuF52(2,"schd",8)=""
-^%ydbAIMDPgQyctQBh0d91zI84zuF52(2,"unr",11)=""
-^%ydbAIMDPgQyctQBh0d91zI84zuF52(6)="+^ORD(sub1=100.01,sub2=0:""A"",sub3=0) -command=set -name=%ydbPgQyctQBh0d91zI84zuF52S -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" for i=2 set p=$piece($ztoldval,""^"",i),q=$piece($ztvalue,""^"",i),j=-i do"_$C(10)_" . if p'=q do"_$C(10)_" . . if $data(^%ydbAIMDPgQyctQBh0d91zI84zuF52(i,p,sub2))#10 zkill ^(sub2) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDPgQyctQBh0d91zI84zuF52(j,p),-1) zkill ^(p) if 1>$increment(^%ydbAIMDPgQyctQBh0d91zI84zuF52(j),-1) zkill ^(j)"_$C(10)_" . . if '($data(^%ydbAIMDPgQyctQBh0d91zI84zuF52(i,q,sub2))#10) set ^(sub2)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMDPgQyctQBh0d91zI84zuF52(j,q))),$increment(^%ydbAIMDPgQyctQBh0d91zI84zuF52(j))"_$C(10)_" . else  if '$zlength(q),'($data(^%ydbAIMDPgQyctQBh0d91zI84zuF52(i,"""",sub2))#10) set ^(sub2)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMDPgQyctQBh0d91zI84zuF52(j,""""))),$increment(^%ydbAIMDPgQyctQBh0d91zI84zuF52(j))"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDPgQyctQBh0d91zI84zuF52(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
-^%ydbAIMDPgQyctQBh0d91zI84zuF52(7)="+^ORD(sub1=100.01,sub2=0:""A"",sub3=0) -command=kill -name=%ydbPgQyctQBh0d91zI84zuF52K -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDPgQyctQBh0d91zI84zuF52"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
-^%ydbAIMDPgQyctQBh0d91zI84zuF52(8)="+^ORD(sub1=100.01,sub2=0:""A"",sub3=0) -command=zkill -name=%ydbPgQyctQBh0d91zI84zuF52Z -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" for i=2 set j=-i,p=$piece($ztoldval,""^"",i) if $data(^%ydbAIMDPgQyctQBh0d91zI84zuF52(i,p,sub2)) zkill ^(sub2) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDPgQyctQBh0d91zI84zuF52(j,p),-1) zkill ^(p) zkill:1>$increment(^%ydbAIMDPgQyctQBh0d91zI84zuF52(j),-1) ^(j)"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDPgQyctQBh0d91zI84zuF52(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
+^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(2,"#actv",6)=""
+^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(2,"#canc",13)=""
+^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(2,"#comp",2)=""
+^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(2,"#dc",1)=""
+^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(2,"#dc/e",12)=""
+^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(2,"#dlay",10)=""
+^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(2,"#exp",7)=""
+^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(2,"#flag",4)=""
+^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(2,"#hold",3)=""
+^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(2,"#laps",14)=""
+^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(2,"#none",99)=""
+^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(2,"#part",9)=""
+^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(2,"#pend",5)=""
+^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(2,"#rnew",15)=""
+^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(2,"#schd",8)=""
+^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(2,"#unr",11)=""
+^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(6)="+^ORD(sub1=100.01,sub2=0:""A"",sub3=0) -command=set -name=%ydbpnczX2iYKreYE8fUlfN6A4S -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" for i=2 set p=""#""_$piece($ztoldval,""^"",i),q=""#""_$piece($ztvalue,""^"",i),j=-i do"_$C(10)_" . if p'=q do"_$C(10)_" . . if $data(^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(i,p,sub2))#10 zkill ^(sub2) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(j,p),-1) zkill ^(p) if 1>$increment(^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(j),-1) zkill ^(j)"_$C(10)_" . . if '($data(^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(i,q,sub2))#10) set ^(sub2)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(j,q))),$increment(^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(j))"_$C(10)_" . else  if '($zlength(q)-1),'($data(^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(i,""#"",sub2))#10) set ^(sub2)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(j,""#""))),$increment(^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(j))"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
+^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(7)="+^ORD(sub1=100.01,sub2=0:""A"",sub3=0) -command=kill -name=%ydbpnczX2iYKreYE8fUlfN6A4K -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDpnczX2iYKreYE8fUlfN6A4"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(8)="+^ORD(sub1=100.01,sub2=0:""A"",sub3=0) -command=zkill -name=%ydbpnczX2iYKreYE8fUlfN6A4Z -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" for i=2 set j=-i,p=""#""_$piece($ztoldval,""^"",i) if $data(^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(i,p,sub2)) zkill ^(sub2) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(j,p),-1) zkill ^(p) zkill:1>$increment(^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(j),-1) ^(j)"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDpnczX2iYKreYE8fUlfN6A4(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
 _ydboctoX*.m:    NEW global SET global=$NAME(^ORD(100.01,$zwrite(0)_":"_$zwrite("A"),0))
 
 Test ENDPOINT with a ""
@@ -135,25 +135,25 @@ OCTO> SELECT * FROM `ORDER_STATUS` WHERE SHORT_NAME = 'flag';
 order_status_id|name|short_name|abbreviation|master_entry_for_vuid|vuid
 (0 rows)
 OCTO> 
-^%ydbAIMDVkUew77nQzoJFfkquc2jF9(2,"actv",6)=""
-^%ydbAIMDVkUew77nQzoJFfkquc2jF9(2,"canc",13)=""
-^%ydbAIMDVkUew77nQzoJFfkquc2jF9(2,"comp",2)=""
-^%ydbAIMDVkUew77nQzoJFfkquc2jF9(2,"dc",1)=""
-^%ydbAIMDVkUew77nQzoJFfkquc2jF9(2,"dc/e",12)=""
-^%ydbAIMDVkUew77nQzoJFfkquc2jF9(2,"dlay",10)=""
-^%ydbAIMDVkUew77nQzoJFfkquc2jF9(2,"exp",7)=""
-^%ydbAIMDVkUew77nQzoJFfkquc2jF9(2,"flag",4)=""
-^%ydbAIMDVkUew77nQzoJFfkquc2jF9(2,"hold",3)=""
-^%ydbAIMDVkUew77nQzoJFfkquc2jF9(2,"laps",14)=""
-^%ydbAIMDVkUew77nQzoJFfkquc2jF9(2,"none",99)=""
-^%ydbAIMDVkUew77nQzoJFfkquc2jF9(2,"part",9)=""
-^%ydbAIMDVkUew77nQzoJFfkquc2jF9(2,"pend",5)=""
-^%ydbAIMDVkUew77nQzoJFfkquc2jF9(2,"rnew",15)=""
-^%ydbAIMDVkUew77nQzoJFfkquc2jF9(2,"schd",8)=""
-^%ydbAIMDVkUew77nQzoJFfkquc2jF9(2,"unr",11)=""
-^%ydbAIMDVkUew77nQzoJFfkquc2jF9(6)="+^ORD(sub1=100.01,sub2=0:,sub3=0) -command=set -name=%ydbVkUew77nQzoJFfkquc2jF9S -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" for i=2 set p=$piece($ztoldval,""^"",i),q=$piece($ztvalue,""^"",i),j=-i do"_$C(10)_" . if p'=q do"_$C(10)_" . . if $data(^%ydbAIMDVkUew77nQzoJFfkquc2jF9(i,p,sub2))#10 zkill ^(sub2) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDVkUew77nQzoJFfkquc2jF9(j,p),-1) zkill ^(p) if 1>$increment(^%ydbAIMDVkUew77nQzoJFfkquc2jF9(j),-1) zkill ^(j)"_$C(10)_" . . if '($data(^%ydbAIMDVkUew77nQzoJFfkquc2jF9(i,q,sub2))#10) set ^(sub2)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMDVkUew77nQzoJFfkquc2jF9(j,q))),$increment(^%ydbAIMDVkUew77nQzoJFfkquc2jF9(j))"_$C(10)_" . else  if '$zlength(q),'($data(^%ydbAIMDVkUew77nQzoJFfkquc2jF9(i,"""",sub2))#10) set ^(sub2)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMDVkUew77nQzoJFfkquc2jF9(j,""""))),$increment(^%ydbAIMDVkUew77nQzoJFfkquc2jF9(j))"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDVkUew77nQzoJFfkquc2jF9(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
-^%ydbAIMDVkUew77nQzoJFfkquc2jF9(7)="+^ORD(sub1=100.01,sub2=0:,sub3=0) -command=kill -name=%ydbVkUew77nQzoJFfkquc2jF9K -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDVkUew77nQzoJFfkquc2jF9"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
-^%ydbAIMDVkUew77nQzoJFfkquc2jF9(8)="+^ORD(sub1=100.01,sub2=0:,sub3=0) -command=zkill -name=%ydbVkUew77nQzoJFfkquc2jF9Z -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" for i=2 set j=-i,p=$piece($ztoldval,""^"",i) if $data(^%ydbAIMDVkUew77nQzoJFfkquc2jF9(i,p,sub2)) zkill ^(sub2) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDVkUew77nQzoJFfkquc2jF9(j,p),-1) zkill ^(p) zkill:1>$increment(^%ydbAIMDVkUew77nQzoJFfkquc2jF9(j),-1) ^(j)"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDVkUew77nQzoJFfkquc2jF9(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
+^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(2,"#actv",6)=""
+^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(2,"#canc",13)=""
+^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(2,"#comp",2)=""
+^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(2,"#dc",1)=""
+^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(2,"#dc/e",12)=""
+^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(2,"#dlay",10)=""
+^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(2,"#exp",7)=""
+^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(2,"#flag",4)=""
+^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(2,"#hold",3)=""
+^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(2,"#laps",14)=""
+^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(2,"#none",99)=""
+^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(2,"#part",9)=""
+^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(2,"#pend",5)=""
+^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(2,"#rnew",15)=""
+^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(2,"#schd",8)=""
+^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(2,"#unr",11)=""
+^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(6)="+^ORD(sub1=100.01,sub2=0:,sub3=0) -command=set -name=%ydb6W8kWcB6e5W7JxE7MBYJH8S -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" for i=2 set p=""#""_$piece($ztoldval,""^"",i),q=""#""_$piece($ztvalue,""^"",i),j=-i do"_$C(10)_" . if p'=q do"_$C(10)_" . . if $data(^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(i,p,sub2))#10 zkill ^(sub2) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(j,p),-1) zkill ^(p) if 1>$increment(^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(j),-1) zkill ^(j)"_$C(10)_" . . if '($data(^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(i,q,sub2))#10) set ^(sub2)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(j,q))),$increment(^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(j))"_$C(10)_" . else  if '($zlength(q)-1),'($data(^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(i,""#"",sub2))#10) set ^(sub2)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(j,""#""))),$increment(^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(j))"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
+^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(7)="+^ORD(sub1=100.01,sub2=0:,sub3=0) -command=kill -name=%ydb6W8kWcB6e5W7JxE7MBYJH8K -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(8)="+^ORD(sub1=100.01,sub2=0:,sub3=0) -command=zkill -name=%ydb6W8kWcB6e5W7JxE7MBYJH8Z -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" for i=2 set j=-i,p=""#""_$piece($ztoldval,""^"",i) if $data(^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(i,p,sub2)) zkill ^(sub2) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(j,p),-1) zkill ^(p) zkill:1>$increment(^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(j),-1) ^(j)"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMD6W8kWcB6e5W7JxE7MBYJH8(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
 _ydboctoX*.m:    NEW global SET global=$NAME(^ORD(100.01,$zwrite(0)_":",0))
 
 Test ENDPOINT with a 3
@@ -193,12 +193,12 @@ SELECT * FROM `ORDER_STATUS` WHERE SHORT_NAME = 'flag';
 order_status_id|name|short_name|abbreviation|master_entry_for_vuid|vuid
 (0 rows)
 OCTO> -- Record 4
-^%ydbAIMDJDL1RcgmPlUwXLrNnsHODE(2,"comp",2)=""
-^%ydbAIMDJDL1RcgmPlUwXLrNnsHODE(2,"dc",1)=""
-^%ydbAIMDJDL1RcgmPlUwXLrNnsHODE(2,"hold",3)=""
-^%ydbAIMDJDL1RcgmPlUwXLrNnsHODE(6)="+^ORD(sub1=100.01,sub2=0:3,sub3=0) -command=set -name=%ydbJDL1RcgmPlUwXLrNnsHODES -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" for i=2 set p=$piece($ztoldval,""^"",i),q=$piece($ztvalue,""^"",i),j=-i do"_$C(10)_" . if p'=q do"_$C(10)_" . . if $data(^%ydbAIMDJDL1RcgmPlUwXLrNnsHODE(i,p,sub2))#10 zkill ^(sub2) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDJDL1RcgmPlUwXLrNnsHODE(j,p),-1) zkill ^(p) if 1>$increment(^%ydbAIMDJDL1RcgmPlUwXLrNnsHODE(j),-1) zkill ^(j)"_$C(10)_" . . if '($data(^%ydbAIMDJDL1RcgmPlUwXLrNnsHODE(i,q,sub2))#10) set ^(sub2)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMDJDL1RcgmPlUwXLrNnsHODE(j,q))),$increment(^%ydbAIMDJDL1RcgmPlUwXLrNnsHODE(j))"_$C(10)_" . else  if '$zlength(q),'($data(^%ydbAIMDJDL1RcgmPlUwXLrNnsHODE(i,"""",sub2))#10) set ^(sub2)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMDJDL1RcgmPlUwXLrNnsHODE(j,""""))),$increment(^%ydbAIMDJDL1RcgmPlUwXLrNnsHODE(j))"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDJDL1RcgmPlUwXLrNnsHODE(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
-^%ydbAIMDJDL1RcgmPlUwXLrNnsHODE(7)="+^ORD(sub1=100.01,sub2=0:3,sub3=0) -command=kill -name=%ydbJDL1RcgmPlUwXLrNnsHODEK -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDJDL1RcgmPlUwXLrNnsHODE"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
-^%ydbAIMDJDL1RcgmPlUwXLrNnsHODE(8)="+^ORD(sub1=100.01,sub2=0:3,sub3=0) -command=zkill -name=%ydbJDL1RcgmPlUwXLrNnsHODEZ -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" for i=2 set j=-i,p=$piece($ztoldval,""^"",i) if $data(^%ydbAIMDJDL1RcgmPlUwXLrNnsHODE(i,p,sub2)) zkill ^(sub2) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDJDL1RcgmPlUwXLrNnsHODE(j,p),-1) zkill ^(p) zkill:1>$increment(^%ydbAIMDJDL1RcgmPlUwXLrNnsHODE(j),-1) ^(j)"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDJDL1RcgmPlUwXLrNnsHODE(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
+^%ydbAIMDZOjlzicZKToiCB3aXpcFB5(2,"#comp",2)=""
+^%ydbAIMDZOjlzicZKToiCB3aXpcFB5(2,"#dc",1)=""
+^%ydbAIMDZOjlzicZKToiCB3aXpcFB5(2,"#hold",3)=""
+^%ydbAIMDZOjlzicZKToiCB3aXpcFB5(6)="+^ORD(sub1=100.01,sub2=0:3,sub3=0) -command=set -name=%ydbZOjlzicZKToiCB3aXpcFB5S -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" for i=2 set p=""#""_$piece($ztoldval,""^"",i),q=""#""_$piece($ztvalue,""^"",i),j=-i do"_$C(10)_" . if p'=q do"_$C(10)_" . . if $data(^%ydbAIMDZOjlzicZKToiCB3aXpcFB5(i,p,sub2))#10 zkill ^(sub2) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDZOjlzicZKToiCB3aXpcFB5(j,p),-1) zkill ^(p) if 1>$increment(^%ydbAIMDZOjlzicZKToiCB3aXpcFB5(j),-1) zkill ^(j)"_$C(10)_" . . if '($data(^%ydbAIMDZOjlzicZKToiCB3aXpcFB5(i,q,sub2))#10) set ^(sub2)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMDZOjlzicZKToiCB3aXpcFB5(j,q))),$increment(^%ydbAIMDZOjlzicZKToiCB3aXpcFB5(j))"_$C(10)_" . else  if '($zlength(q)-1),'($data(^%ydbAIMDZOjlzicZKToiCB3aXpcFB5(i,""#"",sub2))#10) set ^(sub2)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMDZOjlzicZKToiCB3aXpcFB5(j,""#""))),$increment(^%ydbAIMDZOjlzicZKToiCB3aXpcFB5(j))"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDZOjlzicZKToiCB3aXpcFB5(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
+^%ydbAIMDZOjlzicZKToiCB3aXpcFB5(7)="+^ORD(sub1=100.01,sub2=0:3,sub3=0) -command=kill -name=%ydbZOjlzicZKToiCB3aXpcFB5K -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDZOjlzicZKToiCB3aXpcFB5"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMDZOjlzicZKToiCB3aXpcFB5(8)="+^ORD(sub1=100.01,sub2=0:3,sub3=0) -command=zkill -name=%ydbZOjlzicZKToiCB3aXpcFB5Z -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" for i=2 set j=-i,p=""#""_$piece($ztoldval,""^"",i) if $data(^%ydbAIMDZOjlzicZKToiCB3aXpcFB5(i,p,sub2)) zkill ^(sub2) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDZOjlzicZKToiCB3aXpcFB5(j,p),-1) zkill ^(p) zkill:1>$increment(^%ydbAIMDZOjlzicZKToiCB3aXpcFB5(j),-1) ^(j)"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDZOjlzicZKToiCB3aXpcFB5(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
 _ydboctoX*.m:    NEW global SET global=$NAME(^ORD(100.01,$zwrite(0)_":"_$zwrite(3),0))
 
 Test ENDPOINT with a $CHAR(0)
@@ -233,23 +233,23 @@ order_status_id|name|short_name|abbreviation|master_entry_for_vuid|vuid
 4|FLAGGED|flag|"?"|1|4501095
 (1 row)
 OCTO> 
-^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(2,"actv",6)=""
-^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(2,"canc",13)=""
-^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(2,"comp",2)=""
-^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(2,"dc",1)=""
-^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(2,"dc/e",12)=""
-^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(2,"dlay",10)=""
-^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(2,"exp",7)=""
-^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(2,"flag",4)=""
-^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(2,"hold",3)=""
-^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(2,"laps",14)=""
-^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(2,"none",99)=""
-^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(2,"part",9)=""
-^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(2,"pend",5)=""
-^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(2,"rnew",15)=""
-^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(2,"schd",8)=""
-^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(2,"unr",11)=""
-^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(6)="+^ORD(sub1=100.01,sub2=0:$C(0),sub3=0) -command=set -name=%ydbF7zoe809RTQSzWQBqLPdGIS -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" for i=2 set p=$piece($ztoldval,""^"",i),q=$piece($ztvalue,""^"",i),j=-i do"_$C(10)_" . if p'=q do"_$C(10)_" . . if $data(^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(i,p,sub2))#10 zkill ^(sub2) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(j,p),-1) zkill ^(p) if 1>$increment(^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(j),-1) zkill ^(j)"_$C(10)_" . . if '($data(^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(i,q,sub2))#10) set ^(sub2)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(j,q))),$increment(^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(j))"_$C(10)_" . else  if '$zlength(q),'($data(^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(i,"""",sub2))#10) set ^(sub2)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(j,""""))),$increment(^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(j))"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
-^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(7)="+^ORD(sub1=100.01,sub2=0:$C(0),sub3=0) -command=kill -name=%ydbF7zoe809RTQSzWQBqLPdGIK -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDF7zoe809RTQSzWQBqLPdGI"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
-^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(8)="+^ORD(sub1=100.01,sub2=0:$C(0),sub3=0) -command=zkill -name=%ydbF7zoe809RTQSzWQBqLPdGIZ -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" for i=2 set j=-i,p=$piece($ztoldval,""^"",i) if $data(^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(i,p,sub2)) zkill ^(sub2) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(j,p),-1) zkill ^(p) zkill:1>$increment(^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(j),-1) ^(j)"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDF7zoe809RTQSzWQBqLPdGI(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
+^%ydbAIMDwleJgOfygIvu867vrTQg84(2,"#actv",6)=""
+^%ydbAIMDwleJgOfygIvu867vrTQg84(2,"#canc",13)=""
+^%ydbAIMDwleJgOfygIvu867vrTQg84(2,"#comp",2)=""
+^%ydbAIMDwleJgOfygIvu867vrTQg84(2,"#dc",1)=""
+^%ydbAIMDwleJgOfygIvu867vrTQg84(2,"#dc/e",12)=""
+^%ydbAIMDwleJgOfygIvu867vrTQg84(2,"#dlay",10)=""
+^%ydbAIMDwleJgOfygIvu867vrTQg84(2,"#exp",7)=""
+^%ydbAIMDwleJgOfygIvu867vrTQg84(2,"#flag",4)=""
+^%ydbAIMDwleJgOfygIvu867vrTQg84(2,"#hold",3)=""
+^%ydbAIMDwleJgOfygIvu867vrTQg84(2,"#laps",14)=""
+^%ydbAIMDwleJgOfygIvu867vrTQg84(2,"#none",99)=""
+^%ydbAIMDwleJgOfygIvu867vrTQg84(2,"#part",9)=""
+^%ydbAIMDwleJgOfygIvu867vrTQg84(2,"#pend",5)=""
+^%ydbAIMDwleJgOfygIvu867vrTQg84(2,"#rnew",15)=""
+^%ydbAIMDwleJgOfygIvu867vrTQg84(2,"#schd",8)=""
+^%ydbAIMDwleJgOfygIvu867vrTQg84(2,"#unr",11)=""
+^%ydbAIMDwleJgOfygIvu867vrTQg84(6)="+^ORD(sub1=100.01,sub2=0:$C(0),sub3=0) -command=set -name=%ydbwleJgOfygIvu867vrTQg84S -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" for i=2 set p=""#""_$piece($ztoldval,""^"",i),q=""#""_$piece($ztvalue,""^"",i),j=-i do"_$C(10)_" . if p'=q do"_$C(10)_" . . if $data(^%ydbAIMDwleJgOfygIvu867vrTQg84(i,p,sub2))#10 zkill ^(sub2) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDwleJgOfygIvu867vrTQg84(j,p),-1) zkill ^(p) if 1>$increment(^%ydbAIMDwleJgOfygIvu867vrTQg84(j),-1) zkill ^(j)"_$C(10)_" . . if '($data(^%ydbAIMDwleJgOfygIvu867vrTQg84(i,q,sub2))#10) set ^(sub2)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMDwleJgOfygIvu867vrTQg84(j,q))),$increment(^%ydbAIMDwleJgOfygIvu867vrTQg84(j))"_$C(10)_" . else  if '($zlength(q)-1),'($data(^%ydbAIMDwleJgOfygIvu867vrTQg84(i,""#"",sub2))#10) set ^(sub2)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMDwleJgOfygIvu867vrTQg84(j,""#""))),$increment(^%ydbAIMDwleJgOfygIvu867vrTQg84(j))"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDwleJgOfygIvu867vrTQg84(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
+^%ydbAIMDwleJgOfygIvu867vrTQg84(7)="+^ORD(sub1=100.01,sub2=0:$C(0),sub3=0) -command=kill -name=%ydbwleJgOfygIvu867vrTQg84K -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDwleJgOfygIvu867vrTQg84"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMDwleJgOfygIvu867vrTQg84(8)="+^ORD(sub1=100.01,sub2=0:$C(0),sub3=0) -command=zkill -name=%ydbwleJgOfygIvu867vrTQg84Z -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" for i=2 set j=-i,p=""#""_$piece($ztoldval,""^"",i) if $data(^%ydbAIMDwleJgOfygIvu867vrTQg84(i,p,sub2)) zkill ^(sub2) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDwleJgOfygIvu867vrTQg84(j,p),-1) zkill ^(p) zkill:1>$increment(^%ydbAIMDwleJgOfygIvu867vrTQg84(j),-1) ^(j)"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDwleJgOfygIvu867vrTQg84(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
 _ydboctoX*.m:    NEW global SET global=$NAME(^ORD(100.01,$zwrite(0)_":"_$zwrite($CHAR(0)),0))

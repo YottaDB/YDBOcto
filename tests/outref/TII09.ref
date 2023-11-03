@@ -171,49 +171,49 @@ OCTO>
 # But also verify that the hidden column name shows up in the M gvn of the GLOBAL keyword
 ^%ydboctoschema("tmp1","text",0)="CREATE TABLE `tmp1` (`id` INTEGER PIECE 1, `firstname` VARCHAR PIECE 2) GLOBAL ""^%ydboctoDgVN6HfISi9gTi74HkBOPB4(keys(""""%yo_keycol""""))"" DELIM ""|"" READWRITE;"
 # Additionally verify AIM Data got built and has correct contents
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6="^%ydboctoDWjzymDOCs5muUPMLP01DL6"
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(-2)=3
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(-2,"")=3
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(-2,"last1")=3
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(-2,"last2")=3
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(-1)=3
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(-1,"")=3
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(-1,"first1")=3
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(-1,"first2")=3
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(0)="*YottaDB*"
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(1)=1
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(1,"",1)=""
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(1,"",2)=""
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(1,"",3)=""
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(1,"first1",4)=""
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(1,"first1",5)=""
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(1,"first1",6)=""
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(1,"first2",7)=""
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(1,"first2",8)=""
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(1,"first2",9)=""
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(2)="|"
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(2,"",1)=""
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(2,"",4)=""
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(2,"",7)=""
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(2,"last1",2)=""
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(2,"last1",5)=""
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(2,"last1",8)=""
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(2,"last2",3)=""
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(2,"last2",6)=""
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(2,"last2",9)=""
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(3)="#11"
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(4)="#11"
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(5)=""
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(6)="+^%ydboctoDWjzymDOCs5muUPMLP01DL6(sub1=*) -command=set -name=%ydbFMHeFKgBkcA3pvSAg11TA6S -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" for i=1,2 set p=$piece($ztoldval,""|"",i),q=$piece($ztvalue,""|"",i),j=-i do"_$C(10)_" . if p'=q do"_$C(10)_" . . if $data(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(i,p,sub1))#10 zkill ^(sub1) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(j,p),-1) zkill ^(p) if 1>$increment(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(j),-1) zkill ^(j)"_$C(10)_" . . if '($data(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(i,q,sub1))#10) set ^(sub1)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(j,q))),$increment(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(j))"_$C(10)_" . else  if '$zlength(q),'($data(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(i,"""",sub1))#10) set ^(sub1)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(j,""""))),$increment(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(j))"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(7)="+^%ydboctoDWjzymDOCs5muUPMLP01DL6(sub1=*) -command=kill -name=%ydbFMHeFKgBkcA3pvSAg11TA6K -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(8)="+^%ydboctoDWjzymDOCs5muUPMLP01DL6(sub1=*) -command=zkill -name=%ydbFMHeFKgBkcA3pvSAg11TA6Z -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" for i=1,2 set j=-i,p=$piece($ztoldval,""|"",i) if $data(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(i,p,sub1)) zkill ^(sub1) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(j,p),-1) zkill ^(p) zkill:1>$increment(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(j),-1) ^(j)"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(9)=1
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(10)=2
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(11)=0
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(12)="+^%ydboctoDWjzymDOCs5muUPMLP01DL6 -command=kill -name=%ydbFMHeFKgBkcA3pvSAg11TA60 -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6("comment-1")="xref for table tmp3 column firstname"
-^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6("comment-2")="xref for table tmp3 column lastname"
-^%ydbAIMDxref("^%ydboctoDWjzymDOCs5muUPMLP01DL6","^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6")=""
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D="^%ydboctoDWjzymDOCs5muUPMLP01DL6"
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(-2)=3
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(-2,"#")=3
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(-2,"#last1")=3
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(-2,"#last2")=3
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(-1)=3
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(-1,"#")=3
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(-1,"#first1")=3
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(-1,"#first2")=3
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(0)="*YottaDB*"
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(1)=1
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(1,"#",1)=""
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(1,"#",2)=""
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(1,"#",3)=""
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(1,"#first1",4)=""
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(1,"#first1",5)=""
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(1,"#first1",6)=""
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(1,"#first2",7)=""
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(1,"#first2",8)=""
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(1,"#first2",9)=""
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(2)="|"
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(2,"#",1)=""
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(2,"#",4)=""
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(2,"#",7)=""
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(2,"#last1",2)=""
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(2,"#last1",5)=""
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(2,"#last1",8)=""
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(2,"#last2",3)=""
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(2,"#last2",6)=""
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(2,"#last2",9)=""
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(3)="#11"
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(4)="#11"
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(5)=""
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(6)="+^%ydboctoDWjzymDOCs5muUPMLP01DL6(sub1=*) -command=set -name=%ydbl3Q48TUQHgIz0XUv0pz40DS -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" for i=1,2 set p=""#""_$piece($ztoldval,""|"",i),q=""#""_$piece($ztvalue,""|"",i),j=-i do"_$C(10)_" . if p'=q do"_$C(10)_" . . if $data(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(i,p,sub1))#10 zkill ^(sub1) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(j,p),-1) zkill ^(p) if 1>$increment(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(j),-1) zkill ^(j)"_$C(10)_" . . if '($data(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(i,q,sub1))#10) set ^(sub1)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(j,q))),$increment(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(j))"_$C(10)_" . else  if '($zlength(q)-1),'($data(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(i,""#"",sub1))#10) set ^(sub1)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(j,""#""))),$increment(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(j))"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(7)="+^%ydboctoDWjzymDOCs5muUPMLP01DL6(sub1=*) -command=kill -name=%ydbl3Q48TUQHgIz0XUv0pz40DK -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(8)="+^%ydboctoDWjzymDOCs5muUPMLP01DL6(sub1=*) -command=zkill -name=%ydbl3Q48TUQHgIz0XUv0pz40DZ -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" for i=1,2 set j=-i,p=""#""_$piece($ztoldval,""|"",i) if $data(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(i,p,sub1)) zkill ^(sub1) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(j,p),-1) zkill ^(p) zkill:1>$increment(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(j),-1) ^(j)"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(9)=1
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(10)=2
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(11)=0
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(12)="+^%ydboctoDWjzymDOCs5muUPMLP01DL6 -command=kill -name=%ydbl3Q48TUQHgIz0XUv0pz40D0 -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D("comment-1")="xref for table tmp3 column firstname"
+^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D("comment-2")="xref for table tmp3 column lastname"
+^%ydbAIMDxref("^%ydboctoDWjzymDOCs5muUPMLP01DL6","^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D")=""
 # Verify key fixing optimization happened for = and IS NULL operators in WHERE clause
 # Key fixed query will have a plan that does $ORDER(^%ydbAIMD*)
 _ydboctoP*.m-;; ---------------------------------------------------------
@@ -223,9 +223,9 @@ _ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  SELECT * FROM tmp3 WHERE firstname = 'first1';
 --
 _ydboctoP*.m-    . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tmp3","firstname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"tmp3","firstname")) IF $DATA(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(1,%ydboctocursor(cursorId,"keys",1,"tmp3","firstname"))) DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tmp3","firstname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"tmp3","firstname")) IF $DATA(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"tmp3","firstname")))) DO
 _ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=$ORDER(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(1,%ydboctocursor(cursorId,"keys",1,"tmp3","firstname"),%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")="")  DO
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=$ORDER(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"tmp3","firstname")),%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")="")  DO
 --
 _ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  SELECT `%yo_keycol` from tmp2;
@@ -234,17 +234,17 @@ _ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  SELECT * FROM tmp3 WHERE lastname IS NULL;
 --
 _ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tmp3","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(2,"")) DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tmp3","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(2,$$strcolval2aimsubs^%ydboctoplanhelpers(""))) DO
 _ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=$ORDER(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(2,"",%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")="")  DO
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=$ORDER(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(2,$$strcolval2aimsubs^%ydboctoplanhelpers(""),%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")="")  DO
 --
 _ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  SELECT t3.* FROM tmp3 t3 WHERE lastname IS NULL;
 --
 _ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tmp3","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(2,"")) DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tmp3","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(2,$$strcolval2aimsubs^%ydboctoplanhelpers(""))) DO
 _ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=$ORDER(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(2,"",%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")="")  DO
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=$ORDER(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(2,$$strcolval2aimsubs^%ydboctoplanhelpers(""),%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")="")  DO
 --
 _ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  SELECT t2.* from tmp2 t2;
@@ -253,25 +253,25 @@ _ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  SELECT * FROM tmp3 WHERE lastname = 'last2';
 --
 _ydboctoP*.m-    . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tmp3","lastname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"tmp3","lastname")) IF $DATA(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(2,%ydboctocursor(cursorId,"keys",1,"tmp3","lastname"))) DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tmp3","lastname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"tmp3","lastname")) IF $DATA(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(2,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"tmp3","lastname")))) DO
 _ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=$ORDER(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(2,%ydboctocursor(cursorId,"keys",1,"tmp3","lastname"),%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")="")  DO
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=$ORDER(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(2,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"tmp3","lastname")),%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")="")  DO
 --
 _ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  SELECT t3.* FROM tmp3 t3 WHERE lastname = 'last2';
 --
 _ydboctoP*.m-    . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tmp3","lastname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"tmp3","lastname")) IF $DATA(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(2,%ydboctocursor(cursorId,"keys",1,"tmp3","lastname"))) DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tmp3","lastname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"tmp3","lastname")) IF $DATA(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(2,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"tmp3","lastname")))) DO
 _ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=$ORDER(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(2,%ydboctocursor(cursorId,"keys",1,"tmp3","lastname"),%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")="")  DO
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=$ORDER(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(2,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"tmp3","lastname")),%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")="")  DO
 --
 _ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  SELECT t3.* FROM tmp3 t3 WHERE firstname = 'first1';
 --
 _ydboctoP*.m-    . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tmp3","firstname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"tmp3","firstname")) IF $DATA(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(1,%ydboctocursor(cursorId,"keys",1,"tmp3","firstname"))) DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tmp3","firstname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"tmp3","firstname")) IF $DATA(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"tmp3","firstname")))) DO
 _ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=$ORDER(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(1,%ydboctocursor(cursorId,"keys",1,"tmp3","firstname"),%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")="")  DO
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=$ORDER(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"tmp3","firstname")),%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")="")  DO
 --
 _ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  SELECT * from tmp2;
@@ -280,17 +280,17 @@ _ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  SELECT t3.* FROM tmp3 t3 WHERE firstname IS NULL;
 --
 _ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tmp3","firstname")=%ydboctoexpr IF $DATA(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(1,"")) DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tmp3","firstname")=%ydboctoexpr IF $DATA(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(1,$$strcolval2aimsubs^%ydboctoplanhelpers(""))) DO
 _ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=$ORDER(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(1,"",%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")="")  DO
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=$ORDER(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(1,$$strcolval2aimsubs^%ydboctoplanhelpers(""),%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")="")  DO
 --
 _ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  SELECT * FROM tmp3 WHERE firstname IS NULL;
 --
 _ydboctoP*.m-    . SET %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tmp3","firstname")=%ydboctoexpr IF $DATA(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(1,"")) DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tmp3","firstname")=%ydboctoexpr IF $DATA(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(1,$$strcolval2aimsubs^%ydboctoplanhelpers(""))) DO
 _ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=$ORDER(^%ydbAIMDFMHeFKgBkcA3pvSAg11TA6(1,"",%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")="")  DO
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")=$ORDER(^%ydbAIMDl3Q48TUQHgIz0XUv0pz40D(1,$$strcolval2aimsubs^%ydboctoplanhelpers(""),%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tmp3","%yo_keycol")="")  DO
 --
 _ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  INSERT INTO tmp1 SELECT * FROM tmp1;

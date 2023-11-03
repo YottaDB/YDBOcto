@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -29,4 +29,9 @@ SELECT * FROM composite;
 -- of Octo output against Postgres.
 UPDATE composite SET name = name || '?' where name = 'Name4' OR id4 = 5;
 SELECT * FROM composite;
+
+-- The below query will use YDBAIM cross reference to scan all rows of the table instead of the primary key column
+-- And so will check the correctness of maintenance of the YDBAIM xref global.
+-- It is an indirect test of https://gitlab.com/YottaDB/Util/YDBAIM/-/merge_requests/70#note_1637551805
+SELECT * FROM composite where name >= ' ';
 

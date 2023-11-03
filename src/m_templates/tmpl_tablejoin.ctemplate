@@ -242,7 +242,17 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 						%{})) {}%
 						%{}FOR  SET {}%
 						%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}){}%
-						%{}=$ORDER({}%
+						%{}={}%
+
+						boolean_t	aimsub_needed;
+						if ((key->is_cross_reference_key) && ('^' == key->xref_prefix[0])
+								&& (IS_COLUMN_STRING_TYPE(key->column))) {
+							aimsub_needed = TRUE;
+							%{}$$aimsubs2strcolval^%%ydboctoplanhelpers({}%
+						} else {
+							aimsub_needed = FALSE;
+						}
+						%{}$ORDER({}%
 						if (key->is_cross_reference_key) {
 							SqlTable		*table;
 							table = key->table;
@@ -257,14 +267,29 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 							TMPL(tmpl_key_source_aim, tableName2, columnName2);
 
 							%{},{}%
+
+							boolean_t	aimsub_needed2;
+							if (('^' == key->xref_prefix[0]) && (IS_COLUMN_STRING_TYPE(key->column))) {
+								aimsub_needed2 = TRUE;
+								%{}$$strcolval2aimsubs^%%ydboctoplanhelpers({}%
+							} else {
+								aimsub_needed2 = FALSE;
+							}
 							%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }})){}%
+							if (aimsub_needed2) {
+								%{}){}%
+							}
 						} else {
 							TMPL(tmpl_key_source, pplan, key, EmitSourceForm_KeyFix);
 						}
 						if (key->emit_desc_order) {
 							%{},-1{}%
 						}
-						%{}) QUIT:{}%
+						%{}){}%
+						if (aimsub_needed) {
+							%{}){}%
+						}
+						%{} QUIT:{}%
 						%{}({{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }})="")!({}%
 						/* Determine type of column as that will determine how the QUIT: is structured */
 						assert(NULL != key->column);

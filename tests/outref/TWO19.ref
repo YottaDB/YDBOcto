@@ -261,14 +261,14 @@ id|firstname|lastname
 (1 row)
 OCTO> select * from names where firstname > 'Joey';
 id|firstname|lastname
-0|Zero|Cool
 3|Lord|Nikon
+0|Zero|Cool
 5|Zero|Cool
 (3 rows)
 OCTO> select * from names where firstname > 'Joey' limit 2;
 id|firstname|lastname
-0|Zero|Cool
 3|Lord|Nikon
+0|Zero|Cool
 (2 rows)
 OCTO> select * from names where firstname < 'Joey';
 id|firstname|lastname
@@ -282,14 +282,14 @@ id|firstname|lastname
 (2 rows)
 OCTO> select * from names where firstname >= 'Joey';
 id|firstname|lastname
-0|Zero|Cool
-3|Lord|Nikon
 4|Joey|
+3|Lord|Nikon
+0|Zero|Cool
 5|Zero|Cool
 (4 rows)
 OCTO> select * from names where firstname >= 'Joey' limit 2;
 id|firstname|lastname
-0|Zero|Cool
+4|Joey|
 3|Lord|Nikon
 (2 rows)
 OCTO> select * from names where firstname <= 'Joey';
@@ -960,13 +960,18 @@ OCTO>
 _ydboctoP*.m:;  select * from names where id >= 3;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:;  select * from TWO19a where name > 'efgh' order by name asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from TWO19a where name >= 'efgh' order by name desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from TWO19c where id >= 6 order by id asc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:;  select * from names where firstname > 'Joey' order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from names where firstname < 'Joey' limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:;  select * from TWO19f where id >= 6 order by id asc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:;  select * from TWO19d where id >= 6 order by id asc limit 2;
@@ -985,11 +990,13 @@ _ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:;  select * from names where id >= 3 order by id desc;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:;  select * from names where firstname >= 'Joey' limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:;  select * from TWO19d where id > 6 order by id desc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:;  select * from composite where id6 <= 7;
 _ydboctoP*.m:    . . . . . . SET %ydboctozkeyfix(1,6,1)=%ydboctoexpr
 _ydboctoP*.m:;  select * from TWO19a where name >= 'efgh' order by name asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from names where firstname = 'Joey';
 _ydboctoP*.m:;  select * from names where id <= 3 limit 2;
@@ -1003,16 +1010,20 @@ _ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:;  select * from TWO19c where id >= 6 order by id desc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:;  select * from names where firstname >= 'Joey' order by id limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from names where id < 3 order by id desc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:;  select * from names where firstname = 'Joey' order by id asc limit 2;
 _ydboctoP*.m:;  select * from TWO19g where id >= 6 order by id asc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:;  select * from TWO19a where name >= 'efgh' order by name;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from TWO19e where id < 12 order by id asc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:;  select * from names where firstname > 'Joey' limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:;  select * from names where id >= 3 order by id asc;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:;  select * from names where id < 3;
@@ -1022,14 +1033,17 @@ _ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:;  select * from TWO19c where id <= 12 order by id desc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:;  select * from TWO19a where name > 'efgh' order by name desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from names where firstname <= 'Joey';
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:;  select * from composite where id6 > 7;
 _ydboctoP*.m:    . . . . . . SET %ydboctozkeyfix(1,6)=%ydboctoexpr
 _ydboctoP*.m:;  select * from TWO19e where id >= 6 order by id asc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:;  select * from names where id in (3,1,5) order by id asc;
 _ydboctoP*.m:;  select * from TWO19a where name <= 'efgh' order by name asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from TWO19c where id < 12 order by id asc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
@@ -1042,6 +1056,7 @@ _ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:;  select * from names where id > 3 order by id asc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:;  select * from TWO19a where name <= 'efgh' order by name desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from names where id > 3 limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
@@ -1049,18 +1064,26 @@ _ydboctoP*.m:;  select * from names where id = 3 order by id;
 _ydboctoP*.m:;  select * from TWO19f where id < 12 order by id asc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:;  select * from names where firstname > 'Joey' order by id;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from TWO19f where id > 6 order by id desc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:;  select * from composite where id6 > 7 limit 2;
 _ydboctoP*.m:    . . . . . . SET %ydboctozkeyfix(1,6)=%ydboctoexpr
 _ydboctoP*.m:;  select * from names where firstname <= 'Joey' order by id asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from TWO19a where name > 'efgh' order by name;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from TWO19e where id <= 12 order by id asc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:;  select * from TWO19a where name > 'efgh' order by name desc;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from names where firstname < 'Joey' order by id asc;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from TWO19f where id > 6 order by id asc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:;  select * from composite where id6 <= 7 limit 2;
@@ -1070,6 +1093,7 @@ _ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:;  select * from TWO19e where id >= 6 order by id desc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:;  select * from TWO19a where name < 'efgh' order by name asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from TWO19d where id <= 12 order by id asc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
@@ -1078,7 +1102,10 @@ _ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:;  select * from TWO19g where id < 12 order by id desc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:;  select * from names where firstname >= 'Joey';
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:;  select * from names where firstname > 'Joey' order by id limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from TWO19e where id <= 12 order by id desc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:;  select * from TWO19d where id <= 12 order by id desc limit 2;
@@ -1088,17 +1115,25 @@ _ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:;  select * from TWO19c where id <= 12 order by id asc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:;  select * from names where firstname < 'Joey' order by id desc;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from names where firstname <= 'Joey' order by id asc;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from TWO19f where id >= 6 order by id desc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:;  select * from TWO19a where name <= 'efgh' order by name desc;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from composite where id6 = 7;
 _ydboctoP*.m:;  select * from TWO19a where name < 'efgh' order by name desc;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from names where id >= 3 limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:;  select * from names where firstname < 'Joey' order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from composite where id6 >= 7 limit 2;
 _ydboctoP*.m:    . . . . . . SET %ydboctozkeyfix(1,6)=%ydboctoexpr
 _ydboctoP*.m:;  select * from names where id = 3 order by id desc limit 2;
@@ -1106,9 +1141,11 @@ _ydboctoP*.m:;  select * from names where id >= 3 order by id asc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:;  select * from names where id in (3,1,5) order by id desc;
 _ydboctoP*.m:;  select * from names where firstname < 'Joey';
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:;  select * from names where id > 3 order by id asc;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:;  select * from names where firstname > 'Joey';
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:;  select * from names where id <= 3 order by id desc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:;  select * from names where id < 3 order by id limit 2;
@@ -1116,11 +1153,15 @@ _ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:;  select * from names where id = 3 order by id desc;
 _ydboctoP*.m:;  select * from names where id = 3 limit 2;
 _ydboctoP*.m:;  select * from names where firstname >= 'Joey' order by id desc;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from names where id < 3 order by id desc;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:;  select * from TWO19g where id < 12 order by id asc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:;  select * from names where firstname <= 'Joey' order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from names where id <= 3 order by id limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:;  select * from TWO19d where id >= 6 order by id desc limit 2;
@@ -1133,19 +1174,30 @@ _ydboctoP*.m:;  select * from names where id > 3;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:;  select * from names where id = 3 order by id limit 2;
 _ydboctoP*.m:;  select * from names where firstname >= 'Joey' order by id desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from TWO19f where id < 12 order by id desc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:;  select * from names where firstname < 'Joey' order by id asc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from TWO19g where id > 6 order by id asc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:;  select * from names where firstname >= 'Joey' order by id;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from names where firstname > 'Joey' order by id desc;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from names where firstname = 'Joey' order by id asc;
 _ydboctoP*.m:;  select * from TWO19a where name >= 'efgh' order by name desc;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from TWO19a where name < 'efgh' order by name desc limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from names where firstname <= 'Joey' limit 2;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:;  select * from TWO19e where id > 6 order by id desc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:;  select * from TWO19c where id > 6 order by id asc limit 2;
@@ -1165,11 +1217,15 @@ _ydboctoP*.m:    SET %ydboctozkeyfix(1,0)=%ydboctoexpr
 _ydboctoP*.m:;  select * from TWO19c where id > 6 order by id desc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:;  select * from TWO19a where name < 'efgh' order by name;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from names where firstname <= 'Joey' order by id desc;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from composite where id6 < 7;
 _ydboctoP*.m:    . . . . . . SET %ydboctozkeyfix(1,6,1)=%ydboctoexpr
 _ydboctoP*.m:;  select * from TWO19f where id <= 12 order by id asc limit 2;
 _ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:;  select * from TWO19a where name <= 'efgh' order by name;
+_ydboctoP*.m:    SET %ydboctozkeyfix(1,0,1)=%ydboctoexpr
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")

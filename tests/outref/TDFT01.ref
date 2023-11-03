@@ -6,9 +6,9 @@ _ydboctoP*.m:;  insert into TDFT01 (select * FROM names where lastname = 'Cool')
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
 _ydboctoP*.m:octoPlan1(cursorId)
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"names","lastname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"names","lastname")) IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,%ydboctocursor(cursorId,"keys",1,"names","lastname"))) DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"names","lastname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"names","lastname")) IF $DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"names","lastname")))) DO
 _ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,%ydboctocursor(cursorId,"keys",1,"names","lastname"),%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"names","lastname")),%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
 _ydboctoP*.m:    . . . SET %ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))=%ydboctoexpr
 _ydboctoP*.m:octoPlan2(cursorId)
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of inserted records
@@ -54,9 +54,9 @@ _ydboctoP*.m:;  insert into TDFT01 (select * FROM names where lastname is NULL);
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
 _ydboctoP*.m:octoPlan1(cursorId)
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"names","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"names","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,$$strcolval2aimsubs^%ydboctoplanhelpers(""))) DO
 _ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,$$strcolval2aimsubs^%ydboctoplanhelpers(""),%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
 _ydboctoP*.m:    . . . SET %ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))=%ydboctoexpr
 _ydboctoP*.m:octoPlan2(cursorId)
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of inserted records
@@ -71,9 +71,9 @@ _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
 _ydboctoP*.m:octoPlan1(cursorId)
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of deleted records
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tdft01","lastname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"tdft01","lastname")) IF $DATA(^%ydbAIMDmSheKXCgfAPFgVqjXYOwCI(2,%ydboctocursor(cursorId,"keys",1,"tdft01","lastname"))) DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tdft01","lastname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"tdft01","lastname")) IF $DATA(^%ydbAIMDv8NkrybYPK3U9cxR6VhNI8(2,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"tdft01","lastname")))) DO
 _ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"tdft01","id")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tdft01","id")=$ORDER(^%ydbAIMDmSheKXCgfAPFgVqjXYOwCI(2,%ydboctocursor(cursorId,"keys",1,"tdft01","lastname"),%ydboctocursor(cursorId,"keys",1,"tdft01","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tdft01","id")="")  DO
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tdft01","id")=$ORDER(^%ydbAIMDv8NkrybYPK3U9cxR6VhNI8(2,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"tdft01","lastname")),%ydboctocursor(cursorId,"keys",1,"tdft01","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tdft01","id")="")  DO
 _ydboctoP*.m:    . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of deleted records
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:;  insert into TDFT01 (select * FROM names n1 where EXISTS (select * from names n2 where n2.id = n1.id + 2));
@@ -101,14 +101,14 @@ _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
 _ydboctoP*.m:octoPlan1(cursorId)
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of deleted records
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tdft01","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDmSheKXCgfAPFgVqjXYOwCI(2,"")) DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tdft01","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDv8NkrybYPK3U9cxR6VhNI8(2,$$strcolval2aimsubs^%ydboctoplanhelpers(""))) DO
 _ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"tdft01","id")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tdft01","id")=$ORDER(^%ydbAIMDmSheKXCgfAPFgVqjXYOwCI(2,"",%ydboctocursor(cursorId,"keys",1,"tdft01","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tdft01","id")="")  DO
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tdft01","id")=$ORDER(^%ydbAIMDv8NkrybYPK3U9cxR6VhNI8(2,$$strcolval2aimsubs^%ydboctoplanhelpers(""),%ydboctocursor(cursorId,"keys",1,"tdft01","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tdft01","id")="")  DO
 _ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of deleted records
 _ydboctoP*.m:octoPlan2(cursorId)
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tdft01","firstname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"tdft01","firstname")) IF $DATA(^%ydbAIMDmSheKXCgfAPFgVqjXYOwCI(1,%ydboctocursor(cursorId,"keys",1,"tdft01","firstname"))) DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tdft01","firstname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"tdft01","firstname")) IF $DATA(^%ydbAIMDv8NkrybYPK3U9cxR6VhNI8(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"tdft01","firstname")))) DO
 _ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"tdft01","id")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tdft01","id")=$ORDER(^%ydbAIMDmSheKXCgfAPFgVqjXYOwCI(1,%ydboctocursor(cursorId,"keys",1,"tdft01","firstname"),%ydboctocursor(cursorId,"keys",1,"tdft01","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tdft01","id")="")  DO
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tdft01","id")=$ORDER(^%ydbAIMDv8NkrybYPK3U9cxR6VhNI8(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"tdft01","firstname")),%ydboctocursor(cursorId,"keys",1,"tdft01","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tdft01","id")="")  DO
 _ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of deleted records
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:;  delete from TDFT01 where lastname = SAMEVALUE('Last7');
@@ -149,9 +149,9 @@ _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
 _ydboctoP*.m:octoPlan1(cursorId)
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of deleted records
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tdft01","lastname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"tdft01","lastname")) IF $DATA(^%ydbAIMDmSheKXCgfAPFgVqjXYOwCI(2,%ydboctocursor(cursorId,"keys",1,"tdft01","lastname"))) DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tdft01","lastname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"tdft01","lastname")) IF $DATA(^%ydbAIMDv8NkrybYPK3U9cxR6VhNI8(2,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"tdft01","lastname")))) DO
 _ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"tdft01","id")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tdft01","id")=$ORDER(^%ydbAIMDmSheKXCgfAPFgVqjXYOwCI(2,%ydboctocursor(cursorId,"keys",1,"tdft01","lastname"),%ydboctocursor(cursorId,"keys",1,"tdft01","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tdft01","id")="")  DO
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tdft01","id")=$ORDER(^%ydbAIMDv8NkrybYPK3U9cxR6VhNI8(2,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"tdft01","lastname")),%ydboctocursor(cursorId,"keys",1,"tdft01","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tdft01","id")="")  DO
 _ydboctoP*.m:    . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of deleted records
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:;  insert into TDFT01 VALUES(7, 'First7', 'Last7');
@@ -226,14 +226,14 @@ _ydboctoP*.m:;  insert into TDFT01 (select * FROM names where lastname = 'Cool' 
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
 _ydboctoP*.m:octoPlan1(cursorId)
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"names","lastname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"names","lastname")) IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,%ydboctocursor(cursorId,"keys",1,"names","lastname"))) DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"names","lastname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"names","lastname")) IF $DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"names","lastname")))) DO
 _ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,%ydboctocursor(cursorId,"keys",1,"names","lastname"),%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"names","lastname")),%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
 _ydboctoP*.m:    . . . . SET %ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))=%ydboctoexpr
 _ydboctoP*.m:octoPlan2(cursorId)
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"names","firstname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"names","firstname")) IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",1,"names","firstname"))) DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"names","firstname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"names","firstname")) IF $DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"names","firstname")))) DO
 _ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",1,"names","firstname"),%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"names","firstname")),%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
 _ydboctoP*.m:    . . . . SET %ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))=%ydboctoexpr
 _ydboctoP*.m:octoPlan3(cursorId)
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of inserted records
@@ -271,14 +271,14 @@ _ydboctoP*.m:;  insert into TDFT01 (select * FROM names where lastname is NULL O
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
 _ydboctoP*.m:octoPlan1(cursorId)
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"names","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"")) DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"names","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,$$strcolval2aimsubs^%ydboctoplanhelpers(""))) DO
 _ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(2,"",%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,$$strcolval2aimsubs^%ydboctoplanhelpers(""),%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
 _ydboctoP*.m:    . . . . SET %ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))=%ydboctoexpr
 _ydboctoP*.m:octoPlan2(cursorId)
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"names","firstname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"names","firstname")) IF $DATA(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",1,"names","firstname"))) DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"names","firstname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"names","firstname")) IF $DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"names","firstname")))) DO
 _ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDXtoXI8zgdGIqUuCoYeqwF6(1,%ydboctocursor(cursorId,"keys",1,"names","firstname"),%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"names","firstname")),%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
 _ydboctoP*.m:    . . . . SET %ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))=%ydboctoexpr
 _ydboctoP*.m:octoPlan3(cursorId)
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of inserted records
@@ -293,14 +293,14 @@ _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
 _ydboctoP*.m:octoPlan1(cursorId)
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of deleted records
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tdft01","lastname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"tdft01","lastname")) IF $DATA(^%ydbAIMDmSheKXCgfAPFgVqjXYOwCI(2,%ydboctocursor(cursorId,"keys",1,"tdft01","lastname"))) DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tdft01","lastname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"tdft01","lastname")) IF $DATA(^%ydbAIMDv8NkrybYPK3U9cxR6VhNI8(2,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"tdft01","lastname")))) DO
 _ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"tdft01","id")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tdft01","id")=$ORDER(^%ydbAIMDmSheKXCgfAPFgVqjXYOwCI(2,%ydboctocursor(cursorId,"keys",1,"tdft01","lastname"),%ydboctocursor(cursorId,"keys",1,"tdft01","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tdft01","id")="")  DO
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tdft01","id")=$ORDER(^%ydbAIMDv8NkrybYPK3U9cxR6VhNI8(2,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"tdft01","lastname")),%ydboctocursor(cursorId,"keys",1,"tdft01","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tdft01","id")="")  DO
 _ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of deleted records
 _ydboctoP*.m:octoPlan2(cursorId)
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tdft01","firstname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"tdft01","firstname")) IF $DATA(^%ydbAIMDmSheKXCgfAPFgVqjXYOwCI(1,%ydboctocursor(cursorId,"keys",1,"tdft01","firstname"))) DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tdft01","firstname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"tdft01","firstname")) IF $DATA(^%ydbAIMDv8NkrybYPK3U9cxR6VhNI8(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"tdft01","firstname")))) DO
 _ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"tdft01","id")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tdft01","id")=$ORDER(^%ydbAIMDmSheKXCgfAPFgVqjXYOwCI(1,%ydboctocursor(cursorId,"keys",1,"tdft01","firstname"),%ydboctocursor(cursorId,"keys",1,"tdft01","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tdft01","id")="")  DO
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tdft01","id")=$ORDER(^%ydbAIMDv8NkrybYPK3U9cxR6VhNI8(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"tdft01","firstname")),%ydboctocursor(cursorId,"keys",1,"tdft01","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tdft01","id")="")  DO
 _ydboctoP*.m:    . . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of deleted records
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:;  delete from TDFT01 where lastname is NULL;
@@ -308,9 +308,9 @@ _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
 _ydboctoP*.m:octoPlan1(cursorId)
 _ydboctoP*.m:    SET %ydboctocursor(cursorId,"RowCount")=0 ; Initialize count of deleted records
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tdft01","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDmSheKXCgfAPFgVqjXYOwCI(2,"")) DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tdft01","lastname")=%ydboctoexpr IF $DATA(^%ydbAIMDv8NkrybYPK3U9cxR6VhNI8(2,$$strcolval2aimsubs^%ydboctoplanhelpers(""))) DO
 _ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"tdft01","id")=""
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tdft01","id")=$ORDER(^%ydbAIMDmSheKXCgfAPFgVqjXYOwCI(2,"",%ydboctocursor(cursorId,"keys",1,"tdft01","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tdft01","id")="")  DO
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tdft01","id")=$ORDER(^%ydbAIMDv8NkrybYPK3U9cxR6VhNI8(2,$$strcolval2aimsubs^%ydboctoplanhelpers(""),%ydboctocursor(cursorId,"keys",1,"tdft01","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tdft01","id")="")  DO
 _ydboctoP*.m:    . . . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of deleted records
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:;  delete from TDFT01 n1 where n1.lastname != 'Cool';
